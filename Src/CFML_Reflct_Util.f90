@@ -78,6 +78,7 @@
 !!----       HKL_EQUIV
 !!--++       HKL_EQUIVI            [Overloaded]
 !!--++       HKL_EQUIVR            [Overloaded]
+!!----       HKL_LAT_ABSENT
 !!----       HKL_MULT
 !!--++       HKL_MULTI             [Overloaded]
 !!--++       HKL_MULTR             [Overloaded]
@@ -126,7 +127,8 @@
     Use CFML_GlobalDeps,                only: sp, cp, pi
     Use CFML_Math_General,              only: sort
     Use CFML_String_Utilities,          only: l_case,Get_LogUnit
-    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
+    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type, Lattice_Centring_Type, &
+                                              Allocate_Lattice_Centring
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 
     !---- Variables ----!
@@ -138,7 +140,7 @@
 
     !---- List of public functions ----!
     public :: Asu_Hkl,Get_MaxNumRef, Hkl_Absent, Hkl_Equal, Hkl_Equiv, Hkl_Mult,   &
-              Get_Hequiv_Asu,Hkl_R, Hkl_S, Unit_Cart_Hkl
+              Get_Hequiv_Asu,Hkl_R, Hkl_S, Unit_Cart_Hkl, Hkl_Lat_Absent
 
     !---- List of public overloaded procedures: functions ----!
 
@@ -1446,6 +1448,51 @@
        return
     End Function Hkl_EquivR
 
+    !!--++
+    !!--++ Logical Function  Hkl_AbsentI(H, Spacegroup)
+    !!--++    integer, dimension(3),   intent(in) :: h
+    !!--++    Type (Space_Group_Type), intent(in) :: SpaceGroup
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculate if the reflection is a lattice absence
+    !!--++
+    !!--++  Update: February - 2005
+    !!
+    Function Hkl_Lat_Absent(H,Latt) Result(Info)
+       !---- Arguments ----!
+       integer, dimension(3),        intent (in) :: h
+       Type (Lattice_Centring_Type), intent (in) :: Latt
+       logical                                   :: info
+
+       !---- Local Variables ----!
+       integer               :: k,i
+       logical               :: tinv
+       real(kind=cp)         :: r1,r2
+
+       info=.false.
+       if(.not. Latt%set) return
+       tinv=.false.
+       if(ubound(Latt%Ltr,1) == 4) tinv=.true.
+       do i=1,Latt%n_lat
+          r1=dot_product(Latt%Ltr(1:3,i),real(h))
+          r2=nint(r1)
+          k=nint(2.0*r1)
+          if(tinv) then  !Time inversion is considered
+             if(Latt%Ltr(4,i) > 0.0) then  !No time inversion, lattice centring
+               if(mod(k,2) /= 0) info=.true.
+               exit
+             else !now time inversion is associated with the translation (Anti-translation)
+               if (abs(r1-r2) < eps_ref) info=.true.
+               exit
+             end if
+          else  !No time inversion is considered only normal lattice centring vectors
+             if(mod(k,2) /= 0) info=.true.
+             exit
+          end if
+       end do
+       return
+    End Function Hkl_Lat_Absent
+
     !!----
     !!---- Function  Hkl_Mult(H, Spacegroup, Friedel)
     !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -1480,12 +1527,12 @@
        integer, dimension(3)                  :: k
        integer                                :: i,j,ng
        integer, dimension(3,SpaceGroup%numops):: klist
-       
+
        ng=SpaceGroup%numops
        n=1
-       
+
        !if NG = 0 (strange case), skip it, fix by Petr
-       if (ng > 1) then    
+       if (ng > 1) then
            klist(:,1)=h(:)
 
            do i=2,ng
@@ -1502,10 +1549,10 @@
               klist(:,n) = k
            end do
        end if
-       if (Friedel .or. SpaceGroup%centred == 2) then 
+       if (Friedel .or. SpaceGroup%centred == 2) then
            n=n*2
        end if
-       
+
        return
     End Function Hkl_MultI
 
@@ -2987,11 +3034,11 @@
                    num_ref=maxref
                    exit ext_do
                 end if
-                
+
                 tmp_reflex(num_ref)%h    = hh
                 tmp_reflex(num_ref)%mult = hkl_mult(hh,SpaceGroup,.false.)
                 tmp_reflex(num_ref)%S    = sval
-                
+
              end do
           end do
        end do ext_do

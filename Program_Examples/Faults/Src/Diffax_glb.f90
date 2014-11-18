@@ -7,30 +7,31 @@
 !*******************      Source file DIFFaX.f       *******************
 !***********************************************************************
 !***********************************************************************
-!******************** version 1.808, 16th Apr, 2002 ********************
+!******************** version 1.813, 19th May, 2010 ********************
 !***********************************************************************
 !***********************************************************************
 ! This program calculates the powder diffraction spectrum of a crystal *
-! formed from layers which stack coherently, but not deterministically.*
+! formed from layers that stack coherently, but not deterministically. *
 ! The algorithm used is described in detail in "A General Recursion    *
 ! Method for Calculating Diffracted Intensities From Crystals          *
 ! Containing Planar Faults", by M.M.J. Treacy, M.W. Deem and           *
 ! J.M. Newsam, Proceedings of the Royal Society, London, A (1991) 433, *
 ! pp 499 - 520.                                                        *
 !                                                                      *
-! Source code written by Michael M. J. Treacy and Michael W. Deem      *
+! Source code written by Michael M. J. Treacy and Michael W. Deem.     *
 !                                                                      *
 ! HISTORY:                                                             *
 ! 6/87-5/88; MMJT: Original versions were named 'betaPXD' and 'FauPXD'.*
 ! They were 'hardwired' for simulating PXD patterns from zeolite beta, *
 ! and the faujasite/'Breck's structure 6' zeolite family.              *
 !                                                                      *
-! 5-8/88; MWD: Completely rewritten in generalized form for Cray and   *
-! VAX, and named 'PDS'.                                                *
+! 5-8/88; MWD: Completely rewritten in generalized form by Mike Deem   *
+! for Cray and VAX, and named 'PDS'.                                   *
 !                                                                      *
-! 8/88-11/89; MMJT: Control file option added. Improved handling of    *
-! sharp peaks. Symmetry testing added. Layer 'stacking uncertainty'    *
-! factors added. Selected area electron diffraction option added.      *
+! 8/88-11/89; MMJT: Deem's code was extended and mostly rewritten.     *
+! Control file option added. Improved handling of sharp peaks.         *
+! Symmetry testing added. Layer 'stacking uncertainty' factors added.  *
+! Selected area electron diffraction option added.                     *
 ! Explicit layer sequencing option. Optimization of layer form factor  *
 ! calculations. Renamed 'DIFFaX' for, (D)iffraction (I)ntensities      *
 ! (F)rom (Fa)ulted (X)tals.                                            *
@@ -39,7 +40,7 @@
 !              'RECURSIVE' option. Self-consistency check of atomic    *
 !               coordinates in data file. (v1.76)                      *
 !                                                                      *
-! 4/90 - 12/90; MMJT: Minor bug fixes. Streamlined 'data.sfc' file.    *
+! 4/90 - 12/90; MMJT: Bug fixes. Streamlined 'data.sfc' file.          *
 !               (v1.761 and v1.762)                                    *
 !                                                                      *
 ! 1/91; MMJT: Eliminated the use of scratch file while reading data.   *
@@ -68,6 +69,7 @@
 !             eliminated in v1.763. The Cray, and Microsoft fortran    *
 !             compiler for PC, adhere to the FORTRAN77 standard and    *
 !             do not allow unformatted reads/writes from/to strings.   *
+!                                                           (v1.768)   *
 !                                                                      *
 ! 1/95; MMJT: Finessed the diffraction symmetry detection routines.    *
 !             Introduced the subroutine THRESH. (v1.769)               *
@@ -101,9 +103,27 @@
 ! 3/00; MMJT: Now allow 16-bit deep SADPs. (v1.806)                    *
 !                                                                      *
 ! 8/00; MMJT: RDSTAK changed so that if a stacking probability is zero,*
-!              the rest of the line is ignored.        (v1.807)        *
+!             the rest of the line is ignored.        (v1.807)         *
 !                                                                      *
-! 4/02; MMJT: Removed calls to iidnnt in WRTSADP.      (v1.808)        *
+! 4/02; MMJT: Removed the non-standard calls to iidnnt in WRTSADP.     *
+!                                                      (v1.808)        *
+!                                                                      *
+! 2/03; MMJT: Halved the value of ffhkcnst in GETSPC. The half-width   *
+!             was being used instead of the FWHM, which made the shape *
+!             broadening twice as large as it should be. (v1.809)      *
+!                                                                      *
+! 3/04; MMJT: Fixed a minor printing bug in TST_MIR.     (v1.810)      *
+!                                                                      *
+! 1/05; MMJT: Fixed some f77 compiler compatibility bugs.  (v1.811)    *
+!                                                                      *
+! 7/05; MMJT: Fixed a bug in EQUALB that caused DIFFaX to ignore the   *
+!             sign of the Fats-Waller Bij terms.  (v1.812)             *
+!                                                                      *
+! 5/10; MMJT: Changed the way WRTSADP writes big-endian 16-bit data.   *
+!             Improved scratch-file clean-up.                (v1.813)  *
+!                                                                      *
+!    WRTSADP has been removed in the present version for FAULTS (JRC)  *                                                       *
+!                                                                      *
 !***********************************************************************
 !***************************** Legal Note ******************************
 !***********************************************************************
@@ -302,10 +322,11 @@
                               df=2, &   !df  -  unit that the structure data file will be read from
                               sf=4, &   !sf  -  unit that the standard scattering factor data will be read from
                               sy=11,&   !sy  -  unit that the symmetry evaluation data will be written to
-                              unit_sp=12,&   !sk  -  unit that the streak data will be written to.
-                              sk=13,&   !sp  -  unit that the spectrum data will be written to.
-                              sa=14 ,&     !sa  -  unit that the 8-bit binary formatted selected area diffraction pattern data will be written to.
-                              i_flts = 27
+                              unit_sp=12,&    !sk  -  unit that the streak data will be written to.
+                              sk=13,&         !sp  -  unit that the spectrum data will be written to.
+                              sa=14 ,&        !sa  -  unit that the 8-bit binary formatted selected area diffraction pattern data will be written to.
+                              i_flts = 27, &  !Output flst file unit
+                              i_fst = 28      !logical unit of FST file
 
       INTEGER, PARAMETER :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
 
@@ -356,7 +377,7 @@
                                                       !    See file 'data.sfc' for allowed names
   CHARACTER (LEN=12) :: pnt_grp     !d->  Symbolic name of the point group symmetry of
                                     !     the diffraction data.
-  CHARACTER (LEN=16) :: sfname, &   !     The name of the data file containing the
+  CHARACTER (LEN=256) :: sfname, &  !     The name of the data file (including the path) containing the
                                     !     atomic scattering factor data (usually set to 'data.sfc')
                         cfname      !     The name of the control file containing the automated responses to
                                     !     DIFFaX's prompts (usually set to 'control.dif')
@@ -647,7 +668,7 @@
 
  REAL(kind=dp), dimension(MAX_A,MAX_L):: l_alpha   !d-> Array of layer transition probabilities. The order is (column,row)
 
- REAL(kind=dp), dimension(MAX_A,MAX_L):: r_B11,r_B22,r_B33,r_B12,r_B23,r_B31
+ REAL(kind=dp), dimension(MAX_A,MAX_L):: r_B11,r_B22,r_B33,r_B12,r_B23,r_B13
           ! d-> The 6 components of the anisotropic layer stacking uncertainties. These are
           !     equivalent to the atomic Debye-Waller factors, except they apply to the stacking
           !     vectors. These parameters allow for 'turbostratic' disorder such as is found
@@ -673,6 +694,8 @@
  integer                   :: nexcrg       !Number of excluded regions
  real, dimension(max_excl) :: alow, ahigh  !Excluded regions
 
+
+ integer, parameter        :: max_avercell=25 !max number of transition vectors needed for calculating the average cell
 
 
  End Module diffax_mod

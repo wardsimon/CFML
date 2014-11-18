@@ -36,8 +36,8 @@
 !
        character(len=*),dimension(17),parameter :: names_glb = [ "Scale_Factor","zero_shift  ", &
                                                                  "sycos       ","sysin       ", &
-                                                                 "u           ","v           ", &
-                                                                 "w           ","x           ", &
+                                                                 "U           ","V           ", &
+                                                                 "W           ","x           ", &
                                                                  "Dg          ","Dl          ", &
                                                                  "cell_a      ","cell_b      ", &
                                                                  "cell_c      ","cell_gamma  ", &
@@ -104,7 +104,7 @@
          real,    dimension(:)  ,   allocatable  :: high_atom, low_atom !lower and upper atom positions
          real,    dimension(:,:),   allocatable  :: l_alpha             !l_alpha
          real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
-         real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
+         real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_b13
          real,    dimension(:),     allocatable  :: chebp
          real,    dimension(:),     allocatable  :: bscalpat     !scale factor for bgrpatt
          real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
@@ -129,18 +129,23 @@
                                             !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
                                             !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
                                             !8:EXPERIMENTAL
-
+      integer, parameter,public :: max_fst=40
+      integer,public            :: num_fst !number of fp_studio commands
       type (crys_2d_type),             save,  public  :: crys
       type (Opt_Conditions_Type),      save,  public  :: opti
       type (LSQ_Conditions_type),      save,  public  :: cond
       type (LSQ_State_Vector_Type),    save,  public  :: Vs
       real, dimension (3),                    public  :: aver_cell, aver_ang
+      character(len=7),   dimension(max_avercell),   public  :: vect_avcell !sequence of transition vectors to be stacked for calculating the average cell
+      character(len=180), dimension(max_fst),   public  :: fst_cmd          !Commands for FP_STUDIO
+      integer,                                public  :: nvect_avcell       !number of transition vectors needed for calculating the average cell
       Real, dimension(:,:),     allocatable,  public  :: bgr_patt
       Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
       integer, dimension(:,:,:),allocatable,  public  :: bgr_hkl_ind
       integer, dimension(:),    allocatable,  public  :: bgr_hkl_nref
       logical,                                public  :: calculate_aberrations=.false.
-      logical, save,                          public  :: aver_cellgiven=.false.,aver_spggiven=.false.
+      logical, save,                          public  :: aver_cellgiven=.false.,aver_spggiven=.false., aver_cellcalc=.false.
+      logical, save,                          public  :: fst_given=.false.
 
    contains
 
@@ -554,7 +559,7 @@
       logi=.true.
       i1=sect_indx(3)
       i2=sect_indx(4)-1
-
+      num_fst=0
       i=i1
 
       crys%finite_width=.false.
@@ -596,6 +601,44 @@
                 end if
                 aver_cellgiven=.true.
                 call Set_Crystal_Cell(aver_cell, aver_ang, aCell)
+
+         Case("FST_CMD")
+                num_fst=num_fst+1
+                if(index(txt,"SEQ") /= 0) fst_given=.true.
+                txt=adjustl(tfile(i))
+                fst_cmd(num_fst)= adjustl(txt(8:)) !store the fst command
+
+          Case("CALCAVERCELL")
+                write(unit=*,fmt="(a)") " => An average cell will be calculated at the end of the refinement."
+                read(unit=txt, fmt=*, iostat=ier) nvect_avcell          !read number of transition vectors to be read
+                if (ier /= 0)then
+                    Err_crys=.true.
+                    Err_crys_mess="ERROR reading the number of transition vectors for calculating the average cell"
+                    logi = .false.
+                    return
+                end if
+                !write(unit=*,fmt="(a)") "Number of vectors to be read for calculating the average cell: "
+                !write(unit=*,fmt=*)  nvect_avcell
+                do
+                    i=i+1
+                    txt=adjustl(tfile(i))
+                    if(txt(1:1) == "!")cycle
+                    exit
+                end do
+                read (unit=txt, fmt=*, iostat=ier) vect_avcell(1:nvect_avcell)   !read transition vectors for calculating the average cell
+                if (ier /= 0)then
+                    Err_crys=.true.
+                    Err_crys_mess="ERROR reading the transition vectors for calculating the average cell"
+                    logi = .false.
+                    return
+                end if
+                !write(unit=*,fmt="(a)") "The vectors needed for the average cell are"
+                !do j = 1,nvect_avcell
+                !        write(unit=*,fmt="(a)") vect_avcell(j)
+                !end do
+                aver_cellcalc=.true.
+
+
 
           Case("CELL")
                 read(unit=txt,fmt=*,iostat=ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
@@ -1192,9 +1235,9 @@
 
           CASE ("FW")
             read (unit = txt, fmt =*, iostat = ier) crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
-                                                    crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)
+                                                    crys%r_b12(j,l) , crys%r_b13(j,l) , crys%r_b23(j,l)
             val_trans(5:10, j,l)=[crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
-                                 crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)]
+                                 crys%r_b12(j,l) , crys%r_b13(j,l) , crys%r_b23(j,l)]
 
             i=i+1
             txt=adjustl(tfile(i))
@@ -1734,9 +1777,9 @@
         allocate(crys%r_b23(max_a,max_l))
         crys%r_b23=0
 
-        if (allocated (crys%r_b31)) deallocate(crys%r_b31)
-        allocate(crys%r_b31(max_a,max_l))
-        crys%r_b31=0
+        if (allocated (crys%r_b13)) deallocate(crys%r_b13)
+        allocate(crys%r_b13(max_a,max_l))
+        crys%r_b13=0
 
         if (allocated (crys%chebp)) deallocate(crys%chebp)
         allocate(crys%chebp(max_n_cheb))

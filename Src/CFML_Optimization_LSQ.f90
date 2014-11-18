@@ -1080,7 +1080,7 @@
        do i=1,c%npvar-1
           do j=i+1,c%npvar
              if (correl(i,j) > real(c%corrmax) ) then
-                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(correl(i,j)),  &
+                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(min(correl(i,j),100.0)),  &
                      " > ",c%corrmax,"% for parameters:   ", adjustr(vnam(i))," & ", vnam(j)
                 inum=inum+1
              end if
@@ -1149,7 +1149,7 @@
        do i=1,c%npvar-1
           do j=i+1,c%npvar
              if (correl(i,j) > real(c%corrmax) ) then
-                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(correl(i,j)),  &
+                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(min(correl(i,j),100.0)),  &
                      " > ",c%corrmax,"% for parameters:   ", adjustr(namfree(i))," & ", namfree(j)
                 inum=inum+1
              end if
@@ -1255,7 +1255,7 @@
        do i=1,c%npvar-1
           do j=i+1,c%npvar
              if (correl(i,j) > real(c%corrmax) ) then
-                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(correl(i,j)),  &
+                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(min(correl(i,j),100.0)),  &
                      " > ",c%corrmax,"% for parameters:   ", adjustr(namfree(i))," & ", namfree(j)
                 inum=inum+1
              end if

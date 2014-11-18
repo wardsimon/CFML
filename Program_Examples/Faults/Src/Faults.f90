@@ -5,16 +5,17 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use CFML_Math_General,          only : sind, asind
+      use CFML_Math_General,          only : sind, asind, Euclidean_norm, acosd
       use read_data
       use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
+      use CFML_Crystal_Metrics,       only : Crystal_Cell_Type, Set_Crystal_Cell
 
       implicit none
 
       private
 
       !public subroutines
-      public :: Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
+      public :: Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign, calc_avcell,Write_FST
 
       contains
 !________________________________________________________________________________________________________________________
@@ -29,9 +30,9 @@
 
       do i=1, crys%npar
         if (namepar(i) ==  'Scale_Factor') crys%patscal = state(i)
-        if (namepar(i) ==  'u')          pv_u   = state(i)
-        if (namepar(i) ==  'v')          pv_v   = state(i)
-        if (namepar(i) ==  'w')          pv_w   = state(i)
+        if (namepar(i) ==  'U')          pv_u   = state(i)
+        if (namepar(i) ==  'V')          pv_v   = state(i)
+        if (namepar(i) ==  'W')          pv_w   = state(i)
         if (namepar(i) ==  'x')          pv_x   = state(i)
         if (namepar(i) ==  'Dg')         pv_dg  = state(i)
         if (namepar(i) ==  'Dl')         pv_dl  = state(i)
@@ -190,7 +191,7 @@
              r_b22(1:j,1:n) = crys%r_b22 (1:j,1:n)
              r_b33(1:j,1:n) = crys%r_b33 (1:j,1:n)
              r_b12(1:j,1:n) = crys%r_b12 (1:j,1:n)
-             r_b31(1:j,1:n) = crys%r_b31 (1:j,1:n)
+             r_b13(1:j,1:n) = crys%r_b13 (1:j,1:n)
              r_b23(1:j,1:n) = crys%r_b23 (1:j,1:n)
              l_n_atoms(1:n) = crys%l_n_atoms(1:n)
               low_atom(1:n) =  crys%low_atom(1:n)
@@ -211,6 +212,103 @@
 
     End subroutine Faults2diffax
 
+    subroutine calc_avcell(nvect_avcell,vect_avcell,verif)
+      integer , intent(in)                         ::    nvect_avcell    !number of transition vectors needed for calculating the average cell
+      character(len=7), dimension(:), intent(in)   ::    vect_avcell     !sequence of transition vectors to be stacked for calculating the average cell
+      logical , intent(out)                        ::    verif
+
+
+      real, dimension(3)   :: c_avcell               !c vector of the average cell
+      real, dimension(3)   :: c_avnorm               !to calculate the norm of c
+      real, dimension(3)   :: unita, unitb
+      real, dimension(3,3) :: Metric_Tensor
+      character(len=132)   :: txt,key
+      integer              :: i,j,k,l,m, ier
+
+              verif=.true.
+              unita=(/ 1, 0, 0 /)
+              unitb=(/ 0, 1, 0 /)
+              c_avcell=0
+              Metric_tensor= 0.0
+              Metric_Tensor(1,1)=cell_a * cell_a
+              Metric_Tensor(2,2)=cell_b * cell_b
+              Metric_Tensor(3,3)=cell_c * cell_c
+              Metric_Tensor(1,2)=cell_a * cell_b *cos(cell_gamma)
+              Metric_Tensor(2,1)=Metric_Tensor(1,2)
+
+              do i=1,nvect_avcell
+                  txt=adjustl(vect_avcell(i))
+                  k=index(txt,"-")               !first, identify the transition vector
+                  key=txt(1:k-1)
+                  read(unit=key,fmt=*,iostat=ier) l       !layer origine
+                  if (ier /= 0)then
+                      write(unit=*,fmt="(a)") " => Error reading origin of vector ",i
+                      verif = .false.
+                      return
+                  end if
+
+    !write(unit=*,fmt="(a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l
+
+                  key=txt(k+1:)
+                  read(unit=key,fmt=*,iostat=ier) j       !layer destination
+                       if (ier /= 0)then
+                           write(unit=*,fmt="(a)") " => Error reading destination of vector ",i
+                           verif = .false.
+                           return
+                       end if
+
+    !write(unit=*,fmt="(a,i2,a,i2)") "For average cell, vector ", i, " goes to layer ", j
+
+                     c_avcell=c_avcell+l_r(:,j,l)     !calculate the vector C of the average cell in the FAULTS cell
+
+!   write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
+
+              end do
+
+              write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") " => The average c vector is ",  c_avcell
+
+              c_avnorm=(/ c_avcell(1)*cell_a, c_avcell(2)*cell_b, c_avcell(3)*cell_c /)
+
+    !write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "(for norm calculation) ",  c_avnorm(1), c_avnorm(2), c_avnorm(3)
+
+    !write(unit=*,fmt="(a)") "Now calculate the cell parameters of the average cell"
+
+                                                       !now calculate the cell parameters of the average cell
+             aver_cell(1)=cell_a                       !a from DIFFAX variable
+
+    !write(unit=*,fmt="(a,f12.5)") "a=", aver_cell(1)
+
+             aver_cell(2)=cell_b                       !b from DIFFAX variable
+
+    !write(unit=*,fmt="(a,f12.5)") "b=", aver_cell(2)
+
+             !aver_cell(3)=Euclidean_norm(3,c_avnorm)   !c
+             !aver_cell(3)=sqrt(dot_product(c_avnorm,c_avnorm)+ 2.0*c_avnorm(1)*c_avnorm(2)*cos(cell_gamma))
+             aver_cell(3)=sqrt(dot_product(c_avcell,matmul(Metric_Tensor,c_avcell)))
+
+    !write(unit=*,fmt="(a,f12.5)") "c=", aver_cell(3)
+
+             aver_ang(1)= &
+             !acosd(dot_product(c_avcell,unitb)/(Euclidean_norm(3,c_avcell)))    !alpha
+             acosd(dot_product(unitb,Matmul(Metric_Tensor,c_avcell))/(aver_cell(2)*aver_cell(3)))    !alpha
+
+
+    !write(unit=*,fmt="(a,f12.5)") "alpha=", aver_ang(1)
+
+             aver_ang(2)= &
+             !acosd(dot_product(c_avcell,unita)/(Euclidean_norm(3,c_avcell)))    !beta
+             acosd(dot_product(unita,Matmul(Metric_Tensor,c_avcell))/(aver_cell(1)*aver_cell(3)))    !alpha
+
+    !write(unit=*,fmt="(a,f12.5)") "beta=", aver_ang(2)
+
+             aver_ang(3)=cell_gamma*rad2deg            !gamma from DIFFAX variable
+
+    !write(unit=*,fmt="(a,f12.5)") "gamma=", aver_ang(3)
+
+         return
+    end subroutine calc_avcell
+
+
     Subroutine Write_ftls(crys,i_ftls, vs)
        !-----------------------------------------------
        !   D u m m y   A r g u m e n t s
@@ -220,10 +318,10 @@
        type(LSQ_State_Vector_type), intent(in)      :: Vs
 
 
-       integer                            :: a,b,c, j, l,i ,n, print_width
+       integer                            :: a,b,c, j, l,i ,n, print_width,m
        CHARACTER(LEN=80), dimension(2)    :: list
 
-       call vs2faults(vs, crys)
+      !call vs2faults(vs, crys)
        call Restore_Codes() !the ref_* variables are now the original codes
 
        !Here we use the DIFFAX variables or the type Crys
@@ -279,6 +377,11 @@
 
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          " STRUCTURAL  "
+       if(aver_cellcalc) then
+          write(i_ftls,"(/,a)")        "!    Stacking vectors to be stacked and their names to calculate the average cell "
+          write(i_ftls,"(a,i2)")       "CalcAverCell ", nvect_avcell
+          write(i_ftls,"(25a7)")       (vect_avcell(m),m=1,nvect_avcell)
+       end if
        if(aver_cellgiven) then
           write(i_ftls,"(/,a)")        "!    Average cell parameters (for Bragg positions in PRF file) "
           write(i_ftls,"(a,6f12.5)")   "AverCell ", aver_cell, aver_ang
@@ -287,6 +390,15 @@
           write(i_ftls,"(/,a)") "!    Average Space Group (for Bragg positions in PRF file) "
           write(i_ftls,"(a,/)")   "SpGR "//trim(spgsymb)
        end if
+
+       if(fst_given) then
+          write(i_ftls,"(/,a,/)") "!    Commands for FP_Studio "
+          do i=1,num_fst
+            write(i_ftls,"(a)") "FST_CMD  "//trim(fst_cmd(i))
+          end do
+          write(i_ftls,"(a)") " "
+       end if
+
        write(i_ftls,"(a)")          "!         a            b            c          gamma "
        write(i_ftls,"(a,3f12.6,f12.2)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
        write(i_ftls,"(tr7,4f12.2)")  ref_glb(11:14)
@@ -365,7 +477,7 @@
            write(i_ftls, "(a, 4f12.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
            write(i_ftls, "(f15.2,3f12.2)")  ref_trans(1:4, j, l)
            write(i_ftls, "(a, 6f12.6)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
-                                              r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
+                                              r_b12 (j,l) , r_b13 (j,l) , r_b23 (j,l)
            write(i_ftls, "(f15.2, 5f12.2)") ref_trans(5:10, j, l)
          end do
        end do
@@ -438,12 +550,24 @@
 
     End Subroutine Write_ftls
 
-    Subroutine Write_FST(fst_file,v,cost)
-       Use CFML_GlobalDeps, only: Cp
-       character(len=*),     intent(in):: fst_file
-       real(kind=cp),dimension(:),    intent(in):: v
-       real(kind=cp),                 intent(in):: cost
-       return
+    Subroutine Write_FST()
+      integer :: i,j,k,l, nseq
+      integer, dimension(1000) :: seq
+      !Writing file for FullProf Studio
+      write(unit=i_fst,fmt="(a)") "! "
+      write(unit=i_fst,fmt="(a)") "!File Generated by the program FAULTS"
+      write(unit=i_fst,fmt="(a)") "!Title: "//trim(ttl)
+      write(unit=i_fst,fmt="(a)") "SPACEG  P1"
+      !Calculate the effective unit cell depending on the number of layers to be diplayed
+      !Analysis of the fst_cmd lines
+      do i=1,num_fst
+        j=index(fst_cmd(i),"seq")
+        if( j /= 0) then
+        end if
+      end do
+      !write(unit=i_fst,fmt="(a)") cell_fst
+      write(unit=i_fst,fmt="(a)") "box -1.29 1.29  -1.31 1.31 -0.25 1.25"
+      return
     End Subroutine Write_FST
 
 
@@ -457,12 +581,14 @@
        !   L o c a l   V a r i a b l e s
        !-----------------------------------------------
        integer ::  i, j,k, iposr, ihkl, irc, nvk,nphase,ideltr,MaxNumRef
+       logical :: verif
 
        real :: twtet, dd, scl,yymi,yyma,t1,t2,sintlm
        character (len=1)   :: tb
        character (len=50)  :: forma1,forma2
        integer, dimension(max_bgr_num+1) :: nref
        integer, dimension(max_bgr_num+1) :: ibgr
+       logical :: tick_marks
        !character (len=200) :: cell_sp_string
        !-----------------------------------------------
        !check for very high values of intensities and rescal everything in such a case
@@ -474,9 +600,31 @@
        nref=0
        ibgr =0
        nphase=1
+       tick_marks=.true.
 
        !Calculate average Bragg positions in case the average cell and space group has been given
-       if(aver_cellgiven .and. aver_spggiven) then
+
+       if(aver_cellcalc) then
+write(unit=*,fmt="(a)") " => Calculating average cell ... "
+           call calc_avcell(nvect_avcell,vect_avcell,verif)
+           if (.not. verif)then
+                write(unit=*,fmt="(a)") "ERROR calculating the average cell"
+                write(unit=*,fmt="(a)") "No tick marks for pseudo-reflections in PRF file"
+                tick_marks=.false.
+           else
+                call Set_Crystal_Cell(aver_cell, aver_ang, aCell)
+                write(unit=*,fmt="(a)") "  The average cell is:"
+                write(unit=*,fmt="(a,f12.5,a,f12.5,a,f12.5)") &
+                     "  a=    ", aCell%cell(1), "    b=   ",aCell%cell(2),"   c=    ", aCell%cell(3)
+                write(unit=*,fmt="(a,f12.5,a,f12.5,a,f12.5)") &
+                     "  alpha=", aCell%ang(1), "    beta=",aCell%ang(2), "   gamma=", aCell%ang(3)
+           end if
+       end if
+
+       !write(unit=*,fmt="(a)") " => Calculating Bragg positions ... "
+       n_hkl=0
+       if((aver_cellgiven .or. aver_cellcalc) .and. aver_spggiven .and. tick_marks) then
+          write(unit=*,fmt="(a)") " => Writting Bragg positions ... "
           sintlm=sind(0.5*(thmax+2.0))/lambda
           MaxNumRef = get_maxnumref(sintlm,aCell%CellVol,mult=spg%Multip)
           if (allocated(reflections)) then
@@ -843,7 +991,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    PROGRAM FAULTS
 
-     use CFML_GlobalDeps,              only : sp , cp
+     use CFML_GlobalDeps,              only : sp , cp, OPS_SEP
      use CFML_String_Utilities,        only : number_lines , reading_lines ,  init_findfmt, findfmt ,iErr_fmt, &
                                               getword, err_string, err_string_mess, getnum, Ucase, lcase
      use CFML_Diffraction_patterns,    only : read_pattern , diffraction_pattern_type , err_diffpatt, err_diffpatt_mess,  &
@@ -854,10 +1002,10 @@
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
      use read_data,                    only : read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
-                                              crys, opti, cond, Vs, Err_crys, Err_crys_mess
+                                              crys, opti, cond, Vs, Err_crys, Err_crys_mess,fst_given
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
+     use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign, Write_FST
      use dif_ref
 
      implicit none
@@ -868,6 +1016,7 @@
       INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
       character(len=100)      :: pfile, bfile , bmode
       character(len=100)      :: pmode, filenam
+      character(len=256)      :: path_name
       character(len=10)       :: time, date
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
@@ -879,7 +1028,19 @@
 
       ending = .false.
       ok = .true.
-      sfname = 'data.sfc'
+
+      call get_environment_variable('FULLPROF',path_name)
+      i=len_trim(Path_name)
+      if( i == 0) then
+         sfname = 'data.sfc'
+      else
+        if(path_name(i:i) == OPS_SEP) then
+           sfname=trim(path_name)//'data.sfc'
+        else
+           sfname=trim(path_name)//OPS_SEP//'data.sfc'
+        end if
+      end if
+
       cntrl=ip
 
 
@@ -1057,6 +1218,7 @@
           Case (4) !LMQ
 
             WRITE(op,"(a)") ' => Start LMQ refinement'
+
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
             do i=1, opti%npar                       !creation of the step sizes
@@ -1071,14 +1233,19 @@
 
             write(*,"(a)") " => "// trim(infout)
 
+
+       call vs2faults(vs, crys)
+      !call Restore_Codes() !the ref_* variables are now the original codes
+
+
             CALL getfnm(filenam, outfile, '.prf', ok)
-              if (ok) then
-                OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
-                call Write_Prf(difpat,iout)
-              else
-                write(*,*) 'The outfile .prf cannot be created'
-              end if
-              !CALL getfnm(trim(filenam)//"_new", outfile, '.ftls', ok)
+             if (ok) then
+               OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+               call Write_Prf(difpat,iout)
+             else
+               write(*,*) 'The outfile .prf cannot be created'
+             end if
+             !CALL getfnm(trim(filenam)//"_new", outfile, '.ftls', ok)
              if (ok) then
                filenam=trim(filenam)
                i=index(filenam,"_new")
@@ -1099,7 +1266,11 @@
 
           End select
 
-
+      if(fst_given) then  !Generate file for FullProf Studio
+        OPEN(UNIT = i_fst, FILE = trim(filenam)//".fst", STATUS = 'replace',action="write")
+        call Write_FST()
+        close(unit=i_fst)
+      end if
       ending = .true.
 
       999 IF(cfile) CLOSE(UNIT = cntrl)

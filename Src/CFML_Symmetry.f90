@@ -67,6 +67,7 @@
 !!----    HEXAG
 !!----    INLAT
 !!----    Lat_Ch
+!!----    LATTICE_CENTRING_TYPE
 !!----    LTR
 !!----    MONOC
 !!----    NLAT
@@ -102,6 +103,7 @@
 !!----       SYM_PROD
 !!----
 !!----    Subroutines:
+!!----       ALLOCATE_LATTICE_CENTRING
 !!--++       CHECK_SYMBOL_HM           [Private]
 !!----       CHECK_GENERATOR
 !!----       COPY_NS_SPG_TO_SPG
@@ -208,7 +210,7 @@
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,       &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
-               Check_Generator, Copy_NS_SpG_To_SpG
+               Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -327,6 +329,33 @@
     !!---- Update: February - 2005
     !!
     character(len= 1), public     :: Lat_Ch
+
+    !!----
+    !!---- TYPE :: Lattice_Centring_Type
+    !!--..
+    !!---- Type, public :: Lattice_Centring_Type
+    !!----    integer                                     :: N_lat
+    !!----    logical                                     :: set
+    !!----    real(kind=cp), dimension(:,:),allocatable   :: LTr
+    !!---- End Type Lattice_Centring_Type
+    !!----
+    !!----   Lattice centring translations (including anti-translation)
+    !!----   symmetry operators defined with respect to arbitrary axes.
+    !!----   Normally the first translation is the identity element of the translation
+    !!----   group: Ltr(:,1)=[0,0,0] or [0,0,0,1] if time inversion is considered to take
+    !!----   into account also the anti-translations.
+    !!----   For using this type first the program should allocate the arrays by calling
+    !!----   the subroutine Allocate_Lattice_Centring and then construct totally the object
+    !!----   by assigning appropriate values and putting set=.true.
+    !!----
+    !!---- Update: October - 2014
+    !!
+    Type, public :: Lattice_Centring_Type
+       integer                                     :: N_lat
+       logical                                     :: set
+       real(kind=cp), dimension(:,:),allocatable   :: LTr
+    End Type Lattice_Centring_Type
+
 
     !!----
     !!---- LTR
@@ -1262,6 +1291,38 @@
 
        return
     End Function Sym_Prod
+
+    !!---- Subroutine Allocate_Lattice_Centring(Latt,n,tinv)
+    !!----   Type(Lattice_Centring_Type), intent(out)  :: Latt
+    !!----   integer,                     intent(in)   :: n
+    !!----   logical,  optional,          intent(in)   :: tinv
+    !!----
+    !!----  Allocates a Lattice_Centring_Type object. If tinv is present and tinv=.true.
+    !!----  four indices are selected for the first dimension for storing the presence or
+    !!----  absence of time inversion once the object is constructed.
+    !!----
+    !!----  Updated: October 2014
+    !!----
+    !!
+    Subroutine Allocate_Lattice_Centring(Latt,n,tinv)
+      Type(Lattice_Centring_Type), intent(out)  :: Latt
+      integer,                     intent(in)   :: n
+      logical,  optional,          intent(in)   :: tinv
+      !--- Local variables ---!
+      if(present(tinv)) then
+        if(tinv) then
+           allocate(Latt%Ltr(4,n))
+        else
+           allocate(Latt%Ltr(3,n))
+        end if
+      else
+        allocate(Latt%Ltr(3,n))
+      end if
+      Latt%Ltr=0.0
+      Latt%N_lat=n
+      Latt%set=.false.
+      return
+    End Subroutine Allocate_Lattice_Centring
 
     !!---- Subroutine Check_Generator(gen,ok,symbol)
     !!----   Character(len=*),         intent(in)  :: gen

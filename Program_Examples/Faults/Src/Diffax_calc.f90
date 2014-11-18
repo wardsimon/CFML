@@ -1,6 +1,6 @@
   Module diffax_calc
 
-   use CFML_GlobalDeps,           only : sp
+   use CFML_GlobalDeps,           only : sp,dp
    use CFML_String_Utilities,     only : number_lines, reading_lines,  init_findfmt, findfmt , &
                                          iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
    use CFML_Optimization_General, only : Opt_Conditions_Type
@@ -40,22 +40,22 @@
 !      AGLQ16 returns the adaptively integrated value.
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION aglq16(h, k, a, b, ok)
+      Real(kind=dp) FUNCTION aglq16(h, k, a, b, ok)
 !   Utiliza las variables : DIFFaX.par , h, k ,a, b ,  ok ,maxstk= 200, stp, n, n2 , sum
 !                           sum1, sum2, sum3, epsilon= FIVE * eps4, epsilon2, GLQ16,  stk(maxstk),
 !                           d1, d2, d3, x
 !   Utiliza las funciones: GLQ16(h, k, a, b, ok) externa  ,
 !   Utiliza las subrutinas:
 
-      Integer,      Intent(In)  :: h
-      Integer,      Intent(In)  :: k
-      Real(Kind=8), Intent(In)  :: a
-      Real(Kind=8), Intent(In)  :: b
-      Logical,      Intent(Out) :: ok
+      Integer,       Intent(In)  :: h
+      Integer,       Intent(In)  :: k
+      Real(kind=dp), Intent(In)  :: a
+      Real(kind=dp), Intent(In)  :: b
+      Logical,       Intent(Out) :: ok
       Integer  :: stp, n, n2
       Integer, Parameter :: maxstk = 200
-      Real(Kind=8)            :: sum, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
-      Real(Kind=8), Parameter :: epsilon = five * eps4
+      Real(kind=dp)            :: sum, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
+      Real(kind=dp), Parameter :: epsilon = five * eps4
 
 ! external function
       aglq16 = zero
@@ -158,20 +158,20 @@
 !   Utiliza las funciones :   Q2(h,k,l)
 !   Utiliza las subrutinas : POLINT  ,GET_F   ,
 
-      COMPLEX*16, INTENT(IN OUT)               :: f(max_l,16)
-      INTEGER*4, INTENT(IN )                   :: h
-      INTEGER*4, INTENT(IN )                   :: k
-      REAL*8, INTENT(IN OUT)                   :: ll(n)
-      REAL*8, INTENT(IN OUT)                   :: ag_l(16)
-      INTEGER*4, INTENT(IN)                    :: n
-      INTEGER*4, INTENT(IN)                    :: list(n)
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      COMPLEX(kind=dp), INTENT(IN OUT)       :: f(max_l,16)
+      INTEGER, INTENT(IN )                   :: h
+      INTEGER, INTENT(IN )                   :: k
+      Real(kind=dp), INTENT(IN OUT)          :: ll(n)
+      Real(kind=dp), INTENT(IN OUT)          :: ag_l(16)
+      INTEGER,  INTENT(IN)                   :: n
+      INTEGER,  INTENT(IN)                   :: list(n)
+      LOGICAL, INTENT(IN OUT)                :: ok
 
       LOGICAL :: know_f
-      INTEGER*4 i, j, m, p
-      INTEGER*4, PARAMETER :: max_poly = 10
-      REAL*8 q2, l
-      COMPLEX*16 ff(max_l,max_poly), fa(max_l), f_ans, f_error
+      INTEGER :: i, j, m, p
+      INTEGER, PARAMETER :: max_poly = 10
+      Real(kind=dp) :: q2, l
+      COMPLEX(kind=dp) :: ff(max_l,max_poly), fa(max_l), f_ans, f_error
 
 ! external subroutines (Some compilers need them declared external)
 !      external POLINT, GET_F
@@ -242,10 +242,10 @@
 !                            line,
 !   Utiliza las subrutinas :
 
-      INTEGER*4 i
-      CHARACTER (LEN=4) :: atom_name
-      CHARACTER (LEN=80) :: atomline
-      CHARACTER (LEN=120) :: line
+      INTEGER :: i
+      CHARACTER(LEN=4)   :: atom_name
+      CHARACTER(LEN=80)  :: atomline
+      CHARACTER(LEN=120) :: line
 
 ! sfname has been opened once already,
 ! no need for elaborate error checking
@@ -358,12 +358,12 @@
 !      BOUNDS returns the translated value of x. x is not modified.
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION bounds(x)
+      Real(kind=dp) FUNCTION bounds(x)
 !       Utiliza las variables:'DIFFaX.par , x, y
 !       Utiliza las funciones:
 !       Utiliza las subrutinas:
-        REAL*8, INTENT(IN)    :: x
-        REAL*8 y
+        Real(kind=dp), INTENT(IN)    :: x
+        Real(kind=dp) :: y
 
         y = x - INT(x) + one
         y = y - INT(y)
@@ -382,7 +382,7 @@
 
  ! SUBROUTINE calc_bckg(x,y)
 
-!  REAL*8 ,dimension(:), allocatable   ::  x,y
+!  Real(kind=dp) ,dimension(:), allocatable   ::  x,y
 !!S Cfiles
 ! ______________________________________________________________________
 ! Title: CHK_SYM
@@ -422,8 +422,8 @@
       LOGICAL, INTENT(OUT)     :: ok
       LOGICAL :: diad, triad, tetrad
       LOGICAL :: cell90, cell120, eq_sides
-      INTEGER*4  idum
-      REAL*8 tmp
+      INTEGER :: idum
+      Real(kind=dp) :: tmp
 
 ! external functions
 
@@ -711,14 +711,14 @@
 
       Integer,       Intent(In) :: h
       Integer,       Intent(In) :: k
-      Real(Kind=8),  Intent(In) :: l0
-      Real(Kind=8),  Intent(In) :: l1
-      Real(Kind=8),  Intent(In) :: x
+      Real(Kind=dp), Intent(In) :: l0
+      Real(Kind=dp), Intent(In) :: l1
+      Real(Kind=dp), Intent(In) :: x
       Integer,       Intent(In) :: m
       Integer,       Intent(In) :: max_indx
 
       Integer      :: n, p, i, indx
-      Real(Kind=8) :: s, h_wdth, n_hw, d_hk, norm, l, scale, avg, xx, dx, tmp
+      Real(Kind=dp):: s, h_wdth, n_hw, d_hk, norm, l, scale, avg, xx, dx, tmp
 
 ! indx indexes into the arrays spec and brd_spec
 ! n indexes into the array formfactor
@@ -812,8 +812,8 @@
 ! significant amount (30% in one case) compared with the Numerical
 ! Recipes routines LUDCMP and LUBKSB. The only changes are
 
-!                         complex -> complex*16
-!                         real    -> real*8
+!                         complex -> complex(kind=dp)
+!                         real    -> Real(kind=dp)
 !                         real()  -> dble()
 !                         aimag   -> dimag
 
@@ -883,14 +883,13 @@
 !     Utiliza las funciones:  CDOTC externa,
 !     Utiliza las subrutinas: CAXPY
 
-      IMPLICIT NONE
-      COMPLEX*16, INTENT(IN OUT)               :: a(:,:) !a(lda,1)
+      COMPLEX(kind=dp), INTENT(IN OUT)         :: a(:,:) !a(lda,1)
       INTEGER                                  :: lda
       INTEGER, INTENT(IN)                      :: n
       INTEGER, INTENT(IN)                      :: ipvt(:)
-      COMPLEX*16, INTENT(IN OUT)               :: b(:)
+      COMPLEX(kind=dp), INTENT(IN OUT)         :: b(:)
       INTEGER                                  :: job
-      COMPLEX*16 t
+      COMPLEX(kind=dp) :: t
       INTEGER :: k,kb,l,nm1
 ! MMJT: external subroutine
 ! external function
@@ -964,10 +963,10 @@
 
       IMPLICIT NONE
       INTEGER, INTENT(IN)                      :: n
-      COMPLEX*16, INTENT(IN)                   :: ca
-      COMPLEX*16, INTENT(IN)                   :: cx(:)
+      COMPLEX(kind=dp), INTENT(IN)             :: ca
+      COMPLEX(kind=dp), INTENT(IN)             :: cx(:)
       INTEGER, INTENT(IN)                      :: incx
-      COMPLEX*16, INTENT(IN OUT)               :: cy(:)
+      COMPLEX(kind=dp), INTENT(IN OUT)         :: cy(:)
       INTEGER, INTENT(IN)                      :: incy
 
       INTEGER :: i,ix,iy
@@ -1004,19 +1003,17 @@
 !     vector.
 ! ______________________________________________________________________
 
-      COMPLEX*16 FUNCTION cdotc(n,cx,incx,cy,incy)
-      IMPLICIT NONE
-
+      COMPLEX(kind=dp) FUNCTION cdotc(n,cx,incx,cy,incy)
 !     Utiliza las variables: cx(:),cy(:), n,incx,incy , i,ix,iy,ctemp
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      INTEGER, INTENT(IN)                      :: n
-      COMPLEX*16, INTENT(IN OUT)               :: cx(:)
-      INTEGER, INTENT(IN)                      :: incx
-      COMPLEX*16, INTENT(IN)                   :: cy(:)
-      INTEGER, INTENT(IN)                      :: incy
-      COMPLEX*16 ctemp
+      INTEGER, INTENT(IN)                :: n
+      COMPLEX(kind=dp), INTENT(IN OUT)   :: cx(:)
+      INTEGER, INTENT(IN)                :: incx
+      COMPLEX(kind=dp), INTENT(IN)       :: cy(:)
+      INTEGER, INTENT(IN)                :: incy
+      COMPLEX(kind=dp) :: ctemp
       INTEGER :: i,ix,iy
 
       ctemp = (0.0,0.0)
@@ -1101,17 +1098,16 @@
 !                             zdum ,  cabs1,
 !     Utiliza las funciones:  ICAMAX  externa,  cabs1(zdum)
 !     Utiliza las subrutinas: CSCAL, CAXPY
-      IMPLICIT NONE
-      COMPLEX*16, INTENT(IN OUT)               :: a(lda,n)
+      COMPLEX(kind=dp), INTENT(IN OUT)         :: a(lda,n)
       INTEGER, INTENT(IN)                      :: lda
       INTEGER, INTENT(IN OUT)                  :: n
       INTEGER, INTENT(IN OUT)                  :: ipvt(:) !ipvt(1)
       INTEGER, INTENT(IN OUT)                  :: info
-      COMPLEX*16 t
+      COMPLEX(kind=dp):: t
       INTEGER :: j,k,kp1,l,nm1
 
-      COMPLEX*16 zdum
-      REAL*8 cabs1
+      COMPLEX(kind=dp) :: zdum
+      Real(kind=dp)    :: cabs1
 
 ! MMJT: external subroutine
 ! statement function
@@ -1180,8 +1176,8 @@
 !     Utiliza las subrutinas: ,
       IMPLICIT NONE
       INTEGER                                  :: n
-      COMPLEX*16                               :: ca
-      COMPLEX*16, INTENT(IN OUT)               :: cx(1)
+      COMPLEX(kind=dp)                         :: ca
+      COMPLEX(kind=dp), INTENT(IN OUT)         :: cx(1)
       INTEGER                                  :: incx
       INTEGER :: i,nincx
 
@@ -1212,15 +1208,15 @@
 !     Utiliza las funciones: cabs1(zdum)
 !     Utiliza las subrutinas:
       IMPLICIT NONE
-      INTEGER                                  :: n
-      COMPLEX*16, INTENT(IN)                   :: cx(1)
-      INTEGER                                  :: incx
-      REAL*8 smax
-      INTEGER :: i,ix
-      COMPLEX*16 zdum
+      INTEGER                       :: n
+      COMPLEX(kind=dp), INTENT(IN)  :: cx(1)
+      INTEGER                       :: incx
+      Real(kind=dp)    :: smax
+      INTEGER          :: i,ix
+      COMPLEX(kind=dp) :: zdum
 
 ! statement function
-      REAL*8 cabs1
+      Real(kind=dp) :: cabs1
       cabs1(zdum) = ABS(DBLE(zdum)) + ABS(DIMAG(zdum))
 
       icamax = 0
@@ -1272,8 +1268,8 @@
 !     Utiliza las variables: DIFFaX.par , DIFFaX.inc, i, j,delta ,
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
-      INTEGER*4 i, j
-      REAL*8 delta
+      INTEGER :: i, j
+      Real(kind=dp) :: delta
 
       delta = eps3
 ! A value of delta = 0.001 is found to be optimum.
@@ -1316,7 +1312,7 @@
 !                       l_alpha, l_cnt, l_g, l_n_atoms, l_r, l_symmetry
 !                       lambda, l_seq, n_actual, n_atoms, n_layers
 !                       pnt_grp, pv_gamma, pv_u, pv_v, pv_w, r_B11
-!                       r_B12, r_B22, r_B23, r_B31, r_B33, rad_type
+!                       r_B12, r_B22, r_B23, r_b13, r_B33, rad_type
 !                       recrsv, rndm, th2_max, th2_min
 !                       tolerance, xplcit
 
@@ -1336,9 +1332,9 @@
       integer, intent(in)           :: dmp
       LOGICAL, INTENT(OUT)          :: ok
 
-      REAL(kind=8) :: scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
-      INTEGER :: i, i2, j, n, TYPE, num_types, tot_types
-      INTEGER :: print_width
+      REAL(kind=dp)     :: scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
+      INTEGER           :: i, i2, j, n, TYPE, num_types, tot_types
+      INTEGER           :: print_width
       CHARACTER(LEN=80) :: list(5)
 
 
@@ -1557,7 +1553,7 @@
         DO  j = 1, n_layers
 ! MMJT: 3/15/95. Ordering of B23 and B31 swapped
           WRITE(dmp,151) i, j, r_b11(j,i), r_b22(j,i), r_b33(j,i),  &
-              r_b12(j,i), r_b31(j,i), r_b23(j,i)
+              r_b12(j,i), r_b13(j,i), r_b23(j,i)
         END DO
       END DO
 
@@ -1646,7 +1642,7 @@
 ! Date: 13 Mar 1990; 21 July 1997
 ! Description:  This routine determines if all of the stacking
 ! uncertainty parameters are identical. There are six arrays to be
-! tested, namely r_B11, r_B22, r_B33, r_B12, r_B23 and r_B31. These are
+! tested, namely r_B11, r_B22, r_B33, r_B12, r_B23 and r_b13. These are
 ! passed one at a time from OPTIMZ as r_B. The average value of the
 ! r_B parameters is returned in a_B.
 
@@ -1663,10 +1659,10 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN OUT)                   :: r_b(max_l,max_l)
-      REAL*8, INTENT(IN OUT)                   :: av_b
-      INTEGER*4 i, j, m
-      REAL*8 error
+      Real(kind=dp), INTENT(IN OUT)  :: r_b(max_l,max_l)
+      Real(kind=dp), INTENT(IN OUT)  :: av_b
+      INTEGER :: i, j, m
+      Real(kind=dp) :: error
 
       av_b = zero
       m = 0
@@ -1690,10 +1686,10 @@
           IF(there(j,i)) error = error + ABS(r_b(j,i) - av_b)
         END DO
       END DO
-! get relative error
-      IF(av_b /= zero) error = error / av_b
-
-      equalb = ABS(error) <= eps3
+! get relative error (removed in last version of DIFFaX
+      !IF(av_b /= zero) error = error / av_b
+      !equalb = ABS(error) <= eps3
+      equalb = abs(error) <= abs(eps3*av_B)
 
       RETURN
       END FUNCTION equalb
@@ -1797,9 +1793,9 @@
 !     Utiliza las subrutinas:
 
       LOGICAL :: okay
-      CHARACTER (LEN=80) :: messge
-      INTEGER*4 i, j, idum
-      REAL*8  x, sum!, rnd
+      CHARACTER(LEN=80) :: messge
+      INTEGER :: i, j, idum
+      Real(kind=dp) ::  x, sum!, rnd
 ! external function
 
       call random_seed()
@@ -2012,19 +2008,19 @@
 !     Utiliza las subrutinas: XYPHSE, PRE_MAT
 
 
-      INTEGER*4, INTENT(IN OUT)                :: view
-      REAL*8, INTENT(IN out)                   :: l_upper
-      INTEGER*4, INTENT(IN OUT)                :: hk_lim
+      INTEGER, INTENT(IN OUT)                :: view
+      Real(kind=dp), INTENT(IN out)                   :: l_upper
+      INTEGER, INTENT(IN OUT)                :: hk_lim
       CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER*4 h, k, i, j, n, info_step, info, cnt,  origin, li, n_step
-      REAL*8 x, s, s_value, angle, w4,  theta, q2, l
-      REAL*8 l_lower, dl, high1, high2
-      REAL*8, PARAMETER :: intervals = twenty
+      INTEGER       :: h, k, i, j, n, info_step, info, cnt,  origin, li, n_step
+      Real(kind=dp) :: x, s, s_value, angle, w4,  theta, q2, l
+      Real(kind=dp) :: l_lower, dl, high1, high2
+      Real(kind=dp), PARAMETER :: intervals = twenty
 
 ! external functions (FN is either GLQ16 or AGLQ16)
-      REAL*8 fn
+      Real(kind=dp) :: fn
       EXTERNAL fn
 
 ! external subroutines (Some compilers need them declared external)
@@ -2300,17 +2296,17 @@
 
       CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
 
-      LOGICAL :: ok,  on_bndry, l_axis, shrp
-      INTEGER*4 h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
-      INTEGER*4 m, i, max_indx, lz, lzf
-      REAL*8 s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val, tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
-      REAL*8  :: hkangl, ll, angle , angles
-      REAL*8 l, hk_th, x,  l_max, min_th, max_th
-      REAL*8 w1, l1, l0, d_l,   w2, w3, l00
-      COMPLEX*16 f(max_l)
+      LOGICAL      :: ok,  on_bndry, l_axis, shrp
+      INTEGER      :: h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
+      INTEGER      :: m, i, max_indx, lz, lzf
+      Real(kind=dp):: s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val, tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
+      Real(kind=dp):: hkangl, ll, angle , angles
+      Real(kind=dp):: l, hk_th, x,  l_max, min_th, max_th
+      Real(kind=dp):: w1, l1, l0, d_l,   w2, w3, l00
+      COMPLEX(kind=dp) :: f(max_l)
 
 ! external functions
-      real*8 fn
+      Real(kind=dp) :: fn
       EXTERNAL fn
 ! external subroutines (Some compilers need them declared external)
 !      external XYPHSE, PRE_MAT, GET_F, CHWDTH
@@ -2594,9 +2590,9 @@
       END FUNCTION getspc
 
       Subroutine update_reflections(h,k,l)
-        integer,       intent(in) :: h,k
-        real (kind=8), intent(in) :: l
-        real (kind=8) :: delta, ela, s, angle
+        integer,        intent(in) :: h,k
+        real (kind=dp), intent(in) :: l
+        real (kind=dp) :: delta, ela, s, angle
         integer :: j
         integer, dimension(3) :: hkl
         logical :: esta
@@ -2605,7 +2601,7 @@
         ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
         angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
 
-        delta=abs(real(nint(l),kind=8) - l)
+        delta=abs(real(nint(l),kind=dp) - l)
         if( delta < eps2 ) then
         !if( l < eps2 ) then
           ela=nint(l)   ! ela is now zero
@@ -2838,13 +2834,13 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      COMPLEX*16,dimension(max_l), INTENT(IN OUT)   :: f !max_l
-      REAL*8,                          INTENT(IN)   :: s2
-      REAL*8,                          INTENT(IN)   :: l
-      INTEGER*4 i, j, m, n, TYPE
-      REAL*8 fact(max_ta), tmp(max_ta), tmp_sum, dot,  q2
-      REAL*8, PARAMETER :: e_factor = 0.023934D0
-      COMPLEX*16 ctmp(max_ta), f_uniq(max_l), ctmp_sum
+      COMPLEX(kind=dp),dimension(max_l),  INTENT(IN OUT)   :: f !max_l
+      Real(kind=dp),                          INTENT(IN)   :: s2
+      Real(kind=dp),                          INTENT(IN)   :: l
+      INTEGER :: i, j, m, n, TYPE
+      Real(kind=dp) :: fact(max_ta), tmp(max_ta), tmp_sum, dot,  q2
+      Real(kind=dp), PARAMETER :: e_factor = 0.023934D0
+      COMPLEX(kind=dp) :: ctmp(max_ta), f_uniq(max_l), ctmp_sum
 
       q2 = quarter * s2
 ! Q2 = sin(theta)**2 / lamba**2
@@ -2976,9 +2972,9 @@
 !     Utiliza las funciones:LUDCMP    externa
 !     Utiliza las subrutinas: LUBKSB
 
-      LOGICAL :: singular
-      INTEGER::  i, j, cnt, INDX(max_l)
-      REAL(kind=8) :: suma, g_mat(max_l,max_l), det
+      LOGICAL       :: singular
+      INTEGER       :: i, j, cnt, INDX(max_l)
+      REAL(kind=dp) :: suma, g_mat(max_l,max_l), det
 
 ! external function
 
@@ -3067,8 +3063,8 @@
 
       LOGICAL FUNCTION get_alpha()
 
-        INTEGER     ::  i, j, k
-        REAL*8      ::  suma ,sumo, ran
+        INTEGER        ::  i, j, k
+        Real(kind=dp)  ::  suma ,sumo, ran
 
         get_alpha = .false.
 
@@ -3106,7 +3102,7 @@
 
 !      COMMON VARIABLES:
 !            uses:  same_rz, n_layers, same_Bs, Bs_zero, mat1, c0, bc0,
-!                   ca0, r_B33, r_B23, r_B31, l_r, PI2, there,
+!                   ca0, r_B33, r_B23, r_b13, l_r, PI2, there,
 !                   fatsWalla_hk
 
 !        modifies:  mat
@@ -3121,9 +3117,9 @@
 
       Integer,       Intent(In) :: h
       Integer,       Intent(In) :: k
-      Real(Kind=8),  Intent(In) :: l
+      Real(Kind=dp), Intent(In) :: l
 
-      Real(Kind=8) :: dot, twopi_l, fatswaller
+      Real(Kind=dp):: dot, twopi_l, fatswaller
       Integer      :: i, j
 
 ! set up matrix that represents the sequences
@@ -3169,7 +3165,7 @@
               ELSE
                 mat(i,j) = mat1(i,j) * DCMPLX( COS(dot), SIN(dot) )  &
                     * EXP( -(l*(quarter*r_b33(j,i)*c0*l  &
-                    + half*(r_b23(j,i)*bc0*k + r_b31(j,i)*ca0*h))) )
+                    + half*(r_b23(j,i)*bc0*k + r_b13(j,i)*ca0*h))) )
               END IF
             ELSE
               mat(i,j) = c_zero
@@ -3213,16 +3209,16 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas: CGEFA, CGESL
 
-      COMPLEX*16, INTENT(IN)                   :: f(max_l)
-      COMPLEX*16, INTENT(IN OUT)               :: s(max_l)
-      INTEGER*4, INTENT(IN )                :: h
-      INTEGER*4, INTENT(IN )                :: k
-      REAL*8, INTENT(IN )                   :: l
+      COMPLEX(kind=dp), INTENT(IN)        :: f(max_l)
+      COMPLEX(kind=dp), INTENT(IN OUT)    :: s(max_l)
+      INTEGER, INTENT(IN )                :: h
+      INTEGER, INTENT(IN )                :: k
+      Real(kind=dp), INTENT(IN )          :: l
 
 ! i_ok is used by Linpack routines
       INTEGER :: i_ok, INDEX(max_l)
-      INTEGER*4 i
-      COMPLEX*16 det, s_tmp(2)
+      INTEGER :: i
+      COMPLEX(kind=dp) det, s_tmp(2)
 ! external subroutines (Some compilers need them declared external)
 ! CGEFA and CGESL are Linpack routines
 
@@ -3299,15 +3295,15 @@
 !     Utiliza las funciones:   GET_S, MAT2N externas
 !     Utiliza las subrutinas:
 
-      Complex(Kind=8), Intent(In)      :: f(max_l)
-      Complex(Kind=8), Intent(In Out)  :: s(max_l)
-      Integer,         Intent(In)      :: h
-      Integer,         Intent(In)      :: k
-      Real(Kind=8),    Intent(In)      :: l
+      Complex(Kind=dp), Intent(In)      :: f(max_l)
+      Complex(Kind=dp), Intent(In Out)  :: s(max_l)
+      Integer,          Intent(In)      :: h
+      Integer,          Intent(In)      :: k
+      Real(Kind=dp),    Intent(In)      :: l
 
-      Logical         :: ok
-      Integer         ::  i, j
-      Complex(Kind=8) :: ctmp, mat_n(max_l,max_l), tmp_mat(max_l,max_l)
+      Logical          :: ok
+      Integer          ::  i, j
+      Complex(Kind=dp) :: ctmp, mat_n(max_l,max_l), tmp_mat(max_l,max_l)
 ! external functions
       get_s2 = .false.
 
@@ -3414,8 +3410,8 @@
       LOGICAL, INTENT(IN OUT)                  :: ok
       LOGICAL :: diad, triad, tetrad, hexad
       LOGICAL :: cell90, cell120, eq_sides
-      INTEGER*4 idum, rot_sym
-      REAL*8 tmp_var
+      INTEGER :: idum, rot_sym
+      Real(kind=dp) :: tmp_var
 
 ! external functions
 
@@ -3624,10 +3620,10 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN OUT)                       :: th2_low
+      Real(kind=dp), INTENT(IN OUT)                       :: th2_low
 
-      INTEGER*4 i, j, n_low,  m
-      REAL*8 k1, k2, k3, const, gss, std_dev, tmp, tmp1, tmp2
+      INTEGER       :: i, j, n_low,  m
+      Real(kind=dp) :: k1, k2, k3, const, gss, std_dev, tmp, tmp1, tmp2
 
       IF(fwhm <= zero) GO TO 999
       std_dev = fwhm / SQRT(eight * LOG(two))
@@ -3709,7 +3705,7 @@
 !      GLQ16 returns the integrated value.
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION glq16(h, k, a, b, ok)
+      Real(kind=dp) FUNCTION glq16(h, k, a, b, ok)
 !     Utiliza las variables:  DIFFaX.par', DIFFaX.inc', ok, h, k , a, b  , o, too_close ,intens, inten2
 !                            o, too_close, c1, c2, x1 = 0.095012509837637440185D0,
 !                            x2 = 0.281603550779258913230D0 , x3 = 0.458016777657227386342D0 ...
@@ -3718,43 +3714,43 @@
 !                            f(MAX_L,16)
 !     Utiliza las funciones:   INTENS, INTEN2   externas  , Q2(h,k,l)
 !     Utiliza las subrutinas: APPR_F, GET_F  ,
-      INTEGER*4               :: h
-      INTEGER*4               :: k
-      REAL*8                  :: a
-      REAL*8                  :: b
+      INTEGER                 :: h
+      INTEGER                 :: k
+      Real(kind=dp)           :: a
+      Real(kind=dp)           :: b
       LOGICAL, INTENT(IN OUT) :: ok
 
       LOGICAL :: o, too_close
 
-      REAL*8 c1, c2
+      Real(kind=dp) :: c1, c2
 
-      REAL*8, PARAMETER :: x1 = 0.095012509837637440185D0
-      REAL*8, PARAMETER :: x2 = 0.281603550779258913230D0
-      REAL*8, PARAMETER :: x3 = 0.458016777657227386342D0
-      REAL*8, PARAMETER :: x4 = 0.617876244402643748447D0
-      REAL*8, PARAMETER :: x5 = 0.755404408355003033895D0
-      REAL*8, PARAMETER :: x6 = 0.865631202387831743880D0
-      REAL*8, PARAMETER :: x7 = 0.944575023073232576078D0
-      REAL*8, PARAMETER :: x8 = 0.989400934991649932596D0
+      Real(kind=dp), PARAMETER :: x1 = 0.095012509837637440185D0
+      Real(kind=dp), PARAMETER :: x2 = 0.281603550779258913230D0
+      Real(kind=dp), PARAMETER :: x3 = 0.458016777657227386342D0
+      Real(kind=dp), PARAMETER :: x4 = 0.617876244402643748447D0
+      Real(kind=dp), PARAMETER :: x5 = 0.755404408355003033895D0
+      Real(kind=dp), PARAMETER :: x6 = 0.865631202387831743880D0
+      Real(kind=dp), PARAMETER :: x7 = 0.944575023073232576078D0
+      Real(kind=dp), PARAMETER :: x8 = 0.989400934991649932596D0
 
-      REAL*8, PARAMETER :: w1 = 0.189450610455068496285D0
-      REAL*8, PARAMETER :: w2 = 0.182603415044923588867D0
-      REAL*8, PARAMETER :: w3 = 0.169156519395002538189D0
-      REAL*8, PARAMETER :: w4 = 0.149595988816576732081D0
-      REAL*8, PARAMETER :: w5 = 0.124628971255533872052D0
-      REAL*8, PARAMETER :: w6 = 0.095158511682492784810D0
-      REAL*8, PARAMETER :: w7 = 0.062253523938647892863D0
-      REAL*8, PARAMETER :: w8 = 0.027152459411754094852D0
+      Real(kind=dp), PARAMETER :: w1 = 0.189450610455068496285D0
+      Real(kind=dp), PARAMETER :: w2 = 0.182603415044923588867D0
+      Real(kind=dp), PARAMETER :: w3 = 0.169156519395002538189D0
+      Real(kind=dp), PARAMETER :: w4 = 0.149595988816576732081D0
+      Real(kind=dp), PARAMETER :: w5 = 0.124628971255533872052D0
+      Real(kind=dp), PARAMETER :: w6 = 0.095158511682492784810D0
+      Real(kind=dp), PARAMETER :: w7 = 0.062253523938647892863D0
+      Real(kind=dp), PARAMETER :: w8 = 0.027152459411754094852D0
 
-      INTEGER*4 i, j
+      INTEGER i, j
 ! f is approximated by a polynomial of order (n-1)
 
-      INTEGER*4, PARAMETER :: n = 3
-      INTEGER*4 list(n)
+      INTEGER, PARAMETER :: n = 3
+      INTEGER :: list(n)
 
-      REAL*8 q2, l
-      REAL*8 ag_l(16), samp_l(n)
-      COMPLEX*16 f(max_l,16)
+      Real(kind=dp)    :: q2, l
+      Real(kind=dp)    :: ag_l(16), samp_l(n)
+      COMPLEX(kind=dp) :: f(max_l,16)
 
 ! external functions
 
@@ -3958,8 +3954,8 @@
       CHARACTER (LEN=*), INTENT(OUT)           :: outfile
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER*4 i_adapt, i_plane, io_err, hk_lim
-      REAL*8   l_upper
+      INTEGER :: i_adapt, i_plane, io_err, hk_lim
+      Real(kind=dp)   l_upper
 
 ! external functions
 
@@ -3968,7 +3964,7 @@
 
 ! Get a suitable file name, and open file.
       CALL getfnm(infile,outfile,'sadp',ok)
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
 ! Open unformatted for binary write.
       IF(sa /= op) OPEN(UNIT = sa, FILE = outfile, STATUS = 'new',  &
           FORM = 'unformatted', ERR = 990, IOSTAT = io_err)
@@ -4131,8 +4127,8 @@
       CHARACTER (LEN=*)                        :: outfile
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER*4 io_err, i
-      REAL*8   cut_off
+      INTEGER :: io_err, i
+      Real(kind=dp) ::   cut_off
 
 ! get angular range and step
    !   ok = rdrnge()
@@ -4288,8 +4284,8 @@
 !     Utiliza las funciones:  HKLUP(y)
 !     Utiliza las subrutinas:
 
-      INTEGER*4 hklup
-      REAL*8  y
+      INTEGER       :: hklup
+      Real(kind=dp) :: y
 
 ! HKLUP returns the maximum value of h, k or l given 'max_angle'
       hklup(y) =  INT(two * SIN(half*max_angle) / (lambda*SQRT(y)))
@@ -4350,12 +4346,12 @@
 
 
       LOGICAL :: divided
-      INTEGER*4 h, k, i_th, i_thm
-      REAL*8 l0, l1, max_th, x, w4, angle, theta, l, s, q2
-      REAL*8 t1, sum, tmp, ll, fact, d_th, l_tmp
+      INTEGER :: h, k, i_th, i_thm
+      Real(kind=dp) :: l0, l1, max_th, x, w4, angle, theta, l, s, q2
+      Real(kind=dp) :: t1, sum, tmp, ll, fact, d_th, l_tmp
 
 ! external function, passed by reference
-      REAL*8 fn
+      Real(kind=dp) :: fn
       EXTERNAL fn
 ! external subroutines (Some compilers need them declared external)
 !      external XYPHSE, PRE_MAT, GET_F
@@ -4495,7 +4491,7 @@
 !      INTEN2 returns the intensity at h, k, l
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION inten2(f, h, k, l, ok)
+      Real(kind=dp) FUNCTION inten2(f, h, k, l, ok)
 
 
 
@@ -4505,19 +4501,15 @@
 !     Utiliza las subrutinas:
 
 
-      COMPLEX*16, INTENT(IN OUT)               :: f(max_l)
-      INTEGER*4, INTENT(IN OUT)                :: h
-      INTEGER*4, INTENT(IN)                    :: k
-      REAL*8, INTENT(IN OUT)                   :: l
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      COMPLEX(kind=dp), INTENT(IN OUT)       :: f(max_l)
+      INTEGER, INTENT(IN OUT)                :: h
+      INTEGER, INTENT(IN)                    :: k
+      Real(kind=dp), INTENT(IN OUT)          :: l
+      LOGICAL, INTENT(IN OUT)                :: ok
 
-
-
-
-
-      INTEGER*4 i, j, m
-      REAL*8 twopi_l, dot, tmp
-      COMPLEX*16 phi(max_l, max_l), z, z_to_n
+      INTEGER          :: i, j, m
+      Real(kind=dp)    :: twopi_l, dot, tmp
+      COMPLEX(kind=dp) :: phi(max_l, max_l), z, z_to_n
 
       twopi_l = pi2 * l
 
@@ -4597,7 +4589,7 @@
 !      INTENS returns the intensity at h, k, l
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION intens(f, h, k, l, ok)
+      Real(kind=dp) FUNCTION intens(f, h, k, l, ok)
 
 
 !     Utiliza las variables:  DIFFaX.par', DIFFaX.inc' ,  ok ,  h, k , l, f(MAX_L) ,  GET_S, GET_S2
@@ -4605,17 +4597,17 @@
 !     Utiliza las funciones: GET_S, GET_S2         externas
 !     Utiliza las subrutinas: GET_MAT
 
-      Complex(Kind=8), Intent(In) :: f(max_l)
+      Complex(Kind=dp), Intent(In) :: f(max_l)
       Integer,         Intent(In) :: h
       Integer,         Intent(In) :: k
-      Real(Kind=8)                :: l
+      Real(Kind=dp)                :: l
       Logical,         Intent(Out):: ok
 
 
 
-      INTEGER*4 i
-      REAL*8 sum, x
-      COMPLEX*16 s(max_l)
+      INTEGER          :: i
+      Real(kind=dp)    :: sum, x
+      COMPLEX(kind=dp) :: s(max_l)
 
 ! external function
 
@@ -4693,11 +4685,11 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN OUT)                       :: th2_low
+      Real(kind=dp), INTENT(IN OUT)                       :: th2_low
 
 
       INTEGER*4 i, j, n_low
-      REAL*8 k1, k2, k3, const, lrnz, tmp, tmp1, tmp2
+      Real(kind=dp) k1, k2, k3, const, lrnz, tmp, tmp1, tmp2
 
       IF(fwhm <= zero) GO TO 999
 ! check that cut-off is reasonable
@@ -4777,8 +4769,8 @@
 !     Utiliza las subrutinas:
 
 
-      REAL*8, INTENT(IN)                       :: a(max_n,max_n)
-      REAL*8, INTENT(OUT)                      :: b(max_n)
+      Real(kind=dp), INTENT(IN)                       :: a(max_n,max_n)
+      Real(kind=dp), INTENT(OUT)                      :: b(max_n)
       INTEGER*4, INTENT(IN)                    :: INDEX(max_n)
       INTEGER*4, INTENT(IN)                    :: n
       INTEGER*4, INTENT(IN)                    :: max_n
@@ -4786,7 +4778,7 @@
 
 
       INTEGER*4 i, i2, j, row
-      REAL*8 sum
+      Real(kind=dp) sum
 
 
       i2 = 0
@@ -4819,7 +4811,7 @@
 ! "Numerical Recipes: The Art of Scientific Computing."
 ! Date: 18 Aug 1988
 !  Description: This is an LU decomposition routine, and accepts
-!  real*8 variables.
+!  Real(kind=dp) variables.
 !  Given an n x n matrix a, with physical dimension MAX_N, this
 !  routine replaces it by the LU decomposition of a rowwise permutation
 !  of itself. a and n are input. a is the LU decomposed output; index
@@ -4851,18 +4843,18 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN OUT)                   :: a(max_n,max_n)
+      Real(kind=dp), INTENT(IN OUT)                   :: a(max_n,max_n)
       INTEGER*4, INTENT(IN OUT)                :: INDEX(max_n)
       INTEGER*4, INTENT(IN OUT)                :: n
       INTEGER*4                                :: max_n
-      REAL*8, INTENT(IN OUT)                   :: det
+      Real(kind=dp), INTENT(IN OUT)                   :: det
 
 
 
       INTEGER*4  i, j, m, row
       INTEGER*4, PARAMETER :: l_max = 100
-      REAL*8  tmp(l_max), sum, MAX, tmp2
-      REAL*8, PARAMETER :: tiny = 1.0D-20
+      Real(kind=dp)  tmp(l_max), sum, MAX, tmp2
+      Real(kind=dp), PARAMETER :: tiny = 1.0D-20
 
       ludcmp = .false.
       det = one
@@ -4953,7 +4945,7 @@
 !      be found at.
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION l_step(ok)
+      Real(kind=dp) FUNCTION l_step(ok)
 
 
 
@@ -4966,7 +4958,7 @@
       LOGICAL, INTENT(IN OUT)                  :: ok
 
 
-      REAL*8 tmp, z_step
+      Real(kind=dp) tmp, z_step
       LOGICAL ::  resonant, decided
       INTEGER*4 i1, i2, i3, i4
 
@@ -5171,14 +5163,14 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      COMPLEX*16, INTENT(IN OUT)               :: a(max_l,max_l)
-      COMPLEX*16, INTENT(IN)                   :: b(max_l,max_l)
-      INTEGER*4, INTENT(IN OUT)                :: n
+      COMPLEX(kind=dp), INTENT(IN OUT)       :: a(max_l,max_l)
+      COMPLEX(kind=dp), INTENT(IN)           :: b(max_l,max_l)
+      INTEGER, INTENT(IN OUT)                :: n
 
 
 
-      INTEGER*4 i, j, m
-      COMPLEX*16 c(max_l,max_l), ctmp
+      INTEGER          :: i, j, m
+      COMPLEX(kind=dp) :: c(max_l,max_l), ctmp
 
 ! first copy a into c
       DO  j = 1, n
@@ -5238,11 +5230,11 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:  MATSQR, MATMUL
 
-      COMPLEX*16, INTENT(IN OUT)               :: a(max_l,max_l)
+      COMPLEX(kind=dp), INTENT(IN OUT)               :: a(max_l,max_l)
 
 
-      INTEGER*4 i, j
-      COMPLEX*16 tmp_mat(max_l,max_l,max_bin)
+      INTEGER         :: i, j
+      COMPLEX(kind=dp):: tmp_mat(max_l,max_l,max_bin)
 
 ! external subroutine (Some compilers need them declared external)
 !      external MATSQR, MATMUL
@@ -5295,14 +5287,14 @@
 !     Utiliza las subrutinas:
 
 
-      COMPLEX*16, INTENT(IN OUT)               :: a(max_l,max_l)
-      COMPLEX*16, INTENT(IN)                   :: b(max_l,max_l)
-      INTEGER*4, INTENT(IN OUT)                :: n
+      COMPLEX(kind=dp), INTENT(IN OUT)       :: a(max_l,max_l)
+      COMPLEX(kind=dp), INTENT(IN)           :: b(max_l,max_l)
+      INTEGER, INTENT(IN OUT)                :: n
 
 
 
-      INTEGER*4 i, j, m
-      COMPLEX*16 ctmp
+      INTEGER          ::  i, j, m
+      COMPLEX(kind=dp) :: ctmp
 
       DO  j = 1, n
         DO  i = 1, n
@@ -5443,7 +5435,7 @@
 
 !      COMMON VARIABLES:
 !            uses:  a0, b0, d0, n_layers, l_alpha, l_actual, l_n_atoms,
-!                   a_B, r_B11, r_B22, r_B33, r_B12, r_B23, r_B31,
+!                   a_B, r_B11, r_B22, r_B33, r_B12, r_B23, r_b13,
 !                   l_symmetry, l_seq, DoSymDump, SymGrpNo, lambda,
 !                   l_cnt, CENTRO, PI, l_r, n_actual, finite_width
 
@@ -5472,8 +5464,8 @@
       CHARACTER (LEN=31) :: sym_fnam
 
       INTEGER*4  i, j, j2, m, n
-      REAL*8 hkangl, h_val, k_val
-      REAL*8 x, error, tmp, incr, z, old_lambda
+      Real(kind=dp) hkangl, h_val, k_val
+      Real(kind=dp) x, error, tmp, incr, z, old_lambda
       LOGICAL :: did_it(max_l,max_l)
 
 ! external functions
@@ -5553,8 +5545,8 @@
               ok = .false.
               GO TO 999
             END IF
-            ! check on r_B31
-            x = r_b11(j,i)*r_b33(j,i)*a0*c0 - r_b31(j,i)*r_b31(j,i)*ca0*ca0
+            ! check on r_b13
+            x = r_b11(j,i)*r_b33(j,i)*a0*c0 - r_b13(j,i)*r_b13(j,i)*ca0*ca0
             IF(x < zero) THEN
               WRITE(op,500) 'C13'
               WRITE(op,501) i, j
@@ -5573,7 +5565,7 @@
         DO  j = 1, n_layers
           bs_zero(j,i) = r_b11(j,i) == zero .AND. r_b22(j,i) == zero .AND.  &
               r_b33(j,i) == zero .AND. r_b12(j,i) == zero .AND.  &
-              r_b23(j,i) == zero .AND. r_b31(j,i) == zero
+              r_b23(j,i) == zero .AND. r_b13(j,i) == zero
           all_bs_zero = all_bs_zero .AND. bs_zero(j,i)
         END DO
       END DO
@@ -5585,7 +5577,7 @@
       IF(same_bs) same_bs = equalb(r_b33, a_b33)
       IF(same_bs) same_bs = equalb(r_b12, a_b12)
       IF(same_bs) same_bs = equalb(r_b23, a_b23)
-      IF(same_bs) same_bs = equalb(r_b31, a_b31)
+      IF(same_bs) same_bs = equalb(r_b13, a_b31)
 
       ! see if all layers are centrosymmetric
       only_real = .true.
@@ -5795,8 +5787,8 @@
       CHARACTER (LEN=33) :: txt
       INTEGER*4 i, j, m, n, nn, j2, err_no, max_err, fact, at_num
       PARAMETER(max_err = 100)
-      REAL*8 lay(3,2*max_a)
-      REAL*8 x1, y1, z1, x2, y2, z2, sum_occ, tol, tmp
+      Real(kind=dp) lay(3,2*max_a)
+      Real(kind=dp) x1, y1, z1, x2, y2, z2, sum_occ, tol, tmp
       PARAMETER(tol = eps1)
 
       ! external functions
@@ -5877,11 +5869,11 @@
       END DO
 
       if(err_no == 0) then
-      WRITE(op,fmt="(a)") ' No overlap of atoms has been detected'
+      WRITE(op,fmt="(a)") ' => No overlap of atoms has been detected'
       end if
 
       RETURN
-      999 WRITE(op,401) 'WARNING: Number of errors exceeds ', max_err
+      999 WRITE(op,401) ' => WARNING: Number of errors exceeds ', max_err
       RETURN
       400 FORMAT(1X, a)
       401 FORMAT(1X, a, i5)
@@ -5915,7 +5907,7 @@
 !      PNTINT returns the intensity at h, k, l
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION pntint(h, k, l, ok)
+      Real(kind=dp) FUNCTION pntint(h, k, l, ok)
 
 
 !     Utiliza las variables: par.f90' ,'inc.f90' ,h,k,l,ok  ,s, angle, w4, intens, inten2, theta, x
@@ -5923,16 +5915,16 @@
 !     Utiliza las funciones: intens, inten2         externas ,  s(h,k,l) , angle(h,k,l), w4(theta)
 !     Utiliza las subrutinas: GET_F, XYPHSE, PRE_MAT
 
-      INTEGER*4                    :: h
-      INTEGER*4                   :: k
-      REAL*8                   :: l
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      INTEGER                   :: h
+      INTEGER                   :: k
+      Real(kind=dp)             :: l
+      LOGICAL, INTENT(IN OUT)   :: ok
 
 
 
 
-      REAL*8 s, angle, w4,   theta, x
-      COMPLEX*16 f(max_l)
+      Real(kind=dp)    :: s, angle, w4,   theta, x
+      COMPLEX(kind=dp) :: f(max_l)
 
       ! external functions
 
@@ -5946,10 +5938,7 @@
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
       ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
-
-
       CALL xyphse(h, k)
-
       CALL pre_mat(h, k)
       CALL get_f(f, s(h,k,l), l)
       IF(recrsv) THEN
@@ -6003,10 +5992,10 @@
 
 
 
-      INTEGER*4 h, k, i
+      INTEGER           :: h, k, i
       CHARACTER (LEN=1) :: chr
-      REAL*8 l,  shkl, x, angle, ss, w4, theta, q2
-      COMPLEX*16 f(max_l), s(max_l)
+      Real(kind=dp)    :: l,  shkl, x, angle, ss, w4, theta, q2
+      COMPLEX(kind=dp) :: f(max_l), s(max_l)
 
      ! external functions
 
@@ -6141,22 +6130,18 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN)                       :: xa(n)
-      COMPLEX*16, INTENT(IN)                   :: ya(n)
-      INTEGER*4, INTENT(IN)                    :: n
-      REAL*8, INTENT(IN OUT)                   :: x
-      COMPLEX*16, INTENT(IN OUT)               :: y
-      COMPLEX*16, INTENT(IN OUT)               :: dy
-      LOGICAL, INTENT(IN OUT)                  :: ok
-
-
-
-
-
-      INTEGER*4 :: i, m, ns
-      INTEGER*4, PARAMETER :: nmax = 10
-      REAL*8 dif, dift, ho, hp
-      COMPLEX*16 c(nmax), d(nmax), w, den
+      Real(kind=dp),    INTENT(IN)       :: xa(n)
+      COMPLEX(kind=dp), INTENT(IN)       :: ya(n)
+      INTEGER,          INTENT(IN)       :: n
+      Real(kind=dp),    INTENT(IN OUT)   :: x
+      COMPLEX(kind=dp), INTENT(IN OUT)   :: y
+      COMPLEX(kind=dp), INTENT(IN OUT)   :: dy
+      LOGICAL,          INTENT(IN OUT)   :: ok
+!
+      INTEGER            :: i, m, ns
+      INTEGER, PARAMETER :: nmax = 10
+      Real(kind=dp)      :: dif, dift, ho, hp
+      COMPLEX(kind=dp)   :: c(nmax), d(nmax), w, den
 
       ns = 1
       dif = ABS(x - xa(1))
@@ -6230,7 +6215,7 @@
       INTEGER*4, INTENT(IN)                    :: k
 
 
-      REAL*8 dot
+      Real(kind=dp) dot
       INTEGER*4 i, j
 
       ! Set up matrix that represents the sequences
@@ -6302,7 +6287,7 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      REAL*8, INTENT(IN OUT)    :: th2_low
+      Real(kind=dp), INTENT(IN OUT)    :: th2_low
 
 
       INTEGER*4 i, j, n_low,  indx
@@ -6439,7 +6424,7 @@
 ! Date: Copyright (C) 1985
 ! Returns a uniform random deviate between 0.0 and 1.0. Set 'idum'
 ! to any negative value to initialize or reinitialize the sequence.
-! This version is modified to return real*8 values, and enforces static
+! This version is modified to return Real(kind=dp) values, and enforces static
 ! storage of all local variables by use of the 'save' statement
 ! (In fact 'seed' is the important variable to save, but we save all
 ! anyway).
@@ -6450,7 +6435,7 @@
 !      RAN3 returns a real random number between 0 and 1
 ! ______________________________________________________________________
 
-      REAL*8 FUNCTION ran3(idum)
+      Real(kind=dp) FUNCTION ran3(idum)
 
       IMPLICIT NONE
       INTEGER*4, intent (in out)             :: idum
@@ -6463,12 +6448,12 @@
 !     Utiliza las subrutinas:
 
 
-      REAL*8, PARAMETER :: big=4000000.0D0
-      REAL*8, PARAMETER :: seed=1618033.0D0
-      REAL*8, PARAMETER :: mz=0.0D0
-      REAL*8, PARAMETER :: fac=2.5D-7
-      REAL*8 ma(55)
-      REAL*8 mj, mk
+      Real(kind=dp), PARAMETER :: big=4000000.0D0
+      Real(kind=dp), PARAMETER :: seed=1618033.0D0
+      Real(kind=dp), PARAMETER :: mz=0.0D0
+      Real(kind=dp), PARAMETER :: fac=2.5D-7
+      Real(kind=dp) ma(55)
+      Real(kind=dp) mj, mk
       INTEGER*4 iff, ii, i, j, inext, inextp
 
       DATA iff /0/
@@ -6733,14 +6718,14 @@
 !     Utiliza las funciones:  pntint externas   ,  s(h,k,l)  ,angle(h,k,l) ,ll(theta,h,k)
 !     Utiliza las subrutinas: GET_F
 
-      Integer,      Intent(In)  :: h
-      Integer,      Intent(In)  :: k
-      Real(kind=8), Intent(In)  :: d_l
+      Integer,       Intent(In)  :: h
+      Integer,       Intent(In)  :: k
+      Real(kind=dp), Intent(In)  :: d_l
 
 
 
       Logical       :: ok
-      Real(kind=8)  :: s,  angle, ll, l, i1, i2, x, theta, l_next
+      Real(kind=dp) :: s,  angle, ll, l, i1, i2, x, theta, l_next
 
      ! external subroutine (Some compilers need them declared external)
      !      external GET_F
@@ -6810,17 +6795,17 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      INTEGER,                         INTENT(IN )     :: arrsize
-      REAL(kind=8),dimension(arrsize), INTENT(IN OUT)  :: array
-      REAL(kind=8),                    INTENT(IN OUT)  :: sigma
-      LOGICAL,                         INTENT(IN OUT)  :: ok
+      INTEGER,                          INTENT(IN )     :: arrsize
+      REAL(kind=dp),dimension(arrsize), INTENT(IN OUT)  :: array
+      REAL(kind=dp),                    INTENT(IN OUT)  :: sigma
+      LOGICAL,                          INTENT(IN OUT)  :: ok
 
 
 
 
-      INTEGER ::  m, i, j
-      REAL(kind=8) :: tmparr(sadsize)
-      REAL(kind=8) :: k1, k2, tmp, tmp1, tmp2, gss, normalize
+      INTEGER       ::  m, i, j
+      REAL(kind=dp) :: tmparr(sadsize)
+      REAL(kind=dp) :: k1, k2, tmp, tmp1, tmp2, gss, normalize
 
       IF(sigma == zero) RETURN
 
@@ -6941,12 +6926,12 @@
 
       LOGICAL :: its_hot
       INTEGER*4 h, k, i, i_step, lz, lzf
-      REAL*8 l, theta, x, angle, s, q2, l0, l1
-      REAL*8 dl, w4
-      REAL*8, PARAMETER :: intervals = twenty
+      Real(kind=dp) l, theta, x, angle, s, q2, l0, l1
+      Real(kind=dp) dl, w4
+      Real(kind=dp), PARAMETER :: intervals = twenty
 
 ! external functions
-      REAL*8 fn
+      Real(kind=dp) fn
       EXTERNAL fn
 ! external subroutines (Some compilers need them declared external)
 !      external XYPHSE, PRE_MAT, GET_F
@@ -7086,8 +7071,8 @@
 
 
       INTEGER*4 i, h, k, idum
-      REAL*8   s, angle
-      REAL*8 l, tot_int
+      Real(kind=dp)   s, angle
+      Real(kind=dp) l, tot_int
 
 ! external functions
 
@@ -7161,7 +7146,7 @@
 !     Utiliza las subrutinas:
 
 
-      REAL*8, INTENT(IN OUT)                   :: th2_low
+      Real(kind=dp), INTENT(IN OUT)                   :: th2_low
 
 
       INTEGER*4 i, i_min, i_max
@@ -7239,10 +7224,10 @@
       LOGICAL :: is_good, match, eq_sides
       INTEGER*4 i, h, k, h_tmp, k_tmp
       LOGICAL :: cell90, cell120
-      REAL*8   s, angle
-      REAL*8   l
-      REAL*8 i_avg, tol, i1, i2, variance, rel_var
-      REAL*8, PARAMETER :: tiny = five * eps4
+      Real(kind=dp)   s, angle
+      Real(kind=dp)   l
+      Real(kind=dp) i_avg, tol, i1, i2, variance, rel_var
+      Real(kind=dp), PARAMETER :: tiny = five * eps4
 
 ! external functions
 
@@ -7261,7 +7246,7 @@
       IF(mir_sym < 1 .OR. mir_sym > 3) GO TO 900
       IF(dosymdump) THEN
         WRITE(sy,200)
-        IF(.NOT.cell90 .AND. .NOT.cell120) THEN
+        IF(.NOT. cell90 .AND. .NOT. cell120) THEN
           WRITE(sy,230) 'cell angle = ', cell_gamma * rad2deg,  &
               ' degrees. NO HORIZONTAL MIRRORS ARE LIKELY.'
           GO TO 900
@@ -7343,23 +7328,31 @@
           END IF
 ! else mirror on hk-l plane, mir = 3
         ELSE IF(mir_sym == 3) THEN
+! The following if block is redundant, and in special
+! cases fails to print to the .sym file. mmjt 3/18/04
 ! is the cell square
-          IF(cell90 .AND. eq_sides) THEN
+! is the cell square
+!         IF(cell90 .AND. eq_sides) THEN
 ! I(-h,k,l), square cell
-            h = k_tmp
-            k = h_tmp
-            i2 = pntint(h, k, l, ok)
-            IF(.NOT.ok) GO TO 999
-            IF(dosymdump) WRITE(sy,220) h, k, l, i2
-          ELSE IF(cell120) THEN
+!           h = k_tmp
+!           k = h_tmp
+!           i2 = pntint(h, k, l, ok)
+!           IF(.NOT.ok) GO TO 999
+!           IF(dosymdump) WRITE(sy,220) h, k, l, i2
+!         ELSE IF(cell120) THEN
 ! I(-h,h+k,l), hexagonal cell
-            h = k_tmp
-            k = h_tmp
-            i2 = pntint(h, k, l, ok)
-            IF(.NOT.ok) GO TO 999
-            IF(dosymdump) WRITE(sy,220) h, k, l, i2
-          END IF
-        END IF
+!            h = k_tmp
+!            k = h_tmp
+!            i2 = pntint(h, k, l, ok)
+!            IF(.NOT.ok) GO TO 999
+!            IF(dosymdump) WRITE(sy,220) h, k, l, i2
+!          END IF
+          h = k_tmp
+          k = h_tmp
+          i2 = pntint(h, k, l, ok)
+          IF(.NOT. ok) GO TO 999
+          IF(dosymdump) WRITE(sy,220) h, k, l, i2
+       END IF
 ! compare mirrored intensities
         i_avg = half * (i1 + i2)
         variance = half * (ABS(i_avg-i1) + ABS(i_avg-i2))
@@ -7504,9 +7497,9 @@
 
       LOGICAL :: is_good, match
       INTEGER*4 i, h, k, h_tmp, k_tmp
-      REAL*8   s, angle
-      REAL*8 l, i_avg, tol
-      REAL*8 i1, i2, i3, i4, variance, rel_var
+      Real(kind=dp)   s, angle
+      Real(kind=dp) l, i_avg, tol
+      Real(kind=dp) i1, i2, i3, i4, variance, rel_var
 
 ! external functions
 
@@ -7754,12 +7747,12 @@
 
       CHARACTER (LEN=*), INTENT(IN OUT)        :: outfile
       INTEGER*4, INTENT(IN OUT)                :: view
-      REAL*8, INTENT(IN OUT)                   :: l_upper
+      Real(kind=dp), INTENT(IN OUT)                   :: l_upper
       INTEGER*4, INTENT(IN OUT)                :: hk_lim
       LOGICAL, INTENT(IN OUT)                  :: ok
 
       INTEGER*4 i, j, p1, p2, irow(sadsize)
-      REAL*8 rowint(sadsize), incr, sigma, x
+      Real(kind=dp) rowint(sadsize), incr, sigma, x
       integer(kind=2), dimension(sadsize) :: short_data
       integer(kind=2),          parameter :: zero_2bytes=0
 
@@ -7935,7 +7928,7 @@
       LOGICAL, INTENT(IN OUT)                  :: ok
       CHARACTER (LEN=1) :: tab
       INTEGER*4 i, n_low
-      REAL*8 theta
+      Real(kind=dp) theta
 
       n_low  = 1
       tab = CHAR(9)
@@ -8033,10 +8026,10 @@
 !       Utiliza las funciones:
 !       Utiliza las subrutinas:
 
-        REAL*8, INTENT(IN OUT)      :: x
-        REAL*8, INTENT(IN)          :: y
+        Real(kind=dp), INTENT(IN OUT)      :: x
+        Real(kind=dp), INTENT(IN)          :: y
         LOGICAL, INTENT(IN OUT)     :: ok
-        REAL*8 :: tmp
+        Real(kind=dp) :: tmp
 
         yrdstk = .false.
         IF(y == zero) then
