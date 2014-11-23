@@ -5089,15 +5089,20 @@
 
                 select case (molx%mol(i)%coor_type)
                     case ("C","c")
-                        write(unit=iunit,fmt="(a)")"!Atom   Type        XC          YC          ZC    N1  N2  N3      Biso        Occ "
+                        write(unit=iunit,fmt="(a)") &
+                        "!Atom   Type        XC          YC          ZC    N1  N2  N3      Biso        Occ "
                     case ("F","f")
-                        write(unit=iunit,fmt="(a)")"!Atom   Type        X           Y           Z     N1  N2  N3      Biso        Occ "
+                        write(unit=iunit,fmt="(a)") &
+                        "!Atom   Type        X           Y           Z     N1  N2  N3      Biso        Occ "
                     case ("S","s")
-                        write(unit=iunit,fmt="(a)")"!Atom   Type    distance      Theta       Phi     N1  N2  N3      Biso        Occ "
+                        write(unit=iunit,fmt="(a)") &
+                        "!Atom   Type    distance      Theta       Phi     N1  N2  N3      Biso        Occ "
                     case ("Z","z")
-                        write(unit=iunit,fmt="(a)")"!Atom   Type    distance  Bond-Angle Torsion-Ang  N1  N2  N3      Biso        Occ "
+                        write(unit=iunit,fmt="(a)") &
+                        "!Atom   Type    distance  Bond-Angle Torsion-Ang  N1  N2  N3      Biso        Occ "
                     case default
-                        write(unit=iunit,fmt="(a)")"!Atom   Type      Coor1       Coor2       Coor3   N1  N2  N3      Biso        Occ "
+                        write(unit=iunit,fmt="(a)") &
+                        "!Atom   Type      Coor1       Coor2       Coor3   N1  N2  N3      Biso        Occ "
                 end select ! molx%mol(i)%coor_type
 
                 do j=1,molx%mol(i)%natoms
