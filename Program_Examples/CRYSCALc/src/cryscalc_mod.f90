@@ -479,6 +479,7 @@ module cryscalc_module
   LOGICAL                                      :: HTML_report
   LOGICAL                                      :: text_report
   LOGICAL                                      :: latex_report
+  LOGICAL                                      :: HTML_email
   LOGICAL                                      :: keyword_create_CIF
   LOGICAL                                      :: keyword_create_CRYSCALC_HTML
   LOGICAL                                      :: keyword_create_CRYSCALC_NEWS
@@ -540,29 +541,30 @@ module cryscalc_module
   INTEGER, parameter          :: CFL_unit            = 44    ! unite logique attribuee au fichier CRYSCALC.CFL
   INTEGER, parameter          :: INS_unit            = 45    ! unite logique attribuee au fichier CRYSCALC_new.INS
   INTEGER, parameter          :: HTML_unit           = 46    ! unite logique attribuee au fichier .HTML
-  INTEGER, parameter          :: TEXT_unit           = 47    ! unite logique attribuee au fichier .TXT
-  INTEGER, parameter          :: LATEX_unit          = 48    ! unite logique attribuee au fichier .LTX (LATEX)
-  INTEGER, parameter          :: CEL_unit            = 49    ! unite logique attribuee au fichier .CEL
-  INTEGER, parameter          :: ACE_unit            = 50    ! unite logique attribuee au fichier .ACE
-  INTEGER, parameter          :: NEWS_unit           = 51    ! unité logique attribuee au fichier cryscalc_news.tx      
+  INTEGER, parameter          :: HTML_email_unit     = 47    ! unite logique attribuee au fichier email.HTML
+  INTEGER, parameter          :: TEXT_unit           = 48    ! unite logique attribuee au fichier .TXT
+  INTEGER, parameter          :: LATEX_unit          = 49    ! unite logique attribuee au fichier .LTX (LATEX)
+  INTEGER, parameter          :: CEL_unit            = 50    ! unite logique attribuee au fichier .CEL
+  INTEGER, parameter          :: ACE_unit            = 51    ! unite logique attribuee au fichier .ACE
+  INTEGER, parameter          :: NEWS_unit           = 52    ! unité logique attribuee au fichier cryscalc_news.tx      
 
-  INTEGER, parameter          :: CFL_read_unit       = 52
-  INTEGER, parameter          :: CEL_read_unit       = 53      ! unite logique attribuee au fichier .CEL (en lecture)
-  INTEGER, parameter          :: CIF_read_unit       = 54      ! unite logique attribuee au fichier .CIF (en lecture)
-  INTEGER, parameter          :: CIF_pymol_unit      = 55      ! unite logique attribuee au fichier .CIF (en lecture)
-  INTEGER, parameter          :: INS_read_unit       = 56      ! unite logique attribuee au fichier .INS (en lecture)
-  INTEGER, parameter          :: PCR_read_unit       = 57      ! unite logique attribuee au fichier .PCR (en lecture)
-  INTEGER, parameter          :: P4P_read_unit       = 58      ! unite logique attribuee au fichier .P4P (en lecture)
-  INTEGER, parameter          :: M50_read_unit       = 59      ! unite logique attribuee au fichier .m50 de Jana (en lecture)
-  INTEGER, parameter          :: X_read_unit         = 60      ! unite logique attribuee au fichier.x (DENZO)
-  INTEGER, parameter          :: RMAT_read_unit      = 61      ! unite logique attribuee au fichier.RMAT (DIRAX)
-  INTEGER, parameter          :: ABS_read_unit       = 62      ! unite logique attribuee au fichier.ABS (SADABS)
-  INTEGER, parameter          :: RED_read_unit       = 63      ! unite logique attribuee au fichier.RED (DATARED)
-  INTEGER, parameter          :: TIDY_read_unit      = 64      ! unite logique attribuee au fichier TIDY_out 
+  INTEGER, parameter          :: CFL_read_unit       = 53
+  INTEGER, parameter          :: CEL_read_unit       = 54      ! unite logique attribuee au fichier .CEL (en lecture)
+  INTEGER, parameter          :: CIF_read_unit       = 55      ! unite logique attribuee au fichier .CIF (en lecture)
+  INTEGER, parameter          :: CIF_pymol_unit      = 56      ! unite logique attribuee au fichier .CIF (en lecture)
+  INTEGER, parameter          :: INS_read_unit       = 57      ! unite logique attribuee au fichier .INS (en lecture)
+  INTEGER, parameter          :: PCR_read_unit       = 58      ! unite logique attribuee au fichier .PCR (en lecture)
+  INTEGER, parameter          :: P4P_read_unit       = 59      ! unite logique attribuee au fichier .P4P (en lecture)
+  INTEGER, parameter          :: M50_read_unit       = 60      ! unite logique attribuee au fichier .m50 de Jana (en lecture)
+  INTEGER, parameter          :: X_read_unit         = 61      ! unite logique attribuee au fichier.x (DENZO)
+  INTEGER, parameter          :: RMAT_read_unit      = 62      ! unite logique attribuee au fichier.RMAT (DIRAX)
+  INTEGER, parameter          :: ABS_read_unit       = 63      ! unite logique attribuee au fichier.ABS (SADABS)
+  INTEGER, parameter          :: RED_read_unit       = 64      ! unite logique attribuee au fichier.RED (DATARED)
+  INTEGER, parameter          :: TIDY_read_unit      = 65      ! unite logique attribuee au fichier TIDY_out 
   
-  INTEGER, parameter          :: PAT_unit            = 65      ! unite logique attribuee au fichier CRYSCALC_pat.xy
-  INTEGER, parameter          :: PRF_unit            = 66      ! unite logique attribuee au fichier CRYSCALC_pat.PRF
-  INTEGER, parameter          :: PM2K_unit           = 67      ! unite logique attribuee au fichier CRYSCALC_PM2K.inp
+  INTEGER, parameter          :: PAT_unit            = 66      ! unite logique attribuee au fichier CRYSCALC_pat.xy
+  INTEGER, parameter          :: PRF_unit            = 67      ! unite logique attribuee au fichier CRYSCALC_pat.PRF
+  INTEGER, parameter          :: PM2K_unit           = 68      ! unite logique attribuee au fichier CRYSCALC_PM2K.inp
 
 
 
@@ -597,6 +599,8 @@ module cryscalc_module
 
   LOGICAL                                      :: keyword_DATA_neutrons
   logical                                      :: DATA_neutrons_PLOT
+  logical                                      :: DATA_neutrons_RE_PLOT_ALL ! Re, Im and Mod on the sample plot for RE
+  LOGICAL                                      :: DATA_n_RE
 
   LOGICAL                                      :: keyword_DATA_Xrays
   logical                                      :: data_Xrays_PLOT
@@ -927,7 +931,7 @@ module cryscalc_module
    real,               dimension(:), allocatable  :: X
    real,               dimension(:), allocatable  :: Y
    integer,            dimension(:), allocatable  :: h, k, l
-   CHARACTER (LEN=32), dimension(:), allocatable  :: string
+   CHARACTER (LEN=64), dimension(:), allocatable  :: string
   end type pgf_data_features
   !type(pgf_data_features), dimension(max_ref) :: pgf_data
   !type (PGF_data_features), dimension(:), allocatable : PGF_data
@@ -1299,7 +1303,7 @@ module atome_module
     REAL                    :: SEA              ! section efficice d'aborption
     REAL                    :: N_SED_coh        !  section efficace de diffusion coherente (=4pi. b**2)
     REAL                    :: N_SED_inc        !  section efficace de diffusion incoherente
-    REAL                    :: N_SE_absorption  !  section efficace de diffusion d'absorption (a la longueur d'onde utilisee)
+    REAL                    :: N_SE_absorption  !  section efficace de diffusion d'absorption (a la longueur d'onde utilisee)	
   
     REAL, DIMENSION(7)      :: cam        ! coef. absorption massique pour Ag, Mo, Cu, Co, Fe, Cr
     REAL, DIMENSION(7)      :: tics       ! total interaction cross section pour Ag, Mo, Cu, Co, Fe, Cr
@@ -1313,7 +1317,35 @@ module atome_module
    END TYPE atomic_features
    TYPE (atomic_features), DIMENSION(201) :: atom
 
+   
+   
+   ! l'ordre des RE est celui dans lequel ils sont tabulees dans la publi de J.E. Lynn and P.A. Seeger
+   character (len=12), dimension(14) :: RE_label =(/"Sm_nat", "Sm_149", "Eu_nat", "Eu_151", "Gd_nat", "Gd_155", "Gd_157", &
+                                                    "Dy_164", "Er_nat", "Er_167", "Yb_nat", "Yb_168", "Yb_174", "Lu_176"/)
+   integer, dimension(14), parameter :: RE_n = (/50, 50, 60, 60, 66, 90, 100, 11, 60 , 60, 40, 40, 11, 50/)
+   REAL, dimension(RE_n(1), 4) :: RE_Sm_nat
+   REAL, dimension(RE_n(2), 4) :: RE_Sm_149
+   REAL, dimension(RE_n(3), 4) :: RE_Eu_nat
+   REAL, dimension(RE_n(4), 4) :: RE_Eu_151
+   REAL, dimension(RE_n(5), 4) :: RE_Gd_nat
+   REAL, dimension(RE_n(6), 4) :: RE_Gd_155
+   REAL, dimension(RE_n(7), 4) :: RE_Gd_157   
+   REAL, dimension(RE_n(8), 4) :: RE_Dy_164   
+   REAL, dimension(RE_n(9), 4) :: RE_Er_nat
+   REAL, dimension(RE_n(10),4) :: RE_Er_167
+   REAL, dimension(RE_n(11),4) :: RE_Yb_nat
+   REAL, dimension(RE_n(12),4) :: RE_Yb_168
+   REAL, dimension(RE_n(13),4) :: RE_Yb_174
+   REAL, dimension(RE_n(14),4) :: RE_Lu_176
+   
+   integer                      :: current_RE
+   integer                      :: current_RE_n
+   CHARACTER (len=12)           :: current_RE_label
+   REAL, dimension(100,4)       :: current_RE_data
 
+   LOGICAL, dimension(14)       :: DATA_neutrons_RE
+
+   
 end module atome_module
 
 ! --------------------------------------------------------------------

@@ -113,6 +113,7 @@ subroutine write_atomic_features()
   endif
   if(.not. known_data_neutrons)  then
    call definition_data_neutrons()
+   call definition_data_neutrons_rare_earth()
    known_data_neutrons = .true.
   endif
   if(.not. known_data_X) then
@@ -550,13 +551,13 @@ END subroutine write_X_rays_anomalous_factors
 
 subroutine WRITE_data(input_string)
  USE IO_module,       ONLY : write_info
- USE cryscalc_module, ONLY : message_text, pgf_data, pgf_file,                                              &
+ USE cryscalc_module, ONLY : message_text, pgf_data, pgf_file,                           &
                              known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x,  &
                              data_neutrons_PLOT, data_Xrays_PLOT, data_atomic_density_PLOT, data_atomic_weight_PLOT,      &
                              data_atomic_radius_PLOT,   winplotr_exe, allocate_PGF_data_arrays, debug_proc
- USE atome_module,    ONLY : atom
  USE wavelength_module
  use atomic_data
+ use atome_module
  USE Neutrons_data
  USE Xrays_data
 
@@ -564,11 +565,13 @@ subroutine WRITE_data(input_string)
   CHARACTER (LEN=*), INTENT(IN) :: input_string
   INTEGER                       :: i, k
   REAL                          :: Xmin, Xmax, Ymin, Ymax
+  REAL                          :: lambda_E
 
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_data ("//trim(input_string)//")")
   
-  call Allocate_PGF_data_arrays(96)
+  !call Allocate_PGF_data_arrays(96)
+  call Allocate_PGF_data_arrays(100)  ! nov. 2014 : permet de visualiser Gd_157 (100 valeurs)
   
   if(.not. known_atomic_label)  then
    call definition_atomic_label    ! %symbol, %name
@@ -580,6 +583,7 @@ subroutine WRITE_data(input_string)
   endif
   if(.not. known_data_neutrons)  then
    call definition_data_neutrons()
+   call definition_data_neutrons_Rare_earth()
    known_data_neutrons = .true.
   endif
   if(.not. known_data_X) then
@@ -604,7 +608,7 @@ subroutine WRITE_data(input_string)
          pgf_data%X(i) = REAL(i)
          WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%bcoh
         END do
-        call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, atom%bcoh, pgf_data%string, 96, "bcoh")
+        call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, atom(1:96)%bcoh, pgf_data%string, 96, "bcoh")
         IF(LEN_TRIM(winplotr_exe) == 0) then
          call write_info('')
          call write_info(' Warning: WinPLOTR is not installed ')
@@ -618,7 +622,7 @@ subroutine WRITE_data(input_string)
         do i=1,96
          WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sedinc
         end do
-        call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sedinc, pgf_data%string, 96, "sedinc")
+        call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom(1:96)%sedinc, pgf_data%string, 96, "sedinc")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))              ! g95
 
@@ -626,11 +630,235 @@ subroutine WRITE_data(input_string)
         do i=1,96
          WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sea
         END do
-        call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sea, pgf_data%string, 96, "sea")
+        call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom(1:96)%sea, pgf_data%string, 96, "sea")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
        END if
 
+      case ('neutrons_RE_ALL')
+	   call write_info('     Element : '//trim(current_RE_label))
+       call write_info('')	 
+       call write_info('       b : neutrons scattering length (10^-12cm)')
+       call write_info('')	 
+       call write_info('            E(ev)     l(A)     Re(b)     Im(b)       |b|')
+       call write_info('')	 
+
+	   if(current_RE == 1) then
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 2) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
+	   elseif(current_RE == 3) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 4) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
+	   elseif(current_RE == 5) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)	
+	   elseif(current_RE == 6) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
+	   elseif(current_RE == 7) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
+	   elseif(current_RE == 8) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
+	   elseif(current_RE == 9) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 10) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
+	   elseif(current_RE == 11) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 12) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
+	   elseif(current_RE == 13) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
+	   elseif(current_RE == 14) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
+	   end if
+       do i=1, current_RE_n
+	    lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+	    WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
+        call write_info(TRIM(message_text))	
+	   end do
+	   
+	   IF(data_neutrons_PLOT) then
+        pgf_file%name = 'neutrons_'//trim(current_RE_label)//".pgf"
+		open(unit=11, file=trim(PGF_file%name))
+		 WRITE(11,'(a)')      '# .PGF (winPLOTR Graphics file) created by CRYSCALC:'
+         WRITE(11,'(a)')      '#'
+         WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
+         WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
+         WRITE(11,'(a)')      '#             J.E. Lynn and P.A. Seeger, Los Alamos National Laboratory'
+         WRITE(11,'(2a)')     '# MAIN LEGEND TEXT: Neutron coherent scattering length for ', trim(current_RE_label)
+         WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
+         WRITE(11,'(a)')      '# Y LEGEND TEXT   : b (10^-12 cm) [Re, Im, Mod]'
+		 Xmin = minval(current_RE_data(1:current_RE_n, 1))
+		 Xmax = maxval(current_RE_data(1:current_RE_n, 1))
+		 Ymin = 0.1*minval(current_RE_data(1:current_RE_n, 2:4))
+		 Ymax = 0.1*maxval(current_RE_data(1:current_RE_n, 2:4))
+         write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
+         WRITE(11,'(a)')               '# NUMBER OF PATTERNS: 3'
+         
+		! data 1 : Re
+         WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
+         WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 1
+         write(11,'(a)')        '#             TITLE : Re_b = f(energy)'
+         write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', current_RE_n
+         write(11,'(a)')        '#            MARKER : 4'
+         write(11,'(a)')        '#              SIZE : 1.5'
+         write(11,'(a)')        '#             STYLE : 1'
+         write(11,'(a)')        '#   DATA: X Y COMM'          
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', Re(b)= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
+		end do  
+		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, current_RE_n)              
+
+		! data 2 : Im
+         WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
+         WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 2
+         write(11,'(a)')        '#             TITLE : Im_b = f(energy)'
+         write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', current_RE_n
+         write(11,'(a)')        '#            MARKER : 4'
+         write(11,'(a)')        '#              SIZE : 1.5'
+         write(11,'(a)')        '#             STYLE : 1'
+         write(11,'(a)')        '#   DATA: X Y COMM'          
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', Im(b)= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
+		end do  
+		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, current_RE_n)              
+		
+		! data 3 : module
+         WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
+         WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 3
+         write(11,'(a)')        '#             TITLE : Mod(b) = f(energy)'
+         write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', current_RE_n
+         write(11,'(a)')        '#            MARKER : 4'
+         write(11,'(a)')        '#              SIZE : 1.5'
+         write(11,'(a)')        '#             STYLE : 1'
+         write(11,'(a)')        '#   DATA: X Y COMM'          
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', |b|= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
+		end do  
+		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, current_RE_n)              
+	    
+		WRITE(11,'(a)') '# END OF FILE'
+		close(unit=11)
+		IF(LEN_TRIM(winplotr_exe) == 0) then
+         call write_info('')
+         call write_info(' Warning: WinPLOTR is not installed ')
+         call write_info('')
+        else
+ 	 	 call system('winplotr '//trim(pgf_file%name))
+        endif
+	   end if	
+	   
+
+	  case ('neutrons_RE')
+	   !current_RE_label = RE_label(current_RE)
+       call write_info('     Element : '//trim(current_RE_label))
+       call write_info('')	 
+       call write_info('       b : neutrons scattering length (10^-12cm)')
+       call write_info('')	 
+       call write_info('            E(ev)     l(A)     Re(b)     Im(b)       |b|')
+       call write_info('')	 
+
+	   if(current_RE == 1) then
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 2) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
+	   elseif(current_RE == 3) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 4) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
+	   elseif(current_RE == 5) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)	
+	   elseif(current_RE == 6) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
+	   elseif(current_RE == 7) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
+	   elseif(current_RE == 8) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
+	   elseif(current_RE == 9) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 10) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
+	   elseif(current_RE == 11) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
+	   elseif(current_RE == 12) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
+	   elseif(current_RE == 13) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
+	   elseif(current_RE == 14) then	
+	    current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
+	   end if
+
+	   
+       do i=1, current_RE_n
+	    lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+	    WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
+        call write_info(TRIM(message_text))	   
+	   end do
+	   
+	  IF(data_neutrons_PLOT) then
+        pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_mod.pgf"
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', b= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
+		end do
+		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, &
+		                     current_RE_n, 'RE_data_mod')
+		
+        IF(LEN_TRIM(winplotr_exe) == 0) then
+         call write_info('')
+         call write_info(' Warning: WinPLOTR is not installed ')
+         call write_info('')
+        else
+ 	 	 call system('winplotr '//trim(pgf_file%name))
+        endif
+		
+        pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_Re.pgf"
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', b= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
+		end do
+		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, &
+		                     current_RE_n, 'RE_data_Re')
+ 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
+
+
+		pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_Im.pgf"
+		do i=1, current_RE_n
+		 pgf_data%X(i) = current_RE_data(i, 1)
+		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+		                                            ', l(A)= ', lambda_E, &
+		                                            ', b= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
+		end do
+		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, &
+		                     current_RE_n, 'RE_data_Im')
+ 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
+
+
+
+      END if
+
+ 
+	   
       case ('xrays')
        call write_info('                    total interaction cross section (in barns)')
 	   write(message_text, '(2a)')  '     Element               Ag             Mo             Cu             Ni', &

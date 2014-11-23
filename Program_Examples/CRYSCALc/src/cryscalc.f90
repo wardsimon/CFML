@@ -498,7 +498,7 @@ end subroutine KEYS_on_line
 subroutine check_CIF_input_file(input_file)
  USE cryscalc_module, ONLY : keyword_create_CIF, create_CIF_PYMOL, CIF_unit, CIF_archive_unit, &
                              keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_KCCD, &
-                             AUTHOR, DEVICE, debug_proc
+                             AUTHOR, DEVICE, debug_proc, include_HKl_file
  USE text_module,    ONLY : CIF_lines_nb, CIF_title_line
  use macros_module,  only : u_case
  use Accents_module, ONLY : def_accents
@@ -534,7 +534,11 @@ subroutine check_CIF_input_file(input_file)
    elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
     keyword_WRITE_REF_KCCD = .true.
    endif
-   OPEN(UNIT=CIF_ARCHIVE_unit, FILE = 'archive_cryscalc.cif', iostat=i_error)
+   if(include_HKL_file) then
+    open(unit=CIF_unit, file = "cryscalc_archive_hkl.cif", iostat = i_error)
+   else 
+    open(unit=CIF_unit, file = "cryscalc_archive.cif", iostat = i_error)
+   end if 
    if(i_error /=0) then
     call write_info('')
     call write_info(' Error opening archive_cryscalc.cif file. Program will be stopped.')

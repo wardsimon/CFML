@@ -1530,7 +1530,11 @@ end subroutine read_SQUEEZE_file
   open(unit = CIF_unit, file = 'cryscalc.cif')
   
   close(unit=CIF_archive_unit)
-  open(unit=CIF_archive_unit, file="archive_cryscalc.cif")
+  if(include_HKL_file) then
+   open(unit=CIF_archive_unit, file="archive_cryscalc_hkl.cif")
+  else
+   open(unit=CIF_archive_unit, file="archive_cryscalc.cif")
+  end if
   
   ! premiere lecture du fichier archive.cif
   open (unit=input_unit, file=trim(archive_cif))  !! le fichier a été fermé je ne sais ou !
@@ -2154,8 +2158,9 @@ end subroutine read_SQUEEZE_file
    if(sample_ID /= '?') then
     write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
 	long = len_trim(sample_ID)
-	write(fmt_, '(a,i2,a)') '(2a,', 55-long, 'a1, a)'	
-	write(CIF_archive_unit, trim(fmt_)) '#===END OF CIF FILE FOR ', u_case(trim(sample_ID)), (' ',i=1,55-long), '#'
+	write(fmt_, '(a,i2,a)') '(2a,', 53-long, 'a1, a)'	
+  
+	write(CIF_archive_unit, trim(fmt_)) '#===END OF CIF FILE FOR ', u_case(trim(sample_ID)), (' ',i=1,53-long), '#'
 	!write(CIF_archive_unit, '(2a)') '# END OF CIF FILE FOR ', u_case(trim(sample_ID))
    endif	
    write(CIF_archive_unit, '(a)') trim(CIF_sep_line)

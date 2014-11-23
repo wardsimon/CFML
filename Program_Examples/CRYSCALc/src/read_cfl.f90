@@ -370,18 +370,27 @@ end subroutine incident_beam
      return
     endif
     var(1:10) = 0.
-	if(beam_type(1:7) == 'x-rays') then
-    call get_X_radiation(arg_string(1))
+	if(beam_type(1:6) == 'x-rays') then
+     call get_X_radiation(arg_string(1))
     !if(.not. keyword_WAVE) then
-    if(.not. anti_cathode) then
-     read(arg_string(1), *,  IOSTAT= i_error) var(1)
+     if(.not. anti_cathode) then
+      read(arg_string(1), *,  IOSTAT= i_error) var(1)
+      IF(i_error /=0) then
+       call error_message('WAVE')
+       return
+      endif     
+      wavelength = var(1)
+     endif
+    else
+	 read(arg_string(1), *,  IOSTAT= i_error) var(1)
      IF(i_error /=0) then
       call error_message('WAVE')
       return
      endif     
-     wavelength = var(1)
-    endif
-    endif    
+	 wavelength = var(1)
+	endif    
+	
+	pause
 
     call write_wave_features()
     keyword_WAVE = .true.

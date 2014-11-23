@@ -477,7 +477,8 @@ subroutine Get_CIF_parameters()
   if(HTML_report) then 
    WRITE(HTML_unit, '(3a)') 'Working directory: <font face="courier">', trim(wingx_structure_dir), '</font><br>'
    WRITE(HTML_unit, '(3a)') "Input CIF file : ", trim(archive_CIF), '<br>'
-   WRITE(HTML_unit, '(5a)') "CRYSCALC version : ", trim(cryscalc%version), " [", trim(cryscalc%author), "]</p>"
+   WRITE(HTML_unit, '(5a)') "CRYSCALC version : ", trim(cryscalc%version), " [", trim(cryscalc%author), "]"
+   WRITE(HTML_unit, '(a)')  "</p class='header'>"
    WRITE(HTML_unit, '(a)')  "<hr>" 
   endif 
   if(LATEX_report) then
@@ -575,6 +576,7 @@ subroutine  create_report
  
  if(HTML_report) then
   WRITE(HTML_unit, '(a)')  "<br>"    
+  WRITE(HTML_unit, '(a)')  "<div class='cadre'>"
   WRITE(HTML_unit, '(3a)') "<p class='title_main'><i>", trim(job),"</i>: Crystal structure report</p><br>"
   WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;X-ray crystallographic study</p>"
  endif
@@ -1929,12 +1931,13 @@ subroutine  create_report
 
   if(HTML_report) then
    WRITE(HTML_unit, '(a)')  "<HR>"
+   WRITE(HTML_unit, '(a)')  "</div class='cadre'>"
    WRITE(HTML_unit, '(a)')  "<p class='retrait_1'>"
    WRITE(HTML_unit, '(6a)') "<i>This HTML report has been created through ",                        &
                             "<A HREF='http://", trim(CRYSCALC%url), "'>CRYSCALC</A> (", &
                             trim(cryscalc%version), ")."
    WRITE(HTML_unit, '(5a)') "Please report bugs and problems to <A HREF='mailto:", &
-                             trim(CRYSCALC%mail), "'>", trim(CRYSCALC%mail), "/A></p>"
+                             trim(CRYSCALC%mail), "'>", trim(CRYSCALC%mail), "</A></p>"
    
    WRITE(HTML_unit, '(a)')  "</BODY>"
    WRITE(HTML_unit, '(a)')  "</HTML>"
@@ -2799,6 +2802,7 @@ end subroutine report_crystal_study
 subroutine report_cell_parameters(doc_type)
  use CRYSCALC_module, only  : HTML_unit, LATEX_unit, debug_proc
  use CIF_module,      only  : CIF_parameter
+ use macros_module,   only  : l_case
  implicit none
   character (len=*), intent(in)     :: doc_type
   
@@ -2806,33 +2810,33 @@ subroutine report_cell_parameters(doc_type)
 
   
   if(len_trim(doc_type) == 4 .and. doc_type(1:4) == "HTML") then
-   IF(CIF_parameter%symmetry_cell_setting(1:9) == 'triclinic') then
+   IF(l_case(CIF_parameter%symmetry_cell_setting(1:9)) == 'triclinic') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
      WRITE(HTML_unit, '(3a)') "b = ",TRIM(CIF_parameter%cell_length_b), ", "
      WRITE(HTML_unit, '(3a)') "c = ",TRIM(CIF_parameter%cell_length_c), " Å, "
      WRITE(HTML_unit, '(3a)') "&alpha; = ",TRIM(CIF_parameter%cell_angle_alpha), ", "
      WRITE(HTML_unit, '(3a)') "&beta; = ",TRIM(CIF_parameter%cell_angle_beta),  ", "
      WRITE(HTML_unit, '(3a)') "&gamma; = ",TRIM(CIF_parameter%cell_angle_gamma), " °, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:10) == 'monoclinic') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:10)) == 'monoclinic') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
      WRITE(HTML_unit, '(3a)') "b = ",TRIM(CIF_parameter%cell_length_b), ", "
      WRITE(HTML_unit, '(3a)') "c = ",TRIM(CIF_parameter%cell_length_c), " Å, "
      WRITE(HTML_unit, '(3a)') "&beta; = ",TRIM(CIF_parameter%cell_angle_beta), " °, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:12) == 'orthorhombic') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:12)) == 'orthorhombic') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
      WRITE(HTML_unit, '(3a)') "b = ",TRIM(CIF_parameter%cell_length_b), ", "
      WRITE(HTML_unit, '(3a)') "c = ",TRIM(CIF_parameter%cell_length_c), " Å, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:10) == 'tetragonal') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:10)) == 'tetragonal') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
      WRITE(HTML_unit, '(3a)') "c = ",TRIM(CIF_parameter%cell_length_c), " Å, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:9) == 'hexagonal' .or.    &
-           CIF_parameter%symmetry_cell_setting(1:8) == 'trigonal') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:9)) == 'hexagonal' .or.    &
+          l_case(CIF_parameter%symmetry_cell_setting(1:8)) == 'trigonal') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
      WRITE(HTML_unit, '(3a)') "c = ",TRIM(CIF_parameter%cell_length_c), " Å, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:11) == 'rhomboedral') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:11)) == 'rhomboedral') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), " Å, "
      WRITE(HTML_unit, '(3a)') "&alpha; = ",TRIM(CIF_parameter%cell_angle_alpha), " °, "
-   ELSEIF(CIF_parameter%symmetry_cell_setting(1:5) == 'cubic') then
+   ELSEIF(l_case(CIF_parameter%symmetry_cell_setting(1:5)) == 'cubic') then
      WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_c), " Å, "
    ENDIF
    WRITE(HTML_unit, '(3a)', advance='NO') "<i>V</i> = ",TRIM(CIF_parameter%cell_volume), " Å<sup>3</sup>."

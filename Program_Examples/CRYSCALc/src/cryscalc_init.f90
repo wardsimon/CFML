@@ -3,6 +3,7 @@ subroutine cryscalc_init()
  USE cryscalc_module
  USE pattern_profile_module
  USE wavelength_module
+ USE atome_module
  USE HKL_module
  USE CIF_module
  USE MATRIX_list_module, only : user_mat_nb
@@ -835,8 +836,10 @@ subroutine cryscalc_init()
   keyword_mag        = .false.
   mag_atom_label     = ''
 
-  keyword_DATA_neutrons = .false.
-  data_neutrons_PLOT    = .false.
+  keyword_DATA_neutrons     = .false.
+  data_neutrons_PLOT        = .false.
+  DATA_neutrons_RE_PLOT_ALL = .false.
+  DATA_n_RE                 = .false.
 
   keyword_DATA_Xrays    = .false.
   data_Xrays_PLOT       = .false.
@@ -1141,6 +1144,14 @@ subroutine cryscalc_init()
      call write_debug_proc('', '')
     endif
     return
+   else
+    if(len_trim(winplotr_exe) == 0) then
+     if(debug_proc%write) then
+      call write_debug_proc('', '')
+      call write_debug_proc('WinPLOTR not installed or wrong WinPLOTR environment variable.', '')
+      call write_debug_proc('', '')
+     endif
+    end if
    endif
   endif
    ! <<
@@ -1153,6 +1164,10 @@ subroutine cryscalc_init()
     call write_debug_proc('CRYSCALC_css', trim(cryscalc%css))
     !call write_debug_proc('','')
     call write_debug_proc('CRYSCALC_report_css', trim(cryscalc%report_css))
+    call write_debug_proc('','')
+	call write_debug_proc('WinPLOTR_path', trim(winplotr_path_name))
+    call write_debug_proc('','')
+	call write_debug_proc('WinPLOTR_exe', trim(winplotr_exe))
     call write_debug_proc('','')
    endif
  

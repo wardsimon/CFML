@@ -17,7 +17,18 @@ subroutine write_cryscalc_neWS(input_string)
 
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '14' .or. news_year(1:4) == '2014') then
    call write_cryscalc_news_line(input_string,  '')
-   call write_cryscalc_news_line(input_string,  '. Nov. 14 :')      
+   call write_cryscalc_news_line(input_string,  '. Nov. 14 :')     
+   call write_cryscalc_news_line(input_string,  '  # New argument for DATA_neutrons keyword, allowing to provide')
+   call write_cryscalc_news_line(input_string,  '    to the user neutron scattering length versus energy for ')
+   call write_cryscalc_news_line(input_string,  '    some rare earths and isotopes. The following arguments can be')
+   call write_cryscalc_news_line(input_string,  '    input: Sm_nat, SM_149, Eu_nat, Eu_151, Gd_nat, Gd_155, Gd_157,')
+   call write_cryscalc_news_line(input_string,  '    Dy_164, Er_nat, Er_167, Yb_nat, Yb_168, Yb_174 and Lu_176.')
+   call write_cryscalc_news_line(input_string,  '    Thanks to Pierric Lemoine (ISCR) for taping neutron scattering')
+   call write_cryscalc_news_line(input_string,  '    lengths from the following reference :')
+   call write_cryscalc_news_line(input_string,  '      Atomic data and nuclear data tables 44, 191-207 (1990)')
+   call write_cryscalc_news_line(input_string,  '      J.E. Lynn and P.A. Seeger, L.A.N.L.') 
+   
+      
    call write_cryscalc_news_line(input_string,  '  # New PAT command line argument after .CIF or . INS file ')
    call write_cryscalc_news_line(input_string,  '    allows to calculate a diffraction pattern from features given by ')
    call write_cryscalc_news_line(input_string,  '    PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]')

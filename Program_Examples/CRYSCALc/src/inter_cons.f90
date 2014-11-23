@@ -148,6 +148,7 @@ END subroutine interactive_mode
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: current_keyword
   LOGICAL                       :: create_file
+  !integer                       :: i
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive ("//trim(current_keyword)//")")
  
@@ -691,7 +692,15 @@ END subroutine interactive_mode
         call write_mag_lines()
 
       case ('DATA_NEUTRONS', 'NEUTRONS_DATA', 'DATA_NEUTRON', 'NEUTRON_DATA')
-        call write_data('neutrons')      ! mendel
+		if(DATA_n_RE) then
+		 if(DATA_neutrons_RE_PLOT_ALL) then
+		  call write_data('neutrons_RE_ALL')
+		 else
+		  call write_data('neutrons_RE')
+         endif 		 
+		else
+         call write_data('neutrons')      ! mendel
+		end if
 
       case ('DATA_XRAYS', 'XRAYS_DATA', 'DATA_XRAY', 'XRAY_DATA')
         call write_data('xrays')         ! mendel

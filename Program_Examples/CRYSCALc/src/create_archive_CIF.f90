@@ -2,7 +2,7 @@ subroutine read_cif_and_create_ARCHIVE
 ! read CIF files and create ARCHIVE.cif 
  use cryscalc_module, only : nb_input_CIF_files, input_CIF_file, CIF_file_exist, CIF_unit, CRYSCALC, CIF_read_unit, &
                              molecule, absorption, SADABS_absorption_coeff, SPG, device, SFAC, nb_atoms_type,       &
-							 include_RES_file, SQUEEZE, CIF_format80, message_text							 
+							 include_RES_file, include_HKL_file, SQUEEZE, CIF_format80, message_text							 
  use CIF_module 
  use macros_module,   only : Get_current_folder_name, Get_sample_ID_from_folder_name, u_case, test_file_exist
  use IO_module,       only : write_info
@@ -41,8 +41,12 @@ subroutine read_cif_and_create_ARCHIVE
   
   
   close(unit=CIF_unit)
-  open(unit=CIF_unit, file="cryscalc_archive.cif")
-
+  if(include_HKL_file) then
+   open(unit=CIF_unit, file = "cryscalc_archive_hkl.cif")
+  else 
+   open(unit=CIF_unit, file = "cryscalc_archive.cif")
+  end if 
+  
   write(CIF_unit, '(a)') '#'
   write(CIF_unit, '(a)') '#'
 
@@ -421,8 +425,9 @@ subroutine read_cif_and_create_ARCHIVE
   
   write(CIF_unit, '(a)') trim(CIF_sep_line)
   long = len_trim(sample_ID)
-  write(fmt_ , '(a,i2,a)') '(2a,', 53-long, 'x,a)'
-  write(CIF_unit, fmt=trim(fmt_))        '#===END OF CIF FILE FOR ', trim(u_case(sample_ID)),'#'
+  write(fmt_ , '(a,i2,a)') '(2a,', 53-long, 'x,a)'  
+  !write(CIF_unit, fmt=trim(fmt_))        '#===END OF CIF FILE FOR ', trim(u_case(sample_ID)),'#'
+  write(CIF_unit, trim(fmt_)) '#===END OF CIF FILE FOR ', u_case(trim(sample_ID)), (' ',i=1,53-long), '#'
   write(CIF_unit, '(a)') trim(CIF_sep_line)    
   
   call write_info('   >>> CRYSCALC_ARCHIVE.cif file has been created.')

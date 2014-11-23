@@ -629,8 +629,16 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
       case ('MAG', 'MAGNETIC', 'MAGNETISM')
         call write_mag_lines()
 
-      case ('DATA_NEUTRONS', 'NEUTRONS_DATA', 'DATA_NEUTRON', 'NEUTRON_DATA')
-        call write_data('neutrons')      ! mendel
+     case ('DATA_NEUTRONS', 'NEUTRONS_DATA', 'DATA_NEUTRON', 'NEUTRON_DATA')
+		if(DATA_n_RE) then
+    	 if(DATA_neutrons_RE_PLOT_ALL) then
+		  call write_data('neutrons_RE_ALL')
+		 else
+		  call write_data('neutrons_RE')
+         endif 		 
+		else
+         call write_data('neutrons')      ! mendel
+		end if
 
       case ('DATA_XRAYS', 'XRAYS_DATA', 'DATA_XRAY', 'XRAY_DATA')
         call write_data('xrays')         ! mendel

@@ -632,19 +632,23 @@ end program crystallographic_calculations
 !--------------------------------------------------------------------
 subroutine end_of_program
  USE IO_module
- USE cryscalc_module, ONLY : keyword_create_CIF, keyword_modif_ARCHIVE
+ USE cryscalc_module, ONLY : keyword_create_CIF, keyword_modif_ARCHIVE, include_HKL_file
 
 
  call WRITE_info(' ')
  call WRITE_info(' ')
- call WRITE_info('   All CRYSCALC results are stored in CRYSCALC.log file. ')
+ call WRITE_info('   All CRYSCALC results are stored in CRYSCALC.out file. ')
  call WRITE_info(' ')
 
  IF(keyword_create_CIF) then
   call WRITE_info(' ')
   call WRITE_info(' ')
   if (keyword_modif_ARCHIVE) then
-   call WRITE_info('   Results in CIF format are stored in ARCHIVE_CRYSCALC.CIF file. ')
+   if(include_HKL_file) then
+    call WRITE_info('   Results in CIF format are stored in ARCHIVE_CRYSCALC_hkl.CIF file. ')
+   else
+    call WRITE_info('   Results in CIF format are stored in ARCHIVE_CRYSCALC.CIF file. ')
+   end if
   else 
    call WRITE_info('   Results in CIF format are stored in CRYSCALC.CIF file. ')
   endif 

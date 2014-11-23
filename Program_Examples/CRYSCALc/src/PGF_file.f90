@@ -2,6 +2,7 @@
 !subroutine create_PGF_file(X,Y, h,k,l, npts, X_legend )
 subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
  !USE cryscalc_module, only : debug_proc
+ use atome_module
  implicit none
   character (len=*), intent(in)          :: pgf_file
   REAL,    INTENT(IN), DIMENSION(npts)   :: X, Y
@@ -10,7 +11,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   INTEGER, INTENT(IN)                    :: npts
   CHARACTER(LEN=*), INTENT(IN)           :: X_legend
   !local variables:
-  INTEGER                                :: i, i1
+  INTEGER                                :: i, i1, long
   character (len=64)                     :: titre
   REAL                                   :: Xmin, Xmax, Ymin, Ymax
 
@@ -18,55 +19,91 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   
  ! creation d'un fichier format PGF (pour WinPLOTR): F2 = f(sinTheta/wave)
 
+ long = len_trim(X_legend)
+ 
  ! entete
 
  open(unit=11, file=trim(pgf_file))
  WRITE(11, '(a)') '# .PGF (winPLOTR Graphics file) created by CRYSCALC:'
  WRITE(11, '(a)') '#'
 
- IF(X_legend(1:8) == 'sinTheta') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(sinTheta/lambda)'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : sin(Theta)/lambda (A-1)'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-  titre =  'F2 = f(sinTheta/lambda)'
-
- ELSEIF(X_legend(1:5) == 'd_hkl') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(d_hkl)'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : d_hkl(A)'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-  titre =  'F2 = f(d_hkl)'
-
- ELSEIF(X_legend(1:5) == 'theta') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(Theta)'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : Theta(deg)'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-  titre =  'F2 = f(Theta)'
-
- ELSEIF(X_legend(1:4) == 'bcoh') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron coherent scattering length'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : bcoh (10-12 cm)'
-  titre =  'bcoh = f(element)'
-
- ELSEIF(X_legend(1:6) == 'sedinc') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron incoherent cross section'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : sed_inc (barns)'
-  titre =  'sed_inc = f(element)'
-
- ELSEIF(X_legend(1:3) == 'sea') then
-  WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron absorption cross section'
-  WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
-  WRITE(11,'(a)')      '# Y LEGEND TEXT   : sea (barns)'
-  titre =  'sea = f(element)'
-
+ IF(long ==8) then
+  if(X_legend(1:8) == 'sinTheta') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(sinTheta/lambda)'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : sin(Theta)/lambda (A-1)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
+   titre =  'F2 = f(sinTheta/lambda)'
+  END IF
+ ELSEIF(long ==5) then
+  IF(X_legend(1:5) == 'd_hkl') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(d_hkl)'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : d_hkl(A)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
+   titre =  'F2 = f(d_hkl)'
+  END IF
+ ELSEIF(long ==5) THEN
+  IF(X_legend(1:5) == 'theta') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(Theta)'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Theta(deg)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
+   titre =  'F2 = f(Theta)'
+  END IF
+ ELSEIF(long ==4) then
+  if(X_legend(1:4) == 'bcoh') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron coherent scattering length'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : bcoh (10-12 cm)'
+   titre =  'bcoh = f(element)'
+  end if
+ ELSEIF(long ==6) then
+  if(X_legend(1:6) == 'sedinc') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron incoherent cross section'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : sed_inc (barns)'
+   titre =  'sed_inc = f(element)'
+  end if
+ ELSEIF(long ==3) then
+  if(X_legend(1:3) == 'sea') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron absorption cross section'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : sea (barns)'
+   titre =  'sea = f(element)'
+  end if
+ ELSEIF(long ==11) then
+  if(X_legend(1:11) == 'RE_data_mod') then
+   WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
+   WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
+   WRITE(11,'(a)')      '#             J.E. Lynn and P.A. Seeger, Los Alamos National Laboratory'
+   WRITE(11,'(2a)')     '# MAIN LEGEND TEXT: Neutron coherent scattering length for ', trim(current_RE_label)
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : |b| (10^-12 cm)'
+   titre =  'mod_b = f(energy)'
+  END IF 
+ ELSEIF(long ==10) then
+  if(X_legend(1:10) == 'RE_data_Re') then
+   WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
+   WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
+   WRITE(11,'(a)')      '#             J.E. Lynn and P.A. Seeger, Los Alamos National Laboratory'
+   WRITE(11,'(2a)')     '# MAIN LEGEND TEXT: Neutron coherent scattering length for ', trim(current_RE_label)
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : Re(b) (10^-12 cm)'
+   titre =  'Re_b = f(energy)'
+ elseif(X_legend(1:10) == 'RE_data_Im') then
+   WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
+   WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
+   WRITE(11,'(a)')      '#             J.E. Lynn and P.A. Seeger, Los Alamos National Laboratory'
+   WRITE(11,'(2a)')     '# MAIN LEGEND TEXT: Neutron coherent scattering length for ', trim(current_RE_label)
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : Im(b) (10^-12 cm)'
+   titre =  'Im_b = f(energy)'
+  end if  
  ELSEIF(X_legend(1:2) == 'Ag') then
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Ag radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Ag = f(element)'
-  ELSEIF(X_legend(3:) == '_cam') then
+  ELSEIF(long ==3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Ag radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
@@ -79,7 +116,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Mo = f(element)'
-  ELSEIF(X_legend(3:) == '_cam') then
+  ELSEIF(long ==3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Mo radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
@@ -92,7 +129,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Cu = f(element)'
-  ELSEIF(X_legend(3:) == '_cam') then
+  ELSEIF(long ==3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Cu radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
@@ -100,12 +137,12 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   endif
 
  ELSEIF(X_legend(1:2) == 'Ni') then
-  IF(X_legend(3:) == '_tics') then
+  IF(long > 3 .and. X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Ni radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Ni = f(element)'
-  ELSEIF(X_legend(3:) == '_cam') then
+  ELSEIF(long >3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Ni radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
@@ -151,25 +188,25 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    titre =  'MAC_X_Cr = f(element)'
   endif
 
- ELSEIF(X_legend(1:8) == 'density') then
+ ELSEIF(long ==8 .and. X_legend(1:8) == 'density') then
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Atomic density'
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : density'
   titre =  'atomic_density = f(element)'
 
- ELSEIF(X_legend(1:6) == 'radius') then
+ ELSEIF(long ==6 .and. X_legend(1:6) == 'radius') then
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Atomic radius'
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : radius (A)'
   titre =  'atomic_radius = f(element)'
 
- ELSEIF(X_legend(1:6) == 'weight') then
+ ELSEIF(long ==6 .and. X_legend(1:6) == 'weight') then
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Atomic weight'
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : weight'
   titre =  'atomic_weight = f(element)'
 
- ELSEIF(X_legend(1:2) == 'f0') then
+ ELSEIF(long ==2 .and. X_legend(1:2) == 'f0') then
   i1 = INDEX(X_legend, ':')
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: X ray scattering factor for '//X_legend(i1+1:)
   WRITE(11,'(a)')      '# X LEGEND TEXT   : sin(Theta)/lambda (A-1)'

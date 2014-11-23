@@ -68,6 +68,7 @@ subroutine identification_keywords(read_line)
  USE IO_module,                 ONLY : write_info
  USE matrix_module,             ONLY : get_mat_from_setting
  USE wavelength_module
+ USE atome_module
  USE text_module ,              ONLY : CIF_lines_nb, CIF_title_line
 
  implicit none
@@ -132,7 +133,7 @@ subroutine identification_keywords(read_line)
    end do
   endif
   
-
+  
   select case (TRIM(input_keyword))
 
    case ('EXPERT_MODE', 'EXPERT', 'EXPERT_ON')
@@ -2512,10 +2513,88 @@ subroutine identification_keywords(read_line)
     keyword_MENDEL = .true.
 
    case ('DATA_NEUTRONS', 'DATA_NEUTRON', 'NEUTRON_DATA', 'NEUTRONS_DATA')
-    data_neutrons_PLOT = .false.
-    if(nb_arg/=0 .and. arg_string(1) == 'PLOT') data_neutrons_PLOT = .true.
-    keyword_DATA_NEUTRONS = .true.
-
+    data_neutrons_PLOT         = .false.
+	DATA_neutrons_RE_PLOT_ALL  = .false.
+	data_n_RE                  = .false.
+	data_neutrons_RE(1:14)     = .false.
+    if(nb_arg/=0) then 
+	 !data_neutrons_RE(1:10)	 = .false. 
+	 !DATA_n_RE        = .false.
+     do i=1, nb_arg
+	   long = len_trim(arg_string(i))
+	   if(long >=4 .and. arg_string(i)(1:4) == 'PLOT')      data_neutrons_PLOT        = .true.
+	   if(long >=8 .and. arg_string(i)(1:8) == 'PLOT_ALL')  DATA_neutrons_RE_PLOT_ALL = .true.
+	   !if(arg_string(i) == 'PLOT')   data_neutrons_PLOT = .true.
+	   
+	   if(arg_string(i) == 'SM_NAT') then
+	    data_neutrons_RE(1)  = .true.
+		DATA_n_RE = .true. 
+	   end if	
+	   if(arg_string(i) == 'SM_149') then 
+	    data_neutrons_RE(2)  = .true.
+		DATA_n_RE = .true. 
+	   end if	
+	   if(arg_string(i) == 'EU_NAT') then 
+	    data_neutrons_RE(3)  = .true.
+		DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'EU_151') then 
+	    data_neutrons_RE(4)  = .true.
+		DATA_n_RE = .true. 
+	   end if	
+	   if(arg_string(i) == 'GD_NAT') then 
+	    data_neutrons_RE(5)  = .true.
+		DATA_n_RE = .true. 
+	   end if	
+	   if(arg_string(i) == 'GD_155') then 
+	    data_neutrons_RE(6)  = .true.
+	    DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'GD_157') then 
+	    data_neutrons_RE(7)  = .true.
+	    DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'DY_164') then 
+	    data_neutrons_RE(8)  = .true.
+	    DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'ER_NAT') then 
+	    data_neutrons_RE(9)  = .true.
+	    DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'ER_167') then 
+	    data_neutrons_RE(10)  = .true.
+	    DATA_n_RE = .true. 
+	   end if
+	   if(arg_string(i) == 'YB_NAT') then  
+	    data_neutrons_RE(11) = .true.
+	    DATA_n_RE = .true. 
+	   endif 	
+	   if(arg_string(i) == 'YB_168') then  
+	    data_neutrons_RE(12) = .true.
+	    DATA_n_RE = .true. 
+	   endif 	
+	   if(arg_string(i) == 'YB_174') then  
+	    data_neutrons_RE(13) = .true.
+	    DATA_n_RE = .true. 
+	   endif 	
+	   if(arg_string(i) == 'LU_176') then  
+	    data_neutrons_RE(14) = .true.
+	    DATA_n_RE = .true. 
+	   endif 	
+	 end do
+	 
+	 do i=1, 14
+	  if(data_neutrons_RE(i)) then
+	   current_RE   = i
+	   current_RE_n = RE_n(i)
+	   current_RE_label = RE_label(i)		   
+	   exit
+	  end if 
+	 end do	 
+	end if 
+	keyword_DATA_NEUTRONS = .true.
+	
    case ('DATA_XRAYS', 'DATA_XRAY', 'XRAYS_DATA', 'XRAY_DATA')
     data_xrays_PLOT = .false.
     if(nb_arg/=0 .and. arg_string(1) == 'PLOT') data_Xrays_PLOT = .true.

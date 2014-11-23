@@ -23,7 +23,7 @@ rem
    echo **----                (2007-2014)                     ----**
    echo **----                                                ----**
    echo **----  Compilation:                                  ----**
-   echo **         make_cryscalc [lf95/g95/gfortran/all]      ----**
+   echo **         make_cryscalc [lf95/g95/ifort/all]         ----**
    echo **--------------------------------------------------------**
 rem
 rem Compiler Version

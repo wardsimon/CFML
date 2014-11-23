@@ -435,6 +435,12 @@ subroutine write_HTML_css(HTML_unit, input_string)
   WRITE(HTML_unit, '(a)') "  .ligne_1    { background-color : #FAFAFA;}"
   WRITE(HTML_unit, '(a)') "  .ligne_2    { background-color : #EEEEEE;}"
   WRITE(HTML_unit, '(a)') "  .color_grey1{color:#323232;}"
+  WRITE(HTML_unit, '(a)') "  .cadre { background:#fafafa; border: 1px solid #F9F9F9;"
+  WRITE(HTML_unit, '(a)') "           margin-top: 0px; margin-left: 25px; margin-right: 25px; padding-right: 0px;"
+  WRITE(HTML_unit, '(a)') "           -moz-border-radius: 10px;"
+  WRITE(HTML_unit, '(a)') "    -webkit-border-radius: 10px;"
+  WRITE(HTML_unit, '(a)') "           -border-radius: 10px;}"
+  
   WRITE(HTML_unit, '(2a)') "  hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0;", &
                            " margin-left:50px; margin-right:50px;}"
   WRITE(HTML_unit, '(a)') ""
