@@ -459,11 +459,12 @@
     !!----
     !!----    Calculate the Magnetic Interaction vector from Magnetic
     !!----    Structure factors, reflections and cell parameters.
+    !!----    Whatever kind of settings for symmetry operators is allowed.
     !!----    The components are given with respect to the crystallographic
     !!----    unitary direct cell system: {e1,e2,e3} and with respect to the
     !!----    Cartesian frame defined in Cell.
     !!----
-    !!---- Updated: April - 2005, June 2012
+    !!---- Updated: April - 2005, June 2012, November 2014 (JRC)
     !!
     Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh)
        !---- Arguments ----!
@@ -522,10 +523,10 @@
                 Msin(:,:)=Msin(:,:)+sin(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
              end do ! symmetry
 
-             ar =       onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk))
-             ai = -isig*onh*matmul(Mcos,Atm%atom(i)%SkI(:,nvk))
-             br =       onh*matmul(Msin,Atm%atom(i)%SkR(:,nvk))
-             bi = -isig*onh*matmul(Msin,Atm%atom(i)%SkI(:,nvk))
+             ar =       onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk)/Cell%cell)*Cell%cell  !The introduction of Cell%cell
+             ai = -isig*onh*matmul(Mcos,Atm%atom(i)%SkI(:,nvk)/Cell%cell)*Cell%cell  !is for handling the possibility
+             br =       onh*matmul(Msin,Atm%atom(i)%SkR(:,nvk)/Cell%cell)*Cell%cell  !of using non conventional settings for
+             bi = -isig*onh*matmul(Msin,Atm%atom(i)%SkI(:,nvk)/Cell%cell)*Cell%cell  !symmetry operators
              Ajh(:) = ar(:) - bi(:)
              Bjh(:) = br(:) + ai(:)
 
@@ -535,7 +536,7 @@
           end do ! Atoms
           Mh%MsF(:)=cmplx(aa(:),bb(:))
 
-       else  !Now magnetic structure described in terms of basis functions
+       else  !Now magnetic structure described in terms of basis functions (No magnetic rotation matrices are provided)
 
           Mh%MsF(:)=cmplx(0.0,0.0)
           do i=1,Atm%natoms
@@ -595,13 +596,14 @@
     !!----
     !!----    Calculate the Magnetic Interaction vector from Magnetic
     !!----    Structure factors, reflections and cell parameters.
+    !!----    Whatever kind of settings for symmetry operators is allowed.
     !!----    The components are given with respect to the crystallographic
     !!----    unitary direct cell system: {e1,e2,e3} and with respect to
     !!----    Cartesian frame defined in Cell.
     !!----    In this subroutine the presence of magnetic domains is
     !!----    taken into account
     !!----
-    !!---- Updated: September - 2010, July-2012 (JRC)
+    !!---- Updated: September - 2010, July-2012, November 2014 (JRC)
     !!
     Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
        !---- Arguments ----!
@@ -683,10 +685,10 @@
                       Msin(:,:)=Msin(:,:)+sin(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
                    end do ! symmetry
 
-                   ar =       onh*matmul(Mcos,SkR(:))
-                   ai = -isig*onh*matmul(Mcos,SkI(:))
-                   br =       onh*matmul(Msin,SkR(:))
-                   bi = -isig*onh*matmul(Msin,SkI(:))
+                   ar =       onh*matmul(Mcos,SkR(:)/Cell%cell)*Cell%cell  !The introduction of Cell%cell
+                   ai = -isig*onh*matmul(Mcos,SkI(:)/Cell%cell)*Cell%cell  !is for handling the possibility
+                   br =       onh*matmul(Msin,SkR(:)/Cell%cell)*Cell%cell  !of using non conventional settings for
+                   bi = -isig*onh*matmul(Msin,SkI(:)/Cell%cell)*Cell%cell  !symmetry operators
                    Ajh(:) = ar(:) - bi(:)
                    Bjh(:) = br(:) + ai(:)
 
@@ -698,7 +700,7 @@
              end do ! Chirality Domains
           end do !Domains
 
-       else  !Now magnetic structure described in terms of basis functions
+       else  !Now magnetic structure described in terms of basis functions (No magnetic rotation matrices are provided)
 
           do nd=1,Mag_dom%nd
              Mh%MsF(:,:,nd)=cmplx(0.0,0.0)
@@ -782,7 +784,8 @@
     !!----    type(MagH_Type),          intent(in out) :: Mh
     !!----
     !!----    Calculate the Tensorial Magnetic Structure factor of the
-    !!----    reflection provided in Mh.
+    !!----    reflection provided in Mh. Only reasonable settings for symmetry
+    !!----    operators are allowed to get correct values in this subroutine.
     !!----    The components are given with respect to the crystallographic
     !!----    unitary direct cell system: {e1,e2,e3} and with respect to the
     !!----    Cartesian frame defined in Cell.
@@ -839,21 +842,23 @@
     End Subroutine Calc_Magnetic_StrF_Tensor
 
     !!--++
-    !!--++ Subroutine Calc_Table_MAB(Mlist,Atm,Mgp)
-    !!--++    type(MagH_List_Type),  intent(in) :: MList
-    !!--++    type(Matom_list_type), intent(in) :: Atm
-    !!--++    type(MagSymm_k_type),  intent(in) :: MGp
+    !!--++ Subroutine Calc_Table_MAB(Cell,Mlist,Atm,Mgp)
+    !!--++    type(Crystal_Cell_type),intent(in) :: Cell
+    !!--++    type(MagH_List_Type),   intent(in) :: MList
+    !!--++    type(Matom_list_type),  intent(in) :: Atm
+    !!--++    type(MagSymm_k_type),   intent(in) :: MGp
     !!--++
     !!--++    (Private)
     !!--++    Calculate Table with Aj(h) and Bj(h) values
     !!--++
-    !!--++ Update: April - 2005
+    !!--++ Update: April - 2005, November 2014 (JRC)
     !!
-    Subroutine Calc_Table_Mab(Mlist,Atm,Mgp)
+    Subroutine Calc_Table_Mab(Cell,Mlist,Atm,Mgp)
        !---- Arguments ----!
-       type(MagH_List_Type),  intent(in) :: MList
-       type(Matom_list_type), intent(in) :: Atm
-       type(MagSymm_k_type),  intent(in) :: MGp
+       type(Crystal_Cell_type),intent(in) :: Cell
+       type(MagH_List_Type),   intent(in) :: MList
+       type(Matom_list_type),  intent(in) :: Atm
+       type(MagSymm_k_type),   intent(in) :: MGp
 
        !---- Local Variables ----!
        integer                       :: i,j,k,n,nvk,m, NRef
@@ -895,7 +900,7 @@
                    end if
                    Mcos(:,:)=Mcos(:,:)+cos(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
                 end do ! symmetry
-                Ajh(:,i,j) = onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk))*REAL(MGp%mcentred,kind=cp)
+                Ajh(:,i,j) = onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk)/Cell%cell)*REAL(MGp%mcentred,kind=cp)*Cell%cell
              end do ! Atoms
           end do ! Reflections
 
@@ -930,10 +935,10 @@
                       Mcos(:,:)=Mcos(:,:)+cos(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
                       Msin(:,:)=Msin(:,:)+sin(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
                    end do ! symmetry
-                   ar =       onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk))
-                   ai = -isig*onh*matmul(Mcos,Atm%atom(i)%SkI(:,nvk))
-                   br =       onh*matmul(Msin,Atm%atom(i)%SkR(:,nvk))
-                   bi = -isig*onh*matmul(Msin,Atm%atom(i)%SkI(:,nvk))
+                   ar =       onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk)/Cell%cell)*Cell%cell
+                   ai = -isig*onh*matmul(Mcos,Atm%atom(i)%SkI(:,nvk)/Cell%cell)*Cell%cell
+                   br =       onh*matmul(Msin,Atm%atom(i)%SkR(:,nvk)/Cell%cell)*Cell%cell
+                   bi = -isig*onh*matmul(Msin,Atm%atom(i)%SkI(:,nvk)/Cell%cell)*Cell%cell
 
                    Ajh(:,i,j) = ar(:) - bi(:)
                    Bjh(:,i,j) = br(:) + ai(:)
@@ -1153,7 +1158,7 @@
     !!----    The subroutine constructs partially the object H.
     !!----
     !!---- Created:    April - 2005
-    !!---- Updated: December - 2011
+    !!---- Updated: December - 2011, November 2014 (JRC)
     !!
     Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)
        !---- Arguments ----!
@@ -1345,7 +1350,7 @@
              end do
           end do
 
-          call Mag_Structure_Factors(Am,Grp,hloc)
+          call Mag_Structure_Factors(Cell,Am,Grp,hloc)
           call Calc_Mag_Interaction_vector(hloc,cell)
           maxr=maxval(hloc%Mh(:)%sqMiV)
           epm=maxr*0.00001
@@ -1568,24 +1573,28 @@
     End Subroutine Init_Mag_Structure_Factors
 
     !!----
-    !!---- Subroutine Mag_Structure_Factors(Atm,Grp,Reflex)
+    !!---- Subroutine Mag_Structure_Factors(Cell,Atm,Grp,Reflex)
     !!----    !---- Arguments ----!
-    !!----    type(Matom_list_type),              intent(in)     :: Atm
-    !!----    type(MagSymm_k_Type),               intent(in)     :: Grp
-    !!----    type(MagH_List_Type),               intent(in out) :: Reflex
+    !!----    type(Crystal_Cell_type),  intent(in)     :: Cell
+    !!----    type(Matom_list_type),    intent(in)     :: Atm
+    !!----    type(MagSymm_k_Type),     intent(in)     :: Grp
+    !!----    type(MagH_List_Type),     intent(in out) :: Reflex
     !!----
     !!----    Calculate the Magnetic Structure Factors from a list of magnetic Atoms
     !!----    and a set of reflections. A call to Init_Mag_Structure_Factors
     !!----    is a pre-requisite for using this subroutine. In any case
     !!----    the subroutine calls Init_Mag_Structure_Factors if SF_initialized=.false.
+    !!----    The argument "Cell" has been added in order to consider whatever kind of
+    !!----    settings for symmetry operators.
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: April - 2005, November 2014 (JRC)
     !!
-    Subroutine Mag_Structure_Factors(Atm,Grp,Reflex)
+    Subroutine Mag_Structure_Factors(Cell,Atm,Grp,Reflex)
        !---- Arguments ----!
-       type(Matom_list_type),              intent(in)     :: Atm
-       type(MagSymm_k_Type),               intent(in)     :: Grp
-       type(MagH_List_Type),               intent(in out) :: Reflex
+       type(Crystal_Cell_type),  intent(in)     :: Cell
+       type(Matom_list_type),    intent(in)     :: Atm
+       type(MagSymm_k_Type),     intent(in)     :: Grp
+       type(MagH_List_Type),     intent(in out) :: Reflex
 
 
        call init_err_msfac()
@@ -1595,7 +1604,7 @@
        Call Calc_Table_TH(Reflex,Atm)
 
        !---- Table AB ----!
-       call Calc_Table_MAB(Reflex,Atm,Grp)
+       call Calc_Table_MAB(Cell,Reflex,Atm,Grp)
 
        !---- Final Calculation ----!
        call Sum_MAB(Reflex,Atm%Natoms,Grp%Centred)

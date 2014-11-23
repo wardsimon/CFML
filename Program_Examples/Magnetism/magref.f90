@@ -54,6 +54,8 @@ Program MagRef
        read(unit=*,fmt="(a)") filcod
        if(len_trim(filcod) == 0) stop
      end if
+     i=index(filcod,".",back=.true.)
+     if( i /= 0) filcod=filcod(1:i-1)
 
      open(unit=lun,file=trim(filcod)//".cal", status="replace",action="write")
      write(unit=lun,fmt="(/,/,7(a,/))")                                                &
