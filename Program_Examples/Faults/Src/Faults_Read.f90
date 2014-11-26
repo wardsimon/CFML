@@ -727,7 +727,8 @@
           Case ("LWIDTH")
 
              if (index(txt, 'INFINITE') /= 0) then
-               return
+               ok_lwidth=.true.
+               cycle
              else if (index(txt, 'INFINITE') == 0) then
                read(unit=txt,fmt=*, iostat=ier)  crys%layer_a, crys%layer_b
                val_glb(15:16)=[crys%layer_a, crys%layer_b]
@@ -760,7 +761,7 @@
                  logi=.false.
                  return
                end if
-
+               ok_lwidth=.true.
              else
                 Err_crys=.true.
                 Err_crys_mess="ERROR: No parameter in the Layer width instruction: this must be given!"
@@ -768,7 +769,7 @@
                 return
              end if
 
-             ok_lwidth=.true.
+
 
           Case Default
 
@@ -896,6 +897,12 @@
             d(r)=d(r)+1
 
             call getword(tfile(i)(k+1:), citem, nitem)
+            if(nitem/=7) then
+              write(unit=*,fmt="(3a,i)")"ERROR reading atomic parameters. Parameter missing in atom ", trim(citem(2)), " from layer ", r
+              logi=.false.
+              return
+            end if
+
             do m=1,3
 
               call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
@@ -1021,6 +1028,7 @@
             crys%l_cnt = 0.0
             i=i+1
             txt=adjustl(tfile(i))
+            txt=u_case(adjustl(tfile(i)))
             if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
               i=i+1
               txt=u_case(adjustl(tfile(i)))
@@ -1609,7 +1617,7 @@
           Case("BGRINTER")
             crys%bgrinter=.true.
             mode = "INTERPOLATION"
-            read(unit=tfile(i)(k+1:),fmt=*,iostat=ier)  background_file
+            read(unit=txt,fmt=*,iostat=ier)  background_file
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background linear interpolation instruction"
@@ -1683,7 +1691,7 @@
 
       LGBLT=17+crys%cheb_nump+crys%num_bgrpatt
 
-      if(ok_file .and. ok_fformat .and. ok_bgrnum .and. (ok_bgrinter .or. ok_bgrcheb .or. ok_bgrpatt) ) then
+        if(ok_file .and. ok_fformat .and. (ok_bgrinter .or. ok_bgrcheb .or. (ok_bgrnum .and. ok_bgrpatt) )) then
         return
       else
         Err_crys=.true.

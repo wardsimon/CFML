@@ -1596,8 +1596,8 @@
 
          end if
          write(dmp,"(2a)")         " FFORMAT  ",fmode
-         write(dmp,"(2a)")         " BGR  ",background_file
-         write(dmp,"(2a)")         " BCALC  ",mode
+        !write(dmp,"(2a)")         " BGR  ",background_file
+        !write(dmp,"(2a)")         " BCALC  ",mode
        end if
 
       999 RETURN
@@ -6513,19 +6513,22 @@
       else
         iw=op
       end if
-      WRITE(iw,"(a)") ' _________________________________________________'
-      WRITE(iw,"(a)") ' _________________________________________________'
-      WRITE(iw,"(a)") '            _______ FAULTS 2014 _______           '
-      WRITE(iw,"(a)") ' _________________________________________________'
-      WRITE(iw,"(a)") ' _________________________________________________'
-      WRITE(iw,"(a)") '                                                  '
-      WRITE(iw,"(a)") '     A computer program based in DIFFax for       '
-      WRITE(iw,"(a)") '     refining faulted layered structures          '
-      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas  (CIC energiGUNE)   '
-      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal (ILL)          '
-      WRITE(iw,"(a)") '                                                  '
-      WRITE(iw,"(a)") '                [version: Nov. 2014]              '
-      WRITE(iw,"(a)") ' _________________________________________________'
+      WRITE(iw,"(a)") ' ______________________________________________________'
+      WRITE(iw,"(a)") ' ______________________________________________________'
+      WRITE(iw,"(a)") '               _______ FAULTS 2014 _______             '
+      WRITE(iw,"(a)") ' ______________________________________________________'
+      WRITE(iw,"(a)") ' ______________________________________________________'
+      WRITE(iw,"(a)") '                                                       '
+      WRITE(iw,"(a)") '        A computer program based in DIFFax for         '
+      WRITE(iw,"(a)") '          refining faulted layered structures          '
+      WRITE(iw,"(a)") '                                                       '
+      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas       (CIC energiGUNE)   '
+      WRITE(iw,"(a)") '              J. Rikarte            (CIC energiGUNE)   '
+      WRITE(iw,"(a)") '              M. Reynaud            (CIC energiGUNE)   '
+      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal  (ILL)              '
+      WRITE(iw,"(a)") '                                                       '
+      WRITE(iw,"(a)") '                   [version: Nov. 2014]                '
+      WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")
 

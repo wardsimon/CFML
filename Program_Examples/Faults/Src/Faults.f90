@@ -1122,14 +1122,15 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
                 d_theta = half * deg2rad * step_2th
              end if
            end if
-         write(*,"(a)") " => Reading Background file="//trim(background_file)
-         call read_background_file(background_file, mode ,difpat)
-               if(Err_diffpatt) print*, trim(err_diffpatt_mess)
-         if(crys%num_bgrpatt > 0) then
-           allocate(bgr_patt(difpat%npts,crys%num_bgrpatt))
-           call Read_Bgr_patterns()
+         if (crys%bgrinter) then
+           write(*,"(a)") " => Reading Background file="//trim(background_file)
+           call read_background_file(background_file, mode ,difpat)
+           if(Err_diffpatt) print*, trim(err_diffpatt_mess)
+           if(crys%num_bgrpatt > 0) then
+             allocate(bgr_patt(difpat%npts,crys%num_bgrpatt))
+             call Read_Bgr_patterns()
+           end if
          end if
-
       end if
 
       !Operations before starting :
