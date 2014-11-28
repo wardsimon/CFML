@@ -1694,6 +1694,7 @@
        Magnetic_j6( 36) = Magnetic_Form_Type("AM5 ",(/-0.0927, 6.073,-0.2227, 3.784, 0.2916, 1.372, 0.0026/))
        Magnetic_j6( 37) = Magnetic_Form_Type("AM6 ",(/ 0.0152, 6.079,-0.3549, 3.861, 0.3125, 1.403, 0.0036/))
        Magnetic_j6( 38) = Magnetic_Form_Type("AM7 ",(/ 0.1292, 6.082,-0.4689, 3.879, 0.3234, 1.393, 0.0042/))
+       Magnetic_j6( 39) = Magnetic_Form_Type("PR3 ",(/-0.0224, 7.9931,-0.1202, 3.9406, 0.1299, 0.8938, 0.0051/))
 
        return
     End Subroutine Set_Magnetic_Form
