@@ -772,7 +772,7 @@
 
 
           Case Default
-
+             Write(unit=*,fmt="(a)") " => WARNING! Unknown keyword: "//trim(key)
              cycle
 
           End Select
@@ -898,7 +898,7 @@
 
             call getword(tfile(i)(k+1:), citem, nitem)
             if(nitem/=7) then
-              write(unit=*,fmt="(3a,i)")"ERROR reading atomic parameters. Parameter missing in atom ", trim(citem(2)), " from layer ", r
+              write(unit=*,fmt="(3a,i3)")" => ERROR reading atomic parameters. Parameter missing in atom ", trim(citem(2)), " from layer ", r
               logi=.false.
               return
             end if
