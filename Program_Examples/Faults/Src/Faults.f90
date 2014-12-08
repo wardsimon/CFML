@@ -405,8 +405,8 @@
        write(i_ftls,"(a)")        "!Laue symmetry"
        write(i_ftls,*)            "Symm  ", pnt_grp
        write(i_ftls,"(a)")        "!number of layer types"
-       write(i_ftls,"(a,i2)")            " NLAYERS  ", n_layers
-       write(i_ftls,"(a)")       "!layer width"
+       write(i_ftls,"(a,i2)")     " NLAYERS  ", n_layers
+       write(i_ftls,"(a)")        "!layer width"
        if (crys%finite_width) then
          write(i_ftls,"(a,2f10.2)") " Lwidth",   Wa, Wb
          write(i_ftls,"(2f10.2)")    ref_glb(15:16)

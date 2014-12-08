@@ -274,33 +274,33 @@
 
     !!----
     !!---- NUM_MAG_J2
-    !!----    integer, parameter, public :: Num_Mag_J2 = 96
+    !!----    integer, parameter, public :: Num_Mag_J2 = 97
     !!----
     !!----    Number of <j2> Magnetic_Form Data
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_j2  = 96
+    integer, parameter, public :: Num_Mag_j2  = 97
 
     !!----
     !!---- NUM_MAG_J4
-    !!----    integer, parameter, public :: Num_Mag_J4 = 96
+    !!----    integer, parameter, public :: Num_Mag_J4 = 97
     !!----
     !!----    Number of <j4> Magnetic_Form Data
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_j4  = 96
+    integer, parameter, public :: Num_Mag_j4  = 97
 
     !!----
     !!---- NUM_MAG_J6
-    !!----    integer, parameter, public :: Num_Mag_J6 = 38
+    !!----    integer, parameter, public :: Num_Mag_J6 = 39
     !!----
     !!----    Number of <j5> Magnetic_Form Data
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_j6  = 38
+    integer, parameter, public :: Num_Mag_j6  = 39
 
     !!----
     !!---- NUM_XRAY_FORM
@@ -1654,7 +1654,7 @@
        Magnetic_j4( 95) = Magnetic_Form_Type("AM7 ",(/-0.4688,12.019,-0.2692, 7.042, 0.7297, 2.164,-0.0011/))
        Magnetic_j4( 96) = Magnetic_Form_Type("MN5 ",(/0.19236,0.32487,1.67062,6.65663,-1.82036,6.19424,-0.04334/))
        Magnetic_j4( 97) = Magnetic_Form_Type("PR3 ",(/-0.3970,10.9919, 0.0818, 5.9897, 0.3656, 1.5021, 0.0110/))
-       
+
        !---- <j6> Coefficients ----!
        Magnetic_j6(  1) = Magnetic_Form_Type("CE2 ",(/-0.1212, 7.994,-0.0639, 4.024, 0.1519, 1.096, 0.0078/))
        Magnetic_j6(  2) = Magnetic_Form_Type("ND2 ",(/-0.1600, 8.009, 0.0272, 4.028, 0.1104, 1.068, 0.0139/))

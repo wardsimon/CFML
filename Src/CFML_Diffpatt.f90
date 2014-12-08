@@ -3810,7 +3810,13 @@
        write(unit=i_dat,fmt="(a)")"XYDATA"
        write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
        write(unit=i_dat,fmt="(a)")"COND: "//trim(pat%diff_kind)//"-"//trim(pat%scat_var)//"-"//trim(pat%instr)
-       write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
+       if(index(U_case(pat%scat_var),"THET") /= 0) then
+         write(unit=i_dat,fmt="(a,3f9.5)")"FILE: "//trim(filename)//"   Wavelengths: ",pat%conv(1:3)
+       else if(index(U_case(pat%scat_var),"TOF") /= 0) then
+         write(unit=i_dat,fmt="(a,2f9.5)")"FILE: "//trim(filename)//"   TOF Dtt1, Dtt2: ",pat%conv(1:2)
+       else
+         write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
+       end if
        write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
        if (pat%ct_step) then
           write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
