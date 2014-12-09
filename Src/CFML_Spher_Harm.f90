@@ -522,7 +522,7 @@
 
        !---- Local Variables ----!
        real(kind=dp)             :: norm
-       real(kind=dp),parameter   :: sqrt_pi=sqrt(pi)
+       real(kind=dp),parameter   :: sqrt_pi=1.7724538509055160272981674833411 !sqrt(pi)
        real(kind=cp)             :: pphi,x,ss
        integer                   :: i
        real(kind=cp),dimension(3):: v
