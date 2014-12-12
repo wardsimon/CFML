@@ -8,8 +8,8 @@ rem ****
 rem
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_CrysCalcon: Make CrysCalcon Compilation
-   echo    Syntax: make_CrysCalcon [f95/lf95/g95/gfrotran/ifort]
+   echo    MAKE_CrysCalCon: Make CrysCalcon Compilation
+   echo    Syntax: make_CrysCalCon [f95/lf95/g95/gfrotran/ifort]
    goto END
 rem
 :CONT
@@ -35,7 +35,7 @@ rem ****---- Lahey Compiler ----****
    lf95 -c menu_4.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c menu_5.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c calsym.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
-   lf95  *.obj -out CrysCalcon -tp -nomap -stchk -nchk -o1 -lib ..\..\lahey\LibC\CrysFML
+   lf95  *.obj -out CrysCalCon -tp -nomap -stchk -nchk -o1 -lib ..\..\lahey\LibC\CrysFML
    goto END
 rem
 rem ****---- Intel Compiler ----****
@@ -48,7 +48,7 @@ rem ****---- Intel Compiler ----****
    ifort /c menu_5.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c calsym.f90 /O2 /nologo /I..\..\ifort\LibC
    rem ifort /exe:CrysCalcon *.obj ..\..\ifort\LibC\crysfml.lib
-   link /subsystem:console /out:CrysCalcon.exe *.obj ..\..\ifort\LibC\crysfml.lib
+   link /subsystem:console /out:CrysCalCon.exe *.obj ..\..\ifort\LibC\crysfml.lib
    goto END
 :IFORTD
    ifort /c menu_0.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
@@ -59,7 +59,7 @@ rem ****---- Intel Compiler ----****
    ifort /c menu_5.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    ifort /c calsym.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    rem ifort /exe:CrysCalcon *.obj ..\..\ifort_debug\LibC\crysfml.lib
-   link /subsystem:console /out:CrysCalcon.exe *.obj ..\..\ifort_debug\LibC\crysfml.lib
+   link /subsystem:console /out:CrysCalCon.exe *.obj ..\..\ifort_debug\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

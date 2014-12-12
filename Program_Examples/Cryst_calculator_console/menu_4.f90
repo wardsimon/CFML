@@ -27,6 +27,7 @@
        do
           call system(clear_string)
 
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "            Chemical Information "
@@ -77,12 +78,13 @@
 
        do
           call system(clear_string)
-          write(unit=*,fmt=*) "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
-          write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) "     International Chemical Table "
-          write(unit=*,fmt=*) " ===================================="
-          write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     International Chemical Table "
+          write(unit=*,fmt="(a)") " ===================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " => Enter chemical symbol or atomic number of the Element: "
           read(unit=*,fmt='(a)') line
           if (len_trim(line)==0) exit
@@ -98,9 +100,9 @@
                 write(unit=*,fmt='(5x,a,a)')      "            Name: ",chem_info(i)%name
                 write(unit=*,fmt='(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
                 write(unit=*,fmt='(5x,a,i3)')     "   Atomic Number: ",chem_info(i)%z
-                write(unit=*,fmt='(5x,a,f10.5)')   "   Atomic Weight: ",chem_info(i)%atwe
-                write(unit=*,fmt='(5x,a,f6.3)')" Covalent Radius: ",chem_info(i)%rcov
-                write(unit=*,fmt='(5x,a,f6.3)')"    Waals Radius: ",chem_info(i)%rwaals
+                write(unit=*,fmt='(5x,a,f10.5)')  "   Atomic Weight: ",chem_info(i)%atwe
+                write(unit=*,fmt='(5x,a,f6.3)')   " Covalent Radius: ",chem_info(i)%rcov
+                write(unit=*,fmt='(5x,a,f6.3)')   "    Waals Radius: ",chem_info(i)%rwaals
 
                 n=count(chem_info(i)%oxid /= 0)
                 line=" "

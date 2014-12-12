@@ -111,6 +111,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information (Complete information on the Screen)"
@@ -155,6 +156,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "              GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     List of the full list of Symmetry Operators (File/Screen) "
@@ -244,6 +246,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Group from Generators (Jones Faithful representation)"
@@ -331,6 +334,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Hall Symbol from a set of Generators"
@@ -424,6 +428,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "       Comparison of Two Space Groups"
@@ -662,6 +667,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Determination of the Laue class and Point Group "
@@ -717,6 +723,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Derivation symbols for symmetry operations"
@@ -798,6 +805,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Conversion of Symmetry Operators of Space Groups"
@@ -885,6 +893,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                Generation of Non-standard Space Groups     "
@@ -991,6 +1000,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "             Wyckoff Information "
@@ -1033,6 +1043,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "             Wyckoff Information "
@@ -1494,6 +1505,7 @@
 
       do
          call system(clear_string)
+         write(unit=*,fmt="(a)") " "
          write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
          write(unit=*,fmt="(a)") " "
          write(unit=*,fmt="(a)") "     Space Group in a new base and origin"

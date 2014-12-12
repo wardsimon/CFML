@@ -28,6 +28,7 @@
        do
           call system(clear_string)
 
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Reflections Menu "
@@ -90,6 +91,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Asymmetric Unit in Reciprocal Space"

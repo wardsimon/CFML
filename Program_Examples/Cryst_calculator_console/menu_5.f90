@@ -6,7 +6,7 @@
  Module Menu_5
    !---- Use File ----!
    use Menu_0
-   use Menu_3, only:structure_read, SpG,A,Cell
+   use Menu_3,                only: structure_read, SpG,A,Cell
    use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Set_Crystal_Cell, Write_Crystal_Cell, &
                                     Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
@@ -41,9 +41,15 @@
        !---- Local Variables ----!
        character(len=2)  :: car
 
+       if(structure_read .and. .not. cell_Given) then
+         cell_Given=.true.
+         celda = cell
+       end if
+
        do
           call system(clear_string)
 
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "       Geometrical Calculations Menu "
@@ -63,7 +69,7 @@
           write(unit=*,fmt="(a)") "  [9] Zone axis: list of zone planes and angles,... special angles"
           write(unit=*,fmt="(a)") " [10] Indexing edges of a trapezoidal plane"
           write(unit=*,fmt="(a)") " [11] List of planes intersecting a given one at a particular Zone Axis"
-          write(unit=*,fmt="(a)") " [12] Enter Euler Angles Chi, Phi, Theta of frame [u,v,w]"
+          write(unit=*,fmt="(a)") " [12] Get a new Cartesian system <u,v,w> entering Euler angles Chi, Phi, Theta"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
@@ -128,6 +134,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " [0] Back..."
@@ -167,10 +174,6 @@
             Case("2")
                if(cell_given) then
                  call Write_Crystal_Cell(Celda)
-               else if (structure_read) then
-                 celda=cell
-                 cell_given=.true.
-                 call Write_Crystal_Cell(Celda)
                else
                   write(unit=*,fmt="(a)") " -> You have to provide first the cell parameters!"
                end if
@@ -198,7 +201,7 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
-          write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the  first plane (<cr> for exit): "
+          write(unit=*,fmt="(a)",advance="no") " => Enter the indices (hkl) of the  first plane (3 integers or <cr> for exit): "
           read(*,'(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
@@ -208,7 +211,7 @@
               call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
-          write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second plane (<cr> for exit): "
+          write(unit=*,fmt="(a)",advance="no") " => Enter the indices (hkl) of the second plane (3 integers or <cr> for exit): "
           read(*,'(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
@@ -219,9 +222,9 @@
               cycle
           end if
           u=Cross_Product(h1,h2)
-          write(unit=*,fmt="(a)")  "    Indices Plane1  Indices Plane2     Zone Axis    "
-          write(unit=*,fmt="(a)")  "    ==============  ==============    ============ "
-          write(unit=*,fmt="(3(tr4,3i4))") h1,h2,u
+          write(unit=*,fmt="(a)")  "    (Indices) Plane1  (Indices) Plane2    [Zone Axis]   "
+          write(unit=*,fmt="(a)")  "     ==============    ==============     ============ "
+          write(unit=*,fmt="(3(tr6,3i4))") h1,h2,u
           write(unit=*,fmt=*) " "
           call Wait_Message(" => Press <enter> to continue ...")
        end do
@@ -248,7 +251,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the first direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw] indices of the  first direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -258,7 +261,7 @@
                  call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw] indices of the second direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -286,7 +289,7 @@
              write(unit=*,fmt="(a)")  "               Direct space[A]         Cartesian components[e]    Reciprocal Components[A*]"
              write(unit=*,fmt="(a,2(3f8.4,tr2),3f9.3)") "     First:",u,uc,ur
              write(unit=*,fmt="(a,2(3f8.4,tr2),3f9.3)") "    Second:",v,vc,vr
-             write(unit=*,fmt="(2(a, f10.5))")     "     Angle:",angle, " degrees  or  180-Angle:",180.0-angle
+             write(unit=*,fmt="(2(a, f10.5))")          "     Angle:",angle, " degrees  or  180-Angle:",180.0-angle
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
              call Wait_Message(" => Press <enter> to continue ...")
@@ -319,7 +322,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the first direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [hkl]* indices of the  first direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -329,7 +332,7 @@
                  call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [hkl]* indices of the second direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -393,7 +396,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the reciprocal direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [hkl]* indices of the reciprocal direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -403,7 +406,7 @@
                  call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the direct direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw]  indices of the   direct   direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -465,7 +468,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw] indices of direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -525,7 +528,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [hkl]* indices of direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -640,7 +643,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of direction (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw] indices of direction (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -754,7 +757,7 @@
        integer                :: i,j,k,nedges,n,msol,nsol, nbest,neq
        Type(Zone_Axis_Type)   :: Zone_Axis
        Type(Zone_Planes_Type) :: Zone_Planes
-       Logical                :: ok,v21,v41,v22,v42,vv
+       Logical                :: ok,v21,v41,v22,v42,vv, equival
 
        do
           call system(clear_string)
@@ -767,7 +770,7 @@
           write(unit=*,fmt="(a)") " "
 
           if (Cell_Given) then
-             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of plane (<cr> for exit): "
+             write(unit=*,fmt="(a)",advance="no") " => Enter the (hkl) indices of plane (<cr> for exit): "
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
@@ -927,6 +930,7 @@
                  end if
                   if(.not. vv) cycle
                   !A solution has been found
+                  equival=.false.
                   nsol=nsol+1
                   rf=abs(a1-angs(1))+abs(a2-angs(2))+abs(a3-angs(3))+abs(a4-angs(4))
                   rf=100.0*rf/360.0
@@ -943,19 +947,24 @@
                     abest=(/a1,a2,a3,a4/)
                   else if(abs(rf - rmin) < 0.001) then
                     neq=neq+1
+                    equival=.true.
+                  else
+                    equival=.true.
                   end if
-                  write(unit=*,fmt="(/,a,i5,tr4,3i3,a,3i3,f10.3,a,f7.3)") "   Sol# ",nsol, &
-                          Zone_Planes%h(:,ii(i))," --- ",Zone_Planes%h(:,jj(i)),a1,"   R-factor(%)=",rf
-                  write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi2," --- ",ho2,a2
-                  write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ", &
-                          Zone_Planes%h(:,ii(j))," --- ",Zone_Planes%h(:,jj(j)),a3
-                  write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi4," --- ",ho4,a4
+                  if(.not. equival) then
+                    write(unit=*,fmt="(/,a,i5,tr4,3i3,a,3i3,f10.3,a,f7.3)") "   Sol# ",nsol, &
+                            Zone_Planes%h(:,ii(i))," --- ",Zone_Planes%h(:,jj(i)),a1,"   R-factor(%)=",rf
+                    write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi2," --- ",ho2,a2
+                    write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ", &
+                            Zone_Planes%h(:,ii(j))," --- ",Zone_Planes%h(:,jj(j)),a3
+                    write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi4," --- ",ho4,a4
+                  end if
                 end do
               end do
               if(nsol > 0) then
                 write(unit=*,fmt="(/,a,i3,a,f7.3,/,a,i2,a)") " -> The best solution is that of number: ",nbest, &
                                     " of R-Factor(%)=",rmin, "    and ",neq, " additional equivalent solutions"
-                write(unit=*,fmt="(a)")   "           u  v  w  ---  u  v  w   Angle(Obs)  Angle(Cal)    Obs-Cal"
+                write(unit=*,fmt="(/,a,/)")   "           u  v  w  ---  u  v  w   Angle(Obs)  Angle(Cal)    Obs-Cal"
                 j=1
                 do i=1,4
                   write(unit=*,fmt="(a,tr6,3i3,a,3i3,3f12.3)") "   ",  &
@@ -1000,7 +1009,7 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
-          write(unit=*,fmt="(a)",advance="no") " => Enter the indices (hkl) of the Plane (<cr> for exit): "
+          write(unit=*,fmt="(a)",advance="no") " => Enter the (hkl) indices of the     Plane (<cr> for exit): "
           read(*,'(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
@@ -1010,7 +1019,7 @@
               call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
-          write(unit=*,fmt="(a)",advance="no") " => Enter the indices [uvw] of the Zone Axis (<cr> for exit): "
+          write(unit=*,fmt="(a)",advance="no") " => Enter the [uvw] indices of the Zone Axis (<cr> for exit): "
           read(*,'(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
@@ -1124,7 +1133,7 @@
            v(2)=-sind(phi)*cosd(Theta)*sind(Chi)+cosd(Phi)*cosd(chi)
            v(3)= sind(Theta)*sind(Chi)
            w=(/ cosd(Phi)*sind(Theta), sind(Phi)*sind(Theta),  cosd(Theta) /)
-          Write(unit=*,fmt="(a)") " => The unit vectors of the reference system (u,v,w),"
+          Write(unit=*,fmt="(a)") " => The unit vectors of the reference system <u,v,w>,"
           Write(unit=*,fmt="(a)") "    given in the Standard Cartesian system, are:"
           Write(unit=*,fmt="(a,3f10.5,a)") " => u =(",u,")"
           Write(unit=*,fmt="(a,3f10.5,a)") " => v =(",v,")"

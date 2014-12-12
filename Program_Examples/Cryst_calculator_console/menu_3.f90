@@ -17,10 +17,10 @@
     !---- Variables ----!
     implicit none
 
-    logical :: structure_read=.false.
-    type (space_group_type)     :: SpG
-    type (Atom_list_Type)       :: A
-    type (Crystal_Cell_Type)    :: Cell
+    logical                  :: structure_read=.false.
+    type (space_group_type)  :: SpG
+    type (Atom_list_Type)    :: A
+    type (Crystal_Cell_Type) :: Cell
     real(kind=cp), parameter :: eps=0.00001
     real(kind=cp)            :: qcellp=0.0 , qcellm=0.0
     logical                  :: neutral=.true.
@@ -38,6 +38,7 @@
        do
           call system(clear_string)
 
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -50,6 +51,7 @@
           write(unit=*,fmt="(a)") " [2] Read a CFL or CIF file to load a crystal structure"
           write(unit=*,fmt="(a)") " [3] Show current structure information"
           write(unit=*,fmt="(a)") " [4] Calculate Ionic Dipolar moment & polarisation of a symmetrized single unit cell"
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
@@ -82,7 +84,8 @@
     !!
     Subroutine Menu_Atom_1()
        !---- Local Variables ----!
-       character(len=20)          :: line, spgr
+       character(len=30)          :: line
+       character(len=20)          :: spgr
        integer                    :: i, iv, ierr, mlt
        integer, dimension(3)      :: ivet
        real(kind=cp)              :: occ
@@ -91,6 +94,7 @@
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information "
@@ -110,6 +114,7 @@
           end if
           do
              call system(clear_string)
+             write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)") "       GENERAL CRYSTALLOGRAPHY CALCULATOR "
              write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)") "     Multiplicity and Occupancy of Position "
@@ -140,12 +145,13 @@
     !!
     Subroutine Menu_Atom_2()
        !---- Local Variables ----!
-       character(len=20)     :: line
+       character(len=256)    :: line
        integer               :: i
        logical               :: esta
 
        do
           call system(clear_string)
+          write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -214,10 +220,10 @@
     !!
     Subroutine Menu_Atom_3()
        !---- Local Variables ----!
-       character(len=20)     :: line
        integer               :: i
 
        call system(clear_string)
+       write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -250,7 +256,6 @@
 
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
-       character(len=20)              :: line
        integer                        :: i,j,Mult,m ,la,lb,lc,lam,lbm,lcm,np,nm
        real(kind=cp)                  :: q, qp,pol,ang,ncell,dist
        real(kind=cp), dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus
@@ -259,6 +264,7 @@
        logical                        :: calc_possible=.true.
 
        call system(clear_string)
+       write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "               GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "                     Atomistic Calculations "

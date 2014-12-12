@@ -27,6 +27,7 @@
     do
        call system(clear_string)
 
+       write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     Principal Menu "
