@@ -83,14 +83,14 @@
          logical             :: recrsv         !layer sequencing recursive
          logical             :: xplcit         !layer sequencing explicit
          logical             :: finite_width   !layer width in plane ab
-         logical             :: inf_thick      !infinit stacking
+         logical             :: inf_thick      !infinite stacking
          logical             :: trm            !trim keyword: to supress peak at origin >trim_origin
          logical             :: bgrpatt, bgrinter, bgrcheb
          character(len=4),  dimension(:,:),allocatable :: a_name  !atom name (4characters wide)>atom_l o a_name?
          character(len=20), dimension(:),  allocatable :: bfilepat  !filename for bgrpatt
          character(len=20), dimension(:),  allocatable :: bfilehkl  !filename for reflection indices and positions associated to a
                                                                     !background pattern
-         integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  >only_real
+         integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  > only_real
          integer, dimension(:),     allocatable  :: cod
          integer, dimension(:,:),   allocatable  :: a_num               !atom number  > a_number
          integer, dimension(:)  ,   allocatable  :: l_seq               !d-> array containing the explicitly defined sequence of layers.
@@ -864,8 +864,7 @@
                 logi = .false.
                 return
               else
-                crys%l_actual(j) = crys%l_actual(a2)
-
+                crys%l_actual(j)  = crys%l_actual(a2)
               end if
             else
               j=j+1
@@ -1090,7 +1089,7 @@
                 else
                   !Err_crys=.true.
                   !Err_crys_mess="ERROR : Layer explicit sequences missing"
-                  write(*,*) "ERROR : Layer explicit sequences missing"
+                  write(*,"(a)") " => ERROR : Layer explicit sequences missing"
                   logi = .false.
                   return
                 end if
@@ -1212,7 +1211,7 @@
               call read_fraction(citem(1+m), crys%l_r (m,j,l))
               val_trans(m+1,j,l)=crys%l_r (m,j,l)
               if(ERR_String) then
-                write(unit=*,fmt="(a)") "ERROR reading transition vectors coordinates", trim(ERR_String_Mess)
+                write(unit=*,fmt="(a)") " => ERROR reading transition vectors coordinates", trim(ERR_String_Mess)
                 logi=.false.
                 return
               end if
@@ -1222,7 +1221,7 @@
            !read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
             val_trans(1,j,l) = crys%l_alpha (j,l)
             if(ERR_String) then
-                write(unit=*,fmt="(a)") "ERROR reading layer probabilities", trim(ERR_String_Mess)
+                write(unit=*,fmt="(a)") " => ERROR reading layer probabilities", trim(ERR_String_Mess)
                 logi=.false.
                 return
             end if
@@ -1275,8 +1274,8 @@
           END DO
 
           IF(ABS(suma - 1.0) > eps) THEN
-            write(op,"(a,i3,a)") " Stacking probabilities from LAYER ",l," do not sum  1."
-            write(op,"(a,f10.5)")" The sum is ", suma
+            write(op,"(a,i3,a)") " => Stacking probabilities from LAYER ",l," do not sum  1."
+            write(op,"(a,f10.5)")" => The sum is ", suma
             logi = .false.
           end if
         END DO
@@ -1341,39 +1340,39 @@
                   return
                 end if
                 IF(th2_min < zero) THEN
-                  WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
+                  WRITE(op,"(a)") ' => ERROR: 2theta min is negative.'
                   logi = .false.
                   RETURN
                 END IF
                 IF(th2_min >= one_eighty) THEN
-                  WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
+                  WRITE(op,"(a)") ' => ERROR: 2theta min exceeds 180 degrees.'
                   logi = .false.
                   RETURN
                 END IF
                 IF(th2_max <= zero) THEN
-                  WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta max.'
+                  WRITE(op,"(a)") ' => ERROR: Negative (or zero) value for 2theta max.'
                   logi = .false.
                   RETURN
                 END IF
                 IF(th2_max > one_eighty) THEN
-                  WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
+                  WRITE(op,"(a)") ' => ERROR: 2theta max exceeds 180 degrees.'
                   logi = .false.
                   RETURN
                 END IF
                 ! if th2_max = 180, reduce it slightly to keep us out of trouble
                 IF(th2_max == one_eighty) th2_max = th2_max - eps4
                 IF(d_theta <= zero) THEN
-                  WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
+                  WRITE(op,"(a)") ' => ERROR: Negative (or zero) value for 2theta increment.'
                   logi = .false.
                   RETURN
                 END IF
                 IF(th2_min >= th2_max) THEN
-                  WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
+                  WRITE(op,"(a)") ' => ERROR: 2theta min is larger than 2theta max.'
                   logi = .false.
                   RETURN
                 END IF
                 IF((th2_max - th2_min) < d_theta) THEN
-                  WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
+                  WRITE(op,"(a)") ' => ERROR: 2theta increment is larger than 2theta max - 2theta min.'
                   logi = .false.
                   RETURN
                 END IF
@@ -1390,7 +1389,7 @@
 
             end if
             if(.not. ok_range) then
-              WRITE(op,"(a)") ' ERROR: No 2theta range has been provided in CALCULATION instruction.'
+              WRITE(op,"(a)") ' => ERROR: No 2theta range has been provided in CALCULATION instruction.'
               logi = .false.
               RETURN
             end if
@@ -1953,7 +1952,7 @@
 
         if (opt == 4) then         !construction of some optimization variables  (LMQ)
           if (np==0) then                                                        !
-            write(*,"(a)") "WARNING: No parameters are being refined!"  !NIK
+            write(*,"(a)") " => WARNING: No parameters are being refined!"  !NIK
           end if                                                                 !
           opti%npar = Lcode_max
           Cond%npvar=opti%npar

@@ -2349,7 +2349,7 @@
     !  1234 WRITE(op,300) 'Enter 1 for adaptive quadrature over all l values'
     !  WRITE(op,300) 'on rows with "sharp" spots: '
     !  READ(cntrl,*,ERR=1234) full_shrp
-    !  IF(cfile) WRITE(op,400) full_shrp
+    !  IF(cfile) WRITE(op,"(1x,a)") full_shrp
 
        full_shrp = 1
 ! zero out spectra
@@ -2586,7 +2586,6 @@
       200 FORMAT(1X, a, 2I4, 6X, 3A)
       250 FORMAT(1X, a, g12.5)
       300 FORMAT(1X, a)
-      400 FORMAT(1X, i3)
       END FUNCTION getspc
 
       Subroutine update_reflections(h,k,l)
@@ -2695,8 +2694,8 @@
         ELSE
 ! In theory, the following should never be needed, but just in case,
 ! let's bolster DIFFaX's immune system.
-          WRITE(op,400) 'DIFFaX is confused about vertical mirrors.'
-          WRITE(op,400) 'To be safe, symmetry is being set to -1'
+          WRITE(op,"(a)") ' => DIFFaX is confused about vertical mirrors.'
+          WRITE(op,"(a)") ' => To be safe, symmetry is being set to -1'
           symgrpno = 1
           pnt_grp = '-1'
           h_start  =  one
@@ -2800,7 +2799,6 @@
       END IF
 
       RETURN
-      400 FORMAT(1X, a)
       END SUBROUTINE get_bds
 
 ! ______________________________________________________________________
@@ -3041,17 +3039,15 @@
 ! Are some of the layers non-existent?
       DO  i = 1, n_layers
         IF(l_g(i) < eps6) THEN
-          WRITE(op,410) 'WARNING: Layer ', i,  &
+          WRITE(op,"(a, i2, a)") ' => WARNING: Layer ', i,  &
               ' does not occur in any significant quantity.'
         END IF
       END DO
 
       RETURN
-      100 WRITE(op,400)  &
-          'ERROR: Stacking probabilities give a singular matrix in GET_G'
+      100 WRITE(op,"(a)")  &
+          ' => ERROR: Stacking probabilities give a singular matrix in GET_G'
       RETURN
-      400 FORMAT(1X, a)
-      410 FORMAT(1X, a, i2, a)
       END FUNCTION get_g
 
 ! ______________________________________________________________________
@@ -3665,11 +3661,10 @@
       END DO
       RETURN
       999 WRITE(op,101) 'Illegal FWHM ', fwhm, ' in GAUSSN.'
-      WRITE(op,100)'Gaussian instrumental broadening not added'
+      WRITE(op,"(a)")' => Gaussian instrumental broadening not added'
 ! kill blurring option
       blurring = NONE
       RETURN
-      100 FORMAT(1X, a)
       101 FORMAT(1X, a, g12.5, a)
       END SUBROUTINE gaussn
 
@@ -6519,15 +6514,16 @@
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '        A computer program based in DIFFax for         '
+      WRITE(iw,"(a)") '        A computer program based on DIFFaX for         '
       WRITE(iw,"(a)") '          refining faulted layered structures          '
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas       (CIC energiGUNE)   '
-      WRITE(iw,"(a)") '              J. Rikarte            (CIC energiGUNE)   '
-      WRITE(iw,"(a)") '              M. Reynaud            (CIC energiGUNE)   '
-      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal  (ILL)              '
+      WRITE(iw,"(a)") '     Authors:  '
+      WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC energiGUNE)'
+      WRITE(iw,"(a)") '      Jokin Rikarte            (CIC energiGUNE)'
+      WRITE(iw,"(a)") '      Marine Reynaud           (CIC energiGUNE)'
+      WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin) '
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '                   [version: Nov. 2014]                '
+      WRITE(iw,"(a)") '                   [version: Dec. 2014]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")
@@ -6650,7 +6646,7 @@
       DO  i = 1, n_atoms
         IF(.NOT.list(i)) THEN
           ok = .false.
-          WRITE(op,330) 'ERROR: Data for atom ''', atom_l(i),  &
+          WRITE(op,330) ' => ERROR: Data for atom ''', atom_l(i),  &
               ''' NOT FOUND IN FILE ''', sfname(1:length(sfname)), ''''
           CALL atoms()
         END IF
@@ -6681,7 +6677,6 @@
       310 FORMAT(t5, 10F11.6, i3)
       320 FORMAT(t104, f11.6)
       330 FORMAT(1X, 5A)
-      400 FORMAT(1X, a)
       401 FORMAT(1X, 2A)
       402 FORMAT(1X, a, i2)
       403 FORMAT(1X, a, i2, 2A)
@@ -6829,7 +6824,7 @@
       END DO
 
       IF(normalize == zero) THEN
-        WRITE(op,100) 'ERROR in SMUDGE: Zero normalization constant.'
+        WRITE(op,100) ' => ERROR in SMUDGE: Zero normalization constant.'
         ok = .false.
         GO TO 999
       END IF
@@ -6948,28 +6943,28 @@
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       q2 = four / (lambda**2)
-      10 WRITE(op,"(a)") ' Enter h, k, l0, l1, delta l : '
+      10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
       READ(cntrl,*,ERR=10) h, k, l0, l1, dl
       IF(cfile) WRITE(op,401) h, k, l0, l1, dl
 ! check input
       IF(l1 == l0) THEN
-        WRITE(op,400) 'Illegal input: l0 equals l1'
+        WRITE(op,"(a)") ' => Illegal input: l0 equals l1'
         GO TO 999
       ELSE IF(dl == zero) THEN
-        WRITE(op,400) 'Illegal zero value of dl entered'
-        WRITE(op,402)'A value of ',(l1-l0)/(five*hundred),' is assumed'
+        WRITE(op,"(a)") ' => Illegal zero value of dl entered'
+        WRITE(op,402)' => A value of ',(l1-l0)/(five*hundred),' is assumed'
       ELSE IF(l1 > l0 .AND. dl < zero) THEN
-        WRITE(op,400) 'l1 is greater than l0. +ve dl assumed'
+        WRITE(op,"(a)") ' => l1 is greater than l0. +ve dl assumed'
         dl = -dl
       ELSE IF(l1 < l0 .AND. dl > zero) THEN
-        WRITE(op,400) 'l0 is greater than l1. -ve dl assumed'
+        WRITE(op,"(a)") ' => l0 is greater than l1. -ve dl assumed'
         dl = -dl
       END IF
 ! The origin may be hotter than hell! Let's check first.
       its_hot = (h == 0 .AND. k == 0) .AND. l0*l1 <= zero .AND. rad_type == electn
       IF(its_hot) THEN
-        WRITE(op,400) 'Cannot scan the origin with electron radiation'
-        WRITE(op,400) 'Origin will be skipped.'
+        WRITE(op,"(a)") ' => Cannot scan the origin with electron radiation'
+        WRITE(op,"(a)") ' => Origin will be skipped.'
       END IF
 ! check angles are meaningful
       IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
@@ -6980,7 +6975,7 @@
         GO TO 10
       END IF
 
-      WRITE(op,404) 'Writing streak data to file ''',  &
+      WRITE(op,404) ' => Writing streak data to file ''',  &
           strkfile(1:length(strkfile)),'''. . .'
 
       CALL xyphse(h, k)
@@ -7003,7 +6998,7 @@
           GO TO 30
         END IF
         i = i + 1
-        IF(MOD(i,i_step) == 0) WRITE(op,405) 'Reached l = ',l
+        IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
         x = fn(h,k,l,l+dl,ok)
         IF(.NOT.ok) GO TO 999
 ! note: since this is streak data, only the X_RAY input needs
@@ -7012,19 +7007,18 @@
         30   WRITE(sk,406,ERR=100) l, CHAR(9), x
       END DO
       IF(sk /= op) CLOSE(sk,ERR=110)
-      WRITE(op,404) 'Streak data file, ''',  &
+      WRITE(op,404) ' => Streak data file, ''',  &
           strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
       RETURN
-      100 WRITE(op,404) 'ERROR writing to streak data file ''',  &
+      100 WRITE(op,404) ' => ERROR writing to streak data file ''',  &
           strkfile(1:length(strkfile)),''''
       IF(sk /= op) CLOSE(sk,ERR=110)
       RETURN
-      110 WRITE(op,404) 'Unable to close streak data file ''',  &
+      110 WRITE(op,404) ' => Unable to close streak data file ''',  &
           strkfile(1:length(strkfile)),''''
       RETURN
-      999 WRITE(op,405) 'ERROR encountered in streak integration at l = ',l
+      999 WRITE(op,405) ' => ERROR encountered in streak integration at l = ',l
       RETURN
-      400 FORMAT(1X, a)
       401 FORMAT(1X, 2I3, 3F10.5)
       402 FORMAT(1X, a, f10.5, a)
       403 FORMAT(1X, 2I3, f10.5, a)
@@ -7691,7 +7685,7 @@
       END IF
       RETURN
 
-      999 WRITE(op,400) 'ERROR in intensity calculation in TST_ROT'
+      999 WRITE(op,"(a)") ' => ERROR in intensity calculation in TST_ROT'
       WRITE(op,320) '   at h,k,l = ', h,',', k,',', l
       RETURN
       200 FORMAT(1X, 'Testing for a ', i1, '-fold axis')
@@ -7708,7 +7702,6 @@
       310 FORMAT(1X, 'INTENSITY DISTRIBUTION HAS NO ', i1, '-FOLD AXIS')
       320 FORMAT(1X, a, i3, a, i3, a, f7.2)
       330 FORMAT(1X, a, i1, a)
-      400 FORMAT(1X, a)
       END FUNCTION tst_rot
 
 

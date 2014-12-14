@@ -291,7 +291,7 @@
         end do
       end do
 
-      !Now ordering of all reflections read and put the  equivalents
+      !Now ordering of all reflections read and put the equivalents
       do i=1,nr
        sv(i)=hkl_s(hkl(:,i),Cell)
       end do
