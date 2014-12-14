@@ -1325,6 +1325,9 @@
 
         Select Case(key)
 
+          Case ('REPLACE_FILES')  !Tune the opening output files to replace previous files
+             replace_files = .true.
+
           Case ('SIMULATION')
 
             i=i+1; if(i > i2) exit

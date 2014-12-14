@@ -402,7 +402,8 @@
 
 
 
-  LOGICAL :: only_real,   &   !TRUE if all layers are centrosymmetric
+  LOGICAL :: replace_files=.false., & !if the user makes this variable true with REPLACE_FILES command old files are overwritten
+             only_real,   &   !TRUE if all layers are centrosymmetric
              same_bs,     &   !TRUE if all layer stacking uncertainty factors are identical
              all_bs_zero, &   !TRUE when all Bs_zero(i,j) = TRUE
              rot_only,    &   !TRUE if diffraction point group symmetry has no vertical mirrors

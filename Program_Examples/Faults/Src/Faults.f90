@@ -504,6 +504,7 @@
          write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
          return
        end if
+       if(replace_files) write(i_ftls,"(a)") " Replace_Files"
 
        if(opt == 3 .or. opt == 4) then
          write(i_ftls,"(a)")              "  "
@@ -1215,7 +1216,11 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
       filenam = trim(filenam(1:(index(infile,'_new')-1)))
       end if
 
-     Call getfnm(filenam,outfile, '.out', ok)            !check for any existing .out file, if any choose another filename not to overwrite the existing one.
+     if(replace_files) then
+       Call getfnm(filenam,outfile, '.out', ok,replace_files)
+     else
+       Call getfnm(filenam,outfile, '.out', ok)            !check for any existing .out file, if any choose another filename not to overwrite the existing one.
+     end if
      open(unit=i_out, file=trim(outfile),status="replace",action="write")
     ! open(unit=i_out, file=trim(filenam)//".out",status="replace",action="write")
       CALL salute(i_out)
@@ -1337,9 +1342,13 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
                          ycalcdef(j) = brd_spc(j)
                      end do
 
-                     CALL getfnm(filenam, outfile, '.dat', ok)
+                     if(replace_files) then
+                       Call getfnm(filenam,outfile, '.dat', ok,replace_files)
+                     else
+                       CALL getfnm(filenam, outfile, '.dat', ok)
+                     end if
 
-                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'new')
+                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                         write(unit = iout,fmt = *)'!', outfile
                         write(unit = iout,fmt = '(3f12.4)')thmin, step_2th,thmax
                      !  theta = thmin +(j-1)*d_theta
@@ -1386,7 +1395,11 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
       !call Restore_Codes() !the ref_* variables are now the original codes
 
 
-            CALL getfnm(filenam, outfile, '.prf', ok)
+            if(replace_files) then
+              Call getfnm(filenam,outfile, '.prf', ok,replace_files)
+            else
+              Call getfnm(filenam, outfile, '.prf', ok)
+            end if
              if (ok) then
                OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                call Write_Prf(difpat,iout)

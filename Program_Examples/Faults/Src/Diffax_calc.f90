@@ -1715,11 +1715,12 @@
 !                                                      (output).
 ! ______________________________________________________________________
 
-      SUBROUTINE getfnm(name1,name2,APPEND,ok)
+      SUBROUTINE getfnm(name1,name2,APPEND,ok,replace)
         CHARACTER (LEN=*), INTENT(IN)        :: name1
         CHARACTER (LEN=*), INTENT(OUT)       :: name2
         CHARACTER (LEN=*), INTENT(IN)        :: APPEND
-        LOGICAL, INTENT(IN OUT)              :: ok
+        LOGICAL,           INTENT(OUT)       :: ok
+        Logical, optional, INTENT(IN)        :: replace
 
         LOGICAL :: fexist
         CHARACTER (LEN=len(name1)) :: bname
@@ -1735,7 +1736,13 @@
         end if
         !ln=len_trim(bname) + len_trim(APPEND) + 3
         !if(ln > length(name2) ) return
-
+        if(present(replace)) then
+          if(replace) then
+            name2=trim(bname)//trim(append)
+            ok=.true.
+            return
+          end if
+        end if
         i=1
         WRITE(name2,"(a,i1)") trim(bname),i
         name2=trim(name2)//trim(append)
@@ -3958,7 +3965,11 @@
 !      external STREAK, GETFNM, GETSAD, WRTSAD
 
 ! Get a suitable file name, and open file.
-      CALL getfnm(infile,outfile,'sadp',ok)
+      if(replace_files) then
+        Call getfnm(infile,outfile, '.sadp', ok,replace_files)
+      else
+        Call getfnm(infile,outfile,'.sadp',ok)
+      end if
       IF(.NOT. ok) GO TO 999
 ! Open unformatted for binary write.
       IF(sa /= op) OPEN(UNIT = sa, FILE = outfile, STATUS = 'new',  &
@@ -4226,7 +4237,11 @@
 ! external subroutines (Some compilers need them declared external)
 !      external STREAK, GETFNM
 
-      CALL getfnm(infile, outfile, 'str', ok)
+      if(replace_files) then
+        Call getfnm(infile,outfile, '.str', ok,replace_files)
+      else
+        Call getfnm(infile, outfile, '.str', ok)
+      end if
       IF(.NOT.ok) GO TO 999
       IF(sk /= op) OPEN(UNIT = sk, FILE = outfile, STATUS = 'new',  &
           ERR = 990, IOSTAT = io_err)
@@ -5492,7 +5507,7 @@
       IF(recrsv .AND. .NOT. inf_thick) THEN
         ok = binpow(l_cnt+1)
         IF(.NOT. ok) THEN
-          WRITE(op,202) 'ERROR returned by BINPOW to OPTIMZ'
+          WRITE(op,"(a)") ' => ERROR returned by BINPOW to OPTIMZ'
           WRITE(op,201) 'The argument passed was l_cnt+1 = ', nint(l_cnt)+1
           GO TO 999
         END IF
@@ -5681,16 +5696,20 @@
       CALL thresh(ok)
       IF(.NOT. ok) GO TO 999
 
-      IF(symgrpno == 11)   WRITE(op,202) 'Axial integration only selected.'
+      IF(symgrpno == 11)   WRITE(op,"(a)") ' => Axial integration only selected.'
 
       IF(dosymdump) THEN
-        CALL getfnm(rootnam, sym_fnam, 'sym', ok)
+        if(replace_files) then
+          Call getfnm(rootnam,sym_fnam, '.sym', ok,replace_files)
+        else
+          Call getfnm(rootnam, sym_fnam, '.sym', ok)
+        end if
         IF(.NOT. ok) THEN
-          WRITE(op,202) 'OPTIMZ: ERROR in creating symmetry dumpfile.'
+          WRITE(op,"(a)") ' => OPTIMZ: ERROR in creating symmetry dumpfile.'
           GO TO 999
         END IF
         IF(sy /= op) OPEN(UNIT = sy, FILE = sym_fnam, STATUS = 'new')
-        WRITE(op,204) 'Writing symmetry data to file ''',  &
+        WRITE(op,204) ' => Writing symmetry data to file ''',  &
             sym_fnam(1:length(sym_fnam)),'''. . .'
         WRITE(sy,303) '''', rootnam(1:length(rootnam)),''''
         WRITE(sy,203) no_trials
@@ -5704,21 +5723,21 @@
           symgrpno /= 5 .AND. symgrpno /= 6 .AND. symgrpno /= 11
 
       IF(dosymdump) THEN
-        WRITE(sy,202) ' '
-        WRITE(sy,204) 'The diffraction data fits the point group symmetry ''',  &
+        WRITE(sy,"(a)") ' '
+        WRITE(sy,204) ' => The diffraction data fits the point group symmetry ''',  &
             pnt_grp(1:length(pnt_grp)),''''
         IF(symgrpno /= 1 .AND. symgrpno /= 11) THEN
           IF(max_var > eps6 .AND. max_var <= eps1) THEN
-            WRITE(sy,201) '  with a tolerance of one part in ', nint(one / max_var)
+            WRITE(sy,201) '    with a tolerance of one part in ', nint(one / max_var)
           ELSE IF(max_var > eps1) THEN
-            WRITE(sy,205) '  with a tolerance of one part in ', one / max_var
+            WRITE(sy,205) '    with a tolerance of one part in ', one / max_var
           ELSE
-            WRITE(sy,202) '  with a tolerance better than one part in a million.'
+            WRITE(sy,"(a)") '    with a tolerance better than one part in a million.'
           END IF
         ELSE
-          WRITE(sy,202)  &
-              'By definition, all diffraction data has a center of symmetry'
-          WRITE(sy,202) 'thus, there is no need to test for inversion.'
+          WRITE(sy,"(a)")  &
+              ' => By definition, all diffraction data has a center of symmetry'
+          WRITE(sy,"(a)") '    thus, there is no need to test for inversion.'
         END IF
         ! close file, unless the output was to the default device
         IF(sy /= op) CLOSE (UNIT = sy)
@@ -5736,7 +5755,6 @@
       999 RETURN
       200 FORMAT(1X, 2A)
       201 FORMAT(1X, a, i6)
-      202 FORMAT(1X, a)
       203 FORMAT(1X, 'Number of trials per symmetry element = ', i4)
       204 FORMAT(1X, 3A)
       205 FORMAT(1X, a, f4.1)
@@ -6509,19 +6527,21 @@
         iw=op
       end if
       WRITE(iw,"(a)") ' ______________________________________________________'
-      WRITE(iw,"(a)") ' ______________________________________________________'
+      WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '               _______ FAULTS 2014 _______             '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '        A computer program based on DIFFaX for         '
       WRITE(iw,"(a)") '          refining faulted layered structures          '
+      WRITE(iw,"(a)") '     Authors of DIFFaX:                                '
+      WRITE(iw,"(a)") '       M. M. J. Treacy , M. W. Deem & J. M. Newsam     '
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '     Authors:  '
-      WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC energiGUNE)'
-      WRITE(iw,"(a)") '      Jokin Rikarte            (CIC energiGUNE)'
-      WRITE(iw,"(a)") '      Marine Reynaud           (CIC energiGUNE)'
-      WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin) '
+      WRITE(iw,"(a)") '     Authors of FAULTS:                                '
+      WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC energiGUNE)        '
+      WRITE(iw,"(a)") '      Jokin Rikarte            (CIC energiGUNE)        '
+      WRITE(iw,"(a)") '      Marine Reynaud           (CIC energiGUNE)        '
+      WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '                   [version: Dec. 2014]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
