@@ -42,6 +42,7 @@ echo on
   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
    upx Faults.exe
    if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
+   if exist %PROGCFML% copy Faults.exe %PROGCFML%\DistFPS\. > nul
    goto END
 :IFORTD
 echo on

@@ -1166,6 +1166,7 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
       character(len=100)      :: pmode, filenam
       character(len=256)      :: path_name
       character(len=10)       :: time, date
+      character(len=1)        :: keyw
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
 
@@ -1447,6 +1448,8 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
       tini=(tini-tfin)*60.0
       write(op,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
       write(i_out,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
+      write(unit=*,fmt="(/,a)") " => Press <Enter> to finish ..."
+      read(unit=*,fmt="(a)") keyw
       stop
    END PROGRAM FAULTS
 
