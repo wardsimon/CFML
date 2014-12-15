@@ -553,10 +553,10 @@
     End Subroutine Write_ftls
 
     Subroutine Write_FST()
-      integer :: i,j,k,l,lact,n,m, nseq, nlayers,nl,nat,ncar
+      integer :: i,j,k,l,lact,n,m, nseq, nlayers,nl,nat,ncar,ier
       integer, dimension(1000)      :: seq
       integer, dimension(20)        :: pos
-      real(kind=cp), dimension(3)   :: cvect
+      real(kind=cp), dimension(3)   :: cvect,stck_vect
       real(kind=dp), dimension(6)   :: cell_fst
       real(kind=cp)                 :: caxis !Perpendicular to the plane of the layers
       real(kind=cp),     dimension(:,:),allocatable :: xyz
@@ -577,18 +577,32 @@
       box_given=.false.
       mod_seq=.false.
       nl=0
+      stck_vect=(/0.0,0.0,0.25/)
       do i=1,num_fst
         aux=u_case(fst_cmd(i))
         j=index(aux,"SEQ")
         if( j /= 0) then
-          read(unit=fst_cmd(i)(j+3:),fmt=*) nlayers
+          read(unit=fst_cmd(i)(j+3:),fmt=*,iostat=ier) nlayers
           if(nl+nlayers > 1000) exit
-          read(unit=fst_cmd(i)(j+3:),fmt=*) nlayers,seq(nl+1:nl+nlayers)
+          read(unit=fst_cmd(i)(j+3:),fmt=*,iostat=ier) nlayers,seq(nl+1:nl+nlayers)
+          if(ier /= 0) then
+            write(unit=*,fmt="(a)") " => Error reading the sequence of layers! No FST file will be generated ..."
+            return
+          end if
           nl=nl+nlayers
         end if
         if(index(aux,"BOX") /= 0) then
           box_cmd=fst_cmd(i)
           box_given=.true.
+        end if
+        j=index(aux,"STACK_VECT")
+        if( j /= 0) then
+          read(unit=fst_cmd(i)(j+10:),fmt=*,iostat=ier) stck_vect
+          if(ier /= 0) then
+            stck_vect=(/0.0,0.0,0.25/)
+            write(unit=*,fmt="(a)") " => Error reading the initial stacking vector for FST..."
+            write(unit=*,fmt="(a)") "    Taking the default value: [0.0, 0.0, 0.25] "
+          end if
         end if
       end do
       nlayers=nl !Total number of layers read in the file
@@ -636,9 +650,10 @@
       j=seq(1)
       lact=crys%l_actual(j)
       k=0
+      cvect=stck_vect !Start with a non zero vector to include all the layers within the new unit cell
       do i=1,crys%l_n_atoms(lact)
         k=k+1
-        xyz(:,k) =crys%a_pos(:,i,lact)
+        xyz(:,k) =crys%a_pos(:,i,lact)+cvect
         elem=crys%a_name(i,lact)(1:2)
         if(index("0123456789",elem(2:2)) /= 0) elem(2:2)=" "
         aux=" "
@@ -648,7 +663,7 @@
         atnam(k)=aux//elem
         if(crys%centro(lact) == centro) then
           k=k+1
-          xyz(:,k) = -crys%a_pos(:,i,lact)
+          xyz(:,k) = -crys%a_pos(:,i,lact)+cvect
           m=index(atnam(k-1)," ")
           atnam(k)=atnam(k-1)(1:m-1)//"c"//atnam(k-1)(m+1:)
         end if
@@ -656,7 +671,6 @@
 
       !Calculate the total displacement vector by adding the stacking vectors
       !and the atoms positions of each layer
-      cvect=0.0
       do i=2,nlayers
         L=seq(i-1)
         j=seq(i)
@@ -681,6 +695,7 @@
           end if
         end do
       end do
+      cvect=cvect+stck_vect !add another stacking vector to include all layers within the new cell
       cell_fst(3)=cvect(3)*cell_c
       xyz(1:2,1:nat)=mod(xyz(1:2,1:nat)+10.0_cp,1.0_cp)
       xyz(3,1:nat)=xyz(3,1:nat)/cvect(3) !Correcting the z-fractional coordinate to the new cell
