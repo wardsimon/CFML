@@ -26,6 +26,7 @@ Instrumental  And  Size  Broadening
 FST_CMD  SEQ 13  1 1 2 3 1 2 3 1 3 1 2 2 3
 FST_CMD  CONN Ni O 0.0 2.3
 FST_CMD  box  -2 2 -2 2 -0.01 1.01
+FST_CMD  stack_vect  0 0 0.5
 
 !Laue symmetry
  Symm  unknown
@@ -117,4 +118,6 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
 
  Calculation
  Simulation
-5.0 90.0 0.02
+ 5.0 90.0 0.02
+
+ Replace_Files
