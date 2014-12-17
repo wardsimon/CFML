@@ -1,6 +1,6 @@
 @echo off
 rem ****
-rem ****---- Compilation for OPTIM_GEN Program ----****
+rem ****---- Compilation for GlopXtr Program ----****
 rem ****
 rem **** Author: JRC + JGP
 rem **** Revision: Nov-2008
@@ -8,7 +8,7 @@ rem ****
 rem
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_OPTIM_GEN: Make OPTIM_GEN Compilation
+   echo    MAKE_OPTIM_GEN: Make GlopXtr Compilation
    echo    Syntax: make_optim_gen [f95/lf95/g95/gfortran/ifort]
    goto END
 rem
@@ -37,8 +37,8 @@ rem ****---- Intel Compiler ----****
    ifort /c observ.f90             /O3 /nologo /IC:\CrysFML\ifort\LibC
    ifort /c cost_functions.f90     /O3 /nologo /IC:\CrysFML\ifort\LibC
    ifort /c Optim_General.f90      /O3 /nologo /IC:\CrysFML\ifort\LibC
-   rem ifort /exe:Optim_General_if *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:64000000
-   link /subsystem:console /stack:64000000 /out:Optim_General_if.exe *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib
+   rem ifort /exe:GlopXtr *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:64000000
+   link /subsystem:console /stack:64000000 /out:GlopXtr.exe *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
@@ -54,7 +54,7 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
    gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
    gfortran -c Optim_General.f90   -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
-   gfortran  *.o -o  Optim_General_gf  -LC:\CrysFML\GFortran\LibC -lcrysfml  -Wl,--heap=0x01000000
+   gfortran  *.o -o  GlopXtr_gf  -LC:\CrysFML\GFortran\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
 rem
 :END

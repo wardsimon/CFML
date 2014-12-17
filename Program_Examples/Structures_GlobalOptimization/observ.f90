@@ -1,5 +1,5 @@
   Module observed_reflections
-    Use CFML_GlobalDeps,                 only: sp
+    Use CFML_GlobalDeps,                 only: sp,cp,dp
     Use CFML_Math_General,               only: sort
     use CFML_Reflections_Utilities,      only: Reflection_List_Type, hkl_mult, hkl_equiv,hkl_s
     use CFML_String_Utilities,           only: number_lines, u_Case, get_logunit
@@ -10,12 +10,14 @@
 
     private
 
-    public :: Read_observations, Write_ObsCalc_SFactors, Write_FoFc_Powder
+    public :: Read_observations, Write_ObsCalc_SFactors, Write_FoFc_Powder, Read_Profile_Type
 
 
     logical,             public ::    err_observ=.false.
     character (len=256), public ::    err_mess_observ="  "
-    Real,                public ::    SumGobs, ScaleFact, wavel_int
+    Real, save,          public ::    SumGobs, ScaleFact=1.0, wavel_int
+    Integer,             public ::    Nselr=0, iwgt=0
+    Logical,             public ::    Weight_Sim=.false.
 
     !!----
     !!---- TYPE :: OBSERVATION_TYPE
@@ -60,7 +62,27 @@
        Module Procedure Read_observations_reflections
     End Interface Read_observations
 
+    type, public :: profile_point_type
+      real(kind=cp)                            :: yobs     !observed intensity
+      real(kind=cp)                            :: ycal     !calculated intensity
+      real(kind=cp)                            :: bac      !background level
+      real(kind=cp)                            :: var      !variance of the intensity
+      real(kind=cp)                            :: scv      !value of the scattering variable
+      integer                                  :: nref     !number of reflections contributing to the point
+      integer                                  :: ref_ini  !number of the first contributing reflection
+      integer                                  :: ref_end  !number of the last contributing reflection
+      real(kind=cp), dimension(:), allocatable :: omegap   !Profile contibutions of the reflections other than structure factor squared
+    end type profile_point_type
 
+    type, public :: profile_type
+      integer          :: npts
+      integer          :: nactive
+      real(kind=cp)    :: sumap,meanvar
+      character(len=6) :: scattvar
+      type (profile_point_type), dimension(:), allocatable :: prf
+    end type profile_type
+
+    type(profile_type), public :: sprof
 
     Contains
 
@@ -87,10 +109,12 @@
       logical,                     intent (in)  :: Friedel
       type(Reflection_List_Type),  intent (out) :: Rf
       !--- Local Variables ---!
-      integer :: ier, i,j,nlines,i_hkl, itemp
+      integer :: ier, nref, i,j,nlines,i_hkl, itemp
       integer, allocatable,dimension(:,:) :: hkl
       integer, allocatable,dimension(  :) :: ic
       real,    allocatable,dimension(  :) :: sv,fobs,sigma
+      character(len=132) :: line
+      logical :: fullprof_int
 
 
 
@@ -102,51 +126,70 @@
         err_mess_observ="  Error opening the file: "//trim(file_hkl)
         return
       end if
-
+      Fullprof_int=.false.
+      i=index(file_hkl,".int")
+      if(i /= 0) Fullprof_int=.true.
       call number_lines(trim(file_hkl),nlines)
-
+      nref=nlines
+      if(FullProf_int) nref=nlines-3
       !Allocate local types to the maximum possible value
 
       if(allocated(sv)) deallocate(sv)
-      allocate(sv(nlines))
+      allocate(sv(nref))
       if(allocated(fobs)) deallocate(fobs)
-      allocate(fobs(nlines))
+      allocate(fobs(nref))
       if(allocated(sigma)) deallocate(sigma)
-      allocate(sigma(nlines))
+      allocate(sigma(nref))
       if(allocated(ic)) deallocate(ic)
-      allocate(ic(nlines))
+      allocate(ic(nref))
       if(allocated(hkl)) deallocate(hkl)
-      allocate(hkl(3,nlines))
+      allocate(hkl(3,nref))
 
-      do i=1,nlines
-          read(unit=i_hkl,fmt=*, iostat=ier) hkl(:,i),fobs(i),sigma(i)
-          if(ier /= 0) exit
-      end do
+      if(FullProf_int) then
+         read(unit=i_hkl,fmt="(a)", iostat=ier) line
+         read(unit=i_hkl,fmt="(a)", iostat=ier) line
+         read(unit=i_hkl,fmt=*) wavel_int
+         do i=1,nref
+             read(unit=i_hkl,fmt=*, iostat=ier) hkl(:,i),fobs(i),sigma(i)
+             if(fobs(i) < 0.0) fobs(i)=0.00001
+             if(ier /= 0) then
+                nref=i-1
+                exit
+             end if
+         end do
+      else
+         do i=1,nref
+             read(unit=i_hkl,fmt=*, iostat=ier) hkl(:,i),fobs(i),sigma(i)
+             if(ier /= 0) exit
+         end do
+      end if
       close(unit=i_hkl)
 
       !Now ordering of all reflections
-      do i=1,nlines
+      do i=1,nref
        sv(i)=hkl_s(hkl(:,i),Cell)
       end do
-      call sort(sv,nlines,ic) !use ic for pointer ordering
 
-      call get_logunit(itemp)
-      ! open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
-      open(unit=itemp,status="scratch",form="unformatted",action="readwrite")
-      do i=1,nlines
-        j=ic(i)
-        write(itemp) hkl(:,j),sv(j),fobs(j),sigma(j)
-      end do
-      rewind(unit=itemp)
-      do i=1,nlines
-        read(itemp) hkl(:,i),sv(i),fobs(i),sigma(i)
-      end do
+      if(.not. FullProf_int) then
+         call sort(sv,nref,ic) !use ic for pointer ordering
+         call get_logunit(itemp)
+         ! open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
+         open(unit=itemp,status="scratch",form="unformatted",action="readwrite")
+         do i=1,nref
+           j=ic(i)
+           write(itemp) hkl(:,j),sv(j),fobs(j),sigma(j)
+         end do
+         rewind(unit=itemp)
+         do i=1,nref
+           read(itemp) hkl(:,i),sv(i),fobs(i),sigma(i)
+         end do
+      end if
 
       if(allocated(Rf%Ref)) deallocate(Rf%Ref)
-      allocate(Rf%Ref(nlines))
-      Rf%Nref=nlines
+      allocate(Rf%Ref(nref))
+      Rf%Nref=nref
       SumGobs=0.0
-      do i=1,nlines
+      do i=1,nref
         SumGobs=SumGobs+abs(fobs(i))
         Rf%Ref(i)%h    = hkl(:,i)
         Rf%Ref(i)%Mult = hkl_mult(hkl(:,i),Spg,Friedel)
@@ -494,5 +537,76 @@
        write(unit=lun,fmt="(a,f12.5)") "  =>  R-Factor(%) (Sum {|Gobs-Sum{|Fc|}}/Sum{Gobs} = ",R
        return
     End Subroutine Write_FoFc_Powder
+
+    Subroutine Read_Profile_Type(fileprof)
+      character(len=*), intent(in) :: fileprof
+      !-----
+      integer :: i,lun,j,jk,k,jj,ier,i1,i2,nr,nmr,nlines
+      character(len=180) :: line,filen
+
+      call Get_LogUnit(lun)
+      i=index(fileprof,".",back=.true.)
+      if(i == 0) then
+         filen=trim(fileprof)//".spr"
+      else
+         filen=trim(fileprof)
+      end if
+      open(unit=lun, file=trim(filen), status="old", action="read", position="rewind",iostat=ier)
+      if(ier /= 0) then
+          err_observ=.true.
+          err_mess_observ=" Error reading the profile intensity file: "//trim(filen)
+          return
+      end if
+      read(unit=lun,fmt="(a)") line
+      read(unit=lun,fmt="(a)") line
+      read(unit=line,fmt=*) nr, sprof%nactive
+      if(Nselr == 0) Nselr = sprof%nactive  !In case no limit of reflections are given
+      !Check that sprof%nactive is compatible with "nselr" (number of selected reflections)
+      sprof%npts=nr
+      i=index(line," ",back=.true.)
+      sprof%scattvar=adjustl(line(i:))
+      if(allocated(sprof%prf)) deallocate(sprof%prf)
+      allocate(sprof%prf(nr))
+      read(unit=lun,fmt="(a)") line  !reading the two comments
+      read(unit=lun,fmt="(a)") line
+      sprof%sumap=0.0
+      sprof%meanvar=0.0
+      do i=1,nr
+        read(unit=lun,fmt=*,iostat=ier) j,j,i1,i2,sprof%prf(i)%yobs,sprof%prf(i)%var, &
+                                        sprof%prf(i)%ycal,sprof%prf(i)%bac,sprof%prf(i)%scv
+        k=i2-i1+1
+        sprof%meanvar = sprof%meanvar +  sprof%prf(i)%var
+        if( allocated(sprof%prf(i)%omegap) ) deallocate(sprof%prf(i)%omegap)
+        allocate(sprof%prf(i)%omegap(k))
+        sprof%prf(i)%omegap(:)=0.0
+        sprof%prf(i)%nref=k
+
+        sprof%prf(i)%ref_ini=i1
+        sprof%prf(i)%ref_end=i2
+
+        !Check that sprof%nactive is compatible with "nselr" (number of selected reflections)
+         if(i2 > Nselr) then
+           sprof%npts=i-1
+           exit
+         else
+           sprof%sumap=sprof%sumap+sprof%prf(i)%yobs    !replaces commented line above
+         end if                                         !
+        jk=0
+        if(mod(k,8) == 0) then
+           nlines=k/8
+        else
+           nlines=k/8+1
+        end if
+        DO jj=1,nlines
+          nmr=MIN(8,k-jk)
+          read(unit=lun,fmt="(24x,8f12.4)") (sprof%prf(i)%omegap(jk+j),j=1,nmr)
+          jk=jk+8
+        END DO
+      end do
+      sprof%meanvar=sprof%meanvar/real(nr)
+      close(unit=lun)
+      !The object sprof has been constructed completely on return
+      return
+    End Subroutine read_profile_type
 
   End Module observed_reflections

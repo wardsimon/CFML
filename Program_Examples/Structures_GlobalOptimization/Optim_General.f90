@@ -1,4 +1,4 @@
-Program Optimizing_structures
+Program Global_Optimization_Xtal_structures
    !---- Use Modules ----!
    !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
@@ -23,7 +23,8 @@ Program Optimizing_structures
                                              Sann_Opt_MultiConf
    use observed_reflections,           only: Read_observations,Observation_Type,Observation_List_Type, &
                                              Write_ObsCalc_SFactors,err_observ,err_mess_observ, SumGobs,&
-                                             wavel_int, Write_FoFc_Powder
+                                             wavel_int, Write_FoFc_Powder, Nselr, Read_Profile_Type,    &
+                                             Weight_Sim,iwgt
    use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
                                              Write_FinalCost,wavel,diff_mode,anti_bump
@@ -37,6 +38,7 @@ Program Optimizing_structures
 
    character(len=256)                 :: filcod     !Name of the input file
    character(len=256)                 :: filhkl     !Name of the hkl-file
+   character(len=256)                 :: filprof    !Name of the profile-file
    character(len=256)                 :: filrest    !Name of restraints file
    character(len=256)                 :: line       !Text line
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
@@ -54,15 +56,18 @@ Program Optimizing_structures
     if(narg > 0) then
             call GET_COMMAND_ARGUMENT(1,filcod)
             arggiven=.true.
+            i=index(filcod,".cfl")
+            if(i /= 0) filcod=filcod(1:i-1)
     end if
 
-    write (unit=*,fmt="(/,/,6(a,/))")                                                  &
-            "            ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
-            "                    ---- Version 0.3 December-2008 ----"                          , &
-            "    *******************************************************************************"  , &
-            "    * Optimizes a X-tal structure reading integrated intensities and a *.CFL file *"  , &
-            "    *******************************************************************************"  , &
-            "                             (JRC- December-2008 )"
+    write (unit=*,fmt="(/,/,7(a,/))")                                                  &
+            "                                      GlopXtr"                                    , &
+            "                 ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
+            "                         ---- Version 0.4 December-2014 ----"                          , &
+            "    ****************************************************************************************"  , &
+            "    * Optimizes X-tal structures against combined cost functions described in a *.CFL file *"  , &
+            "    ****************************************************************************************"  , &
+            "             (JRC - ILL - Created in December-2008, Updated in December 2014 )"
    write (unit=*,fmt=*) " "
 
    if(.not. arggiven) then
@@ -73,12 +78,13 @@ Program Optimizing_structures
 
    open(unit=lun,file=trim(filcod)//".out", status="replace",action="write")
     write(unit=lun,fmt="(/,/,6(a,/))")                                                  &
-            "            ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
-            "                    ---- Version 0.3 December-2008 ----"                          , &
-            "    *******************************************************************************"  , &
-            "    * Optimizes a X-tal structure reading integrated intensities and a *.CFL file *"  , &
-            "    *******************************************************************************"  , &
-            "                             (JRC- December-2008 )"
+            "                                      GlopXtr"                                    , &
+            "                 ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
+            "                         ---- Version 0.4 December-2014 ----"                          , &
+            "    ****************************************************************************************"  , &
+            "    * Optimizes X-tal structures against combined cost functions described in a *.CFL file *"  , &
+            "    ****************************************************************************************"  , &
+            "             (JRC - ILL - Created in December-2008, Updated in December 2014 )"
 
    inquire(file=trim(filcod)//".cfl",exist=esta)
    if( .not. esta) then
@@ -200,7 +206,8 @@ Program Optimizing_structures
        end if
      end do
 
-     if(Icost(1) == 1 .or. Icost(7) == 1) then
+
+     if(Icost(1) == 1 .or. Icost(7) == 1 .or. Icost(10) == 1 .or. Icost(11) == 1) then
           ! Reading observed structure factors squared and construct hkl if Icost(1) =1
           ! First detect the name of the hkl file
           esta=.false.
@@ -220,9 +227,11 @@ Program Optimizing_structures
             write(unit=*,fmt="(a)") " => No hkl-file (or wrong name!) has been provided! "
             Icost(1)=0; wcost(1)=0.0
             Icost(7)=0; wcost(7)=0.0
+            Icost(10:11)=0; wcost(10:11)=0.0
           end if
 
           mindspc=0.0       !Read minimun d-spacing to be considered in the list
+          Nselr=0
           do i=1,fich_cfl%nlines
             line=u_case(fich_cfl%line(i))
             if(line(1:12) == "MIN-DSPACING") then
@@ -232,9 +241,9 @@ Program Optimizing_structures
             end if
           end do
 
-          if(Icost(7) == 1) then
+          if(Icost(7) == 1) then  !for clusters
              call read_observations(trim(filhkl),Cell,SpG,.true.,Oh,hkl)
-          else
+          else  !Structure factors, single crystals or profile
              call read_observations(trim(filhkl),Cell,SpG,.true.,hkl)
           end if
           if(err_observ) then
@@ -243,7 +252,7 @@ Program Optimizing_structures
             stop
           end if
 
-          if(Icost(7) == 1) then
+          if(Icost(7) == 1 .or. Icost(10) == 1 .or. Icost(11) == 1) then
             wavel=wavel_int
           end if
 
@@ -258,6 +267,7 @@ Program Optimizing_structures
               n=n+1
               if(hkl%Ref(i)%s > maxsintl) then
                 hkl%Nref=n
+                Nselr=n
                 exit
               end if
             end do
@@ -294,6 +304,39 @@ Program Optimizing_structures
             end if
          end if
 
+         if(Icost(10) == 1 .or. Icost(11) == 1) then !Reading the profile
+              esta=.false.
+              do i=1,fich_cfl%nlines
+                line=adjustl(u_case(fich_cfl%line(i)))
+                if(line(1:11) == "PROFILE-OBS") then
+                  line=fich_cfl%line(i)
+                  j=index(line,"!")
+                  if(j /= 0) line=trim(line(1:j-1))
+                  filprof= adjustl(line(12:))
+                  inquire(file=trim(filprof),exist=esta)
+                  exit
+                end if
+                if(line(1:6) == "WEIGHT") then
+                  Weight_Sim=.true.
+                  read(unit=line(7:),fmt=*,iostat=ier) iwgt
+                  if(ier /= 0) iwgt=0
+                end if
+              end do
+              if(.not. esta) then
+                write(unit=*,fmt="(a)") " => No profile-file (or wrong name!) has been provided! "
+                Icost(10:11)=0; wcost(10:11)=0.0
+              end if
+              if(Icost(10) == 1 .or. Icost(11) == 1) then
+                 call Read_Profile_Type(filprof)
+              end if
+              if(err_observ) then
+                 write(unit=*,fmt="(a)") " => Error reading powder profile file"
+                 write(unit=*,fmt="(a)")  trim(err_mess_observ)
+                stop
+              end if
+
+         end if
+
         !Set up Structure factor tables and initial values
          call Init_Structure_Factors(hkl,A,Spg,mode=diff_mode,lambda=wavel,lun=lun)
          call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
@@ -302,7 +345,7 @@ Program Optimizing_structures
              write(unit=*,fmt="(a)") trim(err_sfac_mess)
             stop
           end if
-     End if !Icost(1) == 1
+     End if !Icost(1) == 1 .or. Icost(7) == 1 .or. Icost(10) == 1 .or. Icost(11) == 1
 
     !Set up the simulated annealing conditions
      call Set_SimAnn_Cond(fich_cfl,c)
@@ -401,7 +444,7 @@ Program Optimizing_structures
 
    close(unit=lun)
    stop
-End Program Optimizing_structures
+End Program Global_Optimization_Xtal_structures
 
 Subroutine Write_FST(fst_file,v,cost)
    !---- Arguments ----!

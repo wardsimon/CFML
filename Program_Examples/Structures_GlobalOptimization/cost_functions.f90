@@ -1,12 +1,26 @@
   !!----  Module cost_functions
   !!----
   !!----  Module containing the model functions to be used in a Simulated Annealing procedure
-  !!----  The module uses many others from CrysFML (see below the 'use' statements).
+  !!----  The module uses many others from CrysFML (see the 'use' statements below).
   !!----  The public subroutines available in this module are the following:
   !!----    General_cost_function   : updates state vectors and calculates the global const function
-  !!----    Readn_Set_CostFunctPars : reads in the CFL f
-  !!----    Write_CostFunctPars
-  !!----    Write_FinalCost
+  !!----    Readn_Set_CostFunctPars : reads in the CFL file
+  !!----    Write_CostFunctPars     : write the cost functions parameters
+  !!----    Write_FinalCost         : write the final cost
+  !!----
+  !!----  The currently availabe cost functions are:
+  !!----  "F2obs-F2cal"     Cost(F2obs-F2cal)    : Optimization of C0 =Sum|F2obs-F2cal|/Sum|F2obs|
+  !!----  "Fobs-Fcal"       Cost(Fobs-Fcal)      : Optimization of C1 =Sum|Fobs-Fcal|/Sum|Fobs|
+  !!----  "dis-restr"       Cost(dis-restr)      : Optimization of C2 =Sum{w(dobs-dcal)^2}, w=1/var(d)
+  !!----  "Ang-restr"       Cost(Ang-restr)      : Optimization of C3 =Sum{w(Ang_obs-Ang_cal)^2}, w=1/var(Ang)
+  !!----  "Tor-restr"       Cost(Tor-restr)      : Optimization of C4 =Sum{w(Tor_obs-Tor_cal)^2}, w=1/var(Tor)
+  !!----  "bond-valence"    Cost(bond-valence)   : Optimization of C5 =Sum{|q-BVS|/tot_Atoms}
+  !!----  "bvs_coulomb"     C5 + Cost(Coulomb)   : Optimization of C6 =Sum{qi qj/dij}
+  !!----  "FoFc-Powder"     Cost(FoFc-Powder)    : Optimization of C7 =Sum|Gobs-Sum(Fcal)|/Sum|Gobs|
+  !!----  "Coordination"    Cost(Coordination)   : Optimization of C8 =Sum|Coord-Efcn|/Sum|Coord|
+  !!----  "Anti_Bump"       Cost(Anti_Bump)      : Optimization of C9 =Sum{(dmin/d)**power}
+  !!----  "Powder_Profile"  Cost(Powder_Profile) : Optimization of C10=Sum{|yiobs-yicalc|/|yiobs|}
+  !!----  "Powder_WProfile" Cost(Powder_WProfile): Optimization of C11=Sum{w{yiobs-yicalc}^2/(N-P)} Equivalent to Chi2
   !!----
   !!----  A series of global variables of this modules are defined for describing crystal
   !!----  structures that are to be optimized against some theoretical or experimental data.
@@ -34,8 +48,8 @@
       Use CFML_Reflections_Utilities,     only: Reflection_List_Type
       Use CFML_Structure_Factors,         only: Structure_Factors,Init_Structure_Factors, &
                                                 Calc_StrFactor, Modify_SF
-      Use observed_reflections,           only: Observation_Type,Observation_List_Type, SumGobs,ScaleFact,wavel_int
-      Use CFML_Molecular_Crystals,        only: Molecular_Crystal_Type
+      !Use CFML_Molecular_Crystals,        only: Molecular_Crystal_Type
+      Use observed_reflections
 
       Use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi, v_Vec,v_Shift,v_Bounds,v_BCon,v_Name, v_List, &
                                                 VState_to_AtomsPar, &
@@ -56,7 +70,7 @@
       type (Reflection_List_Type),  public :: hkl
       type (Observation_List_Type), public :: Oh
 
-      Integer, parameter,             public :: N_costf=9
+      Integer, parameter,             public :: N_costf=11
       Integer,dimension(0:N_costf),   public :: Icost
       real,   dimension(0:N_costf),   public :: Wcost
       real,   dimension(0:N_costf),   public :: P_cost !Partial cost
@@ -86,7 +100,6 @@
        real                 :: w,tol
        integer              :: i,ier,j,nrel
        logical              :: coordone
-
 
        Icost=0
        wcost=0.0
@@ -285,6 +298,32 @@
                    end if
                  end if
 
+                 i=index(line,"powder_profile")
+                 if(i == 0) then
+                   Icost(10)=0; wcost(10)=0.0
+                 else
+                   Icost(10)=1
+                   read(unit=line(i+14:),fmt=*,iostat=ier) w
+                  if(ier /= 0) then
+                      wcost(10)=1.0
+                   else
+                      wcost(10)= w
+                   end if
+                 end if
+
+                 i=index(line,"powder_wprofile")
+                 if(i == 0) then
+                   Icost(11)=0; wcost(11)=0.0
+                 else
+                   Icost(11)=1
+                   read(unit=line(i+14:),fmt=*,iostat=ier) w
+                  if(ier /= 0) then
+                      wcost(11)=1.0
+                   else
+                      wcost(11)= w
+                   end if
+                 end if
+
               case ("dmax")
 
                  read(unit=line(5:),fmt=*,iostat=ier) w
@@ -375,7 +414,7 @@
               case (0)    !Optimization "F2obs-F2cal"
 
                  Write(unit=lun,fmt="(a,f8.4)") &
-                 "  => Cost(F2obs-F2cal): Optimization of C1=Sum|F2obs-F2cal|/Sum|F2obs|, with weight: ",wcost(i)
+                 "  => Cost(F2obs-F2cal): Optimization of C0=Sum|F2obs-F2cal|/Sum|F2obs|, with weight: ",wcost(i)
 
               case (1)    !Optimization "Fobs-Fcal"
 
@@ -416,6 +455,13 @@
                  Write(unit=lun,fmt="(a,f8.4)") &
                  "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**power}, with weight: ",wcost(i)
 
+              case (10)    !Optimization "Powder_Profile"
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(Powder_Profile): Optimization of C10=Sum{|yiobs-yicalc|/|yiobs|}, with weight: ",wcost(i)
+
+              case (11)    !Optimization "Powder_WProfile"
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(Powder_WProfile): Optimization of C11=Sum{w(yiobs-yicalc)^2/(N-P)}=Chi2, with weight: ",wcost(i)
 
           end select
 
@@ -508,6 +554,17 @@
                  "  Final Cost: ",P_cost(9)
 
 
+              case (10)    !Optimization "Powder_Profile"
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
+                 "  => Cost(Powder_Profile): Optimization of C10=Sum{|yiobs-yicalc|/|yiobs|}, with weight: ",wcost(i),&
+                 "  Final Cost: ",P_cost(10)
+
+              case (11)    !Optimization "Powder_WProfile"
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
+                 "  => Cost(Powder_WProfile): Optimization of C11=Sum{w(yiobs-yicalc)^2/(N-P)}, with weight: ",wcost(i),&
+                 "  Final Cost: ",P_cost(10)
+
+
           end select
 
        end do
@@ -558,12 +615,12 @@
 
             Select Case(ic)
 
-               case(0)      !Experimental Gobs-Gcalc diffraction pattern
+               case(0)      !Experimental F2obs-F2cal diffraction pattern
                      call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
                      call Cost_F2obsF2cal(P_cost(0))
                      cost=cost+ P_cost(0)* WCost(0)
 
-               case(1)      !Experimental Gobs-Gcalc diffraction pattern
+               case(1)      !Experimental Fobs-Fcalc diffraction pattern
                      call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
                      call Cost_FobsFcal(P_cost(1))
                      cost=cost+ P_cost(1)* WCost(1)
@@ -613,7 +670,10 @@
                      call Cost_dist_min(P_cost(9))
                      cost=cost+ P_cost(9)* WCost(9)
 
-               case(10)     !Potential
+               case(10,11)     !Powder profile obtimization of Rp or Chi2
+                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
+                     call Cost_Powder_Profile(P_cost(ic))
+                     cost=cost+ P_cost(ic)* WCost(ic)
 
             End Select
          end do
@@ -684,7 +744,10 @@
                      call Cost_dist_min(P_cost(9))
                      cost=cost+ P_cost(9)* WCost(9)
 
-               case(10)      !Potential
+               case(10,11)     !Powder profile obtimization of Rp or Chi2
+                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
+                     call Cost_Powder_Profile(P_cost(ic))
+                     cost=cost+ P_cost(ic)* WCost(ic)
 
             End Select
          end do
@@ -756,6 +819,79 @@
        cost=100.0*cost/SumGobs
        return
     End Subroutine Cost_FoFc_Powder
+
+
+    Subroutine Cost_Powder_Profile(cost)
+       real,                 intent(out):: cost
+       !---- Local variables ----!
+       integer  :: i,j,n,ik,nn
+       real     :: delt,sumcal,fcal,scalef,ww,pw
+
+       fcal=0.0
+       do i=1,sprof%npts
+         do j=1,sprof%prf(i)%nref
+           nn=sprof%prf(i)%ref_ini+j-1
+           !ik=sprof%prf(i)%nref-j+1
+           fcal=fcal+ScaleFact*sprof%prf(i)%omegap(j) * hkl%ref(nn)%Fc * hkl%ref(nn)%Fc
+         end do
+       end do
+       Scalef=sprof%sumap/fcal
+       ScaleFact=Scalef*ScaleFact
+
+       !---------------------------------------------------------------------
+       ! Second Loop over profile points to calculate the cost function
+       !----------------------------------------------------------------------
+       if(Weight_Sim) then
+         cost=0.0
+         do i=1,sprof%npts
+           fcal=0.0
+           do j=1,sprof%prf(i)%nref
+             nn=sprof%prf(i)%ref_ini+j-1
+             !ik=sprof%prf(i)%nref-j+1
+             fcal=fcal+ScaleFact*sprof%prf(i)%omegap(j)* hkl%ref(nn)%Fc * hkl%ref(nn)%Fc
+           end do
+           sprof%prf(i)%ycal=fcal
+           delt=sprof%prf(i)%yobs -sprof%prf(i)%ycal
+
+           Select Case(iwgt)
+             Case(1)
+               ww=sprof%meanvar
+             Case(2)
+               pw=(sprof%prf(i)%yobs+2.0*sprof%prf(i)%ycal)/3.0
+               ww=sprof%prf(i)%var + 0.04*pw*pw
+             Case Default
+               ww=sprof%prf(i)%var
+           End Select
+           cost=cost + delt*delt/ww
+         end do
+         cost=cost/real(sprof%npts-NP_Refi)    !Chi-squared
+
+       else
+
+         cost=0.0
+         do i=1,sprof%npts
+           fcal=0.0
+           do j=1,sprof%prf(i)%nref
+             nn=sprof%prf(i)%ref_ini+j-1
+             !ik=sprof%prf(i)%nref-j+1
+             fcal=fcal+ScaleFact*sprof%prf(i)%omegap(j)* hkl%ref(nn)%Fc * hkl%ref(nn)%Fc
+           end do
+           sprof%prf(i)%ycal=fcal
+           delt=sprof%prf(i)%yobs -sprof%prf(i)%ycal
+           cost=cost+ abs(delt)
+         end do
+         cost=100.0*cost/sprof%sumap
+
+       end if
+
+       !if(present(plot)) then
+       !   npts(n_pat)=sprof%npts
+       !   y(1:sprof%npts,n_pat)=sprof%prf(1:sprof%npts)%yobs
+       !   yc(1:sprof%npts,n_pat)=sprof%prf(1:sprof%npts)%ycal
+       !   txv(1:sprof%npts,n_pat)=sprof%prf(1:sprof%npts)%scv
+       !end if
+    End Subroutine Cost_Powder_Profile
+
 
     Subroutine Cost_Dis_Rest_Partial(List,cost)
        integer,   intent(in) :: List
@@ -842,7 +978,7 @@
           call Read_SymTrans_Code(dis_rest(i)%stcode,nop,tr)
           x2=ApplySO(SpG%SymOP(nop),x2)+tr
           Dis_rest(i)%dcalc=distance(x1,x2,cell)
-          delta=Dis_rest(i)%dobs-Dis_rest(i)%dcalc
+          delta=(Dis_rest(i)%dobs-Dis_rest(i)%dcalc)/Dis_rest(i)%dobs
           w= 1.0/(Dis_rest(i)%sigma*Dis_rest(i)%sigma)
           cost= cost+delta*delta*w
        end do
@@ -902,7 +1038,7 @@
           call Read_SymTrans_Code(ang_rest(i)%stcode(2),nop,tr)
           x3=ApplySO(SpG%SymOP(nop),x3)+tr
           Ang_rest(i)%Acalc=Angle_UV(x1-x2,x3-x2,cell%GD)
-          delta=Ang_rest(i)%Aobs-Ang_rest(i)%Acalc
+          delta=(Ang_rest(i)%Aobs-Ang_rest(i)%Acalc)/Ang_rest(i)%Aobs
           w= 1.0/(Ang_rest(i)%sigma*Ang_rest(i)%sigma)
           cost= cost+delta*delta*w
        end do
