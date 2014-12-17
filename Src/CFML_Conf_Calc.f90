@@ -5,7 +5,7 @@
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
 !!---- in military applications.
 !!----
-!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!---- Copyright (C) 1999-2015  Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
@@ -37,7 +37,7 @@
 !!----         configuration properties depending on the crystal structure: BVS, Energy,....
 !!----
 !!---- HISTORY
-!!----    Update: 07/03/2011
+!!----    Updated: 16/12/2014
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -45,6 +45,11 @@
 !!----
 !!---- VARIABLES
 !!----    ATOM_CONF_LIST
+!!----    BVEL_ANIONS_N
+!!----    BVEL_ANIONS
+!!----    BVEL_ANIONS_RION
+!!----    BVEL_SPECIES_N
+!!----    BVEL_TABLE
 !!----    BVS_ANIONS_N
 !!----    BVS_ANIONS
 !!----    BVS_ANIONS_RION
@@ -53,8 +58,15 @@
 !!----    BVS_TABLE
 !!----    ERR_CONF
 !!----    ERR_CONF_MESS
+!!--++    TABLE_Alpha
+!!--++    TABLE_Avcoor
 !!--++    TABLE_B
 !!--++    TABLE_D0
+!!--++    TABLE_Dzero
+!!--++    TABLE_Rcutoff
+!!--++    TABLE_Ref
+!!--++    TABLE_Rmin
+!!--++    TABLE_Rzero
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -70,6 +82,7 @@
 !!----       DEALLOCATE_ATOMS_CONF_LIST
 !!----       DEALLOCATE_BVS_TABLE
 !!----       INIT_ERR_CONF
+!!----       SET_BVEL_TABLE
 !!----       SET_BVS_TABLE
 !!----       SET_TABLE_D0_B
 !!----       SPECIES_ON_LIST
@@ -86,6 +99,7 @@
     use CFML_Atom_TypeDef,               only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
                                                Deallocate_Atom_List, AtList1_ExtenCell_AtList2
     use CFML_Geometry_Calc,              only: Coord_Info, Distance
+    use CFML_Export_VTK,                 only: write_grid_VESTA
 
     !---- Variables ----!
     implicit none
@@ -93,12 +107,13 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List, &
-              Init_Err_Conf, Set_BVS_Table, Set_Table_d0_b, Species_on_List,  &
-              Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Deallocate_BVS_Table
+    public :: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List,    &
+              Init_Err_Conf, Set_BVS_Table, Set_Table_d0_b, Species_on_List,     &
+              Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Deallocate_BVS_Table, &
+              Set_BVEL_Table, Deallocate_BVEL_Table, Set_Table_BVEL_Params
 
     !---- List of public private ----!
-    private :: Bond_Valence, Complete_Table
+    private :: Bond_Valence, Complete_Table, Complete_Table_BVEL
 
     !---- Definitions ----!
 
@@ -130,6 +145,88 @@
        real(kind=cp),    dimension(:), allocatable :: Radius    !ionic/atomic radius of species
        type(Atom_Type),  dimension(:), allocatable :: Atom
     End type Atoms_Conf_List_Type
+
+    !!----
+    !!---- BVEL_ANIONS_N
+    !!----    integer, parameter, public :: bvel_anions_n
+    !!----
+    !!----    Number of anions known in BVEL Table in: Stefan Adams and R. Prasada Rao
+    !!----
+    !!---- Created: December - 2014
+    !!
+    integer, parameter, public :: bvel_anions_n=1
+
+    !!----
+    !!---- BVEL_Anions
+    !!----    character(len=4), parameter, dimension(bvel_anions_n) :: bvel_anions
+    !!----
+    !!----    Anions known from Stefan Adams and R. Prasada Rao
+    !!----
+    !!---- Created: December - 2014
+    !!
+    character(len=*), parameter, dimension(bvel_anions_n), public :: bvel_anions = &
+                     (/"O-2 "/)
+
+    !!----
+    !!---- BVEL_Anions_Rion
+    !!----    real(kind=cp), parameter, dimension(bvs_anions_n) :: bvs_anions_rion
+    !!----
+    !!----    Radii Ionic for Anions in BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp), parameter, dimension(bvel_anions_n), public :: bvel_anions_rion = &
+                      (/1.40/)
+
+    !!----
+    !!---- TYPE :: BVEL_PAR_TYPE
+    !!--..
+    !!---- Type, public :: Bvel_Par_Type
+    !!---   character(len=5)                       :: symb     !Symbol of the cation
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: Avcoor   !Average cation coordination number
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rzero    !Modified Bond-Valence parameter R0
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rcutoff  !Cutoff distance in Angstroms
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: Dzero    !First Morse potential parameter (eV)
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rmin     !Second Morse potential parameter (Angstroms)
+    !!---   real(kind=cp),dimension(bvel_anions_n) :: alpha    !Third Morse potential parameter (1/b) (Angstroms^-1)
+    !!---   integer      ,dimension(bvel_anions_n) :: refnum   !Pointer to reference paper
+    !!---- End Type Bvel_Par_Type
+    !!----
+    !!----    Type Definition for BVEL Parameters
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Type, public :: Bvel_Par_Type
+       character(len=5)                       :: symb
+       real(kind=cp),dimension(bvel_anions_n) :: Avcoor
+       real(kind=cp),dimension(bvel_anions_n) :: Rzero
+       real(kind=cp),dimension(bvel_anions_n) :: Rcutoff
+       real(kind=cp),dimension(bvel_anions_n) :: Dzero
+       real(kind=cp),dimension(bvel_anions_n) :: Rmin
+       real(kind=cp),dimension(bvel_anions_n) :: alpha
+       integer      ,dimension(bvel_anions_n) :: refnum
+    End Type Bvel_Par_Type
+
+    !!----
+    !!---- BVEL_SPECIES_N
+    !!----    integer, parameter, public :: bvel_species_n
+    !!----
+    !!----    Maximum Number of species in BVEL_Table
+    !!----
+    !!---- Created: December - 2014
+    !!
+    integer, parameter, public :: bvel_species_n=132
+
+    !!----
+    !!---- BVEL_TABLE
+    !!----    Type(Bvel_Par_Type), allocatable, dimension(:), public :: BVEL_Table
+    !!----
+    !!----    BVEL Parameters for calculations
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Type(Bvel_Par_Type), allocatable, dimension(:), public :: BVEL_Table
+
 
     !!----
     !!---- BVS_ANIONS_N
@@ -164,14 +261,15 @@
     real(kind=cp), parameter, dimension(bvs_anions_n), public :: bvs_anions_rion = &
                       (/1.40,1.19,1.67,1.95,2.16,1.84,1.98,2.21,1.71,2.12,2.22,2.08,1.35,1.80/)
 
-    !!----
+
+
     !!---- TYPE :: BVS_PAR_TYPE
     !!--..
     !!---- Type, public :: Bvs_Par_Type
-    !!----    character (len=4)               :: Symb      ! Chemical symbol
+    !!----    character (len=4)                      :: Symb      ! Chemical symbol
     !!----    real(kind=cp), dimension(bvs_anions_n) :: D0        ! D0 Parameter
     !!----    real(kind=cp), dimension(bvs_anions_n) :: B_Par     ! B Parameter
-    !!----    integer,dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
+    !!----    integer,       dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
     !!---- End Type Bvs_Par_Type
     !!----
     !!----    Definition for BVS Parameters
@@ -189,7 +287,7 @@
     !!---- BVS_SPECIES_N
     !!----    integer, parameter, public :: bvs_species_n
     !!----
-    !!----    Number of Maximum species on BVS_Table
+    !!----    Maximum Number of species in BVS_Table
     !!----
     !!---- Update: March - 2005
     !!
@@ -227,6 +325,26 @@
     character(len=150), public :: ERR_Conf_Mess
 
     !!----
+    !!---- Table_Alpha
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Alpha
+    !!----
+    !!----    Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Alpha
+
+    !!----
+    !!---- Table_Avcoor
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Avcoor
+    !!----
+    !!----    Matrix N_Species x N_Species of Average coordination parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Avcoor
+
+    !!----
     !!---- TABLE_B
     !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_b
     !!----
@@ -247,6 +365,26 @@
     real(kind=cp),dimension(:,:), allocatable, private :: Table_d0
 
     !!----
+    !!---- Table_Dzero
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Dzero
+    !!----
+    !!----    Matrix N_Species x N_Species of Dzero parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Dzero
+
+    !!----
+    !!---- Table_Rcutoff
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rcutoff
+    !!----
+    !!----    Matrix N_Species x N_Species of Rcutoff parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rcutoff
+
+    !!----
     !!---- TABLE_Ref
     !!----    integer,dimension(:,:), allocatable, private :: Table_ref
     !!----
@@ -257,6 +395,26 @@
     integer,dimension(:,:), allocatable, private :: Table_ref
 
     !!----
+    !!---- Table_Rmin
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rmin
+    !!----
+    !!----    Matrix N_Species x N_Species of Rmin parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rmin
+
+     !!----
+    !!---- Table_Rzero
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rzero
+    !!----
+    !!----    Matrix N_Species x N_Species of Rzero (equivalent to D0 in BVS) parameters for BVEL
+    !!----
+    !!---- Created: December - 2014
+    !!
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rzero
+
+    !!----
     !!----  Reference list for BVS parameters
     !!----
     !!----
@@ -264,7 +422,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=*),dimension(0:32),parameter, private :: references = (/  &
+    character(len=*),dimension(0:33),parameter, private :: references = (/  &
          "Unknown                                                                         ", &
          "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &
          "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &
@@ -297,7 +455,8 @@
          "Holsa et al.(2002) J.Solid State Chem 165, 48-55                                ", &
          "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &
          "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &
-         "J.Rodriguez-Carvajal Private communication                                      " /)
+         "J.Rodriguez-Carvajal Private communication                                      ", &
+         "S. Adams and R. Prasada Rao,Phys. Status Solidi A 208, No. 8, 1746–1753 (2011)  "/)
 
  Contains
 
@@ -386,13 +545,13 @@
        character(len=*),             optional, intent(in)  :: Filecod
 
        !---- Local variables ----!
-       integer                                :: i,j,k,n1,n2,icm,l,icn,isoc,kk,is0, &
-                                                 isstr,isdav,isigt,ibvs,sig1,sig2
-       real(kind=cp)                          :: tol,fact,del2,s0,q2,  &
-                                                 dd,sigtot,efcn,sums,dav,sdav,q1,d2,  &
-                                                 str2,sstr,ric,r_2,del,perc,spred,disp,  &
-                                                 str,rg1,dist,gii_a,gii_b,gii_c
-       character(len=4)                       :: rnatom
+       integer           :: i,j,k,n1,n2,icm,l,icn,isoc,kk,is0, &
+                            isstr,isdav,isigt,ibvs,sig1,sig2
+       real(kind=cp)     :: tol,fact,del2,s0,q2,  &
+                            dd,sigtot,efcn,sums,dav,sdav,q1,d2,  &
+                            str2,sstr,ric,r_2,del,perc,spred,disp,  &
+                            str,rg1,dist,gii_a,gii_b,gii_c
+       character(len=4)  :: rnatom
 
        call init_err_conf()
 
@@ -602,7 +761,7 @@
     End Subroutine Calc_BVS
 
     !!----
-    !!---- Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
+    !!---- Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta)
     !!----    type (Atoms_Conf_List_type), intent(in) :: A
     !!----    type (Space_Group_Type),     intent(in) :: SpG
     !!----    Type (Crystal_Cell_Type),    intent(in) :: Cell
@@ -612,14 +771,16 @@
     !!----    integer,                     intent(in) :: ndimz
     !!----    character(len=*),            intent(in) :: atname
     !!----    real(kind=cp),               intent(in) :: drmax
+    !!----    real(kind=cp), optional,     intent(in) :: delta !Tolerance in v.u. for output the map
     !!----
     !!----    Calculate a map of BVS values where each point of the grid is determined
-    !!----    by a specie representative defined in atname. The BVS value is evaluated
-    !!----    into of drmax value.
+    !!----    by a species representative defined in atname. The BVS value is evaluated
+    !!----    for distances below drmax value. If delta is present only the points with valence
+    !!----    close ( q-delta < BVS < q+delta) to that of the atname are output in the map.
     !!----
-    !!---- Update: December - 2007
+    !!---- Update: December - 2007, December 2014 ( JRC,change the order of indices and VESTA output)
     !!
-    Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
+    Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta)
        !---- Arguments ----!
        type (Atoms_Conf_List_type), intent(in) :: A
        type (Space_Group_Type),     intent(in) :: SpG
@@ -630,6 +791,7 @@
        integer,                     intent(in) :: ndimz
        character(len=*),            intent(in) :: atname
        real(kind=cp),               intent(in) :: drmax
+       real(kind=cp), optional,     intent(in) :: delta
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm,chem
@@ -640,12 +802,12 @@
        integer,      dimension(:),     allocatable  :: ind
        real(kind=cp)                                :: rx1,ry1,rz1,qval,dif
        real(kind=cp)                                :: sbvs, dd, occ
-       real(kind=cp), dimension(3)                  :: pto,pta
+       real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
        real(kind=cp), dimension(:,:),   allocatable :: peaks
        real(kind=cp), dimension(:),     allocatable :: VD_peaks
        type (Atom_list_Type)                        :: At1, At2
-       logical                                      :: new_peak
+       logical                                      :: new_peak,anion,cation
 
        !---- Initial conditions ----!
        if (A%natoms <= 0) return
@@ -653,25 +815,38 @@
 
        !---- Preparing the Variables and calculations ----!
        call Allocate_Atom_List(A%natoms,At1)
-       At1%atom=A%atom
-
+       At1%atom=A%atom  !Atom list A%Atom(:)%ind(1) contains the pointer to the species
+                        !coming from A (Atoms_Conf_List_type, set in the main program)
        atm=u_case(atname)
-       do i=1,At1%natoms
+       do i=1,At1%natoms  !This exclude all atoms with the same label a Atname
           if (trim(u_case(At1%atom(i)%lab)) == trim(atm)) At1%atom(i)%active=.false.
        end do
 
        call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
        call Deallocate_atom_list(At1)
+       !check that all species are well set in the list
+       do n=1,At2%natoms
+           n2=At2%Atom(n)%ind(1)
+           if (n2 ==0) then
+              err_conf=.true.
+              ERR_Conf_Mess="The atom "//trim(At2%Atom(n)%lab)//" is not in the Species Table"
+              return
+           end if
+       end do
 
-       allocate(map_bvs(ndimz,ndimx,ndimy))
+
+
+       allocate(map_bvs(ndimx,ndimy,ndimz))
        map_bvs=0.0
 
-       allocate(peaks(4,ndimx)) ! A maximum of ndimx peaks will be stored
-       peaks=0.0
-       allocate(VD_peaks(ndimx)) ! Vector holding the differences of bond-valences
-       VD_peaks=0.0
-       allocate(ind(ndimx))      ! Vector pointer for ordering the peaks
-       ind=0
+       if(.not. present(delta)) then
+          allocate(peaks(4,ndimx)) ! A maximum of ndimx peaks will be stored
+          peaks=0.0
+          allocate(VD_peaks(ndimx)) ! Vector holding the differences of bond-valences
+          VD_peaks=0.0
+          allocate(ind(ndimx))      ! Vector pointer for ordering the peaks
+          ind=0
+       end if
 
        n1=0
        call Get_Chemsymb(atm,chem)
@@ -690,49 +865,56 @@
        end if
        ! Determination of the valence expected for a good position
        i=index(car,"+")
+       cation=.false.
+       anion=.false.
        if( i /= 0) then
          read(unit=car(i+1:),fmt=*) qval
+         cation=.true.
        else
          i=index(car,"-")
          read(unit=car(i+1:),fmt=*) qval
+         anion=.true.
        end if
+       step=(/ 1.0/real(ndimx),  1.0/real(ndimy), 1.0/real(ndimz) /)
+       extend=(/ drmax/cell%cell(1),  drmax/cell%cell(2), drmax/cell%cell(3) /)
 
        np=0
        !---- Map Calculation ----!
        do k=1,ndimz
-          pto(3)=(k-1)*(1.0/real(ndimz))
-          do i=1,ndimx
-             pto(1)=(i-1)*(1.0/real(ndimx))
-             do j=1,ndimy
-                pto(2)=(j-1)*(1.0/real(ndimy))
+          pto(3)=(k-1)*step(3)
+          do j=1,ndimy
+             pto(2)=(j-1)*step(2)
+             do i=1,ndimx
+                pto(1)=(i-1)*step(1)
 
-                rx1=pto(1)-drmax/cell%cell(1)
+                rx1=pto(1)-extend(1)
                 if (rx1 <= 0.0) then
                     nx1=int(rx1)-1
                 else
                     nx1=int(rx1)
                 end if
-                nx2=int(pto(1)+drmax/cell%cell(1))
+                nx2=int(pto(1)+extend(1))
 
-                ry1=pto(2)-drmax/cell%cell(2)
+                ry1=pto(2)-extend(2)
                 if (ry1 <= 0.0) then
                     ny1=int(ry1)-1
                 else
                     ny1=int(ry1)
                 end if
-                ny2=int(pto(2)+drmax/cell%cell(2))
+                ny2=int(pto(2)+extend(2))
 
-                rz1=pto(3)-drmax/cell%cell(3)
+                rz1=pto(3)-extend(3)
                 if (rz1 <= 0.0) then
                     nz1=int(rz1)-1
                 else
                     nz1=int(rz1)
                 end if
-                nz2=int(pto(3)+drmax/cell%cell(3))
+                nz2=int(pto(3)+extend(3))
 
                 sbvs=0.0
                 do n=1,At2%natoms
-
+                   n2=At2%Atom(n)%ind(1)
+                   if((cation .and. n2 <= A%N_cations)  .or. (anion .and. n2 > A%N_cations) ) cycle
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
@@ -742,51 +924,48 @@
                             occ=At2%Atom(n)%VarF(1)
                             dd=Distance(pto,pta,Cell)
                             if (dd > drmax) cycle
-                            n2=At2%Atom(n)%ind(1)
-                            if (n2 ==0) then
-                               err_conf=.true.
-                               ERR_Conf_Mess="The atom is not in the Species Table"
-                               return
-                            end if
                             sbvs=sbvs+occ*exp((table_d0(n1,n2)-dd)/table_b(n1,n2))
                          end do
                       end do
                    end do
-
                 end do
-
-                !Algorithm for selecting the optimum positions
                 dif=abs(sbvs-qval)
-                if(dif < 0.15 .and. np < ndimx) then
-                  new_peak=.true.
-                  do L=1,np
-                     dd=Distance(peaks(1:3,L),pto,Cell)
-                     if( dd < 0.2 ) then
-                       new_peak=.false.
-                       nL=L
-                       exit
-                     end if
-                  end do
-                  if(new_peak) then
-                    np=np+1
-                    peaks(1:3,np)= pto
-                    peaks(4,np)  = sbvs
-                    VD_peaks(np) = dif
-                  else  !now compare with the peak stored at nL and interchange them if sbvs is more favourable
-                    if( dif < abs(qval-peaks(4,nL)) ) then
-                      peaks(1:3,nL) = pto
-                      peaks(  4,nL) = sbvs
-                      VD_peaks(nL)  = dif
+                if(present(delta)) then
+                  if(dif > delta) sbvs=0.0_cp
+                else
+                  !Algorithm for selecting the optimum positions
+                  if(dif < 0.15 .and. np < ndimx) then
+                    new_peak=.true.
+                    do L=1,np
+                       dd=Distance(peaks(1:3,L),pto,Cell)
+                       if( dd < 0.8 ) then
+                         new_peak=.false.
+                         nL=L
+                         exit
+                       end if
+                    end do
+                    if(new_peak) then
+                      np=np+1
+                      peaks(1:3,np)= pto
+                      peaks(4,np)  = sbvs
+                      VD_peaks(np) = dif
+                    else  !now compare with the peak stored at nL and interchange them if sbvs is more favourable
+                      if( dif < abs(qval-peaks(4,nL)) ) then
+                        peaks(1:3,nL) = pto
+                        peaks(  4,nL) = sbvs
+                        VD_peaks(nL)  = dif
+                      end if
                     end if
                   end if
                 end if
                 !end of peaks construction
-                map_bvs(k,i,j)=sbvs
+                map_bvs(i,j,k)=sbvs
              end do
           end do
        end do
        !Sorting the favourable peak positions for inserting the species of atom Atname
-       call sort(VD_peaks,np,ind)
+
+       if(.not. present(delta)) call sort(VD_peaks,np,ind)
        !---- Export a File ----!
        call Get_LogUnit(jbvs)
        open(unit=jbvs,file=trim(filecod)//".map")
@@ -800,16 +979,19 @@
          write(unit=jbvs, fmt='(a,t20,5f12.5)')"Atom "//trim(A%Atom(i)%lab)//"  "//A%Atom(i)%SfacSymb, &
                                                 A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
        end do
-       write (unit=jbvs, fmt='(a)')     "! List ot favourable positions for inserting the species "//trim(car)
-       do i=1,np
-         j=ind(i)
-         write(unit=jbvs, fmt='(a,i4,a,3f10.5,a,f8.3)')"#",i,"  Position: (",peaks(1:3,j),")  Valence: ",peaks(4,j)
-       end do
+       if(.not. present(delta)) then
+         write (unit=jbvs, fmt='(a)')     "! List ot favourable positions for inserting the species "//trim(car)
+         do i=1,np
+           j=ind(i)
+           write(unit=jbvs, fmt='(a,i4,a,3f10.5,a,f8.3)')"#",i,"  Position: (",peaks(1:3,j),")  Valence: ",peaks(4,j)
+         end do
+       end if
        write (unit=jbvs, fmt='(a)')     "! Grid values: ndimx,ndimy,ndimz [0,ndimx-1] [0,ndimy-1] [0,ndimz-1]  "
        write (unit=jbvs, fmt='(a,9i6)') "GRID ",ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
        write (unit=jbvs, fmt='(a)')     "DENSITY_MAP"
-       write(unit=jbvs,fmt='(8g12.5)') map_bvs
+       write (unit=jbvs,fmt='(8g12.5)') map_bvs
        close(unit=jbvs)
+       call write_grid_VESTA(map_bvs,cell,"Bond Valence Map",trim(filecod)//"_bvs","P")
 
        !---- End Procedure ----!
        if (allocated(map_bvs)) deallocate(map_bvs)
@@ -846,7 +1028,7 @@
                  ian=0
                  if (ic < 3 ) then
                           err_conf=.true.
-                          ERR_Conf_Mess="Cation-Anion d0 and B0 parameters must be provided"
+                          ERR_Conf_Mess="Cation-Anion D0,b parameters must be provided"
                           return
                  end if
 
@@ -870,7 +1052,7 @@
                  end if
                  if (icat > A%N_Cations) then
                     err_conf=.true.
-                    ERR_Conf_Mess="A given cation is not found in the atom list"
+                    ERR_Conf_Mess="One of the given cations is not found in the atom list"
                     return
                  end if
 
@@ -889,6 +1071,88 @@
 
     End Subroutine Complete_Table
 
+    !!----
+    !!---- Subroutine Complete_Table_BVEL(A,N_bvel,bvel)
+    !!----    type (Atoms_Conf_List_type),   intent(in) :: A      !  In -> Object of Atoms_Conf_List_type
+    !!----    Integer,                       intent(in) :: N_bvel
+    !!----    Character(len=*),dimension(:), intent(in) :: bvel
+    !!----
+    !!----    Sets up the table of BVEL parameters (add provided external values)
+    !!----    Completing the table when the user gives his/her own BVEL parameters
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Subroutine Complete_Table_BVEL(A,N_bvel,bvel)
+       type (Atoms_Conf_List_type),   intent(in) :: A      !  In -> Object of Atoms_Conf_List_type
+       Integer,                       intent(in) :: N_bvel
+       Character(len=*),dimension(:), intent(in) :: bvel
+       !---- Local variables ----!
+       Integer       :: i,j,k,ic,icat,ian
+       real(kind=cp) :: Avcoor,Rzero,Rcutoff,Dzero,Rmin,alpha
+       character(len=12), dimension(9)  :: dire
+
+          do k=1,N_bvel
+                 dire=" "
+                 call getword(bvel(k),dire,ic)
+                 if (ic <= 0) cycle
+                 icat=0
+                 ian=0
+                 if (ic < 8 ) then
+                          err_conf=.true.
+                          ERR_Conf_Mess="Cation-Anion {Nc,R0,D0,Rmin,alpha} parameters must be provided"
+                          return
+                 end if
+
+                 do i=1,A%N_Spec
+                          if (u_case(dire(1)(1:4)) /= A%Species(i)) cycle
+                          icat=i
+                 end do
+                 do i=1,A%N_Spec
+                          if (u_case(dire(2)(1:4)) /= A%Species(i)) cycle
+                          ian=i
+                 end do
+                 if (icat == 0 .or. ian == 0) then
+                    err_conf=.true.
+                    ERR_Conf_Mess="The given Cation or Anion cannot be found in the atom list"
+                    return
+                 end if
+                 if (icat > ian) then
+                          j=icat
+                          icat=ian
+                          ian=j
+                 end if
+                 if (icat > A%N_Cations) then
+                    err_conf=.true.
+                    ERR_Conf_Mess="One of the given cations is not found in the atom list"
+                    return
+                 end if
+
+                 read(unit=dire(3),fmt=*) Avcoor
+                 read(unit=dire(4),fmt=*) Rzero
+                 read(unit=dire(5),fmt=*) Rcutoff
+                 read(unit=dire(6),fmt=*) Dzero
+                 read(unit=dire(7),fmt=*) Rmin
+                 read(unit=dire(8),fmt=*) alpha
+
+                 Table_Avcoor  (icat,ian)=Avcoor
+                 Table_Rzero   (icat,ian)=Rzero
+                 Table_Rcutoff (icat,ian)=Rcutoff
+                 Table_Dzero   (icat,ian)=Dzero
+                 Table_Rmin    (icat,ian)=Rmin
+                 Table_alpha   (icat,ian)=alpha
+                 Table_ref     (icat,ian)=0
+
+                 Table_Avcoor  (ian,icat)=Avcoor
+                 Table_Rzero   (ian,icat)=Rzero
+                 Table_Rcutoff (ian,icat)=Rcutoff
+                 Table_Dzero   (ian,icat)=Dzero
+                 Table_Rmin    (ian,icat)=Rmin
+                 Table_alpha   (ian,icat)=alpha
+                 Table_ref     (ian,icat)=0
+
+          end do
+
+    End Subroutine Complete_Table_BVEL
     !!----
     !!---- Subroutine Cost_BVS(A, GII, ERep, gic)
     !!----    type (Atoms_Conf_List_type),  intent(in out) :: A    !  In  -> Object of Atoms_Conf_List_type
@@ -1070,6 +1334,20 @@
     End Subroutine Deallocate_Atoms_Conf_List
 
     !!----
+    !!---- Subroutine Deallocate_BVEL_Table()
+    !!----
+    !!----    Deallocating BVEL_Table
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Subroutine Deallocate_BVEL_Table()
+
+       if (allocated(BVEL_Table)) deallocate(BVEL_Table)
+
+       return
+    End Subroutine Deallocate_BVEL_Table
+
+    !!----
     !!---- Subroutine Deallocate_BVS_Table()
     !!----
     !!----    Deallocating BVS_Table
@@ -1097,6 +1375,158 @@
 
        return
     End Subroutine Init_Err_Conf
+
+    !!----
+    !!----
+    !!---- Subroutine Set_BVEL_Table()
+    !!----
+    !!----  Fills the parameters for BVEL from
+    !!----  Stefan Adams and R. Prasada Rao
+    !!---- "High power lithium ion battery materials by computational design"
+    !!----  Phys. Status Solidi A 208, No. 8, 1746–1753 (2011) / DOI 10.1002/pssa.201001116
+    !!----
+    !!---- Only on anion is available (O-2) for the moment
+    !!----
+    !!---- Update: December - 2014
+    !!
+    Subroutine Set_BVEL_Table()
+
+       if (.not. allocated(BVEL_Table)) allocate(BVEL_Table(bvel_species_n))
+
+        BVEL_Table(  1)=BVEL_Par_Type("H+1",  (/  1.923000/),(/  0.870450/),(/  4.000000/),(/  1.885800/),(/  1.127680/),(/  2.188184/),(/33/))
+        BVEL_Table(  2)=BVEL_Par_Type("Li+1", (/  5.021000/),(/  1.170960/),(/  5.500000/),(/  0.988160/),(/  1.940010/),(/  1.937984/),(/33/))
+        BVEL_Table(  3)=BVEL_Par_Type("Be+2", (/  4.000000/),(/  1.209030/),(/  5.500000/),(/  2.768820/),(/  1.522170/),(/  1.848429/),(/33/))
+        BVEL_Table(  4)=BVEL_Par_Type("B+3",  (/  3.417000/),(/  1.357610/),(/  4.500000/),(/  2.389240/),(/  1.340030/),(/  2.597403/),(/33/))
+        BVEL_Table(  5)=BVEL_Par_Type("C+4",  (/  3.000000/),(/  1.398260/),(/  5.000000/),(/  4.791870/),(/  1.200890/),(/  2.237136/),(/33/))
+        BVEL_Table(  6)=BVEL_Par_Type("C+2",  (/  1.000000/),(/  1.413680/),(/  5.000000/),(/  2.405530/),(/  1.030980/),(/  2.409639/),(/33/))
+        BVEL_Table(  7)=BVEL_Par_Type("N+5",  (/  3.000000/),(/  1.462670/),(/  5.000000/),(/  6.276770/),(/  1.161420/),(/  2.222222/),(/33/))
+        BVEL_Table(  8)=BVEL_Par_Type("N+3",  (/  2.000000/),(/  1.407950/),(/  5.000000/),(/  3.810890/),(/  1.137580/),(/  2.232143/),(/33/))
+        BVEL_Table(  9)=BVEL_Par_Type("NH4+1",(/  3.467000/),(/  2.033800/),(/  6.000000/),(/  0.405370/),(/  2.453640/),(/  2.262443/),(/33/))
+        BVEL_Table( 10)=BVEL_Par_Type("Na+1", (/  6.520000/),(/  1.562250/),(/  6.000000/),(/  0.575230/),(/  2.374330/),(/  2.074689/),(/33/))
+        BVEL_Table( 11)=BVEL_Par_Type("Mg+2", (/  5.897000/),(/  1.483980/),(/  5.500000/),(/  1.575540/),(/  1.956270/),(/  1.953125/),(/33/))
+        BVEL_Table( 12)=BVEL_Par_Type("Al+3", (/  5.327000/),(/  1.599010/),(/  5.000000/),(/  1.803460/),(/  1.758060/),(/  2.358491/),(/33/))
+        BVEL_Table( 13)=BVEL_Par_Type("Si+4", (/  4.100000/),(/  1.608170/),(/  5.000000/),(/  2.857200/),(/  1.535940/),(/  2.314815/),(/33/))
+        BVEL_Table( 14)=BVEL_Par_Type("P+5",  (/  4.000000/),(/  1.620380/),(/  5.000000/),(/  3.896350/),(/  1.440660/),(/  2.288330/),(/33/))
+        BVEL_Table( 15)=BVEL_Par_Type("P+3",  (/  3.000000/),(/  1.515550/),(/  4.500000/),(/  2.020620/),(/  1.410510/),(/  2.487562/),(/33/))
+        BVEL_Table( 16)=BVEL_Par_Type("S+6",  (/  4.000000/),(/  1.642200/),(/  5.000000/),(/  4.967260/),(/  1.381020/),(/  2.267574/),(/33/))
+        BVEL_Table( 17)=BVEL_Par_Type("S+4",  (/  3.000000/),(/  1.642820/),(/  5.500000/),(/  3.036720/),(/  1.411880/),(/  2.341920/),(/33/))
+        BVEL_Table( 18)=BVEL_Par_Type("Cl+7", (/  4.000000/),(/  1.679460/),(/  5.000000/),(/  5.991000/),(/  1.348010/),(/  2.257336/),(/33/))
+        BVEL_Table( 19)=BVEL_Par_Type("Cl+5", (/  3.000000/),(/  1.695520/),(/  5.500000/),(/  4.290890/),(/  1.356530/),(/  2.247191/),(/33/))
+        BVEL_Table( 20)=BVEL_Par_Type("Cl+3", (/  2.000000/),(/  1.722650/),(/  5.500000/),(/  3.071190/),(/  1.384410/),(/  2.036660/),(/33/))
+        BVEL_Table( 21)=BVEL_Par_Type("K+1",  (/  8.846000/),(/  1.941170/),(/  6.000000/),(/  0.349850/),(/  2.766360/),(/  2.293578/),(/33/))
+        BVEL_Table( 22)=BVEL_Par_Type("Ca+2", (/  7.544000/),(/  1.795190/),(/  5.500000/),(/  0.994290/),(/  2.320320/),(/  2.100840/),(/33/))
+        BVEL_Table( 23)=BVEL_Par_Type("Sc+3", (/  6.255000/),(/  1.732200/),(/  5.500000/),(/  2.156100/),(/  1.996150/),(/  2.024291/),(/33/))
+        BVEL_Table( 24)=BVEL_Par_Type("Ti+4", (/  6.000000/),(/  1.723940/),(/  5.500000/),(/  2.813330/),(/  1.831440/),(/  1.988072/),(/33/))
+        BVEL_Table( 25)=BVEL_Par_Type("Ti+3", (/  6.000000/),(/  1.697660/),(/  5.500000/),(/  1.978510/),(/  1.886190/),(/  2.173913/),(/33/))
+        BVEL_Table( 26)=BVEL_Par_Type("V+5",  (/  4.166000/),(/  1.794450/),(/  5.500000/),(/  3.695330/),(/  1.602580/),(/  1.960784/),(/33/))
+        BVEL_Table( 27)=BVEL_Par_Type("V+4",  (/  5.738000/),(/  1.749320/),(/  5.000000/),(/  2.080470/),(/  1.776380/),(/  2.347418/),(/33/))
+        BVEL_Table( 28)=BVEL_Par_Type("V+3",  (/  6.000000/),(/  1.677990/),(/  5.500000/),(/  1.829360/),(/  1.857970/),(/  2.277904/),(/33/))
+        BVEL_Table( 29)=BVEL_Par_Type("Cr+6", (/  4.000000/),(/  1.824710/),(/  5.500000/),(/  3.687510/),(/  1.532510/),(/  2.100840/),(/33/))
+        BVEL_Table( 30)=BVEL_Par_Type("Cr+5", (/  4.000000/),(/  1.767810/),(/  5.500000/),(/  2.365510/),(/  1.555460/),(/  2.487562/),(/33/))
+        BVEL_Table( 31)=BVEL_Par_Type("Cr+4", (/  5.429000/),(/  1.760950/),(/  5.500000/),(/  1.933290/),(/  1.762090/),(/  2.444988/),(/33/))
+        BVEL_Table( 32)=BVEL_Par_Type("Cr+3", (/  6.000000/),(/  1.661980/),(/  5.500000/),(/  1.773350/),(/  1.838870/),(/  2.325581/),(/33/))
+        BVEL_Table( 33)=BVEL_Par_Type("Mn+7", (/  4.000000/),(/  1.873620/),(/  6.500000/),(/  4.916300/),(/  1.481710/),(/  1.923077/),(/33/))
+        BVEL_Table( 34)=BVEL_Par_Type("Mn+6", (/  4.000000/),(/  1.820180/),(/  5.500000/),(/  2.822360/),(/  1.529310/),(/  2.403846/),(/33/))
+        BVEL_Table( 35)=BVEL_Par_Type("Mn+5", (/  4.000000/),(/  1.788790/),(/  5.500000/),(/  2.464560/),(/  1.575770/),(/  2.421308/),(/33/))
+        BVEL_Table( 36)=BVEL_Par_Type("Mn+4", (/  5.923000/),(/  1.732720/),(/  5.000000/),(/  1.858860/),(/  1.770450/),(/  2.487562/),(/33/))
+        BVEL_Table( 37)=BVEL_Par_Type("Mn+3", (/  5.862000/),(/  1.689930/),(/  5.500000/),(/  1.812830/),(/  1.857860/),(/  2.288330/),(/33/))
+        BVEL_Table( 38)=BVEL_Par_Type("Mn+2", (/  5.910000/),(/  1.627580/),(/  5.500000/),(/  1.641430/),(/  2.029690/),(/  2.079002/),(/33/))
+        BVEL_Table( 39)=BVEL_Par_Type("Fe+4", (/  6.000000/),(/  1.765590/),(/  5.500000/),(/  1.872850/),(/  1.827860/),(/  2.439024/),(/33/))
+        BVEL_Table( 40)=BVEL_Par_Type("Fe+3", (/  5.733000/),(/  1.708400/),(/  5.000000/),(/  1.666810/),(/  1.866470/),(/  2.380952/),(/33/))
+        BVEL_Table( 41)=BVEL_Par_Type("Fe+2", (/  5.743000/),(/  1.579110/),(/  5.500000/),(/  1.692690/),(/  1.960050/),(/  2.083333/),(/33/))
+        BVEL_Table( 42)=BVEL_Par_Type("Ni+3", (/  6.000000/),(/  1.648880/),(/  5.500000/),(/  1.661910/),(/  1.818870/),(/  2.415459/),(/33/))
+        BVEL_Table( 43)=BVEL_Par_Type("Ni+2", (/  5.933000/),(/  1.559200/),(/  5.500000/),(/  1.468410/),(/  1.924520/),(/  2.257336/),(/33/))
+        BVEL_Table( 44)=BVEL_Par_Type("Co+3", (/  6.000000/),(/  1.592340/),(/  5.500000/),(/  1.870240/),(/  1.776200/),(/  2.304147/),(/33/))
+        BVEL_Table( 45)=BVEL_Par_Type("Co+2", (/  5.506000/),(/  1.597730/),(/  5.500000/),(/  1.514760/),(/  1.933620/),(/  2.217295/),(/33/))
+        BVEL_Table( 46)=BVEL_Par_Type("Cu+3", (/  4.000000/),(/  1.709640/),(/  5.000000/),(/  1.882420/),(/  1.708230/),(/  2.341920/),(/33/))
+        BVEL_Table( 47)=BVEL_Par_Type("Cu+2", (/  2.560000/),(/  1.574220/),(/  5.000000/),(/  1.853410/),(/  1.566330/),(/  2.227171/),(/33/))
+        BVEL_Table( 48)=BVEL_Par_Type("Cu+1", (/  2.560000/),(/  1.587300/),(/  5.000000/),(/  0.664170/),(/  1.782690/),(/  2.932551/),(/33/))
+        BVEL_Table( 49)=BVEL_Par_Type("Zn+2", (/  4.718000/),(/  1.653440/),(/  5.000000/),(/  1.240310/),(/  1.885570/),(/  2.481390/),(/33/))
+        BVEL_Table( 50)=BVEL_Par_Type("Ga+3", (/  4.905000/),(/  1.716060/),(/  5.000000/),(/  1.184560/),(/  1.793910/),(/  2.680965/),(/33/))
+        BVEL_Table( 51)=BVEL_Par_Type("Ge+4", (/  4.305000/),(/  1.739390/),(/  5.000000/),(/  1.913750/),(/  1.668720/),(/  2.525253/),(/33/))
+        BVEL_Table( 52)=BVEL_Par_Type("As+5", (/  4.029000/),(/  1.766890/),(/  5.000000/),(/  2.719340/),(/  1.581270/),(/  2.433090/),(/33/))
+        BVEL_Table( 53)=BVEL_Par_Type("As+3", (/  3.000000/),(/  1.767060/),(/  5.000000/),(/  1.514930/),(/  1.645540/),(/  2.475248/),(/33/))
+        BVEL_Table( 54)=BVEL_Par_Type("Se+6", (/  4.000000/),(/  1.798660/),(/  5.500000/),(/  3.448650/),(/  1.532870/),(/  2.403846/),(/33/))
+        BVEL_Table( 55)=BVEL_Par_Type("Se+4", (/  3.000000/),(/  1.800950/),(/  5.500000/),(/  2.380820/),(/  1.559570/),(/  2.341920/),(/33/))
+        BVEL_Table( 56)=BVEL_Par_Type("Br+7", (/  4.000000/),(/  1.836580/),(/  5.500000/),(/  4.243390/),(/  1.502740/),(/  2.364066/),(/33/))
+        BVEL_Table( 57)=BVEL_Par_Type("Rb+1", (/ 10.020000/),(/  2.085970/),(/  6.500000/),(/  0.268130/),(/  2.896830/),(/  2.421308/),(/33/))
+        BVEL_Table( 58)=BVEL_Par_Type("Sr+2", (/  9.400000/),(/  1.953110/),(/  5.500000/),(/  0.743510/),(/  2.535890/),(/  2.197802/),(/33/))
+        BVEL_Table( 59)=BVEL_Par_Type("Y+3",  (/  7.285000/),(/  1.903840/),(/  5.500000/),(/  1.627010/),(/  2.215230/),(/  2.092050/),(/33/))
+        BVEL_Table( 60)=BVEL_Par_Type("Zr+4", (/  6.765000/),(/  1.845050/),(/  5.500000/),(/  2.191030/),(/  1.996020/),(/  2.040816/),(/33/))
+        BVEL_Table( 61)=BVEL_Par_Type("Nb+5", (/  6.044000/),(/  1.865880/),(/  5.500000/),(/  2.723260/),(/  1.854590/),(/  2.008032/),(/33/))
+        BVEL_Table( 62)=BVEL_Par_Type("Nb+4", (/  6.000000/),(/  1.785430/),(/  6.000000/),(/  2.709600/),(/  1.859890/),(/  1.901141/),(/33/))
+        BVEL_Table( 63)=BVEL_Par_Type("Nb+3", (/  6.000000/),(/  1.745810/),(/  6.000000/),(/  2.028480/),(/  1.951900/),(/  1.996008/),(/33/))
+        BVEL_Table( 64)=BVEL_Par_Type("Mo+6", (/  4.764000/),(/  1.909340/),(/  5.000000/),(/  1.991500/),(/  1.712540/),(/  2.557545/),(/33/))
+        BVEL_Table( 65)=BVEL_Par_Type("W+5",  (/  6.000000/),(/  1.819750/),(/  6.000000/),(/  2.615700/),(/  1.762610/),(/  2.008032/),(/33/))
+        BVEL_Table( 66)=BVEL_Par_Type("W+4",  (/  6.000000/),(/  1.745580/),(/  6.000000/),(/  2.471140/),(/  1.819450/),(/  1.923077/),(/33/))
+        BVEL_Table( 67)=BVEL_Par_Type("Re+7", (/  4.098000/),(/  1.977920/),(/  6.000000/),(/  3.555930/),(/  1.596340/),(/  1.968504/),(/33/))
+        BVEL_Table( 68)=BVEL_Par_Type("Re+6", (/  5.500000/),(/  1.910070/),(/  6.000000/),(/  2.950990/),(/  1.711470/),(/  2.008032/),(/33/))
+        BVEL_Table( 69)=BVEL_Par_Type("Re+5", (/  6.000000/),(/  1.826640/),(/  6.000000/),(/  2.410990/),(/  1.769140/),(/  2.087683/),(/33/))
+        BVEL_Table( 70)=BVEL_Par_Type("Re+3", (/  6.000000/),(/  2.207100/),(/  6.000000/),(/  0.810670/),(/  2.332180/),(/  2.493766/),(/33/))
+        BVEL_Table( 71)=BVEL_Par_Type("Os+8", (/  5.333000/),(/  1.977280/),(/  6.000000/),(/  3.710190/),(/  1.661460/),(/  1.953125/),(/33/))
+        BVEL_Table( 72)=BVEL_Par_Type("Os+7", (/  6.000000/),(/  1.957750/),(/  5.500000/),(/  2.919480/),(/  1.728690/),(/  2.087683/),(/33/))
+        BVEL_Table( 73)=BVEL_Par_Type("Os+6", (/  6.000000/),(/  1.931920/),(/  5.500000/),(/  2.448710/),(/  1.782800/),(/  2.159827/),(/33/))
+        BVEL_Table( 74)=BVEL_Par_Type("Os+4", (/  6.000000/),(/  1.753020/),(/  6.000000/),(/  2.275240/),(/  1.812440/),(/  2.008032/),(/33/))
+        BVEL_Table( 75)=BVEL_Par_Type("Ir+5", (/  6.000000/),(/  1.897910/),(/  6.000000/),(/  2.324760/),(/  1.834760/),(/  2.087683/),(/33/))
+        BVEL_Table( 76)=BVEL_Par_Type("Ir+4", (/  6.000000/),(/  1.832330/),(/  5.500000/),(/  1.686670/),(/  1.874020/),(/  2.293578/),(/33/))
+        BVEL_Table( 77)=BVEL_Par_Type("Pt+4", (/  6.000000/),(/  1.821980/),(/  5.500000/),(/  2.038250/),(/  1.871740/),(/  2.087683/),(/33/))
+        BVEL_Table( 78)=BVEL_Par_Type("Pt+2", (/  4.000000/),(/  1.512050/),(/  5.500000/),(/  2.149990/),(/  1.801790/),(/  1.742160/),(/33/))
+        BVEL_Table( 79)=BVEL_Par_Type("Au+3", (/  4.000000/),(/  1.817610/),(/  5.500000/),(/  1.969670/),(/  1.813120/),(/  2.008032/),(/33/))
+        BVEL_Table( 80)=BVEL_Par_Type("Au+1", (/  2.000000/),(/  1.718190/),(/  5.500000/),(/  0.853040/),(/  1.895430/),(/  2.267574/),(/33/))
+        BVEL_Table( 81)=BVEL_Par_Type("Hg+2", (/  6.966000/),(/  1.812760/),(/  5.500000/),(/  1.128520/),(/  2.252750/),(/  2.150538/),(/33/))
+        BVEL_Table( 82)=BVEL_Par_Type("Hg+1", (/  4.786000/),(/  1.812800/),(/  5.500000/),(/  0.739310/),(/  2.431550/),(/  2.150538/),(/33/))
+        BVEL_Table( 83)=BVEL_Par_Type("Tl+3", (/  5.220000/),(/  2.062970/),(/  5.000000/),(/  0.676370/),(/  2.106420/),(/  2.958580/),(/33/))
+        BVEL_Table( 84)=BVEL_Par_Type("Tl+1", (/  8.030000/),(/  1.917520/),(/  6.000000/),(/  0.349990/),(/  2.770860/),(/  2.070393/),(/33/))
+        BVEL_Table( 85)=BVEL_Par_Type("Pb+4", (/  5.740000/),(/  2.032930/),(/  5.000000/),(/  1.027190/),(/  2.028570/),(/  2.824859/),(/33/))
+        BVEL_Table( 86)=BVEL_Par_Type("Pb+2", (/  7.541000/),(/  2.018250/),(/  5.500000/),(/  0.638330/),(/  2.441910/),(/  2.309469/),(/33/))
+        BVEL_Table( 87)=BVEL_Par_Type("Bi+5", (/  6.000000/),(/  2.044980/),(/  5.000000/),(/  1.440500/),(/  1.985990/),(/  2.695418/),(/33/))
+        BVEL_Table( 88)=BVEL_Par_Type("Bi+3", (/  6.058000/),(/  2.036770/),(/  5.500000/),(/  0.979040/),(/  2.183210/),(/  2.415459/),(/33/))
+        BVEL_Table( 89)=BVEL_Par_Type("Mo+5", (/  5.980000/),(/  1.847600/),(/  5.500000/),(/  2.648020/),(/  1.786700/),(/  2.074689/),(/33/))
+        BVEL_Table( 90)=BVEL_Par_Type("Mo+4", (/  6.000000/),(/  1.723900/),(/  6.500000/),(/  3.108070/),(/  1.850990/),(/  1.779359/),(/33/))
+        BVEL_Table( 91)=BVEL_Par_Type("Mo+3", (/  5.700000/),(/  1.789330/),(/  5.500000/),(/  1.428260/),(/  1.929740/),(/  2.392344/),(/33/))
+        BVEL_Table( 92)=BVEL_Par_Type("Ru+6", (/  4.500000/),(/  1.925790/),(/  5.500000/),(/  2.421090/),(/  1.664310/),(/  2.352941/),(/33/))
+        BVEL_Table( 93)=BVEL_Par_Type("Ru+5", (/  6.000000/),(/  1.874420/),(/  5.500000/),(/  2.132080/),(/  1.815710/),(/  2.293578/),(/33/))
+        BVEL_Table( 94)=BVEL_Par_Type("Ru+4", (/  6.000000/),(/  1.793630/),(/  5.500000/),(/  1.995130/),(/  1.840530/),(/  2.227171/),(/33/))
+        BVEL_Table( 95)=BVEL_Par_Type("Rh+4", (/  6.000000/),(/  1.776750/),(/  5.500000/),(/  1.627250/),(/  1.817930/),(/  2.481390/),(/33/))
+        BVEL_Table( 96)=BVEL_Par_Type("Rh+3", (/  6.000000/),(/  1.670130/),(/  5.500000/),(/  1.928260/),(/  1.869150/),(/  2.092050/),(/33/))
+        BVEL_Table( 97)=BVEL_Par_Type("Pd+4", (/  5.333000/),(/  1.805000/),(/  5.500000/),(/  2.042180/),(/  1.798130/),(/  2.227171/),(/33/))
+        BVEL_Table( 98)=BVEL_Par_Type("Pd+2", (/  4.000000/),(/  1.623590/),(/  5.500000/),(/  1.739100/),(/  1.836710/),(/  2.008032/),(/33/))
+        BVEL_Table( 99)=BVEL_Par_Type("Ag+1", (/  4.438000/),(/  1.782390/),(/  5.000000/),(/  0.635190/),(/  2.225780/),(/  2.538071/),(/33/))
+        BVEL_Table(100)=BVEL_Par_Type("Cd+2", (/  6.176000/),(/  1.839260/),(/  5.500000/),(/  0.983460/),(/  2.169400/),(/  2.457002/),(/33/))
+        BVEL_Table(101)=BVEL_Par_Type("Ta+4", (/  5.500000/),(/  1.756320/),(/  6.000000/),(/  2.756550/),(/  1.798260/),(/  1.831502/),(/33/))
+        BVEL_Table(102)=BVEL_Par_Type("In+3", (/  6.024000/),(/  1.903050/),(/  5.000000/),(/  0.840760/),(/  2.024710/),(/  2.832861/),(/33/))
+        BVEL_Table(103)=BVEL_Par_Type("Sn+4", (/  6.069000/),(/  1.890190/),(/  5.000000/),(/  1.352680/),(/  1.934220/),(/  2.638522/),(/33/))
+        BVEL_Table(104)=BVEL_Par_Type("Sn+2", (/  3.325000/),(/  1.874990/),(/  5.500000/),(/  0.972610/),(/  1.964200/),(/  2.183406/),(/33/))
+        BVEL_Table(105)=BVEL_Par_Type("Sb+5", (/  6.000000/),(/  1.897680/),(/  5.500000/),(/  1.955230/),(/  1.863180/),(/  2.500000/),(/33/))
+        BVEL_Table(106)=BVEL_Par_Type("Sb+3", (/  6.000000/),(/  1.920360/),(/  5.000000/),(/  1.177860/),(/  2.075260/),(/  2.364066/),(/33/))
+        BVEL_Table(107)=BVEL_Par_Type("I+7",  (/  5.800000/),(/  1.922740/),(/  5.500000/),(/  3.214240/),(/  1.741050/),(/  2.386635/),(/33/))
+        BVEL_Table(108)=BVEL_Par_Type("I+5",  (/  3.100000/),(/  1.977750/),(/  6.000000/),(/  2.489470/),(/  1.644210/),(/  2.358491/),(/33/))
+        BVEL_Table(109)=BVEL_Par_Type("Te+6", (/  6.000000/),(/  1.913430/),(/  5.500000/),(/  2.564060/),(/  1.808760/),(/  2.427184/),(/33/))
+        BVEL_Table(110)=BVEL_Par_Type("Te+4", (/  3.396000/),(/  1.952900/),(/  5.500000/),(/  1.671690/),(/  1.752080/),(/  2.493766/),(/33/))
+        BVEL_Table(111)=BVEL_Par_Type("Cs+1", (/ 11.790000/),(/  2.258990/),(/  6.500000/),(/  0.233070/),(/  3.131210/),(/  2.386635/),(/33/))
+        BVEL_Table(112)=BVEL_Par_Type("Ba+2", (/ 10.320000/),(/  2.159980/),(/  6.000000/),(/  0.579940/),(/  2.737690/),(/  2.288330/),(/33/))
+        BVEL_Table(113)=BVEL_Par_Type("La+3", (/  9.830000/),(/  2.063920/),(/  5.500000/),(/  1.185870/),(/  2.469890/),(/  2.217295/),(/33/))
+        BVEL_Table(114)=BVEL_Par_Type("Ce+4", (/  7.867000/),(/  2.028210/),(/  5.500000/),(/  1.484120/),(/  2.198720/),(/  2.257336/),(/33/))
+        BVEL_Table(115)=BVEL_Par_Type("Ce+3", (/  9.147000/),(/  2.031180/),(/  5.500000/),(/  1.220480/),(/  2.378610/),(/  2.227171/),(/33/))
+        BVEL_Table(116)=BVEL_Par_Type("Pr+3", (/  9.067000/),(/  2.036520/),(/  5.500000/),(/  1.170410/),(/  2.371130/),(/  2.277904/),(/33/))
+        BVEL_Table(117)=BVEL_Par_Type("Nd+3", (/  8.647000/),(/  2.024250/),(/  5.500000/),(/  1.132050/),(/  2.330160/),(/  2.336449/),(/33/))
+        BVEL_Table(118)=BVEL_Par_Type("Sm+3", (/  8.119000/),(/  2.011680/),(/  5.500000/),(/  1.176220/),(/  2.295360/),(/  2.309469/),(/33/))
+        BVEL_Table(119)=BVEL_Par_Type("Eu+3", (/  7.743000/),(/  2.004690/),(/  5.500000/),(/  1.195450/),(/  2.268880/),(/  2.304147/),(/33/))
+        BVEL_Table(120)=BVEL_Par_Type("Eu+2", (/ 10.111000/),(/  1.891580/),(/  6.000000/),(/  1.130320/),(/  2.538460/),(/  2.024291/),(/33/))
+        BVEL_Table(121)=BVEL_Par_Type("Gd+3", (/  8.052000/),(/  1.996540/),(/  5.500000/),(/  1.091610/),(/  2.271900/),(/  2.409639/),(/33/))
+        BVEL_Table(122)=BVEL_Par_Type("Tb+4", (/  6.000000/),(/  1.962440/),(/  6.000000/),(/  1.701320/),(/  2.385060/),(/  2.024291/),(/33/))
+        BVEL_Table(123)=BVEL_Par_Type("Tb+3", (/  7.958000/),(/  1.956750/),(/  5.500000/),(/  1.207640/),(/  2.235630/),(/  2.309469/),(/33/))
+        BVEL_Table(124)=BVEL_Par_Type("Dy+3", (/  7.828000/),(/  1.960290/),(/  5.500000/),(/  1.173500/),(/  2.226890/),(/  2.347418/),(/33/))
+        BVEL_Table(125)=BVEL_Par_Type("Ho+3", (/  7.500000/),(/  1.970990/),(/  5.500000/),(/  1.121570/),(/  2.211220/),(/  2.409639/),(/33/))
+        BVEL_Table(126)=BVEL_Par_Type("Er+3", (/  7.135000/),(/  1.956080/),(/  5.500000/),(/  1.123940/),(/  2.174770/),(/  2.427184/),(/33/))
+        BVEL_Table(127)=BVEL_Par_Type("Tm+3", (/  6.912000/),(/  1.949010/),(/  5.500000/),(/  1.181380/),(/  2.160420/),(/  2.375297/),(/33/))
+        BVEL_Table(128)=BVEL_Par_Type("Yb+3", (/  6.875000/),(/  1.928720/),(/  5.500000/),(/  1.219890/),(/  2.142200/),(/  2.347418/),(/33/))
+        BVEL_Table(129)=BVEL_Par_Type("Lu+3", (/  6.830000/),(/  1.917280/),(/  5.500000/),(/  1.194880/),(/  2.136000/),(/  2.375297/),(/33/))
+        BVEL_Table(130)=BVEL_Par_Type("Hf+4", (/  7.105000/),(/  1.833610/),(/  6.000000/),(/  1.899920/),(/  1.999640/),(/  2.092050/),(/33/))
+        BVEL_Table(131)=BVEL_Par_Type("Ta+5", (/  6.090000/),(/  1.868160/),(/  5.500000/),(/  2.366690/),(/  1.855320/),(/  2.057613/),(/33/))
+        BVEL_Table(132)=BVEL_Par_Type("W+6",  (/  5.688000/),(/  1.906410/),(/  5.000000/),(/  1.842670/),(/  1.777130/),(/  2.493766/),(/33/))
+
+    End Subroutine Set_BVEL_Table
 
     !!----
     !!----
@@ -2101,6 +2531,108 @@
      return
     End Subroutine Set_BVS_Table
 
+        !!----
+    !!---- Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel)
+    !!---- type (Atoms_Conf_List_type),            intent(in)  :: A
+    !!---- integer,                      optional, intent(in)  :: N_bvel   !Number of bvel strings with externally provided values
+    !!---- character(len=*),dimension(:),optional, intent(in)  :: bvel     !bvs strings with externally provided values
+    !!----
+    !!----
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel)
+    type (Atoms_Conf_List_type),            intent(in)  :: A
+    integer,                      optional, intent(in)  :: N_bvel
+    character(len=*),dimension(:),optional, intent(in)  :: bvel
+
+       !---- Local Variables ----!
+       integer :: i,j,k,ia,ic
+
+       if (A%N_Spec == 0) then
+          err_conf=.true.
+          ERR_Conf_Mess=" The number of different species is zero, tables cannot be set"
+          return
+       end if
+
+       if (allocated(Table_Avcoor))   deallocate(Table_Avcoor)
+       if (allocated(Table_Rzero))    deallocate(Table_Rzero)
+       if (allocated(Table_Rcutoff))  deallocate(Table_Rcutoff)
+       if (allocated(Table_Dzero))    deallocate(Table_Dzero)
+       if (allocated(Table_Rmin))     deallocate(Table_Rmin)
+       if (allocated(Table_Alpha))    deallocate(Table_Alpha)
+       if (allocated(Table_Ref))      deallocate(Table_Ref)
+
+       allocate(Table_Avcoor(A%N_Spec,A%N_Spec))  ; Table_Avcoor  =0.0
+       allocate(Table_Rzero(A%N_Spec,A%N_Spec))   ; Table_Rzero   =0.0
+       allocate(Table_Rcutoff(A%N_Spec,A%N_Spec)) ; Table_Rcutoff =0.0
+       allocate(Table_Dzero(A%N_Spec,A%N_Spec))   ; Table_Dzero   =0.0
+       allocate(Table_Rmin(A%N_Spec,A%N_Spec))    ; Table_Rmin    =0.0
+       allocate(Table_Alpha(A%N_Spec,A%N_Spec))   ; Table_Alpha   =0.0
+       allocate(Table_ref(A%N_Spec,A%N_Spec))     ; Table_ref     =0
+
+       call Set_BVEL_Table()
+
+       do i=1,A%N_Cations
+          ic=0
+          do j=1,bvel_species_n
+             if (A%Species(i) == BVEL_Table(j)%Symb) then
+                ic=j
+                exit
+             end if
+          end do
+          if (ic == 0) then
+             if(.not. present(N_bvel)) then
+               err_conf=.true.
+               ERR_Conf_Mess=" Cation not found on the internal list: "//A%Species(i)
+               return
+             else
+                call Complete_Table_BVEL(A,N_bvel,bvel)
+                if(err_conf) then
+                     return
+                else
+                     cycle
+                end if
+             end if
+          end if
+
+          do k=1,A%N_Anions
+             ia=0
+             do j=1,bvs_anions_n
+                if (A%Species(A%N_Cations+k) == bvel_anions(j)) then
+                   ia=j
+                   exit
+                end if
+             end do
+             if (ia == 0) then
+                err_conf=.true.
+                ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
+                return
+             end if
+             Table_Avcoor (i,A%N_Cations+k)=bvel_table(ic)%Avcoor(ia)
+             Table_Rzero  (i,A%N_Cations+k)=bvel_table(ic)%Rzero(ia)
+             Table_Rcutoff(i,A%N_Cations+k)=bvel_table(ic)%Rcutoff(ia)
+             Table_Dzero  (i,A%N_Cations+k)=bvel_table(ic)%Dzero(ia)
+             Table_Rmin   (i,A%N_Cations+k)=bvel_table(ic)%Rmin(ia)
+             Table_Alpha  (i,A%N_Cations+k)=bvel_table(ic)%Alpha(ia)
+             Table_ref    (i,A%N_Cations+k)=bvel_table(ic)%refnum(ia)
+
+             Table_Avcoor (A%N_Cations+k,i)=bvel_table(ic)%Avcoor(ia)
+             Table_Rzero  (A%N_Cations+k,i)=bvel_table(ic)%Rzero(ia)
+             Table_Rcutoff(A%N_Cations+k,i)=bvel_table(ic)%Rcutoff(ia)
+             Table_Dzero  (A%N_Cations+k,i)=bvel_table(ic)%Dzero(ia)
+             Table_Rmin   (A%N_Cations+k,i)=bvel_table(ic)%Rmin(ia)
+             Table_Alpha  (A%N_Cations+k,i)=bvel_table(ic)%Alpha(ia)
+             Table_ref    (A%N_Cations+k,i)=bvel_table(ic)%refnum(ia)
+
+          end do
+       end do
+
+       call Deallocate_BVEL_Table()
+
+       return
+    End Subroutine Set_Table_BVEL_Params
+
     !!----
     !!---- Subroutine Set_Table_d0_b(A,N_bvsm,bvs_m)
     !!---- type (Atoms_Conf_List_type),            intent(in)  :: A
@@ -2109,7 +2641,7 @@
     !!----
     !!----
     !!----
-    !!---- Update: March - 2005
+    !!---- Updated: March - 2005
     !!
     Subroutine Set_Table_d0_b(A,N_bvsm,bvs_m)
        !---- Arguments ----!
@@ -2121,7 +2653,7 @@
 
        if (A%N_Spec == 0) then
           err_conf=.true.
-          ERR_Conf_Mess=" The number of different species was zero on Table_d0"
+          ERR_Conf_Mess=" The number of different species is zero, tables cannot be set"
           return
        end if
 
@@ -2324,7 +2856,7 @@
           end do
        end do
 
-       !---- Fix the index on Atom_type point out Species vector ----!
+       !---- Fix the index on Atom_type pointing to the Species vector ----!
        do i=1, A%natoms
           do j=1,ns
              im=index(A%Species(j),"+")

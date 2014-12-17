@@ -58,8 +58,9 @@ rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
-   gfortran -c CFML_maps.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_molecules.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_Export_Vtk.f90       -O3  -std=gnu    -funroll-loops  -msse2  >> out
+   gfortran -c CFML_maps.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem -std=f2003 removed because calls to flush subroutine
    gfortran -c CFML_conf_calc.f90        -O3              -funroll-loops  -msse2  >> out
 rem
@@ -67,7 +68,6 @@ rem
    echo .... Formats
 rem
    gfortran -c CFML_form_cif.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_Export_Vtk.f90       -O3  -std=gnu    -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry

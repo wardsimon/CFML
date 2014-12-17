@@ -707,7 +707,7 @@ Contains
     !!----    logical,                intent(in)     :: conven    !  In -> .true. for using the whole conventional unit cell
     !!----
     !!----    Subroutine to generate atoms in the primitive (conven=.false.) or the conventional
-    !!----    unit cell (conven=.true.)
+    !!----    unit cell (conven=.true.), Excluding atoms with A%atom(:)%active=.false.
     !!----
     !!---- Update: February - 2005
     !!
@@ -1316,7 +1316,7 @@ Contains
        A%X_Std    =0.0
        A%MX       =0.0
        A%LX       =0
-       A%Occ      =0.0
+       A%Occ      =1.0
        A%Occ_Std  =0.0
        A%MOcc     =0.0
        A%LOcc     =0

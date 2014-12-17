@@ -1,3 +1,24 @@
+  !!----  Module cost_functions
+  !!----
+  !!----  Module containing the model functions to be used in a Simulated Annealing procedure
+  !!----  The module uses many others from CrysFML (see below the 'use' statements).
+  !!----  The public subroutines available in this module are the following:
+  !!----    General_cost_function   : updates state vectors and calculates the global const function
+  !!----    Readn_Set_CostFunctPars : reads in the CFL f
+  !!----    Write_CostFunctPars
+  !!----    Write_FinalCost
+  !!----
+  !!----  A series of global variables of this modules are defined for describing crystal
+  !!----  structures that are to be optimized against some theoretical or experimental data.
+  !!----
+  !!----    type (Space_Group_Type),      public :: SpG
+  !!----    type (Atom_List_Type),        public :: A, A_Clone
+  !!----    type (Atoms_Conf_List_Type),  public :: Ac
+  !!----    type (Crystal_Cell_Type),     public :: Cell
+  !!----    type (Reflection_List_Type),  public :: hkl
+  !!----    type (Observation_List_Type), public :: Oh
+  !!----
+  !!----
   Module cost_functions
       Use CFML_crystallographic_symmetry, only: space_group_type, ApplySO, Read_SymTrans_Code
       Use CFML_Geometry_Calc,             only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
@@ -495,6 +516,19 @@
        return
     End Subroutine Write_FinalCost
 
+    !!---- Subroutine General_Cost_function(v,cost)
+    !!----  real,dimension(:),    intent( in):: v
+    !!----  real,                 intent(out):: cost
+    !!----
+    !!----  This is the subroutine playing the role of cost function passed
+    !!----  to the Simulated Annealing procedure (either mono or multi configurational)
+    !!----  On input 'v' is the vector state and on output 'cost' is the value of the cost
+    !!----  function. At the end of the SAnn procedure a call to this function is done using
+    !!----  the best configuration found. and the atoms parameters 'A' are updated to that of
+    !!----  the best values by a call to VState_to_AtomsPar.
+    !!----
+    !!----  Updated: December 2014
+    !!----
     Subroutine General_Cost_function(v,cost)
       real,dimension(:),    intent( in):: v
       real,                 intent(out):: cost

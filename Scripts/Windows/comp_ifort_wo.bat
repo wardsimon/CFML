@@ -58,15 +58,15 @@ rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
-   ifort /c CFML_maps.f90             /O2 /nologo /Qvec-report0
    ifort /c CFML_molecules.f90        /O2 /nologo /Qvec-report0
+   ifort /c CFML_Export_Vtk.f90       /O2 /nologo /Qvec-report0
+   ifort /c CFML_maps.f90             /O2 /nologo /Qvec-report0
    ifort /c CFML_conf_calc.f90        /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 6 ----**
    echo .... Formats
 rem
    ifort /c CFML_form_cif.f90         /O2 /nologo /Qvec-report0
-   ifort /c CFML_Export_Vtk.f90       /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 7 ----**
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
