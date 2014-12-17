@@ -629,7 +629,8 @@
       end do
       !Rewrite the SEQ command
       if(mod_seq) then
-        write(unit=*,fmt="(a)")    " => The sequence has been modified by eliminating impossible stacking (alpha < 0.0001)! Check your FST_COMMAND SEQ lines!"
+        write(unit=*,fmt="(a)")    " => The sequence has been modified by eliminating impossible stacking &
+										(alpha < 0.0001)! Check your FST_COMMAND SEQ lines!"
         write(unit=*,fmt="(a,i3)") " => The final number of layes is: ",nlayers
         write(unit=*,fmt="(a)")    " => The effective sequence is the following:"
         aux="(a,   i3)"
