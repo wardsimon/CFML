@@ -6534,7 +6534,7 @@
       WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '        A computer program based on DIFFaX for         '
       WRITE(iw,"(a)") '          refining faulted layered structures          '
-	  WRITE(iw,"(a)") '                                                       '
+      WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '     Authors of DIFFaX:                                '
       WRITE(iw,"(a)") '       M. M. J. Treacy , M. W. Deem & J. M. Newsam     '
       WRITE(iw,"(a)") '                                                       '
