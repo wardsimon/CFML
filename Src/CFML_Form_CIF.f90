@@ -4432,7 +4432,7 @@
        write(unit=iunit,fmt="(a)") "TITL "//title(1:len_trim(title))
 
        !---- Lambda, Cell ----!
-       write(unit=iunit,fmt="(a,f8.5,3f8.4,3f7.3)") "CELL ",lambda,celda%cell,celda%ang
+       write(unit=iunit,fmt="(a,f8.5,3f9.4,3f7.3)") "CELL ",lambda,celda%cell,celda%ang
 
        !---- Z, Std ----!
        write(unit=iunit,fmt="(a,i3,a,3f8.4,3f7.3)") "ZERR ",z,"     ",celda%cell_std,celda%ang_std
@@ -4827,8 +4827,8 @@
        do j=1,6
           call SetNum_Std(a(j), sa(j), text(j))
        end do
-       write(unit=lun,fmt="(a)") "!        a           b           c         alpha        beta        gamma"
-       write(unit=lun,fmt="(a,6a12)") "Cell ",text
+       write(unit=lun,fmt="(a)") "!         a               b               c            alpha           beta            gamma"
+       write(unit=lun,fmt="(a,6a16)") "Cell ",text
        write(unit=lun,fmt="(a,i3)")"!     Space Group # ",SpG%NumSpg
        write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
        call Write_Atoms_CFL(Atm,Lun,cel)
@@ -4868,8 +4868,8 @@
        do j=1,6
           call SetNum_Std(a(j), sa(j), text(j))
        end do
-       write(unit=lun,fmt="(a)") "!        a           b           c         alpha        beta        gamma"
-       write(unit=lun,fmt="(a,6a12)") "Cell ",text
+       write(unit=lun,fmt="(a)") "!         a               b               c            alpha           beta            gamma"
+       write(unit=lun,fmt="(a,6a16)") "Cell ",text
        write(unit=lun,fmt="(a,i3)")"!     Space Group # ",molx%spg%NumSpg
        write(unit=lun,fmt="(a,a)") "Spgr  ",molx%spg%SPG_Symb
        call Write_Atoms_CFL(Molx,Lun)
