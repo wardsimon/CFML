@@ -1,0 +1,51 @@
+% clase de documento
+\documentclass[a4paper,11pt]{report}
+%
+\linespread{1.3}
+%
+%--------------------   start of the 'preamble'
+%
+% packages para el documento
+%
+\usepackage{graphicx,amssymb}                  %amssymb:para simbolos matematicos%
+\usepackage{rotating}          %para poder poner fotos apaisadas%
+\usepackage[pdftex]{hyperref, color}
+\usepackage{amscd}
+\usepackage{amsmath}                           %para escritura matematica%
+\usepackage{xypic}
+\usepackage[papersize={180mm,250mm}]{geometry} %dimesiones del documento%
+\usepackage{array}                             %per canviar mides en taules
+\usepackage{bm}
+%\usepackage[pdftex]{color,graphicx}           %para links
+\usepackage[pdftex]{hyperref, color}
+\usepackage{eepic} %primera lletra gran
+%
+\hypersetup{pdfpagemode={UseOutlines},colorlinks=true,pdftitle=FAULTS manual ,
+pdfauthor=Montse Casas Cabanas,pdfstartview=FitH,pdfkeywords=(manual)}
+%
+%
+%---------------------   end of the 'preamble'
+%
+%
+\begin{document}
+%-----------------------------------------------------------
+\title{\Huge\bf FAULTS manual}
+\author{Montse Casas Cabanas (CIC Energigune), Jokin Rikarte Ormazabal \\
+(CIC Energigune), Marine Reynaud (CIC Energigune) \\
+and Juan Rodriguez Carvajal (ILL)}
+\date{January 2015}
+\maketitle
+%-----------------------------------------------------------
+\tableofcontents
+%-----------------------------------------------------------
+\include{chapter1}
+\include{chapter2}
+\include{bibliography}
+%-----------------------------------------------------------
+%\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+%\bibliography{biblioni}
+%\bibliographystyle{unsrt}
+%\include{biblio}
+%-----------------------------------------------------------
+\end{document}
+

@@ -1,0 +1,671 @@
+\chapter{The FAULTS program}
+\label{faults}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+FAULTS is a Fortran90 program to refine XRD and NPD patterns of crystal systems with any type of coherent planar defect.
+This program is based on the DIFFaX program \cite{DiffaxPaper,DiffaxDownload} and on the CrysFML Fortran 95 crystallographic library \cite{CrysFMLPaper,CrysFMLDownload}. \\
+
+The DIFFaX program (Diffracted Intensities From Faulted Xtals) calculates diffraction intensities from defective crystals. 
+This tool has been widely used to interpret the diffraction data of one-dimensionally disordered systems and it is based on an algorithm that exploits the recurring patterns found in randomized stacking sequences to compute the average interference wavefunction scattered from each layer type occurring in a faulted crystal (mathematical details can be found in references \cite{DiffaxMaths,Hend1942}). However, as approximate or merely qualitative results sometimes are not sufficient for a thorough microstructural characterization, a computerized comparison of the DIFFaX calculated intensities with experimental data has been developed.
+The resulting code is the FAULTS program \cite{FAULTSPaper1,FAULTSPaper2,FPDownload}. The program  is distributed in the hope that it will be useful, but without any warranty of being free of internal errors.
+The authors acknowledge all suggestions and notification of possible bugs found in the program.\\
+
+\section{Program specifications}
+
+
+Conventionally, crystals are thought of in terms of
+unit cells of a determined symmetry. Nevertheless, to use FAULTS, as in the case of DIFFaX \cite{DiffaxManual}, we need to think of crystals in terms
+of sheets of atoms, or layers, which can interconnect via stacking operations that occur with a
+certain probability. By means of this description, planar defects can be described as different layer types and/or
+transition vectors. Frequently, the plane of the layers will not coincide conveniently with any of
+the unit cell faces of the parent crystal. Then, a transformation of atom coordinates to a
+new cell system is required.\\
+
+The structural information as well as the refinement details are read by FAULTS from a free format input data file, with \textit{.flts} extension.
+Each value used to describe the structure is associated to a refinement
+code that allows the possibillity of restrictions. The user must be aware of the way he(she) can control the refinement procedure:
+the number of parameters to be refined, fixing parameters, making constraints, etc.
+The experimental XRD or NPD patterns can be read from many different formats and background subtraction can be achieved by
+linear interpolation or polynomially after applying the scale factor. Impurities or other phases are treated as background as well, and their pattern information must be given by the user.
+Another major feature of FAULTS is the implementation of a more adequate isotropic size broadening treatment which takes
+into account the Gaussian  and Lorentzian  contributions to the FWHM in addition to the consideration of a finite
+number of layers per crystallite already present in DIFFaX \cite{DiffaxPaper,DiffaxDownload,DiffaxManual}.
+The refinement is carried out using a Levenberg Marquardt fit.  
+The quality of the agreement between observed and calculated profiles is given by the R-Factor and Chi$^{2}$ agreement factors that are calculated at the end of each refinement cycle and are defined as follows:
+
+Profile factor:
+
+$$Rp = 100 \frac {{\sum_{i=1,n}}{ \mid y_{i} - y_{ic} \mid }} {\sum_{i=1,n} y_{i}}$$
+
+\vspace{0.5cm}
+\noindent where $y_{i}$ is the profile intensity and $y_{ic}$ is the number of calculated counts at the \textit{i}th step.
+
+Reduced Chi square:
+
+$$Chi^{2}= \left[ \frac{R_{wp}}{R_{exp}}\right]^{2}$$
+
+\vspace{0.5cm}
+\noindent being $R_{\omega p}$ and $R_{exp}$ the Weighted Profile Factor and the Expected Weighted Profile Factor respectively, which are defined as:
+
+$$R_{wp}=100\left[\frac{\sum_{i=1,n}{w_{i}\mid y_{i} - y_{ic} \mid^{2}}}{\sum_{i=1,n}{w_{i}y_{i}^{2}}}\right]^{1/2}$$
+
+\vspace{0.5cm}
+\noindent and
+
+$$R_{exp}=100\left[\frac{n-p}{\sum_{i}{w_{i}y_{i}^{2}}}\right]^{1/2}$$
+
+\vspace{0.5cm}
+\noindent where \textit{n-p} is the number of degrees of freedom and $w_{i}=1/\sigma_{i}^{2}$, with $\sigma_{i}^{2}$ referring to the variance of the ``obserbation" $y_{i}$.
+
+
+
+\section{Input files}
+
+\subsection {The input control file:  \textbf{CFILE.flts}}
+
+
+The input control file is a free format file that contains all the structural
+data and the type of calculation to be done. This file must be written by the user.
+Free format means that it is not case sensitive and that the different sections do not have to follow a concret sequence, however,
+a space is needed between each item and all the section headlines and parameter keywords must be present. Each line must not exceed 132 characters, taking into account the blank spaces.
+When the program is run, mistakes will normally generate error messages.
+ Empty lines as well as lines starting with the exclamation symbol (\emph{!}) in the first column are considered as comments
+and are ignored by the program. Also, comments can be placed at the end of a line if they are in braces ($\{\}$). It is recommended not to use tabulator to introduce blank spaces when editing the file, as some editors do not consider it as blank spaces.\\
+
+An example of input control file can be found in figures   \ref{control1}, \ref{control2} and \ref{control3}. The different section keywords that
+constitute the input control file appear in orange color, comments appear in italics (and of course after a \emph{!} symbol), subsection keywords in red, parameters in blue and refinement codes in green.
+The latter are codewords that allow the control of the refined parameters. As in the FullProf program \cite{FPPaper,FPManual}, these are the numbers C$_x$ that are
+entered for each refined parameter.  A zero codeword means that the parameter is not being refined.
+For each refined parameter, the codeword is formed as:
+
+$$ C_x= sign (a) (10p + |a| )	$$
+
+\vspace{0.5cm}
+\noindent where \emph {p} specifies the ordinal number of the parameter  \emph{x} and \emph {a} is the factor by which the computed shift (the parameter variation in each refinement cycle)
+will be multiplied before use.\\
+
+Below, each section, which has to begin with the corresponding keyword, is explained in more detail.
+
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics [width=5.5 in]{control1.pdf}
+\caption{\bf Example of input control file}
+\label{control1}
+\end{center}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics [width=5.5 in]{control2.pdf}
+\caption{\bf Cont. Example of input control file}
+\label{control2}
+\end{center}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics [width=5.5 in]{control3.pdf}
+\caption{\bf Cont. Example of input control file}
+\label{control3}
+\end{center}
+\end{figure}
+
+\subsubsection{ \emph{Title} section}
+
+The document must begin with this section. TITLE keyword must be followed in the next line by the title chosen by the user.
+
+\subsubsection{ \emph{Instrumental and size broadening} section}
+
+The first line must contain the keyword INSTRUMENTAL AND SIZE BROADENING. The data that follow describe
+the type of radiation and the instrumental conditions as well as the parameters needed for size broadening, which are refinable parameters.
+To refine the parameters that constitute this section it is not necessary to recalculate the diffraction pattern in each cycle,
+ so, for computational economy it is strongly recommended to refine them separately.\\
+
+\begin{itemize}
+\item \textbf{Radiation type:} The line must begin with the keyword \textit{radiation}, followed by one of the different two options, which are  X-RAY and NEUTRON.
+\item \textbf{Wavelength:}  In addition to $\lambda_{1}$,  FAULTS reads also the value of $\lambda_{2}$ \thinspace%, que pren el valor de $\lambda_{1}$ en el cas de radiació monocromàtica,
+and the intensity ratio  $  {I_2}/ {I_1}$ (although in the case of monochromatic radiation it is only necessary to introduce $\lambda_{1}$).
+$\lambda$ unit is $\AA$ and this line must begin with the keyword \textit{wavelength}.
+\item \textbf{Aberrations:} Keyword \textit{aberrations} followed by values for instrumental aberrations zero, sycos and sysin must be given. As they are refinable, refinement codes must be entered in the next line.
+\item \textbf{Profile parameters:} Instrumental and size broadening are treated differently than in DIFFaX.
+In both cases, the calculated pattern is convoluted with a profile function (indicated by the keyword \textit{Gaussian}, \textit{Lorentzian} or \textit{Pseudo-Voigt}) that takes into account both instrumental and size effects.
+The FWHM of the Gaussian ($H_{G}$) and Lorentzian ($H_{L}$) components of the peak profile have an angular dependence given by:
+
+
+
+$$ H_{G}^{2} = U tan^{2}{\theta}+ V tan {\theta} + W + \frac{4ln2\lambda^{2}}{\pi D_{g}^{2} cos^{2} {\theta}} (\frac {180}{\pi})^2$$
+
+$$ H_{L} = X tan {\theta} + \frac{2 \lambda}{\pi D_{l} cos \theta} (\frac {180}{\pi})$$
+
+U, V, W and X, which must be introduced by the user, are refinable parameters that constitute the instrumental resolution function (IRF). It is always advisable to know their values a priori
+and fix them during the refinement (although U and X can be refined to account for strains).
+They must be followed by $D_{g}$ and $D_{l}$, which are the parameters that are used to model the isotropic size broadening due to a finite size of the crystallites ( $\leq $ 1  $\mu$m). They are also refinable.
+If the sample is not affected by size broadening,  $D_{g}$ and $D_{l}$ can take any value $\geq $ 5000 \AA.
+
+\item \textbf{TRIM keyword:} As in DIFFaX \cite{DiffaxManual}, the optional keyword \textit{trim}, which has to be put in the same line as the profile parameters, tells the program to ignore intensity information
+close to the origin when simulating the instrumental broadening for a powder diffraction
+pattern. The peak at the origin is usually many orders of magnitude more intense than
+any other peak of the diffraction pattern, and the background that is generated by the tail of this
+peak, when broadened, can easily swamp peaks close to the origin. When \textit{trim} is specified,
+the unbroadened pattern that is written to file retains the data at the origin, whereas
+the broadened data that is written to file suppresses the peak at the origin. It is generally
+desirable to specify \textit{trim} whenever the powder pattern angular range includes the origin.
+\textit{trim} has no effect if the powder pattern angular range requested by the user does not include
+the origin.
+\end{itemize}
+
+\subsubsection{\emph{Structural} section}
+
+This section must begin with a first line containing the keyword STRUCTURAL.
+\begin{itemize}
+\item \textbf{Cell parameters:} The keyword which this line has to begin with is \textit{cell}. The value of \textbf{c}, perpendicular to the a-b plane (and therefore
+parallel to the stacking direction), is needed to provide a reference scale along the stacking
+direction with which to define the z-component of the stacking vectors. \textbf{c} does not have
+to correspond to any special periodic dimension along the stacking direction for any of the
+layers. However all the layers must share the same dimensions, \textbf{a},\textbf{b} and $\gamma $.
+These are all refinable parameters and the units are \AA \thinspace for \textbf{a, b} and \textbf{c}, and degrees for $\gamma$.\newline
+
+ \item \textbf{Laue symmetry:} In this case the keyword is \textit{symm}. There are 12 options : \textbf{-1, 2/M(1) , 2/M(2), MMM, -3, -3M, 4/M, 4/MMM, 6/M, 6/MMM, AXIAL} and \textbf{UNKOWN}.
+Axial constraints the program to integrate only along 00\emph{l}  (useful in turbostratic structures) and if UNKNOWN is specified
+the program will establish the symmetry by randomly sampling the reciprocal space. In this case, the user can specify a percentage of tolerance on intensity deviations for this search. Otherwise the program tests the user option and, if it is not consistent with the cell parameters, it is automatically changed.
+
+ \item \textbf{Number of layer types: }The keyword is \textit{nlayers}. It is the number of different layer types needed to describe the structure. If two layers are structurally identical but
+ their stacking vectors are  different, they are considered as two different layer types.
+
+ \item \textbf{Layer caracteristic width: } Unlike in DiFFax, this line is compulsory, and it must begin with the keyword \textit{lwidth}. Then the layer characteristic width is especified, in \AA. There are two possible formats for this line: width along \textit{a} and width along \textit{b}, or \textit{infinite}. For example,
+
+
+\begin{flushleft}
+\begin{tabbing}
+	\hspace*{1.5 cm}!layer width\\*
+	\hspace*{1.5 cm}Lwidth  \=120.00   \=300.00 \\*
+	\hspace*{1.5 cm}				\>0.0      \>0.0
+\end{tabbing}	
+\end{flushleft}
+
+or
+
+\begin{flushleft}
+\hspace*{1.5 cm}!layer width\\*
+\hspace*{1.5 cm}Lwidth   infinite	
+\end{flushleft}
+
+
+\item \textbf{Optional generation of the Bragg positions of the average cell:}
+In case the cell parameters defined for the FAULTS refinement are different from the original cell (the cell from which the disordered model comes from; for instance, in the case of a monoclinic or triclinic average cell), the user can ask the program to generate the Bragg positions corresponding to the average cell. 
+To do so, the user has two options:\\
+(1) either he(she) indicates manually the space group (keyword \textit{SPGR}) and the cell parameters \textit{a}, \textit{b}, \textit{c}, $\alpha$, $\beta$, $\gamma$ (keyword \textit{Avercell}) of the average cell by adding the following optional lines in the \textit{Structural} section:
+
+\begin{flushleft}
+\begin{tabbing}
+	\hspace*{1.50 cm}!Average cell parameters (for Bragg positions in .prf file)\\*
+	\hspace*{1.50 cm}Avercell \=3.12 \=4.15  \=4.60   \=90.00 \=118.79 \=90.0 \\*
+	\hspace*{1.50 cm}!Average space group (for Bragg positions in .prf file)\\*
+	\hspace*{1.50 cm}SPGR \=C 2/m
+\end{tabbing}	
+\end{flushleft}
+
+(2) or, by means of the keywords \textit{CalcAverCell} and \textit{SPGR}, he(she) asks the program to calculate the average cell from a sequence of stacking vectors that he(she) specifies with the following optional lines in the \textit{Structural} section:
+
+\begin{flushleft}
+\begin{tabbing}
+	\hspace*{1.50 cm}!Stacking vectors to be stacked and their names to\\*
+	\hspace*{1.50 cm}!calculate the average cell\\*
+	\hspace*{1.50 cm}CalcAvercell \=2 \\*
+	\hspace*{1.50 cm} \=1-2 \=2-1 \\*
+	\hspace*{1.50 cm}!Average space group (for Bragg positions in .prf file)\\*
+	\hspace*{1.50 cm}SPGR \=C 2/m
+\end{tabbing}	
+\end{flushleft}
+
+Note that the average cell parameters and space group are only used for the Bragg positions calculation for the .prf file and are not taken into account for the pattern calculation during the refinement or simulation.
+
+\item \textbf{Optional commands for visualization of the structure with FullProf Studio:} To make the construction of the structural easier and avoid errors, it is recommended to regularly draw the structure with the help of the visualization program FullProf Studio \cite{FPSDownload,FPSManual}. To do so, the user should ask the program to generate an output file \textit{.fst} suitable for FullProf Studio, by entering an optional line beginning by the keyword \textit{FST\_CMD}, followed by the keyword \textit{SEQ}, the number of layers and the sequence of the layers to be drawn; for example: 
+
+\begin{flushleft}
+\begin{tabbing}
+	\hspace*{1.50 cm}!FullProf Studio commands \\*
+	\hspace*{1.50 cm}FST\_CMD \=SEQ \=5  \=1 1 2 3 1
+\end{tabbing}	
+\end{flushleft}
+
+Then the user can add as many optional lines as needed, each of them beginning with the keyword \textit{FST\_CMD}, followed by the required FullProf Studio commands (see the FullProf Studio manual for more details \cite{FPSManual}). For example, to control the drawing of NiO$_{x}$ polyhedra, the limit of the box and the position of the first layer in the artificial FullProf Studio cell, the user may add the following lines:
+
+\begin{flushleft}
+\begin{tabbing}
+	\hspace*{1.50 cm}FST\_CMD  \=CONN \=Ni O \=0.0 2.3\\*
+	\hspace*{1.50 cm}FST\_CMD  \>box  \>-2 2 \=-2 2 \=-0.01 1.01 \\*
+	\hspace*{1.50 cm}FST\_CMD  \>stack\_vect  \>\>0 0 0.5   
+\end{tabbing}	
+\end{flushleft}
+
+\end{itemize}
+
+\subsubsection { \emph{Layers} section}
+
+\begin{itemize}
+\item \textbf{Layer number:} The layers have to be described with the header \emph{LAYER} followed by the ordinal corresponding number. If two layers are structurally identical
+it will be enough to write \emph{LAYER j = i}  where \emph{i} and \emph{j} are the ordinal numbers that correspond to each layer (a blank space is necessary between the number of layer and the \emph{=} symbol). Then, for layer \emph{j} the rest of the section can be avoided.
+
+\item \textbf{Layer symmetry:} The keyword \textit{lsym} must be followed by one of the two options: \textbf{NONE} or \textbf{CENTROSYMMETRIC}. If the latter is specified,
+only the asymmetric half of the atom coordinates
+need to be entered, and the program will create another identical atom in (-x,-y,-z) per each atom described in the layer. Take care to halve the occupancy in case of the atoms located in (0,0,0).
+\item \textbf{Atomic data:} For each atom the keyword \textit{atom} must be written, followed by a specific 4 characters name. The first two characters correspond to the atomic symbol and the last two represent the valence.  If the symbol has only a character, contrary to DIFFAX, there must not be a space between the symbol and the charge (Ex. \mbox{F1-}, \mbox{Ni2+}). Some atoms do not require any valence (ex. C). In case of doubt, the user can check the correct form in the file \textit{data.sfc}. 
+After the name, the atom will be identified by an ordinal number. Then the atomic coordinates \emph{x, y, z} will be detailed  as well as the  atomic displacement factor and
+finally the occupation, which has to take a value between 0 and 1. If the layer is centrosymmetric, the atom located in the centre of symmetry will have 1/2 for full occupancy. All the parameters are refinable. They can be written as real numbers or as
+fractions, which ensures maximum machine precision (except for the atomic displacements, which cannot be given as a fraction).
+
+
+\end{itemize}
+
+\subsubsection{ \emph{Stacking} section}
+
+The first line of this section must start with the keyword STACKING.
+
+\begin{itemize}
+\item \textbf{Stacking type:} There are two possibilities: EXPLICIT and RECURSIVE. For an explicit sequence of layers, the diffracted intensities will be calculated
+for a unique layer sequence that will be specified in the next line. For a recursive sequence of layers,
+the diffracted intensities
+are to be calculated for
+a statistical ensemble of crystallites, each with a distinct stacking sequence, but weighted by
+the probability that such a sequence will occur.
+
+\item \textbf{Explicit sequence:} If the stacking type is explicit, there are three possibilities. One of them is SPECIFIC, in which the user has to introduce a stacking sequence, up to 5000 layers. The list can occupy more than one line, and between each layer type there must be a space. Each line must not exceed 132 characters, taking into account the blank spaces. For example,
+
+\begin{flushleft}
+\hspace*{1.5 cm}EXPLICIT \\*
+\hspace*{1.5 cm}SPECIFIC \\*
+\hspace*{1.5 cm}1 1 2 1 3 1 2
+\end{flushleft}
+
+
+corresponds to a crystallite that consists of  7 layers of three different types. However, care has to be taken not to write a forbidden transition
+(with a zero stacking probability ). If this happens, the program will stop and give an error message.\\
+
+Another possibility is the RANDOM M option which tells the program to generate a sequence of M layers (with a maximum of 5000).
+The probability that a specific layer-to-layer transition will occur in the sequence will be weighted by the transition probabilities listed in the TRANSITIONS section, described next.\\
+
+Finally, the program can also generate semi-random sequences of two different layer types, that is to say, the user can control certain parts of the sequence.
+To do so, the option SEMIRANDOM M must be used, where M is the number of layers (also with a maximum of 5000). Below this line, the user can specify
+parts of the sequence by the key word SEQ followed by the position of the first layer in the sequence, the position of the final layer and the two types of layers that will
+be alternated. For example,
+
+\begin{flushleft}
+\hspace*{1.5 cm}EXPLICIT \\*
+\hspace*{1.5 cm}SEMIRANDOM 60 \\*
+\hspace*{1.5 cm}SEQ 11  20  1  3
+\end{flushleft}
+
+will generate a random sequence of layers but from layer 11 to layer 20 the sequence will be 1 3 1 3 1 3 1 3 1 3.
+If the sequence is incompatible with the last layer of the sequence that is generated automatically  (due to the stacking probabilities),
+ in this case layer number 10, this layer would be eliminated
+and the fixed  sequence would move a position, starting in layer 10. If that was still not compatible with the stacking probabilities this process would be repeated
+until the program found a compatible sequence.
+
+\item \textbf{Recursive sequence:} In this case, the user can indicate the mean number of layers the crystallites contain.
+Any number larger than M $\geq $1022, will be treated as
+infinite. Alternatively, an infinite number can be specified by the keyword INFINITE. If the latter is chosen, the refinement code underneath must be eliminated.
+If the number of layers is lower than 1022, the program will apply a line broadening due to a finite size in the stacking direction. This value (which can be refined)
+will have no physical meaning, but it  is the only way to introduce a certain anisotropy
+in size broadening. However, if the crystallites induce a  purely isotropic size broadening (represented by $D_{g}$ and $D_{l}$ , that will be lower than 5000)
+ this value should be INFINITE
+ as size broadening has already been taken into account in the  \emph{Instrumental and size broadening} section.
+
+
+\end{itemize}
+
+\subsubsection{ \emph{Transitions} section}
+First line must contain the keyword TRANSITIONS.
+This section  contains as many subsections as different layers constitute the system;
+And each subsection will contain as many lines (without taking into account the refinement codes)  as different layers constitute the system.
+Each subsection refers to the transitions of layer \emph{i} to the rest of layers, including itself.
+Each line must contain, after the keyword LT: the stacking probability $\alpha_{ij}$, that will be a value comprised between zero (forbidden transition) and 1 (unique possible transition)
+and  the stacking vector ${\emph R_{x}, R_{y}, R_{z}}$, relative to \textbf{a, b} and \textbf{c} respectively.
+ A set of anisotropic Debye-Waller type factors ( C$_{11}$, C$_{22}$, C$_{33}$, C$_{12}$, C$_{23}$, C$_{31}$)
+is specified  after the stacking vector, in a separate line and beginning with the keyword FW. These factors are equivalent to specifying an ellipsoidal error spread
+for the stacking vectors and are useful for modeling systems where there is some
+coherence between nearest neighbor layers, but no long-range coherence, as in the case of
+liquid crystals or pillared clays. If the stacking probability $\alpha_{ij}$ is zero, everything on the line after it is ignored and
+set to zero.
+All the parameters constituting this section are refinable parameters and can be written as real numbers or as fractions.
+
+
+\subsubsection{ \emph{Calculation} section}
+\label{nprint}
+\label{calc}
+First line must contain the keyword CALCULATION.
+This section contains the type of calculation the program is asked to perform.
+There are two options: SIMULATION and LMQ. The first one corresponds to the pattern calculation, and thus no parameter will be refined.
+The second option indicates that the refinement is to be done by means of the Levenberg Marquardt fit. Depending on the calculation type, the next lines must contain:
+
+\begin{itemize}
+\item \textbf{Simulation:} The user has to specify  2$\theta_{min}$,  2$\theta_{min}$ and the step  (in degrees).
+For example,
+
+\begin{flushleft}
+\begin{tabbing}
+\hspace*{1.5 cm}CALCULATION  \\*
+\hspace*{1.5 cm}SIMULATION    \= \{\ type of optimization \}\  \\*
+\hspace*{1.5 cm}5.0 90.0 0.02 \> \{\ 2$\theta_{min}$, 2$\theta_{max}$, step \}\
+\end{tabbing}
+\end{flushleft}
+%\footnotesize{
+%        SIMULATION    \{\ type of optimization \}\ \newline
+%        5.0 90.0 0.02 \{\ 2$\theta_{min}$, 2$\theta_{max}$, step \}\
+%        }
+				
+%\normalsize{
+\item \textbf{LMQ:} The user has to specify the maximum correlation parameter (which defines the minimum correlation used to build the correlation matrix that will be given in the output file; keyword \textit{Corrmax}), the maximun number of function evaluations (keyword \textit{Maxfun}), the tolerance (i.e. convergence criterion; keyword \textit{Tol}) and the print control parameter (keyword \textit{Nprint}). Each of these parameters must be placed in a new line. For example,
+
+\begin{flushleft}
+\begin{tabbing}
+\hspace*{1.5 cm}CALCULATION\\*
+\hspace*{1.5 cm}LMQ\\*
+\hspace*{1.5 cm}Corrmax  \=30\\*
+\hspace*{1.5 cm}Maxfun   \>2400\\*
+\hspace*{1.5 cm}Tol      \>0.1E-04\\*
+\hspace*{1.5 cm}Nprint   \>0
+\end{tabbing}
+\end{flushleft}
+%\footnotesize{
+%				LMQ\\
+%				Corrmax  30\\
+%				Maxfun   2400\\
+%				Tol      0.1E-04\\
+%				Nprint   0\\
+%				      }}
+
+If the print control parameter \textit{Nprint} is set to 0, the values of the agreement factors at the end of each evaluation are displayed in the FAULTS window (see subsection \ref{running}) during the refinement process. If \textit{Nprint} is negative, the FAULTS windows displays the previous and new values of the refinable parameters at each evaluation step, in addition to the agreement factors, at the end of each evaluation.
+				
+%\normalsize{
+
+%\item \textbf{Simplex:} In different lines and following this order the user has to specify: the maximum number of evaluations to be done (20 for refinable parameter are recommended);
+%the convergence criterium; a control parameter that allows the user to decide if an evaluation is to be done at the end of each refinement
+%(higher than 0) , only when convergence is reached (=0) or never (lower than 0) and an estimation of the computer's accuracy (usually 10.0E-20 is enough).
+%Example: }
+
+
+%\footnotesize{
+%        SIMPLEX    \{\ type of optimization \}\ \newline
+%        40         \{\ Maximum number of function evaluations, recommended 20 * no of refinable \mbox{parameters \}\ } \newline
+%        1          \{\ convergence criterion \}\ \newline
+%        1          \{\  print control parameter                              \}\ \newline
+           %        \{\  < 0 No printing                                                \}\ \newline
+           %        \{\    = 0 Printing of parameter values and the function value after initial evidence of \mbox{convergence.               \}\ } \newline
+           %        \{\   > 0 As for  = 0 plus progress reports after every evaluation    \}\ \newline
+%        10.0E-20   \{\ user supplied estimate of machine accuracy \}\
+%}
+
+%\normalsize{
+%\item \textbf{Simulated Annealing:} In different lines and following this order the user has to specify:
+%the number of Montecarlo cycles to be done (10 for refinable parameter are recommended); the number of temperatures to study;
+%the initial temperature;  Kirkpatrick's factor; the minimum of accepted configurations (in \%) and finally the initial configuration of the
+%refinable parameters, which can be the one read form the input control file (= 1) or a random one (=0).
+% Example:}
+
+
+%\footnotesize{
+%        SAN      \{\ type of optimization \}\ \newline
+%        30        \{\ number of Montecarlo cycles, recommended: 10 * number of refinable parameters \}\ \newline
+%       10        \{\ number of temperatures \}\ \newline
+%        100.0      \{\ initial temperature \}\ \newline
+%        0.9      \{\ Kirkpatrick factor \}\ \newline
+%        0.01     \{\ Mínimum accepted configurations \}\ \newline
+%        1        \{\ Initial configuration control patameter \}\ \newline
+%      %           \{\ = 1 read from control file \}\ \newline
+%       %          \{\ = 0 random  \}\
+%}
+
+\end{itemize}
+
+Finally, the user can add an optional line with the instruction \textit{Replace\_Files} at the end of the \emph{Calculation} section to make the program replace existent output files by the ones generated at the end of a new run, instead of creating new files.
+
+\subsubsection{ \emph{Experimental} section}
+
+This section is only necessary in case a refinement is to be done. The section must begin with a first line containing the keyword EXPERIMENTAL, followed by:
+
+\begin{itemize}
+\item \textbf{Filename:} In this line, which must begin with the keyword \textit{file}, the user indicates the file name of the experimental intensity data file, which must not exceed 20 characters, extension included (.dat). After that, the scale factor and its refinement code must be given, in the same line.
+
+\item \textbf{Excluded regions:} Optionally the user can exclude some regions of the experimental data. To do so, \textit{Excluded$\_$Regions} must be written, followed by the number of excluded regions. In the next lines, 2$\theta$ min and 2$\theta$ max of each excluded region must be specified (in a separate line per excluded region). If these are not detailed, the program will use the whole 2$\theta$ range of the experimental data.
+
+\item \textbf{File format:}  In this line the user writes a code to tell the program which is the format of the intensity data file, that depends on the instrument.
+The possibilities (which are  detailed in the next subsection 1.2.2.) are: D1B, D20, NLS, G41, D1A, D2B, D1AOLD, D1BOLD, DMC, SOCABIM, XYSIGMA, GSAS, PANALYTICAL, TIMEVARIABLE and FREE. The line must begin with the keyword \textit{Fformat}.
+
+\item \textbf{Background file:} To determine the background, three different possibilities are available, and at least one of them must be present. First, the background can be modeled by linear interpolation. To do so, the user must write the keyword \textit{Bgrinter} followed by the name of the file (extension included) that contains background data. FAULTS only accepts \emph{*.bgr} files which are
+ lines with pairs of values, scattering variable $\setminus $ intensity, in free format (see subsection \ref{bck}). Note that background points are not refinable parameters. For example,
+
+\begin{flushleft}
+\hspace*{1.5 cm}!Linear interpolation \\*
+\hspace*{1.5 cm}Bgrinter  \ \ \  Sim.Bgr 
+\end{flushleft}
+
+%\vspace{0.75 cm}
+
+If the background is to be treated as a polynomial, the keyword is \textit{Bgrcheb} and the number of coefficients must be specified after it. In the following line the polynomial coefficients must be entered. These are refinable parameters, so the user must remember to write their refinement codes below them. For instance,
+
+\begin{flushleft}
+\begin{tabbing}
+\hspace*{1.5 cm}!Polynomial  \=Number of coefficients \\*
+\hspace*{1.5 cm}Bgrcheb      \>2 \\*
+\hspace*{1.5 cm}!Polynomial coefficients\\*
+\hspace*{1.5 cm}1.00000    \>0.20000 \\*
+\hspace*{1.5 cm}1.0         \>1.0   
+\end{tabbing}
+\end{flushleft}
+
+%\vspace{0.75 cm}
+
+
+Finally, a third background subsection is available in order to deal with possible impurities. In case the sample to be analysed has impurities, these will give extra peaks in the experimental pattern. In order to take them into account, FAULTS program can treat them as background. Thus, a file containing the diffraction pattern in free format (see next section 1.2.2) must be added for each impurity present in the experimental pattern. This information must be given as follows: first the number of pattern backgrounds is to be expecified, preceded by the keyword \textit{Bgrnum}; then the user must write in a separate line the keyword \textit{Bgrpatt} followed by the filename, scale factor and  its refinement code. Optionally, the name of an *.hkl file can be given after the scale's factor refinement code so that the Bragg reflections of each additional phase appear in the calculated *.prf file.  A separate line will be writen for every given pattern. For example,
+
+\begin{flushleft}
+\begin{tabbing}
+\hspace*{1.5 cm}!Number of pattern backgrounds \\*
+\hspace*{1.5 cm}Bgrnum  1 \\*
+\hspace*{1.5 cm}!Pattern file  \ \=Filename   \ \ \ \ \ \    \=Scale factor \  \=Code \  \=hkl file \\*
+\hspace*{1.5 cm}Bgrpatt      \>cerusite1.sub    \>0.026000      \>1.00 \>cerusite.hkl
+\end{tabbing}
+\end{flushleft}
+
+
+\end{itemize}
+
+
+\subsection{Experimental pattern}
+
+The experimental intensity data file can have different formats that depend on the instrument. The files FAULTS is able to read are the following:
+
+
+\begin{itemize}
+\item \textbf{D1B o D20 (Ins=3 in FullProf): } These are the data file from D1B and D20  diffractometers (ILL) and have a \emph{*.dat} extension.
+
+
+\footnotesize{
+        Line 1-3: comments \newline
+		Line 4: 2$\theta$ min,  step (deg.) + other parameters \newline
+		Line 5: number of points in the data file (npts) \newline	
+		Lines1 : npts pairs D  Y1  D  Y2  ...  D  Y10 (where D is the detector number and Y the measured intensity ) }
+
+\normalsize{
+\item \textbf{NLS (Ins=4 in FP): } Data file from N.L.S.(Brookhaven) synchrotron radiation with \emph{*.dat} extension.}
+
+\footnotesize{ Line 1:2$\theta$min, step size, 2$\theta$ max (deg.)   \newline
+Lines1: pairs of lines with 10 items like \newline
+Y1  Y2 ...  Y10 (intensities) \newline
+ S1  S2 ...  S10  (sigmas) \newline}
+
+
+ \normalsize{
+\item \textbf{G41 (Ins=5 in FP): } Data file from G41 multidetector neutron diffractometer at LLB with  \emph{*.dat} extension.}
+
+\footnotesize{ Line 1-3: comments\newline
+Line4: npts\newline
+Line 5:2$\theta$min, step size, 2$\theta$ max (deg.)\newline
+Lines1: Y (one column) }
+
+
+\normalsize{
+\item \textbf{D1A o D2B (Ins=6 in FP): } "Multicounters diffractometers data with  \emph{*.dat} extension. }
+
+\footnotesize{
+        Line 1: Comments  \newline
+		Line 2: step size (deg.)  \newline
+		Line 3: 2$\theta$min \newline
+		Line 4: Comments \newline
+		Lines1:  D  Y1  D  Y2  ...  D  Y10 \newline  }
+		
+\normalsize{
+\item \textbf{D1AOLD o D1BOLD (Ins=1 in FP): } These are the data file from D1B and D20  diffractometers (ILL)
+(old format). }
+
+
+\footnotesize{ Line 1:2$\theta$min, step size, 2$\theta$ max (deg.)   \newline
+Lines1: npts pairs D  Y1  D  Y2  ...  D  Y10 }
+
+\normalsize{
+\item \textbf{DMC (Ins=8 in FP): } These are files from DMC diffractometer from  Paul Scherrer  Institute with \emph{*.dat} extension.}
+
+\footnotesize{ Line 1-3: comments\newline
+Line 4:  2$\theta$min, step size, 2$\theta$ max (deg.)   \newline
+Lines1: Lines1: pairs of lines with 10 items like \newline
+Y1  Y2 ...  Y10 (intensities) \newline
+ S1  S2 ...  S10  (sigmas) \newline}
+
+ \normalsize{
+\item \textbf{SOCABIM (Ins=9 in FP): } Thee are XRD files with   \emph{*.uxd} extension generated by Socabim software.}
+
+\footnotesize{
+        Line 1-29: comments \newline
+		Lines1: Y1, Y2, ..., Yn.\newline}
+		
+\normalsize{		
+	
+		
+\item \textbf{XYSIGMA (Ins=10 in FP): } Files with \emph{*.dat} extension }
+
+\footnotesize{
+Line 1: keyword XYSIGMA \newline
+Line 2-6: comments \newline
+Lines1: X, Y, S \newline}
+
+\normalsize{
+\item \textbf{GSAS (Ins=12 in FP):} data file for the GSAS analysis data program.}
+
+
+\footnotesize{
+Line 1: text \newline
+Line 2: npts \newline
+Lines1: intensities (diverse formats) \newline}
+
+\normalsize{
+\item \textbf{TIMEVARIABLE (Ins=11 in FP): } data from variable time data collection. }
+
+\footnotesize{
+Line 1:  2$\theta$min, step size, 2$\theta$ max (deg.) \newline
+Lines1: T1 I1  T2  Y2 ... T10 I10 (T = time) \newline}
+
+
+\normalsize{
+\item \textbf{FREE (Ins=0 in FP): } free format files generally with  \emph{*.dat} extension. Up to 7 lines of comments are accepted, the first real numbers are
+2$\theta_{min}$,  step size and 2$\theta_{max}$ (deg.), and the \textit{npts} following lines are the intensity values. }
+
+		
+\end{itemize}
+
+\subsection {Background: \textbf{CFILE.bgr}}
+\label{bck}
+
+This file that will be used to calculate the background at each value of the scattering variable, is created by the user from the experimental data. The extension must be
+\emph {*.bgr}. Comments can be written after a {\emph !} symbol. Example:
+
+
+\footnotesize{
+! background:  positions   intensity: \newline
+\hspace*{0.6 cm}!--------------------------------------\newline
+		\hspace*{2.8 cm} 	10.0    \hspace{ 1 cm}	     40.6745\newline
+\hspace*{2.8 cm} 15.0 \hspace{ 1 cm}  74.8976    \newline
+\hspace*{ 3.5 cm}  ...
+}
+
+\normalsize{
+\section{Output files}
+
+Once the program has finished, FAULTS will create the following output files, depending on the users requirements. These files
+will be saved to the same directory as the
+input data files.
+
+
+\subsection{Calculated profile: \textbf{CFILEn.dat}  }
+
+If a simulation is to be done, the program writes the calculated profile in a \emph{*.dat} file that is written in free format.
+
+\subsection{Observed and calculated profile: \textbf{CFILEn.prf}  }
+
+ If the user is performing a refinement, the program creates a file with the experimental pattern, the calculated one with the best fit,
+their difference plot and the Bragg reflections.
+This file is to be fed into a visualisation programs, such as  WinPLOTR  \cite{WinplotrPaper,FPDownload}.
+It is essential to plot frequently the observed and experimental patterns. The examination of the difference pattern is a
+quick and efficient method to detect blunders in the model or in the input file controlling the refinement process.
+It may also provide useful hints on the best sequence to refine the whole set of model parameters for each particular case.
+An example of this file can be found in figure \ref{pgf}.
+
+\begin{sidewaysfigure}[h!]
+\begin{center}
+\includegraphics [width= 7.0 in]{pgfexample.png}
+\caption{\bf Example of obsrved and calculated profile plot}
+\label{pgf}
+\end{center}
+\end{sidewaysfigure}
+
+\subsection{Commands file for FullProf Studio: \textbf{CFILE.fst}  }
+If the user has specified commands for the drawing of the structural model in FullProf Studio, the program creates a input file to be fed into the visualization program FullProf Studio \cite{FPSDownload}. Details on the format of this file can be found in the FullProf Studio manual \cite{FPSManual}. It is recommended to regularly draw the structure during the construction of the structural model as well as during the refinement. 
+
+\subsection{Progress report: \textbf{CFILEn.out}  }
+
+An \emph{*.out} file is generated, which contains the information of the structural model given in the CFILE.flts file. If a refinement is done, it also contains the information of the refimenent process. The information this file contains is the values the refinable parameters have taken during refinement, the values of the agreement factors for each evaluation and the best values of each parameter obtained during refinement.
+
+\subsection{Final report: \textbf{CFILE$\_$new.flts} }
+
+When the process is finished a \emph{*.flts} file is generated, containing the information of the refinement`s final result. Its format is similar to the input file, with the same structure (section headings, keywords, parameters, refinement codes), but with the refined values for the refinable parameters. Thus, this file can be use as the input file in case the user wants to continue the refinement process. If the file is used as input file directly, at the end of the refinement it will be overwritten.
+
+\section{Running FAULTS}
+\label{running}
+
+ The program is invoked from a DOS window and it will appear as in figure \ref{faultslayout}.
+
+ \begin{figure}[hbtp]
+\begin{center}
+\includegraphics [width= 3.5 in]{faultslayout.pdf}
+\caption{\bf  FAULTS layout when invoked}
+\label{faultslayout}
+\end{center}
+\end{figure}
+
+Once the user enters the filename CFILE.flts , if a refinement is to be done, the layout of the program will appear as in figure \ref{layout2}.
+During the refinement process, depending on the option chosen by the user (see the comments on the keyword \textit{Nprint} in the \textit{Calculation} subsection page \pageref{nprint}), the DOS window will display the values of the agreement factors at the end of each evaluation, and optionally the list of the previous and new refinable parameters at each evaluation step.
+
+ \begin{figure}[hbtp]
+\begin{center}
+\includegraphics [width= 5.0 in]{faultslayout2.pdf}
+\caption{\bf  FAULTS layout during refinement}
+\label{layout2}
+\end{center}
+\end{figure}
+
+
+Once the refinement has finished, the list of the best values obtained for the refinable parameters is displayed (see figure \ref{end}). The user can then open the CFILEn.prf to see the goodness of the refinement. 
+
+
+\begin{sidewaysfigure}[h!]
+\begin{center}
+\includegraphics [width= 7.0 in]{faultsend.pdf}
+\caption{\bf  FAULTS layout at the end of the refinement}
+\label{end}
+\end{center}
+\end{sidewaysfigure}
+
+ }

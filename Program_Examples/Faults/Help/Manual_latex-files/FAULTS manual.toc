@@ -1,0 +1,24 @@
+\contentsline {chapter}{\numberline {1}The FAULTS program}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Program specifications}{2}{section.1.1}
+\contentsline {section}{\numberline {1.2}Input files}{4}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}The input control file: \textbf {CFILE.flts}}{4}{subsection.1.2.1}
+\contentsline {subsubsection}{ \emph {Title} section}{5}{section*.2}
+\contentsline {subsubsection}{ \emph {Instrumental and size broadening} section}{5}{section*.3}
+\contentsline {subsubsection}{\emph {Structural} section}{10}{section*.4}
+\contentsline {subsubsection}{ \emph {Layers} section}{13}{section*.5}
+\contentsline {subsubsection}{ \emph {Stacking} section}{15}{section*.6}
+\contentsline {subsubsection}{ \emph {Transitions} section}{17}{section*.7}
+\contentsline {subsubsection}{ \emph {Calculation} section}{18}{section*.8}
+\contentsline {subsubsection}{ \emph {Experimental} section}{19}{section*.9}
+\contentsline {subsection}{\numberline {1.2.2}Experimental pattern}{22}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}Background: \textbf {CFILE.bgr}}{24}{subsection.1.2.3}
+\contentsline {section}{\numberline {1.3}Output files}{24}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}Calculated profile: \textbf {CFILEn.dat} }{25}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}Observed and calculated profile: \textbf {CFILEn.prf} }{25}{subsection.1.3.2}
+\contentsline {subsection}{\numberline {1.3.3}Commands file for FullProf Studio: \textbf {CFILE.fst} }{25}{subsection.1.3.3}
+\contentsline {subsection}{\numberline {1.3.4}Progress report: \textbf {CFILEn.out} }{25}{subsection.1.3.4}
+\contentsline {subsection}{\numberline {1.3.5}Final report: \textbf {CFILE$\_$new.flts} }{26}{subsection.1.3.5}
+\contentsline {section}{\numberline {1.4}Running FAULTS}{26}{section.1.4}
+\contentsline {chapter}{\numberline {2}Example}{19}{chapter.2}
+\contentsline {section}{\numberline {2.1}Stacking faults in LiNiO$_{2}$}{19}{section.2.1}
+\contentsline {section}{\numberline {2.2}Analysis of simulated data}{20}{section.2.2}
