@@ -58,6 +58,8 @@
 !!----    BVS_TABLE
 !!----    ERR_CONF
 !!----    ERR_CONF_MESS
+!!----    SSBVS_SPECIES_N
+!!----    SBVS_TABLE
 !!--++    TABLE_Alpha
 !!--++    TABLE_Avcoor
 !!--++    TABLE_B
@@ -84,6 +86,7 @@
 !!----       INIT_ERR_CONF
 !!----       SET_BVEL_TABLE
 !!----       SET_BVS_TABLE
+!!----       SET_SBVS_TABLE
 !!----       SET_TABLE_D0_B
 !!----       SPECIES_ON_LIST
 !!----
@@ -93,7 +96,7 @@
     Use CFML_GlobalDeps,                 only: Sp,Cp
     Use CFML_Math_General,               only: Sort_Strings,Sort
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
-    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb
+    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
     use CFML_Atom_TypeDef,               only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
@@ -110,7 +113,8 @@
     public :: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List,    &
               Init_Err_Conf, Set_BVS_Table, Set_Table_d0_b, Species_on_List,     &
               Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Deallocate_BVS_Table, &
-              Set_BVEL_Table, Deallocate_BVEL_Table, Set_Table_BVEL_Params
+              Set_BVEL_Table, Deallocate_BVEL_Table, Set_Table_BVEL_Params,      &
+              Set_SBVS_Table
 
     !---- List of public private ----!
     private :: Bond_Valence, Complete_Table, Complete_Table_BVEL
@@ -254,7 +258,7 @@
     !!---- BVS_Anions_Rion
     !!----    real(kind=cp), parameter, dimension(bvs_anions_n) :: bvs_anions_rion
     !!----
-    !!----    Radii Ionic for Anions
+    !!----    Ionic Radii for Anions
     !!----
     !!---- Update: March - 2005
     !!
@@ -325,6 +329,26 @@
     character(len=150), public :: ERR_Conf_Mess
 
     !!----
+    !!---- SBVS_SPECIES_N
+    !!----    integer, parameter, public :: sbvs_species_n=5 !only alkali chalcogenides
+    !!----
+    !!----    Maximum Number of species in SBVS_Table
+    !!----
+    !!---- Update: December - 2014
+    !!
+    integer, parameter, public :: sbvs_species_n=5
+
+    !!----
+    !!---- SBVS_TABLE
+    !!----    Type(Bvs_Par_Type), allocatable, dimension(:), public :: sBVS_Table
+    !!----
+    !!----    SBVS Parameters for calculations (only alkali chalcogenides are available)
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Type(Bvs_Par_Type), allocatable, dimension(:), public :: sBVS_Table
+
+    !!----
     !!---- Table_Alpha
     !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Alpha
     !!----
@@ -352,7 +376,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    real(kind=cp),dimension(:,:), allocatable, private :: Table_b
+    real(kind=cp),dimension(:,:), allocatable, public :: Table_b
 
     !!----
     !!---- TABLE_D0
@@ -362,7 +386,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    real(kind=cp),dimension(:,:), allocatable, private :: Table_d0
+    real(kind=cp),dimension(:,:), allocatable, public :: Table_d0
 
     !!----
     !!---- Table_Dzero
@@ -422,7 +446,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=*),dimension(0:33),parameter, private :: references = (/  &
+    character(len=*),dimension(0:34),parameter, private :: references = (/  &
          "Unknown                                                                         ", &
          "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &
          "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &
@@ -456,7 +480,8 @@
          "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &
          "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &
          "J.Rodriguez-Carvajal Private communication                                      ", &
-         "S. Adams and R. Prasada Rao,Phys. Status Solidi A 208, No. 8, 1746–1753 (2011)  "/)
+         "S. Adams and R. Prasada Rao,Phys. Status Solidi A 208, No. 8, 1746–1753 (2011)  ", &
+         "S. Adams, Acta Crystallographica B57, 278-287 (2001)                            "/)
 
  Contains
 
@@ -789,19 +814,19 @@
        integer,                     intent(in) :: ndimx
        integer,                     intent(in) :: ndimy
        integer,                     intent(in) :: ndimz
-       character(len=*),            intent(in) :: atname
+       character(len=*),            intent(in) :: atname  !Species of the probe atom e.g. LI+1
        real(kind=cp),               intent(in) :: drmax
        real(kind=cp), optional,     intent(in) :: delta
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm,chem
        integer                                      :: i,j,k,n,n1,n2,np,L,nL
-       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2,nn
        integer                                      :: i1,j1,k1
        integer                                      :: jbvs
        integer,      dimension(:),     allocatable  :: ind
-       real(kind=cp)                                :: rx1,ry1,rz1,qval,dif
-       real(kind=cp)                                :: sbvs, dd, occ
+       real(kind=cp)                                :: rx1,ry1,rz1,qval,dif,q1,q2,sig1,sig2,rep
+       real(kind=cp)                                :: sbvs, dd, occ, radius,sig,dmin
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
        real(kind=cp), dimension(:,:),   allocatable :: peaks
@@ -818,9 +843,23 @@
        At1%atom=A%atom  !Atom list A%Atom(:)%ind(1) contains the pointer to the species
                         !coming from A (Atoms_Conf_List_type, set in the main program)
        atm=u_case(atname)
-       do i=1,At1%natoms  !This exclude all atoms with the same label a Atname
-          if (trim(u_case(At1%atom(i)%lab)) == trim(atm)) At1%atom(i)%active=.false.
+       n1=0
+       do i=1,At1%natoms  !This exclude all atoms with the same species as Atname
+          n2=A%Atom(i)%ind(1)
+          if (trim(u_case(A%species(n2))) == trim(atm)) then
+             At1%atom(i)%active=.false.
+             q1=At1%atom(i)%charge
+             sig1=SIGN(1.0_cp,q1)
+             n1=n2
+             radius=A%radius(n1)
+             car=A%Species(n1)
+          end if
        end do
+       if (n1 ==0) then
+          err_conf=.true.
+          ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
+          return
+       end if
 
        call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
        call Deallocate_atom_list(At1)
@@ -834,8 +873,6 @@
            end if
        end do
 
-
-
        allocate(map_bvs(ndimx,ndimy,ndimz))
        map_bvs=0.0
 
@@ -848,21 +885,6 @@
           ind=0
        end if
 
-       n1=0
-       call Get_Chemsymb(atm,chem)
-       chem=u_case(chem)
-       do i=1,A%n_spec
-          car=A%Species(i)
-          if (index(car,trim(chem)) /= 0) then
-             n1=i
-             exit
-          end if
-       end do
-       if (n1 ==0) then
-          err_conf=.true.
-          ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
-          return
-       end if
        ! Determination of the valence expected for a good position
        i=index(car,"+")
        cation=.false.
@@ -912,18 +934,24 @@
                 nz2=int(pto(3)+extend(3))
 
                 sbvs=0.0
+                rep=0.0
                 do n=1,At2%natoms
                    n2=At2%Atom(n)%ind(1)
-                   if((cation .and. n2 <= A%N_cations)  .or. (anion .and. n2 > A%N_cations) ) cycle
+                   !if((cation .and. n2 <= A%N_cations)  .or. (anion .and. n2 > A%N_cations) ) cycle
+                   q2=At2%Atom(n)%charge
+                   sig2= SIGN(1.0_cp,q2)
+                   sig=(radius+A%radius(n2))*0.99
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
-                            pta(1)=At2%Atom(n)%x(1)+real(i1)
-                            pta(2)=At2%Atom(n)%x(2)+real(j1)
-                            pta(3)=At2%Atom(n)%x(3)+real(k1)
+                            pta=At2%Atom(n)%x+real((/i1,j1,k1/))
                             occ=At2%Atom(n)%VarF(1)
                             dd=Distance(pto,pta,Cell)
                             if (dd > drmax) cycle
+                            if (sig1 == sig2) then
+                               rep=rep + (sig/dd)**18
+                               cycle
+                            end if
                             sbvs=sbvs+occ*exp((table_d0(n1,n2)-dd)/table_b(n1,n2))
                          end do
                       end do
@@ -931,7 +959,7 @@
                 end do
                 dif=abs(sbvs-qval)
                 if(present(delta)) then
-                  if(dif > delta) sbvs=0.0_cp
+                  if(dif > delta .or. rep > 0.01) sbvs=0.0_cp
                 else
                   !Algorithm for selecting the optimum positions
                   if(dif < 0.15 .and. np < ndimx) then
@@ -967,8 +995,8 @@
 
        if(.not. present(delta)) call sort(VD_peaks,np,ind)
        !---- Export a File ----!
-       call Get_LogUnit(jbvs)
-       open(unit=jbvs,file=trim(filecod)//".map")
+       !call Get_LogUnit(jbvs)
+       open(newunit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
 
        write (unit=jbvs, fmt='(a)') "BVS Map Calculations using Bond_STR Program"
        write (unit=jbvs, fmt='(a)') "BVS Map for species "//trim(car)
@@ -2531,7 +2559,45 @@
      return
     End Subroutine Set_BVS_Table
 
-        !!----
+
+    !!----
+    !!----
+    !!---- Subroutine Set_SBVS_Table()
+    !!----
+    !!----    Fills the parameters for soft-BVS from Stefan Adams
+    !!----    Acta Cryst B57, 278-287 (2001)
+    !!----
+    !!---- Update: December - 2014
+    !!
+    Subroutine Set_SBVS_Table()
+
+       if (.not. allocated(sBVS_Table)) allocate(sBVS_Table(sbvs_species_n))
+                     !  O      F     Cl     Br      I      S     Se     Te
+     sBVS_Table(  1)=BVS_Par_Type("LI+1", &
+                   (/1.1725,1.1011,1.3418,1.5340,1.6733,1.5070,1.5296,1.7340, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/ 0.515, 0.501, 0.661, 0.665, 0.723, 0.632, 0.735, 0.717, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/    34,    34,    34,    34,    34,    34,    34,    34,     0,     0,     0,     0,     0,     0 /) )
+     sBVS_Table(  2)=BVS_Par_Type("NA+1", &
+                   (/1.5602,1.4262,1.6940,0.0000,1.9694,1.8311,1.8787,2.0518, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/ 0.483, 0.475, 0.603, 0.000, 0.688, 0.621, 0.660, 0.684, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/    34,    34,    34,    34,    34,    34,    34,    34,     0,     0,     0,     0,     0,     0 /) )
+     sBVS_Table(  3)=BVS_Par_Type("K+1", &
+                   (/1.9729,1.8472,2.0866,2.1001,2.3202,2.1711,2.2569,2.3926, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/ 0.422, 0.422, 0.552, 0.625, 0.641, 0.571, 0.624, 0.662, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/    34,    34,    34,    34,    34,    34,    34,    34,     0,     0,     0,     0,     0,     0 /) )
+     sBVS_Table(  4)=BVS_Par_Type("RB+1", &
+                   (/2.0573,1.9572,2.2443,2.3272,2.4667,2.3011,2.4015,2.4600, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/ 0.425, 0.418, 0.540, 0.579, 0.631, 0.552, 0.581, 0.615, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/    34,    34,    34,    34,    34,    34,    34,    34,     0,     0,     0,     0,     0,     0 /) )
+     sBVS_Table(  5)=BVS_Par_Type("CS+1", &
+                   (/2.2985,2.1955,2.5046,2.5152,2.6951,2.5147,2.6568,2.7360, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/ 0.403, 0.411, 0.481, 0.538, 0.608, 0.522, 0.546, 0.617, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 /),&
+                   (/    34,    34,    34,    34,    34,    34,    34,    34,     0,     0,     0,     0,     0,     0 /) )
+    End Subroutine Set_SBVS_Table
+
+
+
+    !!----
     !!---- Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel)
     !!---- type (Atoms_Conf_List_type),            intent(in)  :: A
     !!---- integer,                      optional, intent(in)  :: N_bvel   !Number of bvel strings with externally provided values
@@ -2641,15 +2707,17 @@
     !!----
     !!----
     !!----
-    !!---- Updated: March - 2005
+    !!---- Updated: March - 2005, December-2014
     !!
-    Subroutine Set_Table_d0_b(A,N_bvsm,bvs_m)
+    Subroutine Set_Table_d0_b(A,N_bvsm,bvs_m,soft)
        !---- Arguments ----!
        type (Atoms_Conf_List_type),            intent(in)  :: A
        integer,                      optional, intent(in)  :: N_bvsm
        character(len=*),dimension(:),optional, intent(in)  :: bvs_m
+       logical,                      optional, intent(in)  :: soft
        !---- Local Variables ----!
        integer :: i,j,k,ia,ic
+       logical :: found
 
        if (A%N_Spec == 0) then
           err_conf=.true.
@@ -2670,15 +2738,27 @@
        Table_ref = 0
 
        call Set_BVS_Table()
+       if(present(soft)) call set_SBVS_Table()
 
        do i=1,A%N_Cations
-          ic=0
-          do j=1,bvs_species_n
-             if (A%Species(i) == BVS_Table(j)%Symb) then
-                ic=j
-                exit
-             end if
-          end do
+          ic=0; found=.false.
+          if(present(soft)) then
+             do j=1,sbvs_species_n
+                if (A%Species(i) == sBVS_Table(j)%Symb) then
+                   ic=j
+                   found=.true.
+                   exit
+                end if
+             end do
+          end if
+          if(ic == 0) then
+            do j=1,bvs_species_n
+               if (A%Species(i) == BVS_Table(j)%Symb) then
+                  ic=j
+                  exit
+               end if
+            end do
+          end if
           if (ic == 0) then
              if(.not. present(N_bvsm)) then
                err_conf=.true.
@@ -2707,29 +2787,40 @@
                 ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
                 return
              end if
+             if(found) then
+                Table_d0 (i,A%N_Cations+k)=sbvs_table(ic)%d0(ia)
+                Table_b  (i,A%N_Cations+k)=sbvs_table(ic)%b_par(ia)
+                Table_ref(i,A%N_Cations+k)=sbvs_table(ic)%refnum(ia)
 
-             Table_d0 (i,A%N_Cations+k)=bvs_table(ic)%d0(ia)
-             Table_b  (i,A%N_Cations+k)=bvs_table(ic)%b_par(ia)
-             Table_ref(i,A%N_Cations+k)=bvs_table(ic)%refnum(ia)
+                Table_d0 (A%N_Cations+k,i)=sbvs_table(ic)%d0(ia)
+                Table_b  (A%N_Cations+k,i)=sbvs_table(ic)%b_par(ia)
+                Table_ref(A%N_Cations+k,i)=sbvs_table(ic)%refnum(ia)
+             else
+                Table_d0 (i,A%N_Cations+k)=bvs_table(ic)%d0(ia)
+                Table_b  (i,A%N_Cations+k)=bvs_table(ic)%b_par(ia)
+                Table_ref(i,A%N_Cations+k)=bvs_table(ic)%refnum(ia)
 
-             Table_d0 (A%N_Cations+k,i)=bvs_table(ic)%d0(ia)
-             Table_b  (A%N_Cations+k,i)=bvs_table(ic)%b_par(ia)
-             Table_ref(A%N_Cations+k,i)=bvs_table(ic)%refnum(ia)
+                Table_d0 (A%N_Cations+k,i)=bvs_table(ic)%d0(ia)
+                Table_b  (A%N_Cations+k,i)=bvs_table(ic)%b_par(ia)
+                Table_ref(A%N_Cations+k,i)=bvs_table(ic)%refnum(ia)
+             end if
 
           end do
        end do
 
        call Deallocate_BVS_Table()
+       if(present(soft)) call Deallocate_BVS_Table()
 
        return
     End Subroutine Set_Table_d0_b
 
 
     !!----
-    !!---- Subroutine Species_on_List(A,MulG,tol)
+    !!---- Subroutine Species_on_List(A,MulG,tol, covalent)
     !!----    type (Atoms_Conf_List_Type), intent(in out) :: A
     !!----    Integer, optional,           intent(in)     :: MulG
     !!----    real(kind=cp), optional,     intent(in)     :: tol
+    !!----    logical,       optional,     intent(in)     :: covalent
     !!----
     !!----    Determines the different species in the List and,
     !!----    optionally, sets the tolerance factor for ionic radii
@@ -2739,15 +2830,17 @@
     !!----    provided in such a case. This first free variable of the
     !!----    Atom-type A%Atom%VFree(1) is set to the corrected
     !!----    occupation. The first atom in the list must completely
-    !!----    occupy its site.
+    !!----    occupy its site. If covalent is provided the covalent
+    !!----    radius is used instead of the ionic radius.
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: March - 2005, December 2014
     !!
-    Subroutine Species_on_List(A,MulG, tol)
+    Subroutine Species_on_List(A,MulG, tol, covalent)
        !---- Arguments ----!
        type (Atoms_Conf_List_Type), intent(in out) :: A
        Integer, optional,           intent(in)     :: MulG
        real(kind=cp), optional,     intent(in)     :: tol
+       logical,       optional,     intent(in)     :: covalent
 
        !---- Local variables ----!
        character(len=4), dimension(50) :: cation,anion,spec
@@ -2843,14 +2936,22 @@
           car=A%Species(i)(im+1:im+2)
           read(unit=car,fmt="(i1)") j
           car=A%Species(i)(1:im-1)
-          call get_ionic_radius(car,j,A%Radius(i))
+          if(present(covalent)) then
+             call get_covalent_radius(car,A%Radius(i))
+          else
+             call get_ionic_radius(car,j,A%Radius(i))
+          end if
           if (A%Radius(i) < 0.01) A%Radius(i)=0.8
        end do
 
        do i=1,A%N_Anions
           do j=1,bvs_anions_n
              if (A%Species(nc+i) == bvs_anions(j)) then
-                  A%Radius(nc+i) = bvs_anions_rion(j)
+                if(present(covalent)) then
+                    call get_covalent_radius(A%Species(nc+i),A%Radius(nc+i))
+                else
+                    A%Radius(nc+i) = bvs_anions_rion(j)
+                end if
                 exit
              end if
           end do

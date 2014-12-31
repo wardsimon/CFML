@@ -59,7 +59,8 @@
       implicit none
       private
 
-      public::  General_cost_function, Readn_Set_CostFunctPars, Write_CostFunctPars, Write_FinalCost
+      public::  General_cost_function, Readn_Set_CostFunctPars, Write_CostFunctPars, &
+                Write_FinalCost, Write_PRF
 
       logical,                      public :: err_cost=.false.
       character(len=132),           public :: err_mess_cost=" "
@@ -847,7 +848,6 @@
            fcal=0.0
            do j=1,sprof%prf(i)%nref
              nn=sprof%prf(i)%ref_ini+j-1
-             !ik=sprof%prf(i)%nref-j+1
              fcal=fcal+ScaleFact*sprof%prf(i)%omegap(j)* hkl%ref(nn)%Fc * hkl%ref(nn)%Fc
            end do
            sprof%prf(i)%ycal=fcal
@@ -873,7 +873,6 @@
            fcal=0.0
            do j=1,sprof%prf(i)%nref
              nn=sprof%prf(i)%ref_ini+j-1
-             !ik=sprof%prf(i)%nref-j+1
              fcal=fcal+ScaleFact*sprof%prf(i)%omegap(j)* hkl%ref(nn)%Fc * hkl%ref(nn)%Fc
            end do
            sprof%prf(i)%ycal=fcal
@@ -1130,5 +1129,75 @@
 
        return
     End Subroutine Cost_Tor_Rest
+
+    Subroutine Write_Prf(filcod)
+       character(len=*), intent(in) :: filcod
+       !-----------------------------------------------
+       !   L o c a l   V a r i a b l e s
+       !-----------------------------------------------
+       integer ::  i, j,k, iposr, ihkl, irc,nphase,ideltr, i_prf
+       real    :: twtet, dd, scl,yymi,yyma,t1,t2
+       character (len=1)   :: tb
+       character (len=50)  :: forma1,forma2
+       !-----------------------------------------------
+       !check for very high values of intensities and rescal everything in such a case
+       ! scl: scale factor scl=1.0 (normal ymax < 1e6, 0.1 multiplier)
+       open(newunit=i_prf,file=trim(filcod)//".prf",status="replace",action="write")
+       t1=maxval(sprof%prf(:)%yobs)
+       t2=maxval(sprof%prf(:)%ycal)
+       yyma=max (t1,t2)
+       yymi=minval(sprof%prf(:)%yobs)
+       scl=1.0
+       nphase=1
+
+       do
+         if(yyma < 1.0e6) exit !on exit we have the appropriate value of scl
+         scl=scl*0.1
+         yyma=yyma*scl
+       end do
+       yymi=yymi*scl
+       tb=CHAR(9)
+
+       if(yyma < 100.0) then
+        forma1='(f12.4,4(a,f8.4))'
+       else if(yyma < 1000.0) then
+        forma1='(f12.4,4(a,f8.3))'
+       else if(yyma < 10000.0) then
+        forma1='(f12.4,4(a,f8.2))'
+       else if(yyma < 100000.0) then
+        forma1='(f12.4,4(a,f8.1))'
+       else
+        forma1='(f12.4,4(a,f8.0))'
+       end if
+       write(i_prf,'(A)') " Observed and calculated profiles at the end of GLOpS"
+
+       write(i_prf,'(i3,i7,5f12.5,i5)') nphase,sprof%npts,wavel_int,wavel_int,0.0,0.0,0.0,0
+
+       write(i_prf,'(3i6)')hkl%nref, 0 , 0
+
+       write(i_prf,'(15a)')' 2Theta',tb,'Yobs',tb,'Ycal',tb,  &
+             'Yobs-Ycal',tb,'Backg',tb,'Posr',tb,'(hkl)',tb,'K'
+
+       do  i=1,sprof%npts
+         twtet=sprof%prf(i)%scv
+         dd=(sprof%prf(i)%yobs-sprof%prf(i)%ycal)*scl
+         write(i_prf,forma1) twtet,tb,sprof%prf(i)%yobs*scl,tb,sprof%prf(i)%ycal*scl,tb,  &
+             dd-yyma/4.0,tb,-yymi/4.0
+       end do
+
+       !Reflections
+       iposr=0
+       irc=1
+       ihkl=0
+       ideltr=int(yyma/16)
+       do i=1,hkl%nref
+         write(i_prf,'(f12.4,9a,i8,a,3i3,a,2i3)')  &
+             ttheta(i),tb,'        ',tb,'        ',tb,'        ',  &
+             tb,'        ',tb,iposr, tb//'(',hkl%Ref(i)%h,')'//tb,ihkl,irc
+       end do
+       close(unit=i_prf)
+       return
+    End Subroutine Write_Prf
+
 
   End Module cost_functions

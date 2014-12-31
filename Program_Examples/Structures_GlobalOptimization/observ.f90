@@ -1,6 +1,6 @@
   Module observed_reflections
     Use CFML_GlobalDeps,                 only: sp,cp,dp
-    Use CFML_Math_General,               only: sort
+    Use CFML_Math_General,               only: sort, sind
     use CFML_Reflections_Utilities,      only: Reflection_List_Type, hkl_mult, hkl_equiv,hkl_s
     use CFML_String_Utilities,           only: number_lines, u_Case, get_logunit
     use CFML_crystallographic_symmetry,  only: Space_Group_Type
@@ -82,7 +82,8 @@
       type (profile_point_type), dimension(:), allocatable :: prf
     end type profile_type
 
-    type(profile_type), public :: sprof
+    type(profile_type),            public :: sprof
+     real,allocatable,dimension(:),public :: ttheta
 
     Contains
 
@@ -110,6 +111,7 @@
       type(Reflection_List_Type),  intent (out) :: Rf
       !--- Local Variables ---!
       integer :: ier, nref, i,j,nlines,i_hkl, itemp
+      real    :: a1,a2,a3
       integer, allocatable,dimension(:,:) :: hkl
       integer, allocatable,dimension(  :) :: ic
       real,    allocatable,dimension(  :) :: sv,fobs,sigma
@@ -134,6 +136,8 @@
       if(FullProf_int) nref=nlines-3
       !Allocate local types to the maximum possible value
 
+      if(allocated(ttheta)) deallocate(ttheta)
+      allocate(ttheta(nref))
       if(allocated(sv)) deallocate(sv)
       allocate(sv(nref))
       if(allocated(fobs)) deallocate(fobs)
@@ -150,7 +154,7 @@
          read(unit=i_hkl,fmt="(a)", iostat=ier) line
          read(unit=i_hkl,fmt=*) wavel_int
          do i=1,nref
-             read(unit=i_hkl,fmt=*, iostat=ier) hkl(:,i),fobs(i),sigma(i)
+             read(unit=i_hkl,fmt=*, iostat=ier) hkl(:,i),fobs(i),sigma(i),a1,a2,a3,ttheta(i)
              if(fobs(i) < 0.0) fobs(i)=0.00001
              if(ier /= 0) then
                 nref=i-1
@@ -165,12 +169,12 @@
       end if
       close(unit=i_hkl)
 
-      !Now ordering of all reflections
-      do i=1,nref
-       sv(i)=hkl_s(hkl(:,i),Cell)
-      end do
 
       if(.not. FullProf_int) then
+         !Now ordering of all reflections
+         do i=1,nref
+          sv(i)=hkl_s(hkl(:,i),Cell)
+         end do
          call sort(sv,nref,ic) !use ic for pointer ordering
          call get_logunit(itemp)
          ! open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
@@ -182,6 +186,10 @@
          rewind(unit=itemp)
          do i=1,nref
            read(itemp) hkl(:,i),sv(i),fobs(i),sigma(i)
+         end do
+      else
+         do i=1,nref
+          sv(i)=sind(ttheta(i)*0.5)/wavel_int
          end do
       end if
 
