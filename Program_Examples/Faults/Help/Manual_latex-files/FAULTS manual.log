@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.12.22)  23 DEC 2014 11:29
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.11.3)  9 JAN 2015 15:46
 entering extended mode
 **FAULTS*manual.tex
-("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.tex"
+("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.tex"
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, arabic, armenian, assamese, basque, bengali
 , bokmal, bulgarian, catalan, coptic, croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, galic
@@ -254,9 +254,8 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 \mathdisplay@stack=\toks22
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
-)
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xypic.sty" ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xy.sty"
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xy.tex" Bootstrap'ing: catcodes, docmode,
+) ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xy.sty" ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xy.tex" Bootst
+rap'ing: catcodes, docmode,
 ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xyrecat.tex")
 ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xyidioms.tex")
 
@@ -312,65 +311,29 @@ Loading kernel: messages; fonts; allocations: state,
 
 decorations; kernel objects: directionals, circles, text; options; algorithms: directions, edges, connections;
  Xy-pic loaded)
-
-LaTeX Warning: You have requested package `xypic',
-               but the package provides `xy'.
-
 Package: xy 2013/10/06 Xy-pic version 3.8.9
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xypdf.tex"  Xy-pic option: PDF driver v.1.7 loaded))
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xyv2.tex"  Xy-pic option: Version 2 Compatibility v.3.8
-
-Xy-pic Warning: `\stop' redefined.
-
-
-Xy-pic Warning: `\rotate' redefined.
-
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xyframe.tex"  Xy-pic option: Frame and Bracket extension v.3.14 loaded)
-Xy-pic pdf driver: `frame' extension support ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xypdf-fr.tex"
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xycurve.tex"  Xy-pic option: Curve and Spline extension v.3.12 curve,
-\crv@cnt@=\count116
-\crvpts@=\toks27
-\splinebox@=\box32
-\splineval@=\dimen149
-\splinedepth@=\dimen150
-\splinetol@=\dimen151
-\splinelength@=\dimen152
-
-circles,
-\L@=\dimen153
- loaded) Xy-pic pdf driver: `curve' extension support
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xypdf-cu.tex" loaded) loaded)
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xymatrix.tex"  Xy-pic option: Matrix feature v.3.14
-\Row=\count117
-\Col=\count118
-\queue@=\toks28
-\queue@@=\toks29
-\qcount@=\count119
-\qcount@@=\count120
-\matrixsize@=\count121
- loaded)
-("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xyarrow.tex"  Xy-pic option: Arrow and Path feature v.3.9 path, \ar,
-loaded) loaded)) ("C:\Program Files\MiKTeX 2.9\tex\latex\geometry\geometry.sty"
+ ("C:\Program Files\MiKTeX 2.9\tex\generic\xypic\xypdf.tex"  Xy-pic option: PDF driver v.1.7 loaded))
+("C:\Program Files\MiKTeX 2.9\tex\latex\geometry\geometry.sty"
 Package: geometry 2010/09/12 v5.6 Page Geometry
-\Gm@cnth=\count122
-\Gm@cntv=\count123
-\c@Gm@tempcnt=\count124
-\Gm@bindingoffset=\dimen154
-\Gm@wd@mp=\dimen155
-\Gm@odd@mp=\dimen156
-\Gm@even@mp=\dimen157
-\Gm@layoutwidth=\dimen158
-\Gm@layoutheight=\dimen159
-\Gm@layouthoffset=\dimen160
-\Gm@layoutvoffset=\dimen161
-\Gm@dimlist=\toks30
+\Gm@cnth=\count116
+\Gm@cntv=\count117
+\c@Gm@tempcnt=\count118
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks27
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\geometry\geometry.cfg")) ("C:\Program Files\MiKTeX 2.9\tex\latex\tools\array.sty
 "
 Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
-\col@sep=\dimen162
-\extrarowheight=\dimen163
-\NC@list=\toks31
+\col@sep=\dimen157
+\extrarowheight=\dimen158
+\NC@list=\toks28
 \extratabsurround=\skip49
 \backup@length=\skip50
 ) ("C:\Program Files\MiKTeX 2.9\tex\latex\tools\bm.sty"
@@ -382,73 +345,73 @@ LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 138.
 LaTeX Info: Redefining \bm on input line 204.
 ) ("C:\Program Files\MiKTeX 2.9\tex\latex\eepic\eepic.sty"
 Extension to Epic and LaTeX. Version 1.1e - Released Dec 21, 1999
-\@gphlinewidth=\count125
-\@eepictcnt=\count126
-\@tempdimc=\dimen164
-\maxovaldiam=\dimen165
-\@filltype=\box33
+\@gphlinewidth=\count119
+\@eepictcnt=\count120
+\@tempdimc=\dimen159
+\maxovaldiam=\dimen160
+\@filltype=\box32
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 24.
- ("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.aux"
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.aux)
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.aux)
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.aux))
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
+Package hyperref Info: Option `colorlinks' set `true' on input line 26.
+ ("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.aux"
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.aux)
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.aux)
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.aux))
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
 
 ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count127
-\scratchdimen=\dimen166
-\scratchbox=\box34
-\nofMPsegments=\count128
-\nofMParguments=\count129
-\everyMPshowfont=\toks32
-\MPscratchCnt=\count130
-\MPscratchDim=\dimen167
-\MPnumerator=\count131
-\makeMPintoPDFobject=\count132
-\everyMPtoPDFconversion=\toks33
+\scratchcounter=\count121
+\scratchdimen=\dimen161
+\scratchbox=\box33
+\nofMPsegments=\count122
+\nofMParguments=\count123
+\everyMPshowfont=\toks29
+\MPscratchCnt=\count124
+\MPscratchDim=\dimen162
+\MPnumerator=\count125
+\makeMPintoPDFobject=\count126
+\everyMPtoPDFconversion=\toks30
 )
-\AtBeginShipoutBox=\box35
-Package hyperref Info: Link coloring ON on input line 30.
+\AtBeginShipoutBox=\box34
+Package hyperref Info: Link coloring ON on input line 32.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
 ("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count133
+\c@section@level=\count127
 )
-LaTeX Info: Redefining \ref on input line 30.
-LaTeX Info: Redefining \pageref on input line 30.
-LaTeX Info: Redefining \nameref on input line 30.
+LaTeX Info: Redefining \ref on input line 32.
+LaTeX Info: Redefining \pageref on input line 32.
+LaTeX Info: Redefining \nameref on input line 32.
 
-("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.out")
-("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.out")
+("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.out")
+("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.out")
 \@outlinefile=\write4
-LaTeX Font Info:    Try loading font information for U+msa on input line 30.
+LaTeX Font Info:    Try loading font information for U+msa on input line 32.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 30.
+LaTeX Font Info:    Try loading font information for U+msb on input line 32.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Package xypdf Info: Line width: 0.43799pt on input line 30.
+Package xypdf Info: Line width: 0.43799pt on input line 32.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -485,22 +448,22 @@ Package xypdf Info: Line width: 0.43799pt on input line 30.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 
-Overfull \hbox (4.44463pt too wide) in paragraph at lines 39--39
+Overfull \hbox (4.44463pt too wide) in paragraph at lines 41--41
  [][] 
  []
 
 [1
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
-("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.toc")
+("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.toc")
 \tf@toc=\write5
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.41 \include{chapter1}
+l.43 \include{chapter1}
                         [1
 
-] (C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.tex
+] (C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.tex
 Chapter 1.
 
 Underfull \hbox (badness 10000) in paragraph at lines 7--9
@@ -520,118 +483,119 @@ l.14
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 18--25
+Underfull \hbox (badness 10000) in paragraph at lines 18--19
 
  []
 
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 69--76
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--34
 
  []
 
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 86--88
+[2] [3]
+Underfull \hbox (badness 10000) in paragraph at lines 78--85
 
  []
 
-[4] <control1.pdf, id=150, 597.23125pt x 845.1575pt>
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 95--97
+
+ []
+
+<control1.pdf, id=157, 597.23125pt x 845.1575pt>
 File: control1.pdf Graphic file (type pdf)
  <use control1.pdf>
-Package pdftex.def Info: control1.pdf used on input line 94.
+Package pdftex.def Info: control1.pdf used on input line 103.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 94--95
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 103--104
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 107.388pt on input line 98.
+LaTeX Warning: Float too large for page by 124.58136pt on input line 107.
 
-<control2.pdf, id=151, 597.23125pt x 845.1575pt>
+<control2.pdf, id=158, 597.23125pt x 845.1575pt>
 File: control2.pdf Graphic file (type pdf)
  <use control2.pdf>
-Package pdftex.def Info: control2.pdf used on input line 102.
+Package pdftex.def Info: control2.pdf used on input line 111.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 102--103
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 111--112
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 107.388pt on input line 106.
+LaTeX Warning: Float too large for page by 107.388pt on input line 115.
 
-<control3.pdf, id=152, 597.23125pt x 845.1575pt>
+<control3.pdf, id=159, 597.23125pt x 845.1575pt>
 File: control3.pdf Graphic file (type pdf)
  <use control3.pdf>
-Package pdftex.def Info: control3.pdf used on input line 110.
+Package pdftex.def Info: control3.pdf used on input line 119.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 110--111
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 119--120
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 107.388pt on input line 114.
+LaTeX Warning: Float too large for page by 107.388pt on input line 123.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 122--126
+Underfull \hbox (badness 10000) in paragraph at lines 131--135
 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 128.
+[5] [6 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/control1.pdf>] [7 <C:/CrysFML/Program_Examples/Faults
+/Help/Manual_latex-files/control2.pdf>] [8 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/control3.pdf>]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 137.
+
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 128.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 137.
 
 
-LaTeX Warning: Command \r invalid in math mode on input line 131.
+LaTeX Warning: Command \r invalid in math mode on input line 140.
 
-[5] [6 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/control1.pdf>] [7 <C:/crysFML/Program_Examples/Faults
-/Help/Manual_latex-files/control2.pdf>] [8 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/control3.pdf>]
-[9]
-Underfull \hbox (badness 10000) in paragraph at lines 164--170
+[9] [10]
+Underfull \hbox (badness 10000) in paragraph at lines 173--179
 
  []
 
-[10] [11] [12] [13] [14]
-Underfull \hbox (badness 10000) in paragraph at lines 285--287
+[11] [12] [13] [14] [15]
+Underfull \hbox (badness 10000) in paragraph at lines 294--296
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 288--290
+Underfull \hbox (badness 10000) in paragraph at lines 297--299
 
  []
 
-[15] [16] [17] [18] [19] [20] [21]
-Overfull \hbox (1.83531pt too wide) in paragraph at lines 494--495
+[16] [17] [18] [19] [20] [21]
+Overfull \hbox (1.83531pt too wide) in paragraph at lines 503--504
 []\OT1/cmr/bx/n/10.95 NLS (Ins=4 in FP):  \OT1/cmr/m/n/10.95 Data file from N.L.S.(Brookhaven) syn-chrotron
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 496--500
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 515--520
+Underfull \hbox (badness 10000) in paragraph at lines 505--509
 
  []
 
 [22]
-Underfull \hbox (badness 10000) in paragraph at lines 532--537
+Underfull \hbox (badness 10000) in paragraph at lines 524--529
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 542--544
+Underfull \hbox (badness 10000) in paragraph at lines 541--546
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 551--554
+[23]
+Underfull \hbox (badness 10000) in paragraph at lines 551--553
 
  []
 
@@ -640,66 +604,70 @@ Underfull \hbox (badness 10000) in paragraph at lines 560--563
 
  []
 
-[23]
-Underfull \hbox (badness 10000) in paragraph at lines 568--570
+
+Underfull \hbox (badness 10000) in paragraph at lines 569--572
 
  []
 
-[24] <pgfexample.png, id=295, 1027.84pt x 770.88pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 577--579
+
+ []
+
+[24] [25] <pgfexample.png, id=310, 1027.84pt x 770.88pt>
 File: pgfexample.png Graphic file (type png)
  <use pgfexample.png>
-Package pdftex.def Info: pgfexample.png used on input line 618.
+Package pdftex.def Info: pgfexample.png used on input line 627.
 (pdftex.def)             Requested size: 505.89pt x 379.41656pt.
 
-Overfull \hbox (7.96895pt too wide) in paragraph at lines 618--619
+Overfull \hbox (7.96895pt too wide) in paragraph at lines 627--628
  [] 
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[25]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 631.
+(hyperref)                removing `math shift' on input line 640.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 631.
+(hyperref)                removing `math shift' on input line 640.
 
-<faultslayout.pdf, id=305, 368.9293pt x 187.47641pt>
-File: faultslayout.pdf Graphic file (type pdf)
- <use faultslayout.pdf>
-Package pdftex.def Info: faultslayout.pdf used on input line 642.
-(pdftex.def)             Requested size: 252.94499pt x 128.53784pt.
+[26] <faultslayout.jpg, id=319, 758.835pt x 474.27188pt>
+File: faultslayout.jpg Graphic file (type jpg)
+ <use faultslayout.jpg>
+Package pdftex.def Info: faultslayout.jpg used on input line 651.
+(pdftex.def)             Requested size: 252.94499pt x 158.08781pt.
 
-<faultslayout2.pdf, id=308, 522.52515pt x 496.9255pt>
-File: faultslayout2.pdf Graphic file (type pdf)
- <use faultslayout2.pdf>
-Package pdftex.def Info: faultslayout2.pdf used on input line 653.
-(pdftex.def)             Requested size: 361.34999pt x 343.65996pt.
+<faultslayout2.jpg, id=322, 758.835pt x 474.27188pt>
+File: faultslayout2.jpg Graphic file (type jpg)
+ <use faultslayout2.jpg>
+Package pdftex.def Info: faultslayout2.jpg used on input line 662.
+(pdftex.def)             Requested size: 361.34999pt x 225.84595pt.
 
-Overfull \hbox (2.84685pt too wide) in paragraph at lines 653--654
+Overfull \hbox (2.84685pt too wide) in paragraph at lines 662--663
  [] 
  []
 
-<faultsend.pdf, id=310, 517.25449pt x 367.42369pt>
-File: faultsend.pdf Graphic file (type pdf)
- <use faultsend.pdf>
-Package pdftex.def Info: faultsend.pdf used on input line 665.
-(pdftex.def)             Requested size: 505.89pt x 359.34953pt.
+<faultsend.jpg, id=324, 787.44188pt x 474.27188pt>
+File: faultsend.jpg Graphic file (type jpg)
+ <use faultsend.jpg>
+Package pdftex.def Info: faultsend.jpg used on input line 674.
+(pdftex.def)             Requested size: 505.89pt x 304.69086pt.
 
-Overfull \hbox (7.96895pt too wide) in paragraph at lines 665--666
+Overfull \hbox (7.96895pt too wide) in paragraph at lines 674--675
  [] 
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-) [26] [27 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/pgfexample.png>] [28 <C:/crysFML/Program_Examples
-/Faults/Help/Manual_latex-files/faultslayout.pdf>] [29 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/fault
-slayout2.pdf>] [30 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/faultsend.pdf>]
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.tex
+) [27] [28 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/pgfexample.png>] [29 <C:/CrysFML/Program_Examples
+/Faults/Help/Manual_latex-files/faultslayout.jpg> <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/faultslayo
+ut2.jpg>] [30 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/faultsend.jpg>]
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.tex
 Chapter 2.
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
@@ -713,7 +681,7 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 13.
 
-<LiNO_estructura.png, id=368, 758.835pt x 474.27188pt>
+<LiNO_estructura.png, id=348, 758.835pt x 474.27188pt>
 File: LiNO_estructura.png Graphic file (type png)
  <use LiNO_estructura.png>
 Package pdftex.def Info: LiNO_estructura.png used on input line 20.
@@ -730,26 +698,26 @@ l.27
 <to be read again> 
                    \relax 
 l.36 
-      [20 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/LiNO_estructura.png>]
-<transitions.png, id=387, 784.43062pt x 609.77812pt>
-File: transitions.png Graphic file (type png)
- <use transitions.png>
-Package pdftex.def Info: transitions.png used on input line 39.
-(pdftex.def)             Requested size: 289.07999pt x 224.72115pt.
+      [20 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/LiNO_estructura.png>]
+<transitions.jpg, id=366, 758.835pt x 474.27188pt>
+File: transitions.jpg Graphic file (type jpg)
+ <use transitions.jpg>
+Package pdftex.def Info: transitions.jpg used on input line 39.
+(pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
 
-<description.png, id=388, 758.835pt x 530.73282pt>
-File: description.png Graphic file (type png)
- <use description.png>
-Package pdftex.def Info: description.png used on input line 48.
-(pdftex.def)             Requested size: 433.62pt x 303.28209pt.
+<description.jpg, id=367, 758.835pt x 535.2497pt>
+File: description.jpg Graphic file (type jpg)
+ <use description.jpg>
+Package pdftex.def Info: description.jpg used on input line 48.
+(pdftex.def)             Requested size: 433.62pt x 305.8632pt.
 
-<Rp_Chi2_ab_grafika.png, id=389, 820.9872pt x 573.1011pt>
-File: Rp_Chi2_ab_grafika.png Graphic file (type png)
- <use Rp_Chi2_ab_grafika.png>
-Package pdftex.def Info: Rp_Chi2_ab_grafika.png used on input line 94.
+<Rp_Chi2_ab_grafika_2.jpg, id=368, 820.9872pt x 573.1011pt>
+File: Rp_Chi2_ab_grafika_2.jpg Graphic file (type jpg)
+ <use Rp_Chi2_ab_grafika_2.jpg>
+Package pdftex.def Info: Rp_Chi2_ab_grafika_2.jpg used on input line 94.
 (pdftex.def)             Requested size: 289.07999pt x 201.79517pt.
 
-<pattern.png, id=390, 1069.74657pt x 574.39594pt>
+<pattern.png, id=369, 1069.74657pt x 574.39594pt>
 File: pattern.png Graphic file (type png)
  <use pattern.png>
 Package pdftex.def Info: pattern.png used on input line 102.
@@ -757,87 +725,57 @@ Package pdftex.def Info: pattern.png used on input line 102.
 )pdfTeX warning (ext4): destination with the same identifier (name{page.21}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \include{chapter2}
-                        [21 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/transitions.png>]pdfTeX warning 
+l.44 \include{chapter2}
+                        [21 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/transitions.jpg>]pdfTeX warning 
 (ext4): destination with the same identifier (name{page.22}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \include{chapter2}
-                        [22 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/description.png>]pdfTeX warning 
+l.44 \include{chapter2}
+                        [22 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/description.jpg>]pdfTeX warning 
 (ext4): destination with the same identifier (name{page.23}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \include{chapter2}
+l.44 \include{chapter2}
                         [23]pdfTeX warning (ext4): destination with the same identifier (name{page.24}) has been already
  used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \include{chapter2}
-                        [24 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/Rp_Chi2_ab_grafika.png>]pdfTeX w
-arning (ext4): destination with the same identifier (name{page.25}) has been already used, duplicate ignored
+l.44 \include{chapter2}
+                        [24 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/Rp_Chi2_ab_grafika_2.jpg>]pdfTeX
+ warning (ext4): destination with the same identifier (name{page.25}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \include{chapter2}
-                        [25 <C:/crysFML/Program_Examples/Faults/Help/Manual_latex-files/pattern.png>]
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.tex
+l.44 \include{chapter2}
+                        [25 <C:/CrysFML/Program_Examples/Faults/Help/Manual_latex-files/pattern.png>]
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.tex
 
-LaTeX Warning: Command \i invalid in math mode on input line 7.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 7.
+LaTeX Warning: Command \i invalid in math mode on input line 12.
 
 
-Underfull \hbox (badness 3343) in paragraph at lines 7--8
-[]\OT1/cmr/m/n/10.95 Rodr$[]$guez-Carvajal J. and Gonzalez-Platas J., Crys-tal-lo-graphic
+LaTeX Warning: Command \i invalid in math mode on input line 12.
+
+
+LaTeX Warning: Command \i invalid in math mode on input line 14.
+
+
+LaTeX Warning: Command \i invalid in math mode on input line 14.
+
+
+Underfull \hbox (badness 2913) in paragraph at lines 14--15
+\OT1/cmr/m/n/10.95 Avail-able at: [][]$\OT1/cmtt/m/n/10.95 http : / / forge . epn-[]campus . eu / projects / crysfml /
  []
 
 
-Underfull \hbox (badness 6063) in paragraph at lines 7--8
-\OT1/cmr/m/n/10.95 tal-lo-graphic com-put-ing pro-grams. \OT1/cmr/m/it/10.95 IUCr Com-p-Comm. Newslet-
- []
+LaTeX Warning: Command \i invalid in math mode on input line 20.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 7--8
-\OT1/cmr/m/it/10.95 ter\OT1/cmr/m/n/10.95 , 1:50-58, 2003. Avail-able at: http://www.iucr.org/iucr-
- []
+LaTeX Warning: Command \i invalid in math mode on input line 20.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 8.
+LaTeX Warning: Command \i invalid in math mode on input line 20.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 8.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 8--9
-[]\OT1/cmr/m/n/10.95 Rodr$[]$guez-Carvajal J. and Gonzalez-Platas J.,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 8--9
-\OT1/cmr/m/n/10.95 CrysFML repos-i-tory. Avail-able at: http://forge.epn-
- []
-
-
-Underfull \hbox (badness 1152) in paragraph at lines 9--10
-[]\OT1/cmr/m/n/10.95 Treacy M.M.J., Deem M.W., and Newsam J.M. DIF-FaX Man-
- []
-
-
-Underfull \hbox (badness 1924) in paragraph at lines 9--10
-\OT1/cmr/m/n/10.95 ual, 2005, Chap 8: How DIF-FaX works (p48). Avail-able at:
- []
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 11.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 11.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 11.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 11.
+LaTeX Warning: Command \i invalid in math mode on input line 20.
 
 [1
 
@@ -845,88 +783,73 @@ LaTeX Warning: Command \i invalid in math mode on input line 11.
 
 ]
 
-LaTeX Warning: Command \i invalid in math mode on input line 12.
+LaTeX Warning: Command \i invalid in math mode on input line 22.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 12.
+LaTeX Warning: Command \i invalid in math mode on input line 22.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 13.
+LaTeX Warning: Command \i invalid in math mode on input line 24.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 13.
+LaTeX Warning: Command \i invalid in math mode on input line 24.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-[]\OT1/cmr/m/n/10.95 Rodr$[]$guez Car-va-jal J., Full-Prof Suite. Avail-able at
+LaTeX Warning: Command \i invalid in math mode on input line 26.
+
+
+LaTeX Warning: Command \i invalid in math mode on input line 26.
+
+
+LaTeX Warning: Command \i invalid in math mode on input line 29.
+
+
+LaTeX Warning: Command \i invalid in math mode on input line 29.
+
+
+Underfull \hbox (badness 1152) in paragraph at lines 31--32
+[]\OT1/cmr/m/n/10.95 Treacy M.M.J., Deem M.W., and Newsam J.M. DIF-FaX Man-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 14--15
-[]\OT1/cmr/m/n/10.95 Treacy M.M.J., Deem M.W., and Newsam
- []
+LaTeX Warning: Command \i invalid in math mode on input line 33.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 14--15
-\OT1/cmr/m/n/10.95 J.M. DIF-FaX Man-ual, 2005. Avail-able at:
- []
+LaTeX Warning: Command \i invalid in math mode on input line 33.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 15.
+LaTeX Warning: Command \i invalid in math mode on input line 35.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 15.
+LaTeX Warning: Command \i invalid in math mode on input line 35.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 17.
+LaTeX Warning: Command \i invalid in math mode on input line 37.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 17.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 17--18
-[]\OT1/cmr/m/n/10.95 Rodr$[]$guez Car-va-jal J., Full-Prof Man-ual. Avail-able at
- []
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 18.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 18.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 19.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 19.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 20.
-
-
-LaTeX Warning: Command \i invalid in math mode on input line 20.
+LaTeX Warning: Command \i invalid in math mode on input line 37.
 
 [2]) [3]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 50.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 50.
- ("C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.aux"
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.aux)
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.aux)
-(C:\crysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.aux))
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 50.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 50.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 52.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 52.
+ ("C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\FAULTS manual.aux"
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter1.aux)
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\chapter2.aux)
+(C:\CrysFML\Program_Examples\Faults\Help\Manual_latex-files\bibliography.aux))
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 52.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 52.
 Package rerunfilecheck Info: File `FAULTS*manual.out' has not changed.
 (rerunfilecheck)             Checksum: <no file>.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 50.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 52.
  ) 
 Here is how much of TeX's memory you used:
- 9515 strings out of 493921
- 128851 string characters out of 3147254
- 264127 words of memory out of 3000000
- 12542 multiletter control sequences out of 15000+200000
- 26700 words of font info for 99 fonts, out of 3000000 for 9000
+ 7964 strings out of 493921
+ 110605 string characters out of 3147273
+ 218205 words of memory out of 3000000
+ 11012 multiletter control sequences out of 15000+200000
+ 26868 words of font info for 100 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 29i,10n,33p,1508b,445s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 29i,10n,33p,1034b,453s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
 /amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Program Files/MiKTe
 X 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><
@@ -934,10 +857,11 @@ C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program
 fonts/cm/cmmi9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fo
 nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program 
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cms
-y10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "FAULTS manual.pdf" (42 pages, 1544814 bytes).
+y10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
+public/amsfonts/cm/cmtt10.pfb>
+Output written on "FAULTS manual.pdf" (42 pages, 1835538 bytes).
 PDF statistics:
- 487 PDF objects out of 1000 (max. 8388607)
- 90 named destinations out of 1000 (max. 500000)
- 189 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 485 PDF objects out of 1000 (max. 8388607)
+ 91 named destinations out of 1000 (max. 500000)
+ 197 words of extra memory for PDF output out of 10000 (max. 10000000)
 

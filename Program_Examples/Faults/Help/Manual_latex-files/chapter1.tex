@@ -4,13 +4,22 @@
 \setcounter{page}{1}
 
 
-FAULTS is a Fortran90 program to refine XRD and NPD patterns of crystal systems with any type of coherent planar defect.
+FAULTS is a Fortran90 program to refine X-ray Powder Diffraction (XRD) and Neutron Powder Diffraction (NPD) patterns of crystal systems with any type of coherent planar defect.
 This program is based on the DIFFaX program \cite{DiffaxPaper,DiffaxDownload} and on the CrysFML Fortran 95 crystallographic library \cite{CrysFMLPaper,CrysFMLDownload}. \\
 
 The DIFFaX program (Diffracted Intensities From Faulted Xtals) calculates diffraction intensities from defective crystals. 
 This tool has been widely used to interpret the diffraction data of one-dimensionally disordered systems and it is based on an algorithm that exploits the recurring patterns found in randomized stacking sequences to compute the average interference wavefunction scattered from each layer type occurring in a faulted crystal (mathematical details can be found in references \cite{DiffaxMaths,Hend1942}). However, as approximate or merely qualitative results sometimes are not sufficient for a thorough microstructural characterization, a computerized comparison of the DIFFaX calculated intensities with experimental data has been developed.
-The resulting code is the FAULTS program \cite{FAULTSPaper1,FAULTSPaper2,FPDownload}. The program  is distributed in the hope that it will be useful, but without any warranty of being free of internal errors.
+The resulting code is the FAULTS program \cite{FAULTSPaper1,FAULTSPaper2}. The program  is distributed in the hope that it will be useful, but without any warranty of being free of internal errors.
 The authors acknowledge all suggestions and notification of possible bugs found in the program.\\
+
+
+\section{Download and installation}
+
+FAULTS can be obtained either as part of the FullProf Suite \cite{FPDownload, FPPaper, FPManual} at \url{www.ill.eu/sites/fullprof/}, or as a separate program by downloading the compressed file FAULTS.zip at \url{www.cicenergigune.com/}.\\
+
+In the case the user chooses to install FAULTS with the FullProf Suite, the program FAULTS will be launched directly from the FullProf Suite Toolbar. 
+If the user uses FAULTS as a separate program, it will be launched from a DOS window, after having copied the file data.scf into the working folder.
+
 
 \section{Program specifications}
 
@@ -92,7 +101,7 @@ Below, each section, which has to begin with the corresponding keyword, is expla
 \begin{figure}[p]
 \begin{center}
 \includegraphics [width=5.5 in]{control1.pdf}
-\caption{\bf Example of input control file}
+\caption{\bf Example of input control file, corresponding to the ideal structure of $LiNiO_{2}$.}
 \label{control1}
 \end{center}
 \end{figure}
@@ -127,7 +136,7 @@ To refine the parameters that constitute this section it is not necessary to rec
 \begin{itemize}
 \item \textbf{Radiation type:} The line must begin with the keyword \textit{radiation}, followed by one of the different two options, which are  X-RAY and NEUTRON.
 \item \textbf{Wavelength:}  In addition to $\lambda_{1}$,  FAULTS reads also the value of $\lambda_{2}$ \thinspace%, que pren el valor de $\lambda_{1}$ en el cas de radiació monocromàtica,
-and the intensity ratio  $  {I_2}/ {I_1}$ (although in the case of monochromatic radiation it is only necessary to introduce $\lambda_{1}$).
+and the intensity ratio  ${I_2}/ {I_1}$ (although in the case of monochromatic radiation it is only necessary to introduce $\lambda_{1}$).
 $\lambda$ unit is $\AA$ and this line must begin with the keyword \textit{wavelength}.
 \item \textbf{Aberrations:} Keyword \textit{aberrations} followed by values for instrumental aberrations zero, sycos and sysin must be given. As they are refinable, refinement codes must be entered in the next line.
 \item \textbf{Profile parameters:} Instrumental and size broadening are treated differently than in DIFFaX.
@@ -616,7 +625,7 @@ An example of this file can be found in figure \ref{pgf}.
 \begin{sidewaysfigure}[h!]
 \begin{center}
 \includegraphics [width= 7.0 in]{pgfexample.png}
-\caption{\bf Example of obsrved and calculated profile plot}
+\caption{\bf Example of observed and calculated profile plot}
 \label{pgf}
 \end{center}
 \end{sidewaysfigure}
@@ -639,7 +648,7 @@ When the process is finished a \emph{*.flts} file is generated, containing the i
 
  \begin{figure}[hbtp]
 \begin{center}
-\includegraphics [width= 3.5 in]{faultslayout.pdf}
+\includegraphics [width= 3.5 in]{faultslayout.jpg}
 \caption{\bf  FAULTS layout when invoked}
 \label{faultslayout}
 \end{center}
@@ -650,7 +659,7 @@ During the refinement process, depending on the option chosen by the user (see t
 
  \begin{figure}[hbtp]
 \begin{center}
-\includegraphics [width= 5.0 in]{faultslayout2.pdf}
+\includegraphics [width= 5.0 in]{faultslayout2.jpg}
 \caption{\bf  FAULTS layout during refinement}
 \label{layout2}
 \end{center}
@@ -662,7 +671,7 @@ Once the refinement has finished, the list of the best values obtained for the r
 
 \begin{sidewaysfigure}[h!]
 \begin{center}
-\includegraphics [width= 7.0 in]{faultsend.pdf}
+\includegraphics [width= 7.0 in]{faultsend.jpg}
 \caption{\bf  FAULTS layout at the end of the refinement}
 \label{end}
 \end{center}
