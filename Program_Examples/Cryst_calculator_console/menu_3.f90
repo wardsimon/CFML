@@ -402,10 +402,10 @@
        write(unit=*,fmt="(a,3f12.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
        write(unit=*,fmt="(a,f12.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
+       write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.602176565e-29*pol
        write(unit=*,fmt="(a,3f12.4,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.17646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.02176565*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.176565*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0_cp,0.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
