@@ -1,4 +1,4 @@
-@echo off
+@echo on
 rem ****
 rem ****---- Compilation for CRYSCALCON Program ----****
 rem ****
@@ -40,13 +40,13 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c menu_0.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c menu_1.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c menu_2.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c menu_3.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c menu_4.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c menu_5.f90 /O2 /nologo /I..\..\ifort\LibC
-   ifort /c calsym.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c menu_0.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c menu_1.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c menu_2.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c menu_3.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c menu_4.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c menu_5.f90 /O3 /nologo /I..\..\ifort\LibC
+   ifort /c calsym.f90 /O3 /nologo /I..\..\ifort\LibC
    rem ifort /exe:CrysCalcon *.obj ..\..\ifort\LibC\crysfml.lib
    link /subsystem:console /out:CrysCalCon.exe *.obj ..\..\ifort\LibC\crysfml.lib
    goto END
@@ -97,4 +97,7 @@ rem **---- GFORTRAN Compiler ----**
    goto END
 rem
 :END
+   upx CrysCalCon.exe
+   if exist %FULLPROF% copy CrysCalCon.exe %FULLPROF% > nul
+   if exist %PROGCFML% copy CrysCalCon.exe %PROGCFML%\DistFPS\. > nul
    del *.obj *.mod *.o *.map *.bak > nul
