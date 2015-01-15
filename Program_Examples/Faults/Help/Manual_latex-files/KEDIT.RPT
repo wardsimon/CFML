@@ -1,0 +1,152 @@
+
+Fatal error detected by KEDIT module GP Fault at line 0
+
+Please save the file KEDIT.RPT and inform Mansfield Software Group
+ Internet: support@kedit.com
+ Phone: 1-860-429-8402
+ Fax: 1-860-487-1185
+
+Current date/time: 01/14/2015 11:58
+
+KEDIT Version 1.50W1, compiled Jun 17 1996 
+Module name = C:\Program Files\Kedit\Keditw.exe
+Command line arguments: "O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\FAULTS\Manual_latex-files_new\chapter1.tex"
+Environment options: (none)
+Initial profile: (none)
+
+Operating System Version 6.01
+Windows NT Version 6.1
+Memory in use = 52%
+Total physical memory = 2097151 Kbytes
+Physical memory available = 1590580 Kbytes
+Total virtual memory = 2097024 Kbytes
+Virtual memory available = 2019168 Kbytes
+
+1 file(s) in ring
+1 window(s) in ring
+
+OFPW ON
+INTERFACE CUA
+
+gpfs = 14336d0, gpvs = 14338d0, gpws = 1433bc0
+cursor=7,31 field_valid=1, idLType=6 field_type=1
+cursor pws = 1433bc0, fModifiable = 1, fModified = 0
+cursor offscreen=0, cursor scrolling=0
+real caret level=-1, fake caret level=0
+
+current file=O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\FAULTS\Manual_latex-files_new\chapter1.tex, size=738, focus_line=679
+window=1, window height=67, window width=206
+command = showdlg save
+token = O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\FAULTS\Manual_latex-files_new\chapter1.tex
+tail = 
+
+no block marked
+
+active language: KEXX
+KEXX macro "menu_file_save" line 1 column 14
+last keys hit = bksp 
+Recent command lines:
+
+Recent commands, etc.:
+ssave "O:\a) Research area\01 - Batteries & Supercaps\EES Re
+wmsg ssave "O:\a) Research area\01 - Batteries & Supercaps\E
+save "O:\a) Research area\01 - Batteries & Supercaps\EES Res
+nomsg save "O:\a) Research area\01 - Batteries & Supercaps\E
+showdlg save
+macro menu_file_save
+macro tool_save
+processing toolbutton: save
+set drag stream SELECTION anchor reset
+cursor screen 8 32
+extract /click/
+macro buttonxdown
+macro button1down
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /process/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+showdlg find
+macro tool_find
+processing toolbutton: find
+sos delback
+cursor revert
+set drag stream SELECTION anchor reset
+cursor screen 3 155
+extract /click/
+macro buttonxdown
+macro button1down
+sos endchar
+set drag stream SELECTION anchor reset
+cursor screen 3 195
+extract /click/
+macro buttonxdown
+macro button1down
+cursor column
+ cl    /plane/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+cursor column
+ cl    /plane/
+sos quickfindf
+macro tool_findnext
+processing toolbutton: findnext
+set drag stream SELECTION anchor reset
+cursor screen 35 65
+extract /click/
+macro buttonxdown
+macro button1down
+ cl    /i_plane/
+sos quickfindf
+
+pws = 1433bc0, pws->pfs = 14336d0, pws->pvs = 14338d0
+cslClient = 67, cscClient = 206
+slCurline = 1, slCmdline = 0
+fLayoutPending = 0, fFillinPending = 0, fRefreshPending = 1
+hwndDoc = 70930
+cxClient = 1655, cyClient = 874
+fMaximized = 0, fCreating = 0, fEverShown = 1, fShowMaximized = 0, fDestroying = 0, fIconic = 0
+Fileid for pvs 14338d0 = O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\FAULTS\Manual_latex-files_new\chapter1.tex
+focus line = 679, tor = 0, eor = 739
+messages: 0
+
+Fileid for pfs 14336d0 = O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\FAULTS\Manual_latex-files_new\chapter1.tex
+size = 738
+move_copy_lines:      00401000
+display_context_info: 0040c6a0
+
+Exception code = c0000005
+
+Instruction ptr: 30324c52
+
+
