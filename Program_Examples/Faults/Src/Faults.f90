@@ -213,10 +213,10 @@
 
     End subroutine Faults2diffax
 
-    subroutine calc_avcell(nvect_avcell,vect_avcell,verif)
-      integer , intent(in)                         ::    nvect_avcell    !number of transition vectors needed for calculating the average cell
-      character(len=7), dimension(:), intent(in)   ::    vect_avcell     !sequence of transition vectors to be stacked for calculating the average cell
-      logical , intent(out)                        ::    verif
+     subroutine calc_avcell(nlay_avcell,lay_avcell,verif)
+      integer , intent(in)       ::    nlay_avcell    !number of layers needed for calculating the average cell
+      integer , dimension(:), intent(in)       ::    lay_avcell     !sequence of layers to be stacked for calculating the average cell
+      logical , intent(out)      ::    verif
 
 
       real, dimension(3)   :: c_avcell               !c vector of the average cell
@@ -237,78 +237,60 @@
               Metric_Tensor(1,2)=cell_a * cell_b *cos(cell_gamma)
               Metric_Tensor(2,1)=Metric_Tensor(1,2)
 
-              do i=1,nvect_avcell
-                  txt=adjustl(vect_avcell(i))
-                  k=index(txt,"-")               !first, identify the transition vector
-                  key=txt(1:k-1)
-                  read(unit=key,fmt=*,iostat=ier) l       !layer origine
-                  if (ier /= 0)then
-                      write(unit=*,fmt="(a)") " => Error reading origin of vector ",i
-                      verif = .false.
-                      return
-                  end if
+              do i=1,nlay_avcell
+                  l=lay_avcell(i)                        !layer origine
+                  j=lay_avcell(i+1)                      !layer destination
+                  
+   ! write(unit=*,fmt="(a,i2,a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l, "goes to layer", j
 
-    !write(unit=*,fmt="(a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l
-
-                  key=txt(k+1:)
-                  read(unit=key,fmt=*,iostat=ier) j       !layer destination
-                       if (ier /= 0)then
-                           write(unit=*,fmt="(a)") " => Error reading destination of vector ",i
-                           verif = .false.
-                           return
-                       end if
-
-    !write(unit=*,fmt="(a,i2,a,i2)") "For average cell, vector ", i, " goes to layer ", j
-
-                     c_avcell=c_avcell+l_r(:,j,l)     !calculate the vector C of the average cell in the FAULTS cell
-
-!   write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
-
-              end do
+                  c_avcell=c_avcell+l_r(:,j,l)     !calculate the vector C of the average cell in the FAULTS cell
+                  
+   ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
+                  
+               end do
 
               write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") " => The average c vector is ",  c_avcell
 
               c_avnorm=(/ c_avcell(1)*cell_a, c_avcell(2)*cell_b, c_avcell(3)*cell_c /)
 
-    !write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "(for norm calculation) ",  c_avnorm(1), c_avnorm(2), c_avnorm(3)
+   ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "(for norm calculation) ",  c_avnorm(1), c_avnorm(2), c_avnorm(3)
 
-    !write(unit=*,fmt="(a)") "Now calculate the cell parameters of the average cell"
+   ! write(unit=*,fmt="(a)") "Now calculate the cell parameters of the average cell"
 
                                                        !now calculate the cell parameters of the average cell
              aver_cell(1)=cell_a                       !a from DIFFAX variable
 
-    !write(unit=*,fmt="(a,f12.5)") "a=", aver_cell(1)
+   ! write(unit=*,fmt="(a,f12.5)") "a=", aver_cell(1)
 
              aver_cell(2)=cell_b                       !b from DIFFAX variable
 
-    !write(unit=*,fmt="(a,f12.5)") "b=", aver_cell(2)
+   ! write(unit=*,fmt="(a,f12.5)") "b=", aver_cell(2)
 
              !aver_cell(3)=Euclidean_norm(3,c_avnorm)   !c
              !aver_cell(3)=sqrt(dot_product(c_avnorm,c_avnorm)+ 2.0*c_avnorm(1)*c_avnorm(2)*cos(cell_gamma))
              aver_cell(3)=sqrt(dot_product(c_avcell,matmul(Metric_Tensor,c_avcell)))
 
-    !write(unit=*,fmt="(a,f12.5)") "c=", aver_cell(3)
+   ! write(unit=*,fmt="(a,f12.5)") "c=", aver_cell(3)
 
              aver_ang(1)= &
              !acosd(dot_product(c_avcell,unitb)/(Euclidean_norm(3,c_avcell)))    !alpha
              acosd(dot_product(unitb,Matmul(Metric_Tensor,c_avcell))/(aver_cell(2)*aver_cell(3)))    !alpha
 
 
-    !write(unit=*,fmt="(a,f12.5)") "alpha=", aver_ang(1)
+   ! write(unit=*,fmt="(a,f12.5)") "alpha=", aver_ang(1)
 
              aver_ang(2)= &
              !acosd(dot_product(c_avcell,unita)/(Euclidean_norm(3,c_avcell)))    !beta
              acosd(dot_product(unita,Matmul(Metric_Tensor,c_avcell))/(aver_cell(1)*aver_cell(3)))    !alpha
 
-    !write(unit=*,fmt="(a,f12.5)") "beta=", aver_ang(2)
+   ! write(unit=*,fmt="(a,f12.5)") "beta=", aver_ang(2)
 
              aver_ang(3)=cell_gamma*rad2deg            !gamma from DIFFAX variable
 
-    !write(unit=*,fmt="(a,f12.5)") "gamma=", aver_ang(3)
+   ! write(unit=*,fmt="(a,f12.5)") "gamma=", aver_ang(3)
 
          return
     end subroutine calc_avcell
-
 
     Subroutine Write_ftls(crys,i_ftls, vs)
        !-----------------------------------------------
@@ -379,9 +361,9 @@
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          " STRUCTURAL  "
        if(aver_cellcalc) then
-          write(i_ftls,"(/,a)")        "!    Stacking vectors to be stacked and their names to calculate the average cell "
-          write(i_ftls,"(a,i2)")       "CalcAverCell ", nvect_avcell
-          write(i_ftls,"(25a7)")       (vect_avcell(m),m=1,nvect_avcell)
+          write(i_ftls,"(/,a)")        "!    Layers to be stacked to calculate the average cell "
+          write(i_ftls,"(a,i2)")       "CalcAverCell ", nlay_avcell
+          write(i_ftls,"(25i3)")           lay_avcell(1:nlay_avcell)
        end if
        if(aver_cellgiven) then
           write(i_ftls,"(/,a)")        "!    Average cell parameters (for Bragg positions in PRF file) "
@@ -486,7 +468,13 @@
        write(i_ftls,"(a)")     " CALCULATION  "
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
-         write(i_ftls,"(3f10.4)")     th2_min, th2_max, d_theta
+         if (funct_num == 3) then 
+           write(i_ftls,"(a)")          " !th2_min, th2_max, d_theta"
+           write(i_ftls,"(a, 3f10.4)")  "POWDER",   th2_min, th2_max, d_theta
+         else
+         	 write(i_ftls,"(a)")          " !i_plane, l_upper, loglin, brightness"
+         	 write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
+         end if	 
        elseif (opt == 3) then
          write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
          write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
@@ -769,8 +757,8 @@
        !Calculate average Bragg positions in case the average cell and space group has been given
 
        if(aver_cellcalc) then
-write(unit=*,fmt="(a)") " => Calculating average cell ... "
-           call calc_avcell(nvect_avcell,vect_avcell,verif)
+         write(unit=*,fmt="(a)") " => Calculating average cell ... "
+           call calc_avcell(nlay_avcell,lay_avcell,verif)
            if (.not. verif)then
                 write(unit=*,fmt="(a)") " => ERROR calculating the average cell"
                 write(unit=*,fmt="(a)") " => No tick marks for pseudo-reflections in PRF file"
@@ -897,6 +885,7 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
 
        RETURN
     End Subroutine Write_Prf
+
 
   End module Dif_compl
 !________________________________________________________________________________________________________________
@@ -1335,23 +1324,9 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
 
             WRITE(op,"(a)") ' => Start simulation'
           ! What type of intensity output does the user want?
-           10  IF(ok) THEN
-              ! WRITE(op,"(a)") 'Enter function number: '
-              ! WRITE(op,"(a)") '0 POINT, 1 STREAK, 2 INTEGRATE, 3 POWDER PATTERN, 4 SADP : '
-              ! READ(cntrl,*,END=999) n
-                n=3 !Powder pattern
-             END IF
+         
 
-            ! Do what the user asked for.
-             IF(ok) THEN
-
-                IF(n == 0) THEN
-                   CALL point(ok)
-                ELSE IF(n == 1) THEN
-                   CALL gostrk(infile,outfile,ok)
-                ELSE IF(n == 2) THEN
-                   CALL gointr(ok)
-                ELSE IF(n == 3) THEN
+                IF(funct_num == 3) THEN
                    write(unit=*,fmt="(a)") " => Calculating powder diffraction pattern"
                    CALL gospec(infile,outfile,ok)
 
@@ -1373,20 +1348,20 @@ write(unit=*,fmt="(a)") " => Calculating average cell ... "
 
                     CLOSE(UNIT = iout)
                     ok = .true.
-                ELSE IF(n == 4) THEN
+                ELSE IF(funct_num == 4) THEN
                    CALL gosadp(infile,outfile,ok)
                 ELSE
                    WRITE(op,"(a)") ' => Unknown function type.'
                 END IF
 
-              END IF
+             
 
 
-              IF(ok .AND. n /= 3) THEN
-              96   WRITE(op,"(a)") ' => Enter 1 to return to function menu.'
-                   READ(cntrl,*,ERR=96,END=999) fn_menu
-                   IF(fn_menu == 1) GO TO 10
-              END IF
+        !     IF(ok .AND. n /= 3) THEN
+        !     96   WRITE(op,"(a)") ' => Enter 1 to return to function menu.'
+        !          READ(cntrl,*,ERR=96,END=999) fn_menu
+        !          IF(fn_menu == 1) GO TO 10
+        !     END IF
 
 !
           Case (4) !LMQ

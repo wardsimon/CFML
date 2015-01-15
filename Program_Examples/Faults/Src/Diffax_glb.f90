@@ -443,7 +443,7 @@
   INTEGER, dimension(MAX_A,MAX_L) :: a_type     !d-> type of each atom in each layer (a_type <= MAX_TA)
   INTEGER  :: blurring     !d->      -  Type of instrumental broadening to simulate.
                            !            Choices are; PS_VGT, GAUSS, LORENZ
-  INTEGER  ::  bitdepth    !i->  The bit-depth of the selected area diffraction.
+  INTEGER  ::  bitdepth = 16    !i->  The bit-depth of the selected area diffraction.
                            !     pattern (sadp) data. Can equal 8 or 16.
   INTEGER  :: bckg_points  ! number of background points
 
@@ -475,7 +475,7 @@
   INTEGER, dimension(XP_MAX) :: l_seq , l_seqdef  !d-> array containing the explicitly defined sequence of layers.
                                         !    Used only if 'xplcit' = TRUE
 
-  INTEGER  :: loglin      !i->  1 if logarithmic scaling of SADP data is required
+  INTEGER  :: loglin      !i->  1 if logarithmic scaling of SADP data is required ,  0: - Logarithmic  1: - Linear
 
   integer    :: numcal = 0
 
@@ -526,6 +526,11 @@
 
   integer,          dimension(:),     allocatable  :: original
   integer                                          :: fls, lls, otls, stls
+  
+  integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
+  integer :: i_adapt = 1  !Adaptive quadrature always applied
+  integer :: funct_num ! Function number: 3=powder pattern, 4=SADP
+  
 !
 !**********************     REAL(kind=dp) variables
 !
@@ -546,7 +551,7 @@
 
  REAL(kind=dp)  :: bnds_wt    !  Equals 1.0 if rot_only is TRUE, otherwise equals 0.5
                        !  if rot_only is FALSE (ie there is a vertical mirror)
- REAL(kind=dp)  :: brightness !?
+ REAL(kind=dp)  :: brightness ! For SADP simulations
  REAL(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.
 
  REAL(kind=dp)  :: DEG2RAD    !     Conversion factor for degrees to radians
@@ -615,8 +620,11 @@
  REAL(kind=dp)  ::  Wb         !i-> In-plane width of crystal perpendicular to
                         !    a-direction. Wx and Wy in Angstroms.
 
- real(kind=sp)    :: rpo         !lowest rp
- real(kind=sp)    :: chi2o       !lowest chi2
+ real(kind=sp)  :: rpo         !lowest rp
+ real(kind=sp)  :: chi2o       !lowest chi2
+ 
+ real(kind=dp)  :: l_upper         !upper limit of l, used in SADP simulations
+ 
  REAL(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
 
  REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer

@@ -63,8 +63,7 @@
       stp = maxstk
 ! get first integration
       sum3 = glq16(h, k, a, b, ok)
-
-
+      
       IF(.NOT.ok) GO TO 999
       n2 = 2
       n = 0
@@ -1563,7 +1562,13 @@
       write(dmp,"(a)")     " CALCULATION  "
         if (opt == 0) then
           write(dmp,"(a)")          " SIMULATION"
-          write(dmp,"(3f10.4)")     th2_min, th2_max, d_theta
+          if (funct_num == 3) then 
+            write(dmp,"(a)")          " !th2_min, th2_max, d_theta"
+            write(dmp,"(a, 3f10.4)")  "POWDER", th2_min, th2_max, d_theta
+          else
+         	  write(dmp,"(a)")          " !i_plane, l_upper, loglin, brightness"
+         	  write(dmp,"(a, i7, f11.4, i7, f10.4)")  "SADP",   i_plane, l_upper, loglin, brightness
+          end if	  
         elseif (opt == 3) then
           write(dmp,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
           write(dmp,"(a,i4)")          " MXFUN  ", opti%mxfun
@@ -2146,7 +2151,7 @@
           ELSE
             x = fn(h,k,l,l+dl,ok)
             IF(.NOT.ok) GO TO 999
-            IF(rad_type == x_ray) x = x*w4(angle(h,k,l+half*dl))
+            IF(rad_type == x_ray) x = x*w4(angle(h,k,l+half*dl))            
           END IF
           cnt = cnt + 1
 ! make sure we do not overflow
@@ -3956,8 +3961,8 @@
       CHARACTER (LEN=*), INTENT(OUT)           :: outfile
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER :: i_adapt, i_plane, io_err, hk_lim
-      Real(kind=dp)   l_upper
+      INTEGER :: io_err, hk_lim
+      !Real(kind=dp)   l_upper
 
 ! external functions
 
@@ -3972,55 +3977,59 @@
       end if
       IF(.NOT. ok) GO TO 999
 ! Open unformatted for binary write.
-      IF(sa /= op) OPEN(UNIT = sa, FILE = outfile, STATUS = 'new',  &
-          FORM = 'unformatted', ERR = 990, IOSTAT = io_err)
+!      if(sa.ne.op) open(unit = sa, file = outfile, status = 'new',
+!     |       form = 'unformatted', err = 990, iostat = io_err)
+       if(sa.ne.op) open(unit=sa, file=outfile, access="stream",  &
+       status="replace", action="write", convert= 'BIG_ENDIAN',   &
+       form="unformatted")
 ! some compilers need the following added for true binary output
 !     |       ,recordtype = 'stream'
 
       WRITE(op,100) ' '
     !  WRITE(op,100)'CALCULATING SELECTED AREA DIFFRACTION PATTERN. . .'
 
-      1234 WRITE(op,100) 'Enter 1 for adaptive quadrature.'
-      READ(cntrl,*,ERR=1234) i_adapt
-      IF(cfile) WRITE(op,101) i_adapt
+!     1234 WRITE(op,100) 'Enter 1 for adaptive quadrature.'
+!      READ(cntrl,*,ERR=1234) i_adapt
+!      IF(cfile) WRITE(op,101) i_adapt
+       
 
-      1 WRITE(op,100) 'Choose a plane in reciprocal space to view.'
-      WRITE(op,100) '       the l-axis is included by default.'
-      WRITE(op,100) '1: k = 0.   2: h = 0.   3: h = k.   4: h = -k.'
-      READ(cntrl,*,ERR=1) i_plane
-      IF(cfile) WRITE(op,101) i_plane
-      IF(i_plane < 1 .OR. i_plane > 4) THEN
-        IF(cfile) THEN
-          WRITE(op,100) 'Illegal choice. Default is k = 0.'
-          i_plane = 1
-        ELSE
-          WRITE(op,100) 'Illegal choice. Choose again.'
-          GO TO 1
-        END IF
-      END IF
+!      1 WRITE(op,100) 'Choose a plane in reciprocal space to view.'
+!      WRITE(op,100) '       the l-axis is included by default.'
+!      WRITE(op,100) '1: k = 0.   2: h = 0.   3: h = k.   4: h = -k.'
+!      READ(cntrl,*,ERR=1) i_plane
+!      IF(cfile) WRITE(op,101) i_plane
+!      IF(i_plane < 1 .OR. i_plane > 4) THEN
+!        IF(cfile) THEN
+!          WRITE(op,100) 'Illegal choice. Default is k = 0.'
+!          i_plane = 1
+!        ELSE
+!          WRITE(op,100) 'Illegal choice. Choose again.'
+!          GO TO 1
+!        END IF
+!      END IF
 
 ! Get upper bounds. The SADP will be square, so we only need one bound.
 ! Choose l-axis, since this is common to all 4 views and makes scaling
 ! simpler if more than one SAD pattern is requested.
-      2345 WRITE(op,100) 'Enter maximum value of l.'
-      READ(cntrl,*,ERR=2345) l_upper
-      IF(cfile) WRITE(op,104) l_upper
+!      2345 WRITE(op,100) 'Enter maximum value of l.'
+!      READ(cntrl,*,ERR=2345) l_upper
+!      IF(cfile) WRITE(op,104) l_upper
 
 ! 8-bit images or 16-bit images?
- 3456 write(op,100) 'Choose the bit-depth of the image.'
-      write(op,100) '   8: - 8-bits  16: - 16-bits    :  '
-      read(cntrl,*,err=3456) bitdepth
-      if(CFile) write(op,101) bitdepth
-      if(bitdepth /= 8 .and. bitdepth /= 16) then
-        write(op,100) 'Illegal bit-depth.'
-        if(CFile) then
-          write(op,100) 'Using 8-bit as the default'
-          bitdepth = 8
-        else
-          write(op,100) 'Re-enter. . .  '
-          goto 3456
-        endif
-      endif
+! 3456 write(op,100) 'Choose the bit-depth of the image.'
+!      write(op,100) '   8: - 8-bits  16: - 16-bits    :  '
+!      read(cntrl,*,err=3456) bitdepth
+!      if(CFile) write(op,101) bitdepth
+!      if(bitdepth /= 8 .and. bitdepth /= 16) then
+!        write(op,100) 'Illegal bit-depth.'
+!        if(CFile) then
+!          write(op,100) 'Using 8-bit as the default'
+!          bitdepth = 8
+!        else
+!          write(op,100) 'Re-enter. . .  '
+!          goto 3456
+!        endif
+!      endif
       if(bitdepth == 16) then
 ! Bypass issue of signed or unsigned format. Use range 0 - 32767 only.
         write(op,100) 'File will be saved in unsigned 16-bit format.'
@@ -4031,56 +4040,57 @@
       endif
 
 ! Logarithmic or linear intensity scaling?
-      2 WRITE(op,100) 'Choose intensity scaling'
-      WRITE(op,100) '   0: - Logarithmic  1: - Linear'
-      READ(cntrl,*,ERR=2) loglin
-      IF(cfile) WRITE(op,101) loglin
-      IF(loglin < 0 .OR. loglin > 1) THEN
-        WRITE(op,100) 'Illegal intensity scaling type.'
-        IF(cfile) THEN
-          WRITE(op,100) 'Using linear as the default'
-          loglin = 1
-        ELSE
-          WRITE(op,100) 'Re-enter. . . '
-          GO TO 2
-        END IF
-      END IF
+!      2 WRITE(op,100) 'Choose intensity scaling'
+!      WRITE(op,100) '   0: - Logarithmic  1: - Linear'
+!      READ(cntrl,*,ERR=2) loglin
+!      IF(cfile) WRITE(op,101) loglin
+!      IF(loglin < 0 .OR. loglin > 1) THEN
+!        WRITE(op,100) 'Illegal intensity scaling type.'
+!        IF(cfile) THEN
+!          WRITE(op,100) 'Using linear as the default'
+!          loglin = 1
+!        ELSE
+!          WRITE(op,100) 'Re-enter. . . '
+!          GO TO 2
+!        END IF
+!      END IF
 
 ! By how much do we wish to saturate?
-    3 write(op,100) 'Enter a brightness (must be +ve)'
-      if(bitdepth == 16) then
-        write(op,100)'  1 - scales intensities to the range 0 - 32767'
-        write(op,100)' 10 - scales intensities to the range 0 - 327670,'
-        write(op,100)'      but values above 65535 will be saturated'
-      else
-        write(op,100)'  1 - scales intensities to the range 0 - 255'
-        write(op,100)' 10 - scales intensities to the range 0 - 2550,'
-        write(op,100)'      but values above 255 will be saturated'
-      endif
-      READ(cntrl,*,ERR=3) brightness
-      IF(cfile) WRITE(op,104) brightness
-      IF(brightness <= zero) THEN
-        WRITE(op,100) 'Illegal value for brightness. Must be positive'
-        IF(cfile) THEN
-          IF(loglin == 0) THEN
-            WRITE(op,100) 'Using default of 1 for logarithmic scaling'
-            brightness = one
-          ELSE
-            WRITE(op,100) 'Using default of 10 for linear scaling'
-            brightness = ten
-          END IF
-        ELSE
-          IF(loglin == 0) THEN
-            WRITE(op,100) '1 is a good default for logarithmic scaling'
-          ELSE
-            WRITE(op,100) '10 is a good default for linear scaling'
-          END IF
-          WRITE(op,100) 'Re-enter. . . '
-          GO TO 3
-        END IF
-      END IF
-
+!    3 write(op,100) 'Enter a brightness (must be +ve)'
+!      if(bitdepth == 16) then
+!        write(op,100)'  1 - scales intensities to the range 0 - 32767'
+!        write(op,100)' 10 - scales intensities to the range 0 - 327670,'
+!        write(op,100)'      but values above 65535 will be saturated'
+!      else
+!        write(op,100)'  1 - scales intensities to the range 0 - 255'
+!        write(op,100)' 10 - scales intensities to the range 0 - 2550,'
+!        write(op,100)'      but values above 255 will be saturated'
+!      endif
+!      READ(cntrl,*,ERR=3) brightness
+!      IF(cfile) WRITE(op,104) brightness
+!      IF(brightness <= zero) THEN
+!        WRITE(op,100) 'Illegal value for brightness. Must be positive'
+!        IF(cfile) THEN
+!          IF(loglin == 0) THEN
+!            WRITE(op,100) 'Using default of 1 for logarithmic scaling'
+!            brightness = one
+!          ELSE
+!            WRITE(op,100) 'Using default of 10 for linear scaling'
+!            brightness = ten
+!          END IF
+!        ELSE
+!          IF(loglin == 0) THEN
+!            WRITE(op,100) '1 is a good default for logarithmic scaling'
+!          ELSE
+!            WRITE(op,100) '10 is a good default for linear scaling'
+!          END IF
+!          WRITE(op,100) 'Re-enter. . . '
+!          GO TO 3
+!        END IF
+!      END IF
+!
 ! Generate intensity data for the SAD pattern.
+
       IF(i_adapt == 1) THEN
         CALL getsad(aglq16, i_plane, l_upper, hk_lim, infile, ok)
       ELSE
@@ -6528,7 +6538,7 @@
       end if
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '               _______ FAULTS 2014 _______             '
+      WRITE(iw,"(a)") '               _______ FAULTS 2015 _______             '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
@@ -6544,7 +6554,7 @@
       WRITE(iw,"(a)") '      Marine Reynaud           (CIC Energigune)        '
       WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '                   [version: Dec. 2014]                '
+      WRITE(iw,"(a)") '                   [version: Jan. 2015]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")
@@ -7175,7 +7185,6 @@
       20 i = i + 1
       IF(i >= i_max+1) THEN
         WRITE(op,100) 'No peaks were found in spectrum.'
-        write(*,*) th2_max, th2_min, d_theta
         GO TO 900
       END IF
 ! locate the first minimum after the huge peak at the origin
@@ -7770,112 +7779,72 @@
 
       INTEGER*4 i, j, p1, p2, irow(sadsize)
       Real(kind=dp) rowint(sadsize), incr, sigma, x
-      integer(kind=2), dimension(sadsize) :: short_data
+      integer(kind=2), dimension(sadsize*sadsize) :: short_data    !The image is written in 16 bits and stored by column order
       integer(kind=2),          parameter :: zero_2bytes=0
 
 ! external subroutine (Some compilers need them declared external)
 !      external SMUDGE
 
-      WRITE(op,102) 'Writing SADP data to file ''',  &
-          outfile(1:length(outfile)), '''. . .'
-
+     write(op,102) 'Writing SADP data to file ''', &
+       outfile(1:LENGTH(outfile)), '''. . .'
+!
 ! set standard deviation
-      sigma = zero
+      sigma = ZERO
 
 ! Establish scaling in reciprocal space, the number of pixels per unit
 ! first get number of pixels per l
-      incr = DBLE(sadsize/2) / l_upper
-      IF(view == 1) THEN
+      incr = dble(SADSIZE/2) / l_upper
+      if(view.eq.1) then
 ! number of pixels per unit h
-        incr = incr * SQRT(a0 / c0)
-      ELSE IF(view == 2) THEN
+        incr = incr * sqrt(a0 / c0)
+      else if(view.eq.2) then
 ! number of pixels per unit k
-        incr = incr * SQRT(b0 / c0)
-      ELSE IF(view == 3) THEN
+        incr = incr * sqrt(b0 / c0)
+      else if(view.eq.3) then
 ! number of pixels per unit along (h = k)
-        incr = incr * SQRT((a0 + b0 + d0) / c0)
-      ELSE IF(view == 4) THEN
+        incr = incr * sqrt((a0 + b0 + d0) / c0)
+      else if(view.eq.4) then
 ! number of pixels per unit along (h = -k)
-        incr = incr * SQRT((a0 + b0 - d0) / c0)
-      END IF
+        incr = incr * sqrt((a0 + b0 - d0) / c0)
+      endif
 
-      DO  j = sadblock - 1, 0, -1
-        DO  i = 1, sadsize
-          rowint(i) = zero
-        END DO
-        DO  i = 0, hk_lim
-          p1 = sadsize/2 + nint(i*incr) + 1
-          p2 = sadsize/2 - nint(i*incr) + 1
-
+      do 10 j = sadblock - 1, 0, -1
+        do 20 i = 1, SADSIZE
+          rowint(i) = ZERO
+   20   continue
+        do 30 i = 0, hk_lim
+          p1 = SADSIZE/2 + nint(i*incr) + 1
+          p2 = SADSIZE/2 - nint(i*incr) + 1
 ! cycle if we have gone out of bounds
-          IF(p1 > sadsize .OR. p1 < 0) THEN
-            CYCLE
-          END IF
-          IF(p2 > sadsize .OR. p2 < 0) THEN
-            CYCLE
-          END IF
+          if(p1.gt.SADSIZE .or. p1.lt.0) then
+            goto 30
+          endif
+          if(p2.gt.SADSIZE .or. p2.lt.0) then
+            goto 30
+          endif
 
           x = spec(i*sadblock + j + 1) * scaleint
 ! handle saturated pixels
-          IF(x > maxsad) x = maxsad
+          if(x.gt.maxsad) x = maxsad
           rowint(p1) = x
-          IF(has_l_mirror) THEN
+          if(has_l_mirror) then
             rowint(p2) = x
-          ELSE
+          else
             x = spec(i*sadblock + sadblock - j) * scaleint
 ! handle saturated pixels
-            IF(x > maxsad) x = maxsad
+            if(x.gt.maxsad) x = maxsad
             rowint(p2) = x
-          END IF
-        END DO
-        CALL smudge(rowint, sadsize, sigma, ok)
-        IF(.NOT. ok) GO TO 999
-        IF(bitdepth == 8) THEN
-          WRITE(sa,ERR=900) (CHAR(nint(rowint(i))), i = 1, sadsize)
-        ELSE
-          do  i = 1, SADSIZE
-            irow(i)=nint(rowint(i))
-            if( irow(i) > 65535) then
-              short_data(i) = -1
-            else if( irow(i) > 32767) then
-              short_data(i) = irow(i) - 65536
-            else
-              short_data(i) = irow(i)
-            end if
-          end do
-          write(sa,err=900) (short_data(i), i = 1, SADSIZE)
-        END IF
-      END DO
-
-! Repeat, in reverse for the bottom half if data had a mirror.
-      IF(has_l_mirror) THEN
-        DO  j = 1, sadblock - 1
-          DO  i = 1, sadsize
-            rowint(i) = zero
-          END DO
-          DO  i = 0, hk_lim
-            p1 = sadsize/2 + nint(i*incr) + 1
-            p2 = sadsize/2 - nint(i*incr) + 1
-
-! cycle if we have gone out of bounds
-            IF(p1 > sadsize .OR. p1 < 0) THEN
-              CYCLE
-            END IF
-            IF(p2 > sadsize .OR. p2 < 0) THEN
-              CYCLE
-            END IF
-
-            x = spec(i*sadblock + j + 1) * scaleint
-! handle saturated pixels
-            IF(x > maxsad) x = maxsad
-            rowint(p1) = x
-            rowint(p2) = x
-          END DO
-          CALL smudge(rowint, sadsize, sigma, ok)
-          IF(.NOT. ok) GO TO 999
-          IF(bitdepth == 8) THEN
-            WRITE(sa,ERR=900) (CHAR(nint(rowint(i))), i = 1, sadsize)
-          ELSE
+          endif
+   30   continue
+        call SMUDGE(rowint, SADSIZE, sigma, ok)
+        if(.not.ok) goto 999
+        if(bitdepth.eq.8) then
+          write(sa,err=900) (char(nint(rowint(i))), i = 1, SADSIZE)
+        else
+! Known bug: Writing 16-bit binary is problematic on Intel processors
+!            write(sa,err=900)
+!     | (char(int(rowint(i)/256)),
+!     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
             do  i = 1, SADSIZE
               irow(i)=nint(rowint(i))
               if( irow(i) > 65535) then
@@ -7887,35 +7856,94 @@
               end if
             end do
             write(sa,err=900) (short_data(i), i = 1, SADSIZE)
-          END IF
-        END DO
+        endif
+   10 continue
+!
+! Repeat, in reverse for the bottom half if data had a mirror.
+      if(has_l_mirror) then
+        do 40 j = 1, sadblock - 1
+          do 50 i = 1, SADSIZE
+            rowint(i) = ZERO
+   50     continue
+          do 60 i = 0, hk_lim
+            p1 = SADSIZE/2 + nint(i*incr) + 1
+            p2 = SADSIZE/2 - nint(i*incr) + 1
+! cycle if we have gone out of bounds
+            if(p1.gt.SADSIZE .or. p1.lt.0) then
+              goto 60
+            endif
+            if(p2.gt.SADSIZE .or. p2.lt.0) then
+              goto 60
+            endif
+
+            x = spec(i*sadblock + j + 1) * scaleint
+! handle saturated pixels
+            if(x.gt.maxsad) x = maxsad
+            rowint(p1) = x
+            rowint(p2) = x
+   60     continue
+          call SMUDGE(rowint, SADSIZE, sigma, ok)
+          if(.not.ok) goto 999
+          if(bitdepth.eq.8) then
+            write(sa,err=900) (char(nint(rowint(i))), i = 1, SADSIZE)
+          else
+! Known bug: Writing 16-bit binary is problematic on Intel processors
+!            write(sa,err=900)
+!     | (char(int(rowint(i)/256)),
+!     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
+!            write(sa,err=900) (iidnnt(rowint(i)), i = 1, SADSIZE)
+            do  i = 1, SADSIZE
+              irow(i)=nint(rowint(i))
+              if( irow(i) > 65535) then
+                short_data(i) = -1
+              else if( irow(i) > 32767) then
+                short_data(i) = irow(i) - 65536
+              else
+                short_data(i) = irow(i)
+              end if
+            end do
+            write(sa,err=900) (short_data(i), i = 1, SADSIZE)
+          endif
+   40   continue
 ! write a blank last line to make the array SADSIZE x SADSIZE square
-        IF(bitdepth == 8) THEN
-          WRITE(sa,ERR=900) (CHAR(0), i = 1, sadsize)
-        ELSE
+        if(bitdepth.eq.8) then
+          write(sa,err=900) (char(0), i = 1, SADSIZE)
+        else
+          !write(sa,err=900) (char(0), i = 1, 2*SADSIZE)
           write(sa,err=900) (zero_2bytes, i = 1, 2*SADSIZE)
-        END IF
-      END IF
+        endif
+      endif
 
-      IF(sa /= op) CLOSE(UNIT = sa, ERR = 990)
+      if(sa.ne.op) close(unit = sa, err = 990)
 
-      WRITE(op,103) sadsize, ' x ', sadsize, ' pixels: ', bitdepth, ' bits deep.'
+! MMJT 19th May 2010
+      write(op,103) SADSIZE, ' x ', SADSIZE, ' pixels: ',   &
+                   bitdepth, ' bits deep.'
+      write(op,100) ' (Caution: Because of a compiler-dependent issue'
+      write(op,100) '  the true image width in pixels is found by'
+      if(bitdepth.eq.8) then
+        write(op,100) '  dividing the file size in bytes by 256.)'
+      else
+        write(op,100) '  dividing the file size in bytes by 512.'
+        write(op,100) '  The byte-order is big-endian.)'
+      endif
 
-      RETURN
-      900 WRITE(op,100) 'ERROR: problems writing to binary SADP file.'
+      return
+  900 write(op,100) 'ERROR: problems writing to binary SADP file.'
       ok = .false.
-      RETURN
-      990 WRITE(op,100) 'ERROR: problems closing binary SADP file.'
+      return
+  990 write(op,100) 'ERROR: problems closing binary SADP file.'
       ok = .false.
-      RETURN
-      999 WRITE(op,100) 'ERROR: SMUDGE returned error to WRTSAD.'
-      WRITE(op,101) i, j
-      RETURN
-      100 FORMAT(1X, a)
-      101 FORMAT(5X, 'with local variables i = ', i5, ' j = ', i5)
-      102 FORMAT(1X, 3A)
-      103 FORMAT(1X, i4, a, i4, a, i2, a)
-      END SUBROUTINE wrtsad
+      return
+  999 write(op,100) 'ERROR: SMUDGE returned error to WRTSAD.'
+      write(op,101) i, j
+      return
+  100 format(1x, a)
+  101 format(5x, 'with local variables i = ', i5, ' j = ', i5)
+  102 format(1x, 3a)
+  103 format(1x, i4, a, i4, a, i2, a)
+
+      end subroutine wrtsad
 
 ! ______________________________________________________________________
 ! Title: WRTSPC

@@ -136,9 +136,9 @@
       type (LSQ_Conditions_type),      save,  public  :: cond
       type (LSQ_State_Vector_Type),    save,  public  :: Vs
       real, dimension (3),                    public  :: aver_cell, aver_ang
-      character(len=7),   dimension(max_avercell),   public  :: vect_avcell !sequence of transition vectors to be stacked for calculating the average cell
+      integer, dimension(max_avercell),       public  :: lay_avcell          !sequence of layers to be stacked for calculating the average cell
       character(len=180), dimension(max_fst),   public  :: fst_cmd          !Commands for FP_STUDIO
-      integer,                                public  :: nvect_avcell       !number of transition vectors needed for calculating the average cell
+      integer,                                public  :: nlay_avcell         !number of layers needed for calculating the average cell
       Real, dimension(:,:),     allocatable,  public  :: bgr_patt
       Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
       integer, dimension(:,:,:),allocatable,  public  :: bgr_hkl_ind
@@ -213,7 +213,7 @@
       !do i = 1, numberl                 ! To read in case insensitive mode
       !  call u_case(tfile(i))
       !end do
-      call Set_Sections_index()
+      call Set_Sections_index() 
       return
     End Subroutine Set_TFile
 
@@ -610,7 +610,7 @@
 
           Case("CALCAVERCELL")
                 write(unit=*,fmt="(a)") " => An average cell will be calculated at the end of the refinement."
-                read(unit=txt, fmt=*, iostat=ier) nvect_avcell          !read number of transition vectors to be read
+                read(unit=txt, fmt=*, iostat=ier) nlay_avcell          !read number of layers to be read
                 if (ier /= 0)then
                     Err_crys=.true.
                     Err_crys_mess="ERROR reading the number of transition vectors for calculating the average cell"
@@ -625,7 +625,9 @@
                     if(txt(1:1) == "!")cycle
                     exit
                 end do
-                read (unit=txt, fmt=*, iostat=ier) vect_avcell(1:nvect_avcell)   !read transition vectors for calculating the average cell
+                read (unit=txt, fmt=*, iostat=ier) lay_avcell(1:nlay_avcell)   !read layers for calculating the average cell
+                lay_avcell(nlay_avcell+1)=lay_avcell(1)                        !to find the last vector needed for the average cell,
+                                                                               !we suppose that the last layer is the same as the first one
                 if (ier /= 0)then
                     Err_crys=.true.
                     Err_crys_mess="ERROR reading the transition vectors for calculating the average cell"
@@ -1298,7 +1300,7 @@
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lmq, ok_boxp, ok_maxfun, &
-                 ok_range, ok_corrmax, ok_tol, ok_nprint
+                 ok_range, ok_corrmax, ok_tol, ok_nprint, ok_sadp
 
       logi=.true.
       i1=sect_indx(7)
@@ -1313,7 +1315,7 @@
 
       ok_sim=.false.; ok_opt=.false.; ok_eps=.false.; ok_acc=.false.; ok_iout=.false.; ok_mxfun=.false.
       ok_lmq=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false. ; ok_nprint=.false.
-      ok_range=.false.
+      ok_range=.false.; ok_sadp=.false.
 
 
       do
@@ -1329,13 +1331,14 @@
           Case ('REPLACE_FILES')  !Tune the opening output files to replace previous files
              replace_files = .true.
 
-          Case ('SIMULATION')
-
-            i=i+1; if(i > i2) exit
-            txt=adjustl(tfile(i))
-
-            if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
-            if(len_trim(txt) /= 0) then ! Reading range
+          Case ('SIMULATION')   
+            opt = 0
+            ok_sim = .true.
+          
+          Case ("POWDER")
+          	k=index(txt," ")
+            txt=adjustl(txt(k+1:))
+            funct_num = 3
               read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
                 if(ier /= 0 ) then
                   Err_crys=.true.
@@ -1386,20 +1389,42 @@
               thmax=th2_max
               step_2th=d_theta
               n_high = nint((th2_max-th2_min)/d_theta+1.0_dp)
-              !th2_min = th2_min * deg2rad
-              !th2_max = th2_max * deg2rad
-              !d_theta = half * deg2rad * d_theta
+              write(*,"(a,3f7.2 )") " => 2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
+              th2_min = th2_min * deg2rad
+              th2_max = th2_max * deg2rad
+              d_theta = half * deg2rad * d_theta
               ok_range=.true.
-
-            end if
-            if(.not. ok_range) then
-              WRITE(op,"(a)") ' => ERROR: No 2theta range has been provided in CALCULATION instruction.'
-              logi = .false.
-              RETURN
-            end if
-            opt = 0
-            ok_sim = .true.
-
+         
+          Case ("SADP")	   
+              k=index(txt," ")
+              txt=adjustl(txt(k+1:)) 
+              funct_num = 4
+            	read (unit = txt, fmt = *, iostat=ier) i_plane, l_upper, loglin, brightness
+                        	
+            	if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading SADP parameters"
+                  logi=.false.
+                  return
+              end if
+            	if(i_plane < 1 .or. i_plane > 4) then
+                WRITE(op,"(a)") ' => ERROR: Illegal reciprocal plane choice'
+                logi = .false.
+                return
+              end if  
+              if(loglin < 0 .or. loglin > 1) then
+                WRITE(op,"(a)") ' => ERROR: Illegal intensity scaling type.'   
+                logi = .false.
+                return
+              end if   
+              if(brightness <= ZERO) then
+                WRITE(op,"(a)") ' => ERROR: Illegal value for brightness. Must be positive' 
+            	  logi = .false.
+                return
+              end if  
+              ok_sadp = .true.   
+             
+          
           Case ("LMQ")
             opt=4
             txt=adjustl(txt(k+1:))
@@ -1526,8 +1551,9 @@
             cycle
           End Select
       end do
-
-     if(ok_sim) then
+     
+          
+     if(ok_sim .and. (ok_range .or. ok_sadp)) then
        return
      else if (ok_opt .and. ok_acc .and. ok_mxfun .and. ok_eps .and. ok_iout) then
        return
@@ -1929,15 +1955,8 @@
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-         else
-
-          if (opt == 0) then
-            write(*,"(a,3f7.2 )") " => 2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
-            th2_min = th2_min * deg2rad
-            th2_max = th2_max * deg2rad
-            d_theta = half * deg2rad * d_theta
-          end if
          end if
+                
 
         if (opt /= 0) then !not necessary for simulation
 
