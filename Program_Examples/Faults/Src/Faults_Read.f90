@@ -898,7 +898,7 @@
             d(r)=d(r)+1
 
             call getword(txt, citem, nitem)
-            if(nitem/=7) then
+            if(nitem<7) then
               write(unit=*,fmt="(3a,i3)")" => ERROR reading atomic parameters. Parameter missing in atom ", &
                                              trim(citem(2))," from layer ", r
               logi=.false.
