@@ -482,7 +482,7 @@
          write(i_ftls,"(a, i2)")          " IOUT  ", opti%iout
          write(i_ftls,"(a,f10.7)")          " ACC  ", opti%acc
        elseif (opt == 4) then
-         write(i_ftls,"(a)")          " LMQ"
+         write(i_ftls,"(a)")          " LMA"
          if (Cond%constr) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
          write(i_ftls,"(a,i4)")    " Corrmax    ", cond%corrmax
          write(i_ftls,"(a,i4)")    " Maxfun     ", cond%icyc
@@ -908,7 +908,7 @@
 
     implicit none
 
-    public  ::  Cost_LMQ, apply_aberrations
+    public  ::  Cost_LMA, apply_aberrations
     type (diffraction_pattern_type), save :: difpat
     integer, parameter, public            :: iout = 25,i_out=20
 
@@ -916,7 +916,7 @@
     contains
 
 
-!! Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)      Cost_LMQ, Nop, Cond, Vs, chi2, texte
+!! Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)      Cost_LMA, Nop, Cond, Vs, chi2, texte
 !!--..            Integer,                     Intent(In)      :: m        !Number of observations
 !!--..            type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
 !!--..            type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
@@ -935,7 +935,7 @@
 !!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
 !!--..         End Interface No_Fderivatives
 
-    Subroutine Cost_LMQ(m,npar,v,fvec,iflag)                 !Levenberg Marquardt
+    Subroutine Cost_LMA(m,npar,v,fvec,iflag)                 !Levenberg Marquardt
       Integer,                       Intent(In)    :: m      !is the number of observations
       Integer,                       Intent(In)    :: npar   !is the number of free parameters
       Real (Kind=cp),Dimension(:),   Intent(In)    :: v      !List of free parameters values
@@ -967,7 +967,7 @@
            if(.not. ok) then
              write(*,"(a)") " => Error calculating spectrum, please check the input parameters"
            else
-             call calc_fullpat_lmq(difpat, fvec, chi2,rf)
+             call calc_fullpat_lma(difpat, fvec, chi2,rf)
            end if
            numcal = numcal + 1  !Counter for optimz, detun, etc
            if(chi2 < chiold) then
@@ -999,7 +999,7 @@
            if(.not. ok) then
              write(*,"(a)") " => Error calculating spectrum, please check the input parameters"
            else
-             call calc_fullpat_lmq(difpat, fvec, chi2, rf)
+             call calc_fullpat_lma(difpat, fvec, chi2, rf)
            end if
            !fvec(1:m)=svdfvec(1:m)
 
@@ -1016,7 +1016,7 @@
       IF(cfile) CLOSE(UNIT = cntrl)
       return
 
-    End subroutine Cost_LMQ
+    End subroutine Cost_LMA
 
     Subroutine Bck_Chebychev(bk)
       real, dimension(:), intent(out) :: bk
@@ -1038,7 +1038,7 @@
     End Subroutine Bck_Chebychev
 
 
-    Subroutine calc_fullpat_lmq(pat, fvec, chi2,r)
+    Subroutine calc_fullpat_lma(pat, fvec, chi2,r)
       type (diffraction_pattern_type), intent(in out):: pat
       Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
       real,                            Intent(   out):: chi2, r
@@ -1083,7 +1083,7 @@
       !chi2= c/(punts-opti%npar)
       chi2= c/(pat%npts-opti%npar)  !Use all points => this makes Chi2 smaller but consistent with
       return                        !the calculation in CrysFML
-    End subroutine calc_fullpat_lmq
+    End subroutine calc_fullpat_lma
 
     Subroutine Pattern_Calculation(state,ok)
       real, dimension(:), intent(in) :: state
@@ -1364,9 +1364,9 @@
         !     END IF
 
 !
-          Case (4) !LMQ
+          Case (4) !LMA
 
-            WRITE(op,"(a)") ' => Start LMQ refinement'
+            WRITE(op,"(a)") ' => Start LMA refinement'
 
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
@@ -1374,7 +1374,7 @@
               vector(i) = crys%Pv_refi(i)
             end do
 
-            call Levenberg_Marquardt_Fit(cost_LMQ, difpat%npts, cond, Vs, chi2, infout)
+            call Levenberg_Marquardt_Fit(cost_LMA, difpat%npts, cond, Vs, chi2, infout)
 
             !Output the final list of refined parameters
             Call Info_LSQ_LM(Chi2,op,Cond,Vs)

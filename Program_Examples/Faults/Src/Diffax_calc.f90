@@ -1576,7 +1576,7 @@
           write(dmp,"(a, i2)")          " IOUT  ", opti%iout
           write(dmp,"(a,f10.7)")          " ACC  ", opti%acc
         elseif (opt == 4) then
-          write(dmp,"(a)")          " LMQ"
+          write(dmp,"(a)")          " LMA"
           if (Cond%constr) write(dmp,"(a,f5.2)")          " BOXP    " , Cond%percent
           write(dmp,"(a,i4)")    " CORRMAX    ", cond%corrmax
           write(dmp,"(a,i4)")    " MAXFUN     ", cond%icyc

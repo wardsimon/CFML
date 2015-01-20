@@ -1299,7 +1299,7 @@
       integer :: i,i1,i2,k, ier,n, j
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lmq, ok_boxp, ok_maxfun, &
+      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lma, ok_boxp, ok_maxfun, &
                  ok_range, ok_corrmax, ok_tol, ok_nprint, ok_sadp
 
       logi=.true.
@@ -1314,7 +1314,7 @@
 
 
       ok_sim=.false.; ok_opt=.false.; ok_eps=.false.; ok_acc=.false.; ok_iout=.false.; ok_mxfun=.false.
-      ok_lmq=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false. ; ok_nprint=.false.
+      ok_lma=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false. ; ok_nprint=.false.
       ok_range=.false.; ok_sadp=.false.
 
 
@@ -1425,7 +1425,7 @@
               ok_sadp = .true.   
              
           
-          Case ("LMQ")
+          Case ("LMA")
             opt=4
             txt=adjustl(txt(k+1:))
             Cond%constr=.false.
@@ -1484,9 +1484,9 @@
              ok_nprint=.true.
 
             if (Cond%constr .and. ok_corrmax .and. ok_tol .and. ok_maxfun) then
-              ok_lmq=.true.
+              ok_lma=.true.
             elseif(ok_corrmax .and. ok_tol .and. ok_maxfun .and. ok_nprint .and. .not. Cond%constr ) then
-              ok_lmq=.true.
+              ok_lma=.true.
             end if
 
 
@@ -1557,7 +1557,7 @@
        return
      else if (ok_opt .and. ok_acc .and. ok_mxfun .and. ok_eps .and. ok_iout) then
        return
-     else if (ok_lmq) then
+     else if (ok_lma) then
        return
      else
         Err_crys=.true.
@@ -1973,7 +1973,7 @@
         call Update_all(Lcode_max)
         crys%npar=np
 
-        if (opt == 4) then         !construction of some optimization variables  (LMQ)
+        if (opt == 4) then         !construction of some optimization variables  (LMA)
           if (np==0) then                                                        !
             write(*,"(a)") " => WARNING: No parameters are being refined!"  !NIK
           end if                                                                 !
