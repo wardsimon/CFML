@@ -493,7 +493,7 @@
        integer                                      :: i,j,k,n,n1,n2,np,L,nL
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2,nn
        integer                                      :: i1,j1,k1,sig1,sig2
-       integer                                      :: jbvs
+       integer                                      :: jbvs=63
        integer,      dimension(:),     allocatable  :: ind
        real(kind=cp)                                :: rx1,ry1,rz1,qval,dif,q1,q2,rep,p,s,cose
        real(kind=cp)                                :: sbvs, dd, occ, radius,sig,dmin, rho, coor,&
@@ -672,7 +672,7 @@
 
        !---- Export a File ----!
        !call Get_LogUnit(jbvs)
-       open(newunit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
+       open(unit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
 
        write (unit=jbvs, fmt='(a)') "BVEL Map Calculations using Bond_STR Program"
        write (unit=jbvs, fmt='(a)') "BVEL Map for species "//trim(car)
@@ -754,7 +754,7 @@
        integer                                      :: i,j,k,n,n1,n2,np,L,nL
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2,nn
        integer                                      :: i1,j1,k1,sig1,sig2
-       integer                                      :: jbvs,npix
+       integer                                      :: jbvs=63,npix
        integer,      dimension(:),     allocatable  :: ind
        real(kind=cp)                                :: rx1,ry1,rz1,qval,dif,q1,q2,rep,p,s
        real(kind=cp)                                :: sbvs, dd, occ, radius,sig,dmin, cose
@@ -943,8 +943,7 @@
        if(.not. present(delta)) call sort(VD_peaks,np,ind)
        !---- Export a File ----!
        !call Get_LogUnit(jbvs)
-       open(newunit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
-
+       open(unit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
        write (unit=jbvs, fmt='(a)') "BVS Map Calculations using Bond_STR Program"
        write (unit=jbvs, fmt='(a)') "BVS Map for species "//trim(car)
        write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang

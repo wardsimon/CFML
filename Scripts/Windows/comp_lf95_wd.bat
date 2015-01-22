@@ -29,6 +29,7 @@ rem
    lf95 -c CFML_optimization_lsq.f90 -g  -chk   >> out
    lf95 -c CFML_sym_table.f90        -g  -chk   >> out
    lf95 -c CFML_chem_scatt.f90       -g  -chk   >> out
+   lf95 -c CFML_BVSpar.f90           -g  -chk   >> out
    lf95 -c CFML_diffpatt.f90         -g  -chk   >> out
 rem
    echo **---- Level 2 ----**
@@ -57,6 +58,7 @@ rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
+   lf95 -c CFML_Export_Vtk_LF95.f90  -g  -chk   >> out
    lf95 -c CFML_maps.f90             -g  -chk   >> out
    lf95 -c CFML_molecules.f90        -g  -chk   >> out
    lf95 -c CFML_conf_calc.f90        -g  -chk   >> out
