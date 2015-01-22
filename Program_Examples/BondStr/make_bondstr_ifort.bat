@@ -11,6 +11,7 @@ rem
 rem
 rem Update FullProf Distribution
 rem
+   if exist %PROGCFML% copy bond_str.exe %PROGCFML%\DistFPS
    if exist %FULLPROF% copy bond_str.exe %FULLPROF%
 rem
 rem Clean several files
