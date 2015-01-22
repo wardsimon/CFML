@@ -489,21 +489,18 @@
        integer,       optional,     intent(out):: npix
 
        !---- Local variables ----!
-       character(len=4)                             :: car,atm,chem
-       integer                                      :: i,j,k,n,n1,n2,np,L,nL
-       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2,nn
+       character(len=4)                             :: car,atm
+       integer                                      :: i,j,k,n,n1,n2,np 
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2 
        integer                                      :: i1,j1,k1,sig1,sig2
        integer                                      :: jbvs=63
-       integer,      dimension(:),     allocatable  :: ind
-       real(kind=cp)                                :: rx1,ry1,rz1,qval,dif,q1,q2,rep,p,s,cose
-       real(kind=cp)                                :: sbvs, dd, occ, radius,sig,dmin, rho, coor,&
-                                                       rzero,rcutoff,dzero, alpha,c_rep,c_atr
+       real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
+       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, &
+                                                       dzero, alpha,c_rep,c_atr
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
-       real(kind=cp), dimension(:,:),   allocatable :: peaks
-       real(kind=cp), dimension(:),     allocatable :: VD_peaks
        type (Atom_list_Type)                        :: At1, At2
-       logical                                      :: new_peak,anion,cation
+       logical                                      :: anion,cation
        !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
        real(kind=cp), parameter :: ke=14.399644850445155254866066
        !Principal quantum numbers of the test=ion  and the species of all the atoms of the list
@@ -750,14 +747,14 @@
        real(kind=cp), optional,     intent(out):: vol
 
        !---- Local variables ----!
-       character(len=4)                             :: car,atm,chem
+       character(len=4)                             :: car,atm 
        integer                                      :: i,j,k,n,n1,n2,np,L,nL
-       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2,nn
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2 
        integer                                      :: i1,j1,k1,sig1,sig2
        integer                                      :: jbvs=63,npix
        integer,      dimension(:),     allocatable  :: ind
        real(kind=cp)                                :: rx1,ry1,rz1,qval,dif,q1,q2,rep,p,s
-       real(kind=cp)                                :: sbvs, dd, occ, radius,sig,dmin, cose
+       real(kind=cp)                                :: sbvs, dd, occ, radius,sig, cose
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
        real(kind=cp), dimension(:,:),   allocatable :: peaks
@@ -1338,8 +1335,7 @@
       character(len=*), intent(in) :: nam
       real(kind=cp),    intent(out):: radius
       !--- Local variables ---!
-      character(len=2) :: car
-      integer :: i,j,oxs
+      integer :: i 
       radius=0.0
       do i=1,Ap_species_n
         if(nam == Ap_Table(i)%Symb) then
@@ -1384,7 +1380,7 @@
 
        !---- Local Variables ----!
        integer :: i,j,k,L,ia,ic,ac,an
-       real(kind=cp) :: rmin,d0,cn,qc,qa,b0,r0
+       real(kind=cp) :: rmin,d0,cn,b0,r0
        real(kind=cp),parameter :: f1=0.9185, f2=0.2285 !in eV units
 
        if (A%N_Spec == 0) then
