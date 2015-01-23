@@ -1,11 +1,11 @@
 #!/bin/sh
-# Script to compile the Program: cryscalc
+# Script to compile the Program: cryscalcon
 #
 if [ a$1 = a ]
 then
 cat << !
-make_cryscalc : Make the cryscalc Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Linux)
-Syntax        : make_cryscalc af95:g95:ifort:lf95:gfortran
+make_cryscalc : Make the cryscalcon Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Linux)
+Syntax        : make_cryscalcon af95:g95:ifort:lf95:gfortran
 !
 exit
 fi
@@ -127,19 +127,20 @@ $COMP $OPT1 calsym.f90    $INC
 case $COMP
 in
   'af95')
-     $COMP *.o  -o cryscalc -static $LIB $LIBSTATIC
+     $COMP *.o  -o cryscalcon -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o cryscalc  $LIB $LIBSTATIC
+     $COMP *.o  -o cryscalcon  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o cryscalc  $LIB $LIBSTATIC
+     $COMP *.o  -o cryscalcon  $LIB $LIBSTATIC
      ;;
   'ifort')
-     $COMP *.o -o cryscalc -static-intel $LIB $LIBSTATIC
+     $COMP *.o -o cryscalcon -static-intel $LIB $LIBSTATIC
      ;;
   'lf95')
-     $COMP *.o --out cryscalc --staticlink $LIB $LIBDYNAMIC
+     $COMP *.o --out cryscalcon --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
 rm -rf *.o *.mod
+mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon
