@@ -490,10 +490,9 @@
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm
-       integer                                      :: i,j,k,n,n1,n2,np
+       integer                                      :: i,j,k,n,n1,n2,np,jbvs
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                      :: i1,j1,k1,sig1,sig2
-       integer                                      :: jbvs=63
        real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
        real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, &
                                                        dzero, alpha,c_rep,c_atr
@@ -504,7 +503,7 @@
        !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
        real(kind=cp), parameter :: ke=14.399644850445155254866066
        !Principal quantum numbers of the test=ion  and the species of all the atoms of the list
-       real(kind=cp) :: n_tion
+       real(kind=cp) :: n_tion, ferfc
        real(kind=cp), dimension(:), allocatable :: n_j
        logical :: all_present
 
@@ -628,6 +627,7 @@
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
+                   ferfc=erfc(drmax/rho)/drmax
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
@@ -635,7 +635,7 @@
                             dd=Distance(pto,pta,Cell)
                             if (dd > drmax) cycle
                             if (sig1 == sig2) then
-                                rep=rep + c_rep*(erfc(dd/rho)-erfc(drmax/rho))/dd
+                                rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
                             else
                                sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
@@ -668,7 +668,7 @@
        end if
 
        !---- Export a File ----!
-       !call Get_LogUnit(jbvs)
+       call Get_LogUnit(jbvs)
        open(unit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
 
        write (unit=jbvs, fmt='(a)') "BVEL Map Calculations using Bond_STR Program"
