@@ -490,8 +490,8 @@
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm
-       integer                                      :: i,j,k,n,n1,n2,np 
-       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2 
+       integer                                      :: i,j,k,n,n1,n2,np
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                      :: i1,j1,k1,sig1,sig2
        integer                                      :: jbvs=63
        real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
@@ -637,7 +637,7 @@
                             if (sig1 == sig2) then
                                 rep=rep + c_rep*(erfc(dd/rho)-erfc(drmax/rho))/dd
                             else
-                               sbvs=sbvs+ c_atr*(exp(alpha*(dmin-dd))-1.0)**2-1.0
+                               sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
                          end do
                       end do
@@ -747,9 +747,9 @@
        real(kind=cp), optional,     intent(out):: vol
 
        !---- Local variables ----!
-       character(len=4)                             :: car,atm 
+       character(len=4)                             :: car,atm
        integer                                      :: i,j,k,n,n1,n2,np,L,nL
-       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2 
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                      :: i1,j1,k1,sig1,sig2
        integer                                      :: jbvs=63,npix
        integer,      dimension(:),     allocatable  :: ind
@@ -1335,7 +1335,7 @@
       character(len=*), intent(in) :: nam
       real(kind=cp),    intent(out):: radius
       !--- Local variables ---!
-      integer :: i 
+      integer :: i
       radius=0.0
       do i=1,Ap_species_n
         if(nam == Ap_Table(i)%Symb) then
