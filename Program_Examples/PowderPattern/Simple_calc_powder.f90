@@ -119,7 +119,7 @@
        Pat%Tset=300.0
        Pat%npts=npts
        Pat%ct_step=.true.
-       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0/)
+       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0,0.0,0.0/)
        chw=15.0
        do i=1,npts
           Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
@@ -410,9 +410,9 @@
         write(unit=lp,fmt="(8f16.4)") Pat%ycalc+PPC%bkg
         ! Alternative two-column output (comment two previous lines and uncomment the following ones)
 		!write(unit=lp,fmt="(a)") "! twotheta  countrate "
-        !do i=1,Pat%npts 
+        !do i=1,Pat%npts
         !    write(unit=lp,fmt="(2f16.4)") Pat%xmin+i*Pat%step,Pat%ycalc(i)+PPC%bkg
-        !end do 
+        !end do
       close(unit=lun)
 
       stop

@@ -69,7 +69,7 @@
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
     Use CFML_GlobalDeps,                 only: Sp,Cp
-    Use CFML_Math_General,               only: Sort_Strings,Sort
+    Use CFML_Math_General,               only: Sort_Strings,Sort,cosd
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
@@ -632,7 +632,7 @@
                       do j1=ny1,ny2
                          do i1=nx1,nx2
                             pta=At2%Atom(n)%x+real((/i1,j1,k1/))
-                            dd=Distance(pto,pta,Cell)
+                            dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
                             if (dd > drmax) cycle
                             if (sig1 == sig2) then
                                 rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
@@ -875,7 +875,7 @@
                          do i1=nx1,nx2
                             pta=At2%Atom(n)%x+real((/i1,j1,k1/))
                             occ=At2%Atom(n)%VarF(1)
-                            dd=Distance(pto,pta,Cell)
+                            dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
                             if (dd > drmax) cycle
                             if (sig1 == sig2) then
                                rep=rep + (sig/dd)**18

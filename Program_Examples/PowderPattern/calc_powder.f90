@@ -131,7 +131,7 @@
        Pat%Tset=300.0
        Pat%npts=npts
        Pat%ct_step=.true.
-       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0/)
+       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0,0.0,0.0/)
        chw=15.0
        do i=1,npts
           Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
@@ -527,7 +527,8 @@
        call cpu_time(tfin)
        tim=tim+ tfin-tini
        call factim(tfin-tini,time)
-       write(*,"(2(a,i8))") "  => Total number of effectively generated reflections is ",hkl%nref, "  Starting estimate was: ",MaxNumRef
+       write(*,"(2(a,i8))") "  => Total number of effectively generated reflections is ",hkl%nref, &
+                            "  Starting estimate was: ",MaxNumRef
        write(*,*) " => CPU-time used for Hkl_Uni: ",(tfin-tini)*ftim,units
        write(unit=lun,fmt="(a,i9)") " => Total number of generated reflections is ",hkl%nref
        write(unit=lun,fmt="(a,f15.3,a)") " => CPU-time used for Hkl_Uni: ",(tfin-tini)*ftim,units
