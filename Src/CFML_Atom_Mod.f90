@@ -1311,12 +1311,12 @@ Contains
        A%Wyck     ="."
        A%Active   =.true.
        A%Z        =0
-       A%Mult     =1
+       A%Mult     =0
        A%X        =0.0
        A%X_Std    =0.0
        A%MX       =0.0
        A%LX       =0
-       A%Occ      =1.0
+       A%Occ      =0.0
        A%Occ_Std  =0.0
        A%MOcc     =0.0
        A%LOcc     =0
