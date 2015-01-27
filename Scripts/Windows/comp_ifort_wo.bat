@@ -30,6 +30,7 @@ rem
    ifort /c CFML_optimization_lsq.f90 /O2 /nologo /Qvec-report0
    ifort /c CFML_sym_table.f90        /Od /nologo /Qvec-report0
    ifort /c CFML_chem_scatt.f90       /Od /nologo /Qvec-report0
+   ifort /c CFML_BVSpar.f90           /Od /nologo /Qvec-report0
    ifort /c CFML_diffpatt.f90         /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 2 ----**
@@ -58,9 +59,9 @@ rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
-   ifort /c CFML_molecules.f90        /O2 /nologo /Qvec-report0
    ifort /c CFML_Export_Vtk.f90       /O2 /nologo /Qvec-report0
    ifort /c CFML_maps.f90             /O2 /nologo /Qvec-report0
+   ifort /c CFML_molecules.f90        /O2 /nologo /Qvec-report0
    ifort /c CFML_conf_calc.f90        /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 6 ----**
