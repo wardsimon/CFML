@@ -597,10 +597,14 @@
       !Checking if there are impossible sequences and modify the command subsequently
       do
         do i=2,nlayers
-          L=seq(i-1) !current number of layer
+          L=seq(i-1) !current number of layer         !(origin layer)
           if(L == 0) cycle
-          j=seq(i)
-          if(crys%l_alpha (j,L) < 0.0001) then !impossible sequences
+          j=seq(i)                                    !(destination layer)
+          !if(crys%l_alpha (j,L) < 0.0001) then !impossible sequences
+          if(l_alpha (j,L) < 0.0001) then !impossible sequences
+            !write(*,*) "from", L, "to", j
+            !write(*,*) "crys%l_alpha ", crys%l_alpha(j,L)   ! this is the value before refinement
+            !write(*,*) "l_alpha ", l_alpha(j,L)             ! this is the values after refinement
             seq(i)=0
             mod_seq=.true.
             exit
@@ -611,6 +615,9 @@
             seq(j-1)=seq(j)
           end do
           nlayers=nlayers-1
+        else if (i==nlayers .and. seq(i)==0) then          !new
+          nlayers=nlayers-1                                !new
+          exit                                             !new
         else
           exit
         end if
@@ -619,7 +626,7 @@
       if(mod_seq) then
         write(unit=*,fmt="(a)")    " => The sequence has been modified by eliminating impossible stacking "// &
                                    "(alpha < 0.0001)! Check your FST_COMMAND SEQ lines!"
-        write(unit=*,fmt="(a,i3)") " => The final number of layes is: ",nlayers
+        write(unit=*,fmt="(a,i3)") " => The final number of layers is: ",nlayers
         write(unit=*,fmt="(a)")    " => The effective sequence is the following:"
         aux="(a,   i3)"
         write(unit=aux(4:6),fmt="(i3)") nlayers
@@ -642,8 +649,10 @@
       cvect=stck_vect !Start with a non zero vector to include all the layers within the new unit cell
       do i=1,crys%l_n_atoms(lact)
         k=k+1
-        xyz(:,k) =crys%a_pos(:,i,lact)+cvect
-        elem=crys%a_name(i,lact)(1:2)
+        !xyz(:,k) =crys%a_pos(:,i,lact)+cvect
+        xyz(:,k) =a_pos(:,i,lact)/pi2+cvect
+        !elem=crys%a_name(i,lact)(1:2)
+        elem=a_name(i,lact)(1:2)
         if(index("0123456789",elem(2:2)) /= 0) elem(2:2)=" "
         aux=" "
         write(unit=aux,fmt="(3(a,i3))") elem,i,"_",j,"_",1
@@ -652,7 +661,8 @@
         atnam(k)=aux//elem
         if(crys%centro(lact) == centro) then
           k=k+1
-          xyz(:,k) = -crys%a_pos(:,i,lact)+cvect
+          !xyz(:,k) = -crys%a_pos(:,i,lact)+cvect
+          xyz(:,k) = -a_pos(:,i,lact)/pi2+cvect
           m=index(atnam(k-1)," ")
           atnam(k)=atnam(k-1)(1:m-1)//"c"//atnam(k-1)(m+1:)
         end if
@@ -669,8 +679,10 @@
         !Atom positions of each layer taking into account the stacking vector
         do n=1,crys%l_n_atoms(lact)
           k=k+1
-          xyz(:,k) = crys%a_pos(:,n,lact) + cvect
-          elem=crys%a_name(n,lact)(1:2)
+          !xyz(:,k) = crys%a_pos(:,n,lact) + cvect
+          xyz(:,k) = a_pos(:,n,lact)/pi2 + cvect
+          !elem=crys%a_name(n,lact)(1:2)
+          elem=a_name(n,lact)(1:2)
           if(index("0123456789",elem(2:2)) /= 0) elem(2:2)=" "
           aux=" "
           write(unit=aux,fmt="(3(a,i3))") elem,n,"_",j,"_",i
@@ -678,7 +690,8 @@
           atnam(k)=aux//elem
           if(crys%centro(lact) == centro) then
             k=k+1
-            xyz(:,k) = -crys%a_pos(:,n,lact) + cvect
+            !xyz(:,k) = -crys%a_pos(:,n,lact) + cvect
+            xyz(:,k) = -a_pos(:,n,lact)/pi2 + cvect
             m=index(atnam(k-1)," ")
             atnam(k)=atnam(k-1)(1:m-1)//"c"//atnam(k-1)(m+1:)
           end if
@@ -1420,7 +1433,12 @@
           End select
 
       if(fst_given) then  !Generate file for FullProf Studio
-        OPEN(UNIT = i_fst, FILE = trim(filenam)//".fst", STATUS = 'replace',action="write")
+          if(replace_files) then
+              Call getfnm(filenam,outfile, '.fst', ok,replace_files)
+          else
+              Call getfnm(filenam,outfile, '.fst', ok)
+          end if
+        OPEN(UNIT = i_fst, FILE = trim(outfile), STATUS = 'replace',action="write")
         call Write_FST()
         close(unit=i_fst)
       end if
