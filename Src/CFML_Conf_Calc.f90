@@ -627,7 +627,7 @@
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
-                   ferfc=erfc(drmax/rho)/drmax
+                   !ferfc=erfc(drmax/rho)/drmax !always of the order of 10^(-9)
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
@@ -635,7 +635,7 @@
                             dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
                             if (dd > drmax) cycle
                             if (sig1 == sig2) then
-                                rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
+                                rep=rep + c_rep*(erfc(dd/rho)/dd) !-ferfc)
                             else
                                sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
@@ -675,8 +675,10 @@
        write (unit=jbvs, fmt='(a)') "BVEL Map for species "//trim(car)
        write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
        write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
-       write(unit=jbvs,fmt="(a,/,a,/)")  &
-       " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*{exp(alpha(dmin-d))-1}^2-1", &
+       write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
+       write (unit=jbvs, fmt='(a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
+       write (unit=jbvs,fmt="(a,/,a,/)")  &
+       " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
              "   (data read from internal table or provided by the user)"
        do n1=1,A%N_Cations
           do j=1,A%N_Anions
@@ -698,7 +700,8 @@
                                                 A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
        end do
        if(present(delta) .and. present(vol)) then
-          write (unit=jbvs, fmt='(/,a,f10.4,a)')   "Available volume for ion mobility in the unit cell:",vol," angstroms"
+          write (unit=jbvs, fmt='(/,a,f10.4,a)')   "Value of delta for volumen calculation:",delta," eV"
+          write (unit=jbvs, fmt='(a,f10.4,a)')     "Available volume for ion mobility in the unit cell:",vol," angstroms^3"
           write (unit=jbvs, fmt='(a,f10.4,a)')     "Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, "%"
           write (unit=jbvs, fmt='(a,f10.4,a,i8)')  "Minum Energy (in eV):", emin,"  Number of pixels with Emin < Energy < Emin+Delta: ",npix
        end if
@@ -945,7 +948,8 @@
        write (unit=jbvs, fmt='(a)') "BVS Map for species "//trim(car)
        write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
        write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
-       write(unit=jbvs,fmt="(/,a,/,a,/)")  &
+       write (unit=jbvs, fmt='(a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
+       write (unit=jbvs,fmt="(/,a,/,a,/)")  &
        " Bond-Valence parameters (d0,B0) for Zachariasen formula:  s= exp{(d0-d)/B0}", &
              "   (data read from internal table or provided by the user)"
        do n1=1,A%N_Cations
@@ -965,7 +969,8 @@
                                                 A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
        end do
        if(present(delta) .and. present(vol))then
-          write (unit=jbvs, fmt='(/,a,f10.4,a)')  "Available volume for ion mobility in the unit cell:",vol," angstroms"
+          write (unit=jbvs, fmt='(/,a,f10.4,a)')  "Value of delta for volumen calculation:",delta," eV"
+          write (unit=jbvs, fmt='(a,f10.4,a)')    "Available volume for ion mobility in the unit cell:",vol," angstroms^3"
           write (unit=jbvs, fmt='(a,f10.4,a)')    "Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, "%"
        end if
        if(.not. present(delta)) then

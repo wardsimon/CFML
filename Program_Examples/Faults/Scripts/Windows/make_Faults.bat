@@ -76,7 +76,7 @@ rem     gfortran *.o -o Faults_gf -O3  -funroll-loops  -msse2      -L"%CRYSFML%"
    gfortran -c -O0 -g -fbounds-check  -fbacktrace    Faults_Read.f90   -I"%CRYSFML%"\GFortran\LibC
    gfortran -c -O0 -g  -fbacktrace  -legacy  Diffax_calc.f90   -I"%CRYSFML%"\GFortran\LibC
    gfortran -c -O0 -g -fbounds-check  -fbacktrace    Faults.f90        -I"%CRYSFML%"\GFortran\LibC
-   gfortran *.o -o Faults_gf     -L"%CRYSFML%"\GFortran\LibC -lcrysfml
+   gfortran *.o -o Faults_gf     -L"%CRYSFML%"\GFortran\LibC -lcrysfml -static-libgfortran
    upx Faults_gf.exe
    if exist %FULLPROF% copy Faults_gf.exe %FULLPROF% > nul
    goto END

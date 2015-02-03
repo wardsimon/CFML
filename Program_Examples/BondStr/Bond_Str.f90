@@ -334,7 +334,7 @@ Program Bond_Str
          end if
 
          write(unit=lun,fmt="(/a,/,a,/)")  &
-         " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*{exp(alpha(dmin-d))-1}^2-1", &
+         " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
                "   (data read from internal table, provided by the user or calculated from softBVS parameters)"
 
          if(soft) then
@@ -387,18 +387,22 @@ Program Bond_Str
          write(unit=lun,fmt="(/,a)") "    ----------------------------------------------------------"
          write(unit=lun,fmt="(a)")   "       Calculation of Bond-Valence Map with softBVS parameters"
          write(unit=lun,fmt="(a,/)") "    ----------------------------------------------------------"
+         write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
          if(delta > 0.001) then
            call Calc_Map_BVS(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol)
-           write (unit=lun, fmt='(/,a,f10.4,a)')" => Available volume for ion mobility in the unit cell:",vol," angstroms"
+           write (unit=lun, fmt='(a,f10.4,a)')  " => Delta (Output for valence +/- delta):",delta," valence units"
+           write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
            write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
          else
            call Calc_Map_BVS(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax)
          end if
 
       else if(bvel_calc) then
+         write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
          if(delta > 0.01) then
            call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
-           write (unit=lun, fmt='(/,a,f10.4,a)')" => Available volume for ion mobility in the unit cell:",vol," angstroms"
+           write (unit=lun, fmt='(/,a,f10.4,a)')" => Value of Delta (for volume calculation) :",delta," eV"
+           write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
            write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
            write (unit=lun, fmt='(a,f10.4)')    " => Minum Energy (in eV):", emin
            write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
