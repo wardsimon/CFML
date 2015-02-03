@@ -3,20 +3,21 @@ PROGRAM DIFFaX_to_FAULTS
     implicit none                             ! turn off the implicit type of the variables
 
     !Declare Global Constants
-      integer, parameter :: ip = 5,&          ! ip    -  standard input device unit number 
-                            op = 6,&          ! op    -  standard output device unit number   
-                            f_in = 10,&       ! f_in  -  input file unit number   
-                            f_out = 20        ! f_out -  output file unit number   
+      integer, parameter :: ip = 5,&          ! ip    -  standard input device unit number
+                            op = 6,&          ! op    -  standard output device unit number
+                            f_in = 10,&       ! f_in  -  input file unit number
+                            f_out = 20        ! f_out -  output file unit number
       integer, parameter :: maxcharD = 200    ! maximum number of character per line in the DIFFaX input file
       integer, parameter :: maxcharF = 132    ! maximum number of character per line in the FAULTS input file
       character(len=10), parameter :: ext = ".flts" ! extension of the FAULTS input file created by the program
 
     !Declare Global Variables
+      character(len=1)                                 :: keyw
       character(len=20)                                :: infile          ! name of the DIFFaX input file provided by the user
       character(len=20)                                :: shortname       ! name of the input file without extension
       character(len=30)                                :: filename        ! name of the FAULTS input file created by the program
       character(len=maxcharD),dimension(:),allocatable :: dfile           ! list of lines of the DIFFaX input file
-      character(len=maxcharD),dimension(:),allocatable :: tfile           ! temporary list of lines of the DIFFaX in put file, with splitted lines of comment    
+      character(len=maxcharD),dimension(:),allocatable :: tfile           ! temporary list of lines of the DIFFaX in put file, with splitted lines of comment
       integer,dimension(:),allocatable                 :: tlineD          ! remember the line number in original DIFFaX input file for each element in tfile
       character(len=maxcharF),dimension(:),allocatable :: ffile           ! list of lines of the FAULTS input file
       integer                                          :: maxlinesD       ! maximum number of lines of the DIFFaX input file
@@ -27,19 +28,28 @@ PROGRAM DIFFaX_to_FAULTS
       integer                                          :: S1,S2,S3,S4,S5  ! line nb where each section begins :
                                                                     ! 1-INSTRUMENTAL 2-STRUCTURAL 3-LAYER 4-STACKING 5-TRANSITIONS
       integer                                          :: nlayers         ! number of layers
+      integer                                          :: narg            ! Number of command line arguments
 
     !BEGINNING OF THE PROGRAM
+      !---- Arguments on the command line ----!
+      narg=command_argument_count()
+
+      infile=" "
+      if (narg > 0) then
+         call get_command_argument(1,infile)
+      end if
 
       CALL Salute()
-      CALL Read_diffax()               ! Copy DIFFaX input file into array dfile
+      CALL Read_diffax(infile)               ! Copy DIFFaX input file into array dfile
       CALL Split_comments()            ! Split lines which begin with a comment,
                                        !               fait commencer toutes lignes de commentaires par un point d'exclamation,
                                        !               cadre toutes les lignes à gauche
       CALL Index_sections()            ! Index the different sections S1,S2,S3,S4,S5
-      CALL Extract_data()             ! analyse the DIFFaX information
+      CALL Extract_data()              ! analyse the DIFFaX information
       CALL Write_flts()                ! create the FAULTS input file
 
-
+      write(unit=*,fmt="(/,a)") " => The program finished OK, please press <Enter> to finish ..."
+      read(unit=*,fmt="(a)") keyw
 
     !END OF THE PROGRAM
 
@@ -77,23 +87,32 @@ PROGRAM DIFFaX_to_FAULTS
 
       END SUBROUTINE Salute
 
-      SUBROUTINE Read_diffax()
-
+      SUBROUTINE Read_diffax(filen)
+        character(len=*), intent(in) :: filen
         ! Local Variables
-          integer             :: ier         ! controls : 0 = successful, >0 error 
+          integer             :: ier         ! controls : 0 = successful, >0 error
           integer             :: i,k         ! counters
           character(LEN=maxcharD)  :: line
           character(LEN=100)  :: linenb
           logical             :: error
 
-        write(UNIT=op,FMT="(a)",advance="no") " => Enter the full name of the DIFFaX input file (with extension): "
-        read (UNIT=ip,FMT="(a)") infile
+        if(len_trim(filen) == 0) then
+          write(UNIT=op,FMT="(a)",advance="no") " => Enter the full name of the DIFFaX input file (with extension): "
+          read (UNIT=ip,FMT="(a)") infile
+          if(len_trim(infile) == 0) then
+               write(unit=*,fmt="(/,a)") " => No file provided, please press <Enter> to finish ..."
+               read(unit=*,fmt="(a)") keyw
+               stop
+          end if
+        else
+          infile=filen
+        end if
 
-        OPEN (unit=f_in, file=infile, status='old', action='read', position='rewind', iostat=ier)   ! Old = the DIFFaX input file should exist
+        OPEN (unit=f_in, file=trim(infile), status='old', action='read', position='rewind', iostat=ier)   ! Old = the DIFFaX input file should exist
                                                                                            ! ier = control :  0 = successful, >0 error
             if (ier /= 0) then
-                write(UNIT=op,FMT="(2a)") " => Error opening the DIFFaX input file ", infile
-            else 
+                write(UNIT=op,FMT="(2a)") " => Error opening the DIFFaX input file ", trim(infile)
+            else
                 write(UNIT=op,FMT="(3a)") " "
                 write(UNIT=op,FMT="(3a)") " => The DIFFaX input file ", trim(infile), " was successfully opened"
             end if
@@ -117,7 +136,7 @@ PROGRAM DIFFaX_to_FAULTS
 
             maxlinesD=nblinesD
             maxlinesF=2*maxcharD
-            
+
             ! Allocate arrays
 
             if (allocated (dfile)) deallocate(dfile)                ! list of lines of the DIFFaX input file
@@ -133,7 +152,7 @@ PROGRAM DIFFaX_to_FAULTS
             allocate(ffile(maxlinesF))
 
       !character(maxcharD),dimension(maxlinesD)   :: dfile          ! list of lines of the DIFFaX input file
-      !character(maxcharD),dimension(maxlinesF)   :: tfile          ! temporary list of lines of the DIFFaX in put file, with splitted lines of comment    
+      !character(maxcharD),dimension(maxlinesF)   :: tfile          ! temporary list of lines of the DIFFaX in put file, with splitted lines of comment
       !integer,dimension(maxlinesF)               :: tlineD         ! remember the line number in original DIFFaX input file for each element in tfile
       !character(maxcharF),dimension(maxlinesF)   :: ffile          ! list of lines of the FAULTS input file
 
@@ -149,10 +168,10 @@ PROGRAM DIFFaX_to_FAULTS
                 !write(unit=op, fmt="(a)") dfile(i)
                 k=len_trim(adjustl(line))
                 if(k > maxcharF) then
-                    write(UNIT=op, FMT="(a)") " => Caution: Some information may be lost during the conversion: " 
+                    write(UNIT=op, FMT="(a)") " => Caution: Some information may be lost during the conversion: "
                     write(UNIT=op, FMT="(a,i3,a,i3,a)") "    The length of line ", i, &
-                                                               " is greater than ", maxcharF, " characters:" 
-                    write(UNIT=op, FMT="(a,a50,a)") "    ``", line, "...''" 
+                                                               " is greater than ", maxcharF, " characters:"
+                    write(UNIT=op, FMT="(a,a50,a)") "    ``", line, "...''"
                 end if
                 dfile(i)=adjustl(line(1:maxcharF))
                 if (ier /= 0) then
@@ -165,7 +184,7 @@ PROGRAM DIFFaX_to_FAULTS
            ! if (error) then
            !     write(UNIT=op,FMT="(2a)") " => Errors reading the DIFFaX input file ", infile
            !     write(UNIT=op,FMT="(3a)") "    Line(s)", trim(linenb), " was(were) not read correctly"
-           ! else 
+           ! else
            !     write(UNIT=op,FMT="(3a)") " => The DIFFaX input file ", trim(infile), " was successfully read"
            !     write(unit=op,fmt="(a,i3)") " => The DIFFaX input file contains ", nblinesD, " lines"
            ! end if
@@ -185,7 +204,7 @@ PROGRAM DIFFaX_to_FAULTS
 
         ! Local Variables
           integer             :: i,j,k,c      ! counters
-          character(maxcharD) :: texto,com,ligne  
+          character(maxcharD) :: texto,com,ligne
 
         tfile = "  "
         tlineD = 0
@@ -197,14 +216,14 @@ PROGRAM DIFFaX_to_FAULTS
            do c=1,10    ! max 10 comments
                 if(texto(1:1) == "{") then
                     k=index(texto,"}")
-                    if(k == 0) then 
+                    if(k == 0) then
                         write(UNIT=op,FMT="(a,i3,a)") " => Caution: Closing brace is missing on line ", i, &
                                                       ". This line is treated as a comment."
                         ligne="! " // texto
                         tfile(j) = ligne(1:maxcharF)
                         tlineD(j)= i
                         exit
-                    else 
+                    else
                         com= "! " // texto(1:k)
                         texto=adjustl(texto(k+1:))
                         if(texto(1:1)==" ") then
@@ -212,12 +231,12 @@ PROGRAM DIFFaX_to_FAULTS
                             tfile(j)=ligne(1:maxcharF)
                             tlineD(j)= i
                             exit
-                        else if(texto(1:1)=="!") then 
+                        else if(texto(1:1)=="!") then
                             ligne= trim(com) // " " // trim(texto(2:))
                             tfile(j)=ligne(1:maxcharF)
                             tlineD(j)= i
                             exit
-                        else if(texto(1:1)=="{") then 
+                        else if(texto(1:1)=="{") then
                             ligne=trim(com)
                             tfile(j)=ligne(1:maxcharF)
                             tlineD(j)= i
@@ -288,7 +307,7 @@ PROGRAM DIFFaX_to_FAULTS
       SUBROUTINE Extract_data()
 
         ! Local Variables
-          !integer            :: ier         ! control : 0 = successful, >0 error 
+          !integer            :: ier         ! control : 0 = successful, >0 error
           integer             :: i,j,k       ! counters
           character(maxcharF) :: txt         ! manipulation de chaine de caracteres
           character(maxcharF) :: key         ! manipulation de chaine de caracteres
@@ -346,10 +365,10 @@ PROGRAM DIFFaX_to_FAULTS
              integer,             intent(inout) :: j         ! counters: line nb in DIFFaX and FAULTS respectively
 
             ! Local Variables
-             integer             :: i,k,k1,k2,n                ! counters 
+             integer             :: i,k,k1,k2,n                ! counters
              character(maxcharD) :: texte,key,ligne            ! manipulation de chaine de caracteres
              character(10)       :: A,B,C,D                    ! lecture de valeurs sur une meme ligne
-             integer             :: ier                        ! control : 0 = successful, >0 error 
+             integer             :: ier                        ! control : 0 = successful, >0 error
 
             k=0
             k1=0
@@ -363,7 +382,7 @@ PROGRAM DIFFaX_to_FAULTS
             do i=S1,S2-1
                j=j+1
                texte=adjustl(tfile(i))
-               if(texte(1:1)=="!" .or. texte(1:1)==" ") then 
+               if(texte(1:1)=="!" .or. texte(1:1)==" ") then
                     ffile(j)=texte(1:maxcharF)
                     cycle
                else
@@ -398,10 +417,10 @@ PROGRAM DIFFaX_to_FAULTS
                     else if(n==3) then
                         ffile(j) = " !             Lambda1       Lambda2      ratio"
                         j=j+1
-                        if(texte==" ") then                                                  ! No comments 
-                            ligne = "  Wavelength   " // trim(key) // "         0.0000       0.0000" 
+                        if(texte==" ") then                                                  ! No comments
+                            ligne = "  Wavelength   " // trim(key) // "         0.0000       0.0000"
                             ffile(j) = ligne(1:maxcharF)
-                        else                                                                 ! Comment(s) present 
+                        else                                                                 ! Comment(s) present
                             ligne = "  Wavelength   " // trim(key) // "         0.0000   0.0000    " // texte
                             ffile(j) = ligne(1:maxcharF)
                         end if
@@ -420,36 +439,36 @@ PROGRAM DIFFaX_to_FAULTS
                             read(unit=texte,fmt=*,iostat=ier) A, B, C, D
                             ligne = "  "// trim(key) //"            "// trim(A) //"       "// trim(B) &
                                    //"       "// trim(C) //"       "// " 0.1  " //"       "// "8000.0" &
-                                   //"       "// "8000.0" 
+                                   //"       "// "8000.0"
                             k=index(texte,"T")
                             k1=index(texte,"!")
                             k2=index(texte,"{")
-                            if(k/=0 .or. k1/=0 .or. k2/=0) then                                                    ! TRIM keyword or comment(s) present 
+                            if(k/=0 .or. k1/=0 .or. k2/=0) then                                                    ! TRIM keyword or comment(s) present
                                 texte = texte(k:)
                                 ligne = trim(ligne) //"       "// trim(texte)
                                 ffile(j) = ligne(1:maxcharF)
                                 j=j+1
                                 ffile(j) = "                          0.00        0.00        0.00        " &
                                            // "0.00        0.00        0.00          "
-                            else                                                             ! No comment or TRIM keyword present 
+                            else                                                             ! No comment or TRIM keyword present
                                 ffile(j) = ligne(1:maxcharF)
                                 j=j+1
                                 ffile(j) = "                          0.00        0.00        0.00        " &
                                            // "0.00        0.00        0.00          "
                             end if
-                        else if(key=="NONE") then 
+                        else if(key=="NONE") then
                             ligne = "  PSEUDO-VOIGT             0.01       0.00       0.00       0.01       " &
                                     // "8000.0       8000.0     !TRIM"
                             k1=index(texte,"!")
                             k2=index(texte,"{")
-                            if(k1/=0 .or. k2/=0) then                                                    ! comment(s) present 
+                            if(k1/=0 .or. k2/=0) then                                                    ! comment(s) present
                                 texte = texte(k:)
                                 ligne = trim(ligne) //"       "// trim(texte)
                                 ffile(j) = ligne(1:maxcharF)
                                 j=j+1
                                 ffile(j) = "                          0.00        0.00        0.00        " &
                                            // "0.00        0.00        0.00          "
-                            else                                                             ! No comment or TRIM keyword present 
+                            else                                                             ! No comment or TRIM keyword present
                                 ffile(j) = ligne(1:maxcharF)
                                 j=j+1
                                 ffile(j) = "                          0.00        0.00        0.00        " &
@@ -466,7 +485,7 @@ PROGRAM DIFFaX_to_FAULTS
                                                            // "of the DIFFAX input file at line", tlineD(i)
                            ffile(j) = ligne(1:maxcharF)
                     end if
-               end if 
+               end if
             end do
 
         j=j+1
@@ -482,7 +501,7 @@ PROGRAM DIFFaX_to_FAULTS
             ! Local Variables
              integer             :: i,k,k1,n                   ! counters
              character(maxcharD) :: texte,key,ligne            ! manipulation de chaines de caracteres
-             integer             :: ier                        ! control : 0 = successful, >0 error 
+             integer             :: ier                        ! control : 0 = successful, >0 error
              character(25)       :: A, B                       ! Lwidth values
 
             k=0
@@ -497,7 +516,7 @@ PROGRAM DIFFaX_to_FAULTS
            do i=S2,S3-1
                j=j+1
                texte=adjustl(tfile(i))
-               if(texte(1:1)=="!" .or. texte(1:1)==" ") then 
+               if(texte(1:1)=="!" .or. texte(1:1)==" ") then
                     ffile(j)=texte(1:maxcharF)
                     cycle
                else
@@ -560,12 +579,12 @@ PROGRAM DIFFaX_to_FAULTS
                             else if(k1/=0 .and. (k>k1 .or. k==0)) then
                                 key=texte(1:k1-1)
                                 texte=texte(k1:)
-                            else 
+                            else
                                 key=texte
                                 texte=" "
                             end if
                             read(unit=key,fmt=*,iostat=ier) A, B
-                            if(ier/=0) then 
+                            if(ier/=0) then
                                 read(unit=key,fmt=*,iostat=ier) A
                                 B = A
                             end if
@@ -602,9 +621,9 @@ PROGRAM DIFFaX_to_FAULTS
              integer,             intent(inout) :: j         ! counters: line nb in DIFFaX and FAULTS respectively
 
             ! Local Variables
-             integer                :: i,k,k1,n                     ! counter 
+             integer                :: i,k,k1,n                     ! counter
              character(maxcharD)    :: texte,key,ligne            ! manipulation de chaines de caracteres
-             integer                :: ier                        ! control : 0 = successful, >0 error 
+             integer                :: ier                        ! control : 0 = successful, >0 error
              integer, dimension(50) :: L                          ! indexation de lignes
              integer                :: nactlay                    ! nb de layers comptées
              character(4)           :: atom, atom1, atom2         ! for manipulation of atoms' names
@@ -645,7 +664,7 @@ PROGRAM DIFFaX_to_FAULTS
                if(i>S4-1) exit
                j=j+1
                texte=adjustl(tfile(i))
-               if(texte(1:1)=="!" .or. texte(1:1)==" ") then 
+               if(texte(1:1)=="!" .or. texte(1:1)==" ") then
                     ffile(j)=texte(1:maxcharF)
                     cycle
                else
@@ -660,19 +679,19 @@ PROGRAM DIFFaX_to_FAULTS
                             ffile(j) = ligne(1:maxcharF)
                      !      cycle
                         else
-                            ligne = "  " // trim(key) // " " // trim(texte) 
+                            ligne = "  " // trim(key) // " " // trim(texte)
                             ffile(j) = ligne(1:maxcharF)
                             do i=L(n)+1,L(n+1)-1
                                 j=j+1
                                 texte = adjustl(tfile(i))
                                 if(texte(1:1)=="!" .or. texte(1:1)==" ") &
-                                    then 
+                                    then
                                     ffile(j)=texte(1:maxcharF)
                                     cycle
                                 else
                                     k=index(texte," ")
                                     key=U_Case(texte(1:k-1))
-                                    if(key == "NONE" .or. key == "CENTROSYMMETRIC") & 
+                                    if(key == "NONE" .or. key == "CENTROSYMMETRIC") &
                                         then
                                         ffile(j) = " !Layer symmetry"
                                         j=j+1
@@ -719,9 +738,9 @@ PROGRAM DIFFaX_to_FAULTS
              integer,             intent(inout) :: j           ! counters: line nb in DIFFaX and FAULTS respectively
 
             ! Local Variables
-             integer             :: i,k,k1,n                   ! counters 
+             integer             :: i,k,k1,n                   ! counters
              character(maxcharD) :: texte,key,ligne            ! manipulation de chaines de caracteres
-             integer             :: ier                        ! control : 0 = successful, >0 error 
+             integer             :: ier                        ! control : 0 = successful, >0 error
 
             k=0
             k1=0
@@ -737,7 +756,7 @@ PROGRAM DIFFaX_to_FAULTS
                if(i>=S5) return
                j=j+1
                texte=adjustl(tfile(i))
-               if(texte(1:1)=="!" .or. texte(1:1)==" ") then 
+               if(texte(1:1)=="!" .or. texte(1:1)==" ") then
                     ffile(j)=texte(1:maxcharF)
                     cycle
                else
@@ -786,7 +805,7 @@ PROGRAM DIFFaX_to_FAULTS
                         texte=adjustl(tfile(i))
                         k=index(texte," ")
                         key=U_Case(texte(1:k-1))
-                        if(key=="INFINITE") then 
+                        if(key=="INFINITE") then
                             ffile(j) = "  " // texte(1:maxcharF-2)
                         else
                             ffile(j) = "  " // texte(1:maxcharF-2)
@@ -795,7 +814,7 @@ PROGRAM DIFFaX_to_FAULTS
                         end if
                     end if
                 end if
-            end do 
+            end do
 
         j=j+1
 
@@ -808,9 +827,9 @@ PROGRAM DIFFaX_to_FAULTS
              integer,             intent(inout) :: j           ! counters: line nb in DIFFaX and FAULTS respectively
 
             ! Local Variables
-             integer             :: i,k,k1,n,l                 ! counter 
+             integer             :: i,k,k1,n,l                 ! counter
              character(maxcharD) :: texte,key,ligne,more       ! manipulation de chaines de caracteres
-             integer             :: ier                        ! control : 0 = successful, >0 error 
+             integer             :: ier                        ! control : 0 = successful, >0 error
              character(25)       :: A, B, C                    ! Lwidth values
 
             k=0
@@ -828,7 +847,7 @@ PROGRAM DIFFaX_to_FAULTS
            do i=S5,nblinesT
                j=j+1
                texte=adjustl(tfile(i))
-               if(texte(1:1)=="!" .or. texte(1:1)==" ") then 
+               if(texte(1:1)=="!" .or. texte(1:1)==" ") then
                     ffile(j)=texte(1:maxcharF)
                     cycle
                else
@@ -880,11 +899,11 @@ PROGRAM DIFFaX_to_FAULTS
                                 // trim(B) // "    " // trim(C) // "    " // trim(texte)
                         ffile(j) = ligne(1:maxcharF)
                         j=j+1
-                        ffile(j) = "      0.00      0.00      0.00      0.00" 
+                        ffile(j) = "      0.00      0.00      0.00      0.00"
                         j=j+1
                         if(more /= " ") then
                             ligne = "  FW  " // trim(more)
-                        else 
+                        else
                             ligne = "  FW  0.00000   0.00000   0.00000" &
                                    // "   0.00000   0.00000   0.00000"
                         end if
@@ -956,7 +975,7 @@ PROGRAM DIFFaX_to_FAULTS
       SUBROUTINE Write_flts()
 
         ! Local Variables
-          integer             :: ier,ok      ! control : 0 = successful, >0 error 
+          integer             :: ier,ok      ! control : 0 = successful, >0 error
           integer             :: j           ! counters
 
         !open (create) the FAULTS input file
@@ -964,7 +983,7 @@ PROGRAM DIFFaX_to_FAULTS
 
             if (ier /= 0) then
                 write(UNIT=op,FMT="(2a)") " => Error creating the FAULTS input file ", filename
-            else 
+            else
                 write(UNIT=op,FMT="(3a)") " => The FAULTS input file ", trim(filename) , " was successfully created"
                 write(UNIT=op,FMT="(3a)") " => Writing the FAULTS input file ", trim(filename), " ..."
             end if
@@ -985,7 +1004,7 @@ PROGRAM DIFFaX_to_FAULTS
 
             if (ok /= 0) then
                 write(UNIT=op,FMT="(2a)") " => Error writing in the FAULTS input file ", filename
-            else 
+            else
                 write(UNIT=op,FMT="(3a)") " => The FAULTS input file ", trim(filename) , " was successfully written"
                 write(UNIT=op,FMT="(3a)") " => Normal end of DIFFaX_to_FAULTS"
             end if
@@ -1000,7 +1019,7 @@ PROGRAM DIFFaX_to_FAULTS
         line=u_case(line)
         return
       End SUBROUTINE Ucase
-     
+
       FUNCTION U_Case(Text) Result (Mtext)         !!! CFML_String8Util.f90
        !---- Argument ----!
        character (len=*), intent(in) :: text
