@@ -48,7 +48,7 @@ PROGRAM DIFFaX_to_FAULTS
       CALL Extract_data()              ! analyse the DIFFaX information
       CALL Write_flts()                ! create the FAULTS input file
 
-      write(unit=*,fmt="(/,a)") " => The program finished OK, please press <Enter> to finish ..."
+      write(unit=*,fmt="(/,a)") " => Normal end, please press <Enter> to finish ..."
       read(unit=*,fmt="(a)") keyw
 
     !END OF THE PROGRAM
