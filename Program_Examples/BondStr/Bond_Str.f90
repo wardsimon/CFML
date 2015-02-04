@@ -46,7 +46,7 @@ Program Bond_Str
    logical                         :: esta, arggiven=.false.,sout=.false.,cif=.false.,out_cif=.false.
    logical                         :: read_bvparm=.false., restr=.false., bvs_calc=.true.
    logical                         :: vdist=.false.,read_bvelparm=.false.
-   logical                         :: map_calc=.false., soft=.false., bvel_calc=.false.
+   logical                         :: map_calc=.false., soft=.false., bvel_calc=.false., outp=.false., outf=.false.
    real                            :: ttol=20.0,dmax,dangl, gii
    real                            :: drmax,delta,qval,tini,tfin,qn,vol,emin
 
@@ -218,6 +218,10 @@ Program Bond_Str
 
          if (line(1:5) == "RESTR")  restr=.true.
 
+         if (line(1:6) == "OUTMAP")  then
+            outp=.true.
+            if(index(line,"GFOU") /= 0) outf=.true.
+         end if
          !--- JGP ----!
          if (line(1:4) == "MAP " .or. line(1:4) == "BVEL") then
 
@@ -398,21 +402,28 @@ Program Bond_Str
          end if
 
       else if(bvel_calc) then
+
          write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
          if(delta > 0.01) then
-           call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+           if(outp) then
+             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf)
+           else
+             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+           end if
            write (unit=lun, fmt='(/,a,f10.4,a)')" => Value of Delta (for volume calculation) :",delta," eV"
            write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
            write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
            write (unit=lun, fmt='(a,f10.4)')    " => Minum Energy (in eV):", emin
            write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
          else
-           call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax)
+           if(outp) then
+             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,outp=outf)
+           else
+             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax)
+           end if
          end if
       else
-
          call Calc_BVS(Ac,lun,filecod=filcod)
-
       end if
 
    else

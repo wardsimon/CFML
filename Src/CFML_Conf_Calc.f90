@@ -472,7 +472,7 @@
     !!----
     !!---- Created: January 2015
     !!
-    Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+    Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp)
        !---- Arguments ----!
        type (Atoms_Conf_List_type), intent(in) :: A
        type (Space_Group_Type),     intent(in) :: SpG
@@ -487,6 +487,7 @@
        real(kind=cp), optional,     intent(out):: vol
        real(kind=cp), optional,     intent(out):: emin
        integer,       optional,     intent(out):: npix
+       logical,       optional,     intent(in) :: outp
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm
@@ -627,7 +628,7 @@
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
-                   !ferfc=erfc(drmax/rho)/drmax !always of the order of 10^(-9)
+                   ferfc=erfc(drmax/rho)/drmax !always of the order of 10^(-9) when
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
@@ -635,7 +636,7 @@
                             dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
                             if (dd > drmax) cycle
                             if (sig1 == sig2) then
-                                rep=rep + c_rep*(erfc(dd/rho)/dd) !-ferfc)
+                                rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
                             else
                                sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
@@ -668,48 +669,64 @@
        end if
 
        !---- Export a File ----!
-       call Get_LogUnit(jbvs)
-       open(unit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
+       if(present(outp)) then
+          call Get_LogUnit(jbvs)
+          open(unit=jbvs,file=trim(filecod)//".map",status="replace",action="write")
 
-       write (unit=jbvs, fmt='(a)') "BVEL Map Calculations using Bond_STR Program"
-       write (unit=jbvs, fmt='(a)') "BVEL Map for species "//trim(car)
-       write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
-       write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
-       write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
-       write (unit=jbvs, fmt='(a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
-       write (unit=jbvs,fmt="(a,/,a,/)")  &
-       " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
-             "   (data read from internal table or provided by the user)"
-       do n1=1,A%N_Cations
-          do j=1,A%N_Anions
-             n2=A%N_Cations+j
-             write(unit=jbvs,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
-                   "   Type",n1,": ",A%Species(n1)," with type",n2,": ",A%Species(n2), &
-                   "    D0  =",Table_Dzero(n1,n2),"       Rmin =",Table_Rmin(n1,n2),   &
-                   "  Alpha =",Table_Alpha(n1,n2),"  Av. Coord.=",Table_Avcoor(n1,n2), &
-                   "    R0  =",Table_Rzero(n1,n2),"   R-cutoff =",Table_Rcutoff(n1,n2),&
-                   "   => Reference: "//trim(references(Table_ref(n1,n2)))
-             write(unit=jbvs,fmt="(2(a,a,a,f6.3,a),/)") &
-                   "   Cation (Eff. radius): ",A%Species(n1),"(",A%Radius(n1),")   ",  &
-                   "   Anion  (Eff. radius): ",A%Species(n2),"(",A%Radius(n2),")"
+          write (unit=jbvs, fmt='(a)') "BVEL Map Calculations using Bond_STR Program"
+          write (unit=jbvs, fmt='(a)') "BVEL Map for species "//trim(car)
+          write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
+          write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
+          write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
+          write (unit=jbvs, fmt='(a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
+          write (unit=jbvs,fmt="(a,/,a,/)")  &
+          " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
+                "   (data read from internal table or provided by the user)"
+          do n1=1,A%N_Cations
+             do j=1,A%N_Anions
+                n2=A%N_Cations+j
+                write(unit=jbvs,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
+                      "   Type",n1,": ",A%Species(n1)," with type",n2,": ",A%Species(n2), &
+                      "    D0  =",Table_Dzero(n1,n2),"       Rmin =",Table_Rmin(n1,n2),   &
+                      "  Alpha =",Table_Alpha(n1,n2),"  Av. Coord.=",Table_Avcoor(n1,n2), &
+                      "    R0  =",Table_Rzero(n1,n2),"   R-cutoff =",Table_Rcutoff(n1,n2),&
+                      "   => Reference: "//trim(references(Table_ref(n1,n2)))
+                write(unit=jbvs,fmt="(2(a,a,a,f6.3,a),/)") &
+                      "   Cation (Eff. radius): ",A%Species(n1),"(",A%Radius(n1),")   ",  &
+                      "   Anion  (Eff. radius): ",A%Species(n2),"(",A%Radius(n2),")"
+             end do
           end do
-       end do
-       write (unit=jbvs, fmt='(a)')     "! List ot atoms  "
-       do i=1,A%natoms
-         write(unit=jbvs, fmt='(a,t20,5f12.5)')"Atom "//trim(A%Atom(i)%lab)//"  "//A%Atom(i)%SfacSymb, &
-                                                A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
-       end do
-       if(present(delta) .and. present(vol)) then
-          write (unit=jbvs, fmt='(/,a,f10.4,a)')   "Value of delta for volumen calculation:",delta," eV"
-          write (unit=jbvs, fmt='(a,f10.4,a)')     "Available volume for ion mobility in the unit cell:",vol," angstroms^3"
-          write (unit=jbvs, fmt='(a,f10.4,a)')     "Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, "%"
-          write (unit=jbvs, fmt='(a,f10.4,a,i8)')  "Minum Energy (in eV):", emin,"  Number of pixels with Emin < Energy < Emin+Delta: ",npix
+          write (unit=jbvs, fmt='(a)')     "! List ot atoms  "
+          do i=1,A%natoms
+            write(unit=jbvs, fmt='(a,t20,5f12.5)')"Atom "//trim(A%Atom(i)%lab)//"  "//A%Atom(i)%SfacSymb, &
+                                                   A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
+          end do
+          if(present(delta) .and. present(vol)) then
+             write (unit=jbvs, fmt='(/,a,f10.4,a)')   "Value of delta for volumen calculation:",delta," eV"
+             write (unit=jbvs, fmt='(a,f10.4,a)')     "Available volume for ion mobility in the unit cell:",vol," angstroms^3"
+             write (unit=jbvs, fmt='(a,f10.4,a)')     "Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, "%"
+             write (unit=jbvs, fmt='(a,f10.4,a,i8)')  "Minum Energy (in eV):", emin,"  Number of pixels with Emin < Energy < Emin+Delta: ",npix
+          end if
+          write (unit=jbvs, fmt='(a)')     "! Grid values: ndimx,ndimy,ndimz [0,ndimx-1] [0,ndimy-1] [0,ndimz-1]  "
+          write (unit=jbvs, fmt='(a,9i6)') "GRID ",ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
+          if(.not. outp) then
+              write (unit=jbvs, fmt='(a)')     "    X         Y         Z        Energy(eV)"
+              do k=1,ndimz
+                 pto(3)=(k-1)*step(3)
+                 do j=1,ndimy
+                    pto(2)=(j-1)*step(2)
+                    do i=1,ndimx
+                       pto(1)=(i-1)*step(1)
+                       write(unit=jbvs, fmt='(3f10.5,f14.6)') pto,map_bvs(i,j,k)
+                    end do
+                 end do
+              end do
+          else
+             write (unit=jbvs, fmt='(a)')     "DENSITY_MAP"
+             write (unit=jbvs,fmt='(10g14.5)') map_bvs
+          end if
+         close(unit=jbvs)
        end if
-       write (unit=jbvs, fmt='(a)')     "! Grid values: ndimx,ndimy,ndimz [0,ndimx-1] [0,ndimy-1] [0,ndimz-1]  "
-       write (unit=jbvs, fmt='(a,9i6)') "GRID ",ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
-       write (unit=jbvs, fmt='(a)')     "DENSITY_MAP"
-       write (unit=jbvs,fmt='(10g14.5)') map_bvs
-       close(unit=jbvs)
        call write_grid_VESTA(map_bvs,cell,"Bond Valence Energy Landscape",trim(filecod)//"_bvel","P")
        return
     End Subroutine Calc_Map_BVEL
