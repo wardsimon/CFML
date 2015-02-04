@@ -628,7 +628,7 @@
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
-                   ferfc=erfc(drmax/rho)/drmax !always of the order of 10^(-9) when
+                   ferfc=erfc(drmax/rho)/drmax !always below 10^(-9) when drmax/rho > 4.2
                    do k1=nz1,nz2
                       do j1=ny1,ny2
                          do i1=nx1,nx2
