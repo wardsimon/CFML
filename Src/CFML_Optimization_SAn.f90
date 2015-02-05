@@ -148,6 +148,7 @@
     !!----    real(kind=cp),    dimension(np_SAN)         :: high    ! High-limit value of parameters
     !!----    real(kind=cp),    dimension(np_SAN)         :: cost    ! Vector with cost of the different configurations
     !!----    real(kind=cp),    dimension(np_SAN)         :: config  ! Vector State with the best configuration
+    !!----    real(kind=cp),    dimension(np_SAN)         :: sigma   ! Sigma of the Vector State with the best configuration
     !!----    character(len=15),dimension(np_SAN):: nampar  ! name of parameters of the model
     !!----  End Type MultiState_Vector_Type
     !!----
@@ -168,6 +169,7 @@
       real(kind=cp),    dimension(np_SAN)         :: low     !Low-limit value of parameters
       real(kind=cp),    dimension(np_SAN)         :: high    !High-limit value of parameters
       real(kind=cp),    dimension(np_SAN)         :: config  !Vector State characterizing the current best configuration
+      real(kind=cp),    dimension(np_SAN)         :: sigma   !Sigma of the Vector State characterizing the current best configuration
       character(len=15),dimension(np_SAN)         :: nampar  !name of parameters of the model
     End Type MultiState_Vector_Type
 
@@ -831,7 +833,7 @@
                 sigp(i,j)=sqrt(abs(sigp(i,j)/naver-raver(i,j)*raver(i,j)))
              end do
              stepav=sum(vs%stp(:,j))/real(vs%npar)
-
+             if(j == jopt) vs%sigma(:)=sigp(:,j)
              !---- Writing partial results ----!
              strings=" "
              write(unit=strings,fmt="(a,i4,a,f8.3,a,i2,a,f8.3,2(a,g14.7))")  &
@@ -866,6 +868,7 @@
                     write(unit=ipr,fmt="(a)") trim(strings)
                     costop=cost(j)
                     vs%config(:)=raver(:,j)
+                    vs%sigma(:)=sigp(:,j)
                     jopt=j
                     if(present(fst)) then
                       call Write_FST(fst,vs%config(:),costop)
@@ -910,6 +913,7 @@
                   write(unit=ipr,fmt="(a)") " => It becomes the best configuration for the moment!"
                   costop=cost(j)
                   vs%config(:)=raver(:,j)
+                  vs%sigma(:)=sigp(:,j)
                   jopt=j
                   if (present(fst)) then
                     call Write_FST(fst,vs%config(:),costop)
@@ -992,7 +996,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
-         write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),sigp(i,jopt)
+         write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),vs%sigma(i)
          write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
@@ -1047,8 +1051,12 @@
 
                  Case("COSTNAM")
                     k=index(line,"!")
-                    if( k == 0) k=len_trim(file_list%line(j))
-                    c%Cost_function_name=adjustl(file_list%line(j)(8:k-1))
+                    if( k == 0) then
+                      k=len_trim(file_list%line(j))
+                    else
+                      k=k-1
+                    end if
+                    c%Cost_function_name=adjustl(file_list%line(j)(8:k))
 
                  Case("THRESHO")
                     read(unit=line(10:),fmt=*,iostat=ier) c%threshold
@@ -1141,6 +1149,7 @@
        vs%high(:) = 0.0
        vs%stp(:,:) = 0.0
        vs%config(:) = 0.0
+       vs%sigma(:) = 0.0
        vs%cost(:) =0.0
        vs%Nampar(:) = " "
 

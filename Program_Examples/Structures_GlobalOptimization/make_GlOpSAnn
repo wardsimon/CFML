@@ -139,4 +139,4 @@ in
      ;;
 esac
 rm -rf *.o *.mod
-cp GlOpSAnn $PROGCFML/DistFPS/.
+cp GlOpSAnn $PROGCFML/DistFPS/Docs/.
