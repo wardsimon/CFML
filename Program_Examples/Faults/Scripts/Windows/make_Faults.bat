@@ -35,11 +35,17 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
 echo on
-  ifort /c Diffax_glb.f90  /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
-  ifort /c Faults_Read.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
-  ifort /c Diffax_calc.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
-  ifort /c Faults.f90      /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
-  link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
+rem  ifort /c Diffax_glb.f90  /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
+rem  ifort /c Faults_Read.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
+rem  ifort /c Diffax_calc.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
+rem  ifort /c Faults.f90      /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
+rem   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
+  ifort /c Diffax_glb.f90  /O3 /nologo        /I"%CRYSFML%"\ifort\LibC
+  ifort /c Faults_Read.f90 /O3 /nologo        /I"%CRYSFML%"\ifort\LibC
+  ifort /c Diffax_calc.f90 /O3 /nologo        /I"%CRYSFML%"\ifort\LibC
+  ifort /c Faults.f90      /O3 /nologo        /I"%CRYSFML%"\ifort\LibC
+  ifort /exe:Faults.exe *.obj "%CRYSFML%"\ifort\LibC\CrysFML.lib /link /stack:64000000
+
    upx Faults.exe
    if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
    if exist %PROGCFML% copy Faults.exe %PROGCFML%\DistFPS\. > nul
@@ -83,8 +89,11 @@ rem     gfortran *.o -o Faults_gf -O3  -funroll-loops  -msse2      -L"%CRYSFML%"
 rem
 :END
 rem
-rem Compress executable
 rem
+rem
+   if exist %PROGCFML% copy Faults.exe %PROGCFML%\DistFPS > nul
    del *.obj *.mod *.o *.map *.bak > nul
+   cd "%CRYSFML%"\Program_Examples\Faults\Help
+   if exist %PROGCFML% copy Faults_Manual.pdf %PROGCFML%\DistFPS\Docs\ > nul
    cd "%CRYSFML%"\Program_Examples\Faults\Scripts\Windows
 :FIN
