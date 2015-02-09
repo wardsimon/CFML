@@ -63,7 +63,7 @@
       stp = maxstk
 ! get first integration
       sum3 = glq16(h, k, a, b, ok)
-      
+
       IF(.NOT.ok) GO TO 999
       n2 = 2
       n = 0
@@ -1562,13 +1562,13 @@
       write(dmp,"(a)")     " CALCULATION  "
         if (opt == 0) then
           write(dmp,"(a)")          " SIMULATION"
-          if (funct_num == 3) then 
+          if (funct_num == 3) then
             write(dmp,"(a)")          " !th2_min, th2_max, d_theta"
             write(dmp,"(a, 3f10.4)")  "POWDER", th2_min, th2_max, d_theta
           else
          	  write(dmp,"(a)")          " !i_plane, l_upper, loglin, brightness"
          	  write(dmp,"(a, i7, f11.4, i7, f10.4)")  "SADP",   i_plane, l_upper, loglin, brightness
-          end if	  
+          end if
         elseif (opt == 3) then
           write(dmp,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
           write(dmp,"(a,i4)")          " MXFUN  ", opti%mxfun
@@ -2151,7 +2151,7 @@
           ELSE
             x = fn(h,k,l,l+dl,ok)
             IF(.NOT.ok) GO TO 999
-            IF(rad_type == x_ray) x = x*w4(angle(h,k,l+half*dl))            
+            IF(rad_type == x_ray) x = x*w4(angle(h,k,l+half*dl))
           END IF
           cnt = cnt + 1
 ! make sure we do not overflow
@@ -3991,7 +3991,7 @@
 !     1234 WRITE(op,100) 'Enter 1 for adaptive quadrature.'
 !      READ(cntrl,*,ERR=1234) i_adapt
 !      IF(cfile) WRITE(op,101) i_adapt
-       
+
 
 !      1 WRITE(op,100) 'Choose a plane in reciprocal space to view.'
 !      WRITE(op,100) '       the l-axis is included by default.'
@@ -5653,18 +5653,18 @@
         DO  n = 1, nint(l_cnt)-1
           i = l_seq(n)
           j = l_seq(n+1)
-          IF(.NOT.there(j,i)) THEN
+          IF(.NOT. there(j,i)) THEN
             ok = .false.
-            IF(.NOT.did_it(j,i)) THEN
+            IF(.NOT. did_it(j,i)) THEN
               did_it(j,i) = .true.
               WRITE(op,401) j, i
-              STOP
+              call Close_Faults()
             END IF
           END IF
         END DO
         140   CONTINUE
       END IF
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
 
       ! Pre-compute a pseudo-Lorentzian form factor for lateral
       ! planar widths.

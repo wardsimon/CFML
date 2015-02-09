@@ -240,13 +240,13 @@
               do i=1,nlay_avcell
                   l=lay_avcell(i)                        !layer origine
                   j=lay_avcell(i+1)                      !layer destination
-                  
+
    ! write(unit=*,fmt="(a,i2,a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l, "goes to layer", j
 
                   c_avcell=c_avcell+l_r(:,j,l)     !calculate the vector C of the average cell in the FAULTS cell
-                  
+
    ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
-                  
+
                end do
 
               write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") " => The average c vector is ",  c_avcell
@@ -468,13 +468,13 @@
        write(i_ftls,"(a)")     " CALCULATION  "
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
-         if (funct_num == 3) then 
+         if (funct_num == 3) then
            write(i_ftls,"(a)")          " !th2_min, th2_max, d_theta"
            write(i_ftls,"(a, 3f10.4)")  "POWDER",   th2_min, th2_max, d_theta
          else
          	 write(i_ftls,"(a)")          " !i_plane, l_upper, loglin, brightness"
          	 write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
-         end if	 
+         end if
        elseif (opt == 3) then
          write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
          write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
@@ -1227,7 +1227,7 @@
       end if
       call cpu_time(tini)
       !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
-      OPEN(UNIT = sf, FILE = sfname)
+      OPEN(UNIT = sf, FILE = sfname, status="old",action="read",position="rewind")
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
       filenam = trim(infile(1:(index(infile,'.')-1)))
@@ -1248,7 +1248,7 @@
 
       if (err_crys) then
         write(unit=*,fmt="(a)") " => ERROR in "//trim(infile)//": "//trim(err_crys_mess)
-        stop
+        call Close_Faults()
       else
         write(op, fmt="(a)") " => Structure input file read in"
       end if
@@ -1337,7 +1337,7 @@
 
             WRITE(op,"(a)") ' => Start simulation'
           ! What type of intensity output does the user want?
-         
+
 
                 IF(funct_num == 3) THEN
                    write(unit=*,fmt="(a)") " => Calculating powder diffraction pattern"
@@ -1367,7 +1367,7 @@
                    WRITE(op,"(a)") ' => Unknown function type.'
                 END IF
 
-             
+
 
 
         !     IF(ok .AND. n /= 3) THEN
@@ -1457,8 +1457,7 @@
       tini=(tini-tfin)*60.0
       write(op,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
       write(i_out,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
-      write(unit=*,fmt="(/,a)") " => Press <Enter> to finish ..."
-      read(unit=*,fmt="(a)") keyw
-      stop
+      call Close_Faults()
+
    END PROGRAM FAULTS
 

@@ -526,11 +526,11 @@
 
   integer,          dimension(:),     allocatable  :: original
   integer                                          :: fls, lls, otls, stls
-  
+
   integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
   integer :: i_adapt = 1  !Adaptive quadrature always applied
   integer :: funct_num ! Function number: 3=powder pattern, 4=SADP
-  
+
 !
 !**********************     REAL(kind=dp) variables
 !
@@ -622,9 +622,9 @@
 
  real(kind=sp)  :: rpo         !lowest rp
  real(kind=sp)  :: chi2o       !lowest chi2
- 
+
  real(kind=dp)  :: l_upper         !upper limit of l, used in SADP simulations
- 
+
  REAL(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
 
  REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer
@@ -706,6 +706,14 @@
 
  integer, parameter        :: max_avercell=25 !max number of transition vectors needed for calculating the average cell
 
+  Contains
+
+    Subroutine Close_Faults()
+      character(len=1) :: keyw
+      write(unit=*,fmt="(/,a)") " => Press <Enter> to finish ..."
+      read(unit=*,fmt="(a)") keyw
+      stop
+    End Subroutine Close_Faults
 
  End Module diffax_mod
 !----------------------------------------------------------------------------------------------------

@@ -213,7 +213,7 @@
       !do i = 1, numberl                 ! To read in case insensitive mode
       !  call u_case(tfile(i))
       !end do
-      call Set_Sections_index() 
+      call Set_Sections_index()
       return
     End Subroutine Set_TFile
 
@@ -1331,10 +1331,10 @@
           Case ('REPLACE_FILES')  !Tune the opening output files to replace previous files
              replace_files = .true.
 
-          Case ('SIMULATION')   
+          Case ('SIMULATION')
             opt = 0
             ok_sim = .true.
-          
+
           Case ("POWDER")
           	k=index(txt," ")
             txt=adjustl(txt(k+1:))
@@ -1394,13 +1394,13 @@
               th2_max = th2_max * deg2rad
               d_theta = half * deg2rad * d_theta
               ok_range=.true.
-         
-          Case ("SADP")	   
+
+          Case ("SADP")
               k=index(txt," ")
-              txt=adjustl(txt(k+1:)) 
+              txt=adjustl(txt(k+1:))
               funct_num = 4
             	read (unit = txt, fmt = *, iostat=ier) i_plane, l_upper, loglin, brightness
-                        	
+
             	if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading SADP parameters"
@@ -1411,20 +1411,20 @@
                 WRITE(op,"(a)") ' => ERROR: Illegal reciprocal plane choice'
                 logi = .false.
                 return
-              end if  
+              end if
               if(loglin < 0 .or. loglin > 1) then
-                WRITE(op,"(a)") ' => ERROR: Illegal intensity scaling type.'   
+                WRITE(op,"(a)") ' => ERROR: Illegal intensity scaling type.'
                 logi = .false.
                 return
-              end if   
+              end if
               if(brightness <= ZERO) then
-                WRITE(op,"(a)") ' => ERROR: Illegal value for brightness. Must be positive' 
+                WRITE(op,"(a)") ' => ERROR: Illegal value for brightness. Must be positive'
             	  logi = .false.
                 return
-              end if  
-              ok_sadp = .true.   
-             
-          
+              end if
+              ok_sadp = .true.
+
+
           Case ("LMA")
             opt=4
             txt=adjustl(txt(k+1:))
@@ -1551,8 +1551,8 @@
             cycle
           End Select
       end do
-     
-          
+
+
      if(ok_sim .and. (ok_range .or. ok_sadp)) then
        return
      else if (ok_opt .and. ok_acc .and. ok_mxfun .and. ok_eps .and. ok_iout) then
@@ -1956,7 +1956,7 @@
           write(*,"(a)")  " => "//Err_crys_mess
           return
          end if
-                
+
 
         if (opt /= 0) then !not necessary for simulation
 
