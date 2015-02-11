@@ -493,12 +493,13 @@
        character(len=4)                             :: car,atm
        integer                                      :: i,j,k,n,n1,n2,np,jbvs
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
-       integer                                      :: i1,j1,k1,sig1,sig2
+       integer                                      :: i1,j1,k1,sig1,sig2,ncont
        real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
        real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, &
                                                        dzero, alpha,c_rep,c_atr
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
-       real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
+       real(kind=cp),   dimension(:,:,:), allocatable :: map_bvs
+       integer(kind=2), dimension(:,:,:), allocatable :: contrib
        type (Atom_list_Type)                        :: At1, At2
        logical                                      :: anion,cation
        !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
@@ -552,7 +553,7 @@
        end if
 
        call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
-       call Deallocate_atom_list(At1)
+       !call Deallocate_atom_list(At1)
        !check that all species are well set in the list
        !Write(unit=*,fmt="(a)") " => List of atoms for calculating BVEL"
        do n=1,At2%natoms
@@ -565,8 +566,9 @@
            end if
        end do
 
-       allocate(map_bvs(ndimx,ndimy,ndimz))
+       allocate(map_bvs(ndimx,ndimy,ndimz),contrib(ndimx,ndimy,ndimz))
        map_bvs=0.0
+       contrib=0
        ! Determination of the valence expected for a good position
        i=index(car,"+")
        cation=.false.
@@ -617,6 +619,7 @@
 
                 sbvs=0.0
                 rep=0.0
+                ncont=0
                 do n=1,At2%natoms
                    n2=At2%Atom(n)%ind(1)
                    q2=At2%Atom(n)%charge
@@ -635,6 +638,7 @@
                             pta=At2%Atom(n)%x+real((/i1,j1,k1/))
                             dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
                             if (dd > drmax) cycle
+                            contrib(i,j,k)=contrib(i,j,k)+1
                             if (sig1 == sig2) then
                                 rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
                             else
@@ -676,8 +680,7 @@
           write (unit=jbvs, fmt='(a)') "BVEL Map Calculations using Bond_STR Program"
           write (unit=jbvs, fmt='(a)') "BVEL Map for species "//trim(car)
           write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
-          write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
-          write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
+          write (unit=jbvs, fmt='(a)') "SPGR  "//trim(SpG%spg_symb)
           write (unit=jbvs, fmt='(a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
           write (unit=jbvs,fmt="(a,/,a,/)")  &
           " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
@@ -696,10 +699,25 @@
                       "   Anion  (Eff. radius): ",A%Species(n2),"(",A%Radius(n2),")"
              end do
           end do
-          write (unit=jbvs, fmt='(a)')     "! List ot atoms  "
-          do i=1,A%natoms
-            write(unit=jbvs, fmt='(a,t20,5f12.5)')"Atom "//trim(A%Atom(i)%lab)//"  "//A%Atom(i)%SfacSymb, &
-                                                   A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
+          write(unit=jbvs,fmt="(a,i3,a)") &
+           "   Principal Quantum Number (test ion): ",nint(n_tion)," for species: "//trim(atname)
+          do j=1,A%N_Spec
+                write(unit=jbvs,fmt="(a,i3,a)") &
+                      "   Principal Quantum Number: ",nint(n_j(j))," for species: "//A%Species(j)
+          end do
+          write (unit=jbvs, fmt='(a)')     " List of atoms  "
+          write (unit=jbvs, fmt='(a)')     "      Label  Species       X           Y           Z         Biso     OccFactor    Occupancy "
+          do i=1,At1%natoms
+            if(At1%atom(i)%active) then
+                write(unit=jbvs, fmt='(a5,2a6,t20,6f12.5)')"Atom ",trim(A%Atom(i)%lab)," "//A%Atom(i)%SfacSymb, &
+                                       A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ, A%Atom(i)%VarF(1)
+            end if
+          end do
+          write (unit=jbvs, fmt='(/,a)')     " Expanded List of atoms  "
+          write (unit=jbvs, fmt='(a)')     "    #      Label  Species     X           Y           Z         Biso     OccFactor    Occupancy "
+          do i=1,At2%natoms
+                write(unit=jbvs, fmt='(i5,3a6,t23,6f12.5)') i," Atom ",trim(At2%Atom(i)%lab)," "//At2%Atom(i)%SfacSymb, &
+                                       At2%Atom(i)%x, At2%Atom(i)%biso, At2%Atom(i)%occ, At2%Atom(i)%VarF(1)
           end do
           if(present(delta) .and. present(vol)) then
              write (unit=jbvs, fmt='(/,a,f10.4,a)')   "Value of delta for volumen calculation:",delta," eV"
@@ -710,14 +728,15 @@
           write (unit=jbvs, fmt='(a)')     "! Grid values: ndimx,ndimy,ndimz [0,ndimx-1] [0,ndimy-1] [0,ndimz-1]  "
           write (unit=jbvs, fmt='(a,9i6)') "GRID ",ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
           if(.not. outp) then
-              write (unit=jbvs, fmt='(a)')     "    X         Y         Z        Energy(eV)"
+              write (unit=jbvs, fmt='(a)')     "    X         Y         Z        Energy(eV)   #Contr.Terms"
               do k=1,ndimz
                  pto(3)=(k-1)*step(3)
                  do j=1,ndimy
                     pto(2)=(j-1)*step(2)
                     do i=1,ndimx
                        pto(1)=(i-1)*step(1)
-                       write(unit=jbvs, fmt='(3f10.5,f14.6)') pto,map_bvs(i,j,k)
+                       ncont=contrib(i,j,k)
+                       write(unit=jbvs, fmt='(3f10.5,f14.6,i12)') pto,map_bvs(i,j,k),ncont
                     end do
                  end do
               end do
