@@ -473,7 +473,7 @@
          "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &  !30
          "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &  !31
          "J.Rodriguez-Carvajal Private communication                                      ", &  !32
-         "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746–1753 ", &  !33
+         "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
          "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
          "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
 
@@ -555,7 +555,7 @@
         Ap_Table(  1)=Atomic_Properties_Type( 1,"H+1 ", 1, 1,  1.0079, 1, 1, 0, 0.370, 0.00000)
         Ap_Table(  2)=Atomic_Properties_Type( 1,"HX+1", 1, 1,  1.0080, 1, 1, 0, 0.370, 0.00000)
         Ap_Table(  3)=Atomic_Properties_Type( 1,"D+1 ", 1, 1,  2.0141, 1, 1, 0, 0.370, 0.00000)
-        Ap_Table(  4)=Atomic_Properties_Type( 3,"LI+1", 1, 1,  6.9410, 2, 1, 1, 1.310, 0.02847)
+        Ap_Table(  4)=Atomic_Properties_Type( 3,"LI+1", 1, 1,  6.9410, 1, 1, 1, 1.310, 0.02847)
         Ap_Table(  5)=Atomic_Properties_Type( 4,"BE+2", 2, 2,  9.0122, 2, 2, 1, 0.910, 0.01474)
         Ap_Table(  6)=Atomic_Properties_Type( 5,"B+3 ", 3, 3, 10.8110, 1, 3, 1, 0.710, 0.00903)
         Ap_Table(  7)=Atomic_Properties_Type( 6,"C+4 ", 4, 4, 12.0107, 2, 4, 1, 0.770, 0.00611)
@@ -744,7 +744,7 @@
     !!----  Fills the parameters for BVEL from
     !!----  Stefan Adams and R. Prasada Rao
     !!---- "High power lithium ion battery materials by computational design"
-    !!----  Phys. Status Solidi A 208, No. 8, 1746–1753 (2011) / DOI 10.1002/pssa.201001116
+    !!----  Phys. Status Solidi A 208, No. 8, 1746, 1753 (2011) / DOI 10.1002/pssa.201001116
     !!----
     !!---- Only one anion is available (O-2) for the moment
     !!----
