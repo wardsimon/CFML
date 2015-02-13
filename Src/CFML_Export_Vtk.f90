@@ -57,6 +57,11 @@ Module CFML_Export_VTK
   logical,            public :: vtk_error=.false.
   character(len=132), public :: vtk_message=" "
 
+  interface write_grid_VESTA
+       Module Procedure write_grid_VESTA_cp
+       Module Procedure write_grid_VESTA_dp
+  end interface
+
   contains
 
   !!----
@@ -258,20 +263,18 @@ Module CFML_Export_VTK
   End Subroutine unitCell_to_PDBfile
 
   !!----
-  !!---- Subroutine write_grid_VESTA(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename,code)
-  !!----  real(kind=cp), dimension(:,:,:), intent(in) :: Z           ! 3D Array to export
-  !!----  type(Crystal_Cell_Type),         intent(in) :: cell        ! The unit-cell
-  !!----  real(kind=cp),                   intent(in) :: xmin,xmax   ! Limits of x
-  !!----  real(kind=cp),                   intent(in) :: ymin,ymax   ! Limits of y
-  !!----  real(kind=cp),                   intent(in) :: zmin,zmax   ! Limits of z
-  !!----  Character(len=*),                intent(in) :: filename    ! Name of the vtk file
-  !!----  Character(len=*),                intent(in) :: code        ! 'P' -> pgrid, 'G' -> ggrid
+  !!---- Subroutine write_grid_VESTA(rho,cell,title,filename,code)
+  !!----  real(kind=cp or dp), dimension(:,:,:), intent(in) :: rho           ! 3D Array to export
+  !!----  type(Crystal_Cell_Type),               intent(in) :: cell        ! The unit-cell
+  !!----  Character(len=*),                      intent(in) :: title       ! Title
+  !!----  Character(len=*),                      intent(in) :: filename    ! Name of the vtk file
+  !!----  Character(len=*),                      intent(in) :: code        ! 'P' -> pgrid, 'G' -> ggrid
   !!----
   !!----  Export a 3D array representing for example a density
   !!----  into a pgrid/ggrid file (VESTA file format).
   !!----  Updated: October - 2014 (JRC)
   !!
-  Subroutine write_grid_VESTA(rho,cell,title,filename,code)
+  Subroutine write_grid_VESTA_cp(rho,cell,title,filename,code)
     real(kind=cp), dimension(:,:,:), intent(in) :: rho         ! 3D Array to export
     type(Crystal_Cell_Type),         intent(in) :: cell        ! The unit-cell
     Character(len=*),                intent(in) :: title       ! title
@@ -325,7 +328,64 @@ Module CFML_Export_VTK
 
     close(unit=vesta_id)
 
-  End Subroutine write_grid_VESTA
+  End Subroutine write_grid_VESTA_cp
+
+  Subroutine write_grid_VESTA_dp(rho,cell,title,filename,code)
+    real(kind=dp), dimension(:,:,:), intent(in) :: rho         ! 3D Array to export
+    type(Crystal_Cell_Type),         intent(in) :: cell        ! The unit-cell
+    Character(len=*),                intent(in) :: title       ! title
+    Character(len=*),                intent(in) :: filename    ! Name of the VESTA file
+    Character(len=*),                intent(in) :: code        ! 'P' -> pgrid, 'G' -> ggrid
+
+    ! Local variables
+    integer :: vesta_id, ier
+    character(len=len(filename)+10) :: filegrid
+    integer(kind=4)              :: gType, fType=0, nVal=1, ndim=3, nASYM != ngrid(1)*ngrid(2)*ngrid(3)
+    integer(kind=4), dimension(4):: version=[3,0,0,0]
+    integer(kind=4), dimension(3):: ngrid
+
+
+    if(code == "P" .or. code == "p") then
+      filegrid=trim(filename)//".pgrid"
+      gtype=1
+    else
+      filegrid=trim(filename)//".ggrid"
+      gtype=0
+    end if
+    ! Open the file and check that the file is valid
+    open(newunit=vesta_id,file=trim(filegrid), &
+           form       = 'UNFORMATTED',  &
+           access     = 'STREAM',       &
+           action     = 'WRITE',        &
+           status     = 'REPLACE',      &
+           iostat=ier)
+    if (ier/=0) then
+      vtk_error=.true.
+      vtk_message="Error opening the file: "//trim(filegrid)
+      return
+    end if
+
+    ! Get the extent in each direction.
+    ngrid=[size(rho,1),size(rho,2),size(rho,3)]
+    nASYM=ngrid(1)*ngrid(2)*ngrid(3)
+
+    ! ----------- Here starts the header
+    write(vesta_id) version
+    write(vesta_id) title(1:79)//end_line
+    write(vesta_id) gType
+    write(vesta_id) fType !=0
+    write(vesta_id) nval  !=1
+    write(vesta_id) ndim  !=3
+    write(vesta_id) ngrid
+    write(vesta_id) nASYM !
+    write(vesta_id) Cell%cell,Cell%ang
+    ! ----------- Here starts the densitydata
+    write(vesta_id) rho
+
+    close(unit=vesta_id)
+
+  End Subroutine write_grid_VESTA_dp
+
 
 End Module CFML_Export_Vtk
 

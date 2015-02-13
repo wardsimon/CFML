@@ -68,7 +68,7 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_GlobalDeps,                 only: Sp,Cp
+    Use CFML_GlobalDeps,                 only: Sp,Cp,dp
     Use CFML_Math_General,               only: Sort_Strings,Sort,cosd
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius
@@ -495,7 +495,7 @@
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                      :: i1,j1,k1,sig1,sig2,ncont
        real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
-       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, &
+       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, d_cutoff, &
                                                        dzero, alpha,c_rep,c_atr
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp),   dimension(:,:,:), allocatable :: map_bvs
@@ -503,7 +503,7 @@
        type (Atom_list_Type)                        :: At1, At2
        logical                                      :: anion,cation
        !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
-       real(kind=cp), parameter :: ke=14.399644850445155254866066
+       real(kind=dp), parameter :: ke=14.399644850445155254866066
        !Principal quantum numbers of the test=ion  and the species of all the atoms of the list
        real(kind=cp) :: n_tion, ferfc
        real(kind=cp), dimension(:), allocatable :: n_j
@@ -628,6 +628,7 @@
                    dzero=Table_Dzero(n1,n2)
                     dmin=Table_Rmin(n1,n2)
                    alpha=Table_Alpha(n1,n2)
+                   d_cutoff=Table_Rcutoff(n1,n2)
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
@@ -642,6 +643,7 @@
                             if (sig1 == sig2) then
                                 rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
                             else
+                               !if(dd > d_cutoff) cycle
                                sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
                          end do

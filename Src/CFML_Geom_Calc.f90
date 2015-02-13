@@ -69,6 +69,7 @@
 !!--++       COORD_MODV                     [Overloaded]
 !!----       DISTANCE
 !!--++       DISTANCE_FR                    [Overloaded]
+!!--++       DISTANCE_FR_DP                 [Overloaded]
 !!--++       DISTANCE_SC                    [Overloaded]
 !!----       MATRIX_PHITHECHI
 !!----       MATRIX_RX
@@ -102,7 +103,7 @@
  Module CFML_Geometry_Calc
 
     !---- Use Modules ----!
-    use CFML_GlobalDeps,                 only: Sp, Cp, eps, pi, to_rad, to_deg
+    use CFML_GlobalDeps,                 only: Sp, Cp, dp, eps, pi, to_rad, to_deg
     use CFML_Math_General,               only: acosd, cosd, sind, Modulo_Lat
     use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse, determ_A
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
@@ -133,7 +134,7 @@
 
     !---- List of private functions ----!
     private :: Angle_Dihedral_Uvw,  Angle_Dihedral_Ijkn, Angle_Uvi, Angle_Uvr, Angle_Modn, Angle_Modv, &
-               Coord_Modn, Coord_Modv, Distance_fr, Distance_sc
+               Coord_Modn, Coord_Modv, Distance_fr, Distance_fr_dp, Distance_sc
 
     !---- Definitions ----!
 
@@ -250,6 +251,7 @@
     End Interface
 
     Interface  Distance
+       Module Procedure Distance_FR_DP
        Module Procedure Distance_FR
        Module Procedure Distance_SC
     End Interface
@@ -563,6 +565,10 @@
     !!----    real(kind=cp), dimension(3),        intent(in) :: x1     !  In -> Point 2
     !!----    Type (Crystal_Cell_Type),           intent(in) :: Cell   !  In -> Cell parameters
     !!----    Or
+    !!----    real(kind=dp), dimension(3),        intent(in) :: x0     !  In -> Point 1
+    !!----    real(kind=dp), dimension(3),        intent(in) :: x1     !  In -> Point 2
+    !!----    Type (Crystal_Cell_Type),           intent(in) :: Cell   !  In -> Cell parameters
+    !!----    Or
     !!----    character(len=*), optional,         intent(in) :: Code
     !!----    real(kind=cp)                                  :: d      ! Out -> Distance
     !!----
@@ -600,6 +606,33 @@
 
        return
     End Function Distance_Fr
+
+    !!--++
+    !!--++ Function Distance_Fr_dp(X0,X1,Celda) Result(D)
+    !!--++    real(kind=dp), dimension(3),  intent(in) :: x0     !  In -> Point 1
+    !!--++    real(kind=dp), dimension(3),  intent(in) :: x1     !  In -> Point 2
+    !!--++    Type (Crystal_Cell_Type),     intent(in) :: Celda  !  In -> Cell parameters
+    !!--++    real(kind=dp)                            :: d      ! Put -> Distance
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculate distance between two points in Fractional
+    !!--++
+    !!--++ Update: February - 2015
+    !!
+    Function Distance_Fr_dp(X0,X1,Celda) Result(Dis)
+       !---- Arguments ----!
+       real(kind=dp), dimension(3), intent(in) :: x0,x1
+       type (Crystal_Cell_Type),    intent(in) :: Celda
+       real(kind=dp)                           :: dis
+
+       !---- Local Variables ----!
+       real(kind=dp), dimension(3) :: xr
+
+       xr = matmul(celda%Cr_Orth_cel,x1-x0)
+       dis=sqrt(dot_product(xr,xr))
+
+       return
+    End Function Distance_Fr_dp
 
     !!--++
     !!--++ Function Distance_SC(X0,X1,Code) Result(D)

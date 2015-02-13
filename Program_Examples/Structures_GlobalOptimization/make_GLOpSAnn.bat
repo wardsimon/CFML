@@ -61,4 +61,6 @@ rem
    upx GLOpSAnn.exe
 if exist %FULLPROF%  copy GLOpSAnn.exe %FULLPROF%\. > nul
 if exist %PROGCFML%  copy GLOpSAnn.exe %PROGCFML%\DistFPS\. > nul
+if exist %PROGCFML%  copy .\Docs\GLOpSAnn.pdf %PROGCFML%\DistFPS\Docs\. > nul
+if exist %PROGCFML%  copy GLOpSAnn.exe %PROGCFML%\DistFPS\. > nul
    del *.obj *.mod *.o *.map *.bak *.exe > nul
