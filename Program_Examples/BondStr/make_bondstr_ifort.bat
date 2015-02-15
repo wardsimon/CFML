@@ -2,8 +2,8 @@
 rem
 rem Intel Compilation
 rem
-   ifort bond_str.f90 /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
-   ifort /exe:bond_str *.obj "%CRYSFML%"\ifort\libc\crysfml.lib
+   ifort Bond_Str.f90 /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
+   ifort /exe:Bond_Str *.obj "%CRYSFML%"\ifort\libc\crysfml.lib
 rem
 rem Compress executable
 rem
@@ -11,8 +11,9 @@ rem
 rem
 rem Update FullProf Distribution
 rem
-   if exist %PROGCFML% copy bond_str.exe %PROGCFML%\DistFPS
-   if exist %FULLPROF% copy bond_str.exe %FULLPROF%
+   if exist %PROGCFML% copy Bond_Str.exe %PROGCFML%\DistFPS
+   if exist %PROGCFML% copy Bond_Str.f90 %PROGCFML%\BondStr\Src
+   if exist %FULLPROF% copy Bond_Str.exe %FULLPROF%
 rem
 rem Clean several files
 rem
