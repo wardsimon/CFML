@@ -242,6 +242,7 @@ $COMP $OPT1  CFML_LSQ_TypeDef.f90
 $COMP $OPT1  CFML_Optimization_LSQ.f90
 $COMP $OPT2  CFML_Sym_Table.f90
 $COMP $OPT2  CFML_Chem_Scatt.f90
+$COMP $OPT2  CFML_BVSpar.f90
 $COMP $OPT1  CFML_Diffpatt.f90
 $COMP $OPT2  CFML_Bonds_Table.f90
 $COMP $OPT1  CFML_Cryst_Types.f90
@@ -250,13 +251,13 @@ $COMP $OPT1  CFML_ILL_Instrm_Data.f90
 $COMP $OPT1  CFML_EoS_Mod.f90
 $COMP $OPT1  CFML_Reflct_Util.f90
 $COMP $OPT1  CFML_Atom_Mod.f90
-$COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Sfac.f90
 $COMP $OPT1  CFML_Geom_Calc.f90
+$COMP $OPT1  CFML_SXTAL_Geom.f90
 $COMP $OPT1  CFML_Propagk.f90
+$COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Maps.f90
 $COMP $OPT1  CFML_Molecules.f90
-$COMP $OPT1  CFML_SXTAL_Geom.f90
 $COMP $OPT1  CFML_Conf_Calc.f90
 $COMP $OPT1  CFML_Form_CIF.f90
 $COMP $OPT1  CFML_Optimization_SAn.f90 $INC
