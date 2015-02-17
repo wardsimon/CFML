@@ -117,6 +117,6 @@ esac
 #
 rm -rf *.o *.mod
 mv -f Faults $PROGCFML/DistFPS/Faults
-cp ../Help/Faults_Manual.pdf $PROGCFML/DistFPS/.
+cp ../Help/Faults_Manual.pdf $PROGCFML/DistFPS/Docs/.
 cd $CRYSFML/Program_Examples/Faults/Scripts/MacOS
 #
