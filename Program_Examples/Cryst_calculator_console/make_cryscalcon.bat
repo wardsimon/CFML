@@ -1,4 +1,4 @@
-@echo on
+@echo off
 rem ****
 rem ****---- Compilation for CRYSCALCON Program ----****
 rem ****

@@ -34,7 +34,7 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-echo on
+echo off
 rem  ifort /c Diffax_glb.f90  /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
 rem  ifort /c Faults_Read.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
 rem  ifort /c Diffax_calc.f90 /O2 /nologo  /heap-arrays:100       /I"%CRYSFML%"\ifort\LibC
