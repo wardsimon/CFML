@@ -15,7 +15,7 @@ rem
    lf95 -c CFML_spher_harm.f90       -o1 -nchk   >> out
    lf95 -c CFML_random.f90           -o1 -nchk   >> out
    lf95 -c CFML_ffts.f90             -o1 -nchk   >> out
-   lf95 -c CFML_string_util.f90      -o1 -nchk   >> out
+   lf95 -c CFML_string_util_LF.f90   -o1 -nchk   >> out
    lf95 -c CFML_io_messwin.f90       -o1 -nchk -mod .;c:\wint\lib.l95 >> out
    lf95 -c CFML_Profile_TOF.f90      -o1 -nchk   >> out
    lf95 -c CFML_Profile_Finger.f90   -o1 -nchk   >> out
@@ -44,7 +44,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
-   lf95 -c CFML_Eos_Mod.f90          -o1 -nchk   >> out
+rem   lf95 -c CFML_Eos_Mod.f90          -o1 -nchk   >> out
    lf95 -c CFML_reflct_util.f90      -o1 -nchk   >> out
    lf95 -c CFML_atom_mod.f90         -o1 -nchk   >> out
 rem

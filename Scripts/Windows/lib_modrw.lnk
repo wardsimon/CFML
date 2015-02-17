@@ -12,7 +12,7 @@ rwCrysFML
 +CFML_optimization_lsq&
 +CFML_math_3D&
 +CFML_spher_harm&
-+CFML_string_util&
++CFML_string_util_LF&
 +CFML_sym_table&
 +CFML_chem_scatt&
 +CFML_BVSpar&
@@ -20,7 +20,6 @@ rwCrysFML
 +CFML_diffpatt&
 +CFML_bonds_table&
 +CFML_symmetry&
-+CFML_EoS_Mod&
 +CFML_reflct_util&
 +CFML_atom_mod&
 +CFML_sfac&
