@@ -71,7 +71,7 @@ else
           OPT1="-c -O"
             ;;
       'ifort')
-          OPT1="-c -O -w -vec-report0"
+          OPT1="-c -O2 -w -vec-report0"
             ;;
       'lf95')
           OPT1="-c -O --nchk --tpp"
@@ -102,8 +102,8 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'ifort')
-      INC="-I../../ifort/LibC"
-      LIB="-L../../ifort/LibC"
+      INC="-I../../ifort64/LibC"
+      LIB="-L../../ifort64/LibC"
       LIBDYNAMIC="-lcrysfml"
       LIBSTATIC="-lcrysfml"
      ;;
@@ -143,4 +143,5 @@ in
      ;;
 esac
 rm -rf *.o *.mod
+upx --compress-icons=0 cryscalcon
 mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon

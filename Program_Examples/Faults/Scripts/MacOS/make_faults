@@ -109,7 +109,7 @@ in
      ;;
 esac
 #
-# Compress program
+# Compress program  !not for MacOS
 #
 #upx --compress-icons=0 Faults
 #

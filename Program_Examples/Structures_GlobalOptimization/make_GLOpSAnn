@@ -71,7 +71,7 @@ else
           OPT1="-c -O"
             ;;
       'ifort')
-          OPT1="-c -O -w -vec-report0"
+          OPT1="-c -O3 -w -vec-report0"
             ;;
       'lf95')
           OPT1="-c -O --nchk --tpp"
@@ -117,9 +117,9 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 observ.f90    $INC
+$COMP $OPT1 observ.f90            $INC
 $COMP $OPT1 cost_functions.f90    $INC
-$COMP $OPT1 GLOpSAnn.f90    $INC
+$COMP $OPT1 GLOpSAnn.f90          $INC
 case $COMP
 in
   'af95')
@@ -139,4 +139,5 @@ in
      ;;
 esac
 rm -rf *.o *.mod
+upx --compress-icons=0 GLOpSAnn
 cp GLOpSAnn $PROGCFML/DistFPS/Docs/GLOpSAnn

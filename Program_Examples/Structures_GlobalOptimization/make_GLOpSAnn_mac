@@ -4,7 +4,7 @@
 if [ a$1 = a ]
 then
 cat << !
-make_optim_general : Make the GLOpSAnn Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Mac)
+make_optim_general : Make the GLOpSAnn Program for Absoft/G95/GFortran/Intel/Lahey Compilers (MacOS)
 Syntax             : make_GLOpSAnn af95:g95:ifort:lf95:gfortran
 !
 exit
@@ -71,7 +71,7 @@ else
           OPT1="-c -O"
             ;;
       'ifort')
-          OPT1="-c -O -w -vec-report0"
+          OPT1="-c -O3 -w -vec-report0"
             ;;
       'lf95')
           OPT1="-c -O --nchk --tpp"
