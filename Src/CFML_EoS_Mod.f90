@@ -78,6 +78,9 @@
 !!----    GET_PRESSURE_ESD
 !!----    GET_TEMPERATURE
 !!----    GET_TEMPERATURE_P0
+!!----    GET_TRANSITION_PRESSURE
+!!----    GET_TRANSITION_STRAIN
+!!----    GET_TRANSITION_TEMPERATURE
 !!----    GET_V0_T                       [PRIVATE]
 !!----    GET_VOLUME
 !!----    GET_VOLUME_S
@@ -90,7 +93,7 @@
 !!----    PTHERMAL                       [PRIVATE]
 !!----    STRAIN
 !!----    STRAIN_EOS
-!!----
+!!----    TRANSITION_PHASE
 !!----
 !!----    Subroutines:
 !!----    --------------------------
@@ -111,18 +114,28 @@
 !!----    GET_TAIT                       [PRIVATE]
 !!----    INIT_EOS_DATA_TYPE
 !!----    INIT_EOS_THERMAL
+!!----    INIT_EOS_TRANSITION
 !!----    INIT_EOS_TYPE
 !!----    INIT_ERR_EOS
 !!----    PHYSICAL_CHECK                 [PRIVATE]
 !!----    READ_EOS_DATAFILE
+!!----    READ_EOS_FILE
+!!----    SET_EOS_FACTORS                [PRIVATE]
 !!----    SET_EOS_NAMES
 !!----    SET_EOS_USE
 !!----    SET_KP_KPP_COND
+!!----    SET_THERMAL_NAMES              [PRIVATE]
+!!----    SET_TRANSITION_NAMES           [PRIVATE]
 !!----    SET_VOLUME_FROM_CELL           [PRIVATE]
 !!----    TRANSFORM_ESD                  [PRIVATE]
 !!----    VEC_TO_EOS                     [PRIVATE]
+!!----    WRITE_EOS_DATAFILE
+!!----    WRITE_EOS_FILE
+!!----    WRITE_EOSCAL_FILE
+!!----    WRITE_EOSCAL_HEADER
 !!----    WRITE_INFO_EOS
 !!----    WRITE_INFO_EOS_THERMAL         [PRIVATE]
+!!----    WRITE_INFO_EOS_TRANSITION      [PRIVATE]
 !!----
 !!
 Module CFML_EoS
@@ -3212,7 +3225,7 @@ Contains
 
       !> Set upper limit to thermal parameter numbers
       n=19
-      if(n >n_eospar)n=n_eospar
+      if(n > n_eospar)n=n_eospar
 
 
       select case(eospar%itherm)
@@ -3223,73 +3236,79 @@ Contains
             eospar%vcv(10:n,1:n)=0.
             eospar%vcv(1:n,10:n)=0.
             eospar%factor(10:n) = 1.0
-            eospar%TRef    =298.0_cp       ! Simple thermal expansion,
+            eospar%TRef    =298.0_cp                  ! Simple thermal expansion,
             eospar%TRef_fixed = .false.
 
          case(1)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E8_cp
-            eospar%TRef    =298.0_cp       ! Simple thermal expansion,
-            eospar%TRef_fixed = .false.    ! alpha terms can be safely 0.
+            eospar%TRef    =298.0_cp                  ! Simple thermal expansion,
+            eospar%TRef_fixed = .false.               ! alpha terms can be safely 0.
 
          case(2)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E8_cp
             eospar%factor(12)  = 1.0_cp
-            eospar%TRef    =298.0_cp       ! Simple thermal expansion,
+            eospar%TRef    =298.0_cp                  ! Simple thermal expansion,
             eospar%TRef_fixed = .false.
 
          case(3)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E4_cp
-            eospar%TRef        =298.0_cp       ! Simple thermal expansion,
+            eospar%TRef        =298.0_cp              ! Simple thermal expansion,
             eospar%TRef_fixed  = .false.
 
          case(4)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
-            eospar%TRef    =298.0_cp     ! Holland and Powell thermal expansion
+            eospar%TRef    =298.0_cp                  ! Holland and Powell thermal expansion
             eospar%TRef_fixed = .false.
-            eospar%params(11) = 298.0_cp   ! Einstein temperature
+            eospar%params(11) = 298.0_cp              ! Einstein temperature
 
          case(5)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
-            eospar%TRef    =0.0_cp     ! Salje thermal expansion
+            eospar%TRef    =0.0_cp                    ! Salje thermal expansion
             eospar%TRef_fixed = .true.
-            eospar%params(11) = 298.0_cp   ! Saturation temperature
+            eospar%params(11) = 298.0_cp              ! Saturation temperature
 
          case(6)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+            eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
             eospar%TRef    =298.0_cp
             eospar%TRef_fixed = .false.
-            eospar%params(11) = 298.0_cp   ! Einstein temperature
+            eospar%params(11) = 298.0_cp              ! Einstein temperature
 
          end select
 
-      call Set_Thermal_Names(Eospar)            ! Set the variable names
-      call Set_Eos_Use(Eospar)                 ! update the use flags
+      call Set_Thermal_Names(Eospar)                  ! Set the variable names
+      call Set_Eos_Use(Eospar)                        ! update the use flags
 
       return
    End Subroutine Init_EoS_Thermal
 
 
-
-
+   !!----
+   !!---- SUBROUTINE Init_EoS_Transition(Eospar)
+   !!----    type (EoS_Type), intent(in out) :: Eospar
+   !!----
+   !!---- Initialize the EoS Type for Transition case
+   !!----
+   !!---- Date: 17/02/2015
+   !!
    Subroutine Init_EoS_Transition(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
 
       !---- Variables ----!
-      integer       :: n
+      integer  :: n
 
       !> Check for valid model number. If not valid, set zero
-      if(eospar%itran < 0 .or. eospar%itran > N_tranmodel)eospar%itran=0
+      if(eospar%itran < 0 .or. eospar%itran > N_tranmodel) eospar%itran=0
 
       !> Set upper limit to parameter numbers
       n=29
-      if(n >n_eospar)n=n_eospar
+      if(n > n_eospar)n=n_eospar
 
       select case(eospar%itran)
          case(0)
@@ -3299,61 +3318,64 @@ Contains
             eospar%vcv(1:n_eospar,10:n)=0.
             eospar%factor(20:n) = 1.0
 
-        case(1)        ! Landau PV
-             eospar%params(20) = 1.0        ! high P is high sym
-             eospar%params(21) = 5.         ! Safe default Ptr
-             eospar%params(22) = 0.0        ! dTr/dP: not used
-             eospar%params(23) = 0.0        ! no excess V
-             eospar%params(24) = 0.0        ! da/dP not used
-             eospar%params(25) = 0.5        ! power law
-             eospar%params(26) = 0.0        ! excess V high phase
-             eospar%params(27) = 0.5        ! power law high phase
+         case(1)        ! Landau PV
+            eospar%params(20) = 1.0        ! high P is high sym
+            eospar%params(21) = 5.         ! Safe default Ptr
+            eospar%params(22) = 0.0        ! dTr/dP: not used
+            eospar%params(23) = 0.0        ! no excess V
+            eospar%params(24) = 0.0        ! da/dP not used
+            eospar%params(25) = 0.5        ! power law
+            eospar%params(26) = 0.0        ! excess V high phase
+            eospar%params(27) = 0.5        ! power law high phase
 
-             eospar%factor(20:n) = 1.0
-             eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
-             eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
+            eospar%factor(20:n) = 1.0
+            eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
+            eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
 
-        case(2)        ! Landau TV
-             eospar%params(20) = 1.0        ! high T is high sym
-             eospar%params(21) = 800.       ! Safe default Ttr
-             eospar%params(22) = 100.       ! dTr/dP: dummy will be used in get_pressure
-             eospar%params(23) = 0.0        ! no excess V
-             eospar%params(24) = 0.0        ! da/dP not used
-             eospar%params(25) = 0.5        ! power law
-             eospar%params(26) = 0.0        ! excess V high phase
-             eospar%params(27) = 0.5        ! power law high phase
+         case(2)        ! Landau TV
+            eospar%params(20) = 1.0        ! high T is high sym
+            eospar%params(21) = 800.       ! Safe default Ttr
+            eospar%params(22) = 100.       ! dTr/dP: dummy will be used in get_pressure
+            eospar%params(23) = 0.0        ! no excess V
+            eospar%params(24) = 0.0        ! da/dP not used
+            eospar%params(25) = 0.5        ! power law
+            eospar%params(26) = 0.0        ! excess V high phase
+            eospar%params(27) = 0.5        ! power law high phase
 
-             eospar%factor(20:n) = 1.0
-             eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
-             eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
+            eospar%factor(20:n) = 1.0
+            eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
+            eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
 
 
          case(3)        ! Landau PVT
-             eospar%params(20) = 1.0        ! high T is high sym
-             eospar%params(21) = 800.       ! Safe defaulat Tr
-             eospar%params(22) = 1.0
-             eospar%params(23) = 0.0        ! no excess V
-             eospar%params(24) = 0.0
-             eospar%params(25) = 0.5
-             eospar%params(26) = 0.0        ! excess V high phase
-             eospar%params(27) = 0.5        ! power law high phase
+            eospar%params(20) = 1.0        ! high T is high sym
+            eospar%params(21) = 800.       ! Safe defaulat Tr
+            eospar%params(22) = 1.0
+            eospar%params(23) = 0.0        ! no excess V
+            eospar%params(24) = 0.0
+            eospar%params(25) = 0.5
+            eospar%params(26) = 0.0        ! excess V high phase
+            eospar%params(27) = 0.5        ! power law high phase
 
-             eospar%factor(20:n) = 1.0
-             eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
-             eospar%factor(24) = 1.0E5_cp   ! for da/dP
-             eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
+            eospar%factor(20:n) = 1.0
+            eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
+            eospar%factor(24) = 1.0E5_cp   ! for da/dP
+            eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
 
+      end select
 
-         end select
-
-      call Set_Transition_Names(Eospar)            ! Set the variable names
-      call Set_Eos_Use(Eospar)                 ! update the use flags
+      call Set_Transition_Names(Eospar)    ! Set the variable names
+      call Set_Eos_Use(Eospar)             ! update the use flags
 
       return
    End Subroutine Init_EoS_Transition
+
    !!----
-   !!---- SUBROUTINE Init_EoS_Type(Eospar,CLin,IThermal)
-   !!----    type (EoS_Type),  intent(in out) :: Eospar
+   !!---- SUBROUTINE Init_EoS_Type(Eospar,CLin,IThermal,ITransition)
+   !!----    type (EoS_Type),            intent(in out) :: Eospar
+   !!----    character(len=*), optional, intent(in)     :: CLin        ! Character variable to indicate linear EoS or not
+   !!----    integer,          optional, intent(in)     :: IThermal    ! integer to indicate ithermal type
+   !!----    integer,          optional, intent(in)     :: ITransition ! integer to indicate transition type
    !!----
    !!---- Initialize EoS_Type setting all parameters to sensible values
    !!----
@@ -3361,11 +3383,10 @@ Contains
    !!
    Subroutine Init_EoS_Type(Eospar,CLin,IThermal,ITransition)
       !---- Arguments ----!
-      type (EoS_Type),            intent(in out) :: Eospar    ! EoS Type
-      character(len=*), optional, intent(in)     :: CLin      ! Character variable to indicate linear EoS or not
-      integer,          optional, intent(in)     :: IThermal  ! integer to indicate ithermal type
+      type (EoS_Type),            intent(in out) :: Eospar       ! EoS Type
+      character(len=*), optional, intent(in)     :: CLin         ! Character variable to indicate linear EoS or not
+      integer,          optional, intent(in)     :: IThermal     ! integer to indicate ithermal type
       integer,          optional, intent(in)     :: ITransition  ! integer to indicate transition type
-
 
       !> test for optional argument for linear
       Eospar%Linear  =.false.
@@ -3420,8 +3441,6 @@ Contains
          Eospar%ITran = itransition
          call Init_Eos_Transition(Eospar)              ! set up default values, names for specific transition
       end if
-
-
 
       return
    End Subroutine Init_EoS_Type
@@ -4202,13 +4221,20 @@ Contains
       return
    End Subroutine Write_Eos_File
 
-
+   !!--++
+   !!--++ SUBROUTINE Set_EoS_Factors(Eospar)
+   !!--++    type (EoS_Type), intent(in out) :: Eospar
+   !!--++
+   !!--++ PRIVATE
+   !!--++ Initialize the EoS Factors without change in the parameters values
+   !!--++
+   !!--++ Date: 17/02/2015
+   !!
    Subroutine Set_EoS_Factors(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
 
-
-
+      !> Init
       eospar%factor=1.0
 
       select case(eospar%itherm)
@@ -4240,15 +4266,15 @@ Contains
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
 
-         end select
+      end select
 
-         select case(eospar%itran)
-            case(1:3)
-             eospar%factor(20:n_eospar) = 1.0
-             eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
-             eospar%factor(24) = 1.0E5_cp   ! for da/dP
-             eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
-         end select
+      select case(eospar%itran)
+         case(1:3)
+            eospar%factor(20:n_eospar) = 1.0
+            eospar%factor(23) = 1.0E3_cp   ! 1000 for aL
+            eospar%factor(24) = 1.0E5_cp   ! for da/dP
+            eospar%factor(26) = 1.0E3_cp   ! 1000 for aH
+      end select
 
       return
    End Subroutine Set_Eos_Factors
@@ -4310,14 +4336,15 @@ Contains
    End Subroutine Set_Eos_Names
 
 
-   !!----
-   !!---- SUBROUTINE Set_Thermal_Names(Eospar)
-   !!----    type (EoS_Type), intent(in out)      :: Eospar
-   !!----
-   !!---- Set the character variables in eos_type data structures for thermal EoS
-   !!----
-   !!----
-   !!---- Date: 21/07/2014 : split from init_eos_thermal
+   !!--++
+   !!--++ SUBROUTINE Set_Thermal_Names(Eospar)
+   !!--++    type (EoS_Type), intent(in out)      :: Eospar
+   !!--++
+   !!--++ PRIVATE
+   !!--++ Set the character variables in eos_type data structures for thermal EoS
+   !!--++
+   !!--++
+   !!--++ Date: 21/07/2014 : split from init_eos_thermal
    !!
    Subroutine Set_Thermal_Names(Eospar)
       !---- Arguments ----!
@@ -4381,13 +4408,14 @@ Contains
       return
    End Subroutine Set_Thermal_Names
 
-   !!----
-   !!---- SUBROUTINE Set_Transition_Names(Eospar)
-   !!----    type (EoS_Type), intent(in out)      :: Eospar
-   !!----
-   !!---- Set the character variables in eos_type data structures for Transition EoS
-   !!----
-   !!---- Date: 16/02/2015
+   !!--++
+   !!--++ SUBROUTINE Set_Transition_Names(Eospar)
+   !!--++    type (EoS_Type), intent(in out)      :: Eospar
+   !!--++
+   !!--++ PRIVATE
+   !!--++ Set the character variables in eos_type data structures for Transition EoS
+   !!--++
+   !!--++ Date: 16/02/2015
    !!
    Subroutine Set_Transition_Names(Eospar)
       !---- Arguments ----!
@@ -4518,18 +4546,17 @@ Contains
 
         !> Phase transition model
         select case(eospar%itran)
+           case(1,2)     ! Landau PV or TV
+              eospar%iuse(20)=2        !settable, no refine: sense of transition,
+              eospar%iuse(21)=1           !settable, allow refine: Ptr or Ttr
+              eospar%iuse(23)=1           !settable, allow refine: aL
+              eospar%iuse(25)=1           !settable, allow refine: betaL
+              eospar%iuse(26)=1           !settable, allow refine: aH
+              eospar%iuse(27)=1           !settable, allow refine: betaH
 
-        case(1,2)     ! Landau PV or TV
-            eospar%iuse(20)=2        !settable, no refine: sense of transition,
-            eospar%iuse(21)=1           !settable, allow refine: Ptr or Ttr
-            eospar%iuse(23)=1           !settable, allow refine: aL
-            eospar%iuse(25)=1           !settable, allow refine: betaL
-            eospar%iuse(26)=1           !settable, allow refine: aH
-            eospar%iuse(27)=1           !settable, allow refine: betaH
-
-        case(3)     ! Landau PVT
-            eospar%iuse(20:22)=2        !settable, no refine: sense of transition, T(tr), dT(Tr)/dP
-            eospar%iuse(23:27)=1        !settable, allow refine: aL, da/dT, betaL,aH,betaH
+           case(3)     ! Landau PVT
+              eospar%iuse(20:22)=2        !settable, no refine: sense of transition, T(tr), dT(Tr)/dP
+              eospar%iuse(23:27)=1        !settable, allow refine: aL, da/dT, betaL,aH,betaH
         end select
 
 
@@ -4776,8 +4803,6 @@ Contains
       !> Unit to print the information
       lun=6
       if (present(iout)) lun=iout
-
-
 
       write(unit=lun,fmt='(a)') ' '
       write(unit=lun,fmt='(a)') ' '
