@@ -590,8 +590,10 @@
        character(len=40)   :: string
 
        !---- Local Variables ----!
-       integer :: d, ineg, j
-       real    :: x, xlim
+       character(len=4) :: carw,card
+       character(len=20):: forms
+       integer          :: d, ineg, j
+       real             :: x, xlim
 
        !> Initialise
        string=''
@@ -630,7 +632,16 @@
        if (x > xlim)then         ! need to write in e format
           d=w-6-ineg
           if (d < 0) d=1
-          write(string,'(E<w>.<d>)')val
+
+          write(unit=carw,fmt='(i4)') w
+          carw=adjustl(carw)
+          write(unit=card,fmt='(i4)') d
+          card=adjustl(card)
+          forms='(E'//trim(carw)//'.'//trim(card)//')'
+          write(unit=string,fmt=trim(forms)) val
+
+          !Only valid for intel, not for gfortran
+          !write(string,'(E<w>.<d>)')val
           return
        end if
 
@@ -649,9 +660,17 @@
        d=w-j
        if (d < 0) d=0     ! safety: should never happen
 
-       write(string,'(F<w>.<d>)')val
-       return
+       write(unit=carw,fmt='(i4)') w
+       carw=adjustl(carw)
+       write(unit=card,fmt='(i4)') d
+       card=adjustl(card)
+       forms='(F'//trim(carw)//'.'//trim(card)//')'
+       write(unit=string,fmt=trim(forms)) val
 
+       !Only valid for intel, not for gfortran
+       !write(string,'(F<w>.<d>)')val
+
+       return
     End Function Rformat
 
     !!----
