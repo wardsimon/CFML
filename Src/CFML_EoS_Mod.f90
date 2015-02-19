@@ -211,7 +211,7 @@ Module CFML_EoS
    !!----    Name of the Pressure Models
    !!----
    character(len=15), public, parameter, dimension(0:N_pmodel) :: Pmodel_names= &
-            (/'None','Murnaghan','Birch-Murnaghan','Vinet','Natural Strain','Tait'/)
+            (/'None           ', 'Murnaghan      ', 'Birch-Murnaghan', 'Vinet          ', 'Natural Strain ', 'Tait           '/)
 
    !!----
    !!---- TMODEL_NAMES
@@ -219,8 +219,8 @@ Module CFML_EoS
    !!----
    !!----    Name of the Thermal Models
    !!----
-   character(len=15), public, parameter, dimension(0:N_tmodel) :: Tmodel_names= &
-            (/'None','Berman 1988', 'Fei 1995', 'Modified HP1998', 'Kroll', 'Salje low-T','HP Thermal Pressure'/)
+   character(len=19), public, parameter, dimension(0:N_tmodel) :: Tmodel_names= &
+            (/'None               ', 'Berman 1988        ', 'Fei 1995           ', 'Modified HP1998    ', 'Kroll              ', 'Salje low-T        ', 'HP Thermal Pressure'/)
 
    !!----
    !!---- TRANMODEL_NAMES
@@ -229,7 +229,7 @@ Module CFML_EoS
    !!----    Name of the Transitions Models
    !!----
    character(len=15), public, parameter, dimension(0:N_tranmodel) :: Tranmodel_names= &
-            (/'None','Landau P only','Landau T only','Landau PVT'/)
+            (/'None           ', 'Landau P only  ', 'Landau T only  ', 'Landau PVT     '/)
 
    !!----
    !!---- ERR_EOS
@@ -4440,7 +4440,7 @@ Contains
             eospar%comment(20:n) = ' '
 
          case(1)       ! Landau power law P-V
-            eospar%parname(20:27) = (/'High','Ptr','','aL','','betaL','aH','betaH'/)
+            eospar%parname(20:27) = (/'High ','Ptr  ','     ','aL   ','     ','betaL','aH   ','betaH'/)
             eospar%comment(20) = 'Indicator = +1 if high P phase is high sym phase'
             eospar%comment(21) = 'Transition pressure'
             eospar%comment(22) = 'dTr/dP: slope of transition boundary'
@@ -4451,7 +4451,7 @@ Contains
             eospar%comment(27) = 'Power law term, high phase'
 
          case(2)       ! Landau power law V-T
-            eospar%parname(20:27) = (/'High','Ttr','','aL','','betaL','aH','betaH'/)
+            eospar%parname(20:27) = (/'High ','Ttr  ','     ','aL   ','     ','betaL','aH   ','betaH'/)
             eospar%comment(20) = 'Indicator = +1 if high T phase is high sym phase'
             eospar%comment(21) = 'Transition temperature'
             eospar%comment(22) = ''
@@ -4462,7 +4462,7 @@ Contains
             eospar%comment(27) = 'Power law term, high phase'
 
          case(3)       ! Landau power law PVT
-            eospar%parname(20:27) = (/'High','Ttr','Tr/dP','aL','da/dP','betaL','aH','betaH'/)
+            eospar%parname(20:27) = (/'High ','Ttr  ','Tr/dP','aL   ','da/dP','betaL','aH   ','betaH'/)
             eospar%comment(20) = 'Indicator = +1 if high T phase is high sym phase'
             eospar%comment(21) = 'Transition temperature'
             eospar%comment(22) = 'dTr/dP: slope of transition boundary'
@@ -5003,11 +5003,9 @@ Contains
 
       !> create column header
       if (eos%linear) then
-         write(head,'('' Press  Temp ('',a1,'')   Length  esdL       L/L0T  esd(V/V0T)  M      esdM  Mprime '', &
-             ''esdMp   Mpp  esdMpp  f         esdf       F       esdF    dM/dT    esd     alpha  esd'')')Tscale
+         write(head,'('' Press  Temp ('',a1,'')   Length  esdL       L/L0T  esd(V/V0T)  M      esdM  Mprime '', ''esdMp   Mpp  esdMpp  f         esdf       F       esdF    dM/dT    esd     alpha  esd'')')Tscale
       else
-         write(head,'('' Press  Temp ('',a1,'')   Volume  esdV       V/V0T  esd(V/V0T)  K      esdK  Kprime '', &
-             ''esdKp   Kpp  esdKpp  f         esdf       F       esdF    dK/dT    esd     alpha  esd'')')Tscale
+         write(head,'('' Press  Temp ('',a1,'')   Volume  esdV       V/V0T  esd(V/V0T)  K      esdK  Kprime '', ''esdKp   Kpp  esdKpp  f         esdf       F       esdF    dK/dT    esd     alpha  esd'')')Tscale
       end if
       if (eos%itran > 0)head=trim(head)//' sp strain'
 
