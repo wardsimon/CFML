@@ -14,7 +14,7 @@ rem
    gfortran -c CFML_spher_harm.f90       -O0 -fbacktrace  -std=f2003 -ffree-line-length-none
    gfortran -c CFML_random.f90           -O0 -fbacktrace  -std=f2003 -ffree-line-length-none
    gfortran -c CFML_ffts.f90             -O0 -fbacktrace  -std=f2003 -ffree-line-length-none
-   gfortran -c CFML_string_util.f90      -O0 -fbacktrace  -std=f2003 -ffree-line-length-none
+   gfortran -c CFML_string_util_LF.f90   -O0 -fbacktrace  -std=f2003 -ffree-line-length-none
    gfortran -c CFML_io_messwin.f90       -O0 -fbacktrace  -std=f2003   -I"%winter%\lib.gnu" -ffree-line-length-none
 rem -std=f2003 removed in TOF because probably there is a conflict of names
 rem  is erfc an intrinsic function in  F2003?

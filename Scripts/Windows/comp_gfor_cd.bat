@@ -14,11 +14,11 @@ rem
    gfortran -c CFML_spher_harm.f90       -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_random.f90           -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_ffts.f90             -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
-   gfortran -c CFML_string_util.f90      -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
+   gfortran -c CFML_string_util_LF.f90   -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_io_mess.f90          -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
 rem -std=f2003 removed in TOF because probably there is a conflict of names
 rem  is erfc an intrinsic function in  F2003?
-   gfortran -c CFML_Profile_TOF.f90      -O0 -fbacktrace  -std=gnu     -ffree-line-length-none 
+   gfortran -c CFML_Profile_TOF.f90      -O0 -fbacktrace  -std=gnu     -ffree-line-length-none
    gfortran -c CFML_Profile_Finger.f90   -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_Profile_Functs.f90   -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
 rem
@@ -44,7 +44,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
-   gfortran -c CFML_Eos_Mod.f90          -O0 -fbacktrace  -std=f2003  -ffree-line-length-none 
+   gfortran -c CFML_Eos_Mod.f90          -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
    gfortran -c CFML_reflct_util.f90      -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
    gfortran -c CFML_atom_mod.f90         -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
 rem
