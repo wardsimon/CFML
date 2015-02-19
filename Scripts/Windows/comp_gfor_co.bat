@@ -14,7 +14,7 @@ rem
    gfortran -c CFML_spher_harm.f90       -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_random.f90           -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_ffts.f90             -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_string_util_LF.f90   -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_string_util.f90   -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_io_mess.f90          -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem -std=f2003 removed in TOF because probably there is a conflict of names
 rem  is erfc an intrinsic function in  F2003?
