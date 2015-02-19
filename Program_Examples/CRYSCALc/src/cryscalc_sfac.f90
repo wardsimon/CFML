@@ -285,7 +285,7 @@ subroutine generate_HKL()
   on_screen = .false.
  end if 
   
-  IF(ON_screen) then 
+ IF(ON_screen) then 
   IF(keyword_WAVE) then  
    call write_info('')
    WRITE(message_text, '(a,F8.5,a)')'    . hkl list generation (l=',wavelength,' A)'
@@ -298,6 +298,8 @@ subroutine generate_HKL()
    call write_info('      -------------------')
    call write_info('')
   endif
+ else
+  call write_info('     ... generation of hkl reflexions ...')
  end if
 
 
@@ -370,7 +372,7 @@ subroutine generate_HKL()
 
  IF(SPG%centred /= 2) friedel=.false.
 
- if(.not. on_screen) call write_info('     ... generation of hkl reflexions ...')
+ !if(.not. on_screen) call write_info('     ... generation of hkl reflexions ...')
  
  call HKL_gen(crystal_cell, SPG, Friedel, STL_min, STL_max, Num_ref, reflex_HKL )
 
@@ -412,7 +414,7 @@ subroutine generate_HKL()
   call write_info('')
  end if
 
- if(.not. write_HKL) then
+ if(.not. write_HKL .and. .not. create_PAT) then
   DEALLOCATE (reflex_HKL)
   deallocate (ordered_array)
   on_screen = tmp_on_screen
@@ -481,7 +483,7 @@ subroutine generate_HKL()
 ! call sort(Num_ref,reflex_HKL%S, ordered_array )
   call sort(reflex_HKL%S, Num_ref, ordered_array )
 
-  if(.not. on_screen) then
+  if(.not. on_screen .or. .not. write_hkl) then
    write(message_text, '(3a,I6,a)') '     ... calculation of (', trim(beam_type), ') structure factors for the ',&
                                     Num_ref, ' reflexions ...'
    call write_info(trim(message_text))
@@ -521,29 +523,44 @@ subroutine generate_HKL()
    ! mode = NUC : neutrons
    ! lun (optionel) : unite de sortie
    
-   if(on_screen) open (unit=tmp_unit, file="sfac.txt")
+   if(on_screen .and. write_hkl) open (unit=tmp_unit, file="sfac.txt")
    if(beam_type(1:8) == 'neutrons') then
-    if(on_screen) then
-	call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC", lun=tmp_unit)
+    !if(.not. on_screen .or. .not. write_hkl) then
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC")
+	!else 
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC", lun=tmp_unit)
+	!end if
+    if(on_screen .and. write_hkl) then
+	 call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC", lun=tmp_unit)
 	else
-	call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC")
+	 call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="NUC")
 	endif
     call Structure_Factors(Atm,SpG,reflex_list_HKL, mode="NUC")
 	! new : 09.05.2012 idem powpat.F90
 	call Init_Calc_hkl_StrFactors(Atm, mode = 'NUC')
 	
    elseif(beam_type(1:9) == 'electrons') then
-    if(on_screen) then
+    !if(.not. on_screen .or. .not. write_hkl) then
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="ELE")
+	!else
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="ELE", lun=tmp_unit)
+	!endif
+    if(on_screen .and. write_hkl) then
      call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="ELE", lun=tmp_unit)
 	else 
-	 call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="ELE", lun=tmp_unit)
+	 call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="ELE")
 	end if 
     call Structure_Factors(Atm,SpG,reflex_list_HKL, mode="ELE") 
    ! new : 09.05.2012 idem powpat.F90
 	call Init_Calc_hkl_StrFactors(Atm, mode = 'ELE')
 
    else   
-    if(on_screen) then
+    !if(.not. on_screen .or. .not. write_hkl) then
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="XRA", lambda=wavelength)   
+	!else
+	! call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="XRA", lambda=wavelength, lun=tmp_unit)   
+	!endif
+    if(on_screen .and. write_hkl) then
      call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="XRA", lambda=wavelength, lun=tmp_unit)   
 	else 
 	 call Init_Structure_Factors(reflex_list_HKL, Atm, Spg, mode="XRA", lambda=wavelength)   
@@ -554,22 +571,22 @@ subroutine generate_HKL()
    endif
    close(unit=tmp_unit)
    
-   if(on_screen) then
-   open (unit=tmp_unit, file="sfac.txt")
-    do
-     read(unit=tmp_unit, fmt='(a)', iostat=i_error) read_line
-     if(i_error /=0) exit
-     call write_info(trim(read_line))
-    end do
-   close(unit=tmp_unit)
-   call system("del sfac.txt")
+   if(on_screen .and. write_hkl) then
+    open (unit=tmp_unit, file="sfac.txt")
+     do
+      read(unit=tmp_unit, fmt='(a)', iostat=i_error) read_line
+      if(i_error /=0) exit
+      call write_info(trim(read_line))
+     end do
+    close(unit=tmp_unit)
+    call system("del sfac.txt")
    end if
 
    
    if(HKL_2theta) then
     calcul_I = .true.
     if(beam_type(1:9) == 'electrons') calcul_I = .false.
-	if(on_screen) then
+	if(on_screen .and. write_hkl) then
      if(calcul_I) then
       write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
                                   '         Phase        F-Real        F-Imag           Lp         |Fc|^2       I/Imax'
@@ -580,13 +597,13 @@ subroutine generate_HKL()
      call write_info(trim(message_text))
 	end if
    else
-    if(on_screen) then
+    if(on_screen .and. write_hkl) then
     write(message_text, '(2a)') '           H   K   L   Mult     SinTh/Lda          dspc          |Fc|         Phase',&
                                 '        F-Real        F-Imag        |Fc|^2'
     call write_info(trim(message_text))
 	end if
    endif
-   if(on_screen) call write_info('')
+   if(on_screen .and. write_hkl) call write_info('')
     
 
   ! calcul des facteurs de structure des reflections (new : 09.05.2012 idem powpat.F90)
@@ -634,7 +651,7 @@ subroutine generate_HKL()
    end if   
 	
    do i=1,reflex_list_HKL%Nref
-    if(ON_SCREEN) then
+    if(ON_SCREEN .and. write_hkl) then
 	if(HKL_2theta) then  !calcul du 2theta
      F2 = reflex_list_HKL%ref(i)%Fc*reflex_list_HKL%ref(i)%Fc     
 	 if(calcul_I) then
@@ -675,7 +692,7 @@ subroutine generate_HKL()
    !call write_info('')
       
    if(HKL_2theta .and. create_PAT) then
-     if(.not. on_screen) call write_info('     ... calculation of powder diffraction profiles ...')
+     if(.not. on_screen .or. .not. write_hkl) call write_info('     ... calculation of powder diffraction profiles ...')
 
      if(beam_type(1:8) == 'neutrons') then
       !call create_diffraction_pattern("n", wavelength, X_min, X_max, reflex_list_HKL%Nref, angle_2theta, II)
@@ -1197,124 +1214,6 @@ subroutine calcul_H_eta(HG, HL,FWHM, eta)
  return
 end subroutine calcul_H_eta
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-      function FETA(X)
-      USE pattern_profile_module, ONLY  : eta
-      implicit none
-       REAL, INTENT(IN)    :: x
-       REAL                :: feta
-
-       feta= eta - (1.36603 - 0.47719*X + 0.11116*X*X)*X
-       return
-      end function
-!
-!------------------------------------------------------------------
-      function Fgau(X)
-      USE pattern_profile_module, ONLY : HG, HL, H
-      implicit none
-       REAL, INTENT(IN)    :: x
-       REAL                :: fgau
-
-        fgau = H - (X**5. +2.69269*X**4.*HL + 2.42843*X**3.*HL**2. + 4.47163*X**2.*HL**3. +   &
-                   0.07842*X*HL**4. + HL**5.)**0.2
-      return
-      end function
-
-!------------------------------------------------------------------
-      FUNCTION zbrent(func,x1,x2,tol)
-       USE IO_module
-	   USE cryscalc_module, only : lecture_OK
- 
-       implicit none
-       REAL               :: zbrent
-       REAL               :: func
-       REAL, INTENT(IN)   :: x1, x2, tol
-       INTEGER, PARAMETER :: ITMAX = 100
-       REAL, parameter    :: eps = 3.e-08
-       integer            :: iter
-       REAL               :: a,b,c,d,e, fa,fb, fc, xm,p,q,r,s
-       REAL               :: tol1
-
-      a=x1
-      b=x2
-      fa=func(a)
-      fb=func(b)
-	  
-      if((fa > 0. .and. fb > 0.) .or. (fa < 0. .and. fb < 0.)) then
-	   !call write_info('')
-       !call write_info(' > Wrong values to apply T.C.H. formulae !!')
-	   !call write_info('')
-       lecture_ok = .false.
-       !stop     ! ' => root must be bracketed for zbrent'
-      else
-       lecture_ok = .true.
-      endif
-
-
-      c=b
-      fc=fb
-      do iter=1,ITMAX
-        if((fb > 0. .and. fc > 0.) .or. (fb < 0. .and. fc < 0.))then
-          c=a
-          fc=fa
-          d=b-a
-          e=d
-        endif
-        if(abs(fc) < abs(fb)) then
-          a=b
-          b=c
-          c=a
-          fa=fb
-          fb=fc
-          fc=fa
-        endif
-        tol1=2.*EPS*abs(b)+0.5*tol
-        xm=.5*(c-b)
-        !if(abs(xm) < tol1 .or. fb == 0.)then
-        if(abs(xm) < tol1 .or. ABS(fb) < eps)then
-          zbrent=b
-          return
-        endif
-        if(abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
-          s=fb/fa
-          !if(a ==c) then
-          IF(ABS(a-c) < eps) then
-            p=2.*xm*s
-            q=1.-s
-          else
-            q=fa/fc
-            r=fb/fc
-            p=s*(2.*xm*q*(q-r)-(b-a)*(r-1.))
-            q=(q-1.)*(r-1.)*(s-1.)
-          endif
-          if(p > 0.) q=-q
-          p=abs(p)
-          if(2.*p < min(3.*xm*q-abs(tol1*q),abs(e*q))) then
-            e=d
-            d=p/q
-          else
-            d=xm
-            e=d
-          endif
-        else
-          d=xm
-          e=d
-        endif
-        a=b
-        fa=fb
-        if(abs(d) > tol1) then
-          b=b+d
-        else
-          b=b+sign(tol1,xm)
-        endif
-        fb=func(b)
-     END do
-
-      zbrent=b
-      return
-      END function
 
 
 !-------------------------------------------------------------------------------------------------------

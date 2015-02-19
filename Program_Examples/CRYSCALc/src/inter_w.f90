@@ -576,7 +576,7 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
 
       CASE ('OBV_REV', 'OBVERSE_REVERSE', 'TWIN_OBVERSE_REVERSE', 'TWIN_OBV_REV', &
             'TWINNING_OBVERSE_REVERSE', 'TWINNING_OBV_REV')
-        if (keyword_FILE) call twin_obverse_reverse
+        call twin_obverse_reverse
 
       CASE ('TRICLINIC', 'TRICL')
        call transf_triclinic  
@@ -703,6 +703,11 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
 
       case ('REF_APEX', 'REF_APEXII' , 'WRITE_APEX', 'WRITE_APEXII',  'APEX', 'APEXII')
         call write_REF('APEX')
+
+      case ('REF_D8_VENTURE_CU')
+	    call write_ref('D8_VENTURE_CU')
+      case ('REF_D8_VENTURE_MO')
+	    call write_ref('D8_VENTURE_MO')
 
       case ('REF_EVAL', 'REF_EVALCCD', 'WRITE_EVAL', 'WRITE_EVALCCD', 'EVAL', 'EVALCCD')
         call write_REF('EVAL')

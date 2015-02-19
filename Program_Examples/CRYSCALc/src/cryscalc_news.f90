@@ -15,8 +15,28 @@ subroutine write_cryscalc_neWS(input_string)
   call write_cryscalc_news_line(input_string,  '  T. Roisnel / CDIFX - ISCR Rennes')
   call write_cryscalc_news_line(input_string,  '')
 
+  if(news_year(1:3) == 'all' .or. news_year(1:2) == '15' .or. news_year(1:4) == '2015') then
+   call write_cryscalc_news_line(input_string,  '')
+   call write_cryscalc_news_line(input_string,  '. Feb. 15 :')     
+   call write_cryscalc_news_line(input_string,  '  # CIF files created by SHELXL2014 are correctly read (changes in ')
+   call write_cryscalc_news_line(input_string,  '    in CRYSFML to read new CIF strings as :')
+   call write_cryscalc_news_line(input_string,  '     . _space_group_name_H-M_alt')
+   call write_cryscalc_news_line(input_string,  '     . _space_group_symop_operation_xyz')
+   call write_cryscalc_news_line(input_string,  '     . _space_group_crystal_system')
+   call write_cryscalc_news_line(input_string,  '  # Parameters for D8 Venture diffractometer (Bruker AXS) has been included and')
+   call write_cryscalc_news_line(input_string,  '    can be accessed from setting file in [DEVICE] section through :')
+   call write_cryscalc_news_line(input_string,  '    "diffractometer = D8_VENTURE_Cu"  or')
+   call write_cryscalc_news_line(input_string,  '    "diffractometer = D8_VENTURE_Mo"  or')
+   call write_cryscalc_news_line(input_string,  '  # Flack parameter is now provided in HTML and TXT reports.')
+  end if
+  
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '14' .or. news_year(1:4) == '2014') then
    call write_cryscalc_news_line(input_string,  '')
+   call write_cryscalc_news_line(input_string,  '. Dec. 14 :')     
+   call write_cryscalc_news_line(input_string,  '  # Archive.cif command line argument can be followed by "NO_HKL",')
+   call write_cryscalc_news_line(input_string,  '    allowing to exclude HKL file in final archive, independently')
+   call write_cryscalc_news_line(input_string,  '    of the contain of cryscalc.ini setting file.')
+   
    call write_cryscalc_news_line(input_string,  '. Nov. 14 :')     
    call write_cryscalc_news_line(input_string,  '  # New argument for DATA_neutrons keyword, allowing to provide')
    call write_cryscalc_news_line(input_string,  '    to the user neutron scattering length versus energy for ')
@@ -62,11 +82,11 @@ subroutine write_cryscalc_neWS(input_string)
    call write_cryscalc_news_line(input_string,  '    First cif file corresponds to the main CIF file created by ')
    call write_cryscalc_news_line(input_string,  '    refinement software and next ones to supplementary cif files')
    call write_cryscalc_news_line(input_string,  '    to complete the archive.')
-   call write_cryscalc_news_line(input_string,  '    ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import')
-   call write_cryscalc_news_line(input_string,  '         . my_job : main .CIF file, used to extract structural ')
-   call write_cryscalc_news_line(input_string,  '                    parameters')
-   call write_cryscalc_news_line(input_string,  '         . import : secondary .CIF file, containing experimental')
-   call write_cryscalc_news_line(input_string,  '                    parameters (crystal and experimental features, ...)')
+   call write_cryscalc_news_line(input_string,  '    ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job.cif import.cif')
+   call write_cryscalc_news_line(input_string,  '         . my_job.cif : main .CIF file, used to extract structural ')
+   call write_cryscalc_news_line(input_string,  '                        parameters')
+   call write_cryscalc_news_line(input_string,  '         . import.cif : secondary .CIF file, containing experimental')
+   call write_cryscalc_news_line(input_string,  '                        parameters (crystal and experimental features, ...)')
    
    call write_cryscalc_news_line(input_string,  '. Sept. 14 :') 
    call write_cryscalc_news_line(input_string,  '  # new CREATE_SOLVE keyword:')
@@ -763,7 +783,7 @@ end subroutine write_cryscalc_news
 
   implicit none
    character (len=*), intent(in)    :: input_string
-   character (len=*), intent(inout) :: input_line
+   character (len=*), intent(in)    :: input_line
    integer                          :: long_input_string
    logical                          :: input_screen, input_html, input_text
    
@@ -789,7 +809,7 @@ end subroutine write_cryscalc_news
 
   return
 
- end subroutine write_cryscalc_neWS_line
+ end subroutine write_cryscalc_news_line
 
 !-----------------------------------------------------------------------------------------------------
 

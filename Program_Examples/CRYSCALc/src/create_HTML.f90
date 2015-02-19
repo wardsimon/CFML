@@ -16,8 +16,8 @@ implicit none
  CHARACTER (LEN=256) :: DOS_command
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_CRYSCALC_HTML")
- 
- 
+
+
  OPEN(UNIT=HTML_unit, FILE='cryscalc.HTML')
   WRITE(HTML_unit, '(a)')  "<!-- CRYSCALc user's guide (HTML file) created by CRYSCALc.exe"
   WRITE(HTML_unit, '(a)')  "     Web site : http://www.cdifx.univ-rennes/cryscalc.htm"
@@ -176,12 +176,12 @@ implicit none
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[USER]</font>'
   WRITE(HTML_unit, '(a)') '    name        = ROISNEL'
   WRITE(HTML_unit, '(a)') '    first_name  = Thierry'
-  WRITE(HTML_unit, '(2a)')'    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1,', &
+  WRITE(HTML_unit, '(2a)')'    address     = Centre de Diffractom&eacute;trie X, UMR6511 CNRS Universit&éacutre; de Rennes 1,', &
                                             'Sciences Chimiques de Rennes, 35042 RENNES Cedex France'
   WRITE(HTML_unit, '(a)') '    email       = thierry.roisnel@univ-rennes1.fr'
   WRITE(HTML_unit, '(a)') '    web         = www.cdifx.univ-rennes1.fr'
   WRITE(HTML_unit, '(a)') '    team        = CDIFX'
-  
+
 
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[ARRAYS DIMENSIONS]</font>'
@@ -211,7 +211,7 @@ implicit none
   WRITE(HTML_unit, '(a)') '    structure_solution_name         = SIR97'
   WRITE(HTML_unit, '(3a)')'    structure_solution_reference    = A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, ', &
                                                                 'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, ',   &
-							        'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
+                                                                'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   WRITE(HTML_unit, '(a)') '    structure_solution_cif_ref      = SIR97 (Altomare et al., 1999)'
   WRITE(HTML_unit, '(a)') '    structure_refinement_name       = SHELXL-97'
   WRITE(HTML_unit, '(a)') '    structure_refinement_reference  = Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
@@ -236,15 +236,15 @@ implicit none
   WRITE(HTML_unit, '(a)') '    report_header               = 1         ! Write header in structural report'
   WRITE(HTML_unit, '(a)') '    skip_start_menu             = 1         ! Skip start menu'
   WRITE(HTML_unit, '(a)') '    hkl_statistics              = 1         ! Ouput statistics on hkl reflections'
-  WRITE(HTML_unit, '(a)') '    hkl_format                  = 3I4,2F8.2 ! format for .hkl file (h,k,l,F2,sig)' 
-  WRITE(HTML_unit, '(a)') '    cartesian_frame_type        = A         ! A: x//a ; C: x //c' 
+  WRITE(HTML_unit, '(a)') '    hkl_format                  = 3I4,2F8.2 ! format for .hkl file (h,k,l,F2,sig)'
+  WRITE(HTML_unit, '(a)') '    cartesian_frame_type        = A         ! A: x//a ; C: x //c'
   WRITE(HTML_unit, '(2a)')'    pdp_beam                    = X         ! Beam for powder diffraction pattern calculation', &
                                                                        ' (N for neutrons / X for X-rays)'
   WRITE(HTML_unit, '(a)') '    pdp_wave                    = 1.5406    ! Wavelength used for powder diffraction pattern calculation'
-  
+
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[PATTERN SIMULATION (Pseudo-Voigt profile)]  </font>'
-  
+
   WRITE(HTML_unit, '(2a)') '    X_profile_U                  = 0.0055    ! U value of the Cagliotti formula : ', &
                                                                         'FWHM2 = U*TAN**2(theta) + V*TAN(theta) + W'
   WRITE(HTML_unit, '(a)')  '    X_profile_V                  = -0.0015   ! V value '
@@ -263,34 +263,34 @@ implicit none
   WRITE(HTML_unit, '(a)')  '    N_profile_eta1               = 0.         '
   WRITE(HTML_unit, '(a)')  '    N_pattern_step               = 0.025      '
   WRITE(HTML_unit, '(a)')  '    N_pattern_xmin               = 0.         '
-  WRITE(HTML_unit, '(a)')  '    N_pattern_xmax               = 120.       '  
+  WRITE(HTML_unit, '(a)')  '    N_pattern_xmax               = 120.       '
   WRITE(HTML_unit, '(a)')  '    N_pattern_scale              = 1000.      '
   WRITE(HTML_unit, '(a)')  '    N_pattern_background         = 50.        '
 
-  
+
   WRITE(HTML_unit, '(a)') ''
   if(user_mat_nb /=0) then
-    WRITE(HTML_unit, '(a)') '    <font color="darkred">[USER TRANSFORMATION MATRICES]</font>'    
-	do i=1, user_mat_nb
-	 WRITE(HTML_unit, '(a,i1,a,3(2x,3F4.0),2a)') '    MAT_',i,'                        = ', transf_mat(:,:, max_mat_nb+i), &
-	                                             '   !  ', trim(user_mat_text(i))
-	end do 
-    WRITE(HTML_unit, '(a)') ''	 
+    WRITE(HTML_unit, '(a)') '    <font color="darkred">[USER TRANSFORMATION MATRICES]</font>'
+    do i=1, user_mat_nb
+     WRITE(HTML_unit, '(a,i1,a,3(2x,3F4.0),2a)') '    MAT_',i,'                        = ', transf_mat(:,:, max_mat_nb+i), &
+                                             '   !  ', trim(user_mat_text(i))
+    end do
+    WRITE(HTML_unit, '(a)') ''
   endif
-  
+
   WRITE(HTML_unit, '(a)') ''
   if(nb_shortcuts /=0) then
-    WRITE(HTML_unit, '(a)') '    <font color="darkred">[USER SHORTCUTS]</font>'    
-	do i=1, nb_shortcuts
-	 WRITE(HTML_unit, '(4x,3a)') shortcut_kw(i)(1:20), ' = ', trim(shortcut_details(i))
-	end do 
-    WRITE(HTML_unit, '(a)') ''	 
+    WRITE(HTML_unit, '(a)') '    <font color="darkred">[USER SHORTCUTS]</font>'
+    do i=1, nb_shortcuts
+     WRITE(HTML_unit, '(4x,3a)') shortcut_kw(i)(1:20), ' = ', trim(shortcut_details(i))
+    end do
+    WRITE(HTML_unit, '(a)') ''
   endif
-  
+
   WRITE(HTML_unit, '(a)') '<A HREF="#cryscalc_main">[return]</a>'
   WRITE(HTML_unit, '(a)') '</pre>'
 
-  
+
 ! ----------------------------------------------------------------
   WRITE(HTML_unit, '(a)') '<br>'
   WRITE(HTML_unit, '(2a)')'<A NAME="cryscalc_cfl"></A><p class="title_1">&nbsp;&nbsp;Examples of <font face="courier"><b>.CFL</b>',&
@@ -316,8 +316,8 @@ implicit none
                            '  X-ray absorption coefficient calculation (case of ammonium bitartrate)</a>'
   WRITE(HTML_unit, '(a)') '<p>'
   WRITE(HTML_unit, '(a)') '</ul>'
- 
-  
+
+
 ! ----------------------------------------------------------------
   WRITE(HTML_unit, '(a)') '<br>'
   WRITE(HTML_unit, '(a)') '<A NAME="cryscalc_links"></A><p class="title_1">&nbsp;&nbsp;CRYSCALc links :<br></p>'
@@ -329,7 +329,7 @@ implicit none
   WRITE(HTML_unit, '(2a)')' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.ini">', &
                           'Example of CRYSCALc setting file</a>'
   WRITE(HTML_unit, '(a)') '<p>'
-  
+
   WRITE(HTML_unit, '(2a)')' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.css">', &
                           "Example of CSS file for HTML user's guide</a>"
   WRITE(HTML_unit, '(a)') '<p>'
@@ -338,15 +338,15 @@ implicit none
   WRITE(HTML_unit, '(a)') '<p>'
   WRITE(HTML_unit, '(2a)')' <li class="item"><a href="https://forge.epn-campus.eu/projects/crysfml" target="_blank">', &
                           "CRYSFML repository</a>"
-  
+
   WRITE(HTML_unit, '(a)') '<p>'
   WRITE(HTML_unit, '(2a)')' <li class="item"><a href="http://www.iucr.org/resources/commissions/crystallographic-computing/', &
                           'newsletters/1/crysfml" target="_blank">CrysFML:</A>'
   WRITE(HTML_unit, '(2a)')' <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. ',   &
-                          'González-Platas</font>'
+                          'Gonz&aacute;lez-Platas</font>'
   WRITE(HTML_unit, '(a)') '</ul>'
   WRITE(HTML_unit, '(a)') ''
-  
+
   ! ----------------------------------------------------------------
   WRITE(HTML_unit, '(a)') '<br>'
   WRITE(HTML_unit, '(a)') '<A NAME="cryscalc_linux"></A><p class="title_1">&nbsp;&nbsp;CRYSCALc under Linux:<br></p>'
@@ -367,7 +367,7 @@ implicit none
   WRITE(HTML_unit, '(a)') '</ul>'
   WRITE(HTML_unit, '(a)') ''
 
-  
+
 
   !WRITE(HTML_unit, '(a)') '<p class="retrait_1"><b>Author:</b><br>'
   !WRITE(HTML_unit, '(a)') 'Thierry Roisnel <A HREF="mailto:cdifx@univ-rennes1.fr">cdifx.univ-rennes1.fr</A>'
@@ -402,19 +402,19 @@ subroutine write_HTML_css(HTML_unit, input_string)
   character (len=1024)          :: read_line, adjusted_line
   logical                       :: file_exist
   integer                       :: i_error
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_HTML_css ("//trim(input_string)//")")
 
-  
+
   if(input_string == 'cryscalc') then
    css_file = cryscalc%css
   elseif(input_string == 'report') then
    css_file = cryscalc%report_css
   endif
- 
+
   inquire(file = trim(css_file), exist=file_exist)
 
-  if(.not. file_exist) then  
+  if(.not. file_exist) then
   WRITE(HTML_unit, '(a)') "<style TYPE='text/css'>"
   WRITE(HTML_unit, '(2a)') "  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000;", &
                            " margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }"
@@ -440,7 +440,7 @@ subroutine write_HTML_css(HTML_unit, input_string)
   WRITE(HTML_unit, '(a)') "           -moz-border-radius: 10px;"
   WRITE(HTML_unit, '(a)') "    -webkit-border-radius: 10px;"
   WRITE(HTML_unit, '(a)') "           -border-radius: 10px;}"
-  
+
   WRITE(HTML_unit, '(2a)') "  hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0;", &
                            " margin-left:50px; margin-right:50px;}"
   WRITE(HTML_unit, '(a)') ""
@@ -462,16 +462,16 @@ subroutine write_HTML_css(HTML_unit, input_string)
   else
    open(unit = tmp_unit, file=trim(css_file))
     do
-	 read(tmp_unit, '(a)', iostat=i_error) read_line 
-	 if(i_error < 0) exit
-	 if(len_trim(read_line) == 0) cycle
-	 adjusted_line = adjustl(read_line)
-	 if(adjusted_line(1:1) == '/' .or. adjusted_line(1:1) == "*") cycle
-	 write(HTML_unit, '(a)') trim(read_line)
-	end do
+     read(tmp_unit, '(a)', iostat=i_error) read_line
+     if(i_error < 0) exit
+     if(len_trim(read_line) == 0) cycle
+     adjusted_line = adjustl(read_line)
+     if(adjusted_line(1:1) == '/' .or. adjusted_line(1:1) == "*") cycle
+     write(HTML_unit, '(a)') trim(read_line)
+    end do
    close(unit=tmp_unit)
   endif
- 
+
 
   return
 end subroutine write_HTML_css

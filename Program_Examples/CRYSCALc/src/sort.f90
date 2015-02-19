@@ -707,7 +707,7 @@ subroutine read_data_file(ok)
    call write_info('')
 
    IF(MAXVAL(code(1:n_ref)) /=0) then
-    WRITE(message_text,'(a,I2)')            '                           . number of scans: ', MAXVAL(code(1:n_ref))
+    WRITE(message_text,'(a,I3)')            '                           . number of scans: ', MAXVAL(code(1:n_ref))
     call write_info(TRIM(message_text))
     call write_info('')
    endif
@@ -831,21 +831,21 @@ subroutine check_HKL(H_h, H_k, H_l, H_F2, H_sig, code_, H_cos)
     I_(n_ref)              = H_F2
     code(n_ref)            = code_
     cos_dir(n_ref,1:6)     = H_cos(1:6)
-	som_F2                 = som_F2 + F2(n_ref)
-	som_sig                = som_sig + sig_F2(n_ref)
-	som_F2_sig             = som_F2_sig + I_sigma(n_ref)
+	!som_F2                 = som_F2 + F2(n_ref)
+	!som_sig                = som_sig + sig_F2(n_ref)
+	!som_F2_sig             = som_F2_sig + I_sigma(n_ref)
 
-    WRITE(HKL_string(n_ref), '(a,3I4,a)') '(', H_h, H_k, H_l, ')'
+    WRITE(HKL_string(n_ref), '(a,3I4,a,F15.5)') '(', H_h, H_k, H_l, ')   F2= ', F2(n_ref) 
 	
 	!if(file_out .and. file_out_n*int(n_ref/file_out_n) == n_ref ) then
 	if(file_out .and. multiple(n_ref,file_out_n)) then
 	 if(hkl_format_free) then
 	  write(message_text,'(I8,2x,3I4,2F15.2)', iostat=ier) n_ref, H_h,H_k,H_l, H_F2, H_sig 
 	 else
-	  !write(message_text,'(I8,2x,3I4,2F8.2,I4)', iostat=ier) n_ref, H_h,H_k,H_l, H_F2, H_sig,code_
-	   long = len_trim(hkl_format)
-	   write(fmt_, '(23a)') '(I8,2x', trim(hkl_format(2:long)),')'	  
-	   write(message_text, trim(fmt_)) n_ref, H_h,H_k,H_l, H_F2, H_sig
+	  write(message_text,'(I8,2x,3I4,2F15.5,I4)', iostat=ier) n_ref, H_h,H_k,H_l, H_F2, H_sig,code_
+	   !long = len_trim(hkl_format)
+	   !write(fmt_, '(23a)') '(I8,2x', trim(hkl_format(2:long)),')'	  
+	   !write(message_text, trim(fmt_)) n_ref, H_h,H_k,H_l, H_F2, H_sig
 	 endif
 	 call write_info(trim(message_text))
 	endif

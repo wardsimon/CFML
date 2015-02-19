@@ -21,27 +21,27 @@ subroutine get_label_atom_coord(input_string, i, n, ok)
  INTEGER                      :: i1, j, atom_index, long, num_sym_op
  CHARACTER(LEN=6)             :: label
  logical                      :: input_dist, input_ang
- 
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_label_atom_coord ("//trim(input_string)//")")
-  
+
  input_dist = .false.
  input_ang  = .false.
- 
+
  if(len_trim(input_string) == 4) then
   if(input_string(1:4) == 'dist') input_dist = .true.
  elseif(len_trim(input_string) == 3) then
   if(input_string(1:3) == 'ang') input_ang = .true.
  endif
-  
-  
+
+
  IF(input_dist) then
   IF(n==1) then
    label = atom1_dist(i)
   ELSEif(n==2) then
    label = atom2_dist(i)
   endif
- endif 
- 
+ endif
+
  IF(input_ang) then
   IF(n==1) then
    label = atom1_ang(i)
@@ -93,7 +93,7 @@ subroutine get_label_atom_coord(input_string, i, n, ok)
                   R(3,3, num_sym_op) * atom_coord(3, atom_index)  + T(3, num_sym_op)
  else
   atom_index = 0
-  
+
   do j= 1, nb_atom
     if (u_case(label) == u_case(atom_label(j)) ) atom_index = j
   end do
@@ -211,7 +211,7 @@ subroutine angle_calculation(coord_1, coord_2, coord_3, coord_4, angle)
 
   if(debug_proc%level_3)  call write_debug_proc_level(3, "angle_calculation")
 
-  
+
   if(coord_4(1) < -98. .and. coord_4(2) < -98. .and. coord_4(3) < -98.) then
     ! distance entre 1 et 2
     call distance_calculation(coord_1(:), coord_2(:), dist_12)
@@ -249,14 +249,14 @@ end subroutine angle_calculation
 subroutine volume_calculation(input_string)
  use cryscalc_module,  only       :  ON_SCREEN, pi, unit_cell, keyword_create_CIF, CIF_unit, &
                                      DC_ort, ort_DC, RC_ort, ort_RC, GMD, GMR, keyword_CELL, &
-									 known_cell_ESD, message_text, UB_mat_log, debug_proc,   &
-									 crystal_cell
+                                     known_cell_ESD, message_text, UB_mat_log, debug_proc,   &
+                                     crystal_cell
 
  USE CFML_Math_General      ,  ONLY   :  cosd, sind, acosd
  USE math_module,              ONLY   :  orthog, metric, matinv
  USE CFML_crystal_metrics,     only   :  Set_Crystal_Cell, write_crystal_cell
  USE IO_module
- 
+
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: input_string
   REAL                          :: CosAlfa, CosBeta, CosGamma
@@ -397,12 +397,12 @@ subroutine volume_calculation(input_string)
     call write_CIF_file('CELL_PARAM')
    endif
   endif
-  
-  
+
+
   if(UB_mat_log .And. input_string=='out')  call write_UB_matrix
-   
+
   !if(input_string =='out') call write_crystal_cell(crystal_cell)
-   
+
  return
 end subroutine volume_calculation
 
@@ -418,29 +418,29 @@ subroutine write_UB_matrix
  implicit none
   integer               :: i, ier
   character (len=256)   :: read_line
- 
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_UB_matrix")
 
- 
+
   write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 11 12 13: ', UB_matrix(1,1),   UB_matrix(1,2),  UB_matrix(1,3)
   call write_info(trim(message_text))
   write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 21 22 23: ', UB_matrix(2,1),   UB_matrix(2,2),  UB_matrix(2,3)
   call write_info(trim(message_text))
-  write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 31 32 33: ', UB_matrix(3,1),   UB_matrix(3,2),  UB_matrix(3,3) 
+  write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 31 32 33: ', UB_matrix(3,1),   UB_matrix(3,2),  UB_matrix(3,3)
   call write_info(trim(message_text))
-  
+
   open(unit=tmp_unit, file='tmp_ub.txt')
    call CELL_fr_UB(UB_matrix, tmp_unit)	
   close(unit=tmp_unit)
-  
+
   open(unit=tmp_unit, file='tmp_ub.txt')
     do i=1,5
-	 read(unit=tmp_unit, fmt='(a)', iostat=ier) read_line
-	 if(ier ==0) then
-	 call write_info(trim(read_line))
-	 end if
-	end do
-   close(unit=tmp_unit)  
+     read(unit=tmp_unit, fmt='(a)', iostat=ier) read_line
+     if(ier ==0) then
+      call write_info(trim(read_line))
+     end if
+   end do
+   close(unit=tmp_unit)
    call system('del tmp_ub.txt')
 
  return
@@ -454,7 +454,7 @@ subroutine get_crystal_SIZE_min_max()
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "get_crystal_size_min_max")
 
-   
+
    i_max = MAXLOC(crystal%size)
    i_min = MINLOC(crystal%size)
    do i = 1, 3
@@ -483,7 +483,7 @@ subroutine crystal_volume_calculation(input_string)
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "crystal_volume_calculation")
 
-   
+
    if(input_string(1:3) == 'OUT') then
     call write_info(' ')
     call write_info('          Crystal dimensions ')
@@ -523,8 +523,8 @@ END subroutine crystal_volume_calculation
 subroutine calcul_dhkl
  use cryscalc_module, only         : pi, unit_cell, wavelength, keyword_WAVE,  keyword_SPGR,          &
                                      nb_hkl, H, shift_2theta, keyword_QVEC, Qvec, message_text, SPG,  &
-									 debug_proc
-									 
+                                     debug_proc
+
  USE CFML_Math_General,              ONLY : sind
  USE CFML_Reflections_Utilities,     ONLY : HKL_Absent
  USE CFML_crystallographic_symmetry, ONLY : Space_Group_Type, set_spacegroup
@@ -631,7 +631,7 @@ subroutine calcul_dhkl
     angle_2theta = 180.
    endif
    angle_2theta = angle_2theta + shift_2theta(1) + shift_2theta(2)*COS(Angle_2theta*pi/180) +  &
-                                                   shift_2theta(3)*SIN(Angle_2theta*pi/180) 
+                                                   shift_2theta(3)*SIN(Angle_2theta*pi/180)
 
    if(keyword_QVEC) then
     write(message_text, '(4x,a1,3(1x,F6.2),5x,5(5x,F10.4))') ind_H(:), HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta
@@ -658,10 +658,10 @@ end subroutine calcul_dhkl
 !----------------------------------------------------------
 subroutine atomic_density_calculation()
  USE cryscalc_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC, nb_at, unit_cell, message_text, &
-                             debug_proc 
+                             debug_proc
  USE IO_module
 
- implicit none  
+ implicit none
  !local variables
  REAL                                      :: density
  INTEGER                                   :: i
@@ -680,7 +680,7 @@ subroutine atomic_density_calculation()
    call write_info(TRIM(message_text))
  endif
 
- 
+
 ! calcul du nombre d'atomes i/cm3
  density = 0.
  do i = 1, nb_atoms_type
@@ -780,7 +780,7 @@ subroutine molecular_weight()
  endif
 
  labl = '?'
-  
+
  do i=1, nb_atoms_type
 
   ! molecular formula
@@ -791,7 +791,7 @@ subroutine molecular_weight()
   !else
   ! sto(i) = SFAC%number(i)
   endif
-   
+
   IF(INT(sto(i)) < 10) then
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
     WRITE(labl(i), '(a,I1)') trim(SFAC%type(i)), INT(sto(i))
@@ -828,7 +828,7 @@ subroutine molecular_weight()
  molecule%Z      = n_electrons
 
 
- 
+
 
  ! weight percentage
  do i=1, nb_atoms_type
@@ -847,7 +847,7 @@ subroutine molecular_weight()
  call write_info('')
  WRITE(message_text, '(2a)')       '   >> Molecular formula: ',trim(molecule%formula)
  call write_info(TRIM(message_text))
- 
+
  call write_info('')
  WRITE(message_text,'(a,F8.2)') '   >> Molecular weight: ',Molecule%weight
   call write_info(TRIM(message_text))
@@ -869,11 +869,11 @@ subroutine molecular_weight()
  end do
  endif
 
- IF(keyword_create_CIF)  then 
+ IF(keyword_create_CIF)  then
   call write_CIF_file('CHEMICAL_INFORMATION')
   call write_CIF_file('CHEMICAL_2')
  END IF
- 
+
  ! calcul du F000
  !if (.not. neutrons) call F000_calculation('X')
 
@@ -918,10 +918,10 @@ subroutine calcul_barycentre
    real, dimension(3)           :: bary_coord, inside_coord
    integer, dimension(500)      :: bary_atom    ! numero des atomes dans le calcul du barycentre
    integer, dimension(3)        :: move
-   
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "barycentre")
 
- 
+
  do i = 1, nb_bary_calc
   ! quels atomes
   do j= 1, nb_atom
@@ -940,43 +940,44 @@ subroutine calcul_barycentre
    call write_info(TRIM(message_text))
   call write_info('')
   do j=1, nb_atom_bary(i)
-   write(message_text,'(5x,2a,3F10.5, 5x, a,3F10.5)')       atom_label(bary_atom(j))(1:4), ': '  ,  atom_coord(1,bary_atom(j)) , &
-                                                                           atom_coord(2,bary_atom(j)) , &
-                                                                           atom_coord(3,bary_atom(j)) , 'v = ',  &
-																		   bary_coord(1)-atom_coord(1,bary_atom(j)), &
-																		   bary_coord(2)-atom_coord(2,bary_atom(j)), &
-																		   bary_coord(3)-atom_coord(3,bary_atom(j))
-																		   
+   write(message_text,'(5x,2a,3F10.5, 5x, a,3F10.5)')   atom_label(bary_atom(j))(1:4), ': '  ,  &
+                                                        atom_coord(1,bary_atom(j)) , &
+                                                        atom_coord(2,bary_atom(j)) , &
+                                                        atom_coord(3,bary_atom(j)) , 'v = ',  &
+                                                        bary_coord(1)-atom_coord(1,bary_atom(j)), &
+                                                        bary_coord(2)-atom_coord(2,bary_atom(j)), &
+                                                        bary_coord(3)-atom_coord(3,bary_atom(j))
+
    call write_info(TRIM(message_text))
   end do
   call write_info('')
   write(message_text,'(5x,a,3F10.5)')   'centroid coordinates: ', bary_coord(1:3)
   call write_info(TRIM(message_text))
-  
+
   inside_coord = bary_coord
-  move = 0 
+  move = 0
   t    = 0
   do j=1, 3
    do while (inside_coord(j) < 0.0)
     move(j) = move(j) + 1
-	inside_coord(j) = inside_coord(j)  + 1
-	t = t + 1
-   end do	
+    inside_coord(j) = inside_coord(j)  + 1
+    t = t + 1
+   end do
    do while (inside_coord(j) > 1.0)
-    move(j) = move(j) - 1  
-	inside_coord(j) = inside_coord(j)  - 1
-	t = t + 1
-   end do	
+    move(j) = move(j) - 1
+    inside_coord(j) = inside_coord(j)  - 1
+    t = t + 1
+   end do
   end do
-  
+
   if(t /=0) then
    call write_info('')
    write(message_text, '(a,3(2x,i2))') '  SHELX instruction : MOVE ', move(1:3)
    call write_info(trim(message_text))
   endif
-  
 
- 
+
+
 
  end do
 
@@ -1116,19 +1117,19 @@ subroutine  calcul_vector_angle(input_string)
   REAL                          :: angle
   CHARACTER (LEN=12)            :: space_string
   logical                       :: input_direct, input_reciprocal
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_vector_angle ("//trim(input_string)//")")
 
   input_direct     = .false.
   input_reciprocal = .false.
-  
-  
+
+
   if(len_trim(input_string) == 6) then
    if(input_string(1:6) == 'direct') input_direct = .true.
   elseif(len_trim(input_string) ==  10) then
    if(input_string(1:10) == 'reciprocal') input_reciprocal = .true.
   endif
-  
+
   call write_info('')
   IF(input_direct) then
    nb_ang = nb_da
@@ -1138,8 +1139,8 @@ subroutine  calcul_vector_angle(input_string)
    gm = gmd
    space_string = 'A'
    call write_info('   >> Calculation of angle between two vectors of the direct space:')
-  endif 
-  
+  endif
+
   IF(input_reciprocal) then
    nb_ang = nb_ra
    V1(1:3) = U1_ra(1:3, nb_ra)
@@ -1183,7 +1184,7 @@ subroutine calcul_theta()
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_theta")
 
-  
+
   IF(.NOT. keyword_CELL) then
    call write_info('')
    call write_info('  !! CELL keyword mandatory for the Rint calculation procedure !!')
@@ -1383,12 +1384,134 @@ subroutine estimate_Zunit
  use Cryscalc_module, only : molecule, unit_cell, SFAC, sto, nb_atoms_type, Z_unit, keyword_Zunit
  implicit none
   real                 :: estimated_Z
-  
+
   estimated_Z = 1.5 * 0.6023 * unit_cell%volume / molecule%weight
   Z_unit = nint(estimated_Z + 0.5)
-  
-  SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit  
+
+  SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit
   call get_content               ! molecule%content
   keyword_Zunit = .true.
 
 end subroutine estimate_Zunit
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+      function FETA(X)
+      USE pattern_profile_module, ONLY  : eta
+      implicit none
+       REAL, INTENT(IN)    :: x
+       REAL                :: feta
+
+       feta= eta - (1.36603 - 0.47719*X + 0.11116*X*X)*X
+       return
+      end function
+!
+!------------------------------------------------------------------
+      function Fgau(X)
+      USE pattern_profile_module, ONLY : HG, HL, H
+      implicit none
+       REAL, INTENT(IN)    :: x
+       REAL                :: fgau
+
+        fgau = H - (X**5. +2.69269*X**4.*HL + 2.42843*X**3.*HL**2. + 4.47163*X**2.*HL**3. +   &
+                   0.07842*X*HL**4. + HL**5.)**0.2
+      return
+      end function
+
+!------------------------------------------------------------------
+      FUNCTION zbrent(func,x1,x2,tol)
+       USE IO_module
+	   USE cryscalc_module, only : lecture_OK
+ 
+       implicit none
+       REAL               :: zbrent
+       REAL               :: func
+       REAL, INTENT(IN)   :: x1, x2, tol
+       INTEGER, PARAMETER :: ITMAX = 100
+       REAL, parameter    :: eps = 3.e-08
+       integer            :: iter
+       REAL               :: a,b,c,d,e, fa,fb, fc, xm,p,q,r,s
+       REAL               :: tol1
+
+      a=x1
+      b=x2
+      fa=func(a)
+      fb=func(b)
+	  
+      if((fa > 0. .and. fb > 0.) .or. (fa < 0. .and. fb < 0.)) then
+	   !call write_info('')
+       !call write_info(' > Wrong values to apply T.C.H. formulae !!')
+	   !call write_info('')
+       lecture_ok = .false.
+       !stop     ! ' => root must be bracketed for zbrent'
+      else
+       lecture_ok = .true.
+      endif
+
+
+      c=b
+      fc=fb
+      do iter=1,ITMAX
+        if((fb > 0. .and. fc > 0.) .or. (fb < 0. .and. fc < 0.))then
+          c=a
+          fc=fa
+          d=b-a
+          e=d
+        endif
+        if(abs(fc) < abs(fb)) then
+          a=b
+          b=c
+          c=a
+          fa=fb
+          fb=fc
+          fc=fa
+        endif
+        tol1=2.*EPS*abs(b)+0.5*tol
+        xm=.5*(c-b)
+        !if(abs(xm) < tol1 .or. fb == 0.)then
+        if(abs(xm) < tol1 .or. ABS(fb) < eps)then
+          zbrent=b
+          return
+        endif
+        if(abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
+          s=fb/fa
+          !if(a ==c) then
+          IF(ABS(a-c) < eps) then
+            p=2.*xm*s
+            q=1.-s
+          else
+            q=fa/fc
+            r=fb/fc
+            p=s*(2.*xm*q*(q-r)-(b-a)*(r-1.))
+            q=(q-1.)*(r-1.)*(s-1.)
+          endif
+          if(p > 0.) q=-q
+          p=abs(p)
+          if(2.*p < min(3.*xm*q-abs(tol1*q),abs(e*q))) then
+            e=d
+            d=p/q
+          else
+            d=xm
+            e=d
+          endif
+        else
+          d=xm
+          e=d
+        endif
+        a=b
+        fa=fb
+        if(abs(d) > tol1) then
+          b=b+d
+        else
+          b=b+sign(tol1,xm)
+        endif
+        fb=func(b)
+     END do
+
+      zbrent=b
+      return
+      END function
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

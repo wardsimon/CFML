@@ -351,7 +351,7 @@ module cryscalc_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max = 135       ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_help_max = 137       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -373,6 +373,7 @@ module cryscalc_module
   REAL                                         :: CIF_torsion_limit       ! 
   LOGICAL                                      :: include_RES_file        !
   CHARACTER (LEN=256)                          :: RES_file
+  INTEGER                                      :: CMD_include_HKL_file
   LOGICAL                                      :: include_HKL_file        !
   
   LOGICAL                                      :: include_SQUEEZE
@@ -493,6 +494,8 @@ module cryscalc_module
   LOGICAL                                      :: keyword_WRITE_REF_SUPERNOVA
   LOGICAL                                      :: keyword_WRITE_REF_ABS_CRYSALIS
   LOGICAL                                      :: keyword_WRITE_REF_X2S
+  LOGICAL                                      :: keyword_WRITE_REF_D8_Venture_Cu
+  LOGICAL                                      :: keyword_WRITE_REF_D8_Venture_Mo
   LOGICAL                                      :: keyword_WRITE_REF_XCALIBUR
   
   LOGICAL                                      :: keyword_modif_ARCHIVE
@@ -708,6 +711,8 @@ module cryscalc_module
   INTEGER         :: HELP_REF_SADABS_numor
   INTEGER         :: HELP_REF_SUPERNOVA_numor
   INTEGER         :: HELP_REF_X2S_numor
+  INTEGER         :: HELP_REF_D8_Venture_Cu_numor
+  INTEGER         :: HELP_REF_D8_Venture_Mo_numor
   INTEGER         :: HELP_REF_XCALIBUR_numor
   INTEGER         :: HELP_RESET_numor
   INTEGER         :: HELP_RINT_numor
@@ -890,6 +895,8 @@ module cryscalc_module
   TYPE (Diffracto_sw_type) :: X2S
   TYPE (Diffracto_sw_type) :: SUPERNOVA
   TYPE (Diffracto_sw_type) :: XCALIBUR
+  TYPE (Diffracto_sw_type) :: D8_VENTURE_Cu
+  TYPE (Diffracto_sw_type) :: D8_VENTURE_Mo
 
 !---------------------------------------------------------------------------------
 
@@ -1031,7 +1038,7 @@ module hkl_module
   real,                dimension(:),   allocatable   :: F2, sig_F2, E, E2, E3, E4, E5, E6
   real,                dimension(:),   allocatable   :: sinTheta_lambda, d_hkl, theta_hkl
   LOGICAL,             dimension(:),   allocatable   :: HKL_impair
-  CHARACTER (LEN=20),  DIMENSION(:),   allocatable   :: HKL_string
+  CHARACTER (LEN=42),  DIMENSION(:),   allocatable   :: HKL_string
   CHARACTER (LEN=256), DIMENSION(:),   allocatable   :: HKL_line
   INTEGER,             DIMENSION(:,:), allocatable   :: HKL_flag
   INTEGER,             DIMENSION(:),   allocatable   :: HKL_good
@@ -1405,6 +1412,8 @@ module CIF_module
    CHARACTER (LEN=256)    :: diffracto_radiation_type
    CHARACTER (LEN=256)    :: diffracto_radiation_source
    CHARACTER (LEN=256)    :: diffracto_radiation_wavelength
+   CHARACTER (LEN=256)    :: diffracto_radiation_probe
+   CHARACTER (LEN=256)    :: diffracto_radiation_monochromator
    CHARACTER (LEN=256)    :: diffracto_temperature
 
    CHARACTER (LEN=256)    :: diffrn_source
@@ -1494,7 +1503,8 @@ module CIF_module
    CHARACTER (LEN=256)    :: Chi2
    CHARACTER (len=256)    :: crystal_system
    CHARACTER (LEN=256)    :: Bravais
-   LOGICAL                :: WinGX_used
+   CHARACTER (LEN=256)    :: abs_structure_Flack
+   LOGICAL                :: WinGX_used   
   END TYPE CIF_parameter_type
   TYPE (CIF_parameter_type) :: CIF_parameter
   TYPE (CIF_parameter_type) :: CIF_parameter_APEX
@@ -1502,6 +1512,8 @@ module CIF_module
   TYPE (CIF_parameter_type) :: CIF_parameter_SUPERNOVA
   TYPE (CIF_parameter_type) :: CIF_parameter_X2S
   TYPE (CIF_parameter_type) :: CIF_parameter_XCALIBUR
+  TYPE (CIF_parameter_type) :: CIF_parameter_D8_VENTURE_Cu
+  TYPE (CIF_parameter_type) :: CIF_parameter_D8_VENTURE_Mo
 
   
   TYPE, PUBLIC:: CIF_reflns_type

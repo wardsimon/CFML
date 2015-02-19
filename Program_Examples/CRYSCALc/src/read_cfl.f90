@@ -390,9 +390,7 @@ end subroutine incident_beam
 	 wavelength = var(1)
 	endif    
 	
-	pause
-
-    call write_wave_features()
+	call write_wave_features()
     keyword_WAVE = .true.
     IF(keyword_create_CIF)  call write_CIF_file('WAVE')
 

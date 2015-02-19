@@ -1521,13 +1521,14 @@ subroutine identification_keywords(read_line)
 	
     !!  - fev. 2011 !!
 	write_HKL       = .false.
+	on_screen_PRF   = .false.
 	create_PAT      = .false.
 	size_broadening = .false.
 	read(new_line, *) arg_string(1:nb_arg)
 	read(arg_string(1), *) X_max
 	if(nb_arg /=1) then
 	 do i=2, nb_arg	 
-	  if(arg_string(i)(1:3) == 'OUT') write_HKL  = .true.
+	  if(arg_string(i)(1:3) == 'OUT') write_HKL  = .true. 
 	  if(arg_string(i)(1:7) == 'PATTERN' .or. arg_string(i)(1:3) == 'PAT'   .or.    &
 	     arg_string(i)(1:7) == 'PROFILE' .or. arg_string(i)(1:4) == 'PROF'  .or.    &
 		 arg_string(i)(1:3) == 'PRF')       create_PAT = .true.
@@ -1538,7 +1539,7 @@ subroutine identification_keywords(read_line)
       if(arg_string(i)(1:4) == 'PM2K') pm2k_out = .true.	  
 	 end do
 	end if
-	if(create_PAT) write_HKL=.true.
+	!if(create_PAT) write_HKL=.true.
     !!-----------------!!
 	
 		
@@ -1790,7 +1791,7 @@ subroutine identification_keywords(read_line)
     endif
     !nb_dist_calc = nb_dist_calc + 1
 	nb_dist_calc = 1
-	call get_arg_ABx(arg_string, DIST_coef, atom1_dist, atom2_dist, lecture_ok)
+	call get_arg_ABx(arg_string, DIST_coef, atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc), lecture_ok)
     !READ(arg_string(1)  , *) DIST_coef
     !READ(arg_string(2:3), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
     atom1_dist(nb_dist_calc) = ADJUSTL(atom1_dist(nb_dist_calc))
@@ -1812,7 +1813,7 @@ subroutine identification_keywords(read_line)
     !nb_dist_calc = nb_dist_calc + 1
 	nb_dist_calc = 1
 	lecture_ok = .false.
-	call get_arg_ABx(arg_string, DIST_plus, atom1_dist, atom2_dist, lecture_ok)
+	call get_arg_ABx(arg_string, DIST_plus, atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc), lecture_ok)
     if(.not. lecture_ok) then
 	 call write_info('')
 	 call write_info(' ! Wrong arguments for DIST_plus keyword !')
@@ -2760,6 +2761,11 @@ subroutine identification_keywords(read_line)
 
    case ('REF_APEX', 'REF_APEXII' , 'WRITE_APEX', 'WRITE_APEXII',  'APEX', 'APEXII')
     keyword_WRITE_REF_APEX = .true.
+	
+   case ('REF_D8_VENTURE_CU')
+    keyword_WRITE_REF_D8_VENTURE_Cu = .true.   
+   case ('REF_D8_VENTURE_MO')
+    keyword_WRITE_REF_D8_VENTURE_Mo = .true.   
 	
    case ('REF_X2S', 'REF_SMART_X2S')
     keyword_WRITE_REF_X2S = .true.

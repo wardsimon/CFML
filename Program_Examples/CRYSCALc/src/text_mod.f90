@@ -832,7 +832,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           3 integer values: h, k, l'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments: FRIEDEL'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments:  FRIEDEL'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             search for equivalent reflections (Space group is'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           mandatory)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . arg = FRIEDEL: search for Friedel reflections'
@@ -911,7 +911,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           or'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           characters with one or two index characters being h,'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           k or l'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments: EQUIV, FRIEDEL (only for integer values of h, k and l'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments:  EQUIV, FRIEDEL (only for integer values of h, k and l'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             search a particular hkl reflection in a '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           reflections list'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . arg = EQUIV:   search for equivalent reflections '
@@ -1723,6 +1723,31 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_APEX, REF_APEXII, WRITE_APEX, WRITE_APEXII,'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           APEX, APEXII'
+  HELP_lines_nb(HELP_numor) =  n
+
+   ! numor = 77
+  n = 0    ;  HELP_numor = HELP_REF_D8_VENTURE_Cu_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_D8_VENTURE_Cu'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write D8 Venture diffractometer programs and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_D8_VENTURE_Cu'
+  HELP_lines_nb(HELP_numor) =  n
+   ! numor = 77
+  n = 0    ;  HELP_numor = HELP_REF_D8_VENTURE_Mo_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_D8_VENTURE_Mo'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write D8 Venture diffractometer programs and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_D8_VENTURE_Mo'
   HELP_lines_nb(HELP_numor) =  n
 
  ! numor = 78

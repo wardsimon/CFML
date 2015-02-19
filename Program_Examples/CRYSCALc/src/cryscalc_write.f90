@@ -653,44 +653,49 @@ end subroutine write_molecular_features
 subroutine write_REF(input_string)
  USE cryscalc_module, ONLY : keyword_create_CIF, EVAL, SADABS, ABS_CRYSALIS, debug_proc
  USE CIF_module,      ONLY : CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_X2S, CIF_parameter_XCALIBUR, &
-                             CIF_parameter_SUPERNOVA
+                             CIF_parameter_SUPERNOVA, CIF_parameter_D8_VENTURE_Cu, CIF_parameter_D8_VENTURE_Mo
  USE IO_module,       ONLY: write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string
  INTEGER                      :: long_input_string, i
  LOGICAL                      :: input_KCCD, input_APEX, input_X2S, input_XCALIBUR, input_SUPERNOVA
  LOGICAL                      :: input_EVAL, input_DENZO, input_SADABS, input_ABS_CRYSALIS
+ LOGICAL                      :: input_D8_VENTURE_Cu, input_D8_VENTURE_Mo
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_ref ("//trim(input_string)//")")
  
  long_input_string = len_trim(input_string)
- input_KCCD         = .false.
- input_APEX         = .false.
- input_X2S          = .false.
- input_XCALIBUR     = .false.
- input_SUPERNOVA    = .false. 
- input_EVAL         = .false.
- input_DENZO        = .false.
- input_SADABS       = .false.
- input_ABS_CRYSALIS = .false.
+ input_KCCD          = .false.
+ input_APEX          = .false.
+ input_X2S           = .false.
+ input_XCALIBUR      = .false.
+ input_SUPERNOVA     = .false. 
+ input_EVAL          = .false.
+ input_DENZO         = .false.
+ input_SADABS        = .false.
+ input_ABS_CRYSALIS  = .false.
+ input_D8_VENTURE_Cu = .false.
+ input_D8_VENTURE_Mo = .false.
 
  if(long_input_string == 3) then 
-  if(input_string(1:3)  == 'X2S')          input_X2S = .true.
+  if(input_string(1:3)  == 'X2S')           input_X2S = .true.
  elseif(long_input_string == 4) then
-  if(input_string(1:4)  == 'KCCD')         input_KCCD = .true.
-  if(input_string(1:4)  == 'APEX')         input_APEX = .true.
-  if(input_string(1:4)  == 'EVAL')         input_EVAL = .true.
+  if(input_string(1:4)  == 'KCCD')          input_KCCD = .true.
+  if(input_string(1:4)  == 'APEX')          input_APEX = .true.
+  if(input_string(1:4)  == 'EVAL')          input_EVAL = .true.
  elseif(long_input_string == 5) then 
-  if(input_string(1:5)  == 'DENZO')        input_DENZO = .true.
+  if(input_string(1:5)  == 'DENZO')         input_DENZO = .true.
  elseif(long_input_string == 6) then
-  if(input_string(1:6)  == 'SADABS')       input_SADABS = .true.
+  if(input_string(1:6)  == 'SADABS')        input_SADABS = .true.
  elseif(long_input_string == 8)  then
-  if(input_string(1:8)  == 'XCALIBUR')     input_XCALIBUR = .true.
+  if(input_string(1:8)  == 'XCALIBUR')      input_XCALIBUR = .true.
  elseif(long_input_string == 9)  then
-  if(input_string(1:9)  == 'SUPERNOVA')    input_SUPERNOVA    = .true.
+  if(input_string(1:9)  == 'SUPERNOVA')     input_SUPERNOVA    = .true.
  elseif(long_input_string == 12)  then
-  if(input_string(1:12) == 'ABS_CRYSALIS') input_ABS_CRYSALIS = .true.
-  
+  if(input_string(1:12) == 'ABS_CRYSALIS')  input_ABS_CRYSALIS = .true.
+ elseif(long_input_string == 13) then
+  if(input_string(1:15) == 'D8_VENTURE_CU') input_D8_VENTURE_Cu = .true.
+  if(input_string(1:15) == 'D8_VENTURE_MO') input_D8_VENTURE_Mo = .true.
  endif 
   
   
@@ -724,19 +729,6 @@ subroutine write_REF(input_string)
    call write_CIF_file('APEX')
   else
    call write_info("")
-   !call write_info("#----------------------------------------------------------------------------#")
-   !call write_info("#                   COMPUTER PROGRAMS USED                                   #")
-   !call write_info("#----------------------------------------------------------------------------#")
-   !call write_info("")
-   !call write_info("_computing_data_collection       "//trim(CIF_parameter_APEX%computing_data_collection))
-   !call write_info("_computing_cell_refinement       "//trim(CIF_parameter_APEX%computing_cell_refinement))
-   !call write_info("_computing_data_reduction        "//trim(CIF_parameter_APEX%computing_data_reduction))
-   !call write_info("_computing_structure_solution    "//trim(CIF_parameter_APEX%computing_structure_solution))
-   !call write_info("_computing_structure_refinement  "//trim(CIF_parameter_APEX%computing_structure_refinement))
-   !call write_info("_computing_molecular_graphics    "//trim(CIF_parameter_APEX%computing_molecular_graphics))
-   !call write_info("_computing_publication_material  "//trim(CIF_parameter_APEX%computing_publication_material))
-   !call write_info("")
-
    call write_info("#----------------------------------------------------------------------------#")
    call write_info("#                   DATA COLLECTION                                          #")
    call write_info("#----------------------------------------------------------------------------#")
@@ -774,6 +766,49 @@ subroutine write_REF(input_string)
    call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_X2S%diffrn_detector_area_resol_mean))
   endif
 
+ ELSEIF(input_D8_VENTURE_CU) then
+  IF(keyword_create_CIF)   then
+   call write_CIF_file('D8_VENTURE_CU')
+  else
+   call write_info("")   
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   DATA COLLECTION                                          #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_measurement_device_type))
+   call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_measurement_method))
+   call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_wavelength))
+   call write_info("_diffrn_radiation_type            "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_type))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_source))
+   call write_info("_diffrn_radiation_monochromator   "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_monochromator))
+   call write_info("_diffrn_radiation_probe           "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_probe))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_radiation_source))
+   call write_info("_diffrn_detector                  "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_detector))
+   call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_D8_VENTURE_CU%diffrn_detector_area_resol_mean))
+  endif
+
+ ELSEIF(input_D8_VENTURE_MO) then
+  IF(keyword_create_CIF)   then
+   call write_CIF_file('D8_VENTURE_MO')
+  else
+   call write_info("")   
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   DATA COLLECTION                                          #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_measurement_device_type))
+   call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_measurement_method))
+   call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_wavelength))
+   call write_info("_diffrn_radiation_type            "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_type))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_source))
+   call write_info("_diffrn_radiation_monochromator   "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_monochromator))
+   call write_info("_diffrn_radiation_probe           "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_probe))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_radiation_source))
+   call write_info("_diffrn_detector                  "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_detector))
+   call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_D8_VENTURE_MO%diffrn_detector_area_resol_mean))
+  endif
+
+  
  ELSEIF(input_XCALIBUR) then
   IF(keyword_create_CIF)   then
    call write_CIF_file('XCALIBUR')

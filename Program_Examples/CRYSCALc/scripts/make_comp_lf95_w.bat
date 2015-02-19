@@ -1,5 +1,5 @@
 
-cd ..\src
+cd ..\..\src
 
 del *.obj
 del *.mod
@@ -71,4 +71,4 @@ copy c:\rw_lf95\*.mod
  del *.mod
  del *.map
 
- cd ..\scripts
+ cd ..\scripts\Windows

@@ -708,7 +708,7 @@ subroutine Get_WinGX_job(job, wingx_structure_directory)
    wingx_ini= trim(wingx_path_name) // '\wingx.ini'
   else
    call write_info('')
-   call write_info('!! WinGX not installed !!')
+   call write_info('  !! WinGX not installed !!')
    call write_info('')
    return
   endif

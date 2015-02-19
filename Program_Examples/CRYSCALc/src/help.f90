@@ -387,6 +387,13 @@ subroutine HELP_on_line
     case ("REF_APEX")
      call write_help_lines(HELP_REF_APEX_numor)
      keyword_ok = .true.
+
+    case ("REF_D8_VENTURE_CU")
+     call write_help_lines(HELP_REF_D8_VENTURE_CU_numor)
+     keyword_ok = .true.
+    case ("REF_D8_VENTURE_MO")
+     call write_help_lines(HELP_REF_D8_VENTURE_MO_numor)
+     keyword_ok = .true.
 	 
 	case ("REF_X2S")
       call write_help_lines(HELP_REF_X2S_numor)

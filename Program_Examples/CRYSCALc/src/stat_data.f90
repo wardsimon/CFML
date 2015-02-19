@@ -378,15 +378,18 @@ end subroutine  stat_repartition_d_hkl
 subroutine  stat_repartition_theta ()
  USE cryscalc_module, ONLY   : message_text, debug_proc
  USE hkl_module,      ONLY   : F2, sig_F2, theta_hkl, n_ref
+ 
+
  USE IO_module,       ONLY   : write_info
  implicit none
   ! local variables
   real                                  :: theta_max, theta_min
-  integer, dimension(12)                :: nb_shell
+  integer, dimension(12)                :: nb_shell, nb_expected
   REAL,    DIMENSION(12)                :: theta_shell
   real,    dimension(12)                :: F2_mean_shell, F2_min_shell, F2_max_shell
-  integer                               :: i
+  integer                               :: i, j
   character(len=128)                    :: fmt_, range_
+ 
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_theta")
   
@@ -470,11 +473,17 @@ subroutine  stat_repartition_theta ()
    if (i==1) then
     WRITE(range_, '(8x,F5.2,a,F5.2)')  0.00, ' -- ',theta_shell(i)
    ELSEIF(i==12) then
-    WRITE(range_, '(8x,F5.2,a )')      theta_shell(i-1), ' -- '
+    WRITE(range_, '(8x,F5.2,a)')       theta_shell(i-1), ' --      ' 
    else
     WRITE(range_,'(8x,F5.2,a,F5.2)')   theta_shell(i-1), ' -- ',theta_shell(i)
    endif
-   WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+   
+   
+   if(i/=12) then
+    WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+   else
+    WRITE(message_text, fmt_)  range_(1:22),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+   end if   
    call write_info(TRIM(message_text))
   end do
   call write_info('')

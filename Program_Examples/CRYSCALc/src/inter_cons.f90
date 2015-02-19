@@ -639,7 +639,7 @@ END subroutine interactive_mode
 
       CASE ('OBV_REV', 'OBVERSE_REVERSE', 'TWIN_OBVERSE_REVERSE', 'TWIN_OBV_REV', &
             'TWINNING_OBVERSE_REVERSE', 'TWINNING_OBV_REV')
-        if (keyword_FILE) call twin_obverse_reverse
+        call twin_obverse_reverse
 
       CASE ('TRICLINIC', 'TRICL')
        call transf_triclinic  
@@ -766,6 +766,11 @@ END subroutine interactive_mode
 
       case ('REF_APEX', 'REF_APEXII' , 'WRITE_APEX', 'WRITE_APEXII',  'APEX', 'APEXII')
         call write_REF('APEX')
+		
+      case ('REF_D8_VENTURE_CU')
+	    call write_ref('D8_VENTURE_CU')
+      case ('REF_D8_VENTURE_MO')
+	    call write_ref('D8_VENTURE_MO')
 
       case ('REF_EVAL', 'REF_EVALCCD', 'WRITE_EVAL', 'WRITE_EVALCCD', 'EVAL', 'EVALCCD')
         call write_REF('EVAL')
@@ -810,7 +815,7 @@ END subroutine interactive_mode
 		  call read_CIF_input_file(TRIM(CIF_file_name), '?')
 		  call read_CIF_input_file_TR(CIF_read_unit, TRIM(CIF_file_name))
 		 CLOSE(UNIT=CIF_read_unit)		 
-		
+	
 		 ! >> creation de l'objet MOLECULE	
 		 if(molecule%formula(1:1) /= '?') then
 		  call atomic_identification()  
@@ -820,8 +825,8 @@ END subroutine interactive_mode
 		 end if
 		 
 		 !
-		 if (keyword_SPGR .and. SPG%NumSpg /=0)    call space_group_info
-         if (keyword_SYMM .and. SPG%NumSpg /=0)    CALL decode_sym_op
+		 if (keyword_SPGR .and. SPG%NumSpg /=0)    call space_group_info()
+         if (keyword_SYMM .and. SPG%NumSpg /=0)    CALL decode_sym_op()
 		 
 		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol 
 		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(CIF_file_name), 'cif')

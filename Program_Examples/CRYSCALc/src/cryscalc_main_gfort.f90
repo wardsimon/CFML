@@ -18,11 +18,15 @@ program crystallographic_calculations
   INTEGER                                  :: i_error
   character (len=256), dimension(10)       :: cmd_arg
   INTEGER                                  :: i_arg_DEBUG, i_arg_NOOUT, i_arg_CIFDEP, i_arg_ACTA, i_arg_PYMOL, i_arg_NO_SQUEEZE
+  INTEGER                                  :: i_arg_NOHKL
 
 
  ! >>>>  initialisation
   call Def_transformation_matrix
   call cryscalc_init()
+ ! >>>>  lecture du fichier de configuration CRYSCALC.ini
+ ! call read_cryscalc_ini()
+
   tmp_logical = .false.
  
 
@@ -54,7 +58,10 @@ program crystallographic_calculations
    call write_info(' Program will be stopped.')
    call write_info('')
 
-   pause
+   call write_info('')
+   call write_info(' Press Enter key to continue.')
+   read(*,*) 
+   !pause
    stop
   endif
   if(nb_arg /=0) then
@@ -65,6 +72,7 @@ program crystallographic_calculations
    end do
    i_arg_DEBUG      = 0
    i_arg_NOOUT      = 0
+   i_arg_NOHKL      = 0
    i_arg_CIFDEP     = 0
    i_arg_ACTA       = 0
    i_arg_PYMOL      = 0
@@ -86,6 +94,10 @@ program crystallographic_calculations
      ON_SCREEN      = .false.
      i_arg_NOOUT    = i
     endif
+    if(long ==6 .and. u_case(cmd_arg(i)(1:6)) == 'NO_HKL') then
+     INCLUDE_HKL_file = .false.
+     i_arg_NOHKL      = i
+    endif    
     if(long ==6 .and. u_case(cmd_arg(i)(1:6)) == 'CIFDEP') then
      CIFDEP         = .true.
      i_arg_CIFDEP   = i
@@ -141,13 +153,13 @@ program crystallographic_calculations
     write(debug_proc%unit,*) ''
    end if
 
-   ! creation de la ligne de commande exempte des arguments DEBUG, NOOUT, CIFDEP, ACTA, PYMOL, NO_SQUEEZE
-   if(i_arg_DEBUG /=0 .or. i_arg_NOOUT /=0 .or. i_arg_CIFDEP /=0 .or. i_arg_ACTA /=0 .or. i_arg_PYMOL /=0 .and. &
-      i_arg_NO_SQUEEZE /=0) then
+   ! creation de la ligne de commande exempte des arguments DEBUG, NOOUT, NOHKL, CIFDEP, ACTA, PYMOL, NO_SQUEEZE
+   if(i_arg_DEBUG /=0 .or. i_arg_NOOUT /=0 .or. i_arg_NOHKL /=0 .or. i_arg_CIFDEP /=0 .or. i_arg_ACTA /=0 .or. &
+      i_arg_PYMOL /=0 .or. i_arg_NO_SQUEEZE /=0) then
     cmd_line = ''
     do i=1, nb_arg
-     if (i/=i_arg_DEBUG .and. i/=i_arg_NOOUT .and. i/=i_arg_CIFDEP .and. i/=i_arg_ACTA .and. i/=i_arg_PYMOL .and. &
-	     i/=i_arg_NO_SQUEEZE) then      
+     if (i/=i_arg_DEBUG .and. i/=i_arg_NOOUT .and. i/=i_arg_NOHKL .and. i/=i_arg_CIFDEP .and. i/=i_arg_ACTA .and. &
+	     i/=i_arg_PYMOL .and. i/=i_arg_NO_SQUEEZE) then      
       cmd_line = trim(cmd_line)// ' ' //trim(cmd_arg(i))
      endif
     end do
@@ -422,7 +434,7 @@ program crystallographic_calculations
   OPEN(UNIT=2, FILE='cryscalc_news.txt')
   call write_CRYSCALC_title
 
-  call write_cryscal_NEWS('text')
+  call write_cryscalc_NEWS('text')
   call write_info('')
   call write_info('CRYSCALC news are stored in the CRYSCALC_news.txt file.')
   call write_info('')
@@ -473,9 +485,8 @@ program crystallographic_calculations
   
  ELSEIF(keyword_create_REPORT) then
   call create_structural_report()
-
-  stop
-  
+  call end_of_program !
+   
  !elseif(keyword_create_CEL) then
  ! OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
  !  call check_CIF_input_file(TRIM(CIF_file_name))
@@ -488,17 +499,18 @@ program crystallographic_calculations
    
  elseif(keyword_SOLVE_to_INS) then
   call create_INS_from_SOLVE()
-  stop 
+  call end_of_program !
 
  elseif(keyword_modif_ARCHIVE) then
-  call read_and_modif_archive(input_unit)
   call read_keywords_from_file(TRIM(input_file))                      ! cryscalc.F90
-  call run_keywords()                                                 ! cryscalc.F90 
-  stop
+  call run_keywords()                                                 ! cryscalc.F90
+  call read_and_modif_archive(input_unit)
+  call end_of_program !
+
   
  elseif(keyword_create_ARCHIVE) then 
   call read_cif_and_create_ARCHIVE()       ! create_archive_cif_file.F90
-  stop
+ call end_of_program !
 
  END IF
 
@@ -536,7 +548,7 @@ program crystallographic_calculations
     choice = ADJUSTL(choice)
     if(len_trim(choice) == 0) choice = '1'
    else
-    choce = '1'
+    choice = '1'
     skip_start_menu = .false.
    endif
    

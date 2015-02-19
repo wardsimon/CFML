@@ -70,16 +70,24 @@ subroutine read_SHELX_HKL(input_string)
     ! cos exist ?
     cos_exist = .false.
 	if(HKL_format(1:11) == '(3I4,2F8.2)') HKL_format = HKL_SHELX_format
-    read(66, fmt=trim(HKL_format))  h,k,l, F2, sig, code, cosdir(1:6) 
-    if (cosdir(1) < eps .and. cosdir(2) < eps .and. cosdir(3) < eps .and. cosdir(4) < eps .and. &
+    read(66, fmt=trim(HKL_format), iostat=i_iostat)  h,k,l, F2, sig, code, cosdir(1:6) 
+	if(i_iostat /=0) then
+	 call write_info('')
+	 write(message_text, '(2x,3a)') '! Error reading .hkl file. Wrong format ', trim(HKL_format), ' ?'
+	 call write_info(trim(message_text))
+	 call write_info('')
+	 close(unit=66)
+	 stop
+	endif
+	if (cosdir(1) < eps .and. cosdir(2) < eps .and. cosdir(3) < eps .and. cosdir(4) < eps .and. &
         cosdir(5) < eps .and. cosdir(6) < eps) then
       cos_exist = .false.
     else
       cos_exist = .true.
     end if            
-   close(unit=66)   
-   return
-  end if 
+    close(unit=66)   
+    return
+   end if 
   !---------------------------------------
  
   OPEN(UNIT=67, FILE='import.cif', POSITION = 'append')
@@ -111,7 +119,8 @@ subroutine read_SHELX_HKL(input_string)
    do
     READ(66, '(a)', IOSTAT=i_iostat) read_line
     IF(i_iostat <0) exit
-    READ(read_line, fmt=trim(HKL_format))   h, k, l, F2, sig, code, cosdir(1:6) 
+	if(len_trim(read_line) == 0) exit
+	READ(read_line, fmt=trim(HKL_format))   h, k, l, F2, sig, code, cosdir(1:6) 	
     WRITE(67, '(I4,2I5,2F9.2,I5)') h, k, l, F2, sig, code
 	if(cos_exist) WRITE(67,'(F8.5, 5(1x,F8.5))') cosdir(1:6)
 	

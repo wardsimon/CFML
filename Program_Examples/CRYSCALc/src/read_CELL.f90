@@ -7,7 +7,7 @@ subroutine read_P4P(P4P_input_file)
 ! . creation apex.cif
 
  USE IO_module
- USE cryscalc_module, ONLY : P4P_file_name, message_text, keyword_CELL, input_line, lecture_OK, debug_proc 
+ USE cryscalc_module, ONLY : P4P_file_name, message_text, keyword_CELL, input_line, lecture_OK, debug_proc
  implicit none
   CHARACTER (LEN=*), intent(IN)        :: P4P_input_file
   INTEGER                              :: i, ier, nb_P4P, selected_P4P
@@ -16,7 +16,7 @@ subroutine read_P4P(P4P_input_file)
   REAL                                 :: esd
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_P4P")
-  
+
   IF(LEN_TRIM(P4P_input_file) ==0) then
    call system('dir *.P4P /B > P4P.lst')
    OPEN(UNIT=66, FILE='P4P.lst')
@@ -68,7 +68,7 @@ subroutine read_P4P(P4P_input_file)
    P4P_file_name = P4P_input_file
   endif
   lecture_ok = .false.
-  
+
   call read_P4P_file(TRIM(P4P_file_name))
 
   IF(.NOT. lecture_ok) then
@@ -76,9 +76,9 @@ subroutine read_P4P(P4P_input_file)
    call write_info(' !! Problem reading .P4P file !!')
    call write_info('')
   endif
-  
+
   !call volume_calculation('no_out')
- 
+
   keyword_CELL = .true.
 
 
@@ -89,8 +89,8 @@ end subroutine read_P4P
 subroutine read_P4P_file(P4P_file)
  USE cryscalc_module,     ONLY : P4P_read_unit, known_cell_esd, wavelength, keyword_WAVE, unit_cell,       &
                                  message_text, keyword_SIZE, crystal, UB_matrix, UB_mat_log, molecule,     &
- 	 						     CIF_string, lecture_OK, debug_proc							 
- USE CIF_module,          ONLY : CIF_cell_measurement, CIF_parameter								 
+                                                        CIF_string, lecture_OK, debug_proc
+ USE CIF_module,          ONLY : CIF_cell_measurement, CIF_parameter
  USE macros_module,       ONLY : test_file_exist, nombre_de_colonnes, l_case, u_case
  USE IO_module,           ONLY : write_info
  USE CFML_Geometry_SXTAL, ONLY : CELL_Fr_UB
@@ -99,16 +99,16 @@ subroutine read_P4P_file(P4P_file)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)  :: P4P_file
   ! local variables
-  CHARACTER (LEN=256)              :: P4P_line 
+  CHARACTER (LEN=256)              :: P4P_line
   INTEGER                          :: ier, i, i1, i2, long
   INTEGER                          :: nb_arg
   CHARACTER(LEN=16), DIMENSION(12) :: arg_string
   LOGICAL                          :: file_exist
   LOGICAL                          :: UB_mat_1, UB_mat_2, UB_mat_3
 
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_P4P_FILE")
-  
+
   arg_string = '?'
   lecture_ok = .false.
   file_exist = .false.
@@ -126,29 +126,31 @@ subroutine read_P4P_file(P4P_file)
    do
     READ(P4P_read_unit, '(a)', IOSTAT=ier) P4P_line
     IF(ier <0) EXIT ! fin du fichier
-	long = len_trim(P4P_line)
-	!if(P4P_line(1:5) == 'REF05') cycle
-	if(P4P_line(1:5) == 'REF05') exit
-	
+    long = len_trim(P4P_line)
+    !if(P4P_line(1:5) == 'REF05') cycle
+    if(P4P_line(1:5) == 'REF05')  exit
+    if(P4P_line(1:5) == 'REF1K')  exit
+    if(P4P_line(1:6) == 'SAINMC') exit
+
 	call nombre_de_colonnes(P4P_line, nb_arg)
-	IF(nb_arg/=0)  then
+    IF(nb_arg/=0)  then
      READ(P4P_line, *) arg_string(1:nb_arg)
-	 arg_string(1:nb_arg) = adjustl(arg_string(1:nb_arg))
+     arg_string(1:nb_arg) = adjustl(arg_string(1:nb_arg))
     else
-	 cycle
-	end if	
- 
-    select case (arg_string(1)) 
-	    case ('FILEID')
-		 i1 = index(P4P_line, ":", back=.true.)
-		 if(i1 /=0)  read(P4P_line(i1+3:), *) CIF_parameter%sample_ID
-		 CIF_parameter%sample_ID = adjustl(CIF_parameter%sample_ID)
-	 
-	   
+     cycle
+    end if
+
+    select case (arg_string(1))
+        case ('FILEID')
+         i1 = index(P4P_line, ":", back=.true.)
+         if(i1 /=0)  read(P4P_line(i1+3:), *) CIF_parameter%sample_ID
+         CIF_parameter%sample_ID = adjustl(CIF_parameter%sample_ID)
+
+
         case ('CELL')
          READ(P4P_line(5:),*) unit_cell%param(1:6), unit_cell%volume
          lecture_ok = .true.
- 
+
         case ('CELLSD')
          READ(P4P_line(7:), *) unit_cell%param_esd(1:6), unit_cell%volume_esd
          known_cell_esd = .true.
@@ -160,40 +162,36 @@ subroutine read_P4P_file(P4P_file)
           call get_crystal_SIZE_min_max
          endif
 
-		CASE ('FACE')
+        CASE ('FACE')
          crystal%faces_nb = crystal%faces_nb + 1
          read(P4P_line(6:), '(a)') crystal%face_line(crystal%faces_nb)
-		 
-		CASE ('SAINGL')
+
+        CASE ('SAINGL')
          READ(P4P_line(7:), *) arg_string(1:3)
          READ(arg_string(1), *) CIF_cell_measurement%reflns_used
          READ(arg_string(2), *) CIF_cell_measurement%theta_min
          READ(arg_string(3), *) CIF_cell_measurement%theta_max
-         !exit ! sinon la lecture du facies ne se fait pas 
-		 
-        
-         
+         !exit ! sinon la lecture du facies ne se fait pas
+
         case ('SOURCE')
          READ(P4P_line(7:), *) arg_string(1:2)
          READ(arg_string(2), *) wavelength
          keyword_WAVE = .true.
 
-       
-
         case ('ORT1')
          READ(P4P_line(5:), *, iostat=ier) UB_matrix(1,1), UB_matrix(1,2), UB_matrix(1,3)
-		 if(ier == 0) UB_mat_1 = .true.
-		
+          if(ier == 0) UB_mat_1 = .true.
+
         case ('ORT2')
          READ(P4P_line(5:), *, iostat=ier) UB_matrix(2,1), UB_matrix(2,2), UB_matrix(2,3)
-		 if(ier == 0) UB_mat_2 = .true.
+           if(ier == 0) UB_mat_2 = .true.
 
         case ('ORT3')
          READ(P4P_line(5:), *, iostat=ier) UB_matrix(3,1), UB_matrix(3,2), UB_matrix(3,3)
-		 if(ier == 0) UB_mat_3 = .true.
-		 if(UB_mat_1 .and. UB_mat_2 .and. UB_mat_3) UB_mat_log = .true.
+          if(ier == 0) UB_mat_3 = .true.
+          if(UB_mat_1 .and. UB_mat_2 .and. UB_mat_3) UB_mat_log = .true.
 
-		 
+
         case ('MORPH')
          READ(P4P_line(6:), *) crystal%morph
 
@@ -219,63 +217,62 @@ subroutine read_P4P_file(P4P_file)
          !else
          ! READ(CIF_string, *) unit_cell%crystal_system, unit_cell%Bravais
          !endif
-		 
-		 i1 = index(P4P_line, '(')
-		 if(i1 /=0) then
-		  read(P4P_line(8:i1-1), *)   unit_cell%crystal_system
-		 else
-          read(P4P_line(8:),     *)   unit_cell%crystal_system
-         endif
-         read(P4P_line(long:long), *) unit_cell%Bravais		 
-		
-		 !read(P4P_line(8:), *)        unit_cell%crystal_system
-		 !read(P4P_line(long:long), *) unit_cell%Bravais
-         unit_cell%crystal_system = l_case(unit_cell%crystal_system)
-         unit_cell%crystal_system = ADJUSTL(unit_cell%crystal_system)
-		 unit_cell%Bravais        = u_case(unit_cell%Bravais)
-         unit_cell%Bravais        = ADJUSTL(unit_cell%Bravais)
-		 
-		 
-		 ! creation de la chaine unit_cell%H_M
-		 select case(unit_cell%crystal_system)
-		  case ("cubic")
-		   write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"23"  
-		   
-		  case ("tetragonal")		  
-           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"4"  
-			
-	      case ("trigonal", "rhomboedral")
-           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"3"  
-   		   
-	      case ("hexagonal")
-		   if(arg_string(3) == 'RO') then
-		    write(unit_cell%H_M, '(a)') "R3"  
-		   else
-            write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"6"  
-		   endif	
-			
-		  case ("orthorhombic")
-           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"222"  
-		  
-		  case ("monoclinic")
-           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"2"  
-		   
-		  case("triclinic")
-           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"1"  
-		 		  		
-		 end select 
- 
+
+        i1 = index(P4P_line, '(')
+        if(i1 /=0) then
+          read(P4P_line(8:i1-1), *)   unit_cell%crystal_system
+        else
+         read(P4P_line(8:),     *)   unit_cell%crystal_system
+        endif
+        read(P4P_line(long:long), *) unit_cell%Bravais
+
+               !read(P4P_line(8:), *)        unit_cell%crystal_system
+               !read(P4P_line(long:long), *) unit_cell%Bravais
+        unit_cell%crystal_system = l_case(unit_cell%crystal_system)
+        unit_cell%crystal_system = ADJUSTL(unit_cell%crystal_system)
+        unit_cell%Bravais        = u_case(unit_cell%Bravais)
+        unit_cell%Bravais        = ADJUSTL(unit_cell%Bravais)
+
+               ! creation de la chaine unit_cell%H_M
+          select case(unit_cell%crystal_system)
+           case ("cubic")
+            write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"23"
+
+           case ("tetragonal")
+            write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"4"
+
+           case ("trigonal", "rhomboedral")
+            write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"3"
+
+           case ("hexagonal")
+            if(arg_string(3) == 'RO') then
+             write(unit_cell%H_M, '(a)') "R3"
+            else
+             write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"6"
+            endif
+
+          case ("orthorhombic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"222"
+
+          case ("monoclinic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"2"
+
+          case("triclinic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"1"
+
+               end select
+
        case ('TITLE')
         READ(P4P_line(6:), '(a)') CIF_string
         CIF_string = ADJUSTL(CIF_string)
         IF(CIF_string(1:14) == 'Integration of') then
          READ(CIF_string(15:), *) molecule%common_name
          molecule%common_name = ADJUSTL(molecule%common_name)
-		 !CIF_parameter%sample_ID = molecule%common_name
+               !CIF_parameter%sample_ID = molecule%common_name
         endif
-		
-	   case ('REF05', 'DATA')
-        exit	   
+
+       case ('REF05', 'DATA', 'REF1K', 'SAINMC')
+        exit
 
        case default
     end select
@@ -285,7 +282,7 @@ subroutine read_P4P_file(P4P_file)
 
   close (UNIT=P4P_read_unit)
   lecture_OK = .true.
-  
+
  RETURN
 end subroutine read_P4P_file
 
@@ -345,7 +342,7 @@ end subroutine read_M50_file
 !----------------------------------------------------------------------
 subroutine read_RED_input_file(RED_file, lecture_ok)
  USE cryscalc_module,                  ONLY : RED_read_unit, unit_cell, known_cell_esd, wavelength, keyword_WAVE, SPG, &
-                                              space_group_symbol, keyword_SPGR, debug_proc 
+                                              space_group_symbol, keyword_SPGR, debug_proc
  USE macros_module,                    ONLY : test_file_exist, u_case
  USE CFML_Crystallographic_Symmetry,   ONLY : set_spacegroup
 
@@ -358,7 +355,7 @@ subroutine read_RED_input_file(RED_file, lecture_ok)
   CHARACTER(LEN=16), DIMENSION(10) :: arg_string
   LOGICAL                          :: file_exist
   character(len=40)                :: symb_spgr
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_RED_INPUT_FILE")
 
   lecture_ok = .false.
@@ -377,17 +374,17 @@ subroutine read_RED_input_file(RED_file, lecture_ok)
     select case (u_case(arg_string(1)))
         case ('CELL')
          READ(RED_line(5:),*) unit_cell%param(1:6)
-         lecture_ok = .true.        
+         lecture_ok = .true.
 
         case ('WAVE')
          READ(RED_line(7:), *) wavelength
          keyword_WAVE = .true.
 
-		case ('SPGR')
-         read(RED_line(5:), *) symb_spgr		
-		 call Set_SpaceGroup(symb_spgr, SPG)
-		 keyword_SPGR   = .true.  
-		 
+              case ('SPGR')
+         read(RED_line(5:), *) symb_spgr
+               call Set_SpaceGroup(symb_spgr, SPG)
+               keyword_SPGR   = .true.
+
         case default
     end select
    END do
@@ -414,7 +411,7 @@ subroutine read_X_input_file(X_file, lecture_ok)
   LOGICAL                          :: file_exist
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_X_INPUT_FILE")
-  
+
   lecture_ok = .false.
   file_exist = .false.
 
@@ -462,7 +459,7 @@ subroutine read_RMAT_input_file(RMAT_file, lecture_ok)
   LOGICAL                          :: file_exist
 
   if(debug_proc%level_2)  write(debug_proc%unit, '(a)') " . routine : READ_RMAT_INPUT_FILE"
-  
+
   lecture_ok = .false.
   file_exist = .false.
 
@@ -505,24 +502,24 @@ subroutine read_SADABS_file()
   LOGICAL                       :: file_exist
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_SADABS_FILE")
-  
+
   SADABS_line_ratio               = '?'
   SADABS_line_estimated_Tmin_Tmax = '?'
   SADABS_absorption_coeff         = '?'
   i1 = INDEX(P4P_file_name, '_0M.P4P')
   IF(i1 == 0)   return
-  
+
 
   ABS_file_name = P4P_file_name(1:i1-1)//'m.abs'
   call test_file_exist(trim(ABS_file_name), file_exist, 'no_out')
-  
+
   if(file_exist) then
    OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
    do
     READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
     IF(i_error /=0) exit
     read_line = ADJUSTL(read_line)
-	
+
     long = LEN_TRIM('Ratio of minimum to maximum apparent transmission:')
     IF(read_line(1:long) == 'Ratio of minimum to maximum apparent transmission:') then
      SADABS_line_ratio = read_line
@@ -530,39 +527,39 @@ subroutine read_SADABS_file()
     endif
    end do
    return
-   
+
   else
    ! mars 2011 : new version of SADABS
    ABS_file_name = P4P_file_name(1:i1-1)//'.abs'
    call test_file_exist(trim(ABS_file_name), file_exist, 'out')
    if(.not. file_exist)  return
-   
-  
+
+
    OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
    do
     READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
     IF(i_error /=0) exit
     read_line = ADJUSTL(read_line)
-	long = LEN_TRIM('Linear absorption coefficient set to')
+       long = LEN_TRIM('Linear absorption coefficient set to')
     IF(read_line(1:long) == 'Linear absorption coefficient set to') then
-	 i1 = index(read_line, 'mm-1')
-	 if(i1 /=0) then
-	  read(read_line(long+1:i1-1), '(a)') SADABS_absorption_coeff
-	 endif
+        i1 = index(read_line, 'mm-1')
+        if(i1 /=0) then
+         read(read_line(long+1:i1-1), '(a)') SADABS_absorption_coeff
+        endif
      !exit
     endif
-	
-	
+
+
     long = LEN_TRIM('Estimated minimum and maximum transmission:')
     IF(read_line(1:long) == 'Estimated minimum and maximum transmission:') then
      SADABS_line_estimated_Tmin_Tmax = read_line
      exit
     endif
    end do
-  endif 
-  
+  endif
+
   call write_info('')
   call write_info('  . SADABS output file: '//trim(ABS_file_name))
-  
+
  RETURN
 end subroutine read_SADABS_file

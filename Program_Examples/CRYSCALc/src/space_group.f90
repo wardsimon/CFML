@@ -39,6 +39,7 @@ subroutine space_group_info
   if(debug_proc%level_2)  call write_debug_proc_level(2, "SPACE_GROUP_INFO")
 
  !open (unit=3, file="sg.out", status="replace")
+
  call set_spacegroup(space_group_symbol, SPG)
 
  IF( SPG%NumSpg ==0)  then

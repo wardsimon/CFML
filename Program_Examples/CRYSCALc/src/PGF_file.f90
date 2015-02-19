@@ -12,6 +12,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   CHARACTER(LEN=*), INTENT(IN)           :: X_legend
   !local variables:
   INTEGER                                :: i, i1, long
+  INTEGER                                :: PGF_style
   character (len=64)                     :: titre
   REAL                                   :: Xmin, Xmax, Ymin, Ymax
 
@@ -32,42 +33,48 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(sinTheta/lambda)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : sin(Theta)/lambda (A-1)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-   titre =  'F2 = f(sinTheta/lambda)'
+   titre =  'F2_=_f(sinTheta/lambda)'
+   PGF_style = 0
   END IF
  ELSEIF(long ==5) then
   IF(X_legend(1:5) == 'd_hkl') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(d_hkl)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : d_hkl(A)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-   titre =  'F2 = f(d_hkl)'
+   titre =  'F2_=_f(d_hkl)'
+   PGF_style = 0
   END IF
  ELSEIF(long ==5) THEN
   IF(X_legend(1:5) == 'theta') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2 = f(Theta)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Theta(deg)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2'
-   titre =  'F2 = f(Theta)'
+   titre =  'F2_=_f(Theta)'
+   PGF_style = 0
   END IF
  ELSEIF(long ==4) then
   if(X_legend(1:4) == 'bcoh') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron coherent scattering length'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : bcoh (10-12 cm)'
-   titre =  'bcoh = f(element)'
+   titre =  'bcoh_=_f(element)'
+   PGF_style = 0
   end if
  ELSEIF(long ==6) then
   if(X_legend(1:6) == 'sedinc') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron incoherent cross section'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : sed_inc (barns)'
-   titre =  'sed_inc = f(element)'
+   titre =  'sed_inc_=_f(element)'
+   PGF_style = 1
   end if
  ELSEIF(long ==3) then
   if(X_legend(1:3) == 'sea') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron absorption cross section'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : sea (barns)'
-   titre =  'sea = f(element)'
+   titre =  'sea_=_f(element)'
+   PGF_style = 1
   end if
  ELSEIF(long ==11) then
   if(X_legend(1:11) == 'RE_data_mod') then
@@ -78,6 +85,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : |b| (10^-12 cm)'
    titre =  'mod_b = f(energy)'
+   PGF_style = 1
   END IF 
  ELSEIF(long ==10) then
   if(X_legend(1:10) == 'RE_data_Re') then
@@ -88,6 +96,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : Re(b) (10^-12 cm)'
    titre =  'Re_b = f(energy)'
+   PGF_style = 1
  elseif(X_legend(1:10) == 'RE_data_Im') then
    WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
    WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
@@ -96,6 +105,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : Im(b) (10^-12 cm)'
    titre =  'Im_b = f(energy)'
+   PGF_style = 1
   end if  
  ELSEIF(X_legend(1:2) == 'Ag') then
   IF(X_legend(3:) == '_tics') then
@@ -103,11 +113,13 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Ag = f(element)'
+   PGF_style = 1
   ELSEIF(long ==3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Ag radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
    titre =  'MAC_X_Ag = f(element)'
+   PGF_style = 1
   endif
 
  ELSEIF(X_legend(1:2) == 'Mo') then
@@ -116,14 +128,17 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
    titre =  'TICS_X_Mo = f(element)'
+   PGF_style = 1
   ELSEIF(long ==3 .and. X_legend(3:) == '_cam') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient (Mo radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
    titre =  'MAC_X_Mo = f(element)'
+   PGF_style = 1
   endif
 
  ELSEIF(X_legend(1:2) == 'Cu') then
+  PGF_style = 1
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Cu radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
@@ -137,6 +152,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   endif
 
  ELSEIF(X_legend(1:2) == 'Ni') then
+  PGF_style = 1
   IF(long > 3 .and. X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Ni radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
@@ -150,6 +166,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   endif
 
  ELSEIF(X_legend(1:2) == 'Co') then
+  PGF_style = 1
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Co radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
@@ -163,6 +180,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   endif
 
  ELSEIF(X_legend(1:2) == 'Fe') then
+  PGF_style = 1
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Fe radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
@@ -176,6 +194,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   endif
 
  ELSEIF(X_legend(1:2) == 'Cr') then
+  PGF_style = 1
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Cr radiation)'
    WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
@@ -193,18 +212,21 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : density'
   titre =  'atomic_density = f(element)'
+  PGF_style = 1
 
  ELSEIF(long ==6 .and. X_legend(1:6) == 'radius') then
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Atomic radius'
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : radius (A)'
   titre =  'atomic_radius = f(element)'
+  PGF_style = 1
 
  ELSEIF(long ==6 .and. X_legend(1:6) == 'weight') then
   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Atomic weight'
   WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : weight'
   titre =  'atomic_weight = f(element)'
+  PGF_style = 1
 
  ELSEIF(long ==2 .and. X_legend(1:2) == 'f0') then
   i1 = INDEX(X_legend, ':')
@@ -212,6 +234,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   WRITE(11,'(a)')      '# X LEGEND TEXT   : sin(Theta)/lambda (A-1)'
   WRITE(11,'(a)')      '# Y LEGEND TEXT   : f0'
   WRITE(titre,'(a)')   TRIM(X_legend(i1+1:))
+  PGF_style = 1
 
  endif
 
@@ -233,7 +256,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
  write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', npts
  write(11,'(a)')        '#            MARKER : 4'
  write(11,'(a)')        '#              SIZE : 1.5'
- write(11,'(a)')        '#             STYLE : 1'
+ write(11,'(a,I1)')     '#             STYLE : ', PGF_style
  write(11,'(a)')        '#   DATA: X Y COMM'
 
  do i=1, npts

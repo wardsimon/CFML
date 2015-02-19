@@ -1,5 +1,5 @@
 
-cd ..\src
+cd ..\..\src
 
 del *.obj
 del *.mod
@@ -64,10 +64,9 @@ del *.map
 
 
    ifort /exe:cryscalc_ifort *.obj /F100000000 "%CRYSFML%"\ifort\libc\crysfml.lib
-upx cryscalc_ifort.exe
+   upx cryscalc_ifort.exe
+   copy cryscalc_ifort.exe ..\..\DistFPS\cryscalc.exe
+   if exist %FULLPROF% copy cryscalc_ifort.exe %FULLPROF%\cryscalc.exe
+   del *.obj *.mod *.bak *.map 
 
-del *.obj
-del *.mod
-del *.map
-
-cd ..\scripts
+cd ../scripts/windows

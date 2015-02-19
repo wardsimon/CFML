@@ -15,7 +15,7 @@ subroutine cryscalc_init()
  ! initialisation ---------------------------------------
   winplotr_exe        = ''
   
-  CRYSCALC%version      = 'Nov. 2014'          
+  CRYSCALC%version      = 'Feb. 2015'          
   CRYSCALC%author       = 'Thierry Roisnel (CDIFX / ISCR UMR6226 - Rennes)'    
   CRYSCALC%mail         = "thierry.roisnel@univ-rennes1.fr"
   CRYSCALC%url          = "www.cdifx.univ-rennes1.fr/cryscalc"  
@@ -156,6 +156,7 @@ subroutine cryscalc_init()
   CIF_torsion_limit      = 170.
   include_RES_file       = .false.
   include_HKL_file       = .false.
+  CMD_include_HKL_file   = 0
   update_parameters      = .true.
   report_header          = .true.
   expert_mode            = .false.
@@ -502,6 +503,7 @@ subroutine cryscalc_init()
   CIF_parameter%CHI2                             = '?'
   CIF_parameter%crystal_system                   = '?'
   CIF_parameter%Bravais                          = '?'
+  CIF_parameter%abs_structure_Flack              = '?'
 
 
   CIF_parameter%computing_data_collection        = '?'
@@ -540,6 +542,13 @@ subroutine cryscalc_init()
   X2S%data_collection                               = "'GIS (Bruker)'"
   X2S%cell_refinement                               = "'APEX2 (Bruker, 2010); SAINT (Bruker, 2009)'"
   X2S%data_reduction                                = "'SAINT (Bruker, 2009); XPREP (Sheldrick, 2008)'"
+  D8_VENTURE_CU%data_collection                     = "'Bruker APEX2 (Bruker, 2014)'"
+  D8_VENTURE_CU%cell_refinement                     = "'APEX2 (Bruker, 2010); SAINT (Bruker, 2014)'"
+  D8_VENTURE_CU%data_reduction                      = "'SAINT (Bruker, 2009); XPREP (Sheldrick, 2014)'"
+  D8_VENTURE_MO%data_collection                     = "'Bruker APEX2 (Bruker, 2014)'"
+  D8_VENTURE_MO%cell_refinement                     = "'APEX2 (Bruker, 2010); SAINT (Bruker, 2014)'"
+  D8_VENTURE_MO%data_reduction                      = "'SAINT (Bruker, 2009); XPREP (Sheldrick, 2014)'"
+  
   XCALIBUR%data_collection                          = "'CrysAlis CCD, Oxford Diffraction Ltd.,Version 1.171.26'"
   XCALIBUR%cell_refinement                          = "'CrysAlis CCD, Oxford Diffraction Ltd.,Version 1.171.26'"
   XCALIBUR%data_reduction                           = "'CrysAlis CCD, Oxford Diffraction Ltd.,Version 1.171.26'"
@@ -551,7 +560,7 @@ subroutine cryscalc_init()
   CIF_parameter_KCCD%diffrn_source                        = "'Enraf Nonius FR590'"
   CIF_parameter_KCCD%diffrn_radiation_wavelength          = '0.71073'
   CIF_parameter_KCCD%diffrn_radiation_type                = 'MoK\a'
-  CIF_parameter_KCCD%diffrn_radiation_source              = 'fine-focus sealed tube'
+  CIF_parameter_KCCD%diffrn_radiation_source              = "'fine-focus sealed tube'"
   CIF_parameter_KCCD%diffrn_radiation_monochromator       = 'graphite'
   CIF_parameter_KCCD%diffrn_radiation_probe               = 'x-ray'  
   CIF_parameter_KCCD%diffrn_detector                      = "'CCD plate'"
@@ -569,7 +578,7 @@ subroutine cryscalc_init()
   CIF_parameter_APEX%diffrn_detector                      = "'CCD plate'"
   CIF_parameter_APEX%diffrn_radiation_wavelength          = '0.71073'
   CIF_parameter_APEX%diffrn_radiation_type                = 'MoK\a'
-  CIF_parameter_APEX%diffrn_radiation_source              = 'fine-focus sealed tube'
+  CIF_parameter_APEX%diffrn_radiation_source              = "'fine-focus sealed tube'"
   CIF_parameter_APEX%diffrn_radiation_monochromator       = 'graphite'
   CIF_parameter_APEX%diffrn_radiation_probe               = 'x-ray'  
   CIF_parameter_APEX%diffrn_measurement_device            = '?'
@@ -584,6 +593,37 @@ subroutine cryscalc_init()
   CIF_parameter_APEX%computing_molecular_graphics         = CIF_parameter%computing_molecular_graphics
   CIF_parameter_APEX%computing_publication_material_1     = CIF_parameter%computing_publication_material_1
   CIF_parameter_APEX%computing_publication_material_2     = CIF_parameter%computing_publication_material_2
+
+  
+  CIF_parameter_D8_VENTURE_CU%diffrn_measurement_device_type       = "'D8 VENTURE Bruker AXS'"
+  CIF_parameter_D8_VENTURE_CU%diffrn_measurement_method            = "'rotation images, thin slices'"
+  CIF_parameter_D8_VENTURE_CU%diffrn_detector                      = "'(CMOS) PHOTON 100'"
+  CIF_parameter_D8_VENTURE_CU%diffrn_radiation_wavelength          = '1.54178'
+  CIF_parameter_D8_VENTURE_CU%diffrn_radiation_type                = 'CuK\a'
+  CIF_parameter_D8_VENTURE_CU%diffrn_radiation_probe               = 'x-ray'  
+  CIF_parameter_D8_VENTURE_CU%diffrn_radiation_source              = "'Incoatec microfocus sealed tube'"
+  CIF_parameter_D8_VENTURE_CU%diffrn_radiation_monochromator       = "'multilayer monochromator'"
+  CIF_parameter_D8_VENTURE_CU%diffrn_measurement_device            = '?'
+  CIF_parameter_D8_VENTURE_CU%diffrn_source                        = 'Incoatec microfocus sealed tube'
+  CIF_parameter_D8_VENTURE_CU%diffrn_detector_area_resol_mean      = '?'
+  CIF_parameter_D8_VENTURE_CU%computing_data_collection            = D8_VENTURE_CU%data_collection
+  CIF_parameter_D8_VENTURE_CU%computing_cell_refinement            = D8_VENTURE_CU%cell_refinement
+  CIF_parameter_D8_VENTURE_CU%computing_data_reduction             = D8_VENTURE_CU%data_reduction
+  
+  CIF_parameter_D8_VENTURE_MO%diffrn_measurement_device_type       = "'D8 VENTURE Bruker AXS'"
+  CIF_parameter_D8_VENTURE_MO%diffrn_measurement_method            = "'rotation images'"
+  CIF_parameter_D8_VENTURE_MO%diffrn_detector                      = "'(CMOS) PHOTON 100'"
+  CIF_parameter_D8_VENTURE_MO%diffrn_radiation_wavelength          = '0.71073'
+  CIF_parameter_D8_VENTURE_MO%diffrn_radiation_type                = 'MoK\a'
+  CIF_parameter_D8_VENTURE_MO%diffrn_radiation_probe               = 'x-ray'  
+  CIF_parameter_D8_VENTURE_MO%diffrn_radiation_source              = "'Incoatec microfocus sealed tube'"
+  CIF_parameter_D8_VENTURE_MO%diffrn_radiation_monochromator       = "'multilayer monochromator'"
+  CIF_parameter_D8_VENTURE_MO%diffrn_measurement_device            = '?'
+  CIF_parameter_D8_VENTURE_MO%diffrn_source                        = 'Incoatec microfocus sealed tube'
+  CIF_parameter_D8_VENTURE_MO%diffrn_detector_area_resol_mean      = '?'
+  CIF_parameter_D8_VENTURE_MO%computing_data_collection            = D8_VENTURE_MO%data_collection
+  CIF_parameter_D8_VENTURE_MO%computing_cell_refinement            = D8_VENTURE_MO%cell_refinement
+  CIF_parameter_D8_VENTURE_MO%computing_data_reduction             = D8_VENTURE_MO%data_reduction
 
   CIF_parameter_X2S%diffrn_measurement_device_type       = "'Bruker SMART X2S benchtop'"
   CIF_parameter_X2S%diffrn_measurement_method            = "'omega scans'"
@@ -778,15 +818,17 @@ subroutine cryscalc_init()
   keyword_create_CRYSCALC_HTML   = .false.
   browse_cryscalc_HTML           = .false.
 
-  keyword_WRITE_REF_APEX         = .false.
-  keyword_WRITE_REF_DENZO        = .false.
-  keyword_WRITE_REF_EVAL         = .false.
-  keyword_write_REF_KCCD         = .false.  
-  keyword_WRITE_REF_SADABS       = .false.
-  keyword_WRITE_REF_ABS_CRYSALIS = .false.
-  keyword_write_REF_SUPERNOVA    = .false.
-  keyword_WRITE_REF_X2S          = .false.
-  keyword_write_REF_XCALIBUR     = .false.
+  keyword_WRITE_REF_APEX          = .false.
+  keyword_WRITE_REF_DENZO         = .false.
+  keyword_WRITE_REF_EVAL          = .false.
+  keyword_write_REF_KCCD          = .false.  
+  keyword_WRITE_REF_SADABS        = .false.
+  keyword_WRITE_REF_ABS_CRYSALIS  = .false.
+  keyword_write_REF_SUPERNOVA     = .false.
+  keyword_WRITE_REF_X2S           = .false.
+  keyword_WRITE_REF_D8_VENTURE_Cu = .false.
+  keyword_WRITE_REF_D8_VENTURE_Mo = .false.
+  keyword_write_REF_XCALIBUR      = .false.
   
   
   
@@ -889,18 +931,19 @@ subroutine cryscalc_init()
 	'NEWS               ', 'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', &
 	'Q_HKL              ', 'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_FACES         ', &
 	'READ_INS           ', 'READ_NREPORT       ', 'READ_PCR           ', 'READ_TIDY_OUT      ', 'REC_ANG            ', &
-	'REF_ABS_CRYSALIS   ', 'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', 'REF_KCCD           ', &
-	'REF_SADABS         ', 'REF_SUPERNOVA      ', 'REF_X2S            ', 'REF_XCALIBUR       ', 'RESET              ', &
-	'RINT               ', 'RHOMB_HEX          ', 'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', &
-	'SETTING            ', 'SFAC               ', 'SF_HKL             ', 'SG                 ', 'SG_ALL             ', &
-	'SG_EXTI            ', 'SG_INFO            ', 'SG_SUB             ', 'SHANNON            ', 'SHELL              ', &
-	'SHIFT_2TH          ', 'SITE_INFO          ', 'SIZE               ', 'SORT               ', 'STAR_K             ', &
-	'STL                ', 'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', &
-	'THETA              ', 'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', 'UB_MATRIX          ', &
-	'USER_MAT           ', 'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', &
-	'UNIT               ', 'WAVE               ', 'WEB                ', 'WRITE_ADP          ', 'WRITE_BEAM         ', &
-	'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_QVEC         ', 'WRITE_SYM_OP       ', &
-	'WRITE_WAVE         ', 'WRITE_ZUNIT        ', 'X_WAVE             ', 'ZUNIT              ', 'WRITE_SG           '  /)
+	'REF_ABS_CRYSALIS   ', 'REF_D8_VENTURE_CU  ', 'REF_D8_VENTURE_MO  ', 'REF_APEX           ', 'REF_DENZO          ', &
+	'REF_EVAL           ', 'REF_KCCD           ', 'REF_SADABS         ', 'REF_SUPERNOVA      ', 'REF_X2S            ', &
+	'REF_XCALIBUR       ', 'RESET              ', 'RINT               ', 'RHOMB_HEX          ', 'SEARCH_EXTI        ', &
+	'SEARCH_SPGR        ', 'SET                ', 'SETTING            ', 'SFAC               ', 'SF_HKL             ', &
+	'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', 'SG_INFO            ', 'SG_SUB             ', &
+	'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', 'SITE_INFO          ', 'SIZE               ', &
+	'SORT               ', 'STAR_K             ', 'STL                ', 'SYMM               ', 'SYST               ', &
+	'THERM              ', 'THERM_SHELX        ', 'THETA              ', 'TITL               ', 'TRANSLATION        ', &
+	'TRANSMISSION       ', 'UB_MATRIX          ', 'USER_MAT           ', 'TRICLINIC          ', 'TWIN_HEXA          ', &
+	'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', 'WAVE               ', 'WEB                ', &
+	'WRITE_ADP          ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', &
+	'WRITE_QVEC         ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'WRITE_ZUNIT        ', 'X_WAVE             ', &
+	'ZUNIT              ', 'WRITE_SG           '  /)
 
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
@@ -981,64 +1024,66 @@ subroutine cryscalc_init()
   numor = numor + 1;    HELP_REC_ANG_numor             =  numor  ! 75 
   numor = numor + 1;    HELP_REF_ABS_CRYSALIS_numor    =  numor  ! 76
   numor = numor + 1;    HELP_REF_APEX_numor            =  numor  ! 77
-  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 78
-  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 79
-  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 80
-  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 81
-  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 82
-  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  ! 83
-  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  ! 84
-  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 85
-  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 86
-  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 87
-  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 88
-  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 89
-  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 90
-  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 91
-  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 92
-  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 93
-  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 94
-  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 95
-  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 96
-  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 97
-  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  ! 98
-  numor = numor + 1;    HELP_SHANNON_numor             =  numor  ! 99
-  numor = numor + 1;    HELP_SHELL_numor               =  numor  !100
-  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !101
-  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !102
-  numor = numor + 1;    HELP_SIZE_numor                =  numor  !103
-  numor = numor + 1;    HELP_SORT_numor                =  numor  !104 
-  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !105
-  numor = numor + 1;    HELP_STL_numor                 =  numor  !106
-  numor = numor + 1;    HELP_SYMM_numor                =  numor  !107
-  numor = numor + 1;    HELP_SYST_numor                =  numor  !108
-  numor = numor + 1;    HELP_THERM_numor               =  numor  !109
-  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !110
-  numor = numor + 1;    HELP_THETA_numor               =  numor  !111
-  numor = numor + 1;    HELP_TITL_numor                =  numor  !112
-  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !113
-  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !114
-  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !115
-  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !116
-  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !117
-  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !118
-  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !119
-  numor = numor + 1;    HELP_UNIT_numor                =  numor  !120
-  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !121
-  numor = numor + 1;    HELP_WAVE_numor                =  numor  !122
-  numor = numor + 1;    HELP_WEB_numor                 =  numor  !123
-  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !124
-  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !125
-  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !126
-  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !127
-  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !128
-  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !129
-  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !130
-  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !131
-  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !132
-  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !133
-  numor = numor + 1;    HELP_X_wave_numor              =  numor  !134
-  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !135
+  numor = numor + 1;    HELP_REF_D8_VENTURE_Cu_numor   =  numor  ! 78
+  numor = numor + 1;    HELP_REF_D8_VENTURE_Mo_numor   =  numor  ! 79
+  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 80
+  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 81
+  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 82
+  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 83
+  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 84
+  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  ! 85
+  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  ! 86
+  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 87
+  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 88
+  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 89
+  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 90
+  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 91
+  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 92
+  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 93
+  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 94
+  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 95
+  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 96
+  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 97
+  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 98
+  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 98
+  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  !100
+  numor = numor + 1;    HELP_SHANNON_numor             =  numor  !101
+  numor = numor + 1;    HELP_SHELL_numor               =  numor  !102
+  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !103
+  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !104
+  numor = numor + 1;    HELP_SIZE_numor                =  numor  !105
+  numor = numor + 1;    HELP_SORT_numor                =  numor  !106 
+  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !107
+  numor = numor + 1;    HELP_STL_numor                 =  numor  !108
+  numor = numor + 1;    HELP_SYMM_numor                =  numor  !109
+  numor = numor + 1;    HELP_SYST_numor                =  numor  !110
+  numor = numor + 1;    HELP_THERM_numor               =  numor  !111
+  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !112
+  numor = numor + 1;    HELP_THETA_numor               =  numor  !113
+  numor = numor + 1;    HELP_TITL_numor                =  numor  !114
+  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !115
+  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !116
+  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !117
+  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !118
+  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !119
+  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !120
+  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !121
+  numor = numor + 1;    HELP_UNIT_numor                =  numor  !122
+  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !123
+  numor = numor + 1;    HELP_WAVE_numor                =  numor  !124
+  numor = numor + 1;    HELP_WEB_numor                 =  numor  !125
+  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !126
+  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !127
+  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !128
+  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !129
+  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !130
+  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !131
+  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !132
+  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !133
+  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !134
+  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !135
+  numor = numor + 1;    HELP_X_wave_numor              =  numor  !136
+  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !137
 
 
 
@@ -1051,10 +1096,10 @@ subroutine cryscalc_init()
                               wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                         &
                               DENZO, EVAL, APEX, X2S, SUPERNOVA, XCALIBUR,                                      &
                               CONN_dmax_ini, CONN_dmax, CONN_dmin_ini, CONN_dmin,                               &
-							  CIF_format80, include_RES_file, include_HKL_file, update_parameters,              &
-                              report_header, LOCK_wave_value,  Max_ref,  expert_mode, hkl_statistics,           &
-                              hkl_format, cartesian_frame, keep_bond_str_out,                                   &
-                              skip_start_menu, pdp_simu, CIF_torsion_limit,                                       &
+							  CIF_format80, include_RES_file, include_HKL_file, CMD_include_HKL_file,           &
+							  update_parameters, report_header, LOCK_wave_value,  Max_ref,  expert_mode,        &
+							  hkl_statistics, hkl_format, cartesian_frame, keep_bond_str_out,                   &
+                              skip_start_menu, pdp_simu, CIF_torsion_limit,                                     &
                               keyword_create_ACE, keyword_create_CEL, keyword_create_CFL, keyword_create_FST,   &
                               keyword_create_INS, keyword_create_PRF,                                           &
                               create_CIF_PYMOL, INI_create_CIF_PYMOL,                                           &
@@ -1166,8 +1211,7 @@ subroutine cryscalc_init()
     call write_debug_proc('CRYSCALC_report_css', trim(cryscalc%report_css))
     call write_debug_proc('','')
 	call write_debug_proc('WinPLOTR_path', trim(winplotr_path_name))
-    call write_debug_proc('','')
-	call write_debug_proc('WinPLOTR_exe', trim(winplotr_exe))
+    call write_debug_proc('WinPLOTR_exe', trim(winplotr_exe))
     call write_debug_proc('','')
    endif
  
@@ -1461,7 +1505,7 @@ subroutine cryscalc_init()
       i2 = INDEX(read_line, '=')
       IF(i2 ==0) exit
       READ(read_line(i2+1:), '(a)') DEVICE%string
-       IF(l_case(read_line(1:9)) == 'diffracto') then
+      IF(l_case(read_line(1:9)) == 'diffracto') then
        DEVICE%diffracto = ADJUSTL(DEVICE%string)
        cycle
       ELSEIF(l_case(read_line(1:3))== 'lab') then
@@ -1524,7 +1568,32 @@ subroutine cryscalc_init()
     !CIF_parameter%computing_molecular_graphics         = CIF_parameter_APEX%computing_molecular_graphics
     !CIF_parameter%computing_publication_material       = CIF_parameter_APEX%computing_publication_material
 
+   elseif(u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_CU') then    
+    CIF_parameter%diffrn_measurement_device_type       = CIF_parameter_D8_VENTURE_Cu%diffrn_measurement_device_type
+    CIF_parameter%diffrn_measurement_method            = CIF_parameter_D8_VENTURE_Cu%diffrn_measurement_method
+    CIF_parameter%diffrn_detector                      = CIF_parameter_D8_VENTURE_Cu%diffrn_detector
+    CIF_parameter%diffrn_radiation_wavelength          = CIF_parameter_D8_VENTURE_Cu%diffrn_radiation_wavelength
+    CIF_parameter%diffrn_radiation_type                = CIF_parameter_D8_VENTURE_Cu%diffrn_radiation_type
+    CIF_parameter%diffrn_radiation_source              = CIF_parameter_D8_VENTURE_Cu%diffrn_radiation_source
+    CIF_parameter%diffrn_radiation_monochromator       = CIF_parameter_D8_VENTURE_Cu%diffrn_radiation_monochromator
+    CIF_parameter%diffrn_radiation_probe               = CIF_parameter_D8_VENTURE_Cu%diffrn_radiation_probe
+    CIF_parameter%computing_data_collection            = CIF_parameter_D8_VENTURE_Cu%computing_data_collection
+    CIF_parameter%computing_cell_refinement            = CIF_parameter_D8_VENTURE_Cu%computing_cell_refinement
+    CIF_parameter%computing_data_reduction             = CIF_parameter_D8_VENTURE_Cu%computing_data_reduction
 
+   elseif(u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_MO') then    
+    CIF_parameter%diffrn_measurement_device_type       = CIF_parameter_D8_VENTURE_Mo%diffrn_measurement_device_type
+    CIF_parameter%diffrn_measurement_method            = CIF_parameter_D8_VENTURE_Mo%diffrn_measurement_method
+    CIF_parameter%diffrn_detector                      = CIF_parameter_D8_VENTURE_Mo%diffrn_detector
+    CIF_parameter%diffrn_radiation_wavelength          = CIF_parameter_D8_VENTURE_Mo%diffrn_radiation_wavelength
+    CIF_parameter%diffrn_radiation_type                = CIF_parameter_D8_VENTURE_Mo%diffrn_radiation_type
+    CIF_parameter%diffrn_radiation_source              = CIF_parameter_D8_VENTURE_Mo%diffrn_radiation_source
+    CIF_parameter%diffrn_radiation_monochromator       = CIF_parameter_D8_VENTURE_Mo%diffrn_radiation_monochromator
+    CIF_parameter%diffrn_radiation_probe               = CIF_parameter_D8_VENTURE_Mo%diffrn_radiation_probe
+    CIF_parameter%computing_data_collection            = CIF_parameter_D8_VENTURE_Mo%computing_data_collection
+    CIF_parameter%computing_cell_refinement            = CIF_parameter_D8_VENTURE_Mo%computing_cell_refinement
+    CIF_parameter%computing_data_reduction             = CIF_parameter_D8_VENTURE_Mo%computing_data_reduction
+	
    elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
     !CIF_parameter = CIF_parameter_KCCD
     CIF_parameter%diffrn_source                        = CIF_parameter_KCCD%diffrn_source
@@ -1605,7 +1674,9 @@ subroutine cryscalc_init()
     call write_debug_proc ('DEVICE_lab',            trim(DEVICE%lab))
     call write_debug_proc ('DEVICE_radiation',      trim(DEVICE%radiation))
     call write_debug_proc ('DEVICE_wave',           trim(DEVICE%wave))
-    if(u_case(DEVICE%diffracto(1:4)) == 'APEX') then
+    if(u_case(DEVICE%diffracto(1:4))  == 'APEX'          .or.  &
+	   u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_CU' .or.  &
+	   u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_MO') then
      call WRITE_debug_proc('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
      call WRITE_debug_proc('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
      call WRITE_debug_proc('MEASUREMENT_detector',      trim(CIF_parameter%diffrn_detector))
@@ -1970,7 +2041,7 @@ subroutine cryscalc_init()
        include_RES_file = .true.
        cycle
      ELSEIF(l_case(read_line(1:16)) == 'include_hkl_file' .and. answer_yes(trim(INI_string))) then
-       include_HKL_file = .true.
+       if(CMD_include_HKL_file==0) include_HKL_file = .true.
        cycle
       ELSEIF(l_case(read_line(1:17)) == 'update_parameters' .and. answer_no(trim(INI_string))) then
        update_parameters = .false.
@@ -2770,7 +2841,7 @@ subroutine output_setting
  write(message_text, '(a,F10.5)')   '   > X_profile_W            = ', X_PV%W
  call write_info(trim(message_text))
  write(message_text, '(a,F10.5,a)') '   > X_profile_eta0         = ', X_PV%eta0, &
-                                   '       ! Lorentzian components : eta = eta° + 2theta * eta1'
+                                   '       ! Lorentzian components : eta = eta0 + 2theta * eta1'
  call write_info(trim(message_text))
  write(message_text, '(a,F10.5)')   '   > X_profile_eta1         = ', X_PV%eta1
  call write_info(trim(message_text))
@@ -2933,17 +3004,18 @@ subroutine write_debug_proc(field, value)
  use cryscalc_module, only : debug_proc
  implicit none
   character (len=*), intent(in)           :: field
-  character (len=*), intent(in), optional :: value
+  !character (len=*), intent(in), optional :: value
+  character (len=*), intent(in)           :: value
   integer                                 :: long, i
   character (len=24)                      :: fmt_
 
 
   long = len_trim(field)
 
-  if(.not. present(value)) then
-   write(debug_proc%unit, '(a)') trim(field)
-
-  else
+!  if(.not. present(value)) then
+!   write(debug_proc%unit, '(a)') trim(field)
+!
+!  else
    !if(value(1:1) == '?' .or. len_trim(value)==0) then
    ! write(debug_proc%unit, '(a)') ''
    !else
@@ -2960,7 +3032,7 @@ subroutine write_debug_proc(field, value)
     write(fmt_, '(a,i2,a)') '(1x,a,', 32-long, 'x, 2a)'
     write(debug_proc%unit, trim(fmt_))  field,  ': ', adjustl(value)
    endif
-  endif
+!  endif
 
    return
 end subroutine write_debug_proc
@@ -3393,7 +3465,7 @@ end subroutine write_default_values
 !---------------------------------------------------------------------------------------------------------
 
 subroutine open_debug_file
- use cryscalc_module, only : debug_proc
+ use cryscalc_module, only : debug_proc, cryscalc
  use io_module
  implicit none
   integer             :: i_error
@@ -3405,7 +3477,23 @@ subroutine open_debug_file
      call write_info('  !! Problem opening cryscalc_debug.txt file !!')
      call write_info('')	
 	 debug_proc%write = .false.
+	 close(unit = debug_proc%unit)
+	 return
 	end if
+	
+    write(debug_proc%unit, '(a)')  ' '
+    write(debug_proc%unit, '(a)')  ' ***************************************************************************'
+	write(debug_proc%unit, '(3a)') '      CRYSCALC_debug.txt file (CRYSCALC version : ',trim(cryscalc%version),')'
+	if(debug_proc%level_3) then
+	write(debug_proc%unit, '(3a)') '           . debug level : 3'	
+	elseif(debug_proc%level_2) then
+	write(debug_proc%unit, '(3a)') '           . debug level : 2'
+	elseif(debug_proc%level_1) then
+	write(debug_proc%unit, '(3a)') '           . debug level : 1'
+	end if
+	write(debug_proc%unit, '(a)')  ' ***************************************************************************'
+	write(debug_proc%unit, '(a)')  ' '
+  
 
 	return
  end subroutine open_debug_file

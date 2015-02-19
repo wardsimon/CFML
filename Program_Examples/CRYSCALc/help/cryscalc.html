@@ -1,22 +1,30 @@
 <!-- CRYSCALc user's guide (HTML file) created by CRYSCALc.exe
      Web site : http://www.cdifx.univ-rennes/cryscalc.htm
-     Version : 7 Nov. 2014
-     Author  : T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)
+     Version : Feb. 2015
+     Author  : Thierry Roisnel (CDIFX / ISCR UMR6226 - Rennes)
 !-->
 <HTML>
 <HEAD>
 <style TYPE='text/css'>
-  .title_main  { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }
-  .title_1     { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
-  .title_2     { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; margin-right:50px; background-color:#f5f5f5; }
-  .title_3     { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
-  .header      { font-family:'Trebuchet MS',Arial; font-size:10px; color:#CCCCCC; margin-left:50px; line-height: 10pt;}
-  .retrait_1   { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#323232; }
-  .retrait_2   { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
-  .item        { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
-  .item_2      { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
-  .color_grey1 {color:#323232;}
- hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0; margin-left:50px; margin-right:50px;}
+  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }
+  .title_1    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
+  .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; margin-right:50px; background-color:#f5f5f5; }
+  .title_3    { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
+  .header   { font-family:'Trebuchet MS',Arial; font-size:10px; color:#CCCCCC; margin-left:50px; line-height: 10pt;}
+  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt;  }
+  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
+  .item       { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
+  .item_2     { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
+  .ligne_1    { background-color : #FAFAFA;}
+  .ligne_2    { background-color : #EEEEEE;}
+  .color_grey1{color:#323232;}
+  .cadre { background:#fafafa; border: 1px solid #F9F9F9;
+           margin-top: 0px; margin-left: 25px; margin-right: 25px; padding-right: 0px;
+           -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+           -border-radius: 10px;}
+  hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0; margin-left:50px; margin-right:50px;}
+
  a:link,
   a:active
     { color:#666666;
@@ -47,13 +55,12 @@
   *                                                           *
   *                          T. Roisnel                       *
   *                 (CDIFX - ISCR UMR6226 Rennes)             *
-  *                           7 Nov. 2014                     *
+  *                           Feb. 2015                       *
   *                                                           *
-  *            with courtesy of JRC and JGP for CFML          *
+  *            [with courtesy of JRC and JGP for CFML]        *
   *                                                           *
   *                                                           *
-  *         contact: thierry.roisnel@univ-rennes1.fr          *
-  *                                                           *
+  *         contact  : thierry.roisnel@univ-rennes1.fr        *
   *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
   *                                                           *
   *************************************************************
@@ -215,6 +222,8 @@
    <li class="item"><A HREF="#READ_TIDY_OUT">READ_TIDY_OUT</A>
    <li class="item"><A HREF="#REC_ANG">REC_ANG</A>
    <li class="item"><A HREF="#REF_ABS_CRYSALIS">REF_ABS_CRYSALIS</A>
+   <li class="item"><A HREF="#REF_D8_VENTURE_CU">REF_D8_VENTURE_CU</A>
+   <li class="item"><A HREF="#REF_D8_VENTURE_MO">REF_D8_VENTURE_MO</A>
    <li class="item"><A HREF="#REF_APEX">REF_APEX</A>
    <li class="item"><A HREF="#REF_DENZO">REF_DENZO</A>
    <li class="item"><A HREF="#REF_EVAL">REF_EVAL</A>
@@ -283,7 +292,7 @@
     . type:                OUTPUT keyword
     . meaning:             search for observed reflections (with F2>0.) that
                            should be absent for a given space group
-    . optionnal arguments: . arg = "ALL": all the violations reflections are
+    . optional arguments: . arg = "ALL": all the violations reflections are
                                           output
                            . arg = "OUT": requested reflections are output on
                                           the screen
@@ -660,7 +669,7 @@
     . meaning:             d_hkl(A) values
     . outputs:             Q(A-1), SinTheta/lambda(A-1)
                            theta(deg) for known wavelength
-    . optionnal keyword:   WAVE
+    . optional keyword:    WAVE
     . identical keywords:  D_HKL, DHKL
     . example:             DHKL 0.77
 
@@ -673,7 +682,7 @@
     . meaning:             1/d_hkl (A-1
     . outputs:             d(A)
                            theta(deg)
-    . optionnal keyword:   WAVE
+    . optional keyword:    WAVE
     . identical keywords:  D_STAR, D_STAR_HKL, DSTAR, DSTARHKL, DSTAR_HKL
     . example:             D_STAR  0.5
 
@@ -682,7 +691,7 @@
 <A NAME="DATA_ATOMIC_DENSITY"></A>
 <p class='title_3'>  > DATA_ATOMIC_DENSITY:</p> <pre style='font-size:14' class='color_grey1'>
      . type:               OUTPUT keyword
-     . optionnal argument: PLOT
+     . optional argument:  PLOT
      . meaning:            list atomic density data for all atoms
                            if arg=PLOT: create a PGF file and plot it with
                            WinPLOTR
@@ -694,7 +703,7 @@
 <A NAME="DATA_ATOMIC_RADIUS"></A>
 <p class='title_3'>  > DATA_ATOMIC_RADIUS:</p> <pre style='font-size:14' class='color_grey1'>
      . type:               OUTPUT keyword
-     . optionnal argument: PLOT
+     . optional argument:  PLOT
      . meaning:            list atomic radius data for all atoms
                            if arg=PLOT: create a PGF file and plot it with
                            WinPLOTR
@@ -706,7 +715,7 @@
 <A NAME="DATA_ATOMIC_WEIGHT"></A>
 <p class='title_3'>  > DATA_ATOMIC_WEIGHT:</p> <pre style='font-size:14' class='color_grey1'>
      . type:               OUTPUT keyword
-     . optionnal argument: PLOT
+     . optional argument:  PLOT
      . meaning:            list atomic weight data for all atoms
                            if arg=PLOT: create a PGF file and plot it with
                            WinPLOTR
@@ -718,16 +727,27 @@
 <A NAME="DATA_NEUTRONS"></A>
 <p class='title_3'>  > DATA_NEUTRONS:</p> <pre style='font-size:14' class='color_grey1'>
      . type:               OUTPUT keyword
-     . optionnal argument: PLOT
+     . optional argument:  PLOT
+     . optional argument:  Sm_nat, SM_149, Eu_nat, Eu_151, Gd_nat, Gd_155,
+                           Gd_157, Dy_164, Er_nat, Er_167, Yb_nat, Yb_168,
+                           Yb_174 and Lu_176
      . meaning:            list neutrons data for all atoms (coherent
                            scattering length, incoherent scattering
                            cross-section, absorption cross-section)
                            Neutron data are extracted from :
-                           V.F. Sears
-                           Neutron News, vol.3 n°3, 1992, 26-37
+                            V.F. Sears
+                            Neutron News, vol.3 n°3, 1992, 26-37
+                           excepted scattering lengths of particular
+                           rare earths given as argument:
+                            Atom. data and nuc. data tables 44, 191-207 (1990)
+                            J.E. Lynn and P.A. Seeger, L.A.N.L.
                            if arg=PLOT: create a PGF file and plot it with
-                           WinPLOTR
+                            WinPLOTR
+                           if arg=PLOT_ALL: create a PGF file containing Re, Im,
+                           and modulus of scattering length (available only
+                           for input rare earth). PGF file is then plotted with
      . see:                Xrays_DATA
+     . example:            DATA_NEUTRONS Gd_157 PLOT_all
      . identical keywords: DATA_NEUTRONS, NEUTRONS_DATA, DATA_NEUTRON,
                            NEUTRON_DATA
 
@@ -736,7 +756,7 @@
 <A NAME="DATA_XRAYS"></A>
 <p class='title_3'>  > DATA_XRAYS:</p> <pre style='font-size:14' class='color_grey1'>
      . type:               OUTPUT keyword
-     . optionnal argument: PLOT
+     . optional argument:  PLOT
      . meaning:            list X-ray data for all atoms (total interaction
                            cross section for Ag, Mo, Cu, Co, Fe and Cr radiation
                            X-ray data are extracted from :
@@ -846,7 +866,7 @@
 <p class='title_3'>  > EQUIV:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . arguments:           3 integer values: h, k, l
-    . optionnal arguments: FRIEDEL
+    . optional arguments:  FRIEDEL
     . meaning:             search for equivalent reflections (Space group is
                            mandatory)
                            . arg = FRIEDEL: search for Friedel reflections
@@ -889,7 +909,7 @@
                            . if space group is known (see SPGR keyword), the
                              number of reflections in agreement is output
 
-    . optionnal arguments: NEG: negative reflections are treated as follows:
+    . optional arguments: NEG: negative reflections are treated as follows:
                              if (F2      < 0.0001)  F2 = 0.0001
                              if (sig_F2_ < 0.00001) sig_F2_=sqrt(abs(F2)
                            PLOT (dependent keywords = CELL, WAVE)
@@ -915,7 +935,7 @@
                            or
                            characters with one or two index characters being h,
                            k or l
-    . optionnal arguments: EQUIV, FRIEDEL (only for integer values of h, k and l
+    . optional arguments:  EQUIV, FRIEDEL (only for integer values of h, k and l
     . meaning:             search a particular hkl reflection in a
                            reflections list
                            . arg = EQUIV:   search for equivalent reflections
@@ -977,7 +997,7 @@
                             condition will be searched in the HKL file.
    . meaning:               search, in a reflections list, those obeying
                             to the selected extinction rule
-   . optionnal arguments:  . arg = "OUT": the requested list will be output on
+   . optional arguments:  . arg = "OUT": the requested list will be output on
                                           the screen
                            . arg = "ALL": no condition about F2 and F2/sig is
                                           required
@@ -996,7 +1016,7 @@
 <A NAME="FRIEDEL"></A>
 <p class='title_3'>  > FRIEDEL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optionnal argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             calculate the number of Friedel pairs in a hkl file
     . mandatory keyword:   FILE, SPGR if no symmetry argument
@@ -1090,7 +1110,7 @@
     . arguments:          no
     . meaning:            search for negative intensity reflections in a HKL
                           file
-    . optionnal keywords: . arg = "OUT": requested reflections are output on the
+    . optional keywords: . arg = "OUT": requested reflections are output on the
                                          screen
                           . arg = "WRITE": requested reflextions are output in a
                                            HKL file
@@ -1106,7 +1126,7 @@
     . arguments:          no
     . meaning:            search for positive intensity reflections in a HKL
                           file
-    . optionnal keywords: . arg = "OUT": requested reflections are output on the
+    . optional keywords: . arg = "OUT": requested reflections are output on the
                                          screen
                           . arg = "WRITE": requested reflextions are output in a
                                            HKL file
@@ -1141,7 +1161,7 @@
 <A NAME="LIST_KEYS"></A>
 <p class='title_3'>  > LIST_KEYS:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optionnal argument:  character string containing "*" character
+    . optional argument:  character string containing "*" character
     . meaning:             list of keywords:
                            . if no argument: all the keywords are listed
                            . if "*" character is present in the character
@@ -1245,7 +1265,7 @@
 <A NAME="MAN_HTML"></A>
 <p class='title_3'>  > MAN_HTML:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optionnal argument:  'browse'
+    . optional argument:  'browse'
     . meaning:             get the CRYSCALc manual in HTML format
                            open the HTML file with the current browser
     . output:              list the meaning and use of CRYSCALc keywords
@@ -1318,7 +1338,7 @@
                             for scattering factor calculation =f(stl),
                             values of D_fp and D_fpp anomalous dispersion
                             coefficient (for Cr, Fe, Cu, Mo and Ag radiations)
-    . optionnal keyword:   PLOT: create a .PGF file containing the scattering
+    . optional keyword:   PLOT: create a .PGF file containing the scattering
                             factor values versus SinTheta/lambda and plot it
                             with WinPLOTR
     . examples:            MENDEL TI C
@@ -1330,7 +1350,7 @@
 <A NAME="MENDEL"></A>
 <p class='title_3'>  > MERGE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optionnal argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             merge the data in the current symmetry and create
                            a xxx_merge.HKL file
@@ -1357,7 +1377,7 @@
 <p class='title_3'>  > NEWS:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . outputs:             list the last new facilities implemented in CRYSCALc
-    . optionnal argument:  specified year
+    . optional argument:  specified year
     . example:             NEWS 2010
     . identical keywords:  NEWS
 
@@ -1436,7 +1456,7 @@
     . meaning:             Q=4pi*sinTheta/lambda values
     . outputs:             d_hkl(A), SinTheta/lambda(A-1)
                            theta(deg) for known wavelength
-    . optionnal keyword:   WAVE
+    . optional keyword:   WAVE
     . identical keywords:  QHKL, Q_HKL
     . example:             QHKL 10.
 
@@ -1567,20 +1587,40 @@
     . argument:            no
     . meaning:             write absorption correction procedure implemented
                            in CRYSALIS software (Agilent Technologies)
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_ABS_CRYSALIS
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="REF_APEX"></A>
+<A NAME="REF_D8_VENTURE_CU"></A>
 <p class='title_3'> > REF_APEX</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write APEXII diffractometer programs and device refer
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_APEX, REF_APEXII, WRITE_APEX, WRITE_APEXII,
                            APEX, APEXII
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="REF_D8_VENTURE_MO"></A>
+<p class='title_3'> > REF_D8_VENTURE_Cu</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write D8 Venture diffractometer programs and device r
+    . optional argument:  CIF
+
+    . identical keywords:  REF_D8_VENTURE_Cu
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="REF_APEX"></A>
+<p class='title_3'> > REF_D8_VENTURE_Mo</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write D8 Venture diffractometer programs and device r
+    . optional argument:  CIF
+
+    . identical keywords:  REF_D8_VENTURE_Mo
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="REF_DENZO"></A>
@@ -1588,7 +1628,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write EVALCCD references
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_EVAL, REF_EVALCCD, WRITE_EVAL, WRITE_EVALCCD,
                            EVAL, EVALCCD
@@ -1599,7 +1639,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write DENZO/SCALEPACK references
-    . optionnal argument:  CIF
+    . optional argument:  CIF
     . identical keywords:  REF_DENZO, WRITE_DENZO, DENZO
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1609,7 +1649,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write KCCD diffractometer software and device referen
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_KCCD, KCCD
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1619,7 +1659,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write SADABS references
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_SAD, SADABS
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1629,7 +1669,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write SUPERNOVA diffractometer programs and device re
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_SUPERNOVA
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1639,7 +1679,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write SMART X2S diffractometer programs and device re
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_X2S, REF_SMART_X2S
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1649,7 +1689,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write XCALIBUR diffractometer sotware and device refe
-    . optionnal argument:  CIF
+    . optional argument:  CIF
 
     . identical keywords:  REF_SUPERNOVA
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1667,7 +1707,7 @@
 <A NAME="RINT"></A>
 <p class='title_3'>  > RINT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optionnal argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             calculate the internal Rint value
                            calculate the completeness of the data collection
@@ -1691,7 +1731,7 @@
 <A NAME="SEARCH_EXTI"></A>
 <p class='title_3'>  > SEARCH_EXTI:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . arguments:           2 optionnal real arguments: n_sig, ratio_criteria
+    . arguments:           2 optional real arguments: n_sig, ratio_criteria
     . meaning:             analyse hkl reflections list and search systematic
                            extinctions
                              . n_sig: only reflections with I/sig > n_sig will
@@ -1837,7 +1877,7 @@
                            symmetry operators and symmetry symbols, Wyckoff
                            positions
     . mandatory keyword:   SPGR
-    . optionnal argument:  ALL: list all symmetry operators (including
+    . optional argument:  ALL: list all symmetry operators (including
                                 inversion and lattice centring translations)
     . identical keywords:  SG_INFO, SP_INFO, SPACE_GROUP_INFO,
                            LIST_SPACE_GROUP_INFO
@@ -2006,7 +2046,7 @@
     . meaning:             sinTheta / lambda values
     . outputs:             d_hkl(A), Q(A-1)
                            theta(deg) for known wavelength
-    . optionnal keyword:   WAVE
+    . optional keyword:   WAVE
     . identical keywords:  STL, STL_HKL, SINTHETA/WAVE, SINTHETA/LAMBDA
     . example:             STL 0.70
 
@@ -2268,7 +2308,7 @@
                               - "X_Mo" or "XMO": wavelength = 0.71073 A
                               - "X_Cu" or "XCU": wavelength = 1.5406 A
                               - "X_Ni" or "XNI": wavelength = 1.65794 A
-                              - "X_Co" or "XCo": wavelength = 1.78892 A
+                              - "X_Co" or "XCO": wavelength = 1.78892 A
                               - "X_Fe" or "XFE": wavelength = 1.93597 A
                               - "X_Cr" or "XCR": wavelength = 2.28962 A
     . examples:            WAVE 0.71073
@@ -2466,7 +2506,7 @@
        . Read 'archive.cif' CIF file
        . Complete this 'archive.cif' with additionnal CIF fields related to
          absorption correction, squeeze procedure, hydrogen treatment,
-         diffractometer, structure solution program ...
+         diffractometer features, structure solution program ...
          A new 'cryscalc_archive.cif' file is then created.
        Remark : diffractometer and structure solution program can be defined
                 in the 'cryscalc.ini' setting file in the [DEVICE] and [PROGRAMS
@@ -2514,7 +2554,27 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
+   . Feb. 15 :
+     # Parameters for D8 Venture diffractometer (Bruker AXS) has been included and
+       can be accessed from setting file in [DEVICE] section through :
+       "diffractometer = D8_VENTURE_Cu"  or
+       "diffractometer = D8_VENTURE_Mo"  or
+     # Flack parameter is now provided in HTML and TXT reports.
+   
+   . Dec. 14 :
+     # Archive.cif command line argument can be followed by "NO_HKL",
+       allowing to exclude HKL file in final archive, independently
+       of the contain of cryscalc.ini setting file.
    . Nov. 14 :
+     # New argument for DATA_neutrons keyword, allowing to provide
+       to the user neutron scattering length versus energy for
+       some rare earths and isotopes. The following arguments can be
+       input: Sm_nat, SM_149, Eu_nat, Eu_151, Gd_nat, Gd_155, Gd_157,
+       Dy_164, Er_nat, Er_167, Yb_nat, Yb_168, Yb_174 and Lu_176.
+       Thanks to Pierric Lemoine (ISCR) for taping neutron scattering
+       lengths from the following reference :
+         Atomic data and nuclear data tables 44, 191-207 (1990)
+         J.E. Lynn and P.A. Seeger, L.A.N.L.
      # New PAT command line argument after .CIF or . INS file
        allows to calculate a diffraction pattern from features given by
        PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]
@@ -3152,7 +3212,7 @@ environment variable.</p>
     <font color="darkred">[USER]</font>
     name        = ROISNEL
     first_name  = Thierry
-    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1,Sciences Chimiques de Rennes, 35042 RENNES Cedex France
+    address     = Centre de Diffractom&eacute;trie X, UMR6511 CNRS Universit&éacutre; de Rennes 1,Sciences Chimiques de Rennes, 35042 RENNES Cedex France
     email       = thierry.roisnel@univ-rennes1.fr
     web         = www.cdifx.univ-rennes1.fr
     team        = CDIFX
@@ -3267,7 +3327,7 @@ environment variable.</p>
  <li class="item"><a href="https://forge.epn-campus.eu/projects/crysfml" target="_blank">CRYSFML repository</a>
 <p>
  <li class="item"><a href="http://www.iucr.org/resources/commissions/crystallographic-computing/newsletters/1/crysfml" target="_blank">CrysFML:</A>
- <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. González-Platas</font>
+ <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. Gonz&aacute;lez-Platas</font>
 </ul>
 
 <br>
@@ -3284,6 +3344,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>TR / CDIFX - 7 Nov. 2014</i></P>
+<p class='retrait_2'>last updated: <i>TR / CDIFX - Feb. 2015</i></P>
 </BODY>
 </HTML>

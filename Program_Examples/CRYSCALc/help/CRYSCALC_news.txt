@@ -6,13 +6,12 @@
     *                                                           *
     *                          T. Roisnel                       *
     *                 (CDIFX - ISCR UMR6226 Rennes)             *
-    *                           7 Nov. 2014                     *
+    *                           Feb. 2015                       *
     *                                                           *
-    *            with courtesy of JRC and JGP for CFML          *
+    *            [with courtesy of JRC and JGP for CFML]        *
     *                                                           *
     *                                                           *
-    *         contact: thierry.roisnel@univ-rennes1.fr          *
-    *                                                           *
+    *         contact  : thierry.roisnel@univ-rennes1.fr        *
     *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
     *                                                           *
     *************************************************************
@@ -24,7 +23,27 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
+   . Feb. 15 :
+     # Parameters for D8 Venture diffractometer (Bruker AXS) has been included and
+       can be accessed from setting file in [DEVICE] section through :
+       "diffractometer = D8_VENTURE_Cu"  or
+       "diffractometer = D8_VENTURE_Mo"  or
+     # Flack parameter is now provided in HTML and TXT reports.
+   
+   . Dec. 14 :
+     # Archive.cif command line argument can be followed by "NO_HKL",
+       allowing to exclude HKL file in final archive, independently
+       of the contain of cryscalc.ini setting file.
    . Nov. 14 :
+     # New argument for DATA_neutrons keyword, allowing to provide
+       to the user neutron scattering length versus energy for
+       some rare earths and isotopes. The following arguments can be
+       input: Sm_nat, SM_149, Eu_nat, Eu_151, Gd_nat, Gd_155, Gd_157,
+       Dy_164, Er_nat, Er_167, Yb_nat, Yb_168, Yb_174 and Lu_176.
+       Thanks to Pierric Lemoine (ISCR) for taping neutron scattering
+       lengths from the following reference :
+         Atomic data and nuclear data tables 44, 191-207 (1990)
+         J.E. Lynn and P.A. Seeger, L.A.N.L.
      # New PAT command line argument after .CIF or . INS file
        allows to calculate a diffraction pattern from features given by
        PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]

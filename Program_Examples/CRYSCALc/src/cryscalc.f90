@@ -180,7 +180,7 @@ subroutine read_keywords_from_file(arg_file)
       endif
 
      case ("cif")
-
+      close(unit=input_unit)
       OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
       input_CIF = .true.
 
@@ -189,7 +189,7 @@ subroutine read_keywords_from_file(arg_file)
       ! call get_P4P_file_name(P4P_file_name)
       ! IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
       !endif
-	  	  
+	
 	  call read_CIF_input_file(TRIM(input_file), '?')             ! read_CIF_file.F90	  	  
 	  call read_CIF_input_file_TR(input_unit, trim(input_file))   ! read_CIF_file.F90
 	  
@@ -314,6 +314,7 @@ subroutine run_keywords()
  IF(keyword_WRITE_ZUNIT .and. keyword_ZUNIT) call write_ZUNIT_features()    ! cryscalc_write.F90
  IF(keyword_SIZE)                            call crystal_volume_calculation('out') ! calculs.F90
 
+ 
  IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
   call atomic_identification()                                                   ! calculs.F90
   IF(keyword_CELL)                      call atomic_density_calculation()        ! calculs.F90
@@ -447,12 +448,14 @@ subroutine run_keywords()
 
  ! CIF file for APEX
  IF(keyword_create_CIF) then
-  IF(keyword_WRITE_REF_APEX)   call write_REF('APEX')
-  IF(keyword_WRITE_REF_X2S)    call write_REF('X2S')
-  IF(keyword_WRITE_REF_KCCD)   call write_REF('KCCD')
-  IF(keyword_WRITE_REF_EVAL)   call write_REF('EVAL')
-  IF(keyword_WRITE_REF_DENZO)  call write_REF('DENZO')
-  IF(keyword_WRITE_REF_SADABS) call write_REF('SADABS')
+  IF(keyword_WRITE_REF_APEX)          call write_REF('APEX')
+  IF(keyword_WRITE_REF_X2S)           call write_REF('X2S')
+  IF(keyword_WRITE_REF_D8_Venture_Cu) call write_REF('D8_VENTURE_CU')
+  IF(keyword_WRITE_REF_D8_Venture_Mo) call write_REF('D8_VENTURE_MO')
+  IF(keyword_WRITE_REF_KCCD)          call write_REF('KCCD')
+  IF(keyword_WRITE_REF_EVAL)          call write_REF('EVAL')
+  IF(keyword_WRITE_REF_DENZO)         call write_REF('DENZO')
+  IF(keyword_WRITE_REF_SADABS)        call write_REF('SADABS')
  endif
  if(keyword_PAUSE) pause
 
@@ -496,8 +499,9 @@ end subroutine KEYS_on_line
 !--------------------------------------------------------------------
 
 subroutine check_CIF_input_file(input_file)
- USE cryscalc_module, ONLY : keyword_create_CIF, create_CIF_PYMOL, CIF_unit, CIF_archive_unit, &
+ USE cryscalc_module, ONLY : keyword_create_CIF, create_CIF_PYMOL, CIF_unit, CIF_archive_unit,      &
                              keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_KCCD, &
+							 keyword_WRITE_REF_D8_VENTURE_Cu, keyword_WRITE_REF_D8_VENTURE_Mo,      &
                              AUTHOR, DEVICE, debug_proc, include_HKl_file
  USE text_module,    ONLY : CIF_lines_nb, CIF_title_line
  use macros_module,  only : u_case
@@ -531,13 +535,17 @@ subroutine check_CIF_input_file(input_file)
     keyword_WRITE_REF_APEX =.true.
    elseif(u_case(DEVICE%diffracto(1:3)) == 'X2S') then
     keyword_WRITE_REF_X2S = .true.	
+   elseif(u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_CU') then
+    keyword_WRITE_REF_D8_VENTURE_Cu = .true.	
+   elseif(u_case(DEVICE%diffracto(1:13)) == 'D8_VENTURE_MO') then
+    keyword_WRITE_REF_D8_VENTURE_Cu = .true.	
    elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
     keyword_WRITE_REF_KCCD = .true.
    endif
    if(include_HKL_file) then
-    open(unit=CIF_unit, file = "cryscalc_archive_hkl.cif", iostat = i_error)
+    open(unit=CIF_unit, file = "archive_cryscalc_hkl.cif", iostat = i_error)
    else 
-    open(unit=CIF_unit, file = "cryscalc_archive.cif", iostat = i_error)
+    open(unit=CIF_unit, file = "archive_cryscalc.cif", iostat = i_error)
    end if 
    if(i_error /=0) then
     call write_info('')

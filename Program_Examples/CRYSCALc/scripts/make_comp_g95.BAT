@@ -1,6 +1,6 @@
 
 
-cd ../src
+cd ../../src
 
 del *.o
 del *.mod
@@ -75,5 +75,5 @@ del *.o
 del *.mod
 del *.map
 
-cd ../scripts
+cd ../scripts/windows
 

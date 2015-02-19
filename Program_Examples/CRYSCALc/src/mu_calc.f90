@@ -147,9 +147,10 @@ subroutine calcul_X_mu(input_string)
 end subroutine calcul_X_mu
 !-------------------------------------------------------------------
 subroutine write_mu(input_string)
- USE cryscalc_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,      &
+ USE cryscalc_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,                &
                              keyword_TRANSMISSION, nb_dim_transmission, dim_transmission, keyword_create_CIF, &
-                             keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, absorption, SADABS_ratio,         &
+                             keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_D8_Venture_Cu,  &
+                             keyword_WRITE_REF_D8_VENTURE_Mo, absorption, SADABS_ratio,                       &
 					 		 SADABS_Tmin, SADABS_Tmax, keyword_create_archive, debug_proc
  USE IO_module,       ONLY : write_info
  USE math_module,     ONLY : transmission
@@ -198,8 +199,10 @@ subroutine write_mu(input_string)
   end if
 
   IF(keyword_create_CIF .or. keyword_create_archive) then
-   IF(keyword_WRITE_REF_APEX)  call write_CIF_file('SADABS')
-   IF(keyword_WRITE_REF_X2S)   call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_APEX)          call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_X2S)           call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_D8_VENTURE_Cu) call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_D8_VENTURE_Mo) call write_CIF_file('SADABS')
    call Get_SADABS_ratio()
 
    if(keyword_create_archive ) then
@@ -241,7 +244,8 @@ subroutine write_mu(input_string)
   endif
  endif
 
- IF(input_string(1:3) == 'yes' .and. ON_SCREEN) then
+ IF(len_trim(input_string) == 3) then
+  if(input_string(1:3) == 'yes' .and. ON_SCREEN) then
   if (X_rays) then
    call write_info(' ')
    call write_info('  Xrays total interaction cross sections values (in barns) are extracted from: ')
@@ -253,6 +257,7 @@ subroutine write_mu(input_string)
    call write_info('    V.F. Sears, Neutron News, vol.3-3, 1992, 26-37           ')
    call write_info(' ')
   endif
+  end if
  endif
 
  RETURN

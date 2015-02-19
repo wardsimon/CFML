@@ -2,7 +2,7 @@
 
 subroutine twin_obverse_reverse
 
- USE cryscalc_module, ONLY : HKL_unit, HKLF5_unit, twin_matrix => OBV_REV_twin_matrix, message_text, debug_proc
+ USE cryscalc_module, ONLY : keyword_file, HKL_unit, HKLF5_unit, twin_matrix => OBV_REV_twin_matrix, message_text, debug_proc
  USE macros_module,   ONLY : multiple
  USE HKL_module,      ONLY : n_ref, h,k,l, F2, sig_F2, cos_dir, HKL_file
  USE IO_module,       ONLY : write_info
@@ -39,6 +39,14 @@ subroutine twin_obverse_reverse
   
   if(debug_proc%level_2)  call write_debug_proc_level(2, "twin_obverse_reverse")
  
+ 
+  if (.not. keyword_FILE) then
+   call write_info('')
+   call write_info(' Please input hkl file !')
+   call write_info('')
+   return
+  end if
+  
   n      = 0
   n_obv  = 0
   n_rev  = 0
