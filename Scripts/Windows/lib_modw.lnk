@@ -15,6 +15,7 @@ wCrysFML
 +CFML_string_util_LF&
 +CFML_sym_table&
 +CFML_chem_scatt&
++CFML_BVSpar&
 +CFML_cryst_types&
 +CFML_diffpatt&
 +CFML_bonds_table&
@@ -24,6 +25,7 @@ wCrysFML
 +CFML_sfac&
 +CFML_propagk&
 +CFML_geom_calc&
++CFML_Export_VTK_LF95&
 +CFML_maps&
 +CFML_molecules&
 +CFML_form_cif&
