@@ -1294,13 +1294,12 @@
        call Read_Key_StrVal(filevar,nline_ini,nline_end, &
                             "_symmetry_space_group_name_Hall",spgr_ha)
        if (len_trim(spgr_ha)==0) spgr_ha=adjustl(filevar(nline_ini+1))
-       ! TR ..............................................................
+       ! TR  feb. 2015 .(re-reading the same item with another name)
        if(len_trim(spgr_ha) == 0) then
         spgr_ha=" "
         call Read_Key_StrVal(filevar,nline_ini,nline_end, "_space_group_name_Hall",spgr_ha)
         if (len_trim(spgr_ha)==0) spgr_ha=adjustl(filevar(nline_ini+1))
        end if
-! .................................................................
 
        if (spgr_ha =="?" .or. spgr_ha=="#") then
           spgr_ha=" "
@@ -1351,13 +1350,12 @@
                             "_symmetry_space_group_name_H-M",spgr_hm)
        if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
 
-   ! TR feb. 2015 .................................................
-    if(len_trim(spgr_hm) == 0) then
-     spgr_hm = " "
-     call Read_Key_Str(filevar,nline_ini,nline_end, "_space_group_name_H-M_alt",spgr_hm)
-     if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
-    end if
-   !...............................................................
+       ! TR  feb. 2015 .(re-reading the same item with another name)
+       if(len_trim(spgr_hm) == 0) then
+        spgr_hm = " "
+        call Read_Key_Str(filevar,nline_ini,nline_end, "_space_group_name_H-M_alt",spgr_hm)
+        if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
+       end if
 
        if (spgr_hm =="?" .or. spgr_hm=="#") then
           spgr_hm=" "
@@ -1477,11 +1475,10 @@
 
        call Read_Key_StrVal(filevar,nline_ini,nline_end, &
                             "_symmetry_equiv_pos_as_xyz",string)
-       ! TR ......... feb. 2015 .......................................
+       ! TR  feb. 2015 .(re-reading the same item with another name)
        if(len_trim(string) == 0) then
         call Read_Key_StrVal(filevar,nline_ini,nline_end, "_space_group_symop_operation_xyz",string)
        end if
-       !...............................................................
 
        if (len_trim(string) /=0) then
           string=adjustl(string)
@@ -3186,10 +3183,10 @@
 
                 ! Atom Coordinates,Biso and Occ
                 call getnum(line,vet,ivet,iv)
-                if (iv < 5) then
-                   err_form=.true.
-                   ERR_Form_Mess=" => Problems reading Atoms on PCR file "
-                   return
+                if (iv < 5) then    !Line reading for the second time anisotropic temperature factors
+                   nauas = nauas -1 !see below
+                   is_codewords=.true.
+                   cycle
                 end if
 
                 A%atom(nauas)%x=vet(1:3)
@@ -3198,7 +3195,7 @@
                 A%atom(nauas)%occ=vet(5)
                 A%atom(nauas)%thtype='isotr'
                 A%atom(nauas)%Utype="beta"
-                if (ivet(8) == 2) then    ! Anisotropico
+                if (ivet(8) == 2) then    ! Anisotropic reading
                    A%atom(nauas)%thtype='aniso'
                    call getnum(file_dat(j+2),vet,ivet,iv)
                    A%atom(nauas)%u(1:6)=vet(1:6)
