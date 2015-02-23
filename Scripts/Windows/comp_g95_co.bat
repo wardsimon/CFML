@@ -28,6 +28,7 @@ rem
    g95 -c CFML_optimization_lsq.f90 -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_sym_table.f90        -O0  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_chem_scatt.f90       -O0  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_BVSpar.f90           -O0  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_diffpatt.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 2 ----**
@@ -56,6 +57,7 @@ rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
+   g95 -c CFML_Export_Vtk.f90       -O3    -funroll-loops  -msse2  >> out
    g95 -c CFML_maps.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_molecules.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_conf_calc.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
@@ -64,14 +66,14 @@ rem
    echo .... Formats
 rem
    g95 -c CFML_form_cif.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   g95 -c CFML_Export_Vtk.f90       -O3    -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem
-   g95 -c CFML_refcodes.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   g95 -c CFML_optimization_san.f90 -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_magsymm.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_optimization_san.f90 -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_refcodes.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
+
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry
