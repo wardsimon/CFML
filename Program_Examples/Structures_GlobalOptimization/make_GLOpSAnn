@@ -140,4 +140,4 @@ in
 esac
 rm -rf *.o *.mod
 upx --compress-icons=0 GLOpSAnn
-cp GLOpSAnn $PROGCFML/DistFPS/Docs/GLOpSAnn
+cp GLOpSAnn $PROGCFML/DistFPS/GLOpSAnn
