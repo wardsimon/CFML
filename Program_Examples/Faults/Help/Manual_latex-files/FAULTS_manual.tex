@@ -7,6 +7,7 @@
 %
 % packages para el documento
 %
+\usepackage[hyphens]{url}
 \usepackage{graphicx,amssymb}                  %amssymb:para simbolos matematicos%
 \usepackage{rotating}          %para poder poner fotos apaisadas%
 \usepackage[pdftex]{hyperref, color}
@@ -19,7 +20,8 @@
 %\usepackage[pdftex]{color,graphicx}           %para links
 \usepackage[pdftex]{hyperref, color}
 \usepackage{eepic} %primera lletra gran
-\usepackage{url}
+
+
 
 %
 \hypersetup{pdfpagemode={UseOutlines},colorlinks=true,pdftitle=FAULTS manual ,
@@ -29,13 +31,14 @@ pdfauthor=Montse Casas Cabanas,pdfstartview=FitH,pdfkeywords=(manual)}
 %---------------------   end of the 'preamble'
 %
 %
-\begin{document}
+\begin{document}  
+\sloppy %\makes Latex less fussy for line breaking (for urls)
 %-----------------------------------------------------------
 \title{\Huge\bf FAULTS manual}
 \author{Montse Casas Cabanas (CIC Energigune), Jokin Rikarte Ormazabal \\
 (CIC Energigune), Marine Reynaud (CIC Energigune) \\
 and Juan Rodriguez Carvajal (ILL)}
-\date{January 2015}
+\date{February 2015}
 \maketitle
 %-----------------------------------------------------------
 \tableofcontents

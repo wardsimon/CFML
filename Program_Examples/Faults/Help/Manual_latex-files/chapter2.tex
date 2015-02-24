@@ -1,7 +1,7 @@
 \chapter{Example}
 \label{example}
 \pagenumbering{arabic}
-\setcounter{page}{32}
+\setcounter{page}{33}
 
 
 
@@ -11,22 +11,22 @@
 \section{Stacking faults in LiNiO$_{2}$}
 
 Lithium nickel oxide has been intensively studied as a positive electrode material in Li-ion batteries \cite{Whit2004}.
-As other lithium transition metal oxides, it presents an O3-type layered structure consisting in three NiO$_{2}$ slabs per unit cell, with an ABCABC oxygen stacking sequence, and lithium ions located in the octahedral sites of the interlayer spaces (see figure \ref{estructura}). In order to explain the significant broadening of the (10l) and (01l) diffraction lines, DIFFaX simulations have been used for this material with the hypothesis of the existence of O1 stacking faults in the structure \cite{Crog2000}. These stacking faults represent a break in the normal stacking sequence of the structure, with a local ABAB oxygen stacking sequence.
+As other lithium transition metal oxides, it crystallizes in an O3-type layered structure consisting in three NiO$_{2}$ slabs per unit cell, with an ABCABC oxygen stacking sequence, and lithium ions located in the octahedral sites of the interlayer spaces (see figure \ref{estructura}). In order to explain the significant broadening of the (10\emph{l}) and (01\emph{l}) diffraction lines, DIFFaX simulations have been used for this material with the hypothesis of the existence of O1 stacking faults in the structure at low lithium concentrations (Li$_{\epsilon}$Ni$_{1.02}$O$_{2}$, $\epsilon\leq$ 0.3) \cite{Crog2000}. These stacking faults represent a break in the normal stacking sequence of the structure, with a local ABAB oxygen stacking sequence.
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics [width=5.5 in]{LiNO_estructura.jpg}
-\caption{\bf a) Ideal structure of lithium nickel oxide (LiNiO$_{2}$) with O3 stacking, and b) defective structure with O1 stacking faults.}
+\includegraphics [width=5.3 in]{LiNO_estructura.jpg}
+\caption{\bf a) Ideal structure of lithium nickel oxide (LiNiO$_{2}$) with O3 stacking, and b) defective structure with O1 stacking faults (Li$_{\epsilon}$Ni$_{1.02}$O$_{2}$).}
 \label{estructura}
 \end{center}
 \end{figure}
 
-The ideal structure can be described with three layers, each one containing a NiO$_{2}$ slab and a lithium sheet. The three layers are structurally identical, but shifted with respect to each other, resulting in transition vectors $\vec{t}_{12}$=$\vec{t}_{23}$=$\vec{t}_{31}$=(2/3 1/3 1/3) and a stacking probability of 1 for each transition. O1 defects require the definition of a new type of layer, structurally different, since the position of the Li atoms will be different (see figure \ref{esquemacapes}). Therefore, three more layers are defined in the faulted structure, structurally identical but different from the previous ones, and new transitions are allowed  in order to describe the defects (see figure \ref{capes}).
+The ideal structure can be described with three layers, each one containing a NiO$_{2}$ slab and a lithium interslab. The three layers are structurally identical, but shifted with respect to each other, resulting in transition vectors $\vec{t}_{12}$=$\vec{t}_{23}$=$\vec{t}_{31}$=(2/3 1/3 1/3) and a stacking probability of 1 for each transition. O1 defects require the definition of a new type of layer, structurally different, since these defective layers do not contain any lithium (see figure \ref{esquemacapes}). Therefore, three more layers are defined in the faulted structure, structurally identical between each other but different from the previous ones, and new transitions are allowed  in order to describe the defects (see figure \ref{capes}).
 
 \begin{sidewaysfigure}
 \begin{center}
 \includegraphics [width=6in]{description.jpg}
-\caption{\bf  a) Schematic representation and atomic coordinates of the layers required for describing stacking faults for LiNiO$_2$ in the FAULTS program. b) Graphic representation of the different transition possibilities from layer 1 and transition vectors.}
+\caption{\bf  a) Schematic representation and atomic coordinates of the layers required for describing stacking faults for Li$_{0.05}$Ni$_{1.02}$O$_{2}$ in the FAULTS program. b) Graphic representation of the different transition possibilities from layer 1 and transition vectors.}
 \label{esquemacapes}
 \end{center}
 \end{sidewaysfigure}
@@ -34,7 +34,7 @@ The ideal structure can be described with three layers, each one containing a Ni
 \begin{figure}[t]
 \begin{center}
 \includegraphics [width=5.2 in]{transitions.jpg}
-\caption{\bf Possible layer transitions for LiNiO$_2$ containing O1-type stacking faults, where $\alpha_{ij}$ is the probability transition from layer \emph{i} to layer \emph{j}.}
+\caption{\bf Possible layer transitions for Li$_{\epsilon}$Ni$_{1.02}$O$_{2}$ containing O1-type stacking faults, where $\alpha_{ij}$ is the probability transition from layer \emph{i} to layer \emph{j}.}
 \label{capes}
 \end{center}
 \end{figure}
@@ -47,10 +47,10 @@ The ideal structure can be described with three layers, each one containing a Ni
 \label{Analysis of simulated data}
 
 By  means of the  stacking description described above, FAULTS has been used to simulate a diffraction pattern with the parameter's values described in table \ref{taulasim}.
-The obtained simulated XRD pattern for LiNiO$_{2}$ has then been used to analyse and test out the program. As an example of the refinement process, the initial values of the refined parameters, which have been chosen far enough from the correct ones not to bias the result,
+The obtained simulated XRD pattern for Li$_{\epsilon}$Ni$_{1.02}$O$_{2}$ ($\epsilon\leq$ 0.3) has then been used to analyse and test out the program. This are also the example files (LiNiO2_simul.flts and LiNiO2_refine.flts) included with the program. The refinement has been done by means of the Levenberg Marquart minimization algorithm, restraining the program to a maximum of 2400 function evaluations and a criterion of convergence 0.1e-4. As an example of the refinement process, the initial values of the refined parameters, which have been chosen far enough from the correct ones not to bias the result,
 and  the final refined values are also  shown in table \ref{taulasim}.
 A visual comparison between the calculated and the simulated powder patterns and their difference is shown in figure \ref{sim}.
-Starting Rp and Chi$^{2}$ values were 79.61 $\%$  and 193.10 respectively and reached a final value of 0.79$\%$ and 0.07 respectively.
+Starting Rp and Chi$^{2}$ values were 109.90 $\%$  and 365.23 respectively and reached a final value of 1.38$\%$ and 0.06 respectively.
 The values of the refined parameters are very close to those used in the simulation and lead to a XRD pattern practically
 identical to the one obtained with the values of these parameters used in the simulation (see figure \ref{sim}).
 
@@ -58,45 +58,32 @@ identical to the one obtained with the values of these parameters used in the si
 
 \begin{table}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-Refined parameter & Simulation & Initial value & Final value & Standard Deviation \\
+Refined parameter & Simulation & Initial value & Final value(Std dev.)\\
 
 \hline
-a,b & 2.866 & 2.816 & 2.866 & 0.00012\\
+a,b & 2.81540 & 2.86540 & 2.81525(7)\\
 \hline
-c & 14.253 & 14.353 & 14.253 & 0.00066\\
+c & 13.363000 & 13.26300 & 13.3636(6)\\
 \hline
-z$_{Ni1}$ & 0.000 & 0.100 & 0.002 & 0.00305\\
+z$_{O1}$ & 0.07133 & 0.17133 & 0.0694(1)\\
 \hline
-x$_{O1}$ & 1/3 & 0.500 & 0.333 & 1.28291\\
+z$_{O2}$ & -0.07133 & -0.17133 & -0.0694(1)\\
 \hline
-z$_{Ni2}$ & 0.000	&0.100&	0.002 & 0.00310\\
+z$_{O3}$ & 0.07133	&0.17133&	0.0849(9)\\
 \hline
-$\alpha_{12}$ & 0.858&	0.888	&0.862 & 0.12251\\
+z$_{O4}$ & -0.07133	&-0.17133& -0.0849(9)\\
 \hline
-$\alpha_{14}$ & 0.142	&0.112&	0.138 & 0.12251\\
+$\alpha_{12}$,$\alpha_{23}$,$\alpha_{31}$ & 0.8580&	1.0000	&0.8601(6)\\
 \hline
-$\alpha_{23}$ & 0.858&	0.888	&0.853 & 0.10567\\
+$\alpha_{14}$,$\alpha_{25}$,$\alpha_{36}$ & 0.1420&	0.0000	&0.1399(6)\\
 \hline
-$\alpha_{25}$ & 0.142	&0.112	&0.147 & 0.10567\\
+$\alpha_{42}$,$\alpha_{53}$,$\alpha_{61}$ & 0.8580&	1.0000	&0.876(3)\\
 \hline
-$\alpha_{31}$ & 0.858&	0.888&	0.861 & 0.12954\\
+$\alpha_{44}$,$\alpha_{55}$,$\alpha_{66}$ & 0.1420&	0.0000	&0.124(3)\\
 \hline
-$\alpha_{36}$ & 0.142&	0.112&	0.139 & 0.12954\\
-\hline
-$\alpha_{42}$ & 0.858&	0.888	&0.856 & 0.50235\\
-\hline
-$\alpha_{44}$ & 0.142&	0.112	&0.144 & 0.50235\\
-\hline
-$\alpha_{53}$ & 0.858&	0.888	&0.862 & 0.52225\\
-\hline
-$\alpha_{55}$ & 0.142&	0.112	&0.138 & 0.52225\\
-\hline
-$\alpha_{61}$ & 0.858&	0.888	&0.863 & 0.74093\\
-\hline
-$\alpha_{66}$ & 0.142&	0.112	&0.137 & 0.74093\\
-\hline
+
 
 \end{tabular}
 \caption{\textbf{Starting and final values of the parameters refined in the analysis of simulated data.}}
@@ -108,12 +95,12 @@ $\alpha_{66}$ & 0.142&	0.112	&0.137 & 0.74093\\
 \begin{sidewaysfigure}
 \begin{center}
 \includegraphics [width=6 in]{pattern.jpg}
-\caption{\bf Comparison of the X-ray diffraction patterns corresponding to the FAULTS analysis of the simulated data: simulated pattern (dotted curve) and calculated pattern using the FAULTS refinement (continuous curve). The diagram underneath shows the difference between them. The ticks show the position of the Bragg reflections of the R-3m average unit cell (the one used to describe the ideal O3 structure of LiNiO$_{2}$).  }
+\caption{\bf Comparison of the X-ray diffraction patterns corresponding to the FAULTS analysis of the simulated data: simulated pattern (dotted curve) and calculated pattern using the FAULTS refinement (continuous curve). The diagram underneath shows the difference between them. The ticks show the position of the Bragg reflections of the R-3m average unit cell (the one used to describe the ideal O3 structure of Li$_{\epsilon}$Ni$_{1.02}$O$_{2}$).  }
 \label{sim}
 \end{center}
 \end{sidewaysfigure}
 
-An example of the evolution of \textit{a} and \textit{b} cell parameters and of Chi$^{2}$ and Rp throughout a run of 15 iteration cycles is shown in \ref{cycles}.
+An example of the evolution of \textit{a} and \textit{b} cell parameters and of Chi$^{2}$ and Rp throughout a run of 10 iteration cycles is shown in \ref{cycles}.
 
 \begin{figure}[!htbp]
 \begin{center}

@@ -17,7 +17,8 @@ The authors acknowledge all suggestions and notification of possible bugs found 
 
 \section{Download and installation}
 
-FAULTS can be obtained either as part of the FullProf Suite \cite{FPDownload, FPPaper, FPManual} at \url{www.ill.eu/sites/fullprof/}, or as a separate program by downloading the compressed file FAULTS.zip at \url{www.cicenergigune.com/}.\\
+FAULTS can be obtained either as part of the FullProf Suite \cite{FPDownload, FPPaper, FPManual} at \url{www.ill.eu/sites/fullprof/}, or as a separate program by downloading the compressed file FAULTS.zip at \url{www.cicenergigune.com/en/areas-investigacion/power-storage-batteries-and-supercaps/lineas-investigacion/li-ion/faults/}.\\
+
 
 In the case the user chooses to install FAULTS with the FullProf Suite, the program FAULTS will be launched directly from the FullProf Suite Toolbar.
 If the user uses FAULTS as a separate program, it will be launched from a DOS window, after having copied the standard scattering factor data file \textit{data.sfc} into the working folder.
@@ -80,7 +81,8 @@ $$R_{exp}=100\left[\frac{n-p}{\sum_{i}{w_{i}y_{i}^{2}}}\right]^{1/2}$$
 The input control file is a free format file that contains all the structural
 data and the type of calculation to be done. This file must be written by the user.\\
 
-The FAULTS input file is similar to the one used in DIFFaX \cite{DiffaxManual}, although there are some differences that should be taken into account to avoid errors. A program that permits to convert DIFFaX input files into FAULTS one is available at \url{www.cicenergigune.com/}.\\  
+The FAULTS input file is similar to the one used in DIFFaX \cite{DiffaxManual}, although there are some differences that should be taken into account to avoid errors. The DIFFaX2FAULTS convertor, which permits to convert DIFFaX input files into FAULTS ones, is available at \url{www.cicenergigune.com/en/areas-investigacion/power-storage-batteries-and-supercaps/lineas-investigacion/li-ion/faults/}.\\  
+
 
 Free format means that the input file is not case sensitive and that the different sections do not have to follow a concret sequence, however,
 a space is needed between each item and all the section headings and subsection keywords must be present. Each line must not exceed 132 characters, taking into account the blank spaces.
@@ -361,7 +363,7 @@ All the parameters constituting this section are refinable parameters and can be
 \label{calc}
 First line must contain the heading CALCULATION.
 This section contains the type of calculation the program is asked to perform.
-There are two options: SIMULATION and LMQ. The first one corresponds to the pattern calculation, and thus no parameter will be refined.
+There are two options: SIMULATION and LMA. The first one corresponds to the pattern calculation, and thus no parameter will be refined.
 The second option indicates that the refinement is to be done by means of the Levenberg Marquardt fit. Depending on the calculation type, the next lines must contain:
 
 \begin{itemize}
@@ -405,12 +407,12 @@ For example:
 
 
 %\normalsize{
-\item \textbf{LMQ:} The user has to specify the maximum correlation parameter (which defines the minimum correlation used to build the correlation matrix that will be given in the output file; keyword \textit{Corrmax}), the maximun number of function evaluations (keyword \textit{Maxfun}), the tolerance (i.e. convergence criterion; keyword \textit{Tol}) and the print control parameter (keyword \textit{Nprint}). Each of these parameters must be placed in a new line. For example,
+\item \textbf{LMA:} The user has to specify the maximum correlation parameter (which defines the minimum correlation used to build the correlation matrix that will be given in the output file; keyword \textit{Corrmax}), the maximun number of function evaluations (keyword \textit{Maxfun}), the tolerance (i.e. convergence criterion; keyword \textit{Tol}) and the print control parameter (keyword \textit{Nprint}). Each of these parameters must be placed in a new line. For example,
 
 \begin{flushleft}
 \begin{tabbing}
 \hspace*{1.5 cm}CALCULATION\\*
-\hspace*{1.5 cm}LMQ\\*
+\hspace*{1.5 cm}LMA\\*
 \hspace*{1.5 cm}Corrmax  \=30\\*
 \hspace*{1.5 cm}Maxfun   \>2400\\*
 \hspace*{1.5 cm}Tol      \>0.1E-04\\*
@@ -418,7 +420,7 @@ For example:
 \end{tabbing}
 \end{flushleft}
 %\footnotesize{
-%				LMQ\\
+%				LMA\\
 %				Corrmax  30\\
 %				Maxfun   2400\\
 %				Tol      0.1E-04\\
@@ -468,7 +470,7 @@ If the print control parameter \textit{Nprint} is set to 0, the values of the ag
 
 \end{itemize}
 
-Finally, whatever the kind of calculation to be performed (SIMULATION or LMQ), the user can add an optional line with the instruction \textit{Replace\_Files} at the end of the \emph{Calculation} section to make the program replace existent output files by the ones generated at the end of a new run, instead of creating new files.
+Finally, whatever the kind of calculation to be performed (SIMULATION or LMA), the user can add an optional line with the instruction \textit{Replace\_Files} at the end of the \emph{Calculation} section to make the program replace existent output files by the ones generated at the end of a new run, instead of creating new files.
 
 \subsubsection{ \emph{Experimental} section}
 
