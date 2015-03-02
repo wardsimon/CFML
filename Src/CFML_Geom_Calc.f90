@@ -1227,7 +1227,7 @@
        character(len= 20)                 :: text,tex,texton
        character(len=132)                 :: line
        character(len=160)                 :: form3
-       character(len= 90)                 :: form2= "(a,3i4,a,a,a,a,a,f9.4,a,3F8.4,a,t85,a)"  !  JRC feb 2014 form2= &   ! TR 4 fev. 2013
+       character(len= 90)                 :: form2= "(a,3i4,a,a,a,a,a,a12,3F8.4,a,t85,a)"  !  JRC feb 2014 form2= &   ! TR 4 fev. 2013
                                              !"("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
        integer, dimension(3)              :: ic1,ic2
        integer, dimension(192)            :: itnum
@@ -1432,7 +1432,7 @@
                                call Frac_Trans_1Dig(tn,transla)
                                call setnum_std(dd,sdd,text)
                                !write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
-                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, &
+                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",text,x1(:), "  "//transla, &
                                                          trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
 
