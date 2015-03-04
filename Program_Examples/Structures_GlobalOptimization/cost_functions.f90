@@ -339,6 +339,9 @@
                  i=index(line,"xra")
                  if(i /= 0) diff_mode="XRA"
 
+                 i=index(line,"x-ra")
+                 if(i /= 0) diff_mode="XRA"
+
                  i=index(line,"elect")
                  if(i /= 0) diff_mode="ELE"
 

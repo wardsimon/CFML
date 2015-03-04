@@ -18,6 +18,7 @@
     Real, save,          public ::    SumGobs, ScaleFact=1.0, wavel_int
     Integer,             public ::    Nselr=0, iwgt=0
     Logical,             public ::    Weight_Sim=.false.
+    logical,             public ::    fullprof_int=.false.
 
     !!----
     !!---- TYPE :: OBSERVATION_TYPE
@@ -116,7 +117,6 @@
       integer, allocatable,dimension(  :) :: ic
       real,    allocatable,dimension(  :) :: sv,fobs,sigma
       character(len=132) :: line
-      logical :: fullprof_int
 
 
 
@@ -202,7 +202,7 @@
         Rf%Ref(i)%h    = hkl(:,i)
         Rf%Ref(i)%Mult = hkl_mult(hkl(:,i),Spg,Friedel)
         Rf%Ref(i)%Fc   = 0.0
-        Rf%Ref(i)%Fo   = fobs(i)
+        Rf%Ref(i)%Fo   = fobs(i)  !This is integrated intensities in the case we read FullProf *.int files
         Rf%Ref(i)%SFo  = sigma(i)
         Rf%Ref(i)%S    = sv(i)
         Rf%Ref(i)%W    = 0.0
@@ -280,6 +280,7 @@
       allocate(point(2,nlines))
 
       if(index(file_hkl,".int") /= 0 .or. index(file_hkl,".INT") /= 0) then
+          fullprof_int=.true.
           read(unit=i_hkl,fmt=*)
           read(unit=i_hkl,fmt=*)
           read(unit=i_hkl,fmt=*) wavel_int

@@ -253,6 +253,7 @@ Program Global_Optimization_Xtal_structures
           end do
 
           if(Icost(7) == 1) then  !for clusters
+             !call Read_observations_clusters(trim(filhkl),Cell,SpG,.true.,Oh,hkl)
              call read_observations(trim(filhkl),Cell,SpG,.true.,Oh,hkl)
           else  !Structure factors, single crystals or profile
              call read_observations(trim(filhkl),Cell,SpG,.true.,hkl)
