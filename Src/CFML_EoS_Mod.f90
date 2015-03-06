@@ -1154,7 +1154,6 @@ Contains
 
       !----Local Variables ----!
       real(kind=cp)                      :: Ttr , a ! transition temperature at this pressure
-      real(kind=cp), dimension(n_eospar) :: ev
 
       !> init
       vs=0._cp
@@ -3898,8 +3897,6 @@ Contains
       type (EoS_Type), intent(out) :: Eos
 
       !---- Variables ----!
-       type (EoS_Type) :: Eos2
-
       character(len=255), dimension(:), allocatable :: flines
       character(len=255)                            :: text
       character(len=10)                             :: forma
