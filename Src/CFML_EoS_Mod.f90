@@ -1522,6 +1522,8 @@ Contains
    !!---- Date: 16/02/13
    !!
    Function K_Cal(V,T,Eospar) Result(kc)
+
+
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: V       ! Volume
       real(kind=cp),  intent(in) :: T       ! Temperature
@@ -1535,13 +1537,13 @@ Contains
       real(kind=cp), dimension(n_eospar) :: ev
       real(kind=cp), dimension(3)        :: abc     ! Tait parameters
 
-      save              ! Reuqired to ensure correct for transitions, dont know why!
 
+      
+      
       !> Init
       kc=0.0_cp
 
-      !> Local EoS copy
-      call EoS_to_Vec(eospar,ev)
+
 
 
 
@@ -1576,6 +1578,10 @@ Contains
       if(err_eos)return                 ! exit with value eosparms(2) if k0 at P=0 calculated as negative
 
       if (eospar%linear) k0=k0/3.0_cp
+      
+      !> Local EoS copy
+      call EoS_to_Vec(eospar,ev)
+      
       kp=ev(3)
       kpp=ev(4)
 
@@ -1627,8 +1633,7 @@ Contains
 
          !> To this point Kc is the bulk modulus of the 'bare' eos of the high phase
          !> Now handle phase transition
-         !>****at this time the code is only for the low-symmetry phase and will not allow for high-symm softening
-
+         
 
 
          if(eospar%itran > 0)then
@@ -1640,28 +1645,29 @@ Contains
             case(1)        ! Landau P-V
                 if(transition_phase(P,T,eospar))then        ! in the low phase
                     dVs=ev(23)*ev(25)*abs(P-ev(21))**(ev(25)-1)     ! correct if lowP phase is highsym
-                    if(ev(20) ==1)dVs=-1.0_cp*dVs                   ! change sign for highp phase is highsym
+                    if(nint(ev(20)) ==1)dVs=-1.0_cp*dVs                   ! change sign for highp phase is highsym
                     kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
                 else
                                                             ! in the high phase
                     dVs=ev(26)*ev(27)*abs(P-ev(21))**(ev(27)-1)     ! correct if highP phase is highsym
-                    if(ev(20) /= 1)dVs=-1.0_cp*dVs
+                    if(nint(ev(20)) /= 1)dVs=-1.0_cp*dVs
                     kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
                 endif
 
             case(2,3)      ! Landau VT or PVT
                 if(transition_phase(P,T,eospar))then
                     ! low phase
+
                     Ttr = ev(21)+p*ev(22)
                     a=ev(23)+p*ev(24)
                     dVs=a*ev(25)*(abs(Ttr-T))**(ev(25)-1)*ev(22) + (abs(Ttr-T))**ev(25)*eospar%params(24)
-                    if(ev(20) /= 1)dVs=-1.0_cp*dVs                     ! sign change when low phase is highT
+                    if(nint(ev(20)) /= 1)dVs=-1.0_cp*dVs                     ! sign change when low phase is highT
                     kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
-               else
+                else
                     ! in the highphase
                     Ttr = ev(21)+p*ev(22)
                     dVs=ev(26)*ev(27)*(abs(Ttr-T))**(ev(27)-1)*ev(22) ! simpler because no da/dP: expression if High phase is lowT
-                    if(ev(20) ==1)dVs=-1.0_cp*dVs                     ! sign change when high phase is highT
+                    if(nint(ev(20)) ==1)dVs=-1.0_cp*dVs                     ! sign change when high phase is highT
                     kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
                endif
             end select
