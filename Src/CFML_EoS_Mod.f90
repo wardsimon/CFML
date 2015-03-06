@@ -1538,8 +1538,8 @@ Contains
       real(kind=cp), dimension(3)        :: abc     ! Tait parameters
 
 
-      
-      
+
+
       !> Init
       kc=0.0_cp
 
@@ -1578,10 +1578,10 @@ Contains
       if(err_eos)return                 ! exit with value eosparms(2) if k0 at P=0 calculated as negative
 
       if (eospar%linear) k0=k0/3.0_cp
-      
+
       !> Local EoS copy
       call EoS_to_Vec(eospar,ev)
-      
+
       kp=ev(3)
       kpp=ev(4)
 
@@ -1633,7 +1633,7 @@ Contains
 
          !> To this point Kc is the bulk modulus of the 'bare' eos of the high phase
          !> Now handle phase transition
-         
+
 
 
          if(eospar%itran > 0)then
@@ -3907,8 +3907,7 @@ Contains
 
       integer                         :: c,ierr,i,j,imax,idoc
       integer                         :: nlines,nl
-      real                            :: val,temptref
-      real,dimension(n_eospar)        :: tempval
+      real                            :: val
 
       !> Eos init
       call Init_err_Eos()
@@ -4943,7 +4942,7 @@ Contains
 
       !---- Local Variables ----!
       character(len=30) :: line,string
-      integer           :: i,lun,is
+      integer           :: i,lun
 
       !> Init
       lun=6
@@ -5064,7 +5063,7 @@ Contains
       real(kind=cp),dimension(6) :: parvals(7)
       real(kind=cp),dimension(6) :: esd
       real(kind=cp),dimension(12):: parout,esdout
-      real(kind=cp)              :: tconvert,v0,fp,fs
+      real(kind=cp)              :: v0,fp,fs
 
       !> init
       nprint=0    ! output counter
