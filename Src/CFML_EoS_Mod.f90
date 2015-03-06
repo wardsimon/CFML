@@ -211,7 +211,8 @@ Module CFML_EoS
    !!----    Name of the Pressure Models
    !!----
    character(len=15), public, parameter, dimension(0:N_pmodel) :: Pmodel_names= &
-            (/'None           ', 'Murnaghan      ', 'Birch-Murnaghan', 'Vinet          ', 'Natural Strain ', 'Tait           '/)
+            (/'None           ', 'Murnaghan      ', 'Birch-Murnaghan', 'Vinet          ', &
+              'Natural Strain ', 'Tait           '/)
 
    !!----
    !!---- TMODEL_NAMES
@@ -220,7 +221,8 @@ Module CFML_EoS
    !!----    Name of the Thermal Models
    !!----
    character(len=19), public, parameter, dimension(0:N_tmodel) :: Tmodel_names= &
-            (/'None               ', 'Berman 1988        ', 'Fei 1995           ', 'Modified HP1998    ', 'Kroll              ', 'Salje low-T        ', 'HP Thermal Pressure'/)
+            (/'None               ', 'Berman 1988        ', 'Fei 1995           ', 'Modified HP1998    ', &
+              'Kroll              ', 'Salje low-T        ', 'HP Thermal Pressure'/)
 
    !!----
    !!---- TRANMODEL_NAMES
@@ -230,6 +232,7 @@ Module CFML_EoS
    !!----
    character(len=15), public, parameter, dimension(0:N_tranmodel) :: Tranmodel_names= &
             (/'None           ', 'Landau P only  ', 'Landau T only  ', 'Landau PVT     '/)
+
 
    !!----
    !!---- ERR_EOS
@@ -1531,6 +1534,8 @@ Contains
       real(kind=cp) :: vs,Ttr,dVs                   ! for transition calculations
       real(kind=cp), dimension(n_eospar) :: ev
       real(kind=cp), dimension(3)        :: abc     ! Tait parameters
+
+      save              ! Reuqired to ensure correct for transitions, dont know why!
 
       !> Init
       kc=0.0_cp
@@ -4984,13 +4989,15 @@ Contains
       !> Warning for Tait or Murnaghan
       write(lun,'(//)')
       if (eos%itherm /= 0)then
-         write(lun,'(''  Note that values of alpha are multiplied by a factor of '',f5.1,''x10^5''//)')eos%factor(10)/1.0E5
+         write(lun,'("  Note that values of alpha are multiplied by a factor of ",f5.1,"x10^5"//)')eos%factor(10)/1.0E5
       end if
 
       if (eos%imodel == 1 .or. eos%imodel == 5) then
-         write(lun,'(''  Do not forget: Normalised Pressure and strain not defined for '',a,'' Eos'')')trim(eos%model)
+         write(lun,'("  Do not forget: Normalised Pressure and strain not defined for ",a," Eos")')trim(eos%model)
       else if(eos%itherm /= 0)then
-         write(lun,'(''  Normalised Pressure and finite strain (f,F) are defined relative to V at P=0 and same T'')')
+         write(lun,'("  Normalised Pressure (NP) and finite strain (f) are defined relative to V at P=0 and same T")')
+      else
+         write(lun,'("  Normalised Pressure is NP and finite strain is f")')
       end if
 
       !> tscale for output: C or K
@@ -5003,11 +5010,13 @@ Contains
 
       !> create column header
       if (eos%linear) then
-         write(head,'('' Press  Temp ('',a1,'')   Length  esdL       L/L0T  esd(V/V0T)  M      esdM  Mprime '', ''esdMp   Mpp  esdMpp  f         esdf       F       esdF    dM/dT    esd     alpha  esd'')')Tscale
+         write(head,'(" Press   Temp",a1,"     Length  esdL       L/L0T  esd(L/L0T)  M      esdM  Mprime ", &
+             &"esdMp   Mpp  esdMpp  f         esdf       NP      esdNP   dM/dT    esddK   alpha  esda")' ) Tscale
       else
-         write(head,'('' Press  Temp ('',a1,'')   Volume  esdV       V/V0T  esd(V/V0T)  K      esdK  Kprime '', ''esdKp   Kpp  esdKpp  f         esdf       F       esdF    dK/dT    esd     alpha  esd'')')Tscale
+         write(head,'(" Press   Temp",a1,"     Volume  esdV       V/V0T  esd(V/V0T)  K      esdK  Kprime ", &
+             &"esdKp   Kpp  esdKpp  f         esdf       NP      esdNP   dK/dT    esddK   alpha  esda")' ) Tscale
       end if
-      if (eos%itran > 0)head=trim(head)//' sp strain'
+      if (eos%itran > 0)head=trim(head)//' spstrain'
 
       !> Write header
       write(lun,'(/a)')trim(head)
