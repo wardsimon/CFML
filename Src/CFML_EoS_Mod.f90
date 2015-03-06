@@ -792,7 +792,7 @@ Contains
          !> Trap infinite loops
          if (nstep > 10000)then
              err_eos=.true.
-             write(err_eos_mess,'(''No convergence in get_temperature after '',i5,'' steps, dp= '',f10.4)')nstep,dp1
+             write(err_eos_mess,'("No convergence in get_temperature after ",i5," steps, dp= ",f10.4)')nstep,dp1
              exit
          end if
 
@@ -4850,7 +4850,7 @@ Contains
                 call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
                 string=' '
                 if (eospar%iuse(i) == 2)string=' [IMPLIED VALUE]'
-                write(unit=lun,fmt='(3x,a5,'': '',a,T30,'':'',a)') &
+                write(unit=lun,fmt='(3x,a5,": ",a,T30,":",a)') &
                      trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
              end if
           end do
@@ -4911,7 +4911,7 @@ Contains
                  call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
                  string=' '
                  if (eospar%iuse(i) > 1) string=' [FIXED VALUE]'
-                 write(unit=lun,fmt='(3x,a5,'': '',a,T30,'':'',a)') &
+                 write(unit=lun,fmt='(3x,a5,": ",a,T30,":",a)') &
                       trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
              end if
           end do
@@ -4959,7 +4959,7 @@ Contains
              call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
              string=' '
              if (eospar%iuse(i) > 1) string=' [FIXED VALUE]'
-             write(unit=lun,fmt='(3x,a5,'': '',a,T30,'':'',a)') &
+             write(unit=lun,fmt='(3x,a5,": ",a,T30,":",a)') &
                   trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
          end if
       end do
