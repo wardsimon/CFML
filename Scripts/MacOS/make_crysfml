@@ -138,8 +138,8 @@ then
           OPT2="-c -g -Wall"
           ;;
       'gfortran')
-          OPT1="-m32 -c -g -Wall"
-          OPT2="-m32 -c -g -Wall"
+          OPT1="-c -g -ffree-line-length-0"
+          OPT2="-c -g -ffree-line-length-0"
           ;;
       'ifort')
           OPT1="-c -g -warn"
@@ -158,8 +158,8 @@ else
           OPT2="-c -O0"
           ;;
       'gfortran')
-          OPT1="-m32 -c -O"
-          OPT2="-m32 -c -O0"
+          OPT1="-c -O -ffree-line-length-0"
+          OPT2="-c -O0 -ffree-line-length-0"
           ;;
       'ifort')
           OPT1="-c -O -warn -vec-report0"
