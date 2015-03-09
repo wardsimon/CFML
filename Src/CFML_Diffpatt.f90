@@ -1478,7 +1478,7 @@
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-
+       if(pat%scat_var == "2theta" .and. pat%xmax > 180.0 ) pat%scat_var="TOF"
        return
     End Subroutine Read_Pattern_Free
 
