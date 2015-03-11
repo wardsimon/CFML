@@ -3781,20 +3781,22 @@
     End Subroutine Write_Pattern_INSTRM5
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl)
+    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
     !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
     !!----    logical, dimension(:),optional,  intent(in) :: excl
+    !!----    real,                 optional,  intent(in) :: xmin
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
     !!---- Update: March - 2007
     !!
-    Subroutine Write_Pattern_XYSig(Filename,Pat,excl)
+    Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
        !---- Arguments ----!
        character (len=*),               intent(in) :: filename
        type (diffraction_pattern_type), intent(in) :: Pat
        logical, dimension(:),optional,  intent(in) :: excl
+       real,                 optional,  intent(in) :: xmin
 
        !---- Local Variables ----!
        integer                                      :: i, ier, i_dat
@@ -3831,6 +3833,11 @@
        if(present(excl)) then
          do i=1,pat%npts
             if(excl(i)) cycle
+            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+         end do
+       else if(present(xmin)) then
+         do i=1,pat%npts
+            if(pat%x(i) < xmin) cycle
             write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
          end do
        else
