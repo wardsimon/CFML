@@ -263,7 +263,12 @@ $COMP $OPT1  CFML_LSQ_TypeDef.f90
 $COMP $OPT1  CFML_Spher_Harm.f90
 $COMP $OPT1  CFML_Random.f90
 $COMP $OPT1  CFML_FFTs.f90
-$COMP $OPT1  CFML_String_Util.f90
+if [ $COMP = "gfortran" ]
+then
+   $COMP $OPT1  CFML_String_Util_gf.f90
+else
+   $COMP $OPT1  CFML_String_Util.f90
+fi
 if [ $MODE = "con" ]
 then
    $COMP $OPT1  CFML_IO_Mess.f90       $INC

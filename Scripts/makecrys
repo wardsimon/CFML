@@ -46,7 +46,7 @@ then # Console version (Degugging)
     fi
 elif [ a$2 = "aall" ]
 then # Winteracter version
-   ./Linux/make_crysfml $1 win
+   ./Linux/make_crysfml64b $1 win
 else # Console version
-    ../Scripts/Linux/make_crysfml $1
+    ../Scripts/Linux/make_crysfml64b $1
 fi
