@@ -2,21 +2,30 @@ rem
 rem CrysFML for Intel Compiler (Optimization)
 rem
    @echo off
+rem
+rem Options Definitions
+rem
+   set opt1=/O3 /nologo
+   set opt2=%opt1% /stand:f03
+rem
+rem
+rem
+rem
    cd %CRYSFML%\Src03
 rem
    echo **-----------------**
    echo **---- Level 0 ----**
    echo **-----------------**
-   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
-   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   ifort /c CFML_GlobalDeps_Windows_intel.f90         /O2 /nologo
+rem   echo ....  Messages, Powder Profiles
+rem
+   ifort /c CFML_GlobalDeps_Windows_intel.f90         %opt1%
 rem
    echo .... Mathematical(I)....
-   ifort /c CFML_math_gen.f90                         /O2 /stand:f03 /nologo
-   ifort /c CFML_random.f90                           /O2 /stand:f03 /nologo
-   ifort /c CFML_spher_harm.f90                       /O2 /stand:f03 /nologo
-   ifort /c CFML_ffts.f90                             /O2 /stand:f03 /nologo
+   ifort /c CFML_math_gen.f90                         %opt2%
+   ifort /c CFML_random.f90                           %opt2%
+   ifort /c CFML_spher_harm.f90                       %opt2%
+   ifort /c CFML_ffts.f90                             %opt2%
 
    echo .... String_Utilities ....
 
