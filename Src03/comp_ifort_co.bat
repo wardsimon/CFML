@@ -4,16 +4,23 @@ rem
    @echo off
    cd %CRYSFML%\Src03
 rem
+   echo **-----------------**
    echo **---- Level 0 ----**
+   echo **-----------------**
+   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   ifort /c CFML_GlobalDeps_Windows_intel.f03         /O2 /nologo
+   ifort /c CFML_GlobalDeps_Windows_intel.f90         /O2 /nologo
 rem
-rem   ifort /c CFML_math_gen.f90         /O2 /nologo /Qvec-report0
+   echo .... Mathematical(I)....
+   ifort /c CFML_math_gen.f90                         /O2 /stand:f03 /nologo
+   ifort /c CFML_random.f90                           /O2 /stand:f03 /nologo
+   ifort /c CFML_spher_harm.f90                       /O2 /stand:f03 /nologo
+   ifort /c CFML_ffts.f90                             /O2 /stand:f03 /nologo
+
+   echo .... String_Utilities ....
+
 rem   ifort /c CFML_LSQ_TypeDef.f90      /O2 /nologo /Qvec-report0
-rem   ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
-rem   ifort /c CFML_random.f90           /O2 /nologo /Qvec-report0
-rem   ifort /c CFML_ffts.f90             /O2 /nologo /Qvec-report0
 rem   ifort /c CFML_string_util.f90      /O2 /nologo /Qvec-report0
 rem   ifort /c CFML_io_mess.f90          /O2 /nologo /Qvec-report0
 rem   ifort /c CFML_Profile_TOF.f90      /O2 /nologo /Qvec-report0

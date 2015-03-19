@@ -4,16 +4,20 @@ rem
    @echo off
    cd %CRYSFML%\Src03
 rem
+   echo **-----------------**
    echo **---- Level 0 ----**
+   echo **-----------------**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   gfortran -c CFML_GlobalDeps_Windows.f03         -O3  -std=f2003  -funroll-loops  -msse2  >  out
+   gfortran -c CFML_GlobalDeps_Windows.f90         -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >  out
 rem
-rem   gfortran -c CFML_math_gen.f90         -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
+   echo .... Mathematical(I)....
+   gfortran -c CFML_math_gen.f90                   -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_random.f90                     -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_spher_harm.f90                 -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_ffts.f90                       -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem   gfortran -c CFML_LSQ_TypeDef.f90      -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem   gfortran -c CFML_spher_harm.f90       -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
-rem   gfortran -c CFML_random.f90           -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
-rem   gfortran -c CFML_ffts.f90             -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem   gfortran -c CFML_string_util.f90   -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem   gfortran -c CFML_io_mess.f90          -O3 -ffree-line-length-none -std=f2003  -funroll-loops  -msse2  >> out
 rem -std=f2003 removed in TOF because probably there is a conflict of names
