@@ -32,11 +32,12 @@ rem
    ifort /c CFML_ffts.f90                             %opt2%
    ifort /c CFML_LSQ_TypeDef.f90                      %opt2%
 
-   echo .... String_Utilities ....
+   echo .... Messages - String_Utilities ....
+   ifort /c CFML_io_mess.f90                          %opt2%
+   ifort /c CFML_string_util.f90                      %opt2%
 
-rem   ifort /c CFML_LSQ_TypeDef.f90      /O2 /nologo /Qvec-report0
-rem   ifort /c CFML_string_util.f90      /O2 /nologo /Qvec-report0
-rem   ifort /c CFML_io_mess.f90          /O2 /nologo /Qvec-report0
+   echo .... Powder Profiles ....
+
 rem   ifort /c CFML_Profile_TOF.f90      /O2 /nologo /Qvec-report0
 rem   ifort /c CFML_Profile_Finger.f90   /O2 /nologo /Qvec-report0
 rem   ifort /c CFML_Profile_Functs.f90   /O2 /nologo /Qvec-report0
