@@ -366,8 +366,9 @@ Module CFML_FFT
        !---- Arguments ----!
        real(kind=cp),dimension(:),          intent(in) :: pf
        real(kind=cp),dimension(:),          intent(in) :: pg
-       type(Points_Interval_Type), intent(in) :: interval
+       type(Points_Interval_Type),          intent(in) :: interval
        real(kind=cp), dimension(interval%np)           :: conv
+
        Interface F_Function
           Pure function f(x,parf)  result (vf)
              use CFML_GlobalDeps, only: cp
@@ -376,6 +377,7 @@ Module CFML_FFT
              real(kind=cp)                          :: vf
           End Function F
        End Interface F_Function
+
        Interface G_Function
           Pure Function G(X,Parg)  Result (Vg)
              use CFML_GlobalDeps, only: cp
@@ -418,9 +420,9 @@ Module CFML_FFT
 
        call Sfft(convo,"INV")
 
-       !correct for a displacement of 1 step
-       !To recalculate the array for the same input points
-       !one has to interpolate between succesive values
+       !> correct for a displacement of 1 step
+       !> To recalculate the array for the same input points
+       !> one has to interpolate between succesive values
 
        conv(1) = real(convo(1))
        do i=2,interval%np
@@ -479,6 +481,7 @@ Module CFML_FFT
        real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
        integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
        real(kind=cp), dimension(np)                    :: conv
+
        Interface F_Function
           Pure Function F(X,Parf)  Result (Vf)
              use CFML_GlobalDeps, only: cp
@@ -487,6 +490,7 @@ Module CFML_FFT
              real(kind=cp)                          :: vf
           End Function F
        End Interface F_Function
+
        Interface G_Function
           Pure Function G(X,Parg) Result (Vg)
              use CFML_GlobalDeps, only: cp

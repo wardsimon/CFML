@@ -723,7 +723,7 @@
        if( i < 1) i = 2
 
        Dlmp=Clmp(l,m,i)*Real_Spher_Harm_Ucvec(L,M,P,U)
-       !Write(*,"(3i4,3f14.5,10x,3f14.5)") l,m,i,Dlmp, Clmp(l,m,i), Real_Spher_Harm_Ucvec(L,M,P,U), u
+
        return
     End Function Real_Spher_HarmCharge_Ucvec
 
