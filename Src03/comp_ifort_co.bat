@@ -17,15 +17,20 @@ rem
    echo **---- Level 0 ----**
    echo **-----------------**
 rem
-rem   echo ....  Messages, Powder Profiles
+   echo .... Global Dependecies ....
 rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         %opt1%
+rem
+   echo **-----------------**
+   echo **---- Level 1 ----**
+   echo **-----------------**
 rem
    echo .... Mathematical(I)....
    ifort /c CFML_math_gen.f90                         %opt2%
    ifort /c CFML_random.f90                           %opt2%
    ifort /c CFML_spher_harm.f90                       %opt2%
    ifort /c CFML_ffts.f90                             %opt2%
+   ifort /c CFML_LSQ_TypeDef.f90                      %opt2%
 
    echo .... String_Utilities ....
 
