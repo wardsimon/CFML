@@ -86,8 +86,7 @@ Program Bond_Str
    if(esta) then
       call Readn_set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpGr,A,Mode="CFL",file_list=fich_cfl)
       cif=.false.
-      inquire(file=trim(filcod)//"_gen.cif",exist=esta)
-      if(.not. esta) out_cif=.true.
+      out_cif=.true.
    else
       inquire(file=trim(filcod)//".cif",exist=esta)
       if(.not. esta) then
