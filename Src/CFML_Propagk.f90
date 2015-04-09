@@ -58,6 +58,7 @@
 !!----
 !!----    Subroutines:
 !!----       K_STAR
+!!----       SET_GK
 !!----       WRITE_GROUP_K
 !!----
 !!
@@ -66,7 +67,7 @@
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: Cp, Eps
     Use CFML_Math_General,              only: Zbelong
-    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup
     Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal
 
     !---- Variables ----!
@@ -78,7 +79,7 @@
     public :: Hk_Equiv, K_Equiv , K_Equiv_Minus_K
 
     !---- List of public subroutines ----!
-    public :: K_Star, Write_Group_K
+    public :: K_Star, Write_Group_K, Set_Gk
 
     !---- Definitions ----!
 
@@ -313,13 +314,13 @@
        Gk%ngk = 1
        Gk%stark(:,1) = k  !<- First arm of the star of k
        Gk%k_equiv_minusk = .true. !it is supposed that k equiv -k
-       if (SpaceGroup%Centred /= 1) then
+       if (SpaceGroup%Centred /= 1) then  !Centric space group
           j=ng+1
           h = hkl_R(k,SpaceGroup%SymOp(j))
           !---- k not equivalent to -k
           if (.not. k_EQUIV(h,k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
           ng=ng*2
-       else
+       else   !A-centric
           if (.not. k_EQUIV(k,-k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
        end if
 
@@ -353,6 +354,64 @@
 
        return
     End Subroutine K_Star
+
+    !!----
+    !!---- Subroutine Set_Gk(Gk,SPGk)
+    !!----    Type (Group_k_Type),      intent(in) :: Gk
+    !!----    Type (Space_Group_Type), intent(out) :: SPGk
+    !!----
+    !!----    Subroutine to convert the propagation vector group
+    !!----    to a conventional space group
+    !!----
+    !!---- Update: April - 2015
+    !!
+    Subroutine Set_Gk(Gk,SPGk)
+       !---- Arguments ----!
+       Type (Group_k_Type),     intent(in)  :: Gk
+       Type (Space_Group_Type), intent(out) :: SPGk
+
+       !---- Local Variables ----!
+       character(len=50),dimension(Gk%G0%multip) :: gen
+       integer                                   :: i, j, ng, ngen
+
+       ng=Gk%G0%numops
+       if(Gk%G0%centred /= 1) ng=ng+1
+       Ngen=0
+       do i=2,Gk%ngk
+        j=Gk%p(i)
+        if( j <= ng) then
+           ngen=ngen+1
+           gen(ngen)=Gk%G0%SymopSymb(j)
+        else
+           exit
+        end if
+       end do
+       !Add now the lattice translations
+       Select Case(Gk%G0%SPG_lat)
+          Case("A")
+             ngen=ngen+1
+             gen(ngen)="x,y+1/2,z+1/2"
+          Case("B")
+             ngen=ngen+1
+             gen(ngen)="x+1/2,y,z+1/2"
+          Case("C")
+             ngen=ngen+1
+             gen(ngen)="x+1/2,y+1/2,z"
+          Case("I")
+             ngen=ngen+1
+             gen(ngen)="x+1/2,y+1/2,z+1/2"
+          Case("F")
+             ngen=ngen+1
+             gen(ngen)="x+1/2,y+1/2,z"
+             ngen=ngen+1
+             gen(ngen)="x+1/2,y,z+1/2"
+          Case("R")
+             ngen=ngen+1
+             gen(ngen)="x+2/3,y+1/3,z+1/3"
+       End Select
+       Call Set_SpaceGroup(" ",SPGk,Gen,Ngen,"GEN")
+       return
+    End Subroutine Set_Gk
 
     !!----
     !!---- Subroutine Write_Group_K(Gk,Lun)
