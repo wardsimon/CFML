@@ -444,26 +444,26 @@
     !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
     !!
     Type, public :: NS_Space_Group_Type
-       integer                                          :: NumSpg           ! Number of the Space Group
-       character(len=20)                                :: SPG_Symb         ! Hermann-Mauguin Symbol
-       character(len=16)                                :: Hall             ! Hall symbol
-       character(len=90)                                :: gHall            ! Generalised Hall symbol
-       character(len=12)                                :: CrystalSys       ! Crystal system
-       character(len= 5)                                :: Laue             ! Laue Class
-       character(len= 5)                                :: PG               ! Point group
-       character(len= 5)                                :: Info             ! Extra information
-       character(len=90)                                :: SG_setting       ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-       character(len= 1)                                :: SPG_lat          ! Lattice type
-       character(len= 2)                                :: SPG_latsy        ! Lattice type Symbol
-       integer                                          :: NumLat           ! Number of lattice points in a cell
+       integer                                          :: NumSpg=0         ! Number of the Space Group
+       character(len=20)                                :: SPG_Symb=" "     ! Hermann-Mauguin Symbol
+       character(len=16)                                :: Hall=" "         ! Hall symbol
+       character(len=90)                                :: gHall=" "        ! Generalised Hall symbol
+       character(len=12)                                :: CrystalSys=" "   ! Crystal system
+       character(len= 5)                                :: Laue=" "         ! Laue Class
+       character(len= 5)                                :: PG=" "           ! Point group
+       character(len= 5)                                :: Info=" "         ! Extra information
+       character(len=90)                                :: SG_setting=" "   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+       character(len= 1)                                :: SPG_lat=" "      ! Lattice type
+       character(len= 2)                                :: SPG_latsy=" "    ! Lattice type Symbol
+       integer                                          :: NumLat=1         ! Number of lattice points in a cell
        real(kind=cp), allocatable,dimension(:,:)        :: Latt_trans       ! Lattice translations (3,12)
-       character(len=51)                                :: Bravais          ! String with Bravais symbol + translations
-       character(len=80)                                :: Centre           ! Alphanumeric information about the center of symmetry
-       integer                                          :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=cp), dimension(3)                      :: Centre_coord     ! Fractional coordinates of the inversion centre
-       integer                                          :: NumOps           ! Number of reduced set of S.O.
-       integer                                          :: Multip           ! Multiplicity of the general position
-       integer                                          :: Num_gen          ! Minimum number of operators to generate the Group
+       character(len=51)                                :: Bravais=" "      ! String with Bravais symbol + translations
+       character(len=80)                                :: Centre=" "       ! Alphanumeric information about the center of symmetry
+       integer                                          :: Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+       real(kind=cp), dimension(3)                      :: Centre_coord=0.0 ! Fractional coordinates of the inversion centre
+       integer                                          :: NumOps=0         ! Number of reduced set of S.O.
+       integer                                          :: Multip=0         ! Multiplicity of the general position
+       integer                                          :: Num_gen=0        ! Minimum number of operators to generate the Group
        type(NS_Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
        character(len=50),      allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
     End Type NS_Space_Group_Type
@@ -595,31 +595,31 @@
     !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
     !!
     Type, public :: Space_Group_Type
-       integer                                       :: NumSpg           ! Number of the Space Group
-       character(len=20)                             :: SPG_Symb         ! Hermann-Mauguin Symbol
-       character(len=16)                             :: Hall             ! Hall symbol
-       character(len=90)                             :: gHall            ! Generalised Hall symbol
-       character(len=12)                             :: CrystalSys       ! Crystal system
-       character(len= 5)                             :: Laue             ! Laue Class
-       character(len= 5)                             :: PG               ! Point group
-       character(len= 5)                             :: Info             ! Extra information
-       character(len=90)                             :: SG_setting       ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-       logical                                       :: Hexa             !
-       character(len= 1)                             :: SPG_lat          ! Lattice type
-       character(len= 2)                             :: SPG_latsy        ! Lattice type Symbol
-       integer                                       :: NumLat           ! Number of lattice points in a cell
+       integer                                       :: NumSpg=0         ! Number of the Space Group
+       character(len=20)                             :: SPG_Symb=" "     ! Hermann-Mauguin Symbol
+       character(len=16)                             :: Hall=" "         ! Hall symbol
+       character(len=90)                             :: gHall=" "        ! Generalised Hall symbol
+       character(len=12)                             :: CrystalSys=" "   ! Crystal system
+       character(len= 5)                             :: Laue=" "         ! Laue Class
+       character(len= 5)                             :: PG=" "           ! Point group
+       character(len= 5)                             :: Info=" "         ! Extra information
+       character(len=90)                             :: SG_setting=" "   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+       logical                                       :: Hexa=.false.     !
+       character(len= 1)                             :: SPG_lat=" "      ! Lattice type
+       character(len= 2)                             :: SPG_latsy=" "    ! Lattice type Symbol
+       integer                                       :: NumLat=0         ! Number of lattice points in a cell
        real(kind=cp), allocatable,dimension(:,:)     :: Latt_trans       ! Lattice translations (3,12)
-       character(len=51)                             :: Bravais          ! String with Bravais symbol + translations
-       character(len=80)                             :: Centre           ! Alphanumeric information about the center of symmetry
-       integer                                       :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=cp), dimension(3)                   :: Centre_coord     ! Fractional coordinates of the inversion centre
-       integer                                       :: NumOps           ! Number of reduced set of S.O.
-       integer                                       :: Multip           ! Multiplicity of the general position
+       character(len=51)                             :: Bravais=" "      ! String with Bravais symbol + translations
+       character(len=80)                             :: Centre=" "       ! Alphanumeric information about the center of symmetry
+       integer                                       :: Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+       real(kind=cp), dimension(3)                   :: Centre_coord=0.0 ! Fractional coordinates of the inversion centre
+       integer                                       :: NumOps=0         ! Number of reduced set of S.O.
+       integer                                       :: Multip=0         ! Multiplicity of the general position
        integer                                       :: Num_gen          ! Minimum number of operators to generate the Group
        type(Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
        character(len=50),   allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
        type(Wyckoff_Type)                            :: Wyckoff          ! Wyckoff Information
-       real(kind=cp),dimension(3,2)                  :: R_Asym_Unit      ! Asymmetric unit in real space
+       real(kind=cp),dimension(3,2)                  :: R_Asym_Unit=0.0  ! Asymmetric unit in real space
     End Type Space_Group_Type
 
     !!----
@@ -6708,27 +6708,31 @@
     End Subroutine Get_SymSymbR
 
     !!----
-    !!---- Subroutine Get_T_SubGroups(SpG,SubG,nsg)
+    !!---- Subroutine Get_T_SubGroups(SpG,SubG,nsg,point)
     !!----    type (Space_Group_Type) ,             intent( in) :: SpG
     !!----    type (Space_Group_Type) ,dimension(:),intent(out) :: SubG
     !!----    integer,                              intent(out) :: nsg
+    !!----    logical, dimension(:,:), optional,    intent(out) :: point
     !!----
     !!----    Subroutine to obtain the list of all non-trivial translationengleiche
     !!----    subgroups (t-subgroups) of a given space group. The unit cell setting
     !!----    is supposed to be the same as that of the input space group "SpG"
     !!----    The search of space sub-groups is performed using a systematic combination
     !!----    of the symmetry operators of the group.
+    !!----    The optional argument point has dimensions (SpG%multip,nsg) and contains
+    !!----    true point(i,j)=.true. if the operator i of the space group SpG belongs
+    !!----    to the subgroup SubG(j).
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, April 2015
     !!
-    Subroutine Get_T_SubGroups(SpG,SubG,nsg)
+    Subroutine Get_T_SubGroups(SpG,SubG,nsg,point)
        !---- Arguments ----!
        type (Space_Group_Type) ,             intent( in) :: SpG
        type (Space_Group_Type) ,dimension(:),intent(out) :: SubG
        integer,                              intent(out) :: nsg
-
+       logical, dimension(:,:), optional,    intent(out) :: point
        !--- Local variables ---!
-       integer                            :: i,L,j, nc, maxg,ng , nla, i1,i2,nop
+       integer                            :: i,L,j,k, nc, maxg,ng , nla, i1,i2,nop
        character (len=30), dimension(192) :: gen
        logical                            :: newg, cen_added
 
@@ -6843,6 +6847,21 @@
           end do
        end do
        nsg=L
+       if(present(point)) then
+         point=.false.
+         do j=1,nsg
+           L=1
+           do i=1,SpG%multip
+              do k=L,SubG(j)%multip
+               if(SubG(j)%SymopSymb(k) == SpG%SymopSymb(i)) then
+                  point(i,j) = .true.
+                  L=k+1
+                  exit
+               end if
+              end do
+           end do
+         end do
+       end if
 
        return
     End Subroutine Get_T_SubGroups
@@ -10031,33 +10050,36 @@
        !---- Printing ----!
        write(unit=lun,fmt="(/,/,a)")          "        Information on Space Group: "
        write(unit=lun,fmt="(a,/ )")           "        --------------------------- "
-       write(unit=lun,fmt="(a,i3)")          " =>  Number of Space group: ", SpaceGroup%NumSpg
-       write(unit=lun,fmt="(a,a)")           " => Hermann-Mauguin Symbol: ", trim(SpaceGroup%SPG_Symb)
-       write(unit=lun,fmt="(a,a)")           " =>            Hall Symbol: ", trim(SpaceGroup%Hall)
-       write(unit=lun,fmt="(a,a)")           " =>   Table Setting Choice: ", trim(SpaceGroup%info)
-       write(unit=lun,fmt="(a,a)")           " =>           Setting Type: ", trim(SpaceGroup%SG_setting)
+       write(unit=lun,fmt="(a,i3)")          " =>   Number of Space group: ", SpaceGroup%NumSpg
+       write(unit=lun,fmt="(a,a)")           " =>  Hermann-Mauguin Symbol: ", trim(SpaceGroup%SPG_Symb)
+       write(unit=lun,fmt="(a,a)")           " =>             Hall Symbol: ", trim(SpaceGroup%Hall)
+       if(len_trim(SpaceGroup%gHall) > 1) &
+       write(unit=lun,fmt="(a,a)")           " => Generalized Hall Symbol: ", trim(SpaceGroup%gHall)
+       if(len_trim(SpaceGroup%info) > 1) &
+       write(unit=lun,fmt="(a,a)")           " =>    Table Setting Choice: ", trim(SpaceGroup%info)
+       write(unit=lun,fmt="(a,a)")           " =>            Setting Type: ", trim(SpaceGroup%SG_setting)
 
-       write(unit=lun,fmt="(a,a)")           " =>         Crystal System: ", trim(SpaceGroup%CrystalSys)
-       write(unit=lun,fmt="(a,a)")           " =>             Laue Class: ", trim(SpaceGroup%Laue)
-       write(unit=lun,fmt="(a,a)")           " =>            Point Group: ", trim(SpaceGroup%Pg)
+       write(unit=lun,fmt="(a,a)")           " =>          Crystal System: ", trim(SpaceGroup%CrystalSys)
+       write(unit=lun,fmt="(a,a)")           " =>              Laue Class: ", trim(SpaceGroup%Laue)
+       write(unit=lun,fmt="(a,a)")           " =>             Point Group: ", trim(SpaceGroup%Pg)
 
-       write(unit=lun,fmt="(a,a)")           " =>        Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
-       write(unit=lun,fmt="(a,a)")           " =>         Lattice Symbol: ", trim(SpaceGroup%SPG_Latsy)
+       write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
+       write(unit=lun,fmt="(a,a)")           " =>          Lattice Symbol: ", trim(SpaceGroup%SPG_Latsy)
 
-       write(unit=lun,fmt="(a,i3)")          " => Reduced Number of S.O.: ", SpaceGroup%NumOps
-       write(unit=lun,fmt="(a,i3)")          " =>   General multiplicity: ", SpaceGroup%Multip
-       write(unit=lun,fmt="(a,a)")           " =>         Centrosymmetry: ", trim(SpaceGroup%Centre)
-       write(unit=lun,fmt="(a,i3)")          " => Generators (exc. -1&L): ", SpaceGroup%num_gen
-       write(unit=lun,fmt="(a,f6.3,a,f6.3)") " =>        Asymmetric unit: ", SpaceGroup%R_Asym_Unit(1,1), &
+       write(unit=lun,fmt="(a,i3)")          " =>  Reduced Number of S.O.: ", SpaceGroup%NumOps
+       write(unit=lun,fmt="(a,i3)")          " =>    General multiplicity: ", SpaceGroup%Multip
+       write(unit=lun,fmt="(a,a)")           " =>          Centrosymmetry: ", trim(SpaceGroup%Centre)
+       write(unit=lun,fmt="(a,i3)")          " =>  Generators (exc. -1&L): ", SpaceGroup%num_gen
+       write(unit=lun,fmt="(a,f6.3,a,f6.3)") " =>         Asymmetric unit: ", SpaceGroup%R_Asym_Unit(1,1), &
                                                                   " <= x <= ",SpaceGroup%R_Asym_Unit(1,2)
-       write(unit=lun,fmt="(a,f6.3,a,f6.3)") "                            ", SpaceGroup%R_Asym_Unit(2,1), &
+       write(unit=lun,fmt="(a,f6.3,a,f6.3)") "                             ", SpaceGroup%R_Asym_Unit(2,1), &
                                                                   " <= y <= ",SpaceGroup%R_Asym_Unit(2,2)
-       write(unit=lun,fmt="(a,f6.3,a,f6.3)") "                            ", SpaceGroup%R_Asym_Unit(3,1), &
+       write(unit=lun,fmt="(a,f6.3,a,f6.3)") "                             ", SpaceGroup%R_Asym_Unit(3,1), &
                                                                   " <= z <= ",SpaceGroup%R_Asym_Unit(3,2)
 
        if (SpaceGroup%centred == 0) then
           call Frac_Trans_1Dig(SpaceGroup%Centre_coord,texto(1))
-          write(unit=lun,fmt="(a,a)")          " =>              Centre at: ", trim(texto(1))
+          write(unit=lun,fmt="(a,a)")        " =>               Centre at: ", trim(texto(1))
        end if
        if (SpaceGroup%SPG_Lat == "Z" .or. print_latt) then
           texto(:) (1:100) = " "
@@ -10383,7 +10405,7 @@
 
     Subroutine Copy_NS_SpG_To_SpG(SpGN,SpG)
        !---- Arguments ----!
-       type(NS_Space_Group_type), intent(in) :: SpGN
+       type(NS_Space_Group_type), intent(in)    :: SpGN
        type(Space_Group_type),    intent(out)   :: SpG
 
        !---- Local Variables ----!
