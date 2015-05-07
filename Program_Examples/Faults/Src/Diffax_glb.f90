@@ -599,7 +599,7 @@
 !real(kind=sp)  :: pv_hg, pv_hl         ! gaussian and lorentzian FWHM
  REAL(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
  REAL(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
-                        !    the selected area diffraction patterns.
+                               !    the selected area diffraction patterns.
  REAL(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum in radians.
  REAL(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum in radians.
 

@@ -3822,7 +3822,7 @@
        write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
        if (pat%ct_step) then
           write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
-          "INTER ", 1.0,1.0,2,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
+          "INTER ", 1.0,1.0,2,pat%step," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
        else
           write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
           "INTER ", 1.0,1.0,0,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"

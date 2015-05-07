@@ -285,6 +285,6 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
 
  Calculation
  Simulation
- Powder 5.0 90.0 0.02
+ Powder 5.0 90.0 0.02  Scalef 10.0  Bckg_level 150.0
 
  Replace_Files

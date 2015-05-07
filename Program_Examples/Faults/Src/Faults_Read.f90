@@ -65,6 +65,7 @@
          real       :: p_x                          ! x > pv_x
          real       :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
          real       :: tolerance                    !d-> Maximum deviation that intensities can have
+         real       :: bckg_level = 100.0           ! Background level for powder simulations
          character(len=132) :: sym         !Laue symmetry  >pnt_grp
          character(len=132) :: calctype    !type of calculation
          real                :: patscal
@@ -106,7 +107,7 @@
          real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
          real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_b13
          real,    dimension(:),     allocatable  :: chebp
-         real,    dimension(:),     allocatable  :: bscalpat     !scale factor for bgrpatt
+         real,    dimension(:),     allocatable  :: bscalpat !scale factor for bgrpatt
          real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
          real,    dimension(:)  ,   allocatable  :: Pv_refi  !vector containing the free parameters to optimize (restrictions taken into account)
 
@@ -1296,7 +1297,7 @@
     Subroutine Read_CALCULATION(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier,n, j
+      integer :: i,i1,i2,k, ier,n,m, j
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lma, ok_boxp, ok_maxfun, &
@@ -1336,8 +1337,24 @@
             ok_sim = .true.
 
           Case ("POWDER")
-          	k=index(txt," ")
+            k=index(txt," ")
             txt=adjustl(txt(k+1:))
+            m=index(txt,"BCKG_LEVEL")
+            if(m /= 0) then
+              read(unit=txt(m+10:),fmt=*,iostat=ier) crys%bckg_level
+              if(ier /= 0 ) crys%bckg_level=100.0
+            end if
+            m=index(txt,"SCALEF")
+            if( m /= 0) then
+              read(unit=txt(m+6:),fmt=*,iostat=ier) crys%patscal
+              if(ier /= 0 ) then
+                 crys%patscal=1.0
+              end if
+              txt=txt(1:m-1)
+            else
+              crys%patscal=1.0
+            end if
+
             funct_num = 3
               read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
                 if(ier /= 0 ) then

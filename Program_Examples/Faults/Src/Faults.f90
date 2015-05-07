@@ -469,10 +469,10 @@
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
          if (funct_num == 3) then
-           write(i_ftls,"(a)")          " !th2_min, th2_max, d_theta"
-           write(i_ftls,"(a, 3f10.4)")  "POWDER",   th2_min, th2_max, d_theta
+           write(i_ftls,"(a)")          " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
+           write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, "   Bckg_Level ",crys%Bckg_Level
          else
-         	 write(i_ftls,"(a)")          " !i_plane, l_upper, loglin, brightness"
+         	 write(i_ftls,"(a)")          " !Selected Area Diffraction Pattern: i_plane, l_upper, loglin, brightness"
          	 write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
          end if
        elseif (opt == 3) then
@@ -1039,11 +1039,12 @@
       bk=0.0
       do i=1,difpat%npts
         x=difpat%x(i)
+        bk(i)=crys%chebp(1)
         thx=2.0*(x-0.5*(difpat%x(difpat%npts)+difpat%x(1)))/(difpat%x(difpat%npts)-difpat%x(i))
         if(thx < -1.0) thx=-1.0
         if(thx >  1.0) thx= 1.0
         c=acos(thx)
-        do j=1,crys%cheb_nump
+        do j=2,crys%cheb_nump
           rj=real(j)
           bk(i)=bk(i)+crys%chebp(j)*cos(rj*c)
         end do
@@ -1166,6 +1167,7 @@
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
      use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit,Info_LSQ_LM
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
+     use CFML_Random_Generators,       only : random_poisson
      use diffax_mod
      use read_data,                    only : read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess,fst_given
@@ -1344,7 +1346,9 @@
                    CALL gospec(infile,outfile,ok)
 
                      Do j = 1, n_high
-                         ycalcdef(j) = brd_spc(j)
+                         ycalcdef(j) = crys%patscal*brd_spc(j)+crys%bckg_level
+                         call random_poisson(ycalcdef(j),i)
+                         ycalcdef(j)=real(i)
                      end do
 
                      if(replace_files) then

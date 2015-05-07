@@ -5,7 +5,7 @@
                                          iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
    use CFML_Optimization_General, only : Opt_Conditions_Type
    use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type
-   use read_data,                 only : crys_2d_type, read_structure_file, length, opti, cond
+   use read_data,                 only : crys_2d_type, read_structure_file, length, opti, cond, crys
    use diffax_mod
 
    implicit none
@@ -1563,11 +1563,11 @@
         if (opt == 0) then
           write(dmp,"(a)")          " SIMULATION"
           if (funct_num == 3) then
-            write(dmp,"(a)")          " !th2_min, th2_max, d_theta"
-            write(dmp,"(a, 3f10.4)")  "POWDER", th2_min, th2_max, d_theta
+            write(dmp,"(a)")          " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
+            write(dmp,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, "   Bckg_Level ",crys%Bckg_Level
           else
-         	  write(dmp,"(a)")          " !i_plane, l_upper, loglin, brightness"
-         	  write(dmp,"(a, i7, f11.4, i7, f10.4)")  "SADP",   i_plane, l_upper, loglin, brightness
+            write(dmp,"(a)")          " !Selected Area Diffraction Pattern:: i_plane, l_upper, loglin, brightness"
+            write(dmp,"(a, i7, f11.4, i7, f10.4)")  "SADP",   i_plane, l_upper, loglin, brightness
           end if
         elseif (opt == 3) then
           write(dmp,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
