@@ -472,6 +472,7 @@ Program Bond_Str
       character(len=80)                           :: box_cmd,aux
       character(len=2), dimension(:), allocatable :: poly
       character(len=80),dimension(:), allocatable :: cmd_bond
+      character(len=80)  :: cmd
 
       open(newunit=lun,file=trim(filcod)//"_str.vesta",action="write",status="replace")
       write(unit=lun,fmt="(a)") "#VESTA_FORMAT_VERSION 3.1.9"
@@ -520,10 +521,15 @@ Program Bond_Str
           j=index(aux,"CONN")
           if(j /= 0) then
             n=n+1
-            cmd_bond(n)=adjustl(fst_cmd(i)(j+4:))
+            cmd=adjustl(fst_cmd(i)(j+4:))
+            j=index(cmd," ")
+            elem=cmd(1:j-1)
+            cmd=adjustl(cmd(j:))
+            j=index(cmd," ")
+            cmd_bond(n)=elem//"  "//cmd(1:j)//"  "//cmd(j+1:)
             cycle
           end if
-          j=index(line,"POLY")
+          j=index(aux,"POLY")
           if(j /= 0)  then
              pol=1
              np=np+1
@@ -535,7 +541,7 @@ Program Bond_Str
         elem=cmd_bond(i)(1:j-1)
         cent=0
         do k=1,np
-          if(poly(k) == elem) then
+          if(trim(poly(k)) == trim(elem)) then
              cent=1
              exit
           end if
