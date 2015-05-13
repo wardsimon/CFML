@@ -68,6 +68,7 @@
 !!--++    MFI                          [Private]
 !!--++    MFR                          [Private]
 !!--++    MSF_INITIALIZED              [Private]
+!!----    PN
 !!--++    TH                           [Private]
 !!----
 !!---- PROCEDURES
@@ -94,7 +95,7 @@
 !!
  Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                  only: cp, sp, tpi
+    Use CFML_GlobalDeps,                  only: cp, sp, dp, tpi
     Use CFML_Math_General,                only: atan2d, sort
     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -361,6 +362,18 @@
     !!
     logical, private :: MSF_Initialized=.false.
 
+    !!----
+    !!---- PN
+    !!----    real(kind=dp), parameter, public :: pn=0.2695420113693928312
+    !!----
+    !!----    pn=Constant=  1/2 * gamma (µN) * r0 (units of 10^-12 cm)
+    !!----    gamma: magnetic moment of neutrons in nuclear magnetons = 1.91304272(45) µN
+    !!----    r0   : Classical radius of the electron = 0.28179403267(27) × 10-12 cm
+    !!----
+    !!---- Update: May - 2015
+    !!
+    real(kind=dp), parameter, public :: pn=0.2695420113693928312
+
     !!--++
     !!--++ TH
     !!--++    real(kind=cp), dimension(:,:), allocatable, private :: Th
@@ -503,7 +516,7 @@
              b=atm%atom(i)%biso
              j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
              mFF=mfj(s,Magnetic_Form(j)%SctM)
-             tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+             tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
              Mcos=0.0 ; Msin=0.0
 
@@ -546,7 +559,7 @@
              b=atm%atom(i)%biso
              j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
              mFF=mfj(s,Magnetic_Form(j)%SctM)
-             tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+             tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
              GMh(:)=cmplx(0.0,0.0)
 
@@ -662,7 +675,7 @@
                    b=atm%atom(i)%biso
                    j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
                    mFF=mfj(s,Magnetic_Form(j)%SctM)
-                   tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+                   tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
                    Mcos=0.0
                    Msin=0.0
@@ -722,7 +735,7 @@
                    b=atm%atom(i)%biso
                    j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
                    mFF=mfj(s,Magnetic_Form(j)%SctM)
-                   tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+                   tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
                    GMh(:)=cmplx(0.0,0.0)
 
@@ -813,7 +826,7 @@
           b=atm%atom(i)%biso
           j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
           mFF=mfj(s,Magnetic_Form(j)%SctM)
-          tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+          tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
           chi=reshape((/atm%atom(i)%chi(1),atm%atom(i)%chi(4), atm%atom(i)%chi(5), &
                         atm%atom(i)%chi(4),atm%atom(i)%chi(2), atm%atom(i)%chi(6), &
                         atm%atom(i)%chi(6),atm%atom(i)%chi(6), atm%atom(i)%chi(3) /),(/3,3/))
@@ -998,7 +1011,7 @@
     !!--++
     !!--++    (Private)
     !!--++    Calculate the Table of Isotropic Thermal contribution and occupation
-    !!--..    TH(Natoms,Nref) multiplied by p=0.2696
+    !!--..    TH(Natoms,Nref) multiplied by pn= 0.2695420113693928312
     !!--++
     !!--++ Update: April - 2005
     !!
@@ -1016,7 +1029,7 @@
           s=reflex%Mh(j)%s
           do i=1,atm%natoms
              b=atm%atom(i)%biso
-             th(i,j)= 0.2696*atm%atom(i)%occ*exp(-b*s*s)
+             th(i,j)= pn*atm%atom(i)%occ*exp(-b*s*s)
           end do
        end do
 
