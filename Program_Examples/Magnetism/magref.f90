@@ -25,7 +25,7 @@ Program MagRef
  character(len=1)            :: sig
  real(kind=cp)               :: sn,sf2,lambda,polarup,polardown
  real(kind=cp), dimension(3) :: u_vect
- integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end,fliptyp
+ integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini, n_end, fliptyp
  complex(kind=cp)            :: fc
  real(kind=cp), dimension(6) :: extc
 
@@ -311,6 +311,7 @@ Program MagRef
             sf2=sf2*ys
           end if
           !Now solve the equation to get Fm
+          
        end do
       write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
       do i=1, hkl%nref

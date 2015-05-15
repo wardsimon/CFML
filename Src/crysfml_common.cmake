@@ -39,6 +39,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Cryst_Types.f90
     CFML_Diffpatt.f90
     CFML_Export_Vtk.f90
+    CFML_Extinction_Correction.f90
     CFML_FFTs.f90
     CFML_Form_CIF.f90
     CFML_Geom_Calc.f90

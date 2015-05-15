@@ -2011,8 +2011,9 @@
              SpaceH="Z"
            end if
        end if
+       LatSymb="P"
        if(len_trim(SpaceH) == 0) then
-         ini=1  !If there is a centring lattice it must be given in the list of the
+         ini=1  !If there is a centring lattice it must be given in the list of the generators
        else
          ini=2
          if(len_trim(SpaceH)==1) LatSymb=trim(SpaceH)
@@ -2022,7 +2023,7 @@
          ng=ng+1
          call Read_Xsym(gen(i),1,ss(:,:,ng),ts(:,ng))
        end do
-       !Look for lattice translationsas generators
+       !Look for lattice translations as generators
        if(ini == 1) then
          L=0
          do i=1,ng

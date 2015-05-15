@@ -60,7 +60,7 @@
 !!----
 !!
   Module CFML_Extinction_correction
-    Use CFML_GlobalDeps, only :: cp
+    Use CFML_GlobalDeps, only : cp
     Implicit none
     private
     ! Public Functions

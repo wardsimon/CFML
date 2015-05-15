@@ -2592,7 +2592,7 @@
        maxp=2*maxa*determ    !maximum multiplicity in the new cell of a particular atom type
        !write(*,*) " Allocating atoms_list and Point list for ", maxp*Ate%nauas, " and ", maxp, " values"
        call Allocate_Atom_List(maxp*Ate%nauas,A)  !Atom list in the new cell, we must use "maxp"*Ate%nauas and not "maxa"
-       Call Allocate_Point_List(maxp,Pl,Ifail)
+       Call Allocate_Point_List(maxp*Ate%nauas,Pl,Ifail)
        if(ifail /= 0) then
          !write(*,*) " Error allocating PL for ",maxp," values"
           err_geom=.true.
@@ -2681,11 +2681,11 @@
        call Allocate_Atom_List(Ls,A_n,fail)
        if(fail) then
          if(present(debug)) then
-          write(*,*) "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
+          !write(*,*) "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
           write(unit=lu,fmt="(a,i4,a)") "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
          end if
        else
-          !write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
+         ! write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
        end if
        do i=1,A_n%natoms
          A_n%atom(i)%x= A%atom(i)%x
