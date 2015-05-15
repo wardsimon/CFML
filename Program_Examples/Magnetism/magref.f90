@@ -10,6 +10,7 @@ Program MagRef
  use CFML_Propagation_vectors,      only: K_Equiv_Minus_K
  use CFML_Magnetic_Symmetry
  use CFML_Magnetic_Structure_Factors
+ use CFML_Geometry_SXTAL,           only: z1frnb
 
  implicit none
 
@@ -21,16 +22,17 @@ Program MagRef
  type (Crystal_Cell_Type)    :: Cell
  type (MagH_Type)            :: Mh
 
- character(len=256)          :: line,filcod,fileflip     !Name of the input file
- character(len=1)            :: sig
- real(kind=cp)               :: sn,sf2,lambda,polarup,polardown
- real(kind=cp), dimension(3) :: u_vect
- integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini, n_end, fliptyp
- complex(kind=cp)            :: fc
- real(kind=cp), dimension(6) :: extc
+ character(len=256)           :: line,filcod,fileflip     !Name of the input file
+ character(len=1)             :: sig
+ real(kind=cp)                :: sn,sf2,lambda,polarup,polardown
+ real(kind=cp), dimension(3)  :: u_vect
+ integer                      :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini, n_end, fliptyp
+ complex(kind=cp)             :: fc
+ real(kind=cp), dimension(6)  :: extc
+ real(kind=cp), dimension(3,3):: ub
 
  integer                     :: narg,i_flip,iext,ity
- Logical                     :: esta, arggiven=.false.,flipp=.false.,ext=.false.
+ Logical                     :: esta, arggiven=.false.,flipp=.false.,ext=.false.,ubgiven=.false.
       !---- Arguments on the command line ----!
       narg=COMMAND_ARGUMENT_COUNT()
 
@@ -99,6 +101,7 @@ Program MagRef
        !Search for flipping ratio files in order to extract phased observed magnetic structure factors
        lambda=0.8
        fliptyp=1
+       polarup=1.0 ; polardown=1.0
        do i=1,fich_cfl%nlines
          line=adjustl(fich_cfl%line(i))
          if(U_Case(line(1:4) == "FLIP") then
@@ -109,9 +112,14 @@ Program MagRef
            read(unit=line(7:),fmt=*,iostat=ier) lambda
            if(ier /= 0) lambda=0.8
          end if
+         if(U_Case(line(1:7) == "POLARUD") then
+           read(unit=line(8:),fmt=*,iostat=ier) polarup,polardown
+           if(ier /= 0) then
+             polarup=1.0 ; polardown=1.0
+           end if
+         end if
          if(U_Case(line(1:4) == "EXTI") then
-           read(unit=line(5:),fmt=*,iostat=ier) extc
-           iext=4
+           read(unit=line(5:),fmt=*,iostat=ier) extc, iext
            if(ier /= 0) then
               read(unit=line(5:),fmt=*,iostat=ier) extc(1)
               if(ier /= 0) extc(:) = 0.0
@@ -124,6 +132,11 @@ Program MagRef
 
        !If flipp is true, extract only observed magnetic structure factors
        if(flipp) then
+         if(SpG%centred /= 2) then
+           write(unit=*,fmt="(a)") " => The given space group has no inversion centre at the origin!"
+           write(unit=*,fmt="(a)") " => Phased magnetic structure factors cannot be obtained!"
+           stop
+         end if
          open(newunit=i_flip,file=fileflip,status="old",action="read",iostat=ier,position="rewind")
          if(ier/=0) then
            write(unit=*,fmt="(a)") " => File: "//trim(fileflip)//" not found!"
@@ -132,14 +145,20 @@ Program MagRef
          !Detect the type of file *.int or other
          if(index(fileflip,".int") /= 0) fliptyp=2
          if(fliptyp == 2) then
+
            read(unit=i_flip,fmt="(a)") line
            read(unit=i_flip,fmt="(a)") line
            read(unit=i_flip,fmt="(a)") line
            read(unit=line,fmt=*) lambda,ity, i, polarup,polardown,j
+           if(ity /= 2) then
+             write(unit=*,fmt="(a)") " => The file: "//trim(fileflip)//" doesn't contain flipping ratios!"
+             stop
+           end if
            if(j /= 0) then
-             read(unit=i_flip,fmt="(a)") line
-             read(unit=i_flip,fmt="(a)") line
-             read(unit=i_flip,fmt="(a)") line
+             read(unit=i_flip,fmt=*,iostat=ier) ub(1,:)
+             read(unit=i_flip,fmt=*,iostat=ier) ub(2,:)
+             read(unit=i_flip,fmt=*,iostat=ier) ub(3,:)
+             if(ier == 0) ubgiven=.true.
            end if
            !Now the position for reading is the good one for getting hkl,flip and sflip
          end if
@@ -278,40 +297,64 @@ Program MagRef
     End Subroutine Calc_Induced_MsF_MiV
 
     Subroutine readn_set_MsF()
-      use CFML_Structure_Factors,  only: Calc_hkl_StrFactor
-      real(kind=cp), dimension(3) :: h
-      real(kind=cp)  :: ys, Valmub=0.2695 !0.5*(gamma_N * r0) = 0.5*1.9130418 *
+      use CFML_Structure_Factors,       only: Calc_hkl_StrFactor
+      use CFML_Extinction_Corrections,  only: Correct_FlippingRatios
+      real(kind=cp), dimension(3) :: h,hc
+      real(kind=cp)     :: q, flipping_ratio, sigma, omeg,gam,nu,  &
+                           sn, AN,BN,AM,BM,yp,ym,ypm, Valmub=0.2695 !0.5*(gamma_N * r0)
       character(len=30) :: fmm
-
-    !!---- Subroutine Calc_hkl_StrFactor(mode,rad,hn,sn,Atm,Grp,sf2,deriv,fc)
-    !!----    character(len=*),                   intent(in) :: mode !S-XTAL (S) or Powder (P)
-    !!----    character(len=*),                   intent(in) :: rad  !Radiation: X-rays, Neutrons
-    !!----    integer, dimension(3)               intent(in) :: hn
-    !!----    real(kind=cp)                       intent(in) :: sn !(sinTheta/Lambda)**2
-    !!----    type(atom_list_type),               intent(in) :: Atm
-    !!----    type(space_group_type),             intent(in) :: Grp
-    !!----    real(kind=cp)                       intent(out):: sf2
-    !!----    real(kind=cp),dimension(:),optional,intent(out):: deriv
-    !!----    complex, optional,                  intent(out):: fc
-    !!----
+      complex(kind=cp)  :: fc
        !Reading flipping ratio file
 
        do
           if(fliptyp == 1) then
             read(unit=i_flip,fmt="(i8,6f8.3,2f10.2)",iostat=ier)  numor,h(:), omeg, gam, nu,  flipping_ratio, sigma
           else
-            read(unit=i_flip,fmt=*,iostat=ier)  h(:),flipping_ratio, sigma
+            read(unit=i_flip,fmt=*,iostat=ier)  h(:),flipping_ratio, sigma,i,q
           end if
           if(ier /= 0) exit
+          !Calculation of q=sin^2(alpha) if needed
+          if(ubgiven) then
+              hc=matmul(ub,h)
+              q = 1.0-hc(3)*hc(3)/dot_product(hc,hc)  !sin^2(alpha) = 1 - (h(3)/|h|)^2
+          else
+              if(fliptyp == 1) then
+                call z1frnb(lambda,gam,omeg,nu,hc)
+                q=1.0-hc(3)*hc(3)/dot_product(hc,hc)
+              end if
+          end if
           sn=hkl_s(h,cell)
           sn=sn*sn
-          call Calc_hkl_StrFactor("S","N",h,sn,A,SpG,sf2)
+          call Calc_hkl_StrFactor("S","N",h,sn,A,SpG,sf2,fc=fc)
+          AN=real(fc)
+          BN=aimag(fc)
           if(ext) then
-            call SHELX_Extinction(1,iext,Lambda,sn,h,sf2,extc,ys)
-            sf2=sf2*ys
+            Call Correct_FlippingRatios(iext,Lambda,q,extc,sn,hkl,AN,BN,AM,BM,yp,ym,ypm,dyp,dym,dypm,dymag)
           end if
           !Now solve the equation to get Fm
-          
+          !Approximations:
+          !ppp=1/2((1+p+)yp+(1-p+)ym)    ppm=1/2((1+p+)yp-(1-p+)ym)
+          !mpp=1/2((1-p-)yp+(1+p-)ym)    mpm=1/2((1-p-)yp-(1+p-)ym)
+          !General expression for flipping ratio
+          !R=I+/I-
+          !I+= (NN*+ MM*q2)ppp + 2(AN.AM + BN.BM)q.ppm + MM*ypm q(1-q)
+          !I-= (NN*+ MM*q2)mpp + 2(AN.AM + BN.BM)q.mpm + MM*ypm q(1-q)
+          ! Particular case for a centrosymmetric structure M*=M, N*=N, B=0 AN=N,AM=M
+          !I+= (N2+ M2.q2)ppp + 2.N.M.q.ppm + M2 ypm q(1-q)
+          !I-= (N2+ M2.q2)mpp + 2.N.M.q.mpm + M2 ypm q(1-q)
+          ! Case of no extinction: yp=1,ym=1, ypm=1
+          ! ppp=1, mpp=1, ppm=p+  mpm=-p-
+          !I+= (N2+ M2.q2) + 2.N.M.q.p+ + M2 q(1-q)
+          !I-= (N2+ M2.q2) - 2.N.M.q.p- + M2 q(1-q)
+
+
+          !     (1+ g2.q2)ppp + 2.g.q.ppm + g2 ypm q(1-q)
+          !R= ------------------------------------------------
+          !     (1+ g2.q2)mpp + 2.g.q.mpm + g2 ypm q(1-q)
+          !
+          !
+            sf2=sf2*ys
+
        end do
       write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
       do i=1, hkl%nref

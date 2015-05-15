@@ -36,7 +36,7 @@
 !!----   INFO: Small module for extinction corrections
 !!----
 !!---- HISTORY
-!!----    Update: 13/05/2015
+!!----    Updated: 15/05/2015
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -56,7 +56,8 @@
 !!----
 !!----    Subroutines:
 !!----       BECKER_COPPENS
-!!----       SHELX_EXTINCTION,
+!!----       SHELX_EXTINCTION
+!!----       CORRECT_FLIPPINGRATIOS
 !!----
 !!
   Module CFML_Extinction_correction
@@ -66,7 +67,7 @@
     ! Public Functions
     public :: AG_theta,AL_theta,BG_theta,BL_theta
     ! Public Subroutines
-    public :: SHELX_Extinction, Becker_Coppens
+    public :: SHELX_Extinction, Becker_Coppens, Correct_FlippingRatios
     ! Global variables
     logical,            public :: err_extinc  = .false.
     character(len=120), public :: err_extinc_mess=" "
@@ -106,7 +107,7 @@
        End Function BL_theta
 
        !!----  Subroutine Becker_Coppens(iext,f2,cext,r,g,ys,dydr,dydg)
-       !!----     integer,                     intent (in) :: iext !1: Gaussian, 2: Lorentzian
+       !!----     integer,                     intent (in) :: iext !2: Gaussian, 3: Lorentzian
        !!----     real(kind=cp),               intent (in) :: f2   !Square of structure factor
        !!----     real(kind=cp), dimension(4), intent (in) :: cext !coefficients for Becker-Coppens correction
        !!----     real(kind=cp),               intent (in) :: r,g  !Radius of blocks, width of mosaic distribution
@@ -149,9 +150,9 @@
           c = 1.5*g             ! g = amosc in Jane's notation
           h = 2.0*g*g
 
-          if(iext == 1) then          !Gaussian
+          if(iext == 2) then          !Gaussian
               d=1.0/sqrt(1.0+ a*a /h)
-          else if(iext == 2) then     !Lorentzian
+          else if(iext == 3) then     !Lorentzian
               d=1.0/(1.0+a/c)
           end if
           x=b*a*d
@@ -175,7 +176,7 @@
 
       Subroutine SHELX_Extinction(job,iext,Lambda,ssnn,hkl,f2,extc,ys,der)
         integer,                    intent (in) :: job     ! =0,2 for x-rays, =1,3 for neutrons
-        integer,                    intent (in) :: iext    ! Extinction model (1: isotropic, 2:anisotropic)
+        integer,                    intent (in) :: iext    ! Extinction model (1: isotropic, 4:anisotropic)
         real(kind=cp),              intent (in) :: Lambda  ! Wavelength
         real(kind=cp),              intent (in) :: ssnn    !(SinTheta/Lambda)^2
         real(kind=cp), dimension(3),intent (in) :: hkl     ! Components of the scattering vectors
@@ -209,7 +210,7 @@
                ys=1.0/SQRT(c)
                if(present(der)) der(1)=-0.5*c**(-1.5)*b
 
-           Case (2,3,4)   !Anisotropic Shelx-like extinction correction
+           Case (4)   !Anisotropic Shelx-like extinction correction
                b = coefa*f2*a/sin2t
                b = b * 0.25 /ssnn
                hkl_q=(/ hkl(1)*hkl(1),hkl(2)*hkl(2),hkl(3)*hkl(3),hkl(1)*hkl(2), &
@@ -224,5 +225,202 @@
         End Select
         return
       End Subroutine SHELX_Extinction
+
+      !Extiction correction for flipping ratios (neutrons)
+      Subroutine Correct_FlippingRatios(iext,Lambda,q,extc,ssnn,hkl,AN,BN,AM,BM,yp,ym,ypm,dyp,dym,dypm,dymag)
+        integer,                      intent(in)  :: iext
+        real(kind=cp),                intent(in)  :: lambda, q !Q=sin^2(alpha), alpha:angle between z and Q
+        real(kind=cp), dimension(6),  intent(in)  :: extc
+        real(kind=cp),                intent(in)  :: ssnn
+        real(kind=cp), dimension(3),  intent(in)  :: hkl
+        real(kind=cp),                intent(in)  :: AN, BN, AM, BM    ! real and imaginary parts of
+                                                                       ! nuclear and magnetic structure factor
+        real(kind=cp),                intent(out) :: yp, ym, ypm       ! Extinction corrections to I++
+                                                                       ! I-- and I+- (=I-+)
+        real(kind=cp), dimension(:), optional, intent(out) :: dyp, dym, dypm    ! Derivatives of the extinction correction
+        real(kind=cp), dimension(:), optional, intent(out) :: dymag   !! stores the derivatives of
+                                                             !! yp, ym, and ypm w.r.t. AM and BM
+                                                             !! dymag(1)= dyp/dAM
+                                                             !! dymag(2)= dyp/dBM
+                                                             !! dymag(3)= dym/dAM etc...
+        !-----------------------------------------------
+        !   L o c a l   V a r i a b l e s
+        !-----------------------------------------------
+        real(kind=cp), parameter    :: epsil=0.001, cst=0.001
+        real(kind=cp)               :: sin2t, a, b, c, r, g, dydr, dydg, f2
+        real(kind=cp)               :: h2, k2, l2, hk, hl, kl,s2
+        real(kind=cp), dimension(4) :: cext
+        logical                     :: derivatives
+
+        ! We initialize the three extinction param. to 1 and derivatives to zero
+        yp= 1.0
+        ym= 1.0
+        ypm= 1.0
+        dyp= 0.0
+        dym= 0.0
+        dypm= 0.0
+        dymag= 0.0
+        derivatives=present(dyp) .and. present(dym) .and. present(dypm) .and. present(dymag)
+        IF(nint(sum(abs(hkl(:)))) == 0 ) return
+        !  Extinction corrections
+        a = lambda**2
+        ! s2=sin^2(theta)
+        s2=ssnn*a
+        ! a=Lambda^3
+        a=a*lambda
+        ! sin(2theta)
+        sin2t=2.0*sqrt(s2*(1.0-s2))
+
+        Select Case (iext)
+
+          Case (1)   !Shelx-like extinction correction
+
+            ! yp: f2=AN*AN+BN*BN+ 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN**2+BN**2+ Q*(2.0*(AN*AM+BN*BM)+(AM**2+BM**2))
+            b = cst*f2*a/sin2t
+            c = 1.0 + b * extc(1)
+            !          if (c > 0) &
+            yp=1.0/SQRT(c)
+            if(derivatives) then
+              dyp(1)= -0.5*c**(-1.5)*b
+              if (abs(f2) > epsil) then
+                 dymag(1)= (yp**3-yp)*Q*(AN+AM)/f2
+                 dymag(2)= (yp**3-yp)*Q*(BN+BM)/f2
+              end if
+            end if
+            ! ym: f2=AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN**2+BN**2-Q*(2.0*(AN*AM+BN*BM)-(AM**2+BM**2))
+            b = cst*f2*a/sin2t
+            c = 1.0 + b * extc(1)
+            !          if (c > 0) &
+            ym=1.0/SQRT(c)
+            if(derivatives) then
+              dym(1)= -0.5*c**(-1.5)*b
+              if (abs(f2) > epsil) then
+                 dymag(3)= (ym**3-ym)*Q*(AM-AN)/f2
+                 dymag(4)= (ym**3-ym)*Q*(BM-BN)/f2
+              end if
+            end if
+
+            ! ypm: f2= (1.0-q)*q*(AM**2+BM**2)
+
+            f2= (1.0-Q)*Q*(AM**2+BM**2)
+            b = cst*f2*a/sin2t
+            c = 1.0 + b * extc(1)
+            !
+            ypm=1.0/SQRT(c)
+            if(derivatives) then
+              dypm(1)= -0.5*c**(-1.5)*b
+              if (abs(f2) > epsil) then
+                 dymag(5)= (yp**3-yp)*(1.0-Q)*Q*AM/f2
+                 dymag(6)= (yp**3-yp)*(1.0-Q)*Q*BM/f2
+              end if
+            end if
+
+          Case(2,3)  !Gaussian/Lorentzian Becker-Coppens extinction correction
+
+            cext(1)=extc(3)  !Tbar*1000*Lambda^3/(V^2 sin2t)
+            cext(2)=lambda/sin2t
+            cext(3)=extc(4)  ! A(theta) Should be pre-calculated calling the appropriate function and stored in extc(4)
+            cext(4)=extc(5)  ! B(theta)  idem
+            r = extc(1)  !Extinction parameters
+            g = extc(2)
+
+
+            ! yp: f2= AN*AN+BN*BN+ 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN*AN+BN*BN+ 2.0*q*(AN*AM+BN*BM)+ q*(AM*AM+BM*BM)
+            if(derivatives) then
+              call Becker_Coppens(iext,f2,cext,r,g,yp,dydr,dydg)
+              dyp(1)= dydr   !Derivative of Y w.r.t. r: Dy/Dr
+              dyp(2)= dydg   !Derivative of Y w.r.t. g: Dy/Dg
+            else
+              Call Becker_Coppens(iext,f2,cext,r,g,yp)
+            end if
+
+            ! ym: f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+            if(derivatives) then
+              call Becker_Coppens (iext,f2,cext,r,g,ym,dydr,dydg)
+              dym(1)= dydr   !Derivative of Y w.r.t. r: Dy/Dr
+              dym(2)= dydg   !Derivative of Y w.r.t. g: Dy/Dg
+            else
+              Call Becker_Coppens(iext,f2,cext,r,g,ym)
+            end if
+
+            ! ypm: f2= (1.0-q)*q*(AM**2+BM**2)
+
+            f2= (1.0-q)*q*(AM**2+BM**2)
+            if(derivatives) then
+              call Becker_Coppens(iext,f2,cext,r,g,ypm,dydr,dydg)
+              dypm(1)= dydr   !Derivative of Y w.r.t. r: Dy/Dr
+              dypm(2)= dydg   !Derivative of Y w.r.t. g: Dy/Dg
+            else
+              Call Becker_Coppens(iext,f2,cext,r,g,ypm)
+            end if
+
+          Case (4)   !Anisotropic Shelx-like extinction correction
+
+            a = lambda*lambda*lambda
+            sin2t=SIN(2.0*ASIN(SQRT(ssnn)*lambda))
+            h2=hkl(1)**2
+            k2=hkl(2)**2
+            l2=hkl(3)**2
+            hk=hkl(1)*hkl(2)
+            hl=hkl(1)*hkl(3)
+            kl=hkl(2)*hkl(3)
+            r=extc(1)*h2+extc(2)*k2+ extc(3)*l2+ extc(4)*hk+extc(5)*hl+ extc(6)*kl
+
+            ! yp: f2= AN*AN+BN*BN+ 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN*AN+BN*BN+ 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+            b = 0.001*f2*a/sin2t    !b = 0.000001*ff(nn,n_pat)*a/sin2t
+            b = b * 0.25 /ssnn
+            c = 1.0 + b * r
+            yp=1.0/SQRT(c)
+            if(derivatives) then
+              g=-0.5*c**(-1.5)*b !component of derivative
+              dyp(:)= g*f2/yp *(/h2,k2,l2,hk,hl,kl/)
+              if (f2 >= 0.00001) then
+                 dymag(1:2)= -yp**3* b*r/f2*(/AM +AN*q +q*AM, BM +BN*q +q*BM/)
+              end if
+            end if
+
+            ! ym: f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+
+            f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
+            b = 0.001*f2*a/sin2t    !b = 0.000001*ff(nn,n_pat)*a/sin2t
+            b = b * 0.25 /ssnn
+            c = 1.0 + b * r
+            ym=1.0/SQRT(c)
+            if(derivatives) then
+              g=-0.5*c**(-1.5)*b !component of derivative
+              dym(:)= g*f2/ym *(/h2,k2,l2,hk,hl,kl/)
+              if (f2 >= 0.00001) then
+                 dymag(3:4)= -ym**3* b*r/f2*(/AM-AN*q + q*AM, BM-BN*q +q*BM/)
+              end if
+            end if
+            ! ypm: f2= (1.0-q)*q*(AM**2+BM**2)
+
+            f2= (1.0-q)*q*(AM**2+BM**2)
+            b = 0.001*f2*a/sin2t    !b = 0.000001*ff(nn,n_pat)*a/sin2t
+            b = b * 0.25 /ssnn
+            c = 1.0 + b * r
+            ypm=1.0/SQRT(c)
+            if(derivatives) then
+              g=-0.5*c**(-1.5)*b !component of derivative
+              dypm(:)= g*f2/ypm *(/h2,k2,l2,hk,hl,kl/)
+              if (f2 >= 0.00001) then
+                 dymag(3:4)= -ypm**3* b*r/f2*(/(1.0 -q) * q * AM, (1.0 -q) * q * BM /)
+              end if
+            end if
+          Case Default
+            return
+        End Select
+        Return
+      End Subroutine Correct_FlippingRatios
 
   End Module CFML_Extinction_correction
