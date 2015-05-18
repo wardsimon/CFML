@@ -82,7 +82,7 @@ Module CFML_PowderProfiles_TOF
     implicit none
 
     !---- List of public functions ----!
-    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, ErfcL, Erfcp
+    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfc, Erfcp
 
     !---- List of private functions ----!
     private:: Expi_E1, Erfcc, Derfccp, Erfccp, Derfcc
@@ -162,7 +162,7 @@ Module CFML_PowderProfiles_TOF
     logical, public  :: Lorcomp
 
     !---- Interfaces ----!
-    Interface  ErfcL
+    Interface  Erfc
        module procedure erfcc
        module procedure derfcc
     End Interface
@@ -307,7 +307,7 @@ Module CFML_PowderProfiles_TOF
        integer                  :: k
        real(kind=dp), parameter :: pi=3.1415926535897932_dp
        real(kind=dp), parameter :: el=0.5772156649015328_dp
-       real(kind=dp)            :: a0,x
+       real(kind=dp)            :: a0,x,km
        complex(kind=dp)         :: cr,ct0
 
        x=real(z)
@@ -318,7 +318,8 @@ Module CFML_PowderProfiles_TOF
           exp_e1=(1.0_dp,0.0_dp)
           cr=(1.0_dp,0.0_dp)
           do k=1,150
-             cr=-cr*k*z/(k+1.0_dp)**2
+             km=real(k,kind=dp)
+             cr=-cr*km*z/(km+1.0_dp)**2
              exp_e1=exp_e1+cr
              if ( abs(cr) <=  abs(exp_e1)*1.0e-15_dp) exit
           end do
@@ -326,7 +327,8 @@ Module CFML_PowderProfiles_TOF
        else
           ct0=(0.0_dp,0.0_dp)
           do k=120,1,-1
-             ct0=k/(1.0_dp+k/(z+ct0))
+             km=real(k,kind=dp)
+             ct0=km/(1.0_dp+km/(z+ct0))
           end do
           exp_e1=1.0_dp/(z+ct0)
           if (x <= 0.0_dp .and. abs(aimag(z)) <= 1.0e-9_dp)  &
@@ -373,7 +375,7 @@ Module CFML_PowderProfiles_TOF
        integer          :: i,udiv,vdiv,sdiv,rdiv
        complex(kind=dp) :: zu,zv,zs,zr,fzu,fzv,fzs,fzr
        real(kind=dp)    :: lambda,sigma,R,Nu,Nv,Ns,Nr,deno,denoinv,ki,alfa_min,alfa_plu, &
-                           xik,yik,zik,norm,g_u,g_v,g_s,g_r,y_u,y_v,y_s,y_r, &
+                           xik,yik,zik,norm,g_u,g_v,g_s,g_r,y_u,y_v,y_s,y_r, yy,yy2,&
                            expu,expv,exps,expr,erfu,erfv,erfs,erfr,omg, &
                            oml_u,oml_v,oml_s,oml_r,one_e,oml, &
                            omg_u,omg_v,omg_s,omg_r,erfpu,erfpv,erfps,erfpr,a_u,a_v,a_s,a_r, &
@@ -431,8 +433,10 @@ Module CFML_PowderProfiles_TOF
              omg_u=omg_u*expu  ! --> Use an approximation at third order to erfc.
           end do
        else
-          omg_u=exp(g_u*udiv-y_u**2)/(sqrt(2.0_dp/two_over_pi)*y_u)* &
-          (1.0_dp-1.0_dp/(2.0_dp*y_u**2)+3.0_dp/(2.0_dp*y_u**2)**2+15.0_dp/(2.0_dp*y_u**2)**3)
+          yy=y_u*y_u
+          yy2=2.0_dp*yy
+          omg_u=exp(g_u*udiv-yy)/(sqrt(2.0_dp/two_over_pi)*y_u)* &
+          (1.0_dp-1.0_dp/yy2+3.0_dp/(yy2*yy2)+15.0_dp/(yy2*yy2*yy2))
        end if
 
        if (y_v < 27.0_dp) then
@@ -441,8 +445,10 @@ Module CFML_PowderProfiles_TOF
              omg_v=omg_v*expv
           end do
        else
-          omg_v=exp(g_v*vdiv-y_v**2)/(sqrt(2.0_dp/two_over_pi)*y_v)* &
-          (1.0_dp-1.0_dp/(2.0_dp*y_v**2)+3.0_dp/(2.0_dp*y_v**2)**2+15.0_dp/(2.0_dp*y_v**2)**3)
+          yy=y_v*y_v
+          yy2=2.0_dp*yy
+          omg_v=exp(g_v*vdiv-yy)/(sqrt(2.0_dp/two_over_pi)*y_v)* &
+          (1.0_dp-1.0_dp/yy2+3.0_dp/yy2*yy2+15.0_dp/(yy2*yy2*yy2))
        end if
 
        if (y_s < 27.0_dp) then
@@ -451,8 +457,10 @@ Module CFML_PowderProfiles_TOF
              omg_s=omg_s*exps
           end do
        else
-          omg_s=exp(g_s*sdiv-y_s**2)/(sqrt(2.0_dp/two_over_pi)*y_s)* &
-          (1.0_dp-1.0_dp/(2.0_dp*y_s**2)+3.0_dp/(2.0_dp*y_s**2)**2+15.0_dp/(2.0_dp*y_s**2)**3)
+          yy=y_s*y_s
+          yy2=2.0_dp*yy
+          omg_s=exp(g_s*sdiv-yy)/(sqrt(2.0_dp/two_over_pi)*y_s)* &
+               (1.0_dp-1.0_dp/yy2+3.0_dp/yy2*yy2+15.0_dp/(yy2*yy2*yy2))
        end if
 
        if (y_r < 27.0_dp) then
@@ -461,8 +469,10 @@ Module CFML_PowderProfiles_TOF
              omg_r=omg_r*expr
           end do
        else
-          omg_r=exp(g_r*rdiv-y_r**2)/(sqrt(2.0_dp/two_over_pi)*y_r)* &
-          (1.0-1.0/(2.0*y_r**2)+3.0/(2.0_dp*y_r**2)**2+15.0/(2.0_dp*y_r**2)**3)
+          yy=y_r*y_r
+          yy2=2.0_dp*yy
+          omg_r=exp(g_r*rdiv-yy)/(sqrt(2.0_dp/two_over_pi)*y_r)* &
+               (1.0_dp-1.0_dp/yy2+3.0_dp/yy2*yy2+15.0_dp/(yy2*yy2*yy2))
        end if
 
        omg=(Nu*omg_u+Nv*omg_v+Ns*omg_s+Nr*omg_r) ! End of gaussian part of the function
