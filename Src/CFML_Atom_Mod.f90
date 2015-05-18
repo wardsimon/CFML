@@ -169,7 +169,7 @@
     !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
     !!----    real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
     !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
-    !!----    integer,      dimension(3)              :: lx            ! Numbers of LSQ parameters for coordinates
+    !!----    integer,      dimension(3)              :: lx            ! Numbers in the LSQ list of LSQ parameters for coordinates
     !!----    real(kind=cp)                           :: occ           ! occupation factor
     !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
     !!----    real(kind=cp)                           :: mOcc          !
@@ -189,7 +189,9 @@
     !!----    real(kind=cp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
-    !!----    real(kind=cp),dimension(10)             :: VarF          ! Free variables used for different purposes
+    !!----    real(kind=cp),dimension(25)             :: VarF          ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
+    !!----    real(kind=cp),dimension(25)             :: MVarF         ! Multiplier parameters
+    !!----    integer,      dimension(25)             :: LVarF         ! Numbers
     !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!---- End Type Atom_Type
     !!----
@@ -226,7 +228,9 @@
        real(kind=cp)                            :: Moment
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
-       real(kind=cp),dimension(10)              :: VarF
+       real(kind=cp),dimension(25)              :: VarF
+       real(kind=cp),dimension(25)              :: MVarF
+       integer,      dimension(25)              :: LVarF
        character(len=40)                        :: AtmInfo
     End Type Atom_Type
 
@@ -320,7 +324,9 @@
     !!----    real(kind=cp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
-    !!----    real(kind=cp),dimension(10)             :: VarF          ! Free parameters to load
+    !!----    real(kind=cp),dimension(25)             :: VarF          ! Free parameters to load
+    !!----    real(kind=cp),dimension(25)             :: mVarF
+    !!----    integer,      dimension(25)             :: LVarF
     !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!----                           ===================
     !!----                           Magnetic parameters
@@ -390,7 +396,9 @@
        real(kind=cp)                            :: Moment
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
-       real(kind=cp),dimension(10)              :: VarF
+       real(kind=cp),dimension(25)              :: VarF
+       real(kind=cp),dimension(25)              :: mVarF
+       integer,      dimension(25)              :: LVarF
        character(len=40)                        :: AtmInfo
 
        integer                                 :: nvk

@@ -82,7 +82,7 @@ Module CFML_PowderProfiles_TOF
     implicit none
 
     !---- List of public functions ----!
-    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfc, Erfcp
+    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, ErfcL, Erfcp
 
     !---- List of private functions ----!
     private:: Expi_E1, Erfcc, Derfccp, Erfccp, Derfcc
@@ -162,7 +162,7 @@ Module CFML_PowderProfiles_TOF
     logical, public  :: Lorcomp
 
     !---- Interfaces ----!
-    Interface  Erfc
+    Interface  ErfcL
        module procedure erfcc
        module procedure derfcc
     End Interface
@@ -431,8 +431,8 @@ Module CFML_PowderProfiles_TOF
              omg_u=omg_u*expu  ! --> Use an approximation at third order to erfc.
           end do
        else
-          omg_u=exp(g_u*udiv-y_u**2)/(sqrt(2/two_over_pi)*y_u)* &
-          (1-1.0/(2.0*y_u**2)+3.0/(2.0*y_u**2)**2+15.0/(2.0*y_u**2)**3)
+          omg_u=exp(g_u*udiv-y_u**2)/(sqrt(2.0_dp/two_over_pi)*y_u)* &
+          (1.0_dp-1.0_dp/(2.0_dp*y_u**2)+3.0_dp/(2.0_dp*y_u**2)**2+15.0_dp/(2.0_dp*y_u**2)**3)
        end if
 
        if (y_v < 27.0_dp) then
@@ -441,8 +441,8 @@ Module CFML_PowderProfiles_TOF
              omg_v=omg_v*expv
           end do
        else
-          omg_v=exp(g_v*vdiv-y_v**2)/(sqrt(2/two_over_pi)*y_v)* &
-          (1-1.0/(2.0*y_v**2)+3.0/(2.0*y_v**2)**2+15.0/(2.0*y_v**2)**3)
+          omg_v=exp(g_v*vdiv-y_v**2)/(sqrt(2.0_dp/two_over_pi)*y_v)* &
+          (1.0_dp-1.0_dp/(2.0_dp*y_v**2)+3.0_dp/(2.0_dp*y_v**2)**2+15.0_dp/(2.0_dp*y_v**2)**3)
        end if
 
        if (y_s < 27.0_dp) then
@@ -451,8 +451,8 @@ Module CFML_PowderProfiles_TOF
              omg_s=omg_s*exps
           end do
        else
-          omg_s=exp(g_s*sdiv-y_s**2)/(sqrt(2.0/two_over_pi)*y_s)* &
-          (1.0-1.0/(2.0*y_s**2)+3.0/(2.0*y_s**2)**2+15.0/(2.0*y_s**2)**3)
+          omg_s=exp(g_s*sdiv-y_s**2)/(sqrt(2.0_dp/two_over_pi)*y_s)* &
+          (1.0_dp-1.0_dp/(2.0_dp*y_s**2)+3.0_dp/(2.0_dp*y_s**2)**2+15.0_dp/(2.0_dp*y_s**2)**3)
        end if
 
        if (y_r < 27.0_dp) then
@@ -461,17 +461,17 @@ Module CFML_PowderProfiles_TOF
              omg_r=omg_r*expr
           end do
        else
-          omg_r=exp(g_r*rdiv-y_r**2)/(sqrt(2.0/two_over_pi)*y_r)* &
-          (1.0-1.0/(2.0*y_r**2)+3.0/(2.0*y_r**2)**2+15.0/(2.0*y_r**2)**3)
+          omg_r=exp(g_r*rdiv-y_r**2)/(sqrt(2.0_dp/two_over_pi)*y_r)* &
+          (1.0-1.0/(2.0*y_r**2)+3.0/(2.0_dp*y_r**2)**2+15.0/(2.0_dp*y_r**2)**3)
        end if
 
        omg=(Nu*omg_u+Nv*omg_v+Ns*omg_s+Nr*omg_r) ! End of gaussian part of the function
 
        if (lorcomp) then
-          zs=CMPLX(-alfa*dt,0.5*alfa*gamma,kind=dp)
-          zu=(1.0-ki)*zs
-          zv=(1.0+ki)*zs
-          zr=CMPLX(-beta*dt,0.5*beta*gamma,kind=dp)
+          zs=CMPLX(-alfa*dt,0.5_dp*alfa*gamma,kind=dp)
+          zu=(1.0_dp-ki)*zs
+          zv=(1.0_dp+ki)*zs
+          zr=CMPLX(-beta*dt,0.5_dp*beta*gamma,kind=dp)
           fzu=expi_e1(zu)
           fzv=expi_e1(zv)
           fzs=expi_e1(zs)
@@ -534,10 +534,10 @@ Module CFML_PowderProfiles_TOF
                   deno*(Nu*(1-ki)*(y_u*omg_u+0.5_dp*a_u)+Nv*(1+ki)*(y_v*omg_v+0.5_dp*a_v)+Ns*(y_s*omg_s+0.5_dp*a_s))
           domg_b= dnudb*omg_u+dnvdb*omg_v+dnsdb*omg_s+dnrdb*omg_r+deno*Nr*(y_r*omg_r+0.5_dp*a_r)
           domg_g= inv_8ln2*gamma*(Nu*alfa_min**2*omg_u+Nv*alfa_plu**2*omg_v+Ns*alfa**2*omg_s+Nr*beta**2*omg_r) + &
-                  2.0*inv_8ln2*gamma*denoinv**3*(Nu*(alfa_min*sigma+dt)*a_u+Nv*(alfa_plu*sigma+dt)*a_v+          &
+                  2.0_dp*inv_8ln2*gamma*denoinv**3*(Nu*(alfa_min*sigma+dt)*a_u+Nv*(alfa_plu*sigma+dt)*a_v+          &
                   Ns*(alfa*sigma+dt)*a_s+Nr*(beta*sigma+dt)*a_r)
-          domg_k= 81.799_dp/kappa**2/lambda**2*R*(-alfa_min/xik*omg_u-alfa_plu/zik*omg_v+2.0*alfa/yik*omg_s+     &
-                  2.0*alfa**2*beta*ki**2/xik/yik/zik*omg_r)
+          domg_k= 81.799_dp/kappa**2/lambda**2*R*(-alfa_min/xik*omg_u-alfa_plu/zik*omg_v+2.0_dp*alfa/yik*omg_s+     &
+                  2.0_dp*alfa**2*beta*ki**2/xik/yik/zik*omg_r)
        end if
 
        if(lorcomp) then
@@ -550,12 +550,12 @@ Module CFML_PowderProfiles_TOF
           exprs=REAL(fzs)
           exprr=REAL(fzr)
           doml_t=-Nu*alfa_min*oml_u-Nv*alfa_plu*oml_v-Ns*alfa*oml_s-Nr*beta*oml_r-two_over_pi*im_const*(Nu+Nv+Ns+Nr)
-          doml_a=dnuda*oml_u+dnvda*oml_v+dnsda*oml_s+dnrda*oml_r+Nu*(1.0-ki)*(-dt*oml_u-0.5*two_over_pi*gamma*expru)+ &
-                 Nv*(1.0+ki)*(-dt*oml_v-0.5*two_over_pi*gamma*exprv)+Ns*(-dt*oml_s-0.5*two_over_pi*gamma*exprs)
-          doml_b=dnudb*oml_u+dnvdb*oml_v+dnsdb*oml_s+dnrdb*oml_r+Nr*(-dt*oml_r-0.5*two_over_pi*gamma*exprr)
+          doml_a=dnuda*oml_u+dnvda*oml_v+dnsda*oml_s+dnrda*oml_r+Nu*(1.0_dp-ki)*(-dt*oml_u-0.5_dp*two_over_pi*gamma*expru)+ &
+                 Nv*(1.0+ki)*(-dt*oml_v-0.5*two_over_pi*gamma*exprv)+Ns*(-dt*oml_s-0.5_dp*two_over_pi*gamma*exprs)
+          doml_b=dnudb*oml_u+dnvdb*oml_v+dnsdb*oml_s+dnrdb*oml_r+Nr*(-dt*oml_r-0.5_dp*two_over_pi*gamma*exprr)
           doml_g=0.5_dp*two_over_pi*(-Nu*alfa_plu*expru-Nv*alfa_min*exprv-Ns*alfa*exprs-Nr*beta*exprr+(Nu+Nv+Ns+Nr)*re_const)
-          doml_k=81.799_dp/kappa**2/lambda**2*R*(-alfa_min/xik*oml_u-alfa_plu/zik*oml_v+2.0*alfa/yik*oml_s+  &
-                 2.0*alfa**2*beta*ki**2/xik/yik/zik*oml_r)
+          doml_k=81.799_dp/kappa**2/lambda**2*R*(-alfa_min/xik*oml_u-alfa_plu/zik*oml_v+2.0_dp*alfa/yik*oml_s+  &
+                 2.0_dp*alfa**2*beta*ki**2/xik/yik/zik*oml_r)
 
         ! Total derivatives
 
@@ -575,7 +575,7 @@ Module CFML_PowderProfiles_TOF
           deriv%kappa = norm*domg_k
           deriv%eta   = 0.0
        end if
-       deriv%sigma = deriv%gamma/(2.0*inv_8ln2*gamma)
+       deriv%sigma = deriv%gamma/(2.0_dp*inv_8ln2*gamma)
 
        return
     End Subroutine Tof_Carpenter
@@ -668,7 +668,7 @@ Module CFML_PowderProfiles_TOF
           deriv%alfa  = norm*(2.0_dp*omeg/a2+deno*(y*omega+0.5_dp*a))
           deriv%beta  = norm*(2.0_dp*omeg/b2+deno*(z*omegb+0.5_dp*b))
           deriv%sigma = 0.5_dp*norm*(a2*omega+b2*omegb+a*ca+b*cb)
-          deriv%gamma = 2.0*deriv%sigma*sqrt(sigma*inv_8ln2)
+          deriv%gamma = 2.0_dp*deriv%sigma*sqrt(sigma*inv_8ln2)
        end if
 
        return
@@ -740,8 +740,8 @@ Module CFML_PowderProfiles_TOF
        omeg=norm*(omega+omegb)    !Gaussian contribution
 
        if(lorcomp) then
-          z1=CMPLX( alfa*dt,0.5*alfa*gamma,kind=dp)
-          z2=CMPLX(-beta*dt,0.5*beta*gamma,kind=dp)
+          z1=CMPLX( alfa*dt,0.5_dp*alfa*gamma,kind=dp)
+          z2=CMPLX(-beta*dt,0.5_dp*beta*gamma,kind=dp)
           fz1=expi_e1(z1)                  ! exp(p).E1(p)
           fz2=expi_e1(z2)                  ! exp(q).E1(q)
           oml_a=-AIMAG(fz1)*two_over_pi    ! OmL,alfa
@@ -811,7 +811,7 @@ Module CFML_PowderProfiles_TOF
           deriv%gamma = domg_g
           deriv%eta   = 0.0
        end if
-       deriv%sigma = deriv%gamma/(2.0*inv_8ln2*gamma)
+       deriv%sigma = deriv%gamma/(2.0_dp*inv_8ln2*gamma)
 
        return
     End Subroutine Tof_Jorgensen_Vondreele
