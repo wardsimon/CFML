@@ -46,7 +46,7 @@
         if (namepar(i) ==  'zero_shift') crys%zero_shift  = state(i)
         if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
         if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
-        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
+        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)*deg2rad
         if (index (namepar(i), 'ChebCoeff_' ) == 1)     then
             read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
             crys%chebp(a)  = state(i)
