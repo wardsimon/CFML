@@ -514,7 +514,7 @@
 
              !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
              b=atm%atom(i)%biso
-             j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+             j=atm%atom(i)%ind(2)  !pointer to the magnetic form factor coefficients
              mFF=mfj(s,Magnetic_Form(j)%SctM)
              tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
@@ -557,7 +557,7 @@
              if(m == 0) cycle  !Calculate only with contributing atoms
              !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
              b=atm%atom(i)%biso
-             j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+             j=atm%atom(i)%ind(2)  !pointer to the magnetic form factor coefficients
              mFF=mfj(s,Magnetic_Form(j)%SctM)
              tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
@@ -673,7 +673,7 @@
                    end if
                    !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
                    b=atm%atom(i)%biso
-                   j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+                   j=atm%atom(i)%ind(2)  !pointer to the magnetic form factor coefficients
                    mFF=mfj(s,Magnetic_Form(j)%SctM)
                    tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
@@ -733,7 +733,7 @@
 
                    !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
                    b=atm%atom(i)%biso
-                   j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+                   j=atm%atom(i)%ind(2)  !pointer to the magnetic form factor coefficients
                    mFF=mfj(s,Magnetic_Form(j)%SctM)
                    tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
 
@@ -824,7 +824,7 @@
        do i=1,Atm%natoms
           !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
           b=atm%atom(i)%biso
-          j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+          j=atm%atom(i)%ind(2)  !pointer to the magnetic form factor coefficients
           mFF=mfj(s,Magnetic_Form(j)%SctM)
           tho= pn*atm%atom(i)%occ*mFF*exp(-b*s*s)
           chi=reshape((/atm%atom(i)%chi(1),atm%atom(i)%chi(4), atm%atom(i)%chi(5), &

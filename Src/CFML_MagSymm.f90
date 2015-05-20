@@ -1925,7 +1925,7 @@
           symbcar=u_case(Am%atom(i)%SfacSymb)
           do j=1,num_mag_form
              if (symbcar /= Magnetic_Form(j)%Symb) cycle
-             Am%atom(i)%ind(1)=j
+             Am%atom(i)%ind(2)=j
              exit
           end do
        end do
@@ -2883,7 +2883,7 @@
           symbcar=get_magnetic_form_factor(Am%atom(i)%SfacSymb)
           do j=1,num_mag_form
              if (symbcar /= Magnetic_Form(j)%Symb) cycle
-             Am%atom(i)%ind(1)=j
+             Am%atom(i)%ind(2)=j
              exit
           end do
        end do

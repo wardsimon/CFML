@@ -525,33 +525,33 @@
 
     !!----
     !!---- NP_REST_ANG
-    !!----    integer, public :: NP_Rest_Ang
+    !!----    integer, save, public :: NP_Rest_Ang=0
     !!----
     !!----    Number of Angle Restraints relations
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: March-2005, May-2015
     !!
-    integer, public :: NP_Rest_Ang
+    integer, save, public :: NP_Rest_Ang=0
 
     !!----
     !!---- NP_REST_DIS
-    !!----    integer, public :: NP_Rest_Dis
+    !!----    integer, save, public :: NP_Rest_Dis=0
     !!----
     !!----    Number of Distance Restraints relations
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: March-2005, May-2015
     !!
-    integer, public :: NP_Rest_Dis
+    integer, save, public :: NP_Rest_Dis=0
 
     !!----
     !!---- NP_REST_TOR
-    !!----    integer, public :: NP_Rest_Tor
+    !!----    iinteger, save, public :: NP_Rest_Tor=0
     !!----
     !!----    Number of Torsion Restraints relations
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: March - 2005, May-2015
     !!
-    integer, public :: NP_Rest_Tor
+    integer, save, public :: NP_Rest_Tor=0
 
     !!----
     !!---- TOR_REST
@@ -646,6 +646,11 @@
     real(kind=cp), public, dimension(:),    allocatable :: V_Shift
 
     !---- Interfaces - Overloaded ----!
+    Interface Allocate_RestParam
+       Module Procedure Allocate_RestParam_Single
+       Module Procedure Allocate_RestParam_Mult
+    End Interface
+
     Interface Delete_RefCodes
        Module Procedure Delete_RefCodes_FAtom
        Module Procedure Delete_RefCodes_FmAtom
@@ -701,17 +706,18 @@
 
  Contains
 
-    !!----
-    !!---- Subroutine Allocate_RestParam(file_dat)
-    !!----    Type(file_list_type),     intent( in)    :: file_dat
-    !!----
-    !!----    Allocate vectors Ang_Rest, Dist_Rest, Tor_Rest
-    !!----
-    !!---- Update: March - 2005
+    !!--++
+    !!--++ Subroutine Allocate_RestParam_Single(file_dat)
+    !!--++    Type(file_list_type),     intent( in)    :: file_dat
+    !!--++
+    !!--++    Allocate vectors Ang_Rest, Dist_Rest, Tor_Rest. It is supposed
+    !!--++    that a single phase is at work.
+    !!--++
+    !!--++ Update: March-2005, May-2015
     !!
-    Subroutine Allocate_RestParam(file_dat)
+    Subroutine Allocate_RestParam_Single(file_dat)
        !---- Arguments ----!
-       Type(file_list_type),     intent( in)    :: file_dat
+       Type(file_list_type),     intent( in) :: file_dat
 
        !---- Local variables ----!
        character(len=132)              :: line
@@ -756,7 +762,7 @@
           nr=nr+nc/2
           if (modulo(nc,2) == 0) nr=nr-1
        end do
-       if (nr >0) then
+       if (nr > 0) then
           allocate(Dis_Rest(nr))
           dis_rest%dobs =0.0
           dis_rest%dcalc=0.0
@@ -775,7 +781,7 @@
           call getword(line,car,nc)
           nr=nr+nc/4
        end do
-       if (nr >0) then
+       if (nr > 0) then
           allocate(Tor_Rest(nr))
           tor_rest%tobs=0.0
           tor_rest%tcalc=0.0
@@ -788,8 +794,122 @@
        end if
 
        return
-    End Subroutine Allocate_RestParam
+    End Subroutine Allocate_RestParam_Single
 
+    !!--++
+    !!--++ Subroutine Allocate_RestParam_Mult(file_dat,ndis_rest,nang_rest,ntor_rest)
+    !!--++   Type(file_list_type),dimension(:),  intent( in) :: file_dat
+    !!==++   integer,              dimension(:), intent(out) :: ndis_rest
+    !!==++   integer,              dimension(:), intent(out) :: nang_rest
+    !!==++   integer,              dimension(:), intent(out) :: ntor_rest
+    !!--++
+    !!--++    Allocate vectors Ang_Rest, Dist_Rest, Tor_Rest.
+    !!--++    This is for a context of multiple phases. All restrainst
+    !!--++    are stored in single array Ang_Rest, Dist_Rest, Tor_Rest, however
+    !!--++    the information about the phases is stored in xxx_rest integer
+    !!--++    arrays, from which one can know to which phase belong a particular
+    !!--++    restrain. This works only if there is a single line per restraint
+    !!--++    in the restraint files. The arrays xxx_rest stores the number of
+    !!--++    restraints of each type in each phase.
+    !!--++
+    !!--++ Update: March-2005, May-2015
+    !!
+    Subroutine Allocate_RestParam_Mult(file_dat,ndis_rest,nang_rest,ntor_rest)
+       !---- Arguments ----!
+       Type(file_list_type), dimension(:), intent( in) :: file_dat
+       integer,              dimension(:), intent(out) :: ndis_rest
+       integer,              dimension(:), intent(out) :: nang_rest
+       integer,              dimension(:), intent(out) :: ntor_rest
+
+       !---- Local variables ----!
+       character(len=132)              :: line
+       character(len=15),dimension(40) :: car
+       integer                         :: i,nc,nr,nfiles,nf
+
+       if (allocated(Ang_Rest)) deallocate(Ang_Rest)
+       if (allocated(Dis_Rest)) deallocate(Dis_Rest)
+       if (allocated(Tor_Rest)) deallocate(Tor_Rest)
+
+       NP_Rest_Ang=0
+       NP_Rest_Dis=0
+       NP_Rest_Tor=0
+       nfiles=size(ndis_rest)  !number of phases
+       ndis_rest=0; nang_rest=0; ntor_rest=0
+       !---- Dimension for AFIX ----!
+       nr=0
+       do nf=1,nfiles
+         nang_rest(nf)=0
+         do i=1,file_dat(nf)%nlines
+            line=adjustl(file_dat(nf)%line(i))
+            if (u_case(line(1:4)) /= "AFIX") cycle
+            call cutst(line)
+            call getword(line,car,nc)
+            nr=nr+nc/3
+            nang_rest(nf)=nang_rest(nf)+1
+         end do
+       end do
+       if (nr > 0) then
+          allocate(Ang_Rest(nr))
+          ang_rest%aobs =0.0
+          ang_rest%acalc=0.0
+          ang_rest%sigma=0.0
+          ang_rest%p(1) = 0
+          ang_rest%p(2) = 0
+          ang_rest%STCode(1)=" "
+          ang_rest%STCode(2)=" "
+       end if
+
+       !---- Dimension for DFIX ----!
+       nr=0
+       do nf=1,nfiles
+         ndis_rest(nf)=0
+         do i=1,file_dat(nf)%nlines
+            line=adjustl(file_dat(nf)%line(i))
+            if (u_case(line(1:4)) /= "DFIX") cycle
+            call cutst(line)
+            call getword(line,car,nc)
+            nr=nr+nc/2
+            if (modulo(nc,2) == 0) nr=nr-1
+            ndis_rest(nf)=ndis_rest(nf)+1
+         end do
+       end do
+       if (nr > 0) then
+          allocate(Dis_Rest(nr))
+          dis_rest%dobs =0.0
+          dis_rest%dcalc=0.0
+          dis_rest%sigma=0.0
+          dis_rest%p(1) = 0
+          dis_rest%p(2) = 0
+          dis_rest%STCode=" "
+       end if
+
+       !---- Dimension for TFIX ----!
+       nr=0
+       do nf=1,nfiles
+         nang_rest(nf)=0
+         do i=1,file_dat(nf)%nlines
+            line=adjustl(file_dat(nf)%line(i))
+            if (u_case(line(1:4)) /= "TFIX") cycle
+            call cutst(line)
+            call getword(line,car,nc)
+            nr=nr+nc/4
+            ntor_rest(nf)=ntor_rest(nf)+1
+         end do
+       end do
+      if (nr > 0) then
+          allocate(Tor_Rest(nr))
+          tor_rest%tobs=0.0
+          tor_rest%tcalc=0.0
+          tor_rest%sigma=0.0
+          tor_rest%p(1) = 0
+          tor_rest%p(2) = 0
+          tor_rest%STCode(1)=" "
+          tor_rest%STCode(2)=" "
+          tor_rest%STCode(3)=" "
+       end if
+
+       return
+    End Subroutine Allocate_RestParam_Mult
     !!---- Subroutine Allocate_VParam(N)
     !!----    integer, intent(in) :: N
     !!----

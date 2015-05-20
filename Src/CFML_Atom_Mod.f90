@@ -161,7 +161,7 @@
     !!---- Type, public :: Atom_Type
     !!----    character(len=20)                       :: Lab           ! Label
     !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
-    !!----    character(len=4)                        :: SfacSymb      ! Chemical Symbol for SF
+    !!----    character(len=4)                        :: SfacSymb      ! Symbol for Scattering Factor
     !!----    character(len=1)                        :: wyck          ! Wyckoff letter
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
@@ -1344,6 +1344,8 @@ Contains
        A%Ind      =0
        A%NVar     =0
        A%VarF     =0.0
+       A%LVarF    =0
+       A%mVarF    =0.0
        A%AtmInfo  ="None"
        return
     End Subroutine Init_Atom_Type
@@ -1690,6 +1692,8 @@ Contains
            Ats%atom(i)%Ind,            &
            Ats%atom(i)%NVar,           &
            Ats%atom(i)%VarF,           &
+           Ats%atom(i)%mVarF,          &
+           Ats%atom(i)%LVarF,          &
            Ats%atom(i)%AtmInfo
            if(ier /= 0) then
              ok=.false.
@@ -1980,6 +1984,8 @@ Contains
            ats%atom(i)%Ind,            &
            ats%atom(i)%NVar,           &
            ats%atom(i)%VarF,           &
+           ats%atom(i)%mVarF,          &
+           ats%atom(i)%LVarF,          &
            ats%atom(i)%AtmInfo
        end do
        return
