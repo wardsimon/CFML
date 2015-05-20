@@ -24,7 +24,7 @@ Instrumental  And  Size  Broadening
 
 ! FullProf Studio commands
 FST_CMD  SEQ 7 1 4 2 5 3 6 1
-FST_CMD  CONN Ni O 0.0 2.3
+FST_CMD  CONN NI O 0.0 2.0
 FST_CMD  box  -2 2 -2 2 -0.01 1.01
 FST_CMD  stack_vect  0 0 0.5
 

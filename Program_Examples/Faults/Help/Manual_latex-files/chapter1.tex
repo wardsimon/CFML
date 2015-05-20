@@ -254,13 +254,13 @@ Note that the average cell parameters and space group are only used for the Brag
 \end{flushleft}
 
 Then the user can add as many optional lines as needed, each of them beginning with the keyword \textit{FST\_CMD}, followed by the required FullProf Studio commands (see the FullProf Studio manual for
-more details \cite{FPSManual}). For example, to control the drawing of Ni-O bonds (of length between 0.0 and 1.2 \AA) polyhedra of the example input file, the limit of the box and the position of the first layer in the artificial FullProf Studio cell, the user may add the following lines:
+more details \cite{FPSManual}). For example, the keyword \textit{CONN} can be used to control the drawing of bonds (\textit{e.g.} Ni-O bonds of length between 0.0 and 2.0 \AA in the example below), the keyword \textit{BOX} allows to control the limits of the box, and the keyword \textit{stack\_vect} permits to set the position of the first layer in the artificial FullProf Studio cell:
 
 \begin{flushleft}
 \begin{tabbing}
-	\hspace*{1.50 cm}FST\_CMD  \=CONN \=Ni O \=0.0 2.3\\*
-	\hspace*{1.50 cm}FST\_CMD  \>box  \>-2 2 \=-2 2 \=-0.01 1.01 \\*
-	\hspace*{1.50 cm}FST\_CMD  \>stack\_vect  \>\>0 0 0.5
+	\hspace*{1.50 cm}FST\_CMD  \=CONN \= \=NI O \=0.0 2.0\\*
+	\hspace*{1.50 cm}FST\_CMD  \>box \> \>-2 2 \=-2 2 \=-0.01 1.01 \\*
+	\hspace*{1.50 cm}FST\_CMD  \>stack\_vect \> \>\>0 0 0.5
 \end{tabbing}	
 \end{flushleft}
 
