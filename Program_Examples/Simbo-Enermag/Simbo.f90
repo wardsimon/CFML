@@ -701,6 +701,29 @@
 
       END DO
     END DO
+! Write file *.mcm for MCMAG (old simbo ... perhaps the best is to change MCMAG!)
+
+      !IF(nlat == 1) THEN
+      !  open(unit=3,file=outfil(1:ln)//".mcm",status="replace",action="write",position="rewind")
+      !  write(unit=3,fmt="(a)")title
+      !  write(unit=3,fmt="(a)")" File created by program SIMBO"
+      !  write(unit=3,fmt="(a,i4,a,i3)")" ",-Acm%nat,"   0 ",Acm%nat
+      !  DO i=1,Acm%nat
+      !    write(unit=3,fmt="(a,i3,a,i3,a,a6)")" ",i," ",Acm%neighb(i),"   ",Acm%noms(i)
+      !    DO k=1,Acm%neighb(i)
+      !       j=indg(i,k)
+      !       n=jin(i,j)
+      !       if(n == 0) cycle
+      !      ! n=jin(i,k)
+      !      write(unit=3,fmt="(a,i3,a,3i4,a,f9.4)") "     ", &
+      !             Acm%neighb_atom(i,j)," ",INT(Acm%trans(:,i,j)),"  ",valj(n)
+      !    END DO
+      !  END DO
+      !  write(unit=3,fmt="(a,i3,a)")"  1 ",Acm%nat,"  1.00"
+      !  write(unit=3,fmt="(a,6f11.5)")" ", cell%cell,cell%ang
+      !END IF
+
+! END Write file *.mcm for MCMAG
 
     return
    End Subroutine construct_jxch
@@ -978,7 +1001,7 @@
    write(unit=*,fmt="(/,a)")" => Results in files:"
    write(unit=*,fmt="(2a)") "                     ",outfil(1:lr)//".nei"
    write(unit=*,fmt="(2a)") "                     ",outfil(1:lr)//".exc -> input for ENERMAG"
-   !write(unit=*,fmt="(2a)") "                     ",outfil(1:lr)//".mcm -> input for MCMAG"
+   write(unit=*,fmt="(2a)") "                     ",outfil(1:lr)//".mcm -> input for MCMAG"
 
    stop
 

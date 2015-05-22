@@ -1711,20 +1711,20 @@
           Case("BGRPATT")
             crys%bgrpatt=.true.
             m=m+1
-            write(*,*) "  => Reading background pattern #", m
+            write(*,"(a,i3)") "  => Reading background pattern #", m
             !First try to read the name of the hkl file
             read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m),crys%bfilehkl(m)
             if(ier == 0) then
-                write(*,*) "  => The background pattern and hkl files have been successfully read: ", &
-                                crys%bfilepat(m)," ", crys%bfilehkl(m)
+                write(*,"(4a)") "  => The background pattern and hkl files have been successfully read: ", &
+                                trim(crys%bfilepat(m))," ", trim(crys%bfilehkl(m))
             else  !if not re-read only the background file name the scale factor and the code
-                write(*,*) "  => No hkl file was found for background pattern #", m
+                write(*,"(a,i3)") "  => No hkl file was found for background pattern #", m
             read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m)
                 if(ier == 0) then
-                    write(*,*) "  => The background pattern file have been successfully read: ", &
-                                crys%bfilepat(m)
+                    write(*,"(2a)") "  => The background pattern file has been successfully read: ", &
+                                trim(crys%bfilepat(m))
                 end if
             end if
             if(ier /= 0 ) then

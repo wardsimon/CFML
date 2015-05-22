@@ -8092,13 +8092,13 @@
                 call get_concodes_line(line,fatom)
 
              !---- Restraints Cases ----!
-             case ("aequ") ! AEQU sigma        (Angles restraints)
+             case ("aequ") ! AEQU sigma        (Equal Angles restraints)
 
              case ("afix") ! AFIX ang sigma    (Angles restraints)
                 call cutst(line,nlong)
                 call get_restang_line(line,fatom)
 
-             case ("dequ") ! DEQU sigma        (Distance restraints)
+             case ("dequ") ! DEQU sigma        (Equal Distance restraints)
 
              case ("dfix") ! DFIX d sigma      (Distance restraints)
                 call cutst(line,nlong)
@@ -8106,7 +8106,7 @@
 
              case ("flat") ! FLAT
 
-             case ("tequ") ! TEQU sigma        (Torsion angle restraints)
+             case ("tequ") ! TEQU sigma        (Equal Torsion angle restraints)
 
              case ("tfix") ! TFIX ang sigma    (Torsion angle restraints)
                 call cutst(line,nlong)
