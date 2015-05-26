@@ -427,17 +427,18 @@
      return
    End Subroutine Print_AC
 
-   Subroutine construct_jxch(lun,iprin,n_mag,spaths,kf)
-    integer,                            intent(in ) :: lun,n_mag
-    logical,                            intent(in ) :: iprin
-    type (SE_Connection),dimension(:,:),intent(in ) :: spaths
-    real, optional,                     intent(in ) :: kf
+   Subroutine construct_jxch(lun,iprin,n_mag,spaths,Acm,kf)
+    integer,                            intent(in) :: lun,n_mag
+    logical,                            intent(in) :: iprin
+    type (SE_Connection),dimension(:,:),intent(in) :: spaths
+    type(Atoms_Cell_Type),              intent(in) :: Acm
+    real, optional,                     intent(in) :: kf
     !
     !  Subroutine to determine and write the different exchange interactions
     !  given the list of exchange paths
     !
     integer, parameter                  :: max_jx=96
-    integer                             :: i,j,k,im,km,j1,j2,n,L,nj,nt
+    integer                             :: i,j,k,im,km,j1,j2,n,L,nj,nt,tot_neigh
     integer, dimension(n_mag,n_mag)     :: nterms
     integer,          dimension(max_jx) :: p
     character(len=25),dimension(max_jx) :: trans
@@ -663,6 +664,10 @@
        " => Terms of the exchange interaction matrix:"," ",("-",j=1,44)
 
     DO im=1,n_mag
+
+      tot_neigh=sum(nterms(im,:))
+      write(unit=3,fmt="(a,i3,a,i4,T50,a,a6,3f10.5)")" ",im," ",tot_neigh,"   ",Acm%noms(im), Acm%xyz(:,im)
+
       DO km=1,n_mag
 
         write(unit=4,fmt="(2i4,i5)") im,km,nterms(im,km)
@@ -689,14 +694,14 @@
           !write(*,"(a,2i3,a,i3,a)") " => Element: (",im,km,") -> Term: ",nt,"  Trans:"//transla
           call Get_Expo(transla,expo)
           call Get_vect(transla,vect)
-         !  reading from ENERMAG
-         !
-         !  read(1,"(5x,3f9.5,f10.3,3x,2a)")  &
+         !  read(1,"(5x,3f9.5,f10.3,3x,2a)")  &  !Enermag
          !      (trans(m,i,j,nt),m=1,3),exch,jota,name_jota
           write(unit=4,fmt="(a,3f9.5,f10.3,a,a,f8.4)") "     ",vect,&
                         jota(im,km,nt)%valj,"   -> ",trim(text)//" --> dist=", jota(im,km,nt)%dist
           write(unit=lun,fmt="(a,a,a,f8.4,a,a,a)")  &
                   "    Rn=", transla," dist=",jota(im,km,nt)%dist," --> ",jota(im,km,nt)%J,expo
+          write(unit=3,fmt="(a,i3,a,3i4,a,f10.4,a)") "     ", &
+                      km," ",nint(vect),"  ",jota(im,km,nt)%valj,"    "//jota(im,km,nt)%J
         end do
 
       END DO
@@ -983,8 +988,17 @@
    DO i=1,Acm%nat
      write(unit=4,fmt="(a6,a,4f9.5)")Acm%noms(i)," ",Acm%xyz(:,i),Acm%moment(i)
    END DO
+   ! Write file *.mcm for MCMAG
+   open(unit=3,file=trim(outfil)//".mcm",status="replace",action="write",position="rewind")
+   write(unit=3,fmt="(a)")title
+   write(unit=3,fmt="(a)")" File created by program SIMBO"
+   write(unit=3,fmt="(a,i4,a,i3)")" ",-Acm%nat,"   0 ",Acm%nat
 
-   Call construct_jxch(lun,iprin,nmag,spaths)
+   Call construct_jxch(lun,iprin,nmag,spaths,Acm)
+
+   write(unit=3,fmt="(a,i3,a)")  "  1 ",Acm%nat,"  1.00"
+   write(unit=3,fmt="(a,6f11.5)")" ", cell%cell,cell%ang
+   close(unit=3)
 
    Call deAllocate_Atoms_Cell(Acm)
 
