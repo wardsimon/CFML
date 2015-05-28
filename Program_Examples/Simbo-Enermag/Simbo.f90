@@ -668,7 +668,7 @@
       tot_neigh=sum(nterms(im,:))
       write(unit=3,fmt="(a)")"!Site Neighb   Dsing_Anis      Dir                Name        x         y         z"
       write(unit=3,fmt="(i4,i5,i10,Tr6,3i4,a,a6,3f10.5)")im,tot_neigh,0,0,0,0,"          :: ",Acm%noms(im), Acm%xyz(:,im)
-      write(unit=3,fmt="(a)")"!    Nav      Av  Bv  Cv     J"
+      write(unit=3,fmt="(a)")"!    Nav   Av  Bv  Cv        J"
 
       DO km=1,n_mag
 
@@ -767,8 +767,10 @@
    character(len=80)   :: line , title
    character(len=256)  :: infil,outfil,texto
    integer, parameter :: lun1=1,lun2=6,lun=2
-   integer :: i, j, numops, ln, nauas, natc, iid,  nmag, lr, max_coord
+   integer :: i, j, numops, ln, nauas, natc, iid,  nmag, lr, max_coord, L
    integer, dimension(:), allocatable :: ptr
+   integer, dimension(10) :: nif
+   real, dimension(10) :: mom
    real  :: dmax=6.0, & !Maximum distance for distance calculations
             dangl=0.0,& !Maximun distance for angle calculations
             dbond=3.0,& !Maximun distance between anions involved in a SS-exchange path
@@ -977,6 +979,18 @@
      Acm%charge(i)=Ap%atom(ptr(i))%charge
    end do
    if(allocated(ptr)) deallocate(ptr)
+   nif(1)=1
+   mom(1)=Acm%moment(1)
+   j=0; L=1
+   do i=1,nmag
+     j=j+1
+     if(abs(Acm%moment(i)-mom(L)) > 0.001) then
+        L=L+1
+        mom(L)=Acm%moment(i)
+        nif(L)=i
+     end if
+   end do
+   nif(L+1)=nmag+1
    Call deAllocate_Atom_List(Ap)   !Ap is no more needed
 
    !  Write terms of the Fourier transform of the exchange interactions
@@ -1000,17 +1014,47 @@
 
    Call construct_jxch(lun,iprin,nmag,spaths,Acm)
 
-   write(unit=3,fmt="(a)")  "!  Ni   Nf    Spin"
-   dmax=0.0
-   j=0
-   do i=1,Acm%nat
-    j=j+1
-    if( abs(dmax-Acm%moment(i)) > 0.001) then
-      write(unit=3,fmt="(2i6,f8.4)") j
+   write(unit=3,fmt="(a)")  "!   Ni    Nf   Spin"
+   do i=1,L
+      write(unit=3,fmt="(2i6,f8.4)") nif(i),nif(i+1)-1,mom(i)
    end do
-   write(unit=3,fmt="(a,i3,a)")  "  1 ",Acm%nat,"  1.00"
    write(unit=3,fmt="(a)") "!     a          b          c        alpha       beta     gamma   "
    write(unit=3,fmt="(6f11.5)")cell%cell,cell%ang
+   write(unit=3,fmt="(a)") "!"
+   write(unit=3,fmt="(a)") "!  The conditions below should be adapted to the problem by the user "
+   write(unit=3,fmt="(a)") "!"
+   write(unit=3,fmt="(a)") "SpinModel    Heisenberg "
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "Title  Simulation of classical Spins:"//trim(title)
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!  Simulation box "
+   write(unit=3,fmt="(a)") "Ncells    3 3 3   "
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!  Initial configuration (R/I) "
+   write(unit=3,fmt="(a)") "InitConf  R "
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "! boundary conditions (Free,Periodic,Mixed)"
+   write(unit=3,fmt="(a)") "Boundary  Periodic"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "! Scaling"
+   write(unit=3,fmt="(a)") "Scale     cell"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!  Sites for output during simulation"
+   write(unit=3,fmt="(a)") "Sites   1 2 3"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!         T_ini   Coef  T_final"
+   write(unit=3,fmt="(a)") "schedule    500   0.95    0.5"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!  Magnetic Field"
+   write(unit=3,fmt="(a)") "hfield    0  0  0  1"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "!  Number of MC cycles and thermalization"
+   write(unit=3,fmt="(a)") "mcyc   5000  500"
+   write(unit=3,fmt="(a)") "  "
+   write(unit=3,fmt="(a)") "print  E"
+   write(unit=3,fmt="(a)") "averages"
+   write(unit=3,fmt="(a)") "cryst   1  1 0 0"
+
    close(unit=3)
 
    Call deAllocate_Atoms_Cell(Acm)
