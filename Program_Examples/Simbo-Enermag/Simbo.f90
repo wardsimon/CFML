@@ -666,7 +666,9 @@
     DO im=1,n_mag
 
       tot_neigh=sum(nterms(im,:))
-      write(unit=3,fmt="(a,i3,a,i4,T50,a,a6,3f10.5)")" ",im," ",tot_neigh,"   ",Acm%noms(im), Acm%xyz(:,im)
+      write(unit=3,fmt="(a)")"!Site Neighb   Dsing_Anis      Dir                Name        x         y         z"
+      write(unit=3,fmt="(i4,i5,i10,Tr6,3i4,a,a6,3f10.5)")im,tot_neigh,0,0,0,0,"          :: ",Acm%noms(im), Acm%xyz(:,im)
+      write(unit=3,fmt="(a)")"!    Nav      Av  Bv  Cv     J"
 
       DO km=1,n_mag
 
@@ -706,7 +708,7 @@
 
       END DO
     END DO
-! Write file *.mcm for MCMAG (old simbo ... perhaps the best is to change MCMAG!)
+   ! Write file *.mcm for MCMAG
 
       !IF(nlat == 1) THEN
       !  open(unit=3,file=outfil(1:ln)//".mcm",status="replace",action="write",position="rewind")
@@ -990,14 +992,25 @@
    END DO
    ! Write file *.mcm for MCMAG
    open(unit=3,file=trim(outfil)//".mcm",status="replace",action="write",position="rewind")
-   write(unit=3,fmt="(a)")title
-   write(unit=3,fmt="(a)")" File created by program SIMBO"
-   write(unit=3,fmt="(a,i4,a,i3)")" ",-Acm%nat,"   0 ",Acm%nat
+   write(unit=3,fmt="(a)")  title
+   write(unit=3,fmt="(a)")" Template File created by program SIMBO for MCMAG (Isotropic Interactions)"
+   write(unit=3,fmt="(a)")"!The file should be modified to adapt it to the user needs."
+   write(unit=3,fmt="(a)")"!NA(sites)  JCod    Z"
+   write(unit=3,fmt="(3i7)")-Acm%nat,0,Acm%nat
 
    Call construct_jxch(lun,iprin,nmag,spaths,Acm)
 
+   write(unit=3,fmt="(a)")  "!  Ni   Nf    Spin"
+   dmax=0.0
+   j=0
+   do i=1,Acm%nat
+    j=j+1
+    if( abs(dmax-Acm%moment(i)) > 0.001) then
+      write(unit=3,fmt="(2i6,f8.4)") j
+   end do
    write(unit=3,fmt="(a,i3,a)")  "  1 ",Acm%nat,"  1.00"
-   write(unit=3,fmt="(a,6f11.5)")" ", cell%cell,cell%ang
+   write(unit=3,fmt="(a)") "!     a          b          c        alpha       beta     gamma   "
+   write(unit=3,fmt="(6f11.5)")cell%cell,cell%ang
    close(unit=3)
 
    Call deAllocate_Atoms_Cell(Acm)
