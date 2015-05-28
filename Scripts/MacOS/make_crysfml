@@ -142,8 +142,8 @@ then
           OPT2="-c -g -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -g -warn"
-          OPT2="-c -g -warn"
+          OPT1="-c -g -warn -arch i386"
+          OPT2="-c -g -warn -arch i386"
           ;;
    esac
 else
@@ -162,8 +162,8 @@ else
           OPT2="-c -O0 -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -O -warn -vec-report0"
-          OPT2="-c -O0 -warn -vec-report0"
+          OPT1="-c -O -warn -arch i386 -vec-report0"
+          OPT2="-c -O0 -warn -arch i386 -vec-report0"
           ;;
    esac
 fi
@@ -251,13 +251,13 @@ $COMP $OPT1  CFML_ILL_Instrm_Data.f90
 $COMP $OPT1  CFML_EoS_Mod.f90
 $COMP $OPT1  CFML_Reflct_Util.f90
 $COMP $OPT1  CFML_Atom_Mod.f90
+$COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Sfac.f90
 $COMP $OPT1  CFML_Geom_Calc.f90
-$COMP $OPT1  CFML_SXTAL_Geom.f90
 $COMP $OPT1  CFML_Propagk.f90
-$COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Maps.f90
 $COMP $OPT1  CFML_Molecules.f90
+$COMP $OPT1  CFML_SXTAL_Geom.f90
 $COMP $OPT1  CFML_Conf_Calc.f90
 $COMP $OPT1  CFML_Form_CIF.f90
 $COMP $OPT1  CFML_Optimization_SAn.f90 $INC
