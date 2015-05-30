@@ -45,4 +45,11 @@ hfield   50  1  0  0
 mcyc   5000  500
 print  E
 averages
+
+continue
+mcyc   5000  500
+print E
+averages
+
+
 cryst   1  1 0 0

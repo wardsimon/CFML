@@ -1,9 +1,12 @@
 !!----  Program MCMAG, written by Philippe Lacorre in 1988
 !!----  Adapted to Fortran 90 and some more modifications by J.Rodriguez-Carvajal
 !!----  A new input file containing the whole set of instructions for running
-!!----  the program has been implemented. Output for FullProf Studio and for
-!!----  calculating the single crystal and powder neutron diffraction patterns
-!!----  is being implemented (May 2015, JRC)
+!!----  the program in batch mode has been implemented. Output for FullProf Studio
+!!----  and for calculating the single crystal and powder neutron diffraction patterns
+!!----  has also been implemented (May 2015, JRC)
+!!----  This file contains all the program, there is no dependence on CrysFML
+!!----  Few functions (u_case,l_case, invert) have been imported to facilitate
+!!----  reading of the new input file.
 !!----
     Module mcm_inc
     !Global variables of the program MCMAG (no more COMMONs!)
@@ -124,6 +127,7 @@
         real(kind=sp) :: aax,aay,aaz,aaa,aab,aag !Cell parameters
 
   contains
+
       subroutine conv_matrix()
         !  This subroutine calls the following function:
         !     INVERT
@@ -238,7 +242,7 @@
       END SUBROUTINE ran1d
 
 
-      SUBROUTINE ran2d(radius,x1,y1)
+      Subroutine Ran2d(radius,x1,y1)
       real(kind=sp), intent(in)  :: radius
       real(kind=sp), intent(out) :: x1,y1
 !***********************************************************************
@@ -249,24 +253,24 @@
 !  It originates from the Program Library of CERN Computer Center
 !  (CERN - Geneva) with the original name RAN2VS.
 !***********************************************************************
-         real(kind=sp) :: x,y,rr,scale
-         DO
+         real(kind=sp) :: x,y,rr,scal
+         do
            x  =  2.0*ranf() - 1.0
            y  =  2.0*ranf() - 1.0
            rr =  x*x + y*y
-           IF(rr <= 1.0)  EXIT
-         END DO
-         scale  =  radius / SQRT(rr)
-         x1  =  x * scale
-         y1  =  y * scale
-         RETURN
-      END SUBROUTINE ran2d
+           if(rr <= 1.0)  exit
+         end do
+         scal  =  radius / SQRT(rr)
+         x1  =  x * scal
+         y1  =  y * scal
+         return
+      End Subroutine ran2d
 
 
-      SUBROUTINE ran3d(radius,x1,y1,z1)
+      Subroutine ran3d(radius,x1,y1,z1)
       real(kind=sp), intent(in)  :: radius
       real(kind=sp), intent(out) :: x1,y1,z1
-      real(kind=sp) :: x,y,z,rr,scale
+      real(kind=sp) :: x,y,z,rr,scal
 !***********************************************************************
 !  For a general description of the subroutines RANnD(RADIUS,X1,Y1...),
 !  see the comments just before the subroutine RAN1D(RADIUS,X1).
@@ -275,21 +279,21 @@
 !  It originates from the Program Library of CERN Computer Center
 !  (CERN - Geneva) with the original name RAN3VS.
 !***********************************************************************
-         DO
+         do
            x  =  2.0*ranf() - 1.0
            y  =  2.0*ranf() - 1.0
            z  =  2.0*ranf() - 1.0
            rr =  x*x + y*y + z*z
-           IF(rr <= 1.0)  EXIT
-         END DO
-         scale  =  radius / SQRT(rr)
-         x1  =  x * scale
-         y1  =  y * scale
-         z1  =  z * scale
-         RETURN
-      END SUBROUTINE ran3d
+           if(rr <= 1.0)  exit
+         end do
+         scal  =  radius / sqrt(rr)
+         x1  =  x * scal
+         y1  =  y * scal
+         z1  =  z * scal
+         return
+      End Subroutine ran3d
 
-      SUBROUTINE ranqd(radius,x1,y1)
+      Subroutine ranqd(radius,x1,y1)
       real(kind=sp), intent(in)  :: radius
       real(kind=sp), intent(out) :: x1,y1
       real(kind=sp) :: aq, uran
@@ -301,22 +305,22 @@
 !  radius RADIUS among q points spaced out of an angle 360/q degrees.
 !***********************************************************************
          uran=ranf()
-         DO i=1,nq
-           aq = (FLOAT(i))/(FLOAT(nq))
-           IF (uran < aq) THEN
+         do i=1,nq
+           aq = real(i)/real(nq)
+           if (uran < aq) THEN
              x1 = radius*COS(2*pi*(i-1)/nq)
              y1 = radius*SIN(2*pi*(i-1)/nq)
-             EXIT
-           END IF
-         END DO
-         RETURN
-      END SUBROUTINE ranqd
+             exit
+           end if
+         end do
+         return
+      End Subroutine ranqd
 
 
-      FUNCTION ranf() result(r)
+      Function ranf() result(r)
         real(kind=sp)   :: r
         call random_number(r)
-      END FUNCTION ranf
+      End Function ranf
 
       Subroutine Write_Date_Time(lun,dtim)
         integer,         optional,intent(in) :: lun
@@ -411,8 +415,8 @@
 !  P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.
 
 !  Topological and magnetic parameters must be stored in a file
-!  MYFILE.DAT (where MYFILE is a 6 characters filename given by
-!  user). This input file contains a list of the magnetic
+!  MYFILE.mcm (where MYFILE is a filename given by user)
+!  This input file contains a list of the magnetic
 !  sites of the structure, together with a list of their neighbours
 !  and corresponding exchange integrals, as well as anisotropy
 !  coefficients and spin amplitudes (for a complete description see
@@ -433,56 +437,30 @@
 !  The upper limit in sample size is imposed by the array dimension
 !  of the program. In order to allow an easy modification of these
 !  limits (which could be convenient for the study of specific cases)
-!  they have been introduced as parameters in the aside file
-!  MCM.INC, which is included to the source file during the compi-
-!  lation.These upper limits are called :
+!  they are introduced as parameters in the module mcm_inc
+!  These upper limits are called :
 !       - NUMAX : maximal number of cells along the U axis
 !       - NVMAX : maximal number of cells along the V axis
 !       - NWMAX : maximal number of cells along the W axis
 !       - NAMAX : maximal number of sites per cell
 !       - NNMAX : maximal number of neighbours per site
-
-!  The file MCM.INC contains the following parameters:
-!     PARAMETER(
-!    1          NUMAX=20,      ! maximal number of cells along the U axis
-!    1          NVMAX=20,      ! maximal number of cells along the U axis
-!    1          NWMAX=20,      ! maximal number of cells along the U axis
-!    1          NAMAX=100,    ! maximal number of sites per cell
-!    1          NNMAX=50,     ! maximal number of neighbours per site
-!    1          NMOMAX=200,   ! maximal number of isotropic coupling
-!    1                        !   constants which can be modified
-!    1                        !   interactively
-!    1          NAL=8,        ! maximal number of site moments to be
-!    1                        !   written on a single line of the output
-!    1                        !   file MYFILE.LIS
-!    1          I01=31,       ! input unit number for file MYFILE.MCM
-!    1          I02=32,       ! input unit number for file MYFILE.INI
-!    1          I03=33,       ! output unit number for file MYFILE.RES
-!    1          I04=34,       ! output unit number for file MYFILE.SPI
-!    1          IBA=35,       ! output unit number for file MYFILE.REC
-!    1          LPT=7,        ! output unit number for file MYFILE.LIS
-!    1          ITTI=5,       ! input unit number for terminal
-!    1                        !   (interactive mode)
-!    1          ITTO=6        ! output unit number for terminal
-!    1                        !   (interactive mode)
-!    1                   )
-
+!
 !  The initial configuration of spins is either randomly generated
-!  by the program or can be imposed (file MYFILE.INI).
+!  by the program or can be imposed (file MYFILE.ini).
 !  During the simulation, new orientations of spins are drawn at
 !  random and adopted or rejected (according to Boltzmann statistics)
 !  in order to progressively minimize the energy of the system.
 !  The Hamiltonian used for the energy calculation includes three
 !  terms :
 !       - a general two-spin coupling term with facility for anisotropic
-!         asymmetric exchange
-!       - a single-ion anisotropy term
-!       - an applied magnetic field term
-!  The energy formula may be expressed as follows:
+!         asymmetric exchange. General tensor [Jij]
+!       - a single-ion anisotropy term    Di(ui.Si)^2 (ui is a unitary vector)
+!       - an applied magnetic field term  H
+!  The energy formula per site i may be expressed as follows:
 !  (with the convention that a vector V' represents the transposed
-!  form of a vector V)
+!  form of a column vector V)
 
-!       E = - 0.5*Si'[Jij]Sj + ((Di'Si)**2)/|Di| - H'Si
+!       Ei = - 0.5*Sum(j){Si'[Jij]Sj} + D(ui'Si)**2 - H'Si
 
 !       where :
 !          Si,Sj  are vectors representing two interacting spins
@@ -490,8 +468,10 @@
 !                                                         Jxx Jxy Jxz
 !                 for every <i,j> pair, [Jij] represents  Jyx Jyy Jyz
 !                                                         Jzx Jzy Jzz
-!          Di     is the vector of single-ion anisotropy
+!          Di     is the strength of the single-ion anisotropy for site i
+!          ui     is a unitary vector indicating the direction of the anisotropy
 !          H      is the vector of applied magnetic field
+!          Sum(j) is the sum over all neighbours (j) of site i
 
 !  The reference used for spins is totally independent of the crys-
 !  tallographic one: spins are always generated and expressed in an
@@ -517,22 +497,29 @@
 !  The following files are generated during or at the end of the
 !  simulation :
 
-!  - MYFILE.REC : contains the sequence of instructions given by
+!  - MYFILE.red : contains the sequence of instructions given by
 !                 user during the run of MCMAG (can be used as ins-
 !                 truction file for further batch runs)
 
-!  - MYFILE.LIS : contains all informations about the arrangement of
+!  - MYFILE.lis : contains all informations about the arrangement of
 !                 magnetic moments and the averaged characteristics
 !                 collected at every step of the simulation process
 
-!  - MYFILE.RES : created at user's request, this file stores averaged
+!  - MYFILE.res : created at user's request, this file stores averaged
 !                 characteristics collected at every temperature or
 !                 field step, for further analysis or plotting
 
-!  - MYFILE.SPI : created at the end of simulation, it contains the
+!  - MYFILE.spi : created at the end of simulation, it contains the
 !                 last generated spin configuration of the simulation.
 !                 The file format is the same as that of file MYFILE.INI,
 !                 which allows to split up a simulation in several runs
+
+!  - MYFILE.fst : created at the end of simulation for visualizing the
+!                 last generated spin configuration of the simulation.
+
+!  - MYFILE.cfl : created at the end of simulation for visualizing the
+!                 last average spin configuration of the simulation, or
+!                 for calculating the magnetic diffraction pattern.
 
 !       The main program calls the following subroutines :
 
@@ -579,7 +566,7 @@
 
 !    M                     : relative indices of neighbouring cells
 
-!    AA,AD                 : matrices for inversion (to rotate moments)
+!    AA,AD                 : matrices converting between Cartesian and Crytallographic frames
 
 !    TCO                   : test of internal compatibility
 !                            (topological self-consistency)
@@ -1111,7 +1098,9 @@
       cod  = 'M'     ! Cod=M => Multiplicative Coefficient
       codt = 'x'
 
-  706 if(batch) then
+   do_hfield: do
+       !706 if(batch) then
+      if(batch) then
          do
            read(i01,"(a)",iostat=ier) line
            if(ier == 0) then
@@ -1185,7 +1174,7 @@
          end do
       end if
 
-      snom=FLOAT(it-nom)
+      snom=real(it-nom)
 
       WRITE(lpt,2112)                ! PARAMETERS FOR CURRENT SCHEME
         2112 FORMAT(8X,  &
@@ -1208,7 +1197,8 @@
       End If
       Write(lpt,2030)
 
-  243 hm0=SQRT(hx0*hx0+hy0*hy0+hz0*hz0)
+    do_print: do
+      hm0=SQRT(hx0*hx0+hy0*hy0+hz0*hz0)
       hdix=hx0/hm0
       hdiy=hy0/hm0
       hdiz=hz0/hm0
@@ -1289,7 +1279,7 @@
       end if
 
 
-!***** OPENING AND FIRST LINES OF THE AVERAGED CHARARACTERISTICS FILE *****
+      !***** OPENING AND FIRST LINES OF THE AVERAGED CHARARACTERISTICS FILE *****
 
 
       IF ((ansrf == 'Y') .OR. (ansrf == 'y')) THEN
@@ -1317,7 +1307,9 @@
 
       call cpu_time(t_ini)
       cpu=t_ini
+      !----------------------------------------------------------
       do   !Loop over possible different conditions (interactive)
+      !-----------------------------------------------------------
          If (hk /= 0) Then
            Write(lpt,484)t,hk,hi,hx0,hy0,hz0
            Write(itto,484)t,hk,hi,hx0,hy0,hz0
@@ -1417,9 +1409,11 @@
            END IF
          END IF
          exit
+      !-------------------------
       end do
+      !-------------------------
 
-!***** END OF INCREMENTATION *****
+      !***** END OF INCREMENTATION *****
 
 
       last=0
@@ -1498,32 +1492,73 @@
 
             END IF
 
-            GO TO 706
-
+            !GO TO 706
+            cycle do_hfield
           END IF
 
    1116   WRITE(itto,"(a)",advance='no') ' => Orientation of the magnetic field h ?: '
           READ(itti,*,ERR=1116)hx0,hy0,hz0
           IF ( (hx0 == 0) .AND. (hy0 == 0).AND.(hz0 == 0) ) GO TO 1116
           if(.not. batch) WRITE(iba,*) hx0,hy0,hz0
+
+
    1117   WRITE(itto,"(a)",advance='no')   ' => Starting, increment and final fields ?: '
           READ(itti,*,ERR=1117)hsta,hste,hfin
           if(.not. batch) WRITE(iba,*)hsta,hste,hfin
           hk=hsta
 
-    519   WRITE(itto,"(a/a)",advance='no') '   GIVE : - TOTAL NUMBER OF MCS/S', &
-                                           '   -     NUMBER OF THERMALISATION MCS/S: '
-          READ(itti,*,ERR=519)it,nom
-          if(.not. batch) WRITE(iba,*)it,nom
-          snom=FLOAT(it-nom)
+          if(batch) then
+             do
+               read(i01,"(a)",iostat=ier) line
+               if(ier == 0) then
+                 write(lpt,"(a)") "    mcm-line => "//trim(line)
+                 line=adjustl(line)
+                 if(line(1:1) == "!" .or. line(1:1) == "#" .or. len_trim(line) == 0) cycle
+                 exit
+               else
+                 write(*,"(a)") " => Premature end of file (Mcyc): "//trim(nfil)//".mcm"
+                 stop
+               end if
+             end do       !123456789
+             j=index(line," ")
+             keyword=l_case(line(1:j-1))
+             if(trim(keyword) == "mcyc") then
+               read(line(j+1:),*,iostat=ier) it,nom
+               if(ier /= 0) then
+                write(*,"(a)") " => Error reading Number of Montecarlo cycles !"
+                stop
+               end if
+             else
+                write(*,"(a)") " => The keyword Mcyc followed by two integers (Num_MCS, Num_Thermal) is neede here !"
+                stop
+             end if
+          else
+             do
+                WRITE(itto,"(a/a)",advance='no') '   Give : - Total number of MCS/S', &
+                                    '          - Number of thermalisation MCS/S: '
+                READ(itti,*,iostat=ier)it,nom
+                if(ier /= 0) cycle
+                WRITE(iba,*)it,nom
+                exit
+             end do
+          end if
 
-          WRITE(lpt,2112)              ! PARAMETERS FOR CURRENT SCHEME
+    !519   WRITE(itto,"(a/a)",advance='no') '   Give : - Total Number of MCS/S', &
+    !                                       '   -     Number of Thermalisation MCS/S: '
+    !      READ(itti,*,ERR=519)it,nom
+    !      if(.not. batch) WRITE(iba,*)it,nom
+    !      snom=real(it-nom)
+
+          WRITE(lpt,2112)              ! Parameters for Current Scheme
           WRITE(lpt,2113)it,nom,t,t,hsta,hfin,hste,hx0,hy0,hz0
 
-          GO TO 243
-
+          !GO TO 243
+          cycle do_print
         END IF
-
+        exit
+    end do do_print
+       exit
+   end do do_hfield
         IF ((ansrf == 'Y').OR.(ansrf == 'y')) THEN
           WRITE(i03,509)
         END IF
