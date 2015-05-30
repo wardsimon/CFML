@@ -739,7 +739,7 @@
 
   Program Simbo
    Use CFML_Crystallographic_Symmetry, only: Set_SpaceGroup, Write_SpaceGroup, Space_Group_Type
-   Use CFML_String_Utilities,          only: l_case, number_lines, reading_lines
+   Use CFML_String_Utilities,          only: l_case, number_lines, reading_lines,u_case
    use CFML_Math_general,              only: negligible
    use CFML_Math_3D,                   only: set_eps
    use CFML_Geometry_Calc,             only: Allocate_Coordination_Type, calc_dist_angle, &
@@ -771,6 +771,7 @@
    integer, dimension(:), allocatable :: ptr
    integer, dimension(10) :: nif
    real, dimension(10) :: mom
+   character(len=4), dimension(10) :: scf=" "
    real  :: dmax=6.0, & !Maximum distance for distance calculations
             dangl=0.0,& !Maximun distance for angle calculations
             dbond=3.0,& !Maximun distance between anions involved in a SS-exchange path
@@ -854,29 +855,29 @@
    write(unit=lun,fmt="(/,/,a,/)") " => List of detected magnetic atoms:"
    write(unit=lun,fmt="(a)") " Label  Type     x       y       z      occ     Biso  moment  Charge"
    do i=1,A%natoms
-    write(unit=texto,fmt="(a,a4,a,a5,5f8.4,2f8.3)")" ", A%atom(i)%lab,"  ",&
-     A%atom(i)%ChemSymb,A%atom(i)%x,A%atom(i)%occ,A%atom(i)%Biso,A%atom(i)%moment,A%atom(i)%charge
-    if(A%atom(i)%moment > 0.01 ) then
-      mag=.true.
-      j=i+1
-    else
-      exit
-    end if
-    write(unit=lun,fmt="(a)") trim(texto)
+      write(unit=texto,fmt="(a,a4,a,a5,5f8.4,2f8.3)")" ", A%atom(i)%lab,"  ",&
+      A%atom(i)%ChemSymb,A%atom(i)%x,A%atom(i)%occ,A%atom(i)%Biso,A%atom(i)%moment,A%atom(i)%charge
+      if(A%atom(i)%moment > 0.01 ) then
+        mag=.true.
+        j=i+1
+      else
+        exit
+      end if
+      write(unit=lun,fmt="(a)") trim(texto)
    end do
    if(mag) then
-    do i=j,A%natoms
-     if(A%atom(i)%moment > 0.01 ) then
-      write(unit=*,fmt="(a)") " => The magnetic atoms are not on the top of the list"
+      do i=j,A%natoms
+       if(A%atom(i)%moment > 0.01 ) then
+        write(unit=*,fmt="(a)") " => The magnetic atoms are not on the top of the list"
+        write(unit=*,fmt="(a)") " => Please reorder the input file putting on top magnetic atoms"
+        stop
+       end if
+      end do
+   else
+      write(unit=*,fmt="(a)") " => There is no magnetic atoms in the input list or"
+      write(unit=*,fmt="(a)") "    the magnetic atoms are not on the top of the list"
       write(unit=*,fmt="(a)") " => Please reorder the input file putting on top magnetic atoms"
       stop
-     end if
-    end do
-   else
-    write(unit=*,fmt="(a)") " => There is no magnetic atoms in the input list or"
-    write(unit=*,fmt="(a)") "    the magnetic atoms are not on the top of the list"
-    write(unit=*,fmt="(a)") " => Please reorder the input file putting on top magnetic atoms"
-    stop
    end if
 
    write(unit=*,fmt="(a,f9.3)")" => Maximum bond-distance (Dmax)                       : ",dmax
@@ -978,20 +979,24 @@
      Acm%moment(i)=Ap%atom(ptr(i))%moment
      Acm%charge(i)=Ap%atom(ptr(i))%charge
    end do
-   if(allocated(ptr)) deallocate(ptr)
    nif(1)=1
    mom(1)=Acm%moment(1)
+   scf(1)="M"//u_case(Ap%atom(ptr(1))%ChemSymb)
+   write(scf(1)(4:4),fmt="(i1)") nint(Ap%atom(ptr(1))%charge)
    j=0; L=1
    do i=1,nmag
      j=j+1
      if(abs(Acm%moment(i)-mom(L)) > 0.001) then
         L=L+1
         mom(L)=Acm%moment(i)
+        scf(L)="M"//u_case(Ap%atom(ptr(i))%ChemSymb)
+        write(scf(L)(4:4),fmt="(i1)") nint(Ap%atom(ptr(i))%charge)
         nif(L)=i
      end if
    end do
    nif(L+1)=nmag+1
    Call deAllocate_Atom_List(Ap)   !Ap is no more needed
+   if(allocated(ptr)) deallocate(ptr)
 
    !  Write terms of the Fourier transform of the exchange interactions
    !  Write also the information to the file *.exc(unit=4) and MCMAG
@@ -1014,11 +1019,11 @@
 
    Call construct_jxch(lun,iprin,nmag,spaths,Acm)
 
-   write(unit=3,fmt="(a)")  "!   Ni    Nf   Spin"
+   write(unit=3,fmt="(a)")  "!   Ni    Nf   Spin     ScattFact"
    do i=1,L
-      write(unit=3,fmt="(2i6,f8.4)") nif(i),nif(i+1)-1,mom(i)
+      write(unit=3,fmt="(2i6,f8.4,tr6,a)") nif(i),nif(i+1)-1,mom(i),scf(i)
    end do
-   write(unit=3,fmt="(a)") "!     a          b          c        alpha       beta     gamma   "
+   write(unit=3,fmt="(a)") "!     a          b          c        alpha       beta      gamma   "
    write(unit=3,fmt="(6f11.5)")cell%cell,cell%ang
    write(unit=3,fmt="(a)") "!"
    write(unit=3,fmt="(a)") "!  The conditions below should be adapted to the problem by the user "
@@ -1030,13 +1035,13 @@
    write(unit=3,fmt="(a)") "!  Simulation box "
    write(unit=3,fmt="(a)") "Ncells    3 3 3   "
    write(unit=3,fmt="(a)") "  "
-   write(unit=3,fmt="(a)") "!  Initial configuration (R/I) "
+   write(unit=3,fmt="(a)") "!  Initial configuration (R,I) "
    write(unit=3,fmt="(a)") "InitConf  R "
    write(unit=3,fmt="(a)") "  "
    write(unit=3,fmt="(a)") "! boundary conditions (Free,Periodic,Mixed)"
    write(unit=3,fmt="(a)") "Boundary  Periodic"
    write(unit=3,fmt="(a)") "  "
-   write(unit=3,fmt="(a)") "! Scaling"
+   write(unit=3,fmt="(a)") "! Scaling (sample,cell,site,mole)"
    write(unit=3,fmt="(a)") "Scale     cell"
    write(unit=3,fmt="(a)") "  "
    write(unit=3,fmt="(a)") "!  Sites for output during simulation"
