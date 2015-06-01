@@ -42,14 +42,29 @@ schedule    500   0.95    0.5
 !  Magnetic Field
 hfield   50  1  0  0
 !  Number of MC cycles and thermalization
-mcyc   5000  500
+mcyc   1000  200
 print  E
 averages
 
-continue
-mcyc   5000  500
+continue T
+tchange A 5 100
+hfield  80  1 0 0
+mcyc   1000  200
 print E
 averages
 
+continue T
+tchange A -5 5
+hfield  50  0 1 0
+mcyc   1000  200
+print E
+averages
+
+
+continue F
+fchange 1 1 0  0  2  100
+mcyc   1000  200
+print E
+averages
 
 cryst   1  1 0 0

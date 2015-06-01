@@ -73,7 +73,7 @@
                           nom,        &! Number of thermalization cycles
                           ianb,       &! Boundary condirions (1: periodic, 0:free, -1:mixed)
                           na,         &! Total number of sites in the basic unit cell (if negative no single ion anisotropy)
-                          iani,       &! Index for single ion anisotropy (set to -1 if na < 0, before puttin na=|na|)
+                          iani,       &! Index for single ion anisotropy (set to -1 ifna < 0, before puttin na=|na|)
                           iran,       &! Index for the spin-model (1:Ising, 2:planar XY, 3:Heisenberg, 4: q-state Potts planar)
                           jcod,       &! Code of interactions (0: isotropic, 1: anisotropic diagonal tensor, 2: anisotropic)
                           nmot,       &! Number of formula units per cell
@@ -86,7 +86,7 @@
                           iwmx,iwmxy, &! Printing controls
                           nor,        &! Ordinal number of the moment to be re-oriented
                           im,iwrt=0,  &! Index, counter for cpu_time
-                          ntemp        ! Total number of temperatures
+                          ntemp,job    ! Total number of temperatures, job number
 
           real(kind=sp):: t,           &! Initial temperature
                         coef,          &! Kirpatrick coefficient (>1 heating, <1 cooling)
@@ -102,7 +102,7 @@
                          x,y,z, & ! Randomly generated components of a spin
                          dorix,doriy,doriz,dorx,dory,dorz  !Direction to rotate a spin (X-tal and Cartesian systems)
         real(kind=sp) :: fconst,rc  !Constraint functions
-        integer       :: nfip,  &! if zero no random spin S=(x,y,z) is generated before calculating delta
+        integer       :: nfip,  &! ifzero no random spin S=(x,y,z) is generated before calculating delta
                          nmult   ! Multiplier (2) applied to H and D in order to calculate the energy E1=1/2 E0
 
           character (len=132):: titl1,titl2,titl3,itit1,itit2,itit3
@@ -114,7 +114,7 @@
           character (len=1)  :: ansi,   &! Answer for correct file
                                 ansmod, &! Answer for modifying locally the exchange interactions
                                 ians,   &! R of I (Random initial configuration or read from input file)
-                                ansnev, &! Printout of the configuration of magnetic moments (N: Never, E: End, A: All temperatures)
+                                ansnev, &! Printout of the configuration of magnetic moments (N: Never, E: end, A: All temperatures)
                                 ansrf,  &! Output of averaged characteristics in file *.res
                                 ansc,   &! Continue or not
                                 ansh,   &! Interation of temperature (T) or Field (F)
@@ -128,8 +128,8 @@
 
   contains
 
-      subroutine conv_matrix()
-        !  This subroutine calls the following function:
+      Subroutine conv_matrix()
+        !  This Subroutine calls the following function:
         !     INVERT
          real(kind=dp) :: degre,aar
          degre=pi/180.0_dp
@@ -161,7 +161,7 @@
          aag=aag/degre
          !Calculates AC=INV(AA)
          ac=Invert(aa)
-      end subroutine conv_matrix
+      end Subroutine conv_matrix
 
       Function Invert(a) Result(b)
          !---- Arguments ----!
@@ -182,28 +182,28 @@
          b(3,3) =   a(1,1)*a(2,2)-a(1,2)*a(2,1)
          dmat = a(1,1)*b(1,1)+a(1,2)*b(2,1)+a(1,3)*b(3,1) !determinant of A
 
-         if (abs(dmat) > tiny(dmat)) then
+         if(abs(dmat) > tiny(dmat)) then
             b= b/dmat
          else
             b=0.0_dp
          end if
 
-         return
-      End Function Invert
+         Return
+      end Function Invert
 
 
 !***********************************************************************
-!  The subroutines RANnD(RADIUS,X1,Y1,,) generate a pseudo-random
+!  The Subroutines RANnD(RADIUS,X1,Y1,,) generate a pseudo-random
 !  spin configuration that is a random vector suitable for the selected
 !  spin model:
 !      RAN1D(RADIUS,X1)         for    Ising spins
 !      RAN2D(RADIUS,X1,Y1)      for    XY spins
 !      RAN3D(RADIUS,X1,Y1,Z1)   for    Heisenberg spins
 !      RANqD(RADIUS,X1,Y1)      for    q-state Potts planar (XY) spins
-!  The subroutines RAN2D(RADIUS,X1,Y1) and RAN3D(RADIUS,X1,Y1,Z1)
+!  The Subroutines RAN2D(RADIUS,X1,Y1) and RAN3D(RADIUS,X1,Y1,Z1)
 !  originate from the Program Library of CERN Computer Center
 !  (CERN - Geneva), with original names RAN2VS and RAN3VS.
-!  These subroutines call no subroutine.
+!  These Subroutines call no Subroutine.
 !  They call the following function :
 !  RANF() : this portable real function [Program library of CERN
 !           Computer Centre (CERN - Geneva)] is used to generate random
@@ -219,35 +219,35 @@
 !           faster computer random generator, is recommended.
 
 !***********************************************************************
-      SUBROUTINE ran1d(radius,x1,y1,z1,n)
+      Subroutine ran1d(radius,x1,y1,z1,n)
       real(kind=sp), intent(in)  :: radius
       real(kind=sp), intent(out) :: x1,y1,z1
       integer,       intent(in)  :: n
 !***********************************************************************
-!  For a general description of the subroutines RANnD(RADIUS,X1,Y1...),
+!  For a general description of the Subroutines RANnD(RADIUS,X1,Y1...),
 !  see the comments just above.
 !  RAN1D(RADIUS,X1) generates pseudo-randomly a number +RADIUS or
 !  -RADIUS.
 !***********************************************************************
-         IF (ranf()-0.5 > 0) THEN
+         if(ranf()-0.5 > 0) then
            x1 = radius*dx(n)
            y1 = radius*dy(n)
            z1 = radius*dz(n)
-         ELSE
+         else
            x1 = -radius*dx(n)
            y1 = -radius*dy(n)
            z1 = -radius*dz(n)
-         END IF
-         RETURN
-      END SUBROUTINE ran1d
+         end if
+         Return
+      end Subroutine ran1d
 
 
       Subroutine Ran2d(radius,x1,y1)
       real(kind=sp), intent(in)  :: radius
       real(kind=sp), intent(out) :: x1,y1
 !***********************************************************************
-!  For a general description of the subroutines RANnD(RADIUS,X1,Y1...),
-!  see the comments just before the subroutine RAN1D(RADIUS,X1).
+!  For a general description of the Subroutines RANnD(RADIUS,X1,Y1...),
+!  see the comments just before the Subroutine RAN1D(RADIUS,X1).
 !  RAN2D(RADIUS,X1,Y1) generates pseudo-randomly a point on a circle of
 !  radius RADIUS.
 !  It originates from the Program Library of CERN Computer Center
@@ -263,8 +263,8 @@
          scal  =  radius / SQRT(rr)
          x1  =  x * scal
          y1  =  y * scal
-         return
-      End Subroutine ran2d
+         Return
+      end Subroutine ran2d
 
 
       Subroutine ran3d(radius,x1,y1,z1)
@@ -272,8 +272,8 @@
       real(kind=sp), intent(out) :: x1,y1,z1
       real(kind=sp) :: x,y,z,rr,scal
 !***********************************************************************
-!  For a general description of the subroutines RANnD(RADIUS,X1,Y1...),
-!  see the comments just before the subroutine RAN1D(RADIUS,X1).
+!  For a general description of the Subroutines RANnD(RADIUS,X1,Y1...),
+!  see the comments just before the Subroutine RAN1D(RADIUS,X1).
 !  RAN3D(RADIUS,X1,Y1,Z1) generates pseudo-randomly a point at the
 !  surface of a sphere of radius RADIUS.
 !  It originates from the Program Library of CERN Computer Center
@@ -290,8 +290,8 @@
          x1  =  x * scal
          y1  =  y * scal
          z1  =  z * scal
-         return
-      End Subroutine ran3d
+         Return
+      end Subroutine ran3d
 
       Subroutine ranqd(radius,x1,y1)
       real(kind=sp), intent(in)  :: radius
@@ -299,28 +299,28 @@
       real(kind=sp) :: aq, uran
       integer :: i
 !***********************************************************************
-!  For a general description of the subroutines RANnD(RADIUS,X1,Y1...),
-!  see the comments just before the subroutine RAN1D(RADIUS,X1).
+!  For a general description of the Subroutines RANnD(RADIUS,X1,Y1...),
+!  see the comments just before the Subroutine RAN1D(RADIUS,X1).
 !  RANqD(RADIUS,X1,Y1) generates pseudo-randomly a point on a circle of
 !  radius RADIUS among q points spaced out of an angle 360/q degrees.
 !***********************************************************************
          uran=ranf()
          do i=1,nq
            aq = real(i)/real(nq)
-           if (uran < aq) THEN
+           if(uran < aq) then
              x1 = radius*COS(2*pi*(i-1)/nq)
              y1 = radius*SIN(2*pi*(i-1)/nq)
              exit
            end if
          end do
-         return
-      End Subroutine ranqd
+         Return
+      end Subroutine ranqd
 
 
       Function ranf() result(r)
         real(kind=sp)   :: r
         call random_number(r)
-      End Function ranf
+      end Function ranf
 
       Subroutine Write_Date_Time(lun,dtim)
         integer,         optional,intent(in) :: lun
@@ -336,8 +336,8 @@
         if(present(dtim)) &
          dtim="#   Date: "//dat(7:8)//"/"//dat(5:6)//"/"//dat(1:4)//      &
                "  Time: "//tim(1:2)//":"//tim(3:4)//":"//tim(5:10)
-        return
-      End Subroutine Write_Date_Time
+        Return
+      end Subroutine Write_Date_Time
 
       Function L_Case(Text) Result (Mtext)
          !---- Argument ----!
@@ -351,12 +351,12 @@
          mtext=text
          leng=len_trim(mtext)
          do pos=1,leng
-            if (mtext(pos:pos) >= "A" .and. mtext(pos:pos) <= "Z")           &
+            if(mtext(pos:pos) >= "A" .and. mtext(pos:pos) <= "Z")           &
                 mtext(pos:pos) = CHAR ( ICHAR(mtext(pos:pos)) - inc )
          end do
 
-         return
-      End Function L_Case
+         Return
+      end Function L_Case
 
       Function U_Case(Text) Result (Mtext)
          !---- Argument ----!
@@ -370,14 +370,14 @@
          mtext=text
          leng=len_trim(mtext)
          do pos=1,leng
-            if (mtext(pos:pos) >= "a" .and. mtext(pos:pos) <= "z")           &
+            if(mtext(pos:pos) >= "a" .and. mtext(pos:pos) <= "z")           &
                 mtext(pos:pos) = CHAR ( ICHAR(mtext(pos:pos)) + inc )
          end do
 
-         return
-      End Function U_Case
+         Return
+      end Function U_Case
 
-  End Module mcm_inc
+  end Module mcm_inc
 
 !                  M   M   CCC  M   M   AA    GGG
 !                  MM MM  C     MM MM  A  A  G
@@ -477,7 +477,7 @@
 !  tallographic one: spins are always generated and expressed in an
 !  orthonormal coordinate system during the simulation process. The
 !  same orthonormal coordinate system is used for the anisotropy
-!  coefficients and for the applied magnetic field if any. For sake
+!  coefficients and for the applied magnetic field ifany. For sake
 !  of convenience, a possibility is offered at the end of the
 !  simulation, to project the magnetic moments on the real crystal
 !  axes and to rotate the whole system to align one moment along a
@@ -521,27 +521,27 @@
 !                 last average spin configuration of the simulation, or
 !                 for calculating the magnetic diffraction pattern.
 
-!       The main program calls the following subroutines :
+!       The main program calls the following Subroutines :
 
-!  READ_FILE   : read input data and simulation parameters
+!  read_FILE   : read input data and simulation parameters
 !  COMP_TEST   : check internal consistency of data
-!  MOD_INT     : if activated, modify some selected isotropic coupling
+!  MOD_INT     : ifactivated, modify some selected isotropic coupling
 !  GEN_SPI     : generate or read initial spin configuration
 !  MC_CYCLE    : execute the Monte Carlo loops
 !  EN_TOT      : compute the total energy of the system
 !  CONST_FUNCT : compute the constraint function (isotropic coupling)
 !  OUT_RES     : output averaged characteristics
 !  OUT_CONF    : output the configuration of magnetic moments
-!  PRO_ROTA    : if selected, project moments on crystal cell (rotate)
+!  PRO_ROTA    : ifselected, project moments on crystal cell (rotate)
 
-!  These subroutines call other subroutines or function :
+!  These Subroutines call other Subroutines or function :
 
 !  BOUND_COND : compute the selected boundary conditions
 !  ENn_CALC   : compute energy difference between new and old spin conf.
 !  RANnD      : generate a pseudo-random vector
 !  RANF       : generate a pseudo-random number between 0 and 1
 
-!  Four subroutines ENn_CALC and four subroutines RANnD are included in
+!  Four Subroutines ENn_CALC and four Subroutines RANnD are included in
 !  the program (n = 1, 2, 3 or q). Only one among the four is activated
 !  during a simulation, depending on the selected spin model, namely :
 !  - Ising spin model           (n = 1)
@@ -552,7 +552,7 @@
 !***********************************************************************
 
 !  The following lines give a list of the main parameters and arrays
-!  used in MCMAG (main program and subroutines) :
+!  used in MCMAG (main program and Subroutines) :
 
 !    NAV                   : indices of the neighbours of a site
 
@@ -625,7 +625,7 @@
       Use mcm_inc
       implicit none
       integer :: nres,icou,i,j,n,ou3,ier
-      real(kind=sp) :: hm0,hi,hki,tci,ta,t_ini,t_fin
+      real(kind=sp) :: hm0,hi,hki,tci,ta,t_ini,t_fin,t_glob,t_part
       real(kind=dp) :: energy,e_aver,temp
       real(kind=sp),dimension(3) :: pos, spv,spr
       integer :: u,v,w,narg
@@ -642,34 +642,34 @@
       end if
 
       nres=0
-      Write(itto,"(a)")'  ----------------------------------------------------------------------------'
-      Write(itto,"(a)")'                               Program MCMAG'
-      Write(itto,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
-      Write(itto,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
-      Write(itto,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
-      Write(itto,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
-      Write(itto,"(a)")'            Energy Calculated According to the Following Expression :'
-      Write(itto,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
-      Write(itto,"(a)")'  ----------------------------------------------------------------------------'
-      Write(itto,"(a)")' '
-      Write(itto,"(a)")' '
+      write(itto,"(a)")'  ----------------------------------------------------------------------------'
+      write(itto,"(a)")'                               Program MCMAG'
+      write(itto,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
+      write(itto,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
+      write(itto,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
+      write(itto,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
+      write(itto,"(a)")'            Energy Calculated According to the Following Expression :'
+      write(itto,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
+      write(itto,"(a)")'  ----------------------------------------------------------------------------'
+      write(itto,"(a)")' '
+      write(itto,"(a)")' '
       if(.not. batch) then
-         WRITE(itto,"(a)",advance="no")' => Input file name ? : '
-         READ(itti,"(a)") nfil
+         write(itto,"(a)",advance="no")' => Input file name ? : '
+         read(itti,"(a)") nfil
       end if
       Open(Unit=i01,File=trim(nfil)//'.mcm',Status='OLD',iostat=ier)
       if(ier /= 0) then
         write(*,"(a)") " => Error opening the file: "//trim(nfil)//'.mcm'
         stop
       end if
-      READ(i01,"(a)")titl1    ! Read First Title of the Input File
-      READ(i01,"(a)")titl2    ! Read Second Title of the Input File
+      read(i01,"(a)")titl1    ! read First Title of the Input File
+      read(i01,"(a)")titl2    ! read Second Title of the Input File
       Open(Unit=lpt,STATUS='unknown',File=trim(nfil)//'.lis')
 
-      CALL read_file()   ! Read the Data File and
+      call read_file()   ! read the Data File and
                          ! Parameters of the Simulation
 
-      CALL comp_test()   ! Test of Internal Compatibility
+      call comp_test()   ! Test of Internal Compatibility
                          ! Concerning Topology and Interactions
 
 
@@ -703,42 +703,42 @@
             Case default
               write(*,"(a)") " => The keyword SpinModel should followed by: Ising, XY, Heisenberg or q-Potts !"
               stop
-           End Select
+           end Select
          else
            write(*,"(a)") " => The keyword: SpinModel, followed by Ising, XY, Heisen, or q-Potts, is needed!"
            stop
          end if
       else
-         WRITE(itto,"(a)",advance='no') ' => Ising(1), XY(2) Heisenberg(3) or q-State Potts planar(4) spins?: '
+         write(itto,"(a)",advance='no') ' => Ising(1), XY(2) Heisenberg(3) or q-State Potts planar(4) spins?: '
                                         ! ISING, XY, HEISENBERG OR q-STATE
                                         ! POTTS PLANAR SPINS ?
-         READ(itti,708)iran
+         read(itti,708)iran
       end if
-      IF ((iran < 1).OR.(iran > 4)) then
+      if((iran < 1).or.(iran > 4)) then
         write(*,"(a)") " => Model ",iran," not supported!"
         stop
       end if
 
-      IF (iran == 4 .and. .not. batch) THEN            ! q-STATE POTTS PLANAR SPINS
+      if(iran == 4 .and. .not. batch) then            ! q-STATE POTTS PLANAR SPINS
         do
-          WRITE(itto,"(a)",advance='no')  ' => q-Value (Integer)?: '
-          READ(itti,*) nq
-          IF (nq < 2) cycle
+          write(itto,"(a)",advance='no')  ' => q-Value (Integer)?: '
+          read(itti,*) nq
+          if(nq < 2) cycle
           exit
         end do
-      END IF
+      end if
 
       Select Case(iran)
         Case(1)            ! Ising Spins
            spimod='ISING'
            icou = 0
            DO i=1,na
-             IF (d0(i) == 0) THEN
+             if(d0(i) == 0) then
                dx(i)=1.
                icou = icou+1
-             END IF
-           END DO
-           IF (icou == na) iwmx=1
+             end if
+           end DO
+           if(icou == na) iwmx=1
 
         Case(2)      ! XY Spins
            spimod='XY PLANAR'
@@ -750,15 +750,15 @@
         Case(4)       ! q-State Potts Planar Spins
            spimod='-STATE POTTS'
            iwmxy=1
-      End Select
+      end Select
 
       if(.not. batch) then
          Open(Unit=Iba,Status='unknown',FILE=trim(nfil)//'.rec')
-         Write(Iba,4003) Nfil,iran
-         If (Iran == 4) Then
-           Write(Iba,*)Nq
-         End If
-      End If
+         write(Iba,4003) Nfil,iran
+         if(Iran == 4) then
+           write(Iba,*)Nq
+         end if
+      end if
 
       if(batch) then
          do
@@ -778,9 +778,9 @@
          titl="Simulation using MCMAG"
          if(trim(keyword) == "title") titl=line(j+1:)
       else
-         Write(itto,"(a)",advance='no')  ' => Title of simulation ?: '
-         Read(itti,"(a)") titl
-         Write(iba,"(a)") trim(titl)
+         write(itto,"(a)",advance='no')  ' => Title of simulation ?: '
+         read(itti,"(a)") titl
+         write(iba,"(a)") trim(titl)
       end if
 
       titl3 = spimod//' Spins - '//trim(titl)
@@ -811,36 +811,36 @@
          end if
       else
          do
-           Write(itto,"(a)")           ' => Size of the sample box along the three axes? '
-           Write(itto,"(a,3i4,a)",advance='no') '        ( Maximal values: ',numax,nvmax,nwmax,'):  '  ! SIZE OF THE SAMPLE ?
-           Read(itti,*,iostat=ier)lu,lv,lw
-           If ((lu > numax).OR.(lv > nvmax).OR.(lw > nwmax) .or. ier/=0) cycle
-           If ((lu < 1).OR.(lv < 1).OR.(lw < 1)) Then
-             Write(itto,888)
+           write(itto,"(a)")           ' => Size of the sample box along the three axes? '
+           write(itto,"(a,3i4,a)",advance='no') '        ( Maximal values: ',numax,nvmax,nwmax,'):  '  ! SIZE OF THE SAMPLE ?
+           read(itti,*,iostat=ier)lu,lv,lw
+           if((lu > numax).or.(lv > nvmax).or.(lw > nwmax) .or. ier/=0) cycle
+           if((lu < 1).or.(lv < 1).or.(lw < 1)) then
+             write(itto,888)
              cycle
-           End If
+           end if
            exit
          end do
-         Write(iba,*)lu,lv,lw
+         write(iba,*)lu,lv,lw
       end if
       nma=lu*lv*lw
       nta=na*nma
       ansmod='N'
-      If (jcod == 0 .and. .not. batch) Then
+      if(jcod == 0 .and. .not. batch) then
         do
-           WritE(itto,"(a)",advance='no')' => Modify some interactions in the sample box (Y or N)?: '
-           Read(itti,"(a)")ansmod
-           If ((ansmod /= 'Y').AND.(ansmod /= 'y').AND.  &
-               (ansmod /= 'N').AND.(ansmod /= 'n')) cycle
+           write(itto,"(a)",advance='no')' => Modify some interactions in the sample box (Y or N)?: '
+           read(itti,"(a)")ansmod
+           if((ansmod /= 'Y').and.(ansmod /= 'y').and.  &
+               (ansmod /= 'N').and.(ansmod /= 'n')) cycle
            exit
         end do
-        Write(iba,"(a)")ansmod
-        If ((ansmod == 'Y').OR.(ansmod == 'y')) Then
+        write(iba,"(a)")ansmod
+        if((ansmod == 'Y').or.(ansmod == 'y')) then
 
-          Call mod_int()    ! Possibility to modify locally
+          call mod_int()    ! Possibility to modify locally
                             ! some interactions (for isotropic exchange only)
-        End If
-      End If
+        end if
+      end if
 
       if(batch) then
          do
@@ -865,26 +865,26 @@
          end if
       else
          do
-           WriTE(itto,"(a)",advance='no') ' => Initial spin configuration :'            ! INITIAL SPIN CONFIGURATION ?
-           WriTE(itto,"(a,a,a)",advance="no") ' => Random(R) or from the input file ',trim(nfil)//'.ini',' (I)?:  '
-           ReaD(itti,"(a)")ians
-           If ((ians /= 'R').AND.(ians /= 'r').AND.  &
-               (ians /= 'I').AND.(ians /= 'i')) cycle
+           write(itto,"(a)",advance='no') ' => Initial spin configuration :'            ! INITIAL SPIN CONFIGURATION ?
+           write(itto,"(a,a,a)",advance="no") ' => Random(R) or from the input file ',trim(nfil)//'.ini',' (I)?:  '
+           read(itti,"(a)")ians
+           if((ians /= 'R').and.(ians /= 'r').and.  &
+               (ians /= 'I').and.(ians /= 'i')) cycle
            exit
          end do
-         WriTE(iba,"(a)") ians
+         write(iba,"(a)") ians
       end if
 
-      IF ((ians == 'I') .OR. (ians == 'i')) THEN
+      if((ians == 'I') .or. (ians == 'i')) then
         OPEN(UNIT=i02,STATUS='OLD',FILE=trim(nfil)//'.ini',iostat=ier)
         if(ier /= 0) then
           write(*,"(a)") " => Error opening the file "//trim(nfil)//'.ini'
           stop
         end if
-        READ(i02,2222)itit1,itit2,itit3
-      END IF
+        read(i02,2222)itit1,itit2,itit3
+      end if
 
-      CALL gen_spi()  ! Read or Generate the Initial
+      call gen_spi()  ! read or Generate the Initial
                       ! Configuration of Spins
 
       if(batch) then
@@ -912,21 +912,21 @@
             stop
          end if
       else
-         Write(itto,"(a)",advance='no') ' => Free edges(0), Periodic(1) or mixed boundary conditions(-1)?: '
-         Read(itti,889,iostat=ier) ianb
-         Write(iba,889)ianb
+         write(itto,"(a)",advance='no') ' => Free edges(0), Periodic(1) or mixed boundary conditions(-1)?: '
+         read(itti,889,iostat=ier) ianb
+         write(iba,889)ianb
       end if
 
-      IF (ianb < 0) THEN            ! MIXED BOUNDARY CONDITIONS
+      if(ianb < 0) then            ! MIXED BOUNDARY CONDITIONS
         bcond = 'MIXED'
 
-      ELSE IF (ianb == 0) THEN       ! FREE EDGES
+      else if(ianb == 0) then       ! FREE EDGES
         bcond = 'FREE EDGES'
 
-      ELSE IF (ianb > 0) THEN       ! PERIODIC BOUNDARY CONDITIONS
+      else if(ianb > 0) then       ! PERIODIC BOUNDARY CONDITIONS
         bcond = 'PERIODIC'
 
-      END IF
+      end if
 
       if(batch) then
          do
@@ -956,49 +956,49 @@
          end if
       else
         do
-          Write(itto,"(a)") ' => Scaling of averaged characteristics of sample ? :'
-          Write(itto,"(a)") '          1 = per sample'
-          Write(itto,"(a)") '          2 = per basic unit cell (input file)'
-          Write(itto,"(a)") '          3 = per site'
-          Write(itto,"(a)") '          4 = per mole'
-          Write(itto,"(a)",advance='no') ' => Option: '
-          Read(itti,708,iostat=ier) infa
+          write(itto,"(a)") ' => Scaling of averaged characteristics of sample ? :'
+          write(itto,"(a)") '          1 = per sample'
+          write(itto,"(a)") '          2 = per basic unit cell (input file)'
+          write(itto,"(a)") '          3 = per site'
+          write(itto,"(a)") '          4 = per mole'
+          write(itto,"(a)",advance='no') ' => Option: '
+          read(itti,708,iostat=ier) infa
           if(ier /= 0) cycle
-          If ((infa < 1).OR.(infa > 4)) cycle
+          if((infa < 1).or.(infa > 4)) cycle
           exit
         end do
-        Write(iba,708) infa
+        write(iba,708) infa
       end if
 
 
-      IF (infa == 1) THEN            ! 1 = PER SAMPLE
+      if(infa == 1) then            ! 1 = PER SAMPLE
         nfa=1
         avchar = 'SAMPLE'
-      ELSE IF (infa == 2) THEN       ! 2 = PER UNIT CELL
+      else if(infa == 2) then       ! 2 = PER UNIT CELL
         nfa=nma
         avchar = 'UNIT CELL'
-      ELSE IF (infa == 3) THEN       ! 3 = PER SITE
+      else if(infa == 3) then       ! 3 = PER SITE
         nfa=nta
         avchar = 'SITE'
-      ELSE IF (infa == 4) THEN       ! 4 = PER MOLE
+      else if(infa == 4) then       ! 4 = PER MOLE
         nfa=nma*nmot
         avchar = 'MOLE'
-      END IF
+      end if
 
-      CALL en_tot(1, energy)                 ! CALCULATE THE TOTAL ENERGY
+      call en_tot(1, energy)                 ! CALCULATE THE TOTAL ENERGY
 ! WITH THE CURRENT MAGNETIC FIELD
 
 
 !***** SUMMARIZE SIMULATION PARAMETERS *****
 
-      WRITE(lpt,596)
-      WRITE(lpt,2003)titl
-      WRITE(lpt,2015)lu,lv,lw,na,nmot,avchar,trim(bcond)
-      IF (nq /= 0) THEN
-        WRITE(lpt,2014)nq,spimod
-      ELSE
-        WRITE(lpt,2016) spimod
-      END IF
+      write(lpt,596)
+      write(lpt,2003)titl
+      write(lpt,2015)lu,lv,lw,na,nmot,avchar,trim(bcond)
+      if(nq /= 0) then
+        write(lpt,2014)nq,spimod
+      else
+        write(lpt,2016) spimod
+      end if
 
 !*****
 
@@ -1028,14 +1028,14 @@
             stop
          end if
       else
-         WRITE(itto,1262,advance='no')        ! Indices of Three Sites ?
+         write(itto,1262,advance='no')        ! Indices of Three Sites ?
                                               ! (For Output of Resulting Moments)
-         READ(itti,*)j1,j2,j3
-         WRITE(iba,*)j1,j2,j3
+         read(itti,*)j1,j2,j3
+         write(iba,*)j1,j2,j3
 
-         IF((j1 <= 0).OR.(j1 > na))j1=1
-         IF((j2 <= 0).OR.(j2 > na))j2=2
-         IF((j3 <= 0).OR.(j3 > na))j3=3
+         if((j1 <= 0).or.(j1 > na))j1=1
+         if((j2 <= 0).or.(j2 > na))j2=2
+         if((j3 <= 0).or.(j3 > na))j3=3
       end if
 
       if(batch) then
@@ -1065,16 +1065,16 @@
          end if
       else
          do
-            Write(itto,"(a)") ' => Give initial temperature, HEATING (>1) or COOLING (<1) multiplier'
-            Write(itto,"(a)",advance='no') '    and final temperature (in Kelvin) : '
+            write(itto,"(a)") ' => Give initial temperature, HEATING (>1) or COOLING (<1) multiplier'
+            write(itto,"(a)",advance='no') '    and final temperature (in Kelvin) : '
 
             !Kirkpatrick's Cooling(Heating) Scheme : T(n+1) = COEF*T(n)
 
-            Read(itti,*,iostat=ier)t,coef,tfin
+            read(itti,*,iostat=ier)t,coef,tfin
             if(ier /= 0) cycle
             exit
          end do
-         Write(iba,*) t,coef,tfin
+         write(iba,*) t,coef,tfin
       end if
       !Calculating the expected number of temperatures
       temp=t
@@ -1097,9 +1097,13 @@
       ansh = 'T'     ! Ansh=T => Iteration On Temperature
       cod  = 'M'     ! Cod=M => Multiplicative Coefficient
       codt = 'x'
-
+      t_glob=0.0
+      call cpu_time(t_ini)
+      job=0
    do_hfield: do
-       !706 if(batch) then
+       call cpu_time(t_part)
+       t_glob=t_glob+t_part-t_ini
+       cpu=t_part
       if(batch) then
          do
            read(i01,"(a)",iostat=ier) line
@@ -1121,19 +1125,19 @@
             write(*,"(a)") " => Error reading H, hx,hy,hz !"
             stop
            end if
-           If ( (hk == 0).AND.(hx0 == 0).AND. (hy0 == 0).AND.(hz0 == 0) ) hx0 = 1.0
+           if( (hk == 0).and.(hx0 == 0).and. (hy0 == 0).and.(hz0 == 0) ) hx0 = 1.0
          else
             write(*,"(a)") " => The keyword Hfield followed by four reals (H-Strength, hx,hy,hz) is neede here !"
             stop
          end if
       else
          do
-            Write(itto,"(a)",advance='no') ' => Strength and direction of the magnetic field ?: '               ! MAGNETIC FIELD ?
-            Read(itti,*,iostat=ier)hk,hx0,hy0,hz0
+            write(itto,"(a)",advance='no') ' => Strength and direction of the magnetic field ?: '               ! MAGNETIC FIELD ?
+            read(itti,*,iostat=ier)hk,hx0,hy0,hz0
             if(ier /= 0) cycle
-            If ( (hk /= 0).AND.(hx0 == 0).AND. (hy0 == 0).AND.(hz0 == 0) ) cycle
-            If ( (hk == 0).AND.(hx0 == 0).AND. (hy0 == 0).AND.(hz0 == 0) ) hx0 = 1.0
-            Write(iba,*)hk,hx0,hy0,hz0
+            if( (hk /= 0).and.(hx0 == 0).and. (hy0 == 0).and.(hz0 == 0) ) cycle
+            if( (hk == 0).and.(hx0 == 0).and. (hy0 == 0).and.(hz0 == 0) ) hx0 = 1.0
+            write(iba,*)hk,hx0,hy0,hz0
             exit
          end do
       end if
@@ -1165,23 +1169,23 @@
          end if
       else
          do
-            WRITE(itto,"(a/a)",advance='no') '   Give : - Total number of MCS/S', &
+            write(itto,"(a/a)",advance='no') '   Give : - Total number of MCS/S', &
                                 '          - Number of thermalisation MCS/S: '
-            READ(itti,*,iostat=ier)it,nom
+            read(itti,*,iostat=ier)it,nom
             if(ier /= 0) cycle
-            WRITE(iba,*)it,nom
+            write(iba,*)it,nom
             exit
          end do
       end if
 
       snom=real(it-nom)
 
-      WRITE(lpt,2112)                ! PARAMETERS FOR CURRENT SCHEME
+      write(lpt,2112)                ! PARAMETERS FOR CURRENT SCHEME
         2112 FORMAT(8X,  &
             ' _______________________________________________________ '  &
             /8X,'|                                                       |'  &
             /8X,'|   SIMULATION PARAMETERS USED FOR THE FOLLOWING RUN    |')
-      WRITE(lpt,2013)it,nom,t,tfin,codt,coef,hk,hk
+      write(lpt,2013)it,nom,t,tfin,codt,coef,hk,hk
         2113 FORMAT(8X,  &
             '|_______________________________________________________|'  &
             /8X,'|                                                       |'  &
@@ -1192,12 +1196,18 @@
             /8X,'|     Field program       : H(n+1) = H(n) + ',f8.2,'    |'  &
             /8X,'|     Field in the direction  :  ',3(f6.2,1X),'  |'  &
             /8X,'|_______________________________________________________|')
-      If (hk /= 0) Then
-        Write(lpt,2031)hx0,hy0,hz0
-      End If
-      Write(lpt,2030)
+      if(hk /= 0) then
+        write(lpt,2031)hx0,hy0,hz0
+      end if
+      write(lpt,2030)
 
     do_print: do
+      call cpu_time(t_part)
+      t_glob=t_glob+t_part
+      job=job+1
+      write(itto,"(/a)")    " -----------"
+      write(itto,"(a,i4)")  " => NEW JOB: ",job
+      write(itto,"(a//)")   " -----------"
       hm0=SQRT(hx0*hx0+hy0*hy0+hz0*hz0)
       hdix=hx0/hm0
       hdiy=hy0/hm0
@@ -1206,7 +1216,7 @@
       hx=hdix*hi                     ! HX,HY,HZ: EFFECTIVE COMPONENTS
       hy=hdiy*hi                     ! OF THE MAGNETIC FIELD
       hz=hdiz*hi
-      WRITE(lpt,"(/)")
+      write(lpt,"(/)")
 
       if(batch) then
          do
@@ -1232,18 +1242,18 @@
          end if
       else
          do
-            Write(itto,"(a)") ' => Printout of the configuration of magnetic moments:'
-            Write(itto,"(a)") '     N = never'
-            Write(itto,"(a)") '     E = at the final temperature/field only'
-            Write(itto,"(a)") '     A = at every temperature/field'
-            Write(itto,"(a)",advance='no') ' => Option: '
-            Read(itti,"(a)")ansnev
-            IF ((ansnev /= 'A').AND.(ansnev /= 'a').AND.  &
-                (ansnev /= 'E').AND.(ansnev /= 'e').AND.  &
-                (ansnev /= 'N').AND.(ansnev /= 'n')) cycle
+            write(itto,"(a)") ' => Printout of the configuration of magnetic moments:'
+            write(itto,"(a)") '     N = never'
+            write(itto,"(a)") '     E = at the final temperature/field only'
+            write(itto,"(a)") '     A = at every temperature/field'
+            write(itto,"(a)",advance='no') ' => Option: '
+            read(itti,"(a)")ansnev
+            if((ansnev /= 'A').and.(ansnev /= 'a').and.  &
+                (ansnev /= 'E').and.(ansnev /= 'e').and.  &
+                (ansnev /= 'N').and.(ansnev /= 'n')) cycle
             exit
          end do
-         Write(iba,"(a)")ansnev
+         write(iba,"(a)")ansnev
       end if
 
       if(batch) then
@@ -1269,154 +1279,153 @@
          end if
       else
          do
-           WRITE(itto,"(3a)",advance='no') ' => Output of averaged characteristics in file ',trim(nfil)//'.res',' (Y or N)?: '
-           READ(itti,"(a)") ansrf
-           IF ((ansrf /= 'Y').AND.(ansrf /= 'y').AND.  &
-              (ansrf /= 'N').AND.(ansrf /= 'n')) cycle
+           write(itto,"(3a)",advance='no') ' => Output of averaged characteristics in file ',trim(nfil)//'.res',' (Y or N)?: '
+           read(itti,"(a)") ansrf
+           if((ansrf /= 'Y').and.(ansrf /= 'y').and.  &
+              (ansrf /= 'N').and.(ansrf /= 'n')) cycle
            exit
          end do
-         Write(iba,"(a)")ansrf
+         write(iba,"(a)")ansrf
       end if
 
 
       !***** OPENING AND FIRST LINES OF THE AVERAGED CHARARACTERISTICS FILE *****
 
 
-      IF ((ansrf == 'Y') .OR. (ansrf == 'y')) THEN
-         OPEN(UNIT=i03,FILE=trim(nfil)//'.res',STATUS='unknown')
+      if((ansrf == 'Y') .or. (ansrf == 'y')) then
+         open(unit=i03,file=trim(nfil)//'.res',status='unknown')
          ou3=1
-         WRITE(itto,"(3a)") ' => File ',trim(nfil)//'.res',' created'
+         write(itto,"(3a)") ' => File ',trim(nfil)//'.res',' created'
          nres=nres+1
-         IF (nres == 1) THEN
-           WRITE(i03,"(3a)") '[ Input file : ',trim(nfil)//'.mcm ]  ',titl1
-           WRITE(i03,"(a)") "   "//titl2
-           WRITE(i03,"(a)") "   "//titl
-           IF (nq /= 0) THEN
-             WRITE(i03,"(4(a,i2),2a)") "   ",nq,spimod//' Spins - Sample size : ',lu,' X',lv,' X',lw,' - results per ',avchar
-           ELSE
-             WRITE(i03,"(3(a,i2),2a)") "   "//spimod,lu,' X',lv,' X',lw,' - results per ',avchar
-           END IF
-         END IF
-         WRITE(i03,"(1x,i2,i10,a,i5,a,3(f6.2,2X))")  &
+         if(nres == 1) then
+           write(i03,"(3a)") '[ Input file : ',trim(nfil)//'.mcm ]  ',titl1
+           write(i03,"(a)") "   "//titl2
+           write(i03,"(a)") "   "//titl
+           if(nq /= 0) then
+             write(i03,"(4(a,i2),2a)") "   ",nq,spimod//' Spins - Sample size : ',lu,' X',lv,' X',lw,' - results per ',avchar
+           else
+             write(i03,"(3(a,i2),2a)") "   "//spimod,lu,' X',lv,' X',lw,' - results per ',avchar
+           end if
+         end if
+         write(i03,"(1x,i2,i10,a,i5,a,3(f6.2,2X))")  &
                  nres,it,' (-',nom,' )  MCS/S   with H and/or M// along : ',hx0,hy0,hz0
-         WRITE(i03,"(a,3(i2,a))") '       T      H      1/SUS    SP. HT.      EN     MTOT  M(', &
+         write(i03,"(a,3(i2,a))") '       T      H      1/SUS    SP. HT.      EN     MTOT  M(', &
                                   j1,') M(',j2,') M(',j3,')     M//   Fc'
-      END IF
+      end if
 
       !***** Averaged Characteristics File Opened *****
 
-      call cpu_time(t_ini)
-      cpu=t_ini
       !----------------------------------------------------------
       do   !Loop over possible different conditions (interactive)
       !-----------------------------------------------------------
-         If (hk /= 0) Then
-           Write(lpt,484)t,hk,hi,hx0,hy0,hz0
-           Write(itto,484)t,hk,hi,hx0,hy0,hz0
-           484 FORMAT(1X,'***********************',/,' **  T =  ',f8.3,  &
+         if(hk /= 0) then
+           write(lpt,484)t,hk,hi,hx0,hy0,hz0
+           write(itto,484)t,hk,hi,hx0,hy0,hz0
+           484 format(1X,'***********************',/,' **  T =  ',f8.3,  &
                '    **************************************************',/,  &
                ' **  H =',f9.2,' kOe ( ',f7.2,' [K] )  along : ',3(1X,f6.3),  &
                '  **',/,' ************************************************',  &
                '***********************')
-         Else
-           WRITE(lpt,494)t,hk,hi
-           WRITE(itto,494)t,hk,hi
-           494 FORMAT(1X,'***********************',/,' **  T =  ',f8.3,  &
+         else
+           write(lpt,494)t,hk,hi
+           write(itto,494)t,hk,hi
+           494 format(1X,'***********************',/,' **  T =  ',f8.3,  &
                '    *******************',/,' **  H =',f9.2,  &
                ' kOe ( ',f7.2,' [K] )  **',/, ' ****************************************')
-         End If
+         end if
 
-         Write(itto,"(a)") ' => Starting monte-carlo loops'
+         write(itto,"(a)") ' => Starting monte-carlo loops'
 
-         Call en_tot(1,energy)          ! Calculate the Total Energy
+         call en_tot(1,energy)          ! Calculate the Total Energy
                                         ! with the Current Magnetic Field
-         Call mc_cycle()                ! Execute the Monte-Carlo Loops
+         call mc_cycle()                ! Execute the Monte-Carlo Loops
 
 
-         !*****    TEST IF THE CURRENT ITERATION IS THE LAST ONE *****
+         !*****    TEST ifTHE CURRENT ITERATION IS THE LAST ONE *****
 
 
-         IF ((ansh == 'F').OR.(ansh == 'f')) THEN
+         if((ansh == 'F').or.(ansh == 'f')) then
            hki=hk+hste
-           IF ((hste > 0).AND.(hki > hfin)) last=1
-           IF ((hste < 0).AND.(hki < hfin)) last=1
+           if((hste > 0).and.(hki > hfin)) last=1
+           if((hste < 0).and.(hki < hfin)) last=1
 
-         ELSE
-           IF ((cod == 'M').OR.(cod == 'm')) THEN
+         else
+           if((cod == 'M').or.(cod == 'm')) then
              tci=t*coef
-             IF ((coef > 1).AND.(tci > tfin)) last=1
-             IF ((coef < 1).AND.(tci < tfin)) last=1
-           ELSE
+             if((coef > 1).and.(tci > tfin)) last=1
+             if((coef < 1).and.(tci < tfin)) last=1
+           else
              tci=t+coef
-             IF ((coef > 0).AND.(tci > tfin)) last=1
-             IF ((coef < 0).AND.(tci < tfin)) last=1
-           END IF
+             if((coef > 0).and.(tci > tfin)) last=1
+             if((coef < 0).and.(tci < tfin)) last=1
+           end if
 
-         END IF
-
-
-         !*****    END OF LAST ITERATION TEST *****
+         end if
 
 
-         CALL out_conf()         ! Output Configuration Of Moments
+         !*****    end OF LAST ITERATION TEST *****
 
-         IF (jcod == 0) THEN     ! Calculate the Constraint Function
-           CALL const_funct()    ! of the System (For Isotropic
-         END IF                  ! Exchange Only)
 
-         CALL out_res()          ! Output Averaged Characteristics
+         call out_conf()         ! Output Configuration Of Moments
 
-         CALL en_tot(2,energy)   ! Calculate the Total Energy
+         if(jcod == 0) then     ! Calculate the Constraint Function
+           call const_funct()    ! of the System (For Isotropic
+         end if                 ! Exchange Only)
+
+         call out_res()          ! Output Averaged Characteristics
+
+         call en_tot(2,energy)   ! Calculate the Total Energy
                                  ! With the Current Magnetic Field
          !*****    INCREMENT FIELD OR TEMPERATURE *****
 
 
-         IF ((ansh == 'F').OR.(ansh == 'f')) THEN
-                                        ! ANSH=F => ITERATION ON FIELD
-           hk=hk+hste                   ! HK = NEW MAGNETIC FIELD
-           hi=hk/14.88732
-           hx=hdix*hi
-           hy=hdiy*hi
-           hz=hdiz*hi
+         if((ansh == 'F').or.(ansh == 'f')) then
+                                          ! ANSH=F => ITERATION ON FIELD
+             hk=hk+hste                   ! HK = NEW MAGNETIC FIELD
+             hi=hk/14.88732
+             hx=hdix*hi
+             hy=hdiy*hi
+             hz=hdiz*hi
 
-           IF ((hste > 0).AND.(hk <= hfin)) cycle
-           IF ((hste < 0).AND.(hk >= hfin)) cycle
+             if((hste > 0).and.(hk <= hfin)) cycle
+             if((hste < 0).and.(hk >= hfin)) cycle
 
-         ELSE                           ! ANSH=T => ITERATION ON TEMPERATURE
-           IF ((cod == 'M').OR.(cod == 'm')) THEN
-                                        ! COD=M => MULTIPLICATIVE COEFFICIENT
-                                        ! KIRKPATRICK'S COOLING(HEATING) SCHEME
-             ta=t*coef
-             IF ((coef > 1).AND.(ta <= tfin)) THEN
-               t=ta
-               cycle
-             END IF
-             IF ((coef < 1).AND.(ta >= tfin)) THEN
-               t=ta
-               cycle
-             END IF
-           ELSE                         ! COD=A => ADDITIVE COEFFICIENT
-                                        ! LINEAR COOLING(HEATING) SCHEME
-             ta=t+coef
-             IF ((coef > 0).AND.(ta <= tfin)) THEN
-               t=ta
-               cycle
-             END IF
-             IF ((coef < 0).AND.(ta >= tfin)) THEN
-               t=ta
-               cycle
-             END IF
-           END IF
-         END IF
+         else                           ! ANSH=T => ITERATION ON TEMPERATURE
+             if((cod == 'M').or.(cod == 'm')) then
+                                          ! COD=M => MULTIPLICATIVE COEFFICIENT
+                                          ! KIRKPATRICK'S COOLING(HEATING) SCHEME
+               ta=t*coef
+               if((coef > 1).and.(ta <= tfin)) then
+                 t=ta
+                 cycle
+               end if
+               if((coef < 1).and.(ta >= tfin)) then
+                 t=ta
+                 cycle
+               end if
+             else                         ! COD=A => ADDITIVE COEFFICIENT
+                                          ! LINEAR COOLING(HEATING) SCHEME
+               ta=t+coef
+               if((coef > 0).and.(ta <= tfin)) then
+                 t=ta
+                 cycle
+               end if
+               if((coef < 0).and.(ta >= tfin)) then
+                 t=ta
+                 cycle
+               end if
+             end if
+         end if
          exit
       !-------------------------
       end do
       !-------------------------
 
-      !***** END OF INCREMENTATION *****
+      !***** End of Incrementation *****
 
 
       last=0
+
       if(batch) then
          do
            read(i01,"(a)",iostat=ier) line
@@ -1434,78 +1443,166 @@
          keyword=l_case(line(1:j-1))
          if(trim(keyword) == "continue") then
             ansc='Y'
+            line=adjustl(l_case(line(j:)))
+            if(line(1:1) == "f")  then
+                ansh='F'
+            else
+                ansh='T'
+            end if
          else
             ansc='N'
             backspace(unit=i01)
          end if
-      else
-        do
-           WRITE(itto,"(a)",advance='no') ' => Do you want to continue (y or n) ?: '
-           READ(itti,"(a)")ansc
-           WRITE(lpt,"(a)")
-           IF ((ansc /= 'Y').AND.(ansc /= 'y').AND.  &
-               (ansc /= 'N').AND.(ansc /= 'n')) cycle
-           WRITE(iba,"(a)")ansc
-           exit
-        end do
+
+      else !batch
+
+         do
+            write(itto,"(a)",advance='no') ' => Do you want to continue (y or n) ?: '
+            read(itti,"(a)")ansc
+            write(lpt,"(a)")
+            if((ansc /= 'Y').and.(ansc /= 'y').and.  &
+                (ansc /= 'N').and.(ansc /= 'n')) cycle
+            write(iba,"(a)")ansc
+            exit
+         end do
       end if
-        IF ((ansc == 'Y').OR.(ansc == 'y')) THEN
-          do
-             WRITE(itto,"(a)",advance='no') ' => Modify temperature (T) or magnetic field (F) ?: '
-             READ(itti,"(a)")ansh
-             IF ((ansh /= 'F').AND.(ansh /= 'f').AND.  &
-                 (ansh /= 'T').AND.(ansh /= 't')) cycle
-             WRITE(iba,"(a)")ansh
-             exit
-          end do
-          IF ((ansh == 'T').OR.(ansh == 't')) THEN
-            do
-               WRITE(itto,"(a)")  ' => Define code for HEATING/COOLING factor :'
-               WRITE(itto,"(a)")  '              M = multiply'
-               WRITE(itto,"(a)")  '              A = add'
-               WRITE(itto,"(a)",advance='no')  ' => Option: '
-               READ(itti,"(a)")cod
-               IF ((cod /= 'M').AND.(cod /= 'm').AND.  &
-                   (cod /= 'A').AND.(cod /= 'a')) cycle
-               WRITE(iba,"(a)")cod
-               exit
-            end do
-            do
-              WRITE(itto,"(a)") ' => Heating/cooling factor and final temperature ?: '
 
-              !   Kirkpatrick's Cooling(Heating) Scheme : T(n+1) = COEF*T(n)
-              !   Linear Cooling(Heating) Scheme : T(n+1) = COEF+T(n)
+      !---------------------------------------------------
+      if((ansc == 'Y').or.(ansc == 'y')) then   !interactive
+      !--------------------------------------------------
+          if(batch) then  !after a continue instrucction followed by T
+             do
+               read(i01,"(a)",iostat=ier) line
+               if(ier == 0) then
+                 write(lpt,"(a)") "    mcm-line => "//trim(line)
+                 line=adjustl(line)
+                 if(line(1:1) == "!" .or. line(1:1) == "#"  .or. len_trim(line) == 0) cycle
+                 exit
+               else
+                 write(*,"(a)") " => Premature end of file (tchange/fchange): "//trim(nfil)//".mcm"
+                 stop
+               end if
+             end do
+             if(ansh == 'T') then  !Here we want to do a new temperature run
+                j=index(l_case(line),"tchange")
+                if(j == 0) then
+                 write(*,"(a)") " => An instruction 'tchange' is expected after 'continue T' ! "
+                 stop
+                end if
+                read(line(j+7:),*,iostat=ier) cod,coef,tfin
+                if(ier /= 0) then
+                  write(*,"(a)") " => Error reading the instruction 'tchange':  "//trim(line)
+                  stop
+                end if
+                if((cod == 'M').or.(cod == 'm')) then
+                  t=t*coef     ! First Temperature of the New Iteration
+                  codt = 'x'
+                  !Recalculate the number of temperatures
+                  ntemp=0; temp=t
+                  if( coef < 1.0) then
+                     do
+                       ntemp=ntemp+1
+                       temp=temp*coef
+                       if(temp < tfin) exit
+                     end do
+                  else
+                     do
+                       ntemp=ntemp+1
+                       temp=temp*coef
+                       if(temp > tfin) exit
+                     end do
+                  end if
 
-              READ(itti,*,iostat=ier)coef,tfin
-              if(ier /= 0) cycle
-              WRITE(iba,*)coef,tfin
-              exit
-            end do
+                else
 
-            IF ((cod == 'M').OR.(cod == 'm')) THEN
-              t=t*coef     ! FIRST TEMPERATURE OF THE NEW ITERATION
-              codt = 'x'
+                  t=t+coef     ! First Temperature of the New Iteration
+                  codt = '+'
+                  ntemp=nint((tfin-t)/coef)+1
+                end if
+                iwrt=ntemp
+                cycle do_hfield
+             else
+                j=index(l_case(line),"fchange")
+                if(j == 0) then
+                 write(*,"(a)") " => An instruction 'fchange' is expected after 'continue F' ! "
+                 stop
+                end if
+                read(line(j+7:),*,iostat=ier) hx0,hy0,hz0,hsta,hste,hfin
+                if(ier /= 0) then
+                   write(*,"(a)") " => Error reading the instruction 'fchange':  "//trim(line)
+                   stop
+                end if
+                ntemp=nint(abs(hfin-hsta)/hste)+1
+                iwrt=ntemp
+                hk=hsta
+             end if
 
-            ELSE
-              t=t+coef     ! FIRST TEMPERATURE OF THE NEW ITERATION
-              codt = '+'
+          else
 
-            END IF
+             do
+                write(itto,"(a)",advance='no') ' => Modify temperature (T) or magnetic field (F) ?: '
+                read(itti,"(a)")ansh
+                if((ansh /= 'F').and.(ansh /= 'f').and.  &
+                    (ansh /= 'T').and.(ansh /= 't')) cycle
+                write(iba,"(a)")ansh
+                exit
+             end do
+             if((ansh == 'T').or.(ansh == 't')) then
+               do
+                  write(itto,"(a)")  ' => Define code for HEATING/COOLING factor :'
+                  write(itto,"(a)")  '              M = multiply'
+                  write(itto,"(a)")  '              A = add'
+                  write(itto,"(a)",advance='no')  ' => Option: '
+                  read(itti,"(a)")cod
+                  if((cod /= 'M').and.(cod /= 'm').and.  &
+                      (cod /= 'A').and.(cod /= 'a')) cycle
+                  write(iba,"(a)")cod
+                  exit
+               end do
+               do
+                 write(itto,"(a)") ' => Heating/cooling factor and final temperature ?: '
 
-            !GO TO 706
-            cycle do_hfield
-          END IF
+                 !   Kirkpatrick's Cooling(Heating) Scheme : T(n+1) = COEF*T(n)
+                 !   Linear Cooling(Heating) Scheme : T(n+1) = COEF+T(n)
 
-   1116   WRITE(itto,"(a)",advance='no') ' => Orientation of the magnetic field h ?: '
-          READ(itti,*,ERR=1116)hx0,hy0,hz0
-          IF ( (hx0 == 0) .AND. (hy0 == 0).AND.(hz0 == 0) ) GO TO 1116
-          if(.not. batch) WRITE(iba,*) hx0,hy0,hz0
+                 read(itti,*,iostat=ier)coef,tfin
+                 if(ier /= 0) cycle
+                 write(iba,*)coef,tfin
+                 exit
+               end do
 
+               if((cod == 'M').or.(cod == 'm')) then
+                 t=t*coef     ! First temperature of the new iteration
+                 codt = 'x'
 
-   1117   WRITE(itto,"(a)",advance='no')   ' => Starting, increment and final fields ?: '
-          READ(itti,*,ERR=1117)hsta,hste,hfin
-          if(.not. batch) WRITE(iba,*)hsta,hste,hfin
-          hk=hsta
+               else
+                 t=t+coef     ! First temperature of the new iteration
+                 codt = '+'
+               end if
+               cycle do_hfield
+             end if
+          end if
+
+          if(.not. batch) then
+             if ( ansh == 'F') then
+                do
+                   write(itto,"(a)",advance='no') ' => Orientation of the magnetic field h ?: '
+                   read(itti,*,iostat=ier) hx0,hy0,hz0
+                   if( (hx0 == 0) .and. (hy0 == 0).and.(hz0 == 0) .or.  ier /=0) cycle
+                   if(.not. batch) write(iba,*) hx0,hy0,hz0
+                   exit
+                end do
+
+                do
+                   write(itto,"(a)",advance='no')   ' => Starting, increment and final fields ?: '
+                   read(itti,*,iostat=ier)hsta,hste,hfin
+                   if(ier /= 0) cycle
+                   write(iba,*)hsta,hste,hfin
+                   hk=hsta
+                   exit
+                end do
+             end if
+          end if
 
           if(batch) then
              do
@@ -1532,36 +1629,31 @@
                 write(*,"(a)") " => The keyword Mcyc followed by two integers (Num_MCS, Num_Thermal) is neede here !"
                 stop
              end if
+             snom=real(it-nom)
           else
              do
-                WRITE(itto,"(a/a)",advance='no') '   Give : - Total number of MCS/S', &
+                write(itto,"(a/a)",advance='no') '   Give : - Total number of MCS/S', &
                                     '          - Number of thermalisation MCS/S: '
-                READ(itti,*,iostat=ier)it,nom
+                read(itti,*,iostat=ier)it,nom
                 if(ier /= 0) cycle
-                WRITE(iba,*)it,nom
+                write(iba,*)it,nom
                 exit
              end do
+             snom=real(it-nom)
           end if
 
-    !519   WRITE(itto,"(a/a)",advance='no') '   Give : - Total Number of MCS/S', &
-    !                                       '   -     Number of Thermalisation MCS/S: '
-    !      READ(itti,*,ERR=519)it,nom
-    !      if(.not. batch) WRITE(iba,*)it,nom
-    !      snom=real(it-nom)
-
-          WRITE(lpt,2112)              ! Parameters for Current Scheme
-          WRITE(lpt,2113)it,nom,t,t,hsta,hfin,hste,hx0,hy0,hz0
-
-          !GO TO 243
+          write(lpt,2112)              ! Parameters for Current Scheme
+          write(lpt,2113)it,nom,t,t,hsta,hfin,hste,hx0,hy0,hz0
           cycle do_print
-        END IF
-        exit
+      end if  !         if((ansc == 'Y').or.(ansc == 'y')) then or continue
+      exit
     end do do_print
-       exit
+    exit
    end do do_hfield
-        IF ((ansrf == 'Y').OR.(ansrf == 'y')) THEN
-          WRITE(i03,509)
-        END IF
+
+      if((ansrf == 'Y').or.(ansrf == 'y')) then
+        write(i03,509)
+      end if
 
       if(batch) then
          do
@@ -1591,54 +1683,54 @@
          end if
       else
           do
-             Write(itto,"(a)") ' => Do you want a printout of the coomponents of magnetic moments'
-             Write(itto,"(a)",advance='no') '    in the Crystallographic System of Coordinates ?: '
-             Read(itti,"(a)")ansm
-             If ((ansm /= 'Y').AND.(ansm /= 'y').AND.  &
-                 (ansm /= 'N').AND.(ansm /= 'n'))cycle
+             write(itto,"(a)") ' => Do you want a printout of the coomponents of magnetic moments'
+             write(itto,"(a)",advance='no') '    in the Crystallographic System of Coordinates ?: '
+             read(itti,"(a)")ansm
+             if((ansm /= 'Y').and.(ansm /= 'y').and.  &
+                 (ansm /= 'N').and.(ansm /= 'n'))cycle
              exit
           end do
-          Write(iba,"(a)")ansm
+          write(iba,"(a)")ansm
       end if
-        IF ((ansm == 'Y').OR.(ansm == 'y')) THEN
-          CALL pro_rota()              ! Projection and Rotation of
+        if((ansm == 'Y').or.(ansm == 'y')) then
+          call pro_rota()              ! Projection and Rotation of
           rotated=.true.               ! Moments Inside the Crystal
                                        ! Coordinates System
-        END IF
+        end if
 !***** OUTPUT OF THE LAST GENERATED SPIN CONFIGURATION (ALSO IN FST format) *****
 
 
         OPEN(UNIT=i04,STATUS='unknown',FILE=trim(nfil)//'.spi' )
-        WRITE(i04,"(a)")titl1
-        WRITE(i04,"(a)")titl2
+        write(i04,"(a)")titl1
+        write(i04,"(a)")titl2
 
-        IF (nq /= 0) THEN
-          WRITE(i04,"(i3,a)")nq," "//titl3
-        ELSE
-          WRITE(i04,"(a)")titl3
-        END IF
+        if(nq /= 0) then
+          write(i04,"(i3,a)")nq," "//titl3
+        else
+          write(i04,"(a)")titl3
+        end if
 
         DO w=1,lw
           DO v=1,lv
             DO u=1,lu
-              WRITE(i04,798)
-              WRITE(i04,*)u,v,w
-              WRITE(i04,799)
+              write(i04,798)
+              write(i04,*)u,v,w
+              write(i04,799)
               DO n=1,na
-                WRITE(i04,*)n,sx(n,u,v,w),sy(n,u,v,w),sz(n,u,v,w)
-              END DO
-            END DO
-          END DO
-        END DO
+                write(i04,*)n,sx(n,u,v,w),sy(n,u,v,w),sz(n,u,v,w)
+              end DO
+            end DO
+          end DO
+        end DO
         close(unit=i04)
         if(coordinates_read) then
            OPEN(UNIT=i04,STATUS='replace',FILE=trim(nfil)//'.fst' )
-           WRITE(i04,"(a)")"!  File generated by MCMAG"
-           WRITE(i04,"(a)")"TITLE "//trim(titl1)//"  "//trim(titl2)
-           WRITE(i04,"(a)")"SPACEG P 1 "
-           WRITE(i04,"(a,3f12.6,3f12.4)")"CELL ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
-           WRITE(i04,"(a)")"  "
-           WRITE(i04,"(a)") 'BOX   -0.15  1.15   -0.15  1.15    -0.15  1.15'
+           write(i04,"(a)")"!  File generated by MCMAG"
+           write(i04,"(a)")"TITLE "//trim(titl1)//"  "//trim(titl2)
+           write(i04,"(a)")"SPACEG P 1 "
+           write(i04,"(a,3f12.6,3f12.4)")"CELL ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
+           write(i04,"(a)")"  "
+           write(i04,"(a)") 'BOX   -0.15  1.15   -0.15  1.15    -0.15  1.15'
            DO w=1,lw
              DO v=1,lv
                DO u=1,lu
@@ -1647,16 +1739,16 @@
                    write(atm_text,"(a,3i2.2)") trim(namt(n))//"_",u-1,v-1,w-1
                    pos=(real([u-1,v-1,w-1])+xyz(:,n))/real([lu,lv,lw])
                    write(i04,"(a,3f10.5,a)") "Atom "//trim(atm_text)//"  "//elem(n),pos
-                 END DO
-               END DO
-             END DO
-           END DO
-           WRITE(i04,"(a)")"  "
-           WRITE(i04,"(a)")'Mag_Structure'
-           WRITE(i04,"(a)")'Lattice P'
-           WRITE(i04,"(a)")'Kvect    0.00   0.00   0.00'
-           WRITE(i04,"(a)")'SYMM   x, y, z'
-           WRITE(i04,"(a)")'MSYM   u, v, w, 0.00'
+                 end DO
+               end DO
+             end DO
+           end DO
+           write(i04,"(a)")"  "
+           write(i04,"(a)")'Mag_Structure'
+           write(i04,"(a)")'Lattice P'
+           write(i04,"(a)")'Kvect    0.00   0.00   0.00'
+           write(i04,"(a)")'SYMM   x, y, z'
+           write(i04,"(a)")'MSYM   u, v, w, 0.00'
            DO w=1,lw
              DO v=1,lv
                DO u=1,lu
@@ -1668,29 +1760,29 @@
                    pos=(real([u-1,v-1,w-1])+xyz(:,n))/real([lu,lv,lw])
                    write(i04,"(a,3f10.5,a)") "Matom "//trim(atm_text)//"  "//elem(n),pos,'  SCALE 1.0 GROUP'
                    write(i04,"(a20,3f10.5,a)") "SkP    1   1 ",spr,'  0.00  0.00  0.00    0.00  '
-                 END DO
-               END DO
-             END DO
-           END DO
-           WRITE(i04,"(a)")'End_Mag_Structure'
+                 end DO
+               end DO
+             end DO
+           end DO
+           write(i04,"(a)")'End_Mag_Structure'
            close(unit=i04)
 
            if(rotated) then
-             !Write another fst-file with rotated moments
+             !write another fst-file with rotated moments
              OPEN(UNIT=i04,STATUS='replace',FILE=trim(nfil)//'.cfl' )
-             WRITE(i04,"(a,i3,a,3f8.3,a)")"!  File generated by MCMAG: Moments rotated by aligning moment: ",&
+             write(i04,"(a,i3,a,3f8.3,a)")"!  File generated by MCMAG: Moments rotated by aligning moment: ",&
                                          nor, " along [",dorix,doriy,doriz," ]"
-             WRITE(i04,"(a)")"Title "//trim(titl1)//"  "//trim(titl2)
-             WRITE(i04,"(a)")"Spaceg P 1 "
-             WRITE(i04,"(a,3f12.6,3f12.4)")"Cell ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
-             WRITE(i04,"(a)")"  "
-             WRITE(i04,"(a)") 'Box   -0.15  1.15   -0.15  1.15    -0.15  1.15'
-             WRITE(i04,"(a)")"  "
-             WRITE(i04,"(a)")'Mag_Structure'
-             WRITE(i04,"(a)")'Lattice P'
-             WRITE(i04,"(a)")'Kvect    0.00   0.00   0.00'
-             WRITE(i04,"(a)")'Symm   x, y, z'
-             WRITE(i04,"(a)")'Msym   u, v, w, 0.00'
+             write(i04,"(a)")"Title "//trim(titl1)//"  "//trim(titl2)
+             write(i04,"(a)")"Spaceg P 1 "
+             write(i04,"(a,3f12.6,3f12.4)")"Cell ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
+             write(i04,"(a)")"  "
+             write(i04,"(a)") 'Box   -0.15  1.15   -0.15  1.15    -0.15  1.15'
+             write(i04,"(a)")"  "
+             write(i04,"(a)")'Mag_Structure'
+             write(i04,"(a)")'Lattice P'
+             write(i04,"(a)")'Kvect    0.00   0.00   0.00'
+             write(i04,"(a)")'Symm   x, y, z'
+             write(i04,"(a)")'Msym   u, v, w, 0.00'
              DO w=1,lw
                DO v=1,lv
                  DO u=1,lu
@@ -1707,11 +1799,11 @@
                      sy(n,u,v,w)=spv(2)
                      sz(n,u,v,w)=spv(3)
                      !write(*,"(4i4,3f10.5,tr5,3f10.5)") n,u,v,w,spr,spv
-                   END DO
-                 END DO
-               END DO
-             END DO
-             WRITE(i04,"(a)")'End_Mag_Structure'
+                   end DO
+                 end DO
+               end DO
+             end DO
+             write(i04,"(a)")'End_Mag_Structure'
              close(unit=i04)
            else    !!Copy the average moments into spin variables even without rotation
              DO w=1,lw
@@ -1723,11 +1815,11 @@
                      sx(n,u,v,w)=spv(1)  !Copy the average moments into spin variables
                      sy(n,u,v,w)=spv(2)  !Before calculating the total energy
                      sz(n,u,v,w)=spv(3)
-                   END DO
-                 END DO
-               END DO
-             END DO
-           end if !Rotated
+                   end DO
+                 end DO
+               end DO
+             end DO
+           end if!Rotated
            call en_tot(3,e_aver)
            delta=e_aver-energy
 
@@ -1737,7 +1829,7 @@
                           "    of the last spin configuration:",delta
         end if
 
-! ***** OUTPUT COMMENTS AT THE END OF THE PROGRAM *****
+! ***** OUTPUT COMMENTS AT THE end OF THE PROGRAM *****
       call cpu_time(t_fin)
       write(unit=*,fmt="(a,f12.4,a)")  " => CPU time: ",t_fin-t_ini, " seconds"
 
@@ -1760,12 +1852,12 @@
         if(rotated) write(lpt,"(a)") "    "//trim(nfil)//'.cfl    with the average moments after rotations (Crystallographic)'
       end if
 
-      IF(ou3 /= 0) THEN
+      if(ou3 /= 0) then
         write(lpt,"(a)")  "    "//trim(nfil)//'.res    with condensed list of averaged characteristics'
         write(itto,"(a)") "    "//trim(nfil)//'.res    with condensed list of averaged characteristics'
-      END IF
+      end if
 
-      WRITE(lpt,597)                 ! END COMMENTS
+      write(lpt,597)                 ! end COMMENTS
       STOP
 
 
@@ -1812,33 +1904,34 @@
             3000 FORMAT(1X,' ------------------------------------------'  &
                 ,'----------------------------------')
             596 FORMAT(  '  ****************************** START SIMULATION *******************************',//)
-          597 FORMAT(///,'  ************************************ END **************************************')
+          597 FORMAT(///,'  ************************************ end **************************************')
           595 FORMAT(1X)
 
-      END PROGRAM MCMAG
+      end PROGRAM MCMAG
 
-      subroutine write_fst(ier)
+      Subroutine write_fst(filenam,ier)
         Use mcm_inc
         implicit none
+        character(len=*), intent(in) :: filenam
         integer,intent(out):: ier
         integer:: n,u,v,w,i_fst=34
         character(len=20) :: atm_text
         real(kind=sp), dimension(3) :: spr,spv,pos
         if(coordinates_read) then
-           OPEN(unit=i_fst,FILE='simann.fst',STATUS='replace',action="write",iostat=ier )
-           if(ier /= 0) return
-           WRITE(i_fst,"(a)")"!  File generated by MCMAG"
-           WRITE(i_fst,"(a)")"TITLE "//trim(titl1)//"  "//trim(titl2)
-           WRITE(i_fst,"(a)")"SPACEG P 1 "
-           WRITE(i_fst,"(a,3f12.6,3f12.4)")"CELL ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
-           WRITE(i_fst,"(a)")"  "
-           WRITE(i_fst,"(a)") 'BOX   -0.15  1.15   -0.15  1.15    -0.15  1.15'
-           WRITE(i_fst,"(a)")"  "
-           WRITE(i_fst,"(a)")'{'
-           WRITE(i_fst,"(a)")'Lattice P'
-           WRITE(i_fst,"(a)")'K    0.00   0.00   0.00'
-           WRITE(i_fst,"(a)")'SYMM   x, y, z'
-           WRITE(i_fst,"(a)")'MSYM   u, v, w, 0.00'
+           OPEN(unit=i_fst,FILE=trim(filenam),STATUS='replace',action="write",iostat=ier )
+           if(ier /= 0) Return
+           write(i_fst,"(a)")"!  File generated by MCMAG"
+           write(i_fst,"(a)")"TITLE "//trim(titl1)//"  "//trim(titl2)
+           write(i_fst,"(a)")"SPACEG P 1 "
+           write(i_fst,"(a,3f12.6,3f12.4)")"CELL ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
+           write(i_fst,"(a)")"  "
+           write(i_fst,"(a)") 'BOX   -0.15  1.15   -0.15  1.15    -0.15  1.15'
+           write(i_fst,"(a)")"  "
+           write(i_fst,"(a)")'{'
+           write(i_fst,"(a)")'Lattice P'
+           write(i_fst,"(a)")'K    0.00   0.00   0.00'
+           write(i_fst,"(a)")'SYMM   x, y, z'
+           write(i_fst,"(a)")'MSYM   u, v, w, 0.00'
            DO w=1,lw
              DO v=1,lv
                DO u=1,lu
@@ -1850,25 +1943,66 @@
                    pos=(real([u-1,v-1,w-1])+xyz(:,n))/real([lu,lv,lw])
                    write(i_fst,"(a,3f10.5,a)") "Matom "//trim(atm_text)//"  "//elem(n),pos,'  SCALE 1.0 GROUP'
                    write(i_fst,"(a20,3f10.5,a)") "SkP    1   1 ",spr,'  0.00  0.00  0.00    0.00  '
-                 END DO
-               END DO
-             END DO
-           END DO
-           WRITE(i_fst,"(a)")'}'
+                 end DO
+               end DO
+             end DO
+           end DO
+           write(i_fst,"(a)")'}'
            call flush(i_fst)
            close(unit=i_fst)
         end if
-      end subroutine write_fst
+      end Subroutine write_fst
 
+      Subroutine Write_Cfl(filenam)
+        Use mcm_inc
+        implicit none
+        character(len=*), intent(in) :: filenam
+        integer:: n,u,v,w,i_fst=34
+        character(len=20) :: atm_text
+        real(kind=sp), dimension(3) :: spr,spv,pos
+        if(coordinates_read) then
+             OPEN(UNIT=i04,STATUS='replace',FILE=trim(filenam)//'.cfl' )
+             write(i04,"(a)")"!  File generated by MCMAG with the last SPIN configuration "
+             write(i04,"(a,f8.3)")"!    Temperature: ",t," Kelvin"
+             write(i04,"(a,f8.3,a,3f8.3,a)")"!  Applied Field: ",hk," kOe,  along: [",hx0,hy0,hz0,"]"
+             write(i04,"(a)")"Title "//trim(titl1)//"  "//trim(titl2)
+             write(i04,"(a)")"Spaceg P 1 "
+             write(i04,"(a,3f12.6,3f12.4)")"Cell ",lu*aax,lv*aay,lw*aaz,aaa,aab,aag
+             write(i04,"(a)")"  "
+             write(i04,"(a)") 'Box   -0.15  1.15   -0.15  1.15    -0.15  1.15'
+             write(i04,"(a)")"  "
+             write(i04,"(a)")'Mag_Structure'
+             write(i04,"(a)")'Lattice P'
+             write(i04,"(a)")'Kvect    0.00   0.00   0.00'
+             write(i04,"(a)")'Symm   x, y, z'
+             write(i04,"(a)")'Msym   u, v, w, 0.00'
+             DO w=1,lw
+               DO v=1,lv
+                 DO u=1,lu
+                   DO n=1,na
+                     atm_text=" "
+                     spr=[sx(n,u,v,w),sy(n,u,v,w),sz(n,u,v,w)] !Spins in Crystallographic Coordinates
+                     write(atm_text,"(a,3i2.2)") trim(namt(n))//"_",u-1,v-1,w-1
+                     pos=(real([u-1,v-1,w-1])+xyz(:,n))/real([lu,lv,lw])
+                     write(i04,"(a,3f10.5,a)") "Matom "//trim(atm_text)//"  "//scattf(n),pos,'  SCALE 1.0 GROUP'
+                     write(i04,"(a20,3f10.5,a)") "SkP    1   1 ",spr,'  0.00  0.00  0.00    0.00  '
+                   end DO
+                 end DO
+               end DO
+             end DO
+             write(i04,"(a)")'End_Mag_Structure'
+             close(unit=i04)
+        end if
+      end Subroutine Write_Cfl
 
-      SUBROUTINE read_file()
+      Subroutine read_file()
 
 !***********************************************************************
 
-!  This subroutine reads the input file MYFILE.DAT which contains the
+!  This Subroutine reads the input file MYFILE.DAT which contains the
 !  topological and magnetic parameters.
 
-!  This subroutine calls no subroutine.
+!  This Subroutine calls no Subroutine.
 
 !***********************************************************************
 
@@ -1882,21 +2016,21 @@
         Character (Len=6)   :: aux_scf
 
         naco=0
-        Write(lpt,"(a)")'  ----------------------------------------------------------------------------'
-        Write(lpt,"(a)")'                               Program MCMAG'
-        Write(lpt,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
-        Write(lpt,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
-        Write(lpt,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
-        Write(lpt,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
-        Write(lpt,"(a)")'            Energy Calculated According to the Following Expression :'
-        Write(lpt,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
-        Write(lpt,"(a)")'  ----------------------------------------------------------------------------'
-        call Write_Date_Time(lpt)
-        WRITE(lpt,"(//a//)") ' Input file : '//trim(nfil)//'.mcm  contains the following data : '
-        WRITE(*,*) " => Input File: ",trim(nfil)//".mcm"
-        WRITE(lpt,"(1x,a)")titl1
-        WRITE(lpt,"(1x,a)")titl2
-        WRITE(lpt,"(a)") " "
+        write(lpt,"(a)")'  ----------------------------------------------------------------------------'
+        write(lpt,"(a)")'                               Program MCMAG'
+        write(lpt,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
+        write(lpt,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
+        write(lpt,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
+        write(lpt,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
+        write(lpt,"(a)")'            Energy Calculated According to the Following Expression :'
+        write(lpt,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
+        write(lpt,"(a)")'  ----------------------------------------------------------------------------'
+        call write_Date_Time(lpt)
+        write(lpt,"(//a//)") ' Input file : '//trim(nfil)//'.mcm  contains the following data : '
+        write(*,*) " => Input File: ",trim(nfil)//".mcm"
+        write(lpt,"(1x,a)")titl1
+        write(lpt,"(1x,a)")titl2
+        write(lpt,"(a)") " "
         nfila = trim(nfil)//'.mcm'
         do
           read(i01,"(a)") line
@@ -1911,7 +2045,7 @@
           exit
         end do
 
-        if (((jcod /= 0).and.(jcod /= 1).and.(jcod /= 2))  &
+        if(((jcod /= 0).and.(jcod /= 1).and.(jcod /= 2))  &
             .or.(na == 0).or.(nmot < 1))   then
             write(*,"(a/a)") " =>  NA and NMOT must be integers and at least equal to 1",&
                              ' =>  JCOD must be equal to 0, 1 or 2'
@@ -1920,10 +2054,10 @@
 
         iani=1
 
-        IF (na < 0) THEN
+        if(na < 0) then
           iani=-1
           na=-na
-        END IF
+        end if
 
 
         DO i=1,na
@@ -1933,22 +2067,22 @@
              if(line(1:1) == "!" .or. line(1:1) == "#" .or. len_trim(line) == 0) cycle
              exit
           end do
-          IF (iani == -1) THEN
-            READ(line,*,iostat=ier)nat(i),nvs(nat(i))
+          if(iani == -1) then
+            read(line,*,iostat=ier)nat(i),nvs(nat(i))
             if(ier /= 0) nat(i)=0
-          ELSE
-            READ(line,*,iostat=ier) nat(i),nvs(nat(i)),d(nat(i)),  &
+          else
+            read(line,*,iostat=ier) nat(i),nvs(nat(i)),d(nat(i)),  &
                 ddix(nat(i)),ddiy(nat(i)),ddiz(nat(i))
             if(ier /= 0) nat(i)=0
-          END IF
-          if ((nat(i) < 1).OR.(nvs(nat(i)) < 1).OR. (nat(i) > na))  then
+          end if
+          if((nat(i) < 1).or.(nvs(nat(i)) < 1).or. (nat(i) > na))  then
                write(*,"(a/a/a)")' => NAT must be an integer between 1 and NA',  &
                                  '    NV must be an integer at least equal to 1 ',&
                                  "    or an error has been produced in reading single ion anisotropy"
                write(*,"(a)") " => Error in Line: "//trim(line)
                stop
           end if
-          !Reading the name and coordinates of the atoms
+          !reading the name and coordinates of the atoms
           j=index(line,"::")
           if(j /= 0) then
              line=adjustl(line(j+2:))
@@ -1968,7 +2102,7 @@
           write(lpt,"(/,1X,'SITE ',i2,' [ D = ',f8.3,' along the direction ',3(f6.3,2X),']',/,9X,'with ',i2,' neighbours :')") &
               nat(i),d(nat(i)), ddix(nat(i)),ddiy(nat(i)),ddiz(nat(i)), nvs(nat(i))
 
-          IF (jcod == 0) THEN          ! JCOD=0 => ISOTROPIC EXCHANGE
+          if(jcod == 0) then          ! JCOD=0 => ISOTROPIC EXCHANGE
             DO j=1,nvs(nat(i))
               do
                  read(i01,"(a)",iostat=ier) line
@@ -1977,7 +2111,7 @@
                  exit
               end do
               read(line,*,iostat=ier) nav(nat(i),j),(m(nat(i),j,k),k=1,3), ajjx(nat(i),j)
-              if(ier /= 0 .or. (nav(nat(i),j) < 1).OR.(nav(nat(i),j) > na) ) then
+              if(ier /= 0 .or. (nav(nat(i),j) < 1).or.(nav(nat(i),j) > na) ) then
                  write(*,"(a/a/a)")' => NAV must be an integer between 1 and NA',  &
                                    "    or an error is produced at reading a connetivity line: NAV,Av,Bv,Cv,J"
                  write(*,"(a)") " => Error in Line: "//trim(line)
@@ -1988,10 +2122,10 @@
                     nav(nat(i),j),(m(nat(i),j,k),k=1,3), nat(i),nav(nat(i),j),ajjx(nat(i),j)
               ajjy(nat(i),j)=ajjx(nat(i),j)
               ajjz(nat(i),j)=ajjx(nat(i),j)
-            END DO
+            end DO
 
 
-          ELSE IF (jcod == 1) THEN     ! JCOD=1 => DIAGONAL TENSOR
+          else if(jcod == 1) then     ! JCOD=1 => DIAGONAL TENSOR
             DO j=1,nvs(nat(i))
               do
                  read(i01,"(a)",iostat=ier) line
@@ -2001,19 +2135,19 @@
               end do
               read(line,*,iostat=ier)nav(nat(i),j),(m(nat(i),j,k),k=1,3),  &
                   ajjx(nat(i),j),ajjy(nat(i),j),ajjz(nat(i),j)
-              if (ier /= 0 .or. nav(nat(i),j) < 1) then
+              if(ier /= 0 .or. nav(nat(i),j) < 1) then
                  write(*,"(a/a/a)")' => NAV must be an integer between 1 and NA',  &
                                    "    or an error is produced at reading a connectivity line: NAV,Av,Bv,Cv,Jx,Jy,Jz"
                  write(*,"(a)") " => Error in Line: "//trim(line)
                  stop
               end if
 
-              WRITE(lpt,92)nav(nat(i),j),(m(nat(i),j,k),k=1,3),  &
+              write(lpt,92)nav(nat(i),j),(m(nat(i),j,k),k=1,3),  &
                   nat(i),nav(nat(i),j), ajjx(nat(i),j),ajjy(nat(i),j),ajjz(nat(i),j)
-            END DO
+            end DO
 
 
-          ELSE IF (jcod == 2) THEN     ! JCOD=2 => ANISOTROPIC TENSOR
+          else if(jcod == 2) then     ! JCOD=2 => ANISOTROPIC TENSOR
             DO j=1,nvs(nat(i))
               do
                  read(i01,"(a)",iostat=ier) line
@@ -2025,7 +2159,7 @@
                   ajjx(nat(i),j),ajjy(nat(i),j),ajjz(nat(i),j),  &
                   ajxy(nat(i),j),ajxz(nat(i),j),ajyz(nat(i),j),  &
                   ajyx(nat(i),j),ajzx(nat(i),j),ajzy(nat(i),j)
-              IF (ier/= 0 .or. nav(nat(i),j) < 1) then
+              if(ier/= 0 .or. nav(nat(i),j) < 1) then
                  write(*,"(a/a/a)")' => NAV must be an integer between 1 and NA',  &
                                    "    or an error is produced at reading a connectivity line:", &
                                    "    NAV,Av,Bv,Cv,Jxx,Jyy,Jzz,Jxy,Jxz,Jyz,Jyx,Jzx,Jzy"
@@ -2037,14 +2171,14 @@
                   nat(i),nav(nat(i),j), ajjx(nat(i),j),ajxy(nat(i),j),ajxz(nat(i),j),  &
                   ajyx(nat(i),j),ajjy(nat(i),j),ajyz(nat(i),j),  &
                   ajzx(nat(i),j),ajzy(nat(i),j),ajjz(nat(i),j)
-            END DO
+            end DO
 
-          END IF
+          end if
 
-        END DO
+        end DO
 
-        WRITE(lpt,"(a)")" "
-        WRITE(lpt,"(a)")" "
+        write(lpt,"(a)")" "
+        write(lpt,"(a)")" "
         do
            do
               read(i01,"(a)",iostat=ier) line
@@ -2064,7 +2198,7 @@
            else
              aux_scf=line(i:)
            end if
-           if (ier/= 0 .or. (nin < 1).OR.(nfi < 1).OR.(nfi < nin).OR. (smo < 0.0)) then
+           if(ier/= 0 .or. (nin < 1).or.(nfi < 1).or.(nfi < nin).or. (smo < 0.0)) then
               write(*,"(5(a,/))")" => NI and NF must be integers and at least equal to 1",  &
                                  "    NF must always be larger than or equal to NI", &
                                  "    The largest NF must be equal to NAT", &
@@ -2083,22 +2217,22 @@
                 scattf(i)="M"//u_case(elem(i))//"3"
              end if
              write(lpt,"(22x,a,i2,a,f6.3)")' Spin amplitude ( ',i,' ) = ',amps(i)
-          END DO
+          end DO
 
-           IF (naco /= na) cycle
+           if(naco /= na) cycle
            exit
         end do
 
         DO i=1,na
           d0(i)=SQRT(ddix(i)*ddix(i)+ddiy(i)*ddiy(i)+ddiz(i)*ddiz(i))
-          IF(d0(i) /= 0) THEN
+          if(d0(i) /= 0) then
             dx(i)=ddix(i)/d0(i)
             dy(i)=ddiy(i)/d0(i)
             dz(i)=ddiz(i)/d0(i)
-          END IF
-        END DO
+          end if
+        end DO
 
-        !Read a,b,c,alpha,beta,gamma
+        !read a,b,c,alpha,beta,gamma
         do
            read(i01,"(a)",iostat=ier) line
            line=adjustl(line)
@@ -2123,9 +2257,6 @@
           write(lpt,"(3f10.5,tr10,3f10.5)")  aa(i,:),ac(i,:)
         end do
         write(lpt,"(a)")" "
-
-
-        WRITE(itto,"(a)") " "
         92 FORMAT(9X,'Site ',i2,'  in cell (',i2,',',i2,',',i2,')',  &
             '  with coupling (',i2,',',i2,') :',/,15X,  &
             'Jx = ',f8.3,' K , Jy = ',f8.3,' K , Jz = ',f8.3,' K')
@@ -2133,17 +2264,17 @@
             15X,'with J tensor (',i2,',',i2,') =   ',3(f8.3,1X),/,  &
             41X,3(f8.3,1X),/,41X,3(f8.3,1X))
         9876 FORMAT(1X,'D(',i2,') = ',f8.3,2X,'( direction ',3(f6.3,2X), ')')
-        RETURN
-      END SUBROUTINE read_file
+        Return
+      end Subroutine read_file
 
 
-      SUBROUTINE comp_test()
+      Subroutine comp_test()
 !***********************************************************************
 
-!  This subroutine tests the validity of connectivity between spins.
+!  This Subroutine tests the validity of connectivity between spins.
 !  Every interaction is described twice in the input file (spin i with
 !  neighbour j, then spin j with neighbour i).
-!  The subroutine checks that the two descriptions are compatible
+!  The Subroutine checks that the two descriptions are compatible
 !  as well from the topological viewpoint as from the coupling
 !  constant viewpoint.
 !  Any time an anomaly is detected, an error message is generated,
@@ -2153,22 +2284,22 @@
 !  - TOPOLOGY
 !    For any coupling Jij, the consistency of the cell relative
 !    indexing (M(i,j,k), k=1,2,3) of neighbouring spins is checked
-!    by calculating TCO(k) = M(i,j,k) + M(j,i,k). If any anomaly is
+!    by calculating TCO(k) = M(i,j,k) + M(j,i,k). ifany anomaly is
 !    detected (non-zero TCO(k)), an error message is generated, that
 !    gives the location of corresponding error (namely M(i,j,k))
 !  - INTERACTIONS
 !    Following the same scheme, the consistency of interactions Jij
 !    is checked by calculating TCOJ* = Jij - Jji for any component
 !    of the coupling tensor (* means X,Y,Z,XY,XZ,YX,YZ,ZX or ZY).
-!    If any anomaly is detected (non-zero TCOJ*), an error message
+!    ifany anomaly is detected (non-zero TCOJ*), an error message
 !    is generated, that gives the location of corresponding error
 !    (namely J(i,j))
 !  Remark : For specific purpose, such as the study of non symmetrical
 !  coupling (Jij different from Jji), the last part of the test (at
-!  least) should be bypassed. If you bypass the test, make sure that
+!  least) should be bypassed. ifyou bypass the test, make sure that
 !  your input data are correct !
 
-!  This subroutine calls no subroutine.
+!  This Subroutine calls no Subroutine.
 
 !***********************************************************************
 
@@ -2181,139 +2312,139 @@
 
         DO nj=1,nnmax
           pt(nj)=0
-        END DO
+        end DO
 
    do_j:DO  j=1,nvs(nat(i))
-          IF((jcod == 2).AND.(nat(i) == nav(nat(i),j)))GO TO 4446
+          if((jcod == 2).and.(nat(i) == nav(nat(i),j)))GO TO 4446
           DO ni=1,nnmax
-            IF ( nav(nat(i),j) == pt(ni) ) cycle do_j
-          END DO
+            if( nav(nat(i),j) == pt(ni) ) cycle do_j
+          end DO
           DO k=1,3
             tco(k)=m(nat(i),j,k)
-          END DO
+          end DO
           tcojx=ajjx(nat(i),j)
-          IF (jcod > 0) THEN
+          if(jcod > 0) then
             tcojy=ajjy(nat(i),j)
             tcojz=ajjz(nat(i),j)
-            IF (jcod == 2) THEN
+            if(jcod == 2) then
               tcojxy=ajxy(nat(i),j)
               tcojxz=ajxz(nat(i),j)
               tcojyx=ajyx(nat(i),j)
               tcojyz=ajyz(nat(i),j)
               tcojzx=ajzx(nat(i),j)
               tcojzy=ajzy(nat(i),j)
-            END IF
-          END IF
+            end if
+          end if
 
           nh=1
 
           DO n=j+1,nvs(nat(i))
-            IF ( nav(nat(i),n) == nav(nat(i),j) ) THEN
+            if( nav(nat(i),n) == nav(nat(i),j) ) then
               DO k=1,3
                 tco(k)=tco(k)+m(nat(i),n,k)
-              END DO
+              end DO
               nh=-nh
-              IF(nav(nat(i),n) /= nat(i))nh=1
+              if(nav(nat(i),n) /= nat(i))nh=1
               tcojx=tcojx+nh*ajjx(nat(i),n)
-              IF (jcod > 0) THEN
+              if(jcod > 0) then
                 tcojy=tcojy+nh*ajjy(nat(i),n)
                 tcojz=tcojz+nh*ajjz(nat(i),n)
-                IF (jcod == 2) THEN
+                if(jcod == 2) then
                   tcojxy=tcojxy+nh*ajxy(nat(i),n)
                   tcojxz=tcojxz+nh*ajxz(nat(i),n)
                   tcojyx=tcojyx+nh*ajyx(nat(i),n)
                   tcojyz=tcojyz+nh*ajyz(nat(i),n)
                   tcojzx=tcojzx+nh*ajzx(nat(i),n)
                   tcojzy=tcojzy+nh*ajzy(nat(i),n)
-                END IF
-              END IF
+                end if
+              end if
               pt(n)=nav(nat(i),n)
-            END IF
-          END DO
+            end if
+          end DO
           ii=nav(nat(i),j)
           nhp=1
 
           DO l=1,nvs(ii)
-            IF ( nav(ii,l) == nat(i) ) THEN
+            if( nav(ii,l) == nat(i) ) then
               DO k=1,3
                 tco(k)=tco(k)+m(nav(nat(i),j),l,k)
-              END DO
+              end DO
               nhp=-nhp
-              IF (ii /= nat(i)) nhp=1
+              if(ii /= nat(i)) nhp=1
               tcojx=tcojx-nhp*ajjx(nav(nat(i),j),l)
-              IF (jcod > 0) THEN
+              if(jcod > 0) then
                 tcojy=tcojy-nhp*ajjy(nav(nat(i),j),l)
                 tcojz=tcojz-nhp*ajjz(nav(nat(i),j),l)
-                IF (jcod > 0) THEN
+                if(jcod > 0) then
                   tcojxy=tcojxy-nhp*ajyx(nav(nat(i),j),l)
                   tcojxz=tcojxz-nhp*ajzx(nav(nat(i),j),l)
                   tcojyx=tcojyx-nhp*ajxy(nav(nat(i),j),l)
                   tcojyz=tcojyz-nhp*ajzy(nav(nat(i),j),l)
                   tcojzx=tcojzx-nhp*ajxz(nav(nat(i),j),l)
                   tcojzy=tcojzy-nhp*ajyz(nav(nat(i),j),l)
-                END IF
-              END IF
-            END IF
-          END DO
+                end if
+              end if
+            end if
+          end DO
 
           DO k=1,3
-            IF (jcod == 0) THEN
-              IF ( (tco(k) /= 0).OR.(tcojx /= 0) ) THEN
-                WRITE(lpt,131)
-                WRITE(itto,131)
-                WRITE(lpt,109)nat(i),nav(nat(i),j),k,  &
+            if(jcod == 0) then
+              if( (tco(k) /= 0).or.(tcojx /= 0) ) then
+                write(lpt,131)
+                write(itto,131)
+                write(lpt,109)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j), tcojx,nat(i),nav(nat(i),j)
-                WRITE(itto,109)nat(i),nav(nat(i),j),k,  &
+                write(itto,109)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j), tcojx,nat(i),nav(nat(i),j)
                 STOP
-              END IF
+              end if
 
-            ELSE IF (jcod == 1) THEN
-              IF ( (tco(k) /= 0).OR.(tcojx /= 0).OR.  &
-                    (tcojy /= 0).OR.(tcojz /= 0) ) THEN
-                WRITE(lpt,131)
-                WRITE(itto,131)
-                WRITE(lpt,709)nat(i),nav(nat(i),j),k,  &
+            else if(jcod == 1) then
+              if( (tco(k) /= 0).or.(tcojx /= 0).or.  &
+                    (tcojy /= 0).or.(tcojz /= 0) ) then
+                write(lpt,131)
+                write(itto,131)
+                write(lpt,709)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j), tcojx,nat(i),nav(nat(i),j),  &
                     tcojy,nat(i),nav(nat(i),j), tcojz,nat(i),nav(nat(i),j)
-                WRITE(itto,709)nat(i),nav(nat(i),j),k,  &
+                write(itto,709)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j), tcojx,nat(i),nav(nat(i),j),  &
                     tcojy,nat(i),nav(nat(i),j), tcojz,nat(i),nav(nat(i),j)
                 STOP
-              END IF
+              end if
 
-            ELSE IF (jcod == 2) THEN
-              IF ( (tco(k) /= 0).OR.(tcojx /= 0).OR.  &
-                    (tcojy /= 0).OR.(tcojz /= 0).OR.  &
-                    (tcojxy /= 0).OR.(tcojxz /= 0).OR.  &
-                    (tcojyx /= 0).OR.(tcojyz /= 0).OR.  &
-                    (tcojzx /= 0).OR.(tcojzy /= 0) ) THEN
-                WRITE(lpt,131)
-                WRITE(itto,131)
-                WRITE(lpt,809)nat(i),nav(nat(i),j),k,  &
+            else if(jcod == 2) then
+              if( (tco(k) /= 0).or.(tcojx /= 0).or.  &
+                    (tcojy /= 0).or.(tcojz /= 0).or.  &
+                    (tcojxy /= 0).or.(tcojxz /= 0).or.  &
+                    (tcojyx /= 0).or.(tcojyz /= 0).or.  &
+                    (tcojzx /= 0).or.(tcojzy /= 0) ) then
+                write(lpt,131)
+                write(itto,131)
+                write(lpt,809)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j),  &
                     tcojx,tcojxy,tcojxz,nat(i),nav(nat(i),j),  &
                     tcojyx,tcojy,tcojyz,nat(i),nav(nat(i),j),  &
                     tcojzx,tcojzy,tcojz,nat(i),nav(nat(i),j)
-                WRITE(itto,809)nat(i),nav(nat(i),j),k,  &
+                write(itto,809)nat(i),nav(nat(i),j),k,  &
                     tco(k),nat(i),nav(nat(i),j),  &
                     tcojx,tcojxy,tcojxz,nat(i),nav(nat(i),j),  &
                     tcojyx,tcojy,tcojyz,nat(i),nav(nat(i),j),  &
                     tcojzx,tcojzy,tcojz,nat(i),nav(nat(i),j)
                 STOP
-              END IF
-            END IF
-          END DO
+              end if
+            end if
+          end DO
 
-        END DO  do_j
+        end DO  do_j
 
-      END DO
+      end DO
 
-      WRITE(lpt,132)
-      WRITE(itto,133)
-      RETURN
+      write(lpt,132)
+      write(itto,133)
+      Return
 
- 4446 WRITE(itto,"(a/a)") ' => Please DO NOT connect sites to themselves with asymmetric coupling',&
+ 4446 write(itto,"(a/a)") ' => Please DO NOT connect sites to themselves with asymmetric coupling',&
                           '    You should double your cell'
 
       131 FORMAT(/'  ----------------------------------------------------------------------------',/,  &
@@ -2340,20 +2471,20 @@
           ' Dubious connectivity or exchange constant between site ',i2,' and site ',i2,/)
 
 
-      END SUBROUTINE comp_test
+      end Subroutine comp_test
 
 
-      SUBROUTINE mod_int()
+      Subroutine mod_int()
 
 !***********************************************************************
 
-!  This subroutine allows to modify one or more coupling constant(s)
+!  This Subroutine allows to modify one or more coupling constant(s)
 !  within the sample box, for instance to test the perturbation of
 !  the magnetic configuration due to the introduction of impurities
-!  in the sample. The subroutine is activated only if JCOD=0
+!  in the sample. The Subroutine is activated only ifJCOD=0
 !  (isotropic exchange).
 
-!  This subroutine calls no subroutine.
+!  This Subroutine calls no Subroutine.
 
 !***********************************************************************
 
@@ -2361,43 +2492,43 @@
       implicit none
       integer :: i,j,k,ja,jb,jba, maj1,maj2,maj3
       im=1
- 7706 WRITE(itto,7701)
-      READ(itti,*)nm(im),ium(im),ivm(im),iwm(im)
-      WRITE(iba,*)nm(im),ium(im),ivm(im),iwm(im)
+ 7706 write(itto,7701)
+      read(itti,*)nm(im),ium(im),ivm(im),iwm(im)
+      write(iba,*)nm(im),ium(im),ivm(im),iwm(im)
 
-      IF (nm(im) /= 0) THEN
-        WRITE(itto,7702)nm(im),nvs(nm(im))
+      if(nm(im) /= 0) then
+        write(itto,7702)nm(im),nvs(nm(im))
         DO j=1,nvs(nm(im))
-          WRITE(itto,7703)j,nav(nm(im),j),(m(nm(im),j,k),k=1,3), ajjx(nm(im),j)
-        END DO
-        7708   WRITE(itto,7705)
-        READ(itti,*)numb(im),ajmod(im)
-        WRITE(iba,*)numb(im),ajmod(im)
-        IF(numb(im) == 0)GO TO 7706
+          write(itto,7703)j,nav(nm(im),j),(m(nm(im),j,k),k=1,3), ajjx(nm(im),j)
+        end DO
+        7708   write(itto,7705)
+        read(itti,*)numb(im),ajmod(im)
+        write(iba,*)numb(im),ajmod(im)
+        if(numb(im) == 0)GO TO 7706
         ja=nav(nm(im),numb(im))
 
         DO jb=1,nvs(ja)
           maj1=m(ja,jb,1)+m(nm(im),numb(im),1)
           maj2=m(ja,jb,2)+m(nm(im),numb(im),2)
           maj3=m(ja,jb,3)+m(nm(im),numb(im),3)
-          IF ( (nav(ja,jb) == nm(im)).AND.(maj1 == 0).AND.  &
-                (maj2 == 0).AND.(maj3 == 0) ) THEN
+          if( (nav(ja,jb) == nm(im)).and.(maj1 == 0).and.  &
+                (maj2 == 0).and.(maj3 == 0) ) then
             jba=jb
-          END IF
-        END DO
+          end if
+        end DO
 
         numb(im+1)=jba
         ajmod(im+1)=ajmod(im)
         nm(im+1)=ja
         ium(im+1)=ium(im)+m(nm(im),numb(im),1)
-        IF(ium(im+1) <= 0) ium(im+1)=ium(im+1)+lu
-        IF(ium(im+1) > lu) ium(im+1)=ium(im+1)-lu
+        if(ium(im+1) <= 0) ium(im+1)=ium(im+1)+lu
+        if(ium(im+1) > lu) ium(im+1)=ium(im+1)-lu
         ivm(im+1)=ivm(im)+m(nm(im),numb(im),2)
-        IF(ivm(im+1) <= 0) ivm(im+1)=ivm(im+1)+lv
-        IF(ivm(im+1) > lv) ivm(im+1)=ivm(im+1)-lv
+        if(ivm(im+1) <= 0) ivm(im+1)=ivm(im+1)+lv
+        if(ivm(im+1) > lv) ivm(im+1)=ivm(im+1)-lv
         iwm(im+1)=iwm(im)+m(nm(im),numb(im),3)
-        IF(iwm(im+1) <= 0) iwm(im+1)=iwm(im+1)+lw
-        IF(iwm(im+1) > lw) iwm(im+1)=iwm(im+1)-lw
+        if(iwm(im+1) <= 0) iwm(im+1)=iwm(im+1)+lw
+        if(iwm(im+1) > lw) iwm(im+1)=iwm(im+1)-lw
         im=im+2
         nm(im)=nm(im-2)
         ium(im)=ium(im-2)
@@ -2405,17 +2536,17 @@
         iwm(im)=iwm(im-2)
         GO TO 7708
 
-      END IF
+      end if
 
       im=im-1
-      WRITE(itto,7711)
-      WRITE(lpt,7711)
+      write(itto,7711)
+      write(lpt,7711)
       DO i=1,im
-        WRITE(itto,7712)nm(i),ium(i),ivm(i),iwm(i),numb(i),ajmod(i)
-        WRITE(lpt,7712)nm(i),ium(i),ivm(i),iwm(i),numb(i),ajmod(i)
-      END DO
-      WRITE(itto,"(/)")
-      WRITE(lpt,"(/)")
+        write(itto,7712)nm(i),ium(i),ivm(i),iwm(i),numb(i),ajmod(i)
+        write(lpt,7712)nm(i),ium(i),ivm(i),iwm(i),numb(i),ajmod(i)
+      end DO
+      write(itto,"(/)")
+      write(lpt,"(/)")
 
       7701 FORMAT(1X,' Identify site (N) and cell (U,V,W) [0 0 0 0' ,' to stop] :')
       7702 FORMAT(1X,' Site number',i2,' has ',i2,' neighbours :')
@@ -2428,16 +2559,16 @@
       7712 FORMAT(1X,' From site',i2,' in cell (',i2,',',i2,',',i2,')'  &
           ,' to its neigh. numb.',i2,' : new J =',f8.3,' K')
 
-      RETURN
+      Return
 
-      END SUBROUTINE mod_int
+      End Subroutine mod_int
 
 
-      SUBROUTINE gen_spi()
+      Subroutine gen_spi()
 
 !***********************************************************************
 
-!  This subroutine generates or reads the input spin configuration.
+!  This Subroutine generates or reads the input spin configuration.
 !  In the former case, spins are randomly generated.
 !  In the latter case, spin values are read from the file MYFILE.INI.
 !  The input format of this file is identical to the format of the
@@ -2445,7 +2576,7 @@
 !  contains the last generated spin configuration of the simulation. Thus
 !  a simulation can be split up in several runs.
 
-!  This subroutine calls the following subroutines:
+!  This Subroutine calls the following Subroutines:
 !     RANnD(RADIUS,X1,Y1...)
 
 !***********************************************************************
@@ -2454,7 +2585,7 @@
       implicit none
       integer :: u,v,w,ju,jv,jw,n,npassi,npf,npi,jn
 
-      IF(iran == 1) THEN
+      if(iran == 1) then
 
 !*****     FOR ISING SPINS     *****
 
@@ -2462,33 +2593,33 @@
           DO v=1,lv
             DO u=1,lu
 
-              IF ((ians == 'I').OR.(ians == 'i')) THEN
-                READ(i02,*)
-                READ(i02,*)ju,jv,jw
-                READ(i02,*)
-              END IF
+              if((ians == 'I').or.(ians == 'i')) then
+                read(i02,*)
+                read(i02,*)ju,jv,jw
+                read(i02,*)
+              end if
 
               DO n=1,na
-                IF ((ians == 'R') .OR. (ians == 'r')) THEN
-                  CALL ran1d(amps(n),x,y,z,n)
+                if((ians == 'R') .or. (ians == 'r')) then
+                  call ran1d(amps(n),x,y,z,n)
                   sx(n,u,v,w)=x
                   sy(n,u,v,w)=y
                   sz(n,u,v,w)=z
-                ELSE
-                  IF (iani == -1) THEN
-                    READ(i02,*)jn,sx(jn,ju,jv,jw)
-                  ELSE
-                    READ(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw), sz(jn,ju,jv,jw)
-                  END IF
-                END IF
-              END DO
+                else
+                  if(iani == -1) then
+                    read(i02,*)jn,sx(jn,ju,jv,jw)
+                  else
+                    read(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw), sz(jn,ju,jv,jw)
+                  end if
+                end if
+              end DO
 
-            END DO
-          END DO
-        END DO
+            end DO
+          end DO
+        end DO
 
 
-      ELSE IF(iran == 2) THEN
+      else if(iran == 2) then
 
 !*****     FOR XY SPINS     *****
 
@@ -2496,28 +2627,28 @@
           DO v=1,lv
             DO u=1,lu
 
-              IF ((ians == 'I').OR.(ians == 'i')) THEN
-                READ(i02,*)
-                READ(i02,*)ju,jv,jw
-                READ(i02,*)
-              END IF
+              if((ians == 'I').or.(ians == 'i')) then
+                read(i02,*)
+                read(i02,*)ju,jv,jw
+                read(i02,*)
+              end if
 
               DO n=1,na
-                IF ((ians == 'R').OR.(ians == 'r')) THEN
-                  CALL ran2d(amps(n),x,y)
+                if((ians == 'R').or.(ians == 'r')) then
+                  call ran2d(amps(n),x,y)
                   sx(n,u,v,w)=x
                   sy(n,u,v,w)=y
-                ELSE
-                  READ(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw)
-                END IF
-              END DO
+                else
+                  read(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw)
+                end if
+              end DO
 
-            END DO
-          END DO
-        END DO
+            end DO
+          end DO
+        end DO
 
 
-      ELSE IF(iran == 3) THEN
+      else if(iran == 3) then
 
 !*****     FOR HEISENBERG SPINS     *****
 
@@ -2525,30 +2656,30 @@
           DO v=1,lv
             DO u=1,lu
 
-              IF ((ians == 'I').OR.(ians == 'i')) THEN
-                READ(i02,*)
-                READ(i02,*)ju,jv,jw
-                READ(i02,*)
-                WRITE(itto,*)ju,jv,jw
-              END IF
+              if((ians == 'I').or.(ians == 'i')) then
+                read(i02,*)
+                read(i02,*)ju,jv,jw
+                read(i02,*)
+                write(itto,*)ju,jv,jw
+              end if
 
               DO n=1,na
-                IF ((ians == 'R').OR.(ians == 'r')) THEN
-                  CALL ran3d(amps(n),x,y,z)
+                if((ians == 'R').or.(ians == 'r')) then
+                  call ran3d(amps(n),x,y,z)
                   sx(n,u,v,w)=x
                   sy(n,u,v,w)=y
                   sz(n,u,v,w)=z
-                ELSE
-                  READ(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw), sz(jn,ju,jv,jw)
-                END IF
-              END DO
+                else
+                  read(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw), sz(jn,ju,jv,jw)
+                end if
+              end DO
 
-            END DO
-          END DO
-        END DO
+            end DO
+          end DO
+        end DO
 
 
-      ELSE IF (iran == 4) THEN
+      else if(iran == 4) then
 
 !*****     FOR q-STATE POTTS PLANAR SPINS     *****
 
@@ -2556,40 +2687,40 @@
           DO v=1,lv
             DO u=1,lu
 
-              IF ((ians == 'I').OR.(ians == 'i')) THEN
-                READ(i02,*)
-                READ(i02,*)ju,jv,jw
-                READ(i02,*)
-              END IF
+              if((ians == 'I').or.(ians == 'i')) then
+                read(i02,*)
+                read(i02,*)ju,jv,jw
+                read(i02,*)
+              end if
 
               DO n=1,na
-                IF ((ians == 'R').OR.(ians == 'r')) THEN
-                  CALL ranqd(amps(n),x,y)
+                if((ians == 'R').or.(ians == 'r')) then
+                  call ranqd(amps(n),x,y)
                   sx(n,u,v,w)=x
                   sy(n,u,v,w)=y
-                ELSE
-                  READ(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw)
-                END IF
-              END DO
+                else
+                  read(i02,*)jn,sx(jn,ju,jv,jw),sy(jn,ju,jv,jw)
+                end if
+              end DO
 
-            END DO
-          END DO
-        END DO
-
-
-      END IF
+            end DO
+          end DO
+        end DO
 
 
-!*****     END OF GENERATION AND READING     *****
+      end if
+
+
+!*****     end OF GENERATION AND readING     *****
 
 
 !*****     OUTPUT     *****
 
-      IF ((ians == 'R') .OR. (ians == 'r')) THEN
-        WRITE(lpt,"(///a//)")  '  Random Initial Spin Configuration '
-      ELSE
-        WRITE(lpt,"(///a,a//)")'  Initial Spin Configuration Read from File: ',trim(nfil)//'.ini'
-      END IF
+      if((ians == 'R') .or. (ians == 'r')) then
+        write(lpt,"(///a//)")  '  Random Initial Spin Configuration '
+      else
+        write(lpt,"(///a,a//)")'  Initial Spin Configuration read from File: ',trim(nfil)//'.ini'
+      end if
 
       DO w=1,lw
         DO v=1,lv
@@ -2597,41 +2728,35 @@
 
             npi=1
             npf=na
-            WRITE(lpt ,"(a,i2,a,i2,a,i2,a)")'  CELL (',u,',',v,',',w,')'
-            WRITE(itto,"(a,i2,a,i2,a,i2,a)")'  CELL (',u,',',v,',',w,')'
-            WRITE(lpt,"(a)")
-            WRITE(itto,"(a)")
+            write(lpt ,"(a,i2,a,i2,a,i2,a)")'  CELL (',u,',',v,',',w,')'
+            write(lpt,"(a)")
 
             npassi=0
- 4412       IF((na-nal*npassi) > nal) npf=npi+nal-1
-            npassi=npassi+1
-            WRITE(itto,491)
-            WRITE(lpt,491)
-            DO n=npi,npf
-              WRITE(itto,496)n
-              WRITE(lpt,496)n
-            END DO
-            WRITE(lpt,497)(sx(n,u,v,w),n=npi,npf)
-            WRITE(itto,497)(sx(n,u,v,w),n=npi,npf)
-            IF (iwmx == 1) GO TO 999
-            WRITE(lpt,493)(sy(n,u,v,w),n=npi,npf)
-            WRITE(itto,493)(sy(n,u,v,w),n=npi,npf)
-            IF (iwmxy == 1) GO TO 999
-            WRITE(lpt,494)(sz(n,u,v,w),n=npi,npf)
-            WRITE(itto,494)(sz(n,u,v,w),n=npi,npf)
-  999       WRITE(lpt,595)
-            WRITE(itto,595)
-            IF (npf >= npi+nal-1) THEN
-              IF ((npi /= 1).OR.(npf /= na)) THEN
-                npi=npf+1
-                npf=na
-                IF (npi <= npf) GO TO 4412
-              END IF
-            END IF
-
-          END DO
-        END DO
-      END DO
+            do
+               if((na-nal*npassi) > nal) npf=npi+nal-1
+               npassi=npassi+1
+               write(lpt,491)
+               DO n=npi,npf
+                 write(lpt,496)n
+               end DO
+               write(lpt,497)(sx(n,u,v,w),n=npi,npf)
+               if(iwmx /= 1) then
+                 write(lpt,493)(sy(n,u,v,w),n=npi,npf)
+                 if(iwmxy /= 1) write(lpt,494)(sz(n,u,v,w),n=npi,npf)
+               end if
+               write(lpt,595)
+               if(npf >= npi+nal-1) then
+                 if((npi /= 1).or.(npf /= na)) then
+                   npi=npf+1
+                   npf=na
+                   if(npi <= npf) cycle
+                 end if
+               end if
+               exit
+            end do
+          end DO
+        end DO
+      end DO
 
 
       496 FORMAT('Site',i2,'   ',$)
@@ -2641,14 +2766,14 @@
       491 FORMAT('+     ',$)
       595 FORMAT(/)
 
-      RETURN
+      Return
 
-      END SUBROUTINE gen_spi
+      end Subroutine gen_spi
 
 
-      SUBROUTINE mc_cycle()
+      Subroutine mc_cycle()
 !***********************************************************************
-!  This subroutine executes the Monte-Carlo loops according to the
+!  This Subroutine executes the Monte-Carlo loops according to the
 !  following scheme:
 !
 !               |
@@ -2672,7 +2797,7 @@
 !               |
 !               V
 !               |
-!  This subroutine calls the following subroutines and function:
+!  This Subroutine calls the following Subroutines and function:
 !  ENn_CALC(N,U,V,W)
 !  RANF() : this portable real function [Program library of CERN
 !           Computer Centre (CERN - Geneva)] is used to generate random
@@ -2704,14 +2829,14 @@
               somx2(k,u,v,w)=0.0
               somy2(k,u,v,w)=0.0
               somz2(k,u,v,w)=0.0
-            END DO
-          END DO
-        END DO
-      END DO
+            end DO
+          end DO
+        end DO
+      end DO
       ini=0
       npaj=0
 
-      IF (iran == 1) THEN          ! ISING SPINS
+      if(iran == 1) then          ! ISING SPINS
 
 !***** MONTE CARLO LOOPS FOR ISING SPINS *****
 
@@ -2720,32 +2845,32 @@
             DO v=1,lv
               DO u=1,lu
                 DO n=1,na
-                  CALL en1_calc(n,u,v,w)
+                  call en1_calc(n,u,v,w)
                   asup=-delta/t-88.029
-                  IF(asup <= 0.0) THEN
+                  if(asup <= 0.0) then
                     ainf=-delta/t+89.415
-                    IF(ainf < 0) CYCLE
+                    if(ainf < 0) CYCLE
                     ex=EXP(-delta/t)
-                    IF(ex-ranf() < 0.0) CYCLE
-                  END IF
+                    if(ex-ranf() < 0.0) CYCLE
+                  end if
                   en=en+delta
                   sx(n,u,v,w)=x
                   sy(n,u,v,w)=y
                   sz(n,u,v,w)=z
-                  IF (itim > nom) npaj=npaj+1
-                END DO
-              END DO
-            END DO
-          END DO
+                  if(itim > nom) npaj=npaj+1
+                end DO
+              end DO
+            end DO
+          end DO
 
 ! * * * MEAN VALUES AND VARIANCE OF MAGNETIC MOMENTS AND ENERGY * * *
 ! FIRST PART OF CALCULATION: SOMMATION OVER THE SNOM=IT-NOM LAST CYCLES
 
-          IF(itim-nom > 0) THEN
+          if(itim-nom > 0) then
             ini=ini+1
-          ELSE
+          else
             CYCLE
-          END IF
+          end if
           DO w=1,lw
             DO v=1,lv
               DO u=1,lu
@@ -2759,21 +2884,21 @@
                   somx2(k,u,v,w)=somx2(k,u,v,w)+sx(k,u,v,w)**2
                   somy2(k,u,v,w)=somy2(k,u,v,w)+sy(k,u,v,w)**2
                   somz2(k,u,v,w)=somz2(k,u,v,w)+sz(k,u,v,w)**2
-                END DO
-              END DO
-            END DO
-          END DO
+                end DO
+              end DO
+            end DO
+          end DO
           enm=enm+en
           en2m=en2m+en*en
           mag2=mag2+omx**2+omy**2+omz**2
           omx=0.0
           omy=0.0
           omz=0.0
-        END DO
+        end DO
 
-!***** END OF MONTE CARLO LOOPS FOR ISING SPINS *****
+!***** end OF MONTE CARLO LOOPS FOR ISING SPINS *****
 
-      ELSE IF (iran == 2) THEN     ! XY SPINS
+      else if(iran == 2) then     ! XY SPINS
 
 !***** MONTE CARLO LOOPS FOR XY SPINS *****
 
@@ -2782,31 +2907,31 @@
           DO v=1,lv
             DO u=1,lu
               DO n=1,na
-                CALL en2_calc(n,u,v,w)
+                call en2_calc(n,u,v,w)
                 asup=-delta/t-88.029
-                IF(asup <= 0.0) THEN
+                if(asup <= 0.0) then
                   ainf=-delta/t+89.415
-                  IF(ainf < 0) CYCLE
+                  if(ainf < 0) CYCLE
                   ex=EXP(-delta/t)
-                  IF(ex-ranf() < 0.0) CYCLE
-                END IF
+                  if(ex-ranf() < 0.0) CYCLE
+                end if
                 en=en+delta
                 sx(n,u,v,w)=x
                 sy(n,u,v,w)=y
-                IF (itim > nom) npaj=npaj+1
-              END DO
-            END DO
-          END DO
-        END DO
+                if(itim > nom) npaj=npaj+1
+              end DO
+            end DO
+          end DO
+        end DO
 
 ! * * * MEAN VALUES AND VARIANCE OF MAGNETIC MOMENTS AND ENERGY * * *
 ! FIRST PART OF CALCULATION: SOMMATION OVER THE SNOM=IT-NOM LAST CYCLES
 
-        IF(itim-nom > 0) THEN
+        if(itim-nom > 0) then
           ini=ini+1
-        ELSE
+        else
           CYCLE
-        END IF
+        end if
         DO w=1,lw
           DO v=1,lv
             DO u=1,lu
@@ -2817,21 +2942,21 @@
                 somy(k,u,v,w)=somy(k,u,v,w)+sy(k,u,v,w)
                 somx2(k,u,v,w)=somx2(k,u,v,w)+sx(k,u,v,w)**2
                 somy2(k,u,v,w)=somy2(k,u,v,w)+sy(k,u,v,w)**2
-              END DO
-            END DO
-          END DO
-        END DO
+              end DO
+            end DO
+          end DO
+        end DO
         enm=enm+en
         en2m=en2m+en*en
         mag2=mag2+omx**2+omy**2
         omx=0.0
         omy=0.0
         omz=0.0
-      END DO
+      end DO
 
-!***** END OF MONTE CARLO LOOPS FOR XY SPINS *****
+!***** end OF MONTE CARLO LOOPS FOR XY SPINS *****
 
-      ELSE IF (iran == 3) THEN     ! HEISENBERG SPINS
+      else if(iran == 3) then     ! HEISENBERG SPINS
 
 !***** MONTE CARLO LOOPS FOR HEISENBERG SPINS *****
 
@@ -2840,32 +2965,32 @@
           DO v=1,lv
             DO u=1,lu
               DO n=1,na
-                CALL en3_calc(n,u,v,w)
+                call en3_calc(n,u,v,w)
                 asup=-delta/t-88.029
-                IF(asup <= 0) THEN
+                if(asup <= 0) then
                   ainf=-delta/t+89.415
-                  IF(ainf < 0)  CYCLE
+                  if(ainf < 0)  CYCLE
                   ex=EXP(-delta/t)
-                  IF(ex-ranf() < 0.0) CYCLE
-                ENDIF
+                  if(ex-ranf() < 0.0) CYCLE
+                endIF
                 en=en+delta
                 sx(n,u,v,w)=x
                 sy(n,u,v,w)=y
                 sz(n,u,v,w)=z
-                IF (itim > nom) npaj=npaj+1
-              END DO
-            END DO
-          END DO
-        END DO
+                if(itim > nom) npaj=npaj+1
+              end DO
+            end DO
+          end DO
+        end DO
 
 ! * * * MEAN VALUES AND VARIANCE OF MAGNETIC MOMENTS AND ENERGY * * *
 ! FIRST PART OF CALCULATION: SOMMATION OVER THE SNOM=IT-NOM LAST CYCLES
 
-        IF(itim-nom > 0) THEN
+        if(itim-nom > 0) then
           ini=ini+1
-        ELSE
+        else
           CYCLE
-        END IF
+        end if
         DO w=1,lw
           DO v=1,lv
             DO u=1,lu
@@ -2879,22 +3004,22 @@
                 somx2(k,u,v,w)=somx2(k,u,v,w)+sx(k,u,v,w)**2
                 somy2(k,u,v,w)=somy2(k,u,v,w)+sy(k,u,v,w)**2
                 somz2(k,u,v,w)=somz2(k,u,v,w)+sz(k,u,v,w)**2
-              END DO
-            END DO
-          END DO
-        END DO
+              end DO
+            end DO
+          end DO
+        end DO
         enm=enm+en
         en2m=en2m+en*en
         mag2=mag2+omx**2+omy**2+omz**2
         omx=0.0
         omy=0.0
         omz=0.0
-      END DO
+      end DO
 
 
-!***** END OF MONTE CARLO LOOPS FOR HEISENBERG SPINS *****
+!***** end OF MONTE CARLO LOOPS FOR HEISENBERG SPINS *****
 
-      ELSE IF (iran == 4) THEN     ! q-STATE POTTS PLANAR SPINS
+      else if(iran == 4) then     ! q-STATE POTTS PLANAR SPINS
 
 !***** MONTE CARLO LOOPS FOR q-STATE PLANAR POTTS SPINS *****
 
@@ -2903,31 +3028,31 @@
           DO v=1,lv
             DO u=1,lu
               DO n=1,na
-                CALL enq_calc(n,u,v,w)
+                call enq_calc(n,u,v,w)
                 asup=-delta/t-88.029
-                IF(asup <= 0.0) THEN
+                if(asup <= 0.0) then
                   ainf=-delta/t+89.415
-                  IF(ainf < 0) CYCLE
+                  if(ainf < 0) CYCLE
                   ex=EXP(-delta/t)
-                  IF(ex-ranf() < 0.0) CYCLE
-                END IF
+                  if(ex-ranf() < 0.0) CYCLE
+                end if
                 en=en+delta
                 sx(n,u,v,w)=x
                 sy(n,u,v,w)=y
-                IF (itim > nom) npaj=npaj+1
-              END DO
-            END DO
-          END DO
-        END DO
+                if(itim > nom) npaj=npaj+1
+              end DO
+            end DO
+          end DO
+        end DO
 
 ! * * * MEAN VALUES AND VARIANCE OF MAGNETIC MOMENTS AND ENERGY * * *
 ! FIRST PART OF CALCULATION: SOMMATION OVER THE SNOM=IT-NOM LAST CYCLES
 
-        IF(itim-nom > 0) THEN
+        if(itim-nom > 0) then
           ini=ini+1
-        ELSE
+        else
           CYCLE
-        END IF
+        end if
         DO w=1,lw
           DO v=1,lv
             DO u=1,lu
@@ -2938,23 +3063,23 @@
                 somy(k,u,v,w)=somy(k,u,v,w)+sy(k,u,v,w)
                 somx2(k,u,v,w)=somx2(k,u,v,w)+sx(k,u,v,w)**2
                 somy2(k,u,v,w)=somy2(k,u,v,w)+sy(k,u,v,w)**2
-              END DO
-            END DO
-          END DO
-        END DO
+              end DO
+            end DO
+          end DO
+        end DO
         enm=enm+en
         en2m=en2m+en*en
         mag2=mag2+omx**2+omy**2
         omx=0.0
         omy=0.0
         omz=0.0
-      END DO
+      end DO
 
 
-!***** END OF MONTE CARLO LOOPS FOR q-STATE POTTS SPINS *****
+!***** end OF MONTE CARLO LOOPS FOR q-STATE POTTS SPINS *****
 
 
-      END IF
+      end if
 
       DO w=1,lw
         DO v=1,lv
@@ -2968,28 +3093,28 @@
               somy2(k,u,v,w)=somy2(k,u,v,w)/snom
               somz2(k,u,v,w)=somz2(k,u,v,w)/snom
               ax=somx2(k,u,v,w)-somx(k,u,v,w)**2
-              IF(ax < 0) ax=0
+              if(ax < 0) ax=0
               ay=somy2(k,u,v,w)-somy(k,u,v,w)**2
-              IF(ay < 0) ay=0
+              if(ay < 0) ay=0
               az=somz2(k,u,v,w)-somz(k,u,v,w)**2
-              IF(az < 0) az=0
+              if(az < 0) az=0
               somx2(k,u,v,w)=SQRT(ax)
               somy2(k,u,v,w)=SQRT(ay)
               somz2(k,u,v,w)=SQRT(az)
-            END DO
-          END DO
-        END DO
-      END DO
+            end DO
+          end DO
+        end DO
+      end DO
 
-      RETURN
+      Return
 
-      END SUBROUTINE mc_cycle
+      end Subroutine mc_cycle
 
 
-      SUBROUTINE en_tot(L,en1)
+      Subroutine en_tot(L,en1)
 !***********************************************************************
-!  This subroutine computes the total energy of the system.
-!  This subroutine calls the following subroutine:
+!  This Subroutine computes the total energy of the system.
+!  This Subroutine calls the following Subroutine:
 !     EN3_CALC(N,U,V,W)
 !***********************************************************************
       Use mcm_inc
@@ -2999,13 +3124,13 @@
       real(kind=dp) :: en0
       integer :: i,n,k,u,v,w,ier
       real(kind=sp) :: aux
-      character(len=80) :: time_line
+      character(len=80) :: time_line,filenam
       nmult=2
       DO i=1,na
         amps2(i)=0
-      END DO
+      end DO
       !For L=3 the copy the average magnetic moments into spin variables
-      !has been done before calling the subroutine
+      !has been done before calling the Subroutine
       x=0.0; y=0.0; z=0.0 !Initialize the spin components
       en0=0               !Needed for calculating the total energy with the
       nfip=0              !current spin configuration [Sx,Sy,Sz](n,u,v,w)
@@ -3013,24 +3138,28 @@
         DO v=1,lv
           DO u=1,lu
             DO n=1,na
-              CALL en3_calc(n,u,v,w)
+              call en3_calc(n,u,v,w)
               en0=en0-delta
-            END DO
-          END DO
-        END DO
-      END DO
+            end DO
+          end DO
+        end DO
+      end DO
       en=en0/2
       en1=en/nfa
-      IF (l == 1) THEN
-        WRITE(lpt ,"(a,f12.5)")'       *  Energy of the starting spin configuration = ',en1
-        WRITE(itto,"(a,f12.5)")'       *  Energy of the starting spin configuration = ',en1
-      ELSE IF (l == 2) then
-        WRITE(lpt ,"(a,f12.5)")'       *  Energy of the last spin configuration = ',en1
-        WRITE(itto,"(a,f12.5)")'       *  Energy of the last spin configuration = ',en1
+      if(l == 1) then
+        write(lpt ,"(a,f12.5)")'       *  Energy of the starting spin configuration = ',en1
+        write(itto,"(a,f12.5)")'       *  Energy of the starting spin configuration = ',en1
+
+      else if(l == 2) then
+        write(lpt ,"(a,f12.5)")'       *  Energy of the last spin configuration = ',en1
+        write(itto,"(a,f12.5)")'       *  Energy of the last spin configuration = ',en1
+
         do i=1,10
-         call write_fst(ier)
+         call write_fst('simann.fst',ier)
          if(ier == 0) exit
         end do
+        write(filenam,"(a,i3.3)") trim(nfil),job
+        call Write_Cfl(filenam)
         iwrt=iwrt-1
         call cpu_time(cpu_par)
         cpu= cpu_par-cpu
@@ -3044,24 +3173,24 @@
         write(unit=*,fmt="(a,f8.2,a,a,/)")" => Partial time:",cpu*60.0, &
                " seconds  ->  Approx. remaining time: ",trim(time_line)
         cpu=cpu_par
-      ELSE IF (l == 3) then
-        WRITE(lpt ,"(a,f12.5)")'       *  Energy of the average spin configuration = ',en1
-        WRITE(itto,"(a,f12.5)")' => Energy of the average spin configuration = ',en1
-      END IF
+      else if(l == 3) then
+        write(lpt ,"(a,f12.5)")'       *  Energy of the average spin configuration = ',en1
+        write(itto,"(a,f12.5)")' => Energy of the average spin configuration = ',en1
+      end if
       nfip=1
       DO i=1,na
         amps2(i)=amps(i)
-      END DO
+      end DO
       nmult=1
-      RETURN
+      Return
 
-      END SUBROUTINE en_tot
+      end Subroutine en_tot
 
 
-      SUBROUTINE const_funct()
+      Subroutine const_funct()
 
 !***********************************************************************
-!  This subroutine calculates the constraint function Fc of the system
+!  This Subroutine calculates the constraint function Fc of the system
 !  (for isotropic exchange only), according to the formula:
 !  (with the convention that a vector V' represents the transposed
 !  form of a vector V)
@@ -3075,7 +3204,7 @@
 !  rate inside compounds that undergo ordered magnetic frustration.
 !  P. Lacorre, J. Phys. C: Solid State Phys. 20 (1987) L775-L781
 !
-!  This subroutine calls the following subroutine:
+!  This Subroutine calls the following Subroutine:
 !     BOUND_COND
 !
 !***********************************************************************
@@ -3097,34 +3226,34 @@
               fjsm(n)=0
               DO k=1,nvs(n)
 
-                CALL bound_cond(n,k,u,v,w)
+                call bound_cond(n,k,u,v,w)
 
                 fjsx(n)=fjsx(n)+ajxx(n,k)*comx(nav(n,k),nu(k),nv(k),nw(k))
                 fjsy(n)=fjsy(n)+ajyy(n,k)*somy(nav(n,k),nu(k),nv(k),nw(k))
                 fjsz(n)=fjsz(n)+ajzz(n,k)*somz(nav(n,k),nu(k),nv(k),nw(k))
                 fjsm(n)=fjsm(n)+ABS(ajxx(n,k)) *tmom(nav(n,k),nu(k),nv(k),nw(k))
-              END DO
+              end DO
 
 ! * * *   COMPUTATION OF THE NUMERATOR (FCNU=2*(MEAN ENERGY))   * * *
 ! * * *   AND DENOMINATOR (FCDE=-2*(BASIC MEAN ENERGY)) OF FC   * * *
 
              fcnu=fcnu-comx(n,u,v,w)*fjsx(n)-somy(n,u,v,w)*fjsy(n)-somz(n,u,v,w)*fjsz(n)
              fcde=fcde+tmom(n,u,v,w)*fjsm(n)
-            END DO
-          END DO
-        END DO
-      END DO
-      IF (fcde < 0.000001) fcde=0.000001
+            end DO
+          end DO
+        end DO
+      end DO
+      if(fcde < 0.000001) fcde=0.000001
       fconst=fcnu/fcde
       rc=50*(1+fconst)
 
-      RETURN
-      END SUBROUTINE const_funct
+      Return
+      end Subroutine const_funct
 
 
-      SUBROUTINE pro_rota()
+      Subroutine pro_rota()
 !***********************************************************************
-!  This subroutine computes, at the end of simulation, the projection
+!  This Subroutine computes, at the end of simulation, the projection
 !  of magnetic moments onto the crystal axes, and rotates the whole
 !  system in order to align a given magnetic moment along the desired
 !  direction.
@@ -3137,7 +3266,7 @@
 !  - the components of magnetic moments inside the crystallographic
 !    reference frame after rotation
 !
-!  The following parameters are used in the subroutine :
+!  The following parameters are used in the Subroutine :
 !
 !                    TRANSFORMATION MATRICES
 !         between orthonormal coordinate system (o.c.s.)
@@ -3159,7 +3288,7 @@
 !  ( ref.: J.BASS_Cours de Mathematiques T.I f.1 MASSON(1977) )
 !                       ( p 130 - ex 36 )
 !
-!  if S = arbitrary vector
+!  ifS = arbitrary vector
 !     S'= transformation of S by the rotation
 !     U = normalised UOR
 !
@@ -3167,7 +3296,7 @@
 !         -------------------------------------------
 !
 !
-!  This subroutine calls the following subroutine:
+!  This Subroutine calls the following Subroutine:
 !     conv_matrix
 !
 !***********************************************************************
@@ -3181,40 +3310,40 @@
       real(kind=dp) :: enma,enm2
       real(kind=dp),dimension(3) :: vecto,vectx
 
-      !READ(i01,*)aax,aay,aaz,aaa,aab,aag  !Removed from here for reading cell event if PRO_ROTA is not invoked
+      !read(i01,*)aax,aay,aaz,aaa,aab,aag  !Removed from here for reading cell event ifPRO_ROTA is not invoked
 
 
 ! * * * NOR = INDEX OF MOMENT TAKEN AS REFERENCE (CELL (1,1,1)) * * *
       if(.not. batch) then
          DO
-           WRITE(itto,"(a)") ' => Do you want to redefine the orientation of magnetic moments'
-           WRITE(itto,"(a)") '    in the crystal cell ?'
-           WRITE(itto,"(a)") '              0    : do not'
-           WRITE(itto,"(a)") '           N =< NA : ordinal number of the magnetic moment to be'
-           WRITE(itto,"(a)") '                     used to calculate the new orientation'
-           WRITE(itto,"(a)",advance='no') ' => Option: '
-           READ(itti,*,iostat=ier) nor
+           write(itto,"(a)") ' => Do you want to redefine the orientation of magnetic moments'
+           write(itto,"(a)") '    in the crystal cell ?'
+           write(itto,"(a)") '              0    : do not'
+           write(itto,"(a)") '           N =< NA : ordinal number of the magnetic moment to be'
+           write(itto,"(a)") '                     used to calculate the new orientation'
+           write(itto,"(a)",advance='no') ' => Option: '
+           read(itti,*,iostat=ier) nor
            if(ier /= 0) cycle
-           IF ((nor < 0) .OR. (nor > na)) CYCLE
+           if((nor < 0) .or. (nor > na)) CYCLE
            EXIT
-         END DO
-         WRITE(iba,*)nor
+         end DO
+         write(iba,*)nor
       end if
       !--------------------
-      IF (nor /= 0) THEN
+      if(nor /= 0) then
       !--------------------
         sorx=comx(nor,1,1,1)
         sory=somy(nor,1,1,1)
         sorz=somz(nor,1,1,1)
         if(.not. batch) then
            Do
-             Write(itto,"(a,i2,a)",advance='no')' => Give new orientation of magnetic moment of SITE ',nor, &
+             write(itto,"(a,i2,a)",advance='no')' => Give new orientation of magnetic moment of SITE ',nor, &
                               ' in the crystal cell: '
-             Read(itti,*,iostat=ier) dorx,dory,dorz
-             If(ier /= 0) cycle
+             read(itti,*,iostat=ier) dorx,dory,dorz
+             if(ier /= 0) cycle
              Exit
-           End Do
-           Write(iba,*)dorx,dory,dorz
+           end Do
+           write(iba,*)dorx,dory,dorz
        end if
 ! DORX,DORY,DORZ : NEW DIRECTION OF MOMENT NOR INSIDE THE CRYSTAL. REFERENCE
 
@@ -3274,13 +3403,13 @@
 !   *   SOMRZ2          ORTHONORMAL SYSTEM AFTER ROTATION   *
 
 
-              END DO
-            END DO
-          END DO
-        END DO
+              end DO
+            end DO
+          end DO
+        end DO
 
 
-! * * * END OF CALCULATION INSIDE THE ORTHONORMAL SYSTEM * * *
+! * * * end OF CALCULATION INSIDE THE ORTHONORMAL SYSTEM * * *
 
 ! * * * COMPUTATION INSIDE THE CRISTALLOGRAPHIC REFERENCE FRAME * * *
 
@@ -3302,12 +3431,12 @@
                 somrx2(k,u,v,w)= vectx(1)!ac(1,1)*somrx2(k,u,v,w) +ac(1,2)*somry2(k,u,v,w)+ac(1,3)*somrz2(k,u,v,w)
                 somry2(k,u,v,w)= vectx(2)!ac(2,1)*somrx2(k,u,v,w) +ac(2,2)*somry2(k,u,v,w)+ac(2,3)*somrz2(k,u,v,w)
                 somrz2(k,u,v,w)= vectx(3)!ac(3,1)*somrx2(k,u,v,w) +ac(3,2)*somry2(k,u,v,w)+ac(3,3)*somrz2(k,u,v,w)
-              END DO
-            END DO
-          END DO
-        END DO
+              end DO
+            end DO
+          end DO
+        end DO
       !--------------------
-      END IF  !nor /= 0
+      end if !nor /= 0
       !--------------------
 
 !   *   PROJECTION OF MAGNETIC MOMENTS BEFORE ROTATION   *
@@ -3329,20 +3458,18 @@
               somx2(k,u,v,w)= vectx(1)!ac(1,1)*somx2(k,u,v,w) +ac(1,2)*somy2(k,u,v,w)+ac(1,3)*somz2(k,u,v,w)
               somy2(k,u,v,w)= vectx(2)!ac(2,1)*somx2(k,u,v,w) +ac(2,2)*somy2(k,u,v,w)+ac(2,3)*somz2(k,u,v,w)
               somz2(k,u,v,w)= vectx(3)!ac(3,1)*somx2(k,u,v,w) +ac(3,2)*somy2(k,u,v,w)+ac(3,3)*somz2(k,u,v,w)
-            END DO
-          END DO
-        END DO
-      END DO
+            end DO
+          end DO
+        end DO
+      end DO
 
-! ***** END OF CALCULATION FOR PROJECTION AND ROTATION *****
+! ***** end OF CALCULATION FOR PROJECTION AND ROTATION *****
 
 ! ***** OUTPUT RESULTS OF PROJECTION AND ROTATION *****
 
-      WRITE(lpt,517)aax,aay,aaz,aaa,aab,aag
-      WRITE(itto,"(/)")
-      WRITE(lpt,"(/)")
-      WRITE(itto,618)
-      WRITE(lpt,618)
+      write(lpt,517)aax,aay,aaz,aaa,aab,aag
+      write(lpt,"(/)")
+      write(lpt,618)
       DO w=1,lw
         DO v=1,lv
           DO u=1,lu
@@ -3350,98 +3477,74 @@
               isigx(n)=NINT(1000*somx2(n,u,v,w))
               isigy(n)=NINT(1000*somy2(n,u,v,w))
               isigz(n)=NINT(1000*somz2(n,u,v,w))
-            END DO
+            end DO
             npi=1
             npf=na
-            WRITE(lpt,498)u,v,w
-            WRITE(itto,498)u,v,w
-            WRITE(lpt,"(a)")
-            WRITE(itto,"(a)")
+            write(lpt,498)u,v,w
+            write(lpt,"(a)")
 
             npassa=0
- 3412       IF((na-nal*npassa) > nal) npf=npi+nal-1
+ 3412       if((na-nal*npassa) > nal) npf=npi+nal-1
             npassa=npassa+1
-            WRITE(itto,491)
-            WRITE(lpt,491)
+            write(lpt,491)
             DO n=npi,npf
-              WRITE(itto,496)n
-              WRITE(lpt,496)n
-            END DO
-            WRITE(itto,"(a)")
-            WRITE(lpt,"(a)")
-            WRITE(lpt,497)(comx(n,u,v,w),n=npi,npf)
-            WRITE(lpt,487)(isigx(n),n=npi,npf)
-            WRITE(lpt,493)(somy(n,u,v,w),n=npi,npf)
-            WRITE(lpt,487)(isigy(n),n=npi,npf)
-            WRITE(lpt,494)(somz(n,u,v,w),n=npi,npf)
-            WRITE(lpt,487)(isigz(n),n=npi,npf)
-            WRITE(itto,497)(comx(n,u,v,w),n=npi,npf)
-            WRITE(itto,487)(isigx(n),n=npi,npf)
-            WRITE(itto,493)(somy(n,u,v,w),n=npi,npf)
-            WRITE(itto,487)(isigy(n),n=npi,npf)
-            WRITE(itto,494)(somz(n,u,v,w),n=npi,npf)
-            WRITE(itto,487)(isigz(n),n=npi,npf)
-            WRITE(itto,"(/)")
-            WRITE(lpt,"(/)")
-            IF (npf >= npi+nal-1) THEN
-              IF ( (npi /= 1).OR.(npf /= na) ) THEN
+              write(lpt,496)n
+            end DO
+            !write(itto,"(a)")
+            write(lpt,"(a)")
+            write(lpt,497)(comx(n,u,v,w),n=npi,npf)
+            write(lpt,487)(isigx(n),n=npi,npf)
+            write(lpt,493)(somy(n,u,v,w),n=npi,npf)
+            write(lpt,487)(isigy(n),n=npi,npf)
+            write(lpt,494)(somz(n,u,v,w),n=npi,npf)
+            write(lpt,487)(isigz(n),n=npi,npf)
+            write(lpt,"(/)")
+            if(npf >= npi+nal-1) then
+              if( (npi /= 1).or.(npf /= na) ) then
                 npi=npf+1
                 npf=na
-                IF (npi < npf) GO TO 3412
-              END IF
-            END IF
-          END DO
-        END DO
-      END DO
+                if(npi < npf) GO TO 3412
+              end if
+            end if
+          end DO
+        end DO
+      end DO
 
-      IF(nor == 0) return
-      WRITE(itto,"(/)")
-      WRITE(lpt,"(/)")
-      WRITE(itto,638)nor,dorix,doriy,doriz
-      WRITE(lpt,638)nor,dorix,doriy,doriz
-      WRITE(itto,"(/)")
-      WRITE(lpt,"(/)")
-      WRITE(itto,628)
-      WRITE(lpt,628)
+      if(nor == 0) Return
+      write(lpt,"(/)")
+      write(lpt,638)nor,dorix,doriy,doriz
+      write(lpt,"(/)")
+      write(lpt,628)
       DO w=1,lw
         DO v=1,lv
           DO u=1,lu
             npi=1
             npf=na
-            WRITE(lpt,498)u,v,w
-            WRITE(itto,498)u,v,w
-            WRITE(lpt,"(a)")
-            WRITE(itto,"(a)")
+            write(lpt,498)u,v,w
+            write(lpt,"(a)")
 
             npassb=0
- 2412       IF((na-nal*npassb) > nal) npf=npi+nal-1
+ 2412       if((na-nal*npassb) > nal) npf=npi+nal-1
             npassb=npassb+1
-            WRITE(itto,491)
-            WRITE(lpt,491)
+            write(lpt,491)
             DO n=npi,npf
-              WRITE(itto,496)n
-              WRITE(lpt,496)n
-            END DO
-            WRITE(itto,"(a)")
-            WRITE(lpt,"(a)")
-            WRITE(lpt,497)(somrx(n,u,v,w),n=npi,npf)
-            WRITE(lpt,493)(somry(n,u,v,w),n=npi,npf)
-            WRITE(lpt,494)(somrz(n,u,v,w),n=npi,npf)
-            WRITE(itto,497)(somrx(n,u,v,w),n=npi,npf)
-            WRITE(itto,493)(somry(n,u,v,w),n=npi,npf)
-            WRITE(itto,494)(somrz(n,u,v,w),n=npi,npf)
-            WRITE(itto,"(/)")
-            WRITE(lpt,"(/)")
-            IF (npf >= npi+nal-1) THEN
-              IF ( (npi /= 1).OR.(npf /= na) ) THEN
+              write(lpt,496)n
+            end DO
+            write(lpt,"(a)")
+            write(lpt,497)(somrx(n,u,v,w),n=npi,npf)
+            write(lpt,493)(somry(n,u,v,w),n=npi,npf)
+            write(lpt,494)(somrz(n,u,v,w),n=npi,npf)
+            write(lpt,"(/)")
+            if(npf >= npi+nal-1) then
+              if( (npi /= 1).or.(npf /= na) ) then
                 npi=npf+1
                 npf=na
-                IF (npi > npf) GO TO 2412
-              END IF
-            END IF
-          END DO
-        END DO
-      END DO
+                if(npi > npf) GO TO 2412
+              end if
+            end if
+          end DO
+        end DO
+      end DO
 
 
       613 FORMAT(1X,3(f8.4,1X),6X,3(f8.4,1X))
@@ -3465,14 +3568,14 @@
             , ' CELL AFTER ROTATION',/,'   ***********************'  &
             , '********************************************',/)
 
-            RETURN
+            Return
 
-      END SUBROUTINE pro_rota
+      end Subroutine pro_rota
 
 
-      SUBROUTINE out_res()
+      Subroutine out_res()
 !***********************************************************************
-!  This subroutine outputs the averaged characteristics in files
+!  This Subroutine outputs the averaged characteristics in files
 !  MYFILE.LIS and MYFILE.RES (if activated) at the end of every
 !  temperature/field loop.
 !
@@ -3490,7 +3593,7 @@
 !  CVA = (<E**2>-<E>**2)/T**2    (where E represents the energy)
 !  SUSA = (<M**2>-<M>**2)/T      (where M represents the magnetization)
 !
-!  This subroutine calls no subroutine.
+!  This Subroutine calls no Subroutine.
 !***********************************************************************
 
       Use mcm_inc
@@ -3513,50 +3616,50 @@
       ampara=hdix*amx+hdiy*amy+hdiz*amz
       ammca=ammc/nfa
       ampara=ampara/nfa
-      IF (ammc /= 0.0) THEN
+      if(ammc /= 0.0) then
         xm=amx/ammc
         ym=amy/ammc
         zm=amz/ammc
-      ELSE
+      else
         xm=0.0
         ym=0.0
         zm=0.0
-      END IF
+      end if
       susa=(mag2-ammc**2)/t
       susa=susa/nfa
-      IF (susa > 0.0) THEN
+      if(susa > 0.0) then
         suam1=1.0/susa
-        IF(ABS(suam1) > 9999.999) suam1=9999.999
-      END IF
+        if(ABS(suam1) > 9999.999) suam1=9999.999
+      end if
       cva=(en2m-enm2)/(t*t)
       cva=cva/nfa
-      IF(cva > 9999.999) cva=9999.999
+      if(cva > 9999.999) cva=9999.999
       enm=0
       en2m=0
       mag2=0
       ammc=0
-      IF (last == 1) last=0
-      IF (jcod /= 0) THEN
-        WRITE(lpt,993)paj,xm,ym,zm,hx0,hy0,hz0
-        WRITE(itto,993)paj,xm,ym,zm,hx0,hy0,hz0
-      ELSE
-        WRITE(lpt,693)paj,fconst,rc,xm,ym,zm,hx0,hy0,hz0
-        WRITE(itto,693)paj,fconst,rc,xm,ym,zm,hx0,hy0,hz0
+      if(last == 1) last=0
+      if(jcod /= 0) then
+        write(lpt,993)paj,xm,ym,zm,hx0,hy0,hz0
+        write(itto,993)paj,xm,ym,zm,hx0,hy0,hz0
+      else
+        write(lpt,693)paj,fconst,rc,xm,ym,zm,hx0,hy0,hz0
+        write(itto,693)paj,fconst,rc,xm,ym,zm,hx0,hy0,hz0
       693 FORMAT(7X,'*  Rate of accepted jumps : ',f7.3,' %',/,  &
           7X,'*  Fc = ',f8.5,'   -   Rc = ',f7.3,' %',/,  &
           7X,'*  MTOT   along the direction ',3(1X,f6.3),/,  &
           7X,'*  M//    along the direction ',3(1X,f6.3))
-      END IF
-      WRITE(itto,263)j1,j2,j3
-      WRITE(lpt,263)j1,j2,j3
-      WRITE(itto,264)susa,suam1,cva,enma,ammca,  &
+      end if
+      write(itto,263)j1,j2,j3
+      write(lpt,263)j1,j2,j3
+      write(itto,264)susa,suam1,cva,enma,ammca,  &
           tmom(j1,1,1,1),tmom(j2,1,1,1),tmom(j3,1,1,1), ampara
-      WRITE(lpt,264)susa,suam1,cva,enma,ammca,  &
+      write(lpt,264)susa,suam1,cva,enma,ammca,  &
           tmom(j1,1,1,1),tmom(j2,1,1,1),tmom(j3,1,1,1), ampara
-      IF ((ansrf == 'Y').OR.(ansrf == 'y')) THEN
-        WRITE(i03,265)t,hk,suam1,cva,enma,ammca,  &
+      if((ansrf == 'Y').or.(ansrf == 'y')) then
+        write(i03,265)t,hk,suam1,cva,enma,ammca,  &
             tmom(j1,1,1,1),tmom(j2,1,1,1),tmom(j3,1,1,1), ampara,fconst
-      END IF
+      end if
 
 
       993 FORMAT(7X,'*  Rate of accepted jumps : ',f7.3,' %',/,  &
@@ -3568,16 +3671,16 @@
       263 FORMAT(7X,'*    SUSC',4X,'1/SUS',4X,'SP. HT.',6X,'EN',5X,'MTOT',  &
           1X,3(1X,'M(',i2,')'),4X,'M//')
 
-      RETURN
+      Return
 
-      END SUBROUTINE out_res
+      end Subroutine out_res
 
 
-      SUBROUTINE out_conf()
+      Subroutine out_conf()
 !***********************************************************************
-!  This subroutine output the configuration of magnetic moments at
+!  This Subroutine output the configuration of magnetic moments at
 !  current temperature and field.
-!  This subroutine calls no subroutine.
+!  This Subroutine calls no Subroutine.
 !***********************************************************************
       Use mcm_inc
       implicit none
@@ -3587,16 +3690,16 @@
       amx=0.0
       amy=0.0
       amz=0.0
-      prt=((ansnev == 'E').OR.(ansnev == 'e'))
-      prta=((ansnev == 'A').OR.(ansnev == 'a'))
-      prte= (prt .or. prta) .AND. (last == 1)
+      prt=((ansnev == 'E').or.(ansnev == 'e'))
+      prta=((ansnev == 'A').or.(ansnev == 'a'))
+      prte= (prt .or. prta) .and. (last == 1)
 
-      IF ( prte) then
+      if( prte) then
 
-        WRITE(lpt,"(/a/a/)") &
+        write(lpt,"(/a/a/)") &
           '                    Mean Configuration of Magnetic Moments',   &
           '                            ---------------------'
-      END IF
+      end if
 
       DO w=1,lw
         DO v=1,lv
@@ -3605,48 +3708,39 @@
             DO k=1,na
               tmom(k,u,v,w)=SQRT( somx(k,u,v,w)**2 +somy(k,u,v,w)**2  &
                   +somz(k,u,v,w)**2 )
-            END DO
+            end DO
             npi=1
             npf=na
 
-            ! Modification of the original IF block!  (caused by illegal goto 1412!)
+            ! Modification of the original ifblock!  (caused by illegal goto 1412!)
 
-            IF ( prta .OR. prt)  THEN
+            if( prta .or. prt)  then
 
                 if( prte) then !Print only at the end
-                   WRITE(itto,"(a,i2,a,i2,a,i2,a,/)")'  CELL (', u, ',', v, ',', w, ')'
-                   WRITE( lpt,"(a,i2,a,i2,a,i2,a,/)")'  CELL (', u, ',', v, ',', w, ')'
-
-                   WRITE(itto,"(3x,50(a,i2))")("   Site",n,n=npi,npf)
-                   WRITE( lpt,"(3x,50(a,i2))")("   Site",n,n=npi,npf)
+                   write( lpt,"(a,i2,a,i2,a,i2,a,/)")'  CELL (', u, ',', v, ',', w, ')'
+                   write( lpt,"(3x,50(a,i2))")("   Site",n,n=npi,npf)
                 end if
 
               DO k=npi,npf
                 isigx(k)=NINT(1000*somx2(k,u,v,w))
                 isigy(k)=NINT(1000*somy2(k,u,v,w))
                 isigz(k)=NINT(1000*somz2(k,u,v,w))
-              END DO
+              end DO
 
               if(prte) then !Print only at the end
-                 WRITE(lpt,"(a,50(1X,f6.3,2X))") "   Mx",(somx(n,u,v,w),n=npi,npf)
-                 WRITE(lpt,"(5X,50(3X,i4,2X))")          (isigx(n),n=npi,npf)
-                 WRITE(itto,"(a,50(1X,f6.3,2X))")"   Mx",(somx(n,u,v,w),n=npi,npf)
-                 WRITE(itto,"(5X,50(3X,i4,2X))")         (isigx(n),n=npi,npf)
-                 IF(iwmx /= 1) then
-                    WRITE(lpt,"(a,50(1X,f6.3,2X))") "   My",(somy(n,u,v,w),n=npi,npf)
-                    WRITE(lpt,"(5X,50(3X,i4,2X))")          (isigy(n),n=npi,npf)
-                    WRITE(itto,"(a,50(1X,f6.3,2X))")"   My",(somy(n,u,v,w),n=npi,npf)
-                    WRITE(itto,"(5X,50(3X,i4,2X))")         (isigy(n),n=npi,npf)
-                    IF(iwmxy /= 1) then
-                       WRITE(lpt,"(a,50(1X,f6.3,2X))") "   Mz",(somz(n,u,v,w),n=npi,npf)
-                       WRITE(lpt,"(5X,50(3X,i4,2X))")          (isigz(n),n=npi,npf)
-                       WRITE(itto,"(a,50(1X,f6.3,2X))")"   Mz",(somz(n,u,v,w),n=npi,npf)
-                       WRITE(itto,"(5X,50(3X,i4,2X))")         (isigz(n),n=npi,npf)
+                 write(lpt,"(a,50(1X,f6.3,2X))") "   Mx",(somx(n,u,v,w),n=npi,npf)
+                 write(lpt,"(5X,50(3X,i4,2X))")          (isigx(n),n=npi,npf)
+                 if(iwmx /= 1) then
+                    write(lpt,"(a,50(1X,f6.3,2X))") "   My",(somy(n,u,v,w),n=npi,npf)
+                    write(lpt,"(5X,50(3X,i4,2X))")          (isigy(n),n=npi,npf)
+                    if(iwmxy /= 1) then
+                       write(lpt,"(a,50(1X,f6.3,2X))") "   Mz",(somz(n,u,v,w),n=npi,npf)
+                       write(lpt,"(5X,50(3X,i4,2X))")          (isigz(n),n=npi,npf)
                     end if
                  end if
               end if
               do k=npi,npf
-                if (tmom(k,u,v,w) > 0.00001) then
+                if(tmom(k,u,v,w) > 0.00001) then
                   somx(k,u,v,w)=( ABS(somx(k,u,v,w))*somx2(k,u,v,w)  &
                       +ABS(somy(k,u,v,w))*somy2(k,u,v,w)  &
                       +ABS(somz(k,u,v,w))*somz2(k,u,v,w) ) /tmom(k,u,v,w)
@@ -3656,13 +3750,10 @@
                 isigm(k)=NINT(1000*somx(k,u,v,w))
               end do
               if(prte) then !Print only at the end
-                IF(iwmx /= 1) then
-                   Write(lpt,"(a,50(1X,f6.3,2X))") " Mtot",(tmom(n,u,v,w),n=npi,npf)
-                   Write(lpt,"(5X,50(3X,i4,2X))")          (isigm(n),n=npi,npf)
-                   Write(itto,"(a,50(1X,f6.3,2X))")" Mtot",(tmom(n,u,v,w),n=npi,npf)
-                   Write(itto,"(5X,50(3X,i4,2X))")         (isigm(n),n=npi,npf)
+                if(iwmx /= 1) then
+                   write(lpt,"(a,50(1X,f6.3,2X))") " Mtot",(tmom(n,u,v,w),n=npi,npf)
+                   write(lpt,"(5X,50(3X,i4,2X))")          (isigm(n),n=npi,npf)
                 end if
-                write(itto,"(a)")
                 write(lpt,"(a)")
               end if
 
@@ -3670,27 +3761,27 @@
                 amx=amx+comx(l,u,v,w)
                 amy=amy+somy(l,u,v,w)
                 amz=amz+somz(l,u,v,w)
-              END DO
+              end DO
 
-            END IF
+            end if
 
-          END DO
-        END DO
-      END DO
+          end DO
+        end DO
+      end DO
 
-      RETURN
+      Return
 
-      END SUBROUTINE out_conf
+      end Subroutine out_conf
 
 
-      SUBROUTINE bound_cond(n,k,u,v,w)
+      Subroutine bound_cond(n,k,u,v,w)
       Use mcm_inc
       implicit none
       integer, intent(in) :: n,k,u,v,w
 
 
 !***********************************************************************
-!  This subroutine implements the boundary conditions for spins at
+!  This Subroutine implements the boundary conditions for spins at
 !  the edges of the sample. Three kinds of boundary conditions are
 !  available:
 !
@@ -3704,7 +3795,7 @@
 !    ----------------------------
 !    spins at one edge of the sample are connected to spins at the
 !    opposite edge of the sample. This condition imposes a 3D perio-
-!    dicity to the system. Then the system may be thought of as an
+!    dicity to the system. then the system may be thought of as an
 !    infinite size crystal with an elementary cell equal to the
 !    sample dimension.
 !
@@ -3715,138 +3806,138 @@
 !    It corresponds to free edges along one direction (axis W) and
 !    p.b.c along the other two directions.
 !
-!     This subroutine calls no subroutine.
+!     This Subroutine calls no Subroutine.
 !***********************************************************************
       nu(k)=u+m(n,k,1)
       nv(k)=v+m(n,k,2)
       nw(k)=w+m(n,k,3)
-      IF(ianb < 0) THEN
+      if(ianb < 0) then
         GO TO    97
-      ELSE IF (ianb == 0) THEN
+      else if(ianb == 0) then
         GO TO   199
-      ELSE
+      else
         GO TO    99
-      END IF
+      end if
 
 !   * MIXED BOUNDARY CONDITIONS   *
 
-      97   IF(nu(k) > 0) THEN
+      97   if(nu(k) > 0) then
         GO TO   910
-      END IF
+      end if
       900     nu(k)=nu(k)+lu
       GO TO 930
-      910     IF(lu-nu(k) < 0) THEN
+      910     if(lu-nu(k) < 0) then
         GO TO   920
-      ELSE
+      else
         GO TO   930
-      END IF
+      end if
       920       nu(k)=nu(k)-lu
-      930       IF(nv(k) > 0) THEN
+      930       if(nv(k) > 0) then
         GO TO   950
-      END IF
+      end if
       940         nv(k)=nv(k)+lv
       GO TO 970
-      950         IF(lv-nv(k) < 0) THEN
+      950         if(lv-nv(k) < 0) then
         GO TO   960
-      ELSE
+      else
         GO TO   970
-      END IF
+      end if
       960           nv(k)=nv(k)-lv
-      970           IF(nw(k) > 0) THEN
+      970           if(nw(k) > 0) then
         GO TO   990
-      END IF
+      end if
       980             nw(k)=nwmax+1
       GO TO 911
-      990             IF(lw-nw(k) < 0) THEN
+      990             if(lw-nw(k) < 0) then
         GO TO   901
-      ELSE
+      else
         GO TO   911
-      END IF
+      end if
       901               nw(k)=nwmax+1
       911               GO TO 98
 
 !   * PERIODIC BOUNDARY CONDITIONS   *
 
-      99 IF(nu(k) > 0) THEN
+      99 if(nu(k) > 0) then
         GO TO   110
-      END IF
+      end if
       100     nu(k)=nu(k)+lu
       GO TO 130
-      110     IF(lu-nu(k) < 0) THEN
+      110     if(lu-nu(k) < 0) then
         GO TO   120
-      ELSE
+      else
         GO TO   130
-      END IF
+      end if
       120       nu(k)=nu(k)-lu
-      130       IF(nv(k) > 0) THEN
+      130       if(nv(k) > 0) then
         GO TO   150
-      END IF
+      end if
       140         nv(k)=nv(k)+lv
       GO TO 170
-      150         IF(lv-nv(k) < 0) THEN
+      150         if(lv-nv(k) < 0) then
         GO TO   160
-      ELSE
+      else
         GO TO   170
-      END IF
+      end if
       160           nv(k)=nv(k)-lv
-      170           IF(nw(k) > 0) THEN
+      170           if(nw(k) > 0) then
         GO TO   190
-      END IF
+      end if
       180             nw(k)=nw(k)+lw
       GO TO 210
-      190             IF(lw-nw(k) < 0) THEN
+      190             if(lw-nw(k) < 0) then
         GO TO   200
-      ELSE
+      else
         GO TO   210
-      END IF
+      end if
       200               nw(k)=nw(k)-lw
       210               GO TO 98
 
 !   * FREE EDGES   *
 
-      199   IF(nu(k) > 0) THEN
+      199   if(nu(k) > 0) then
         GO TO   310
-      END IF
+      end if
       300     nu(k)=numax+1
       GO TO 330
-      310     IF(lu-nu(k) < 0) THEN
+      310     if(lu-nu(k) < 0) then
         GO TO   320
-      ELSE
+      else
         GO TO   330
-      END IF
+      end if
       320       nu(k)=numax+1
-      330       IF(nv(k) > 0) THEN
+      330       if(nv(k) > 0) then
         GO TO   350
-      END IF
+      end if
       340         nv(k)=nvmax+1
       GO TO 370
-      350         IF(lv-nv(k) < 0) THEN
+      350         if(lv-nv(k) < 0) then
         GO TO   360
-      ELSE
+      else
         GO TO   370
-      END IF
+      end if
       360           nv(k)=nvmax+1
-      370           IF(nw(k) > 0) THEN
+      370           if(nw(k) > 0) then
         GO TO   390
-      END IF
+      end if
       380            nw(k)=nwmax+1
       GO TO 98
-      390             IF(lw-nw(k) < 0) THEN
+      390             if(lw-nw(k) < 0) then
         GO TO   400
-      ELSE
+      else
         GO TO    98
-      END IF
+      end if
       400               nw(k)=nwmax+1
       98               CONTINUE
 
-      RETURN
+      Return
 
-      END SUBROUTINE bound_cond
+      end Subroutine bound_cond
 
 !***********************************************************************
-!       General description of subroutines ENn_CALC(N,U,V,W)
+!       General description of Subroutines ENn_CALC(N,U,V,W)
 !
-!  The subroutines ENn_CALC(N,U,V,W) calculate the energy difference
+!  The Subroutines ENn_CALC(N,U,V,W) calculate the energy difference
 !  between the new randomly generated configuration (NEW) and the old
 !  configuration (OLD), expressed as DELTA = E(OLD) - E(NEW)
 !  according to the energy formula :
@@ -3867,7 +3958,7 @@
 !      _ then DELTA difference is calculated according to the above
 !        formula.
 !
-!  The four subroutines ENn_CALC(N,U,V,W) concern different spin
+!  The four Subroutines ENn_CALC(N,U,V,W) concern different spin
 !  models, namely:
 !      the Ising model                       with  EN1_CALC(N,U,V,W)
 !      the XY model                          with  EN2_CALC(N,U,V,W)
@@ -3875,19 +3966,19 @@
 !      the q-state Potts planar (XY) model   with  ENq_CALC(N,U,V,W)
 !  Only one of them is activated at every run of the program.
 !
-!  These subroutines call the following subroutines:
+!  These Subroutines call the following Subroutines:
 !     BOUND_COND
 !     RANnD(RADIUS,X1,Y1,,)
 !***********************************************************************
 
 
-      SUBROUTINE en1_calc(n,u,v,w)
+      Subroutine en1_calc(n,u,v,w)
       Use mcm_inc
       implicit none
       integer, intent(in) :: n,u,v,w
 
 !***********************************************************************
-!  See the general description of subroutines ENn_CALC(N,U,V,W)
+!  See the general description of Subroutines ENn_CALC(N,U,V,W)
 !  just above.
 !  EN1_CALC(N,U,V,W) deals with Ising spins.
 !***********************************************************************
@@ -3901,34 +3992,34 @@
         ajyy(n,k)=ajjy(n,k)
         ajzz(n,k)=ajjz(n,k)
 
-        IF ((ansmod == 'Y').OR.(ansmod == 'y')) THEN
+        if((ansmod == 'Y').or.(ansmod == 'y')) then
 
 
 !*****    LOCAL MODIFICATION OF COUPLING (IF ANY)    ******
 
 
           DO i=1,im
-            IF ( (w == iwm(i)).AND.(v == ivm(i)).AND.(u == ium(i))  &
-                  .AND.(n == nm(i)).AND.(k == numb(i)) ) THEN
+            if( (w == iwm(i)).and.(v == ivm(i)).and.(u == ium(i))  &
+                  .and.(n == nm(i)).and.(k == numb(i)) ) then
               ajxx(n,k)=ajmod(i)
               ajyy(n,k)=ajmod(i)
               ajzz(n,k)=ajmod(i)
-            END IF
-          END DO
+            end if
+          end DO
 
 
-!*****    END OF MODIFICATION    *****
+!*****    end OF MODIFICATION    *****
 
 
-        END IF
+        end if
 
-        CALL bound_cond(n,k,u,v,w)
+        call bound_cond(n,k,u,v,w)
 
 
 !*****    COMPUTE DELTA    *****
 
-        IF ( (nav(n,k) /= n).OR.(nu(k) /= u).OR.(nv(k) /= v)  &
-              .OR.(nw(k) /= w) ) THEN
+        if( (nav(n,k) /= n).or.(nu(k) /= u).or.(nv(k) /= v)  &
+              .or.(nw(k) /= w) ) then
           ajsx(n)=ajsx(n)+ajxx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))
@@ -3938,12 +4029,12 @@
           ajsz(n)=ajsz(n)+ajzz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))
-        END IF
-      END DO
+        end if
+      end DO
 
-      IF (nfip /= 0) THEN
-        CALL ran1d (amps2(n),x,y,z,n)
-      END IF
+      if(nfip /= 0) then
+        call ran1d (amps2(n),x,y,z,n)
+      end if
 
       delta = (sx(n,u,v,w)-x)*(ajsx(n)+(nmult*hx))  &
           +(sy(n,u,v,w)-y)*(ajsy(n)+(nmult*hy)) +(sz(n,u,v,w)-z)*(ajsz(n)+(nmult*hz))  &
@@ -3951,19 +4042,19 @@
           +dy(n)*sy(n,u,v,w) +dz(n)*sz(n,u,v,w) )**2  &
           -( dx(n)*x + dy(n)*y + dz(n)*z )**2 )
 
-      RETURN
+      Return
 
-      END SUBROUTINE en1_calc
+      end Subroutine en1_calc
 
 
 
-      SUBROUTINE en2_calc(n,u,v,w)
+      Subroutine en2_calc(n,u,v,w)
       Use mcm_inc
       implicit none
       integer, intent(in) :: n,u,v,w
 !***********************************************************************
-!  See the general description of subroutines EN*_CALC(N,U,V,W)
-!  just before the subroutine EN1_CALC(N,U,V,W).
+!  See the general description of Subroutines EN*_CALC(N,U,V,W)
+!  just before the Subroutine EN1_CALC(N,U,V,W).
 !  EN2_CALC(N,U,V,W) concerns XY spins.
 !***********************************************************************
       integer :: k,i
@@ -3980,29 +4071,29 @@
 !*****    LOCAL MODIFICATION OF COUPLING (IF ANY)    ******
 
 
-        IF ((ansmod == 'Y').OR.(ansmod == 'y')) THEN
+        if((ansmod == 'Y').or.(ansmod == 'y')) then
           DO i=1,im
-            IF ( (w == iwm(i)).AND.(v == ivm(i)).AND.(u == ium(i))  &
-                  .AND.(n == nm(i)).AND.(k == numb(i)) ) THEN
+            if( (w == iwm(i)).and.(v == ivm(i)).and.(u == ium(i))  &
+                  .and.(n == nm(i)).and.(k == numb(i)) ) then
               ajxx(n,k)=ajmod(i)
               ajyy(n,k)=ajmod(i)
               ajzz(n,k)=ajmod(i)
-            END IF
-          END DO
+            end if
+          end DO
 
 
-!*****    END OF MODIFICATION    *****
+!*****    end OF MODIFICATION    *****
 
 
-        END IF
+        end if
 
-        CALL bound_cond(n,k,u,v,w)
+        call bound_cond(n,k,u,v,w)
 
 
 !*****    COMPUTE DELTA    *****
 
-        IF ( (nav(n,k) /= n).OR.(nu(k) /= u).OR.(nv(k) /= v)  &
-              .OR.(nw(k) /= w) ) THEN
+        if( (nav(n,k) /= n).or.(nu(k) /= u).or.(nv(k) /= v)  &
+              .or.(nw(k) /= w) ) then
           ajsx(n)=ajsx(n)+ajxx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))
@@ -4012,12 +4103,12 @@
           ajsz(n)=ajsz(n)+ajzz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))
-        END IF
-      END DO
+        end if
+      end DO
 
-      IF (nfip /= 0) THEN
-        CALL ran2d(amps2(n),x,y)
-      END IF
+      if(nfip /= 0) then
+        call ran2d(amps2(n),x,y)
+      end if
 
       delta = (sx(n,u,v,w)-x)*(ajsx(n)+(nmult*hx))  &
           +(sy(n,u,v,w)-y)*(ajsy(n)+(nmult*hy)) +(sz(n,u,v,w)-z)*(ajsz(n)+(nmult*hz))  &
@@ -4025,18 +4116,18 @@
           +dy(n)*sy(n,u,v,w) +dz(n)*sz(n,u,v,w) )**2  &
           -( dx(n)*x + dy(n)*y + dz(n)*z )**2 )
 
-      RETURN
-      END SUBROUTINE en2_calc
+      Return
+      end Subroutine en2_calc
 
 
 
-      SUBROUTINE en3_calc(n,u,v,w)
+      Subroutine en3_calc(n,u,v,w)
       Use mcm_inc
       implicit none
       integer, intent(in) :: n,u,v,w
 !***********************************************************************
-!  See the general description of subroutines EN*_CALC(N,U,V,W)
-!  just before the subroutine EN1_CALC(N,U,V,W).
+!  See the general description of Subroutines EN*_CALC(N,U,V,W)
+!  just before the Subroutine EN1_CALC(N,U,V,W).
 !  EN3_CALC(N,U,V,W) concerns Heisenberg spins.
 !***********************************************************************
       integer :: k,i
@@ -4053,29 +4144,29 @@
 !*****    LOCAL MODIFICATION OF COUPLING (IF ANY)    ******
 
 
-        IF ((ansmod == 'Y').OR.(ansmod == 'y')) THEN
+        if((ansmod == 'Y').or.(ansmod == 'y')) then
           DO i=1,im
-            IF ( (w == iwm(i)).AND.(v == ivm(i)).AND.(u == ium(i))  &
-                  .AND.(n == nm(i)).AND.(k == numb(i)) ) THEN
+            if( (w == iwm(i)).and.(v == ivm(i)).and.(u == ium(i))  &
+                  .and.(n == nm(i)).and.(k == numb(i)) ) then
               ajxx(n,k)=ajmod(i)
               ajyy(n,k)=ajmod(i)
               ajzz(n,k)=ajmod(i)
-            END IF
-          END DO
+            end if
+          end DO
 
 
-!*****    END OF MODIFICATION    *****
+!*****    end OF MODIFICATION    *****
 
 
-        END IF
+        end if
 
-        CALL bound_cond(n,k,u,v,w)
+        call bound_cond(n,k,u,v,w)
 
 
 !*****    COMPUTE DELTA    *****
 
-        IF ( (nav(n,k) /= n).OR.(nu(k) /= u).OR.(nv(k) /= v)  &
-              .OR.(nw(k) /= w) ) THEN
+        if( (nav(n,k) /= n).or.(nu(k) /= u).or.(nv(k) /= v)  &
+              .or.(nw(k) /= w) ) then
           ajsx(n)=ajsx(n)+ajxx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))
@@ -4085,12 +4176,12 @@
           ajsz(n)=ajsz(n)+ajzz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))
-        END IF
-      END DO
+        end if
+      end DO
 
-      IF (nfip /= 0) THEN
-        CALL ran3d (amps2(n),x,y,z)
-      END IF
+      if(nfip /= 0) then
+        call ran3d (amps2(n),x,y,z)
+      end if
 
       delta = (sx(n,u,v,w)-x)*(ajsx(n)+(nmult*hx))  &
           +(sy(n,u,v,w)-y)*(ajsy(n)+(nmult*hy)) +(sz(n,u,v,w)-z)*(ajsz(n)+(nmult*hz))  &
@@ -4098,14 +4189,14 @@
           +dy(n)*sy(n,u,v,w) +dz(n)*sz(n,u,v,w) )**2  &
           -( dx(n)*x + dy(n)*y + dz(n)*z )**2 )
 
-      RETURN
-      END SUBROUTINE en3_calc
+      Return
+      end Subroutine en3_calc
 
 
-      SUBROUTINE enq_calc(n,u,v,w)
+      Subroutine enq_calc(n,u,v,w)
 !***********************************************************************
-!  See the general description of subroutines EN*_CALC(N,U,V,W)
-!  just before the subroutine EN1_CALC(N,U,V,W).
+!  See the general description of Subroutines EN*_CALC(N,U,V,W)
+!  just before the Subroutine EN1_CALC(N,U,V,W).
 !  ENq_CALC(N,U,V,W) concerns q-state Potts planar (XY) spins.
 !***********************************************************************
       Use mcm_inc
@@ -4126,29 +4217,29 @@
 !*****    LOCAL MODIFICATION OF COUPLING (IF ANY)    ******
 
 
-        IF ((ansmod == 'Y').OR.(ansmod == 'y')) THEN
+        if((ansmod == 'Y').or.(ansmod == 'y')) then
           DO i=1,im
-            IF ( (w == iwm(i)).AND.(v == ivm(i)).AND.(u == ium(i))  &
-                  .AND.(n == nm(i)).AND.(k == numb(i)) ) THEN
+            if( (w == iwm(i)).and.(v == ivm(i)).and.(u == ium(i))  &
+                  .and.(n == nm(i)).and.(k == numb(i)) ) then
               ajxx(n,k)=ajmod(i)
               ajyy(n,k)=ajmod(i)
               ajzz(n,k)=ajmod(i)
-            END IF
-          END DO
+            end if
+          end DO
 
 
-!*****    END OF MODIFICATION    *****
+!*****    end OF MODIFICATION    *****
 
 
-        END IF
+        end if
 
-        CALL bound_cond(n,k,u,v,w)
+        call bound_cond(n,k,u,v,w)
 
 
 !*****    COMPUTE DELTA    *****
 
-        IF ( (nav(n,k) /= n).OR.(nu(k) /= u).OR.(nv(k) /= v)  &
-              .OR.(nw(k) /= w) ) THEN
+        if( (nav(n,k) /= n).or.(nu(k) /= u).or.(nv(k) /= v)  &
+              .or.(nw(k) /= w) ) then
           ajsx(n)=ajsx(n)+ajxx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajxz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))
@@ -4158,13 +4249,13 @@
           ajsz(n)=ajsz(n)+ajzz(n,k)*sz(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzx(n,k)*sx(nav(n,k),nu(k),nv(k),nw(k))  &
               +ajzy(n,k)*sy(nav(n,k),nu(k),nv(k),nw(k))
-        END IF
+        end if
 
-      END DO
+      end DO
 
-      IF (nfip /= 0) THEN
-        CALL ranqd (amps2(n),x,y)
-      END IF
+      if(nfip /= 0) then
+        call ranqd (amps2(n),x,y)
+      end if
 
       delta = (sx(n,u,v,w)-x)*(ajsx(n)+(nmult*hx))  &
           +(sy(n,u,v,w)-y)*(ajsy(n)+(nmult*hy)) +(sz(n,u,v,w)-z)*(ajsz(n)+(nmult*hz))  &
@@ -4172,6 +4263,6 @@
           +dy(n)*sy(n,u,v,w) +dz(n)*sz(n,u,v,w) )**2  &
           -( dx(n)*x + dy(n)*y + dz(n)*z )**2 )
 
-      RETURN
+      Return
 
-      END SUBROUTINE enq_calc
+      end Subroutine enq_calc
