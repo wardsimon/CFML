@@ -5,8 +5,9 @@
 !!----  and for calculating the single crystal and powder neutron diffraction patterns
 !!----  has also been implemented (May 2015, JRC)
 !!----  This file contains all the program, there is no dependence on CrysFML
-!!----  Few functions (u_case,l_case, invert) have been imported to facilitate
-!!----  reading of the new input file.
+!!----  Few functions (u_case,l_case, invert) have been imported inside the module
+!!----  mcm_inc to facilitate reading of the new input file.
+!!----
 !!----
     Module mcm_inc
     !Global variables of the program MCMAG (no more COMMONs!)

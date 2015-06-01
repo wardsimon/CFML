@@ -26,6 +26,30 @@
     public:: Exchange_Paths, construct_jxch
     real, parameter, private :: epsi=0.001
 
+    !Transfomation matrices to put coordinates in a primitive cell
+    !according to the equation Xp=M_Z Xz, where X are column matrices
+    !of coordinate triplets.
+
+    real, dimension(3,3), parameter,public :: M_A=reshape((/ 1.0, 0.0, 0.0, &
+                                                             0.0, 1.0, 1.0, &
+                                                             0.0,-1.0, 1.0 /),(/3,3/))
+    real, dimension(3,3), parameter,public :: M_B=reshape((/ 1.0, 0.0,-1.0, &
+                                                             0.0, 1.0, 0.0, &
+                                                             1.0, 0.0, 1.0 /),(/3,3/))
+    real, dimension(3,3), parameter,public :: M_C=reshape((/ 1.0,-1.0, 0.0, &
+                                                             1.0, 1.0, 0.0, &
+                                                             0.0, 0.0, 1.0 /),(/3,3/))
+    real, dimension(3,3), parameter,public :: M_I=reshape((/ 1.0, 0.0, 0.0, &
+                                                             0.0, 1.0, 0.0, &
+                                                            -1.0,-1.0, 2.0 /),(/3,3/))
+    real, dimension(3,3), parameter,public :: M_R=reshape((/ 1.0, 0.0,-1.0, &
+                                                             1.0, 1.0, 1.0, &
+                                                            -1.0,-1.0, 2.0 /),(/3,3/))
+    real, dimension(3,3), parameter,public :: M_F=reshape((/ 1.0, 1.0,-1.0, &
+                                                            -1.0, 1.0, 1.0, &
+                                                             1.0,-1.0, 1.0 /),(/3,3/))
+    real, dimension(3,3),public :: M_coor, M_basis
+
     contains
 
    Subroutine Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex1,directex2,Cell,SpG,Ac,spaths)
@@ -446,7 +470,7 @@
     character(len=180)                  :: text
     character(len=60)                   :: expo
     character(len=25)                   :: transla
-    real, dimension(3)                  :: vect
+    real, dimension(3)                  :: vect,pos
     real :: dmin
     type (Exchange_interaction), dimension(n_mag,n_mag,max_jx) :: jota
     type (Exchange_interaction), dimension(max_jx)             :: jxch
@@ -667,7 +691,8 @@
 
       tot_neigh=sum(nterms(im,:))
       write(unit=3,fmt="(a)")"!Site Neighb   Dsing_Anis      Dir                Name        x         y         z"
-      write(unit=3,fmt="(i4,i5,i10,Tr6,3i4,a,a6,3f10.5)")im,tot_neigh,0,0,0,0,"          :: ",Acm%noms(im), Acm%xyz(:,im)
+      pos=Matmul(M_coor,Acm%xyz(:,im))
+      write(unit=3,fmt="(i4,i5,i10,Tr6,3i4,a,a6,3f10.5)")im,tot_neigh,0,0,0,0,"          :: ",Acm%noms(im), pos
       write(unit=3,fmt="(a)")"!    Nav   Av  Bv  Cv        J"
 
       DO km=1,n_mag
@@ -702,6 +727,7 @@
                         jota(im,km,nt)%valj,"   -> ",trim(text)//" --> dist=", jota(im,km,nt)%dist
           write(unit=lun,fmt="(a,a,a,f8.4,a,a,a)")  &
                   "    Rn=", transla," dist=",jota(im,km,nt)%dist," --> ",jota(im,km,nt)%J,expo
+          vect=Matmul(M_coor,vect)
           write(unit=3,fmt="(a,i3,a,3i4,a,f10.4,a)") "     ", &
                       km," ",nint(vect),"  ",jota(im,km,nt)%valj,"    "//jota(im,km,nt)%J
         end do
@@ -741,7 +767,7 @@
    Use CFML_Crystallographic_Symmetry, only: Set_SpaceGroup, Write_SpaceGroup, Space_Group_Type
    Use CFML_String_Utilities,          only: l_case, number_lines, reading_lines,u_case
    use CFML_Math_general,              only: negligible
-   use CFML_Math_3D,                   only: set_eps
+   use CFML_Math_3D,                   only: set_eps,invert_a
    use CFML_Geometry_Calc,             only: Allocate_Coordination_Type, calc_dist_angle, &
                                              Err_Geom,ERR_Geom_Mess
    Use CFML_Crystal_Metrics
@@ -755,7 +781,7 @@
    character(len=120), allocatable, dimension(:) :: file_dat
    integer                                       :: nlines, n_ini,n_end
    integer, parameter :: max_magt=96
-   type (Crystal_Cell_Type) :: Cell
+   type (Crystal_Cell_Type) :: Cell, Celln
    type (Space_Group_Type)  :: Spg, gP1
    type (Atom_list_Type)    :: A       !Original list of atoms in the asymmetric unit
    type (Atom_list_Type)    :: Ap      !List of atoms inside a primitive cell
@@ -770,7 +796,7 @@
    integer :: i, j, numops, ln, nauas, natc, iid,  nmag, lr, max_coord, L
    integer, dimension(:), allocatable :: ptr
    integer, dimension(10) :: nif
-   real, dimension(10) :: mom
+   real, dimension(10)  :: mom
    character(len=4), dimension(10) :: scf=" "
    real  :: dmax=6.0, & !Maximum distance for distance calculations
             dangl=0.0,& !Maximun distance for angle calculations
@@ -1016,6 +1042,28 @@
    write(unit=3,fmt="(a)")"!The file should be modified to adapt it to the user needs."
    write(unit=3,fmt="(a)")"!NA(sites)  JCod    Z"
    write(unit=3,fmt="(3i7)")-Acm%nat,0,Acm%nat
+   !Calculation for McMag
+   Select Case(SpG%SPG_Symb(1:1))
+      case("A")
+        M_coor=M_A
+      case("B")
+        M_coor=M_B
+      case("C")
+        M_coor=M_C
+      case("I")
+        M_coor=M_I
+      case("R")
+        M_coor=M_R
+      case("F")
+        M_coor=M_F
+      case default
+        M_coor=reshape((/ 1.0, 0.0, 0.0, &
+                          0.0, 1.0, 0.0, &
+                          0.0, 0.0, 1.0 /),(/3,3/))
+   End Select
+   M_basis=transpose(invert_a(M_coor))
+   call Change_Setting_Cell(Cell,M_basis,Celln)
+   !End of calculation for McMag
 
    Call construct_jxch(lun,iprin,nmag,spaths,Acm)
 
@@ -1023,8 +1071,10 @@
    do i=1,L
       write(unit=3,fmt="(2i6,f8.4,tr6,a)") nif(i),nif(i+1)-1,mom(i),scf(i)
    end do
+   write(unit=3,fmt="(a)") "!    Primitive unit cell  "
    write(unit=3,fmt="(a)") "!     a          b          c        alpha       beta      gamma   "
-   write(unit=3,fmt="(6f11.5)")cell%cell,cell%ang
+
+   write(unit=3,fmt="(6f11.5)")celln%cell,celln%ang
    write(unit=3,fmt="(a)") "!"
    write(unit=3,fmt="(a)") "!  The conditions below should be adapted to the problem by the user "
    write(unit=3,fmt="(a)") "!"
