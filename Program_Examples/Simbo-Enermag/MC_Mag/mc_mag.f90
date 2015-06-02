@@ -1789,8 +1789,11 @@
                  DO u=1,lu
                    DO n=1,na
                      atm_text=" "  !(COMX,SOMY,SOMZ)<- output of pro_rota
-                     !spr=[comx(n,u,v,w),somy(n,u,v,w),somz(n,u,v,w)] !Average Spins in Crystallographic Coordinates
-                     spr=[somrx(n,u,v,w),somry(n,u,v,w),somrz(n,u,v,w)] !Average Spins in Crystallographic Coordinates
+                     if(nor == 0) then
+                        spr=[comx(n,u,v,w),somy(n,u,v,w),somz(n,u,v,w)] !Average Spins in Crystallographic Coordinates
+                     else
+                        spr=[somrx(n,u,v,w),somry(n,u,v,w),somrz(n,u,v,w)] !Average Spins in Crystallographic Coordinates after rotation
+                     end if
                      write(atm_text,"(a,3i2.2)") trim(namt(n))//"_",u-1,v-1,w-1
                      pos=(real([u-1,v-1,w-1])+xyz(:,n))/real([lu,lv,lw])
                      write(i04,"(a,3f10.5,a)") "Matom "//trim(atm_text)//"  "//scattf(n),pos,'  SCALE 1.0 GROUP'
@@ -3345,8 +3348,8 @@
              Exit
            end Do
            write(iba,*)dorx,dory,dorz
-       end if
-! DORX,DORY,DORZ : NEW DIRECTION OF MOMENT NOR INSIDE THE CRYSTAL. REFERENCE
+        end if
+         ! DORX,DORY,DORZ : NEW DIRECTION OF MOMENT NOR INSIDE THE CRYSTAL. REFERENCE
 
         vectx=[dorx,dory,dorz]  !Crystallographic direction
         dorix=dorx
@@ -3358,9 +3361,9 @@
         dory=vecto(2) !dorx*ad(2,1)+dory*ad(2,2)+dorz*ad(2,3)
         dorz=vecto(2) !dorx*ad(3,1)+dory*ad(3,2)+dorz*ad(3,3)
 
-! DORX,DORY,DORZ : NEW DIRECTION OF MOMENT NOR INSIDE THE ORTHO. SYSTEM
+        ! DORX,DORY,DORZ : NEW DIRECTION OF MOMENT NOR INSIDE THE ORTHO. SYSTEM
 
-! * * * CALCULATION INSIDE THE ORTHONORMAL COORDINATE SYSTEM * * *
+        ! * * * CALCULATION INSIDE THE ORTHONORMAL COORDINATE SYSTEM * * *
 
         dor=SQRT(dorx*dorx+dory*dory+dorz*dorz)
         sorm=SQRT(sorx*sorx+sory*sory+sorz*sorz)
@@ -3387,9 +3390,9 @@
                 somrz(k,u,v,w)= (1-coom)*pscal*uorz + coom*somz(k,u,v,w)  &
                                 + siom*( uorx*somy(k,u,v,w) -uory*comx(k,u,v,w) )
 
-!   *   SOMRX           COMPONENTS OF MAGNETIC MOMENTS   *
-!   *   SOMRY   ------> INSIDE THE ORTHONORMAL SYSTEM    *
-!   *   SOMRZ           AFTER ROTATION                   *
+               !   *   SOMRX           COMPONENTS OF MAGNETIC MOMENTS   *
+               !   *   SOMRY   ------> INSIDE THE ORTHONORMAL SYSTEM    *
+               !   *   SOMRZ           AFTER ROTATION                   *
 
 
                 somrx2(k,u,v,w)= (1-coom)*pscal*uorx + coom*somx2(k,u,v,w)  &
@@ -3399,9 +3402,9 @@
                 somrz2(k,u,v,w)= (1-coom)*pscal*uorz + coom*somz2(k,u,v,w)  &
                                  + siom*( uorx*somy2(k,u,v,w) -uory*somx2(k,u,v,w) )
 
-!   *   SOMRX2          VARIANCE OF THE COMPONENTS OF       *
-!   *   SOMRY2  ------> MAGNETIC MOMENTS INSIDE THE         *
-!   *   SOMRZ2          ORTHONORMAL SYSTEM AFTER ROTATION   *
+                !   *   SOMRX2          VARIANCE OF THE COMPONENTS OF       *
+                !   *   SOMRY2  ------> MAGNETIC MOMENTS INSIDE THE         *
+                !   *   SOMRZ2          ORTHONORMAL SYSTEM AFTER ROTATION   *
 
 
               end DO
