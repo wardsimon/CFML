@@ -644,13 +644,13 @@
 
       nres=0
       write(itto,"(a)")'  ----------------------------------------------------------------------------'
-      write(itto,"(a)")'                               Program MCMAG'
-      write(itto,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
-      write(itto,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
+      write(itto,"(a)")'                               Program McMag'
+      write(itto,"(a)")'           Simulation of Magnetic Structures by a Monte-Carlo Method'
+      write(itto,"(a)")'           McMag: a computer program to simulate magnetic structures'
       write(itto,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
-      write(itto,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
-      write(itto,"(a)")'            Energy Calculated According to the Following Expression :'
-      write(itto,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
+      write(itto,"(a)")'                     Fortran-90 Version May 2015 (JRC-ILL)'
+      write(itto,"(a)")'        Energy per site Calculated According to the Following Expression :'
+      write(itto,"(a)")"             Ei= - 0.5*Sum(j){Si'[Jij]Sj} + Di(ui'Si)**2) - H'Si "
       write(itto,"(a)")'  ----------------------------------------------------------------------------'
       write(itto,"(a)")' '
       write(itto,"(a)")' '
@@ -2018,13 +2018,13 @@
 
         naco=0
         write(lpt,"(a)")'  ----------------------------------------------------------------------------'
-        write(lpt,"(a)")'                               Program MCMAG'
-        write(lpt,"(a)")'           SIMULATION OF MAGNETIC STRUCTURES BY A MONTE-CARLO METHOD'
-        write(lpt,"(a)")'           MCMAG: a computer program to simulate magnetic structures'
+        write(lpt,"(a)")'                               Program McMag'
+        write(lpt,"(a)")'           Simulation of Magnetic Structures by a Monte-Carlo Method'
+        write(lpt,"(a)")'           McMag: a computer program to simulate magnetic structures'
         write(lpt,"(a)")'          P. Lacorre and J. Pannetier, J. Magn. Magn. Mat. 71 (1987) 63.'
-        write(lpt,"(a)")'                   Fortran-90 Version May 2015 (JRC-ILL)'
-        write(lpt,"(a)")'            Energy Calculated According to the Following Expression :'
-        write(lpt,"(a)")"               E = - 0.5*(Si'[Jij]Sj) + Di(ui'Si)**2 - H'Si "
+        write(lpt,"(a)")'                     Fortran-90 Version May 2015 (JRC-ILL)'
+        write(lpt,"(a)")'        Energy per site Calculated According to the Following Expression :'
+        write(lpt,"(a)")"             Ei= - 0.5*Sum(j){Si'[Jij]Sj} + Di(ui'Si)**2) - H'Si "
         write(lpt,"(a)")'  ----------------------------------------------------------------------------'
         call write_Date_Time(lpt)
         write(lpt,"(//a//)") ' Input file : '//trim(nfil)//'.mcm  contains the following data : '
@@ -3945,7 +3945,7 @@
 !  (with the convention that a vector V' represents the transposed
 !  form of a vector V)
 !
-!  E = - 0.5*Si'[Jij]Sj + Di(ui'Si)**2) - H'Si
+!  E = - 0.5*Sum(j){Si'[Jij]Sj} + Di(ui'Si)**2) - H'Si
 !                                              AJXX AJXY AJXZ
 !  [Jij] is the exchange tensor with elements  AJYX AJYY AJYZ
 !                                              AJZX AJZY AJZZ
