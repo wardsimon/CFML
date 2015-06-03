@@ -161,9 +161,9 @@
           c4=1.0+cext(4)*x
           yy=1.0/(1.0+x2+cext(3)*xx/c4)
           ys=sqrt(yy)
-          if(iext == 1) then          !Gaussian
+          if(iext == 2) then          !Gaussian
             factor=a*d/h
-          else if(iext == 2) then     !Lorentzian
+          else if(iext == 3) then     !Lorentzian
             factor=1.0/c
           end if
           if(present(dydr) .and. present(dydg)) then
@@ -174,7 +174,7 @@
         return
       End Subroutine Becker_Coppens
 
-      Subroutine SHELX_Extinction(job,iext,Lambda,ssnn,hkl,f2,extc,ys,der)
+      Subroutine SHELX_Extinction(job,iext,Lambda,ssnn,hkl,f2,extc,ys,der,derf2)
         integer,                    intent (in) :: job     ! =0,2 for x-rays, =1,3 for neutrons
         integer,                    intent (in) :: iext    ! Extinction model (1: isotropic, 4:anisotropic)
         real(kind=cp),              intent (in) :: Lambda  ! Wavelength
@@ -183,46 +183,51 @@
         real(kind=cp),              intent (in) :: f2      ! Square of the structure factor
         real(kind=cp), dimension(6),intent (in) :: extc    ! Extinction coefficients
         real(kind=cp),              intent(out) :: ys      ! Extinction correction factor: Icorr = I.ys
-        real(kind=cp), dimension(6),optional,intent(out) :: der     ! Derivatives of ys w.r.t. extinction coefficients
+        real(kind=cp), dimension(6),optional,intent(out) :: der   ! Derivatives of ys w.r.t. extinction coefficients
+        real(kind=cp),              optional,intent(out) :: derf2 ! Derivative of ys w.r.t. F2 (useful of SF normalization)
+                                                                  ! If derf2 is present, der should also be present
        !---- Local variables ----!
         real(kind=cp):: a,b,c, g, r, sin2t, coefa, qq
         real(kind=cp), dimension(6) :: hkl_q
 
-        coefa=0.001
-        if(job == 0 .or. job == 2 ) coefa=0.000001
-        if(present(der)) der=0.0
-        ys=1.0
+        coefa=0.001_cp
+        if(job == 0 .or. job == 2 ) coefa=0.000001_cp
+        if(present(der)) der=0.0_cp
+        if(present(derf2)) derf2=0.0_cp
+
+        ys=1.0_cp
         a = lambda*lambda*lambda
         qq=SQRT(ssnn)*lambda
-        if(abs(qq) > 1.0) then
+        if(abs(qq) > 1.0_cp) then
            err_extinc=.true.
            write(err_extinc_mess,fmt="(a,3f8.2,a)") " ----> WARNING!: Extinction correction fixed to 1.0 for reflection: ",&
                hkl, "  Check cell parameters !!!"
            return
         else
-           sin2t=SIN(2.0*ASIN(qq))
+           sin2t=sin(2.0_cp*asin(qq))
         end if
 
         Select Case(iext)
           Case(1)
-               b = 0.001*f2*a/sin2t
-               c = 1.0 + b * extc(1)
-               ys=1.0/SQRT(c)
-               if(present(der)) der(1)=-0.5*c**(-1.5)*b
+               b = coefa*f2*a/sin2t
+               c = 1.0_cp + b * extc(1)
+               ys=1.0_cp/SQRT(c)
+               if(present(der)) der(1)=-0.5_cp*c**(-1.5_cp)*b
 
            Case (4)   !Anisotropic Shelx-like extinction correction
                b = coefa*f2*a/sin2t
-               b = b * 0.25 /ssnn
+               b = b * 0.25_cp /ssnn
                hkl_q=(/ hkl(1)*hkl(1),hkl(2)*hkl(2),hkl(3)*hkl(3),hkl(1)*hkl(2), &
                       hkl(1)*hkl(3),hkl(2)*hkl(3) /)
                r=dot_product(extc,hkl_q)
-               c = 1.0 + b * r
-               ys=1.0/SQRT(c)
+               c = 1.0_cp + b * r
+               ys=1.0_cp/SQRT(c)
                if(present(der)) then
-                 g=-0.5*c**(-1.5)*b !component of derivative
+                 g=-0.5_cp*c**(-1.5_cp)*b !component of derivative
                  der= g * hkl_q
                end if
         End Select
+        if(present(derf2)) derf2=g*(c-1.0_cp)/max(1.0e-6_cp,f2)
         return
       End Subroutine SHELX_Extinction
 
