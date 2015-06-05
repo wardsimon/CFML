@@ -2638,7 +2638,7 @@
           k = hkl_r(h,SpaceGroup%SymOp(i))
           esta=.false.
           do j=1,mul
-             if (hkl_equal(k,hlist(:,j)) .or. hkl_equal(-k,hlist(:,j))) then
+             if (hkl_equal(k,hlist(:,j)) .or. (hkl_equal(-k,hlist(:,j)) .and. Friedel)) then
                 esta=.true.
                 exit
              end if
@@ -2694,7 +2694,7 @@
           k = hkl_r(h,SpaceGroup%SymOp(i))
           esta=.false.
           do j=1,mul
-             if (hkl_equal(k,hlist(:,j)) .or. hkl_equal(-k,hlist(:,j))) then
+             if (hkl_equal(k,hlist(:,j)) .or. (hkl_equal(-k,hlist(:,j)) .and. Friedel)) then
                 esta=.true.
                 exit
              end if
@@ -3213,11 +3213,12 @@
        !---- Select approximate region to generate reflections depending
        !---- on the space group. This allows a faster generation.
        Select Case(SpaceGroup%NumSpg)
-          case (1:2)                 ! -1    -> hkl: l >=0; hk0: h >=0; 0k0: k >=0
+          case (1:2)                   ! -1    -> hkl: l >=0; hk0: h >=0; 0k0: k >=0
              hmin=-hmax
              kmin=-kmax
+             if(SpaceGroup%NumSpg == 1 .and. .not. Friedel) lmin=-lmax
 
-          case (3:15)                ! 2/m
+          case (3:15)                  ! 2/m
              inf=Spacegroup%info(1:2)
              if (inf(1:1) == "-") inf(1:1)=inf(2:2)
              select case (inf(1:1))
@@ -3296,7 +3297,7 @@
 
                 kk=asu_hkl(hh,Spacegroup)
                 if (hkl_equal(kk,nulo)) cycle
-                if (hkl_equal(kk,-hh)) cycle
+                if (hkl_equal(kk,-hh) .and. Friedel) cycle
 
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
@@ -3387,6 +3388,7 @@
           case (1:2)                 ! -1    -> hkl: l >=0; hk0: h >=0; 0k0: k >=0
              hmin=-hmax
              kmin=-kmax
+             if(SpaceGroup%NumSpg == 1 .and. .not. Friedel) lmin=-lmax
 
           case (3:15)                ! 2/m
              inf=Spacegroup%info(1:2)
@@ -3467,7 +3469,7 @@
 
                 kk=asu_hkl(hh,Spacegroup)
                 if (hkl_equal(kk,nulo)) cycle
-                if (hkl_equal(kk,-hh)) cycle
+                if (hkl_equal(kk,-hh) .and. Friedel) cycle
 
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
@@ -3558,6 +3560,7 @@
           case (1:2)                 ! -1    -> hkl: l >=0; hk0: h >=0; 0k0: k >=0
              hmin=-hmax
              kmin=-kmax
+             if(SpaceGroup%NumSpg == 1 .and. .not. Friedel) lmin=-lmax
 
           case (3:15)                ! 2/m
              inf=Spacegroup%info(1:2)
@@ -3638,7 +3641,7 @@
 
                 kk=asu_hkl(hh,Spacegroup)
                 if (hkl_equal(kk,nulo)) cycle
-                if (hkl_equal(kk,-hh)) cycle
+                if (hkl_equal(kk,-hh) .and. Friedel) cycle
 
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
