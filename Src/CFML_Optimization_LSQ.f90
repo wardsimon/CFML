@@ -397,14 +397,14 @@
 
     !!--++
     !!--++ NAMFREE
-    !!--++    character(len=25), dimension(Max_Free_Par), private   :: namfree
+    !!--++    character(len=40), dimension(Max_Free_Par), private   :: namfree
     !!--++
     !!--++  (PRIVATE)
     !!--++  Names of refined parameters
     !!--++
     !!--++ Update: January - 2014
     !!
-    character(len=40), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
+    character(len=40), dimension(Max_Free_Par), private,save   :: namfree    !Names of refined parameters
 
     !!--++
     !!--++ PN
@@ -3679,7 +3679,7 @@
 
              write(unit=ipr,fmt="(/,a,/)")" =>  Diagonal elements of LSQ-matrix before inversion"
              do i=1,c%npvar
-                write(unit=ipr,fmt="(a,i3,a,i3,a,f16.6)") "    "//namfree(i)//"  (",i,",",i,")", curv_mat(i,i)
+                write(unit=ipr,fmt="(a30,i3,a,i3,a,f16.6)") "    "//trim(namfree(i))//"  (",i,",",i,")", curv_mat(i,i)
              end do
 
              exit
@@ -3943,7 +3943,7 @@
 
              write(unit=ipr,fmt="(/,a,/)")" =>  Diagonal elements of LSQ-matrix before inversion"
              do i=1,c%npvar
-                write(unit=ipr,fmt="(a,i3,a,i3,a,f16.6)") "    "//namfree(i)//"  (",i,",",i,")", curv_mat(i,i)
+                write(unit=ipr,fmt="(a30,i3,a,i3,a,f16.6)") "    "//trim(namfree(i))//"  (",i,",",i,")", curv_mat(i,i)
              end do
 
              exit
@@ -4038,7 +4038,7 @@
        !---- Writing during cycles ----!
        write(unit=lun,fmt="(/,/,a,i5,a,f14.6)")" => Cycle No.:",ic,"  Chi2 =",chi2
        write(unit=lun,fmt="(/,/,a,/)") &
-       "    Name-Par                 No.      Old-Value          Change        New-Value         Sigma        Change/Sigma"
+       "              Name-Par       No.      Old-Value          Change        New-Value         Sigma        Change/Sigma"
        j=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
@@ -4048,7 +4048,7 @@
              else
                 rat=0.0
              end if
-             write(unit=lun,fmt="(a,i6,a,5f16.6)") " "//namfree(j),i," ",vs%pv(i),ch(i),pn(i),vs%spv(i),rat
+             write(unit=lun,fmt="(a25,i6,a,5f16.6)") " "//trim(namfree(j)),i," ",vs%pv(i),ch(i),pn(i),vs%spv(i),rat
           end if
        end do
 
