@@ -48,7 +48,7 @@ Program Bond_Str
    logical                         :: vdist=.false.,read_bvelparm=.false.
    logical                         :: map_calc=.false., soft=.false., bvel_calc=.false., outp=.false., outf=.false.
    real                            :: ttol=20.0,dmax,dangl, gii
-   real                            :: drmax,delta,qval,tini,tfin,qn,vol,emin
+   real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol,emin
 
    ! Arguments on the command line
    lr=0
@@ -150,6 +150,24 @@ Program Bond_Str
        exit
      end if
    end do
+   !Calculation of the total charge in the asymmetric unit
+   if(bvs_calc) then
+     qp=0.0; qn=0.0
+     do i=1,A%natoms
+       if(A%atom(i)%charge > 0.0) then
+        qp=qp+A%atom(i)%charge*A%atom(i)%occ
+       else
+        qn=qn+A%atom(i)%charge*A%atom(i)%occ
+       end if
+     end do
+     write(unit=lun,fmt="(/,a,f10.4)") " => Weighted positive charge of the asymmetric unit: ",qp
+     write(unit=lun,fmt="(  a,f10.4)") " => Weighted negative charge of the asymmetric unit: ",qn
+     if(abs(qp+qn) > 0.1) then
+       write(unit=lun,fmt="(  a,f10.4)") " => WARNING!! Electro-neutrality is not satisfied (q > 0.1), total charge: ",qn+qp
+     else
+       write(unit=lun,fmt="(  a,f10.4)") " => Electro-neutrality satisfied (q <= 0.1), total charge: ",qn+qp
+     end if
+   end if
 
    ! Look for specific instructions for BOND_STR in CFL-file
    ttol=30.0
@@ -281,7 +299,7 @@ Program Bond_Str
    end if
 
    ! Pair distribution bonds
-   call Calc_PDB(A,Dmax,lun)
+   if (vdist) call Calc_PDB(A,Dmax,lun)
 
    if(bvs_calc .or. vdist .or. map_calc .or. bvel_calc) then
      if(map_calc .or. bvel_calc ) then
@@ -335,28 +353,29 @@ Program Bond_Str
                 call Set_Table_BVEL_Params(Ac)
              end if
          end if
+         if(.not. err_conf) then
+            write(unit=lun,fmt="(/a,/,a,/)")  &
+            " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
+                  "   (data read from internal table, provided by the user or calculated from softBVS parameters)"
 
-         write(unit=lun,fmt="(/a,/,a,/)")  &
-         " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
-               "   (data read from internal table, provided by the user or calculated from softBVS parameters)"
-
-         if(soft) then
-           write(unit=lun,fmt="(a,/)") " Morse parameters D0 and Rmin calculated from softBVS parameters"
-         end if
-         do n1=1,Ac%N_Cations
-            do j=1,Ac%N_Anions
-               n2=Ac%N_Cations+j
-               write(unit=lun,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
-                     "   Type",n1,": ",Ac%Species(n1)," with type",n2,": ",Ac%Species(n2), &
-                     "    D0  =",Table_Dzero(n1,n2),"       Rmin =",Table_Rmin(n1,n2),   &
-                     "  Alpha =",Table_Alpha(n1,n2),"  Av. Coord.=",Table_Avcoor(n1,n2), &
-                     "    R0  =",Table_Rzero(n1,n2),"   R-cutoff =",Table_Rcutoff(n1,n2),&
-                     "   => Reference: "//trim(references(Table_ref(n1,n2)))
-               write(unit=lun,fmt="(2(a,a,a,f6.3,a),/)") &
-                     "   Cation (Eff. radius): ",Ac%Species(n1),"(",Ac%Radius(n1),")   ",  &
-                     "   Anion  (Eff. radius): ",Ac%Species(n2),"(",Ac%Radius(n2),")"
+            if(soft) then
+              write(unit=lun,fmt="(a,/)") " Morse parameters D0 and Rmin calculated from softBVS parameters"
+            end if
+            do n1=1,Ac%N_Cations
+               do j=1,Ac%N_Anions
+                  n2=Ac%N_Cations+j
+                  write(unit=lun,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
+                        "   Type",n1,": ",Ac%Species(n1)," with type",n2,": ",Ac%Species(n2), &
+                        "    D0  =",Table_Dzero(n1,n2),"       Rmin =",Table_Rmin(n1,n2),   &
+                        "  Alpha =",Table_Alpha(n1,n2),"  Av. Coord.=",Table_Avcoor(n1,n2), &
+                        "    R0  =",Table_Rzero(n1,n2),"   R-cutoff =",Table_Rcutoff(n1,n2),&
+                        "   => Reference: "//trim(references(Table_ref(n1,n2)))
+                  write(unit=lun,fmt="(2(a,a,a,f6.3,a),/)") &
+                        "   Cation (Eff. radius): ",Ac%Species(n1),"(",Ac%Radius(n1),")   ",  &
+                        "   Anion  (Eff. radius): ",Ac%Species(n2),"(",Ac%Radius(n2),")"
+               end do
             end do
-         end do
+         end if
       else
          ! Setting Tables for B and D0
          if (read_bvparm) then
@@ -373,7 +392,6 @@ Program Bond_Str
            end if
          end if
       end if
-
 
       if (err_conf) then
          write(unit=*,fmt="(/,a)")   "    Setting Table: "//trim(ERR_Conf_Mess)

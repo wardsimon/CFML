@@ -1503,6 +1503,12 @@
                 b0=sbvs_table(ic)%b_par(ia)
                 r0=sbvs_table(ic)%d0(ia)
                 cn=sbvs_table(ic)%cn(ia)
+                !write(*,"(a,3f12.4)") " => b0,r0,cn: ", b0,r0,cn
+                if( b0+r0 < 0.00001) then
+                   err_conf=.true.
+                   ERR_Conf_Mess=" Bond-Valence parameters not found for pair: "//trim(A%Species(i))//"-"//bvs_anions(ia)
+                   return
+                end if
                 if( cn < 0.1 ) cn=6.0
                 Table_Avcoor (i,A%N_Cations+k)=cn
                 Table_Rzero  (i,A%N_Cations+k)=r0
@@ -1518,6 +1524,7 @@
                    Case(2:)
                       D0=14.4*sqrt(real(Ap_Table(ac)%oxs*Ap_Table(an)%oxs))*b0*b0/(rmin*sqrt(real(Ap_Table(an)%n*Ap_Table(ac)%n)))
                 End Select
+                !write(*,"(a,2f12.4)") " => D0 & Rmin: ",D0,Rmin
                 Table_Dzero  (i,A%N_Cations+k)=D0
                 Table_Rmin   (i,A%N_Cations+k)=Rmin
 
