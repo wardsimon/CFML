@@ -322,12 +322,12 @@ Module  TOF_Diffraction
       if(i <= 0) i=len_trim(filecode)
       ! General output file
       OPEN(UNIT=7, FILE=filecode(1:i)//'_pf.out',STATUS='replace')
-      WRITE(7,'(a)')' '
-      WRITE(7,'(A)')'            ------------------------------------ '
-      WRITE(7,'(A)')'                  --- PROGRAM: TOF-FIT ---'
-      WRITE(7,'(A)')'            (Author: J. Rodriguez-Carvajal, ILL)'
-      WRITE(7,'(A)')'                 (version 4.0 April - 2009) '
-      WRITE(7,'(A)')'            ------------------------------------ '
+      WRITE(unit=7,fmt='(a)')' '
+      WRITE(unit=7,fmt='(a)')'            ------------------------------------ '
+      WRITE(unit=7,fmt='(a)')'                  --- PROGRAM: TOF-FIT ---'
+      WRITE(unit=7,fmt='(a)')'            (Author: J. Rodriguez-Carvajal, ILL)'
+      WRITE(unit=7,fmt='(a)')'                 (version 4.0 April - 2009) '
+      WRITE(unit=7,fmt='(a)')'            ------------------------------------ '
 
       WRITE(7,'(/a,a)') ' => TITLE: ' ,Pat%title
 
@@ -433,8 +433,6 @@ Module  TOF_Diffraction
          write(unit=*,fmt= "(a,g14.5)") " => Simulation work, calculated Chi2: ",chi2
 
       end if
-
-      CLOSE(UNIT=7)     ! .OUT
 
       ! Refill the calculated vales
       j=0

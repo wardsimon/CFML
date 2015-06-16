@@ -169,7 +169,7 @@
 !     Marquardt fitting procedure with analytical derivatives
 !------------------------------------------------------------------
 !------------------------------------------------------------------
-     Program TOF_fit
+   Program TOF_fit
       use CFML_GlobalDeps, only: cp
       use CFML_LSQ_TypeDef
       use CFML_Optimization_LSQ
@@ -181,6 +181,7 @@
 
       Integer               :: ll,ier,no,ifail
       Character (Len=256)   :: texte
+      Character (Len=4)     :: ext
       Logical               :: esta, numeric,ok
       Integer               :: i,j,k,npts,L,ico
 
@@ -197,7 +198,18 @@
       if(narg > 0) then
               call GET_COMMAND_ARGUMENT(1,filecode)
               i=index(filecode,".pik")
-              if(i /= 0) filecode=filecode(1:i-1)
+              if(i /= 0) then
+                 filecode=filecode(1:i-1)
+                 ext=".pik"
+              else
+                 j=index(filecode,".new")
+                 if(j /= 0) then
+                    filecode=filecode(1:j-1)
+                    ext=".new"
+                 else
+                    ext=".pik"
+                 end if
+              end if
               ln=len_trim(filecode)
               filedat=trim(filecode)//".dat"
               lr=ln+4
@@ -210,7 +222,7 @@
       end if
       numeric=.false.
       if(narg > 2) numeric=.true.
-!   Header and openning of files
+      !   Header and openning of files
 
       write(unit=*,fmt="(a)")" "
       WRITE(unit=*,fmt='(a)')'            ------------------------------------ '
@@ -221,22 +233,40 @@
       write(unit=*,fmt="(a)") " "
 
       if( lr == 0) then
-         write(unit=*,fmt="(a)") " => Give the code of the files (XX for XX.pik, <cr>=stop): "
+         write(unit=*,fmt="(a)") " => Give the name of the input file (e.g. XX.pik or XX.new, <cr>=stop): "
          read(unit=*,fmt="(a)") filecode
          IF(len_trim(filecode) == 0) STOP
-         write(unit=*,fmt="(a)") " => Give the code of data file (xx for xx.dat) "
-         write(unit=*,fmt="(a,a,a)") "                 (<cr> =",trim(filecode),"): "
-         read(unit=*,fmt="(a)") filedat
+         i=index(filecode,".pik")
+         if(i /= 0) then
+            filecode=filecode(1:i-1)
+            ext=".pik"
+         else
+            j=index(filecode,".new")
+            if(j /= 0) then
+               filecode=filecode(1:j-1)
+               ext=".new"
+            else
+               ext=".pik"
+            end if
+         end if
+         write(unit=*,fmt="(a)")  " => Give the name of the data file (e.g. xx.dat) "
+         write(unit=*,fmt="(2a)") "             (<cr> =",trim(filecode)//".dat): "
+         read(unit=*,fmt="(a)") texte
+         if(len_trim(texte) == 0) then
+            filedat=trim(filecode)//".dat"
+         else
+            filedat=texte
+         end if
       end if
-      Open(Unit=1,File=Trim(Filecode)//".pik",STATUS="old",iostat=ier,action="read",position="rewind")
+      Open(Unit=1,File=Trim(Filecode)//ext,STATUS="old",iostat=ier,action="read",position="rewind")
       if( ier /= 0 ) then
-        write(unit=*,fmt="(a,a)") " => Error openning ",trim(filecode)//".pik"
+        write(unit=*,fmt="(a,a)") " => Error openning ",trim(filecode)//ext
         STOP
       end if
       IF(len_trim(filedat) == 0) filedat=trim(filecode)//".dat"
-!-------------------Start Program
+      !-------------------Start Program
       c%percent=50.0
-!      Read the input control file and write in output files
+      !      Read the input control file and write in output files
 
    Do   ! repeat until icont = 0 !
 
@@ -345,9 +375,10 @@
       Call Tof_Profile_Fitting(Filedat, ain,afin,df, Ifail)
       call cpu_time(timf)
       call Info_LSQ_Output(Chi2,0.0,d%nobs,d%x,d%y,d%yc,d%sw,7,c,vs)
+      close(unit=1)
       call Output_Plot(d%nobs,d%x,d%y,d%sw,d%yc,chi2)
       if(icont == 0) exit
-     End Do  !icont
-     stop
-     End Program TOF_fit
+   End Do  !icont
+   stop
+   End Program TOF_fit
 !------------------------------------------------------------------------
