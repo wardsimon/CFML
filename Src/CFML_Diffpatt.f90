@@ -282,7 +282,7 @@
        if (present(rlim)) then
           nlim=nint(rlim/difx)
        else
-          nlim=nint(0.5/difx)     ! 0.5�
+          nlim=nint(0.5/difx)     ! 0.5
        end if
 
        ! Locating the index that X(i1) <= x < X(i1+1)
@@ -303,7 +303,7 @@
              exit
           end if
        end do
-       if (j1 <= 0) j1=i1
+       if (j1 <= 0) j1=i1-1
 
        x1=Pat%x(j1)
        y1=Pat%y(j1)
