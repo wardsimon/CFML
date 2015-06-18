@@ -67,7 +67,7 @@
              chi=chi/real(m-n)
              if(chi <= chiold) then
                c%nfev=c%nfev+1
-               write(unit=*,fmt="(a,i6,a,g12.4)") " => Evaluation of the function number: ",c%nfev, "  Chi2=",chi
+               write(unit=*,fmt="(a,i6,a,g12.4)") " => Iteration number: ",c%nfev, "  Chi2=",chi
                chiold=chi
              end if
 

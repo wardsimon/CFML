@@ -405,7 +405,7 @@
       do i=1,df%npts
         if(df%x(i) >= ain .and. df%x(i) <= afin) then
           j=j+1
-          if(j>no) exit
+          if(j > no) exit
           d%y(j)=df%y(i)
           d%sw(j)=sqrt(df%sigma(i)) !Using the LM method one should store the standard deviation d%iw=0
           ww(j)=1.0/df%sigma(i)
