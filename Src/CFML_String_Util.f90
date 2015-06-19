@@ -2903,11 +2903,11 @@
        !---- Argument ----!
        real(kind=cp),   intent(in)  :: Value
        real(kind=cp),   intent(in)  :: Std
-       character(len=*),intent (out):: Line
+       character(len=*),intent(out) :: Line
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
-       character(len=20) :: aux
+       character(len=30) :: aux
        integer           :: n,np,iy,long
        real(kind=cp)     :: y
 
@@ -2933,7 +2933,7 @@
 
        aux=" "
        write(unit=aux,fmt=*) value
-       line=trim(aux)
+       line=trim(adjustl(aux))
        n=len_trim(line)
        fmtcar="f"
        if (n < 10) then
@@ -2953,7 +2953,7 @@
 
        aux=" "
        write(unit=aux,fmt=fmtcar) value
-       line=trim(aux)
+       line=trim(adjustl(aux))
        n=len_trim(line)
        if (line(n:n) == ".") then
           line(n:n)=" "

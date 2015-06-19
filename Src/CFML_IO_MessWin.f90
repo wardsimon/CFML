@@ -74,6 +74,8 @@
                            WEditFile, WEditPutTextPart, WindowSelect, WInfoEditor,       &
                            CommandLine,WInfoScreen,CourierNew,win_message
 
+    use CFML_GlobalDeps, only: OPS
+
     !---- Definitions ----!
     implicit none
 
@@ -273,13 +275,14 @@
        integer, optional,intent(in) :: ICmd
 
        !---- Local variables ----!
-       character(len=2), parameter :: newline = char(13)//char(10)
-       integer                     :: iendbuf, ic
+       character(len=2), save :: newline = char(13)//char(10)
+       integer                :: iendbuf, ic
 
        ic=0
        if (present(ICmd)) ic=ICmd
        !---- Open the Scroll Window if necessary ----!
        if (.not. wscroll) then
+          if(OPS /= 1) newline=char(10)
           call WindowOpenChild(win_console,height=nint(WInfoScreen(ScreenHeight)*0.5), &
                                title='Info Window')
           select case (ic)
