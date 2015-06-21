@@ -1,14 +1,18 @@
-   module moment_mod
+   Module Moment_Mod
+     use CFML_GlobalDeps
+     use CFML_Math_3D,                   only : Get_Spheric_Coord
+     use CFML_Crystallographic_Symmetry, only : latsym, ltr,nlat,inlat
+     use CFML_Symmetry_Tables,           only : latt
+     use CFML_Crystal_Metrics,           only : Crystal_Cell_Type,ERR_Crys,ERR_Crys_Mess,Set_Crystal_Cell
 
      implicit none
 
      integer, parameter ::  natom=50,nv=24,ncel=1000
-     real,    parameter ::  rad=57.29577951,tpi=6.28318531, pi=tpi/2.0
      integer            ::  ifou, nat, nvk, nce
      integer, parameter ::  inp=1,iou=2,iom=3    !logical units
      integer            ::  ier                  !iostat control value
 
-     real, dimension(5,natom)     :: x
+     real, dimension(5,natom)     :: x=0.0
      real, dimension(3,nv,natom)  :: rr, ri
      real, dimension(nv,natom)    :: ph
      real, dimension(nv)          :: phk
@@ -26,151 +30,22 @@
       character(len=20)                  ::  symb
       character(len=80)                  ::  title
 
-      real :: asq,bsq,csq,ab,ac,bc, astar,bstar,cstar,castar, &
-              cbstar,ccstar,sastar, sbstar,scstar,a,b,c,ca,cb,cc
+      real                               :: a,b,c,ca,cb,cc
+      type(Crystal_Cell_Type)            :: cell
 
-      real, dimension(3,3) :: ortd, orti
+      !real :: asq,bsq,csq,ab,ac,bc, astar,bstar,cstar,castar, &
+      !        cbstar,ccstar,sastar, sbstar,scstar,
+
+      !real, dimension(3,3) :: ortd, orti
 
       logical              ::  phasgiven,momencal
-      real, dimension(3,4) ::  ltr
-      integer :: nlat,inlat
-
-      character(len=*), parameter, dimension(7)::  latt =             &
-       (/ "  P: { 000 }                                       ",  &
-          "  A: { 000;  0  1/2 1/2 }+                         ",  &
-          "  B: { 000; 1/2  0  1/2 }+                         ",  &
-          "  C: { 000; 1/2 1/2  0  }+                         ",  &
-          "  I: { 000; 1/2 1/2 1/2 }+                         ",  &
-          "  R: { 000; 2/3 1/3 1/3; 1/3 2/3 2/3  }+           ",  &
-          "  F: { 000;  0  1/2 1/2; 1/2  0  1/2; 1/2 1/2  0 }+"/)
 
 
    contains
 
-      subroutine latsym(symb)
-!---------------------------------------------------------------------
-!     SYMB is the space group symbol in International notation, only the
-!     first character is taken into account for lattice identification.
-!     This subroutine constructs the lattice centring vectors.
-!---------------------------------------------------------------------
-         character (len=*), intent(in)   :: symb
-         character (len=1)               :: lat
-         lat=symb(1:1)
-         nlat=1
-         ltr(1,1)=0.0
-         ltr(2,1)=0.0
-         ltr(3,1)=0.0
-         if(lat == "P" .OR. lat == "p") then
-           nlat=1
-           inlat=1
-         else if(lat == "A" .OR. lat == "a") then
-           nlat=2
-           inlat=2
-           ltr(1,2)=0.0
-           ltr(2,2)=0.5
-           ltr(3,2)=0.5
-         else if(lat == "B" .OR. lat == "b") then
-           nlat=2
-           inlat=3
-           ltr(1,2)=0.5
-           ltr(2,2)=0.0
-           ltr(3,2)=0.5
-         else if(lat == "C" .OR. lat == "c") then
-           nlat=2
-           inlat=4
-           ltr(1,2)=0.5
-           ltr(2,2)=0.5
-           ltr(3,2)=0.0
-         else if(lat == "I" .OR. lat == "i") then
-           nlat=2
-           inlat=5
-           ltr(1,2)=0.5
-           ltr(2,2)=0.5
-           ltr(3,2)=0.5
-         else if(lat == "R" .OR. lat == "r") then
-           nlat=3
-           inlat=6
-           ltr(1,2)=2.0/3.0
-           ltr(2,2)=1.0/3.0
-           ltr(3,2)=1.0/3.0
-           ltr(1,3)=1.0/3.0
-           ltr(2,3)=2.0/3.0
-           ltr(3,3)=2.0/3.0
-         else if(lat == "F" .OR. lat == "f") then
-           nlat=4
-           inlat=7
-           ltr(1,2)=0.5
-           ltr(2,2)=0.5
-           ltr(3,2)=0.0
-           ltr(1,3)=0.5
-           ltr(2,3)=0.0
-           ltr(3,3)=0.5
-           ltr(1,4)=0.0
-           ltr(2,4)=0.5
-           ltr(3,4)=0.5
-         end if
-         return
-      end subroutine latsym
-
-      subroutine build_orth()
-!---------------------------------------------------------
-! This subroutine calculates the reciprocal cell and the matrix for
-! conversions to the orthonormal reference system.
-!---------------------------------------------------------
-         real :: sa,sb, sc
-         if(ca-1.0 > 0.0) ca=cos(ca/rad)
-         if(cb-1.0 > 0.0) cb=cos(cb/rad)
-         if(cc-1.0 > 0.0) cc=cos(cc/rad)
-         sa=sqrt(1.0-ca*ca)
-         sb=sqrt(1.0-cb*cb)
-         sc=sqrt(1.0-cc*cc)
-         castar=(cb*cc-ca)/(sb*sc)
-         cbstar=(ca*cc-cb)/(sa*sc)
-         ccstar=(ca*cb-cc)/(sa*sb)
-         sastar=sqrt (1.0-castar*castar)
-         sbstar=sqrt (1.0-cbstar*cbstar)
-         scstar=sqrt (1.0-ccstar*ccstar)
-         astar=1.0/(a*sb*scstar)
-         bstar=1.0/(b*sa*scstar)
-         cstar=1.0/(c*sa*sbstar)
-         asq=a*a
-         bsq=b*b
-         csq=c*c
-         ab=a*b*cc
-         ac=a*c*cb
-         bc=b*c*ca
-
-!  Building the crystallographic to orthonormal system matrix
-!  The orthonormal system is defined having the axes as:
-!  X axis coincides with the crystallographic A
-!  Y axis belongs to the plane A,B
-!  Z axis is perpendicular to the plane A,B
-
-         ortd(1,1)=a
-         ortd(1,2)=0.0
-         ortd(1,3)=0.0
-         ortd(2,1)=b*cc
-         ortd(2,2)=b*sc
-         ortd(2,3)=0.0
-         ortd(3,1)=c*cb
-         ortd(3,2)=-c*sb*castar
-         ortd(3,3)=1/cstar
 
 
-         orti(1,1)=1.0/ortd(1,1)
-         orti(1,2)=0.0
-         orti(1,3)=0.0
-         orti(2,1)=-ortd(2,1)/(ortd(1,1)*ortd(2,2))
-         orti(2,2)=1.0/ortd(2,2)
-         orti(2,3)=0.0
-         orti(3,1)=ortd(2,1)*ortd(3,2)-ortd(3,1)*ortd(2,2)
-         orti(3,1)=cstar*orti(3,1)/(ortd(1,1)*ortd(2,2))
-         orti(3,2)=-cstar*ortd(3,2)/ortd(2,2)
-         orti(3,3)=cstar
-         return
-      end subroutine build_orth
-
-      subroutine coordinates(t,n)
+      Subroutine Coordinates(t,n)
       !Constructs the arrays xcry and xcar containing the coordinates of the
       !atoms in cell numbered "n" corresponding to the lattice vector "t"
          real, dimension(3), intent(in) :: t
@@ -182,42 +57,13 @@
          do i=1,nat
            xc(:)=x(1:3,i)+t(:)
            xcry(:,i,n)=xc(:)
-           xo = matmul (xc,ortd) !Convert to cartesian
+           xo = matmul (Cell%Cr_Orth_cel,xc) !Convert to cartesian
            xcar(:,i,n)=xo(:)
          end do
          return
-      end subroutine coordinates
+      End Subroutine Coordinates
 
-      subroutine spherical(xo,ss,theta,phi)
-      !Calculates the spherical coordinates corresponding to the
-      !Cartesian vector xo. It is valid for coordinates and moment values.
-      !The angles theta and phi are output in degrees.
-         real, intent(in)                         :: xo(3)
-         real, intent(in out)                     :: ss
-         real, intent(in out)                     :: theta
-         real, intent(in out)                     :: phi
-         ss=sqrt(dot_product(xo,xo))
-         if(ss > 0.0) then
-           theta=xo(3)/ss
-           if(abs(theta) > 1.0) then
-             theta=sign(1.0,theta)
-           end if
-           theta=acos(theta)
-           if(abs(theta) < 1.0e-5 .or. abs(theta-pi) < 1.0e-5) then
-             phi=0.0
-           else
-             phi=atan2(xo(2),xo(1))
-           end if
-         else
-           theta=0.0
-           phi=0.0
-         end if
-         theta=theta*rad
-         phi=phi*rad
-         return
-      end subroutine spherical
-
-      subroutine  momento(t,n,ia,cm,r)
+      Subroutine  Momento(t,n,ia,cm,r)
       !This subroutine gives the value of the moment amplitude
       !of the atom "ia" in cell "n" corresponding to translation "t".
       !It provides also the cartesian components of the magnetic moment.
@@ -231,14 +77,12 @@
          xc(1)=rmo(1,ia,n)/a
          xc(2)=rmo(2,ia,n)/b
          xc(3)=rmo(3,ia,n)/c
-         cm = matmul (xc,ortd) !Convert to cartesian
+         cm = matmul (Cell%Cr_Orth_cel,xc) !Convert to cartesian
          r=sqrt(dot_product(cm,cm))
          return
-      end subroutine momento
+      End Subroutine Momento
 
-
-
-      subroutine magmom_calc(t,n,ia)
+      Subroutine Magmom_Calc(t,n,ia)
       !   Calculation of the magnetic moments of all the atoms located in a cell
       !   at a translation T from the zero-cell at (000). Crystallographic
       !   components stored in vector RMo(j,I,n)(j=1,2,3,I:atom index, n:cell index).
@@ -272,9 +116,9 @@
            end do                          ! End loop over components x,y,z
          end do                            ! End loop over atoms
          return
-      end subroutine magmom_calc
+      End Subroutine Magmom_Calc
 
-      subroutine phase_give(ival)
+      Subroutine Phase_Give(ival)
          integer, intent (in) :: ival
          integer              :: iphas, iv
          if(ival == 2) phasgiven=.FALSE.
@@ -294,9 +138,9 @@
            phasgiven=.TRUE.
          end if
          return
-      end subroutine phase_give
+      End Subroutine Phase_Give
 
-      subroutine phase_search()
+      Subroutine Phase_Search()
          real,    dimension(3)      :: t,cm
          integer, dimension(3)      :: ic
          integer, dimension(natom)  :: inda
@@ -420,43 +264,36 @@
            phk(iv)=phkop(iv)
            write(unit=iou,fmt="(a,i1,a,f8.4,a,f7.2,a)")  &
                " -> Optimal additional phase for Sk",iv,": ",  &
-               phkop(iv)," (modulo 2pi) ->", phkop(iv)*rad*tpi," degrees"
+               phkop(iv)," (modulo 2pi) ->", phkop(iv)*to_deg*tpi," degrees"
            write(unit=iou,fmt="(a,2f8.4,a)")  &
                "    (Search within the range: ",(pin(iv,j),j=1,2)," ) "
            write(unit=*,fmt=  "(a,i1,a,f8.4,a,f10.2,a)")  &
                " -> Optimal additional phase for Sk",iv,": ",  &
-               phkop(iv)," (modulo 2pi) ->", phkop(iv)*rad*tpi," degrees"
+               phkop(iv)," (modulo 2pi) ->", phkop(iv)*to_deg*tpi," degrees"
            write(unit=*,fmt="(a,2f8.4,a)")  &
                "    (Search within the range: ",(pin(iv,j),j=1,2)," ) "
          end do
          return
-      end subroutine phase_search
+      End Subroutine Phase_Search
 
-   end module moment_mod
-
-
-!---------------------------------------------------------------------------------
+   End Module Moment_Mod
+   !---------------------------------------------------------------------------------
 
 
-   module moment_inout
+   Module Moment_Inout
 
-      use moment_mod
-      use CFML_String_Utilities, only: FindFmt,  Init_FindFmt, ierr_fmt, mess_findfmt
+      Use Moment_Mod
+      use CFML_String_Utilities, only: FindFmt,  Init_FindFmt, ierr_fmt, mess_findfmt,U_case
 
       implicit none
-
-     ! private
-     ! public :: phase_bidon,
 
 
    contains
 
-
-
-      subroutine input_data()
+      Subroutine Input_Data()
          character (len=1)  :: ans
-         character (len=16) :: filout
-         character (len=16) :: filin
+         character (len=96) :: filout
+         character (len=96) :: filin
          logical :: leer
          integer :: j
 
@@ -490,7 +327,11 @@
            write(unit=iou,fmt="(a,a,/)")" => Data from input file: ",filin
            write(unit=iou,fmt="(a,a)") "    Title:",title
            write(unit=iou,fmt="(a,/)")  "    ------"
-           call readfile()
+           if(index(filin,".fst") /= 0) then
+              call Readfile_fst()
+           else
+              call Readfile()
+           end if
            close(unit=inp)
          else
            call interactive_input()
@@ -498,9 +339,9 @@
          call latsym(symb)
          write(unit=iou,fmt="(/,a,a,/)")  " => Lattice type:",latt(inlat)
          return
-      end subroutine input_data
+      End Subroutine Input_Data
 
-      subroutine interactive_input()
+      Subroutine Interactive_Input()
          integer :: i,j,iv
          nfst(1)="S(k)"
          nfst(2)="T(k)"
@@ -509,26 +350,27 @@
          write(unit=iou,fmt="(a)")" => Data given interactively"
          write(unit=iou,fmt="(a,a)") "    Title:",title
          write(unit=iou,fmt="(a/)")  "    ------"
-!-------------------------------------------
-!        Enter the unit cell
-!-------------------------------------------
+         !-------------------------------------------
+         !        Enter the unit cell
+         !-------------------------------------------
          do
            write(unit=*,fmt="(a)",advance="no")" => Unit cell parameters: "
            read(unit=*,fmt=*,iostat=ier)a,b,c,ca,cb,cc
            if(ier == 0) exit
          end do
          write(unit=iou,fmt="(a,6f10.4)")" => Unit cell :",a,b,c,ca,cb,cc
-         call build_orth()
-!-------------------------------------------
-!        Enter the space group symbol
-!-------------------------------------------
+         call Set_Crystal_Cell((/a,b,c/),(/ca,cb,cc/),Cell,Cartype="A")
+         !call build_orth()
+         !-------------------------------------------
+         !        Enter the space group symbol
+         !-------------------------------------------
          do
            write(unit=*,fmt="(a)",advance="no") " => Space group: "
            read(unit=*,fmt="(a)",iostat=ier) symb
            if(ier == 0) exit
          end do
          write(unit=iou,fmt="(a,a)")" => Space group: ",symb
-!-------------------------------------------
+         !-------------------------------------------
          do
            write(unit=*,fmt="(a)",advance="no")  &
              " => Type of Fourier coefficient S(k) -> 1 or T(k) -> 2: "
@@ -556,9 +398,9 @@
                "                     +I(k,j) sin{2pi*(k.R(L,j)+Phase(k,j)}] ",  &
                "   Where R(L,j) is the vector position of atom j in cell L"
          end if
-!------------------------------------------------
-!        Enter the number of propagation vectors
-!------------------------------------------------
+         !------------------------------------------------
+         !        Enter the number of propagation vectors
+         !------------------------------------------------
          do
            write(unit=*,fmt="(a)")   " => Number of propagation vectors"
            write(unit=*,fmt="(a)",advance="no") "      (k & -k are counted as one): "
@@ -567,9 +409,9 @@
          end do
          if(nvk < 0) nvk=abs(nvk)
          write(unit=iou,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
-!-------------------------------------------
-!        Enter the propagation vectors
-!-------------------------------------------
+         !-------------------------------------------
+         !        Enter the propagation vectors
+         !-------------------------------------------
          do i=1,nvk
            do
              write(unit=*,fmt="(a,i1,a)",advance="no") " => Propagation vector (",i,"): "
@@ -578,17 +420,17 @@
            end do
            write(unit=iou,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ", pvk(:,i)
          end do
-!--------------------------------------------
-!        Read the atom positions
-!-------------------------------------------
+         !--------------------------------------------
+         !        Read the atom positions
+         !-------------------------------------------
          do
            write(unit=*,fmt="(a)",advance="no") " => Number of atoms: "
            read(unit=*,fmt=*,iostat=ier) nat
            if(ier == 0) exit
          end do
-!--------------------------------------------------------------------------
+         !--------------------------------------------------------------------------
          do i=1,nat
-!--------------------------------------------------------------------------
+         !--------------------------------------------------------------------------
            write(unit=*,fmt="(a,i1,a)",advance="no") " -> Name of atom (",i,"): "
            read(unit=*,fmt="(a)") nam(i)
            do
@@ -606,9 +448,9 @@
                 if(ier == 0) exit
              end do
            end do
-!------------------------------------------------------------------
+         !------------------------------------------------------------------
          end do
-!------------------------------------------------------------------
+         !------------------------------------------------------------------
          write(unit=iou,fmt="(/,a)")  &
              " => Atoms and Fourier coefficients of magnetic moments"
          write(unit=iou,fmt="(/,a)") "     Atom       X         Y         Z    "
@@ -626,9 +468,9 @@
            end do
          end do
          return
-      end subroutine interactive_input
+      End Subroutine Interactive_Input
 
-      subroutine cells_enter()
+      Subroutine Cells_Enter()
          real, dimension(3) :: t
          character(len=1)   :: ans
          integer :: j
@@ -648,9 +490,9 @@
             exit
          end do
          return
-      end subroutine cells_enter
+      End Subroutine Cells_Enter
 
-      subroutine angle_calc()
+      Subroutine Angle_Calc()
          real, dimension(3) :: t1, t2, cm1, cm2
          character(len=1)   :: ans
          integer :: iato1, iato2
@@ -682,7 +524,7 @@
            s=dot_product(cm1,cm2)
            s=s/rm1/rm2
            if(abs(s) > 1.0) s=sign(1.0,s)
-           s=acos(s)*rad
+           s=acos(s)*to_deg
            write(unit=*,fmt="(a,f8.3,a)") " => Angle: ",s, " degrees"
            write(unit=*,fmt="(/,a)",advance="no") " -> More angles (y/n)?: "
            read(unit=*,fmt="(a)") ans
@@ -690,9 +532,9 @@
            exit
          end do
          return
-      end subroutine angle_calc
+      End Subroutine Angle_Calc
 
-      subroutine phase_bidon()
+      Subroutine Phase_Bidon()
          character(len=1)   :: ans
          real, dimension(3) ::  t,cm
          integer :: i,j,iv,n,np, iato, nstep
@@ -740,14 +582,14 @@
          write(unit=*,fmt="(/,a,/)")"  => Optimun phases for all the atoms:"
          do i=1,nat
            write(unit=*,fmt="(a,a,4f10.5)") " -> Atom: ",nam(i),(phko(iv,i),iv=2,nvk)
-           write(unit=*,fmt="(a,4f10.5)") "              ",(phko(iv,i)*rad*tpi,iv=2,nvk)
+           write(unit=*,fmt="(a,4f10.5)") "              ",(phko(iv,i)*to_deg*tpi,iv=2,nvk)
          end do
          return
-      end subroutine phase_bidon
+      End Subroutine Phase_Bidon
 
-!-------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
-      subroutine readfile()
+      Subroutine Readfile()
          character (len=80)  :: fmtfields
          character (len=132) :: fmtformat
          character (len=132) :: aline
@@ -773,22 +615,23 @@
          end if
          write(unit=*  ,fmt="(a,6f10.4)")" => Unit cell :",a,b,c,ca,cb,cc
          write(unit=iou,fmt="(a,6f10.4)")" => Unit cell :",a,b,c,ca,cb,cc
-         call build_orth()
-!-------------------------------------
-!        Read the space group symbol
-!-------------------------------------
+         call Set_Crystal_Cell((/a,b,c/),(/ca,cb,cc/),Cell,Cartype="A")
+         !call build_orth()
+         !-------------------------------------
+         !        Read the space group symbol
+         !-------------------------------------
          read(unit=inp,fmt="(a)")aline
          if(aline(1:4) /= "SPGR") then
            write(unit=*,fmt="(a)") " => Warning!, the SPGR card could be in error: "//trim(aline)
          end if
          aline =adjustl(aline(6:))
-         if(len_trim(aline) == 0)  aline="P-1"
+         if(len_trim(aline) == 0)  aline="P -1"
          symb=trim(aline)
          write(unit=*  ,fmt="(a,a)")" => Space group: ",symb
          write(unit=iou,fmt="(a,a)")" => Space group: ",symb
-!--------------------------------------------------------
-!        Read the type of fourier coefficients in input
-!--------------------------------------------------------
+         !--------------------------------------------------------
+         !        Read the type of fourier coefficients in input
+         !--------------------------------------------------------
          do
            fmtfields = "9i"
            call findfmt(inp,aline,fmtfields,fmtformat)
@@ -825,9 +668,9 @@
                "     Where R(L,j) is the vector position of atom j in cell L"
          end if
 
-!-----------------------------------------------
-!        Read the number of propagation vectors
-!-----------------------------------------------
+         !-----------------------------------------------
+         !        Read the number of propagation vectors
+         !-----------------------------------------------
          do
            fmtfields = "9i"
            call findfmt(inp,aline,fmtfields,fmtformat)
@@ -838,9 +681,9 @@
          read(unit=aline,fmt=fmtformat)  key,nvk
          write(unit=*  ,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
          write(unit=iou,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
-!--------------------------------------
-!        Read the propagation vectors
-!--------------------------------------
+         !--------------------------------------
+         !        Read the propagation vectors
+         !--------------------------------------
          do i=1,nvk
            do
              fmtfields = "9fff"
@@ -856,9 +699,9 @@
            write(unit=*  ,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ", pvk(:,i)
            write(unit=iou,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ", pvk(:,i)
          end do
-!----------------------------------
-!        Read the atom positions
-!----------------------------------
+         !----------------------------------
+         !        Read the atom positions
+         !----------------------------------
          nat=0
 
          do i=1,natom
@@ -906,9 +749,149 @@
            end do
          end do
          return
-      end subroutine readfile
+      End Subroutine Readfile
 
-      subroutine finalize()
+      Subroutine Readfile_fst()
+         character (len=80)  :: fmtfields
+         character (len=132) :: fmtformat
+         character (len=132) :: aline
+         character (len=9)   :: key,lab
+         integer :: i,j,iv,ive,ier
+         nfst(1)="S(k)"
+         ifou=1
+         do
+           !-----------------------------
+           !        Read the unit cell
+           !-----------------------------
+           read(unit=inp,fmt="(a)",iostat=ier) aline
+           if(ier /= 0) then
+               write(unit=*,fmt="(a)") " => Error reading the input file in looking for unit cell parameters!"
+               stop
+           end if
+           aline=adjustl(aline)
+           key=u_case(aline)
+           if(key(1:4) == "CELL") then
+             read(unit=aline(5:),fmt=*,iostat=ier)  a,b,c,ca,cb,cc
+             if(ier /= 0) then
+               write(unit=*,fmt="(a)") " => Error reading the unit cell parameters!"
+               stop
+             end if
+             write(unit=*  ,fmt="(a,6f10.4)")" => Unit cell :",a,b,c,ca,cb,cc
+             write(unit=iou,fmt="(a,6f10.4)")" => Unit cell :",a,b,c,ca,cb,cc
+             call Set_Crystal_Cell((/a,b,c/),(/ca,cb,cc/),Cell,Cartype="A")
+           else
+             cycle
+           end if
+           exit
+         end do
+
+         do
+           !-----------------------------------------------------------------------
+           !        Read the lattice type and assign the space group symbol to L -1
+           !-----------------------------------------------------------------------
+           read(unit=inp,fmt="(a)",iostat=ier) aline
+           if(ier /= 0) then
+               write(unit=*,fmt="(a)") " => Error reading the input file in looking for lattice symbol!"
+               stop
+           end if
+           if(aline(1:7) == "LATTICE") then
+             symb =trim(adjustl(aline(8:)))//" -1"
+             write(unit=*  ,fmt="(a,a)")" => Space group: ",symb
+             write(unit=iou,fmt="(a,a)")" => Space group: ",symb
+           else
+             cycle
+           end if
+           exit
+         end do
+         write(unit=*  ,fmt="(a,a)")" => Type of Fourier Coefficients: ",nfst(ifou)
+         write(unit=iou,fmt="(a,a)")" => Type of Fourier Coefficients: ",nfst(ifou)
+         write(unit=iou,fmt="(a)") " => For atom j of the reference cell (000) is given by: "
+         write(unit=iou,fmt="(a)") "   S(k,j)= 0.5 {R(k,j) + i I(k,j)} exp{-2pi Phase(k,j)}"
+         write(unit=iou,fmt="(a)") " => The magnetic moments are calculated using the formula: "
+         write(unit=iou,fmt="(a/a/a)")  &
+               "     M(L,j) = Sum{k}[ R(k,j) cos{2pi*(k.R(L)+Phase(k,j)}+ ",  &
+               "                     +I(k,j) sin{2pi*(k.R(L)+Phase(k,j)}] ",  &
+               "     Where R(L) is the lattice vector corresponding to cell L"
+
+         !-----------------------------------------------
+         !        Read the number of propagation vectors
+         !-----------------------------------------------
+         nvk=0
+         do
+           read(unit=inp,fmt="(a)",iostat=ier) aline
+           if(ier /= 0) then
+               write(unit=*,fmt="(a)") " => Error reading the input file in looking for propagation vectors!"
+               stop
+           end if
+           if(aline(1:1) == "K") then
+             nvk=nvk+1
+             read(unit=aline(2:),fmt=*)   pvk(:,nvk)
+           else
+             exit
+           end if
+         end do
+         read(unit=inp,fmt="(a)",iostat=ier) aline !read now the msym line
+         write(unit=*  ,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
+         write(unit=iou,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
+         do i=1,nvk
+           write(unit=*  ,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ", pvk(:,i)
+           write(unit=iou,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ", pvk(:,i)
+         end do
+         !----------------------------------
+         !        Read the atom positions
+         !----------------------------------
+         nat=0
+         do
+           do
+             fmtfields = "944fff"
+             call findfmt(inp,aline,fmtfields,fmtformat)
+             if(ierr_fmt == 13)  cycle
+             exit
+           end do
+           if(aline(1:1) == "}") exit
+           if(ierr_fmt == -1) exit
+           if (ierr_fmt /= 0)  call finalize()
+           nat=nat+1
+           read(unit=aline,fmt=fmtformat) key,nam(nat),lab,x(1:3,nat)
+           if(key(1:5) /= "MATOM") then
+             write(unit=*,fmt="(a)") " => Warning!, the MATOM card could be in error "//trim(aline)
+           end if
+           do iv=1,nvk
+             do
+               fmtfields = "4iifffffff"
+               call findfmt(inp,aline,fmtfields,fmtformat)
+               if(ierr_fmt == 13)  cycle
+               exit
+             end do
+             if (ierr_fmt /= 0)   call finalize()
+             read(unit=aline,fmt=fmtformat)key,ive,i, rr(:,iv,nat),ri(:,iv,nat), ph(iv,nat)
+             if(key(1:3) /= "SKP") then
+               write(unit=*,fmt="(a)") " => Warning!, the SKP card could be in error "//trim(aline)
+             end if
+             if(abs(ive) /= iv .and. ive /= 0)  write(unit=*,fmt="(a)")  &
+                   " => Warning!, the order of Fourier coefficient could be in error "
+           end do
+         end do  !loop_atom
+
+         write(unit=iou,fmt="(/a)") " => Atoms and Fourier coefficients of magnetic moments"
+         write(unit=iou,fmt="(/a)") "     Atom       X         Y         Z         Biso    Occ"
+         do i=1,nat
+           write(unit=iou,fmt="(a,a4,a,5f10.5)") " -> ",nam(i),": ", x(:,i)
+         end do
+
+         write(unit=iou,fmt="(/a)") "     Atom     Rx      Ry      Rz      Ix      Iy      Iz   Phase"
+         do i=1,nat
+           write(unit=iou,fmt="(a,a4,a,6f8.3,f8.5)")  "    ",nam(i),": ",rr(:,1,i),ri(:,1,i),ph(1,i)
+           do iv=2,nvk
+             write(unit=iou,fmt="(a,6f8.3,f8.5)")  "          ",rr(:,iv,i),ri(:,iv,i),ph(iv,i)
+           end do
+         end do
+         return
+      End Subroutine Readfile_fst
+
+
+
+      Subroutine Finalize()
          integer :: i
          if(ierr_fmt == -1) then
             write(unit=*,fmt="(a)")  " => End of input file "
@@ -918,11 +901,9 @@
             end do
          end if
          stop
-      end subroutine finalize
+      End Subroutine Finalize
 
-
-
-      subroutine write_mom(t)
+      Subroutine Write_Mom(T)
          real, intent(in)   :: t(3)
          real, dimension(3) :: xc,xo
          integer :: i,j,iv
@@ -935,9 +916,9 @@
              "   ATOMS and MAGNETIC MOMENTS in cell: ( ",t(1), "," , t(2), "," ,t(3), " )"
          do iv=1,nvk
            write(unit=iou,fmt="(a,i1,a,f8.4,a,f7.2,a)")  " -> Additional phase for Sk",iv,": ",  &
-               phk(iv)," (modulo 2pi) ->", phk(iv)*rad*tpi," degrees"
+               phk(iv)," (modulo 2pi) ->", phk(iv)*to_deg*tpi," degrees"
            write(unit=*,fmt=  "(a,i1,a,f8.4,a,f10.2,a)") " -> Additional phase for Sk",iv,": ",  &
-               phk(iv)," (modulo 2pi) ->", phk(iv)*rad*tpi," degrees"
+               phk(iv)," (modulo 2pi) ->", phk(iv)*to_deg*tpi," degrees"
          end do
 
          write(unit=*,fmt="(/,a)")    &
@@ -962,8 +943,8 @@
           xc(1)=rmo(1,i,nce)/a
            xc(2)=rmo(2,i,nce)/b
            xc(3)=rmo(3,i,nce)/c
-           xo = matmul (xc,ortd) !Convert to cartesian
-           call spherical(xo,ss,theta,phi)
+           xo = matmul(Cell%Cr_Orth_cel,xc) !Convert to cartesian
+           call Get_Spheric_Coord(xo,ss,theta,phi)
            rmc(:,i,nce)=xo(:)
            rmod(i,nce)=ss
            write(unit=*,fmt="(a,a4,a,9f9.3)")  &
@@ -972,21 +953,21 @@
                " ",nam(i),": ",rmo(:,i,nce),xo(:),rmod(i,nce) ,phi,theta
          end do
          return
-      end subroutine write_mom
-!-------------------------------------------------------------------------
+      End Subroutine Write_Mom
+      !-------------------------------------------------------------------------
 
-      subroutine show_input(ilo)
+      Subroutine Show_Input(ilo)
         integer, intent(in) :: ilo
-         character (len=1)   :: ans
+         character (len=1)  :: ans
          integer :: i,j,iv
 
          write(unit=ilo,fmt="(/a/)") "   Information about LATTICE and PROPAGATION VECTORS"
-         write(unit=*,fmt="(a/4x,3f9.4,3f10.4)")  &
-             " => Cell a,       b,       c,  cos(alpha),cos(beta),cos(gamma):",  &
+         write(unit=*,fmt="(a/4x,3f10.5,3f10.4)")  &
+             " => Cell a,       b,       c,  alpha,    beta,    gamma:",  &
               a,b,c,ca,cb,cc
 
-         write(unit=ilo,fmt="(a,a)")     " => Space group: ",symb
-         write(unit=ilo,fmt="(a,i5)")" => Number of propagation vectors: ",nvk
+         write(unit=ilo,fmt="(a,a)")    " => Space group: ",symb
+         write(unit=ilo,fmt="(a,i5)")   " => Number of propagation vectors: ",nvk
          if(nvk < 0) write(ilo,"(a/)")  "    Vectors -k are taken into account automatically  "
          do i=1,nvk
            write(unit=ilo,fmt="(a,i2,a,3f9.4)")"    Vector (",i,"): ",pvk(:,i)
@@ -1015,12 +996,12 @@
          write(unit=ilo,fmt="(/a)") " => Additional phase for each vector K:"
          do iv=1,nvk
            write(unit=ilo,fmt="(a,i2,a,f8.4,a,f10.4,a)")  "     Vector(",iv,") -> Phase: ",phk(iv),"(modulo 2pi)",  &
-                                                          phk(iv)*rad*tpi," degrees"
+                                                          phk(iv)*to_deg*tpi," degrees"
          end do
          return
-      end subroutine show_input
+      End Subroutine Show_Input
 
-      subroutine write_file()
+      Subroutine Write_File()
          character (len=1) :: ans
          character (len=16) :: filmom
          logical :: cartes
@@ -1071,9 +1052,9 @@
          write(unit=iom,fmt="(/,a,i5)")" => Total number of cells: ",n
          close(unit=iom)
          return
-      end subroutine write_file
+      End Subroutine Write_File
 !----------------------------------------------------------------
-      subroutine write_mag3d()
+      Subroutine Write_Mag3D()
          character (len=2),dimension(10)    :: spec
          real,    dimension(3) :: t(3),cm(3)
          integer :: i,j,jl,ia,n,nspec,ns
@@ -1081,7 +1062,7 @@
 
          open(unit=iom,file="mag3d.cry",status="unknown")
          write(unit=iom,fmt="(a,a)")"N",title
-         write(unit=iom,fmt="(a,3f8.4,3f8.2)") "C", a,b,c,acos(ca)*rad,acos(cb)*rad,acos(cc)*rad
+         write(unit=iom,fmt="(a,3f8.4,3f8.2)") "C", a,b,c,ca,cb,cc
          write(unit=iom,fmt="(a)")"S x,y,z"
          n=0
          nspec=1
@@ -1126,7 +1107,7 @@
 !            Q Fe1 SDIR  50 -30   (theta,phi in degrees)
          do ia=1,nat
            call momento(t,n,ia,cm,ss)
-           call spherical(cm,ss,theta,phi)
+           call Get_Spheric_Coord(cm,ss,theta,phi)
            write(unit=iom,fmt="(a,a4,a,f5.2)")  "Q ",nam(ia)," MU  ", ss
            write(unit=iom,fmt="(a,a4,a,2f8.2)") "Q ",nam(ia)," SDIR  ", theta,phi
          end do
@@ -1146,16 +1127,16 @@
          end do
          close(unit=iom)
          return
-      end subroutine write_mag3d
+      End Subroutine Write_Mag3D
 
-   end module moment_inout
+   End Module Moment_Inout
 
 !-------------------------------------------------------------------------
 
 
-      program moment
-      use moment_mod
-      use moment_inout
+      Program Moment
+      Use Moment_Mod
+      Use Moment_Inout
 
 !     Initialization of some variables
       phasgiven=.FALSE.
@@ -1168,53 +1149,52 @@
       write(unit=*,fmt="(a)") "   ------------------------------------------"
       write(unit=*,fmt="(a)") " "
       do
-       do
-          write(unit=*,fmt="(/,a,/)") "      OPTIONS: (enter the option number)  "
-          write(unit=*,fmt="(a)")     "      0: Read file or enter input data"
-          write(unit=*,fmt="(a)")     "      1: Show the input data"
-          write(unit=*,fmt="(a)")     "      2: Change Phase angle between Fourier Coeff."
-          write(unit=*,fmt="(a)")     "      3: Calculate magnetic moments in several cells"
-          write(unit=*,fmt="(a)")     "      4: Write a file for MAG3D"
-          write(unit=*,fmt="(a)")     "      5: Angles between selected magnetic moments"
-          write(unit=*,fmt="(a)")     "      6: Search phase between Fourier Coeff.(general)"
-          write(unit=*,fmt="(a)")     "      7: Write a file with magnetic moments for plot"
-          write(unit=*,fmt="(a)")     "     20: Stop calculations"
-          write(unit=*,fmt="(a)")     "  "
-          write(unit=*,fmt="(a)",advance="no") " =>  Option: "
-          read(unit=*,fmt=*,iostat=ier) ival
-          if (ier == 0) exit
-       end do
+         do
+            write(unit=*,fmt="(/,a,/)") "      OPTIONS: (enter the option number)  "
+            write(unit=*,fmt="(a)")     "      0: Read file or enter input data"
+            write(unit=*,fmt="(a)")     "      1: Show the input data"
+            write(unit=*,fmt="(a)")     "      2: Change Phase angle between Fourier Coeff."
+            write(unit=*,fmt="(a)")     "      3: Calculate magnetic moments in several cells"
+            write(unit=*,fmt="(a)")     "      4: Write a file for MAG3D"
+            write(unit=*,fmt="(a)")     "      5: Angles between selected magnetic moments"
+            write(unit=*,fmt="(a)")     "      6: Search phase between Fourier Coeff.(general)"
+            write(unit=*,fmt="(a)")     "      7: Write a file with magnetic moments for plot"
+            write(unit=*,fmt="(a)")     "     20: Stop calculations"
+            write(unit=*,fmt="(a)")     "  "
+            write(unit=*,fmt="(a)",advance="no") " =>  Option: "
+            read(unit=*,fmt=*,iostat=ier) ival
+            if (ier == 0) exit
+         end do
 
-      if(iin == 0 .and. ival < 20 .and. ival /= 0) then
-        write(unit=*,fmt="(a)") " => PLEASE, select first option 0 !"
-        cycle
-       end if
+         if(iin == 0 .and. ival < 20 .and. ival /= 0) then
+           write(unit=*,fmt="(a)") " => PLEASE, select first option 0 !"
+           cycle
+         end if
 
-       select case (ival)
-         case(  0)
-            call input_data()
-            iin=1
-         case(  1)
-            call show_input(6)
-         case(  2)
-            call phase_give(ival)
-         case(  3)
-            call phase_give(ival)
-            call cells_enter()
-         case(  4)
-!           Call Phase_bidon()
-            call write_mag3d()
-         case(  5)
-            call angle_calc()
-         case(  6)
-            call phase_search()
-         case(  7)
-            call write_file()
-         case( 20)
-            stop
-       end select
+         select case (ival)
+           case(  0)
+              call input_data()
+              iin=1
+           case(  1)
+              call show_input(6)
+           case(  2)
+              call phase_give(ival)
+           case(  3)
+              call phase_give(ival)
+              call cells_enter()
+           case(  4)
+!             Call Phase_bidon()
+              call write_mag3d()
+           case(  5)
+              call angle_calc()
+           case(  6)
+              call phase_search()
+           case(  7)
+              call write_file()
+           case( 20)
+              stop
+         end select
       end do
 
-      end program moment
-!-------------------------------------------------------------------------
+      End Program Moment
 
