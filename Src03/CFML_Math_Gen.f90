@@ -3252,7 +3252,7 @@
        end if
        vv=1.0_sp/vv     !Save the scaling.
        do j=1,n
-          imax=(j-1)+imaxloc(vv(j:n)*abs(a(j:n,j)))   !Find the pivot row.
+          imax=(j-1)+maxloc(vv(j:n)*abs(a(j:n,j)),dim=1)   !Find the pivot row.
           if (j /= imax) then                         !Do we need to interchange rows?
              call swap(a(imax,:),a(j,:))              !Yes, do so...
              d=-d                                     !...and change the parity of d.
@@ -4228,7 +4228,7 @@
                       rv1(i)=c*rv1(i)
                       if ((abs(f)+anorm)==anorm)exit
                       g=w(i)
-                      h=pythag(f,g)
+                      h=hypot(f,g)
                       w(i)=h
                       h=1.0_dp/h
                       c=(g*h)
@@ -4259,7 +4259,7 @@
              g=rv1(nm)
              h=rv1(k)
              f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_dp*h*y)
-             g=pythag(f,1.0_dp)
+             g=hypot(f,1.0_dp)
              f=((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x
              c=1.0_dp
              s=1.0_dp
@@ -4269,7 +4269,7 @@
                 y=w(i)
                 h=s*g
                 g=c*g
-                z=pythag(f,h)
+                z=hypot(f,h)
                 rv1(j)=z
                 c=f/z
                 s=h/z
@@ -4280,7 +4280,7 @@
                 tempn(1:n)=v(1:n,j)
                 v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s
                 v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c
-                z=pythag(f,h)
+                z=hypot(f,h)
                 w(j)=z
                 if ( abs(z) > tiny(1.0_dp) ) then
                    z=1.0_dp/z
@@ -4421,7 +4421,7 @@
                       rv1(i)=c*rv1(i)
                       if ((abs(f)+anorm)==anorm)exit
                       g=w(i)
-                      h=pythag(f,g)
+                      h=hypot(f,g)
                       w(i)=h
                       h=1.0_sp/h
                       c=(g*h)
@@ -4452,7 +4452,7 @@
              g=rv1(nm)
              h=rv1(k)
              f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y)
-             g=pythag(f,1.0_sp)
+             g=hypot(f,1.0_sp)
              f=((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x
              c=1.0  ! Next QR transformation:
              s=1.0
@@ -4462,7 +4462,7 @@
                 y=w(i)
                 h=s*g
                 g=c*g
-                z=pythag(f,h)
+                z=hypot(f,h)
                 rv1(j)=z
                 c=f/z
                 s=h/z
@@ -4473,7 +4473,7 @@
                 tempn(1:n)=v(1:n,j)
                 v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s
                 v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c
-                z=pythag(f,h)
+                z=hypot(f,h)
                 w(j)=z                 !Rotation can e arbitrary if z =0 .
                 if (abs(z) > tiny(1.0_sp) )then
                    z=1.0_sp/z
