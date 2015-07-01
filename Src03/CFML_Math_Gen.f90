@@ -48,6 +48,7 @@
 !!--++    EP_SS                        [Private]
 !!----    ERR_MathGen
 !!----    ERR_MathGen_Mess
+!!----    PRIMES                       [Private]
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -75,11 +76,6 @@
 !!--++       TAND_dp                   [Overloaded]
 !!--++       TAND_sp                   [Overloaded]
 !!--..
-!!--..    Special Functions
-!!----       BESSJ0
-!!----       BESSJ1
-!!----       BESSJ
-!!--..
 !!--..    Scalar Functions
 !!----       FACTORIAL
 !!----       NEGLIGIBLE
@@ -87,9 +83,6 @@
 !!--++       NEGLIGIBLER               [Overloaded]
 !!----       PGCD
 !!----       PPCM
-!!----       PYTHAG
-!!--++       PYTHAG_dp                 [Overloaded]
-!!--++       PYTHAG_sp                 [Overloaded]
 !!--..
 !!--..    Arrays and Vectors Functions
 !!----       CO_LINEAR
@@ -103,13 +96,6 @@
 !!----       EQUAL_VECTOR
 !!--++       EQUAL_VECTOR_I            [Overloaded]
 !!--++       EQUAL_VECTOR_R            [Overloaded]
-!!----       EUCLIDEAN_NORM
-!!----       IMAXLOC
-!!--++       IMAXLOC_I                 [Overloaded]
-!!--++       IMAXLOC_R                 [OVerloaded]
-!!----       IMINLOC
-!!--++       IMINLOC_I                 [Overloaded]
-!!--++       IMINLOC_R                 [OVerloaded]
 !!----       IN_LIMITS
 !!--++       IN_LIMITS_INT             [Overloaded]
 !!--++       IN_LIMITS_SP              [Overloaded]
@@ -157,7 +143,7 @@
 !!--++       RTAN_dp                   [Overloaded]
 !!--++       RTAN_sp                   [Overloaded]
 !!--..
-!!--..    Arrays and Vectors Functions
+!!--..    Arrays and Vectors Subroutines
 !!----       CO_PRIME_VECTOR
 !!----       DETERMINANT
 !!--++       DETERMINANT_C             [Overloaded]
@@ -221,26 +207,12 @@
     private
 
     !---- List of public functions ----!
-    public :: Bessj0, Bessj1, Bessj, Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime, &
-              Euclidean_Norm
+    public :: Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime
 
     !---- List of public overloaded procedures: functions ----!
-    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,   &
+    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible,           &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,     &
-              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,&
-              Upper_Triangular
-
-    !---- List of private functions ----!
-    private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
-               Atand_dp, Atand_sp, Cosd_dp, Cosd_sp, Sind_dp, Sind_sp, Tand_dp,    &
-               Tand_sp, Negligiblec, Negligibler, Pythag_dp, Pythag_sp,            &
-               Co_linear_C, Co_linear_I, Co_linear_R, Equal_Matrix_I,              &
-               Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
-               Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
-               ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
-               Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb,           &
-               In_limits_dp, In_limits_sp, In_Limits_int, Lower_Triangular_I,      &
-               Lower_Triangular_R, Upper_Triangular_I, Upper_Triangular_R
+              Zbelong, Norm, Scalar, In_limits, Lower_Triangular, Upper_Triangular
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
@@ -251,14 +223,6 @@
     !---- List of public overloaded procedures: subroutines ----!
     public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
                Svdcmp, Swap
-
-    !---- List of private subroutines ----!
-    private :: RTan_dp, RTan_sp, Determinant_C,Determinant_R, Diagonalize_Herm,   &
-               Diagonalize_Symm, Eigsrt, Linear_DependentC, Linear_DependentI,    &
-               Linear_DependentR, Rank_dp, Rank_sp, Sort_I, Sort_R, Svdcmp_dp,    &
-               Svdcmp_sp, Swap_C, Swap_Cm, Swap_Cv, Swap_I, Swap_Im, Swap_Iv,     &
-               Swap_R, Swap_Rm, Swap_Rv, Masked_Swap_R, Masked_Swap_Rm,           &
-               Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition
 
 
     !---- Definitions ----!
@@ -273,7 +237,7 @@
     !!--++
     !!--++ Update: 19/03/2015
     !!
-    real(kind=cp),   private :: epss=1.0E-5_cp
+    real(kind=cp) :: epss=1.0E-5_cp
 
     !!--++
     !!--++ EP_SS
@@ -283,7 +247,7 @@
     !!--++
     !!--++ Update: 19/03/2015
     !!
-    real(kind=cp), parameter, private :: ep_ss=1.0E-12_cp
+    real(kind=cp), parameter :: ep_ss=1.0E-12_cp
 
     !!----
     !!---- ERR_MathGen
@@ -293,7 +257,7 @@
     !!----
     !!---- Update: 19/03/2015
     !!
-    logical, public :: ERR_MathGen
+    logical, public :: err_mathgen
 
     !!----
     !!---- ERR_MathGen_Mess
@@ -303,18 +267,18 @@
     !!----
     !!---- Update: 19/03/2015
     !!
-    character(len=150), public:: ERR_MathGen_Mess
+    character(len=256), public:: ERR_MathGen_Mess
 
-    !!----
-    !!---- Primes
-    !!----    integer, parameter, dimension(1000), public :: primes
-    !!----
-    !!----    List of the first 1000 prime numbers.
-    !!----    Used by the subroutine Co_Prime_Vector and function Co_Prime
-    !!----
-    !!----  Created: January - 2011
+    !!--++
+    !!--++ Primes
+    !!--++    integer, parameter, dimension(1000), public :: primes
+    !!--++
+    !!--++    List of the first 1000 prime numbers.
+    !!--++    Used by the subroutine Co_Prime_Vector and function Co_Prime
+    !!--++
+    !!--++  Created: 01/07/2015
     !!
-    integer, parameter, dimension(1000), public :: primes =                                       &
+    integer, parameter, dimension(1000) :: primes =                                       &
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
              31,     37,     41,     43,     47,     53,     59,     61,     67,     71,  &
              73,     79,     83,     89,     97,    101,    103,    107,    109,    113,  &
@@ -457,11 +421,6 @@
        Module Procedure Negligiblec
     End Interface
 
-    Interface  Pythag
-       Module Procedure Pythag_dp
-       Module Procedure Pythag_sp
-    End Interface
-
     Interface  Co_Linear
        Module Procedure Co_linear_C
        Module Procedure Co_linear_I
@@ -476,16 +435,6 @@
     Interface  Equal_Vector
        Module Procedure Equal_Vector_I
        Module Procedure Equal_Vector_R
-    End Interface
-
-    Interface  IMaxloc
-       Module Procedure IMaxloc_I
-       Module Procedure IMaxloc_R
-    End Interface
-
-    Interface  IMinloc
-       Module Procedure IMinloc_I
-       Module Procedure IMinloc_R
     End Interface
 
     Interface  Locate
@@ -600,7 +549,7 @@
     !!----
     !!----    Inverse cosine function -> output in Degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -666,7 +615,7 @@
     !!----
     !!----    Inverse sine function -> output in Degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -733,7 +682,7 @@
     !!----    Inverse tangent function of y/x
     !!----    y,x have the same units -> output in Degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -785,7 +734,7 @@
     !!----
     !!----    Inverse tangent function, X no units -> output in Degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -816,7 +765,7 @@
     !!--++    (OVERLOADED)
     !!--++    Inverse tangent function, X no units -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 01/07/2015 12:00:42
     !!
     Elemental Function Atand_sp(x) Result(atande)
        !---- Argument ----!
@@ -828,8 +777,6 @@
        return
     End Function Atand_sp
 
-
-
     !!----
     !!---- Elemental Function Cosd(x) Result(cosine)
     !!----    real(kind=sp/dp), intent(in) :: x
@@ -837,7 +784,7 @@
     !!----
     !!----    Cosine function, X in degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015 12:00:57
     !!
 
     !!--++
@@ -887,7 +834,7 @@
     !!----
     !!----    Sine function, X in degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015 12:01:03
     !!
 
     !!--++
@@ -937,7 +884,7 @@
     !!----
     !!----    Tangent function, X in degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015 12:01:13
     !!
 
     !!--++
@@ -981,213 +928,12 @@
     End Function Tand_sp
 
     !!----
-    !!---- Elemental Function BessJ0(x) Result(bessj_0)
-    !!----    real(kind=sp), intent(in) :: x
-    !!----    real(kind=sp)             :: bessj_0
-    !!----
-    !!----    Bessel Fuction J0(x)
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Elemental Function BessJ0(x) Result(bessj_0)
-       !---- Arguments ----!
-       real(kind=cp), intent(in) :: x
-       real(kind=cp)             :: bessj_0
-
-       !---- Local variables ----!
-       real(kind=dp), parameter :: p1=   1.0_dp
-       real(kind=dp), parameter :: p2=  -0.1098628627e-2_dp
-       real(kind=dp), parameter :: p3=   0.2734510407e-4_dp
-       real(kind=dp), parameter :: p4=  -0.2073370639e-5_dp
-       real(kind=dp), parameter :: p5=   0.2093887211e-6_dp
-       real(kind=dp), parameter :: q1=  -0.1562499995e-1_dp
-       real(kind=dp), parameter :: q2=   0.1430488765e-3_dp
-       real(kind=dp), parameter :: q3=  -0.6911147651e-5_dp
-       real(kind=dp), parameter :: q4=   0.7621095161e-6_dp
-       real(kind=dp), parameter :: q5=  -0.934945152e-7_dp
-       real(kind=dp), parameter :: r1=   57568490574.0_dp
-       real(kind=dp), parameter :: r2=  -13362590354.0_dp ! corrected by LCC and ADA 16 june 2004
-       real(kind=dp), parameter :: r3=     651619640.7_dp
-       real(kind=dp), parameter :: r4=     -11214424.18_dp
-       real(kind=dp), parameter :: r5=         77392.33017_dp
-       real(kind=dp), parameter :: r6=          -184.9052456_dp
-       real(kind=dp), parameter :: s1=   57568490411.0_dp
-       real(kind=dp), parameter :: s2=    1029532985.0_dp
-       real(kind=dp), parameter :: s3=       9494680.718_dp
-       real(kind=dp), parameter :: s4=         59272.64853_dp
-       real(kind=dp), parameter :: s5=           267.8532712_dp
-       real(kind=dp), parameter :: s6=             1.0_dp
-
-       real(kind=dp)            :: y
-       real(kind=cp)            :: ax, xx, z
-
-       if (abs(x) < 1.0e-05) then
-          bessj_0=1.0
-          return
-       end if
-       if (abs(x) < 8.0)then
-          y=x**2
-          bessj_0=(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))/(s1+y*(s2+y*(s3+y*  &
-                  (s4+y*(s5+y*s6)))))
-       else
-          ax=abs(x)
-          z=8.0/ax
-          y=z**2
-          xx=ax-0.785398164
-          bessj_0=sqrt(0.636619772/ax)*(cos(xx)*(p1+y*(p2+y*(p3+y*(p4+y*  &
-                  p5))))-z*sin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))
-       end if
-
-       return
-    End Function BessJ0
-
-    !!----
-    !!---- Elemental Function BessJ1(x) Result(bessj_1)
-    !!----    real(kind=sp), intent(in) : x
-    !!----    real(kind=sp)             : bessj_1
-    !!----
-    !!----    Bessel Fuction J1(x)
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Elemental Function BessJ1(x) Result(bessj_1)
-       !---- Arguments ----!
-       real(kind=cp), intent(in) :: x
-       real(kind=cp)             :: bessj_1
-
-       !---- Local variales ----!
-       real(kind=dp), parameter :: p1= 1.0_dp
-       real(kind=dp), parameter :: p2=  0.183105e-2_dp
-       real(kind=dp), parameter :: p3= -0.3516396496e-4_dp
-       real(kind=dp), parameter :: p4=  0.2457520174e-5_dp
-       real(kind=dp), parameter :: p5= -0.240337019e-6_dp
-       real(kind=dp), parameter :: q1=  0.04687499995_dp
-       real(kind=dp), parameter :: q2= -0.2002690873e-3_dp
-       real(kind=dp), parameter :: q3=  0.8449199096e-5_dp
-       real(kind=dp), parameter :: q4= -0.88228987e-6_dp
-       real(kind=dp), parameter :: q5=  0.105787412e-6_dp
-       real(kind=dp), parameter :: r1=  72362614232.0_dp
-       real(kind=dp), parameter :: r2=  -7895059235.0_dp
-       real(kind=dp), parameter :: r3=    242396853.1_dp
-       real(kind=dp), parameter :: r4=     -2972611.439_dp
-       real(kind=dp), parameter :: r5=        15704.48260_dp
-       real(kind=dp), parameter :: r6=          -30.16036606_dp
-       real(kind=dp), parameter :: s1= 144725228442.0_dp
-       real(kind=dp), parameter :: s2=   2300535178.0_dp
-       real(kind=dp), parameter :: s3=     18583304.74_dp
-       real(kind=dp), parameter :: s4=        99447.43394_dp
-       real(kind=dp), parameter :: s5=          376.9991397_dp
-       real(kind=dp), parameter :: s6=            1.0_dp
-
-       real(kind=dp)            :: y
-       real(kind=cp)            :: ax,xx,z
-
-       if (abs(x) < 1.0e-05) then
-          bessj_1=0.0
-          return
-       end if
-       if (abs(x) < 8.0)then
-          y=x**2
-          bessj_1=x*(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))/(s1+y*(s2+y*(s3+  &
-                  y*(s4+y*(s5+y*s6)))))
-       else
-          ax=abs(x)
-          z=8.0/ax
-          y=z**2
-          xx=ax-2.356194491
-          bessj_1=sqrt(0.636619772/ax)*(cos(xx)*(p1+y*(p2+y*(p3+y*(p4+y*p5))))  &
-                       -z*sin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))*sign(1.0_cp,x)
-       end if
-
-       return
-    End Function BessJ1
-
-    !!----
-    !!---- Function BessJ(n,x) Result (bessj)
-    !!----    real(kind=cp), intent(in) : x
-    !!----    real(kind=cp)             : bessj
-    !!----
-    !!----    Bessel Fuction Jn(x)
-    !!----    Returns the Bessel function Jn(x) for any real x and n >= 2.
-    !!----
-    !!----  Update:  June - 2004
-    !!
-    Function BessJ(n,x) Result(bessj_n)
-       !---- Arguments ----!
-       integer,        intent(in)  :: n
-       real (kind=cp), intent(in)  :: x
-       real (kind=cp)              :: bessj_n
-
-       !---- Local Arguments ----!
-       integer,    parameter       :: iacc=40
-       integer                     :: j,jsum,m
-       real (kind=cp), parameter   :: bigno=1.e10,bigni=1.e-10
-       real (kind=cp)              :: ax,bj,bjm,suma,tox
-       real (kind=cp), save        :: bjp
-
-       if (n==0) then
-          bessj_n=Bessj0(x)
-          return
-       else if (n==1) then
-          bessj_n=Bessj1(x)
-          return
-       end if
-
-       ax=abs(x)
-       if (ax==0.0)then
-          bessj_n=0.0
-          return
-
-       else if (ax > float(n))then ! Upwards recurrence from J0 and J1.
-          tox=2./ax
-          bjm=bessj0(ax)
-          bj=bessj1(ax)
-          do j=1,n-1
-             bjp=j*tox*bj-bjm
-             bjm=bj
-             bj=bjp
-          end do
-          bessj_n=bj
-          return
-
-       else ! Downwards recurrence from an even m here computed.
-            !Make IACC larger to increase accuracy.
-          tox=2./ax
-          m=2*((n+int(sqrt(float(IACC*n))))/2)
-          bessj_n=0.
-          jsum=0       !jsum will alternate between 0 and 1; when it is 1, we
-                       !accumulate in sum the even terms in (5.5.16).
-          suma=0.
-          bjp=0.
-          bj=1.0
-          do j=m,1,-1 ! The downward recurrence.
-             bjm=j*tox*bj-bjp
-             bjp=bj
-             bj=bjm
-             if (abs(bj)>BIGNO) then ! Renormalize to prevent overflows.
-                bj=bj*BIGNI
-                bjp=bjp*BIGNI
-                bessj_n=bessj_n*BIGNI
-                suma=suma*BIGNI
-             end if
-             if (jsum/=0) suma=suma+bj  ! Accumulate the sum.
-             jsum=1-jsum                ! Change 0 to 1 or vice versa.
-             if (j==n) bessj_n=bjp      ! the unnormalized answer.
-          end do
-          suma=2.*suma-bj          ! Compute (5.5.16)
-          bessj_n=bessj_n/suma     ! and use it to normalize the answer.
-       end if
-       if ((x<0.0).and.(mod(n,2)==1)) bessj_n=-bessj_n
-       return
-    End Function BessJ
-
-    !!----
     !!---- Elemental Function Factorial(n) Result(fact)
     !!----    integer, intent(in) : n
     !!----
     !!----    Factorial of N
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
     Elemental Function Factorial(n) Result(fact)
        !---- Argument ----!
@@ -1205,7 +951,7 @@
           do
              nt=nt*np
              np=np-1
-             if(np == 1) exit
+             if (np == 1) exit
           end do
           fact=nt
        end if
@@ -1220,7 +966,7 @@
     !!----    Provides the value .TRUE. if the real/complex
     !!----    number V is less than EPS
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -1336,86 +1082,6 @@
     End Function Ppcm
 
     !!----
-    !!---- Function Pythag(a,b) Result (c)
-    !!----    real(sp/dp),intent(in):: a,b
-    !!----    real(sp/dp)           :: c
-    !!--<<
-    !!----    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!----    Adapted from Numerical Recipes.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Function Pythag_dp(a,b) Result (c)
-    !!--++    real(dp),intent(in):: a,b
-    !!--++    real(dp)           :: c
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!--++    Adapted from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Pythag_dp(a,b) Result (c)
-       !---- Arguments ----!
-       real(kind=dp),intent(in):: a,b
-       real(kind=dp)           :: c
-
-       !---- Local variables ----!
-       real(kind=dp)           :: absa,absb
-
-       absa=abs(a)
-       absb=abs(b)
-       if (absa >absb)then
-          c=absa*sqrt(1.0_dp+(absb/absa)**2)
-       else
-          if (absb < tiny(1.0_dp))then
-             c=0.0
-          else
-             c=absb*sqrt(1.0_dp+(absa/absb)**2)
-          end if
-       end if
-
-       return
-    End Function Pythag_dp
-
-    !!--++
-    !!--++ Function Pythag_sp(a,b) result (c)
-    !!--++    real(sp),intent(in):: a,b
-    !!--++    real(sp)           :: c
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!--++    Adapted from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Pythag_sp(a,b) Result (c)
-       !---- Arguments ----!
-       real(kind=sp),intent(in):: a,b
-       real(kind=sp)           :: c
-
-       !---- Local variables ----!
-       real(kind=sp)           :: absa,absb
-
-       absa=abs(a)
-       absb=abs(b)
-       if (absa > absb) then
-          c=absa*sqrt(1.0_sp+(absb/absa)**2)
-       else
-          if (absb < tiny(1.0_sp)) then
-             c=0.0
-          else
-             c=absb*sqrt(1.0_sp+(absa/absb)**2)
-          end if
-       end if
-
-       return
-    End Function Pythag_sp
-
-    !!----
     !!---- Logical Function Co_Linear(A,B,N)
     !!----    complex/integer/real(kind=sp), dimension(:), intent(in)  :: a
     !!----    complex/integer/real(kind=sp), dimension(:), intent(in)  :: b
@@ -1423,7 +1089,7 @@
     !!----
     !!----    Provides the value .TRUE. if the vectors A and B are co-linear
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -1640,9 +1306,9 @@
     !!----    integer/real(kind=cp), dimension(:,:), intent(in)  :: a,b
     !!----    integer,                               intent(in)  :: n
     !!----
-    !!----    Provides the value .TRUE. if the array A is equal to array B
+    !!----    Provides the value .TRUE. if the array A is equal to array B in NxN
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -1714,7 +1380,7 @@
     !!----
     !!----    Provides the value .TRUE. if the vector A is equal to vector B
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -1776,230 +1442,6 @@
     End Function Equal_Vector_R
 
     !!----
-    !!----  Function Euclidean_Norm(n,x) Result(Fn_Val)
-    !!----    Integer,                      Intent(In)  :: n
-    !!----    Real (Kind=cp), Dimension(:), Intent(In)  :: x
-    !!----    Real (Kind=cp)                            :: Fn_Val
-    !!----
-    !!----  This function calculates safely the Euclidean norm of a vector.
-    !!----  Intermediate overflows are avoided using this function. The original
-    !!----  name "enorm" from MINPACK has been changed and the subroutine has
-    !!----  been translated to Fortran 90.
-    !!----
-    !!----
-    !!--..  Original documentation (from MINPACK):
-    !!--..
-    !!--..  Function enorm
-    !!--..
-    !!--..  Given an n-vector x, this function calculates the euclidean norm of x.
-    !!--..
-    !!--..  The euclidean norm is computed by accumulating the sum of squares in
-    !!--..  three different sums.  The sums of squares for the small and large
-    !!--..  components are scaled so that no overflows occur.  Non-destructive
-    !!--..  underflows are permitted.  Underflows and overflows do not occur in the
-    !!--..  computation of the unscaled sum of squares for the intermediate
-    !!--..  components.  The definitions of small, intermediate and large components
-    !!--..  depend on two constants, rdwarf and rgiant.  The main restrictions on
-    !!--..  these constants are that rdwarf**2 not underflow and rgiant**2 not
-    !!--..  overflow.  The constants given here are suitable for every known computer.
-    !!--..
-    !!--..  The function statement is
-    !!--..
-    !!--..    REAL (kind=cp) function enorm(n,x)
-    !!--..
-    !!--..  where
-    !!--..
-    !!--..    n is a positive integer input variable.
-    !!--..
-    !!--..    x is an input array of length n.
-    !!--..
-    !!--..  Subprograms called
-    !!--..
-    !!--..    Fortran-supplied ... ABS,SQRT
-    !!--..
-    !!--..  Argonne National Laboratory. MINPACK project. march 1980.
-    !!--..  Burton S. Garbow, Kenneth E. Hillstrom, Jorge J. More
-    !!----
-    !!----  Update: August - 2009
-    !!----
-    Function Euclidean_Norm(n,x) Result(Fn_Val)
-       !---- Arguments ----!
-       Integer,                      Intent(In)  :: n
-       Real (Kind=cp), Dimension(:), Intent(In)  :: x
-       Real (Kind=cp)                            :: Fn_Val
-
-       !--- Local Variables ---!
-       Integer                   :: i
-       Real (Kind=cp)            :: agiant, floatn, s1, s2, s3, xabs, x1max, x3max
-       Real (Kind=cp), Parameter :: one = 1.0_cp, zero = 0.0_cp, rdwarf = 3.834e-20_cp,  &
-                                   rgiant = 1.304e+19_cp
-
-       s1 = zero
-       s2 = zero
-       s3 = zero
-       x1max = zero
-       x3max = zero
-       floatn = n
-       agiant = rgiant/floatn
-       do i = 1, n
-          xabs = Abs(x(i))
-          if (.Not. (xabs > rdwarf .AND. xabs < agiant)) then
-             ! sum for large components.
-             if (xabs > rdwarf) then
-                if (xabs > x1max) then
-                   s1 = one + s1*(x1max/xabs)**2
-                   x1max = xabs
-                   cycle
-                end if
-                s1 = s1 + (xabs/x1max)**2
-                cycle
-             End If
-
-             ! sum for small components.
-             If (xabs > x3max) Then
-                s3 = one + s3*(x3max/xabs)**2
-                x3max = xabs
-                Cycle
-             End If
-
-             If (xabs /= zero) s3 = s3 + (xabs/x3max)**2
-             Cycle
-          End if
-
-          !  sum for intermediate components.
-          s2 = s2 + xabs**2
-       End Do
-
-       ! calculation of norm.
-       If (s1 /= zero) Then
-          Fn_Val = x1max*Sqrt(s1 + (s2/x1max)/x1max)
-          Return
-       End If
-
-       If (s2 /= zero) Then
-          If (s2 >= x3max) Fn_Val = Sqrt(s2*(one + (x3max/s2)*(x3max*s3)))
-          If (s2 < x3max) Fn_Val = Sqrt(x3max*((s2/x3max) + (x3max*s3)))
-          Return
-       End If
-
-       Fn_Val = x3max*Sqrt(s3)
-
-       Return
-    End Function Euclidean_Norm
-
-    !!----
-    !!---- Function Imaxloc(arr) Result(mav)
-    !!----  real(kind=sp)/integer, dimension(:), intent(in) :: arr
-    !!----  integer                                         :: mav
-    !!----
-    !!----   Index of maxloc on an array
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Function Imaxloc_I(arr) Result(mav)
-    !!--++  integer, dimension(:), intent(in) :: arr
-    !!--++  integer                           :: mav
-    !!--++
-    !!--++   Index of maxloc on an array (from Numerical Recipes)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Imaxloc_I(iarr) Result(mav)
-       !---- Arguments ----!
-       integer, dimension(:), intent(in) :: iarr
-       integer                           :: mav
-
-       !---- Local variables ----!
-       integer, dimension(1) :: imax
-
-       imax=maxloc(iarr(:))
-       mav=imax(1)
-
-       return
-    End Function Imaxloc_I
-
-    !!--++
-    !!--++ Function Imaxloc_R(arr) Result(mav)
-    !!--++  real(kind=sp), dimension(:), intent(in) :: arr
-    !!--++  integer                                 :: mav
-    !!--++
-    !!--++   Index of maxloc on an array (from Numerical Recipes)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Imaxloc_R(arr) Result(mav)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in) :: arr
-       integer                                 :: mav
-
-       !---- Local variables ----!
-       integer, dimension(1) :: imax
-
-       imax=maxloc(arr(:))
-       mav=imax(1)
-
-       return
-    End Function Imaxloc_R
-
-    !!----
-    !!---- Function Iminloc(arr)  Result(miv)
-    !!----  real(kind=sp)/integer, dimension(:), intent(in) :: arr
-    !!----  integer                                         :: miv
-    !!----
-    !!----   Index of minloc on an array  (from Numerical Recipes)
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Function Iminloc_I(arr)  Result(miv)
-    !!--++  integer, dimension(:), intent(in) :: arr
-    !!--++  integer                           :: miv
-    !!--++
-    !!--++   Index of minloc on an array (from Numerical Recipes)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Iminloc_I(arr)  Result(miv)
-       !---- Arguments ----!
-       integer, dimension(:), intent(in) :: arr
-       integer                           :: miv
-
-       !---- Local variables ----!
-       integer, dimension(1) :: imin
-
-       imin=minloc(arr(:))
-       miv=imin(1)
-
-       return
-    End Function Iminloc_I
-
-    !!--++
-    !!--++ Function Iminloc_R(arr)  Result(miv)
-    !!--++  real(kind=sp), dimension(:), intent(in) :: arr
-    !!--++  integer                                 :: miv
-    !!--++
-    !!--++   Index of minloc on an array (from Numerical Recipes)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Iminloc_R(arr)  Result(miv)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in) :: arr
-       integer                                 :: miv
-
-       !---- Local variables ----!
-       integer, dimension(1) :: imin
-
-       imin=minloc(arr(:))
-       miv=imin(1)
-
-       return
-    End Function Iminloc_R
-
-    !!----
     !!---- Function In_Limits(n,limits,vect) result(ok)
     !!----   integer,                      intent(in) :: n
     !!----   integer/real, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
@@ -2009,7 +1451,7 @@
     !!----   Logical function that is true if all the components of the vector vect
     !!----   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!----
-    !!----   Updated: March - 2013
+    !!----   Updated: 01/07/2015
     !!
 
     !!--++
@@ -2130,7 +1572,7 @@
     !!----               XX(J) <= X < XX(J+1)
     !!-->>
     !!----
-    !!---- Update: June - 2011
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2339,7 +1781,7 @@
     !!----   integer,                      intent(in) :: n
     !!----   real/integer, dimension(n,n)             :: T
     !!----
-    !!----   Updated: October - 2014
+    !!----   Updated: 01/07/2015
     !!
 
     !!--++
@@ -2412,7 +1854,7 @@
     !!----    Reduces a real vector to another with components in
     !!----    the interval [0,1)
     !!----
-    !!---- Updated: February - 2005
+    !!---- Updated: 01/07/2015
     !!
     Function Modulo_Lat(u) result(v)
        !---- Argument ----!
@@ -2431,7 +1873,7 @@
     !!----
     !!----    Calculate the Norm of a vector
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2496,7 +1938,7 @@
     !!--..    It uses the intrinsic Fortran 90 function SPREAD.
     !!--..    Function adapted from Numerical Recipes.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2557,7 +1999,7 @@
     !!----
     !!----    Scalar Product including metrics
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: A01/07/2015
     !!
 
     !!--++
@@ -2618,7 +2060,7 @@
     !!----
     !!----    Provides the trace of a complex/real or integer matrix
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2699,15 +2141,23 @@
        return
     End Function Trace_R
 
+    !!----
+    !!---- Function Upper_Triangular(A,n) Result (T)
+    !!----   real/integer, dimension(:,:), intent(in) :: A
+    !!----   integer,                      intent(in) :: n
+    !!----   real/integer, dimension(n,n)             :: T
+    !!----
+    !!----   Updated: 01/07/2015
+    !!
 
-    !!----
-    !!---- Function Upper_Triangular_I(A,n) Result (T)
-    !!----   integer, dimension(:,:), intent(in) :: A
-    !!----   integer,                 intent(in) :: n
-    !!----   integer, dimension(n,n)             :: T
-    !!----
-    !!----   Updated: October - 2014
-    !!----
+    !!--++
+    !!--++ Function Upper_Triangular_I(A,n) Result (T)
+    !!--++   integer, dimension(:,:), intent(in) :: A
+    !!--++   integer,                 intent(in) :: n
+    !!--++   integer, dimension(n,n)             :: T
+    !!--++
+    !!--++   Updated: 01/07/2015
+    !!--++
     Function Upper_Triangular_I(A,n) Result (T)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: A
@@ -2725,14 +2175,14 @@
        end do
     End Function  Upper_Triangular_I
 
-    !!----
-    !!---- Function Upper_Triangular_R(A,n) Result (T)
-    !!----   real(kind=cp), dimension(:,:), intent(in) :: A
-    !!----   integer,                       intent(in) :: n
-    !!----   real(kind=cp), dimension(n,n)             :: T
-    !!----
-    !!----   Updated: October - 2014
-    !!----
+    !!--++
+    !!--++ Function Upper_Triangular_R(A,n) Result (T)
+    !!--++   real(kind=cp), dimension(:,:), intent(in) :: A
+    !!--++   integer,                       intent(in) :: n
+    !!--++   real(kind=cp), dimension(n,n)             :: T
+    !!--++
+    !!--++   Updated: October - 2014
+    !!--++
     Function Upper_Triangular_R(A,n) Result (T)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: A
@@ -2761,7 +2211,7 @@
     !!----    Provides the value .TRUE. if the real number (or array) V is close enough
     !!----    (whithin EPS) to an integer.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2845,7 +2295,7 @@
     !!----
     !!----    Initialize the errors flags in CFML_Math_General
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
     Subroutine Init_Err_MathGen()
 
@@ -2859,9 +2309,9 @@
     !!---- Subroutine Set_Epsg(Neweps)
     !!----    real(kind=cp), intent( in) :: neweps
     !!----
-    !!----    Sets global EPSS to the value "neweps"
+    !!----    Sets Global EPS to the value "neweps"
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: 01/07/2015
     !!
     Subroutine Set_Epsg(Neweps)
        !---- Arguments ----!
@@ -2875,9 +2325,9 @@
     !!----
     !!---- Subroutine Set_Epsg_Default()
     !!----
-    !!----    Sets global EPSS to the default value: epss=1.0E-5_sp
+    !!----    Sets Global EPS to the default value: epss=1.0E-5_sp
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: 01/07/2015
     !!
     Subroutine Set_Epsg_Default()
 
@@ -2895,7 +2345,7 @@
     !!----    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
     !!----    cos(ang) are those of y and x. If deg is present, return ang in degrees.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -2989,7 +2439,9 @@
     !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
     !!----     It uses the list of the first thousand prime numbers.
     !!----
-    !!----   Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
+    !!--..     copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
+    !!----
+    !!----   Updated: 01/07/2015
     !!----
     Subroutine Co_Prime_Vector(V,Cop,f)
        !---- Arguments ----!
@@ -3004,9 +2456,11 @@
        n=1
        if (present(f)) f=1
        max_ind=maxval(abs(cop))
-       !---- If the maximum value of the indices is 1 they are already coprimes
+
+       !> If the maximum value of the indices is 1 they are already coprimes
        if (max_ind <= 1) return
-       !---- Indices greater than 1
+
+       !> Indices greater than 1
        dimv=size(v)
        im=0
        do i=1,size(primes)
@@ -3051,7 +2505,7 @@
     !!----
     !!--..    P R O V I S I O N A L (The determinant of A is not calculated at present)
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -3156,7 +2610,7 @@
     !!----    The eigen_values E_val are sorted in descending order. The columns
     !!----    of E_vect are the corresponding eigenvectors.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
 
     !!--++
@@ -3326,7 +2780,7 @@
     !!----
     !!----    Calculate the First derivate values of the N points
     !!----
-    !!---- Update: January - 2006
+    !!---- Update: 01/07/2015
     !!
     Subroutine First_Derivative(x,y,n,d2y,d1y)
        !---- Arguments ----!
@@ -4509,25 +3963,25 @@
        return
     End Subroutine Sort_R
 
-    !!---
+    !!----
     !!---- Subroutine Sort_Strings(arr)
     !!----    character(len=*), dimension(:), intent(in out) :: arr
     !!----
     !!----    Sort an array of string
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 01/07/2015
     !!
-    Recursive Subroutine Sort_Strings(Arr)
+    Recursive Subroutine Sort_Strings(VStr)
        !---- Argument ----!
-       character(len=*), dimension(:), intent(in out) :: Arr
+       character(len=*), dimension(:), intent(in out) :: VStr
 
        !---- Local variables ----!
        integer :: iq
 
-       if (size(Arr) > 1) then
-          call Partition(Arr, iq)
-          call Sort_Strings(Arr(:iq-1))
-          call Sort_Strings(Arr(iq:))
+       if (size(VStr) > 1) then
+          call Partition(VStr, iq)
+          call Sort_Strings(VStr(:iq-1))
+          call Sort_Strings(VStr(iq:))
        end if
 
        return

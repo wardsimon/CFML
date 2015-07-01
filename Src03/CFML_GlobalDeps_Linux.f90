@@ -195,7 +195,7 @@ Module CFML_GlobalDeps
    !!----
    !!---- Update: 19/03/2015
    !!
-   real(kind=dp), parameter, public :: deps=0.00000001_dp
+   real(kind=dp), parameter :: deps=0.00000001_dp
 
    !!----
    !!----  EPS
@@ -205,7 +205,7 @@ Module CFML_GlobalDeps
    !!----
    !!----  Update: 19/03/2015
    !!
-   real(kind=cp),  parameter, public  ::  eps=0.00001_cp
+   real(kind=cp),  parameter  ::  eps=0.00001_cp
 
  Contains
 
@@ -229,7 +229,7 @@ Module CFML_GlobalDeps
       logical                      :: info
 
       !---- Local Variables ----!
-      character(len=512) :: linea
+      character(len=1024) :: linea
       integer            :: nlong
 
       !> Init value

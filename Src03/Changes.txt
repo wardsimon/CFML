@@ -1,0 +1,8 @@
+List of Changes
+====================
+CFML_Math_Gen
+-------------
+01/07/2015: BESSJ0,BESSJ1,BESSJ deleted. Now they are internal procedures in the Fortran compilers 2008 (BESSEL_J0, BESSEL_J1, BESSEL_JN)
+01/07/2015: PYTHAG deleted. Now is internal procedure in Fortran compiler 2008 (HYPOT)
+01/07/2015: Eucliden_Norm deleted. Now is internal procedure in Fortran compiler 2008 (NORM2)
+01/07/2015: IMAXLOC / IMINLOC deleted. Now they are internal procedures (MAXLOC/MINLOC)
