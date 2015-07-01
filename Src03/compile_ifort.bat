@@ -50,10 +50,10 @@ rem
 rem
    ifort /c CFML_math_gen.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   goto FIN
    ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
+   goto FIN
    ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%

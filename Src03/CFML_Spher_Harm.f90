@@ -36,7 +36,7 @@
 !!----   INFO: Spherical Harmonics routines
 !!----
 !!---- HISTORY
-!!----    Update: 03/03/2011
+!!----    Update: 01/07/2015
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps, only: cp, dp, eps, pi, to_rad
@@ -80,9 +80,6 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Spher, Pikout_Lj_Cubic, Sphjn
 
-    !---- Private Functions / Routines ----!
-    private :: Envj, Plgndr, Start1, Start2
-
     !---- Definitions ----!
 
     !!----
@@ -91,9 +88,9 @@
     !!----
     !!----    Logical Variable indicating an error in CFML_Spherical_Harmonics module
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
-    logical, public    :: Err_Spher
+    logical, public :: Err_Spher
 
     !!----
     !!---- ERR_Spher_Mess
@@ -101,9 +98,9 @@
     !!----
     !!----    String containing information about the last error
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
-    character(len=150), public :: Err_Spher_Mess
+    character(len=256), public :: Err_Spher_Mess
 
  Contains
 
@@ -121,7 +118,7 @@
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
     !!----    Only up to tenth order.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
     Pure Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
        !---- Arguments ----!
@@ -191,7 +188,7 @@
     !!----    coefficients from F.M. Mueller and M.G. Priestley, Phys Rev 148, 638 (1966)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
     Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
        !---- Arguments ----!
@@ -280,10 +277,10 @@
                 klm=klm-0.43746593*real_spher_harm_ucvec(18,12,1,u)
                 klm=klm-0.53657149*real_spher_harm_ucvec(18,16,1,u)
              else               ! 18 2
-               klm=    0.14872751*real_spher_harm_ucvec(18,4,1,u)
-               klm=klm-0.63774601*real_spher_harm_ucvec(18,8,1,u)
-               klm=klm+0.72334167*real_spher_harm_ucvec(18,12,1,u)
-               klm=klm-0.21894515*real_spher_harm_ucvec(18,16,1,u)
+                klm=    0.14872751*real_spher_harm_ucvec(18,4,1,u)
+                klm=klm-0.63774601*real_spher_harm_ucvec(18,8,1,u)
+                klm=klm+0.72334167*real_spher_harm_ucvec(18,12,1,u)
+                klm=klm-0.21894515*real_spher_harm_ucvec(18,16,1,u)
              end if
           case(20)
              if (m == 1) then   ! 20 1
@@ -829,7 +826,7 @@
     !!----
     !!----    Initialize the errors flags in CFML_Spherical_Harmonics
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 01/07/2015
     !!
     Subroutine Init_Err_Spher()
 

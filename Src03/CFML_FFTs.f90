@@ -440,8 +440,7 @@ Module CFML_FFT
     !!----    real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
     !!----    real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
     !!----    real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-    !!----    integer,                             intent(in) :: np !Number of points
-    !!----                                                          (it is increased internally up to the closest power of 2)
+    !!----    integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
     !!----    Interface F_Function
     !!----       Pure function f(x,parf)  result (vf)
     !!----          real(kind=cp),              intent(in) :: x
@@ -480,7 +479,7 @@ Module CFML_FFT
        real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
        real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
        real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-       integer,                             intent(in) :: np !Number of points
+       integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
        real(kind=cp), dimension(np)                    :: conv
 
        Interface F_Function
@@ -748,9 +747,8 @@ Module CFML_FFT
     !!----    complex(fftkind), dimension(:), intent(in)            :: array  !  In -> Complex array
     !!----    integer,          dimension(:), intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!----                                                                             to be transformed
-    !!----    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be
-    !!----                                                                             performed. Default is .false.,
-    !!----                                                                             i.e. forward transformation.
+    !!----    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!----                                                                             Default is .false., i.e. forward transformation.
     !!----    Calculation of FFT from 1 to up 7 dimensions
     !!----
     !!---- Update: February - 2005
@@ -761,9 +759,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:), intent(in)            :: array  !  In -> Complex array
     !!--++    integer,          dimension(:), intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                             to be transformed
-    !!--++    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be
-    !!--++                                                                             performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                             Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT one dimension
     !!--++
@@ -788,9 +785,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:), intent(in)            :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),   intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                               to be transformed
-    !!--++    logical,                          intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be
-    !!--++                                                                             performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                          intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                               Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT two dimension
     !!--++
@@ -822,9 +818,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:,:), intent(in)            :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),     intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                                 to be transformed
-    !!--++    logical,                            intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be
-    !!--++                                                                             performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                            intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                                 Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT three dimension
     !!--++
@@ -857,9 +852,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:,:,:), intent(in)            :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will
-    !!--++                                                                             be performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                                   Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT four dimension
     !!--++
@@ -892,9 +886,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:,:,:,:), intent(in)          :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will
-    !!--++                                                                             be performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                                   Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT five dimension
     !!--++
@@ -929,9 +922,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:,:,:,:,:), intent(in)        :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will
-    !!--++                                                                             be performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                                   Default is .false., i.e. forward transformation.
     !!--++    (Overloaded)
     !!--++    FFT six dimension
     !!--++
@@ -966,9 +958,8 @@ Module CFML_FFT
     !!--++    complex(fftkind), dimension(:,:,:,:,:,:,:), intent(in)      :: array  !  In -> Complex array
     !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
     !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will
-    !!--++                                                                             be performed. Default is .false.,
-    !!--++                                                                             i.e. forward transformation.
+    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
+    !!--++                                                                                   Default is .false., i.e. forward transformation.
     !!--++    (OVERLOADED)
     !!--++    FFT seven dimension
     !!--++

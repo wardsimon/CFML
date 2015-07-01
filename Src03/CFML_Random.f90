@@ -160,15 +160,14 @@
     !---- Local Variables ----!
     implicit none
 
+    private
+
     !---- List of public subroutines ----!
     public  :: random_beta, random_binomial1, random_binomial2, random_cauchy,   &
                random_chisq, random_exponential, random_gamma, random_gamma1, random_gamma2,        &
                random_inv_gauss, random_neg_binomial, random_normal, random_poisson, random_t,      &
                random_von_mises, random_weibull, init_err_random, random_mvnorm,          &
                random_order, seed_random_number
-
-    !---- List of private subroutines ----!
-    private :: gpp_f, gpg_f, gg_f, bin_prob, lngamma, integral
 
     !---- Definitions ----!
 
@@ -190,7 +189,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Random_Mess = " "
+    character(len=256), public :: ERR_Random_Mess = " "
 
     !!--++
     !!--++ HALF
@@ -201,7 +200,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: half = 0.5
+    real(kind=cp), parameter :: half = 0.5
 
     !!--++
     !!--++ ONE
@@ -212,7 +211,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: one = 1.0
+    real(kind=cp), parameter  :: one = 1.0
 
     !!--++
     !!--++ TWO
@@ -223,7 +222,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: two = 2.0
+    real(kind=cp), parameter  :: two = 2.0
 
     !!--++
     !!--++ VLARGE
@@ -234,7 +233,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: vlarge = huge(1.0)
+    real(kind=cp), parameter  :: vlarge = huge(1.0)
 
     !!--++
     !!--++ VSMALL
@@ -245,7 +244,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: vsmall = tiny(1.0)
+    real(kind=cp), parameter :: vsmall = tiny(1.0)
 
     !!--++
     !!--++ ZERO
@@ -256,7 +255,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private  :: zero = 0.0
+    real(kind=cp), parameter :: zero = 0.0
 
  Contains
 
