@@ -66,8 +66,8 @@ rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
-   goto FIN
    ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
+   goto FIN
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
