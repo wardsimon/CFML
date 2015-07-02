@@ -6,3 +6,12 @@ CFML_Math_Gen
 01/07/2015: PYTHAG deleted. Now is internal procedure in Fortran compiler 2008 (HYPOT)
 01/07/2015: Eucliden_Norm deleted. Now is internal procedure in Fortran compiler 2008 (NORM2)
 01/07/2015: IMAXLOC / IMINLOC deleted. Now they are internal procedures (MAXLOC/MINLOC)
+
+CFML_String_Util
+-----------------
+02/07/2015: Get_Mat_symb routine is called now Get_Mat_From_String. Also the order of arguments were changed.
+02/07/2015: Get_Num_String routine is called now Get_Num_From_String. Also the order of arguments were changed.
+02/07/2015: Get_Substring_Positions is called now Get_Substring_Pos. Also the order of arguments were changed.
+02/07/2015: Get_Transf is called now Get_MatVec_From_String.
+02/07/2015: Read_Fract is called now Read_Fract_String.
+02/07/2015: RFormat is called now Format_R.

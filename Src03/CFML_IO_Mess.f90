@@ -139,7 +139,7 @@
 
        lun=6
        if (present(iunit)) lun=iunit
-       write(unit=lun,fmt="(a)") " => "//Mess
+       write(unit=lun,fmt="(a)") " => "//trim(Mess)
 
        return
     End Subroutine Info_Message

@@ -31,9 +31,9 @@ rem
       (set OPT1=/O2)
    )
    if [%_I15]==[N] (
-      set OPT2=/Qvec-report0
+      (set OPT2=/Qvec-report0)
    ) else (
-      set OPT2="/Qopt-report:0"
+      (set OPT2=/Qopt-report:0)
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
@@ -53,13 +53,13 @@ rem
    ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
-   goto FIN
    ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
    ) else (
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
+   goto FIN
    ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%

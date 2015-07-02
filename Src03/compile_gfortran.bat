@@ -27,7 +27,7 @@ rem
          (set OPT0=-O0 -m64)
          (set OPT1=-O0 -m64)
       )
-      (set OPT2=-fbacktrace -std=f2003 -ffree-line-length-none)
+      (set OPT2=-fbacktrace -ffree-line-length-none)
    ) else (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=GFortran_03) else (set DIRECTORY=GFortran64_03)
       if [%TARGET_ARCH%]==[ia32] (
@@ -37,7 +37,8 @@ rem
          (set OPT0=-O0 -m64)
          (set OPT1=-O3 -m64)
       )
-      (set OPT2=-ffree-line-length-none -std=f2003 -funroll-loops -msse2)
+      (set OPT2=-ffree-line-length-none -funroll-loops -msse2)
+      (set OPT4=-fno-unsafe-math-optimizations -frounding-math -fsignaling-nans)
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
@@ -53,17 +54,17 @@ rem
    gfortran -c CFML_GlobalDeps_Windows.f90               %OPT1% %OPT2%
 rem
    gfortran -c CFML_math_gen.f90                         %OPT1% %OPT2%
-   goto FIN
    gfortran -c CFML_LSQ_TypeDef.f90                      %OPT1% %OPT2%
    gfortran -c CFML_spher_harm.f90                       %OPT1% %OPT2%
    gfortran -c CFML_random.f90                           %OPT1% %OPT2%
    gfortran -c CFML_ffts.f90                             %OPT1% %OPT2%
-   gfortran -c CFML_string_util.f90                      %OPT1% %OPT2%
+   gfortran -c CFML_string_util.f90                      %OPT1% %OPT2% %OPT4%
    if [%_WINTER%]==[Y] (
      gfortran -c CFML_io_messwin.f90                     %OPT1% %OPT2% %OPT3%
    ) else (
      gfortran -c CFML_io_mess.f90                        %OPT1% %OPT2%
    )
+   goto FIN
    gfortran -c CFML_Profile_TOF.f90                      %OPT1% %OPT2%
    gfortran -c CFML_Profile_Finger.f90                   %OPT1% %OPT2%
    gfortran -c CFML_Profile_Functs.f90                   %OPT1% %OPT2%
@@ -132,26 +133,26 @@ rem
    echo **---- Crysfml Library ----**
 rem
    if [%_WINTER%]==[Y] (
-     lib /out:wcrysfml.lib *.obj
+     ar cr libwcrysfml.a *.o
    ) else (
-     lib /out:crysfml.lib *.obj
+     ar cr libcrysfml.a *.o
    )
 rem
-   echo **---- ifort Directory ----**
+   echo **---- GFortran Directory ----**
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (
      if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
      mkdir ..\%DIRECTORY%\LibW
      copy *.mod ..\%DIRECTORY%\LibW > nul
-     move *.lib ..\%DIRECTORY%\LibW > nul
+     move *.a ..\%DIRECTORY%\LibW > nul
    ) else (
      if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
      mkdir ..\%DIRECTORY%\LibC
      copy *.mod ..\%DIRECTORY%\LibC > nul
-     move *.lib ..\%DIRECTORY%\LibC > nul
+     move *.a ..\%DIRECTORY%\LibC > nul
    )
-   del *.obj *.mod *.lst *.bak > nul
+   del *.o *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows
 :FIN
