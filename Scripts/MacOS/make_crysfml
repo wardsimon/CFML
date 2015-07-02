@@ -2,6 +2,28 @@
 # Compilation script for CrysFML library
 # Author: Javier Gonzalez-Platas
 # Date: March-2011
+# OS X version
+# Adapted by A. Filhol, June 2015
+#---------------------------------------------------------------------
+#------------ Select your architecture here : either i386 or x86_64 --
+#	ARCH=x86_64
+	ARCH=i386
+#---------------------------------------------------------------------
+	echo "====================================="
+	echo " The selected architecture is $ARCH"
+	echo "====================================="
+	echo " "
+#
+if [ -n "${CRYSFML:+1}" ]; then
+	echo "CRYSFML = $CRYSFML"
+else
+	echo "????????"
+	echo "???????? Please set the Environment Variable CRYSFML in your .bash_profile"
+	echo "????????"
+	exit 1
+fi
+cd "$CRYSFML/Scripts"
+
 #
 if [ a$1 = a ]
 then
@@ -85,20 +107,39 @@ in
        fi
        ;;
    'ifort')
-       if [ -d "./ifort" ]
-       then
-          if [ -d "./ifort/LibC" ]
-          then
-             echo " "
-          else
-             mkdir "./ifort/LibC"
-             mkdir "./ifort/LibW"
-          fi
-       else
-          mkdir "ifort"
-          mkdir "./ifort/LibC"
-          mkdir "./ifort/LibW"
-       fi
+	   if [ "$ARCH" == "i386" ]; then
+	   	echo "--- output to ------> /ifort"
+		   if [ -d "./ifort" ]
+		   then
+			  if [ -d "./ifort/LibC" ]
+			  then
+				 echo " "
+			  else
+				 mkdir "./ifort/LibC"
+				 mkdir "./ifort/LibW"
+			  fi
+		   else
+			  mkdir "ifort"
+			  mkdir "./ifort/LibC"
+			  mkdir "./ifort/LibW"
+		   fi
+	   else
+	   	echo "--- output to ------> /ifort64"
+		   if [ -d "./ifort64" ]
+		   then
+			  if [ -d "./ifort64/LibC" ]
+			  then
+				 echo " "
+			  else
+				 mkdir "./ifort64/LibC"
+				 mkdir "./ifort64/LibW"
+			  fi
+		   else
+			  mkdir "ifort64"
+			  mkdir "./ifort64/LibC"
+			  mkdir "./ifort64/LibW"
+		   fi
+	   fi
        ;;
 esac
 #
@@ -142,8 +183,8 @@ then
           OPT2="-c -g -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -g -warn -arch i386"
-          OPT2="-c -g -warn -arch i386"
+          OPT1="-c -g -warn -arch $ARCH"
+          OPT2="-c -g -warn -arch $ARCH"
           ;;
    esac
 else
@@ -162,8 +203,8 @@ else
           OPT2="-c -O0 -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -O -warn -arch i386 -vec-report0"
-          OPT2="-c -O0 -warn -arch i386 -vec-report0"
+          OPT1="-c -O -warn -arch $ARCH -vec-report0"
+          OPT2="-c -O0 -warn -arch $ARCH -vec-report0"
           ;;
    esac
 fi
@@ -289,8 +330,13 @@ then
           ;;
       'ifort')
           ar cr libcrysfml.a *.o
+		if [ "$ARCH" == "i386" ]; then
           mv *.mod ../ifort/LibC
           mv *.a ../ifort/LibC
+        else
+          mv *.mod ../ifort64/LibC
+          mv *.a ../ifort64/LibC
+		fi
           ;;
    esac
 else
@@ -313,8 +359,13 @@ else
           ;;
       'ifort')
           ar cr libwcrysfml.a *.o
+		if [ "$ARCH" == "i386" ]; then
           mv *.mod ../ifort/LibW
           mv *.a ../ifort/LibW
+        else
+          mv *.mod ../ifort64/LibW
+          mv *.a ../ifort64/LibW
+        fi
           ;;
    esac
 fi
