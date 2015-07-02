@@ -138,6 +138,67 @@
 
  Contains
     !!--++
+    !!--++ Function dfunc_int(twopsi, twoth0) result(dfunc)
+    !!--++    Real(kind=cp), Intent(In)  :: twopsi
+    !!--++    Real(kind=cp), Intent(In)  :: twoth0
+    !!--++    Real(kind=cp)              :: dfunc
+    !!--++
+    !!--++ Function to give the analytical value of the normalisation constant
+    !!--++ Update: 02/07/2015
+    !!
+    Function dfunc_int(twopsi, twoth0) result(dfunc)
+       !---- Arguments ----!
+       Real(kind=cp), Intent(In)  :: twopsi
+       Real(kind=cp), Intent(In)  :: twoth0
+       Real(kind=cp)              :: dfunc
+
+       !--- Local variables
+       Real(kind=cp) :: sintp        !Sin twopsi
+       Real(kind=cp) :: sin2t,sin2t2,csp,csm,ssp,ssm,a,b ! sin2Theta, (sin2Theta)^2
+
+       If (Abs(twopsi-twoth0) < 1.0E-5) Then
+          dfunc=pi_over_two
+       Else
+          sin2t=Sin(twoth0)
+          sin2t2=sin2t*sin2t
+          sintp = Sin(twopsi)
+          csp=sintp+sin2t2
+          csm=sintp-sin2t2
+          ssp=Abs((sintp+1.0_cp)*sin2t)
+          ssm=Abs((sintp-1.0_cp)*sin2t)
+          a=csm/ssm; b=-csp/ssp
+          If (a > 1.0_cp) a=1.0_cp
+          If (b <-1.0_cp) b=-1.0_cp
+          dfunc=0.5_cp*(Asin(a)-Asin(b))
+       End If
+
+       return
+    End Function dfunc_int
+
+    !!--++
+    !!--++ Function extra_int(x) result(extra)
+    !!--++    Real(kind=cp), Intent(In) :: x
+    !!--++    Real(kind=cp)             :: extra
+    !!--++
+    !!--++ Function to calculate 1/4(log(|sin(x)+1|)-log(|sin(x)-1|))
+    !!--++
+    !!--++ Update: 02/07/2015
+    !!
+    Function extra_int(x) result(extra)
+       !---- Arguments ----!
+       Real(kind=cp), Intent(In) :: x
+       Real(kind=cp)             :: extra
+
+       !--- Local variables
+       Real(kind=cp)             :: sinx
+
+       sinx = Sin(x)
+       extra = 0.25_cp*(Log(Abs(sinx+1.0_cp))-Log(Abs(sinx-1.0_cp)))
+
+       return
+    End Function extra_int
+
+    !!--++
     !!--++ Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
     !!--++    real(kind=cp), intent(in)  :: pos
     !!--++    real(kind=cp), intent(in)  :: pos0
@@ -1117,20 +1178,21 @@
        real(kind=cp), intent(out) :: psvoigt
 
        !---- Local Variables ----!
-      real(kind=cp) :: Gauss           ! Gaussian part
-      real(kind=cp) :: Lorentz         ! Lorentzian part
-      real(kind=cp) :: dgdt , dgdg , dldt , dldg
+       real(kind=cp) :: Gauss           ! Gaussian part
+       real(kind=cp) :: Lorentz         ! Lorentzian part
+       real(kind=cp) :: dgdt , dgdg , dldt , dldg
 
 
-      call Gaussian(twoth , twoth0 , gamma , dgdt , dgdg ,Gauss)
-      call Lorentzian(twoth , twoth0 , gamma , dldt , dldg, Lorentz)
-      psvoigt = eta * Lorentz + (1.0 - eta) * Gauss
-      dprdt = eta * dldt + (1.0 - eta) * dgdt
-      dprdg = eta * dldg + (1.0 - eta) * dgdg
-      dprde = Lorentz - Gauss
+       call Gaussian(twoth , twoth0 , gamma , dgdt , dgdg ,Gauss)
+       call Lorentzian(twoth , twoth0 , gamma , dldt , dldg, Lorentz)
+       psvoigt = eta * Lorentz + (1.0 - eta) * Gauss
+       dprdt = eta * dldt + (1.0 - eta) * dgdt
+       dprdg = eta * dldg + (1.0 - eta) * dgdg
+       dprde = Lorentz - Gauss
 
-      return
-   End Subroutine PsVoigtian
+       return
+    End Subroutine PsVoigtian
+
     !!----
     !!---- Subroutine Prof_Val(Eta,Gamma,asym1,asym1,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym, Use_hps )
     !!----    real(kind=cp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
@@ -1159,287 +1221,251 @@
     !!
     Subroutine Prof_Val( eta, gamma, asym1, asym2, twoth, twoth0, dprdt, dprdg,  &
                          dprde , dprds , dprdd , profval, use_asym, use_hps)
-      real(kind=cp), Intent(In)    :: eta
-      real(kind=cp), Intent(In)    :: gamma
-      real(kind=cp), Intent(In)    :: asym1
-      real(kind=cp), Intent(In)    :: asym2
-      real(kind=cp), Intent(In)    :: twoth
-      real(kind=cp), Intent(In)    :: twoth0
-      real(kind=cp), Intent(Out)   :: dprdt
-      real(kind=cp), Intent(Out)   :: dprdg
-      real(kind=cp), Intent(Out)   :: dprde
-      real(kind=cp), Intent(Out)   :: dprds
-      real(kind=cp), Intent(Out)   :: dprdd
-      real(kind=cp), Intent(Out)   :: profval
-      Logical,       Intent(In)    :: use_asym
-      Logical,       Intent(In)    :: use_hps
+       !---- Arguments ----!
+       real(kind=cp), Intent(In)    :: eta
+       real(kind=cp), Intent(In)    :: gamma
+       real(kind=cp), Intent(In)    :: asym1
+       real(kind=cp), Intent(In)    :: asym2
+       real(kind=cp), Intent(In)    :: twoth
+       real(kind=cp), Intent(In)    :: twoth0
+       real(kind=cp), Intent(Out)   :: dprdt
+       real(kind=cp), Intent(Out)   :: dprdg
+       real(kind=cp), Intent(Out)   :: dprde
+       real(kind=cp), Intent(Out)   :: dprds
+       real(kind=cp), Intent(Out)   :: dprdd
+       real(kind=cp), Intent(Out)   :: profval
+       Logical,       Intent(In)    :: use_asym
+       Logical,       Intent(In)    :: use_hps
 
-      !---- Local Variables ----!
+       !---- Local Variables ----!
+       !> The variables below have the "save" attribute in order to save calculation
+       !> time when the subroutine is invoked for different points of the same peak
+       real(kind=cp),save :: s_l , d_l, half_over_dl
+       real(kind=cp),save :: df_dh_factor, df_ds_factor
+       real(kind=cp),save :: dfi_emin, dfi_einfl
+       real(kind=cp),save :: normv_analytic
+       real(kind=cp),save :: einfl              ! 2phi value for inflection point
+       real(kind=cp),save :: emin               ! 2phi value for minimum
+       real(kind=cp),save :: cstwoth            ! cos(twoth)
+       real(kind=cp),save :: coseinfl           ! cos(Einfl)
+       real(kind=cp),save :: apb                ! (S + H)/L
+       real(kind=cp),save :: amb                ! (S - H)/L
+       real(kind=cp),save :: apb2               ! (ApB) **2
+       Integer,save       :: arraynum, ngt, ngt2, it
+       Logical,save       :: s_eq_d
 
-      !The variables below have the "save" attribute in order to save calculation
-      !time when the subroutine is invoked for different points of the same peak
-      real(kind=cp),save :: s_l , d_l, half_over_dl
-      real(kind=cp),save :: df_dh_factor, df_ds_factor
-      real(kind=cp),save :: dfi_emin, dfi_einfl
-      real(kind=cp),save :: normv_analytic
-      real(kind=cp),save :: einfl              ! 2phi value for inflection point
-      real(kind=cp),save :: emin               ! 2phi value for minimum
-      real(kind=cp),save :: cstwoth            ! cos(twoth)
-      real(kind=cp),save :: coseinfl           ! cos(Einfl)
-      real(kind=cp),save :: apb                ! (S + H)/L
-      real(kind=cp),save :: amb                ! (S - H)/L
-      real(kind=cp),save :: apb2               ! (ApB) **2
-      Integer,save       :: arraynum, ngt, ngt2, it
-      Logical,save       :: s_eq_d
+       !> Variables not conserving their value between calls
+       Integer       :: side, k
+       real(kind=cp) :: tmp , tmp1 , tmp2  ! intermediate values
+       real(kind=cp) :: delta              ! Angle of integration for comvolution
+       real(kind=cp) :: sindelta           ! sine of DELTA
+       real(kind=cp) :: cosdelta           ! cosine of DELTA
+       real(kind=cp) :: rcosdelta          ! 1/cos(DELTA)
+       real(kind=cp) :: f,g, einflr,eminr,twoth0r
+       real(kind=cp) :: sumwg, sumwrg, sumwrdgda ,sumwdgdb , sumwrdgdb
+       real(kind=cp) :: sumwgdrdg, sumwgdrde, sumwgdrd2t
+       real(kind=cp) :: sumwx
+       logical       :: re_calculate
 
-      ! Variables not conserving their value between calls
-      Integer       :: side, k
-      real(kind=cp) :: tmp , tmp1 , tmp2  ! intermediate values
-      real(kind=cp) :: delta              ! Angle of integration for comvolution
-      real(kind=cp) :: sindelta           ! sine of DELTA
-      real(kind=cp) :: cosdelta           ! cosine of DELTA
-      real(kind=cp) :: rcosdelta          ! 1/cos(DELTA)
-      real(kind=cp) :: f,g, einflr,eminr,twoth0r
-      real(kind=cp) :: sumwg, sumwrg, sumwrdgda ,sumwdgdb , sumwrdgdb
-      real(kind=cp) :: sumwgdrdg, sumwgdrde, sumwgdrd2t
-      real(kind=cp) :: sumwx
-      logical       :: re_calculate
+       !> First simple calculation of Pseudo-Voigt if asymmetry is not used
+       if (.not. use_asym) then
+          call Psvoigtian(twoth,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
+          profval = tmp
+          dprds = 0.0
+          dprdd = 0.0
+          return
+       end if
 
-      ! First simple calculation of Pseudo-Voigt if asymmetry is not used
-      if(.not. use_asym) then
-        call Psvoigtian(twoth,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
-        profval = tmp
-        dprds = 0.0
-        dprdd = 0.0
-        return
-      end if
+       !> From here to the end of the procedure asymmetry is used.
 
-      !From here to the end of the procedure asymmetry is used.
+       !> Make the calculations of some variables only if twoth0,asym1,asym2
+       !> are different from previous values. This save calculation time if the
+       !> different points of a peak are calculated sequentially for the same values
+       !> of twotheta and asymmetry parameters.
 
-      !Make the calculations of some variables only if twoth0,asym1,asym2
-      !are different from previous values. This save calculation time if the
-      !different points of a peak are calculated sequentially for the same values
-      !of twotheta and asymmetry parameters.
+       re_calculate= abs(twoth0_prev-twoth0) > eps .or.  &
+                     abs(asym1_prev-asym1)   > eps .or.  &
+                     abs(asym2_prev-asym2)   > eps
 
-      re_calculate= abs(twoth0_prev-twoth0) > eps .or.  &
-                    abs(asym1_prev-asym1)   > eps .or.  &
-                    abs(asym2_prev-asym2)   > eps
+       if (re_calculate) then
+          twoth0_prev=twoth0
+          asym1_prev=asym1
+          asym2_prev=asym2
 
-      if(re_calculate) then
+          twoth0r=twoth0*to_rad
+          cstwoth = Cos(twoth0r)
+          If (use_hps .or. asym2 < eps) Then
+             s_l = 0.5*(asym1 - asym2)  ! 1/2(s_l+d_l - (d_l-s_l))
+             d_l = 0.5*(asym1 + asym2)  ! 1/2(s_l+d_l + (d_l-s_l))
+          else
+             s_l = asym1
+             d_l = asym2
+          end if
+          apb = s_l + d_l
+          amb = s_l - d_l
 
-        twoth0_prev=twoth0
-         asym1_prev=asym1
-         asym2_prev=asym2
-
-        twoth0r=twoth0*to_rad
-        cstwoth = Cos(twoth0r)
-        If (use_hps .or. asym2 < eps) Then
-          s_l = 0.5*(asym1 - asym2)  ! 1/2(s_l+d_l - (d_l-s_l))
-          d_l = 0.5*(asym1 + asym2)  ! 1/2(s_l+d_l + (d_l-s_l))
-        Else
-          s_l = asym1
-          d_l = asym2
-        End If
-        apb = s_l + d_l
-        amb = s_l - d_l
-        ! Catch special case of S_L = D_L
-        If (Abs(amb) < 0.00001) Then
-          s_eq_d = .TRUE.
-        Else
-          s_eq_d = .FALSE.
-        End If
-        apb2 = apb*apb
-
-        tmp = Sqrt(1.0 + amb*amb)*cstwoth
-        If ((Abs(tmp) > 1.0) .or. (Abs(tmp) <= Abs(cstwoth))) Then
-          einfl = twoth0
-          einflr=einfl*to_rad
-          dfi_einfl = pi_over_two
-        Else
-          einflr = Acos(tmp)
-          einfl=einflr*to_deg
-          dfi_einfl = dfunc_int(einflr,twoth0r)
-        End If
-        coseinfl = Cos(einflr)
-        tmp2 = 1.0 + apb2
-        tmp = Sqrt(tmp2) * cstwoth
-
-        ! If S_L or D_L are zero, set Einfl = 2theta
-        ! If S_L equals D_L, set Einfl = 2theta
-
-        If (abs(s_l) <= eps  .OR.  abs(d_l) <= eps  .OR. s_eq_d) then
-          einfl = twoth0
-          einflr=einfl*to_rad
-        End if
-
-        If (Abs(tmp) <= 1.0) Then
-          eminr = Acos(tmp)
-          emin = eminr * to_deg
-          tmp1 = tmp2 * (1.0 - tmp2 * cstwoth*cstwoth)
-        Else
-          tmp1 = 0.0
-          If (tmp > 0.0) Then
-            emin = 0.0
-            eminr= 0.0
+          !> Catch special case of S_L = D_L
+          If (Abs(amb) < 0.00001) Then
+             s_eq_d = .TRUE.
           Else
-            emin = 180.0
-            eminr= pi
+             s_eq_d = .FALSE.
           End If
-        End If
+          apb2 = apb*apb
 
-        dfi_emin = dfunc_int(eminr,twoth0r)
-        !
-        ! Simplifications if S_L equals D_L
-        !
-        half_over_dl=0.5_cp/d_l
-        If (s_eq_d) Then
-          dfi_einfl = pi_over_two
-          normv_analytic = (dfi_einfl - dfi_emin) -  &
-              half_over_dl*(extra_int(einflr)-extra_int(eminr))
-          df_dh_factor =  half_over_dl * (pi_over_two - dfi_emin)
-          df_ds_factor =  half_over_dl * (pi_over_two - dfi_emin)
-          df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
-        Else
-          dfi_einfl = dfunc_int(einflr,twoth0r)
-          normv_analytic = Min(s_l,d_l)/d_l*(pi_over_two - dfi_einfl)
-          normv_analytic = normv_analytic + apb*half_over_dl*(dfi_einfl-dfi_emin)   &
-                       -2.0_cp*half_over_dl*(extra_int(einflr)-extra_int(eminr))
-          tmp= half_over_dl*(pi - dfi_einfl - dfi_emin)
-          tmp1=half_over_dl*(dfi_einfl - dfi_emin)
-          If(d_l < s_l) Then
-            df_dh_factor = tmp
-            df_ds_factor = tmp1
+          tmp = Sqrt(1.0 + amb*amb)*cstwoth
+          If ((Abs(tmp) > 1.0) .or. (Abs(tmp) <= Abs(cstwoth))) Then
+             einfl = twoth0
+             einflr=einfl*to_rad
+             dfi_einfl = pi_over_two
           Else
-            df_dh_factor = tmp1
-            df_ds_factor = tmp
+             einflr = Acos(tmp)
+             einfl=einflr*to_deg
+             dfi_einfl = dfunc_int(einflr,twoth0r)
           End If
-          df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
-        End If
+          coseinfl = Cos(einflr)
+          tmp2 = 1.0 + apb2
+          tmp = Sqrt(tmp2) * cstwoth
 
-        arraynum = 1
-        k = ctrl_nsteps * (twoth0 - emin)   ! Calculate the number of terms needed
-        Do
-           if ( .not. ( arraynum < 14  .And.  k > nterms(arraynum) ) ) exit
-           arraynum = arraynum + 1
-        End Do
-        ngt = nterms(arraynum)              ! Save the number of terms
-        ngt2 = ngt / 2
-        it = fstterm(arraynum)-ngt2
-      End if   !re_calculate
+          !> If S_L or D_L are zero, set Einfl = 2theta
+          !> If S_L equals D_L, set Einfl = 2theta
+          If (abs(s_l) <= eps  .OR.  abs(d_l) <= eps  .OR. s_eq_d) then
+             einfl = twoth0
+             einflr=einfl*to_rad
+          End if
 
-        ! Clear terms needed for summations
-      sumwg = 0.0
-      sumwrg = 0.0
-      sumwrdgda = 0.0
-      sumwdgdb = 0.0
-      sumwrdgdb = 0.0
-      sumwgdrd2t = 0.0
-      sumwgdrdg = 0.0
-      sumwgdrde = 0.0
-      sumwx = 0.0
-      ! Compute the convolution integral
-      Do k = ngt2 , ngt
-        Do side = 1,2
-          If (side == 1) Then
-            delta = (twoth0 + emin)/2 + (twoth0 - emin) * xp(k + it)/2
-            sumwx = sumwx + wp(k+it)
+          If (Abs(tmp) <= 1.0) Then
+             eminr = Acos(tmp)
+             emin = eminr * to_deg
+             tmp1 = tmp2 * (1.0 - tmp2 * cstwoth*cstwoth)
           Else
-            delta = (twoth0 + emin)/2 - (twoth0 - emin) * xp(k + it)/2
-            sumwx = sumwx + wp(k+it)
+             tmp1 = 0.0
+             If (tmp > 0.0) Then
+                emin = 0.0
+                eminr= 0.0
+             Else
+                emin = 180.0
+                eminr= pi
+             End If
           End If
-          sindelta = Sin(delta*to_rad)
-          cosdelta = Cos(delta*to_rad)
-          If (Abs(cosdelta) < 1.0E-15) cosdelta = 1.0E-15
-          rcosdelta = Abs(1.0 / cosdelta)
-          tmp = cosdelta*cosdelta - cstwoth*cstwoth
-          If (tmp > 0.0) Then
-            tmp1 = Sqrt(tmp)
-            f = Abs(cstwoth) / tmp1           !h-function in FCJ
+
+          dfi_emin = dfunc_int(eminr,twoth0r)
+          !
+          ! Simplifications if S_L equals D_L
+          !
+          half_over_dl=0.5_cp/d_l
+          If (s_eq_d) Then
+             dfi_einfl = pi_over_two
+             normv_analytic = (dfi_einfl - dfi_emin) -  &
+                   half_over_dl*(extra_int(einflr)-extra_int(eminr))
+             df_dh_factor =  half_over_dl * (pi_over_two - dfi_emin)
+             df_ds_factor =  half_over_dl * (pi_over_two - dfi_emin)
+             df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
           Else
-            f = 0.0
-          End If
-          !  calculate G(Delta,2theta) , FCJ eq. 7a and 7b
-          If ( Abs(delta - emin) > Abs(einfl - emin)) Then
-            If (s_l > d_l) Then
-              g = 2.0 * d_l * f * rcosdelta
+             dfi_einfl = dfunc_int(einflr,twoth0r)
+            normv_analytic = Min(s_l,d_l)/d_l*(pi_over_two - dfi_einfl)
+            normv_analytic = normv_analytic + apb*half_over_dl*(dfi_einfl-dfi_emin)   &
+                            -2.0_cp*half_over_dl*(extra_int(einflr)-extra_int(eminr))
+            tmp= half_over_dl*(pi - dfi_einfl - dfi_emin)
+            tmp1=half_over_dl*(dfi_einfl - dfi_emin)
+            If (d_l < s_l) Then
+               df_dh_factor = tmp
+               df_ds_factor = tmp1
             Else
-              g = 2.0 * s_l * f * rcosdelta
+               df_dh_factor = tmp1
+               df_ds_factor = tmp
             End If
-          Else
-            g = (-1.0 + apb * f) * rcosdelta
+            df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
           End If
-          call Psvoigtian(twoth-delta+twoth0,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
-          sumwg = sumwg + wp(k+it) * g
-          sumwrg = sumwrg + wp(k+it) * g * tmp
-          If ( Abs(cosdelta) > Abs(coseinfl)) Then
-            sumwrdgda = sumwrdgda + wp(k+it) * f * rcosdelta * tmp
-            sumwrdgdb = sumwrdgdb + wp(k+it) * f * rcosdelta * tmp
-          Else
-            If (s_l < d_l) Then
-              sumwrdgdb = sumwrdgdb + 2.0*wp(k+it)*f* rcosdelta*tmp
-            Else
-              sumwrdgda = sumwrdgda + 2.0*wp(k+it)*f* rcosdelta*tmp
-            End If
-          End If
-          sumwgdrd2t = sumwgdrd2t + wp(k+it) * g * dprdt
-          sumwgdrdg = sumwgdrdg + wp(k+it) * g * dprdg
-          sumwgdrde = sumwgdrde + wp(k+it) * g * dprde
-        End Do  ! loop over left, right side of quadrature
-      End Do
 
-      If (abs(sumwg) <= eps) sumwg = 1.0_cp
-      profval = sumwrg / sumwg
-      dprdt = sumwgdrd2t/ sumwg
-      dprdg = sumwgdrdg / sumwg
-      dprde = sumwgdrde / sumwg
-      !
-      If(normv_analytic <= eps) normv_analytic=1.0_cp
-      dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
-      dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
+          arraynum = 1
+          k = ctrl_nsteps * (twoth0 - emin)   ! Calculate the number of terms needed
+          Do
+             if ( .not. ( arraynum < 14  .And.  k > nterms(arraynum) ) ) exit
+             arraynum = arraynum + 1
+          End Do
+          ngt = nterms(arraynum)              ! Save the number of terms
+          ngt2 = ngt / 2
+          it = fstterm(arraynum)-ngt2
+       End if   !re_calculate
 
-      If (use_hps .or. asym2 < eps) Then
-        dprds = 0.5_cp*(dprdd + dprds)  !S is really D+S
-        dprdd = 0.5_cp*(dprdd - dprds)  !D is really D-S
-      End If
-      Return
+       ! Clear terms needed for summations
+       sumwg = 0.0
+       sumwrg = 0.0
+       sumwrdgda = 0.0
+       sumwdgdb = 0.0
+       sumwrdgdb = 0.0
+       sumwgdrd2t = 0.0
+       sumwgdrdg = 0.0
+       sumwgdrde = 0.0
+       sumwx = 0.0
+
+       ! Compute the convolution integral
+       Do k = ngt2 , ngt
+          Do side = 1,2
+             If (side == 1) Then
+                delta = (twoth0 + emin)/2 + (twoth0 - emin) * xp(k + it)/2
+                sumwx = sumwx + wp(k+it)
+             Else
+                delta = (twoth0 + emin)/2 - (twoth0 - emin) * xp(k + it)/2
+                sumwx = sumwx + wp(k+it)
+             End If
+             sindelta = Sin(delta*to_rad)
+             cosdelta = Cos(delta*to_rad)
+             If (Abs(cosdelta) < 1.0E-15) cosdelta = 1.0E-15
+             rcosdelta = Abs(1.0 / cosdelta)
+             tmp = cosdelta*cosdelta - cstwoth*cstwoth
+             If (tmp > 0.0) Then
+                tmp1 = Sqrt(tmp)
+                f = Abs(cstwoth) / tmp1           !h-function in FCJ
+             Else
+                f = 0.0
+             End If
+
+             !  calculate G(Delta,2theta) , FCJ eq. 7a and 7b
+             If ( Abs(delta - emin) > Abs(einfl - emin)) Then
+                If (s_l > d_l) Then
+                   g = 2.0 * d_l * f * rcosdelta
+                Else
+                   g = 2.0 * s_l * f * rcosdelta
+                End If
+             Else
+                g = (-1.0 + apb * f) * rcosdelta
+             End If
+             call Psvoigtian(twoth-delta+twoth0,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
+             sumwg = sumwg + wp(k+it) * g
+             sumwrg = sumwrg + wp(k+it) * g * tmp
+             If ( Abs(cosdelta) > Abs(coseinfl)) Then
+                sumwrdgda = sumwrdgda + wp(k+it) * f * rcosdelta * tmp
+                sumwrdgdb = sumwrdgdb + wp(k+it) * f * rcosdelta * tmp
+             Else
+                If (s_l < d_l) Then
+                   sumwrdgdb = sumwrdgdb + 2.0*wp(k+it)*f* rcosdelta*tmp
+                Else
+                   sumwrdgda = sumwrdgda + 2.0*wp(k+it)*f* rcosdelta*tmp
+                End If
+             End If
+             sumwgdrd2t = sumwgdrd2t + wp(k+it) * g * dprdt
+             sumwgdrdg = sumwgdrdg + wp(k+it) * g * dprdg
+             sumwgdrde = sumwgdrde + wp(k+it) * g * dprde
+          End Do  ! loop over left, right side of quadrature
+       End Do
+
+       If (abs(sumwg) <= eps) sumwg = 1.0_cp
+       profval = sumwrg / sumwg
+       dprdt = sumwgdrd2t/ sumwg
+       dprdg = sumwgdrdg / sumwg
+       dprde = sumwgdrde / sumwg
+       !
+       If(normv_analytic <= eps) normv_analytic=1.0_cp
+       dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
+       dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
+
+       If (use_hps .or. asym2 < eps) Then
+          dprds = 0.5_cp*(dprdd + dprds)  !S is really D+S
+          dprdd = 0.5_cp*(dprdd - dprds)  !D is really D-S
+       End If
+
+       return
     End Subroutine Prof_Val
-
-!  Function to give the analytical value of the normalisation constant
-
-    Function dfunc_int(twopsi, twoth0) result(dfunc)
-      Real(kind=cp), Intent(In)  :: twopsi
-      Real(kind=cp), Intent(In)  :: twoth0
-      Real(kind=cp)              :: dfunc
-      !--- Local variables
-      Real(kind=cp) :: sintp        !Sin twopsi
-      Real(kind=cp) :: sin2t,sin2t2,csp,csm,ssp,ssm,a,b ! sin2Theta, (sin2Theta)^2
-
-      If(Abs(twopsi-twoth0) < 1.0E-5) Then
-        dfunc=pi_over_two
-      Else
-        sin2t=Sin(twoth0)
-        sin2t2=sin2t*sin2t
-        sintp = Sin(twopsi)
-        csp=sintp+sin2t2
-        csm=sintp-sin2t2
-        ssp=Abs((sintp+1.0_cp)*sin2t)
-        ssm=Abs((sintp-1.0_cp)*sin2t)
-        a=csm/ssm; b=-csp/ssp
-        If(a > 1.0_cp) a=1.0_cp
-        If(b <-1.0_cp) b=-1.0_cp
-        dfunc=0.5_cp*(Asin(a)-Asin(b))
-      End If
-    End Function dfunc_int
-
-    !  Function to calculate 1/4(log(|sin(x)+1|)-log(|sin(x)-1|))
-    Function extra_int(x) result(extra)
-      Real(kind=cp), Intent(In) :: x
-      Real(kind=cp)             :: extra
-      !--- Local variables
-      Real(kind=cp)             :: sinx
-
-      sinx = Sin(x)
-      extra = 0.25_cp*(Log(Abs(sinx+1.0_cp))-Log(Abs(sinx-1.0_cp)))
-    End Function extra_int
 
 End Module CFML_PowderProfiles_Finger

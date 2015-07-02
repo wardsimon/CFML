@@ -59,7 +59,6 @@ rem
    ) else (
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
-   goto FIN
    ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
@@ -67,6 +66,7 @@ rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
+   goto FIN
    ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%

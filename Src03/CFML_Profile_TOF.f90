@@ -60,9 +60,6 @@
 !!----
 !!---- PROCEDURES
 !!----    Functions:
-!!----       ERFC
-!!--++       DERFCC            [Overloaded]
-!!--++       ERFCC             [Overloaded]
 !!----       ERFCP
 !!--++       DERFCCP           [Overloaded]
 !!--++       ERFCCP            [Overloaded]
@@ -81,12 +78,10 @@ Module CFML_PowderProfiles_TOF
     !---- Variables ----!
     implicit none
 
+    private
+
     !---- List of public functions ----!
-    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfc, Erfcp
-
-    !---- List of private functions ----!
-    private:: Expi_E1, Erfcc, Derfccp, Erfccp, Derfcc
-
+    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfcp
 
     !---- Definitions ----!
 
@@ -162,11 +157,6 @@ Module CFML_PowderProfiles_TOF
     logical, public  :: Lorcomp
 
     !---- Interfaces ----!
-    Interface  Erfc
-       module procedure erfcc
-       module procedure derfcc
-    End Interface
-
     Interface  Erfcp
        module procedure erfccp
        module procedure derfccp
@@ -174,79 +164,13 @@ Module CFML_PowderProfiles_TOF
 
  Contains
     !!----
-    !!---- Function Erfc(X) Result(Cerrf)
-    !!----    real(kind=dp/sp), intent(in)  :: x
-    !!----    real(kind=dp/sp)              :: cerrf
-    !!----
-    !!----    Complementary error function
-    !!----
-    !!---- Update: October - 2005
-    !!
-
-    !!--++
-    !!--++ Function Derfcc(X) Result(Cerrf)
-    !!--++    real(kind=dp), intent(in)  :: x
-    !!--++    real(kind=dp)              :: cerrf
-    !!--++
-    !!--++    Complementary error function
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    Function Derfcc(X) Result(Cerrf)
-       !---- Argument ----!
-       real(kind=dp), intent(in)  :: x
-       real(kind=dp)              :: cerrf
-
-       !---- Local variables ----!
-       real(kind=dp) :: t,z,y
-
-       z=abs(x)
-       t=1.0_dp/(1.0_dp+0.5_dp*z)
-       y= -z*z-1.26551223_dp+t*(1.00002368_dp+t*(0.37409196_dp+  &
-          t*(0.09678418_dp+t*(-0.18628806_dp+t*(0.27886807_dp+t*(-1.13520398_dp+  &
-          t*(1.48851587_dp+t*(-0.82215223_dp+t*0.17087277_dp))))))))
-       cerrf=t*exp(y)
-       if (x < 0.0_dp) cerrf=2.0_dp-cerrf
-
-       return
-    End Function Derfcc
-
-    !!--++
-    !!--++ Function Erfcc(X) Result(Cerrf)
-    !!--++    real(kind=dp), intent(in)  :: x
-    !!--++    real(kind=dp)              :: cerrf
-    !!--++
-    !!--++    Complementary error function
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    Function Erfcc(X) Result(Cerrf)
-       !---- Argument ----!
-       real(kind=sp), intent(in)  :: x
-       real(kind=sp)              :: cerrf
-
-       !---- Local Variables ----!
-       real(kind=sp) :: t,z,y
-
-       z=abs(x)
-       t=1.0/(1.0+0.5*z)
-       y= -z*z-1.26551223+t*(1.00002368+t*(0.37409196+  &
-          t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+  &
-          t*(1.48851587+t*(-0.82215223+t*0.17087277))))))))
-       cerrf=t*exp(y)
-       if (x < 0.0) cerrf=2.0-cerrf
-
-       return
-    End Function Erfcc
-
-    !!----
     !!---- Function Erfcp(X) Result(Der)
     !!----    real(kind=dp/sp), intent(in)  :: x
     !!----    real(kind=dp/sp)              :: der
     !!----
     !!----    Derivative of the complementary error function
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 02/07/2015
     !!
 
     !!--++
@@ -338,7 +262,9 @@ Module CFML_PowderProfiles_TOF
        return
     End Function Expi_E1
 
+    !---------------------!
     !---- Subroutines ----!
+    !---------------------
 
     !!----
     !!---- Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
@@ -428,9 +354,9 @@ Module CFML_PowderProfiles_TOF
        erfr=erfc(y_r)
 
        if (y_u < 27.0_dp) then      ! LCC , november 2003: Modifications to the original code
-          omg_u=expu*erfu      ! to solve underflow problems occuring
-          do i=1, udiv-1       ! when erfc(y_*) becomes too small and exp(g_*) too large,
-             omg_u=omg_u*expu  ! --> Use an approximation at third order to erfc.
+          omg_u=expu*erfu           ! to solve underflow problems occuring
+          do i=1, udiv-1            ! when erfc(y_*) becomes too small and exp(g_*) too large,
+             omg_u=omg_u*expu       ! --> Use an approximation at third order to erfc.
           end do
        else
           yy=y_u*y_u
