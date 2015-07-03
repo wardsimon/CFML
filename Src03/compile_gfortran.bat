@@ -76,8 +76,8 @@ rem
    gfortran -c CFML_optimization_lsq.f90                 %OPT1% %OPT2%
    gfortran -c CFML_sym_table.f90                        %OPT0% %OPT2%
    gfortran -c CFML_chem_scatt.f90                       %OPT0% %OPT2%
-   goto FIN
    gfortran -c CFML_BVSpar.f90                           %OPT0% %OPT2%
+   goto FIN
    gfortran -c CFML_diffpatt.f90                         %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**

@@ -71,8 +71,8 @@ rem
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
    ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
-   goto FIN
    ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
+   goto FIN
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**

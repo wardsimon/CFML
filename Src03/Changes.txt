@@ -1,26 +1,28 @@
-
 List of Changes
 ====================
-CFML_Math_Gen
--------------
-01/07/2015: BESSJ0,BESSJ1,BESSJ deleted. Now they are internal procedures in the Fortran compilers 2008 (BESSEL_J0, BESSEL_J1, BESSEL_JN)
-01/07/2015: PYTHAG deleted. Now is internal procedure in Fortran compiler 2008 (HYPOT)
-01/07/2015: Eucliden_Norm deleted. Now is internal procedure in Fortran compiler 2008 (NORM2)
-01/07/2015: IMAXLOC / IMINLOC deleted. Now they are internal procedures (MAXLOC/MINLOC)
 
-CFML_String_Util
------------------
-02/07/2015: Get_Mat_symb routine is called now Get_Mat_From_String. Also the order of arguments were changed.
-02/07/2015: Get_Num_String routine is called now Get_Num_From_String. Also the order of arguments were changed.
-02/07/2015: Get_Substring_Positions is called now Get_Substring_Pos. Also the order of arguments were changed.
-02/07/2015: Get_Transf is called now Get_MatVec_From_String.
-02/07/2015: Read_Fract is called now Read_Fract_String.
-02/07/2015: RFormat is called now Format_R.
-
-CFML_Profile_TOF
+Date:03/07/2015
 ----------------
-02/07/2015: The module use now the intrinsic function ERFC
+CFML_BVS_Table: Rename the module from CFML_BVSpar to CFML_BVS_Table
+CFML_Optimization_LSQ: Enorm (euclidean_normalization) was replaced by intrinsic function NORM2
 
-CFML_Optimization_LSQ
----------------------
-03/07/2015: Enorm (euclidean_normalization) was replaced by intrinsic function NORM2
+Date:02/07/2015
+----------------
+CFML_String_Util: Get_Mat_symb routine is called now Get_Mat_From_String. Also the order of arguments were changed.
+CFML_String_Util: Get_Num_String routine is called now Get_Num_From_String. Also the order of arguments were changed.
+CFML_String_Util: Get_Substring_Positions is called now Get_Substring_Pos. Also the order of arguments were changed.
+CFML_String_Util: Get_Transf is called now Get_MatVec_From_String.
+CFML_String_Util: Read_Fract is called now Read_Fract_String.
+CFML_String_Util: RFormat is called now Format_R.
+
+Date:01/07/2015
+----------------
+CFML_Math_Gen: BESSJ0,BESSJ1,BESSJ deleted. Now they are internal procedures in the Fortran compilers 2008 (BESSEL_J0, BESSEL_J1, BESSEL_JN)
+CFML_Math_Gen: PYTHAG deleted. Now is internal procedure in Fortran compiler 2008 (HYPOT)
+CFML_Math_Gen: Eucliden_Norm deleted. Now is internal procedure in Fortran compiler 2008 (NORM2)
+
+
+
+
+
+
