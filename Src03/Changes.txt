@@ -20,3 +20,7 @@ CFML_String_Util
 CFML_Profile_TOF
 ----------------
 02/07/2015: The module use now the intrinsic function ERFC
+
+CFML_Optimization_LSQ
+---------------------
+03/07/2015: Enorm (euclidean_normalization) was replaced by intrinsic function NORM2

@@ -286,15 +286,15 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
-       real(kind=cp),             intent( in) :: d         ! d-spacing of the peak in A
-       real(kind=cp),             intent( in) :: alfa      !  alfa  : units microsecs-1
-       real(kind=cp),             intent( in) :: beta      !  beta  : units microsecs-1
-       real(kind=cp),             intent( in) :: gamma     !  gamma : units microsecs
-       real(kind=cp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
-       real(kind=cp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
-       real(kind=cp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
-       real(kind=cp),             intent(out) :: tof_peak
+       real(kind=cp),                  intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
+       real(kind=cp),                  intent( in) :: d         ! d-spacing of the peak in A
+       real(kind=cp),                  intent( in) :: alfa      !  alfa  : units microsecs-1
+       real(kind=cp),                  intent( in) :: beta      !  beta  : units microsecs-1
+       real(kind=cp),                  intent( in) :: gamma     !  gamma : units microsecs
+       real(kind=cp),                  intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
+       real(kind=cp),                  intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
+       real(kind=cp),                  intent( in) :: tof_theta ! This is the value of 2sin(theta)
+       real(kind=cp),                  intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
 
        !---- local variables ----!
@@ -532,11 +532,11 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=cp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
-       real(kind=cp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
-       real(kind=cp),             intent( in)  :: beta     !  beta  : units microsecs-1
-       real(kind=cp),             intent( in)  :: sigma    !  sigma : units microsecs**2
-       real(kind=cp),             intent(out)  :: tof_peak
+       real(kind=cp),                  intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
+       real(kind=cp),                  intent( in)  :: alfa     !  alfa  : units microsecs-1
+       real(kind=cp),                  intent( in)  :: beta     !  beta  : units microsecs-1
+       real(kind=cp),                  intent( in)  :: sigma    !  sigma : units microsecs**2
+       real(kind=cp),                  intent(out)  :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
 
        !---- Local Variables ----!
@@ -627,12 +627,12 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Jorgensen_Vondreele(Dt,Alfa,Beta,Gamma,Eta,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=cp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
-       real(kind=cp),             intent( in) :: alfa     !  alfa  : units microsecs-1
-       real(kind=cp),             intent( in) :: beta     !  beta  : units microsecs-1
-       real(kind=cp),             intent( in) :: gamma    !  gamma : units microsecs
-       real(kind=cp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
-       real(kind=cp),             intent(out) :: tof_peak
+       real(kind=cp),                  intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
+       real(kind=cp),                  intent( in) :: alfa     !  alfa  : units microsecs-1
+       real(kind=cp),                  intent( in) :: beta     !  beta  : units microsecs-1
+       real(kind=cp),                  intent( in) :: gamma    !  gamma : units microsecs
+       real(kind=cp),                  intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
+       real(kind=cp),                  intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
 
        !---- local variables ----!

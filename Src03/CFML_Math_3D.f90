@@ -161,13 +161,13 @@
 
     !!----
     !!---- ERR_Math3D_Mess
-    !!----    character(len=150) :: ERR_Math3D_Mess
+    !!----    character(len=256) :: ERR_Math3D_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Math3D_Mess
+    character(len=256), public :: ERR_Math3D_Mess
 
     !---- Interfaces - Overlapp ----!
     Interface  Cross_Product

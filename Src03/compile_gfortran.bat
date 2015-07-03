@@ -64,7 +64,6 @@ rem
    ) else (
      gfortran -c CFML_io_mess.f90                        %OPT1% %OPT2%
    )
-   goto FIN
    gfortran -c CFML_Profile_TOF.f90                      %OPT1% %OPT2%
    gfortran -c CFML_Profile_Finger.f90                   %OPT1% %OPT2%
    gfortran -c CFML_Profile_Functs.f90                   %OPT1% %OPT2%
@@ -77,6 +76,7 @@ rem
    gfortran -c CFML_optimization_lsq.f90                 %OPT1% %OPT2%
    gfortran -c CFML_sym_table.f90                        %OPT0% %OPT2%
    gfortran -c CFML_chem_scatt.f90                       %OPT0% %OPT2%
+   goto FIN
    gfortran -c CFML_BVSpar.f90                           %OPT0% %OPT2%
    gfortran -c CFML_diffpatt.f90                         %OPT1% %OPT2%
 rem
