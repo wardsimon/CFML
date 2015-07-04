@@ -2028,7 +2028,7 @@
     !!----
     !!----    Calculate the Euler Angles corresponding to an orthogonal matrix
     !!----    The definition of the Euler angles in this case correspond to the
-    !!----    rotation matrix of Busing and Levy for diffractormetry obtained from
+    !!----    rotation matrix of Busing and Levy for diffractometry obtained from
     !!----    the composition of a rotation around z of angle Phi, followed by a
     !!----    rotation of angle Chi around the y-axis and a subsequent rotation of angle
     !!----    Omega around z.
@@ -2040,7 +2040,7 @@
     !!----    subroutine. If ERR_RotMat=.true. it means that the input matrix is not orthogonal.
     !!----    The obtained rotations should be interpreted as changes of reference systems, the
     !!----    angles correspond to the motor settings to put a reciprocal vector in Cartesian
-    !!----    coordinates w.r.t. the L-sysmem (all angles equal to zero) in the position given
+    !!----    coordinates w.r.t. the L-system (all angles equal to zero) in the position given
     !!----    by the active rotation matrix Mt:  z4= Mt z1.
     !!----
     !!---- Updated: March - 2013
