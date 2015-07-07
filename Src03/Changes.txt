@@ -1,5 +1,9 @@
 List of Changes
 ====================
+Date:07/07/2015
+----------------
+CFML_Diffraction_Patterns: Changes in the name of variables of the type Diffraction_Pattern_Type
+CFML_BVS_Table: Rename references variable for BVS_Ref
 
 Date:03/07/2015
 ----------------

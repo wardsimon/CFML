@@ -202,8 +202,8 @@
     !!---- Update: February - 2005
     !!
     Type, Public :: Err_Text_Type
-       integer                           :: nlines
-       character (len=132), dimension(5) :: txt
+       integer                           :: nlines=0
+       character (len=132), dimension(5) :: txt=" "
     End Type Err_Text_Type
 
     !!--++

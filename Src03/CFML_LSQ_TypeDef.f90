@@ -137,13 +137,13 @@ Module CFML_LSQ_TypeDef
    !!---- Update: August - 2009
    !!
    Type :: LSQ_Data_Type
-      integer                                    :: nobs  !total number of observations
-      integer                                    :: iw    !Indicator for type of values contained in component sw
-      real(kind=cp),    dimension(:),allocatable :: x     !Vector containing a relevant quantity for each observation (x-coordinate ...)
-      real(kind=cp),    dimension(:),allocatable :: y     !Vector containing the observed values
-      real(kind=cp),    dimension(:),allocatable :: sw    !Vector containing the standard deviation of observations if iw=0
+      integer                                 :: nobs=0  !total number of observations
+      integer                                 :: iw=0    !Indicator for type of values contained in component sw
+      real(kind=cp), dimension(:),allocatable :: x     !Vector containing a relevant quantity for each observation (x-coordinate ...)
+      real(kind=cp), dimension(:),allocatable :: y     !Vector containing the observed values
+      real(kind=cp), dimension(:),allocatable :: sw    !Vector containing the standard deviation of observations if iw=0
                                                           !or the weight factors for least squares refinement if iw=1
-      real(kind=cp),    dimension(:),allocatable :: yc    !Vector containing the calculated values
+      real(kind=cp), dimension(:),allocatable :: yc    !Vector containing the calculated values
    End Type LSQ_Data_type
 
    !!----

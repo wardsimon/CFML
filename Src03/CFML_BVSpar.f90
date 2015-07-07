@@ -438,7 +438,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=*),dimension(0:35),parameter, public :: references = (/  &
+    character(len=*),dimension(0:35),parameter, public :: BVS_Ref = (/  &
          "Unknown                                                                         ", &  !0
          "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
          "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &  !2
