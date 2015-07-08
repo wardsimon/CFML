@@ -1,5 +1,12 @@
 List of Changes
 ====================
+Date:08/07/2015
+----------------
+CFML_Crystal_Metrics: Reorder in the CRYSTAL_CELL_TYPE definition
+CFML_Crystal_Metrics: OK argument has been eliminated in Get_Basis_From_UVW. Now any problem is reported using Err_Crys variable.
+CFML_Crystal_Metrics: OK argument has been eliminated in Get_Conventional_Cell. Now any problem is reported using Err_Crys variable.
+CFML_Crystal_Metrics: OK argument has been eliminated in Get_Transfm_Matrix. Now any problem is reported using Err_Crys variable.
+
 Date:07/07/2015
 ----------------
 CFML_Diffraction_Patterns: Changes in the name of variables of the type Diffraction_Pattern_Type
