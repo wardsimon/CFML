@@ -1,5 +1,13 @@
 List of Changes
 ====================
+Date:09/07/2015
+----------------
+CFML_ILL_Instrm_Data: Deleted "save" argument in CURRENT_ORIENT variable (Why use save in a general variable name?)
+CFML_ILL_Instrm_Data: Initializing as blank line in the definition for ILL_Data_Directory
+CFML_ILL_Instrm_Data: Initializing as blank line in the definition for ILL_Temp_directory
+CFML_Crystal_Metrics: Changes in Read_Bin_Crystal_Cell and Write_Bin_Crystal_Cell
+
+
 Date:08/07/2015
 ----------------
 CFML_Crystal_Metrics: Reorder in the CRYSTAL_CELL_TYPE definition

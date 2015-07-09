@@ -2174,7 +2174,7 @@
 
        if (.not. ok) then
           err_crys=.true.
-          err_crys_mess='Error in Get_Transfm_Matrix')
+          err_crys_mess='Error in Get_Transfm_Matrix'
        end if
 
        return
@@ -2550,7 +2550,7 @@
           ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
           call Set_Crystal_Cell(cel,ang, Celln)
           if (present(trans)) then
-            Call Get_Transfm_Matrix(cellp,celln,trm,ok)
+            Call Get_Transfm_Matrix(cellp,celln,trm)
             if(ok) then
               trans=trm
             else
@@ -2729,10 +2729,9 @@
     End Subroutine Niggli_Cell_Vect
 
     !!----
-    !!---- Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
-    !!----    Type (Crystal_Cell_Type),  intent(out) :: Celda   ! Out -> Cell variable
-    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
-    !!----    logical,                   intent(out) :: ok
+    !!---- Subroutine Read_Bin_Crystal_Cell(Lun,Cell)
+    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to Read
+    !!----    Type (Crystal_Cell_Type),  intent(out) :: Cell   ! Out -> Cell variable
     !!----
     !!----    Reads the cell characteristics in a binary file associated to the
     !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
@@ -2740,29 +2739,41 @@
     !!----
     !!----    Updated: February - 2013
     !!
-    Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
+    Subroutine Read_Bin_Crystal_Cell(Lun,Cell)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(out) :: Celda
        Integer,                   intent(in)  :: Lun
-       logical,                   intent(out) :: ok
+       Type (Crystal_Cell_Type),  intent(out) :: Cell
+
+       !---- Local Variables ----!
        integer :: ier
-       ok=.true.
-       read(unit=lun,iostat=ier)             &
-                       Celda%cell,           &
-                       Celda%ang,            &
-                       Celda%cell_std,       &
-                       Celda%ang_std,        &
-                       Celda%rcell,          &
-                       Celda%rang,           &
-                       Celda%GD,Celda%GR,    &
-                       Celda%Cr_Orth_cel,    &
-                       Celda%Orth_Cr_cel,    &
-                       Celda%BL_M,           &
-                       Celda%BL_Minv,        &
-                       Celda%CellVol,        &
-                       Celda%RCellVol,       &
-                       Celda%CartType
-       if( ier /= 0) ok=.false.
+
+       !> Init
+       call init_err_crys()
+
+       read(unit=lun,iostat=ier)            &
+                       cell%cell,           &
+                       cell%ang,            &
+                       cell%cell_std,       &
+                       cell%ang_std,        &
+                       cell%lcell,          &
+                       cell%lang,           &
+                       cell%rcell,          &
+                       cell%rang,           &
+                       cell%GD,             &
+                       cell%GR,             &
+                       cell%Cr_Orth_cel,    &
+                       cell%Orth_Cr_cel,    &
+                       cell%BL_M,           &
+                       cell%BL_Minv,        &
+                       cell%CellVol,        &
+                       cell%RCellVol,       &
+                       cell%CartType
+
+       if( ier /= 0) then
+         err_crys=.true.
+         err_crys_mess="Error reading a Cell information on a binary file!"
+       end if
+
        return
     End Subroutine Read_Bin_Crystal_Cell
 
@@ -2849,9 +2860,9 @@
        else
           Cell%cell_std=0.0
           Cell%ang_std=0.0
-          Cell%lcell=0    !These codes are attributed in refinement programs
-          Cell%lang=0     !In order to preserve the values given by these programs the
-       end if              !procedure should be invoked with standard deviations
+          Cell%lcell=0       !These codes are attributed in refinement programs
+          Cell%lang=0        !In order to preserve the values given by these programs the
+       end if                !procedure should be invoked with standard deviations
 
        Cell%cell=cellv
        Cell%ang=angl
@@ -2970,9 +2981,9 @@
     End Subroutine Volume_Sigma_from_Cell
 
     !!----
-    !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
-    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
+    !!---- Subroutine Write_Crystal_Cell(Lun,Cell)
     !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
+    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Cell    !  In -> Cell variable
     !!----
     !!----    Writes the cell characteristics in a binary file associated to the
     !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
@@ -2980,30 +2991,47 @@
     !!----
     !!---- Update: February - 2013
     !!
-    Subroutine Write_Bin_Crystal_Cell(Celda,Lun)
+    Subroutine Write_Bin_Crystal_Cell(Lun,Cell)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(in) :: Celda
        Integer,                   intent(in) :: Lun
-       write(unit=lun) Celda%cell,           &
-                       Celda%ang,            &
-                       Celda%cell_std,       &
-                       Celda%ang_std,        &
-                       Celda%rcell,          &
-                       Celda%rang,           &
-                       Celda%GD,Celda%GR,    &
-                       Celda%Cr_Orth_cel,    &
-                       Celda%Orth_Cr_cel,    &
-                       Celda%BL_M,           &
-                       Celda%BL_Minv,        &
-                       Celda%CellVol,        &
-                       Celda%RCellVol,       &
-                       Celda%CartType
+       Type (Crystal_Cell_Type),  intent(in) :: Cell
+
+       !---- Local Variables ----!
+       integer :: ier
+
+       !> Init
+       call init_err_crys()
+
+       write(unit=lun,iostat=ier)           &
+                       cell%cell,           &
+                       cell%ang,            &
+                       cell%cell_std,       &
+                       cell%ang_std,        &
+                       cell%lcell,          &
+                       cell%lang,           &
+                       cell%rcell,          &
+                       cell%rang,           &
+                       cell%GD,             &
+                       cell%GR,             &
+                       cell%Cr_Orth_cel,    &
+                       cell%Orth_Cr_cel,    &
+                       cell%BL_M,           &
+                       cell%BL_Minv,        &
+                       cell%CellVol,        &
+                       cell%RCellVol,       &
+                       cell%CartType
+
+       if( ier /= 0) then
+         err_crys=.true.
+         err_crys_mess="Error writting a Cell information on a binary file!"
+       end if
+
        return
     End Subroutine Write_Bin_Crystal_Cell
 
     !!----
-    !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
-    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
+    !!---- Subroutine Write_Crystal_Cell(Cell, Lun)
+    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Cell    !  In -> Cell variable
     !!----    Integer,optional           intent(in)  :: lun     !  In -> Unit to write
     !!----
     !!----    Writes the cell characteristics in a file associated to the
@@ -3011,9 +3039,9 @@
     !!----
     !!---- Update: January - 2011
     !!
-    Subroutine Write_Crystal_Cell(Celda,Lun)
+    Subroutine Write_Crystal_Cell(Cell,Lun)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(in) :: Celda
+       Type (Crystal_Cell_Type),  intent(in) :: Cell
        Integer,optional,          intent(in) :: Lun
 
        !---- Local variables ----!
@@ -3026,21 +3054,21 @@
        Write(unit=iunit,fmt="(/,a)")    "        Metric information:"
        Write(unit=iunit,fmt="(a,/)")    "        -------------------"
        Write(unit=iunit,fmt="(a,/)")    " => Direct cell parameters:"
-       Write(unit=iunit,fmt="(3(a,f12.4))")"         a = ", Celda%cell(1),"      b = ", Celda%cell(2), "      c = ", Celda%cell(3)
-       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha = ", Celda%ang(1) ,"   beta = ", Celda%ang(2) , "  gamma = ", Celda%ang(3)
-       Write(unit=iunit,fmt="(a,f12.4)")   "                        Direct Cell Volume = ",Celda%CellVol
+       Write(unit=iunit,fmt="(3(a,f12.4))")"         a = ", cell%cell(1),"      b = ", cell%cell(2), "      c = ", cell%cell(3)
+       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha = ", cell%ang(1) ,"   beta = ", cell%ang(2) , "  gamma = ", cell%ang(3)
+       Write(unit=iunit,fmt="(a,f12.4)")   "                        Direct Cell Volume = ",cell%CellVol
        Write(unit=iunit,fmt="(/,a,/)")     " => Reciprocal cell parameters:"
-       Write(unit=iunit,fmt="(3(a,f12.6))")"         a*= ", Celda%rcell(1),"      b*= ",Celda%rcell(2),"      c*= ", Celda%rcell(3)
-       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha*= ", Celda%rang(1) ,"   beta*= ",Celda%rang(2) ,"  gamma*= ", Celda%rang(3)
-       Write(unit=iunit,fmt="(a,f12.8)")   "                    Reciprocal Cell Volume = ",Celda%RCellVol
+       Write(unit=iunit,fmt="(3(a,f12.6))")"         a*= ", cell%rcell(1),"      b*= ",cell%rcell(2),"      c*= ", cell%rcell(3)
+       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha*= ", cell%rang(1) ,"   beta*= ",cell%rang(2) ,"  gamma*= ", cell%rang(3)
+       Write(unit=iunit,fmt="(a,f12.8)")   "                    Reciprocal Cell Volume = ",cell%RCellVol
        Write(unit=iunit,fmt="(/,a,/)")     " => Direct and Reciprocal Metric Tensors:"
        Write(unit=iunit,fmt="(a)")         "                   GD                                       GR"
 
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%GD(i,j),j=1,3),"      ", (Celda%GR(i,j),j=1,3)
+          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (cell%GD(i,j),j=1,3),"      ", (cell%GR(i,j),j=1,3)
        end do
 
-       if (Celda%CartType == "A") then
+       if (cell%CartType == "A") then
           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
        else
           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
@@ -3049,13 +3077,13 @@
        Write(unit=iunit,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
        Write(unit=iunit,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%Cr_Orth_cel(i,j),j=1,3),"      ", (Celda%Orth_Cr_cel(i,j),j=1,3)
+          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (cell%Cr_Orth_cel(i,j),j=1,3),"      ", (cell%Orth_Cr_cel(i,j),j=1,3)
        end do
 
        Write(unit=iunit,fmt="(/,a)")     "     Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix"
        Write(unit=iunit,fmt="(a)")       "                BL_M                                      BL_Minv  "
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.6,a,3f12.4)") (Celda%BL_M(i,j),j=1,3),"      ", (Celda%BL_Minv(i,j),j=1,3)
+          Write(unit=iunit,fmt="(3f12.6,a,3f12.4)") (cell%BL_M(i,j),j=1,3),"      ", (cell%BL_Minv(i,j),j=1,3)
        end do
 
        return
