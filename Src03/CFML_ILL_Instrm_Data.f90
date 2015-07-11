@@ -1638,7 +1638,7 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Num)
+    Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Numors)
        !---- Arguments ----!
        integer,                                           intent(in)     :: num_max
        integer,                                           intent(in)     :: ndata
@@ -5589,6 +5589,7 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Set_Instrm_Directory
+
     !!----
     !!---- Subroutine Set_Instrm_Geometry_Directory(env_var)
     !!----    character(len=*),  intent(in), optional :: env_var
