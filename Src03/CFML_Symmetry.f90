@@ -217,14 +217,14 @@
     !---- Definitions ----!
 
     !!----
-    !!---- CUBIC
-    !!----    integer, parameter, public :: Cubic
+    !!---- IND_GRP_CUBIC
+    !!----    integer, parameter, public :: IND_GRP_CUBIC
     !!----
     !!----    Cubic parameter index: Cubic = 554
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Cubic = 554
+    integer, parameter, public :: IND_GRP_CUBIC = 554
 
     !!--++
     !!--++ eps_symm
@@ -239,13 +239,13 @@
 
     !!----
     !!---- ERR_SYMM_MESS
-    !!----    character(len=150), public :: ERR_Symm_Mess
+    !!----    character(len=256), public :: ERR_Symm_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Symm_Mess
+    character(len=256), public :: ERR_Symm_Mess
 
     !!----
     !!---- ERR_SYMM
@@ -264,7 +264,7 @@
     !!--++    integer          :: orden
     !!--++    character(len=1) :: axes
     !!--++    character(len=1) :: axes2
-    !!--++    character(len=2) :: tras
+    !!--++    character(len=3) :: tras
     !!--++ End Type Gener_Oper_Type
     !!--++
     !!--++ Update: February - 2005

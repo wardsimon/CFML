@@ -43,21 +43,8 @@
 !!--..
 !!---- HISTORY
 !!----
-!!----    Update: 02/03/2011
+!!----    Update: 11/07/2015
 !!----
-!!---- DEPENDENCIES
-!!----
-!!---- VARIABLES
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       ERROR_MESSAGE
-!!----       INFO_MESSAGE
-!!----       PRINT_MESSAGE
-!!----       WAIT_MESSAGE
-!!----       WRITE_SCROLL_TEXT
 !!----
 !!
  Module CFML_IO_Messages
@@ -66,31 +53,31 @@
     !---- Definitions ----!
     implicit none
 
-    !---- List of public subroutines ----!
-    public :: Info_Message, Error_Message, Print_Message, Wait_Message, Write_Scroll_Text
+    public
+
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    integer :: win_console= -1                   ! Code number for Scroll Window (Variable only in use for Winteracter code)
 
 
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
-    !!----    character(len=*), intent(in)           :: Mess          !  In -> Error information
-    !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
-    !!----    character(len=*), intent(in), optional :: Routine       !  In -> The subroutine where the error occured
-    !!----    logical,          intent(in), optional :: Fatal         !  In -> Should the program stop here ?
+    !!---- SUBROUTINE ERROR_MESSAGE
     !!----
     !!----    Print an error message on the screen or in "Iunit" if present
     !!----    If "routine" is present the subroutine where the occured will be also displayed.
     !!----    If "fatal" is present and .True. the program will stop after the printing.
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 11/07/2015
     !!
     Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       Character ( Len = * ), Intent(In)           :: Mess
-       Integer,               Intent(In), Optional :: Iunit
-       Character ( Len = * ), Intent(In), Optional :: Routine
-       Logical,               Intent(In), Optional :: Fatal
+       Character ( Len = * ), Intent(In)           :: Mess       ! Error information
+       Integer,               Intent(In), Optional :: Iunit      ! Write information on Iunit unit
+       Character ( Len = * ), Intent(In), Optional :: Routine    ! The subroutine where the error occured
+       Logical,               Intent(In), Optional :: Fatal      ! Should the program stop here ?
 
        !---- Local Variables ----!
        Integer          :: Lun, Lenm, Lenr
@@ -121,18 +108,16 @@
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(Mess, Iunit)
-    !!----    character(len=*), intent(in)           :: Mess          !  In -> Info information
-    !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
+    !!---- SUBROUTINE INFO_MESSAGE
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Info_Message(Mess, iunit)
        !---- Arguments ----!
-       character(len=*), intent(in)           :: Mess
-       integer,          intent(in), optional :: iunit
+       character(len=*), intent(in)           :: Mess       ! Info information
+       integer,          intent(in), optional :: iunit      ! Write information on Iunit unit
 
        !---- Local Variables ----!
        integer :: lun
@@ -145,16 +130,15 @@
     End Subroutine Info_Message
 
     !!----
-    !!---- Subroutine Print_Message(Mess)
-    !!----    character(len=*), intent(in)  :: Mess    !  In -> Print information
+    !!---- SUBROUTINE PRINT_MESSAGE
     !!----
     !!----    Print an message on the screen
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Print_Message(Mess)
        !---- Arguments ----!
-       character(len=*),intent(in) ::  Mess
+       character(len=*),intent(in) ::  Mess ! Print information
 
        !---- Local Variables ----!
        integer :: lon
@@ -174,16 +158,15 @@
     End Subroutine Print_Message
 
     !!----
-    !!---- Subroutine Wait_Message(Mess)
-    !!----    character(len=*), optional, intent(in) :: Mess
+    !!---- SUBROUTINE WAIT_MESSAGE
     !!----
     !!----    Similar to Pause for Console version
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Wait_Message(Mess)
        !---- Argument ----!
-       character(len=*), optional, intent(in) :: Mess
+       character(len=*), optional, intent(in) :: Mess    ! Message
 
        !---- Local variable ----!
        character(len=1) :: car
@@ -197,16 +180,15 @@
     End Subroutine Wait_Message
 
     !!----
-    !!---- Subroutine Write_Scroll_Text(Mess)
-    !!----    character(len=*), intent(in) :: Mess
+    !!---- SUBROUTINE WRITE_SCROLL_TEXT
     !!----
     !!----    Print the string in a default output unit
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Write_Scroll_Text(Mess)
        !---- Argument ----!
-       character(len=*), intent(in) :: Mess
+       character(len=*), intent(in) :: Mess   ! Message
 
        write(unit=*, fmt="(a)") trim(mess)
 

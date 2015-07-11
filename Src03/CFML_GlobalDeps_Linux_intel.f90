@@ -32,42 +32,13 @@
 !!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
-!!---- MODULE: CFML_GlobalDeps (Windows version)
+!!---- MODULE: CFML_GlobalDeps (Linux version)
 !!----   INFO: Precision for CrysFML library and Operating System information
 !!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
 !!--..    Update: 19/03/2015
 !!--..
-!!---- VARIABLES
-!!--..
-!!--..    Operating system
-!!--..
-!!----    OPS
-!!----    OPS_NAME
-!!----    OPS_SEP
-!!--..
-!!--..    Precision Data
-!!--..
-!!----    SP
-!!----    DP
-!!----    CP
-!!--..
-!!--..    Trigonometric
-!!--..
-!!----    PI
-!!----    TO_DEG
-!!----    TO_RAD
-!!----    TPI
-!!--..
-!!--..    Numeric
-!!--..
-!!----    DEPS
-!!----    EPS
-!!--..
-!!---- FUNCTIONS
-!!--..
-!!----    DIRECTORY_EXISTS
 !!----
 !!
 Module CFML_GlobalDeps
@@ -76,136 +47,29 @@ Module CFML_GlobalDeps
 
    public
 
-   !------------------------------------!
-   !---- Operating System variables ----!
-   !------------------------------------!
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
 
-   !!----
-   !!---- OPS
-   !!----   Integer variable 1: Windows, 2: Linux, 3: MacOs, ....
-   !!----   This is a variable set by the user of the library for the case
-   !!----   that there is no external library with a procedure for getting
-   !!----   the operating system.
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   integer, parameter :: OPS= 2    ! Linux
+   !---- Operating System ----!
+   character(len=*), parameter :: OPS_NAME = "Linux"             ! O.S. Name
+   character(len=*), parameter :: OPS_SEP = "/"                  ! O.S. directory separator character
+   integer,          parameter :: OPS = 2                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
 
-   !!----
-   !!---- OPS_NAME
-   !!----   Character variable containing the name of the operating system
-   !!----   This is a variable set by the user of the library for the case
-   !!----   that there is no external library with a procedure for getting
-   !!----   the operating system.
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   character(len=*), parameter :: OPS_NAME="Linux"
+   !---- Precision ----!
+   integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
+   integer, parameter :: SP = selected_real_kind(6,30)           ! Simple precision
+   integer, parameter :: CP = SP                                 ! Current precision
 
-   !!----
-   !!---- OPS_SEP
-   !!----   ASCII code of directory separator character
-   !!----   Here it is written explicitly as a character variable
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   character(len=*), parameter :: OPS_SEP="/"
+   !---- Trigonometric ----!
+   real(kind=DP), parameter :: PI = 3.141592653589793238463_dp   ! PI value
+   real(kind=DP), parameter :: TO_DEG  = 180.0_dp/PI             ! Conversion from Radians to Degrees
+   real(kind=DP), parameter :: TO_RAD  = pi/180.0_dp             ! Conversion from Degrees to Radians
+   real(kind=DP), parameter :: TPI = 6.283185307179586476925_dp  ! 2*PI
 
-   !------------------------------!
-   !---- Precision Parameters ----!
-   !------------------------------!
-
-   !!----
-   !!---- SP
-   !!----    SP: Single precision ( sp = selected_real_kind(6,30) )
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   integer, parameter :: sp = selected_real_kind(6,30)
-
-   !!----
-   !!---- DP
-   !!----    DP: Double precision ( dp = selected_real_kind(14,150) )
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   integer, parameter :: dp = selected_real_kind(14,150)
-
-   !!----
-   !!---- CP
-   !!----    CP: Current precision
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   integer, parameter :: cp = sp
-
-   !----------------------------------!
-   !---- Trigonometric Parameters ----!
-   !----------------------------------!
-
-   !!----
-   !!---- PI
-   !!----    real(kind=dp), parameter ::  pi = 3.141592653589793238463_dp
-   !!----
-   !!----    Pi value
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   real(kind=dp), parameter ::  pi = 3.141592653589793238463_dp
-
-   !!----
-   !!---- TO_DEG
-   !!----    real(kind=dp), parameter ::  to_DEG = 180.0_dp/pi
-   !!----
-   !!----    Conversion from Radians to Degrees
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   real(kind=dp), parameter ::  to_DEG  = 180.0_dp/pi
-
-   !!----
-   !!---- TO_RAD
-   !!----    real(kind=dp), parameter ::  to_RAD  = pi/180.0_dp
-   !!----
-   !!----    Conversion from Degrees to Radians
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   real(kind=dp), parameter ::  to_RAD  = pi/180.0_dp
-
-   !!----
-   !!---- TPI
-   !!----  real(kind=dp), parameter ::  tpi = 6.283185307179586476925_dp
-   !!----
-   !!----  2.0*Pi value
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   real(kind=dp), parameter ::  tpi = 6.283185307179586476925_dp
-
-   !----------------------------!
-   !---- Numeric Parameters ----!
-   !----------------------------!
-
-   !!----
-   !!---- DEPS
-   !!----    real(kind=dp), parameter :: deps=0.00000001_dp
-   !!----
-   !!----    Epsilon value use for comparison of real numbers
-   !!----
-   !!---- Update: 19/03/2015
-   !!
-   real(kind=dp), parameter :: deps=0.00000001_dp
-
-   !!----
-   !!----  EPS
-   !!----     real(kind=cp), public ::  eps=0.00001_cp
-   !!----
-   !!----     Epsilon value use for comparison of real numbers
-   !!----
-   !!----  Update: 19/03/2015
-   !!
-   real(kind=cp),  parameter  ::  eps=0.00001_cp
+   !---- Numeric ----!
+   real(kind=DP), parameter :: DEPS=0.00000001_dp                ! Epsilon value use for comparison of real numbers (DOUBLE)
+   real(kind=CP), parameter :: EPS=0.00001_cp                    ! Epsilon value use for comparison of real numbers (SIMPLE)
 
  Contains
 
@@ -214,19 +78,17 @@ Module CFML_GlobalDeps
    !-------------------!
 
    !!----
-   !!---- Function Directory_Exists(Dirname) Result(info)
-   !!----    character(len=*), intent(in) :: Dirname
-   !!----    logical                      :: info
+   !!---- FUNCTION DIRECTORY_EXISTS
    !!----
-   !!---- Generic function dependent of the compiler that return
-   !!---- a logical value if a directory exists or not.
+   !!----    Generic function dependent of the compiler that return
+   !!----    a logical value if a directory exists or not.
    !!----
-   !!---- Update: 19/03/2015
+   !!---- Update: 11/07/2015
    !!
    Function Directory_Exists(Dirname) Result(info)
       !---- Argument ----!
-      character(len=*), intent(in) :: Dirname
-      logical                      :: info
+      character(len=*), intent(in) :: Dirname     ! Directory name
+      logical                      :: info        ! Return value
 
       !---- Local Variables ----!
       character(len=1024) :: linea
@@ -241,10 +103,10 @@ Module CFML_GlobalDeps
 
       if (linea(nlong:nlong) /= ops_sep) linea=trim(linea)//ops_sep
 
-      ! All compilers except Intel
+      !> All compilers except Intel
       !inquire(file=trim(linea)//'.' , exist=info)
 
-      ! Intel
+      !> Intel
       inquire(directory=trim(linea), exist=info)
 
       return

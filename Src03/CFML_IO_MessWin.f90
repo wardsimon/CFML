@@ -43,78 +43,44 @@
 !!--..
 !!---- HISTORY
 !!----
-!!----    Update: 02/03/2011
+!!----    Update: 11/07/2015
 !!----
-!!---- DEPENDENCIES
-!!--++    Winteracter or X/Winteracter Library
-!!----
-!!---- VARIABLES
-!!----    WIN_CONSOLE
-!!--++    WSCROLL                      [Private]
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       CLOSE_SCROLL_WINDOW
-!!----       ERROR_MESSAGE
-!!----       INFO_MESSAGE
-!!----       QUESTION_MESSAGE
-!!----       STOP_MESSAGE
-!!----       WARNING_MESSAGE
-!!----       WRITE_SCROLL_TEXT
 !!----
 !!
- Module CFML_IO_Messages
-    !---- Use Modules ----!
-    use Winteracter, only: YesNo,OKOnly,CommonYes, CommonOK, Modeless, ViewOnly,         &
-                           WordWrap, NoMenu, NoToolbar, SystemFixed, EditTextLength,     &
-                           ScreenHeight, StopIcon,InformationIcon, ExclamationIcon,      &
-                           QuestionIcon, WMessageBox, WindowCloseChild, WindowOpenChild, &
-                           WEditFile, WEditPutTextPart, WindowSelect, WInfoEditor,       &
-                           CommandLine,WInfoScreen,CourierNew,win_message
+Module CFML_IO_Messages
+   !---- Use Modules ----!
+   use Winteracter, only: YesNo,OKOnly,CommonYes, CommonOK, Modeless, ViewOnly,         &
+                          WordWrap, NoMenu, NoToolbar, SystemFixed, EditTextLength,     &
+                          ScreenHeight, StopIcon,InformationIcon, ExclamationIcon,      &
+                          QuestionIcon, WMessageBox, WindowCloseChild, WindowOpenChild, &
+                          WEditFile, WEditPutTextPart, WindowSelect, WInfoEditor,       &
+                          CommandLine,WInfoScreen,CourierNew,win_message
 
-    use CFML_GlobalDeps, only: OPS
+   use CFML_GlobalDeps, only: OPS
 
-    !---- Definitions ----!
-    implicit none
+   !---- Definitions ----!
+   implicit none
 
-    private
+   private
 
-    !---- List of public subroutines ----!
-    public :: Close_scroll_window, error_message, info_message, question_message, warning_message, &
-              stop_message, write_scroll_text
+   !---- public subroutines ----!
+   public :: Close_scroll_window, error_message, info_message, question_message, warning_message, &
+             stop_message, write_scroll_text
 
-    !---- Definitions ----!
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   logical         :: wscroll = .false.            ! Flag to indicate if Scroll Window is active
+   integer, public :: win_console= -1              ! Code number for Scroll Window
 
-    !!----
-    !!---- WIN_CONSOLE
-    !!----    integer, private :: icwindow
-    !!----
-    !!----    Code number for Scroll Window
-    !!----
-    !!---- Update: March - 2005
-    !!
-    integer, public :: win_console= -1
-
-    !!--++
-    !!--++ WSCROLL
-    !!--++    logical, private :: wscroll
-    !!--++
-    !!--++    Logical variable to indicate if the Scroll Window is
-    !!--++    active or not.
-    !!--++
-    !!--++ Update: March - 2005
-    !!
-    logical, private :: wscroll = .false.
 
  Contains
     !!----
-    !!---- SUBROUTINE CLOSE_SCROLL_WINDOW()
+    !!---- SUBROUTINE CLOSE_SCROLL_WINDOW
     !!----
     !!----    Close the Scroll Window
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Close_Scroll_Window()
 
@@ -126,23 +92,20 @@
     End Subroutine Close_Scroll_Window
 
     !!----
-    !!---- Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
-    !!----    character(len=*), intent(in)           :: Mess    !  In -> Error information
-    !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
-    !!----    character(len=*), intent(in), optional :: routine !  Added for consistency with the CFML_IO_Mess.f90 version.
-    !!----    logical,          intent(in), optional :: fatal   !  Added for consistency with the CFML_IO_Mess.f90 version.
+    !!---- SUBROUTINE ERROR_MESSAGE
     !!----
     !!----    Print an error message on the screen and in "Iunit" if present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*),            intent(in) :: Mess
-       integer, optional,           intent(in) :: iunit
-       Character(Len =*), Optional, Intent(In) :: Routine
-       Logical, Optional,           Intent(In) :: Fatal
+       character(len=*),            intent(in) :: Mess         ! Error information
+       integer, optional,           intent(in) :: iunit        ! Write information on Iunit unit
+       Character(Len =*), Optional, Intent(In) :: Routine      ! Added for consistency with the CFML_IO_Mess.f90 version.
+       Logical,           Optional, Intent(In) :: Fatal        ! Added for consistency with the CFML_IO_Mess.f90 version.
 
+       !> Init
        call WMessageBox(OKOnly, ExclamationIcon, CommonOK, Mess,"Error Message")
 
        if (present(iunit)) then
@@ -165,18 +128,16 @@
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(Mess, Iunit)
-    !!----    character(len=*), intent(in)           :: Mess    !  In -> Info information
-    !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
+    !!---- SUBROUTINE INFO_MESSAGE
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Info_Message(Mess, iunit)
        !---- Arguments ----!
-       character(len=*), intent(in)           :: Mess
-       integer,          intent(in), optional :: iunit
+       character(len=*), intent(in)           :: Mess       ! Info information
+       integer,          intent(in), optional :: iunit      ! Write information on Iunit unit
 
        call WMessageBox(OKOnly, InformationIcon, CommonOK, Mess,"Information Message")
 
@@ -190,17 +151,16 @@
     End Subroutine Info_Message
 
     !!----
-    !!---- Subroutine Question_Message(Mess,Title
-    !!----    character(len=*)  :: Mess
+    !!---- SUBROUTINE QUESTION_MESSAGE
     !!----
     !!----    Print an question on the screen
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Question_Message(Mess,Title)
        !---- Argument ----!
-       character (len=*),           intent(in) :: Mess
-       character (len=*), optional, intent(in) :: Title
+       character (len=*),           intent(in) :: Mess       ! Message
+       character (len=*), optional, intent(in) :: Title      ! Title in the Pop-up
 
        !---- Variable ----!
        character(len=80) :: ch_title
@@ -213,17 +173,16 @@
     End Subroutine Question_Message
 
     !!----
-    !!---- Subroutine Stop_Message(Mess,Title)
-    !!----    character(len=*)  :: Mess
+    !!---- SUBROUTINE STOP_MESSAGE
     !!----
     !!----    Print an Stop on the screen
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Stop_Message(Mess,Title)
        !---- Argument ----!
-       character (len=*),           intent(in) :: Mess
-       character (len=*), optional, intent(in) :: Title
+       character (len=*),           intent(in) :: Mess     ! Message
+       character (len=*), optional, intent(in) :: Title    ! Title in the Pop-up
 
        !---- Variable ----!
        character(len=80) :: ch_title
@@ -236,18 +195,16 @@
     End Subroutine Stop_Message
 
     !!----
-    !!---- SUBROUTINE WARNING_MESSAGE(Mess, Iunit)
-    !!----    character(len=*), intent(in)           :: Mess    !  In -> Info information
-    !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
+    !!---- SUBROUTINE WARNING_MESSAGE
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Warning_Message(Mess, Iunit)
        !---- Arguments ----!
-       character(len=*), intent(in) :: Mess
-       integer, optional,intent(in) :: iunit
+       character(len=*), intent(in) :: Mess            ! Message
+       integer, optional,intent(in) :: iunit           ! Write information on Iunit unit
 
        call WMessageBox(OKOnly,ExclamationIcon,CommonOK, Mess,"Warning Message")
 
@@ -261,18 +218,16 @@
     End Subroutine Warning_Message
 
     !!----
-    !!---- Subroutine Write_Scroll_Text(Mess, ICmd)
-    !!----    character(len=*), intent(in)  :: Mess    ! Message to write
-    !!----    integer, optional,intent(in)  :: ICmd    ! Define the type of the Editor opened
+    !!---- SUBROUTINE WRITE_SCROLL_TEXT
     !!----
     !!----    Print the string in a the window
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Write_Scroll_Text(Mess,ICmd)
        !---- Argument ----!
-       character(len=*), intent(in) :: Mess
-       integer, optional,intent(in) :: ICmd
+       character(len=*), intent(in) :: Mess     ! Message to write
+       integer, optional,intent(in) :: ICmd     ! Define the type of the Editor opened
 
        !---- Local variables ----!
        character(len=2), save :: newline = char(13)//char(10)

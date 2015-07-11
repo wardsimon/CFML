@@ -35,8 +35,7 @@
 !!---- MODULE: CFML_FFT
 !!----   INFO: FFT Calculations Routines
 !!----
-!!---- HISTORY
-!!--..    Update: 02/03/2011
+!!---- INFORMATION
 !!--..
 !!--..    Multivariate Fast Fourier Transform
 !!--..    Fortran 90 (ELF90) Implementation of Singleton's mixed-radix
@@ -162,38 +161,8 @@
 !!---- DEPENDENCIES
 !!----    CFML_GlobalDeps, only: cp
 !!----
-!!---- VARIABLES
-!!--++    FFTKIND                  [Private]
-!!--++    COS72                    [Private]
-!!--++    PI                       [Private]
-!!--++    SIN60                    [Private]
-!!--++    SIN72                    [Private]
-!!--++    STATUSF                  [Private]
-!!--..
-!!----    POINTS_INTERVAL_TYPE
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       CONVOL
-!!----       CONVOL_PEAKS
-!!----       F_FFT
-!!----       FFT
-!!--++       FFT1D                 [Overloaded]
-!!--++       FFT2D                 [Overloaded]
-!!--++       FFT3D                 [Overloaded]
-!!--++       FFT4D                 [Overloaded]
-!!--++       FFT5D                 [Overloaded]
-!!--++       FFT6D                 [Overloaded]
-!!--++       FFT7D                 [Overloaded]
-!!----
-!!----    Subroutines:
-!!--++       FFTN                  [Private]
-!!--++       FFTRADIX
-!!--..       FACTORIZE
-!!--..       PERMUTE
-!!--..       TRANSFORM
-!!----       HFFT
-!!----       SFFT
+!!---- HISTORY
+!!--..    Update: 11/07/2015
 !!----
 !!
 Module CFML_FFT
@@ -205,110 +174,46 @@ Module CFML_FFT
 
    private
 
-   !---- List of public variables ----!
-
-   !---- List of public functions ----!
+   !---- PUBLIC FUNCTIONS ----!
    public :: Convol, Convol_Peaks, F_FFT
-
-   !---- List of public overloaded procedures: functions ----!
    public :: FFT
-
-   !---- List of public subroutines ----!
    public :: SFFT, HFFT
 
-   !---- List of public overloaded procedures: subroutines ----!
 
-   !---- List of private functions ----!
-   private :: Fft1D, Fft2D, Fft3D, Fft4D, Fft5D, Fft6D, FFt7D
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
+   integer, parameter:: FFTKIND = Kind(0.0)                             ! Default Precicion for FFT Variables.
+                                                                        ! Adjust Here For Other Precisions
 
-   !---- List of private subroutines ----!
-   private :: FFTN
+   real(kind=FFTKIND), parameter:: Cos72 = 0.30901699437494742_Fftkind  ! COS72
+   real(kind=FFTKIND), parameter:: Pi    = 3.14159265358979323_Fftkind  ! Pi
+   real(kind=FFTKIND), parameter:: Sin60 = 0.86602540378443865_Fftkind  ! SIN60
+   real(kind=FFTKIND), parameter:: Sin72 = 0.95105651629515357_Fftkind  ! SIN72
 
-   !---- Definitions ----!
 
-   !!--++
-   !!--++ FFTKIND
-   !!--++    integer, private, parameter:: Fftkind = Kind(0.0)
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Default Precicion for FFT Variables
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   integer, private, parameter:: Fftkind = Kind(0.0) !--- Adjust Here For Other Precisions
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
 
-   !!--++
-   !!--++ COS72
-   !!--++    Real(Fftkind), Parameter:: Cos72
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Cos72 = 0.30901699437494742_Fftkind
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   Real(Fftkind), Parameter:: Cos72 = 0.30901699437494742_Fftkind
-
-   !!--++
-   !!--++ PI
-   !!--++    Real(Fftkind), Parameter:: Pi
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Pi    = 3.14159265358979323_Fftkind
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   Real(Fftkind), Parameter:: Pi    = 3.14159265358979323_Fftkind
-
-   !!--++
-   !!--++ SIN60
-   !!--++    Real(Fftkind), Parameter:: Sin60
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Sin60 = 0.86602540378443865_Fftkind
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   Real(Fftkind), Parameter:: Sin60 = 0.86602540378443865_Fftkind
-
-   !!--++
-   !!--++ SIN72
-   !!--++    Real(Fftkind), Parameter:: Sin72
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Sin72 = 0.95105651629515357_Fftkind
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   Real(Fftkind), Parameter:: Sin72 = 0.95105651629515357_Fftkind
-
-   !!--++
-   !!--++ STATUSF
-   !!--++    integer, private, Save     :: StatusF
-   !!--++
-   !!--++    Information on FFT Routines
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   integer, private, Save     :: StatusF    !--- Shifted To Here As Elf90 Does Not Allow
-                                            !    Arguments To Be Intent(Out)
    !!----
    !!---- TYPE, public :: Points_Interval_Type
-   !!--..
-   !!---- Type, public :: Points_Interval_Type
-   !!----   integer       :: Np                 ! Number of Points
-   !!----   real(kind=cp) :: Low                ! Lower range value
-   !!----   real(kind=cp) :: High               ! Upper range value
-   !!---- End Type Points_Interval_Type
-   !!----
-   !!---- Update: April 2005
    !!----
    Type, public :: Points_Interval_Type
-     integer       :: Np
-     real(kind=cp) :: Low
-     real(kind=cp) :: High
+      integer       :: Np   = 0              ! Number of Points
+      real(kind=cp) :: Low  = 0.0            ! Lower range value
+      real(kind=cp) :: High = 0.0            ! Upper range value
    End Type Points_Interval_Type
 
+
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   integer, save :: StatusF                  ! Information on FFT Routines
+
+   !-------------------------------!
    !---- Interfaces - Overlapp ----!
+   !-------------------------------!
    Interface Fft
       Module Procedure Fft1D
       Module Procedure Fft2D
@@ -321,34 +226,18 @@ Module CFML_FFT
 
  Contains
 
+    !-------------------!
     !---- Functions ----!
+    !-------------------!
 
     !!----
-    !!---- Pure Function Convol(F,Pf,G,Pg,Interval)  Result(Conv)
-    !!----    real(kind=cp),dimension(:),          intent(in) :: Pf
-    !!----    real(kind=cp),dimension(:),          intent(in) :: Pg
-    !!----    type(Points_Interval_Type), intent(in) :: Interval
-    !!----    real(kind=cp), dimension(interval%np)           :: conv
-    !!----    Interface F_Function
-    !!----       Pure Function f(x,parf)  result (vf)
-    !!----          real(kind=cp),              intent(in) :: x
-    !!----          real(kind=cp), dimension(:),intent(in) :: parf
-    !!----          real(kind=cp)                          :: vf
-    !!----       End Function f
-    !!----    End Interface F_Function
-    !!----    Interface G_Function
-    !!----       Pure function g(x,parg)  result (vg)
-    !!----          real(kind=cp), intent(in)              :: x
-    !!----          real(kind=cp), dimension(:),intent(in) :: parg
-    !!----       End Function G
-    !!----    End Interface G_Function
+    !!---- PURE FUNCTION CONVOL
     !!----
-    !!--..
-    !!--<<   Convolution of the user-provided centred (x=0) peak functions
-    !!----   f and g. The characteristic parameters of the functions f and
-    !!----   g are provided in vectors pf and pg.
-    !!----   The intent-in Points_Interval_Type variable "Interval" gives
-    !!----   the number of points and the limits of the interval
+    !!--<<   Convolution of the user-provided centred (x=0) peak functions F and G.
+    !!----
+    !!----   The characteristic parameters of the functions F and G are provided in vectors PF and PG.
+    !!----   The intent-in Points_Interval_Type variable "Interval" gives the number of points and the
+    !!----   limits of the interval
     !!----         Number of points:  Interval%np
     !!----     Range of calculation: [ Interval%low, Interval%high ]
     !!----                    step : (Interval%high-Interval%low)/(Interval%np-1)
@@ -436,29 +325,12 @@ Module CFML_FFT
     End Function Convol
 
     !!----
-    !!---- Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np)  Result(Conv)
-    !!----    real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
-    !!----    real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
-    !!----    real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-    !!----    integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
-    !!----    Interface F_Function
-    !!----       Pure function f(x,parf)  result (vf)
-    !!----          real(kind=cp),              intent(in) :: x
-    !!----          real(kind=cp), dimension(:),intent(in) :: parf
-    !!----          real(kind=cp)                          :: vf
-    !!----       End Function F
-    !!----    End Interface F_Function
-    !!----    Interface G_Function
-    !!----       Pure function g(x,parg)  result (vg)
-    !!----          real(kind=cp), intent(in)              :: x
-    !!----          real(kind=cp), dimension(:),intent(in) :: parg
-    !!----       End Function G
-    !!----    End Interface G_Function
+    !!---- PURE FUNCTION CONVOL_PEAKS
     !!----
-    !!----   Convolution of the user-provided centred (x=0) peak functions
-    !!----   f and g. The characteristic parameters of the functions f and
-    !!----   g are provided in vectors pf and pg. The first component should
-    !!----   be the value of the parameter related to the FWHM.
+    !!----   Convolution of the user-provided centred (x=0) peak functions f and g.
+    !!----
+    !!----   The characteristic parameters of the functions f and g are provided in vectors pf and pg.
+    !!----   The first component should be the value of the parameter related to the FWHM.
     !!----   The parameter wd controls the range of the calculation in terms
     !!----   of the FWHM of peaks. The definition interval [a,b] of the peaks
     !!----   is calculated as: a=-b, with b=wd*FWHM=wd*pf(1).
@@ -595,15 +467,11 @@ Module CFML_FFT
     End Function Convol_Peaks
 
     !!----
-    !!---- Pure Function F_FFT(Array,Mode) result(fft)
-    !!----    complex, dimension(:),     intent (in) :: Array  !  In -> real array containing real parts of transform
-    !!----    character(len=*),optional, intent (in) :: Mode   !  In -> type="INV"    : backward transform
-    !!----                                                              Absent or whatever : forward transform
+    !!---- PURE FUNCTION F_FFT
     !!----
-    !!----    This Function is a slight modification of a complex split
-    !!----    radix FFT routine presented by C.S. Burrus. There is no control
-    !!----    of the error consisting in giving a dimension that is not a power
-    !!----    of two. It is the responsibility of the user to provide a complex
+    !!----    This Function is a slight modification of a complex split radix FFT routine presented
+    !!----    by C.S. Burrus. There is no control of the error consisting in giving a dimension that
+    !!----    is not a power of two. It is the responsibility of the user to provide a complex
     !!----    array of dimension equal to a power of 2.
     !!----    The function is similar to subroutine SFFT and it is useful only when
     !!----    one is interested in conserving the original array.
@@ -612,13 +480,13 @@ Module CFML_FFT
     !!----    FX = F_fft(X)
     !!----     Y = F_fft(FY,"INV")
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function F_FFT(Array,Mode ) result (fft)
        !---- Arguments ----!
-       complex, dimension(:),      intent(in) :: Array
-       character(len=*), optional, intent(in) :: Mode
-       complex, dimension(size(Array))           :: fft
+       complex, dimension(:),      intent(in) :: Array  !  In -> real array containing real parts of transform
+       character(len=*), optional, intent(in) :: Mode   !  In -> type="INV" : backward transform. Absent or whatever -> forward transform
+       complex, dimension(size(Array))        :: fft
 
        !---- Local variables ----!
        integer                               :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
@@ -743,34 +611,27 @@ Module CFML_FFT
     End Function F_FFT
 
     !!----
-    !!---- Function Fft(Array, Dim, Inv) Result(Ft)
-    !!----    complex(fftkind), dimension(:), intent(in)            :: array  !  In -> Complex array
-    !!----    integer,          dimension(:), intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!----                                                                             to be transformed
-    !!----    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!----                                                                             Default is .false., i.e. forward transformation.
+    !!---- FUNCTION FFT
+    !!----
     !!----    Calculation of FFT from 1 to up 7 dimensions
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Fft1D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:), intent(in)            :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:), intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                             to be transformed
-    !!--++    logical,                        intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                             Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT1D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT one dimension
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Fft1D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:), intent(in)           :: array
-       integer,          dimension(:), intent(in),  optional:: dim
-       logical,                        intent(in),  optional:: inv
+       complex(fftkind), dimension(:), intent(in)           :: array     ! In -> Complex array
+       integer,          dimension(:), intent(in),  optional:: dim       ! In -> array containing the dimensions to be transformed
+       logical,                        intent(in),  optional:: inv       ! In -> If .true., inverse transformation will be performed.
+                                                                         !       Default is .false., i.e. forward transformation.
 
        !--- function result
        complex(fftkind), dimension(size(array, 1)):: ft
@@ -781,22 +642,20 @@ Module CFML_FFT
     End Function Fft1D
 
     !!--++
-    !!--++ Function Fft2D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:), intent(in)            :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),   intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                               to be transformed
-    !!--++    logical,                          intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                               Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT2D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT two dimension
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Fft2D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:), intent(in)           :: array
-       integer,          dimension(:),   intent(in),  optional:: dim
-       logical,                          intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:), intent(in)           :: array         ! In -> Complex array
+       integer,          dimension(:),   intent(in),  optional:: dim           ! In -> array containing the dimensions to be transformed
+       logical,                          intent(in),  optional:: inv           ! In -> If .true., inverse transformation will be performed.
+                                                                               !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), dimension(size(array, 1), size(array, 2)):: ft
 
@@ -814,12 +673,8 @@ Module CFML_FFT
     End Function Fft2D
 
     !!--++
-    !!--++ Function Fft3D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:,:), intent(in)            :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),     intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                                 to be transformed
-    !!--++    logical,                            intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                                 Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT3D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT three dimension
     !!--++
@@ -827,9 +682,11 @@ Module CFML_FFT
     !!
     Function Fft3D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:,:), intent(in)           :: array
-       integer,          dimension(:),     intent(in),  optional:: dim
-       logical,                            intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:,:), intent(in)           :: array        ! In -> Complex array
+       integer,          dimension(:),     intent(in),  optional:: dim          ! In -> array containing the dimensions to be transformed
+       logical,                            intent(in),  optional:: inv          ! In -> If .true., inverse transformation will be performed.
+                                                                                !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), &
             dimension(size(array, 1), size(array, 2), size(array, 3)):: ft
@@ -848,12 +705,8 @@ Module CFML_FFT
     End Function Fft3D
 
     !!--++
-    !!--++ Function Fft4D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:,:,:), intent(in)            :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                                   Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT4D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT four dimension
     !!--++
@@ -861,9 +714,11 @@ Module CFML_FFT
     !!
     Function Fft4D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:,:,:), intent(in)           :: array
-       integer,          dimension(:),       intent(in),  optional:: dim
-       logical,                              intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:,:,:), intent(in)           :: array         ! In -> Complex array
+       integer,          dimension(:),       intent(in),  optional:: dim           ! In -> array containing the dimensions to be transformed
+       logical,                              intent(in),  optional:: inv           ! In -> If .true., inverse transformation will be performed.
+                                                                                   !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4)):: ft
@@ -882,12 +737,8 @@ Module CFML_FFT
     End Function Fft4D
 
     !!--++
-    !!--++ Function Fft5D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:,:,:,:), intent(in)          :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                                   Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT5D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT five dimension
     !!--++
@@ -895,9 +746,11 @@ Module CFML_FFT
     !!
     Function Fft5D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:,:,:,:), intent(in)           :: array
-       integer,          dimension(:),         intent(in),  optional:: dim
-       logical,                                intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:,:,:,:), intent(in)           :: array           ! In -> Complex array
+       integer,          dimension(:),         intent(in),  optional:: dim             ! In -> array containing the dimensions to be transformed
+       logical,                                intent(in),  optional:: inv             ! In -> If .true., inverse transformation will be performed.
+                                                                                       !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
@@ -918,12 +771,8 @@ Module CFML_FFT
     End Function Fft5D
 
     !!--++
-    !!--++ Function Fft6D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:,:,:,:,:), intent(in)        :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                                   Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT6D
+    !!--++
     !!--++    (Overloaded)
     !!--++    FFT six dimension
     !!--++
@@ -931,9 +780,11 @@ Module CFML_FFT
     !!
     Function Fft6D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:,:,:,:,:), intent(in)           :: array
-       integer,          dimension(:),           intent(in),  optional:: dim
-       logical,                                  intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:,:,:,:,:), intent(in)           :: array         ! In -> Complex array
+       integer,          dimension(:),           intent(in),  optional:: dim           ! In -> array containing the dimensions to be transformed
+       logical,                                  intent(in),  optional:: inv           ! In -> If .true., inverse transformation will be performed.
+                                                                                       !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
@@ -954,12 +805,8 @@ Module CFML_FFT
     End Function Fft6D
 
     !!--++
-    !!--++ Function Fft7D(Array, Dim, Inv) Result(Ft)
-    !!--++    complex(fftkind), dimension(:,:,:,:,:,:,:), intent(in)      :: array  !  In -> Complex array
-    !!--++    integer,          dimension(:),       intent(in),  optional :: dim    !  In -> array containing the dimensions
-    !!--++                                                                                   to be transformed
-    !!--++    logical,                              intent(in),  optional :: inv    !  In -> If .true., inverse transformation will be performed.
-    !!--++                                                                                   Default is .false., i.e. forward transformation.
+    !!--++ FUNCTION FFT7D
+    !!--++
     !!--++    (OVERLOADED)
     !!--++    FFT seven dimension
     !!--++
@@ -967,9 +814,11 @@ Module CFML_FFT
     !!
     Function Fft7D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
-       complex(fftkind), dimension(:,:,:,:,:,:,:), intent(in)           :: array
-       integer,          dimension(:),             intent(in),  optional:: dim
-       logical,                                    intent(in),  optional:: inv
+       complex(fftkind), dimension(:,:,:,:,:,:,:), intent(in)           :: array      ! In -> Complex array
+       integer,          dimension(:),             intent(in),  optional:: dim        ! In -> array containing the dimensions to be transformed
+       logical,                                    intent(in),  optional:: inv        ! In -> If .true., inverse transformation will be performed.
+                                                                                      !       Default is .false., i.e. forward transformation.
+
        !--- function result
        complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
@@ -993,12 +842,7 @@ Module CFML_FFT
     !---- Subroutines ----!
 
     !!--++
-    !!--++ Subroutine Fftn(Array, Shape, Dim, Inv, Stat)
-    !!--++    complex(fftkind), dimension(:), intent(in out)       :: array
-    !!--++    integer,          dimension(:), intent(in)           :: shape
-    !!--++    integer,          dimension(:), intent(in), optional :: dim
-    !!--++    logical,                        intent(in), optional :: inv
-    !!--++    integer,                        intent(in), optional :: stat
+    !!--++ SUBROUTINE FFTN
     !!--++
     !!--++    (PRIVATE)
     !!--++    General routine for FFT calculations
@@ -1048,13 +892,7 @@ Module CFML_FFT
     End Subroutine Fftn
 
     !!--++
-    !!--++ Subroutine Fftradix(Array, Ntotal, Npass, Nspan, Inv, Stat)
-    !!--++    complex(fftkind), dimension(:), intent(in out)       :: array
-    !!--++    integer,                        intent(in)           :: ntotal
-    !!--++    integer,                        intent(in)           :: npass
-    !!--++    integer,                        intent(in)           :: nspan
-    !!--++    logical,                        intent(in)           :: inv
-    !!--++    integer,                        intent(in), optional :: stat
+    !!--++ SUBROUTINE FFTRADIX
     !!--++
     !!--++    (PRIVATE)
     !!--++
@@ -1132,7 +970,7 @@ Module CFML_FFT
     Contains
 
        !!--++
-       !!--++ Subroutine factorize()
+       !!--++ SUBROUTINE FACTORIZE
        !!--++
        !!--++    (PRIVATE)
        !!--++
@@ -1198,7 +1036,7 @@ Module CFML_FFT
        END SUBROUTINE factorize
 
        !!--++
-       !!--++ Subroutine transform()
+       !!--++ SUBROUTINE TRANSFORM
        !!--++
        !!--++    compute fourier transform
        !!--++    (PRIVATE)
@@ -1489,7 +1327,7 @@ Module CFML_FFT
        END SUBROUTINE transform
 
        !!--++
-       !!--++ Subroutine permute()
+       !!--++ SUBROUTINE PERMUTE
        !!--++
        !!--++    permute the results to normal order---done in two stages
        !!--++    permutation for square factors of n
@@ -1709,17 +1547,11 @@ Module CFML_FFT
     End Subroutine Fftradix
 
     !!----
-    !!---- Pure Subroutine Hfft(Aa,Ifset,Iferr)
-    !!----    complex, dimension(:),    intent (in out) :: AA      In -> Contains the complex 3D array to be transformed
-    !!----    integer,                  intent (in    ) :: IFSET   In ->  1, 2 Inverse Fourier Transform
-    !!----                                                               -1,-2 Fourier Transform
-    !!----    integer,                  intent (   out) :: IFERR  Out -> Flags to error. 0 No error
+    !!---- PURE SUBROUTINE HFFT
     !!----
-    !!----    Performs discrete complex fourier transforms on a complex
-    !!----    three dimensional array.
-    !!----    This subroutine is to be used for complex, 3-dimensional
-    !!----    arrays in which each dimension is a power of 2.  the
-    !!----    maximum m(i) must not be less than 3 or greater than 20,
+    !!----    Performs discrete complex fourier transforms on a complex three dimensional array.
+    !!----    This subroutine is to be used for complex, 3-dimensional arrays in which each
+    !!----    dimension is a power of 2. The maximum m(i) must not be less than 3 or greater than 20,
     !!----    i = 1,2,3
     !!----
     !!--..    Translation:
@@ -1756,13 +1588,13 @@ Module CFML_FFT
     !!--..     Mathematics of Computations, Vol. 19 (apr. 1965), p. 297.
     !!--..
     !!--..
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Hfft(Array,Ifset,Iferr)
        !---- Arguments ----!
-       complex, dimension(0:,0:,0:), intent(in out) :: Array
-       integer,                      intent(in    ) :: IfSet
-       integer,                      intent(   out) :: IFerr
+       complex, dimension(0:,0:,0:), intent(in out) :: Array       ! In -> Contains the complex 3D array to be transformed
+       integer,                      intent(in    ) :: IfSet       ! In -> 1,2 Inverse Fourier Transform; -1,-2 Fourier Transform
+       integer,                      intent(   out) :: IFerr       ! Out -> Flags to error. 0 No error
 
        !---- Local variables ----!
        integer          :: n1,n2,n3,m1,m2,m3,k1,k2,k3,nx,fn,nnn
@@ -2262,14 +2094,9 @@ Module CFML_FFT
     End Subroutine HFFT
 
     !!----
-    !!---- Pure Subroutine Sfft(Array,Mode, Iferr)
-    !!----    complex, dimension(:),     intent (in out) :: Array  !  In -> real array containing real parts of transform
-    !!----    character(len=*),optional, intent (in)     :: Mode   !  In -> type="INV"    : backward transform
-    !!----                                                                  Absent or whatever : forward transform
-    !!----    integer, optional,         intent (   out) :: IFERR  ! Out -> Flags to error. 0 No error
+    !!---- PURE SUBROUTINE SFFT
     !!----
-    !!----    This routine is a slight modification of a complex split
-    !!----    radix FFT routine presented by C.S. Burrus.
+    !!----    This routine is a slight modification of a complex split radix FFT routine presented by C.S. Burrus.
     !!--..    The original program header is shown below.
     !!--<<
     !!----    The forward transform computes
@@ -2288,13 +2115,13 @@ Module CFML_FFT
     !!--..  A Duhamel-Hollman Split-Radix DIF FFT
     !!--..  Electronics Letters, January 5, 1984
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Sfft( Array, Mode,Iferr )
        !---- Arguments ----!
-       complex, dimension(:),      intent(in out) :: Array
-       character(len=*), optional, intent(in)     :: Mode
-       integer,          optional, intent(   out) :: Iferr
+       complex, dimension(:),      intent(in out) :: Array   ! In -> real array containing real parts of transform
+       character(len=*), optional, intent(in)     :: Mode    ! In -> type="INV" : backward transform; Absent or whatever : forward transform
+       integer,          optional, intent(   out) :: Iferr   ! Out -> Flags to error. 0 No error
 
        !---- Local variables ----!
        integer                            :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3

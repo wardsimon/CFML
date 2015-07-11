@@ -1,5 +1,10 @@
 List of Changes
 ====================
+Date:11/07/2015
+----------------
+CFML_Crystallographic_Symmetry: Rename CUBIC -> IND_GRP_CUBIC
+
+
 Date:09/07/2015
 ----------------
 CFML_ILL_Instrm_Data: Deleted "save" argument in CURRENT_ORIENT variable (Why use save in a general variable name?)

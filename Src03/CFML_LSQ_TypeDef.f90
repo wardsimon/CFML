@@ -38,63 +38,33 @@
 !!----   INFO: Type definitions for LSQ Routines
 !!----
 !!---- HISTORY
-!!--..    Update: 01/07/2015
+!!--..    Update: 11/07/2015
 !!--..
-!!---- DEPENDENCIES
-!!----    CFML_GlobalDeps
-!!----
-!!---- VARIABLES
-!!----    MAX_FREE_PAR
-!!--..
-!!----    LSQ_CONDITIONS_TYPE
-!!----    LSQ_DATA_TYPE
-!!----    LSQ_STATE_VECTOR_TYPE
-!!----
-!!---- PROCEDURES
-!!----    Subroutines:
-!!----    MODIFY_CODE_STATE_VECTOR
 !!----
 !!
 Module CFML_LSQ_TypeDef
    !---- Use Files ----!
    Use CFML_GlobalDeps,   only: Cp, Dp
 
-   !---- Variables ----!
+   !---- Definitions ----!
    implicit None
 
-   !---- Definitions ----!
+   public
 
-   !!----
-   !!---- MAX_FREE_PAR
-   !!----    integer, parameter, public  :: Max_Free_Par
-   !!----
-   !!----    Maximum number of free parameters (3000)
-   !!----    (it may be changed at will!)
-   !!----
-   !!---- Update: 01/07/2015
-   !!
-   integer, parameter :: Max_Free_Par=3000   !Maximum number of free parameters
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
 
+   integer, parameter :: MAX_FREE_PAR=3000   !Maximum number of free parameters
+
+
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
 
    !!----
    !!---- TYPE :: LSQ_CONDITIONS_TYPE
    !!--..
-   !!----  Type, public :: LSQ_Conditions_type
-   !!----     logical          :: constr          ! if true box constraint of percent% are applied to parameters
-   !!----     logical          :: reached         ! if true convergence was reached in the algorithm
-   !!----     integer          :: corrmax         ! value of correlation in % to output
-   !!----     integer          :: nfev            ! number of function evaluations (output component, useful for assessing LM algorithm)
-   !!----     integer          :: njev            ! number of Jacobian evaluations                 "
-   !!----     integer          :: icyc            ! number of cycles of refinement or maximum number of function evaluations in LM
-   !!----                                         ! In LM procedures the default value is icyc = maxfev = 100(npvar+1)
-   !!----     integer          :: npvar           ! number of effective free parameters of the model
-   !!----     integer          :: iw              ! indicator for weighting scheme (if iw=1 => w=1/yc)
-   !!----     integer          :: nprint          ! indicator for printing during iterations, if nprint > 0 printing each nprint iterations
-   !!----     real(kind=cp)    :: tol             ! tolerance value for applying stopping criterion in LM algorithm
-   !!----     real(kind=cp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
-   !!----                                         ! the intial value before fixing it
-   !!----  End Type LSQ_Conditions_type
-   !!----
    !!----  Derived type encapsulating all necessary conditions for running the LSQ algorithm
    !!----
    !!---- Update: 01/07/2015
@@ -119,49 +89,26 @@ Module CFML_LSQ_TypeDef
    !!---- TYPE :: LSQ_DATA_TYPE
    !!--..
    !!----
-   !!----  Type, public :: LSQ_Data_Type
-   !!----     integer                                    :: nobs  !total number of observations
-   !!----     integer                                    :: iw    !Indicator for type of values contained in component sig
-   !!----     real(kind=cp),    dimension(:),allocatable :: x     !Vector containing a relevant quantity for each observation (x-coordinate ...)
-   !!----     real(kind=cp),    dimension(:),allocatable :: y     !Vector containing the observed values
-   !!----     real(kind=cp),    dimension(:),allocatable :: sw    !Vector containing the standard deviation of observations if iw=0
-   !!----                                                         !or the weight factors for least squares refinement if iw=1
-   !!----     real(kind=cp),    dimension(:),allocatable :: yc    !Vector containing the calculated values
-   !!----  End Type LSQ_Data_type
-   !!----
    !!----  Derived type encapsulating the observed and calculated data as well as the
    !!----  weighting factors, a variable related with each observed value and the
    !!----  total number of observations. It is responsibility of the calling program to
    !!----  allocate the components before calling the Marquardt_fit procedure.
    !!----
-   !!---- Update: August - 2009
+   !!---- Update: 11/07/2015
    !!
    Type :: LSQ_Data_Type
       integer                                 :: nobs=0  !total number of observations
       integer                                 :: iw=0    !Indicator for type of values contained in component sw
-      real(kind=cp), dimension(:),allocatable :: x     !Vector containing a relevant quantity for each observation (x-coordinate ...)
-      real(kind=cp), dimension(:),allocatable :: y     !Vector containing the observed values
-      real(kind=cp), dimension(:),allocatable :: sw    !Vector containing the standard deviation of observations if iw=0
-                                                          !or the weight factors for least squares refinement if iw=1
-      real(kind=cp), dimension(:),allocatable :: yc    !Vector containing the calculated values
+      real(kind=cp), dimension(:),allocatable :: x       !Vector containing a relevant quantity for each observation (x-coordinate ...)
+      real(kind=cp), dimension(:),allocatable :: y       !Vector containing the observed values
+      real(kind=cp), dimension(:),allocatable :: sw      !Vector containing the standard deviation of observations if iw=0
+                                                         !or the weight factors for least squares refinement if iw=1
+      real(kind=cp), dimension(:),allocatable :: yc      !Vector containing the calculated values
    End Type LSQ_Data_type
 
    !!----
    !!---- TYPE :: LSQ_STATE_VECTOR_TYPE
    !!--..
-   !!----
-   !!----  Type, public :: LSQ_State_Vector_Type
-   !!----     integer                                    :: np         !total number of model parameters <= Max_Free_Par
-   !!----     logical                                    :: code_comp  !If .true. the codes are interpreted as number in the LSQ list
-   !!----     integer(kind=2)                            :: code_max   !Maximum code number (used in case of code_comp=.true.)
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: mul        !Vector of multipliers (used in case of code_comp=.true.
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: pv         !Vector of parameters
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
-   !!----     integer(kind=2),   dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
-   !!----     character(len=40), dimension(Max_Free_Par) :: nampar     !Names of parameters
-   !!----  End Type LSQ_State_Vector_Type
-   !!----
    !!----  Derived type encapsulating the vector state defining a set of parameter
    !!----  for calculating the model function and running the LSQ algorithm.
    !!----  Now, with the introduction of code_comp and mul, the codes may be also interpreted
@@ -169,7 +116,7 @@ Module CFML_LSQ_TypeDef
    !!----  the way the user program attributes codes and constraints a call to the subroutine
    !!----  Modify_Codes_State_Vector (see below)
    !!----
-   !!---- Update: January- 2014
+   !!---- Update: 11/07/2015
    !!
    Type :: LSQ_State_Vector_Type
       integer                                    :: np         !total number of model parameters <= Max_Free_Par
@@ -183,12 +130,10 @@ Module CFML_LSQ_TypeDef
       character(len=40), dimension(Max_Free_Par) :: nampar     !Names of parameters
    End Type LSQ_State_Vector_type
 
- contains
+ Contains
+
     !!----
-    !!---- Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
-    !!----   integer,       dimension(:),intent (in out) :: Lcodes
-    !!----   real(kind=cp), dimension(:),intent (in out) :: Multip
-    !!----   integer,                    intent (in out) :: Lcode_max
+    !!---- SUBROUTINE MODIFY_CODES_STATE_VECTOR
     !!----
     !!----  This subroutine should be called with the arguments corresponding to
     !!----  the components  Lcodes=LSQ_State_Vector%code, Multip=LSQ_State_Vector%mul

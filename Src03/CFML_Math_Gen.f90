@@ -39,246 +39,36 @@
 !!---- HISTORY
 !!----    Updated: 19/03/2015
 !!----
-!!---- DEPENDENCIES
-!!----
-!!----    CFML_GlobalDeps
-!!----
-!!---- VARIABLES
-!!--++    EPSS                         [Private]
-!!--++    EP_SS                        [Private]
-!!----    ERR_MathGen
-!!----    ERR_MathGen_Mess
-!!----    PRIMES                       [Private]
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!--..
-!!--..    Trigonometric Functions
-!!----       ACOSD
-!!--++       ACOSD_dp                  [Overloaded]
-!!--++       ACOSD_sp                  [Overloaded]
-!!----       ASIND
-!!--++       ASIND_dp                  [Overloaded]
-!!--++       ASIND_sp                  [Overloaded]
-!!----       ATAN2D
-!!--++       ATAN2D_dp                 [Overloaded]
-!!--++       ATAN2D_sp                 [Overloaded]
-!!----       ATAND
-!!--++       ATAND_dp                  [Overloaded]
-!!--++       ATAND_sp                  [Overloaded]
-!!----       COSD
-!!--++       COSD_dp                   [Overloaded]
-!!--++       COSD_sp                   [Overloaded]
-!!----       SIND
-!!--++       SIND_dp                   [Overloaded]
-!!--++       SIND_sp                   [Overloaded]
-!!----       TAND
-!!--++       TAND_dp                   [Overloaded]
-!!--++       TAND_sp                   [Overloaded]
-!!--..
-!!--..    Scalar Functions
-!!----       FACTORIAL
-!!----       NEGLIGIBLE
-!!--++       NEGLIGIBLEC               [Overloaded]
-!!--++       NEGLIGIBLER               [Overloaded]
-!!----       PGCD
-!!----       PPCM
-!!--..
-!!--..    Arrays and Vectors Functions
-!!----       CO_LINEAR
-!!--++       CO_LINEAR_C               [Overloaded]
-!!--++       CO_LINEAR_I               [Overloaded]
-!!--++       CO_LINEAR_R               [Overloaded]
-!!----       CO_PRIME
-!!----       EQUAL_MATRIX
-!!--++       EQUAL_MATRIX_I            [Overloaded]
-!!--++       EQUAL_MATRIX_R            [Overloaded]
-!!----       EQUAL_VECTOR
-!!--++       EQUAL_VECTOR_I            [Overloaded]
-!!--++       EQUAL_VECTOR_R            [Overloaded]
-!!----       IN_LIMITS
-!!--++       IN_LIMITS_INT             [Overloaded]
-!!--++       IN_LIMITS_SP              [Overloaded]
-!!--++       IN_LIMITS_DP              [Overloaded]
-!!----       LOCATE
-!!--++       LOCATE_I                  [Overloaded]
-!!--++       LOCATE_IB                 [Overloaded]
-!!--++       LOCATE_R                  [Overloaded]
-!!--++       LOCATE_RB                 [Overloaded]
-!!----       LOWER_TRIANGULAR
-!!--++       LOWER_TRIANGULAR_I        [Overloaded]
-!!--++       LOWER_TRIANGULAR_R        [Overloaded]
-!!----       MODULO_LAT
-!!----       NORM
-!!--++       NORM_I                    [Overloaded]
-!!--++       NORM_R                    [Overloaded]
-!!----       OUTERPROD
-!!--++       OUTERPROD_dp              [Overloaded]
-!!--++       OUTERPROD_sp              [Overloaded]
-!!----       SCALAR
-!!--++       SCALAR_I                  [Overloaded]
-!!--++       SCALAR_R                  [Overloaded]
-!!----       TRACE
-!!--++       TRACE_C                   [Overloaded]
-!!--++       TRACE_I                   [Overloaded]
-!!--++       TRACE_R                   [Overloaded]
-!!----       UPPER_TRIANGULAR
-!!--++       UPPER_TRIANGULAR_I        [Overloaded]
-!!--++       UPPER_TRIANGULAR_R        [Overloaded]
-!!----       ZBELONG
-!!--++       ZBELONGM                  [Overloaded]
-!!--++       ZBELONGN                  [Overloaded]
-!!--++       ZBELONGV                  [Overloaded]
-!!--..
-!!----
-!!----    Subroutines:
-!!--..
-!!--..    Init Routine
-!!----       INIT_ERR_MATHGEN
-!!----       SET_EPSG
-!!----       SET_EPSG_DEFAULT
-!!--..
-!!--..    Trigonometric Subroutines
-!!----       RTAN
-!!--++       RTAN_dp                   [Overloaded]
-!!--++       RTAN_sp                   [Overloaded]
-!!--..
-!!--..    Arrays and Vectors Subroutines
-!!----       CO_PRIME_VECTOR
-!!----       DETERMINANT
-!!--++       DETERMINANT_C             [Overloaded]
-!!--++       DETERMINANT_R             [Overloaded]
-!!----       DIAGONALIZE_SH
-!!--++       DIAGONALIZE_HERM          [Overloaded]
-!!--++       DIAGONALIZE_SYMM          [Overloaded]
-!!--++       EIGSRT                    [Private]
-!!----       FIRST_DERIVATIVE
-!!----       IN_SORT
-!!----       INVERT_MATRIX
-!!----       LINEAR_DEPENDENT
-!!--++       LINEAR_DEPENDENTC         [Overloaded]
-!!--++       LINEAR_DEPENDENTI         [Overloaded]
-!!--++       LINEAR_DEPENDENTR         [Overloaded]
-!!----       LU_BACKSUB
-!!----       LU_DECOMP
-!!----       MATINV
-!!--++       PARTITION                 [Private]
-!!----       POINTS_IN_LINE2D
-!!----       RANK
-!!--++       RANK_dp                   [Overloaded]
-!!--++       RANK_sp                   [Overloaded]
-!!----       SECOND_DERIVATIVE
-!!----       SMOOTHINGVEC
-!!----       SORT
-!!--++       SORT_I                    [Overloaded]
-!!--++       SORT_R                    [Overloaded]
-!!----       SORT_STRINGS
-!!----       SPLINE
-!!----       SPLINT
-!!----       SVDCMP
-!!--++       SVDCMP_dp                 [Overloaded]
-!!--++       SVDCMP_sp                 [Overloaded]
-!!----       SWAP
-!!--++       SWAP_C                    [Overloaded]
-!!--++       SWAP_CM                   [Overloaded]
-!!--++       SWAP_CV                   [Overloaded]
-!!--++       SWAP_I                    [Overloaded]
-!!--++       SWAP_IM                   [Overloaded]
-!!--++       SWAP_IV                   [Overloaded]
-!!--++       SWAP_R                    [Overloaded]
-!!--++       SWAP_RM                   [Overloaded]
-!!--++       SWAP_RV                   [Overloaded]
-!!--++       MASKED_SWAP_R             [Overloaded]
-!!--++       MASKED_SWAP_RM            [Overloaded]
-!!--++       MASKED_SWAP_RV            [Overloaded]
-!!--++       TQLI1                     [Private]
-!!--++       TQLI2                     [Private]
-!!--++       TRED1                     [Private]
-!!--++       TRED2                     [Private]
-!!--++
 !!
  Module CFML_Math_General
     !---- Use Modules ----!
     Use CFML_GlobalDeps
 
-    !---- Variables ----!
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public functions ----!
+    !---- Public Procedures ----!
     public :: Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime
 
-    !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible,           &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,     &
               Zbelong, Norm, Scalar, In_limits, Lower_Triangular, Upper_Triangular
 
-    !---- List of public subroutines ----!
-    public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
-               Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
-               First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector
+    public :: Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
+              Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
+              First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
+              Co_Prime_vector
 
-    !---- List of public overloaded procedures: subroutines ----!
-    public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
-               Svdcmp, Swap
+    public :: RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
+              Svdcmp, Swap
 
 
-    !---- Definitions ----!
-
-    !!--++
-    !!--++ EPSS
-    !!--++    real(kind=cp)  :: epss=1.0E-5_cp
-    !!--++
-    !!--++    Internal epsilon value used for comparing reals to integers
-    !!--++    in crystallographic applications where the maximum precision in the
-    !!--++    measured values is of the order of 10^-5.
-    !!--++
-    !!--++ Update: 19/03/2015
-    !!
-    real(kind=cp) :: epss=1.0E-5_cp
-
-    !!--++
-    !!--++ EP_SS
-    !!--++    real(kind=cp), parameter, private  :: ep_ss=1.0E-12_cp
-    !!--++
-    !!--++    Internal epsilon value used for comparison in matrix operations
-    !!--++
-    !!--++ Update: 19/03/2015
-    !!
-    real(kind=cp), parameter :: ep_ss=1.0E-12_cp
-
-    !!----
-    !!---- ERR_MathGen
-    !!----    logical :: ERR_MathGen
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Math_General module
-    !!----
-    !!---- Update: 19/03/2015
-    !!
-    logical, public :: err_mathgen
-
-    !!----
-    !!---- ERR_MathGen_Mess
-    !!----    character(len=150) :: ERR_MathGen_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: 19/03/2015
-    !!
-    character(len=256), public:: ERR_MathGen_Mess
-
-    !!--++
-    !!--++ Primes
-    !!--++    integer, parameter, dimension(1000), public :: primes
-    !!--++
-    !!--++    List of the first 1000 prime numbers.
-    !!--++    Used by the subroutine Co_Prime_Vector and function Co_Prime
-    !!--++
-    !!--++  Created: 01/07/2015
-    !!
-    integer, parameter, dimension(1000) :: primes =                                       &
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    integer, parameter, dimension(1000) :: primes =                                       &  ! List of the first 1000 prime numbers.
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
              31,     37,     41,     43,     47,     53,     59,     61,     67,     71,  &
              73,     79,     83,     89,     97,    101,    103,    107,    109,    113,  &
@@ -380,7 +170,18 @@
            7727,   7741,   7753,   7757,   7759,   7789,   7793,   7817,   7823,   7829,  &
            7841,   7853,   7867,   7873,   7877,   7879,   7883,   7901,   7907,   7919 /)
 
+    real(kind=cp), parameter :: EP_SS=1.0E-12_cp   ! Internal epsilon value used for comparison in matrix operations
+
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    character(len=256), public :: ERR_MathGen_Mess     ! String containing information about the last error
+    logical,            public :: err_mathgen          ! Logical Variable indicating an error in CFML_Math_General module
+    real(kind=cp)              :: epss=1.0E-5_cp       ! Internal epsilon value used for comparing reals to integers
+
+    !---------------------------------!
     !---- Interfaces - Overloaded ----!
+    !---------------------------------!
     Interface  Acosd
        Module Procedure Acosd_dp
        Module Procedure Acosd_sp
@@ -543,24 +344,20 @@
     !---- Functions ----!
 
     !!----
-    !!---- Elemental Function Acosd(x) Result(arc_cos)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: arc_cos
+    !!---- ELEMENTAL FUNCTION ACOSD
     !!----
     !!----    Inverse cosine function -> output in Degrees
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Acosd_dp(x) Result(arc_cos)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: arc_cos
+    !!--++ Elemental Function Acosd_dp
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse cosine function -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Acosd_dp(x) Result(arc_cos)
        !---- Argument ----!
@@ -581,14 +378,12 @@
     End Function Acosd_dp
 
     !!--++
-    !!--++ Elemental Function Acosd_sp(x) Result(arc_cos)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: arc_cos
+    !!--++ ELEMENTAL FUNCTION ACOSD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse cosine function -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Acosd_sp(x) Result(arc_cos)
        !---- Argument ----!
@@ -609,24 +404,20 @@
     End Function Acosd_sp
 
     !!----
-    !!---- Function Asind(x) Result(arc_sin)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: arc_sin
+    !!---- FUNCTION ASIND
     !!----
     !!----    Inverse sine function -> output in Degrees
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Asind_dp(x) result(arc_sin)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: arc_sin
+    !!--++ ELEMENTAL FUNCTION ASIND_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse sine function -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Asind_dp(x) Result(arc_sin)
        !---- Argument ----!
@@ -647,14 +438,12 @@
     End Function Asind_dp
 
     !!--++
-    !!--++ Elemental Function Asind_sp(x) result(arc_sin)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: arc_sin
+    !!--++ ELEMENTAL FUNCTION ASIND_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse sine function -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Asind_sp(x) Result(arc_sin)
        !---- Argument ----!
@@ -675,26 +464,22 @@
     End Function Asind_sp
 
     !!----
-    !!---- Elemental Function Atan2d(y,x) Result(atande)
-    !!----    real(kind=sp/dp), intent(in) :: y,x
-    !!----    real(kind=sp/dp)             :: atande
+    !!---- ELEMENTAL FUNCTION ATAN2D
     !!----
     !!----    Inverse tangent function of y/x
     !!----    y,x have the same units -> output in Degrees
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Atan2d_dp(y,x) Result(atande)
-    !!--++    real(kind=dp), intent(in) :: y,x
-    !!--++    real(kind=dp)             :: atande
+    !!--++ ELEMENTAL FUNCTION ATAN2D_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse tangent function of y/x
     !!--++    y,x have the same units -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Atan2d_dp(y,x) Result(atand)
        !---- Argument ----!
@@ -707,15 +492,13 @@
     End Function Atan2d_dp
 
     !!--++
-    !!--++ Elemental Function Atan2d_sp(y,x) Result(atande)
-    !!--++    real(kind=sp), intent(in) :: y,x
-    !!--++    real(kind=sp)             :: atande
+    !!--++ ELEMENTAL FUNCTION ATAN2D_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse tangent function of y/x
     !!--++    y,x have the same units -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Atan2d_sp(y,x) Result(atande)
        !---- Argument ----!
@@ -728,24 +511,20 @@
     End Function Atan2d_sp
 
     !!----
-    !!---- Elemental Function Atand(x) Result(atande)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: atande
+    !!---- ELEMENTAL FUNCTION ATAND
     !!----
     !!----    Inverse tangent function, X no units -> output in Degrees
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Atand_dp(x) result(atande)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: atande
+    !!--++ ELEMENTAL FUNCTION ATAND_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse tangent function, X no units -> output in Degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Atand_dp(x) Result(atand)
        !---- Argument ----!
@@ -758,14 +537,12 @@
     End Function Atand_dp
 
     !!--++
-    !!--++ Function Atand_sp(x) result(atande)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: atande
+    !!--++ FUNCTION ATAND_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Inverse tangent function, X no units -> output in Degrees
     !!--++
-    !!--++ Update: 01/07/2015 12:00:42
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Atand_sp(x) Result(atande)
        !---- Argument ----!
@@ -778,24 +555,20 @@
     End Function Atand_sp
 
     !!----
-    !!---- Elemental Function Cosd(x) Result(cosine)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: cosine
+    !!---- ELEMENTAL FUNCTION COSD
     !!----
     !!----    Cosine function, X in degrees
     !!----
-    !!---- Update: 01/07/2015 12:00:57
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Cosd_dp(x) Result(cosine)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: cosine
+    !!--++ ELEMENTAL FUNCTION COSD_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Cosine function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Cosd_dp(x) Result(cosine)
        !---- Argument ----!
@@ -808,14 +581,12 @@
     End Function Cosd_dp
 
     !!--++
-    !!--++ Elemental Function Cosd_sp(x) Result(cosine)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: cosine
+    !!--++ ELEMENTAL FUNCTION COSD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Cosine function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Cosd_sp(x) Result(cosine)
        !---- Argument ----!
@@ -828,24 +599,20 @@
     End Function Cosd_sp
 
     !!----
-    !!---- Elemental Function Sind(x) Result(sine)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: sine
+    !!---- ELEMENTAL FUNCTION SIND
     !!----
     !!----    Sine function, X in degrees
     !!----
-    !!---- Update: 01/07/2015 12:01:03
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Sind_dp(x) Result(sine)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: sine
+    !!--++ ELEMENTAL FUNCTION SIND_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sine function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Sind_dp(x) Result(sine)
        !---- Argument ----!
@@ -858,14 +625,12 @@
     End Function Sind_dp
 
     !!--++
-    !!--++ Elemental Function Sind_sp(x) Result(sine)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: sine
+    !!--++ ELEMENTAL FUNCTION SIND_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sine function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Sind_sp(x) Result(sine)
        !---- Argument ----!
@@ -878,24 +643,20 @@
     End Function Sind_sp
 
     !!----
-    !!---- Elemental Function Tand(x) Result(tande)
-    !!----    real(kind=sp/dp), intent(in) :: x
-    !!----    real(kind=sp/dp)             :: tande
+    !!---- ELEMENTAL FUNCTION TAND
     !!----
     !!----    Tangent function, X in degrees
     !!----
-    !!---- Update: 01/07/2015 12:01:13
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Tand_dp(x) Result(tande)
-    !!--++    real(kind=dp), intent(in) :: x
-    !!--++    real(kind=dp)             :: tande
+    !!--++ ELEMENTAL FUNCTION TAND_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Tangent function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Tand_dp(x) Result(tand)
        !---- Argument ----!
@@ -908,14 +669,12 @@
     End Function Tand_dp
 
     !!--++
-    !!--++ Elemental Function Tand_sp(x) Result(tande)
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: tande
+    !!--++ ELEMENTAL FUNCTION TAND_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Tangent function, X in degrees
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Tand_sp(x) Result(tande)
        !---- Argument ----!
@@ -928,12 +687,11 @@
     End Function Tand_sp
 
     !!----
-    !!---- Elemental Function Factorial(n) Result(fact)
-    !!----    integer, intent(in) : n
+    !!---- ELEMENTAL FUNCTION FACTORIAL
     !!----
     !!----    Factorial of N
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Elemental Function Factorial(n) Result(fact)
        !---- Argument ----!
@@ -960,23 +718,21 @@
     End Function Factorial
 
     !!----
-    !!---- Elemental Function Negligible(v)
-    !!----    complex/real(kind=sp),    intent( in) :: v
+    !!---- Elemental Function Negligible
     !!----
     !!----    Provides the value .TRUE. if the real/complex
     !!----    number V is less than EPS
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Elemental Function Negligiblec(v)
-    !!--++    complex, intent( in) :: v
+    !!--++ Elemental Function Negligiblec
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate if a complex number is negligible
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Negligiblec(v) Result(Neglig)
        !---- Argument ----!
@@ -991,13 +747,12 @@
     End Function Negligiblec
 
     !!--++
-    !!--++ Elemental Function Negligibler(v)
-    !!--++    real(kind=cp), intent( in) :: v
+    !!--++ ELEMENTAL FUNCTION NEGLIGIBLER
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is negligible (abs < EPSS)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Elemental Function Negligibler(v) Result(neglig)
        !---- Argument ----!
@@ -1012,14 +767,11 @@
     End Function Negligibler
 
     !!----
-    !!---- Function Pgcd(i,j) Result(mcd)
-    !!----    integer, intent(in) :: i
-    !!----    integer, intent(in) :: j
-    !!----    integer             :: mcd
+    !!---- FUNCTION PGCD
     !!----
     !!----    Function calculating the maximum common divisor of two integers
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Function Pgcd(a,b) Result(mcd)
        !---- Arguments ----!
@@ -1044,10 +796,7 @@
     End Function Pgcd
 
     !!----
-    !!---- Function Ppcm(i,j) result(mcm)
-    !!----    integer, intent(in) :: i
-    !!----    integer, intent(in) :: j
-    !!----    integer             :: mcm
+    !!---- FUNCTION PPCM
     !!----
     !!----    Function calculating the minimum common multiple of two integers
     !!----
@@ -1082,21 +831,15 @@
     End Function Ppcm
 
     !!----
-    !!---- Logical Function Co_Linear(A,B,N)
-    !!----    complex/integer/real(kind=sp), dimension(:), intent(in)  :: a
-    !!----    complex/integer/real(kind=sp), dimension(:), intent(in)  :: b
-    !!----    integer,                                     intent(in)  :: n
+    !!---- LOGICAL FUNCTION CO_LINEAR
     !!----
     !!----    Provides the value .TRUE. if the vectors A and B are co-linear
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Logical Function Co_Linear_C(A, B, N)
-    !!--++    complex, dimension(:), intent(in)  :: a
-    !!--++    complex, dimension(:), intent(in)  :: b
-    !!--++    integer,               intent(in)  :: n
+    !!--++ LOGICAL FUNCTION CO_LINEAR_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two complex vectors are co-linear
@@ -1105,8 +848,8 @@
     !!
     Function Co_linear_C(a,b,n) Result(co_linear)
        !---- Argument ----!
-       complex, dimension(:), intent(in) :: a,b
-       integer,               intent(in) :: n
+       complex, dimension(:), intent(in) :: a,b           ! Complex vectors
+       integer,               intent(in) :: n             ! Dimension
        logical                           :: co_linear
 
        !---- Local variables ----!
@@ -1143,20 +886,17 @@
     End Function Co_linear_C
 
     !!--++
-    !!--++ Logical Function Co_Linear_I(A, B, N)
-    !!--++    integer, dimension(:), intent(in)  :: a
-    !!--++    integer, dimension(:), intent(in)  :: b
-    !!--++    integer,               intent(in)  :: n
+    !!--++ LOGICAL FUNCTION CO_LINEAR_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer vectors are co-linear
     !!--++
-    !!--++ Update: October - 2008
+    !!--++ Update: 11/07/2015
     !!
     Function Co_linear_I(a,b,n) Result(co_linear)
        !---- Argument ----!
-       integer, dimension(:), intent(in) :: a,b
-       integer,               intent(in) :: n
+       integer, dimension(:), intent(in) :: a,b            ! Integer vectors
+       integer,               intent(in) :: n              ! Dimension
        logical                           :: co_linear
 
        !---- Local variables ----!
@@ -1193,10 +933,7 @@
     End Function Co_linear_I
 
     !!--++
-    !!--++ Logical Function Co_Linear_R(A, B, N)
-    !!--++    real(kind=cp), dimension(:), intent(in)  :: a
-    !!--++    real(kind=cp), dimension(:), intent(in)  :: b
-    !!--++    integer,                     intent(in)  :: n
+    !!--++ LOGICAL FUNCTION CO_LINEAR_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two real vectors are co-linear
@@ -1205,8 +942,8 @@
     !!
     Function Co_linear_R(a,b,n) Result(co_linear)
        !---- Argument ----!
-       real(kind=cp), dimension(:), intent(in) :: a,b
-       integer,                     intent(in) :: n
+       real(kind=cp), dimension(:), intent(in) :: a,b           ! Real vectors
+       integer,                     intent(in) :: n             ! Dimension
        logical                                 :: co_linear
 
        !---- Local variables ----!
@@ -1243,51 +980,52 @@
     End Function Co_linear_R
 
     !!----
-    !!---- Function Co_Prime(v,imax) result(cop)
-    !!----   integer, dimension(:), intent(in) :: v
-    !!----   integer,  optional,    intent(in) :: imax !Maximun prime number to be tested
-    !!----   Logical                           :: cop
+    !!---- FUNCTION CO_PRIME
     !!----
-    !!---- Provides the value .TRUE. if the array V contains co-prime
-    !!---- integers: there is no common divisor for all the integers.
-    !!---- Only the first 1000 prime numbers are stored in the module array "primes"
-    !!---- imax is the maximum prime number to be tested. It is calculated if not given.
+    !!----    Provides the value .TRUE. if the array V contains co-prime
+    !!----    integers: there is no common divisor for all the integers.
+    !!----    Only the first 1000 prime numbers are stored in the module array "primes"
+    !!----    imax is the maximum prime number to be tested. It is calculated if not given.
+    !!----    (imax argument made optional, really not needed)
     !!----
-    !!---- Created: January - 2011
-    !!---- Updated: February - 2012  (JRC) (imax argument made optional, really not needed)
+    !!---- Updated: 11/07/2015
     !!
     Function Co_Prime(v,imax) result(cop)
-      integer, dimension(:), intent(in) :: v
-      integer, optional,     intent(in) :: imax
-      Logical                           :: cop
-      !---- Local variables ----!
-      integer :: i,j,im,k,dimv,imaxv,maxv
+       !---- Arguments ----!
+       integer, dimension(:), intent(in) :: v           ! Integer vector
+       integer, optional,     intent(in) :: imax        ! Maximun prime number to be tested
+       Logical                           :: cop
 
-      cop=.true.
-      maxv=maxval(abs(v))
-      if(present(imax)) then
-        imaxv=imax
-      else
-        imaxv=maxv
-      end if
-      !---- If the maximum value of the indices is 1 they are coprimes
+       !---- Local variables ----!
+       integer :: i,j,im,k,dimv,imaxv,maxv
+
+       cop=.true.
+       maxv=maxval(abs(v))
+       if (present(imax)) then
+          imaxv=imax
+       else
+          imaxv=maxv
+       end if
+
+      !> If the maximum value of the indices is 1 they are coprimes
       if (maxv == 1) return
       if (maxv == 0) then
          cop=.false.
          return
       end if
-      !---- Search the maximum prime number to be tested
+
+      !> Search the maximum prime number to be tested
       if (imaxv > 7919) then
-        im=1000
+         im=1000
       else
-        do i=1,1000
-           if(imaxv > primes(i)) cycle
-           im=i
-           exit
-        end do
+         do i=1,1000
+            if(imaxv > primes(i)) cycle
+            im=i
+            exit
+         end do
       end if
 
-      !---- Indices greater than 1
+      !> Indices greater than 1
       dimv=size(v)
       do_p: do i=1,im
          k=primes(i)
@@ -1302,30 +1040,25 @@
     End Function Co_Prime
 
     !!----
-    !!---- Logical Function Equal_Matrix(A,B,N)
-    !!----    integer/real(kind=cp), dimension(:,:), intent(in)  :: a,b
-    !!----    integer,                               intent(in)  :: n
+    !!---- LOGICAL FUNCTION EQUAL_MATRIX
     !!----
     !!----    Provides the value .TRUE. if the array A is equal to array B in NxN
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Logical Function Equal_Matrix_I(A, B, N)
-    !!--++    integer, dimension(:,:), intent(in)  :: a
-    !!--++    integer, dimension(:,:), intent(in)  :: b
-    !!--++    integer,                 intent(in)  :: n
+    !!--++ LOGICAL FUNCTION EQUAL_MATRIX_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer arrays are equal in NxN
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Equal_Matrix_I(a,b,n) result(info)
        !---- Argument ----!
-       integer, dimension(:,:), intent(in) :: a,b
-       integer                , intent(in) :: n
+       integer, dimension(:,:), intent(in) :: a,b        ! Arrays
+       integer                , intent(in) :: n          ! Dimension
        logical                             :: info
 
        !---- Local variables ----!
@@ -1343,10 +1076,7 @@
     End Function Equal_Matrix_I
 
     !!--++
-    !!--++ Logical Function Equal_Matrix_R(A, B, N)
-    !!--++    real(kind=sp), dimension(:,:), intent(in)  :: a
-    !!--++    real(kind=sp), dimension(:,:), intent(in)  :: b
-    !!--++    integer,                       intent(in)  :: n
+    !!--++ LOGICAL FUNCTION EQUAL_MATRIX_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer arrays are equal in NxN
@@ -1355,8 +1085,8 @@
     !!
     Function Equal_Matrix_R(a,b,n) result(info)
        !---- Argument ----!
-       real(kind=cp), dimension(:,:)   , intent(in) :: a,b
-       integer,                          intent(in) :: n
+       real(kind=cp), dimension(:,:)   , intent(in) :: a,b    ! Arrays
+       integer,                          intent(in) :: n      ! Dimension
        logical                                      :: info
 
        !---- Local variables ----!
@@ -1374,9 +1104,7 @@
     End Function Equal_Matrix_R
 
     !!----
-    !!---- Logical Function Equal_Vector(A,B,N)
-    !!----    integer/real(kind=sp), dimension(:),   intent(in)  :: a,b
-    !!----    integer,                               intent(in)  :: n
+    !!---- LOGICAL FUNCTION EQUAL_VECTOR
     !!----
     !!----    Provides the value .TRUE. if the vector A is equal to vector B
     !!----
@@ -1384,10 +1112,7 @@
     !!
 
     !!--++
-    !!--++ Logical Function Equal_Vector_I(A, B, N)
-    !!--++    integer, dimension(:), intent(in)  :: a
-    !!--++    integer, dimension(:), intent(in)  :: b
-    !!--++    integer,               intent(in)  :: n
+    !!--++ Logical Function Equal_Vector_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer vectors are equal in N
@@ -1396,8 +1121,8 @@
     !!
     Function Equal_Vector_I(a,b,n) result(info)
        !---- Argument ----!
-       integer, dimension(:),   intent(in) :: a,b
-       integer                , intent(in) :: n
+       integer, dimension(:),   intent(in) :: a,b         ! Vectors
+       integer                , intent(in) :: n           ! Dimension
        logical                             :: info
 
        !---- Local variables ----!
@@ -1413,10 +1138,7 @@
     End Function Equal_Vector_I
 
     !!--++
-    !!--++ Logical Function Equal_Vector_R(A, B, N)
-    !!--++    real(kind=sp), dimension(:), intent(in)  :: a
-    !!--++    real(kind=sp), dimension(:), intent(in)  :: b
-    !!--++    integer,                     intent(in)  :: n
+    !!--++ Logical Function Equal_Vector_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two real(kind=sp) vectors are equal in N
@@ -1425,8 +1147,8 @@
     !!
     Function Equal_Vector_R(a,b,n) result(info)
        !---- Argument ----!
-       real(kind=cp), dimension(:)   ,   intent(in) :: a,b
-       integer,                          intent(in) :: n
+       real(kind=cp), dimension(:)   ,   intent(in) :: a,b      ! Vectors
+       integer,                          intent(in) :: n        ! Dimension
        logical                                      :: info
 
        !---- Local variables ----!
@@ -1442,36 +1164,28 @@
     End Function Equal_Vector_R
 
     !!----
-    !!---- Function In_Limits(n,limits,vect) result(ok)
-    !!----   integer,                      intent(in) :: n
-    !!----   integer/real, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
-    !!----   integer/real, dimension(n),   intent(in) :: vect
-    !!----   logical                                  :: ok
+    !!---- FUNCTION IN_LIMITS
     !!----
     !!----   Logical function that is true if all the components of the vector vect
     !!----   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!----
-    !!----   Updated: 01/07/2015
+    !!----   Updated: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function In_Limits_int(n,limits,vect) result(ok)
-    !!--++   integer,                 intent(in) :: n
-    !!--++   integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
-    !!--++   integer, dimension(n),   intent(in) :: vect
-    !!--++   logical                             :: ok
+    !!--++ FUNCTION IN_LIMITS_INT
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!--++
-    !!--++   Updated: March - 2013
+    !!--++   Updated: 11/07/2015
     !!
     Function in_limits_int(n,limits,vect) result(ok)
        !---- Arguments ----!
        integer,                 intent(in) :: n
        integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
        integer, dimension(n),   intent(in) :: vect
-       logical :: ok
+       logical                             :: ok
 
        !---- Local Variables ----!
        integer :: i
@@ -1489,16 +1203,12 @@
     End Function in_limits_int
 
     !!--++
-    !!--++ Function In_Limits_dp(n,limits,vect) result(ok)
-    !!--++   integer,                       intent(in) :: n
-    !!--++   real(kind=dp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
-    !!--++   real(kind=dp), dimension(n),   intent(in) :: vect
-    !!--++   logical                                   :: ok
+    !!--++ FUNCTION IN_LIMITS_DP
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!--++
-    !!--++   Updated: March - 2013
+    !!--++   Updated: 11/07/2015
     !!
     Function in_limits_dp(n,limits,vect) result(ok)
        !---- Arguments ----!
@@ -1523,16 +1233,12 @@
     End Function in_limits_dp
 
     !!--++
-    !!--++ Function in_limits_sp(n,limits,vect) result(ok)
-    !!--++   integer,                       intent(in) :: n
-    !!--++   real(kind=sp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
-    !!--++   real(kind=sp), dimension(n),   intent(in) :: vect
-    !!--++   logical                                   :: ok
+    !!--++ FUNCTION IN_LIMITS_SP
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!--++
-    !!--++   Updated: March - 2013
+    !!--++   Updated: 11/07/2015
     !!
     Function in_limits_sp(n,limits,vect) result(ok)
        !---- Arguments ----!
@@ -1557,14 +1263,7 @@
     End Function in_limits_sp
 
     !!----
-    !!---- Function Locate(xx, n, x) Result(j)
-    !!----     or
-    !!---- Function Locate(xx,x) Result(j)
-    !!----
-    !!----    integer/real(kind=sp), dimension(n),intent(in)  :: xx
-    !!----    integer ,                           intent(in)  :: n
-    !!----    integer/real(kind=sp),              intent(in)  :: x
-    !!----    integer ,                           intent(out) :: j
+    !!---- FUNCTION LOCATE
     !!----
     !!----    Function for locating the index J of an array XX(N)
     !!----    satisfying:
@@ -1572,15 +1271,11 @@
     !!----               XX(J) <= X < XX(J+1)
     !!-->>
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Locate_I(xx, n, x) Result(j)
-    !!--++    integer, dimension(:),intent(in)  :: xx
-    !!--++    integer ,             intent(in)  :: n
-    !!--++    integer,              intent(in)  :: x
-    !!--++    integer ,             intent(out) :: j
+    !!--++ FUNCTION LOCATE_I
     !!--++
     !!--++    Subroutine for locating the index J of an array XX(N)
     !!--++    satisfying:
@@ -1588,13 +1283,13 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: June - 2011
+    !!--++ Update: 11/07/2015
     !!
     Function Locate_I(xx,n,x) Result(j)
        !---- Argument ----!
-       integer, dimension(:), intent(in):: xx
-       integer ,              intent(in):: n
-       integer,               intent(in):: x
+       integer, dimension(:), intent(in):: xx    ! Vector
+       integer ,              intent(in):: n     ! Dimension
+       integer,               intent(in):: x     ! Value
        integer                          :: j
 
        !---- Local Variables ----!
@@ -1623,11 +1318,9 @@
 
        return
     End Function Locate_I
+
     !!--++
-    !!--++ Function Locate_Ib(xx, x) Result(j)
-    !!--++    integer, dimension(:),intent(in)  :: xx
-    !!--++    integer,              intent(in)  :: x
-    !!--++    integer ,             intent(out) :: j
+    !!--++ FUNCTION LOCATE_IB
     !!--++
     !!--++    Subroutine for locating the index J of an array XX(:)
     !!--++    satisfying:
@@ -1635,11 +1328,12 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: June - 2011
+    !!--++ Update: 11/07/2015
+    !!
     Function Locate_Ib(xx,x) Result(j)
        !---- Argument ----!
-       integer, dimension(:), intent(in):: xx
-       integer,               intent(in):: x
+       integer, dimension(:), intent(in):: xx     ! Vector
+       integer,               intent(in):: x      ! Value
        integer                          :: j
 
        !---- Local Variables ----!
@@ -1674,11 +1368,7 @@
        return
     End Function Locate_Ib
     !!--++
-    !!--++ Function Locate_R(xx, n, x) Result(j)
-    !!--++    real(kind=cp), dimension(:),intent(in)  :: xx
-    !!--++    integer ,                   intent(in)  :: n
-    !!--++    real(kind=cp),              intent(in)  :: x
-    !!--++    integer ,                   intent(out) :: j
+    !!--++ FUNCTION LOCATE_R
     !!--++
     !!--++    Function for locating the index J of an array XX(N)
     !!--++    satisfying:
@@ -1686,13 +1376,13 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: June - 2011
+    !!--++ Update:11/07/2015
     !!
     Function Locate_R(xx,n,x) Result(j)
        !---- Argument ----!
-       real(kind=cp), dimension(:), intent(in):: xx
-       integer ,                    intent(in):: n
-       real(kind=cp),               intent(in):: x
+       real(kind=cp), dimension(:), intent(in):: xx    ! Vector
+       integer ,                    intent(in):: n     ! Dimension
+       real(kind=cp),               intent(in):: x     ! Value
        integer                                :: j
 
        !---- Local Variables ----!
@@ -1723,10 +1413,7 @@
     End Function Locate_R
 
     !!--++
-    !!--++ Function Locate_Rb(xx, x) Result(j)
-    !!--++    real(kind=cp), dimension(:),intent(in)  :: xx
-    !!--++    real(kind=cp),              intent(in)  :: x
-    !!--++    integer ,                   intent(out) :: j
+    !!--++ FUNCTION LOCATE_RB
     !!--++
     !!--++    Function for locating the index J of an array XX(:)
     !!--++    satisfying:
@@ -1734,7 +1421,7 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: June - 2011
+    !!--++ Update: 11/07/2015
     !!
     Function Locate_Rb(xx,x) Result(j)
        !---- Argument ----!
@@ -1776,27 +1463,23 @@
     End Function Locate_Rb
 
     !!----
-    !!---- Function Lower_Triangular(A,n) Result (T)
-    !!----   real/integer, dimension(:,:), intent(in) :: A
-    !!----   integer,                      intent(in) :: n
-    !!----   real/integer, dimension(n,n)             :: T
+    !!---- FUNCTION LOWER_TRIANGULAR
+    !!----
+    !!----   Return a Lower triangular array
     !!----
     !!----   Updated: 01/07/2015
     !!
 
     !!--++
-    !!--++ Function Lower_Triangular_I(A,n) Result (T)
-    !!--++   integer, dimension(:,:), intent(in) :: A
-    !!--++   integer,                 intent(in) :: n
-    !!--++   integer, dimension(n,n)             :: T
+    !!--++ FUNCTION LOWER_TRIANGULAR_I
     !!--++
-    !!--++   Updated: October - 2014
+    !!--++   Updated: 11/07/2015
     !!
     Function Lower_Triangular_I(A,n) Result (T)
        !---- Argument ----!
-       integer, dimension(:,:), intent(in) :: A
-       integer,                 intent(in) :: n
-       integer, dimension(n,n)             :: T
+       integer, dimension(:,:), intent(in) :: A     ! Array
+       integer,                 intent(in) :: n     ! Dimension
+       integer, dimension(n,n)             :: T     ! Lower triangular array (n x n)
 
        !---- Local Variable ----!
        integer :: i,j,p,q,m
@@ -1817,12 +1500,9 @@
     End Function  Lower_Triangular_I
 
     !!--++
-    !!--++ Function Lower_Triangular_R(A,n) Result (T)
-    !!--++   real(kind=cp), dimension(:,:), intent(in) :: A
-    !!--++   integer,                       intent(in) :: n
-    !!--++   real(kind=cp), dimension(n,n)             :: T
+    !!--++ FUNCTION LOWER_TRIANGULAR_R
     !!--++
-    !!--++   Updated: October - 2014
+    !!--++   Updated: 11/07/2015
     !!
     Function Lower_Triangular_R(A,n) Result (T)
        !---- Argument ----!
@@ -1848,17 +1528,17 @@
        return
     End Function  Lower_Triangular_R
 
-    !!---- Function Modulo_Lat(U)
-    !!----    real(kind=cp), dimension(:), intent(in) :: u
+    !!----
+    !!---- FUNCTION MODULO_LAT
     !!----
     !!----    Reduces a real vector to another with components in
     !!----    the interval [0,1)
     !!----
-    !!---- Updated: 01/07/2015
+    !!---- Updated: 11/07/2015
     !!
     Function Modulo_Lat(u) result(v)
        !---- Argument ----!
-       real(kind=cp), dimension(:), intent( in) :: u
+       real(kind=cp), dimension(:), intent( in) :: u   ! Vector
        real(kind=cp), dimension(1:size(u))      :: v
 
        v=mod(u+10.0_cp,1.0_cp)
@@ -1867,28 +1547,24 @@
     End Function  Modulo_Lat
 
     !!----
-    !!---- Function Norm(X,G) Result(R)
-    !!----    real(kind=cp)/integer, dimension(:),   intent(in) :: x
-    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
+    !!---- FUNCTION NORM
     !!----
     !!----    Calculate the Norm of a vector
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Norm_I(X,G) Result(R)
-    !!--++    integer,      dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
+    !!--++ FUNCTION NORM_I
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 11/07/2015
     !!
     Function Norm_I(X,G) Result(R)
        !---- Arguments ----!
-       integer,       dimension(:),   intent(in) :: x
-       real(kind=cp), dimension(:,:), intent(in) :: g
+       integer,       dimension(:),   intent(in) :: x        ! Vector
+       real(kind=cp), dimension(:,:), intent(in) :: g        ! Metrics
        real(kind=cp)                             :: r
 
        if (size(x)*size(x) /= size(g)) then
@@ -1901,13 +1577,11 @@
     End Function Norm_I
 
     !!--++
-    !!--++ Function Norm_R(X,G) Result(R)
-    !!--++    real(kind=cp),dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
+    !!--++ FUNCTION NORM_R
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 11/07/2015
     !!
     Function Norm_R(X,G) Result(R)
        !---- Arguments ----!
@@ -1926,9 +1600,7 @@
 
 
     !!----
-    !!---- Function Outerprod(a,b) Result(c)
-    !!----    real(sp/dp),dimension(:),intent(in)    :: a,b
-    !!----    real(sp/dp),dimension(size(a),size(b)) :: c
+    !!---- FUNCTION OUTERPROD
     !!----
     !!----    Computes the outer product (tensorial product) of two
     !!----    vectors to give a tensor (matrix) as the result:
@@ -1938,13 +1610,11 @@
     !!--..    It uses the intrinsic Fortran 90 function SPREAD.
     !!--..    Function adapted from Numerical Recipes.
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Outerprod_dp(a,b) Result(c)
-    !!--++    real(dp),dimension(:),intent(in)    :: a,b
-    !!--++    real(dp),dimension(size(a),size(b)) :: c
+    !!--++ FUNCTION OUTERPROD_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the outer product (tensorial product) of two
@@ -1954,7 +1624,7 @@
     !!--++    It uses the intrinsic Fortran 90 function SPREAD.
     !!--++    Taken from Numerical Recipes.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Outerprod_dp(a,b)  Result(c)
        !---- Arguments ----!
@@ -1967,9 +1637,7 @@
     End Function Outerprod_dp
 
     !!--++
-    !!--++ Function Outerprod_sp(a,b) Result(c)
-    !!--++    real(sp),dimension(:),intent(in)    :: a,b
-    !!--++    real(sp),dimension(size(a),size(b)) :: c
+    !!--++ FUNCTION OUTERPROD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the outer product (tensorial product) of two
@@ -1979,7 +1647,7 @@
     !!--++    It uses the intrinsic Fortran 90 function SPREAD.
     !!--++    Taken from Numerical Recipes.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Outerprod_sp(a,b)  Result(c)
        !---- Arguments ----!
@@ -1992,31 +1660,25 @@
     End Function Outerprod_sp
 
     !!----
-    !!---- Function Scalar(X,Y,G) Result(R)
-    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: x
-    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: y
-    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
+    !!---- FUNCTION SCALAR
     !!----
     !!----    Scalar Product including metrics
     !!----
-    !!---- Update: A01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Scalar_R(X,Y,G) Result(R)
-    !!--++    integer, dimension(:),   intent(in) :: x
-    !!--++    integer, dimension(:),   intent(in) :: y
-    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++ FUNCTION SCALAR_R
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 11/07/2015
     !!
     Function Scalar_I(X,Y,G) Result(R)
        !---- Arguments ----!
-       integer, dimension(:),   intent(in) :: x
-       integer, dimension(:),   intent(in) :: y
-       real(kind=cp), dimension(:,:), intent(in) :: g
+       integer, dimension(:),         intent(in) :: x             ! Vector1
+       integer, dimension(:),         intent(in) :: y             ! Vector2
+       real(kind=cp), dimension(:,:), intent(in) :: g             ! Metrics
        real(kind=cp)                             :: r
 
        if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
@@ -2029,20 +1691,17 @@
     End Function Scalar_I
 
     !!--++
-    !!--++ Function Scalar_R(X,Y,G) Result(R)
-    !!--++    real(kind=cp), dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp), dimension(:),   intent(in) :: y
-    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++ FUNCTION SCALAR_R
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 11/07/201
     !!
     Function Scalar_R(X,Y,G) Result(R)
        !---- Arguments ----!
-       real(kind=cp), dimension(:),   intent(in) :: x
-       real(kind=cp), dimension(:),   intent(in) :: y
-       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp), dimension(:),   intent(in) :: x      ! Vector1
+       real(kind=cp), dimension(:),   intent(in) :: y      ! Vector2
+       real(kind=cp), dimension(:,:), intent(in) :: g      ! Metrics
        real(kind=cp)                             :: r
 
        if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
@@ -2055,22 +1714,20 @@
     End Function Scalar_R
 
     !!----
-    !!---- Function Trace(A)
-    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: a
+    !!---- FUNCTION TRACE
     !!----
     !!----    Provides the trace of a complex/real or integer matrix
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Trace_C(A)
-    !!--++    complex, dimension(:,:), intent(in)  :: a
+    !!--++ FUNCTION TRACE_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a complex nxn array
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Trace_C(a) Result(b)
        !---- Argument ----!
@@ -2090,13 +1747,12 @@
     End Function Trace_C
 
     !!--++
-    !!--++ Function Trace_I(A)
-    !!--++    integer, dimension(:,:), intent(in)  :: a
+    !!--++ FUNCTION TRACE_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of an integer 3x3 array
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Trace_I(a) Result(b)
        !---- Argument ----!
@@ -2116,13 +1772,12 @@
     End Function Trace_I
 
     !!--++
-    !!--++ Function Trace_R(A)
-    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: a
+    !!--++ FUNCTION TRACE_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a real 3x3 array
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Trace_R(a) Result(b)
        !---- Argument ----!
@@ -2142,21 +1797,17 @@
     End Function Trace_R
 
     !!----
-    !!---- Function Upper_Triangular(A,n) Result (T)
-    !!----   real/integer, dimension(:,:), intent(in) :: A
-    !!----   integer,                      intent(in) :: n
-    !!----   real/integer, dimension(n,n)             :: T
+    !!---- FUNCTION UPPER_TRIANGULAR
     !!----
-    !!----   Updated: 01/07/2015
+    !!----    Return the upper triangular matrix
+    !!----
+    !!----   Updated: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Upper_Triangular_I(A,n) Result (T)
-    !!--++   integer, dimension(:,:), intent(in) :: A
-    !!--++   integer,                 intent(in) :: n
-    !!--++   integer, dimension(n,n)             :: T
+    !!--++ FUNCTION UPPER_TRIANGULAR_I
     !!--++
-    !!--++   Updated: 01/07/2015
+    !!--++   Updated: 11/07/2015
     !!--++
     Function Upper_Triangular_I(A,n) Result (T)
        !---- Argument ----!
@@ -2176,12 +1827,9 @@
     End Function  Upper_Triangular_I
 
     !!--++
-    !!--++ Function Upper_Triangular_R(A,n) Result (T)
-    !!--++   real(kind=cp), dimension(:,:), intent(in) :: A
-    !!--++   integer,                       intent(in) :: n
-    !!--++   real(kind=cp), dimension(n,n)             :: T
+    !!--++ FUNCTION UPPER_TRIANGULAR_R
     !!--++
-    !!--++   Updated: October - 2014
+    !!--++   Updated: 11/07/2015
     !!--++
     Function Upper_Triangular_R(A,n) Result (T)
        !---- Argument ----!
@@ -2201,27 +1849,21 @@
     End Function  Upper_Triangular_R
 
     !!----
-    !!---- Logical Function Zbelong(V)
-    !!----    real(kind=cp),   dimension(:,:), intent( in) :: v
-    !!----                      or
-    !!----    real(kind=cp),   dimension(:),   intent( in) :: v
-    !!----                      or
-    !!----    real(kind=cp),                   intent( in) :: v
+    !!---- LOGICAL FUNCTION ZBELONG
     !!----
     !!----    Provides the value .TRUE. if the real number (or array) V is close enough
     !!----    (whithin EPS) to an integer.
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Logical Function ZbelongM(V)
-    !!--++    real(kind=cp),   dimension(:,:), intent( in) :: v
+    !!--++ LOGICAL FUNCTION ZBELONGM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real array is an Integer matrix
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function ZbelongM(v) Result(belong)
        !---- Argument ----!
@@ -2238,13 +1880,12 @@
     End Function ZbelongM
 
     !!--++
-    !!--++ Logical Function ZbelongN(A)
-    !!--++    real(kind=cp),  intent(in)  :: a
+    !!--++ LOGICAL FUNCTION ZBELONGN
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is an Integer
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
    !!
     Function ZbelongN(a) Result(belong)
        !---- Argument ----!
@@ -2259,13 +1900,12 @@
     End Function ZbelongN
 
     !!--++
-    !!--++ Logical Function ZbelongV(V)
-    !!--++    real(kind=sp),   dimension(:), intent( in) :: v
+    !!--++ LOGICAL FUNCTION ZBELONGV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real vector is an Integer vector
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function ZbelongV(v) Result(belong)
        !---- Argument ----!
@@ -2291,11 +1931,11 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Init_Err_Mathgen()
+    !!---- SUBROUTINE INIT_ERR_MATHGEN
     !!----
     !!----    Initialize the errors flags in CFML_Math_General
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Subroutine Init_Err_MathGen()
 
@@ -2306,12 +1946,11 @@
     End Subroutine Init_Err_MathGen
 
     !!----
-    !!---- Subroutine Set_Epsg(Neweps)
-    !!----    real(kind=cp), intent( in) :: neweps
+    !!---- SUBROUTINE SET_EPSG
     !!----
     !!----    Sets Global EPS to the value "neweps"
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Subroutine Set_Epsg(Neweps)
        !---- Arguments ----!
@@ -2323,11 +1962,11 @@
     End Subroutine Set_Epsg
 
     !!----
-    !!---- Subroutine Set_Epsg_Default()
+    !!---- SUBROUTINE SET_EPSG_DEFAULT
     !!----
     !!----    Sets Global EPS to the default value: epss=1.0E-5_sp
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Subroutine Set_Epsg_Default()
 
@@ -2337,28 +1976,22 @@
     End Subroutine Set_Epsg_Default
 
     !!----
-    !!---- Subroutine Rtan(y,x,ang,deg)
-    !!----    real(sp/dp),               intent( in) :: x,y
-    !!----    real(sp/dp),               intent(out) :: ang
-    !!----    character(len=*),optional, intent( in) :: deg
+    !!---- SUBROUTINE RTAN
     !!----
     !!----    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
     !!----    cos(ang) are those of y and x. If deg is present, return ang in degrees.
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Rtan_dp(y,x,ang,deg)
-    !!--++    real(dp),                  intent( in) :: x,y
-    !!--++    real(dp),                  intent(out) :: ang
-    !!--++    character(len=*),optional, intent( in) :: deg
+    !!--++ SUBROUTINE RTAN_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
     !!--++    cos(ang) are those of y and x. If deg is present, return ang in degrees.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Rtan_dp(y,x,ang,deg)
        !---- Arguments ----!
@@ -2390,16 +2023,13 @@
     End Subroutine Rtan_dp
 
     !!--++
-    !!--++ Subroutine Rtan_sp(x,y,ang,deg)
-    !!--++    real(sp),                  intent( in) :: x,y
-    !!--++    real(sp),                  intent(out) :: ang
-    !!--++    character(len=*),optional, intent( in) :: deg
+    !!--++ SUBROUTINE RTAN_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
     !!--++    cos(ang) are those of y and x. If deg is present, return ang in degrees.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Rtan_sp(y,x,ang,deg)
        !---- Arguments ----!
@@ -2431,26 +2061,23 @@
     End Subroutine Rtan_sp
 
     !!----
-    !!----  Subroutine Co_Prime_Vector(V,Cop,F)
-    !!----     integer, dimension(:), intent(in)  :: v      !input integer vector
-    !!----     integer, dimension(:), intent(out) :: cop    !Output co-prime vector
-    !!----     integer,  optional,    intent(out) :: f      !Common multiplicative factor
+    !!----  SUBROUTINE CO_PRIME_VECTOR
     !!----
     !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
     !!----     It uses the list of the first thousand prime numbers.
     !!----
     !!--..     copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
     !!----
-    !!----   Updated: 01/07/2015
+    !!----   Updated: 11/07/2015
     !!----
     Subroutine Co_Prime_Vector(V,Cop,f)
        !---- Arguments ----!
-       integer, dimension(:), intent(in)  :: v
-       integer, dimension(:), intent(out) :: cop
-       integer,  optional,    intent(out) :: f
+       integer, dimension(:), intent(in)  :: v              ! input integer vector
+       integer, dimension(:), intent(out) :: cop            ! Output co-prime vector
+       integer,  optional,    intent(out) :: f              ! Common multiplicative factor
 
        !---- Local variables ----!
-       integer                     :: i,j,max_ind,k,im,dimv,n
+       integer :: i,j,max_ind,k,im,dimv,n
 
        cop=v
        n=1
@@ -2487,11 +2114,7 @@
     End Subroutine Co_Prime_vector
 
     !!----
-    !!---- Subroutine Determinant(A,n,determ)
-    !!----    complex/real(sp), dimension(:,:), intent( in) :: A      !input square matrix (n,n)
-    !!----    integer,                          intent( in) :: n      !actual dimension of A
-    !!----    real(kind=sp),                    intent(out) :: determ !det(A) if real
-    !!----                                                             det(AR)^2 + det(AI)^2 if complex
+    !!---- SUBROUTINE DETERMINANT
     !!----
     !!----    Calculates the determinant of a real square matrix.
     !!----    Calculates the pseudo-determinant of a complex square matrix.
@@ -2509,11 +2132,7 @@
     !!
 
     !!--++
-    !!--++ Subroutine Determinant_C(A,n,determ)
-    !!--++    complex,          dimension(:,:), intent( in) :: A      !input square matrix (n,n)
-    !!--++    integer,                          intent( in) :: n      !actual dimension of A
-    !!--++    real(kind=cp),                    intent(out) :: determ !det(A) if real
-    !!--++                                                             det(AR)^2 + det(AI)^2 if complex
+    !!--++ SUBROUTINE DETERMINANT_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real square matrix.
@@ -2523,13 +2142,13 @@
     !!--++
     !!--++    P R O V I S I O N A L (The determinant of A is not calculated at present)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Determinant_C(A,n,determ)
        !---- Arguments ----!
-       complex, dimension(:,:), intent( in) :: A
-       integer,                 intent( in) :: n
-       real(kind=cp),           intent(out) :: determ
+       complex, dimension(:,:), intent( in) :: A              ! Complex array
+       integer,                 intent( in) :: n              ! Dimension
+       real(kind=cp),           intent(out) :: determ         ! det(AR)^2 + det(AI)^2
 
        !---- local variables ----!
        real(kind=cp),    dimension(2*n,2*n) :: AC   !real square matrix
@@ -2560,20 +2179,17 @@
     End Subroutine Determinant_C
 
     !!--++
-    !!--++ Subroutine Determinant_R(A,n,determ)
-    !!--++    real(kind=cp), dimension(:,:),intent( in) :: A   (input square matrix (n,n))
-    !!--++    integer,                      intent( in) :: n   (actual dimension of A)
-    !!--++    real(kind=cp),                intent(out) :: determ  (determinant )
+    !!--++ SUBROUTINE DETERMINANT_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real square matrix.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Determinant_R(A,n,determ)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent( in) :: A
-       integer,                       intent( in) :: n
+       real(kind=cp), dimension(:,:), intent( in) :: A          ! Real array
+       integer,                       intent( in) :: n          ! Dimension
        real(kind=cp),                 intent(out) :: determ
 
        !---- local variables ----!
@@ -2600,39 +2216,31 @@
     End Subroutine Determinant_R
 
     !!----
-    !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect)
-    !!----    complex/real,      dimension(:,:), intent( in)  :: A
-    !!----    integer,                           intent( in)  :: n
-    !!----    real(kind=cp),     dimension(:),   intent(out)  :: E_val
-    !!----    complex, optional, dimension(:,:), intent(out)  :: E_vect
+    !!---- SUBROUTINE DIAGONALIZE_SH
     !!----
     !!----    Diagonalize Symmetric/Hermitian matrices.
     !!----    The eigen_values E_val are sorted in descending order. The columns
     !!----    of E_vect are the corresponding eigenvectors.
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update:11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
-    !!--++    complex,           dimension(:,:), intent( in)  :: A
-    !!--++    integer,                           intent( in)  :: n
-    !!--++    real(kind=cp),     dimension(:),   intent(out)  :: E_val
-    !!--++    complex, optional, dimension(:,:), intent(out)  :: E_vect
+    !!--++ SUBROUTINE DIAGONALIZE_HERM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize Hermitian matrices.
     !!--++    The eigen_values E_val are sorted in descending order. The columns
     !!--++    of E_vect are the corresponding eigenvectors.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
        !---- Arguments ----!
-       complex,           dimension(:,:), intent( in)  :: A
-       integer,                           intent( in)  :: n
-       real(kind=cp),     dimension(:),   intent(out)  :: E_val
-       complex, optional, dimension(:,:), intent(out)  :: E_vect
+       complex,           dimension(:,:), intent( in)  :: A           ! Complex array
+       integer,                           intent( in)  :: n           ! Dimension
+       real(kind=cp),     dimension(:),   intent(out)  :: E_val       ! Autovalores
+       complex, optional, dimension(:,:), intent(out)  :: E_vect      ! Autovectores
 
        !---- Local variables ----!
        real(kind=cp),        dimension(2*n,2*n)   :: aux
@@ -2669,25 +2277,21 @@
     End Subroutine Diagonalize_Herm
 
     !!--++
-    !!--++ Subroutine Diagonalize_Symm(a,n,e_val,e_vect)
-    !!--++    real(kind=cp)            dimension(:,:),intent( in)  :: A      (input matrix with)
-    !!--++    integer,                                intent( in)  :: n      (actual dimension)
-    !!--++    real(kind=cp),           dimension(:),  intent(out)  :: E_val  (eigenvalues)
-    !!--++    real(kind=cp), optional, dimension(:,:),intent(out)  :: E_vect (eigenvectors)
+    !!--++ SUBROUTINE DIAGONALIZE_SYMM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize symmetric matrices
     !!--++    The eigen_values E_val are sorted in descending order. The columns
     !!--++    of E_vect are the corresponding eigenvectors.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Diagonalize_Symm(A,n,E_Val,E_vect)
        !---- Arguments ----!
-       real(kind=cp),           dimension(:,:), intent( in)  :: A
-       integer,                                 intent( in)  :: n
-       real(kind=cp),           dimension(:),   intent(out)  :: E_val
-       real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect
+       real(kind=cp),           dimension(:,:), intent( in)  :: A          ! Array
+       integer,                                 intent( in)  :: n          ! Dimension
+       real(kind=cp),           dimension(:),   intent(out)  :: E_val      ! Autovalores
+       real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect     ! Autovectores
 
        !---- Local variables ----!
        real(kind=cp),        dimension(n,n)   :: aux
@@ -2717,11 +2321,7 @@
     End Subroutine Diagonalize_Symm
 
     !!--++
-    !!--++ Subroutine Eigsrt(d,v,n,io)
-    !!--++    real(kind=cp), dimension(:),   intent(in out) :: d
-    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: v
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    integer,                       intent (in)    :: io
+    !!--++ SUBROUTINE EIGSRT
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for sorting eigenvalues in d(n) and eigenvectors
@@ -2769,26 +2369,19 @@
     End Subroutine Eigsrt
 
     !!----
-    !!---- Subroutine First_Derivative(x, y, n, d2y, d1y)
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: d2y   !  In -> array containing second derivatives
-    !!----                                                                     at the given points
-    !!----    real(kind=cp),    intent(out),    dimension(:) :: d1y   ! Out -> array containing first derivatives
-    !!----                                                                     at the given points
+    !!---- SUBROUTINE FIRST_DERIVATIVE
     !!----
     !!----    Calculate the First derivate values of the N points
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Subroutine First_Derivative(x,y,n,d2y,d1y)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp), dimension(:), intent(in)  :: d2y
-       real(kind=cp), dimension(:), intent(out) :: d1y
+       real(kind=cp), dimension(:), intent(in)  :: x                      ! X Vector
+       real(kind=cp), dimension(:), intent(in)  :: y                      ! Yi=F(Xi)
+       integer ,                    intent(in)  :: n                      ! Dimension of X, Y
+       real(kind=cp), dimension(:), intent(in)  :: d2y                    ! Second derivative
+       real(kind=cp), dimension(:), intent(out) :: d1y                    ! First derivative
 
        !---- Local Variables ----!
        integer       :: i
@@ -2811,11 +2404,7 @@
     End Subroutine First_Derivative
 
     !!----
-    !!---- Subroutine In_Sort(id,n,p,q)
-    !!----    integer, dimension(:), intent(in) :: id  !Integer array to be sorted
-    !!----    integer,               intent(in) :: n   !Number items in the array
-    !!----    integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
-    !!----    integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
+    !!---- SUBROUTINE IN_SORT
     !!--<<
     !!----    Subroutine to order in ascending mode the integer array "id".
     !!----    The input value "n" is the number of items to be ordered in "id".
@@ -2823,7 +2412,7 @@
     !!----    The final pointer holding the order of items.
     !!-->>
     !!----
-    !!---- Update: November - 2008
+    !!---- Update: 11/07/2015
     !!
     Subroutine In_Sort(id,n,p,q)
        !---- Arguments ----!
@@ -2863,11 +2452,7 @@
     End Subroutine In_Sort
 
     !!----
-    !!---- Subroutine Invert_Matrix(a,b,singular,perm)
-    !!----    real(kind=cp), dimension(:,:),  intent( in) :: a
-    !!----    real(kind=cp), dimension(:,:),  intent(out) :: b
-    !!----    LOGICAL,                        intent(out) :: singular
-    !!----    integer, dimension(:),optional, intent(out) :: perm
+    !!---- Subroutine INVERT_MATRIX
     !!--<<
     !!----    Subroutine to invert a real matrix using LU decomposition.
     !!----    In case of singular matrix (singular=.true.) instead of the inverse
@@ -2878,7 +2463,7 @@
     !!----    performed to obtain the LU decomposition.
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update:11/07/2015
     !!
     Subroutine Invert_Matrix(a,b,singular,perm)
        !---- Arguments ----!
@@ -2926,11 +2511,7 @@
     End Subroutine Invert_Matrix
 
     !!----
-    !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,info)
-    !!----    complex/integer/real(kind=cp), dimension(:),   intent(in)  :: a
-    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: b
-    !!----    integer,                                       intent(in)  :: na,nb,mb
-    !!----    logical,                                       intent(out) :: info
+    !!---- SUBROUTINE LINEAR_DEPENDENT
     !!--<<
     !!----    Provides the value .TRUE. if the vector A is linear dependent of the
     !!----    vectors constituting the rows (columns) of the matrix B. In input nb & mb
@@ -2943,15 +2524,11 @@
     !!----    is generated. The function uses floating arithmetic for all types.
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Linear_DependentC(a,na,b,nb,mb,info)
-    !!--++    complex, dimension(:),   intent(in)  :: a
-    !!--++    complex, dimension(:,:), intent(in)  :: b
-    !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: info
+    !!--++ SUBROUTINE LINEAR_DEPENDENTC
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -2977,7 +2554,7 @@
     !!--++
     !!--++    The function uses floating arithmetic for all types.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Linear_DependentC(A,na,B,nb,mb,info)
        !---- Arguments ----!
@@ -3035,11 +2612,7 @@
     End Subroutine Linear_DependentC
 
     !!--++
-    !!--++ Subroutine Linear_DependentI(a,na,b,nb,mb,info)
-    !!--++    integer, dimension(:),   intent(in)  :: a
-    !!--++    integer, dimension(:,:), intent(in)  :: b
-    !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: info
+    !!--++ SUBROUTINE LINEAR_DEPENDENTI
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3053,7 +2626,7 @@
     !!--++    is generated
     !!--++    The function uses floating arithmetic for all types.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Linear_DependentI(A,na,B,nb,mb,info)
        !---- Arguments ----!
@@ -3099,11 +2672,7 @@
     End Subroutine Linear_DependentI
 
     !!--++
-    !!--++ Subroutine Linear_DependentR(a,na,b,nb,mb,info)
-    !!--++    real(kind=cp), dimension(:),   intent(in)  :: a
-    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: b
-    !!--++    integer,                       intent(in)  :: na,nb,mb
-    !!--++    logical,                       intent(out) :: info
+    !!--++ SUBROUTINE LINEAR_DEPENDENTR
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3117,7 +2686,7 @@
     !!--++    is generated
     !!--++    The function uses floating arithmetic for all types.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Linear_DependentR(A,na,B,nb,mb,info)
        !---- Arguments ----!
@@ -3163,10 +2732,7 @@
     End Subroutine Linear_DependentR
 
     !!----
-    !!---- Subroutine LU_Backsub(a,indx,b)
-    !!----    real(kind=cp),    dimension(:,:),intent(in)     :: a
-    !!----    integer,          dimension(:),  intent(in)     :: indx
-    !!----    real(kind=cp),    dimension(:),  intent(in out) :: b
+    !!---- SUBROUTINE LU_BACKSUB
     !!--<<
     !!----    Adapted from Numerical Recipes.
     !!----    Solves the set of N linear equations A  X = B. Here the N x N matrix A is input,
@@ -3179,7 +2745,7 @@
     !!----    begin with many zero elements, so it is efficient for use in matrix inversion.
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine LU_Backsub(a,indx,b)
        !---- Arguments ----!
@@ -3213,11 +2779,7 @@
     End Subroutine LU_Backsub
 
     !!----
-    !!---- Subroutine LU_Decomp(a,d,singular,indx)
-    !!----    real(kind=cp),    dimension(:,:),intent(in out) :: a
-    !!----    real(kind=cp),                   intent(out)    :: d
-    !!----    logical,                         intent(out)    :: singular
-    !!----    integer, dimension(:), optional, intent(out)    :: indx
+    !!---- SUBROUTINE LU_DECOMP
     !!--<<
     !!----    Subroutine to make the LU decomposition of an input matrix A.
     !!----    The input matrix is destroyed and replaced by a matrix containing
@@ -3228,7 +2790,7 @@
     !!----    the number of row interchanges was even or odd, respectively.
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine LU_Decomp(a,d,singular,indx)
        !---- Arguments ----!
@@ -3272,14 +2834,12 @@
     End Subroutine LU_Decomp
 
     !!----
-    !!---- Subroutine Matinv(a,n)
-    !!----    real(kind=cp), dimension(:,:),intent(in out) :: a
-    !!----    integer     ,                 intent(in)     :: n
+    !!---- SUBROUTINE MATINV
     !!----
     !!----  Subroutine for inverting a real square matrix.
     !!----  The input matrix is replaced in output with its inverse.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Matinv(a,n)
        !---- Arguments ----!
@@ -3372,14 +2932,11 @@
     End Subroutine Matinv
 
     !!--++
-    !!--++ Subroutine Partition(A, marker)
-    !!--++    character(len=*), dimension(:), intent(in out) :: A
-    !!--++    integer,                        intent(out)    :: marker
-    !!--++
+    !!--++ SUBROUTINE PARTITION
     !!--++    (Private)
     !!--++    Utilised by Sort_Strings.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Partition(A, Marker)
        !---- Arguments ----!
@@ -3424,17 +2981,13 @@
     End Subroutine Partition
 
     !!----
-    !!---- Subroutine Points_In_Line2D(X1, XN, N, XP)
-    !!----    real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
-    !!----    real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
-    !!----    integer,                       intent(in)  :: N    ! Number of Total points
-    !!----    real(kind=cp), dimension(:,:), intent(out) :: XP   ! List of points
+    !!---- SUBROUTINE POINTS_IN_LINE2D
     !!----
     !!----    The routine calculate N points belonging to the line defined
     !!----    by X1 and Xn with equal distance between them. XP contains
     !!----    X1,X2,.....,XN points.
     !!----
-    !!---- Update: April 2008
+    !!---- Update: 11/07/2015
     !!
     Subroutine Points_In_Line2D(X1, XN, N, XP)
        !---- Arguments ----!
@@ -3541,26 +3094,20 @@
     End Subroutine Points_In_Line2D
 
     !!----
-    !!---- Subroutine Rank(a,tol,r)
-    !!----    real(sp/dp), dimension(:,:), intent( in) :: a
-    !!----    real(sp/dp),                 intent( in) :: tol
-    !!----    integer,                     intent(out) :: r
+    !!---- SUBROUTINE RANK
     !!----
     !!----    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Rank_dp(a,tol,r)
-    !!--++    real(dp), dimension(:,:), intent( in) :: a
-    !!--++    real(dp),                 intent( in) :: tol
-    !!--++    integer,                  intent(out) :: r
+    !!--++ SUBROUTINE RANK_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Rank_dp(a,tol,r)
        !---- Arguments ----!
@@ -3589,15 +3136,12 @@
     End Subroutine Rank_dp
 
     !!--++
-    !!--++ Subroutine Rank_sp(a,tol,r)
-    !!--++    real(sp), dimension(:,:), intent( in) :: a
-    !!--++    real(sp),                 intent( in) :: tol
-    !!--++    integer,                  intent(out) :: r
+    !!--++ SUBROUTINE RANK_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Rank_sp(a,tol,r)
        !---- Arguments ----!
@@ -3626,23 +3170,18 @@
     End Subroutine Rank_sp
 
     !!----
-    !!---- Subroutine Second_Derivative(x, y, n, d2y)
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(out),    dimension(n) :: d2y    ! Out -> array containing second derivatives
-    !!----                                                                     at the given points
+    !!---- SUBROUTINE SECOND_DERIVATIVE
     !!----
     !!----    Calculate the second derivate of N Points
     !!----
-    !!---- Update: January - 2006
+    !!---- Update: 11/07/2015
     !!
     Subroutine Second_Derivative(x,y,n,d2y)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp), dimension(:), intent(out) :: d2y
+       real(kind=cp), dimension(:), intent(in)  :: x      ! X array
+       real(kind=cp), dimension(:), intent(in)  :: y      ! Yi=F(Xi)
+       integer ,                    intent(in)  :: n      ! Dimension of X,Y
+       real(kind=cp), dimension(:), intent(out) :: d2y    ! Second derivative
 
        !---- Local Variables ----!
        integer                     :: i, k
@@ -3674,22 +3213,18 @@
     End Subroutine Second_Derivative
 
     !!----
-    !!---- Subroutine SmoothingVec(Y, N, NIter, Ys)
-    !!----    real(kind=cp),    dimension(:),           intent(in out) :: Y      !  In Out-> Array to be smoothed
-    !!----    integer,                                  intent(in)     :: N      !  In -> Number of points
-    !!----    integer,                                  intent(in)     :: NIter  !  In -> Number of iterations
-    !!----    real(kind=cp),    dimension(:), optional, intent(out)    :: datY   !  Out-> Array smoothed
+    !!---- SUBROUTINE SMOOTHINGVEC
     !!----
     !!----    Procedure to smooth the array values
     !!----
-    !!---- Update: January - 2006
+    !!---- Update: 11/07/2015
     !!
     Subroutine SmoothingVec(Y, N, Niter, Ys)
        !---- Arguments ----!
-       real(kind=cp),dimension(:),            intent(in out) :: Y
-       integer,                               intent(in)     :: n
-       integer,                               intent(in)     :: niter
-       real(kind=cp),dimension(:), optional,  intent(out)    :: Ys
+       real(kind=cp),dimension(:),            intent(in out) :: Y          ! Array to be smoothed
+       integer,                               intent(in)     :: n          ! Number of points
+       integer,                               intent(in)     :: niter      ! Number of iterations
+       real(kind=cp),dimension(:), optional,  intent(out)    :: Ys         ! Array smoothed
 
        !---- Local Variables ----!
        integer                     :: n1, n2
@@ -3724,28 +3259,22 @@
     End Subroutine SmoothingVec
 
     !!---
-    !!---- Subroutine Sort(a,n,indx)
-    !!----    integer/real(kind=cp)  dimension(:), intent( in) :: a
-    !!----    integer,                             intent( in) :: n
-    !!----    integer,               dimension(:), intent(out) :: indx
+    !!---- SUBROUTINE SORT
     !!----
     !!----    Sort an array such the a(indx(j)) is in ascending
     !!----    order for j=1,2,...,N.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Sort_I(Arr,N,Indx)
-    !!--++    integer, dimension(:), intent( in) :: arr
-    !!--++    integer,               intent( in) :: n
-    !!--++    integer, dimension(:), intent(out) :: indx
+    !!--++ SUBROUTINE SORT_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sort an array such the arr(indx(j)) is in ascending
     !!--++    order for j=1,2,...,N.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Sort_I(arr,n,indx)
        !---- Arguments ----!
@@ -3850,16 +3379,13 @@
     End Subroutine Sort_I
 
     !!--++
-    !!--++ Subroutine Sort_R(arr,n,indx)
-    !!--++    real(kind=cp),dimension(:), intent( in) :: arr
-    !!--++    integer,                    intent( in) :: n
-    !!--++    integer,      dimension(:), intent(out) :: indx
+    !!--++ SUBROUTINE SORT_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sort an array such the arr(indx(j)) is in ascending
     !!--++    order for j=1,2,...,N.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Sort_R(arr,n,indx)
        !---- Arguments ----!
@@ -3964,12 +3490,11 @@
     End Subroutine Sort_R
 
     !!----
-    !!---- Subroutine Sort_Strings(arr)
-    !!----    character(len=*), dimension(:), intent(in out) :: arr
+    !!---- SUBROUTINE SORT_STRINGS
     !!----
     !!----    Sort an array of string
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Recursive Subroutine Sort_Strings(VStr)
        !---- Argument ----!
@@ -3988,26 +3513,20 @@
     End Subroutine Sort_Strings
 
     !!----
-    !!---- Subroutine Spline(x, y, n, yp1, ypn, y2)
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(in)                   :: yp1   !  In -> Derivate of Point 1
-    !!----    real(kind=cp),    intent(in)                   :: ypn   !  In -> Derivate of Point N
-    !!----    real(kind=cp),    intent(out),    dimension(n) :: y2    ! Out -> array containing second derivatives
-    !!----                                                                     at the given points
+    !!---- SUBROUTINE SPLINE
+    !!----
     !!----    Spline  N points
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Spline(x,y,n,yp1,ypn,y2)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp),               intent(in)  :: yp1
-       real(kind=cp),               intent(in)  :: ypn
-       real(kind=cp), dimension(:), intent(out) :: y2
+       real(kind=cp), dimension(:), intent(in)  :: x       ! X array
+       real(kind=cp), dimension(:), intent(in)  :: y       ! Yi=F(Xi)
+       integer ,                    intent(in)  :: n       ! Dimension X,Y
+       real(kind=cp),               intent(in)  :: yp1     ! Derivate of Point 1
+       real(kind=cp),               intent(in)  :: ypn     ! Derivate of Point N
+       real(kind=cp), dimension(:), intent(out) :: y2      ! Second derivatives at the given points
 
        !---- Local Variables ----!
        integer                     :: i, k
@@ -4045,26 +3564,20 @@
     End Subroutine Spline
 
     !!----
-    !!---- Subroutine Splint(x, y, y2, n, xp, yp)
-    !!----    real(kind=cp),    intent(in), dimension(n) :: x  !  In -> Array X
-    !!----    real(kind=cp),    intent(in), dimension(n) :: y  !  In -> Array Y=F(X)
-    !!----    real(kind=cp),    intent(in), dimension(n) :: y2 !  In -> Array Second Derivatives in X
-    !!----    integer ,         intent(in)               :: n  !  In -> Dimension of XA,YA,Y2A
-    !!----    real(kind=cp),    intent(in)               :: xp !  In -> Point to evaluate
-    !!----    real(kind=cp),    intent(out),             :: yp ! Out -> Interpoled value
+    !!---- SUBROUTINE SPLINT
     !!----
     !!----    Spline Interpolation
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Splint(xa,ya,y2a,n,x,y)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: xa
-       real(kind=cp), dimension(:), intent(in)  :: ya
-       real(kind=cp), dimension(:), intent(in)  :: y2a
-       integer ,                    intent(in)  :: n
-       real(kind=cp),               intent(in)  :: x
-       real(kind=cp),               intent(out) :: y
+       real(kind=cp), dimension(:), intent(in)  :: xa     ! Array X
+       real(kind=cp), dimension(:), intent(in)  :: ya     ! Y=F(x)
+       real(kind=cp), dimension(:), intent(in)  :: y2a    ! Second derivative
+       integer ,                    intent(in)  :: n      ! Dimension X,Y,Y2
+       real(kind=cp),               intent(in)  :: x      ! Point to evaluate
+       real(kind=cp),               intent(out) :: y      ! Interpoled value
 
        !---- Local Variables ----!
        integer          :: klo, khi, k
@@ -4095,10 +3608,7 @@
     End Subroutine Splint
 
     !!----
-    !!---- Subroutine Svdcmp(a,w,v)
-    !!----    real(sp/dp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!----    real(sp/dp),dimension(:),  intent(   out) :: w  !W(n)
-    !!----    real(sp/dp),dimension(:,:),intent(   out) :: v  !V(n,n)
+    !!---- SUBROUTINE SVDCMP
     !!--<<
     !!----    Given an M�N matrix A ,this routine computes its singular value decomposition,
     !!----    A = U �W �VT . The matrix U replaces A on output. The diagonal matrix of
@@ -4107,14 +3617,11 @@
     !!----    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Svdcmp_dp(a,w,v)
-    !!--++    real(dp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!--++    real(dp),dimension(:),  intent(   out) :: w  !W(n)
-    !!--++    real(dp),dimension(:,:),intent(   out) :: v  !V(n,n)
+    !!--++ SUBROUTINE SVDCMP_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Given an M �N matrix A ,this routine computes its singular value decomposition,
@@ -4123,13 +3630,13 @@
     !!--++    (not the transpose VT )is output as v .
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Svdcmp_dp(a,w,v)
        !---- Arguments ----!
-       real(kind=dp),dimension(:,:),intent(in out) ::a
-       real(kind=dp),dimension(:),  intent(   out) ::w
-       real(kind=dp),dimension(:,:),intent(   out) ::v
+       real(kind=dp),dimension(:,:),intent(in out) ::a   ! A(m,n)
+       real(kind=dp),dimension(:),  intent(   out) ::w   ! W(n)
+       real(kind=dp),dimension(:,:),intent(   out) ::v   ! V(n,n)
 
        !---- Local variables ----!
        integer, parameter                          :: num_its=500
@@ -4303,10 +3810,7 @@
     End Subroutine Svdcmp_dp
 
     !!--++
-    !!--++ Subroutine Svdcmp_sp(a,w,v)
-    !!--++    real(sp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!--++    real(sp),dimension(:),  intent(   out) :: w  !W(n)
-    !!--++    real(sp),dimension(:,:),intent(   out) :: v  !V(n,n)
+    !!--++ SUBROUTINE SVDCMP_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Given an M �N matrix A ,this routine computes its singular value decomposition,
@@ -4315,7 +3819,7 @@
     !!--++    (not the transpose VT )is output as v .
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Svdcmp_sp(a,w,v)
        !---- Arguments ----!
@@ -4496,36 +4000,21 @@
     End Subroutine Svdcmp_sp
 
     !!----
-    !!---- Subroutine Swap(a,b) or Swap(a,b,mask)
-    !!----    integer,real(cp),complex, intent( in out) :: a, b
-    !!----      or
-    !!----    integer,real(cp),complex, dimension(:), intent( in out) :: a, b
-    !!----      or
-    !!----    integer,real(cp),complex, dimension(:,:), intent( in out) :: a, b
-    !!----      or
-    !!----    real(kind=cp),  intent(in out) :: a,b
-    !!----    logical,        intent(in)     :: mask
-    !!----      or
-    !!----    real(kind=cp), dimension(:), intent(in out) :: a,b
-    !!----    logical,       dimension(:), intent(in)     :: mask
-    !!----      or
-    !!----    real(kind=cp), dimension(:,:), intent(in out) :: a,b
-    !!----    logical,       dimension(:,:), intent(in)     :: mask
+    !!---- SUBROUTINE SWAP
     !!----
     !!----    Swap the contents of a and b, when mask (if given) is true.
     !!----
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Swap_C(a,b)
-    !!--++    complex, intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_C(a,b)
        !---- Arguments ----!
@@ -4543,13 +4032,12 @@
     End Subroutine Swap_C
 
     !!--++
-    !!--++ Subroutine Swap_Cm(A,B)
-    !!--++    complex, dimension(:,:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_CM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Cm(a,b)
        !---- Arguments ----!
@@ -4567,13 +4055,12 @@
     End Subroutine Swap_Cm
 
     !!--++
-    !!--++ Subroutine Swap_Cv(a,b)
-    !!--++    complex, dimension(:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_CV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Cv(a,b)
        !---- Arguments ----!
@@ -4591,13 +4078,12 @@
     End Subroutine Swap_Cv
 
     !!--++
-    !!--++ Subroutine Swap_I(A,B)
-    !!--++    integer , intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_I(A,B)
        !---- Arguments ----!
@@ -4615,13 +4101,12 @@
     End Subroutine Swap_I
 
     !!--++
-    !!--++ Subroutine Swap_Im(A,B)
-    !!--++    integer, dimension(:,:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_IM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Im(A,B)
        !---- Arguments ----!
@@ -4639,13 +4124,12 @@
     End Subroutine Swap_Im
 
     !!--++
-    !!--++ Subroutine Swap_Iv(A,B)
-    !!--++    integer, dimension(:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_IV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Iv(A,B)
        !---- Arguments ----!
@@ -4663,13 +4147,12 @@
     End Subroutine Swap_Iv
 
     !!--++
-    !!--++ Subroutine Swap_R(A,B)
-    !!--++    real(kind=cp) , intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_R(A,B)
        !---- Arguments ----!
@@ -4687,13 +4170,12 @@
     End Subroutine Swap_R
 
     !!--++
-    !!--++ Subroutine Swap_Rm(A,B)
-    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_RM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Rm(A,B)
        !---- Arguments ----!
@@ -4711,13 +4193,12 @@
     End Subroutine Swap_Rm
 
     !!--++
-    !!--++ Subroutine Swap_Rv(A,B)
-    !!--++    real(kind=cp), dimension(:), intent(in out) :: a,b
+    !!--++ SUBROUTINE SWAP_RV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Swap_Rv(A,B)
        !---- Arguments ----!
@@ -4735,14 +4216,12 @@
     End Subroutine Swap_Rv
 
     !!--++
-    !!--++ Subroutine Masked_Swap_R(A,B,Mask)
-    !!--++    real(kind=cp), intent(in out) :: a,b
-    !!--++    logical,           intent(in) :: mask
+    !!--++ SUBROUTINE MASKED_SWAP_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b if mask=.true.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Masked_Swap_R(A,B,Mask)
        !---- Arguments ----!
@@ -4763,14 +4242,12 @@
     End Subroutine Masked_Swap_R
 
     !!--++
-    !!--++ Subroutine Masked_Swap_Rm(A,B,Mask)
-    !!--++    real(kind=cp), dimension(:,:),intent(in out) :: a,b
-    !!--++    logical,       dimension(:,:),    intent(in) :: mask
+    !!--++ SUBROUTINE MASKED_SWAP_RM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b where mask=.true.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Masked_Swap_Rm(A,B,Mask)
        !---- Arguments ----!
@@ -4791,14 +4268,12 @@
     End Subroutine Masked_Swap_Rm
 
     !!--++
-    !!--++ Subroutine Masked_Swap_Rv(A,B,Mask)
-    !!--++    real(kind=cp), dimension(:),intent(in out) :: a,b
-    !!--++    logical,       dimension(:),    intent(in) :: mask
+    !!--++ SUBROUTINE MASKED_SWAP_RV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b where mask=.true.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Masked_Swap_Rv(A,B,Mask)
        !---- Arguments ----!
@@ -4819,10 +4294,7 @@
     End Subroutine Masked_Swap_Rv
 
     !!--++
-    !!--++ Subroutine Tqli1(d,e,n)
-    !!--++    real(kind=cp), dimension(:), intent (in out):: d
-    !!--++    real(kind=cp), dimension(:), intent (in out):: e
-    !!--++    integer,                     intent (in)    :: n
+    !!--++ SUBROUTINE TQLI1
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4834,7 +4306,7 @@
     !!--++    output e is destroyed.
     !!--++    In TLQ1 only the eigenvalues are calculated
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Tqli1(d,e,n)
        !---- Arguments ----!
@@ -4909,11 +4381,7 @@
     End Subroutine Tqli1
 
     !!--++
-    !!--++ Subroutine Tqli2(d,e,n,z)
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=cp), dimension(:,:), intent (in out):: z
+    !!--++ SUBROUTINE TQLI2
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4930,7 +4398,7 @@
     !!--++    column of Z returns the mormalized eigenvector corresponding to
     !!--++    D(k).
     !!--++
-    !!--++  Update: February - 2005
+    !!--++  Update: 11/07/2015
     !!
     Subroutine Tqli2(d,e,n,z)
        !---- Arguments ----!
@@ -5015,11 +4483,7 @@
     End Subroutine Tqli2
 
     !!--++
-    !!--++ Subroutine Tred1(a,n,d,e)
-    !!--++    real(kind=cp), dimension(:,:), intent (in out):: a
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
+    !!--++ SUBROUTINE TRED1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find only eigenvalues
@@ -5030,7 +4494,7 @@
     !!--++    In tred1 several lines have been deleted and A contains no
     !!--++    useful information on output.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Tred1(a,n,d,e)
        !---- Arguments ----!
@@ -5099,11 +4563,7 @@
     End Subroutine Tred1
 
     !!--++
-    !!--++ Subroutine Tred2(a,n,d,e)
-    !!--++    real(kind=cp), dimension(:,:), intent (in out) :: a
-    !!--++    integer,                       intent (in)     :: n
-    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: e
+    !!--++ SUBROUTINE TRED2
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find the complete set
@@ -5113,7 +4573,7 @@
     !!--++    the transformation. D returns the diagonal elements of the tri-
     !!--++    diagonal matrix and E the off-diagonal elements with E(1)=0.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Tred2(a,n,d,e)
        !---- Arguments ----!
