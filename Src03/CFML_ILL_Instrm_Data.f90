@@ -242,7 +242,8 @@ Module CFML_ILL_Instrm_Data
    private
 
    !---- Public Subroutines ----!
-   public :: Set_Current_Orient, Read_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
+   public :: Set_Current_Orient, Read_Numor, Read_Generic_Numor, Read_Current_Instrm,            &
+             Write_Current_Instrm_data,     &
              Allocate_Numors, Set_ILL_data_directory, Set_Instrm_directory,                      &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
@@ -2404,8 +2405,8 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
-    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm, Cal,angcor,perm)
-    !!--++    type(powder_numor_type),                   intent(in)  :: N
+    !!--++ Subroutine NumorD1BD20_To_DiffPattern(PNumor, Pat, VNorm, Cal,angcor,perm)
+    !!--++    type(powder_numor_type),                   intent(in)  :: PNumor
     !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
     !!--++    real(kind=cp),  optional,                  intent(in)  :: VNorm
     !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal
@@ -2417,9 +2418,9 @@ Module CFML_ILL_Instrm_Data
     !!--++
     !!--++ Updated: 13/10/2013
     !!
-    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm,Cal,angcor,perm)
+    Subroutine NumorD1BD20_To_DiffPattern(PNumor, Pat, VNorm,Cal,angcor,perm)
        !---- Arguments ----!
-       type(powder_numor_type),                   intent(in)  :: N
+       type(powder_numor_type),                   intent(in)  :: PNumor
        type(diffraction_pattern_type),            intent(out) :: Pat
        real(kind=cp),  optional,                  intent(in)  :: VNorm
        type(calibration_detector_type), optional, intent(in)  :: Cal
@@ -2430,18 +2431,18 @@ Module CFML_ILL_Instrm_Data
        integer                           :: np
        real(kind=cp)                     :: xmin,xmax,xstep,cnorm
 
-       np=n%nbdata
+       np=pnumor%nbdata
        !write(*,*)  "  Allocation of Diffraction pattern with ",np," points"
        call Allocate_Diffraction_Pattern (Pat, np)
-       xmin=n%scans(1)
-       xstep=n%scans(2)
+       xmin=pnumor%scans(1)
+       xstep=pnumor%scans(2)
 
        if(present(Cal)) then
          if(present(angcor)) then
             do i=1,np    ! Points
                j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
                Pat%x(i)=xmin + Cal%PosX(j)
-               Pat%y(i)=n%counts(j,1)
+               Pat%y(i)=pnumor%counts(j,1)
                Pat%sigma(i)=Pat%y(i)
             end do
          else
@@ -2449,13 +2450,13 @@ Module CFML_ILL_Instrm_Data
                 do i=1,np    ! Points
                    j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
                    Pat%x(i)=xmin + (i-1)*xstep !Cal%PosX(j)
-                   Pat%y(i)=n%counts(j,1)
+                   Pat%y(i)=pnumor%counts(j,1)
                    Pat%sigma(i)=Pat%y(i)
                 end do
             else
                 do i=1,np
                    Pat%x(i)=xmin + (i-1)*xstep
-                   Pat%y(i)=n%counts(i,1)
+                   Pat%y(i)=pnumor%counts(i,1)
                    Pat%sigma(i)=Pat%y(i)
                 end do
             end if
@@ -2463,18 +2464,18 @@ Module CFML_ILL_Instrm_Data
        else
          do i=1,np    ! Points
             Pat%x(i)=xmin + (i-1)*xstep
-            Pat%y(i)=n%counts(i,1)
+            Pat%y(i)=pnumor%counts(i,1)
             Pat%sigma(i)=Pat%y(i)
          end do
        end if
 
        xmax=Pat%x(np)
-       Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
+       Pat%title=trim(pnumor%title)//", Instr: "//trim(pnumor%instrm)//", Header:"//trim(pnumor%header)
        Pat%diff_Kind="neutrons_cw"
        Pat%Scat_Var='2theta'
-       Pat%instr=n%instrm
-       Pat%Monitor=n%monitor
-       Pat%col_time=n%time
+       Pat%instr=pnumor%instrm
+       Pat%Monitor=pnumor%monitor
+       Pat%col_time=pnumor%time
        Pat%xmin=xmin
        Pat%xmax=xmax
        Pat%ymin=minval(Pat%y)
@@ -2482,14 +2483,14 @@ Module CFML_ILL_Instrm_Data
        Pat%step=xstep
        Pat%npts=np
        Pat%nd=1
-       Pat%TSet=n%conditions(1)
-       Pat%TSamp=n%conditions(3)
-       Pat%Conv(1)=n%wave
+       Pat%TSet=pnumor%conditions(1)
+       Pat%TSamp=pnumor%conditions(3)
+       Pat%Conv(1)=pnumor%wave
 
        if(present(VNorm)) then
          if(VNorm < 0.0) then
-           cnorm = abs(VNorm)/n%time
-           Pat%Norm_Mon=n%monitor*cnorm
+           cnorm = abs(VNorm)/pnumor%time
+           Pat%Norm_Mon=pnumor%monitor*cnorm
          else
            Pat%Norm_Mon=VNorm
            cnorm = VNorm/Pat%monitor
@@ -2497,7 +2498,7 @@ Module CFML_ILL_Instrm_Data
          Pat%y=Pat%y*cnorm
          Pat%sigma=Pat%sigma*cnorm*cnorm
        else
-          Pat%Norm_Mon=n%monitor
+          Pat%Norm_Mon=pnumor%monitor
        end if
 
        return
@@ -3958,7 +3959,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D9
 
     !!----
-    !!---- Subroutine Read_Numor_D10(filevar,N)
+    !!---- Subroutine Read_Numor_D10(filevar,SNumor)
     !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(SXTAL_numor_type),  intent(out) :: n
     !!----
@@ -3968,10 +3969,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 18/03/2011 18:32:52
     !!
-    Subroutine Read_Numor_D10(fileinfo,N)
+    Subroutine Read_Numor_D10(fileinfo,SNumor)
        !---- Arguments ----!
        character(len=*),         intent(in)   :: fileinfo
-       type(SXTAL_numor_type),   intent(out)   :: n
+       type(SXTAL_numor_type),   intent(out)  :: SNumor
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
@@ -4010,21 +4011,21 @@ Module CFML_ILL_Instrm_Data
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-       n%numor=numor
+       snumor%numor=numor
 
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
-          n%instrm=line(1:4)
-          n%header=line(5:14)//"   "//line(15:32)
+          snumor%instrm=line(1:4)
+          snumor%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
        call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
        if (idum > 0) then
-          n%title=trim(line(1:60))
-          n%scantype=trim(line(73:))
-          if(len_trim(n%scantype) == 0) n%scantype='q-scan'
+          snumor%title=trim(line(1:60))
+          snumor%scantype=trim(line(73:))
+          if(len_trim(snumor%scantype) == 0) snumor%scantype='q-scan'
        end if
        check_qscan=.false.
 
@@ -4036,64 +4037,64 @@ Module CFML_ILL_Instrm_Data
              err_illdata_mess='This numor was made using Point detector in the D10 Instrument'
              return
           end if
-          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
-          n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
-          n%icalc=ivalues(9)
-          n%nbdata=ivalues(24)            ! Number of Points
-          n%icdesc(1:7)=ivalues(25:31)
+          snumor%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          snumor%nbang=ivalues(5)              ! Total number of angles moved during scan
+          snumor%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
+          snumor%icalc=ivalues(9)
+          snumor%nbdata=ivalues(24)            ! Number of Points
+          snumor%icdesc(1:7)=ivalues(25:31)
        end if
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%HMin=rvalues(1:3)          ! HKL min
-          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
-          n%ub(1,:)=rvalues(9:11)      !
-          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
-          n%ub(3,:)=rvalues(15:17)     !
-          n%wave=rvalues(18)           ! Wavelength
-          n%HMax=rvalues(22:24)        ! HKL max
-          n%dh=rvalues(25:27)          ! Delta HKL
-          n%dist=rvalues(30)           ! distance
-          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
-          n%preset=rvalues(39)         ! Preset
-          n%cpl_fact=rvalues(43)       ! Coupling factor
-          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+          snumor%HMin=rvalues(1:3)          ! HKL min
+          snumor%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          snumor%ub(1,:)=rvalues(9:11)      !
+          snumor%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          snumor%ub(3,:)=rvalues(15:17)     !
+          snumor%wave=rvalues(18)           ! Wavelength
+          snumor%HMax=rvalues(22:24)        ! HKL max
+          snumor%dh=rvalues(25:27)          ! Delta HKL
+          snumor%dist=rvalues(30)           ! distance
+          snumor%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          snumor%preset=rvalues(39)         ! Preset
+          snumor%cpl_fact=rvalues(43)       ! Coupling factor
+          snumor%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
        end if
 
        if(Instrm_Info_only) return
 
        ! Allocating
-       if (allocated(n%counts)) deallocate(n%counts)
-       allocate(n%counts(n%nbdata,n%nframes))
-       n%counts=0.0
+       if (allocated(snumor%counts)) deallocate(snumor%counts)
+       allocate(snumor%counts(snumor%nbdata,snumor%nframes))
+       snumor%counts=0.0
 
-       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-       allocate(n%tmc_ang(n%nbang+3,n%nframes))
-       n%tmc_ang=0.0
+       if (allocated(snumor%tmc_ang)) deallocate(snumor%tmc_ang)
+       allocate(snumor%tmc_ang(snumor%nbang+3,snumor%nframes))
+       snumor%tmc_ang=0.0
 
        ! Loading Frames
-       do i=1,n%nframes
+       do i=1,snumor%nframes
 
           !Time/Monitor/Counts/Angles
           call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
           if (nval_f > 0) then
              select case (nval_f)
                 case (4)
-                   n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
-                   n%tmc_ang(2:3,i)=rvalues(2:3)
-                   n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
+                   snumor%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+                   snumor%tmc_ang(2:3,i)=rvalues(2:3)
+                   snumor%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
 
                 case (5)
-                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
-                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
-                   n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle (gamma omega?)
+                   snumor%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   snumor%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
+                   snumor%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle (gamma omega?)
 
                 case (6:)
-                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
-                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
-                   n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
+                   snumor%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   snumor%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
+                   snumor%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
                    check_qscan=.true.
 
                 case default
@@ -4101,14 +4102,14 @@ Module CFML_ILL_Instrm_Data
                    car=adjustl(car)
                    err_illdata=.true.
                    write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
-                                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
+                                    //' parameters in the Frame: '//trim(car)//", Numor:",snumor%numor
                    return
              end select
           end if
 
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
-          if (nval_i /= n%nbdata) then
+          if (nval_i /= snumor%nbdata) then
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
@@ -4116,18 +4117,18 @@ Module CFML_ILL_Instrm_Data
              return
           end if
           if (nval_i > 0) then
-             n%counts(:,i)=ivalues(1:n%nbdata)
+             snumor%counts(:,i)=ivalues(1:snumor%nbdata)
           end if
        end do
        if(check_qscan) then
-         n%scantype='q-scan'
+         snumor%scantype='q-scan'
        end if
 
        return
     End Subroutine Read_Numor_D10
 
     !!----
-    !!---- Subroutine Read_Numor_D16(filevar,N)
+    !!---- Subroutine Read_Numor_D16(filevar,SNumor)
     !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(SXTAL_numor_type),  intent(out)  :: n
     !!----
@@ -4137,10 +4138,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 04/04/2012
     !!
-    Subroutine Read_Numor_D16(fileinfo,N)
+    Subroutine Read_Numor_D16(fileinfo,SNumor)
        !---- Arguments ----!
        character(len=*),         intent(in)   :: fileinfo
-       type(SXTAL_numor_type),   intent(out)   :: n
+       type(SXTAL_numor_type),   intent(out)   :: SNumor
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
@@ -4178,21 +4179,21 @@ Module CFML_ILL_Instrm_Data
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-       n%numor=numor
+       snumor%numor=numor
 
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
-          n%instrm=line(1:4)
-          n%header=line(5:14)//"   "//line(15:32)
+          snumor%instrm=line(1:4)
+          snumor%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
        call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
        if (idum > 0) then
-          n%title=trim(line(1:60))
-          n%scantype=trim(line(73:))
-          if(len_trim(n%scantype) == 0) n%scantype='q-scan'
+          snumor%title=trim(line(1:60))
+          snumor%scantype=trim(line(73:))
+          if(len_trim(snumor%scantype) == 0) snumor%scantype='q-scan'
        end if
 
        ! Control Flags
@@ -4203,64 +4204,64 @@ Module CFML_ILL_Instrm_Data
              err_illdata_mess='This numor was made using Point detector in the D16 Instrument'
              return
           end if
-          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
-          n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
-          n%icalc=ivalues(9)
-          n%nbdata=ivalues(24)            ! Number of Points
-          n%icdesc(1:7)=ivalues(25:31)
+          snumor%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          snumor%nbang=ivalues(5)              ! Total number of angles moved during scan
+          snumor%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
+          snumor%icalc=ivalues(9)
+          snumor%nbdata=ivalues(24)            ! Number of Points
+          snumor%icdesc(1:7)=ivalues(25:31)
        end if
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%HMin=rvalues(1:3)          ! HKL min
-          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
-          n%ub(1,:)=rvalues(9:11)      !
-          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
-          n%ub(3,:)=rvalues(15:17)     !
-          n%wave=rvalues(18)           ! Wavelength
-          n%HMax=rvalues(22:24)        ! HKL max
-          n%dh=rvalues(25:27)          ! Delta HKL
-          n%dist=rvalues(30)           ! distance
-          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
-          n%preset=rvalues(39)         ! Preset
-          n%cpl_fact=rvalues(43)       ! Coupling factor
-          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+          snumor%HMin=rvalues(1:3)          ! HKL min
+          snumor%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          snumor%ub(1,:)=rvalues(9:11)      !
+          snumor%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          snumor%ub(3,:)=rvalues(15:17)     !
+          snumor%wave=rvalues(18)           ! Wavelength
+          snumor%HMax=rvalues(22:24)        ! HKL max
+          snumor%dh=rvalues(25:27)          ! Delta HKL
+          snumor%dist=rvalues(30)           ! distance
+          snumor%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          snumor%preset=rvalues(39)         ! Preset
+          snumor%cpl_fact=rvalues(43)       ! Coupling factor
+          snumor%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
        end if
 
        if(Instrm_Info_only) return
 
        ! Allocating
-       if (allocated(n%counts)) deallocate(n%counts)
-       allocate(n%counts(n%nbdata,n%nframes))
-       n%counts=0.0
+       if (allocated(snumor%counts)) deallocate(snumor%counts)
+       allocate(snumor%counts(snumor%nbdata,snumor%nframes))
+       snumor%counts=0.0
 
-       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-       allocate(n%tmc_ang(n%nbang+3,n%nframes))
-       n%tmc_ang=0.0
+       if (allocated(snumor%tmc_ang)) deallocate(snumor%tmc_ang)
+       allocate(snumor%tmc_ang(snumor%nbang+3,snumor%nframes))
+       snumor%tmc_ang=0.0
 
        ! Loading Frames
-       do i=1,n%nframes
+       do i=1,snumor%nframes
 
           !Time/Monitor/Counts/Angles
           call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
-          if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
-             n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
-             n%tmc_ang(2:3,i)=rvalues(2:3)
-             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+          if (nval_f > 0 .and. nval_f == (snumor%nbang+3)) then
+             snumor%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+             snumor%tmc_ang(2:3,i)=rvalues(2:3)
+             snumor%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
           else
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
-                                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
+                                    //' parameters in the Frame: '//trim(car)//", Numor:",snumor%numor
              return
           end if
 
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
-          if (nval_i /= n%nbdata) then
+          if (nval_i /= snumor%nbdata) then
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
@@ -4268,7 +4269,7 @@ Module CFML_ILL_Instrm_Data
              return
           end if
           if (nval_i > 0) then
-             n%counts(:,i)=ivalues(1:n%nbdata)
+             snumor%counts(:,i)=ivalues(1:snumor%nbdata)
           end if
        end do
 
@@ -4276,7 +4277,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D16
 
     !!----
-    !!---- Subroutine Read_Numor_D19(filename,n,frames)
+    !!---- Subroutine Read_Numor_D19(filename,SNumor,frames)
     !!----    character(len=*)               , intent(in)    :: filename ! The input numor
     !!----    type(SXTAL_numor_type)         , intent(inout) :: n        ! The output numor structure
     !!----    integer, optional, dimension(:), intent(in)    :: frames   ! The frames to include in the numor structure
@@ -4287,10 +4288,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 14/03/2011
     !!
-    Subroutine Read_Numor_D19(filename,n,frames)
+    Subroutine Read_Numor_D19(filename,SNumor,frames)
        !---- Arguments ----!
        character(len=*)               , intent(in)    :: filename
-       type(SXTAL_numor_type)         , intent(inout) :: n
+       type(SXTAL_numor_type)         , intent(inout) :: SNumor
        integer, optional, dimension(:), intent(in)    :: frames
 
        !---- Local Variables ----!
@@ -4331,34 +4332,34 @@ Module CFML_ILL_Instrm_Data
        end if
 
        ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
-       if (trim(filename) /= trim(n%filename)) then
+       if (trim(filename) /= trim(snumor%filename)) then
 
           ! Intiliaze the numor.
-          call init_sxtal_numor(n)
+          call init_sxtal_numor(snumor)
 
           ! Store the input numor filename in the numor structure.
-          n%filename = trim(filename)
+          snumor%filename = trim(filename)
 
           ! Define the number of lines of the header and frame blocks.
-          call define_numor_header_frame_size(trim(filename),n%header_size,n%frame_size)
+          call define_numor_header_frame_size(trim(filename),snumor%header_size,snumor%frame_size)
 
           ! If an error occured, stop here.
           if (err_illdata) return
 
           ! Allocating a character array for storing the header block line by line.
           if (allocated(filevar)) deallocate(filevar)
-          allocate(filevar(n%header_size))
+          allocate(filevar(snumor%header_size))
 
           ! Read the header and put it in the array.
-          do i = 1, n%header_size
+          do i = 1, snumor%header_size
              read(lun,'(a)') filevar(i)
           end do
 
           ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the header is made of.
-          call Number_KeyTypes_on_File(filevar,n%header_size)
+          call Number_KeyTypes_on_File(filevar,snumor%header_size)
 
           ! Load information on nl_keytypes
-          call Set_KeyTypes_on_File(filevar,n%header_size)
+          call Set_KeyTypes_on_File(filevar,snumor%header_size)
 
           ! Check format for D19
           call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
@@ -4372,49 +4373,49 @@ Module CFML_ILL_Instrm_Data
 
           ! Get the numor id.
           call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-          n%numor=numor
+          snumor%numor=numor
 
           ! Instr/Experimental Name/ Date
           call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
           if (idum > 0) then
-             n%instrm=line(1:4)
-             n%header=line(5:14)//"   "//line(15:32)
+             snumor%instrm=line(1:4)
+             snumor%header=line(5:14)//"   "//line(15:32)
           end if
 
           ! Title/Sample
           call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
           if (idum > 0) then
-             n%title=trim(line(1:60))
-             n%scantype=trim(line(73:))
+             snumor%title=trim(line(1:60))
+             snumor%scantype=trim(line(73:))
           end if
 
           ! Control Flags
           call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
           if (nval_i > 0) then
-             n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
-             n%nbang=ivalues(5)              ! Total number of angles moved during scan
-             n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
-             n% icalc=ivalues(9)
-             n%nbdata=ivalues(24)            ! Number of Points
-             n%icdesc(1:7)=ivalues(25:31)
+             snumor%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+             snumor%nbang=ivalues(5)              ! Total number of angles moved during scan
+             snumor%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
+             snumor% icalc=ivalues(9)
+             snumor%nbdata=ivalues(24)            ! Number of Points
+             snumor%icdesc(1:7)=ivalues(25:31)
           end if
 
           ! Real values
           call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
           if (nval_f > 0) then
-             n%HMin=rvalues(1:3)          ! HKL min
-             n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
-             n%ub(1,:)=rvalues(9:11)      !
-             n%ub(2,:)=rvalues(12:14)     ! UB Matrix
-             n%ub(3,:)=rvalues(15:17)     !
-             n%wave=rvalues(18)           ! Wavelength
-             n%HMax=rvalues(22:24)        ! HKL max
-             n%dh=rvalues(25:27)          ! Delta HKL
-             n%dist=rvalues(30)           ! distance
-             n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
-             n%preset=rvalues(39)         ! Preset
-             n%cpl_fact=rvalues(43)       ! Coupling factor
-             n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+             snumor%HMin=rvalues(1:3)          ! HKL min
+             snumor%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+             snumor%ub(1,:)=rvalues(9:11)      !
+             snumor%ub(2,:)=rvalues(12:14)     ! UB Matrix
+             snumor%ub(3,:)=rvalues(15:17)     !
+             snumor%wave=rvalues(18)           ! Wavelength
+             snumor%HMax=rvalues(22:24)        ! HKL max
+             snumor%dh=rvalues(25:27)          ! Delta HKL
+             snumor%dist=rvalues(30)           ! distance
+             snumor%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+             snumor%preset=rvalues(39)         ! Preset
+             snumor%cpl_fact=rvalues(43)       ! Coupling factor
+             snumor%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
           end if
 
        end if
@@ -4422,15 +4423,15 @@ Module CFML_ILL_Instrm_Data
        ! If the numor was only opened for reading the header, stops here.
        if(Instrm_Info_only) return
 
-       if (allocated(n%selected_frames)) deallocate(n%selected_frames)
+       if (allocated(snumor%selected_frames)) deallocate(snumor%selected_frames)
 
        ! Case where the user only wants a subset of frames to be included in the numor structure.
        if (present(frames)) then
           ! This temporary array will store only those of the selected frames that are in [1,nframes].
-          allocate(temp_frames(n%nframes))
+          allocate(temp_frames(snumor%nframes))
           n_selected_frames = 0
           do i = 1, size(frames)
-             if (frames(i) < 1 .or. frames(i) > n%nframes) cycle
+             if (frames(i) < 1 .or. frames(i) > snumor%nframes) cycle
              n_selected_frames = n_selected_frames + 1
              temp_frames(n_selected_frames) = frames(i)
           end do
@@ -4443,14 +4444,14 @@ Module CFML_ILL_Instrm_Data
           end if
 
           ! Sets the selected_frames field of the numor structure with the selected frames within [1,nframes].
-          allocate(n%selected_frames(n_selected_frames))
-          n%selected_frames(1:n_selected_frames) = temp_frames
+          allocate(snumor%selected_frames(n_selected_frames))
+          snumor%selected_frames(1:n_selected_frames) = temp_frames
           deallocate(temp_frames)
        ! Case where no frame selection was provided by the user. All the frames will be included in the numor structure.
        else
-          allocate(n%selected_frames(n%nframes))
-          n%selected_frames = (/(i, i=1,n%nframes)/)
-          n_selected_frames = n%nframes
+          allocate(snumor%selected_frames(snumor%nframes))
+          snumor%selected_frames = (/(i, i=1,snumor%nframes)/)
+          n_selected_frames = snumor%nframes
        end if
 
        ! At this point, we should normally be at the beginning of a frame block.
@@ -4466,71 +4467,71 @@ Module CFML_ILL_Instrm_Data
        ! If not so, the file pointer is replaced just before the beginning of the first frame block.
        else
           rewind(lun)
-          do i = 1, n%header_size
+          do i = 1, snumor%header_size
              read(lun,'(a)') line
           end do
           previous_frame = 1
        end if
 
        ! Allocate the count array.
-       if (allocated(n%counts)) deallocate(n%counts)
-       allocate(n%counts(n%nbdata,n_selected_frames))
-       n%counts=0.0
+       if (allocated(snumor%counts)) deallocate(snumor%counts)
+       allocate(snumor%counts(snumor%nbdata,n_selected_frames))
+       snumor%counts=0.0
 
        ! Allocate the motor angles array.
-       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-       allocate(n%tmc_ang(n%nbang+3,n_selected_frames))
-       n%tmc_ang=0.0
+       if (allocated(snumor%tmc_ang)) deallocate(snumor%tmc_ang)
+       allocate(snumor%tmc_ang(snumor%nbang+3,n_selected_frames))
+       snumor%tmc_ang=0.0
 
        ! Loop over the selected frames.
        do i=1,n_selected_frames
 
           ! This gives the number of frame block to skip to arrive just before the frame to read.
-          n_skip = abs(n%selected_frames(i) - previous_frame - 1)
+          n_skip = abs(snumor%selected_frames(i) - previous_frame - 1)
 
           ! Case where the frame to read is after the previous one.
-          if (n%selected_frames(i) > previous_frame) then
-             do j = 1, n_skip*n%frame_size
+          if (snumor%selected_frames(i) > previous_frame) then
+             do j = 1, n_skip*snumor%frame_size
                 read(lun,*) line
              end do
           ! Case where the frame to read is before the previous one.
-          elseif (n%selected_frames(i) < previous_frame) then
-             do j = 1, n_skip*n%frame_size
+          elseif (snumor%selected_frames(i) < previous_frame) then
+             do j = 1, n_skip*snumor%frame_size
                 backspace(lun)
              end do
           end if
 
           ! Allocating a character array for storing the frame block line by line.
           if (allocated(filevar)) deallocate(filevar)
-          allocate(filevar(n%frame_size))
+          allocate(filevar(snumor%frame_size))
 
           ! Read the frame and put it in the array.
-          do j = 1, n%frame_size
+          do j = 1, snumor%frame_size
              read(lun,'(a)') filevar(j)
           end do
 
           ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the frame is made of.
-          call Number_KeyTypes_on_File(filevar,n%frame_size)
+          call Number_KeyTypes_on_File(filevar,snumor%frame_size)
 
           ! Load information on nl_keytypes
-          call Set_KeyTypes_on_File(filevar,n%frame_size)
+          call Set_KeyTypes_on_File(filevar,snumor%frame_size)
 
           ! Time/Monitor/Counts/Angles
           call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
 
           ! Check that the number of motors angles is correct.
-          if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
-             n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
-             n%tmc_ang(2:3,i)=rvalues(2:3)
-             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+          if (nval_f > 0 .and. nval_f == (snumor%nbang+3)) then
+             snumor%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+             snumor%tmc_ang(2:3,i)=rvalues(2:3)
+             snumor%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
 
           ! Case where the number of motors angles is incorrect. Stops here.
           else
-             write(unit=car,fmt='(i5)') n%selected_frames(i)
+             write(unit=car,fmt='(i5)') snumor%selected_frames(i)
              car=adjustl(car)
              err_illdata=.true.
              write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
-                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
+                    //' parameters in the Frame: '//trim(car)//", Numor:",snumor%numor
              return
           end if
 
@@ -4538,18 +4539,18 @@ Module CFML_ILL_Instrm_Data
           call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
 
           ! Case of a mismatch between the number of elements of the matrix and its size indicated in the numor, stops here.
-          if (nval_i /= n%nbdata) then
-             write(unit=car,fmt='(i5)') n%selected_frames(i)
+          if (nval_i /= snumor%nbdata) then
+             write(unit=car,fmt='(i5)') snumor%selected_frames(i)
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
              return
           end if
 
-          if (nval_i > 0) n%counts(:,i)=ivalues(1:n%nbdata)
+          if (nval_i > 0) snumor%counts(:,i)=ivalues(1:snumor%nbdata)
 
           ! The id of frame just processed is set as the previous one.
-          previous_frame = n%selected_frames(i)
+          previous_frame = snumor%selected_frames(i)
 
        end do
 
@@ -4558,7 +4559,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D19
 
     !!----
-    !!---- Subroutine Read_Numor_Generic(filevar,N)
+    !!---- Subroutine Read_Generic_Numor(filevar,Numor)
     !!----    character(len=*), intent(in) :: fileinfo
     !!----    type(generic_numor_type), intent(out) :: n
     !!----
@@ -4566,10 +4567,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 11/03/2011
     !!
-    Subroutine Read_Numor_Generic(fileinfo,N)
+    Subroutine Read_Generic_Numor(fileinfo,GNumor)
        !---- Arguments ----!
-       character(len=*), intent(in) :: fileinfo
-       type(generic_numor_type), intent(out) :: n
+       character(len=*),         intent(in)  :: fileinfo
+       type(generic_numor_type), intent(out) :: GNumor
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
@@ -4607,44 +4608,44 @@ Module CFML_ILL_Instrm_Data
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-       n%numor=numor
+       gnumor%numor=numor
 
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
-          n%instr=line(1:4)
-          n%expname=line(5:14)
-          n%date=line(15:32)
+          gnumor%instr=line(1:4)
+          gnumor%expname=line(5:14)
+          gnumor%date=line(15:32)
        end if
 
        ! Title/Sample
-       if (allocated(n%sampleid%namevar)) deallocate(n%sampleid%namevar)
-       if (allocated(n%sampleid%cvalues)) deallocate(n%sampleid%cvalues)
+       if (allocated(gnumor%sampleid%namevar)) deallocate(gnumor%sampleid%namevar)
+       if (allocated(gnumor%sampleid%cvalues)) deallocate(gnumor%sampleid%cvalues)
 
        call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
        select case (idum)
           case (1:80)
-             n%SampleID%n=4
-             allocate(n%sampleid%namevar(4))
-             allocate(n%sampleid%cvalues(4))
+             gnumor%SampleID%n=4
+             allocate(gnumor%sampleid%namevar(4))
+             allocate(gnumor%sampleid%cvalues(4))
 
              ! Given names
-             n%sampleid%namevar=' '
-             n%sampleid%namevar(1)='Name'
-             n%sampleid%namevar(2)='Local Contact'
-             n%sampleid%namevar(3)='Experimentalist'
-             n%sampleid%namevar(4)='Proposal Number'
+             gnumor%sampleid%namevar=' '
+             gnumor%sampleid%namevar(1)='Name'
+             gnumor%sampleid%namevar(2)='Local Contact'
+             gnumor%sampleid%namevar(3)='Experimentalist'
+             gnumor%sampleid%namevar(4)='Proposal Number'
 
              ! Load values
-             n%sampleid%cvalues=' '
-             n%title=trim(line)
-             n%sampleid%cvalues(1)=trim(line)
+             gnumor%sampleid%cvalues=' '
+             gnumor%title=trim(line)
+             gnumor%sampleid%cvalues(1)=trim(line)
 
           case (81:)
              nl=(idum/80)+mod(idum,80)
-             n%SampleID%n=nl
-             allocate(n%sampleid%namevar(nl))
-             allocate(n%sampleid%cvalues(nl))
+             gnumor%SampleID%n=nl
+             allocate(gnumor%sampleid%namevar(nl))
+             allocate(gnumor%sampleid%cvalues(nl))
 
              ! Give names
              do i=1,nl
@@ -4653,174 +4654,174 @@ Module CFML_ILL_Instrm_Data
                 line=line(j+1:)
 
                 j=index(linec,':')
-                n%sampleid%namevar(i)=linec(1:j-1)
-                n%sampleid%cvalues(i)=trim(linec(j+1:))
+                gnumor%sampleid%namevar(i)=linec(1:j-1)
+                gnumor%sampleid%cvalues(i)=trim(linec(j+1:))
              end do
        end select
 
        ! Diffractometers Optics / Reactor parameters
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%diffopt%n=nval_f
-          if (allocated(n%diffopt%namevar)) deallocate(n%diffopt%namevar)
-          if (allocated(n%diffopt%rvalues)) deallocate(n%diffopt%rvalues)
-          allocate(n%diffopt%namevar(nval_f))
-          allocate(n%diffopt%rvalues(nval_f))
+          gnumor%diffopt%n=nval_f
+          if (allocated(gnumor%diffopt%namevar)) deallocate(gnumor%diffopt%namevar)
+          if (allocated(gnumor%diffopt%rvalues)) deallocate(gnumor%diffopt%rvalues)
+          allocate(gnumor%diffopt%namevar(nval_f))
+          allocate(gnumor%diffopt%rvalues(nval_f))
 
           ! Given names
-          n%diffopt%namevar=' '
+          gnumor%diffopt%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%diffopt%namevar(j)=dire(nl)
+                gnumor%diffopt%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%diffopt%rvalues=rvalues(1:nval_f)
+          gnumor%diffopt%rvalues=rvalues(1:nval_f)
        end if
 
        ! Monochromator Motor Parameters
        call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
        if (nval_f > 0) then
-          n%monmpar%n=nval_f
-          if (allocated(n%monmpar%namevar)) deallocate(n%monmpar%namevar)
-          if (allocated(n%monmpar%rvalues)) deallocate(n%monmpar%rvalues)
-          allocate(n%monmpar%namevar(nval_f))
-          allocate(n%monmpar%rvalues(nval_f))
+          gnumor%monmpar%n=nval_f
+          if (allocated(gnumor%monmpar%namevar)) deallocate(gnumor%monmpar%namevar)
+          if (allocated(gnumor%monmpar%rvalues)) deallocate(gnumor%monmpar%rvalues)
+          allocate(gnumor%monmpar%namevar(nval_f))
+          allocate(gnumor%monmpar%rvalues(nval_f))
 
           ! Given names
-          n%monmpar%namevar=' '
+          gnumor%monmpar%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%monmpar%namevar(j)=dire(nl)
+                gnumor%monmpar%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%monmpar%rvalues=rvalues(1:nval_f)
+          gnumor%monmpar%rvalues=rvalues(1:nval_f)
        end if
 
        ! Diffractometer Motor Parameters
        call read_F_keyType(filevar,nl_keytypes(4,3,1),nl_keytypes(4,3,2))
        if (nval_f > 0) then
-          n%diffmpar%n=nval_f
-          if (allocated(n%diffmpar%namevar)) deallocate(n%diffmpar%namevar)
-          if (allocated(n%diffmpar%rvalues)) deallocate(n%diffmpar%rvalues)
-          allocate(n%diffmpar%namevar(nval_f))
-          allocate(n%diffmpar%rvalues(nval_f))
+          gnumor%diffmpar%n=nval_f
+          if (allocated(gnumor%diffmpar%namevar)) deallocate(gnumor%diffmpar%namevar)
+          if (allocated(gnumor%diffmpar%rvalues)) deallocate(gnumor%diffmpar%rvalues)
+          allocate(gnumor%diffmpar%namevar(nval_f))
+          allocate(gnumor%diffmpar%rvalues(nval_f))
 
           ! Given names
-          n%diffmpar%namevar=' '
+          gnumor%diffmpar%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%diffmpar%namevar(j)=dire(nl)
+                gnumor%diffmpar%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%diffmpar%rvalues=rvalues(1:nval_f)
+          gnumor%diffmpar%rvalues=rvalues(1:nval_f)
        end if
 
        ! Detector and DAS Parameters
        call read_F_keyType(filevar,nl_keytypes(4,4,1),nl_keytypes(4,4,2))
        if (nval_f > 0) then
-          n%detpar%n=nval_f
-          if (allocated(n%detpar%namevar)) deallocate(n%detpar%namevar)
-          if (allocated(n%detpar%rvalues)) deallocate(n%detpar%rvalues)
-          allocate(n%detpar%namevar(nval_f))
-          allocate(n%detpar%rvalues(nval_f))
+          gnumor%detpar%n=nval_f
+          if (allocated(gnumor%detpar%namevar)) deallocate(gnumor%detpar%namevar)
+          if (allocated(gnumor%detpar%rvalues)) deallocate(gnumor%detpar%rvalues)
+          allocate(gnumor%detpar%namevar(nval_f))
+          allocate(gnumor%detpar%rvalues(nval_f))
 
           ! Given names
-          n%detpar%namevar=' '
+          gnumor%detpar%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%detpar%namevar(j)=dire(nl)
+                gnumor%detpar%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%detpar%rvalues=rvalues(1:nval_f)
+          gnumor%detpar%rvalues=rvalues(1:nval_f)
        end if
 
        ! Data Acquisition Control Parameters
        call read_F_keyType(filevar,nl_keytypes(4,5,1),nl_keytypes(4,5,2))
        if (nval_f > 0) then
-          n%dacparam%n=nval_f
-          if (allocated(n%dacparam%namevar)) deallocate(n%dacparam%namevar)
-          if (allocated(n%dacparam%rvalues)) deallocate(n%dacparam%rvalues)
-          allocate(n%dacparam%namevar(nval_f))
-          allocate(n%dacparam%rvalues(nval_f))
+          gnumor%dacparam%n=nval_f
+          if (allocated(gnumor%dacparam%namevar)) deallocate(gnumor%dacparam%namevar)
+          if (allocated(gnumor%dacparam%rvalues)) deallocate(gnumor%dacparam%rvalues)
+          allocate(gnumor%dacparam%namevar(nval_f))
+          allocate(gnumor%dacparam%rvalues(nval_f))
 
           ! Given names
-          n%dacparam%namevar=' '
+          gnumor%dacparam%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%dacparam%namevar(j)=dire(nl)
+                gnumor%dacparam%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%dacparam%rvalues=rvalues(1:nval_f)
+          gnumor%dacparam%rvalues=rvalues(1:nval_f)
        end if
 
        ! Sample Status
        call read_F_keyType(filevar,nl_keytypes(4,6,1),nl_keytypes(4,6,2))
        if (nval_f > 0) then
-          n%samplest%n=nval_f
-          if (allocated(n%samplest%namevar)) deallocate(n%samplest%namevar)
-          if (allocated(n%samplest%rvalues)) deallocate(n%samplest%rvalues)
-          allocate(n%samplest%namevar(nval_f))
-          allocate(n%samplest%rvalues(nval_f))
+          gnumor%samplest%n=nval_f
+          if (allocated(gnumor%samplest%namevar)) deallocate(gnumor%samplest%namevar)
+          if (allocated(gnumor%samplest%rvalues)) deallocate(gnumor%samplest%rvalues)
+          allocate(gnumor%samplest%namevar(nval_f))
+          allocate(gnumor%samplest%rvalues(nval_f))
 
           ! Given names
-          n%samplest%namevar=' '
+          gnumor%samplest%namevar=' '
           j=0
           do i=2,ntext
              read(unit=text_ill(i),fmt='(5a16)') dire
              do nl=1,5
                 j=j+1
-                n%samplest%namevar(j)=dire(nl)
+                gnumor%samplest%namevar(j)=dire(nl)
              end do
           end do
 
           ! Load values
-          n%samplest%rvalues=rvalues(1:nval_f)
+          gnumor%samplest%rvalues=rvalues(1:nval_f)
        end if
 
        ! Counts Information
        call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
 
        if (nval_i > 0) then
-          n%icounts%n=nval_i
-          if (allocated(n%icounts%namevar)) deallocate(n%icounts%namevar)
-          if (allocated(n%icounts%ivalues)) deallocate(n%icounts%ivalues)
-          allocate(n%icounts%namevar(1))
-          allocate(n%icounts%ivalues(nval_i))
+          gnumor%icounts%n=nval_i
+          if (allocated(gnumor%icounts%namevar)) deallocate(gnumor%icounts%namevar)
+          if (allocated(gnumor%icounts%ivalues)) deallocate(gnumor%icounts%ivalues)
+          allocate(gnumor%icounts%namevar(1))
+          allocate(gnumor%icounts%ivalues(nval_i))
 
           ! Given names
-          n%icounts%namevar(1)=' N. of Counts'
+          gnumor%icounts%namevar(1)=' N. of Counts'
 
           ! Load values
-          n%icounts%ivalues=ivalues(1:nval_i)
+          gnumor%icounts%ivalues=ivalues(1:nval_i)
        end if
 
        return
-    End Subroutine Read_Numor_Generic
+    End Subroutine Read_Generic_Numor
 
     !!----
     !!---- Subroutine Read_Numor_D20(filevar,N)
@@ -4831,10 +4832,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 11/03/2011
     !!
-    Subroutine Read_Numor_D20(fileinfo,N)
+    Subroutine Read_Numor_D20(fileinfo,PNumor)
        !---- Arguments ----!
-       character(len=*), intent(in) :: fileinfo
-       type(powder_numor_type), intent(out) :: n
+       character(len=*),        intent(in)  :: fileinfo
+       type(powder_numor_type), intent(out) :: PNumor
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
@@ -4869,22 +4870,22 @@ Module CFML_ILL_Instrm_Data
        call Set_KeyTypes_on_File(filevar,nlines)
 
        ! Initialize Numor
-       call init_powder_numor(n)
+       call init_powder_numor(pnumor)
 
        ! Fixed Some values
-       n%nframes=1
-       !n%nbdata=1600
-       n%scantype='2theta'
+       pnumor%nframes=1
+       !pnumor%nbdata=1600
+       pnumor%scantype='2theta'
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-       n%numor=numor
+       pnumor%numor=numor
 
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
-          n%instrm=line(1:4)
-          n%header=line(5:14)//"   "//line(15:32)
+          pnumor%instrm=line(1:4)
+          pnumor%header=line(5:14)//"   "//line(15:32)
        end if
 
 
@@ -4894,20 +4895,20 @@ Module CFML_ILL_Instrm_Data
           i=index(line,'Title :')
           j=index(line,'Local')
           if (i > 0) then
-             n%title=line(i+7:j-2)
-             n%title=trim(n%title)
+             pnumor%title=line(i+7:j-2)
+             pnumor%title=trim(pnumor%title)
           end if
           i=index(line,'SAMPLE             :')
           j=index(line,'Experimentalist')
           if( i > 0) then
-             n%title=trim(line(i+20:j-2))//"--"//trim(n%title)
+             pnumor%title=trim(line(i+20:j-2))//"--"//trim(pnumor%title)
           end if
        end if
 
        ! Wave
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%wave=rvalues(4)
+          pnumor%wave=rvalues(4)
        end if
 
        ! Monochromator Motor Parameters
@@ -4929,15 +4930,15 @@ Module CFML_ILL_Instrm_Data
        ! Data Acquisition Control Parameters
        call read_F_keyType(filevar,nl_keytypes(4,5,1),nl_keytypes(4,5,2))
        if (nval_f > 0) then
-          n%monitor=rvalues(51)
-          n%time=rvalues(52)
+          pnumor%monitor=rvalues(51)
+          pnumor%time=rvalues(52)
        end if
 
        ! Sample Status
        call read_F_keyType(filevar,nl_keytypes(4,6,1),nl_keytypes(4,6,2))
        if (nval_f > 0) then
-          n%conditions(1:3)=rvalues(2:4)
-          n%scans(1)=rvalues(5)
+          pnumor%conditions(1:3)=rvalues(2:4)
+          pnumor%scans(1)=rvalues(5)
        end if
 
        if(Instrm_Info_only) return
@@ -4946,13 +4947,13 @@ Module CFML_ILL_Instrm_Data
 
        ! Counts Information
        call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
-       n%nbdata = nval_i
-       n%scans(2)=160.0/real(nval_i)
+       pnumor%nbdata = nval_i
+       pnumor%scans(2)=160.0/real(nval_i)
 
        if (nval_i > 0) then
-          if (n%nbdata == nval_i) then
-             allocate(n%counts(n%nbdata,1))
-             n%counts(:,1)=real(ivalues(1:nval_i))
+          if (pnumor%nbdata == nval_i) then
+             allocate(pnumor%counts(pnumor%nbdata,1))
+             pnumor%counts(:,1)=real(ivalues(1:nval_i))
           end if
        end if
 
@@ -4960,10 +4961,10 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D20
 
     !!----
-    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,Num,inf)
+    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,PNumor,inf)
     !!----    character(len=*),            intent(in)    :: PathNumor
     !!----    character(len=*),            intent(in)    :: Instrument
-    !!----    type(Powder_Numor_type),     intent(out)   :: Num
+    !!----    type(Powder_Numor_type),     intent(out)   :: PNumor
     !!-----   logical, optional,           intent(in)    :: inf
     !!----
     !!----    Read a Powder numor from the ILL database.
@@ -4974,11 +4975,11 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 29/04/2011
     !!
-    Subroutine Read_Powder_Numor(PathNumor,Instrument,Num,inf)
+    Subroutine Read_Powder_Numor(PathNumor,Instrument,PNumor,inf)
        !---- Arguments ----!
        character(len=*),           intent(in)    :: PathNumor
        character(len=*),           intent(in)    :: Instrument
-       type(Powder_Numor_Type),    intent(out)   :: Num
+       type(Powder_Numor_Type),    intent(out)   :: PNumor
        logical, optional,          intent(in)    :: inf
 
        !---- Local variables ----!
@@ -5023,19 +5024,19 @@ Module CFML_ILL_Instrm_Data
 
        select case (trim(u_case(Instr)))
           case ('D1A')
-             call Read_Numor_D1A(trim(path)//trim(filename),Num)
+             call Read_Numor_D1A(trim(path)//trim(filename),PNumor)
 
           case ('D1B')
-             call Read_Numor_D1B(trim(path)//trim(filename),Num)
+             call Read_Numor_D1B(trim(path)//trim(filename),PNumor)
 
           case ('D2B')
-             call Read_Numor_D2B(trim(path)//trim(filename),Num)
+             call Read_Numor_D2B(trim(path)//trim(filename),PNumor)
 
           case ('D4')
-             call Read_Numor_D4(trim(path)//trim(filename),Num)
+             call Read_Numor_D4(trim(path)//trim(filename),PNumor)
 
           case ('D20')
-             call Read_Numor_D20(trim(path)//trim(filename),Num)
+             call Read_Numor_D20(trim(path)//trim(filename),PNumor)
 
           case default
              ERR_ILLData=.true.
@@ -5052,10 +5053,10 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Powder_Numor
 
     !!----
-    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num,inf)
+    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,SNumor,inf)
     !!----    character(len=*),            intent(in)    :: PathNumor
     !!----    character(len=*),            intent(in)    :: Instrument
-    !!----    type(SXTAL_Numor_type),      intent(out)   :: Num
+    !!----    type(SXTAL_Numor_type),      intent(out)   :: SNumor
     !!----    logical, optional,           intent(in)    :: inf
     !!----
     !!----    Read a SXTAL numor from the ILL database.
@@ -5064,11 +5065,11 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 29/04/2011
     !!
-    Subroutine Read_SXTAL_Numor(filename,instrument,num,inf,frames)
+    Subroutine Read_SXTAL_Numor(filename,instrument,Snumor,inf,frames)
        !---- Arguments ----!
        character(len=*)               , intent(in)    :: filename
        character(len=*)               , intent(in)    :: Instrument
-       type(SXTAL_Numor_Type)         , intent(in out):: Num
+       type(SXTAL_Numor_Type)         , intent(in out):: SNumor
        logical, optional              , intent(in)    :: inf
        integer, optional, dimension(:), intent(in)    :: frames
 
@@ -5101,16 +5102,16 @@ Module CFML_ILL_Instrm_Data
 
        select case (trim(Instr))
           case ('D9')
-             call Read_Numor_D9(trim(filename),num)
+             call Read_Numor_D9(trim(filename),SNumor)
 
           case ('D10')
-             call Read_Numor_D10(trim(filename),num)
+             call Read_Numor_D10(trim(filename),SNumor)
 
           case ('D16')
-             call Read_Numor_D16(trim(filename),num)
+             call Read_Numor_D16(trim(filename),SNumor)
 
           case ('D19')
-             call Read_Numor_D19(trim(filename),num,frames)
+             call Read_Numor_D19(trim(filename),SNumor,frames)
 
           case default
              ERR_ILLData=.true.
@@ -5967,10 +5968,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_Current_Instrm_data(lun,fil)
+    Subroutine Write_Current_Instrm_data(lun,filename)
        !---- Arguments ----!
        integer,         optional, intent(in) :: lun
-       character(len=*),optional, intent(in) :: fil
+       character(len=*),optional, intent(in) :: filename
 
        !--- Local variables ---!
        integer           :: ipr,i
@@ -5979,7 +5980,8 @@ Module CFML_ILL_Instrm_Data
 
        ipr=6
        if (present(lun)) ipr=lun
-       if (.not. present(fil)) then
+
+       if (.not. present(filename)) then
           write(unit=ipr,fmt="(a)") " ---------------------------------------------------------------------------"
           write(unit=ipr,fmt="(a)") " ---   INFORMATION ABOUT THE CURRENT INSTRUMENT AND ORIENTATION MATRIX   ---"
           write(unit=ipr,fmt="(a)") " ---------------------------------------------------------------------------"
@@ -6105,9 +6107,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: April - 2009
     !!
-    Subroutine Write_Generic_Numor(Num,lun)
+    Subroutine Write_Generic_Numor(GNumor,lun)
        !---- Arguments ----!
-       type(generic_numor_type), intent(in) :: Num
+       type(generic_numor_type), intent(in) :: GNumor
        integer, optional,        intent(in) :: lun
 
        !---- Local Variables ----!
@@ -6117,85 +6119,85 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ilun=lun
 
        write(unit=ilun, fmt='(a)') '#### Numor Information ####'
-       write(unit=ilun, fmt='(a,i6.6)') 'Numor: ',num%numor
+       write(unit=ilun, fmt='(a,i6.6)') 'Numor: ',gnumor%numor
 
-       write(unit=ilun,fmt='(a,t50,a)') 'Instrument: '//trim(num%instr),'Date: '//trim(num%date)
-       write(unit=ilun,fmt='(a)') 'Experimental Name: '//trim(num%expname)
+       write(unit=ilun,fmt='(a,t50,a)') 'Instrument: '//trim(gnumor%instr),'Date: '//trim(gnumor%date)
+       write(unit=ilun,fmt='(a)') 'Experimental Name: '//trim(gnumor%expname)
        write(unit=ilun,fmt='(a)') ' '
 
        write(unit=ilun,fmt='(a)') '#---- Sample Information ----#'
-       do i=1,num%sampleid%n
-          write(unit=ilun,fmt='(a)') trim(num%sampleid%namevar(i))//': '//trim(num%sampleid%cvalues(i))
+       do i=1,gnumor%sampleid%n
+          write(unit=ilun,fmt='(a)') trim(gnumor%sampleid%namevar(i))//': '//trim(gnumor%sampleid%cvalues(i))
        end do
        write(unit=ilun,fmt='(a)') ' '
 
-       select case (num%instr)
+       select case (gnumor%instr)
            case ('D20')
               write(unit=ilun,fmt='(a)') '#---- Diffractometer Optics and Reactor Parameters ----#'
-              do i=1,num%diffopt%n
-                 if (len_trim(num%diffopt%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%diffopt%namevar(i))//': ',num%diffopt%rvalues(i)
+              do i=1,gnumor%diffopt%n
+                 if (len_trim(gnumor%diffopt%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%diffopt%namevar(i))//': ',gnumor%diffopt%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Monochromator Motor Parameters ----#'
-              do i=1,num%monmpar%n
-                 if (len_trim(num%monmpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%monmpar%namevar(i))//': ',num%monmpar%rvalues(i)
+              do i=1,gnumor%monmpar%n
+                 if (len_trim(gnumor%monmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%monmpar%namevar(i))//': ',gnumor%monmpar%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Diffractometer Motor Parameters ----#'
-              do i=1,num%diffmpar%n
-                 if (len_trim(num%diffmpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%diffmpar%namevar(i))//': ',num%diffmpar%rvalues(i)
+              do i=1,gnumor%diffmpar%n
+                 if (len_trim(gnumor%diffmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%diffmpar%namevar(i))//': ',gnumor%diffmpar%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Detector and DAS Parameters ----#'
-              do i=1,num%detpar%n
-                 if (len_trim(num%detpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%detpar%namevar(i))//': ',num%detpar%rvalues(i)
+              do i=1,gnumor%detpar%n
+                 if (len_trim(gnumor%detpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%detpar%namevar(i))//': ',gnumor%detpar%rvalues(i)
               end do
              write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
-              do i=1,num%dacparam%n
-                 if (len_trim(num%dacparam%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%dacparam%namevar(i))//': ',num%dacparam%rvalues(i)
+              do i=1,gnumor%dacparam%n
+                 if (len_trim(gnumor%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%dacparam%namevar(i))//': ',gnumor%dacparam%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Sample Status ----#'
-              do i=1,num%samplest%n
-                 if (len_trim(num%samplest%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(num%samplest%namevar(i))//': ',num%samplest%rvalues(i)
+              do i=1,gnumor%samplest%n
+                 if (len_trim(gnumor%samplest%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(gnumor%samplest%namevar(i))//': ',gnumor%samplest%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
-              write(unit=ilun,fmt='(a,i8)') trim(num%icounts%namevar(1))//': ',num%icounts%n
+              write(unit=ilun,fmt='(a,i8)') trim(gnumor%icounts%namevar(1))//': ',gnumor%icounts%n
               write(unit=ilun,fmt='(a)') ' '
 
            case ('D1B')
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Flags ----#'
-              do i=1,num%dacflags%n
-                 if (len_trim(num%dacflags%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,i6)') trim(num%dacflags%namevar(i))//': ',num%dacflags%ivalues(i)
+              do i=1,gnumor%dacflags%n
+                 if (len_trim(gnumor%dacflags%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,i6)') trim(gnumor%dacflags%namevar(i))//': ',gnumor%dacflags%ivalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
-              do i=1,num%dacparam%n
-                 if (len_trim(num%dacparam%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.4)') trim(num%dacparam%namevar(i))//': ',num%dacparam%rvalues(i)
+              do i=1,gnumor%dacparam%n
+                 if (len_trim(gnumor%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.4)') trim(gnumor%dacparam%namevar(i))//': ',gnumor%dacparam%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
-              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(1))//': ',real(num%icounts%ivalues(1))
-              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(2))//': ',real(num%icounts%ivalues(2))/60000.0
-              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(3))//': ',real(num%icounts%ivalues(3))*0.001
+              write(unit=ilun,fmt='(a,g15.4)') trim(gnumor%icounts%namevar(1))//': ',real(gnumor%icounts%ivalues(1))
+              write(unit=ilun,fmt='(a,g15.4)') trim(gnumor%icounts%namevar(2))//': ',real(gnumor%icounts%ivalues(2))/60000.0
+              write(unit=ilun,fmt='(a,g15.4)') trim(gnumor%icounts%namevar(3))//': ',real(gnumor%icounts%ivalues(3))*0.001
               write(unit=ilun,fmt='(a)') ' '
 
        end select
@@ -6204,8 +6206,8 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_Generic_Numor
 
     !!----
-    !!---- Subroutine Write_HeaderInfo_POWDER_Numor(Num,lun)
-    !!----    type(POWDER_Numor_type), intent(in) :: Num
+    !!---- Subroutine Write_HeaderInfo_POWDER_Numor(PNumor,lun)
+    !!----    type(POWDER_Numor_type), intent(in) :: PNumor
     !!----    integer,       optional, intent(in) :: lun
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
@@ -6215,9 +6217,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 15/03/2011
     !!
-    Subroutine Write_HeaderInfo_POWDER_Numor(Num,lun)
+    Subroutine Write_HeaderInfo_POWDER_Numor(PNumor,lun)
        !---- Arguments ----!
-       type(POWDER_Numor_type), intent(in) :: Num
+       type(POWDER_Numor_type), intent(in) :: PNumor
        integer,       optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -6227,29 +6229,29 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Header Information about the NUMOR: ",Num%numor," of instrument "//trim(num%instrm)
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Header Information about the NUMOR: ",pnumor%numor," of instrument "//trim(pnumor%instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
-       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
-       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
-       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(Num%Scantype)
-       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", Num%scans(1)
-       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", Num%scans(2)
-       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", Num%monitor
-       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(seg): ", Num%time
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(pnumor%header)
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(pnumor%title )
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(pnumor%Instrm)
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(pnumor%Scantype)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", pnumor%scans(1)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", pnumor%scans(2)
+       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", pnumor%monitor
+       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(seg): ", pnumor%time
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", pnumor%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", pnumor%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", pnumor%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", pnumor%conditions(5)
        write(unit=ipr,fmt="(a)") " "
 
        return
     End Subroutine Write_HeaderInfo_POWDER_Numor
 
     !!----
-    !!---- Subroutine Write_POWDER_Numor(Num,lun)
-    !!----    type(POWDER_Numor_type), intent(in) :: Num
+    !!---- Subroutine Write_POWDER_Numor(PNumor,lun)
+    !!----    type(POWDER_Numor_type), intent(in) :: PNumor
     !!----    integer,      optional, intent(in) :: lun
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
@@ -6259,9 +6261,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_POWDER_Numor(Num,lun)
+    Subroutine Write_POWDER_Numor(PNumor,lun)
        !---- Arguments ----!
-       type(POWDER_Numor_type), intent(in) :: Num
+       type(POWDER_Numor_type), intent(in) :: PNumor
        integer,       optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -6272,46 +6274,46 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(num%instrm)
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",pnumor%numor," of instrument "//trim(pnumor%instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
-       write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
-       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//Num%Instrm
-       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
-       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PHI: ", Num%angles(1)
-       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_CHI: ", Num%angles(2)
-       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_OMEGA: ", Num%angles(3)
-       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_GAMMA: ", Num%angles(4)
-       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PSI: ", Num%angles(5)
-       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", Num%scans(1)
-       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", Num%scans(2)
-       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_WIDTH: ", Num%scans(3)
-       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", Num%monitor
-       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(min): ", Num%time
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", Num%conditions(4)
-       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//pnumor%header
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//pnumor%title
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//pnumor%Instrm
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//pnumor%Scantype
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PHI: ", pnumor%angles(1)
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_CHI: ", pnumor%angles(2)
+       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_OMEGA: ", pnumor%angles(3)
+       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_GAMMA: ", pnumor%angles(4)
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PSI: ", pnumor%angles(5)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", pnumor%scans(1)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", pnumor%scans(2)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_WIDTH: ", pnumor%scans(3)
+       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", pnumor%monitor
+       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(min): ", pnumor%time
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", pnumor%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", pnumor%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", pnumor%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", pnumor%conditions(4)
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", pnumor%conditions(5)
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a,i6)")     "  Calc. angl. type: ",Num%icalc
-       write(unit=ipr,fmt="(a,i6)")     "  Principal  angle: ",Num%manip
-       write(unit=ipr,fmt="(a,i6)")     "  Number of frames: ",Num%nframes
-       write(unit=ipr,fmt="(a,i6)")     "  Number of angles: ",Num%nbang
-       write(unit=ipr,fmt="(a,i6)")     "  Number of pixels: ",Num%nbdata
+       write(unit=ipr,fmt="(a,i6)")     "  Calc. angl. type: ",pnumor%icalc
+       write(unit=ipr,fmt="(a,i6)")     "  Principal  angle: ",pnumor%manip
+       write(unit=ipr,fmt="(a,i6)")     "  Number of frames: ",pnumor%nframes
+       write(unit=ipr,fmt="(a,i6)")     "  Number of angles: ",pnumor%nbang
+       write(unit=ipr,fmt="(a,i6)")     "  Number of pixels: ",pnumor%nbdata
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "  Profile with all counts in detector: "
 
 
-       do i=1, Num%nframes
-          nlines=Num%nbdata/10+1
+       do i=1, pnumor%nframes
+          nlines=pnumor%nbdata/10+1
           n=1
           do j=1,nlines
-             cou=nint(Num%counts(n:n+9,i))
+             cou=nint(pnumor%counts(n:n+9,i))
              write(unit=ipr,fmt="(10i8)") cou
              n=n+10
-             if (n > Num%nbdata) exit
+             if (n > pnumor%nbdata) exit
           end do
        end do
 
@@ -6319,8 +6321,8 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_POWDER_Numor
 
     !!----
-    !!---- Subroutine Write_HeaderInfo_SXTAL_Numor(Num,lun)
-    !!----    type(SXTAL_Numor_type), intent(in) :: Num
+    !!---- Subroutine Write_HeaderInfo_SXTAL_Numor(SNumor,lun)
+    !!----    type(SXTAL_Numor_type), intent(in) :: SNumor
     !!----    integer,      optional, intent(in) :: lun
     !!----
     !!----    Writes the Header Information of the numor objet 'Num'
@@ -6330,9 +6332,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 15/03/2011
     !!
-    Subroutine Write_HeaderInfo_SXTAL_Numor(Num,lun)
+    Subroutine Write_HeaderInfo_SXTAL_Numor(SNumor,lun)
        !---- Arguments ----!
-       type(SXTAL_Numor_type), intent(in) :: Num
+       type(SXTAL_Numor_type), intent(in) :: SNumor
        integer,      optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -6342,44 +6344,44 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(Num%Instrm)
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",snumor%numor," of instrument "//trim(snumor%Instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
-       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
-       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
-       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(Num%Scantype)
-       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", Num%hmin
-       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Max.): ", Num%hmax
-       if (Num%Scantype == "phi") then
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," r.l.u."
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," r.l.u."
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," r.l.u."
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(snumor%header)
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(snumor%title )
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(snumor%Instrm)
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(snumor%Scantype)
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", snumor%hmin
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Max.): ", snumor%hmax
+       if (snumor%Scantype == "phi") then
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", snumor%scans(1) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", snumor%scans(2) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", snumor%scans(3) ," r.l.u."
        else
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," "//Current_Instrm%angl_units
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," "//Current_Instrm%angl_units
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", snumor%scans(1) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", snumor%scans(2) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", snumor%scans(3) ," "//Current_Instrm%angl_units
        end if
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", Num%conditions(4)
-       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", snumor%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", snumor%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", snumor%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", snumor%conditions(4)
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", snumor%conditions(5)
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)") "       ORIENTATION MATRIX  UB"
        write(unit=ipr,fmt="(a)") " --------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(1,:)
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(2,:)
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(3,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(1,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(2,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(3,:)
        write(unit=ipr,fmt="(a)") " "
 
        return
     End Subroutine Write_HeaderInfo_SXTAL_Numor
 
     !!----
-    !!---- Subroutine Write_SXTAL_Numor(Num,lun)
-    !!----    type(SXTAL_Numor_type), intent(in) :: Num
+    !!---- Subroutine Write_SXTAL_Numor(SNumor,lun)
+    !!----    type(SXTAL_Numor_type), intent(in) :: SNumor
     !!----    integer,      optional, intent(in) :: lun
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
@@ -6389,9 +6391,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_SXTAL_Numor(Num,lun)
+    Subroutine Write_SXTAL_Numor(SNumor,lun)
        !---- Arguments ----!
-       type(SXTAL_Numor_type), intent(in) :: Num
+       type(SXTAL_Numor_type), intent(in) :: SNumor
        integer,      optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -6402,61 +6404,61 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(Num%Instrm)
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",snumor%numor," of instrument "//trim(snumor%Instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
-       write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
-       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//Num%Instrm
-       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
-       write(unit=ipr,fmt="(a,f8.3)")   "  COUPLING_FACT: ", Num%cpl_fact
-       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", Num%hmin
-       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Max.): ", Num%hmax
-       write(unit=ipr,fmt="(a,3f8.3)")  "      DELTA-hkl: ", Num%dh
-       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_PHI: ", Num%angles(1)," "//Current_Instrm%angl_units
-       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_CHI: ", Num%angles(2)," "//Current_Instrm%angl_units
-       write(unit=ipr,fmt="(a,f14.3,a)") "    ANGLE_OMEGA: ", Num%angles(3)," "//Current_Instrm%angl_units
-       write(unit=ipr,fmt="(a,f14.3,a)") "    ANGLE_GAMMA: ", Num%angles(4)," "//Current_Instrm%angl_units
-       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_PSI: ", Num%angles(5)," "//Current_Instrm%angl_units
-       if (Num%Scantype == "phi") then
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," r.l.u."
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," r.l.u."
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," r.l.u."
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//snumor%header
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//snumor%title
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//snumor%Instrm
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//snumor%Scantype
+       write(unit=ipr,fmt="(a,f8.3)")   "  COUPLING_FACT: ", snumor%cpl_fact
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", snumor%hmin
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Max.): ", snumor%hmax
+       write(unit=ipr,fmt="(a,3f8.3)")  "      DELTA-hkl: ", snumor%dh
+       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_PHI: ", snumor%angles(1)," "//Current_Instrm%angl_units
+       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_CHI: ", snumor%angles(2)," "//Current_Instrm%angl_units
+       write(unit=ipr,fmt="(a,f14.3,a)") "    ANGLE_OMEGA: ", snumor%angles(3)," "//Current_Instrm%angl_units
+       write(unit=ipr,fmt="(a,f14.3,a)") "    ANGLE_GAMMA: ", snumor%angles(4)," "//Current_Instrm%angl_units
+       write(unit=ipr,fmt="(a,f14.3,a)") "      ANGLE_PSI: ", snumor%angles(5)," "//Current_Instrm%angl_units
+       if (snumor%Scantype == "phi") then
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", snumor%scans(1) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", snumor%scans(2) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", snumor%scans(3) ," r.l.u."
        else
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," "//Current_Instrm%angl_units
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," "//Current_Instrm%angl_units
-          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", snumor%scans(1) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", snumor%scans(2) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", snumor%scans(3) ," "//Current_Instrm%angl_units
        end if
-       write(unit=ipr,fmt="(a,f14.3 )") "         PRESET: ", Num%preset
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
-       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", Num%conditions(4)
-       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a,f14.3 )") "         PRESET: ", snumor%preset
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", snumor%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", snumor%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", snumor%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", snumor%conditions(4)
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", snumor%conditions(5)
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)") "       ORIENTATION MATRIX  UB"
        write(unit=ipr,fmt="(a)") " --------------------------------------"
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(1,:)
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(2,:)
-       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(3,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(1,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(2,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  snumor%ub(3,:)
        write(unit=ipr,fmt="(a)") " "
-       write(unit=ipr,fmt="(a,i6)")     "  Calc. angl. type: ",Num%icalc
-       write(unit=ipr,fmt="(a,i6)")     "  Principal  angle: ",Num%manip
-       write(unit=ipr,fmt="(a,i6)")     "  Number of frames: ",Num%nframes
-       write(unit=ipr,fmt="(a,i6)")     "  Number of angles: ",Num%nbang
-       write(unit=ipr,fmt="(a,i6)")     "  Number of pixels: ",Num%nbdata
+       write(unit=ipr,fmt="(a,i6)")     "  Calc. angl. type: ",snumor%icalc
+       write(unit=ipr,fmt="(a,i6)")     "  Principal  angle: ",snumor%manip
+       write(unit=ipr,fmt="(a,i6)")     "  Number of frames: ",snumor%nframes
+       write(unit=ipr,fmt="(a,i6)")     "  Number of angles: ",snumor%nbang
+       write(unit=ipr,fmt="(a,i6)")     "  Number of pixels: ",snumor%nbdata
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "  Profile with all counts in detector: "
 
-       do i=1, Num%nframes
-          cou=nint(sum(Num%counts(:,i)))
-          !ang= Num%scans(1)+ real(i-1)*Num%scans(2)
-          tim = Num%tmc_ang(1,i)
-          mon = Num%tmc_ang(2,i)
-          ctot = nint(Num%tmc_ang(3,i))
-          ang1 = Num%tmc_ang(4,i)
-          ang2 = Num%tmc_ang(5,i)
+       do i=1, snumor%nframes
+          cou=nint(sum(snumor%counts(:,i)))
+          !ang= snumor%scans(1)+ real(i-1)*snumor%scans(2)
+          tim = snumor%tmc_ang(1,i)
+          mon = snumor%tmc_ang(2,i)
+          ctot = nint(snumor%tmc_ang(3,i))
+          ang1 = snumor%tmc_ang(4,i)
+          ang2 = snumor%tmc_ang(5,i)
           write(unit=ipr,fmt="(4f12.2,2i8)") tim,mon,ang1,ang2, ctot, cou
        end do
 
