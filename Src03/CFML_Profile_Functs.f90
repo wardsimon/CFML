@@ -38,51 +38,20 @@
 !!---- HISTORY
 !!----    Update: 03/03/2011
 !!----
-!!---- DEPENDENCIES
-!!----    CFML_GlobalDeps, only: cp
-!!----
-!!---- VARIABLES
-!!----
-!!---- PROCEDURES
-!!----
-!!----    Functions:
-!!----      BACK_TO_BACK_EXP
-!!----      EXPONENTIAL
-!!----      GAUSSIAN
-!!----      HAT
-!!----      IKEDA_CARPENTER
-!!----      LORENTZIAN
-!!----      PSEUDOVOIGT
-!!----      SPLIT_PSEUDOVOIGT
-!!----      TCH_PVOIGT
-!!----
-!!----    Subroutines:
-!!----      BACK_TO_BACK_EXP_DER
-!!----      EXPONENTIAL_DER
-!!----      GAUSSIAN_DER
-!!----      HAT_DER
-!!----      IKEDA_CARPENTER_DER
-!!----      LORENTZIAN_DER
-!!----      PSEUDOVOIGT_DER
-!!----      SPLIT_PSEUDOVOIGT_DER
-!!----      TCH_PVOIGT_DER
-!!----
 !!
- Module CFML_PowderProfiles_CW
-    !---- Use Files ----!
-    Use CFML_GlobalDeps, only: cp
+Module CFML_PowderProfiles_CW
+   !---- Use Files ----!
+   Use CFML_GlobalDeps, only: cp
 
-    !---- Variables ----!
-    implicit none
+   !---- Variables ----!
+   implicit none
 
  Contains
     !!----
-    !!---- Pure Function Back_To_Back_Exp(X,Par)
-    !!----    real(kind=cp),              intent(in) :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION BACK_TO_BACK_EXP
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
        !---- Arguments ----!
@@ -106,12 +75,10 @@
     End Function Back_To_Back_Exp
 
     !!----
-    !!---- Pure Function Exponential(X,Par)
-    !!----    real(kind=cp),              intent(in) :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION EXPONENTIAL
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Exponential(X,Par) Result (Ex_Val)
        !---- Arguments ----!
@@ -133,12 +100,10 @@
     End Function Exponential
 
     !!----
-    !!---- Pure Function Gaussian(X,Par)
-    !!----    real(kind=cp),              intent(in) :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION GAUSSIAN
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Gaussian(X,Par) Result (Gauss_Val)
        !---- Arguments ----!
@@ -158,12 +123,10 @@
     End Function Gaussian
 
     !!----
-    !!---- Pure Function Hat(X,Par)
-    !!----    real(kind=cp),              intent(in) :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION HAT
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Hat(X,Par) Result (H_Val)
        !---- Arguments ----!
@@ -186,12 +149,10 @@
     End Function Hat
 
     !!----
-    !!---- Pure Function Ikeda_Carpenter(X,Par)
-    !!----    real(kind=cp),              intent(in) :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION IKEDA_CARPENTER
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
        !---- Arguments ---!
@@ -222,12 +183,10 @@
     End Function Ikeda_Carpenter
 
     !!----
-    !!---- Pure Function Lorentzian(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION LORENTZIAN
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Lorentzian(X,Par) Result (Lor_Val)
        !---- Arguments ----!
@@ -247,12 +206,10 @@
     End Function Lorentzian
 
     !!----
-    !!---- Pure Function Pseudovoigt(X,Par)
-    !!----    real(kind=cp),              intent(in)  :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION PSEUDOVOIGT
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
@@ -278,12 +235,10 @@
     End Function Pseudovoigt
 
     !!----
-    !!---- Pure Function Split_Pseudovoigt(X,Par)
-    !!----    real(kind=cp),              intent(in)  :: x
-    !!----    real(kind=cp), dimension(:),intent(in)  :: Par
+    !!---- PURE FUNCTION SPLIT_PSEUDOVOIGT
     !!----
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
@@ -318,12 +273,10 @@
     End Function Split_Pseudovoigt
 
     !!----
-    !!---- Pure Function TCH_pVoigt(X,Par)
-    !!----    real(kind=cp),              intent(in)  :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE FUNCTION TCH_PVOIGT
     !!----
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 11/07/2015
     !!
     Pure Function TCH_pVoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
@@ -356,14 +309,14 @@
        return
     End Function TCH_pVoigt
 
+    !---------------------!
+    !---- SUBROUTINES ----!
+    !---------------------!
+
     !!----
-    !!---- Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: bb_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE BACK_TO_BACK_EXP_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
        !---- Arguments ----!
@@ -401,13 +354,9 @@
     End Subroutine Back_To_Back_Exp_Der
 
     !!----
-    !!---- Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: ex_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE EXPONENTIAL_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
        !---- Arguments ----!
@@ -436,13 +385,9 @@
     End Subroutine Exponential_Der
 
     !!----
-    !!---- Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: Gauss_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE GAUSSIAN_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
        !---- Arguments ----!
@@ -469,13 +414,9 @@
     End Subroutine Gaussian_Der
 
     !!----
-    !!---- Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: H_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE HAT_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
        !---- Arguments ----!
@@ -505,13 +446,9 @@
     End Subroutine Hat_Der
 
     !!----
-    !!---- Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: Ik_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE IKEDA_CARPENTER_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
        !---- Arguments ----!
@@ -559,13 +496,9 @@
     End Subroutine Ikeda_Carpenter_Der
 
     !!----
-    !!---- Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: Lor_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE LORENTZIAN_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
        !---- Arguments ----!
@@ -592,16 +525,12 @@
     End Subroutine Lorentzian_Der
 
     !!----
-    !!---- Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: Pv_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE PSEUDOVOIGT_DER
     !!----
     !!----  Pv_Val is the value of the function for the argument x
     !!----  Par=(/H,eta/)  and Dpar(1:3)=(/derx,derH,derEta/)
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
@@ -652,13 +581,9 @@
     End Subroutine Pseudovoigt_Der
 
     !!----
-    !!---- Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
-    !!----    real(kind=cp),                        intent(in)  :: x
-    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
-    !!----    real(kind=cp),                        intent(out) :: Pv_val
-    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
+    !!---- PURE SUBROUTINE SPLIT_PSEUDOVOIGT_DER
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
@@ -750,14 +675,12 @@
        return
     End Subroutine Split_Pseudovoigt_Der
     !!----
-    !!---- Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
-    !!----    real(kind=cp),              intent(in)  :: x
-    !!----    real(kind=cp), dimension(:),intent(in) :: Par
+    !!---- PURE SUBROUTINE TCH_PVOIGT_DER
     !!----
     !!----  Pv_Val is the value of the function for the argument x
     !!----  Par=(/HG,HL/)  and Dpar(1:3)=(/derx,derHG,derHL/)
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 11/07/2015
     !!
     Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
        !---- Arguments ----!
@@ -817,4 +740,4 @@
        return
     End Subroutine TCH_pVoigt_Der
 
- End Module CFML_PowderProfiles_CW
+End Module CFML_PowderProfiles_CW

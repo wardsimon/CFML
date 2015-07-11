@@ -108,154 +108,38 @@
 !!--..       Phone: (+61) 3 9545-8036      Fax: (+61) 3 9545-8080
 !!--..       e-mail: Alan.Miller @ vic.cmis.csiro.au
 !!----
-!!---- DEPENDENCIES
-!!--++    CFML_GlobalDeps, only: cp, dp
-!!----
-!!---- VARIABLES
-!!----    ERR_RANDOM_MESS
-!!----    ERR_RANDOM
-!!--++    HALF                      [Private]
-!!--++    ONE                       [Private]
-!!--++    TWO                       [Private]
-!!--++    VLARGE                    [Private]
-!!--++    VSMALL                    [Private]
-!!--++    ZERO                      [Private]
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!--++       BIN_PROB               [Private]
-!!--++       GG_F                   [Private]
-!!--++       GPG_F                  [Private]
-!!--++       GPP_F                  [Private]
-!!----       INIT_ERR_RANDOM
-!!--++       INTEGRAL               [Private]
-!!--++       LNGAMMA                [Private]
-!!----       RANDOM_BETA
-!!----       RANDOM_BINOMIAL1
-!!----       RANDOM_BINOMIAL2
-!!----       RANDOM_CAUCHY
-!!----       RANDOM_CHISQ
-!!----       RANDOM_EXPONENTIAL
-!!----       RANDOM_GAMMA
-!!----       RANDOM_GAMMA1
-!!----       RANDOM_GAMMA2
-!!----       RANDOM_INV_GAUSS
-!!----       RANDOM_MVNORM
-!!----       RANDOM_NEG_BINOMIAL
-!!----       RANDOM_NORMAL
-!!----       RANDOM_ORDER
-!!----       RANDOM_POISSON
-!!----       RANDOM_T
-!!----       RANDOM_VON_MISES
-!!----       RANDOM_WEIBULL
-!!----       SEED_RANDOM_NUMBER
-!!----
 !!
  Module CFML_Random_Generators
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp,dp
 
-    !---- Local Variables ----!
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public subroutines ----!
+    !---- Public subroutines ----!
     public  :: random_beta, random_binomial1, random_binomial2, random_cauchy,   &
                random_chisq, random_exponential, random_gamma, random_gamma1, random_gamma2,        &
                random_inv_gauss, random_neg_binomial, random_normal, random_poisson, random_t,      &
                random_von_mises, random_weibull, init_err_random, random_mvnorm,          &
                random_order, seed_random_number
 
-    !---- Definitions ----!
-
-    !!----
-    !!---- ERR_RANDOM
-    !!----    logical, public :: err_random
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Random_Generators module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: Err_Random
-
-    !!----
-    !!---- ERR_RANDOM_MESS
-    !!----    character(len=150), public :: ERR_Random_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_Random_Mess = " "
-
-    !!--++
-    !!--++ HALF
-    !!--++    real, parameters, private  :: half
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Half=0.5
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter :: half = 0.5
-
-    !!--++
-    !!--++ ONE
-    !!--++    real, parameters, private  :: one
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    One=1.0
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter  :: one = 1.0
-
-    !!--++
-    !!--++ TWO
-    !!--++    real, parameters, private  :: two
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Two=2.0
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter  :: two = 2.0
-
-    !!--++
-    !!--++ VLARGE
-    !!--++    real, parameters, private  :: vlarge
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    VLarge=huge(1.0)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter  :: vlarge = huge(1.0)
-
-    !!--++
-    !!--++ VSMALL
-    !!--++    real, parameters, private  :: vsmall
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    VSmall=tiny(1.0)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    real(kind=cp), parameter :: half = 0.5_cp
+    real(kind=cp), parameter :: one  = 1.0_cp
+    real(kind=cp), parameter :: two  = 2.0_cp
+    real(kind=cp), parameter :: zero = 0.0_cp
+    real(kind=cp), parameter :: vlarge = huge(1.0)
     real(kind=cp), parameter :: vsmall = tiny(1.0)
 
-    !!--++
-    !!--++ ZERO
-    !!--++    real, parameters, private  :: zero
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Zero=0.0
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter :: zero = 0.0
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical,            public :: Err_Random=.false.     ! Logical Variable indicating an error in CFML_Random_Generators module
+    character(len=256), public :: ERR_Random_Mess = " "  ! String containing information about the last error
 
  Contains
 
@@ -264,16 +148,12 @@
     !---------------------!
 
     !!--++
-    !!--++ Subroutine Bin_Prob(N, P, R,Fn_Val)
-    !!--++    integer,          intent(in) :: n         !  In ->
-    !!--++    real(kind=cp),    intent(in) :: p         !  In ->
-    !!--++    integer,          intent(in) :: r         !  In ->
-    !!--++    real(kind=cp)    ,intent(out):: fn_val    ! Out ->
+    !!--++ SUBROUTINE BIN_PROB
     !!--++
     !!--++    (PRIVATE)
     !!--++    Calculate a binomial probability
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Bin_Prob(N, P, R, Fn_Val)
        !---- Arguments ----!
@@ -297,13 +177,11 @@
     End Subroutine Bin_Prob
 
     !!--++
-    !!--++ Subroutine Gg_F(Methodeg,Gg)
-    !!--++    integer,          intent(in) :: methodeg
-    !!--++    real(kind=cp)    ,intent(out):: gg
+    !!--++ SUBROUTINE GG_F
     !!--++
     !!--++    (PRIVATE)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Gg_F(Methodeg,Gg)
        !---- Arguments ----!
@@ -337,22 +215,18 @@
     End Subroutine Gg_F
 
     !!--++
-    !!--++ Subroutine Gpg_F(Mt,Methodeg,Gpstab,Gpg)
-    !!--++    real(kind=cp),    intent(in) :: mt
-    !!--++    integer,          intent(in) :: methodeg
-    !!--++    integer,          intent(in) :: gpstab
-    !!--++    integer,          intent(out):: gpg
+    !!--++ SUBROUTINE GPG_F
     !!--++
     !!--++    (PRIVATE)
     !!--++    Poisson distribution by approx.gauss. (N(0,1) -> P(MT))
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Gpg_F(Mt,Methodeg,Gpstab,Gpg)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: mt
        integer,       intent(in) :: methodeg,gpstab
-       integer      , intent(out):: gpg
+       integer,       intent(out):: gpg
 
        !---- Local variables ----!
        integer       :: x
@@ -372,14 +246,12 @@
     End Subroutine Gpg_F
 
     !!--++
-    !!--++ Subroutine Gpp_F(Mt,Gpp)
-    !!--++    real(kind=cp),    intent(in) :: mt
-    !!--++    integer,          intent(out):: gpp
+    !!--++ SUBROUTINE GPP_F
     !!--++
     !!--++    (PRIVATE)
     !!--++    Poisson distribution by the product method
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Gpp_F(Mt,Gpp)
        !---- Arguments ----!
@@ -406,11 +278,11 @@
     End Subroutine Gpp_F
 
     !!----
-    !!---- Subroutine Init_Err_Random()
+    !!---- SUBROUTINE INIT_ERR_RANDOM
     !!----
     !!----    Initialize the errors flags in CFML_Random_Generators
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Init_Err_Random()
 
@@ -421,16 +293,12 @@
     End Subroutine Init_Err_Random
 
     !!--++
-    !!--++ Subroutine Integral(A, B, Resultt, Dk)
-    !!--++    real(kind=cp), intent(in)  :: a
-    !!--++    real(kind=cp), intent(in)  :: b
-    !!--++    real(kind=cp), intent(out) :: resultt
-    !!--++    real(kind=cp), intent(in)  :: dk
+    !!--++ SUBROUTINE INTEGRAL
     !!--++
     !!--++    (PRIVATE)
     !!--++    Gaussian integration of exp(k.cosx) from a to b.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Integral(A, B, Resultt, Dk)
        !---- Arguments ----!
@@ -459,15 +327,13 @@
     End Subroutine Integral
 
     !!--++
-    !!--++ Subroutine Lngamma(X,Fn_Val)
-    !!--++    real(kind=cp) (kind=dp), intent(in) :: x         !  In ->
-    !!--++    real(kind=cp) (kind=dp)             :: fn_val    ! Out ->
+    !!--++ SUBROUTINE LNGAMMA
     !!--++
     !!--++    (PRIVATE)
     !!--++    Logarithm to base e of the gamma subroutine.
     !!--++     Accurate to about 1.e-14. (Alan Miller)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Lngamma(X,Fn_Val)
        !---- Arguments ----!
@@ -524,11 +390,7 @@
     End Subroutine Lngamma
 
     !!----
-    !!---- Subroutine Random_Beta(Aa, Bb, First,Fn_Val)
-    !!----    real(kind=cp), intent(in)    :: aa          !  In -> shape parameter from distribution (0 < real)
-    !!----    real(kind=cp), intent(in)    :: bb          !  In -> shape parameter from distribution (0 < real)
-    !!----    logical, intent(in)          :: first       !  In ->
-    !!----    real(kind=cp)                :: fn_val      ! Out ->
+    !!---- SUBROUTINE RANDOM_BETA
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -538,11 +400,11 @@
     !!----    density proportional to beta**(aa-1) * (1-beta)**(bb-1) using cheng"s log
     !!----    logistic method.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Beta(Aa, Bb, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)    :: aa, bb
+       real(kind=cp), intent(in)    :: aa, bb   ! shape parameter from distribution (0 < real)
        logical, intent(in)          :: first
        real(kind=cp),intent(out)    :: fn_val
 
@@ -607,12 +469,7 @@
     End Subroutine Random_Beta
 
     !!----
-    !!---- Subroutine Random_Binomial1(N, P, First,Ival)
-    !!----    integer,       intent(in) :: n          !  In -> Number Of Bernoulli Trials       (1 <= Integer)
-    !!----    real(kind=cp), intent(in) :: p          !  In -> Bernoulli Success Probability    (0 <= Real <= 1)
-    !!----    logical,       intent(in) :: first      !  In -> .TRUE. for the first call using the current parameter values
-    !!----                                                     .FALSE. if the values of (n,p) are unchanged from last call
-    !!----    integer,       intent(out):: ival       ! Out ->
+    !!---- SUBROUTINE RANDOM_BINOMIAL1
     !!----
     !!----    Generates A Random Binomial Variate Using C.D.Kemp"s method.
     !!----    This algorithm is suitable when many random variates are
@@ -622,13 +479,14 @@
     !!--..    binomial variables", Commun. Statist. - Theor. Meth. 15(3),
     !!--..    805-813.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Binomial1(N, P, First, Ival)
        !---- Arguments ----!
-       integer,       intent(in)  :: n
-       real(kind=cp), intent(in)  :: p
-       logical,       intent(in)  :: first
+       integer,       intent(in)  :: n       ! Number Of Bernoulli Trials       (1 <= Integer)
+       real(kind=cp), intent(in)  :: p       ! Bernoulli Success Probability    (0 <= Real <= 1)
+       logical,       intent(in)  :: first   ! .TRUE. for the first call using the current parameter values
+                                             ! .FALSE. if the values of (n,p) are unchanged from last call
        integer,       intent(out) :: ival
 
        !---- Local variables ----!
@@ -683,31 +541,22 @@
     End Subroutine Random_Binomial1
 
     !!----
-    !!---- Subroutine Random_Binomial2(N, Pp, First, Ival)
-    !!----    integer,       intent(in) :: n      !  In -> The number of trials in the binomial distribution
-    !!----                                           from which a random deviate is to be generated.
-    !!----    real(kind=cp), intent(in) :: pp     !  In -> The probability of an event in each trial of the
-    !!----                                           binomial distribution from which a random deviate
-    !!----                                           is to be generated.
-    !!----    logical,       intent(in) :: first  !  In -> .TRUE. for the first call to perform initialization
-    !!----                                           the set FIRST = .FALSE. for further calls using the
-    !!----                                           same pair of parameter values (N, P)
-    !!----    integer,       intent(out):: ival
+    !!---- SUBROUTINE RANDOM_BINOMIAL2
     !!----
-    !!----    Generates a single random deviate from a binomial
-    !!----    distribution whose number of trials is N and whose
-    !!----    probability of an event in each trial is P.
+    !!----    Generates a single random deviate from a binomial distribution whose number
+    !!----    of trials is N and whose probability of an event in each trial is P.
     !!----    Random_binomial2 <-- A random deviate yielding the number
     !!----    of events from N independent trials, each of which has a
     !!----    probability of event P.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Binomial2(N, Pp, First, Ival)
        !---- Arguments ----!
-       real(kind=cp), intent(in)    :: pp
-       integer, intent(in)          :: n
-       logical, intent(in)          :: first
+       integer, intent(in)          :: n        ! The number of trials in the binomial distribution from which a random deviate is to be generated
+       real(kind=cp), intent(in)    :: pp       ! The probability of an event in each trial of the binomial distribution from which a random deviate
+       logical, intent(in)          :: first    ! .TRUE. for the first call to perform initialization. Set FIRST = .FALSE. for further calls using the
+                                                ! same pair of parameter values (N, P)
        integer, intent(out)         :: ival
 
        !---- local variables ----!
@@ -876,12 +725,11 @@
     End Subroutine Random_Binomial2
 
     !!----
-    !!---- Subroutine Random_Cauchy(Fn_Val)
-    !!----    real(kind=cp) ,intent(out):: fn_val
+    !!---- SUBROUTINE RANDOM_CAUCHY
     !!----
     !!----    Generate a random deviate from the standard Cauchy distribution
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Cauchy(Fn_Val)
        !---- Arguments ----!
@@ -903,15 +751,12 @@
     End Subroutine Random_Cauchy
 
     !!----
-    !!---- Subroutine Random_Chisq(Ndf, First,Fn_Val)
-    !!----    integer,       intent(in) :: ndf      !  In ->
-    !!----    logical,       intent(in) :: first    !  In ->
-    !!----    real(kind=cp) ,intent(out):: fn_val   ! Out ->
+    !!---- SUBROUTINE RANDOM_CHISQ
     !!----
     !!----    Generates a random variate from the chi-squared
     !!----    distribution with ndf degrees of freedom
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Chisq(Ndf, First, Fn_Val)
        !---- Arguments ----!
@@ -926,8 +771,7 @@
     End Subroutine Random_Chisq
 
     !!----
-    !!---- Subroutine Random_Exponential(Fn_Val)
-    !!----    real(kind=cp) ,intent(out)   :: fn_val
+    !!---- SUBROUTINE RANDOM_EXPONENTIAL
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -936,7 +780,7 @@
     !!----    Subroutine generates a random variate in [0,infinity) from a negative exponential
     !!----    distribution wlth density proportional to exp(-random_exponential), using inversion.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Exponential(Fn_Val)
        !---- Arguments ----!
@@ -956,10 +800,7 @@
     End Subroutine Random_Exponential
 
     !!----
-    !!---- Subroutine Random_Gamma(S, First,Fn_Val)
-    !!----    real(kind=cp), intent(in)  :: s       !  In -> shape parameter of distribution (0.0 < real)
-    !!----    logical,       intent(in)  :: first   !  In ->
-    !!----    real(kind=cp) ,intent(out) :: fn_val  ! Out ->
+    !!---- SUBROUTINE RANDOM_GAMMA
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -971,11 +812,11 @@
     !!--..    or random_exponential (S = 1.0)
     !!--..    or random_gamma2 (S < 1.0).
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Gamma(S, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)  :: s
+       real(kind=cp), intent(in)  :: s        !shape parameter of distribution (0.0 < real)
        logical, intent(in)        :: first
        real(kind=cp) ,intent(out) :: fn_val
 
@@ -998,10 +839,7 @@
     End Subroutine Random_Gamma
 
     !!----
-    !!---- Subroutine Random_Gamma1(S, First,Fn_Val)
-    !!----    real(kind=cp), intent(in) :: s       !  In -> shape parameter of distribution (1.0 < real)
-    !!----    logical,       intent(in) :: first
-    !!----    real(kind=cp) ,intent(out):: fn_val
+    !!---- SUBROUTINE RANDOM_GAMMA1
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1011,11 +849,11 @@
     !!----    with density proportional to gamma**(s-1)*exp(-gamma), based upon best"s t
     !!----    distribution method
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Gamma1(S, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)   :: s
+       real(kind=cp), intent(in)   :: s         ! shape parameter of distribution (1.0 < real)
        logical,       intent(in)   :: first
        real(kind=cp) ,intent(out)  :: fn_val
 
@@ -1055,10 +893,7 @@
     End Subroutine Random_Gamma1
 
     !!----
-    !!---- Subroutine Random_Gamma2(S, First,Fn_Val)
-    !!----    real(kind=cp), intent(in)  :: s        !  In -> shape parameter of distribution (1.0 < real)
-    !!----    logical,       intent(in)  :: first
-    !!----    real(kind=cp) ,intent(out) :: fn_val
+    !!---- SUBROUTINE RANDOM_GAMMA2
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1068,11 +903,11 @@
     !!----    a gamma distribution with density proportional to
     !!----    gamma2**(s-1) * exp(-gamma2), using a switching method.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Gamma2(S, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)  :: s
+       real(kind=cp), intent(in)  :: s          ! shape parameter of distribution (1.0 < real)
        logical,       intent(in)  :: first
        real(kind=cp) ,intent(out) :: fn_val
 
@@ -1129,11 +964,7 @@
     End Subroutine Random_Gamma2
 
     !!----
-    !!---- Subroutine Random_Inv_Gauss(H, B, First, Fn_Val)
-    !!----    real(kind=cp), intent(in)    :: h       !  In -> parameter of distribution (0 <= real)
-    !!----    real(kind=cp), intent(in)    :: b       !  In -> parameter of distribution (0 < real)
-    !!----    logical,       intent(in)    :: first
-    !!----    real(kind=cp), intent(out)   :: fn_val
+    !!---- SUBROUTINE RANDOM_INV_GAUSS
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1144,11 +975,11 @@
     !!----    with density proportional to  gig**(h-1) * exp(-0.5*b*(gig+1/gig))
     !!----    using a ratio method.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Inv_Gauss(H, B, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)  :: h, b
+       real(kind=cp), intent(in)  :: h, b      ! parameter of distribution (0 <= real)
        logical,       intent(in)  :: first
        real(kind=cp), intent(out) :: fn_val
 
@@ -1209,17 +1040,7 @@
     End Subroutine Random_Inv_Gauss
 
     !!----
-    !!---- Subroutine Random_Mvnorm(N, H, D, F, First, X, Ier)
-    !!----    integer,       intent(in)  :: n            !  In -> number of variates in vector (input,integer >= 1)
-    !!----    real(kind=cp), intent(in)  :: h(n)         !  In -> vector of means
-    !!----    real(kind=cp), intent(in)  :: d(n*(n+1)/2) !  In -> variance matrix (j> = i)
-    !!----    real(kind=cp), intent(out) :: f(n*(n+1)/2) ! Out -> lower triangular decomposition of variance matrix (j <= i)
-    !!----    real(kind=cp), intent(out) :: x(n)         ! Out -> delivered vector
-    !!----    logical,       intent(in)  :: first        !  In -> .true. if this is the first call of the routine
-    !!----                                                         or if the distribution has changed since the last
-    !!----                                                         call of the routine. otherwise set to .false.
-    !!----    integer,       intent(out) :: ier          ! Out ->  = 1 if the input covariance matrix is not +ve definite
-    !!----                                                         = 0 otherwise
+    !!---- SUBROUTINE RANDOM_MVNORM
     !!----
     !!----    Generates an n variate random normal vector using
     !!----    a cholesky decomposition.
@@ -1228,17 +1049,20 @@
     !!--..    Dagpunar, J. "Principles of random variate generation"
     !!--..    Clarendon Press, Oxford, 1988.   ISBN 0-19-852202-9
     !!--..
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Mvnorm(N, H, D, F, First, X, Ier)
        !---- Arguments ----!
-       integer, intent(in)  :: n
-       real(kind=cp), dimension(n),        intent(in) :: h
-       real(kind=cp), dimension(n*(n+1)/2),intent(in) :: d
-       real(kind=cp), dimension(n),        intent(out):: x
-       real(kind=cp), dimension(n*(n+1)/2),intent(out):: f
-       logical,                            intent(in) :: first
-       integer,                            intent(out):: ier
+       integer,                            intent(in) :: n       ! number of variates in vector (input,integer >= 1)
+       real(kind=cp), dimension(n),        intent(in) :: h       ! h(n) vector of means
+       real(kind=cp), dimension(n*(n+1)/2),intent(in) :: d       ! d(n*(n+1)/2) variance matrix (j> = i)
+       real(kind=cp), dimension(n),        intent(out):: x       ! x(n) delivered vector
+       real(kind=cp), dimension(n*(n+1)/2),intent(out):: f       ! f(n*(n+1)/2) lower triangular decomposition of variance matrix (j <= i)
+       logical,                            intent(in) :: first   ! .true. if this is the first call of the routine
+                                                                 ! or if the distribution has changed since the last
+                                                                 ! call of the routine. otherwise set to .false.
+       integer,                            intent(out):: ier     ! = 1 if the input covariance matrix is not +ve definite.
+                                                                 ! = 0 otherwise
 
        !---- Local variables ----!
        integer       :: j, i, m
@@ -1298,11 +1122,7 @@
     End Subroutine Random_Mvnorm
 
     !!----
-    !!---- Subroutine Random_Neg_Binomial(Sk, P, Ival)
-    !!----    real(kind=cp), intent(in)    :: sk     !  In -> Number of failures required (dagpunar's words!)
-    !!----                                                    the "power" parameter of the negative binomial  (0 < real)
-    !!----    real(kind=cp), intent(in)    :: p      !  In -> bernoulli success probability  (0 < real(kind=cp) < 1)
-    !!----    integer,       intent(out)   :: ival
+    !!---- SUBROUTINE RANDOM_NEG_BINOMIAL
     !!----
     !!----    Generates a random negative binomial variate using unstored
     !!----    inversion and/or the reproductive property.
@@ -1315,11 +1135,12 @@
     !!--..    dagpunar, j. "principles of random variate generation"
     !!--..    clarendon press, oxford, 1988.   isbn 0-19-852202-9
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Neg_Binomial(Sk, P, Ival)
        !---- Arguments ----!
-       real(kind=cp), intent(in)   :: sk, p
+       real(kind=cp), intent(in)   :: sk   ! Number of failures required (dagpunar's words!). the "power" parameter of the negative binomial  (0 < real)
+       real(kind=cp), intent(in)   :: p    ! bernoulli success probability  (0 < real(kind=cp) < 1)
        integer , intent(out)       :: ival
 
        !---- Local variables ----!
@@ -1373,8 +1194,7 @@
     End Subroutine Random_Neg_Binomial
 
     !!----
-    !!---- Subroutine Random_Normal(Fn_Val)
-    !!----    real(kind=cp), intent(out)  :: fn_val
+    !!---- SUBROUTINE RANDOM_NORMAL
     !!----
     !!--..    Adapted from the following Fortran 77 code ALGORITHM 712,
     !!--..    Collected Algorithms From Acm.
@@ -1386,7 +1206,7 @@
     !!----    The algorithm uses the ratio of uniforms method of A.J. Kinderman
     !!----    and J.F. Monahan augmented with quadratic bounding curves.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Normal(Fn_Val)
        !---- Arguments ----!
@@ -1425,13 +1245,11 @@
     End Subroutine Random_Normal
 
     !!----
-    !!---- Subroutine Random_Order(Order, N)
-    !!----    integer, intent(in)  :: n
-    !!----    integer, intent(out) :: order(n)
+    !!---- SUBROUTINE RANDOM_ORDER
     !!----
     !!----    Generate a random ordering of the integers 1 ... n.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Order(Order, N)
        !---- Arguments ----!
@@ -1462,9 +1280,7 @@
     End Subroutine Random_Order
 
     !!----
-    !!---- Subroutine Random_Poisson(Mu,Genpoi)
-    !!----    real(kind=cp), intent(in)    :: mu
-    !!----    integer , intent(out)        :: genpoi
+    !!---- SUBROUTINE RANDOM_POISSON
     !!----
     !!----    Generates a single random deviate from a Poisson distribution
     !!----    with mean mu.
@@ -1476,7 +1292,7 @@
     !!----        GPSTAB   = 0/1/2 stabilisation of the variance
     !!----                   (non)/(0.33)/(0.375) cf. EFRON)
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Poisson(mt, Genpoi)
        !---- Arguments ----!
@@ -1519,9 +1335,7 @@
     End Subroutine Random_Poisson
 
     !!----
-    !!---- Subroutine Random_T(M, Fn_Val)
-    !!----    integer,      intent(in) :: m       !  In -> degrees of freedom of distribution (1 <= 1nteger)
-    !!----    real(kind=cp),intent(out):: fn_val
+    !!---- SUBROUTINE RANDOM_T
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1530,11 +1344,11 @@
     !!----    Subroutine generates a random variate from a
     !!----    t distribution using kinderman and monahan"s ratio method.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_T(M, Fn_Val)
        !---- Arguments ----!
-       integer,      intent(in)  :: m
+       integer,      intent(in)  :: m        ! degrees of freedom of distribution (1 <= Integer)
        real(kind=cp),intent(out) :: fn_val
 
        !---- Local variables ----!
@@ -1584,23 +1398,16 @@
     End Subroutine Random_T
 
     !!----
-    !!---- Subroutine Random_Von_Mises(K, First, Fn_Val)
-    !!----    real(kind=cp), intent(in)  :: k        !  In -> Parameter of the von Mises distribution
-    !!----    logical,       intent(in)  :: first    !  In -> set to .TRUE. the first time that the subroutine
-    !!----                                                    is called
-    !!----    real(kind=cp) ,intent(out) :: fn_val
-    !!----
-    !!--..    When first = .TRUE., the subroutine sets up starting
-    !!--..    values and may be very much slower.
+    !!---- SUBROUTINE RANDOM_VON_MISES
     !!----
     !!----    Von Mises Distribution
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Von_Mises(K, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=cp), intent(in)  :: k
-       logical,       intent(in)  :: first
+       real(kind=cp), intent(in)  :: k         ! Parameter of the von Mises distribution
+       logical,       intent(in)  :: first     ! set to .TRUE. the first time that the subroutine is called
        real(kind=cp) ,intent(out) :: fn_val
 
        !---- Local variables ----!
@@ -1677,9 +1484,8 @@
     End Subroutine Random_Von_Mises
 
     !!----
-    !!---- Subroutine Random_Weibull(A, Fn_Val)
-    !!----    real(kind=cp), intent(in)  :: a
-    !!----    real(kind=cp), intent(out) :: fn_val
+    !!---- SUBROUTINE RANDOM_WEIBULL
+    !!----
     !!----                                a
     !!----                         a-1  -x
     !!----               f(x) = a.x    e
@@ -1687,7 +1493,7 @@
     !!----    Generates a random variate from the Weibull distribution with
     !!----    probability density as shown before.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Random_Weibull(a, Fn_Val)
        !---- Arguments ----!
@@ -1703,11 +1509,9 @@
     End Subroutine Random_Weibull
 
     !!----
-    !!---- Subroutine Seed_Random_Number(I_input,I_output)
-    !!----    integer, optional, intent(in)  :: I_input
-    !!----    integer, optional, intent(in)  :: I_output
+    !!---- SUBROUTINE SEED_RANDOM_NUMBER
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Seed_Random_Number(I_input,I_output)
        !---- Arguments ----!

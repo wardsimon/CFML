@@ -38,87 +38,43 @@
 !!---- HISTORY
 !!----    Update: 01/07/2015
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps, only: cp, dp, eps, pi, to_rad
-!!----
-!!---- VARIABLES
-!!----    ERR_SPHER
-!!----    ERR_SPHER_MESS
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       CUBIC_HARM_ANG
-!!----       CUBIC_HARM_UCVEC
-!!--++       ENVJ                      [Private]
-!!----       INT_SLATER_BESSEL
-!!--++       PLGNDR                    [Private]
-!!----       REAL_SPHER_HARM_ANG
-!!----       REAL_SPHER_HARM_UCVEC
-!!----       REAL_SPHER_HARMCHARGE_UCVEC
-!!--++       START1                    [Private]
-!!--++       START2                    [Private]
-!!----
-!!----    Subroutines:
-!!----       INIT_ERR_SPHER
-!!----       PIKOUT_LJ_CUBIC
-!!----       SPHJN
-!!----
 !!
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
     Use CFML_GlobalDeps, Only: Cp, Dp, Eps, Pi, To_Rad
 
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public functions ----!
+    !---- Public procedures ----!
     public :: Cubic_Harm_Ang, Cubic_Harm_Ucvec, Int_Slater_Bessel, Real_Spher_Harm_Ang, &
               Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec
 
-    !---- List of public subroutines ----!
     public :: Init_Err_Spher, Pikout_Lj_Cubic, Sphjn
 
-    !---- Definitions ----!
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical,            public :: Err_Spher=.false.  ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
+    character(len=256), public :: Err_Spher_Mess=" " ! String containing information about the last error
 
-    !!----
-    !!---- ERR_SPHER
-    !!----    logical, public    :: err_spher
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Spherical_Harmonics module
-    !!----
-    !!---- Update: 01/07/2015
-    !!
-    logical, public :: Err_Spher
-
-    !!----
-    !!---- ERR_Spher_Mess
-    !!----    character(len=150), public :: ERR_Spher_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: 01/07/2015
-    !!
-    character(len=256), public :: Err_Spher_Mess
 
  Contains
-
+    !-------------------!
     !---- Functions ----!
+    !-------------------!
 
     !!----
-    !!---- Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
-    !!----    integer,         intent(in) :: l
-    !!----    integer,         intent(in) :: m
-    !!----    real(kind=cp),   intent(in) :: theta
-    !!----    real(kind=cp),   intent(in) :: phi
-    !!----    real(kind=cp)               :: Klm
+    !!---- FUNCTION CUBIC_HARM_ANG
     !!----
     !!----    Calculation of the cubic harmonics given in Table 3 of reference
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
     !!----    Only up to tenth order.
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Pure Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
        !---- Arguments ----!
@@ -175,11 +131,7 @@
     End Function Cubic_Harm_Ang
 
     !!----
-    !!---- Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
-    !!----    integer,                    intent(in) :: l
-    !!----    integer,                    intent(in) :: m
-    !!----    real(kind=cp),dimension(3), intent(in) :: u
-    !!----    real(kind=cp)                          :: Klm
+    !!---- FUNCTION CUBIC_HARM_UCVEC
     !!--<<
     !!----    Calculation of the cubic harmonics given in Table 3 of reference
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
@@ -305,14 +257,11 @@
     End Function Cubic_Harm_Ucvec
 
     !!--++
-    !!--++ Function Envj(N,X) Result(Y)
-    !!--++    integer, intent(in)       :: n
-    !!--++    real(Kind=dp), intent(in) :: x
-    !!--++    real(Kind=dp)             :: y
+    !!--++ FUNCTION ENVJ
     !!--++
     !!--++    (PRIVATE)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Pure Function Envj(N,X) Result(Y)
        !---- Arguments ----!
@@ -326,12 +275,7 @@
     End Function Envj
 
     !!----
-    !!---- Function Int_Slater_Bessel(N,L,Z,S) Result(Int_Slater_Besselv)
-    !!----    integer,           intent(in) :: n
-    !!----    integer,           intent(in) :: l
-    !!----    real(kind=cp),     intent(in) :: z
-    !!----    real(kind=cp),     intent(in) :: s
-    !!----    real(kind=cp)                 :: Int_Slater_Besselv
+    !!---- FUNCTION INT_SLATER_BESSEL
     !!--<<
     !!----    Returns the integral:
     !!----    Int[0,inf]{r**(n+2)*exp(-chi*r)*j_l(s*r)} dr
@@ -339,7 +283,7 @@
     !!----    only -1 <= n  and 0 <= l <= n+1
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Int_Slater_Bessel(N,L,Z,S) Result(Int_Slater_Besselv)
        !---- arguments ----!
@@ -392,18 +336,14 @@
     End Function Int_Slater_Bessel
 
     !!--++
-    !!--++ Function Plgndr(L,M,X) Result(Plmx)
-    !!--++    integer,       intent(in) :: l
-    !!--++    integer,       intent(in) :: m
-    !!--++    real(kind=cp), intent(in) :: x
-    !!--++    real(kind=cp)             :: plmx
+    !!--++ FUNCTION PLGNDR
     !!--++
     !!--++    (PRIVATE)
     !!--++    Compute the Legendre Polynomial Pml(x). Here m and l are
     !!--++    integers satisfying 0 <= m <= l, while x lies in the range
     !!--++    -1 <= x <= 1.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Pure Function Plgndr(l,m,x) result(plmx)
        !---- Arguments ----!
@@ -450,23 +390,20 @@
     End Function Plgndr
 
     !!----
-    !!---- FUNCTION Real_Spher_Harm_Ang(L,M,P,Theta,Phi) Result(Ylmp)
-    !!----    integer,       intent(in) :: l         !  In -> Index l >= 0
-    !!----    integer,       intent(in) :: m         !  In -> Index m <= l
-    !!----    integer,       intent(in) :: p         !  In -> +1: cosinus, -1: sinus
-    !!----    real(kind=cp), intent(in) :: theta     !  In -> Spherical coordinate in degree
-    !!----    real(kind=cp), intent(in) :: phi       !  In -> Spherical coordinate in degree
-    !!----    real(kind=cp)             :: ylmp      ! Out -> Value of ylmn(theta,phi)
+    !!---- FUNCTION REAL_SPHER_HARM_ANG
     !!----
     !!----    Real Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!----    Input spherical coordinates Theta & Phi in degrees
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Pure Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
        !---- Arguments ----!
-       integer,      intent (in) :: l,m,p
-       real(kind=cp),intent (in) :: theta,phi
+       integer,      intent (in) :: l         ! Index l >= 0
+       integer,      intent (in) :: m         ! Index m <= l
+       integer,      intent (in) :: p         ! +1: cosinus, -1: sinus
+       real(kind=cp),intent (in) :: theta     ! Spherical coordinate in degree
+       real(kind=cp),intent (in) :: phi       ! Spherical coordinate in degree
        real(kind=cp)             :: ylmp
 
        !---- Local Variables ----!
@@ -497,19 +434,14 @@
     End Function Real_Spher_Harm_Ang
 
     !!----
-    !!---- Function Real_Spher_Harm_Ucvec(L,M,P,U) Result(Ylmp)
-    !!----    integer,                    intent(in) :: l       !  In -> Index l >= 0
-    !!----    integer,                    intent(in) :: m       !  In -> Index m <= l
-    !!----    integer,                    intent(in) :: p       !  In -> +1: cosinus, -1: sinus
-    !!----    real(kind=cp),dimension(3), intent(in) :: u       !  In -> unit vector in cartesian coordinates
-    !!----    real(kind=cp)                          :: ylmp    ! Out -> Value of ylmn(u)
+    !!---- FUNCTION REAL_SPHER_HARM_UCVEC
     !!--<<
     !!----    Real Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!----    Input U: unit vector in cartesian coordinates. If the provided vector is not
     !!----    normalized to unit, this version calculates ylmp along the unit vector defined by
     !!----    the given vector that is not modified on output
     !!-->>
-    !!---- Update: February - 2005, June - 2014 (JRC, simplify the calculation when l=m=0)
+    !!---- Update: 11/07/2015
     !!
     Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
        !---- Arguments ----!
@@ -566,24 +498,19 @@
     End Function Real_Spher_Harm_Ucvec
 
     !!----
-    !!---- Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
-    !!----    integer,                    intent(in) :: l       !  In -> Index l >= 0
-    !!----    integer,                    intent(in) :: m       !  In -> Index m <= l
-    !!----    integer,                    intent(in) :: p       !  In -> +1: cosinus, -1: sinus
-    !!----    real(kind=cp),dimension(3), intent(in) :: u       !  In -> unit vector in cartesian coordinates
-    !!----    real(kind=cp)                          :: dlmp    ! Out -> Value of dlmn(u)
+    !!---- FUNCTION REAL_SPHER_HARMCHARGE_UCVEC
     !!--<<
     !!----    This function difers from the previous one (real spherical harmonics) only in the
     !!----    normalization constants, so that: Dlmp= Clmp Ylmp
     !!----    The constants Clmp are selected so that Int[abs(Dlmp) dOmega] = 2 -d(l,0)
     !!----    They have been calculated using Gaussian/Legendre quadrature.
     !!-->>
-    !!---- Update: April - 2009
+    !!---- Update: 11/07/2015
     !!
     Pure Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
        !---- Arguments ----!
        integer,                    intent (in) :: l,m,p
-       real(kind=cp),dimension(3), intent (in) :: u
+       real(kind=cp),dimension(3), intent (in) :: u        ! unit vector in cartesian coordinates
        real(kind=cp)                           :: Dlmp
 
        !---- Local Variables ----!
@@ -725,22 +652,19 @@
     End Function Real_Spher_HarmCharge_Ucvec
 
     !!--++
-    !!--++ Function Start1(X,Mp) Result (Start)
-    !!--++    real(kind=dp), intent(in) :: x        !  In -> Argument of Jn(x)
-    !!--++    integer, intent(in)       :: mp       !  In -> Value of magnitude
-    !!--++    integer                   :: start    ! Out -> Starting point
+    !!--++ FUNCTION START1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
     !!--++    recurrence such that the magnitude of Jn(x) at that point is
     !!--++    about 10^(-MP).
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Pure Function Start1(X,Mp) Result (Start)
        !---- Arguments ----!
-       real(kind=dp), intent(in) :: x
-       integer, intent(in)       :: mp
+       real(kind=dp), intent(in) :: x         ! Argument of Jn(x)
+       integer, intent(in)       :: mp        ! Value of magnitude
        integer                   :: start
 
        !---- Local variables ----!
@@ -767,23 +691,19 @@
     End Function Start1
 
     !!--++
-    !!--++ Function Start2(X,N,Mp) Result (Start)
-    !!--++    real(kind=dp), intent(in) :: x      !  In -> Argument of Jn(x)
-    !!--++    integer, intent(in)       :: n      !  In -> Order of Jn(x)
-    !!--++    integer, intent(in)       :: mp     !  In -> Significant digit
-    !!--++    integer                   :: start  ! Out -> Starting point
+    !!--++ FUNCTION START2
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
     !!--++    recurrence such that all Jn(x) has MP significants digits
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 11/07/2015
     !!
     Pure Function Start2(X,N,Mp) Result(Start)
        !---- Arguments ----!
-       real(kind=dp), intent(in) :: x
-       integer,       intent(in) :: n
-       integer,       intent(in) :: mp
+       real(kind=dp), intent(in) :: x     ! Argument of Jn(x)
+       integer,       intent(in) :: n     ! Order of Jn(x)
+       integer,       intent(in) :: mp    ! Significant digit
        integer                   :: start
 
        !---- Local variables ----!
@@ -822,11 +742,11 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Init_Err_Spher()
+    !!---- SUBROUTINE INIT_ERR_SPHER
     !!----
     !!----    Initialize the errors flags in CFML_Spherical_Harmonics
     !!----
-    !!---- Update: 01/07/2015
+    !!---- Update: 11/07/2015
     !!
     Subroutine Init_Err_Spher()
 
@@ -837,24 +757,20 @@
     End Subroutine Init_Err_Spher
 
     !!----
-    !!---- Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef,Lun)
-    !!----    character (len=*), intent (in)        :: group   !  In ->
-    !!----    integer, dimension(2,11), intent(out) :: lj      ! Out ->
-    !!----    integer, intent (out)                 :: ncoef   ! Out ->
-    !!----    integer, optional, intent (in)        :: lun     !  In ->
+    !!---- SUBROUTINE PIKOUT_LJ_CUBIC
     !!--<<
     !!----    Picking out rules for indices of cubic harmonics for the 5 cubic groups
     !!----    Only up to tenth order Given in Table 4 of reference M.Kara &
     !!----    K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!-->>
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef,Lun)
        !---- Arguments ----!
        character (len=*),        intent (in) :: group
        integer, dimension(2,11), intent(out) :: lj
-       integer, intent (out)                 :: ncoef
-       integer, optional, intent (in)        :: lun
+       integer,                  intent (out):: ncoef
+       integer, optional,        intent (in) :: lun
 
        !---- Local variables ----!
        integer :: k,lc
@@ -985,16 +901,11 @@
     End Subroutine Pikout_Lj_Cubic
 
     !!----
-    !!---- Subroutine Sphjn(N,X,Nm,Jn,Djn)
-    !!----    integer,       intent(in)                   :: n    !  In -> Order of jn(x) (n=0,1,2,3,...)
-    !!----    real(kind=dp), intent(in)                   :: x    !  In -> Argument of jn(x)
-    !!----    integer, intent(out)                        :: nm   ! Out -> Highest order computed
-    !!----    real(kind=dp), dimension(0:n), intent(out)  :: jn   ! Out -> Array with spherical Bessel functions jn(x)
-    !!----    real(kind=dp), dimension(0:n), intent(out)  :: djn  ! Out -> Array with derivatives jn'(x)
+    !!---- SUBROUTINE SPHJN
     !!----
     !!----    Compute spherical Bessel functions jn(x) and their derivatives
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Sphjn(n,x,nm,jn,djn)
        !---- Arguments ----!

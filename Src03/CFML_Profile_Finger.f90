@@ -42,109 +42,46 @@
 !!----    Update:  28/05/2013
 !!----    Authors : L. Finger (Corrections by James Hester and Juan Rodriguez-Carvajal)
 !!----
-!!---- VARIABLES
-!!--++    NTERMS                    [Private]
-!!--++    FSTTERM                   [Private]
-!!----    INIT_PROFVAL
-!!--++    WP                        [Private]
-!!--++    XP                        [Private]
-!!----
-!!---- PROCEDURES
-!!----    Subroutines:
-!!--++       GAUSSIAN               [Private]
-!!----       INIT_PROF_VAL
-!!--++       LORENTZIAN             [Private]
-!!----       PROF_VAL
-!!----       PROF_VAL_OLD
-!!--++       PSVOIGTIAN             [Private]
-!!----
 !!
- Module CFML_PowderProfiles_Finger
-    !---- Use Modules ----!
-    Use CFML_GlobalDeps, only: cp, pi, to_rad, to_deg
+Module CFML_PowderProfiles_Finger
+   !---- Use Modules ----!
+   Use CFML_GlobalDeps, only: cp, pi, to_rad, to_deg
 
-    !---- Variables ----!
-    implicit none
-    private
+   !---- Definitions ----!
+   implicit none
+   private
 
+   !---- Public Procedures ----!
+   public :: init_prof_val, prof_val
 
-    !---- List of Public Subroutines ----!
-    public :: init_prof_val, prof_val
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
+   integer,       parameter :: ctrl_nsteps= 1000
+   real(kind=cp), parameter :: pi_over_two=0.5_cp*pi
+   real(kind=cp), parameter :: eps=1.0e-6_cp
 
-    !!--++
-    !!--++ NTERMS
-    !!--++    integer, private, dimension(14)   :: nterms
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    integer, private,dimension(14)     :: nterms =(/6,10,20,40,60,80,100,150,200,300,400,600,800,1000/)
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   logical, public                 :: init_profval=.false.
 
-    !!--++
-    !!--++ FSTTERMS
-    !!--++    integer, private, dimension(14)   :: fstterm
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    integer, private,dimension(14)     :: fstterm=(/0, 3, 8,18,38,68,108,158,233,333,483,683,983,1383/)
-
-    !!----
-    !!---- INIT_PROFVAL
-    !!----    logical, public  :: init_profval
-    !!----
-    !!----
-    !!---- Update: October - 2005
-    !!
-    logical, public :: init_profval=.false.
-
-    !!--++
-    !!--++ WP
-    !!--++    real(kind=cp),private,dimension(0:1883) :: wp
-    !!--++
-    !!--++    Storage for Gauss-Legendre weights
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    real(kind=cp),private,dimension(0:1883) :: wp
-
-    !!--++
-    !!--++ XP
-    !!--++    real(kind=cp),private,dimension(0:1883) :: xp
-    !!--++
-    !!--++    Storage for Gauss-Legendre intervals
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    real(kind=cp),private,dimension(0:1883) :: xp
-
-    !!--++
-    !!--++ twoth0_prev,asym1_prev,asym2_prev
-    !!--++    real(kind=cp),private :: twoth0_prev,asym1_prev,asym2_prev
-    !!--++
-    !!--++    Variables to switch to new calculations of some variables that depend
-    !!--++    only on (twoth0,asym1,asym2) and not on the particular point of the profile.
-    !!--++    When the subroutine is invoked for the same reflection some variables
-    !!--++    are not calculated.
-    !!--++
-    !!--++ Update: May - 2013
-    !!
-    real(kind=cp), private, save :: twoth0_prev = 0.0_cp
-    real(kind=cp), private, save ::  asym1_prev = 0.0_cp
-    real(kind=cp), private, save ::  asym2_prev = 0.0_cp
-
-    ! Fixed constants
-    real(kind=cp), private, parameter :: pi_over_two=0.5_cp*pi
-    real(kind=cp), private, parameter :: eps=1.0e-6_cp
-    integer,       private, parameter :: ctrl_nsteps= 1000
+   integer, dimension(14)          :: nterms =(/6,10,20,40,60,80,100,150,200,300,400,600,800,1000/)
+   integer, dimension(14)          :: fstterm=(/0, 3, 8,18,38,68,108,158,233,333,483,683,983,1383/)
+   real(kind=cp),dimension(0:1883) :: wp=0.0_cp                 ! Storage for Gauss-Legendre weights
+   real(kind=cp),dimension(0:1883) :: xp=0.0_cp                 ! Storage for Gauss-Legendre intervals
+   real(kind=cp), save             :: twoth0_prev = 0.0_cp      ! Variables to switch to new calculations of some variables that depend
+   real(kind=cp), save             :: asym1_prev = 0.0_cp       ! only on (twoth0,asym1,asym2) and not on the particular point of the profile.
+   real(kind=cp), save             :: asym2_prev = 0.0_cp
 
  Contains
+
     !!--++
-    !!--++ Function dfunc_int(twopsi, twoth0) result(dfunc)
-    !!--++    Real(kind=cp), Intent(In)  :: twopsi
-    !!--++    Real(kind=cp), Intent(In)  :: twoth0
-    !!--++    Real(kind=cp)              :: dfunc
+    !!--++ FUNCTION DFUNC_INT
     !!--++
     !!--++ Function to give the analytical value of the normalisation constant
-    !!--++ Update: 02/07/2015
+    !!--++
+    !!--++ Update: 11/07/2015
     !!
     Function dfunc_int(twopsi, twoth0) result(dfunc)
        !---- Arguments ----!
@@ -176,13 +113,11 @@
     End Function dfunc_int
 
     !!--++
-    !!--++ Function extra_int(x) result(extra)
-    !!--++    Real(kind=cp), Intent(In) :: x
-    !!--++    Real(kind=cp)             :: extra
+    !!--++ FUNCTION EXTRA_INT
     !!--++
     !!--++ Function to calculate 1/4(log(|sin(x)+1|)-log(|sin(x)-1|))
     !!--++
-    !!--++ Update: 02/07/2015
+    !!--++ Update: 11/07/2015
     !!
     Function extra_int(x) result(extra)
        !---- Arguments ----!
@@ -199,26 +134,20 @@
     End Function extra_int
 
     !!--++
-    !!--++ Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
-    !!--++    real(kind=cp), intent(in)  :: pos
-    !!--++    real(kind=cp), intent(in)  :: pos0
-    !!--++    real(kind=cp), intent(in)  :: gamma
-    !!--++    real(kind=cp), intent(out) :: dgdt    !is derivative of G wrt Pos0
-    !!--++    real(kind=cp), intent(out) :: dgdg    !is derivative of G wrt Gamma
-    !!--++    real(kind=cp), intent(out) :: gauss
+    !!--++ SUBROUTINE GAUSSIAN
     !!--++
     !!--++    (Private)
     !!--++    Return value of Gaussian at 'Pos' for peak at 'Pos0' and 'Gamma'
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
        !---- Arguments ----!
        real(kind=cp), intent(in)  :: pos
        real(kind=cp), intent(in)  :: pos0
        real(kind=cp), intent(in)  :: gamma
-       real(kind=cp), intent(out) :: dgdt
-       real(kind=cp), intent(out) :: dgdg
+       real(kind=cp), intent(out) :: dgdt   !is derivative of G wrt Pos0
+       real(kind=cp), intent(out) :: dgdg   !is derivative of G wrt Gamma
        real(kind=cp), intent(out) :: gauss
 
        !---- Local Variables ----!
@@ -242,7 +171,7 @@
     End Subroutine Gaussian
 
     !!----
-    !!---- Subroutine Init_Prof_Val()
+    !!---- SUBROUTINE INIT_PROF_VAL
     !!----
     !!----     Values for the abscissas and weights of the Gauss-Legendre
     !!----     N-point quadrature formula have been precomputed using routine
@@ -251,7 +180,7 @@
     !!----     ISBN 0 521 30811 9), and are stored in the assignment statements
     !!----     for XP and WP below.
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Init_Prof_Val()
        xp(0)=0.0
@@ -1112,26 +1041,20 @@
     End Subroutine Init_Prof_Val
 
     !!--++
-    !!--++ Subroutine Lorentzian(Pos , Pos0 , Gamma , Dldt , Dldg, Lorentz )
-    !!--++    real(kind=cp), intent(in)  :: pos
-    !!--++    real(kind=cp), intent(in)  :: pos0
-    !!--++    real(kind=cp), intent(in)  :: gamma
-    !!--++    real(kind=cp), intent(out) :: dldt    !is derivative of L wrt Pos0
-    !!--++    real(kind=cp), intent(out) :: dldg    !is derivative of L wrt Gamma
-    !!--++    real(kind=cp), intent(out) :: Lorentz
+    !!--++ SUBROUTINE LORENTZIAN
     !!--++
     !!--++    (Private)
     !!--++    Return value of Lorentzian at 'Pos' for peak at 'Pos0' and 'Gamma'
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine Lorentzian(Pos , Pos0 , Gamma , Dldt , Dldg, Lorentz )
        !---- Arguments ----!
        real(kind=cp), intent(in) :: pos
        real(kind=cp), intent(in) :: pos0
        real(kind=cp), intent(in) :: gamma
-       real(kind=cp), intent(out):: dldt
-       real(kind=cp), intent(out):: dldg
+       real(kind=cp), intent(out):: dldt       !is derivative of L wrt Pos0
+       real(kind=cp), intent(out):: dldg       !is derivative of L wrt Gamma
        real(kind=cp), intent(out):: lorentz
 
        !---- Local Variables ----!
@@ -1151,20 +1074,12 @@
     End Subroutine Lorentzian
 
     !!--++
-    !!--++ Subroutine Psvoigtian(Twoth , Twoth0 , Eta , Gamma, Dprdt , Dprdg , Dprde, Psvoigt )
-    !!--++    real(kind=cp), intent(in)  :: twoth     ! point at which to evaluate the profile
-    !!--++    real(kind=cp), intent(in)  :: twoth0    ! two theta value for peak
-    !!--++    real(kind=cp), intent(in)  :: eta       ! mixing coefficient between Gaussian and Lorentzian
-    !!--++    real(kind=cp), intent(in)  :: gamma     ! FWHM
-    !!--++    real(kind=cp), intent(out) :: dprdt     ! derivative of profile wrt TwoTH0
-    !!--++    real(kind=cp), intent(out) :: dprdg     ! derivative of profile wrt Gamma
-    !!--++    real(kind=cp), intent(out) :: dprde     ! derivative of profile wrt Eta
-    !!--++    real(kind=cp), intent(out) :: psvoigt
+    !!--++ SUBROUTINE PSVOIGTIAN
     !!--++
     !!--++    (Private)
     !!--++    Returns value of Pseudo Voigt
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Subroutine PsVoigtian(Twoth , Twoth0 , Eta , Gamma, Dprdt , Dprdg , Dprde, PsVoigt )
        !---- Arguments ----!
@@ -1194,22 +1109,7 @@
     End Subroutine PsVoigtian
 
     !!----
-    !!---- Subroutine Prof_Val(Eta,Gamma,asym1,asym1,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym, Use_hps )
-    !!----    real(kind=cp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
-    !!----    real(kind=cp), intent(in)   :: gamma        ! FWHM
-    !!----    real(kind=cp), intent(in)   :: asym1        ! s_l source width/detector distance or D_L+S_L if  use_hps is true
-    !!----    real(kind=cp), intent(in)   :: asym2        ! d_l detector width/detector distance or D_L-S_L if  use_hps is true
-    !!----    real(kind=cp), intent(in)   :: twoth        ! point at which to evaluate the profile
-    !!----    real(kind=cp), intent(in)   :: twoth0       ! two_theta value for peak
-    !!----    real(kind=cp), intent(out)  :: dprdt        ! derivative of profile wrt TwoTH0
-    !!----    real(kind=cp), intent(out)  :: dprdg        ! derivative of profile wrt Gamma
-    !!----    real(kind=cp), intent(out)  :: dprde        ! derivative of profile wrt Eta
-    !!----    real(kind=cp), intent(out)  :: dprds        ! derivative of profile wrt asym1
-    !!----    real(kind=cp), intent(out)  :: dprdd        ! derivative of profile wrt asym2
-    !!----    real(kind=cp), intent(out)  :: profval      ! Value of the profile at point twoth
-    !!----    logical,       intent(in)   :: use_asym     ! true if asymmetry to be used
-    !!----    logical,       intent(in)   :: use_hps      ! true if asym1=D_L+S_L and asym2=D_L-S_L
-    !!----                                                ! false if asym1=D_L ans asym2=S_L
+    !!---- SUBROUTINE PROF_VAL
     !!----
     !!----    Return the value of Profile function at twoth of a peak of centre twoth0.
     !!----    Asymmetry due to axial divergence using the method of Finger, Cox and Jephcoat,
@@ -1217,25 +1117,26 @@
     !!----    This version is due to suggestions of James Hester based on new method of
     !!----    calculating derivatives.
     !!----
-    !!---- Updated: May - 2013
+    !!---- Updated: 11/07/2015
     !!
     Subroutine Prof_Val( eta, gamma, asym1, asym2, twoth, twoth0, dprdt, dprdg,  &
                          dprde , dprds , dprdd , profval, use_asym, use_hps)
        !---- Arguments ----!
-       real(kind=cp), Intent(In)    :: eta
-       real(kind=cp), Intent(In)    :: gamma
-       real(kind=cp), Intent(In)    :: asym1
-       real(kind=cp), Intent(In)    :: asym2
-       real(kind=cp), Intent(In)    :: twoth
-       real(kind=cp), Intent(In)    :: twoth0
-       real(kind=cp), Intent(Out)   :: dprdt
-       real(kind=cp), Intent(Out)   :: dprdg
-       real(kind=cp), Intent(Out)   :: dprde
-       real(kind=cp), Intent(Out)   :: dprds
-       real(kind=cp), Intent(Out)   :: dprdd
-       real(kind=cp), Intent(Out)   :: profval
-       Logical,       Intent(In)    :: use_asym
-       Logical,       Intent(In)    :: use_hps
+       real(kind=cp), Intent(In)    :: eta                ! mixing coefficient between Gaussian and Lorentzian
+       real(kind=cp), Intent(In)    :: gamma              ! FWHM
+       real(kind=cp), Intent(In)    :: asym1              ! s_l source width/detector distance or D_L+S_L if  use_hps is true
+       real(kind=cp), Intent(In)    :: asym2              ! d_l detector width/detector distance or D_L-S_L if  use_hps is true
+       real(kind=cp), Intent(In)    :: twoth              ! point at which to evaluate the profile
+       real(kind=cp), Intent(In)    :: twoth0             ! two_theta value for peak
+       real(kind=cp), Intent(Out)   :: dprdt              ! derivative of profile wrt TwoTH0
+       real(kind=cp), Intent(Out)   :: dprdg              ! derivative of profile wrt Gamma
+       real(kind=cp), Intent(Out)   :: dprde              ! derivative of profile wrt Eta
+       real(kind=cp), Intent(Out)   :: dprds              ! derivative of profile wrt asym1
+       real(kind=cp), Intent(Out)   :: dprdd              ! derivative of profile wrt asym2
+       real(kind=cp), Intent(Out)   :: profval            ! Value of the profile at point twoth
+       Logical,       Intent(In)    :: use_asym           ! true if asymmetry to be used
+       Logical,       Intent(In)    :: use_hps            ! true if asym1=D_L+S_L and asym2=D_L-S_L
+                                                          ! false if asym1=D_L ans asym2=S_L
 
        !---- Local Variables ----!
        !> The variables below have the "save" attribute in order to save calculation

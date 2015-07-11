@@ -52,136 +52,77 @@
 !!----    Author : Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB-ILL)
 !!----             Laurent C. Chapon (ISIS/RAL) => Ikeda-Carperter function
 !!----
-!!---- VARIABLES
-!!--++    INV_8LN2             [Private]
-!!--++    TWO_OVER_PI          [Private]
-!!----    DERIV_TOF_TYPE
-!!----    LORCOMP
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       ERFCP
-!!--++       DERFCCP           [Overloaded]
-!!--++       ERFCCP            [Overloaded]
-!!--++       EXPI_E1           [Private]
-!!----
-!!----    Subroutines:
-!!----       TOF_CARPENTER
-!!----       TOF_JORGENSEN
-!!----       TOF_JORGENSEN_VONDREELE
 !!----
 !!
 Module CFML_PowderProfiles_TOF
-    !---- Use Modules ----!
-    Use CFML_GlobalDeps, only: cp, dp, sp
+   !---- Use Modules ----!
+   Use CFML_GlobalDeps, only: cp, dp, sp
 
-    !---- Variables ----!
-    implicit none
+   !---- Definitions ----!
+   implicit none
 
-    private
+   private
 
-    !---- List of public functions ----!
-    public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfcp
+   !---- Public Procedures ----!
+   public :: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter, Erfcp
 
-    !---- Definitions ----!
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
+   real(kind=dp), parameter :: exp_m=0.003_dp
+   real(kind=dp), parameter :: inv_8ln2=0.18033688011112042591999058512524_dp      ! scaling the divisions in exponential function calculations
+   real(kind=dp), parameter :: two_over_pi=0.63661977236758134307553505349006_dp
 
-    !!--++
-    !!--++ exp_m
-    !!--++    real(kind=dp),private, parameter ::    exp_m=0.003_dp
-    !!--++
-    !!--++    Private variable
-    !!--++
-    !!--++ Update: October - 2011
-    !!
-    real(kind=dp),private, parameter ::    exp_m=0.003_dp
 
-    !!--++
-    !!--++ INV_8LN2
-    !!--++    real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
-    !!--++
-    !!--++    Private variable use for scaling the divisions in exponential function calculations
-    !!--++    (used to avoid intermediates overflows/underflows)
-    !!--++
-    !!--++ Update: April - 2011
-    !!
-    real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
 
-    !!--++
-    !!--++ TWO_OVER_PI
-    !!--++    real(kind=dp),private, parameter ::  two_over_pi=0.63661977236758134307553505349006_dp
-    !!--++
-    !!--++    Private variable
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    real(kind=dp),private, parameter :: two_over_pi=0.63661977236758134307553505349006_dp
+   !!----
+   !!---- TYPE :: DERIV_TOF_TYPE
+   !!--..
+   !!----
+   !!---- Update: 11/07/2015
+   !!
+   Type, Public :: Deriv_TOF_Type
+      real(kind=cp) :: alfa     ! omega_a  DOmega/Dalpha
+      real(kind=cp) :: beta     ! omega_b  DOmega/Dbeta
+      real(kind=cp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
+      real(kind=cp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
+      real(kind=cp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
+      real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
+      real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
+   End Type Deriv_TOF_Type
 
-    !!--.. The following public type contains the derivatives with respect to different
-    !!--.. parameters of the peak shape functions
-    !!--.. The calling program should define a variable of type Deriv_TOF_Type, if needed, and
-    !!--.. invoke the functions with the appropriate arguments
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   logical, public  :: Lorcomp=.false.   ! .true. if there are Lorentzian components
 
-    !!----
-    !!---- TYPE :: DERIV_TOF_TYPE
-    !!--..
-    !!---- Type, public :: Deriv_TOF_Type
-    !!----    real(kind=cp) :: alfa     ! omega_a  DOmega/Dalpha
-    !!----    real(kind=cp) :: beta     ! omega_b  DOmega/Dbeta
-    !!----    real(kind=cp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
-    !!----    real(kind=cp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
-    !!----    real(kind=cp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
-    !!----    real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
-    !!----    real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
-    !!---- End Type Deriv_TOF_Type
-    !!----
-    !!---- Update: October - 2005
-    !!
-    Type, Public :: Deriv_TOF_Type
-       real(kind=cp) :: alfa     ! omega_a  DOmega/Dalpha
-       real(kind=cp) :: beta     ! omega_b  DOmega/Dbeta
-       real(kind=cp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
-       real(kind=cp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
-       real(kind=cp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
-       real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
-       real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
-    End Type Deriv_TOF_Type
-
-    !!----
-    !!---- LORCOMP
-    !!----    logical, public  :: lorcomp
-    !!----
-    !!----    .true. if there are Lorentzian components
-    !!----
-    !!---- Update: October - 2005
-    !!
-    logical, public  :: Lorcomp
-
-    !---- Interfaces ----!
-    Interface  Erfcp
-       module procedure erfccp
-       module procedure derfccp
-    End Interface
+   !--------------------!
+   !---- Interfaces ----!
+   !--------------------!
+   Interface  Erfcp
+      module procedure erfccp
+      module procedure derfccp
+   End Interface
 
  Contains
     !!----
-    !!---- Function Erfcp(X) Result(Der)
-    !!----    real(kind=dp/sp), intent(in)  :: x
-    !!----    real(kind=dp/sp)              :: der
+    !!---- FUNCTION ERFCP
     !!----
     !!----    Derivative of the complementary error function
     !!----
-    !!---- Update: 02/07/2015
+    !!---- Update: 11/07/2015
     !!
 
     !!--++
-    !!--++ Function Derfccp(X) Result(Der)
-    !!--++    real(kind=dp), intent(in)  :: x
-    !!--++    real(kind=dp)              :: der
+    !!--++ FUNCTION DERFCCP
     !!--++
     !!--++    (Overloaded)
     !!--++    Derivative of the complementary error function
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Derfccp(X) Result(Der)
        !---- Argument ----!
@@ -194,14 +135,12 @@ Module CFML_PowderProfiles_TOF
     End Function Derfccp
 
     !!--++
-    !!--++ Function Erfccp(X) Result(Der)
-    !!--++    real(kind=dp), intent(in)  :: x
-    !!--++    real(kind=dp)              :: der
+    !!--++ FUNCTION ERFCCP
     !!--++
     !!--++    (Overloaded)
     !!--++    Derivative of the complementary error function
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Erfccp(X)  Result(Der)
        !---- Argument ----!
@@ -214,13 +153,11 @@ Module CFML_PowderProfiles_TOF
     End Function Erfccp
 
     !!--++
-    !!--++ Function Expi_e1(z) Result(Exp_e1)
-    !!--++    complex(kind=dp), intent (in) ::  z
-    !!--++    complex(kind=dp)              ::  exp_e1
+    !!--++ FUNCTION EXPI_E1
     !!--++
     !!--++    Exponential integral function
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: 11/07/2015
     !!
     Function Expi_E1(Z)  Result(Exp_E1)
        !---- Argument ----!
@@ -264,25 +201,15 @@ Module CFML_PowderProfiles_TOF
 
     !---------------------!
     !---- Subroutines ----!
-    !---------------------
+    !---------------------!
 
     !!----
-    !!---- Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
-    !!----    real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
-    !!----    real(kind=cp),             intent( in) :: d         ! d-spacing of the peak in A
-    !!----    real(kind=cp),             intent( in) :: alfa      !  alfa  : units microsecs-1
-    !!----    real(kind=cp),             intent( in) :: beta      !  beta  : units microsecs-1
-    !!----    real(kind=cp),             intent( in) :: gamma     !  gamma : units microsecs
-    !!----    real(kind=cp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
-    !!----    real(kind=cp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
-    !!----    real(kind=cp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
-    !!----    real(kind=cp),             intent(out) :: tof_peak
-    !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
+    !!---- SUBROUTINE TOF_CARPENTER
     !!----
     !!----    Calculate de Profile of TOF according to Carpenter
     !!--..    Author:Laurent C Chapon
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
        !---- Arguments ----!
@@ -517,18 +444,12 @@ Module CFML_PowderProfiles_TOF
     End Subroutine Tof_Carpenter
 
     !!----
-    !!---- Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
-    !!----    real(kind=cp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
-    !!----    real(kind=cp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
-    !!----    real(kind=cp),             intent( in)  :: beta     !  beta  : units microsecs-1
-    !!----    real(kind=cp),             intent( in)  :: sigma    !  sigma : units microsecs**2
-    !!----    real(kind=cp),             intent(out)  :: tof_peak
-    !!----    type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
+    !!---- SUBROUTINE TOF_JORGENSEN
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
        !---- Arguments ----!
@@ -611,19 +532,12 @@ Module CFML_PowderProfiles_TOF
     End Subroutine Tof_Jorgensen
 
     !!----
-    !!---- Subroutine Tof_Jorgensen_Vondreele((Dt,Alfa,Beta,Gamma, Eta,Tof_Peak,Deriv)
-    !!----    real(kind=cp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
-    !!----    real(kind=cp),             intent( in) :: alfa     !  alfa  : units microsecs-1
-    !!----    real(kind=cp),             intent( in) :: beta     !  beta  : units microsecs-1
-    !!----    real(kind=cp),             intent( in) :: gamma    !  gamma : units microsecs
-    !!----    real(kind=cp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
-    !!----    real(kind=cp),             intent(out) :: tof_peak
-    !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
+    !!---- SUBROUTINE TOF_JORGENSEN_VONDREELE
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
-    !!---- Update: October - 2005
+    !!---- Update: 11/07/2015
     !!
     Subroutine Tof_Jorgensen_Vondreele(Dt,Alfa,Beta,Gamma,Eta,Tof_Peak,Deriv)
        !---- Arguments ----!
