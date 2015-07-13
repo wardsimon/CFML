@@ -40,105 +40,22 @@
 !!----            October - 1999: Reorder the subroutines and functions
 !!----                            All routines have general I/O parameters
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,    only: cp
-!!--++    Use CFML_Math_General, only: Negligible Zbelong
-!!----
-!!---- VARIABLES
-!!--++    CTAB                    [Private]
-!!--++    DIGIT                   [Private]
-!!----    ERR_String_Mess
-!!----    ERR_STRING
-!!----    ERR_TEXT_TYPE
-!!--++    IENDFMT                 [Private]
-!!----    IERR_FMT
-!!--++    IERRCHARBEGG            [Private]
-!!--++    IERREFRMT               [Private]
-!!--++    IERREOF                 [Private]
-!!--++    IERREMPTYFIELD          [Private]
-!!--++    IERRFIELDTYPE           [Private]
-!!--++    IERRFIELDS              [Private]
-!!--++    IERRINVALC              [Private]
-!!--++    IERRINVALCHAR           [Private]
-!!--++    IERRINVALFIELD          [Private]
-!!--++    IERRIO                  [Private]
-!!--++    IERRNONE                [Private]
-!!--++    IERRNUMBER              [Private]
-!!--++    IERRSEPMISS             [Private]
-!!--++    IERRSTRLENGTH           [Private]
-!!--++    IINTE                   [Private]
-!!--++    IREAL                   [Private]
-!!--++    I_NINE                  [Private]
-!!--++    I_ONE                   [Private]
-!!--++    I_ZERO                  [Private]
-!!--++    LINE_NB                 [Private]
-!!----    MESS_FINDFMT
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       EQUAL_SETS_TEXT
-!!----       L_CASE
-!!----       PACK_STRING
-!!----       FORMAT_R
-!!----       STRING_COUNT
-!!----       STRIP_STRING
-!!----       U_CASE
-!!----
-!!----    Subroutines:
-!!--++       BUILDFMT             [Private]
-!!----       CUTST
-!!----       FINDFMT
-!!--++       FINDFMT_ERR          [Private]
-!!----       FRAC_TRANS_1DIG
-!!----       FRAC_TRANS_2DIG
-!!----       GET_BASENAME
-!!----       GET_DIRNAME
-!!----       GET_EXTENSION
-!!----       GET_FRACTION_1DIG
-!!----       GET_FRACTION_2DIG
-!!----       GET_LOGUNIT
-!!----       GET_MAT_FROM_STRING
-!!----       GET_MATVEC_FROM_STRING
-!!----       GET_SEPARATOR_POS
-!!----       GET_SUBSTRING_POS
-!!----       GET_VEC_FROM_STRING
-!!----       GETNUM
-!!----       GETNUM_STD
-!!----       GETWORD
-!!----       INC_LINENUM
-!!----       INIT_ERR_STRING
-!!----       INIT_FINDFMT
-!!----       LCASE
-!!----       NUMBER_LINES
-!!----       NUMCOL_FROM_NUMFMT
-!!----       READ_FRACT_STRING    [Private]
-!!----       READ_KEY_STR
-!!----       READ_KEY_STRVAL
-!!----       READ_KEY_VALUE
-!!----       READ_KEY_VALUESTD
-!!----       READING_LINES
-!!----       SETNUM_STD
-!!--++       SGETFTMFIELD         [Private]
-!!----       SSTRING_REPLACE
-!!--++       TREATMCHARFIELD      [Private]
-!!--++       TREATNUMERFIELD      [Private]
-!!----       UCASE
 !!----
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
     use CFML_GlobalDeps,   only: cp, ops_sep
     use CFML_Math_General, only: Negligible, Zbelong
-    use ieee_arithmetic,   only: ieee_is_nan,ieee_is_finite  ! Format_R
+    use ieee_arithmetic,   only: ieee_is_nan,ieee_is_finite
 
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public functions ----!
+    !---- Public procedures ----!
     public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String, String_Count, Format_R
 
-    !---- List of public subroutines ----!
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
@@ -149,315 +66,59 @@
 
     !---- Definitions ----!
 
-    !!--++
-    !!--++ CTAB
-    !!--++    character (len=*), private, parameter :: cTab=Char(9)
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Character parameter for TAB
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    character (len=*), private, parameter :: cTab=Char(9)
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    character (len=*), parameter :: cTab=Char(9)                     ! Character parameter for TAB
+    character (len=*), parameter :: digit="0123456789.-"             ! Character parameter for numbers
+    Integer ,          parameter :: iEndFMT=0                        ! Integer parameter for EndFMT
+    Integer ,          parameter :: iInte=-1                         ! Integer parameter for iInte
+    Integer ,          parameter :: iReal=-2                         ! Integer parameter for iReal
+    Integer ,          parameter :: i_Nine=57                        ! Integer parameter for ASCII code for Nine
+    Integer ,          parameter :: i_One=49                         ! Integer parameter for ASCII code for One
+    Integer ,          parameter :: i_Zero=48                        ! Integer parameter for ASCII code for Zero
 
-    !!--++
-    !!--++ DIGIT
-    !!--++    character (len=*), private, parameter :: digit="0123456789.-"
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Character parameter for numbers
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    character (len=*), private, parameter :: digit="0123456789.-"
+    Integer ,          parameter :: iErrEof=-1                       ! Integer parameter for Error code
+    Integer ,          parameter :: iErrNone=0
+    Integer ,          parameter :: iErrFields=1
+    Integer ,          parameter :: iErrIO=2
+    Integer ,          parameter :: iErrFieldType=3
+    Integer ,          parameter :: iErrCharBegg=4
+    Integer ,          parameter :: iErrInvalC=5
+    Integer ,          parameter :: iErrInvalField=6
+    Integer ,          parameter :: iErrInvalChar=7
+    Integer ,          parameter :: iErrEmptyField=8
+    Integer ,          parameter :: iErrStrLength=9
+    Integer ,          parameter :: iErrSepMiss=10
+    Integer ,          parameter :: iErrEfrmt=11
+    Integer ,          parameter :: iErrNumber=12
 
-    !!----
-    !!---- ERR_STRING
-    !!----    logical :: err_string
-    !!----
-    !!----    Logical Variable indicating an error in CFML_String_Utilities module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: err_string
-
-    !!----
-    !!---- ERR_String_Mess
-    !!----    character(len=256) :: ERR_String_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: 02/07/2015
-    !!
-    character(len=256), public :: ERR_String_Mess
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!----
     !!---- TYPE :: ERR_TEXT_TYPE
-    !!--..
-    !!---- Type :: Err_Text_Type
-    !!----    integer                           :: nlines
-    !!----    character (len=132), dimension(5) :: txt
-    !!---- End Type Err_Text_Type
     !!----
-    !!---- Update: February - 2005
     !!
     Type, Public :: Err_Text_Type
        integer                           :: nlines=0
        character (len=132), dimension(5) :: txt=" "
     End Type Err_Text_Type
 
-    !!--++
-    !!--++ IENDFMT
-    !!--++    integer, paramater, private :: iEndFMT=0
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for EndFMT
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iEndFMT=0
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    Integer,                     :: Line_Nb                            ! Line number updated each time the procedure findFMT is called.
+                                                                       ! To initialize LINE_NB, the subroutine Init_FindFMT should be called.
 
-    !!----
-    !!---- IERR_FMT
-    !!----    integer :: ierr_fmt
-    !!----
-    !!----    Integer signaling if an error has occurred (/=0) in using the procedure findFMT
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, public :: iErr_fmt  ! Error code value (should be normally = 0)
 
-    !!--++
-    !!--++ IERRCHARBEGG
-    !!--++    integer, paramater, private :: iErrCharBegg=4
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrCharBegg=4
+    logical,              public :: err_string=.false.                 ! Logical Variable indicating an error in CFML_String_Utilities module
+    character(len=256),   public :: ERR_String_Mess=" "                ! String containing information about the last error
+    integer,              public :: iErr_fmt                           ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
 
-    !!--++
-    !!--++ IERREFRMT
-    !!--++    integer, paramater, private :: iErrEfrmt=11
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter  :: iErrEfrmt=11
+    Type (Err_Text_Type), public :: Mess_FindFMT = Err_Text_Type(0,(/" "," "," "," "," "/))  ! Error information used by findFMT
 
-    !!--++
-    !!--++ IERREOF
-    !!--++    integer, paramater, private :: iErrEof=-1
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrEof=-1
-
-    !!--++
-    !!--++ IERREMPTYFIELD
-    !!--++    integer, paramater, private :: iErrEmptyField=8
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrEmptyField=8
-
-    !!--++
-    !!--++ IERRFIELDTYPE
-    !!--++    integer, paramater, private :: iErrFieldType=3
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter  :: iErrFieldType=3
-
-    !!--++
-    !!--++ IERRFIELDS
-    !!--++    integer, paramater, private :: iErrFields=1
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter  :: iErrFields=1
-
-    !!--++
-    !!--++ IERRINVALC
-    !!--++    integer, paramater, private :: iErrInvalC=5
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrInvalC=5
-
-    !!--++
-    !!--++ IERRINVALCHAR
-    !!--++    integer, paramater, private :: iErrInvalChar=7
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrInvalChar=7
-
-    !!--++
-    !!--++ IERRINVALFIELD
-    !!--++    integer, paramater, private :: iErrInvalField=6
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter  :: iErrInvalField=6
-
-    !!--++
-    !!--++ IERRIO
-    !!--++    integer, paramater, private :: iErrIO=2
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrIO=2
-
-    !!--++
-    !!--++ IERRNONE
-    !!--++    integer, paramater, private :: iErrNone=0
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrNone=0
-
-    !!--++
-    !!--++ IERRNUMBER
-    !!--++    integer, paramater, private :: iErrNumber=12
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrNumber=12
-
-    !!--++
-    !!--++ IERRSEPMISS
-    !!--++    integer, paramater, private :: iErrSepMiss=10
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrSepMiss=10
-
-    !!--++
-    !!--++ iErrStrLength
-    !!--++    integer, paramater, private :: iErrStrLength=9
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for Error code
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iErrStrLength=9
-
-    !!--++
-    !!--++ IINTE
-    !!--++    integer, paramater, private :: iInte=-1
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for iInte
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iInte=-1
-
-    !!--++
-    !!--++ IREAL
-    !!--++    integer, paramater, private :: iReal=-2
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for iReal
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: iReal=-2
-
-    !!--++
-    !!--++ I_NINE
-    !!--++    integer, paramater, private :: i_Nine=57
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for ASCII code for Nine
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: i_Nine=57
-
-    !!--++
-    !!--++ I_ONE
-    !!--++    integer, paramater, private :: i_One=49
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for ASCII code for One
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: i_One=49
-
-    !!--++
-    !!--++ I_ZERO
-    !!--++    integer, paramater, private :: i_Zero=48
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Integer parameter for ASCII code for Zero
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer , private, parameter :: i_Zero=48
-
-    !!--++
-    !!--++ LINE_NB
-    !!--++    integer :: Line_Nb
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Line number updated each time the procedure findFMT is called
-    !!--++    To initialize LINE_NB, the subroutine Init_FindFMT should be called.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Integer, private :: Line_Nb   ! Line number
-
-    !!----
-    !!---- MESS_FINDFMT
-    !!----    Type (Err_Text_Type) :: Mess_FindFMT
-    !!----
-    !!----    Text composed of a maximum of 5 lines to inform about position or error
-    !!----    in free format reading (used by procedure findFMT)
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type (Err_Text_Type), public :: Mess_FindFMT = Err_Text_Type(0,(/" "," "," "," "," "/))
 
  Contains
 
@@ -466,12 +127,7 @@
     !-------------------!
 
     !!----
-    !!---- Logical Function Equal_Sets_Text(Text1,N1,Text2,N2) Result(Equal_sets_texto)
-    !!----    character(len=*), dimension(:), intent(in) :: Text1   ! In -> String array
-    !!----    integer,                        intent(in) :: N1      ! In -> Lines on Text1 variable
-    !!----    character(len=*), dimension(:), intent(in) :: Text2   ! In -> String array
-    !!----    integer,                        intent(in) :: N2      ! In -> Lines on Text2 variable
-    !!----    logical                                    :: Equal_Sets_Texto
+    !!---- LOGICAL FUNCTION EQUAL_SETS_TEXT
     !!----
     !!----    Determine if two sets of text lines are equal irrespective of the
     !!----    order of the lines. The function is true if the two sets of text
@@ -479,12 +135,12 @@
     !!----    if they have the same length and all their component characters
     !!----    are equal and in the same order.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Function Equal_Sets_Text(text1,n1,text2,n2) result(Equal_sets_texto)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in) :: text1,text2
-       integer,                        intent(in) :: n1,n2
+       character(len=*), dimension(:), intent(in) :: text1,text2           ! Strings vectors
+       integer,                        intent(in) :: n1,n2                 ! Number of lines in Text1 and Text2
        logical                                    :: Equal_sets_texto
 
        !---- Local variables ----!
@@ -513,17 +169,15 @@
     End Function Equal_Sets_Text
 
     !!----
-    !!---- Character Function L_Case(Text) Result (Mtext)
-    !!----    character (len=*), intent(in) :: text   !  In -> String: "InPUT Line"
-    !!----    character (len=len(text))     :: mtex   ! Out -> String: "input line"
+    !!---- CHARACTER FUNCTION L_CASE
     !!----
     !!----    Conversion to lower case, text is not modified
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Function L_Case(Text) Result (Mtext)
        !---- Argument ----!
-       character (len=*), intent(in) :: text
+       character (len=*), intent(in) :: text         ! Input string
        character (len=len(text))     :: mtext
 
        !---- Local variables ----!
@@ -541,13 +195,11 @@
     End Function L_Case
 
     !!----
-    !!---- Character Function Pack_String(String) Result (Strp)
-    !!----    character (len=*), intent(in) :: String
-    !!----    character (len=*)             :: Strp
+    !!---- CHARACTER FUNCTION PACK_STRING
     !!----
     !!----    Pack a string: the function provides a string without empty spaces
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Function Pack_String(String) Result (Strp)
        !---- Argument ----!
@@ -570,20 +222,17 @@
     End Function Pack_String
 
     !!----
-    !!---- Character Function Format_R(Val, W) Result(String)
-    !!----    real(kind=cp), intent(in) :: Val
-    !!----    integer,       intent(in) :: W
-    !!----    character(len=15)   :: String
+    !!---- CHARACTER FUNCTION FORMAT_R
     !!----
     !!---- Return a string containing the format for write a real value VAL
     !!---- with w number of characters
     !!----
-    !!---- Update: 02/07/2015
+    !!---- Update: 13/07/2015
     !!
     Function Format_R(Val,W) Result(String)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: val        ! value to be output
-       integer,       intent(in) :: w
+       integer,       intent(in) :: w          ! Width defined
        character(len=15)         :: string
 
        !---- Local Variables ----!
@@ -671,14 +320,11 @@
     End Function Format_R
 
     !!----
-    !!---- Function String_Count(string,substr) result(coun)
-    !!----    character(len=*), intent(in) :: string
-    !!----    character(len=*), intent(in) :: substr
-    !!----    integer                      :: coun
+    !!---- FUNCTION STRING_COUNT
     !!----
     !!----  Function counting the number of times a substring appears in a string
     !!----
-    !!---- Updated: May - 2014
+    !!---- Updated: 13/07/2015
     !!
     Function String_Count(string,substr) result(coun)
        !---- Arguments ----!
@@ -704,13 +350,10 @@
     End Function String_Count
 
     !!----
-    !!---- Character Function Strip_String(string, to_strip) Result(striped_string)
-    !!----    character (len=*), intent(in) :: string          !  In ->
-    !!----    character (len=*), intent(in) :: to_string       !  In ->
-    !!----    character (len=len(text))     :: striped_string  ! Out ->
+    !!---- CHARACTER FUNCTION STRIP_STRING
     !!----
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 13/07/2015
     !!
     Function Strip_String(string, to_strip) Result(striped_string)
        !---- Arguments----!
@@ -730,13 +373,11 @@
     End Function Strip_String
 
     !!----
-    !!---- Character Function U_Case(Text) Result (Mtext)
-    !!----    character (len=*), intent(in) :: text   !  In -> String:"Input Line"
-    !!----    character (len=len(text))     :: mtext  ! Out -> String:"INPUT LINE"
+    !!---- CHARACTER FUNCTION U_CASE
     !!----
     !!----    Conversion to upper case, text is not modified
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Function U_Case(Text) Result (Mtext)
        !---- Argument ----!
@@ -762,24 +403,19 @@
     !---------------------!
 
     !!--++
-    !!--++ Subroutine BuildFMT(iFld,nCar,nStr,FMTstring)
-    !!--++    Integer,           intent(in    ) ::   iFld       -> Format type
-    !!--++    Integer,           intent(in out) ::   nCar       -> integer/real field: number of characters in field
-    !!--++                                                      -> character field: number of characters to skip before A field
-    !!--++    Integer,           intent(in out) ::   nStr      <-> current character number in FMTstring
-    !!--++    Character (len=*) ,intent(in out) ::   FMTstring <-> FORTRAN format string
+    !!--++ SUBROUTINE BUILDFMT
     !!--++
     !!--++    (PRIVATE)
     !!--++    Add a new field to the FMT string
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 13/07/2015
     !!
     Subroutine BuildFMT(iFld,nCar,nStr,FMTstring)
        !---- Arguments ----!
-       Integer,           intent(in    ) ::   iFld
-       Integer,           intent(in out) ::   nCar
-       Integer,           intent(in out) ::   nStr
-       Character (len=*) ,intent(in out) ::   FMTstring
+       Integer,           intent(in    ) ::   iFld           ! Format type
+       Integer,           intent(in out) ::   nCar           ! integer/real field: number of characters in field
+       Integer,           intent(in out) ::   nStr           ! current character number in FMTstring
+       Character (len=*) ,intent(in out) ::   FMTstring      ! FORTRAN format string
 
        !---- Local variables ----!
        Integer ::  N
@@ -880,24 +516,19 @@
 
 
     !!----
-    !!---- Subroutine Cutst(Line1, Nlong1, Line2, Nlong2)
-    !!----    character(len=*),           intent(in out) :: Line1   !  In -> Input string
-    !!----                                                          ! Out -> Input string without the first word
-    !!----    integer,          optional, intent(   out) :: Nlong1  ! Out -> Give the length of Line1 on Output
-    !!----    character(len=*), optional, intent(   out) :: Line2   ! Out -> The first word of String on Input
-    !!----    integer,          optional, intent(   out) :: Nlong2  ! Out -> Give the length of Line2 on Output
+    !!---- SUBROUTINE CUTST
     !!----
     !!----    Removes the first word of the input String.
     !!----    Provides (optionally) a string with the first word.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Cutst(line1,nlong1,line2,nlong2)
        !---- Argument ----!
-       character (len=*),           intent(in out) :: line1
-       character (len=*), optional, intent(   out) :: line2
-       integer,           optional, intent(   out) :: nlong1
-       integer,           optional, intent(   out) :: nlong2
+       character (len=*),           intent(in out) :: line1     ! Input string. In the output string without the first word
+       character (len=*), optional, intent(   out) :: line2     ! The first word of String on Input
+       integer,           optional, intent(   out) :: nlong1    ! Give the length of Line1
+       integer,           optional, intent(   out) :: nlong2    ! Give the length of Line2
 
        !---- Local variables ----!
        integer  :: k,iniz1
@@ -939,13 +570,7 @@
     End Subroutine Cutst
 
     !!----
-    !!---- Subroutine FindFmt(Lun,aLine,FMTfields,FMTstring,idebug)
-    !!----    Integer ,           intent(in    ) ::  Lun         !  -> Logical unit number
-    !!----    Character (len=*) , intent(in out) ::  aLine       ! <-> character string to be decoded
-    !!----    Character (len=*) , intent(in    ) ::  FMTfields   ! <-> description of the format fields (e.g. IIFIF)
-    !!----    Character (len=*) , intent(   out) ::  FMTstring   ! <-  format of the line (e.g. (I5,I1,F8.0,I4,F7.0,) )
-    !!----    Integer ,Optional,  intent(in    ) ::  idebug      !  -> Logical unit number for writing the input file
-    !!----                                                             If idebug=0 no writing is performed
+    !!---- SUBROUTINE FINDFMT
     !!--<<
     !!----    The routine "FindFmt" emulates the free format data input
     !!----    Read(unit=String1,fmt="(a,i,2f,..)") aString,i1,R1,R2,...
@@ -1020,11 +645,11 @@
     !!
     Subroutine FindFmt(Lun,aLine,FMTfields,FMTstring,idebug)
        !---- Arguments ----!
-       Character (len=*) , intent(in out) ::  aLine
-       Character (len=*) , intent(in    ) ::  FMTfields
-       Character (len=*) , intent(   out) ::  FMTstring
-       Integer ,           intent(in    ) ::  Lun      ! Logical unit number
-       Integer ,optional,  intent(in    ) ::  idebug   ! Logical unit number
+       Character (len=*) , intent(in out) ::  aLine       ! character string to be decoded
+       Character (len=*) , intent(in    ) ::  FMTfields   ! description of the format fields (e.g. IIFIF)
+       Character (len=*) , intent(   out) ::  FMTstring   ! format of the line (e.g. (I5,I1,F8.0,I4,F7.0,) )
+       Integer ,           intent(in    ) ::  Lun         ! Logical unit number
+       Integer ,optional,  intent(in    ) ::  idebug      ! Logical unit number
 
        !---- Local variables ----!
        Character (len=len(FMTfields)) ::  UFMTfields
@@ -1192,19 +817,17 @@
     End Subroutine FindFmt
 
     !!--++
-    !!--++ Subroutine FindFMT_Err(aLine,nC_L)
-    !!--++    character(len=*), intent(in) :: aLine   !  In -> Current data line
-    !!--++    integer,          intent(in) :: nC_L    !  In -> location of last character treated
+    !!--++ SUBROUTINE FINDFMT_ERR
     !!--++
     !!--++    (PRIVATE)
     !!--++    Output the error messages from FindFMT
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 13/07/2015
     !!
     Subroutine FindFMT_Err(aLine,nC_L)
        !---- Arguments ----!
-       Character(len=*), intent(in) ::   aLine
-       Integer,         intent (in) ::   nC_L
+       Character(len=*), intent(in) ::   aLine    ! Current data line
+       Integer,         intent (in) ::   nC_L     ! location of last character treated
 
        !---- Local variables ----!
        Integer, parameter                             :: MssgBeg=-2   ! lower message number
@@ -1268,20 +891,17 @@
     End Subroutine FindFMT_Err
 
     !!----
-    !!---- Subroutine Frac_Trans_1Dig(v,CharF)
-    !!----    real(kind=cp), dimension(3), intent( in)   :: V     !In -> Vector: v(1)=0.25, v(2)=-0.4, v(3)=0.33333
-    !!----    character (len=* ),          intent(out)   :: CharF ! Out -> String: "(1/4,-2/5,1/3)"
+    !!---- SUBROUTINE FRAC_TRANS_1DIG
     !!----
-    !!----    Subroutine returning a string describing a
-    !!----    3D translation vector written in fractional form as quotient
-    !!----    of 1-digit integers with sign.
+    !!----    Subroutine returning a string describing a 3D translation vector written
+    !!----    in fractional form as quotient of 1-digit integers with sign.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Frac_Trans_1Dig(v,CharF)
        !---- Argument ----!
-       real(kind=cp), dimension(3), intent( in)   :: v
-       character (len=* ),          intent(out)   :: CharF
+       real(kind=cp), dimension(3), intent( in)   :: v        ! Vector: v(1)=0.25, v(2)=-0.4, v(3)=0.33333
+       character (len=* ),          intent(out)   :: CharF    ! String: "(1/4,-2/5,1/3)"
 
        !---- Local Variables ----!
        character (len=8), dimension(3)   :: Frac
@@ -1300,20 +920,17 @@
     End Subroutine Frac_Trans_1Dig
 
     !!----
-    !!---- Subroutine Frac_Trans_2Dig(v,CharF)
-    !!----    real(kind=cp), dimension(3), intent( in) :: V       !  In -> Vector: v(1)=0.3, v(2)=-0.4, v(3)=-5.5
-    !!----    character (len=* ),          intent(out) :: CharF   ! Out -> String: "(3/10,-2/5,-11/2)"
+    !!---- SUBROUTINE FRAC_TRANS_2DIG
     !!----
-    !!----    Subroutine returning a string describing a
-    !!----    3D translation vector written in fractional form as quotient
-    !!----    of 2-digit integers with sign.
+    !!----    Subroutine returning a string describing a 3D translation vector written in fractional
+    !!----    form as quotient of 2-digit integers with sign.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Frac_Trans_2Dig(v,CharF)
        !---- Argument ----!
-       real(kind=cp), dimension(3), intent( in) :: v
-       character (len=* ),          intent(out) :: CharF
+       real(kind=cp), dimension(3), intent( in) :: v        ! Vector: v(1)=0.3, v(2)=-0.4, v(3)=-5.5
+       character (len=* ),          intent(out) :: CharF    ! String: "(3/10,-2/5,-11/2)"
 
        !---- Local Variables ----!
        character (len=10), dimension(3) :: Frac
@@ -1335,19 +952,17 @@
     End Subroutine Frac_Trans_2Dig
 
     !!----
-    !!---- Subroutine Get_Basename(Filename,ChSep, Basename)
-    !!----    character (len=*), intent(in)  :: Filename !  In -> The input pathname.
-    !!----    character (len=*), intent(in)  :: ChSep    !  In -> Character limit to define the basename '\','.'
-    !!----    character (len=*), intent(out) :: Basename ! Out -> The final component of the input pathname
+    !!---- SUBROUTINE GET_BASENAME
     !!----
+    !!----    Get Basename for a Path+Filename
     !!----
-    !!---- Update: June - 2011  (JRC correction)
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Basename(Filename,ChSep,Basename)
        !---- Argument ----!
-       Character (Len=*), Intent (In)  :: Filename
-       Character (Len=*), Intent (In)  :: ChSep
-       Character (Len=*), Intent (Out) :: Basename
+       Character (Len=*), Intent (In)  :: Filename     ! Input filename
+       Character (Len=*), Intent (In)  :: ChSep        ! Character limit to define the basename '\','.'
+       Character (Len=*), Intent (Out) :: Basename     ! The final component of the input pathname
 
        !---- Local Variables ----!
        Integer :: i
@@ -1364,16 +979,15 @@
     End Subroutine Get_Basename
 
     !!----
-    !!---- Subroutine Get_Dirname(Filename, Directory)
-    !!----    character(len=*), intent( in) :: Filename   !  In -> The input filename
-    !!----    character(len=*), intent(out) :: Directory  ! Out -> The directory corresponding to the filename
+    !!---- SUBROUTINE GET_DIRNAME
     !!----
+    !!----    Get Directory string from a Path
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Dirname(Filename,Directory)
        !---- Argument ----!
-       Character (Len=*), Intent (In)  :: Filename
+       Character (Len=*), Intent (In)  :: Filename      ! Filename
        Character (Len=*), Intent (Out) :: Directory
 
        !---- Local Variables ----!
@@ -1391,19 +1005,17 @@
     End Subroutine Get_Dirname
 
     !!----
-    !!---- Subroutine Get_Extension(filename, extension, dotted)
-    !!----    character(len=*), intent( in) :: filename   !  In -> The input filename
-    !!----    character(len=*), intent(out) :: extension  ! Out -> The directory corresponding to the filename
-    !!----    logical, intent(in), optional :: dotted     !  In -> If True, the extension will be returned with a dot
+    !!---- SUBROUTINE GET_EXTENSION
     !!----
+    !!----    Get Extension of the filenmae
     !!----
-    !!---- Update: December - 2012
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Extension(filename, extension, dotted)
        !---- Arguments ----!
-       character(len=*),  intent(in)  :: filename
-       character(len=*),  intent(out) :: extension
-       logical, optional, intent(in)  :: dotted
+       character(len=*),  intent(in)  :: filename        ! Filename
+       character(len=*),  intent(out) :: extension       ! Obtain extension of the file
+       logical, optional, intent(in)  :: dotted          ! If True, the extension will be returned with a dot
 
        !---- Local Variables ----!
        integer :: idx
@@ -1433,21 +1045,19 @@
     End Subroutine Get_Extension
 
     !!----
-    !!---- Subroutine Get_Fraction_1Dig(V,Fracc)
-    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real number
-    !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
+    !!---- SUBROUTINE GET_FRACTION_1DIG
     !!----
     !!----    Get a string with the most simple fraction that uses single digits
     !!----    in numerator and denominator. Used, for instance, to get a character
     !!----    representation of symmetry operators.
     !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- Update: February - 2005, January-2014 (JRC)
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Fraction_1Dig(V,Fracc)
        !---- Argument ----!
-       real(kind=cp),    intent( in) :: v
-       character(len=*), intent(out) :: fracc
+       real(kind=cp),    intent( in) :: v           ! Real value
+       character(len=*), intent(out) :: fracc       ! Fracction in character form
 
        !---- Local variables ----!
        integer          ::  numerator, denominator
@@ -1488,21 +1098,19 @@
     End Subroutine Get_Fraction_1Dig
 
     !!----
-    !!---- Subroutine Get_Fraction_2Dig(V,Fracc)
-    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real number
-    !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
+    !!---- SUBROUTINE GET_FRACTION_2DIG
     !!----
     !!----    Get a string with the most simple fraction that uses up to two
     !!----    digits in numerator and denominator. Used, for instance, to get a
     !!----    character representation of symmetry operators.
     !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- Update: February - 2005, January-2014 (JRC)
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Fraction_2Dig(v,fracc)
        !---- Argument ----!
-       real(kind=cp),    intent( in) :: v
-       character(len=*), intent(out) :: fracc
+       real(kind=cp),    intent( in) :: v          ! Real value
+       character(len=*), intent(out) :: fracc      ! Fracction in character form
 
        !---- Local variables ----!
        character (len=16) :: formm
@@ -1550,14 +1158,13 @@
     End Subroutine Get_Fraction_2Dig
 
     !!----
-    !!---- Subroutine Get_LogUnit(lun)
-    !!----   integer,     intent(out) :: lun !First logical unit available
+    !!---- SUBROUTINE GET_LOGUNIT
     !!----
     !!----   Provides the number of the first logical unit that is not opened.
     !!----   Useful for getting a logical unit to a file that should be opened
     !!----   of the flight.
     !!----
-    !!----   Update: February - 2005
+    !!----   Update: 13/07/2015
     !!
     Subroutine Get_LogUnit(lun)
        !---- Arguments ----!
@@ -1582,10 +1189,7 @@
     End Subroutine Get_LogUnit
 
     !!----
-    !!----  Subroutine Get_Mat_From_String(Symb,cod, Mat)
-    !!----    character(len=*),                intent(in)  :: Symb
-    !!----    character(len=1), dimension(3),  intent(in)  :: cod
-    !!----    real,dimension(3,3),             intent(out) :: Mat
+    !!----  SUBROUTINE GET_MAT_FROM_STRING
     !!----
     !!----  Subroutine to extract the transformation matrix corresponding
     !!----  to a symbol of the form:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
@@ -1611,8 +1215,7 @@
     !!----                           \ 0   0   0 /
     !!----
     !!----
-    !!----   Created: February - 2012 (JRC)
-    !!----   Updated: 02/07/2015
+    !!----   Updated: 13/07/2015
     !!
     Subroutine Get_Mat_From_String(Symb,Cod,Mat)
        !---- Arguments ----!
@@ -1642,11 +1245,7 @@
     End Subroutine Get_Mat_From_String
 
     !!----
-    !!----  Subroutine Get_MatVec_from_String(string,mat,v,cod)
-    !!----    character(len=*),                         intent(in)  :: string
-    !!----    real(kind=cp),dimension(3,3),             intent(out) :: mat
-    !!----    real(kind=cp),dimension(3),               intent(out) :: v
-    !!----    character(len=1), optional,dimension(4),  intent(in)  :: cod
+    !!----  SUBROUTINE GET_MATVEC_FROM_STRING
     !!----
     !!----  This subroutine extracts the transformation matrix and the vector
     !!----  corresponding to the change of origin from a symbol of the form:
@@ -1657,7 +1256,7 @@
     !!----  optional array cod. For instance if cod=["u","v","w","|"] a sort of
     !!----  Seitz symbom may be read.
     !!----
-    !!----  Updated: 02/07/2015
+    !!----  Updated: 13/07/2015
     !!
     Subroutine Get_MatVec_from_String(string,mat,v,cod)
        !---- Arguments ----!
@@ -1727,16 +1326,12 @@
     End Subroutine Get_MatVec_from_String
 
     !!----
-    !!----  Subroutine Get_Vec_From_String(string,cod,v)
-    !!----    character(len=*),                intent(in)  :: string
-    !!----    character(len=1), dimension(3),  intent(in)  :: cod
-    !!----    real(kind=cp),dimension(3),      intent(out) :: v
+    !!----  SUBROUTINE GET_VEC_FROM_STRING
     !!----
     !!----  Auxiliary subroutine of Get_Mat_From_String. This subroutine extracts
     !!----  a real vector from symbol of the form:  m1a+m2b+m3c. Similar comments
     !!----  as for the subroutine Get_Mat_From_Symb applies.
     !!----
-    !!----  Created: February - 2012 (JRC).
     !!----  Updated: 02/07/2015
     !!
     Subroutine Get_Vec_From_String(String,Cod,V)
@@ -1940,24 +1535,20 @@
     End Subroutine Get_Vec_From_String
 
     !!----
-    !!---- Subroutine Getnum(Line, Vet, Ivet, Iv)
-    !!----    character(len=*),              intent( in) :: Line    !  In -> Input String to convert
-    !!----    real(kind=cp), dimension(:),   intent(out) :: Vet     ! Out -> Vector of real numbers
-    !!----    integer,dimension(:),          intent(out) :: Ivet    ! Out -> Vector of integer numbers
-    !!----    integer,                       intent(out) :: Iv      ! Out -> Number of numbers in Vet/Ivet
+    !!---- SUBROUTINE GETNUM
     !!----
     !!----    Converts a string to numbers and write on VET/IVET if real/integer. Control
     !!----    of errors is possible by inquiring the global variables ERR_STRING and
     !!----    ERR_String_Mess
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Getnum(line,vet,ivet,iv)
        !---- Argument ----!
-       character (len=*),          intent ( in) :: line
-       real(kind=cp), dimension(:),intent (out) :: vet
-       integer, dimension(:),      intent (out) :: ivet
-       integer,                    intent (out) :: iv
+       character (len=*),          intent ( in) :: line    ! Input String to convert
+       real(kind=cp), dimension(:),intent (out) :: vet     ! Vector of real numbers
+       integer, dimension(:),      intent (out) :: ivet    ! Vector of integer numbers
+       integer,                    intent (out) :: iv      ! Number of numbers in Vet/Ivet
 
        !---- Local variables ----!
        logical                   :: numero
@@ -2086,24 +1677,20 @@
     End Subroutine Getnum
 
     !!----
-    !!---- Subroutine Getnum_Std(Line, Value, Std, Ic)
-    !!----    character(len=*),            intent( in) :: Line    !  In -> Input String
-    !!----    real(kind=cp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real numbers
-    !!----    real(kind=cp), dimension(:), intent(out) :: Std     ! Out -> Vector of standard deviation values
-    !!----    integer,                     intent(out) :: Ic      ! Out -> Number of components of vector Value
+    !!---- SUBROUTINE GETNUM_STD
     !!----
     !!----    Converts a string to a numbers with standard deviation with format: x.fffff(s)
     !!----    Control of errors is possible by inquiring the global variables ERR_STRING
     !!----    and ERR_String_Mess.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine GetNum_Std(line, value, std, ic)
        !----Arguments ----!
-       character(len=*),             intent( in) :: line
-       real(kind=cp), dimension(:),  intent(out) :: value
-       real(kind=cp), dimension(:),  intent(out) :: std
-       integer,                      intent(out) :: ic
+       character(len=*),             intent( in) :: line   ! Input String
+       real(kind=cp), dimension(:),  intent(out) :: value  ! Vector of values with real numbers
+       real(kind=cp), dimension(:),  intent(out) :: std    ! Vector of standard deviation values
+       integer,                      intent(out) :: ic     ! Number of components of vector Value
 
        !---- Local Variables ----!
        character(len=len(line))               :: resto,dire,numm
@@ -2194,11 +1781,7 @@
     End Subroutine GetNum_Std
 
     !!----
-    !!---- Subroutine Get_Separator_Pos(line,car,pos,ncar)
-    !!----   character(len=*),      intent(in)  :: line  ! In -> Input String
-    !!----   character(len=1),      intent(in)  :: car   ! In -> Separator character
-    !!----   integer, dimension(:), intent(out) :: pos   ! Out -> Vector with positions of "car" in "Line"
-    !!----   integer,               intent(out) :: ncar  ! Out -> Number of appearance of "car" in "Line"
+    !!---- SUBROUTINE GET_SEPARATOR_POS
     !!----
     !!----    Determines the positions of the separator character "car" in string "Line" and generates
     !!----    the vector Pos containing the positions. The number of times the character "car" appears
@@ -2213,14 +1796,14 @@
     !!----    ncar= 3
     !!----    pos= (/ 4, 25, 36, 0, ..../)
     !!----
-    !!---- Update: December 2009
+    !!---- Update: 13/07/2015
     !!
     Subroutine Get_Separator_Pos(String,Sep,pos,ncar)
        !---- Arguments ----!
-       character(len=*),      intent(in)  :: String
-       character(len=1),      intent(in)  :: Sep
-       integer, dimension(:), intent(out) :: pos
-       integer,               intent(out) :: ncar
+       character(len=*),      intent(in)  :: String   ! Input String
+       character(len=1),      intent(in)  :: Sep      ! Separator character
+       integer, dimension(:), intent(out) :: pos      ! Vector with positions of "car" in "Line"
+       integer,               intent(out) :: ncar     ! Number of appearance of "car" in "Line"
 
        !---- Local Variables ----!
        integer :: i,j,k
@@ -2247,24 +1830,20 @@
     End Subroutine Get_Separator_Pos
 
     !!----
-    !!---- Subroutine Get_Substring_Pos(string,substr,pos,nsubs)
-    !!----   character(len=*),      intent(in)  :: string   ! In -> Input String
-    !!----   character(len=*),      intent(in)  :: substr   ! In -> Substring
-    !!----   integer, dimension(:), intent(out) :: pos      ! Out -> Vector with positions of the firs character of "substr" in "String"
-    !!----   integer,               intent(out) :: nsubs    ! Out -> Number of appearance of "substr" in "String"
+    !!---- SUBROUTINE GET_SUBSTRING_POS
     !!----
     !!----    Determines the positions of the substring "substr" in "String" and generates
     !!----    the vector Pos containing the positions of the first character of "substr" in "String".
     !!----    The number of times the "substr" appears in "String" is stored in "nsubs".
     !!----
-    !!----     Updated: May 2014
+    !!---- Updated: 13/07/2015
     !!
     Subroutine Get_Substring_Pos(string,substr,pos,nsubs)
        !---- Arguments ----!
-       character(len=*),      intent(in)  :: string
-       character(len=*),      intent(in)  :: substr
-       integer, dimension(:), intent(out) :: pos
-       integer,               intent(out) :: nsubs
+       character(len=*),      intent(in)  :: string     ! Input String
+       character(len=*),      intent(in)  :: substr     ! Substring
+       integer, dimension(:), intent(out) :: pos        ! Vector with positions of the firs character of "substr" in "String"
+       integer,               intent(out) :: nsubs      ! Number of appearance of "substr" in "String"
 
        !---- Local Variables ----!
        integer :: i,j,lsubs
@@ -2284,10 +1863,7 @@
     End Subroutine Get_Substring_Pos
 
     !!----
-    !!---- Subroutine Getword(Line, Dire, Ic)
-    !!----    character(len=*),              intent( in) :: Line   !  In -> Input String
-    !!----    character(len=*),dimension(:), intent(out) :: Dire   ! Out -> Vector of Words
-    !!----    integer,                       intent(out) :: Ic     ! Out -> Number of words
+    !!---- SUBROUTINE GETWORD
     !!----
     !!----    Determines the number of words (Ic) in the string "Line" and generates a
     !!----    character vector "Dire" with separated words.
@@ -2295,13 +1871,13 @@
     !!----    and ERR_String_Mess. The last modification allows to treat strings between
     !!----    quotes as a single word.
     !!----
-    !!---- Update: July - 2011
+    !!---- Update: 13/07/2015
     !!
     Subroutine Getword(line,dire,ic)
        !---- Argument ----!
-       character (len=*),                 intent ( in) :: line
-       character (len=*), dimension(:),   intent (out) :: dire
-       integer,                           intent (out) :: ic
+       character (len=*),                 intent ( in) :: line    ! Input String
+       character (len=*), dimension(:),   intent (out) :: dire    ! Vector of Words
+       integer,                           intent (out) :: ic      ! Number of words
 
        !---- Local variables ----!
        character (len=len(line)) :: line1,line2
@@ -2343,13 +1919,12 @@
     End Subroutine Getword
 
     !!----
-    !!---- Subroutine Inc_LineNum(line_n)
-    !!----  integer, intent(in) :: line_n
+    !!---- SUBROUTINE INC_LINENUM
     !!----
     !!----    Increments the current line number
     !!----    Used when a way of reading other than FindFMT is used
     !!----
-    !!---- Update: November - 2006
+    !!---- Update: 13/07/2015
     !!
     Subroutine Inc_LineNum(line_n)
        !---- Argument ----!
@@ -2361,12 +1936,12 @@
     End Subroutine Inc_LineNum
 
     !!----
-    !!---- Subroutine Init_Err_String()
+    !!---- SUBROUTINE INIT_ERR_STRING
     !!----
     !!----    Initializes general error variables for this module as:
     !!----    ERR_STRING=.false. ;  ERR_String_Mess=" "
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Init_Err_String()
 
@@ -2377,15 +1952,14 @@
     End Subroutine Init_Err_String
 
     !!----
-    !!---- Subroutine Init_FindFMT(nline)
-    !!----   integer, optional, intent(in) :: nline
+    !!---- SUBROUTINE INIT_FINDFMT
     !!----
     !!----    Initializes the subroutine FindFMT.
     !!----    Mess_FindFMT (of type Err_Text_Type) is initialized to zero lines.
     !!----    Line_nb is initialized to zero (current line in the file),
     !!----    or Line_nb=line if the optional argument "line" is present.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Init_FindFMT(nline)
        !---- Arguments ----!
@@ -2399,12 +1973,11 @@
     End Subroutine Init_FindFMT
 
     !!----
-    !!---- Subroutine Lcase(Line)
-    !!----    character(len=*), intent(in out) :: Line
+    !!---- SUBROUTINE LCASE
     !!----
     !!----    Conversion to lower case. Line is modified
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Lcase(line)
        !---- Argument ----!
@@ -2416,10 +1989,7 @@
     End Subroutine Lcase
 
     !!----
-    !!---- Subroutine Number_Lines(Filename,n, end_string)
-    !!----    character(len=*),          intent(in)  :: Filename       !  In -> Name of the file
-    !!----    integer        ,           intent(out) :: N              ! Out -> Number of lines in the file
-    !!----    character(len=*), optional,intent(in)  :: end_string   ! In -> String to exit
+    !!---- SUBROUTINE NUMBER_LINES
     !!----
     !!----    Return the number of lines contained in a file.
     !!----    The file will be opened and closed before returning to the calling unit.
@@ -2427,14 +1997,13 @@
     !!----    as first string in the line
     !!----    (example : end_string =='END' : avoid Q peaks in a SHELX file)
     !!----
-    !!---- Update: February - 2005, March-2014 (removing the "opened" inquire, JRC)
-    !!---- Updated: 02/07/2015
+    !!---- Updated: 13/07/2015
     !!
     Subroutine Number_Lines(filename,n, end_string)
        !---- Arguments ----!
-       character(len=*),           intent(in)  :: filename
-       integer,                    intent(out) :: n
-       character(len=*), optional, intent(in)  :: end_string       ! TR may 2013
+       character(len=*),           intent(in)  :: filename         ! Name of the file
+       integer,                    intent(out) :: n                ! Number of lines in the file
+       character(len=*), optional, intent(in)  :: end_string       ! String to exit
 
        !---- Local Variables ----!
        logical            :: info
@@ -2447,7 +2016,7 @@
        call get_logunit(lun)
        n=0
        cond=0
-
+       long=0
        if (present(end_string)) long = len_trim(end_string)    ! TR may 2013
 
        !---- Exist filename ? ----!
@@ -2473,18 +2042,16 @@
     End Subroutine Number_Lines
 
     !!----
-    !!---- Subroutine NumCol_from_NumFmt(Text,n_col)
-    !!----    character (len=*), intent(in) :: text   !  In -> String: "InPUT Format String"
-    !!----    Integer,           intent(out):: n_col  ! Out -> Integer number of columns
+    !!---- SUBROUTINE NUMCOL_FROM_NUMFMT
     !!----
     !!----    Provides the number of columns spanned by a numeric format field F,I,G,E
     !!----
-    !!---- Update: January - 2006
+    !!---- Update: 13/07/2015
     !!
     Subroutine NumCol_from_NumFmt(Text,n_col)
        !---- Argument ----!
-       character (len=*), intent(in) :: text
-       Integer,           intent(out) :: n_col
+       character (len=*), intent(in)  :: text      ! String: "InPUT Format String"
+       Integer,           intent(out) :: n_col     ! Integer number of columns
 
        !---- Local variables ----!
        integer  :: i,j,L,ncom,n1,n2,point,ier
@@ -2553,15 +2120,13 @@
     End Subroutine NumCol_from_NumFmt
 
     !!--++
-    !!--++  Subroutine Read_Fract_String(str,valu)
-    !!--++   Character(len=*), intent(in) :: str
-    !!--++   real(kind=cp),    intent(out):: valu
+    !!--++  SUBROUTINE READ_FRACT_STRING
     !!--++
     !!--++  Auxiliary subroutine for reading a string containing a real number
     !!--++  or a fraction. Is able to handle simple symbols:"", "-", "+", means
     !!--++  respectively: 1,-1,1
     !!--++
-    !!--++  Created: February - 2012 (JRC).
+    !!--++  Created: 13/07/2015
     !!
     Subroutine Read_Fract_String(str,valu)
        !---- Arguments ----!
@@ -2617,28 +2182,21 @@
 
 
     !!----
-    !!---- Subroutine Read_Key_Str(Filevar,Nline_Ini,Nline_End,Keyword,String,Comment)
-    !!----    character(len=*),dimension(:), intent(in)      :: Filevar      !  In -> Input vector of String
-    !!----    integer,                       intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                   ! Out -> Pointer to final position in search
-    !!----    integer,                       intent(in)      :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),              intent(in)      :: Keyword      !  In -> Word to search
-    !!----    character(len=*),              intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    character(len=1), optional,    intent(in)      :: comment      !  In -> Character that define a comment line
+    !!---- SUBROUTINE READ_KEY_STR
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end".
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 13/07/2015
     !!
     Subroutine Read_Key_Str(filevar,nline_ini,nline_end,keyword,string,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)      :: filevar
-       integer,                        intent(in out)  :: nline_ini
-       integer,                        intent(in)      :: nline_end
-       character(len=*),               intent(in)      :: keyword
-       character(len=*),               intent(out)     :: string
-       character(len=1), optional,     intent(in)      :: comment
+       character(len=*), dimension(:), intent(in)      :: filevar      ! Input vector of String
+       integer,                        intent(in out)  :: nline_ini    ! Pointer to initial position to search
+       integer,                        intent(in)      :: nline_end    ! Pointer to final position to search
+       character(len=*),               intent(in)      :: keyword      ! Word to search
+       character(len=*),               intent(out)     :: string       ! Rest of the input string
+       character(len=1), optional,     intent(in)      :: comment      ! Character that define a comment line
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line,linec
