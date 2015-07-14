@@ -62,7 +62,6 @@ rem
    ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
-   goto FIN
 rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns

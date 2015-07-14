@@ -38,138 +38,37 @@
 !!---- HISTORY
 !!----    Update: 04/03/2011
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-!!--++    Use CFML_Math_General, only: cosd, sind
-!!----
-!!---- VARIABLES
-!!--++    EPS
-!!----    ERR_Math3D
-!!----    ERR_Math3D_Mess
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       CROSS_PRODUCT
-!!--++       CROSS_PRODUCT_CMPL_dp     [Overloaded]
-!!--++       CROSS_PRODUCT_CMPL_sp     [Overloaded]
-!!--++       CROSS_PRODUCT_dp          [Overloaded]
-!!--++       CROSS_PRODUCT_in          [Overloaded]
-!!--++       CROSS_PRODUCT_sp          [Overloaded]
-!!----       DETERM_A
-!!--++       DETERM_A_I                [Overloaded]
-!!--++       DETERM_A_R                [Overloaded]
-!!----       DETERM_V
-!!--++       DETERM_V_I                [Overloaded]
-!!--++       DETERM_V_R                [Overloaded]
-!!----       INVERT_A
-!!--++       INVERT_DP                 [Overloaded]
-!!--++       INVERT_SP                 [Overloaded]
-!!----       MAT_CROSS
-!!--++       MAT_CROSS_CMPL_dp     [Overloaded]
-!!--++       MAT_CROSS_CMPL_sp     [Overloaded]
-!!--++       MAT_CROSS_dp          [Overloaded]
-!!--++       MAT_CROSS_in          [Overloaded]
-!!--++       MAT_CROSS_sp          [Overloaded]
-!!----       POLYHEDRON_VOLUME
-!!----       ROTATE_OX
-!!----       ROTATE_OY
-!!----       ROTATE_OZ
-!!----       TENSOR_PRODUCT
-!!--++       TENSOR_PRODUCT_CMPL_dp     [Overloaded]
-!!--++       TENSOR_PRODUCT_CMPL_sp     [Overloaded]
-!!--++       TENSOR_PRODUCT_dp          [Overloaded]
-!!--++       TENSOR_PRODUCT_in          [Overloaded]
-!!--++       TENSOR_PRODUCT_sp          [Overloaded]
-!!----       VECLENGTH
-!!----
-!!----    Subroutines:
-!--..
-!!--..    Init Routine
-!!----       INIT_ERR_MATH3D
-!!----       SET_EPS
-!!----       SET_EPS_DEFAULT
-!--..
-!!--..    Matrix and Vectors Subroutines
-!!----       GET_CART_FROM_CYLIN
-!!--++       GET_CART_FROM_CYLIN_DP    [Overloaded]
-!!--++       GET_CART_FROM_CYLIN_SP    [Overloaded]
-!!----       GET_CENTROID_COORD
-!!----       GET_CYLINDR_COORD
-!!--++       GET_CYLINDR_COORD_DP      [Overloaded]
-!!--++       GET_CYLINDR_COORD_SP      [Overloaded]
-!!----       GET_CART_FROM_SPHER
-!!--++       GET_CART_FROM_SPHER_DP    [Overloaded]
-!!--++       GET_CART_FROM_SPHER_SP    [Overloaded]
-!!----       GET_PLANE_FROM_POINTS
-!!----       GET_SPHERIC_COORD
-!!--++       GET_SPHERIC_COORD_DP      [Overloaded]
-!!--++       GET_SPHERIC_COORD_SP      [Overloaded]
-!!----       MATRIX_DIAGEIGEN
-!!----       MATRIX_INVERSE
-!!----       RESOLV_SIST_1X2
-!!----       RESOLV_SIST_1X3
-!!----       RESOLV_SIST_2X2
-!!----       RESOLV_SIST_2X3
-!!----       RESOLV_SIST_3X3
-!!----
 !!
  Module CFML_Math_3D
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
     Use CFML_Math_General, only: cosd, sind
 
-    !---- Local Variables ----!
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public functions ----!
+    !---- Public procedures ----!
     public :: Polyhedron_Volume, Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
-
-    !---- List of public overloaded procedures: functions ----!
     public :: Cross_Product, Determ_A, Determ_V, Invert_A, Mat_Cross, Tensor_Product
-
-    !---- List of public subroutines ----!
     public :: Init_Err_Math3D, Set_Eps, Set_Eps_Default, Matrix_DiagEigen, Matrix_Inverse, &
               Resolv_Sist_1X2, Resolv_Sist_1X3, Resolv_Sist_2X2, Resolv_Sist_2X3,          &
               Resolv_Sist_3X3, Get_Plane_from_Points, Get_Centroid_Coord
-
-    !---- List of public overloaded procedures: subroutines ----!
     public :: Get_Cart_From_Cylin, Get_Cylindr_Coord, Get_Cart_From_Spher, Get_Spheric_Coord
 
-    !---- Definitions ----!
-    !!--++
-    !!--++  EPS
-    !!--++     real(kind=cp), private ::  eps=0.00001_cp
-    !!--++
-    !!--++  (PRIVATE)
-    !!--++     Epsilon value
-    !!--++
-    !!--++  Update: February - 2005
-    !!
-    real(kind=cp),  private  ::  eps=0.00001_cp
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    real(kind=cp)              :: Eps=0.00001_cp    ! Epsilon value
 
-    !!----
-    !!---- ERR_Math3D
-    !!----    logical :: ERR_Math3D
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Math_3D module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public  :: ERR_Math3D
+    logical,            public :: ERR_Math3D=.false.    ! Logical Variable indicating an error in CFML_Math_3D module
+    character(len=256), public :: ERR_Math3D_Mess=" "   ! String containing information about the last error
 
-    !!----
-    !!---- ERR_Math3D_Mess
-    !!----    character(len=256) :: ERR_Math3D_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_Math3D_Mess
 
+    !-------------------------------!
     !---- Interfaces - Overlapp ----!
+    !-------------------------------!
     Interface  Cross_Product
        Module Procedure Cross_product_sp
        Module Procedure Cross_product_dp
@@ -181,6 +80,7 @@
     Interface  Determ_A
        Module Procedure Determ_A_I
        Module Procedure Determ_A_R
+       Module Procedure Determ_A_C
     End Interface
 
     Interface  Determ_V
@@ -232,33 +132,27 @@
  Contains
 
     !!----
-    !!---- Function  Cross_Product(U,V) Result(W)
-    !!----    real(kind=sp/dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!----    real(kind=sp/dp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!----    real(kind=sp/dp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!---- FUNCTION  CROSS_PRODUCT
     !!----
     !!----    Calculates the cross product of vectors u and v
     !!----    Vectors, w= u x v, are given in cartesian components.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Function  Cross_Product_cmpl_dp(U,V) Result(W)
-    !!--++    complex(kind=dp/sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    complex(kind=dp/sp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    complex(kind=dp/sp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++ FUNCTION  CROSS_PRODUCT_CMPL_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of the complex vectors u and v
     !!--++    Vectors, w = u x v, are given in cartesian components.
     !!--++
-    !!--++ Update: June - 2012
+    !!--++ Update: 14/07/2015
     !!
     Function Cross_Product_cmpl_dp(u,v) Result(w)
        !---- Argument ----!
-       complex(kind=dp), dimension(3), intent( in) :: u,v
-       complex(kind=dp), dimension(3)              :: w
+       complex(kind=dp), dimension(3), intent( in) :: u,v  ! Vectors
+       complex(kind=dp), dimension(3)              :: w    ! U x V
 
        w(1)=u(2)*v(3)-u(3)*v(2)
        w(2)=u(3)*v(1)-u(1)*v(3)
@@ -280,21 +174,18 @@
     End Function Cross_Product_cmpl_sp
 
     !!--++
-    !!--++ Function  Cross_Product_dp(U,V) Result(W)
-    !!--++    real(kind=dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=dp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    real(kind=dp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++ FUNCTION  CROSS_PRODUCT_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of vectors u and v
     !!--++    Vectors, w= u x v, are given in cartesian components.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Cross_Product_dp(u,v) Result(w)
        !---- Argument ----!
-       real(kind=dp), dimension(3), intent( in) :: u,v
-       real(kind=dp), dimension(3)              :: w
+       real(kind=dp), dimension(3), intent( in) :: u,v  ! Vectors
+       real(kind=dp), dimension(3)              :: w    ! U x V
 
        w(1)=u(2)*v(3)-u(3)*v(2)
        w(2)=u(3)*v(1)-u(1)*v(3)
@@ -304,22 +195,19 @@
     End Function Cross_Product_dp
 
     !!--++
-    !!--++ Function  Cross_Product_in(U,V) Result(W)
-    !!--++    integer, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    integer, dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    integer, dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++ FUNCTION  CROSS_PRODUCT_IN
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of integer vectors u and v
     !!--++    In the indices are givent w.r.t the direct lattice, the cross product
     !!--++    are indices w.r.t. reciprocal lattice and viceversa.
     !!--++
-    !!--++ Update: November - 2008
+    !!--++ Update: 14/07/2015
     !!
     Function Cross_Product_in(u,v) Result(w)
        !---- Argument ----!
-       integer, dimension(3), intent( in) :: u,v
-       integer, dimension(3)              :: w
+       integer, dimension(3), intent( in) :: u,v   ! Vectors
+       integer, dimension(3)              :: w     ! U x V
 
        w(1)=u(2)*v(3)-u(3)*v(2)  ! i  j   k !
        w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
@@ -329,21 +217,18 @@
     End Function Cross_Product_in
 
     !!--++
-    !!--++ Function  Cross_Product_sp(U,V) Result(W)
-    !!--++    real(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=sp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    real(kind=sp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++ FUNCTION  CROSS_PRODUCT_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of vectors u and v
     !!--++    Vectors, w= u x v, are given in cartesian components.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Cross_Product_sp(u,v) Result(w)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in) :: u,v
-       real(kind=sp), dimension(3)              :: w
+       real(kind=sp), dimension(3), intent( in) :: u,v  ! Vectors
+       real(kind=sp), dimension(3)              :: w    ! U x V
 
        w(1)=u(2)*v(3)-u(3)*v(2)  ! i  j   k !
        w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
@@ -353,22 +238,39 @@
     End Function Cross_Product_sp
 
     !!----
-    !!---- Function Determ_A(A)
-    !!----    integer/real(kind=cp), dimension(3,3), intent(in)  :: a
+    !!---- FUNCTION DETERM_A
     !!----
     !!----    Calculates the determinant of an integer/real 3x3 matrix
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Function Determ_A_I(A)
-    !!--++    integer, dimension(3,3), intent(in)  :: a
+    !!--++ FUNCTION DETERM_A_C
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the determinant of an complex 3x3 matrix
+    !!--++
+    !!--++ Update: 14/07/2015
+    !!
+    Function Determ_A_C(A) Result(determ)
+       !---- Argument ----!
+       complex, dimension(3,3), intent(in) :: A
+       complex                             :: determ
+
+       determ=A(1,1)*A(2,2)*A(3,3)+A(2,1)*A(3,2)*A(1,3)+A(1,2)*A(2,3)*A(3,1) &
+             -A(1,3)*A(2,2)*A(3,1)-A(1,1)*A(3,2)*A(2,3)-A(1,2)*A(2,1)*A(3,3)
+
+       return
+    End Function Determ_A_C
+
+    !!--++
+    !!--++ FUNCTION DETERM_A_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of an integer 3x3 matrix
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Determ_A_I(A) Result(determ)
        !---- Argument ----!
@@ -382,13 +284,12 @@
     End Function Determ_A_I
 
     !!--++
-    !!--++ Function Determ_A_R(A)
-    !!--++    real(kind=cp), dimension(3,3), intent(in)  :: a
+    !!--++ FUNCTION DETERM_A_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real 3x3 matrix
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Determ_A_R(A) Result (determ)
        !---- Argument ----!
@@ -402,22 +303,20 @@
     End Function Determ_A_R
 
     !!----
-    !!---- Function  Determ_V(a,b,c)
-    !!----    integer/real(kind=cp), dimension(3), intent(in) :: a,b,c
+    !!---- FUNCTION  DETERM_V
     !!----
     !!----    Calculates the determinant of the components of three vectors
     !!----
-    !!----  Update: February - 2005
+    !!----  Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Function Determ_V_I(A,B,C)
-    !!--++    integer, dimension(3), intent(in) :: a,b,c
+    !!--++ FUNCTION DETERM_V_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of the components of three vectors
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Determ_V_I(a,b,c) Result(det)
        !---- Arguments ----!
@@ -439,13 +338,12 @@
     End Function Determ_V_I
 
     !!--++
-    !!--++ Function Determ_V_R(A,B,C)
-    !!--++    real(kin=cp), dimension(3), intent(in) :: a,b,c
+    !!--++ FUNCTION DETERM_V_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of the components of three vectors
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Determ_V_R(a,b,c) Result(det)
        !---- Arguments ----!
@@ -467,25 +365,21 @@
     End Function Determ_V_R
 
     !!----
-    !!---- Funcion Invert_A(A) Result(b)
-    !!----    real(kind=sp/dp), dimension(3,3), intent(in) :: a
-    !!----    real(Kind=sp/dp), dimension(3,3)             :: b
+    !!---- FUNCION INVERT_A
     !!----
     !!----    Calculate de inverse of a real 3x3 matrix. If the routine fails,
     !!----    then a 0.0 matrix is returned.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Funcion Invert_Dp(A) Result(b)
-    !!--++    real(kind=dp), dimension(3,3), intent(in) :: a
-    !!--++    real(Kind=dp), dimension(3,3)             :: b
+    !!--++ FUNCION INVERT_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate de inverse of a real 3x3 matrix
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Invert_Dp(a) Result(b)
        !---- Arguments ----!
@@ -516,14 +410,12 @@
     End Function Invert_Dp
 
     !!--++
-    !!--++ Funcion Invert_Sp(A) Result(b)
-    !!--++    real(kind=sp), dimension(3,3), intent(in) :: a
-    !!--++    real(Kind=sp), dimension(3,3)             :: b
+    !!--++ FUNCION INVERT_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate de inverse of a real 3x3 matrix
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Function Invert_Sp(a) Result(b)
        !---- Arguments ----!
@@ -554,9 +446,7 @@
     End Function Invert_Sp
 
     !!----
-    !!---- Function  Mat_Cross(U) Result(M)
-    !!----    real/complex(kind=sp/dp)/integer, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!----    real/complex(kind=sp/dp)/integer, dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!---- FUNCTION  MAT_CROSS
     !!----
     !!----    Calculates the matrix corresponding to the operator u x
     !!----    Antisymmetric matrix of the form:
@@ -564,13 +454,11 @@
     !!----    M=[u]cross=|  u(3)   0   -u(1) |
     !!----                \-u(2)  u(1)   0  /
     !!----
-    !!----  Updated: June - 2012
+    !!----  Updated: 14/07/2015
     !!
 
     !!--++
-    !!--++ Function  Mat_Cross_Cmpl_DP(U) Result(M)
-    !!--++    complex(kind=dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    complex(kind=dp), dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!--++ FUNCTION  MAT_CROSS_CMPL_DP
     !!--++
     !!--++    Calculates the matrix corresponding to the operator u x
     !!--++    Antisymmetric matrix of the form:
@@ -578,12 +466,12 @@
     !!--++    M=[u]cross=|  u(3)   0   -u(1) |
     !!--++                \-u(2)  u(1)   0  /
     !!--++
-    !!--++  Updated: June - 2012
+    !!--++  Updated: 14/07/2015
     !!
     Function Mat_Cross_cmpl_dp(u) Result(M)
        !---- Argument ----!
-       complex(kind=dp), dimension(3), intent( in) :: u
-       complex(kind=dp), dimension(3,3)            :: M
+       complex(kind=dp), dimension(3), intent( in) :: u   ! Vector
+       complex(kind=dp), dimension(3,3)            :: M   ! Matrix [u]cross
 
        M = reshape( (/  (0.0_dp,0.0_dp),   -u(3),         u(2),  &
                             u(3),   (0.0_dp,0.0_dp),     -u(1),  &
@@ -592,9 +480,7 @@
     End Function Mat_Cross_cmpl_dp
 
     !!--++
-    !!--++ Function  Mat_Cross_Cmpl_SP(U) Result(M)
-    !!--++    complex(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    complex(kind=sp), dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!--++ FUNCTION  MAT_CROSS_CMPL_SP
     !!--++
     !!--++    Calculates the matrix corresponding to the operator u x
     !!--++    Antisymmetric matrix of the form:
@@ -602,7 +488,7 @@
     !!--++    M=[u]cross=|  u(3)   0   -u(1) |
     !!--++                \-u(2)  u(1)   0  /
     !!--++
-    !!--++  Updated: June - 2012
+    !!--++  Updated: 14/07/2015
     !!
     Function Mat_Cross_cmpl_sp(u) Result(M)
        !---- Argument ----!
@@ -616,9 +502,7 @@
     End Function Mat_Cross_cmpl_sp
 
     !!--++
-    !!--++ Function  Mat_Cross_DP(U) Result(M)
-    !!--++    real(kind=dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=dp), dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!--++ FUNCTION  MAT_CROSS_DP
     !!--++
     !!--++    Calculates the matrix corresponding to the operator u x
     !!--++    Antisymmetric matrix of the form:
@@ -626,7 +510,7 @@
     !!--++    M=[u]cross=|  u(3)   0   -u(1) |
     !!--++                \-u(2)  u(1)   0  /
     !!--++
-    !!--++  Updated: June - 2012
+    !!--++  Updated: 14/07/2015
     !!
     Function Mat_Cross_dp(u) Result(M)
        !---- Argument ----!
@@ -640,9 +524,7 @@
     End Function Mat_Cross_dp
 
     !!--++
-    !!--++ Function  Mat_Cross_IN(U) Result(M)
-    !!--++    integer, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    integer, dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!--++ FUNCTION  MAT_CROSS_IN
     !!--++
     !!--++    Calculates the matrix corresponding to the operator u x
     !!--++    Antisymmetric matrix of the form:
@@ -650,7 +532,7 @@
     !!--++    M=[u]cross=|  u(3)   0   -u(1) |
     !!--++                \-u(2)  u(1)   0  /
     !!--++
-    !!--++  Updated: June - 2012
+    !!--++  Updated: 14/07/2015
     !!
     Function Mat_Cross_in(u) Result(M)
        !---- Argument ----!
@@ -664,9 +546,7 @@
     End Function Mat_Cross_in
 
     !!--++
-    !!--++ Function  Mat_Cross_SP(U) Result(M)
-    !!--++    real(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=sp), dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!--++ FUNCTION  MAT_CROSS_SP
     !!--++
     !!--++    Calculates the matrix corresponding to the operator u x
     !!--++    Antisymmetric matrix of the form:
@@ -674,7 +554,7 @@
     !!--++    M=[u]cross=|  u(3)   0   -u(1) |
     !!--++                \-u(2)  u(1)   0  /
     !!--++
-    !!--++  Updated: June - 2012
+    !!--++  Updated: 14/07/2015
     !!
     Function Mat_Cross_sp(u) Result(M)
        !---- Argument ----!
@@ -688,16 +568,13 @@
     End Function Mat_Cross_sp
 
     !!----
-    !!---- Function Polyhedron_Volume(Nv,Vert,Cent) Result(vol)
-    !!----    integer,                       intent(in) :: Nv       ! Vertices Number
-    !!----    real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of vertices
-    !!----    real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates a central point
+    !!---- FUNCTION POLYHEDRON_VOLUME
     !!----
     !!---- This procedure calculate the volume of polyhedral with Nv vertices.
     !!---- It is based on volcal program of L. W. FINGER.
     !!---- (Adapted by JGP)
     !!----
-    !!---- Update: February - 2010
+    !!---- Update: 14/07/2015
     !!
     Function Polyhedron_Volume(NV,Vert,Cent) Result(vol)
        !---- Arguments ----!
@@ -772,19 +649,16 @@
     End Function Polyhedron_Volume
 
     !!----
-    !!---- Function Rotate_OX(X,Angle) Result (Vec)
-    !!----    real(kind=cp), dimension(3), intent(in) :: x       !  In -> Vector
-    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
+    !!---- FUNCTION ROTATE_OX
     !!----
     !!----    X Rotation. Positive rotation is counter-clockwise
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Function Rotate_OX(X,Angle) Result(vec)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent(in) :: x
-       real(kind=cp),               intent(in) :: angle
+       real(kind=cp), dimension(3), intent(in) :: x        ! Vector
+       real(kind=cp),               intent(in) :: angle    ! Angle (Degrees)
        real(kind=cp), dimension(3)             :: vec
 
        !---- Variables locales ----!
@@ -808,14 +682,11 @@
     End Function Rotate_OX
 
     !!----
-    !!---- Function Rotate_OY(Y,Angle) Result (Vec)
-    !!----    real(kind=cp), dimension(3), intent(in) :: y       !  In -> Vector
-    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
+    !!---- FUNCTION ROTATE_OY
     !!----
     !!----    Y Rotation.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Function Rotate_OY(Y,Angle) Result(vec)
        !---- Arguments ----!
@@ -844,14 +715,11 @@
     End Function Rotate_OY
 
     !!----
-    !!---- Function Rotate_OZ(Z,Angle) Result (Vec)
-    !!----    real(kind=cp), dimension(3), intent(in) :: z       !  In -> Vector
-    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
+    !!---- FUNCTION ROTATE_OZ
     !!----
     !!----    Z Rotation
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015 10:14:18
     !!
     Function Rotate_OZ(Z,Angle) Result(vec)
        !---- Arguments ----!
@@ -880,32 +748,28 @@
     End Function Rotate_OZ
 
     !!----
-    !!---- Function  Tensor_Product(U,V) Result(W)
-    !!----    complex/real(kind=sp/dp)/integer, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!----    complex/real(kind=sp/dp)/integer, dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!----    complex/real(kind=sp/dp)/integer, dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!---- FUNCTION  TENSOR_PRODUCT
     !!----
     !!----    Calculates the tensor product of vectors u and v
     !!----
-    !!---- Updated: June - 2012
+    !!---- Updated: 14/07/2015
     !!
 
     !!--++
-    !!--++ Function  Tensor_Product_cmpl_dp(U,V) Result(W)
-    !!--++    complex(kind=dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    complex(kind=dp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    complex(kind=dp), dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!--++ FUNCTION  TENSOR_PRODUCT_CMPL_DP
     !!--++
     !!--++    Calculates the tensor product of vectors u and v
     !!--++
-    !!--++ Updated: June - 2012
+    !!--++ Updated: 14/07/2015
     !!
     Function Tensor_Product_cmpl_dp(u,v) Result(w)
        !---- Argument ----!
-       complex(kind=dp), dimension(3), intent( in) :: u,v
-       complex(kind=dp), dimension(3,3)            :: w
-       !
+       complex(kind=dp), dimension(3), intent( in) :: u,v   ! Vectors
+       complex(kind=dp), dimension(3,3)            :: w     ! Tensor product U (o) V
+
+       !---- Local variables ----!
        complex(kind=dp), dimension(3,3)            :: mu,mv
+
        mu=0.0_dp;  mv=0.0_dp
        mu(:,1)=u
        mv(1,:)=v
@@ -914,19 +778,16 @@
     End Function Tensor_Product_cmpl_dp
 
     !!--++
-    !!--++ Function  Tensor_Product_cmpl_sp(U,V) Result(W)
-    !!--++    complex(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    complex(kind=sp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    complex(kind=sp), dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!--++ FUNCTION  TENSOR_PRODUCT_CMPL_SP
     !!--++
     !!--++    Calculates the tensor product of vectors u and v
     !!--++
-    !!--++ Updated: June - 2012
+    !!--++ Updated: 14/07/2015
     !!
     Function Tensor_Product_cmpl_sp(u,v) Result(w)
        !---- Argument ----!
-       complex(kind=sp), dimension(3), intent( in) :: u,v
-       complex(kind=sp), dimension(3,3)            :: w
+       complex(kind=sp), dimension(3), intent( in) :: u,v  ! Vectors
+       complex(kind=sp), dimension(3,3)            :: w    ! Tensor product U (o) V
        !
        complex(kind=sp), dimension(3,3)            :: mu,mv
        mu=0.0_sp;  mv=0.0_sp
@@ -937,21 +798,20 @@
     End Function Tensor_Product_cmpl_sp
 
     !!--++
-    !!--++ Function  Tensor_Product_dp(U,V) Result(W)
-    !!--++    real(kind=dp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=dp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    real(kind=dp), dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!--++ FUNCTION  TENSOR_PRODUCT_DP
     !!--++
     !!--++    Calculates the tensor product of vectors u and v
     !!--++
-    !!--++ Updated: June - 2012
+    !!--++ Updated: 14/07/2015
     !!
     Function Tensor_Product_dp(u,v) Result(w)
        !---- Argument ----!
-       real(kind=dp), dimension(3), intent( in) :: u,v
-       real(kind=dp), dimension(3,3)            :: w
-       !
+       real(kind=dp), dimension(3), intent( in) :: u,v  ! Vectors
+       real(kind=dp), dimension(3,3)            :: w    ! Tensor product U (o) V
+
+       !---- Local variables ----!
        real(kind=dp), dimension(3,3)            :: mu,mv
+
        mu=0.0_dp;  mv=0.0_dp
        mu(:,1)=u
        mv(1,:)=v
@@ -960,21 +820,20 @@
     End Function Tensor_Product_dp
 
     !!--++
-    !!--++ Function  Tensor_Product_in(U,V) Result(W)
-    !!--++    integer, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    integer, dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    integer, dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!--++ FUNCTION  TENSOR_PRODUCT_IN
     !!--++
     !!--++    Calculates the tensor product of vectors u and v
     !!--++
-    !!--++ Updated: June - 2012
+    !!--++ Updated: 14/07/2015
     !!
     Function Tensor_Product_in(u,v) Result(w)
        !---- Argument ----!
-       integer, dimension(3), intent( in) :: u,v
-       integer, dimension(3,3)            :: w
-       !
+       integer, dimension(3), intent( in) :: u,v  ! Vectors
+       integer, dimension(3,3)            :: w    ! Tensor product U (o) V
+
+       !---- Local Variables ----!
        integer, dimension(3,3)            :: mu,mv
+
        mu=0;  mv=0
        mu(:,1)=u
        mv(1,:)=v
@@ -983,19 +842,16 @@
     End Function Tensor_Product_in
 
     !!--++
-    !!--++ Function  Tensor_Product_sp(U,V) Result(W)
-    !!--++    real, dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real, dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    real, dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!--++ FUNCTION  TENSOR_PRODUCT_SP
     !!--++
     !!--++    Calculates the tensor product of vectors u and v
     !!--++
-    !!--++ Updated: June - 2012
+    !!--++ Updated: 14/07/2015
     !!
     Function Tensor_Product_sp(u,v) Result(w)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in) :: u,v
-       real(kind=sp), dimension(3,3)            :: w
+       real(kind=sp), dimension(3), intent( in) :: u,v  ! Vectors
+       real(kind=sp), dimension(3,3)            :: w    ! Tensor product U (o) V
        !
        real(kind=sp), dimension(3,3)            :: mu,mv
        mu=0.0_sp;  mv=0.0_sp
@@ -1006,15 +862,12 @@
     End Function Tensor_Product_sp
 
     !!----
-    !!---- Function Veclength(A,B) Result(c)
-    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=cp), dimension(3),   intent(in)  :: b
-    !!----    real(kind=cp),                             :: c
+    !!---- FUNCTION VECLENGTH
     !!----
     !!----    Length of vector B when A is the Crystallographic
     !!----    to orthogonal matrix length=c
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Function Veclength(a,b) Result(c)
        !---- Arguments ----!
@@ -1039,15 +892,15 @@
     End Function Veclength
 
     !---------------------!
-    !---- Subroutines ----!
+    !---- SUBROUTINES ----!
     !---------------------!
 
     !!----
-    !!---- Subroutine Init_Err_Math3D()
+    !!---- SUBROUTINE INIT_ERR_MATH3D
     !!----
     !!----    Initialize the errors flags in CFML_Math_3D
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_Err_Math3D()
 
@@ -1058,12 +911,11 @@
     End Subroutine Init_Err_Math3D
 
     !!----
-    !!---- Subroutine Set_Eps(Neweps)
-    !!----    real(kind=cp), intent( in) :: neweps
+    !!---- SUBROUTINE SET_EPS
     !!----
     !!----    Sets global EPS to the value "neweps"
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Eps(Neweps)
        !---- Arguments ----!
@@ -1075,11 +927,11 @@
     End Subroutine Set_Eps
 
     !!----
-    !!---- Subroutine Set_Eps_Default()
+    !!---- SUBROUTINE SET_EPS_DEFAULT
     !!----
     !!----    Sets global EPS to the default value: eps=0.00001
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Eps_Default()
 
@@ -1089,31 +941,21 @@
     End Subroutine Set_Eps_Default
 
     !!----
-    !!---- Subroutine Get_Cart_from_Cylin(rho,Phi,zeta,Xo,Mode)
-    !!----    real(kind=sp/dp),              intent( in)           :: rho
-    !!----    real(kind=sp/dp),              intent( in)           :: phi
-    !!----    real(kind=sp/dp),              intent( in)           :: zeta
-    !!----    real(kind=sp/dp), dimension(3),intent(out)           :: xo
-    !!----    character(len=*),              intent( in), optional :: mode
+    !!---- SUBROUTINE GET_CART_FROM_CYLIN
     !!----
     !!----    Determine the Cartesian coordinates from cylindrical coordinates.
     !!----    If Mode='D' the angle phi is provided in Degrees.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine  Get_Cart_from_Cylin_dp(rho,Phi,zeta,Xo,Mode)
-    !!--++    real(kind=dp),              intent( in)           ::  rho
-    !!--++    real(kind=dp),              intent( in)           ::  phi
-    !!--++    real(kind=dp),              intent( in)           ::  zeta
-    !!--++    real(kind=dp), dimension(3),intent(out)           ::  xo
-    !!--++    character(len=*),           intent( in), optional ::  mode
+    !!--++ SUBROUTINE  GET_CART_FROM_CYLIN_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from cylindrical coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cart_from_Cylin_dp(rho,Phi,zeta,Xo,Mode)
        !---- Arguments ----!
@@ -1138,17 +980,12 @@
     End Subroutine Get_Cart_from_Cylin_dp
 
     !!--++
-    !!--++ Subroutine  Get_Cart_from_Cylin_sp(rho,Phi,zeta,Xo,Mode)
-    !!--++    real(kind=sp),              intent( in)           ::  rho
-    !!--++    real(kind=sp),              intent( in)           ::  phi
-    !!--++    real(kind=sp),              intent( in)           ::  zeta
-    !!--++    real(kind=sp), dimension(3),intent(out)           ::  xo
-    !!--++    character(len=*),           intent( in), optional ::  mode
+    !!--++ SUBROUTINE  GET_CART_FROM_CYLIN_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from cylindrical coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cart_from_Cylin_sp(rho,Phi,zeta,Xo,Mode)
        real(kind=sp),              intent( in)           ::  rho
@@ -1172,17 +1009,13 @@
     End Subroutine Get_Cart_from_Cylin_sp
 
     !!----
-    !!---- Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Centroid,Baricenter)
-    !!----    integer,                       intent(in) :: Cn          ! Coordination Number
-    !!----    real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms
-    !!----    real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
-    !!----    real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
+    !!---- SUBROUTINE GET_CENTROID_COORD
     !!----
     !!---- Procedure to calculate Centroid and BariCenter of a pPolyhedron according to
     !!---- Tonci Balic-Zunic (Acta Cryst. B52, 1996, 78-81; Acta Cryst. B54, 1998, 766-773)
     !!---- Centroid is here different from Baricentre and it is defined in the above reference.
     !!----
-    !!---- Update: February - 2010
+    !!---- Update: 14/07/2015
     !!
     Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Centroid,Baricenter)
        !---- Arguments ----!
@@ -1373,31 +1206,21 @@
     End Subroutine Get_Centroid_Coord
 
     !!----
-    !!---- Subroutine Get_Cylindr_Coord(Xo,rho,Phi,zeta,Mode)
-    !!----    real(kind=sp/dp), dimension(3),intent( in)           :: xo
-    !!----    real(kind=sp/dp),              intent(out)           :: rho
-    !!----    real(kind=sp/dp),              intent(out)           :: phi
-    !!----    real(kind=sp/dp),              intent(out)           :: zeta
-    !!----    character(len=*),              intent( in), optional :: mode
+    !!---- SUBROUTINE GET_CYLINDR_COORD
     !!----
     !!----    Determine the cylindrical coordinates from Cartesian coordinates.
     !!----    If Mode='D' the angle phi is provided in Degrees.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine  Get_Cylindr_Coord_dp(Xo,rho,Phi,zeta,Mode)
-    !!--++    real(kind=dp), dimension(3),intent( in)           ::  xo
-    !!--++    real(kind=dp),              intent(out)           ::  rho
-    !!--++    real(kind=dp),              intent(out)           ::  phi
-    !!--++    real(kind=dp),              intent(out)           ::  zeta
-    !!--++    character(len=*),           intent( in), optional ::  mode
+    !!--++ SUBROUTINE GET_CYLINDR_COORD_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the cylindrical coordinates from Cartesian coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cylindr_Coord_dp(Xo,rho,Phi,zeta,Mode)
        !---- Arguments ----!
@@ -1430,17 +1253,12 @@
     End Subroutine Get_Cylindr_Coord_dp
 
     !!--++
-    !!--++ Subroutine  Get_Cylindr_Coord_sp(Xo,rho,Phi,zeta,Mode)
-    !!--++    real(kind=sp), dimension(3),intent( in)           ::  xo
-    !!--++    real(kind=sp),              intent(out)           ::  rho
-    !!--++    real(kind=sp),              intent(out)           ::  phi
-    !!--++    real(kind=sp),              intent(out)           ::  zeta
-    !!--++    character(len=*),           intent( in), optional ::  mode
+    !!--++ SUBROUTINE  GET_CYLINDR_COORD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the cylindrical coordinates from Cartesian coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cylindr_Coord_sp(Xo,rho,Phi,zeta,Mode)
        !---- Arguments ----!
@@ -1473,31 +1291,21 @@
     End Subroutine Get_Cylindr_Coord_sp
 
     !!----
-    !!---- Subroutine Get_Cart_from_Spher(r,Theta,Phi,Xo,Mode)
-    !!----    real(kind=sp/dp),              intent( in)           :: r
-    !!----    real(kind=sp/dp),              intent( in)           :: Theta
-    !!----    real(kind=sp/dp),              intent( in)           :: Phi
-    !!----    real(kind=sp/dp), dimension(3),intent(out)           :: xo
-    !!----    character(len=*),              intent( in), optional :: mode
+    !!---- SUBROUTINE GET_CART_FROM_SPHER
     !!----
     !!----    Determine the Cartesian coordinates from spherical coordinates.
     !!----    If Mode='D' the angle phi is provided in Degrees.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Get_Cart_from_Spher_dp(r,Theta,Phi,Xo,Mode)
-    !!--++    real(kind=dp),              intent( in)           :: r
-    !!--++    real(kind=dp),              intent( in)           :: Theta
-    !!--++    real(kind=dp),              intent( in)           :: Phi
-    !!--++    real(kind=dp), dimension(3),intent(out)           :: xo
-    !!--++    character(len=*),           intent( in), optional :: mode
+    !!--++ SUBROUTINE GET_CART_FROM_SPHER_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from spherical coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cart_from_Spher_dp(r,Theta,Phi,Xo,Mode)
        !---- Arguments ----!
@@ -1526,17 +1334,12 @@
     End Subroutine Get_Cart_from_Spher_dp
 
     !!--++
-    !!--++ Subroutine Get_Cart_from_Spher_sp(r,Theta,Phi,Xo,Mode)
-    !!--++    real(kind=sp),              intent( in)           :: r
-    !!--++    real(kind=sp),              intent( in)           :: Theta
-    !!--++    real(kind=sp),              intent( in)           :: Phi
-    !!--++    real(kind=sp), dimension(3),intent(out)           :: xo
-    !!--++    character(len=*),           intent( in), optional :: mode
+    !!--++ SUBROUTINE GET_CART_FROM_SPHER_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from spherical coordinates.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Cart_from_Spher_sp(r,Theta,Phi,Xo,Mode)
        !---- Arguments ----!
@@ -1565,29 +1368,22 @@
     End Subroutine Get_Cart_from_Spher_sp
 
     !!----
-    !!---- Subroutine Get_Plane_from_Points(P1,P2,P3,A,B,C,D)
-    !!----    real(kind=cp), dimension(3), intent(in) :: P1
-    !!----    real(kind=cp), dimension(3), intent(in) :: P2
-    !!----    real(kind=cp), dimension(3), intent(in) :: P3
-    !!----    real(kind=cp),               intent(out):: A
-    !!----    real(kind=cp),               intent(out):: B
-    !!----    real(kind=cp),               intent(out):: C
-    !!----    real(kind=cp),               intent(out):: D
+    !!---- SUBROUTINE GET_PLANE_FROM_POINTS
     !!----
     !!----    Caculate the implicit form of a Plane in 3D as
     !!----    A * X + B * Y + C * Z + D = 0
     !!----
-    !!---- Update: July - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Get_Plane_from_Points(P1, P2, P3, A, B, C, D)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent(in) :: P1
-       real(kind=cp), dimension(3), intent(in) :: P2
-       real(kind=cp), dimension(3), intent(in) :: P3
-       real(kind=cp),               intent(out):: A
-       real(kind=cp),               intent(out):: B
-       real(kind=cp),               intent(out):: C
-       real(kind=cp),               intent(out):: D
+       real(kind=cp), dimension(3), intent(in) :: P1  ! Point 1
+       real(kind=cp), dimension(3), intent(in) :: P2  ! Point 2
+       real(kind=cp), dimension(3), intent(in) :: P3  ! Point 3
+       real(kind=cp),               intent(out):: A   !
+       real(kind=cp),               intent(out):: B   ! Plane definition: Ax + By + Cz + D=0
+       real(kind=cp),               intent(out):: C   !
+       real(kind=cp),               intent(out):: D   !
 
        a = ( p2(2) - p1(2) ) * ( p3(3) - p1(3) ) &
            - ( p2(3) - p1(3) ) * ( p3(2) - p1(2) )
@@ -1604,31 +1400,21 @@
     End Subroutine Get_Plane_from_Points
 
     !!----
-    !!---- Subroutine Get_Spheric_Coord(Xo,Ss,Theta,Phi,Mode)
-    !!----    real(kind=sp/dp), dimension(3),intent( in)           :: xo
-    !!----    real(kind=sp/dp),              intent(out)           :: ss
-    !!----    real(kind=sp/dp),              intent(out)           :: theta
-    !!----    real(kind=sp/dp),              intent(out)           :: phi
-    !!----    character(len=*),              intent( in), optional :: mode
+    !!---- SUBROUTINE GET_SPHERIC_COORD
     !!----
     !!----    Determine the spheric coordinates from rectangular coordinates.
     !!----    If Mode='D' the angles will be done in Degrees.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Get_Spheric_Coord_dp(Xo,Ss,Theta,Phi,Mode)
-    !!--++    real(kind=dp), dimension(3),intent( in)           :: xo
-    !!--++    real(kind=dp),              intent(out)           :: ss
-    !!--++    real(kind=dp),              intent(out)           :: theta
-    !!--++    real(kind=dp),              intent(out)           :: phi
-    !!--++    character(len=*),           intent( in), optional :: mode
+    !!--++ SUBROUTINE GET_SPHERIC_COORD_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the spheric coordinates from rectangular coordinates
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Spheric_Coord_dp(xo,ss,theta,phi,mode)
        !---- Arguments ----!
@@ -1672,17 +1458,12 @@
     End Subroutine Get_Spheric_Coord_dp
 
     !!--++
-    !!--++ Subroutine Get_Spheric_Coord_sp(Xo,Ss,Theta,Phi,Mode)
-    !!--++    real(kind=sp), dimension(3),intent( in)           :: xo
-    !!--++    real(kind=sp),              intent(out)           :: ss
-    !!--++    real(kind=sp),              intent(out)           :: theta
-    !!--++    real(kind=sp),              intent(out)           :: phi
-    !!--++    character(len=*),           intent( in), optional :: mode
+    !!--++ SUBROUTINE GET_SPHERIC_COORD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the spheric coordinates from rectangular coordinates
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Spheric_Coord_sp(xo,ss,theta,phi,mode)
        !---- Arguments ----!
@@ -1726,15 +1507,12 @@
     End Subroutine Get_Spheric_Coord_sp
 
     !!----
-    !!---- Subroutine Matrix_DiagEigen(A, V, C)
-    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=cp), dimension(3),   intent(out) :: v
-    !!----    real(kind=cp), dimension(3,3), intent(out) :: c
+    !!---- SUBROUTINE MATRIX_DIAGEIGEN
     !!----
     !!----    Diagonalize the matrix A, put eigenvalues in V and
     !!----    eigenvectors in C
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Matrix_DiagEigen(a,v,c)
        !---- Arguments ----!
@@ -1838,21 +1616,17 @@
     End Subroutine Matrix_DiagEigen
 
     !!----
-    !!---- Subroutine Matrix_Inverse(A, B, Ifail)
-    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=cp), dimension(3,3), intent(out) :: b
-    !!----    integer                      , intent(out) :: ifail
-    !!----                                                  0 = OK; 1 = Fail
+    !!---- SUBROUTINE MATRIX_INVERSE
     !!----
     !!----    Inverts a 3x3 Matrix
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Matrix_Inverse(a,b,ifail)
        !---- Argument ----!
        real(kind=cp), dimension(3,3), intent(in)  :: a
        real(kind=cp), dimension(3,3), intent(out) :: b
-       integer                      , intent(out) :: ifail
+       integer                      , intent(out) :: ifail  ! =0 -> OK, =1 -> fail
 
        !---- Local variables ----!
        real(kind=cp), parameter :: epso=1.0e-20
@@ -1885,27 +1659,21 @@
     End Subroutine Matrix_Inverse
 
     !!----
-    !!---- Subroutine Resolv_Sist_1X2(W,T,Ts,X,Ix)
-    !!----    integer,       dimension(2),      intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=cp),                    intent(in) :: t     !  In -> Input value
-    !!----    real(kind=cp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=cp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
-    !!----    integer, dimension(2),            intent(out):: ix    ! Out -> determine if solution
-    !!----                                                                   1: x, 2: y, 3: z
+    !!---- SUBROUTINE RESOLV_SIST_1X2
     !!--<<
     !!----              w11 x1 + w12 x2  = t1
     !!----              x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Resolv_Sist_1x2(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer,dimension(2), intent( in) :: w
-       real(kind=cp),                 intent( in) :: t
-       real(kind=cp), dimension(2),   intent(out) :: ts
-       real(kind=cp), dimension(2),   intent(out) :: x
-       integer,dimension(2), intent(out) :: ix
+       integer,       dimension(2),   intent( in) :: w    ! Input vector
+       real(kind=cp),                 intent( in) :: t    ! Input value
+       real(kind=cp), dimension(2),   intent(out) :: ts   ! Fixed value of solution
+       real(kind=cp), dimension(2),   intent(out) :: x    ! Fixed value for x,y
+       integer,       dimension(2),   intent(out) :: ix   ! determine if solution 1: x, 2: y, 3: z
 
        !---- Initialize ----!
        ts = 0.0
@@ -1947,27 +1715,21 @@
     End Subroutine Resolv_Sist_1x2
 
     !!----
-    !!---- Subroutine Resolv_Sist_1X3(W,T,Ts,X,Ix)
-    !!----    integer, dimension(3),            intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=cp),                    intent(in) :: t     !  In -> Input value
-    !!----    real(kind=cp), dimension(3),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=cp), dimension(3),      intent(out):: x     ! Out -> Fixed value for x,y,z
-    !!----    integer, dimension(3),            intent(out):: ix    ! Out -> determine if solution
-    !!----                                                                   1: x, 2: y, 3: z
+    !!---- SUBROUTINE RESOLV_SIST_1X3
     !!--<<
     !!----               w11 x1 + w12 x2 + w13 x3 = t1
     !!----               x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Resolv_Sist_1x3(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer,dimension(3), intent( in) :: w
-       real(kind=cp),                 intent( in) :: t
-       real(kind=cp), dimension(3),   intent(out) :: ts
-       real(kind=cp), dimension(3),   intent(out) :: x
-       integer,dimension(3), intent(out) :: ix
+       integer,       dimension(3),   intent( in) :: w     ! Input vector
+       real(kind=cp),                 intent( in) :: t     ! Input value
+       real(kind=cp), dimension(3),   intent(out) :: ts    ! Fixed value of solution
+       real(kind=cp), dimension(3),   intent(out) :: x     ! Fixed value for x,y,z
+       integer,       dimension(3),   intent(out) :: ix    ! determine if solution 1: x, 2: y, 3: z
 
        !---- Local Variables ----!
        integer               :: i, zeros
@@ -2061,28 +1823,22 @@
     End Subroutine Resolv_Sist_1x3
 
     !!----
-    !!---- Subroutine Resolv_Sist_2X2(W,T,Ts,X,Ix)
-    !!----    integer, dimension(2,2),          intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=cp), dimension(2),      intent(in) :: t     !  In -> Input value
-    !!----    real(kind=cp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=cp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
-    !!----    integer, dimension(2),            intent(out):: ix    ! Out -> determine if solution
-    !!----                                                                   1: x, 2: y, 3: z
+    !!---- SUBROUTINE RESOLV_SIST_2X2
     !!--<<
     !!----                 w11 x1 + w12 x2  = t1
     !!----                 w21 x1 + w22 x2  = t2
     !!----                 x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Resolv_Sist_2x2(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer,dimension(2,2), intent( in) :: w
-       real(kind=cp),dimension(2),      intent( in) :: t
-       real(kind=cp),dimension(2),      intent(out) :: ts
-       real(kind=cp),dimension(2),      intent(out) :: x
-       integer,dimension(2),   intent(out) :: ix
+       integer,      dimension(2,2), intent( in) :: w   ! Input vector
+       real(kind=cp),dimension(2),   intent( in) :: t   ! Input value
+       real(kind=cp),dimension(2),   intent(out) :: ts  ! Fixed value of solution
+       real(kind=cp),dimension(2),   intent(out) :: x   ! Fixed value for x,y
+       integer,      dimension(2),   intent(out) :: ix  ! determine if solution 1: x, 2: y, 3: z
 
        !---- Local Variables ----!
        integer                 :: i,deter
@@ -2164,13 +1920,7 @@
     End Subroutine Resolv_Sist_2x2
 
     !!----
-    !!---- Subroutine Resolv_Sist_2X3(W,T,Ts,X,Ix)
-    !!----    integer, dimension(2,3),          intent(in) :: w      !  In -> Input vector
-    !!----    real(kind=cp), dimension(2),      intent(in) :: t      !  In -> Input value
-    !!----    real(kind=cp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
-    !!----    real(kind=cp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
-    !!----    integer, dimension(3),            intent(out):: ix     ! Out -> determine if solution
-    !!----                                                                    1: x, 2: y, 3: z
+    !!---- SUBROUTINE RESOLV_SIST_2X3
     !!----               w11 x1 + w12 x2 + w13 x3 = t1
     !!----               w21 x1 + w22 x2 + w23 x3 = t2
     !!----               x_sol(i)= ts(i) + x(i) ix(i)
@@ -2179,11 +1929,11 @@
     !!
     Subroutine Resolv_Sist_2x3(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer,dimension(2,3),          intent( in) :: w
+       integer,      dimension(2,3),    intent( in) :: w
        real(kind=cp),dimension(2),      intent( in) :: t
        real(kind=cp),dimension(3),      intent(out) :: ts
        real(kind=cp),dimension(3),      intent(out) :: x
-       integer,dimension(3),            intent(out) :: ix
+       integer,      dimension(3),      intent(out) :: ix
 
        !---- Local Variables ----!
        integer                 :: i, j
@@ -2658,13 +2408,7 @@
     End Subroutine Resolv_Sist_2x3
 
     !!----
-    !!---- Subroutine Resolv_Sist_3X3(W,T,Ts,X,Ix)
-    !!----    integer, dimension(3,3),          intent(in) :: w      !  In -> Input vector
-    !!----    real(kind=cp), dimension(3),      intent(in) :: t      !  In -> Input value
-    !!----    real(kind=cp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
-    !!----    real(kind=cp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
-    !!----    integer, dimension(3),            intent(out):: ix     ! Out -> determine if solution
-    !!----                                                                     1: x, 2: y, 3: z
+    !!---- SUBROUTINE RESOLV_SIST_3X3
     !!--<<
     !!----              w11 x1 + w12 x2 + w13 x3 = t1
     !!----              w21 x1 + w22 x2 + w23 x3 = t2
@@ -2672,15 +2416,15 @@
     !!----              x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Resolv_Sist_3x3(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer, dimension(3,3),          intent(in) :: w
+       integer,       dimension(3,3),    intent(in) :: w
        real(kind=cp), dimension(3),      intent(in) :: t
        real(kind=cp), dimension(3),      intent(out):: ts
        real(kind=cp), dimension(3),      intent(out):: x
-       integer, dimension(3),            intent(out):: ix
+       integer,       dimension(3),      intent(out):: ix
 
        !---- Local variables ----!
        integer                 :: i,j,deter

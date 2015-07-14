@@ -109,7 +109,7 @@
     !-------------------!
     !---- VARIABLES ----!
     !-------------------!
-    Integer,                     :: Line_Nb                            ! Line number updated each time the procedure findFMT is called.
+    Integer                      :: Line_Nb                            ! Line number updated each time the procedure findFMT is called.
                                                                        ! To initialize LINE_NB, the subroutine Init_FindFMT should be called.
 
 
@@ -2230,35 +2230,25 @@
     End Subroutine Read_Key_Str
 
     !!----
-    !!---- Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv,comment)
-    !!----    character(len=*),dimension(:),          intent(in)      :: Filevar      !  In -> Input vector of String
-    !!----    integer,                                intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                            ! Out -> Pointer to final position in search
-    !!----    integer,                                intent(in)      :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),                       intent(in)      :: Keyword      !  In -> Word to search
-    !!----    character(len=*),                       intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real numbers
-    !!----    integer,dimension(:),         optional  intent(out)     :: Ivet         ! Out -> Vector for integer numbers
-    !!----    integer,                      optional, intent(out)     :: Iv           ! Out -> Number of numbers
-    !!----    character(len=1),             optional, intent(in)      :: comment
+    !!---- SUBROUTINE READ_KEY_STRVAL
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet". The variable
     !!----    "string" contains the input string without the "keyword".
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Key_StrVal(filevar,nline_ini,nline_end,keyword,string,vet,ivet,iv,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:),           intent(in)      :: filevar
-       integer,                                  intent(in out)  :: nline_ini
-       integer,                                  intent(in)      :: nline_end
-       character(len=*),                         intent(in)      :: keyword
-       character(len=*),                         intent(out)     :: string
-       real(kind=cp),dimension(:),     optional, intent(out)     :: vet
-       integer,dimension(:),           optional, intent(out)     :: ivet
-       integer,                        optional, intent(out)     :: iv
-       character(len=1),               optional, intent(in)      :: comment
+       character(len=*), dimension(:),           intent(in)      :: filevar         ! Input vector of String
+       integer,                                  intent(in out)  :: nline_ini       ! Pointer to initial position to search
+       integer,                                  intent(in)      :: nline_end       ! Pointer to final position to search
+       character(len=*),                         intent(in)      :: keyword         ! Word to search
+       character(len=*),                         intent(out)     :: string          ! Rest of the input string
+       real(kind=cp),dimension(:),     optional, intent(out)     :: vet             ! Vector for real numbers
+       integer,dimension(:),           optional, intent(out)     :: ivet            ! Vector for integer numbers
+       integer,                        optional, intent(out)     :: iv              ! Number of numbers
+       character(len=1),               optional, intent(in)      :: comment         ! Character define the comment line
 
        !---- Local Variable ----!
        logical                        :: sval
@@ -2315,34 +2305,24 @@
     End Subroutine Read_Key_StrVal
 
     !!----
-    !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment,line_key)
-    !!----    character(len=*),dimension(:), intent(in)      :: Filevar     !  In -> Input vector of String
-    !!----    integer,                       intent(in out)  :: Nline_Ini   !  In -> Pointer to initial position to search
-    !!----                                                                  ! Out -> Pointer to final position in search
-    !!----    integer,                       intent(in)      :: Nline_End   !  In -> Pointer to final position to search
-    !!----    character(len=*),              intent(in)      :: Keyword     !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real numbers
-    !!----    integer,dimension(:),          intent(out)     :: Ivet        ! Out -> Vector for integer numbers
-    !!----    integer,                       intent(out)     :: Iv          ! Out -> Number of components
-    !!----    character(len=1),     optional, intent(in)     :: comment     ! Consider the character passed in comment as a comment to skip the line
-    !!----    character(len=*),     optional, intent(out)    :: line_key    ! Out -> Cut line where keyword is read
+    !!---- SUBROUTINE READ_KEY_VALUE
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet".
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment,line_key)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)     :: filevar
-       integer,                        intent(in out) :: nline_ini
-       integer,                        intent(in)     :: nline_end
-       character(len=*),               intent(in)     :: keyword
-       real(kind=cp),dimension(:),     intent(out)    :: vet
-       integer,dimension(:),           intent(out)    :: ivet
-       integer,                        intent(out)    :: iv
-       character(len=1),     optional, intent(in)     :: comment
-       character(len=*),     optional, intent(out)    :: line_key
+       character(len=*), dimension(:), intent(in)     :: filevar      ! Input vector of String
+       integer,                        intent(in out) :: nline_ini    ! Pointer to initial position to serach
+       integer,                        intent(in)     :: nline_end    ! Pointer to final position to search
+       character(len=*),               intent(in)     :: keyword      ! Word to search
+       real(kind=cp),dimension(:),     intent(out)    :: vet          ! Real vector
+       integer,dimension(:),           intent(out)    :: ivet         ! Integer vector
+       integer,                        intent(out)    :: iv           ! Number of elements
+       character(len=1),     optional, intent(in)     :: comment      ! Define the line comment
+       character(len=*),     optional, intent(out)    :: line_key     ! Cut line where keyword is read
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
@@ -2381,31 +2361,23 @@
     End Subroutine Read_Key_Value
 
     !!----
-    !!---- Subroutine Read_Key_Valuest(Filevar,Nline_Ini,Nline_End,Keyword,Vet1,Vet2,Iv,comment)
-    !!----    character(len=*),dimension(:),  intent(in)     :: Filevar      !  In -> Input vector of String
-    !!----    integer,                        intent(in out) :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                   ! Out -> Pointer to final position in search
-    !!----    integer,                        intent(in)     :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),               intent(in)     :: Keyword      !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real numbers
-    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet2         ! Out -> Vector of standard deviations
-    !!----    integer,                        intent(out)    :: Iv           ! Out -> Number of components
+    !!---- SUBROUTINE READ_KEY_VALUEST
     !!----
     !!----    Read parameters and standard deviation on the line of "filevar" starting with a particular "keyword".
     !!----    The search is done between lines "nline_ini" and "nline_end".
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:),  intent(in)     :: filevar
-       integer,                         intent(in out) :: nline_ini
-       integer,                         intent(in)     :: nline_end
-       character(len=*),                intent(in)     :: keyword
-       real(kind=cp),dimension(:),      intent(out)    :: vet1
-       real(kind=cp),dimension(:),      intent(out)    :: vet2
-       integer,                         intent(out)    :: iv
-       character(len=1),      optional, intent(in)     :: comment
+       character(len=*), dimension(:),  intent(in)     :: filevar       ! Input vector of String
+       integer,                         intent(in out) :: nline_ini     ! Pointer to initial position to search
+       integer,                         intent(in)     :: nline_end     ! Pointer to final position to search
+       character(len=*),                intent(in)     :: keyword       ! Word to search
+       real(kind=cp),dimension(:),      intent(out)    :: vet1          ! Vector of real numbers
+       real(kind=cp),dimension(:),      intent(out)    :: vet2          ! Vector of real numbers (std)
+       integer,                         intent(out)    :: iv            ! Number of elements
+       character(len=1),      optional, intent(in)     :: comment       ! Character to define the comment line
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
@@ -2441,21 +2413,18 @@
     End Subroutine Read_Key_ValueSTD
 
     !!----
-    !!---- Subroutine Reading_Lines(Filename,Nlines,Filevar)
-    !!----    character(len= *), intent(in)                :: Filename   !  In -> Filename
-    !!----    integer,           intent(in)                :: Nlines     !  In -> Number of lines to read
-    !!----    character(len= *), dimension(:), intent(out) :: Filevar    ! Out -> String vector
+    !!---- SUBROUTINE READING_LINES
     !!----
     !!----    Read nlines of the file and put the information on Filevar. The file is opened to read the
     !!----    lines and closed before returning to the calling unit.
     !!----
-    !!---- Update: February - 2005, March-2014 (eliminating the "opened" inquire,JRC)
+    !!---- Update: 14/07/2015
     !!
     Subroutine Reading_Lines(filename,nlines,filevar)
        !---- Arguments ----!
-       character(len=*),               intent( in) :: filename
-       integer,                        intent( in) :: nlines
-       character(len=*), dimension(:), intent(out) :: filevar
+       character(len=*),               intent( in) :: filename   ! Filename
+       integer,                        intent( in) :: nlines     ! Number of lines to read
+       character(len=*), dimension(:), intent(out) :: filevar    ! String vector
 
        !---- Local Variables ----!
        logical :: info
@@ -2487,21 +2456,17 @@
     End Subroutine Reading_Lines
 
     !!----
-    !!---- Subroutine SetNum_Std(Value,Std,string)
-    !!----    real(kind=cp),            intent(in)  :: Value
-    !!----    real(kind=cp),            intent(in)  :: Std
-    !!----    character(len=*),         intent (out):: string
+    !!---- SUBROUTINE SETNUM_STD
     !!----
-    !!----    String with real value and standard deviation
-    !!----    quoted in parenthesis
+    !!----    String with real value and standard deviation quoted in parenthesis
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine SetNum_Std(Value, Std, string)
        !---- Argument ----!
-       real(kind=cp),   intent(in)  :: Value
-       real(kind=cp),   intent(in)  :: Std
-       character(len=*),intent(out) :: string
+       real(kind=cp),   intent(in)  :: Value    ! Real value
+       real(kind=cp),   intent(in)  :: Std      ! Std value
+       character(len=*),intent(out) :: string   ! String containing the number and std between parenthesis
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
@@ -2576,22 +2541,18 @@
     End Subroutine SetNum_Std
 
     !!--++
-    !!--++ Subroutine SGetFTMfield(GetFTMfield,FMTfields,nFld,nFldMax)
-    !!--++    Integer ,          intent(out)    ::  GetFTMfield
-    !!--++    Character (len=*) ,intent( in)    ::  FMTfields     !  -> format descriptor
-    !!--++    Integer ,          intent(in out) ::  nFld          ! <-> current field in format descriptor
-    !!--++    Integer ,          intent( in)    ::  nFldMax       !  -> max. number of fields in format descriptor
+    !!--++ SUBROUTINE SGETFTMFIELD
     !!--++
     !!--++    (PRIVATE)
     !!--++    Get current field type
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine SGetFTMfield(GetFTMfield,FMTfields,nFld,nFldMax)
        !---- Arguments ----!
-       Character (len=*) ,intent( in)    ::  FMTfields
-       Integer ,          intent(in out) ::  nFld
-       Integer ,          intent( in)    ::  nFldMax
+       Character (len=*) ,intent( in)    ::  FMTfields     ! format descriptor
+       Integer ,          intent(in out) ::  nFld          ! current field in format descriptor
+       Integer ,          intent( in)    ::  nFldMax       ! max. number of fields in format descriptor
        Integer ,          intent(out)    ::  GetFTMfield
 
        !---- Local variables ----!
@@ -2628,11 +2589,7 @@
     End Subroutine SGetFTMfield
 
     !!----
-    !!---- Subroutine SString_Replace(string, substr, rep_string, warning)
-    !!----    character(len=*), intent(in out) :: string
-    !!----    character(len=*), intent(in)     :: substr
-    !!----    character(len=*), intent(in)     :: rep_string
-    !!----    character(len=*), intent(out)    :: warning
+    !!---- SUBROUTINE SSTRING_REPLACE
     !!----
     !!----    Subroutine to replace a substring (substr) by another one (rep_string)
     !!----    within a given string (string). The original string is modified on output.
@@ -2640,7 +2597,7 @@
     !!----    it works as a warning or error condition without interrupting the
     !!----    procedure.
     !!----
-    !!---- Updated: May - 2014
+    !!---- Updated: 14/07/2015
     !!
     Subroutine SString_Replace(string, substr, rep_string,warning)
        !---- Arguments ----!
@@ -2700,26 +2657,21 @@
     End Subroutine SString_Replace
 
     !!--++
-    !!--++ Subroutine TreatMCharField(iFld,aLine,L_Line,nC_L,nC_X)
-    !!--++    Integer,          intent(in out)  :: iFld   ! <-> "A" format size (1 to 9)
-    !!--++    Character(len=*), intent(in)      :: aLine  !  -> data line to be analysed
-    !!--++    Integer,          intent(in)      :: L_Line !  -> true length of data Line
-    !!--++    Integer,          intent(in out)  :: nC_L   ! <-> current character in data line
-    !!--++    Integer,          intent(out)     :: nC_X   ! <-  number of characters in X format field (now nx -> trn)
+    !!--++ SUBROUTINE TREATMCHARFIELD
     !!--++
     !!--++    (PRIVATE)
     !!--++    Fixed length "A1 to A9" field : A<iFld-48>
     !!--++    Leading spaces are ignored; separators : space and Tab
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine TreatMCharField(iFld,aLine,L_Line,nC_L,nC_X)
        !---- Arguments ----!
-       Integer,           intent(in out)  :: iFld
-       Character (len=*), intent(in)      :: aLine
-       Integer,           intent(in)      :: L_Line
-       Integer,           intent(in out)  :: nC_L
-       Integer,           intent(out)     :: nC_X
+       Integer,           intent(in out)  :: iFld    ! "A" format size (1 to 9)
+       Character (len=*), intent(in)      :: aLine   ! data line to be analysed
+       Integer,           intent(in)      :: L_Line  ! true length of data Line
+       Integer,           intent(in out)  :: nC_L    ! current character in data line
+       Integer,           intent(out)     :: nC_X    ! number of characters in X format field (now nx -> trn)
 
        !---- Local variables ----!
        Character (len=1) ::   Car
@@ -2788,23 +2740,18 @@
     End Subroutine TreatMCharField
 
     !!--++
-    !!--++ Subroutine TreatNumerField(iFld,aLine,L_Line,nC_L,nCar)
-    !!--++    Integer ,          intent( in)    ::  iFld   !  -> field type
-    !!--++    Character (len=*), intent(in out) ::  aLine  ! <-> data line
-    !!--++    Integer ,          intent( in)    ::  L_Line !  -> true length of the data line
-    !!--++    Integer ,          intent(in out) ::  nC_L   ! <-> counts characters in data line
-    !!--++    Integer ,          intent(in out) ::  nCar   ! <-> counts characters in format field
+    !!--++ SUBROUTINE TREATNUMERFIELD
     !!--++
     !!--++    (PRIVATE)
     !!--++    Free "I" and "F" formats
     !!--++    Look for a separator (space or Tab) after any valid character
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine TreatNumerField(iFld,aLine,L_Line,nC_L,nCar)
        !---- Arguments ----!
        Integer ,          intent( in)    ::  iFld   ! field type
-       Character (len=*), intent(in out) ::  aLine
+       Character (len=*), intent(in out) ::  aLine  ! data line
        Integer ,          intent( in)    ::  L_Line ! true length of the data line
        Integer ,          intent(in out) ::  nC_L   ! counts characters in data line
        Integer ,          intent(in out) ::  nCar   ! counts characters in format field
@@ -2976,12 +2923,11 @@
     End Subroutine TreatNumerField
 
     !!----
-    !!---- Subroutine Ucase(Line)
-    !!----    character(len=*) :: Line
+    !!---- SUBROUTINE UCASE
     !!----
     !!----    Conversion to upper case. Line is modified
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Ucase(line)
        !---- Argument ----!

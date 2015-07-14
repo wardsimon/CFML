@@ -39,53 +39,6 @@
 !!----    Created:
 !!----    Updated: 04/03/2011
 !!----
-!!---- DEPENDENCIES
-!!----    Use CFML_GlobalDeps,       only : cp
-!!----    Use CFML_Math_General,     only : spline, splint, locate
-!!----    Use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
-!!----                                      get_logunit, u_case, getword
-!!----
-!!---- VARIABLES
-!!----    DIFFRACTION_PATTERN_TYPE
-!!----    ERR_DIFFPATT
-!!----    ERR_DIFFPATT_MESS
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       CALC_FWHM_PEAK
-!!----
-!!----    Subroutines:
-!!----       ADD_DIFFRACTION_PATTERNS
-!!----       ALLOCATE_DIFFRACTION_PATTERN
-!!----       CALC_BACKGROUND
-!!----       DELETE_NOISY_POINTS
-!!----       INIT_ERR_DIFFPATT
-!!----       PURGE_DIFFRACTION_PATTERN
-!!----       READ_BACKGROUND_FILE
-!!----       READ_PATTERN
-!!--++       READ_PATTERN_D1A_D2B           [Private]
-!!--++       READ_PATTERN_D1A_D2B_OLD       [Private]
-!!--++       READ_PATTERN_D1B_D20           [Private]
-!!--++       READ_PATTERN_DMC               [Private]
-!!--++       READ_PATTERN_FREE              [Private]
-!!--++       READ_PATTERN_G41               [Private]
-!!--++       READ_PATTERN_GSAS              [Private]
-!!--++       READ_PATTERN_ISIS_M            [Private]
-!!--++       READ_PATTERN_MULT              [Overloaded]
-!!--++       READ_PATTERN_NLS               [Private]
-!!--++       READ_PATTERN_ONE               [Overloaded]
-!!--++       READ_PATTERN_PANALYTICAL_CSV   [Private]
-!!--++       READ_PATTERN_PANALYTICAL_JCP   [Private]
-!!--++       READ_PATTERN_PANALYTICAL_UDF   [Private]
-!!--++       READ_PATTERN_PANALYTICAL_XRDML [Private]
-!!--++       READ_PATTERN_SOCABIM           [Private]
-!!--++       READ_PATTERN_TIME_VARIABLE     [Private]
-!!--++       READ_PATTERN_XYSIGMA           [Private]
-!!--++       SET_BACKGROUND_INTER           [Private]
-!!--++       SET_BACKGROUND_POLY            [Private]
-!!----       WRITE_PATTERN_FREEFORMAT
-!!----       WRITE_PATTERN_INSTRM5
-!!----       WRITE_PATTERN_XYSIG
 !!----
 !!
  Module CFML_Diffraction_Patterns
@@ -95,6 +48,7 @@
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
                                       get_logunit, u_case, getword, getnum
 
+    !---- Definitions ----!
     implicit none
 
     private
@@ -108,119 +62,68 @@
                Write_Pattern_FreeFormat, Add_Diffraction_Patterns, Delete_Noisy_Points,     &
                Write_Pattern_INSTRM5
 
-    !---- Definitions ----!
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!----
     !!---- TYPE :: DIFFRACTION_PATTERN_TYPE
-    !!--..
-    !!---- Type, public :: Diffraction_Pattern_Type
-    !!----    character(len=180)                          :: Title         !Identification of the pattern
-    !!----    character(len=20)                           :: diff_kind     !type of radiation
-    !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, Lambda, Energy, Temperature, etc
-    !!----    character(len=30)                           :: LegendX       !x-axis legend, eg. "Lambda (Angstroms)"
-    !!----    character(len=30)                           :: LegendY       !y-axis legend, eg. "Intensity (arb. units)"
-    !!----    character(len=20)                           :: instr         !file type
-    !!----    character(len=512)                          :: filename      !file name
-    !!----    character(len=512)                          :: filepath      !file name
-    !!----    real(kind=cp)                               :: xmin
-    !!----    real(kind=cp)                               :: xmax
-    !!----    real(kind=cp)                               :: ymin
-    !!----    real(kind=cp)                               :: ymax
-    !!----    real(kind=cp)                               :: scal
-    !!----    real(kind=cp)                               :: monitor
-    !!----    real(kind=cp)                               :: norm_mon      !Normalisation monitor
-    !!----    real(kind=cp)                               :: col_time      !Data collection time
-    !!----    real(kind=cp)                               :: step
-    !!----    real(kind=cp)                               :: Tsamp         !Sample Temperature
-    !!----    real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
-    !!----    integer                                     :: npts          !Number of points
-    !!----    logical                                     :: ct_step       !Constant step
-    !!----    logical                                     :: gy,gycalc,&
-    !!----                                                   gbgr,gsigma   !logicals for graphics
-    !!----
-    !!----    logical                                     :: al_x,al_y,&
-    !!----                                                   al_ycalc, &   !logicals for allocation
-    !!----                                                   al_bgr,   &
-    !!----                                                   al_sigma, &
-    !!----                                                   al_istat
-    !!----
-    !!----    real(kind=cp), dimension (5)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
-    !!----    real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
-    !!----    real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
-    !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
-    !!----    integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
-    !!----    real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
-    !!----    real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
-    !!----
-    !!---- End Type Diffraction_Pattern_Type
     !!----
     !!----    Definition for Diffraction Pattern Type
     !!----
     !!---- Update: April - 2011  !Initialisation values have been included except for allocatables
     !!
     Type, public :: Diffraction_Pattern_Type
-       character(len=180)                          :: Title=" "        !Identification of the pattern
-       character(len=20)                           :: diff_kind=" "    !type of radiation
-       character(len=20)                           :: scat_var=" "     !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
-       character(len=30)                           :: LegendX=" "      !x-axis legend, eg. "Lambda (Angstroms)"
-       character(len=30)                           :: LegendY=" "      !y-axis legend, eg. "Intensity (arb. units)"
-       character(len=20)                           :: instr=" "        !file type
-       character(len=512)                          :: filename=" "     !file name
-       character(len=512)                          :: filepath=" "     !file path
+       character(len=180)                          :: Title=" "           ! Identification of the pattern
+       character(len=20)                           :: diff_kind=" "       ! type of radiation
+       character(len=20)                           :: scat_var=" "        ! x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
+       character(len=30)                           :: LegendX=" "         ! x-axis legend, eg. "Lambda (Angstroms)"
+       character(len=30)                           :: LegendY=" "         ! y-axis legend, eg. "Intensity (arb. units)"
+       character(len=20)                           :: instr=" "           ! file type
+       character(len=512)                          :: filename=" "        ! file name
+       character(len=512)                          :: filepath=" "        ! file path
        real(kind=cp)                               :: xmin=0.0
        real(kind=cp)                               :: xmax=0.0
        real(kind=cp)                               :: ymin=0.0
        real(kind=cp)                               :: ymax=0.0
        real(kind=cp)                               :: scal=0.0
        real(kind=cp)                               :: monitor=0.0
-       real(kind=cp)                               :: norm_mon=0.0
-       real(kind=cp)                               :: col_time=0.0
+       real(kind=cp)                               :: norm_mon=0.0        ! Normalisation monitor
+       real(kind=cp)                               :: col_time=0.0        ! Data collection time
        real(kind=cp)                               :: step=0.0
-       real(kind=cp)                               :: Tsamp=0.0        !Sample Temperature
-       real(kind=cp)                               :: Tset=0.0         !Setting Temperature (wished temperature)
-       integer                                     :: npts=0           !Number of points
-       logical                                     :: ct_step=.false.  !Constant step
+       real(kind=cp)                               :: Tsamp=0.0           ! Sample Temperature
+       real(kind=cp)                               :: Tset=0.0            ! Setting Temperature (wished temperature)
+       integer                                     :: npts=0              ! Number of points
+       logical                                     :: ct_step=.false.     ! Constant step
        logical                                     :: gr_y=.false.
-       logical                                     :: gr_ycalc=.false.   !logicals for graphics
+       logical                                     :: gr_ycalc=.false.    ! logicals for graphics
        logical                                     :: gr_bgr=.false.
        logical                                     :: gr_sigma=.false.
-       logical                                     :: al_x=.false.     !logicals for allocation
+       logical                                     :: al_x=.false.        ! logicals for allocation
        logical                                     :: al_y=.false.
        logical                                     :: al_ycalc=.false.
        logical                                     :: al_bgr=.false.
        logical                                     :: al_sigma=.false.
        logical                                     :: al_istat=.false.
-       real(kind=cp), dimension (5)                :: conv=0.0      ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
-       real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
-       real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
-       real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
-       integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
-       real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
-       real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
-       integer,       dimension (:), allocatable   :: nd            ! Number of detectors contributing to the point "i"
+       real(kind=cp), dimension (5)                :: conv=0.0            ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+       real(kind=cp), dimension (:), allocatable   :: x                   ! Scattering variable (2theta...)
+       real(kind=cp), dimension (:), allocatable   :: y                   ! Experimental intensity
+       real(kind=cp), dimension (:), allocatable   :: sigma               ! observations VARIANCE (it is the square of sigma!)
+       integer,       dimension (:), allocatable   :: istat               ! Information about the point "i"
+       real(kind=cp), dimension (:), allocatable   :: ycalc               ! Calculated intensity
+       real(kind=cp), dimension (:), allocatable   :: bgr                 ! Background
+       integer,       dimension (:), allocatable   :: nd                  ! Number of detectors contributing to the point "i"
     End Type Diffraction_Pattern_Type
 
-    !!----
-    !!---- ERR_DIFFPATT
-    !!----    logical, public :: Err_Diffpatt
-    !!----
-    !!----    Logical Variable to indicate an error on this module.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: ERR_Diffpatt=.false.
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical,            public :: ERR_Diffpatt=.false.  ! Logical Variable to indicate an error on this module.
+    character(len=256), public :: ERR_DiffPatt_Mess=" " ! String containing information about the last error
 
-    !!----
-    !!---- ERR_DIFFPATT_MESS
-    !!----    character(len=256), public :: ERR_DiffPatt_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_DiffPatt_Mess=" "
-
+    !------------------------------!
     !---- Interfaces - Overlap ----!
+    !------------------------------!
     Interface Read_Pattern
        Module procedure Read_Pattern_Mult
        Module procedure Read_Pattern_One
@@ -232,28 +135,22 @@
     !-------------------!
 
     !!----
-    !!---- Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, Rlim) Result(v)
-    !!----    type(Diffraction_Pattern_Type), intent(in) :: Pat        ! Profile information
-    !!----    real(kind=cp),                  intent(in) :: Xi         ! X value on point i (Peak)
-    !!----    real(kind=cp),                  intent(in) :: Yi         ! Y Value on point i
-    !!----    real(kind=cp),                  intent(in) :: Ybi        ! Y value for Background on point i
-    !!----    real(kind=cp),optional          intent(in) :: RLim       ! Limit range in X units to search the point
-    !!----    real(kind=cp)                              :: V
+    !!---- FUNCTION CALC_FWHM_PEAK
     !!----
     !!---- Function that calculate the FHWM of a peak situated on (xi,yi). Then
     !!---- the routine search the Ym value in the range (xi-rlim, xi+rlim) to
     !!---- obtain the FWHM. The function return a negative values if an error
     !!---- is ocurred during calculation.
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 14/07/2015
     !!
     Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
        !---- Arguments ----!
-       type(Diffraction_Pattern_Type), intent(in) :: Pat
-       real(kind=cp),                  intent(in) :: Xi
-       real(kind=cp),                  intent(in) :: Yi
-       real(kind=cp),                  intent(in) :: Ybi
-       real(kind=cp),optional,         intent(in) :: RLim
+       type(Diffraction_Pattern_Type), intent(in) :: Pat              ! Profile information
+       real(kind=cp),                  intent(in) :: Xi               ! X value on point i (Peak)
+       real(kind=cp),                  intent(in) :: Yi               ! Y Value on point i
+       real(kind=cp),                  intent(in) :: Ybi              ! Y value for Background on point i
+       real(kind=cp),optional,         intent(in) :: RLim             ! Limit range in X units to search the point
        real(kind=cp)                              :: V
 
        !---- Local variables ----!
@@ -330,16 +227,11 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Add_Diffraction_Patterns(Patterns,N,Active,Pat,VNorm)
-    !!----    type(Diffraction_Pattern_Type),dimension(:), intent(in)  :: Patterns
-    !!----    integer,                                     intent(in)  :: N
-    !!----    logical, dimension(:),                       intent(in)  :: Active
-    !!----    type(Diffraction_Pattern_Type),              intent(out) :: Pat
-    !!----    real(kind=cp), optional                      intent(in)  :: VNorm
+    !!---- SUBROUTINE ADD_DIFFRACTION_PATTERNS
     !!----
-    !!---- Add Patterns
+    !!----    Add Patterns
     !!----
-    !!---- Date: 25/03/2011
+    !!---- Date: 14/07/2015
     !!
     Subroutine Add_Diffraction_Patterns(Patterns,N,Active, Pat, VNorm)
         !---- Arguments ----!
@@ -440,13 +332,11 @@
     End Subroutine Add_Diffraction_Patterns
 
     !!----
-    !!---- Subroutine Allocate_Diffraction_Pattern(pat,npts)
-    !!----    type(Diffraction_Pattern_Type), intent (in out) :: pat
-    !!----    Integer,                        intent (in)     :: npts
+    !!---- SUBROUTINE ALLOCATE_DIFFRACTION_PATTERN
     !!----
     !!----    Allocate the object pat of type Diffraction_Pattern_Type
     !!----
-    !!---- Update: December - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Allocate_Diffraction_Pattern(Pat,Npts)
        !---- Arguments ----!
@@ -511,18 +401,12 @@
     End Subroutine Allocate_Diffraction_Pattern
 
     !!----
-    !!---- Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
-    !!----    type(Diffraction_Pattern_Type), intent(in out) :: Pat
-    !!----    integer,                        intent(in)     :: Ncyc
-    !!----    integer,                        intent(in)     :: Np
-    !!----    real(kind=cp), optional,        intent(in)     :: Xmin
-    !!----    real(kind=cp), optional,        intent(in)     :: Xmax
+    !!---- SUBROUTINE CALC_BACKGROUND
     !!----
     !!----    Calculate a Background using an iterative process according
     !!----    to Br�ckner, S. (2000). J. Appl. Cryst., 33, 977-979.
     !!----
-    !!----
-    !!---- Update: December - 2008
+    !!---- Update: 14/07/2015
     !!
     Subroutine Calc_BackGround(Pat,Ncyc,Np, Xmin, Xmax)
        !---- Arguments ----!
@@ -650,16 +534,13 @@
     End Subroutine Calc_BackGround
 
     !!----
-    !!---- Subroutine Delete_Noisy_Points(Pat, NoisyP, FileInfo)
-    !!----    type(Diffraction_Pattern_Type), intent(in out) :: Pat
-    !!----    integer,                        intent(out)    :: NoisyP
-    !!----    logical, optional,              intent(in)     :: FileInfo
+    !!---- SUBROUTINE DELETE_NOISY_POINTS
     !!----
-    !!---- Delete noisy points in a Pattern. If FileInfo is .true. then a
-    !!---- file is created containing information about the elimination of
-    !!---- noisy points
+    !!----    Delete noisy points in a Pattern. If FileInfo is .true. then a
+    !!----    file is created containing information about the elimination of
+    !!----    noisy points
     !!----
-    !!---- Date: 26/03/2011
+    !!---- Date: 14/07/2015
     !!
     Subroutine Delete_Noisy_Points(Pat, NoisyP, FileInfo)
         !---- Arguments ----!
@@ -766,11 +647,11 @@
     End Subroutine Delete_Noisy_Points
 
     !!----
-    !!---- Subroutine Init_Err_DiffPatt()
+    !!---- SUBROUTINE INIT_ERR_DIFFPATT
     !!----
     !!----    Initialize the errors flags in DiffPatt
     !!----
-    !!---- Update: February - 2005
+    !!---- Update:14/07/2015
     !!
     Subroutine Init_Err_DiffPatt()
 
@@ -781,9 +662,7 @@
     End Subroutine Init_Err_Diffpatt
 
     !!----
-    !!---- Subroutine Purge_Diffraction_Pattern(Pat,Mode)
-    !!----    type(Diffraction_Pattern_Type), intent (in out) :: Pat
-    !!----    Character(len=*),               intent (in)     :: Mode
+    !!---- SUBROUTINE PURGE_DIFFRACTION_PATTERN
     !!----
     !!----    De-Allocate components of the object "pat", of type Diffraction_Pattern_Type
     !!----    depending on the value of the MODE string. At present the following MODE
@@ -796,8 +675,7 @@
     !!----
     !!----
     !!----
-    !!---- Update: December - 2005
-    !!---- Updated: December - 2005
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Purge_Diffraction_Pattern(Pat,Mode)
        !---- Arguments ----!
@@ -860,14 +738,11 @@
     End Subroutine Purge_Diffraction_Pattern
 
     !!----
-    !!---- Subroutine Read_Backgound_File(bck_file, bck_mode, dif_pat)
-    !!----    character (len=*),               intent(in   )    :: bck_file
-    !!----    character (len=*),               intent(in   )    :: bck_mode
-    !!----    type (diffraction_pattern_type), intent(in out)   :: dif_Pat
+    !!---- SUBROUTINE READ_BACKGOUND_FILE
     !!----
     !!----    Read background from a file
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Background_File( Bck_File, Bck_Mode, Dif_Pat)
        !---- Arguments ----!
@@ -965,31 +840,20 @@
     End Subroutine Read_Background_File
 
     !!----
-    !!---- Subroutine Read_Pattern(Filename, Dif_Pat, Mode)
-    !!--<<                   or   (Filename, Dif_Pat, NumPat, Mode)
-    !!----    character(len=*),                              intent (in)    :: Filename
-    !!----    type (diffraction_pattern_type),               intent (in out):: Dif_Pat
-    !!----    character(len=*), optional,                    intent (in)    :: mode
+    !!---- SUBROUTINE READ_PATTERN
     !!----
-    !!----    character(len=*),                              intent (in)    :: Filename
-    !!----    type (diffraction_pattern_type), dimension(:), intent (in out):: Dif_Pat
-    !!----    integer,                                       intent (out)   :: numpat
-    !!----    character(len=*), optional,                    intent (in)    :: mode
-    !!-->>
     !!----    Read one pattern from a Filename
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Read_Pattern_D1A_D2B(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: pat
+    !!--++ SUBROUTINE READ_PATTERN_D1A_D2B
     !!--++
     !!--++    (PRIVATE)
     !!--++    Read a pattern for D1A, D2B
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_D1A_D2B(i_dat,Pat)
        !---- Arguments ----!
@@ -1084,13 +948,11 @@
     End Subroutine Read_Pattern_D1A_D2B
 
     !!--++
-    !!--++ Subroutine Read_Pattern_D1A_D2B_OLD(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_D1A_D2B_OLD
     !!--++
     !!--++    Read a pattern for D1A, D2B (Old Format)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_D1A_D2B_OLD(i_dat,Pat)
        !---- Arguments ----!
@@ -1147,13 +1009,11 @@
     End Subroutine Read_Pattern_D1A_D2B_Old
 
     !!--++
-    !!--++ Subroutine Read_Pattern_D1B_D20(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_D1B_D20
     !!--++
     !!--++    Read a pattern for D1B or D20
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_D1B_D20(i_dat,Pat)
        !---- Arguments ----!
@@ -1233,13 +1093,11 @@
     End Subroutine Read_Pattern_D1B_D20
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Dmc(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_DMC
     !!--++
     !!--++    Read a pattern for DMC
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update:14/07/2015
     !!
     Subroutine Read_Pattern_Dmc(i_dat,Pat)
        !---- Arguments ----!
@@ -1316,13 +1174,11 @@
     End Subroutine Read_Pattern_Dmc
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Free(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_FREE
     !!--++
     !!--++    Read a pattern for Free
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Free(i_dat,Pat)
        !---- Arguments ----!
@@ -1475,13 +1331,11 @@
     End Subroutine Read_Pattern_Free
 
     !!--++
-    !!--++ Subroutine Read_Pattern_G41(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_G41
     !!--++
     !!--++    Read a pattern for G41
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_G41(i_dat,Pat)
        !---- Arguments ----!
@@ -1589,14 +1443,11 @@
     End Subroutine Read_Pattern_G41
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Gsas(i_dat,Pat,mode)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
-    !!--++    character(len=*), optional       intent(in)     :: mode
+    !!--++ SUBROUTINE READ_PATTERN_GSAS
     !!--++
     !!--++    Read a pattern for GSAS
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Gsas(i_dat,Pat,mode)
        !---- Arguments ----!
@@ -1821,20 +1672,17 @@
     End Subroutine Read_Pattern_Gsas
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Isis_M(i_dat,Pat,NPat)
-    !!--++    integer,                                                    intent(in    ) :: i_dat
-    !!--++    type (diffraction_pattern_type),  dimension(:),             intent(in out) :: pat
-    !!--++    integer,                                                    intent(in out) :: npat
+    !!--++ SUBROUTINE READ_PATTERN_ISIS_M
     !!--++
     !!--++    Read a pattern for ISIS
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Isis_m(i_dat,Pat,NPat)
        !---- Arguments ----!
-       integer,                                                    intent(in    ) :: i_dat
-       type (diffraction_pattern_type),  dimension(:),             intent(in out) :: pat
-       integer,                                                    intent(in out) :: npat
+       integer,                                         intent(in    ) :: i_dat
+       type (diffraction_pattern_type),  dimension(:),  intent(in out) :: pat
+       integer,                                         intent(in out) :: npat
 
        !---- Local Variables ----!
        real(kind=cp)                                   :: fac_y
@@ -2000,23 +1848,19 @@
     End Subroutine Read_Pattern_Isis_M
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Mult(Filename,Dif_Pat, NumPat, Mode)
-    !!--++    character(len=*),                                          intent (in)      :: filename
-    !!--++    type (diffraction_pattern_type), dimension(:),             intent (in out)  :: dif_pat
-    !!--++    integer,                                                   intent (out)     :: numpat
-    !!--++    character(len=*), optional,                                intent (in)      :: mode
+    !!--++ SUBROUTINE READ_PATTERN_MULT
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Read one pattern from a Filename
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Mult(filename, dif_pat, numpat, mode)
        !---- Arguments ----!
-       character(len=*),                                          intent (in)      :: filename
-       type (diffraction_pattern_type), dimension(:),             intent (in out)  :: dif_pat
-       integer,                                                   intent (in out)  :: numpat
-       character(len=*), optional,                                intent (in)      :: mode
+       character(len=*),                               intent (in)      :: filename
+       type (diffraction_pattern_type), dimension(:),  intent (in out)  :: dif_pat
+       integer,                                        intent (in out)  :: numpat
+       character(len=*), optional,                     intent (in)      :: mode
 
        !---- Local variables ----!
        logical :: esta
@@ -2081,13 +1925,11 @@
     End Subroutine Read_Pattern_Mult
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Nls(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_NLS
     !!--++
     !!--++    Read a pattern for NLS
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Nls(i_dat,Pat)
        !---- Arguments ----!
@@ -2166,14 +2008,11 @@
     End Subroutine Read_Pattern_Nls
 
     !!--++
-    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode)
-    !!--++    character(len=*),                intent (in)    :: filename
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Dif_Pat
-    !!--++    character(len=*), optional,      intent (in)    :: mode
+    !!--++ SUBROUTINE READ_PATTERN_ONE
     !!--++
     !!--++    Read one pattern from a Filename
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode)
        !---- Arguments ----!
@@ -2380,13 +2219,11 @@
     End Subroutine Read_Pattern_One
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Panalytical_CSV(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_PANALYTICAL_CSV
     !!--++
     !!--++    Read a pattern for Panalitical Format CSV
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Panalytical_Csv(i_dat,Pat)
        !---- Arguments ----!
@@ -2479,13 +2316,11 @@
     End Subroutine Read_Pattern_Panalytical_Csv
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Panalytical_JCP(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_PANALYTICAL_JCP
     !!--++
     !!--++    Read a pattern for Panalitical Format JCP
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Panalytical_Jcp(i_dat,Pat)
        !---- Arguments ----!
@@ -2613,13 +2448,11 @@
     End Subroutine Read_Pattern_Panalytical_Jcp
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Panalytical_UDF(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_PANALYTICAL_UDF
     !!--++
     !!--++    Read a pattern for Panalitical Format UDF
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Panalytical_Udf(i_dat,Pat)
        !---- Arguments ----!
@@ -2718,13 +2551,11 @@
     End Subroutine Read_Pattern_Panalytical_Udf
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Panalytical_XRDML(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_PANALYTICAL_XRDML
     !!--++
     !!--++    Read a pattern for Panalitical Format XRDML
     !!--++
-    !!--++ Update: January - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Panalytical_Xrdml(i_dat,Pat)
        !---- Arguments ----!
@@ -2880,13 +2711,11 @@
     End Subroutine Read_Pattern_Panalytical_Xrdml
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Socabim(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_SOCABIM
     !!--++
     !!--++    Read a pattern for Socabim
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Socabim(i_dat,Pat)
        !---- Arguments ----!
@@ -3195,13 +3024,11 @@
      End subroutine Read_Pattern_Socabim
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Time_Variable(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++ SUBROUTINE READ_PATTERN_TIME_VARIABLE
     !!--++
     !!--++    Read a pattern for Time Variable
     !!--++
-    !!--++ Update: January - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Pattern_Time_Variable(i_dat,Pat)
        !---- Arguments ----!
@@ -3301,14 +3128,12 @@
     End subroutine Read_Pattern_Time_Variable
 
     !!--++
-    !!--++ Subroutine Read_Pattern_XYSigma(i_dat,Pat)
-    !!--++    integer,                         intent(in)     :: i_dat
-    !!--++    type (diffraction_pattern_type), intent(in out) :: pat
+    !!--++ SUBROUTINE READ_PATTERN_XYSIGMA
     !!--++
     !!--++    Read a pattern for X,Y,Sigma. Adding (2014) the possibility to read a calculated pattern
     !!--++    in a fouth column
     !!--++
-    !!--++ Updated: January - 2014
+    !!--++ Updated: 14/07/2015
     !!
     Subroutine Read_Pattern_XYSigma(i_dat,Pat)
        !---- Arguments ----!
@@ -3570,16 +3395,12 @@
     End Subroutine Read_Pattern_XYSigma
 
     !!--++
-    !!--++ Subroutine Set_Background_Inter(Difpat,Bcky,Bckx,N)
-    !!--++    type (diffraction_pattern_type), intent(in out)  :: difPat
-    !!--++    real (kind=cp), dimension(:),    intent(in out ) :: bcky
-    !!--++    real (kind=cp), dimension(:),    intent(in out ) :: bckx
-    !!--++    integer,                         intent(in    )  :: n
+    !!--++ SUBROUTINE SET_BACKGROUND_INTER
     !!--++
     !!--++    (PRIVATE)
     !!--++    Define a Background
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Set_Background_Inter(Difpat,Bcky,Bckx,N)
        !---- Arguments ----!
@@ -3640,16 +3461,12 @@
     End Subroutine Set_Background_Inter
 
     !!--++
-    !!--++ Subroutine Set_Background_Poly( Difpat,Bkpos,Bckx,N)
-    !!--++    type (diffraction_pattern_type), intent(in out) :: difPat
-    !!--++    real (kind=cp),                  intent(in    ) :: bkpos
-    !!--++    real (kind=cp), dimension(:),    intent(in    ) :: bckx
-    !!--++    integer,                         intent(in    ) :: n
+    !!--++ SUBROUTINE SET_BACKGROUND_POLY
     !!--++
     !!--++    (PRIVATE)
     !!--++    Define a Background
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Set_Background_Poly( Difpat,Bkpos,Bckx,N)
        !---- Arguments ----!
@@ -3675,13 +3492,11 @@
     End Subroutine Set_Background_Poly
 
     !!----
-    !!---- Subroutine Write_Pattern_FreeFormat(Filename,Pat)
-    !!----    character (len=*),               intent(in) :: Filename
-    !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!---- SUBROUTINE WRITE_PATTERN_FREEFORMAT
     !!----
     !!----    Write a pattern in Free Format (Instrm=0)
     !!----
-    !!---- Update: 21/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_Pattern_FreeFormat(Filename,Pat)
        !---- Arguments ----!
@@ -3719,17 +3534,14 @@
     End Subroutine Write_Pattern_FreeFormat
 
     !!----
-    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat,var)
-    !!----    character (len=*),               intent(in) :: Filename
-    !!----    type (diffraction_pattern_type), intent(in) :: Pat
-    !!----    character (len=*), optional,     intent(in) :: var
+    !!---- SUBROUTINE WRITE_PATTERN_INSTRM5
     !!----
     !!----    Write a pattern in 2-axis format with fixed step (Instrm=5)
     !!----    If var is present the standard deviations are also provided,
     !!----    otherwise they are calculated from the number of counts and the
     !!----    values of the normalisation monitor and the used monitor.
     !!----
-    !!---- Updated: 29/04/2011, 18/07/2012 (JRC)
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Write_Pattern_INSTRM5(Filename,Pat,var)
        !---- Arguments ----!
@@ -3773,15 +3585,11 @@
     End Subroutine Write_Pattern_INSTRM5
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
-    !!----    character (len=*),               intent(in) :: Filename
-    !!----    type (diffraction_pattern_type), intent(in) :: Pat
-    !!----    logical, dimension(:),optional,  intent(in) :: excl
-    !!----    real,                 optional,  intent(in) :: xmin
+    !!---- SUBROUTINE WRITE_PATTERN_XYSIG
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
-    !!---- Update: March - 2007
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
        !---- Arguments ----!

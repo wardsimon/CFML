@@ -117,113 +117,6 @@
 !!--..    igeom=3: Normal beam
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
-!!---- DEPENDENCIES
-!!--++   Use CFML_GlobalDeps,       only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
-!!--++   Use CFML_Math_General,     only: cosd,sind
-!!--++   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
-!!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
-!!--++                                    invert => Invert_A
-!!----
-!!----
-!!---- VARIABLES
-!!--..    Types
-!!----    BASIC_NUMORC_TYPE
-!!----    BASIC_NUMORI_TYPE
-!!----    BASIC_NUMORR_TYPE
-!!----    CALIBRATION_DETECTOR_TYPE
-!!----    DIFFRACTOMETER_TYPE
-!!----    GENERIC_NUMOR_TYPE
-!!----    ILL_DATA_RECORD_TYPE
-!!----    POWDER_NUMOR_TYPE
-!!----    SXTAL_NUMOR_TYPE
-!!----    SXTAL_ORIENT_TYPE
-!!--..
-!!----    CURRENT_INSTRM
-!!--++    CURRENT_INSTRM_SET                [Private]
-!!----    CURRENT_ORIENT
-!!----    CYCLE_NUMBER
-!!----    ERR_ILLDATA
-!!----    ERR_ILLDATA_MESS
-!!--++    GOT_ILL_DATA_DIRECTORY            [Private]
-!!--++    GOT_ILL_TEMP_DIRECTORY            [Private]
-!!----    ILL_DATA_DIRECTORY
-!!----    ILL_TEMP_DIRECTORY
-!!----    INSTRM_DIRECTORY
-!!--++    INSTRM_DIRECTORY_SET              [Private]
-!!--++    INSTRM_GEOMETRY_DIRECTORY_SET     [Private]
-!!--++    INSTRM_INFO_ONLY                  [Private]
-!!--++    IVALUES                           [Private]
-!!----    MACHINE_NAME
-!!--++    N_KEYTYPES                        [Private]
-!!--++    NL_KEYTYPES                       [Private]
-!!--++    NTEXT                             [Private]
-!!--++    NVAL_F                            [Private]
-!!--++    NVAL_I                            [Private]
-!!--++    RVALUES                           [Private]
-!!--++    TEXT_ILL                          [Private]
-!!--++    UNCOMPRESSCOMMAND                 [Private]
-!!----    YEAR_ILLDATA
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!--++       ADDING_NUMORS_D1A_DIFFPATTERN    [Private]
-!!--++       ADDING_NUMORS_D1B_D20            [Private]
-!!--++       ADDING_NUMORS_D4_DIFFPATTERN     [Private]
-!!----       ALLOCATE_NUMORS
-!!--++       ALLOCATE_POWDER_NUMORS          [Overloaded]
-!!--++       ALLOCATE_SXTAL_NUMORS           [Overloaded]
-!!----       DEFINE_UNCOMPRESS_PROGRAM
-!!----       GET_ABSOLUTE_DATA_PATH
-!!----       GET_NEXT_YEARCYCLE
-!!----       GET_SINGLE_FRAME_2D
-!!----       INIT_ERR_ILLDATA
-!!--++       INIT_POWDER_NUMOR               [Overloaded]
-!!--++       INIT_SXTAL_NUMOR                [Overloaded]
-!!----       INITIALIZE_DATA_DIRECTORY
-!!----       INITIALIZE_NUMOR
-!!--++       INITIALIZE_NUMORS_DIRECTORY     [Private]
-!!--++       INITIALIZE_TEMP_DIRECTORY       [Private]
-!!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
-!!--++       NUMORD1BD20_TO_DIFFPATTERN      [Private]
-!!----       POWDERNUMORS_TO_DIFFPATTERN
-!!--++       READ_A_KEYTYPE                  [Private]
-!!----       READ_CALIBRATION_FILE
-!!----       READ_CALIBRATION_FILE_D1A       [Private]
-!!----       READ_CALIBRATION_FILE_D2B       [Private]
-!!----       READ_CURRENT_INSTRM
-!!--++       READ_F_KEYTYPE                  [Private]
-!!--++       READ_I_KEYTYPE                  [Private]
-!!--++       READ_J_KEYTYPE                  [Private]
-!!----       READ_NUMOR
-!!--++       READ_NUMOR_D1A                  [Private]
-!!--++       READ_NUMOR_D1B                  [Private]
-!!--++       READ_NUMOR_D2B                  [Private]
-!!--++       READ_NUMOR_D4                   [Private]
-!!--++       READ_NUMOR_D9                   [Private]
-!!--++       READ_NUMOR_D10                  [Private]
-!!--++       READ_NUMOR_D16                  [Private]
-!!--++       READ_NUMOR_D19                  [Private]
-!!--++       READ_NUMOR_D20                  [Private]
-!!--++       READ_POWDER_NUMOR               [Overloaded]
-!!--++       READ_R_KEYTYPE                  [Private]
-!!--++       READ_S_KEYTYPE                  [Private]
-!!--++       READ_V_KEYTYPE                  [Private]
-!!--++       READ_SXTAL_NUMOR                [Overloaded]
-!!----       SET_CURRENT_ORIENT
-!!----       SET_DEFAULT_INSTRUMENT
-!!----       SET_ILL_DATA_DIRECTORY
-!!----       SET_INSTRM_DIRECTORY
-!!----       SET_KEYTYPES_ON_FILE            [Private]
-!!----       UPDATE_CURRENT_INSTRM_UB
-!!----       WRITE_CURRENT_INSTRM_DATA
-!!----       WRITE_HEADERINFO_NUMOR
-!!--++       WRITE_HEADERINFO_POWDER_NUMOR   [Overloaded]
-!!--++       WRITE_HEADERINFO_SXTAL_NUMOR    [Overloaded]
-!!----       WRITE_NUMOR_INFO
-!!--++       WRITE_POWDER_NUMOR              [Overloaded]
-!!--++       WRITE_SXTAL_NUMOR               [Overloaded]
 !!----
 !!
 Module CFML_ILL_Instrm_Data
@@ -236,12 +129,12 @@ Module CFML_ILL_Instrm_Data
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
 
-   !---- Variables ----!
+   !---- Definitions ----!
    Implicit none
 
    private
 
-   !---- Public Subroutines ----!
+   !---- Public Procedures ----!
    public :: Set_Current_Orient, Read_Numor, Read_Generic_Numor, Read_Current_Instrm,            &
              Write_Current_Instrm_data,     &
              Allocate_Numors, Set_ILL_data_directory, Set_Instrm_directory,                      &
@@ -253,70 +146,47 @@ Module CFML_ILL_Instrm_Data
 
    !---- Definitions ----!
 
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
+
    !!----
    !!---- TYPE :: BASIC_NUMC_TYPE
-   !!--..
-   !!---- Type, public :: Basic_NumC_Type
-   !!----    integer                                      :: N        ! Number of elements in this Type
-   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
-   !!----    character(len=80), dimension(:), allocatable :: CValues  ! Character Values
-   !!---- End Type Basic_NumC_Type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Basic_NumC_Type
-      integer                                      :: N
-      character(len=40), dimension(:), allocatable :: NameVar
-      character(len=80), dimension(:), allocatable :: CValues
+      integer                                      :: N            ! Number of elements in this Type
+      character(len=40), dimension(:), allocatable :: NameVar      ! Name of the diferents fields
+      character(len=80), dimension(:), allocatable :: CValues      ! Character Values
    End Type Basic_NumC_Type
 
    !!----
    !!---- TYPE :: BASIC_NUMI_TYPE
-   !!--..
-   !!---- Type, public :: Basic_NumI_Type
-   !!----    integer                                      :: N        ! Number of elements in this Type
-   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
-   !!----    integer,           dimension(:), allocatable :: IValues  ! Integer values
-   !!---- End Type, private :: Basic_NumI_Type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Basic_NumI_Type
-      integer                                      :: N
-      character(len=40), dimension(:), allocatable :: NameVar
-      integer,           dimension(:), allocatable :: IValues
+      integer                                      :: N               ! Number of elements in this Type
+      character(len=40), dimension(:), allocatable :: NameVar         ! Name of the diferents fields
+      integer,           dimension(:), allocatable :: IValues         ! Integer values
    End Type Basic_NumI_Type
 
    !!----
    !!---- TYPE :: BASIC_NUMR_TYPE
-   !!--..
-   !!---- Type, public :: Basic_NumR_Type
-   !!----    integer                                      :: N        ! Number of elements in this Type
-   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
-   !!----    real(kind=cp),     dimension(:), allocatable :: RValues  ! Real Values
-   !!---- End Type Basic_NumR_Type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Basic_NumR_Type
-      integer                                      :: N
-      character(len=40), dimension(:), allocatable :: NameVar
-      real(kind=cp),     dimension(:), allocatable :: RValues
+      integer                                      :: N               ! Number of elements in this Type
+      character(len=40), dimension(:), allocatable :: NameVar         ! Name of the diferents fields
+      real(kind=cp),     dimension(:), allocatable :: RValues         ! Real Values
    End Type Basic_NumR_Type
 
    !!----
    !!---- TYPE :: CALIBRATION_DETECTOR_TYPE
-   !!--..
-   !!---- Type, public :: Calibration_Detector_Type
-   !!----   character(len=12)                            :: Name_Instrm       ! Instrument Name
-   !!----   integer                                      :: NDet              ! Number of Detectors
-   !!----   integer                                      :: NPointsDet        ! Number of Points by Detector
-   !!----   real(kind=cp), dimension(:), allocatable     :: PosX              ! Relative Positions of each Detector
-   !!----   real(kind=cp), dimension(:,:), allocatable   :: Effic             ! Efficiency of each point detector (NpointsDetect,NDect)
-   !!----   logical,       dimension(:,:), allocatable   :: Active            ! Flag for active detector or not
-   !!---- End Type Calibration_Detector_Type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Calibration_Detector_Type
       character(len=12)                            :: Name_Instrm      ! Instrument Name
@@ -329,43 +199,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: DIFFRACTOMETER_TYPE
-   !!--..
-   !!---- Type, public :: diffractometer_type
-   !!----    character(len=80)                         :: info                 !information about the instrument
-   !!----    character(len=12)                         :: name_inst            !Short name of the instrument
-   !!----    character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
-   !!----    character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
-   !!----    character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
-   !!----    character(len=4)                          :: angl_units           !angle units: "rad","deg"
-   !!----    character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
-   !!----    real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
-   !!----    real(kind=cp)                             :: wave_min,wave_max    !Minimum and maximum wavelengths (Laue diffractometers)
-   !!----    real(kind=cp)                             :: vert                 !Vertical dimension
-   !!----    real(kind=cp)                             :: horiz                !Horizontal dimension
-   !!----    real(kind=cp)                             :: agap                 !gap between anodes
-   !!----    real(kind=cp)                             :: cgap                 !gap between cathodes
-   !!----    integer                                   :: np_vert              !number of pixels in vertical direction
-   !!----    integer                                   :: np_horiz             !number of pixels in horizontal direction
-   !!----    integer                                   :: igeom                !1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
-   !!----    integer                                   :: ipsd                 !1: Flat,2: Vertically Curved detector (used in D19amd)
-   !!----    real(kind=cp),dimension(3)                :: e1                   !Components of e1 in {i,j,k}
-   !!----    real(kind=cp),dimension(3)                :: e2                   !Components of e2 in {i,j,k}
-   !!----    real(kind=cp),dimension(3)                :: e3                   !Components of e3 in {i,j,k}
-   !!----    integer                                   :: num_ang              !Number of angular motors
-   !!----    character(len=12),dimension(15)           :: ang_names            !Name of angular motors
-   !!----    real(kind=cp),dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
-   !!----    real(kind=cp),dimension(15)               :: ang_offsets          !Angular offsets
-   !!----    integer                                   :: num_disp             !Number of displacement motors
-   !!----    character(len=12),dimension(10)           :: disp_names           !Name of displacement motors
-   !!----    real(kind=cp),dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
-   !!----    real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
-   !!----    real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
-   !!----    real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
-   !!---- End Type diffractometer_type
    !!----
    !!----    Definition for Diffractometer type
    !!----
-   !!---- Update: April - 2008
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Diffractometer_type
       character(len=80)                         :: info                 !information about the instrument
@@ -402,28 +239,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: GENERIC_NUMOR_TYPE
-   !!--..
-   !!---- Type, public :: Generic_Numor_type
-   !!----    integer                                    :: Numor       ! Numor
-   !!----    character(len=4)                           :: Instr       ! Instrument on ILL
-   !!----    character(len=10)                          :: ExpName     ! Experimental Name
-   !!----    character(len=20)                          :: Date        ! Date
-   !!----    character(len=80)                          :: Title       ! Title
-   !!----    type(basic_numc_type)                      :: SampleID    ! Sample Identification
-   !!----    type(basic_numr_type)                      :: DiffOpt     ! Diffractometer Optics and Reactor Parameters
-   !!----    type(basic_numr_type)                      :: MonMPar     ! Monochromator Motor Parameters
-   !!----    type(basic_numr_type)                      :: DiffMPar    ! Diffractometer Motor Parameters
-   !!----    type(basic_numr_type)                      :: DetPar      ! Detector Parameters
-   !!----    type(basic_numi_type)                      :: DACFlags    ! Data Acquisition Control
-   !!----    type(basic_numr_type)                      :: DACParam    ! Data Acquisition Parameters
-   !!----    type(basic_numr_type)                      :: SampleSt    ! Sample status
-   !!----    type(basic_numi_type)                      :: ICounts     ! Counts as Integers
-   !!----    type(basic_numr_type)                      :: RCounts     ! Counts as Reals
-   !!---- End Type Generic_Numor_Type
    !!----
    !!----    Definition for Generic Numor type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: Generic_Numor_type
       integer                                    :: Numor       ! Numor
@@ -445,51 +264,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: ILL_DATA_RECORD_TYPE
-   !!--..
-   !!---- Type, public :: ILL_data_record_type
-   !!----    integer                     :: numor      ! data set numor.
-   !!----    integer                     :: nset_prime ! set number (groups of 100000 numor).
-   !!----    integer                     :: ntran      ! (key2) 0 or numcomp => data transferred?
-   !!----    character(len=4)            :: inst_ch    ! instrument name (4 characters)
-   !!----    character(len=22)           :: date_ch    ! measurement date (22 characters). !it was 18
-   !!----    character(len=2)            :: fill_ch    ! 2 characters (key3) leader
-   !!----    character(len=6)            :: user_ch    ! user name (6 characters)
-   !!----    character(len=6)            :: lc_ch      ! local contact name (6 characters)
-   !!----    character(len=72)           :: text_ch    ! commentary (72characters)
-   !!----    character(len=8)            :: scan_motor ! principal scan motor name. (8 characters)
-   !!----    integer                     :: nvers      !ival(1),  data version number
-   !!----    integer                     :: ntype      !ival(2),  data type - single/multi/powder
-   !!----    integer                     :: kctrl      !ival(3),  data function type
-   !!----    integer                     :: manip      !ival(4),  principle scan angle
-   !!----    integer                     :: nbang      !ival(5),  number of data saved
-   !!----    integer                     :: nkmes      !ival(6),  pre-calculated number of points
-   !!----    integer                     :: npdone     !ival(7),  actual number of points
-   !!----    integer                     :: jcode      !ival(8),  count on monitor/time
-   !!----    integer                     :: icalc      !ival(9),  angle calculation type
-   !!----    integer                     :: ianal      !ival(10), analyser present (d10)
-   !!----    integer                     :: imode      !ival(11), 2th motor sense (d10)
-   !!----    integer                     :: itgv       !ival(12), d19/d9 fast measurement
-   !!----    integer                     :: iregul     !ival(13), temperature monitor function
-   !!----    integer                     :: ivolt      !ival(14), voltmeter function
-   !!----    integer                     :: naxe       !ival(15), d10 (number of axes)
-   !!----    integer                     :: npstart    !ival(16), point starting no frag. numor (d19/16)
-   !!----    integer                     :: ilasti     !ival(17), elastic measurement (d10)
-   !!----    integer                     :: isa        !ival(18), analyser motor sense (d10)
-   !!----    integer                     :: flgkif     !ival(19), constant ki or kf (d10)
-   !!----    integer                     :: ih_sqs     !ival(20), d10 sqs variation on h
-   !!----    integer                     :: ik_sqs     !ival(21), d10 sqs variation on k
-   !!----    integer                     :: nbsqs      !ival(22), d10 sqs slice number
-   !!----    integer                     :: nb_cells   !ival(24), multi/powder data - number of detectors
-   !!----    integer                     :: nfree1     !          data control (free).
-   !!----    integer,dimension(11)       :: icdesc     !
-   !!----    real(kind=cp), dimension(35):: valco      !rval( 1:35)
-   !!----    real(kind=cp), dimension(10):: valdef     !rval(36:45)
-   !!----    real(kind=cp), dimension(5) :: valenv     !rval(46:50)
-   !!---- End Type ILL_data_record_type
    !!----
    !!----    Definition for Data Record type
    !!----
-   !!---- Update: April - 2008
+   !!---- Update: 14/07/2015
    !!
    Type, public :: ILL_data_record_type
       integer                     :: numor      ! data set numor.
@@ -534,34 +312,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: POWDER_NUMOR_TYPE
-   !!--..
-   !!---- Type, public :: POWDER_Numor_type
-   !!----    integer                                    :: numor       ! Numor
-   !!----    integer                                    :: manip       ! principle scan angle
-   !!----    integer                                    :: icalc       ! angle calculation type
-   !!----    character(len=32)                          :: header      ! User, local contact, date
-   !!----    character(len=12)                          :: Instrm      ! Instrument name
-   !!----    character(len=32)                          :: title       !
-   !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
-   !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
-   !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
-   !!----    real(kind=cp)                              :: monitor     ! Average monitor Sum(Monitors)/nframes
-   !!----    real(kind=cp)                              :: time        ! Total time: sum times of each frame
-   !!----    real(kind=cp)                              :: wave        ! wavelength
-   !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
-   !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
-   !!----    integer                                    :: nframes     ! Total number of frames
-   !!----    integer                                    :: nbang       ! Total number of angles moved during scan
-   !!----    integer, dimension(11)                     :: icdesc      ! Integer values
-   !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
-   !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
-   !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
-   !!----                                                              ! To be allocated as counts(nbdata,nframes)
-   !!---- End Type POWDER_Numor_type
    !!----
    !!----    Definition for POWDER Numor type
    !!----
-   !!---- Update: April - 2009
+   !!---- Update: 14/07/2015
    !!
    Type, public :: POWDER_Numor_type
       integer                                    :: numor       ! Numor
@@ -589,40 +343,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: SXTAL_NUMOR_TYPE
-   !!--..
-   !!---- Type, public :: SXTAL_Numor_type
-   !!----    character(len=512)                         :: filename    ! The numor filename
-   !!----    integer                                    :: numor       ! Numor
-   !!----    integer                                    :: manip       ! principle scan angle
-   !!----    integer                                    :: icalc       ! angle calculation type
-   !!----    character(len=32)                          :: header      ! User, local contact, date
-   !!----    character(len=12)                          :: Instrm      ! Instrument name
-   !!----    character(len=32)                          :: title       !
-   !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
-   !!----    real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
-   !!----    real(kind=cp), dimension(3)                :: hmax        !
-   !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
-   !!----    real(kind=cp), dimension(3,3)              :: UB          ! UB-matrix
-   !!----    real(kind=cp), dimension(3)                :: dh          ! delta_h, delta_k, delta_l
-   !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
-   !!----    real(kind=cp)                              :: preset      !
-   !!----    real(kind=cp)                              :: wave        ! wavelength
-   !!----    real(kind=cp)                              :: dist        ! wavelength
-   !!----    real(kind=cp)                              :: cpl_fact    ! Coupling Factor
-   !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
-   !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
-   !!----    integer                                    :: nframes     ! Total number of frames
-   !!----    integer                                    :: nbang       ! Total number of angles moved during scan
-   !!----    integer, dimension(11)                     :: icdesc      ! Integer values
-   !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
-   !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
-   !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
-   !!----                                                              ! To be allocated as counts(nbdata,nframes)
-   !!---- End Type SXTAL_Numor_type
    !!----
    !!----    Definition for XTAL Numor type
    !!----
-   !!---- Update: April - 2008
+   !!---- Update: 14/07/2015
    !!
    Type, public :: SXTAL_Numor_type
       character(len=512)                         :: filename        ! The numor filename
@@ -659,19 +383,10 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- TYPE :: SXTAL_ORIENT_TYPE
-   !!--..
-   !!---- Type, public :: SXTAL_Orient_type
-   !!----    logical                      :: orient_set
-   !!----    real(kind=cp)                :: wave       ! Wavelength (in Laue machines any value between Lambda_min and Lambda_max)
-   !!----    real(kind=cp),dimension(3,3) :: UB         ! UB matrix in Busing-Levy setting
-   !!----    real(kind=cp),dimension(3,3) :: UBINV      ! Inverse of UB-matrix
-   !!----    real(kind=cp),dimension(3,3) :: CONV       ! Conversion matrix to the local setting
-   !!---- End Type SXTAL_Orient_type
    !!----
    !!----    Definition for XTAL Orientation Parameters
    !!----
-   !!---- Created: April - 2007
-   !!---- Updated: April - 2012
+   !!---- Updated: 14/07/2015
    !!
    Type, public :: SXTAL_Orient_type
       logical                      :: orient_set=.false.
@@ -681,321 +396,45 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp),dimension(3,3) :: CONV       !Conversion matrix to the local setting
    End type SXTAL_Orient_type
 
-   !!----
-   !!---- CURRENT_INSTRM
-   !!----    type(diffractometer_type), public :: Current_Instrm
-   !!----
-   !!----    Define a Current Instrument varuable
-   !!----
-   !!---- Update: April - 2008
-   !!
-   type(diffractometer_type), public :: Current_Instrm
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   logical :: Current_Instrm_set=.false.            ! set to .true. if the Current_Instrm has been set up by calling Read_Current_Instrm
+   logical :: got_ILL_data_directory = .false.      ! .true. if the instrument directory has been obtained from subroutine Initialize_Data_Directory
+   logical :: got_ILL_temp_directory = .false.      ! .true. if the instrument directory for temporary uncompressed data has been obtained by Initialize_Data_Directory
+   logical :: Instrm_Directory_Set=.false.          ! .true. if set the instrument directory in correct form
+   logical :: Instrm_Geometry_Directory_Set=.false. !.true. if set the instrument geometry directory in correct form
+   logical :: Instrm_Info_Only=.false.              ! .true. if when reading a numor only the header information is needed
+   logical :: Set_Calibration_Detector = .false.    ! .true. if the Calibration Detector is readed using the respective routine
 
-   !!--++
-   !!--++ CURRENT_INSTRM_SET
-   !!--++    logical, private :: Current_Instrm_set
-   !!--++
-   !!--++    set to .true. if the Current_Instrm has been set up by calling
-   !!--++    to Read_Current_Instrm
-   !!--++
-   !!--++ Update: April - 2008
-   !!
-   logical, private :: Current_Instrm_set=.false.
+   character(len=512)                               ::  uncompresscommand=" " ! String containing the command for uncompressing compressed data files
+   integer                                          :: ntext            ! Integer containing the number of lines of Text for KeyType
+   integer                                          :: nval_f           ! Integer containing the number of real values readed on keytype blocks
+   integer                                          :: nval_i           ! Integer containing the number of integer values readed on keytype blocks
+   integer,                        dimension(7)     :: n_keytypes       ! umber of keytypes into the numor according to: 1:R  2:A  3:S  4:F  5:I  6:J  7:V
+   integer,           allocatable, dimension(:,:,:) :: nl_keytypes      ! initial and final lines for each keytype group
+   integer,           allocatable, dimension(:)     :: ipoint           ! Integer vector used to reorder arrays
+   integer,           allocatable, dimension(:)     :: ivalues          ! Integer vector to read integer values on keytype blocks
+   real(kind=cp),     allocatable, dimension(:)     :: rvalues          ! Vector to read real values on keytype blocks
+   character(len=80), allocatable, dimension(:)     :: text_ill         ! String containing the info from Numors blocks
 
-   !!----
-   !!---- CURRENT_ORIENT
-   !!----    type(SXTAL_Orient_type), public, save :: Current_Orient
-   !!----
-   !!----    Define the Current Orientation variable
-   !!----    from the instrument
-   !!----
-   !!---- Eliminated save argument (JGP)
-   !!----
-   !!---- Update: 09/07/2015
-   !!
-   type(SXTAL_Orient_type), public :: Current_Orient
+   logical,                   public :: ERR_ILLData=.false.             ! variable to taking the value .true. if an error in the module ocurrs
+   character(len=256),        public :: ERR_ILLData_Mess=" "            ! String containing information about the last error
+   character(len=512),        public :: ILL_Data_Directory=" "          ! data directory for ILL: "c:\diffraction_Windows\illdata\"
+   character(len=512),        public :: ILL_Temp_directory=" "          ! data directory for ILL: "c:\diffraction_Windows\illdata\"
+   character(len=512),        public :: Instrm_Directory = " "          ! data directory for specific instrument
+   character(len=512),        public :: Instrm_Geometry_Directory = " " ! directory containing .geom files for specific instrument
+   character(len=12),         public :: Machine_name= " "               ! String containing information about the Instrument name
+   integer,                   public :: Cycle_number                    ! Value to give the cycle number of Reactor at ILL
+   integer,                   public :: Year_illdata                    !Integer containing the two last figures of the "year" needed to find datafiles
 
-   !!----
-   !!---- CYCLE_NUMBER
-   !!----    integer, public :: cycle_number
-   !!----
-   !!----    Value to give the cycle number of Reactor at ILL
-   !!----
-   !!---- Update: April - 2008
-   !!
-   integer, public  ::  cycle_number
+   type(diffractometer_type), public :: Current_Instrm                  ! Current Instrument variable
+   type(SXTAL_Orient_type),   public :: Current_Orient                  ! Define the Current Orientation variable from the instrument
 
-   !!----
-   !!---- ERR_ILLDATA
-   !!----    logical, public:: ERR_ILLData
-   !!----
-   !!----    logical variable to taking the value .true. if an error in the module
-   !!----    ILL_INSTRM_DATA occurs.
-   !!----
-   !!---- Update: April - 2008
-   !!
-   logical, public :: ERR_ILLData=.false.
 
-   !!----
-   !!---- ERR_ILLDATA_MESS
-   !!----    character(len=256), public:: ERR_ILLData_Mess
-   !!----
-   !!----    String containing information about the last error
-   !!----
-   !!---- Update: April - 2008
-   !!
-   character(len=256), public :: ERR_ILLData_Mess=" "
-
-   !!--++
-   !!--++ GOT_ILL_DATA_DIRECTORY
-   !!--++    logical, private:: got_ILL_data_directory
-   !!--++
-   !!--++    Logical variable taking the value .true. if the instrument directory
-   !!--++    has been obtained from subroutine Initialize_Data_Directory
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   logical, private :: got_ILL_data_directory = .false.
-
-   !!--++
-   !!--++ GOT_ILL_TEMP_DIRECTORY
-   !!--++    logical, private:: got_ILL_temp_directory
-   !!--++
-   !!--++    Logical variable taking the value .true. if the instrument directory
-   !!--++    for temporary uncompressed data has been obtained from subroutine
-   !!--++    Initialize_Data_Directory
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   logical, private :: got_ILL_temp_directory = .false.
-
-   !!----
-   !!---- ILL_DATA_DIRECTORY
-   !!----    character(len=512), public :: ILL_data_directory
-   !!----
-   !!----    String containing information about the data directory for ILL
-   !!----    Initialised (automatic save attribute) for Windows case but set
-   !!----    in subroutine: Initialize_Data_Directory
-   !!----
-   !!---- ILL_Data_Directory = "c:\diffraction_Windows\illdata\"
-   !!----
-   !!---- Update: March - 2009
-   !!
-   character(len=512), public  ::  ILL_Data_Directory = " "
-
-   !!----
-   !!---- ILL_TEMP_DIRECTORY
-   !!----    character(len=512), private :: ILL_temp_directory
-   !!----
-   !!----
-   !!----    String containing information about the data directory for ILL
-   !!----    Initialised (automatic save attribute) for Windows case but set
-   !!----    In subroutine: Initialize_Data_Directory
-   !!----
-   !!---- ILL_Temp_directory = "c:\diffraction_Windows\illdata\"
-   !!----
-   !!---- Update: 10/03/2011
-   !!
-   character(len=512), public ::  ILL_Temp_directory = " "
-
-   !!--++
-   !!--++ IPOINT
-   !!--++    integer, dimension(:), allocatable, private :: ipoint
-   !!--++
-   !!--++    (Private)
-   !!--++    Integer vector used to reorder arrays
-   !!--++
-   !!--++ Update: September - 2014
-   !!
-   integer, dimension(:), allocatable, private :: ipoint
-
-   !!--++
-   !!--++ IVALUES
-   !!--++    integer, dimension(:), allocatable, private :: ivalues
-   !!--++
-   !!--++    (Private)
-   !!--++    Integer vector to read integer values on keytype blocks
-   !!--++
-   !!--++ Update: April - 2008
-   !!
-   integer, dimension(:), allocatable, private :: ivalues
-
-   !!----
-   !!---- INSTRM_DIRECTORY
-   !!----    character(len=512), public :: Instrm_directory
-   !!----
-   !!----    String containing information about the data directory for specific
-   !!----    instrument
-   !!----
-   !!---- Update: April - 2008
-   !!
-   character(len=512), public  :: Instrm_Directory = " "
-
-   !!--++
-   !!--++ INSTRM_DIRECTORY_SET
-   !!--++    logical, private:: Instrm_directory_set
-   !!--++
-   !!--++    logical variable taking the value .true. if set the instrument directory
-   !!--++    in correct form
-   !!--++
-   !!--++ Update: April - 2008
-   !!
-   logical, private :: Instrm_Directory_Set=.false.
-
-   !!----
-   !!---- INSTRM_GEOMETRY_DIRECTORY
-   !!----    character(len=512), public :: Instrm_Geometry_directory
-   !!----
-   !!----    String containing information about the directory containing .geom files
-   !!----    for specific instrument
-   !!----
-   !!---- Update: July - 2010
-   !!
-   character(len=512), public  :: Instrm_Geometry_Directory = " "
-
-   !!--++
-   !!--++ INSTRM_GEOMETRY_DIRECTORY_SET
-   !!--++    logical, private:: Instrm_Geometry_Directory_Set
-   !!--++
-   !!--++    logical variable taking the value .true. if set the instrument geometry directory
-   !!--++    in correct form
-   !!--++
-   !!--++ Update: April - 2010
-   !!
-   logical, private :: Instrm_Geometry_Directory_Set=.false.
-
-   !!--++
-   !!--++ INSTRM_INFO_ONLY
-   !!--++    logical, private:: Instrm_Info_Only
-   !!--++
-   !!--++    logical variable taking the value .true. if when reading a numor
-   !!--++    only the header information is needed
-   !!--++
-   !!--++ Update: April - 2011
-   !!
-   logical, private :: Instrm_Info_Only=.false.
-
-   !!----
-   !!---- MACHINE_NAME
-   !!----    character(len=12), public :: machine_name
-   !!----
-   !!----    String containing information about the Instrument name
-   !!----
-   !!---- Updates: April - 2008, October 2012
-   !!
-   character(len=12),   public  ::  machine_name
-
-   !!--++
-   !!--++ N_KEYTYPES
-   !!--++    Integer, dimension(7), private :: N_KEYTYPES
-   !!--++
-   !!--++    Integer containing the number of keytypes into the numor
-   !!--++    according to:
-   !!--++       Index   1    2    3    4    5    6    7
-   !!--++     KeyType   R    A    S    F    I    J    V
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   integer, dimension(7), private :: n_keytypes
-
-   !!--++
-   !!--++ NL_KEYTYPES
-   !!--++    Integer, dimension(:,:,:), allocatable, private :: NL_KEYTYPES
-   !!--++
-   !!--++    Integer array where it is written the initial and final lines for each
-   !!--++    keytype group.
-   !!--++    Index 1: [1-7]
-   !!--++    Index 2: Number of Blocks of this keytype
-   !!--++    Index 3: [1,2], The first the beginning and the second the end
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   integer, dimension(:,:,:), allocatable, private :: nl_keytypes
-
-   !!--++
-   !!--++ NTEXT
-   !!--++    Integer, private :: NTEXT
-   !!--++
-   !!--++    Integer containing the number of lines of Text for KeyType
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   integer, private :: ntext
-
-   !!--++
-   !!--++ NVAL_F
-   !!--++    Integer, private :: NVAL_F
-   !!--++
-   !!--++    Integer containing the number of real values readed on keytype blocks
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   integer, private :: nval_f
-
-   !!--++
-   !!--++ NVAL_I
-   !!--++    Integer, private :: NVAL_I
-   !!--++
-   !!--++    Integer containing the number of integer values readed on keytype blocks
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   integer, private :: nval_i
-
-   !!--++
-   !!--++ RVALUES
-   !!--++    real(kind=cp), dimension(:), allocatable, private :: rvalues
-   !!--++
-   !!--++    (Private)
-   !!--++    Vector to read real values on keytype blocks
-   !!--++
-   !!--++ Update: April - 2008
-   !!
-   real(kind=cp), dimension(:), allocatable, private :: rvalues
-
-   !!--++
-   !!--++ TEXT_ILL
-   !!--++    character(len=80), dimension(:), allocatable, private :: text_ill
-   !!--++
-   !!--++    String containing the info from Numors blocks
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   character(len=80), dimension(:), allocatable, private :: text_ill
-
-   !!--++
-   !!--++ UNCOMPRESSCOMMAND
-   !!--++    character(len=512), private :: uncompresscommand
-   !!--++
-   !!--++    String containing the command for uncompressing compressed data files
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   character(len=512), private  ::  uncompresscommand=' '
-
-   !!----
-   !!---- YEAR_ILLDATA
-   !!----    Integer, public :: YEAR_ILLDATA
-   !!----
-   !!----    Integer containing the two last figures of the "year" needed to
-   !!----    find datafiles
-   !!----
-   !!---- Update: March - 2009
-   !!
-   integer, public  ::  year_illdata
-
-   !!--++
-   !!--++ SET_CALIBRATION_DETECTOR
-   !!--++    logical, private:: Set_Calibration_Detector
-   !!--++
-   !!--++    Logical variable taking the value .true. if the Calibration Detector
-   !!--++    is readed using the respective routine.
-   !!--++
-   !!--++ Update: 17/03/2011
-   !!
-   logical, private :: Set_Calibration_Detector = .false.
-
+   !---------------------------------!
    !---- Interfaces - Overloaded ----!
+   !---------------------------------!
    Interface  Allocate_Numors
       Module Procedure Allocate_Powder_Numors
       Module Procedure Allocate_SXTAL_Numors
@@ -1024,17 +463,11 @@ Module CFML_ILL_Instrm_Data
  Contains
 
     !!--++
-    !!--++ Subroutine Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat,VNorm,Cal)
-    !!--++    type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
-    !!--++    integer,                                   intent(in)  :: N          ! Number of Numors
-    !!--++    logical, dimension(:),                     intent(in)  :: ActList    ! Active List to considering if Add
-    !!--++    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-    !!--++    real(kind=cp),                   optional, intent(in)  :: VNorm      ! Normalization value
-    !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+    !!--++ SUBROUTINE ADDING_NUMORS_D1A_DIFFPATTERN
     !!--++
-    !!--++ Adding Numors from D1A Instrument and Passing to DiffPattern
+    !!--++    Adding Numors from D1A Instrument and Passing to DiffPattern
     !!--++
-    !!--++ Date: 25/03/2011
+    !!--++ Date: 14/07/2015
     !!
     Subroutine Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat,VNorm,Cal)
         !---- Arguments ----!
@@ -1250,16 +683,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Adding_Numors_D1A_DiffPattern
 
     !!----
-    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,Cal)
-    !!----    type(Powder_Numor_Type),dimension(:),      intent(in) :: PNumors    ! Powder Numors Vector
-    !!----    integer,                                   intent(in) :: N          ! Number of Numors
-    !!----    logical,                dimension(:),      intent(in) :: ActList    ! Active List to considering if Add
-    !!----    type (Powder_Numor_Type),                  intent(out):: Numor      ! Final Numor
-    !!----    type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
+    !!---- SUBROUTINE ADDING_NUMORS_D1B_D20
     !!----
-    !!---- Adding Numors from D1B and D20 Instrument
+    !!----    Adding Numors from D1B and D20 Instrument
     !!----
-    !!---- 30/04/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,Cal)
         !---- Arguments ----!
@@ -1365,18 +793,11 @@ Module CFML_ILL_Instrm_Data
 
 
     !!--++
-    !!--++ Subroutine Adding_Numors_D4_DiffPattern(PNumors,N,ActList,Pat,VNorm,Detect,Cal)
-    !!--++    type(Powder_Numor_Type),dimension(:),      intent(in) :: PNumors    ! Powder Numors Vector
-    !!--++    integer,                                   intent(in) :: N          ! Number of Numors
-    !!--++    logical, dimension(:),                     intent(in) :: ActList    ! Active List to considering if Add
-    !!--++    type (Diffraction_Pattern_Type),           intent(out):: Pat        ! Pattern Diffraction
-    !!--++    real(kind=cp),                   optional, intent(in) :: VNorm      ! Normalization value
-    !!--++    integer,                         optional, intent(in) :: Detect     ! Selected Detector
-    !!--++    type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
+    !!--++ SUBROUTINE ADDING_NUMORS_D4_DIFFPATTERN
     !!--++
-    !!--++ Adding Numors from D4 Instrument and Passing to DiffPattern
+    !!--++     Adding Numors from D4 Instrument and Passing to DiffPattern
     !!--++
-    !!--++ 21/03/2011
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Adding_Numors_D4_DiffPattern(PNumors,N,ActList,Pat,VNorm,Detect,Cal)
         !---- Arguments ----!
@@ -1584,12 +1005,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Adding_Numors_D4_DiffPattern
 
     !!----
-    !!---- Subroutine Allocate_POWDER_numors(num_max,ndata,num_ang,nframes,Numors)
-    !!----    integer,                                            intent(in)    :: num_max
-    !!----    integer,                                            intent(in)    :: ndata
-    !!----    integer,                                            intent(in)    :: num_ang
-    !!----    integer,                                            intent(in)    :: nframes
-    !!----    type(POWDER_Numor_type), allocatable, dimension(:), intent(in out):: Numors
+    !!---- SUBROUTINE ALLOCATE_POWDER_NUMORS
     !!----
     !!--<<    Subroutine allocating and initializing the array 'Num' of type
     !!----    Powder_Numor_type. The input arguments are:
@@ -1598,7 +1014,7 @@ Module CFML_ILL_Instrm_Data
     !!----        num_ang : number of angles moved simultaneously during the scan
     !!----        nframes : number of frames (number of scan points)
     !!-->>
-    !!---- Update: March - 2005
+    !!---- Update:14/07/2015
     !!
     Subroutine Allocate_POWDER_Numors(Num_Max,Ndata,Num_Ang,Nframes,Numors)
        !---- Arguments ----!
@@ -1623,12 +1039,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Allocate_POWDER_Numors
 
     !!----
-    !!---- Subroutine Allocate_SXTAL_Numors(Num_Max,Ndata,Num_Ang,Nframes,Numors)
-    !!----    integer,                                           intent(in)     :: num_max
-    !!----    integer,                                           intent(in)     :: ndata
-    !!----    integer,                                           intent(in)     :: num_ang
-    !!----    integer,                                           intent(in)     :: nframes
-    !!----    type(SXTAL_Numor_type), allocatable, dimension(:), intent(in out) :: Numors
+    !!---- SUBROUTINE ALLOCATE_SXTAL_NUMORS
     !!----
     !!--<<    Subroutine allocating and initializing the array 'Num' of type SXTAL_Numor_type
     !!----    The input arguments are:
@@ -1637,7 +1048,7 @@ Module CFML_ILL_Instrm_Data
     !!----    num_ang : number of angles moved simultaneously during the scan
     !!-->>    nframes : number of frames (number of scan points)
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Numors)
        !---- Arguments ----!
@@ -1662,21 +1073,18 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Allocate_SXTAL_Numors
 
     !!----
-    !!---- Subroutine Define_Numor_Header_Frame_Size(filename,header_size,frame_size)
-    !!----    character(len=*)    , intent(in)  :: filename    ! The input numor
-    !!----    integer             , intent(out) :: header_size ! The number of lines of the header block
-    !!----    integer             , intent(out) :: frame_size  ! The number of lines of the frame block
+    !!---- SUBROUTINE DEFINE_NUMOR_HEADER_FRAME_SIZE
     !!----
-    !!---- Routine that returns the number of lines of the header and frame blocks of a
-    !!---- given numor.
+    !!----     Routine that returns the number of lines of the header and frame blocks of a
+    !!----     given numor.
     !!----
-    !!---- Update:  June - 2012
+    !!---- Update:  14/07/2015
     !!
     Subroutine Define_Numor_Header_Frame_Size(filename,header_size,frame_size)
        !---- Argument ----!
        character(len=*), intent(in)  :: filename
-       integer         , intent(out) :: header_size
-       integer         , intent(out) :: frame_size
+       integer         , intent(out) :: header_size    ! The number of lines of the header block
+       integer         , intent(out) :: frame_size     ! The number of lines of the frame block
 
        !---- Loval variables ----!
        character(len=80) :: line
@@ -1761,12 +1169,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Define_Numor_Header_Frame_Size
 
     !!----
-    !!---- Subroutine Define_Uncompress_Program(ProgName)
-    !!----    character(len=*), intent(in) :: ProgName
+    !!---- SUBROUTINE DEFINE_UNCOMPRESS_PROGRAM
     !!----
-    !!---- Routine that define the uncompress program that you wants to use
+    !!----    Routine that define the uncompress program that you wants to use
     !!----
-    !!---- Update:  April - 2009
+    !!---- Update:  14/07/2015
     !!
     Subroutine Define_Uncompress_Program(ProgName)
        !---- Argument ----!
@@ -1778,13 +1185,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Define_Uncompress_Program
 
     !!----
-    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyear,Icycle, Actual_Path)
-    !!----    integer,           intent(in)            :: numor
-    !!----    character(len=*),  intent(in)            :: instrm
-    !!----    character(len=*),  intent(out)           :: path
-    !!----    integer, optional, intent(in)            :: iyear
-    !!----    integer, optional, intent(in)            :: icycle
-    !!----    character(len=*),  intent(out), optional :: Actual_Path
+    !!---- SUBROUTINE GET_ABSOLUTE_DATA_PATH
     !!----
     !!----    Finds the absolute path to any numor. The base directory
     !!----    is set by a call to 'initialize_data_directory'. The subroutine
@@ -1809,7 +1210,7 @@ Module CFML_ILL_Instrm_Data
     !!--..    Nb At present no attempt is made to tidy up these uncompressed
     !!--..    numors, which could potentially litter the current directory.
     !!----
-    !!---- Update: March - 2009
+    !!---- Update: 14/07/2015
     !!
     Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear, Icycle, Actual_Path)
 
@@ -1934,9 +1335,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Absolute_Data_Path
 
     !!----
-    !!---- Subroutine Get_Next_YearCycle(YearCycle,Reset_To_Most_Recent)
-    !!----    character(len=*), intent(out) :: yearcycle
-    !!----    logical, optional, intent(in) :: reset_to_most_recent
+    !!---- SUBROUTINE GET_NEXT_YEARCYCLE
     !!----
     !!----    Works back through the cycles and years, returning the previous
     !!----    yearcycle combination as a 3 character string i.e.
@@ -1949,7 +1348,7 @@ Module CFML_ILL_Instrm_Data
     !!----    before this date.
     !!----    (Original code from Mike Turner)
     !!----
-    !!---- Update: March - 2009
+    !!---- Update:14/07/2015
     !!
     Subroutine Get_Next_YearCycle(Yearcycle, reset_to_most_recent)
        !---- Argument ----!
@@ -1993,11 +1392,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Next_YearCycle
 
     !!----
-    !!---- Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
-    !!----    integer,                       intent(in)  :: nfr,iord
-    !!----    type(SXTAL_Numor_type),        intent(in)  :: snum
-    !!----    real(kind=cp), dimension(:,:), intent(out) :: dat_2D
-    !!----    logical, optional,             intent(in)  :: appl_alphas
+    !!---- SUBROUTINE GET_SINGLE_FRAME_2D
     !!----
     !!--<<    Extracts into the real two-dimensional array dat_2D the counts
     !!----    of the frame number 'nfr' of the numor object 'snum', applying
@@ -2008,7 +1403,7 @@ Module CFML_ILL_Instrm_Data
     !!----    IORD = 1 for D19 Banana, IORD = 2 for D9/D10, IORD = 3 for D19 Flat
     !!-->>    IORD = 4 for ID20 trial.
     !!----
-    !!---- Update: March - 2005
+    !!---- Update:14/07/2015
     !!
     Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
        !---- Arguments ----!
@@ -2088,11 +1483,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Single_Frame_2D
 
     !!----
-    !!---- Subroutine Init_Err_ILL()
+    !!---- SUBROUTINE INIT_ERR_ILL
     !!----
     !!----    Initialize the errors flags in ILLData
     !!----
-    !!---- Update: 25/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_Err_ILLData()
 
@@ -2103,12 +1498,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Init_Err_ILLData
 
     !!----
-    !!---- Subroutine Init_Powder_Numor(Numor,NBAng, NBData, NFrames)
+    !!---- SUBROUTINE INIT_POWDER_NUMOR
     !!----
-    !!---- Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
-    !!---- allocate the respective arrays into the type object-
+    !!----    Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
+    !!----    allocate the respective arrays into the type object-
     !!----
-    !!---- 21/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_Powder_Numor(Numor,NBAng, NBData, NFrames)
         !---- Arguments ----!
@@ -2162,12 +1557,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Init_Powder_Numor
 
     !!----
-    !!---- Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
+    !!---- SUBROUTINE INIT_SXTAL_NUMOR
     !!----
-    !!---- Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
-    !!---- allocate the respective arrays into the type object-
+    !!----    Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
+    !!----    allocate the respective arrays into the type object-
     !!----
-    !!---- 21/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
         !---- Arguments ----!
@@ -2232,7 +1627,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Init_SXTAL_Numor
 
     !!----
-    !!---- Subroutine Initialize_Data_Directory()
+    !!---- SUBROUTINE INITIALIZE_DATA_DIRECTORY
     !!----
     !!----    Call two subroutines: Initialize_Numors_Directory and Initialize_Temp_Directory .
     !!----    The first one is to set the ILL data directory and
@@ -2240,7 +1635,7 @@ Module CFML_ILL_Instrm_Data
     !!----    Both subroutines were originally coded by Mike Turner.
     !!----
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 14/07/2015
     !!
     Subroutine Initialize_Data_Directory()
 
@@ -2251,7 +1646,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Initialize_Data_Directory
 
     !!----
-    !!---- Subroutine Initialize_Numors_Directory()
+    !!---- SUBROUTINE INITIALIZE_NUMORS_DIRECTORY
     !!----
     !!....    Original code from Mike Turner (as well as the following comments)
     !!....    Depending on the operating system as reported by winteracter routine
@@ -2274,7 +1669,7 @@ Module CFML_ILL_Instrm_Data
     !!--..    ILL_Data_Directory -> /net/serdon/illdata
     !!----
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 14/07/2015
     !!
     Subroutine Initialize_Numors_Directory()
        !---- Local Variables ----!
@@ -2305,7 +1700,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Initialize_Numors_Directory
 
     !!----
-    !!---- Subroutine Initialize_Temp_Directory()
+    !!---- SUBROUTINE INITIALIZE_TEMP_DIRECTORY
     !!----
     !!....    Original code from Mike Turner (as well as the following comments)
     !!....    Depending on the operating system as reported by winteracter routine
@@ -2327,7 +1722,7 @@ Module CFML_ILL_Instrm_Data
     !!--..    Linux:   ILL_Temp_Directory -> $HOME/tmp
     !!----
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: 14/07/2015
     !!
     Subroutine Initialize_Temp_Directory()
 
@@ -2365,11 +1760,11 @@ Module CFML_ILL_Instrm_Data
 
 
     !!--++
-    !!--++ Subroutine Number_KeyTypes_on_File(filevar, nlines)
-    !!--++    character(len=*),dimension(:), intent(in) :: filevar
-    !!--++    integer,                       intent(in) :: nlines
+    !!--++ SUBROUTINE NUMBER_KEYTYPES_ON_FILE
     !!--++
     !!--++    1:R, 2:A, 3:S, 4:F, 5:I, 6:J, 7:V
+    !!--++
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Number_KeyTypes_on_File(filevar, nlines)
        !---- Arguments ----!
@@ -2405,18 +1800,13 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
-    !!--++ Subroutine NumorD1BD20_To_DiffPattern(PNumor, Pat, VNorm, Cal,angcor,perm)
-    !!--++    type(powder_numor_type),                   intent(in)  :: PNumor
-    !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
-    !!--++    real(kind=cp),  optional,                  intent(in)  :: VNorm
-    !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal
-    !!--++    logical, optional,                         intent(in)  :: angcor,perm
+    !!--++ SUBROUTINE NUMORD1BD20_TO_DIFFPATTERN
     !!--++
-    !!--++ Pass the information from D1B/D20 Numor to DiffPat object
-    !!--++ angcor: correction of wires positions applied (perm is assumed in this case)
-    !!--++ per: permutation of alphas for wires positions applied even if the angles positios are not corrected
+    !!--++    Pass the information from D1B/D20 Numor to DiffPat object
+    !!--++    angcor: correction of wires positions applied (perm is assumed in this case)
+    !!--++    per: permutation of alphas for wires positions applied even if the angles positios are not corrected
     !!--++
-    !!--++ Updated: 13/10/2013
+    !!--++ Updated: 14/07/2015
     !!
     Subroutine NumorD1BD20_To_DiffPattern(PNumor, Pat, VNorm,Cal,angcor,perm)
        !---- Arguments ----!
@@ -2506,19 +1896,11 @@ Module CFML_ILL_Instrm_Data
 
 
     !!----
-    !!---- Subroutine PowderNumors_To_DiffPattern(PNumors, N, ActList, Pat, VNorm, Cal, angcor, perm)
-    !!----    type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
-    !!----    integer,                                   intent(in)  :: N          ! Number of Numors
-    !!----    logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
-    !!----    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-    !!----    real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
-    !!----    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
-    !!----    logical, optional,                         intent(in)  :: angcor,perm
+    !!---- SUBROUTINE POWDERNUMORS_TO_DIFFPATTERN
     !!----
     !!---- Pass the information from Powder_Numor_Type to Diffraction_Pattern_type
     !!----
-    !!----
-    !!---- Date: 25/03/2011
+    !!---- Date: 14/07/2015
     !!
     Subroutine PowderNumors_To_DiffPattern(PNumors,N,ActList,Pat, VNorm, Detect,Cal,angcor,perm)
        !---- Arguments ----!
@@ -2666,14 +2048,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine PowderNumors_To_DiffPattern
 
     !!--++
-    !!--++ Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
-    !!--++    integer,                        intent(out) :: nchars    ! Number of characters to be read from the next data
-    !!--++    character(len=*),               intent(out) :: charline  ! String to be read
+    !!--++ SUBROUTINE READ_A_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
        !---- Arguments ----!
@@ -2736,8 +2113,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_A_KeyType
 
     !!----
-    !!---- Subroutine Read_Current_Instrm(filenam)
-    !!----    character(len=*),  intent(in) :: filenam
+    !!---- SUBROUTINE READ_CURRENT_INSTRM
     !!----
     !!----    Subroutine reading the file 'filenam' where the characteristics
     !!----    of the current instrument are written. The global Current_Instrm
@@ -2745,7 +2121,7 @@ Module CFML_ILL_Instrm_Data
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fills the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Current_Instrm(filenam)
        !---- Argument ----!
@@ -2987,12 +2363,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Current_Instrm
 
     !!--++
-    !!--++ Subroutine Read_F_KeyType(filevar, n_ini, n_end)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++ SUBROUTINE READ_F_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_F_KeyType(filevar, n_ini, n_end)
        !---- Arguments----!
@@ -3059,12 +2432,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_F_KeyType
 
     !!--++
-    !!--++ Subroutine Read_I_KeyType(filevar, n_ini, n_end)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++ SUBROUTINE READ_I_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_I_KeyType(filevar, n_ini, n_end)
        !---- Arguments----!
@@ -3130,12 +2500,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_I_KeyType
 
     !!--++
-    !!--++ Subroutine Read_J_KeyType(filevar, n_ini, n_end)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++ SUBROUTINE READ_J_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_J_KeyType(filevar, n_ini, n_end)
        !---- Arguments----!
@@ -3202,13 +2569,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_J_KeyType
 
     !!----
-    !!---- Subroutine Read_Numor_D1A(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(powder_numor_type), intent(out) :: n
+    !!---- SUBROUTINE READ_NUMOR_D1A
     !!----
-    !!---- Subroutine to read a Numor of D1A Instrument at ILL
+    !!----    Subroutine to read a Numor of D1A Instrument at ILL
     !!----
-    !!---- Update: 15/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D1A(fileinfo,N)
        !---- Arguments ----!
@@ -3325,13 +2690,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D1A
 
     !!----
-    !!---- Subroutine Read_Numor_D1B(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(generic_numor_type), intent(out) :: n
+    !!---- SUBROUTINE READ_NUMOR_D1B
     !!----
-    !!---- Subroutine to read a Numor of D1B Instrument at ILL
+    !!----    Subroutine to read a Numor of D1B Instrument at ILL
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D1B(fileinfo,N)
        !---- Arguments ----!
@@ -3528,15 +2891,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D1B
 
     !!----
-    !!---- Subroutine Read_Numor_D2B(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(Powder_numor_type), intent(out)  :: n
+    !!---- SUBROUTINE READ_NUMOR_D2B
     !!----
-    !!---- Subroutine to read a Numor of D2B Instrument at ILL
+    !!----    Subroutine to read a Numor of D2B Instrument at ILL
+    !!----    Counts: 128 x 128
     !!----
-    !!---- Counts: 128 x 128
-    !!----
-    !!---- Update: 15/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D2B(fileinfo,N)
        !---- Arguments ----!
@@ -3666,17 +3026,15 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D2B
 
     !!----
-    !!---- Subroutine Read_Numor_D4(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!---- SUBROUTINE READ_NUMOR_D4
     !!----
-    !!---- Subroutine to read a Numor of D4 Instrument at ILL
+    !!----    Subroutine to read a Numor of D4 Instrument at ILL
     !!----
-    !!---- 9 Detectors x 64 cells
-    !!----   Each cell every 0.125�  (Total 8� by detector)
-    !!----   Angular space between detectors is 7�
+    !!----    9 Detectors x 64 cells
+    !!----    Each cell every 0.125�  (Total 8� by detector)
+    !!----    Angular space between detectors is 7�
     !!----
-    !!---- Update: 18/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D4(fileinfo,N)
        !---- Arguments ----!
@@ -3795,15 +3153,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D4
 
     !!----
-    !!---- Subroutine Read_Numor_D9(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out)  :: n
+    !!---- SUBROUTINE READ_NUMOR_D9
     !!----
-    !!---- Subroutine to read a Numor of D9 Instrument at ILL
+    !!----   Subroutine to read a Numor of D9 Instrument at ILL
+    !!----   Counts: 32 x 32 = 1024
     !!----
-    !!---- Counts: 32 x 32 = 1024
-    !!----
-    !!---- Update: 14/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D9(fileinfo,N)
        !---- Arguments ----!
@@ -3959,15 +3314,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D9
 
     !!----
-    !!---- Subroutine Read_Numor_D10(filevar,SNumor)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!---- SUBROUTINE READ_NUMOR_D10
     !!----
-    !!---- Subroutine to read a Numor of D10 Instrument at ILL
+    !!----    Subroutine to read a Numor of D10 Instrument at ILL
+    !!----    Counts: 32 x 32 = 1024 (Bidimensional)
     !!----
-    !!---- Counts: 32 x 32 = 1024 (Bidimensional)
-    !!----
-    !!---- Update: 18/03/2011 18:32:52
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D10(fileinfo,SNumor)
        !---- Arguments ----!
@@ -4128,15 +3480,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D10
 
     !!----
-    !!---- Subroutine Read_Numor_D16(filevar,SNumor)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out)  :: n
+    !!---- SUBROUTINE READ_NUMOR_D16
     !!----
-    !!---- Subroutine to read a Numor of D16 Instrument at ILL
+    !!----    Subroutine to read a Numor of D16 Instrument at ILL
+    !!----    Counts: 320 x 320 = 102400 (Bidimensional)
     !!----
-    !!---- Counts: 320 x 320 = 102400 (Bidimensional)
-    !!----
-    !!---- Update: 04/04/2012
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D16(fileinfo,SNumor)
        !---- Arguments ----!
@@ -4277,16 +3626,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D16
 
     !!----
-    !!---- Subroutine Read_Numor_D19(filename,SNumor,frames)
-    !!----    character(len=*)               , intent(in)    :: filename ! The input numor
-    !!----    type(SXTAL_numor_type)         , intent(inout) :: n        ! The output numor structure
-    !!----    integer, optional, dimension(:), intent(in)    :: frames   ! The frames to include in the numor structure
+    !!---- SUBROUTINE READ_NUMOR_D19
     !!----
-    !!---- Subroutine to read a Numor of D19 Instrument at ILL
+    !!----    Subroutine to read a Numor of D19 Instrument at ILL
+    !!----    Counts: 640 x 256 = 163840
     !!----
-    !!---- Counts: 640 x 256 = 163840
-    !!----
-    !!---- Update: 14/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D19(filename,SNumor,frames)
        !---- Arguments ----!
@@ -4559,13 +3904,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D19
 
     !!----
-    !!---- Subroutine Read_Generic_Numor(filevar,Numor)
-    !!----    character(len=*), intent(in) :: fileinfo
-    !!----    type(generic_numor_type), intent(out) :: n
+    !!---- SUBROUTINE READ_GENERIC_NUMOR
     !!----
-    !!---- Read a Numor (Not yet operative)
+    !!----    Read a Numor (Not yet operative)
     !!----
-    !!---- Update: 11/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Generic_Numor(fileinfo,GNumor)
        !---- Arguments ----!
@@ -4824,13 +4167,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Generic_Numor
 
     !!----
-    !!---- Subroutine Read_Numor_D20(filevar,N)
-    !!----    character(len=*), intent(in) :: fileinfo
-    !!----    type(generic_numor_type), intent(out) :: n
+    !!---- SUBROUTINE READ_NUMOR_D20
     !!----
-    !!---- Read a Numor for D20 Instrument at ILL
+    !!----    Read a Numor for D20 Instrument at ILL
     !!----
-    !!---- Update: 11/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Numor_D20(fileinfo,PNumor)
        !---- Arguments ----!
@@ -4961,11 +4302,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D20
 
     !!----
-    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,PNumor,inf)
-    !!----    character(len=*),            intent(in)    :: PathNumor
-    !!----    character(len=*),            intent(in)    :: Instrument
-    !!----    type(Powder_Numor_type),     intent(out)   :: PNumor
-    !!-----   logical, optional,           intent(in)    :: inf
+    !!---- SUBROUTINE READ_POWDER_NUMOR
     !!----
     !!----    Read a Powder numor from the ILL database.
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
@@ -4973,7 +4310,7 @@ Module CFML_ILL_Instrm_Data
     !!----    If inf is present and .true. only the heaede information
     !!----    is read, the data are not loaded in num.
     !!----
-    !!---- Update: 29/04/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Powder_Numor(PathNumor,Instrument,PNumor,inf)
        !---- Arguments ----!
@@ -5053,17 +4390,13 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Powder_Numor
 
     !!----
-    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,SNumor,inf)
-    !!----    character(len=*),            intent(in)    :: PathNumor
-    !!----    character(len=*),            intent(in)    :: Instrument
-    !!----    type(SXTAL_Numor_type),      intent(out)   :: SNumor
-    !!----    logical, optional,           intent(in)    :: inf
+    !!---- SUBROUTINE READ_SXTAL_NUMOR
     !!----
     !!----    Read a SXTAL numor from the ILL database.
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: 29/04/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_SXTAL_Numor(filename,instrument,Snumor,inf,frames)
        !---- Arguments ----!
@@ -5128,27 +4461,22 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_SXTAL_Numor
 
     !!--++
-    !!--++ Subroutine Read_R_KeyType(filevar, n_ini, n_end, nrun, nvers)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
-    !!--++    integer,                        intent(out) :: nrun      ! Run number of the data
-    !!--++    integer,                        intent(out) :: nvers     ! Version data
+    !!--++ SUBROUTINE READ_R_KEYTYPE
     !!--++
-    !!--++ (Private)
-    !!--++ Read the Blocktype R on Numor at ILL.
-    !!--++ If text is readen, then it is saved on Text_ILL variable and the number of lines is
-    !!--++ saved on ntext
+    !!--++ (PRIVATE)
+    !!--++   Read the Blocktype R on Numor at ILL.
+    !!--++   If text is readen, then it is saved on Text_ILL variable and the number of lines is
+    !!--++   saved on ntext
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_R_KeyType(filevar, n_ini, n_end, nrun, nvers)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in)  :: filevar
        integer,                        intent(in)  :: n_ini
        integer,                        intent(in)  :: n_end
-       integer,                        intent(out) :: nrun
-       integer,                        intent(out) :: nvers
+       integer,                        intent(out) :: nrun   ! Run number of the data
+       integer,                        intent(out) :: nvers  ! Version data
 
        !---- Local Variables ----!
        character(len=80)      :: line
@@ -5195,28 +4523,20 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_R_KeyType
 
     !!--++
-    !!--++ Subroutine Read_S_KeyType(filevar, n_ini, n_end, ispec, nrest, ntot, nrun, npars)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
-    !!--++    integer,                        intent(out) :: ispec     ! Sub-spectrum number
-    !!--++    integer,                        intent(out) :: nrest     ! Number of subspectra remaining after ispec
-    !!--++    integer,                        intent(out) :: ntot      ! Total number of subspectra in the run
-    !!--++    integer,                        intent(out) :: nrun      ! Current run number
-    !!--++    integer,                        intent(out) :: npars     ! Number of parameters sections
+    !!--++ SUBROUTINE READ_S_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_S_KeyType(filevar, n_ini, n_end, ispec, nrest, ntot, nrun, npars)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in)  :: filevar
        integer,                        intent(in)  :: n_ini
        integer,                        intent(in)  :: n_end
-       integer,                        intent(out) :: ispec
-       integer,                        intent(out) :: nrest
-       integer,                        intent(out) :: ntot
-       integer,                        intent(out) :: nrun
-       integer,                        intent(out) :: npars
+       integer,                        intent(out) :: ispec   ! Sub-spectrum number
+       integer,                        intent(out) :: nrest   ! Number of subspectra remaining after ispec
+       integer,                        intent(out) :: ntot    ! Total number of subspectra in the run
+       integer,                        intent(out) :: nrun    ! Current run number
+       integer,                        intent(out) :: npars   ! Number of parameters sections
 
        !---- Local Variables ----!
        character(len=80)      :: line
@@ -5269,12 +4589,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_S_KeyType
 
     !!--++
-    !!--++ Subroutine Read_V_KeyType(filevar, n_ini, n_end)
-    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
-    !!--++    integer,                        intent(in)  :: n_ini     ! First line
-    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++ SUBROUTINE READ_V_KEYTYPE
     !!--++
-    !!--++ Update: April - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_V_KeyType(filevar, n_ini, n_end)
        !---- Arguments ----!
@@ -5315,17 +4632,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_V_KeyType
 
     !!----
-    !!---- Subroutine Set_Current_Orient(wave,ub,setting)
-    !!----   real(kind=cp),                         intent(in)   :: wave
-    !!----   real(kind=cp), dimension(3,3),         intent(in)   :: ub
-    !!----   real(kind=cp), dimension(3,3),optional,intent(in)   :: setting
+    !!---- SUBROUTINE SET_CURRENT_ORIENT
     !!----
     !!----    Subroutine setting the Current_Orient global variable
     !!----    If the final UB matrix is singular an error is rised
     !!----    by putting ERR_ILLData=.true. and filling the
     !!----    error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Current_Orient(wave,ub,setting)
        !---- Argument ----!
@@ -5362,9 +4676,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Current_Orient
 
     !!----
-    !!---- Subroutine Set_Default_Instrument(typ,wav)
-    !!----    Character(len=*),            optional, intent(in) :: typ  !"Laue" for a Laue diffractometer
-    !!----    real(kind=cp), dimension(2), optional, intent(in) :: wav  ! Lambda min and Lambda max
+    !!---- SUBROUTINE SET_DEFAULT_INSTRUMENT
     !!----
     !!----    Construct the Current_Instrument as a default 4C diffractometer
     !!----    (or a Laue diffractometer if Typ and wav are provided)
@@ -5372,11 +4684,13 @@ Module CFML_ILL_Instrm_Data
     !!----    done on D9. The characteristics of the diffractometer correspond to
     !!----    those of D9
     !!----
-    !!---- Update: May - 2007
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Default_Instrument(typ,wav)
-       Character(len=*),            optional, intent(in) :: typ
-       real(kind=cp), dimension(2), optional, intent(in) :: wav
+       !---- Arguments ----!
+       Character(len=*),            optional, intent(in) :: typ  !"Laue" for a Laue diffractometer
+       real(kind=cp), dimension(2), optional, intent(in) :: wav  ! Lambda min and Lambda max
+
        !---- Local Variables ----!
        real(kind=cp)                 :: wave
        integer                       :: npx, npz
@@ -5459,15 +4773,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Default_Instrument
 
     !!----
-    !!---- Subroutine Set_ILL_Data_Directory(Filedir)
-    !!----    character(len=*), intent(in) :: Filedir  !proposed location of ILL data
+    !!---- SUBROUTINE SET_ILL_DATA_DIRECTORY
     !!----
     !!----    Assign the global public variable: ILL_data_directory
     !!----    If the directory doesn't exist the subroutine rises an error condition
     !!----    by putting ERR_ILLData=.true. and filling the error message
     !!----    variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: 08/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_ILL_Data_Directory(Filedir)
        !---- Arguments ----!
@@ -5507,11 +4820,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_ILL_Data_Directory
 
     !!----
-    !!---- Subroutine Set_Instrm_directory(working_dir,instrm, iyear, icycle)
-    !!----    character(len=*),  intent(in), optional :: instrm         ! name of the diffractometer
-    !!----    character(len=*),  intent(in), optional :: working_dir    ! Data directory to search
-    !!----    character(len=*),  intent(in), optional :: iyear          ! Year for search Numor
-    !!----    character(len=*),  intent(in), optional :: icycle         ! Cycle for Search Numor
+    !!---- SUBROUTINE SET_INSTRM_DIRECTORY
     !!----
     !!----    Assign the global public variable: Instrm_directory
     !!----    It is assumed that the subroutine Set_ILL_data_directory has already been called.
@@ -5523,14 +4832,14 @@ Module CFML_ILL_Instrm_Data
     !!----    by putting ERR_ILLData=.true. and filling the error message
     !!----    variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: 08/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Instrm_Directory(working_dir, instrm, iyear, icycle)
        !---- Argument ----!
-       character(len=*),  intent(in), optional :: working_dir
-       character(len=*),  intent(in), optional :: instrm  !Name of the instrument
-       integer         ,  intent(in), optional :: iyear
-       integer         ,  intent(in), optional :: icycle
+       character(len=*),  intent(in), optional :: working_dir  ! Data directory to search
+       character(len=*),  intent(in), optional :: instrm       ! Name of the instrument
+       integer         ,  intent(in), optional :: iyear        ! Year for search Numor
+       integer         ,  intent(in), optional :: icycle       ! Cycle for Search Numor
 
        !---- Local Variables ----!
        integer          :: i
@@ -5592,8 +4901,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Instrm_Directory
 
     !!----
-    !!---- Subroutine Set_Instrm_Geometry_Directory(env_var)
-    !!----    character(len=*),  intent(in), optional :: env_var
+    !!---- SUBROUTINE SET_INSTRM_GEOMETRY_DIRECTORY
     !!----
     !!----    Assign the global public variable: Instrm_Geometry_Directory
     !!----    The optional intent 'in' variable env_var is the name of any
@@ -5603,7 +4911,7 @@ Module CFML_ILL_Instrm_Data
     !!----    variable ERR_ILLData_Mess. If the subroutine is invoked without argument
     !!----    the Instrm_Geometry_Directory="" corresponds to the current directory.
     !!----
-    !!---- Update: July - 2010
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Instrm_Geometry_Directory(env_var)
        !---- Argument ----!
@@ -5639,13 +4947,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Instrm_Geometry_Directory
 
     !!--++
-    !!--++ Subroutine Set_KeyTypes_on_File(filevar, nlines)
-    !!--++    character(len=*),dimension(:), intent(in) :: filevar
-    !!--++    integer,                       intent(in) :: nlines
+    !!--++ Subroutine Set_KeyTypes_on_File
     !!--++
-    !---++ Set the information on NL_KEYTYPES
+    !---++    Set the information on NL_KEYTYPES
     !!--++
-    !!--++ Update: April-2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Set_KeyTypes_on_File(filevar, nlines)
        !---- Arguments ----!
@@ -5830,10 +5136,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_KeyTypes_on_File
 
     !!----
-    !!---- Subroutine Update_Current_Instrm_UB(filenam,UB,wave)
-    !!----    character(len=*),              intent(in) :: filenam
-    !!----    real(kind=cp), dimension(3,3), intent(in) :: UB
-    !!----    real(kind=cp),                 intent(in) :: wave
+    !!---- SUBROUTINE UPDATE_CURRENT_INSTRM_UB
     !!----
     !!----    Subroutine updating the file 'filenam' where the characteristics
     !!----    of the current instrument are written. The global Current_Instrm
@@ -5844,7 +5147,7 @@ Module CFML_ILL_Instrm_Data
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: December - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Update_Current_Instrm_UB(filenam,UB,wave)
        !---- Arguments ----!
@@ -5956,9 +5259,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Update_Current_Instrm_UB
 
     !!----
-    !!---- Subroutine Write_Current_Instrm_data(lun,fil)
-    !!----    integer,         optional, intent(in) :: lun
-    !!----    character(len=*),optional, intent(in) :: fil
+    !!---- SUBROUTINE WRITE_CURRENT_INSTRM_DATA
     !!----
     !!----    Writes the characteristics of the Current Instrument
     !!----    in the file of logical unit 'lun'
@@ -5966,7 +5267,7 @@ Module CFML_ILL_Instrm_Data
     !!----    outputs the information on the standard output (screen)
     !!----    If the second argument (fil) is provided
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_Current_Instrm_data(lun,filename)
        !---- Arguments ----!
@@ -6099,13 +5400,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_Current_Instrm_data
 
     !!----
-    !!---- Subroutine Write_Generic_Numor(Num,lun)
-    !!----    type(generic_numor_type), intent(in) :: N
-    !!----    integer, optional,        intent(in) :: lun
+    !!---- SUBROUTINE WRITE_GENERIC_NUMOR
     !!----
-    !!---- Write the information of a Generic Numor
+    !!----    Write the information of a Generic Numor
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_Generic_Numor(GNumor,lun)
        !---- Arguments ----!
@@ -6206,16 +5505,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_Generic_Numor
 
     !!----
-    !!---- Subroutine Write_HeaderInfo_POWDER_Numor(PNumor,lun)
-    !!----    type(POWDER_Numor_type), intent(in) :: PNumor
-    !!----    integer,       optional, intent(in) :: lun
+    !!---- SUBROUTINE WRITE_HEADERINFO_POWDER_NUMOR
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
     !!----    of type POWDER_Numor_type in the file of logical unit 'lun'.
     !!----    If the subroutine is invoked without the 'lun' argument the subroutine
     !!----    outputs the information on the standard output (screen)
     !!----
-    !!---- Update: 15/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_HeaderInfo_POWDER_Numor(PNumor,lun)
        !---- Arguments ----!
@@ -6250,16 +5547,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_HeaderInfo_POWDER_Numor
 
     !!----
-    !!---- Subroutine Write_POWDER_Numor(PNumor,lun)
-    !!----    type(POWDER_Numor_type), intent(in) :: PNumor
-    !!----    integer,      optional, intent(in) :: lun
+    !!---- SUBROUTINE WRITE_POWDER_NUMOR
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
     !!----    of type POWDER_Numor_type in the file of logical unit 'lun'.
     !!----    If the subroutine is invoked without the 'lun' argument the subroutine
     !!----    outputs the information on the standard output (screen)
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_POWDER_Numor(PNumor,lun)
        !---- Arguments ----!
@@ -6321,16 +5616,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_POWDER_Numor
 
     !!----
-    !!---- Subroutine Write_HeaderInfo_SXTAL_Numor(SNumor,lun)
-    !!----    type(SXTAL_Numor_type), intent(in) :: SNumor
-    !!----    integer,      optional, intent(in) :: lun
+    !!---- SUBROUTINE WRITE_HEADERINFO_SXTAL_NUMOR
     !!----
     !!----    Writes the Header Information of the numor objet 'Num'
     !!----    of type SXTAL_Numor_type in the file of logical unit 'lun'.
     !!----    If the subroutine is invoked without the 'lun' argument the subroutine
     !!----    outputs the information on the standard output (screen)
     !!----
-    !!---- Update: 15/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Write_HeaderInfo_SXTAL_Numor(SNumor,lun)
        !---- Arguments ----!
@@ -6380,16 +5673,14 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_HeaderInfo_SXTAL_Numor
 
     !!----
-    !!---- Subroutine Write_SXTAL_Numor(SNumor,lun)
-    !!----    type(SXTAL_Numor_type), intent(in) :: SNumor
-    !!----    integer,      optional, intent(in) :: lun
+    !!---- SUBROUTINE WRITE_SXTAL_NUMOR
     !!----
     !!----    Writes the characteristics of the numor objet 'Num'
     !!----    of type SXTAL_Numor_type in the file of logical unit 'lun'.
     !!----    If the subroutine is invoked without the 'lun' argument the subroutine
     !!----    outputs the information on the standard output (screen)
     !!----
-    !!---- Update: March - 2005
+    !!---- Update:14/07/2015
     !!
     Subroutine Write_SXTAL_Numor(SNumor,lun)
        !---- Arguments ----!
@@ -6466,15 +5757,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_SXTAL_Numor
 
     !!----
-    !!---- Subroutine Read_Calibration_File(FileCal, Instrm, Cal )
-    !!----    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
-    !!----    character(len=*), intent(in)                 :: Instrm     ! Instrument
-    !!----    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!---- SUBROUTINE READ_CALIBRATION_FILE
     !!----
-    !!---- Read the Calibration File for Different Instruments at ILL.
-    !!---- At the moment: D1A, D2B
+    !!----    Read the Calibration File for Different Instruments at ILL.
+    !!----    At the moment: D1A, D2B
     !!----
-    !!---- 22/03/2011
+    !!---- Update: 14/07/2015
     !!
     Subroutine Read_Calibration_File(FileCal, Instrm, Cal)
         !---- Arguments ----!
@@ -6509,13 +5797,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Calibration_File
 
     !!--++
-    !!--++ Subroutine Read_Calibration_File_D1A(FileCal,Cal)
-    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
-    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++ SUBROUTINE READ_CALIBRATION_FILE_D1A
     !!--++
-    !!--++ Load the Calibration parameters for a D1A Instrument
+    !!--++    Load the Calibration parameters for a D1A Instrument
     !!--++
-    !!--++ 17/03/2011
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Calibration_File_D1A(FileCal,Cal)
         !---- Arguments ----!
@@ -6597,13 +5883,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Calibration_File_D1A
 
     !!--++
-    !!--++ Subroutine Read_Calibration_File_D2B(FileCal,Cal)
-    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
-    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++ SUBROUTINE READ_CALIBRATION_FILE_D2B
     !!--++
-    !!--++ Load the Calibration parameters for a D2B Instrument
+    !!--++    Load the Calibration parameters for a D2B Instrument
     !!--++
-    !!--++ 17/03/2011
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Read_Calibration_File_D2B(FileCal,Cal)
         !---- Arguments ----!
@@ -6828,13 +6112,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Calibration_File_D2B
 
     !!--++
-    !!--++ Subroutine Read_Calibration_File_D20(FileCal,Cal)
-    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
-    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++ SUBROUTINE READ_CALIBRATION_FILE_D20
     !!--++
-    !!--++ Load the Calibration parameters for D20 Instrument
+    !!--++    Load the Calibration parameters for D20 Instrument
     !!--++
-    !!--++ 16/05/2011
+    !!--++ Update: 16/05/2011
     !!
     Subroutine Read_Calibration_File_D20(FileCal,Cal)
         !---- Arguments ----!
@@ -6912,13 +6194,11 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Calibration_File_D20
 
     !!--++
-    !!--++ Subroutine Read_Calibration_File_D4(FileCal,Cal)
-    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
-    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++ SUBROUTINE READ_CALIBRATION_FILE_D4
     !!--++
-    !!--++ Load the Calibration parameters for a D4 Instrument
+    !!--++    Load the Calibration parameters for a D4 Instrument
     !!--++
-    !!--++ 17/03/2011
+    !!--++ Update: 17/03/2011
     !!
     Subroutine Read_Calibration_File_D4(FileCal,Cal)
         !---- Arguments ----!

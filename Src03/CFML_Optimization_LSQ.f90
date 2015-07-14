@@ -258,48 +258,6 @@
 !!---- HISTORY
 !!----    Update: 04/03/2011
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,    only : Cp, Dp
-!!--++    Use CFML_Math_General,  only : Invert_Matrix
-!!--++    Use CFML_LSQ_TypeDef
-!!----
-!!---- VARIABLES
-!!--++    CH                      [Private]
-!!--++    CORREL                  [Private]
-!!--++    CURV_MAT                [Private]
-!!----    ERR_LSQ
-!!----    ERR_LSQ_MESS
-!!----    INFO_LSQ_MESS
-!!--++    NAMFREE                 [Private]
-!!--++    PN                      [Private]
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       FCHISQ
-!!----
-!!----    Subroutines:
-!!--++       BOX_CONSTRAINTS           [Private]
-!!--++       CURFIT_v1                 [Private]
-!!--++       CURFIT_v2                 [Private]
-!!--++       FDJAC2                    [Private]
-!!----       LEVENBERG_MARQUARDT_FIT   [Overloaded]   {LM_DER, LM_DERV, LM_DIF, LMDER1, LMDIF1}
-!!--++       LM_DER                    [Private]
-!!--++       LM_DERV                   [Private]
-!!--++       LMDER                     [Private]
-!!--++       LM_DIF                    [Private]
-!!--++       LMDIF                     [Private]
-!!--++       LMPAR                     [Private]
-!!----       MARQUARDT_FIT             [Overloaded]  {MARQUARDT_FIT_v1, MARQUARDT_FIT_v2}
-!!--++       MARQUARDT_FIT_v1          [Private]
-!!--++       MARQUARDT_FIT_v2          [Private]
-!!--++       OUTPUT_CYC                [Private]
-!!----       INFO_LSQ_LM               [Overloaded] {INFO_LSQ_LM_V, INFO_LSQ_LM_VS}
-!!--++       INFO_LSQ_LM_V             [Private]
-!!--++       INFO_LSQ_LM_VS            [Private]
-!!----       INFO_LSQ_OUTPUT
-!!--++       QRFAC                     [Private]
-!!--++       QRSOLV                    [Private]
-!!----
 !!----
 !!
  Module CFML_Optimization_LSQ
@@ -315,98 +273,27 @@
     !---- List of public functions ----!
     public  :: fchisq
 
-    !---- List of public subroutines ----!
     public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM
 
     !---- Definitions ----!
 
-    !!--++
-    !!--++ CH
-    !!--++    real(kind=cp),     dimension(Max_Free_Par), private   :: ch
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Vector holding the change in the values of parameters (ch = pn - pv)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par), private   :: ch         ! ch = pn - pv
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    character(len=40), dimension(MAX_FREE_PAR), save    :: namfree    ! Names of refined parameters
+    real(kind=cp), dimension(MAX_FREE_PAR)              :: ch         ! Vector holding the change in the values of parameters (ch = pn - pv)
+    real(kind=cp), dimension(MAX_FREE_PAR)              :: pn         ! Vector with new values of parameters
+    real(kind=cp), dimension(MAX_FREE_PAR,MAX_FREE_PAR) :: correl     ! Variance/covariance/correlation matrix
+    real(kind=cp), dimension(MAX_FREE_PAR,MAX_FREE_PAR) :: curv_mat   ! Curvature matrix
 
-    !!--++
-    !!--++ CORREL
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: correl
-    !!--++
-    !!--++    Variance/covariance/correlation matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: correl     !Variance/covariance/correlation matrix
+    logical,            public  :: ERR_Lsq =.false.                   ! Erro variable for this module
+    Character(len=256), public  :: ERR_Lsq_Mess=" "                   ! Character variable containing the error message
+    Character(len=256), public  :: Info_Lsq_Mess=" "                  ! variable containing the information message associated to the exit parameter "info"
+                                                                      ! of the Levenberg_Marquardt_Fit procedure.
 
-
-    !!--++
-    !!--++ CURV_MAT
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: curv_mat
-    !!--++
-    !!--++    Curvature matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: curv_mat   !Curvature matrix
-
-    !!----
-    !!---- ERR_LSQ
-    !!----    logical, public  :: ERR_LSQ
-    !!----
-    !!----    Logical variable. The vaule .true. indicates that an error condition occurs
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public   :: ERR_Lsq =.false.
-
-    !!----
-    !!---- ERR_LSQ_MESS
-    !!----    Character(len=256), public  :: Err_Lsq_Mess
-    !!----
-    !!----    Character variable containing the error message associated to the
-    !!----    ocurrence of an error condition
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Character(len=256), public  :: ERR_Lsq_Mess
-
-    !!----
-    !!---- INFO_LSQ_MESS
-    !!----    Character(len=150), public  :: Info_Lsq_Mess
-    !!----
-    !!----    Character variable containing the information message associated to the
-    !!----    exit parameter "info" of the Levenberg_Marquardt_Fit procedure.
-    !!----
-    !!---- Update: August - 2005
-    !!
-    Character(len=256), public  :: Info_Lsq_Mess
-
-
-    !!--++
-    !!--++ NAMFREE
-    !!--++    character(len=40), dimension(Max_Free_Par), private   :: namfree
-    !!--++
-    !!--++  (PRIVATE)
-    !!--++  Names of refined parameters
-    !!--++
-    !!--++ Update: January - 2014
-    !!
-    character(len=40), dimension(Max_Free_Par), private,save   :: namfree    !Names of refined parameters
-
-    !!--++
-    !!--++ PN
-    !!--++    real(kind=cp), dimension(Max_Free_Par), public   :: pn
-    !!--++
-    !!--++    Vector with new values of parameters
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par), private   :: pn   !Vector with new values of parameters
-
+    !--------------------!
     !---- Interfaces ----!
+    !--------------------!
 
     Interface Marquardt_fit
       Module Procedure Marquardt_Fit_v1
@@ -431,16 +318,11 @@
     !---- Functions ----!
 
     !!----
-    !!---- Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
-    !!----    integer, intent(in)                    :: Nfr
-    !!----    integer, intent(in)                    :: Nobs
-    !!----    real(kind=cp), intent(in),dimension(:) :: y
-    !!----    real(kind=cp), intent(in),dimension(:) :: w
-    !!----    real(kind=cp), intent(in),dimension(:) :: yc
+    !!---- FUNCTION FCHISQ
     !!----
     !!----    Evaluate reduced chi2
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
        !---- Arguments ----!
@@ -466,12 +348,7 @@
     !---- Subroutines ----!
 
     !!--++
-    !!--++ Subroutine Box_Constraints(A,Sa,Fixed,c,vs)
-    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: a
-    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: sa
-    !!--++    logical                        ,         intent(   out) :: fixed
-    !!--++    Type(LSQ_Conditions_type),               intent(in)     :: c     !conditions for refinement
-    !!--++    Type(LSQ_State_Vector_type),             intent(in)     :: vs    !State vector
+    !!--++ SUBROUTINE BOX_CONSTRAINTS
     !!--++
     !!--++    (PRIVATE)
     !!--++    This subroutine avoid a peak-position parameter undergoing a change
@@ -480,7 +357,7 @@
     !!--++    the current angular range. The parameter is fixed for the next cycle
     !!--++    The intensity parameters are also constrained to be strictly positive
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Box_Constraints(A,Sa,Fixed,c,vs)
        !---- Arguments ----!
@@ -520,31 +397,11 @@
     End Subroutine Box_Constraints
 
     !!--++
-    !!--++  Subroutine Curfit_v1(Model_Functn, X, Y, W, Nobs, c, A, Sa, Fl, Yc, Chir, Ifail)
-    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
-    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
-    !!--++     real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
-    !!--++     integer,                             intent(in)      :: nobs  !number of observations
-    !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: a     !vector of parameter
-    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
-    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=cp),                       intent(out)     :: chir
-    !!--++     integer,                    intent(out)     :: ifail
+    !!--++  SUBROUTINE CURFIT_V1
     !!--++
-    !!--++     Interface
-    !!--++      Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!--++         use CFML_GlobalDeps, only: cp
-    !!--++         integer,                             intent(in) :: iv
-    !!--++         real(kind=cp),                       intent(in) :: xv
-    !!--++         real(kind=cp),dimension(:),          intent(in) :: aa
-    !!--++         real(kind=cp),                       intent(out):: ycalc
-    !!--++         real(kind=cp),dimension(:),optional, intent(out):: der
-    !!--++      End Subroutine Model_Functn
-    !!--++     End Interface
     !!--++
-    !!--++ Update: February - 2003
+    !!--++
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Curfit_v1(Model_Functn, X, Y, W, Nobs, c, A, Sa, Fl, Yc, Chir, Ifail,nt)
        !---- Arguments ----!
@@ -558,7 +415,8 @@
        real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
        real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
        real(kind=cp),                       intent(out)     :: chir
-       integer,                             intent(out)     :: ifail,nt
+       integer,                             intent(out)     :: ifail
+       integer,                             intent(out)     :: nt
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
@@ -699,37 +557,19 @@
     End Subroutine Curfit_v1
 
     !!--++
-    !!--++  Subroutine Curfit_v2(Model_Functn, d, c, vs, Fl, Chir, Ifail)
-    !!--++     Type(LSQ_Data_type)                  intent(in out)  :: d     !Data
-    !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State Vector with model parameters
-    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=cp),                       intent(out)     :: chir
-    !!--++     integer,                    intent(out)     :: ifail
+    !!--++  SUBROUTINE CURFIT_V2
     !!--++
-    !!--++     Interface
-    !!--++      Subroutine Model_Functn(iv,xv,ycalc,Vsa,der)
-    !!--++         use CFML_GlobalDeps, only: cp
-    !!--++         use CFML_LSQ_TypeDef,  only: LSQ_State_Vector_type
-    !!--++         integer,                             intent(in) :: iv
-    !!--++         real(kind=cp),                       intent(in) :: xv
-    !!--++         real(kind=cp),                       intent(out):: ycalc
-    !!--++         Type(LSQ_State_Vector_type),         intent(in) :: Vsa
-    !!--++         real(kind=cp),dimension(:),optional, intent(out):: der
-    !!--++      End Subroutine Model_Functn
-    !!--++     End Interface
-    !!--++
-    !!--++ Update: February - 2003
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Curfit_v2(Model_Functn, d, c, vs, Fl, Chir, Ifail,nt)
        !---- Arguments ----!
-       Type(LSQ_Data_Type),                 intent(in out)  :: d
-       Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-       Type(LSQ_State_Vector_type),         intent(in out)  :: vs
-       real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+       Type(LSQ_Data_Type),                 intent(in out)  :: d     ! Data
+       Type(LSQ_Conditions_type),           intent(in)      :: c     ! Conditions for refinement
+       Type(LSQ_State_Vector_type),         intent(in out)  :: vs    ! State vector with model parameters
+       real(kind=cp),                       intent(in out)  :: fl    ! Marquardt LAMBDA value
        real(kind=cp),                       intent(out)     :: chir
-       integer,                             intent(out)     :: ifail,nt
+       integer,                             intent(out)     :: ifail
+       integer,                             intent(out)     :: nt
 
        Interface
         Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
@@ -899,24 +739,7 @@
     End Subroutine Curfit_v2
 
     !!--++
-    !!--++ Subroutine Fdjac2(Fcn, M, N, X, Fvec, Fjac, Iflag, Epsfcn)
-    !!--++   Integer,                       Intent(In)      :: m
-    !!--++   Integer,                       Intent(In)      :: n
-    !!--++   Real (Kind=cp),dimension(n),   Intent(In Out)  :: x
-    !!--++   Real (Kind=cp),dimension(m),   Intent(In)      :: fvec
-    !!--++   Real (Kind=cp),dimension(:,:), Intent(Out)     :: fjac     ! fjac(ldfjac,n)
-    !!--++   Integer,                       Intent(In Out)  :: iflag
-    !!--++   Real (Kind=cp),                Intent(In)      :: epsfcn
-    !!--++
-    !!--++   Interface
-    !!--++     Subroutine fcn(m, n, x, fvec, iflag)
-    !!--++       Use CFML_GlobalDeps, Only: cp
-    !!--++       Integer,                     Intent(In)      :: m, n
-    !!--++       Real (Kind=cp),Dimension(:), Intent(In)      :: x
-    !!--++       Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
-    !!--++       Integer,                     Intent(In Out)  :: iflag
-    !!--++     End Subroutine fcn
-    !!--++   End Interface
+    !!--++ SUBROUTINE FDJAC2
     !!--++
     !!--..   Original documentation:
     !!--..
@@ -1026,24 +849,19 @@
     End Subroutine Fdjac2
 
     !!--..
-    !!--..  Subroutine Info_LSQ_LM_V(Chi2,Lun,c,v,vstd,vnam)
-    !!--..   real(kind=cp),                 intent(in) :: chi2         !Final Chi2
-    !!--..   integer,                       intent(in) :: lun          !Logical unit for output
-    !!--..   type(LSQ_conditions_type),     intent(in) :: c            !Conditions of the refinement
-    !!--..   real(kind=cp),   dimension(:), intent(in) :: v,vstd       !State vector and standad deviations (parameters of the model)
-    !!--..   character(len=*),dimension(:), intent(in) :: vnam         !Names of the refined parameters
+    !!--..  SUBROUTINE INFO_LSQ_LM_V
     !!--..
-    !!--..  Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
+    !!--..     Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
     !!--..
-    !!---- Update: November 1 - 2013
+    !!---- Update: 14/07/2015
     !!
     Subroutine Info_LSQ_LM_V(Chi2,Lun,c,v,vstd,vnam)
        !---- Arguments ----!
-       real(kind=cp),                 intent(in) :: chi2
-       integer,                       intent(in) :: lun
-       type(LSQ_conditions_type),     intent(in) :: c
-       real(kind=cp),   dimension(:), intent(in) :: v,vstd
-       character(len=*),dimension(:), intent(in) :: vnam
+       real(kind=cp),                 intent(in) :: chi2       !Final Chi2
+       integer,                       intent(in) :: lun        !Logical unit for output
+       type(LSQ_conditions_type),     intent(in) :: c          !Conditions of the refinement
+       real(kind=cp),   dimension(:), intent(in) :: v,vstd     !State vector and standad deviations (parameters of the model)
+       character(len=*),dimension(:), intent(in) :: vnam       !Names of the refined parameters
        !---- Local variables ----!
        integer       :: i,j,inum
        real(kind=cp) :: g2
@@ -1096,22 +914,18 @@
     End Subroutine Info_LSQ_LM_V
 
     !!--..
-    !!--..  Subroutine Info_LSQ_LM_VS(Chi2,Lun,c,vs)
-    !!--..   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
-    !!--..   integer,                    intent(in)     :: lun        !Logical unit for output
-    !!--..   type(LSQ_conditions_type),  intent(in)     :: c          !Conditions of the refinement
-    !!--..   type(LSQ_State_Vector_type),intent(in)     :: vs         !State vector (parameters of the model)
+    !!--..  SUBROUTINE INFO_LSQ_LM_VS
     !!--..
-    !!--..  Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
+    !!--..      Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
     !!--..
-    !!--.. Update: November 1 - 2013
+    !!--.. Update: 14/07/2015
     !!
     Subroutine Info_LSQ_LM_VS(Chi2,Lun,c,vs)
        !---- Arguments ----!
-       real(kind=cp),              intent(in)     :: chi2
-       integer,                    intent(in)     :: lun
-       type(LSQ_conditions_type),  intent(in)     :: c
-       type(LSQ_State_Vector_type),intent(in)     :: vs
+       real(kind=cp),              intent(in)     :: chi2   !Final Chi2
+       integer,                    intent(in)     :: lun    !Logical unit for output
+       type(LSQ_conditions_type),  intent(in)     :: c      !Conditions of the refinement
+       type(LSQ_State_Vector_type),intent(in)     :: vs     !State vector (parameters of the model)
 
        !---- Local variables ----!
        integer       :: i,j,inum
@@ -1171,37 +985,25 @@
     End Subroutine Info_LSQ_LM_VS
 
     !!----
-    !!----  Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
-    !!----   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
-    !!----   real(kind=cp),              intent(in)     :: FL         !Final Marquardt lambda
-    !!----   integer,                    intent(in)     :: nobs       !Number of data points
-    !!----   real(kind=cp),dimension(:), intent(in)     :: x          !Array with abcisae of Data points
-    !!----   real(kind=cp),dimension(:), intent(in)     :: y          !Array with data point values
-    !!----   real(kind=cp),dimension(:), intent(in)     :: yc         !Array with calculated values
-    !!----   real(kind=cp),dimension(:), intent(in)     :: w          !Array with weight factors
-    !!----   integer,                    intent(in)     :: lun        !Logical unit for output
-    !!----   type(LSQ_conditions_type),  intent(in)     :: c          !Conditions of the refinement
-    !!----   type(LSQ_State_Vector_type),intent(in)     :: vs         !State vector (parameters of the model)
-    !!----   character(len=*), optional, intent(in)     :: out_obscal !If present the vectors X,Y,Yc,Sig(=sqrt(1/w))
-    !!----                                                            !Are output in a file called LM_fit.xy
+    !!----  SUBROUTINE INFO_LSQ_OUTPUT
     !!----
-    !!----  Subroutine for output information at the end of refinement
+    !!----      Subroutine for output information at the end of refinement
     !!----
-    !!---- Update: August - 2009
+    !!---- Update: 14/07/2015
     !!
     Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
        !---- Arguments ----!
-       real(kind=cp),              intent(in)     :: chi2
-       real(kind=cp),              intent(in)     :: FL
-       integer,                    intent(in)     :: nobs
-       real(kind=cp),dimension(:), intent(in)     :: x
-       real(kind=cp),dimension(:), intent(in)     :: y
-       real(kind=cp),dimension(:), intent(in)     :: yc
-       real(kind=cp),dimension(:), intent(in)     :: w
-       integer,                    intent(in)     :: lun
-       type(LSQ_conditions_type),  intent(in)     :: c
-       type(LSQ_State_Vector_type),intent(in)     :: vs
-       character(len=*), optional, intent(in)     :: out_obscal
+       real(kind=cp),              intent(in)     :: chi2          !Final chi2
+       real(kind=cp),              intent(in)     :: FL            !Final Marquardt lambda
+       integer,                    intent(in)     :: nobs          !Number of data points
+       real(kind=cp),dimension(:), intent(in)     :: x             !Array with abcisae of Data points
+       real(kind=cp),dimension(:), intent(in)     :: y             !Array with data point values
+       real(kind=cp),dimension(:), intent(in)     :: yc            !Array with calculated values
+       real(kind=cp),dimension(:), intent(in)     :: w             !Array with weight factors
+       integer,                    intent(in)     :: lun           !Logical unit for output
+       type(LSQ_conditions_type),  intent(in)     :: c             !Conditions of the refinement
+       type(LSQ_State_Vector_type),intent(in)     :: vs            !State vector (parameters of the model)
+       character(len=*), optional, intent(in)     :: out_obscal    !If present the vectors X,Y,Yc,Sig(=sqrt(1/w)). Are output in a file called LM_fit.xy
 
        !---- Local variables ----!
        integer       :: i,j,inum, lob=22
@@ -2017,35 +1819,7 @@
     End Subroutine LM_Dif
 
     !!--++
-    !!--++  Subroutine lmder(fcn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev, &
-    !!--++                   mode, factor, nprint, info, nfev, njev, ipvt)
-    !!--++    Integer,                        Intent(In)      :: m
-    !!--++    Integer,                        Intent(In)      :: n
-    !!--++    Real (Kind=cp), Dimension(:),   Intent(In Out)  :: x
-    !!--++    Real (Kind=cp), Dimension(m),   Intent(Out)     :: fvec
-    !!--++    Real (Kind=cp), Dimension(:,:), Intent(Out)     :: fjac    ! fjac(ldfjac,n)
-    !!--++    Real (Kind=cp),                 Intent(In)      :: ftol
-    !!--++    Real (Kind=cp),                 Intent(In)      :: xtol
-    !!--++    Real (Kind=cp),                 Intent(In Out)  :: gtol
-    !!--++    Integer,                        Intent(In Out)  :: maxfev
-    !!--++    Integer,                        Intent(In)      :: mode
-    !!--++    Real (Kind=cp),                 Intent(In)      :: factor
-    !!--++    Integer,                        Intent(In)      :: nprint
-    !!--++    Integer,                        Intent(Out)     :: info
-    !!--++    Integer,                        Intent(Out)     :: nfev
-    !!--++    Integer,                        Intent(Out)     :: njev
-    !!--++    Integer,        Dimension(:),   Intent(Out)     :: ipvt
-    !!--++
-    !!--++    Interface
-    !!--++      Subroutine fcn(m, n, x, fvec, fjac, iflag)
-    !!--++        Use CFML_GlobalDeps, Only: cp
-    !!--++        Integer,                       Intent(In)      :: m, n
-    !!--++        Real (Kind=cp),Dimension(:),   Intent(In)      :: x
-    !!--++        Real (Kind=cp),Dimension(:),   Intent(In Out)  :: fvec
-    !!--++        Real (Kind=cp),Dimension(:,:), Intent(Out)     :: fjac
-    !!--++        Integer,                       Intent(In Out)  :: iflag
-    !!--++      End Subroutine fcn
-    !!--++    End Interface
+    !!--++  SUBROUTINE LMDER
     !!--++
     !!--++
     !!--..  Original Documentation
@@ -2200,7 +1974,7 @@
     !!--..  Burton S. Garbow, Kenneth E. Hillstrom, Jorge J. More
     !!--++
     !!--++
-    !!--++ Update: February - 2009
+    !!--++ Update: 14/07/2015
     !!
     Subroutine lmder(fcn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev, &
                      mode, factor, nprint, info, nfev, njev, ipvt)

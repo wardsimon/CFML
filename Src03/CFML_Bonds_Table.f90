@@ -44,36 +44,13 @@
 !!---- HISTORY
 !!----    Update: 04/03/2011
 !!----
-!!----
-!!---- DEPENDENCIES
-!!--++    CFML_GlobalDeps, only: cp
-!!--++    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
-!!----
-!!----
-!!---- VARIABLES
-!!----    BONDS_LENGTH_TABLE
-!!----    ERR_BOND
-!!----    ERR_BOND_MESS
-!!--++    SET_BT_VARIABLE
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       GET_BONDS_TABLE
-!!--++       GET_BONDS_TABLE_SYMBOL              [OVERLOADED]
-!!--++       GET_BONDS_TABLE_Z                   [OVERLOADED]
-!!----       INIT_ERR_BOND
-!!----       REMOVE_BONDS_TABLE
-!!----       SET_BONDS_TABLE
-!!----
 !!
  Module CFML_Bond_Tables
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                 only: Cp
     Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
-    !---- Variables ----!
+    !---- Definitions ----!
     implicit none
 
     private
@@ -81,50 +58,18 @@
     !---- List of public subroutines ----!
     public  :: Get_Bonds_Table, Remove_Bonds_Table, Set_Bonds_Table, Init_Err_Bond
 
-    !---- Definitions ----!
-
-    !!----
-    !!---- Bond_Length_Table
-    !!----    real, public, allocatable, dimension(:,:,:) :: Bond_Length_Table
-    !!----
-    !!----    Variable to hold the Bonds length between type of atoms. Order by Z
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), public, allocatable, dimension(:,:,:) :: Bond_Length_Table
-
-    !----
-    !!---- ERR_BOND
-    !!----    logical :: err_bond
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Bond_Tables module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: ERR_Bond
-
-    !!----
-    !!---- ERR_BOND_MESS
-    !!----    character(len=256) :: ERR_Bond_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_Bond_Mess
-
-    !!----
-    !!---- Set_BT_Variable
-    !!----    logical, private :: Set_BT_Variable
-    !!----
-    !!----    Define if the Variable Bond_Length_Table was loaded or not
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, private :: Set_BT_Variable = .false.
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical                                              :: Set_BT_Variable = .false.  !  Define if the Variable Bond_Length_Table was loaded or not
+    logical,                                      public :: ERR_Bond=.false.           ! Logical Variable indicating an error in CFML_Bond_Tables module
+    character(len=256),                           public :: ERR_Bond_Mess=" "          ! String containing information about the last error
+    real(kind=cp), allocatable, dimension(:,:,:), public :: Bond_Length_Table          ! Variable to hold the Bonds length between type of atoms. Order by Z
 
 
+    !-------------------------------!
     !---- Interfaces - Overlapp ----!
+    !-------------------------------!
 
     Interface  Get_Bonds_Table
        Module Procedure Get_Bonds_Table_Symbol
@@ -133,28 +78,25 @@
 
  Contains
 
+    !---------------------!
     !---- Subroutines ----!
+    !---------------------!
+
     !!----
-    !!---- Subroutine Get_Bonds_Table(Symbol1/Z1,Symbol2/Z2,Bonds)
-    !!----    character(len=*)/integer,           intent(in)  :: Symbol1
-    !!----    character(len=*)/integer,           intent(in)  :: Symbol2
-    !!----    real(kind=cp),dimension(3),         intent(out) :: Bonds
+    !!---- SUBROUTINE GET_BONDS_TABLE
     !!----
     !!----    Fills the components of the Bond_Length_Table variable
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Get_Bonds_Table_Symbol(Symbol1,Symbol2,Bonds)
-    !!--++    character(len=*),           intent(in)  :: Symbol1
-    !!--++    character(len=*),           intent(in)  :: Symbol2
-    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
+    !!--++ SUBROUTINE GET_BONDS_TABLE_SYMBOL
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Bonds_Table_Symbol(Symbol1,Symbol2,Bonds)
        !---- Arguments ----!
@@ -176,15 +118,12 @@
     End Subroutine Get_Bonds_Table_Symbol
 
     !!--++
-    !!--++ Subroutine Get_Bonds_Table_Z(Z1,Z2,Bonds)
-    !!--++    integer,                    intent(in)  :: Z1
-    !!--++    integer,                    intent(in)  :: Z2
-    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
+    !!--++ SUBROUTINE GET_BONDS_TABLE_Z
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Get_Bonds_Table_Z(Z1,Z2,Bonds)
        !---- Arguments ----!
@@ -203,12 +142,12 @@
     End Subroutine Get_Bonds_Table_Z
 
     !!----
-    !!---- Subroutine Init_Err_Bond()
+    !!---- SUBROUTINE INIT_ERR_BOND
     !!----
     !!----    Initializes general error variables for this module as:
     !!----    ERR_BOND=.false. ;  ERR_Bond_Mess=" "
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_Err_BOND()
 
@@ -219,11 +158,11 @@
     End Subroutine Init_Err_Bond
 
     !!----
-    !!---- Subroutine Remove_Bonds_Table()
+    !!---- SUBROUTINE REMOVE_BONDS_TABLE
     !!----
     !!----    Deallocating Bond_Length_Table
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Remove_Bonds_Table()
 
@@ -233,11 +172,11 @@
     End Subroutine Remove_Bonds_Table
 
     !!----
-    !!---- Subroutine Set_Bonds_Table()
+    !!---- SUBROUTINE SET_BONDS_TABLE
     !!----
     !!----    Fills the components of the Bond_Length_Table variable
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_Bonds_Table()
 

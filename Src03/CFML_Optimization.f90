@@ -39,39 +39,6 @@
 !!---- HISTORY
 !!----    Update: 04/03/2011
 !!----
-!!----    April - 2004 Created by JRC
-!!---- DEPENDENCIES
-!!--++    use CFML_GlobalDeps,       only: cp
-!!--++    use CFML_String_Utilities, only: l_case
-!!----
-!!---- VARIABLES
-!!----    ERR_OPTIM
-!!----    ERR_OPTIM_MESS
-!!--++    METHOD                               [Private]
-!!----    OPT_CONDITIONS_TYPE
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       CG_QUASI_NEWTON
-!!--++       CHOLA                             [Private]
-!!----       CSENDES_GLOBAL
-!!--++       FUN                               [Private]
-!!----       INIT_ERR_OPTIM
-!!----       INIT_OPT_CONDITIONS
-!!--++       LOCAL_DFP
-!!----       LOCAL_MIN_DFP
-!!----       LOCAL_MIN_RAND
-!!----       LOCAL_OPTIMIZE
-!!--++       LOCAL_RAND
-!!----       NELDER_MEAD_SIMPLEX
-!!--++       PRINT_TRI_MATRIX                  [Private]
-!!--++       PUT_IN_BOX                        [Private]
-!!----       SET_OPT_CONDITIONS
-!!--++       SYMINV                            [Private]
-!!--++       UPDATE                            [Private]
-!!----       WRITE_OPTIMIZATION_CONDITIONS
 !!----
 !!
  Module CFML_Optimization_General
@@ -79,7 +46,7 @@
     use CFML_GlobalDeps,       only: cp
     use CFML_String_Utilities, only: l_case
 
-    !---- Variables ----!
+    !---- Definitions ----!
     implicit none
     private
 
@@ -88,93 +55,23 @@
               Local_Min_DFP, Local_Min_Rand, Set_Opt_Conditions, Local_Optimize, &
               Write_Optimization_Conditions
 
-    !---- Variable Definitions ----!
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    Character(len=*),parameter, dimension(7) :: method = (/ "conjugate_gradient", &
+                                                            "bfgs_quasi_newton ", &
+                                                            "simplex           ", &
+                                                            "dfp_no-derivatives", &
+                                                            "global_csendes    ", &
+                                                            "local_random      ", &
+                                                            "unirandi          "/)    ! store the different methods available in the modul
 
-    !!----
-    !!---- ERR_OPTIM
-    !!----    logical, public :: Err_Optim
-    !!----
-    !!----    Logical Variable to indicate an error on this module.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: Err_Optim
-
-    !!----
-    !!---- ERR_Optim_Mess
-    !!----    character(len=256), public :: ERR_Optim_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_Optim_Mess
-
-    !!--++
-    !!--++ METHOD
-    !!--++    Character(len=*),parameter, private, dimension(7) :: method
-    !!--++
-    !!--++    Character Variable to store the different methods available in the module.
-    !!--++
-    !!--++ Update: August - 2007
-    !!--++
-
-    Character(len=*),parameter, private, dimension(7) :: method = (/ "conjugate_gradient", &
-                                                                     "bfgs_quasi_newton ", &
-                                                                     "simplex           ", &
-                                                                     "dfp_no-derivatives", &
-                                                                     "global_csendes    ", &
-                                                                     "local_random      ", &
-                                                                     "unirandi          "/)
-
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!----
     !!---- TYPE :: OPT_CONDITIONS_TYPE
-    !!--<<
-    !!---- Type, public :: Opt_Conditions_Type
-    !!----    character(len=20) :: method ! "Conjugate_Gradient","BFGS_Quasi_Newton",
-    !!----                                  "Simplex","DFP_no-derivatives","Global_Csendes",
-    !!----                                  "Local_Random","UniRandi"
-    !!----    integer           :: nmeth  ! (in)  nmeth=0 => conjugate gradient
-    !!----                                !       nmeth=1 => the BFGS method is used
-    !!----    integer           :: npar   ! (in)  Number of free parameters
-    !!----    integer           :: mxfun  ! (in)  Maximum number function calls
-    !!----    integer           :: iout   ! (in)  Printing parameter,
-    !!----                                !       if iout= 0 no printing for Quasi_Newton & Conjugate Gradient
-    !!----                                !       if iout= 0 partial printing for Simplex (<0 no printing)
-    !!----                                !       if iout>0 printing each iout iterations/evaluations.
-    !!----    integer           :: loops  ! (in)  Useful for SIMPLEX method: = 0
-    !!----                                !
-    !!----    integer           :: iquad  ! (in)  For SIMPLEX, if iquad/= 0 fitting to a quadratic
-    !!----                                !
-    !!----    integer           :: nflag  ! (out) Flag value states which condition caused the exit of
-    !!----                                !       the optimization subroutine
-    !!----                                !       If NFLAG=0, the algorithm has converged.
-    !!----                                !       If NFLAG=1, the maximum number of function
-    !!----                                !          evaluations have been used.
-    !!----                                !       If NFLAG=2, the linear search has failed to
-    !!----                                !          improve the function value. This is the
-    !!----                                !          usual exit if either the function or the
-    !!----                                !          gradient is incorrectly coded.
-    !!----                                !       If NFLAG=3, The search vector was not
-    !!----                                !          a descent direction. This can only be caused
-    !!----                                !          by roundoff,and may suggest that the
-    !!----                                !          convergence criterion is too strict.
-    !!----    integer           :: ifun   ! (out) Total number of function and gradient evaluations
-    !!----    integer           :: iter   ! (out) Total number of search directions used in the algorithm
-    !!----    real(kind=cp)     :: eps    ! (in)  Convergence occurs when the norm of the gradient
-    !!----                                !       is less than or equal to EPS times the maximum
-    !!----                                !       of one and the norm of the vector X
-    !!----                                !       Initialized to 1.0E-6
-    !!----    real(kind=cp)     :: acc    ! (in)  ACC is a user supplied estimate of machine
-    !!----                                !       accuracy. A linear search is unsuccessfully
-    !!----                                !       terminated when the norm of the step size
-    !!----                                !       becomes smaller than ACC. In practice,
-    !!----                                !       ACC=10.0E-20 has proved satisfactory.
-    !!----                                !       This is the default value.
-    !!----                                !       For Simplex method the meaning is different
-    !!----                                !       (see below) and this should be changed to 1.0e-6
-    !!---- End Type Opt_Conditions_Type
     !!----
     !!----    This TYPE has been introduced to simplify the call to optimization
     !!----    procedures. It contains the optimization parameters useful for different
@@ -184,49 +81,48 @@
     !!----    A variable of this type should be defined by the user and all their
     !!----    input parameters (in) must be provided before calling the procedures.
     !!----    On output from the procedure the (out) items are provided for checking.
-    !!-->>
-    !!---- Update: February - 2005
+    !!----
     !!
     Type, public :: Opt_Conditions_Type
-       character(len=20) :: method
-       integer           :: nmeth
-       integer           :: npar
-       integer           :: mxfun
-       integer           :: loops
-       integer           :: iquad
-       integer           :: iout
-       integer           :: nflag
-       integer           :: ifun
-       integer           :: iter
-       real(kind=cp)     :: eps
-       real(kind=cp)     :: acc
+       character(len=20) :: method      ! Name of the method
+       integer           :: nmeth       ! 0= conjugate gradient, 1= BFGS method
+       integer           :: npar        ! Number of free parameters
+       integer           :: mxfun       ! Maximum number function calls
+       integer           :: loops       ! Useful for SIMPLEX method: = 0
+       integer           :: iquad       ! For SIMPLEX, if iquad/= 0 fitting to a quadratic
+       integer           :: iout        ! =0 no printing for Quasi_Newton & Conjugate Gradient. Partial printing for Simplex (<0 no printing).
+                                        ! > 0 printing each iout iterations/evaluations
+       integer           :: nflag       ! Flag value states which condition caused the exit of the optimization subroutine
+                                        !       If NFLAG=0, the algorithm has converged.
+                                        !       If NFLAG=1, the maximum number of function
+                                        !          evaluations have been used.
+                                        !       If NFLAG=2, the linear search has failed to
+                                        !          improve the function value. This is the
+                                        !          usual exit if either the function or the
+                                        !          gradient is incorrectly coded.
+                                        !       If NFLAG=3, The search vector was not
+                                        !          a descent direction. This can only be caused
+                                        !          by roundoff,and may suggest that the
+                                        !          convergence criterion is too strict.
+       integer           :: ifun        ! Total number of function and gradient evaluations
+       integer           :: iter        ! Total number of search directions used in the algorithm
+       real(kind=cp)     :: eps         ! Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum
+                                        ! of one and the norm of the vector X. Initialized to 1.0E-6
+       real(kind=cp)     :: acc         ! ACC is a user supplied estimate of machine accuracy ACC=10.0E-20 has proved satisfactory
+                                        ! For simplex method this should be changed to 1.0e-6
     End Type Opt_Conditions_Type
+
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    !!
+    logical,            public :: Err_Optim=.false.  ! Logical Variable to indicate an error on this module
+    character(len=256), public :: ERR_Optim_Mess=" " ! String containing information about the last error
 
  Contains
 
     !!----
-    !!---- Subroutine Cg_Quasi_Newton(Model_Functn,Nparm,X,F,G,C,Ipr)
-    !!----    integer,                          intent(in)     :: n      ! The number of variables in the function to be
-    !!----                                                               ! minimized.
-    !!----    real(kind=cp),dimension(n),       intent(in out) :: x      ! The vector containing the current estimate to
-    !!----                                                               ! the minimizer.
-    !!----                                                               ! In -> Must contain an initial estimate supplied by the user.
-    !!----                                                               ! Out-> X will hold the best estimate to the minimizer obtained
-    !!----    real(kind=cp),                    intent(   out) :: f      ! Out-> F will contain the lowest value of the object function obtained.
-    !!----    real(kind=cp),dimension(n),       intent(   out) :: g      ! Out-> G =(g(1),...g(n)) will contain the elements of the gradient of
-    !!----                                                               !       F evaluated at the point contained in X=(x(1),...x(N))
-    !!----    type(Opt_conditions),             intent(in out) :: C      ! Conditions for the algorithm. C is of type(Opt_conditions)
-    !!----    integer, optional,                intent(in)     :: ipr   ! Logical unit for printing if the parameter C%IOUT /= 0.
-    !!----
-    !!--<<    Interface
-    !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_GlobalDeps, only:cp
-    !!----          integer,                    intent(in)     :: n
-    !!----          real(kind=cp),dimension(:), intent(in)     :: x
-    !!----          real(kind=cp),              intent(out)    :: f
-    !!----          real(kind=cp),dimension(:), intent(out)    :: g
-    !!----       End Subroutine Model_Functn
-    !!-->>    End Interface
+    !!---- SUBROUTINE CG_QUASI_NEWTON
     !!----
     !!----    Minimization Of Unconstrained Multivariate Functions
     !!----    Subroutine CG_QUASI_NEWTON minimizes an unconstrained nonlinear
@@ -262,19 +158,17 @@
     !!--..                return
     !!--..             End Subroutine Model_Functn
     !!--..
-    !!--..    Code converted using TO_F90 by Alan Miller
-    !!--..    Modified and adapted to F-language by Juan Rodriguez-Carvajal
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Cg_Quasi_Newton(Model_Functn, N, X, F, G, C, Ipr)
        !---- Arguments ----!
-       integer,                    intent(in)       :: n
-       real(kind=cp),dimension(n), intent(in out)   :: x
-       real(kind=cp),              intent(   out)   :: f
-       real(kind=cp),dimension(n), intent(   out)   :: g
-       type(Opt_conditions_Type),  intent(in out)   :: C
-       integer, optional,          intent(in)       :: Ipr
+       integer,                    intent(in)       :: n    ! Number of variable to minimized
+       real(kind=cp),dimension(n), intent(in out)   :: x    ! Vector with current estimation
+       real(kind=cp),              intent(   out)   :: f    ! contain the lowest value
+       real(kind=cp),dimension(n), intent(   out)   :: g    ! G =(g(1),...g(n)) will contain the elements of the gradient of F
+       type(Opt_conditions_Type),  intent(in out)   :: C    ! Conditions for the algorithm
+       integer, optional,          intent(in)       :: Ipr  ! unit for printing if the parameter C%IOUT /= 0
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
@@ -746,15 +640,12 @@
     End Subroutine Cg_Quasi_Newton
 
     !!--++
-    !!--++ Subroutine Chola(A, N, U, Nullty, Ifault, Rmax, R)
-    !!--++    real (kind=cp),dimension(:), intent(in)   :: A        ! a +ve definite matrix stored in lower-triangular form
-    !!--++    integer,                     intent(in)   :: N        ! The order of A
-    !!--++    real (kind=cp),dimension(:), intent(out)  :: U        ! a lower triangular matrix such that U*U' = A.
-    !!--++    integer,                     intent(out)  :: Nullty   ! the rank deficiency of A.
-    !!--++    integer,                     intent(out)  :: Ifault   ! Error Code: 1 if N < 1, 2 If A Is not +ve semi-definite
-    !!--++                                                          !             0 Otherwise
-    !!--++    real (kind=cp),              intent(out)  :: Rmax     ! an estimate of the relative accuracy of the diagonal elements of U.
-    !!--++    real (kind=cp),dimension(:), intent(out)  :: R        ! array containing bounds on the relative accuracy of each diagonal element of U.
+    !!--++ SUBROUTINE CHOLA
+    !!--++
+    !!--++      Given a symmetric matrix order n as lower triangle in a( ),
+    !!--++      calculates an upper triangle, u( ), such that uprime * u = a.
+    !!--++      a must be positive semi-definite.  eta is set to multiplying
+    !!--++      factor determining effective zero for pivot.
     !!--++
     !!--++    Algorithm AS6, Applied Statistics, vol.17, (1968) with  modifications
     !!--++    by A.J.MILLER
@@ -762,11 +653,6 @@
     !!--++    Note: Eta should be set equal to the smallest +ve value such that
     !!--++          1.0_cp + eta is calculated as being greater than 1.0_cp in
     !!--++          the accuracy
-    !!--++
-    !!--++      Given a symmetric matrix order n as lower triangle in a( ),
-    !!--++      calculates an upper triangle, u( ), such that uprime * u = a.
-    !!--++      a must be positive semi-definite.  eta is set to multiplying
-    !!--++      factor determining effective zero for pivot.
     !!--++
     !!--++      arguments:-
     !!--++      a()     = input, a +ve definite matrix stored in lower-triangular form.
@@ -781,17 +667,17 @@
     !!--++                      = 0 otherwise
     !!-->>
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Chola(A, N, U, Nullty, Ifault, Rmax, R)
        !---- Arguments ----!
-       real(kind=cp),dimension(:), intent(in)   :: a
-       integer,                    intent(in)   :: n
-       real(kind=cp),dimension(:), intent(out)  :: u
-       integer,                    intent(out)  :: nullty
-       integer,                    intent(out)  :: ifault
-       real(kind=cp),              intent(out)  :: rmax
-       real(kind=cp),dimension(:), intent(out)  :: r
+       real(kind=cp),dimension(:), intent(in)   :: a           ! a +ve definite matrix stored in lower-triangular form
+       integer,                    intent(in)   :: n           ! The order of A
+       real(kind=cp),dimension(:), intent(out)  :: u           ! a lower triangular matrix such that U*U' = A.
+       integer,                    intent(out)  :: nullty      ! the rank deficiency of A
+       integer,                    intent(out)  :: ifault      ! Error Code: 1 if N < 1, 2 If A Is not +ve semi-definite. 0 Otherwise
+       real(kind=cp),              intent(out)  :: rmax        ! an estimate of the relative accuracy of the diagonal elements of U
+       real(kind=cp),dimension(:), intent(out)  :: r           ! array containing bounds on the relative accuracy of each diagonal element of U
 
        !---- Local variables ----!
        integer                   :: i, icol, irow, j, k, l, m
@@ -867,13 +753,6 @@
     !!----    integer,                       intent(in)    :: ipr    ! Printing Information
     !!----    integer, optional,             intent(in)    :: mode   ! if present the routine Local_DFP is replaced by Local_Rand
     !!----
-    !!--<<    Interface
-    !!----       Subroutine Model_Functn(Nparm,X, F)
-    !!----          real(kind=cp),dimension(:), intent(in)  :: x
-    !!----          real(kind=cp),              intent(out) :: f
-    !!----          integer,                    intent(in)  :: nparm
-    !!----       End Subroutine Model_Functn
-    !!----    End Interface
     !!-->>
     !!----
     !!----    Global optimization using the Boender-Timmer-Rinnoy Kan algorithm
@@ -1211,7 +1090,7 @@
     !!--..   6. Timmer, G.T.: Global optimization: a stochastic approach, (Ph.D. Thesis,
     !!--..      Erasmus University, Rotterdam, 1984).
     !!--..
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Csendes_Global(Model_Functn, Mini, Maxi, Nparm, Nsampl, Nsel, Nsig, X0, Nc, F0, Ipr,mode)
        !---- Arguments ----!
@@ -1661,12 +1540,12 @@
     End Subroutine Csendes_Global
 
     !!--++
-    !!--++ Subroutine Fun(R, F, Nparm, M, Mini, Maxi, Model_Functn)
+    !!--++ SUBROUTINE FUN
     !!--++
     !!--++    (Private)
     !!--++    Subroutine used by Csendes Subroutine
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Fun(R, F, Nparm, Mini, Maxi, Model_Functn)
        !---- Arguments ----!
@@ -1711,12 +1590,11 @@
     End Subroutine Init_Err_Optim
 
     !!----
-    !!---- Subroutine Init_Opt_Contitions(Opt)
-    !!----    type(Opt_Conditions_Type), intent(out) :: Opt
+    !!---- SUBROUTINE INIT_OPT_CONTITIONS
     !!----
     !!----    Initialize the variable Opt
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Init_Opt_Conditions(Opt)
        !---- Arguments ----!
@@ -1751,15 +1629,6 @@
     !!--++  integer,            intent(out)     :: Nfev    ! The Effective Number Of Function Evaluations
     !!--++  real, dimension(:), intent(in)      :: Mmin    ! Lower bounds of the parameters
     !!--++  real, dimension(:), intent(in)      :: Mmax    ! Upper bounds of the parameters
-    !!--++
-    !!--++  Interface
-    !!--++     Subroutine Model_Functn(nparm,x, f)
-    !!--++        Use CFML_Math_General, only : cp
-    !!--++        real(kind=cp),dimension(:), intent(in)  :: x
-    !!--++        real(kind=cp),              intent(out) :: f
-    !!--++        integer,                    intent(in)  :: nparm
-    !!--++     End Subroutine Model_Functn
-    !!--++  End Interface
     !!--++
     !!--++
     !!--++  MINIMUM OF A FUNCTION OF N VARIABLES USING A QUASI-NEWTON METHOD
@@ -3675,20 +3544,18 @@
        return
     End Subroutine Update
     !!----
-    !!---- Subroutine Write_Optimization_Conditions(ipr,c)
-    !!----    integer,                  intent(in)  :: ipr !Logical unit for writing
-    !!----    type(Opt_Conditions_type),intent(in)  :: c   !Opt Conditions
+    !!---- SUBROUTINE WRITE_OPTIMIZATION_CONDITIONS
     !!----
     !!---- Subroutine for Writing in unit=ipr the Opt_Conditions_type
     !!---- variable "c"
     !!----
-    !!---- Update: August - 2007
+    !!---- Update: 14/07/2015
     !!
 
     Subroutine Write_Optimization_Conditions(ipr,c)
        !---- Arguments ----!
-       integer,                  intent(in)  :: ipr
-       type(Opt_Conditions_type),intent(in)  :: c
+       integer,                  intent(in)  :: ipr  ! Unit for print
+       type(Opt_Conditions_type),intent(in)  :: c    ! Conditions object
 
        !--- Local Variables ---!
        character(len=20) :: line

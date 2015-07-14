@@ -39,59 +39,6 @@
 !!----    Update: 04/03/2011
 !!----
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,       only: cp
-!!--++    Use CFML_String_Utilities, only: U_case
-!!----
-!!---- VARIABLES
-!!----    BC_D6H
-!!----    BC_OH
-!!----    DEPMAT
-!!----    ERR_SYMTAB
-!!----    ERR_SYMTAB_MESS
-!!--++    IT_SET                       [Private]
-!!----    INTSYMD6H
-!!----    INTSYMOH
-!!----    KOV_D6H
-!!----    KOV_OH
-!!----    LATT
-!!----    LAUE_CLASS
-!!----    LTR_A
-!!----    LTR_B
-!!----    LTR_C
-!!----    LTR_F
-!!----    LTR_I
-!!----    LTR_R
-!!----    MAGMAT
-!!----    ML_D6H
-!!----    ML_OH
-!!----    MOD6
-!!----    POINT_GROUP
-!!--++    SPG_GEN                      [Private]
-!!----    SPGR_INFO_TYPE
-!!----    SPGR_INFO
-!!----    SYS_CRY
-!!----    TABLE_EQUIV_TYPE
-!!----    SYSTEM_EQUIV
-!!----    WYCK_INFO_TYPE
-!!----    WYCKOFF_INFO
-!!----    X_D6H
-!!----    X_OH
-!!----    ZAK_D6H
-!!----    ZAK_OH
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       GET_GENERATORS
-!!----       REMOVE_SPGR_INFO
-!!----       REMOVE_SYSTEM_EQUIV
-!!----       REMOVE_WYCKOFF_INFO
-!!--++       SET_IT_GEN                [Private]
-!!----       SET_SPGR_INFO
-!!----       SET_SYSTEM_EQUIV
-!!----       SET_WYCKOFF_INFO
 !!----
 !!
  Module CFML_Symmetry_Tables
@@ -99,7 +46,7 @@
     Use CFML_GlobalDeps,        only: cp
     Use CFML_String_Utilities,  only: U_Case
 
-    !---- Variables ----!
+    !---- Definitions ----!
     implicit none
     private
 
@@ -109,45 +56,23 @@
     public :: remove_spgr_info, remove_system_equiv, remove_wyckoff_info
 
 
-    !---- Definitions ----!
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
 
-    !!----
-    !!---- BC_D6H
-    !!----    character (len=*), dimension(24), parameter, public :: BC_D6h
-    !!----
-    !!----    Bradley & Cracknell Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character (len=*), dimension(24), parameter, public  :: BC_D6h =(/                  &
+    character(len=*), dimension(24), parameter, public  :: BC_D6h =(/           &
        "  E  "," C+_3"," C-_3"," C_2 "," C-_6"," C+_6","C'_23","C'_21","C'_22", &
        "C`_23","C`_21","C`_22","  I  "," S-_6"," S+_6"," s_h "," S+_3"," S-_3", &
-       " s_v3"," s_v1"," s_v2"," s_d3"," s_d1"," s_d2" /)
+       " s_v3"," s_v1"," s_v2"," s_d3"," s_d1"," s_d2" /)                               ! Bradley & Cracknell Notation
 
-    !!----
-    !!---- BC_OH
-    !!----    character(len=*), dimension(48), parameter, public :: BC_Oh
-    !!----
-    !!----    Bradley & Cracknell Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(48), parameter, public :: BC_Oh =(/             &
        "  E  "," C_2z"," C_2y"," C_2x","C+_31","C+_34","C+_33","C+_32","C-_31", &
        "C-_33","C-_32","C-_34"," C_2a"," C_2b","C-_4z","C+_4z","C-_4x"," C_2d", &
        " C_2f","C+_4x","C+_4y"," C_2c","C-_4y"," C_2e","  I  "," s_z "," s_y ", &
        " s_x ","S-_61","S-_64","S-_63","S-_62","S+_61","S+_63","S+_62","S+_64", &
        " s_da"," s_db","S+_4z","S-_4z","S+_4x"," s_dd"," s_df","S-_4x","S-_4y", &
-       " s_dc","S+_4y"," s_de"  /)
+       " s_dc","S+_4y"," s_de"  /)                                                      ! Bradley & Cracknell Notation
 
-    !!----
-    !!---- DEPMAT
-    !!----    character(len=*), dimension(72), parameter, public :: Depmat
-    !!----
-    !!----    Magnetic array
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(72), parameter, public :: Depmat = (/       &
        "( Dx, Dy, Dz)      ","(-Dx,-Dy, Dz)      ","(-Dx, Dy,-Dz)      ",   &
        "( Dx,-Dy,-Dz)      ","( Dz, Dx, Dy)      ","( Dz,-Dx,-Dy)      ",   &
@@ -172,63 +97,16 @@
        "(-Dx   ,   -Dy,-Dz)","(    Dy,-Dx+Dy,-Dz)","( Dx-Dy, Dx   ,-Dz)",   &
        "( Dx   ,    Dy,-Dz)","(   -Dy, Dx-Dy,-Dz)","(-Dx+Dy,-Dx   ,-Dz)",   &
        "(   -Dy,-Dx   , Dz)","(-Dx+Dy,    Dy, Dz)","( Dx   , Dx-Dy, Dz)",   &
-       "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"   /)
+       "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"   /)           ! Magnetic array
 
-    !!----
-    !!---- ERR_SYMTAB
-    !!----    logical, public :: Err_Symtab
-    !!----
-    !!----    Logical Variable to indicate an error on this module.
-    !!----
-    !!---- Update: January - 2005
-    !!
-    logical, public :: ERR_Symtab=.false.
-
-    !!----
-    !!---- ERR_SYMTAB_MESS
-    !!----    character(len=256), public :: ERR_SymTab_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_SymTab_Mess=" "
-
-    !!--++
-    !!--++ IT_SET
-    !!--++    logical, private :: it_set=.false.
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Variable to test if generators have been set
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    logical, private :: it_set=.false.
-
-    !!----
-    !!---- INTSYMD6H
-    !!----    character(len=* ), dimension(24), parameter, public:: IntSymD6h
-    !!----
-    !!----    International Symbols For Point Group Elements Of 6/mmm (D6h)
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=* ), dimension(24), parameter, public :: IntSymD6h =(/     &
        "  1           "," 3+ ( 0, 0, z)"," 3- ( 0, 0, z)","  2 ( 0, 0, z)",  &
        " 6- ( 0, 0, z)"," 6+ ( 0, 0, z)","  2 ( x, x, 0)","  2 ( x, 0, 0)",  &
        "  2 ( 0, y, 0)","  2 ( x,-x, 0)","  2 ( x,2x, 0)","  2 (2x, x, 0)",  &
        " -1           ","-3+ ( 0, 0, z)","-3- ( 0, 0, z)","  m ( x, y, 0)",  &
        "-6- ( 0, 0, z)","-6+ ( 0, 0, z)","  m ( x,-x, z)","  m ( x,2x, z)",  &
-       "  m (2x, x, z)","  m ( x, x, z)","  m ( x, 0, z)","  m ( 0, y, z)"   /)
+       "  m (2x, x, z)","  m ( x, x, z)","  m ( x, 0, z)","  m ( 0, y, z)"   /)         !  International Symbols For Point Group Elements Of 6/mmm (D6h)
 
-    !!----
-    !!---- INTSYMOH
-    !!----    character(len=* ), dimension(48), parameter, public :: IntSymOh
-    !!----
-    !!----    International Symbols For Point Group Elements Of M3M (Oh)
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=* ), dimension(48), parameter, public :: IntSymOh = (/     &
        "  1           ","  2 ( 0, 0, z)","  2 ( 0, y, 0)","  2 ( x, 0, 0)",  &
        " 3+ ( x, x, x)"," 3+ (-x, x,-x)"," 3+ ( x,-x,-x)"," 3+ (-x,-x, x)",  &
@@ -241,44 +119,20 @@
        "-3- ( x, x, x)","-3- ( x,-x,-x)","-3- (-x,-x, x)","-3- (-x, x,-x)",  &
        "  m ( x,-x, z)","  m ( x, x, z)","-4- ( 0, 0, z)","-4+ ( 0, 0, z)",  &
        "-4- ( x, 0, 0)","  m ( x, y,-y)","  m ( x, y, y)","-4+ ( x, 0, 0)",  &
-       "-4+ ( 0, y, 0)","  m (-x, y, x)","-4- ( 0, y, 0)","  m ( x, y, x)"   /)
+       "-4+ ( 0, y, 0)","  m (-x, y, x)","-4- ( 0, y, 0)","  m ( x, y, x)"   /)         ! International Symbols For Point Group Elements Of M3M (Oh)
 
-    !!----
-    !!---- KOV_D6H
-    !!----    character(len=*), dimension(24), parameter, public :: Kov_D6h
-    !!----
-    !!----    Kovalev Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(24), parameter, public :: Kov_d6h=(/       &
        " h1"," h3"," h5"," h4"," h6"," h2","h11"," h9"," h7"," h8","h12",  &
        "h10","h13","h15","h17","h16","h18","h14","h23",                    &
-       "h21","h19","h20","h24","h22"/)
+       "h21","h19","h20","h24","h22"/)                                                  ! Kovalev Notation
 
-    !!----
-    !!---- KOV_OH
-    !!----    character(len=*), dimension(48), parameter, public :: Kov_Oh
-    !!----
-    !!----    Kovalev Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(48), parameter, public :: Kov_Oh=(/               &
        " h1"," h4"," h3"," h2"," h9","h10","h12","h11"," h5"," h7"," h6"," h8",   &
        "h16","h13","h15","h14","h20","h18","h17","h19","h24","h23",               &
        "h22","h21","h25","h28","h27","h26","h33","h34","h36","h35",               &
        "h29","h31","h30","h32","h40","h37","h39","h38","h44","h42",               &
-       "h41","h43","h48","h47","h46","h45"/)
+       "h41","h43","h48","h47","h46","h45"/)                                            ! Kovalev Notation
 
-    !!----
-    !!---- LATT
-    !!----    character(len=* ), dimension( 8) , parameter, public :: Latt
-    !!----
-    !!----    Lattice Traslations
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=* ), dimension( 8) , parameter, public  :: Latt =(/  &
        "  P: { 000 }                                       ",          &
        "  A: { 000;  0  1/2 1/2 }+                         ",          &
@@ -287,46 +141,19 @@
        "  I: { 000; 1/2 1/2 1/2 }+                         ",          &
        "  R: { 000; 2/3 1/3 1/3; 1/3 2/3 2/3   }+          ",          &
        "  F: { 000;  0  1/2 1/2; 1/2  0  1/2; 1/2 1/2  0 }+",          &
-       "  Z: { 000;  Unconventional Z-centering vectors  }+"   /)
+       "  Z: { 000;  Unconventional Z-centering vectors  }+"   /)                       ! Laue Traslations
 
-    !!----
-    !!---- LAUE_CLASS
-    !!----    character(len=*), dimension(16), parameter, public :: Laue_class
-    !!----
-    !!----    Laue symbols
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(16), parameter, public :: laue_class=(/ &
        "-1   ","2/m  ","mmm  ","4/m  ","4/mmm","-3 R ","-3m R","-3   ", &
-       "-3m1 ","-31m ","6/m  ","6/mmm","m-3  ","m-3m ","m3   ","m3m  "/)
+       "-3m1 ","-31m ","6/m  ","6/mmm","m-3  ","m-3m ","m3   ","m3m  "/)                ! Laue Class
 
-    !!----
-    !!---- LITVIN_POINT_OP_LABEL
-    !!----    character(len=*), dimension(48), parameter, public :: Litvin_point_op_label
-    !!----
-    !!----    Symbols of point operators as given by Litvin (Non-hexagonal)
-    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
-    !!----
-    !!---- Update: November - 2012
-    !!
     character(len=*), dimension(48), parameter, public :: Litvin_point_op_label=(/ &
        "1       ","4x      ","4x-1    ","4y      ","4y-1    ","4z      ","4z-1    ","2x      ", &
        "2y      ","2z      ","2xy     ","2-xy    ","2yz     ","2-yz    ","2xz     ","2-xz    ", &
        "3xyz    ","3xyz-1  ","3-xyz   ","3-xyz-1 ","3x-yz   ","3x-yz-1 ","3xy-z   ","3xy-z-1 ", &
        "-1      ","-4x     ","-4x-1   ","-4y     ","-4y-1   ","-4z     ","-4z-1   ","mx      ", &
        "my      ","mz      ","mxy     ","m-xy    ","myz     ","m-yz    ","mxz     ","m-xz    ", &
-       "-3xyz   ","-3xyz-1 ","-3-xyz  ","-3-xyz-1","-3x-yz  ","-3x-yz-1","-3xy-z  ","-3xy-z-1"/)
-
-    !!----
-    !!---- lITVIN_POINT_OP
-    !!----    character(len=*), dimension(48), parameter, public :: Litvin_point_op
-    !!----
-    !!----    Jones Faithful symbols of point operators as given by Litvin (Non-hexagonal)
-    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
-    !!----
-    !!---- Update: November - 2012
-    !!
+       "-3xyz   ","-3xyz-1 ","-3-xyz  ","-3-xyz-1","-3x-yz  ","-3x-yz-1","-3xy-z  ","-3xy-z-1"/)     ! Symbols of point operators as given by Litvin (Non-hexagonal)
 
     character(len=*), dimension(48), parameter, public :: Litvin_point_op=(/ &
        "x,y,z   ", "x,-z,y  ", "x,z,-y  ", "z,y,-x  ", "-z,y,x  ",           &
@@ -338,108 +165,19 @@
        "-y,x,-z ", "-x,y,z  ", "x,-y,z  ", "x,y,-z  ", "-y,-x,z ",           &
        "y,x,z   ", "x,-z,-y ", "x,z,y   ", "-z,y,-x ", "z,y,x   ",           &
        "-z,-x,-y", "-y,-z,-x", "y,-z,x  ", "z,x,-y  ", "y,z,-x  ",           &
-       "-z,x,y  ", "-y,z,x  ", "z,-x,y  "/)
+       "-z,x,y  ", "-y,z,x  ", "z,-x,y  "/)                                             ! ones Faithful symbols of point operators as given by Litvin (Non-hexagonal)
 
-    !!----
-    !!---- Litvin_point_op_hex_label
-    !!----    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex_label
-    !!----
-    !!----    Symbols of point operators as given by Litvin (Hexagonal)
-    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
-    !!----
-    !!---- Update: November - 2012
-    !!
     character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex_label=(/ &
        "1    ","6z   ","3z   ","2z   ","3z-1 ","6z-1 ","2x   ","2xy  ",                &
        "2y   ","21   ","22   ","23   ","-1   ","-6z  ","-3z  ","mz   ",                &
-       "-3z-1","-6z-1","mx   ","mxy  ","my   ","m1   ","m2   ","m3   "/)
-
-    !!----
-    !!---- Litvin_point_op_hex
-    !!----    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex
-    !!----
-    !!----    Jones Faithful symbols of point operators as given by Litvin (Hexagonal)
-    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
-    !!----
-    !!---- Update: November - 2012
-    !!
+       "-3z-1","-6z-1","mx   ","mxy  ","my   ","m1   ","m2   ","m3   "/)                ! Symbols of point operators as given by Litvin (Hexagonal)
 
     character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex=(/      &
        "x,y,z     ","x-y,x,z   ","-y,x-y,z  ","-x,-y,z   ","-x+y,-x,z ","y,-x+y,z  ", &
        "x-y,-y,-z ","y,x,-z    ","-x,-x+y,-z","x,x-y,-z  ","-x+y,y,-z ","-y,-x,-z  ", &
        "-x,-y,-z  ","-x+y,-x,-z","y,-x+y,-z ","x,y,-z    ","x-y,x,-z  ","-y,x-y,-z ", &
-       "-x+y,y,z  ","-y,-x,z   ","x,x-y,z   ","-x,-x+y,z ","x-y,-y,z  ","y,x,z     "/)
+       "-x+y,y,z  ","-y,-x,z   ","x,x-y,z   ","-x,-x+y,z ","x-y,-y,z  ","y,x,z     "/)  ! Jones Faithful symbols of point operators as given by Litvin (Hexagonal)
 
-    !!----
-    !!---- LTR_A
-    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_A
-    !!----
-    !!----    Lattice Traslations of type A
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_a =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
-
-    !!----
-    !!---- LTR_B
-    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_B
-    !!----
-    !!----    Lattice Traslations of type B
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_b =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
-
-    !!----
-    !!---- LTR_C
-    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_C
-    !!----
-    !!----    Lattice Traslations of type C
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_c =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
-
-    !!----
-    !!---- LTR_F
-    !!----    real(kind=cp), dimension(3,4), parameter, public
-    !!----
-    !!----    Lattice Traslations of type F
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,4), parameter, public :: &
-                   Ltr_f =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5, 0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) )
-
-    !!----
-    !!---- LTR_I
-    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_I
-    !!----
-    !!----    Lattice Traslations of type I
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_i =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
-
-    !!----
-    !!---- LTR_R
-    !!----    real(kind=cp), dimension(3,3), parameter, public :: Ltr_R
-    !!----
-    !!----    Lattice Traslations of type R
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), dimension(3,3), parameter, public :: &
-                   Ltr_r =reshape( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0,  1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) )
-
-    !!----
-    !!---- MAGMAT
-    !!----    character(len=* ), dimension(72), parameter, public :: Magmat
-    !!----
-    !!----    Magnetic array
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=* ), dimension(72), parameter, public :: Magmat = (/      &
        "( Mx, My, Mz)      ","(-Mx,-My, Mz)      ","(-Mx, My,-Mz)      ",   &
        "( Mx,-My,-Mz)      ","( Mz, Mx, My)      ","( Mz,-Mx,-My)      ",   &
@@ -464,43 +202,74 @@
        "(-Mx   ,   -My,-Mz)","(    My,-Mx+My,-Mz)","( Mx-My, Mx   ,-Mz)",   &
        "( Mx   ,    My,-Mz)","(   -My, Mx-My,-Mz)","(-Mx+My,-Mx   ,-Mz)",   &
        "(   -My,-Mx   , Mz)","(-Mx+My,    My, Mz)","( Mx   , Mx-My, Mz)",   &
-       "(    My, Mx   , Mz)","( Mx-My,   -My, Mz)","(-Mx   ,-Mx+My, Mz)"   /)
+       "(    My, Mx   , Mz)","( Mx-My,   -My, Mz)","(-Mx   ,-Mx+My, Mz)"   /)           ! Magnetic array
 
-    !!----
-    !!---- ML_D6H
-    !!----    character(len=*), dimension(24), parameter, public:: ML_D6h
-    !!----
-    !!----    Miller & Love Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(24), parameter, public :: ML_d6h=(/               &
        " 1"," 3"," 5"," 4"," 6"," 2"," 9"," 7","11","12","10"," 8","13","15","17",&
-       "16","18","14","21","19","23","24","22","20"/)
+       "16","18","14","21","19","23","24","22","20"/)                                   ! Miller and Love
 
-    !!----
-    !!---- ML_OH
-    !!----     character(len=*), dimension(48), parameter, public :: ML_Oh
-    !!----
-    !!----     Miller & Love Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
     character(len=*), dimension(48), parameter, public :: ML_Oh=(/                &
        " 1"," 4"," 3"," 2"," 9","10","12","11"," 5"," 7"," 6"," 8","16","13","15",&
        "14","20","18","17","19","24","23","22","21","25","28","27","26","33","34",&
        "36","35","29","31","30","32","40","37","39","38","44","42","41","43","48",&
-       "47","46","45"/)
+       "47","46","45"/)                                                                 ! Miller and Love
 
-    !!----
-    !!---- MOD6
-    !!----    Integer,  dimension(36,3,3), parameter, public :: Mod6
-    !!----
-    !!----    Matrix Types For Rotational Operators In Conventional Basis
-    !!----    1->24 Oh, 25->36 D6h
-    !!----
-    !!---- Update: February - 2005
-    !!
+    character(len=*), dimension(41), parameter, public :: point_group=(/  &
+       "1    ","-1   ","2    ","m    ","2/m  ","222  ","mm2  ","m2m  ",   &
+       "2mm  ","mmm  ","4    ","-4   ","4/m  ","422  ","4mm  ","-42m ",   &
+       "-4m2 ","4/mmm","3    ","-3   ","32   ","3m   ","-3m  ","312  ",   &
+       "31m  ","-31m ","6    ","-6   ","6/m  ","622  ","6mm  ","-62m ",   &
+       "-6m2 ","6/mmm","23   ","m-3  ","432  ","-43m ","m-3m ","m3   ",   &
+       "m3m  "/)                                                                        ! Point Group Symbols
+
+    character(len=* ), dimension(7) , parameter, public:: sys_cry =(/  &
+       "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
+       "Trigonal    ","Hexagonal   ","Cubic       " /)                                  ! System Type
+
+    character(len=* ), dimension(24), parameter, public   :: X_d6h = (/      &
+       "( x  ,   y, z)","(  -y, x-y, z)","(-x+y,-x  , z)","(-x  ,  -y, z)",  &
+       "(   y,-x+y, z)","( x-y, x  , z)","(   y, x  ,-z)","( x-y,  -y,-z)",  &
+       "(-x  ,-x+y,-z)","(  -y,-x  ,-z)","(-x+y,   y,-z)","( x  , x-y,-z)",  &
+       "(-x  ,  -y,-z)","(   y,-x+y,-z)","( x-y, x  ,-z)","( x  ,   y,-z)",  &
+       "(  -y, x-y,-z)","(-x+y,-x  ,-z)","(  -y,-x  , z)","(-x+y,   y, z)",  &
+       "( x  , x-y, z)","(   y, x  , z)","( x-y,  -y, z)","(-x  ,-x+y, z)"   /)
+
+    character(len=* ), dimension(48), parameter, public  :: X_oh = (/                 &
+       "( x, y, z)","(-x,-y, z)","(-x, y,-z)","( x,-y,-z)","( z, x, y)","( z,-x,-y)", &
+       "(-z,-x, y)","(-z, x,-y)","( y, z, x)","(-y, z,-x)","( y,-z,-x)","(-y,-z, x)", &
+       "( y, x,-z)","(-y,-x,-z)","( y,-x, z)","(-y, x, z)","( x, z,-y)","(-x, z, y)", &
+       "(-x,-z,-y)","( x,-z, y)","( z, y,-x)","( z,-y, x)","(-z, y, x)","(-z,-y,-x)", &
+       "(-x,-y,-z)","( x, y,-z)","( x,-y, z)","(-x, y, z)","(-z,-x,-y)","(-z, x, y)", &
+       "( z, x,-y)","( z,-x, y)","(-y,-z,-x)","( y,-z, x)","(-y, z, x)","( y, z,-x)", &
+       "(-y,-x, z)","( y, x, z)","(-y, x,-z)","( y,-x,-z)","(-x,-z, y)","( x,-z,-y)", &
+       "( x, z, y)","(-x, z,-y)","(-z,-y, x)","(-z, y,-x)","( z,-y,-x)","( z, y, x)"  /)
+
+    character (len=*), dimension(24), parameter, public :: Zak_D6h =(/          &
+       "   E   "," C(z)_3","C(2z)_3","  C_2  ","C(5z)_6"," C(z)_6","  U(xy)",   &
+       "  U(x) ","  U(y) ","  U(3) ","  U(2) ","  U(1) ","   I   ","S(5z)_6",   &
+       " S(z)_6","  s(z) "," S(z)_3","S(2z)_3"," s(xy) ","  s(x) ","  s(y) ",   &
+       "  s(3) ","  s(2) ","  s(1) " /)                                                 ! Zak Notation
+
+    character(len=* ), dimension(48), parameter, public :: Zak_Oh =(/           &
+       "     E     ","    U(z)   ","    U(y)   ","    U(x)   ","  C(xyz)_3 ",   &
+       " C(-xy-z)_3"," C(x-y-z)_3"," C(-x-yz)_3"," C(2xyz)_3 ","C(2x-y-z)_3",   &
+       " C(2x-yz)_3","C(-2xy-z)_3","    U(xy)  ","   U(-xy)  ","   C(3z)_4 ",   &
+       "   C(z)_4  ","   C(3x)_4 ","    U(yz)  ","   U(y-z)  ","   C(x)_4  ",   &
+       "   C(y)_4  ","    U(xz)  ","   C(3y)_4 ","   U(x-z)  ","      I    ",   &
+       "    s(z)   ","    s(y)   ","    s(x)   "," S(5xyz)_6 ","S(-5xy-z)_6",   &
+       "S(5x-y-z)_6","S(-5x-yz)_6","  S(xyz)_6 "," S(x-y-z)_6"," S(-x-yz)_6",   &
+       " S(-xy-z)_6","    s(xy)  ","   s(-xy)  ","   S(z)_4  ","  S(3z)_4  ",   &
+       "   S(x)_4  ","    s(yz)  ","   s(y-z)  ","  S(3x)_4  ","  S(3y)_4  ",   &
+       "    s(xz)  ","   S(y)_4  ","   s(x-z)  " /)
+
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_a =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )   ! Lattice Traslations A
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_b =reshape( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )   ! Lattice Traslations B
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_c =reshape( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )   ! Lattice Traslations C
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_i =reshape( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )   ! Lattice Traslations I
+    real(kind=cp), dimension(3,4), parameter, public :: Ltr_f =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5, 0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) ) ! Lattice Traslations F
+    real(kind=cp), dimension(3,3), parameter, public :: Ltr_r =reshape( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0,  1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) ) ! Lattice Traslations R
+
+
     Integer,  dimension(36,3,3), parameter, public :: Mod6 = reshape (  (/     &
        1,-1,-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1,                   &
       -1, 1, 0, 0, 0, 0, 1, 0,-1,-1, 0, 1, 0, 1,-1, 0,-1, 1,                   &
@@ -519,99 +288,35 @@
        0, 0, 0, 0, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0, 0, 0, 1, 1,                   &
       -1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
        1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0,-1,-1, 1, 1, 0, 0,                   &
-       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1 /), (/36,3,3/) )
+       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1 /), (/36,3,3/) )            ! Matrix Types For Rotational Operators In Conventional Basis 1->24 Oh, 25->36 D6h
 
-    !!----
-    !!---- POINT_GROUP
-    !!----    character(len=*), dimension(39), parameter, public :: Point_group
-    !!----
-    !!----    Point Group Symbols
-    !!----
-    !!---- Update: July - 2014: added m3 and m3m for compatibility with Laue_class
-    !!
-    character(len=*), dimension(41), parameter, public :: point_group=(/  &
-       "1    ","-1   ","2    ","m    ","2/m  ","222  ","mm2  ","m2m  ",   &
-       "2mm  ","mmm  ","4    ","-4   ","4/m  ","422  ","4mm  ","-42m ",   &
-       "-4m2 ","4/mmm","3    ","-3   ","32   ","3m   ","-3m  ","312  ",   &
-       "31m  ","-31m ","6    ","-6   ","6/m  ","622  ","6mm  ","-62m ",   &
-       "-6m2 ","6/mmm","23   ","m-3  ","432  ","-43m ","m-3m ","m3   ",   &
-       "m3m  "/)
-
-    !!--++
-    !!--++ SPG_GEN
-    !!--++    character(len=120), private, dimension(230) :: spg_gen
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Variable to hold the generators of all space groups in the standard setting
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    character(len=120), private, dimension(230) :: spg_gen
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!----
     !!---- TYPE :: SPGR_INFO_TYPE
-    !!--..
-    !!---- Type, public :: Spgr_Info_Type
-    !!----    integer                 :: N           ! Number of the Spacegroup
-    !!----    character (len=12)      :: HM          ! Hermann-Mauguin
-    !!----    character (len=16)      :: Hall        ! Hall
-    !!----    integer                 :: Laue        ! Laue Group
-    !!----    integer                 :: Pg          ! Point group
-    !!----    integer, dimension(6)   :: Asu         ! Asymmetric unit * 24
-    !!----    character (len= 5)      :: Inf_extra   ! Extra information
-    !!---- End Type Spgr_Info_Type
     !!----
     !!----    Definition for General Info about Space Groups
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Spgr_Info_Type
-       integer                 :: N
-       character (len=12)      :: HM
-       character (len=16)      :: Hall
-       integer                 :: Laue
-       integer                 :: Pg
-       integer, dimension(6)   :: Asu
-       character (len= 5)      :: Inf_Extra
+       integer                 :: N            ! Number of the Spacegroup
+       character (len=12)      :: HM           ! Hermann-Mauguin
+       character (len=16)      :: Hall         ! Hall
+       integer                 :: Laue         ! Laue Group
+       integer                 :: Pg           ! Point group
+       integer, dimension(6)   :: Asu          ! Asymmetric unit * 24
+       character (len= 5)      :: Inf_Extra    ! Extra information
     End Type Spgr_Info_Type
 
     !!----
-    !!---- SPGR_INFO
-    !!----    Type(Spgr_Info_Type), allocatable, dimension(:), public :: Spgr_info
-    !!----
-    !!----    General Info about Space Groups
-    !!----    Present dimension: 612
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Spgr_Info_Type), allocatable, dimension(:), public :: Spgr_Info
-
-    !!----
-    !!---- SYS_CRY
-    !!----    character(len=* ), dimension(7) , parameter, public :: Sys_cry
-    !!----
-    !!----    System Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=* ), dimension(7) , parameter, public:: sys_cry =(/  &
-       "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
-       "Trigonal    ","Hexagonal   ","Cubic       " /)
-
-    !!----
     !!---- TYPE :: TABLE_EQUIV_TYPE
-    !!--..
-    !!---- Type, public :: Table_Equiv_Type
-    !!----    character(len= 6)      :: SC     ! Schoenflies
-    !!----    character(len=17)      :: ML     ! Miller & Love
-    !!----    character(len=18)      :: KO     ! Kovalev
-    !!----    character(len=32)      :: BC     ! Bradley & Cracknell
-    !!----    character(len=18)      :: ZA     ! Zak
-    !!---- End Type Table_Equiv_Type
     !!----
     !!----    Definition for Equivalences on a Table
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Table_Equiv_Type
        character(len= 6)      :: SC                ! Schoenflies
@@ -622,108 +327,31 @@
     End Type Table_Equiv_Type
 
     !!----
-    !!---- SYSTEM_EQUIV
-    !!----    Type(Table_Equiv_Type), allocatable, dimension(:), public :: System_Equiv
-    !!----
-    !!----    General Info about Space Groups
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Table_Equiv_Type), allocatable, dimension(:), public :: System_Equiv
-
-    !!----
     !!---- TYPE :: WYCK_INFO_TYPE
-    !!--..
-    !!---- Type, public :: Wyck_Info_Type
-    !!----    character (len=12)                :: HM          ! Hermann-Mauguin
-    !!----    integer                           :: Norbit      ! Number of orbites
-    !!----    character (len= 15),dimension(24) :: Corbit      ! Generator of the orbit
-    !!---- End Type Wyck_Info_Type
     !!----
     !!----    Definition for Wyckoff Positions acording to IT
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Wyck_Info_Type
-       character (len=12)               :: HM
-       integer                          :: Norbit
-       character (len=15),dimension(26) :: Corbit
+       character (len=12)               :: HM       ! Hermann-Mauguin
+       integer                          :: Norbit   ! Number of orbites
+       character (len=15),dimension(26) :: Corbit   ! Generator of the orbit
     End Type Wyck_Info_Type
 
-    !!----
-    !!---- WYCKOFF_INFO
-    !!----    Type(Wyck_Info_Type), allocatable, dimension(:), public :: Wyckoff_info
-    !!----
-    !!----    General Info about Wyckoff Positions on IT
-    !!----    Present dimension:
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Wyck_Info_Type), allocatable, dimension(:), public :: Wyckoff_Info
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical                            :: it_set=.false.   ! Variable to test if generators have been set
+    character(len=120), dimension(230) :: spg_gen          ! Variable to hold the generators of all space groups in the standard setting
 
-    !!----
-    !!---- X_D6H
-    !!----    character(len=* ), dimension(24), parameter, public:: X_D6h
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=* ), dimension(24), parameter, public   :: X_d6h = (/      &
-       "( x  ,   y, z)","(  -y, x-y, z)","(-x+y,-x  , z)","(-x  ,  -y, z)",  &
-       "(   y,-x+y, z)","( x-y, x  , z)","(   y, x  ,-z)","( x-y,  -y,-z)",  &
-       "(-x  ,-x+y,-z)","(  -y,-x  ,-z)","(-x+y,   y,-z)","( x  , x-y,-z)",  &
-       "(-x  ,  -y,-z)","(   y,-x+y,-z)","( x-y, x  ,-z)","( x  ,   y,-z)",  &
-       "(  -y, x-y,-z)","(-x+y,-x  ,-z)","(  -y,-x  , z)","(-x+y,   y, z)",  &
-       "( x  , x-y, z)","(   y, x  , z)","( x-y,  -y, z)","(-x  ,-x+y, z)"   /)
+    logical,            public :: ERR_Symtab=.false.       ! Logical Variable to indicate an error on this module.
+    character(len=256), public :: ERR_SymTab_Mess=" "      ! String containing information about the last error
 
-    !!----
-    !!---- X_OH
-    !!----    character(len=* ), dimension(48), parameter, public :: X_oh
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=* ), dimension(48), parameter, public  :: X_oh = (/                 &
-       "( x, y, z)","(-x,-y, z)","(-x, y,-z)","( x,-y,-z)","( z, x, y)","( z,-x,-y)", &
-       "(-z,-x, y)","(-z, x,-y)","( y, z, x)","(-y, z,-x)","( y,-z,-x)","(-y,-z, x)", &
-       "( y, x,-z)","(-y,-x,-z)","( y,-x, z)","(-y, x, z)","( x, z,-y)","(-x, z, y)", &
-       "(-x,-z,-y)","( x,-z, y)","( z, y,-x)","( z,-y, x)","(-z, y, x)","(-z,-y,-x)", &
-       "(-x,-y,-z)","( x, y,-z)","( x,-y, z)","(-x, y, z)","(-z,-x,-y)","(-z, x, y)", &
-       "( z, x,-y)","( z,-x, y)","(-y,-z,-x)","( y,-z, x)","(-y, z, x)","( y, z,-x)", &
-       "(-y,-x, z)","( y, x, z)","(-y, x,-z)","( y,-x,-z)","(-x,-z, y)","( x,-z,-y)", &
-       "( x, z, y)","(-x, z,-y)","(-z,-y, x)","(-z, y,-x)","( z,-y,-x)","( z, y, x)"  /)
+    Type(Spgr_Info_Type),   allocatable, dimension(:), public :: Spgr_Info      ! General Info about Space Groups
+    Type(Table_Equiv_Type), allocatable, dimension(:), public :: System_Equiv   ! General Info about Space Groups
+    Type(Wyck_Info_Type),   allocatable, dimension(:), public :: Wyckoff_Info
 
-    !!----
-    !!---- ZAK_D6H
-    !!----    character (len=*), dimension(24), parameter, public :: Zak_D6h
-    !!----
-    !!----    Zak Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character (len=*), dimension(24), parameter, public :: Zak_D6h =(/          &
-       "   E   "," C(z)_3","C(2z)_3","  C_2  ","C(5z)_6"," C(z)_6","  U(xy)",   &
-       "  U(x) ","  U(y) ","  U(3) ","  U(2) ","  U(1) ","   I   ","S(5z)_6",   &
-       " S(z)_6","  s(z) "," S(z)_3","S(2z)_3"," s(xy) ","  s(x) ","  s(y) ",   &
-       "  s(3) ","  s(2) ","  s(1) " /)
-
-    !!----
-    !!---- ZAK_OH
-    !!----    character(len=* ), dimension(48), parameter, public :: Zak_Oh
-    !!----
-    !!----    Zak Notation
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=* ), dimension(48), parameter, public :: Zak_Oh =(/           &
-       "     E     ","    U(z)   ","    U(y)   ","    U(x)   ","  C(xyz)_3 ",   &
-       " C(-xy-z)_3"," C(x-y-z)_3"," C(-x-yz)_3"," C(2xyz)_3 ","C(2x-y-z)_3",   &
-       " C(2x-yz)_3","C(-2xy-z)_3","    U(xy)  ","   U(-xy)  ","   C(3z)_4 ",   &
-       "   C(z)_4  ","   C(3x)_4 ","    U(yz)  ","   U(y-z)  ","   C(x)_4  ",   &
-       "   C(y)_4  ","    U(xz)  ","   C(3y)_4 ","   U(x-z)  ","      I    ",   &
-       "    s(z)   ","    s(y)   ","    s(x)   "," S(5xyz)_6 ","S(-5xy-z)_6",   &
-       "S(5x-y-z)_6","S(-5x-yz)_6","  S(xyz)_6 "," S(x-y-z)_6"," S(-x-yz)_6",   &
-       " S(-xy-z)_6","    s(xy)  ","   s(-xy)  ","   S(z)_4  ","  S(3z)_4  ",   &
-       "   S(x)_4  ","    s(yz)  ","   s(y-z)  ","  S(3x)_4  ","  S(3y)_4  ",   &
-       "    s(xz)  ","   S(y)_4  ","   s(x-z)  " /)
 
  Contains
 
@@ -732,9 +360,7 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Get_Generators(Spg,Gener)
-    !!----    character (len=*), intent(in)  :: spg     !  In -> Hermann_Mauguin symbol or number of S.Group
-    !!----    character (len=*), intent(out) :: gener   ! Out -> String with all generators
+    !!---- SUBROUTINE GET_GENERATORS
     !!----
     !!----    Provides the string "gener" containing the list of the generators
     !!----    (as given in the IT Crystallography) corresponding to the space group
@@ -745,12 +371,12 @@
     !!----    group "R 3 c" is  gener = " x+1/3,y+2/3,z+2/3; -y,x-y,z; -y,-x,z+1/2"
     !!----    The variable is the string contained between the quotes.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Get_Generators(Spg,Gener)
        !---- Arguments ----!
-       character (len=*), intent(in)  :: spg
-       character (len=*), intent(out) :: gener
+       character (len=*), intent(in)  :: spg      ! Hermann_Mauguin symbol or number of S.Group
+       character (len=*), intent(out) :: gener    ! String with all generators
 
        !----  Local variables ----!
        logical                 :: ok
@@ -790,11 +416,11 @@
     End Subroutine Get_Generators
 
     !!----
-    !!---- Subroutine Remove_Spgr_Info()
+    !!---- SUBROUTINE REMOVE_SPGR_INFO
     !!----
     !!----    Deallocating SPGR_INFO Data
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Remove_Spgr_Info()
 
@@ -804,11 +430,11 @@
     End Subroutine Remove_Spgr_Info
 
     !!----
-    !!---- Subroutine Remove_System_Equiv()
+    !!---- SUBROUTINE REMOVE_SYSTEM_EQUIV
     !!----
     !!----    Deallocating SPGR_INFO Data
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Remove_System_Equiv()
 
@@ -818,11 +444,11 @@
     End Subroutine Remove_System_Equiv
 
     !!----
-    !!---- Subroutine Remove_Wyckoff_Info()
+    !!---- SUBROUTINE REMOVE_WYCKOFF_INFO
     !!----
     !!----    Deallocating WYCKOFF_INFO Data
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Remove_Wyckoff_Info()
 
@@ -832,13 +458,13 @@
     End Subroutine Remove_Wyckoff_Info
 
     !!--++
-    !!--++ Subroutine Set_It_Gen()
+    !!--++ SUBROUTINE SET_IT_GEN
     !!--++
     !!--++    (PRIVATE)
     !!--++    Fills the components of the Spg_Gen character variable
     !!--++    Called once by the public subroutine Get_Generators
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 14/07/2015
     !!
     Subroutine Set_It_Gen()
 

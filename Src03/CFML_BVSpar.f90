@@ -40,55 +40,12 @@
 !!----    Updated: 16/12/2014
 !!----
 !!----
-!!---- DEPENDENCIES
-!!----
-!!----
-!!---- VARIABLES
-!!----    AP_SPECIES_N
-!!----    AP_TABLE
-!!----    BVEL_ANIONS_N
-!!----    BVEL_ANIONS
-!!----    BVEL_ANIONS_RION
-!!----    BVEL_SPECIES_N
-!!----    BVEL_TABLE
-!!----    BVS_ANIONS_N
-!!----    BVS_ANIONS
-!!----    BVS_ANIONS_RION
-!!----    BVS_PAR_TYPE
-!!----    BVS_SPECIES_N
-!!----    BVS_TABLE
-!!----    SBVS_PAR_TYPE
-!!----    SBVS_SPECIES_N
-!!----    SBVS_TABLE
-!!----    TABLE_Alpha
-!!----    TABLE_Avcoor
-!!----    TABLE_B
-!!----    TABLE_D0
-!!----    TABLE_Dzero
-!!----    TABLE_Rcutoff
-!!----    TABLE_Ref
-!!----    TABLE_Rmin
-!!----    TABLE_Rzero
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       DEALLOCATE_AP_TABLE
-!!----       DEALLOCATE_BVEL_TABLE
-!!----       DEALLOCATE_BVS_TABLE
-!!----       SET_ATOMIC_PROPERTIES
-!!----       SET_BVEL_TABLE
-!!----       SET_BVS_TABLE
-!!----       SET_SBVS_TABLE
-!!----       SET_TABLE_D0_B
-!!----
 !!
    Module CFML_BVS_Table
     !---- Use Files ----!
     Use CFML_GlobalDeps,  only: Cp
 
-    !---- Variables ----!
+    !---- Definitions ----!
     implicit none
     private
 
@@ -97,348 +54,17 @@
               Set_Atomic_Properties, Set_Bvel_Table, Set_Bvs_Table, Set_Sbvs_Table
 
 
-    !!----
-    !!---- Ap_species_n
-    !!----    integer, parameter, public :: Ap_species_n=183
-    !!----
-    !!----    Number of atomic properties species in:  Ap_Table
-    !!----
-    !!---- Created: January - 2015
-    !!
-    integer, parameter, public :: Ap_species_n=183
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    integer, parameter, public :: AP_SPECIES_N=183   ! Number of atomic properties species in:  Ap_Table
+    integer, parameter, public :: BVEL_ANIONS_N=1    ! Number of anions known in BVEL Table in: Stefan Adams and R. Prasada Rao
+    integer, parameter, public :: BVEL_SPECIES_N=132 ! Maximum Number of species in BVEL_Table
+    integer, parameter, public :: BVS_ANIONS_N=14    ! Number of anions known in BVS Table in O"Keefe, Breese, Brown
+    integer, parameter, public :: BVS_SPECIES_N=247  ! Maximum Number of species in BVS_Table
+    integer, parameter, public :: SBVS_SPECIES_N=168 ! Maximum Number of species in SBVS_Table
 
-    !!----
-    !!---- TYPE :: Atomic_Properties_Type
-    !!--..
-    !!---- Type, public :: Atomic_Properties_Type
-    !!----     integer          :: Z        ! Atomic number
-    !!----     character(len=4) :: Symb     ! Element
-    !!----     integer          :: oxs      ! Nominal oxidation state
-    !!----     integer          :: dox      ! Default oxidation state
-    !!----     real             :: Mass     ! Atomic mass in atomic units
-    !!----     integer          :: n        ! Principal Quantum number (period)
-    !!----     integer          :: g        ! Group in the periodic table
-    !!----     integer          :: b        ! Block (s:0, p:1, d:2, f:3)
-    !!----     real             :: Rc       ! Covalent radius
-    !!----     real             :: sigma    ! Softness
-    !!---- End Type Atomic_Properties_Type
-    !!----
-    !!----    Type Definition for single atomic properties
-    !!----
-    !!---- Created: January - 2015
-    !!
-    Type, public :: Atomic_Properties_Type
-        integer          :: Z        ! Atomic number
-        character(len=4) :: Symb     ! Element with charge
-        integer          :: oxs      ! Nominal oxidation state
-        integer          :: dox      ! Default oxidation state
-        real(kind=cp)    :: Mass     ! Atomic mass in atomic units
-        integer          :: n        ! Principal Quantum number (period)
-        integer          :: g        ! Group in the periodic table
-        integer          :: b        ! Block (s:0, p:1, d:2, f:3)
-        real(kind=cp)    :: Rc       ! Covalent radius
-        real(kind=cp)    :: sigma    ! Softness
-    End Type Atomic_Properties_Type
-
-    Type(Atomic_Properties_Type), allocatable,  dimension(:),public :: Ap_Table
-
-    !!----
-    !!---- BVEL_ANIONS_N
-    !!----    integer, parameter, public :: bvel_anions_n
-    !!----
-    !!----    Number of anions known in BVEL Table in: Stefan Adams and R. Prasada Rao
-    !!----
-    !!---- Created: December - 2014
-    !!
-    integer, parameter, public :: bvel_anions_n=1
-
-    !!----
-    !!---- BVEL_Anions
-    !!----    character(len=4), parameter, dimension(bvel_anions_n) :: bvel_anions
-    !!----
-    !!----    Anions known from Stefan Adams and R. Prasada Rao
-    !!----
-    !!---- Created: December - 2014
-    !!
-    character(len=*), parameter, dimension(bvel_anions_n), public :: bvel_anions = &
-                     (/"O-2 "/)
-
-    !!----
-    !!---- BVEL_Anions_Rion
-    !!----    real(kind=cp), parameter, dimension(bvel_anions_n) :: bvel_anions_rion
-    !!----
-    !!----    Radii Ionic for Anions in BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp), parameter, dimension(bvel_anions_n), public :: bvel_anions_rion = &
-                      (/1.40/)
-
-    !!----
-    !!---- TYPE :: BVEL_PAR_TYPE
-    !!--..
-    !!---- Type, public :: Bvel_Par_Type
-    !!---   character(len=5)                       :: symb     !Symbol of the cation
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: Avcoor   !Average cation coordination number
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rzero    !Modified Bond-Valence parameter R0
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rcutoff  !Cutoff distance in Angstroms
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: Dzero    !First Morse potential parameter (eV)
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: Rmin     !Second Morse potential parameter (Angstroms)
-    !!---   real(kind=cp),dimension(bvel_anions_n) :: alpha    !Third Morse potential parameter (1/b) (Angstroms^-1)
-    !!---   integer      ,dimension(bvel_anions_n) :: refnum   !Pointer to reference paper
-    !!---- End Type Bvel_Par_Type
-    !!----
-    !!----    Type Definition for BVEL Parameters
-    !!----
-    !!---- Created: December - 2014
-    !!
-    Type, public :: Bvel_Par_Type
-       character(len=5)                       :: symb
-       real(kind=cp),dimension(bvel_anions_n) :: Avcoor
-       real(kind=cp),dimension(bvel_anions_n) :: Rzero
-       real(kind=cp),dimension(bvel_anions_n) :: Rcutoff
-       real(kind=cp),dimension(bvel_anions_n) :: Dzero
-       real(kind=cp),dimension(bvel_anions_n) :: Rmin
-       real(kind=cp),dimension(bvel_anions_n) :: alpha
-       integer      ,dimension(bvel_anions_n) :: refnum
-    End Type Bvel_Par_Type
-
-    !!----
-    !!---- BVEL_SPECIES_N
-    !!----    integer, parameter, public :: bvel_species_n
-    !!----
-    !!----    Maximum Number of species in BVEL_Table
-    !!----
-    !!---- Created: December - 2014
-    !!
-    integer, parameter, public :: bvel_species_n=132
-
-    !!----
-    !!---- BVEL_TABLE
-    !!----    Type(Bvel_Par_Type), allocatable, dimension(:), public :: BVEL_Table
-    !!----
-    !!----    BVEL Parameters for calculations
-    !!----
-    !!---- Created: December - 2014
-    !!
-    Type(Bvel_Par_Type), allocatable, dimension(:), public :: BVEL_Table
-
-    !!----
-    !!---- BVS_ANIONS_N
-    !!----    integer, parameter, public :: bvs_anions_n
-    !!----
-    !!----    Number of anions known in BVS Table in O"Keefe, Breese, Brown
-    !!----
-    !!---- Update: March - 2005
-    !!
-    integer, parameter, public :: bvs_anions_n=14
-
-    !!----
-    !!---- BVS_Anions
-    !!----    character(len=4), parameter, dimension(bvs_anions_n) :: bvs_anions
-    !!----
-    !!----    Anions known from O'Keefe, Bresse, Brown
-    !!----
-    !!---- Update: March - 2005
-    !!
-    character(len=*), parameter, dimension(bvs_anions_n), public :: bvs_anions = &
-                     (/"O-2 ","F-1 ","CL-1","BR-1","I-1 ","S-2 ","SE-2","TE-2",  &
-                       "N-3 ","P-3 ","AS-3","H-1 ","O-1 ","SE-1"/)
-
-    !!----
-    !!---- BVS_Anions_Rion
-    !!----    real(kind=cp), parameter, dimension(bvs_anions_n) :: bvs_anions_rion
-    !!----
-    !!----    Ionic Radii for Anions
-    !!----
-    !!---- Update: March - 2005
-    !!
-    real(kind=cp), parameter, dimension(bvs_anions_n), public :: bvs_anions_rion = &
-                      (/1.40,1.19,1.67,1.95,2.16,1.84,1.98,2.21,1.71,2.12,2.22,2.08,1.35,1.80/)
-
-    !!---- TYPE :: BVS_PAR_TYPE
-    !!--..
-    !!---- Type, public :: Bvs_Par_Type
-    !!----    character (len=4)                      :: Symb      ! Chemical symbol
-    !!----    real(kind=cp), dimension(bvs_anions_n) :: D0        ! D0 Parameter
-    !!----    real(kind=cp), dimension(bvs_anions_n) :: B_Par     ! B Parameter
-    !!----    integer,       dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
-    !!---- End Type Bvs_Par_Type
-    !!----
-    !!----    Definition for BVS Parameters
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Bvs_Par_Type
-       character (len=4)                     :: Symb
-       real(kind=cp),dimension(bvs_anions_n) :: d0
-       real(kind=cp),dimension(bvs_anions_n) :: b_par
-       integer      ,dimension(bvs_anions_n) :: refnum
-    End Type Bvs_Par_Type
-
-    !!----
-    !!---- BVS_SPECIES_N
-    !!----    integer, parameter, public :: bvs_species_n
-    !!----
-    !!----    Maximum Number of species in BVS_Table
-    !!----
-    !!---- Update: March - 2005
-    !!
-    integer, parameter, public :: bvs_species_n=247
-
-    !!----
-    !!---- BVS_TABLE
-    !!----    Type(Bvs_Par_Type), allocatable, dimension(:), public :: BVS_Table
-    !!----
-    !!----    BVS Parameters for calculations
-    !!----
-    !!---- Update: March - 2005
-    !!
-    Type(Bvs_Par_Type), allocatable, dimension(:), public :: BVS_Table
-
-    !!---- TYPE :: sBVS_PAR_TYPE
-    !!--..
-    !!---- Type, public :: sBvs_Par_Type
-    !!----    character (len=4)                      :: Symb      ! Chemical symbol
-    !!----    real(kind=cp), dimension(bvs_anions_n) :: D0        ! D0 Parameter
-    !!----    real(kind=cp), dimension(bvs_anions_n) :: B_Par     ! B Parameter
-    !!----    real(kind=cp),dimension(bvs_anions_n)  :: cn        ! Preferred Coordination
-    !!----    real(kind=cp),dimension(bvs_anions_n)  :: ctoff     ! Cutoff distance
-    !!----    integer,       dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
-    !!---- End Type sBvs_Par_Type
-    !!----
-    !!----    Definition for sBVS Parameters
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: sBvs_Par_Type
-       character (len=4)                     :: Symb
-       real(kind=cp),dimension(bvs_anions_n) :: d0
-       real(kind=cp),dimension(bvs_anions_n) :: b_par
-       real(kind=cp),dimension(bvs_anions_n) :: cn
-       real(kind=cp),dimension(bvs_anions_n) :: ctoff
-       integer      ,dimension(bvs_anions_n) :: refnum
-    End Type sBvs_Par_Type
-
-    !!----
-    !!---- SBVS_SPECIES_N
-    !!----    integer, parameter, public :: sbvs_species_n=5 !only alkali chalcogenides
-    !!----
-    !!----    Maximum Number of species in SBVS_Table
-    !!----
-    !!---- Created: December - 2014, Updated: January 2015
-    !!
-    integer, parameter, public :: sbvs_species_n=168
-
-    !!----
-    !!---- SBVS_TABLE
-    !!----    Type(sBvs_Par_Type), allocatable, dimension(:), public :: sBVS_Table
-    !!----
-    !!----    SBVS Parameters for calculations (only alkali chalcogenides are available)
-    !!----
-    !!---- Created: December - 2014
-    !!
-    Type(sBvs_Par_Type), allocatable, dimension(:), public :: sBVS_Table
-
-    !!----
-    !!---- Table_Alpha
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Alpha
-    !!----
-    !!----    Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Alpha
-
-    !!----
-    !!---- Table_Avcoor
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Avcoor
-    !!----
-    !!----    Matrix N_Species x N_Species of Average coordination parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Avcoor
-
-    !!----
-    !!---- TABLE_B
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_b
-    !!----
-    !!----    Matrix N_Species x N_Species of B parameters for BVS
-    !!----
-    !!---- Update: March - 2005
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_b
-
-    !!----
-    !!---- TABLE_D0
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_d0
-    !!----
-    !!----    Matrix N_Species x N_Species of D0 for BVS
-    !!----
-    !!---- Update: March - 2005
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_d0
-
-    !!----
-    !!---- Table_Dzero
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Dzero
-    !!----
-    !!----    Matrix N_Species x N_Species of Dzero parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Dzero
-
-    !!----
-    !!---- Table_Rcutoff
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rcutoff
-    !!----
-    !!----    Matrix N_Species x N_Species of Rcutoff parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Rcutoff
-
-    !!----
-    !!---- TABLE_Ref
-    !!----    integer,dimension(:,:), allocatable, private :: Table_ref
-    !!----
-    !!----    Matrix N_Species x N_Species with references for BVS parameters
-    !!----
-    !!---- Update: March - 2005
-    !!
-    integer,dimension(:,:), allocatable, public :: Table_ref
-
-    !!----
-    !!---- Table_Rmin
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rmin
-    !!----
-    !!----    Matrix N_Species x N_Species of Rmin parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Rmin
-
-     !!----
-    !!---- Table_Rzero
-    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_Rzero
-    !!----
-    !!----    Matrix N_Species x N_Species of Rzero (equivalent to D0 in BVS) parameters for BVEL
-    !!----
-    !!---- Created: December - 2014
-    !!
-    real(kind=cp),dimension(:,:), allocatable, public :: Table_Rzero
-
-    !!----
-    !!----  Reference list for BVS parameters
-    !!----
-    !!----
-    !!----    List of Reference for BVS Data
-    !!----
-    !!---- Update: March - 2005
-    !!
-    character(len=*),dimension(0:35),parameter, public :: BVS_Ref = (/  &
+    character(len=*),dimension(0:35),parameter, public :: BVS_REF = (/  &
          "Unknown                                                                         ", &  !0
          "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
          "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &  !2
@@ -476,14 +102,111 @@
          "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
          "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
 
-    contains
+    character(len=*), parameter, dimension(bvs_anions_n), public :: BVS_ANIONS = &
+                     (/"O-2 ","F-1 ","CL-1","BR-1","I-1 ","S-2 ","SE-2","TE-2",  &
+                       "N-3 ","P-3 ","AS-3","H-1 ","O-1 ","SE-1"/)                               ! Anions known from O'Keefe, Bresse, Brown
+
+    character(len=*), parameter, dimension(bvel_anions_n), public :: BVEL_ANIONS = (/"O-2 "/)    ! Anions known from Stefan Adams and R. Prasada Rao
+    real(kind=cp),    parameter, dimension(bvel_anions_n), public :: BVEL_ANIONS_RION = (/1.40/)
+    real(kind=cp),    parameter, dimension(bvs_anions_n),  public :: BVS_ANIONS_RION = &
+                      (/1.40,1.19,1.67,1.95,2.16,1.84,1.98,2.21,1.71,2.12,2.22,2.08,1.35,1.80/)  ! Ionic Radii for Anions
+
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!----
-    !!---- Subroutine Deallocate_Ap_Table()
+    !!---- TYPE :: Atomic_Properties_Type
+    !!----
+    !!----    Type Definition for single atomic properties
+    !!----
+    !!---- Created: 14/07/2015
+    !!
+    Type, public :: Atomic_Properties_Type
+        integer          :: Z        ! Atomic number
+        character(len=4) :: Symb     ! Element with charge
+        integer          :: oxs      ! Nominal oxidation state
+        integer          :: dox      ! Default oxidation state
+        real(kind=cp)    :: Mass     ! Atomic mass in atomic units
+        integer          :: n        ! Principal Quantum number (period)
+        integer          :: g        ! Group in the periodic table
+        integer          :: b        ! Block (s:0, p:1, d:2, f:3)
+        real(kind=cp)    :: Rc       ! Covalent radius
+        real(kind=cp)    :: sigma    ! Softness
+    End Type Atomic_Properties_Type
+
+    !!----
+    !!---- TYPE :: BVEL_PAR_TYPE
+    !!----
+    !!----    Type Definition for BVEL Parameters
+    !!----
+    !!---- Created: December - 2014
+    !!
+    Type, public :: Bvel_Par_Type
+       character(len=5)                       :: symb          !Symbol of the cation
+       real(kind=cp),dimension(bvel_anions_n) :: Avcoor        !Average cation coordination number
+       real(kind=cp),dimension(bvel_anions_n) :: Rzero         !Modified Bond-Valence parameter R0
+       real(kind=cp),dimension(bvel_anions_n) :: Rcutoff       !Cutoff distance in Angstroms
+       real(kind=cp),dimension(bvel_anions_n) :: Dzero         !First Morse potential parameter (eV)
+       real(kind=cp),dimension(bvel_anions_n) :: Rmin          !Second Morse potential parameter (Angstroms)
+       real(kind=cp),dimension(bvel_anions_n) :: alpha         !Third Morse potential parameter (1/b) (Angstroms^-1)
+       integer      ,dimension(bvel_anions_n) :: refnum        !Pointer to reference paper
+    End Type Bvel_Par_Type
+
+    !!---- TYPE :: BVS_PAR_TYPE
+    !!----
+    !!----    Definition for BVS Parameters
+    !!----
+    !!---- Update: 14/07/2015
+    !!
+    Type, public :: Bvs_Par_Type
+       character (len=4)                     :: Symb    ! Chemical symbol
+       real(kind=cp),dimension(bvs_anions_n) :: d0      ! D0 Parameter
+       real(kind=cp),dimension(bvs_anions_n) :: b_par   ! B Parameter
+       integer      ,dimension(bvs_anions_n) :: refnum  ! Integer pointing to the reference paper
+    End Type Bvs_Par_Type
+
+    !!---- TYPE :: sBVS_PAR_TYPE
+    !!----
+    !!----    Definition for sBVS Parameters
+    !!----
+    !!---- Update: 14/07/2015
+    !!
+    Type, public :: sBvs_Par_Type
+       character (len=4)                     :: Symb    ! Chemical symbol
+       real(kind=cp),dimension(bvs_anions_n) :: d0      ! D0
+       real(kind=cp),dimension(bvs_anions_n) :: b_par   ! B
+       real(kind=cp),dimension(bvs_anions_n) :: cn      ! Preferred Coordination
+       real(kind=cp),dimension(bvs_anions_n) :: ctoff   ! Cutoff distance
+       integer      ,dimension(bvs_anions_n) :: refnum  ! Integer pointing to the reference paper
+    End Type sBvs_Par_Type
+
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+
+    Type(Atomic_Properties_Type), allocatable, dimension(:),   public :: Ap_Table
+    Type(Bvel_Par_Type),          allocatable, dimension(:),   public :: BVEL_Table     ! BVEL Parameters for calculations
+    Type(Bvs_Par_Type),           allocatable, dimension(:),   public :: BVS_Table      ! BVS Parameters for calculations
+    Type(sBvs_Par_Type),          allocatable, dimension(:),   public :: sBVS_Table     ! SBVS Parameters for calculations (only alkali chalcogenides are available)
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Alpha    ! Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Avcoor   ! Matrix N_Species x N_Species of Average coordination parameters for BVEL
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_b        ! Matrix N_Species x N_Species of B parameters for BVS
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_d0       ! Matrix N_Species x N_Species of D0 for BVS
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Dzero    ! Matrix N_Species x N_Species of Dzero parameters for BVEL
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Rcutoff  ! Matrix N_Species x N_Species of Rcutoff parameters for BVEL
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Rmin     ! Matrix N_Species x N_Species of Rmin parameters for BVEL
+    real(kind=cp),                allocatable, dimension(:,:), public :: Table_Rzero    ! Matrix N_Species x N_Species of Rzero  parameters for BVEL
+    integer,                      allocatable, dimension(:,:), public :: Table_ref      ! Matrix N_Species x N_Species with references for BVS parameters
+
+ Contains
+
+    !!----
+    !!---- SUBROUTINE DEALLOCATE_AP_TABLE
     !!----
     !!----    Deallocating Ap_Table
     !!----
-    !!---- Created: January - 2015
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Deallocate_Ap_Table()
 
@@ -493,11 +216,11 @@
     End Subroutine Deallocate_Ap_Table
 
     !!----
-    !!---- Subroutine Deallocate_BVEL_Table()
+    !!---- SUBROUTINE DEALLOCATE_BVEL_TABLE
     !!----
     !!----    Deallocating BVEL_Table
     !!----
-    !!---- Created: December - 2014
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Deallocate_BVEL_Table()
 
@@ -507,11 +230,11 @@
     End Subroutine Deallocate_BVEL_Table
 
     !!----
-    !!---- Subroutine Deallocate_BVS_Table()
+    !!---- SUBROUTINE DEALLOCATE_BVS_TABLE
     !!----
     !!----    Deallocating BVS_Table
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Deallocate_BVS_Table()
 
@@ -521,11 +244,11 @@
     End Subroutine Deallocate_BVS_Table
 
     !!----
-    !!---- Subroutine Deallocate_sBVS_Table()
+    !!---- SUBROUTINE DEALLOCATE_SBVS_TABLE
     !!----
     !!----    Deallocating sBVS_Table
     !!----
-    !!---- Updated: January - 2015
+    !!---- Updated: J14/07/2015
     !!
     Subroutine Deallocate_sBVS_Table()
 
@@ -536,7 +259,7 @@
 
     !!----
     !!----
-    !!---- Subroutine Set_Atomic_Properties()
+    !!---- SUBROUTINE SET_ATOMIC_PROPERTIES
     !!----
     !!----  Fills the parameters for single atomic properties, including softness,
     !!----  for determining D0 and Rmin parameters of the Morse potential for non-tabulated
@@ -545,7 +268,7 @@
     !!---- "Practical considerations in determining bond-valence parameters"
     !!----  Structure and Bonding (2014) 158, 91-128 / DOI 10.1007/430_2013_96
     !!----
-    !!---- Created: January - 2015
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Set_Atomic_Properties()
 
@@ -890,11 +613,11 @@
 
     !!----
     !!----
-    !!---- Subroutine Set_BVS_Table()
+    !!---- SUBROUTINE SET_BVS_TABLE
     !!----
     !!----    Fills the parameters for BVS from O'Keefe, Bresse, Brown
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: 14/07/2015
     !!
     Subroutine Set_BVS_Table()
 
@@ -1894,14 +1617,14 @@
 
     !!----
     !!----
-    !!---- Subroutine Set_SBVS_Table()
+    !!---- SUBROUTINE SET_SBVS_TABLE
     !!----
     !!----    Fills the parameters for soft-BVS from Stefan Adams
     !!----    Practical Considerations in Determining Bond-Valence Parameters
     !!----    Structure and Bonding (2014) 158: 91-128
     !!----    DOI: 10.1007/430_2013_96
     !!----
-    !!---- Created: December - 2014, Updated: January 2015 (JRC)
+    !!---- Updated: 14/07/2015
     !!
     Subroutine Set_SBVS_Table()
 
@@ -2917,4 +2640,4 @@
                     (/      33,      34,      34,      34,       0,      34,       0,       0,       0,       0,       0,       0,       0,       0/) )
     End Subroutine Set_SBVS_Table
 
-   End Module CFML_BVS_Table
+End Module CFML_BVS_Table
