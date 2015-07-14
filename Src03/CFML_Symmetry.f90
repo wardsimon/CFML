@@ -48,130 +48,6 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_GlobalDeps,       only: Cp
-!!--++    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
-!!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
-!!--++                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
-!!--++                                     U_case, Ucase, Getnum, Frac_Trans_2Dig
-!!--++    Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
-!!--++    Use CFML_Symmetry_Tables
-!!----
-!!----
-!!---- VARIABLES
-!!----    CUBIC
-!!--++    EPS_SYMM                     [Private]
-!!----    ERR_SYMM
-!!----    ERR_SYMM_MESS
-!!--++    GENER_OPER_TYPE              [Private]
-!!----    HEXA
-!!----    HEXAG
-!!----    INLAT
-!!----    Lat_Ch
-!!----    LATTICE_CENTRING_TYPE
-!!----    LTR
-!!----    MONOC
-!!----    NLAT
-!!----    NUM_SPGR_INFO
-!!----    ORTHOR
-!!----    SPACEG
-!!----    SYM_OPER_TYPE
-!!----    WYCK_POS_TYPE
-!!----    WYCKOFF_TYPE
-!!----    SPACE_GROUP_TYPE
-!!----    TETRA
-!!----    TRIGO
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       APPLYSO
-!!----       AXES_ROTATION
-!!--++       EQUAL_SYMOP               [Overloaded Operator]
-!!--++       EQUIV_SYMOP               [Private]
-!!----       GET_LAUE_NUM
-!!----       GET_MULTIP_POS
-!!----       GET_OCC_SITE
-!!----       GET_POINTGROUP_NUM
-!!--++       IS_AXIS                   [Private]
-!!--++       IS_DIGIT                  [Private]
-!!--++       IS_HEXA                   [Private]
-!!----       IS_NEW_OP
-!!--++       IS_PLANE                  [Private]
-!!--++       IS_XYZ                    [Private]
-!!----       LATTICE_TRANS
-!!--++       PRODUCT_SYMOP             [Overloaded Operator]
-!!----       SPGR_EQUAL
-!!----       SYM_PROD
-!!----
-!!----    Subroutines:
-!!----       ALLOCATE_LATTICE_CENTRING
-!!--++       CHECK_SYMBOL_HM           [Private]
-!!----       CHECK_GENERATOR
-!!----       COPY_NS_SPG_TO_SPG
-!!----       DECODMATMAG
-!!----       GET_CENTRING_VECTORS
-!!----       GET_CRYSTAL_SYSTEM
-!!--++       GET_CRYSTAL_SYSTEM_R_OP   [Overloaded]
-!!--++       GET_CRYSTAL_SYSTEM_R_ST   [Overloaded]
-!!----       GET_GENSYMB_FROM_GENER
-!!----       GET_HALLSYMB_FROM_GENER
-!!----       GET_LATTICE_TYPE
-!!----       GET_LAUE_PG
-!!----       GET_LAUE_STR
-!!----       GET_ORBIT
-!!----       GET_POINTGROUP_STR
-!!--++       GET_SEITZ                 [Private]
-!!--++       GET_SEITZ_SYMBOL
-!!--++       GET_SETTING_INFO          [Private]
-!!----       GET_SHUBNIKOV_OPERATOR_SYMBOL
-!!----       GET_SO_FROM_FIX
-!!----       GET_SO_FROM_GENER
-!!----       GET_SO_FROM_HALL
-!!----       GET_SO_FROM_HMS
-!!----       GET_STABILIZER
-!!----       GET_STRING_RESOLV
-!!----       GET_SUBORBITS
-!!----       GET_SYMEL
-!!----       GET_SYMKOV
-!!----       GET_SYMSYMB
-!!--++       GET_SYMSYMBI              [Overloaded]
-!!--++       GET_SYMSYMBR              [Overloaded]
-!!----       GET_T_SUBGROUPS
-!!----       GET_TRASFM_SYMBOL
-!!----       GET_TRANSL_SYMBOL
-!!----       INIT_ERR_SYMM
-!!----       INVERSE_SYMM
-!!----       LATSYM
-!!--++       MAX_CONV_LATTICE_TYPE     [Private]
-!!--++       MOD_TRANS                 [Private]
-!!----       READ_BIN_SPACEGROUP
-!!----       READ_MSYMM
-!!----       READ_SYMTRANS_CODE
-!!----       READ_XSYM
-!!----       SEARCHOP
-!!----       SET_SPACEGROUP
-!!----       SET_SPG_MULT_TABLE
-!!----       SETTING_CHANGE
-!!--++       SETTING_CHANGE_CONV       [Overloaded]
-!!--++       SETTING_CHANGE_NONCONV    [Overloaded]
-!!----       SIMILAR_TRANSF_SG
-!!----       SYM_B_RELATIONS
-!!--++       SYM_B_RELATIONS_OP        [Overloaded]
-!!--++       SYM_B_RELATIONS_ST        [Overloaded]
-!!----       SYM_PROD_ST
-!!----       SYMMETRY_SYMBOL
-!!--++       SYMMETRY_SYMBOL_OP        [Overloaded]
-!!--++       SYMMETRY_SYMBOL_STR       [Overloaded]
-!!--++       SYMMETRY_SYMBOL_XYZ       [Overloaded]
-!!----       WRITE_BIN_SPACEGROUP
-!!----       WRITE_SPACEGROUP
-!!----       WRITE_SYM
-!!----       WRITE_SYMTRANS_CODE
-!!----       WRITE_WYCKOFF
-!!----       WYCKOFF_ORBIT
-!!----
-!!--..    Operators:
-!!--..       (*)
-!!--..       (==)
 !!----
 !!
  Module CFML_Crystallographic_Symmetry
@@ -186,20 +62,17 @@
                                      U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Num_String
     Use CFML_Symmetry_Tables
 
+    !---- Definitions ----!
     implicit none
 
     private
 
-    !---- List of public variables and types ----!
-
-    !---- List of public overloaded operators ----!
+    !---- Public procedures ----!
     public ::  operator (*), operator (==)
 
-    !---- List of public functions ----!
     public  :: ApplySO, Axes_Rotation, Get_Laue_Num, Get_Multip_Pos, Get_Occ_Site,     &
                Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod
 
-    !---- List of public subroutines ----!
     public  :: Decodmatmag, Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,              &
                Get_Laue_Pg, Get_Laue_Str, Get_orbit, Get_Pointgroup_Str, Get_So_From_Fix,            &
                Get_So_From_Gener,Get_So_From_Hall, Get_So_From_Hms, Get_HallSymb_From_Gener,         &
@@ -212,62 +85,27 @@
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
                Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring
 
+    !--------------------!
+    !---- PARAMETERS ----!
+    !--------------------!
+    real(kind=cp), parameter         :: EPS_SYMM  = 0.0002_cp ! Epsilon for comparisons within this module
 
+    integer,       parameter, public :: IND_GRP_MONOC =  15  ! Index for Groups Monoclinics
+    integer,       parameter, public :: IND_GRP_ORTH  = 163  ! Index for Groups Orthorromic
+    integer,       parameter, public :: IND_GRP_TETRA = 410  ! Index for Groups Tetragonal
+    integer,       parameter, public :: IND_GRP_TRIGO = 495  ! Index for Groups Trigonal
+    integer,       parameter, public :: IND_GRP_HEXAG = 527  ! Index for Groups Hexagonal
+    integer,       parameter, public :: IND_GRP_CUBIC = 554  ! Index for Groups Cubic
+    integer,       parameter, public :: NUM_SPGR_INFO = 612  ! Total dimension of SPGR_INFO
 
-    !---- Definitions ----!
-
-    !!----
-    !!---- IND_GRP_CUBIC
-    !!----    integer, parameter, public :: IND_GRP_CUBIC
-    !!----
-    !!----    Cubic parameter index: Cubic = 554
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: IND_GRP_CUBIC = 554
-
-    !!--++
-    !!--++ eps_symm
-    !!--++    real(kind=cp), parameter, private :: eps_symm
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Epsilon for comparisons within this module
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter, private :: eps_symm  = 0.0002_cp
-
-    !!----
-    !!---- ERR_SYMM_MESS
-    !!----    character(len=256), public :: ERR_Symm_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=256), public :: ERR_Symm_Mess
-
-    !!----
-    !!---- ERR_SYMM
-    !!----    logical, public :: Err_Symm
-    !!----
-    !!----    Logical Variable to indicate an error on this module.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: Err_Symm
+    !---------------!
+    !---- TYPES ----!
+    !---------------!
 
     !!--++
     !!--++ TYPE :: GENER_OPER_TYPE
-    !!--..
-    !!--++ Type, private :: Gener_Oper_Type
-    !!--++    integer          :: orden
-    !!--++    character(len=1) :: axes
-    !!--++    character(len=1) :: axes2
-    !!--++    character(len=3) :: tras
-    !!--++ End Type Gener_Oper_Type
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update:14/07/2015 1
     !!
     Type, private :: Gener_Oper_Type
        integer          :: orden
@@ -277,54 +115,7 @@
     End Type Gener_Oper_Type
 
     !!----
-    !!---- HEXA
-    !!----    logical, public :: Hexa
-    !!----
-    !!----    .false. Rotational part of symmetry operators  belongs to m3m
-    !!----    .true.  Rotational part of symmetry operators  belongs to 6/mmm
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: Hexa
-
-    !!----
-    !!---- HEXAG
-    !!----    integer, parameter, public :: Hexag
-    !!----
-    !!----    Index parameter for hexagonal Groups: Hexag  = 527
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Hexag         = 527
-
-    !!----
-    !!---- INLAT
-    !!----    integer, public        :: Inlat
-    !!----
-    !!----    Ordinal index of the lattice
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, public        :: Inlat
-
-    !!----
-    !!---- Lat_Ch
-    !!----    character(len= 1), public     :: Lat_Ch
-    !!----
-    !!----    First character of the space group symbol
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len= 1), public     :: Lat_Ch
-
-    !!----
-    !!---- TYPE :: Lattice_Centring_Type
-    !!--..
-    !!---- Type, public :: Lattice_Centring_Type
-    !!----    integer                                     :: N_lat
-    !!----    logical                                     :: set
-    !!----    real(kind=cp), dimension(:,:),allocatable   :: LTr
-    !!---- End Type Lattice_Centring_Type
+    !!---- TYPE :: LATTICE_CENTRING_TYPE
     !!----
     !!----   Lattice centring translations (including anti-translation)
     !!----   symmetry operators defined with respect to arbitrary axes.
@@ -335,7 +126,7 @@
     !!----   the subroutine Allocate_Lattice_Centring and then construct totally the object
     !!----   by assigning appropriate values and putting set=.true.
     !!----
-    !!---- Update: October - 2014
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Lattice_Centring_Type
        integer                                     :: N_lat
@@ -343,243 +134,65 @@
        real(kind=cp), dimension(:,:),allocatable   :: LTr
     End Type Lattice_Centring_Type
 
-
-    !!----
-    !!---- LTR
-    !!----    real(kind=cp), dimension(3,192), public  :: Ltr
-    !!----
-    !!----    Centering Lattice Translations, up to 192 lattice centring
-    !!----    vectors are allowed. Conventional lattice centring need only 4 vectors
-    !!----
-    !!---- Update: February - 2005, January-2014
-    !!
-    real(kind=cp), dimension(3,192), public  :: Ltr    ! Centering Lattice Translations
-
-    !!----
-    !!---- MONOC
-    !!----    integer, parameter, public :: Monoc
-    !!----
-    !!----    Index parameter for Monoclinic Groups: Monoc  =  15
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Monoc         =  15
-
-    !!----
-    !!---- NLAT
-    !!----    integer, public      :: Nlat
-    !!----
-    !!----    Multiplicity of the lattice
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, public      :: Nlat
-
     !!----
     !!---- TYPE :: NS_SYM_OPER_TYPE
-    !!--..
-    !!---- Type, public :: NS_Sym_Oper_Type
-    !!----    real(kind=cp), dimension(3,3) :: Rot     !  Rotational Part of Symmetry Operator
-    !!----    real(kind=cp), dimension(3)   :: Tr      !  Traslational part of Symmetry Operator
-    !!---- End Type  NS_Sym_Oper_Type
     !!----
     !!----   Non-standard symmetry operator. Needed for describing non-standard space groups with
     !!----   symmetry operators defined with respect to arbitrary axes
     !!----
-    !!---- Update: January - 2014
+    !!---- Update: 14/07/2015
     !!
     Type, public :: NS_Sym_Oper_Type
-       real(kind=cp), dimension(3,3) :: Rot
-       real(kind=cp), dimension(3)   :: Tr
+       real(kind=cp), dimension(3,3) :: Rot  ! Rotational Part of Symmetry Operator (Real)
+       real(kind=cp), dimension(3)   :: Tr   ! Traslational
     End Type NS_Sym_Oper_Type
 
     !!----
-    !!---- TYPE :: NS_SPACE_GROUP_TYPE
-    !!--..
-    !!---- Type, public :: NS_Space_Group_Type
-    !!----    Integer                                          :: NumSpg        ! Number of the Space Group
-    !!----    Character(len=20)                                :: SPG_Symb      ! Hermann-Mauguin Symbol
-    !!----    Character(len=16)                                :: Hall          ! Hall symbol
-    !!----    Character(len=90)                                :: gHall         ! Generalised Hall symbol
-    !!----    Character(len=12)                                :: CrystalSys    ! Crystal system
-    !!----    Character(len= 5)                                :: Laue          ! Laue Class
-    !!----    Character(len= 5)                                :: PG            ! Point group
-    !!----    Character(len= 5)                                :: Info          ! Extra information
-    !!----    Character(len=90)                                :: SG_setting    ! Information about the SG setting
-    !!----                                                                      ! (IT,KO,ML,ZA,Table,Standard,UnConventional)
-    !!----    Character(len= 1)                                :: SPG_lat       ! Lattice type
-    !!----    Character(len= 2)                                :: SPG_latsy     ! Lattice type Symbol
-    !!----    Integer                                          :: NumLat        ! Number of lattice points in a cell
-    !!----    real(kind=cp), allocatable, dimension(:,:)       :: Latt_trans    ! Lattice translations
-    !!----    Character(len=51)                                :: Bravais       ! String with Bravais symbol + translations
-    !!----    Character(len=80)                                :: Centre        ! Information about Centric or Acentric
-    !!----    Integer                                          :: Centred       ! =0 Centric(-1 no at origin)
-    !!----                                                                      ! =1 Acentric
-    !!----                                                                      ! =2 Centric(-1 at origin)
-    !!----    real(kind=cp), dimension(3)                      :: Centre_coord  ! Fractional coordinates of the inversion centre
-    !!----    Integer                                          :: NumOps        ! Number of reduced set of S.O.
-    !!----    Integer                                          :: Multip        ! Multiplicity of the general position
-    !!----    Integer                                          :: Num_gen       ! Minimum number of operators to generate the Group
-    !!----    type(NS_Sym_Oper_Type), allocatable, dimension(:):: SymOp         ! Symmetry operators (192)
-    !!----    Character(len=50),      allocatable, dimension(:):: SymopSymb     ! Strings form of symmetry operators (192)
-    !!---- End Type NS_Space_Group_Type
-    !!----
-    !!----  Definition of the type NS_Space_Group_Type: Non-standard space group. This type has been created
-    !!----  in order to be able to describe symmetry operators with non-integer values when they are referred
-    !!----  to arbitrary settings. They are created only as intermediate variables in some calculations.
-    !!----
-    !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
-    !!
-    Type, public :: NS_Space_Group_Type
-       integer                                          :: NumSpg=0         ! Number of the Space Group
-       character(len=20)                                :: SPG_Symb=" "     ! Hermann-Mauguin Symbol
-       character(len=16)                                :: Hall=" "         ! Hall symbol
-       character(len=90)                                :: gHall=" "        ! Generalised Hall symbol
-       character(len=12)                                :: CrystalSys=" "   ! Crystal system
-       character(len= 5)                                :: Laue=" "         ! Laue Class
-       character(len= 5)                                :: PG=" "           ! Point group
-       character(len= 5)                                :: Info=" "         ! Extra information
-       character(len=90)                                :: SG_setting=" "   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-       character(len= 1)                                :: SPG_lat=" "      ! Lattice type
-       character(len= 2)                                :: SPG_latsy=" "    ! Lattice type Symbol
-       integer                                          :: NumLat=1         ! Number of lattice points in a cell
-       real(kind=cp), allocatable,dimension(:,:)        :: Latt_trans       ! Lattice translations (3,12)
-       character(len=51)                                :: Bravais=" "      ! String with Bravais symbol + translations
-       character(len=80)                                :: Centre=" "       ! Alphanumeric information about the center of symmetry
-       integer                                          :: Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=cp), dimension(3)                      :: Centre_coord=0.0 ! Fractional coordinates of the inversion centre
-       integer                                          :: NumOps=0         ! Number of reduced set of S.O.
-       integer                                          :: Multip=0         ! Multiplicity of the general position
-       integer                                          :: Num_gen=0        ! Minimum number of operators to generate the Group
-       type(NS_Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
-       character(len=50),      allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
-    End Type NS_Space_Group_Type
-
-    !!----
-    !!---- NUM_SPGR_INFO
-    !!----    integer, parameter, public :: Num_Spgr_Info
-    !!----
-    !!----    Total dimension of SPGR_INFO: Num_Spgr_Info = 612
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Spgr_Info = 612
-
-    !!----
-    !!---- ORTHOR
-    !!----    integer, parameter, public :: Orthor
-    !!----
-    !!----    Index parameter for Orthorhombic Groups: Orthor  = 163
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Orthor  = 163
-
-    !!----
-    !!---- SPACEG
-    !!----     character(len=20), public     :: SpaceG
-    !!----
-    !!----     Space group symbol
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=20), public   :: SpaceG
-
-    !!----
     !!---- TYPE :: SYM_OPER_TYPE
-    !!--..
-    !!---- Type, public :: Sym_Oper_Type
-    !!----    integer,       dimension(3,3) :: Rot     !  Rotational Part of Symmetry Operator
-    !!----    real(kind=cp), dimension(3)   :: Tr      !  Traslational part of Symmetry Operator
-    !!---- End Type  Sym_Oper_Type
     !!----
     !!----    Definition of Variable
     !!----
     !!---- Update: February - 2005
     !!
     Type, public :: Sym_Oper_Type
-       integer,       dimension(3,3) :: Rot
+       integer,       dimension(3,3) :: RotI ! Rotational Part of Symmetry Operator (Integer)
+       real(kind=cp), dimension(3,3) :: Rot  ! Rotational Part of Symmetry Operator (Real)
        real(kind=cp), dimension(3)   :: Tr
     End Type Sym_Oper_Type
 
-    !!----
+    !----
     !!---- TYPE :: WYCK_POS_TYPE
-    !!--..
-    !!---- Type, public :: Wyck_Pos_Type
-    !!----    integer                         :: multp     ! Multiplicity
-    !!----    character(len= 6)               :: site      ! Site Symmetry
-    !!----    integer                         :: norb      ! Number of elements in orbit
-    !!----    character(len=40)               :: orig      ! Orig
-    !!----    character(len=40),dimension(48) :: str_orbit ! Orbit
-    !!----    character(len=40),dimension(192):: extra_orbit
-    !!---- End Type Wyck_Pos_Type
     !!----
     !!----    Definition of Variable
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Wyck_Pos_Type
-       integer                          :: multp
-       character(len= 6)                :: site
-       integer                          :: norb
-       character(len=40)                :: str_orig
-       character(len=40),dimension(48)  :: str_orbit
+       integer                          :: multp      ! Multiplicity
+       character(len= 6)                :: site       ! Site Symmetry
+       integer                          :: norb       ! Number of elements in orbit
+       character(len=40)                :: str_orig   ! String for Generator of the orbit
+       character(len=40),dimension(48)  :: str_orbit  ! String for the Orbits
     End Type Wyck_Pos_Type
 
     !!----
     !!---- TYPE :: WYCKOFF_TYPE
-    !!--..
-    !!---- Type, public :: Wyckoff_Type
-    !!----    integer                            :: num_orbit      ! Number of orbits
-    !!----    type(wyck_pos_type), dimension(26) :: orbit          ! Orbit type
-    !!---- End Type Wyckoff_Type
     !!----
     !!----    Definition of Variable
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 14/07/2015
     !!
     Type, public :: Wyckoff_Type
-       integer                            :: num_orbit
-       type(wyck_pos_type), dimension(26) :: orbit
+       integer                            :: num_orbit  ! Number of orbits
+       type(wyck_pos_type), dimension(26) :: orbit      ! Orbit type
     End Type Wyckoff_Type
 
     !!----
     !!---- TYPE :: SPACE_GROUP_TYPE
-    !!--..
-    !!---- Type, public :: Space_Group_Type
-    !!----    Integer                                         :: NumSpg        ! Number of the Space Group
-    !!----    Character(len=20)                               :: SPG_Symb      ! Hermann-Mauguin Symbol
-    !!----    Character(len=16)                               :: Hall          ! Hall symbol
-    !!----    Character(len=90)                               :: gHall         ! Generalised Hall symbol
-    !!----    Character(len=12)                               :: CrystalSys    ! Crystal system
-    !!----    Character(len= 5)                               :: Laue          ! Laue Class
-    !!----    Character(len= 5)                               :: PG            ! Point group
-    !!----    Character(len= 5)                               :: Info          ! Extra information
-    !!----    Character(len=90)                               :: SG_setting    ! Information about the SG setting
-    !!----                                                                     ! (IT,KO,ML,ZA,Table,Standard,UnConventional)
-    !!----    Logical                                         :: Hexa          !
-    !!----    Character(len= 1)                               :: SPG_lat       ! Lattice type
-    !!----    Character(len= 2)                               :: SPG_latsy     ! Lattice type Symbol
-    !!----    Integer                                         :: NumLat        ! Number of lattice points in a cell
-    !!----    real(kind=cp), allocatable, dimension(:,:)      :: Latt_trans    ! Lattice translations
-    !!----    Character(len=51)                               :: Bravais       ! String with Bravais symbol + translations
-    !!----    Character(len=80)                               :: Centre        ! Information about Centric or Acentric
-    !!----    Integer                                         :: Centred       ! =0 Centric(-1 no at origin)
-    !!----                                                                     ! =1 Acentric
-    !!----                                                                     ! =2 Centric(-1 at origin)
-    !!----    real(kind=cp), dimension(3)                     :: Centre_coord  ! Fractional coordinates of the inversion centre
-    !!----    Integer                                         :: NumOps        ! Number of reduced set of S.O.
-    !!----    Integer                                         :: Multip        ! Multiplicity of the general position
-    !!----    Integer                                         :: Num_gen       ! Minimum number of operators to generate the Group
-    !!----    type(Sym_Oper_Type), allocatable, dimension(:)  :: SymOp         ! Symmetry operators (192)
-    !!----    Character(len=50),   allocatable, dimension(:)  :: SymopSymb     ! Strings form of symmetry operators (192)
-    !!----    type(wyckoff_type)                              :: Wyckoff       ! Wyckoff Information
-    !!----    real(kind=cp), dimension(3,2)                   :: R_Asym_Unit   ! Asymmetric unit in real space
-    !!---- End Type Space_Group_Type
     !!----
     !!----     Definition of a variable type Space_Group_Type
     !!----
-    !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
+    !!---- Updated: 14/07/2015
     !!
     Type, public :: Space_Group_Type
        integer                                       :: NumSpg=0         ! Number of the Space Group
@@ -609,28 +222,22 @@
        real(kind=cp),dimension(3,2)                  :: R_Asym_Unit=0.0  ! Asymmetric unit in real space
     End Type Space_Group_Type
 
-    !!----
-    !!---- TETRA
-    !!----    integer, parameter, public :: Tetra
-    !!----
-    !!----    Index parameter for Tetragonal Groups: Tetra = 410
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Tetra = 410
-
-    !!----
-    !!---- TRIGO
-    !!----    integer, parameter, public :: Trigo
-    !!----
-    !!----    Index parameter for Trigonal Groups: Trigo = 495
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Trigo = 495
+    !-------------------!
+    !---- VARIABLES ----!
+    !-------------------!
+    logical,                         public :: Hexa              ! false. Rotational part of symmetry operators  belongs to m3m. .true. for  6/mmm
+    logical,                         public :: Err_Symm=.false.  ! Variable to indicate an error on this module.
+    character(len=256),              public :: ERR_Symm_Mess=" " ! String containing information about the last error
+    character(len= 1),               public :: Lat_Ch            ! First character of the space group symbol
+    character(len=20),               public :: SpaceG            ! Space group symbol
+    integer,                         public :: Nlat              ! Multiplicity of the lattice
+    integer,                         public :: Inlat             ! Ordinal index of the lattice
+    real(kind=cp), dimension(3,192), public :: Ltr               ! Centering Lattice Translations. Conventional lattice centring need only 4 vectors
 
 
+    !---------------------------------------------!
     !---- Interfaces Definitions for Overload ----!
+    !---------------------------------------------!
 
     Interface  Get_Crystal_System
        Module Procedure Get_Crystal_System_R_OP
@@ -671,22 +278,35 @@
     !---- Functions ----!
 
     !!----
-    !!---- Function Applyso(Op,V) Result(Applysop)
+    !!---- Function Applyso(Op,V,Ctype) Result(Applysop)
     !!----    Type(Sym_Oper_Type),          intent(in) :: Op        !  In -> Symmetry Operator Type
     !!----    real(kind=cp), dimension(3) , intent(in) :: v         !  In -> Vector
+    !!----    character(len=*),
     !!----    real(kind=cp), dimension(3)              :: ApplySOp  ! Out -> Output vector
     !!----
     !!----    Apply a symmetry operator to a vector:  Vp = ApplySO(Op,v)
     !!----
     !!---- Update: February - 2005
     !!
-    Function ApplySO(Op,V) Result(Applysop)
+    Function ApplySO(Op,V,Mode) Result(Applysop)
        !---- Arguments ----!
        Type(Sym_Oper_Type),          intent(in) :: Op
        real(kind=cp), dimension(3),  intent(in) :: v
+       character(len=*), optional,   intent(in) :: Mode
        real(kind=cp), dimension(3)              :: ApplySOp
 
-       ApplySOp = matmul(Op%Rot,v) + Op%tr
+       !---- Local Variables ---!
+       character(len=1) :: car
+
+       car=" "
+       if (present(mode)) car=u_case(mode)
+
+       select case (car)
+          case ("R")
+             ApplySOp = matmul(Op%Rot,v) + Op%tr    ! Using real array of Rot
+          case default
+             ApplySOp = matmul(Op%RotI,v) + Op%tr   ! Using integer array of Rot
+       end select
 
        return
     End Function ApplySO
