@@ -294,6 +294,7 @@ $COMP $OPT1  CFML_Reflct_Util.f90
 $COMP $OPT1  CFML_Atom_Mod.f90
 $COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Sfac.f90
+$COMP $OPT1  CFML_Extinction_Correction.f90
 $COMP $OPT1  CFML_Geom_Calc.f90
 $COMP $OPT1  CFML_Propagk.f90
 $COMP $OPT1  CFML_Maps.f90
