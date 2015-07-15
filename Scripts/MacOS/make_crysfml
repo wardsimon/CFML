@@ -3,11 +3,17 @@
 # Author: Javier Gonzalez-Platas
 # Date: March-2011
 # OS X version
-# Adapted by A. Filhol, June 2015
+# Adapted by Juan Rodriguez-Carvajal & A. Filhol, July 2015
 #---------------------------------------------------------------------
 #------------ Select your architecture here : either i386 or x86_64 --
 #	ARCH=x86_64
 	ARCH=i386
+#
+#------------ use
+#     =========================
+#     cd "$CRYSFML/Scripts"      <-- this is included in the script
+#     ./make_crys_mac ifort all
+#     =========================
 #---------------------------------------------------------------------
 	echo "====================================="
 	echo " The selected architecture is $ARCH"
