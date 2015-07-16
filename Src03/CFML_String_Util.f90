@@ -59,7 +59,7 @@
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
-              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
+              Frac_Trans_2Dig, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
               Get_Extension, Get_Mat_From_String, Get_MatVec_From_string, Get_Vec_From_String,              &
               SString_Replace, Get_Substring_Pos
 
@@ -1158,37 +1158,6 @@
     End Subroutine Get_Fraction_2Dig
 
     !!----
-    !!---- SUBROUTINE GET_LOGUNIT
-    !!----
-    !!----   Provides the number of the first logical unit that is not opened.
-    !!----   Useful for getting a logical unit to a file that should be opened
-    !!----   of the flight.
-    !!----
-    !!----   Update: 13/07/2015
-    !!
-    Subroutine Get_LogUnit(lun)
-       !---- Arguments ----!
-       integer,  intent(out) :: lun
-
-       !---- Local variables ----!
-       logical            :: op
-       integer, parameter :: max_iunits=500
-
-       lun=1
-       do
-          inquire(unit=lun,opened=op)
-          if (.not. op) exit
-          lun=lun+1
-          if (lun == max_iunits) then
-             lun=-1
-             exit
-          end if
-       end do
-
-       return
-    End Subroutine Get_LogUnit
-
-    !!----
     !!----  SUBROUTINE GET_MAT_FROM_STRING
     !!----
     !!----  Subroutine to extract the transformation matrix corresponding
@@ -2013,7 +1982,6 @@
 
        !---- Init ----!
        info=.false.
-       call get_logunit(lun)
        n=0
        cond=0
        long=0
@@ -2023,7 +1991,7 @@
        inquire (file=filename,exist=info)
        if (.not. info) return
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       open(newunit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Counting lines ----!
        do
@@ -2433,7 +2401,6 @@
        !---- Init ----!
        call init_err_string()
        info=.false.
-       call get_logunit(lun)
 
        !---- Exist filename ? ----!
        inquire (file=filename,exist=info)
@@ -2443,7 +2410,7 @@
           return
        end if
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       open(newunit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Reading... ----!
        do i=1,nlines

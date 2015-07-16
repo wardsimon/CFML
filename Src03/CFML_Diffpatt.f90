@@ -46,7 +46,7 @@
     Use CFML_GlobalDeps,       only : cp,ops_sep
     Use CFML_Math_General,     only : spline, splint, locate,second_derivative
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
-                                      get_logunit, u_case, getword, getnum
+                                      u_case, getword, getnum
 
     !---- Definitions ----!
     implicit none
@@ -571,8 +571,8 @@
         end if
 
         if (info) then
-           call Get_LogUnit(lun)
-           open(unit=lun, file='NoisyPoints.inf')
+           open(newunit=lun, file='NoisyPoints.inf')
+
            write(unit=lun,fmt='(a/)')  " => Analysis of Noisy points of Pattern "//trim(Pat%title)
            write(unit=lun,fmt='(/a/)') " => A Noisy point means the following:"
            write(unit=lun,fmt='(a/)')  "        NoMono .and. Iosci = .true. "
@@ -767,8 +767,7 @@
           ERR_DiffPatt_Mess=" The file "//trim(bck_file)//" doesn't exist"
           return
        else
-          call get_logunit(i_bck)
-          open(unit=i_bck,file=trim(bck_file),status="old",action="read",position="rewind",iostat=ier)
+          open(newunit=i_bck,file=trim(bck_file),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" Error opening the file: "//trim(bck_file)
@@ -1874,8 +1873,7 @@
           ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
           return
        else
-          call get_logunit(i_dat)
-          open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
+          open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" Error opening the file "//trim(filename)
@@ -2035,8 +2033,7 @@
           ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
           return
        else
-          call get_logunit(i_dat)
-          open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
+          open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)
@@ -3507,8 +3504,7 @@
        integer                                      :: i,j,k,nl,ier,i_dat
 
        call init_err_diffpatt()
-       call get_logunit(i_dat)
-       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
@@ -3553,8 +3549,7 @@
        integer   :: np,ier,i_dat
 
        call init_err_diffpatt()
-       call get_logunit(i_dat)
-       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
@@ -3602,8 +3597,7 @@
        integer                                      :: i, ier, i_dat
 
        call init_err_diffpatt()
-       call get_logunit(i_dat)
-       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"

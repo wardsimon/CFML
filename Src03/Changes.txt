@@ -1,5 +1,12 @@
 List of Changes
 ====================
+Date:16/07/2015
+----------------
+CFML_Crystallographic_Symmetry: Changes in Get_Orbit. Procedure. The last two optional arguments are now as logical and not character.
+CFML_Crystallographic_Symmetry: Check_Generator procedure use err_symm for error flag and not through argument
+CFML_Crystallographic_Symmetry: Improve on Check_Generator procedure. Now check if the string for generator have a correct format
+CFML_String_Util: Get_LogUnit have been eliminated. Now we are using newunit option in OPEN statement
+
 Date:14/07/2015
 ----------------
 CFML_Crystallographic_Symmetry: Rename HEXAG  -> IND_GRP_HEXAG
@@ -11,7 +18,7 @@ CFML_Crystallographic_Symmetry: Deleted NS_SYM_OPER_TYPE definition
 CFML_Crystallographic_Symmetry: Deleted NS_SPACE_GROUP_TYPE definition
 CFML_Crystallographic_Symmetry: Add a real array for rotation part in SYMM_OPER_TYPE (Rot)
 CFML_Crystallographic_Symmetry: Change name for integer array for rotation part in SYMM_OPER_TYPE (RotI)
-CFML_Crystallographic_Symmetry: Now the proceduire ApplySO can use the real rotational array or the integer rotational array
+CFML_Crystallographic_Symmetry: Now the procedure ApplySO can use the real rotational array or the integer rotational array
 
 Date:11/07/2015
 ----------------

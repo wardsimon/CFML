@@ -124,7 +124,7 @@ Module CFML_ILL_Instrm_Data
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
    Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint, sort
-   use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
+   use CFML_String_Utilities,     only: u_case, lcase, Number_Lines, Reading_Lines, GetNum
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
@@ -1120,8 +1120,7 @@ Module CFML_ILL_Instrm_Data
           rewind(unit=lun)
        ! If the input file is not opened, open it.
        else
-          call get_logunit(lun)
-          open(unit=lun,file=filename, status="old",action="read", position="rewind")
+          open(newunit=lun,file=filename, status="old",action="read", position="rewind")
        end if
 
        ! Loop used to determine the number of lines of the header block.
@@ -2138,9 +2137,8 @@ Module CFML_ILL_Instrm_Data
 
        npx=32  !default values
        npz=32
-       call Get_LogUnit(lun)
 
-       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
+       open(newunit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if (ier /= 0) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="Error opening the file: "//trim(filenam)
@@ -3672,8 +3670,7 @@ Module CFML_ILL_Instrm_Data
           inquire(file=filename,number=lun)
        ! If the input file is not opened, open it.
        else
-          call get_logunit(lun)
-          open(unit=lun,file=filename,status="old",action="read",position="rewind")
+          open(newunit=lun,file=filename,status="old",action="read",position="rewind")
        end if
 
        ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
@@ -5179,16 +5176,14 @@ Module CFML_ILL_Instrm_Data
        if(allocated(file_lines)) deallocate(file_lines)
        allocate(file_lines(nlines))
 
-       call Get_LogUnit(lun)
-       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
+       open(newunit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if(ier /= 0) then
          ERR_ILLData=.true.
          ERR_ILLData_Mess="Error opening the file: "//trim(filenam)
          return
        end if
 
-       call Get_LogUnit(lun_out)
-       open(unit=lun_out,file=trim(filenam)//".bak",status="replace", action="write",iostat=ier)
+       open(newunit=lun_out,file=trim(filenam)//".bak",status="replace", action="write",iostat=ier)
        if(ier /= 0) then
          ERR_ILLData=.true.
          ERR_ILLData_Mess="Error opening the backup file: "//trim(filenam)//".bak"
@@ -5237,8 +5232,7 @@ Module CFML_ILL_Instrm_Data
        set(:,3)=Current_Instrm%e3
        call Set_Current_Orient(wave,ub,set)
 
-       call Get_LogUnit(lun)
-       open(unit=lun,file=trim(filenam),status="replace", action="write",iostat=ier)
+       open(newunit=lun,file=trim(filenam),status="replace", action="write",iostat=ier)
        if(ier /= 0) then
          ERR_ILLData=.true.
          ERR_ILLData_Mess="Error updating the file: "//trim(filenam)
@@ -6133,8 +6127,7 @@ Module CFML_ILL_Instrm_Data
 
         set_calibration_detector=.false.
 
-        Call Get_LogUnit(lun)
-        open(unit=lun,file=trim(FileCal),status='old',action="read",position="rewind",iostat=ier)
+        open(newunit=lun,file=trim(FileCal),status='old',action="read",position="rewind",iostat=ier)
         if (ier /= 0) then
            err_illdata=.true.
            err_illdata_mess=' Problems reading Calibration File: '//trim(FileCal)//', for D20 Instrument'
