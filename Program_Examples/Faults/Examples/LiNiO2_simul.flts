@@ -280,6 +280,6 @@
 
  CALCULATION
  Simulation
- Powder   5.0 90.0 0.02
+ Powder   5.0 90.0 0.02  SCALEF 2.0  BCKG_LEVEL 150
 
 !Replace_Files
