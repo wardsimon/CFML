@@ -1,5 +1,12 @@
 List of Changes
 ====================
+Date:17/07/2015
+----------------
+CFML_Crystallographic_Symmetry: Changes in the arguments of Read_Bin_SpaceGroup procedure.
+CFML_Crystallographic_Symmetry: SearchOP is now a function and NOT a subroutine
+CFML_Crystallographic_Symmetry: Change the order of the arguments in Write_Bin_SpaceGroup
+CFML_Crystallographic_Symmetry: Change the name Write_SYM by Write_SYMM
+
 Date:16/07/2015
 ----------------
 CFML_Crystallographic_Symmetry: Changes in Get_Orbit. Procedure. The last two optional arguments are now as logical and not character.
@@ -53,7 +60,7 @@ CFML_Optimization_LSQ: Enorm (euclidean_normalization) was replaced by intrinsic
 Date:02/07/2015
 ----------------
 CFML_String_Util: Get_Mat_symb routine is called now Get_Mat_From_String. Also the order of arguments were changed.
-CFML_String_Util: Get_Num_String routine is called now Get_Num_From_String. Also the order of arguments were changed.
+CFML_String_Util: Get_Num_String routine is called now Get_Vec_From_String. Also the order of arguments were changed.
 CFML_String_Util: Get_Substring_Positions is called now Get_Substring_Pos. Also the order of arguments were changed.
 CFML_String_Util: Get_Transf is called now Get_MatVec_From_String.
 CFML_String_Util: Read_Fract is called now Read_Fract_String.

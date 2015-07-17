@@ -54,12 +54,12 @@
 
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,       only: cp
-    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
+    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,                    &
                                      Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
-    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
-                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
-                                     U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Num_String, &
+    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,             &
+                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,                  &
+                                     U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Vec_From_String, &
                                      get_separator_pos
     Use CFML_Symmetry_Tables
 
@@ -80,7 +80,7 @@
                Get_Stabilizer,Get_String_Resolv,Get_SubOrbits,Get_Symel, Get_Symkov, Get_SymSymb,    &
                Init_Err_Symm, Inverse_Symm, Latsym, Read_Msymm, Read_Xsym, Searchop,                 &
                Set_Spacegroup, Setting_Change, Sym_B_Relations, Sym_Prod_St, Symmetry_Symbol,        &
-               Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,           &
+               Write_Spacegroup, Write_Symm, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,           &
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,       &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
@@ -805,6 +805,62 @@
     End Function Product_Symop
 
     !!----
+    !!---- FUNCTION SEARCHOP
+    !!----
+    !!----    Index of the matrix Mod6(Isl,:,:)=sim.
+    !!----
+    !!---- Update: 17/07/2015
+    !!
+    Function Searchop(Sim,I1,I2) Result(Isl)
+       !---- Arguments ----!
+       integer , dimension(3,3), intent(in)  :: sim    ! Rotational part of a symmetry operator
+       integer ,                 intent(in)  :: i1     ! i1=1,  i2=24  if not hexagonal  (matrices of m3m )
+       integer ,                 intent(in)  :: i2     ! i1=25, i2=36  if     hexagonal  (matrices of 6/mmm)
+       integer                               :: Isl
+
+       !---- Local variables ----!
+       integer               :: iss,ipass,j,k,im
+
+       !> Init
+       call init_err_symm()
+       Isl=0
+
+       iss=1
+       ipass=0
+       do
+          ipass=ipass+1
+          imdo:  do im=i1,i2
+             Isl=0
+             do j=1,3
+                do k=1,3
+                   if (sim(j,k) /= iss*Mod6(im,j,k)) cycle imdo
+                end do
+             end do
+             Isl=iss*im
+             exit
+          end do imdo
+
+          if (Isl /= 0) return
+
+          if (ipass >=2 ) then
+             ERR_Symm_Mess=" Try to re-write your S.O. using a rotational part"
+             if (i1 == 1 .and.  i2 == 24) then
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m"
+             else if(i1 == 25 .and.  i2 == 36) then
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P 6/m m m"
+             else
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m or P 6/m m m"
+             end if
+             err_symm=.true.
+             return
+          end if
+          iss=-1
+       end do
+
+       return
+    End Function Searchop
+
+    !!----
     !!---- LOGICAL FUNCTION SPGR_EQUAL
     !!----
     !!----    Determine if two SpaceGroups are equal
@@ -881,7 +937,7 @@
        !--- Local variables ---!
 
        !> Check
-       if (allocated(Latt%Ltr)) deallocate(Latt%Ltr))
+       if (allocated(Latt%Ltr)) deallocate(Latt%Ltr)
 
        if (present(tinv)) then
           if (tinv) then
@@ -1012,7 +1068,7 @@
        end do
 
        do i=1,3
-          call Get_Num_String(trim(split(i)), Mat(i,:),code)
+          call Get_Vec_From_String(trim(split(i)), code, Mat(i,:))
        end do
 
        !> Now determine if the matrix has integer components
@@ -1199,7 +1255,7 @@
        !---- Local variables ----!
        integer :: Iu,j,ihex
 
-       call SearchOp(sim,1,36,Iu)
+       Iu=SearchOp(sim,1,36)
 
        if (.not. hexa) then
           j=abs(Iu)
@@ -2624,7 +2680,7 @@
             latt_f=.true.
             latt_a=.false.
             latt_b=.false.
-            latt_c=.false      latt_c=.false.
+            latt_c=.false.
             latt_p=.false.
             latt_i=.false.
        end if
@@ -2686,7 +2742,7 @@
        end if
 
        do i=1,spacegroup%numops
-          ndet= Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+          ndet= Axes_Rotation(SpaceGroup%Symop(i)%RotI)
           select case (ndet)
              case (-6)
                 nrot_6b=nrot_6b +1
@@ -2757,11 +2813,11 @@
                 else
                    if (nrot_6b == 2) then
                       do i=1,spacegroup%numops
-                         ndet= Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                         ndet= Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                          if (ndet /= 2) cycle
 
                          !> This is only valid for conventional bases
-                         call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),25,36,ind)
+                         ind=SearchOp(SpaceGroup%Symop(i)%RotI,25,36)
                          if (ind < 0) then
                             ind=-ind-12
                          end if
@@ -2795,11 +2851,11 @@
                 if (SpaceGroup%Hexa) then
                    if (SpaceGroup%Centred /=1) then
                       do i=1,spacegroup%numops
-                           ndet=Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                           ndet=Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                            if (ndet /= -2) cycle
 
                            !> This is only valid for conventional bases
-                           call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),25,36,ind)
+                           ind=SearchOp(SpaceGroup%Symop(i)%RotI,25,36)
                            if (ind < 0) then
                               ind=-ind-12
                            end if
@@ -2816,11 +2872,11 @@
                    else
                       if (nrot_2  == 3 ) then
                          do i=1,spacegroup%numops
-                            ndet=Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                            ndet=Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                             if (ndet /= 2) cycle
 
                             !> This is only valid for conventional bases
-                            call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),25,36,ind)
+                            ind=SearchOp(SpaceGroup%Symop(i)%RotI,25,36)
                             if (ind < 0) then
                                ind=-ind-12
                             end if
@@ -2838,11 +2894,11 @@
 
                       if (nrot_2b == 3 ) then
                          do i=1,spacegroup%numops
-                            ndet=Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                            ndet=Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                             if (ndet /= -2) cycle
 
                             !> This is only valid for conventional bases
-                            call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),25,36,ind)
+                            ind=SearchOp(SpaceGroup%Symop(i)%RotI,25,36)
                             if (ind < 0) then
                                ind=-ind-12
                             end if
@@ -2888,11 +2944,11 @@
                 else
                    if (nrot_4b == 2 ) then
                    do i=1,spacegroup%numops
-                         ndet=Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                         ndet=Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                       if (ndet /= -2) cycle
 
                       !> This is only valid for conventional bases
-                      call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),1,24,ind)
+                      ind=SearchOp(SpaceGroup%Symop(i)%RotI,1,24)
                       if (ind < 0) then
                          ind=24-ind
                       end if
@@ -2920,11 +2976,11 @@
              if (nrot_2  == 3 ) point_car="222"
              if (nrot_2b == 2 ) then
                 do i=1,spacegroup%numops
-                       ndet=Axes_Rotation(SpaceGroup%Symop(i)%Rot(:,:))
+                       ndet=Axes_Rotation(SpaceGroup%Symop(i)%RotI)
                    if (ndet /= 2) cycle
 
                    !> This is only valid for conventional bases
-                   call SearchOp(SpaceGroup%Symop(i)%Rot(:,:),1,24,ind)
+                   ind=SearchOp(SpaceGroup%Symop(i)%RotI,1,24)
                    select case (ind)
                       case (4)
                          point_car="2mm"
@@ -5934,7 +5990,7 @@
           i1=25
           i2=36
        end if
-       call SearchOp(sim,i1,i2,Iu)
+       Iu=SearchOp(sim,i1,i2)
 
        if (.not. hexa) then
           j=abs(Iu)
@@ -5973,7 +6029,7 @@
           i1=25
           i2=36
        end if
-       call SearchOp(sim,i1,i2,Iu)
+       Iu=SearchOp(sim,i1,i2)
 
        if (.not. hexa) then
           j=abs(Iu)
@@ -6443,7 +6499,7 @@
     !!----
     !!---- Update: 16/07/2015
     !!
-    Subroutine Inverse_Symm(Rot,Tr,Rot_Inv,Tr_invu)
+    Subroutine Inverse_Symm(Rot,Tr,Rot_Inv,Tr_inv)
        !---- Arguments ----!
        integer,       dimension(3,3), intent(in)  :: Rot      ! Rotational Part
        real(kind=cp), dimension(3),   intent(in)  :: Tr       ! Traslational part
@@ -6710,31 +6766,30 @@
     End Subroutine Mod_Trans
 
     !!----
-    !!---- Subroutine Read_Bin_Spacegroup(SpG,Lun,ok)
-    !!----    type (Space_Group),  intent(out) :: SpG   !  Out -> SpaceGroup Variable
-    !!----    integer,             intent(in)  :: Lun   !  In -> Logical unit of the file
-    !!----    logical,             intent(out) :: ok    !  .true. if everything is OK
+    !!---- SUBROUTINE READ_BIN_SPACEGROUP
     !!----
     !!----    Reading in file of logical unit "lun" the full structure of Space_Group_Type, SpG
     !!----    The file should have been opened with the access="stream" attribute. The procedure
     !!----    reads in the given order a series of bytes corresponding to the components of the
     !!----    type SpG.
     !!----
-    !!---- Update: February - 2013
+    !!---- Update: 17/07/2015
     !!
-    Subroutine Read_Bin_SpaceGroup(SpG,lun,ok)
+    Subroutine Read_Bin_SpaceGroup(Lun,SpG)
        !---- Arguments ----!
-       type (Space_Group_Type),intent(out) :: SpG
        integer,                intent(in)  :: lun
-       logical,                intent(out) :: ok
+       type (Space_Group_Type),intent(out) :: SpG
 
        !---- Local variables ----!
-       integer                           :: i,j,ier
+       integer                             :: i,j,ier
 
-       ok=.true.
+       !> Init
+       call init_err_symm()
+
        read(unit=Lun,iostat=ier) SpG%NumSpg,        &   ! Number of the Space Group
                                  SpG%SPG_Symb,      &   ! Hermann-Mauguin Symbol
                                  SpG%Hall,          &   ! Hall symbol
+                                 SpG%GHall,         &   ! Generalized Hall symbol
                                  SpG%CrystalSys,    &   ! Crystal system
                                  SpG%Laue,          &   ! Laue Class
                                  SpG%PG,            &   ! Point group
@@ -6744,12 +6799,14 @@
                                  SpG%SPG_lat,       &   ! Lattice type
                                  SpG%SPG_latsy,     &   ! Lattice type Symbol
                                  SpG%NumLat             ! Number of lattice points in a cell
-       if(ier /= 0) then
-        ok=.false.
-        return
+
+       if (ier /= 0) then
+          err_symm=.true.
+          err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+          return
        end if
 
-       if(allocated(SpG%Latt_trans)) deallocate(SpG%Latt_trans)
+       if (allocated(SpG%Latt_trans)) deallocate(SpG%Latt_trans)
        allocate(SpG%Latt_trans(3,SpG%NumLat))
 
        read(unit=Lun,iostat=ier) SpG%Latt_trans,    &   ! Lattice translations
@@ -6760,9 +6817,10 @@
                                  SpG%NumOps,        &   ! Number of reduced set of S.O.
                                  SpG%Multip,        &   ! Multiplicity of the general position
                                  SpG%Num_gen            ! Minimum number of operators to generate the Group
-       if(ier /= 0) then
-        ok=.false.
-        return
+       if (ier /= 0) then
+          err_symm=.true.
+          err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+          return
        end if
 
        if(allocated(SpG%SymOp)) deallocate(SpG%SymOp)
@@ -6771,81 +6829,87 @@
        allocate(SpG%SymOpSymb(SpG%Multip))
 
        do i=1,SpG%Multip
-         read(unit=Lun,iostat=ier) SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr, & ! Symmetry operators
-                                   SpG%SymopSymb(i)                    ! Strings form of symmetry operators
-         if(ier /= 0) then
-          ok=.false.
-          return
+         read(unit=Lun,iostat=ier) SpG%SymOp(i)%RotI,SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr, & ! Symmetry operators
+                                   SpG%SymopSymb(i)                                      ! Strings form of symmetry operators
+         if (ier /= 0) then
+            err_symm=.true.
+            err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+            return
          end if
        end do
+
        read(unit=Lun,iostat=ier) SpG%R_Asym_Unit      ! Asymmetric unit in real space
-       if(ier /= 0) then
-         ok=.false.
-         return
+       if (ier /= 0) then
+          err_symm=.true.
+          err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+          return
        end if
+
        read(unit=Lun,iostat=ier) SpG%Wyckoff%num_orbit              ! Wyckoff Information
-       if(ier /= 0) then
-        ok=.false.
-        return
+       if (ier /= 0) then
+          err_symm=.true.
+          err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+          return
        end if
        if (SpG%Wyckoff%num_orbit == 0) return
+
        do i=1,SpG%Wyckoff%num_orbit
-         read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%norb
-         read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_Orig
-         do j=1,SpG%Wyckoff%orbit(i)%norb
-           read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_orbit(j)
-         end do
-         if(ier /= 0) then
-          ok=.false.
-          return
-         end if
+          read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%norb
+          read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_Orig
+          do j=1,SpG%Wyckoff%orbit(i)%norb
+             read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_orbit(j)
+          end do
+          if (ier /= 0) then
+             err_symm=.true.
+             err_symm_mess=" Error reading the information for a Space_Group_Type variable!"
+             return
+          end if
        end do
+
        return
     End Subroutine Read_Bin_SpaceGroup
 
     !!----
-    !!---- Subroutine Read_Msymm(Info,Sim,P_Mag,ctrl)
-    !!----    character (len=*),       intent( in) :: Info   !  In -> Input string with S.Op.
-    !!----                                                            in the form: MSYM  u,w,w,p_mag
-    !!----    integer, dimension(3,3), intent(out) :: sim    ! Out -> Rotation matrix
-    !!----    real(kind=cp),           intent(out) :: p_mag  ! Out -> magnetic phase
-    !!----    logical, optional,       intent(in)  :: ctrl   ! in  -> If provided and .true. an error condition
-    !!----                                                            is raised if the det(Sim)=0
+    !!---- SUBROUTINE READ_MSYMM
+    !!----
     !!----    Read magnetic symmetry operators in the form U,V,W, etc...
     !!----    Provides the magnetic rotational matrix and phase associated to a MSYM symbol
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
-    Subroutine Read_Msymm(Info,Sim,P_Mag,ctrl)
+    Subroutine Read_Msymm(Msymm,Sim,P_Mag,ctrl)
        !---- Arguments ----!
-       character (len=*),       intent( in) :: Info
-       integer, dimension(3,3), intent(out) :: sim
-       real(kind=cp),           intent(out) :: p_mag
-       logical, optional,       intent(in)  :: ctrl
+       character (len=*),       intent( in) :: Msymm    ! String with the S. Operator: MSYM  u,w,w,p_mag
+       integer, dimension(3,3), intent(out) :: sim      ! Rotation matrix
+       real(kind=cp),           intent(out) :: p_mag    ! magnetic phase
+       logical, optional,       intent(in)  :: ctrl     ! If provided and .true. an error condition is raised if the det(Sim)=0
 
        !---- Local variables ----!
-       integer ::  i,imax,nop,s,ifound,j,ioerr,istart,mod_istart
-       character(len=len(info)) :: aux
-       logical :: control
+       integer                   ::  i,imax,nop,s,ifound,j,ioerr,istart,mod_istart
+       character(len=len(Msymm)) :: aux
+       logical                   :: control
+
+       !> Init
+       call init_err_symm()
 
        control=.false.
        if(present(ctrl)) control=ctrl
-       call init_err_symm()
-       do j=len(Info),1,-1
-          if (info(j:j) == ",") exit
+
+       do j=len(Msymm),1,-1
+          if (Msymm(j:j) == ",") exit
        end do
        p_mag=0.0
        imax=j-1
-       read(unit=info(j+1:),fmt=*,iostat=ioerr) p_mag
+       read(unit=Msymm(j+1:),fmt=*,iostat=ioerr) p_mag
        if (ioerr /= 0) then
           p_mag=0.0
        end if
        sim = 0
-       aux=adjustl(l_case(Info))
-       if(aux(1:4) == "msym" .or. aux(1:4) == "dsym") then
-         istart=6
+       aux=adjustl(l_case(Msymm))
+       if (aux(1:4) == "msym" .or. aux(1:4) == "dsym") then
+          istart=6
        else
-         istart=1
+          istart=1
        end if
 
        do nop=1,3
@@ -6854,7 +6918,7 @@
           ifound=0
           do i=istart,imax
              if (aux(i:i) == " ") cycle
-             if (aux(i:i) == "," .or. info(i:i) == "*") then
+             if (aux(i:i) == "," .or. Msymm(i:i) == "*") then
                 mod_istart=1
                 exit
              end if
@@ -6880,26 +6944,26 @@
           end do    !End loop through the string
 
           if (mod_istart == 1) then
-            istart=i+1
+             istart=i+1
           end if
 
           if (ifound == 0) then
              err_symm=.true.
-             ERR_Symm_Mess=" Blank operator field "//info
+             ERR_Symm_Mess=" Blank operator field "//Msymm
              return
           end if
        end do    !End external loop over the three expected items
 
        if (determ_A(sim) == 0 .and. control) then      !Verify it is a suitable s.o.
           err_symm=.true.
-          ERR_Symm_Mess=" The above operator is wrong "//info
+          ERR_Symm_Mess=" The above operator is wrong "//Msymm
           return
        end if
 
        if (ifound == 1) return
 
        err_symm=.true.
-       ERR_Symm_Mess=" The above operator is wrong "//info
+       ERR_Symm_Mess=" The above operator is wrong "//Msymm
 
        return
     End Subroutine Read_Msymm
@@ -6918,30 +6982,30 @@
     !!----
     !!---- Update: April - 2005
     !!
-    Subroutine Read_SymTrans_Code(Code,N,Tr)
+    Subroutine Read_SymTrans_Code(StrSymm,N,Tr)
        !---- Arguments ----!
-       character (len=*),          intent( in) :: Code
+       character (len=*),          intent( in) :: StrSymm
        integer,                    intent(out) :: N
        real(kind=cp),dimension(3), intent(out) :: Tr
 
        !---- Local variables ----!
        character(len=20) :: car
-       integer          :: i,j,k,n_ini,n_end,nt
+       integer           :: i,j,k,n_ini,n_end,nt
 
        N=1
        Tr=0.0
-       if (len_trim(code) <= 0) return
+       if (len_trim(StrSymm) <= 0) return
 
-       car=adjustl(code)
+       car=adjustl(StrSymm)
        n_ini=index(car,"_")
        n_ini=n_ini+1
 
-       !---- Found Number of Symmetry Operator ----!
+       !> Found Number of Symmetry Operator
        n_end=index(car,".")
        if (n_end ==0) n_end=len_trim(car)+1
        read (unit=car(n_ini:n_end-1),fmt=*) n
 
-       !---- Found the Traslation ----!
+       !> Found the Traslation
        n_ini=index(car,".")
        if (n_ini /= 0) then
           n_ini=n_ini+1
@@ -6962,41 +7026,42 @@
     End Subroutine Read_SymTrans_Code
 
     !!----
-    !!---- Subroutine Read_Xsym(Info,Istart,Sim,Tt,ctrl)
-    !!----    character (len=*),                     intent( in)    :: Info   !  In -> String with the symmetry symbol
-    !!----                                                                             in the form: SYMM  x,-y+1/2,z
-    !!----    integer,                               intent(in)     :: istart !  In -> Starting index of info to read in.
-    !!----    integer, dimension(3,3),               intent(out)    :: sim    ! Out -> Rotational part of S.O.
-    !!----    real(kind=cp), optional, dimension(3), intent(out)    :: tt     ! Out -> Traslational part of S.O.
-    !!----
+    !!---- SUBROUTINE READ_XSYM
     !!----
     !!----    Read symmetry or transformation operators in the form X,Y,Z, etc...
     !!----    Provides the rotational matrix and translation associated a to SYMM symbol
     !!----    in the Jones Faithful representation.
     !!----
-    !!---- Update: June - 2011 (JRC, adding ctrl for controlling if a real symmetry operator is needed)
+    !!----    adding ctrl for controlling if a real symmetry operator is needed
+    !!----
+    !!---- Update: 17/07/2015
+    !!----
     !!
-    Subroutine Read_Xsym(Info,Istart,Sim,Tt,ctrl)
+    Subroutine Read_Xsym(StrSymm,Istart,Sim,Tt,ctrl)
        !---- Arguments ----!
-       character (len=*),                     intent(in)     :: Info
-       integer,                               intent(in)     :: istart
-       integer, dimension(3,3),               intent(out)    :: sim
-       real(kind=cp), optional, dimension(3), intent(out)    :: tt
-       logical,       optional,               intent(in)     :: ctrl
+       character (len=*),                     intent(in)     :: StrSymm   ! String -> SYMM  x,-y+1/2,z
+       integer,                               intent(in)     :: istart    ! tarting index of info to read in
+       integer, dimension(3,3),               intent(out)    :: sim       ! Rotational part of S.O.
+       real(kind=cp), optional, dimension(3), intent(out)    :: tt        ! Traslational part
+       logical,       optional,               intent(in)     :: ctrl      ! If provided and .true. an error condition is raised if the det(Sim)=0
 
        !---- Local variables ----!
        character (len=*), dimension(10), parameter :: ANUM=(/"1","2","3","4","5","6","7","8","9","0"/)
-       integer, dimension(10), parameter           :: NUM =(/1,2,3,4,5,6,7,8,9,0/)
-       integer :: i,imax,nop,s,np,isl,ifound,ip,k,mod_istart,ST=0,I_P,ist
+       integer,           dimension(10), parameter :: NUM =(/1,2,3,4,5,6,7,8,9,0/)
+       integer       :: st=0
+       integer       :: i,imax,nop,s,np,isl,ifound,ip,k,mod_istart,I_P,ist
        real(kind=cp) :: t,a
        logical       :: control
 
+       !> Init
+       call init_err_symm()
        control=.true.
        if(present(ctrl)) control=ctrl
-       call init_err_symm()
-       imax=len_trim(info)
+
        if (present(tt)) tt=0.0
        sim = 0
+
+       imax=len_trim(StrSymm)
        ist=istart
        do nop=1,3
           s=1
@@ -7008,37 +7073,37 @@
           ifound=0
           mod_istart=0
           loop_string: do i=ist,imax
-             if (info(i:i) == " ") cycle
-             if (info(i:i) == "," .or. info(i:i) == "*") then
+             if (StrSymm(i:i) == " ") cycle
+             if (StrSymm(i:i) == "," .or. StrSymm(i:i) == "*") then
                 mod_istart=1
                 exit
              end if
              ifound=1
-             if (info(i:i) == "X" .or. info(i:i) == "x") then
+             if (StrSymm(i:i) == "X" .or. StrSymm(i:i) == "x") then
                 sim(nop,1)=s*i_p
                 i_p=1
                 s=1
-             else if (info(i:i) == "Y" .or. info(i:i) == "y") then
+             else if (StrSymm(i:i) == "Y" .or. StrSymm(i:i) == "y") then
                 sim(nop,2)=s*i_p
                 i_p=1
                 s=1
-             else if(info(i:i) == "Z" .or. info(i:i) == "z") then
+             else if(StrSymm(i:i) == "Z" .or. StrSymm(i:i) == "z") then
                 sim(nop,3)=s*i_p
                 i_p=1
                 s=1
-             else if(info(i:i) == "+") then
+             else if(StrSymm(i:i) == "+") then
                 s=1
-             else if(info(i:i) == "-") then
+             else if(StrSymm(i:i) == "-") then
                 s=-1
-             else if(info(i:i) == "/") then
+             else if(StrSymm(i:i) == "/") then
                 isl=1
-             else if(info(i:i) == ".") then
+             else if(StrSymm(i:i) == ".") then
                 ip=1
              else
                 st=s
                 do k=1,10
-                   if (info(i:i) == anum(k))  then
-                      if (is_xyz(info(i+1:i+1))) then
+                   if (StrSymm(i:i) == anum(k))  then
+                      if (is_xyz(StrSymm(i+1:i+1))) then
                          i_p=num(k)
                          cycle loop_string
                       else
@@ -7056,7 +7121,7 @@
                    end if
                 end do
                 err_symm=.true.
-                ERR_Symm_Mess=" Invalid character... "//INFO(I:I)//" in operator string"
+                ERR_Symm_Mess=" Invalid character... "//StrSymm(I:I)//" in operator string"
                 return
              end if
           end do  loop_string   !end loop through the string (index:i= ist,imax)
@@ -7078,81 +7143,20 @@
 
        if (determ_A(sim) == 0 .and. control) then      !Verify it is a suitable s.o.
           err_symm=.true.
-          ERR_Symm_Mess=" The above operator is wrong: "//info
+          ERR_Symm_Mess=" The above operator is wrong: "//StrSymm
           return
        end if
 
        if (ifound == 1) return
 
        err_symm=.true.
-       ERR_Symm_Mess=" The above operator is wrong: "//info
+       ERR_Symm_Mess=" The above operator is wrong: "//StrSymm
 
        return
     End Subroutine Read_Xsym
 
     !!----
-    !!---- Subroutine Searchop(Sim,I1,I2,Isl)
-    !!----    integer , dimension(3,3), Intent(in)  :: sim      !  In -> Rotational part of a symmetry operator
-    !!----    integer ,                 Intent(in)  :: i1       !  In -> i1=1,  i2=24  if not hexagonal  (matrices of m3m )
-    !!----    integer ,                 Intent(in)  :: i2       !  In -> i1=25, i2=36  if     hexagonal  (matrices of 6/mmm)
-    !!----    integer ,                 Intent(out) :: Isl      ! Out -> Index of the matrix Mod6(Isl,:,:)=sim.
-    !!----                                                               This index allow to get the corresponding tabulated symmetry symbol.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Searchop(Sim,I1,I2,Isl)
-       !---- Arguments ----!
-       integer , dimension(3,3), Intent(in) :: sim
-       integer , Intent(in)                 :: i1,i2
-       integer , Intent(out)                :: Isl
-
-       !---- Local variables ----!
-       integer               :: iss,ipass,j,k,im
-
-       iss=1
-       ipass=0
-       call init_err_symm()
-       do
-          ipass=ipass+1
-          imdo:  do im=i1,i2
-             Isl=0
-             do j=1,3
-                do k=1,3
-                   if (sim(j,k) /= iss*Mod6(im,j,k)) cycle imdo
-                end do
-             end do
-             Isl=iss*im
-             exit
-          end do imdo
-
-          if (Isl /= 0) return
-
-          if (ipass >=2 ) then
-             ERR_Symm_Mess=" Try to re-write your S.O. using a rotational part"
-             if (i1 == 1 .and.  i2 == 24) then
-                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m"
-             else if(i1 == 25 .and.  i2 == 36) then
-                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P 6/m m m"
-             else
-                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m or P 6/m m m"
-             end if
-             err_symm=.true.
-             return
-          end if
-          iss=-1
-       end do
-
-       return
-    End Subroutine Searchop
-
-    !!----
-    !!---- Subroutine Set_Spacegroup(Spacegen, Spacegroup, Gen, Ngen, Mode, Force_Hall)
-    !!----    character (len=*),                       intent(in)     :: SpaceGen     !  In -> String with Number, Hall or Hermman-Mauguin
-    !!----    Type (Space_Group),                         intent(out) :: SpaceGroup   ! Out -> SpaceGroup variable
-    !!----    character (len=*), dimension(:),  intent(in ), optional :: gen          !  In -> String Generators
-    !!----    Integer,                          intent(in ), optional :: ngen         !  In -> Number of Generators
-    !!----    character (len=*),                intent(in ), optional :: Mode         !  In -> HMS, ITC, Hall, Gen, Fix
-    !!----    character (len=*),                intent(in ), optional :: force_hall   !  In -> f_hall (if present force generation from Hall)
+    !!---- SUBROUTINE SET_SPACEGROUP
     !!----
     !!----    Subroutine that construct the object SpaceGroup from the H-M or Hall symbol.
     !!----    Expand the set of operators including centre of symmetry and non integer
@@ -7170,16 +7174,16 @@
     !!----    operators or different origins and settings for the same space group.
     !!----
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Set_SpaceGroup(Spacegen,Spacegroup,Gen,Ngen,Mode,Force_Hall)
        !----Arguments ----!
-       character (len=*),                intent(in )           :: SpaceGen
-       Type (Space_Group_Type),          intent(out)           :: SpaceGroup
-       character (len=*), dimension(:),  intent(in ), optional :: gen
-       Integer,                          intent(in ), optional :: ngen
-       character (len=*),                intent(in ), optional :: Mode
-       character (len=*),                intent(in ), optional :: force_hall
+       character (len=*),                intent(in )           :: SpaceGen      ! String with Number, Hall or Hermman-Mauguin
+       Type (Space_Group_Type),          intent(out)           :: SpaceGroup    ! SpaceGroup variable
+       character (len=*), dimension(:),  intent(in ), optional :: gen           ! String Generators
+       Integer,                          intent(in ), optional :: ngen          ! Number of Generators
+       character (len=*),                intent(in ), optional :: Mode          ! HMS, ITC, Hall, Gen, Fix
+       character (len=*),                intent(in ), optional :: force_hall    ! f_hall (if present force generation from Hall)
 
        !---- Local variables ----!
        character (len=*),dimension(0:2), parameter  :: Centro = &
@@ -7207,12 +7211,6 @@
        !---- Inicializing Space Group ----!
        call init_err_symm()
 
-       !Constructor eliminated because some components are nowadays allocatable
-       !There's no risk of undefined fields because in this procedure everything is set.
-       !
-       !SpaceGroup=Space_Group_Type(0,"unknown","unknown","unknown","?","?","?","?",.false.,"?","?", &
-       !                       0,0.0,"?","?", -1, 0.0,  0, 0,  0, Sym_Oper_Type(0, 0.0),"?",         &
-       !                       wyckoff_type(0,wyck_pos_type(0," ",0," "," ")),0.0)
        SpaceGroup%R_Asym_Unit(:,2)=1.0
        SpaceGroup%gHall=" "
 
@@ -7370,9 +7368,8 @@
           case ("GEN")
              if (present(gen) .and. present(ngen))  then
                 do i=1,ngen
-                   call Check_Generator(gen(i),ok)
-                   !write(*,"(a,i3,a,tr2,L)") " => Generator # ",i,"  "//trim(gen(i)), ok
-                   if(.not. ok) return
+                   call Check_Generator(gen(i))
+                   if (err_symm) return
                 end do
                 ng=ngen
                 istart=1
@@ -7619,8 +7616,9 @@
        allocate(SpaceGroup%SymopSymb(SpaceGroup%Multip))
 
        do i=1,SpaceGroup%Numops
-          SpaceGroup%Symop(i)%Rot(:,:) = ss(:,:,i)
-          SpaceGroup%Symop(i)%tr(:)    = ts(:,i)
+          SpaceGroup%Symop(i)%RotI = ss(:,:,i)
+          SpaceGroup%Symop(i)%Rot  = real(SpaceGroup%Symop(i)%RotI)
+          SpaceGroup%Symop(i)%tr   = ts(:,i)
        end do
 
        if (opcion(1:3) /= "FIX") then
@@ -7629,15 +7627,17 @@
              do i=1,SpaceGroup%Numops
                 m=m+1
                 vec=-ts(:,i)+2.0*SpaceGroup%Centre_coord(:)
-                SpaceGroup%Symop(m)%Rot(:,:) = -ss(:,:,i)
-                SpaceGroup%Symop(m)%tr(:)    =  modulo_lat(vec)
+                SpaceGroup%Symop(m)%RotI = -ss(:,:,i)
+                SpaceGroup%Symop(m)%Rot  = real(SpaceGroup%Symop(m)%RotI)
+                SpaceGroup%Symop(m)%tr   =  modulo_lat(vec)
              end do
           end if
           if (SpaceGroup%centred == 2) then
              do i=1,SpaceGroup%Numops
                 m=m+1
-                SpaceGroup%Symop(m)%Rot(:,:) = -ss(:,:,i)
-                SpaceGroup%Symop(m)%tr(:)    =  modulo_lat(-ts(:,i))
+                SpaceGroup%Symop(m)%RotI = -ss(:,:,i)
+                SpaceGroup%Symop(m)%Rot  = real(SpaceGroup%Symop(m)%RotI)
+                SpaceGroup%Symop(m)%tr   =  modulo_lat(-ts(:,i))
              end do
           end if
           ngm=m
@@ -7647,25 +7647,23 @@
                 do i=1,ngm
                    m=m+1
                    vec=SpaceGroup%Symop(i)%tr(:) + SpaceGroup%Latt_trans(:,L)
-                   SpaceGroup%Symop(m)%Rot(:,:) = SpaceGroup%Symop(i)%Rot(:,:)
-                   SpaceGroup%Symop(m)%tr(:)    = modulo_lat(vec)
+                   SpaceGroup%Symop(m)%RotI = SpaceGroup%Symop(i)%RotI
+                   SpaceGroup%Symop(m)%Rot  = real(SpaceGroup%Symop(m)%RotI)
+                   SpaceGroup%Symop(m)%tr    = modulo_lat(vec)
                 end do
              end do
           end if
 
        end if
-       !write(*,"(a)") " => Generating the symetry operators symbols"
+
        do i=1,SpaceGroup%multip  ! min(SpaceGroup%multip,192) restriction removed Jan2014 (JRC)
-          call Get_SymSymb(SpaceGroup%Symop(i)%Rot(:,:), &
-                           SpaceGroup%Symop(i)%tr(:)   , &
-                           SpaceGroup%SymopSymb(i))
+          call Get_SymSymb(SpaceGroup%Symop(i)%RotI, &
+                           SpaceGroup%Symop(i)%tr , SpaceGroup%SymopSymb(i))
        end do
-       !write(*,"(a)") " => done"
 
        if (num <= 0) then
           call Get_Laue_PG(SpaceGroup, SpaceGroup%Laue, SpaceGroup%PG)
        end if
-       !write(*,"(a)") " => Point group done"
 
        if(isymce == 0) then
           SpaceGroup%centre = trim(SpaceGroup%centre)//"  Gen(-1):"//SpaceGroup%SymopSymb(NG+1)
@@ -7673,7 +7671,6 @@
 
        if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
 
-       !write(*,"(a)") " => Wyckoff information"
 
        !---- Wyckoff information ----!
        if (len_trim(SpaceGroup%Spg_Symb) /= 0) then
@@ -7691,16 +7688,12 @@
           end do
           SpaceGroup%Spg_Symb(2:)=l_case(SpaceGroup%Spg_Symb(2:))  !Make lowercase the HM generators of the group
        end if
-       !write(*,"(a)") " => Wyckoff done"
 
        return
     End Subroutine Set_SpaceGroup
 
     !!----
-    !!---- Subroutine Set_SpG_Mult_Table(SpG,tab,complete)
-    !!----   Type(Space_Group_Type),    intent (in)    :: SpG
-    !!----   integer, dimension(:,:),   intent (out)   :: tab
-    !!----   logical, optional,         intent (in)    :: complete
+    !!---- SUBROUTINE SET_SPG_MULT_TABLE
     !!----
     !!----   Subroutine to construct the multiplication table of the factor group of
     !!----   a space group. Two operators are equal if they differ only in a lattice
@@ -7711,71 +7704,72 @@
     !!----   unit cell, so a maximun 48x48 matrix is needed to hold the table in this
     !!----   case. If complete is present and .true., the full table is constructed.
     !!----
+    !!----  Update: 17/07/2015
     !!----
-    !!----  Update: April 2005
-    !!----
-
+    !!
     Subroutine Set_SpG_Mult_Table(SpG,tab,complete)
-      Type(Space_Group_Type),    intent (in)    :: SpG
-      integer, dimension(:,:),   intent (out)   :: tab
-      logical, optional,         intent (in)    :: complete
+       !---- Arguments ----!
+       Type(Space_Group_Type),    intent (in)    :: SpG
+       integer, dimension(:,:),   intent (out)   :: tab
+       logical, optional,         intent (in)    :: complete
 
        !---- Local Variables ----!
        Type(Sym_Oper_Type) :: Opi,Opj,Opk
-       integer :: i,j, ng, k
-       logical :: eqvo
-       character(len=1) :: lat
+       integer             :: i,j, ng, k
+       logical             :: eqvo
+       character(len=1)    :: lat
 
+       !> Init
+       call Init_Err_Symm()
        tab=0
+
        lat=SpG%SPG_lat
        ng=SpG%Numops
-       if(SpG%Centred /= 1) ng=2*ng
-       if(present(complete)) then
-         if(complete) then
-           lat="P"
-           ng=SpG%Multip
-         end if
+       if (SpG%Centred /= 1) ng=2*ng
+       if (present(complete)) then
+          if (complete) then
+             lat="P"
+             ng=SpG%Multip
+          end if
        end if
 
        do i=1,ng
-         Opi=SpG%SymOp(i)
-         do j=1,ng
-           Opj=SpG%SymOp(j)
-           Opk=Opi*Opj
-           do k=1,ng
-             eqvo= Equiv_Symop(Opk,SpG%SymOp(k),lat)
-             if(eqvo) then
-               tab(i,j)=k
-               exit
+          Opi=SpG%SymOp(i)
+          do j=1,ng
+             Opj=SpG%SymOp(j)
+             Opk=Opi*Opj
+             do k=1,ng
+                eqvo= Equiv_Symop(Opk,SpG%SymOp(k),lat)
+                if (eqvo) then
+                   tab(i,j)=k
+                   exit
+                end if
+             end do
+             if (tab(i,j) == 0) then
+                err_symm=.true.
+                ERR_Symm_Mess=" Problems constructing the multiplication Table of the space group: "//trim(spg%spg_symb)
+                return
              end if
-           end do
-           if(tab(i,j) == 0) then
-             err_symm=.true.
-             ERR_Symm_Mess=" Problems constructing the multiplication Table of the space group: "//trim(spg%spg_symb)
-             return
-           end if
-         end do
+          end do
        end do
 
-      return
+       return
     End Subroutine Set_SpG_Mult_Table
 
     !!--++
-    !!--++ Subroutine Setting_Change_Conv(From_Syst,To_Syst,Spacegroup, Car_Sym, Icar_Sym)
-    !!--++    character(len=2),    intent(in)     :: From_Syst   !  In -> IT : International Tables
-    !!--++                                                                ML : Miller & Love
-    !!--++                                                                KO : Kovalev
-    !!--++                                                                BC : Bradley & Cracknell
-    !!--++                                                                ZA : Zack
-    !!--++    character(len=2),    intent(in)     :: To_Syst     !  In -> (Idem to From_Syst)
-    !!--++    type (Space_Group),  intent(in out) :: SpaceGroup  !  In ->
-    !!--++                                                         Out ->
-    !!--++    character(len=35),    intent(out)   :: car_sym     ! Out ->
-    !!--++    character(len=35),    intent(out)   :: icar_sym    ! Out ->
+    !!--++ Subroutine Setting_Change_Conv
     !!--++
     !!--++    Traslate From From_Syst to To_syst the set of symmetry operators
     !!--++
-    !!--++   Update: February - 2005 (Name changed and overloaded by JRC in Jan2014)
+    !!--++      Values to use are:
+    !!--++             IT : International Tables
+    !!--++             ML : Miller & Love
+    !!--++             KO : Kovalev
+    !!--++             BC : Bradley & Cracknell
+    !!--++             ZA : Zack
+    !!--++
+    !!--++   Update: 17/07/2015
+    !!--++
     !!
     Subroutine Setting_Change_Conv(From_Syst, To_Syst, SpaceGroup, car_sym, icar_sym)
        !---- Arguments ----!
@@ -7784,11 +7778,11 @@
        character(len=35),         intent(out)    :: car_sym, icar_sym
 
        !---- Local Variables ----!
-       character(len=2) :: car1, car2
-       integer                 :: i,j,num
-       integer, dimension(4,4) :: s, si, st, sti, w
-       integer, dimension(3,3) :: r, r_inv, rt, rt_inv
-       real(kind=cp), dimension(3)      :: t, t_inv, tt, tt_inv
+       character(len=2)           :: car1, car2
+       integer                    :: i,j,num
+       integer, dimension(4,4)    :: s, si, st, sti, w
+       integer, dimension(3,3)    :: r, r_inv, rt, rt_inv
+       real(kind=cp), dimension(3):: t, t_inv, tt, tt_inv
 
        !---- Initializing variables ----!
        call init_err_symm()
@@ -8078,15 +8072,15 @@
        si=matmul(si,sti)
 
        do i=1,SpaceGroup%multip
-          w(1:3,1:3) = SpaceGroup%Symop(i)%Rot
+          w(1:3,1:3) = SpaceGroup%Symop(i)%RotI
           w(1:3,4)   = mod(nint(SpaceGroup%Symop(i)%Tr*24.0)+48,24)
           w=matmul(s,w)
           w=matmul(w,si)
-          SpaceGroup%Symop(i)%Rot = w(1:3,1:3)
+          SpaceGroup%Symop(i)%RotI = w(1:3,1:3)
           SpaceGroup%Symop(i)%Tr  = mod(real(w(1:3,4)/24.0)+10.0_cp,1.0_cp)
        end do
        do i=1,SpaceGroup%numops
-          call Get_SymSymb(SpaceGroup%Symop(i)%Rot,  &
+          call Get_SymSymb(SpaceGroup%Symop(i)%RotI,  &
                            SpaceGroup%Symop(i)%tr,SpaceGroup%SymopSymb(i))
        end do
 
@@ -8094,12 +8088,7 @@
     End Subroutine Setting_Change_Conv
 
     !!--++
-    !!--++ Subroutine Setting_Change_NonConv(Mat,Orig,Spg,Spgn,Matkind)
-    !!--++   real(kind=cp), dimension(3,3),intent(in) :: mat      ! Basis transformation matrix
-    !!--++   real(kind=cp), dimension(3),  intent(in) :: orig     ! New origing in the old basis
-    !!--++   type (Space_Group_Type),      intent(in) :: SpG      ! Input space group
-    !!--++   type (NS_Space_Group_Type),  intent(out) :: SpGn     ! New space group in the new setting.
-    !!--++   character (len=*), optional,  intent(in) :: matkind  ! Kind of transformation matrix
+    !!--++ SUBROUTINE SETTING_CHANGE_NONCONV
     !!--++
     !!--++    Transform the symmetry operators of the space group to a new basis given by
     !!--++    the matrix "mat" and vector "orig"
@@ -8107,15 +8096,15 @@
     !!--++    as in International Tables: Mat=P =>  (a,b,c)'=(a,b,c)P
     !!--++    Otherwise it is the trasposed matrix Mat=Pt
     !!--++
-    !!--++ Created: January - 2014 (JRC)
+    !!--++ Created: 17/07/2015
     !!
     Subroutine Setting_Change_NonConv(Mat,Orig,Spg,Spgn,Matkind)
        !---- Arguments ----!
-       real(kind=cp), dimension(3,3),intent(in) :: Mat
-       real(kind=cp), dimension(3),  intent(in) :: Orig
-       type (Space_Group_Type),      intent(in) :: SpG
-       type (NS_Space_Group_Type),  intent(out) :: SpGn
-       character (len=*), optional,  intent(in) :: Matkind
+       real(kind=cp), dimension(3,3),intent(in) :: Mat        ! Basis transformation matrix
+       real(kind=cp), dimension(3),  intent(in) :: Orig       ! New origing in the old basis
+       type (Space_Group_Type),      intent(in) :: SpG        ! Input space group
+       type (Space_Group_Type),      intent(out):: SpGn       ! New space group in the new setting.
+       character (len=*), optional,  intent(in) :: Matkind    ! Kind of transformation matrix
 
        !--- Local variables ---!
        integer                 :: ifail, i, j, k, L, im, nc, m, ngm,n,ngen
@@ -8136,7 +8125,9 @@
        real(kind=cp),  dimension(3,3,Spg%Multip) :: sm
        real(kind=cp),  dimension(3,Spg%Multip)   :: tm
 
+       !> Init
        call Init_Err_Symm()
+
        change_only_origin=.false.
        nulo=0
        call get_setting_info(Mat,orig,setting,matkind)
@@ -8155,7 +8146,7 @@
        det=determ_a(Mat)
        i=len_trim(setting)
        write(unit=setting(i+2:),fmt="(f6.2)") det
-       !write(unit=*,fmt="(a)") " => Setting Symbol: "//trim(setting)
+
        call matrix_inverse(S,Sinv,ifail)
        if (ifail /= 0) then
           err_symm=.true.
@@ -8209,6 +8200,7 @@
        end if
 
        call get_centring_vectors(L,newlat,LatSymb)  !Complete the centring vectors
+
        !Now we have L centring translations
        call LatSym(LatSymb,L,newlat)  !provides the value of the global variable inlat: index of the type of lattice
        SpGn%SPG_lat      = LatSymb
@@ -8221,13 +8213,13 @@
        !----   T' = inv(Mt) (T -(E-R)O)                  T'= inv(P) (T-(E-R)O)
        sm=0.0
        tm=0.0
-       sm(:,:,1)=SpG%SymOp(1)%Rot
+
+       sm(:,:,1)=real(SpG%SymOp(1)%RotI)
        tm(:,1)=SpG%SymOp(1)%tr
        n=1
        do_i:do i=2,SpG%NumOps
-          Rot=SpG%SymOp(i)%rot
+          Rot=real(SpG%SymOp(i)%rotI)        ! Using integer rotation part
           Rotn=matmul(matmul(Sinv,Rot),S)
-          !irot=nint(Rotn)
           do k=n,1,-1
             if(equal_matrix(Rotn,sm(:,:,k),3))  cycle do_i
           end do
@@ -8238,11 +8230,14 @@
           tm(:,n)=Modulo_Lat(trn)
        end do do_i
 
+       !> ----
+       !> ---- Defining the new SPacegroup Object !!!!!
+       !> ----
        SpGn%Centred=SpG%Centred
        SpGn%Centre_coord=SpG%Centre_coord
        if (SpG%Centred /= 1) then !the space group is centro-symmetric
           nc=SpG%NumOps+1
-          Rot=SpG%SymOp(nc)%rot
+          Rot=real(SpG%SymOp(nc)%rotI) ! Using integer rotation part
           tr=SpG%SymOp(nc)%tr
           trn=matmul(Sinv,tr-matmul(e-Rot,orig)) ! matmul(Sinv,tr-2*orig)
           trn= Modulo_Lat(trn)
@@ -8306,6 +8301,7 @@
                            SpGn%Symop(i)%tr(:)   , &
                            SpGn%SymopSymb(i))
        end do
+
        !Try to assign a Hall symbol to the space group in the new setting
        !If the hall symbol has been found and the symbol exists in the table the H-M symbol is also set.
        SpGn%hall="From:"//trim(SpG%hall)
@@ -8349,13 +8345,7 @@
     End Subroutine Setting_Change_NonConv
 
     !!----
-    !!---- Subroutine Similar_Transf_Sg(Mat,Orig,Spg,Spgn,Matkind)
-    !!----    real(kind=cp), dimension (3,3),   intent( in)    :: Mat     ! Matrix transforming the basis
-    !!----    real(kind=cp), dimension (  3),   intent( in)    :: orig    ! Coordinates of the new origin
-    !!----    type (Space_Group_Type) ,         intent( in)    :: SpG     ! Initial space group
-    !!----    type (Space_Group_Type) ,         intent(out)    :: SpGn    ! Maximum subgroup of SpG
-    !!----    character (len=*), optional,      intent( in)    :: matkind ! Type of the input matrix
-    !!----    character (len=*), optional,      intent( in)    :: Fix_lat ! Fixing Lattice type
+    !!---- SUBROUTINE SIMILAR_TRANSF_SG
     !!----
     !!----    Subroutine to construct a space group "SpGn" that is a maximal subgroup
     !!----    of the input space group "SpG" compatible with the transformation
@@ -8381,16 +8371,16 @@
     !!----    the group. If Fix_lat="A" (or whatever) the program will add the corresponding
     !!----    generators irrespective that the generator is in the original/transformed group.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Similar_Transf_SG(Mat,orig,SpG,SpGn,matkind,Fix_lat)
        !---- Arguments ----!
-       real(kind=cp), dimension (3,3),   intent( in)    :: Mat
-       real(kind=cp), dimension (  3),   intent( in)    :: orig
-       type (Space_Group_Type) ,         intent( in)    :: SpG
-       type (Space_Group_Type) ,         intent(out)    :: SpGn
-       character (len=*), optional,      intent( in)    :: matkind
-       character (len=*), optional,      intent( in)    :: Fix_lat
+       real(kind=cp), dimension (3,3),   intent( in)    :: Mat       ! Matrix transforming the basis
+       real(kind=cp), dimension (  3),   intent( in)    :: orig      ! Coordinates of the new origin
+       type (Space_Group_Type) ,         intent( in)    :: SpG       ! Initial space group
+       type (Space_Group_Type) ,         intent(out)    :: SpGn      ! Maximum subgroup of SpG
+       character (len=*), optional,      intent( in)    :: matkind   ! Type of the input matrix
+       character (len=*), optional,      intent( in)    :: Fix_lat   ! Fixing Lattice type
 
        !--- Local variables ---!
        integer                 :: ifail, i, j, k, det, L, im, nc, m, ngm, ngen, Isystm
@@ -8670,26 +8660,18 @@
 
 
     !!----
-    !!---- Subroutine Sym_B_Relations(Op/Symb,B_Ind,B_Fac)
-    !!----    integer, dimension(3,3),     intent (in) :: Op      !  In  -> Rotation Matrix
-    !!----    character(len=*),            intent (in) :: Symb    !  In  -> Symmetry string
-    !!----
-    !!----    integer, dimension(6),       intent(out) :: B_Ind   !  Out -> B Index
-    !!----    real(kind=cp), dimension(6), intent(out) :: B_Fac   !  Out -> B Factor
+    !!---- SUBROUTINE SYM_B_RELATIONS
     !!----
     !!----    Symmetry relations among coefficients of the anisotropic temperature
     !!----    factor.
     !!----
     !!----    Order for B is: B11 B22 B33 B12 B13 B23
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Sym_B_Relations_Op(R,B_Ind,B_Fac)
-    !!--++    integer,dimension(3,3),      intent (in) :: R
-    !!--++    integer, dimension(6),       intent(out) :: B_Ind
-    !!--++    real(kind=cp), dimension(6), intent(out) :: B_Fac
+    !!--++ SUBROUTINE SYM_B_RELATIONS_OP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Symmetry relations among coefficients of the anisotropic temperature
@@ -8701,7 +8683,8 @@
     !!--++    in such a way as the matrix relation  B'ij = Sum{kh}[Rik Bkh Rjh] = Bij
     !!--++    is writen as B'= RB B = B  => (RB-I) B = 0
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 17/07/2015
+    !!--++
     !!
     Subroutine Sym_B_Relations_OP(R,B_Ind,B_Fac)
        !---- Arguments ----!
@@ -8851,10 +8834,7 @@
     End Subroutine Sym_B_Relations_OP
 
     !!--++
-    !!--++ Subroutine Sym_B_Relations_St(Symmcar,B_Ind,B_Fac)
-    !!--++    character(len=*),            intent (in) :: Symmcar
-    !!--++    integer, dimension(6),       intent(out) :: B_Ind
-    !!--++    real(kind=cp), dimension(6), intent(out) :: B_Fac
+    !!--++ SUBROUTINE SYM_B_RELATIONS_ST
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Symmetry relations among coefficients of the anisotropic temperature
@@ -8862,7 +8842,7 @@
     !!--++
     !!--++    Order for B is: B11 B22 B33 B12 B13 B23
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 17/07/2015
     !!
     Subroutine Sym_B_Relations_ST(Symmcar,B_Ind,B_Fac)
        !---- Arguments ----!
@@ -8871,8 +8851,8 @@
        real(kind=cp), dimension(6), intent(out) :: B_Fac
 
        !---- Local variables ----!
-       integer, dimension(3,3) :: a
-       real(kind=cp), dimension(3)      :: t
+       integer, dimension(3,3)      :: a
+       real(kind=cp), dimension(3)  :: t
 
        call read_xsym(symmcar,1,a,t)
        call sym_b_relations_op(a,b_ind,b_fac)
@@ -8881,11 +8861,7 @@
     End Subroutine Sym_B_Relations_ST
 
     !!----
-    !!---- Subroutine Sym_Prod_St(Syma,Symb,Symab,Modlat)
-    !!----    character(len=*),         intent (in)  :: syma
-    !!----    character(len=*),         intent (in)  :: symb
-    !!----    character(len=len(syma)), intent (out) :: symab
-    !!----    logical, optional,        intent (in)  :: modlat
+    !!---- SUBROUTINE SYM_PROD_ST
     !!----
     !!----    Obtain the symbol/Op/Matrix+trans of the  symmetry operation corresponding
     !!----    to the product of two operators given in the Jone's Faithful(symbol)
@@ -8898,7 +8874,7 @@
     !!----    If modlat=.true. or it is not present, the traslation
     !!----    part of the resulting operator is reduced to have components < 1.0
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Sym_Prod_St(Syma,Symb,Symab,Modlat)
        !---- Arguments ----!
@@ -8930,51 +8906,38 @@
     End Subroutine Sym_Prod_St
 
     !!----
-    !!---- Subroutine Symmetry_Symbol(Op,Symb), (S,T,Symb), (Symm,Symb)
-    !!----    type(Sym_Oper_type),         intent (in) :: Op
-    !!----
-    !!----    integer, dimension(3,3),     intent (in) :: S
-    !!----    real(kind=cp), dimension(3), intent (in) :: t
-    !!----
-    !!----    character(len=*),            intent (in) :: Symm
-    !!----
-    !!----    character(len=*),            intent (out):: symb
+    !!---- SUBROUTINE SYMMETRY_SYMBOL
     !!----
     !!----    Obtain the symbol of the symmetry element of the operator Op
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
 
     !!--++
-    !!--++ Subroutine Symmetry_Symbol_Op(Op,Symb)
-    !!--++    type(Sym_Oper_type), intent (in)  :: Op
-    !!--++    character(len=*),    intent (out) :: symb
+    !!--++ SUBROUTINE SYMMETRY_SYMBOL_OP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Obtain the symbol of the symmetry element of the operator Op
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 17/07/2015
     !!
     Subroutine Symmetry_Symbol_OP(Op,symb)
        !---- Arguments ----!
        type(Sym_Oper_Type),   intent (in)  :: Op
        character(len=*),     intent (out)  :: symb
 
-       call symmetry_symbol_str(Op%Rot,Op%tr,symb)
+       call symmetry_symbol_str(Op%RotI,Op%tr,symb)
 
        return
     End Subroutine Symmetry_Symbol_OP
 
     !!--++
-    !!--++ Subroutine Symmetry_Symbol_Str(S,T,Symb)
-    !!--++    integer, dimension(3,3),     intent( in) :: s
-    !!--++    real(kind=cp), dimension(3), intent( in) :: t
-    !!--++    character (len=*),           intent(out) :: symb
+    !!--++ SUBROUTINE SYMMETRY_SYMBOL_STR
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Obtain the symbol of the symmetry element corresponding to operator (S,T)
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 17/07/2015
     !!
     Subroutine Symmetry_Symbol_Str(S,T,Symb)
        !---- Arguments ----!
@@ -9393,15 +9356,13 @@
     End Subroutine Symmetry_Symbol_Str
 
     !!--++
-    !!--++ Subroutine Symmetry_Symbol_Xyz(Symm,Symb)
-    !!--++    character(len=*), intent (in)  :: symm
-    !!--++    character(len=*), intent (out) :: symb
+    !!--++ SUBROUTINE SYMMETRY_SYMBOL_XYZ
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Obtain the symbol of the  symmetry element corresponding
     !!--++    to an operator given in the Jone's Faithful representation
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: 17/07/2015
     !!
     Subroutine Symmetry_Symbol_Xyz(Symm,Symb)
        !---- Arguments ----!
@@ -9409,8 +9370,8 @@
        character(len=*), intent (out) :: symb
 
        !--- Local variables ---!
-       integer, dimension (3,3)      :: s
-       real(kind=cp),    dimension (3)        :: t
+       integer,       dimension (3,3)      :: s
+       real(kind=cp), dimension (3)        :: t
 
        call Read_Xsym(symm,1,s,t)
        call symmetry_symbol_str(s,t,symb)
@@ -9419,9 +9380,7 @@
     End Subroutine Symmetry_Symbol_Xyz
 
     !!----
-    !!---- Subroutine Write_Bin_Spacegroup(SpG,Lun)
-    !!----    type (Space_Group),  intent(in)  :: SpG   !  In -> SpaceGroup Variable
-    !!----    integer,             intent(in)  :: Lun   !  In -> Logical unit of the file
+    !!---- SUBROUTINE WRITE_BIN_SPACEGROUP
     !!----
     !!----    Writing in file of logical unit "lun" the full structure of Space_Group_Type, SpG
     !!----    The file should have been opened with the access="stream" attribute. The procedure
@@ -9429,20 +9388,21 @@
     !!----    type SpG. For reading back a Space Group structure from a binary file the subroutine
     !!----    Read_Bin_Spacegroup has to be used.
     !!----
-    !!---- Update: February - 2013
+    !!---- Update: 17/07/2015
     !!
-    Subroutine Write_Bin_SpaceGroup(SpG,lun)
+    Subroutine Write_Bin_SpaceGroup(Lun,SpG)
        !---- Arguments ----!
-       type (Space_Group_Type),intent(in) :: SpG
-       integer,                intent(in) :: lun
+       type (Space_Group_Type),intent(in) :: SpG ! SpaceGroup object
+       integer,                intent(in) :: lun ! Logical unit of the file
 
        !---- Local variables ----!
-       integer                           :: i,j
+       integer  :: i,j
 
        !---- Writing variables ----!
        write(unit=Lun) SpG%NumSpg,        &   ! Number of the Space Group
                        SpG%SPG_Symb,      &   ! Hermann-Mauguin Symbol
                        SpG%Hall,          &   ! Hall symbol
+                       SpG%GHall,         &   ! Generalised Hall symbol
                        SpG%CrystalSys,    &   ! Crystal system
                        SpG%Laue,          &   ! Laue Class
                        SpG%PG,            &   ! Point group
@@ -9460,27 +9420,26 @@
                        SpG%NumOps,        &   ! Number of reduced set of S.O.
                        SpG%Multip,        &   ! Multiplicity of the general position
                        SpG%Num_gen            ! Minimum number of operators to generate the Group
+
        do i=1,SpG%Multip
-         write(unit=Lun) SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr ! Symmetry operators
-         write(unit=Lun) SpG%SymopSymb(i)                 ! Strings form of symmetry operators
+          write(unit=Lun) SpG%SymOp(i)%RotI,SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr ! Symmetry operators
+          write(unit=Lun) SpG%SymopSymb(i)                                   ! Strings form of symmetry operators
        end do
        write(unit=Lun) SpG%R_Asym_Unit                    ! Asymmetric unit in real space
        write(unit=Lun) SpG%Wyckoff%num_orbit              ! Wyckoff Information
        do i=1,SpG%Wyckoff%num_orbit
-         write(unit=Lun) SpG%Wyckoff%orbit(i)%norb
-         write(unit=Lun) SpG%Wyckoff%orbit(i)%str_Orig
-         do j=1,SpG%Wyckoff%orbit(i)%norb
-           write(unit=Lun) SpG%Wyckoff%orbit(i)%str_orbit(j)
-         end do
+          write(unit=Lun) SpG%Wyckoff%orbit(i)%norb
+          write(unit=Lun) SpG%Wyckoff%orbit(i)%str_Orig
+          do j=1,SpG%Wyckoff%orbit(i)%norb
+             write(unit=Lun) SpG%Wyckoff%orbit(i)%str_orbit(j)
+          end do
        end do
+
        return
     End Subroutine Write_Bin_SpaceGroup
 
     !!----
-    !!---- Subroutine Write_Spacegroup(Spacegroup,Iunit,Full)
-    !!----    type (Space_Group),  intent(in)  :: SpaceGroup !  In -> SpaceGroup Variable
-    !!----    integer,  optional,  intent(in)  :: iunit      !  In -> Write information on Iunit
-    !!----    logical,  optional,  intent(in)  :: full       !  In -> Full operator or not
+    !!---- SUBROUTINE WRITE_SPACEGROUP
     !!----
     !!----    Writing in file of logical unit "lun" the characteristics of
     !!----    the space group "SpaceG". Part of the information contained
@@ -9489,12 +9448,12 @@
     !!----    is output including the symmetry symbol associated to each
     !!----    operator.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Write_SpaceGroup(SpaceGroup,Iunit,Full)
        !---- Arguments ----!
-       type (Space_Group_Type),intent(in) :: SpaceGroup
-       integer,   optional,    intent(in) :: iunit
+       type (Space_Group_Type),intent(in) :: SpaceGroup  ! SpaceGroup Variable
+       integer,   optional,    intent(in) :: iunit       ! Unit to write the info
        logical,   optional,    intent(in) :: full
 
        !---- Local variables ----!
@@ -9608,31 +9567,25 @@
 
        end if
 
-
        return
     End Subroutine Write_SpaceGroup
 
     !!----
-    !!---- Subroutine Write_Sym(Lun,Indx,Sim,Tt,P_Mag,Mag)
-    !!----    integer,                     intent(in) :: lun       !  In -> Logical unit of the file to write
-    !!----    integer,dimension(3,3),      intent(in) :: sim       !  In -> Rotational part of the S.O.
-    !!----    integer,                     intent(in) :: indx      !  In -> Ordinal of the current Symm.Operator
-    !!----    real(kind=cp), dimension(3), intent(in) :: tt        !  In -> Translation part of the S.O.
-    !!----    real(kind=cp),               intent(in) :: p_mag     !  In -> Magnetic phase of the magnetic S.O.
-    !!----    logical,                     intent(in) :: mag       !  In -> .true. if it is a magnetic S.O.
+    !!---- SUBROUTINE WRITE_SYMM
     !!----
     !!----    Writing the reduced set of symmetry operators
     !!----    Logical hexa must be defined (valid for conventional bases)
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
-    Subroutine Write_Sym(Lun,Indx,Sim,Tt,P_Mag,Mag)
+    Subroutine Write_Symm(Lun,Indx,Sim,Tt,P_Mag,Mag)
        !---- Arguments ----!
-       integer,                     intent(in) :: lun,indx
-       integer, dimension(3,3),     intent(in) :: sim
-       real(kind=cp), dimension(3), intent(in) :: tt
-       real(kind=cp),               intent(in) :: p_mag
-       logical,                     intent(in) :: mag
+       integer,                     intent(in) :: lun       ! Logical unit of the file to write
+       integer,                     intent(in) :: indx      ! Ordinal of the current Symm.Operator
+       integer, dimension(3,3),     intent(in) :: sim       ! Rotational part of the S.O.
+       real(kind=cp), dimension(3), intent(in) :: tt        ! Translation part of the S.O.
+       real(kind=cp),               intent(in) :: p_mag     ! Magnetic phase of the magnetic S.O.
+       logical,                     intent(in) :: mag       ! .true. if it is a magnetic S.O.
 
        !---- Local variables ----!
        character (len=35)             :: symcod
@@ -9646,7 +9599,7 @@
           i1=25
           i2=36
        end if
-       call SearchOp(sim,i1,i2,Isl)
+       Isl=SearchOp(sim,i1,i2)
        call Get_SymSymb(sim,tt,Symcod)
 
        if (hexa) then
@@ -9683,13 +9636,10 @@
        end if            ! End if(Hexa)
 
        return
-    End Subroutine Write_Sym
+    End Subroutine Write_Symm
 
     !!----
-    !!---- Subroutine Write_SymTrans_Code(N,Tr,Code)
-    !!----    integer,                    intent(in)  :: N
-    !!----    real(kind=cp),dimension(3), intent(in)  :: Tr
-    !!----    character (len=*),          intent(out) :: Code
+    !!---- SUBROUTINE WRITE_SYMTRANS_CODE
     !!----
     !!----    Write the code string for reference the symmetry operator and the
     !!----    Traslation applied.
@@ -9697,58 +9647,55 @@
     !!----        _3.456     : N_Op = 3, Tr=(-1.0, 0.0, 1.0)
     !!-->>
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: 17/07/2015
     !!
-    Subroutine Write_SymTrans_Code(N,Tr,Code)
+    Subroutine Write_SymTrans_Code(N,Tr,StrSymm)
        !---- Arguments ----!
        integer,                    intent(in)  :: N
        real(kind=cp),dimension(3), intent(in)  :: Tr
-       character (len=*),          intent(out) :: Code
+       character (len=*),          intent(out) :: StrSymm
 
        !---- Local Variables ----!
        character(len=3)      :: car
        integer, dimension(3) :: i
 
-       Code=" "
+       StrSymm=" "
        if (N <=0) return
        car="   "
+
        !---- Number of the Symmetry Operator ----!
        write(unit=car,fmt="(i3)") n
        car=adjustl(car)
-       Code="_"//trim(car)
+       StrSymm="_"//trim(car)
        car="   "
+
        !---- Traslation Part ----!
        i=5+nint(tr)
        if (any(i /= 5)) then
           write(unit=car(1:1),fmt="(i1)") i(1)
           write(unit=car(2:2),fmt="(i1)") i(2)
           write(unit=car(3:3),fmt="(i1)") i(3)
-          code=trim(code)//"."//trim(car)
+          StrSymm=trim(StrSymm)//"."//trim(car)
        else
-          if(len_trim(code)==2 .and. code(2:2) == "1") Code=" "
+          if(len_trim(StrSymm)==2 .and. StrSymm(2:2) == "1") StrSymm=" "
        end if
-
 
        return
     End Subroutine Write_SymTrans_Code
 
     !!----
-    !!---- Subroutine Write_Wyckoff(Wyckoff,Spg_Name,Lun, Sorting)
-    !!----    type(wyckoff_type), intent(in) :: Wyckoff     !  In -> Wyckoff Type variable
-    !!----    character(len=*),   intent(in) :: Spg_Name    !  In -> SpaceGroup Name
-    !!----    integer,optional,   intent(in) :: Lun         !  In -> Unit to write the information
-    !!----    logical, optional,  intent(in) :: Sorting     !  In -> .true. for sorting list
+    !!---- SUBROUTINE WRITE_WYCKOFF
     !!----
     !!----    Print/Write the Wyckoff positions in Lun unit
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Write_Wyckoff(Wyckoff,Spg, Lun, Sorting)
        !---- Arguments ----!
-       type(wyckoff_type), intent(in) :: wyckoff
-       character(len=*),   intent(in) :: Spg
-       integer, optional,  intent(in) :: Lun
-       logical, optional,  intent(in) :: Sorting
+       type(wyckoff_type), intent(in) :: wyckoff     ! Wyckoff object
+       character(len=*),   intent(in) :: Spg         ! SpaceGroup Name
+       integer, optional,  intent(in) :: Lun         ! Unit to write the information
+       logical, optional,  intent(in) :: Sorting     ! .true. for sorting list
 
        !---- Local variables ----!
        character(len=3)      :: carm
@@ -9792,15 +9739,11 @@
      End Subroutine Write_Wyckoff
 
     !!----
-    !!---- Subroutine Wyckoff_Orbit(Spacegroup,Wyckoffstr,N_Orbit,Orbitstr)
-    !!----    type (Space_Group_Type),       intent( in) :: SpaceGroup !  In -> SpaceGroup Variable
-    !!----    character(len=*),              intent( in) :: WyckoffStr !  In -> Representative of the Orbit
-    !!----    integer,                       intent(out) :: N_Orbit    ! Out -> Number of Components in the Orbit
-    !!----    character(len=*),dimension(:), intent(out) :: OrbitStr   ! Out -> Wyckoff Positions Strings
+    !!---- SUBROUTINE WYCKOFF_ORBIT
     !!----
     !!----    Calculation of the Wyckoff positions from the representative element
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: 17/07/2015
     !!
     Subroutine Wyckoff_Orbit(SGrp,Wyckoff_Car, N, Wyckoff_Orb)
        !---- Arguments ----!
