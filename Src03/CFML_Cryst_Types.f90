@@ -862,7 +862,7 @@
        if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
 
        call init_err_crys()
-       if (ok == .false.) then
+       if (ok .eqv. .false.) then
           err_crys=.true.
           err_crys_mess='Problems in routine Get_Basis_From_UVW'
        end if

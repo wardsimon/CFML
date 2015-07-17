@@ -77,7 +77,6 @@ rem
    gfortran -c CFML_sym_table.f90                        %OPT0% %OPT2%
    gfortran -c CFML_chem_scatt.f90                       %OPT0% %OPT2%
    gfortran -c CFML_BVSpar.f90                           %OPT0% %OPT2%
-   goto FIN
    gfortran -c CFML_diffpatt.f90                         %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**
@@ -92,6 +91,7 @@ rem
    echo .... Reflections, Atoms
 rem
    gfortran -c CFML_Eos_Mod.f90                          %OPT1% %OPT2%
+   goto FIN
    gfortran -c CFML_reflct_util.f90                      %OPT1% %OPT2%
    gfortran -c CFML_atom_mod.f90                         %OPT1% %OPT2%
 rem

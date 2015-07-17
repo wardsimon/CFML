@@ -2,6 +2,9 @@ List of Changes
 ====================
 Date:17/07/2015
 ----------------
+CFML_EoS: Chane name N_tranmodel for N_TRANS_MODELS
+CFML_EoS: Chane name N_tmodel for N_THERM_MODELS
+CFML_EoS: Chane name N_pmodel for N_PRESS_MODELS
 CFML_Crystallographic_Symmetry: Changes in the arguments of Read_Bin_SpaceGroup procedure.
 CFML_Crystallographic_Symmetry: SearchOP is now a function and NOT a subroutine
 CFML_Crystallographic_Symmetry: Change the order of the arguments in Write_Bin_SpaceGroup
