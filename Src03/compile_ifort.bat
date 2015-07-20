@@ -86,8 +86,8 @@ rem
    echo .... Reflections, Atoms
 rem
    ifort /c CFML_Eos_Mod.f90                          /nologo %OPT1% %OPT2%
-   goto FIN
    ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
+   goto FIN
    ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 4 ----**

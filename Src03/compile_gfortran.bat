@@ -91,8 +91,8 @@ rem
    echo .... Reflections, Atoms
 rem
    gfortran -c CFML_Eos_Mod.f90                          %OPT1% %OPT2%
-   goto FIN
    gfortran -c CFML_reflct_util.f90                      %OPT1% %OPT2%
+   goto FIN
    gfortran -c CFML_atom_mod.f90                         %OPT1% %OPT2%
 rem
    echo **---- Level 4 ----**
