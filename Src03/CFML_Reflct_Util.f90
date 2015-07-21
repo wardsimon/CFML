@@ -248,13 +248,13 @@
                 k=asu_hkl_orthorhombic(h)
 
              case (75:88)
-                k=asu_hkl_tetragonal(h,"4/m  ")
+                k=asu_hkl_tetragonal(h,"4/m")
 
              case (89:142)
                 k=asu_hkl_tetragonal(h,"4/mmm")
 
              case (143:148)
-                k=asu_hkl_trigonal(h,"-3  ")
+                k=asu_hkl_trigonal(h,"-3")
 
              case (149,151,153,157,159,162,163)
                 k=asu_hkl_trigonal(h,"-31m")
@@ -263,13 +263,13 @@
                 k=asu_hkl_trigonal(h,"-3m")
 
              case (168:176)
-                k=asu_hkl_hexagonal(h,"6/m  ")
+                k=asu_hkl_hexagonal(h,"6/m")
 
              case (177:194)
                 k=asu_hkl_hexagonal(h,"6/mmm")
 
              case (195:206)
-                k=asu_hkl_cubic(h,"m-3 ")
+                k=asu_hkl_cubic(h,"m-3")
 
              case (207:230)
                 k=asu_hkl_cubic(h,"m-3m")
@@ -287,19 +287,19 @@
              case("mmm")
                 k=asu_hkl_orthorhombic(h)
              case("4/m")
-                k=asu_hkl_tetragonal(h,"4/m  ")
+                k=asu_hkl_tetragonal(h,"4/m")
              case("4/mmm")
                 k=asu_hkl_tetragonal(h,"4/mmm")
              case("-3")
-                k=asu_hkl_trigonal(h,"-3  ")
+                k=asu_hkl_trigonal(h,"-3")
              case("-3m")
                 k=asu_hkl_trigonal(h,"-3m")
              case("6/m")
-                k=asu_hkl_hexagonal(h,"6/m  ")
+                k=asu_hkl_hexagonal(h,"6/m")
              case("6/mmm")
                 k=asu_hkl_hexagonal(h,"6/mmm")
              case("m-3")
-                k=asu_hkl_cubic(h,"m-3 ")
+                k=asu_hkl_cubic(h,"m-3")
              case("m-3m")
                 k=asu_hkl_cubic(h,"m-3m")
              case default
