@@ -38,84 +38,30 @@
 !!----    Update: 06/03/2011
 !!----
 !!----
-!!---- DEPENDENCIES
-!!----
-!!--++    Use CFML_GlobalDeps,                only: Cp, Pi
-!!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
-!!--++    Use CFML_Math_3D,                   only: matrix_diageigen, determ_a,
-!!--++    Use CFML_String_Utilities,          only: setnum_std
-!!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
-!!--++                                              convert_b_u, convert_betas_b,          &
-!!--++                                              convert_betas_u, convert_u_b,          &
-!!--++                                              convert_u_betas, u_equiv
-!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
-!!--++                                              Get_Multip_Pos, Get_Stabilizer
-!!--++
-!!----
-!!---- VARIABLES
-!!----    ATOM_TYPE
-!!----    ATOMS_CELL_TYPE
-!!----    ATOM_LIST_TYPE
-!!----    MATOM_TYPE
-!!----    MATOM_LIST_TYPE
-!!----    ERR_ATMD
-!!----    ERR_ATMD_MESS
-!!--++    R_ATOM           [Private]
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       EQUIV_ATM
-!!----       WRT_LAB
-!!----
-!!----    Subroutines:
-!!----       ALLOCATE_ATOMS_CELL
-!!----       ALLOCATE_ATOM_LIST
-!!----       ALLOCATE_MATOM_LIST
-!!----       ATLIST1_EXTENCELL_ATLIST2
-!!----       ATOMS_CELL_TO_LIST
-!!----       ATOM_LIST_TO_CELL
-!!----       ATOM_UEQUI_LIST
-!!----       COPY_ATOM_LIST
-!!----       DEALLOCATE_ATOMS_CELL
-!!----       DEALLOCATE_ATOM_LIST
-!!----       DEALLOCATE_MATOM_LIST
-!!----       GET_ATOM_2ND_TENSOR_CTR
-!!----       INIT_ATOM_TYPE
-!!----       INIT_ERR_ATMD
-!!----       MERGE_ATOMS_PEAKS
-!!----       MULTI
-!!----       READ_BIN_ATOM_LIST
-!!----       SET_ATOM_EQUIV_LIST
-!!----       WRITE_ATOM_LIST
-!!----       WRITE_BIN_ATOM_LIST
-!!----
 !!
- Module CFML_Atom_TypeDef
+Module CFML_Atom_TypeDef
 
-    !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: Cp, Pi
-    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
-    Use CFML_String_Utilities,          only: setnum_std
-    Use CFML_Math_3D,                   only: matrix_diageigen
-    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
+   !---- Use Modules ----!
+   Use CFML_GlobalDeps,                only: Cp, Pi
+   Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
+   Use CFML_String_Utilities,          only: setnum_std
+   Use CFML_Math_3D,                   only: matrix_diageigen
+   Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
                                               Convert_b_u, convert_betas_b,          &
                                               convert_betas_u, convert_u_b,          &
                                               convert_u_betas, u_equiv
-    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
+   Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
                                               Get_Multip_Pos, Get_Stabilizer
 
-    !---- Variables ----!
-    implicit none
+   !---- Definitions ----!
+   implicit none
 
-    private
+   private
 
-    !---- List of public overloaded procedures: subroutines ----!
+   !---- List of Public Procedures ----!
+   public :: Equiv_Atm, Wrt_Lab
 
-    !---- List of public functions ----!
-    public :: Equiv_Atm, Wrt_Lab
-
-    !---- List of public subroutines ----!
-    public :: Allocate_Atoms_Cell, Allocate_Atom_List, Atlist1_Extencell_Atlist2,     &
+   public :: Allocate_Atoms_Cell, Allocate_Atom_List, Atlist1_Extencell_Atlist2,     &
               Atoms_Cell_To_List, Atom_List_To_Cell, Atom_Uequi_List, Copy_Atom_list, &
               Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,            &
               Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,               &
@@ -123,66 +69,219 @@
               Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List,               &
               Set_Atom_Equiv_List, Get_Atom_2nd_Tensor_Ctr
 
-    !---- List of private Subroutines ----!
 
-    !---- Definitions ----!
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
+   real(kind=cp), parameter :: r_atom=1.1    ! Average atomic radius. Value taken for internal calculations.
 
-     !!---- Type, Public :: Atom_Equiv_Type
-     !!----    integer                                        :: mult
-     !!----    character(len=2)                               :: ChemSymb
-     !!----    character(len=10),allocatable, dimension(:)    :: Lab
-     !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
-     !!---- End Type Atom_Equiv_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_Type
-        integer                                        :: mult
-        character(len=2)                               :: ChemSymb
-        character(len=20),allocatable, dimension(:)    :: Lab
-        real(kind=cp),    allocatable, dimension(:,:)  :: x
-     End Type Atom_Equiv_Type
 
-     !!---- Type, Public :: Atom_Equiv_List_Type
-     !!----    integer                                           :: nauas
-     !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     !!---- End Type Atom_Equiv_List_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_List_Type
-        integer                                           :: nauas
-        type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     End Type Atom_Equiv_List_Type
+
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
+
+
+   !!----
+   !!---- TYPE :: ATOM_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, public :: Atom_Type
+      logical                    :: Active=.true.      ! Logical for active/desactive use
+      character(len=10)          :: Lab=" "            ! Label of Atom
+      character(len=2)           :: ChemSymb=" "       ! Chemical Symbol
+      integer                    :: Z=0                ! Atomic number
+      real(kind=cp),dimension(3) :: Pos=0.0            ! Position
+      real(kind=cp),dimension(3) :: Pos_Std=0.0        ! Std of Position
+      real(kind=cp)              :: Occ=1.0            ! Ocuppancy factor
+      real(kind=cp)              :: Occ_Std=0.0        ! Std
+      integer                    :: IThermal=0         ! Thermal type -> 0:U, 1:B, 2:betas (Negative values implies anisotropic)
+      character(len=5)           :: CThermal="U"       ! "U", "B", "Betas"
+      real(kind=cp)              :: Th=1.0             ! Thermal iso/equiv
+      real(kind=cp)              :: Th_Std=0.0         ! Std
+      real(kind=cp),dimension(6) :: Th_ij=0.0          ! Thermal factors U11, U22, U33, U12, U13, U23
+      real(kind=cp),dimension(6) :: Th_ij_std=0.0      ! Std
+   End Type Atom_Type
+
+   !!----
+   !!---- TYPE :: ATOM_REF_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, extends(Atom_Type), public :: Atom_Ref_Type
+      integer                                  :: L_Occ  =0   ! Number in the LSQ list of LSQ parameters for Occupancy
+      integer,      dimension(3)               :: L_Pos  =0   ! Numbers in the LSQ list of LSQ parameters for coordinates
+      integer                                  :: L_Th   =0   ! Number in the LSQ list of LSQ parameters for Occupancy
+      integer,      dimension(6)               :: L_Th_ij=0   ! Number in the LSQ list of LSQ parameters for Thermal
+
+      real(kind=cp)                            :: M_Occ  =1.0   ! Multiplier parameters...
+      real(kind=cp),dimension(3)               :: M_Pos  =1.0   !
+      real(kind=cp)                            :: M_Th   =1.0   ! Multiplier parameters...
+      real(kind=cp),dimension(6)               :: M_Th_ij=1.0   !
+   End Type Atom_Ref_Type
+
+   !!----
+   !!---- TYPE :: MATOM_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, extends(Atom_Type), public :: MAtom_Type
+      integer                            :: nvk=0                      ! Number of propagation vectors (excluding -k)
+      integer,       dimension(12)       :: imat=0                     ! Number of the magnetic matrices/irrep set to be applied
+      real(kind=cp), dimension(3,12)     :: SkR=0.0                    ! Real part of Fourier Coefficient
+      real(kind=cp), dimension(3,12)     :: SkR_Std=0.0                ! Standard deviations of the Real part of Fourier Coefficient
+      real(kind=cp), dimension(3,12)     :: Spher_SkR=0.0              ! Real part of Fourier Coefficient in spherical components
+      real(kind=cp), dimension(3,12)     :: Spher_SkR_Std=0.0          ! Standard deviations of the Real part of Fourier Coefficient in spherical components
+      real(kind=cp), dimension(3,12)     :: SkI=0.0                    ! Imaginary part of Fourier Coefficient
+      real(kind=cp), dimension(3,12)     :: SkI_Std=0.0                ! Standard Imaginary part of Fourier Coefficient
+      real(kind=cp), dimension(3,12)     :: Spher_SkI=0.0              ! Imaginary part of Fourier Coefficient in spherical components
+      real(kind=cp), dimension(3,12)     :: Spher_SkI_Std=0.0          ! Standard deviations of the Imaginary part of Fourier Coefficient in spherical components
+      real(kind=cp), dimension(12)       :: MPhas=0.0                  ! Magnetic Phase in fractions of 2pi
+      real(kind=cp), dimension(12)       :: MPhas_Std=0.0              ! Standard Magnetic Phase in fractions of 2pi
+      real(kind=cp), dimension(12,12)    :: Bas=0.0                    ! Coefficients of the basis functions of irreps, the second index is 1:nvk
+      real(kind=cp), dimension(12,12)    :: Bas_Std=0.0                ! Standard
+      character(len=5)                   :: ChiType=" "                ! "isotr","aniso"
+      real(kind=cp)                      :: Chieq=0.0                  ! Chi iso /equiv
+      real(kind=cp)                      :: Chieq_std=0.0              ! Standard
+      real(kind=cp), dimension(6)        :: Chi=0.0                    ! chi11, chi22, chi33, chi12, chi13, chi23
+      real(kind=cp), dimension(6)        :: Chi_Std=0.0                ! Standard values
+   End Type MAtom_Type
+
+
+   !!----
+   !!---- TYPE :: MATOM_REF_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, extends(MAtom_Type), public :: MAtom_Ref_Type
+      integer                           :: L_Occ  =0   ! Number in the LSQ list of LSQ parameters for Occupancy
+      integer,      dimension(3)        :: L_Pos  =0   ! Numbers in the LSQ list of LSQ parameters for coordinates
+      integer                           :: L_Th   =0   ! Number in the LSQ list of LSQ parameters for Occupancy
+      integer,      dimension(6)        :: L_Th_ij=0   ! Number in the LSQ list of LSQ parameters for Thermal
+
+      integer,       dimension(3,12)    :: L_SkR  =0       ! Number in the LSQ list of LSQ parameters
+      integer,       dimension(3,12)    :: L_SkI  =0
+      integer,       dimension(12)      :: L_MPhas=0
+      integer,       dimension(12,12)   :: L_Bas  =0
+      integer,       dimension(6)       :: L_Chi  =0
+
+      real(kind=cp)                     :: M_Occ  =1.0   ! Multiplier parameters...
+      real(kind=cp),dimension(3)        :: M_Pos  =1.0   !
+      real(kind=cp)                     :: M_Th   =1.0   ! Multiplier parameters...
+      real(kind=cp),dimension(6)        :: M_Th_ij=1.0   !
+
+      real(kind=cp), dimension(3,12)    :: M_SkR  =1.0   ! Multiplier parameters...
+      real(kind=cp), dimension(3,12)    :: M_SkI  =1.0   ! Multiplier parameters...
+      real(kind=cp), dimension(12)      :: M_MPhas=1.0
+      real(kind=cp), dimension(12,12)   :: M_Bas  =1.0
+      real(kind=cp), dimension(6)       :: M_Chi  =1.0
+   End Type MAtom_Ref_Type
+
+   !!----
+   !!---- TYPE, PUBLIC :: ATOM_EQUIV_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, Public :: Atom_Equiv_Type
+      integer                                         :: mult       ! Multiplicity
+      character(len=1)                                :: wyck=" "   ! Wyckoff letter
+      character(len=2)                                :: ChemSymb   ! Chemical symbol
+      character(len=20), allocatable, dimension(:)    :: Lab        ! Labels
+      real(kind=cp),     allocatable, dimension(:,:)  :: Pos        ! Parameters
+   End Type Atom_Equiv_Type
+
+   !!----
+   !!---- TYPE :: ATOM_LIST_TYPE
+   !!----
+   !!---- Update: 25/07/2015
+   !!
+   Type, public :: Atom_List_Type
+      integer                                  :: Natoms
+      type(Atom_Type),allocatable, dimension(:):: Atom
+   End type Atom_List_Type
+
+   !!----
+   !!---- TYPE :: ATOMREF_LIST_TYPE
+   !!----
+   !!---- Update: 25/07/2015
+   !!
+   Type, public :: AtomRef_List_Type
+      integer                                      :: Natoms
+      type(Atom_Ref_Type),dimension(:),allocatable :: Atom
+   End type AtomRef_List_Type
+
+   !!----
+   !!---- TYPE, PUBLIC :: ATOM_EQUIV_LIST_TYPE
+   !!----
+   !!----  Updated: 25/07/2015
+   !!
+   Type, Public :: Atom_Equiv_List_Type
+      integer                                           :: NAt
+      type (Atom_Equiv_Type), allocatable, dimension(:) :: Atm
+   End Type Atom_Equiv_List_Type
+
+   !!----
+   !!---- TYPE :: MATOM_LIST_TYPE
+   !!----
+   !!---- Updated: 25/07/2015
+   !!
+   Type, public :: MAtom_List_Type
+      integer                                     :: Natoms     ! Number of Magnetic atoms in the List
+      logical                                     :: suscept    ! true if magnetic moments are calculated from local susceptibility
+      real(kind=cp)                               :: MagField   ! Applied magnetic field strength in Tesla
+      real(kind=cp), dimension(3)                 :: Dir_MField ! Direction of magnetic field in crystallographic system
+      type(MAtom_Type), allocatable, dimension(:) :: Atom
+   End type MAtom_List_Type
+
+   !!----
+   !!---- TYPE :: MATOMREF_LIST_TYPE
+   !!----
+   !!---- Updated: 25/07/2015
+   !!
+   Type, public :: MAtomRef_List_Type
+      integer                                         :: Natoms     ! Number of Magnetic atoms in the List
+      logical                                         :: suscept    ! true if magnetic moments are calculated from local susceptibility
+      real(kind=cp)                                   :: MagField   ! Applied magnetic field strength in Tesla
+      real(kind=cp),                     dimension(3) :: Dir_MField ! Direction of magnetic field in crystallographic system
+      type(MAtom_Ref_Type), allocatable, dimension(:) :: Atom
+   End type MAtomRef_List_Type
+
+
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+   logical,            public :: ERR_Atmd=.false.  ! Logical Variable taking the value .true. if an error in the module ATOM_DISTANCES occurs.
+   character(len=256), public :: Err_Atmd_Mess=" " ! String containing information about the last error
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Y esto ?
+!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
     !!----
     !!---- TYPE :: ATOM_TYPE
     !!--..
     !!---- Type, public :: Atom_Type
-    !!----    character(len=20)                       :: Lab           ! Label
-    !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
     !!----    character(len=4)                        :: SfacSymb      ! Symbol for Scattering Factor
     !!----    character(len=1)                        :: wyck          ! Wyckoff letter
     !!----    logical                                 :: active        ! Control for different purposes
-    !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
     !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
     !!----    integer,      dimension(3)              :: lx            ! Numbers in the LSQ list of LSQ parameters for coordinates
-    !!----    real(kind=cp)                           :: occ           ! occupation factor
-    !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
     !!----    real(kind=cp)                           :: mOcc          !
     !!----    integer                                 :: lOcc          !
-    !!----    real(kind=cp)                           :: Biso          ! Isotropic B-factor
-    !!----    real(kind=cp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
     !!----    real(kind=cp)                           :: mBiso         !
     !!----    integer                                 :: lBiso         !
-    !!----    character(len=4)                        :: utype         ! type of anisotropic thermal parameters: u_ij, b_ij, beta, none
-    !!----    character(len=5)                        :: thtype        ! "isotr","aniso","other"
-    !!----    real(kind=cp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
-    !!----    real(kind=cp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
-    !!----    real(kind=cp)                           :: Ueq           ! Uequiv
     !!----    real(kind=cp),dimension(6)              :: mU            !
     !!----    integer,dimension(6)                    :: lU            !
     !!----    real(kind=cp)                           :: Charge        ! Charge
@@ -197,33 +296,10 @@
     !!----
     !!---- Update: May - 2009
     !!
-    Type, public :: Atom_Type
-       character(len=20)                        :: Lab
-       character(len=2)                         :: ChemSymb
+    Type, public :: Atom_Type_?????????
        character(len=4)                         :: SfacSymb
        character(len=1)                         :: wyck
-       logical                                  :: Active
-       integer                                  :: Z
        integer                                  :: Mult
-       real(kind=cp),dimension(3)               :: X
-       real(kind=cp),dimension(3)               :: X_Std
-       real(kind=cp),dimension(3)               :: MX
-       integer,      dimension(3)               :: LX
-       real(kind=cp)                            :: Occ
-       real(kind=cp)                            :: Occ_Std
-       real(kind=cp)                            :: MOcc
-       integer                                  :: LOcc
-       real(kind=cp)                            :: Biso
-       real(kind=cp)                            :: Biso_std
-       real(kind=cp)                            :: MBiso
-       integer                                  :: LBiso
-       character(len=4)                         :: Utype
-       character(len=5)                         :: ThType
-       real(kind=cp),dimension(6)               :: U
-       real(kind=cp),dimension(6)               :: U_std
-       real(kind=cp)                            :: Ueq
-       real(kind=cp),dimension(6)               :: MU
-       integer,      dimension(6)               :: LU
        real(kind=cp)                            :: Charge
        real(kind=cp)                            :: Moment
        integer, dimension(5)                    :: Ind
@@ -233,6 +309,7 @@
        integer,      dimension(25)              :: LVarF
        character(len=40)                        :: AtmInfo
     End Type Atom_Type
+
 
     !!----
     !!---- TYPE :: atoms_cell_type
@@ -275,218 +352,9 @@
        character (len=20),      dimension(:), allocatable :: ddlab
     End Type Atoms_Cell_Type
 
-    !!----
-    !!---- TYPE :: ATOM_LIST_TYPE
-    !!--..
-    !!---- Type, public :: atom_list_type
-    !!----    integer                                    :: natoms  ! total number of atoms in the list
-    !!----    type(Atom_Type),dimension(:),allocatable   :: atom    ! individual atoms
-    !!---- End Type atom_list_type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Atom_List_Type
-       integer                                  :: natoms
-       type(Atom_Type),dimension(:),allocatable :: atom
-    End type Atom_List_Type
 
-    !!----
-    !!---- TYPE :: MATOM_TYPE
-    !!--..
-    !!---- Type, public :: mAtom_Type
-    !!----    character(len=10)                       :: Lab           ! Label
-    !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
-    !!----    character(len=4)                        :: SfacSymb      ! Chemical Symbol for SF
-    !!----    character(len=1)                        :: wyck          ! Wyckoff letter
-    !!----    logical                                 :: active        ! Control for different purposes
-    !!----    integer                                 :: Z             ! Atomic number
-    !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standar deviations
-    !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
-    !!----    integer,      dimension(3)              :: lx            ! Numbers of LSQ parameters for coordinates
-    !!----    real(kind=cp)                           :: occ           ! occupation factor
-    !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
-    !!----    real(kind=cp)                           :: mOcc          !
-    !!----    integer                                 :: lOcc          !
-    !!----    real(kind=cp)                           :: Biso          ! Isotropic B-factor
-    !!----    real(kind=cp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
-    !!----    real(kind=cp)                           :: mBiso         !
-    !!----    integer                                 :: lBiso         !
-    !!----    character(len=4)                        :: utype         ! type of anisotropic thermal parameters: u_ij, b_ij, beta, none
-    !!----    character(len=5)                        :: thtype        ! "isotr","aniso","other"
-    !!----    real(kind=cp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
-    !!----    real(kind=cp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
-    !!----    real(kind=cp)                           :: Ueq           ! Uequiv
-    !!----    real(kind=cp),dimension(6)              :: mU            !
-    !!----    real(kind=cp),dimension(6)              :: lU            !
-    !!----    real(kind=cp)                           :: Charge        ! Charge
-    !!----    real(kind=cp)                           :: Moment        ! Moment
-    !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
-    !!----    integer                                 :: Nvar          !
-    !!----    real(kind=cp),dimension(25)             :: VarF          ! Free parameters to load
-    !!----    real(kind=cp),dimension(25)             :: mVarF
-    !!----    integer,      dimension(25)             :: LVarF
-    !!----    character(len=40)                       :: AtmInfo       ! Information string
-    !!----                           ===================
-    !!----                           Magnetic parameters
-    !!----                           ===================
-    !!----    integer                                 :: nvk           ! Number of propagation vectors (excluding -k)
-    !!----    integer,      dimension(12)             :: imat          ! Number of the magnetic matrices/irrep set to be applied
-    !!----    real(kind=cp),dimension(3,12)           :: SkR           ! Real part of Fourier Coefficient
-    !!----    real(kind=cp),dimension(3,12)           :: SkR_std       ! Standard deviations of the Real part of Fourier Coefficient
-    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkR     ! Real part of Fourier Coefficient in spherical components
-    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkR_std ! Standard deviations of Real part of Fourier Coefficient in spherical components
-    !!----    real(kind=cp),dimension(3,12)           :: mSkR          ! Multipliers for the real part of Fourier coefficients
-    !!----    integer,      dimension(3,12)           :: lskr          ! Numbers in the list of LSQ parameters
-    !!----    real(kind=cp),dimension(3,12)           :: SkI           ! Imaginary part of Fourier Coefficient
-    !!----    real(kind=cp),dimension(3,12)           :: SkI_std       ! Standard deviations of Imaginary part of Fourier Coefficient
-    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkI     ! Imaginary part of Fourier Coefficient in spherical components
-    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkI_std ! Standard deviations of Imaginary part of Fourier Coefficient in spherical components
-    !!----    real(kind=cp),dimension(3,12)           :: mSki          ! Multipliers for the imaginary part of Fourier coefficients
-    !!----    integer,      dimension(3,12)           :: lski          ! Numbers in the list of LSQ parameters
-    !!----    real(kind=cp),dimension(12)             :: mphas         ! Magnetic Phase in fractions of 2pi
-    !!----    real(kind=cp),dimension(12)             :: mphas_std     ! Standard deviations of Magnetic Phase in fractions of 2pi
-    !!----    real(kind=cp),dimension(12)             :: mmphas        ! Multiplier for the magnetic phase
-    !!----    integer,dimension(12)                   :: lmphas        ! Number in the list of LSQ parameters
-    !!----    real(kind=cp),dimension(12,12)          :: cbas          ! Coefficients of the basis functions of irreps, the second index is 1:nvk
-    !!----    real(kind=cp),dimension(12,12)          :: cbas_std      ! Standard deviations of Coefficients of the basis functions of irreps, the second index is 1:nvk
-    !!----    real(kind=cp),dimension(12,12)          :: mbas          ! multiplier for the coefficients of the basis functions of irreps
-    !!----    integer,dimension(12,12)                :: lbas          ! Numbers in the list of LSQ parameters
-    !!----    character(len=5)                        :: chitype       ! "isotr","aniso"
-    !!----    real(kind=cp),dimension(6)              :: chi           ! chi11, chi22, chi33, chi12, chi13, chi23
-    !!----    real(kind=cp),dimension(6)              :: chi_std       ! Standar_Deviations of chi's
-    !!----    real(kind=cp)                           :: Chieq         ! Chi equiv
-    !!----    real(kind=cp),dimension(6)              :: mchi          !
-    !!----    real(kind=cp),dimension(6)              :: lchi          !
-    !!---- End Type mAtom_Type
-    !!----
-    !!---- Updated: April - 2005
-    !!---- Updated: November 3, 2013 (include standard deviations of magnetic parameters,JRC)
-    !!---- Updated: June 25, 2014 (include local magnetic susceptibility tensor,JRC)
-    !!
-    Type, public :: mAtom_Type
-       character(len=10)                        :: Lab
-       character(len=2)                         :: ChemSymb
-       character(len=4)                         :: SfacSymb
-       character(len=1)                         :: wyck
-       logical                                  :: Active
-       integer                                  :: Z
-       integer                                  :: Mult
-       real(kind=cp),dimension(3)               :: X
-       real(kind=cp),dimension(3)               :: X_Std
-       real(kind=cp),dimension(3)               :: MX
-       integer,      dimension(3)               :: LX
-       real(kind=cp)                            :: Occ
-       real(kind=cp)                            :: Occ_Std
-       real(kind=cp)                            :: MOcc
-       integer                                  :: LOcc
-       real(kind=cp)                            :: Biso
-       real(kind=cp)                            :: Biso_std
-       real(kind=cp)                            :: MBiso
-       integer                                  :: LBiso
-       character(len=4)                         :: Utype
-       character(len=5)                         :: ThType
-       real(kind=cp),dimension(6)               :: U
-       real(kind=cp),dimension(6)               :: U_std
-       real(kind=cp)                            :: Ueq
-       real(kind=cp),dimension(6)               :: MU
-       integer,      dimension(6)               :: LU
-       real(kind=cp)                            :: Charge
-       real(kind=cp)                            :: Moment
-       integer, dimension(5)                    :: Ind
-       integer                                  :: NVar
-       real(kind=cp),dimension(25)              :: VarF
-       real(kind=cp),dimension(25)              :: mVarF
-       integer,      dimension(25)              :: LVarF
-       character(len=40)                        :: AtmInfo
 
-       integer                                 :: nvk
-       integer,      dimension(12)             :: imat
 
-       real(kind=cp),dimension(3,12)           :: SkR
-       real(kind=cp),dimension(3,12)           :: SkR_std
-       real(kind=cp),dimension(3,12)           :: Spher_SkR
-       real(kind=cp),dimension(3,12)           :: Spher_SkR_std
-       real(kind=cp),dimension(3,12)           :: mSkR
-       integer,      dimension(3,12)           :: lskr
-
-       real(kind=cp),dimension(3,12)           :: SkI
-       real(kind=cp),dimension(3,12)           :: SkI_std
-       real(kind=cp),dimension(3,12)           :: Spher_SkI
-       real(kind=cp),dimension(3,12)           :: Spher_SkI_std
-       real(kind=cp),dimension(3,12)           :: mSki
-       integer,      dimension(3,12)           :: lski
-
-       real(kind=cp),dimension(12)             :: mphas
-       real(kind=cp),dimension(12)             :: mphas_std
-       real(kind=cp),dimension(12)             :: mmphas
-       integer,dimension(12)                   :: lmphas
-
-       real(kind=cp),dimension(12,12)          :: cbas
-       real(kind=cp),dimension(12,12)          :: cbas_std
-       real(kind=cp),dimension(12,12)          :: mbas
-       integer,dimension(12,12)                :: lbas
-
-       character(len=5)                        :: chitype
-       real(kind=cp),dimension(6)              :: chi
-       real(kind=cp),dimension(6)              :: chi_std
-       real(kind=cp)                           :: Chieq
-       real(kind=cp),dimension(6)              :: mchi
-       real(kind=cp),dimension(6)              :: lchi
-
-    End Type mAtom_Type
-
-    !!----
-    !!---- TYPE :: MATOM_LIST_TYPE
-    !!--..
-    !!---- Type, public :: mAtom_list_type
-    !!----    integer                                   :: natoms     ! total number of atoms in the list
-    !!----    logical                                   :: suscept    ! true if magnetic moments are calculated from local susceptibility
-    !!----    real(kind=cp)                             :: MagField   ! Applied magnetic field strength in Tesla
-    !!----    real(kind=cp), dimension(3)               :: dir_MField ! Direction of magnetic field in crystallographic system
-    !!----    type(mAtom_Type),dimension(:),allocatable :: Atom       ! individual atoms
-    !!---- End Type mAtom_list_type
-    !!----
-    !!---- Updated: April - 2005, June - 2014
-    !!
-    Type, public :: mAtom_List_Type
-       integer                                   :: natoms
-       logical                                   :: suscept    ! true if magnetic moments are calculated from local susceptibility
-       real(kind=cp)                             :: MagField   ! Applied magnetic field strength in Tesla
-       real(kind=cp), dimension(3)               :: dir_MField ! Direction of magnetic field in crystallographic system
-       type(mAtom_Type),dimension(:),allocatable :: Atom
-    End type mAtom_List_Type
-    !!----
-    !!---- ERR_ATMD
-    !!----    logical, public  :: err_atmd
-    !!----
-    !!----    Logical Variable taking the value .true. if an error in the module ATOM_DISTANCES occurs.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public  :: ERR_Atmd
-
-    !!----
-    !!---- ERR_ATMD_MESS
-    !!----    character(len=150), public:: Err_Atmd_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: Err_Atmd_Mess
-
-    !!--++
-    !!--++ R_ATOM
-    !!--++    real(kind=cp), parameter, private :: r_atom=1.1
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Average atomic radius. Value taken for internal calculations.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter, private :: r_atom=1.1
 
 Contains
 
