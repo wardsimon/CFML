@@ -73,48 +73,17 @@ fi
 #
 # Detect if Directories exists
 #
-cd ..
 case "$COMP" in
    "f95")
-        if [ -d "./Absoft" ]; then
-           if [ -d "./Absoft/LibC" ]; then
-              echo " "
-           else
-              mkdir "./Absoft/LibC"
-              mkdir "./Absoft/LibW"
-           fi
-        else
-           mkdir "Absoft"
-           mkdir "./Absoft/LibC"
-           mkdir "./Absoft/LibW"
-        fi
+        IDIR="Absoft"
         ;;
    "g95")
-        if [ -d "./G95" ]; then
-           if [ -d "./G95/LibC" ]; then
-              echo " "
-           else
-              mkdir "./G95/LibC"
-              mkdir "./G95/LibW"
-           fi
-        else
-           mkdir "G95"
-           mkdir "./G95/LibC"
-           mkdir "./G95/LibW"
-        fi
+        IDIR="G95"
         ;;
    "gfortran")
-        if [ -d "./GFortran" ]; then
-           if [ -d "./GFortran/LibC" ]; then
-              echo " "
-           else
-              mkdir "./GFortran/LibC"
-              mkdir "./GFortran/LibW"
-           fi
-        else
-           mkdir "GFortran"
-           mkdir "./GFortran/LibC"
-           mkdir "./GFortran/LibW"
+        IDIR="GFortran"
+        if [ "$ARCH" == "m64" ]; then
+           IDIR="GFortran64"
         fi
         ;;
    "ifort")
@@ -122,20 +91,20 @@ case "$COMP" in
         if [ "$ARCH" == "m64" ]; then
            IDIR="ifort64"
         fi
-		    if [ -d "./$IDIR" ]; then
-    			 if [ -d "./$IDIR/LibC" ]; then
-				      echo " "
-			     else
-				      mkdir "./$IDIR/LibC"
-				      mkdir "./$IDIR/LibW"
-			     fi
-		    else
-			     mkdir "$IDIR"
-			     mkdir "./IDIR/LibC"
-			     mkdir "./IDIR/LibW"
-		    fi
         ;;
 esac
+if [ -d "$CRYSFML/$IDIR" ]; then
+   if [ -d "$CRYSFML/$IDIR/LibC" ]; then
+      echo " " 
+   else
+      mkdir "$CRYSFML/$IDIR/LibC"
+      mkdir "$CRYSFML/$IDIR/LibW"
+   fi
+else
+   mkdir "$CRYSFML/$IDIR"
+   mkdir "$CRYSFML/$IDIR/LibC"
+   mkdir "$CRYSFML/$IDIR/LibW"
+fi
 #
 # Compilation Options
 #
@@ -203,7 +172,7 @@ fi
 #
 # Changing to the Src Directory
 #
-cd ./Src
+cd $CRYSFML/Src
 #
 # Compilation Process
 #
@@ -269,30 +238,11 @@ if [ "$WINT" == "Y" ]; then
    DIRLIB="LibW"
    LIBNAME="libwcrysfml.a"
 fi
-case "$COMP" in
-   "f95")
-        ar cr $LIBNAME *.o
-        mv *.mod ../Absoft/$DIRLIB
-        mv *.a ../Absoft/$DIRLIB
-        ;;
-   "g95")
-        ar cr $LIBNAME *.o
-        mv *.mod ../G95/$DIRLIB
-        mv *.a ../G95/$DIRLIB
-        ;;
-   "gfortran")
-        ar cr $LIBNAME.a *.o
-        mv *.mod ../GFortran/$DIRLIB
-        mv *.a ../GFortran/$DIRLIB
-        ;;
-   "ifort")
-        ar cr $LIBNAME.a *.o
-        mv *.mod ../$IDIR/$DIRLIB
-        mv *.a ../$IDIR/$DIRLIB
-        ;;
-esac
+ar cr $LIBNAME *.o
+mv *.mod $CRYSFML/$IDIR/$DIRLIB
+mv *.a $CRYSFML/$IDIR/$DIRLIB
 rm *.o
 #
 # Changing to default directory
 #
-cd ../Scripts
+cd $CRYSFML/Scripts

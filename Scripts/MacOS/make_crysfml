@@ -6,8 +6,8 @@
 # Adapted by Juan Rodriguez-Carvajal & A. Filhol, July 2015
 #---------------------------------------------------------------------
 #------------ Select your architecture here : either i386 or x86_64 --
-#	ARCH=x86_64
-	ARCH=i386
+ 	ARCH=x86_64
+#	ARCH=i386
 #
 #------------ use
 #     =========================
@@ -189,8 +189,13 @@ then
           OPT2="-c -g -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -g -warn -arch $ARCH"
-          OPT2="-c -g -warn -arch $ARCH"
+          if [ "$ARCH" == "i386" ]; then
+             OPT1="-c -g -warn -m32"
+             OPT2="-c -g -warn -m32"
+          else
+             OPT1="-c -g -warn -m64"
+             OPT2="-c -g -warn -m64"
+          fi   
           ;;
    esac
 else
@@ -209,8 +214,13 @@ else
           OPT2="-c -O0 -ffree-line-length-0"
           ;;
       'ifort')
-          OPT1="-c -O -warn -arch $ARCH -vec-report0"
-          OPT2="-c -O0 -warn -arch $ARCH -vec-report0"
+           if [ "$ARCH" == "i386" ]; then
+              OPT1="-c -O -warn -m32 -Qopt-report:0"
+              OPT2="-c -O0 -warn -m32 -Qopt-report:0"
+          else
+             OPT1="-c -O -warn -m64 -Qopt-report:0"
+             OPT2="-c -O0 -warn -m64 -Qopt-report:0"
+          fi
           ;;
    esac
 fi
