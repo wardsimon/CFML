@@ -35,7 +35,7 @@ rem ---- Arguments ----
     if not [%1]==[] goto LOOP
 rem
 rem ---- Windows Subdirectory
-   cd .\windows
+   cd .\windowsN
 rem
 rem -------------------
 rem ---- Compilers ----
@@ -46,10 +46,10 @@ rem ---- Absoft
 rem ----
    if [%_COMPILER%]==[f95] (
       if [%_CONSOLE%]==[Y] (
-         if [%_DEBUG%]==[Y] (call compile_ifort debug) else (call compile_ifort)
+         if [%_DEBUG%]==[Y] (call compile_absoft debug) else (call compile_absoft)
       )
       if [%_WINTER%]==[Y] (
-         if [%_DEBUG%]==[Y] (call compile_ifort winter debug) else (call compile_ifort winter)
+         if [%_DEBUG%]==[Y] (call compile_absoft winter debug) else (call compile_absoft winter)
       )
       if [%_REALWIN%]==[Y] (
          echo Sorry, option not compatible!!!
@@ -61,14 +61,32 @@ rem ----
 rem ---- Lahey
 rem ----
    if [%_COMPILER%]==[lf95] (
-      echo Compilador Lahey
+      if [%_CONSOLE%]==[Y] (
+         if [%_DEBUG%]==[Y] (call compile_lahey debug) else (call compile_lahey)
+      )
+      if [%_WINTER%]==[Y] (
+         echo Sorry, option not compatible!!!
+         goto END
+      )
+      if [%_REALWIN%]==[Y] (
+         if [%_DEBUG%]==[Y] (call compile_lahey realwin debug) else (call compile_lahey realwin)
+      )
       goto END
    )
 rem ----
 rem ---- G95
 rem ----
    if [%_COMPILER%]==[g95] (
-      echo Compilador Lahey
+      if [%_CONSOLE%]==[Y] (
+         if [%_DEBUG%]==[Y] (call compile_g95 debug) else (call compile_g95)
+      )
+      if [%_WINTER%]==[Y] (
+         if [%_DEBUG%]==[Y] (call compile_g95 winter debug) else (call compile_g95 winter)
+      )
+      if [%_REALWIN%]==[Y] (
+         echo Sorry, option not compatible!!!
+         goto END
+      )
       goto END
    )
 rem ---- GFortran
