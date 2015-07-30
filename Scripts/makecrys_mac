@@ -1,1 +1,98 @@
-#! /bin/sh# Compilation for CrysFML Library# Author: Javier Gonzalez-Platas# Date: July 2015## Checking CrySFML Environment Variableif [ -z "$CRYSFML" ]; then   echo "****"   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"   echo "****"   exitfi## Calling Program#if [ -z "$1" ]; thencat << !makecry_MAC  : Make the CrysFML Library for MacOSXSyntax       : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter|all] [debug]!exitfi## Default values for Arguments#COMP=""ARCH="m64"DEBUG="N"CONS="Y"WINT="N"## Arguments#for arg in "$@"do   case "$arg" in      "f95")         COMP=$arg         ;;      "g95")         COMP=$arg         ;;      "gfortran")         COMP=$arg         ;;      "ifort")         COMP=$arg         ;;      "m32")         ARCH=$arg         ;;      "m64")         ARCH=$arg         ;;      "deb"*)         DEBUG="Y"         ;;      "win"*)         CONS="N"         WINT="Y"         ;;      "all")         CONS="Y"         WINT="Y"         ;;      esacdone## Check Compiler name#if [ -z $COMP ]; then   echo "****"   echo "**** Compiler name is wrong!!!. Please check it!"   echo "****"   exitfi## Console version#if [ "$CONS" == "Y" ]; then   OPT1=""   if [ "$DEBUG" == "Y" ]; then      OPT1="debug"   fi         $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1fi   ## Winteracter version#if [ "$WINT" == "Y" ]; then   OPT2=""   if [ "$DEBUG" == "Y" ]; then      OPT2="debug"   fi        OPT1="winter"    $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1 $OPT2fi   
+#! /bin/sh
+# Compilation for CrysFML Library
+# Author: Javier Gonzalez-Platas
+# Date: July 2015
+#
+# Checking CrySFML Environment Variable
+if [ -z "$CRYSFML" ]; then
+   echo "****"
+   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "****"
+   exit
+fi
+#
+# Calling Program
+#
+if [ -z "$1" ]; then
+cat << !
+makecry_MAC  : Make the CrysFML Library for MacOSX
+Syntax       : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter|all] [debug]
+!
+exit
+fi
+#
+# Default values for Arguments
+#
+COMP=""
+ARCH="m64"
+DEBUG="N"
+CONS="Y"
+WINT="N"
+#
+# Arguments
+#
+for arg in "$@"
+do
+   case "$arg" in
+      "f95")
+         COMP=$arg
+         ;;
+      "g95")
+         COMP=$arg
+         ;;
+      "gfortran")
+         COMP=$arg
+         ;;
+      "ifort")
+         COMP=$arg
+         ;;
+      "m32")
+         ARCH=$arg
+         ;;
+      "m64")
+         ARCH=$arg
+         ;;
+      "deb"*)
+         DEBUG="Y"
+         ;;
+      "win"*)
+         CONS="N"
+         WINT="Y"
+         ;;
+      "all")
+         CONS="Y"
+         WINT="Y"
+         ;;   
+   esac
+done
+#
+# Check Compiler name
+#
+if [ -z $COMP ]; then
+   echo "****"
+   echo "**** Compiler name is wrong!!!. Please check it!"
+   echo "****"
+   exit
+fi
+#
+# Console version
+#
+if [ "$CONS" == "Y" ]; then
+   OPT1=""
+   if [ "$DEBUG" == "Y" ]; then
+      OPT1="debug"
+   fi      
+   $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1
+fi   
+#
+# Winteracter version
+#
+if [ "$WINT" == "Y" ]; then
+   OPT2=""
+   if [ "$DEBUG" == "Y" ]; then
+      OPT2="debug"
+   fi     
+   OPT1="winter" 
+   $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1 $OPT2
+fi
+   
