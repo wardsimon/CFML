@@ -75,6 +75,12 @@ if [ -z $COMP ]; then
    exit
 fi
 #
+# Exceptions
+#
+if [ "$COMP" == "gfortran" ]; then
+   WINT="N"
+fi
+#
 # Console version
 #
 if [ "$CONS" == "Y" ]; then
@@ -82,7 +88,7 @@ if [ "$CONS" == "Y" ]; then
    if [ "$DEBUG" == "Y" ]; then
       OPT1="debug"
    fi
-   $CRYSFML/Scripts/Linux/make_crysfml2 $COMP $ARCH $OPT1
+   $CRYSFML/Scripts/Linux/make_crysfml $COMP $ARCH $OPT1
 fi
 #
 # Winteracter version
@@ -93,5 +99,5 @@ if [ "$WINT" == "Y" ]; then
       OPT2="debug"
    fi     
    OPT1="winter" 
-   $CRYSFML/Scripts/Linux/make_crysfml2 $COMP $ARCH $OPT1 $OPT2
+   $CRYSFML/Scripts/Linux/make_crysfml $COMP $ARCH $OPT1 $OPT2
 fi
