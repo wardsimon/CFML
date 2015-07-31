@@ -10,11 +10,12 @@ rem ---- INIT ----
    (set _WINTER=N)
    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
 rem
+rem ----
 rem ---- Arguments ----
-rem
+rem ----
 :LOOP
-    if [%1]==[debug] (set _DEBUG=Y)
-    if [%1]==[15] (set _I15=Y)
+    if [%1]==[debug]  (set _DEBUG=Y)
+    if [%1]==[15]     (set _I15=Y)
     if [%1]==[winter] (set _WINTER=Y)
     shift
     if not [%1]==[] goto LOOP
