@@ -1,88 +1,116 @@
-#!/bin/sh
-# Script to compile the Program: Faults
+#!/bin/bash
 #
-if [ a$1 = a ]
-then
+# Compilation Script for FAULTS Program
+# Author: Javier Gonzalez-Platas
+# Date: August-2015
+# OS X version
+#
+# Checking CrySFML Environment Variable
+if [ -z "$CRYSFML" ]; then
+   echo "****"
+   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "****"
+   exit
+fi
+#
+# Calling Program
+#
+if [ -z "$1" ]; then
 cat << !
-make_faults : Make the Faults Console Program for gfortran/Intel Compilers (MacOS)
-Syntax           : make_faults gfortran:ifort [deb]
+make_faults  : Make the FAULTS program  using Fortran Mac Compilers
+Syntax        : make_cryscalc gfortran:ifort [m32|m64] [debug]
 !
 exit
 fi
 #
-# Define Main Directory (defined as environment variables in .bashrc)
+# Default values for Arguments
 #
-#CRYSFML=$HOME/CrysFML
-#PROGCFML=$HOME/ProgCFML
+COMP=""
+ARCH="m64"
+DEBUG="N"
+#
+# Arguments
+#
+for arg in "$@"
+do
+   case "$arg" in
+      "gfortran")
+         COMP=$arg
+         ;;
+      "ifort")
+         COMP=$arg
+         ;;
+      "m32")
+         ARCH=$arg
+         ;;
+      "m64")
+         ARCH=$arg
+         ;;
+      "deb"*)
+         DEBUG="Y"
+         ;;
+   esac
+done
+#
+# Check Compiler name
+#
+if [ -z $COMP ]; then
+   echo "****"
+   echo "**** Compiler name is wrong!!!. Please check it!"
+   echo "****"
+   exit
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG == "Y" ]; then
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -g -fbacktrace -ffree-line-length-none"
+          OPT2="-c -g -fbacktrace -ffree-line-length-none"
+          ;;
+      "ifort")
+          OPT1="-c -g -warn -$ARCH"
+          OPT2="-c -g -warn -$ARCH"
+          ;;
+   esac
+else
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -O -ffree-line-length-none -funroll-loops"
+          OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
+          ;;
+      "ifort")
+          #OPT1="-c -O -warn -$ARCH -Qvec-report0"
+          #OPT2="-c -O0 -warn -$ARCH -Qvec-report0"
+          OPT1="-c -O -warn -$ARCH -Qopt-report:0"
+          OPT2="-c -O0 -warn -$ARCH -Qopt-report:0"
+          ;;
+   esac
+fi
 #
 # Faults Directory
 #
 cd $CRYSFML/Program_Examples/Faults/Src
 #
-# Compiler Name
-#
-COMP=$1
-if [ $COMP != "ifort" ]
-   then
-   if [ $COMP != "gfortran" ]
-      then
-        echo "Compiler Name was wrong!!!"
-        cd ..
-        exit
-    fi
-fi
-DEBUG=nodeb
-if [ $# -eq 2 ]
-then
-   DEBUG=$2
-fi
-#
-# Compilation Options
-#
-if [ $DEBUG = "deb" ]
-then
-   case $COMP
-   in
-      'gfortran')
-          OPT1="-c -g"
-            ;;
-      'ifort')
-          OPT1="-c -g"
-            ;;
-   esac
-else
-   case $COMP
-   in
-      'gfortran')
-          OPT1="-c -O3"
-            ;;
-      'ifort')
-          OPT1="-c -O3 -vec-report0"
-            ;;
-   esac
-fi
-#
 # External Libraries Options
 #
-case $COMP
-in
-   'gfortran')
-      INC="-I$CRYSFML/gfortran/LibC"
-      LIB="-L$CRYSFML/gfortran/LibC"
-      LIBSTATIC="-lcrysfml"
-      LIBDYNAMIC="-lcrysfml"
-     ;;
-   'ifort')
-      if [ $DEBUG = "deb" ]
-      then
-         INC="-I$CRYSFML/ifort_debug/LibC"
-         LIB="-L$CRYSFML/ifort_debug/LibC"
-      else
-         INC="-I$CRYSFML/ifort/LibC"
-         LIB="-L$CRYSFML/ifort/LibC"
-      fi
-      LIBDYNAMIC="-lcrysfml"
-      LIBSTATIC="-lcrysfml"
+DIRN=""
+VERS="MacOS"
+if [ $ARCH == "m64" ]; then
+   DIRN="64"
+   VERS="MacOS64"
+fi   
+case "$COMP" in
+   "gfortran")
+      INC="-I$CRYSFML/GFortran$DIRN/LibC"
+      LIB="-L$CRYSFML/GFortran$DIRN/LibC"
+      LIBSTATIC="$CRYSFML/GFortran$DIRN/LibC/libcrysfml.a"
+     ;;  
+   "ifort")
+      INC="-I$CRYSFML/ifort$DIRN/LibC"
+      LIB="-L$CRYSFML/ifort$DIRN/LibC"
+      LIBSTATIC="$CRYSFML/ifort$DIRN/LibC/libcrysfml.a"
      ;;
 esac
 #
@@ -96,27 +124,12 @@ $COMP $OPT1 Diffax_glb.f90    $INC
 $COMP $OPT1 Faults_Read.f90   $INC
 $COMP $OPT1 Diffax_calc.f90   $INC
 $COMP $OPT1 Faults.f90        $INC
+$COMP -$ARCH *.o -o Faults -static-intel $LIB $LIBSTATIC
 #
-case $COMP
-in
-  'gfortran')
-     #$COMP *.o  -o fp2k $LIB $LIBDYNAMIC
-     $COMP *.o  -o Faults -static $LIB $LIBSTATIC
-     ;;
-  'ifort')
-     #$COMP *.o  -o fp2k $LIB $LIBDYNAMIC
-     $COMP *.o -o Faults -static-intel $LIB $LIBSTATIC
-     ;;
-esac
-#
-# Compress program  !not for MacOS
-#
-#upx --compress-icons=0 Faults
-#
-# Purge files
+# Final process
 #
 rm -rf *.o *.mod
-mv -f Faults $PROGCFML/DistFPS/Faults
-cp ../Help/Faults_Manual.pdf $PROGCFML/DistFPS/Docs/.
-cd $CRYSFML/Program_Examples/Faults/Scripts/MacOS
+mv Faults $PROGCFML/DistFPS/$VERS
 #
+#
+
