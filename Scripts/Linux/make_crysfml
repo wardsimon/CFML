@@ -3,12 +3,13 @@
 # Compilation Script for CrysFML library
 # Author: Javier Gonzalez-Platas
 # Date: July-2015
-# OS X version
+# Linux version
 #
 # Checking CrySFML Environment Variable
+#
 if [ -z "$CRYSFML" ]; then
    echo "****"
-   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "**** Please, set the environment variable CRYSFML in your .bashrc"
    echo "****"
    exit
 fi
@@ -17,7 +18,7 @@ fi
 #
 if [ -z "$1" ]; then
 cat << !
-make_crysfml  : Make the CrysFML Library using Fortran Mac Compilers
+make_crysfml  : Make the CrysFML Library using Fortran Compilers
 Syntax        : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter] [debug]
 !
 exit
