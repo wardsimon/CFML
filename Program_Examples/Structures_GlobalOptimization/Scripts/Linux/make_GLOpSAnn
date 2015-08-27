@@ -1,143 +1,141 @@
-#!/bin/sh
-# Script to compile the Program: GLOpSAnn
+#!/bin/bash
 #
-if [ a$1 = a ]
-then
+# Compilation Script for GLOpSAnn Program
+# Author: Javier Gonzalez-Platas
+# Date: August-2015
+# OS X version
+#
+# Checking CrySFML Environment Variable
+if [ -z "$CRYSFML" ]; then
+   echo "****"
+   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "****"
+   exit
+fi
+#
+# Calling Program
+#
+if [ -z "$1" ]; then
 cat << !
-make_optim_general : Make the GLOpSAnn Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Linux)
-Syntax             : make_GLOpSAnn af95:g95:ifort:lf95:gfortran
+make_GLOpSAnn  : Make the GLOpSAnn program  using Fortran Mac Compilers
+Syntax        : make_GLOpSAnn gfortran:ifort [m32|m64] [debug]
 !
 exit
 fi
 #
-# Compiler Name
+# Default values for Arguments
 #
-COMP=$1
-if [ $COMP != "lf95" ]
-then
-   if [ $COMP != "g95" ]
-   then
-     if [ $COMP != "gfortran" ]
-     then
-        if [ $COMP != "ifort" ]
-        then
-           if [ $COMP != "af95" ]
-           then
-              echo "Compiler Name was wrong!!!"
-              exit
-           fi
-        fi
-     fi
-   fi
-fi
-DEBUG=nodeb
-if [ $# -eq 2 ]
-then
-   DEBUG=$2
+COMP=""
+ARCH="m64"
+DEBUG="N"
+#
+# Arguments
+#
+for arg in "$@"
+do
+   case "$arg" in
+      "gfortran")
+         COMP=$arg
+         ;;
+      "ifort")
+         COMP=$arg
+         ;;
+      "m32")
+         ARCH=$arg
+         ;;
+      "m64")
+         ARCH=$arg
+         ;;
+      "deb"*)
+         DEBUG="Y"
+         ;;
+   esac
+done
+#
+# Check Compiler name
+#
+if [ -z $COMP ]; then
+   echo "****"
+   echo "**** Compiler name is wrong!!!. Please check it!"
+   echo "****"
+   exit
 fi
 #
 # Compilation Options
 #
-if [ $DEBUG = "deb" ]
-then
-   case $COMP
-   in
-      'af95')
-          OPT1="-c -g -O0"
-            ;;
-      'g95')
-          OPT1="-c -g"
-            ;;
-      'gfortran')
-          OPT1="-c -g"
-            ;;
-      'ifort')
-          OPT1="-c -g"
-            ;;
-      'lf95')
-          OPT1="-c -g"
-             ;;
+if [ $DEBUG == "Y" ]; then
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -g -fbacktrace -ffree-line-length-none"
+          OPT2="-c -g -fbacktrace -ffree-line-length-none"
+          ;;
+      "ifort")
+          OPT1="-c -g -warn -$ARCH"
+          OPT2="-c -g -warn -$ARCH"
+          ;;
    esac
 else
-   case $COMP
-   in
-      'af95')
-          OPT1="-c -O2 -N11"
-            ;;
-      'g95')
-          OPT1="-c -O"
-            ;;
-      'gfortran')
-          OPT1="-c -O"
-            ;;
-      'ifort')
-          OPT1="-c -O3 -w -vec-report0"
-            ;;
-      'lf95')
-          OPT1="-c -O --nchk --tpp"
-             ;;
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -O -ffree-line-length-none -funroll-loops"
+          OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
+          ;;
+      "ifort")
+          #OPT1="-c -O -warn -$ARCH -Qvec-report0"
+          #OPT2="-c -O0 -warn -$ARCH -Qvec-report0"
+          OPT1="-c -O -warn -$ARCH -Qopt-report:0"
+          OPT2="-c -O0 -warn -$ARCH -Qopt-report:0"
+          ;;
    esac
 fi
 #
+# Faults Directory
+#
+cd $CRYSFML/Program_Examples/Structures_GlobalOptimization/Src
+#
 # External Libraries Options
 #
-case $COMP
-in
-   'af95')
-      INC="-I../../Absoft/LibC"
-      LIB="-L../../Absoft/LibC"
+DIRN=""
+VERS="Linux"
+if [ $ARCH == "m64" ]; then
+   DIRN="64"
+   VERS="Linux64"
+fi   
+case "$COMP" in
+   "gfortran")
+      INC="-I$CRYSFML/GFortran$DIRN/LibC"
+      LIB="-L$CRYSFML/GFortran$DIRN/LibC"
       LIBSTATIC="-lcrysfml"
-      LIBDYNAMIC="-lcrysfml"
-     ;;
-   'g95')
-      INC="-I../../G95/LibC"
-      LIB="-L../../G95/LibC"
+     ;;  
+   "ifort")
+      INC="-I$CRYSFML/ifort$DIRN/LibC"
+      LIB="-L$CRYSFML/ifort$DIRN/LibC"
       LIBSTATIC="-lcrysfml"
-      LIBDYNAMIC="-lcrysfml"
-     ;;
-   'gfortran')
-      INC="-I../../GFortran/LibC"
-      LIB="-L../../GFortran/LibC"
-      LIBSTATIC="-lcrysfml"
-      LIBDYNAMIC="-lcrysfml"
-     ;;
-   'ifort')
-      INC="-I../../ifort64/LibC"
-      LIB="-L../../ifort64/LibC"
-      LIBDYNAMIC="-lcrysfml"
-      LIBSTATIC="-lcrysfml"
-     ;;
-   'lf95')
-      INC="--mod .:../../Lahey/LibC"
-      LIB="-L../../Lahey/LibC"
-      LIBDYNAMIC="-lcrysfml"
-      LIBSTATIC="-lcrysfml -lpthread"
      ;;
 esac
 #
 # Compilation Process
 #
+echo " ########################################################"
+echo " #### GLOpSAnn Console Program                 (1.0) ####"
+echo " #### JRC                              CopyLeft-2015 ####"
+echo " ########################################################"
 $COMP $OPT1 observ.f90            $INC
 $COMP $OPT1 cost_functions.f90    $INC
 $COMP $OPT1 GLOpSAnn.f90          $INC
-case $COMP
-in
-  'af95')
-     $COMP *.o  -o GLOpSAnn -static $LIB $LIBSTATIC
-     ;;
-  'g95')
-     $COMP *.o  -o GLOpSAnn -static $LIB $LIBSTATIC
-     ;;
-  'gfortran')
-     $COMP *.o  -o GLOpSAnn -static $LIB $LIBSTATIC
-     ;;
-  'ifort')
-     $COMP *.o -o GLOpSAnn -static-intel $LIB $LIBSTATIC
-     ;;
-  'lf95')
-     $COMP *.o --out   --staticlink $LIB $LIBDYNAMIC
+case "$COMP" in
+   "gfortran")
+        $COMP -$ARCH *.o -o GLOpSAnn -static $LIB $LIBSTATIC
+     ;;  
+   "ifort")
+        $COMP -$ARCH *.o -o GLOpSAnn -static-intel $LIB $LIBSTATIC
      ;;
 esac
+#
+# Final process
+#
 rm -rf *.o *.mod
-upx --compress-icons=0 GLOpSAnn
-cp GLOpSAnn $PROGCFML/DistFPS/GLOpSAnn
+mv GLOpSAnn $PROGCFML/DistFPS/$VERS
+#
+#
+
