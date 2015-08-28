@@ -2,7 +2,7 @@
 rem --------------------------------------------------
 rem ---- Crystallographic Fortran Modules Library ----
 rem ----               JGP/JRC                    ----
-rem ----             July - 2015                  ----
+rem ----        September - 2015                  ----
 rem --------------------------------------------------
    if not [%1]==[] goto CONT
 rem ---- Default Message ----
@@ -112,7 +112,7 @@ rem ----
          goto END
       )
       if [%_REALWIN%]==[Y] (
-         if [%_DEBUG%]==[N] (call compile_lahey realwin) else (call compile_lahey realwin debug)
+         if [%_DEBUG%]==[N] (call compile_lahey "realwin") else (call compile_lahey "realwin" "debug")
       )
       goto END
    )
