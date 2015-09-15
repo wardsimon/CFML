@@ -2,21 +2,25 @@
   Module Dif_compl
 
       use diffax_mod
-      use CFML_GlobalDeps,            only : sp,dp, to_deg
-      use CFML_Diffraction_Patterns , only : diffraction_pattern_type
-      use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use CFML_Math_General,          only : sind, asind, Euclidean_norm, acosd
-      use CFML_String_Utilities,      only : pack_string,Get_Separator_Pos,u_case,l_case
+      use CFML_GlobalDeps,                only : sp,dp, to_deg
+      use CFML_Diffraction_Patterns ,     only : diffraction_pattern_type
+      use CFML_Optimization_General,      only : Opt_Conditions_Type
+      use CFML_Math_General,              only : sind, asind, Euclidean_norm, acosd
+      use CFML_String_Utilities,          only : pack_string,Get_Separator_Pos,u_case,l_case
       use read_data
-      use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
-      use CFML_Crystal_Metrics,       only : Crystal_Cell_Type, Set_Crystal_Cell
+      use CFML_LSQ_TypeDef,               only : LSQ_State_Vector_Type
+      use CFML_Crystal_Metrics,           only : Crystal_Cell_Type, Set_Crystal_Cell
+      use CFML_Crystallographic_Symmetry, only : Space_Group_Type, Set_SpaceGroup
+      use CFML_IO_Formats,                only : Write_Cif_Template, Write_CFL
+      use CFML_Atom_TypeDef,              only : Atom_List_Type, Allocate_Atom_List
+
 
       implicit none
 
       private
 
       !public subroutines
-      public :: Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign, calc_avcell,Write_FST
+      public :: Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign, calc_avcell,Write_FST_VESTA
 
       contains
 !________________________________________________________________________________________________________________________
@@ -540,19 +544,23 @@
 
     End Subroutine Write_ftls
 
-    Subroutine Write_FST()
+    Subroutine Write_FST_VESTA()
+      Type(Space_Group_Type) :: SpGr
+      Type(Atom_List_Type)   :: Atm
+      Type(Crystal_Cell_Type):: celld
       integer :: i,j,k,l,lact,n,m, nseq, nlayers,nl,nat,ncar,ier
       integer, dimension(1000)      :: seq
       integer, dimension(20)        :: pos
-      real(kind=cp), dimension(3)   :: cvect,stck_vect
+      real(kind=cp), dimension(3)   :: cvect,stck_vect,celax,celang
       real(kind=dp), dimension(6)   :: cell_fst
       real(kind=cp)                 :: caxis !Perpendicular to the plane of the layers
       real(kind=cp),     dimension(:,:),allocatable :: xyz
+      real(kind=cp),     dimension(:),  allocatable :: biso,occ
       character(len=20), dimension(:),  allocatable :: atnam
       character(len=2)  :: elem
       character(len=16) :: aux
       character(len=132):: box_cmd
-      logical :: box_given, mod_seq
+      logical :: box_given, mod_seq,ok
 
       cell_fst=(/cell_a,cell_b,cell_c,90.0_dp,90.0_dp,cell_gamma*to_deg/)
       !Writing file for FullProf Studio
@@ -641,6 +649,8 @@
       end do
       write(unit=*,fmt="(a,3i5)") " => Number of layers and atoms for FP_Studio: ",nlayers,nat
       allocate(xyz(3,nat),atnam(nat))
+      call Allocate_Atom_List(nat,Atm,ok) !For CIF file
+      ok=.not. ok
       xyz=0.0; atnam=" "
       !Atoms position of the first given layer (for the moment in the given basis: cell_a,cell_b,cell_c)
       j=seq(1)
@@ -655,6 +665,11 @@
         elem=a_name(i,lact)(1:2)
         if(index("0123456789",elem(2:2)) /= 0) elem(2:2)=" "
         aux=" "
+        if(ok) then
+          Atm%atom(k)%ChemSymb=elem
+          Atm%atom(k)%Occ=a_occup(i,lact)
+          Atm%atom(k)%biso =a_b(i,lact)
+        end if
         write(unit=aux,fmt="(3(a,i3))") elem,i,"_",j,"_",1
         aux=Pack_String(aux)
         !atnam(k)=trim(aux)//"  "//crys%a_name(i,j)
@@ -663,6 +678,11 @@
           k=k+1
           !xyz(:,k) = -crys%a_pos(:,i,lact)+cvect
           xyz(:,k) = -a_pos(:,i,lact)/pi2+cvect
+          if(ok) then
+            Atm%atom(k)%ChemSymb=elem
+            Atm%atom(k)%Occ=a_occup(i,lact)
+            Atm%atom(k)%biso =a_b(i,lact)
+          end if
           m=index(atnam(k-1)," ")
           atnam(k)=atnam(k-1)(1:m-1)//"c"//atnam(k-1)(m+1:)
         end if
@@ -685,6 +705,11 @@
           elem=a_name(n,lact)(1:2)
           if(index("0123456789",elem(2:2)) /= 0) elem(2:2)=" "
           aux=" "
+          if(ok) then
+            Atm%atom(k)%ChemSymb=elem
+            Atm%atom(k)%Occ=a_occup(n,lact)
+            Atm%atom(k)%biso =a_b(n,lact)
+          end if
           write(unit=aux,fmt="(3(a,i3))") elem,n,"_",j,"_",i
           aux=Pack_String(aux)
           atnam(k)=aux//elem
@@ -692,6 +717,11 @@
             k=k+1
             !xyz(:,k) = -crys%a_pos(:,n,lact) + cvect
             xyz(:,k) = -a_pos(:,n,lact)/pi2 + cvect
+            if(ok) then
+              Atm%atom(k)%ChemSymb=elem
+              Atm%atom(k)%Occ=a_occup(n,lact)
+              Atm%atom(k)%biso =a_b(n,lact)
+            end if
             m=index(atnam(k-1)," ")
             atnam(k)=atnam(k-1)(1:m-1)//"c"//atnam(k-1)(m+1:)
           end if
@@ -712,6 +742,20 @@
         write(unit=i_fst,fmt="(a,3f12.5)") "Atom "//atnam(i),xyz(:,i)
       end do
       write(unit=i_fst,fmt="(a)") " "
+      ! Writing CIF file for VESTA and VESTA file
+      if(ok) then
+        celax=cell_fst(1:3); celang=cell_fst(4:6)
+        Call Set_Crystal_Cell(celax,celang, Celld)
+        Call Set_SpaceGroup("P 1",SpGr)
+        do i=1,nat
+          Atm%atom(i)%x=xyz(:,i)
+          m=index(atnam(i)," ")
+          Atm%atom(i)%Lab=atnam(i)(1:m-1)
+          Atm%atom(i)%Mult=1
+        end do
+        call Write_Cif_Template(trim(filenam)//"_flts.cif",2,"! File Generated by the program FAULTS: "//trim(ttl),Celld,SpGr,Atm)
+        call Write_Vesta_File()
+      end if
       !Writing the rest of FST commands
       do i=1,num_fst
         j=index(L_case(fst_cmd(i)),"seq")
@@ -733,7 +777,95 @@
       end do
       ! the unit is closed in the calling program
       return
-    End Subroutine Write_FST
+      contains
+        Subroutine Write_Vesta_File()
+
+           integer                                     :: lun, i, j, n,np, pol,k,cent
+           character(len=2)                            :: elem
+           character(len=80)                           :: box_cmd,aux
+           character(len=2), dimension(:), allocatable :: poly
+           character(len=80),dimension(:), allocatable :: cmd_bond
+           character(len=80)  :: cmd
+
+           open(newunit=lun,file=trim(filenam)//"_flts.vesta",action="write",status="replace")
+           write(unit=lun,fmt="(a)") "#VESTA_FORMAT_VERSION 3.1.9"
+           write(unit=lun,fmt="(a)") " "
+           write(unit=lun,fmt="(a)") " "
+           write(unit=lun,fmt="(a)") "CRYSTAL"
+           write(unit=lun,fmt="(a)") "TITLE"
+           write(unit=lun,fmt="(a)") "  "//trim(ttl)
+           write(unit=lun,fmt="(a)") " "
+           write(unit=lun,fmt="(a)") "IMPORT_STRUCTURE"
+           write(unit=lun,fmt="(a)") trim(filenam)//"_flts.cif"
+           write(unit=lun,fmt="(a)") " "
+           write(unit=lun,fmt="(a)") "BOUND"
+           box_cmd=" "
+           do i=1,num_fst
+             aux=u_case(fst_cmd(i))
+             j=index(aux,"BOX")
+             if(j /= 0) then
+               box_cmd=fst_cmd(i)(j+3:)
+               exit
+             end if
+           end do
+           if(len_trim(box_cmd) == 0) then
+              write(unit=lun,fmt="(a)") "    -0.1      1.1      -0.1      1.1      -0.1     1.1 "
+           else
+              write(unit=lun,fmt="(a)") trim(box_cmd)
+           end if
+           write(unit=lun,fmt="(a)")"  0   0   0   0  0"
+
+           write(unit=lun,fmt="(a)") "SBOND"
+
+           n=0; np=0
+           pol=0
+           allocate(cmd_bond(Atm%natoms), poly(Atm%natoms))
+           cmd_bond=" "
+           poly=" "
+           do i=1,num_fst
+               aux=u_case(fst_cmd(i))
+               j=index(aux,"CONN")
+               if(j /= 0) then
+                 n=n+1
+                 cmd=adjustl(fst_cmd(i)(j+4:))
+                 j=index(cmd," ")
+                 elem=cmd(1:j-1)
+                 cmd=adjustl(cmd(j:))
+                 j=index(cmd," ")
+                 cmd_bond(n)=elem//"  "//cmd(1:j)//"  "//cmd(j+1:)
+                 cycle
+               end if
+               j=index(aux,"POLY")
+               if(j /= 0)  then
+                  pol=1
+                  np=np+1
+                  poly(np)=adjustl(fst_cmd(i)(j+4:))
+               end if
+           end do
+           do i=1,n
+             j=index(cmd_bond(i)," ")
+             elem=cmd_bond(i)(1:j-1)
+             cent=0
+             do k=1,np
+               if(trim(poly(k)) == trim(elem)) then
+                  cent=1
+                  exit
+               end if
+             end do
+             write(unit=lun,fmt="(i3,a,5i3)") i,"  "//trim(cmd_bond(i)),0,1,cent,0,1
+           end do
+           write(unit=lun,fmt="(a)")    "  0 0 0 0"
+           write(unit=lun,fmt="(a)")    " "
+           write(unit=lun,fmt="(a)")    "STYLE"
+           write(unit=lun,fmt="(a)")    "MODEL   2  1  0"
+           write(unit=lun,fmt="(a)")    "SURFS   0  1  1"
+           write(unit=lun,fmt="(a)")    "SECTS  96  0"
+           write(unit=lun,fmt="(a,i1)") "POLYS  ",pol
+           call flush(lun)
+           close(unit=lun)
+        End Subroutine Write_Vesta_File
+
+    End Subroutine Write_FST_VESTA
 
 
     Subroutine Write_Prf(diff_pat,i_prf)
@@ -1169,11 +1301,11 @@
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use CFML_Random_Generators,       only : random_poisson
      use diffax_mod
-     use read_data,                    only : read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
+     use read_data,                    only : filenam, read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess,fst_given
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign, Write_FST
+     use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign, Write_FST_VESTA
      use dif_ref
 
      implicit none
@@ -1183,7 +1315,7 @@
       LOGICAL                 :: ok, ending , gol, p_ok, arggiven=.false.
       INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
       character(len=100)      :: pfile, bfile , bmode
-      character(len=100)      :: pmode, filenam
+      character(len=100)      :: pmode
       character(len=256)      :: path_name
       character(len=10)       :: time, date
       character(len=1)        :: keyw
@@ -1443,7 +1575,7 @@
               Call getfnm(filenam,outfile, '.fst', ok)
           end if
         OPEN(UNIT = i_fst, FILE = trim(outfile), STATUS = 'replace',action="write")
-        call Write_FST()
+        call Write_FST_VESTA()
         close(unit=i_fst)
       end if
       ending = .true.

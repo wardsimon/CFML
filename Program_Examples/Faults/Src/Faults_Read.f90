@@ -87,7 +87,7 @@
          logical             :: inf_thick      !infinite stacking
          logical             :: trm            !trim keyword: to supress peak at origin >trim_origin
          logical             :: bgrpatt, bgrinter, bgrcheb
-         character(len=4),  dimension(:,:),allocatable :: a_name  !atom name (4characters wide)>atom_l o a_name?
+         character(len=4),  dimension(:,:),allocatable :: a_name    !atom name (4characters wide)>atom_l o a_name?
          character(len=20), dimension(:),  allocatable :: bfilepat  !filename for bgrpatt
          character(len=20), dimension(:),  allocatable :: bfilehkl  !filename for reflection indices and positions associated to a
                                                                     !background pattern
@@ -138,7 +138,8 @@
       type (LSQ_State_Vector_Type),    save,  public  :: Vs
       real, dimension (3),                    public  :: aver_cell, aver_ang
       integer, dimension(max_avercell),       public  :: lay_avcell          !sequence of layers to be stacked for calculating the average cell
-      character(len=180), dimension(max_fst),   public  :: fst_cmd          !Commands for FP_STUDIO
+      character(len=180), dimension(max_fst), public  :: fst_cmd             !Commands for FP_STUDIO
+      character(len=100),                     public  :: filenam
       integer,                                public  :: nlay_avcell         !number of layers needed for calculating the average cell
       Real, dimension(:,:),     allocatable,  public  :: bgr_patt
       Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
@@ -1711,19 +1712,19 @@
           Case("BGRPATT")
             crys%bgrpatt=.true.
             m=m+1
-            write(*,"(a,i3)") "  => Reading background pattern #", m
+            write(*,"(a,i3)") " => Reading background pattern #", m
             !First try to read the name of the hkl file
             read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m),crys%bfilehkl(m)
             if(ier == 0) then
-                write(*,"(4a)") "  => The background pattern and hkl files have been successfully read: ", &
+                write(*,"(4a)") " => The background pattern and hkl files have been successfully read: ", &
                                 trim(crys%bfilepat(m))," ", trim(crys%bfilehkl(m))
             else  !if not re-read only the background file name the scale factor and the code
-                write(*,"(a,i3)") "  => No hkl file was found for background pattern #", m
+                write(*,"(a,i3)") " => No hkl file was found for background pattern #", m
             read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m)
                 if(ier == 0) then
-                    write(*,"(2a)") "  => The background pattern file has been successfully read: ", &
+                    write(*,"(2a)") " => The background pattern file has been successfully read: ", &
                                 trim(crys%bfilepat(m))
                 end if
             end if
