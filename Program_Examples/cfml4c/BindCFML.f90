@@ -240,7 +240,7 @@ Module BindCFML
       type(Crystal_Cell_Type)                         :: F_cell
       type(Space_Group_Type)                          :: F_spgr
       type(Atom_List_Type)                            :: F_atoms
-      character(len=C_length)                           :: F_filnam
+      character(len=C_length)                         :: F_filnam
 
       call C2F_string(C_filnam, f_filnam, C_length)
       call Readn_Set_Xtal_Structure(F_filnam,F_cell,F_spgr,F_atoms,mode="CFL")

@@ -1,0 +1,280 @@
+  Information to prepare a module in Fortran 2003 using ISO_C_Binding to be called from C/C++
+  or any other language able to call C.
+
+
+  Low level modules not needed to be exported:
+  ============================================
+   CFML_GlobalDeps.f90  => export everything ?
+   CFML_math_gen.f90    => A lot of overloaded procedures verify that this can be done in C
+   CFML_random.f90
+   CFML_spher_harm.f90
+   CFML_ffts.f90
+   CFML_string_util.f90
+   CFML_io_mess.f90
+   CFML_math_3D.f90
+   CFML_optimization.f90
+
+   CFML_sym_table.f90
+   CFML_chem_scatt.f90
+   CFML_BVSpar.f90
+   CFML_bonds_table.f90
+
+   CFML_ILL_Instrm_data.f90
+   CFML_Export_Vtk.f90
+   CFML_maps.f90
+
+===============================================================
+
+
+   CFML_Profile_TOF.f90 => Export:         Var: Lorcomp
+                                         types: Deriv_TOF_Type
+                                     Functions:
+                                   subroutines: Tof_Jorgensen, Tof_Jorgensen_Vondreele, Tof_Carpenter
+
+
+   CFML_Profile_Finger.f90  => Export:     Var: init_profval
+                                         types:
+                                     Functions:
+                                   subroutines: prof_val
+
+
+   CFML_Profile_Functs.f90  => Export:     Var:
+                                         types:
+                                     Functions: Pseudovoigt,Lorentzian,Gaussian,Back_To_Back_Exp,
+                                                Ikeda_Carpenter, Exponential, Hat, Split_Pseudovoigt,
+                                                TCH_pVoigt
+                                   subroutines: Pseudovoigt_Der,Lorentzian_Der,Gaussian_Der,Back_To_Back_Exp_Der,
+                                                Ikeda_Carpenter_Der, Exponential_Der, Hat_Der, Split_Pseudovoigt_Der,
+                                                TCH_pVoigt_Der
+
+
+   --------- Mathematical(II), Optimization, Tables, Patterns
+
+   CFML_LSQ_TypeDef.f90 => Export:         Var: Max_Free_Par,
+                                         types: LSQ_Conditions_Type,LSQ_Data_Type,LSQ_State_Vector_Type
+                                     Functions:
+                                   Subroutines: Modify_Codes_State_Vector
+
+   CFML_optimization_lsq.f90 => Export:    Var: ERR_Lsq, ERR_Lsq_Mess, Info_Lsq_Mess
+                                         types:
+                                     Functions: fchisq
+                                   subroutines: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM
+
+
+   CFML_diffpatt.f90 => Export:            Var: ERR_Diffpatt, ERR_DiffPatt_Mess
+                                         types: Diffraction_Pattern_Type
+                                     Functions: calc_fwhm_peak
+                                   subroutines: Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern,
+                                                Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig,
+                                                Write_Pattern_FreeFormat, Add_Diffraction_Patterns, Delete_Noisy_Points,
+                                                Write_Pattern_INSTRM5
+
+
+
+   --------- Bonds, Crystal Metrics, Symmetry, ILL_Instr
+
+   CFML_cryst_types.f90  => Export:        Var: ERR_Crys, ERR_Crys_Mess
+                                         types: Crystal_Cell_Type, Twofold_Axes_Type, Zone_Axis_Type
+                                     Functions: Cart_u_vector, Cart_vector, Convert_B_Betas, Convert_B_U,
+                                                Convert_Betas_B, Convert_Betas_U, Convert_U_B,
+                                                Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma,
+                                                Get_Betas_From_Biso
+                                   subroutines: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,
+                                                Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,
+                                                Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,
+                                                Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell,
+                                                Read_Bin_Crystal_Cell,Write_Bin_Crystal_Cell
+
+   CFML_symmetry.f90     => Export:        Var: Cubic,Err_Symm, Err_Symm_Mess, Hexa, Hexag, Inlat, Lat_Ch, Ltr
+                                         types: Lattice_Centring_Type,Sym_Oper_Type,Wyck_Pos_Type,Wyckoff_Type,
+                                                Space_Group_Type
+                                     Functions: ApplySO, Axes_Rotation, Get_Laue_Num, Get_Multip_Pos, Get_Occ_Site,
+                                                Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod
+                                   subroutines: Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,
+                                                Get_Laue_Pg, Get_Laue_Str, Get_orbit, Get_Pointgroup_Str,
+                                                Get_Stabilizer,Get_SubOrbits,Get_Symel, Get_SymSymb,
+                                                Init_Err_Symm, Inverse_Symm, Latsym, Read_Msymm, Read_Xsym,
+                                                Set_Spacegroup, Setting_Change, Sym_B_Relations, Sym_Prod_St, Symmetry_Symbol,
+                                                Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,
+                                                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,
+                                                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,
+                                                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup,
+                                                Get_GenSymb_from_Gener, Check_Generator, Allocate_Lattice_Centring
+
+
+
+   --------- Reflections, Atoms
+
+   CFML_Eos_Mod.f90     => Export:         Var: N_EOSPAR,NCOL_DATA_MAX,N_pmodel,N_tmodel,N_tranmodel,Pmodel_names,
+                                                Tmodel_names, Tranmodel_names, ERR_EOS, ERR_EOS_MESS
+                                         types: EoS_Type, EoS_List_Type, EoS_Data_Type, EoS_Data_List_Type
+                                     Functions: Alpha_Cal, Dkdt_Cal,Get_Pressure, Get_Pressure_Esd, Get_Temperature, Get_Volume,
+                                                Get_Volume_S, K_Cal, Kp_Cal, Kpp_Cal, Pressure_F, Strain, Strain_EOS,
+                                                Get_Temperature_P0,Transition_phase,Get_Transition_Strain,Get_Transition_Temperature,
+                                                Get_Transition_Pressure
+                                   subroutines: Allocate_EoS_Data_List, Allocate_EoS_List, Deallocate_EoS_Data_List,
+                                                FfCal_Dat_Esd, Deallocate_EoS_List, Deriv_Partial_P, EoS_Cal,  EoS_Cal_Esd, FfCal_Dat,
+                                                FfCal_EoS, Init_EoS_Data_Type, Init_EoS_Type, Init_Err_EoS, Init_Eos_Thermal,
+                                                Init_EoS_Transition, Read_EoS_File,Read_EoS_DataFile, Set_Eos_Names,
+                                                Set_Eos_Use, Set_Kp_Kpp_Cond, Write_EoS_File,Write_Eoscal_header,Write_Eoscal_file,
+                                                Write_EoS_DataFile, Write_Info_EoS
+
+
+
+
+   CFML_reflct_util.f90  => Export:        Var: ERR_Refl, ERR_Refl_Mess,Hkl_Ref_Conditions
+                                                Tmodel_names, Tranmodel_names, ERR_EOS, ERR_EOS_MESS
+                                         types: Reflect_Type, Reflection_Type, Reflection_List_Type
+                                     Functions: Asu_Hkl,Get_MaxNumRef, Hkl_Absent, Hkl_Equal, Hkl_Equiv, Hkl_Mult,
+                                                Get_Hequiv_Asu,Hkl_R, Hkl_S, Unit_Cart_Hkl, Hkl_Lat_Absent
+                                   subroutines: Hkl_Equiv_List, Hkl_Gen, Hkl_Rp, Hkl_Uni, Init_Err_Refl, Init_RefList,
+                                                Search_Extinctions, Write_Asu, Write_RefList_Info, Hkl_Gen_Sxtal
+
+
+   CFML_atom_mod.f90     => Export:        Var: ERR_Atmd, Err_Atmd_Mess
+                                         types: Atom_Equiv_Type, Atom_Equiv_List_Type, Atom_Type, Atoms_Cell_Type,
+                                                Atom_List_Type, mAtom_Type, mAtom_List_Type
+                                     Functions: Equiv_Atm, Wrt_Lab
+                                   subroutines: Allocate_Atoms_Cell, Allocate_Atom_List, Atlist1_Extencell_Atlist2,
+                                                Atoms_Cell_To_List, Atom_List_To_Cell, Atom_Uequi_List, Copy_Atom_list,
+                                                Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,
+                                                Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,
+                                                Allocate_mAtom_list, Deallocate_mAtom_list,
+                                                Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List,
+                                                Set_Atom_Equiv_List, Get_Atom_2nd_Tensor_Ctr
+
+
+   ---------- Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
+
+   CFML_sfac.f90         => Export:        Var: ERR_SFac, ERR_SFac_Mess
+                                         types:
+                                     Functions:
+                                   subroutines: Init_Structure_Factors,Init_Calc_hkl_StrFactors, Structure_Factors,
+                                                Modify_SF, Write_Structure_Factors,Calc_StrFactor, Calc_hkl_StrFactor,
+                                                Init_Calc_StrFactors
+
+
+
+
+   CFML_geom_calc.f90    => Export:        Var: coord_info, err_geom, ERR_Geom_Mess
+                                         types: Coordination_Type, point_list_type
+                                     Functions: Angle_Dihedral, Angle_Mod, Angle_Uv, Coord_Mod, Distance, Matrix_PhiTheChi,
+                                                Matrix_Rx, Matrix_Ry, Matrix_Rz
+                                   subroutines: Allocate_Coordination_Type, Allocate_Point_List, Calc_Dist_Angle, Calc_Dist_Angle_Sigma,
+                                                Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract,
+                                                Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination,
+                                                Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u,
+                                                Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit
+
+
+   CFML_sxtal_Geom.f90   => Export:        Var: ERR_SXTGeom, ERR_SXTGeom_Mess, psd, sxd
+                                         types: Psd_Val_Type, Sxd_Val_Type
+                                     Functions: Chkin180
+                                   subroutines: Angs_4C_bisecting, Equatorial_Chi_Phi, Get_dspacing_theta,
+                                                Get_GaOmNu_frChiPhi, Chi_mat, Phi_mat, Psi_mat, Get_Angs_NB,
+                                                Calc_Om_Chi_Phi, Calc_Psi, d19psd, dspace, fixdnu, Normal_Beam_Angles,
+                                                s4cnb, snb4c, Flat_Cone_vertDet, Get_WaveGaNu_frZ4, normal, refvec, sxdpsd,
+                                                triple, z3frz1, z2frz1, z1frfc, z1frnb, z1frmd, z1frz4, z1frz3, z1frz2, z4frgn,
+                                                z4frz1, calang, genb, genub, cell_fr_UB, set_psd, get_z1_from_pixel,
+                                                Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega, Get_UB_from_hkl_hkl_omega,
+                                                Get_FlatCone_Angles_D10
+
+   CFML_propagk.f90      => Export:        Var:
+                                         types: Group_k_Type
+                                     Functions: Hk_Equiv, K_Equiv , K_Equiv_Minus_K
+                                   subroutines: K_Star, Write_Group_K, Set_Gk
+
+
+
+   --------- Molecules, Maps, BVS, Energy Configurations
+
+   CFML_molecules.f90    => Export:        Var: Err_Molec, Err_Molec_Mess
+                                         types: Molecule_type, Molecular_Crystal_Type
+                                     Functions:
+                                   subroutines: Init_Err_Molec, Init_Molecule, Read_Free_Atoms, Read_Molecule,
+                                                Write_Molecule, Write_Molecular_Crystal, Write_Free_Atoms,
+                                                Cartesian_to_Fractional, Cartesian_to_Spherical, Cartesian_to_Zmatrix,
+                                                Fractional_to_Cartesian, Fractional_to_Spherical, Fractional_to_Zmatrix,
+                                                Zmatrix_to_Cartesian, Zmatrix_to_Fractional, Zmatrix_to_Spherical,
+                                                Spherical_to_Cartesian, Spherical_to_Zmatrix,Spherical_to_Fractional,
+                                                Fix_Reference,Fix_Orient_Cartesian, Set_Euler_Matrix, Molcrys_to_AtomList,
+                                                Molec_to_AtomList, Empiric_Formula,Init_Mol_Crys
+
+
+
+
+   CFML_conf_calc.f90    => Export:        Var: err_conf, err_conf_Mess
+                                         types: Atoms_Conf_List_Type
+                                     Functions:
+                                   subroutines: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List,
+                                                Init_Err_Conf, Set_Table_d0_b, Species_on_List, Set_Table_BVEL_Params,
+                                                Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Calc_Map_BVEL
+
+
+   --------- Formats
+
+   CFML_form_cif.f90     => Export:        Var: err_form, err_form_Mess
+                                         types: Job_Info_type, File_List_Type
+                                     Functions:
+                                   subroutines: Init_Err_Form,Write_Cif_Powder_Profile,
+                                                Write_Cif_Template, Write_Shx_Template,
+                                                Get_job_info, File_To_FileList, Get_Phases_File
+                                                Readn_Set_Xtal_Structure, Write_Atoms_CFL, Write_CFL
+
+
+
+   --------- Magnetic Symmetry, Simulated Annealing, Keywords Parser
+
+   CFML_magsymm.f90      => Export:        Var: err_MagSym, err_MagSym_Mess
+                                         types: MSym_Oper_Type, Magnetic_Domain_type, Magnetic_Space_Group_Type,
+                                                Magnetic_Group_Type, MagSymm_k_Type
+                                     Functions: ApplyMSO
+                                   subroutines: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure,
+                                                Set_Shubnikov_Group, Write_Shubnikov_Group, Init_MagSymm_k_Type,
+                                                Write_MCIF, get_magnetic_form_factor, Calc_Induced_Sk
+
+
+
+   CFML_optimization_san.f90=> Export:     Var: np_CONF,np_SAN,ERR_San, ERR_San_Mess
+                                         types: MultiState_Vector_Type, SimAnn_Conditions_type, State_Vector_Type
+                                                Magnetic_Group_Type, MagSymm_k_Type
+                                     Functions:
+                                   subroutines: SimAnneal_gen, SimAnneal_MultiConf, Set_SimAnn_Cond, Set_SimAnn_StateV,
+                                                Write_SimAnn_Cond, Write_SimAnn_StateV, Set_SimAnn_MStateV,
+                                                Write_SimAnn_MStateV,SAnn_Opt_MultiConf
+
+
+   CFML_refcodes.f90        => Export:     Var: Dis_Rest,Ang_Rest,Tor_Rest,Code_Nam, GCode_Nam, mCode_Nam, Err_RefCodes,
+                                                Err_RefCodes_Mess, Key_Code, Key_mCode, NP_Cons, NP_Max, NP_Refi,
+                                                NP_Rest_Ang, NP_Rest_Dis, NP_Rest_Tor, V_BCon, V_Bounds, V_List,
+                                                V_Name, V_Vec, V_Save, V_Vec_std, V_Shift
+                                         types: Angle_Restraint_Type, Distance_Restraint_Type, Nonatomic_Parameter_Type,
+                                                Nonatomic_Parameter_List_Type, Torsion_Restraint_Type
+                                     Functions:
+                                   subroutines: Allocate_VParam, Init_RefCodes, Read_RefCodes_File, VState_to_AtomsPar,
+                                                Write_Info_RefCodes, Get_RestAng_Line, Get_RestDis_Line, Get_RestTor_Line,
+                                                Allocate_RestParam, Write_Restraints_ObsCalc, Init_Err_RefCodes,
+                                                Write_Info_RefParams, Read_RefGCodes_File, Write_Info_RefGCodes,
+                                                VState_to_ModelPar
+
+
+
+   --------- Magnetic Structure Factors, Polarimetry
+
+   CFML_msfac.f90           => Export:     Var: err_msfac_mess, err_msfac, pn
+                                         types: MagH_Type, MagH_List_Type, MagHD_Type, MagHD_List_Type
+                                     Functions:
+                                   subroutines: Calc_Mag_Interaction_Vector, Gen_satellites, Init_Mag_Structure_Factors,
+                                                Mag_Structure_Factors, Modify_MSF, Write_Mag_Structure_Factors,
+                                                Calc_Magnetic_StrF_MiV, Calc_Magnetic_StrF_MiV_dom, Init_Err_MSfac,
+                                                Calc_Magnetic_Strf_Tensor
+
+   CFML_polar.f90           => Export:     Var: err_msfac_mess, err_msfac, pn
+                                         types: Polar_calc_type, Polar_Calc_List_type, Polar_CalcMulti_List_type,
+                                                Polar_Info_type, Polar_obs_type, Polar_Obs_List_type,
+                                                Polar_ObsMulti_List_type, Polar_Calc_sVs_type, Polar_Calc_sVs_List_type,
+                                                Polar_CalcMulti_sVs_List_type
+                                     Functions:
+                                   subroutines: Calc_Polar_Dom, Set_Polar_Info, Write_Polar_Info, Write_Polar_line,
+                                                Calc_Polar_Dom_Efficiency, Calc_Polar_CrSec, Calc_Polar, Get_Pol_Tensor_Pc
+
