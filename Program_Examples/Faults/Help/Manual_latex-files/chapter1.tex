@@ -254,13 +254,13 @@ Note that the average cell parameters and space group are only used for the Brag
 \end{flushleft}
 
 Then the user can add as many optional lines as needed, each of them beginning with the keyword \textit{FST\_CMD}, followed by the required FullProf Studio commands (see the FullProf Studio manual for
-more details \cite{FPSManual}). For example, the keyword \textit{CONN} can be used to control the drawing of bonds (\textit{e.g.} Ni-O bonds of length between 0.0 and 2.0 \AA in the example below), the keyword \textit{BOX} allows to control the limits of the box, and the keyword \textit{stack\_vect} permits to set the position of the first layer in the artificial FullProf Studio cell:
+more details \cite{FPSManual}). For example, to control the drawing of Ni-O bonds (of length between 0.0 and 1.2 \AA) polyhedra of the example input file, the limit of the box and the position of the first layer in the artificial FullProf Studio cell, the user may add the following lines:
 
 \begin{flushleft}
 \begin{tabbing}
-	\hspace*{1.50 cm}FST\_CMD  \=CONN \= \=NI O \=0.0 2.0\\*
-	\hspace*{1.50 cm}FST\_CMD  \>box \> \>-2 2 \=-2 2 \=-0.01 1.01 \\*
-	\hspace*{1.50 cm}FST\_CMD  \>stack\_vect \> \>\>0 0 0.5
+	\hspace*{1.50 cm}FST\_CMD  \=CONN \=Ni O \=0.0 2.3\\*
+	\hspace*{1.50 cm}FST\_CMD  \>box  \>-2 2 \=-2 2 \=-0.01 1.01 \\*
+	\hspace*{1.50 cm}FST\_CMD  \>stack\_vect  \>\>0 0 0.5
 \end{tabbing}	
 \end{flushleft}
 
@@ -274,7 +274,7 @@ it will be enough to write \emph{LAYER j = i}  where \emph{i} and \emph{j} are t
 
 \item \textbf{Layer symmetry:} The keyword \textit{lsym} must be followed by one of the two options: \textbf{NONE} or \textbf{CENTROSYMMETRIC}. If the latter is specified,
 only the asymmetric half of the atom coordinates
-need to be entered, and the program will create another identical atom in (-x,-y,-z) per each atom described in the layer. Take care to halve the occupancy in case of the atoms located in (0,0,0).
+need to be entered, and the program will create another identical atom in (-x,-y,-z) per each atom described in the layer. Take care to halve the occupancy in case of the atoms located at any inversion center.
 
 \item \textbf{Atomic data:} For each atom the keyword \textit{atom} must be written, followed by a specific 4 characters name. The first two characters correspond to the atomic symbol and the last two represent the valence.  If the symbol has only one character, contrary to DIFFAX, there must not be a space between the symbol and the charge (Ex. \mbox{F1-}, \mbox{Ni2+}). Some atoms do not require any valence (ex. C). Below is the list of the names accepted by FAULTS (this list is found in the standard scattering factor data file \textit{data.sfc}): \\
 % In case of doubt, the user can check the correct form in the file \textit{data.sfc}. \\
@@ -367,14 +367,15 @@ There are two options: SIMULATION and LMA. The first one corresponds to the patt
 The second option indicates that the refinement is to be done by means of the Levenberg Marquardt fit. Depending on the calculation type, the next lines must contain:
 
 \begin{itemize}
-\item \textbf{Simulation:} In order to simulate a powder diffraction pattern the user has to specify the keyword \textit{Powder} followed by the values of  2$\theta_{min}$,  2$\theta_{min}$ and the step  (in degrees).
+\item \textbf{Simulation:} In order to simulate a powder diffraction pattern the user has to specify the keyword \textit{Powder} followed by the values of  2$\theta_{min}$,  2$\theta_{min}$ and the step  (in degrees). Optionally, a scale factor and an offset value can be specified on the same line to simulate a pattern with background and noise generated from a Poisson distribution.
 For example,
 
 \begin{flushleft}
 \begin{tabbing}
 \hspace*{1.5 cm}CALCULATION  \\*
 \hspace*{1.5 cm}SIMULATION    \= \{\ type of optimization \}\  \\*
-\hspace*{1.5 cm}Powder 5.0 90.0 0.02 \= \{\ 2$\theta_{min}$, 2$\theta_{max}$, step \}\
+%\hspace*{1.5 cm}!Range of powder pattern: th2\_min, th2\_max, d\_theta; \= Scale\_Factor \=  Background Level \\*
+\hspace*{1.5 cm}POWDER 5.0 90.0 0.02 \hspace*{0.15 cm} ScaleF 1.00 \hspace*{0.15 cm} Bckg\_Level 150.00 \
 \end{tabbing}
 \end{flushleft}
 %\footnotesize{
