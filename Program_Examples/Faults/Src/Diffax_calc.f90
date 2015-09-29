@@ -1564,7 +1564,8 @@
           write(dmp,"(a)")          " SIMULATION"
           if (funct_num == 3) then
             write(dmp,"(a)")          " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
-            write(dmp,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, "   Bckg_Level ",crys%Bckg_Level
+            write(dmp,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, &
+                                                      "   Bckg_Level ",crys%Bckg_Level
           else
             write(dmp,"(a)")          " !Selected Area Diffraction Pattern:: i_plane, l_upper, loglin, brightness"
             write(dmp,"(a, i7, f11.4, i7, f10.4)")  "SADP",   i_plane, l_upper, loglin, brightness

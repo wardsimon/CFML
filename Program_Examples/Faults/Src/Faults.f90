@@ -473,8 +473,9 @@
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
          if (funct_num == 3) then
-           write(i_ftls,"(a)")          " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
-           write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, "   Bckg_Level ",crys%Bckg_Level
+           write(i_ftls,"(a)")  " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
+           write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, &
+                                                        "   Bckg_Level ",crys%Bckg_Level
          else
          	 write(i_ftls,"(a)")          " !Selected Area Diffraction Pattern: i_plane, l_upper, loglin, brightness"
          	 write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
@@ -707,6 +708,7 @@
           aux=" "
           if(ok) then
             Atm%atom(k)%ChemSymb=elem
+            Atm%atom(k)%SfacSymb=elem
             Atm%atom(k)%Occ=a_occup(n,lact)
             Atm%atom(k)%biso =a_b(n,lact)
           end if
@@ -719,6 +721,7 @@
             xyz(:,k) = -a_pos(:,n,lact)/pi2 + cvect
             if(ok) then
               Atm%atom(k)%ChemSymb=elem
+              Atm%atom(k)%SfacSymb=elem
               Atm%atom(k)%Occ=a_occup(n,lact)
               Atm%atom(k)%biso =a_b(n,lact)
             end if
