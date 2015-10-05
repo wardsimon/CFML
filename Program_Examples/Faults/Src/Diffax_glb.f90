@@ -382,7 +382,7 @@
                         cfname      !     The name of the control file containing the automated responses to
                                     !     DIFFaX's prompts (usually set to 'control.dif')
 
- CHARACTER (LEN=31)    :: infile, outfile
+ CHARACTER (LEN=31)    :: infile, outfile, outfile_notrepl
 
  character (len=20), dimension(max_npar):: namepar
  character (len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr

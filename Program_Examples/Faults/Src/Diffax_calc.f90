@@ -3049,13 +3049,13 @@
 ! If we are here then all went well
       get_g = .true.
 
-! Are some of the layers non-existent?
-      DO  i = 1, n_layers
-        IF(l_g(i) < eps6) THEN
-          WRITE(op,"(a, i2, a)") ' => WARNING: Layer ', i,  &
-              ' does not occur in any significant quantity.'
-        END IF
-      END DO
+! Are some of the layers non-existent?     => moved to FAULTS.f90 on Oct 2015 MR
+!      DO  i = 1, n_layers
+!        IF(l_g(i) < eps6) THEN
+!          WRITE(op,"(a, i2, a)") ' => WARNING: Layer ', i,  &
+!              ' does not occur in any significant quantity.'
+!        END IF
+!      END DO
 
       RETURN
       100 WRITE(op,"(a)")  &
@@ -3974,7 +3974,8 @@
       if(replace_files) then
         Call getfnm(infile,outfile, '.sadp', ok,replace_files)
       else
-        Call getfnm(infile,outfile,'.sadp',ok)
+        !Call getfnm(infile,outfile,'.sadp',ok)
+        outfile=trim(outfile_notrepl)//".sadp" 
       end if
       IF(.NOT. ok) GO TO 999
 ! Open unformatted for binary write.
@@ -4251,7 +4252,8 @@
       if(replace_files) then
         Call getfnm(infile,outfile, '.str', ok,replace_files)
       else
-        Call getfnm(infile, outfile, '.str', ok)
+        !Call getfnm(infile, outfile, '.str', ok)
+        outfile=trim(outfile_notrepl)//".str"
       end if
       IF(.NOT.ok) GO TO 999
       IF(sk /= op) OPEN(UNIT = sk, FILE = outfile, STATUS = 'new',  &
@@ -5713,7 +5715,8 @@
         if(replace_files) then
           Call getfnm(rootnam,sym_fnam, '.sym', ok,replace_files)
         else
-          Call getfnm(rootnam, sym_fnam, '.sym', ok)
+          !Call getfnm(rootnam, sym_fnam, '.sym', ok)
+          sym_fnam=trim(outfile_notrepl)//".sym"      
         end if
         IF(.NOT. ok) THEN
           WRITE(op,"(a)") ' => OPTIMZ: ERROR in creating symmetry dumpfile.'
@@ -6555,7 +6558,7 @@
       WRITE(iw,"(a)") '      Marine Reynaud           (CIC Energigune)        '
       WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '                   [version: Jan. 2015]                '
+      WRITE(iw,"(a)") '                   [version: Oct. 2015]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")

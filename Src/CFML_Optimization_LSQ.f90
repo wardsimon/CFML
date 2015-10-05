@@ -1378,7 +1378,10 @@
 
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
+         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+                        " nb of free (refined) parameters: ", n, &
+                        ", number of observations: ", m, &
+                        ", tolerance: ", c%tol
           return
        end if
 
@@ -1629,7 +1632,10 @@
 
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
+         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+                        " nb of free (refined) parameters: ", n, &
+                        ", number of observations: ", m, &
+                        ", tolerance: ", c%tol
           return
        end if
 
@@ -1835,7 +1841,10 @@
        infout=" "
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
+         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+                        " nb of free (refined) parameters: ", n, &
+                        ", number of observations: ", m, &
+                        ", tolerance: ", c%tol
           Return
        End if
 
