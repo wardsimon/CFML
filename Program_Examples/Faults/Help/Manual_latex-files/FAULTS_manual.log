@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.11.3)  28 SEP 2015 12:54
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.11.3)  29 SEP 2015 15:41
 entering extended mode
 **FAULTS_manual.tex
 
@@ -465,7 +465,12 @@ Overfull \hbox (4.44463pt too wide) in paragraph at lines 44--44
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
 ("O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\
-FAULTS\Manual_latex-files_new_25092015\FAULTS_manual.toc")
+FAULTS\Manual_latex-files_new_25092015\FAULTS_manual.toc"
+Underfull \hbox (badness 10000) in paragraph at lines 21--21
+ [][] [][][]\OT1/cmr/m/n/10.95 Crystallographic struc-ture files: \OT1/cmr/bx/n/10.95 CFILE.fst\OT1/cmr/m/n/10.95 , 
+ []
+
+)
 \tf@toc=\write5
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
@@ -473,7 +478,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has b
 l.46 \include{chapter1}
                         [1
 
-]
+] [2]
 ("O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\
 FAULTS\Manual_latex-files_new_25092015\chapter1.tex"
 Chapter 1.
@@ -530,7 +535,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 30--37
 
  []
 
-[2] [3]
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.37 
+      [2] [3]
 Underfull \hbox (badness 10000) in paragraph at lines 81--83
 
  []
@@ -565,7 +574,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 102--104
 
  []
 
-[5] <control1.pdf, id=179, 597.23125pt x 845.1575pt>
+[5] <control1.pdf, id=183, 597.23125pt x 845.1575pt>
 File: control1.pdf Graphic file (type pdf)
  <use control1.pdf>
 Package pdftex.def Info: control1.pdf used on input line 110.
@@ -578,7 +587,7 @@ Overfull \hbox (38.98184pt too wide) in paragraph at lines 110--111
 
 LaTeX Warning: Float too large for page by 124.58136pt on input line 114.
 
-<control2.pdf, id=180, 597.23125pt x 845.1575pt>
+<control2.pdf, id=184, 597.23125pt x 845.1575pt>
 File: control2.pdf Graphic file (type pdf)
  <use control2.pdf>
 Package pdftex.def Info: control2.pdf used on input line 118.
@@ -591,7 +600,7 @@ Overfull \hbox (38.98184pt too wide) in paragraph at lines 118--119
 
 LaTeX Warning: Float too large for page by 124.58136pt on input line 122.
 
-<control3.pdf, id=181, 597.23125pt x 845.1575pt>
+<control3.pdf, id=185, 597.23125pt x 845.1575pt>
 File: control3.pdf Graphic file (type pdf)
  <use control3.pdf>
 Package pdftex.def Info: control3.pdf used on input line 126.
@@ -644,12 +653,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 565--570
 
  []
 
-
+[25]
 Underfull \hbox (badness 10000) in paragraph at lines 582--587
 
  []
 
-[25]
+
 Underfull \hbox (badness 10000) in paragraph at lines 592--594
 
  []
@@ -664,12 +673,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 610--613
 
  []
 
-
+[26]
 Underfull \hbox (badness 10000) in paragraph at lines 618--620
 
  []
 
-[26] [27]
+[27]
 LaTeX Font Info:    Try loading font information for OML+cmr on input line 654.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
 File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
@@ -677,33 +686,54 @@ File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 654.
  [28]
+Underfull \hbox (badness 10000) in paragraph at lines 693--693
+[]\OT1/cmr/bx/n/12 Crystallographic struc-ture files: CFILE.fst,
+ []
+
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 701.
+(hyperref)                removing `math shift' on input line 693.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 701.
+(hyperref)                removing `math shift' on input line 693.
 
-[29] <faultslayout.jpg, id=361, 758.835pt x 474.27188pt>
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 693.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 693.
+
+[29]
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 706.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 706.
+
+<faultslayout.jpg, id=372, 758.835pt x 474.27188pt>
 File: faultslayout.jpg Graphic file (type jpg)
  <use faultslayout.jpg>
-Package pdftex.def Info: faultslayout.jpg used on input line 712.
+Package pdftex.def Info: faultslayout.jpg used on input line 717.
 (pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
- [30 <O:/a) Research area/01 - Batteries & Supercaps/EES Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/Resu
-lts/FAULTS/Manual_latex-files_new_25092015/faultslayout.jpg>] <faultslayout2.jpg, id=369, 758.835pt x 474.27188pt>
+ [30]
+<faultslayout2.jpg, id=379, 758.835pt x 474.27188pt>
 File: faultslayout2.jpg Graphic file (type jpg)
  <use faultslayout2.jpg>
-Package pdftex.def Info: faultslayout2.jpg used on input line 723.
+Package pdftex.def Info: faultslayout2.jpg used on input line 728.
 (pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
 
-<faultsend.jpg, id=371, 787.44188pt x 474.27188pt>
+<faultsend.jpg, id=381, 787.44188pt x 474.27188pt>
 File: faultsend.jpg Graphic file (type jpg)
  <use faultsend.jpg>
-Package pdftex.def Info: faultsend.jpg used on input line 735.
+Package pdftex.def Info: faultsend.jpg used on input line 740.
 (pdftex.def)             Requested size: 505.89pt x 304.69086pt.
 
-Overfull \hbox (7.96895pt too wide) in paragraph at lines 735--736
+Overfull \hbox (7.96895pt too wide) in paragraph at lines 740--741
  [] 
  []
 
@@ -711,9 +741,10 @@ Overfull \hbox (7.96895pt too wide) in paragraph at lines 735--736
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 ) [31 <O:/a) Research area/01 - Batteries & Supercaps/EES Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/Res
-ults/FAULTS/Manual_latex-files_new_25092015/faultslayout2.jpg>] [32 <O:/a) Research area/01 - Batteries & Supercaps/EES 
-Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/Results/FAULTS/Manual_latex-files_new_25092015/faultsend.jpg>
-]
+ults/FAULTS/Manual_latex-files_new_25092015/faultslayout.jpg>] [32 <O:/a) Research area/01 - Batteries & Supercaps/EES R
+esearch LINES/RL2012001 Li-ion/99 - Shared Data & Results/Results/FAULTS/Manual_latex-files_new_25092015/faultslayout2.j
+pg>] [33 <O:/a) Research area/01 - Batteries & Supercaps/EES Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/
+Results/FAULTS/Manual_latex-files_new_25092015/faultsend.jpg>]
 ("O:\a) Research area\01 - Batteries & Supercaps\EES Research LINES\RL2012001 Li-ion\99 - Shared Data & Results\Results\
 FAULTS\Manual_latex-files_new_25092015\chapter2.tex"
 Chapter 2.
@@ -729,7 +760,7 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 11.
 
-<LiNO_estructura.jpg, id=385, 722.7pt x 542.025pt>
+<LiNO_estructura.jpg, id=400, 722.7pt x 542.025pt>
 File: LiNO_estructura.jpg Graphic file (type jpg)
  <use LiNO_estructura.jpg>
 Package pdftex.def Info: LiNO_estructura.jpg used on input line 18.
@@ -742,17 +773,21 @@ Overfull \hbox (24.52808pt too wide) in paragraph at lines 18--19
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[33
+pdfTeX warning (ext4): destination with the same identifier (name{page.33}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.25 
+      [33
 
 
 
-] <description.jpg, id=395, 722.7pt x 542.025pt>
+] <description.jpg, id=410, 722.7pt x 542.025pt>
 File: description.jpg Graphic file (type jpg)
  <use description.jpg>
 Package pdftex.def Info: description.jpg used on input line 28.
 (pdftex.def)             Requested size: 433.62pt x 325.2175pt.
 
-<transitions.jpg, id=396, 758.835pt x 474.27188pt>
+<transitions.jpg, id=411, 758.835pt x 474.27188pt>
 File: transitions.jpg Graphic file (type jpg)
  <use transitions.jpg>
 Package pdftex.def Info: transitions.jpg used on input line 36.
@@ -769,13 +804,13 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 ts/FAULTS/Manual_latex-files_new_25092015/LiNO_estructura.jpg>] [35 <O:/a) Research area/01 - Batteries & Supercaps/EES 
 Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/Results/FAULTS/Manual_latex-files_new_25092015/description.jp
 g>] [36 <O:/a) Research area/01 - Batteries & Supercaps/EES Research LINES/RL2012001 Li-ion/99 - Shared Data & Results/R
-esults/FAULTS/Manual_latex-files_new_25092015/transitions.jpg>] <pattern.jpg, id=417, 132.495pt x 78.2925pt>
+esults/FAULTS/Manual_latex-files_new_25092015/transitions.jpg>] <pattern.jpg, id=431, 132.495pt x 78.2925pt>
 File: pattern.jpg Graphic file (type jpg)
 
 <use pattern.jpg>
 Package pdftex.def Info: pattern.jpg used on input line 95.
 (pdftex.def)             Requested size: 433.62pt x 256.27896pt.
- <chi2_Rf.jpg, id=419, 820.9872pt x 573.22156pt>
+ <chi2_Rf.jpg, id=433, 820.9872pt x 573.22156pt>
 File: chi2_Rf.jpg Graphic file (type jpg)
  <use chi2_Rf.jpg>
 Package pdftex.def Info: chi2_Rf.jpg used on input line 105.
@@ -861,13 +896,14 @@ LaTeX Warning: Command \i invalid in math mode on input line 35.
 
 LaTeX Warning: Command \i invalid in math mode on input line 35.
 
+[2]
 
-LaTeX Warning: Command \i invalid in math mode on input line 39.
+LaTeX Warning: Command \i invalid in math mode on input line 43.
 
 
-LaTeX Warning: Command \i invalid in math mode on input line 39.
+LaTeX Warning: Command \i invalid in math mode on input line 43.
 
-[2]) [3]
+) [3]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 55.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 55.
 
@@ -882,17 +918,21 @@ FAULTS\Manual_latex-files_new_25092015\bibliography.aux"))
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 55.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 55.
 Package rerunfilecheck Info: File `FAULTS_manual.out' has not changed.
-(rerunfilecheck)             Checksum: 8BF36FFE95DC18691315BA71CC4E3A64;1440.
+(rerunfilecheck)             Checksum: 5FC122AFB13F5292BC9A24A51E28E72D;1484.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 55.
  ) 
 Here is how much of TeX's memory you used:
- 7991 strings out of 493921
- 113944 string characters out of 3147273
- 222975 words of memory out of 3000000
- 11027 multiletter control sequences out of 15000+200000
+ 7995 strings out of 493921
+ 114002 string characters out of 3147273
+ 224091 words of memory out of 3000000
+ 11029 multiletter control sequences out of 15000+200000
  26868 words of font info for 100 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 29i,10n,33p,1298b,430s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 29i,10n,33p,1298b,451s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
 /amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Program Files/MiKTe
 X 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><
@@ -902,9 +942,9 @@ nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cms
 y10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
 public/amsfonts/cm/cmtt10.pfb>
-Output written on FAULTS_manual.pdf (44 pages, 3191821 bytes).
+Output written on FAULTS_manual.pdf (46 pages, 3196170 bytes).
 PDF statistics:
- 533 PDF objects out of 1000 (max. 8388607)
- 102 named destinations out of 1000 (max. 500000)
+ 550 PDF objects out of 1000 (max. 8388607)
+ 104 named destinations out of 1000 (max. 500000)
  208 words of extra memory for PDF output out of 10000 (max. 10000000)
 
