@@ -121,7 +121,7 @@
     !!---- Update: February - 2005
     !!
     Type, public :: Anomalous_Sc_Type
-       character(len= 2)           :: Symb
+       character(len= 2)            :: Symb
        real(kind=cp), dimension(5)  :: Fp
        real(kind=cp), dimension(5)  :: Fpp
     End Type Anomalous_Sc_Type
@@ -1267,7 +1267,7 @@
        Magnetic_Form( 22) = Magnetic_Form_Type("MMN4", &
                                               (/  0.376000, 12.566100,  0.660200,  5.132900, -0.037200,  0.563000,  0.001100/) )
        Magnetic_Form( 23) = Magnetic_Form_Type("MMN5", &
-                                              (/  0.74050,  5.07409,    0.29237,  11.66547,  -1.78834,   0.00593,   1.75568 /) )       
+                                              (/  0.74050,  5.07409,    0.29237,  11.66547,  -1.78834,   0.00593,   1.75568 /) )
        Magnetic_Form( 24) = Magnetic_Form_Type("MFE0", &
                                               (/  0.070600, 35.008499,  0.358900, 15.358300,  0.581900,  5.560600, -0.011400/) )
        Magnetic_Form( 25) = Magnetic_Form_Type("MFE1", &

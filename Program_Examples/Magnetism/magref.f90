@@ -632,13 +632,13 @@ Program MagRef
 
     Subroutine Set_Form_Factors(Atm,Nuc_species,Mag_species,fermi_lengths,mcoeff,ok,mess,lun)
       use CFML_Scattering_Chemical_Tables
-      type(Atom_List_Type),                    intent(in out):: Atm
-      integer,                                   intent(out) :: Nuc_species, Mag_species
-      real(kind=cp), dimension(:),  allocatable, intent(out) :: fermi_lengths
-      real(kind=cp), dimension(:,:),allocatable, intent(out) :: mcoeff
-      logical,                                   intent(out) :: ok
-      character(len=*),                          intent(out) :: mess
-      integer,                      optional,    intent(in)  :: lun
+      type(Atom_List_Type),                      intent(in out):: Atm
+      integer,                                   intent(out)   :: Nuc_species, Mag_species
+      real(kind=cp), dimension(:),  allocatable, intent(out)   :: fermi_lengths
+      real(kind=cp), dimension(:,:),allocatable, intent(out)   :: mcoeff
+      logical,                                   intent(out)   :: ok
+      character(len=*),                          intent(out)   :: mess
+      integer,                      optional,    intent(in)    :: lun
       !---- Local variables ----!
       character(len=4)                        :: symbcar
       integer                                 :: i,k,n,m
@@ -719,5 +719,6 @@ Program MagRef
        mff= pn*coeff(1)*j0 + coeff(2)*j2 + coeff(3)*j4 + coeff(4)*j6)
        return
     End Subroutine Mpol_Ffactor
+
 End Program MagRef
 

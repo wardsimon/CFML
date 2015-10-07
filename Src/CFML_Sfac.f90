@@ -1940,7 +1940,7 @@
                 afpp=0.0
              end if
 
-          case ("NUC")
+          case ("NUC","NEU")
              if (present(lun)) then
                 call Create_Table_AFP_NeutNuc(Atm,lun=lun)
              else
