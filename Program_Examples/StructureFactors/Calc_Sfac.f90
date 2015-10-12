@@ -15,6 +15,7 @@ Program Calc_Structure_Factors
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
                                              Init_Structure_Factors,Calc_StrFactor
+   use CFML_String_Utilities,          only: u_case
 
    !---- Variables ----!
    implicit none
@@ -26,9 +27,10 @@ Program Calc_Structure_Factors
    type (Reflection_List_Type) :: hkl
 
    character(len=256)          :: filcod     !Name of the input file
+   character(len=132)          :: line
    character(len=15)           :: sinthlamb  !String with stlmax (2nd cmdline argument)
    real                        :: stlmax     !Maximum Sin(Theta)/Lambda
-   real                        :: sn,sf2
+   real                        :: sn,sf2, Lambda
    integer                     :: MaxNumRef, Num, lun=1, ier,i
    complex                     :: fc
 
@@ -95,6 +97,16 @@ Program Calc_Structure_Factors
       call Write_Crystal_Cell(Cell,lun)
       call Write_SpaceGroup(SpG,lun)
       call Write_Atom_List(A,lun=lun)
+      !Look for wavelength in CFL file
+      lambda=0.70926 !Mo kalpha (used only for x-rays)
+       do i=1,fich_cfl%nlines
+         line=adjustl(fich_cfl%line(i))
+         if(U_Case(line(1:6)) == "LAMBDA") then
+           read(unit=line(7:),fmt=*,iostat=ier) lambda
+           if(ier /= 0) lambda=0.70926
+         end if
+       end do
+
       MaxNumRef = get_maxnumref(stlmax,Cell%CellVol,mult=SpG%NumOps)
 
       call Hkl_Uni(Cell,Spg,.true.,0.0,stlmax,"s",MaxNumRef,hkl)
@@ -113,8 +125,8 @@ Program Calc_Structure_Factors
               hkl%ref(i)%S, hkl%ref(i)%Fc, hkl%ref(i)%Phase, real(fc), aimag(fc), i, sqrt(sf2)
       end do
 
-      !> Calculation for X-rays assume Cu-Ka radiation
-      call Init_Structure_Factors(hkl,A,Spg,lun=lun)
+      !> Calculation for X-rays assume Mo-kalpha if Lambda not given
+      call Init_Structure_Factors(hkl,A,Spg,lambda=lambda,lun=lun)
       call Structure_Factors(A,SpG,hkl)
       call Write_Structure_Factors(lun,hkl)
 
@@ -128,9 +140,9 @@ Program Calc_Structure_Factors
    end if
 
    !> Test of the type "file_list_type" by writing at the end of the file
-   do i=1,fich_cfl%nlines
-      write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//fich_cfl%line(i)
-   end do
+   !do i=1,fich_cfl%nlines
+   !   write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//fich_cfl%line(i)
+   !end do
 
    close(unit=lun)
 End Program Calc_Structure_Factors
