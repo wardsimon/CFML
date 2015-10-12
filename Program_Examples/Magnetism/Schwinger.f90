@@ -369,14 +369,14 @@ Program Schwinger
 
       if(present(left)) then
         if(left) then
-          uvect=(/0.0,0.0,1.0/)
-        else
           uvect=(/0.0,0.0,-1.0/)
+        else
+          uvect=(/0.0,0.0,1.0/)
         end if
       else if(present(UB)) then
         hc=matmul(UB,hn)
         uvect=cross_product((/0.0,1.0,0.0/),hc)
-        uvect=uvect/sqrt(dot_product(uvect,uvect))
+        uvect=-uvect/sqrt(dot_product(uvect,uvect))
       else
         Schwinger=0.0
         return
