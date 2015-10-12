@@ -51,8 +51,8 @@ Program Schwinger
            "              ------ P r o g r a m   S c h w i n g e r  ------"          , &
            "                  ---- Version 0.0 October-2015 ----"                    , &
            "    ******************************************************************"  , &
-           "    * Calculates the amplitude of the Schwinger Scattering for an    *"  , &
-           "    * individual reflection. The structure is read from a *.CFL file *"  , &
+           "    *    Calculates the amplitude of the Schwinger Scattering for     *"  , &
+           "    * individual reflections. The structure is read from a *.CFL file *"  , &
            "    ******************************************************************"  , &
            "                            (JRC- October 2015)"
     write(unit=*,fmt=*) " "
