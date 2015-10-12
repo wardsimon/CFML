@@ -441,10 +441,10 @@ Program Schwinger
           end do
 
           effr = (real(Scf%Xcoef(j)%Z)-xffr)*b  !<- Here delta_fp is not used ....
+          !write(*,"(tr4,a,i4,3f10.4)")  Atm%atom(i)%chemsymb//": Z, xffr, b, effr", Scf%Xcoef(j)%Z, xffr, b, effr
           xffr = (xffr+Scf%delta_fp(j))*b       ! (f0+Deltaf')*OCC*Tiso
           xffi = Scf%delta_fpp(j)*b             !     Deltaf" *OCC*Tiso
 
-          effr = xffr*b
           a1 = a1 + nffr*scosr  ! F=A+iB: components of A  and B (ai,bi)
           b1 = b1 + nffi*scosr  ! a2,b2,a4,b4 are components for anisotropic form factors
           a3 = a3 + nffi*ssinr  ! they are not used here
@@ -457,6 +457,7 @@ Program Schwinger
 
           ea1 = ea1 + effr*scosr  ! No anomalous imaginary component is used here
           eb3 = eb3 + effr*ssinr  ! there is no anomalous scattering neutron + electrons
+          !write(*,"(tr4,a,tr4,3f10.4)") Atm%atom(i)%chemsymb//": effr,   ea1, eb3",  effr, ea1, eb3
 
        end do ! Atoms
 
