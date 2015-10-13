@@ -27,14 +27,14 @@ Program Schwinger
  integer                     :: narg,iext,ity
  Logical                     :: esta, arggiven=.false.,left=.false.,ext=.false.,ubgiven=.false.,ok
 
- Type :: Scattering_Species
+ Type :: Scattering_Species_Type
     integer                                        :: Num_Species
     character(len=6),    dimension(:), allocatable :: Symb
     real(kind=cp),       dimension(:), allocatable :: br,bi
     real(kind=cp),       dimension(:), allocatable :: delta_fp,delta_fpp
     type(Xray_Form_Type),dimension(:), allocatable :: Xcoef
- End Type Scattering_Species
- Type(Scattering_Species) :: Scattf
+ End Type Scattering_Species_Type
+ Type(Scattering_Species_Type) :: Scattf, add_Scat
 
  real(kind=dp), parameter :: pn  =  0.2695420113693928312
  real(kind=dp), parameter :: schw= -0.00014699
@@ -116,9 +116,19 @@ Program Schwinger
          end if
        end do
 
+       call Additional_Scattering_Factors(fich_cfl,add_Scat,ok,mess)
+       if(.not. ok) then
+         write(unit=*,fmt="(a)") " => "//trim(mess)
+         stop
+       end if
+
        !  Set nuclear, x-ray, neutron and magnetic form factors coefficients for all the atoms
        !  in the structure
-       call Set_Form_Factors(A,Scattf,ok,mess,lambda,lun)
+       if(add_Scat%Num_Species > 0) then
+         call Set_Form_Factors(A,Scattf,ok,mess,lambda,lun,add_Scat)
+       else
+         call Set_Form_Factors(A,Scattf,ok,mess,lambda,lun)
+       end if
        if(.not. ok) then
          write(unit=*,fmt="(a)") " => "//trim(mess)
          stop
@@ -180,13 +190,93 @@ Program Schwinger
 
     contains
 
-    Subroutine Set_Form_Factors(Atm,Scf,ok,mess,lambda,lun)
+    Subroutine Additional_Scattering_Factors(fil,add_Scatt,ok,mess)
+      Type(File_List_Type),          intent(in)  :: fil
+      Type(Scattering_Species_Type), intent(out) :: add_Scatt
+      logical,                       intent(out) :: ok
+      character(len=*),              intent(out) :: mess
+      !Local variables
+      integer, parameter :: N_add = 20
+      character(len=132) :: line
+      character(len=4), dimension(N_add)   :: names
+      real(kind=cp),    dimension(N_add)   :: b_real,b_imag
+      real(kind=cp),    dimension(N_add)   :: d_fp,d_fpp,cc
+      real(kind=cp),    dimension(4,N_add) :: ac,bc
+      integer :: i,nsp,j
+      ok=.true.
+      mess=" "
+      b_real=0.0; b_imag=0.0; d_fp=0.0; d_fpp=0.0; cc=0.0
+      ac=0.0; bc=0.0
+      nsp=0
+      do i=1,fil%nlines
+        line=adjustl(fil%line(i))
+        if(U_case(line(1:2)) == "B_") then
+          nsp=nsp+1
+          j=index(line," ")
+          names(nsp)=line(3:j-1)
+          read(unit=line(j:),fmt=*,iostat=ier) b_real(nsp),b_imag(nsp)
+          if(ier /= 0) then
+            ok=.false.
+            mess="Error reading scattering length on line containing: "//trim(line)
+            return
+          end if
+        end if
+        if(U_case(line(1:5)) == "DELT_") then
+          nsp=nsp+1
+          j=index(line," ")
+          names(nsp)=line(6:j-1)
+          read(unit=line(j:),fmt=*,iostat=ier) d_fp(nsp),d_fpp(nsp)
+          if(ier /= 0) then
+            ok=.false.
+            mess="Error reading anomalous scattering terms on line containing: "//trim(line)
+            return
+          end if
+        end if
+        if(U_case(line(1:7)) == "XCOEFF_") then
+          nsp=nsp+1
+          j=index(line," ")
+          names(nsp)=line(8:j-1)
+          read(unit=line(j:),fmt=*,iostat=ier) ac(:,nsp),bc(:,nsp),cc(nsp)
+          if(ier /= 0) then
+            ok=.false.
+            mess="Error reading X-ray scattering coefficients on line containing: "//trim(line)
+            return
+          end if
+        end if
+      end do
+      if(nsp > N_add) then
+        ok=.false.
+        write(unit=mess,fmt="(a,i3,a)") "The number of additional scattering factors is limited to ",N_add," !!!"
+        return
+      end if
+      if(nsp > 0) then
+        call Allocate_Scattering_Species(nsp,add_Scatt)
+        do i=1,nsp
+          add_Scatt%Symb(i)      = names(i)
+          add_Scatt%br(i)        = b_real(i)
+          add_Scatt%bi(i)        = b_imag(i)
+          add_Scatt%delta_fp(i)  = d_fp(i)
+          add_Scatt%delta_fpp(i) = d_fpp(i)
+          add_Scatt%Xcoef(i)%Symb= names(i)
+          add_Scatt%Xcoef(i)%a   = ac(:,i)
+          add_Scatt%Xcoef(i)%b   = bc(:,i)
+          add_Scatt%Xcoef(i)%c   = cc(i)
+        end do
+      else
+        add_Scatt%Num_species=0
+      end if
+
+    End Subroutine Additional_Scattering_Factors
+
+    Subroutine Set_Form_Factors(Atm,Scf,ok,mess,lambda,lun,Add_Scatt)
       type(Atom_List_Type),                             intent(in out):: Atm
-      Type(Scattering_Species),                         intent(out)   :: Scf
+      Type(Scattering_Species_Type),                    intent(out)   :: Scf
       logical,                                          intent(out)   :: ok
       character(len=*),                                 intent(out)   :: mess
       real(kind=cp),                optional,           intent(in)    :: lambda
       integer,                      optional,           intent(in)    :: lun
+      Type(Scattering_Species_Type),optional,           intent(in)    :: Add_Scatt
+
       !---- Local variables ----!
       character(len=4)                        :: symbcar
       integer                                 :: i,k,n,m,L
@@ -195,6 +285,7 @@ Program Schwinger
       real(kind=cp),    dimension(atm%natoms) :: bs
       real(kind=cp)                           :: b,dmin,d
       character(len=*), parameter             :: digpm="0123456789+-"
+      logical                                 :: found
 
       call set_chem_info()
        !---- Getting Fermi Lengths of atoms ----!
@@ -262,11 +353,18 @@ Program Schwinger
                symbcar=l_case(Elem(i))
             end if
           end if
+          found=.false.
           do j=1,Num_Xray_Form
              if (symbcar /= Xray_form(j)%Symb) cycle
              Scf%xcoef(i)=Xray_form(j)
+             found=.true.
              exit
           end do
+          if(.not. found) then
+            ok=.false.
+            mess="Error: X-ray scattering form factor coefficients not found for "//symbcar
+            return
+          end if
        end do
        call Remove_Xray_Form()
 
@@ -284,6 +382,26 @@ Program Schwinger
          end do
        end do
 
+       if(present(Add_Scatt)) then
+         if(Add_Scatt%Num_Species > 0) then
+           do i=1,Add_Scatt%Num_Species
+             do j=1,Scf%Num_species
+                if(Scf%Symb(j) == Add_Scatt%Symb(i)) then
+                  if(abs(Add_Scatt%br(i))> 0.00001)  Scf%br(j)=Add_Scatt%br(i)
+                  if(abs(Add_Scatt%bi(i))> 0.00001)  Scf%bi(j)=Add_Scatt%bi(i)
+                  if(abs(Add_Scatt%delta_fp(i))> 0.00001)  Scf%delta_fp(j) =Add_Scatt%delta_fp(i)
+                  if(abs(Add_Scatt%delta_fpp(i))> 0.00001) Scf%delta_fpp(j)=Add_Scatt%delta_fpp(i)
+                  if(abs(sum(Add_Scatt%Xcoef(i)%a))> 0.00001) then
+                    Scf%Xcoef(j)%a=Add_Scatt%Xcoef(i)%a
+                    Scf%Xcoef(j)%b=Add_Scatt%Xcoef(i)%b
+                    Scf%Xcoef(j)%c=Add_Scatt%Xcoef(i)%c
+                  end if
+                end if
+             end do
+           end do
+         end if
+       end if
+
        !---- Printing Information ----!
        if (present(lun)) then
           if(present(lambda)) then
@@ -295,9 +413,9 @@ Program Schwinger
           write(unit=lun,fmt="(a,/)")  "  ==================================================="
           write(unit=lun,fmt="(a)")    "  FERMI LENGTHS "
           write(unit=lun,fmt="(a,i3)") "   Number of chemically different species: ",n
-          write(unit=lun,fmt="(/,a)")  "   Atom     Fermi Length [10^(-12) cm]      Atomic Number"
+          write(unit=lun,fmt="(/,a)")  "   Atom     Fermi Length (Br,Bi)[10^(-12) cm]      Atomic Number"
           do k=1,Scf%Num_species
-             write(unit=lun,fmt="(a,F15.6,tr20,i8)")  "     "//Scf%Symb(k), Scf%br(k), Scf%Xcoef(k)%Z
+             write(unit=lun,fmt="(a,2F10.6,tr20,i8)")  "     "//Scf%Symb(k), Scf%br(k), Scf%bi(k), Scf%Xcoef(k)%Z
           end do
           write(unit=lun,fmt="(/,/)")
           write(unit=lun,fmt="(/,a)")  "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
@@ -318,8 +436,8 @@ Program Schwinger
     End Subroutine Set_Form_Factors
 
     Subroutine Allocate_Scattering_Species(n,Scf)
-      integer,                  intent(in)  :: n
-      type(Scattering_Species), intent(out) :: Scf
+      integer,                       intent(in)  :: n
+      type(Scattering_Species_Type), intent(out) :: Scf
       integer :: i
       Scf%Num_Species=n
       allocate(Scf%br(n),Scf%bi(n),Scf%delta_fp(n),Scf%delta_fpp(n),Scf%symb(n))
@@ -381,7 +499,8 @@ Program Schwinger
         Schwinger=0.0
         return
       end if
-      Schwinger= schw*cmplx(0.0,1.0)*dot_product(pol,uvect)*fe/abs(tan(theta))
+      !change of sign of "i" because the convention used by crystallographers is Q=Kf-Ki
+      Schwinger= schw*cmplx(0.0,-1.0)*dot_product(pol,uvect)*fe/abs(tan(theta))
     End Function Schwinger_Amplitude
 
     Subroutine Calc_General_StrFactor(hn,sn,Atm,Grp,Scf,fn,fx,fe)
@@ -390,7 +509,7 @@ Program Schwinger
        real(kind=cp),                      intent(in) :: sn !(sinTheta/Lambda)**2
        type(atom_list_type),               intent(in) :: Atm
        type(space_group_type),             intent(in) :: Grp
-       type(Scattering_Species),           intent(in) :: Scf
+       type(Scattering_Species_Type),      intent(in) :: Scf
        complex,                            intent(out):: fn,fx,fe
 
        !---- Local Variables ----!
