@@ -1,10 +1,11 @@
 Program Schwinger
  use CFML_GlobalDeps
  use CFML_Math_3D,                  only: cross_product
+ use CFML_Math_General,             only: sort
  use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
  use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List
  use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
- use CFML_Reflections_Utilities,    only: Hkl_s
+ use CFML_Reflections_Utilities,    only: Hkl_s, Reflection_List_Type,Hkl_gen_sxtal,get_maxnumref
  use CFML_String_Utilities,         only: l_case,u_case
  use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
  use CFML_Scattering_Chemical_Tables
@@ -17,14 +18,17 @@ Program Schwinger
  type (Space_Group_Type)      :: SpG
  type ( Atom_list_Type)       :: A
  type (Crystal_Cell_Type)     :: Cell
+ type (Reflection_List_Type)  :: hkl
 
  character(len=256)           :: line,filcod,mess
- real(kind=cp)                :: sn,s2,theta,lambda,flip_right,flip_left,up,down
+ character(len=1)             :: indv
+ real(kind=cp)                :: sn,s2,theta,lambda,flip_right,flip_left,up,down,stlmax
  real(kind=cp), dimension(3)  :: hn
- integer                      :: lun=1, ier,i,j,ih,ik,il, n_ini, n_end
+ integer                      :: lun=1, ier,i,j,ih,ik,il, MaxNumRef
  complex(kind=cp)             :: fn,fx,fe,fsru,fsrd,fslu,fsld
  real(kind=cp), dimension(6)  :: extc
  real(kind=cp), dimension(3,3):: ub
+ integer,  dimension(:), allocatable :: ind
 
  integer                     :: narg,iext,ity
  Logical                     :: esta, arggiven=.false.,left=.false.,ext=.false.,ubgiven=.false.,ok
@@ -42,13 +46,14 @@ Program Schwinger
               arggiven=.true.
       end if
 
-      write(unit=*,fmt="(/,/,7(a,/))")                                                 &
+      write(unit=*,fmt="(/,/,8(a,/))")                                                 &
            "              ------ P r o g r a m   S c h w i n g e r  ------"          , &
            "                  ---- Version 0.0 October-2015 ----"                    , &
-           "    ******************************************************************"  , &
-           "    *    Calculates the amplitude of the Schwinger Scattering for     *"  , &
-           "    * individual reflections. The structure is read from a *.CFL file *"  , &
-           "    ******************************************************************"  , &
+           "    ********************************************************************", &
+           "    *    Calculates the amplitude of the Schwinger Scattering for      *", &
+           "    * individual reflections or all reflections in a reciprocal sphere.*", &
+           "    *           The structure is read from a *.CFL file                *", &
+           "    ********************************************************************", &
            "                            (JRC- October 2015)"
     write(unit=*,fmt=*) " "
 
@@ -61,13 +66,14 @@ Program Schwinger
      if( i /= 0) filcod=filcod(1:i-1)
 
      open(unit=lun,file=trim(filcod)//".cal", status="replace",action="write")
-     write(unit=lun,fmt="(/,/,7(a,/))")                                                &
+     write(unit=lun,fmt="(/,/,8(a,/))")                                                &
            "              ------ P r o g r a m   S c h w i n g e r  ------"          , &
            "                  ---- Version 0.0 October-2015 ----"                    , &
-           "    ******************************************************************"  , &
-           "    *    Calculates the amplitude of the Schwinger Scattering for     *"  , &
-           "    * individual reflections. The structure is read from a *.CFL file *"  , &
-           "    ******************************************************************"  , &
+           "    ********************************************************************", &
+           "    *    Calculates the amplitude of the Schwinger Scattering for      *", &
+           "    * individual reflections or all reflections in a reciprocal sphere.*", &
+           "    *           The structure is read from a *.CFL file                *", &
+           "    ********************************************************************", &
            "                            (JRC- October 2015)"
 
      inquire(file=trim(filcod)//".cfl",exist=esta)
@@ -128,54 +134,113 @@ Program Schwinger
          write(unit=*,fmt="(a)") " => "//trim(mess)
          stop
        end if
-       do
-         write(unit=*,fmt="(a)",advance="no")  " => Enter a reflection as 3 integers -> (h,k,l): "
-         read(unit=*,fmt=*,iostat=ier) ih,ik,il
-         if(ier /= 0) cycle
-         if(abs(ih)+abs(ik)+abs(il) == 0 ) exit
-         hn=real([ih,ik,il])
-         sn = hkl_s(hn,Cell)
-         theta=lambda*sn
-         theta=asin(theta)
-         s2=sn*sn
-         call Calc_General_StrFactor(hn,s2,A,SpG,Scattf,fn,fx,fe)
-         fsru=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.false.)
-         fslu=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.true.)
-         fsrd=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.false.)
-         fsld=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.true.)
-         up= (fn+fsru)*conjg(fn+fsru); down= (fn+fsrd)*conjg(fn+fsrd)
-         if(up < 1.0e-6 .and. down < 1.0e-6) then
-            flip_right=1.0
-         else
-            flip_right=up/down
-         end if
-         up=(fn+fslu)*conjg(fn+fslu); down= (fn+fsld)*conjg(fn+fsld)
-         if(up < 1.0e-6 .and. down < 1.0e-6) then
-            flip_left=1.0
-         else
-            flip_left=up/down
-         end if
-         write(unit=*,fmt="(/,a,3i4,a,f8.5)") "  Reflection: (",ih,ik,il,") sinTheta/Lambda=",sn
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Nuclear     Structure   Factor : (",real(fn),  " ) + i (",aimag(fn),  " ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  X-rays      Structure   Factor : (",real(fx),  " ) + i (",aimag(fx),  " ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Electrostatic Structure Factor : (",real(fe),  " ) + i (",aimag(fe),  " ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-up  : (",real(fsru)," ) + i (",aimag(fsru)," ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-down: (",real(fsrd)," ) + i (",aimag(fsrd)," ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-up   : (",real(fslu)," ) + i (",aimag(fslu)," ) "
-         write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-down : (",real(fsld)," ) + i (",aimag(fsld)," ) "
-         write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
-         write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+       write(unit=*,fmt="(a)",advance="no")  " => Calculate individual(i) or all(a) reflections in a sphere (<cr>=i): "
+       read(unit=*,fmt="(a)",iostat=ier) indv
+       if(ier /= 0) then
+         indv="i"
+       else
+         if(indv /= "i" .and. indv /= "a" .or. len_trim(indv) == 0) indv="i"
+       end if
+       if(indv /= "i") then
+         write(unit=*,fmt="(a)")  " => All reflections in a reciprocal sphere will be calculated ... "
+         write(unit=lun,fmt="(a)")  " => All reflections in a reciprocal sphere will be calculated ... "
+         write(unit=*,fmt="(a)",advance="no")  " => Enter minimum d-spacing: "
+         read(unit=*,fmt=*,iostat=ier) stlmax
+         if(ier /= 0) stlmax=2.0
+         write(unit=*,  fmt="(a,f8.4,a)") "    The minimum d-spacing is ",stlmax, " Angstroms"
+         write(unit=lun,fmt="(a,f8.4,a)") "    The minimum d-spacing is ",stlmax, " Angstroms"
+         stlmax=0.5/stlmax
+         write(unit=*,fmt="(a,f8.4,a)") "    Corresponding to a (sinTheta/Lambda)max ",stlmax, " Angstroms^-1"
+         write(unit=lun,fmt="(a,f8.4,a)") "    Corresponding to a (sinTheta/Lambda)max ",stlmax, " Angstroms^-1"
+         MaxNumRef = get_maxnumref(stlmax,Cell%CellVol,mult=SpG%Multip)
+         MaxNumRef=MaxNumRef*Spg%NumOps*max(Spg%Centred,1)
+         call Hkl_gen_sxtal(cell,SpG,0.0,stlmax,MaxNumRef,hkl)
+         write(unit=*,  fmt="(a,i6)")   " => The total number of reflections is ",hkl%Nref
+         write(unit=lun,fmt="(a,i6)")   " => The total number of reflections is ",hkl%Nref
+         allocate(ind(hkl%nref)); ind=[(i,i=1,hkl%Nref)]
+         call sort(hkl%ref(:)%s,hkl%Nref,ind)
+       end if
 
-         write(unit=lun,fmt="(/,a,3i4,a,f8.5)") "  Reflection: (",ih,ik,il,") sinTheta/Lambda=",sn
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Nuclear     Structure   Factor : (",real(fn),  " ) +i (",aimag(fn),  " ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  X-rays      Structure   Factor : (",real(fx),  " ) +i (",aimag(fx),  " ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Electrostatic Structure Factor : (",real(fe),  " ) +i (",aimag(fe),  " ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-up  : (",real(fsru)," ) +i (",aimag(fsru)," ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-down: (",real(fsrd)," ) +i (",aimag(fsrd)," ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-up   : (",real(fslu)," ) +i (",aimag(fslu)," ) "
-         write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  leftt-down: (",real(fsld)," ) +i (",aimag(fsld)," ) "
-         write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
-         write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+       do
+         if(indv == "i") then
+           write(unit=*,fmt="(a)",advance="no")  " => Enter a reflection as 3 integers -> (h,k,l): "
+           read(unit=*,fmt=*,iostat=ier) ih,ik,il
+           if(ier /= 0) cycle
+           if(abs(ih)+abs(ik)+abs(il) == 0 ) exit
+           hn=real([ih,ik,il])
+           sn = hkl_s(hn,Cell)
+           theta=lambda*sn
+           theta=asin(theta)
+           s2=sn*sn
+           call Calc_General_StrFactor(hn,s2,A,SpG,Scattf,fn,fx,fe)
+           fsru=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.false.)
+           fslu=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.true.)
+           fsrd=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.false.)
+           fsld=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.true.)
+           up= (fn+fsru)*conjg(fn+fsru); down= (fn+fsrd)*conjg(fn+fsrd)
+           if(up < 1.0e-6 .and. down < 1.0e-6) then
+              flip_right=1.0
+           else
+              flip_right=up/down
+           end if
+           up=(fn+fslu)*conjg(fn+fslu); down= (fn+fsld)*conjg(fn+fsld)
+           if(up < 1.0e-6 .and. down < 1.0e-6) then
+              flip_left=1.0
+           else
+              flip_left=up/down
+           end if
+           write(unit=*,fmt="(/,a,3i4,a,f8.5)") "  Reflection: (",ih,ik,il,") sinTheta/Lambda=",sn
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Nuclear     Structure   Factor : (",real(fn),  " ) + i (",aimag(fn),  " ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  X-rays      Structure   Factor : (",real(fx),  " ) + i (",aimag(fx),  " ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Electrostatic Structure Factor : (",real(fe),  " ) + i (",aimag(fe),  " ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-up  : (",real(fsru)," ) + i (",aimag(fsru)," ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-down: (",real(fsrd)," ) + i (",aimag(fsrd)," ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-up   : (",real(fslu)," ) + i (",aimag(fslu)," ) "
+           write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-down : (",real(fsld)," ) + i (",aimag(fsld)," ) "
+           write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
+           write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+
+           write(unit=lun,fmt="(/,a,3i4,a,f8.5)") "  Reflection: (",ih,ik,il,") sinTheta/Lambda=",sn
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Nuclear     Structure   Factor : (",real(fn),  " ) +i (",aimag(fn),  " ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  X-rays      Structure   Factor : (",real(fx),  " ) +i (",aimag(fx),  " ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Electrostatic Structure Factor : (",real(fe),  " ) +i (",aimag(fe),  " ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-up  : (",real(fsru)," ) +i (",aimag(fsru)," ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  right-down: (",real(fsrd)," ) +i (",aimag(fsrd)," ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-up   : (",real(fslu)," ) +i (",aimag(fslu)," ) "
+           write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  leftt-down: (",real(fsld)," ) +i (",aimag(fsld)," ) "
+           write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
+           write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+         else
+           write(unit=lun,fmt="(/,a)") &
+           "   H   K   L   sinT/L      FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"
+           do j=1,hkl%NRef
+              i=ind(j)
+              hn=real(hkl%ref(i)%h)
+              sn = hkl%ref(i)%s
+              theta=lambda*sn
+              theta=asin(theta)
+              s2=sn*sn
+              call Calc_General_StrFactor(hn,s2,A,SpG,Scattf,fn,fx,fe)
+              fsru=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.false.)
+              fslu=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.true.)
+              fsrd=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.false.)
+              fsld=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.true.)
+              up= (fn+fsru)*conjg(fn+fsru); down= (fn+fsrd)*conjg(fn+fsrd)
+              if(up < 1.0e-6 .and. down < 1.0e-6) then
+                 flip_right=1.0
+              else
+                 flip_right=up/down
+              end if
+              up=(fn+fslu)*conjg(fn+fslu); down= (fn+fsld)*conjg(fn+fsld)
+              if(up < 1.0e-6 .and. down < 1.0e-6) then
+                 flip_left=1.0
+              else
+                 flip_left=up/down
+              end if
+              write(unit=lun,fmt="(3i4,f9.5,3(2f10.4,tr4),2f10.5)") hkl%Ref(i)%h, hkl%Ref(i)%s,fn,fx,fe,flip_left,flip_right
+           end do
+           exit
+         end if
        end do
        write(unit=*,fmt="(a)") " Normal End of program: Schwinger "
        write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".cal"
