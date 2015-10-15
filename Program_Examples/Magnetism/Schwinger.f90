@@ -212,7 +212,8 @@ Program Schwinger
            write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
          else
            write(unit=lun,fmt="(/,a)") &
-           "   H   K   L   sinT/L      FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"
+           "   H   K   L   sinT/L      FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"// &
+                                    "  SRUr      SRUi          SRDr      SRDi          SLUr      SLUi          SLDr      SLDi"
            do j=1,hkl%NRef
               i=ind(j)
               hn=real(hkl%ref(i)%h)
@@ -237,7 +238,8 @@ Program Schwinger
               else
                  flip_left=up/down
               end if
-              write(unit=lun,fmt="(3i4,f9.5,3(2f10.4,tr4),2f10.5)") hkl%Ref(i)%h, hkl%Ref(i)%s,fn,fx,fe,flip_left,flip_right
+              write(unit=lun,fmt="(3i4,f9.5,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4))") &
+              hkl%Ref(i)%h, hkl%Ref(i)%s,fn,fx,fe,flip_left,flip_right,fsru,fsrd,fslu,fsld
            end do
            exit
          end if
