@@ -3683,25 +3683,25 @@
     End Subroutine Set_Background_Poly
 
     !!----
-    !!---- Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin)
+    !!---- Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
     !!----    character (len=*),               intent(in)     :: Filename
     !!----    type (diffraction_pattern_type), intent(in out) :: Pat
     !!----    logical, dimension(:),optional,  intent(in)     :: excl
-    !!----    real,                 optional,  intent(in)     :: xmin
+    !!----    real,                 optional,  intent(in)     :: xmin,xmax
     !!----
     !!----    Write a pattern in Free Format (Instrm=0)
     !!----
     !!---- Update: 21/03/2011
     !!
-    Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin)
+    Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
        !---- Arguments ----!
        character (len=*),               intent(in)     :: Filename
        type (diffraction_pattern_type), intent(in out) :: Pat
        logical, dimension(:),optional,  intent(in)     :: excl
-       real,                 optional,  intent(in)     :: xmin
+       real,                 optional,  intent(in)     :: xmin,xmax
 
        !---- Local Variables ----!
-       integer   :: i,j,k,nl,ier,i_dat,ini, npoi,jmin,jmax
+       integer   :: i,j,k,nl,ier,i_dat,ini,ifin, npoi,jmin,jmax
 
        call init_err_diffpatt()
        call get_logunit(i_dat)
@@ -3712,18 +3712,26 @@
           return
        end if
        ini=1
-       npoi=Pat%npts
+       ifin=Pat%npts
        if(present(xmin)) then
          do i=1,Pat%npts
             if(pat%x(i) >= xmin) then
                 ini=i
-                npoi=Pat%npts-i+1
                 exit
             end if
          end do
        end if
+       if(present(xmax)) then
+         do i=Pat%npts,1,-1
+            if(pat%x(i) <= xmax) then
+                ifin=i
+                exit
+            end if
+         end do
+       end if
+       npoi=ifin-ini+1
        if(present(excl)) then !Replace the excluded points by the average of adjacent non-excluded points
-         do i=ini+1,Pat%npts-1
+         do i=ini+1,ifin-1
             if(excl(i)) then
                 do j=max(i-1,ini),1,-1
                    if(.not. excl(j)) then
@@ -3731,7 +3739,7 @@
                      exit
                    end if
                 end do
-                do j=i+1,Pat%npts
+                do j=i+1,ifin
                    if(.not. excl(j)) then
                      jmax=j
                      exit
@@ -3742,9 +3750,9 @@
          end do
        end if
 
-       write(unit=i_dat,fmt='(3(1x,f14.6),2x,a)') Pat%x(ini), pat%step, pat%xmax, trim(pat%Title)
-       nl=pat%npts/10
-       if (mod(pat%npts,10) /= 0) nl=nl+1
+       write(unit=i_dat,fmt='(3(1x,f14.6),2x,a)') Pat%x(ini), pat%step, Pat%x(ifin), trim(pat%Title)
+       nl=npoi/10
+       if (mod(npoi,10) /= 0) nl=nl+1
        j=1
        do i=1,nl
           if (i /= nl) then
@@ -3761,11 +3769,11 @@
     End Subroutine Write_Pattern_FreeFormat
 
     !!----
-    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,var)
+    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
     !!----    character (len=*),               intent(in)     :: Filename
     !!----    type (diffraction_pattern_type), intent(in out) :: Pat
     !!----    logical, dimension(:),optional,  intent(in)     :: excl
-    !!----    real,                 optional,  intent(in)     :: xmin
+    !!----    real,                 optional,  intent(in)     :: xmin,xmax
     !!----    character (len=*), optional,     intent(in)     :: var
     !!----
     !!----    Write a pattern in 2-axis format with fixed step (Instrm=5)
@@ -3778,16 +3786,16 @@
     !!----
     !!---- Updated: 29/04/2011, 18/07/2012, 25/10/2015 (JRC)
     !!
-    Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,var)
+    Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
        !---- Arguments ----!
        character (len=*),               intent(in)     :: Filename
        type (diffraction_pattern_type), intent(in out) :: Pat
        logical, dimension(:),optional,  intent(in)     :: excl
-       real,                 optional,  intent(in)     :: xmin
+       real,                 optional,  intent(in)     :: xmin,xmax
        character (len=*), optional,     intent(in)     :: var
 
        !---- Local Variables ----!
-       integer   :: i,j,np,ier,i_dat,ini, npoi,jmin,jmax
+       integer   :: i,j,ier,i_dat,ini,ifin, npoi,jmin,jmax
 
        call init_err_diffpatt()
        call get_logunit(i_dat)
@@ -3797,20 +3805,27 @@
           ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
           return
        end if
-       np=Pat%npts
+       ifin=Pat%npts
        ini=1
-       npoi=np
        if(present(xmin)) then
-         do i=1,np
+         do i=1,ifin
             if(pat%x(i) >= xmin) then
                 ini=i
-                npoi=np-i+1
                 exit
             end if
          end do
        end if
+       if(present(xmax)) then
+         do i=Pat%npts,1,-1
+            if(pat%x(i) <= xmax) then
+                ifin=i
+                exit
+            end if
+         end do
+       end if
+       npoi=ifin-ini+1
        if(present(excl)) then !Replace the excluded points by the average of adjacent non-excluded points
-         do i=ini+1,np-1
+         do i=ini+1,ifin-1
             if(excl(i)) then
                 do j=max(i-1,ini),1,-1
                    if(.not. excl(j)) then
@@ -3818,7 +3833,7 @@
                      exit
                    end if
                 end do
-                do j=i+1,np
+                do j=i+1,ifin
                    if(.not. excl(j)) then
                      jmax=j
                      exit
@@ -3844,34 +3859,35 @@
           Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsamp,Pat%tset, 0,&
                                                           Pat%Norm_Mon, Pat%Monitor
        end if
-       Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%step,Pat%xmax
-       Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(ini:np)
-       if(present(var)) Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:np))
+       Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%step,Pat%x(ifin)
+       Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(ini:ifin)
+       if(present(var)) Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:ifin))
        close(unit=i_dat)
        return
     End Subroutine Write_Pattern_INSTRM5
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
+    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
     !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
     !!----    logical, dimension(:),optional,  intent(in) :: excl
-    !!----    real,                 optional,  intent(in) :: xmin
+    !!----    real,                 optional,  intent(in) :: xmin,xmax
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
     !!---- Update: March - 2007
     !!
-    Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin)
+    Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
        !---- Arguments ----!
        character (len=*),               intent(in) :: filename
        type (diffraction_pattern_type), intent(in) :: Pat
        logical, dimension(:),optional,  intent(in) :: excl
-       real,                 optional,  intent(in) :: xmin
+       real,                 optional,  intent(in) :: xmin,xmax
 
        !---- Local Variables ----!
-       integer                                      :: i, ier, i_dat
-
+       integer                :: i,n, ini,ifin,npoi, ier, i_dat
+       character(len=256)     :: excluded
+       character(len=6)       :: cellexc
        call init_err_diffpatt()
        call get_logunit(i_dat)
        open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
@@ -3879,6 +3895,37 @@
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
           return
+       end if
+       ini=1
+       ifin=Pat%npts
+       if(present(xmin)) then
+         do i=1,ifin
+            if(pat%x(i) >= xmin) then
+                ini=i
+                exit
+            end if
+         end do
+       end if
+       if(present(xmax)) then
+         do i=Pat%npts,1,-1
+            if(pat%x(i) <= xmax) then
+                ifin=i
+                exit
+            end if
+         end do
+       end if
+       npoi=ifin-ini+1
+       excluded=" "
+       if(present(excl)) then
+        n=0
+        do i=1,size(excl)
+           if(excl(i)) then
+            n=n+1
+            write(unit=cellexc,fmt="(i6)") i
+            excluded=trim(excluded)//cellexc
+           end if
+        end do
+        npoi=npoi-n
        end if
        write(unit=i_dat,fmt="(a)")"XYDATA"
        write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
@@ -3898,26 +3945,18 @@
           write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
           "INTER ", 1.0,1.0,0,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
        end if
-       write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, pat%npts
+       write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, npoi
        write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
+       if(present(excl)) write(unit=i_dat,fmt="(a)") "! Excluded points (absent in the file):"//trim(excluded)
        write(unit=i_dat,fmt="(a,a10,a)") "!     ",pat%scat_var,"        Y          Sigma "
-       if(present(excl) .and. present(xmin)) then
-         do i=1,pat%npts
-            if(excl(i) .or. pat%x(i) < xmin) cycle
-            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-         end do
-       else if(present(excl)) then
-         do i=1,pat%npts
+
+       if(present(excl)) then
+         do i=ini,ifin
             if(excl(i)) cycle
             write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
          end do
-       else if(present(xmin)) then
-         do i=1,pat%npts
-            if(pat%x(i) < xmin) cycle
-            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-         end do
        else
-         do i=1,pat%npts
+         do i=ini,ifin
             write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
          end do
        end if
