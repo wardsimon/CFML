@@ -92,8 +92,9 @@ rem
    gfortran -c %OPTC% CFML_form_cif.f90                        %OPT1% %OPT2%
 rem
    echo **---- Level 5 ----**
-   echo .... Structure Factors, SXTAL geometry, Propag Vectors
+   echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
+   gfortran -c %OPTC% CFML_Extinction_Correction.f90           %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_sfac.f90                            %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_sxtal_Geom.f90                      %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_propagk.f90                         %OPT1% %OPT2%
@@ -139,7 +140,7 @@ rem
      if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
      mkdir ..\%DIRECTORY%\LibC
      copy *.mod ..\%DIRECTORY%\LibC > nul
-     move *.lib ..\%DIRECTORY%\LibC > nul
+     move *.a ..\%DIRECTORY%\LibC > nul
    )
    del *.o *.mod *.lst *.bak > nul
 rem

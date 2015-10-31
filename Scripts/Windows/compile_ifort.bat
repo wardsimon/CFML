@@ -98,8 +98,9 @@ rem
    ifort /c CFML_form_cif.f90                        /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 5 ----**
-   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
+   echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
+   ifort /c CFML_Extinction_Correction.f90           /nologo %OPT1% %OPT2%
    ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
    ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
