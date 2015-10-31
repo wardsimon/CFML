@@ -89,6 +89,11 @@ rem
    lf95 -c CFML_atom_mod.f90           %OPT1%
 rem
    echo **---- Level 4 ----**
+   echo .... Formats
+rem
+   lf95 -c CFML_form_cif.f90           %OPT1%
+rem
+   echo **---- Level 5 ----**
    echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
 rem
    lf95 -c CFML_sfac.f90               %OPT1%
@@ -96,18 +101,13 @@ rem
    lf95 -c CFML_SXTAL_geom.f90         %OPT1%
    lf95 -c CFML_propagk.f90            %OPT1%
 rem
-   echo **---- Level 5 ----**
+   echo **---- Level 6 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
    lf95 -c CFML_Export_Vtk.f90         %OPT1%
    lf95 -c CFML_maps.f90               %OPT1%
    lf95 -c CFML_molecules.f90          %OPT1%
    lf95 -c CFML_conf_calc.f90          %OPT1%
-rem
-   echo **---- Level 6 ----**
-   echo .... Formats
-rem
-   lf95 -c CFML_form_cif.f90           %OPT1%
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry

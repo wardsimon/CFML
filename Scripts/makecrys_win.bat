@@ -4,7 +4,7 @@ rem ---- Crystallographic Fortran Modules Library ----
 rem ----               JGP/JRC                    ----
 rem ----        September - 2015                  ----
 rem --------------------------------------------------
-   if not [%1]==[] goto CONT
+   if not [%1]==[] (goto CONT)
 rem ---- Default Message ----
 :INIT
    cls
