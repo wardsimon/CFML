@@ -2741,7 +2741,8 @@
 
        !---- Local Variables ----!
        character (len=256000), allocatable, dimension(:)  :: XRDML_line, XRDML_intensities_line
-       integer                                            :: i, i1, i2, nl, ier
+       integer                                            :: i, i1, i2, nl, ier, np,nr
+       integer, dimension(:), allocatable   :: counts
 
        call init_err_diffpatt()
        pat%tsamp=0.0
@@ -2753,7 +2754,19 @@
        if (allocated(XRDML_intensities_line)) deallocate(XRDML_intensities_line)
 
        allocate(XRDML_line(1))
-       allocate(XRDML_intensities_line(1))
+
+       !Count the number of scans stored in the file. All of them will be summed
+       !to get the final diffraction pattern
+       np=0
+       do
+         read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+         if (ier /= 0) exit
+         if(index(XRDML_line(1),"</xrdMeasurement>") /= 0) exit
+         i1= index(XRDML_line(1), "<intensities unit=""counts"">")
+         if(i1 /= 0) np=np+1
+       end do
+       rewind(unit=i_dat)
+       allocate(XRDML_intensities_line(np))
 
        !---- Wavelengths (by JGP)
        do
@@ -2761,7 +2774,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read Wavelength"
              return
           end if
           i1= index(XRDML_line(1), '<kAlpha1 unit="Angstrom">')
@@ -2798,7 +2811,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read positions axis=""2Theta"" "
              return
           end if
           i1= index(XRDML_line(1), "<positions axis=""2Theta"" unit=""deg"">")
@@ -2810,7 +2823,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read 2Theta_min"
              return
           end if
           i1= index(XRDML_line(1), "<startPosition>")
@@ -2825,7 +2838,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read <endPosition>"
              return
           end if
           i1= index(XRDML_line(1), "<endPosition>")
@@ -2835,20 +2848,23 @@
           exit
        end do
 
+       nr=0
        do
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read <intensities unit=""counts"">"
              return
           end if
           i1= index(XRDML_line(1), "<intensities unit=""counts"">")
           if (i1==0) cycle
           i2= index(XRDML_line(1), "</intensities>")
-          XRDML_intensities_line(1) = XRDML_line(1)(i1+27:i2-1)
-          exit
+          nr=nr+1
+          XRDML_intensities_line(nr) = XRDML_line(1)(i1+27:i2-1)
+          if(nr == np) exit
        end do
-       XRDML_intensities_line(1)=adjustl(XRDML_intensities_line(1))
+
+       XRDML_intensities_line(1:np)=adjustl(XRDML_intensities_line(1:np))
        nl=LEN_TRIM(XRDML_intensities_line(1))
        i1=1
        do i=2,nl
@@ -2861,19 +2877,24 @@
        pat%npts=i1
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+          ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: npts <= 0 !!! "
           return
        end if
 
        call Allocate_Diffraction_Pattern(pat)
 
        pat%step = (pat%xmax - pat%xmin) / real(pat%npts-1)
-       read(unit=XRDML_intensities_line(1), fmt=*, iostat=ier) (pat%y(i),i=1,pat%npts)
-       if (ier /= 0) then
-          Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
-          return
-       end if
+       if(allocated(counts)) deallocate(counts)
+       allocate(counts(pat%npts))
+       do i=1,np
+          read(unit=XRDML_intensities_line(i), fmt=*, iostat=ier) counts(1:pat%npts)
+          if (ier /= 0) then
+             Err_diffpatt=.true.
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read ""counts"""
+             return
+          end if
+          pat%y(1:pat%npts)=pat%y(1:pat%npts)+counts(1:pat%npts)
+       end do
        do i=1,pat%npts
           pat%x(i)=pat%xmin+real(i-1)*pat%step
           pat%sigma(i) = abs(pat%y(i))
@@ -2883,6 +2904,7 @@
 
        if (allocated(XRDML_line))             deallocate(XRDML_line)
        if (allocated(XRDML_intensities_line)) deallocate(XRDML_intensities_line)
+       if (allocated(counts)) deallocate(counts)
 
        return
     End Subroutine Read_Pattern_Panalytical_Xrdml
