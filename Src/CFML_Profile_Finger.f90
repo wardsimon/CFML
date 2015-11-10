@@ -51,6 +51,7 @@
 !!----
 !!---- PROCEDURES
 !!----    Subroutines:
+!!----       CALC_PSEUDO_VOIGT      [Private]
 !!--++       GAUSSIAN               [Private]
 !!----       INIT_PROF_VAL
 !!--++       LORENTZIAN             [Private]
@@ -69,7 +70,7 @@
 
 
     !---- List of Public Subroutines ----!
-    public :: init_prof_val, prof_val
+    public :: init_prof_val, prof_val, calc_Pseudo_Voigt
 
     !---- List of Private Functions ----!
     private ::  dfunc_int, extra_int
@@ -143,6 +144,50 @@
     integer,       private, parameter :: ctrl_nsteps= 1000
 
  Contains
+
+    !!----
+    !!---- Subroutine Calc_Pseudo_Voigt(x,y,Twoth0,Eta,Fwhm,asym1,asym2)
+    !!----    real(kind=cp), dimension(:), intent(in)   :: x
+    !!----    real(kind=cp), dimension(:), intent(out)  :: y
+    !!----    real(kind=cp),               intent(in)   :: Twoth0
+    !!----    real(kind=cp),               intent(in)   :: eta
+    !!----    real(kind=cp),               intent(in)   :: Fwhm
+    !!----    real(kind=cp),               intent(in)   :: asym1        ! s_l source width/detector distance or D_L+S_L if  use_hps is true
+    !!----    real(kind=cp),               intent(in)   :: asym2        ! d_l detector width/detector distance or D_L-S_L if  use_hps is true
+    !!----
+    !!----    Return the calculated ordinates Y(:) corresponding to a normalized Pseudo-Voigt function,
+    !!----    characterized by: Twoth0,Eta,Fwhm,asym1,asym1, for points X(:) .
+    !!----    This subroutine is useful for calculating the contribution of a single peak.
+    !!----    It calls prof_val without using derivatives
+    !!----
+    !!---- Updated: November - 2015
+    !!
+    Subroutine Calc_Pseudo_Voigt(x,y,Twoth0,Eta,Fwhm,asym1,asym2)
+
+      real(kind=cp), dimension(:), intent(in)   :: x
+      real(kind=cp), dimension(:), intent(out)  :: y
+      real(kind=cp),               intent(in)   :: Twoth0
+      real(kind=cp),               intent(in)   :: eta
+      real(kind=cp),               intent(in)   :: Fwhm
+      real(kind=cp),               intent(in)   :: asym1        ! s_l
+      real(kind=cp),               intent(in)   :: asym2        ! d_l
+
+      !--- Local variables ---!
+      real(kind=cp)   :: dprdt,dprdg,dprde, dprds, dprdd
+      Logical         :: use_asym, use_hps
+      integer         :: npoints,i
+
+      npoints=size(x)
+      use_asym=.true.
+      if(abs(asym1)+abs(asym2) < 0.00001) use_asym=.false.
+      use_hps=.false.
+      if(abs(asym2) < 0.00001) use_hps=.true.
+      do i=1,npoints
+        call Prof_Val( eta, fwhm, asym1, asym2, x(i), twoth0, dprdt, dprdg,  &
+                         dprde , dprds , dprdd , y(i), use_asym, use_hps)
+      end do
+      return
+    End Subroutine Calc_Pseudo_Voigt
     !!--++
     !!--++ Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
     !!--++    real(kind=cp), intent(in)  :: pos
