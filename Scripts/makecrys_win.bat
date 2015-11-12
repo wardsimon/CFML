@@ -9,7 +9,7 @@ rem ---- Default Message ----
 :INIT
    cls
    echo MAKECRYS: Making the CrysFML Library
-   echo Syntax: makecrys [gfortran|ifort[15]|lf95] [all, winter|realwin] [debug]
+   echo Syntax: "makecrys [gfortran|ifort[15]|lf95] [all, winter|realwin] [debug]"
    goto FINAL
 rem ---- Variables ----
 :CONT
