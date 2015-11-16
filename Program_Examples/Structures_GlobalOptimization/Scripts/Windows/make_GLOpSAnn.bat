@@ -13,6 +13,7 @@ rem
    goto END
 rem
 :CONT
+   cd ..\..\Src
    if x%1 == xf95       goto F95
    if x%1 == xlf95      goto LF95
    if x%1 == xg95       goto G95
@@ -60,7 +61,7 @@ rem
 :END
    upx GLOpSAnn.exe
 if exist %FULLPROF%  copy GLOpSAnn.exe %FULLPROF%\. > nul
-if exist %PROGCFML%  copy GLOpSAnn.exe %PROGCFML%\DistFPS\. > nul
-if exist %PROGCFML%  copy .\Docs\GLOpSAnn.pdf %PROGCFML%\DistFPS\Docs\. > nul
-if exist %PROGCFML%  copy GLOpSAnn.exe %PROGCFML%\DistFPS\. > nul
+if exist %PROGCFML%  move GLOpSAnn.exe %PROGCFML%\DistFPS\. > nul
+if exist %PROGCFML%  copy ..\Docs\GLOpSAnn.pdf %PROGCFML%\DistFPS\Docs\. > nul
    del *.obj *.mod *.o *.map *.bak *.exe > nul
+   cd ..\Scripts\Windows
