@@ -407,10 +407,17 @@
        do b=1, n_layers
          write(i_ftls,"(a)")              "  "
          if (fundamental(b) .eqv. .false.) then
-           write(i_ftls,"(a,i2,a,i2)") " LAYER",b," =", original(b)
+           Select Case(b)
+             case(:9)
+               write(i_ftls,"(a,i2,a,i2)") " LAYER",b," =", original(b)     !Was - > "LAYER10 = 2"; Will - > "LAYER    10 =     2"
+             case(:99)
+               write(i_ftls,"(a,i3,a,i3)") " LAYER",b," =", original(b)     !Was - > "LAYER10 = 2"; Will - > "LAYER    10 =     2"
+            Case default
+               write(i_ftls,"(a,i6,a,i6)") " LAYER",b," =", original(b)     !Was - > "LAYER10 = 2"; Will - > "LAYER    10 =     2"
+           End Select
          else
            c=c+1
-           write(i_ftls,"(a, i2)")  " LAYER", b
+           write(i_ftls,"(a, i6)")  " LAYER", b
            list(1) = 'None '
            list(2) = 'CentroSymmetric '
           !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
