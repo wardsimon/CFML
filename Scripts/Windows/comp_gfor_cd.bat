@@ -42,34 +42,34 @@ rem
    gfortran -c CFML_ILL_Instrm_data.f90  -O0 -fbacktrace  -std=gnu    -ffree-line-length-none
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms
+   echo .... EoS, Reflections, Atoms
 rem
    gfortran -c CFML_Eos_Mod.f90          -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
    gfortran -c CFML_reflct_util.f90      -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
    gfortran -c CFML_atom_mod.f90         -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
 rem
+   echo **---- Level 6 ----**
+   echo .... Geometry Calculations, Molecules, Formats
+rem
+   gfortran -c CFML_geom_calc.f90        -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
+   gfortran -c CFML_molecules.f90        -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
+rem -std=f2003 removed because calls to flush subroutine
+   gfortran -c CFML_form_cif.f90         -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
+rem -std=f2003 removed because calls to sizeof function
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
+   echo .... Structure Factors, SXTAL geometry, Propag Vectors
 rem
    gfortran -c CFML_sfac.f90             -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
-   gfortran -c CFML_geom_calc.f90        -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_SXTAL_geom.f90       -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
    gfortran -c CFML_propagk.f90          -O0 -fbacktrace  -std=f2003   -ffree-line-length-none
 rem
    echo **---- Level 5 ----**
-   echo .... Molecules, Maps, BVS, Energy Configurations
+   echo .... Maps, BVS, Energy Configurations
 rem
    gfortran -c CFML_Export_Vtk.f90       -O0 -fbacktrace  -std=gnu    -ffree-line-length-none
    gfortran -c CFML_maps.f90             -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
-   gfortran -c CFML_molecules.f90        -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
-rem -std=f2003 removed because calls to flush subroutine
    gfortran -c CFML_conf_calc.f90        -O0 -fbacktrace              -ffree-line-length-none
 rem
-   echo **---- Level 6 ----**
-   echo .... Formats
-rem
-   gfortran -c CFML_form_cif.f90         -O0 -fbacktrace  -std=f2003  -ffree-line-length-none
-rem -std=f2003 removed because calls to sizeof function
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
