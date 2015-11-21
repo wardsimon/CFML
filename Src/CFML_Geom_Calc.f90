@@ -1222,7 +1222,7 @@
        integer,parameter                  :: nconst=500
        integer                            :: i,j,k,lk,i1,i2,i3,jl,nn,L,&
                                              itnum1,itnum2,num_const, max_coor,num_angc,ico
-       character(len=  5)                 :: nam,nam1,nam2
+       character(len=  6)                 :: nam,nam1,nam2
        character(len= 40)                 :: transla
        character(len= 20)                 :: text,tex,texton
        character(len=132)                 :: line
@@ -1368,7 +1368,7 @@
           Select Case (len_trim(nam))
              case(1)
                 nam="  "//trim(nam)
-             case(2,3)
+             case(2:5)
                 nam=" "//trim(nam)
           End Select
           if (iprin) then
@@ -1388,7 +1388,7 @@
              Select Case (len_trim(nam1))
                case(1)
                   nam1="  "//trim(nam1)
-               case(2,3)
+               case(2:5)
                   nam1=" "//trim(nam1)
              End Select
              ss(:)=A%atom(k)%x_std(:)
@@ -1510,7 +1510,7 @@
              Select Case (len_trim(nam1))
                case(1)
                   nam1="  "//trim(nam1)
-               case(2,3)
+               case(2:5)
                   nam1=" "//trim(nam1)
              End Select
              if (present(lun_cons)) then
@@ -1526,7 +1526,7 @@
                 Select Case (len_trim(nam2))
                   case(1)
                      nam2="  "//trim(nam2)
-                  case(2,3)
+                  case(2:5)
                      nam2=" "//trim(nam2)
                 End Select
                 if (present(lun_cons)) then
@@ -1590,82 +1590,176 @@
 
                 if (present(lun_cons)) then
 
-                  write(unit=lun_cons,fmt="(3(a4,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
+                  if(ang2 > 45.0) &
+                  write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
                   A%atom(i)%lab ,nam1 ,nam2 ,itnum1,itnum2,tr1(:),tr2(:),ang2,sang2
-                  write(unit=lun_cons,fmt="(3(a4,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
+
+                  if(ang1 > 45.0) &
+                  write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
                   A%atom(i)%lab ,nam2 ,nam1 ,itnum2,itnum1,tr2(:),tr1(:),ang1,sang1
 
-                  if(num_angc == 0) then
-                    num_angc=1
-                    line=" "
-                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
-                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
-                    line=trim(line)//trim(codesym)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
-                    line=trim(line)//trim(codesym)
-                    angl_text(1)=line(1:132)
+                  if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) & !Good constraint
+                  write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
+                  adjustl(nam1),A%atom(i)%lab ,nam2 ,itnum1,itnum2,tr1(:),tr2(:),ang12,sang12
 
+                  if(ang12 > 45.0 .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) & !Good constraint
+                  write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
+                  adjustl(nam2)," "//A%atom(i)%lab ,nam1 ,itnum2,itnum1,tr2(:),tr1(:),ang12,sang12
+
+                  if(num_angc == 0) then
+
+                    if(ang2 > 45.0) then
+                      num_angc=num_angc+1
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
+                                                         "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)
+                      angl_text(1)=line(1:132)
+                    end if
                     !Repeating with another angle of the same triangle
-                    num_angc=num_angc+1
-                    line=" "
-                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
-                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
-                    line=trim(line)//trim(codesym)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
-                    line=trim(line)//trim(codesym)
-                    angl_text(num_angc)=line(1:132)
+                    if(ang1 > 45.0) then
+                      num_angc=num_angc+1
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
+                                                         "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)
+                      angl_text(num_angc)=line(1:132)
+                    end if
+
+                    if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
+                      num_angc=num_angc+1
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
+                                                         " "//trim(nam1)//"  "//trim(A%atom(i)%lab)
+                      call Write_SymTrans_Code(1,(/0.0,0.0,0.0/),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)
+                      angl_text(num_angc)=line(1:132)
+                    end if
+
+                    if(ang12 > 45.0 .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) then
+                      num_angc=num_angc+1
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
+                                                         " "//trim(nam2)//"  "//trim(A%atom(i)%lab)
+                      call Write_SymTrans_Code(1,(/0.0,0.0,0.0/),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)
+                      angl_text(num_angc)=line(1:132)
+                    end if
 
                   else
 
-                    line=" "
-                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
-                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
-                    line=trim(line)//trim(codesym)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
-                    line=trim(line)//trim(codesym)
+                    if(ang2 > 45.0) then
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
+                                                         "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)
 
-                    esta=.false.
-                    jl=index(line,"_")
-                    if(jl == 0) jl=len_trim(line)
-                    do l=num_angc,1,-1
-                     if( line(1:jl) == angl_text(l)(1:jl)) then
-                         esta=.true.
-                         exit
-                     end if
-                    end do
-                    if(.not. esta) then
-                      num_angc=num_angc+1
-                      if(num_angc > NCONST) num_angc=NCONST
-                      angl_text(num_angc)=line(1:132)
+                      esta=.false.
+                      jl=index(line,"_")
+                      if(jl == 0) jl=len_trim(line)
+                      do l=num_angc,1,-1
+                       if( line(1:jl) == angl_text(l)(1:jl)) then
+                           esta=.true.
+                           exit
+                       end if
+                      end do
+                      if(.not. esta) then
+                        num_angc=num_angc+1
+                        if(num_angc > NCONST) num_angc=NCONST
+                        angl_text(num_angc)=line(1:132)
+                      end if
                     end if
 
-                    !Repeating with another angle of the same triangle
-                    line=" "
-                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
-                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
-                    line=trim(line)//trim(codesym)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
-                    line=trim(line)//trim(codesym)
+                    if(ang1 > 45.0) then
+                      !Repeating with another angle of the same triangle
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
+                                                         "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)
 
-                    esta=.false.
-                    jl=index(line,"_")
-                    if(jl == 0) jl=len_trim(line)
-                    do l=num_angc,1,-1
-                     if( line(1:jl) == angl_text(l)(1:jl)) then
-                         esta=.true.
-                         exit
-                     end if
-                    end do
-                    if(.not. esta) then
-                      num_angc=num_angc+1
-                      if(num_angc > NCONST) num_angc=NCONST
-                      angl_text(num_angc)=line(1:132)
+                      esta=.false.
+                      jl=index(line,"_")
+                      if(jl == 0) jl=len_trim(line)
+                      do l=num_angc,1,-1
+                       if( line(1:jl) == angl_text(l)(1:jl)) then
+                           esta=.true.
+                           exit
+                       end if
+                      end do
+                      if(.not. esta) then
+                        num_angc=num_angc+1
+                        if(num_angc > NCONST) num_angc=NCONST
+                        angl_text(num_angc)=line(1:132)
+                      end if
                     end if
 
+                    if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
+                      !Repeating with another angle of the same triangle
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
+                                                          " "//trim(nam1)//"  "//trim(A%atom(i)%lab)
+                      call Write_SymTrans_Code(1,(/0.0,0.0,0.0/),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam2)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
+                      line=trim(line)//trim(codesym)
+
+                      esta=.false.
+                      jl=index(line,"_")
+                      if(jl == 0) jl=len_trim(line)
+                      do l=num_angc,1,-1
+                       if( line(1:jl) == angl_text(l)(1:jl)) then
+                           esta=.true.
+                           exit
+                       end if
+                      end do
+                      if(.not. esta) then
+                        num_angc=num_angc+1
+                        if(num_angc > NCONST) num_angc=NCONST
+                        angl_text(num_angc)=line(1:132)
+                      end if
+                    end if
+
+                    if(ang12 > 45.0 .and. itnum1==2 .and. sum(abs(tr2)) < 0.001) then
+                      !Repeating with another angle of the same triangle
+                      line=" "
+                      write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
+                                                          " "//trim(nam2)//"  "//trim(A%atom(i)%lab)
+                      call Write_SymTrans_Code(1,(/0.0,0.0,0.0/),codesym)
+                      line=trim(line)//trim(codesym)//" "//trim(nam1)
+                      call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
+                      line=trim(line)//trim(codesym)
+
+                      esta=.false.
+                      jl=index(line,"_")
+                      if(jl == 0) jl=len_trim(line)
+                      do l=num_angc,1,-1
+                       if( line(1:jl) == angl_text(l)(1:jl)) then
+                           esta=.true.
+                           exit
+                       end if
+                      end do
+                      if(.not. esta) then
+                        num_angc=num_angc+1
+                        if(num_angc > NCONST) num_angc=NCONST
+                        angl_text(num_angc)=line(1:132)
+                      end if
+                    end if
 
                   end if
 
@@ -1716,7 +1810,7 @@
           write(unit=lun_cons,fmt="(a,/)")   "   List of possible restraints: "
           write(unit=lun_cons,fmt="(a)")" At1   At2  ITnum     T1        T2        T3          DIST   SIGMA"
           do i=1,num_const
-             write(unit=lun_cons,fmt="(2x,a)") const_text(i)
+             write(unit=lun_cons,fmt="(2x,a)") trim(const_text(i))
           end do
 
           write(unit=lun_cons,fmt="(/,a)")   "   ========================================= "
@@ -1726,11 +1820,11 @@
 
           write(unit=lun_cons,fmt="(/a,i5)")"=> Total number of independent distance restraints: ",num_const
           do i=1,num_const
-             write(unit=lun_cons,fmt="(a)") dist_text(i)
+             write(unit=lun_cons,fmt="(a)") trim(dist_text(i))
           end do
           write(unit=lun_cons,fmt="(/a,i5)")"=> Total number of possible angle restraints: ",num_angc
           do i=1,num_angc
-             write(unit=lun_cons,fmt="(a)") angl_text(i)
+             write(unit=lun_cons,fmt="(a)") trim(angl_text(i))
           end do
           close(unit=lun_cons)
        end if
