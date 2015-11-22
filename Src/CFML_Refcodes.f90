@@ -886,7 +886,7 @@
        !---- Dimension for TFIX ----!
        nr=0
        do nf=1,nfiles
-         nang_rest(nf)=0
+         ntor_rest(nf)=0
          do i=1,file_dat(nf)%nlines
             line=adjustl(file_dat(nf)%line(i))
             if (u_case(line(1:4)) /= "TFIX") cycle
