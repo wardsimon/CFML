@@ -1516,23 +1516,23 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2, &
                "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
 
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
                 "     Convergence reached: The relative error between x and the solution is at most ",c%tol
 
           Case(3)
             c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
              "     Convergence reached: The relative error "// &
              "in the sum of squares and the difference between x and the solution are both at most ",c%tol
 
           Case(4,8)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a)") "Initial Chi2:", ichi2, &
               "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
 
           Case(5)
@@ -1724,23 +1724,23 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2, &
                "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
 
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
                 "     Convergence reached: The relative error between x and the solution is at most ",c%tol
 
           Case(3)
             c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
              "     Convergence reached: The relative error "// &
              "in the sum of squares and the difference between x and the solution are both at most ",c%tol
 
           Case(4,8)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a)") "Initial Chi2:", ichi2, &
               "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
 
           Case(5)
@@ -1997,23 +1997,23 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2, &
                    "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
 
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
                     "     Convergence reached: The relative error between x and the solution is at most ",c%tol
 
           Case(3)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2, &
              "    Convergence reached: The relative error"// &
              " in the sum of squares and the difference between x and the solution are both at most ",c%tol
 
           Case(4,8)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a)") "Initial Chi2:", ichi2, &
               "    Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
 
           Case(5)
