@@ -1181,7 +1181,7 @@
     End Subroutine Calc_Dist_Angle
 
     !!----
-    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filen)
+    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filen,rdmax,ramin)
     !!----    real(kind=cp),             intent(in)   :: dmax     !  In -> Max. Distance to calculate
     !!----    real(kind=cp),             intent(in)   :: dangl    !  In -> Max. distance for angle calculations
     !!----    type (Crystal_cell_type),  intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
@@ -1191,6 +1191,7 @@
     !!----    integer, optional,         intent(in)   :: lun_cons !  In -> Logical unit for writing restraints
     !!----    integer, optional,         intent(in)   :: lun_cif  !  In -> Logical unit for writing CIF file with distances and angles
     !!----    character(len=*), optional,intent(in)   :: filrest  !  In -> Name of file for writing restraints
+    !!----    real(kind=cp),    optional,intent(in)   :: rdmax,ramin  !  Maximum distan and minimum angle for output in restraints file
     !!----
     !!----    Subroutine to calculate distances and angles, below the prescribed distances
     !!----    "dmax" and "dangl" (angles of triplets at distance below "dangl" to an atom),
@@ -1206,7 +1207,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filrest)
+    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filrest,rdmax,ramin)
        !---- Arguments ----!
        real(kind=cp),             intent(in)   :: dmax, dangl
        type (Crystal_cell_Type),  intent(in)   :: Cell
@@ -1216,6 +1217,7 @@
        integer, optional,         intent(in)   :: lun_cons
        integer, optional,         intent(in)   :: lun_cif
        character(len=*), optional,intent(in)   :: filrest
+       real(kind=cp),    optional,intent(in)   :: rdmax, ramin
 
        !---- Local Variables ----!
        logical                            :: iprin
@@ -1233,7 +1235,7 @@
        integer, dimension(192)            :: itnum
        real(kind=cp),dimension(3,3,6)     :: DerM
        real(kind=cp),    dimension(3)     :: xx,x1,xo,Tn, QD,so,ss,s1,s2,x2,tr1,tr2
-       real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
+       real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1,rest_d,rest_a
        real(kind=cp)                      :: sdd,sda1,sda2,sda12,sang12,sang2,sang1,srel1,srel2,srel12
 
        real(kind=cp), allocatable, dimension(:,:) :: uu
@@ -1265,6 +1267,10 @@
        if (present(lun)) then
           if (lun > 0) iprin=.true.
        end if
+       rest_d=dmax
+       rest_a=45.0
+       if(present(rdmax)) rest_d=rdmax
+       if(present(ramin)) rest_a=ramin
        call init_err_geom()
        call Allocate_Coordination_Type(A%natoms,Spg%Multip,Dmax,max_coor)
 
@@ -1436,7 +1442,7 @@
                                                          trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
 
-                            if(present(lun_cons)) then
+                            if(present(lun_cons) .and. dd <= rest_d) then
                               esta=.false.
                               write(unit=line,fmt="(a4,tr2,a4,i5,3f10.5,tr5,2f7.4)") A%atom(i)%lab ,A%atom(k)%lab ,&
                                      Itnum(j), tn(:)+SpG%Symop(j)%tr(:) ,dd, sdd
@@ -1590,25 +1596,25 @@
 
                 if (present(lun_cons)) then
 
-                  if(ang2 > 45.0) &
+                  if(ang2 >= rest_a) &
                   write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
                   A%atom(i)%lab ,nam1 ,nam2 ,itnum1,itnum2,tr1(:),tr2(:),ang2,sang2
 
-                  if(ang1 > 45.0) &
+                  if(ang1 >= rest_a) &
                   write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
                   A%atom(i)%lab ,nam2 ,nam1 ,itnum2,itnum1,tr2(:),tr1(:),ang1,sang1
 
-                  if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) & !Good constraint
+                  if(ang12 >= rest_a .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) & !Good constraint
                   write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
                   adjustl(nam1),A%atom(i)%lab ,nam2 ,itnum1,itnum2,tr1(:),tr2(:),ang12,sang12
 
-                  if(ang12 > 45.0 .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) & !Good constraint
+                  if(ang12 >= rest_a .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) & !Good constraint
                   write(unit=lun_cons,fmt="(3(a6,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
                   adjustl(nam2)," "//A%atom(i)%lab ,nam1 ,itnum2,itnum1,tr2(:),tr1(:),ang12,sang12
 
                   if(num_angc == 0) then
 
-                    if(ang2 > 45.0) then
+                    if(ang2 >= rest_a) then
                       num_angc=num_angc+1
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
@@ -1620,7 +1626,7 @@
                       angl_text(1)=line(1:132)
                     end if
                     !Repeating with another angle of the same triangle
-                    if(ang1 > 45.0) then
+                    if(ang1 >= rest_a) then
                       num_angc=num_angc+1
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
@@ -1632,7 +1638,7 @@
                       angl_text(num_angc)=line(1:132)
                     end if
 
-                    if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
+                    if(ang12 >= rest_a .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
                       num_angc=num_angc+1
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
@@ -1644,7 +1650,7 @@
                       angl_text(num_angc)=line(1:132)
                     end if
 
-                    if(ang12 > 45.0 .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) then
+                    if(ang12 >= rest_a .and. itnum2==1 .and. sum(abs(tr2)) < 0.001) then
                       num_angc=num_angc+1
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
@@ -1658,7 +1664,7 @@
 
                   else
 
-                    if(ang2 > 45.0) then
+                    if(ang2 >= rest_a) then
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
                                                          "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
@@ -1683,7 +1689,7 @@
                       end if
                     end if
 
-                    if(ang1 > 45.0) then
+                    if(ang1 >= rest_a) then
                       !Repeating with another angle of the same triangle
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
@@ -1709,7 +1715,7 @@
                       end if
                     end if
 
-                    if(ang12 > 45.0 .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
+                    if(ang12 >= rest_a .and. itnum1==1 .and. sum(abs(tr1)) < 0.001) then
                       !Repeating with another angle of the same triangle
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
@@ -1735,7 +1741,7 @@
                       end if
                     end if
 
-                    if(ang12 > 45.0 .and. itnum1==2 .and. sum(abs(tr2)) < 0.001) then
+                    if(ang12 >= rest_a .and. itnum1==2 .and. sum(abs(tr2)) < 0.001) then
                       !Repeating with another angle of the same triangle
                       line=" "
                       write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang12,sang12,&
