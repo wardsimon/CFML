@@ -4260,8 +4260,9 @@
           ERR = 990, IOSTAT = io_err)
       4567 WRITE(op,100) ' '
     !  WRITE(op,100) 'CALCULATING INTENSITY ALONG A STREAK. . .'
-      WRITE(op,100) 'Enter 1 for adaptive quadrature: '
-      READ(cntrl,*,ERR=4567) i
+    !  WRITE(op,100) 'Enter 1 for adaptive quadrature: '
+    !  READ(cntrl,*,ERR=4567) i
+      i = adapt_quad
       IF(cfile) WRITE(op,101) i
 ! select integration function
       IF(i == 1) THEN
@@ -6978,8 +6979,13 @@
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       q2 = four / (lambda**2)
-      10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
-      READ(cntrl,*,ERR=10) h, k, l0, l1, dl
+      !10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
+      !READ(cntrl,*,ERR=10) h, k, l0, l1, dl
+      h=h_streak
+      k=k_streak
+      l0=l0_streak
+      l1=l1_streak
+      dl=dl_streak
       IF(cfile) WRITE(op,401) h, k, l0, l1, dl
 ! check input
       IF(l1 == l0) THEN
@@ -7007,7 +7013,7 @@
             ' exceeds 180 degree scattering angle!'
         IF(s(h,k,l1) > q2) WRITE(op,403) h, k, l1,  &
             ' exceeds 180 degree scattering angle!'
-        GO TO 10
+        !GO TO 10
       END IF
 
       WRITE(op,404) ' => Writing streak data to file ''',  &

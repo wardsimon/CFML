@@ -1541,37 +1541,47 @@
             WRITE(op,"(a)") ' => Start simulation'
           ! What type of intensity output does the user want?
 
+                Select case (funct_num)
+                
+                    Case (1)    !streak
+                    
+                        write (unit=*,fmt="(a)") " => Calculating intensity along a streak"
+                        CALL gostrk(infile,outfile,ok)
+                        
+                    Case (3)    !powder diffraction pattern
 
-                IF(funct_num == 3) THEN
-                   write(unit=*,fmt="(a)") " => Calculating powder diffraction pattern"
-                   CALL gospec(infile,outfile,ok)
+                        write(unit=*,fmt="(a)") " => Calculating powder diffraction pattern"
+                        CALL gospec(infile,outfile,ok)
 
-                     Do j = 1, n_high
-                         ycalcdef(j) = crys%patscal*brd_spc(j)+crys%bckg_level
-                         call random_poisson(ycalcdef(j),i)
-                         ycalcdef(j)=real(i)
-                     end do
+                        Do j = 1, n_high
+                            ycalcdef(j) = crys%patscal*brd_spc(j)+crys%bckg_level
+                            call random_poisson(ycalcdef(j),i)
+                            ycalcdef(j)=real(i)
+                        end do
 
-                     if(replace_files) then
-                       Call getfnm(filenam,outfile, '.dat', ok,replace_files)
-                     else
-                       !CALL getfnm(filenam, outfile, '.dat', ok)
-                       outfile=trim(outfile_notrepl)//".dat"
-                     end if
+                        if (replace_files) then
+                            Call getfnm(filenam,outfile, '.dat', ok,replace_files)
+                        else
+                            !CALL getfnm(filenam, outfile, '.dat', ok)
+                            outfile=trim(outfile_notrepl)//".dat"
+                        end if
 
-                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                        OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                         write(unit = iout,fmt = *)'!', outfile
                         write(unit = iout,fmt = '(3f12.4)')thmin, step_2th,thmax
                      !  theta = thmin +(j-1)*d_theta
                         write(unit = iout,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
 
-                    CLOSE(UNIT = iout)
-                    ok = .true.
-                ELSE IF(funct_num == 4) THEN
-                   CALL gosadp(infile,outfile,ok)
-                ELSE
-                   WRITE(op,"(a)") ' => Unknown function type.'
-                END IF
+                        CLOSE(UNIT = iout)
+                        ok = .true.
+                        
+                    Case (4)    !SADP
+                        CALL gosadp(infile,outfile,ok)
+                        
+                    Case default
+                        WRITE(op,"(a)") ' => Unknown function type.'
+                
+                End select !end of selecting funct_num
 
 
 

@@ -1302,7 +1302,7 @@
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lma, ok_boxp, ok_maxfun, &
-                 ok_range, ok_corrmax, ok_tol, ok_nprint, ok_sadp
+                 ok_range, ok_corrmax, ok_tol, ok_nprint, ok_sadp, ok_streak
 
       logi=.true.
       i1=sect_indx(7)
@@ -1337,6 +1337,17 @@
             opt = 0
             ok_sim = .true.
 
+          Case ("STREAK")
+            funct_num = 1
+            read (unit=txt(k:), fmt=*, iostat=ier) adapt_quad, h_streak, k_streak, l0_streak, l1_streak, dl_streak !there must be some variables
+            if (ier /= 0 ) then
+                Err_crys=.true.
+                Err_crys_mess="ERROR reading STREAK information"
+                logi=.false.
+                return
+            end if
+            ok_streak =.true.
+            
           Case ("POWDER")
             k=index(txt," ")
             txt=adjustl(txt(k+1:))
@@ -1571,11 +1582,13 @@
       end do
 
 
-     if(ok_sim .and. (ok_range .or. ok_sadp)) then
+     if (ok_sim .and. (ok_range .or. ok_sadp)) then
        return
      else if (ok_opt .and. ok_acc .and. ok_mxfun .and. ok_eps .and. ok_iout) then
        return
      else if (ok_lma) then
+       return
+     else if (ok_streak) then
        return
      else
         Err_crys=.true.

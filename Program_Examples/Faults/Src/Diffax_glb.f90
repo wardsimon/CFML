@@ -552,6 +552,14 @@
  REAL(kind=dp)  :: bnds_wt    !  Equals 1.0 if rot_only is TRUE, otherwise equals 0.5
                        !  if rot_only is FALSE (ie there is a vertical mirror)
  REAL(kind=dp)  :: brightness ! For SADP simulations
+ 
+ INTEGER        :: h_streak     ! These variables are used for calculating the intensity along the streak
+ INTEGER        :: k_streak     !
+ INTEGER        :: l0_streak    !
+ INTEGER        :: l1_streak    !
+ REAL(kind=dp)  :: dl_streak    !
+ INTEGER        :: adapt_quad   ! Variable for adaptive quadrature
+ 
  REAL(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.
 
  REAL(kind=dp)  :: DEG2RAD    !     Conversion factor for degrees to radians
