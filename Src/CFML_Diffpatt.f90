@@ -1370,11 +1370,11 @@
           if (aline(1:1) == "!" .or. aline(1:1) == "#") then
             i=index(aline,"Legend_X")
             if(i /= 0) then
-              pat%xax_text=adjustl(aline(i+8:))
+              pat%xax_text=adjustl(aline(i+9:))
             end if
             i=index(aline,"Legend_Y")
             if(i /= 0) then
-              pat%yax_text=adjustl(aline(i+8:))
+              pat%yax_text=adjustl(aline(i+9:))
             end if
             i=index(aline,"Scattering variable:")
             if(i /= 0) then
@@ -1387,7 +1387,7 @@
             end if
             i=index(aline,"TITLE")
             if(i /= 0) then
-                Pat%title=trim(aline(i+5:))
+                Pat%title=trim(aline(i+6:))
                 title_given=.true.
             end if
             cycle
@@ -3430,12 +3430,12 @@
                 end if
                 i=index(txt1,"Legend_X")
                 if(i /= 0) then
-                   pat%xax_text = adjustl(txt1(i+8:))
+                   pat%xax_text = adjustl(txt1(i+9:))
                    cycle
                 end if
                 i=index(txt1,"Legend_Y")
                 if(i /= 0) then
-                   pat%yax_text=adjustl(txt1(i+8:))
+                   pat%yax_text=adjustl(txt1(i+9:))
                    cycle
                 end if
 
@@ -3469,12 +3469,12 @@
 
                 j=index(txt1,"Legend_X")
                 if(j /= 0) then
-                   pat%xax_text=adjustl(txt1(j+8:))
+                   pat%xax_text=adjustl(txt1(j+9:))
                 end if
 
                 j=index(txt1,"Legend_Y")
                 if(j /= 0) then
-                   pat%yax_text=adjustl(txt1(j+8:))
+                   pat%yax_text=adjustl(txt1(j+9:))
                 end if
 
                 if (txt1(1:5) == "INTER") then !Interpolation possible!
