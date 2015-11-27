@@ -973,8 +973,8 @@
     End Subroutine Read_Background_File
 
     !!----
-    !!---- Subroutine Read_Pattern(Filename, Dif_Pat, Mode)
-    !!--<<                   or   (Filename, Dif_Pat, NumPat, Mode)
+    !!---- Subroutine Read_Pattern(Filename, Dif_Pat, Mode, header)
+    !!--<<                   or   (Filename, Dif_Pat, NumPat, Mode, header)
     !!----    character(len=*),                              intent (in)    :: Filename
     !!----    type (diffraction_pattern_type),               intent (in out):: Dif_Pat
     !!----    character(len=*), optional,                    intent (in)    :: mode
@@ -983,6 +983,7 @@
     !!----    type (diffraction_pattern_type), dimension(:), intent (in out):: Dif_Pat
     !!----    integer,                                       intent (out)   :: numpat
     !!----    character(len=*), optional,                    intent (in)    :: mode
+    !!----    character(len=*), optional,                    intent (out)   :: header
     !!-->>
     !!----    Read one pattern from a Filename
     !!----
@@ -2174,7 +2175,7 @@
     End Subroutine Read_Pattern_Nls
 
     !!--++
-    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode)
+    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode,header)
     !!--++    character(len=*),                intent (in)    :: filename
     !!--++    type (diffraction_pattern_type), intent(in out) :: Dif_Pat
     !!--++    character(len=*), optional,      intent (in)    :: mode
@@ -2183,11 +2184,12 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode)
+    Subroutine Read_Pattern_One(Filename,Dif_Pat,Mode,header)
        !---- Arguments ----!
        character(len=*),                intent (in)      :: filename
        type (diffraction_pattern_type), intent (in out)  :: dif_pat
        character(len=*), optional,      intent (in)      :: mode
+       character(len=*), optional,      intent (out)     :: header
 
        !---- Local Variables ----!
        character(len=6)                               :: extdat !extension of panalytical file
@@ -2302,12 +2304,22 @@
           case ("XYSIGMA")            !XYSIGMA  data file
              !Determine if the patter is of G(r) type from PDFGUI
              i=index(dif_pat%filename,".",back=.true.)
-             if(i /= 0 .and. dif_pat%filename(i:i+2) == ".gr") then
-               call  Read_Pattern_xysigma(i_dat, dif_pat,gr)
+             if(present(header)) then
+                 if(i /= 0 .and. dif_pat%filename(i:i+2) == ".gr") then
+                   call  Read_Pattern_xysigma(i_dat, dif_pat,gr,header)
+                 else
+                   call  Read_Pattern_xysigma(i_dat, dif_pat,header=header)
+                   dif_pat%diff_kind = "unknown"
+                   dif_pat%instr  = " 10  - "//mode
+                 end if
              else
-               call  Read_Pattern_xysigma(i_dat, dif_pat)
-               dif_pat%diff_kind = "unknown"
-               dif_pat%instr  = " 10  - "//mode
+                 if(i /= 0 .and. dif_pat%filename(i:i+2) == ".gr") then
+                   call  Read_Pattern_xysigma(i_dat, dif_pat,gr)
+                 else
+                   call  Read_Pattern_xysigma(i_dat, dif_pat)
+                   dif_pat%diff_kind = "unknown"
+                   dif_pat%instr  = " 10  - "//mode
+                 end if
              end if
              if(len_trim(dif_pat%scat_var) == 0) then
                if(dif_pat%x(dif_pat%npts) > 180.0) then
@@ -3337,26 +3349,28 @@
     End subroutine Read_Pattern_Time_Variable
 
     !!--++
-    !!--++ Subroutine Read_Pattern_XYSigma(i_dat,Pat,gr)
+    !!--++ Subroutine Read_Pattern_XYSigma(i_dat,Pat,gr,header)
     !!--++    integer,                         intent(in)     :: i_dat
     !!--++    type (diffraction_pattern_type), intent(in out) :: pat
     !!--++    logical, optional,               intent(in)     :: gr
     !!--++
     !!--++    Read a pattern for X,Y,Sigma. Adding (2014) the possibility to read a calculated pattern
-    !!--++    in a fouth column. If gr is present a PDFGUI pattern is read
+    !!--++    in a fouth column. If gr is present a PDFGUI pattern is read.
+    !!--++    If header is present the full header of the file is stored in
+    !!--++    the hopefully long string: header
     !!--++
     !!--++ Updated: January - 2014, Nov-2015 (JRC)
     !!
-    Subroutine Read_Pattern_XYSigma(i_dat,Pat,gr)
+    Subroutine Read_Pattern_XYSigma(i_dat,Pat,gr,header)
        !---- Arguments ----!
        integer,                         intent(in)     :: i_dat
        type (diffraction_pattern_type), intent(in out) :: pat
        logical, optional,               intent(in)     :: gr
-
+       character(len=*), optional,      intent (out)   :: header
        !---- Local Variables ----!
        character(len=180)                           :: txt1, aline, fmtfields, fmtformat
        character (len=5)                            :: date1
-       integer                                      :: line_da, ntt, interpol, i, j,ier,npp
+       integer                                      :: line_da, ntt, interpol, i, j,ier,npp,lenhead
        real(kind=cp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm
        real(kind=cp)                                :: ycor, xt, stepin, ypn, dum
        real(kind=cp), parameter                     :: eps1=1.0E-6
@@ -3376,6 +3390,10 @@
        pat%scal=0.0
        pat%monitor=0.0
        pat%scat_var= " "
+       if(present(header)) then
+         lenhead=len(header)
+         header=" "
+       end if
 
        do
           read(unit=i_dat,fmt="(a)", iostat=ier) txt1
@@ -3398,6 +3416,7 @@
        if(present(gr)) then
          do i=1,line_da
            read(unit=i_dat,fmt="(a)") txt1
+           if(present(header)) header=trim(header)//trim(txt1)//char(0)
             j= index(txt1,"title=")
             if ( j /= 0 ) then !Title given
               pat%title=adjustl(txt1(j+6:))
@@ -3418,6 +3437,7 @@
                    return
                 end if
                 txt1=adjustl(txt1)
+                if(present(header)) header=trim(header)//trim(txt1)//char(0)
                 j= index(txt1,"TITLE")
                 if ( j /= 0 ) then !Title given
                   pat%title=adjustl(txt1(j+5:))
@@ -3455,6 +3475,7 @@
                    ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
                    return
                 end if
+                if(present(header)) header=trim(header)//trim(txt1)//char(0)
 
                 line_da=line_da+1
                 j= index(txt1,"TITLE")
