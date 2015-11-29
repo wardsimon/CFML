@@ -146,6 +146,7 @@
     !!----    logical                                     :: ct_step       !Constant step
     !!----    logical                                     :: gy,gycalc,&
     !!----                                                   gbgr,gsigma   !logicals for graphics
+    !!----    logical                                     :: sig_var=.true.!If .true. the content of sigma is in fact the variance
     !!----
     !!----    logical                                     :: al_x,al_y,&
     !!----                                                   al_ycalc, &   !logicals for allocation
@@ -156,7 +157,7 @@
     !!----    real(kind=cp), dimension (5)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
     !!----    real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
     !!----    real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
-    !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
+    !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations Sigma or variance (the square of sigma!, depends on sig_var)
     !!----    integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
     !!----    real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
     !!----    real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
@@ -191,7 +192,7 @@
        logical                                     :: ct_step=.false.  !Constant step
        logical                                     :: gy=.false.,gycalc=.false.,&
                                                       gbgr=.false.,gsigma=.false.   !logicals for graphics
-
+       logical                                     :: sig_var=.true.    !If .true. the content of sigma is in fact the variance
        logical                                     :: al_x=.false.,al_y=.false.,&
                                                       al_ycalc=.false., &   !logicals for allocation
                                                       al_bgr=.false.,   &
@@ -201,7 +202,7 @@
        real(kind=cp), dimension (5)                :: conv=0.0      ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
        real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
        real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
-       real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
+       real(kind=cp), dimension (:), allocatable   :: sigma         ! observations sigma or variance (depending on sig_var)
        integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
        real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
        real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
@@ -2175,21 +2176,24 @@
     End Subroutine Read_Pattern_Nls
 
     !!--++
-    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode,header)
+    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode,header,sig)
     !!--++    character(len=*),                intent (in)    :: filename
     !!--++    type (diffraction_pattern_type), intent(in out) :: Dif_Pat
     !!--++    character(len=*), optional,      intent (in)    :: mode
+    !!--++    logical,          optional,      intent (in)    :: sig
     !!--++
-    !!--++    Read one pattern from a Filename
+    !!--++    Read one pattern from a Filename. If sig is present the content of Dif_Pat%sigma
+    !!--++    is the true sigma not the variance.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_One(Filename,Dif_Pat,Mode,header)
+    Subroutine Read_Pattern_One(Filename,Dif_Pat,Mode,header,sig)
        !---- Arguments ----!
        character(len=*),                intent (in)      :: filename
        type (diffraction_pattern_type), intent (in out)  :: dif_pat
        character(len=*), optional,      intent (in)      :: mode
        character(len=*), optional,      intent (out)     :: header
+       logical,          optional,      intent (in)      :: sig
 
        !---- Local Variables ----!
        character(len=6)                               :: extdat !extension of panalytical file
@@ -2397,6 +2401,10 @@
        end select
 
        close(unit=i_dat,iostat=ier)
+       if(present(sig)) then
+          dif_pat%sigma=sqrt(dif_pat%sigma)
+          dif_pat%sig_var=.false.
+       end if
        if (ier/=0) then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Problems closing the data file: "//trim(filename)
@@ -3466,6 +3474,11 @@
                 call init_findfmt(line_da)
                 exit
              end do
+             if(present(header)) then
+                j=len_trim(header)-1
+                i=index(header(1:j),char(0),back=.true.)
+                header=header(1:i)
+             end if
          else
              pat%title=txt1
              do i=1,5
@@ -3931,7 +3944,13 @@
        end if
        Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%step,Pat%x(ifin)
        Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(ini:ifin)
-       if(present(var)) Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:ifin))
+       if(present(var)) then
+          if(pat%sig_var) then
+             Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:ifin))
+          else
+             Write(unit=i_dat,fmt="(8F14.2)")  Pat%sigma(ini:ifin)
+          end if
+       end if
        close(unit=i_dat)
        return
     End Subroutine Write_Pattern_INSTRM5
@@ -4021,14 +4040,27 @@
        write(unit=i_dat,fmt="(a,a10,a)") "!     ",pat%scat_var,"        Y          Sigma "
 
        if(present(excl)) then
-         do i=ini,ifin
-            if(excl(i)) cycle
-            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-         end do
+         if(pat%sig_var) then
+            do i=ini,ifin
+               if(excl(i)) cycle
+               write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+            end do
+         else
+            do i=ini,ifin
+               if(excl(i)) cycle
+               write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),pat%sigma(i)
+            end do
+         end if
        else
-         do i=ini,ifin
-            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-         end do
+         if(pat%sig_var) then
+            do i=ini,ifin
+               write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+            end do
+         else
+            do i=ini,ifin
+               write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),pat%sigma(i)
+            end do
+         end if
        end if
        close(unit=i_dat)
 
