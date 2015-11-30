@@ -3814,8 +3814,8 @@
         samp_l(3) = ag_l(list(3))
 
 ! Deal with very rare cases when the spread in l values is too small
-        too_close = (samp_l(1) == samp_l(3)) .OR. (samp_l(1) == samp_l(2)) .OR.  &
-            (samp_l(2) == samp_l(3))
+        too_close = (abs(samp_l(1) - samp_l(3))<eps14) .OR. (abs(samp_l(1) - samp_l(2))<eps14) .OR.  &
+            (abs(samp_l(2) - samp_l(3))<eps14)
 
         IF(.NOT.too_close) THEN
           CALL appr_f(f, h, k, samp_l, ag_l, n, list, ok)
