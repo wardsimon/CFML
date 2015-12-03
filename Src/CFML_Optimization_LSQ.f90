@@ -1413,7 +1413,7 @@
        if(calder) iflag=1
        Call Model_Functn(m, n, x, fvec, fjac, iflag)
        ichi2=enorm(m,fvec)
-       if (ichi2 < 1.0e5) then
+       if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        !If ( c%icyc < 5*n) then
@@ -1434,7 +1434,7 @@
 
        !Calculate final Chi2 or norm
        chi2=enorm(m,fvec)
-       if (chi2 < 1.0e5) then
+       if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        sx=zero
@@ -1644,7 +1644,7 @@
        if(calder) iflag=1  !Just for for purposes of making unambiguous the generic procedure
        Call Model_Functn(m, n, v, fvec, fjac, iflag)
        ichi2=enorm(m,fvec)
-       if (ichi2 < 1.0e5) then
+       if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        If ( c%icyc < 5*n) then
@@ -1665,7 +1665,7 @@
 
        !Calculate final Chi2 or norm
        chi2=enorm(m,fvec)
-       if (chi2 < 1.0e5) then
+       if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        Vstd=zero
@@ -1876,7 +1876,7 @@
        iflag=1
        Call Model_Functn(m, n, x, fvec, iflag)
        ichi2=enorm(m,fvec)
-       if (ichi2 < 1.0e5) then
+       if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        If ( c%icyc < 5*n) then
@@ -1898,7 +1898,7 @@
 
        !Calculate final Chi2 or norm
        chi2=enorm(m,fvec)
-       if (chi2 < 1.0e5) then
+       if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
        sx=zero
