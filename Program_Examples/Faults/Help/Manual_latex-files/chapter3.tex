@@ -1,0 +1,52 @@
+\chapter{Frequent errors}
+\label{freqerrors}
+
+
+
+This part of the manual is a tentative of compiling frequent mistakes made by new users of FAULTS. This list is far from being exhaustive. It is only intended to help beginners in starting working correctly with FAULTS and doesn't dispense the user of a carefull reading of the entire manual. 
+The authors would be grateful if users could notify them about other possible sources of errors not reported below or about possible bugs in the program (faults*at*cicenergigune.com or fullprof*at*ill.fr).\\
+
+First of all, the users should always read carefully the messages written by FAULTS in the command window and in the output file .out. Most of the errors can be identified from these messages.\\
+
+
+\section{Input control file .flts}
+
+\begin{itemize}
+
+	\item Tabs are not allowed in the input files of FAULTS. Only spaces can be used.
+
+	\item All the non-optionnal sections and keywords have to be present in the .flts input file. 
+
+	\item Contrary to the .pcr input files used in FullProf, a missing refinement code will not considered as zero but will produce an error, so all the refinement codes have to be present in the .flts input file. 
+
+	\item Contrary to the .pcr input files used in FullProf, empty lines can be used in the .flts input file.
+
+	\item The combination of the profile parameters U, V, W, X should not led to a profile function with negative values (no negative Gaussian and/or Lorentzian FWHM). The user can check this by calculating the Gaussian and and Lorentzian FWHM ($H_{G}^{2}$ and $H_{L}$) with the formula given page \pageref{FWHM} using the program  WinPLOTR \cite{WinplotrPaper, WinplotrWebsite} (Menu \emph{Calculations} $=$$>$ \emph{I.R.F. (U,V,W,X,Y,Z)}) or any spreadsheet.
+
+\end{itemize}
+
+\section{Input data files}
+
+\begin{itemize}
+
+	\item Make sure to comply with the description of each file type.
+
+	\item No intensity can be zero o negative.
+
+	\item Empty lines should be avoided.
+
+\end{itemize}
+
+\section{Other remarks}
+
+\begin{itemize}
+
+	\item If the structural model is complicated, the first calculations can take time, so the user should maje sure that he/she lets the program some minutes before concluding that the program is blocked. 
+
+\end{itemize}
+
+
+
+
+
+

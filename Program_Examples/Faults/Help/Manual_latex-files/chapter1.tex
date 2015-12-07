@@ -152,13 +152,12 @@ diffraction geometry (see FullProf manual for more details \cite{FPManual}).
 
 \item \textbf{Profile parameters:} Instrumental and size broadening are treated differently than in DIFFaX.
 In both cases, the calculated pattern is convoluted with a profile function (indicated by the keyword \textit{Gaussian}, \textit{Lorentzian} or \textit{Pseudo-Voigt}) that takes into account both instrumental and size effects.
-The FWHM of the Gaussian ($H_{G}$) and Lorentzian ($H_{L}$) components of the peak profile have an angular dependence given by:
-
-
+The FWHM of the Gaussian ($H_{G}$) and Lorentzian ($H_{L}$) components of the peak profile have an angular dependence given by: \label {FWHM}
 
 $$ H_{G}^{2} = U tan^{2}{\theta}+ V tan {\theta} + W + \frac{4ln2\lambda^{2}}{\pi D_{g}^{2} cos^{2} {\theta}} (\frac {180}{\pi})^2$$
 
 $$ H_{L} = X tan {\theta} + \frac{2 \lambda}{\pi D_{l} cos \theta} (\frac {180}{\pi})$$
+
 
 U, V, W and X, which must be introduced by the user, are refinable parameters that constitute the instrumental resolution function (IRF). It is always advisable to know their values a priori
 and fix them during the refinement (although U and X can be refined to account for strains).
@@ -629,7 +628,7 @@ Lines1: T1 I1  T2  Y2 ... T10 I10 (T = time) \newline}
 \subsection {Background: \textbf{CFILE.bgr}}
 \label{bck}
 
-If the user chooses to treat the background as a linear interpolation between N given points, he/she should provide a file which contains the list of points that will be used to calculate the background at each value of the scattering variable. The user can create such a file from the experimental data using the program WinPLOTR \cite{WinplotrPaper} of the FullProf Suite \cite{FPDownload, FPManual}.
+If the user chooses to treat the background as a linear interpolation between N given points, he/she should provide a file which contains the list of points that will be used to calculate the background at each value of the scattering variable. The user can create such a file from the experimental data using the program WinPLOTR \cite{WinplotrPaper, WinplotrWebsite} of the FullProf Suite \cite{FPDownload, FPManual}.
 The extension of this file is usually \emph {*.bgr}, but can be any other. In this file, comments be added if they are written after a {\emph !} symbol. Example:
 
 

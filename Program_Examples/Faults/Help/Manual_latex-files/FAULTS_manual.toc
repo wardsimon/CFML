@@ -22,6 +22,10 @@
 \contentsline {subsection}{\numberline {1.4.5}Progress report: \textbf {CFILEn.out} }{30}{subsection.1.4.5}
 \contentsline {subsection}{\numberline {1.4.6}Final report: \textbf {CFILE$\_$new.flts} }{30}{subsection.1.4.6}
 \contentsline {section}{\numberline {1.5}Running FAULTS}{31}{section.1.5}
-\contentsline {chapter}{\numberline {2}Example}{33}{chapter.2}
-\contentsline {section}{\numberline {2.1}Stacking faults in LiNiO$_{2}$}{33}{section.2.1}
-\contentsline {section}{\numberline {2.2}Analysis of simulated data}{36}{section.2.2}
+\contentsline {chapter}{\numberline {2}Example}{34}{chapter.2}
+\contentsline {section}{\numberline {2.1}Stacking faults in LiNiO$_{2}$}{34}{section.2.1}
+\contentsline {section}{\numberline {2.2}Analysis of simulated data}{37}{section.2.2}
+\contentsline {chapter}{\numberline {3}Frequent errors}{41}{chapter.3}
+\contentsline {section}{\numberline {3.1}Input control file .flts}{41}{section.3.1}
+\contentsline {section}{\numberline {3.2}Input data files}{42}{section.3.2}
+\contentsline {section}{\numberline {3.3}Other remarks}{42}{section.3.3}
