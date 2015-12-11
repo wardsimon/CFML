@@ -1,13 +1,14 @@
 Module Ref_Gen
 
     use CFML_IO_Formats,      only: file_list_type
-    use CFML_Math_General,    only: sind
+    use CFML_Math_General,    only: sind,cosd,acosd,asind,Co_Prime_Vector
     use CFML_ILL_Instrm_data, only: Err_ILLdata_Mess, Err_ILLdata, &
                                     SXTAL_Orient_type, Current_Orient, diffractometer_type, &
                                     Current_Instrm, Read_Current_Instrm, Update_Current_Instrm_UB,&
                                     Set_default_Instrument,Write_Current_Instrm_data
     use CFML_String_Utilities,only: l_case, Get_LogUnit
-    use CFML_crystal_metrics, only: Crystal_Cell_Type,Set_Crystal_Cell, Write_Crystal_Cell
+    use CFML_crystal_metrics, only: Crystal_Cell_Type,Set_Crystal_Cell, Write_Crystal_Cell,Zone_Axis_type, &
+                                    Get_basis_from_uvw
     use CFML_Geometry_SXTAL
 
     implicit none
@@ -17,7 +18,7 @@ Module Ref_Gen
 
  contains
 
-    Subroutine read_sxtal_geom(ipr,cell,file_dat,ok,mess,ord,spher,hlim,sgiven,smin,smax,opgiven,iop_ord)
+    Subroutine read_sxtal_geom(ipr,cell,file_dat,ok,mess,ord,spher,schwinger,hlim,sgiven,smin,smax,opgiven,iop_ord)
         !---- Arguments ----!
         integer,                intent( in)    :: ipr
         type(Crystal_Cell_Type),intent(in out) :: cell
@@ -26,23 +27,28 @@ Module Ref_Gen
         character(len=*),       intent(out)    :: mess
         integer,dimension(3),   intent(out)    :: ord
         logical,                intent(out)    :: spher
+        logical,                intent(out)    :: schwinger
         integer,dimension(3,2), intent(out)    :: hlim
         logical, optional,      intent(out)    :: sgiven,opgiven
         real,    optional,      intent(out)    :: smin,smax
         integer, optional,      intent(out)    :: iop_ord
         !---- Local variables ----!
         character(len=132)   :: line, file_inst
-        real                 :: wave,wav,tmin,tmax
+        real                 :: wave,wav,tmin,tmax,omeg,s1,s2,ang12,tet1,tet2
         real, dimension(3,3) :: ub
+        integer, dimension(3):: uvw
+        real,    dimension(3):: h1,h2,hv
         real, dimension(6)   :: dcel,incel
         integer              :: i,ier,j, n, lun, i_def, igeom
         logical              :: esta, ub_read, wave_read, inst_read, trang_read
+        type(Zone_Axis_Type) :: zone_axis
 
         ok=.false.
         ub_read=.false.
         wave_read=.false.
         inst_read=.false.
         spher=.false.
+        schwinger=.false.
         trang_read=.false.
         igeom=0
         mess= " "
@@ -60,8 +66,8 @@ Module Ref_Gen
             if (line(1:1) =="!") cycle
             i=index(line,"!")
             if( i /= 0) line=line(1:i-1)
-
-            select case (line(1:5))
+            i=index(line," ")-1
+            select case (line(1:i))
 
                 case("srang")
                     if(present(sgiven) .and. present(smin) .and. present(smax)) then
@@ -90,7 +96,7 @@ Module Ref_Gen
                         end if
                     end if
 
-                case("hlim ")
+                case("hlim")
                     ! hmin hmax  kmin kmax  lmin lmax
                     read(unit=line(6:),fmt=*,iostat=ier) ((hlim(i,n),n=1,2),i=1,3)
                     if(ier /= 0 ) then
@@ -110,7 +116,7 @@ Module Ref_Gen
                         return
                     end if
                     call Read_Current_Instrm(trim(file_inst))
-                    !ub=Current_Orient%ub
+                    ub=Current_Orient%ub
                     inst_read=.true.
 
                 case("ubmat")
@@ -123,14 +129,14 @@ Module Ref_Gen
                     end do
                     ub_read=.true.
 
-                case("geom ")
+                case("geom")
                     read(unit=line(6:),fmt=*,iostat=ier) igeom
                     if(ier /= 0 ) then
                         mess="Error reading the diffraction geometry in CFL file: "//trim(file_inst)
                         return
                     end if
 
-                case("wave ")
+                case("wave")
                     read(unit=line(6:),fmt=*,iostat=ier) wave
                     if(ier /= 0 ) then
                         mess="Error reading the wavelength in CFL file: "//trim(file_inst)
@@ -168,6 +174,58 @@ Module Ref_Gen
 
                 case("spher")
                     spher=.true.
+
+                case("schwinger")
+                    schwinger=.true.
+
+                case("orient_hh")
+                    if(.not.wave_read .and. .not. inst_read) then
+                      write(unit=*,fmt="(a)") " => Wavelength shoud be provided!"
+                      return
+                    else if(.not. wave_read) then
+                      wave=Current_Orient%wave
+                    end if
+                    read(unit=line(10:),fmt=*) h1,h2,omeg
+                    hv=cross_product(h1,h2)
+                    call Co_Prime_Vector(nint(hv),uvw)
+                    call Get_basis_from_uvw(0.5,uvw,cell,Zone_Axis,ok)
+                    if(ok) then
+                      Call Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omeg,UB,ok,mess)
+                      if(.not. ok) then
+                        write(unit=*,fmt="(a)") " => UB cannot be calculated from ORIENT_HH instruction "
+                        write(unit=*,fmt="(a)") " => "//trim(mess)
+                        return
+                      end if
+                    else
+                      write(unit=*,fmt="(a)") " => UB cannot be calculated from ORIENT_HH instruction "
+                      write(unit=*,fmt="(a,3i4,tr3,3i4,a,f7.2,a,3i4)") " => Problem with reflections:",nint(h1),nint(h2), " with omega(h1)=",omeg," and calculated [uvw]:",uvw
+                      return
+                    end if
+                    ub_read=.true.
+
+                case("orient_vh")
+                    if(.not.wave_read .and. .not. inst_read) then
+                      write(unit=*,fmt="(a)") " => Wavelength shoud be provided!"
+                      return
+                    else if(.not. wave_read) then
+                      wave=Current_Orient%wave
+                    end if
+
+                    read(unit=line(10:),fmt=*) uvw,h1,omeg
+                    call Get_basis_from_uvw(0.5,uvw,cell,Zone_Axis,ok)
+                    if(ok) then
+                      Call Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omeg,UB,ok,mess)
+                      if(.not. ok) then
+                        write(unit=*,fmt="(a)") " => UB cannot be calculated from ORIENTH instruction "
+                        write(unit=*,fmt="(a)") " => "//trim(mess)
+                        return
+                      end if
+                    else
+                      write(unit=*,fmt="(a)") " => UB cannot be calculated from ORIENTH instruction "
+                      write(unit=*,fmt="(a,6f7.3,a,f7.2)") " => Problem with Zone axis and reflection: ",uvw,h1, " with omega(h1)=",omeg
+                      return
+                    end if
+                    ub_read=.true.
             end select
         end do
 
@@ -308,15 +366,18 @@ End Module Ref_Gen
 
 Program Sxtal_Ref_Gen
 
-    !use F2KCLI  !Only for Lahey compiler
+    use CFML_GlobalDeps,               only: cp,dp,pi
     use CFML_Math_general,             only: sort
+    use CFML_Math_3D,                  only: cross_product
     use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup, Set_SpaceGroup
     use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List,MAtom_list_Type
     use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
     use CFML_Reflections_Utilities,    only: Reflection_List_Type, Hkl_Uni, Hkl_Gen_Sxtal, get_maxnumref, Hkl_Equiv_List
     use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
     use CFML_Structure_Factors,        only: Structure_Factors, Write_Structure_Factors, &
-                                             Init_Structure_Factors
+                                             Init_Structure_Factors,Calc_General_StrFactor,&
+                                             Scattering_Species_Type, Allocate_Scattering_Species, &
+                                             Additional_Scattering_Factors, Set_Form_Factors
     use CFML_ILL_Instrm_data,          only: Err_ILLdata_Mess, Err_ILLdata, &
                                              SXTAL_Orient_type, Current_Orient, diffractometer_type, &
                                              Current_Instrm, Write_Current_Instrm_data
@@ -343,12 +404,13 @@ Program Sxtal_Ref_Gen
     character(len=256)                  :: mess       !Message after reading the CFL file for ref_gen
     character(len=15)                   :: sinthlamb  !String with stlmax (2nd cmdline argument)
     character(len=30)                   :: comment
-    character(len=1)                    :: key
+    character(len=1)                    :: keyv
     real                                :: stlmin,stlmax     !Minimum and Maximum Sin(Theta)/Lambda
     real                                :: tteta, ss, dspc, SqMiV
     real,    dimension(3)               :: hr, z1, vk
     real,    dimension(3,3)             :: ub
-    real                                :: start, end
+    real                                :: sn,s2,theta,flip_right,flip_left,up,down,Nuc
+    real                                :: start, tend
     integer, dimension(3)               :: h, ord
     integer, dimension(3,2)             :: hlim
     integer, dimension(3,48)            :: hlist
@@ -359,8 +421,13 @@ Program Sxtal_Ref_Gen
     real,    dimension(:),  allocatable :: fst
     integer                             :: MaxNumRef, Num, lun=1, ier,i,j, ierr,i_hkl=2, n, iop
     integer                             :: narg, mul, sig, n_ini, n_end, nm, mu, nv
-    logical                             :: esta, arggiven=.false.,sthlgiven=.false., ok=.false., &
+    logical                             :: esta, arggiven=.false.,sthlgiven=.false., ok=.false., schwinger=.false.,&
                                            spher=.false.,lim, iop_given=.false., mag_structure=.false.
+    complex                             :: fn,fx,fe,fsru,fsrd,fslu,fsld
+    Type(Scattering_Species_Type)       :: Scattf, add_Scat
+    real(kind=dp), parameter            :: schw= -0.00014699
+
+
 
     !---- Arguments on the command line ----!
     narg=COMMAND_ARGUMENT_COUNT()
@@ -460,14 +527,14 @@ Program Sxtal_Ref_Gen
 
         !re-read the input file searching for INSTRM, UBM, GEOM, WAVE, ORDER, SPHER items
         if(.not. sthlgiven) then
-            call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,hlim, &
+            call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,schwinger,hlim, &
                                  sgiven=sthlgiven,smin=stlmin,smax=stlmax,opgiven=iop_given,iop_ord=iop)
         else
             if(.not. iop_given) then
-                call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,hlim,  &
+                call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,schwinger,hlim,  &
                                      opgiven=iop_given,iop_ord=iop)
             else
-                call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,hlim)
+                call read_sxtal_geom(lun,cell,fich_cfl,ok,mess,ord,spher,schwinger,hlim)
             end if
         end if
 
@@ -643,7 +710,7 @@ Program Sxtal_Ref_Gen
                     write(unit=*,fmt="(a)")  "  "//err_msfac_mess
                     stop
                 end if
-                call Mag_Structure_Factors(Am,MGp,Mhkl)
+                call Mag_Structure_Factors(Cell,Am,MGp,Mhkl)
                 call Calc_Mag_Interaction_Vector(Mhkl,Cell)  !in {e1,e2,e3} basis (complete Mhkl)
             end if
 
@@ -734,6 +801,89 @@ Program Sxtal_Ref_Gen
             end do
         end if
 
+        if(Schwinger .and. A%natoms /= 0) then
+
+            call Additional_Scattering_Factors(fich_cfl,add_Scat,ok,mess)
+            if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(mess)
+              stop
+            end if
+            !  Set nuclear, x-ray, neutron and magnetic form factors coefficients for all the atoms
+            !  in the structure
+            if(add_Scat%Num_Species > 0) then
+              call Set_Form_Factors(A,Scattf,ok,mess,Current_Orient%wave,lun,add_Scat)
+            else
+              call Set_Form_Factors(A,Scattf,ok,mess,Current_Orient%wave,lun)
+            end if
+            if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(mess)
+              stop
+            end if
+           write(unit=lun,fmt="(/,a)") &
+           "   H   K   L   sinT/L  Intensity     FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"// &
+                                    "  SRUr      SRUi          SRDr      SRDi          SLUr      SLUi          SLDr      SLDi"
+           n=0
+           angles=0.0
+           ind=(/(i,i=1,hkl%NRef)/)
+           do i=1,hkl%NRef
+              hr=real(hkl%ref(i)%h)
+              sn = hkl%ref(i)%s
+              theta=Current_Orient%wave*sn
+              theta=asin(theta)
+              s2=sn*sn
+              call Calc_General_StrFactor(hr,s2,A,SpG,Scattf,fn,fx,fe)
+              Nuc=fn*conjg(fn)
+              fsru=Schwinger_Amplitude(hr,[0.0,0.0, 1.0],theta,fe,Left=.false.)
+              fslu=Schwinger_Amplitude(hr,[0.0,0.0, 1.0],theta,fe,Left=.true.)
+              fsrd=Schwinger_Amplitude(hr,[0.0,0.0,-1.0],theta,fe,Left=.false.)
+              fsld=Schwinger_Amplitude(hr,[0.0,0.0,-1.0],theta,fe,Left=.true.)
+              up= (fn+fsru)*conjg(fn+fsru); down= (fn+fsrd)*conjg(fn+fsrd)
+              if(up < 1.0e-6 .and. down < 1.0e-6) then
+                 flip_right=1.0
+              else
+                 flip_right=up/down
+              end if
+              up=(fn+fslu)*conjg(fn+fslu); down= (fn+fsld)*conjg(fn+fsld)
+              if(up < 1.0e-6 .and. down < 1.0e-6) then
+                 flip_left=1.0
+              else
+                 flip_left=up/down
+              end if
+
+              call calc_angles(Current_Instrm%igeom,sig,hr,ang,comment)
+
+              Select Case (Current_Instrm%igeom)
+
+                  Case(1,2,4)
+                      write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),4f10.3,tr2,a)") &
+                            hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
+                            fsru,fsrd,fslu,fsld,ang,trim(comment)
+
+                  Case(3,-3)
+                      write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),3f10.3,tr2,a)") &
+                            hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
+                            fsru,fsrd,fslu,fsld,ang(1:3),trim(comment)
+              End Select
+
+              if(len_trim(comment) == 0) then
+                  n=n+1
+                  angles(1:4,n)  = (/flip_right,flip_right,flip_right,flip_right/)
+                  reflx(:,n)   = hr
+                  fst(n)       = Nuc
+              end if
+
+           end do
+            !write final output file with a selected ordering according maximum right flipping ratio
+
+            call sort(angles(1,:),n,ind)
+
+            do i=n,1,-1
+                j=ind(i)
+                write(unit=i_hkl,fmt="(3f9.4,f12.5,4f10.3)") reflx(:,j),fst(j), angles(:,j)
+            end do
+
+        end if
+
         write(unit=*,fmt="(a)")    " Normal End of: PROGRAM SXTAL_REFGEN "
         write(unit=*,fmt="(a,i5)") " Number of accessible nuclear  reflections: ",n
         if(mag_structure) write(unit=*,fmt="(a,i5)") " Number of accessible magnetic reflections: ",nm
@@ -743,12 +893,44 @@ Program Sxtal_Ref_Gen
 
     close(unit=lun)
 
-    call cpu_time(end)
+    call cpu_time(tend)
 
-    write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", end-start," seconds"
+    write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", tend-start," seconds"
     write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
-    read(unit=*,fmt="(a)") key
+    read(unit=*,fmt="(a)") keyv
 
     stop
+
+  contains
+
+    Function Schwinger_Amplitude(hn,pol,theta,fe,Left,UB)  result(Schwinger)
+      real(kind=cp), dimension(3),            intent(in) :: hn,pol
+      real(kind=cp),                          intent(in) :: theta !in radians
+      complex(kind=cp),                       intent(in) :: fe
+      logical,                      optional, intent(in) :: left
+      real(kind=cp), dimension(3,3),optional, intent(in) :: UB
+      complex(kind=cp)                                   :: Schwinger
+
+      real(kind=cp),dimension(3) :: uvect, hc
+
+      if(present(left)) then
+        if(left) then
+          uvect=(/0.0,0.0,-1.0/)
+        else
+          uvect=(/0.0,0.0,1.0/)
+        end if
+      else if(present(UB)) then
+        hc=matmul(UB,hn)
+        uvect=cross_product((/0.0,1.0,0.0/),hc)
+        uvect=-uvect/sqrt(dot_product(uvect,uvect))
+      else
+        Schwinger=0.0
+        return
+      end if
+      !change of sign of "i" because the convention used by crystallographers is Q=Kf-Ki
+      Schwinger= schw*cmplx(0.0,-1.0)*dot_product(pol,uvect)*fe/abs(tan(theta))
+    End Function Schwinger_Amplitude
+
+
 
 End Program Sxtal_Ref_Gen

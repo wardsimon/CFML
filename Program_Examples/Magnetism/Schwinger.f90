@@ -22,7 +22,7 @@ Program Schwinger
 
  character(len=256)           :: line,filcod,mess
  character(len=1)             :: indv
- real(kind=cp)                :: sn,s2,theta,lambda,flip_right,flip_left,up,down,stlmax
+ real(kind=cp)                :: sn,s2,theta,lambda,flip_right,flip_left,up,down,stlmax,Nuc
  real(kind=cp), dimension(3)  :: hn
  integer                      :: lun=1, ier,i,j,ih,ik,il, MaxNumRef
  complex(kind=cp)             :: fn,fx,fe,fsru,fsrd,fslu,fsld
@@ -173,6 +173,7 @@ Program Schwinger
            theta=asin(theta)
            s2=sn*sn
            call Calc_General_StrFactor(hn,s2,A,SpG,Scattf,fn,fx,fe)
+           Nuc=fn*conjg(fn)
            fsru=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.false.)
            fslu=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.true.)
            fsrd=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.false.)
@@ -199,6 +200,7 @@ Program Schwinger
            write(unit=*,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  left-down : (",real(fsld)," ) + i (",aimag(fsld)," ) "
            write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
            write(unit=*,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+           write(unit=*,fmt="(a, f12.6)")      "         Nuclear Intensity(Fn^2) : ", Nuc
 
            write(unit=lun,fmt="(/,a,3i4,a,f8.5)") "  Reflection: (",ih,ik,il,") sinTheta/Lambda=",sn
            write(unit=lun,fmt="(a,2(f10.5,a))")   "  Nuclear     Structure   Factor : (",real(fn),  " ) +i (",aimag(fn),  " ) "
@@ -210,9 +212,10 @@ Program Schwinger
            write(unit=lun,fmt="(a,2(f10.5,a))")   "  Schwinger Amplitude  leftt-down: (",real(fsld)," ) +i (",aimag(fsld)," ) "
            write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio right : ", flip_right
            write(unit=lun,fmt="(a, f12.6)")      "            Flipping ratio left  : ", flip_left
+           write(unit=lun,fmt="(a, f12.6)")      "         Nuclear Intensity(Fn^2) : ", Nuc
          else
            write(unit=lun,fmt="(/,a)") &
-           "   H   K   L   sinT/L      FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"// &
+           "   H   K   L   sinT/L  Intensity     FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"// &
                                     "  SRUr      SRUi          SRDr      SRDi          SLUr      SLUi          SLDr      SLDi"
            do j=1,hkl%NRef
               i=ind(j)
@@ -222,6 +225,7 @@ Program Schwinger
               theta=asin(theta)
               s2=sn*sn
               call Calc_General_StrFactor(hn,s2,A,SpG,Scattf,fn,fx,fe)
+              Nuc=fn*conjg(fn)
               fsru=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.false.)
               fslu=Schwinger_Amplitude(hn,[0.0,0.0, 1.0],theta,fe,Left=.true.)
               fsrd=Schwinger_Amplitude(hn,[0.0,0.0,-1.0],theta,fe,Left=.false.)
@@ -238,8 +242,8 @@ Program Schwinger
               else
                  flip_left=up/down
               end if
-              write(unit=lun,fmt="(3i4,f9.5,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4))") &
-              hkl%Ref(i)%h, hkl%Ref(i)%s,fn,fx,fe,flip_left,flip_right,fsru,fsrd,fslu,fsld
+              write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4))") &
+              hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,fsru,fsrd,fslu,fsld
            end do
            exit
          end if
