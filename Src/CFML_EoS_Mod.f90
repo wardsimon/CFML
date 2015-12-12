@@ -2016,11 +2016,11 @@ Contains
       !---- Arguments ----!
       type(Eos_Type),              intent(in)  :: Eos          ! EoS with refined parameters
       integer,                     intent(in)  :: ix,iy,isig   ! input pointers
-      real(kind=cp),dimension(3,:),intent(out) :: xyy          ! output points for plotting; array must by of dimension >100
+      real(kind=cp),dimension(:,:),intent(out) :: xyy          ! output points for plotting; array must by of dimension >100
       integer,                     intent(out) :: n            ! number of data output
 
       !---- Local Variables ----!
-      real(kind=cp),parameters, dimension(6) :: delchi=(/2.30,4.61,6.17,9.21,11.8,18.4/)
+      real(kind=cp),parameter, dimension(6) :: delchi=(/2.30,4.61,6.17,9.21,11.8,18.4/)
 
       integer                    :: ilast
       real(kind=cp)              :: c11,c22,c12,det
@@ -4424,7 +4424,7 @@ Contains
    !!
    Subroutine Write_Data_Conlev(xyy,n,iout)
       !---- Arguments ----!
-      real(kind=cp),dimension(3,:),intent(in)   :: xyy  ! output points for plotting
+      real(kind=cp),dimension(:,:),intent(in)   :: xyy  ! output points for plotting
       integer,                     intent(in)   :: n    ! Number of points
       integer, optional,           intent(in)   :: iout ! Iunit output
 
