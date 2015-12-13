@@ -38,11 +38,23 @@ rem
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
-      if [%TARGET_ARCH%]==[ia32] (set LIBFOR=lib.if8) else (set LIBFOR=lib.i64)
-      (set OPT3=/I%WINTER%\%LIBFOR%)
+      if [%TARGET_ARCH%]==[ia32] (
+         (set LIBFORWIN=lib.if8)
+      ) else (
+         (set LIBFORWIN=lib.i64)
+      )
+      (set OPT3=/I%WINTER%\%LIBFORWIN%)
    )
 rem
    cd %CRYSFML%\Src
+rem
+   echo **---- Compiler Options ----**
+   echo OPT0:%OPT0%
+   echo OPT1:%OPT1%
+   echo OPT2:%OPT2%
+   echo OPT3:%OPT3%
+   echo **---- End Compiler Options ----**
+   echo.
 rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
@@ -151,3 +163,4 @@ rem
    del *.obj *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows
+rem
