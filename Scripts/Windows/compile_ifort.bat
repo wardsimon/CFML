@@ -32,18 +32,17 @@ rem
       (set OPT1=/O2)
    )
    if [%_I15]==[N] (
-      set OPT2=/Qvec-report0
+      (set OPT2=/Qvec-report0)
    ) else (
-      set OPT2="/Qopt-report:0"
+      (set OPT2=/Qopt-report:0)
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (
-         (set LIBFORWIN=lib.if8)
+         (set OPT3=/I%WINTER%\lib.if8)
       ) else (
-         (set LIBFORWIN=lib.i64)
+         (set OPT3=/I%WINTER%\lib.i64)
       )
-      (set OPT3=/I%WINTER%\%LIBFORWIN%)
    )
 rem
    cd %CRYSFML%\Src
