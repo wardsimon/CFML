@@ -1346,10 +1346,11 @@
        integer          :: np1, np2
 
        spgr_hm=" "
+       np1=nline_ini
        call Read_Key_Str(filevar,nline_ini,nline_end, &
                             "_symmetry_space_group_name_H-M",spgr_hm)
-       if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
-
+       !if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
+       nline_ini=np1
        ! TR  feb. 2015 .(re-reading the same item with another name)
        if(len_trim(spgr_hm) == 0) then
         spgr_hm = " "
@@ -1472,9 +1473,10 @@
 
        n_oper=0
        oper_symm=" "
-
+       np1=nline_ini
        call Read_Key_StrVal(filevar,nline_ini,nline_end, &
                             "_symmetry_equiv_pos_as_xyz",string)
+       nline_ini=np1
        ! TR  feb. 2015 .(re-reading the same item with another name)
        if(len_trim(string) == 0) then
         call Read_Key_StrVal(filevar,nline_ini,nline_end, "_space_group_symop_operation_xyz",string)
