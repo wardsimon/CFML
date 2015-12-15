@@ -48,25 +48,25 @@ rem   lf95 -c CFML_Eos_Mod.f90          -o1 -nchk   >> out
    lf95 -c CFML_atom_mod.f90         -o1 -nchk   >> out
 rem
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
+   echo .... Geometry Calculations, Molecules,Formats
+rem
+   lf95 -c CFML_geom_calc.f90        -o1 -nchk   >> out
+   lf95 -c CFML_molecules.f90        -o1 -nchk   >> out
+   lf95 -c CFML_form_cif.f90         -o1 -nchk   >> out
+rem
+   echo **---- Level 5 ----**
+   echo .... Structure Factors,  SXTAL geometry, Propag Vectors
 rem
    lf95 -c CFML_sfac.f90             -o1 -nchk   >> out
-   lf95 -c CFML_geom_calc.f90        -o1 -nchk   >> out
    lf95 -c CFML_SXTAL_geom.f90       -o1 -nchk   >> out
    lf95 -c CFML_propagk.f90          -o1 -nchk   >> out
 rem
-   echo **---- Level 5 ----**
-   echo .... Molecules, Maps, BVS, Energy Configurations
+   echo **---- Level 6 ----**
+   echo ....  Maps, BVS, Energy Configurations
 rem
    lf95 -c CFML_Export_Vtk_LF95.f90  -o1 -nchk   >> out
    lf95 -c CFML_maps.f90             -o1 -nchk   >> out
-   lf95 -c CFML_molecules.f90        -o1 -nchk   >> out
    lf95 -c CFML_conf_calc.f90        -o1 -nchk   >> out
-rem
-   echo **---- Level 6 ----**
-   echo .... Formats
-rem
-   lf95 -c CFML_form_cif.f90         -o1 -nchk   >> out
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
@@ -75,7 +75,7 @@ rem
    lf95 -c CFML_magsymm.f90          -o1 -nchk   >> out
    lf95 -c CFML_refcodes.f90         -o1 -nchk   >> out
 rem
-   echo **---- Level 8 ----**
+   echo **---- Level 9 ----**
    echo .... Magnetic Structure Factors, Polarimetry
 rem
    lf95 -c CFML_msfac.f90            -o1 -nchk   >> out
