@@ -73,7 +73,7 @@ Module CFML_EoS
    !--------------------!
    !---- PARAMETERS ----!
    !--------------------!
-   integer, private,parameter :: NCOL_DATA_MAX=22   ! Defines the maximum number of columns allowed in input data files
+   integer, public, parameter :: NCOL_DATA_MAX=22   ! Defines the maximum number of columns allowed in input data files
    integer, public, parameter :: N_EOSPAR=27        ! Specify the maximum number of Eos parameters allowed in Eos_type data type
    integer, public, parameter :: N_PRESS_MODELS=5   ! Number of possible pressure models
    integer, public, parameter :: N_THERM_MODELS=6   ! Number of possible Thermal models
@@ -3647,14 +3647,15 @@ Contains
    !!
    Subroutine Read_Eos_File(Fname,Eos)
       !---- Arguments ----!
-      character(len=*),intent(in out)  :: fname  ! File name
-      type (EoS_Type), intent(out)     :: Eos    ! EoS object
+      character(len=*),intent(in)  :: fname  ! File name
+      type (EoS_Type), intent(out) :: Eos    ! EoS object
 
       !---- Local Variables ----!
       type (EoS_List_Type)  :: Eoslist    ! EoS list object
 
 
-      Call Read_Multiple_Eos_File(Fname,Eoslist)
+      call Read_Multiple_Eos_File(Fname,Eoslist)
+
       if (eoslist%n < 1)then
          err_eos=.true.
          Err_EoS_Mess="No EoS found in EoS file "
@@ -4647,9 +4648,14 @@ Contains
    !!----
    !!---- SUBROUTINE WRITE_EOSCAL
    !!----
-   !!----   Subroutine to write the calculated parameters of an eos to file at a series of PT points
+   !!----   Subroutine to write the calculated parameters of an eos to file at a series
+   !!----   of PT points.
+   !!----
    !!----   NO  header info is printed here
-   !!----   Therefore the program header and write_info_eos have to be called first before calling this routine
+   !!----
+   !!----   Therefore the program header and write_info_eos have to be called first before
+   !!----   calling this routine.
+   !!----
    !!----   Then write_eoscal_header is called from here
    !!----
    !!----   Change: 06/10/2015 to make write_eoscal_header private, and change name from write_eoscal_file
