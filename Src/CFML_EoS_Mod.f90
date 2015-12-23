@@ -2022,12 +2022,17 @@ Contains
       !---- Local Variables ----!
       real(kind=cp),parameter, dimension(6) :: delchi=(/2.30,4.61,6.17,9.21,11.8,18.4/)
 
-      integer                    :: ilast
+      integer                    :: ilast, nlimit
       real(kind=cp)              :: c11,c22,c12,det
       real(kind=cp)              :: cinv11,cinv22,cinv12,a,b,c,root
       real(kind=cp)              :: xe,xs,xinc,x,y1,y2
 
+      !> Init error variables
+      call Init_Err_Eos()
+
       !> init
+      nlimit=size(xyy,dim=2)
+
       n=0
       xyy=0.0_cp
 
@@ -2038,6 +2043,12 @@ Contains
 
       !> Invert matrix
       det=c11*c22-c12*c12
+      if (abs(det) <=tiny(0.0_cp)) then
+      	 err_eos=.true.
+      	 err_eos_mess="Determinant value is zero in the Confidence ellipses calculation"
+      	 return
+      end if
+
       cinv22=c11/det
       cinv11=c22/det
       cinv12=-1.0_cp*c12/det
@@ -2087,6 +2098,13 @@ Contains
          xyy(2,n)=y1+eos%params(iy)
          xyy(3,n)=y2+eos%params(iy)
          if (ilast /= 0) exit
+
+         if (n == nlimit) then
+         	  err_eos=.true.
+         	  err_eos_mess="Number of points arrived to the limit for Confidence ellipses"
+         	  exit
+         end if
+
       end do
 
       return
