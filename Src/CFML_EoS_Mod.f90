@@ -3327,7 +3327,7 @@ Contains
       character(len=1)                              :: Ts
       character(len=30), dimension(ncol_data_max)   :: dire
 
-      integer                                       :: nldata,ndat
+      integer                                       :: nldata,ndat, npos
       integer                                       :: i,j,kk,nl,nk,nlines,m
       integer                                       :: iv, inum
       integer, dimension(ncol_data_max)             :: ivet,iorden
@@ -3521,6 +3521,10 @@ Contains
       do i=nldata,nlines
          line=adjustl(flines(i))
          if (len_trim(line) <= 0 .or. line(1:1) =='#') cycle
+
+         !> After "#" character is a comment
+         npos=index(line,'#',back=.true.)
+         if (npos > 0) line=line(:npos-1)
 
          !---- Data Points ----!
          !> Replace ',' by blank character
