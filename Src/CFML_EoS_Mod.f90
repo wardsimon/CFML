@@ -4901,14 +4901,14 @@ Contains
       integer, optional, intent(in) :: iout
 
       !---- Local Variables ----!
-      integer :: lun
+      integer                               :: lun
 
       !> Unit to print the information
       lun=6
       if (present(iout)) lun=iout
 
       !> Info
-      write(lun,'(//"Coordinates for confidence ellipse at level of",i2," sigma for")')isig
+      write(lun,'(//"Coordinates for confidence ellipse at level of",f4.1," sigma for")') 0.5*(1+isig)
 
       write(lun,'(3x,"X axis as ",a," with variance = ",a)')trim(eos%parname(ix)),trim(rformat(eos%vcv(ix,ix),10))
       write(lun,'(3x,"Y axis as ",a," with variance = ",a)')trim(eos%parname(iy)),trim(rformat(eos%vcv(iy,iy),10))
