@@ -102,6 +102,10 @@ Module CFML_EoS
                                                                        'Landau T only  ', &
                                                                        'Landau PVT     '/)
 
+
+   real(kind=cp), public, parameter, dimension(6) :: DELCHI_LEVELS=(/68.30,90.00,95.40,99.00,99.73,99.99/) ! Confidence Levels
+   real(kind=cp), public, parameter, dimension(6) :: DELCHI       =(/ 2.30, 4.61, 6.17, 9.21,11.80,18.40/) ! Delta Chi2 values
+
    !---------------!
    !---- TYPES ----!
    !---------------!
@@ -366,7 +370,7 @@ Contains
 
       !> Init
       p=0.0_cp
-      vol=v             ! needed to allow for transition strain
+      vol=v             ! needed to allow for transition strain: vol is the V of the bare phase
       vs=0.0
       plast=0.0
       first=.true.
@@ -437,21 +441,21 @@ Contains
          if (first) then
             i=0
             if (eospar%itran == 1)then
-               ptr=ev(21)
+               ptr=ev(21)       !PV transition, so Ptr is the eos%param(21)
             else
-               ptr=(T-ev(21))/ev(22)
+!               ptr=(T-ev(21))/ev(22)
+                ptr=get_transition_pressure(T,eospar)
             end if
             vtr=huge(0._cp)
          end if
-                                                 !
-                                                 ! The following algorithm may not work with dyanmic softening in high symm field
+
          i=i+1
 
          if (abs(plast-p) < 0.0001) exit         ! iteration has converged
          if (i > 1000)exit
 
-         !> Here if not converged:
-         !  if(transition_phase(p,t,eospar))then
+         !> Here if not converged:      ! works provided phase boundary is almost linear
+
          if (first .or. abs(plast-p) < difp) then
             vs=get_transition_strain(p,T,eospar)
             volp=vol
@@ -462,12 +466,7 @@ Contains
             vol=(vol+volp)/2.0
          end if
 
-         ! else
-         ! estimated p is in high field, so we overshot in p: this V is therefore a best estimate of Vtr
-         ! if (vol .lt. vtr)vtr=vol
-         ! vol=(vtr + vol + 4.0*volp)/6.0
-         ! volp=vol
-         ! endif
+
 
          first=.false.
 
@@ -880,9 +879,11 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp)              :: Ptr       ! The transition T at this P
-
+      real(kind=cp)              :: sqroot
       !> init
       ptr=0._cp
+      Err_EoS=.false.
+      call Init_Err_EoS()
 
       !> Check for valid model number. If not valid, return with zero Tr
       if (eospar%itran < 1 .or. eospar%itran > N_TRANS_MODELS) return
@@ -893,7 +894,23 @@ Contains
             ptr=eospar%params(21)
 
          case(3) ! Landau PVT
-            ptr = (T-eospar%params(21))/eospar%params(22)
+           ! ptr = (T-eospar%params(21))/eospar%params(22) original linear
+           if(abs(eospar%params(24)) < tiny(0.))then
+               ptr = (T-eospar%params(21))/eospar%params(22)        ! linear
+           else
+               sqroot=eospar%params(22)*eospar%params(22)-4.0_cp*eospar%params(24)*(eospar%params(21)-T)
+               if(sqroot > tiny(0.0))then
+                   ptr=2.0_cp*(T-eospar%params(21))/(eospar%params(22)+sqrt(sqroot))        ! Viet/Muller formula for root
+               elseif(sqroot > -1.0*tiny(0.0))then
+                   ptr=-2.0_cp*(T-eospar%params(21))/eospar%params(22)
+               else
+                   Err_EoS=.true.
+                   Write(Err_EoS_Mess,'(a,f8.3,a)')'No real solution for Ptr at T = ',T,'K'
+               endif
+
+           endif
+
+
       end select
 
       return
@@ -937,8 +954,9 @@ Contains
                vs=eospar%params(23)*abs(eospar%params(21)-T)**eospar%params(25)
 
             case(3) ! Landau PVT
-               Ttr = eospar%params(21)+p*eospar%params(22)
-               a=eospar%params(23)+p*eospar%params(24)
+               Ttr = Get_Transition_Temperature(P,EosPar)
+      !         a=eospar%params(23)+p*eospar%params(24)  da/dP
+               a=eospar%params(23)
                vs=a*abs(Ttr-T)**eospar%params(25)            !abs function to handle highT being low sym
          end select
 
@@ -952,7 +970,7 @@ Contains
                vs=eospar%params(26)*abs(eospar%params(21)-T)**eospar%params(27)
 
             case(3) ! Landau PVT:  Note no da/dP for highP phase
-               Ttr = eospar%params(21)+p*eospar%params(22)
+               Ttr = Get_Transition_Temperature(P,EosPar)
                vs=eospar%params(26)*abs(Ttr-T)**eospar%params(27)            !abs function to handle highT being low sym
          end select
       end if
@@ -986,8 +1004,8 @@ Contains
          case(2) ! Landau TV
             Tr=eospar%params(21)
 
-         case(3) ! Landau PVT
-            Tr = eospar%params(21)+p*eospar%params(22)
+         case(3) ! Landau PVT: with a curved phase boundary
+            Tr = eospar%params(21)+p*eospar%params(22)+p*p*eospar%params(24)
 
       end select
 
@@ -1394,15 +1412,17 @@ Contains
             case(2,3)      ! Landau VT or PVT
                if (transition_phase(P,T,eospar)) then
                   ! low phase
-                  Ttr = ev(21)+p*ev(22)
-                  a=ev(23)+p*ev(24)
-                  dVs=a*ev(25)*(abs(Ttr-T))**(ev(25)-1)*ev(22) + (abs(Ttr-T))**ev(25)*eospar%params(24)
+                  Ttr = get_transition_temperature(P,eospar)
+            !      a=ev(23)+p*ev(24)
+            !      dVs=a*ev(25)*(abs(Ttr-T))**(ev(25)-1)*ev(22) + (abs(Ttr-T))**ev(25)*eospar%params(24) with da/dP
+                  dVs=ev(23)*ev(25)*(abs(Ttr-T))**(ev(25)-1)*(ev(22)+2.0_cp*ev(24)*p)       ! for curved phase boundary
                   if (nint(ev(20)) /= 1) dVs=-1.0_cp*dVs             ! sign change when low phase is highT
                   kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
                else
                   ! in the highphase
-                  Ttr = ev(21)+p*ev(22)
-                  dVs=ev(26)*ev(27)*(abs(Ttr-T))**(ev(27)-1)*ev(22)  ! simpler because no da/dP: expression if High phase is lowT
+                  Ttr = get_transition_temperature(P,eospar)
+                  dVs=ev(26)*ev(27)*(abs(Ttr-T))**(ev(27)-1)*ev(22)  ! simpler because no da/dP: expression if High phase is lowT   ! for straight boundary
+                  dVs=ev(26)*ev(27)*(abs(Ttr-T))**(ev(27)-1)*(ev(22)+2.0_cp*ev(24)*p)   ! simpler because no da/dP: expression if High phase is lowT: curved boundary
                   if (nint(ev(20)) ==1) dVs=-1.0_cp*dVs              ! sign change when high phase is highT
                   kc=1.0_cp/(1.0_cp/kc - dVs/(1+Vs))
                end if
@@ -1916,7 +1936,8 @@ Contains
             if (T < eospar%params(21)) ip=.true.
 
          case(3) ! Landau PVT
-            Ttr = eospar%params(21)+p*eospar%params(22)
+          !  Ttr = eospar%params(21)+p*eospar%params(22)  changed from this on 18/12/2015
+            Ttr = Get_Transition_Temperature(P,EosPar)  ! general case
             if ( (T <  Ttr) ) ip=.true.
 
       end select
@@ -2015,14 +2036,13 @@ Contains
    Subroutine Calc_Conlev(Eos,ix,iy,isig,xyy,n)
       !---- Arguments ----!
       type(Eos_Type),              intent(in)  :: Eos          ! EoS with refined parameters
-      integer,                     intent(in)  :: ix,iy,isig   ! input pointers
+      integer,                     intent(in)  :: ix,iy        ! input pointers to two variables in the variance-covariance matrix
+      integer,                     intent(in)  :: isig         ! requested confidence level, values 1-6
       real(kind=cp),dimension(:,:),intent(out) :: xyy          ! output points for plotting; array must by of dimension >100
       integer,                     intent(out) :: n            ! number of data output
 
       !---- Local Variables ----!
-      real(kind=cp),parameter, dimension(6) :: delchi=(/2.30,4.61,6.17,9.21,11.8,18.4/)
-
-      integer                    :: ilast, nlimit
+      integer                    :: ilast,nlimit
       real(kind=cp)              :: c11,c22,c12,det
       real(kind=cp)              :: cinv11,cinv22,cinv12,a,b,c,root
       real(kind=cp)              :: xe,xs,xinc,x,y1,y2
@@ -2035,6 +2055,13 @@ Contains
 
       n=0
       xyy=0.0_cp
+
+      !> Check
+      if (isig < 1 .or. isig > 6) then
+         err_eos=.true.
+      	 err_eos_mess="Confidence level is out of range"
+      	 return
+      end if
 
       !> Copy over vcv values
       c11=eos%vcv(ix,ix)
@@ -2104,7 +2131,6 @@ Contains
          	  err_eos_mess="Number of points arrived to the limit for Confidence ellipses"
          	  exit
          end if
-
       end do
 
       return
@@ -3245,7 +3271,7 @@ Contains
 
       !---- Local variables ----!
       character(len=20)   :: car
-      real(kind=cp)       :: tlimit,v
+      real(kind=cp)       :: tlimit,v,pinf
 
       !> Init
       call Init_Err_EoS()
@@ -3303,7 +3329,16 @@ Contains
                err_eos=.true.
                err_eos_mess='T  less than zero K'
             end if
-      end select
+         end select
+
+     !> Produce warning for curved phase boundaries: Pinflection = a/-2b when Ttr=Tr0+aP+bP^2
+      if(e%itran>0 .and. abs(e%params(24)) > tiny(0.))then
+          pinf=abs(e%params(22)/2.0/e%params(24))
+          if(abs(p/pinf -1.0) < 0.1)then
+            err_eos=.true.
+            err_eos_mess='P in region of boundary inflection P: PVT calculations may be inaccurate or wrong'
+          endif
+      endif
 
       return
    End Subroutine Physical_Check
@@ -3929,7 +3964,7 @@ Contains
          case(1:3)
             eospar%factor(20:n_eospar) = 1.0_cp
             eospar%factor(23) = 1.0E3_cp         ! 1000 for aL
-            eospar%factor(24) = 1.0E5_cp         ! for da/dP
+         !   eospar%factor(24) = 1.0E5_cp         ! for da/dP
             eospar%factor(26) = 1.0E3_cp         ! 1000 for aH
       end select
 
@@ -4082,7 +4117,10 @@ Contains
 
            case(3)     ! Landau PVT
               eospar%iuse(20:22)=2        !settable, no refine: sense of transition, T(tr), dT(Tr)/dP
-              eospar%iuse(23:27)=1        !settable, allow refine: aL, da/dT, betaL,aH,betaH
+        !    version prior to 18/12/2015  eospar%iuse(23:27)=1        !settable, allow refine: aL, da/dP, betaL,aH,betaH
+              eospar%iuse(23)=1           !settable, allow refine: aL,
+              eospar%iuse(24)=2           !settable, fixed d2Tr/dP2
+              eospar%iuse(25:27)=1        !settable, allow refine:  betaL,aH,betaH
         end select
 
 
@@ -4278,12 +4316,14 @@ Contains
             eospar%comment(27) = 'Power law term, high phase'
 
          case(3)       ! Landau power law PVT
-            eospar%parname(20:27) = (/'High ','Ttr  ','Tr/dP','aL   ','da/dP','betaL','aH   ','betaH'/)
+        !    eospar%parname(20:27) = (/'High ','Ttr  ','Tr/dP','aL   ','da/dP','betaL','aH   ','betaH'/)
+            eospar%parname(20:27) = (/'High ','Ttr  ','Tr/dP','aL   ','dTr2 ','betaL','aH   ','betaH'/)
             eospar%comment(20) = 'Indicator = +1 if high T phase is high sym phase'
             eospar%comment(21) = 'Transition temperature'
             eospar%comment(22) = 'dTr/dP: slope of transition boundary'
             eospar%comment(23) = 'Scaling parameter, low phase x10^3'
-            eospar%comment(24) = 'da/dP at Tref x10^5'
+         !   eospar%comment(24) = 'da/dP at Tref x10^5'
+            eospar%comment(24) = 'd2Tr/dP2: curvature of phase boundary'
             eospar%comment(25) = 'Power law term, low phase'
             eospar%comment(26) = 'Scaling parameter, high phase x10^3'
             eospar%comment(27) = 'Power law term, high phase'
@@ -4652,14 +4692,9 @@ Contains
    !!----
    !!---- SUBROUTINE WRITE_EOSCAL
    !!----
-   !!----   Subroutine to write the calculated parameters of an eos to file at a series
-   !!----   of PT points.
-   !!----
+   !!----   Subroutine to write the calculated parameters of an eos to file at a series of PT points
    !!----   NO  header info is printed here
-   !!----
-   !!----   Therefore the program header and write_info_eos have to be called first before
-   !!----   calling this routine.
-   !!----
+   !!----   Therefore the program header and write_info_eos have to be called first before calling this routine
    !!----   Then write_eoscal_header is called from here
    !!----
    !!----   Change: 06/10/2015 to make write_eoscal_header private, and change name from write_eoscal_file
@@ -4800,10 +4835,15 @@ Contains
             end do
             if (eos%itran > 0)text=trim(text)//'  '//trim(rformat(parout(12),ip(12)))
 
-            if (err_eos) then
-               text=text(1:14)//':   '//trim(err_eos_mess)
-            end if
-            write(lun,'(a)')trim(text)
+       !     if (err_eos) then
+       !        text=text(1:14)//':   '//trim(err_eos_mess)
+       !    end if
+            write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error
+            if (err_eos)then
+                text=text(1:14)//':   '//trim(err_eos_mess)
+                write(lun,'(a)')trim(text)
+            endif
+
 
             !> Now increment inner loop variable and test for completion
             if (loop_p) then
@@ -4901,14 +4941,16 @@ Contains
       integer, optional, intent(in) :: iout
 
       !---- Local Variables ----!
-      integer                               :: lun
+      integer :: lun
+
+
 
       !> Unit to print the information
       lun=6
       if (present(iout)) lun=iout
 
       !> Info
-      write(lun,'(//"Coordinates for confidence ellipse at level of",f4.1," sigma for")') 0.5*(1+isig)
+      write(lun,'(//"Coordinates for confidence ellipse at confidence level of ",f6.2,"%")')delchi_levels(isig)
 
       write(lun,'(3x,"X axis as ",a," with variance = ",a)')trim(eos%parname(ix)),trim(rformat(eos%vcv(ix,ix),10))
       write(lun,'(3x,"Y axis as ",a," with variance = ",a)')trim(eos%parname(iy)),trim(rformat(eos%vcv(iy,iy),10))
