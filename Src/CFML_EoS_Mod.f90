@@ -3329,16 +3329,16 @@ Contains
                err_eos=.true.
                err_eos_mess='T  less than zero K'
             end if
-         end select
+      end select
 
-     !> Produce warning for curved phase boundaries: Pinflection = a/-2b when Ttr=Tr0+aP+bP^2
-      if(e%itran>0 .and. abs(e%params(24)) > tiny(0.))then
-          pinf=abs(e%params(22)/2.0/e%params(24))
-          if(abs(p/pinf -1.0) < 0.1)then
+      !> Produce warning for curved phase boundaries: Pinflection = a/-2b when Ttr=Tr0+aP+bP^2
+      if (e%itran>0 .and. abs(e%params(24)) > tiny(0.0))then
+         pinf=abs(e%params(22)/2.0/e%params(24))
+         if (abs(p/pinf -1.0) < 0.1) then
             err_eos=.true.
             err_eos_mess='P in region of boundary inflection P: PVT calculations may be inaccurate or wrong'
-          endif
-      endif
+         end if
+      end if
 
       return
    End Subroutine Physical_Check
