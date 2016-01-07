@@ -436,6 +436,9 @@
 
  logical,  dimension(:), allocatable  :: fundamental  !array which defines if each layer is fundamental or not
  logical                              :: randm, semirandm, spcfc
+
+ logical                              :: streakOrPowder = .false. !if TRUE then streak fiting is handled
+ logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
 !
 !*********************     integer*4 variables
 !
@@ -529,7 +532,7 @@
 
   integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
   integer :: i_adapt = 1  !Adaptive quadrature always applied
-  integer :: funct_num ! Function number: 3=powder pattern, 4=SADP
+  integer :: funct_num ! Function number: 1=streak, 3=powder pattern, 4=SADP
 
 !
 !**********************     REAL(kind=dp) variables
@@ -652,6 +655,7 @@
                                                       ! after instrumental broadening has been applied.
  REAL(kind=dp), dimension(MAX_SP)        :: spec      ! Array holding the unbroadened powder diffraction data.
                                                       ! This array also holds the SADP image data.
+ real,          dimension(max_sp)        :: strkAngl  ! This array holds values if 2theta angles for pv_streak calculationns
 
  REAL(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
 

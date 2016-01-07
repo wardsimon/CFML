@@ -1236,8 +1236,12 @@
 
       pat%scal = crys%patscal
       Do j = 1, pat%npts
-       pat%ycalc(j)  = brd_spc(j)
-       pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
+          if (streakOrPowder) then
+              pat%ycalc(j) = (log(brd_spc(j))+20)*pat%scal
+          else
+              pat%ycalc(j)  = brd_spc(j)
+              pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
+          end if
       End do
 
       !Adding Chebychev polynomial background
@@ -1289,7 +1293,11 @@
         IF(cfile) CLOSE(UNIT = cntrl)
         return
       END IF
-      CALL gospec(infile,outfile,ok)
+      if (streakOrPowder) then
+          CALL gostrk(infile,outfile,ok)
+      else
+          CALL gospec(infile,outfile,ok)
+      end if
       if(calculate_aberrations) call Apply_Aberrations()
       return
 
@@ -1496,6 +1504,11 @@
                 d_theta = half * deg2rad * step_2th
              end if
            end if
+         if (streakOrPowder) then
+            l0_streak = difpat%xmin
+            l1_streak = difpat%xmax
+            dl_streak = difpat%step
+         end if
          if (crys%bgrinter) then
            write(*,"(a)") " => Reading Background file="//trim(background_file)
            call read_background_file(background_file, mode ,difpat)
@@ -1547,6 +1560,24 @@
                     
                         write (unit=*,fmt="(a)") " => Calculating intensity along a streak"
                         CALL gostrk(infile,outfile,ok)
+                        Do j = 1, n_high
+                            if (unbroaden) then
+                                ycalcdef(j) = log(spec(j)) + 20
+                            else
+                                ycalcdef(j) = log(brd_spc(j)) + 20
+                            end if
+                        end do
+                        if (replace_files) then
+                            Call getfnm(filenam,outfile, '.dat', ok,replace_files)
+                        else
+                            !CALL getfnm(filenam, outfile, '.dat', ok)
+                            outfile=trim(outfile_notrepl)//".dat"
+                        end if
+
+                        OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                        write(unit = iout,fmt = *)'!', outfile, "h = ", h_streak, "k = ", k_streak
+                        write(unit = iout,fmt = '(i3,f10.4,i3)') l0_streak, dl_streak, l1_streak
+                        write(unit = iout,fmt = '(8f12.5)') ( ycalcdef(j), j=1, n_high )
                         
                     Case (3)    !powder diffraction pattern
 

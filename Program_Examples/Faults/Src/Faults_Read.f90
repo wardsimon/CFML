@@ -1346,8 +1346,12 @@
                 logi=.false.
                 return
             end if
+            n_high = nint((l1_streak-l0_streak)/dl_streak+1.0_dp)
             ok_streak =.true.
             
+          Case ("UNBROADEN")
+            unbroaden = .true.
+
           Case ("POWDER")
             k=index(txt," ")
             txt=adjustl(txt(k+1:))
@@ -1606,7 +1610,7 @@
       integer :: i,i1,i2,k,j, ier, m
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_file, ok_fformat, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt
+      logical :: ok_file, ok_fformat, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt, ok_expstreak
 
       logi=.true.
       i1=sect_indx(8)
@@ -1617,6 +1621,7 @@
 
       ok_file=.false.; ok_fformat=.false.; ok_bgrnum=.false.
       ok_bgrinter=.false.; ok_bgrcheb=.false.; ok_bgrpatt=.false.
+      ok_expstreak=.false.
       crys%bgrpatt=.false.; crys%bgrinter=.false.; crys%bgrcheb=.false.
       do
 
@@ -1673,6 +1678,17 @@
               end if
               ok_fformat=.true.
 
+          Case("EXPSTREAK")
+              read(unit=txt,fmt=*,iostat=ier) h_streak, k_streak
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading streak instruction"
+                  logi=.false.
+                  return
+              end if
+              streakOrPowder = .true.
+              ok_expstreak = .true.
+              adapt_quad = 1
 
           Case("BGRINTER")
             crys%bgrinter=.true.
@@ -1760,7 +1776,7 @@
 
       LGBLT=17+crys%cheb_nump+crys%num_bgrpatt
 
-        if(ok_file .and. ok_fformat .and. (ok_bgrinter .or. ok_bgrcheb .or. (ok_bgrnum .and. ok_bgrpatt) )) then
+        if(ok_file .and. ok_fformat .and. (ok_expstreak .or. ok_bgrinter .or. ok_bgrcheb .or. (ok_bgrnum .and. ok_bgrpatt) )) then
         return
       else
         Err_crys=.true.

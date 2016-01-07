@@ -5,6 +5,7 @@
                                          iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
    use CFML_Optimization_General, only : Opt_Conditions_Type
    use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type
+   use CFML_PowderProfiles_CW,    only : Pseudovoigt
    use read_data,                 only : crys_2d_type, read_structure_file, length, opti, cond, crys
    use diffax_mod
 
@@ -4242,22 +4243,22 @@
       CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
       CHARACTER (LEN=*), INTENT(OUT)           :: outfile
       LOGICAL, INTENT(IN OUT)                  :: ok
-
+      real(kind=dp),dimension(6) :: pv_in
       INTEGER*4 i, io_err
 ! external functions
 
 ! external subroutines (Some compilers need them declared external)
 !      external STREAK, GETFNM
 
-      if(replace_files) then
-        Call getfnm(infile,outfile, '.str', ok,replace_files)
-      else
+      !if(replace_files) then
+      !  Call getfnm(infile,outfile, '.str', ok,replace_files)
+      !else
         !Call getfnm(infile, outfile, '.str', ok)
-        outfile=trim(outfile_notrepl)//".str"
-      end if
-      IF(.NOT.ok) GO TO 999
-      IF(sk /= op) OPEN(UNIT = sk, FILE = outfile, STATUS = 'new',  &
-          ERR = 990, IOSTAT = io_err)
+      !  outfile=trim(outfile_notrepl)//".str"
+      !end if
+      !IF(.NOT.ok) GO TO 999
+      !IF(sk /= op) OPEN(UNIT = sk, FILE = outfile, STATUS = 'new',  &
+      !    ERR = 990, IOSTAT = io_err)
       4567 WRITE(op,100) ' '
     !  WRITE(op,100) 'CALCULATING INTENSITY ALONG A STREAK. . .'
     !  WRITE(op,100) 'Enter 1 for adaptive quadrature: '
@@ -4270,6 +4271,10 @@
       ELSE
         CALL streak( glq16, outfile, ok)
       END IF
+
+      pv_in(1)=pv_u; pv_in(2)=pv_v;  pv_in(3)=pv_w
+      pv_in(4)=pv_x; pv_in(5)=pv_dg; pv_in(6)=pv_dl
+      call pv_streak(spec, strkAngl, brd_spc, pv_in)
 
       999 RETURN
       990 WRITE(op,102) 'Problems opening output file ', outfile
@@ -6415,6 +6420,84 @@
 
 !------------------------------------------------------------------------
 
+!------------------------------------------------------------------------
+! TITLE: pv_streak
+!
+! This subroutine transform unbroadened data to broadened one with using
+! pseudovoigt function from CFML. The aim of this subroutine to make it operate
+! not only with constant step of theta.
+!
+! Input:    inputArray - unbroadened spectra
+!           angles - array with angles (in deg, 2theta units) which correspond
+!                    to points in input arrays
+!           uvw - array(6) with U V W X Dg Dl parameters
+!
+! Output:   outputArray - broadened spectra
+
+
+    SUBROUTINE pv_streak(inputArray, angles, outputArray, uvw)
+
+        !----Input/Output---!
+        real(kind=dp), dimension(max_sp),   intent(in)     :: inputArray
+        real,          dimension(max_sp),   intent(in)     :: angles
+        real(kind=dp), dimension(max_sp),   intent(out)    :: outputArray
+        real(kind=dp), dimension(6),        intent(in)     :: uvw
+
+        !----Local Variables----!
+        INTEGER*4 i, j, n_low
+        REAL      :: delta_lambda
+        real      :: temp4      !coeff for 4-th summand in FWHM-lorentz
+        real      :: temp2      !coeff for 2-th summand in FWHM-gauss
+        real      :: doubletAngle, cos_th, tang_th
+        REAL      :: pvoigt, const, pv1, pv2
+        real, dimension(2) :: pLG   !vector of two FWHM for Lorentz and Gauss
+        real, dimension(2) :: FWHMnEta !vector of FWHM and eta parameter
+
+        !----Body of the program----!
+        !clean the outputArray
+        DO  i = 1, n_high
+            outputArray(i) = zero
+        END DO
+
+        n_low = 1
+        delta_lambda = lambda2 - lambda
+        if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
+        const = two * rad2deg * d_theta     !transform to deg and twoTheta units
+        !calculate a part from FWHM for lorentz and gauss which not depends on angle
+        temp4 = four*LOG(two)*lambda*lambda*rad2deg*rad2deg/(pi*uvw(5)*uvw(5))
+        temp2 = two*lambda*rad2deg/(pi*uvw(6))
+
+
+        DO  i = n_low, n_high
+            !calculate a rest of the FWHM of lorentz and gauss which depends on angle
+            tang_th = TAN(half*deg2rad*angles(i))
+            cos_th = COS(half*deg2rad*angles(i))
+            doubletAngle = two*rad2deg*delta_lambda*tang_th/lambda !angular shift
+            pLG(1) = sqrt(uvw(1)*tang_th*tang_th + uvw(2)*tang_th + uvw(3) + temp4/(cos_th**2))
+            pLG(2) = uvw(4)*tang_th + temp2/cos_th
+
+            !it much more faster to calculate FWHM and Eta by this local subroutine
+            call tch(pLG(1),pLG(2),FWHMnEta(1),FWHMnEta(2))
+
+            if (lambda2 /= 0 ) then
+                DO  j = n_low - i, n_high - i
+                    pv1=const*Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
+                    pv2=const*Pseudovoigt(angles(j+i)-angles(i)-doubletAngle,FWHMnEta)
+                    pvoigt = pv1 + ratio * pv2
+                    outputArray(i+j) = outputArray(i+j) + pvoigt*spec(i)
+                END DO
+            else
+                DO  j = n_low - i, n_high - i
+                    pvoigt = Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
+                    !pvoigt = const*Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
+                    outputArray(i+j) = outputArray(i+j) + pvoigt*spec(i)
+                END DO
+            end if
+
+        END DO
+        return
+
+    END SUBROUTINE pv_streak
 
       SUBROUTINE TCH(hg,hl,fwhm,eta)
 !-------------------------------------------------------------------------
@@ -7016,8 +7099,8 @@
         !GO TO 10
       END IF
 
-      WRITE(op,404) ' => Writing streak data to file ''',  &
-          strkfile(1:length(strkfile)),'''. . .'
+      !WRITE(op,404) ' => Writing streak data to file ''',  &
+      !    strkfile(1:length(strkfile)),'''. . .'
 
       CALL xyphse(h, k)
 
@@ -7036,7 +7119,7 @@
 ! If we are dealing with electrons, make sure we avoid the origin
         IF(its_hot .AND. l*(l+dl) <= zero) THEN
           x = zero
-          GO TO 30
+          !GO TO 30
         END IF
         i = i + 1
         IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
@@ -7045,11 +7128,13 @@
 ! note: since this is streak data, only the X_RAY input needs
 ! correcting for polarization.
         IF(rad_type == x_ray)  x = x * w4(angle(h,k,l+half*dl))
-        30   WRITE(sk,406,ERR=100) l, CHAR(9), x
+        spec(lz) = x
+        strkAngl(lz) = two*rad2deg*angle(h,k,l+half*dl)
+        !30   WRITE(sk,406,ERR=100) l, CHAR(9), x
       END DO
       IF(sk /= op) CLOSE(sk,ERR=110)
-      WRITE(op,404) ' => Streak data file, ''',  &
-          strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
+      !WRITE(op,404) ' => Streak data file, ''',  &
+      !    strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
       RETURN
       100 WRITE(op,404) ' => ERROR writing to streak data file ''',  &
           strkfile(1:length(strkfile)),''''
