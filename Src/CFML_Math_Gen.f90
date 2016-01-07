@@ -218,7 +218,7 @@
 
     !---- List of public functions ----!
     public :: Bessj0, Bessj1, Bessj, Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime, &
-              Euclidean_Norm
+              Euclidean_Norm,Erf
 
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,   &
@@ -1176,6 +1176,80 @@
        if ((x<0.0).and.(mod(n,2)==1)) bessj_n=-bessj_n
        return
     End Function BessJ
+
+    !!----
+    !!---- Function ERF(X)
+    !!----    real(kind=cp), intent(in) : x
+    !!----    real(kind=cp)             : Erf
+    !!----
+    !!----    Error Function
+    !!----    Returns the Error Function
+    !!----
+    !!----  Update:  January - 2016
+    !!----
+    Elemental Function Erf(X) Result(Fn_Val)
+       !---- Arguments ----!
+       real (kind=cp), intent(in) :: x
+       real (kind=cp)             :: fn_Val
+
+       !---- Local Variables ----!
+       real (kind=cp), parameter :: C    = 0.564189583547756_cp
+       real (kind=cp), parameter :: ONE  = 1.0_cp
+       real (kind=cp), parameter :: HALF = 0.5_cp
+       real (kind=cp), parameter :: ZERO = 0.0_cp
+
+       real (kind=dp), parameter :: A(5) = (/0.771058495001320D-04, -0.133733772997339D-02, 0.323076579225834D-01, &
+                                             0.479137145607681D-01,  0.128379167095513D+00 /)
+       real (kind=dp), parameter :: B(3) = (/0.301048631703895D-02,  0.538971687740286D-01, 0.375795757275549D+00 /)
+       real (kind=dp), parameter :: P(8) = (/-1.36864857382717D-07,  5.64195517478974D-01,  7.21175825088309D+00, &
+                                              4.31622272220567D+01,  1.52989285046940D+02,  3.39320816734344D+02, &
+                                              4.51918953711873D+02,  3.00459261020162D+02 /)
+       real (kind=dp), parameter :: Q(8) = (/ 1.00000000000000D+00,  1.27827273196294D+01,  7.70001529352295D+01, &
+                                              2.77585444743988D+02,  6.38980264465631D+02,  9.31354094850610D+02, &
+                                              7.90950925327898D+02,  3.00459260956983D+02 /)
+       real (kind=dp), parameter :: R(5) = (/ 2.10144126479064D+00,  2.62370141675169D+01,  2.13688200555087D+01, &
+                                              4.65807828718470D+00,  2.82094791773523D-01 /)
+       real (kind=dp), parameter :: S(4) = (/ 9.41537750555460D+01,  1.87114811799590D+02,  9.90191814623914D+01, &
+                                              1.80124575948747D+01 /)
+
+       real (kind=cp) :: ax, bot, t, top, x2
+
+       !> Init
+       ax = ABS(x)
+
+       if (ax <= half) then
+          t = x*x
+          top = ((((a(1)*t + a(2))*t + a(3))*t + a(4))*t + a(5)) + one
+          bot = ((b(1)*t + b(2))*t + b(3))*t + one
+          fn_val = x*(top/bot)
+          return
+       end if
+
+       if (ax <= 4.0_cp) then
+          top = ((((((p(1)*ax + p(2))*ax + p(3))*ax + p(4))*ax + p(5))*ax  &
+              + p(6))*ax + p(7))*ax + p(8)
+          bot = ((((((q(1)*ax + q(2))*ax + q(3))*ax + q(4))*ax + q(5))*ax  &
+              + q(6))*ax + q(7))*ax + q(8)
+
+          fn_val = half + (half - exp(-x*x)*top/bot)
+          if (x < zero) fn_val = -fn_val
+          return
+       end if
+
+       if (ax < 5.8_cp) then
+          x2 = x*x
+          t = one / x2
+          top = (((r(1)*t + r(2))*t + r(3))*t + r(4))*t + r(5)
+          bot = (((s(1)*t + s(2))*t + s(3))*t + s(4))*t + one
+          fn_val = (c - top/(x2*bot)) / ax
+          fn_val = half + (half - exp(-x2)*fn_val)
+          if (x < zero) fn_val = -fn_val
+          return
+       end if
+
+       fn_val = SIGN(one, x)
+       return
+    End Function Erf
 
     !!----
     !!---- Elemental Function Factorial(n) Result(fact)
