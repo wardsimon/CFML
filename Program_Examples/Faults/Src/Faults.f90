@@ -479,14 +479,21 @@
        write(i_ftls,"(a)")     " CALCULATION  "
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
-         if (funct_num == 3) then
-           write(i_ftls,"(a)")  " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
-           write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, &
+         Select case (funct_num)
+            case (1)
+                write(i_flts,"(a)") " !Streak calculation: adapt_quad, h_streak, k_streak, l0_streak, l1_streak, dl_streak"
+                write(i_flts,"(a, i2, 4i3, f10.4)") "STREAK", adapt_quad, h_streak, k_streak, l0_streak, l1_streak, dl_streak
+            case (3)    !if (funct_num == 3) then
+                write(i_ftls,"(a)") " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
+                write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, &
                                                         "   Bckg_Level ",crys%Bckg_Level
-         else
-         	 write(i_ftls,"(a)")          " !Selected Area Diffraction Pattern: i_plane, l_upper, loglin, brightness"
-         	 write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
-         end if
+            case (4)    !else
+         	    write(i_ftls,"(a)") " !Selected Area Diffraction Pattern: i_plane, l_upper, loglin, brightness"
+         	    write(i_ftls,"(a, i2, f10.4, i2, f10.4)")  "SADP", i_plane, l_upper, loglin, brightness
+
+            case default
+                write(i_flts,"(a)") "Faults cannot found what to write here. Please, provide CALCULATION section by yourself"
+         end select     !end if
        elseif (opt == 3) then
          write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
          write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
@@ -511,6 +518,9 @@
          write(i_ftls,"(a)")          " EXPERIMENTAL"
          write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
          write(i_ftls,"(2a, g14.6,f9.2)")         " File  ", dfile, crys%patscal, ref_glb(1)
+         if (streakOrPowder) then
+            write(i_flts,"(a, 2i3)") "EXPSTREAK", h_streak, k_streak
+         end if
          if (nexcrg /= 0) then
            write(i_ftls,"(a, i2)")    " Excluded_Regions  ",  nexcrg
            do i=1,nexcrg

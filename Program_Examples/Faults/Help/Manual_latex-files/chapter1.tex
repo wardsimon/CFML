@@ -404,7 +404,18 @@ For example:
 %        5.0 90.0 0.02 \{\ 2$\theta_{min}$, 2$\theta_{max}$, step \}\
 %        }
 
+For the streak simulation the user should put the \textit{STREAK} keyword followed by the next values: adapt$\_$quad, h, k,
+l0, l1 and dl. Optionally, one can put \textit{UNBROADEN} keyword on the next line for calculating unbroadened streak data. Scale factor is equal to one for the streak calculations. Data is written in free format and can be visualized using WinPlotr.
+For example:
 
+\begin{flushleft}
+	\begin{tabbing}
+		\hspace*{1.5 cm}CALCULATION  \\*
+		\hspace*{1.5 cm}SIMULATION    \= \{\ type of optimization \}\  \\*
+		\hspace*{1.5 cm}STREAK  1  1  0  -5 5 0.01 \= \{\ adapt\_quad, h, k, l0, l1, dl \}\ \\*
+		\hspace*{1.5 cm}UNBROADEN
+	\end{tabbing}
+\end{flushleft}
 
 %\normalsize{
 \item \textbf{LMA:} The user has to specify the maximum correlation parameter (which defines the minimum correlation used to build the correlation matrix that will be given in the output file; keyword \textit{Corrmax}), the maximun number of function evaluations (keyword \textit{Maxfun}), the tolerance (i.e. convergence criterion; keyword \textit{Tol}) and the print control parameter (keyword \textit{Nprint}). Each of these parameters must be placed in a new line. For example,
