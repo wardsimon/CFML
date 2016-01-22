@@ -11,6 +11,8 @@
    integer, public :: i_str !Logical unit for writing strange characters not currently handled
 
    Type, public :: article
+     character(len=50)  :: WOS=" "
+     character(len=50)  :: ISBN=" "
      character(len=20)  :: Numb=" "
      character(len=256) :: Authors=" "
      character(len=256) :: Title=" "
@@ -18,6 +20,7 @@
      character(len=10)  :: Volume=" "
      character(len=20)  :: Pages=" "
      integer            :: year=0
+     character(len=6)   :: cyear=" "
      character(len=256) :: Book_Authors=" "
      character(len=256) :: Book_Title=" "
      character(len=256) :: Book_Pages=" "
@@ -33,10 +36,10 @@
    !  ASCII 1-127  ichar("a")=97 - ichar("z")=122    ichar("A")= 65 - ichar("Z")=90
    !
    !
-   subroutine ISI_string(artic,ISI_str,include_authors)
-     type(article),             intent(in) :: artic
-     character(len=*),          intent(out):: ISI_str
-     character(len=*),optional, intent(in) :: include_authors
+   subroutine ISI_string(artic,ISI_str,code)
+     type(article),     intent(in) :: artic
+     character(len=*),  intent(out):: ISI_str
+     character(len=*),  intent(in) :: code
      !--- Local variables ---!
      character(len=512) :: authors, mtitle
      character(len=20),dimension(20)  :: tit_words
@@ -58,18 +61,9 @@
        mtitle=adjustl(mtitle)
      end if
 
-     if(.not. present(include_authors)) then  !Only year and title are provided in ISI_Str
-
-        if( artic%year == 0) then
-          ISI_str='(TI="'//trim(mtitle)//'")'
-        else
-          write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
-        end if
-
-     else        !Year, authors and title
-
+     if(index(code,"A") /= 0 .or. len_trim(code)== 0) then
         !Eliminate articles, parenthesis anb booleans from the title to simplify the search
-        call purge_bool_par_art(mtitle)
+        !call purge_bool_par_art(mtitle)
         authors=artic%authors
         i=index(authors,'"')     !supress quotes
         if(i /= 0) then
@@ -101,11 +95,10 @@
           author(1)=authors
         end if
         authors=" "
-        do i=1,min(3,nau) !Limit the output to 3 authors
+        do i=1,min(3,nau) !1,nau  Limit the output to 3 authors
             k=index(trim(author(i))," ",back=.true.)
             initials=author(i)(k+1:)
             autnam=adjustl(author(i)(1:k-1))
-
             call get_separator_pos(trim(autnam)," ",pb,nc)
             author_1=" "
             author_2=" "
@@ -121,15 +114,35 @@
                 author(i) = "("//trim(author_1)//" OR "//trim(author_2)//")"
               end if
             end if
-
             if(len_trim(author(i)) > 0) then
               authors=trim(authors)//" "//trim(author(i))//" AND"
             end if
         end do
         i=Len_Trim(authors)-2
         if(authors(i:i+2) == "AND") authors=authors(1:i-1)
-        write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND (PY=",artic%year,") AND TI=("//trim(mtitle)//"))"
      end if
+
+     Select Case(trim(code))
+       case("AA")   !only authors
+         write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//"))"
+
+       case("AY","YA")  !authors and year
+         write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,")"
+
+       case("TA","AT")  !authors and title
+         write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND TI="'//trim(mtitle)//'")'
+
+       case("TY","YT") !Title and year
+         write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
+
+       case("IA","AI") !ISBN and autors
+         write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND IS="'//trim(artic%ISBN)//'")'
+
+       case default  !authors, year and title
+         write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
+
+     End Select
+
      call Replace_n_Search_nonascii(ISI_str)
      return
    end subroutine ISI_string
@@ -142,30 +155,29 @@
      integer :: i
      !Convert characters that need a special encoding (two or three bytes) to equivalent ascii
      !(single byte) character.
-     call SString_Replace(string,"&lt;"," ",warn)
-     call SString_Replace(string,"&gt;"," ",warn)
+     call SString_Replace(string,"&lt;","<",warn)
+     call SString_Replace(string,"&gt;",">",warn)
      call SString_Replace(string,"&#039;"," ",warn)
      call SString_Replace(string,"&#034;"," ",warn)
      call SString_Replace(string,"#"," ",warn)
-     call SString_Replace(string,"Ãª","e",warn)
-     call SString_Replace(string,"Ã©","e",warn)
-     call SString_Replace(string,"â€™"," ",warn)
-     call SString_Replace(string,"Ã¡","a",warn)
-     call SString_Replace(string,"Ã­","i",warn)
-     call SString_Replace(string,"Ã¶","o",warn)
-     call SString_Replace(string,"Ã³","o",warn)
-     call SString_Replace(string,"Ã±","n",warn)
-     call SString_Replace(string,"Ã§","c",warn)
-     call SString_Replace(string,"Â–","-",warn)
-     call SString_Replace(string,"Ã¥","a",warn)
-     call SString_Replace(string,"Ã¨","e",warn)
-     call SString_Replace(string,"Ã ","a",warn)
-     call SString_Replace(string,"Ã¯","i",warn)
-     call SString_Replace(string,"Ãº","u",warn)
-     call SString_Replace(string,"Ã¼","u",warn)
-     call SString_Replace(string,"Ã²","o",warn)
-     call SString_Replace(string,"Ã»","u",warn)
-     call SString_Replace(string,"&amp;"," ",warn)
+     call SString_Replace(string,"ê","e",warn)
+     call SString_Replace(string,"é","e",warn)
+     call SString_Replace(string,"’"," ",warn)
+     call SString_Replace(string,"á","a",warn)
+     call SString_Replace(string,"í","i",warn)
+     call SString_Replace(string,"ö","o",warn)
+     call SString_Replace(string,"ó","o",warn)
+     call SString_Replace(string,"ñ","n",warn)
+     call SString_Replace(string,"ç","c",warn)
+     call SString_Replace(string,"?","-",warn)
+     call SString_Replace(string,"å","a",warn)
+     call SString_Replace(string,"è","e",warn)
+     call SString_Replace(string,"à","a",warn)
+     call SString_Replace(string,"ï","i",warn)
+     call SString_Replace(string,"ú","u",warn)
+     call SString_Replace(string,"ü","u",warn)
+     call SString_Replace(string,"ò","o",warn)
+     call SString_Replace(string,"û","u",warn)
 
      !Now search for non-handled non-ascii characters
      do i=1,len_trim(string)
@@ -176,7 +188,8 @@
         else
           stchar=string(max(1,i-14):min(i+15,len_trim(string)))
         end if
-        write(unit=i_str,fmt="(a,i5,a)") " -> Strange character: "//string(i:i)//" <- Value of iachar: ",iachar(string(i:i)),"    "//trim(stchar)
+        write(unit=i_str,fmt="(a,i5,a)") &
+        " -> Strange character: "//string(i:i)//" <- Value of iachar: ",iachar(string(i:i)),"    "//trim(stchar)
       end if
      end do
      return
@@ -242,5 +255,6 @@
        end if
      end do
    End Function Contains_a_number
+
 
   End Module Data_Articles_Mod
