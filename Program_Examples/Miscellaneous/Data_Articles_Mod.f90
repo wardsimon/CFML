@@ -46,7 +46,7 @@
      character(len=60),dimension(20)  :: author
      character(len=60)  :: autnam,author_1,author_2
      character(len=8)   :: initials
-     integer :: i,j,k,l,nau, ncar,nc,nw
+     integer :: i,j,k,l,nau, ncar,nc,nw,naut
      integer, dimension(60) :: pos
      integer, dimension(10) :: pb
      ISI_Str=" "
@@ -95,7 +95,9 @@
           author(1)=authors
         end if
         authors=" "
-        do i=1,min(3,nau) !1,nau  Limit the output to 3 authors
+        naut=min(3,nau) ! Limit the output to 3 authors
+        if(code == "AA" .or. code == "AY" .or. code == "YA" .or. artic%year==0) naut=nau
+        do i=1,naut 
             k=index(trim(author(i))," ",back=.true.)
             initials=author(i)(k+1:)
             autnam=adjustl(author(i)(1:k-1))
@@ -127,23 +129,34 @@
          write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//"))"
 
        case("AY","YA")  !authors and year
-         write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,")"
-
+         if(artic%year /= 0) then
+           write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,")"
+         else
+           write(unit=ISI_str,fmt="(a)") "(AU=("//trim(authors)//"))"
+         end if
+       
        case("TA","AT")  !authors and title
          write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND TI="'//trim(mtitle)//'")'
 
        case("TY","YT") !Title and year
-         write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
-
+         if(artic%year /= 0) then
+           write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
+         else
+           write(unit=ISI_str,fmt="(a)") "(TI=("//trim(mtitle)//"))"
+         end if
+       
        case("IA","AI") !ISBN and autors
          write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND IS="'//trim(artic%ISBN)//'")'
 
        case default  !authors, year and title
-         write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
-
+         if(artic%year /= 0) then
+           write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
+         else
+           write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND TI="'//trim(mtitle)//'")'
+         end if
      End Select
 
-     call Replace_n_Search_nonascii(ISI_str)
+     if(len_trim(ISI_str) > 1) call Replace_n_Search_nonascii(ISI_str)
      return
    end subroutine ISI_string
 

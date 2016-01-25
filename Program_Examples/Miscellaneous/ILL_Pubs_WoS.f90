@@ -25,14 +25,14 @@
    write(unit=*,fmt="(/a)") "-------------------------------------------------------------------------------------"
    write(unit=*,fmt="( a)") " Program to generate a long string for Advanced Search in the Web of Science "
    write(unit=*,fmt="( a)") "     It needs a text file from the ILL database in Tabulated format."
-   write(unit=*,fmt="( a)") "                       May 2014, JRC -ILL"
+   write(unit=*,fmt="( a)") "                       January 2016, JRC -ILL"
    write(unit=*,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file moutput_file [doi_only, non_doi or CODE] "
    write(unit=*,fmt="(a/)") "-------------------------------------------------------------------------------------"
 
    write(unit=i_str,fmt="(/a)") "-------------------------------------------------------------------------------------"
    write(unit=i_str,fmt="( a)") " Program to generate a long string for Advanced Search in the Web of Science "
    write(unit=i_str,fmt="( a)") "     It needs a text file from the ILL database in Tabulated format."
-   write(unit=i_str,fmt="( a)") "                       May 2014, JRC -ILL"
+   write(unit=i_str,fmt="( a)") "                   January 2016, JRC -ILL"
    write(unit=i_str,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file moutput_file [doi_only, non_doi or CODE] "
    write(unit=i_str,fmt="(a/)") "-------------------------------------------------------------------------------------"
 
@@ -50,6 +50,8 @@
      write(unit=*,fmt="(a)") "    In which CODE may be: AA (only authors), AY (authors + year), "
      write(unit=*,fmt="(a)") "                          TY (title+year),   TA (authors + title)  "
      write(unit=*,fmt="(a)") "    The codes are commutative, e.g. AY is the same as YA  "
+     write(unit=*,fmt="(a)") "    If no code is provided it is equivalent to: authors + year + title"
+     write(unit=*,fmt="(a)") "    The '+' sign corresponds to a logical 'AND'"
      stop
 
    else
@@ -70,6 +72,8 @@
          inc_code=.true.
          write(unit=*,fmt="(a)") " => CODE: "//CODE
        end if
+     else
+       code=" "      
      end if
 
    end if
@@ -93,7 +97,7 @@
    allocate(articles(nart))
 
    n=0
-   n_doi=0; n_title=0; n_isbn=0
+   n_doi=0; n_title=0; n_isbn=0; n_wos=0
 
    do
      read(unit=iart,fmt="(a)",iostat=ier)  line
@@ -152,7 +156,7 @@
    nart=n
 
    DOI_Str=" "; Title_Str=" ";WOS_Str=" "; ISBN_Str=" "
-   npub=0
+
    do j=1,nart
       !if(articles(j)%year == 0 .and. len_trim(articles(j)%DOI) == 0  &
       !   .and. len_trim(articles(j)%WOS) == 0  .and. len_trim(articles(j)%ISBN) == 0) then
@@ -199,6 +203,7 @@
 
       !Article with ISBN
       else if (len_trim(articles(j)%ISBN) /= 0) then  !ISBN is provided
+        if(non_doi .or. doi_only) cycle
         call ISI_string(articles(j),ISI_str,"IA")
         n_isbn=n_isbn+1
         if(n_isbn == 1) then
@@ -236,9 +241,11 @@
           end if
         end if
       end if
-      npub=npub+1
+      
    end do
-
+   
+   npub=n_doi+n_wos+n_isbn+n_title
+   
    open(unit=iart,file=trim(file_inst),status="replace",action="write")
      if(doi_only) then
         write(unit=iart,fmt="(a)")  trim(WOS_str)//" OR"//line_feed//trim(DOI_str)//" OR"//line_feed//trim(ISBN_str)
@@ -250,17 +257,27 @@
      end if
    close(unit=iart)
 
-   write(unit=*,fmt="(/a,i6)") " => Number of articles treated : ",nart
-   write(unit=*,fmt="(a,i6)")  " => Number of articles saved   : ",npub
-   write(unit=i_str,fmt="(/a,i6)") " => Number of articles treated : ",nart
-   write(unit=i_str,fmt="(a,i6)") " => Number of articles saved   : ",npub
+   write(unit=*,fmt="(/a,i6)")                 " => Number of articles treated             : ",nart
+   write(unit=*,fmt="(a,i6)")                  " => Number of articles saved               : ",npub
+   write(unit=i_str,fmt="(/a,i6)")             " => Number of articles treated             : ",nart
+   write(unit=i_str,fmt="(a,i6)")              " => Number of articles saved               : ",npub
 
    if(non_doi) then
-     write(unit=*,fmt="(a)")       " => The saved articles have no DOI in the ILL database "
-     write(unit=i_str,fmt="(a)")   " => The saved articles have no DOI in the ILL database "
+     write(unit=*,fmt="(a)")                   " => The saved articles have no DOI in the ILL database "
+     write(unit=i_str,fmt="(a)")               " => The saved articles have no DOI in the ILL database "
    else
-     write(unit=*,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI: ",n_doi,100.0*real(n_doi)/real(nart),"%"
-     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI: ",n_doi,100.0*real(n_doi)/real(nart),"%"
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
+   end if
+   if(n_isbn > 0) then
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with ISBN           : ",n_isbn,100.0*real(n_isbn)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with ISBN           : ",n_isbn,100.0*real(n_isbn)/real(nart),"%"
+   end if
+   if(n_title > 0) then
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
    end if
    write(unit=*,fmt="(a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
    write(unit=*,fmt="(a)") " => Log file: ILL_Pubs_WoS.log "
