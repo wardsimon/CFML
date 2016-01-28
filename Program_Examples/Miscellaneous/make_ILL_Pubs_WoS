@@ -1,0 +1,75 @@
+#!/bin/sh
+# Script to compile the Program: ILL_Pubs_WoS
+if [ a$1 = a ]
+then
+cat << !
+make_ILL_Pubs_WoS : Make the ILL_Pubs_WoS Program for gfortran/Intel Compilers (Linux or MacOS)
+Syntax            : make_ILL_Pubs_WoS gfortran:ifort
+!
+exit
+fi
+#
+#
+# Compiler Name
+#
+COMP=$1
+if [ $COMP != "gfortran" ]
+then
+   if [ $COMP != "ifort" ]
+   then
+       echo "Compiler Name was wrong!!!"
+       exit
+   fi
+fi
+DEBUG=nodeb
+if [ $# -eq 2 ]
+then
+   DEBUG=$2
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG = "deb" ]
+then
+   case $COMP
+   in
+      'gfortran')
+          OPT1="-c -g"
+            ;;
+      'ifort')
+          OPT1="-c -g"
+            ;;
+   esac
+else
+   case $COMP
+   in
+      'gfortran')
+          OPT1="-c -O3"
+            ;;
+      'ifort')
+          OPT1="-c -O3 -vec-report0"
+            ;;
+   esac
+fi
+
+#
+# Compilation Process
+#
+$COMP $OPT1 CFML.f90
+$COMP $OPT1 Data_Articles_Mod.f90
+$COMP $OPT1 ILL_Pubs_WoS.f90
+#
+case $COMP
+in
+  'gfortran')
+     $COMP *.o  -o ILL_Pubs_WoS
+     ;;
+  'ifort')
+     $COMP *.o -o ILL_Pubs_WoS -static-intel
+     ;;
+esac
+#
+# Purge files
+#
+rm -rf *.o *.mod
+#

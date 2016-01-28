@@ -1,0 +1,75 @@
+#!/bin/sh
+# Script to compile the Program: Compare_ILL_WoS
+if [ a$1 = a ]
+then
+cat << !
+make_Compare_ILL_WoS : Make the Compare_ILL_WoS Program for gfortran/Intel Compilers (Linux or MacOS)
+Syntax               : make_Compare_ILL_WoS gfortran:ifort
+!
+exit
+fi
+#
+#
+# Compiler Name
+#
+COMP=$1
+if [ $COMP != "gfortran" ]
+then
+   if [ $COMP != "ifort" ]
+   then
+       echo "Compiler Name was wrong!!!"
+       exit
+   fi
+fi
+DEBUG=nodeb
+if [ $# -eq 2 ]
+then
+   DEBUG=$2
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG = "deb" ]
+then
+   case $COMP
+   in
+      'gfortran')
+          OPT1="-c -g"
+            ;;
+      'ifort')
+          OPT1="-c -g"
+            ;;
+   esac
+else
+   case $COMP
+   in
+      'gfortran')
+          OPT1="-c -O3"
+            ;;
+      'ifort')
+          OPT1="-c -O3 -vec-report0"
+            ;;
+   esac
+fi
+
+#
+# Compilation Process
+#
+$COMP $OPT1 CFML.f90
+$COMP $OPT1 Data_Articles_Mod.f90
+$COMP $OPT1 Compare_ILL_WoS.f90
+#
+case $COMP
+in
+  'gfortran')
+     $COMP *.o  -o Compare_ILL_WoS
+     ;;
+  'ifort')
+     $COMP *.o -o Compare_ILL_WoS -static-intel
+     ;;
+esac
+#
+# Purge files
+#
+rm -rf *.o *.mod
+#

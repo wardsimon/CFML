@@ -7,14 +7,14 @@
    use CFML_String_Utilities, only: l_case,get_separator_pos
    use Data_Articles_Mod,     only: article,articles,comma,tab
    implicit none
-   character(len=1024)     :: line 
-   character(len=80)       :: fileinf,file_wos 
+   character(len=1024)     :: line
+   character(len=80)       :: fileinf,file_wos
 
    integer :: ier,n,i,j, nart, nlog, n_wos,n_doi,nwos,n_both
    integer :: narg,iart=1,iwos=2,i_str
-   logical :: esta,ok 
-   logical, dimension(:), allocatable :: esta_ill,esta_wos 
-   integer, dimension(:), allocatable :: point_to_wos 
+   logical :: esta,ok
+   logical, dimension(:), allocatable :: esta_ill,esta_wos
+   integer, dimension(:), allocatable :: point_to_wos
    Type(article), dimension(:), allocatable :: artic_wos
 
 
@@ -156,13 +156,13 @@
        exit
      end if
      if(len_trim(line) == 0) cycle
-     
+
      Select Case(line(1:2))
-       
+
        Case("PT")
          n=n+1
          write(unit=artic_wos(n)%Numb,fmt="(i4)") n
-       
+
        Case("AU")
          line=line(4:)
          i=index(line,",")
@@ -173,39 +173,39 @@
            if(line(1:2) == "AF") exit
            line=adjustl(line)
            i=index(line,",")
-           line=line(1:i-1)//line(i+1:)         
+           line=line(1:i-1)//line(i+1:)
            artic_wos(n)%Authors=trim(artic_wos(n)%Authors)//" "//trim(line)//","
          end do
          i=len_trim(artic_wos(n)%Authors)
          artic_wos(n)%Authors=artic_wos(n)%Authors(1:i-1)
-         
+
        Case("TI")
          artic_wos(n)%Title= line(4:)      !<  3  Titre
-         read(unit=iwos,fmt="(a)",iostat=ier)  line 
+         read(unit=iwos,fmt="(a)",iostat=ier)  line
          if(line(1:2) == "  ") then
             artic_wos(n)%Title=trim(artic_wos(n)%Title)//" "//trim(adjustl(line))
          else
             backspace(unit=iwos)
          end if
-                 
+
        Case("SO")
          artic_wos(n)%Journal= line(4:)    !<  4  Journal
-       
+
        Case("NR")
          artic_wos(n)%Volume= line(4:)     !<  5  Volume
-       
+
        Case("BP")
          artic_wos(n)%Pages= line(4:)      !<  6  Pages
-       
+
        Case("EP")
          artic_wos(n)%Pages=trim(artic_wos(n)%Pages)//"-"//line(4:)      !<  6  Pages
-      
+
        Case("UT")
             artic_wos(n)%WOS= adjustl(line(4:))
-       
+
        Case("DI")
              artic_wos(n)%DOI= line(4:)     !<  6  DOI
-       
+
        Case("PY")
          read (unit=line(4:),fmt=*,iostat=ier) artic_wos(n)%year  !< 7 Annee
          if(ier /= 0) then
@@ -216,7 +216,7 @@
            n=n-1
            cycle
          end if
-      
+
        Case Default
          cycle
      End Select
@@ -238,17 +238,17 @@
           point_to_wos(j)=i
           n=n+1
           exit
-       end if       
+       end if
      end do
    end do
 
-   write(unit=i_str,fmt="(a,i4)") " => Number of articles with DOI      in the ILL-database  : ",n_doi  
+   write(unit=i_str,fmt="(a,i4)") " => Number of articles with DOI      in the ILL-database  : ",n_doi
    write(unit=i_str,fmt="(a,i4)") " => Number of articles with WoS      in the ILL-database  : ",nwos
    write(unit=i_str,fmt="(a,i4)") " => Number of articles with DOI+WoS  in the ILL-database  : ",n_both
-   write(unit=*,fmt="(a,i4)")     " => Number of articles with DOI      in the ILL-database  : ",n_doi  
+   write(unit=*,fmt="(a,i4)")     " => Number of articles with DOI      in the ILL-database  : ",n_doi
    write(unit=*,fmt="(a,i4)")     " => Number of articles with WoS      in the ILL-database  : ",nwos
    write(unit=*,fmt="(a,i4)")     " => Number of articles with DOI+WoS  in the ILL-database  : ",n_both
-    
+
    write(unit=i_str,fmt="(//,a)") "    ARTICLES NOT FOUND IN THE WEB OF SCIENCE"
    write(unit=i_str,fmt="(a)")    "    ========================================"
    n=0
@@ -264,10 +264,10 @@
      write(unit=i_str,fmt="(a)")    "  DOI     : "//trim(articles(j)%DOI)
      write(unit=i_str,fmt="(a)")    "  WOS     : "//trim(articles(j)%WOS)
      write(unit=i_str,fmt="(a,i4)") "  Year    : ",articles(j)%year
-     write(unit=i_str,fmt="(a)") "   " 
+     write(unit=i_str,fmt="(a)") "   "
    end do
-   write(unit=i_str,fmt="(/a,i4)") " => Number of ILL-articles not found in the WoS           : ",n 
-   write(unit=*,fmt="(a,i4)") " => Number of ILL-articles not found in the WoS           : ",n 
+   write(unit=i_str,fmt="(/a,i4)") " => Number of ILL-articles not found in the WoS           : ",n
+   write(unit=*,fmt="(a,i4)") " => Number of ILL-articles not found in the WoS           : ",n
    write(unit=i_str,fmt="(//,a)") "    ARTICLES FOUND IN THE WEB OF SCIENCE NOT IN ILL DATABASE"
    write(unit=i_str,fmt="(a)")    "    ========================================================"
    n=0
@@ -283,14 +283,15 @@
      write(unit=i_str,fmt="(a)")    "  DOI     : "//trim(artic_wos(i)%DOI)
      write(unit=i_str,fmt="(a)")    "  WOS     : "//trim(artic_wos(i)%WOS)
      write(unit=i_str,fmt="(a,i4)") "  Year    : ",artic_wos(i)%year
-     write(unit=i_str,fmt="(a)") "   " 
+     write(unit=i_str,fmt="(a)") "   "
    end do
 
-   write(unit=i_str,fmt="(/a,i4)") " => Number of WoS-articles not found in the ILL-database  : ",n 
-   write(unit=*,fmt="(a,i4)") " => Number of WoS-articles not found in the ILL-database  : ",n 
+   write(unit=i_str,fmt="(/a,i4)") " => Number of WoS-articles not found in the ILL-database  : ",n
+   write(unit=*,fmt="(a,i4)")      " => Number of WoS-articles not found in the ILL-database  : ",n
+   write(unit=*,fmt="(a)")         " => Detailed results in file: ILL_Pubs_Compare.log"
 
    contains
-    
+
      subroutine compare_articles(art_ill,art_wos,ok)
        type(article), intent(in) :: art_ill
        type(article), intent(in) :: art_wos
@@ -341,10 +342,10 @@
          if(index(str_ill,trim(author(i))) == 0) then
            ncoi=ncoi+1
          end if
-       end do 
+       end do
        if(ncoi >= 1) ok_aut=.false.
        if(ok_aut .and. ok_year .and. ok_title) ok=.true.
        return
       end subroutine compare_articles
-      
+
   End Program Compare_ILL_WoS
