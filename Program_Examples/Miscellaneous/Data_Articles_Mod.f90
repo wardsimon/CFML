@@ -97,7 +97,7 @@
         authors=" "
         naut=min(3,nau) ! Limit the output to 3 authors
         if(code == "AA" .or. code == "AY" .or. code == "YA" .or. artic%year==0) naut=nau
-        do i=1,naut 
+        do i=1,naut
             k=index(trim(author(i))," ",back=.true.)
             initials=author(i)(k+1:)
             autnam=adjustl(author(i)(1:k-1))
@@ -131,20 +131,20 @@
        case("AY","YA")  !authors and year
          if(artic%year /= 0) then
            write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,")"
-         else
-           write(unit=ISI_str,fmt="(a)") "(AU=("//trim(authors)//"))"
+         !else
+         !  write(unit=ISI_str,fmt="(a)") "(AU=("//trim(authors)//"))"
          end if
-       
+
        case("TA","AT")  !authors and title
          write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND TI="'//trim(mtitle)//'")'
 
        case("TY","YT") !Title and year
          if(artic%year /= 0) then
            write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
-         else
-           write(unit=ISI_str,fmt="(a)") "(TI=("//trim(mtitle)//"))"
+         !else
+         !  write(unit=ISI_str,fmt="(a)") '(TI="'//trim(mtitle)//'")'
          end if
-       
+
        case("IA","AI") !ISBN and autors
          write(unit=ISI_str,fmt="(a,a)") "(AU=("//trim(authors)//")",' AND IS="'//trim(artic%ISBN)//'")'
 

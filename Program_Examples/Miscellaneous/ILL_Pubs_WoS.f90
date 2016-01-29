@@ -73,7 +73,7 @@
          write(unit=*,fmt="(a)") " => CODE: "//CODE
        end if
      else
-       code=" "      
+       code=" "
      end if
 
    end if
@@ -228,6 +228,10 @@
         else
            call ISI_string(articles(j),ISI_str," ")
         end if
+        if(len_trim(ISI_str) == 0) then
+          n_title=n_title-1
+          cycle
+        end if
         if(n_title == 1) then
           Title_Str=trim(ISI_str)
         else
@@ -241,11 +245,11 @@
           end if
         end if
       end if
-      
+
    end do
-   
+
    npub=n_doi+n_wos+n_isbn+n_title
-   
+
    open(unit=iart,file=trim(file_inst),status="replace",action="write")
      if(doi_only) then
         write(unit=iart,fmt="(a)")  trim(WOS_str)//" OR"//line_feed//trim(DOI_str)//" OR"//line_feed//trim(ISBN_str)

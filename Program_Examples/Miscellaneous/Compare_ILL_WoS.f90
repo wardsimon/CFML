@@ -148,7 +148,6 @@
    allocate(artic_wos(n_wos),esta_wos(n_wos))
    esta_wos=.false.
    n=0
-
    do
      read(unit=iwos,fmt="(a)",iostat=ier)  line
      if(ier /= 0) then
@@ -156,7 +155,6 @@
        exit
      end if
      if(len_trim(line) == 0) cycle
-
      Select Case(line(1:2))
 
        Case("PT")
@@ -170,12 +168,13 @@
          artic_wos(n)%Authors= trim(line)//","    !<  2  Auteurs
          do
            read(unit=iwos,fmt="(a)",iostat=ier)  line
-           if(line(1:2) == "AF") exit
+           if(line(1:2) /= "  ") exit
            line=adjustl(line)
            i=index(line,",")
            line=line(1:i-1)//line(i+1:)
            artic_wos(n)%Authors=trim(artic_wos(n)%Authors)//" "//trim(line)//","
          end do
+         backspace(unit=iwos)
          i=len_trim(artic_wos(n)%Authors)
          artic_wos(n)%Authors=artic_wos(n)%Authors(1:i-1)
 
