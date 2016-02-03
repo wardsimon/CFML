@@ -11,13 +11,14 @@
    character(len=80)       :: fileinf,chain,name_jour
 
    integer :: ier,n,i,j, nart, ncar, npub, n_doi=0,nlog,n_title, n_wos=0,n_isbn=0
-   integer :: narg,iart=1
+   integer :: narg,iart=1,no_good
    logical :: esta, doi_only=.false., inc_code=.false., non_doi=.false.
    character(len=2)    :: CODE=" "
    character(len=12)   :: nam_inst=" "
    character(len=16)   :: third_arg=" "
    character(len=180)  :: file_inst
    integer             :: num_art
+   character(len=20), dimension(:), allocatable :: point2nogood
 
 
    open(newunit=i_str,file="ILL_Pubs_WoS.log",status="replace",action="write")
@@ -94,10 +95,10 @@
      if(line(1:6) =="Number") nart=nart+1
    end do
    rewind(unit=iart)
-   allocate(articles(nart))
-
+   allocate(articles(nart),point2nogood(nart))
+   point2nogood=" "
    n=0
-   n_doi=0; n_title=0; n_isbn=0; n_wos=0
+   n_doi=0; n_title=0; n_isbn=0; n_wos=0; no_good=0
 
    do
      read(unit=iart,fmt="(a)",iostat=ier)  line
@@ -141,6 +142,8 @@
              " ... The document "//trim(articles(n)%Numb)//" is discarded"
              write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
              " ... The document "//trim(articles(n)%Numb)//" is discarded"
+             no_good=no_good+1
+             point2nogood(no_good)= articles(n)%Numb
              n=n-1
              cycle
            else
@@ -229,6 +232,8 @@
            call ISI_string(articles(j),ISI_str," ")
         end if
         if(len_trim(ISI_str) == 0) then
+          no_good=no_good+1
+          point2nogood(no_good)= articles(j)%Numb
           n_title=n_title-1
           cycle
         end if
@@ -283,9 +288,19 @@
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
    end if
+   if(no_good > 0) then
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of discarded articles           : ",no_good,100.0*real(no_good)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of discarded articles           : ",no_good,100.0*real(no_good)/real(nart),"%"
+     write(unit=i_str,fmt="(/a)") "      LIST OF DISCARDED ARTICLES (ILL identifiers) "
+     write(unit=i_str,fmt="(a/)") "      -------------------------------------------- "
+     !Writing the list of discarded articles
+     do i=1,no_good,5
+        write(unit=i_str,fmt="(5a12)") (" "//trim(point2nogood(j+i-1))//" ",j=1,5)
+     end do
+   end if
    write(unit=*,fmt="(a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
    write(unit=*,fmt="(a)") " => Log file: ILL_Pubs_WoS.log "
-   write(unit=i_str,fmt="(a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
+   write(unit=i_str,fmt="(/a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
    close(unit=i_str)
 
    stop
