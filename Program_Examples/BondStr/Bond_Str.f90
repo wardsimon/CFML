@@ -31,23 +31,22 @@ Program Bond_Str
    type (Atoms_Conf_list_Type)     :: Ac
    type (File_List_Type)           :: Fich_cfl
 
-   character(len=256)              :: filcod
+   character(len=256)              :: filcod,restr_file
    character(len=256)              :: line,title,lineor
    character(len=80),dimension(15) :: bvparm,bvelparm,fst_cmd
-   character(len=30)               :: ElectCon
    character(len=4)                :: atname,atm
    character(len=2)                :: Chem
 
    integer                         :: lun=1, ier,i, lr,ln, i_cfl=2, i_cons=3
-   integer                         :: narg,maxc,npix
+   integer                         :: narg,npix
    integer                         :: nc,n_bvpar,n_bvelpar,n1,n2,j,n_fst
    integer                         :: ndimx,ndimy,ndimz
 
    logical                         :: esta, arggiven=.false.,sout=.false.,cif=.false.,out_cif=.false.
    logical                         :: read_bvparm=.false., restr=.false., bvs_calc=.true.
-   logical                         :: vdist=.false.,read_bvelparm=.false.
+   logical                         :: vdist=.false.,read_bvelparm=.false.,rest_file=.false.
    logical                         :: map_calc=.false., soft=.false., bvel_calc=.false., outp=.false., outf=.false.
-   real                            :: ttol=20.0,dmax,dangl, gii
+   real                            :: ttol=20.0,dmax,dangl, rdmax,ramin
    real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol,emin
 
    ! Arguments on the command line
@@ -118,6 +117,8 @@ Program Bond_Str
    dangl=0.0
    title=" "
    delta=0.0
+   rdmax=2.5
+   ramin=45.0
 
    if (cif) then
       write(unit=lun,fmt="(a,/)") " => Data obtained from CIF file: "//trim(filcod)//".cif"
@@ -195,7 +196,7 @@ Program Bond_Str
 
          if (line(1:7) == "FST_CMD") then
             n_fst=n_fst+1
-            nc=index(line,' ')
+            nc=index(lineor,' ')
             fst_cmd(n_fst)=adjustl(lineor(nc+1:))
             cycle
          end if
@@ -215,6 +216,21 @@ Program Bond_Str
                dangl=0.0
             end if
             cycle
+         end if
+
+         if (line(1:6) == "RESTDA") then
+            read(unit=line(7:),fmt=*,iostat=ier) rdmax,ramin
+            if (ier /= 0) then
+               rdmax=2.5
+               ramin=45.0
+            end if
+            cycle
+         end if
+
+         if(line(1:10) == "RESTR_FILE") then
+          rest_file=.true.
+          nc=index(lineor,' ')
+          restr_file=adjustl(lineor(nc+1:))
          end if
 
          if (line(1:7) == "SOFTBVS") then
@@ -286,7 +302,12 @@ Program Bond_Str
 
    ! Distances, Angles, Restraints Calculations
    if (restr) then
-      call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun, i_cons)
+      if(rest_file) then
+        write(*,*) trim(restr_file)//"   => rdmax,ramin: ",rdmax,ramin
+        call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun, i_cons,filrest=restr_file,rdmax=rdmax,ramin=ramin)
+      else
+        call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun, i_cons,rdmax=rdmax,ramin=ramin)
+      end if
    else if(sout) then
       call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun)
    else
