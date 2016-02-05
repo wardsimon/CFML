@@ -2907,7 +2907,7 @@
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
-       character(len=30) :: aux
+       character(len=40) :: aux
        integer           :: n,np,iy,long
        real(kind=cp)     :: y
 
@@ -2915,7 +2915,7 @@
           if (abs(value) > 999999.0) then
              write(unit=aux,fmt=*) value
           else
-             write(unit=aux,fmt="(f14.5)") value
+             write(unit=aux,fmt="(f16.5)") value
           end if
           line=adjustl(aux)
           if (line(1:1) /= "-") line=" "//trim(line)
@@ -2935,6 +2935,7 @@
        write(unit=aux,fmt=*) value
        line=trim(adjustl(aux))
        n=len_trim(line)
+       if(n-np < 6) n=np+6
        fmtcar="f"
        if (n < 10) then
           write(unit=fmtcar(2:2),fmt="(i1)") n
@@ -2966,7 +2967,7 @@
        aux=pack_string(aux)
        long=len_trim(aux)
        if(long > np) then
-         line=line(1:n)//"*)"
+         line=line(1:n-2)//"("//aux(1:np)//")"
        else
           line=line(1:n)//trim(aux)//")"
        end if
