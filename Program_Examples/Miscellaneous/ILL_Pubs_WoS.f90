@@ -11,7 +11,7 @@
    character(len=80)       :: fileinf,chain,name_jour
 
    integer :: ier,n,i,j, nart, ncar, npub, n_doi=0,nlog,n_title, n_wos=0,n_isbn=0
-   integer :: narg,iart=1,no_good
+   integer :: narg,iart=1,no_good, iadded
    logical :: esta, doi_only=.false., inc_code=.false., non_doi=.false.
    character(len=2)    :: CODE=" "
    character(len=12)   :: nam_inst=" "
@@ -99,7 +99,7 @@
    point2nogood=" "
    n=0
    n_doi=0; n_title=0; n_isbn=0; n_wos=0; no_good=0
-
+   iadded=0
    do
      read(unit=iart,fmt="(a)",iostat=ier)  line
      if(ier /= 0) then
@@ -108,32 +108,52 @@
      end if
      if(len_trim(line) == 0) cycle
      j=index(line,tab)
+
      Select Case(line(1:j-1))
+
        Case("Number")
          n=n+1
          articles(n)%Numb= line(j+1:)       !<  1  Numero
          articles(n)%instrument(1)= trim(Nam_inst)
+
        Case("Author")
          articles(n)%Authors= line(j+1:)    !<  2  Auteurs
+
        Case("Title")
          articles(n)%Title= line(j+1:)      !<  3  Titre
+
        Case("Journal title")
          articles(n)%Journal= line(j+1:)    !<  4  Journal
+
        Case("ISBN")
          articles(n)%ISBN= line(j+1:)       !<  5  Journal
+
        Case("Volume")
          articles(n)%Volume= line(j+1:)     !<  6  Volume
+
        Case("Pages")
          articles(n)%Pages= line(j+1:)      !<  7  Pages
+
        Case("WoS number")
             articles(n)%WOS= adjustl(line(j+1:))  !< 8 WOS
-       Case("DOI","DOI added")
+
+       Case("DOI")
          i=index(line,"Keyword")
          if( i /= 0) then
             articles(n)%DOI= line(j+1:i-1)     !<  9  DOI
          else
             articles(n)%DOI= line(j+1:)        !<  9  DOI
          end if
+
+       Case("DOI added")
+         i=index(line,"Keyword")
+         if( i /= 0) then
+            articles(n)%DOI= line(j+1:i-1)     !<  9  DOI
+         else
+            articles(n)%DOI= line(j+1:)        !<  9  DOI
+         end if
+         if(index(line,"added") /= 0) iadded=iadded+1
+
        Case("Year")
          read (unit=line(j+1:),fmt=*,iostat=ier) articles(n)%year  !< 10 Annee
          if(ier /= 0) then
@@ -276,7 +296,9 @@
      write(unit=i_str,fmt="(a)")               " => The saved articles have no DOI in the ILL database "
    else
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with added DOI      : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with added DOI      : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
    end if
