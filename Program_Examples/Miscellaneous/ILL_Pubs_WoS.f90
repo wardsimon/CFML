@@ -137,22 +137,14 @@
        Case("WoS number")
             articles(n)%WOS= adjustl(line(j+1:))  !< 8 WOS
 
-       Case("DOI")
+       Case("DOI","DOI added")
          i=index(line,"Keyword")
          if( i /= 0) then
             articles(n)%DOI= line(j+1:i-1)     !<  9  DOI
          else
             articles(n)%DOI= line(j+1:)        !<  9  DOI
          end if
-
-       Case("DOI added")
-         i=index(line,"Keyword")
-         if( i /= 0) then
-            articles(n)%DOI= line(j+1:i-1)     !<  9  DOI
-         else
-            articles(n)%DOI= line(j+1:)        !<  9  DOI
-         end if
-         if(index(line,"added") /= 0) iadded=iadded+1
+         if(index(line,"added") /= 0) iadded=iadded+1         
 
        Case("Year")
          read (unit=line(j+1:),fmt=*,iostat=ier) articles(n)%year  !< 10 Annee
@@ -296,9 +288,9 @@
      write(unit=i_str,fmt="(a)")               " => The saved articles have no DOI in the ILL database "
    else
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
-     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with added DOI      : ",iadded,100.0*real(iadded)/real(nart),"%"
+     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " =>     of wich with 'added DOI'           : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
-     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with added DOI      : ",iadded,100.0*real(iadded)/real(nart),"%"
+     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " =>     of wich with 'added DOI'           : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
    end if
