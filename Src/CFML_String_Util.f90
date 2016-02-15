@@ -1647,7 +1647,7 @@
     !!----  accompany the symbol like in (a,b+c,c-b;1/2,0,1/2). The basis vectors
     !!----  a,b,c and the separator ";" may be changed by putting them into the
     !!----  optional array cod. For instance if cod=["u","v","w","|"] a sort of
-    !!----  Seitz symbom may be read.
+    !!----  Seitz symbol may be read.
     !!----
     !!----  Created: January 2014 (JRC)
     !!----

@@ -6868,10 +6868,11 @@
     End Subroutine Get_T_SubGroups
 
     !!----
-    !!---- Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb)
+    !!---- Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb,oposite)
     !!----    integer, dimension(3,3), intent(in) :: Mat
     !!----    real,    dimension(3),   intent(in) :: tr
     !!----    character(len=*),        intent(out):: abc_symb
+    !!----    logical,optional,        intent(in) :: oposite
     !!----
     !!----    Provides the short symbol for a setting change defined by
     !!----    the transfomation matrix Mat and origin given by the translation
@@ -6881,15 +6882,17 @@
     !!----     0  2  0   corresponding to   b'=2b
     !!----     1  0  1                      c'=a+c
     !!----     And the change of origin given by (0.5,0.0,0.5)
-    !!----     The subroutine provide the symbol:
-    !!----      (1/2,0,1/2; a-c,2b,a+c)
+    !!----     The subroutine provide the symbol: (1/2,0,1/2; a-c,2b,a+c)
+    !!----     If "oposite" is provided theh the symbol: (a-c,2b,a+c; 1/2,0,1/2)
     !!----
-    !!---- Update: November - 2012
+    !!----
+    !!---- Update: November - 2012, February 2016 (optional argument)
     !!
-    Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb)
+    Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb,oposite)
       integer,       dimension(3,3), intent(in) :: Mat
       real(kind=cp), dimension(3),   intent(in) :: tr
       character(len=*),              intent(out):: abc_symb
+      logical,optional,              intent(in) :: oposite
       !---- Local variables ----!
       integer :: i
       character(len=25) :: xyz_op, transl
@@ -6912,6 +6915,10 @@
       end do
       transl=Pack_string(transl)
       abc_symb="("//trim(transl)//" "//trim(xyz_op)//")"
+      if(present(oposite)) then
+        i=len_trim(transl)
+        abc_symb="("//trim(xyz_op)//"; "//transl(1:i-1)//")"
+      end if
       return
     End Subroutine Get_Trasfm_Symbol
 
