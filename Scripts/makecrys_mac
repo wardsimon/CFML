@@ -16,7 +16,7 @@ cat << !
 #
 # Checking CrySFML Environment Variable
 if [ -z "$CRYSFML" ]; then
-   echo "?????"
+   echo "??????"
    echo "????? Please, set the environment variable CRYSFML in your .bash_profile"
    echo "?????"
    exit 1
