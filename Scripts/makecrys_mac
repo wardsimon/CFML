@@ -1,25 +1,40 @@
 #! /bin/sh
+# -------------------------------------------------------------------------------------
 # Compilation for CrysFML Library
 # Author: Javier Gonzalez-Platas
 # Date: July 2015
+# A.Filhol - 26 february 2016 (more tests and more error messages)
+# -------------------------------------------------------------------------------------
+
+cat << !
+ ########################################################
+ makecry_MAC  : Make the CrysFML Library for Apple's OS X
+ feb 2016 - OS X El Capitan
+ ########################################################
+
+!
 #
 # Checking CrySFML Environment Variable
 if [ -z "$CRYSFML" ]; then
-   echo "****"
-   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
-   echo "****"
-   exit
+   echo "?????"
+   echo "????? Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "?????"
+   exit 1
 fi
+
 #
 # Calling Program
 #
-if [ -z "$1" ]; then
+if [ -z "$1" ]
+then
 cat << !
-makecry_MAC  : Make the CrysFML Library for MacOSX
-Syntax       : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter|all] [debug]
+????? Missing parameters
+????? Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter|all] [debug]
+????? Default: m64  winter:No  debug:No
 !
-exit
+exit 1
 fi
+
 #
 # Default values for Arguments
 #
@@ -28,6 +43,7 @@ ARCH="m64"
 DEBUG="N"
 CONS="Y"
 WINT="N"
+
 #
 # Arguments
 #
@@ -62,18 +78,37 @@ do
       "all")
          CONS="Y"
          WINT="Y"
-         ;;   
+         ;;
+       *)
+         echo "?????"
+         echo "????? Unknown parameter: $arg"
+         echo "?????"
+         exit 1
    esac
 done
+
 #
 # Check Compiler name
 #
 if [ -z $COMP ]; then
-   echo "****"
-   echo "**** Compiler name is wrong!!!. Please check it!"
-   echo "****"
-   exit
+   echo "?????"
+   echo "????? Compiler name is wrong. Please check it!"
+   echo "?????"
+   exit 1
 fi
+
+#
+# Check if Compiler is installed
+#
+compinst=`which $COMP`
+#echo $compinst
+if [ -z $compinst ]; then
+   echo "?????"
+   echo "????? Compiler $COMP is not found! Install it or source it."
+   echo "?????*"
+   exit 1
+fi
+
 #
 # Console version
 #
@@ -83,7 +118,8 @@ if [ "$CONS" == "Y" ]; then
       OPT1="debug"
    fi      
    $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1
-fi   
+fi  
+
 #
 # Winteracter version
 #
@@ -95,4 +131,5 @@ if [ "$WINT" == "Y" ]; then
    OPT1="winter" 
    $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1 $OPT2
 fi
-   
+
+echo "*** End of script makecrys_mac ***"
