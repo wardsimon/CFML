@@ -98,4 +98,3 @@ Here are the instructions to run cmake in order to build the CrysFML library.
       - Unix: make install
       - Window: nmake install
 
-
