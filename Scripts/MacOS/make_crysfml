@@ -11,7 +11,7 @@ cat << !
  #######################################################################
  make_crysfml: Make the CrysFML Library using Fortran Mac Compilers
  Feb 2016 - OS X El Capitan
- Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter] [debug]
+ Syntax : make_crysfml ifort:f95:g95:gfortran [m32|m64] [winter] [debug]
  #######################################################################
 
 !
@@ -39,8 +39,8 @@ fi
 #
 COMP=""
 ARCH="m64"
-DEBUG="N"
 WINT="N"
+DEBUG="N"
 #
 # Arguments
 #
@@ -177,7 +177,11 @@ if [ "$WINT" == "Y" ]; then
           INC=""
           ;;
       "ifort")
-          INC="-I$WINTER/lib.ifi"
+          if [ "$ARCH" == "m32" ]; then
+            INC="-I$WINTER/lib.ifi"
+          else
+            INC="-I$WINTER/lib.ifi64"
+          fi
           ;;
    esac
 fi
@@ -304,6 +308,7 @@ if [ "$WINT" == "Y" ]; then
    DIRLIB="LibW"
    LIBNAME="libwcrysfml.a"
 fi
+#echo "DIRLIB: $DIRLIB  LIBNAME: $LIBNAME WINT: $WINT"
 ar cr $LIBNAME *.o
 mv *.mod $CRYSFML/$IDIR/$DIRLIB
 mv *.a $CRYSFML/$IDIR/$DIRLIB
