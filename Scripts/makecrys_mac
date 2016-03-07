@@ -4,6 +4,7 @@
 # Author: Javier Gonzalez-Platas
 # Date: July 2015
 # A.Filhol - 26 february 2016 (more tests and more error messages)
+# A.Filhol - 7 March 2016 (support for Winteracter 64-bits) 
 # -------------------------------------------------------------------------------------
 
 cat << !
@@ -29,8 +30,8 @@ if [ -z "$1" ]
 then
 cat << !
 ????? Missing parameters
-????? Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter|all] [debug]
-????? Default: m64  winter:No  debug:No
+????? Syntax : make_crysfml ifort:f95:g95:gfortran [m64|m32] [winter|all] [debug]
+????? Default: m64  winter  nodebug
 !
 exit 1
 fi
@@ -38,11 +39,11 @@ fi
 #
 # Default values for Arguments
 #
-COMP=""
-ARCH="m64"
-DEBUG="N"
-CONS="Y"
-WINT="N"
+COMP=""       # compiler
+ARCH="m64"    # architecture
+CONS="N"      # console version
+WINT="Y"      # winteracter
+DEBUG="N"     # for debugging
 
 #
 # Arguments
@@ -109,6 +110,10 @@ if [ -z $compinst ]; then
    exit 1
 fi
 
+echo "---- Selected options -----------------"
+echo "---- Comp: $COMP, Arch: $ARCH, Wint: $WINT, Cons: $CONS, Debug: $DEBUG"
+echo "---------------------------------------"
+echo ""
 #
 # Console version
 #
@@ -120,6 +125,7 @@ if [ "$CONS" == "Y" ]; then
    $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1
 fi  
 
+
 #
 # Winteracter version
 #
@@ -129,6 +135,7 @@ if [ "$WINT" == "Y" ]; then
       OPT2="debug"
    fi     
    OPT1="winter" 
+
    $CRYSFML/Scripts/MacOS/make_crysfml $COMP $ARCH $OPT1 $OPT2
 fi
 
