@@ -12,8 +12,10 @@ if(WIN32)
        else()
            set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel64.f90)
        endif()
+       set(STRING_UTILS CFML_String_Util.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Windows.f90)
+        set(STRING_UTILS CFML_String_Util_gf.f90)
     endif()
 # MacOS
 elseif(APPLE)
@@ -23,9 +25,11 @@ elseif(UNIX)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux_Intel.f90)
+        set(STRING_UTILS CFML_String_Util.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux.f90)
-    endif()
+        set(STRING_UTILS CFML_String_Util_gf.f90)        
+    endif()    
 endif()
 
 # The sources files for crysfml_common library.
@@ -63,7 +67,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Reflct_Util.f90
     CFML_Sfac.f90
     CFML_Spher_Harm.f90
-    CFML_String_Util.f90
+    ${STRING_UTILS}
     CFML_EoS_Mod.f90
     CFML_SXTAL_Geom.f90
     CFML_Symmetry.f90

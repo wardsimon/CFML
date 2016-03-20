@@ -370,7 +370,7 @@
     !!--++
     !!--++ Update: November - 2013
     !!
-    integer, private, parameter :: NGCode=86
+    integer, private, parameter :: NGCode=87
 
     !!----
     !!---- GCODE_NAM
@@ -388,7 +388,7 @@
                                   "Wp     ","Xp     ","Yp     ","Xfract ", &
                                   "Size   ","Gsize  ","Strain ", &
                                   "LStrain","Qbroad ","Qdamp  ", &
-                                  "delta1 ","delta2 ","Lratio ", &
+                                  "delta1 ","delta2 ","Lratio ","Sharpf ", &
                                   "Sratio ","Zero   ","Diff1  ", &
                                   "Diff2  ","eta    ","sig2   ", &
                                   "sig1   ","sig0   ","gamm2  ", &

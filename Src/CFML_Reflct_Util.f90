@@ -72,6 +72,7 @@
 !!----       HKL_ABSENT
 !!--++       HKL_ABSENTI           [Overloaded]
 !!--++       HKL_ABSENTR           [Overloaded]
+!!--++       HKL_ABSENT_SH         [Overloaded]
 !!----       HKL_EQUAL
 !!--++       HKL_EQUALI            [Overloaded]
 !!--++       HKL_EQUALR            [Overloaded]
@@ -88,6 +89,7 @@
 !!----       HKL_S
 !!--++       HS_I                  [Overloaded]
 !!--++       HS_R                  [Overloaded]
+!!----       MHKL_ABSENT
 !!----       UNIT_CART_HKL
 !!--++       UNIT_CART_HKLI        [Overloaded]
 !!--++       UNIT_CART_HKLR        [Overloaded]
@@ -98,6 +100,7 @@
 !!--++       HKL_EQUIV_LISTI       [Overloaded]
 !!--++       HKL_EQUIV_LISTR       [Overloaded]
 !!----       HKL_GEN
+!!----       HKL_GEN_SHUB
 !!----       HKL_GEN_SXTAL
 !!--++       HKL_GEN_SXTAL_REFLECTION    [Overloaded]
 !!--++       HKL_GEN_SXTAL_LIST          [Overloaded]
@@ -124,11 +127,12 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: sp, cp, pi
-    Use CFML_Math_General,              only: sort
+    Use CFML_GlobalDeps,                only: sp, cp, pi,tpi
+    Use CFML_Math_General,              only: sort,Trace
     Use CFML_String_Utilities,          only: l_case,Get_LogUnit
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type, Lattice_Centring_Type, &
-                                              Allocate_Lattice_Centring
+                                              Allocate_Lattice_Centring, Magnetic_Space_Group_Type, &
+                                              MSym_Oper_Type
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 
     !---- Variables ----!
@@ -140,13 +144,14 @@
 
     !---- List of public functions ----!
     public :: Asu_Hkl,Get_MaxNumRef, Hkl_Absent, Hkl_Equal, Hkl_Equiv, Hkl_Mult,   &
-              Get_Hequiv_Asu,Hkl_R, Hkl_S, Unit_Cart_Hkl, Hkl_Lat_Absent
+              Get_Hequiv_Asu,Hkl_R, Hkl_S, Unit_Cart_Hkl, Hkl_Lat_Absent, mHkl_Absent
 
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
     public :: Hkl_Equiv_List, Hkl_Gen, Hkl_Rp, Hkl_Uni, Init_Err_Refl, Init_RefList, &
-              Search_Extinctions, Write_Asu, Write_RefList_Info, Hkl_Gen_Sxtal
+              Search_Extinctions, Write_Asu, Write_RefList_Info, Hkl_Gen_Sxtal,      &
+              Hkl_Gen_Shub
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -312,17 +317,19 @@
     !!---- TYPE :: REFLECT_TYPE
     !!--..
     !!---- Type, public :: Reflect_Type
-    !!----    integer,dimension(3) :: H    ! H
-    !!----    integer              :: Mult ! mutiplicity
-    !!----    real(kind=cp)        :: S    ! Sin(Theta)/lambda
+    !!----    integer,dimension(3) :: H     ! H
+    !!----    integer              :: Mult  ! mutiplicity
+    !!----    real(kind=cp)        :: S     ! Sin(Theta)/lambdainteger              
+    !!----    integer              :: imag  !=0 nuclear reflection, 1=magnetic, 2=both
     !!---- End Type Reflect_Type
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, March 2016 (adding imag, and initializing to zeros)
     !!
     Type, public :: Reflect_Type
-       integer,dimension(3) :: H     ! H
-       integer              :: Mult  ! mutiplicity
-       real(kind=cp)        :: S     ! Sin(Theta)/lambda=1/2d
+       integer,dimension(3) :: H=0     ! H
+       integer              :: Mult=0  ! mutiplicity
+       real(kind=cp)        :: S=0.0   ! Sin(Theta)/lambda=1/2d
+       integer              :: imag=0  !=0 nuclear reflection, 1=magnetic, 2=both
     End Type Reflect_Type
 
     !!----
@@ -380,6 +387,7 @@
     Interface Hkl_Absent
        Module Procedure hkl_AbsentI
        Module Procedure hkl_AbsentR
+       Module Procedure Hkl_Absent_Sh
     End Interface Hkl_Absent
 
     Interface Hkl_Equal
@@ -390,6 +398,7 @@
     Interface Hkl_Equiv
        Module Procedure Hkl_EquivI
        Module Procedure Hkl_EquivR
+       Module Procedure Hkl_Equiv_Sh
     End Interface Hkl_Equiv
 
     Interface Hkl_Mult
@@ -1295,6 +1304,42 @@
        return
     End Function Hkl_AbsentR
 
+    !!--++
+    !!--++ Logical Function Hkl_Absent_Sh(H, ShubG)
+    !!--++    real(kind=cp),      dimension(3), intent(in) :: h
+    !!--++    Type (Magnetic_Space_Group_Type), intent(in) :: ShubG
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculate if the reflection is an absence
+    !!--++
+    !!--++ Update: March - 2016
+    !!
+    Function Hkl_Absent_Sh(H,ShubG) Result(Info)
+       !---- Arguments ----!
+       integer, dimension(3),            intent (in) :: h
+       Type (Magnetic_Space_Group_Type), intent (in) :: ShubG
+       logical                                       :: info
+
+       !---- Local Variables ----!
+       integer, dimension(3)              :: k
+       integer                            :: i
+       real(kind=cp)                      :: r1,r2
+
+       info=.false.
+
+       do i=1,ShubG%multip
+          k = matmul(h,ShubG%SymOp(i)%Rot)
+          if (hkl_equal(h,k)) then
+             r1=dot_product(ShubG%SymOp(i)%Tr,real(h))
+             r2=nint(r1)
+             if (abs(r1-r2) > eps_ref) then
+                info=.true.
+                exit
+             end if
+          end if
+       end do
+    End Function Hkl_Absent_Sh
+    
     !!----
     !!---- Logical Function  Hkl_Equal(H,K)
     !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -1448,47 +1493,90 @@
        return
     End Function Hkl_EquivR
 
-    !!--++
-    !!--++ Logical Function  Hkl_AbsentI(H, Spacegroup)
-    !!--++    integer, dimension(3),   intent(in) :: h
-    !!--++    Type (Space_Group_Type), intent(in) :: SpaceGroup
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Calculate if the reflection is a lattice absence
-    !!--++
-    !!--++  Update: February - 2005
-    !!
-    Function Hkl_Lat_Absent(H,Latt) Result(Info)
+    Function Hkl_Equiv_Sh(H,K,ShubG) Result (Info)
        !---- Arguments ----!
-       integer, dimension(3),        intent (in) :: h
-       Type (Lattice_Centring_Type), intent (in) :: Latt
-       logical                                   :: info
+       integer, dimension(3),             intent(in) :: h,k
+       Type (Magnetic_Space_Group_Type),  intent(in) :: ShubG
+       logical                                       :: info
+
+       !---- Local Variables ----!
+       integer                :: i, nops
+       integer, dimension(3)  :: hh
+
+       info=.false.
+       nops= ShubG%numops
+       do i=1,nops
+          hh = matmul(h,ShubG%SymOp(i)%Rot)
+          if (hkl_equal(k,hh) .or. hkl_equal(k,-hh)) then
+             info=.true.
+             exit
+          end if
+       end do
+    End Function Hkl_Equiv_Sh  
+
+    !Function Hkl_Lat_Absent(H,Latt) Result(Info)
+    !   !---- Arguments ----!
+    !   integer, dimension(3),        intent (in) :: h
+    !   Type (Lattice_Centring_Type), intent (in) :: Latt
+    !   logical                                   :: info
+    !
+    !   !---- Local Variables ----!
+    !   integer               :: k,i
+    !   logical               :: tinv
+    !   real(kind=cp)         :: r1,r2
+    !
+    !   info=.false.
+    !   if(.not. Latt%set) return
+    !   tinv=.false.
+    !   if(ubound(Latt%Ltr,1) == 4) tinv=.true.
+    !   do i=1,Latt%n_lat
+    !      r1=dot_product(Latt%Ltr(1:3,i),real(h))
+    !      r2=nint(r1)
+    !      k=nint(2.0*r1)
+    !      if(tinv) then  !Time inversion is considered
+    !         if(Latt%Ltr(4,i) > 0.0) then  !No time inversion, lattice centring
+    !           if(mod(k,2) /= 0) info=.true.
+    !           exit
+    !         else !now time inversion is associated with the translation (Anti-translation)
+    !           if (abs(r1-r2) < eps_ref) info=.true.
+    !           exit
+    !         end if
+    !      else  !No time inversion is considered only normal lattice centring vectors
+    !         if(mod(k,2) /= 0) info=.true.
+    !         exit
+    !      end if
+    !   end do
+    !   return
+    !End Function Hkl_Lat_Absent
+
+    !!---- Function Hkl_Lat_Absent(h,Latt,n) result(info)
+    !!----    integer, dimension(3), intent (in) :: h
+    !!----    real, dimension(:,:),  intent (in) :: Latt
+    !!----    integer,               intent (in) :: n
+    !!----    logical                            :: info
+    !!---- 
+    !!---- Calculate lattice extinctions for whatever kind
+    !!---- of lattice centring.
+    !!---- 
+    !!---- Implemented: March 2016
+    !!---- 
+    Function Hkl_Lat_Absent(h,Latt,n) result(info)
+       integer, dimension(3), intent (in) :: h
+       real, dimension(:,:),  intent (in) :: Latt
+       integer,               intent (in) :: n
+       logical                            :: info
 
        !---- Local Variables ----!
        integer               :: k,i
-       logical               :: tinv
        real(kind=cp)         :: r1,r2
 
        info=.false.
-       if(.not. Latt%set) return
-       tinv=.false.
-       if(ubound(Latt%Ltr,1) == 4) tinv=.true.
-       do i=1,Latt%n_lat
-          r1=dot_product(Latt%Ltr(1:3,i),real(h))
+       do i=2,n
+          r1=dot_product(Latt(1:3,i),real(h))
           r2=nint(r1)
           k=nint(2.0*r1)
-          if(tinv) then  !Time inversion is considered
-             if(Latt%Ltr(4,i) > 0.0) then  !No time inversion, lattice centring
-               if(mod(k,2) /= 0) info=.true.
-               exit
-             else !now time inversion is associated with the translation (Anti-translation)
-               if (abs(r1-r2) < eps_ref) info=.true.
-               exit
-             end if
-          else  !No time inversion is considered only normal lattice centring vectors
-             if(mod(k,2) /= 0) info=.true.
-             exit
-          end if
+          if(mod(k,2) /= 0) info=.true.
+          exit
        end do
        return
     End Function Hkl_Lat_Absent
@@ -1710,6 +1798,52 @@
 
     End Function HS_R
 
+    !!---- Function mHkl_Absent(H,ShubG) Result(Info)
+    !!----    !---- Arguments ----!
+    !!----    integer, dimension(3),            intent (in) :: h
+    !!----    Type (Magnetic_Space_Group_Type), intent (in) :: ShubG
+    !!----    logical                                       :: info
+    !!---- 
+    !!----   Logical function returning .true. if the magnetic reflection H
+    !!----   is a systematic extinction. Takes into account the type of
+    !!----   magnetic group (Types 1,2,3,4)
+    !!---- 
+    !!----   Created: March 2016
+    !!---- 
+    Function mHkl_Absent(H,ShubG) Result(Info)
+       !---- Arguments ----!
+       integer, dimension(3),            intent (in) :: h
+       Type (Magnetic_Space_Group_Type), intent (in) :: ShubG
+       logical                                       :: info
+
+       !---- Local Variables ----!
+       integer, dimension(3)              :: k
+       integer                            :: i,n_id
+       real(kind=cp)                      :: r1,r2
+
+       info=.false.
+       Select Case(ShubG%MagType)
+         Case(1,3)
+           n_id=0
+           do i=1,ShubG%numops
+              k = matmul(h,ShubG%MSymOp(i)%Rot)
+              if (hkl_equal(h,k)) then
+                 r1=cos(tpi*dot_product(ShubG%SymOp(i)%Tr,real(h)))
+                 n_id=n_id+Trace(ShubG%MSymOp(i)%Rot*nint(r1))
+              end if
+           end do
+           if(n_id == 0) info=.true.
+         Case(2)
+           info=.true.
+         Case(4)
+           info=.true.
+           do i=1,ShubG%Num_aLat
+              r1=cos(tpi*dot_product(ShubG%aLatt_trans(:,i),real(h)))
+              if(nint(r1) == -1) info=.false.
+           end do            
+       End Select
+    End Function mHkl_Absent  
+    
     !!----
     !!----  Function  Unit_Cart_Hkl(H, Crystalcell) Result (U)
     !!----     integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -2858,6 +2992,150 @@
        return
     End Subroutine Hkl_Gen
 
+    !!----
+    !!---- Subroutine  Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex)
+    !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
+    !!----    Type (Magnetic_Space_Group_Type) , intent(in) :: ShubG           !Magnetic Space Group object
+    !!----    real(kind=cp),                     intent(in) :: sintlmax        !Maximum SinTheta/Lambda
+    !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
+    !!----
+    !!----    Calculate unique reflections between two values of
+    !!----    sin_theta/lambda.  The output is not ordered.
+    !!----
+    !!---- Created: March - 2016
+    !!
+    Subroutine Hkl_Gen_Shub(Crystalcell,ShubG,sintlmax,Num_Ref,Reflex)
+       !---- Arguments ----!
+       type (Crystal_Cell_Type),                      intent(in)     :: crystalcell
+       type (Magnetic_Space_Group_Type) ,             intent(in)     :: ShubG
+       real(kind=cp),                                 intent(in)     :: sintlmax
+       integer,                                       intent(out)    :: num_ref
+       type (Reflect_Type), dimension(:), allocatable,intent(out)   :: reflex
+
+       !---- Local variables ----!
+       real(kind=cp)         :: vmin,vmax,sval
+       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
+                                maxpos, mp, iprev
+       integer, dimension(3) :: hh,kk,nulo
+       integer, dimension(:,:), allocatable :: hkl,hklm
+       integer, dimension(:),   allocatable :: indx,ityp,ini,fin,itreat,mult
+       real,    dimension(:),   allocatable :: sv,sm
+       logical, dimension(:),   allocatable :: treated
+       integer, dimension(3,ShubG%numops)   :: klist
+
+       nulo=0
+       hmax=nint(CrystalCell%cell(1)*2.0*sintlmax+1.0)
+       kmax=nint(CrystalCell%cell(2)*2.0*sintlmax+1.0)
+       lmax=nint(CrystalCell%cell(3)*2.0*sintlmax+1.0)
+       hmin=-hmax; kmin=-kmax; lmin= -lmax         
+       maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
+       allocate(hkl(3,maxref),indx(maxref),sv(maxref))
+
+
+       num_ref=0
+       ext_do: do h=hmin,hmax
+          do k=kmin,kmax
+             do l=lmin,lmax
+
+                hh=(/h,k,l/)
+                if (hkl_equal(hh,nulo)) cycle
+                sval=hkl_s(hh,crystalcell)
+                if (sval > sintlmax) cycle                
+                if (Hkl_Lat_Absent(hh,ShubG%Latt_trans,ShubG%Num_Lat)) cycle
+                num_ref=num_ref+1
+                if(num_ref > maxref) then
+                   num_ref=maxref
+                   exit ext_do
+                end if
+                sv(num_ref)=sval
+                hkl(:,num_ref)=hh
+             end do
+          end do
+       end do ext_do
+       
+       call sort(sv,num_ref,indx)
+       
+       allocate(hklm(3,num_ref),sm(num_ref),ini(num_ref),fin(num_ref),itreat(num_ref))
+       do i=1,num_ref
+         j=indx(i)
+         hklm(:,i)=hkl(:,j)
+         sm(i)=sv(j)
+       end do
+       deallocate(hkl,sv,indx)
+       itreat=0; ini=0; fin=0
+       indp=0
+       do i=1,num_ref              !Loop over all reflections
+         !write(*,"(i6,3i5,i8)") i, hklm(:,i),itreat(i)
+         if(itreat(i) == 0) then   !If not yet treated do the following
+           hh(:)=hklm(:,i)
+           indp=indp+1  !update the number of independent reflections
+           itreat(i)=i  !Make this reflection treated
+           ini(indp)=i  !put pointers for initial and final equivalent reflections
+           fin(indp)=i
+           do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
+               if(abs(sm(i)-sm(j)) > 0.000001) exit
+               kk=hklm(:,j)
+               if(hkl_equiv(hh,kk,ShubG)) then ! if  hh eqv kk
+                 itreat(j) = i                 ! add h2 to the list equivalent to i
+                 fin(indp)=j
+               end if
+           end do
+         end if !itreat
+       end do 
+       
+       !Selection of the most convenient independent reflections
+       allocate(hkl(3,indp),sv(indp),indx(indp),mult(indp))
+       indx=2 !nuclear and magnetic contribution by default
+       do i=1,indp
+         maxpos=0
+         indj=ini(i)
+         mult(i)=0
+         iprev=itreat(indj)
+         do j=ini(i),fin(i)
+           if(iprev /= itreat(j)) cycle
+           mult(i)=mult(i)+1
+           hh=hklm(:,j)
+           mp=count(hh > 0)
+           if(mp > maxpos) then
+             indj=j
+             maxpos=mp
+           end if
+         end do !j
+         hkl(:,i)=hklm(:,indj)
+         if(hkl(1,i) < 0) hkl(:,i)=-hkl(:,i)
+         sv(i)=sm(indj)
+       end do  
+       !Now apply systematic absences other than lattice type
+       num_ref=0
+       do i=1,indp
+         hh=hkl(:,i)
+         if(Hkl_Absent(hh,ShubG)) then
+           if(mHKL_Absent(hh,ShubG)) then
+             cycle
+           else
+             indx(i)=1   !pure magnetic
+           end if
+         else
+           if(mHKL_Absent(hh,ShubG)) indx(i)=0  !pure nuclear        
+         end if
+         num_ref=num_ref+1
+         hklm(:,num_ref)=hh
+         sm(num_ref) = sv(i)
+         mult(num_ref)=mult(i)
+       end do
+       !Final assignments
+       allocate(reflex(num_ref))
+       do i=1,num_ref
+         hh=hkl(:,i)
+         reflex(i)%h    = hh
+         reflex(i)%s    = sm(i)
+         reflex(i)%mult = mult(i) !hkl_mult(hh,ShubG)
+         reflex(i)%imag = indx(i)
+       end do 
+       return
+    End Subroutine Hkl_Gen_Shub 
+    
     !!----
     !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
