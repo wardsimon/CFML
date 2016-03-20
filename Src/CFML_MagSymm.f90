@@ -121,9 +121,8 @@
     !---- List of public subroutines ----!
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
-              Calc_Induced_Sk, Write_Magnetic_Space_Group
-
-
+              Calc_Induced_Sk
+              
     !---- Definitions ----!
 
 
@@ -4060,128 +4059,6 @@
        write(unit=Ipr,fmt="(a)")
        return
     End Subroutine Write_MCIF
-
-    !!----
-    !!---- Subroutine Write_Magnetic_Space_Group(SG,Iunit,full)
-    !!----    type (Magnetic_Space_Group_Type),intent(in) :: SG
-    !!----    integer,   optional,             intent(in) :: iunit
-    !!----    logical,   optional,             intent(in) :: full
-    !!----
-    !!----    Subroutine to write out the information about the Shubnikov_Group
-    !!----
-    !!---- Update: March 2016
-    !!
-    Subroutine Write_Magnetic_Space_Group(SG,Iunit,full)
-       !---- Arguments ----!
-       type (Magnetic_Space_Group_Type),intent(in) :: SG
-       integer,   optional,             intent(in) :: iunit
-       logical,   optional,             intent(in) :: full
-
-       !---- Local variables ----!
-       character(len=100), dimension(24):: texto
-       character(len=80)                :: ShOp_symb  
-       character(len=40)                :: aux
-       integer                          :: lun
-       integer                          :: i, nlines,nop
-
-       !---- Initializing variables ----!
-       lun=6
-       if (present(iunit)) lun=iunit
-
-       !---- Printing ----!
-
-       write(unit=lun,fmt="(/,/,a)")         "        Information on Magnetic Space Group: "
-       write(unit=lun,fmt="(a,/ )")          "        ------------------------------------ "       
-       write(unit=lun,fmt="(a,i4 )")         " =>              Shubnikov Number: ", SG%Sh_number
-       write(unit=lun,fmt="(a,a )")          " =>                    BNS Number: ", trim(SG%BNS_number)
-       write(unit=lun,fmt="(a,a )")          " =>                     OG Number: ", trim(SG%OG_number)
-       write(unit=lun,fmt="(a,a )")          " =>                    BNS Symbol: ", trim(SG%BNS_symbol)
-       write(unit=lun,fmt="(a,a )")          " =>                     OG Symbol: ", trim(SG%OG_symbol)
-       write(unit=lun,fmt="(a,i3)")          " =>        Type of Magnetic group: ", SG%MagType
-       write(unit=lun,fmt="(a,i3)")          " =>           Parent group number: ", SG%Parent_num
-       write(unit=lun,fmt="(a,a)")           " =>           Parent group Symbol: ", trim(SG%Parent_spg)
-       write(unit=lun,fmt="(a,a)")           " =>    Transformation from parent: ", trim(SG%trn_from_parent)
-       write(unit=lun,fmt="(a,a)")           " =>    Transformation to standard: ", trim(SG%trn_to_standard)
-       write(unit=lun,fmt="(a,a)")           " =>                Crystal system: ", SG%CrystalSys
-       write(unit=lun,fmt="(a,a)")           " =>                  Lattice type: ", SG%SPG_lat
-       write(unit=lun,fmt="(a,a)")           " =>           Lattice type Symbol: ", SG%SPG_latsy
-       write(unit=lun,fmt="(a,i3)")          " =>    Number of centring vectors: ", max(SG%Num_Lat-1,0)
-       write(unit=lun,fmt="(a,i3)")          " =>   Number of anti-translations: ", SG%Num_aLat
-       write(unit=lun,fmt="(a,i3)")          " => Number of reduced set of S.O.: ", SG%NumOps
-       write(unit=lun,fmt="(a,i3)")          " =>         General Multiplicitiy: ", SG%Multip
-       write(unit=lun,fmt="(a,i3)")          " =>                       Centred: ", SG%Centred
-       if (SG%centred == 0) then
-          call Frac_Trans_1Dig(SG%Centre_coord,texto(1))
-          write(unit=lun,fmt="(a,a)")        " =>                     Centre at: ", trim(texto(1))
-       end if
-       write(unit=lun,fmt="(a,a)")           " =>                Centrosymmetry: ", SG%Centre
-
-       write(unit=lun,fmt="(a,i3)")          " =>        Generators (exc. -1&L): ", SG%num_gen
-       if (SG%Num_Lat > 1) then
-          texto(:) (1:100) = " "
-          write(unit=lun,fmt="(a,i3)")       " => Centring vectors:",SG%Num_Lat-1         
-          nlines=1
-          do i=2,SG%Num_Lat
-             call Frac_Trans_1Dig(SG%Latt_trans(:,i),aux)
-             if (mod(i-1,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
-                                           " => Latt(",i-1,"): ",trim(aux)
-                nlines=nlines+1
-             else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
-                                           " => Latt(",i-1,"): ",trim(aux)
-             end if
-          end do
-          do i=1,nlines
-             write(unit=lun,fmt="(a)") texto(i)
-          end do
-       end if
-       if (SG%Num_aLat > 0) then
-          texto(:) (1:100) = " "
-          write(unit=lun,fmt="(a,i3)")       " => Anti-Centring vectors:",SG%Num_aLat        
-          nlines=1
-          do i=1,SG%Num_aLat
-             call Frac_Trans_1Dig(SG%aLatt_trans(:,i),aux)
-             if (mod(i,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
-                                           " => aLatt(",i-1,"): ",trim(aux)
-                nlines=nlines+1
-             else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
-                                           " => aLatt(",i-1,"): ",trim(aux)
-             end if
-          end do
-          do i=1,nlines
-             write(unit=lun,fmt="(a)") texto(i)
-          end do
-       end if
-
-       !---- Symmetry Operators ----!
-       if(present(full)) then
-         if(full) then
-           nop=SG%Multip
-         else
-           nop=SG%numops
-         end if
-       else
-           nop=SG%numops
-       end if
-       if(nop == SG%Multip) then
-         write(unit=lun,fmt="(/,a,/)")        " => List of all Symmetry Operators and Symmetry Symbols"
-       else
-         write(unit=lun,fmt="(/,a,/)")        " => Reduced set (no centre & no (anti)centring) of Symmetry Operators and Symmetry Symbols"
-       end if
-       do i=1,nop
-          texto(1)=" "
-          call Symmetry_Symbol(SG%SymopSymb(i),texto(1))
-          call Get_Shubnikov_Operator_Symbol(SG%SymOp(i)%Rot,SG%MSymOp(i)%Rot,SG%SymOp(i)%tr,ShOp_symb,.true.)
-          
-          write(unit=lun,fmt="(a,i3,2a,t60,2a)") " => SYMM(",i,"): ",trim(ShOp_symb), &
-                                                    "Symbol: ",trim(texto(1))
-       end do
-
-       return
-    End Subroutine Write_Magnetic_Space_Group
 
     !!----
     !!---- Subroutine Write_Shubnikov_Group(SG,Iunit)
