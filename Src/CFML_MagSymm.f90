@@ -2797,9 +2797,6 @@
        return
     End Subroutine Readn_Set_Magnetic_Structure_MCIF
 
-
-
-
     Subroutine Get_mOrbit(x,Spg,Mult,orb,ptr)
        !---- Arguments ----!
        real(kind=cp), dimension(3),    intent (in) :: x
