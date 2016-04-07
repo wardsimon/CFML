@@ -3125,6 +3125,7 @@
          mult(num_ref)=mult(i)
        end do
        !Final assignments
+       if(allocated(reflex)) deallocate(reflex)
        allocate(reflex(num_ref))
        do i=1,num_ref
          hh=hkl(:,i)

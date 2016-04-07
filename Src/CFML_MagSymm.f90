@@ -1173,7 +1173,8 @@
                MGp%MagType=4
              end if
              MGp%Numops = Nsym
-             MGp%Multip = Nsym * max(1,Cen) * (MGp%Num_Lat + N_Ant)
+             MGp%Centred= max(1,Cen)
+             MGp%Multip = MGp%Numops * MGp%Centred * (MGp%Num_Lat + MGp%Num_aLat)
              num_sym=MGp%Multip
              allocate(Mgp%SymopSymb(num_sym))
              allocate(Mgp%Symop(num_sym))
