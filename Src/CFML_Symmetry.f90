@@ -3783,11 +3783,12 @@
     End Subroutine Get_Setting_Info
 
     !!----
-    !!---- Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb,mcif)
+    !!---- Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb,mcif,invt)
     !!----   integer, dimension(3,3), intent(in) :: Mat,Rot     ! Symmetry operators for positions and magnetic moments
     !!----   real,    dimension(3),   intent(in) :: tr          ! Translation associated to the symmetry operator
     !!----   character(len=*),        intent(out):: ShOp_symb   ! String with the Shubnikov operator symbol
     !!----   logical,  optional,      intent(in) :: mcif        ! if present the Shubnikov operator is like in mcif: -x,y+1/2,z  mx,-my,-mz +1
+    !!----   integer, optional,       intent(out):: invt        ! time inversion
     !!----
     !!---- Subroutine to construct a string with the Shubnikov operator
     !!---- in the following form: (-x,y+1/2,-z;u,-v,w)
@@ -3798,13 +3799,14 @@
     !!----   Brigham Young University, Provo, Utah, USA
     !!----   June 2010 >
     !!----
-    !!---- Updated: November 2012, January 2014
+    !!---- Updated: November 2012, January 2014, April 2016
     !!----
-    Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb,mcif)
+    Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb,mcif,invt)
       integer,       dimension(3,3), intent(in) :: Mat,Rot
       real(kind=cp), dimension(3),   intent(in) :: tr
       character(len=*),              intent(out):: ShOp_symb
       logical, optional,             intent(in) :: mcif
+      integer, optional,             intent(out):: invt
       !---- Local variables ----!
       integer                 :: i,i1,i2,idet
       integer, dimension(3,3) :: sMat
@@ -3834,14 +3836,14 @@
       if(i1 /= 0) uvw_op=uvw_op(1:i1)//"0"//uvw_op(i1+1:)
       xyz_op=Pack_string(xyz_op)
       uvw_op=Pack_string(uvw_op)
+      idet=determ_A(Mat)
+      sMat=(idet*Mat-Rot)
+      if(sum(sMat) == 0) then
+        time_inv="+1"
+      else
+        time_inv="-1"
+      end if
       if(present(mcif)) then
-        idet=determ_A(Mat)
-        sMat=(idet*Mat-Rot)
-        if(sum(sMat) == 0) then
-          time_inv="+1"
-        else
-          time_inv="-1"
-        end if
         !Expand the operator uvw_op to convert it to mx,my,mz like
         mxmymz_op=" "
         do i=1,len_trim(uvw_op)
@@ -3859,6 +3861,9 @@
         ShOp_symb=trim(xyz_op)//" "//trim(mxmymz_op)//" "//time_inv
       else
         ShOp_symb="("//trim(xyz_op)//";"//trim(uvw_op)//")"
+      end if
+      if(present(invt)) then
+        read(unit=time_inv,fmt=*) invt
       end if
       return
     End Subroutine Get_Shubnikov_Operator_Symbol

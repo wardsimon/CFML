@@ -121,7 +121,7 @@
     !---- List of public subroutines ----!
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
-              Calc_Induced_Sk
+              Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group
               
     !---- Definitions ----!
 
@@ -429,6 +429,41 @@
       return
     End Function get_magnetic_form_factor
 
+    Function Get_MagMatSymb(line,mcif) result(mxmymz_op)
+      character(len=*), intent(in) :: line
+      logical,          intent(in) :: mcif
+      character(len=len(line))     :: mxmymz_op
+      !--- Local variables ---!
+      integer :: i
+      mxmymz_op=" "
+      if(mcif) then
+         do i=1,len_trim(line)
+           Select Case(line(i:i))
+             case("x")
+                mxmymz_op=trim(mxmymz_op)//"mx"
+             case("y")
+                mxmymz_op=trim(mxmymz_op)//"my"
+             case("z")
+                mxmymz_op=trim(mxmymz_op)//"mz"
+             case default
+                mxmymz_op=trim(mxmymz_op)//line(i:i)
+           End Select
+         end do
+      else
+         do i=1,len_trim(line)
+           Select Case(line(i:i))
+             case("x")
+                mxmymz_op=trim(mxmymz_op)//"u"
+             case("y")
+                mxmymz_op=trim(mxmymz_op)//"v"
+             case("z")
+                mxmymz_op=trim(mxmymz_op)//"w"
+             case default
+                mxmymz_op=trim(mxmymz_op)//line(i:i)
+           End Select
+         end do
+      end if                  
+    End Function Get_MagMatSymb
 
     !---------------------!
     !---- Subroutines ----!
@@ -565,7 +600,7 @@
            p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
         end if
       end do
-      if(num_lat > 0) then
+      !if(num_lat > 0) then
         if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
         allocate(MSpG%Latt_trans(3,num_lat+1))
          MSpG%Latt_trans=0.0
@@ -575,7 +610,7 @@
           MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
         end do
         MSpG%Num_Lat=num_lat+1
-      end if
+      !end if
       if(num_alat > 0) then
         MSpG%MagType=4
         if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
@@ -1059,7 +1094,287 @@
        return
     End Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type
 
-
+    !!---- Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw)
+    !!----    character(len=*),dimension(:),  intent (in)  :: file_line
+    !!----    integer,                        intent (in)  :: n_ini,n_end
+    !!----    type(Magnetic_Space_Group_Type),intent (out) :: MGp
+    !!----    character(len=*),               intent (in)  :: mode
+    !!----    character(len=*), optional,     intent (in)  :: uvw
+    !!----
+    !!----  This subroutine reads the lattice centring and anti-centring vectors
+    !!----  as well as the symmetry operators of a magnetic space group in an
+    !!----  arbitrary BNS setting. It construct the relevant magnetic space group
+    !!----  components necessary for magnetic structure factor calculations.
+    !!----  It may be used for reading from a CFL or a PCR file.
+    !!----
+    !!----  Created: March 2016.
+    !!----
+    !!----
+    Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw)
+       character(len=*),dimension(:),  intent (in)  :: file_line
+       integer,                        intent (in)  :: n_ini,n_end
+       type(Magnetic_Space_Group_Type),intent (out) :: MGp
+       character(len=*),               intent (in)  :: mode
+       character(len=*), optional,     intent (in)  :: uvw
+       !
+       ! --- Local variables ---!
+       character(len=3)                 :: typ
+       integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
+                                           num_sym,m,nop,k,n,L,ier,icount
+       integer, dimension(3,3)          :: isim,msim
+       real(kind=cp)                    :: p_mag
+       real(kind=cp), dimension(3)      :: tr,v
+       character(len=132)               :: line, mxmymz_op,ShOp_symb
+       character(len=40),dimension(10)  :: words
+       logical                          :: u_type,m_type,inv_type
+       
+       typ=l_case(adjustl(mode))
+       
+       call Init_Magnetic_Space_Group_Type(MGp)
+       
+       Select Case(typ)
+          
+          Case("pcr")
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"Magnetic Space group symbol")
+             if(ind == 0) then
+               Err_Magsym=.true.
+               Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               return
+             else
+               j=index(line,"number")
+               MGp%BNS_symbol=trim(line(1:j-1))
+               MGp%OG_number=trim(line(j+7:ind-4))
+             end if
+             ini=n_ini+1
+             Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               ind=index(line,"N_Clat")
+               if(ind == 0) cycle
+               read(unit=file_line(i+1),fmt=*) Nsym, Cen, N_Clat, N_Ant
+               ini=i+2
+               exit
+             end do
+             if(Nsym == 0) then
+               Err_Magsym=.true.
+               Err_Magsym_Mess=" The number of symmetry operators is not provided in the PCR file! "
+               return
+             end if
+             !Allocate components of the magnetic space group
+             MGp%Num_aLat=0
+             allocate(MGp%Latt_trans(3,N_Clat+1))
+             MGp%Latt_trans=0.0
+             MGp%Num_Lat=N_Clat+1
+             if(N_Ant > 0) then
+               allocate(MGp%aLatt_trans(3,N_Ant))
+               MGp%aLatt_trans=0.0
+               MGp%Num_aLat=N_Ant
+               MGp%MagType=4
+             end if
+             MGp%Numops = Nsym
+             MGp%Multip = Nsym * max(1,Cen) * (MGp%Num_Lat + N_Ant)
+             num_sym=MGp%Multip
+             allocate(Mgp%SymopSymb(num_sym))
+             allocate(Mgp%Symop(num_sym))
+             allocate(Mgp%MSymopSymb(num_sym))
+             allocate(Mgp%MSymop(num_sym))
+             if(N_Clat > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" 'Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=1
+               do i=ini,ini+N_Clat-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%Latt_trans(:,m)
+               end do
+               ini=ini+N_Clat
+             end if
+             if(N_Ant > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Anti-Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" 'Anti-Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=0
+               do i=ini,ini+N_Ant-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%aLatt_trans(:,m)
+               end do
+               ini=ini+N_Ant
+             end if
+             !Check the type of symmetry operators given
+             do i=ini,N_end
+                line=adjustl(file_line(i))
+                if(line(1:1) == "!") cycle
+                j=index(line,"!")
+                if( j > 1) line=line(1:j-1)  !remove comments
+                call Getword(line, words, icount)
+                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type 
+                ! Icount=3 => SHSYM  x,-y,z+1/2  -1   <= This type or these types => SHSYM x,-y,z+1/2  -u,v,-w  or SHSYM x,-y,z+1/2  -mx,my,-mz
+                ! Icount=4 => SHSYM x,-y,z+1/2  -u,v,-w -1    <= This type or this type =>  SHSYM  x,-y,z+1/2  -mx,my,-mz  -1
+                if( icount < 2 .or. icount > 4) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" Error in Shubnikov operator: "//trim(line)  
+                 return
+                end if
+                u_type=(index(line,"u") /= 0) .or. (index(line,"U") /= 0)
+                m_type=(index(line,"mx") /= 0) .or. (index(line,"MX") /= 0)
+                if(.not. (u_type .or. m_type)) inv_type=.true.
+                exit
+             end do
+                           
+             !Reading reduced set of symmetry operators
+             m=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               if(line(1:1) == "!") cycle 
+               j=index(line," ")
+               line=adjustl(line(j:))
+               m=m+1
+               if(m > Nsym) exit
+               call Getword(line, words, j)
+               Select Case (icount)
+                 Case(2)
+                    j=index(line,",",back=.true.)
+                    MGp%SymopSymb(m)=line(1:j-1)
+                    read(unit=line(j+1:),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       err_magsym=.true.
+                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+                    
+                 Case(3)
+                    MGp%SymopSymb(m)=words(1)                   
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
+                    
+                 Case(4)
+                    MGp%SymopSymb(m)=words(1)
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz  
+                    read(unit=words(3),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       err_magsym=.true.
+                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+                                     
+               End Select
+               call Read_Xsym(MGp%SymopSymb(m),1,isim,tr)
+               MGp%Symop(m)%Rot=isim
+               MGp%Symop(m)%tr=tr
+               if(inv_type) then                  
+                 j=determ_a(isim)
+                 msim=nint(MGp%MSymOp(m)%phas)*j*isim
+               else if (u_type) then
+                 line=trim(MGp%MSymopSymb(m))//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               else !should be mx,my,mz
+                 line=trim(MGp%MSymopSymb(m))
+                 do j=1,len_trim(line)
+                    if(line(j:j) == "m" .or. line(j:j) == "M") line(j:j)=" "
+                    if(line(j:j) == "x" .or. line(j:j) == "X") line(j:j)="u"
+                    if(line(j:j) == "y" .or. line(j:j) == "Y") line(j:j)="v"
+                    if(line(j:j) == "z" .or. line(j:j) == "Z") line(j:j)="w"
+                 end do
+                 line=pack_string(line)//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               end if 
+               MGp%MSymop(m)%Rot=msim
+               if(m_type .and. .not. present(uvw)) then
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,.true.,invt=j)
+                 MGp%mcif=.true.
+               else
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,invt=j)
+                 MGp%mcif=.false.
+               end if
+               MGp%MSymOp(m)%phas=j
+               if(m_type .and. .not. present(uvw)) then
+                 call Getword(ShOp_symb, words, j)
+                 MGp%MSymopSymb(m)=words(2)
+               else
+                 j=index(ShOp_symb,";")
+                 k=index(ShOp_symb,")")
+                 MGp%MSymopSymb(m)=ShOp_symb(j+1:k-1)
+               end if
+             end do
+             
+          Case("cfl") !to be implemented
+             write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
+       End Select
+       
+       !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
+       m=MGp%Numops      
+       if(Cen == 2) then
+          do i=1,MGp%Numops 
+            m=m+1
+            MGp%SymOp(m)%Rot  = -MGp%SymOp(i)%Rot
+            MGp%SymOp(m)%tr   =  modulo_lat(-MGp%SymOp(i)%tr+v)
+            MGp%MSymOp(m)%phas= MGp%MSymOp(i)%phas
+            MGp%MSymOp(m)%Rot = MGp%MSymOp(i)%Rot
+            call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+            call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+            !Expand the operator "line" to convert it to mx,my,mz like
+            MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+          end do        
+       end if
+       nop=m    
+       !Expand symmetry operators for lattice centrings
+       do L=1,N_clat
+         tr=MGp%Latt_trans(:,L+1)
+         do j=1,nop
+           m=m+1
+           v=MGp%SymOp(j)%tr(:) + tr
+           MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+           MGp%SymOp(m)%tr   = modulo_lat(v)
+           MGp%MSymOp(m)%Rot = MGp%MSymOp(j)%Rot
+           MGp%MSymOp(m)%phas= MGp%MSymOp(j)%phas
+           call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+           call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+           !Expand the operator "line" to convert it to mx,my,mz like
+           MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+         end do
+       end do
+       !Expand symmetry operators for lattice anti-centrings
+       do L=1,N_Ant
+         tr=MGp%aLatt_trans(:,L)
+         do j=1,nop
+           m=m+1
+           v=MGp%SymOp(j)%tr(:) + tr
+           MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+           MGp%SymOp(m)%tr   = modulo_lat(v)
+           MGp%MSymOp(m)%Rot = -MGp%MSymOp(j)%Rot
+           MGp%MSymOp(m)%phas= -MGp%MSymOp(j)%phas
+           call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+           call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+           !Expand the operator "line" to convert it to mx,my,mz like
+           MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+         end do
+       end do       
+       ! Symmetry operators treatment done!
+       
+    End Subroutine Readn_Set_Magnetic_Space_Group
+    
     !!----
     !!---- Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
     !!----    type(file_list_type),                intent (in)     :: file_cfl
