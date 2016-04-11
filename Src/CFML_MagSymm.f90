@@ -122,7 +122,7 @@
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
               Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group
-              
+
     !---- Definitions ----!
 
 
@@ -462,7 +462,7 @@
                 mxmymz_op=trim(mxmymz_op)//line(i:i)
            End Select
          end do
-      end if                  
+      end if
     End Function Get_MagMatSymb
 
     !---------------------!
@@ -546,7 +546,7 @@
       ! character(len=1) :: Latsym
       ! character(len=2) :: Latsy
       integer,    dimension(3,3) :: identity, nulo, inver,mat,imat
-      real(kind=cp),dimension(3) :: v  
+      real(kind=cp),dimension(3) :: v
       character(len=80)          :: ShOp_symb ! SpaceGen ,
       logical                    :: centrosymm
       character (len=*),dimension(0:2), parameter  :: Centro = &
@@ -703,7 +703,7 @@
         else
            MSpG%Centred=2
         end if
-        if(MSpG%MSymOp(i_centre)%Phas < 0.0) then 
+        if(MSpG%MSymOp(i_centre)%Phas < 0.0) then
           MSpG%centre= trim(centro(MSpG%Centred))// " with associated Time Reversal"
         else
           MSpG%centre= centro(MSpG%Centred)
@@ -1127,13 +1127,13 @@
        character(len=132)               :: line, mxmymz_op,ShOp_symb
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type
-       
+
        typ=l_case(adjustl(mode))
-       
+
        call Init_Magnetic_Space_Group_Type(MGp)
-       
+
        Select Case(typ)
-          
+
           Case("pcr")
              line=adjustl(file_line(n_ini))
              ind=index(line,"Magnetic Space group symbol")
@@ -1227,12 +1227,12 @@
                 j=index(line,"!")
                 if( j > 1) line=line(1:j-1)  !remove comments
                 call Getword(line, words, icount)
-                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type 
+                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type
                 ! Icount=3 => SHSYM  x,-y,z+1/2  -1   <= This type or these types => SHSYM x,-y,z+1/2  -u,v,-w  or SHSYM x,-y,z+1/2  -mx,my,-mz
                 ! Icount=4 => SHSYM x,-y,z+1/2  -u,v,-w -1    <= This type or this type =>  SHSYM  x,-y,z+1/2  -mx,my,-mz  -1
                 if( icount < 2 .or. icount > 4) then
                  Err_Magsym=.true.
-                 Err_Magsym_Mess=" Error in Shubnikov operator: "//trim(line)  
+                 Err_Magsym_Mess=" Error in Shubnikov operator: "//trim(line)
                  return
                 end if
                 u_type=(index(line,"u") /= 0) .or. (index(line,"U") /= 0)
@@ -1240,12 +1240,12 @@
                 if(.not. (u_type .or. m_type)) inv_type=.true.
                 exit
              end do
-                           
+
              !Reading reduced set of symmetry operators
              m=0
              do i=ini,N_end
                line=adjustl(file_line(i))
-               if(line(1:1) == "!") cycle 
+               if(line(1:1) == "!") cycle
                j=index(line," ")
                line=adjustl(line(j:))
                m=m+1
@@ -1263,14 +1263,14 @@
                     else
                        MGp%MSymOp(m)%phas=real(n)
                     end if
-                    
+
                  Case(3)
-                    MGp%SymopSymb(m)=words(1)                   
+                    MGp%SymopSymb(m)=words(1)
                     MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
-                    
+
                  Case(4)
                     MGp%SymopSymb(m)=words(1)
-                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz  
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz
                     read(unit=words(3),fmt=*,iostat=ier) n
                     if(ier /= 0) then
                        err_magsym=.true.
@@ -1279,12 +1279,12 @@
                     else
                        MGp%MSymOp(m)%phas=real(n)
                     end if
-                                     
+
                End Select
                call Read_Xsym(MGp%SymopSymb(m),1,isim,tr)
                MGp%Symop(m)%Rot=isim
                MGp%Symop(m)%tr=tr
-               if(inv_type) then                  
+               if(inv_type) then
                  j=determ_a(isim)
                  msim=nint(MGp%MSymOp(m)%phas)*j*isim
                else if (u_type) then
@@ -1300,7 +1300,7 @@
                  end do
                  line=pack_string(line)//",0.0"
                  CALL read_msymm(line,msim,p_mag)
-               end if 
+               end if
                MGp%MSymop(m)%Rot=msim
                if(m_type .and. .not. present(uvw)) then
                  call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,.true.,invt=j)
@@ -1319,15 +1319,15 @@
                  MGp%MSymopSymb(m)=ShOp_symb(j+1:k-1)
                end if
              end do
-             
+
           Case("cfl") !to be implemented
              write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
        End Select
-       
+
        !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
-       m=MGp%Numops      
+       m=MGp%Numops
        if(Cen == 2) then
-          do i=1,MGp%Numops 
+          do i=1,MGp%Numops
             m=m+1
             MGp%SymOp(m)%Rot  = -MGp%SymOp(i)%Rot
             MGp%SymOp(m)%tr   =  modulo_lat(-MGp%SymOp(i)%tr+v)
@@ -1337,9 +1337,9 @@
             call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
             !Expand the operator "line" to convert it to mx,my,mz like
             MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
-          end do        
+          end do
        end if
-       nop=m    
+       nop=m
        !Expand symmetry operators for lattice centrings
        do L=1,N_clat
          tr=MGp%Latt_trans(:,L+1)
@@ -1371,11 +1371,11 @@
            !Expand the operator "line" to convert it to mx,my,mz like
            MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
          end do
-       end do       
+       end do
        ! Symmetry operators treatment done!
-       
+
     End Subroutine Readn_Set_Magnetic_Space_Group
-    
+
     !!----
     !!---- Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
     !!----    type(file_list_type),                intent (in)     :: file_cfl
@@ -2306,12 +2306,12 @@
                 chars=adjustl(line(j+1:))
                 if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
 
-             Case("_parent_space_group.name_h-m")
+             Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%Parent_spg=shubk(2:m-1)
 
-             Case("_parent_space_group.it_number")
+             Case("_parent_space_group.it_number","_parent_space_group_it_number")
                 read(unit=lowline(j:),fmt=*,iostat=ier) m
                 if(ier /= 0) then
                   err_magsym=.true.
@@ -2338,12 +2338,12 @@
                 m=len_trim(shubk)
                 MGp%OG_symbol=shubk(2:m-1)
 
-             Case("_magnetic_space_group.transform_from_parent_pp_abc")
+             Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%trn_from_parent=shubk(2:m-1)
 
-             Case("_magnetic_space_group.transform_to_standard_pp_abc")
+             Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%trn_to_standard=shubk(2:m-1)
@@ -2558,16 +2558,18 @@
                       MGp%Multip=k
 
 
-                   Case("_space_group_symop.magn_id")   !here the symmetry operators are separated from the translations
+                   Case("_space_group_symop.magn_id","_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
                       do k=1,2
                         i=i+1
-                        if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0) then
+                        if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
+                           index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
                           err_magsym=.true.
                           ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_operation loop"
                           return
                         end if
                       end do
-                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0) then
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation_mxmymz") == 0) then
                          i=i-1
                          no_symop_mxmymz=.true.
                       end if
@@ -2582,16 +2584,18 @@
                       num_rsym=k
 
 
-                   Case("_space_group_symop.magn_centering_id")   !here we read the translations and anti-translations
+                   Case("_space_group_symop.magn_centering_id","_space_group_symop_magn_centering_id")   !here we read the translations and anti-translations
                       do k=1,2
                         i=i+1
-                        if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0) then
+                        if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0 .and. &
+                           index(mcif%line(i),"_space_group_symop_magn_centering") == 0) then
                           err_magsym=.true.
                           ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_centering loop"
                           return
                         end if
                       end do
-                      if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0) then
+                      if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_centering_mxmymz") == 0) then
                          i=i-1
                          no_cent_mxmymz=.true.
                       end if
@@ -2981,12 +2985,12 @@
                Am%atom(i)%Biso_std=std(1)*78.95683521    !will be put to zero
             else if (lugar(10) /= 0) then    ! _atom_site_B_iso_or_equiv
                call getnum_std(lab_items(lugar(10)),values,std,iv)
-               Am%atom(i)%ueq=values(1)/78.95683521 
+               Am%atom(i)%ueq=values(1)/78.95683521
                Am%atom(i)%Biso=values(1)     !If anisotropic they
                Am%atom(i)%Biso_std=std(1)    !will be put to zero
             else
                Am%atom(i)%ueq=0.0
-               Am%atom(i)%Biso=0.0     
+               Am%atom(i)%Biso=0.0
                Am%atom(i)%Biso_std=0.0
             end if
             Am%atom(i)%utype="u_ij"
@@ -4463,7 +4467,7 @@
        end do
 
        return
-    End Subroutine Write_Shubnikov_Group    
+    End Subroutine Write_Shubnikov_Group
 
  End Module CFML_Magnetic_Symmetry
 
