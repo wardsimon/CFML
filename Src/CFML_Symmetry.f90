@@ -462,28 +462,28 @@
     !!----  Created: January - 2014, updated March 2016
     !!
     Type, Public :: Magnetic_Space_Group_Type
-       Integer                                        :: Sh_number
-       character(len=15)                              :: BNS_number
-       character(len=15)                              :: OG_number
-       Character(len=34)                              :: BNS_symbol
-       Character(len=34)                              :: OG_symbol
-       Integer                                        :: MagType
-       Integer                                        :: Parent_num
-       Character(len=20)                              :: Parent_spg
-       logical                                        :: standard_setting  !true or false
-       logical                                        :: mcif     !true if mx,my,mz notation is used , false is u,v,w notation is used
-       logical                                        :: m_cell   !true if magnetic cell is used for symmetry operators
-       logical                                        :: m_constr !true if constraints have been provided
-       Character(len=40)                              :: trn_from_parent
-       Character(len=40)                              :: trn_to_standard
-       character(len=12)                              :: CrystalSys       ! Crystal system
-       character(len= 1)                              :: SPG_lat          ! Lattice type
-       character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
+       Integer                                        :: Sh_number=0
+       character(len=15)                              :: BNS_number=" "
+       character(len=15)                              :: OG_number=" "
+       Character(len=34)                              :: BNS_symbol=" "
+       Character(len=34)                              :: OG_symbol=" "
+       Integer                                        :: MagType=0
+       Integer                                        :: Parent_num=0
+       Character(len=20)                              :: Parent_spg=" "
+       logical                                        :: standard_setting=.false.  !true or false
+       logical                                        :: mcif=.false.     !true if mx,my,mz notation is used , false is u,v,w notation is used
+       logical                                        :: m_cell=.true.   !true if magnetic cell is used for symmetry operators
+       logical                                        :: m_constr=.false. !true if constraints have been provided
+       Character(len=40)                              :: trn_from_parent=" "
+       Character(len=40)                              :: trn_to_standard=" "
+       character(len=12)                              :: CrystalSys=" "       ! Crystal system
+       character(len= 1)                              :: SPG_lat=" "          ! Lattice type
+       character(len= 2)                              :: SPG_latsy=" "        ! Lattice type Symbol
        integer                                        :: Num_Lat          ! Number of lattice points in a cell
        integer                                        :: Num_aLat         ! Number of anti-lattice points in a cell
        real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations
        real(kind=cp), allocatable,dimension(:,:)      :: aLatt_trans      ! Lattice anti-translations
-       character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
+       character(len=80)                              :: Centre=" "           ! Alphanumeric information about the center of symmetry
        integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
        real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
        integer                                        :: NumOps           ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
@@ -498,7 +498,7 @@
        Character(len=15),   dimension(:),allocatable  :: irrep_id           ! Labels for the irreps
        Character(len=20),   dimension(:),allocatable  :: irrep_direction    ! Irrep direction in representation space
        Character(len=20),   dimension(:),allocatable  :: irrep_action       ! Irrep character primary or secondary
-       Character(len=15),   dimension(:),allocatable  :: kv_label
+       Character(len=15),   dimension(:),allocatable  :: kv_label 
        real(kind=cp),     dimension(:,:),allocatable  :: kv
        character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
        character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
@@ -675,7 +675,7 @@
     !!---- Update: February - 2005
     !!
     Type, public :: Wyckoff_Type
-       integer                            :: num_orbit
+       integer                            :: num_orbit=0
        type(wyck_pos_type), dimension(26) :: orbit
     End Type Wyckoff_Type
 

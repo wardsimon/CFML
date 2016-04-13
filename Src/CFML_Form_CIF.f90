@@ -1418,6 +1418,11 @@
                 else
                    spgr_hm=spgr_hm(:np1-1)//":R"
                 end if
+             case("H")
+                spgr_hm=spgr_hm(:np1-1)
+                
+             case default
+                spgr_hm=" "   
           end select
        end if
 
