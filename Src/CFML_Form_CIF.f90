@@ -1421,8 +1421,6 @@
              case("H")
                 spgr_hm=spgr_hm(:np1-1)
                 
-             case default
-                spgr_hm=" "   
           end select
        end if
 
@@ -2977,8 +2975,8 @@
        do i=1,A%natoms
           vet(1:3)=A%atom(i)%x
           A%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
-          A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/real(SpG%Multip)
-          if(A%atom(i)%occ < epss) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
+          A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
+          if(A%atom(i)%occ < epss) A%atom(i)%occ=real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
 
           select case (A%atom(i)%thtype)
              case ("isotr")
