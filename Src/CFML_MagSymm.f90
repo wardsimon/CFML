@@ -535,19 +535,15 @@
     Subroutine Cleanup_Symmetry_Operators(MSpG)
       Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
       !--- Local variables ---!
-      integer,      dimension(3,3,MSpG%Multip) :: ss
-      real(kind=cp),dimension(3,  MSpG%Multip) :: ts
-      integer,      dimension(    MSpG%Multip) :: p,ip,it
+      integer,      dimension(    MSpG%Multip) :: ip 
       logical,      dimension(    MSpG%Multip) :: nul
       real(kind=cp),dimension(3,192)           :: Lat_tr
       real(kind=cp),dimension(3,192)           :: aLat_tr
       integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
-      !integer :: Ibravl,Isystm, out
-      ! character(len=1) :: Latsym
-      ! character(len=2) :: Latsy
       integer,    dimension(3,3) :: identity, nulo, inver,mat,imat
       real(kind=cp),dimension(3) :: v
-      character(len=80)          :: ShOp_symb ! SpaceGen ,
+      character(len=80)          :: ShOp_symb !  
+      character(len=4)           :: ired !  
       logical                    :: centrosymm
       character (len=*),dimension(0:2), parameter  :: Centro = &
                                          (/"Centric (-1 not at origin)", &
@@ -555,20 +551,41 @@
                                            "Centric (-1 at origin)    "/)
       !Type(Magnetic_Space_Group_Type) :: MSpGn
 
-      !MSpGn=MSpG  !copy with allocation in F2003
       identity=0; nulo=0
       do i=1,3
         identity(i,i)=1
       end do
       inver=-identity
       num_lat=0; num_alat=0
-      p=0
-      i=0
       k=0
       centrosymm=.false.
       nul=.false.
       MSpG%MagType=1
+      
+      ip=0
+      !Eliminate centre of symmetry {-1|t} and select thas having
+      !t=0 if it exist
       do j=2,MSpG%Multip
+          invt= nint(MSpG%MSymOp(j)%phas)
+          imat=MSpG%SymOp(j)%Rot(:,:)
+          if(equal_matrix(imat,inver,3) .and. invt == 1) then
+            k=k+1
+            ip(k)=j
+          end if
+      end do
+      if(k > 0) then
+         centrosymm=.true.
+         i_centre=ip(1)
+         do j=1,k
+           i=ip(j)
+           nul(i)=.true.
+           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) i_centre=i
+         end do
+      end if
+      !Eliminate lattice translations and anti-translations
+      
+      do j=2,MSpG%Multip
+        if(nul(j)) cycle
         invt= nint(MSpG%MSymOp(j)%phas)
         if(invt < 0) MSpG%MagType=3
         if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
@@ -576,30 +593,15 @@
            if(invt == 1) then
               num_lat=num_lat+1
               Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
-              p(j)=10
               nul(j)=.true.
            else
               num_alat=num_alat+1
               aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
-              p(j)=-10
               nul(j)=.true.
            end if
-        else if (equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
-           k=k+1
-           if(invt == 1) then
-             p(j)=20
-             if(.not. centrosymm) then
-               centrosymm=.true.
-               i_centre=j
-             end if
-           else
-             p(j)=-20
-           end if
-           nul(j)=.true.
-        else
-           p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
         end if
-      end do
+      end do  !j=2,MSpG%Multip
+      
       !if(num_lat > 0) then
         if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
         allocate(MSpG%Latt_trans(3,num_lat+1))
@@ -618,28 +620,21 @@
         MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
         MSpG%Num_aLat=num_alat
       end if
-      !do i=1,num_lat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
-      !end do
-      !do i=1,num_alat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
-      !end do
-
       !Nullify the operators that can be deduced from others by applying translations,
       !anti-translations and centre of symmetry
-      ip=0; it=0
+      
+      ip=0      
       do j=2,MSpG%Multip-1
          if(nul(j)) cycle
          do i=j+1,MSpG%Multip
            if(nul(i)) cycle
            mat=MSpG%SymOp(i)%Rot(:,:)-MSpG%SymOp(j)%Rot(:,:)
-           if(equal_matrix(mat,nulo,3) ) then
+           if(equal_matrix(mat,nulo,3) ) then  !Pure lattice translation or antitranslation
               v=MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
 
               if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
                  nul(i)=.true.
                  ip(i)=j
-                 it(i)=nl
                  cycle
               end if
 
@@ -647,7 +642,6 @@
               if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
                  nul(i)=.true.
                  ip(i)=j
-                 it(i)=-nl
                  cycle
               end if
 
@@ -661,40 +655,30 @@
                  if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
                     nul(i)=.true.
                     ip(i)=i_centre
-                    it(i)=nl
                     cycle
                  end if
 
                  if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
                     nul(i)=.true.
                     ip(i)=j
-                    it(i)=-nl
                     cycle
                  end if
               end if
-
            end if
          end do
       end do
       j=0
+      !MSpGn=MSpG  !copy with allocation in F2003
+      ! => This is the reduced set of symmetry operators"
       do i=1,MSpG%Multip
-        if(nul(i) .or. i==i_centre) cycle
+        if(nul(i)) cycle
         j=j+1
-        ss(:,:,j)=MSpG%SymOp(i)%Rot
-        ts(:,j) = MSpG%SymOp(i)%tr
-        ip(j)   = nint(MSpG%MSymOp(i)%phas)
-        !write(*,"(i6,a,t70,4i4)") j, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i)
+        MSpG%SymOp(j) = MSpG%SymOp(i)
+        MSpG%MSymOp(j)= MSpG%MSymOp(i)
       end do
-      MSpG%Numops=j !This is the reduced set of symmetry operators
-
+      MSpG%Numops=j
       !Construct in an ordered way all the symmetry operators in MSpG
       !Replacing the operators in the proper order
-      do i=1,MSpG%Numops
-        MSpG%SymOp(i)%Rot= ss(:,:,i)
-        MSpG%SymOp(i)%tr= ts(:,i)
-        MSpG%MSymOp(i)%phas= ip(i)
-        MSpG%MSymOp(i)%Rot=determ_A(ss(:,:,i))*ip(i)*ss(:,:,i)
-      end do
       m=MSpG%Numops
       if(centrosymm) then   !First apply the centre of symmetry
         v=MSpG%SymOp(i_centre)%tr
@@ -712,8 +696,7 @@
           m=m+1
           MSpG%SymOp(m)%Rot  = -MSpG%SymOp(i)%Rot
           MSpG%SymOp(m)%tr   =  modulo_lat(-MSpG%SymOp(i)%tr+v)
-          MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
-          MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
+          MSpG%MSymOp(m)= MSpG%MSymOp(i)
         end do
       else
         MSpG%Centred=1
@@ -727,8 +710,7 @@
              v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
              MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
              MSpG%SymOp(m)%tr   = modulo_lat(v)
-             MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
-             MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
+             MSpG%MSymOp(m)     = MSpG%MSymOp(i) 
            end do
         end do
       end if
@@ -748,33 +730,19 @@
       ng=m
       if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
       !now generate all symbols for symmetry operators and magnetic matrices
+      ired=" => "
       do i=1,MSpG%Multip
+         if(i > MSpG%Numops) ired="    "
          call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
-        !write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
-        !write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
+         !write(*,"(a,i6,a)") ired,i, "  "//trim(ShOp_symb)
+         j=index(ShOp_symb," ")
+         MSpG%SymOpSymb(i)=ShOp_symb(1:j-1)
+         ShOp_symb=adjustl(ShOp_symb(j:))
+         j=index(ShOp_symb," ")
+         MSpG%MSymOpSymb(i)=ShOp_symb(1:j-1)
+         !write(*,"(a,i6,a,i4)") ired,i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
       end do
-      !write(*,"(a)")
-     !do i=1,MSpG%Multip
-     ! Select Case (p(i))
-     !   Case(10)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "     Translation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(-10)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, " Antitranslation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(20)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "          Centre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(-20)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "      Anticentre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case Default
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "       Other Op.: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     ! End Select
-     !end do
-
-      !write(*,"(2i8,a,i4)")k,j,"   Centre at:  "//trim(MSpG%SymOpSymb(j))//"   "//trim(MSpG%MSymOpSymb(j)), invt
-      !do j=1,NG
-      !  i=p(j)
-      !  if(i == 0) exit
-      !  write(*,"(2i6,a,i4)")j,i, "    "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
-      !end do
+      !MSpG=MSpGn
       return
     End Subroutine Cleanup_Symmetry_Operators
 
@@ -2682,10 +2650,10 @@
                       num_matom=k
                       !Treat late the list atoms
 
-                   Case("_magnetic_atom_site_moment_label")
+                   Case("_magnetic_atom_site_moment_label","_atom_site_moment_label")
                       do k=1,3
                         i=i+1
-                        if(index(mcif%line(i),"_magnetic_atom_site_moment_crystalaxis") == 0) then
+                        if(index(mcif%line(i),"_atom_site_moment_crystalaxis") == 0 ) then
                           err_magsym=.true.
                           ERR_MagSym_Mess=" Error reading the magnetic_atom_site_moment loop"
                           return
@@ -2849,6 +2817,9 @@
        end if
        ! Symmetry operators treatment done!
        !write(*,"(a)") " Cleaning up symmetry operators: "
+       !do i=1,MGp%Multip
+       !  write(*,"(i3,t20,a,t55,a)") i,MGp%SymopSymb(i),MGp%MSymopSymb(i)
+       !end do
        Call cleanup_symmetry_operators(MGp)
        !write(*,"(a)") " Cleaning up done! "
 
