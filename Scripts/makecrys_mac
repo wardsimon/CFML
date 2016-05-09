@@ -5,11 +5,12 @@
 # Date: July 2015
 # A.Filhol - 26 february 2016 (more tests and more error messages)
 # A.Filhol - 7 March 2016 (support for Winteracter 64-bits) 
+# A.Filhol - 3 May 2016 (added chmod +x since this bit is often lost) 
 # -------------------------------------------------------------------------------------
 
 cat << !
  ########################################################
- makecry_MAC  : Make the CrysFML Library for Apple's OS X
+ makecrys_MAC  : Make the CrysFML Library for Apple's OS X
  feb 2016 - OS X El Capitan
  ########################################################
 
@@ -114,6 +115,11 @@ echo "---- Selected options -----------------"
 echo "---- Comp: $COMP, Arch: $ARCH, Wint: $WINT, Cons: $CONS, Debug: $DEBUG"
 echo "---------------------------------------"
 echo ""
+
+#
+chmod +x $CRYSFML/Scripts/MacOS/make_crysfml
+#
+
 #
 # Console version
 #
