@@ -571,15 +571,18 @@
           if(equal_matrix(imat,inver,3) .and. invt == 1) then
             k=k+1
             ip(k)=j
+            !write(*,"(i4,a,i3)") j,trim(MSpG%SymOpSymb(j)), invt
           end if
       end do
       if(k > 0) then
-         centrosymm=.true.
-         i_centre=ip(1)
          do j=1,k
            i=ip(j)
-           nul(i)=.true.
-           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) i_centre=i
+           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
+            centrosymm=.true.
+            i_centre=i
+            nul(i)=.true.
+            exit
+           end if
          end do
       end if
       !Eliminate lattice translations and anti-translations
@@ -599,6 +602,9 @@
               aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
               nul(j)=.true.
            end if
+        end if
+        if(equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
+           nul(j)=.true.
         end if
       end do  !j=2,MSpG%Multip
       
