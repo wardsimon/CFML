@@ -94,6 +94,7 @@
  Module CFML_Structure_Factors
 
     !---- Use Modules ----!
+    Use CFML_IO_Formats,                  only: file_list_type
     Use CFML_GlobalDeps,                  only: cp, tpi
     Use CFML_Math_General,                only: atan2d
     Use CFML_String_Utilities,            only: L_Case,U_Case
@@ -101,7 +102,6 @@
     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
     Use CFML_Atom_TypeDef,                only: atom_list_type
-    use CFML_IO_Formats,                  only: file_list_type
 
     !---- Variables ----!
     implicit none
@@ -506,11 +506,11 @@
        complex,                            intent(out):: fn,fx,fe
 
        !---- Local Variables ----!
-       integer                               :: i,j,k,m
-       real(kind=cp)                         :: arg,anis,scosr,ssinr,b,s
+       integer                               :: i,j,k !,m
+       real(kind=cp)                         :: arg,anis,scosr,ssinr,b !,s
        real(kind=cp)                         :: a1,a3,b1,b3,av,bv,nffr,nffi        !fn
        real(kind=cp)                         :: xa1,xa3,xb1,xb3,xav,xbv,xffr,xffi  !fx
-       real(kind=cp)                         :: ea1,ea3,eb1,eb3,eav,ebv,effr       !fe
+       real(kind=cp)                         :: ea1,ea3,eb1,eb3,effr !,eav,ebv     !fe
        real(kind=cp),dimension(3)            :: h
        real(kind=cp),dimension(6)            :: beta
 

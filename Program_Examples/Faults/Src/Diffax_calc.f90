@@ -1333,7 +1333,7 @@
       LOGICAL, INTENT(OUT)          :: ok
 
       REAL(kind=dp)     :: scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
-      INTEGER           :: i, i2, j, n, TYPE, num_types, tot_types
+      INTEGER           :: i, i2, j, n, TYPE, num_types !,tot_types
       INTEGER           :: print_width
       CHARACTER(LEN=80) :: list(5)
 
@@ -1731,7 +1731,7 @@
 
         LOGICAL :: fexist
         CHARACTER (LEN=len(name1)) :: bname
-        integer :: ln, i
+        integer :: i !,ln
 
         ok=.false.
 
@@ -1808,7 +1808,7 @@
 
       LOGICAL :: okay
       CHARACTER(LEN=80) :: messge
-      INTEGER :: i, j, idum
+      INTEGER :: i, j !,idum
       Real(kind=dp) ::  x, sum!, rnd
 ! external function
 
@@ -2313,8 +2313,9 @@
       LOGICAL      :: ok,  on_bndry, l_axis, shrp
       INTEGER      :: h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
       INTEGER      :: m, i, max_indx, lz, lzf
-      Real(kind=dp):: s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val, tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
-      Real(kind=dp):: hkangl, ll, angle , angles
+      Real(kind=dp):: s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val
+      !Real(kind=dp):: tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
+      Real(kind=dp):: hkangl, ll, angle !,angles
       Real(kind=dp):: l, hk_th, x,  l_max, min_th, max_th
       Real(kind=dp):: w1, l1, l0, d_l,   w2, w3, l00
       COMPLEX(kind=dp) :: f(max_l)
@@ -3073,7 +3074,7 @@
 
       LOGICAL FUNCTION get_alpha()
 
-        INTEGER        ::  i, j, k
+        INTEGER        ::  i, j !,k
         Real(kind=dp)  ::  suma ,sumo, ran
 
         get_alpha = .false.
@@ -4146,7 +4147,7 @@
       CHARACTER (LEN=*)                        :: outfile
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER :: io_err, i
+      !INTEGER :: io_err,i
       Real(kind=dp) ::   cut_off
 
 ! get angular range and step

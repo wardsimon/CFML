@@ -197,7 +197,7 @@
     Subroutine Set_TFile(namef,logi)
       character(len=*),  intent(in)  :: namef
       logical,           intent(out) :: logi
-      integer :: i
+      ! integer :: i
       call number_lines(namef, numberl)                            ! count number of lines in file
 
       logi=.true.
@@ -331,7 +331,7 @@
     Subroutine Read_TITLE(logi)
       logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier
+      integer :: i,i1,i2 !,ier,k
       character(len=132) :: txt
 
       logical :: ok_title
@@ -359,11 +359,11 @@
     Subroutine Read_INSTRUMENTAL(logi)
       logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier, l
+      integer :: i,i1,i2,k, ier !,l
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_rad, ok_wave, ok_uvw, ok_abe
-      real  :: ab
+      !real  :: ab
 
       logi=.true.
       i1=sect_indx(2)
@@ -552,11 +552,11 @@
     Subroutine Read_STRUCTURAL(logi)
       logical, intent(out) :: logi
 
-      integer :: i,i1,i2,j,k, ier, l
+      integer :: i,i1,i2,j,k, ier !,l
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_cell, ok_symm, ok_nlayers, ok_lwidth
-      real  :: ab
+      !real  :: ab
 
       logi=.true.
       i1=sect_indx(3)
@@ -795,14 +795,15 @@
     Subroutine Read_LAYER(logi)
       logical, intent(out) :: logi
 
-      integer :: i,i1,i2,i3, k, ier, a, a1, a2, r, tmp, j, m, l, nitem
+      integer :: i,i1,i2 !,i3
+      integer :: k, ier, a, a1, a2, r, tmp, j, m, l, nitem
       character(len=20), dimension(30) :: citem
       character(len=132) :: txt, layer
       character(len=25)  :: key
 
       logical :: ok_lsym, ok_atom
       integer,          dimension(:),     allocatable  :: d !counts nº of atoms in unique layer
-      real  :: ab
+      !real  :: ab
 
       if (allocated (crys%fundamental)) deallocate(crys%fundamental)
       allocate(crys%fundamental(crys%n_typ))
@@ -998,14 +999,14 @@
     Subroutine Read_STACKING(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier,j, j1, j2, l1, l2, r, l
+      integer :: i,i1,i2,k, ier,j, j1, j2, l1, l2, r !,l
       integer,dimension(132)                         :: Inte    !  Vector of integer numbers
       integer                                        :: n_int  !number of integers per line
       real(kind=sp),      dimension(132)             :: rel !  Vector of integer numbers
       character(len=132) :: txt
       character(len=25)  :: key, seq
       logical :: ok_explicit, ok_recursive
-      real  :: ab
+      !real  :: ab
 
       logi=.true.
       i1=sect_indx(5)
@@ -1173,7 +1174,7 @@
       logical, intent(out) :: logi
       integer :: i,i1,i2, k, ier, j, l, nitem, m
       real, parameter :: eps =1.0E-4
-      real  :: ab, suma
+      real  :: suma !,ab
       character(len=20), dimension(30) :: citem
       character(len=132) :: txt
       character(len=25)  :: key
@@ -1298,7 +1299,7 @@
     Subroutine Read_CALCULATION(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier,n,m, j
+      integer :: i,i1,i2,k, ier,m !,n,j
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lma, ok_boxp, ok_maxfun, &
@@ -1935,7 +1936,8 @@
         logical,          intent(out):: logi
         !Local variables
         logical :: esta
-        integer :: ier, a,b,l,j, i, n, Lcode_max
+        integer :: a,b,l,j, i, Lcode_max
+        !integer :: n, ier
 
         logi = .true.
         call Set_Crys()
@@ -2109,8 +2111,9 @@
 
      Subroutine Modify_codes(Lcode_max)
        integer, intent (in out) :: Lcode_max
-       integer                  :: n_pat, k, l , kk, i, j, iof, n_given,  &
-                                   n_att, ndisp, nn, ni, ndispm,nd,maxs
+       integer                  :: k, l, i, j, n_given,  &
+                                   n_att, ndisp, nn, ni, ndispm, &
+                                   maxs !,n_pat, kk, iof, nd
        integer, dimension(Lcode_max) :: dispo
        real(kind=cp), parameter      :: e=0.001
        !

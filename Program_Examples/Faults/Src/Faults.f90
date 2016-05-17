@@ -135,7 +135,7 @@
        type(LSQ_State_Vector_type), Intent(In)     :: Vs
 
        !local variables
-       integer                  :: n, j, i
+       integer                  :: i
        real, dimension(max_npar):: shift
 
        shift(1:opti%npar) = vs%pv(1:opti%npar) - crys%Pv_refi(1:opti%npar)
@@ -227,8 +227,8 @@
       real, dimension(3)   :: c_avnorm               !to calculate the norm of c
       real, dimension(3)   :: unita, unitb
       real, dimension(3,3) :: Metric_Tensor
-      character(len=132)   :: txt,key
-      integer              :: i,j,k,l,m, ier
+      !character(len=132)   :: txt,key
+      integer              :: i,j,l !,k,m,ier
 
               verif=.true.
               unita=(/ 1, 0, 0 /)
@@ -305,7 +305,7 @@
        type(LSQ_State_Vector_type), intent(in)      :: Vs
 
 
-       integer                            :: a,b,c, j, l,i ,n, print_width,m
+       integer                            :: a,b,c, j, l,i !,n, print_width,m
        CHARACTER(LEN=80), dimension(2)    :: list
 
       !call vs2faults(vs, crys)
@@ -566,14 +566,14 @@
       Type(Space_Group_Type) :: SpGr
       Type(Atom_List_Type)   :: Atm
       Type(Crystal_Cell_Type):: celld
-      integer :: i,j,k,l,lact,n,m, nseq, nlayers,nl,nat,ncar,ier
+      integer :: i,j,k,l,lact,n,m, nlayers,nl,nat,ncar,ier !,nseq
       integer, dimension(1000)      :: seq
       integer, dimension(20)        :: pos
       real(kind=cp), dimension(3)   :: cvect,stck_vect,celax,celang
       real(kind=dp), dimension(6)   :: cell_fst
-      real(kind=cp)                 :: caxis !Perpendicular to the plane of the layers
+      !real(kind=cp)                 :: caxis !Perpendicular to the plane of the layers
       real(kind=cp),     dimension(:,:),allocatable :: xyz
-      real(kind=cp),     dimension(:),  allocatable :: biso,occ
+      !real(kind=cp),     dimension(:),  allocatable :: biso,occ
       character(len=20), dimension(:),  allocatable :: atnam
       character(len=2)  :: elem
       character(len=16) :: aux
@@ -922,7 +922,7 @@
 
        real :: twtet, dd, scl,yymi,yyma,t1,t2,sintlm
        character (len=1)   :: tb
-       character (len=50)  :: forma1,forma2
+       character (len=50)  :: forma1 !,forma2
        integer, dimension(max_bgr_num+1) :: nref
        integer, dimension(max_bgr_num+1) :: ibgr
        logical :: tick_marks
@@ -1129,7 +1129,7 @@
                                                              ! If modified to a negative number the algorithm stops.
       !local variables
       logical                  :: ok
-      integer                  :: j ,i, k, a, b
+      integer                  :: i !, j, k, a, b
       real, dimension(max_npar):: shift, state
       real                     :: rf
       real, save               :: chi2,chiold=1.0e35
@@ -1395,14 +1395,14 @@
      implicit none
 
 
-      real                    :: rpl,  theta , ymax, ymini , ymin ,deg, tini,tfin
+      real                    :: tini,tfin !, rpl, theta , ymax, ymini, ymin ,deg
       LOGICAL                 :: ok, ending , gol, p_ok, arggiven=.false.
-      INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
-      character(len=100)      :: pfile, bfile , bmode
-      character(len=100)      :: pmode
+      INTEGER                 :: i, j, narg !, l ,n ,ier , fn_menu,a,b,c ,aa,bb,cc, e
+      !character(len=100)      :: pfile, bfile, bmode
+      !character(len=100)      :: pmode
       character(len=256)      :: path_name
-      character(len=10)       :: time, date
-      character(len=1)        :: keyw
+      !character(len=10)       :: time, date
+      !character(len=1)        :: keyw
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
 

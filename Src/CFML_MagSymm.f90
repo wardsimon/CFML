@@ -495,7 +495,7 @@
        !--- Local variables ---!
        integer                          :: i,codini
        integer, dimension(6)            :: icodes
-       real(kind=cp)                    :: s
+       !real(kind=cp)                    :: s
        real(kind=cp),    dimension(6)   :: multip
        real(kind=cp),    dimension(3)   :: u_vect,x
        real(kind=cp),    dimension(3,3) :: chi
@@ -1098,7 +1098,7 @@
        integer, dimension(3,3)          :: isim,msim
        real(kind=cp)                    :: p_mag
        real(kind=cp), dimension(3)      :: tr,v
-       character(len=132)               :: line, mxmymz_op,ShOp_symb
+       character(len=132)               :: line,ShOp_symb !,mxmymz_op
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type
 

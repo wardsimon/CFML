@@ -1819,7 +1819,7 @@
        !---- Local Variables ----!
        integer, dimension(3)              :: k
        integer                            :: i,n_id
-       real(kind=cp)                      :: r1,r2
+       real(kind=cp)                      :: r1 !,r2
 
        info=.false.
        Select Case(ShubG%MagType)
@@ -3014,15 +3014,15 @@
        type (Reflect_Type), dimension(:), allocatable,intent(out)   :: reflex
 
        !---- Local variables ----!
-       real(kind=cp)         :: vmin,vmax,sval
+       real(kind=cp)         :: sval !,vmin,vmax
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
                                 maxpos, mp, iprev
        integer, dimension(3) :: hh,kk,nulo
        integer, dimension(:,:), allocatable :: hkl,hklm
-       integer, dimension(:),   allocatable :: indx,ityp,ini,fin,itreat,mult
+       integer, dimension(:),   allocatable :: indx,ini,fin,itreat,mult !,ityp
        real,    dimension(:),   allocatable :: sv,sm
-       logical, dimension(:),   allocatable :: treated
-       integer, dimension(3,ShubG%numops)   :: klist
+       !logical, dimension(:),   allocatable :: treated
+       !integer, dimension(3,ShubG%numops)   :: klist
 
        nulo=0
        hmax=nint(CrystalCell%cell(1)*2.0*sintlmax+1.0)

@@ -5,6 +5,7 @@
 # Date: July-2015
 # OS X version
 # Update: Feb 2016 - A.Filhol (more tests and error messages, added a progression bar)
+# Update: May 2016 - A.Filhol ($ARCH instead of $arg in output message)
 # -------------------------------------------------------------------------------------
 #
 cat << !
@@ -194,7 +195,7 @@ echo " --------------------------------------------------------"
 echo " ---- Crystallographic Fortran Modules Library (5.0) ----"
 echo " ---- JRC - JGP                            1999-2016 ----"
 echo " --------------------------------------------------------"
-echo " Selected architecture   : $arg"
+echo " Selected architecture   : $ARCH"
 echo " Compiled files to folder: $CRYSFML/$IDIR/$DIRLIB"
 echo " "
 progressionBar()
