@@ -495,7 +495,6 @@
        !--- Local variables ---!
        integer                          :: i,codini
        integer, dimension(6)            :: icodes
-       !real(kind=cp)                    :: s
        real(kind=cp),    dimension(6)   :: multip
        real(kind=cp),    dimension(3)   :: u_vect,x
        real(kind=cp),    dimension(3,3) :: chi
@@ -1098,7 +1097,7 @@
        integer, dimension(3,3)          :: isim,msim
        real(kind=cp)                    :: p_mag
        real(kind=cp), dimension(3)      :: tr,v
-       character(len=132)               :: line,ShOp_symb !,mxmymz_op
+       character(len=132)               :: line,ShOp_symb
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type
 
@@ -2249,7 +2248,7 @@
        type(file_list_type)       :: mcif
 
        call init_err_MagSym()
-
+       
        call File_To_FileList(file_mcif,mcif)
        !Remove all possible tabs and non-ASCII characters in the CIF
        do i=1,mcif%nlines
@@ -2258,7 +2257,7 @@
          end do
        end do
        num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0; num_rsym=0; num_centering=0
-       cel=0.0; ang=0.0
+       cel=0.0; ang=0.0; num_irreps=0; nitems_irreps=0 
        i=0
        call Init_Magnetic_Space_Group_Type(MGp)
        ktag=.false.
@@ -2279,11 +2278,12 @@
              Case("_magnetic_space_group_standard_setting")
                 chars=adjustl(line(j+1:))
                 if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
-
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_standard_setting"
              Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%Parent_spg=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_name_h-m"
 
              Case("_parent_space_group.it_number","_parent_space_group_it_number")
                 read(unit=lowline(j:),fmt=*,iostat=ier) m
@@ -2293,34 +2293,41 @@
                   return
                 end if
                 MGp%Parent_num=m
+                !write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_it_number"
 
              Case("_magnetic_space_group_bns_number","_space_group.magn_number_bns")
                 shubk=adjustl(line(j+1:))
                 MGp%BNS_number=shubk
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_bns"
 
              Case("_magnetic_space_group_bns_name","_space_group.magn_name_bns")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%BNS_symbol=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns"
 
              Case("_magnetic_space_group_og_number","_space_group.magn_number_og")
                 shubk=adjustl(line(j+1:))
                 MGp%OG_number=shubk
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_og"
 
              Case("_magnetic_space_group_og_name","_space_group.magn_name_og")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%OG_symbol=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og"
 
              Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%trn_from_parent=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc"
 
              Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%trn_to_standard=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_to_standard_pp_abc"
 
              Case("_magnetic_cell_length_a","_cell_length_a")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2332,6 +2339,7 @@
                 cel(1)=values(1)
                 cel_std(1)=std(1)
                 MGp%m_cell=.true.
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_a"
 
              Case("_magnetic_cell_length_b","_cell_length_b")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2342,6 +2350,7 @@
                 end if
                 cel(2)=values(1)
                 cel_std(2)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_b"
 
              Case("_magnetic_cell_length_c","_cell_length_c")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2352,6 +2361,7 @@
                 end if
                 cel(3)=values(1)
                 cel_std(3)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_c"
 
              Case("_magnetic_cell_angle_alpha","_cell_angle_alpha")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2362,6 +2372,7 @@
                 end if
                 ang(1)=values(1)
                 ang_std(1)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_alpha"
 
              Case("_magnetic_cell_angle_beta","_cell_angle_beta")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2372,6 +2383,7 @@
                 end if
                 ang(2)=values(1)
                 ang_std(2)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_beta"
 
              Case("_magnetic_cell_angle_gamma","_cell_angle_gamma")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2382,6 +2394,7 @@
                 end if
                 ang(3)=values(1)
                 ang_std(3)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_gamma"
 
              Case("loop_")
                  i=i+1
@@ -2475,6 +2488,7 @@
                       !Treat later the propagation vectors
 
                    Case("_atom_type_symbol")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_type_symbol"
                       do k=1,3
                         i=i+1
                         if(index(mcif%line(i),"_atom_type_symbol") == 0) then
@@ -2494,6 +2508,7 @@
                       !Treat later the scattering factor
 
                    Case("_magnetic_atom_site_moment_symmetry_constraints_label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _magnetic_atom_site_moment_symmetry_constraints_label"
                       i=i+1
                       if(index(mcif%line(i),"_atom_site_magnetic_moment_symmetry_constraints_mxmymz") == 0) then
                         err_magsym=.true.
@@ -2512,6 +2527,7 @@
                       !Treat later the constraints
 
                    Case("_magnetic_space_group_symop_id")
+                      !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_symop_id"
                       do k=1,3
                         i=i+1
                         if(index(mcif%line(i),"_magnetic_space_group_symop_operation") == 0 ) then
@@ -2533,6 +2549,7 @@
 
 
                    Case("_space_group_symop.magn_id","_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
                       do k=1,2
                         i=i+1
                         if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
@@ -2559,6 +2576,7 @@
 
 
                    Case("_space_group_symop.magn_centering_id","_space_group_symop_magn_centering_id")   !here we read the translations and anti-translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
                       do k=1,2
                         i=i+1
                         if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0 .and. &
@@ -2583,6 +2601,7 @@
                       num_centering=k
 
                    Case("_magnetic_atom_site_label","_atom_site_label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_site_label"
                       lugar=0
                       lugar(1)=1
                       j=1
@@ -2657,6 +2676,7 @@
                       !Treat late the list atoms
 
                    Case("_magnetic_atom_site_moment_label","_atom_site_moment_label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_site_moment_label"
                       do k=1,3
                         i=i+1
                         if(index(mcif%line(i),"_atom_site_moment_crystalaxis") == 0 ) then
@@ -2702,6 +2722,7 @@
             allocate(Mgp%MSymopSymb(num_sym))
             if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
             allocate(Mgp%MSymop(num_sym))
+            !write(unit=*,fmt="(a)") "  Decoding symmetry operators 1"
 
             ! Decode the symmetry operators
             do i=1,num_sym
@@ -2748,6 +2769,7 @@
             if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
             allocate(Mgp%MSymop(num_sym))
             ! Decode the symmetry operators
+            !write(unit=*,fmt="(a)") "  Decoding symmetry operators 2"
             do i=1,num_rsym
               line=adjustl(sym_strings(i))
               j=index(line," ")
@@ -2776,6 +2798,8 @@
               call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
             end do
             !Decode lattice translations and anti-translations
+           
+            !write(unit=*,fmt="(a)") "  Decoding lattice translations and anti-translations"
             m=num_rsym
             do L=2,num_centering
               line=adjustl(cent_strings(L))
@@ -2835,7 +2859,7 @@
 
           MGp%n_irreps=0
 
-        else
+       else
           !write(*,"(a,i3)") " Treating irreps: ",num_irreps
           MGp%n_irreps=num_irreps
           if(allocated(MGp%irrep_dim))          deallocate(MGp%irrep_dim)
@@ -3021,6 +3045,7 @@
                      Am%Atom(j)%SkI(k,1)=0.0
                      Am%Atom(j)%SkI_std(k,1)=0.0
                  end do
+                 Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
                end if
             end do
           end do
