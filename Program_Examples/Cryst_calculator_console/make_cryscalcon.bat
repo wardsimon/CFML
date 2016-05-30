@@ -40,26 +40,47 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c menu_0.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c menu_1.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c menu_2.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c menu_3.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c menu_4.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c menu_5.f90 /O3 /nologo /I..\..\ifort\LibC
-   ifort /c calsym.f90 /O3 /nologo /I..\..\ifort\LibC
-   rem ifort /exe:CrysCalcon *.obj ..\..\ifort\LibC\crysfml.lib
-   link /subsystem:console /out:CrysCalCon.exe *.obj ..\..\ifort\LibC\crysfml.lib
+rem   Directory holding the source code of the FullProf library for writing PCRs
+    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
+    if [%TARGET_ARCH%]==[ia32]  (
+         set INC=/I"%CRYSFML%"\ifort\libC
+         set CRYSLIB="%CRYSFML%"\ifort\libC\crysfml.lib
+         set DistFPS=%PROGCFML%\DistFPS
+      ) else (
+         set INC=/I"%CRYSFML%"\ifort64\libC
+         set CRYSLIB="%CRYSFML%"\ifort64\libC\crysfml.lib
+         set DistFPS=%PROGCFML%\DistFPS_64b
+      )
+   ifort /c menu_0.f90 /O3 /nologo %INC%
+   ifort /c menu_1.f90 /O3 /nologo %INC%
+   ifort /c menu_2.f90 /O3 /nologo %INC%
+   ifort /c menu_3.f90 /O3 /nologo %INC%
+   ifort /c menu_4.f90 /O3 /nologo %INC%
+   ifort /c menu_5.f90 /O3 /nologo %INC%
+   ifort /c calsym.f90 /O3 /nologo %INC%
+   rem ifort /exe:CrysCalcon *.obj %CRYSLIB%
+   link /subsystem:console /out:CrysCalCon.exe *.obj %CRYSLIB%
    goto END
 :IFORTD
-   ifort /c menu_0.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c menu_1.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c menu_2.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c menu_3.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c menu_4.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c menu_5.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   ifort /c calsym.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
-   rem ifort /exe:CrysCalcon *.obj ..\..\ifort_debug\LibC\crysfml.lib
-   link /subsystem:console /out:CrysCalCon.exe *.obj ..\..\ifort_debug\LibC\crysfml.lib
+    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
+    if [%TARGET_ARCH%]==[ia32]  (
+         set INC=/I"%CRYSFML%"\ifort_debug\libC
+         set CRYSLIB="%CRYSFML%"\ifort_debug\libC\crysfml.lib
+         set DistFPS=%PROGCFML%\DistFPS
+      ) else (
+         set INC=/I"%CRYSFML%"\ifort64_debug\libC
+         set CRYSLIB="%CRYSFML%"\ifort64_debug\libC\crysfml.lib
+         set DistFPS=%PROGCFML%\DistFPS_64b
+      )
+   ifort /c menu_0.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c menu_1.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c menu_2.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c menu_3.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c menu_4.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c menu_5.f90 /debug:full /check /traceback /nologo %INC%
+   ifort /c calsym.f90 /debug:full /check /traceback /nologo %INC%
+   rem ifort /exe:CrysCalcon *.obj %CRYSLIB%
+   link /subsystem:console /out:CrysCalCon.exe *.obj %CRYSLIB%
    goto END
 rem
 rem **---- G95 Compiler ----**
@@ -99,5 +120,5 @@ rem
 :END
    upx CrysCalCon.exe
    if exist %FULLPROF% copy CrysCalCon.exe %FULLPROF% > nul
-   if exist %PROGCFML% copy CrysCalCon.exe %PROGCFML%\DistFPS\. > nul
+   if exist %PROGCFML% copy CrysCalCon.exe %DistFPS%\. > nul
    del *.obj *.mod *.o *.map *.bak > nul
