@@ -163,7 +163,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    integer, public, parameter ::  Max_Points    = 150000
+    integer, public, parameter ::  Max_Points    = 500000
 
 
     !---- Interfaces - Overlapp ----!
@@ -1301,7 +1301,11 @@
                    select case (ncase)
                       case (1) ! Triangle
                          do n=1,nelem
-                            if (ntr+3 > Max_Points) exit
+                            if (ntr+3 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+3) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,3
                                icode(ii)=cube_info(ind)%edges(3*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
@@ -1317,7 +1321,11 @@
 
                       case (2) ! Trapezoide
                          do n=1,nelem
-                            if (ntr+4 > Max_Points) exit
+                            if (ntr+4 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+4) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,4
                                icode(ii)=cube_info(ind)%edges(4*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
@@ -1333,7 +1341,11 @@
 
                       case (3) ! Triangle + Trapezoide
                          do n=1,nelem
-                            if (ntr+7 > Max_Points) exit
+                            if (ntr+7 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+7) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,7
                                icode(ii)=cube_info(ind)%edges(7*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
@@ -1349,7 +1361,11 @@
 
                       case (4) ! Triangle + Triangle + Trapezoide
                          do n=1,nelem
-                            if (ntr+10 > Max_Points) exit
+                            if (ntr+10 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+10) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,10
                                icode(ii)=cube_info(ind)%edges(10*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
@@ -1365,7 +1381,11 @@
 
                       case (5) ! Triangle + Line
                          do n=1,nelem
-                            if (ntr+4 > Max_Points) exit
+                            if (ntr+4 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+4) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,4
                                icode(ii)=cube_info(ind)%edges(4*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
@@ -1381,7 +1401,11 @@
 
                       case (6) ! Triangle + Triangle + Line
                          do n=1,nelem
-                            if (ntr+7 > Max_Points) exit
+                            if (ntr+7 > Max_Points) then
+                              ERR_Maps=.true.
+                              ERR_Maps_Mess="The number of points (ntr+7) is higher than Max_Points: 500000!"
+                              exit
+                            end if
                             do ii=1,7
                                icode(ii)=cube_info(ind)%edges(7*(n-1)+ii)
                                xp(:,ii)=vertice_point(icode(ii))
