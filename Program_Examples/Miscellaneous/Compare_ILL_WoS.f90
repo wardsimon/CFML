@@ -1,4 +1,4 @@
-!!---- Program to compare ISI Web files founds with the ILL data base.
+!!---- Program to compare ISI Web files found with the ILL data base.
 !!---- The articles from the ILL database not found in the WoS are flagged and output
 !!---- to a file. Moreover the spurious publications not existing in the ILL database
 !!---- but "found" by the WoS are also flagged and output to spurious papers file.
@@ -194,19 +194,22 @@
          artic_wos(n)%Volume= line(4:)     !<  5  Volume
 
        Case("BP")
-         artic_wos(n)%Pages= line(4:)      !<  6  Pages
+         artic_wos(n)%Pages= line(4:)      !<  6  Initial Page
 
        Case("EP")
-         artic_wos(n)%Pages=trim(artic_wos(n)%Pages)//"-"//line(4:)      !<  6  Pages
+         artic_wos(n)%Pages=trim(artic_wos(n)%Pages)//"-"//line(4:)      !<  6  Final Page
 
        Case("UT")
             artic_wos(n)%WOS= adjustl(line(4:))
 
        Case("DI")
-             artic_wos(n)%DOI= line(4:)     !<  6  DOI
+             artic_wos(n)%DOI= line(4:)     !<    DOI
+
+       Case("TC")
+         read(unit=line(3:),fmt=*) artic_wos(n)%citations      !<  Number of citations
 
        Case("PY")
-         read (unit=line(4:),fmt=*,iostat=ier) artic_wos(n)%year  !< 7 Annee
+         read (unit=line(4:),fmt=*,iostat=ier) artic_wos(n)%year  !<   Annee
          if(ier /= 0) then
            write(unit=*,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
            " ... The document "//trim(artic_wos(n)%Numb)//" is discarded"
@@ -266,22 +269,24 @@
      write(unit=i_str,fmt="(a)") "   "
    end do
    write(unit=i_str,fmt="(/a,i4)") " => Number of ILL-articles not found in the WoS           : ",n
-   write(unit=*,fmt="(a,i4)") " => Number of ILL-articles not found in the WoS           : ",n
+   write(unit=*,fmt="(a,i4)")      " => Number of ILL-articles not found in the WoS           : ",n
+
    write(unit=i_str,fmt="(//,a)") "    ARTICLES FOUND IN THE WEB OF SCIENCE NOT IN ILL DATABASE"
    write(unit=i_str,fmt="(a)")    "    ========================================================"
    n=0
    do i=1,n_wos
      if(esta_wos(i)) cycle
      n=n+1
-     write(unit=i_str,fmt="(a)")    "  Number  : "//trim(artic_wos(i)%Numb)
-     write(unit=i_str,fmt="(a)")    "  Title   : "//trim(artic_wos(i)%title)
-     write(unit=i_str,fmt="(a)")    "  Authors : "//trim(artic_wos(i)%Authors)
-     write(unit=i_str,fmt="(a)")    "  Journal : "//trim(artic_wos(i)%journal)
-     write(unit=i_str,fmt="(a)")    "  Volume  : "//trim(artic_wos(i)%volume)
-     write(unit=i_str,fmt="(a)")    "  Pages   : "//trim(artic_wos(i)%pages)
-     write(unit=i_str,fmt="(a)")    "  DOI     : "//trim(artic_wos(i)%DOI)
-     write(unit=i_str,fmt="(a)")    "  WOS     : "//trim(artic_wos(i)%WOS)
-     write(unit=i_str,fmt="(a,i4)") "  Year    : ",artic_wos(i)%year
+     write(unit=i_str,fmt="(a)")    "  Number   : "//trim(artic_wos(i)%Numb)
+     write(unit=i_str,fmt="(a)")    "  Title    : "//trim(artic_wos(i)%title)
+     write(unit=i_str,fmt="(a)")    "  Authors  : "//trim(artic_wos(i)%Authors)
+     write(unit=i_str,fmt="(a)")    "  Journal  : "//trim(artic_wos(i)%journal)
+     write(unit=i_str,fmt="(a)")    "  Volume   : "//trim(artic_wos(i)%volume)
+     write(unit=i_str,fmt="(a)")    "  Pages    : "//trim(artic_wos(i)%pages)
+     write(unit=i_str,fmt="(a)")    "  DOI      : "//trim(artic_wos(i)%DOI)
+     write(unit=i_str,fmt="(a)")    "  WOS      : "//trim(artic_wos(i)%WOS)
+     write(unit=i_str,fmt="(a,i4)") "  Year     : ",artic_wos(i)%year
+     write(unit=i_str,fmt="(a,i4)") "  Citations: ",artic_wos(i)%citations
      write(unit=i_str,fmt="(a)") "   "
    end do
 
@@ -301,6 +306,7 @@
        integer, dimension(60)          :: pos
        integer                         :: ncar,nau,ncoi,i,j
        character(len=20),dimension(30) :: author
+       character(len=20),dimension(30) :: items
        ok=.false.
        ok_year=.false.; ok_title=.true.; ok_aut=.true.
        if(art_ill%year == art_wos%year) ok_year=.true.
@@ -342,7 +348,33 @@
            ncoi=ncoi+1
          end if
        end do
-       if(ncoi >= 1) ok_aut=.false.
+       if(ncoi >= 0) ok_aut=.false.
+
+       !Treat the title of the article
+       pos=0
+       call get_separator_pos(trim(art_wos%title)," ",pos,ncar)
+       nau=ncar+1
+       if(nau > 1) then
+         items(nau)=adjustl(art_wos%title(pos(ncar)+1:))
+         j=0
+         do i=1,ncar
+           items(i)= adjustl(art_wos%title(j+1:pos(i)-1))
+           j=pos(i)
+         end do
+       else
+         items(1)=adjustl(art_wos%title)
+       end if
+       str_ill=l_case(art_ill%title)
+       ncoi=0
+       do i=1,nau
+         j=index(items(i)," ")
+         items(i)=items(i)(1:j-1)
+         if(len_trim(items(i)) > 3 .and. index(str_ill,trim(items(i))) == 0) then
+           ncoi=ncoi+1
+         end if
+       end do
+       if(ncoi >= 2) ok_title=.false.
+
        if(ok_aut .and. ok_year .and. ok_title) ok=.true.
        return
       end subroutine compare_articles

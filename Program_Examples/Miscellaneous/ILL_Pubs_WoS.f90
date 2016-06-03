@@ -11,14 +11,13 @@
    character(len=80)       :: fileinf,chain,name_jour
 
    integer :: ier,n,i,j, nart, ncar, npub, n_doi=0,nlog,n_title, n_wos=0,n_isbn=0
-   integer :: narg,iart=1,no_good, iadded
+   integer :: narg,iart=1
    logical :: esta, doi_only=.false., inc_code=.false., non_doi=.false.
    character(len=2)    :: CODE=" "
    character(len=12)   :: nam_inst=" "
    character(len=16)   :: third_arg=" "
    character(len=180)  :: file_inst
    integer             :: num_art
-   character(len=20), dimension(:), allocatable :: point2nogood
 
 
    open(newunit=i_str,file="ILL_Pubs_WoS.log",status="replace",action="write")
@@ -74,7 +73,7 @@
          write(unit=*,fmt="(a)") " => CODE: "//CODE
        end if
      else
-       code=" "
+       code=" "      
      end if
 
    end if
@@ -95,11 +94,11 @@
      if(line(1:6) =="Number") nart=nart+1
    end do
    rewind(unit=iart)
-   allocate(articles(nart),point2nogood(nart))
-   point2nogood=" "
+   allocate(articles(nart))
+
    n=0
-   n_doi=0; n_title=0; n_isbn=0; n_wos=0; no_good=0
-   iadded=0
+   n_doi=0; n_title=0; n_isbn=0; n_wos=0
+
    do
      read(unit=iart,fmt="(a)",iostat=ier)  line
      if(ier /= 0) then
@@ -108,35 +107,25 @@
      end if
      if(len_trim(line) == 0) cycle
      j=index(line,tab)
-
      Select Case(line(1:j-1))
-
        Case("Number")
          n=n+1
          articles(n)%Numb= line(j+1:)       !<  1  Numero
          articles(n)%instrument(1)= trim(Nam_inst)
-
        Case("Author")
          articles(n)%Authors= line(j+1:)    !<  2  Auteurs
-
        Case("Title")
          articles(n)%Title= line(j+1:)      !<  3  Titre
-
        Case("Journal title")
          articles(n)%Journal= line(j+1:)    !<  4  Journal
-
        Case("ISBN")
          articles(n)%ISBN= line(j+1:)       !<  5  Journal
-
        Case("Volume")
          articles(n)%Volume= line(j+1:)     !<  6  Volume
-
        Case("Pages")
          articles(n)%Pages= line(j+1:)      !<  7  Pages
-
        Case("WoS number")
             articles(n)%WOS= adjustl(line(j+1:))  !< 8 WOS
-
        Case("DOI","DOI added")
          i=index(line,"Keyword")
          if( i /= 0) then
@@ -144,22 +133,24 @@
          else
             articles(n)%DOI= line(j+1:)        !<  9  DOI
          end if
-         if(index(line,"added") /= 0) iadded=iadded+1         
-
        Case("Year")
          read (unit=line(j+1:),fmt=*,iostat=ier) articles(n)%year  !< 10 Annee
          if(ier /= 0) then
-           if(len_trim(articles(n)%DOI) == 0 .and. len_trim(articles(n)%WOS) == 0) then
-             write(unit=*,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
-             " ... The document "//trim(articles(n)%Numb)//" is discarded"
-             write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
-             " ... The document "//trim(articles(n)%Numb)//" is discarded"
-             no_good=no_good+1
-             point2nogood(no_good)= articles(n)%Numb
-             n=n-1
-             cycle
-           else
-             articles(n)%year=0
+           i=index(trim(line)," ",back=.true.)
+           if(i /= 0) then
+             read (unit=line(i+1:),fmt=*,iostat=ier) articles(n)%year
+             if(ier /= 0) then
+               if(len_trim(articles(n)%DOI) == 0 .and. len_trim(articles(n)%WOS) == 0) then
+                 write(unit=*,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
+                 " ... The document "//trim(articles(n)%Numb)//" is discarded"
+                 write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
+                 " ... The document "//trim(articles(n)%Numb)//" is discarded"
+                 n=max(1,n-1)
+                 cycle
+               else
+                 articles(n)%year=0
+               end if             
+             end if
            end if
          end if
        Case Default
@@ -243,12 +234,6 @@
         else
            call ISI_string(articles(j),ISI_str," ")
         end if
-        if(len_trim(ISI_str) == 0) then
-          no_good=no_good+1
-          point2nogood(no_good)= articles(j)%Numb
-          n_title=n_title-1
-          cycle
-        end if
         if(n_title == 1) then
           Title_Str=trim(ISI_str)
         else
@@ -262,11 +247,11 @@
           end if
         end if
       end if
-
+      
    end do
-
+   
    npub=n_doi+n_wos+n_isbn+n_title
-
+   
    open(unit=iart,file=trim(file_inst),status="replace",action="write")
      if(doi_only) then
         write(unit=iart,fmt="(a)")  trim(WOS_str)//" OR"//line_feed//trim(DOI_str)//" OR"//line_feed//trim(ISBN_str)
@@ -288,9 +273,7 @@
      write(unit=i_str,fmt="(a)")               " => The saved articles have no DOI in the ILL database "
    else
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
-     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " =>     of wich with 'added DOI'           : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with DOI            : ",n_doi,100.0*real(n_doi)/real(nart),"%"
-     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " =>     of wich with 'added DOI'           : ",iadded,100.0*real(iadded)/real(nart),"%"
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles with WOS            : ",n_wos,100.0*real(n_wos)/real(nart),"%"
    end if
@@ -302,19 +285,9 @@
      write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
      write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of articles without DOI/WOS/ISBN: ",n_title,100.0*real(n_title)/real(nart),"%"
    end if
-   if(no_good > 0) then
-     write(unit=*,fmt="(a,i6,tr2,f6.2,a)")     " => Number of discarded articles           : ",no_good,100.0*real(no_good)/real(nart),"%"
-     write(unit=i_str,fmt="(a,i6,tr2,f6.2,a)") " => Number of discarded articles           : ",no_good,100.0*real(no_good)/real(nart),"%"
-     write(unit=i_str,fmt="(/a)") "      LIST OF DISCARDED ARTICLES (ILL identifiers) "
-     write(unit=i_str,fmt="(a/)") "      -------------------------------------------- "
-     !Writing the list of discarded articles
-     do i=1,no_good,5
-        write(unit=i_str,fmt="(5a12)") (" "//trim(point2nogood(j+i-1))//" ",j=1,5)
-     end do
-   end if
    write(unit=*,fmt="(a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
    write(unit=*,fmt="(a)") " => Log file: ILL_Pubs_WoS.log "
-   write(unit=i_str,fmt="(/a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
+   write(unit=i_str,fmt="(a)") " => String to paste in Advanced Search of WoS in file: "//trim(file_inst)
    close(unit=i_str)
 
    stop

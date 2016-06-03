@@ -20,6 +20,7 @@
      character(len=10)  :: Volume=" "
      character(len=20)  :: Pages=" "
      integer            :: year=0
+     integer            :: citations=0
      character(len=6)   :: cyear=" "
      character(len=256) :: Book_Authors=" "
      character(len=256) :: Book_Title=" "
