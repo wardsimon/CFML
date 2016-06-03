@@ -1,7 +1,7 @@
 !!
 !! Extracted from CrysFML
 !!
- Module CFML_String_Utilities  !Just the procedures used in the program ILL_Pubs_WoS
+ Module CFML_Procedures  !Just the procedures used in the program ILL_Pubs_WoS
 
     implicit none
 
@@ -11,9 +11,12 @@
     public :: Pack_String, String_Count, L_case
 
     !---- List of public subroutines ----!
-    public :: lcase, Get_Separator_Pos, SString_Replace, Get_Substring_Positions
+    public :: lcase, Get_Separator_Pos, SString_Replace, Get_Substring_Positions, &
+              Sort_Integers
 
     !---- Definitions ----!
+    Logical,            public :: err_cfml
+    character(len=120), public :: err_cfml_mess
 
  Contains
 
@@ -112,7 +115,118 @@
     !---- Subroutines ----!
     !---------------------!
 
+    !!--++
+    !!--++ Subroutine Sort_I(Arr,N,Indx)
+    !!--++    integer, dimension(:), intent( in) :: arr
+    !!--++    integer,               intent( in) :: n
+    !!--++    integer, dimension(:), intent(out) :: indx
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Sort an array such the arr(indx(j)) is in ascending
+    !!--++    order for j=1,2,...,N.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Sort_Integers(arr,n,indx)
+       !---- Arguments ----!
+       integer, dimension(:), intent(in ) :: arr
+       integer              , intent(in ) :: n
+       integer, dimension(:), intent(out) :: indx
 
+       !---- Local Variables ----!
+       integer, parameter           :: m=7
+       integer, parameter           :: nstack=50  !nstack=2log2(n)
+       integer, dimension(nstack)   :: istack
+       integer                      :: i,indxt,ir,itemp,j,jstack,k,l
+       integer                      :: a
+
+       do j=1,n
+          indx(j)=j
+       end do
+
+       istack=0
+       jstack=0
+       l=1
+       ir=n
+       do
+          if (ir-l < m) then
+             doext: do j=l+1,ir
+                indxt=indx(j)
+                a=arr(indxt)
+                do i=j-1,1,-1
+                   if (arr(indx(i)) <= a)  then
+                      indx(i+1)=indxt
+                      cycle doext
+                   end if
+                   indx(i+1)=indx(i)
+                end do
+                i=0
+                indx(i+1)=indxt
+             end do doext
+
+             if (jstack == 0) exit
+             ir=istack(jstack)
+             l=istack(jstack-1)
+             jstack=jstack-2
+          else
+             k=(l+ir)/2
+             itemp=indx(k)
+             indx(k)=indx(l+1)
+             indx(l+1)=itemp
+             if (arr(indx(l+1)) > arr(indx(ir)))then
+                itemp=indx(l+1)
+                indx(l+1)=indx(ir)
+                indx(ir)=itemp
+             end if
+             if (arr(indx(l)) > arr(indx(ir)))then
+                itemp=indx(l)
+                indx(l)=indx(ir)
+                indx(ir)=itemp
+             end if
+             if (arr(indx(l+1)) > arr(indx(l)))then
+                itemp=indx(l+1)
+                indx(l+1)=indx(l)
+                indx(l)=itemp
+             end if
+             i=l+1
+             j=ir
+             indxt=indx(l)
+             a=arr(indxt)
+             do
+                i=i+1
+                if (arr(indx(i)) < a)  cycle
+                do
+                   j=j-1
+                   if (arr(indx(j)) > a) cycle
+                   exit
+                end do
+                if (j < i) exit
+                itemp=indx(i)
+                indx(i)=indx(j)
+                indx(j)=itemp
+             end do
+             indx(l)=indx(j)
+             indx(j)=indxt
+             jstack=jstack+2
+             if (jstack > nstack) then
+                ERR_cfml=.true.
+                ERR_cfml_Mess=" NSTACK too small in SORT"
+                return
+             end if
+             if (ir-i+1 >= j-l) then
+                istack(jstack)=ir
+                istack(jstack-1)=i
+                ir=j-1
+             else
+                istack(jstack)=j-1
+                istack(jstack-1)=l
+                l=i
+             end if
+          end if
+       end do
+
+       return
+    End Subroutine Sort_Integers
     !!----
     !!---- Subroutine Get_Separator_Pos(line,car,pos,ncar)
     !!----   character(len=*),      intent(in)  :: line  ! In -> Input String
@@ -279,4 +393,4 @@
       return
     End Subroutine SString_Replace
 
- End Module CFML_String_Utilities
+ End Module CFML_Procedures
