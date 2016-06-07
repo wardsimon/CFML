@@ -3,6 +3,7 @@
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
   Program ILL_Pubs_WoS
    use CFML_String_Utilities, only: lcase
+   !use CFML_Procedures, only: lcase
    use Data_Articles_Mod
    implicit none
    integer, parameter      :: max_chars=204800
@@ -26,14 +27,14 @@
    write(unit=*,fmt="( a)") " Program to generate a long string for Advanced Search in the Web of Science "
    write(unit=*,fmt="( a)") "     It needs a text file from the ILL database in Tabulated format."
    write(unit=*,fmt="( a)") "                       January 2016, JRC -ILL"
-   write(unit=*,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file moutput_file [doi_only, non_doi or CODE] "
+   write(unit=*,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file myoutput_file [doi_only, non_doi or CODE] "
    write(unit=*,fmt="(a/)") "-------------------------------------------------------------------------------------"
 
    write(unit=i_str,fmt="(/a)") "-------------------------------------------------------------------------------------"
    write(unit=i_str,fmt="( a)") " Program to generate a long string for Advanced Search in the Web of Science "
    write(unit=i_str,fmt="( a)") "     It needs a text file from the ILL database in Tabulated format."
    write(unit=i_str,fmt="( a)") "                   January 2016, JRC -ILL"
-   write(unit=i_str,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file moutput_file [doi_only, non_doi or CODE] "
+   write(unit=i_str,fmt="( a)") " Usage: -> ILL_Pubs_WoS input_file myoutput_file [doi_only, non_doi or CODE] "
    write(unit=i_str,fmt="(a/)") "-------------------------------------------------------------------------------------"
 
    narg= COMMAND_ARGUMENT_COUNT()
@@ -73,7 +74,7 @@
          write(unit=*,fmt="(a)") " => CODE: "//CODE
        end if
      else
-       code=" "      
+       code=" "
      end if
 
    end if
@@ -94,7 +95,7 @@
      if(line(1:6) =="Number") nart=nart+1
    end do
    rewind(unit=iart)
-   allocate(articles(nart))
+   allocate(articles(0:nart))
 
    n=0
    n_doi=0; n_title=0; n_isbn=0; n_wos=0
@@ -145,11 +146,11 @@
                  " ... The document "//trim(articles(n)%Numb)//" is discarded"
                  write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
                  " ... The document "//trim(articles(n)%Numb)//" is discarded"
-                 n=max(1,n-1)
+                 n=max(0,n-1)
                  cycle
                else
                  articles(n)%year=0
-               end if             
+               end if
              end if
            end if
          end if
@@ -247,11 +248,11 @@
           end if
         end if
       end if
-      
+
    end do
-   
+
    npub=n_doi+n_wos+n_isbn+n_title
-   
+
    open(unit=iart,file=trim(file_inst),status="replace",action="write")
      if(doi_only) then
         write(unit=iart,fmt="(a)")  trim(WOS_str)//" OR"//line_feed//trim(DOI_str)//" OR"//line_feed//trim(ISBN_str)

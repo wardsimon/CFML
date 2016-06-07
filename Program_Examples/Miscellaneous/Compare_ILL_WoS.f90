@@ -5,6 +5,7 @@
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
   Program Compare_ILL_WoS
    use CFML_String_Utilities, only: l_case,get_separator_pos
+   !use CFML_procedures,       only: l_case,get_separator_pos
    use Data_Articles_Mod,     only: article,articles,comma,tab
    implicit none
    character(len=1024)     :: line
@@ -72,7 +73,7 @@
      if(line(1:6) =="Number") nart=nart+1
    end do
    rewind(unit=iart)
-   allocate(articles(nart),esta_ill(nart),point_to_wos(nart))
+   allocate(articles(0:nart),esta_ill(0:nart),point_to_wos(0:nart))
    esta_ill=.false.
    n=0
    n_doi=0; nwos=0
@@ -115,15 +116,21 @@
        Case("Year")
          read (unit=line(j+1:),fmt=*,iostat=ier) articles(n)%year  !< 10 Annee
          if(ier /= 0) then
-           if(len_trim(articles(n)%DOI) == 0 .and. len_trim(articles(n)%WOS) == 0) then
-             write(unit=*,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
-             " ... The document "//trim(articles(n)%Numb)//" is discarded"
-             write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
-             " ... The document "//trim(articles(n)%Numb)//" is discarded"
-             n=n-1
-             cycle
-           else
-             articles(n)%year=0
+           i=index(trim(line)," ",back=.true.)
+           if(i /= 0) then
+             read (unit=line(i+1:),fmt=*,iostat=ier) articles(n)%year
+             if(ier /= 0) then
+               if(len_trim(articles(n)%DOI) == 0 .and. len_trim(articles(n)%WOS) == 0) then
+                 write(unit=*,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
+                 " ... The document "//trim(articles(n)%Numb)//" is discarded"
+                 write(unit=i_str,fmt="(a,a)")  " => Error reading the year in the article: "//trim(articles(n)%Numb), &
+                 " ... The document "//trim(articles(n)%Numb)//" is discarded"
+                 n=max(0,n-1)
+                 cycle
+               else
+                 articles(n)%year=0
+               end if
+             end if
            end if
          end if
        Case Default
