@@ -4,18 +4,18 @@
 !!---- but "found" by the WoS are also flagged and output to spurious papers file.
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
   Program Compare_ILL_WoS
-   use CFML_String_Utilities, only: l_case,get_separator_pos
-   !use CFML_procedures,       only: l_case,get_separator_pos
+   !use CFML_String_Utilities, only: l_case,get_separator_pos
+   use CFML_procedures,       only: l_case,get_separator_pos, sort_integers
    use Data_Articles_Mod,     only: article,articles,comma,tab
    implicit none
    character(len=1024)     :: line
    character(len=80)       :: fileinf,file_wos
 
    integer :: ier,n,i,j, nart, nlog, n_wos,n_doi,nwos,n_both
-   integer :: narg,iart=1,iwos=2,i_str
+   integer :: narg,iart=1,iwos=2,i_str,i_list
    logical :: esta,ok
    logical, dimension(:), allocatable :: esta_ill,esta_wos
-   integer, dimension(:), allocatable :: point_to_wos
+   integer, dimension(:), allocatable :: point_to_wos,indx
    Type(article), dimension(:), allocatable :: artic_wos
 
 
@@ -141,7 +141,6 @@
    close(unit=iart)
    nart=n
 
-
    open(unit=iwos,file=trim(file_wos),status="old",action="read")
    n_wos=0
    !Determine the number of papers in the file_wos
@@ -233,7 +232,19 @@
    end do
    close(unit=iwos)
    n_wos=n
-
+   allocate(indx(n_wos))
+   call sort_integers(artic_wos(:)%citations,n_wos,indx)
+   !Output the list of articles classified by number of citations in descending order
+   open(newunit=i_list,file="WoS_Pubs_List.cvs",status="replace",action="write")
+   write(unit=i_list,fmt="(a)") "Ranking,Citations,Year,Journal,Authors,Title"
+   n=0
+   do i=n_wos,1,-1
+     j=indx(i)
+     n=n+1
+     write(unit=i_list,fmt="(3(i5,a),a)") n,",",artic_wos(j)%citations,",",artic_wos(j)%year,", ",trim(artic_wos(j)%journal)// &
+     ', "'//trim(artic_wos(j)%Authors)//'", "'//trim(artic_wos(j)%Title)//'"'
+   end do
+   close(unit=i_list)
 !------------------------------------------------------------------
 
    n=0; n_both=0
