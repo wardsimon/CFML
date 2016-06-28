@@ -72,7 +72,7 @@ Program Test_HKL_GEN
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(3)
                celda(2)=celda(1)
 
-            case("Rhombohedral","Hexagonal")
+            case("Trigonal","Hexagonal")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,c): "
                angulo(1:2)=90.0
                angulo(3)=120.0
