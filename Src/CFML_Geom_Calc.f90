@@ -1221,7 +1221,7 @@
 
        !---- Local Variables ----!
        logical                            :: iprin
-       integer,parameter                  :: nconst=500
+       integer,parameter                  :: nconst=3500
        integer                            :: i,j,k,lk,i1,i2,i3,jl,nn,L,&
                                              itnum1,itnum2,num_const, max_coor,num_angc,ico
        character(len=  6)                 :: nam,nam1,nam2
