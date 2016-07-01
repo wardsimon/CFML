@@ -1366,7 +1366,7 @@
        !nline_ini=np1
        ! TR  feb. 2015 .(re-reading the same item with another name)
        if(len_trim(spgr_hm) == 0) then
-	    nline_ini=np1
+        nline_ini=np1
         spgr_hm = " "
         call Read_Key_Str(filevar,nline_ini,nline_end, "_space_group_name_H-M_alt",spgr_hm)
         if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(filevar(nline_ini+1))
@@ -1421,7 +1421,9 @@
                 end if
              case("H")
                 spgr_hm=spgr_hm(:np1-1)
-                
+				csym2=u_case(spgr_hm(np1-1:np1-1))
+				if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
+
           end select
        end if
 
