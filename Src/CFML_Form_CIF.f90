@@ -1421,8 +1421,8 @@
                 end if
              case("H")
                 spgr_hm=spgr_hm(:np1-1)
-				csym2=u_case(spgr_hm(np1-1:np1-1))
-				if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
+				        csym2=u_case(spgr_hm(np1-1:np1-1))
+				        if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
 
           end select
        end if

@@ -2059,8 +2059,8 @@ Contains
       !> Check
       if (isig < 1 .or. isig > 6) then
          err_eos=.true.
-      	 err_eos_mess="Confidence level is out of range"
-      	 return
+         err_eos_mess="Confidence level is out of range"
+         return
       end if
 
       !> Copy over vcv values
@@ -2071,9 +2071,9 @@ Contains
       !> Invert matrix
       det=c11*c22-c12*c12
       if (abs(det) <=tiny(0.0_cp)) then
-      	 err_eos=.true.
-      	 err_eos_mess="Determinant value is zero in the Confidence ellipses calculation"
-      	 return
+        err_eos=.true.
+        err_eos_mess="Determinant value is zero in the Confidence ellipses calculation"
+        return
       end if
 
       cinv22=c11/det
@@ -2096,7 +2096,7 @@ Contains
       xyy(3,n)=y2+eos%params(iy)
 
       !> loop over x starts here
-	    do
+      do
          if (abs(x-xe) < xinc .or. abs(x-xs) < xinc)then
             x=x+0.2*xinc     ! increment x
          else                ! small step close to end
@@ -2127,9 +2127,9 @@ Contains
          if (ilast /= 0) exit
 
          if (n == nlimit) then
-         	  err_eos=.true.
-         	  err_eos_mess="Number of points arrived to the limit for Confidence ellipses"
-         	  exit
+            err_eos=.true.
+            err_eos_mess="Number of points arrived to the limit for Confidence ellipses"
+            exit
          end if
       end do
 
@@ -4956,8 +4956,10 @@ Contains
       write(lun,'(3x,"Y axis as ",a," with variance = ",a)')trim(eos%parname(iy)),trim(rformat(eos%vcv(iy,iy),10))
       write(lun,'(3x,"The covariance of the two variables = ",a)')trim(rformat(eos%vcv(ix,iy),10))
 
-      write(lun,'(//"Data points for plotting: first column is X", &
-        " with two columns with the two Y values at that X"//)')
+      !write(lun,'(//"Data points for plotting: first column is X", &
+      !  " with two columns with the two Y values at that X"//)')
+      write(lun,'(//2a//)') "Data points for plotting: first column is X", &
+        " with two columns with the two Y values at that X"
 
 
       return
