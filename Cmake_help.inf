@@ -1,5 +1,8 @@
-  How to use CMake with CrysFML in Windows environments
+  How to use CMake with CrysFML in Windows environments (see at the end for Linux)
   =====================================================
+
+ - Create the environment variable CRYSFML that points to the directory in which CrysFML has been installed
+   For instance, if the directory is c:\CrysFML then CRYSFML=c:\CrysFML
 
  - Download CMake 2.8 for Windows and install it in a directory without blancs
    (to be compatible with all kind of compilers), e.g. c:\CMake2.8
@@ -117,5 +120,12 @@ cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREF
 Linux
 =====
 Same as for Windows except that uses "make" instead of "nmake" and the argument for -G is "Unix Makefiles"
+Do not forget to create the environment variable CRYSFML that points to the directory in which CrysFML has been installed
+For instance, if the directory is in the root of the user, then write in the file .bashrc the following two lines:
+CRYSFML=~/CrysFML
+export CRYSFML
+
+Examples for two differen compilers:
+
 cmake -G "Unix Makefiles"  -D GUI=ON  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
 cmake -G "Unix Makefiles"  -D GUI=OFF -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
