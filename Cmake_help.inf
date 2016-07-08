@@ -1,28 +1,25 @@
-  How to use CMake with CrysFML in Windows environments (see at the end for Linux)
+  How to use CMake with CrysFML in Windows environments
   =====================================================
 
- - Create the environment variable CRYSFML that points to the directory in which CrysFML has been installed
-   For instance, if the directory is c:\CrysFML then CRYSFML=c:\CrysFML
-
- - Download CMake 2.8 for Windows and install it in a directory without blancs
+ - Download CMake 2.8 for Windows and install it in a directory without blancs 
    (to be compatible with all kind of compilers), e.g. c:\CMake2.8
 
  - Do not put the CMake directories in the general PATH (see below)
 
- - Download nmake utility from Microsoft (or from Microsoft Visual Studio directory
+ - Download nmake utility from Microsoft (or from Microsoft Visual Studio directory 
    if it is installed) and copy it into the bin directory of CMake, e.g. c:\CMake2.8\bin
 
- - Create a link in the desktop to the program c:\Windows\system32\cmd.exe
+ - Create a link in the desktop to the program c:\Windows\system32\cmd.exe 
    (or to C:\Windows\SysWOW64\cmd.exe) and modify the properties in order
    to be able to have large buffers for lines, quick edit mode, appropriate colours, etc.
-   For ifort 32 bits:
+   For ifort 32 bits: 
     C:\Windows\System32\cmd.exe /E:ON /V:ON /K ""C:\Program Files (x86)\Intel\Composer XE 2011 SP1\bin\ipsxe-comp-vars.bat" ia32 vs2010"
-   For ifort 64 bits:
+   For ifort 64 bits: 
     C:\Windows\System32\cmd.exe /E:ON /V:ON /K ""C:\Program Files (x86)\Intel\Composer XE 2011 SP1\bin\ipsxe-comp-vars.bat" intel64 vs2010"
 
- - For gfortran and g95, it is interesting (in order to avoid missbehaviour) to create a
-   BAT file defining the correct environment for running the compiler and CMake.
-   For instance you can create a file in c:\CrysFML (no need to commit it to the repository!)
+ - For gfortran and g95, it is interesting (in order to avoid missbehaviour) to create a 
+   BAT file defining the correct environment for running the compiler and CMake. 
+   For instance you can create a file in c:\CrysFML (no need to commit it to the repository!) 
    called "gfortran_vars.bat" with the following content:
 
     @echo off
@@ -34,10 +31,10 @@
   - Modify the properties of the link to cmd.exe by writing in the target box:
 
      C:\Windows\System32\cmd.exe /K "c:\CrysFML\gfortran_vars"
-
+    
  - Read the README file for general details on CMake for Windows and Linux
 
- - Create a directory: Build in the place of your choice. One can create other directories
+ - Create a directory: Build in the place of your choice. One can create other directories 
    inside it for different kinds of build. Examples
     c:\CrysFML\Build\ifort_production
     c:\CrysFML\Build\ifort_debug
@@ -46,7 +43,7 @@
     c:\CrysFML\Build\gfortran_production
     c:\CrysFML\Build\gfortran_debug
    .....................
-
+   
 
  - Go to the appropriate subdirectory of the Build directory and execute a command of the type:
    cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON         ..\..\.
@@ -54,7 +51,7 @@
        Generator of OS dependent        Specify compiler   Kind of library     root CrysFML directory
          makefiles
                                                                      CMakeLists.txt
-   Concrete examples (by default the compiler is ifort):
+   Concrete examples (by default the compiler is ifort): 
 
 
 ----------------------Good one for release
@@ -84,21 +81,21 @@ cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -DCMAKE
 
  - Once the above steps worked properly the only thing to do is execute the command:
    nmake install
-
- - Each time you modify a file of the library you go to the appropriate directory and
-   execute again: nmake install, the system will recopile only the appropriate files taking
+            
+ - Each time you modify a file of the library you go to the appropriate directory and 
+   execute again: nmake install, the system will recopile only the appropriate files taking 
    into account the dependencies.
 
 
 For building a series of program based on CrysFML we have to set the environment variables telling to cmake where the lib is.
 Examples CRYSFML_LIB=c:\CrysFML\ifort\LibC
          WCRYSFML_LIB=c:\CrysFML\ifort\LibW
-
+ 
     or better:  LIB=%LIB%;c:\CrysFML\ifort\LibC;c:\CrysFML\ifort\LibW
 
 For installing the programs in a particular place we have to invoke
   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%PROGCFML%\DistFPS  -DGUI=ON      ..\..\.
-
+  
   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%ESMERALDA%\DistLS  -DGUI=ON      ..\.
 
   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%SXTALSOFT%\DistSXT\Windows  -DGUI=ON      ..\.
@@ -113,19 +110,6 @@ Example of FullProf
  for 64 bits
   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%PROGCFML%\DistFPS_64b  -DGUI=ON -D ARCH32=OFF    ..\..\.
 
-Example of Esmeralda
-====================
-cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%ESMERALDA%\DistLS     ..\.
-
-Linux
-=====
-Same as for Windows except that uses "make" instead of "nmake" and the argument for -G is "Unix Makefiles"
-Do not forget to create the environment variable CRYSFML that points to the directory in which CrysFML has been installed
-For instance, if the directory is in the root of the user, then write in the file .bashrc the following two lines:
-CRYSFML=~/CrysFML
-export CRYSFML
-
-Examples for two differen compilers:
-
-cmake -G "Unix Makefiles"  -D GUI=ON  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
-cmake -G "Unix Makefiles"  -D GUI=OFF -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+  Example of Esmeralda
+  ====================
+  cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%ESMERALDA%\DistLS     ..\.
