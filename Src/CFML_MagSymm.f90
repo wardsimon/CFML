@@ -534,15 +534,15 @@
     Subroutine Cleanup_Symmetry_Operators(MSpG)
       Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
       !--- Local variables ---!
-      integer,      dimension(    MSpG%Multip) :: ip 
+      integer,      dimension(    MSpG%Multip) :: ip
       logical,      dimension(    MSpG%Multip) :: nul
       real(kind=cp),dimension(3,192)           :: Lat_tr
       real(kind=cp),dimension(3,192)           :: aLat_tr
       integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
       integer,    dimension(3,3) :: identity, nulo, inver,mat,imat
       real(kind=cp),dimension(3) :: v
-      character(len=80)          :: ShOp_symb !  
-      character(len=4)           :: ired !  
+      character(len=80)          :: ShOp_symb !
+      character(len=4)           :: ired !
       logical                    :: centrosymm
       character (len=*),dimension(0:2), parameter  :: Centro = &
                                          (/"Centric (-1 not at origin)", &
@@ -560,7 +560,7 @@
       centrosymm=.false.
       nul=.false.
       MSpG%MagType=1
-      
+
       ip=0
       !Eliminate centre of symmetry {-1|t} and select thas having
       !t=0 if it exist
@@ -585,7 +585,7 @@
          end do
       end if
       !Eliminate lattice translations and anti-translations
-      
+
       do j=2,MSpG%Multip
         if(nul(j)) cycle
         invt= nint(MSpG%MSymOp(j)%phas)
@@ -606,7 +606,7 @@
            nul(j)=.true.
         end if
       end do  !j=2,MSpG%Multip
-      
+
       !if(num_lat > 0) then
         if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
         allocate(MSpG%Latt_trans(3,num_lat+1))
@@ -627,8 +627,8 @@
       end if
       !Nullify the operators that can be deduced from others by applying translations,
       !anti-translations and centre of symmetry
-      
-      ip=0      
+
+      ip=0
       do j=2,MSpG%Multip-1
          if(nul(j)) cycle
          do i=j+1,MSpG%Multip
@@ -715,7 +715,7 @@
              v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
              MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
              MSpG%SymOp(m)%tr   = modulo_lat(v)
-             MSpG%MSymOp(m)     = MSpG%MSymOp(i) 
+             MSpG%MSymOp(m)     = MSpG%MSymOp(i)
            end do
         end do
       end if
@@ -1219,6 +1219,8 @@
              do i=ini,N_end
                line=adjustl(file_line(i))
                if(line(1:1) == "!") cycle
+               j=index(line,"!")
+               if( j > 1) line=line(1:j-1)  !remove comments
                j=index(line," ")
                line=adjustl(line(j:))
                m=m+1
@@ -1236,7 +1238,7 @@
                     else
                        MGp%MSymOp(m)%phas=real(n)
                     end if
-
+                    !write(*,"(a,i3)") trim(MGp%SymopSymb(m)),n
                  Case(3)
                     MGp%SymopSymb(m)=words(1)
                     MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
@@ -1282,6 +1284,7 @@
                  call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,invt=j)
                  MGp%mcif=.false.
                end if
+               !write(*,"(a,i3)") trim(ShOp_symb),j
                MGp%MSymOp(m)%phas=j
                if(m_type .and. .not. present(uvw)) then
                  call Getword(ShOp_symb, words, j)
@@ -1303,7 +1306,7 @@
           do i=1,MGp%Numops
             m=m+1
             MGp%SymOp(m)%Rot  = -MGp%SymOp(i)%Rot
-            MGp%SymOp(m)%tr   =  modulo_lat(-MGp%SymOp(i)%tr+v)
+            MGp%SymOp(m)%tr   =  modulo_lat(-MGp%SymOp(i)%tr)
             MGp%MSymOp(m)%phas= MGp%MSymOp(i)%phas
             MGp%MSymOp(m)%Rot = MGp%MSymOp(i)%Rot
             call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
@@ -2248,7 +2251,7 @@
        type(file_list_type)       :: mcif
 
        call init_err_MagSym()
-       
+
        call File_To_FileList(file_mcif,mcif)
        !Remove all possible tabs and non-ASCII characters in the CIF
        do i=1,mcif%nlines
@@ -2257,7 +2260,7 @@
          end do
        end do
        num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0; num_rsym=0; num_centering=0
-       cel=0.0; ang=0.0; num_irreps=0; nitems_irreps=0 
+       cel=0.0; ang=0.0; num_irreps=0; nitems_irreps=0
        i=0
        call Init_Magnetic_Space_Group_Type(MGp)
        ktag=.false.
@@ -2798,7 +2801,7 @@
               call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
             end do
             !Decode lattice translations and anti-translations
-           
+
             !write(unit=*,fmt="(a)") "  Decoding lattice translations and anti-translations"
             m=num_rsym
             do L=2,num_centering

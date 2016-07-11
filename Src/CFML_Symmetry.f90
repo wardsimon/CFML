@@ -498,7 +498,7 @@
        Character(len=15),   dimension(:),allocatable  :: irrep_id           ! Labels for the irreps
        Character(len=20),   dimension(:),allocatable  :: irrep_direction    ! Irrep direction in representation space
        Character(len=20),   dimension(:),allocatable  :: irrep_action       ! Irrep character primary or secondary
-       Character(len=15),   dimension(:),allocatable  :: kv_label 
+       Character(len=15),   dimension(:),allocatable  :: kv_label
        real(kind=cp),     dimension(:,:),allocatable  :: kv
        character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
        character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
@@ -3838,10 +3838,11 @@
       uvw_op=Pack_string(uvw_op)
       idet=determ_A(Mat)
       sMat=(idet*Mat-Rot)
-      if(sum(sMat) == 0) then
-        time_inv="+1"
-      else
+      !write(*,*) smat
+      if(any(sMat /= 0)) then
         time_inv="-1"
+      else
+        time_inv="+1"
       end if
       if(present(mcif)) then
         !Expand the operator uvw_op to convert it to mx,my,mz like
@@ -10166,7 +10167,7 @@
 
        !---- Local variables ----!
        character(len=100), dimension(24):: texto
-       character(len=80)                :: ShOp_symb  
+       character(len=80)                :: ShOp_symb
        character(len=40)                :: aux
        integer                          :: lun
        integer                          :: i, nlines,nop
@@ -10178,7 +10179,7 @@
        !---- Printing ----!
 
        write(unit=lun,fmt="(/,/,a)")         "        Information on Magnetic Space Group: "
-       write(unit=lun,fmt="(a,/ )")          "        ------------------------------------ "       
+       write(unit=lun,fmt="(a,/ )")          "        ------------------------------------ "
        write(unit=lun,fmt="(a,i4 )")         " =>              Shubnikov Number: ", SG%Sh_number
        write(unit=lun,fmt="(a,a )")          " =>                    BNS Number: ", trim(SG%BNS_number)
        write(unit=lun,fmt="(a,a )")          " =>                     OG Number: ", trim(SG%OG_number)
@@ -10206,7 +10207,7 @@
        write(unit=lun,fmt="(a,i3)")          " =>        Generators (exc. -1&L): ", SG%num_gen
        if (SG%Num_Lat > 1) then
           texto(:) (1:100) = " "
-          write(unit=lun,fmt="(a,i3)")       " => Centring vectors:",SG%Num_Lat-1         
+          write(unit=lun,fmt="(a,i3)")       " => Centring vectors:",SG%Num_Lat-1
           nlines=1
           do i=2,SG%Num_Lat
              call Frac_Trans_1Dig(SG%Latt_trans(:,i),aux)
@@ -10225,7 +10226,7 @@
        end if
        if (SG%Num_aLat > 0) then
           texto(:) (1:100) = " "
-          write(unit=lun,fmt="(a,i3)")       " => Anti-Centring vectors:",SG%Num_aLat        
+          write(unit=lun,fmt="(a,i3)")       " => Anti-Centring vectors:",SG%Num_aLat
           nlines=1
           do i=1,SG%Num_aLat
              call Frac_Trans_1Dig(SG%aLatt_trans(:,i),aux)
@@ -10262,7 +10263,7 @@
           texto(1)=" "
           call Symmetry_Symbol(SG%SymopSymb(i),texto(1))
           call Get_Shubnikov_Operator_Symbol(SG%SymOp(i)%Rot,SG%MSymOp(i)%Rot,SG%SymOp(i)%tr,ShOp_symb,.true.)
-          
+
           write(unit=lun,fmt="(a,i3,2a,t60,2a)") " => SYMM(",i,"): ",trim(ShOp_symb), &
                                                     "Symbol: ",trim(texto(1))
        end do
