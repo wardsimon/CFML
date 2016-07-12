@@ -522,28 +522,33 @@
        return
     End Subroutine Calc_Induced_Sk
 
-    !!---- Subroutine Cleanup_Symmetry_Operators(MSpG)
+    !!---- Subroutine Cleanup_Symmetry_Operators(MSpG,ok)
     !!----   Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
     !!----
     !!----  Subroutine to re-organize symmetry operators extracting lattice translations
     !!----  and anti-translations and reordering the whole set of operators.
-    !!----  (Still under development)
+    !!----  (Still under development). It is supposed that the identity symmetry operator
+    !!----  is provided in the input MSpG object, otherwise ok=.false. and
+    !!----  no re-order is done.
     !!----
     !!----  Created: February 2014 (JRC)
     !!----
-    Subroutine Cleanup_Symmetry_Operators(MSpG)
+    Subroutine Cleanup_Symmetry_Operators(MSpG,ok)
       Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+      logical,                         intent(out)    :: ok
       !--- Local variables ---!
-      integer,      dimension(    MSpG%Multip) :: ip
+      integer,      dimension(    MSpG%Multip) :: ip,inp
       logical,      dimension(    MSpG%Multip) :: nul
       real(kind=cp),dimension(3,192)           :: Lat_tr
       real(kind=cp),dimension(3,192)           :: aLat_tr
-      integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
+      integer :: i,j,k,kp,L,m, Ng,num_lat, num_alat,invt,nl,i_centre,centr
       integer,    dimension(3,3) :: identity, nulo, inver,mat,imat
       real(kind=cp),dimension(3) :: v
       character(len=80)          :: ShOp_symb !
       character(len=4)           :: ired !
       logical                    :: centrosymm
+      Type(MSym_Oper_Type),dimension(MSpG%Multip) :: MSymOp
+      Type(Sym_Oper_Type), dimension(MSpG%Multip) :: SymOp
       character (len=*),dimension(0:2), parameter  :: Centro = &
                                          (/"Centric (-1 not at origin)", &
                                            "Acentric                  ", &
@@ -556,75 +561,125 @@
       end do
       inver=-identity
       num_lat=0; num_alat=0
-      k=0
       centrosymm=.false.
       nul=.false.
       MSpG%MagType=1
-
-      ip=0
-      !Eliminate centre of symmetry {-1|t} and select thas having
-      !t=0 if it exist
-      do j=2,MSpG%Multip
-          invt= nint(MSpG%MSymOp(j)%phas)
-          imat=MSpG%SymOp(j)%Rot(:,:)
-          if(equal_matrix(imat,inver,3) .and. invt == 1) then
-            k=k+1
-            ip(k)=j
-            !write(*,"(i4,a,i3)") j,trim(MSpG%SymOpSymb(j)), invt
-          end if
-      end do
-      if(k > 0) then
-         do j=1,k
-           i=ip(j)
-           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
-            centrosymm=.true.
-            i_centre=i
-            nul(i)=.true.
+      centr=1
+      imat=MSpG%SymOp(1)%Rot(:,:)
+      !Reorder the operators in case the identity is not given as the first operator
+      j=0
+      if(.not. equal_matrix(imat,identity,3)) then
+        do i=2,MSpG%Multip
+          imat=MSpG%SymOp(i)%Rot(:,:)
+          if(equal_matrix(imat,identity,3) .and. sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
+            j=i
             exit
-           end if
-         end do
+          end if
+        end do
+        if(j == 0) then
+          ok=.false.
+          return
+        end if
+        MSpG%SymOp(j)=MSpG%SymOp(1)
+        MSpG%MSymOp(j)=MSpG%MSymOp(1)
+        MSpG%SymOp(1)%Rot=identity
+        MSpG%SymOp(1)%tr=0.0
+        MSpG%MSymOp(1)%Rot=identity
+        MSpG%MSymOp(1)%phas=1.0
       end if
-      !Eliminate lattice translations and anti-translations
+      ok=.true.
+      ip=0
 
+      !Determine the lattice translations and anti-translations
+      !Eliminate lattice translations and anti-translations
       do j=2,MSpG%Multip
         if(nul(j)) cycle
         invt= nint(MSpG%MSymOp(j)%phas)
         if(invt < 0) MSpG%MagType=3
         if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
-           i=i+1
            if(invt == 1) then
               num_lat=num_lat+1
               Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
-              nul(j)=.true.
+              nul(j)=.true.   !Nullify centring translations
            else
               num_alat=num_alat+1
               aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
-              nul(j)=.true.
+              nul(j)=.true.  !Nullify anti-centring translations
            end if
-        end if
-        if(equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
-           nul(j)=.true.
         end if
       end do  !j=2,MSpG%Multip
 
-      !if(num_lat > 0) then
-        if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
-        allocate(MSpG%Latt_trans(3,num_lat+1))
-         MSpG%Latt_trans=0.0
-         m=1
-        do j=1,num_lat
-          m=m+1
-          MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
-        end do
-        MSpG%Num_Lat=num_lat+1
-      !end if
+      if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
+      allocate(MSpG%Latt_trans(3,num_lat+1))
+      MSpG%Latt_trans=0.0
+      m=1
+      do j=1,num_lat
+        m=m+1
+        MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
+        write(*,"(a,i3,3f8.3)") " => Centring vector: ",m,Lat_tr(:,j)
+      end do
+      MSpG%Num_Lat=num_lat+1
+
       if(num_alat > 0) then
         MSpG%MagType=4
         if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
         allocate(MSpG%aLatt_trans(3,num_alat))
         MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
         MSpG%Num_aLat=num_alat
+        do j=1,num_alat
+          write(*,"(a,i3,3f8.3)") " => Anti-Centring vector: ",j,aLat_tr(:,j)
+        end do
       end if
+
+      !Eliminate centre of symmetry {-1|t} and select that having
+      !t=0 if it exist
+      k=0; kp=0
+      do j=2,MSpG%Multip
+          invt= nint(MSpG%MSymOp(j)%phas)
+          imat=MSpG%SymOp(j)%Rot(:,:)
+          if(equal_matrix(imat,inver,3)) then
+            if(invt == 1) then
+              nul(j)=.true.
+              kp=kp+1
+              centr=2
+              ip(kp)=j
+            else
+              k=k+1
+              inp(k)=j
+            end if
+          end if
+      end do
+
+      if(kp > 0) then  !Centre of symmetry exist!, select that without translations
+         i_centre=0
+         centrosymm=.true.
+         do j=2,kp
+           i=ip(j)
+           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
+             i_centre=i    !localization of the -x,-y,-z,+1 operator within the list
+             exit
+           end if
+         end do
+      end if
+
+      !Nullify the operators of inversion centres associated with time inversion
+      !and have a translation corresponding to a centring or anticentring vector
+
+      do i=1,k
+         j=inp(i)
+         v=MSpG%SymOp(j)%tr(:)
+         if(sum(abs(v)) < 0.0001) cycle
+         if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+            nul(j)=.true.
+            cycle
+         end if
+
+         if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+            nul(j)=.true.
+            cycle
+         end if
+      end do
+
       !Nullify the operators that can be deduced from others by applying translations,
       !anti-translations and centre of symmetry
 
@@ -639,14 +694,13 @@
 
               if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
                  nul(i)=.true.
-                 ip(i)=j
+                 !ip(i)=j
                  cycle
               end if
 
-
               if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
                  nul(i)=.true.
-                 ip(i)=j
+                 !ip(i)=j
                  cycle
               end if
 
@@ -659,15 +713,16 @@
 
                  if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
                     nul(i)=.true.
-                    ip(i)=i_centre
+                    !ip(i)=i_centre
                     cycle
                  end if
 
                  if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
                     nul(i)=.true.
-                    ip(i)=j
+                    !ip(i)=j
                     cycle
                  end if
+
               end if
            end if
          end do
@@ -676,15 +731,28 @@
       !MSpGn=MSpG  !copy with allocation in F2003
       ! => This is the reduced set of symmetry operators"
       do i=1,MSpG%Multip
+        write(*,"(a,i4,2x,L)") "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas), nul(i)
         if(nul(i)) cycle
         j=j+1
-        MSpG%SymOp(j) = MSpG%SymOp(i)
-        MSpG%MSymOp(j)= MSpG%MSymOp(i)
+        SymOp(j) = MSpG%SymOp(i)
+        MSymOp(j)= MSpG%MSymOp(i)
       end do
+      m=j*centr*(num_alat+num_lat+1)
+      if( m /= MSpG%Multip) then
+        write(*,"(2(a,i4))") "  => Warning! Multip=",MSpG%Multip, " Calculated multip: ",m
+        ok=.false.
+        MSpG%Num_aLat=0
+        MSpG%Num_Lat=1
+        return
+      end if
+
+      MSpG%SymOp(1:j)=SymOp(1:j)
+      MSpG%MSymOp(1:j)=MSymOp(1:j)
       MSpG%Numops=j
       !Construct in an ordered way all the symmetry operators in MSpG
       !Replacing the operators in the proper order
       m=MSpG%Numops
+
       if(centrosymm) then   !First apply the centre of symmetry
         v=MSpG%SymOp(i_centre)%tr
         if(sum(abs(v)) > 0.0001) then
@@ -692,6 +760,7 @@
         else
            MSpG%Centred=2
         end if
+
         if(MSpG%MSymOp(i_centre)%Phas < 0.0) then
           MSpG%centre= trim(centro(MSpG%Centred))// " with associated Time Reversal"
         else
@@ -707,6 +776,7 @@
         MSpG%Centred=1
         MSpG%centre= centro(MSpG%Centred)
       end if
+
       ng=m
       if(MSpG%Num_Lat > 1) then  !Second apply the lattice centring translations
         do L=2,MSpG%Num_Lat
@@ -739,7 +809,6 @@
       do i=1,MSpG%Multip
          if(i > MSpG%Numops) ired="    "
          call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
-         !write(*,"(a,i6,a)") ired,i, "  "//trim(ShOp_symb)
          j=index(ShOp_symb," ")
          MSpG%SymOpSymb(i)=ShOp_symb(1:j-1)
          ShOp_symb=adjustl(ShOp_symb(j:))
@@ -2216,11 +2285,12 @@
     !!----  Created: January-2014 (JRC)
     !!----  Updated: August-2014 (JRC)
     !!
-    Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am)
+    Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am,ordered)
        character(len=*),               intent (in)  :: file_mcif
        type(Crystal_Cell_type),        intent (out) :: mCell
        type(Magnetic_Space_Group_Type),intent (out) :: MGp
        type(mAtom_List_Type),          intent (out) :: Am
+       logical,                        intent (out) :: ordered
 
        !---- Local Variables ----!
        integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat, ier, j, m, n, k, L,   &
@@ -2251,7 +2321,7 @@
        type(file_list_type)       :: mcif
 
        call init_err_MagSym()
-
+       ordered=.false.
        call File_To_FileList(file_mcif,mcif)
        !Remove all possible tabs and non-ASCII characters in the CIF
        do i=1,mcif%nlines
@@ -2853,7 +2923,7 @@
        !do i=1,MGp%Multip
        !  write(*,"(i3,t20,a,t55,a)") i,MGp%SymopSymb(i),MGp%MSymopSymb(i)
        !end do
-       Call cleanup_symmetry_operators(MGp)
+       Call cleanup_symmetry_operators(MGp,ordered)
        !write(*,"(a)") " Cleaning up done! "
 
        !Treating irreps
