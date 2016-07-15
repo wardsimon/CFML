@@ -383,6 +383,7 @@
                                     !     DIFFaX's prompts (usually set to 'control.dif')
 
  CHARACTER (LEN=31)    :: infile, outfile, outfile_notrepl
+ character (LEN=31), dimension(:), allocatable    :: file_streak
 
  character (len=20), dimension(max_npar):: namepar
  character (len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
@@ -556,11 +557,13 @@
                        !  if rot_only is FALSE (ie there is a vertical mirror)
  REAL(kind=dp)  :: brightness ! For SADP simulations
  
- INTEGER        :: h_streak     ! These variables are used for calculating the intensity along the streak
- INTEGER        :: k_streak     !
- INTEGER        :: l0_streak    !
- INTEGER        :: l1_streak    !
- REAL(kind=dp)  :: dl_streak    !
+ INTEGER                                   :: num_streak
+ INTEGER, dimension(:), allocatable        :: h_streak     ! These variables are used for calculating the intensity along the streak
+ INTEGER, dimension(:), allocatable        :: k_streak     !
+ REAL, dimension(:), allocatable        :: l0_streak    !
+ REAL, dimension(:), allocatable        :: l1_streak    !
+ REAL(kind=dp), dimension(:), allocatable  :: dl_streak    !
+ INTEGER, dimension(:), allocatable        :: streak_flags
  INTEGER        :: adapt_quad   ! Variable for adaptive quadrature
  
  REAL(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.

@@ -1340,14 +1340,23 @@
 
           Case ("STREAK")
             funct_num = 1
-            read (unit=txt(k:), fmt=*, iostat=ier) adapt_quad, h_streak, k_streak, l0_streak, l1_streak, dl_streak !there must be some variables
+            num_streak = 1
+            allocate(h_streak(num_streak))
+            allocate(k_streak(num_streak))
+            allocate(l0_streak(num_streak))
+            allocate(l1_streak(num_streak))
+            allocate(dl_streak(num_streak))
+            allocate(streak_flags(num_streak + 1))
+            streak_flags(1) = 0
+            read (unit=txt(k:), fmt=*, iostat=ier) adapt_quad, h_streak(1), k_streak(1), l0_streak(1), l1_streak(1), dl_streak(1) !there must be some variables
             if (ier /= 0 ) then
                 Err_crys=.true.
                 Err_crys_mess="ERROR reading STREAK information"
                 logi=.false.
                 return
             end if
-            n_high = nint((l1_streak-l0_streak)/dl_streak+1.0_dp)
+            n_high = nint((l1_streak(1)-l0_streak(1))/dl_streak(1)+1.0_dp)
+            streak_flags(2) = n_high
             ok_streak =.true.
             
           Case ("UNBROADEN")
@@ -1680,15 +1689,30 @@
               ok_fformat=.true.
 
           Case("EXPSTREAK")
-              read(unit=txt,fmt=*,iostat=ier) h_streak, k_streak
+              read(unit=txt,fmt=*,iostat=ier) num_streak, crys%patscal, ref_glb(1)
+              val_glb(1)=crys%patscal
+              allocate (file_streak(num_streak))
+              allocate (h_streak(num_streak))
+              allocate (k_streak(num_streak))
+              allocate (l1_streak(num_streak))
+              allocate (l0_streak(num_streak))
+              allocate (dl_streak(num_streak))
+              allocate (streak_flags(num_streak + 1))
+              crys%patscal = 1.0
+              do j = 1, num_streak
+                  i=i+1
+                  txt=u_case(adjustl(tfile(i)))
+                  read (unit = txt,fmt=*,iostat=ier) file_streak(j), h_streak(j), k_streak(j)
+              end do
               if(ier /= 0 ) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading streak instruction"
+                  Err_crys_mess="ERROR reading experimental streak file instruction"
                   logi=.false.
                   return
               end if
               streakOrPowder = .true.
               ok_expstreak = .true.
+              ok_file = .true.
               adapt_quad = 1
 
           Case("BGRINTER")

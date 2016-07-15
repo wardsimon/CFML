@@ -4275,7 +4275,7 @@
 
       pv_in(1)=pv_u; pv_in(2)=pv_v;  pv_in(3)=pv_w
       pv_in(4)=pv_x; pv_in(5)=pv_dg; pv_in(6)=pv_dl
-      call pv_streak(spec, strkAngl, brd_spc, pv_in)
+      call pv_streak(spec, strkAngl, brd_spc, pv_in, streak_flags, num_streak, unbroaden)
 
       999 RETURN
       990 WRITE(op,102) 'Problems opening output file ', outfile
@@ -6436,16 +6436,19 @@
 ! Output:   outputArray - broadened spectra
 
 
-    SUBROUTINE pv_streak(inputArray, angles, outputArray, uvw)
+    SUBROUTINE pv_streak(inputArray, angles, outputArray, uvw, flags, num, unbroaden)
 
         !----Input/Output---!
         real(kind=dp), dimension(max_sp),   intent(in)     :: inputArray
         real,          dimension(max_sp),   intent(in)     :: angles
         real(kind=dp), dimension(max_sp),   intent(out)    :: outputArray
         real(kind=dp), dimension(6),        intent(in)     :: uvw
+        integer,       dimension(:),        intent(in)     :: flags
+        integer,                            intent(in)     :: num
+        logical,                            intent(in)     :: unbroaden
 
         !----Local Variables----!
-        INTEGER*4 i, j, n_low
+        INTEGER*4 i, j, n_low, str
         REAL      :: delta_lambda
         real      :: temp4      !coeff for 4-th summand in FWHM-lorentz
         real      :: temp2      !coeff for 2-th summand in FWHM-gauss
@@ -6455,47 +6458,44 @@
         real, dimension(2) :: FWHMnEta !vector of FWHM and eta parameter
 
         !----Body of the program----!
+        if (unbroaden) then
+            do i = 1, size(inputArray)
+                outputArray(i) = inputArray(i)
+            end do
+        else
         !clean the outputArray
-        DO  i = 1, n_high
-            outputArray(i) = zero
-        END DO
+            DO  i = 1, n_high
+                outputArray(i) = zero
+            END DO
 
-        n_low = 1
-        delta_lambda = lambda2 - lambda
-        if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
-        const = two * rad2deg * d_theta     !transform to deg and twoTheta units
-        !calculate a part from FWHM for lorentz and gauss which not depends on angle
-        temp4 = four*LOG(two)*lambda*lambda*rad2deg*rad2deg/(pi*uvw(5)*uvw(5))
-        temp2 = two*lambda*rad2deg/(pi*uvw(6))
+            n_low = 1
+            delta_lambda = lambda2 - lambda
+            if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
+            const = two * rad2deg * d_theta     !transform to deg and twoTheta units
+            !calculate a part from FWHM for lorentz and gauss which not depends on angle
+            temp4 = four*LOG(two)*lambda*lambda*rad2deg*rad2deg/(pi*uvw(5)*uvw(5))
+            temp2 = two*lambda*rad2deg/(pi*uvw(6))
 
+            do str = 1, num
+                DO  i = flags(str), flags(str+1)
+                    !calculate a rest of the FWHM of lorentz and gauss which depends on angle
+                    tang_th = TAN(half*deg2rad*angles(i))
+                    cos_th = COS(half*deg2rad*angles(i))
+                    doubletAngle = two*rad2deg*delta_lambda*tang_th/lambda !angular shift
+                    pLG(1) = sqrt(uvw(1)*tang_th*tang_th + uvw(2)*tang_th + uvw(3) + temp4/(cos_th**2))
+                    pLG(2) = uvw(4)*tang_th + temp2/cos_th
 
-        DO  i = n_low, n_high
-            !calculate a rest of the FWHM of lorentz and gauss which depends on angle
-            tang_th = TAN(half*deg2rad*angles(i))
-            cos_th = COS(half*deg2rad*angles(i))
-            doubletAngle = two*rad2deg*delta_lambda*tang_th/lambda !angular shift
-            pLG(1) = sqrt(uvw(1)*tang_th*tang_th + uvw(2)*tang_th + uvw(3) + temp4/(cos_th**2))
-            pLG(2) = uvw(4)*tang_th + temp2/cos_th
+                    !it much more faster to calculate FWHM and Eta by this local subroutine
+                    call tch(pLG(1),pLG(2),FWHMnEta(1),FWHMnEta(2))
 
-            !it much more faster to calculate FWHM and Eta by this local subroutine
-            call tch(pLG(1),pLG(2),FWHMnEta(1),FWHMnEta(2))
-
-            if (lambda2 /= 0 ) then
-                DO  j = n_low - i, n_high - i
-                    pv1=const*Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
-                    pv2=const*Pseudovoigt(angles(j+i)-angles(i)-doubletAngle,FWHMnEta)
-                    pvoigt = pv1 + ratio * pv2
-                    outputArray(i+j) = outputArray(i+j) + pvoigt*spec(i)
+                    DO  j = flags(str) - i, flags(str+1) - i
+                        pvoigt = Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
+                        !pvoigt = const*Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
+                        outputArray(i+j) = outputArray(i+j) + pvoigt*inputArray(i)
+                    END DO
                 END DO
-            else
-                DO  j = n_low - i, n_high - i
-                    pvoigt = Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
-                    !pvoigt = const*Pseudovoigt(angles(j+i)-angles(i),FWHMnEta)
-                    outputArray(i+j) = outputArray(i+j) + pvoigt*spec(i)
-                END DO
-            end if
-
-        END DO
+            end do
+        end if
         return
 
     END SUBROUTINE pv_streak
@@ -7043,7 +7043,7 @@
       LOGICAL, INTENT(IN OUT)                  :: ok
 
       LOGICAL :: its_hot
-      INTEGER*4 h, k, i, i_step, lz, lzf
+      INTEGER*4 h, k, i, i_step, lz, lzf, str
       Real(kind=dp) l, theta, x, angle, s, q2, l0, l1
       Real(kind=dp) dl, w4
       Real(kind=dp), PARAMETER :: intervals = twenty
@@ -7065,74 +7065,78 @@
       q2 = four / (lambda**2)
       !10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
       !READ(cntrl,*,ERR=10) h, k, l0, l1, dl
-      h=h_streak
-      k=k_streak
-      l0=l0_streak
-      l1=l1_streak
-      dl=dl_streak
-      IF(cfile) WRITE(op,401) h, k, l0, l1, dl
+      do str = 1, num_streak
+        h=h_streak(str)
+        k=k_streak(str)
+        l0=l0_streak(str)
+        l1=l1_streak(str)
+        dl=dl_streak(str)
+        IF(cfile) WRITE(op,401) h, k, l0, l1, dl
 ! check input
-      IF(l1 == l0) THEN
-        WRITE(op,"(a)") ' => Illegal input: l0 equals l1'
-        GO TO 999
-      ELSE IF(dl == zero) THEN
-        WRITE(op,"(a)") ' => Illegal zero value of dl entered'
-        WRITE(op,402)' => A value of ',(l1-l0)/(five*hundred),' is assumed'
-      ELSE IF(l1 > l0 .AND. dl < zero) THEN
-        WRITE(op,"(a)") ' => l1 is greater than l0. +ve dl assumed'
-        dl = -dl
-      ELSE IF(l1 < l0 .AND. dl > zero) THEN
-        WRITE(op,"(a)") ' => l0 is greater than l1. -ve dl assumed'
-        dl = -dl
-      END IF
+        IF(l1 == l0) THEN
+            WRITE(op,"(a)") ' => Illegal input: l0 equals l1'
+            GO TO 999
+        ELSE IF(dl == zero) THEN
+            WRITE(op,"(a)") ' => Illegal zero value of dl entered'
+            WRITE(op,402)' => A value of ',(l1-l0)/(five*hundred),' is assumed'
+        ELSE IF(l1 > l0 .AND. dl < zero) THEN
+            WRITE(op,"(a)") ' => l1 is greater than l0. +ve dl assumed'
+            dl = -dl
+        ELSE IF(l1 < l0 .AND. dl > zero) THEN
+            WRITE(op,"(a)") ' => l0 is greater than l1. -ve dl assumed'
+            dl = -dl
+        END IF
 ! The origin may be hotter than hell! Let's check first.
-      its_hot = (h == 0 .AND. k == 0) .AND. l0*l1 <= zero .AND. rad_type == electn
-      IF(its_hot) THEN
-        WRITE(op,"(a)") ' => Cannot scan the origin with electron radiation'
-        WRITE(op,"(a)") ' => Origin will be skipped.'
-      END IF
+        its_hot = (h == 0 .AND. k == 0) .AND. l0*l1 <= zero .AND. rad_type == electn
+        IF(its_hot) THEN
+            WRITE(op,"(a)") ' => Cannot scan the origin with electron radiation'
+            WRITE(op,"(a)") ' => Origin will be skipped.'
+        END IF
 ! check angles are meaningful
-      IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
-        IF(s(h,k,l0) > q2) WRITE(op,403) h, k, l0,  &
-            ' exceeds 180 degree scattering angle!'
-        IF(s(h,k,l1) > q2) WRITE(op,403) h, k, l1,  &
-            ' exceeds 180 degree scattering angle!'
+        IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
+            IF(s(h,k,l0) > q2) WRITE(op,403) h, k, l0,  &
+                ' exceeds 180 degree scattering angle!'
+            IF(s(h,k,l1) > q2) WRITE(op,403) h, k, l1,  &
+                ' exceeds 180 degree scattering angle!'
         !GO TO 10
-      END IF
+        END IF
 
       !WRITE(op,404) ' => Writing streak data to file ''',  &
       !    strkfile(1:length(strkfile)),'''. . .'
 
-      CALL xyphse(h, k)
+        CALL xyphse(h, k)
 
-      CALL pre_mat(h, k)
+        CALL pre_mat(h, k)
 
-      i_step = nint( (l1 - l0) / (dl * intervals) )
+        i_step = nint( (l1 - l0) / (dl * intervals) )
 ! Immune system to the rescue!
-      IF(i_step <= 0) i_step = 10
+        IF(i_step <= 0) i_step = 10
 
-      i = 0
+        i = 0
 !      DO  l = l0, l1, dl
-      lzf=nint((l1-l0)/dl+1.0D0)
+        lzf=nint((l1-l0)/dl+1.0D0)
 
-      DO  lz = 1, lzf
-        l=l0+(lz-1)*dl
+        DO  lz = 1, lzf
+            l=l0+(lz-1)*dl
 ! If we are dealing with electrons, make sure we avoid the origin
-        IF(its_hot .AND. l*(l+dl) <= zero) THEN
-          x = zero
+            IF(its_hot .AND. l*(l+dl) <= zero) THEN
+                x = zero
           !GO TO 30
-        END IF
-        i = i + 1
-        IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
-        x = fn(h,k,l,l+dl,ok)
-        IF(.NOT.ok) GO TO 999
+            END IF
+            i = i + 1
+            !IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
+            x = fn(h,k,l,l+dl,ok)
+            IF(.NOT.ok) GO TO 999
 ! note: since this is streak data, only the X_RAY input needs
 ! correcting for polarization.
-        IF(rad_type == x_ray)  x = x * w4(angle(h,k,l+half*dl))
-        spec(lz) = x
-        strkAngl(lz) = two*rad2deg*angle(h,k,l+half*dl)
+            IF(rad_type == x_ray)  x = x * w4(angle(h,k,l+half*dl))
+            spec(lz + streak_flags(str) - 1) = x
+            strkAngl(lz + streak_flags(str) - 1) = two*rad2deg*angle(h,k,l+half*dl)
         !30   WRITE(sk,406,ERR=100) l, CHAR(9), x
-      END DO
+        END DO
+
+      end do  !end do for calculation of different streaks
+
       IF(sk /= op) CLOSE(sk,ERR=110)
       !WRITE(op,404) ' => Streak data file, ''',  &
       !    strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'

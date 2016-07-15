@@ -1080,7 +1080,7 @@
                                            err_string, err_string_mess, getnum, Ucase
 
     use CFML_Crystal_Metrics,       only : Set_Crystal_Cell, Crystal_Cell_Type
-    use CFML_Diffraction_patterns , only : diffraction_pattern_type
+    use CFML_Diffraction_patterns , only : diffraction_pattern_type, allocate_diffraction_pattern
     use CFML_Optimization_LSQ,      only : Levenberg_Marquardt_Fit
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
     use CFML_Math_General,          only : spline, splint, sind, cosd, asind
@@ -1095,6 +1095,7 @@
 
     public  ::  Cost_LMA, apply_aberrations
     type (diffraction_pattern_type), save :: difpat
+    type (diffraction_pattern_type), dimension(:), save, allocatable :: difpat_streak   !use for reading many streak files
     integer, parameter, public            :: iout = 25,i_out=20
 
 
@@ -1369,6 +1370,72 @@
             CLOSE(UNIT=fich_flts)
             
        End Subroutine Copy_new
+
+        Subroutine merge_streak(input_array, output_pattern, l_flags, step)
+
+            !--- Input/Output ---!
+            type (diffraction_pattern_type), intent(out) :: output_pattern
+            type (diffraction_pattern_type), dimension(:), intent(in) :: input_array   !array of patterns
+            integer, dimension(:), intent(out), allocatable :: l_flags
+            real(kind=dp), dimension(:), intent(out), allocatable  :: step
+
+            !--- Local variables ---!
+            integer :: overall_num_points = 1
+            integer :: i, j
+
+            !--- Body of subroutine ---!
+            allocate(l_flags(size(input_array)+1))
+            allocate(step(size(input_array)))
+            do i = 1, size(input_array)
+                l_flags(i) = overall_num_points
+                step(i) = input_array(i)%step
+                overall_num_points = overall_num_points + input_array(i)%npts
+            end do
+            l_flags(size(input_array) + 1) = overall_num_points - 1
+            call Allocate_Diffraction_Pattern (output_pattern, overall_num_points - 1)
+            do j = 0, input_array(1)%npts - 1
+                output_pattern%y(l_flags(1) + j) = input_array(1)%y(j+1)
+                output_pattern%x(l_flags(1) + j) = input_array(1)%x(j+1)
+                output_pattern%sigma(l_flags(1) + j) = input_array(1)%sigma(j+1)
+            end do
+            do i = 2, size(input_array)
+                do j = 0, (input_array(1)%npts - 1)
+                    output_pattern%y(l_flags(i) + j) = input_array(i)%y(j+1)
+                    output_pattern%x(l_flags(i) + j) = input_array(i)%x(j+1)
+                    output_pattern%sigma(l_flags(i) + j) = input_array(i)%sigma(j+1)
+                end do
+            end do
+            return
+        End Subroutine merge_streak
+
+        Subroutine demerge_streak(input_pattern, output_array, l_flags, num)
+
+            !--- Input/Output ---!
+            type (diffraction_pattern_type), intent(in) :: input_pattern
+            type (diffraction_pattern_type), dimension(:), intent(out), allocatable :: output_array   !array of patterns
+            integer, dimension(:), intent(in) :: l_flags
+            integer, intent(in) :: num
+
+            !--- Local Variables ---!
+            integer :: i, j
+            !--- Body of subroutine ---!
+            allocate(output_array(num))
+            call allocate_diffraction_pattern(output_array(1), l_flags(2)-1)
+            do j = 1, output_array(1)%npts
+                    output_array(1)%ycalc(j) = input_pattern%ycalc(j)
+                    output_array(1)%y(j)     = input_pattern%y(j)
+                    output_array(1)%x(j)     = input_pattern%x(j)
+            end do
+            do i = 2, num
+                call allocate_diffraction_pattern(output_array(i),l_flags(i)-l_flags(i-1))
+                do j = 0, (output_array(i)%npts - 1)
+                    output_array(i)%ycalc(j + 1) = input_pattern%ycalc(j + l_flags(i))
+                    output_array(i)%y(j + 1)     = input_pattern%y(j + l_flags(i))
+                    output_array(i)%x(j + 1)     = input_pattern%x(j + l_flags(i))
+                end do
+            end do
+            return
+        End Subroutine demerge_streak
     
    End module dif_ref
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1405,6 +1472,7 @@
       !character(len=1)        :: keyw
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
+      character(len=4)        :: forStreak
 
       pi = four * ATAN(one)
       pi2 = two * pi
@@ -1500,25 +1568,37 @@
       if(opt /= 0) then
          !Reading experimental pattern and scattering factors:
          write(*,"(a)") " => Reading Pattern file="//trim(dfile)
-         call  read_pattern(dfile,difpat,fmode )
-           if(Err_diffpatt) then
-             print*, trim(err_diffpatt_mess)
-           else
-             if (th2_min <= 0.0000001 .and.  th2_max <= 0.0000001  .and. d_theta <= 0.0000001) then
-                thmin    =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
-                thmax    =  difpat%xmax
-                step_2th =  difpat%step
-                n_high = nint((thmax-thmin)/step_2th+1.0_cp)
-                th2_min = thmin * deg2rad
-                th2_max = thmax * deg2rad
-                d_theta = half * deg2rad * step_2th
-             end if
-           end if
          if (streakOrPowder) then
-            l0_streak = difpat%xmin
-            l1_streak = difpat%xmax
-            dl_streak = difpat%step
-         end if
+            !reading streak data
+            allocate(difpat_streak(num_streak))
+            do i = 1, num_streak
+                call read_pattern(file_streak(i), difpat_streak(i), fmode)
+                if (Err_diffpatt) then
+                    print*, trim(err_diffpatt_mess)
+                end if
+                l0_streak(i) = difpat_streak(i)%xmin
+                l1_streak(i) = difpat_streak(i)%xmax
+                dl_streak(i) = difpat_streak(i)%step
+            end do
+            call merge_streak(difpat_streak, difpat, streak_flags, dl_streak)
+         else
+            !reading powder data
+            call read_pattern(dfile,difpat,fmode)
+                if (Err_diffpatt) then
+                    print*, trim(err_diffpatt_mess)
+                else
+                    if (th2_min <= 0.0000001 .and.  th2_max <= 0.0000001  .and. d_theta <= 0.0000001) then
+                        thmin    =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
+                        thmax    =  difpat%xmax
+                        step_2th =  difpat%step
+                        n_high = nint((thmax-thmin)/step_2th+1.0_cp)
+                        th2_min = thmin * deg2rad
+                        th2_max = thmax * deg2rad
+                        d_theta = half * deg2rad * step_2th
+                    end if
+                end if
+         end if !streakOrPowder
+         !reading background file
          if (crys%bgrinter) then
            write(*,"(a)") " => Reading Background file="//trim(background_file)
            call read_background_file(background_file, mode ,difpat)
@@ -1528,7 +1608,7 @@
              call Read_Bgr_patterns()
            end if
          end if
-      end if
+      end if    !end of Simulation or optimization.
 
       !Operations before starting :
       check_sym = .false.
@@ -1559,7 +1639,7 @@
 
        Select  case (opt)
 
-          Case (0)
+          Case (0)  ! opt = 0
 
             WRITE(op,"(a)") ' => Start simulation'
           ! What type of intensity output does the user want?
@@ -1586,7 +1666,7 @@
 
                         OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                         write(unit = iout,fmt = *)'!', outfile, "h = ", h_streak, "k = ", k_streak
-                        write(unit = iout,fmt = '(i3,f10.4,i3)') l0_streak, dl_streak, l1_streak
+                        write(unit = iout,fmt = '(f10.4,f10.4,f10.4)') l0_streak, dl_streak, l1_streak
                         write(unit = iout,fmt = '(8f12.5)') ( ycalcdef(j), j=1, n_high )
                         
                     Case (3)    !powder diffraction pattern
@@ -1634,7 +1714,7 @@
         !     END IF
 
 !
-          Case (4) !LMA
+          Case (4) ! opt = 4 LMA
 
             WRITE(op,"(a)") ' => Start LMA refinement'
 
@@ -1653,22 +1733,32 @@
             write(*,"(a)") " => "// trim(infout)
 
 
-       call vs2faults(vs, crys)
+            call vs2faults(vs, crys)
       !call Restore_Codes() !the ref_* variables are now the original codes
 
-
-            if(replace_files) then
-              Call getfnm(filenam,outfile, '.prf', ok,replace_files)
+            if (streakOrPowder) then
+                call demerge_streak(difpat, difpat_streak, streak_flags, num_streak)
+                do i = 1, num_streak
+                    write (forStreak, "(A1,I1,A1,I1)") "_", h_streak(i), "_", k_streak(i)
+                    outfile = trim(outfile_notrepl)//trim(forStreak)//".prf"
+                    !outfile=trim(outfile_notrepl)//"_"//h_streak(i)//"_"//k_streak(i)//".prf"
+                    OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                    call write_prf (difpat_streak(i), iout)
+                end do
             else
-              !Call getfnm(filenam, outfile, '.prf', ok)
-              outfile=trim(outfile_notrepl)//".prf"
+                if(replace_files) then
+                    Call getfnm(filenam,outfile, '.prf', ok,replace_files)
+                else
+                    !Call getfnm(filenam, outfile, '.prf', ok)
+                    outfile=trim(outfile_notrepl)//".prf"
+                end if
+                if (ok) then
+                    OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                    call Write_Prf(difpat,iout)
+                else
+                    write(*,"(a)") ' => The output file .prf cannot be created'
+                end if
             end if
-             if (ok) then
-               OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
-               call Write_Prf(difpat,iout)
-             else
-               write(*,"(a)") ' => The output file .prf cannot be created'
-             end if
              !CALL getfnm(trim(filenam)//"_new", outfile, '.ftls', ok)
              if (ok) then
                filenam=trim(filenam)
