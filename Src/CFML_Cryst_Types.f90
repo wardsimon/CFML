@@ -1665,14 +1665,17 @@
        n2=count(icodp==icodp(1))
        select case (n1)
           case (1) ! all are differents
-             if (n2 ==1) then
-                Car_Family="Triclinic"
-                Car_Symbol ="a"
-                Car_System ="Triclinic"
-             else
-                Err_Crys=.true.
-                ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-             end if
+          	 Car_Family="Triclinic"
+             Car_Symbol ="a"
+             Car_System ="Triclinic"
+             !if (n2 ==1) then
+             !   Car_Family="Triclinic"
+             !   Car_Symbol ="a"
+             !   Car_System ="Triclinic"
+             !else
+             !   Err_Crys=.true.
+             !   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+             !end if
 
           case (2) ! two angles are equal
              if (icoda(1) == icoda(2)) then
