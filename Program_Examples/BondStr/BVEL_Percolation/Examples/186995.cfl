@@ -1,0 +1,21 @@
+Title  Li2 O13 Ti6
+!  Automatically generated CFL file (Write_CFL)
+!         a               b               c            alpha           beta            gamma
+Cell  15.350400       3.752600        9.146100        90.000000       99.464996       90.000000      
+!     Space Group #  12
+Spgr  C 1 2/m 1           
+!      Atom  Type     x/a           y/b           z/c           Biso          Occ           Spin    Charge    Info
+Atom      Li  Li    0.061920      0.000000      0.762700      0.000000      0.500000         0.00    1.00   # None                                    
+Atom       O  O     0.000000      0.000000      0.000000      0.000000      0.250000         0.00   -2.00   # None                                    
+Atom       O  O     0.071560      0.000000      0.289680      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom       O  O     0.134560      0.000000      0.611180      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom       O  O     0.159340      0.000000      0.910270      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom       O  O     0.240350      0.000000      0.242180      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom       O  O     0.293590      0.000000      0.571010      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom       O  O     0.354410      0.000000      0.886160      0.000000      0.500000         0.00   -2.00   # None                                    
+Atom      Ti  Ti    0.111900      0.000000      0.100750      0.000000      0.500000         0.00    4.00   # None                                    
+Atom      Ti  Ti    0.165080      0.000000      0.429330      0.000000      0.500000         0.00    4.00   # None                                    
+Atom      Ti  Ti    0.230040      0.000000      0.771450      0.000000      0.500000         0.00    4.00   # None                                    
+!   Bond_STR instructions
+!   Nx, Ny, Nz, Species, Dmax, Delta(eV): Values within Emin+delta are counted for nonintegeral volume estimation
+BVEL 153 37 91 Li+1 10.0 3
