@@ -1242,6 +1242,18 @@
              Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
              do i=ini,N_end
                line=adjustl(file_line(i))
+               ind=index(line,"Transform to standard:")
+               if(ind /= 0) then
+                 MGp%trn_to_standard=adjustl(line(ind+22:))
+               end if
+               ind=index(line,"Parent Space Group:")
+               if(ind /= 0) then
+                 MGp%Parent_spg=adjustl(line(ind+19:))
+               end if
+               ind=index(line,"Transform from Parent:")
+               if(ind /= 0) then
+                 MGp%trn_from_parent=adjustl(line(ind+19:))
+               end if
                ind=index(line,"N_Clat")
                if(ind == 0) cycle
                read(unit=file_line(i+1),fmt=*) Nsym, Cen, N_Clat, N_Ant
