@@ -1234,9 +1234,9 @@
                Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
                return
              else
-               j=index(line,"number")
+               j=index(line,"number:")
                MGp%BNS_symbol=trim(line(1:j-1))
-               MGp%OG_number=trim(line(j+7:ind-4))
+               MGp%BNS_number=trim(line(j+7:ind-4))
              end if
              ini=n_ini+1
              Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
@@ -1248,11 +1248,18 @@
                end if
                ind=index(line,"Parent Space Group:")
                if(ind /= 0) then
-                 MGp%Parent_spg=adjustl(line(ind+19:))
+                 j=index(line,"IT_number:")
+                 if( j /= 0) then
+                   MGp%Parent_spg=adjustl(line(ind+19:j-1))
+                   read(unit=line(j+10:),fmt=*,iostat=ier) MGp%Parent_num
+                   if(ier /= 0) MGp%Parent_num=0
+                 else
+                   MGp%Parent_spg=adjustl(line(ind+19:))
+                 end if
                end if
                ind=index(line,"Transform from Parent:")
                if(ind /= 0) then
-                 MGp%trn_from_parent=adjustl(line(ind+19:))
+                 MGp%trn_from_parent=adjustl(line(ind+22:))
                end if
                ind=index(line,"N_Clat")
                if(ind == 0) cycle
