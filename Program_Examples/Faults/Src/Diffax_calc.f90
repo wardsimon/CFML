@@ -2295,7 +2295,7 @@
 !      GETSPC returns logical .true. if all went well.
 ! ______________________________________________________________________
 
-      LOGICAL FUNCTION getspc(fn,infile)
+      Logical Function getspc(fn,infile)
 
 !     Utiliza las variables: DIFFaX.par , 'DIFFaX.inc' , FN , infile,  ok, SHARP, on_bndry, l_axis, shrp
 !                            h, k, h_lower, h_upper, k_lower, k_upper ,  m, i, max_indx , LENGTH, S, Q,
@@ -2308,17 +2308,17 @@
 !     Utiliza las subrutinas:  XYPHSE, PRE_MAT, GET_F, CHWDTH
 
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
+      Character (Len=*), Intent(In Out)        :: infile
 
-      LOGICAL      :: ok,  on_bndry, l_axis, shrp
-      INTEGER      :: h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
-      INTEGER      :: m, i, max_indx, lz, lzf
-      Real(kind=dp):: s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val
-      !Real(kind=dp):: tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
-      Real(kind=dp):: hkangl, ll, angle !,angles
-      Real(kind=dp):: l, hk_th, x,  l_max, min_th, max_th
-      Real(kind=dp):: w1, l1, l0, d_l,   w2, w3, l00
-      COMPLEX(kind=dp) :: f(max_l)
+      Logical          :: ok,  on_bndry, l_axis, shrp
+      Integer          :: h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
+      Integer          :: m, i, max_indx, lz, lzf
+      Real(kind=dp)    :: s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val,q2
+     !Real(kind=dp)    :: tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
+      Real(kind=dp)    :: hkangl, ll, angle !,angles
+      Real(kind=dp)    :: l, hk_th, x,  l_max, min_th, max_th
+      Real(kind=dp)    :: w1, l1, l0, d_l,   w2, w3, l00
+      Complex(kind=dp) :: f(max_l)
 
 ! external functions
       Real(kind=dp) :: fn
@@ -2326,30 +2326,30 @@
 ! external subroutines (Some compilers need them declared external)
 !      external XYPHSE, PRE_MAT, GET_F, CHWDTH
 
-! statement functions
-! S is the value of 1/d**2 at hkl
+      ! statement functions
+      ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! LL is the maximum allowable l-value for a given h,k and theta
+      ! LL is the maximum allowable l-value for a given h,k and theta
       ll(theta,h,k) = SQRT((fact * (SIN(theta))**2 - h*h*a0 - k*k*b0 - h*k*d0)/ c0)
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-! HKANGL is the angle between the vector (h_val,k_val,0) and (1,0,0)
+      ! HKANGL is the angle between the vector (h_val,k_val,0) and (1,0,0)
       hkangl(k_val,h_val) = ATAN2(k_val*SQRT(a0*b0 - d0*d0*quarter),  &
           (h_val*a0 + k_val*d0*half))
-! These factors are for powder diffraction patterns
-! W1 is the polarization factor for weighting x-ray intensities
-! it also incorporates the Lorentz factor
+      ! These factors are for powder diffraction patterns
+      ! W1 is the polarization factor for weighting x-ray intensities
+      ! it also incorporates the Lorentz factor
       w1(theta) = (one + COS(two*theta) * COS(two*theta)) /  &
           (SIN(theta) * SIN(two*theta))
-! W2 is the neutron weighting factor--the Lorentz factor
+      ! W2 is the neutron weighting factor--the Lorentz factor
       w2(theta) = one / (SIN(theta) * SIN(two*theta))
-! W3 is the electron weighting factor--the Lorentz factor
+      ! W3 is the electron weighting factor--the Lorentz factor
       w3(theta) = one / (SIN(theta) * SIN(two*theta))
 
       getspc = .false.
       ok = .true.
 
-! Make sure we are within bounds. If not, adjust.
+      ! Make sure we are within bounds. If not, adjust.
       min_th = half * th2_min
       max_th = half * th2_max
       max_indx = INT((max_th - min_th) / d_theta + 1)
@@ -2361,30 +2361,31 @@
             two*d_theta*rad2deg
       END IF
 
-    !  1234 WRITE(op,300) 'Enter 1 for adaptive quadrature over all l values'
-    !  WRITE(op,300) 'on rows with "sharp" spots: '
-    !  READ(cntrl,*,ERR=1234) full_shrp
-    !  IF(cfile) WRITE(op,"(1x,a)") full_shrp
+      !  1234 WRITE(op,300) 'Enter 1 for adaptive quadrature over all l values'
+      !  WRITE(op,300) 'on rows with "sharp" spots: '
+      !  READ(cntrl,*,ERR=1234) full_shrp
+      !  IF(cfile) WRITE(op,"(1x,a)") full_shrp
 
        full_shrp = 1
-! zero out spectra
+      ! zero out spectra
       DO  i = 1, max_sp
         spec(i) = zero
       END DO
-! See if there is a chance of any sharp peaks.
-! If so, an appropriate step along l is found, and any_sharp is .true.
+      ! See if there is a chance of any sharp peaks.
+      ! If so, an appropriate step along l is found, and any_sharp is .true.
       d_l = l_step(ok)
       IF(.NOT. ok) GO TO 999
-! If no sharp peaks were unambiguously detected, override user.
+      ! If no sharp peaks were unambiguously detected, override user.
       IF(d_l == zero) full_shrp = 1
-! determine extreme values of h
+      ! determine extreme values of h
       q = two * SIN(max_th) / lambda
+      q2=q*q
       fact = two / lambda
       fact = fact * fact
-! h_upper is the largest value that the index h can have,
-! consistent with the value of Q. (When cell_gamma is not 90 degrees,
-! k is not necessarily zero at this extreme).
-! In case the incredible happens, immune system to rescue.
+      ! h_upper is the largest value that the index h can have,
+      ! consistent with the value of Q. (When cell_gamma is not 90 degrees,
+      ! k is not necessarily zero at this extreme).
+      ! In case the incredible happens, immune system to rescue.
       tmp3 = four * a0 * b0 - d0 * d0
       IF(tmp3 <= zero) GO TO 990
       tmp3 = two * q * SQRT(one / tmp3)
@@ -2407,43 +2408,41 @@
       hkl_list=0
       n_hkl=0
 
-! scan along h-axis from h_lower to h_upper
+      ! scan along h-axis from h_lower to h_upper
       DO  h = h_lower, h_upper
-! determine limits along k for a given h
+        ! determine limits along k for a given h
         DO  k = k_lower, k_upper
-! if out of bounds, cycle
-          IF(s(h,k,zero) > q*q) CYCLE
+          ! if out of bounds, cycle
+          IF(s(h,k,zero) > q2) CYCLE
           l_axis = h == 0 .AND. k == 0
           hk_th = theta1
           IF(.NOT. l_axis) hk_th = hkangl(DBLE(k), DBLE(h))
-! see if in wedge to be scanned
+          ! see if in wedge to be scanned
           IF((theta1-hk_th)*(theta2-hk_th) <= eps3 .OR. symgrpno == 1) THEN
-! if rotational symmetry only, do not take points on upper wedge plane
+            ! if rotational symmetry only, do not take points on upper wedge plane
             IF(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
             IF(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
-         !   WRITE(op,200) 'Integrating along l at ',h,k,  &
-         !       '''',infile(1:length(infile)),''''
+             !   WRITE(op,200) 'Integrating along l at ',h,k,  &
+             !       '''',infile(1:length(infile)),''''
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
-! set up the phases in the structure factors and stacking vectors
-! which depend on h and k only
+            ! set up the phases in the structure factors and stacking vectors
+            ! which depend on h and k only
             CALL xyphse(h, k)
             CALL pre_mat(h, k)
-! assign a corrected shape-broadening half-width
+            ! assign a corrected shape-broadening half-width
 
             IF(finite_width) THEN
               tmp2 = (h + k*COS(pi-cell_gamma))/(wa*SIN(pi-cell_gamma))
               tmp3 = k / wb
               ffhkcnst = quarter*lambda*SQRT(a0*tmp2*tmp2 + b0*tmp3*tmp3)
             END IF
-! get starting value of l
+            ! get starting value of l
             IF(l_axis) THEN   ! h==0 and k==0
               tmp = MIN(d_theta, max_th)
               IF(tmp < min_th) tmp = min_th
               l1 = ll(tmp, h, k)
               shrp = any_sharp
-
             ELSE
-
               tmp = angle(h, k, zero)
               IF(tmp < min_th) THEN
                 l1 = ll(min_th,h,k)
@@ -2461,13 +2460,13 @@
             END IF
             call update_reflections(h,k,l1)
 
-! m indexes into the array spec
+            ! m indexes into the array spec
             m = INT((tmp - min_th) / d_theta) + 1
             IF(.NOT. shrp .OR. full_shrp == 1) THEN
-! broad streak or full adaptive integration over sharp spots
+             ! broad streak or full adaptive integration over sharp spots
              ! IF(full_shrp == 1 .OR. full_brd == 1)  &
                !   WRITE(op,300) 'Full adaptive integration'
-! integrate each d_theta's range of reciprocal space
+               ! integrate each d_theta's range of reciprocal space
               !DO  theta = tmp, max_th-eps10, d_theta
               i_thm=nint((max_th-eps10-tmp)/d_theta+1.0d0)
               DO  i_th = 1,i_thm
@@ -2475,17 +2474,17 @@
                 l0 = l1
                 tmp2 = MIN(d_theta, max_th-theta)
                 l1 = ll(theta+tmp2, h, k)
-! sharp spots; do not use knowledge of where they are
+                ! sharp spots; do not use knowledge of where they are
                 IF(shrp) THEN
                   x = aglq16(h, k, l0, l1, ok)
                 ELSE
-! broad streaks
+                  ! broad streaks
                   x = fn(h, k, l0, l1, ok)
                 END IF
 
                 IF(.NOT. ok) GO TO 110
 
-! include weighting factors for radiation type
+                ! include weighting factors for radiation type
                 IF(rad_type == x_ray) THEN
                   x = two * x * w1(theta + half * tmp2)
                 ELSE IF(rad_type == neutrn) THEN
@@ -2497,11 +2496,11 @@
                   GO TO 130
                 END IF
 
-! see if not on l-axis
+                ! see if not on l-axis
                 IF(.NOT. l_axis) THEN
-! apply multiplicity factor
+                  ! apply multiplicity factor
                   x = x * mltplcty
-! if on boundary, apply appropriate weighting (mirror vs rotation only)
+                  ! if on boundary, apply appropriate weighting (mirror vs rotation only)
                   IF(on_bndry) x = x * bnds_wt
                 END IF
 
@@ -2516,10 +2515,10 @@
               END DO
 
             ELSE
-! line of sharp spots--detuned delta functions
-! use knowledge of where spots are
-! make sure we do all l values a multiple of d_l
-! starting with spot on hk-plane
+              ! line of sharp spots--detuned delta functions
+              ! use knowledge of where spots are
+              ! make sure we do all l values a multiple of d_l
+              ! starting with spot on hk-plane
               WRITE(op,300) 'which is a line of sharp spots'
               l00 = zero
               IF(l_axis) THEN
@@ -2530,7 +2529,7 @@
                 end do
               END IF
               l_max = ll(max_th, h, k)
-! avoid trouble by ignoring l = l_max
+              ! avoid trouble by ignoring l = l_max
 
               lzf=nint((l_max-l00)/d_l+1.0d0)
               !DO  l = l00, l_max, d_l
@@ -2540,7 +2539,7 @@
                 theta = angle(h,k,l)
                 CALL get_f(f, s(h,k,l), l)
                 tmp = intens(f, h, k, l, ok) * eps8
-! find width of peak
+                ! find width of peak
                 x = eps10
                 80  IF(.NOT. ok) GO TO 120
                 x = two * x
@@ -2552,7 +2551,7 @@
                 x = aglq16(h, k, l0, l1, ok)
                 IF(.NOT. ok) GO TO 110
 
-! include weighting factors for radiation type
+                ! include weighting factors for radiation type
                 IF(rad_type == x_ray) THEN
                   x = two * x * w1(theta)
                 ELSE IF(rad_type == neutrn) THEN
@@ -2564,12 +2563,11 @@
                   GO TO 130
                 END IF
 
-! see if not on l-axis
+                ! see if not on l-axis
                 IF(.NOT. l_axis) THEN
-! apply multiplicity factor
+                  ! apply multiplicity factor
                   x = x * mltplcty
-
-! if on boundary, apply appropriate weighting (mirror vs rotation only)
+                  ! if on boundary, apply appropriate weighting (mirror vs rotation only)
                   IF(on_bndry) x = x * bnds_wt
                 END IF
                 m = INT(theta / d_theta) + 1
@@ -3977,7 +3975,7 @@
         Call getfnm(infile,outfile, '.sadp', ok,replace_files)
       else
         !Call getfnm(infile,outfile,'.sadp',ok)
-        outfile=trim(outfile_notrepl)//".sadp" 
+        outfile=trim(outfile_notrepl)//".sadp"
       end if
       IF(.NOT. ok) GO TO 999
 ! Open unformatted for binary write.
@@ -4975,7 +4973,7 @@
 !      be found at.
 ! ______________________________________________________________________
 
-      Real(kind=dp) FUNCTION l_step(ok)
+      Real(kind=dp) Function l_step(ok)
 
 
 
@@ -4985,25 +4983,22 @@
 !     Utiliza las subrutinas:
 
 
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Logical, Intent(In Out)   :: ok
 
 
       Real(kind=dp) tmp, z_step
-      LOGICAL ::  resonant, decided
-      INTEGER*4 i1, i2, i3, i4
+      Logical ::  resonant, decided
+      Integer :: i1, i2, i3, i4
 
-! external function
-
-
-! initialize return value
+      ! initialize return value
       l_step = zero
 
       resonant = .true.
       decided  = .false.
       z_step   = zero
 
-! Check z-components of Rii stacking vectors
-! if any of the transitions do not exist, set resonant to false.
+      ! Check z-components of Rii stacking vectors
+      ! if any of the transitions do not exist, set resonant to false.
       DO  i1 = 1, n_layers
         IF(resonant) THEN
           IF(there(i1,i1)) THEN
@@ -5015,8 +5010,8 @@
         END IF
       END DO
 
-! Rii terms do not occur (ie. no layer i will stack to another layer i)
-! We must therefore check z-components of Rij + Rji sequences (i.ne.j).
+      ! Rii terms do not occur (ie. no layer i will stack to another layer i)
+      ! We must therefore check z-components of Rij + Rji sequences (i.ne.j).
       IF((n_layers > 1) .AND. .NOT.decided) THEN
         DO  i1 = 1, n_layers
           DO  i2 = i1 + 1, n_layers
@@ -5032,14 +5027,14 @@
         END DO
       END IF
 
-! No Rij + Rji sequences occur.
-! Check z-components of Rij + Rjk + Rki sequences (where i.ne.j.ne.k).
+      ! No Rij + Rji sequences occur.
+      ! Check z-components of Rij + Rjk + Rki sequences (where i.ne.j.ne.k).
       IF((n_layers > 2) .AND. .NOT. decided) THEN
         DO  i1 = 1, n_layers
           DO  i2 = i1 + 1, n_layers
             DO  i3 = i2 + 1, n_layers
               IF(resonant) THEN
-! There are 2 permutations
+                ! There are 2 permutations
                 IF(there(i2,i1).AND. there(i3,i2).AND.  &
                       there(i1,i3)) THEN
                   decided = .true.
@@ -5060,16 +5055,16 @@
         END DO
       END IF
 
-! No Rij + Rjk + Rki sequences occur.
-! Check z-components of Rij + Rjk + Rkl + Rli sequences
-! (where i.ne.j.ne.k.ne.l).
+      ! No Rij + Rjk + Rki sequences occur.
+      ! Check z-components of Rij + Rjk + Rkl + Rli sequences
+      ! (where i.ne.j.ne.k.ne.l).
       IF((n_layers > 3) .AND. .NOT.decided) THEN
         DO  i1 = 1, n_layers
           DO  i2 = i1 + 1, n_layers
             DO  i3 = i2 + 1, n_layers
               DO  i4 = i3 + 1, n_layers
                 IF(resonant) THEN
-! There are 6 permutations
+                  ! There are 6 permutations
                   IF(there(i2,i1).AND. there(i3,i2).AND.  &
                         there(i4,i3).AND. there(i1,i4)) THEN
                     decided = .true.
@@ -5119,10 +5114,10 @@
         END DO
       END IF
 
-! If there is no stacking sequence that can bring us back to a layer
-! similar to that at the origin after 4 layers, then this
-! structure is sufficiently complicated that we may be better
-! off doing adaptive integration anyway. (d_l still equals 0.0.)
+      ! If there is no stacking sequence that can bring us back to a layer
+      ! similar to that at the origin after 4 layers, then this
+      ! structure is sufficiently complicated that we may be better
+      ! off doing adaptive integration anyway. (d_l still equals 0.0.)
 
       IF(decided .AND. resonant .AND. (tmp /= zero)) THEN
         l_step = one / tmp
@@ -5186,7 +5181,7 @@
 
 ! ______________________________________________________________________
 
-      SUBROUTINE matmul(a, b, n)
+      SUBROUTINE matmult(a, b, n)
 !     save
 
 !     Utiliza las variables: DIFFaX.par' , n  , a(MAX_L,MAX_L), b(MAX_L,MAX_L),  i, j, m  , c(MAX_L,MAX_L), ctmp
@@ -5202,7 +5197,7 @@
       INTEGER          :: i, j, m
       COMPLEX(kind=dp) :: c(max_l,max_l), ctmp
 
-! first copy a into c
+     ! first copy a into c
       DO  j = 1, n
         DO  i = 1, n
           c(i,j) = a(i,j)
@@ -5220,7 +5215,7 @@
       END DO
 
       RETURN
-      END SUBROUTINE matmul
+      END SUBROUTINE matmult
 
 ! ______________________________________________________________________
 ! Title: MAT2N
@@ -5253,26 +5248,25 @@
 !      MAT2N returns TRUE if all went well.
 ! ______________________________________________________________________
 
-      LOGICAL FUNCTION mat2n(a)
-
+      Logical Function mat2n(a)
 
 !     Utiliza las variables: DIFFaX.par' ,'DIFFaX.inc', a(MAX_L,MAX_L),i, j ,tmp_mat(MAX_L,MAX_L,MAX_BIN)
 !     Utiliza las funciones:
-!     Utiliza las subrutinas:  MATSQR, MATMUL
+!     Utiliza las subrutinas:  MATSQR, MATMULT
 
-      COMPLEX(kind=dp), INTENT(IN OUT)               :: a(max_l,max_l)
+      Complex(kind=dp), Intent(In Out)    :: a(max_l,max_l)
 
 
       INTEGER         :: i, j
       COMPLEX(kind=dp):: tmp_mat(max_l,max_l,max_bin)
 
-! external subroutine (Some compilers need them declared external)
-!      external MATSQR, MATMUL
+      ! external subroutine (Some compilers need them declared external)
+      !      external MATSQR, MATMULT
 
       mat2n = .false.
 
-! copy mat into the first 2-dimensional tmp_mat array. Initialize a
-! to be the identity matrix.
+      ! copy mat into the first 2-dimensional tmp_mat array. Initialize a
+      ! to be the identity matrix.
       DO  j = 1, n_layers
         DO  i = 1, n_layers
           a(i,j) = c_zero
@@ -5283,16 +5277,16 @@
 
       DO  i = 1, max_pow-1
         IF(pow(i) == 1) THEN
-          CALL matmul(a, tmp_mat(1,1,i), n_layers)
+          CALL matmult(a, tmp_mat(1,1,i), n_layers)
         END IF
         CALL matsqr(tmp_mat(1,1,i+1), tmp_mat(1,1,i), n_layers)
       END DO
-      IF(pow(max_pow) == 1) CALL matmul(a, tmp_mat(1,1,max_pow), n_layers)
+      IF(pow(max_pow) == 1) CALL matmult(a, tmp_mat(1,1,max_pow), n_layers)
 
       mat2n = .true.
 
-      RETURN
-      END FUNCTION mat2n
+      Return
+      End Function mat2n
 
 ! ______________________________________________________________________
 ! Title: MATSQR
@@ -5723,7 +5717,7 @@
           Call getfnm(rootnam,sym_fnam, '.sym', ok,replace_files)
         else
           !Call getfnm(rootnam, sym_fnam, '.sym', ok)
-          sym_fnam=trim(outfile_notrepl)//".sym"      
+          sym_fnam=trim(outfile_notrepl)//".sym"
         end if
         IF(.NOT. ok) THEN
           WRITE(op,"(a)") ' => OPTIMZ: ERROR in creating symmetry dumpfile.'
@@ -6641,9 +6635,10 @@
       WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC Energigune)        '
       WRITE(iw,"(a)") '      Jokin Rikarte            (CIC Energigune)        '
       WRITE(iw,"(a)") '      Marine Reynaud           (CIC Energigune)        '
+      WRITE(iw,"(a)") '      Pavel  Horbach           (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '                   [version: Oct. 2015]                '
+      WRITE(iw,"(a)") '                   [version: July. 2016]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")
@@ -7072,7 +7067,7 @@
         l1=l1_streak(str)
         dl=dl_streak(str)
         IF(cfile) WRITE(op,401) h, k, l0, l1, dl
-! check input
+        ! check input
         IF(l1 == l0) THEN
             WRITE(op,"(a)") ' => Illegal input: l0 equals l1'
             GO TO 999
@@ -7086,13 +7081,13 @@
             WRITE(op,"(a)") ' => l0 is greater than l1. -ve dl assumed'
             dl = -dl
         END IF
-! The origin may be hotter than hell! Let's check first.
+        ! The origin may be hotter than hell! Let's check first.
         its_hot = (h == 0 .AND. k == 0) .AND. l0*l1 <= zero .AND. rad_type == electn
         IF(its_hot) THEN
             WRITE(op,"(a)") ' => Cannot scan the origin with electron radiation'
             WRITE(op,"(a)") ' => Origin will be skipped.'
         END IF
-! check angles are meaningful
+        ! check angles are meaningful
         IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
             IF(s(h,k,l0) > q2) WRITE(op,403) h, k, l0,  &
                 ' exceeds 180 degree scattering angle!'
@@ -7101,38 +7096,38 @@
         !GO TO 10
         END IF
 
-      !WRITE(op,404) ' => Writing streak data to file ''',  &
-      !    strkfile(1:length(strkfile)),'''. . .'
+        !WRITE(op,404) ' => Writing streak data to file ''',  &
+        !    strkfile(1:length(strkfile)),'''. . .'
 
         CALL xyphse(h, k)
 
         CALL pre_mat(h, k)
 
         i_step = nint( (l1 - l0) / (dl * intervals) )
-! Immune system to the rescue!
+        ! Immune system to the rescue!
         IF(i_step <= 0) i_step = 10
 
         i = 0
-!      DO  l = l0, l1, dl
+        !      DO  l = l0, l1, dl
         lzf=nint((l1-l0)/dl+1.0D0)
 
         DO  lz = 1, lzf
             l=l0+(lz-1)*dl
-! If we are dealing with electrons, make sure we avoid the origin
+            ! If we are dealing with electrons, make sure we avoid the origin
             IF(its_hot .AND. l*(l+dl) <= zero) THEN
                 x = zero
-          !GO TO 30
+            !GO TO 30
             END IF
             i = i + 1
             !IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
             x = fn(h,k,l,l+dl,ok)
             IF(.NOT.ok) GO TO 999
-! note: since this is streak data, only the X_RAY input needs
-! correcting for polarization.
+            ! note: since this is streak data, only the X_RAY input needs
+            ! correcting for polarization.
             IF(rad_type == x_ray)  x = x * w4(angle(h,k,l+half*dl))
             spec(lz + streak_flags(str) - 1) = x
             strkAngl(lz + streak_flags(str) - 1) = two*rad2deg*angle(h,k,l+half*dl)
-        !30   WRITE(sk,406,ERR=100) l, CHAR(9), x
+            !30   WRITE(sk,406,ERR=100) l, CHAR(9), x
         END DO
 
       end do  !end do for calculation of different streaks
@@ -7168,7 +7163,7 @@
 ! CHK_SYM and GET_SYM measure the fractional deviations of intensity
 ! from (potentially) symmetry-related points in reciprocal space.
 ! This method runs into problems when the intensity being measured
-! is close to zero. Miniscule intensity variations can appear to be
+! is close to zero. Minuscule intensity variations can appear to be
 ! huge relative to zero!
 ! This function is needed in order to obtain a (crude) estimate of
 ! which intensity values are too small to worry about, even if the
@@ -7274,30 +7269,32 @@
 !     Utiliza las subrutinas:
 
 
-      Real(kind=dp), INTENT(IN OUT)                   :: th2_low
+      Real(kind=dp), Intent(In Out)   :: th2_low
 
 
-      INTEGER*4 i, i_min, i_max
+      INTEGER :: i, i_min, i_max
 
       i_max = INT(half*(th2_max - th2_min) / d_theta) + 1
-! spec(1) corresponds to the intensity at the origin and is always zero.
+      ! spec(1) corresponds to the intensity at the origin and is always zero.
       i = 2
-      20 i = i + 1
-      IF(i >= i_max+1) THEN
-        WRITE(op,100) 'No peaks were found in spectrum.'
-        GO TO 900
-      END IF
-! locate the first minimum after the huge peak at the origin
-      IF(spec(i) <= spec(i-1)) GO TO 20
+      do
+         i = i + 1
+         IF(i >= i_max+1) THEN
+           WRITE(op,"(a)") ' No peaks were found in spectrum.'
+           trmspc = .true.
+           return
+         END IF
+         ! locate the first minimum after the huge peak at the origin
+         IF(spec(i) > spec(i-1)) exit
+      end do
       i_min = i - 1
 
-! NOTE: The absolute angle is th2_low + th2_min
+      ! NOTE: The absolute angle is th2_low + th2_min
       th2_low = i_min * d_theta
 
-      900 trmspc = .true.
+      trmspc = .true.
 
       RETURN
-      100 FORMAT(1X, a)
       END FUNCTION trmspc
 
 ! ______________________________________________________________________
@@ -7342,18 +7339,18 @@
 !     Utiliza las funciones:   ran3, pntint externas    s(h,k,l) ,angle(h,k,l)
 !     Utiliza las subrutinas:
 
-      INTEGER*4, INTENT(IN)                :: mir_sym
-      INTEGER*4, INTENT(IN out)                :: idum
-      LOGICAL,   INTENT(OUT)               :: ok
+      Integer, Intent(In)                :: mir_sym
+      Integer, Intent(In Out)            :: idum
+      Logical, Intent(Out)               :: ok
 
 
 
       LOGICAL :: is_good, match, eq_sides
-      INTEGER*4 i, h, k, h_tmp, k_tmp
+      INTEGER :: i, h, k, h_tmp, k_tmp
       LOGICAL :: cell90, cell120
-      Real(kind=dp)   s, angle
-      Real(kind=dp)   l
-      Real(kind=dp) i_avg, tol, i1, i2, variance, rel_var
+      Real(kind=dp) ::  s, angle
+      Real(kind=dp) ::  l
+      Real(kind=dp) ::  i_avg, tol, i1, i2, variance, rel_var
       Real(kind=dp), PARAMETER :: tiny = five * eps4
 
 ! external functions
@@ -7392,7 +7389,7 @@
         WRITE(sy,210)
       END IF
       DO  i = 1, no_trials
-! get usable h,k >= 0
+        ! get usable h,k >= 0
         20   IF(mir_sym == 1) THEN
           h_tmp = INT( DBLE(h_bnd + 1) * ran3(idum) )
           30     k_tmp = INT( DBLE(k_bnd + 1) * ran3(idum) )
@@ -7406,47 +7403,47 @@
           45     h_tmp = INT( DBLE(h_bnd + 1) * ran3(idum) )
           IF(h_tmp == k_tmp) GO TO 45
         END IF
-! get usable l > 0
+        ! get usable l > 0
         50   l = l_bnd * ran3(idum)
         IF(ABS(l) <= eps2) GO TO 50
-! make sure we are not sampling at too high an angle
+        ! make sure we are not sampling at too high an angle
         IF(two * angle(h_tmp, k_tmp, l) > max_angle) GO TO 20
-! I(h,k,l)
+        ! I(h,k,l)
         h = h_tmp
         k = k_tmp
         i1 = pntint(h, k, l, ok)
         IF(.NOT.ok) GO TO 999
         IF(dosymdump) WRITE(sy,220) h, k, l, i1
-! mirror on h-l plane
+        ! mirror on h-l plane
         IF(mir_sym == 1) THEN
-! is the cell angle equal to 90 degrees
+          ! is the cell angle equal to 90 degrees
           IF(cell90) THEN
-! I(h,-k,l), rectangular cell
+            ! I(h,-k,l), rectangular cell
             h =  h_tmp
             k = -k_tmp
             i2 = pntint(h, k, l, ok)
             IF(.NOT.ok) GO TO 999
             IF(dosymdump) WRITE(sy,220) h, k, l, i2
           ELSE IF(cell120) THEN
-! I(h+k,-k,l), hexagonal cell
+            ! I(h+k,-k,l), hexagonal cell
             h =  h_tmp + k_tmp
             k = -k_tmp
             i2 = pntint(h, k, l, ok)
             IF(.NOT.ok) GO TO 999
             IF(dosymdump) WRITE(sy,220) h, k, l, i2
           END IF
-! else mirror on k-l plane, mir = 2
+        ! else mirror on k-l plane, mir = 2
         ELSE IF(mir_sym == 2) THEN
-! is the cell angle equal to 90 degrees
+          ! is the cell angle equal to 90 degrees
           IF(cell90) THEN
-! I(-h,k,l), rectangular cell
+            ! I(-h,k,l), rectangular cell
             h = -h_tmp
             k =  k_tmp
             i2 = pntint(h, k, l, ok)
             IF(.NOT.ok) GO TO 999
             IF(dosymdump) WRITE(sy,220) h, k, l, i2
           ELSE IF(cell120) THEN
-! I(-h,h+k,l), hexagonal cell
+            ! I(-h,h+k,l), hexagonal cell
             h = -h_tmp
             k =  h_tmp + k_tmp
             i2 = pntint(h, k, l, ok)
@@ -7480,10 +7477,10 @@
           IF(.NOT. ok) GO TO 999
           IF(dosymdump) WRITE(sy,220) h, k, l, i2
        END IF
-! compare mirrored intensities
+        ! compare mirrored intensities
         i_avg = half * (i1 + i2)
         variance = half * (ABS(i_avg-i1) + ABS(i_avg-i2))
-! Be careful intensities are not actually zero
+        ! Be careful intensities are not actually zero
         IF(i_avg < tiny_inty) THEN
           tol = tiny_inty
         ELSE
@@ -7607,7 +7604,7 @@
 !      have the requested rotational symmetry.
 ! ______________________________________________________________________
 
-      LOGICAL FUNCTION tst_rot(rot_sym, idum, ok)
+      Logical Function tst_rot(rot_sym, idum, ok)
 
 
 !     Utiliza las variables: par.f90, inc.f90, rot_sym ,idum , ok ,is_good, match ,i, h, k, h_tmp, k_tmp
@@ -7616,14 +7613,14 @@
 !     Utiliza las subrutinas:
 
 
-      INTEGER*4, INTENT(IN)                    :: rot_sym
-      INTEGER*4, INTENT(IN OUT)                :: idum
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Integer, Intent(In)                    :: rot_sym
+      Integer, Intent(In Out)                :: idum
+      Logical, Intent(In Out)                :: ok
 
 
 
       LOGICAL :: is_good, match
-      INTEGER*4 i, h, k, h_tmp, k_tmp
+      INTEGER :: i, h, k, h_tmp, k_tmp
       Real(kind=dp)   s, angle
       Real(kind=dp) l, i_avg, tol
       Real(kind=dp) i1, i2, i3, i4, variance, rel_var
@@ -7652,34 +7649,34 @@
         END IF
         DO  i = 1, no_trials
           IF(dosymdump) WRITE(sy,220)
-! get usable h,k >= 0
+          ! get usable h,k >= 0
           20     h_tmp = INT( DBLE(h_bnd + 1) * ran3(idum) )
           k_tmp = INT( DBLE(k_bnd + 1) * ran3(idum) )
           IF(h_tmp == 0 .AND. k_tmp == 0) GO TO 20
-! get usable l > 0
+          ! get usable l > 0
           30     l = l_bnd * ran3(idum)
-! keep l off the l = 0 plane, else we might confuse the inversion
-! with a 2-fold
+          ! keep l off the l = 0 plane, else we might confuse the inversion
+          ! with a 2-fold
           IF(ABS(l) <= eps2) GO TO 30
-! make sure we are not sampling at too high an angle
+          ! make sure we are not sampling at too high an angle
           IF(two * angle(h_tmp, k_tmp, l) > max_angle) GO TO 20
-! I(h,k,l)
+          ! I(h,k,l)
           h = h_tmp
           k = k_tmp
           i1 = pntint(h, k, l, ok)
           IF(.NOT.ok) GO TO 999
           IF(dosymdump) WRITE(sy,230) h, k, l, i1
-! I(-h,-k,l)
+          ! I(-h,-k,l)
           h = -h_tmp
           k = -k_tmp
           i2 = pntint(h, k, l, ok)
           IF(.NOT.ok) GO TO 999
           IF(dosymdump) WRITE(sy,230) h, k, l, i2
-! compare 2-fold intensities
+          ! compare 2-fold intensities
           IF(rot_sym == 2) THEN
             i_avg = half * (i1 + i2)
             variance = half * (ABS(i_avg-i1) + ABS(i_avg-i2))
-! Be careful intensities are not actually zero
+            ! Be careful intensities are not actually zero
             IF(i_avg < tiny_inty) THEN
               tol = tiny_inty
             ELSE
@@ -7690,23 +7687,22 @@
             match = ABS(i_avg-i1) < tol .AND. ABS(i_avg-i2) < tol
             is_good = (i == 1 .OR. is_good) .AND. match
           ELSE
-! I(-k,h,l)
+            ! I(-k,h,l)
             h = -k_tmp
             k =  h_tmp
             i3 = pntint(h, k, l, ok)
             IF(.NOT.ok) GO TO 999
             IF(dosymdump) WRITE(sy,230) h, k, l, i3
-! I(k,-h,l)
+            ! I(k,-h,l)
             h =  k_tmp
             k = -h_tmp
             i4 = pntint(h, k, l, ok)
             IF(.NOT.ok) GO TO 999
             IF(dosymdump) WRITE(sy,230) h, k, l, i4
-! compare 4-fold intensities
+            ! compare 4-fold intensities
             i_avg = quarter * (i1 + i2 + i3 + i4)
-            variance = quarter * (ABS(i_avg-i1) + ABS(i_avg-i2) +  &
-                ABS(i_avg-i3) + ABS(i_avg-i4))
-! Be careful intensities are not actually zero
+            variance = quarter * (ABS(i_avg-i1) + ABS(i_avg-i2) + ABS(i_avg-i3) + ABS(i_avg-i4))
+            ! Be careful intensities are not actually zero
             IF(i_avg < tiny_inty) THEN
               tol = tiny_inty
             ELSE
@@ -7737,8 +7733,8 @@
         tst_rot = is_good
         GO TO 900
       END IF
-! 3-fold
-! Avoid both h, k = 0.
+      ! 3-fold
+      ! Avoid both h, k = 0.
       IF(rot_sym == 3) THEN
         IF(dosymdump) THEN
           WRITE(sy,200) rot_sym
@@ -7746,35 +7742,35 @@
           WRITE(sy,220)
         END IF
         DO  i = 1, no_trials
-! get usable h,k >= 0
+          ! get usable h,k >= 0
           50     h_tmp = INT( DBLE(h_bnd + 1) * ran3(idum) )
           k_tmp = INT( DBLE(k_bnd + 1) * ran3(idum) )
           IF(h_tmp == 0 .AND. k_tmp == 0) GO TO 50
-! get l (l=0 is allowed)
+          ! get l (l=0 is allowed)
           l = l_bnd * ran3(idum)
-! make sure we are not sampling at too high an angle
+          ! make sure we are not sampling at too high an angle
           IF(two * angle(h_tmp, k_tmp, l) > max_angle) GO TO 50
-! I(h,k,l)
+          ! I(h,k,l)
           h = h_tmp
           k = k_tmp
           i1 = pntint(h, k, l, ok)
           IF(.NOT.ok) GO TO 999
           IF(dosymdump) WRITE(sy,230) h, k, l, i1
-! I(-h-k,h,l)
+          ! I(-h-k,h,l)
           h = -(h_tmp + k_tmp)
           k = h_tmp
           i2 = pntint(h, k, l, ok)
           IF(.NOT.ok) GO TO 999
           IF(dosymdump) WRITE(sy,230) h, k, l, i2
-! I(k,-h-k,l)
+          ! I(k,-h-k,l)
           h = k_tmp
           k = -(h_tmp + k_tmp)
           i3 = pntint(h, k, l, ok)
           IF(dosymdump) WRITE(sy,230) h, k, l, i3
-! compare intensities
+          ! compare intensities
           i_avg = (i1 + i2 + i3) / three
           variance = (ABS(i_avg-i1) + ABS(i_avg-i2) + ABS(i_avg-i3)) / three
-! Be careful intensities are not actually zero
+          ! Be careful intensities are not actually zero
           IF(i_avg < tiny_inty) THEN
             tol = tiny_inty
           ELSE

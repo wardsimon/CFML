@@ -15,13 +15,13 @@
        !public subroutines
        !public:: read_structure_file, length, Read_Bgr_patterns
        Type(Crystal_Cell_Type),                        public :: acell
-       Type (Reflect_Type), dimension(:), allocatable, public :: reflections
+       Type(Reflect_Type),  dimension(:), allocatable, public :: reflections
        character(len=20),                              public :: spgsymb
        Type(Space_Group_Type),                         public :: SpG
 
        integer, parameter :: max_bgr_num=15 !maximum number of background patterns
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
-       integer            :: LGBLT=0  !number of global parameters
+       integer            :: LGBLT=0        !number of global parameters
        integer(kind=2), dimension(17+max_bgr_num+max_n_cheb) :: Lglb
        integer(kind=2), dimension(5,max_a,max_l)             :: Latom
        integer(kind=2), dimension(10,max_l,max_l)            :: Ltrans
@@ -43,7 +43,7 @@
                                                                  "cell_c      ","cell_gamma  ", &
                                                                  "diameter_a  ","diameter_b  ", &
                                                                  "num_layers  "]
-!      Declaration of diffraction_pattern_type
+!      Definition of crys_2d_type
 
        Type,Public :: crys_2d_type
          integer    :: rad_type                     !radiation type   >  rad_type
@@ -66,8 +66,8 @@
          real       :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
          real       :: tolerance                    !d-> Maximum deviation that intensities can have
          real       :: bckg_level = 100.0           ! Background level for powder simulations
-         character(len=132) :: sym         !Laue symmetry  >pnt_grp
-         character(len=132) :: calctype    !type of calculation
+         character(len=132)  :: sym         !Laue symmetry  >pnt_grp
+         character(len=132)  :: calctype    !type of calculation
          real                :: patscal
          integer             :: n_typ        !number of layer types    > n_layers
          real                :: l_cnt = 0.0  !number of layers in stacking section
@@ -132,10 +132,10 @@
                                             !8:EXPERIMENTAL
       integer, parameter,public :: max_fst=40
       integer,public            :: num_fst !number of fp_studio commands
-      type (crys_2d_type),             save,  public  :: crys
-      type (Opt_Conditions_Type),      save,  public  :: opti
-      type (LSQ_Conditions_type),      save,  public  :: cond
-      type (LSQ_State_Vector_Type),    save,  public  :: Vs
+      type(crys_2d_type),              save,  public  :: crys
+      type(Opt_Conditions_Type),       save,  public  :: opti
+      type(LSQ_Conditions_type),       save,  public  :: cond
+      type(LSQ_State_Vector_Type),     save,  public  :: Vs
       real, dimension (3),                    public  :: aver_cell, aver_ang
       integer, dimension(max_avercell),       public  :: lay_avcell          !sequence of layers to be stacked for calculating the average cell
       character(len=180), dimension(max_fst), public  :: fst_cmd             !Commands for FP_STUDIO
@@ -210,11 +210,8 @@
         if (allocated (tfile)) deallocate (tfile)
         allocate (tfile(numberl))
         tfile=" "
-        call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
+        call reading_lines(namef, numberl, tfile)   ! we 'load' the file in tfile so we can close the unit
       end if
-      !do i = 1, numberl                 ! To read in case insensitive mode
-      !  call u_case(tfile(i))
-      !end do
       call Set_Sections_index()
       return
     End Subroutine Set_TFile
@@ -361,7 +358,7 @@
 
       integer :: i,i1,i2,k, ier !,l
       character(len=132) :: txt
-      character(len=25)  :: key
+      character(len=25)  :: keyv
       logical :: ok_rad, ok_wave, ok_uvw, ok_abe
       !real  :: ab
 
@@ -382,10 +379,10 @@
         txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
         txt=adjustl(txt(k+1:))
 
-        Select Case(key)
+        Select Case(keyv)
 
           Case("RADIATION")
 
@@ -554,7 +551,7 @@
 
       integer :: i,i1,i2,j,k, ier !,l
       character(len=132) :: txt
-      character(len=25)  :: key
+      character(len=25)  :: keyv
       logical :: ok_cell, ok_symm, ok_nlayers, ok_lwidth
       !real  :: ab
 
@@ -574,10 +571,10 @@
         txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
         txt=adjustl(txt(k+1:))
 
-        Select Case(key)
+        Select Case(keyv)
 
           Case("SPGR")
                 txt=adjustl(tfile(i))
@@ -685,27 +682,27 @@
 
              if (crys%sym == "-1") then
                Crys%Symgrpno = 1
-             elseif ( crys%sym == "2/M(1)") then
+             else if ( crys%sym == "2/M(1)") then
                Crys%Symgrpno = 2
-             elseif ( crys%sym == " 2/M(2)") then
+             else if ( crys%sym == " 2/M(2)") then
                Crys%Symgrpno = 3
-             elseif ( crys%sym == "MMM")  then
+             else if ( crys%sym == "MMM")  then
                Crys%Symgrpno = 4
-             elseif ( crys%sym == "-3") then
+             else if ( crys%sym == "-3") then
                Crys%Symgrpno = 5
-             elseif ( crys%sym == "-3M") then
+             else if ( crys%sym == "-3M") then
                Crys%Symgrpno = 6
-             elseif ( crys%sym == "4/M")  then
+             else if ( crys%sym == "4/M")  then
                Crys%Symgrpno = 7
-             elseif ( crys%sym == "4/MMM")  then
+             else if ( crys%sym == "4/MMM")  then
                Crys%Symgrpno = 8
              elseif ( crys%sym == "6/M") then
                Crys%Symgrpno = 9
-             elseif ( crys%sym == "6/MMM")  then
+             else if ( crys%sym == "6/MMM")  then
                Crys%Symgrpno = 10
-             elseif ( crys%sym == "AXIAL")  then
+             else if ( crys%sym == "AXIAL")  then
                Crys%Symgrpno = 11
-             elseif ( crys%sym == "UNKNOWN")  then
+             else if ( crys%sym == "UNKNOWN")  then
                Crys%Symgrpno = -1
              end if
 
@@ -738,7 +735,7 @@
                val_glb(15:16)=[crys%layer_a, crys%layer_b]
                crys%finite_width=.true.
 
-               if (crys%layer_a==0 .or. crys%layer_b==0) then
+               if (crys%layer_a == 0 .or. crys%layer_b == 0) then
                  Err_crys=.true.
                  Err_crys_mess="ERROR reading layer width parameters: width along a or b cannot be zero"
                  logi=.false.
@@ -776,7 +773,7 @@
 
 
           Case Default
-             Write(unit=*,fmt="(a)") " => WARNING! Unknown keyword: "//trim(key)
+             Write(unit=*,fmt="(a)") " => WARNING! Unknown keyword: "//trim(keyv)
              cycle
 
           End Select
@@ -799,7 +796,7 @@
       integer :: k, ier, a, a1, a2, r, tmp, j, m, l, nitem
       character(len=20), dimension(30) :: citem
       character(len=132) :: txt, layer
-      character(len=25)  :: key
+      character(len=25)  :: keyv
 
       logical :: ok_lsym, ok_atom
       integer,          dimension(:),     allocatable  :: d !counts nº of atoms in unique layer
@@ -847,10 +844,10 @@
 
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
         txt=adjustl(txt(k+1:))
 
-        Select Case(key)
+        Select Case(keyv)
 
           Case ("LAYER")
             if (index(txt,'=') /= 0) then        ! search for '=' sign
@@ -1004,7 +1001,7 @@
       integer                                        :: n_int  !number of integers per line
       real(kind=sp),      dimension(132)             :: rel !  Vector of integer numbers
       character(len=132) :: txt
-      character(len=25)  :: key, seq
+      character(len=25)  :: keyv, seq
       logical :: ok_explicit, ok_recursive
       !real  :: ab
 
@@ -1024,10 +1021,10 @@
         txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
         txt=adjustl(txt(k+1:))
 
-        Select Case(key)
+        Select Case(keyv)
           Case ("EXPLICIT")
             crys%xplcit = .true.
             crys%l_cnt = 0.0
@@ -1177,7 +1174,7 @@
       real  :: suma !,ab
       character(len=20), dimension(30) :: citem
       character(len=132) :: txt
-      character(len=25)  :: key
+      character(len=25)  :: keyv
       logical :: ok_lt
 
       logi=.true.
@@ -1198,11 +1195,11 @@
            cycle
           end if
           k=index(txt," ")
-          key=txt(1:k-1)
+          keyv=txt(1:k-1)
           txt=adjustl(txt(k+1:))
 
 
-        SELECT CASE (key)
+        SELECT CASE (keyv)
 
           CASE ("LT")
             if (j==n_layers) then
@@ -1301,7 +1298,7 @@
 
       integer :: i,i1,i2,k, ier,m !,n,j
       character(len=132) :: txt
-      character(len=25)  :: key
+      character(len=25)  :: keyv
       logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lma, ok_boxp, ok_maxfun, &
                  ok_range, ok_corrmax, ok_tol, ok_nprint, ok_sadp, ok_streak
 
@@ -1327,9 +1324,9 @@
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
 
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
 
-        Select Case(key)
+        Select Case(keyv)
 
           Case ('REPLACE_FILES')  !Tune the opening output files to replace previous files
              replace_files = .true.
@@ -1358,7 +1355,7 @@
             n_high = nint((l1_streak(1)-l0_streak(1))/dl_streak(1)+1.0_dp)
             streak_flags(2) = n_high
             ok_streak =.true.
-            
+
           Case ("UNBROADEN")
             unbroaden = .true.
 
@@ -1619,7 +1616,7 @@
 
       integer :: i,i1,i2,k,j, ier, m
       character(len=132) :: txt
-      character(len=25)  :: key
+      character(len=25)  :: keyv
       logical :: ok_file, ok_fformat, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt, ok_expstreak
 
       logi=.true.
@@ -1639,10 +1636,10 @@
         txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
-        key=txt(1:k-1)
+        keyv=txt(1:k-1)
         txt=adjustl(txt(k+1:))
 
-        Select Case(key)
+        Select Case(keyv)
 
 
         Case("FILE")   !Here read tfile that conserves the true file name

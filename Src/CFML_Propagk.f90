@@ -92,6 +92,9 @@
     !!----    logical                       :: k_equiv_minusk !true if k equiv -k
     !!----    integer,      dimension(192)  :: p              !Pointer to operations of G0 that changes/fix k
     !!----                                                    !First indices: G_k, last indices: Stark
+    !!----    integer, dimension(48,48)     ::                !Pointers of symmetry operators of G0 constituting the
+    !!----                                                    !coset representatives of a particula k-vector of the star
+    !!                                                        !Only the nk x nk submatrix is used, the rest is zero.
     !!----    integer                       :: nk             !Number of star arms
     !!----    real(kind=cp),dimension(3,24) :: stark          !Star of the wave vector k
     !!---- End Type Group_K_Type
@@ -303,34 +306,39 @@
 
        !---- Local Variables ----!
        real(kind=cp), dimension(3):: h
-       integer, dimension(48)     :: ind=1
+       integer, dimension(48)     :: ind=1  !The maximum number of rotational elements is 48 (=order of the point group m-3m)
        integer                    :: i, j, ng
 
-       ng=SpaceGroup%numops
+       ng=SpaceGroup%numops  !Reduced set of symmetry operators (the firsts of the list: there is no centring translation nor inversion centre)
        Gk%g0=SpaceGroup  !<- Copy the whole space group to the component G0 of Gk
-       Gk%p(1)= 1    !<- pointer to the identity that always belong to G_k
-       Gk%p(192)= 1  !<- pointer to the identity that always is a coset representative of G0[Gk]
+       Gk%p(1)= 1        !<- pointer to the identity that always belong to G_k
+       Gk%p(192)= 1      !<- pointer to the identity that always is a coset representative of G0[Gk]
        Gk%nk  = 1
        Gk%ngk = 1
        Gk%stark(:,1) = k  !<- First arm of the star of k
        Gk%k_equiv_minusk = .true. !it is supposed that k equiv -k
-       if (SpaceGroup%Centred /= 1) then  !Centric space group
-          j=ng+1
-          h = hkl_R(k,SpaceGroup%SymOp(j))
+       if (SpaceGroup%Centred /= 1) then  !Centric space group (centric: 0, 2, acentric:1)
+          j=ng+1      !the operator SpaceGroup%SymOp(j) is the inversion centre
+          h = hkl_R(k,SpaceGroup%SymOp(j))  !h is here -k because only the rotational part of SpaceGroup%SymOp(j)
+                                            !is applied to k and this rotational part is always -I (I:identity matrix)
+          !h=-k  !This instruction can replace the above one
           !---- k not equivalent to -k
           if (.not. k_EQUIV(h,k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
-          ng=ng*2
+          ng=ng*2  !Now ng is updated to count also the symmetry elements of SpaceGroup in which
+                   !there are the operators transformed by the inversion centre.
        else   !A-centric
           if (.not. k_EQUIV(k,-k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
        end if
 
-       do_ng: do i=2,ng
+       do_ng: do i=2,ng   !From 2 because the first element is always the identity and k is equivalent to k!
+                          !We discard the operators containing centring translations with ordering
+                          !numbers > 2*SpaceGroup%numops if there is an inversion centre
           h = hkl_R(k,SpaceGroup%SymOp(i))
 
           !---- this operation belong to Gk
-          if (k_EQUIV(h,k, SpaceGroup%SPG_lat)) then
-             Gk%ngk = Gk%ngk +1
-             Gk%p(Gk%ngk)      = i
+          if (k_EQUIV(h,k, SpaceGroup%SPG_lat)) then !h is equivalent to k, so the current symmetry operator "i", belongs to Gk
+             Gk%ngk = Gk%ngk +1    !Increase the number of elements of Gk
+             Gk%p(Gk%ngk)      = i !The operator "i" belongs to Gk
              Gk%co(Gk%ngk,1)   = i
              cycle do_ng
           end if
@@ -340,16 +348,16 @@
           !---- one of the list
           do j=1, Gk%nk
              if (k_EQUIV(h,Gk%stark(:,j), SpaceGroup%SPG_lat) ) then
-                ind(j)=ind(j)+1
-                Gk%co(ind(j),j)   = i
+                ind(j)=ind(j)+1      !Increase the counter
+                Gk%co(ind(j),j) = i  !Store the operator corresponding to the co-set of the equivalet to h.
                 cycle do_ng
              end if
           end do
           !---- Passing here is to add a new vector to the list
-          Gk%nk = Gk%nk +1           !this construct the star of k
-          Gk%stark(:,Gk%nk) = h
+          Gk%nk = Gk%nk +1             !this construct the star of k, increase the number of arms of the star
+          Gk%stark(:,Gk%nk) = h        !Store the new k-vector belonging to the star
           Gk%p(193-Gk%nk)   = i        !This points to operators changing k
-          Gk%co(1,Gk%nk)    = i
+          Gk%co(1,Gk%nk)    = i        !First of the co-set representatives
        end do do_ng
 
        return

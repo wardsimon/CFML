@@ -328,28 +328,28 @@
                               i_flts = 27, &  !Output flst file unit
                               i_fst = 28      !logical unit of FST file
 
-      INTEGER, PARAMETER :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
+      Integer, Parameter :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
 
-      INTEGER, PARAMETER :: clip = 14       !CLIP    -  allowed length of filename appendages
+      Integer, Parameter :: clip = 14       !CLIP    -  allowed length of filename appendages
 
-      INTEGER, PARAMETER :: max_bckg_points=100               !Maximum of background points
+      Integer, Parameter :: max_bckg_points=100               !Maximum of background points
 
-      INTEGER, PARAMETER :: UNKNOWN = -1    !UNKNOWN -  flag indicating whether or not the symmetry
+      Integer, Parameter :: UNKNOWN = -1    !UNKNOWN -  flag indicating whether or not the symmetry
                                             !           point-group has been defined by the user
 ! define some useful numerical constants
 
-      COMPLEX(kind=dp), PARAMETER :: c_zero = (0.0D0,0.0D0), c_one = (1.0D0,0.0D0)
-      REAL(kind=dp),    PARAMETER :: zero = 0.0D0, quarter = 0.25D0, half = 0.5D0,     &
+      Complex(kind=dp), Parameter :: c_zero = (0.0D0,0.0D0), c_one = (1.0D0,0.0D0)
+      Real(kind=dp),    Parameter :: zero = 0.0D0, quarter = 0.25D0, half = 0.5D0,     &
                                one = 1.0D0, two = 2.0D0, three = 3.0D0, four = 4.0D0,  &
                                five = 5.0D0, six = 6.0D0, eight = 8.0D0, ten = 10.0D0, &
                                twelve = 12.0D0, twenty = 20.0D0, fifty = 50.0D0,       &
                                hundred = 100.0D0, one_eighty = 180.0D0, two_fiftyfive = 255.0D0
-      REAL(kind=dp),    PARAMETER :: eps1 = 1.0D-1, eps2 = 1.0D-2, eps3 = 1.0D-3,  &
+      Real(kind=dp),    Parameter :: eps1 = 1.0D-1, eps2 = 1.0D-2, eps3 = 1.0D-3,  &
                                eps4 = 1.0D-4, eps5 = 1.0D-5, eps6 = 1.0D-6,  &
                                eps7 = 1.0D-7, eps8 = 1.0D-8, eps9 = 1.0D-9,  &
                                eps10 = 1.0D-10, eps14 = 1.0D-14
 
-      REAL(kind=dp),    PARAMETER :: EIGHTBITS= 256.0D0, FIFTEENBITS= 32768.0D0, SIXTEENBITS= 65536.0D0
+      Real(kind=dp),    Parameter :: EIGHTBITS= 256.0D0, FIFTEENBITS= 32768.0D0, SIXTEENBITS= 65536.0D0
 !
 !************   Description of variables
 !
@@ -372,38 +372,38 @@
 !*********************     character variables
 !
 
-  CHARACTER (LEN=4), dimension(max_ta)     :: atom_l  ! The name of each type of atom found in the structure data file
-  CHARACTER (LEN=4), dimension(max_a,max_l):: a_name  !d-> Name of each atom. DIFFaX expects 4 characters.
+  Character (Len=4), dimension(max_ta)     :: atom_l  ! The name of each type of atom found in the structure data file
+  Character (Len=4), dimension(max_a,max_l):: a_name  !d-> Name of each atom. DIFFaX expects 4 characters.
                                                       !    See file 'data.sfc' for allowed names
-  CHARACTER (LEN=12) :: pnt_grp     !d->  Symbolic name of the point group symmetry of
+  Character (Len=12) :: pnt_grp     !d->  Symbolic name of the point group symmetry of
                                     !     the diffraction data.
-  CHARACTER (LEN=256) :: sfname, &  !     The name of the data file (including the path) containing the
+  Character (Len=256) :: sfname, &  !     The name of the data file (including the path) containing the
                                     !     atomic scattering factor data (usually set to 'data.sfc')
                         cfname      !     The name of the control file containing the automated responses to
                                     !     DIFFaX's prompts (usually set to 'control.dif')
 
- CHARACTER (LEN=31)    :: infile, outfile, outfile_notrepl
- character (LEN=31), dimension(:), allocatable    :: file_streak
+  Character (Len=31)    :: infile, outfile, outfile_notrepl
+  Character (Len=31), dimension(:), allocatable    :: file_streak
 
- character (len=20), dimension(max_npar):: namepar
- character (len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
- character (len = 20)                   :: background_file  !name of backfround file
- character (len=20)                     :: mode             ! needed in read_background_file in case of interpolation
- character (len=20)                     :: lstype !type of explicit stacking
- character (len=132)                    :: ttl  !title
+  Character (Len=20), dimension(max_npar):: namepar
+  Character (Len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
+  Character (Len = 20)                   :: background_file  !name of backfround file
+  Character (Len=20)                     :: mode             ! needed in read_background_file in case of interpolation
+  Character (Len=20)                     :: lstype !type of explicit stacking
+  Character (Len=132)                    :: ttl  !title
 !
 !**********************     logical variables
 !
-  LOGICAL, dimension(max_l) :: one_b, &   !  TRUE if all Debye-Waller factors are the same
+  Logical, dimension(max_l) :: one_b, &   !  TRUE if all Debye-Waller factors are the same
                                one_occup  !  TRUE if all occupancy factors are the same
 
-  LOGICAL, dimension(max_l, max_l) :: bs_zero,  & !TRUE if all layer stacking uncertainty factors in
+  Logical, dimension(max_l, max_l) :: bs_zero,  & !TRUE if all layer stacking uncertainty factors in
                                                   !one transition are all zero.
                                       there       !TRUE if the transition j to i is non-zero
 
 
 
-  LOGICAL :: replace_files=.false., & !if the user makes this variable true with REPLACE_FILES command old files are overwritten
+  Logical :: replace_files=.false., & !if the user makes this variable true with REPLACE_FILES command old files are overwritten
              only_real,   &   !TRUE if all layers are centrosymmetric
              same_bs,     &   !TRUE if all layer stacking uncertainty factors are identical
              all_bs_zero, &   !TRUE when all Bs_zero(i,j) = TRUE
@@ -428,298 +428,298 @@
              k_mirror,    &   !TRUE if diffraction data has a mirror across the b*-c* plane
              hk_mirror        !TRUE if diffraction data has a mirror across the a*=b*, c* plane
 
-  LOGICAL :: check_sym,   &   !TRUE if user specified a point group symmetry to test against. If the user's
+  Logical :: check_sym,   &   !TRUE if user specified a point group symmetry to test against. If the user's
                               !     choice is incompatible with the input data, then this will be reset to FALSE
              same_rz,     &   !TRUE if all stacking vectors have the same z-component
              any_sharp,   &   !TRUE if DIFFaX suspects there are any sharp peaks
              same_layer,  &   !TRUE if all of the explicitly defined layers are identical
              finite_width     !d-> TRUE if layer widths are finite
 
- logical,  dimension(:), allocatable  :: fundamental  !array which defines if each layer is fundamental or not
- logical                              :: randm, semirandm, spcfc
+  logical,  dimension(:), allocatable  :: fundamental  !array which defines if each layer is fundamental or not
+  logical                              :: randm, semirandm, spcfc
 
- logical                              :: streakOrPowder = .false. !if TRUE then streak fiting is handled
- logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
+  logical                              :: streakOrPowder = .false. !if TRUE then streak fiting is handled
+  logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
 !
 !*********************     integer*4 variables
 !
-  INTEGER, dimension(MAX_A,MAX_L) :: a_number   !d-> numeric label of atom in the layer
-  INTEGER, dimension(MAX_A,MAX_L) :: a_type     !d-> type of each atom in each layer (a_type <= MAX_TA)
-  INTEGER  :: blurring     !d->      -  Type of instrumental broadening to simulate.
+  Integer, dimension(MAX_A,MAX_L) :: a_number   !d-> numeric label of atom in the layer
+  Integer, dimension(MAX_A,MAX_L) :: a_type     !d-> type of each atom in each layer (a_type <= MAX_TA)
+  Integer  :: blurring     !d->      -  Type of instrumental broadening to simulate.
                            !            Choices are; PS_VGT, GAUSS, LORENZ
-  INTEGER  ::  bitdepth = 16    !i->  The bit-depth of the selected area diffraction.
+  Integer  :: bitdepth = 16    !i->  The bit-depth of the selected area diffraction.
                            !     pattern (sadp) data. Can equal 8 or 16.
-  INTEGER  :: bckg_points  ! number of background points
+  Integer  :: bckg_points  ! number of background points
 
-  INTEGER  :: CENTRO = 1   !  numeric constant (= 1) indicating layer has a center of symmetry.
+  Integer  :: CENTRO = 1   !  numeric constant (= 1) indicating layer has a center of symmetry.
 
-  INTEGER  :: cntrl        !  -  The device number to read input from.
+  Integer  :: cntrl        !  -  The device number to read input from.
                            !  If the file 'control.dif' is present, this file
                            !  becomes the default input. Otherwise, it is the keyboard.
   Integer    :: conv_a = 0 , conv_b=0 , conv_c=0 , conv_d = 0 , conv_e = 0, conv_f=0 , conv_g=0 !labels of refinable parameters  used not to repeat calculations
-  INTEGER, dimension(MAX_TA) :: e_sf    !s->   Electron scattering factors.
+  Integer, dimension(MAX_TA) :: e_sf    !s->   Electron scattering factors.
 
 
-  INTEGER  :: full_brd     !i->  1 if full adaptive integration is to be carried out on the sharp spots.
+  Integer  :: full_brd     !i->  1 if full adaptive integration is to be carried out on the sharp spots.
 
-  INTEGER  :: full_shrp    !i->  1 if full adaptive integration is to be carried out on the streaks.
+  Integer  :: full_shrp    !i->  1 if full adaptive integration is to be carried out on the streaks.
 
-  INTEGER  ::   h_bnd      !  Maximum value of h to explore.
-  INTEGER  ::   k_bnd      !  Maximum value of k to explore.
+  Integer  ::   h_bnd      !  Maximum value of h to explore.
+  Integer  ::   k_bnd      !  Maximum value of k to explore.
 
-  INTEGER, dimension(MAX_L) :: l_actual    ! Contains the layer number that layer i is structurally identical to.
+  Integer, dimension(MAX_L) :: l_actual    ! Contains the layer number that layer i is structurally identical to.
                                            ! If all layers are unique, l_actual(i) = i; else, l_actual(i) <= i
 
-  REAL(kind=sp)  ::  l_cnt        ! Number of layers in explicit sequence. This is
+  Real(kind=sp)  ::  l_cnt        ! Number of layers in explicit sequence. This is
                                   ! tallied by DIFFaX, by counting the layers.
-  INTEGER, dimension(MAX_L)  :: l_n_atoms   ! number of atoms in each layer
+  Integer, dimension(MAX_L)  :: l_n_atoms   ! number of atoms in each layer
 
-  INTEGER, dimension(MAX_L)  :: l_symmetry  !d->  symmetry of layer (NONE or CENTRO)
+  Integer, dimension(MAX_L)  :: l_symmetry  !d->  symmetry of layer (NONE or CENTRO)
 
-  INTEGER, dimension(XP_MAX) :: l_seq , l_seqdef  !d-> array containing the explicitly defined sequence of layers.
+  Integer, dimension(XP_MAX) :: l_seq , l_seqdef  !d-> array containing the explicitly defined sequence of layers.
                                         !    Used only if 'xplcit' = TRUE
 
-  INTEGER  :: loglin      !i->  1 if logarithmic scaling of SADP data is required ,  0: - Logarithmic  1: - Linear
+  Integer  :: loglin      !i->  1 if logarithmic scaling of SADP data is required ,  0: - Logarithmic  1: - Linear
 
-  integer    :: numcal = 0
+  Integer    :: numcal = 0
 
-  INTEGER  :: GAUSS  = 1   ! numeric constant (= 1) indicating user wishes to simulate Gaussian
+  Integer  :: GAUSS  = 1   ! numeric constant (= 1) indicating user wishes to simulate Gaussian
                            ! instrumental broadening, with a constant half width
 
-  INTEGER  :: LORENZ = 2   ! numeric constant (= 2) indicating user wishes to simulate Lorentzian
+  Integer  :: LORENZ = 2   ! numeric constant (= 2) indicating user wishes to simulate Lorentzian
                            ! instrumental broadening, with a constant half width
 
-  INTEGER  :: PS_VGT = 3   !  numeric constant (= 3) indicating user wishes to simulate pseudo-Voigt
+  Integer  :: PS_VGT = 3   !  numeric constant (= 3) indicating user wishes to simulate pseudo-Voigt
                            !  instrumental broadening.
 
-  INTEGER  :: PV_GSS = 4   !  numeric constant (= 4) indicating user wishes to simulate Gaussian
+  Integer  :: PV_GSS = 4   !  numeric constant (= 4) indicating user wishes to simulate Gaussian
                            !  instrumental broadening, with a variable half width
 
-  INTEGER  :: PV_LRN = 5   !  numeric constant (= 5) indicating user wishes to simulate Lorentzian
+  Integer  :: PV_LRN = 5   !  numeric constant (= 5) indicating user wishes to simulate Lorentzian
                            !  instrumental broadening, with a variable half width
-  INTEGER  ::  maxsad    !  Maximum intensity of sadp patterns.
+  Integer  ::  maxsad    !  Maximum intensity of sadp patterns.
 
-  INTEGER  ::  n_actual  ! Number of unique layers ( <= n_layers).
-  INTEGER  ::  n_atoms   ! Temporary variable holding the number of unique atoms in a given layer.
+  Integer  ::  n_actual  ! Number of unique layers ( <= n_layers).
+  Integer  ::  n_atoms   ! Temporary variable holding the number of unique atoms in a given layer.
 
-  INTEGER  ::  n_layers  !d-> Number of user-defined layers. n_layers <= MAX_L
+  Integer  ::  n_layers  !d-> Number of user-defined layers. n_layers <= MAX_L
 
-  INTEGER  ::  no_trials !  Number of reciprocal space points to sample.
+  Integer  ::  no_trials !  Number of reciprocal space points to sample.
                          !  whilst evaluating diffraction symmetry.
-  INTEGER  ::   NONE = 0 !  numeric constant (= 0) indicating layer has no center of symmetry.
+  Integer  ::   NONE = 0 !  numeric constant (= 0) indicating layer has no center of symmetry.
 
-  INTEGER  ::  rad_type  !d->  Type of radiation for which to calculate diffraction intensities.
+  Integer  ::  rad_type  !d->  Type of radiation for which to calculate diffraction intensities.
                          !     Choices are: X_RAY, NEUTRN, ELECTN
 
-  integer  ::  punts     !     number of excluded points
-  INTEGER  ::  sadblock  !     Length of a row of SADP data
-  INTEGER  ::  SymGrpNo  !d->  Numeric descriptor of diffraction symmetry.
+  Integer  ::  punts     !     number of excluded points
+  Integer  ::  sadblock  !     Length of a row of SADP data
+  Integer  ::  SymGrpNo  !d->  Numeric descriptor of diffraction symmetry.
 
-  INTEGER  ::  X_RAY  = 0   !     Numeric constant (= 0) indicating radiation type is X-rays.
-  INTEGER  ::  NEUTRN = 1   !     Numeric constant (= 1) indicating radiation type is neutrons.
-  INTEGER  ::  ELECTN = 2   !     Numeric constant (= 2) indicating radiation type is electrons.
+  Integer  ::  X_RAY  = 0   !     Numeric constant (= 0) indicating radiation type is X-rays.
+  Integer  ::  NEUTRN = 1   !     Numeric constant (= 1) indicating radiation type is neutrons.
+  Integer  ::  ELECTN = 2   !     Numeric constant (= 2) indicating radiation type is electrons.
 !
-  INTEGER, dimension(max_bin) ::  pow         !?
-  INTEGER                     ::  max_pow     ! ?
+  Integer, dimension(max_bin) ::  pow         !?
+  Integer                     ::  max_pow     ! ?
 
-  integer                       :: n_high
+  Integer                       :: n_high
 
-  integer                       :: opt
-  integer :: d_punt     !number of reflections
-  integer :: h_min, h_max, k_min, k_max ! lower and higher values of index h and k
+  Integer                       :: opt
+  Integer :: d_punt     !number of reflections
+  Integer :: h_min, h_max, k_min, k_max ! lower and higher values of index h and k
 
-  integer,          dimension(:),     allocatable  :: original
-  integer                                          :: fls, lls, otls, stls
+  Integer,          dimension(:),     allocatable  :: original
+  Integer                                          :: fls, lls, otls, stls
 
-  integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
-  integer :: i_adapt = 1  !Adaptive quadrature always applied
-  integer :: funct_num ! Function number: 1=streak, 3=powder pattern, 4=SADP
+  Integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
+  Integer :: i_adapt = 1  !Adaptive quadrature always applied
+  Integer :: funct_num ! Function number: 1=streak, 3=powder pattern, 4=SADP
 
 !
 !**********************     REAL(kind=dp) variables
 !
- REAL(kind=dp)  ::  a0    !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  ab0   !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  b0    !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  bc0   !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  c0    !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  ca0   !  One of seven reciprocal lattice constants
- REAL(kind=dp)  ::  d0    !  One of seven reciprocal lattice constants
- REAL(kind=dp)  :: cell_a      !d->  -  Unit cell a axis dimension.
- REAL(kind=dp)  :: cell_b      !d->  -  Unit cell b axis dimension.
- REAL(kind=dp)  :: cell_c      !d->  -  Unit cell c axis dimension.
- REAL(kind=dp)  :: cell_gamma  !d->  -  Angle between a and b axes. Angle between b and
-                        !        c, and a and c axes is 90 degrees by default.
- REAL(kind=dp)  :: d_ret
- REAL(kind=dp)  :: a_B11,a_B22,a_B33,a_B12,a_B23,a_B31 ! The average values of the r_Bij arrays
+  Real(kind=dp)  ::  a0    !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  ab0   !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  b0    !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  bc0   !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  c0    !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  ca0   !  One of seven reciprocal lattice constants
+  Real(kind=dp)  ::  d0    !  One of seven reciprocal lattice constants
+  Real(kind=dp)  :: cell_a      !d->  -  Unit cell a axis dimension.
+  Real(kind=dp)  :: cell_b      !d->  -  Unit cell b axis dimension.
+  Real(kind=dp)  :: cell_c      !d->  -  Unit cell c axis dimension.
+  Real(kind=dp)  :: cell_gamma  !d->  -  Angle between a and b axes. Angle between b and
+                         !        c, and a and c axes is 90 degrees by default.
+  Real(kind=dp)  :: d_ret
+  Real(kind=dp)  :: a_B11,a_B22,a_B33,a_B12,a_B23,a_B31 ! The average values of the r_Bij arrays
 
- REAL(kind=dp)  :: bnds_wt    !  Equals 1.0 if rot_only is TRUE, otherwise equals 0.5
-                       !  if rot_only is FALSE (ie there is a vertical mirror)
- REAL(kind=dp)  :: brightness ! For SADP simulations
- 
- INTEGER                                   :: num_streak
- INTEGER, dimension(:), allocatable        :: h_streak     ! These variables are used for calculating the intensity along the streak
- INTEGER, dimension(:), allocatable        :: k_streak     !
- REAL, dimension(:), allocatable        :: l0_streak    !
- REAL, dimension(:), allocatable        :: l1_streak    !
- REAL(kind=dp), dimension(:), allocatable  :: dl_streak    !
- INTEGER, dimension(:), allocatable        :: streak_flags
- INTEGER        :: adapt_quad   ! Variable for adaptive quadrature
- 
- REAL(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.
+  Real(kind=dp)  :: bnds_wt    !  Equals 1.0 if rot_only is TRUE, otherwise equals 0.5
+                        !  if rot_only is FALSE (ie there is a vertical mirror)
+  Real(kind=dp)  :: brightness ! For SADP simulations
 
- REAL(kind=dp)  :: DEG2RAD    !     Conversion factor for degrees to radians
+  Integer                                   :: num_streak
+  Integer, dimension(:), allocatable        :: h_streak     ! These variables are used for calculating the intensity along the streak
+  Integer, dimension(:), allocatable        :: k_streak     !
+  Real,    dimension(:), allocatable        :: l0_streak    !
+  Real,    dimension(:), allocatable        :: l1_streak    !
+  Real(kind=dp), dimension(:), allocatable  :: dl_streak    !
+  Integer, dimension(:), allocatable        :: streak_flags
+  Integer        :: adapt_quad   ! Variable for adaptive quadrature
 
- REAL(kind=dp)  :: fatsWalla_hk ! temporary storage for Fats-Waller factor
- REAL(kind=dp)  :: ffact_scale  ! Angular scale (radians) of array 'formfactor'.
- REAL(kind=dp)  :: ffhkcnst     ! Constant associated with the form-factor half-width.
-                         ! Depends on reflection indices h and k, as well as Wx and Wy.
- REAL(kind=dp)  :: ffwdth       ! Form factor half width in reciprocal Angstroms.
+  Real(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.
 
- REAL(kind=dp)  ::  h_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
-                      !  of the wedge in reciprocal space to integrate within. This is defined by the
-                      !  symmetry of the diffraction data.
- REAL(kind=dp)  ::  h_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
-                      !  of the wedge in reciprocal space to integrate within. This is defined by the
-                      !  symmetry of the diffraction data.
- REAL(kind=dp)  ::  k_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
-                      !  of the wedge in reciprocal space to integrate within. This is defined by the
-                      !  symmetry of the diffraction data.
- REAL(kind=dp)  ::  k_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
-                      !  of the wedge in reciprocal space to integrate within. This is defined by the
-                      !  symmetry of the diffraction data.
- REAL(kind=dp)  ::  FWHM     !d->    Full width half maximum of instrumental broadening.
+  Real(kind=dp)  :: DEG2RAD    !     Conversion factor for degrees to radians
 
- REAL(kind=dp)  :: l_bnd       !    Maximum value of l to explore.
- REAL(kind=dp)  :: l_rz        !    Value of Rz if same_rz = TRUE.
- REAL(kind=dp)  :: lambda, lambda2, ratio      !d-> Radiation wavelength.
- REAL(kind=dp)  :: max_angle   !    Maximum angle that intensity information is to
-                        !    be taken from for the purposes of evaluating
-                        !    diffraction symmetry.
- REAL(kind=dp)  :: max_var     !    Maximum mean variation of intensities when a
-                        !    given symmetry operator was applied.
- REAL(kind=dp)  :: mltplcty    !    1/mltplcty is the fraction of reciprocal space
-                        !    necessary to integrate over, as determined by
-                        !    the diffraction point group symmetry.
+  Real(kind=dp)  :: fatsWalla_hk ! temporary storage for Fats-Waller factor
+  Real(kind=dp)  :: ffact_scale  ! Angular scale (radians) of array 'formfactor'.
+  Real(kind=dp)  :: ffhkcnst     ! Constant associated with the form-factor half-width.
+                          ! Depends on reflection indices h and k, as well as Wx and Wy.
+  Real(kind=dp)  :: ffwdth       ! Form factor half width in reciprocal Angstroms.
 
- real(kind=sp), dimension(max_npar)    :: mult,  gen
- REAL(kind=dp)  :: PI          !    The value of pi, 3.141592653589793.....
- REAL(kind=dp)  :: PI2         !    The value of 2*pi
- REAL(kind=sp)  :: pv_gamma    !d-> Pseudo-Voigt gamma parameter.
- REAL(kind=dp)  :: pv_u        !d-> Pseudo-Voigt u parameter.
- REAL(kind=dp)  :: pv_v        !d-> Pseudo-Voigt v parameter.
- REAL(kind=dp)  :: pv_w        !d-> Pseudo-Voigt w parameter.
- real(kind=sp)  :: pv_x, pv_dg, pv_dl   ! Pseudo-voigt x parameter and gaussian and lorentzian average volumetric sizes
-!real(kind=sp)  :: pv_hg, pv_hl         ! gaussian and lorentzian FWHM
- REAL(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
- REAL(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
-                               !    the selected area diffraction patterns.
- REAL(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum in radians.
- REAL(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum in radians.
+  Real(kind=dp)  ::  h_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
+                       !  of the wedge in reciprocal space to integrate within. This is defined by the
+                       !  symmetry of the diffraction data.
+  Real(kind=dp)  ::  h_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
+                       !  of the wedge in reciprocal space to integrate within. This is defined by the
+                       !  symmetry of the diffraction data.
+  Real(kind=dp)  ::  k_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
+                       !  of the wedge in reciprocal space to integrate within. This is defined by the
+                       !  symmetry of the diffraction data.
+  Real(kind=dp)  ::  k_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
+                       !  of the wedge in reciprocal space to integrate within. This is defined by the
+                       !  symmetry of the diffraction data.
+  Real(kind=dp)  ::  FWHM     !d->    Full width half maximum of instrumental broadening.
 
- REAL(kind=cp)  :: thmax=0.0    !  Upper bound of angle in PXD spectrum in degrees.
- REAL(kind=cp)  :: thmin=0.0    !  Lower bound of angle in PXD spectrum in degrees.
- REAL(kind=cp)  :: step_2th=0.0 !  Step in 2theta (in degrees) for calculating the PDP
- integer        :: i_geom=0     ! =0 for Bragg-Brentano, =1 for Debye-Scherrer
+  Real(kind=dp)  :: l_bnd       !    Maximum value of l to explore.
+  Real(kind=dp)  :: l_rz        !    Value of Rz if same_rz = TRUE.
+  Real(kind=dp)  :: lambda, lambda2, ratio      !d-> Radiation wavelength.
+  Real(kind=dp)  :: max_angle   !    Maximum angle that intensity information is to
+                         !    be taken from for the purposes of evaluating
+                         !    diffraction symmetry.
+  Real(kind=dp)  :: max_var     !    Maximum mean variation of intensities when a
+                         !    given symmetry operator was applied.
+  Real(kind=dp)  :: mltplcty    !    1/mltplcty is the fraction of reciprocal space
+                         !    necessary to integrate over, as determined by
+                         !    the diffraction point group symmetry.
 
- REAL(kind=dp)  :: theta1      !    angle relative to (1,0,0) of lower wedge bound
- REAL(kind=dp)  :: theta2      !    angle relative to (1,0,0) of upper wedge bound
- REAL(kind=dp)  :: tolerance   !d-> Maximum deviation that intensities can have
-                        !    from symmetry related points if intensities are
-                        !    to be considered equal.
- REAL(kind=dp)  :: tiny_inty   !    a small intensity value used in the diffraction
-                        !    symmetry checking routines. Intensities lower
-                        !    than tiny_inty are treated as being close to zero.
- REAL(kind=dp)  ::  Wa         !i-> In-plane width of crystal along a-direction.
- REAL(kind=dp)  ::  Wb         !i-> In-plane width of crystal perpendicular to
-                        !    a-direction. Wx and Wy in Angstroms.
+  Real(kind=sp), dimension(max_npar)    :: mult,  gen
+  Real(kind=dp)  :: PI          !    The value of pi, 3.141592653589793.....
+  Real(kind=dp)  :: PI2         !    The value of 2*pi
+  Real(kind=sp)  :: pv_gamma    !d-> Pseudo-Voigt gamma parameter.
+  Real(kind=dp)  :: pv_u        !d-> Pseudo-Voigt u parameter.
+  Real(kind=dp)  :: pv_v        !d-> Pseudo-Voigt v parameter.
+  Real(kind=dp)  :: pv_w        !d-> Pseudo-Voigt w parameter.
+  Real(kind=sp)  :: pv_x, pv_dg, pv_dl   ! Pseudo-voigt x parameter and gaussian and lorentzian average volumetric sizes
+  !Real(kind=sp)  :: pv_hg, pv_hl         ! gaussian and lorentzian FWHM
+  Real(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
+  Real(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
+                                !    the selected area diffraction patterns.
+  Real(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum in radians.
+  Real(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum in radians.
 
- real(kind=sp)  :: rpo         !lowest rp
- real(kind=sp)  :: chi2o       !lowest chi2
+  Real(kind=cp)  :: thmax=0.0    !  Upper bound of angle in PXD spectrum in degrees.
+  Real(kind=cp)  :: thmin=0.0    !  Lower bound of angle in PXD spectrum in degrees.
+  Real(kind=cp)  :: step_2th=0.0 !  Step in 2theta (in degrees) for calculating the PDP
+  Integer        :: i_geom=0     ! =0 for Bragg-Brentano, =1 for Debye-Scherrer
 
- real(kind=dp)  :: l_upper         !upper limit of l, used in SADP simulations
+  Real(kind=dp)  :: theta1      !    angle relative to (1,0,0) of lower wedge bound
+  Real(kind=dp)  :: theta2      !    angle relative to (1,0,0) of upper wedge bound
+  Real(kind=dp)  :: tolerance   !d-> Maximum deviation that intensities can have
+                         !    from symmetry related points if intensities are
+                         !    to be considered equal.
+  Real(kind=dp)  :: tiny_inty   !    a small intensity value used in the diffraction
+                         !    symmetry checking routines. Intensities lower
+                         !    than tiny_inty are treated as being close to zero.
+  Real(kind=dp)  ::  Wa         !i-> In-plane width of crystal along a-direction.
+  Real(kind=dp)  ::  Wb         !i-> In-plane width of crystal perpendicular to
+                         !    a-direction. Wx and Wy in Angstroms.
 
- REAL(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
+  Real(kind=sp)  :: rpo         !lowest rp
+  Real(kind=sp)  :: chi2o       !lowest chi2
 
- REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer
+  Real(kind=dp)  :: l_upper         !upper limit of l, used in SADP simulations
 
- REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_occup   !d-> Occupancy of each atom in each layer
-                                               !    (Normally this will lie between 0 and 1)
+  Real(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
 
- REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: a_pos     !d->  x,y,z relative coordinates of each atom in each layer.
+  Real(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer
 
- real(kind=sp), dimension (:), allocatable     :: dos_theta
- integer, dimension(:,:), allocatable          :: hkl_list
- integer                                       :: n_hkl
+  Real(kind=dp), dimension(MAX_A,MAX_L)   :: a_occup   !d-> Occupancy of each atom in each layer
+                                                !    (Normally this will lie between 0 and 1)
 
- REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: l_r       !d->   Array of layer stacking vectors. The order is (column, row).
+  Real(kind=dp), dimension(3,MAX_A,MAX_L) :: a_pos     !d->  x,y,z relative coordinates of each atom in each layer.
 
- REAL(kind=dp), dimension(MAX_SP)        :: brd_spc   ! Array holding the powder diffraction data
-                                                      ! after instrumental broadening has been applied.
- REAL(kind=dp), dimension(MAX_SP)        :: spec      ! Array holding the unbroadened powder diffraction data.
-                                                      ! This array also holds the SADP image data.
- real,          dimension(max_sp)        :: strkAngl  ! This array holds values if 2theta angles for pv_streak calculationns
+  Real(kind=sp), dimension (:), allocatable     :: dos_theta
+  Integer, dimension(:,:), allocatable          :: hkl_list
+  Integer                                       :: n_hkl
 
- REAL(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
+  Real(kind=dp), dimension(3,MAX_A,MAX_L) :: l_r       !d->   Array of layer stacking vectors. The order is (column, row).
 
- real(kind=sp), dimension (max_npar)     :: vector    !vector containing all the parameters to optimize
+  Real(kind=dp), dimension(MAX_SP)        :: brd_spc   ! Array holding the powder diffraction data
+                                                       ! after instrumental broadening has been applied.
+  Real(kind=dp), dimension(MAX_SP)        :: spec      ! Array holding the unbroadened powder diffraction data.
+                                                       ! This array also holds the SADP image data.
+  Real,          dimension(max_sp)        :: strkAngl  ! This array holds values if 2theta angles for pv_streak calculationns
 
- REAL(kind=dp), dimension(MAX_A,MAX_L)   :: detune
-   ! detune -  Array of small positive numbers whose purpose is to prevent the determinant of the
-   !           recursion array 'mat' from becoming zero at the sharp peaks. This produces a singularity which
-   !           is hard to integrate accurately over. In essence, the 'detune' parameters are small stacking
-   !           uncertainty factors. The result is to reduce the value of l_alpha(j,i) by an amount
-   !           detune(j,i), such that the sum over the alphas for stacking from a given layer do not quite
-   !           add to unity.
+  Real(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
 
- REAL(kind=dp), dimension(FFACT_SIZE)  ::   formfactor
-   !formfactor-  Array containing a normalized Lorentzian profile,the form factor due to in-plane size broadening.
-   !             The profile is Lorentzian out to N_SIGMAS half-widths, and linear to zero from there. The linear
-   !             portion has the same gradient as the last point of the Lorentzian portion, thus the sampling step
-   !             is governed by N_SIGMAS as well as FFACT_SIZE.
+  Real(kind=sp), dimension (max_npar)     :: vector    !vector containing all the parameters to optimize
 
+  Real(kind=dp), dimension(MAX_A,MAX_L)   :: detune
+    ! detune -  Array of small positive numbers whose purpose is to prevent the determinant of the
+    !           recursion array 'mat' from becoming zero at the sharp peaks. This produces a singularity which
+    !           is hard to integrate accurately over. In essence, the 'detune' parameters are small stacking
+    !           uncertainty factors. The result is to reduce the value of l_alpha(j,i) by an amount
+    !           detune(j,i), such that the sum over the alphas for stacking from a given layer do not quite
+    !           add to unity.
 
-
- REAL(kind=dp), dimension(MAX_L)      :: high_atom ! The highest atomic z-rel position in each layer
- REAL(kind=dp), dimension(MAX_L)      :: low_atom  ! The lowest atomic z-rel position in each layer
-
- REAL(kind=dp), dimension(MAX_L)      :: l_g ! Array of layer existence probabilities.
-                                      ! These are determined by the transition
-                                      ! probabilities 'l_alpha' entered by the user.
-
- REAL(kind=dp), dimension(MAX_A,MAX_L):: hx_ky     !  Temporary storage of h*Rx + k*Ry, whilst
-                                            !  l*Rz is being computed along the streaks.
-
- REAL(kind=dp), dimension(MAX_A,MAX_L):: l_alpha   !d-> Array of layer transition probabilities. The order is (column,row)
-
- REAL(kind=dp), dimension(MAX_A,MAX_L):: r_B11,r_B22,r_B33,r_B12,r_B23,r_B13
-          ! d-> The 6 components of the anisotropic layer stacking uncertainties. These are
-          !     equivalent to the atomic Debye-Waller factors, except they apply to the stacking
-          !     vectors. These parameters allow for 'turbostratic' disorder such as is found
-          !     in liquid crystals. These parameters are optional, and can be entered by the user
-          !     in the PARAMETERS section enclosed in parentheses.
-
- REAL(kind=dp), dimension(9,MAX_TA) :: x_sf !s-> X-ray scattering factors.
-
- real(kind=sp),dimension (max_sp)  :: ycalcdef
-
-!********************     complex*16 variables
-
-  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: l_phi ! Phases of components of 'mat'
-
-  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: mat   ! Recursion matrix relating the scattering
-                                                    ! from crystals centered on different layers
-  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: mat1  ! Storage for intermediate 'mat' results.
-
-  COMPLEX(kind=dp) :: wavefn   !  Coherent wavefunction calculated for an
-                               !  explicitly defined sequence of layers (if requested)
-
- integer, parameter        :: max_excl=100 !Maximum number of excluded regions
- integer                   :: nexcrg       !Number of excluded regions
- real, dimension(max_excl) :: alow, ahigh  !Excluded regions
+  Real(kind=dp), dimension(FFACT_SIZE)  ::   formfactor
+    !formfactor-  Array containing a normalized Lorentzian profile,the form factor due to in-plane size broadening.
+    !             The profile is Lorentzian out to N_SIGMAS half-widths, and linear to zero from there. The linear
+    !             portion has the same gradient as the last point of the Lorentzian portion, thus the sampling step
+    !             is governed by N_SIGMAS as well as FFACT_SIZE.
 
 
- integer, parameter        :: max_avercell=25 !max number of transition vectors needed for calculating the average cell
+
+  Real(kind=dp), dimension(MAX_L)      :: high_atom ! The highest atomic z-rel position in each layer
+  Real(kind=dp), dimension(MAX_L)      :: low_atom  ! The lowest atomic z-rel position in each layer
+
+  Real(kind=dp), dimension(MAX_L)      :: l_g ! Array of layer existence probabilities.
+                                       ! These are determined by the transition
+                                       ! probabilities 'l_alpha' entered by the user.
+
+  Real(kind=dp), dimension(MAX_A,MAX_L):: hx_ky     !  Temporary storage of h*Rx + k*Ry, whilst
+                                             !  l*Rz is being computed along the streaks.
+
+  Real(kind=dp), dimension(MAX_A,MAX_L):: l_alpha   !d-> Array of layer transition probabilities. The order is (column,row)
+
+  Real(kind=dp), dimension(MAX_A,MAX_L):: r_B11,r_B22,r_B33,r_B12,r_B23,r_B13
+           ! d-> The 6 components of the anisotropic layer stacking uncertainties. These are
+           !     equivalent to the atomic Debye-Waller factors, except they apply to the stacking
+           !     vectors. These parameters allow for 'turbostratic' disorder such as is found
+           !     in liquid crystals. These parameters are optional, and can be entered by the user
+           !     in the PARAMETERS section enclosed in parentheses.
+
+  Real(kind=dp), dimension(9,MAX_TA) :: x_sf !s-> X-ray scattering factors.
+
+  Real(kind=sp),dimension (max_sp)  :: ycalcdef
+
+ !********************     complex*16 variables
+
+   Complex(kind=dp), dimension(MAX_L,MAX_L) :: l_phi ! Phases of components of 'mat'
+
+   Complex(kind=dp), dimension(MAX_L,MAX_L) :: mat   ! Recursion matrix relating the scattering
+                                                     ! from crystals centered on different layers
+   Complex(kind=dp), dimension(MAX_L,MAX_L) :: mat1  ! Storage for intermediate 'mat' results.
+
+   Complex(kind=dp) :: wavefn   !  Coherent wavefunction calculated for an
+                                !  explicitly defined sequence of layers (if requested)
+
+  Integer, parameter        :: max_excl=100 !Maximum number of excluded regions
+  Integer                   :: nexcrg       !Number of excluded regions
+  Real, dimension(max_excl) :: alow, ahigh  !Excluded regions
+
+
+  integer, parameter        :: max_avercell=25 !max number of transition vectors needed for calculating the average cell
 
   Contains
 
