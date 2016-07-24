@@ -41,28 +41,28 @@
 !      AGLQ16 returns the adaptively integrated value.
 ! ______________________________________________________________________
 
-      Real(kind=dp) FUNCTION aglq16(h, k, a, b, ok)
-!   Utiliza las variables : DIFFaX.par , h, k ,a, b ,  ok ,maxstk= 200, stp, n, n2 , sum
-!                           sum1, sum2, sum3, epsilon= FIVE * eps4, epsilon2, GLQ16,  stk(maxstk),
-!                           d1, d2, d3, x
-!   Utiliza las funciones: GLQ16(h, k, a, b, ok) externa  ,
-!   Utiliza las subrutinas:
+  Real(kind=dp) Function aglq16(h, k, a, b, ok)
+      !   Utiliza las variables : DIFFaX.par , h, k ,a, b ,  ok ,maxstk= 200, stp, n, n2 , sum
+      !                           sum1, sum2, sum3, epsilon= FIVE * eps4, epsilon2, GLQ16,  stk(maxstk),
+      !                           d1, d2, d3, x
+      !   Utiliza las funciones: GLQ16(h, k, a, b, ok) externa  ,
+      !   Utiliza las subrutinas:
 
       Integer,       Intent(In)  :: h
       Integer,       Intent(In)  :: k
       Real(kind=dp), Intent(In)  :: a
       Real(kind=dp), Intent(In)  :: b
       Logical,       Intent(Out) :: ok
-      Integer  :: stp, n, n2
+      Integer            :: stp, n, n2
       Integer, Parameter :: maxstk = 200
-      Real(kind=dp)            :: sum, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
+      Real(kind=dp)            :: suma, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
       Real(kind=dp), Parameter :: epsilon = five * eps4
 
-! external function
+      ! external function
       aglq16 = zero
-! initalize stack; top is at highest index
+      ! initalize stack; top is at highest index
       stp = maxstk
-! get first integration
+      ! get first integration
       sum3 = glq16(h, k, a, b, ok)
 
       IF(.NOT.ok) GO TO 999
@@ -70,7 +70,7 @@
       n = 0
       d1 = a
       d3 = b
-      sum = zero
+      suma = zero
       20 d2 = half * (d1 + d3)
       n = n + 2
       sum1 = glq16(h, k, d1, d2, ok)
@@ -78,13 +78,13 @@
       sum2 = glq16(h, k, d2, d3, ok)
       IF(.NOT. ok) GO TO 999
       x = sum1 + sum2
-! determine figure of merit
+      ! determine figure of merit
       epsilon2 = MAX(epsilon, ABS(x) * epsilon)
       IF(ABS(x - sum3) > epsilon2) THEN
-! the area of these two panels is not accurately known
-! check for stack overflow
+        ! the area of these two panels is not accurately known
+        ! check for stack overflow
         IF(stp < 3) GO TO 980
-! push right one onto stack
+        ! push right one onto stack
         stk(stp) = sum2
         stk(stp-1) = d2
         stk(stp-2) = d3
@@ -92,10 +92,10 @@
         d3 = d2
         sum3 = sum1
       ELSE
-! this panel has been accurately integrated; save its area
-        sum = sum + x
-! get next panel
-! check for stack underflow--happens when no panels left to pop off
+        ! this panel has been accurately integrated; save its area
+        suma = suma + x
+        ! get next panel
+        ! check for stack underflow--happens when no panels left to pop off
         IF(stp == maxstk) GO TO 30
         d3 = stk(stp+1)
         d1 = stk(stp+2)
@@ -106,7 +106,7 @@
         n2 = n2 * 2
       END IF
       GO TO 20
-      30 aglq16 = sum
+      30 aglq16 = suma
       RETURN
       980 WRITE(op,402) 'Stack overflow in AGLQ16.'
       RETURN
@@ -115,7 +115,7 @@
       RETURN
       402 FORMAT(1X, a)
       403 FORMAT(3X,'at: h = ',i3,' k = ',i3,' l1 = ',g12.5,' l2 = ',g12.5)
-      END FUNCTION aglq16
+  End Function aglq16
 
 ! ______________________________________________________________________
 ! Title: APPR_F
@@ -1264,31 +1264,30 @@
 !        modifies:    detune
 ! ______________________________________________________________________
 
-      SUBROUTINE detun()
-!     Utiliza las variables: DIFFaX.par , DIFFaX.inc, i, j,delta ,
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
-      INTEGER :: i, j
+   Subroutine detun()
+      !     Utiliza las variables: DIFFaX.par , DIFFaX.inc, i, j,delta ,
+      !     Utiliza las funciones:
+      !     Utiliza las subrutinas:
+      Integer :: i, j
       Real(kind=dp) :: delta
 
       delta = eps3
-! A value of delta = 0.001 is found to be optimum.
-! If preferred, user can specify 'delta' interactively
-! using the following three lines.
-!   30 write(op,400) 'Enter detune parameter'
-!      read(cntrl,*,err=30,end=999) delta
-!      if(CFile) write(op,401) delta
-      DO  i = 1, n_layers
-        DO  j = 1, n_layers
+      ! A value of delta = 0.001 is found to be optimum.
+      ! If preferred, user can specify 'delta' interactively
+      ! using the following three lines.
+      !   30 write(op,400) 'Enter detune parameter'
+      !      read(cntrl,*,err=30,end=999) delta
+      !      if(CFile) write(op,401) delta
+      Do  i = 1, n_layers
+        Do  j = 1, n_layers
           detune(j,i) = one - ABS(delta)
-        END DO
-      END DO
-
-      RETURN
-!  999 stop 'ERROR: Bad delta value. DIFFaX aborted.'
-!  400 format(1x, a)
-!  401 format(1x, g12.5)
-      END SUBROUTINE detun
+        End Do
+      End Do
+      Return
+      !  999 stop 'ERROR: Bad delta value. DIFFaX aborted.'
+      !  400 format(1x, a)
+      !  401 format(1x, g12.5)
+   End Subroutine detun
 
 ! ______________________________________________________________________
 ! Title: DUMP
@@ -1798,189 +1797,181 @@
 !      GETLAY returns logical .true. if all went well.
 ! ______________________________________________________________________
 
-      LOGICAL FUNCTION getlay()
+   Logical Function getlay()
+       ! Utiliza las variables: DIFFaX.par , 'DIFFaX.inc' , okay , messge, i, j, idum
+       !                         , RAN3, x, sum ,
+       ! Utiliza las funciones: RAN3 externa
+       ! Utiliza las subrutinas:
 
+      Logical :: okay
+      Character(Len=80) :: messge
+      Integer :: i, j !,idum
+      Real(kind=dp) ::  x, suma !, rnd
 
-!     Utiliza las variables: DIFFaX.par , 'DIFFaX.inc' , okay , messge, i, j, idum
-!                             , RAN3, x, sum ,
-!     Utiliza las funciones: RAN3 externa
-!     Utiliza las subrutinas:
-
-      LOGICAL :: okay
-      CHARACTER(LEN=80) :: messge
-      INTEGER :: i, j !,idum
-      Real(kind=dp) ::  x, sum!, rnd
-! external function
-
-      call random_seed()
+      call random_seed()  !use intrinsic random number generator
 
       getlay = .false.
       okay = .true.
 
-! initialize random numbers in RAN3
+     ! initialize random numbers in RAN3
      ! call random_number (rnd)
      ! idum = int (rnd*(-100))
 
-      WRITE(*,*) 'Generating a random sequence of ', l_cnt, ' layers.'
+      WRITE(*,*) ' => Generating a random sequence of ', l_cnt, ' layers.'
 
-! Get the first layer. Even though some stacking transition
-! probabilities to and from the layer are non-zero, the layer itself
-! may not actually exist anywhere in the crystal! Must use the
-! existence probabilities, l_g.
-!en definitiva, si capa 1 existeix, comenca per aquesta
+     ! Get the first layer. Even though some stacking transition
+     ! probabilities to and from the layer are non-zero, the layer itself
+     ! may not actually exist anywhere in the crystal! Must use the
+     ! existence probabilities, l_g.
+     ! en definitiva, si capa 1 existeix, comenca per aquesta
 
     IF (l_seq(1)==0) then
       call random_number (x)
       IF(x == one) x = x - eps7 !perque no sigui exactament 1
-      sum = zero
+      suma = zero
       i = 1
-      10 sum = sum + l_g(i)
-      IF(x > sum) THEN
-        i = i + 1
-        IF(i <= n_layers) GO TO 10
-! if all goes well, we should not reach here.
-        messge = 'GETLAY could not generate the first layer.$'
-        GO TO 999
-      END IF
+      do
+         suma = suma + l_g(i)
+         IF(x > suma) THEN
+           i = i + 1
+           IF(i <= n_layers) cycle
+           ! if all goes well, we should not reach here.
+           messge = 'GETLAY could not generate the first layer.'
+           write(op,"(a)") " ERROR: "//trim(messge)
+           return
+         END IF
+         exit
+      end do
       l_seq(1) = i
-
 
       ! Now generate the remaining l_cnt-1 layers
       j = 2
-   21 if  (l_seq(j)==0)  then
-         call random_number (x)
-         IF(x == one) x = x - eps7
-         sum = zero
-          i = 1
-          31 sum = sum + l_alpha(i,l_seq(j-1))
+      do
+        if  (l_seq(j)==0)  then
+           call random_number (x)
+           IF(x == one) x = x - eps7
+           suma = zero
+            i = 1
+            do
+               suma = suma + l_alpha(i,l_seq(j-1))
+               IF(x > suma) THEN   !perque la probabilitat no sigui zero
+                 i = i + 1
+                 IF(i <= n_layers) cycle
+                 ! if all goes well, we should not reach here.
+                 write(messge,"(a, i4, a)") 'GETLAY could not generate layer ', j, '.$'
+                 write(op,"(a)") " ERROR: "//trim(messge)
+                 return
+               END IF
+               exit
+            end do
+            l_seq(j) = i
+            j = j + 1
+            IF(j <= nint(l_cnt)) cycle
 
-          IF(x > sum) THEN                   !perque la probabilitat no sigui zero
-            i = i + 1
-           IF(i <= n_layers) GO TO 31
-! if all goes well, we should not reach here.
-             WRITE(messge,101) 'GETLAY could not generate layer ', j, '.$'
-             GO TO 999
-          END IF
-           l_seq(j) = i
+        else if  (l_seq(j)/=0) then
+
+            if ( l_alpha(l_seq(j),l_seq(j-1))== 0) then    !cal canviar l_seq j-1
+                do
+                  if ( l_seq(j)/= 0) then
+                    l_seq(j-1) = l_seq(j)
+                    if  ( l_seq(j+1)== 0) l_seq(j)=0
+                   ! if ( l_alpha(j-1,l_seq(j-2))== 0) then
+                   ! l_seq(j-2) = l_seq(j-1)
+                   ! end if
+                    j=j+1
+                    cycle
+                  else
+                    exit
+                  end if
+                end do
+                j= j -1
+                if(j <= nint(l_cnt)) cycle
+            end if
            j = j + 1
-           IF(j <= nint(l_cnt)) GO TO 21
+           IF(j <= nint(l_cnt)) cycle
+        end if
+        exit
+      end do
 
-
-      elseif  (l_seq(j)/=0) then
-
-          if ( l_alpha(l_seq(j),l_seq(j-1))== 0) then    !cal canviar l_seq j-1
-
-              do
-
-                if ( l_seq(j)/= 0) then
-                  l_seq(j-1) = l_seq(j)
-                  if  ( l_seq(j+1)== 0) l_seq(j)=0
-                 ! if ( l_alpha(j-1,l_seq(j-2))== 0) then
-                 ! l_seq(j-2) = l_seq(j-1)
-                 ! end if
-
-                  j=j+1
-                  cycle
-                else
-                  exit
-                end if
-              end do
-           j= j -1
-           IF(j <= nint(l_cnt)) GO TO 21
-          end if
-
-         j = j + 1
-         IF(j <= nint(l_cnt)) GO TO 21
-
-
-
-      end if
- !****************************************************************************************
     else
 
-! Now generate the remaining l_cnt-1 layers
+      ! Now generate the remaining l_cnt-1 layers
       j = 2
       do
-
-           if  (l_seq(j)/=0)  then
-                 j=j+1
-                 cycle
+           if (l_seq(j)/=0)  then
+              j=j+1
+              cycle
            else
-
               call random_number (x)
               IF(x == one) x = x - eps7
-                sum = zero
+                suma = zero
                 i = 1
-             131 sum = sum + l_alpha(i,l_seq(j-1))
+                do
+                   suma = suma + l_alpha(i,l_seq(j-1))
+                   IF(x > suma) THEN    !perque la probabilitat no sigui zero
+                     i = i + 1
+                     IF(i <= n_layers) cycle
+                     ! if all goes well, we should not reach here.
+                     write(messge,"(a, i4, a)") 'GETLAY could not generate layer ', j, '.$'
+                     write(op,"(a)") " ERROR: "//trim(messge)
+                     return
+                   END IF
+                   exit
+                end do
+                l_seq(j) = i
+                j = j + 1
 
-                IF(x > sum) THEN                   !perque la probabilitat no sigui zero
-                 i = i + 1
-                 IF(i <= n_layers) GO TO 131
-        ! if all goes well, we should not reach here.
-                 WRITE(messge,101) 'GETLAY could not generate layer ', j, '.$'
-                 GO TO 999
-                END IF
-                  l_seq(j) = i
-                  j = j + 1
+                IF(j > nint(l_cnt)) exit
+                do
+                   if (l_seq(j) == 0)  then
+                      call random_number (x)
+                      IF(x == one) x = x - eps7
+                      suma = zero
+                      i = 1
+                      do
+                        suma = suma + l_alpha(i,l_seq(j-1))
+                        IF(x > suma) THEN                   !perque la probabilitat no sigui zero
+                           i = i + 1
+                           IF(i <= n_layers) cycle
+                           write(messge,"(a, i4, a)") 'GETLAY could not generate layer ', j, '.$'
+                           write(op,"(a)") " ERROR: "//trim(messge)
+                           return
+                        END IF
+                        exit
+                      end do
+                      l_seq(j) = i
+                      j = j + 1
+                      IF(j <= nint(l_cnt)) cycle
 
-            IF(j .GT. nint(l_cnt)) exit
+                   else if  (l_seq(j)/=0) then
 
-              41 if  (l_seq(j)==0)  then
-                    call random_number (x)
-                    IF(x == one) x = x - eps7
-                    sum = zero
-                    i = 1
-                    51 sum = sum + l_alpha(i,l_seq(j-1))
-
-                    IF(x > sum) THEN                   !perque la probabilitat no sigui zero
-                       i = i + 1
-                       IF(i <= n_layers) GO TO 51
-                       WRITE(messge,101) 'GETLAY could not generate layer ', j, '.$'
-                       GO TO 999
-                    END IF
-                    l_seq(j) = i
-                    j = j + 1
-                    IF(j <= nint(l_cnt)) GO TO 41
-
-
-                 elseif  (l_seq(j)/=0) then
-
-                    if ( l_alpha(l_seq(j),l_seq(j-1))== 0) then    !cal canviar l_seq j-1
-                        do
-                           if ( l_seq(j)/= 0) then
-                               l_seq(j-1) = l_seq(j)
-                               if  ( l_seq(j+1)== 0) l_seq(j)=0
-                               j=j+1
-                               cycle
-                           else
-                               exit
-                           end if
-                        end do
-                           j= j -1
-                        IF(j <= nint(l_cnt)) GO TO 41
-                 end if
-
-                    j = j + 1
-                    IF(j .GT. nint(l_cnt)) exit
-
-            end if
-            exit
-        end if
-
- !****************************************************************************************
+                      if ( l_alpha(l_seq(j),l_seq(j-1))== 0) then    !cal canviar l_seq j-1
+                          do
+                             if ( l_seq(j)/= 0) then
+                                 l_seq(j-1) = l_seq(j)
+                                 if  ( l_seq(j+1)== 0) l_seq(j)=0
+                                 j=j+1
+                                 cycle
+                             else
+                                 exit
+                             end if
+                          end do
+                             j= j -1
+                          IF(j <= nint(l_cnt)) cycle
+                      end if
+                      exit
+                   end if
+                end do
+                j = j + 1
+                IF(j > nint(l_cnt)) exit
+           end if
+           exit
       end do
     end if
 
-
-
-      getlay = .true.
-      RETURN
-      999 WRITE(op,102) messge(1:INDEX(messge,'$')-1)
-      RETURN
-      100 FORMAT(1X, a, i4, a)
-      101 FORMAT(a, i4, a)
-      102 FORMAT(1X, 'ERROR: ', a)
-      END FUNCTION getlay
+    getlay = .true.
+    return
+   End Function getlay
 
 ! Title: GETSAD
 ! Author: MMJT
@@ -4234,37 +4225,41 @@
 !        modifies:  no COMMON variables are modified
 ! ______________________________________________________________________
 
-      SUBROUTINE gostrk(infile,outfile,ok)
-!     Utiliza las variables:  DIFFaX.par', DIFFaX.inc',  infile, outfile,ok, i, io_err, AGLQ16, GLQ16
-!     Utiliza las funciones:  AGLQ16, GLQ16     externas
-!     Utiliza las subrutinas:  STREAK, GETFNM
+   Subroutine gostrk(infile,outfile,ok)
+       ! Utiliza las variables:  DIFFaX.par', DIFFaX.inc',  infile, outfile,ok, i, io_err, AGLQ16, GLQ16
+       ! Utiliza las funciones:  AGLQ16, GLQ16     externas
+       ! Utiliza las subrutinas:  STREAK, GETFNM
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
-      CHARACTER (LEN=*), INTENT(OUT)           :: outfile
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Character (Len=*), Intent(In Out)        :: infile
+      Character (Len=*), Intent(Out)           :: outfile
+      Logical, Intent(In Out)                  :: ok
+
       real(kind=dp),dimension(6) :: pv_in
-      INTEGER*4 i, io_err
-! external functions
+      integer                    :: i, io_err
 
-! external subroutines (Some compilers need them declared external)
-!      external STREAK, GETFNM
-
+      ! external subroutines
+      !      external STREAK, GETFNM
       !if(replace_files) then
       !  Call getfnm(infile,outfile, '.str', ok,replace_files)
       !else
         !Call getfnm(infile, outfile, '.str', ok)
       !  outfile=trim(outfile_notrepl)//".str"
       !end if
-      !IF(.NOT.ok) GO TO 999
+      !IF(.NOT.ok) GO TO return
       !IF(sk /= op) OPEN(UNIT = sk, FILE = outfile, STATUS = 'new',  &
       !    ERR = 990, IOSTAT = io_err)
-      4567 WRITE(op,100) ' '
-    !  WRITE(op,100) 'CALCULATING INTENSITY ALONG A STREAK. . .'
-    !  WRITE(op,100) 'Enter 1 for adaptive quadrature: '
-    !  READ(cntrl,*,ERR=4567) i
+      !990 WRITE(op,"(a)") 'Problems opening output file '//outfile
+      !return
+
+      WRITE(op,"(a)") ' '
+      !4567 WRITE(op,"(a)") ' '
+      !  WRITE(op,100) 'CALCULATING INTENSITY ALONG A STREAK. . .'
+      !  WRITE(op,100) 'Enter 1 for adaptive quadrature: '
+      !  READ(cntrl,*,ERR=4567) i
+
       i = adapt_quad
-      IF(cfile) WRITE(op,101) i
-! select integration function
+      IF(cfile) WRITE(op,"(a)") i
+      ! select integration function
       IF(i == 1) THEN
         CALL streak(aglq16, outfile, ok)
       ELSE
@@ -4275,16 +4270,11 @@
       pv_in(4)=pv_x; pv_in(5)=pv_dg; pv_in(6)=pv_dl
       call pv_streak(spec, strkAngl, brd_spc, pv_in, streak_flags, num_streak, unbroaden)
 
-      999 RETURN
-      990 WRITE(op,102) 'Problems opening output file ', outfile
-      WRITE(op,103) 'IOSTAT = ', io_err
-      ok = .false.
+      !999 RETURN
+      !WRITE(op,"(a,i5)") 'IOSTAT = ', io_err
+      !ok = .false.
       RETURN
-      100 FORMAT(1X, a)
-      101 FORMAT(1X, i3)
-      102 FORMAT(1X, 2A)
-      103 FORMAT(1X, a, i5)
-      END SUBROUTINE gostrk
+   End Subroutine gostrk
 
 !!S Hfiles
 ! ______________________________________________________________________
@@ -5471,63 +5461,59 @@
 !                   a_B11,a_B22,a_B33,a_B12,a_B23,a_B31
 ! ______________________________________________________________________
 
-      SUBROUTINE optimz(rootnam, ok)
+   Subroutine optimz(rootnam, ok)
 
+      !     Utiliza las variables: DIFFaX.par ,DIFFaX.inc',rootnam ,ok ,sym_fnam  ,EQUALB, BINPOW
+      !                           GET_SYM, i, j, j2, m, n, LENGTH ,HKANGL, h_val, k_val ,x, error,
+      !                           tmp, incr, z, old_lambda , did_it(MAX_L,MAX_L)
+      !     Utiliza las funciones: GET_SYM, LENGTH, EQUALB, BINPOW externas    ,HKANGL(k_val,h_val)
+      !     Utiliza las subrutinas:GETFNM, GET_BDS, CHK_SYM, NMCOOR, OVERLP , thresh(ok)
 
-!     Utiliza las variables: DIFFaX.par ,DIFFaX.inc',rootnam ,ok ,sym_fnam  ,EQUALB, BINPOW
-!                           GET_SYM, i, j, j2, m, n, LENGTH ,HKANGL, h_val, k_val ,x, error,
-!                           tmp, incr, z, old_lambda , did_it(MAX_L,MAX_L)
-!     Utiliza las funciones: GET_SYM, LENGTH, EQUALB, BINPOW externas    ,HKANGL(k_val,h_val)
-!     Utiliza las subrutinas:GETFNM, GET_BDS, CHK_SYM, NMCOOR, OVERLP , thresh(ok)
+      Character (Len=*), Intent(In Out)        :: rootnam
+      Logical, Intent(In Out)                  :: ok
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: rootnam
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Character (Len=31) ::  sym_fnam
+      Integer            ::  i, j, j2, m, n
+      Real(kind=dp)      ::  hkangl, h_val, k_val
+      Real(kind=dp)      ::  x, error, tmp, incr, z, old_lambda
+      Logical            ::  did_it(max_l,max_l)
 
+      ! external functions
 
+      ! external subroutines (Some compilers need them declared external)
+      !      external GETFNM, GET_BDS, CHK_SYM, NMCOOR, OVERLP
 
-      CHARACTER (LEN=31) :: sym_fnam
-
-      INTEGER*4  i, j, j2, m, n
-      Real(kind=dp) hkangl, h_val, k_val
-      Real(kind=dp) x, error, tmp, incr, z, old_lambda
-      LOGICAL :: did_it(max_l,max_l)
-
-! external functions
-
-! external subroutines (Some compilers need them declared external)
-!      external GETFNM, GET_BDS, CHK_SYM, NMCOOR, OVERLP
-
-! statement function
-! HKANGL is the angle between the vector (h_val,k_val,0) and (1,0,0)
+      ! statement function
+      ! HKANGL is the angle between the vector (h_val,k_val,0) and (1,0,0)
       hkangl(k_val,h_val) = ATAN2(k_val*SQRT(a0*b0 - d0*d0*quarter),  &
           (h_val*a0 + k_val*d0*half))
 
-! set up logic table for stacking transitions
-      DO  i = 1, n_layers
-        DO  j = 1, n_layers
+      ! set up logic table for stacking transitions
+      Do  i = 1, n_layers
+        Do  j = 1, n_layers
           there(j,i) = l_alpha(j,i) >= eps7
-        END DO
-      END DO
+        End Do
+      End Do
 
-! see if there are any overlapping atoms
-    !  CALL overlp()
+      ! see if there are any overlapping atoms
+          !  CALL overlp()
 
-! multiply all atom coordinates by 2*PI
-   !   CALL nmcoor()
+      ! multiply all atom coordinates by 2*PI
+         !   CALL nmcoor()
 
-! If calculation is to be recursive for a finite number of layers,
-! then store the binary form of l_cnt+1 in an array for efficient
-! matrix multiplication.
+      ! If calculation is to be recursive for a finite number of layers,
+      ! then store the binary form of l_cnt+1 in an array for efficient
+      ! matrix multiplication.
       IF(recrsv .AND. .NOT. inf_thick) THEN
         ok = binpow(l_cnt+1)
         IF(.NOT. ok) THEN
-          WRITE(op,"(a)") ' => ERROR returned by BINPOW to OPTIMZ'
-          WRITE(op,201) 'The argument passed was l_cnt+1 = ', nint(l_cnt)+1
-          GO TO 999
+          write(op,"(a)")    ' => ERROR returned by BINPOW to OPTIMZ'
+          write(op,"(a,i6)") '    The argument passed was l_cnt+1 = ', nint(l_cnt)+1
+          return
         END IF
       END IF
 
-! see if Debye-Waller coefficients are same for all atoms in a layer
+      ! see if Debye-Waller coefficients are same for all atoms in a layer
       DO  i = 1, n_layers
         x = zero
         j2 = l_actual(i)
@@ -5536,13 +5522,13 @@
         DO  j = 1, m
           x = x + a_b(j,j2)
         END DO
-        x = x / DBLE(m)
+        x = x / real(m,kind=dp)
         error = zero
-! find absolute deviation of coefficients
+        ! find absolute deviation of coefficients
         DO  j = 1, m
           error = error + ABS(a_b(j,j2) - x)
         END DO
-! get relative error
+        ! get relative error
         IF(x /= zero) error = error / (x * m)
         one_b(j2) = ABS(error) <= eps3
       END DO
@@ -5554,29 +5540,29 @@
            ! check on r_B12
             x = r_b11(j,i)*r_b22(j,i)*a0*b0 - r_b12(j,i)*r_b12(j,i)*ab0*ab0
             IF(x < zero) THEN
-              WRITE(op,500) 'C12'
-              WRITE(op,501) i, j
-              WRITE(op,502) 'C11 and C22'
+              write(op,"(a)")       ' ERROR: Non-physical interlayer uncertainty factor '//'C12'
+              write(op,"(2(a,i2))") '        for stacking from layer ',i, ' to ', j
+              write(op,"(a)")       '        It is too large relative to '//'C11 and C22'
               ok = .false.
-              GO TO 999
+              return
             END IF
            ! check on r_B23
             x = r_b22(j,i)*r_b33(j,i)*b0*c0 - r_b23(j,i)*r_b23(j,i)*bc0*bc0
             IF(x < zero) THEN
-              WRITE(op,500) 'C23'
-              WRITE(op,501) i, j
-              WRITE(op,502) 'C22 and C33'
+              write(op,"(a)")       ' ERROR: Non-physical interlayer uncertainty factor '//'C23'
+              write(op,"(2(a,i2))") '        for stacking from layer ',i, ' to ', j
+              write(op,"(a)")       '        It is too large relative to '//'C22 and C33'
               ok = .false.
-              GO TO 999
+              return
             END IF
             ! check on r_b13
             x = r_b11(j,i)*r_b33(j,i)*a0*c0 - r_b13(j,i)*r_b13(j,i)*ca0*ca0
             IF(x < zero) THEN
-              WRITE(op,500) 'C13'
-              WRITE(op,501) i, j
-              WRITE(op,502) 'C11 and C33'
+              write(op,"(a)")       ' ERROR: Non-physical interlayer uncertainty factor '//'C13'
+              write(op,"(2(a,i2))") '        for stacking from layer ',i, ' to ', j
+              write(op,"(a)")       '        It is too large relative to '//'C11 and C33'
               ok = .false.
-              GO TO 999
+              return
             END IF
           END IF
         END DO
@@ -5620,7 +5606,7 @@
           END IF
         END DO
       END DO
-      l_rz = l_rz / DBLE(n)
+      l_rz = l_rz / real(n,kind=dp)
       error = zero
       DO  i = 1, n_layers
         DO  j = 1, n_layers
@@ -5632,17 +5618,19 @@
       ! If the stacking is explicit, check to see if all the layers are
       ! the same
       same_layer = .false.
-      IF(xplcit) THEN
-        IF(nint(l_cnt) == 1) GO TO 140
+      IF(xplcit .and. nint(l_cnt) /= 1) THEN
         same_layer = .true.
         j = l_seq(1)
         i = 2
-        150   IF(l_seq(i) == j) THEN
-          i = i + 1
-          IF(i <= nint(l_cnt)) GO TO 150
-        ELSE
-          same_layer = .false.
-        END IF
+        do
+           IF(l_seq(i) == j) THEN
+             i = i + 1
+             IF(i <= nint(l_cnt)) cycle
+           ELSE
+             same_layer = .false.
+           END IF
+           exit
+        end do
 
         ! Check if any of the layer transitions have non-zero probability
         ! initialize flags so that we do not produce duplicate error messages
@@ -5653,7 +5641,7 @@
         END DO
 
         ! now check for legal transitions
-        WRITE(op,400)
+        WRITE(op,"(a)") ' => Checking for conflicts in layer stackings . . .'
         DO  n = 1, nint(l_cnt)-1
           i = l_seq(n)
           j = l_seq(n+1)
@@ -5661,14 +5649,13 @@
             ok = .false.
             IF(.NOT. did_it(j,i)) THEN
               did_it(j,i) = .true.
-              WRITE(op,401) j, i
+              write(op,"(2(a,i2))") ' ERROR: Layer ',j,' cannot stack after layer ', i
               call Close_Faults()
             END IF
           END IF
         END DO
-        140   CONTINUE
       END IF
-      IF(.NOT. ok) GO TO 999
+      IF(.NOT. ok) return
 
       ! Pre-compute a pseudo-Lorentzian form factor for lateral
       ! planar widths.
@@ -5685,7 +5672,7 @@
         formfactor(m+1) = one
         DO   n = 1, m
           z = n*incr
-          IF(z <= DBLE(n_sigmas)) THEN
+          IF(z <= Real(n_sigmas,kind=dp)) THEN
             ! Lorentzian part
             x = one / (one + z*z)
           ELSE
@@ -5708,7 +5695,7 @@
       ! save lambda, HKL_LIM (called by THRESH), may change it.
       old_lambda = lambda
       CALL thresh(ok)
-      IF(.NOT. ok) GO TO 999
+      IF(.NOT. ok) return
 
       IF(symgrpno == 11)   WRITE(op,"(a)") ' => Axial integration only selected.'
 
@@ -5721,14 +5708,14 @@
         end if
         IF(.NOT. ok) THEN
           WRITE(op,"(a)") ' => OPTIMZ: ERROR in creating symmetry dumpfile.'
-          GO TO 999
+          return
         END IF
         IF(sy /= op) OPEN(UNIT = sy, FILE = sym_fnam, STATUS = 'new')
-        WRITE(op,204) ' => Writing symmetry data to file ''',  &
+        WRITE(op,"(3a)") ' => Writing symmetry data to file ''',  &
             sym_fnam(1:length(sym_fnam)),'''. . .'
-        WRITE(sy,303) '''', rootnam(1:length(rootnam)),''''
-        WRITE(sy,203) no_trials
-        WRITE(sy,206) tiny_inty
+        WRITE(sy,"(a)") 'SYMMETRY EVALUATIONS FOR DATA IN FILE '//'''', rootnam(1:length(rootnam))//''''
+        WRITE(sy,"(a,i4)") ' Number of trials per symmetry element = ',no_trials
+        WRITE(sy,"(a, g22.6)") " Threshold intensity = ",tiny_inty
       END IF
 
       ! restore lambda.
@@ -5739,13 +5726,13 @@
 
       IF(dosymdump) THEN
         WRITE(sy,"(a)") ' '
-        WRITE(sy,204) ' => The diffraction data fits the point group symmetry ''',  &
+        WRITE(sy,"(3a)") ' => The diffraction data fits the point group symmetry ''',  &
             pnt_grp(1:length(pnt_grp)),''''
         IF(symgrpno /= 1 .AND. symgrpno /= 11) THEN
           IF(max_var > eps6 .AND. max_var <= eps1) THEN
-            WRITE(sy,201) '    with a tolerance of one part in ', nint(one / max_var)
+            WRITE(sy,"(a,i6)") '     with a tolerance of one part in ', nint(one / max_var)
           ELSE IF(max_var > eps1) THEN
-            WRITE(sy,205) '    with a tolerance of one part in ', one / max_var
+            WRITE(sy,"(a,f4.1)") '     with a tolerance of one part in ', one / max_var
           ELSE
             WRITE(sy,"(a)") '    with a tolerance better than one part in a million.'
           END IF
@@ -5767,21 +5754,7 @@
         theta1 = -pi
         theta2 =  pi
       END IF
-      999 RETURN
-      200 FORMAT(1X, 2A)
-      201 FORMAT(1X, a, i6)
-      203 FORMAT(1X, 'Number of trials per symmetry element = ', i4)
-      204 FORMAT(1X, 3A)
-      205 FORMAT(1X, a, f4.1)
-      206 FORMAT(1X, "Threshold intensity = ", g22.6)
-      302 FORMAT(1X, 'SYMMETRY EVALUATIONS FOR DATA IN FILE ''', a, '''')
-      303 FORMAT(1X, 'SYMMETRY EVALUATIONS FOR DATA IN FILE ', 3A)
-      400 FORMAT(1X,'Checking for conflicts in layer stackings . . .')
-      401 FORMAT(1X,'ERROR: Layer ',i2,' cannot stack after layer ',i2)
-      500 FORMAT(1X,'ERROR: Non-physical interlayer uncertainty factor ',a)
-      501 FORMAT(1X,'       for stacking from layer ', i2, ' to ', i2)
-      502 FORMAT(1X,'       It is too large relative to ', a)
-      END SUBROUTINE optimz
+   End Subroutine optimz
 
 ! ______________________________________________________________________
 ! Title: OVERLP
@@ -6979,28 +6952,20 @@
 !        modifies:  a0, b0, c0, d0, ab0, bc0, ca0
 ! ______________________________________________________________________
 
-      SUBROUTINE sphcst()
+      Subroutine sphcst()
+       !     Utiliza las variables: par.f90', inc.f90'
+       !     Utiliza las funciones:
+       !     Utiliza las subrutinas:
+        a0 = one / (cell_a * SIN(cell_gamma))**2
+        b0 = one / (cell_b * SIN(cell_gamma))**2
+        c0 = one / (cell_c)**2
+        d0 = -two * COS(cell_gamma) / (cell_a * cell_b * SIN(cell_gamma)**2)
 
-
-!     Utiliza las variables: par.f90', inc.f90'
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
-
-
-      a0 = one / (cell_a * SIN(cell_gamma))**2
-      b0 = one / (cell_b * SIN(cell_gamma))**2
-      c0 = one / (cell_c)**2
-      d0 = -two * COS(cell_gamma) / (cell_a * cell_b * SIN(cell_gamma)**2)
-
-      ab0 = SQRT(a0 * b0)
-      bc0 = SQRT(b0 * c0)
-      ca0 = SQRT(c0 * a0)
-
-
-
-      RETURN
-      END SUBROUTINE sphcst
-
+        ab0 = SQRT(a0 * b0)
+        bc0 = SQRT(b0 * c0)
+        ca0 = SQRT(c0 * a0)
+        Return
+      End Subroutine sphcst
 ! ______________________________________________________________________
 ! Title: STREAK
 ! Author: MWD & MMJT
@@ -7027,34 +6992,35 @@
 !        modifies:  no COMMON variables are modified
 ! ______________________________________________________________________
 
-      SUBROUTINE streak(fn, strkfile, ok)
+   Subroutine streak(fn, strkfile, ok)
 
-!     Utiliza las variables: par.f90', inc.f90'  ,strkfile ,ok ,its_hot, h, k, length, i, i_step
-!                            l, theta, x, angle, s, q2, l0, l1 ,dl, w4 ,intervals = twenty ,fn,
-!     Utiliza las funciones:  fn, length externas    s(h,k,l) ,angle(h,k,l), w4(theta)
-!     Utiliza las subrutinas: XYPHSE, PRE_MAT, GET_F
+      ! Utiliza las variables: par.f90', inc.f90'  ,strkfile ,ok ,its_hot, h, k, length, i, i_step
+      !                        l, theta, x, angle, s, q2, l0, l1 ,dl, w4 ,intervals = twenty ,fn,
+      ! Utiliza las funciones:  fn, length externas    s(h,k,l) ,angle(h,k,l), w4(theta)
+      ! Utiliza las subrutinas: XYPHSE, PRE_MAT, GET_F
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: strkfile
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Character (Len=*), Intent(In Out) :: strkfile
+      Logical, Intent(In Out)           :: ok
 
-      LOGICAL :: its_hot
-      INTEGER*4 h, k, i, i_step, lz, lzf, str
-      Real(kind=dp) l, theta, x, angle, s, q2, l0, l1
-      Real(kind=dp) dl, w4
-      Real(kind=dp), PARAMETER :: intervals = twenty
+      Logical       :: its_hot
+      Integer       :: h, k, i, i_step, lz, lzf, str
+      Real(kind=dp) :: l, theta, x, angle, s, q2, l0, l1
+      Real(kind=dp) :: dl, w4
+      Real(kind=dp), Parameter :: intervals = twenty
 
-! external functions
+      ! external functions
       Real(kind=dp) fn
-      EXTERNAL fn
-! external subroutines (Some compilers need them declared external)
-!      external XYPHSE, PRE_MAT, GET_F
+      External fn
 
-! statement functions
-! S is the value of 1/d**2 at hkl
+      ! external subroutines
+      !      external XYPHSE, PRE_MAT, GET_F
+
+      ! statement functions
+      ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-! W4 is the X-ray polarization factor
+      ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       q2 = four / (lambda**2)
@@ -7066,14 +7032,15 @@
         l0=l0_streak(str)
         l1=l1_streak(str)
         dl=dl_streak(str)
-        IF(cfile) WRITE(op,401) h, k, l0, l1, dl
+        IF(cfile) WRITE(op,"(1X, 2I3, 3F10.5)") h, k, l0, l1, dl
         ! check input
         IF(l1 == l0) THEN
             WRITE(op,"(a)") ' => Illegal input: l0 equals l1'
-            GO TO 999
+            write(op,"(a,f10.5)") ' => ERROR encountered in streak integration at l = ',l
+            return
         ELSE IF(dl == zero) THEN
             WRITE(op,"(a)") ' => Illegal zero value of dl entered'
-            WRITE(op,402)' => A value of ',(l1-l0)/(five*hundred),' is assumed'
+            WRITE(op,"(a, f10.5, a)")' => A value of ',(l1-l0)/(five*hundred),' is assumed'
         ELSE IF(l1 > l0 .AND. dl < zero) THEN
             WRITE(op,"(a)") ' => l1 is greater than l0. +ve dl assumed'
             dl = -dl
@@ -7089,18 +7056,16 @@
         END IF
         ! check angles are meaningful
         IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
-            IF(s(h,k,l0) > q2) WRITE(op,403) h, k, l0,  &
+            IF(s(h,k,l0) > q2) WRITE(op,"(1x, 2i3, f10.5, a)") h, k, l0,  &
                 ' exceeds 180 degree scattering angle!'
-            IF(s(h,k,l1) > q2) WRITE(op,403) h, k, l1,  &
+            IF(s(h,k,l1) > q2) WRITE(op,"(1x, 2i3, f10.5, a)") h, k, l1,  &
                 ' exceeds 180 degree scattering angle!'
         !GO TO 10
         END IF
 
-        !WRITE(op,404) ' => Writing streak data to file ''',  &
-        !    strkfile(1:length(strkfile)),'''. . .'
+        !WRITE(op,"(a)") ' => Writing streak data to file "'//trim(strkfile)//'". . .'
 
         CALL xyphse(h, k)
-
         CALL pre_mat(h, k)
 
         i_step = nint( (l1 - l0) / (dl * intervals) )
@@ -7119,39 +7084,24 @@
             !GO TO 30
             END IF
             i = i + 1
-            !IF(MOD(i,i_step) == 0) WRITE(op,405) ' => Reached l = ',l
+            !IF(MOD(i,i_step) == 0) WRITE(op,"(a, f10.5)") ' => Reached l = ',l
             x = fn(h,k,l,l+dl,ok)
-            IF(.NOT.ok) GO TO 999
+            IF(.NOT. ok) then
+              write(op,"(a,f10.5)") ' => ERROR encountered in streak integration at l = ',l
+              return
+            end if
             ! note: since this is streak data, only the X_RAY input needs
             ! correcting for polarization.
             IF(rad_type == x_ray)  x = x * w4(angle(h,k,l+half*dl))
             spec(lz + streak_flags(str) - 1) = x
             strkAngl(lz + streak_flags(str) - 1) = two*rad2deg*angle(h,k,l+half*dl)
-            !30   WRITE(sk,406,ERR=100) l, CHAR(9), x
+            !30   WRITE(sk,"(1X, e12.5, a, e14.6)") l, CHAR(9), x
         END DO
 
       end do  !end do for calculation of different streaks
-
-      IF(sk /= op) CLOSE(sk,ERR=110)
-      !WRITE(op,404) ' => Streak data file, ''',  &
-      !    strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
+      IF(sk /= op) CLOSE(sk)
       RETURN
-      100 WRITE(op,404) ' => ERROR writing to streak data file ''',  &
-          strkfile(1:length(strkfile)),''''
-      IF(sk /= op) CLOSE(sk,ERR=110)
-      RETURN
-      110 WRITE(op,404) ' => Unable to close streak data file ''',  &
-          strkfile(1:length(strkfile)),''''
-      RETURN
-      999 WRITE(op,405) ' => ERROR encountered in streak integration at l = ',l
-      RETURN
-      401 FORMAT(1X, 2I3, 3F10.5)
-      402 FORMAT(1X, a, f10.5, a)
-      403 FORMAT(1X, 2I3, f10.5, a)
-      404 FORMAT(1X, 3A)
-      405 FORMAT(1X, a, f10.5)
-      406 FORMAT(1X, e12.5, a, e14.6)
-      END SUBROUTINE streak
+   End Subroutine streak
 
 !!S Tfiles
 ! ______________________________________________________________________

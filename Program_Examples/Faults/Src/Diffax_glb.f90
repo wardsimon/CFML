@@ -438,7 +438,7 @@
   logical,  dimension(:), allocatable  :: fundamental  !array which defines if each layer is fundamental or not
   logical                              :: randm, semirandm, spcfc
 
-  logical                              :: streakOrPowder = .false. !if TRUE then streak fiting is handled
+  logical                              :: streakOrPowder = .false. !if TRUE then streak or powder fitting is handled
   logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
 !
 !*********************     integer*4 variables

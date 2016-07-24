@@ -279,7 +279,7 @@
 
 
  CALCULATION
- Lmq
+ LMA
  Corrmax   30
  Maxfun    2400
  Tol       0.100000E-04

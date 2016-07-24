@@ -126,8 +126,8 @@
     !!----    character(len=180)                          :: Title         !Identification of the pattern
     !!----    character(len=20)                           :: diff_kind     !type of radiation
     !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, Lambda, Energy, Temperature, etc
-    !!----    character(len=30)                           :: xax_text      !x-axis legend, eg. "Lambda (Angstroms)"
-    !!----    character(len=30)                           :: yax_text      !y-axis legend, eg. "Intensity (arb. units)"
+    !!----    character(len=40)                           :: xax_text      !x-axis legend, eg. "Lambda (Angstroms)"
+    !!----    character(len=40)                           :: yax_text      !y-axis legend, eg. "Intensity (arb. units)"
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
     !!----    character(len=512)                          :: filepath      !file name
@@ -172,8 +172,8 @@
        character(len=180)                          :: Title=" "        !Identification of the pattern
        character(len=20)                           :: diff_kind=" "    !type of radiation
        character(len=20)                           :: scat_var=" "     !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
-       character(len=30)                           :: xax_text=" "     !x-axis legend, eg. "Lambda (Angstroms)"
-       character(len=30)                           :: yax_text=" "     !y-axis legend, eg. "Intensity (arb. units)"
+       character(len=40)                           :: xax_text=" "     !x-axis legend, eg. "Lambda (Angstroms)"
+       character(len=40)                           :: yax_text=" "     !y-axis legend, eg. "Intensity (arb. units)"
        character(len=20)                           :: instr=" "        !file type
        character(len=512)                          :: filename=" "     !file name
        character(len=512)                          :: filepath=" "     !file path
@@ -1392,6 +1392,11 @@
                 Pat%title=trim(aline(i+6:))
                 title_given=.true.
             end if
+            i=index(aline,"Title:")
+            if(i /= 0) then
+                Pat%title=trim(aline(i+7:))
+                title_given=.true.
+            end if
             cycle
           end if
           ! BANK Information
@@ -1424,7 +1429,7 @@
                 i=index(aline,trim(dire(3)))
                 nc=len_trim(dire(3))
 
-                if (len_trim(aline(i+nc+1:)) > 0) then
+                if (len_trim(aline(i+nc+1:)) > 0 .and. .not. title_given) then
                    Pat%title=trim(aline(i+nc+1:))
                    title_given=.true.
                 end if

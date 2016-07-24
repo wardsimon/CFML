@@ -217,7 +217,7 @@
 
     End subroutine Faults2diffax
 
-     subroutine calc_avcell(nlay_avcell,lay_avcell,verif)
+    subroutine calc_avcell(nlay_avcell,lay_avcell,verif)
       integer , intent(in)       ::    nlay_avcell    !number of layers needed for calculating the average cell
       integer , dimension(:), intent(in)       ::    lay_avcell     !sequence of layers to be stacked for calculating the average cell
       logical , intent(out)      ::    verif
@@ -245,11 +245,11 @@
                   l=lay_avcell(i)                        !layer origine
                   j=lay_avcell(i+1)                      !layer destination
 
-   ! write(unit=*,fmt="(a,i2,a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l, "goes to layer", j
+     ! write(unit=*,fmt="(a,i2,a,i2,a,i2)") "For average cell, vector ", i, " starts from layer ", l, "goes to layer", j
 
                   c_avcell=c_avcell+l_r(:,j,l)     !calculate the vector C of the average cell in the FAULTS cell
 
-   ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
+     ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "The average c vector is now ",  c_avcell(1), c_avcell(2), c_avcell(3)
 
                end do
 
@@ -257,41 +257,41 @@
 
               c_avnorm=(/ c_avcell(1)*cell_a, c_avcell(2)*cell_b, c_avcell(3)*cell_c /)
 
-   ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "(for norm calculation) ",  c_avnorm(1), c_avnorm(2), c_avnorm(3)
+     ! write(unit=*,fmt="(a,f12.5,f12.5,f12.5)") "(for norm calculation) ",  c_avnorm(1), c_avnorm(2), c_avnorm(3)
 
-   ! write(unit=*,fmt="(a)") "Now calculate the cell parameters of the average cell"
+     ! write(unit=*,fmt="(a)") "Now calculate the cell parameters of the average cell"
 
                                                        !now calculate the cell parameters of the average cell
              aver_cell(1)=cell_a                       !a from DIFFAX variable
 
-   ! write(unit=*,fmt="(a,f12.5)") "a=", aver_cell(1)
+     ! write(unit=*,fmt="(a,f12.5)") "a=", aver_cell(1)
 
              aver_cell(2)=cell_b                       !b from DIFFAX variable
 
-   ! write(unit=*,fmt="(a,f12.5)") "b=", aver_cell(2)
+     ! write(unit=*,fmt="(a,f12.5)") "b=", aver_cell(2)
 
              !aver_cell(3)=Euclidean_norm(3,c_avnorm)   !c
              !aver_cell(3)=sqrt(dot_product(c_avnorm,c_avnorm)+ 2.0*c_avnorm(1)*c_avnorm(2)*cos(cell_gamma))
              aver_cell(3)=sqrt(dot_product(c_avcell,matmul(Metric_Tensor,c_avcell)))
 
-   ! write(unit=*,fmt="(a,f12.5)") "c=", aver_cell(3)
+     ! write(unit=*,fmt="(a,f12.5)") "c=", aver_cell(3)
 
              aver_ang(1)= &
              !acosd(dot_product(c_avcell,unitb)/(Euclidean_norm(3,c_avcell)))    !alpha
              acosd(dot_product(unitb,Matmul(Metric_Tensor,c_avcell))/(aver_cell(2)*aver_cell(3)))    !alpha
 
 
-   ! write(unit=*,fmt="(a,f12.5)") "alpha=", aver_ang(1)
+     ! write(unit=*,fmt="(a,f12.5)") "alpha=", aver_ang(1)
 
              aver_ang(2)= &
              !acosd(dot_product(c_avcell,unita)/(Euclidean_norm(3,c_avcell)))    !beta
              acosd(dot_product(unita,Matmul(Metric_Tensor,c_avcell))/(aver_cell(1)*aver_cell(3)))    !alpha
 
-   ! write(unit=*,fmt="(a,f12.5)") "beta=", aver_ang(2)
+     ! write(unit=*,fmt="(a,f12.5)") "beta=", aver_ang(2)
 
              aver_ang(3)=cell_gamma*rad2deg            !gamma from DIFFAX variable
 
-   ! write(unit=*,fmt="(a,f12.5)") "gamma=", aver_ang(3)
+     ! write(unit=*,fmt="(a,f12.5)") "gamma=", aver_ang(3)
 
          return
     end subroutine calc_avcell
@@ -409,9 +409,9 @@
          if (fundamental(b) .eqv. .false.) then
            Select Case(b)
              case(:9)
-               write(i_ftls,"(a,i2,a,i2)") " LAYER",b," =", original(b)     
+               write(i_ftls,"(a,i2,a,i2)") " LAYER",b," =", original(b)
              case(10:99)
-               write(i_ftls,"(a,i3,a,i3)") " LAYER",b," =", original(b)     
+               write(i_ftls,"(a,i3,a,i3)") " LAYER",b," =", original(b)
              case default
                write(i_ftls,"(a,i6,a,i6)") " LAYER",b," =", original(b)     !Was - > "LAYER10 = 2"; Will - > "LAYER    10 =     2"
            End Select
@@ -494,13 +494,13 @@
             case default
                 write(i_flts,"(a)") "Faults cannot found what to write here. Please, provide CALCULATION section by yourself"
          end select     !end if
-       elseif (opt == 3) then
+       else if (opt == 3) then
          write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
          write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
          write(i_ftls,"(a,f10.4)")          " EPS  ", opti%eps
          write(i_ftls,"(a, i2)")          " IOUT  ", opti%iout
          write(i_ftls,"(a,f10.7)")          " ACC  ", opti%acc
-       elseif (opt == 4) then
+       else if (opt == 4) then
          write(i_ftls,"(a)")          " LMA"
          if (Cond%constr) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
          write(i_ftls,"(a,i4)")    " Corrmax    ", cond%corrmax
@@ -511,15 +511,21 @@
          write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
          return
        end if
-       if(replace_files) write(i_ftls,"(a)") " Replace_Files"
+
+       if(replace_files) write(i_ftls,"(/,a)") " Replace_Files"
+       if(unbroaden) write(i_ftls,"(a)") " Unbroaden"
 
        if(opt == 3 .or. opt == 4) then
          write(i_ftls,"(a)")              "  "
          write(i_ftls,"(a)")          " EXPERIMENTAL"
          write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
-         write(i_ftls,"(2a, g14.6,f9.2)")         " File  ", dfile, crys%patscal, ref_glb(1)
          if (streakOrPowder) then
-            write(i_flts,"(a, 2i3)") "EXPSTREAK", h_streak, k_streak
+            write(i_flts,"(a, i4, 2f12.5)") "EXPSTREAK",num_streak, crys%patscal, ref_glb(1)
+            do i = 1, num_streak
+              write(i_flts,"(a, i4, 2i3)") file_streak(i),h_streak(i), k_streak(i)
+            end do
+         else
+            write(i_ftls,"(2a, g14.6,f9.2)")         " File  ", dfile, crys%patscal, ref_glb(1)
          end if
          if (nexcrg /= 0) then
            write(i_ftls,"(a, i2)")    " Excluded_Regions  ",  nexcrg
@@ -665,7 +671,7 @@
         lact=crys%l_actual(j)
         nat=nat+(crys%centro(lact)+1)*crys%l_n_atoms(lact) !Adding number of atoms in layer j
       end do
-      write(unit=*,fmt="(a,3i5)") " => Number of layers and atoms for FP_Studio: ",nlayers,nat
+      !write(unit=*,fmt="(a,3i5)") " => Number of layers and atoms for FP_Studio: ",nlayers,nat
       allocate(xyz(3,nat),atnam(nat))
       call Allocate_Atom_List(nat,Atm,ok) !For CIF file
       ok=.not. ok
@@ -780,7 +786,7 @@
         else
             !CALL getfnm(filenam, outfile, '_flts.cif', ok)
             outfile=trim(outfile_notrepl)//"_flts.cif"
-        end if   
+        end if
         call Write_Cif_Template(trim(outfile),2,"! File Generated by the program FAULTS: "//trim(ttl),Celld,SpGr,Atm)
         !call Write_Cif_Template(trim(filenam)//"_flts.cif",2,"! File Generated by the program FAULTS: "//trim(ttl),Celld,SpGr,Atm)
         call Write_Vesta_File()
@@ -808,7 +814,6 @@
       return
       contains
         Subroutine Write_Vesta_File()
-
            integer                                     :: lun, i, j, n,np, pol,k,cent
            character(len=2)                            :: elem
            character(len=80)                           :: box_cmd,aux
@@ -821,7 +826,7 @@
            else
                 !CALL getfnm(filenam,outfile, '_flts.vesta', ok)
                 outfile=trim(outfile_notrepl)//"_flts.vesta"
-           end if      
+           end if
            open(newunit=lun,file=trim(outfile),action="write",status="replace")
            !open(newunit=lun,file=trim(filenam)//"_flts.vesta",action="write",status="replace")
            write(unit=lun,fmt="(a)") "#VESTA_FORMAT_VERSION 3.1.9"
@@ -1018,8 +1023,17 @@
           end if
          end do
        end if
-       write(i_prf,'(A)') trim(diff_pat%title)
-
+       if(len_trim(crys%ttl) /= 0) then
+         write(i_prf,'(A)') trim(crys%ttl)
+       else if(len_trim(diff_pat%title) /= 0) then
+         write(i_prf,'(A)') trim(diff_pat%title)
+       else
+         if(streakOrPowder) then
+           write(i_prf,'(A)') "Title: Streak (Q-scan) Refinement"
+         else
+           write(i_prf,'(A)') "Title: Powder-Pattern Refinement"
+         end if
+       end if
        write(i_prf,'(i3,i7,5f12.5,i5)') nphase,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
 
        nvk=0
@@ -1034,8 +1048,13 @@
          write(i_prf,'(2f14.5)')alow(j),ahigh(j)
        end do
 
-       WRITE(i_prf,'(15a)')' 2Theta',tb,'Yobs',tb,'Ycal',tb,  &
+       if(streakOrPowder) then
+             WRITE(i_prf,'(15a)')' r.l.u.',tb,'Log(Yobs)',tb,'Log(Ycal)',tb,  &
+             'Log(Yobs)-Log(Ycal)',tb,'Backg',tb,'Posr',tb,'(hkl)',tb,'K'
+       else
+             WRITE(i_prf,'(15a)')' 2Theta',tb,'Yobs',tb,'Ycal',tb,  &
              'Yobs-Ycal',tb,'Backg',tb,'Posr',tb,'(hkl)',tb,'K'
+       end if
 
        do  i=1,diff_pat%npts
          twtet=diff_pat%x(i)
@@ -1101,25 +1120,24 @@
 
     contains
 
+    !! Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)      Cost_LMA, Nop, Cond, Vs, chi2, texte
+    !!--..            Integer,                     Intent(In)      :: m        !Number of observations
+    !!--..            type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
+    !!--..            type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
+    !!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
+    !!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
+    !!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+    !! End Subroutine
 
-!! Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)      Cost_LMA, Nop, Cond, Vs, chi2, texte
-!!--..            Integer,                     Intent(In)      :: m        !Number of observations
-!!--..            type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-!!--..            type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-!!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
-!!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-!! End Subroutine
-
-!!Interface No_derivatives
-!!--..           Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
-!!--..             Use CFML_GlobalDeps, Only: cp
-!!--..             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
-!!--..             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-!!--..             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-!!--..             Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-!!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-!!--..         End Interface No_Fderivatives
+    !!Interface No_derivatives
+    !!--..           Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
+    !!--..             Use CFML_GlobalDeps, Only: cp
+    !!--..             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
+    !!--..             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+    !!--..             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+    !!--..             Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+    !!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+    !!--..         End Interface No_Fderivatives
 
     Subroutine Cost_LMA(m,npar,v,fvec,iflag)                 !Levenberg Marquardt
       Integer,                       Intent(In)    :: m      !is the number of observations
@@ -1150,7 +1168,7 @@
            vector(1:npar) = v(1:npar) !vector upload
            crys%Pv_refi(1:npar) = v(1:npar)
            call Pattern_Calculation(state,ok)
-           
+
            ! Are some of the layers non-existent?
             DO  i = 1, n_layers
                 IF(l_g(i) < eps6) THEN
@@ -1158,7 +1176,7 @@
                               ' does not occur in any significant quantity.'
                 END IF
             END DO
-           
+
            if(.not. ok) then
              write(*,"(a)") " => Error calculating spectrum, please check the input parameters"
            else
@@ -1174,12 +1192,12 @@
               write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
               do i = 1, crys%npar
                  write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
-                                                  shift(crys%p(i)),crys%p(i)
+                                                   shift(crys%p(i)),crys%p(i)
                  if(Cond%nprint < 0) &
-                 write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
-                                                  shift(crys%p(i)),crys%p(i)
+                 write(*,"(a,i3,a,4f14.5,i5)")     " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+                                                   shift(crys%p(i)),crys%p(i)
               end do
-              write(*,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+              write(*,"(a,i4,2(a,f12.5))")      " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
               write(i_out,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
            end if
            crys%list(:) = state(:)
@@ -1191,7 +1209,7 @@
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
            end do
            call Pattern_Calculation(state,ok)
-           
+
            if(.not. ok) then
              write(*,"(a)") " => Error calculating spectrum, please check the input parameters"
            else
@@ -1290,15 +1308,14 @@
       real, dimension(:), intent(in) :: state
       logical,            intent(out):: ok
 
-
       call Var_assign(state)
       ok = .true.
-      if ((conv_d == 1 .or.  numcal== 0) .and. ok ) ok = get_g()
-      if ((conv_d == 1 .or.  numcal== 0  .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
-      if ((conv_c == 1 .or.  numcal== 0) .and. ok ) CALL sphcst()
-      if ( numcal == 0 .and. ok ) CALL detun()
-      if ((conv_b == 1 .or.  conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
-           numcal == 0 .or.  conv_f==1)  .and. ok ) CALL optimz(infile, ok)
+      if ((conv_d == 1 .or.  numcal == 0) .and. ok ) ok = get_g() !Get gi: probability that layer i exists
+      if ((conv_d == 1 .or.  numcal == 0  .or. conv_e == 1) .and. (ok .AND. rndm)) ok = getlay() !Generating a random layer sequence weighted by the stacking probabilities
+      if ((conv_c == 1 .or.  numcal == 0) .and. ok ) Call sphcst() !Calculation of constants to determine magnitudes of reciprocal lattice vectors
+      if ( numcal == 0 .and. ok ) Call detun() !Setting the array detune for treating sharp peaks
+      if ((conv_b == 1 .or.  conv_c == 1 .or. conv_d == 1 .or. conv_e == 1   .or. &
+           numcal == 0 .or.  conv_f == 1)  .and. ok ) Call optimz(infile, ok) !look for optimization in subsequent calculations
 
       IF(.NOT. ok) then
         IF(cfile) CLOSE(UNIT = cntrl)
@@ -1348,27 +1365,27 @@
 
     !Subroutine Copy_new(nomfichier)   :  copy _new.flts to .flts
        Subroutine Copy_new(nomfichier)
-       
+
             !--- Arguments ---!
             character(len=*), intent(in)  :: nomfichier
-       
+
             !--- Local Variables ---!
             integer     ::   fich_new, fich_flts, cond
             character (len=256):: ligne
-       
+
             cond=0
-       
+
             OPEN(UNIT=fich_new, FILE=trim(nomfichier)//"_new.flts", status="old",action="read", position="rewind")
             OPEN(UNIT=fich_flts, FILE=trim(nomfichier)//".flts", status="replace",action="write", position="rewind")
             do
                 read(unit=fich_new,fmt="(a)",iostat=cond) ligne
-                if (cond /= 0) exit 
+                if (cond /= 0) exit
                 write(unit=fich_flts,fmt="(a)") ligne
             end do
-            
+
             CLOSE(UNIT=fich_new)
             CLOSE(UNIT=fich_flts)
-            
+
        End Subroutine Copy_new
 
         Subroutine merge_streak(input_array, output_pattern, l_flags, step)
@@ -1436,7 +1453,7 @@
             end do
             return
         End Subroutine demerge_streak
-    
+
    End module dif_ref
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    PROGRAM FAULTS
@@ -1517,10 +1534,10 @@
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
       filenam = trim(infile(1:(index(infile,'.')-1)))
-      if (index(infile,'_new')>0) then
+      if (index(infile,'_new') > 0) then
             filenam = trim(filenam(1:(index(infile,'_new')-1)))
             !Copy _new.flts to .flts
-            call Copy_new(filenam)
+            !call Copy_new(filenam)  !This is not a good idea
       end if
 
       call read_structure_file(infile, gol)
@@ -1528,7 +1545,7 @@
       if(replace_files) then
        Call getfnm(filenam,outfile, '.out', ok,replace_files)
       else
-       Call getfnm(filenam,outfile, '.out', ok)            !check for any existing .out file, if any choose another filename not to overwrite the existing one.
+       Call getfnm(filenam,outfile, '.out', ok)  !check for any existing .out file, if any choose another filename not to overwrite the existing one.
        outfile_notrepl=outfile(1:index(outfile,'.out')-1)
       end if
       open(unit=i_out, file=trim(outfile),status="replace",action="write")
@@ -1587,7 +1604,7 @@
                 if (Err_diffpatt) then
                     print*, trim(err_diffpatt_mess)
                 else
-                    if (th2_min <= 0.0000001 .and.  th2_max <= 0.0000001  .and. d_theta <= 0.0000001) then
+                    if (th2_min <= eps7 .and.  th2_max <= eps7  .and. d_theta <= eps7) then
                         thmin    =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
                         thmax    =  difpat%xmax
                         step_2th =  difpat%step
@@ -1645,16 +1662,25 @@
           ! What type of intensity output does the user want?
 
                 Select case (funct_num)
-                
+
                     Case (1)    !streak
-                    
+
                         write (unit=*,fmt="(a)") " => Calculating intensity along a streak"
                         CALL gostrk(infile,outfile,ok)
+                        !Output the results in logarithmic (base 10) scale
                         Do j = 1, n_high
                             if (unbroaden) then
-                                ycalcdef(j) = log(spec(j)) + 20
+                                if(spec(j) < eps6) then !Protect against log(zero)
+                                  ycalcdef(j) = 20
+                                else
+                                  ycalcdef(j) = log10(spec(j)) + 20
+                                end if
                             else
-                                ycalcdef(j) = log(brd_spc(j)) + 20
+                                if(brd_spc(j) < eps6) then
+                                  ycalcdef(j) =  20
+                                else
+                                  ycalcdef(j) = log10(brd_spc(j)) + 20
+                                end if
                             end if
                         end do
                         if (replace_files) then
@@ -1664,11 +1690,17 @@
                             outfile=trim(outfile_notrepl)//".dat"
                         end if
 
-                        OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
-                        write(unit = iout,fmt = *)'!', outfile, "h = ", h_streak, "k = ", k_streak
-                        write(unit = iout,fmt = '(f10.4,f10.4,f10.4)') l0_streak, dl_streak, l1_streak
-                        write(unit = iout,fmt = '(8f12.5)') ( ycalcdef(j), j=1, n_high )
-                        
+                       write(unit=*,fmt="(a)") " => Writing the STREAK calculated pattern file: "//trim(outfile)
+
+                         OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                         write(unit = iout,fmt = "(2(a,i3),a)")"! Title:  Streak: (",h_streak,",",h_streak," )  "//trim(crys%ttl)
+                         write(unit = iout,fmt = "(a)")'! Legend_X  Reciprocal Lattice Units (r.l.u.)'
+                         write(unit = iout,fmt = "(a)")'! Legend_Y  Log(Intensity) (arb. units)'
+                         write(unit = iout,fmt = "(a)")"! Scattering variable: r.l.u."
+                         write(unit = iout,fmt = "(a,2(a,i4))")'! '//trim(outfile),"     h = ", h_streak, "  k = ", k_streak
+                         write(unit = iout,fmt = '(f10.4,f10.4,f10.4)') l0_streak, dl_streak, l1_streak
+                         write(unit = iout,fmt = '(8f12.5)') ( ycalcdef(j), j=1, n_high )
+
                     Case (3)    !powder diffraction pattern
 
                         write(unit=*,fmt="(a)") " => Calculating powder diffraction pattern"
@@ -1687,21 +1719,21 @@
                             outfile=trim(outfile_notrepl)//".dat"
                         end if
 
+                        write(unit=*,fmt="(a)") " => Writing the calculated Powder Pattern file: "//trim(outfile)
+
                         OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                         write(unit = iout,fmt = *)'!', outfile
                         write(unit = iout,fmt = '(3f12.4)')thmin, step_2th,thmax
-                     !  theta = thmin +(j-1)*d_theta
-                        write(unit = iout,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
-
+                        write(unit = iout,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high )
                         CLOSE(UNIT = iout)
                         ok = .true.
-                        
+
                     Case (4)    !SADP
                         CALL gosadp(infile,outfile,ok)
-                        
+
                     Case default
                         WRITE(op,"(a)") ' => Unknown function type.'
-                
+
                 End select !end of selecting funct_num
 
 
@@ -1716,11 +1748,11 @@
 !
           Case (4) ! opt = 4 LMA
 
-            WRITE(op,"(a)") ' => Start LMA refinement'
+            WRITE(op,"(a)") ' => Start Levenberg-Marquardt refinement'
 
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
-            do i=1, opti%npar                       !creation of the step sizes
+            do i=1, opti%npar                      !creation of the step sizes
               vector(i) = crys%Pv_refi(i)
             end do
 
@@ -1738,21 +1770,25 @@
 
             if (streakOrPowder) then
                 call demerge_streak(difpat, difpat_streak, streak_flags, num_streak)
+                if(replace_files) outfile_notrepl=filenam
                 do i = 1, num_streak
-                    write (forStreak, "(A1,I1,A1,I1)") "_", h_streak(i), "_", k_streak(i)
+                    write (forStreak, "(a1,i1,a1,i1)") "_", h_streak(i), "_", k_streak(i)
                     outfile = trim(outfile_notrepl)//trim(forStreak)//".prf"
                     !outfile=trim(outfile_notrepl)//"_"//h_streak(i)//"_"//k_streak(i)//".prf"
+                    write(unit=*,fmt="(a)") " => Writing the streak PRF file: "//trim(outfile)
                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
-                    call write_prf (difpat_streak(i), iout)
+                    call write_prf(difpat_streak(i), iout)
                 end do
             else
                 if(replace_files) then
                     Call getfnm(filenam,outfile, '.prf', ok,replace_files)
                 else
                     !Call getfnm(filenam, outfile, '.prf', ok)
+                    ok=.true.
                     outfile=trim(outfile_notrepl)//".prf"
                 end if
                 if (ok) then
+                    write(unit=*,fmt="(a)") " => Writing the PRF file: "//trim(outfile)
                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                     call Write_Prf(difpat,iout)
                 else
@@ -1765,6 +1801,7 @@
                i=index(filenam,"_new")
                if(i /= 0) filenam=filenam(1:i-1)
                OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
+               write(unit=*,fmt="(a)") " => Writing the FLTS file: "//trim(filenam)//"_new.flts"
                call Write_ftls(crys,i_flts, vs)
              else
                write(*,"(a)") ' => The output file .flts cannot be created'
@@ -1787,6 +1824,7 @@
               !Call getfnm(filenam,outfile, '.fst', ok)
               outfile=trim(outfile_notrepl)//".fst"
           end if
+        write(unit=*,fmt="(a)") " => Writing FST and VESTA files of code: "//trim(filenam)
         OPEN(UNIT = i_fst, FILE = trim(outfile), STATUS = 'replace',action="write")
         call Write_FST_VESTA()
         close(unit=i_fst)

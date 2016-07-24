@@ -1698,7 +1698,8 @@
               crys%patscal = 1.0
               do j = 1, num_streak
                   i=i+1
-                  txt=u_case(adjustl(tfile(i)))
+                  !txt=u_case(adjustl(tfile(i)))
+                  txt=adjustl(tfile(i)) !Conserve the original name of file_streaks (important for Linux and MacOS)
                   read (unit = txt,fmt=*,iostat=ier) file_streak(j), h_streak(j), k_streak(j)
               end do
               if(ier /= 0 ) then
