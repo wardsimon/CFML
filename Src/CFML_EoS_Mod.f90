@@ -3262,7 +3262,7 @@ Contains
 
       select case(eospar%ishear)
          case(0)
-            eospar%params(30:n)        = huge(0.0_cp)   ! default is infinitely stiff
+            eospar%params(30)        = huge(0.0_cp)   ! default is infinitely stiff
             eospar%vcv(30,1:n)         = 0.0_cp
             eospar%vcv(30:n_eospar,1:n)= 0.0_cp
             eospar%vcv(1:n_eospar,30:n)= 0.0_cp
