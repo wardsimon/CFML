@@ -3520,8 +3520,8 @@ Contains
       Eospar%Ishear  =0
       if (present(ishear) .and. ishear  > -1 )then
          Eospar%Ishear = ishear
-         call Init_Eos_Shear(Eospar)              ! set up default values, names for specific shear model
       end if
+      call Init_Eos_Shear(Eospar)              ! set up default values, names for specific shear model
 
       return
    End Subroutine Init_EoS_Type
