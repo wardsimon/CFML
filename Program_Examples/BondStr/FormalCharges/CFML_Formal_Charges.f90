@@ -615,8 +615,8 @@
 
         soft=.False.
         Call Init_Err_Conf
-        Call Species_on_List(Acl,SpGr%Multip,ttol,soft)     
-        Call Set_Table_d0_b(Acl,soft=soft)
+        Call Species_on_List(Acl,SpGr%Multip,ttol)     
+        Call Set_Table_d0_b(Acl)
         If (Err_Conf) Then
            soft=.True.
            Call Init_Err_Conf
