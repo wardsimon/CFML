@@ -20,7 +20,7 @@ FAULTS can be obtained either as part of the FullProf Suite \cite{FPDownload, FP
 
 
 In case the user chooses to install FAULTS with the FullProf Suite, the program FAULTS can be launched directly from the FullProf Suite Toolbar or by opening a terminal and invoking the program as: Faults myinputfile.flts.
-If FAULTS is downloaded as a separate Windows program, it should be launched from a DOS window, after having copied the standard scattering factor data file \textit{data.sfc} into the working folder.
+If FAULTS is downloaded as a separate Windows program, it should be launched from a command-line window (cmd.exe), after having copied the standard scattering factor data file \textit{data.sfc} into the working folder.
 
 
 \section{Program specifications}
@@ -151,15 +151,15 @@ diffraction geometry (see FullProf manual for more details \cite{FPManual}).
 In both cases, the calculated pattern is convoluted with a profile function (indicated by the keyword \textit{Gaussian}, \textit{Lorentzian} or \textit{Pseudo-Voigt}) that takes into account both instrumental and size effects.
 The FWHM of the Gaussian ($H_{G}$) and Lorentzian ($H_{L}$) components of the peak profile have an angular dependence given by: \label {FWHM}
 
-$$ H_{G}^{2} = U tan^{2}{\theta}+ V tan {\theta} + W + \frac{4ln2\lambda^{2}}{\pi D_{g}^{2} cos^{2} {\theta}} (\frac {180}{\pi})^2$$
+$$ H_{G}^{2} = U tan^{2}{\theta}+ V tan {\theta} + W + \frac{4ln2\lambda^{2}}{\pi D_{G}^{2} cos^{2} {\theta}} (\frac {180}{\pi})^2$$
 
-$$ H_{L} = X tan {\theta} + \frac{2 \lambda}{\pi D_{l} cos \theta} (\frac {180}{\pi})$$
+$$ H_{L} = X tan {\theta} + \frac{2 \lambda}{\pi D_{L} cos \theta} (\frac {180}{\pi})$$
 
 
 U, V, W and X, which must be introduced by the user, are refinable parameters that constitute the instrumental resolution function (IRF). It is always advisable to know their values a priori
 and fix them during the refinement (although U and X can be refined to account for strains).
-They must be followed by $D_{g}$ and $D_{l}$, which are the parameters that are used to model the isotropic size broadening due to a finite size of the crystallites ( $\leq $ 1  $\mu$m). They are also refinable.
-If the sample is not affected by size broadening,  $D_{g}$ and $D_{l}$ can take any value $\geq $ 5000 \AA.
+They must be followed by $D_{G}$ and $D_{L}$, which are the parameters that are used to model the isotropic size broadening due to a finite size of the crystallites ( $\leq $ 1  $\mu$m). They are also refinable.
+If the sample is not affected by size broadening,  $D_{G}$ and $D_{L}$ can take any value $\geq $ 5000 \AA.
 
 \item \textbf{TRIM keyword:} As in DIFFaX \cite{DiffaxManual}, the optional keyword \textit{trim}, which has to be put in the same line as the profile parameters, tells the program to ignore intensity information
 close to the origin when simulating the instrumental broadening for a powder diffraction
@@ -331,7 +331,7 @@ Any number larger than M $\geq $1022, will be treated as
 infinite. Alternatively, an infinite number can be specified by the keyword INFINITE. If the latter is chosen, the refinement code underneath must be eliminated.
 If the number of layers is lower than 1022, the program will apply a line broadening due to a finite size in the stacking direction. This value (which can be refined)
 will have no physical meaning, but it  is the only way to introduce a certain anisotropy
-in size broadening. However, if the crystallites induce a  purely isotropic size broadening (represented by $D_{g}$ and $D_{l}$ , that will be lower than 5000)
+in size broadening. However, if the crystallites induce a  purely isotropic size broadening (represented by $D_{G}$ and $D_{L}$ , that will be lower than 5000)
  this value should be INFINITE
  as size broadening has already been taken into account in the  \emph{Instrumental and size broadening} section.
 
@@ -402,7 +402,7 @@ For example:
 %        }
 
 For the streak simulation the user should put the \textit{STREAK} keyword followed by the next values: adapt$\_$quad, h, k,
-l0, l1 and dl. Optionally, one can put \textit{UNBROADEN} keyword on the next line for calculating unbroadened streak data. Scale factor is equal to one for the streak calculations. Data is written in free format and can be visualized using WinPlotr.
+l0, l1 and dl. Optionally, one can put \textit{UNBROADEN} keyword on the next line for calculating unbroadened streak data. Scale factor is equal to one for the streak calculations. Data is written in free format and can be visualized using WinPLOTR.
 For example:
 
 \begin{flushleft}
@@ -548,7 +548,7 @@ The experimental intensity data file can have different formats that depend on t
 		Lines1 : npts pairs D  Y1  D  Y2  ...  D  Y10 (where D is the detector number and Y the measured intensity ) }
 
 \normalsize{
-\item \textbf{NLS (Ins=4 in FP): } Data file from N.L.S.(Brookhaven) synchrotron radiation with \emph{*.dat} extension.}
+\item \textbf{NLS (Ins=4 in FullProf): } Data file from N.L.S.(Brookhaven) synchrotron radiation with \emph{*.dat} extension.}
 
 \footnotesize{ Line 1:2$\theta$min, step size, 2$\theta$ max (deg.)   \newline
 Lines1: pairs of lines with 10 items like \newline
@@ -557,7 +557,7 @@ Y1  Y2 ...  Y10 (intensities) \newline
 
 
  \normalsize{
-\item \textbf{G41 (Ins=5 in FP): } Data file from G41 multidetector neutron diffractometer at LLB with  \emph{*.dat} extension.}
+\item \textbf{G41 (Ins=5 in FullProf): } Data file from G41 multidetector neutron diffractometer at LLB with  \emph{*.dat} extension.}
 
 \footnotesize{ Line 1-3: comments\newline
 Line4: npts\newline
@@ -566,7 +566,7 @@ Lines1: Y (one column) }
 
 
 \normalsize{
-\item \textbf{D1A o D2B (Ins=6 in FP): } "Multicounters diffractometers data with  \emph{*.dat} extension. }
+\item \textbf{D1A o D2B (Ins=6 in FullProf): } "Multicounters diffractometers data with  \emph{*.dat} extension. }
 
 \footnotesize{
         Line 1: Comments  \newline
@@ -576,7 +576,7 @@ Lines1: Y (one column) }
 		Lines1:  D  Y1  D  Y2  ...  D  Y10 \newline  }
 		
 \normalsize{
-\item \textbf{D1AOLD o D1BOLD (Ins=1 in FP): } These are the data file from D1B and D20  diffractometers (ILL)
+\item \textbf{D1AOLD o D1BOLD (Ins=1 in FullProf): } These are the data file from D1B and D20  diffractometers (ILL)
 (old format). }
 
 
@@ -584,7 +584,7 @@ Lines1: Y (one column) }
 Lines1: npts pairs D  Y1  D  Y2  ...  D  Y10 }
 
 \normalsize{
-\item \textbf{DMC (Ins=8 in FP): } These are files from DMC diffractometer from  Paul Scherrer  Institute with \emph{*.dat} extension.}
+\item \textbf{DMC (Ins=8 in FullProf): } These are files from DMC diffractometer from  Paul Scherrer  Institute with \emph{*.dat} extension.}
 
 \footnotesize{ Line 1-3: comments\newline
 Line 4:  2$\theta$min, step size, 2$\theta$ max (deg.)   \newline
@@ -593,7 +593,7 @@ Y1  Y2 ...  Y10 (intensities) \newline
  S1  S2 ...  S10  (sigmas) \newline}
 
  \normalsize{
-\item \textbf{SOCABIM (Ins=9 in FP): } Thee are XRD files with   \emph{*.uxd} extension generated by Socabim software.}
+\item \textbf{SOCABIM (Ins=9 in FullProf): } Thee are XRD files with   \emph{*.uxd} extension generated by Socabim software.}
 
 \footnotesize{
         Line 1-29: comments \newline
@@ -602,7 +602,7 @@ Y1  Y2 ...  Y10 (intensities) \newline
 \normalsize{		
 	
 		
-\item \textbf{XYSIGMA (Ins=10 in FP): } Files with \emph{*.dat} extension }
+\item \textbf{XYSIGMA (Ins=10 in FullProf): } Files with \emph{*.dat} extension }
 
 \footnotesize{
 Line 1: keyword XYSIGMA \newline
@@ -610,7 +610,7 @@ Line 2-6: comments \newline
 Lines1: X, Y, S \newline}
 
 \normalsize{
-\item \textbf{GSAS (Ins=12 in FP):} data file for the GSAS analysis data program.}
+\item \textbf{GSAS (Ins=12 in FullProf):} data file for the GSAS analysis data program.}
 
 
 \footnotesize{
@@ -619,7 +619,7 @@ Line 2: npts \newline
 Lines1: intensities (diverse formats) \newline}
 
 \normalsize{
-\item \textbf{TIMEVARIABLE (Ins=11 in FP): } data from variable time data collection. }
+\item \textbf{TIMEVARIABLE (Ins=11 in FullProf} data from variable time data collection. }
 
 \footnotesize{
 Line 1:  2$\theta$min, step size, 2$\theta$ max (deg.) \newline
@@ -627,7 +627,7 @@ Lines1: T1 I1  T2  Y2 ... T10 I10 (T = time) \newline}
 
 
 \normalsize{
-\item \textbf{FREE (Ins=0 in FP): } free format files generally with  \emph{*.dat} extension. Up to 7 lines of comments are accepted, the first real numbers are
+\item \textbf{FREE (Ins=0 in FullProf): } free format files generally with  \emph{*.dat} extension. Up to 7 lines of comments are accepted, the first real numbers are
 2$\theta_{min}$,  step size and 2$\theta_{max}$ (deg.), and the \textit{npts} following lines are the intensity values. }
 
 		
@@ -717,7 +717,7 @@ When the refinement is finished a \emph{*.flts} file is generated. It contains t
 \section{Running FAULTS}
 \label{running}
 
- The program is invoked from a DOS window and it will appear as in figure \ref{faultslayout}.
+ The program is invoked from a terminal (or a DOS window) and it will appear as in figure \ref{faultslayout}.
 
  \begin{figure}[hbtp]
 \begin{center}
@@ -727,8 +727,8 @@ When the refinement is finished a \emph{*.flts} file is generated. It contains t
 \end{center}
 \end{figure}
 
-Once the user enters the filename CFILE.flts, if a refinement is to be done, the layout of the program will appear as in figure \ref{layout2}.
-During the refinement process, depending on the option chosen by the user (see the comments on the keyword \textit{Nprint} in the \textit{Calculation} subsection page \pageref{nprint}), the DOS window will display the values of the agreement factors at the end of each evaluation, and optionally the list of the previous and new refinable parameters at each evaluation step.
+Once the user enters the name of file CFILE.flts, if a refinement is to be done, the layout of the program will appear as in figure \ref{layout2}.
+During the refinement process, depending on the option chosen by the user (see the comments on keyword \textit{Nprint} in the \textit{Calculation} subsection page \pageref{nprint}), the terminal will display the values of agreement factors at the end of each evaluation, and optionally the list of previous and new refinable parameters at each evaluation step.
 
  \begin{figure}[hbtp]
 \begin{center}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.28)  11 JAN 2016 15:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2016.2.5)  1 AUG 2016 22:19
 entering extended mode
 **FAULTS_manual.tex
 (FAULTS_manual.tex
@@ -469,8 +469,8 @@ Overfull \hbox (4.44463pt too wide) in paragraph at lines 44--44
 
 [1
 
-{C:/Users/AsusX54C/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-(FAULTS_manual.toc
+{C:/Users/rodriguez-carvajal/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}
+] (FAULTS_manual.toc
 Underfull \hbox (badness 10000) in paragraph at lines 21--21
  [][] [][][]\OT1/cmr/m/n/10.95 Crystallographic struc-ture files: \OT1/cmr/bx/n
 /10.95 CFILE.fst\OT1/cmr/m/n/10.95 , 
@@ -501,241 +501,223 @@ l.13
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 14--16
+Underfull \hbox (badness 10000) in paragraph at lines 14--15
 
  []
 
 
-Underfull \hbox (badness 4792) in paragraph at lines 20--21
-\OT1/cmr/m/n/10.95 FAULTS can be ob-tained ei-ther as part of the Full-Prof Sui
-te
+Underfull \hbox (badness 1442) in paragraph at lines 19--20
+\OT1/cmr/m/n/10.95 at [][]$\OT1/cmtt/m/n/10.95 www . cicenergigune . com / en /
+ areas -[] investigacion / power -[] storage -[]$
  []
 
 
-Underfull \hbox (badness 7256) in paragraph at lines 20--21
-\OT1/cmr/m/n/10.95 [[], [], []] at [][]$\OT1/cmtt/m/n/10.95 www . ill . eu / si
-tes / fullprof/$[][]\OT1/cmr/m/n/10.95 , or as a sep-a-rate
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 20--21
-\OT1/cmr/m/n/10.95 pro-gram by down-load-ing the com-pressed file FAULTS.zip at
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 20--21
-[][]$\OT1/cmtt/m/n/10.95 www . cicenergigune . com / en / areas -[] investigaci
-on / power -[] storage -[]$
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 20--21
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 30--37
+Underfull \hbox (badness 10000) in paragraph at lines 29--34
 
  []
 
 [2] [3]
-Underfull \hbox (badness 10000) in paragraph at lines 81--83
+Underfull \hbox (badness 10000) in paragraph at lines 78--80
 
  []
 
 
-Underfull \hbox (badness 1546) in paragraph at lines 84--85
+Underfull \hbox (badness 1546) in paragraph at lines 81--82
 []\OT1/cmr/m/n/10.95 The FAULTS in-put file is sim-i-lar to the one used in DIF
 -FaX
  []
 
 
-Underfull \hbox (badness 1005) in paragraph at lines 84--85
+Underfull \hbox (badness 1005) in paragraph at lines 81--82
 \OT1/cmr/m/n/10.95 [[]], al-though there are some dif-fer-ences that should be 
 taken into
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 84--85
+Underfull \hbox (badness 10000) in paragraph at lines 81--82
 [][]$\OT1/cmtt/m/n/10.95 www . cicenergigune . com / en / areas -[] investigaci
 on / power -[] storage -[]$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 84--85
+Underfull \hbox (badness 10000) in paragraph at lines 81--82
 
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 87--92
+Underfull \hbox (badness 10000) in paragraph at lines 84--89
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 102--104
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 99--101
 
  []
 
-[5] <control1.pdf, id=205, 597.23125pt x 845.1575pt>
+<control1.pdf, id=205, 597.23125pt x 845.1575pt>
 File: control1.pdf Graphic file (type pdf)
  <use control1.pdf>
-Package pdftex.def Info: control1.pdf used on input line 110.
+Package pdftex.def Info: control1.pdf used on input line 107.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 110--111
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 107--108
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 124.58136pt on input line 114.
+LaTeX Warning: Float too large for page by 124.58136pt on input line 111.
 
 <control2.pdf, id=206, 597.23125pt x 845.1575pt>
 File: control2.pdf Graphic file (type pdf)
  <use control2.pdf>
-Package pdftex.def Info: control2.pdf used on input line 118.
+Package pdftex.def Info: control2.pdf used on input line 115.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 118--119
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 115--116
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 124.58136pt on input line 122.
+LaTeX Warning: Float too large for page by 124.58136pt on input line 119.
 
 <control3.pdf, id=207, 597.23125pt x 845.1575pt>
 File: control3.pdf Graphic file (type pdf)
  <use control3.pdf>
-Package pdftex.def Info: control3.pdf used on input line 126.
+Package pdftex.def Info: control3.pdf used on input line 123.
 (pdftex.def)             Requested size: 397.48499pt x 562.49985pt.
 
-Overfull \hbox (38.98184pt too wide) in paragraph at lines 126--127
+Overfull \hbox (38.98184pt too wide) in paragraph at lines 123--124
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 124.58136pt on input line 130.
+LaTeX Warning: Float too large for page by 124.58136pt on input line 127.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 138--142
+Underfull \hbox (badness 10000) in paragraph at lines 135--139
 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 144.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 141.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 144.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 141.
  [6] [7 <./control1.pdf>] [8 <./control2.pdf>] [9 <./control3.pdf>] [10]
-Underfull \hbox (badness 10000) in paragraph at lines 183--189
+Underfull \hbox (badness 10000) in paragraph at lines 180--186
 
  []
 
 [11] [12] [13] [14] [15] [16]
+Underfull \hbox (badness 10000) in paragraph at lines 306--308
+
+ []
+
+[17]
 Underfull \hbox (badness 10000) in paragraph at lines 309--311
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 312--314
-
- []
-
-[17] [18] [19] [20] [21] [22] [23] [24]
-Underfull \hbox (badness 10000) in paragraph at lines 556--560
+[18] [19] [20] [21] [22] [23] [24]
+Underfull \hbox (badness 10000) in paragraph at lines 553--557
 
  []
 
 [25]
-Underfull \hbox (badness 10000) in paragraph at lines 575--580
+Underfull \hbox (badness 10000) in paragraph at lines 572--577
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 592--597
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 602--604
+Underfull \hbox (badness 10000) in paragraph at lines 589--594
 
  []
 
 [26]
-Underfull \hbox (badness 10000) in paragraph at lines 611--614
+Underfull \hbox (badness 10000) in paragraph at lines 599--601
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 620--623
+Underfull \hbox (badness 10000) in paragraph at lines 608--611
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 628--630
+Underfull \hbox (badness 10000) in paragraph at lines 617--620
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 625--627
 
  []
 
 [27]
-LaTeX Font Info:    Try loading font information for OML+cmr on input line 664.
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 661.
 
  ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
 File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 664.
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 661.
  [28]
-Underfull \hbox (badness 10000) in paragraph at lines 703--703
+[29]
+Underfull \hbox (badness 10000) in paragraph at lines 700--700
 []\OT1/cmr/bx/n/12 Crystallographic struc-ture files: CFILE.fst,
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 703.
+(hyperref)                removing `math shift' on input line 700.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 703.
+(hyperref)                removing `math shift' on input line 700.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 703.
+(hyperref)                removing `math shift' on input line 700.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 703.
-
-[29]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 716.
+(hyperref)                removing `math shift' on input line 700.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 716.
+(hyperref)                removing `math shift' on input line 713.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 713.
 
 [30] <faultslayout.jpg, id=400, 758.835pt x 474.27188pt>
 File: faultslayout.jpg Graphic file (type jpg)
 
 <use faultslayout.jpg>
-Package pdftex.def Info: faultslayout.jpg used on input line 727.
-(pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
- <faultslayout2.jpg, id=403, 758.835pt x 474.27188pt>
-File: faultslayout2.jpg Graphic file (type jpg)
-
-<use faultslayout2.jpg>
-Package pdftex.def Info: faultslayout2.jpg used on input line 738.
+Package pdftex.def Info: faultslayout.jpg used on input line 724.
 (pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
  [31 <./faultslayout.jpg>]
-<faultsend.jpg, id=411, 787.44188pt x 474.27188pt>
+<faultslayout2.jpg, id=408, 758.835pt x 474.27188pt>
+File: faultslayout2.jpg Graphic file (type jpg)
+ <use faultslayout2.jpg>
+Package pdftex.def Info: faultslayout2.jpg used on input line 735.
+(pdftex.def)             Requested size: 289.07999pt x 180.67386pt.
+
+<faultsend.jpg, id=410, 787.44188pt x 474.27188pt>
 File: faultsend.jpg Graphic file (type jpg)
  <use faultsend.jpg>
-Package pdftex.def Info: faultsend.jpg used on input line 750.
+Package pdftex.def Info: faultsend.jpg used on input line 747.
 (pdftex.def)             Requested size: 505.89pt x 304.69086pt.
 
-Overfull \hbox (7.96895pt too wide) in paragraph at lines 750--751
+Overfull \hbox (7.96895pt too wide) in paragraph at lines 747--748
  [] 
  []
 
@@ -821,7 +803,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 9--10
 
 
 
-]) [42] (bibliography.tex
+] [42]) [43] (bibliography.tex
 
 LaTeX Warning: Command \i invalid in math mode on input line 12.
 
@@ -923,8 +905,8 @@ Package rerunfilecheck Info: File `FAULTS_manual.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 57.
  ) 
 Here is how much of TeX's memory you used:
- 8015 strings out of 493673
- 110106 string characters out of 3141520
+ 8016 strings out of 493673
+ 110113 string characters out of 3141492
  228928 words of memory out of 3000000
  11087 multiletter control sequences out of 15000+200000
  26868 words of font info for 100 fonts, out of 3000000 for 9000
@@ -944,9 +926,9 @@ es (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files
 KTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x86)/MiKT
 eX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiKTeX
  2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on FAULTS_manual.pdf (48 pages, 3443958 bytes).
+Output written on FAULTS_manual.pdf (49 pages, 3445112 bytes).
 PDF statistics:
- 589 PDF objects out of 1000 (max. 8388607)
- 114 named destinations out of 1000 (max. 500000)
+ 595 PDF objects out of 1000 (max. 8388607)
+ 115 named destinations out of 1000 (max. 500000)
  240 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -2267,7 +2267,6 @@
 ! Authors: MWD and MMJT
 ! Date: 17 Mar 1989; Last tweaked on 7 Mar 1995
 ! Description: This subroutine calculates the spectrum.
-
 !      ARGUMENTS:
 !            FN      -  Function name passed by reference. The
 !                       choice is between GLQ16 (non-adaptive
@@ -2286,21 +2285,18 @@
 !      GETSPC returns logical .true. if all went well.
 ! ______________________________________________________________________
 
-      Logical Function getspc(fn,infile)
-
-!     Utiliza las variables: DIFFaX.par , 'DIFFaX.inc' , FN , infile,  ok, SHARP, on_bndry, l_axis, shrp
-!                            h, k, h_lower, h_upper, k_lower, k_upper ,  m, i, max_indx , LENGTH, S, Q,
-!                            theta, tmp, tmp2, tmp3, fact, h_val, k_val , HKANGL, LL, ANGLE, AGLQ16 ,
-!                             l, hk_th, x, GLQ16, l_max, min_th, max_th, W1, l1, l0, d_l, INTENS, L_STEP,
-!                            W2, W3, l00,f(MAX_L)
-!     Utiliza las funciones:  FN, GLQ16, AGLQ16, INTENS, SHARP, L_STEP, LENGTH  externas todas  , S(h,k,l)
-!                              LL(theta,h,k) , ANGLE(h,k,l), HKANGL(k_val,h_val),   W1(theta) ,  W2(theta) ,
-!                               W3(theta),
-!     Utiliza las subrutinas:  XYPHSE, PRE_MAT, GET_F, CHWDTH
-
+   Logical Function getspc(fn,infile)
+      ! Utiliza las variables: DIFFaX.par , 'DIFFaX.inc' , FN , infile,  ok, SHARP, on_bndry, l_axis, shrp
+      !                        h, k, h_lower, h_upper, k_lower, k_upper ,  m, i, max_indx , LENGTH, S, Q,
+      !                        theta, tmp, tmp2, tmp3, fact, h_val, k_val , HKANGL, LL, ANGLE, AGLQ16 ,
+      !                         l, hk_th, x, GLQ16, l_max, min_th, max_th, W1, l1, l0, d_l, INTENS, L_STEP,
+      !                        W2, W3, l00,f(MAX_L)
+      ! Utiliza las funciones:  FN, GLQ16, AGLQ16, INTENS, SHARP, L_STEP, LENGTH  externas todas  , S(h,k,l)
+      !                          LL(theta,h,k) , ANGLE(h,k,l), HKANGL(k_val,h_val),   W1(theta) ,  W2(theta) ,
+      !                           W3(theta),
+      ! Utiliza las subrutinas:  XYPHSE, PRE_MAT, GET_F, CHWDTH
 
       Character (Len=*), Intent(In Out)        :: infile
-
       Logical          :: ok,  on_bndry, l_axis, shrp
       Integer          :: h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
       Integer          :: m, i, max_indx, lz, lzf
@@ -2311,11 +2307,11 @@
       Real(kind=dp)    :: w1, l1, l0, d_l,   w2, w3, l00
       Complex(kind=dp) :: f(max_l)
 
-! external functions
+      ! external functions
       Real(kind=dp) :: fn
-      EXTERNAL fn
-! external subroutines (Some compilers need them declared external)
-!      external XYPHSE, PRE_MAT, GET_F, CHWDTH
+      External fn
+      ! external subroutines (Some compilers need them declared external)
+      !      external XYPHSE, PRE_MAT, GET_F, CHWDTH
 
       ! statement functions
       ! S is the value of 1/d**2 at hkl
@@ -2347,27 +2343,27 @@
       IF(max_indx > max_sp) THEN
         d_theta = (max_th - min_th) / (max_sp - 1)
         max_indx = INT((max_th - min_th) / d_theta + 1)
-        WRITE(op,300) ''
-        WRITE(op,250) 'd_theta is too small and has been adjusted to ',  &
+        WRITE(op,"(a)") ' '
+        WRITE(op,"(a,g12.5)") ' d_theta is too small and has been adjusted to ',  &
             two*d_theta*rad2deg
       END IF
 
-      !  1234 WRITE(op,300) 'Enter 1 for adaptive quadrature over all l values'
-      !  WRITE(op,300) 'on rows with "sharp" spots: '
+      !  1234 WRITE(op,"(a)") ' Enter 1 for adaptive quadrature over all l values'
+      !  WRITE(op,"(a)") ' on rows with "sharp" spots: '
       !  READ(cntrl,*,ERR=1234) full_shrp
       !  IF(cfile) WRITE(op,"(1x,a)") full_shrp
 
        full_shrp = 1
       ! zero out spectra
-      DO  i = 1, max_sp
+      Do  i = 1, max_sp
         spec(i) = zero
-      END DO
+      End Do
       ! See if there is a chance of any sharp peaks.
       ! If so, an appropriate step along l is found, and any_sharp is .true.
       d_l = l_step(ok)
-      IF(.NOT. ok) GO TO 999
+      If(.NOT. ok) return
       ! If no sharp peaks were unambiguously detected, override user.
-      IF(d_l == zero) full_shrp = 1
+      If(d_l == zero) full_shrp = 1
       ! determine extreme values of h
       q = two * SIN(max_th) / lambda
       q2=q*q
@@ -2378,7 +2374,11 @@
       ! k is not necessarily zero at this extreme).
       ! In case the incredible happens, immune system to rescue.
       tmp3 = four * a0 * b0 - d0 * d0
-      IF(tmp3 <= zero) GO TO 990
+      If(tmp3 <= zero) Then
+        Write(op,"(a)") ' Illegal cell parameters in GETSPC.'
+        Write(op,"(a,g12.5)") ' 4*a0*b0-d0*d0 = ', four * a0 * b0 - d0 * d0
+        Return
+      End If
       tmp3 = two * q * SQRT(one / tmp3)
       h_upper = INT(tmp3 * SQRT(b0))
       h_lower = -h_upper
@@ -2400,20 +2400,20 @@
       n_hkl=0
 
       ! scan along h-axis from h_lower to h_upper
-      DO  h = h_lower, h_upper
+      Do  h = h_lower, h_upper
         ! determine limits along k for a given h
-        DO  k = k_lower, k_upper
+        Do  k = k_lower, k_upper
           ! if out of bounds, cycle
           IF(s(h,k,zero) > q2) CYCLE
           l_axis = h == 0 .AND. k == 0
           hk_th = theta1
-          IF(.NOT. l_axis) hk_th = hkangl(DBLE(k), DBLE(h))
+          If(.NOT. l_axis) hk_th = hkangl(DBLE(k), DBLE(h))
           ! see if in wedge to be scanned
-          IF((theta1-hk_th)*(theta2-hk_th) <= eps3 .OR. symgrpno == 1) THEN
+          If((theta1-hk_th)*(theta2-hk_th) <= eps3 .OR. symgrpno == 1) Then
             ! if rotational symmetry only, do not take points on upper wedge plane
-            IF(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
-            IF(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
-             !   WRITE(op,200) 'Integrating along l at ',h,k,  &
+            If(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
+            If(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
+             !   WRITE(op,"(a,2i4,tr6,3a)") ' Integrating along l at ',h,k,  &
              !       '''',infile(1:length(infile)),''''
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
             ! set up the phases in the structure factors and stacking vectors
@@ -2422,109 +2422,112 @@
             CALL pre_mat(h, k)
             ! assign a corrected shape-broadening half-width
 
-            IF(finite_width) THEN
+            If(finite_width) Then
               tmp2 = (h + k*COS(pi-cell_gamma))/(wa*SIN(pi-cell_gamma))
               tmp3 = k / wb
               ffhkcnst = quarter*lambda*SQRT(a0*tmp2*tmp2 + b0*tmp3*tmp3)
-            END IF
+            End If
             ! get starting value of l
-            IF(l_axis) THEN   ! h==0 and k==0
+            If(l_axis) Then   ! h==0 and k==0
               tmp = MIN(d_theta, max_th)
               IF(tmp < min_th) tmp = min_th
               l1 = ll(tmp, h, k)
               shrp = any_sharp
-            ELSE
+            Else
               tmp = angle(h, k, zero)
-              IF(tmp < min_th) THEN
+              If(tmp < min_th) Then
                 l1 = ll(min_th,h,k)
                 tmp = angle(h, k, l1)
-              ELSE
+              Else
                 l1 = zero
-              END IF
-              IF(any_sharp .AND. full_shrp /= 1) THEN
+              End If
+              If(any_sharp .AND. full_shrp /= 1) Then
                 shrp = sharp(h, k, d_l)
-                IF(.NOT. ok) GO TO 999
-              ELSE
+                If(.NOT. ok) return
+              Else
                 shrp = any_sharp
-              END IF
+              End If
 
-            END IF
+            End If
             call update_reflections(h,k,l1)
 
             ! m indexes into the array spec
             m = INT((tmp - min_th) / d_theta) + 1
-            IF(.NOT. shrp .OR. full_shrp == 1) THEN
-             ! broad streak or full adaptive integration over sharp spots
-             ! IF(full_shrp == 1 .OR. full_brd == 1)  &
-               !   WRITE(op,300) 'Full adaptive integration'
-               ! integrate each d_theta's range of reciprocal space
-              !DO  theta = tmp, max_th-eps10, d_theta
+            If(.NOT. shrp .OR. full_shrp == 1) Then
+              ! broad streak or full adaptive integration over sharp spots
+              ! IF(full_shrp == 1 .OR. full_brd == 1)  &
+              !   WRITE(op,"(a)") ' Full adaptive integration'
+              ! integrate each d_theta's range of reciprocal space
+              ! DO  theta = tmp, max_th-eps10, d_theta
               i_thm=nint((max_th-eps10-tmp)/d_theta+1.0d0)
-              DO  i_th = 1,i_thm
+              Do  i_th = 1,i_thm
                 theta=tmp+(i_th-1)*d_theta
                 l0 = l1
                 tmp2 = MIN(d_theta, max_th-theta)
                 l1 = ll(theta+tmp2, h, k)
                 ! sharp spots; do not use knowledge of where they are
-                IF(shrp) THEN
+                If(shrp) Then
                   x = aglq16(h, k, l0, l1, ok)
-                ELSE
+                Else
                   ! broad streaks
                   x = fn(h, k, l0, l1, ok)
-                END IF
+                ENd If
 
-                IF(.NOT. ok) GO TO 110
-
+                If(.NOT. ok) then
+                  Write(op,"(a)") ' GLQ16 returned error in GETSPC.'
+                  Return
+                End if
                 ! include weighting factors for radiation type
-                IF(rad_type == x_ray) THEN
+                If(rad_type == x_ray) Then
                   x = two * x * w1(theta + half * tmp2)
-                ELSE IF(rad_type == neutrn) THEN
+                Else If(rad_type == neutrn) Then
                   x = two * x * w2(theta + half * tmp2)
-                ELSE IF(rad_type == electn) THEN
+                Else If(rad_type == electn) Then
                   x = two * x * w3(theta + half * tmp2)
-                ELSE
+                Else
                   ok = .false.
-                  GO TO 130
-                END IF
+                  Write(op,"(a)") ' ERROR: Radiation type is undefined in GETSPC'
+                  return
+                End If
 
                 ! see if not on l-axis
-                IF(.NOT. l_axis) THEN
+                If(.NOT. l_axis) Then
                   ! apply multiplicity factor
                   x = x * mltplcty
                   ! if on boundary, apply appropriate weighting (mirror vs rotation only)
-                  IF(on_bndry) x = x * bnds_wt
-                END IF
+                  If(on_bndry) x = x * bnds_wt
+                End If
 
                 call update_reflections(h,k,l1)
 
-                IF(finite_width) THEN
+                If(finite_width) Then
                   CALL chwdth(h,k,l0,l1,x,m,max_indx)
-                ELSE
+                Else
                   spec(m) = spec(m) + x
-                END IF
+                End If
                 m = m + 1
-              END DO
+              End Do
 
-            ELSE
+            Else
               ! line of sharp spots--detuned delta functions
               ! use knowledge of where spots are
               ! make sure we do all l values a multiple of d_l
               ! starting with spot on hk-plane
-              WRITE(op,300) 'which is a line of sharp spots'
+              Write(op,"(a)") ' which is a line of sharp spots'
               l00 = zero
-              IF(l_axis) THEN
+              If(l_axis) Then
                 l00 = d_l
                 do
                  IF(l00 >= th2_min) exit
                  l00 = l00 + d_l
                 end do
-              END IF
+              End If
               l_max = ll(max_th, h, k)
               ! avoid trouble by ignoring l = l_max
 
               lzf=nint((l_max-l00)/d_l+1.0d0)
               !DO  l = l00, l_max, d_l
-              DO  lz = 1, lzf
+              Do  lz = 1, lzf
                 l=l00+(lz-1)*d_l
                 IF(l == l_max) CYCLE
                 theta = angle(h,k,l)
@@ -2532,16 +2535,27 @@
                 tmp = intens(f, h, k, l, ok) * eps8
                 ! find width of peak
                 x = eps10
-                80  IF(.NOT. ok) GO TO 120
-                x = two * x
-                CALL get_f(f, s(h,k,l+x), l+x)
-                IF(intens(f, h, k, l+x, ok) > tmp .AND. x <= eps2*d_l) GO TO 80
-                IF(.NOT. ok) GO TO 120
+                do
+                   IF(.NOT. ok) then
+                      WRITE(op,"(a)") ' INTENS returned error in GETSPC.'
+                      Return
+                   end if
+                   x = two * x
+                   CALL get_f(f, s(h,k,l+x), l+x)
+                   IF(intens(f, h, k, l+x, ok) > tmp .AND. x <= eps2*d_l) cycle
+                   exit
+                end do
+                If(.NOT. ok) then
+                   WRITE(op,"(a)") ' INTENS returned error in GETSPC.'
+                   Return
+                End If
                 l0 = MAX(l - x, zero)
                 l1 = MIN(l + x, l_max)
                 x = aglq16(h, k, l0, l1, ok)
-                IF(.NOT. ok) GO TO 110
-
+                If(.NOT. ok) Then
+                  Write(op,"(a)") ' GLQ16 returned error in GETSPC.'
+                  Return
+                End If
                 ! include weighting factors for radiation type
                 IF(rad_type == x_ray) THEN
                   x = two * x * w1(theta)
@@ -2551,7 +2565,8 @@
                   x = two * x * w3(theta)
                 ELSE
                   ok = .false.
-                  GO TO 130
+                  Write(op,"(a)") ' ERROR: Radiation type is undefined in GETSPC'
+                  return
                 END IF
 
                 ! see if not on l-axis
@@ -2565,32 +2580,20 @@
 
                 call update_reflections(h,k,l)
 
-                IF(finite_width) THEN
-                  CALL chwdth(h,k,l0,l1,x,m,max_indx)
-                ELSE
+                If(finite_width) Then
+                  Call chwdth(h,k,l0,l1,x,m,max_indx)
+                Else
                   spec(m) = spec(m) + x
-                END IF
-              END DO
-            END IF
-          END IF
-        END DO
-      END DO
+                End If
+              End Do
+            End If
+          End If
+        End Do
+      End Do
 
       getspc = .true.
-      RETURN
-      110 WRITE(op,300) 'GLQ16 returned error in GETSPC.'
-      RETURN
-      120 WRITE(op,300) 'INTENS returned error in GETSPC.'
-      RETURN
-      130 WRITE(op,300) 'ERROR: Radiation type is undefined in GETSPC'
-      999 RETURN
-      990 WRITE(op,300) 'Illegal cell parameters in GETSPC.'
-      WRITE(op,250) '4*a0*b0-d0*d0 = ', four * a0 * b0 - d0 * d0
-      RETURN
-      200 FORMAT(1X, a, 2I4, 6X, 3A)
-      250 FORMAT(1X, a, g12.5)
-      300 FORMAT(1X, a)
-      END FUNCTION getspc
+      Return
+   End Function getspc
 
       Subroutine update_reflections(h,k,l)
         integer,        intent(in) :: h,k
@@ -4107,12 +4110,13 @@
 ! ______________________________________________________________________
 ! Title: GOSPEC
 ! Author: MMJT
-! Date: 23 Oct 1989
+! Date: 23 Oct 1989  //THE WRITING option has been suppressed
 ! Description: This subroutine sets up a file whose name is given
 ! by 'outfile', which is derived from the input filename 'infile'.
 ! The powder pattern data is then written to 'outfile', which is closed
-! by the subroutine 'WRTSPC'.
-
+! by the subroutine 'WRTSPC'.//
+!
+!   The subroutine calculates the theore
 !      ARGUMENTS:
 !            infile   -  name of input file (input)
 !            outfile  -  name of output file (output)
@@ -4126,70 +4130,67 @@
 !        modifies:  full_brd
 ! ______________________________________________________________________
 
-      SUBROUTINE gospec(infile,outfile,ok)
-!     Utiliza las variables:  DIFFaX.par', DIFFaX.inc',  infile, outfile ,ok , GETSPC, TRMSPC, RDRNGE ,
-!                             io_err , AGLQ16, GLQ16, cut_off
-!     Utiliza las funciones: RDRNGE, GETSPC, AGLQ16, GLQ16, TRMSPC      externas
-!     Utiliza las subrutinas: GETFNM, PV, GAUSSN, LORNZN, WRTSPC
+   Subroutine gospec(infile,outfile,ok)
+     ! Utiliza las variables:  DIFFaX.par', DIFFaX.inc',  infile, outfile ,ok , GETSPC, TRMSPC, RDRNGE ,
+     !                         io_err , AGLQ16, GLQ16, cut_off
+     ! Utiliza las funciones: RDRNGE, GETSPC, AGLQ16, GLQ16, TRMSPC      externas
+     ! Utiliza las subrutinas: GETFNM, PV, GAUSSN, LORNZN, WRTSPC
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
-      CHARACTER (LEN=*)                        :: outfile
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Character (Len=*), Intent(In Out)        :: infile
+      Character (Len=*)                        :: outfile
+      Logical, Intent(In Out)                  :: ok
 
-      !INTEGER :: io_err,i
+      !Integer :: io_err,i
       Real(kind=dp) ::   cut_off
 
-! get angular range and step
-   !   ok = rdrnge()
-   !   IF(.NOT.ok) GO TO 999
+      ! This part has been suppressed
+      ! get angular range and step
+      !   ok = rdrnge()
+      !   IF(.NOT.ok) return
+      ! create a new filename to save spectrum data to
+      !   CALL getfnm(infile, outfile, 'spc', ok)
+      !  IF(.NOT.ok) return
+      !  IF(unit_sp /= op) OPEN(UNIT = unit_sp, FILE = outfile, STATUS = 'new',  &
+      !      ERR = 990, IOSTAT = io_err)
+      ! 3456 WRITE(op,100) 'Enter 1 for adaptive quadrature on broad peaks: '
+      ! READ(cntrl,*,ERR=3456) full_brd
+      ! IF(cfile) WRITE(op,101) full_brd
 
-! create a new filename to save spectrum data to
-   !   CALL getfnm(infile, outfile, 'spc', ok)
-
-    !  IF(.NOT.ok) GO TO 999
-    !  IF(unit_sp /= op) OPEN(UNIT = unit_sp, FILE = outfile, STATUS = 'new',  &
-    !      ERR = 990, IOSTAT = io_err)
       full_brd = 1
-     ! 3456 WRITE(op,100) 'Enter 1 for adaptive quadrature on broad peaks: '
-     ! READ(cntrl,*,ERR=3456) full_brd
-     ! IF(cfile) WRITE(op,101) full_brd
-
       if (conv_g == 1 .or. numcal == 0 ) then
           IF(full_brd == 1) THEN
            ok = getspc(aglq16, infile)
           ELSE
             ok = getspc(glq16, infile)
           END IF
-
       end if
 
-
-! suppress the huge peak near the origin if required
-          cut_off = zero
+      ! suppress the huge peak near the origin if required
+      ! Normally trmspc is not called because the origin is never measured in
+      ! powder diffraction
+      cut_off = zero
       IF(ok .AND. (th2_min == zero) .AND. trim_origin) ok = trmspc(cut_off)
-
-
-      IF(ok) THEN
-        IF(blurring == gauss) THEN
+      If(ok) Then
+        If(blurring == gauss) Then
           !WRITE(op,104) 'Gaussian'
-          CALL gaussn(cut_off)
-        ELSE IF(blurring == lorenz) THEN
+          Call gaussn(cut_off)
+        Else If(blurring == lorenz) Then
           !WRITE(op,104) 'Lorentzian'
-          CALL lornzn(cut_off)
-        ELSE IF(blurring == ps_vgt) THEN
+          Call lornzn(cut_off)
+        Else If(blurring == ps_vgt) Then
           !WRITE(op,104) 'pseudo-Voigt'
-          CALL pv(cut_off)
-        ELSE IF(blurring == pv_gss) THEN
+          Call pv(cut_off)
+        Else If(blurring == pv_gss) Then
           !WRITE(op,104) 'Gaussian'
-          CALL pv(cut_off)
-        ELSE IF(blurring == pv_lrn) THEN
+          Call pv(cut_off)
+        Else If(blurring == pv_lrn) THEN
           !WRITE(op,104) 'Lorentzian'
-          CALL pv(cut_off)
-        ELSE IF(blurring /= NONE) THEN
-          WRITE(op,100) 'Instrumental broadening type is undefined in GOSPEC.'
-        END IF
-      END IF
-  !    IF(ok) CALL wrtspc(outfile, ok)
+          Call pv(cut_off)
+        Else If(blurring /= NONE) THEN
+          Write(op,100) 'Instrumental broadening type is undefined in GOSPEC.'
+        End If
+      End If
+      !IF(ok) CALL wrtspc(outfile, ok)
 
 
       999 RETURN
@@ -4202,7 +4203,7 @@
       102 FORMAT(1X, 2A)
       103 FORMAT(1X, a, i5)
       104 FORMAT(1X, '=> Adding ', a, ' instrumental broadening . . .')
-      END SUBROUTINE gospec
+   End Subroutine gospec
 
 ! ______________________________________________________________________
 ! Title: GOSTRK
@@ -4347,54 +4348,46 @@
 !        modifies:   no COMMON variables are modified
 ! ______________________________________________________________________
 
-      SUBROUTINE integr(fn, ok)
-
-
-!     Utiliza las variables:  DIFFaX.par', DIFFaX.inc', FN, ok, divided  ,h, k
-!                            l0, l1, max_th, x, W4, ANGLE, theta, l, S, Q2, t1,
-!                            sum, tmp, LL, fact, d_th, l_tmp
-!     Utiliza las funciones:  FN   externa  S(h,k,l) , ANGLE(h,k,l)
-!                             LL(theta,h,k), W4(theta)
-!     Utiliza las subrutinas: XYPHSE, PRE_MAT, GET_F
-
-
-
-      LOGICAL, INTENT(IN OUT)                  :: ok
-
-
-
-      LOGICAL :: divided
-      INTEGER :: h, k, i_th, i_thm
+   Subroutine integr(fn, ok)
+      !Utiliza las variables:  DIFFaX.par', DIFFaX.inc', FN, ok, divided  ,h, k
+      !                       l0, l1, max_th, x, W4, ANGLE, theta, l, S, Q2, t1,
+      !                       sum, tmp, LL, fact, d_th, l_tmp
+      !Utiliza las funciones:  FN   externa  S(h,k,l) , ANGLE(h,k,l)
+      !                        LL(theta,h,k), W4(theta)
+      !Utiliza las subrutinas: XYPHSE, PRE_MAT, GET_F
+      Logical, Intent(In Out) :: ok
+      Logical :: divided
+      Integer :: h, k, i_th, i_thm
       Real(kind=dp) :: l0, l1, max_th, x, w4, angle, theta, l, s, q2
-      Real(kind=dp) :: t1, sum, tmp, ll, fact, d_th, l_tmp
+      Real(kind=dp) :: t1, suma, tmp, ll, fact, d_th, l_tmp
 
-! external function, passed by reference
+      ! external function, passed by reference
       Real(kind=dp) :: fn
-      EXTERNAL fn
-! external subroutines (Some compilers need them declared external)
-!      external XYPHSE, PRE_MAT, GET_F
+      External fn
+      ! external subroutines (Some compilers need them declared external)
+      !      external XYPHSE, PRE_MAT, GET_F
 
-! statement functions
-! S is the value of 1/d**2 at hkl
+      ! statement functions
+      ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-! LL is the maximum l value for a given h,k
+      ! LL is the maximum l value for a given h,k
       ll(theta,h,k) = SQRT((q2 * SIN(theta) * SIN(theta)  &
           - h*h*a0 - k*k*b0 - h*k*d0)/ c0)
-! W4 is the X-ray polarization factor
+      ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       max_th = half * th2_max
       fact = two / lambda
       q2 = fact * fact
-! set increment to a safe value, in case l1-l0 is too large
+      ! set increment to a safe value, in case l1-l0 is too large
       d_th = eps3 * deg2rad
 
       10 WRITE(op,400) 'Enter h, k, l0, l1: '
       READ(cntrl,*,ERR=10)  h, k, l0, l1
       IF(cfile) WRITE(op,401) h, k, l0, l1
-! check values
+      ! check values
       IF(l1 == l0) THEN
         WRITE(op,400) 'Illegal input: l1 equals l0'
         IF(cfile) THEN
@@ -4404,7 +4397,7 @@
           GO TO 10
         END IF
       END IF
-! make sure we are not going to blow up at the origin
+      ! make sure we are not going to blow up at the origin
       IF(h == 0 .AND. k == 0 .AND. rad_type == electn) THEN
         IF(l0*l1 <= zero) THEN
           WRITE(op,400) 'Cannot integrate across the origin for electron radiation'
@@ -4412,7 +4405,7 @@
           GO TO 10
         END IF
       END IF
-! Finally, check angles are meaningful
+      ! Finally, check angles are meaningful
       IF(s(h,k,l0) > q2 .OR. s(h,k,l1) > q2) THEN
         IF(s(h,k,l0) > q2) WRITE(op,402) h, k, l0,  &
             ' exceeds 180 degree scattering angle!'
@@ -4420,12 +4413,12 @@
             ' exceeds 180 degree scattering angle!'
         GO TO 10
       END IF
-! get angles corresponding to start and stop
-! check if we need to break the integration region into two parts
-! because h,k,l, and h,k,-l may subtend the same angle
+      ! get angles corresponding to start and stop
+      ! check if we need to break the integration region into two parts
+      ! because h,k,l, and h,k,-l may subtend the same angle
       divided  = .false.
       IF(l0 <= zero .AND. l1 <= zero) THEN
-! use Friedel's law, and keep l +ve. Swap l0 and l1
+        ! use Friedel's law, and keep l +ve. Swap l0 and l1
         h = -h
         k = -k
         tmp = -l0
@@ -4439,52 +4432,54 @@
         l0 = zero
         divided = .true.
       END IF
-! swap if in reverse order
+      ! swap if in reverse order
       IF(l0 > l1) THEN
         tmp = l0
         l0 = l1
         l1 = tmp
       END IF
 
-      sum = zero
-      30 max_th = angle(h,k,l1)
-      t1     = angle(h,k,l0)
-      l1 = l0
+      suma = zero
+      do
+         max_th = angle(h,k,l1)
+         t1     = angle(h,k,l0)
+         l1 = l0
 
-      CALL xyphse(h, k)
+         CALL xyphse(h, k)
 
-      CALL pre_mat(h, k)
-! integrate each d_th's range of reciprocal space
+         CALL pre_mat(h, k)
+         ! integrate each d_th's range of reciprocal space
 
-      !DO  theta = t1, max_th-eps14, d_th
-      i_thm=nint((max_th-eps14-t1)/d_th+1.0d0)
-      DO  i_th = 1, i_thm
-        theta=t1+(i_th-1)*d_th
-        l0 = l1
-        tmp = MIN(d_th, max_th-theta)
-        l1 = ll(theta+tmp,h,k)
-        x = fn(h,k,l0,l1,ok)
-        IF(.NOT. ok) GO TO 999
-        IF(rad_type == x_ray) x = x * w4(theta + half*tmp)
-        sum = sum + x
-      END DO
-! do we need to integrate the other part?
-      IF(divided) THEN
-! goto -h,-k,-l and continue
-        h = -h
-        k = -k
-        l0 = zero
-        l1 = l_tmp
-        divided = .false.
-        GO TO 30
-      END IF
-      WRITE(op,403) 'Integrated intensity = ', sum
-      999 RETURN
+         !DO  theta = t1, max_th-eps14, d_th
+         i_thm=nint((max_th-eps14-t1)/d_th+1.0d0)
+         DO  i_th = 1, i_thm
+           theta=t1+(i_th-1)*d_th
+           l0 = l1
+           tmp = MIN(d_th, max_th-theta)
+           l1 = ll(theta+tmp,h,k)
+           x = fn(h,k,l0,l1,ok)
+           IF(.NOT. ok) return
+           IF(rad_type == x_ray) x = x * w4(theta + half*tmp)
+           suma = suma + x
+         END DO
+         ! do we need to integrate the other part?
+         IF(divided) THEN
+           ! goto -h,-k,-l and continue
+           h = -h
+           k = -k
+           l0 = zero
+           l1 = l_tmp
+           divided = .false.
+           cycle
+         END IF
+         exit
+      end do
+      WRITE(op,403) 'Integrated intensity = ', suma
       400 FORMAT(1X, a)
       401 FORMAT(1X, 2I3, 2G12.5)
       402 FORMAT(1X, 2I3, g12.5, a)
       403 FORMAT(1X, a, g15.8)
-      END SUBROUTINE integr
+   End Subroutine integr
 
 ! ______________________________________________________________________
 ! Title: INTEN2
@@ -5412,26 +5407,26 @@
 !        modifies:  a_pos
 ! ______________________________________________________________________
 
-      SUBROUTINE nmcoor()
+   Subroutine nmcoor()
 
 
-!     Utiliza las variables: DIFFaX.par' , 'DIFFaX.inc'  , i, j
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
+       ! Utiliza las variables: DIFFaX.par' , 'DIFFaX.inc'  , i, j
+       ! Utiliza las funciones:
+       ! Utiliza las subrutinas:
 
 
-      INTEGER*4 i, j
+      Integer:: i, j
 
-      DO  i = 1, n_actual
-        DO  j = 1, l_n_atoms(i)
+      Do  i = 1, n_actual
+        Do  j = 1, l_n_atoms(i)
           a_pos(1,j,i) = a_pos(1,j,i) * pi2
           a_pos(2,j,i) = a_pos(2,j,i) * pi2
           a_pos(3,j,i) = a_pos(3,j,i) * pi2
-        END DO
-      END DO
+        End Do
+      End Do
 
-      RETURN
-      END SUBROUTINE nmcoor
+      Return
+   End Subroutine nmcoor
 
 ! ______________________________________________________________________
 !!S Ofiles
@@ -6204,59 +6199,59 @@
 !        modifies:   l_phi, mat1, fatsWalla_hk
 ! ______________________________________________________________________
 
-      SUBROUTINE pre_mat(h, k)
+   Subroutine pre_mat(h, k)
 
 
-!     Utiliza las variables: par.f90' , 'inc.f90', h, k, dot, i, j,
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
+      ! Utiliza las variables: par.f90' , 'inc.f90', h, k, dot, i, j,
+      ! Utiliza las funciones:
+      ! Utiliza las subrutinas:
 
 
-      INTEGER*4, INTENT(IN)                :: h
-      INTEGER*4, INTENT(IN)                    :: k
+      Integer, Intent(In)   :: h
+      Integer, Intent(In)   :: k
 
 
-      Real(kind=dp) dot
-      INTEGER*4 i, j
+      Real(kind=dp) :: dot
+      Integer       :: i, j
 
       ! Set up matrix that represents the sequences
       ! For the matrix inversion routines, 'mat' and 'mat1' have to be
       ! in 'i,j' format rather than the quicker 'j,i' format
-      DO  i = 1, n_layers
-        DO  j = 1, n_layers
-          IF(there(j,i)) THEN
+      Do  i = 1, n_layers
+        Do  j = 1, n_layers
+          If(there(j,i)) Then
             dot = pi2*(h*l_r(1,j,i) + k*l_r(2,j,i))
             l_phi(j,i) = DCMPLX(COS(dot),SIN(dot))
-            IF(same_bs.OR.bs_zero(j,i)) THEN
+            If(same_bs.OR.bs_zero(j,i)) Then
               mat1(i,j) =  detune(j,i) * l_alpha(j,i) * l_phi(j,i)
-            ELSE
+            Else
               ! h-k components only. l-components are handled later by GET_MAT.
               mat1(i,j) = detune(j,i) * l_alpha(j,i) * l_phi(j,i)  &
                   * EXP(-quarter*(r_b11(j,i)*a0*h*h + r_b22(j,i)*b0*k*k)  &
                   + half*r_b12(j,i)*ab0*h*k )
-            END IF
-          ELSE
+            End If
+          Else
             mat1(i,j) = c_zero
-          END IF
-        END DO
-      END DO
+          End If
+        End Do
+      End Do
 
       ! Are all the uncertainty factors identical?
       ! Here, we compute only the h-k components.
       ! The l-components are handled later by GET_MAT.
-      IF(same_bs) THEN
-        IF(all_bs_zero) THEN
+      If(same_bs) Then
+        If(all_bs_zero) Then
           ! This initialization is not actually necessary, since if we are here,
           ! fatsWalla_hk will not be needed by GET_MAT. However, let's be safe.
           fatswalla_hk = one
-        ELSE
+        Else
           fatswalla_hk = EXP(-(quarter*(a_b11*a0*h*h + a_b22*b0*k*k) +  &
               half*a_b12*ab0*h*k) )
-        END IF
-      END IF
+        End If
+      End If
 
-      RETURN
-      END SUBROUTINE pre_mat
+      Return
+   End Subroutine pre_mat
 
 ! ______________________________________________________________________
 ! ______________________________________________________________________
@@ -6280,41 +6275,41 @@
 ! ______________________________________________________________________
 
 
-      SUBROUTINE pv(th2_low)
+   Subroutine pv(th2_low)
 
 
-!     Utiliza las variables: par.f90' , 'inc.f90' ,th2_low  ,i, j, n_low, n_high, indx
-!                            th_rng, tn_th, c00, hk_inv, th0,k1, k2, k3, k4, k5, pvoigt, const, tmp, speci
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
+      !Utiliza las variables: par.f90' , 'inc.f90' ,th2_low  ,i, j, n_low, n_high, indx
+      !                       th_rng, tn_th, c00, hk_inv, th0,k1, k2, k3, k4, k5, pvoigt, const, tmp, speci
+      !Utiliza las funciones:
+      !Utiliza las subrutinas:
 
-      Real(kind=dp), INTENT(IN OUT)    :: th2_low
+      Real(Kind=Dp), Intent(In Out)    :: th2_low
 
 
-      INTEGER*4 i, j, n_low,  indx
-      REAL      :: th_rng,th_rng2, tn_th, c00, hk_inv, th0 , temp1, temp2, temp3, temp4, delta_lambda
-      real(kind = sp ) ::  pv_hg, pv_hl, tmp
-      REAL      :: k1, k2, k3, k4, k5, pvoigt, const, speci,pv1,pv2
+      Integer          :: i, j, n_low,  indx
+      real(kind = sp)  :: th_rng,th_rng2, tn_th, c00, hk_inv, th0 , temp1, temp2, temp3, temp4, delta_lambda
+      real(kind = sp)  :: pv_hg, pv_hl, tmp
+      real(kind = sp)  :: k1, k2, k3, k4, k5, pvoigt, const, speci,pv1,pv2
 
       ! first check the numbers
-      IF(pv_u == zero .AND. pv_v == zero .AND. pv_w == zero) THEN
-        WRITE(op,"(a)") '  pseudo-Voigt parameters are zero in PV()'
-        WRITE(op,"(a)") '  pseudo-Voigt instrumental broadening not added'
+      If(pv_u == zero .AND. pv_v == zero .AND. pv_w == zero) Then
+        write(op,"(a)") '  pseudo-Voigt parameters are zero in PV()'
+        write(op,"(a)") '  pseudo-Voigt instrumental broadening not added'
         blurring = NONE
-        RETURN
-      END IF
-      IF(pv_gamma < zero .OR. pv_gamma > one) THEN
-        WRITE(op,"(a)") '  Illegal pseudo-Voigt gamma value in PV()'
-        WRITE(op,"(a)") '  pseudo-Voigt instrumental broadening not added'
+        return
+      End If
+      If(pv_gamma < zero .OR. pv_gamma > one) Then
+        write(op,"(a)") '  Illegal pseudo-Voigt gamma value in PV()'
+        write(op,"(a)") '  pseudo-Voigt instrumental broadening not added'
         blurring = NONE
-        RETURN
-      END IF
+        return
+      End If
 
-      IF(th2_low < zero .OR. th2_low >= th2_max) THEN
-        WRITE(op,"(a, g12.5, a)") '  PV: Cut-off angle ', th2_low,  &
+      If(th2_low < zero .OR. th2_low >= th2_max) Then
+        write(op,"(a, g12.5, a)") '  PV: Cut-off angle ', th2_low,  &
             ' is out of bounds. Angle reset to zero.'
         th2_low = zero
-      END IF
+      End If
 
 
       ! th2_low is the angle relative to th2_min
@@ -6324,16 +6319,14 @@
       if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
       c00 = four * LOG(two)
       const = two * rad2deg * d_theta
-      DO  i = 1, n_high
-        brd_spc(i) = zero
-      END DO
+      brd_spc(1:n_high) = zero
       k3 = -c00
       th0 = half*th2_min
       temp2 = (4.0 * log(2.0) *lambda * lambda ) * rad2deg*rad2deg
       temp1 = pi * pv_dg * pv_dg
       temp4 = (2*lambda/pi) * rad2deg
 
-      DO  i = n_low, n_high
+      Do  i = n_low, n_high
         ! get tan((2theta)/2)
         tn_th = TAN(i*d_theta + th0)
         temp3 = (COS(i*d_theta + th0))
@@ -6344,7 +6337,14 @@
         k1 = pv_gamma*two/pi
         k2 = (one - pv_gamma)*SQRT(c00/pi)
         tmp=tmp*tmp
-        IF(tmp <= zero) GO TO 995
+        if(tmp <= zero) then
+          write(op,"(a, g12.5)")  &
+              ' ERROR: pseudo-Voigt spread function is complex at theta = ', i*d_theta
+          write(op,"(a)") '   u, v, w parameters are illegal.'
+          write(op,"(a)") '   pseudo-Voigt instrumental broadening not added'
+          blurring = NONE
+          return
+        end if
         hk_inv = one / SQRT(tmp)
         tmp = (const * hk_inv)**2
 
@@ -6352,39 +6352,30 @@
         k5 = k2 * hk_inv * const
         speci = spec(i)
 
-       if (lambda2 /= 0 ) then
-        DO  j = n_low - i, n_high - i
-          th_rng = tmp * j*j
-          th_rng2 =  (((-2.0*rad2deg*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
-          pv1=(k4/(one+four*th_rng) + k5*EXP(k3*th_rng))* speci
-          pv2=(k4/(one+four*th_rng2) + k5*EXP(k3*th_rng2))*speci
-          pvoigt = pv1 + ratio * pv2
-          indx = i + j
-          brd_spc(indx) = brd_spc(indx) + pvoigt
-        END DO
+        If (lambda2 /= 0 ) Then
+           Do  j = n_low - i, n_high - i
+             th_rng = tmp * j*j
+             th_rng2 =  (((-2.0*rad2deg*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
+             pv1=(k4/(one+four*th_rng) + k5*EXP(k3*th_rng))* speci
+             pv2=(k4/(one+four*th_rng2) + k5*EXP(k3*th_rng2))*speci
+             pvoigt = pv1 + ratio * pv2
+             indx = i + j
+             brd_spc(indx) = brd_spc(indx) + pvoigt
+           End Do
 
-       else
+        Else
 
-        DO  j = n_low - i, n_high - i
-          th_rng = tmp * j*j
-          pvoigt = (k4/(one+four*th_rng) + k5*EXP(k3*th_rng)) * speci
-          indx = i + j
-          brd_spc(indx) = brd_spc(indx) + pvoigt
-        END DO
+           Do  j = n_low - i, n_high - i
+             th_rng = tmp * j*j
+             pvoigt = (k4/(one+four*th_rng) + k5*EXP(k3*th_rng)) * speci
+             indx = i + j
+             brd_spc(indx) = brd_spc(indx) + pvoigt
+           End Do
 
-       end if
-      END DO
-
-
-      RETURN
-
-      995 WRITE(op,"(a, g12.5)")  &
-          ' ERROR: pseudo-Voigt spread function is complex at theta = ', i*d_theta
-      WRITE(op,"(a)") '   u, v, w parameters are illegal.'
-      WRITE(op,"(a)") '   pseudo-Voigt instrumental broadening not added'
-      blurring = NONE
-      RETURN
-      END SUBROUTINE pv
+        End If
+      End Do
+      Return
+   End Subroutine Pv
 
 !------------------------------------------------------------------------
 
@@ -7210,19 +7201,12 @@
 !            TRMSPC returns logical .true. if all went well.
 ! ______________________________________________________________________
 
-      LOGICAL FUNCTION trmspc(th2_low)
-
-
-
-!     Utiliza las variables: par.f90, inc.f90,  th2_low, i, i_min, i_max
-!     Utiliza las funciones:
-!     Utiliza las subrutinas:
-
-
+   Logical Function trmspc(th2_low)
+       !     Utiliza las variables: par.f90, inc.f90,  th2_low, i, i_min, i_max
+       !     Utiliza las funciones:
+       !     Utiliza las subrutinas:
       Real(kind=dp), Intent(In Out)   :: th2_low
-
-
-      INTEGER :: i, i_min, i_max
+      Integer :: i, i_min, i_max
 
       i_max = INT(half*(th2_max - th2_min) / d_theta) + 1
       ! spec(1) corresponds to the intensity at the origin and is always zero.
@@ -7241,11 +7225,9 @@
 
       ! NOTE: The absolute angle is th2_low + th2_min
       th2_low = i_min * d_theta
-
       trmspc = .true.
-
-      RETURN
-      END FUNCTION trmspc
+      Return
+   End Function trmspc
 
 ! ______________________________________________________________________
 ! Title: TST_MIR

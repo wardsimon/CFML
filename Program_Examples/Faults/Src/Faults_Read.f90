@@ -33,6 +33,9 @@
        real,            dimension(17+max_bgr_num+max_n_cheb) :: val_glb
        real,            dimension(5,max_a,max_l)             :: val_atom
        real,            dimension(10,max_l,max_l)            :: val_trans
+       real,            dimension(max_bgr_num)               :: secnd_phases
+       real                                                  :: area_f
+
 !
        character(len=*),dimension(17),parameter :: names_glb = [ "Scale_Factor","zero_shift  ", &
                                                                  "sycos       ","sysin       ", &
@@ -108,7 +111,7 @@
          real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_b13
          real,    dimension(:),     allocatable  :: chebp
          real,    dimension(:),     allocatable  :: bscalpat !scale factor for bgrpatt
-         real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
+         real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters that can be optimized
          real,    dimension(:)  ,   allocatable  :: Pv_refi  !vector containing the free parameters to optimize (restrictions taken into account)
 
          character(len=132)               :: ttl          !title
