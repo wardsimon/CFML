@@ -814,8 +814,9 @@
         end do
       else
         if(i_centre /= 0) then
-          MSpG%Centred=0
-          MSpG%centre= centro(MSpG%Centred)
+          MSpG%Centred      = 0
+          MSpG%centre       = centro(MSpG%Centred)
+          MSpG%Centre_coord = MSpG%SymOp(i_centre)%tr(:)/2.0
         else
           MSpG%Centred=1
           MSpG%centre= centro(MSpG%Centred)
@@ -3303,7 +3304,7 @@
     !!----    When Mode="GEN" the optional arguments Gen and Ngen should be given.
     !!----
     !!----
-    !!---- Created: February - 2014 (JRC)
+    !!---- Created: February - 2014 (JRC) Not operational!!!!
     !!
     Subroutine Set_Magnetic_SpaceGroup(Spacegen,Mode,MSpG,Gen,Ngen)
        !----Arguments ----!

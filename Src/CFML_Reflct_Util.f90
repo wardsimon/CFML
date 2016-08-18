@@ -83,6 +83,7 @@
 !!----       HKL_MULT
 !!--++       HKL_MULTI             [Overloaded]
 !!--++       HKL_MULTR             [Overloaded]
+!!--++       HKL_MULT_SH           [Overloaded]
 !!----       HKL_R
 !!--++       HR_I                  [Overloaded]
 !!--++       HR_R                  [Overloaded]
@@ -159,7 +160,7 @@
     private :: Asu_Hkl_Cubic, Asu_Hkl_Hexagonal, Asu_Hkl_Monoclinic, Asu_Hkl_Orthorhombic,   &
                Asu_Hkl_Tetragonal, Asu_Hkl_Triclinic, Asu_Hkl_Trigonal, Hkl_AbsentI, hkl_equalI, &
                hkl_equivi, Hkl_MultI, HR_I, HS_I, Unit_Cart_HklI, Hkl_AbsentR, Hkl_EqualR, hkl_Equivr, &
-               Hkl_MultR, HR_R, HS_R, Unit_Cart_HklR
+               Hkl_MultR,Hkl_Mult_Sh, HR_R, HS_R, Unit_Cart_HklR
 
     !---- List of private subroutines ----!
     private :: Hkl_Equiv_Listi, Hkl_Equiv_Listr, Hkl_RpI, Hkl_RpR, Hkl_Uni_reflect, &
@@ -319,7 +320,7 @@
     !!---- Type, public :: Reflect_Type
     !!----    integer,dimension(3) :: H     ! H
     !!----    integer              :: Mult  ! mutiplicity
-    !!----    real(kind=cp)        :: S     ! Sin(Theta)/lambdainteger              
+    !!----    real(kind=cp)        :: S     ! Sin(Theta)/lambdainteger
     !!----    integer              :: imag  !=0 nuclear reflection, 1=magnetic, 2=both
     !!---- End Type Reflect_Type
     !!----
@@ -404,6 +405,7 @@
     Interface Hkl_Mult
        Module Procedure Hkl_MultI
        Module Procedure Hkl_MultR
+       Module Procedure Hkl_Mult_Sh
     End Interface Hkl_Mult
 
     Interface Hkl_R
@@ -1339,7 +1341,7 @@
           end if
        end do
     End Function Hkl_Absent_Sh
-    
+
     !!----
     !!---- Logical Function  Hkl_Equal(H,K)
     !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -1512,7 +1514,7 @@
              exit
           end if
        end do
-    End Function Hkl_Equiv_Sh  
+    End Function Hkl_Equiv_Sh
 
     !Function Hkl_Lat_Absent(H,Latt) Result(Info)
     !   !---- Arguments ----!
@@ -1554,12 +1556,12 @@
     !!----    real, dimension(:,:),  intent (in) :: Latt
     !!----    integer,               intent (in) :: n
     !!----    logical                            :: info
-    !!---- 
+    !!----
     !!---- Calculate lattice extinctions for whatever kind
     !!---- of lattice centring.
-    !!---- 
+    !!----
     !!---- Implemented: March 2016
-    !!---- 
+    !!----
     Function Hkl_Lat_Absent(h,Latt,n) result(info)
        integer, dimension(3), intent (in) :: h
        real, dimension(:,:),  intent (in) :: Latt
@@ -1689,6 +1691,53 @@
        return
     End Function Hkl_MultR
 
+    !!--++
+    !!--++ Function  Hkl_Mult_sh(H,ShGroup) Result(N)
+    !!--++    integer, dimension(3),            intent (in) :: h
+    !!--++    Type (Magnetic_Space_Group_Type), intent (in) :: ShGroup
+    !!--++    integer                                       :: N
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculate the multiplicity of the reflection
+    !!--++
+    !!--++ Update: July - 2016
+    !!
+    Function Hkl_Mult_sh(H,ShGroup) Result(N)
+       !---- Arguments ----!
+       integer, dimension(3),            intent (in) :: h
+       Type (Magnetic_Space_Group_Type), intent (in) :: ShGroup
+       integer                                       :: N
+
+       !---- Local Variables ----!
+       logical                                :: esta
+       integer, dimension(3)                  :: k
+       integer                                :: i,j,ng
+       integer, dimension(3,ShGroup%numops)   :: klist
+
+       ng=ShGroup%numops
+       n=1
+       if (ng > 1) then
+           klist(:,1)=h(:)
+
+           do i=2,ng
+              k = hkl_r(h,ShGroup%SymOp(i))
+              esta=.false.
+              do j=1,n
+                 if (hkl_equal(k,klist(:,j)) .or. hkl_equal(-k,klist(:,j))) then
+                    esta=.true.
+                    exit
+                 end if
+              end do
+              if (esta) cycle
+              n=n+1
+              klist(:,n) = k
+           end do
+       end if
+       n=n*2
+       return
+    End Function Hkl_Mult_sh
+
+
     !!----
     !!---- Function  Hkl_R(H,Op)
     !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -1803,13 +1852,13 @@
     !!----    integer, dimension(3),            intent (in) :: h
     !!----    Type (Magnetic_Space_Group_Type), intent (in) :: ShubG
     !!----    logical                                       :: info
-    !!---- 
+    !!----
     !!----   Logical function returning .true. if the magnetic reflection H
     !!----   is a systematic extinction. Takes into account the type of
     !!----   magnetic group (Types 1,2,3,4)
-    !!---- 
+    !!----
     !!----   Created: March 2016
-    !!---- 
+    !!----
     Function mHkl_Absent(H,ShubG) Result(Info)
        !---- Arguments ----!
        integer, dimension(3),            intent (in) :: h
@@ -1840,10 +1889,10 @@
            do i=1,ShubG%Num_aLat
               r1=cos(tpi*dot_product(ShubG%aLatt_trans(:,i),real(h)))
               if(nint(r1) == -1) info=.false.
-           end do            
+           end do
        End Select
-    End Function mHkl_Absent  
-    
+    End Function mHkl_Absent
+
     !!----
     !!----  Function  Unit_Cart_Hkl(H, Crystalcell) Result (U)
     !!----     integer/real(kind=cp), dimension(3), intent(in) :: h
@@ -3019,16 +3068,14 @@
                                 maxpos, mp, iprev
        integer, dimension(3) :: hh,kk,nulo
        integer, dimension(:,:), allocatable :: hkl,hklm
-       integer, dimension(:),   allocatable :: indx,ini,fin,itreat,mult !,ityp
+       integer, dimension(:),   allocatable :: indx,ini,fin,itreat
        real,    dimension(:),   allocatable :: sv,sm
-       !logical, dimension(:),   allocatable :: treated
-       !integer, dimension(3,ShubG%numops)   :: klist
 
        nulo=0
        hmax=nint(CrystalCell%cell(1)*2.0*sintlmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*sintlmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*sintlmax+1.0)
-       hmin=-hmax; kmin=-kmax; lmin= -lmax         
+       hmin=-hmax; kmin=-kmax; lmin= -lmax
        maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
        allocate(hkl(3,maxref),indx(maxref),sv(maxref))
 
@@ -3041,7 +3088,7 @@
                 hh=(/h,k,l/)
                 if (hkl_equal(hh,nulo)) cycle
                 sval=hkl_s(hh,crystalcell)
-                if (sval > sintlmax) cycle                
+                if (sval > sintlmax) cycle
                 if (Hkl_Lat_Absent(hh,ShubG%Latt_trans,ShubG%Num_Lat)) cycle
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
@@ -3053,9 +3100,9 @@
              end do
           end do
        end do ext_do
-       
+
        call sort(sv,num_ref,indx)
-       
+
        allocate(hklm(3,num_ref),sm(num_ref),ini(num_ref),fin(num_ref),itreat(num_ref))
        do i=1,num_ref
          j=indx(i)
@@ -3077,24 +3124,22 @@
                if(abs(sm(i)-sm(j)) > 0.000001) exit
                kk=hklm(:,j)
                if(hkl_equiv(hh,kk,ShubG)) then ! if  hh eqv kk
-                 itreat(j) = i                 ! add h2 to the list equivalent to i
+                 itreat(j) = i                 ! add kk to the list equivalent to i
                  fin(indp)=j
                end if
            end do
          end if !itreat
-       end do 
-       
+       end do
+
        !Selection of the most convenient independent reflections
-       allocate(hkl(3,indp),sv(indp),indx(indp),mult(indp))
+       allocate(hkl(3,indp),sv(indp),indx(indp))
        indx=2 !nuclear and magnetic contribution by default
        do i=1,indp
          maxpos=0
          indj=ini(i)
-         mult(i)=0
          iprev=itreat(indj)
          do j=ini(i),fin(i)
            if(iprev /= itreat(j)) cycle
-           mult(i)=mult(i)+1
            hh=hklm(:,j)
            mp=count(hh > 0)
            if(mp > maxpos) then
@@ -3105,7 +3150,7 @@
          hkl(:,i)=hklm(:,indj)
          if(hkl(1,i) < 0) hkl(:,i)=-hkl(:,i)
          sv(i)=sm(indj)
-       end do  
+       end do
        !Now apply systematic absences other than lattice type
        num_ref=0
        do i=1,indp
@@ -3117,12 +3162,11 @@
              indx(i)=1   !pure magnetic
            end if
          else
-           if(mHKL_Absent(hh,ShubG)) indx(i)=0  !pure nuclear        
+           if(mHKL_Absent(hh,ShubG)) indx(i)=0  !pure nuclear
          end if
          num_ref=num_ref+1
          hklm(:,num_ref)=hh
          sm(num_ref) = sv(i)
-         mult(num_ref)=mult(i)
        end do
        !Final assignments
        if(allocated(reflex)) deallocate(reflex)
@@ -3131,12 +3175,12 @@
          hh=hkl(:,i)
          reflex(i)%h    = hh
          reflex(i)%s    = sm(i)
-         reflex(i)%mult = mult(i) !hkl_mult(hh,ShubG)
+         reflex(i)%mult = hkl_mult(hh,ShubG)
          reflex(i)%imag = indx(i)
-       end do 
+       end do
        return
-    End Subroutine Hkl_Gen_Shub 
-    
+    End Subroutine Hkl_Gen_Shub
+
     !!----
     !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object

@@ -6395,7 +6395,7 @@
     !!----
     !!---- Subroutine Get_String_Resolv(T,X,Ix,Symb)
     !!----    real(kind=cp), dimension(3), intent( in) :: t      !  In -> Traslation part
-    !!----    real(kind=cp), dimension(3), intent( in) :: x      !  In -> real(kind=cp) part of variable
+    !!----    real(kind=cp), dimension(3), intent( in) :: x      !  In -> real part of variable
     !!----    integer, dimension(3),       intent( in) :: ix     !  In -> Frags: 1:x, 2:y, 3:z
     !!----    character (len=*),           intent(out) :: symb   ! Out -> String
     !!----
