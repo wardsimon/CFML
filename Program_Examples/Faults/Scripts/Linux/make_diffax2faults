@@ -1,0 +1,139 @@
+#!/bin/bash
+#
+# Compilation Script for DIFFaX2FAULTS Program
+# Author: Juan Rodriguez-Carvajal
+# Date: August-2016
+# OS X version/Linux
+#
+# Checking CrySFML Environment Variable
+if [ -z "$CRYSFML" ]; then
+   echo "****"
+   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "****"
+   exit
+fi
+#
+# Calling Program
+#
+if [ -z "$1" ]; then
+cat << !
+make_diffax2faults  : Make the DIFFaX2FAULTS program  using Fortran Mac Compilers
+Syntax              : make_diffax2faults gfortran:ifort [m32|m64] [debug]
+!
+exit
+fi
+#
+# Default values for Arguments
+#
+COMP=""
+ARCH="m64"
+DEBUG="N"
+#
+# Arguments
+#
+for arg in "$@"
+do
+   case "$arg" in
+      "gfortran")
+         COMP=$arg
+         ;;
+      "ifort")
+         COMP=$arg
+         ;;
+      "m32")
+         ARCH=$arg
+         ;;
+      "m64")
+         ARCH=$arg
+         ;;
+      "deb"*)
+         DEBUG="Y"
+         ;;
+   esac
+done
+#
+# Check Compiler name
+#
+if [ -z $COMP ]; then
+   echo "****"
+   echo "**** Compiler name is wrong!!!. Please check it!"
+   echo "****"
+   exit
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG == "Y" ]; then
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -g -fbacktrace -ffree-line-length-none"
+          OPT2="-c -g -fbacktrace -ffree-line-length-none"
+          ;;
+      "ifort")
+          OPT1="-c -g -warn -$ARCH"
+          OPT2="-c -g -warn -$ARCH"
+          ;;
+   esac
+else
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -O -ffree-line-length-none -funroll-loops"
+          OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
+          ;;
+      "ifort")
+          #OPT1="-c -O -warn -$ARCH -Qvec-report0"
+          #OPT2="-c -O0 -warn -$ARCH -Qvec-report0"
+          OPT1="-c -O -warn -$ARCH -Qopt-report:0"
+          OPT2="-c -O0 -warn -$ARCH -Qopt-report:0"
+          ;;
+   esac
+fi
+#
+# Faults Directory
+#
+cd $CRYSFML/Program_Examples/Faults/DIFFaX2FAULTS
+#
+# External Libraries Options
+#
+DIRN=""
+VERS="Linux"
+if [ $ARCH == "m64" ]; then
+   DIRN="64"
+   VERS="Linux64"
+fi
+case "$COMP" in
+   "gfortran")
+      INC="-I$CRYSFML/GFortran$DIRN/LibC"
+      LIB="-L$CRYSFML/GFortran$DIRN/LibC"
+      LIBSTATIC="-lcrysfml"
+     ;;
+   "ifort")
+      INC="-I$CRYSFML/ifort$DIRN/LibC"
+      LIB="-L$CRYSFML/ifort$DIRN/LibC"
+      LIBSTATIC="-lcrysfml"
+     ;;
+esac
+#
+# Compilation Process
+#
+echo " ########################################################"
+echo " #### DIFFaX2FAULTS Console Program            (1.0) ####"
+echo " #### JRC - MCC - MR -JR               CopyLeft-2015 ####"
+echo " ########################################################"
+$COMP $OPT1 DIFFaX2FAULTS.f90    $INC
+case "$COMP" in
+   "gfortran")
+        $COMP -$ARCH *.o -o diffax2faults -static $LIB $LIBSTATIC
+     ;;
+   "ifort")
+        $COMP -$ARCH *.o -o diffax2faults -static-intel $LIB $LIBSTATIC
+     ;;
+esac
+#
+# Final process
+#
+rm -rf *.o *.mod
+mv diffax2faults $PROGCFML/DistFPS/$VERS
+#
+#
+
