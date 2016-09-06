@@ -308,9 +308,7 @@ PROGRAM DIFFaX_to_FAULTS
 
         ! Local Variables
           !integer            :: ier         ! control : 0 = successful, >0 error
-          integer             :: i,j,k       ! counters
-          character(maxcharF) :: txt         ! manipulation de chaine de caracteres
-          character(maxcharF) :: key         ! manipulation de chaine de caracteres
+          integer             :: i,j !,k       ! counters
           character(maxcharD) :: ligne
 
         ! Initialize variables
@@ -623,7 +621,6 @@ PROGRAM DIFFaX_to_FAULTS
             ! Local Variables
              integer                :: i,k,k1,n                     ! counter
              character(maxcharD)    :: texte,key,ligne            ! manipulation de chaines de caracteres
-             integer                :: ier                        ! control : 0 = successful, >0 error
              integer, dimension(50) :: L                          ! indexation de lignes
              integer                :: nactlay                    ! nb de layers comptées
              character(4)           :: atom, atom1, atom2         ! for manipulation of atoms' names
@@ -740,7 +737,6 @@ PROGRAM DIFFaX_to_FAULTS
             ! Local Variables
              integer             :: i,k,k1,n                   ! counters
              character(maxcharD) :: texte,key,ligne            ! manipulation de chaines de caracteres
-             integer             :: ier                        ! control : 0 = successful, >0 error
 
             k=0
             k1=0
@@ -829,7 +825,6 @@ PROGRAM DIFFaX_to_FAULTS
             ! Local Variables
              integer             :: i,k,k1,n,l                 ! counter
              character(maxcharD) :: texte,key,ligne,more       ! manipulation de chaines de caracteres
-             integer             :: ier                        ! control : 0 = successful, >0 error
              character(25)       :: A, B, C                    ! Lwidth values
 
             k=0

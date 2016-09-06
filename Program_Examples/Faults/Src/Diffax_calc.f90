@@ -893,6 +893,8 @@
       INTEGER :: k,kb,l,nm1
 ! MMJT: external subroutine
 ! external function
+      if(lda == 0) nm1=0 !Just to avoid warnings
+      
       nm1 = n - 1
       IF (job /= 0) GO TO 50
 
@@ -2335,7 +2337,8 @@
 
       getspc = .false.
       ok = .true.
-
+      if(len_trim(infile) == 0) ok = .true. !Just to avoid warnings
+      
       ! Make sure we are within bounds. If not, adjust.
       min_th = half * th2_min
       max_th = half * th2_max
@@ -4236,7 +4239,9 @@
       Logical, Intent(In Out)                  :: ok
 
       real(kind=dp),dimension(6) :: pv_in
-      integer                    :: i, io_err
+      integer                    :: i  !, io_err
+
+      if(len_trim(infile) == 0) i = 0 !Just to avoid warnings
 
       ! external subroutines
       !      external STREAK, GETFNM
@@ -6411,7 +6416,7 @@
         real      :: temp4      !coeff for 4-th summand in FWHM-lorentz
         real      :: temp2      !coeff for 2-th summand in FWHM-gauss
         real      :: doubletAngle, cos_th, tang_th
-        REAL      :: pvoigt, const, pv1, pv2
+        REAL      :: pvoigt, const !, pv1, pv2
         real, dimension(2) :: pLG   !vector of two FWHM for Lorentz and Gauss
         real, dimension(2) :: FWHMnEta !vector of FWHM and eta parameter
 
@@ -7014,6 +7019,8 @@
       ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
+      if(len_trim(strkfile) == 0) i = 0 !Just to avoid warnings      
+      
       q2 = four / (lambda**2)
       !10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
       !READ(cntrl,*,ERR=10) h, k, l0, l1, dl

@@ -296,13 +296,14 @@
          return
     end subroutine calc_avcell
 
-    Subroutine Write_ftls(crys,i_ftls, vs)
+    !Subroutine Write_ftls(crys,i_ftls, vs)
+    Subroutine Write_ftls(crys,i_ftls)
        !-----------------------------------------------
        !   D u m m y   A r g u m e n t s
        !-----------------------------------------------
        Type(crys_2d_type),          intent(in  out) :: crys
        integer,                     intent(in)      :: i_ftls
-       type(LSQ_State_Vector_type), intent(in)      :: Vs
+       !type(LSQ_State_Vector_type), intent(in)      :: Vs
 
 
        integer                            :: a,b,c, j, l,i !,n, print_width,m
@@ -1153,7 +1154,7 @@
       real                     :: rf
       real, save               :: chi2,chiold=1.0e35
       integer, save            :: iter=-1
-
+      if(m == 0) i=0 !Just to avoid warnings
       shift(1:npar) = v(1:npar) - vector(1:npar)
 
       Select Case(iflag)
@@ -1650,7 +1651,7 @@
       IF(ok .AND. rndm) ok = getlay() ! Generates a random sequence of layers
                                       ! weighted by the stacking probabilities.
       IF(ok) CALL sphcst() ! Calculating metric constants
-      IF(ok) CALL detun()  ! Calculate the array “detune” for avoiding singularities
+      IF(ok) CALL detun()  ! Calculate the array \93detune\94 for avoiding singularities
       IF(.NOT. ok) GO TO 999
       IF(ok) CALL optimz(infile, ok)  ! See if there are any optimizations we can do
       !write(*,"(a)") " => Calling dump file: "//trim(filenam)//".dmp"
@@ -1803,7 +1804,8 @@
                if(i /= 0) filenam=filenam(1:i-1)
                OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
                write(unit=*,fmt="(a)") " => Writing the FLTS file: "//trim(filenam)//"_new.flts"
-               call Write_ftls(crys,i_flts, vs)
+               !call Write_ftls(crys,i_flts, vs)
+               call Write_ftls(crys,i_flts)
              else
                write(*,"(a)") ' => The output file .flts cannot be created'
              end if
@@ -1852,4 +1854,3 @@
       call Close_Faults()
 
    End Program FAULTS
-
