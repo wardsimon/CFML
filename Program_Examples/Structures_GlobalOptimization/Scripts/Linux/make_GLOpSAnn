@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Compilation Script for GLOpSAnn Program
-# Author: Javier Gonzalez-Platas
-# Date: August-2015
-# OS X version
+# Authors: Javier Gonzalez-Platas and Juan Rodriguez-Carvajal
+# Date: August-2016
+# MacOS X/Linux version
 #
 # Checking CrySFML Environment Variable
 if [ -z "$CRYSFML" ]; then
@@ -100,13 +100,13 @@ VERS="Linux"
 if [ $ARCH == "m64" ]; then
    DIRN="64"
    VERS="Linux64"
-fi   
+fi
 case "$COMP" in
    "gfortran")
       INC="-I$CRYSFML/GFortran$DIRN/LibC"
       LIB="-L$CRYSFML/GFortran$DIRN/LibC"
       LIBSTATIC="-lcrysfml"
-     ;;  
+     ;;
    "ifort")
       INC="-I$CRYSFML/ifort$DIRN/LibC"
       LIB="-L$CRYSFML/ifort$DIRN/LibC"
@@ -117,8 +117,8 @@ esac
 # Compilation Process
 #
 echo " ########################################################"
-echo " #### GLOpSAnn Console Program                 (1.0) ####"
-echo " #### JRC                              CopyLeft-2015 ####"
+echo " #### GLOpSAnn Console Program                 (2.0) ####"
+echo " #### JRC                              CopyLeft-2016 ####"
 echo " ########################################################"
 $COMP $OPT1 observ.f90            $INC
 $COMP $OPT1 cost_functions.f90    $INC
@@ -126,7 +126,7 @@ $COMP $OPT1 GLOpSAnn.f90          $INC
 case "$COMP" in
    "gfortran")
         $COMP -$ARCH *.o -o GLOpSAnn -static $LIB $LIBSTATIC
-     ;;  
+     ;;
    "ifort")
         $COMP -$ARCH *.o -o GLOpSAnn -static-intel $LIB $LIBSTATIC
      ;;
@@ -134,7 +134,8 @@ esac
 #
 # Final process
 #
-rm -rf *.o *.mod
+upx GLOpSAnn
+rm -rf *.o *.mod *_genmod.f90
 mv GLOpSAnn $PROGCFML/DistFPS/$VERS
 #
 #

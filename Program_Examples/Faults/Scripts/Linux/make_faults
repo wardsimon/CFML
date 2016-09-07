@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Compilation Script for FAULTS Program
-# Author: Javier Gonzalez-Platas
-# Date: August-2015
-# OS X version
+# Authors: Javier Gonzalez-Platas and Juan Rodriguez-Carvajal
+# Date: August-2016
+# MacOS X/Linux version
 #
 # Checking CrySFML Environment Variable
 if [ -z "$CRYSFML" ]; then
@@ -100,13 +100,13 @@ VERS="Linux"
 if [ $ARCH == "m64" ]; then
    DIRN="64"
    VERS="Linux64"
-fi   
+fi
 case "$COMP" in
    "gfortran")
       INC="-I$CRYSFML/GFortran$DIRN/LibC"
       LIB="-L$CRYSFML/GFortran$DIRN/LibC"
       LIBSTATIC="-lcrysfml"
-     ;;  
+     ;;
    "ifort")
       INC="-I$CRYSFML/ifort$DIRN/LibC"
       LIB="-L$CRYSFML/ifort$DIRN/LibC"
@@ -127,7 +127,7 @@ $COMP $OPT1 Faults.f90        $INC
 case "$COMP" in
    "gfortran")
         $COMP -$ARCH *.o -o Faults -static $LIB $LIBSTATIC
-     ;;  
+     ;;
    "ifort")
         $COMP -$ARCH *.o -o Faults -static-intel $LIB $LIBSTATIC
      ;;
@@ -135,7 +135,8 @@ esac
 #
 # Final process
 #
-rm -rf *.o *.mod
+upx Faults
+rm -rf *.o *.mod *_genmod.f90
 mv Faults $PROGCFML/DistFPS/$VERS
 #
 #

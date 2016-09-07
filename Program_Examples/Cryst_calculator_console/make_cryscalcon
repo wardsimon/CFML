@@ -142,6 +142,6 @@ in
      $COMP *.o --out cryscalcon --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
-rm -rf *.o *.mod
+rm -rf *.o *.mod *_genmod.f90
 upx --compress-icons=0 cryscalcon
 mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon

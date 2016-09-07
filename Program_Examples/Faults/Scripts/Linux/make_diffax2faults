@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Compilation Script for DIFFaX2FAULTS Program
-# Author: Juan Rodriguez-Carvajal
+# Authors: Javier Gonzalez-Platas and Juan Rodriguez-Carvajal
 # Date: August-2016
-# OS X version/Linux
+# MacOS X/Linux version
 #
 # Checking CrySFML Environment Variable
 if [ -z "$CRYSFML" ]; then
@@ -132,7 +132,8 @@ esac
 #
 # Final process
 #
-rm -rf *.o *.mod
+upx diffax2faults
+rm -rf *.o *.mod *_genmod.f90
 mv diffax2faults $PROGCFML/DistFPS/$VERS
 #
 #
