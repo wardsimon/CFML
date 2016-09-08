@@ -144,4 +144,4 @@ in
 esac
 rm -rf *.o *.mod *_genmod.f90
 upx --compress-icons=0 cryscalcon
-mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon
+mv -f cryscalcon $PROGCFML/DistFPS/Linux64/cryscalcon
