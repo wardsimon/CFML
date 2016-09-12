@@ -43,6 +43,7 @@ rem   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort64\LibC\c
    upx Faults.exe
    if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
    if exist %PROGCFML% copy Faults.exe %PROGCFML%\DistFPS\. > nul
+   if exist %CRYSFML%\Program_Examples\Faults\DistFAULTS copy Faults.exe %CRYSFML%\Program_Examples\Faults\DistFAULTS\Windows\. > nul
    goto END
 :IFORTD
 echo on

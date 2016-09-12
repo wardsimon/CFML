@@ -46,7 +46,8 @@ rem   link  *.obj /subsystem:console /out:diffax2faults.exe
        if exist %PROGCFML% copy diffax2faults.exe %PROGCFML%\DistFPS\. > nul
    ) else (
        if exist %PROGCFML% copy diffax2faults.exe %PROGCFML%\DistFPS_64b\. > nul
-   )
+       if exist %CRYSFML%\Program_Examples\Faults\DistFAULTS copy diffax2faults.exe %CRYSFML%\Program_Examples\Faults\DistFAULTS\Windows\. > nul
+  )
    goto END
 :IFORTD
 echo on
