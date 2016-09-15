@@ -194,8 +194,33 @@ The following generators are available on this platform:
  The following works provided that ifort is in the path:
  ======================================================
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+
+ make -j4 -l4
+ install
  
  However Winteracter is not found ....
  
  For working only with console programs:
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+
+ For getting Winteracter work do:
+ --------------------------------
+
+sudo apt-get remove synaptic
+  559  sudo apt-get install synaptic
+  601  sudo apt-get install libxp-dev
+  603* sudo apt-get remove libxp-dev
+  605  sudo apt-get install libmotif-dev
+  606  sudo apt-get install libmotif-common
+  607  sudo apt-get install libpng3
+  612  sudo apt-get install libXp
+  613  sudo apt-get install xutils-dev libtool libx11-dev x11proto-xext-dev x11proto-print-dev
+
+
+
+sudo apt-get install libxmu-dev
+sudo apt-get install libxp-dev
+sudo apt-get install libsm-dev --> install SM and iCE
+sudo apt-get install libxft-dev --> install xft and png
+sudo apt-get install libjpeg-dev
+
