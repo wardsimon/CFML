@@ -401,9 +401,7 @@
        !---- Arguments ----!
        integer,   intent( in)    :: lun
        !---- Local variables ----!
-       character(len=132)   :: line
-       real                 :: w,tol
-       integer              :: i,ier
+       integer              :: i
 
 
        Write(unit=lun,fmt="(/,a)")    "=================================="
@@ -479,9 +477,7 @@
        !---- Arguments ----!
        integer,   intent( in)    :: lun
        !---- Local variables ----!
-       character(len=132)   :: line
-       real                 :: w,tol
-       integer              :: i,ier,j
+       integer              :: i,j
 
 
        Write(unit=lun,fmt="(/,a)")    "====================================="
@@ -594,7 +590,7 @@
       real,dimension(:),    intent( in):: v
       real,                 intent(out):: cost
       !---- Local variables ----!
-      integer :: i,ic, nop, nlist=1, numv
+      integer :: i,ic, nlist=1, numv
       integer, dimension(1) :: List
       logical :: tdist_called
 
@@ -828,8 +824,8 @@
     Subroutine Cost_Powder_Profile(cost)
        real,                 intent(out):: cost
        !---- Local variables ----!
-       integer  :: i,j,n,ik,nn
-       real     :: delt,sumcal,fcal,scalef,ww,pw
+       integer  :: i,j,nn
+       real     :: delt,fcal,scalef,ww,pw
 
        fcal=0.0
        do i=1,sprof%npts
@@ -925,9 +921,8 @@
     Subroutine Cost_Coordination(cost)
        real,      intent(out):: cost
        !---- Local variables ----!
-       integer :: i, nop, i1,i2
-       real    :: w, delta
-       real, dimension(3) :: x1,x2,tr
+       integer :: i 
+       real    :: delta
 
        cost=0.0
        do i=1,Ac%natoms
@@ -1138,10 +1133,10 @@
        !-----------------------------------------------
        !   L o c a l   V a r i a b l e s
        !-----------------------------------------------
-       integer ::  i, j,k, iposr, ihkl, irc,nphase,ideltr, i_prf
+       integer ::  i, iposr, ihkl, irc,nphase,ideltr, i_prf
        real    :: twtet, dd, scl,yymi,yyma,t1,t2
        character (len=1)   :: tb
-       character (len=50)  :: forma1,forma2
+       character (len=50)  :: forma1 
        !-----------------------------------------------
        !check for very high values of intensities and rescal everything in such a case
        ! scl: scale factor scl=1.0 (normal ymax < 1e6, 0.1 multiplier)

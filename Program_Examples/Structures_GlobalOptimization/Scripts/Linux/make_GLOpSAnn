@@ -83,8 +83,8 @@ else
       "ifort")
           #OPT1="-c -O -warn -$ARCH -Qvec-report0"
           #OPT2="-c -O0 -warn -$ARCH -Qvec-report0"
-          OPT1="-c -O -warn -$ARCH -Qopt-report:0"
-          OPT2="-c -O0 -warn -$ARCH -Qopt-report:0"
+          OPT1="-c -O  -warn -$ARCH -qopt-report=0"
+          OPT2="-c -O0 -warn -$ARCH -qopt-report=0"
           ;;
    esac
 fi
@@ -135,7 +135,7 @@ esac
 # Final process
 #
 upx GLOpSAnn
-rm -rf *.o *.mod *_genmod.f90
+rm -rf *.o *.mod  
 mv GLOpSAnn $PROGCFML/DistFPS/$VERS
 #
 #

@@ -4165,6 +4165,7 @@
            ok = getspc(aglq16, infile)
           ELSE
             ok = getspc(glq16, infile)
+            outfile=" "
           END IF
       end if
 

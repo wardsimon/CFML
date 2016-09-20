@@ -49,11 +49,11 @@ Program Global_Optimization_Xtal_structures
    character(len=256)                 :: line       !Text line
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
    character(len=80)                  :: title      !
-   integer                            :: MaxNumRef, Num, lun=1, ier,i,j,k, i_hkl=2, n, i_cfl
+   integer                            :: lun=1, ier,i,j,k, n, i_cfl
    integer, dimension(:),allocatable  :: i_bvs
    real                               :: start,fin, mindspc, maxsintl
-   integer                            :: narg,iargc
-   Logical                            :: esta, arggiven=.false.,sthlgiven=.false., &
+   integer                            :: narg
+   Logical                            :: esta, arggiven=.false., &
                                          fst_out=.false., local_opt=.false., rest_file=.false.
 
     !---- Arguments on the command line ----!
@@ -572,15 +572,13 @@ Program Global_Optimization_Xtal_structures
 
 End Program Global_Optimization_Xtal_structures
 
-Subroutine Write_FST(fst_file,v,cost)
+Subroutine Write_FST(fst_file)
    !---- Arguments ----!
    use CFML_String_Utilities,      only:  get_logunit
    Use CFML_Keywords_Code_Parser,  only:  VState_to_AtomsPar
    use cost_functions,             only:  Cell,A,SpG
 
    character(len=*),     intent(in):: fst_file
-   real,dimension(:),    intent(in):: v
-   real,                 intent(in):: cost
 
    !----- Local variables -----!
    integer :: lun,i,nc, ier

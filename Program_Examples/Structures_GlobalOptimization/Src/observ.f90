@@ -242,7 +242,7 @@
       type(Observation_List_Type), intent (out) :: Obs
       type(Reflection_List_Type),  intent (out) :: Rf  !Independent reflections
       !--- Local Variables ---!
-      integer :: ier, i,j,k,nlines,i_hkl,icod, nover, itemp, nri, iobs,nr,n
+      integer :: ier, i,j,nlines,i_hkl,icod, nover, itemp, nri, iobs,nr,n
       integer, dimension(3)               :: h
       integer, allocatable,dimension(  :) :: ic
       integer, allocatable,dimension(:,:) :: hov

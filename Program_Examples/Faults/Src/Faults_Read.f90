@@ -802,7 +802,7 @@
       character(len=25)  :: keyv
 
       logical :: ok_lsym, ok_atom
-      integer,          dimension(:),     allocatable  :: d !counts nº of atoms in unique layer
+      integer,          dimension(:),     allocatable  :: d !counts n\BA of atoms in unique layer
       !real  :: ab
 
       if (allocated (crys%fundamental)) deallocate(crys%fundamental)
@@ -837,7 +837,7 @@
        r = 0      ! counts n_actual
        a1= 0      ! reads layer number
        a2= 0      ! reads layer number
-       !yy=0       ! counts nº of atoms in layer type
+       !yy=0       ! counts n\BA of atoms in layer type
        j=0
        l=0
        m=0

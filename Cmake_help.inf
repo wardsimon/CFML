@@ -203,8 +203,8 @@ The following generators are available on this platform:
  For working only with console programs:
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
 
- For getting Winteracter work do:
- --------------------------------
+ To get Winteracter working do:
+ ------------------------------
 
 sudo apt-get remove synaptic
   559  sudo apt-get install synaptic
