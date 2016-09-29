@@ -1,5 +1,5 @@
 TITLE
-LiNiO2 WITH O1 TYPE FAULTS                                                                                                          
+Ni2MnGa 5M with 10% stacking faults                                                                                                         
   
 INSTRUMENTAL  AND  SIZE  BROADENING
 !type of radiation
@@ -600,5 +600,7 @@ FW     0.000000    0.000000    0.000000    0.000000    0.000000    0.000000
            
  CALCULATION  
  Simulation
+ !STREAK 1 h k l0 l1 dl
  STREAK 1 2 1 -5 5 0.01
+ !unbroaden - without instrumental broadening
 unbroaden

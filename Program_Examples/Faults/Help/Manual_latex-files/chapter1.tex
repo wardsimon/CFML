@@ -352,6 +352,11 @@ coherence between nearest neighbor layers, but no long-range coherence, as in th
 liquid crystals or pillared clays. If the stacking probability $\alpha_{ij}$ is zero, everything on the line after it is ignored and
 set to zero.
 All the parameters constituting this section are refinable parameters and can be written as real numbers or as fractions.
+\newline
+\textbf{TABLE.} For the long period structures, where number of layers is too high, one can optionally put transition parameters in form of a table. To do this, put the command TABLE followed by one of next keys: ALPHA (for probabilities), A or B or C (for x,y,z-coordinate of stacking vector, respectively), FW11, FW22, FW33, FW12, FW13, FW23 (for anisotropic Debye-Waller factors). Table could contain the blank lines between the rows and comments in form of "!" and ($\{\}$). Row in the table corresponds to parameters of "FROM"-layers. Respectively column corresponds to parameters of "TO"-layers. For instance, $\alpha_{ij}$ should appear on j-row and i-column.
+\newline
+\textbf{WARNING: } Standard setting using LT and FW keywords should also be present, but it can be left as zeros. If TABLE appears after standard LT and FW section, corresponding parameters would be overwritten by data from tables.
+
 
 
 \subsubsection{ \emph{Calculation} section}

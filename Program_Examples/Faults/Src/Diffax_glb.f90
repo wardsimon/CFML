@@ -440,6 +440,7 @@
 
   logical                              :: streakOrPowder = .false. !if TRUE then streak or powder fitting is handled
   logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
+  logical, dimension(10)               :: table = .false.  !if TRUE then a vector component of l_r and/or probabilities are written in the form of table
 !
 !*********************     integer*4 variables
 !

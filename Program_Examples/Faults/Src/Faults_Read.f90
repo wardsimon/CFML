@@ -1265,6 +1265,73 @@
             end if
             i=i+1
 
+          CASE ("TABLE")
+            if      (u_case(trim(txt)) == "A") then
+                l = 1
+            else if (u_case(trim(txt)) == "B") then
+                l = 2
+            else if (u_case(trim(txt)) == "C") then
+                l = 3
+            else if (u_case(trim(txt)) == "ALPHA") then
+                l = 4
+            else if (u_case(trim(txt)) == "FW11") then
+                l = 5
+            else if (u_case(trim(txt)) == "FW22") then
+                l = 6
+            else if (u_case(trim(txt)) == "FW33") then
+                l = 7
+            else if (u_case(trim(txt)) == "FW12") then
+                l = 8
+            else if (u_case(trim(txt)) == "FW13") then
+                l = 9
+            else if (u_case(trim(txt)) == "FW23") then
+                l = 10
+            end if
+            table(l) = .true.
+            m=1 !counts "FROM"-layer
+            do while (m <= n_layers)
+                i=i+1
+                txt=adjustl(tfile(i))
+                !check if there is a comment ! {} or blank field
+                if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
+                    !do nothink
+                else
+                    call getword(txt, citem, nitem)
+                    !check the number of elements within the row
+                    if (nitem /= n_layers) then
+                        Err_crys=.true.
+                        Err_crys_mess = "ERROR reading table of probabilities. Number of columns is not equal to n_layers."
+                        logi=.false.
+                        return
+                    end if
+                    !read elements within the row
+                    do j = 1, n_layers   !counts "TO"-layer
+                        if (l == 4) then
+                            call read_fraction(citem(j), crys%l_alpha(j,m))
+                        else if (l < 4) then
+                            call read_fraction(citem(j), crys%l_r (l,j,m))
+                        else if (l == 5) then
+                            call read_fraction(citem(j), crys%r_b11(j,m))
+                        else if (l == 6) then
+                            call read_fraction(citem(j), crys%r_b22(j,m))
+                        else if (l == 7) then
+                            call read_fraction(citem(j), crys%r_b33(j,m))
+                        else if (l == 8) then
+                            call read_fraction(citem(j), crys%r_b12(j,m))
+                        else if (l == 9) then
+                            call read_fraction(citem(j), crys%r_b13(j,m))
+                        else if (l == 10) then
+                            call read_fraction(citem(j), crys%r_b23(j,m))
+                        end if
+                    end do
+                    m=m+1
+                end if
+            end do !do while(m_t <= n_layers)
+            i=i+1
+            l=1
+            j=0
+          !end of CASE ("TABLE")
+
           CASE DEFAULT
             cycle
           end select
@@ -1699,12 +1766,18 @@
               allocate (dl_streak(num_streak))
               allocate (streak_flags(num_streak + 1))
               crys%patscal = 1.0
-              do j = 1, num_streak
+              j=1   !count streak files
+              do while (j <= num_streak)
                   i=i+1
                   !txt=u_case(adjustl(tfile(i)))
                   txt=adjustl(tfile(i)) !Conserve the original name of file_streaks (important for Linux and MacOS)
-                  read (unit = txt,fmt=*,iostat=ier) file_streak(j), h_streak(j), k_streak(j)
-              end do
+                  if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
+                      !do nothink
+                  else
+                      read (unit = txt,fmt=*,iostat=ier) file_streak(j), h_streak(j), k_streak(j)
+                      j=j+1
+                  end if
+              end do    ! end of do while(j <= num_streak)
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading experimental streak file instruction"

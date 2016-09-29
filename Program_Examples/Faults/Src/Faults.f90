@@ -1674,14 +1674,14 @@
                     !Output the results in logarithmic (base 10) scale
                     Do j = 1, n_high
                         if (unbroaden) then
-                            if(spec(j) < eps6) then !Protect against log(zero)
-                              ycalcdef(j) = 20
+                            if(spec(j) < eps7) then !Protect against log(zero)
+                              ycalcdef(j) = log10(eps7) + 20
                             else
                               ycalcdef(j) = log10(spec(j)) + 20
                             end if
                         else
-                            if(brd_spc(j) < eps6) then
-                              ycalcdef(j) =  20
+                            if(brd_spc(j) < eps7) then
+                              ycalcdef(j) =  log10(eps7) + 20
                             else
                               ycalcdef(j) = log10(brd_spc(j)) + 20
                             end if
@@ -1697,7 +1697,7 @@
                    write(unit=*,fmt="(a)") " => Writing the STREAK calculated pattern file: "//trim(outfile)
 
                      OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
-                     write(unit = iout,fmt = "(2(a,i3),a)")"! Title:  Streak: (",h_streak,",",h_streak," )  "//trim(crys%ttl)
+                     write(unit = iout,fmt = "(2(a,i3),a)")"! Title:  Streak: (",h_streak,",",k_streak," )  "//trim(crys%ttl)
                      write(unit = iout,fmt = "(a)")'! Legend_X  Reciprocal Lattice Units (r.l.u.)'
                      write(unit = iout,fmt = "(a)")'! Legend_Y  Log(Intensity) (arb. units)'
                      write(unit = iout,fmt = "(a)")"! Scattering variable: r.l.u."
@@ -1728,7 +1728,7 @@
                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
                     write(unit = iout,fmt = *)'!', outfile
                     write(unit = iout,fmt = '(3f12.4)')thmin, step_2th,thmax
-                    write(unit = iout,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high )
+                    write(unit = iout,fmt = '(8f14.2)') ( ycalcdef(j), j=1, n_high )
                     CLOSE(UNIT = iout)
                     ok = .true.
 

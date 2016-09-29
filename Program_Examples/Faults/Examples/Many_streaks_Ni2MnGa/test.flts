@@ -1,12 +1,11 @@
 TITLE
-LiNiO2 WITH O1 TYPE FAULTS                                                                                                          
+Ni2MnGa with almost ideal structure to begin with                                                                                                        
   
 INSTRUMENTAL  AND  SIZE  BROADENING
 !type of radiation
  Radiation      X-RAY
 !               lambda1    lambda2   ratio 
  Wavelength      1.540560 0.0  0.50000
-!Wavelength      1.540560 1.544390  0.50000
 !instrumental aberrations      zero      sycos     sysin
  Aberrations                   0.0000    0.0000    0.0000
                                0.00      0.00      0.00
@@ -608,6 +607,7 @@ FW     0.000000    0.000000    0.000000    0.000000    0.000000    0.000000
  unbroaden
  
  EXPERIMENTAL
+ !EXPSTREAK numberOfStreaks scaleFactor code
  EXPSTREAK 4 1.00 11.0
  faults10_1_0_unbr.dat 1 0
  faults10_1_1_unbr.dat 1 1
