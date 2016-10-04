@@ -62,7 +62,7 @@
 !!----       WRITE_GROUP_K
 !!----
 !!
- Module CFML_Propagation_Vectors_TEST
+ Module CFML_Propagation_Vectors
 
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: Cp, Eps
@@ -485,10 +485,11 @@
        else
           write(unit=lu,fmt="(a,i3,a)")    " => K .. IS NOT .. equivalent to -K "
        end if
-       write(unit=lu,fmt="(a)")       " => The operators following the k-vectors constitute the co-set decomposition G[Gk]"
-       write(unit=lu,fmt="(a)")       "    The list of equivalent k-vectors are also given on the right of operators.     "
+       write(unit=lu,fmt="(a)")           " => The operators following the k-vectors constitute the co-set decomposition G[Gk]"
+       write(unit=lu,fmt="(a)    ")       "    The list of equivalent k-vectors are also given on the right of operators.     "
+       write(unit=lu,fmt="(a,48(i3,a))")  " => Numerals of the extended little group operators:  {",(Gk%p(j),",",j=1,2*Gk%ngk-1),&
+                                               Gk%p(2*Gk%ngk)," }"
        write(unit=lu,fmt="(a,i3,a,/)")" => The star of K is formed by the following ",Gk%nk," vectors:"
-       write(unit=lu,fmt="(a,48(i3,a)/)") " => Numerals of the extended little group operators:  {",(Gk%p(j),",",j=1,2*Gk%ngk-1),Gk%p(2*Gk%ngk)," }"
 
        m=0
        do i=1,Gk%G0%multip
@@ -538,4 +539,4 @@
        return
     End Subroutine Write_Group_k
 
- End Module CFML_Propagation_Vectors_TEST
+ End Module CFML_Propagation_Vectors
