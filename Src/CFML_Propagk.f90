@@ -62,7 +62,7 @@
 !!----       WRITE_GROUP_K
 !!----
 !!
- Module CFML_Propagation_Vectors
+ Module CFML_Propagation_Vectors_TEST
 
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: Cp, Eps
@@ -92,7 +92,7 @@
     !!----    logical                       :: k_equiv_minusk !true if k equiv -k
     !!----    integer,      dimension(192)  :: p              !Pointer to operations of G0 that changes/fix k
     !!----                                                    !First indices: G_k, last indices: Stark
-    !!----    integer, dimension(48,48)     ::                !Pointers of symmetry operators of G0 constituting the
+    !!----    integer, dimension(48,48)     :: co             !Pointers of symmetry operators of G0 constituting the
     !!----                                                    !coset representatives of a particula k-vector of the star
     !!                                                        !Only the nk x nk submatrix is used, the rest is zero.
     !!----    integer                       :: nk             !Number of star arms
@@ -104,7 +104,7 @@
     !!----    If we defined the object G as ->  type(Group_K_Type) :: G
     !!----    G%p(1:ngk) gives the numeral of the symmetry operators of G%G0
     !!----    belonging to G_k.
-    !!----    G%p(192:193-nk) gives the numeral of the the symmetry operators of G%G0 that
+    !!----    G%p(193-nk:192) gives the numeral of the the symmetry operators of G%G0 that
     !!----    transform the initial k-vector to the other arms of the star.
     !!----    G%co(:,kk) gives also the numerals of the the symmetry operators of G%G0 that
     !!----    transform the initial k-vector to the arm kk of the star to the representative
@@ -286,28 +286,31 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine K_Star(K,Spacegroup,Gk)
+    !!---- Subroutine K_Star(K,Spacegroup,Gk,ext)
     !!----    real(kind=cp),dimension(3), intent(in)  :: k           !  In ->
     !!----    type (Space_Group_Type),    intent(in)  :: SpaceGroup  !  In ->
     !!----    Type (Group_k_Type),        intent(out) :: Groupk      ! Out ->
+    !!----    logical, optional,          intent(in)  :: ext
     !!----
     !!----    Calculate the star of the propagation vector
-    !!----    and the group of the vector k. Construct the object
-    !!----    "Groupk" that has as a component SpaceGroup + Pointers to the
-    !!----    operators belonging to Gk and the star of k.
+    !!----    and the group of the vector k, Gk, as well as the extended
+    !!----    little group Gk,-k. Construct the object "Groupk" that has
+    !!----    as components: SpaceGroup + Pointers to the
+    !!----    operators belonging to Gk, Gk,-k and the star of k.
     !!----
-    !!---- Update: February - 2005
+    !!---- Updates: February - 2005, October - 2016
     !!
-    Subroutine K_Star(K,Spacegroup,Gk)
+    Subroutine K_Star(K,Spacegroup,Gk,ext)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent (in) :: k
        Type (Space_Group_Type),     intent (in) :: SpaceGroup
        Type (Group_k_Type),         intent(out) :: Gk
+       logical, optional,           intent(in)  :: ext
 
        !---- Local Variables ----!
        real(kind=cp), dimension(3):: h
        integer, dimension(48)     :: ind=1  !The maximum number of rotational elements is 48 (=order of the point group m-3m)
-       integer                    :: i, j, ng
+       integer                    :: i, j, m, l, ng
 
        ng=SpaceGroup%numops  !Reduced set of symmetry operators (the firsts of the list: there is no centring translation nor inversion centre)
        Gk%g0=SpaceGroup  !<- Copy the whole space group to the component G0 of Gk
@@ -360,23 +363,42 @@
           Gk%co(1,Gk%nk)    = i        !First of the co-set representatives
        end do do_ng
 
+       if(present(ext)) then
+         m=Gk%ngk
+         do_ext: do i=2, Gk%nk
+            h= Gk%stark(:,i)
+            if (k_EQUIV(h,-k, Gk%G0%SPG_lat)) then
+              do l=1,48
+                j=Gk%co(l,i)
+                if (j == 0) exit do_ext
+                m=m+1
+                Gk%p(m)=j
+              end do
+           end if
+         end do do_ext
+       end if
+
        return
     End Subroutine K_Star
 
     !!----
-    !!---- Subroutine Set_Gk(Gk,SPGk)
+    !!---- Subroutine Set_Gk(Gk,SPGk,ext)
     !!----    Type (Group_k_Type),      intent(in) :: Gk
     !!----    Type (Space_Group_Type), intent(out) :: SPGk
+    !!----    logical, optional,        intent(in) :: ext
     !!----
-    !!----    Subroutine to convert the propagation vector group
-    !!----    to a conventional space group
+    !!----    Subroutine to convert the propagation vector group Gk,
+    !!----    or the extended little group Gk,-k to a conventional space group.
+    !!----    When ext is present is the extended little group that is converted
+    !!----    to a conventional space group type.
     !!----
-    !!---- Update: April - 2015
+    !!---- Updates: April - 2015, October 2016
     !!
-    Subroutine Set_Gk(Gk,SPGk)
+    Subroutine Set_Gk(Gk,SPGk,ext)
        !---- Arguments ----!
        Type (Group_k_Type),     intent(in)  :: Gk
        Type (Space_Group_Type), intent(out) :: SPGk
+       logical, optional,       intent(in)  :: ext
 
        !---- Local Variables ----!
        character(len=50),dimension(Gk%G0%multip) :: gen
@@ -394,6 +416,13 @@
            exit
         end if
        end do
+       if(present(ext)) then
+          do i=Gk%ngk+1,2*Gk%ngk
+            ngen=ngen+1
+            j=Gk%p(i)
+            gen(ngen)=Gk%G0%SymopSymb(j)
+          end do
+       end if
        !Add now the lattice translations
        Select Case(Gk%G0%SPG_lat)
           Case("A")
@@ -459,6 +488,7 @@
        write(unit=lu,fmt="(a)")       " => The operators following the k-vectors constitute the co-set decomposition G[Gk]"
        write(unit=lu,fmt="(a)")       "    The list of equivalent k-vectors are also given on the right of operators.     "
        write(unit=lu,fmt="(a,i3,a,/)")" => The star of K is formed by the following ",Gk%nk," vectors:"
+       write(unit=lu,fmt="(a,48(i3,a)/)") " => Numerals of the extended little group operators:  {",(Gk%p(j),",",j=1,2*Gk%ngk-1),Gk%p(2*Gk%ngk)," }"
 
        m=0
        do i=1,Gk%G0%multip
@@ -508,5 +538,4 @@
        return
     End Subroutine Write_Group_k
 
- End Module CFML_Propagation_Vectors
-
+ End Module CFML_Propagation_Vectors_TEST
