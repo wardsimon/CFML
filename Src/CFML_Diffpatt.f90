@@ -3486,13 +3486,17 @@
              end if
          else
              pat%title=txt1
-             do i=1,5
+             i=0
+             do
+                i=i+1
+                if(i == 6) exit
                 read(unit=i_dat,fmt="(a)", iostat=ier) txt1
                 if (ier /= 0) then
                    Err_diffpatt=.true.
                    ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
                    return
                 end if
+                if(txt1(1:1) == "#") i=i-1
                 if(present(header)) header=trim(header)//trim(txt1)//char(0)
 
                 line_da=line_da+1
