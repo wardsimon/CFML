@@ -306,7 +306,8 @@
     !---- Use Files ----!
     Use CFML_GlobalDeps,   only: Cp, Dp
     Use CFML_LSQ_TypeDef
-    Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm, Upper_Triangular
+    Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm, &
+                                 Upper_Triangular,SVDcmp
 
     !---- Variables ----!
     implicit none
@@ -1060,18 +1061,13 @@
 
 
        !---- Correlation matrix ----!
+       !Here the correlation matrix is already well calculated
+
        write(unit=lun,fmt="(/,a,/)")   " => Correlation Matrix: "
 
        do i=1,c%npvar
           do j=i,c%npvar
-             correl(i,j)=correl(i,j)/sqrt(curv_mat(i,i)*curv_mat(j,j))
-             correl(j,i)=correl(i,j)
-          end do
-       end do
-       do i=1,c%npvar
-          g2=sqrt(correl(i,i))
-          do j=i,c%npvar
-             correl(i,j)=correl(i,j)/g2/sqrt(correl(j,j))*100.0
+             correl(i,j)=correl(i,j)*100.0
              correl(j,i)=correl(i,j)
           end do
        end do
@@ -1099,8 +1095,13 @@
        do i=1,c%npvar
         write(unit=lun,fmt="(a,i6,2f20.5)") "    "//vnam(i),i,v(i),vstd(i)
        end do
-       write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
-
+       write(unit=lun,fmt="(/,a,g13.5)")  " => Final value of Chi2: ",chi2
+       write(unit=lun,fmt="(a)")  " => Well-behaved LSQ-problems give Tikhonov regularization equal to zero (convergence status above)"
+       write(unit=lun,fmt="(a)")  &
+       " => In ill-behaved LSQ-problems Tikhonov regularization is selected equal to 10^-6*Maximum(Singular Value) in SVDecomposition"
+       if(chi2 > 1.0) then
+          write(unit=lun,fmt="(a)") " => The LSQ-standard deviations have been mutiplied by SQRT(Chi2)"
+       end if
 
        return
     End Subroutine Info_LSQ_LM_V
@@ -1610,15 +1611,18 @@
        End Interface
 
        !--- Local Variables ---!
-       Integer                              :: i,j, maxfev, mode, nfev, njev, nprint, n, &
-                                               iflag,info
-       Integer,        dimension(c%npvar)   :: ipvt
-       Integer, dimension(c%npvar,c%npvar)  :: p,id
-       Real (Kind=cp), dimension(m)         :: fvec  !Residuals
-       Real (Kind=cp), dimension(m,c%npvar) :: fjac
-       Real (Kind=cp)                       :: ftol, gtol, xtol,iChi2,deni,denj
-       Real (Kind=cp), Parameter            :: factor = 100.0_CP, zero = 0.0_CP
-       Logical                              :: singular
+       Integer                                    :: i,j, maxfev, mode, nfev, njev, nprint, n, &
+                                                     iflag,info
+       Integer,        dimension(c%npvar)         :: ipvt
+       Integer,        dimension(c%npvar,c%npvar) :: p,id
+       Real (Kind=cp), dimension(c%npvar,c%npvar) :: U,VS,Sigm
+       Real (Kind=cp), dimension(c%npvar)         :: Sig
+       Real (Kind=cp), dimension(m)               :: fvec  !Residuals
+       Real (Kind=cp), dimension(m,c%npvar)       :: fjac
+       Real (Kind=cp)                             :: ftol, gtol, xtol,iChi2,deni,denj, &
+                                                     Tikhonov
+       Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
+       Logical                                    :: singular
 
        info = 0
        n=c%npvar
@@ -1677,45 +1681,77 @@
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
        !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
-       curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
-       do j=1,n
-          p(1:n,j) = id(1:n,ipvt(j))
-       end do
-       curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
 
-       !Make an additional direct final call to the model function in order to calculate the Jacobian J,
+        curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
+        do j=1,n
+           p(1:n,j) = id(1:n,ipvt(j))
+        end do
+        curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
+        Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+        !If the final curvature matrix is singular perform a Tikhonov
+        !regularization (This increases the error bars!)
+        Tikhonov=0.0
+        if(singular) then
+          Err_lsq =.true.
+          Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
+          j=0
+          do
+            !first do a SVD decomposition
+            U=curv_mat(1:n,1:n)
+            call SVDcmp(U,Sig,VS)
+            Tikhonov=maxval(Sig)*1.0e-6
+            Sig=Sig+Tikhonov
+            Sigm=0.0
+            do i=1,n
+               Sigm(i,i)=Sig(i)
+            end do
+            curv_mat(1:n,1:n)=matmul(U,matmul(Sigm,transpose(VS)))
+            Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+            if(.not. singular) exit
+            j=j+1
+            if(j > 3) exit
+          end do
+          if(j <= 3) then
+            Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
+          end if
+        end if
+       !
+       !Alternatively, make an additional direct final call to the model function in order to calculate the Jacobian J,
        !curvature matrix A=Jt.J, invert it and take the diagonal elements for calculating the standard
        !deviations at the final point.
        !iflag=2
-       !Call Model_Functn(m, n, x, fvec, fjac, iflag)
-       !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac)
-       do j=1,n
-          denj=curv_mat(j,j)
-          if( denj <= zero) denj=1.0
-          do i=1,n
-             deni=curv_mat(i,i)
-             if( deni <= zero) deni=1.0
-             correl(j,i)=curv_mat(j,i)/sqrt(denj*deni)
-          end do
-          correl(j,j)=1.00001
-       end do
-       Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
+       !Call Model_Functn(m, n, v, fvec, fjac, iflag)
+       !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac) !Least squares matrix
+
        If (.not. singular) then
+          !Here correl is the inverse of the curvature matrix (Variance-co-variance matrix)
+          deni=max(chi2,1.0)
           Do i=1,n
-             deni = curv_mat(i,i)
-             if( deni <= zero) deni=1.0
-             Vstd(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
+             Vstd(i) = sqrt(deni*abs(correl(i,i)))
           End Do
+          !Now correl is the true correlation matrix
+          forall (i=1:n,j=1:n)
+              correl(i,j)=correl(i,j)/sqrt(correl(i,i)*correl(j,j))
+          end forall
        Else
+          !Here correl is the "pseudo"-inverse of the curvature-matrix
           Do i=1,n
-             if (correl(i,i) <= zero) then
-                info=0
-                write(unit=infout,fmt="(a,i3)") "Final Singular Matrix!, problem with parameter #",i
-                exit
+             if( deni <= zero) then
+               Vstd(i) = 99999.9
+             else
+               Vstd(i) = sqrt(chi2*abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
              end if
           End Do
-          Err_lsq =.true.
-          Err_Lsq_Mess=" Singular Matrix at the end of LM_Der for calculating std deviations ..."
+          !Pseudo-correlation matrix
+          do j=1,n
+             denj=correl(j,j)
+             if( denj <= zero) denj=1.0
+             do i=1,n
+                deni=correl(i,i)
+                if( deni <= zero) deni=1.0
+                correl(j,i)=correl(j,i)/sqrt(denj*deni)
+             end do
+          end do
        End if
 
 
@@ -1724,23 +1760,23 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov, &
                "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
 
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
                 "     Convergence reached: The relative error between x and the solution is at most ",c%tol
 
           Case(3)
             c%reached=.true.
-             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
              "     Convergence reached: The relative error "// &
              "in the sum of squares and the difference between x and the solution are both at most ",c%tol
 
           Case(4,8)
              c%reached=.true.
-             write(unit=infout,fmt="(a,g12.5,a)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,g12.5,a)") "Tikhonov regularization:", Tikhonov, &
               "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
 
           Case(5)
@@ -1755,7 +1791,7 @@
           Case(7)
              c%reached=.false.
              write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
-                                            " is too small! No further improvement in the approximate solution x is possible"
+                                            " is too small! No further improvement in the approximate solution x seems to be possible"
        End Select
        if (present(residuals)) residuals(1:m)=fvec(1:m)
 
@@ -2284,7 +2320,7 @@
          End Do
        End If
 
-       !     evaluate the function at the starting point and calculate its norm.
+       !     Evaluate the function at the starting point and calculate its norm.
        If (.not. lmerror) then
          iflag = 1
          Call fcn(m, n, x, fvec, fjac, iflag)
@@ -2295,28 +2331,28 @@
        If (.not. lmerror) then
          fnorm = enorm(m, fvec)
 
-         !     initialize levenberg-marquardt parameter and iteration counter.
+         !     Initialize Levenberg-Marquardt parameter and iteration counter.
          par = zero
          iter = 1
-         Do_Out: Do !     beginning of the outer loop.
+         Do_Out: Do !     Beginning of the outer loop.
 
-            !        calculate the jacobian matrix.
+            !        Calculate the Jacobian matrix.
             iflag = 2
             Call fcn(m, n, x, fvec, fjac, iflag)
             njev = njev + 1
             If (iflag < 0) Exit Do_Out
 
-            !        if requested, call fcn to enable printing of iterates.
+            !        If Requested, call fcn to enable printing of iterates.
             If (nprint > 0) Then
                iflag = 0
                If (Mod(iter-1,nprint) == 0) Call fcn(m, n, x, fvec, fjac, iflag)
                If (iflag < 0) Exit Do_Out
             End If
 
-            !        compute the qr factorization of the jacobian.
+            !        Compute the qr factorization of the jacobian.
             Call qrfac(m, n, fjac, .TRUE., ipvt, wa1, wa2)
 
-            !        on the first iteration and if mode is 1, scale according
+            !        On the first iteration and if mode is 1, scale according
             !        to the norms of the columns of the initial jacobian.
             If (iter == 1) Then
                If (mode /= 2) Then
@@ -2326,7 +2362,7 @@
                   End Do
                End If
 
-               !        on the first iteration, calculate the norm of the scaled x
+               !        On the first iteration, calculate the norm of the scaled x
                !        and initialize the step bound delta.
                wa3(1:n) = diag(1:n)*x(1:n)
                xnorm = enorm(n,wa3)
@@ -2334,7 +2370,7 @@
                If (delta == zero) delta = factor
             End If
 
-            !        form (q transpose)*fvec and store the first n components in qtf.
+            !        Form (q transpose)*fvec and store the first n components in qtf.
             wa4(1:m) = fvec(1:m)
             Do j = 1, n
                If (fjac(j,j) /= zero) Then
@@ -2348,7 +2384,7 @@
                qtf(j) = wa4(j)
             End Do
 
-            !        compute the norm of the scaled gradient.
+            !        Compute the norm of the scaled gradient.
             gnorm = zero
             If (fnorm /= zero) Then
                Do j = 1, n
@@ -2362,24 +2398,24 @@
                End Do
             End If
 
-            !        test for convergence of the gradient norm.
+            !        Test for convergence of the gradient norm.
             If (gnorm <= gtol) info = 4
             If (info /= 0) Exit Do_Out
 
-            !        rescale if necessary.
+            !        Rescale if necessary.
             If (mode /= 2) Then
                Do j = 1, n
                   diag(j) = Max(diag(j), wa2(j))
                End Do
             End If
 
-            !        beginning of the inner loop.
+            !        Beginning of the inner loop.
             Do_In: Do
 
-               !           determine the levenberg-marquardt parameter.
+               !           Determine the Levenberg-Marquardt parameter.
                Call lmpar(n, fjac, ipvt, diag, qtf, delta, par, wa1, wa2)
 
-               !           store the direction p and x + p. calculate the norm of p.
+               !           Store the direction p and x + p. calculate the norm of p.
                Do j = 1, n
                   wa1(j) = -wa1(j)
                   wa2(j) = x(j) + wa1(j)
@@ -2387,21 +2423,21 @@
                End Do
                pnorm = enorm(n, wa3)
 
-               !           on the first iteration, adjust the initial step bound.
+               !           On the first iteration, adjust the initial step bound.
                If (iter == 1) delta = Min(delta,pnorm)
 
-               !           evaluate the function at x + p and calculate its norm.
+               !           Evaluate the function at x + p and calculate its norm.
                iflag = 1
                Call fcn(m, n, wa2, wa4, fjac, iflag)
                nfev = nfev + 1
                If (iflag < 0) Exit Do_Out
                fnorm1 = enorm(m, wa4)
 
-               !           compute the scaled actual reduction.
+               !           Compute the scaled actual reduction.
                actred = -one
                If (p1*fnorm1 < fnorm) actred = one - (fnorm1/fnorm)**2
 
-               !           compute the scaled predicted reduction and
+               !           Compute the scaled predicted reduction and
                !           the scaled directional derivative.
                Do j = 1, n
                   wa3(j) = zero
@@ -2414,11 +2450,11 @@
                prered = temp1**2 + temp2**2/p5
                dirder = -(temp1**2 + temp2**2)
 
-               !           compute the ratio of the actual to the predicted reduction.
+               !           Compute the ratio of the actual to the predicted reduction.
                ratio = zero
                If (prered /= zero) ratio = actred/prered
 
-               !           update the step bound.
+               !           Update the step bound.
                If (ratio <= p25) Then
                   If (actred >= zero) temp = p5
                   If (actred < zero) temp = p5*dirder/(dirder + p5*actred)
@@ -2432,9 +2468,9 @@
                   End If
                End If
 
-               !           test for successful iteration.
+               !           Test for successful iteration.
                If (ratio >= p0001) Then
-                  !           successful iteration. update x, fvec, and their norms.
+                  !           Successful iteration. Update x, fvec, and their norms.
                   Do j = 1, n
                      x(j) = wa2(j)
                      wa2(j) = diag(j)*x(j)
@@ -2445,28 +2481,28 @@
                   iter = iter + 1
                End If
 
-               !           tests for convergence.
+               !           Tests for convergence.
 
                If (Abs(actred) <= ftol .AND. prered <= ftol .AND. p5*ratio <= one) info = 1
                If (delta <= xtol*xnorm) info = 2
                If (Abs(actred) <= ftol .AND. prered <= ftol .AND. p5*ratio <= one .AND. info == 2) info = 3
                If (info /= 0) Exit Do_Out
 
-               !           tests for termination and stringent tolerances.
+               !           Tests for termination and stringent tolerances.
                If (nfev >= maxfev) info = 5
                If (Abs(actred) <= epsmch .AND. prered <= epsmch .AND. p5*ratio <= one) info = 6
                If (delta <= epsmch*xnorm) info = 7
                If (gnorm <= epsmch) info = 8
                If (info /= 0) Exit Do_Out
 
-               !           end of the inner loop. repeat if iteration unsuccessful.
+               !           End of the inner loop. repeat if iteration unsuccessful.
                If (ratio >= p0001) Exit Do_In
             End Do Do_In
-            !        end of the outer loop.
+            !        End of the outer loop.
          End Do Do_Out
        End If
 
-       !     termination, either normal or user imposed.
+       !     Termination, either normal or user imposed.
        If (iflag < 0) info = iflag
        iflag = 0
        If (nprint > 0) Call fcn(m, n, x, fvec, fjac, iflag)

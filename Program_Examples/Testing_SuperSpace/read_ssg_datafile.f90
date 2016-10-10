@@ -33,6 +33,7 @@
       integer,        dimension(m_dim+1,m_cond,m_ngs) :: igroup_condition2=0  ! vector representation of lefthand side
       integer,  dimension(m_ngs) :: pos_group !position in the file of the groups
       integer,  dimension(m_ncl) :: pos_class !position in the file of the Bravais classes
+      integer,  dimension(m_ncl+m_ngs) :: pos_all !position in the file of all
 
       contains
 
@@ -41,8 +42,9 @@
         character(len=*), intent(out) :: mess
         !
         integer :: i,j,k,m,n,imax,nmod,iclass
-        integer :: i_db, ier, line_pos
+        integer :: i_db, ier, line_pos,L
         character(len=512) :: ssg_file
+        character(len=4) :: line
          !imax=0
          ok=.true.
          mess=" "
@@ -54,6 +56,23 @@
            mess= 'Error opening the database file: '//trim(ssg_file)
            return
          end if
+         L=0
+         do i=1,2526
+           read(i_db,"(a)") line
+           if(line(1:1) == '"') then
+             L=L+1
+             pos_class(L)= i-1
+           end if
+         end do
+         L=0
+         do i=2527,300000
+           read(i_db,"(a)",iostat=ier) line
+           if (ier /= 0) exit
+           if(line(1:1) == '"') then
+             L=L+1
+             pos_group(L)= i-1
+           end if
+         end do
          ! skip heading
          read(i_db,*)
          read(i_db,*)

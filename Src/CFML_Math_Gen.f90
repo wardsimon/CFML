@@ -3939,11 +3939,16 @@
 
        !---- Local variables ----!
        real(kind=cp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
-       real(kind=cp), parameter           :: vtiny = 1.0e-20_sp !A small number.
+       real(kind=cp), parameter           :: vtiny = 1.0e-7_sp !A small number.
        integer                            :: j,imax,n
 
        singular=.false.
        n=size(a,1)
+       if(present(indx)) then
+         do j=1,n
+           indx(j)=j
+         end do
+       end if
        d=1.0                      !No row interchanges yet.
        vv=maxval(abs(a),dim=2)    !Loop over rows to get the implicit scaling information.
        if (any(abs(vv) <= vtiny)) then   !There is a row of zeros.
@@ -3962,7 +3967,7 @@
           if (abs(a(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
              a(j,j)=vtiny                !(at least to the precision of the algorithm)
              singular=.true.             !For some applications on singular matrices,
-             return                      !it is desirable to substitute vtiny for zero.
+             !return                      !it is desirable to substitute vtiny for zero.
           end if                         !This is actually the present case
           a(j+1:n,j)=a(j+1:n,j)/a(j,j)                                    !Divide by the pivot element.
           a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(a(j+1:n,j),a(j,j+1:n))  !Reduce remaining submatrix.
@@ -3970,6 +3975,23 @@
 
        return
     End Subroutine LU_Decomp
+
+    !Subroutine LU_Decomp_dp(a,p)
+    !  ! In situ decomposition, corresponds to LAPACK's dgebtrf
+    !   real(kind=dp), intent(in out) :: a(:,:)
+    !   integer,       intent(out  )  :: p(:)
+    !   !--- Local Variables ---!
+    !   integer     :: n, i,j,k,kmax
+    !
+    !   n = size(a,1)
+    !   p = [ ( i, i=1,n ) ]
+    !   do k = 1,n-1
+    !       kmax = maxloc(abs(a(p(k:),k)),1) + k-1
+    !       if (kmax /= k ) p([k, kmax]) = p([kmax, k])
+    !       a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
+    !       forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
+    !   end do
+    !End Subroutine LU_Decomp_dp
 
     !!----
     !!---- Subroutine Matinv(a,n)
@@ -4801,8 +4823,8 @@
     !!----    real(sp/dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--<<
     !!----    Given an M�N matrix A ,this routine computes its singular value decomposition,
-    !!----    A = U �W �VT . The matrix U replaces A on output. The diagonal matrix of
-    !!----    singular values W is output as the N-dimensional vector w. The N�N matrix V
+    !!----    A = U W VT . The matrix U replaces A on output. The diagonal matrix of
+    !!----    singular values W is output as the N-dimensional vector w. The NxN matrix V
     !!----    (not the transpose VT )is output as v .
     !!----    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!-->>
@@ -4817,9 +4839,9 @@
     !!--++    real(dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Given an M �N matrix A ,this routine computes its singular value decomposition,
-    !!--++    A = U �W �VT . The matrix U replaces A on output. The diagonal matrix of
-    !!--++    singular values W is output as the N-dimensional vector w. The N�N matrix V
+    !!--++    Given an M x N matrix A ,this routine computes its singular value decomposition,
+    !!--++    A = U  W  VT . The matrix U replaces A on output. The diagonal matrix of
+    !!--++    singular values W is output as the N-dimensional vector w. The NxN matrix V
     !!--++    (not the transpose VT )is output as v .
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
@@ -4832,11 +4854,11 @@
        real(kind=dp),dimension(:,:),intent(   out) ::v
 
        !---- Local variables ----!
-       integer, parameter                          :: num_its=500
-       integer                                     ::i,its,j,k,l,m,n,nm
-       real(kind=dp)                               ::anorm,c,f,g,h,s,scal,x,y,z
-       real(kind=dp),dimension(size(a,1))          ::tempm
-       real(kind=dp),dimension(size(a,2))          ::rv1,tempn
+       integer, parameter                  :: num_its=500
+       integer                             :: i,its,j,k,l,m,n,nm
+       real(kind=dp)                       :: anorm,c,f,g,h,s,scal,x,y,z
+       real(kind=dp),dimension(size(a,1))  :: tempm
+       real(kind=dp),dimension(size(a,2))  :: rv1,tempn
 
        m=size(a,1)
        n=size(a,2)
@@ -5009,10 +5031,10 @@
     !!--++    real(sp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Given an M �N matrix A ,this routine computes its singular value decomposition,
-    !!--++    A = U �W �VT . The matrix U replaces A on output. The diagonal matrix of
-    !!--++    singular values W is output as the N-dimensional vector w. The N�N matrix V
-    !!--++    (not the transpose VT )is output as v .
+    !!--++    Given an M x N matrix A ,this routine computes its singular value decomposition,
+    !!--++    A = U W VT . The matrix U replaces A on output. The diagonal matrix of
+    !!--++    singular values W is output as the N-dimensional vector w. The N X N matrix V
+    !!--++    (not the transpose VT )is output as v.
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
     !!--++ Update: February - 2005
@@ -5024,11 +5046,11 @@
        real(kind=sp),dimension(:,:),intent(   out) :: v
 
        !---- Local variables ----!
-       integer, parameter                          :: num_its=500
-       integer                                     ::i,its,j,k,l,m,n,nm
-       real(kind=sp)                               ::anorm,c,f,g,h,s,scala,x,y,z
-       real(kind=sp),dimension(size(a,1))          ::tempm
-       real(kind=sp),dimension(size(a,2))          ::rv1,tempn
+       integer, parameter                 :: num_its=500
+       integer                            :: i,its,j,k,l,m,n,nm
+       real(kind=sp)                      :: anorm,c,f,g,h,s,scala,x,y,z
+       real(kind=sp),dimension(size(a,1)) :: tempm
+       real(kind=sp),dimension(size(a,2)) :: rv1,tempn
 
 
        m=size(a,1)
@@ -5108,7 +5130,7 @@
           end if
           a(i,i)=a(i,i)+1.0_sp
        end do
-       do k=n,1,-1           !Diagonalization of the idiagonal form:Loop over
+       do k=n,1,-1            !Diagonalization of the idiagonal form:Loop over
           do its=1,num_its    !singular values,and over allowed iterations.
              do l=k,1,-1      !Test for splitting.
                 nm=l-1        !Note that rv1(1)is always zero,so can never fall through bottom of loop.
