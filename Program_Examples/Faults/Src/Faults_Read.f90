@@ -1414,7 +1414,7 @@
             allocate(l1_streak(num_streak))
             allocate(dl_streak(num_streak))
             allocate(streak_flags(num_streak + 1))
-            streak_flags(1) = 0
+            streak_flags(1) = 1
             read (unit=txt(k:), fmt=*, iostat=ier) adapt_quad, h_streak(1), k_streak(1), l0_streak(1), l1_streak(1), dl_streak(1) !there must be some variables
             if (ier /= 0 ) then
                 Err_crys=.true.
