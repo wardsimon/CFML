@@ -2898,7 +2898,7 @@
        character(len=60), dimension(192) :: symm_car
 
        integer                   :: i, nauas, ndata, iph, n_ini,n_end,noper
-       integer, parameter        :: maxph=21  !Maximum number of phases "maxph-1"
+       integer, parameter        :: maxph=250  !Maximum number of phases "maxph-1"
        integer, dimension(maxph) :: ip
 
        real(kind=cp),dimension(6):: vet,vet2
