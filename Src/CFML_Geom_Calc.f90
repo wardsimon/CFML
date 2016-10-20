@@ -79,6 +79,7 @@
 !!----    Subroutines:
 !!----       ALLOCATE_COORDINATION_TYPE
 !!----       ALLOCATE_POINT_LIST
+!!----       ANGLE_AND_SIGMA
 !!----       CALC_DIST_ANGLE
 !!----       CALC_DIST_ANGLE_SIGMA
 !!----       DEALLOCATE_COORDINATION_TYPE
@@ -128,7 +129,7 @@
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
               Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u, &
-              Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit
+              Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit,Angle_and_Sigma
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -987,6 +988,55 @@
 
        return
     End subroutine Allocate_Point_List
+
+    !!----
+    !!---- Subroutine Angle_and_Sigma(Cellp,DerM,x1,x0,x2,s1,s0,s2,ang,s)
+    !!----    Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
+    !!----    real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
+    !!----    real(kind=cp), dimension(3),     intent(in)  :: x0,x1,x2      ! Three points in fractional coordinates and sigmas
+    !!----    real(kind=cp), dimension(3),     intent(in)  :: s0,s1,s2      ! Sigmas of the three points
+    !!----    real(kind=cp),                   intent(out) :: ang,s         ! Angle and sigma
+    !!----
+    !!---- Update: October - 2016
+    !!
+    Subroutine Angle_and_Sigma(Cellp,DerM,x1,x0,x2,s1,s0,s2,ang,s)
+       !---- Arguments ----!
+       Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
+       real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
+       real(kind=cp), dimension(3),     intent(in)  :: x0,x1,x2      ! Three points in fractional coordinates and sigmas, X0 is central
+       real(kind=cp), dimension(3),     intent(in)  :: s0,s1,s2   ! Sigmas of the three points
+       real(kind=cp),                   intent(out) :: ang,s         ! Angle and sigma
+
+       !---- Local variables ----!
+       real(kind=cp) :: d1,d2,d12,sa1,sa2,sa12
+       real(kind=cp) :: cang12
+       real(kind=cp) :: srel1,srel2
+
+       !> Init values
+       ang=0.0
+       s=0.0
+
+       !> Distances
+       call distance_and_sigma(Cellp,DerM,x1,x0,s1,s0,d1,sa1)
+       if (d1 <= 0.001) return
+
+       call distance_and_sigma(Cellp,DerM,x2,x0,s2,s0,d2,sa2)
+       if (d2 <= 0.001) return
+
+       call distance_and_sigma(Cellp,DerM,x1,x2,s1,s2,d12,sa12)
+       if (d12 <= 0.001) return
+
+       !> Angles
+       cang12=0.5_cp*(d1/d2+d2/d1-d12*d12/d1/d2)
+       ang=ACOSd(cang12)
+
+       !---- Alternative calculation of angles' sigmas ----!
+       srel1=(sa1/d1)**2
+       srel2=(sa2/d2)**2
+       s=SQRT(srel1+srel2+(sa12*d12/d1/d2)**2)*to_deg
+
+       return
+    End Subroutine Angle_and_Sigma
 
     !!----
     !!---- Subroutine Calc_Dist_Angle(Dmax, Dangl, Cell, Spg, A, Lun)
