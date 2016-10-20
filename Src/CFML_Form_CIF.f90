@@ -66,6 +66,8 @@
 !!----       READ_CIF_HALL
 !!----       READ_CIF_HM
 !!----       READ_CIF_LAMBDA
+!!----       READ_CIF_PRESSURE
+!!----       READ_CIF_TEMP
 !!----       READ_CIF_SYMM
 !!----       READ_CIF_TITLE
 !!----       READ_CIF_Z
@@ -130,7 +132,8 @@
               Read_File_Transf, Read_Shx_Atom, Read_Shx_Cell, Read_Shx_Cont, Read_Shx_Fvar,      &
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
-              Get_job_info, File_To_FileList, Get_Phases_File
+              Get_job_info, File_To_FileList, Get_Phases_File, Read_Cif_Pressure,                &
+              Read_Cif_Temp
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure, Write_Atoms_CFL, Write_CFL
@@ -1465,6 +1468,83 @@
        return
     End Subroutine Read_Cif_Lambda
 
+    !!----
+    !!---- Subroutine Read_Cif_Pressure(Filevar,Nline_Ini,Nline_End,P,SigP)
+    !!----    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String vector
+    !!----    integer,           intent(in out)          :: nline_ini    !  In -> Line to start of search
+    !!----                                                                  Out -> Actual line on Filevar
+    !!----    integer,           intent(in)              :: nline_end    !  In -> Line to finish the search
+    !!----    real(kind=cp),     intent(out)             :: P            !  Out -> Pressure (GPa)value
+    !!----    real(kind=cp),     intent(out)             :: SigP         !  Out -> Sigma Pressure
+    !!----
+    !!----    Pressure and Sigma
+    !!----
+    !!---- Update: October - 2016
+    !!
+    Subroutine Read_Cif_Pressure(Filevar,Nline_Ini,Nline_End,P,SigP)
+       !---- Arguments ----!
+       character(len=*),  dimension(:), intent(in) :: filevar
+       integer,           intent(in out)           :: nline_ini
+       integer,           intent(in)               :: nline_end
+       real(kind=cp),     intent(out)              :: p
+       real(kind=cp),     intent(out)              :: sigp
+
+       !---- Local Variables ----!
+       integer                    :: iv
+       real(kind=cp),dimension(1) :: vet1,vet2
+
+       !> Default values
+       p=0.0
+       sigp=1.0e-5
+
+       call read_key_valuestd(filevar,nline_ini,nline_end, &
+                           "_diffrn_ambient_pressure",vet1,vet2,iv)
+       if (iv == 1) then
+          p=vet1(1)*1.0e-6
+          sigp=vet2(1)*1.0e-6
+       end if
+
+       return
+    End Subroutine Read_Cif_Pressure
+
+    !!----
+    !!---- Subroutine Read_Cif_Temp(Filevar,Nline_Ini,Nline_End,T,SigT)
+    !!----    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String vector
+    !!----    integer,           intent(in out)          :: nline_ini    !  In -> Line to start of search
+    !!----                                                                  Out -> Actual line on Filevar
+    !!----    integer,           intent(in)              :: nline_end    !  In -> Line to finish the search
+    !!----    real(kind=cp),     intent(out)             :: T            !  Out -> Temp (K) value
+    !!----    real(kind=cp),     intent(out)             :: SigT         !  Out -> Sigma Temp
+    !!----
+    !!----    Temperature and Sigma
+    !!----
+    !!---- Update: October - 2016
+    !!
+    Subroutine Read_Cif_Temp(Filevar,Nline_Ini,Nline_End,T,SigT)
+       !---- Arguments ----!
+       character(len=*),  dimension(:), intent(in) :: filevar
+       integer,           intent(in out)           :: nline_ini
+       integer,           intent(in)               :: nline_end
+       real(kind=cp),     intent(out)              :: T
+       real(kind=cp),     intent(out)              :: sigT
+
+       !---- Local Variables ----!
+       integer                    :: iv
+       real(kind=cp),dimension(1) :: vet1,vet2
+
+       !> Default values
+       t=298.0
+       sigt=1.0
+
+       call read_key_valuestd(filevar,nline_ini,nline_end, &
+                           "_diffrn_ambient_temperature",vet1,vet2,iv)
+       if (iv == 1) then
+          t=vet1(1)
+          sigt=vet2(1)
+       end if
+
+       return
+    End Subroutine Read_Cif_Temp
     !!----
     !!---- Subroutine Read_Cif_Symm(Filevar,Nline_Ini,Nline_End,N_Oper,Oper_Symm)
     !!----    character(len=*), dimension(:), intent(in) :: filevar       !  In -> String vector
