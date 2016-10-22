@@ -2082,7 +2082,7 @@
 
        !---- Local Variables ----!
        character(len=len(line))               :: resto,dire,numm
-       integer                                :: iv,nlong
+       integer                                :: iv,nlong,i
        integer                                :: np, np1, np2
        integer, dimension(size(value))        :: ivet
        real(kind=cp), dimension(size(value))  :: vet
@@ -2098,7 +2098,17 @@
           ERR_String_Mess="Blank line"
           return
        end if
-       resto=adjustl(line)
+       i=index(line,"!")
+       if(i /= 0) then
+         resto=adjustl(line(1:i-1))
+       else
+         i=index(line,"#")
+         if(i /= 0) then
+           resto=adjustl(line(1:i-1))
+         else
+           resto=adjustl(line)
+         end if
+       end if
 
        do
           if (len_trim(resto) == 0) exit

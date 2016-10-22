@@ -3540,7 +3540,7 @@
     End Subroutine Get_Laue_Str
 
     !!----
-    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim,symm)
+    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim,symm,preserve)
     !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,                      intent(out) :: mult  !  Out -> Multiplicity
@@ -3548,13 +3548,15 @@
     !!----    integer,dimension(:),optional,intent(out) :: ptr   !  Out -> Pointer to the symmetry elements
     !!----    character(len=*),    optional,intent( in) :: prim  !  In  -> If given, only the primitive cell is considered
     !!----    character(len=*),    optional,intent( in) :: symm  !  In  -> If given, the coordinates are normalized as to be -1/2 <= x <1/2
+    !!----    logical,             optional,intent( in) :: preserve !if present do not apply modulo_lat
     !!----
     !!----    Obtain the multiplicity and list of equivalent positions
     !!----    (including centring!) modulo integer lattice translations or within the range [-1/2,1/2) if symm is given.
     !!----
     !!---- Update: June - 2011 (JRC - removing pointer to stabilizer)
+    !!---- Update: October - 2016 (JRC - removing pointer to stabilizer)
     !!
-    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,prim,symm)
+    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,prim,symm,preserve)
        !---- Arguments ----!
        real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
@@ -3563,7 +3565,7 @@
        integer,dimension(:),optional,intent(out) :: ptr
        character(len=*),    optional,intent( in) :: prim
        character(len=*),    optional,intent( in) :: symm
-
+       logical,             optional,intent( in) :: preserve
        !---- Local variables ----!
        integer                                :: j, nt
        real(kind=cp), dimension(3)            :: xx,v
@@ -3576,7 +3578,7 @@
        if(present(ptr)) ptr(mult) = 1
        ext: do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)
-          xx=modulo_lat(xx)
+          if(.not. present(preserve)) xx=modulo_lat(xx)
           do nt=1,mult
              v=orb(:,nt)-xx(:)
              if (Lattice_trans(v,Spg%spg_lat)) then

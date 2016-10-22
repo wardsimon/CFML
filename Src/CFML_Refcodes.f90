@@ -9595,7 +9595,7 @@
 
        do i=1,model%npar
           l=model%par(i)%Lcode
-         ! write(*,"(a,i5,a,i5)") " Parameter: "//trim(model%par(i)%nam),i,"  Code-number:",l
+          !write(*,"(a,i5,a,i5)") " Parameter: "//trim(model%par(i)%nam),i,"  Code-number:",l
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
@@ -9610,7 +9610,7 @@
                 model%par(i)%value=model%par(i)%value+v_shift(l)*model%par(i)%multip
           end select
           model%par(i)%sigma=v_vec_std(l)*model%par(i)%multip
-         ! write(*,"(a,2f14.5)") " New value and sigma: ",model%par(i)%value,model%par(i)%sigma
+          !write(*,"(a,2f14.5)") " New value and sigma: "//trim(model%par(i)%nam),model%par(i)%value,model%par(i)%sigma
        end do
        return
     End Subroutine VState_to_ModelPar
