@@ -99,6 +99,7 @@
 !!----       SET_ROTATION_MATRIX
 !!----       SET_TDIST_COORDINATION
 !!----       SET_TDIST_PARTIAL_COORDINATION
+!!----       TORSION_AND_SIGMA
 !!----
 !!
  Module CFML_Geometry_Calc
@@ -129,7 +130,7 @@
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
               Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u, &
-              Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit,Angle_and_Sigma
+              Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit,Angle_and_Sigma, Torsion_and_Sigma
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -1004,7 +1005,7 @@
        Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
        real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
        real(kind=cp), dimension(3),     intent(in)  :: x0,x1,x2      ! Three points in fractional coordinates and sigmas, X0 is central
-       real(kind=cp), dimension(3),     intent(in)  :: s0,s1,s2   ! Sigmas of the three points
+       real(kind=cp), dimension(3),     intent(in)  :: s0,s1,s2      ! Sigmas of the three points
        real(kind=cp),                   intent(out) :: ang,s         ! Angle and sigma
 
        !---- Local variables ----!
@@ -1013,18 +1014,20 @@
        real(kind=cp) :: srel1,srel2
 
        !> Init values
+       call init_err_geom()
+
        ang=0.0
        s=0.0
 
        !> Distances
        call distance_and_sigma(Cellp,DerM,x1,x0,s1,s0,d1,sa1)
-       if (d1 <= 0.001) return
-
        call distance_and_sigma(Cellp,DerM,x2,x0,s2,s0,d2,sa2)
-       if (d2 <= 0.001) return
-
        call distance_and_sigma(Cellp,DerM,x1,x2,s1,s2,d12,sa12)
-       if (d12 <= 0.001) return
+       if (d1 <= 0.0001 .or. d2 <= 0.0001 .or. d12 <= 0.0001) then
+          err_geom=.true.
+          ERR_Geom_Mess="Some of the distances between atoms are zero! "
+          return
+       end if
 
        !> Angles
        cang12=0.5_cp*(d1/d2+d2/d1-d12*d12/d1/d2)
@@ -3150,5 +3153,123 @@
 
        return
     End Subroutine Set_TDist_Partial_Coordination
+
+    !!----
+    !!---- Subroutine Torsion_and_Sigma(Cellp,x1,x2,x3,x4,sx1,sx2,sx3,sx4,tor,s)
+    !!----    Type(Crystal_Cell_Type),         intent(in)  :: Cellp            ! Cell object
+    !!----    real(kind=cp), dimension(3),     intent(in)  :: x1,x2,x3,x4      ! Three points in fractional coordinates and sigmas
+    !!----    real(kind=cp), dimension(3),     intent(in)  :: sx1,sx2,sx3,sx4  ! Sigmas of the three points
+    !!----    real(kind=cp),                   intent(out) :: tor,s            ! Torsion angle and sigma
+    !!----
+    !!----    From Acta Cryst A28, 1972, 213-215
+    !!----    Version from Parst97
+    !!----
+    !!---- Update: October - 2016
+    !!
+    Subroutine Torsion_and_Sigma(Cellp, x1,x2,x3,x4,sx1,sx2,sx3,sx4,tor,s)
+       !---- Arguments ----!
+       Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
+       real(kind=cp), dimension(3),     intent(in)  :: x1,x2,x3,x4       ! Three points in fractional coordinates and sigmas, X0 is central
+       real(kind=cp), dimension(3),     intent(in)  :: sx1,sx2,sx3,sx4   ! Sigmas of the three points
+       real(kind=cp),                   intent(out) :: tor,s             ! Angle and sigma
+
+       !---- Local Variables ----!
+       integer                       :: i,j
+       real(kind=cp), dimension(3,3) :: dlt,m
+       real(kind=cp), dimension(4)   :: ds
+       real(kind=cp), dimension(3)   :: xc1,xc2,xc3,xc4
+       real(kind=cp), dimension(3)   :: sc1,sc2,sc3,sc4
+       real(kind=cp), dimension(3)   :: dst
+       real(kind=cp)                 :: cf1,cf2,sf1,sf2,p
+       real(kind=cp)                 :: stau,ctau,tau
+       real(kind=cp)                 :: a1,a2,s1,s2,s3,s4
+
+       !> Init
+       call init_err_geom()
+
+       tor=0.0
+       s=0.0
+
+       !> Cartesian coordinates
+       xc1 = matmul(Cellp%Cr_Orth_cel,x1)
+       xc2 = matmul(Cellp%Cr_Orth_cel,x2)
+       xc3 = matmul(Cellp%Cr_Orth_cel,x3)
+       xc4 = matmul(Cellp%Cr_Orth_cel,x4)
+
+       sc1 = matmul(abs(Cellp%Cr_Orth_cel),sx1)
+       sc2 = matmul(abs(Cellp%Cr_Orth_cel),sx2)
+       sc3 = matmul(abs(Cellp%Cr_Orth_cel),sx3)
+       sc4 = matmul(abs(Cellp%Cr_Orth_cel),sx4)
+
+       dlt(1,:)=xc2-xc1
+       dlt(2,:)=xc2-xc3
+       dlt(3,:)=xc4-xc3
+
+       do i=1,3
+          dst(i)=sqrt(dlt(i,1)**2+dlt(i,2)**2+dlt(i,3)**2)
+          if (dst(i) <=0.0001) then
+             err_geom=.true.
+             ERR_Geom_Mess="Some of the distances between atoms are zero! "
+             return
+          end if
+       end do
+
+       do i=1,3
+          do j=1,3
+             m(i,j)=dlt(i,j)/dst(i)
+          end do
+       end do
+
+       cf1=m(1,1)*m(2,1) + m(1,2)*m(2,2) + m(1,3)*m(2,3)
+       cf2=m(2,1)*m(3,1) + m(2,2)*m(3,2) + m(2,3)*m(3,3)
+       if (abs(cf1) > 0.9999 .or. abs(cf2) > 0.9999) then
+          err_geom=.true.
+          ERR_Geom_Mess="Problem in Torsion and Sigma routine!. Please check!"
+          return
+       end if
+
+       sf1=sqrt(1.0-cf1**2)
+       sf2=sqrt(1.0-cf2**2)
+       p=sf1*sf2
+       if (abs(p) < 1.0e-5) then
+          err_geom=.true.
+          ERR_Geom_Mess="Problem in Torsion and Sigma routine!. Please check!"
+          return
+       end if
+
+       stau= ( m(3,1)*( m(2,2)*m(1,3)-m(1,2)*m(2,3) )  + &
+               m(3,2)*( m(1,1)*m(2,3)-m(1,3)*m(2,1) )  + &
+               m(3,3)*( m(2,1)*m(1,2)-m(1,1)*m(2,2) ) ) / p
+
+       ctau= ( (m(2,2)*m(1,3)-m(1,2)*m(2,3)) * (m(3,2)*m(2,3)-m(2,2)*m(3,3)) + &
+               (m(2,3)*m(1,1)-m(2,1)*m(1,3)) * (m(3,3)*m(2,1)-m(3,1)*m(2,3)) + &
+               (m(2,1)*m(1,2)-m(1,1)*m(2,2)) * (m(3,1)*m(2,2)-m(2,1)*m(3,2)) ) / p
+
+       tau=atan2(stau,ctau)*to_deg
+       if (tau > 180.0) tau=tau-360.0
+
+       ds(1)=(1.0/3.0)*(sc1(1)**2+sc1(2)**2+sc1(3)**2)
+       ds(2)=(1.0/3.0)*(sc2(1)**2+sc2(2)**2+sc2(3)**2)
+       ds(3)=(1.0/3.0)*(sc3(1)**2+sc3(2)**2+sc3(3)**2)
+       ds(4)=(1.0/3.0)*(sc4(1)**2+sc4(2)**2+sc4(3)**2)
+       ds=sqrt(ds)
+
+       s1=(ds(1)/(dst(1)*sf1))**2
+       a1=(dst(2)-dst(1)*cf1)/(dst(1)*sf1)
+       a2=(dst(2)-dst(3)*cf2)/(dst(3)*sf2)
+       s2=(ds(2)/dst(2))**2*(a1**2-2.*a1*(cf2/sf2)*ctau+(cf2/sf2)**2)
+       s3=(ds(3)/dst(2))**2*(a2**2-2.*a2*(cf1/sf1)*ctau+(cf1/sf1)**2)
+       s4=(ds(4)/(dst(3)*sf2))**2
+       if ( (s1+s2+s3+s4) < 0.0) then
+          err_geom=.true.
+          ERR_Geom_Mess="Problem in Torsion and Sigma routine!. Please check!"
+          return
+       end if
+
+       s=sqrt(s1+s2+s3+s4)*to_deg
+       tor=tau
+
+       return
+    End Subroutine Torsion_and_Sigma
 
  End Module CFML_Geometry_Calc
