@@ -309,10 +309,13 @@
 
        !---- Local Variables ----!
        real(kind=cp), dimension(3):: h
-       integer, dimension(48)     :: ind=1  !The maximum number of rotational elements is 48 (=order of the point group m-3m)
+       integer, dimension(48)     :: ind   !The maximum number of rotational elements is 48 (=order of the point group m-3m)
        integer                    :: i, j, m, l, ng
 
        ng=SpaceGroup%numops  !Reduced set of symmetry operators (the firsts of the list: there is no centring translation nor inversion centre)
+       Gk%co=0           !Initializing pointers
+       Gk%p=0
+       ind=1
        Gk%g0=SpaceGroup  !<- Copy the whole space group to the component G0 of Gk
        Gk%p(1)= 1        !<- pointer to the identity that always belong to G_k
        Gk%p(192)= 1      !<- pointer to the identity that always is a coset representative of G0[Gk]
@@ -374,7 +377,7 @@
                 m=m+1
                 Gk%p(m)=j
               end do
-           end if
+            end if
          end do do_ext
        end if
 
