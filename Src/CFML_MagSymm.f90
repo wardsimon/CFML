@@ -1437,6 +1437,10 @@
 
           Case("cfl") !to be implemented
              write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
+
+          Case("database") !to be implemented
+             write(unit=*,fmt="(a)") " => database not yet implemented!"
+
        End Select
 
        !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
