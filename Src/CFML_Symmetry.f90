@@ -3921,7 +3921,7 @@
                                                                    0, 0, 1, 0, &
                                                                    0, 0, 0, 1/),(/4,4/))
        integer, dimension(6)          :: latt_given
-       real(kind=cp), dimension(3,11) :: latc
+       real(kind=cp), dimension(3,192):: latc
        integer, dimension(3)          :: tt
        integer                        :: i,j,l
 
@@ -3934,11 +3934,11 @@
        latsy   = " "
        SpaceGen= " "
        if(present(lsym)) then
-         if(.not. (lsym == "P" .or. lsym=="p")) SpaceGen=lsym
+          SpaceGen=lsym
        end if
 
        if(len_trim(SpaceGen) == 0) then  !Test lattice translation only if lsym has not been provided
-          latt_p=.true.                  !or if lsym="P"
+          latt_p=.true.                  !or if lsym="Z" or "P"
           latt_a=.false.
           latt_b=.false.
           latt_c=.false.
@@ -4028,6 +4028,21 @@
           if (latt_z) then
              SpaceGen="Z"
              Ibravl  = 8
+          end if
+       else  !It is assumed that the lattice is generally Z
+          L=0
+          do i=2,ng !It is assumed that the first operator is the identity
+             if (equal_matrix(ss(:,:,i),identidad(1:3,1:3),3)) then
+               L=L+1
+               latc(:,L) = ts(:,i)
+             end if
+          end do
+          if(L == 0) then
+            SpaceGen="P"
+            Ibravl  = 1
+          else
+            SpaceGen="Z"
+            Ibravl  = 8
           end if
        end if
 
@@ -8019,8 +8034,12 @@
                 ERR_Symm_Mess=" Generators should be provided if FIX option is Used"
                 return
              end if
-             call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm,Spacegen(1:1))
 
+             if(len_trim(Spacegen) == 0) then
+               call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm,"Z")
+             else
+               call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm,Spacegen(1:1))
+             end if
              SpaceGroup%Spg_Symb     = "unknown "
              SpaceGroup%Hall         = "unknown "
              SpaceGroup%Laue         = " "
