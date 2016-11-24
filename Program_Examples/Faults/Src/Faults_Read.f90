@@ -8,6 +8,10 @@
        use CFML_Reflections_utilities,    only : Reflect_Type, get_maxnumref, HKL_uni
        use CFML_Crystallographic_Symmetry,only : Space_Group_Type, set_SpaceGroup, ERR_Symm_Mess, &
                                                  Err_Symm
+       use CFML_IO_Formats               ,only : Read_CIF_Cell, Read_CIF_HM, Read_CIF_Atom
+       use CFML_Atom_TypeDef             ,only : Atom_List_Type, Allocate_Atom_List, Atom_Equiv_List_Type, &
+                                                 Set_Atom_Equiv_List, Atom_Equiv_Type
+
        use diffax_mod
        implicit none
 
@@ -1308,20 +1312,28 @@
                     do j = 1, n_layers   !counts "TO"-layer
                         if (l == 4) then
                             call read_fraction(citem(j), crys%l_alpha(j,m))
+                            val_trans(1,j,m) = crys%l_alpha(j,m)
                         else if (l < 4) then
                             call read_fraction(citem(j), crys%l_r (l,j,m))
+                            val_trans(l+1,j,m) = crys%l_r(l,j,m)
                         else if (l == 5) then
                             call read_fraction(citem(j), crys%r_b11(j,m))
+                            val_trans(l,j,m) = crys%r_b11(j,m)
                         else if (l == 6) then
                             call read_fraction(citem(j), crys%r_b22(j,m))
+                            val_trans(l,j,m) = crys%r_b22(j,m)
                         else if (l == 7) then
                             call read_fraction(citem(j), crys%r_b33(j,m))
+                            val_trans(l,j,m) = crys%r_b33(j,m)
                         else if (l == 8) then
                             call read_fraction(citem(j), crys%r_b12(j,m))
+                            val_trans(l,j,m) = crys%r_b12(j,m)
                         else if (l == 9) then
                             call read_fraction(citem(j), crys%r_b13(j,m))
+                            val_trans(l,j,m) = crys%r_b13(j,m)
                         else if (l == 10) then
                             call read_fraction(citem(j), crys%r_b23(j,m))
+                            val_trans(l,j,m) = crys%r_b23(j,m)
                         end if
                     end do
                     m=m+1
@@ -1428,6 +1440,9 @@
 
           Case ("UNBROADEN")
             unbroaden = .true.
+
+          Case ("LOGARITHM")
+            logarithm = .true.
 
           Case ("POWDER")
             k=index(txt," ")
@@ -1765,7 +1780,7 @@
               allocate (l0_streak(num_streak))
               allocate (dl_streak(num_streak))
               allocate (streak_flags(num_streak + 1))
-              crys%patscal = 1.0
+              !crys%patscal = 1.0
               j=1   !count streak files
               do while (j <= num_streak)
                   i=i+1
@@ -1893,6 +1908,8 @@
         crys%recrsv = .false.
         crys%xplcit = .false.
         crys%inf_thick = .false.
+
+        crys%yy = max_a
 
         if (allocated (crys%a_name)) deallocate(crys%a_name)
         allocate(crys%a_name(max_a,max_l))
@@ -2466,4 +2483,173 @@
 
      End Subroutine Update_all
 
+        ! TemplateFromCIF
+        ! Aim: write simple .flst file form data stored in fileName.cif
+        ! Usage: to faults program one should provide a fileName.cif with additional parameter, which corresponds to
+        !        number of layers.
+        ! Remember that: 1) structure described in .cif file should have "P1" spacegroup.
+        !                2) condition to check whether the atom relates to layers is:
+        !                   (myListAtom%atom(i)%x(3) < thickness*k) .AND. (myListAtom%atom(i)%x(3) >= thickness*(k-1))
+        !                   which means that plane with higher z-coordinte is not included into that layer,
+        !                   but included into the next one
+
+        subroutine TemplateFromCIF (fileName, input_n_layers, thickness)
+
+            !---Input/Output---!
+            character(len=*), intent(in)    :: fileName
+            integer,          intent(in)    :: input_n_layers
+            real,             intent(in)    :: thickness
+
+            !---Local variables. Primitives---!
+            integer                                         :: i,j,k, numLines, ini, numOfAtom
+            integer                                         :: i_atom
+            integer, dimension(:),allocatable               :: n_zero_atom
+            real,dimension(6)                               :: Cellda
+            real                                            :: delta
+            character(len=100),dimension(:),allocatable     :: arrayOfStrings
+            character(len=100)                              :: SG !name of SpaceGroup
+            logical                                         :: match = .false.
+
+            !---Local variables. Types---!
+            Type(Atom_List_Type)                             ::  myListAtom
+            Type(Crystal_Cell_Type)                          ::  myCell
+            Type(Space_Group_Type)                           ::  mySG
+            Type(Atom_Equiv_List_Type)                       ::  myELA
+            Type(Atom_Equiv_Type), dimension(input_n_layers) ::  atom
+
+            !---Subroutine---!
+
+            !read cif file and initialize structure variables
+            call Set_Crys()
+            call Number_Lines(fileName,numLines)
+            allocate(arrayOfStrings(numLines))
+            call Reading_Lines(fileName,numLines,arrayOfStrings)
+            ini=1
+            call Read_CIF_Cell(arrayOfStrings,ini,numLines,Cellda)
+            call Set_Crystal_Cell(Cellda(1:3),Cellda(4:6),myCell)
+            ini=1
+            call Read_CIF_Atom(arrayOfStrings,ini,numLines,numOfAtom,myListAtom)
+            ini=1
+            call Read_CIF_HM(arrayOfStrings,ini,numLines,SG)                            !find and obtain spacegroup name from the array of strings
+            call Set_SpaceGroup(SG,mySG)
+            call Set_Atom_Equiv_List(mySG,myCell,myListAtom,myELA)
+            write (unit = crys%ttl, fmt=*) "Template from CIF file: ", fileName
+
+            !default parameters
+            crys%rad_type = 0
+            crys%lambda = 1.540560
+            crys%lambda2 = 1.544390
+            crys%ratio = 0.5
+            crys%cell_a = Cellda(1)
+            crys%cell_b = Cellda(2)
+            crys%cell_c = Cellda(3)
+            crys%cell_gamma = Cellda(6)*deg2rad     !needed for correct write into .flts file
+            crys%broad = PS_VGT
+            crys%p_u = 0.004133
+            crys%p_v = -0.007618
+            crys%p_w = 0.006255
+            crys%p_x = 0.018961
+            crys%p_dg = 50000
+            crys%p_dl = 50000
+            crys%patscal = 1.0
+            crys%trm = .true.
+            crys%bckg_level = 100.0
+            crys%sym = "-1"
+            crys%SymGrpNo = 1
+            crys%recrsv = .true.
+            crys%inf_thick = .true.
+
+            crys%n_typ = input_n_layers
+            if (allocated (crys%fundamental)) deallocate(crys%fundamental)
+            allocate(crys%fundamental(crys%n_typ))
+            if (allocated (crys%original)) deallocate(crys%original)
+            allocate(crys%original(crys%n_typ))
+            do i = 1, input_n_layers
+                crys%fundamental(i)=.true.
+                crys%original(i) = i
+            end do
+            if (allocated (fundamental)) deallocate(fundamental)
+            allocate(fundamental(crys%n_typ))
+            if (allocated (original)) deallocate(original)
+            allocate(original(crys%n_typ))
+            do i = 1, input_n_layers
+                fundamental(i)=.true.
+                original(i) = i
+            end do
+            if (allocated (n_zero_atom)) deallocate(n_zero_atom)
+            allocate(n_zero_atom(crys%n_typ))
+            !initialize all numbers of atoms equal to zero
+            do k = 1, MAX_L
+                crys%l_n_atoms = 0
+            end do
+            !now iterate over all atoms in atom list and find that which references to some layer
+            do i = 1, myListAtom%natoms
+                do k = 1, input_n_layers
+                    if ( (myListAtom%atom(i)%x(3) < thickness*k) .AND. (myListAtom%atom(i)%x(3) >= thickness*(k-1)) ) then
+                        crys%l_n_atoms(k) = crys%l_n_atoms(k) + 1
+                        crys%a_name  (  crys%l_n_atoms(k),k) = myListAtom%atom(i)%ChemSymb
+                        crys%a_num   (  crys%l_n_atoms(k),k) = crys%l_n_atoms(k)
+                        crys%a_pos   (1,crys%l_n_atoms(k),k) = myListAtom%atom(i)%x(1)
+                        crys%a_pos   (2,crys%l_n_atoms(k),k) = myListAtom%atom(i)%x(2)
+                        crys%a_pos   (3,crys%l_n_atoms(k),k) = myListAtom%atom(i)%x(3)
+                        crys%a_occup (  crys%l_n_atoms(k),k) = myListAtom%atom(i)%occ
+                    end if
+                end do
+            end do
+            !find zero atom coordinates, zero atoms is determined as atom with lowest z-coordinate within layer
+            do k = 1, input_n_layers
+                n_zero_atom(k) = 1
+            end do
+            do k = 1, input_n_layers
+                do j = 1, crys%l_n_atoms(k)
+                    if ( &!(crys%a_pos(1,j,k) <= crys%a_pos(1,n_zero_atom(k),k)) .AND. &
+                         !(crys%a_pos(2,j,k) <= crys%a_pos(2,n_zero_atom(k),k)) .AND. &
+                         (crys%a_pos(3,j,k) <= crys%a_pos(3,n_zero_atom(k),k)) ) then
+                        n_zero_atom(k) = j
+                    end if
+                end do
+            end do
+            !as far as coordinates of atoms are not transformed to ones in zeroatoms reference system
+            !we need to calculate transitions vector between the layers
+            do i = 1, input_n_layers-1
+                crys%l_r(1,i+1,i) = crys%a_pos(1,n_zero_atom(i+1),i+1) - crys%a_pos(1,n_zero_atom(i),i)
+                crys%l_r(2,i+1,i) = crys%a_pos(2,n_zero_atom(i+1),i+1) - crys%a_pos(2,n_zero_atom(i),i)
+                crys%l_r(3,i+1,i) = crys%a_pos(3,n_zero_atom(i+1),i+1) - crys%a_pos(3,n_zero_atom(i),i)
+                crys%l_alpha(i+1,i) = 1.0
+            end do
+            crys%l_r(1,1,input_n_layers) = crys%a_pos(1,n_zero_atom(1             ),1             ) -    &
+                                           crys%a_pos(1,n_zero_atom(input_n_layers),input_n_layers)
+            crys%l_r(2,1,input_n_layers) = crys%a_pos(2,n_zero_atom(1             ),1             ) -    &
+                                           crys%a_pos(2,n_zero_atom(input_n_layers),input_n_layers)
+            crys%l_r(3,1,input_n_layers) = crys%a_pos(3,n_zero_atom(1             ),1             )    &
+                                         - crys%a_pos(3,n_zero_atom(input_n_layers),input_n_layers) + one
+            crys%l_alpha(1,input_n_layers) = 1.0
+            !this is needed to write a correct coordinates to .flts file
+            do k = 1, input_n_layers
+                do i = 1, crys%l_n_atoms(k)
+                    crys%a_pos(1, i, k) = crys%a_pos(1, i, k)*pi2
+                    crys%a_pos(2, i, k) = crys%a_pos(2, i, k)*pi2
+                    crys%a_pos(3, i, k) = crys%a_pos(3, i, k)*pi2
+                end do
+            end do
+            !now we can transform the coordinates of atoms to the reference of system zero atom
+            do k = 1, input_n_layers
+                do i = 1, crys%l_n_atoms(k)
+                    crys%a_pos(1, i, k) = crys%a_pos(1, i, k) - crys%a_pos(1,n_zero_atom(k),k)
+                    crys%a_pos(2, i, k) = crys%a_pos(2, i, k) - crys%a_pos(2,n_zero_atom(k),k)
+                    crys%a_pos(3, i, k) = crys%a_pos(3, i, k) - crys%a_pos(3,n_zero_atom(k),k)
+                end do
+            end do
+
+            !by default put a powder calculation command
+            opt = 0
+            funct_num = 3
+            thmin = 10
+            thmax = 120
+            step_2th = 0.01
+            !ask program to write transition parameters in form of a table
+            do i=1,4
+                table(i) = .true.
+            end do
+        end subroutine TemplateFromCIF
     End Module read_data

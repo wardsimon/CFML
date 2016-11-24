@@ -79,7 +79,10 @@ The input control file is a free format file that contains all the structural
 data and the type of calculation to be done. This file must be written by the user.\\
 
 The FAULTS input file is similar to the one used in DIFFaX \cite{DiffaxManual}, although there are some differences that should be taken into account to avoid errors. The DIFFaX2FAULTS convertor, which permits to convert DIFFaX input files into FAULTS ones, is available at \url{www.cicenergigune.com/en/areas-investigacion/power-storage-batteries-and-supercaps/lineas-investigacion/li-ion/faults/}.\\  
-
+The other possibility to start creating an input .flts file is to create a template from CIF file. To do this one can call faults program from command line and provide three arguments. The first argument is a target CIF file including extension (i.e. "file.cif"). The second argument is number of layers within the structure. The third one is a thickness of the layers expressed as cartesian coordinate (for example 0.333).\\
+There is some restrictions using that function:\\
+1) structure described in CIF file should have P1 symmetry \\
+2) atoms lying on the front face of the layer are relate to the next layer.
 
 Free format means that the input file is not case sensitive and that the different sections do not have to follow a concret sequence, however,
 a space is needed between each item and all the section headings and subsection keywords must be present. Each line must not exceed 132 characters, taking into account the blank spaces.
@@ -673,8 +676,12 @@ Moreover, the user can optionally provide a file CFILE.hkl for each CFILE.sub fi
 \end{tabbing}	
 \end{flushleft}
 
-
-
+\subsection {Crystallographic Information File as an input: CFILE.cif}
+\textbf{WARNING: } This part is under testing.
+\newline
+Crystallographic Information File can be put as an input file to Faults program in order to create a CFILE.flts template. This possibility is only accesible from command line. User have to provide a name of .cif file followed by overall number of layers in structure, number of actual layers and chemical symbol of zero atom. Program define the layer as ensemble of atoms with equal z-coordinate. Zero atom is an atom, which would be situated at (0,0,0) coordinate in each layers. It will be used by program to calculate transitions vectors. Zero atom should be present at each layer.
+\newline
+\textbf{Example: } CFILE.cif 14 1 Mn.  
 
 \normalsize{
 \section{Output files}

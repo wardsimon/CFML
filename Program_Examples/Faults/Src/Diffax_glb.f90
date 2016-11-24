@@ -347,7 +347,7 @@
       Real(kind=dp),    Parameter :: eps1 = 1.0D-1, eps2 = 1.0D-2, eps3 = 1.0D-3,  &
                                eps4 = 1.0D-4, eps5 = 1.0D-5, eps6 = 1.0D-6,  &
                                eps7 = 1.0D-7, eps8 = 1.0D-8, eps9 = 1.0D-9,  &
-                               eps10 = 1.0D-10, eps14 = 1.0D-14
+                               eps10 = 1.0D-10, eps12 = 1.0D-12, eps14 = 1.0D-14
 
       Real(kind=dp),    Parameter :: EIGHTBITS= 256.0D0, FIFTEENBITS= 32768.0D0, SIXTEENBITS= 65536.0D0
 !
@@ -441,6 +441,7 @@
   logical                              :: streakOrPowder = .false. !if TRUE then streak or powder fitting is handled
   logical                              :: unbroaden = .false. !if TRUE then streak calculates without broadening
   logical, dimension(10)               :: table = .false.  !if TRUE then a vector component of l_r and/or probabilities are written in the form of table
+  logical                              :: logarithm = .false.   !if TRUE then a streak calculation is made in logarithmic scale
 !
 !*********************     integer*4 variables
 !

@@ -152,6 +152,7 @@
 
        Type(crys_2d_type),     intent(in) :: crys
        integer        :: n, j
+       character(len=4) :: name
 
                    n  = crys%n_typ
                    j  = crys%yy
@@ -477,6 +478,88 @@
          end do
        end do
        write(i_ftls,"(a)")              "  "
+       !if there was an input in the form of a table
+       do a = 1, 3
+           if (table(a)) then
+               write(i_ftls,"(a)", advance="no") " TABLE "
+               write(i_ftls,"(a)", advance="no") achar(a + 64)
+               write(i_ftls,*)
+               write(i_ftls,"(a)", advance="no") "! \TO"
+               write(i_ftls,"(i3)", advance="no") 1
+               do l = 2, n_layers
+                   write(i_ftls,"(i8)", advance="no") l
+               end do
+               write(i_ftls,*)
+               write(i_ftls,"(a)") "!FROM\ "
+               do l = 1, n_layers
+                   do j = 1, n_layers
+                       write(i_ftls, "(f8.4)", advance="no") l_r (a,j,l)
+                   end do
+                   write(i_ftls,*)
+               end do
+           end if
+       end do
+
+       if (table(4)) then
+           write(i_ftls,"(a)") " TABLE ALPHA"
+           write(i_ftls,"(a)", advance="no") "! \TO"
+           write(i_ftls,"(i3)", advance="no") 1
+           do l = 2, n_layers
+               write(i_ftls,"(i8)", advance="no") l
+           end do
+           write(i_ftls,*)
+           write(i_ftls,"(a)") "!FROM\"
+           do l = 1, n_layers
+               do j = 1, n_layers
+                   write(i_ftls, "(f8.4)", advance="no") l_alpha (j,l)
+               end do
+               write(i_ftls,*)
+           end do
+       end if
+
+       do a = 5, 10
+           if (table(a)) then
+               if (a == 5) then
+                   write(i_ftls,"(a)") " TABLE FW11"
+               else if (a == 6) then
+                   write(i_ftls,"(a)") " TABLE FW22"
+               else if (a == 7) then
+                   write(i_ftls,"(a)") " TABLE FW33"
+               else if (a == 8) then
+                   write(i_ftls,"(a)") " TABLE FW12"
+               else if (a == 9) then
+                   write(i_ftls,"(a)") " TABLE FW13"
+               else if (a == 10) then
+                   write(i_ftls,"(a)") " TABLE FW23"
+               end if
+               write(i_ftls,"(a)", advance="no") "! \TO"
+               write(i_ftls,"(i3)", advance="no") 1
+               do l = 2, n_layers
+                   write(i_ftls,"(i8)", advance="no") l
+               end do
+               write(i_ftls,*)
+               write(i_ftls,"(a)") "!FROM\"
+               do l = 1, n_layers
+                   do j = 1, n_layers
+                       if (a == 5) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b11 (j,l)
+                       else if (a == 6) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b22 (j,l)
+                       else if (a == 7) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b33 (j,l)
+                       else if (a == 8) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b12 (j,l)
+                       else if (a == 9) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b13 (j,l)
+                       else if (a == 10) then
+                           write(i_ftls, "(f8.4)", advance="no") r_b23 (j,l)
+                       end if
+                   end do
+                   write(i_ftls,*)
+               end do
+           end if
+       end do
+
        write(i_ftls,"(a)")     " CALCULATION  "
        if (opt == 0) then
          write(i_ftls,"(a)")          " SIMULATION"
@@ -486,7 +569,7 @@
                 write(i_flts,"(a, i2, 4i3, f10.4)") "STREAK", adapt_quad, h_streak, k_streak, l0_streak, l1_streak, dl_streak
             case (3)    !if (funct_num == 3) then
                 write(i_ftls,"(a)") " ! Range of powder pattern:th2_min, th2_max, d_theta;   Scale_Factor and Background Level"
-                write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", th2_min, th2_max, d_theta,"    ScaleF ",crys%patscal, &
+                write(i_ftls,"(a, 3f10.4,a,g14.5,a,f10.4)")  "POWDER", thmin, thmax, step_2th,"    ScaleF ",crys%patscal, &
                                                         "   Bckg_Level ",crys%Bckg_Level
             case (4)    !else
          	    write(i_ftls,"(a)") " !Selected Area Diffraction Pattern: i_plane, l_upper, loglin, brightness"
@@ -521,7 +604,7 @@
          write(i_ftls,"(a)")          " EXPERIMENTAL"
          write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
          if (streakOrPowder) then
-            write(i_flts,"(a, i4, 2f12.5)") "EXPSTREAK",num_streak, crys%patscal, ref_glb(1)
+            write(i_flts,"(a, i4, f30.10, f12.5)") "EXPSTREAK",num_streak, crys%patscal, ref_glb(1)
             do i = 1, num_streak
               write(i_flts,"(a, i4, 2i3)") file_streak(i),h_streak(i), k_streak(i)
             end do
@@ -672,7 +755,7 @@
         lact=crys%l_actual(j)
         nat=nat+(crys%centro(lact)+1)*crys%l_n_atoms(lact) !Adding number of atoms in layer j
       end do
-      !write(unit=*,fmt="(a,3i5)") " => Number of layers and atoms for FP_Studio: ",nlayers,nat
+      write(unit=*,fmt="(a,3i5)") " => Number of layers and atoms for FP_Studio: ",nlayers,nat
       allocate(xyz(3,nat),atnam(nat))
       call Allocate_Atom_List(nat,Atm,ok) !For CIF file
       ok=.not. ok
@@ -1475,7 +1558,7 @@
      use CFML_Random_Generators,       only : random_poisson
      use diffax_mod
      use read_data,                    only : filenam, read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
-                                              crys, opti, cond, Vs, Err_crys, Err_crys_mess,fst_given
+                                              crys, opti, cond, Vs, Err_crys, Err_crys_mess,fst_given, TemplateFromCIF
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign, Write_FST_VESTA
@@ -1494,7 +1577,11 @@
       !character(len=1)        :: keyw
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
-      character(len=4)        :: forStreak
+      character(len=7)        :: forStreak
+      character(len=200), dimension(:), allocatable        :: args      !arguments from command line
+      integer                 :: cifNLayers
+      real                    :: thickness
+
 
       pi = four * ATAN(one)
       pi2 = two * pi
@@ -1521,13 +1608,30 @@
 
       !---- Arguments on the command line ----!
       narg=command_argument_count()
-
       if (narg > 0) then
-         call get_command_argument(1,infile)
+         allocate(args(narg))
+         do i = 1,narg
+            call get_command_argument(i,args(i))
+         end do
+         infile = args(1)
          arggiven=.true.
       end if
 
       CALL salute()
+
+      !if the input file is a .cif file program do only following if statement and then closes.
+      if ( infile( index(infile,'.'): ) == ".cif") then
+        read (args(2), fmt=*) cifNLayers
+        read (args(3), fmt=*) thickness
+        call TemplateFromCIF(trim(infile), cifNLayers, thickness)
+        write(op, fmt="(2a)") " => Structure input file is read: ", trim(infile)
+        call Faults2diffax(crys)
+        infile = infile(:index(infile,'.')-1)
+        OPEN(UNIT = i_flts, FILE = trim(infile)//".flts", STATUS = 'replace',action="write")
+        call Write_ftls(crys,i_flts)
+        write(op, fmt="(2a)") " => Faults input file is written: ", trim(infile)//".flts"
+        call close_faults()
+      end if
 
       if(.not. arggiven) then
         write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
@@ -1672,21 +1776,27 @@
                     write (unit=*,fmt="(a)") " => Calculating intensity along a streak"
                     CALL gostrk(infile,outfile,ok)
                     !Output the results in logarithmic (base 10) scale
-                    Do j = 1, n_high
-                        if (unbroaden) then
-                            if(spec(j) < eps7) then !Protect against log(zero)
-                              ycalcdef(j) = log10(eps7) + 20
+                    if (logarithm) then
+                        Do j = 1, n_high
+                            if (unbroaden) then
+                                if(spec(j) < eps7) then !Protect against log(zero)
+                                  ycalcdef(j) = log10(eps7) + 20
+                                else
+                                  ycalcdef(j) = log10(spec(j)) + 20
+                                end if
                             else
-                              ycalcdef(j) = log10(spec(j)) + 20
+                                if(brd_spc(j) < eps7) then
+                                  ycalcdef(j) =  log10(eps7) + 20
+                                else
+                                  ycalcdef(j) = log10(brd_spc(j)) + 20
+                                end if
                             end if
-                        else
-                            if(brd_spc(j) < eps7) then
-                              ycalcdef(j) =  log10(eps7) + 20
-                            else
-                              ycalcdef(j) = log10(brd_spc(j)) + 20
-                            end if
-                        end if
-                    end do
+                        end do
+                    else
+                        Do j = 1, n_high
+                            ycalcdef(j) = 100000*brd_spc(j)
+                        end do
+                    end if
                     if (replace_files) then
                         Call getfnm(filenam,outfile, '.dat', ok,replace_files)
                     else
@@ -1703,7 +1813,7 @@
                      write(unit = iout,fmt = "(a)")"! Scattering variable: r.l.u."
                      write(unit = iout,fmt = "(a,2(a,i4))")'! '//trim(outfile),"     h = ", h_streak, "  k = ", k_streak
                      write(unit = iout,fmt = '(f10.4,f10.4,f10.4)') l0_streak, dl_streak, l1_streak
-                     write(unit = iout,fmt = '(8f12.5)') ( ycalcdef(j), j=1, n_high )
+                     write(unit = iout,fmt = '(8f16.5)') ( ycalcdef(j), j=1, n_high )
 
                 Case (3)    !powder diffraction pattern
 
@@ -1774,7 +1884,11 @@
                  call demerge_streak(difpat, difpat_streak, streak_flags, num_streak)
                  if(replace_files) outfile_notrepl=filenam
                  do i = 1, num_streak
-                     write (forStreak, "(a1,i1,a1,i1)") "_", h_streak(i), "_", k_streak(i)
+                     if (i < 10) then
+                         write (forStreak, "(a1,i1,a1,i1,a1,i1)") "_", h_streak(i), "_", k_streak(i), "_", i
+                     else
+                         write (forStreak, "(a1,i1,a1,i1,a1,i2)") "_", h_streak(i), "_", k_streak(i), "_", i
+                     end if
                      outfile = trim(outfile_notrepl)//trim(forStreak)//".prf"
                      !outfile=trim(outfile_notrepl)//"_"//h_streak(i)//"_"//k_streak(i)//".prf"
                      write(unit=*,fmt="(a)") " => Writing the streak PRF file: "//trim(outfile)
