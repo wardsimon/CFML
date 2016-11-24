@@ -8,7 +8,7 @@ Program MagPolar3D
  use CFML_Propagation_vectors,      only: K_Equiv_Minus_K
  use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat, Get_UB_from_uvw_hkl_omega, &
                                           Get_UB_from_hkl_hkl_omega
- use CFML_Structure_Factors,        only: Calc_hkl_StrFactor
+ use CFML_Structure_Factors,        only: Calc_hkl_StrFactor, Init_Calc_hkl_StrFactors
  use CFML_Math_General,             only: asind, acosd,cosd,sind,co_linear
  use CFML_Magnetic_Symmetry
  use CFML_Magnetic_Structure_Factors
@@ -16,20 +16,21 @@ Program MagPolar3D
 
  implicit none
 
- type (file_list_type)       :: fich_cfl
- type (Space_Group_Type)     :: SpG
- type (MagSymm_k_Type)       :: MGp
- type (Atom_list_Type)       :: A
- type (MAtom_list_Type)      :: Am
- type (Crystal_Cell_Type)    :: Cell
- type (MagHD_Type)           :: Mh
- type (Magnetic_domain_type) :: Mag_Dom
- Type (Polar_calc_type)      :: polari
- Type (Zone_Axis_Type)       :: zone_axis
+ type (file_list_type)          :: fich_cfl
+ type (Space_Group_Type)        :: SpG
+ type (MagSymm_k_Type)          :: MGp
+ type (Atom_list_Type)          :: A
+ type (MAtom_list_Type)         :: Am
+ type (Crystal_Cell_Type)       :: Cell
+ type (MagHD_Type)              :: Mh
+ type (Magnetic_domain_type)    :: Mag_Dom
+ Type (Polar_calc_type)         :: polari
+ Type (Zone_Axis_Type)          :: zone_axis
+ !Type (Scattering_Species_Type) :: Scattf
 
- character(len=256)          :: filcod,line     !Name of the input file
+ character(len=256)          :: filcod,line,mess     !Name of the input file
  character(len=1)            :: sig
- real                        :: sn,sf2,omega, wave
+ real                        :: sn,sf2,omega, wave=0.8
  real, dimension(3)          :: vpl,uvw, created_pol,pin,pf,h1,h2
  real, dimension(3,3)        :: UB, polar_tensor
  integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end, &
@@ -213,6 +214,10 @@ Program MagPolar3D
 
        nch=1
        if(Mag_Dom%chir) nch=2
+
+       !  Set nuclear form factorsfor all the atoms
+       !  in the structure
+       call Init_Calc_hkl_StrFactors(A,"NUC",wave,lun)
 
       do
 
