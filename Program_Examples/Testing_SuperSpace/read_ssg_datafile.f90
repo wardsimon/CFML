@@ -224,9 +224,9 @@
         real,   allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
         real,   allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
         real,   allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
-        real,   allocatable,dimension(:,:)  :: kv       !k-vectors (3,d)
-        integer,allocatable,dimension(:)    :: time_rev !Multip
-        integer,allocatable,dimension(:,:,:):: Om !Operator matrices (4+d,4+d,Multip) common denominator at (4+d,4+d)
+        real,   allocatable,dimension(:,:)  :: kv            !k-vectors (3,d)
+        integer,allocatable,dimension(:)    :: time_rev      !Multip
+        integer,allocatable,dimension(:,:,:):: Om            !Operator matrices (4+d,4+d,Multip) common denominator at (4+d,4+d)
         character(len=80),allocatable,    dimension(:)  :: SymopSymb  ! Alphanumeric Symbols for SYMM
         type(SSym_Oper_Type),allocatable, dimension(:)  :: SymOp      ! Crystallographic symmetry operators
 

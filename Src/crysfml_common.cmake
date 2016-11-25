@@ -28,8 +28,8 @@ elseif(UNIX)
         set(STRING_UTILS CFML_String_Util.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux.f90)
-        set(STRING_UTILS CFML_String_Util_gf.f90)        
-    endif()    
+        set(STRING_UTILS CFML_String_Util_gf.f90)
+    endif()
 endif()
 
 # The sources files for crysfml_common library.
@@ -49,6 +49,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Geom_Calc.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
+    CFML_Magnetic_Groups.f90
     CFML_MagSymm.f90
     CFML_Maps.f90
     CFML_Math_3D.f90

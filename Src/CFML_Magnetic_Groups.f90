@@ -215,7 +215,7 @@
     Open(unit=i_mag,File=Trim(database),status="old",action="read",position="rewind",iostat=ier)
     if( ier /= 0) then
       err_magg=.true.
-      err_magg_mess=="     Error opening the data base: "//trim(database)
+      err_magg_mess="     Error opening the data base: "//trim(database)
       return
     end if
     if(.not. database_allocated) call Allocate_DataBase()

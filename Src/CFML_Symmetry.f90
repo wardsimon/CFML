@@ -477,8 +477,8 @@
        Character(len=40)                              :: trn_from_parent=" "
        Character(len=40)                              :: trn_to_standard=" "
        character(len=12)                              :: CrystalSys=" "       ! Crystal system
-       character(len= 1)                              :: SPG_lat=" "          ! Lattice type
-       character(len= 2)                              :: SPG_latsy=" "        ! Lattice type Symbol
+       character(len= 3)                              :: SPG_lat=" "          ! Lattice type
+       character(len= 4)                              :: SPG_latsy=" "        ! Lattice type Symbol
        integer                                        :: Num_Lat          ! Number of lattice points in a cell
        integer                                        :: Num_aLat         ! Number of anti-lattice points in a cell
        real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations
