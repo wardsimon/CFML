@@ -420,6 +420,7 @@
     !!----   logical                                        :: m_constr !true if constraints have been provided
     !!----   Character(len=40)                              :: trn_from_parent
     !!----   Character(len=40)                              :: trn_to_standard
+    !!----   Character(len=40)                              :: trn_from_standard
     !!----   character(len=12)                              :: CrystalSys       ! Crystal system
     !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
     !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
@@ -472,10 +473,11 @@
        Character(len=20)                              :: Parent_spg=" "
        logical                                        :: standard_setting=.false.  !true or false
        logical                                        :: mcif=.false.     !true if mx,my,mz notation is used , false is u,v,w notation is used
-       logical                                        :: m_cell=.true.   !true if magnetic cell is used for symmetry operators
+       logical                                        :: m_cell=.true.    !true if magnetic cell is used for symmetry operators
        logical                                        :: m_constr=.false. !true if constraints have been provided
        Character(len=40)                              :: trn_from_parent=" "
        Character(len=40)                              :: trn_to_standard=" "
+       Character(len=40)                              :: trn_from_standard=" "
        character(len=12)                              :: CrystalSys=" "       ! Crystal system
        character(len= 3)                              :: SPG_lat=" "          ! Lattice type
        character(len= 4)                              :: SPG_latsy=" "        ! Lattice type Symbol
@@ -10211,6 +10213,7 @@
        write(unit=lun,fmt="(a,a)")           " =>           Parent group Symbol: ", trim(SG%Parent_spg)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation from parent: ", trim(SG%trn_from_parent)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation to standard: ", trim(SG%trn_to_standard)
+       write(unit=lun,fmt="(a,a)")           " =>  Transformation from standard: ", trim(SG%trn_from_standard)
        write(unit=lun,fmt="(a,a)")           " =>                Crystal system: ", SG%CrystalSys
        write(unit=lun,fmt="(a,a)")           " =>                  Lattice type: ", SG%SPG_lat
        write(unit=lun,fmt="(a,a)")           " =>           Lattice type Symbol: ", SG%SPG_latsy
@@ -10219,7 +10222,7 @@
        write(unit=lun,fmt="(a,i3)")          " => Number of reduced set of S.O.: ", SG%NumOps
        write(unit=lun,fmt="(a,i3)")          " =>         General Multiplicitiy: ", SG%Multip
        write(unit=lun,fmt="(a,i3)")          " =>                       Centred: ", SG%Centred
-       if (SG%centred == 0) then
+       if (SG%centred == 1) then
           call Frac_Trans_1Dig(SG%Centre_coord,texto(1))
           write(unit=lun,fmt="(a,a)")        " =>                     Centre at: ", trim(texto(1))
        end if
@@ -10247,17 +10250,17 @@
        end if
        if (SG%Num_aLat > 0) then
           texto(:) (1:100) = " "
-          write(unit=lun,fmt="(a,i3)")       " => Anti-Centring vectors:",SG%Num_aLat
+          write(unit=lun,fmt="(/,a,i3)")       " => Anti-Centring vectors:",SG%Num_aLat
           nlines=1
           do i=1,SG%Num_aLat
              call Frac_Trans_1Dig(SG%aLatt_trans(:,i),aux)
              if (mod(i,2) == 0) then
                 write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
-                                           " => aLatt(",i-1,"): ",trim(aux)
+                                           " => aLatt(",i,"): ",trim(aux)
                 nlines=nlines+1
              else
                 write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
-                                           " => aLatt(",i-1,"): ",trim(aux)
+                                           " => aLatt(",i,"): ",trim(aux)
              end if
           end do
           do i=1,nlines

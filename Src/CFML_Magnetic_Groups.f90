@@ -15,12 +15,13 @@
     ! Declaration of all the variables that are defined in the file "magnetic_data.txt"
     !
     Implicit None
+    public
 
-    logical,           public :: err_magg=.false.,database_allocated=.false.
-    character(len=256),public :: err_magg_mess=" "
-    character(len=2)          :: end_line
-    logical, public           :: mcif=.false.
-    integer, public           :: current_group=1
+    logical             :: err_magg=.false.,database_allocated=.false.
+    character(len=256)  :: err_magg_mess=" "
+    character(len=2)    :: end_line
+    logical             :: mcif=.false.
+    integer             :: current_group=1
     ! For the ith nonhexagonal point operator:
     Character(Len=8),  dimension(:),allocatable :: point_op_label   ! point_op_label(i): point operator symbol (from Litvin)
     Character(Len=10), dimension(:),allocatable :: point_op_xyz
