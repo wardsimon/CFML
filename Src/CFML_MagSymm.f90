@@ -79,6 +79,7 @@
 !!----       CALC_INDUCED_SK
 !!----       INIT_ERR_MAGSYM
 !!----       INIT_MAGSYMM_K_TYPE             !OZ made it public to use in Read_Refcodes_Magnetic_Structure
+!!----       READN_SET_MAGNETIC_SPACE_GROUP
 !!----       READN_SET_MAGNETIC_STRUCTURE
 !!--++       READN_SET_MAGNETIC_STRUCTURE_CFL    [Overloaded]
 !!--++       READN_SET_MAGNETIC_STRUCTURE_MCIF   [Overloaded]
@@ -1187,18 +1188,31 @@
        !
        ! --- Local variables ---!
        character(len=3)                 :: typ
+       character(len=20)                 :: Symbol
        integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
                                            num_sym,m,nop,k,n,L,ier,icount
        integer, dimension(3,3)          :: isim,msim
        real(kind=cp)                    :: p_mag
        real(kind=cp), dimension(3)      :: tr,v
-       character(len=132)               :: line,ShOp_symb
+       character(len=132)               :: line,ShOp_symb,setting,parent
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type
 
        typ=l_case(adjustl(mode))
 
        call Init_Magnetic_Space_Group_Type(MGp)
+
+       !Check if the database has to be read.
+       if(typ /= "database") then
+          do i=n_ini,n_end
+           line=adjustl(file_line(i))
+           ind=index(line,"Transform from standard:")
+           if(ind /= 0) then
+             typ="database"
+             exit
+           end if
+          end do
+       end if
 
        Select Case(typ)
 
@@ -1414,8 +1428,60 @@
              write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
 
           Case("database") !to be implemented
-             write(unit=*,fmt="(a)") " => database not yet implemented!"
-
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"Magnetic Space Group")
+             if(ind == 0) then
+               Err_Magsym=.true.
+               Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               return
+             else
+               j=index(line," ")
+               symbol=trim(line(1:j-1))
+             end if
+             ini=n_ini+1
+             line=adjustl(file_line(ini))
+             ind=index(line,"Transform from standard:")
+             if(ind == 0) then
+               Err_Magsym=.true.
+               Err_Magsym_Mess=" The transformation for standard is needed even if it is: a,b,c;0,0,0 "
+               return
+             else
+               ind=index(line,"<--")
+               if( ind == 0) then
+                 line=adjustl(line(1+24:))
+                 ind=index(line," ")
+                 setting=line(1+24:ind)
+               else
+                 setting=line(1+24:ind-1)
+               end if
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             Parent=" "
+             ind= index(line,"Parent Space Group:")
+             j  = index(line,"IT_number:")
+             if(ind /= 0 .and. j /= 0) then
+               Parent= adjustl(line(20:j-1))
+               ind=index(line,"<--")
+               Parent=trim(Parent)//" "//line(j+10:ind-1)
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             ind= index(line,"Transform from Parent:")
+             if(ind /= 0) then
+               j=index(line,"<--")
+               Parent=trim(Parent)//"  "//line(23:j-1)
+             end if
+!C_ac  number: "9.41"                           <--Magnetic Space Group (BNS symbol and number)
+!Transform from standard:  c,-b,a;0,0,0         <--Basis transformation from BNS to current setting
+!Parent Space Group: Pna2_1  IT_number:   33    <--Non-magnetic Parent Group
+!Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
+             if(len_trim(Parent) /= 0) then
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent)
+             else
+               call Set_Magnetic_Space_Group(symbol,setting,MGp)
+             end if
+             return !The clean-up of operators is not needed
        End Select
 
        !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
@@ -3380,6 +3446,7 @@
       MGp%trn_from_standard="a,b,c;0,0,0"
       !Info about Parent Crystallographic Space Group
       if(present(parent)) then
+        !Parent should be of the form  Xnnn  num  trn_from_parent
         line=adjustl(parent)
         i=index(line," ")
         MGp%Parent_spg=parent(1:i-1)
