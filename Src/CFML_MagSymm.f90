@@ -124,7 +124,7 @@
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
               Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group,Cleanup_Symmetry_Operators, &
-              Set_Magnetic_Space_Group
+              Set_Magnetic_Space_Group, Get_mOrbit_mom
 
     !public :: Init_Magnetic_Space_Group_Type, Init_Err_MagSym,get_mOrbit
 
@@ -283,6 +283,9 @@
        character(len=40),   dimension(:,:), allocatable :: MSymopSymb ! Alphanumeric Symbols for MSYMM (48,8)
        type(MSym_Oper_Type),dimension(:,:), allocatable :: MSymOp     ! Magnetic symmetry operators (48,8)
     End Type MagSymm_k_Type
+
+
+    real(kind=cp), parameter, private:: eps_symm  = 0.0002_cp
 
     !!----
     !!---- ERR_MAGSYM
@@ -3266,6 +3269,44 @@
        return
     End Subroutine Get_mOrbit
 
+    Subroutine Get_mOrbit_mom(x,mom,Spg,Mult,orb,morb,ptr)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in) :: x,mom
+       type(Magnetic_Space_Group_type),intent (in) :: spg
+       integer,                        intent(out) :: mult
+       real(kind=cp),dimension(:,:),   intent(out) :: orb,morb
+       integer,dimension(:),optional,  intent(out) :: ptr
+
+       !---- Local variables ----!
+       integer                                :: j, nt
+       real(kind=cp), dimension(3)            :: xx,v,mmom,w
+       character(len=1)                       :: laty
+
+       laty="P"
+       mult=1
+       orb(:,1)=x(:)
+       morb(:,1)=mom(:)
+       if(present(ptr)) ptr(mult) = 1
+       ext: do j=2,Spg%Multip
+          xx=ApplySO(Spg%SymOp(j),x)
+          xx=modulo_lat(xx)
+          mmom=matmul(Spg%MSymOp(j)%Rot,mom)*Spg%MSymOp(j)%Phas
+          do nt=1,mult
+             v=orb(:,nt)-xx(:)
+             w=morb(:,nt)-mmom(:)
+             if (Lattice_trans(v,laty)) then
+              if(abs(sum(w)) > eps_symm) mmom=0.0
+              cycle ext
+             end if
+          end do
+          mult=mult+1
+          orb(:,mult)=xx(:)
+          morb(:,mult)=mmom(:)
+          if(present(ptr)) ptr(mult) = j   !Effective symop
+       end do ext
+       return
+    End Subroutine Get_mOrbit_mom
+
     !!----
     !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MGp,parent,mcif)
     !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
@@ -4020,7 +4061,6 @@
        type (Magnetic_Space_Group_Type), intent(in) :: MSpG
        type (Magnetic_Space_Group_Type),intent(out) :: MSpGn
        !--- Local variables ---!
-       real(kind=cp), parameter:: eps_symm  = 0.0002_cp
        integer                 :: ifail, i, j, k, L, im, nc, m, ngm,n, &
                                   nalat,nlat
        real(kind=cp)           :: det
