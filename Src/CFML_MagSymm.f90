@@ -3408,19 +3408,31 @@
         identity(i,i)=1
       end do
       e=identity
-      num=0
-      do i=1,magcount
-        if(trim(symb) == trim(spacegroup_label_bns(i))) then
-          num=i
-          exit
+      !Check if the number of the magnetic group has been given
+      !instead of the symbol
+      read(unit=symb,fmt=*,iostat=ier) num
+      if(ier /= 0) then
+        num=0 !It is supposed that a symbol has been provided
+        do i=1,magcount
+          if(trim(symb) == trim(spacegroup_label_bns(i)) .or. &
+             trim(symb) == trim(spacegroup_label_og(i))) then
+            num=i
+            exit
+          end if
+        end do
+        if(num == 0) then
+           write(unit=Err_MagSym_Mess,fmt="(a)") " => The BNS symbol: "//trim(symb)//" is illegal! "
+           Err_MagSym=.true.
+           return
         end if
-      end do
-      if(num == 0) then
-         write(unit=Err_MagSym_Mess,fmt="(a,i4,a,2i5)") " => The BNS symbol: "//trim(symb)//" is illegal! "
-         Err_MagSym=.true.
-         return
+      else
+        if(num < 1 .or. num > magcount) then !magcount=1651
+           write(unit=Err_MagSym_Mess,fmt="(a,i4,a)") " => The number of the Shubnikov group: ",num," is illegal!"
+           Err_MagSym=.true.
+           return
+        end if
       end if
-      if(len_trim(setting) == 0) then
+      if(len_trim(setting) == 0 .or. setting =='a,b,c;0,0,0') then
         change_setting=.false.
       else
         change_setting=.true.
