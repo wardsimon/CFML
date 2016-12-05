@@ -7,7 +7,7 @@
    Use CFML_GlobalDeps
    Use CFML_Crystallographic_Symmetry, only: Get_SymSymb, Get_Seitz_Symbol,Get_Trasfm_Symbol, &
                                              Get_Shubnikov_Operator_Symbol, Get_Transl_Symbol, hexa
-   Use CFML_String_Utilities,          only: Pack_String, Get_Fraction_2Dig
+   Use CFML_String_Utilities,          only: Pack_String, Get_Fraction_2Dig, Get_LogUnit
    Use CFML_Math_3D,                   only: matrix_inverse
    Use CFML_Math_General,              only: modulo_lat
 
@@ -297,7 +297,8 @@
     integer :: i,j,k,n,m,i_mag
     !*****************************************************************************
     ! open data file
-    Open(newunit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="stream")
+    call Get_LogUnit(i_mag)
+    Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="stream")
     ! read nonhexagonal point operators
     Do i=1,48
       Read(i_mag)n,point_op_label(i),point_op_xyz(i),  &
@@ -363,7 +364,8 @@
     integer :: i,j,k,n,m,i_mag
     !*****************************************************************************
     ! open data file
-    Open(newunit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="stream",form="unformatted")
+    Call Get_LogUnit(i_mag)
+    Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="stream",form="unformatted")
     ! read nonhexangonal point operators
     Do i=1,48
       Write(i_mag) i,point_op_label(i),point_op_xyz(i),  &
