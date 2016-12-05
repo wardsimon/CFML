@@ -4150,7 +4150,7 @@
                                                                    0.0,0.0,1.0/),(/3,3/))
        real(kind=cp), dimension (3,192):: newlat = 0.0,alat=0.0 !big enough number of centring tranlations
        real(kind=cp), dimension (3,3)  :: S, Sinv, rot, rotn, mat, Matinv  !S is the ITC matrix P.
-       integer,       dimension (3,3)  :: identity=nint(e)
+       integer,       dimension (3,3)  :: identity
        real(kind=cp), dimension (  3)  :: tr, trn, v, orig, iorig
        logical                         :: lattl,change_only_origin
        character(len=80)               :: symbtr
@@ -4162,6 +4162,7 @@
        integer,       allocatable, dimension(:)     :: inv_time
 
        call Init_Err_MagSym()
+       identity=nint(e)
        if(len_trim(setting) == 0) then !Check the error in the calling program
          Err_MagSym=.true.
          Err_MagSym_Mess=" => The string containing the setting change is empty!"
@@ -4187,8 +4188,9 @@
          iorig=-matmul(Sinv,Orig)
          !Invers transformation -> to standard
          call Frac_Trans_2Dig(iorig,symbtr)
-         symbtr=symbtr(2:len_trim(symbtr)-1)
-         call Get_Symb_From_Mat(Matinv,isetting,["a","b","c"])
+         i=len_trim(symbtr)
+         symbtr=symbtr(2:i-1)
+         call Get_Symb_From_Mat(Matinv,isetting,(/"a","b","c"/))
          isetting=trim(isetting)//";"//trim(symbtr)
          MSpGn%trn_to_standard= isetting
        end if

@@ -100,8 +100,8 @@
 !!----       GET_MAT_FROM_SYMB
 !!----       GET_NUM_STRING
 !!----       GET_SEPARATOR_POS
-!!----       GET_SYMB_FROM_MAT
 !!----       GET_SUBSTRING_POSITIONS
+!!----       GET_SYMB_FROM_MAT
 !!----       GET_TRANSF
 !!----       GETNUM
 !!----       GETNUM_STD
