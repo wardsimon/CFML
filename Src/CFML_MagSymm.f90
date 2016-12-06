@@ -3504,7 +3504,7 @@
            cod(3)=cod(1)
            moment(3)=-moment(1)
            multip(3)=-1.0
-           cdd=(/'a','a','-a'/)
+           cdd=(/'a ','a ','-a'/)
          end if
 
        else if(codd(1) == codd(3)) then ! a b a
@@ -3526,7 +3526,7 @@
            cod(2)=cod(1)
            moment(2)=-moment(1)
            multip(2)=-1.0
-           cdd=(/'a','-a','a'/)
+           cdd=(/'a ','-a','a '/)
          end if
 
        else if(codd(2) == codd(3)) then ! a b b
@@ -3548,7 +3548,7 @@
            cod(1)=cod(2)
            moment(1)=-moment(2)
            multip(1)=-1.0
-           cdd=(/'-b','b','b'/)
+           cdd=(/'-b','b ','b '/)
          end if
 
        else !Now a /= b /= c
@@ -3583,7 +3583,10 @@
                multip(2)=suma
                moment(2)=suma*moment(1)
                write(unit=cditem,fmt="(i2,a)") order,"a"
-               cdd=(/'a',cditem,'c'/)
+               !cdd=(/'a',cditem,'c'/)  !incompatible with Lahey compiler
+               cdd(1)='a'
+               cdd(2)=cditem
+               cdd(3)='c'
              end if
            else
              order=codd(1)/codd(2)
@@ -3593,7 +3596,10 @@
                multip(1)=suma
                moment(1)=suma*moment(2)
                write(unit=cditem,fmt="(i2,a)") order,"b"
-               cdd=(/cditem,'b','c'/)
+               !cdd=(/cditem,'b','c'/)
+               cdd(1)=cditem
+               cdd(2)='b'
+               cdd(3)='c'
              end if
             end if
          end if
@@ -3609,7 +3615,10 @@
                multip(3)=suma
                moment(3)=suma*moment(1)
                write(unit=cditem,fmt="(i2,a)") order,"a"
-               cdd=(/'a','b',cditem/)
+               !cdd=(/'a','b',cditem/)
+               cdd(1)='a'
+               cdd(2)='b'
+               cdd(3)=cditem
              end if
            else
              order=codd(1)/codd(3)
@@ -3619,7 +3628,10 @@
                multip(1)=suma
                moment(1)=suma*moment(3)
                write(unit=cditem,fmt="(i2,a)") order,"c"
-               cdd=(/cditem,'b','c'/)
+               !cdd=(/cditem,'b','c'/)
+               cdd(1)=cditem
+               cdd(2)='b'
+               cdd(3)='c'
              end if
             end if
          end if
@@ -3635,7 +3647,10 @@
                multip(3)=suma
                moment(3)=suma*moment(2)
                write(unit=cditem,fmt="(i2,a)") order,"b"
-               cdd=(/'a','b',cditem/)
+               !cdd=(/'a','b',cditem/)
+               cdd(1)='a'
+               cdd(2)='b'
+               cdd(3)=cditem
              end if
            else
              order=codd(2)/codd(3)
@@ -3645,7 +3660,10 @@
                multip(2)=suma
                moment(2)=suma*moment(3)
                write(unit=cditem,fmt="(i2,a)") order,"c"
-               cdd=(/'a',cditem,'c'/)
+               !cdd=(/'a',cditem,'c'/)
+               cdd(1)='a'
+               cdd(2)=cditem
+               cdd(3)='c'
              end if
             end if
          end if
