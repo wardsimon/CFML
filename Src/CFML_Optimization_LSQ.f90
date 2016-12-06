@@ -1057,8 +1057,6 @@
        character(len=*),dimension(:), intent(in) :: vnam
        !---- Local variables ----!
        integer       :: i,j,inum
-       real(kind=cp) :: g2
-
 
        !---- Correlation matrix ----!
        !Here the correlation matrix is already well calculated
