@@ -441,7 +441,7 @@
 
     !!--++
     !!--++ LINE_NB
-    !!--++    integer :: Line_Nb
+    !!--++    integer, private, save :: Line_Nb
     !!--++
     !!--++    (PRIVATE)
     !!--++    Line number updated each time the procedure findFMT is called
@@ -449,7 +449,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Integer, private :: Line_Nb   ! Line number
+    Integer, private, save :: Line_Nb   ! Line number
 
     !!----
     !!---- MESS_FINDFMT
@@ -1077,9 +1077,9 @@
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
-
+             aLine=adjustl(aLine)
              l_line = len_trim(aLine)    ! true length without trailing spaces
-             if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") aLine(1:l_line)
+             if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") trim(aLine)
              if (aLine(1:1) == "!" .or. aLine(1:1) == "#" .or. L_line == 0) then
                 Line_Nb=Line_Nb+1
              else

@@ -10193,7 +10193,7 @@
        character(len=80)                :: ShOp_symb
        character(len=40)                :: aux
        integer                          :: lun
-       integer                          :: i, nlines,nop
+       integer                          :: i, j,nlines,nop
 
        !---- Initializing variables ----!
        lun=6
@@ -10281,11 +10281,16 @@
        if(nop == SG%Multip) then
          write(unit=lun,fmt="(/,a,/)")        " => List of all Symmetry Operators and Symmetry Symbols"
        else
-         write(unit=lun,fmt="(/,a,/)")        " => Reduced set (no centre & no (anti)centring) of Symmetry Operators and Symmetry Symbols"
+         write(unit=lun,fmt="(/,a,/)")        " => Reduced set (no centring) of Symmetry Operators and Symmetry Symbols"
        end if
        do i=1,nop
           texto(1)=" "
           call Symmetry_Symbol(SG%SymopSymb(i),texto(1))
+          if(SG%MSymop(i)%Phas < 0.0) then
+            texto(1)=adjustl(texto(1))
+            j=index(texto(1)," ")
+            texto(1)=texto(1)(1:j-1)//"' "//texto(1)(j+1:)
+          end if
           call Get_Shubnikov_Operator_Symbol(SG%SymOp(i)%Rot,SG%MSymOp(i)%Rot,SG%SymOp(i)%tr,ShOp_symb,.true.)
 
           write(unit=lun,fmt="(a,i3,2a,t60,2a)") " => SYMM(",i,"): ",trim(ShOp_symb), &

@@ -77,14 +77,25 @@
 !!----
 !!----    Subroutines:
 !!----       CALC_INDUCED_SK
+!!----       CLEANUP_SYMMETRY_OPERATORS
+!!----       GET_MOMENT_CTR
+!!--++       GET_MORBIT
+!!--++       GET_MORBIT_MOMENT
+!!----       GET_STABILIZERM
 !!----       INIT_ERR_MAGSYM
+!!--++       INIT_MAGNETIC_SPACE_GROUP_TYPE
 !!----       INIT_MAGSYMM_K_TYPE             !OZ made it public to use in Read_Refcodes_Magnetic_Structure
+!!----       MAGNETIC_SPACE_GROUP_TYPE_TO_MAGSYMM_K_TYPE
+!!----       MAGSYMM_K_TYPE_TO_MAGNETIC_SPACE_GROUP_TYPE
 !!----       READN_SET_MAGNETIC_SPACE_GROUP
 !!----       READN_SET_MAGNETIC_STRUCTURE
 !!--++       READN_SET_MAGNETIC_STRUCTURE_CFL    [Overloaded]
 !!--++       READN_SET_MAGNETIC_STRUCTURE_MCIF   [Overloaded]
+!!----       SET_MAGNETIC_SPACE_GROUP
 !!----       SET_SHUBNIKOV_GROUP
+!!----       SETTING_CHANGE_MAGGROUP
 !!----       WRITE_MAGNETIC_STRUCTURE
+!!----       WRITE_MCIF
 !!----       WRITE_SHUBNIKOV_GROUP
 !!----
 !!
@@ -125,9 +136,7 @@
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
               Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group,Cleanup_Symmetry_Operators, &
-              Set_Magnetic_Space_Group, Get_mOrbit_mom
-
-    !public :: Init_Magnetic_Space_Group_Type, Init_Err_MagSym,get_mOrbit
+              Set_Magnetic_Space_Group, Get_mOrbit_mom, get_moment_ctr, get_stabilizerm
 
     !---- Definitions ----!
 
@@ -1187,14 +1196,14 @@
        character(len=*), optional,     intent (in)  :: uvw
        !
        ! --- Local variables ---!
-       character(len=3)                 :: typ
-       character(len=20)                 :: Symbol
+       character(len=8)                 :: typ
+       character(len=20)                :: Symbol
        integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
                                            num_sym,m,nop,k,n,L,ier,icount
        integer, dimension(3,3)          :: isim,msim
        real(kind=cp)                    :: p_mag
        real(kind=cp), dimension(3)      :: tr,v
-       character(len=132)               :: line,ShOp_symb,setting,parent
+       character(len=132)               :: line,ShOp_symb,setting,Parent
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type
 
@@ -1214,11 +1223,11 @@
           end do
        end if
 
-       Select Case(typ)
+       Select Case(trim(typ))
 
           Case("pcr")
              line=adjustl(file_line(n_ini))
-             ind=index(line,"Magnetic Space group symbol")
+             ind=index(line,"Magnetic Space")
              if(ind == 0) then
                Err_Magsym=.true.
                Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
@@ -1427,9 +1436,9 @@
           Case("cfl") !to be implemented
              write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
 
-          Case("database") !to be implemented
+          Case("database")
              line=adjustl(file_line(n_ini))
-             ind=index(line,"Magnetic Space Group")
+             ind=index(line,"Magnetic Space")
              if(ind == 0) then
                Err_Magsym=.true.
                Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
@@ -1443,7 +1452,7 @@
              ind=index(line,"Transform from standard:")
              if(ind == 0) then
                Err_Magsym=.true.
-               Err_Magsym_Mess=" The transformation for standard is needed even if it is: a,b,c;0,0,0 "
+               Err_Magsym_Mess=" The transformation from standard is needed even if it is: a,b,c;0,0,0 "
                return
              else
                ind=index(line,"<--")
@@ -1457,7 +1466,7 @@
              end if
              ini=ini+1
              line=adjustl(file_line(ini))
-             Parent=" "
+             Parent=" "      !12345678901234567890
              ind= index(line,"Parent Space Group:")
              j  = index(line,"IT_number:")
              if(ind /= 0 .and. j /= 0) then
@@ -1475,13 +1484,14 @@
 !C_ac  number: "9.41"                           <--Magnetic Space Group (BNS symbol and number)
 !Transform from standard:  c,-b,a;0,0,0         <--Basis transformation from BNS to current setting
 !Parent Space Group: Pna2_1  IT_number:   33    <--Non-magnetic Parent Group
+!123456789012345678901234567890
 !Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
              if(len_trim(Parent) /= 0) then
                call Set_Magnetic_Space_Group(symbol,setting,MGp,parent)
              else
                call Set_Magnetic_Space_Group(symbol,setting,MGp)
              end if
-             return !The clean-up of operators is not needed
+             return       !The clean-up of operators is not needed
        End Select
 
        !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
@@ -3373,6 +3383,337 @@
        return
     End Subroutine Get_mOrbit_mom
 
+    !!
+    !!----  Subroutine get_moment_ctr(xnr,moment,Spgr,codini,codes,ord,ss,att,Ipr)
+    !!----     real(kind=cp), dimension(3),            intent(in    ) :: xnr    !Atom position (fractional coordinates)
+    !!----     real(kind=cp), dimension(3),            intent(in out) :: moment !Moment at position xnr
+    !!----     type(Magnetic_Space_Group_type),        intent(in    ) :: Spgr   !Magnetic Space Group
+    !!----     Integer,                                intent(in out) :: codini !Last attributed parameter
+    !!----     real(kind=cp), dimension(3),            intent(in out) :: codes  !codewords for positions
+    !!----     integer,                       optional,intent(in)     :: ord
+    !!----     integer, dimension(:),         optional,intent(in)     :: ss
+    !!----     real(kind=cp), dimension(:,:), optional,intent(in)     :: att
+    !!----     integer,                       optional,intent(in)     :: Ipr
+    !!----
+    !!----  Subroutine to get the appropriate constraints in the refinement codes of
+    !!----  magnetic moment parameters.
+    !!----  Algorithm based in the Wigner theorem.
+    !!----  The vector Mom = Sum { R Moment} displays the symmetry constraints to be
+    !!----  applied to the magnetic moments. The sum runs over all magnetic
+    !!----  matrices of the stabilizer of the particular atom position in the given
+    !!----  space group.
+    !!----
+    !!----   Updated: 16 April 2016
+    !!----
+    !!
+    Subroutine get_moment_ctr(xnr,moment,Spgr,codini,codes,ord,ss,att,Ipr)
+       real(kind=cp), dimension(3),            intent(in)     :: xnr
+       real(kind=cp), dimension(3),            intent(in out) :: moment
+       type(Magnetic_Space_Group_type),        intent(in)     :: Spgr
+       Integer,                                intent(in out) :: codini
+       real(kind=cp), dimension(3),            intent(in out) :: codes
+       integer,                       optional,intent(in)     :: ord
+       integer, dimension(:),         optional,intent(in)     :: ss
+       real(kind=cp), dimension(:,:), optional,intent(in)     :: att
+       integer,                       optional,intent(in)     :: Ipr
+
+       ! Local variables
+       character (len=4), dimension(3)   :: cdd
+       character (len=4)                 :: cditem
+       real(kind=cp),     dimension(3)   :: multip
+       integer                           :: j,order
+       real(kind=cp)                     :: suma,dif
+       integer,           dimension(48)  :: ss_ptr
+       integer,           dimension(3)   :: codd,msym
+       real(kind=cp),     dimension(3,3) :: Rs
+       real(kind=cp),     dimension(3)   :: x,cod,multi,mom,mome,Rsym
+       real(kind=cp),     dimension(3,48):: atr
+       real(kind=cp),     parameter      :: epss=0.01_cp
+
+       suma=0.0
+       do j=1,3
+          suma=suma+abs(codes(j))
+          cod(j)=int(abs(codes(j))/10.0_cp)             !Input Parameter number with sign
+          multi(j)=mod(codes(j),10.0_cp)                !Input Multipliers
+          if(cod(j) < 1.0 .and. abs(multi(j)) > epss)  then
+               codini=codini+1
+               cod(j) = real(codini)
+          end if
+       end do
+
+       if(suma < epss) return  !No refinement is required
+       x=modulo_lat(xnr)
+
+       if(present(ord) .and. present(ss) .and. present(att)) then
+         order=ord
+         ss_ptr(1:order) = ss(1:ord)
+         atr(:,1:order)  = att(:,1:ord)
+       else
+         call get_stabilizerm(x,Spgr,order,ss_ptr,atr)
+       end if
+
+       mom=(/17.0, 7.0,5.0/)
+       mome=mom
+       if(present(ipr)) Write(unit=ipr,fmt="(a,i3)") " => Magnetic stabilizer without identity, order:",order
+       if (order > 1 ) then
+          do j=2,order
+             Rs=real(Spgr%MSymOp(ss_ptr(j))%Rot)
+             Rsym=matmul(Rs,mom)
+             mome=mome+ Rsym
+             if(present(ipr)) then
+               write(unit=ipr,fmt='(a,i2,a,t20,a,t55,a,3f8.1)') '     Operator ',j,": ",trim(Spgr%SymopSymb(ss_ptr(j))), &
+                trim(Spgr%MSymopSymb(ss_ptr(j))), Rsym
+             end if
+          end do
+       end if
+       msym=nint(1000.0*mome)
+       codd=msym
+       cdd=(/'a','b','c'/)
+       multip=1.0
+
+       !Search systematically all the possible constraints
+
+       if(codd(1) == codd(2) .and. codd(1) == codd(3)) then ! a a a
+         cdd=(/'a','a','a'/)     ! 1 A A A
+         multip=(/1.0,1.0,1.0/)
+         moment(2:3)=moment(1)
+         cod(2:3)=cod(1)
+         if(codd(1) == 0) then !No magnetic moment allowed for this site
+           cod=0
+           moment=0.0
+           multip=0.0
+           cdd=(/'0','0','0'/)
+         end if
+
+       else if(codd(1) == codd(2)) then ! a a c
+         cdd=(/'a','a','c'/)     ! 2  A A C
+         multip=(/1.0,1.0,1.0/)
+         moment(2)=moment(1)
+         cod(2)=cod(1)
+         if(codd(1) == 0) then ! 0 0 c
+           cod(1:2)=0
+           moment(1:2)=0.0
+           multip(1:2)=0.0
+           cdd=(/'0','0','c'/)
+         else if(codd(3) == 0) then  ! a a 0
+           cod(3)=0
+           moment(3)=0.0
+           multip(3)=0.0
+           cdd=(/'a','a','0'/)
+         else if(codd(3) == -codd(1)) then  ! a a -a
+           cod(3)=cod(1)
+           moment(3)=-moment(1)
+           multip(3)=-1.0
+           cdd=(/'a','a','-a'/)
+         end if
+
+       else if(codd(1) == codd(3)) then ! a b a
+         cdd=(/'a','b','a'/)     ! 3  A B A
+         multip=(/1.0,1.0,1.0/)
+         moment(3)=moment(1)
+         cod(3)=cod(1)
+         if(codd(1) == 0) then !0 b 0
+           cod(1)=0; cod(3)=0
+           moment(1)=0.0; moment(3)=0.0
+           multip(1)=0.0; multip(3)=0.0
+           cdd=(/'0','b','0'/)
+         else if(codd(2) == 0) then  ! a 0 a
+           cod(2)=0
+           moment(2)=0.0
+           multip(2)=0.0
+           cdd=(/'a','0','a'/)
+         else if(codd(2) == -codd(1)) then  ! a -a a
+           cod(2)=cod(1)
+           moment(2)=-moment(1)
+           multip(2)=-1.0
+           cdd=(/'a','-a','a'/)
+         end if
+
+       else if(codd(2) == codd(3)) then ! a b b
+         cdd=(/'a','b','b'/)     ! 4  A B B
+         multip=(/1.0,1.0,1.0/)
+         moment(3)=moment(2)
+         cod(3)=cod(2)
+         if(codd(2) == 0) then !a 0 0
+           cod(2:3)=0
+           moment(2:3)=0.0
+           multip(2:3)=0.0
+           cdd=(/'a','0','0'/)
+         else if(codd(1) == 0) then  ! 0 b b
+           cod(1)=0
+           moment(1)=0.0
+           multip(1)=0.0
+           cdd=(/'0','b','b'/)
+         else if(codd(1) == -codd(2)) then  ! -b b b
+           cod(1)=cod(2)
+           moment(1)=-moment(2)
+           multip(1)=-1.0
+           cdd=(/'-b','b','b'/)
+         end if
+
+       else !Now a /= b /= c
+
+         if(codd(1) == 0) then  !0 b c
+           cod(1)=0
+           moment(1)=0.0
+           multip(1)=0.0
+           cdd=(/'0','b','c'/)
+         end if
+         if(codd(2) == 0) then  !a 0 c
+           cod(2)=0
+           moment(2)=0.0
+           multip(2)=0.0
+           cdd=(/'a','0','c'/)
+         end if
+         if(codd(3) == 0) then  !a b 0
+           cod(3)=0
+           moment(3)=0.0
+           multip(3)=0.0
+           cdd=(/'a','b','0'/)
+         end if
+         !Comparison a,b
+         if(codd(1) /= 0 .and. codd(2)/=0) then
+           suma=real(codd(1))/real(codd(2))
+           if(abs(suma) < 1.0) then
+             suma=1.0/suma
+             order=codd(2)/codd(1)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(2)=cod(1)
+               multip(2)=suma
+               moment(2)=suma*moment(1)
+               write(unit=cditem,fmt="(i2,a)") order,"a"
+               cdd=(/'a',cditem,'c'/)
+             end if
+           else
+             order=codd(1)/codd(2)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(1)=cod(2)
+               multip(1)=suma
+               moment(1)=suma*moment(2)
+               write(unit=cditem,fmt="(i2,a)") order,"b"
+               cdd=(/cditem,'b','c'/)
+             end if
+            end if
+         end if
+         !Comparison a,c
+         if(codd(1) /= 0 .and. codd(3)/=0) then
+           suma=real(codd(1))/real(codd(3))
+           if(abs(suma) < 1.0) then
+             suma=1.0/suma
+             order=codd(3)/codd(1)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(3)=cod(1)
+               multip(3)=suma
+               moment(3)=suma*moment(1)
+               write(unit=cditem,fmt="(i2,a)") order,"a"
+               cdd=(/'a','b',cditem/)
+             end if
+           else
+             order=codd(1)/codd(3)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(1)=cod(3)
+               multip(1)=suma
+               moment(1)=suma*moment(3)
+               write(unit=cditem,fmt="(i2,a)") order,"c"
+               cdd=(/cditem,'b','c'/)
+             end if
+            end if
+         end if
+         !Comparison b,c
+         if(codd(2) /= 0 .and. codd(3)/=0) then
+           suma=real(codd(2))/real(codd(3))
+           if(abs(suma) < 1.0) then
+             suma=1.0/suma
+             order=codd(3)/codd(2)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(3)=cod(2)
+               multip(3)=suma
+               moment(3)=suma*moment(2)
+               write(unit=cditem,fmt="(i2,a)") order,"b"
+               cdd=(/'a','b',cditem/)
+             end if
+           else
+             order=codd(2)/codd(3)
+             dif=abs(suma-real(order))
+             if(dif < epss) then
+               cod(2)=cod(3)
+               multip(2)=suma
+               moment(2)=suma*moment(3)
+               write(unit=cditem,fmt="(i2,a)") order,"c"
+               cdd=(/'a',cditem,'c'/)
+             end if
+            end if
+         end if
+
+       end if
+
+       do j=1,3
+         if(abs(multi(j)) < epss .or. cdd(j) == '0' ) then
+           codes(j) = 0.0_cp
+         else
+           codes(j) = sign(1.0_cp, multip(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
+         end if
+       end do
+       if(present(Ipr)) then
+         write(Ipr,'(a,3f10.4)')        '     Codes on Moments     : ',codes
+         Write(Ipr,'(a,3(a,1x),6f7.3)') '     Codes and multipliers: ',cdd,multip
+         Write(Ipr,'(a,3f12.4)')        '     Moment_TOT vector    : ',mome
+       end if
+       return
+    End Subroutine get_moment_ctr
+
+    !!---- Subroutine get_stabilizerm(x,Spg,order,ptr,atr)
+    !!----    !---- Arguments ----!
+    !!----    real(kind=cp), dimension(3),    intent (in)  :: x     ! real space position (fractional coordinates)
+    !!----    type(Magnetic_Space_Group_type),intent (in)  :: Spg   ! Magnetic Space group
+    !!----    integer,                        intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+    !!----    integer, dimension(:),          intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+    !!----                                                          ! of the stabilizer of x
+    !!----    real(kind=cp), dimension(:,:),  intent(out)  :: atr   ! Associated additional translation to the symmetry operator
+    !!----
+    !!----
+    !!----
+    Subroutine get_stabilizerm(x,Spg,order,ptr,atr)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in)  :: x     ! real space position (fractional coordinates)
+       type(Magnetic_Space_Group_type),intent (in)  :: Spg   ! Space group
+       integer,                        intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+       integer, dimension(:),          intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+                                                             ! of the stabilizer of x
+       real(kind=cp), dimension(:,:),  intent(out)  :: atr   ! Associated additional translation to the symmetry operator
+       !---- Local variables ----!
+       real(kind=cp), dimension(3)    :: xx, tr
+
+       integer                        :: j,n1,n2,n3
+
+       order    = 1    !Identity belongs always to the stabilizer
+       ptr(:)   = 0
+       atr(:,:) = 0.0
+       ptr(1)   = 1
+
+       do n1=-1,1
+        do n2=-1,1
+          do n3=-1,1
+            tr=real((/n1,n2,n3/))
+             do j=2,Spg%multip
+                xx=ApplySO(Spg%SymOp(j),x)+tr-x
+                if (sum(abs(xx)) > 0.001) cycle
+                order=order+1
+                ptr(order)=j
+                atr(:,order)=tr
+             end do
+          end do
+        end do
+       end do
+
+       return
+    End Subroutine get_stabilizerm
+
     !!----
     !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MGp,parent,mcif)
     !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
@@ -3402,18 +3743,22 @@
       type(Magnetic_Space_Group_Type)  :: MGp
 
       call Init_Err_MagSym()
-
+      call Allocate_DataBase()
+      call read_magnetic_data()
       identity=0
       do i=1,3
         identity(i,i)=1
       end do
       e=identity
+      !write(*,"(a)") trim(symb)//"  "//trim(setting)
+      !if(present(parent)) write(*,"(a)") trim(Parent)
       !Check if the number of the magnetic group has been given
       !instead of the symbol
       read(unit=symb,fmt=*,iostat=ier) num
       if(ier /= 0) then
         num=0 !It is supposed that a symbol has been provided
         do i=1,magcount
+          !write(*,"(i5,tr5,a)") i, spacegroup_label_bns(i)
           if(trim(symb) == trim(spacegroup_label_bns(i)) .or. &
              trim(symb) == trim(spacegroup_label_og(i))) then
             num=i
@@ -3423,12 +3768,14 @@
         if(num == 0) then
            write(unit=Err_MagSym_Mess,fmt="(a)") " => The BNS symbol: "//trim(symb)//" is illegal! "
            Err_MagSym=.true.
+           call deAllocate_DataBase()
            return
         end if
       else
         if(num < 1 .or. num > magcount) then !magcount=1651
            write(unit=Err_MagSym_Mess,fmt="(a,i4,a)") " => The number of the Shubnikov group: ",num," is illegal!"
            Err_MagSym=.true.
+           call deAllocate_DataBase()
            return
         end if
       end if
@@ -3462,14 +3809,14 @@
         line=adjustl(parent)
         i=index(line," ")
         MGp%Parent_spg=parent(1:i-1)
-        line=adjustl(line(1:i))
+        line=adjustl(line(i:))
         i=index(line," ")
         read(unit=line(1:i),fmt=*,iostat=ier) MGp%Parent_num
         if(ier /= 0) then
            MGp%Parent_num=0
            MGp%trn_from_parent=line(1:i)
         else
-           line=adjustl(line(1:i))
+           line=adjustl(line(i:))
            i=index(line," ")
            MGp%trn_from_parent=line(1:i-1)
         end if
@@ -3622,10 +3969,14 @@
       end if
       if(change_setting) then
         call Setting_Change_MagGroup(setting,MGp,MSpg)
-        if(Err_MagSym) return
+        if(Err_MagSym) then
+          call deAllocate_DataBase()
+          return
+        end if
       else
         MSpg=MGp !everything is allocated in the assignement (Fortran 2003)
       end if
+      call deAllocate_DataBase()
     End Subroutine Set_Magnetic_Space_Group
 
     !!----

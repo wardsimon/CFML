@@ -188,7 +188,7 @@
     ! open data file
     err_magg=.false.
     err_magg_mess=" "
-    i_mag=1
+    call Get_LogUnit(i_mag)
     call GET_ENVIRONMENT_VARIABLE("FULLPROF",fullprof_suite)
     n=len_trim(fullprof_suite)
     if(n == 0) then
