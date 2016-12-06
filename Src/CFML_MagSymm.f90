@@ -1128,10 +1128,9 @@
        return
     End Subroutine Magnetic_Space_Group_Type_to_MagSymm_k_Type
 
-
-    Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type(MG_Symk,mode,MSpG)
+    !!  WARNING this subroutine is not operational!!!
+    Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type(MG_Symk,MSpG)
        Type(MagSymm_k_Type),              intent(in)  :: MG_Symk
-       character(len=*),                  intent(in)  :: mode
        Type(Magnetic_Space_Group_Type),   intent(out) :: MSpG
        !---- Local variables ----!
        Type(Space_Group_Type) :: SpG
@@ -3752,10 +3751,10 @@
       logical,         optional,      intent (in)  :: mcif
       !--- Local variables ---!
       integer                          :: i,j,m,inv_time,k,n,L,ier,num,idem
-      real(kind=cp)                    :: det
-      real(kind=cp), dimension(3)      :: tr,orig
-      real(kind=cp), dimension(3,3)    :: mat,e,S,Sinv
-      integer, dimension(3,3)          :: identity,op,Rot
+      !real(kind=cp)                    :: det
+      !real(kind=cp), dimension(3)      :: orig
+      real(kind=cp), dimension(3,3)    :: e !,S,Sinv
+      integer, dimension(3,3)          :: identity
       character(len=132)               :: line,ShOp_symb
       logical                          :: change_setting,centring
       type(Magnetic_Space_Group_Type)  :: MGp
@@ -4509,10 +4508,10 @@
        type (Magnetic_Space_Group_Type), intent(in) :: MSpG
        type (Magnetic_Space_Group_Type),intent(out) :: MSpGn
        !--- Local variables ---!
-       integer                 :: ifail, i, j, k, L, im, nc, m, ngm,n, &
+       integer                 :: i, j, k, L, im, m, ngm,n, &
                                   nalat,nlat
        real(kind=cp)           :: det
-       character(len=40)       :: transla
+       !character(len=40)       :: transla
        character(len=1)        :: LatSymb
        real(kind=cp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
                                                                    0.0,1.0,0.0,  &
@@ -4523,7 +4522,7 @@
        real(kind=cp), dimension (  3)  :: tr, trn, v, orig, iorig
        logical                         :: lattl,change_only_origin
        character(len=80)               :: symbtr
-       character(len=60),dimension(15) :: gen
+       !character(len=60),dimension(15) :: gen
        character(len=80)               :: nsetting,isetting
        character(len=132)              :: ShOp_symb
        real(kind=cp), allocatable, dimension(:,:,:) :: sm
