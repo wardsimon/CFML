@@ -204,7 +204,7 @@ progressionBar()
 	bar=${bar:0:$n}#
   printf "Compiling [$n/$ntotal]: $bar\r"
 }
-ntotal=41      # Nber of files to be compiled
+ntotal=42      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
@@ -260,6 +260,8 @@ progressionBar
 $COMP $OPT1  CFML_Cryst_Types.f90
 progressionBar
 $COMP $OPT1  CFML_Symmetry.f90
+progressionBar
+$COMP $OPT1  CFML_Magnetic_Groups.f90
 progressionBar
 $COMP $OPT1  CFML_ILL_Instrm_Data.f90
 progressionBar
