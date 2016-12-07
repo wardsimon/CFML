@@ -1,0 +1,132 @@
+#!/bin/bash
+#
+# Compilation Script for GLOpSAnn Program
+# Author: Javier Gonzalez-Platas
+# Date: August-2015
+# OS X version
+#
+# Checking CrySFML Environment Variable
+if [ -z "$CRYSFML" ]; then
+   echo "****"
+   echo "**** Please, set the environment variable CRYSFML in your .bash_profile"
+   echo "****"
+   exit
+fi
+#
+# Calling Program
+#
+if [ -z "$1" ]; then
+cat << !
+make_GLOpSAnn  : Make the GLOpSAnn program  using Fortran Mac Compilers
+Syntax        : make_GLOpSAnn gfortran:ifort [m32|m64] [debug]
+!
+exit
+fi
+#
+# Default values for Arguments
+#
+COMP=""
+ARCH="m64"
+DEBUG="N"
+#
+# Arguments
+#
+for arg in "$@"
+do
+   case "$arg" in
+      "gfortran")
+         COMP=$arg
+         ;;
+      "ifort")
+         COMP=$arg
+         ;;
+      "m32")
+         ARCH=$arg
+         ;;
+      "m64")
+         ARCH=$arg
+         ;;
+      "deb"*)
+         DEBUG="Y"
+         ;;
+   esac
+done
+#
+# Check Compiler name
+#
+if [ -z $COMP ]; then
+   echo "****"
+   echo "**** Compiler name is wrong!!!. Please check it!"
+   echo "****"
+   exit
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG == "Y" ]; then
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -g -fbacktrace -ffree-line-length-none"
+          OPT2="-c -g -fbacktrace -ffree-line-length-none"
+          ;;
+      "ifort")
+          OPT1="-c -g -warn -$ARCH"
+          OPT2="-c -g -warn -$ARCH"
+          ;;
+   esac
+else
+   case "$COMP" in
+      "gfortran")
+          OPT1="-c -O -ffree-line-length-none -funroll-loops"
+          OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
+          ;;
+      "ifort")
+          OPT1="-c -O -warn -$ARCH -Qopt-report=0"
+          OPT2="-c -O0 -warn -$ARCH -Qopt-report=0"
+          ;;
+   esac
+fi
+#
+# Faults Directory
+#
+cd $CRYSFML/Program_Examples/Structures_GlobalOptimization/Src
+#
+# External Libraries Options
+#
+DIRN=""
+VERS="MacOS"
+if [ $ARCH == "m64" ]; then
+   DIRN="64"
+   VERS="MacOS64"
+fi   
+case "$COMP" in
+   "gfortran")
+      INC="-I$CRYSFML/GFortran$DIRN/LibC"
+      LIB="-L$CRYSFML/GFortran$DIRN/LibC"
+      LIBSTATIC="$CRYSFML/GFortran$DIRN/LibC/libcrysfml.a"
+     ;;  
+   "ifort")
+      INC="-I$CRYSFML/ifort$DIRN/LibC"
+      LIB="-L$CRYSFML/ifort$DIRN/LibC"
+      LIBSTATIC="$CRYSFML/ifort$DIRN/LibC/libcrysfml.a"
+     ;;
+esac
+#
+# Compilation Process
+#
+echo " ########################################################"
+echo " #### GLOpSAnn Console Program                 (1.0) ####"
+echo " #### JRC                              CopyLeft-2015 ####"
+echo " ########################################################"
+$COMP $OPT1 observ.f90            $INC
+$COMP $OPT1 cost_functions.f90    $INC
+$COMP $OPT1 GLOpSAnn.f90          $INC
+$COMP -$ARCH *.o -o GLOpSAnn -static-intel $LIB $LIBSTATIC
+#
+# Final process
+#
+rm -rf *.o *.mod
+mv GLOpSAnn $PROGCFML/DistFPS/$VERS
+#
+#
+
