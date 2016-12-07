@@ -152,7 +152,7 @@
 
        Type(crys_2d_type),     intent(in) :: crys
        integer        :: n, j
-       character(len=4) :: name
+       !character(len=4) :: name
 
                    n  = crys%n_typ
                    j  = crys%yy

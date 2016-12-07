@@ -2502,20 +2502,20 @@
 
             !---Local variables. Primitives---!
             integer                                         :: i,j,k, numLines, ini, numOfAtom
-            integer                                         :: i_atom
+            !integer                                         :: i_atom
             integer, dimension(:),allocatable               :: n_zero_atom
             real,dimension(6)                               :: Cellda
-            real                                            :: delta
+            !real                                            :: delta
             character(len=100),dimension(:),allocatable     :: arrayOfStrings
             character(len=100)                              :: SG !name of SpaceGroup
-            logical                                         :: match = .false.
+            !logical                                         :: match = .false.
 
             !---Local variables. Types---!
             Type(Atom_List_Type)                             ::  myListAtom
             Type(Crystal_Cell_Type)                          ::  myCell
             Type(Space_Group_Type)                           ::  mySG
             Type(Atom_Equiv_List_Type)                       ::  myELA
-            Type(Atom_Equiv_Type), dimension(input_n_layers) ::  atom
+            !Type(Atom_Equiv_Type), dimension(input_n_layers) ::  atom
 
             !---Subroutine---!
 
