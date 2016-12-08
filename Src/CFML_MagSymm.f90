@@ -3732,23 +3732,25 @@
     End Subroutine get_stabilizerm
 
     !!----
-    !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MGp,parent,mcif)
+    !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MGp,parent,mcif,keepd)
     !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
     !!----    character (len=*),                intent(in ):: setting     !  In -> setting in the form -a,c,2b;1/2,0,0 (if empty no transformation is performed)
     !!----    Type (Magnetic_Space_Group_Type), intent(out):: MGp         ! Out -> Magnetic Space Group object
     !!----    character (len=*), optional,      intent(in ):: Parent      !  In -> Parent crystallographic group
     !!----    logical,  optional,               intent(in ):: mcif        !  In -> True if one wants to store the symbols as mx,my,mz
+    !!----    logical,  optional,               intent(in ):: keepd        !  In -> True if one wants to keep the database allocated  
     !!----
     !!----    Subroutine constructing the object MGp from the BNS symbol by
     !!----    reading the database compiled by Harold T. Stokes and Branton J. Campbell
     !!----
     !!---- Created: November - 2016 (JRC)
     !!
-    Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif)
+    Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd)
       character(len=*),               intent (in)  :: symb,setting
       type(Magnetic_Space_Group_Type),intent (out) :: MSpg
       character(len=*),optional,      intent (in)  :: parent
-      logical,         optional,      intent (in)  :: mcif
+      logical,         optional,      intent (in)  :: mcif 
+      logical,         optional,      intent (in)  :: keepd
       !--- Local variables ---!
       integer                          :: i,j,m,inv_time,k,n,L,ier,num,idem
       !real(kind=cp)                    :: det
@@ -3785,14 +3787,14 @@
         if(num == 0) then
            write(unit=Err_MagSym_Mess,fmt="(a)") " => The BNS symbol: "//trim(symb)//" is illegal! "
            Err_MagSym=.true.
-           call deAllocate_DataBase()
+           if(.not. present(keepd)) call deAllocate_DataBase()
            return
         end if
       else
         if(num < 1 .or. num > magcount) then !magcount=1651
            write(unit=Err_MagSym_Mess,fmt="(a,i4,a)") " => The number of the Shubnikov group: ",num," is illegal!"
            Err_MagSym=.true.
-           call deAllocate_DataBase()
+           if(.not. present(keepd)) call deAllocate_DataBase()
            return
         end if
       end if
@@ -3987,13 +3989,13 @@
       if(change_setting) then
         call Setting_Change_MagGroup(setting,MGp,MSpg)
         if(Err_MagSym) then
-          call deAllocate_DataBase()
+          if(.not. present(keepd)) call deAllocate_DataBase()
           return
         end if
       else
         MSpg=MGp !everything is allocated in the assignement (Fortran 2003)
       end if
-      call deAllocate_DataBase()
+      if(.not. present(keepd)) call deAllocate_DataBase()
     End Subroutine Set_Magnetic_Space_Group
 
     !!----

@@ -472,7 +472,7 @@
          "Holsa et al.(2002) J.Solid State Chem 165, 48-55                                ", &  !29
          "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &  !30
          "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &  !31
-         "J.Rodriguez-Carvajal Private communication                                      ", &  !32
+         "J.Rodriguez-Carvajal, Private communication                                     ", &  !32
          "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
          "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
          "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
