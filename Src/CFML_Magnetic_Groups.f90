@@ -583,7 +583,7 @@
               Call Get_Shubnikov_Operator_Symbol(Op,Rot,tr,ShOp_symb)
            end if
            if(present(lun)) then
-              write(unit=ipr,fmt="(a,i3,a,a35,2(a,9i3),a,3f8.4)")  "   #",k,": ",trim(ShOp_symb),"   Cryst:", Op,"  Mag:",rot,"  Tr:",tr
+              write(unit=ipr,fmt="(a,i3,a)")  "   #",k,": "//trim(ShOp_symb)
            else
               write(unit=ipr,fmt="(a,i3,a,a35)",advance="no")  "   #",k,": ",trim(ShOp_symb)
               if(mod(k,3) == 0) write(unit=ipr,fmt="(a)") "  "
