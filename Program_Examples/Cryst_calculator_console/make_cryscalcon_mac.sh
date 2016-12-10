@@ -10,6 +10,9 @@ Syntax        : make_cryscalcon af95:g95:ifort:lf95:gfortran
 exit
 fi
 #
+DESTFOLDER=MacOS64
+
+#
 # Compiler Name
 #
 COMP=$1
@@ -143,4 +146,4 @@ in
      ;;
 esac
 rm -rf *.o *.mod
-mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon
+mv -f cryscalcon $PROGCFML/DistFPS/$DESTFOLDER/cryscalcon
