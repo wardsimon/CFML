@@ -1213,8 +1213,8 @@
        !Check if the database has to be read.
        if(typ /= "database") then
           do i=n_ini,n_end
-           line=adjustl(file_line(i))
-           ind=index(line,"Transform from standard:")
+           line=l_case(adjustl(file_line(i)))
+           ind=index(line,"transform from standard:")
            if(ind /= 0) then
              typ="database"
              exit
@@ -1456,17 +1456,17 @@
              else
                ind=index(line,"<--")
                if( ind == 0) then
-                 line=adjustl(line(1+24:))
+                 line=adjustl(line(26:))
                  ind=index(line," ")
-                 setting=line(1+24:ind)
+                 setting=line(26:ind)
                else
-                 setting=line(1+24:ind-1)
+                 setting=line(26:ind-1)
                end if
              end if
              ini=ini+1
              line=adjustl(file_line(ini))
              Parent=" "      !12345678901234567890
-             ind= index(line,"Parent Space Group:")
+             ind= index(line,"Parent space group:")
              j  = index(line,"IT_number:")
              if(ind /= 0 .and. j /= 0) then
                Parent= adjustl(line(20:j-1))
@@ -1485,6 +1485,7 @@
 !Parent Space Group: Pna2_1  IT_number:   33    <--Non-magnetic Parent Group
 !123456789012345678901234567890
 !Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
+             !write(*,"(a)") trim(symbol)//" "//trim(setting)//" "//trim(parent)
              if(len_trim(Parent) /= 0) then
                call Set_Magnetic_Space_Group(symbol,setting,MGp,parent)
              else
@@ -3738,7 +3739,7 @@
     !!----    Type (Magnetic_Space_Group_Type), intent(out):: MGp         ! Out -> Magnetic Space Group object
     !!----    character (len=*), optional,      intent(in ):: Parent      !  In -> Parent crystallographic group
     !!----    logical,  optional,               intent(in ):: mcif        !  In -> True if one wants to store the symbols as mx,my,mz
-    !!----    logical,  optional,               intent(in ):: keepd        !  In -> True if one wants to keep the database allocated  
+    !!----    logical,  optional,               intent(in ):: keepd        !  In -> True if one wants to keep the database allocated
     !!----
     !!----    Subroutine constructing the object MGp from the BNS symbol by
     !!----    reading the database compiled by Harold T. Stokes and Branton J. Campbell
@@ -3749,7 +3750,7 @@
       character(len=*),               intent (in)  :: symb,setting
       type(Magnetic_Space_Group_Type),intent (out) :: MSpg
       character(len=*),optional,      intent (in)  :: parent
-      logical,         optional,      intent (in)  :: mcif 
+      logical,         optional,      intent (in)  :: mcif
       logical,         optional,      intent (in)  :: keepd
       !--- Local variables ---!
       integer                          :: i,j,m,inv_time,k,n,L,ier,num,idem
@@ -3919,6 +3920,7 @@
       allocate(MGp%MSymopSymb(MGp%Multip))
 
       m=0
+      !write(*,"(2(a,i5))") "Shubnikov number: ",num,"Wyckoff position count: ",wyckoff_pos_count(j,num)
       Do k=1,wyckoff_pos_count(j,num)
         idem=wyckoff_bns_fract_denom(k,j,num)
         MGp%SymOp(k)%tr=real(wyckoff_bns_fract(:,k,j,num))/real(idem)
@@ -3931,10 +3933,11 @@
         else
            Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k)%Rot,MGp%MSymOp(k)%Rot,MGp%SymOp(k)%tr,ShOp_symb)
         end if
+        !write(*,"(a)") trim(ShOp_symb)
         i=index(ShOp_symb,";")
         MGp%SymopSymb(k)=ShOp_symb(2:i-1)
         MGp%MSymopSymb(k)=ShOp_symb(i+1:len_trim(ShOp_symb)-1)
-        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. inv_time < 0) m=m+1
+        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. inv_time < 0) m=m+1 !counting anti-translations
       End Do
 
       if(centring) then
