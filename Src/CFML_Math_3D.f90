@@ -40,7 +40,7 @@
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-!!--++    Use CFML_Math_General, only: cosd, sind
+!!--++    Use CFML_Math_General, only: cosd, sind, euclidean_norm, diagonalize_sh
 !!----
 !!---- VARIABLES
 !!--++    EPS
@@ -90,6 +90,7 @@
 !!----       SET_EPS_DEFAULT
 !--..
 !!--..    Matrix and Vectors Subroutines
+!!----       GET BARICENTRE
 !!----       GET_CART_FROM_CYLIN
 !!--++       GET_CART_FROM_CYLIN_DP    [Overloaded]
 !!--++       GET_CART_FROM_CYLIN_SP    [Overloaded]
@@ -100,6 +101,7 @@
 !!----       GET_CART_FROM_SPHER
 !!--++       GET_CART_FROM_SPHER_DP    [Overloaded]
 !!--++       GET_CART_FROM_SPHER_SP    [Overloaded]
+!!----       GET_PLANE_FROM_3POINTS
 !!----       GET_PLANE_FROM_POINTS
 !!----       GET_SPHERIC_COORD
 !!--++       GET_SPHERIC_COORD_DP      [Overloaded]
@@ -116,7 +118,7 @@
  Module CFML_Math_3D
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-    Use CFML_Math_General, only: cosd, sind, euclidean_norm
+    Use CFML_Math_General, only: cosd, sind, euclidean_norm, diagonalize_sh, Err_MathGen, Err_MathGen_Mess
 
     implicit none
 
@@ -131,7 +133,8 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Math3D, Set_Eps, Set_Eps_Default, Matrix_DiagEigen, Matrix_Inverse, &
               Resolv_Sist_1X2, Resolv_Sist_1X3, Resolv_Sist_2X2, Resolv_Sist_2X3,          &
-              Resolv_Sist_3X3, Get_Plane_from_Points, Get_Centroid_Coord
+              Resolv_Sist_3X3, Get_Plane_from_3Points, Get_Centroid_Coord, Get_Baricentre, &
+              Get_Plane_From_Points
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Get_Cart_From_Cylin, Get_Cylindr_Coord, Get_Cart_From_Spher, Get_Spheric_Coord
@@ -980,6 +983,54 @@
     End Subroutine Set_Eps_Default
 
     !!----
+    !!---- Subroutine Get_BariCenter
+    !!----
+    !!---- Calculate the baricenter coordinates for a set of Points in 3D
+    !!---- with their respective standard deviation if the information
+    !!---- is present.
+    !!----
+    Subroutine Get_Baricentre(N, Coord, Centr, SCoord, SCentr)
+       !---- Arguments ----!
+       integer,                                 intent(in) :: N       ! Number of Points
+       real(kind=cp), dimension(:,:),           intent(in) :: Coord   ! Coordinates (1...N,3)
+       real(kind=cp), dimension(3),             intent(out):: Centr   ! Centroid
+       real(kind=cp), dimension(:,:), optional, intent(in) :: SCoord  ! Standard deviation of the Coordinates points
+       real(kind=cp), dimension(3),   optional, intent(out):: SCentr  ! Standar deviation of the Centroid
+
+       !---- Local Variables ----!
+       real(kind=cp),dimension(3) :: ssm
+
+       !> Init
+       call init_err_math3d()
+
+       !> Check options
+       if (present(SCentr)) SCentr=0.0
+
+       Centr=0.0
+       if (N <= 0) then
+          !> Error flag
+          ERR_Math3D=.true.
+          ERR_Math3D_Mess="Number of Points for Baricenter calculations was zero or negative!"
+          return
+       end if
+
+       !> Centroid calculation
+       Centr(1)=sum(Coord(1:N,1))/real(N)
+       Centr(2)=sum(Coord(1:N,2))/real(N)
+       Centr(3)=sum(Coord(1:N,3))/real(N)
+
+       if (present(SCoord)) then
+          ssm(1)=sum(abs(scoord(1:N,1)))/real(n)
+          ssm(2)=sum(abs(scoord(1:N,2)))/real(n)
+          ssm(3)=sum(abs(scoord(1:N,3)))/real(n)
+
+          if (present(SCentr)) SCentr=ssm
+       end if
+
+       return
+    End Subroutine Get_Baricentre
+
+    !!----
     !!---- Subroutine Get_Cart_from_Cylin(rho,Phi,zeta,Xo,Mode)
     !!----    real(kind=sp/dp),              intent( in)           :: rho
     !!----    real(kind=sp/dp),              intent( in)           :: phi
@@ -1108,7 +1159,7 @@
 
           case (3)
              !---- Plane 1: Defined with those 3 Points ----!
-             call Get_Plane_From_Points(p1, p2, p3, &
+             call Get_Plane_From_3Points(p1, p2, p3, &
                                         plane1(1), plane1(2), plane1(3), plane1(4))
              r=plane1(1:3)
              rmod=euclidean_norm(3,r)
@@ -1456,7 +1507,114 @@
     End Subroutine Get_Cart_from_Spher_sp
 
     !!----
-    !!---- Subroutine Get_Plane_from_Points(P1,P2,P3,A,B,C,D)
+    !!---- Subroutine Get_Plane_From_Points
+    !!----
+    !!---- Calculate the equation plane for a set of N Points using L.S.
+    !!---- The A,B,C,D is respect to Orthogonal Parameters
+    !!----
+    !!---- Update: December 2016
+    !!
+    Subroutine Get_Plane_From_Points(N, Coord, Plane, SPlane, Mode, GD)
+       !---- Arguments ----!
+       integer,                                 intent(in) :: N       ! Number of Points
+       real(kind=cp), dimension(:,:),           intent(in) :: Coord   ! Coordinates (1...N,3)
+       real(kind=cp), dimension(4),             intent(out):: Plane   ! Eq: Ax + By + Cz +D =0
+       real(kind=cp), dimension(4),   optional, intent(out):: SPlane  ! RMS for Plane parameters
+       character(len=*),              optional, intent(in) :: Mode    ! If present: F for Fractional coordinates
+       real(kind=cp), dimension(:,:), optional, intent(in) :: GD      ! Array to convert to Fractional to Orthogonal
+
+       !---- Local Variables ----!
+       integer                                    :: i
+       character(len=1)                           :: c_mode
+       real(kind=cp), dimension(3)                :: c0,dd,ev
+       real(kind=cp), dimension(3,3)              :: w,ew
+       real(kind=cp), allocatable, dimension(:,:) :: Orth
+
+       !> Init
+       call Init_Err_Math3D()
+       Plane=0.0
+
+       !> Check
+       if (N <= 2) then
+          !> Error Flag active
+          Err_Math3d=.true.
+          ERR_Math3D_Mess="The number of Points is less than 3!"
+
+          return
+       end if
+
+       c_mode=' '
+       if (present(Mode)) then
+          select case (c_mode)
+             case ('F','f')
+                if (.not. present(GD)) then
+                   !> Error Flag
+                   Err_Math3D=.true.
+                   ERR_Math3D_Mess="You need pass the Metric array to convert Fractional to Orthogonal coordinates!"
+                   if (present(SPlane)) Splane=0.0
+                   return
+                end if
+
+          end select
+       end if
+
+       !> Conversion to Orthogonal
+       if (allocated(orth)) deallocate(orth)
+       allocate( orth(N,3))
+       orth=0.0
+
+       select case (c_mode)
+          case ('F','f')
+             do i=1,N
+                Orth(i,:)=matmul(GD,Coord(i,:))
+             end do
+
+          case default
+             Orth=Coord(1:N,:)
+       end select
+
+       !> Calculate Centroid
+       call get_baricentre(N,Orth,c0)
+
+       !> Tensor
+       do i=1,N
+          dd=Orth(i,:)-c0
+          w(1,1)=w(1,1)+dd(1)*dd(1)
+          w(2,2)=w(2,2)+dd(2)*dd(2)
+          w(3,3)=w(3,3)+dd(3)*dd(3)
+
+          w(1,2)=w(1,2)+dd(1)*dd(2)
+          w(1,3)=w(1,3)+dd(1)*dd(3)
+          w(2,3)=w(2,3)+dd(2)*dd(3)
+       end do
+       w(2,1)=w(1,2)
+       w(3,1)=w(1,3)
+       w(3,2)=w(2,3)
+
+       !> Determination of the autovectors/autovalues
+       call diagonalize_sh(w,3,ev,ew)
+       if (Err_MathGen) then
+          !> Error Flag
+          Err_Math3D=.true.
+          Err_Math3D_Mess=trim(ERR_MathGen_Mess)
+
+          return
+       end if
+
+       !> Final result
+       Plane(1:3)=ew(:,1)
+       Plane(4)=-(c0(1)*Plane(1) + c0(2)*Plane(2) + c0(3)*Plane(3))
+
+       if (present(SPlane)) then
+          SPlane(1:3)=sqrt(ev/real(N))
+          SPlane(4)=abs(c0(1)*SPlane(1))+abs(c0(2)*SPlane(2))+abs(c0(3)*SPlane(3))
+       end if
+
+       return
+    End Subroutine Get_Plane_From_Points
+
+    !!----
+    !!---- Subroutine Get_Plane_from_3Points(P1,P2,P3,A,B,C,D)
     !!----    real(kind=cp), dimension(3), intent(in) :: P1
     !!----    real(kind=cp), dimension(3), intent(in) :: P2
     !!----    real(kind=cp), dimension(3), intent(in) :: P3
@@ -1470,7 +1628,7 @@
     !!----
     !!---- Update: July - 2005
     !!
-    Subroutine Get_Plane_from_Points(P1, P2, P3, A, B, C, D)
+    Subroutine Get_Plane_from_3Points(P1, P2, P3, A, B, C, D)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: P1
        real(kind=cp), dimension(3), intent(in) :: P2
@@ -1492,7 +1650,7 @@
        d = - p2(1) * a - p2(2) * b - p2(3) * c
 
        return
-    End Subroutine Get_Plane_from_Points
+    End Subroutine Get_Plane_from_3Points
 
     !!----
     !!---- Subroutine Get_Spheric_Coord(Xo,Ss,Theta,Phi,Mode)
