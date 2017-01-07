@@ -126,6 +126,7 @@ rem
    echo **---- Level 7 ----**
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
+   ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_magsymm.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
    ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
