@@ -24,6 +24,12 @@
     if(OPS == 1) clear_string="cls" !Change for Windows
 
     !---- Menu Principal ----!
+    open(unit=i_out,file=fileout,status="unknown",action="write",position="append")
+    write(unit=i_out,fmt="(a)") " LOG-file of the program: CrysCalCon"
+    write(unit=i_out,fmt="(a)") " ==================================="
+    call Write_Date_Time(i_out)
+    write(unit=i_out,fmt="(a)") "  "
+
     do
        call system(clear_string)
 
@@ -68,9 +74,9 @@
 
        end select
     end do
+    close(unit=i_out)
     call Wait_Message(" => Press <enter> to close the program ...")
     call system(clear_string)
-
  End Program Calsym
 
 

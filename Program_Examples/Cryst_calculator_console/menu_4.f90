@@ -89,6 +89,10 @@
           read(unit=*,fmt='(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "     International Chemical Table "
+          write(unit=i_out,fmt="(a)") " ===================================="
+          write(unit=i_out,fmt="(a)") " "
 
           !---- Introduce Numero? ----!
           call getnum(line,vet,ivet,iv)
@@ -103,6 +107,13 @@
                 write(unit=*,fmt='(5x,a,f10.5)')  "   Atomic Weight: ",chem_info(i)%atwe
                 write(unit=*,fmt='(5x,a,f6.3)')   " Covalent Radius: ",chem_info(i)%rcov
                 write(unit=*,fmt='(5x,a,f6.3)')   "    Waals Radius: ",chem_info(i)%rwaals
+                write(unit=i_out,fmt=*) " "
+                write(unit=i_out,fmt='(5x,a,a)')      "            Name: ",chem_info(i)%name
+                write(unit=i_out,fmt='(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
+                write(unit=i_out,fmt='(5x,a,i3)')     "   Atomic Number: ",chem_info(i)%z
+                write(unit=i_out,fmt='(5x,a,f10.5)')  "   Atomic Weight: ",chem_info(i)%atwe
+                write(unit=i_out,fmt='(5x,a,f6.3)')   " Covalent Radius: ",chem_info(i)%rcov
+                write(unit=i_out,fmt='(5x,a,f6.3)')   "    Waals Radius: ",chem_info(i)%rwaals
 
                 n=count(chem_info(i)%oxid /= 0)
                 line=" "
@@ -113,14 +124,14 @@
                 end do
                 write(unit=*,fmt='(5x,a,a)')     "Oxidation States: ",line
                 write(unit=*,fmt=*) " "
-                write(unit=*,fmt=*) " "
+                write(unit=i_out,fmt='(5x,a,a)')     "Oxidation States: ",line
+                write(unit=i_out,fmt=*) " "
                 exit
              end do
           else
              !---- Introduce notacion del Elemento ----!
              do i=1,num_chem_info
                 if (u_case(line(1:2)) /= chem_info(i)%symb ) cycle
-                write(unit=*,fmt=*) " "
                 write(unit=*,fmt=*) " "
                 write(unit=*,fmt='(5x,a,a)')      "            Name: ",chem_info(i)%name
                 write(unit=*,fmt='(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
@@ -129,6 +140,15 @@
                 write(unit=*,fmt='(5x,a,2x,f6.3)')" Covalent Radius: ",chem_info(i)%rcov
                 write(unit=*,fmt='(5x,a,2x,f6.3)')"    Waals Radius: ",chem_info(i)%rwaals
 
+                write(unit=i_out,fmt=*) " "
+                write(unit=i_out,fmt=*) " "
+                write(unit=i_out,fmt='(5x,a,a)')      "            Name: ",chem_info(i)%name
+                write(unit=i_out,fmt='(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
+                write(unit=i_out,fmt='(5x,a,i3)')     "   Atomic Number: ",chem_info(i)%z
+                write(unit=i_out,fmt='(5x,a,f8.4)')   "   Atomic Weight: ",chem_info(i)%atwe
+                write(unit=i_out,fmt='(5x,a,2x,f6.3)')" Covalent Radius: ",chem_info(i)%rcov
+                write(unit=i_out,fmt='(5x,a,2x,f6.3)')"    Waals Radius: ",chem_info(i)%rwaals
+
                 n=count(chem_info(i)%oxid /= 0)
                 line=" "
                 npos=0
@@ -137,6 +157,8 @@
                    npos=len_trim(line)
                 end do
                 write(unit=*,fmt='(5x,a,a)')     "Oxidation States: ",line
+                write(unit=i_out,fmt='(5x,a,a)')     "Oxidation States: ",line
+                write(unit=i_out,fmt=*) " "
                 write(unit=*,fmt=*) " "
                 write(unit=*,fmt=*) " "
                 exit

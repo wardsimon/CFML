@@ -125,6 +125,10 @@
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Multiplicity and Occupancy of Position "
+             write(unit=i_out,fmt="(a)") "   ==========================================="
+             write(unit=i_out,fmt="(a)") " "
              line=adjustl(line)
              vet=0.0
              call getnum(line,vet,ivet,iv)
@@ -162,6 +166,11 @@
 
           read(unit=*,fmt='(a)') line
           if (len_trim(line)==0) exit
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "     Atomistic Calculations "
+          write(unit=i_out,fmt="(a)") " ================================"
+          write(unit=i_out,fmt="(a)") " Reading a CFL or CIF file ..."
+          write(unit=i_out,fmt="(a)") " "
 
           line=adjustl(line)
           i=index(line,".cif")
@@ -235,21 +244,33 @@
          call Wait_Message(" => Press <enter> to continue ...")
          return
        end if
+       write(unit=i_out,fmt="(a)") " "
+       write(unit=i_out,fmt="(a)") "     Atomistic Calculations "
+       write(unit=i_out,fmt="(a)") " ================================"
+       write(unit=i_out,fmt="(a)") " Showing Cell, Space Group and Atom positions ..."
+       write(unit=i_out,fmt="(a)") " "
+       write(unit=i_out,fmt="(/a/)") " => UNIT CELL information: "
        write(unit=*,fmt="(/a/)") " => UNIT CELL information: "
 
        call Write_Crystal_Cell(Cell)
+       call Write_Crystal_Cell(Cell,i_out)
+
        call Wait_Message(" => Press <enter> to continue ...")
 
        call system(clear_string)
        write(unit=*,fmt="(/a/)") " => SPACE GROUP information: "
        call Write_SpaceGroup(SpG,Full=.true.)
+       call Write_SpaceGroup(SpG,i_out,Full=.true.)
        call Wait_Message(" => Press <enter> to continue ...")
 
        call system(clear_string)
        write(unit=*,fmt="(/a/)") " => ATOMS information: "
        call Write_Atom_List(A,level=1)
-       write(unit=*,fmt="(/a,f8.4)") " => Total positive charge per unit cell: ",qcellp
-       write(unit=*,fmt="(a,f8.4/)") " => Total negative charge per unit cell: ",-qcellm
+       call Write_Atom_List(A,level=1,lun=i_out)
+       write(unit=*,fmt="(/a,f12.4)") " => Total positive charge per unit cell: ",qcellp
+       write(unit=*,fmt="(a,f12.4/)") " => Total negative charge per unit cell: ",-qcellm
+       write(unit=i_out,fmt="(/a,f12.4)") " => Total positive charge per unit cell: ",qcellp
+       write(unit=i_out,fmt="(a,f12.4/)") " => Total negative charge per unit cell: ",-qcellm
        call Wait_Message(" => Press <enter> to continue ...")
 
     End Subroutine Menu_Atom_3
@@ -292,6 +313,11 @@
        lam=0; lbm=0; lcm=0
        ncell=(2*lam+1)*(2*lbm+1)*(2*lcm+1)
        !write(unit=*,fmt="(a,i10,a)")  " => Calculation for: ",nint(ncell)," unit cells"
+       write(unit=i_out,fmt="(a)") " "
+       write(unit=i_out,fmt="(a)") "                     Atomistic Calculations "
+       write(unit=i_out,fmt="(a)") " ======================================================================="
+       write(unit=i_out,fmt="(a)") " Calculating the ionic polarisation of a single symmetrized unit cell..."
+       write(unit=i_out,fmt="(a)") " "
        r_plus=0.0; r_minus=0.0 ; np=0; nm=0
        do i=1,A%natoms
           pos=A%atom(i)%x
@@ -367,9 +393,12 @@
           Mult=Mult+m
           write(unit=*,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge, &
                                                 "     Modified Multiplicity:",mult
+          write(unit=i_out,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge, &
+                                                "     Modified Multiplicity:",mult
           cpos=0.0
           do j=1,Mult
             write(unit=*,fmt="(a,3f9.5,a,f9.5)") " => (x,y,z): ",orb(:,j),"  Qeff=",qat(j)
+            write(unit=i_out,fmt="(a,3f9.5,a,f9.5)") " => (x,y,z): ",orb(:,j),"  Qeff=",qat(j)
             !do la=-lam,lam
             !  do lb=-lbm,lbm
             !    do lc=-lcm,lcm
@@ -389,6 +418,7 @@
           end do
          cpos=cpos/(ncell * real(mult,kind=cp))
          write(unit=*,fmt="(a,3f10.5,a)") "    Average of vector positions w.r.to (1/2,1/2,1/2): (",cpos," )"
+         write(unit=i_out,fmt="(a,3f10.5,a)") "    Average of vector positions w.r.to (1/2,1/2,1/2): (",cpos," )"
        end do
        r_plus=r_plus/np
        r_minus=r_minus/nm
@@ -398,24 +428,35 @@
        pol=sqrt(dot_product(r_pol,r_pol))
        cpos=Cart_Vector("D",r_plus-r_minus,Cell)
        dist=sqrt(dot_product(cpos,cpos))
-       write(unit=*,fmt="(/,a,3f12.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
-       write(unit=*,fmt="(a,3f12.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
-       write(unit=*,fmt="(a,f12.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=*,fmt="(/,a,3f10.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
+       write(unit=*,fmt="(a,3f10.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
+       write(unit=*,fmt="(a,f10.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
+       write(unit=*,fmt="(a,f10.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
        write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.602176565e-29*pol
-       write(unit=*,fmt="(a,3f12.4,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
+       write(unit=*,fmt="(a,3f10.3,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.02176565*pol/Cell%CellVol  !/real(SpG%Numlat)
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.176565*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=i_out,fmt="(/,a,3f10.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
+       write(unit=i_out,fmt="(a,3f10.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
+       write(unit=i_out,fmt="(a,f10.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
+       write(unit=i_out,fmt="(a,f10.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=i_out,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.602176565e-29*pol
+       write(unit=i_out,fmt="(a,3f10.3,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
+       write(unit=i_out,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.02176565*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=i_out,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.176565*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0_cp,0.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
          cpos=Cart_Vector("D",[0.0_cp,1.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
          cpos=Cart_Vector("D",[0.0_cp,0.0_cp,1.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
        end if
        call Wait_Message(" => Press <enter> to continue ...")
 

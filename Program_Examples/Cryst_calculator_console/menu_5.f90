@@ -112,8 +112,8 @@
 
              case ('11')
                 call Menu_Geom_11()
-             case ('12')
 
+             case ('12')
                 call Menu_Geom_12()
 
           end select
@@ -170,10 +170,12 @@
                end if
                call Set_Crystal_Cell(Cellv,Angl,Celda,Cartype=Cart_Type)
                call Write_Crystal_Cell(Celda)
+               call Write_Crystal_Cell(Celda,i_out)
                cell_given=.true.
             Case("2")
                if(cell_given) then
                  call Write_Crystal_Cell(Celda)
+                 call Write_Crystal_Cell(Celda,i_out)
                else
                   write(unit=*,fmt="(a)") " -> You have to provide first the cell parameters!"
                end if
@@ -221,11 +223,19 @@
               call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "          Zone axis common to two planes"
+          write(unit=i_out,fmt="(a)") "    ==========================================="
+          write(unit=i_out,fmt="(a)") " "
           u=Cross_Product(h1,h2)
           write(unit=*,fmt="(a)")  "    (Indices) Plane1  (Indices) Plane2    [Zone Axis]   "
           write(unit=*,fmt="(a)")  "     ==============    ==============     ============ "
           write(unit=*,fmt="(3(tr6,3i4))") h1,h2,u
-          write(unit=*,fmt=*) " "
+          write(unit=i_out,fmt=*) " "
+          write(unit=i_out,fmt="(a)")  "    (Indices) Plane1  (Indices) Plane2    [Zone Axis]   "
+          write(unit=i_out,fmt="(a)")  "     ==============    ==============     ============ "
+          write(unit=i_out,fmt="(3(tr6,3i4))") h1,h2,u
+          write(unit=i_out,fmt=*) " "
           call Wait_Message(" => Press <enter> to continue ...")
        end do
 
@@ -286,6 +296,16 @@
              if(angle > 1.0) angle=1.0
              if(angle < -1.0) angle=-1.0
              angle=acosd(angle)
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Angle between two directions in direct space"
+             write(unit=i_out,fmt="(a)") " ===================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)")  "               Direct space[A]         Cartesian components[e]    Reciprocal Components[A*]"
+             write(unit=i_out,fmt="(a,2(3f8.4,tr2),3f9.3)") "     First:",u,uc,ur
+             write(unit=i_out,fmt="(a,2(3f8.4,tr2),3f9.3)") "    Second:",v,vc,vr
+             write(unit=i_out,fmt="(2(a, f10.5))")          "     Angle:",angle, " degrees  or  180-Angle:",180.0-angle
+
+
              write(unit=*,fmt="(a)")  "               Direct space[A]         Cartesian components[e]    Reciprocal Components[A*]"
              write(unit=*,fmt="(a,2(3f8.4,tr2),3f9.3)") "     First:",u,uc,ur
              write(unit=*,fmt="(a,2(3f8.4,tr2),3f9.3)") "    Second:",v,vc,vr
@@ -360,6 +380,14 @@
              if(angle > 1.0) angle=1.0
              if(angle < -1.0) angle=-1.0
              angle=acosd(angle)
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Angle between two directions in reciprocal space"
+             write(unit=i_out,fmt="(a)") " ======================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)")   "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
+             write(unit=i_out,fmt="(a,3(3f8.4,tr2))") "     First:",h,hc,hd
+             write(unit=i_out,fmt="(a,3(3f8.4,tr2))") "    Second:",k,kc,kd
+             write(unit=i_out,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or  180-Angle: ",180.0-Angle
              write(unit=*,fmt="(a)")   "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "     First:",h,hc,hd
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "    Second:",k,kc,kd
@@ -432,6 +460,15 @@
              if(angle > 1.0) angle=1.0
              if(angle < -1.0) angle=-1.0
              angle=acosd(angle)
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Angle between two directions one in reciprocal space and the other in direct space"
+             write(unit=i_out,fmt="(a)") " ==========================================================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)")  "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
+             write(unit=i_out,fmt="(a,3(3f8.4,tr2))") "  h- First:",h,hc,hd
+             write(unit=i_out,fmt="(a,3(3f8.4,tr2))") "  u-Second:",ur,uc,u
+             write(unit=i_out,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or 180-Angle:",180.0-angle
+
              write(unit=*,fmt="(a)")  "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "  h- First:",h,hc,hd
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "  u-Second:",ur,uc,u
@@ -491,6 +528,13 @@
              end if
              uc=uc/mu
              ur=ur/mv
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Direction in direct space => unitary direction in reciprocal space"
+             write(unit=i_out,fmt="(a)") " ==========================================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(2(a,3f9.4),a)") "                        [uvw] : [",u,"]  -> Unit vector: [",u/mu,"]"
+             write(unit=i_out,fmt="(a,3f9.4,a)")    "   Cartesian Unit vector[uvw]c: [",uc,"]"
+             write(unit=i_out,fmt="(a,3f9.4,a)")    "  Reciprocal Unit vector[hkl]*: [",ur,"]*"
              write(unit=*,fmt="(2(a,3f9.4),a)") "                        [uvw] : [",u,"]  -> Unit vector: [",u/mu,"]"
              write(unit=*,fmt="(a,3f9.4,a)")    "   Cartesian Unit vector[uvw]c: [",uc,"]"
              write(unit=*,fmt="(a,3f9.4,a)")    "  Reciprocal Unit vector[hkl]*: [",ur,"]*"
@@ -551,6 +595,14 @@
              end if
              uc=uc/mu
              v=v/mv
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Direction in reciprocal space => unitary direction in direct space"
+             write(unit=i_out,fmt="(a)") " ==========================================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(2(a,3f9.4),a)") "                        [hkl]*: [",u,"]  -> Unit vector: [",u/mu,"]"
+             write(unit=i_out,fmt="(a,3f9.4,a)")    "   Cartesian Unit vector[hkl]c: [",uc,"]"
+             write(unit=i_out,fmt="(a,3f9.4,a)")    "      Direct Unit vector[uvw] : [",v,"]*"
+
              write(unit=*,fmt="(2(a,3f9.4),a)") "                        [hkl]*: [",u,"]  -> Unit vector: [",u/mu,"]"
              write(unit=*,fmt="(a,3f9.4,a)")    "   Cartesian Unit vector[hkl]c: [",uc,"]"
              write(unit=*,fmt="(a,3f9.4,a)")    "      Direct Unit vector[uvw] : [",v,"]*"
@@ -598,6 +650,14 @@
                call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "     Basis change matrix => get new unit cell parameters"
+             write(unit=i_out,fmt="(a)") " =========================================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") " => Matrix corresponding to trasformation: "//trim(Symb)
+             do i=1,3
+                write(unit=i_out,fmt="(a,3f9.5)") "         ",Mat(i,:)
+             end do
              write(unit=*,fmt="(a)") " => Matrix corresponding to trasformation: "//trim(Symb)
              do i=1,3
                 write(unit=*,fmt="(a,3f9.5)") "         ",Mat(i,:)
@@ -606,7 +666,11 @@
              write(unit=*,fmt="(/,a)") " ============================"
              write(unit=*,fmt="(a)")   " => New metric information <="
              write(unit=*,fmt="(a)")   " ============================"
+             write(unit=i_out,fmt="(/,a)") " ============================"
+             write(unit=i_out,fmt="(a)")   " => New metric information <="
+             write(unit=i_out,fmt="(a)")   " ============================"
              call Write_Crystal_Cell(Celln)
+             call Write_Crystal_Cell(Celln,i_out)
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
              call Wait_Message(" => Press <enter> to continue ...")
@@ -690,7 +754,13 @@
                 cycle
              end if
 
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "      Zone axis: list of zone planes and angles, special angles"
+             write(unit=i_out,fmt="(a)") " ===================================================================="
+             write(unit=i_out,fmt="(a)") " "
              call Get_Zone_Planes(Zone_Axis%rx,Zone_Axis%ry,dmin,Celda,Zone_Planes)
+             write(unit=i_out,fmt="(a)")  "    Face indices    Face indices     Normal Angle     Face Angle"
+             write(unit=i_out,fmt="(a)")  "    ============    ============     ============     =========="
              write(unit=*,fmt="(a)")  "    Face indices    Face indices     Normal Angle     Face Angle"
              write(unit=*,fmt="(a)")  "    ============    ============     ============     =========="
              ! Calculation of all interplane angles
@@ -712,6 +782,7 @@
                   angle=angle_val(uc,mu,vc,mv)
                   ca=180.0-angle
                   write(unit=*,fmt="(2(tr4,3i4),2(tr6,f10.4))") Zone_Planes%h(:,i),Zone_Planes%h(:,j),angle,ca
+                  write(unit=i_out,fmt="(2(tr4,3i4),2(tr6,f10.4))") Zone_Planes%h(:,i),Zone_Planes%h(:,j),angle,ca
                   do k=1,n_angles
                     if(abs(ca-angs(k)) < tol) then
                       n=n+1
@@ -728,9 +799,14 @@
                write(unit=*,fmt="(a)")  "    ============    ============     ==============     ================"
                write(unit=*,fmt="(a)")  "    Face indices    Face indices     Observed Angle     Calculated Angle"
                write(unit=*,fmt="(a)")  "    ============    ============     ==============     ================"
+               write(unit=i_out,fmt="(/,a)")"    Special angles to compare with calculations"
+               write(unit=i_out,fmt="(a)")  "    ============    ============     ==============     ================"
+               write(unit=i_out,fmt="(a)")  "    Face indices    Face indices     Observed Angle     Calculated Angle"
+               write(unit=i_out,fmt="(a)")  "    ============    ============     ==============     ================"
                do i=1,n
                  k=nang(i)
                  write(unit=*,fmt="(2(tr4,3i4),2(tr7,f10.4))") Zone_Planes%h(:,ii(i)),Zone_Planes%h(:,jj(i)),angs(k),angles(i)
+                 write(unit=i_out,fmt="(2(tr4,3i4),2(tr7,f10.4))") Zone_Planes%h(:,ii(i)),Zone_Planes%h(:,jj(i)),angs(k),angles(i)
                end do
              end if
           else
@@ -809,9 +885,15 @@
                 write(unit=*,fmt="(a,3i3,a)") " => Problem in getting the basis in the direct plane perpendicular to [",h,"]*"
                 cycle
              end if
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "          Indexing edges of trapezoids"
+             write(unit=i_out,fmt="(a)") " ==============================================="
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(/,a,3i4,a)") "    Basis vector-a1: [",Zone_Axis%rx," ]"
+             write(unit=i_out,fmt="(a,3i4,a)")   "    Basis vector-a2: [",Zone_Axis%ry," ]"
+
              write(unit=*,fmt="(/,a,3i4,a)") "    Basis vector-a1: [",Zone_Axis%rx," ]"
              write(unit=*,fmt="(a,3i4,a)")   "    Basis vector-a2: [",Zone_Axis%ry," ]"
-
 
              call Get_Zone_Planes(Zone_Axis%rx,Zone_Axis%ry,n_max,Celda,Zone_Planes,"R")
 
@@ -958,6 +1040,13 @@
                     write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ", &
                             Zone_Planes%h(:,ii(j))," --- ",Zone_Planes%h(:,jj(j)),a3
                     write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi4," --- ",ho4,a4
+
+                    write(unit=i_out,fmt="(/,a,i5,tr4,3i3,a,3i3,f10.3,a,f7.3)") "   Sol# ",nsol, &
+                            Zone_Planes%h(:,ii(i))," --- ",Zone_Planes%h(:,jj(i)),a1,"   R-factor(%)=",rf
+                    write(unit=i_out,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi2," --- ",ho2,a2
+                    write(unit=i_out,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ", &
+                            Zone_Planes%h(:,ii(j))," --- ",Zone_Planes%h(:,jj(j)),a3
+                    write(unit=i_out,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi4," --- ",ho4,a4
                   end if
                 end do
               end do
@@ -965,9 +1054,14 @@
                 write(unit=*,fmt="(/,a,i3,a,f7.3,/,a,i2,a)") " -> The best solution is that of number: ",nbest, &
                                     " of R-Factor(%)=",rmin, "    and ",neq, " additional equivalent solutions"
                 write(unit=*,fmt="(/,a,/)")   "           u  v  w  ---  u  v  w   Angle(Obs)  Angle(Cal)    Obs-Cal"
+                write(unit=i_out,fmt="(/,a,i3,a,f7.3,/,a,i2,a)") " -> The best solution is that of number: ",nbest, &
+                                    " of R-Factor(%)=",rmin, "    and ",neq, " additional equivalent solutions"
+                write(unit=i_out,fmt="(/,a,/)")   "           u  v  w  ---  u  v  w   Angle(Obs)  Angle(Cal)    Obs-Cal"
                 j=1
                 do i=1,4
                   write(unit=*,fmt="(a,tr6,3i3,a,3i3,3f12.3)") "   ",  &
+                      hb(:,j)," --- ",hb(:,j+1),angs(i),abest(i),angs(i)-abest(i)
+                  write(unit=i_out,fmt="(a,tr6,3i3,a,3i3,3f12.3)") "   ",  &
                       hb(:,j)," --- ",hb(:,j+1),angs(i),abest(i),angs(i)-abest(i)
                   j=j+2
                 end do
@@ -1056,6 +1150,12 @@
           lmax=nint(Celda%cell(3)/dmin+1.0)
           c1=Cart_Vector("R",real(h1,kind=cp),Celda)
           mc1=sqrt(dot_Product(c1,c1))
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "    List of planes intersecting a given one at a particular Zone Axis"
+          write(unit=i_out,fmt="(a)") "   Forming an angle with the given plane within the interval [ang1,ang2]"
+          write(unit=i_out,fmt="(a)") "    ================================================================="
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(/,2(a,3i3),a)") " => List of planes intersecting (",h1,") at the zone axis: [",u,"]"
           write(unit=*,fmt="(/,2(a,3i3),a)") " => List of planes intersecting (",h1,") at the zone axis: [",u,"]"
           n=0
           do i=0,kmax
@@ -1073,6 +1173,7 @@
                   if(ang >= ang1 .and. ang <= ang2) then
                     n=n+1
                     write(unit=*,fmt="(a,i5,a,3i4,a,f9.3,a)") "    #",n,"  (hkl):",h2,"  Angle:",ang," degrees"
+                    write(unit=i_out,fmt="(a,i5,a,3i4,a,f9.3,a)") "    #",n,"  (hkl):",h2,"  Angle:",ang," degrees"
                   end if
                 end if
               end do
@@ -1125,6 +1226,11 @@
               call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "           Enter Euler angles to get new Cartesian system u,v,w"
+          write(unit=i_out,fmt="(a)") "    Calculate the angles of u,v,w with a direct and a reciprocal directions"
+          write(unit=i_out,fmt="(a)") "    ======================================================================="
+          write(unit=i_out,fmt="(a)") " "
           ! Calculate the unitary vectors of the Cartesian system
            u(1)=cosd(phi)*cosd(Theta)*cosd(Chi)-sind(Phi)*sind(chi)
            u(2)=sind(phi)*cosd(Theta)*cosd(Chi)+cosd(Phi)*sind(chi)
@@ -1139,6 +1245,11 @@
           Write(unit=*,fmt="(a,3f10.5,a)") " => v =(",v,")"
           Write(unit=*,fmt="(a,3f10.5,a)") " => w =(",w,")"
 
+          Write(unit=i_out,fmt="(a)") " => The unit vectors of the reference system <u,v,w>,"
+          Write(unit=i_out,fmt="(a)") "    given in the Standard Cartesian system, are:"
+          Write(unit=i_out,fmt="(a,3f10.5,a)") " => u =(",u,")"
+          Write(unit=i_out,fmt="(a,3f10.5,a)") " => v =(",v,")"
+          Write(unit=i_out,fmt="(a,3f10.5,a)") " => w =(",w,")"
           !Calculate the angles with a direct space direction
 
           write(unit=*,fmt="(a)",advance="no") " => Enter the components of a direct space vector (<cr> for exit): "
@@ -1169,6 +1280,10 @@
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
 
+          write(unit=i_out,fmt="(a,3f10.5,a)") " => The angles of the direction [",h,"] with vectors u,v & w are:"
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(u,h) =",angu," Complementary:",180.0-angu
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
           !Calculate the angles with a reciprocal space direction
           write(unit=*,fmt="(a)",advance="no") " => Enter the components of a reciprocal space vector (<cr> for exit): "
           read(*,'(a)') line
@@ -1199,6 +1314,12 @@
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
           write(unit=*,fmt=*) " "
+
+          write(unit=i_out,fmt="(a,3f10.5,a)") " => The angles of the direction [",h,"]* with vectors u,v & w are:"
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(u,h) =",angu," Complementary:",180.0-angu
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
+          Write(unit=i_out,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
+          write(unit=i_out,fmt=*) " "
           call Wait_Message(" => Press <enter> to continue ...")
        end do
 
@@ -1284,10 +1405,17 @@
                 cycle
              end if
 
+             write(unit=i_out,fmt="(a)") " "
+             write(unit=i_out,fmt="(a)") "      Zone axis: list of zone planes and angles"
+             write(unit=i_out,fmt="(a)") " ====================================================="
+             write(unit=i_out,fmt="(a)") " "
              call Get_Zone_Planes(Zone_Axis%rx,Zone_Axis%ry,n_max,Celda,Zone_Planes,"R")
 
              write(unit=*,fmt="(a)")  "    Edge indices    Edge indices     Normal Angle    Compl. Angle"
              write(unit=*,fmt="(a)")  "    ============    ============     ============     ==========="
+
+             write(unit=i_out,fmt="(a)")  "    Edge indices    Edge indices     Normal Angle    Compl. Angle"
+             write(unit=i_out,fmt="(a)")  "    ============    ============     ============     ==========="
              n=Zone_Planes%nplanes*(Zone_Planes%nplanes-1)
              if(allocated(ii)) deallocate(ii)
              if(allocated(jj)) deallocate(jj)
@@ -1402,13 +1530,17 @@
               end do
 
               write(unit=*,fmt="(/,a)")  "    List of solutions:"
+              write(unit=i_out,fmt="(/,a)")  "    List of solutions:"
               do i=1,nsol
                 write(unit=*,fmt="(a,i5,a,40i5)")   "    Solutions #",i,":",p(:,i)
+                write(unit=i_out,fmt="(a,i5,a,40i5)")   "    Solutions #",i,":",p(:,i)
                 do j=1,nedges
                   k=p(j,i)
                   k1=ii(k)
                   k2=jj(k)
                   write(unit=*,fmt="(a,3i3,a,3i3,f10.3)")"                ", &
+                  Zone_Planes%h(:,k1)," --- ",Zone_Planes%h(:,k2),angles(k)
+                  write(unit=i_out,fmt="(a,3i3,a,3i3,f10.3)")"                ", &
                   Zone_Planes%h(:,k1)," --- ",Zone_Planes%h(:,k2),angles(k)
                 end do
               end do
@@ -1416,8 +1548,10 @@
 
              !List of vectors
              write(unit=*,fmt="(/,a)")  "    Edge indices      n_uvw(Angstroms)"
+             write(unit=i_out,fmt="(/,a)")  "    Edge indices      n_uvw(Angstroms)"
              do i=1,Zone_Planes%nplanes
                write(unit=*,fmt="((tr4,3i4),tr4,f10.3)")  Zone_Planes%h(:,i),Zone_Planes%mh(i)
+               write(unit=i_out,fmt="((tr4,3i4),tr4,f10.3)")  Zone_Planes%h(:,i),Zone_Planes%mh(i)
              end do
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"

@@ -131,6 +131,7 @@
             cycle
           end if
           call write_spacegroup(grp_espacial,full=.true.)
+          call write_spacegroup(grp_espacial,Iunit=i_out,full=.true.)
           write(unit=*,fmt=*) " "
           call Wait_Message(" => Press <enter> to continue ...")
 
@@ -284,9 +285,9 @@
                 end if
 
               end do
-                do i=1,ng
-                  write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
-                end do
+              do i=1,ng
+                write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
+              end do
           else
 
              write(unit=*,fmt=*) " "
@@ -309,6 +310,13 @@
             cycle
           end if
           call write_spacegroup(grp_espacial,full=.true.)
+          !Writing in the LOG file
+          Write(unit=i_out,fmt="(/,a)") " Space Group generated from the set of generators:"
+          do i=1,ng
+            write(unit=i_out,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
+          end do
+          call write_spacegroup(grp_espacial,Iunit=i_out,full=.true.)
+          !---
           write(*,*)" "
           call Wait_Message(" => Press <enter> to continue ...")
 
@@ -397,6 +405,14 @@
           write(unit=*,fmt=*)  " "
           write(unit=*,fmt=*)  "  Calculated Hall Symbol : "//hall
           write(unit=*,fmt=*) " "
+
+          !Writing in the LOG file
+          Write(unit=i_out,fmt="(/,a)") " Space Group generated from the set of generators:"
+          do i=1,ng
+            write(unit=i_out,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
+          end do
+          write(unit=i_out,fmt="(a)")       "  Calculated Hall Symbol : "//hall
+
           call Wait_Message(" => Press <enter> to continue ...")
 
           exit
@@ -672,6 +688,9 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Determination of the Laue class and Point Group "
           write(unit=*,fmt="(a)") " ======================================================="
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "     Determination of the Laue class and Point Group "
+          write(unit=i_out,fmt="(a)") " ======================================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
@@ -696,8 +715,16 @@
           write(unit=*,fmt="(a)") "    Laue Group   Point Group       Laue Group   Point Group"
           write(unit=*,fmt="(a)") "   ========================================================="
           write(*,'(6x,a5,10x,a5,13x,a5,10x,a5)') grp_espacial%laue,grp_espacial%pg, &
-                                                 laue_car,point_car
-          write(unit=*,fmt=*) " "
+                                                   laue_car,point_car
+          write(unit=i_out,fmt=*) " "
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "             Table                       Calculated"
+          write(unit=i_out,fmt="(a)") "    Laue Group   Point Group       Laue Group   Point Group"
+          write(unit=i_out,fmt="(a)") "   ========================================================="
+          write(i_out,'(6x,a5,10x,a5,13x,a5,10x,a5)') grp_espacial%laue,grp_espacial%pg, &
+                                                   laue_car,point_car
+          write(unit=i_out,fmt=*) " "
           call Wait_Message(" => Press <enter> to continue ...")
 
        end do
@@ -730,6 +757,10 @@
           write(unit=*,fmt="(a)") " =================================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "     Derivation symbols for symmetry operations"
+          write(unit=i_out,fmt="(a)") " =================================================="
+          write(unit=i_out,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Generators from International Tables ?(Y/[N]): "
           read(*,"(a)") ans
           call ucase(ans)
@@ -784,6 +815,7 @@
              write(unit=*,fmt='(a,i1,5x,a)') " Generator: ",i, ": "//gen(i)
              call Symmetry_Symbol(gen(i),Symb)
              write(unit=*,fmt='(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
+             write(unit=i_out,fmt='(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
           end do
           write(*,*) " "
           call Wait_Message(" => Press <enter> to continue ...")
@@ -901,6 +933,12 @@
           write(unit=*,fmt="(a)") " Tranformations in form: m1a+m2b+m3c, m4a+m5b+m6c, m7a+m8b+m9c ; t1,t2,t3"
           write(unit=*,fmt="(a)") " =========================================================================="
           write(unit=*,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "                Generation of Non-standard Space Groups     "
+          write(unit=i_out,fmt="(a)") "     Provided generators should be in string form separated by ';' and"
+          write(unit=i_out,fmt="(a)") " Tranformations in form: m1a+m2b+m3c, m4a+m5b+m6c, m7a+m8b+m9c ; t1,t2,t3"
+          write(unit=i_out,fmt="(a)") " =========================================================================="
+          write(unit=i_out,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Give the string with generators: "
 
@@ -932,6 +970,7 @@
             cycle
           end if
           call Write_SpaceGroup(SpG,full=.true.)
+          call Write_SpaceGroup(SpG,i_out,full=.true.)
 
           call Wait_Message(" => Press <enter> to continue ...")
 
@@ -962,17 +1001,20 @@
           end if
           if(ok_newspg) then
             write(unit=*,fmt="(a)") ' => Setting: '//trim(spgn%sg_setting)
+            write(unit=i_out,fmt="(a)") ' => Setting: '//trim(spgn%sg_setting)
             if(spgn%NumLat > 1) then
               do i=2,spgn%NumLat
                      v=spgn%Latt_trans(:,i)
                      call Frac_Trans_2Dig(v,transla)
                      write(unit=*,fmt="(a,i3,a)") "   Lattice centring vector # ",i-1,"   "//trim(transla)
+                     write(unit=i_out,fmt="(a,i3,a)") "   Lattice centring vector # ",i-1,"   "//trim(transla)
               end do
             end if
             do i=1,spgn%multip
                call Check_Generator(spgn%symopsymb(i),ok,symb)
                if(ok) call Symmetry_Symbol(spgn%symopsymb(i),Symb)
                write(unit=*, fmt='(a,i4,a,t14,a,t62,a)') "SymmOp",i,":",spgn%symopsymb(i),"Symbol: "//trim(symb)
+               write(unit=i_out, fmt='(a,i4,a,t14,a,t62,a)') "SymmOp",i,":",spgn%symopsymb(i),"Symbol: "//trim(symb)
             end do
           end if
 
@@ -1049,6 +1091,10 @@
           write(unit=*,fmt="(a)") "             Wyckoff Information "
           write(unit=*,fmt="(a)") "         ==========================="
           write(unit=*,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") " "
+          write(unit=i_out,fmt="(a)") "             Wyckoff Information "
+          write(unit=i_out,fmt="(a)") "         ==========================="
+          write(unit=i_out,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
           open(unit=1,file="itgen.spg",status="unknown",iostat=ier)
@@ -1411,6 +1457,8 @@
       if (grp%wyckoff%num_orbit /= wyck1%num_orbit) then
          call Write_Wyckoff(grp%wyckoff,Grp%SPG_Symb,iunit)
          call Write_Wyckoff(Wyck1,Grp%SPG_Symb,iunit)
+         call Write_Wyckoff(grp%wyckoff,Grp%SPG_Symb,i_out)
+         call Write_Wyckoff(Wyck1,Grp%SPG_Symb,i_out)
       end if
       close(unit=iunit)
 
