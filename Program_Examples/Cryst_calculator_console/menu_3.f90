@@ -278,8 +278,8 @@
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
        integer                        :: i,j,Mult,m ,la,lb,lc,lam,lbm,lcm,np,nm
-       real(kind=cp)                  :: q, qp,pol,ang,ncell,dist
-       real(kind=cp), dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus
+       real(kind=cp)                  :: q, qp,pol,ang,ncell,dist,polc
+       real(kind=cp), dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus,dir_pol
        real(kind=cp), dimension(3,384):: orb !increased to take into account the surface atoms
        real(kind=cp), dimension(  384):: qat !New charges
        logical                        :: calc_possible=.true.
@@ -425,38 +425,42 @@
        !r_frac=r_frac/real(ncell)
        r_frac=(r_plus-r_minus) * qcellp
        r_pol=Cart_Vector("D",r_frac,Cell)
+       where(abs(r_pol) <= 0.0001) r_pol=0.0
        pol=sqrt(dot_product(r_pol,r_pol))
+       dir_pol=[0.0,0.0,1.0]
+       if(pol > eps) dir_pol=r_pol/pol
        cpos=Cart_Vector("D",r_plus-r_minus,Cell)
        dist=sqrt(dot_product(cpos,cpos))
-       write(unit=*,fmt="(/,a,3f10.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
-       write(unit=*,fmt="(a,3f10.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
-       write(unit=*,fmt="(a,f10.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
-       write(unit=*,fmt="(a,f10.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.602176565e-29*pol
-       write(unit=*,fmt="(a,3f10.3,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.02176565*pol/Cell%CellVol  !/real(SpG%Numlat)
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.176565*pol/Cell%CellVol  !/real(SpG%Numlat)
-       write(unit=i_out,fmt="(/,a,3f10.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
-       write(unit=i_out,fmt="(a,3f10.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
-       write(unit=i_out,fmt="(a,f10.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
-       write(unit=i_out,fmt="(a,f10.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=i_out,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.602176565e-29*pol
-       write(unit=i_out,fmt="(a,3f10.3,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
-       write(unit=i_out,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.02176565*pol/Cell%CellVol  !/real(SpG%Numlat)
-       write(unit=i_out,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.176565*pol/Cell%CellVol  !/real(SpG%Numlat)
+       polc=1602.176565*pol/Cell%CellVol
+       write(unit=*,fmt="(/,a,3f8.4,a)")" => Geometric centre of Q+ (fract. coordinates)       :(",r_plus," )"
+       write(unit=*,fmt="(a,3f8.4,a)")  " => Geometric centre of Q- (fract. coordinates)       :(",r_minus," )"
+       write(unit=*,fmt="(a,f8.4)")     " => Distance between  Q+  and  Q- (Angstrom)          : ",dist
+       write(unit=*,fmt="(a,g11.4)")    " => Ionic Dipolar Moment/UnitCell  (Coulomb.Metre)    :  ",1.602176565e-29*pol
+       write(unit=*,fmt="(a,f8.4)")     " => Ionic Dipolar Moment/UnitCell  (electron.Angstrom): ",pol
+       write(unit=*,fmt="(a,3f8.4,a)")  " => Cartesian Dipolar Moment vector(electron.Angstrom):(",r_pol," )"
+       write(unit=*,fmt="(a,f8.4)")     " => Ionic Polarization/UnitVolume  (uCoulomb/cm^2)    : ",polc
+       write(unit=*,fmt="(a,3f8.4,a)")  " => Cartesian Polarization vector  (uCoulomb/cm^2)    :(",polc*dir_pol," )"
+       write(unit=i_out,fmt="(/,a,3f8.4,a)")" => Geometric centre of Q+ (fract. coordinates)       :(",r_plus," )"
+       write(unit=i_out,fmt="(a,3f8.4,a)")  " => Geometric centre of Q- (fract. coordinates)       :(",r_minus," )"
+       write(unit=i_out,fmt="(a,f8.4)")     " => Distance between  Q+  and  Q- (Angstrom)          : ",dist
+       write(unit=i_out,fmt="(a,g11.4)")    " => Ionic Dipolar Moment/UnitCell  (Coulomb.Metre)    :  ",1.602176565e-29*pol
+       write(unit=i_out,fmt="(a,f8.4)")     " => Ionic Dipolar Moment/UnitCell  (electron.Angstrom): ",pol
+       write(unit=i_out,fmt="(a,3f8.4,a)")  " => Cartesian Dipolar Moment vector(electron.Angstrom):(",r_pol," )"
+       write(unit=i_out,fmt="(a,f8.4)")     " => Ionic Polarization/UnitVolume  (uCoulomb/cm^2)    : ",polc
+       write(unit=i_out,fmt="(a,3f8.4,a)")  " => Cartesian Polarization vector  (uCoulomb/cm^2)    :(",polc*dir_pol," )"
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0_cp,0.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
-         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f7.1,a)")      " => Angle of Polarisation vector with a-axis          :",ang," degrees"
+         write(unit=i_out,fmt="(a,f7.1,a)")  " => Angle of Polarisation vector with a-axis          :",ang," degrees"
          cpos=Cart_Vector("D",[0.0_cp,1.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
-         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f7.1,a)")      " => Angle of Polarisation vector with b-axis          :",ang," degrees"
+         write(unit=i_out,fmt="(a,f7.1,a)")  " => Angle of Polarisation vector with b-axis          :",ang," degrees"
          cpos=Cart_Vector("D",[0.0_cp,0.0_cp,1.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
-         write(unit=i_out,fmt="(a,f8.1,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f7.1,a)")      " => Angle of Polarisation vector with c-axis          :",ang," degrees"
+         write(unit=i_out,fmt="(a,f7.1,a)")  " => Angle of Polarisation vector with c-axis          :",ang," degrees"
        end if
        call Wait_Message(" => Press <enter> to continue ...")
 
