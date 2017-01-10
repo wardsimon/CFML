@@ -2,7 +2,7 @@
 # -------------------------------------------------------------------------------------
 # Compilation for CrysFML Library
 # Author: Javier Gonzalez-Platas
-# Date: July 2015
+# Date: January 2017
 # A.Filhol - 26 february 2016 (more tests and more error messages)
 # A.Filhol - 7 March 2016 (support for Winteracter 64-bits) 
 # A.Filhol - 3 May 2016 (added chmod +x since this bit is often lost)
@@ -14,10 +14,10 @@
 # -------------------------------------------------------------------------------------
 
 cat << !
- ########################################################
- makecrys_MAC  : Make the CrysFML Library for Apple's OS X
- feb 2016 - OS X El Capitan
- ########################################################
+ ######################################################################
+ #### makecrys_mac.sh  : Make the CrysFML Library for Apple's OS X ####
+ #### Jan 2017 - OS X El Capitan / Yosemite                        ####
+ ######################################################################
 
 !
 #
@@ -28,21 +28,6 @@ if [ -z "$CRYSFML" ]; then
    echo "?????"
    exit 1
 fi
-
-# -- no longer neccasry since all parameters have a default value
-#
-# Calling Program
-#
-# if [ -z "$1" ]
-# then
-# cat << !
-# ????? Missing parameters
-# ????? Syntax : make_crysfml ifort:f95:g95:gfortran [m64|m32] [winter|all] [debug]
-# ????? Default: m64  winter  nodebug     (winter->libW all-> libW and libC)
-# ????? CAUTION: FullProf requirements:  ifort m64 all
-# !
-# exit 1
-# fi
 
 #
 # Default values for Arguments
@@ -61,7 +46,7 @@ do
    case "$arg" in
       "?"|"h"|"help")
          echo "Syntax of the command:"
-         echo "  >make_crysfml [?:help] [ifort:f95:g95:gfortran] [m64|m32] [winter|all] [debug]"
+         echo "  >makecrys_mac.sh  [?:help] [ifort:f95:g95:gfortran] [m64|m32] [winter|all] [debug]"
          echo "Default: ifort m64 all nodebug     (winter-> libW all-> libW and libC)"
          echo "Caution: FullProf requirements = ifort m64 all"
          echo " "
@@ -127,9 +112,10 @@ if [ -z $compinst ]; then
    exit 1
 fi
 
-echo "---- Selected options -----------------"
+echo "----"
+echo "---- Selected options "
 echo "---- Comp: $COMP, Arch: $ARCH, Wint: $WINT, Cons: $CONS, Debug: $DEBUG"
-echo "---------------------------------------"
+echo "----"
 echo ""
 
 #

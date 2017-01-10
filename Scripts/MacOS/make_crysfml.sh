@@ -2,18 +2,18 @@
 # -------------------------------------------------------------------------------------
 # Compilation Script for the CrysFML library
 # Author: Javier Gonzalez-Platas
-# Date: July-2015
+# Date: Jan-2017
 # OS X version
 # Update: Feb 2016 - A.Filhol (more tests and error messages, added a progression bar)
 # Update: May 2016 - A.Filhol ($ARCH instead of $arg in output message)
 # -------------------------------------------------------------------------------------
 #
 cat << !
- #######################################################################
- make_crysfml.sh: Make the CrysFML Library using Fortran Mac Compilers
- Feb 2016 - OS X El Capitan
- Syntax : make_crysfml ifort:f95:g95:gfortran [m32|m64] [winter] [debug]
- #######################################################################
+ #################################################################################
+ #### make_crysfml.sh: Make the CrysFML Library using Fortran Mac Compilers   ####
+ #### Jan 2017 - OS X El Capitan / Yosemite                                   ####
+ #### Syntax : make_crysfml ifort:f95:g95:gfortran [m32|m64] [winter] [debug] ####
+ #################################################################################
 
 !
 # Checking CrySFML Environment Variable
@@ -28,10 +28,11 @@ fi
 #
 if [ -z "$1" ]; then
 cat << !
-?????
-????? Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter] [debug]
-????? Default: m64 debug:no wint:no
-?????
+ ?????
+ ????? Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter] [debug]
+ ????? Default: m64 debug:no wint:no
+ ?????
+ 
 !
 exit 1
 fi
@@ -191,12 +192,10 @@ cd $CRYSFML/Src
 #
 # Compilation Process
 #
-echo " --------------------------------------------------------"
-echo " ---- Crystallographic Fortran Modules Library (5.0) ----"
-echo " ---- JRC - JGP                            1999-2016 ----"
-echo " --------------------------------------------------------"
-echo " Selected architecture   : $ARCH"
-echo " Compiled files to folder: $CRYSFML/$IDIR/$DIRLIB"
+echo " ----"
+echo " ---- Selected architecture   : $ARCH"
+echo " ---- Compiled files to folder: $CRYSFML/$IDIR/$DIRLIB"
+echo " ----"
 echo " "
 progressionBar()
 {
@@ -204,7 +203,7 @@ progressionBar()
 	bar=${bar:0:$n}#
   printf "Compiling [$n/$ntotal]: $bar\r"
 }
-ntotal=42      # Nber of files to be compiled
+ntotal=41      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
@@ -243,8 +242,6 @@ $COMP $OPT1  CFML_Math_3D.f90
 progressionBar
 $COMP $OPT1  CFML_Optimization.f90
 progressionBar
-$COMP $OPT1  CFML_LSQ_TypeDef.f90
-progressionBar
 $COMP $OPT1  CFML_Optimization_LSQ.f90
 progressionBar
 $COMP $OPT2  CFML_Sym_Table.f90
@@ -261,8 +258,6 @@ $COMP $OPT1  CFML_Cryst_Types.f90
 progressionBar
 $COMP $OPT1  CFML_Symmetry.f90
 progressionBar
-$COMP $OPT1  CFML_Magnetic_Groups.f90
-progressionBar
 $COMP $OPT1  CFML_ILL_Instrm_Data.f90
 progressionBar
 $COMP $OPT1  CFML_EoS_Mod.f90
@@ -277,29 +272,31 @@ $COMP $OPT1  CFML_Molecules.f90
 progressionBar
 $COMP $OPT1  CFML_Form_CIF.f90
 progressionBar
-$COMP $OPT1  CFML_Export_Vtk.f90
+$COMP $OPT1  CFML_Extinction_Correction.f90
 progressionBar
 $COMP $OPT1  CFML_Sfac.f90
 progressionBar
-$COMP $OPT1  CFML_Extinction_Correction.f90
+$COMP $OPT1  CFML_SXTAL_Geom.f90
 progressionBar
 $COMP $OPT1  CFML_Propagk.f90
 progressionBar
-$COMP $OPT1  CFML_Maps.f90
+$COMP $OPT1  CFML_Export_Vtk.f90
 progressionBar
-$COMP $OPT1  CFML_SXTAL_Geom.f90
+$COMP $OPT1  CFML_Maps.f90
 progressionBar
 $COMP $OPT1  CFML_Conf_Calc.f90
 progressionBar
-$COMP $OPT1  CFML_Optimization_SAn.f90 $INC
+$COMP $OPT1  CFML_Magnetic_Groups.f90
 progressionBar
 $COMP $OPT1  CFML_MagSymm.f90
+progressionBar
+$COMP $OPT1  CFML_Optimization_SAn.f90 $INC
+progressionBar
+$COMP $OPT1  CFML_Refcodes.f90
 progressionBar
 $COMP $OPT1  CFML_Msfac.f90
 progressionBar
 $COMP $OPT1  CFML_Polar.f90
-progressionBar
-$COMP $OPT1  CFML_Refcodes.f90
 #
 # Making CrysFML Library
 #

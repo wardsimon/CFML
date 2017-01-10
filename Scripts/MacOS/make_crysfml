@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -------------------------------------------------------------------------------------
 # Compilation Script for the CrysFML library
 # Author: Javier Gonzalez-Platas
@@ -180,6 +180,9 @@ if [ "$WINT" == "Y" ]; then
             INC="-I$WINTER/lib.ifi"
           else
             INC="-I$WINTER/lib.ifi64"
+          fi
+          if [ "$ARCH" == "m64" ]; then
+             INC="-I$WINTER/lib.ifi64"
           fi
           ;;
    esac
