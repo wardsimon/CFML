@@ -176,6 +176,7 @@
 !!----       FIRST_DERIVATIVE
 !!----       IN_SORT
 !!----       INVERT_MATRIX
+!!----       JACOBI
 !!----       LINEAR_DEPENDENT
 !!--++       LINEAR_DEPENDENTC         [Overloaded]
 !!--++       LINEAR_DEPENDENTI         [Overloaded]
@@ -254,7 +255,7 @@
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
                Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
                First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector, AM_Median
+               Co_Prime_vector, AM_Median, Jacobi
 
     !---- List of public overloaded procedures: subroutines ----!
     public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
@@ -4134,6 +4135,135 @@
     End Subroutine Determinant_R
 
     !!----
+    !!---- SUBROUTINE JACOBI
+    !!----
+    !!---- Compute all Eigenvalues and Eigenvectors of a real symetric matrix
+    !!----
+    !!
+    subroutine Jacobi(a,n,d,v,nrot)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:),   intent(in)  :: A   ! A(N,N)
+       integer,                         intent(in)  :: N   ! Dimension A(N,N)
+       real(kind=cp), dimension(:),     intent(out) :: D   ! D(N) Eigenvalues
+       real(kind=cp), dimension(:,:),   intent(out) :: V   ! V(N,N) Eigenvectors
+       integer, optional,               intent(out) :: NRot! Number of rotation required
+
+       !---- Local Variables ----!
+       integer, parameter            :: NMAX_ITER=50
+       integer                       :: i,j,ip,iq,nnrot
+
+       real(kind=cp), dimension(N,N) :: AA
+       real(kind=cp), dimension(N)   :: B,Z
+       real(kind=cp)                 :: sm,tresh,g,h,t,theta,c,s,tau
+
+       !> Init
+       d=0.0
+       v=0.0
+       do ip=1,n
+          v(ip,ip)=1.0
+       end do
+
+       !> Check
+       call init_err_mathgen()
+       if (n > size(A,1) .or. n > size(A,2)) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Error in dimension of input matrix "
+          return
+       end if
+
+       !> Copy Input array
+       aa=a
+
+       do ip=1,n
+          b(ip)=aa(ip,ip)
+          d(ip)=b(ip)
+          z(ip)=0.0
+       end do
+
+       nnrot=0
+       do i=1,NMAX_ITER
+          sm=0.0
+          do ip=1,n-1
+             do iq=ip+1,n
+                sm=sm+abs(aa(ip,iq))
+             end do
+          end do
+          if (sm == 0.0) then
+             if (present(nrot)) nrot=nnrot
+             call eigsrt(d,v,n,1)
+             return
+          end if
+          if (i < 4)then
+             tresh=0.2*sm/n**2
+          else
+             tresh=0.0
+          end if
+          do ip=1,n-1
+             do iq=ip+1,n
+                g=100.*abs(aa(ip,iq))
+                if ( (i > 4) .and. (abs(d(ip))+g == abs(d(ip))) .and. (abs(d(iq))+g == abs(d(iq))) )then
+                   aa(ip,iq)=0.
+                elseif (abs(aa(ip,iq)) > tresh)then
+                   h=d(iq)-d(ip)
+                   if (abs(h)+g == abs(h))then
+                      t=aa(ip,iq)/h
+                   else
+                      theta=0.5*h/aa(ip,iq)
+                      t=1.0/(abs(theta)+sqrt(1.0+theta**2))
+                      if (theta < 0.0)t=-t
+                   end if
+                   c=1./sqrt(1.+t**2)
+                   s=t*c
+                   tau=s/(1.+c)
+                   h=t*aa(ip,iq)
+                   z(ip)=z(ip)-h
+                   z(iq)=z(iq)+h
+                   d(ip)=d(ip)-h
+                   d(iq)=d(iq)+h
+                   aa(ip,iq)=0.
+                   do j=1,ip-1
+                      g=aa(j,ip)
+                      h=aa(j,iq)
+                      aa(j,ip)=g-s*(h+g*tau)
+                      aa(j,iq)=h+s*(g-h*tau)
+                   end do
+                   do j=ip+1,iq-1
+                      g=aa(ip,j)
+                      h=aa(j,iq)
+                      aa(ip,j)=g-s*(h+g*tau)
+                      aa(j,iq)=h+s*(g-h*tau)
+                   end do
+                   do j=iq+1,n
+                      g=aa(ip,j)
+                      h=aa(iq,j)
+                      aa(ip,j)=g-s*(h+g*tau)
+                      aa(iq,j)=h+s*(g-h*tau)
+                   end do
+                   do j=1,n
+                      g=v(j,ip)
+                      h=v(j,iq)
+                      v(j,ip)=g-s*(h+g*tau)
+                      v(j,iq)=h+s*(g-h*tau)
+                   end do
+                   nnrot=nnrot+1
+                end if
+             end do
+          end do
+          do ip=1,n
+             b(ip)=b(ip)+z(ip)
+             d(ip)=b(ip)
+             z(ip)=0.0
+          end do
+       end do
+
+       !> End calculations
+       if (present(nrot)) nrot=nnrot
+       call eigsrt(d,v,n,1)
+
+       return
+    End Subroutine Jacobi
+
+    !!----
     !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect)
     !!----    complex/real,      dimension(:,:), intent( in)  :: A
     !!----    integer,                           intent( in)  :: n
@@ -6398,6 +6528,7 @@
        integer,                     intent(in )   :: n
 
        !---- Local variables ----!
+       integer, parameter :: NMAX_ITER=200
        integer      :: i, iter, l, m, mv
        real(kind=cp):: b, c, dd, f, g, p, r, s, comp
 
@@ -6421,7 +6552,7 @@
              m=mv
 
              if (m /= l) then
-                if (iter == 40) then
+                if (iter == NMAX_ITER) then
                    ERR_MathGen=.true.
                    ERR_MathGen_Mess=" Too many iterations in TQLI1"
                    exit
@@ -6495,6 +6626,7 @@
        real(kind=cp), dimension(:,:), intent(in out) :: z    ! z(np,np)
 
        !---- Local Variables ----!
+       integer, parameter :: NMAX_ITER=200
        integer       :: i, iter, k, l, m, mv
        real(kind=cp) :: b, c, dd, f, g, p, r, s, comp
 
@@ -6518,7 +6650,7 @@
              end do
              m=mv
              if (m /= l) then
-                if (iter == 40) then
+                if (iter == NMAX_ITER) then
                    ERR_MathGen=.true.
                    ERR_MathGen_Mess=" Too many iterations in TQLI2"
                    exit

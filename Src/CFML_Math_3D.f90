@@ -118,7 +118,7 @@
  Module CFML_Math_3D
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-    Use CFML_Math_General, only: cosd, sind, euclidean_norm, diagonalize_sh, Err_MathGen, Err_MathGen_Mess
+    Use CFML_Math_General, only: cosd, sind, euclidean_norm, jacobi, Err_MathGen, Err_MathGen_Mess
 
     implicit none
 
@@ -1545,6 +1545,7 @@
 
        c_mode=' '
        if (present(Mode)) then
+          c_mode=trim(adjustl(mode))
           select case (c_mode)
              case ('F','f')
                 if (.not. present(GD)) then
@@ -1592,12 +1593,12 @@
        w(3,2)=w(2,3)
 
        !> Determination of the autovectors/autovalues
-       call diagonalize_sh(w,3,ev,ew)
+       !call diagonalize_sh(w,3,ev,ew)
+       call jacobi(w,3,ev,ew)
        if (Err_MathGen) then
           !> Error Flag
           Err_Math3D=.true.
           Err_Math3D_Mess=trim(ERR_MathGen_Mess)
-
           return
        end if
 
