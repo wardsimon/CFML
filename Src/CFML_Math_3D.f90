@@ -1639,6 +1639,9 @@
        real(kind=cp),               intent(out):: C
        real(kind=cp),               intent(out):: D
 
+       !---- Local Variables ----!
+       real(kind=cp) :: rnorm
+
        a = ( p2(2) - p1(2) ) * ( p3(3) - p1(3) ) &
            - ( p2(3) - p1(3) ) * ( p3(2) - p1(2) )
 
@@ -1647,6 +1650,11 @@
 
        c = ( p2(1) - p1(1) ) * ( p3(2) - p1(2) ) &
            - ( p2(2) - p1(2) ) * ( p3(1) - p1(1) )
+
+       rnom=sqrt(a**2 + b**2 + c**2)
+       a=a/rnom
+       b=b/rnom
+       c=c/rnom
 
        d = - p2(1) * a - p2(2) * b - p2(3) * c
 
