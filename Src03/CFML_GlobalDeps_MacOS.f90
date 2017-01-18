@@ -5,7 +5,7 @@
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
 !!---- in military applications.
 !!----
-!!---- Copyright (C) 1999-2015  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!---- Copyright (C) 1999-2017  Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
@@ -37,7 +37,7 @@
 !!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
-!!--..    Update: 19/03/2015
+!!--..    Update: 15/01/2017
 !!--..
 !!----
 !!

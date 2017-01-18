@@ -547,7 +547,7 @@
              bb(:)= bb(:) + tho*bjh(:)
 
           end do ! Atoms
-          Mh%MsF(:)=cmplx(aa(:),bb(:))
+          Mh%MsF(:)=cmplx(aa(:),bb(:)) * MGp%Num_Lat * MGp%Centred
 
        else  !Now magnetic structure described in terms of basis functions (No magnetic rotation matrices are provided)
 
@@ -586,6 +586,7 @@
              Mh%MsF(:)=Mh%MsF(:) + tho*onh*GMh(:)
           end do ! Atoms
        end if
+       Mh%MsF(:)=Mh%MsF(:) * MGp%Num_Lat * MGp%Centred
        !---- Calculation of the Magnetic Interaction vector ----!
        s  = 2.0*Mh%s            !1/d=r*, M = M// + Mp   => Mp = M - M// = M - (M.e)e
        er = Mh%h/s              !unitary vector referred to the reciprocal basis
@@ -709,7 +710,7 @@
                    bb(:)= bb(:) + tho*bjh(:)
 
                 end do ! Atoms
-                Mh%MsF(:,ich,nd)=cmplx(aa(:),bb(:))
+                Mh%MsF(:,ich,nd)=cmplx(aa(:),bb(:)) * MGp%Num_Lat * MGp%Centred
              end do ! Chirality Domains
           end do !Domains
 
@@ -765,6 +766,7 @@
                    end do ! symmetry
                    Mh%MsF(:,ich,nd)=Mh%MsF(:,ich,nd) + tho*onh*GMh(:)
                 end do ! Atoms
+                Mh%MsF(:,ich,nd)=Mh%MsF(:,ich,nd) * MGp%Num_Lat * MGp%Centred
              end do ! Chirality Domains
           end do ! Domains
        end if
