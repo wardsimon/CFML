@@ -118,7 +118,7 @@
  Module CFML_Math_3D
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-    Use CFML_Math_General, only: cosd, sind, euclidean_norm, jacobi, Err_MathGen, Err_MathGen_Mess
+    Use CFML_Math_General, only: cosd, sind, euclidean_norm, Err_MathGen, Err_MathGen_Mess
 
     implicit none
 
@@ -1512,34 +1512,47 @@
     !!---- Calculate the equation plane for a set of N Points using L.S.
     !!---- The A,B,C,D is respect to Orthogonal Parameters
     !!----
-    !!---- Update: December 2016
+    !!---- Update: January 2017
     !!
-    Subroutine Get_Plane_From_Points(N, Coord, Plane, SPlane, Mode, GD)
+    Subroutine Get_Plane_From_Points(N, Coord, SCoord, Plane, SPlane, Mode, GD)
        !---- Arguments ----!
        integer,                                 intent(in) :: N       ! Number of Points
        real(kind=cp), dimension(:,:),           intent(in) :: Coord   ! Coordinates (1...N,3)
+       real(kind=cp), dimension(:,:),           intent(in) :: SCoord   ! Sigmas Coordinates (1...N,3)
        real(kind=cp), dimension(4),             intent(out):: Plane   ! Eq: Ax + By + Cz +D =0
        real(kind=cp), dimension(4),   optional, intent(out):: SPlane  ! RMS for Plane parameters
        character(len=*),              optional, intent(in) :: Mode    ! If present: F for Fractional coordinates
        real(kind=cp), dimension(:,:), optional, intent(in) :: GD      ! Array to convert to Fractional to Orthogonal
 
        !---- Local Variables ----!
-       integer                                    :: i
+       integer, parameter                         :: NMAX_ITER=200
+       integer                                    :: i,j
        character(len=1)                           :: c_mode
-       real(kind=cp), dimension(3)                :: c0,dd,ev
-       real(kind=cp), dimension(3,3)              :: w,ew
-       real(kind=cp), allocatable, dimension(:,:) :: Orth
+       real(kind=cp), allocatable, dimension(:,:) :: ox,sox,cox
+
+       integer                                    :: ns1
+       real(kind=cp), dimension(3)                :: pm,sdm,ppm,am,xm,dr,diff,sam
+       real(kind=cp), dimension(6)                :: a,ra
+       real(kind=cp), dimension(10)               :: c
+       real(kind=cp), dimension(N)                :: w2
+       real(kind=cp)                              :: sdd, da, db, dg, dep, dl, dy, sd
+       real(kind=cp)                              :: pamu,d1,sw2,det,df,dd
+
+       real(kind=cp) :: M1=32007779e0
+       real(kind=cp) :: M2=23717810e0
+       real(kind=cp) :: M3=52636370e0
+       real(kind=cp) :: M4
 
        !> Init
        call Init_Err_Math3D()
        Plane=0.0
+       if (present(SPlane)) SPlane=0.0
 
        !> Check
        if (N <= 2) then
           !> Error Flag active
           Err_Math3d=.true.
           ERR_Math3D_Mess="The number of Points is less than 3!"
-
           return
        end if
 
@@ -1552,7 +1565,6 @@
                    !> Error Flag
                    Err_Math3D=.true.
                    ERR_Math3D_Mess="You need pass the Metric array to convert Fractional to Orthogonal coordinates!"
-                   if (present(SPlane)) Splane=0.0
                    return
                 end if
 
@@ -1560,55 +1572,228 @@
        end if
 
        !> Conversion to Orthogonal
-       if (allocated(orth)) deallocate(orth)
-       allocate( orth(N,3))
-       orth=0.0
+       if (allocated(ox)) deallocate(ox)
+       if (allocated(cox)) deallocate(cox)
+       if (allocated(sox)) deallocate(sox)
+       allocate( ox(N,3))
+       allocate( cox(N,3))
+       allocate( sox(N,3))
+       ox=0.0
+       cox=0.0
+       sox=0.0
 
        select case (c_mode)
           case ('F','f')
              do i=1,N
-                Orth(i,:)=matmul(GD,Coord(i,:))
+                ox(i,:)=matmul(GD,Coord(i,:))
+                sox(i,:)=matmul(abs(GD),SCoord(i,:))
              end do
 
           case default
-             Orth=Coord(1:N,:)
+             ox=Coord(1:N,:)
+             sox=SCoord(1:N,:)
        end select
 
-       !> Calculate Centroid
-       call get_baricentre(N,Orth,c0)
+       !> Copy values
+       cox=ox
 
-       !> Tensor
-       do i=1,N
-          dd=Orth(i,:)-c0
-          w(1,1)=w(1,1)+dd(1)*dd(1)
-          w(2,2)=w(2,2)+dd(2)*dd(2)
-          w(3,3)=w(3,3)+dd(3)*dd(3)
+       !> Init
+       ns1=0
+       sdd=0.0
+       sdm=0.0
 
-          w(1,2)=w(1,2)+dd(1)*dd(2)
-          w(1,3)=w(1,3)+dd(1)*dd(3)
-          w(2,3)=w(2,3)+dd(2)*dd(3)
+       do
+
+          if (N == 3) then
+             ppm(1)=ox(1,2)*(ox(2,3)-ox(3,3)) + ox(2,2)*(ox(3,3)-ox(1,3)) + &
+                    ox(3,2)*(ox(1,3)-ox(2,3))
+             ppm(2)=ox(1,3)*(ox(2,1)-ox(3,1)) + ox(2,3)*(ox(3,1)-ox(1,1)) + &
+                    ox(3,3)*(ox(1,1)-ox(2,1))
+             ppm(3)=ox(1,1)*(ox(2,2)-ox(3,2)) + ox(2,1)*(ox(3,2)-ox(1,2)) + &
+                    ox(3,1)*(ox(1,2)-ox(2,2))
+
+             d1=ox(1,1)*(ox(2,2)*ox(3,3)-ox(3,2)*ox(2,3)) + &
+                ox(2,1)*(ox(3,2)*ox(1,3)-ox(1,2)*ox(3,3)) + &
+                ox(3,1)*(ox(1,2)*ox(2,3)-ox(2,2)*ox(1,3))
+
+             pamu=sqrt(ppm(1)**2+ppm(2)**2+ppm(3)**2)
+             ppm=ppm/pamu
+             d1=d1/pamu
+
+          else
+             !> Calculate Centroid
+             call get_baricentre(N,ox,xm)
+
+             a=0.0
+             do i=1,N
+                a(1)=a(1) + (ox(i,1)-xm(1))**2
+                a(2)=a(2) + (ox(i,1)-xm(1))*(ox(i,2)-xm(2))
+                a(3)=a(3) + (ox(i,1)-xm(1))*(ox(i,3)-xm(3))
+                a(4)=a(4) + (ox(i,2)-xm(2))**2
+                a(5)=a(5) + (ox(i,2)-xm(2))*(ox(i,3)-xm(3))
+                a(6)=a(6) + (ox(i,3)-xm(3))**2
+             end do
+
+             pm=0.0
+             if (a(1) == 0.0_cp .and. a(2) == 0.0_cp .and. a(3) == 0.0_cp) then
+                pm(1)=1.0
+             elseif (a(2) == 0.0_cp .and. a(4) == 0.0_cp .and. a(5) == 0.0_cp) then
+                pm(2)=1.0
+             elseif (a(3) == 0.0_cp .and. a(5) == 0.0_cp .and. a(6) == 0.0_cp) then
+                pm(3)=1.0
+             else
+                da=a(1)+a(4)+a(6)
+                db= -(a(1)*a(4) + a(1)*a(6) + a(4)*a(6)) + a(2)**2 + a(3)**2 *a(5)**2
+                dg= a(1)*a(4)*a(6) + 2.0*(a(2)*a(3)*a(5))-(a(1)*a(5)**2+a(4)*a(3)**2+a(6)*a(2)**2)
+
+                if (abs(dg) >= 1.0e-6) then
+                   dep=db**2 - 4.0*da*dg
+                   if (dep < 0.0_cp) then
+                      !> Error
+                      Err_Math3D=.true.
+                      ERR_Math3D_Mess="Error in Get_Plane_From_Points Procedure!"
+                      return
+                   end if
+                   dl=(-db - sqrt(dep))/(2.0*da)
+                   if (abs(dl) >= 1.0e-6) then
+                      do
+                         dy=dl**3 + da*dl**2 + db*dl + dg
+                         dl= dl - dy/(3.0*dl**2 + 2.0*da*dl + db)
+                         if (abs(dy) <= 1.0e-6) exit
+                      end do
+                   end if
+                else
+                   dl=0.0_cp
+                end if
+
+                pm(1)=a(3)*(a(4)-dl)-a(2)*a(5)
+                pm(2)=a(5)*(a(1)-dl)-a(2)*a(3)
+                pm(3)=a(2)**2-(a(1)-dl)*(a(4)-dl)
+             end if
+
+             pamu=sqrt(pm(1)**2 + pm(2)**2 + pm(3)**2)
+             pm=pm/pamu
+
+             do
+                do i=1,N
+                   w2(i)=1.0/((pm(1)*sox(i,1))**2+(pm(2)*sox(i,2))**2 +(pm(3)*sox(i,3))**2)
+                end do
+                sw2=sum(w2(1:n))/n
+                w2=w2/sw2
+
+                c=0.0
+                do i=1,N
+                   c(1) =c(1) + ox(i,1)**2 * w2(i)
+                   c(2) =c(2) + ox(i,1)*ox(i,2)*w2(i)
+                   c(3) =c(3) + ox(i,1)*ox(i,3)*w2(i)
+                   c(4) =c(4) - ox(i,1)*w2(i)
+                   c(5) =c(5) + ox(i,2)**2 * w2(i)
+                   c(6) =c(6) + ox(i,2)*ox(i,3)*w2(i)
+                   c(7) =c(7) - ox(i,2)*w2(i)
+                   c(8) =c(8) + ox(i,3)**2 * w2(i)
+                   c(9) =c(9) - ox(i,3)*w2(i)
+                   c(10)=c(10)+w2(i)
+                end do
+                a(1)=c(1)-(c(4)**2)/c(10)
+                a(2)=c(2)-(c(4)*c(7))/c(10)
+                a(3)=c(3)-(c(4)*c(9))/c(10)
+                a(4)=c(5)-(c(7)**2)/c(10)
+                a(5)=c(6)-(c(7)*c(9))/c(10)
+                a(6)=c(8)-(c(9)**2)/c(10)
+
+                det=a(1)*a(4)*a(6) + 2.0*a(2)*a(3)*a(5) - a(1)*a(5)*a(5) - a(4)*a(3)*a(3) - a(6)*a(2)*a(2)
+                if (abs(det) <= 1.0e-9) then
+                   d1=0.0
+                   do i=1,3
+                      d1=d1+pm(i)*xm(i)
+                      ppm(i)=pm(i)
+                   end do
+                   exit
+                else
+                   ra(1)= a(4) * a(6) - a(5)**2
+                   ra(2)=-a(2) * a(6) + a(3) * a(5)
+                   ra(3)= a(2) * a(5) - a(3) * a(4)
+                   ra(4)= a(1) * a(6) - a(3)**2
+                   ra(5)=-a(1) * a(5) + a(2) * a(3)
+                   ra(6)= a(1) * a(4) - a(2)**2
+                   ra=ra/det
+                   ppm(1)=ra(1)*pm(1) + ra(2)*pm(2) + ra(3)*pm(3)
+                   ppm(2)=ra(2)*pm(1) + ra(4)*pm(2) + ra(5)*pm(3)
+                   ppm(3)=ra(3)*pm(1) + ra(5)*pm(2) + ra(6)*pm(3)
+
+                   pamu=sqrt(ppm(1)**2 + ppm(2)**2 + ppm(3)**2)
+                   ppm=ppm/pamu
+
+                   diff=abs(abs(ppm)-abs(pm))
+                   if (diff(1) < 1.0e-5 .and. diff(2) < 1.0e-5 .and. diff(3) < 1.0e-5) then
+                      xm=0.0
+                      do i=1,3
+                         do j=1,N
+                            xm(i)=xm(i) + (w2(j)*ox(j,i))/c(10)
+                         end do
+                      end do
+                      d1=0.0
+                      do i=1,3
+                         d1=d1 + ppm(i)*xm(i)
+                      end do
+                      exit
+                   else
+                      pm=ppm
+                      cycle
+                   end if
+                end if
+             end do
+          end if  ! continue 21
+
+          if (ns1 == 0) then
+             am=ppm
+             df = d1
+          end if
+          ns1 =ns1+1
+          do i=1,3
+             dr(i)=abs(ppm(i)-am(i))
+             if (dr(i) > 1.0e-7) sdm(i)=sdm(i)+dr(i)**2
+          end do
+          dd=abs(d1-df)
+          if (dd > 1.0e-7) sdd=sdd+dd**2
+
+          if ((ns1 - NMAX_ITER-1) == 0) exit
+
+          do i=1,N
+             do j=1,3
+                !!!!! Pseudo random numbers !!!!
+                M4=M1+M2+M3
+                IF (M2 < 5.0e7) M4=M4+1357.0
+                IF (M4 >= 1.0e8)M4=M4-1.0e8
+                IF (M4 >= 1.0e8)M4=M4-1.0e8
+                M1=M2
+                M2=M3
+                M3=M4
+                !!!!!
+                da=sox(i,j)*1.0e-3
+                if (m3 >= 5.0e7) then
+                   ox(i,j)=cox(i,j)+da
+                else
+                   ox(i,j)=cox(i,j)-da
+                end if
+             end do
+          end do
+
        end do
-       w(2,1)=w(1,2)
-       w(3,1)=w(1,3)
-       w(3,2)=w(2,3)
 
-       !> Determination of the autovectors/autovalues
-       !call diagonalize_sh(w,3,ev,ew)
-       call jacobi(w,3,ev,ew)
-       if (Err_MathGen) then
-          !> Error Flag
-          Err_Math3D=.true.
-          Err_Math3D_Mess=trim(ERR_MathGen_Mess)
-          return
-       end if
+       sam=0.0
+       do i=1,3
+          if (sdm(i) > 1.0e-16) sam(i)=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdm(i))
+       end do
+       sd=0.0
+       if (sdd > 1.0e-16) sd=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdd)
 
-       !> Final result
-       Plane(1:3)=ew(:,1)
-       Plane(4)=-(c0(1)*Plane(1) + c0(2)*Plane(2) + c0(3)*Plane(3))
-
-       if (present(SPlane)) then
-          SPlane(1:3)=sqrt(ev/real(N))
-          SPlane(4)=abs(c0(1)*SPlane(1))+abs(c0(2)*SPlane(2))+abs(c0(3)*SPlane(3))
+       !> Results
+       plane(1:3)=am
+       plane(4)=-df
+       if (present(splane)) then
+          splane(1:3)=sam
+          splane(4)=sd
        end if
 
        return
