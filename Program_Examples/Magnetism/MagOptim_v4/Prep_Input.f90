@@ -725,14 +725,14 @@ contains
       read(unit=lin,fmt=*) lambda,ityp,ipow
       read(unit=lin,fmt=*) num_k
 
-      if(num_k /= MGp%nkv) then
-        write(unit=*,fmt="(a)") " => Mismatch between number of wavevectors in .cfl and .int files! "
-        stop
-      end if
-
       do i=1,num_k
         read(unit=lin,fmt=*) m,vk
       end do
+
+      !if(num_k /= MGp%nkv) then  !Not needed at this stage
+      !  write(unit=*,fmt="(a)") " => Mismatch between number of wavevectors in .cfl and .int files! "
+      !  stop
+      !end if
 
       Nf2=0
       do !just to get Nf2, which wave vector is not important
@@ -997,10 +997,10 @@ contains
         write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(cryopad): Sum({|PObs-PCalc|/sigma}^2) / Nobs =',cost
         write(unit=lun,fmt="(a,/)")    "==========================================================================="
         write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-        write(lun,'(a)') '    Pobs                   Pcalc'
+        write(lun,'(a)') '          Pobs                   Pcalc'
 
         do j=1,MultiData%Nobs(iset) !loop over observations
-          write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
+          write(unit=lun,fmt='(a,3(f10.6),a)')  "  (qH  qK  qL) = (",  PolaroMultilist%Polarolist(iset)%Polaro(j)%H," )"
           write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
           PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,1)
           write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
@@ -1103,11 +1103,10 @@ contains
         write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(mupad): Sum({|PObs-PCalc|/sigma}^2) / Nobs =',cost
         write(unit=lun,fmt="(a,/)")    "==========================================================================="
         write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-        write(lun,'(a)') '    Pobs                   Pcalc'
+        write(lun,'(a)') '          Pobs                   Pcalc'
 
         do j=1,MultiData%Nobs(iset) !loop over observations
-
-         write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
+         write(unit=lun,fmt='(a,3(f10.6),a)')  "  (qH  qK  qL) = (",  PolaroMultilist%Polarolist(iset)%Polaro(j)%H," )"
          write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
          PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij(:,1)
          write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
@@ -1205,10 +1204,9 @@ contains
              do iset=1,MultiData%Nset
                 write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
                 if(Multidata%SNP(iset)) then
-                  write(lun,'(a)') '    Pobs                   Pcalc'
+                  write(lun,'(a)') '          Pobs                   Pcalc'
                   do iobs=1,MultiData%Nobs(iset) !loop over observations
-
-                  write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
+                  write(unit=lun,fmt='(a,3(f10.6),a)') "  (qH  qK  qL) = (",PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H," )"
                   write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
                   PolariMultilist%Polarilist(iset)%Polari(iobs)%Pij(:,1)
                   write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &
@@ -1246,10 +1244,9 @@ contains
                 write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
 
                 if(Multidata%SNP(iset)) then
-                  write(lun,'(a)') '    Pobs                   Pcalc'
+                  write(lun,'(a)') '          Pobs                   Pcalc'
                   do iobs=1,MultiData%Nobs(iset) !loop over observations
-
-                    write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
+                    write(unit=lun,fmt='(a,3(f10.6),a)') "  (qH  qK  qL) = (",PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H," )"
                     write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
                     PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,1)
                     write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &
@@ -1313,10 +1310,11 @@ contains
              do iset=1,MultiData%Nset
                 if(Multidata%SNP(iset)) then
                   write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-                  write(lun,'(a)') '    Pobs                   Pcalc'
+                  write(lun,'(a)') '          Pobs                   Pcalc'
                   do iobs=1,MultiData%Nobs(iset) !loop over observations
 
-                    write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
+                    write(unit=lun,fmt='(a,3(f10.6),a)') "  (qH  qK  qL) = (",PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H," )"
+                    write(unit=lun,fmt='(3(f10.6))')                             PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
                     write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
                     PolariMultilist%Polarilist(iset)%Polari(iobs)%Pij(:,1)
                     write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &
@@ -1334,10 +1332,10 @@ contains
              do iset=1,MultiData%Nset
                 if(Multidata%SNP(iset)) then
                   write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-                  write(lun,'(a)') '    Pobs                   Pcalc'
+                  write(lun,'(a)') '          Pobs                   Pcalc'
                   do iobs=1,MultiData%Nobs(iset) !loop over observations
 
-                     write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
+                     write(unit=lun,fmt='(a,3(f10.6),a)') "  (qH  qK  qL) = (",PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H," )"
                      write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
                      PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,1)
                      write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &

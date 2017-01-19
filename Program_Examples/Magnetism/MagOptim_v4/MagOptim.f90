@@ -94,7 +94,7 @@ Program Optimizing_MagStructure
 
      n_ini=1
      n_end=file_cfl%nlines
-     
+
      !--- Read observations (needed before location of domains, scales)
      call Readn_Set_Data(file_cfl)
      !--- Read magnetic structure
@@ -109,8 +109,8 @@ Program Optimizing_MagStructure
      call Allocate_Vparam(NP_Max)
 
      !---Determine the refinement codes from vary/fix instructions
-     call Init_RefCodes(mA)
-     call Init_RefCodes(mag_Dom)
+     call Init_RefCodes(FmAtom=mA)
+     call Init_RefCodes(Mag_dom=mag_Dom)
      n_ini=1
      n_end=file_cfl%nlines
      call Read_RefCodes_File(file_cfl,n_ini,n_end,mA,AllMag_dom)
@@ -203,7 +203,7 @@ Program Optimizing_MagStructure
 
      !--- Here results are written
      call Write_ObsCalc(file_cfl)
-     
+
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING magnetic STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
      call cpu_time(fin)
