@@ -25,6 +25,7 @@ Program MagPolar3D
  type (MagHD_Type)              :: Mh
  type (Magnetic_domain_type)    :: Mag_Dom
  Type (Polar_calc_type)         :: polari
+ Type (Polar_Info_type)         :: polaro
  Type (Zone_Axis_Type)          :: zone_axis
  !Type (Scattering_Species_Type) :: Scattf
 
@@ -32,7 +33,7 @@ Program MagPolar3D
  character(len=1)            :: sig
  real                        :: sn,sf2,omega, wave=0.8
  real, dimension(3)          :: vpl,uvw, created_pol,pin,pf,h1,h2
- real, dimension(3,3)        :: UB, polar_tensor
+ real, dimension(3,3)        :: UB, polar_tensor,pseudoT
  integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end, &
                                 ich, nd, nch
  complex                     :: NSF
@@ -101,7 +102,7 @@ Program MagPolar3D
      write(unit=*,fmt="(a,/)") "    =========================="
      do i=1,fich_cfl%nlines
        write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//trim(fich_cfl%line(i))
-       write(unit=*,fmt="(a,i5,a)") " Line:",i,"  "//trim(fich_cfl%line(i))
+       write(unit=*,fmt="(a,i5,a)")   " Line:",i,"  "//trim(fich_cfl%line(i))
      end do
 
 
@@ -119,7 +120,7 @@ Program MagPolar3D
        !---- looking for orientation information and wavelength
        do i=1,n_end
            line=l_case(adjustl(fich_cfl%line(i)))
-           if(line(1:6) == "lambda") then
+           if(line(1:6) == "lambda" .or. line(1:6) == "wave  ") then
              read(unit=fich_cfl%line(i)(7:),fmt=*,iostat=ier) wave
              if(ier /= 0) then
                 write(unit=*,fmt="(a,i3)") " => Error reading the wavelength at line: ",i
@@ -297,15 +298,19 @@ Program MagPolar3D
            end do
          end if
 
-         call Calc_Polar_Dom(Cell, Mh%h, vpl, 1.0, NSF, Mag_dom, Mh, Polari)
+         call Calc_Polar_Dom(Cell, Mh%h, vpl, 1.0, NSF, Mag_dom, Mh, Polari,ok,mess)
+         if(.not. ok) then
+          write(*,*) trim(mess)
+         end if
          call Write_Polar_Info(Polari, Mag_Dom, info="p")
          call Write_Polar_line(Polari)
-
+         !
          if(wave_given .and. ub_given) then
            pin=(/1.0,0.0,0.0/)
            call Calc_Polar("BM",wave,Cell,UB, Pin, NSF, Mag_dom, Mh, Pf,ok,line)
            if(.not. ok) then
               write(unit=*,fmt="(a)") " => "//trim(line)
+              cycle
            else
               write(unit=lun,fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
               write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
@@ -332,13 +337,21 @@ Program MagPolar3D
            if(.not. ok) then
               write(unit=*,fmt="(a)") " => "//trim(line)
            else
-              write(unit=lun,fmt="(2(a,3f9.5))") " => Polar Tensor: ",polar_tensor(1,:)," Created Polar: ",Created_Pol
-              write(unit=lun,fmt="(a,3f9.5)")    "                  ",polar_tensor(2,:)
-              write(unit=lun,fmt="(a,3f9.5)")    "                  ",polar_tensor(3,:)
+              write(unit=lun,fmt="(/,2(a,3f9.5))") " => Polar Tensor: ",polar_tensor(1,:)," Created Polar: ",Created_Pol
+              write(unit=lun,fmt="(a,3f9.5)")      "                  ",polar_tensor(2,:)
+              write(unit=lun,fmt="(a,3f9.5)")      "                  ",polar_tensor(3,:)
               write(unit=*,fmt="(2(a,3f9.5))") " => Polar Tensor: ",polar_tensor(1,:)," Created Polar: ",Created_Pol
               write(unit=*,fmt="(a,3f9.5)")    "                  ",polar_tensor(2,:)
               write(unit=*,fmt="(a,3f9.5)")    "                  ",polar_tensor(3,:)
            end if
+           !Calculation of the polarization pseudo-tensor
+           do j=1,3
+             pseudoT(:,j)=polar_tensor(:,j)+Created_Pol
+           end do
+           write(*,"(/,a)") " => Polarization pseudo-tensor:"
+           do j=1,3
+              write(unit=*,fmt="(tr6,3f10.5)") pseudoT(j,:)
+           end do
         end if
 
        end do

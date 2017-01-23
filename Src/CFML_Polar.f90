@@ -161,23 +161,23 @@
 
     !!
     Type, public :: Polar_calc_type
-        real(kind=cp), dimension (3)        :: H
-        real(kind=cp), dimension (3)        :: SPV
+        real(kind=cp), dimension (3)        :: H=0.0
+        real(kind=cp), dimension (3)        :: SPV=0.0
         type(Crystal_Cell_Type)             :: Cell
-        real(kind=cp)                       :: P
-        complex(kind=cp), dimension (3,2,24):: MiV
-        complex(kind=cp)                    :: NSF
-        real(kind=cp)                       :: NC
-        real(kind=cp), dimension (2,24)     :: MY
-        real(kind=cp), dimension (2,24)     :: MZ
-        real(kind=cp), dimension (2,24)     :: RY
-        real(kind=cp), dimension (2,24)     :: RZ
-        real(kind=cp), dimension (2,24)     :: IY
-        real(kind=cp), dimension (2,24)     :: IZ
-        real(kind=cp), dimension (2,24)     :: TC
-        real(kind=cp), dimension (2,24)     :: MM
-        real(kind=cp), dimension (3,2,24)   :: CS
-        real(kind=cp), dimension (3,3)      :: Pij
+        real(kind=cp)                       :: P=0.0
+        complex(kind=cp), dimension (3,2,24):: MiV=0.0
+        complex(kind=cp)                    :: NSF=0.0
+        real(kind=cp)                       :: NC=0.0
+        real(kind=cp), dimension (2,24)     :: MY=0.0
+        real(kind=cp), dimension (2,24)     :: MZ=0.0
+        real(kind=cp), dimension (2,24)     :: RY=0.0
+        real(kind=cp), dimension (2,24)     :: RZ=0.0
+        real(kind=cp), dimension (2,24)     :: IY=0.0
+        real(kind=cp), dimension (2,24)     :: IZ=0.0
+        real(kind=cp), dimension (2,24)     :: TC=0.0
+        real(kind=cp), dimension (2,24)     :: MM=0.0
+        real(kind=cp), dimension (3,2,24)   :: CS=0.0
+        real(kind=cp), dimension (3,3)      :: Pij=0.0
     End Type Polar_calc_type
 
     !!----
@@ -200,7 +200,7 @@
     !!---- Created: February 2012 OZ
     !!
     Type, public :: Polar_CalcMulti_List_type
-       integer                                         :: Nset  ! Number of Datasets
+       integer                                              :: Nset  ! Number of Datasets
        type(Polar_Calc_List_type),allocatable, dimension(:) :: Polarilist ! Calculated Polarisation tensors for NRef
     End Type Polar_CalcMulti_List_type
 
@@ -274,9 +274,7 @@
     !!----
     !!---- TYPE :: Polar_Obs_List_type
     !!--..
-    !!----     integer                          :: NRef  ! Number of Reflections
-    !!----     real(kind=cp), dimension (3)     :: SPV   ! Second vector in Scattering plane
-    !!----     real(kind=cp)                    :: P   ! Polarisation
+    !!----     integer                                         :: NRef   ! Number of Reflections
     !!----     type(Polar_obs_type),allocatable, dimension(:)  :: Polaro ! Observed Polarisation tensor for the Reflection List
     !!---- End Type Polar_Obs_List_type
     !!----
@@ -284,8 +282,6 @@
     !!
     Type, public :: Polar_Obs_List_type
        integer                                         :: NRef
-!      REAL(kind=cp), DIMENSION (3)                    :: SPV
-!      REAL(kind=cp)                                   :: P
        type(Polar_obs_type),allocatable, dimension(:)  :: Polaro
     End Type Polar_Obs_List_type
 
@@ -295,7 +291,7 @@
     !!---- Created: November 2011 OZ
     !!
     Type, public :: Polar_ObsMulti_List_type
-       integer                                         :: Nset  ! Number of Datasets
+       integer                                              :: Nset       ! Number of Datasets
        type(Polar_Obs_List_type),allocatable, dimension(:)  :: Polarolist ! Observed Polarisation tensor for the Reflection List
     End Type Polar_ObsMulti_List_type
 
@@ -318,8 +314,8 @@
     !!---- Created: November 2011 OZ
     !!
     Type, public :: Polar_Calc_sVs_List_type
-       integer                                         :: NRef  ! Number of Reflections
-       type(Polar_Calc_sVs_type),allocatable, dimension(:) :: PolarisVs ! Observed Polarisation tensor for the Reflection List
+       integer                                             :: NRef      ! Number of Reflections
+       type(Polar_Calc_sVs_type),allocatable, dimension(:) :: PolarisVs ! Calculated Polarisation tensor for the Reflection List
     End Type Polar_Calc_sVs_List_type
 
     !!
@@ -328,7 +324,7 @@
     !!---- Created: November 2011 OZ
     !!
     Type, public :: Polar_CalcMulti_sVs_List_type
-       integer                                         :: Nset  ! Number of Datasets
+       integer                                                  :: Nset          ! Number of Datasets
        type(Polar_Calc_sVs_List_type),allocatable, dimension(:) :: PolarisVslist ! Calculated Polarisation tensors for NRef
     End Type Polar_CalcMulti_sVs_List_type
 
@@ -656,7 +652,7 @@
     !!----    type(MagHD_Type),             intent(in) :: Mh      ! In -> Contains Magnetic structure factor, MiV, domain info, ...
     !!----    Real(kind=cp), dimension(3),  intent(out):: Pf      ! Out ->Final polarisation in frame given by "frame"
     !!----    logical,                      intent(out):: ok      ! Out -> .true. if everything gone ok
-    !!----    Character (len=*), optional,  intent(out):: mess    ! Out ->Error message
+    !!----    Character (len=*),            intent(out):: mess    ! Out ->Error message
     !!----    character(len=*), optional,   intent(in) :: B_Q     ! Original Blume equations are used Q=Q_BM
     !!----
     !!----
@@ -674,7 +670,7 @@
     !!----    For providing "angular coordinates" frame="BLS", frame="BMS" or
     !!----    frame="MAD" (BL for Pi and scattered beam for Pf)
     !!----
-    !!----    Calling N the nuclear structure factor (complex scalar) and M* the magnetic
+    !!----    Calling N the nuclear structure factor (complex scalar) and M the magnetic
     !!----    interaction vector (complex vector), the B-M equations are:
     !!----
     !!----    I = N.N* + M.M* + (N.M* + N*.M)Pi - i(M* x M)Pi
@@ -705,7 +701,7 @@
        type(MagHD_Type),             intent(in out):: Mh
        Real(kind=cp), dimension(3),  intent(   out):: Pf
        logical,                      intent(   out):: ok
-       Character(len=*), optional,   intent(   out):: mess
+       Character(len=*),             intent(   out):: mess
        Character(len=*), optional,   intent(in)    :: B_Q
 !
 !       !---- Local variables ----!
@@ -717,21 +713,35 @@
        integer                        :: nd,ich,nch, ierr
        Real(kind=cp), dimension(3)    :: z1,z4, Pic,T,Wr,Wi
        Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,ubinv,r_pth,r_chi,BL2BM
+       Real(kind=cp)                  :: suma
 
        ok=.true.
+       nch=1
+       if(Mag_Dom%chir) nch=2
+       suma=0.0
+       do nd=1,Mag_Dom%nd
+         do ich=1,nch
+           suma=suma+dot_product(Mh%MiVC(:,ich,nd),Mh%MiVC(:,ich,nd))
+         end do
+       end do
+       if(abs(NSF) < 0.0001 .and. suma < 0.0001) then
+         mess="Error: the provided reflection is Nuclear and Magnetically forbidden!"
+         ok=.false.
+         return
+       end if
        s=1.0_cp
        if(present(B_Q)) s=-1.0_cp
        z1=Matmul(UB,Mh%h) !Cartesian coordinates of reflection hkl when all motors are at zero
        ubinv=invert_A(UB)
        call Get_Angs_NB(wave,z1,gamma,omega,nu,ierr)  !Getting normal beam angles from wavelength and z1
        if(ierr /= 0) then
-         if(present(mess)) mess="Error calculating the normal beam angles"
+         mess="Error calculating the normal beam angles"
          ok=.false.
          return
        else
          if(abs(nu) > 1.0) then !The UB matrix does not correspond to horizontal
            ok=.false.           !plane scattering geometry => gamma=2theta
-           if(present(mess)) mess="The nu-angle is incompatible with horizontal-plane scattering geometry"
+           mess="The nu-angle is incompatible with horizontal-plane scattering geometry"
            return
          end if
        end if
@@ -751,7 +761,7 @@
          Rot=Matmul(Um,Rot)
        else if(frame(1:2) /= "BL" .and. frame(1:3) /= "MAD") then
          ok=.false.
-         if(present(mess)) mess="Undefined reference frame"
+         mess="Undefined reference frame"
          return
        end if
        !Put now the incident polarisation in Cartesian coordinates if angular
@@ -769,8 +779,6 @@
        else
          Pic=Pin
        end if
-       nch=1
-       if(Mag_Dom%chir) nch=2
        ! Loop over domains
        Pf=0.0
        Inuc=real(Conjg(NSF)*NSF)
@@ -852,7 +860,7 @@
        real(kind=cp), dimension(3,3),intent(out)   :: Pol_tens
        real(kind=cp), dimension(3),  intent(out)   :: Pc
        logical,                      intent(   out):: ok
-       Character(len=*), optional,   intent(   out):: mess
+       Character(len=*),             intent(   out):: mess
        Character(len=*), optional,   intent(in)    :: B_Q  !Original Blume equations are used Q=Q_BM
        !--- Local variables
        real(kind=cp)                  :: s                 ! sign for T and Wi terms
@@ -872,13 +880,13 @@
        z1=Matmul(UB,Mh%h)
        call Get_Angs_NB(wave,z1,gamma,omega,nu,ierr)
        if(ierr /= 0) then
-         if(present(mess)) mess="Error calculating the normal beam angles"
+         mess="Error calculating the normal beam angles"
          ok=.false.
          return
        else
          if(abs(nu) > 1.0) then !The UB matrix does not correspond to horizontal
            ok=.false.           !plane scattering geometry
-           if(present(mess)) mess="The nu-angle is incompatible with horizontal-plane scattering geometry"
+           mess="The nu-angle is incompatible with horizontal-plane scattering geometry"
          end if
        end if
        call Phi_mat(omega,Rot_omega)  !Rotation of the omega motor to put reflection in diffraction position
@@ -929,7 +937,7 @@
     End Subroutine Get_Pol_Tensor_Pc
 
     !!----
-    !!---- Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari,B_Q)
+    !!---- Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari,ok,mess,B_Q)
     !!----    Type (Crystal_Cell_Type),    intent(in)    :: Cell  !  In -> Cell variable
     !!----    real(kind=cp), dimension (3),intent(in)    :: H     !  In -> Scattering vector in hkl
     !!----    real(kind=cp), dimension(3), intent(in)    :: SPV   !  In -> Second Scattering plane vector in hkl
@@ -939,13 +947,15 @@
     !!----    Type(MagHD_Type),            intent(in out):: Mh
     !!----    Type (Polar_calc_type),      intent( out)  :: Polari !  Out ->type with all information about polarisation in
     !!----                                                                 one point hkl
+    !!----    Logical,                     intent(out)   :: ok
+    !!----    character(len=*),            intent(out)   :: mess
     !!----    character(len=*), optional,  intent(in)    :: B_Q  !Original Blume equations are used Q=Q_BM
     !!----
     !!----    Calculates Polarization matrix for domain case
     !!----
     !!---- Created: March - 2009 OZ, Updated: June-2012 (JRC)
     !!
-    Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari,B_Q)
+    Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari,ok,mess,B_Q)
        !---- Arguments ----!
        type (Crystal_Cell_Type),    intent(in)       :: Cell
        real(kind=cp), dimension (3),intent(in)       :: H
@@ -955,16 +965,19 @@
        type(Magnetic_Domain_type),  intent(in)       :: Mag_Dom
        type(MagHD_Type),            intent(in out)   :: Mh
        type(Polar_calc_type),       intent(out)      :: Polari
+       logical,                     intent(out)      :: ok
+       character(len=*),            intent(out)      :: mess
        character(len=*), optional,  intent(in)       :: B_Q
 
        !---- Local variables ----!
        real(kind=cp), dimension (3)   :: sigma        ! elastic cross for different incident polarisation directions
-       real(kind=cp)                  :: nc,my,mz,rnmy,rnmz,inmy,inmz,tc,mmc,a !the different contribution to cross-section
+       real(kind=cp)                  :: nc,my,mz,rnmy,rnmz,inmy,inmz,tc,mmc,a,suma !the different contribution to cross-section
        complex(kind=cp), dimension (3):: MiV, MiV_PF       !MiV for one domain and in polarisation frame
        integer                        :: nd,ich,nch
 
 
        A = tpi**3/Cell%CellVol
+       ok=.true.
        !First store given info in Polari
        Polari%H = H
        Polari%SPV = SPV
@@ -976,7 +989,18 @@
 
        nch=1
        if(Mag_Dom%chir) nch=2
-
+       ! Loop over domains
+       suma=0.0
+       do nd=1,Mag_Dom%nd
+         do ich=1,nch
+           suma=suma+dot_product(Mh%MiVC(:,ich,nd),Mh%MiVC(:,ich,nd))      !Use the Cartesian components before calling Magn_Inter_Vec_PF
+         end do
+       end do
+       if(abs(NSF) < 0.0001 .and. suma < 0.0001) then
+         mess="Error: the provided reflection is Nuclear and Magnetically forbidden!"
+         ok=.false.
+         return
+       end if
        !Calculate the rest and also store it in Polari
        ! Loop over domains
        do nd=1,Mag_Dom%nd
@@ -1082,13 +1106,15 @@
        Polari%Cell = Cell
        Polari%P = Pin
        Polari%NSF = NSF
-
+       if(abs(dot_product(MiV,MiV)) < 0.0001 .and. abs(NSF) < 0.0001) then
+         Polari%Pij=0.0
+         return
+       end if
        !Calculate the rest and also store it in Polari
 
        !magnetic interaction in polarisation frame
        MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell) !It is assumed that MiV is provided in Cartesian components
        Polari%MiV = MiV_PF
-
        !the different contributions to the scattering cross-section
        nc = nuc_contr(NSF)
        Polari%NC = A * nc
@@ -1125,18 +1151,21 @@
        !scattering cross-section for the different initial polarisation vectors
        sigma = (/ nc + my + mz - Pin * tc, nc + my + mz + Pin * rnmy, nc + my + mz + Pin * rnmz /)
        Polari%CS = sigma
-
-       !the polar matrix
-       Polari%Pij(1,1) = ((nc - my - mz)* Pin + tc)/sigma(1)
-       Polari%Pij(1,2) = (inmz * Pin + tc)/sigma(2)
-       Polari%Pij(1,3) = (-inmy * Pin + tc)/sigma(3)
-       Polari%Pij(2,1) = (-inmz * Pin + rnmy)/sigma(1)
-       Polari%Pij(2,2) = ((nc + my - mz) * Pin + rnmy)/sigma(2)
-       Polari%Pij(2,3) = (mmc * Pin + rnmy)/sigma(3)
-       Polari%Pij(3,1) = (inmy * Pin + rnmz)/sigma(1)
-       Polari%Pij(3,2) = (mmc * Pin + rnmz)/sigma(2)
-       Polari%Pij(3,3) = ((nc - my + mz) * Pin + rnmz)/sigma(3)
-
+       write(*,*) sigma
+       if(dot_product(sigma,sigma) > 0.001) then
+         !the polar matrix
+         Polari%Pij(1,1) = ((nc - my - mz)* Pin + tc)/sigma(1)
+         Polari%Pij(1,2) = (inmz * Pin + tc)/sigma(2)
+         Polari%Pij(1,3) = (-inmy * Pin + tc)/sigma(3)
+         Polari%Pij(2,1) = (-inmz * Pin + rnmy)/sigma(1)
+         Polari%Pij(2,2) = ((nc + my - mz) * Pin + rnmy)/sigma(2)
+         Polari%Pij(2,3) = (mmc * Pin + rnmy)/sigma(3)
+         Polari%Pij(3,1) = (inmy * Pin + rnmz)/sigma(1)
+         Polari%Pij(3,2) = (mmc * Pin + rnmz)/sigma(2)
+         Polari%Pij(3,3) = ((nc - my + mz) * Pin + rnmz)/sigma(3)
+       else
+         Polari%Pij=0.0
+       end if
        return
     End Subroutine Set_Polar_Info
 
