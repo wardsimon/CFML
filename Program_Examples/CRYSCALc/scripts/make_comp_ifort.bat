@@ -1,5 +1,5 @@
 
-cd ..\..\src
+cd ..\src
 
       ifort      cryscalc_mod.f90        /c /O2    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      IO_console.f90          /c /O2    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
