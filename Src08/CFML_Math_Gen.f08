@@ -50,23 +50,20 @@
     !---- List of public functions ----!
     public :: Factorial, Factorial_SP, Factorial_DP, Negligible, Co_Linear, Co_prime, &
               Debye, Equal_Matrix, Equal_Vector, Euclidean_Norm, In_limits, Locate,   &
-              Pgcd, Ppcm, Modulo_Lat
-
-    !---- List of public overloaded procedures: functions ----!
-    public :: Pythag,   &
-              Outerprod, Trace,     &
-              Zbelong, Norm, Scalar,Lower_Triangular,&
-              Upper_Triangular
+              Lower_Triangular, Modulo_Lat, Norm, Outerprod, Pgcd, Ppcm, Pythag,      &
+              Scalar, Trace, Upper_Triangular, Zbelong, Determinant, MatInv,          &
+              Linear_Dependent
 
     !---- List of public subroutines ----!
-    public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
-               Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
-               First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector, AM_Median
+    public :: Co_Prime_vector, Diagonalize_SH, First_Derivative, In_Sort,             &
+              Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub,                 &
+              Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,      &
+              Second_Derivative, SmoothingVec, Points_in_Line2D,   &
+              Median_QS
 
     !---- List of public overloaded procedures: subroutines ----!
-    public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
-               Svdcmp, Swap
+    public :: RTan, Rank, Sort,   &
+              Svdcmp, Swap
 
     !---- Definitions ----!
     real(kind=cp), parameter :: EP_SS=1.0E-12_cp  ! Internal epsilon value used for comparison in matrix operations
@@ -91,6 +88,11 @@
        Module Procedure Co_linear_R
     End Interface
 
+    Interface  Determinant
+       Module Procedure Determinant_c
+       Module Procedure Determinant_r
+    End Interface
+
     Interface  Equal_Matrix
        Module Procedure Equal_Matrix_I
        Module Procedure Equal_Matrix_R
@@ -107,21 +109,17 @@
        Module Procedure In_Limits_sp
     End Interface
 
+    Interface  Linear_Dependent
+       Module Procedure Linear_Dependentc
+       Module Procedure Linear_Dependenti
+       Module Procedure Linear_Dependentr
+    End Interface
+
     Interface  Locate
        Module Procedure Locate_I
        Module Procedure Locate_R
        Module Procedure Locate_Ib
        Module Procedure Locate_Rb
-    End Interface
-
-    Interface  Pythag
-       Module Procedure Pythag_dp
-       Module Procedure Pythag_sp
-    End Interface
-
-    Interface  Equal_Vector
-       Module Procedure Equal_Vector_I
-       Module Procedure Equal_Vector_R
     End Interface
 
     Interface  Lower_Triangular
@@ -137,6 +135,11 @@
     Interface  Outerprod
        Module Procedure Outerprod_dp
        Module Procedure Outerprod_sp
+    End Interface
+
+    Interface  Pythag
+       Module Procedure Pythag_dp
+       Module Procedure Pythag_sp
     End Interface
 
     Interface Scalar
@@ -161,25 +164,9 @@
        Module Procedure ZbelongV
     End Interface
 
-    Interface  Rtan
-       Module Procedure Rtan_dp
-       Module Procedure Rtan_sp
-    End Interface
-
-    Interface  Determinant
-       Module Procedure Determinant_c
-       Module Procedure Determinant_r
-    End Interface
-
     Interface  Diagonalize_SH
        Module Procedure Diagonalize_HERM
        Module Procedure Diagonalize_SYMM
-    End Interface
-
-    Interface  Linear_Dependent
-       Module Procedure Linear_Dependentc
-       Module Procedure Linear_Dependenti
-       Module Procedure Linear_Dependentr
     End Interface
 
     Interface  Rank
@@ -1308,6 +1295,92 @@
     End Function DebyeN
 
     !!--++
+    !!--++ Function Determinant_C(Array,n,determ)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the determinant of a real square matrix.
+    !!--++    Calculates the pseudo-determinant of a complex square matrix.
+    !!--++    determ=det(AR)^2 + det(AI)^2 (if complex)
+    !!--++
+    !!--++    The calculated value is only useful for linear dependency purposes.
+    !!--++    It tell us if the complex matrix is singular or not.
+    !!--++
+    !!--++    P R O V I S I O N A L (The determinant of A is not calculated at present)
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Determinant_C(Array,n) Result (Determ)
+       !---- Arguments ----!
+       complex, dimension(:,:), intent( in) :: Array   ! Complex imput array
+       integer,                 intent( in) :: n       ! Dimension of Array
+       real(kind=cp)                        :: determ
+
+       !---- local variables ----!
+       real(kind=cp),    dimension(2*n,2*n) :: AC   !real square matrix
+       real(kind=cp)                        :: d
+       integer                              :: i,nn
+       logical                              :: singular
+
+       !> Init
+       Determ=0.0_cp
+
+       nn=2*n
+       AC(  1:n ,  1:n ) =  real(Array(1:n ,1:n))
+       AC(n+1:nn,  1:n ) = aimag(Array(1:n ,1:n))
+       AC(n+1:nn,n+1:nn) =    AC(  1:n ,1:n)
+       AC(  1:n ,n+1:nn) =   -AC(n+1:nn,1:n)
+
+       call lu_decomp(ac(1:nn,1:nn),d,singular)
+
+       if (.not. singular) then
+          do i=1,nn
+             d=d*sign(1.0_cp,ac(i,i))
+             determ=determ+ log(abs(ac(i,i)))
+          end do
+          determ=d*exp(determ)
+       end if
+
+       return
+    End Function Determinant_C
+
+    !!--++
+    !!--++ Function Determinant_R(A,n,determ)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the determinant of a real square matrix.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Determinant_R(Array,n) Result(Determ)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:), intent( in) :: Array  ! Real matrix (N,N)
+       integer,                       intent( in) :: n      ! Dimension of Array
+       real(kind=cp)                              :: determ ! Value
+
+       !---- local variables ----!
+       real(kind=cp),    dimension(n,n)  :: AC
+       real(kind=cp)                     :: d
+       integer                           :: i
+       logical                           :: singular
+
+       !> Init
+       determ=0.0_cp
+
+       ac=Array(1:n,1:n)
+       call lu_decomp(ac,d,singular)
+
+       if (.not. singular) then
+          do i=1,n
+             d=d*sign(1.0_cp,ac(i,i))
+             determ=determ + log(abs(ac(i,i)))
+          end do
+          determ=d*exp(determ)
+       end if
+
+       return
+    End Function Determinant_R
+
+    !!--++
     !!--++ Logical Function Equal_Matrix_I(Arr1, Arr2, N)
     !!--++
     !!--++    (OVERLOADED)
@@ -1527,7 +1600,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_dp(vec,n,limits) result(ok)
+    Function IN_Limits_dp(vec,n,limits) result(ok)
        !---- Arguments ----!
        real(kind=dp), dimension(:),   intent(in) :: vec     ! Vector
        integer,                       intent(in) :: n       ! Dimension of the input vector
@@ -1559,7 +1632,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_int(vec,n,limits) result(ok)
+    Function IN_Limits_int(vec,n,limits) result(ok)
        !---- Arguments ----!
        integer, dimension(:),   intent(in) :: vec      ! Vector
        integer,                 intent(in) :: n        ! Dimension of Vector
@@ -1591,7 +1664,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_sp(Vec,n,limits) result(ok)
+    Function IN_Limits_sp(Vec,n,limits) result(ok)
        !---- Arguments ----!
        real(kind=sp), dimension(:),   intent(in) :: vec      ! Vector
        integer,                       intent(in) :: n        ! Dimension odf the vector
@@ -1614,6 +1687,219 @@
 
        return
     End Function in_limits_sp
+
+    !!--++
+    !!--++ Subroutine Linear_DependentC(a,na,b,nb,mb,info)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
+    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
+    !!--++    are the number of rows and columns of B to be considered. The actual
+    !!--++    dimension of vector a should be na=max(nb,mb).
+    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
+    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
+    !!--++    case it is supposed that na = mb and in the second na = nb.
+    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
+    !!--++    is generated
+    !!--++
+    !!--++    For the case of complex vectors in Cn the problem can be reduced to real vectors
+    !!--++    of dimension R2n. Each complex vector contributes as two real vectors of dimension
+    !!--++    2n: (R,I) and (-I,R). A complex vector V is linearly dependent on n complex vectors
+    !!--++    if V can be written as: V = Sigma{j=1,n}(Cj.Vj), with Cj complex numbers and Vj
+    !!--++    having n complex components. One may write:
+    !!--++
+    !!--++     V = Sigma{j=1,n}(Cj.Vj)
+    !!--++     (R,I) = Sigma{j=1,n} (Cjr Vj + i Cji Vj) = Sigma{j=1,n} (Cjr (Rj,Ij) +  Cji (-Ij,Rj) )
+    !!--++     (R,I) = Sigma{j=1,n} (aj (Rj,Ij) + bj (-Ij,Rj) )  = Sigma{j=1,2n} (Aj.Uj)
+    !!--++     Were Uj=(Rj,Ij) and U(j+1)= (-Ij,Rj)
+    !!--++
+    !!--++    The function uses floating arithmetic for all types.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Linear_DependentC(Vec,na,Array,nb,mb) Result(info)
+       !---- Arguments ----!
+       complex, dimension(:),   intent(in)  :: Vec        ! Input Vector
+       integer,                 intent(in)  :: na         ! Dimension of Vec
+       complex, dimension(:,:), intent(in)  :: Array      ! Array(NB,MB)
+       integer,                 intent(in)  :: nb,mb      ! Dimension of Array
+       logical                              :: info
+
+       !---- Local variables ----!
+       integer                                                     :: r,n1
+       real(kind=dp), parameter                                    :: tol= 100.0_dp*deps
+       real(kind=dp), dimension(2*max(nb+1,mb+1),2*max(nb+1,mb+1)) :: c
+
+       !> Init
+       call init_err_mathgen()
+       info=.true.
+       if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
+          return
+       end if
+
+       c=0.0
+       if ( na == mb) then
+          n1=2*nb+1
+          if(n1+1 > 2*mb) return !the vector is linear dependent
+          c(1:nb,           1:mb) =  real(array(1:nb,1:mb))
+          c(1:nb,     mb+1:mb+na) = aimag(array(1:nb,1:mb))
+          c(nb+1:2*nb,      1:mb) =-aimag(array(1:nb,1:mb))
+          c(nb+1:2*nb,mb+1:mb+na) =  real(array(1:nb,1:mb))
+          c(n1,             1:mb) =  real(vec(1:na))
+          c(n1,      mb+1:mb+na ) = aimag(vec(1:na))
+          c(n1+1,           1:mb) =-aimag(vec(1:na))
+          c(n1+1,    mb+1:mb+na ) =  real(vec(1:na))
+          call rank(c,tol,r)
+          if(r == min(n1+1,2*mb)) info=.false.
+
+       else if( na == nb) then
+          n1=2*mb+1
+          if(n1+1 > 2*nb) return !the vector is linear dependent
+          c(1:nb,           1:mb) =  real(array(1:nb,1:mb))
+          c(nb+1:nb+na,     1:mb) = aimag(array(1:nb,1:mb))
+          c(1:nb,      mb+1:2*mb) =-aimag(array(1:nb,1:mb))
+          c(nb+1:nb+na,mb+1:2*mb) =  real(array(1:nb,1:mb))
+          c(1:na,             n1) =  real(vec(1:na))
+          c(nb+1:nb+na,       n1) = aimag(vec(1:na))
+          c(1:na,           1+n1) =-aimag(vec(1:na))
+          c(nb+1:nb+na,     1+n1) =  real(vec(1:na))
+          call rank(c,tol,r)
+          if(r == min(n1+1,2*nb)) info=.false.
+       else
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
+       end if
+
+       return
+    End Function Linear_DependentC
+
+    !!--++
+    !!--++ Function Linear_DependentI(Vec,na,Array,nb,mb) Result(info)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
+    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
+    !!--++    are the number of rows and columns of B to be considered. The actual
+    !!--++    dimension of vector a should be na=max(nb,mb).
+    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
+    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
+    !!--++    case it is supposed that na = mb and in the second na = nb.
+    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
+    !!--++    is generated
+    !!--++    The function uses floating arithmetic for all types.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Linear_DependentI(Vec,na,Array,nb,mb) Result(info)
+       !---- Arguments ----!
+       integer, dimension(:),   intent(in)  :: Vec   ! Integer vector
+       integer,                 intent(in)  :: na    ! Dimension of Vec
+       integer, dimension(:,:), intent(in)  :: Array ! Array(NB,MB)
+       integer,                 intent(in)  :: nb,mb ! Dimension of Array
+       logical                              :: info
+
+       !---- Local variables ----!
+       integer                                                 :: r,n1
+       real(kind=dp), parameter                                :: tol= 100.0_dp*deps
+       real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
+
+       !> Init
+       call init_err_mathgen()
+       info=.true.
+       if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
+          return
+       end if
+
+       c=0.0
+       if ( na == mb) then
+          n1=nb+1
+          if(n1 > mb) return !the vector is linear dependent
+          c(1:nb,1:mb)=real(array(1:nb,1:mb))
+          c(n1,  1:mb)=real(vec(1:na))      !C(nb+1,mb)
+          call rank(c,tol,r)
+          if(r == min(n1,mb)) info=.false.
+
+       else if( na == nb) then
+          n1=mb+1
+          if(n1 > nb) return !the vector is linear dependent
+          c(1:nb,1:mb)=real(array(1:nb,1:mb))
+          c(1:nb,  n1)=real(vec(1:na))     !C(nb,mb+1)
+          call rank(c,tol,r)
+          if(r == min(n1,nb)) info=.false.
+       else
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
+       end if
+
+       return
+    End Function Linear_DependentI
+
+    !!--++
+    !!--++ Function Linear_DependentR(Vec,na,Array,nb,mb) Result(info)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
+    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
+    !!--++    are the number of rows and columns of B to be considered. The actual
+    !!--++    dimension of vector a should be na=max(nb,mb).
+    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
+    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
+    !!--++    case it is supposed that na = mb and in the second na = nb.
+    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
+    !!--++    is generated
+    !!--++    The function uses floating arithmetic for all types.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Linear_DependentR(Vec,na,Array,nb,mb) Result(info)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:),   intent(in)  :: Vec      ! Real vector
+       integer,                       intent(in)  :: na       ! Dimension of Vec
+       real(kind=cp), dimension(:,:), intent(in)  :: Array    ! Array(NB,MB)
+       integer,                       intent(in)  :: nb,mb    ! Dimension of Array
+       logical                                    :: info
+
+       !---- Local Variables ----!
+       integer                                                 :: r,n1
+       real(kind=dp), parameter                                :: tol= 100.0_dp*deps
+       real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
+
+       !> Init
+       call init_err_mathgen()
+       info=.true.
+       if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
+          return
+       end if
+
+       c=0.0
+       if ( na == mb) then    !Vector added as an additional row
+          n1=nb+1
+          if(n1 > mb) return !the vector is linear dependent
+          c(1:nb,1:mb)=array(1:nb,1:mb)
+          c(n1,  1:mb)=vec(1:na)      !C(nb+1,mb)
+          call rank(c,tol,r)
+          if(r == min(n1,mb)) info=.false.
+
+       else if( na == nb) then   !Vector added as an additional column
+          n1=mb+1
+          if(n1 > nb) return !the vector is linear dependent
+          c(1:nb,1:mb)=array(1:nb,1:mb)
+          c(1:nb,  n1)=vec(1:na)     !C(nb,mb+1)
+          call rank(c,tol,r)
+          if(r == min(n1,nb)) info=.false.
+       else
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"
+       end if
+
+       return
+    End Function Linear_DependentR
 
     !!--++
     !!--++ Function Locate_I(Vec, n, x) Result(j)
@@ -1824,25 +2110,300 @@
     End Function Locate_Rb
 
     !!----
+    !!---- Function Lower_Triangular_I(Array,n) Result (T)
+    !!----
+    !!---- Calculate the Lower Triangular
+    !!----
+    !!---- Updated: October - 2014
+    !!
+    Function Lower_Triangular_I(Array,n) Result (T)
+       !---- Arguments ----!
+       integer, dimension(:,:), intent(in) :: Array  ! Array(N,N)
+       integer,                 intent(in) :: n      ! Dimension
+       integer, dimension(n,n)             :: T
+
+       !---- Local Variables ----!
+       integer :: i,j,p,q,m
+
+       m=n
+       p=size(Array(:,1))
+       q=size(Array(1,:))
+
+       if(n > p .or. n > q) m=min(p,q)
+
+       !> Init
+       T=0
+
+       do j=1,m
+          do i=j,m
+             T(i,j)=Array(i,j)
+          end do
+       end do
+
+       return
+    End Function  Lower_Triangular_I
+
+    !!----
+    !!---- Function Lower_Triangular_R(Array,n) Result (T)
+    !!----
+    !!----   Updated: October - 2014
+    !!----
+    Function Lower_Triangular_R(Array,n) Result (T)
+       !---- Argument ----!
+       real(kind=cp), dimension(:,:), intent(in) :: Array ! Array (N,N)
+       integer,                       intent(in) :: n     ! Dimension of Array
+       real(kind=cp), dimension(n,n)             :: T
+
+       !---- Local Variables ----!
+       integer :: i,j,p,q,m
+
+
+       m=n
+       p=size(A(:,1))
+       q=size(A(1,:))
+
+       if(n > p .or. n > q) m=min(p,q)
+
+       T=0
+       do j=1,m
+          do i=j,m
+             T(i,j)=A(i,j)
+          end do
+       end do
+
+       return
+    End Function Lower_Triangular_R
+
+        !!----
+    !!---- Function Matinv(Array,n) Result(a)
+    !!----
+    !!----  Inverting a real square matrix.
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Matinv(Array,N) Result(A)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:), intent(in) :: array
+       integer,                       intent(in) :: n
+       real(kind=cp), dimension(n,n)             :: a
+
+       !---- Local variables ----!
+       real(kind=cp)                 :: amax,savec
+       integer, dimension(size(a,1)) :: ik,jk
+       integer                       :: i,j,k,l
+
+       !> Init
+       a=0.0_cp
+       a=array(1:n,1:n)
+
+       !---- Subroutine to invert a real matrix ----!
+       do k=1,n
+          amax=0.0
+          do
+             do
+                do i=k,n
+                   do j=k,n
+                      if (abs(amax)-abs(a(i,j)) > 0.0) cycle
+                      amax=a(i,j)
+                      ik(k)=i
+                      jk(k)=j
+                   end do
+                end do
+                i=ik(k)
+                if (i-k < 0) cycle
+                exit
+             end do
+
+             if (i-k /= 0) then
+                do j=1,n
+                   savec=a(k,j)
+                   a(k,j)=a(i,j)
+                   a(i,j)=-savec
+                end do
+             end if
+
+             j=jk(k)
+             if (j-k < 0) cycle
+             exit
+          end do
+
+          if (j-k /= 0) then
+             do i=1,n
+                savec=a(i,k)
+                a(i,k)=a(i,j)
+                a(i,j)=-savec
+             end do
+          end if
+
+          do i=1,n
+             if (i-k /= 0)  then
+                a(i,k)=-a(i,k)/amax
+             end if
+          end do
+          do i=1,n
+             do j=1,n
+                if (i-k == 0 .or. j-k == 0) cycle
+                a(i,j)=a(i,j)+a(i,k)*a(k,j)
+             end do
+          end do
+          do j=1,n
+             if (j-k == 0)   cycle
+             a(k,j)=a(k,j)/amax
+          end do
+          a(k,k)=1.0/amax
+       end do     !k
+
+       do l=1,n
+          k=n-l+1
+          j=ik(k)
+          if (j-k > 0) then
+             do i=1,n
+                savec=a(i,k)
+                a(i,k)=-a(i,j)
+                a(i,j)=savec
+             end do
+          end if
+          i=jk(k)
+          if (i-k > 0) then
+             do j=1,n
+                savec=a(k,j)
+                a(k,j)=-a(i,j)
+                a(i,j)=savec
+             end do
+          end if
+       end do
+
+       return
+    End Function Matinv
+
+    !!----
+    !!---- Function Modulo_Lat(U)
+    !!----
+    !!----    Reduces a real vector to another with components in
+    !!----    the interval [0,1)
+    !!----
+    !!---- Updated: February - 2005
+    !!
+    Function Modulo_Lat(Vec) result(v)
+       !---- Argument ----!
+       real(kind=cp), dimension(:), intent(in) :: Vec
+       real(kind=cp), dimension(1:size(Vec))   :: v
+
+       v=mod(vec+10.0_cp,1.0_cp)
+
+       return
+    End Function  Modulo_Lat
+
+    !!--++
+    !!--++ Function Norm_I(Vec,G) Result(R)
+    !!--++
+    !!--++    Calculate the Norm of a vector
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Norm_I(Vec,G) Result(R)
+       !---- Arguments ----!
+       integer,       dimension(:),   intent(in) :: Vec  ! Vector
+       real(kind=cp), dimension(:,:), intent(in) :: G    ! Metric array
+       real(kind=cp)                             :: r    ! Norm
+
+       if (size(vec)*size(vec) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=sqrt(dot_product(real(vec), matmul(g,real(vec))))
+       end if
+
+       return
+    End Function Norm_I
+
+    !!--++
+    !!--++ Function Norm_R(X,G) Result(R)
+    !!--++
+    !!--++    Calculate the Norm of a vector
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Norm_R(Vec,G) Result(R)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:),   intent(in) :: Vec ! Vector
+       real(kind=cp), dimension(:,:), intent(in) :: G   ! Metric array
+       real(kind=cp)                             :: r   ! Norm
+
+       if (size(vec)*size(vec) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=sqrt(dot_product(vec, matmul(g,vec)))
+       end if
+
+       return
+    End Function Norm_R
+
+    !!--++
+    !!--++ Function Outerprod_dp(Vec1,Vec2) Result(c)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Computes the outer product (tensorial product) of two
+    !!--++    vectors to give a tensor (matrix) as the result:
+    !!--++                   c(i,j) = Vec1(i)*Vec2(j).
+    !!--++
+    !!--++    It uses the intrinsic Fortran 90 function SPREAD.
+    !!--++    Taken from Numerical Recipes.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Outerprod_dp(Vec1,Vec2)  Result(c)
+       !---- Arguments ----!
+       real(kind=dp),dimension(:),intent(in)          :: Vec1   ! Vector 1
+       real(kind=dp),dimension(:),intent(in)          :: Vec2   ! Vector 2
+       real(kind=dp),dimension(size(Vec1),size(Vec2)) :: c      ! Tensor Matrix
+
+       c =spread(vec1,dim=2,ncopies=size(vec2))*spread(vec2,dim=1,ncopies=size(vec1))
+
+       return
+    End Function Outerprod_dp
+
+    !!--++
+    !!--++ Function Outerprod_sp(Vec1,Vec2) Result(c)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Computes the outer product (tensorial product) of two
+    !!--++    vectors to give a tensor (matrix) as the result:
+    !!--++                   c(i,j) = Vec1(i)*Vec2(j).
+    !!--++
+    !!--++    It uses the intrinsic Fortran 90 function SPREAD.
+    !!--++    Taken from Numerical Recipes.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Outerprod_sp(Vec1,Vec2)  Result(c)
+       !---- Arguments ----!
+       real(kind=sp),dimension(:),intent(in)          :: Vec1  ! Vector 1
+       real(kind=sp),dimension(:),intent(in)          :: Vec2  ! Vector 2
+       real(kind=sp),dimension(size(Vec1),size(Vec2)) :: c
+
+       c =spread(Vec1,dim=2,ncopies=size(Vec2))*spread(Vec2,dim=1,ncopies=size(Vec1))
+
+       return
+    End Function Outerprod_sp
+
+    !!----
     !!---- Function Pgcd(i,j) Result(mcd)
-    !!----    integer, intent(in) :: i
-    !!----    integer, intent(in) :: j
-    !!----    integer             :: mcd
     !!----
     !!----    Function calculating the maximum common divisor of two integers
     !!----
     !!---- Update: February - 2005
     !!
-    Function Pgcd(a,b) Result(mcd)
+    Function Pgcd(i,j) Result(mcd)
        !---- Arguments ----!
-       integer, intent(in) :: a,b
+       integer, intent(in) :: i    ! Integer 1
+       integer, intent(in) :: j    ! Integer2
        integer             :: mcd
 
        !---- Local variables ----!
        integer  :: u,v,m
 
-       u=max(a,b)
-       v=min(a,b)
+       u=max(i,j)
+       v=min(i,j)
        m=0
        do
           if (m == 1) exit
@@ -1857,58 +2418,44 @@
 
     !!----
     !!---- Function Ppcm(i,j) result(mcm)
-    !!----    integer, intent(in) :: i
-    !!----    integer, intent(in) :: j
-    !!----    integer             :: mcm
     !!----
     !!----    Function calculating the minimum common multiple of two integers
     !!----
     !!---- Update: February - 2005
     !!
-    Function Ppcm(a,b) result(mcm)
+    Function Ppcm(i,j) result(mcm)
        !---- Arguments ----!
-       integer, intent(in) :: a,b
+       integer, intent(in) :: i    ! Integer 1
+       integer, intent(in) :: j    ! Integer 2
        integer             :: mcm
 
        !---- Local variables ----!
-       integer :: u,v,w,i
+       integer :: u,v,w,ii
 
-       u=max(a,b)
-       v=min(a,b)
+       u=max(i,j)
+       v=min(i,j)
        mcm=1
+
        if (v <= 1) then
           mcm=u
           return
        end if
+
        w=int(sqrt(real(u)))+1
-       do i=2,w
+       do ii=2,w
           do
-             if(.not. ((mod(u,i)==0) .or. (mod(v,i)==0)) ) exit
-             mcm=mcm*i
-             if (modulo(u,i) == 0) u=u/i
-             if (modulo(v,i) == 0) v=v/i
+             if (.not. ((mod(u,ii)==0) .or. (mod(v,ii)==0)) ) exit
+             mcm=mcm*ii
+             if (modulo(u,ii) == 0) u=u/ii
+             if (modulo(v,ii) == 0) v=v/ii
           end do
        end do
 
        return
     End Function Ppcm
 
-    !!----
-    !!---- Function Pythag(a,b) Result (c)
-    !!----    real(sp/dp),intent(in):: a,b
-    !!----    real(sp/dp)           :: c
-    !!--<<
-    !!----    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!----    Adapted from Numerical Recipes.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
     !!--++ Function Pythag_dp(a,b) Result (c)
-    !!--++    real(dp),intent(in):: a,b
-    !!--++    real(dp)           :: c
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
@@ -1918,7 +2465,8 @@
     !!
     Function Pythag_dp(a,b) Result (c)
        !---- Arguments ----!
-       real(kind=dp),intent(in):: a,b
+       real(kind=dp),intent(in):: a    ! Real 1
+       real(kind=dp),intent(in):: b    ! Real 2
        real(kind=dp)           :: c
 
        !---- Local variables ----!
@@ -1941,8 +2489,6 @@
 
     !!--++
     !!--++ Function Pythag_sp(a,b) result (c)
-    !!--++    real(sp),intent(in):: a,b
-    !!--++    real(sp)           :: c
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
@@ -1952,7 +2498,8 @@
     !!
     Function Pythag_sp(a,b) Result (c)
        !---- Arguments ----!
-       real(kind=sp),intent(in):: a,b
+       real(kind=sp),intent(in):: a  ! Real 1
+       real(kind=sp),intent(in):: b  ! Real 2
        real(kind=sp)           :: c
 
        !---- Local variables ----!
@@ -1973,432 +2520,208 @@
        return
     End Function Pythag_sp
 
-    !!----
-    !!---- Function Lower_Triangular_I(A,n) Result (T)
-    !!----   integer, dimension(:,:), intent(in) :: A
-    !!----   integer,                 intent(in) :: n
-    !!----   integer, dimension(n,n)             :: T
-    !!----
-    !!----   Updated: October - 2014
-    !!----
-    Function Lower_Triangular_I(A,n) Result (T)
-       !---- Argument ----!
-       integer, dimension(:,:), intent(in) :: A
-       integer,                 intent(in) :: n
-       integer, dimension(n,n)             :: T
-       integer :: i,j,p,q,m
-       m=n
-       p=size(A(:,1)); q=size(A(1,:))
-       if(n > p .or. n > q) m=min(p,q)
-       T=0
-       do j=1,m
-         do i=j,m
-           T(i,j)=A(i,j)
-         end do
-       end do
-    End Function  Lower_Triangular_I
-
-    !!----
-    !!---- Function Lower_Triangular_R(A,n) Result (T)
-    !!----   real(kind=cp), dimension(:,:), intent(in) :: A
-    !!----   integer,                       intent(in) :: n
-    !!----   real(kind=cp), dimension(n,n)             :: T
-    !!----
-    !!----   Updated: October - 2014
-    !!----
-    Function Lower_Triangular_R(A,n) Result (T)
-       !---- Argument ----!
-       real(kind=cp), dimension(:,:), intent(in) :: A
-       integer,                       intent(in) :: n
-       real(kind=cp), dimension(n,n)             :: T
-       integer :: i,j,p,q,m
-       m=n
-       p=size(A(:,1)); q=size(A(1,:))
-       if(n > p .or. n > q) m=min(p,q)
-       T=0
-       do j=1,m
-         do i=j,m
-           T(i,j)=A(i,j)
-         end do
-       end do
-    End Function  Lower_Triangular_R
-
-    !!---- Function Modulo_Lat(U)
-    !!----    real(kind=cp), dimension(:), intent(in) :: u
-    !!----
-    !!----    Reduces a real vector to another with components in
-    !!----    the interval [0,1)
-    !!----
-    !!---- Updated: February - 2005
-    !!
-    Function Modulo_Lat(u) result(v)
-       !---- Argument ----!
-       real(kind=cp), dimension(:), intent( in) :: u
-       real(kind=cp), dimension(1:size(u))      :: v
-
-       v=mod(u+10.0_cp,1.0_cp)
-
-       return
-    End Function  Modulo_Lat
-
-    !!----
-    !!---- Function Norm(X,G) Result(R)
-    !!----    real(kind=cp)/integer, dimension(:),   intent(in) :: x
-    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
-    !!----
-    !!----    Calculate the Norm of a vector
-    !!----
-    !!---- Update: April - 2009
-    !!
-
     !!--++
-    !!--++ Function Norm_I(X,G) Result(R)
-    !!--++    integer,      dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
-    !!--++
-    !!--++    Calculate the Norm of a vector
-    !!--++
-    !!--++ Update: April - 2009
-    !!
-    Function Norm_I(X,G) Result(R)
-       !---- Arguments ----!
-       integer,       dimension(:),   intent(in) :: x
-       real(kind=cp), dimension(:,:), intent(in) :: g
-       real(kind=cp)                             :: r
-
-       if (size(x)*size(x) /= size(g)) then
-          r=tiny(0.0)
-       else
-          r=sqrt(dot_product(real(x), matmul(g,real(x))))
-       end if
-
-       return
-    End Function Norm_I
-
-    !!--++
-    !!--++ Function Norm_R(X,G) Result(R)
-    !!--++    real(kind=cp),dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
-    !!--++
-    !!--++    Calculate the Norm of a vector
-    !!--++
-    !!--++ Update: April - 2009
-    !!
-    Function Norm_R(X,G) Result(R)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:),   intent(in) :: x
-       real(kind=cp), dimension(:,:), intent(in) :: g
-       real(kind=cp)                             :: r
-
-       if (size(x)*size(x) /= size(g)) then
-          r=tiny(0.0)
-       else
-          r=sqrt(dot_product(x, matmul(g,x)))
-       end if
-
-       return
-    End Function Norm_R
-
-
-    !!----
-    !!---- Function Outerprod(a,b) Result(c)
-    !!----    real(sp/dp),dimension(:),intent(in)    :: a,b
-    !!----    real(sp/dp),dimension(size(a),size(b)) :: c
-    !!----
-    !!----    Computes the outer product (tensorial product) of two
-    !!----    vectors to give a tensor (matrix) as the result:
-    !!--<<
-    !!----                   c(i,j) = a(i)*b(j).
-    !!-->>
-    !!--..    It uses the intrinsic Fortran 90 function SPREAD.
-    !!--..    Function adapted from Numerical Recipes.
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Function Outerprod_dp(a,b) Result(c)
-    !!--++    real(dp),dimension(:),intent(in)    :: a,b
-    !!--++    real(dp),dimension(size(a),size(b)) :: c
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes the outer product (tensorial product) of two
-    !!--++    vectors to give a tensor (matrix) as the result:
-    !!--++                   c(i,j) = a(i)*b(j).
-    !!--++
-    !!--++    It uses the intrinsic Fortran 90 function SPREAD.
-    !!--++    Taken from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Outerprod_dp(a,b)  Result(c)
-       !---- Arguments ----!
-       real(kind=dp),dimension(:),intent(in)    :: a,b
-       real(kind=dp),dimension(size(a),size(b)) :: c
-
-       c =spread(a,dim=2,ncopies=size(b))*spread(b,dim=1,ncopies=size(a))
-
-       return
-    End Function Outerprod_dp
-
-    !!--++
-    !!--++ Function Outerprod_sp(a,b) Result(c)
-    !!--++    real(sp),dimension(:),intent(in)    :: a,b
-    !!--++    real(sp),dimension(size(a),size(b)) :: c
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes the outer product (tensorial product) of two
-    !!--++    vectors to give a tensor (matrix) as the result:
-    !!--++                   c(i,j) = a(i)*b(j).
-    !!--++
-    !!--++    It uses the intrinsic Fortran 90 function SPREAD.
-    !!--++    Taken from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Outerprod_sp(a,b)  Result(c)
-       !---- Arguments ----!
-       real(kind=sp),dimension(:),intent(in)    :: a,b
-       real(kind=sp),dimension(size(a),size(b)) :: c
-
-       c =spread(a,dim=2,ncopies=size(b))*spread(b,dim=1,ncopies=size(a))
-
-       return
-    End Function Outerprod_sp
-
-    !!----
-    !!---- Function Scalar(X,Y,G) Result(R)
-    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: x
-    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: y
-    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
-    !!----
-    !!----    Scalar Product including metrics
-    !!----
-    !!---- Update: April - 2009
-    !!
-
-    !!--++
-    !!--++ Function Scalar_R(X,Y,G) Result(R)
-    !!--++    integer, dimension(:),   intent(in) :: x
-    !!--++    integer, dimension(:),   intent(in) :: y
-    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++ Function Scalar_R(Vec1,Vec2,G) Result(R)
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
     !!--++ Update: April - 2009
     !!
-    Function Scalar_I(X,Y,G) Result(R)
+    Function Scalar_I(Vec1,Vec2,G) Result(R)
        !---- Arguments ----!
-       integer, dimension(:),   intent(in) :: x
-       integer, dimension(:),   intent(in) :: y
-       real(kind=cp), dimension(:,:), intent(in) :: g
+       integer, dimension(:),         intent(in) :: Vec1  ! Vector 1
+       integer, dimension(:),         intent(in) :: Vec2  ! Vector 2
+       real(kind=cp), dimension(:,:), intent(in) :: G     ! Metric array
        real(kind=cp)                             :: r
 
-       if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
+       if (size(Vec1)/= size(Vec2) .or. size(Vec1)*size(Vec1) /= size(g)) then
           r=tiny(0.0)
        else
-          r=dot_product(real(x), matmul(g,real(y)))
+          r=dot_product(real(Vec1), matmul(g,real(Vec2)))
        end if
 
        return
     End Function Scalar_I
 
     !!--++
-    !!--++ Function Scalar_R(X,Y,G) Result(R)
-    !!--++    real(kind=cp), dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp), dimension(:),   intent(in) :: y
-    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++ Function Scalar_R(Vec1,Vec2,G) Result(R)
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
     !!--++ Update: April - 2009
     !!
-    Function Scalar_R(X,Y,G) Result(R)
+    Function Scalar_R(Vec1,Vec2,G) Result(R)
        !---- Arguments ----!
-       real(kind=cp), dimension(:),   intent(in) :: x
-       real(kind=cp), dimension(:),   intent(in) :: y
-       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp), dimension(:),   intent(in) :: Vec1  ! Vector 1
+       real(kind=cp), dimension(:),   intent(in) :: Vec2  ! Vector 2
+       real(kind=cp), dimension(:,:), intent(in) :: g     ! Metric array
        real(kind=cp)                             :: r
 
-       if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
+       if (size(Vec1)/= size(Vec2) .or. size(Vec1)*size(Vec1) /= size(g)) then
           r=tiny(0.0)
        else
-          r=dot_product(x, matmul(g,y))
+          r=dot_product(Vec1, matmul(g,Vec2))
        end if
 
        return
     End Function Scalar_R
 
-    !!----
-    !!---- Function Trace(A)
-    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: a
-    !!----
-    !!----    Provides the trace of a complex/real or integer matrix
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
-    !!--++ Function Trace_C(A)
-    !!--++    complex, dimension(:,:), intent(in)  :: a
+    !!--++ Function Trace_C(Array)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a complex nxn array
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_C(a) Result(b)
+    Function Trace_C(Array) Result(b)
        !---- Argument ----!
-       complex, dimension(:,:), intent(in) :: a
+       complex, dimension(:,:), intent(in) :: array   ! Complex array
        complex                             :: b
 
        !---- Local variables ----!
        integer :: i,imax
 
        b=(0.0,0.0)
-       imax=min(size(a,1),size(a,2))
+       imax=min(size(array,1),size(array,2))
        do i=1,imax
-          b=b+a(i,i)
+          b=b+array(i,i)
        end do
 
        return
     End Function Trace_C
 
     !!--++
-    !!--++ Function Trace_I(A)
-    !!--++    integer, dimension(:,:), intent(in)  :: a
+    !!--++ Function Trace_I(Array)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of an integer 3x3 array
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_I(a) Result(b)
+    Function Trace_I(Array) Result(b)
        !---- Argument ----!
-       integer, dimension(:,:), intent(in) :: a
+       integer, dimension(:,:), intent(in) :: Array  ! Integer array
        integer                             :: b
 
        !---- Local variables ----!
        integer :: i,imax
 
        b=0
-       imax=min(size(a,1),size(a,2))
+       imax=min(size(array,1),size(array,2))
        do i=1,imax
-          b=b+a(i,i)
+          b=b+array(i,i)
        end do
 
        return
     End Function Trace_I
 
     !!--++
-    !!--++ Function Trace_R(A)
-    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: a
+    !!--++ Function Trace_R(Array)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a real 3x3 array
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_R(a) Result(b)
+    Function Trace_R(Array) Result(b)
        !---- Argument ----!
-       real(kind=cp), dimension(:,:), intent(in) :: a
+       real(kind=cp), dimension(:,:), intent(in) :: Array  ! Real array
        real(kind=cp)                             :: b
 
        !---- Local variables ----!
        integer :: i,imax
 
        b=0.0
-       imax=min(size(a,1),size(a,2))
+       imax=min(size(array,1),size(array,2))
        do i=1,imax
-          b=b+a(i,i)
+          b=b+array(i,i)
        end do
 
        return
     End Function Trace_R
 
-
     !!----
-    !!---- Function Upper_Triangular_I(A,n) Result (T)
-    !!----   integer, dimension(:,:), intent(in) :: A
-    !!----   integer,                 intent(in) :: n
-    !!----   integer, dimension(n,n)             :: T
+    !!---- Function Upper_Triangular_I(Array,n) Result (T)
+    !!----
+    !!---- Calculate the Upper Triangular
     !!----
     !!----   Updated: October - 2014
-    !!----
-    Function Upper_Triangular_I(A,n) Result (T)
-       !---- Argument ----!
-       integer, dimension(:,:), intent(in) :: A
-       integer,                 intent(in) :: n
-       integer, dimension(n,n)             :: T
-       integer :: i,j,p,q,m
-       m=n
-       p=size(A(:,1)); q=size(A(1,:))
-       if(n > p .or. n > q) m=min(p,q)
-       T=0
-       do j=1,m
-         do i=1,j
-           T(i,j)=A(i,j)
-         end do
-       end do
-    End Function  Upper_Triangular_I
-
-    !!----
-    !!---- Function Upper_Triangular_R(A,n) Result (T)
-    !!----   real(kind=cp), dimension(:,:), intent(in) :: A
-    !!----   integer,                       intent(in) :: n
-    !!----   real(kind=cp), dimension(n,n)             :: T
-    !!----
-    !!----   Updated: October - 2014
-    !!----
-    Function Upper_Triangular_R(A,n) Result (T)
-       !---- Argument ----!
-       real(kind=cp), dimension(:,:), intent(in) :: A
-       integer,                       intent(in) :: n
-       real(kind=cp), dimension(n,n)             :: T
-       integer :: i,j,p,q,m
-       m=n
-       p=size(A(:,1)); q=size(A(1,:))
-       if(n > p .or. n > q) m=min(p,q)
-       T=0
-       do j=1,m
-         do i=1,j
-           T(i,j)=A(i,j)
-         end do
-       end do
-    End Function  Upper_Triangular_R
-
-    !!----
-    !!---- Logical Function Zbelong(V)
-    !!----    real(kind=cp),   dimension(:,:), intent( in) :: v
-    !!----                      or
-    !!----    real(kind=cp),   dimension(:),   intent( in) :: v
-    !!----                      or
-    !!----    real(kind=cp),                   intent( in) :: v
-    !!----
-    !!----    Provides the value .TRUE. if the real number (or array) V is close enough
-    !!----    (whithin EPS) to an integer.
-    !!----
-    !!---- Update: February - 2005
     !!
+    Function Upper_Triangular_I(Array,n) Result (T)
+       !---- Argument ----!
+       integer, dimension(:,:), intent(in) :: Array   ! Integer array
+       integer,                 intent(in) :: n       ! Dimension of Array
+       integer, dimension(n,n)             :: T
+
+       !---- Local Variables ----!
+       integer :: i,j,p,q,m
+
+       m=n
+       p=size(Array(:,1))
+       q=size(Array(1,:))
+       if (n > p .or. n > q) m=min(p,q)
+
+       T=0
+       do j=1,m
+          do i=1,j
+             T(i,j)=Array(i,j)
+          end do
+       end do
+
+       return
+    End Function Upper_Triangular_I
+
+    !!----
+    !!---- Function Upper_Triangular_R(Array,n) Result (T)
+    !!----
+    !!---- Calculate the Upper Triangular
+    !!----
+    !!---- Updated: October - 2014
+    !!
+    Function Upper_Triangular_R(Array,n) Result (T)
+       !---- Argument ----!
+       real(kind=cp), dimension(:,:), intent(in) :: Array ! Real array
+       integer,                       intent(in) :: n     ! Dimension of array
+       real(kind=cp), dimension(n,n)             :: T
+
+       !---- Local Variables ----!
+       integer :: i,j,p,q,m
+
+
+       m=n
+       p=size(Array(:,1))
+       q=size(Array(1,:))
+
+       if (n > p .or. n > q) m=min(p,q)
+
+       T=0
+       do j=1,m
+          do i=1,j
+             T(i,j)=Array(i,j)
+          end do
+       end do
+
+       return
+    End Function Upper_Triangular_R
 
     !!--++
-    !!--++ Logical Function ZbelongM(V)
-    !!--++    real(kind=cp),   dimension(:,:), intent( in) :: v
+    !!--++ Logical Function ZbelongM(Array)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real array is an Integer matrix
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function ZbelongM(v) Result(belong)
+    Function ZbelongM(Array) Result(belong)
        !---- Argument ----!
-       real(kind=cp),   dimension(:,:), intent( in) :: v
+       real(kind=cp),   dimension(:,:), intent( in) :: Array  ! Real array
        logical                                      :: belong
 
        !---- Local variables ----!
-       real(kind=cp),   dimension(size(v,1),size(v,2)) :: vec
+       real(kind=cp),   dimension(size(array,1),size(array,2)) :: vec
 
-       vec= abs(real(nint (v))-v)
+       vec= abs(real(nint (array))-array)
        belong=.not. ANY(vec > epss)
 
        return
@@ -2406,7 +2729,6 @@
 
     !!--++
     !!--++ Logical Function ZbelongN(A)
-    !!--++    real(kind=cp),  intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is an Integer
@@ -2415,7 +2737,7 @@
    !!
     Function ZbelongN(a) Result(belong)
        !---- Argument ----!
-       real(kind=cp), intent( in) :: a
+       real(kind=cp), intent( in) :: a       ! Real number
        logical                    :: belong
 
        belong=.false.
@@ -2426,27 +2748,27 @@
     End Function ZbelongN
 
     !!--++
-    !!--++ Logical Function ZbelongV(V)
-    !!--++    real(kind=sp),   dimension(:), intent( in) :: v
+    !!--++ Logical Function ZbelongV(Vec)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real vector is an Integer vector
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function ZbelongV(v) Result(belong)
+    Function ZbelongV(Vec) Result(belong)
        !---- Argument ----!
-       real(kind=cp),   dimension(:), intent( in) :: v
+       real(kind=cp),   dimension(:), intent( in) :: Vec  ! Real vector
        logical                                    :: belong
 
        !---- Local variables ----!
        integer                             :: i
-       real(kind=cp),   dimension(size(v)) :: vec
+       real(kind=cp),   dimension(size(v)) :: vect
 
        belong=.false.
-       vec= abs(real(nint (v))-v)
-       do i=1,size(v)
-          if (vec(i) > epss) return
+       vect= abs(real(nint (vec))-vec)
+
+       do i=1,size(vec)
+          if (vect(i) > epss) return
        end do
        belong=.true.
 
@@ -2457,6 +2779,326 @@
     !---- Subroutines ----!
     !---------------------!
 
+    !!---
+    !!---- Subroutine Sort_Strings(Str)
+    !!----
+    !!----    Sort an array of string
+    !!----
+    !!---- Update: March - 2005
+    !!
+    Recursive Subroutine Sort_Strings(Str)
+       !---- Argument ----!
+       character(len=*), dimension(:), intent(in out) :: Str   ! String vector
+
+       !---- Local variables ----!
+       integer :: iq
+
+       if (size(Str) > 1) then
+          call Partition(Str, iq)
+          call Sort_Strings(Str(:iq-1))
+          call Sort_Strings(Str(iq:))
+       end if
+
+       return
+    End Subroutine Sort_Strings
+
+    !!----
+    !!----  Subroutine Co_Prime_Vector(Vec,Cop,F)
+    !!----
+    !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
+    !!----     It uses the list of the first thousand prime numbers.
+    !!----
+    !!----     copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
+    !!----
+    !!----   Updated: January 2013
+    !!
+    Subroutine Co_Prime_Vector(Vec,Cop,f)
+       !---- Arguments ----!
+       integer, dimension(:), intent(in)  :: Vec    ! Input integer vector
+       integer, dimension(:), intent(out) :: Cop    ! Ouput Co-prime vector
+       integer,  optional,    intent(out) :: f      ! Common multiplicative factor
+
+       !---- Local variables ----!
+       integer                     :: i,j,max_ind,k,im,dimv,n
+
+       cop=vec
+       n=1
+       if (present(f)) f=1
+       max_ind=maxval(abs(cop))
+
+       !> If the maximum value of the indices is 1 they are already coprimes
+       if (max_ind <= 1) return
+
+       !> Indices greater than 1
+       dimv=size(vec)
+       im=0
+       do i=1,size(primes)
+          if (primes(i) > max_ind) then  !primes is an array within this module
+             im=i
+             exit
+          end if
+       end do
+       if (im == 0) return
+
+       do_p: do i=1,im
+          k=primes(i)
+          do
+             do j=1,dimv
+                if( mod(cop(j),k) /= 0) cycle do_p
+             end do
+             n=n*k
+             cop=cop/k
+          end do
+       end do do_p
+
+       if (present(f)) f=n
+
+       return
+    End Subroutine Co_Prime_vector
+
+    !!--++
+    !!--++ Subroutine Diagonalize_Herm(Array,n,e_val,e_vect)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Diagonalize Hermitian matrices.
+    !!--++    The eigen_values E_val are sorted in descending order. The columns
+    !!--++    of E_vect are the corresponding eigenvectors.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Diagonalize_Herm(Array,N,E_val,E_vect)
+       !---- Arguments ----!
+       complex,           dimension(:,:), intent( in)  :: Array   ! Input array NxN
+       integer,                           intent( in)  :: N       ! Dimension of array
+       real(kind=cp),     dimension(:),   intent(out)  :: E_val   ! Eigenvalues
+       complex, optional, dimension(:,:), intent(out)  :: E_vect  ! Eigenvectors
+
+       !---- Local variables ----!
+       real(kind=cp),  dimension(2*n,2*n)   :: aux
+       real(kind=cp),  dimension(2*n)       :: e,d
+       integer                              :: nn
+
+
+       !> Init
+       call init_err_mathgen()
+       e_val=0.0_cp
+       if (present(e_vect)) e_vect=0.0_cp
+
+       !> Check
+       if (n > size(Array,1) .or. n > size(Array,2)) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Diagonalize_HERM: Error in dimension of input matrix: Array(m,m) with m < n "
+          return
+       end if
+
+       nn=2*n
+       aux(  1:n ,  1:n ) =  real(array(1:n ,1:n))   !      (  U   V )
+       aux(n+1:nn,n+1:nn) =  real(array(1:n ,1:n))   !   M=(          ),   A = U + i V
+       aux(n+1:nn,  1:n ) = aimag(array(1:n ,1:n))   !      ( -V   U )
+       aux(  1:n ,n+1:nn) =-aimag(array(1:n ,1:n))   !
+
+       if (present(E_vect)) then
+          call tred2(aux,nn,d,e)
+          call tqli2(d,e,nn,aux)
+          call eigsrt(d,aux,nn,1)
+          e_vect(1:n,1:n)=cmplx(aux(1:n,1:nn:2),aux(n+1:nn,1:nn:2))
+       else
+          call tred1(aux,nn,d,e)
+          call tqli1(d,e,nn)
+          call eigsrt(d,aux,nn,0)
+       end if
+       e_val(1:n)=d(1:nn:2)
+
+       return
+    End Subroutine Diagonalize_Herm
+
+    !!--++
+    !!--++ Subroutine Diagonalize_Symm(Array,n,e_val,e_vect)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Diagonalize symmetric matrices
+    !!--++    The eigen_values E_val are sorted in descending order. The columns
+    !!--++    of E_vect are the corresponding eigenvectors.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Diagonalize_Symm(Array,N,E_Val,E_vect)
+       !---- Arguments ----!
+       real(kind=cp),           dimension(:,:), intent( in)  :: Array    ! Input symmetric array
+       integer,                                 intent( in)  :: n        ! Dimension of Array
+       real(kind=cp),           dimension(:),   intent(out)  :: E_val    ! Eigenvalues
+       real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect   ! Eigenvectors
+
+       !---- Local variables ----!
+       real(kind=cp),        dimension(n,n)   :: aux
+       real(kind=cp),        dimension(n)     :: e
+
+       !> Init
+       call init_err_mathgen()
+       e_val=0.0_cp
+       if (present(e_vect)) e_vect=0.0_cp
+
+       !> Check
+       if (n > size(Array,1) .or. n > size(Array,2)) then
+          ERR_MathGen=.true.
+          ERR_MathGen_Mess=" Diagonalize_SYMM: Error in dimension of input matrix: Array(m,m) with m < n "
+          return
+       end if
+
+       aux=array(1:n,1:n)
+       if (present(E_vect)) then
+          call tred2(aux,n,E_val,e)
+          call tqli2(E_val,e,n,aux)
+          call eigsrt(E_val,aux,n,1)
+          e_vect(1:n,1:n)=aux
+       else
+          call tred1(aux,n,E_val,e)
+          call tqli1(E_val,e,n)
+          call eigsrt(E_val,aux,n,0)
+       end if
+
+       return
+    End Subroutine Diagonalize_Symm
+
+    !!--++
+    !!--++ Subroutine Eigsrt(d,v,n,io)
+    !!--++    real(kind=cp), dimension(:),   intent(in out) :: d
+    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: v
+    !!--++    integer,                       intent (in)    :: n
+    !!--++    integer,                       intent (in)    :: io
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Subroutine for sorting eigenvalues in d(n) and eigenvectors
+    !!--++    in columns of v(n,n). Sorts d(n) in descending order and
+    !!--++    rearranges v(n,n) correspondingly. The method is the straight
+    !!--++    insertion. If io=0 order  only the eigenvalues are treated.
+    !!--++    Adapted from Numerical Recipes. Valid for hermitian matrices
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Eigsrt(d,v,n,io)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:),   intent(in out) :: d
+       real(kind=cp), dimension(:,:), intent(in out) :: v
+       integer,                       intent(in)     :: n
+       integer,                       intent(in)     :: io
+
+       !---- Local Variables ----!
+       integer          :: i,j,k
+       real(kind=cp)    :: p
+
+       do i=1,n-1
+          k=i
+          p=d(i)
+          do j=i+1,n
+             if (d(j) >= p) then
+                k=j
+                p=d(j)
+             end if
+          end do
+          if (k /= i) then
+             d(k)=d(i)
+             d(i)=p
+             if (io == 1) then
+                do j=1,n
+                   p=v(j,i)
+                   v(j,i)=v(j,k)
+                   v(j,k)=p
+                end do
+             end if
+          end if
+       end do
+
+       return
+    End Subroutine Eigsrt
+
+    !!----
+    !!---- Subroutine First_Derivative(X, Y, N, D2Y, D1Y)
+    !!----
+    !!----    Calculate the First derivate values of the N points
+    !!----
+    !!---- Update: January - 2006
+    !!
+    Subroutine First_Derivative(X,Y,N,D2Y,D1Y)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:), intent(in)  :: X   ! Vector X
+       real(kind=cp), dimension(:), intent(in)  :: Y   ! Vector Yi=F(Xi)
+       integer ,                    intent(in)  :: N   ! Dimension of Vector N (Number of Points)
+       real(kind=cp), dimension(:), intent(in)  :: d2y ! Vector containing the second derivative
+       real(kind=cp), dimension(:), intent(out) :: d1y ! Vector contaning the First derivatives at the given points
+
+       !---- Local Variables ----!
+       integer       :: i
+       real(kind=cp) :: step, x0, y0, y1, y2
+
+       do i=1,n
+          if (i /= n) then
+             step = x(i+1)-x(i)
+          end if
+          x0 = x(i) - step/2.0
+          call splint(x,y, d2y, n, x0, y0)
+          y1 = y0
+          x0 = x(i) + step/2
+          call splint(x,y, d2y, n, x0, y0)
+          y2 = y0
+          d1y(i) = (y2 - y1) / step
+       end do
+
+       return
+    End Subroutine First_Derivative
+
+    !!----
+    !!---- Subroutine In_Sort(Vec,N,Ind_i,Ind_f)
+    !!--<<
+    !!----    Subroutine to order in ascending mode the integer vector VEC.
+    !!----    The input value N is the number of items to be ordered in VEC.
+    !!----    The vector Ind_i is the initial pointer to Vec (coming from a previous call)
+    !!----    The final pointer holding the order of items.
+    !!-->>
+    !!----
+    !!---- Update: November - 2008
+    !!
+    Subroutine In_Sort(Vec,N,Ind_i,Ind_f)
+       !---- Arguments ----!
+       integer, dimension(:), intent(in) :: Vec    ! Integer array to be sorted
+       integer,               intent(in) :: n      ! Number items in the array
+       integer, dimension(:), intent(in) :: Ind_i  ! Initial pointer from a previous related call
+       integer, dimension(:), intent(out):: Ind_f  ! Final pointer doing the sort of id
+
+       !--- Local Variables ----!
+       integer :: i,j,k,l,m
+       integer, dimension(:),allocatable :: it
+
+       !> Init
+       Ind_f=0
+
+       l=minval(Vec)
+       m=maxval(Vec)
+       l=l-1
+       m=m-l
+
+       allocate(it(m))
+       it(1:m)=0
+
+       do i=1,n
+          j=vec(ind_i(i))-l
+          it(j)=it(j)+1
+       end do
+       j=0
+       do i=1,m
+          k=j
+          j=j+it(i)
+          it(i)=k
+       end do
+       do i=1,n
+          j=vec(ind_i(i))-l
+          it(j)=it(j)+1
+          j=it(j)
+          ind_f(j)=ind_i(i)
+       end do
+
+       return
+    End Subroutine In_Sort
 
     !!----
     !!---- Subroutine Init_Err_Mathgen()
@@ -2474,35 +3116,132 @@
     End Subroutine Init_Err_MathGen
 
     !!----
-    !!---- Subroutine Set_Epsg(Neweps)
-    !!----    real(kind=cp), intent( in) :: neweps
+    !!---- Subroutine Invert_Matrix(Array,Array_Inv,Singular,Perm)
+    !!--<<
+    !!----    Subroutine to invert a real matrix using LU decomposition.
+    !!----    In case of singular matrix (singular=.true.) instead of the inverse
+    !!----    matrix, the subroutine provides the LU decomposed matrix as used
+    !!----    in Numerical Recipes.
+    !!----    The input matrix is preserved and its inverse (or its LU decomposition)
+    !!----    is provided in "b". The optional argument "perm" holds the row permutation
+    !!----    performed to obtain the LU decomposition.
+    !!-->>
     !!----
-    !!----    Sets global EPSS to the value "neweps"
+    !!---- Update: February - 2005
+    !!
+    Subroutine Invert_Matrix(Array,Array_Inv,Singular,Perm)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:),  intent(in ) :: Array      ! Input array
+       real(kind=cp), dimension(:,:),  intent(out) :: Array_Inv  ! Inverse array
+       logical,                        intent(out) :: singular   ! Flag for singular array
+       integer, dimension(:),optional, intent(out) :: perm       ! Row permutation
+
+       !---- Local variables ----!
+       integer                                               :: i,n
+       integer,       dimension(size(array,1))               :: indx
+       real(kind=cp)                                         :: d, det
+       real(kind=cp), dimension(size(array,1),size(array,1)) :: lu
+
+       n=size(array,1)
+       lu=array(1:n,1:n)
+
+       call LU_Decomp(lu,d,singular,indx)
+       if (present(perm)) perm(1:n)=indx(1:n)
+
+       if (singular) then
+          array_inv=lu
+          return
+       else
+          det=0.0
+          do i=1,n
+             d=d*sign(1.0_cp,lu(i,i))
+             det=det + log(abs(lu(i,i)))
+          end do
+          det=d*exp(det)
+          if (abs(det) <= 1.0e-36) then
+             singular=.true.
+             array_inv=lu
+             return
+          end if
+       end if
+
+       array_inv=0.0
+       do i=1,n
+          array_inv(i,i)=1.0
+          call LU_backsub(lu,indx,array_inv(:,i))
+       end do
+
+       return
+    End Subroutine Invert_Matrix
+
+    !!----
+    !!---- Subroutine LU_Backsub(Array,indx,Vec)
+    !!--<<
+    !!----    Adapted from Numerical Recipes.
+    !!----    Solves the set of N linear equations A  X = B. Here the N x N matrix A is input,
+    !!----    not as the original matrix A, but rather as its LU decomposition, determined
+    !!----    by the routine LU_DECOMP. INDX is input as the permutation vector of length N
+    !!----    returned by LU_DECOMP. B is input as the right-hand-side vector B,
+    !!----    also of length N, and returns with the solution vector X.
+    !!----    A and INDX are not modified by this routine and can be left in place for successive calls
+    !!----    with different right-hand sides B. This routine takes into account the possibility that B will
+    !!----    begin with many zero elements, so it is efficient for use in matrix inversion.
+    !!-->>
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine LU_Backsub(A,indx,B)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:), intent(in)     :: A      ! Input array(N,N)
+       integer,         dimension(:), intent(in)     :: indx   ! Permutation vector
+       real(kind=cp),   dimension(:), intent(in out) :: B      ! Vector
+
+       !---- Local Variables ----!
+       integer       :: i,ii,ll,n
+       real(kind=cp) :: summ
+
+       n=size(a,1)
+       ii=0              !When ii is set to a positive value, it will become the index
+       do i=1,n          !of the first nonvanishing element of b. We now do
+          ll=indx(i)     !the forward substitution. The only new wrinkle is to
+          summ=b(ll)     !unscramble the permutation as we go.
+          b(ll)=b(i)
+          if (ii /= 0) then
+             summ=summ-dot_product(a(i,ii:i-1),b(ii:i-1))
+          else if(summ /= 0.0) then   !A nonzero element was encountered, so from now on
+             ii=i                       !we will have to do the dot product above.
+          end if
+          b(i)=summ
+       end do
+
+       do i=n,1,-1       !Now we do the backsubstitution
+          b(i) = (b(i)-dot_product(a(i,i+1:n),b(i+1:n)))/a(i,i)
+       end do
+
+       return
+    End Subroutine LU_Backsub
+
+    !!----
+    !!---- Subroutine Set_Epsg(Neweps)
+    !!----
+    !!---- Sets global EPSS to the value "neweps". If Not argument is given, then
+    !!---- EPSS is set to default value epss=1.0E-5_sp
     !!----
     !!---- Update: April - 2005
     !!
     Subroutine Set_Epsg(Neweps)
        !---- Arguments ----!
-       real(kind=cp), intent( in) :: neweps
+       real(kind=cp), optional, intent( in) :: neweps
 
-       epss=neweps
+
+       if (present(neweps)) then
+          epss=neweps
+       else
+          epss=1.0E-5_sp
+       end if
 
        return
     End Subroutine Set_Epsg
-
-    !!----
-    !!---- Subroutine Set_Epsg_Default()
-    !!----
-    !!----    Sets global EPSS to the default value: epss=1.0E-5_sp
-    !!----
-    !!---- Update: April - 2005
-    !!
-    Subroutine Set_Epsg_Default()
-
-       epss=1.0E-5_sp
-
-       return
-    End Subroutine Set_Epsg_Default
 
     !!----
     !!---- Subroutine Rtan(y,x,ang,deg)
@@ -2598,917 +3337,149 @@
        return
     End Subroutine Rtan_sp
 
-    !!---- Subroutine AM_Median(x, n, xmed)
+    !!----
+    !!---- Subroutine Median_QS(Vec, n, Xmed)
     !!---- integer, intent(in)                :: n
     !!---- real, intent(in out), dimension(:) :: x
     !!---- real, intent(out)                  :: xmed
     !!----
-    !!---- Subroutine calculating the median of a real array
+    !!---- Subroutine calculating the median of a real array using a partially
+    !!---- Quicsort method. On exit, the array x is partially ordered.
     !!---- Based in Alan Miller's median.f90 code.
     !!----
-    Pure Subroutine AM_Median(x, n, xmed)
-       ! Find the median of X(1), ... , X(N), using as much of the quicksort
-       ! algorithm as is needed to isolate it.
-       ! N.B. On exit, the array x is partially ordered.
-       integer, intent(in)                :: n
-       real, intent(in out), dimension(:) :: x
-       real, intent(out)                  :: xmed
-       ! Local variables
-       real    :: temp, xhi, xlo, xmax, xmin
-       logical :: odd
-       integer :: hi, lo, nby2, nby2p1, mid, i, j, k
+    !!
+    Subroutine Median_QS(Vec, N, Xmed)
+       !---- Argument ----!
+       real(kind=cp), dimension(:), intent(in out) :: Vec      ! Vector
+       integer,                     intent(in)     :: n        ! Dimension of Vector
+       real(kind=cp,                intent(out)    :: xmed     ! Mean value of Vector
+
+       !---- Local Variables ----!
+       integer       :: hi, lo, nby2, nby2p1, mid, i, j, k
+       real(kind=cp) :: temp, xhi, xlo, xmax, xmin
+       logical       :: odd
 
        nby2 = n / 2
        nby2p1 = nby2 + 1
        odd = .true.
-       !     HI & LO are position limits encompassing the median.
+
+       !>  HI & LO are position limits encompassing the median.
        if (n == 2 * nby2) odd = .false.
        lo = 1
        hi = n
        if (n < 3) then
-         if (n < 1) then
-           xmed = 0.0
-           return
-         end if
-         xmed = x(1)
-         if (n == 1) return
-         xmed = 0.5*(xmed + x(2))
-         return
+          if (n < 1) then
+             xmed = 0.0
+             return
+          end if
+          xmed = vec(1)
+          if (n == 1) return
+          xmed = 0.5*(xmed + vec(2))
+          return
        end if
-       !     Find median of 1st, middle & last values.
+
+       !>  Find median of 1st, middle & last values.
        do
-         mid = (lo + hi)/2
-         xmed = x(mid)
-         xlo = x(lo)
-         xhi = x(hi)
-         if (xhi < xlo) then          ! swap xhi & xlo
-           temp = xhi
-           xhi = xlo
-           xlo = temp
-         end if
-         if (xmed > xhi) then
-           xmed = xhi
-         else if (xmed < xlo) then
-           xmed = xlo
-         end if
-         ! The basic quicksort algorithm to move all values <= the sort key (XMED)
-         ! to the left-hand end, and all higher values to the other end.
-         i = lo
-         j = hi
-         do
-            do
-              if (x(i) >= xmed) exit
-              i = i + 1
-            end do
-            do
-              if (x(j) <= xmed) exit
-              j = j - 1
-            end do
-            if (i < j) then
-              temp = x(i)
-              x(i) = x(j)
-              x(j) = temp
-              i = i + 1
-              j = j - 1
-              ! Decide which half the median is in.
-              if (i <= j) cycle
-            end if
-            exit
-         end do
-         if (.not. odd) then
-           if (j == nby2 .and. i == nby2p1) then
-             ! Special case, N even, J = N/2 & I = J + 1, so the median is
-             ! between the two halves of the series.   Find max. of the first
-             ! half & min. of the second half, then average.
-             xmax = x(1)
-             do k = lo, j
-               xmax = max(xmax, x(k))
-             end do
-             xmin = x(n)
-             do k = i, hi
-               xmin = min(xmin, x(k))
-             end do
-             xmed = 0.5*(xmin + xmax)
-             return
-           end if
-           if (j < nby2) lo = i
-           if (i > nby2p1) hi = j
-           if (i /= j) then
-             if (lo < hi - 1) cycle
-             exit
-           end if
-           if (i == nby2) lo = nby2
-           if (j == nby2p1) hi = nby2p1
-         else
-           if (j < nby2p1) lo = i
-           if (i > nby2p1) hi = j
-           if (i /= j) then
-             if (lo < hi - 1) cycle
-             exit
-           end if
-         ! test whether median has been isolated.
-           if (i == nby2p1) return
-         end if
-         if (lo < hi - 1) cycle
-         exit
-       end do
-       if (.not. odd) then
-         xmed = 0.5*(x(nby2) + x(nby2p1))
-         return
-       end if
-       temp = x(lo)
-       if (temp > x(hi)) then
-         x(lo) = x(hi)
-         x(hi) = temp
-       end if
-       xmed = x(nby2p1)
-       return
-    End Subroutine AM_Median
-
-    !!----
-    !!----  Subroutine Co_Prime_Vector(V,Cop,F)
-    !!----     integer, dimension(:), intent(in)  :: v      !input integer vector
-    !!----     integer, dimension(:), intent(out) :: cop    !Output co-prime vector
-    !!----     integer,  optional,    intent(out) :: f      !Common multiplicative factor
-    !!----
-    !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
-    !!----     It uses the list of the first thousand prime numbers.
-    !!----
-    !!----   Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
-    !!----
-    Subroutine Co_Prime_Vector(V,Cop,f)
-       !---- Arguments ----!
-       integer, dimension(:), intent(in)  :: v
-       integer, dimension(:), intent(out) :: cop
-       integer,  optional,    intent(out) :: f
-
-       !---- Local variables ----!
-       integer                     :: i,j,max_ind,k,im,dimv,n
-
-       cop=v
-       n=1
-       if (present(f)) f=1
-       max_ind=maxval(abs(cop))
-       !---- If the maximum value of the indices is 1 they are already coprimes
-       if (max_ind <= 1) return
-       !---- Indices greater than 1
-       dimv=size(v)
-       im=0
-       do i=1,size(primes)
-          if(primes(i) > max_ind) then  !primes is an array within this module
-             im=i
-             exit
+          mid = (lo + hi)/2
+          xmed = vec(mid)
+          xlo  = vec(lo)
+          xhi  = vec(hi)
+          if (xhi < xlo) then          ! swap xhi & xlo
+             temp = xhi
+             xhi = xlo
+             xlo = temp
           end if
-       end do
-       if(im == 0) return
-       do_p: do i=1,im
-         k=primes(i)
-         do
-           do j=1,dimv
-              if( mod(cop(j),k) /= 0) cycle do_p
-           end do
-           n=n*k
-           cop=cop/k
-         end do
-       end do do_p
+          if (xmed > xhi) then
+             xmed = xhi
+          else if (xmed < xlo) then
+             xmed = xlo
+          end if
 
-       if (present(f)) f=n
-
-       return
-    End Subroutine Co_Prime_vector
-
-    !!----
-    !!---- Subroutine Determinant(A,n,determ)
-    !!----    complex/real(sp), dimension(:,:), intent( in) :: A      !input square matrix (n,n)
-    !!----    integer,                          intent( in) :: n      !actual dimension of A
-    !!----    real(kind=sp),                    intent(out) :: determ !det(A) if real
-    !!----                                                             det(AR)^2 + det(AI)^2 if complex
-    !!----
-    !!----    Calculates the determinant of a real square matrix.
-    !!----    Calculates the pseudo-determinant of a complex square matrix.
-    !!----    The calculated value is only useful for linear dependency purposes.
-    !!----    It tell us if the complex matrix is singular or not.
-    !!--..
-    !!--..    Calculates the determinant of a complex square matrix selected from a rectangular
-    !!--..    matrix A, n x m, where m >= n. determ=determinant_of_A(1:n,icol:icol+n-1)
-    !!--..    If icol is absent, the calculation is performed as if icol=1.
-    !!--..    If icol+n-1 > m, or m < n, determ is set to 0.0 and an error message is generated.
-    !!----
-    !!--..    P R O V I S I O N A L (The determinant of A is not calculated at present)
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Subroutine Determinant_C(A,n,determ)
-    !!--++    complex,          dimension(:,:), intent( in) :: A      !input square matrix (n,n)
-    !!--++    integer,                          intent( in) :: n      !actual dimension of A
-    !!--++    real(kind=cp),                    intent(out) :: determ !det(A) if real
-    !!--++                                                             det(AR)^2 + det(AI)^2 if complex
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Calculates the determinant of a real square matrix.
-    !!--++    Calculates the pseudo-determinant of a complex square matrix.
-    !!--++    The calculated value is only useful for linear dependency purposes.
-    !!--++    It tell us if the complex matrix is singular or not.
-    !!--++
-    !!--++    P R O V I S I O N A L (The determinant of A is not calculated at present)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Determinant_C(A,n,determ)
-       !---- Arguments ----!
-       complex, dimension(:,:), intent( in) :: A
-       integer,                 intent( in) :: n
-       real(kind=cp),           intent(out) :: determ
-
-       !---- local variables ----!
-       real(kind=cp),    dimension(2*n,2*n) :: AC   !real square matrix
-       real(kind=cp)                        :: d
-       integer                              :: i,nn
-       logical                              :: singular
-
-       nn=2*n
-       AC(  1:n ,  1:n ) =  real(A(1:n ,1:n))
-       AC(n+1:nn,  1:n ) = aimag(A(1:n ,1:n))
-       AC(n+1:nn,n+1:nn) =    AC(  1:n ,1:n)
-       AC(  1:n ,n+1:nn) =   -AC(n+1:nn,1:n)
-
-       call lu_decomp(ac(1:nn,1:nn),d,singular)
-
-       if (singular) then
-          determ=0.0
-       else
-          determ=0.0
-          do i=1,nn
-             d=d*sign(1.0_cp,ac(i,i))
-             determ=determ+ log(abs(ac(i,i)))
+          !> The basic quicksort algorithm to move all values <= the sort key (XMED)
+          !> to the left-hand end, and all higher values to the other end.
+          i = lo
+          j = hi
+          do
+              do
+                 if (vec(i) >= xmed) exit
+                 i = i + 1
+              end do
+              do
+                 if (vec(j) <= xmed) exit
+                 j = j - 1
+              end do
+              if (i < j) then
+                 temp = x(i)
+                 vec(i) = vec(j)
+                 vec(j) = temp
+                 i = i + 1
+                 j = j - 1
+                 !> Decide which half the median is in.
+                 if (i <= j) cycle
+              end if
+              exit
           end do
-          determ=d*exp(determ)
-       end if
 
-       return
-    End Subroutine Determinant_C
-
-    !!--++
-    !!--++ Subroutine Determinant_R(A,n,determ)
-    !!--++    real(kind=cp), dimension(:,:),intent( in) :: A   (input square matrix (n,n))
-    !!--++    integer,                      intent( in) :: n   (actual dimension of A)
-    !!--++    real(kind=cp),                intent(out) :: determ  (determinant )
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Calculates the determinant of a real square matrix.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Determinant_R(A,n,determ)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent( in) :: A
-       integer,                       intent( in) :: n
-       real(kind=cp),                 intent(out) :: determ
-
-       !---- local variables ----!
-       real(kind=cp),    dimension(n,n)  :: AC
-       real(kind=cp)                     :: d
-       integer                           :: i
-       logical                           :: singular
-
-       ac=A(1:n,1:n)
-       call lu_decomp(ac,d,singular)
-
-       if (singular) then
-          determ=0.0
-       else
-          determ=0.0
-          do i=1,n
-             d=d*sign(1.0_cp,ac(i,i))
-             determ=determ + log(abs(ac(i,i)))
-          end do
-          determ=d*exp(determ)
-       end if
-
-       return
-    End Subroutine Determinant_R
-
-    !!----
-    !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect)
-    !!----    complex/real,      dimension(:,:), intent( in)  :: A
-    !!----    integer,                           intent( in)  :: n
-    !!----    real(kind=cp),     dimension(:),   intent(out)  :: E_val
-    !!----    complex, optional, dimension(:,:), intent(out)  :: E_vect
-    !!----
-    !!----    Diagonalize Symmetric/Hermitian matrices.
-    !!----    The eigen_values E_val are sorted in descending order. The columns
-    !!----    of E_vect are the corresponding eigenvectors.
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
-    !!--++    complex,           dimension(:,:), intent( in)  :: A
-    !!--++    integer,                           intent( in)  :: n
-    !!--++    real(kind=cp),     dimension(:),   intent(out)  :: E_val
-    !!--++    complex, optional, dimension(:,:), intent(out)  :: E_vect
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Diagonalize Hermitian matrices.
-    !!--++    The eigen_values E_val are sorted in descending order. The columns
-    !!--++    of E_vect are the corresponding eigenvectors.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
-       !---- Arguments ----!
-       complex,           dimension(:,:), intent( in)  :: A
-       integer,                           intent( in)  :: n
-       real(kind=cp),     dimension(:),   intent(out)  :: E_val
-       complex, optional, dimension(:,:), intent(out)  :: E_vect
-
-       !---- Local variables ----!
-       real(kind=cp),        dimension(2*n,2*n)   :: aux
-       real(kind=cp),        dimension(2*n)       :: e,d
-       integer :: nn
-
-       e_val=0.0
-       call init_err_mathgen()
-       if (n > size(A,1) .or. n > size(A,2)) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
-          return
-       end if
-
-       nn=2*n
-       aux(  1:n ,  1:n ) =  real(a(1:n ,1:n))   !      (  U   V )
-       aux(n+1:nn,n+1:nn) =  real(a(1:n ,1:n))   !   M=(          ),   A = U + i V
-       aux(n+1:nn,  1:n ) = aimag(a(1:n ,1:n))   !      ( -V   U )
-       aux(  1:n ,n+1:nn) =-aimag(a(1:n ,1:n))   !
-
-       if (present(E_vect)) then
-          call tred2(aux,nn,d,e)
-          call tqli2(d,e,nn,aux)
-          call eigsrt(d,aux,nn,1)
-          e_vect(1:n,1:n)=cmplx(aux(1:n,1:nn:2),aux(n+1:nn,1:nn:2))
-       else
-          call tred1(aux,nn,d,e)
-          call tqli1(d,e,nn)
-          call eigsrt(d,aux,nn,0)
-       end if
-       e_val(1:n)=d(1:nn:2)
-
-       return
-    End Subroutine Diagonalize_Herm
-
-    !!--++
-    !!--++ Subroutine Diagonalize_Symm(a,n,e_val,e_vect)
-    !!--++    real(kind=cp)            dimension(:,:),intent( in)  :: A      (input matrix with)
-    !!--++    integer,                                intent( in)  :: n      (actual dimension)
-    !!--++    real(kind=cp),           dimension(:),  intent(out)  :: E_val  (eigenvalues)
-    !!--++    real(kind=cp), optional, dimension(:,:),intent(out)  :: E_vect (eigenvectors)
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Diagonalize symmetric matrices
-    !!--++    The eigen_values E_val are sorted in descending order. The columns
-    !!--++    of E_vect are the corresponding eigenvectors.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Diagonalize_Symm(A,n,E_Val,E_vect)
-       !---- Arguments ----!
-       real(kind=cp),           dimension(:,:), intent( in)  :: A
-       integer,                                 intent( in)  :: n
-       real(kind=cp),           dimension(:),   intent(out)  :: E_val
-       real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect
-
-       !---- Local variables ----!
-       real(kind=cp),        dimension(n,n)   :: aux
-       real(kind=cp),        dimension(n)     :: e
-
-       e_val=0.0
-       call init_err_mathgen()
-       if (n > size(A,1) .or. n > size(A,2)) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
-          return
-       end if
-
-       aux=a(1:n,1:n)
-       if (present(E_vect)) then
-          call tred2(aux,n,E_val,e)
-          call tqli2(E_val,e,n,aux)
-          call eigsrt(E_val,aux,n,1)
-          e_vect(1:n,1:n)=aux
-       else
-          call tred1(aux,n,E_val,e)
-          call tqli1(E_val,e,n)
-          call eigsrt(E_val,aux,n,0)
-       end if
-
-       return
-    End Subroutine Diagonalize_Symm
-
-    !!--++
-    !!--++ Subroutine Eigsrt(d,v,n,io)
-    !!--++    real(kind=cp), dimension(:),   intent(in out) :: d
-    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: v
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    integer,                       intent (in)    :: io
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Subroutine for sorting eigenvalues in d(n) and eigenvectors
-    !!--++    in columns of v(n,n). Sorts d(n) in descending order and
-    !!--++    rearranges v(n,n) correspondingly. The method is the straight
-    !!--++    insertion. If io=0 order  only the eigenvalues are treated.
-    !!--++    Adapted from Numerical Recipes. Valid for hermitian matrices
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Eigsrt(d,v,n,io)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:),   intent(in out) :: d
-       real(kind=cp), dimension(:,:), intent(in out) :: v
-       integer,                       intent(in)     :: n
-       integer,                       intent(in)     :: io
-
-       !---- Local Variables ----!
-       integer          :: i,j,k
-       real(kind=cp)    :: p
-
-       do i=1,n-1
-          k=i
-          p=d(i)
-          do j=i+1,n
-             if (d(j) >= p) then
-                k=j
-                p=d(j)
-             end if
-          end do
-          if (k /= i) then
-             d(k)=d(i)
-             d(i)=p
-             if (io == 1) then
-                do j=1,n
-                   p=v(j,i)
-                   v(j,i)=v(j,k)
-                   v(j,k)=p
+          if (.not. odd) then
+             if (j == nby2 .and. i == nby2p1) then
+                !> Special case, N even, J = N/2 & I = J + 1, so the median is
+                !> between the two halves of the series.   Find max. of the first
+                !> half & min. of the second half, then average.
+                xmax = vec(1)
+                do k = lo, j
+                   xmax = max(xmax, vec(k))
                 end do
+                xmin = vec(n)
+                do k = i, hi
+                   xmin = min(xmin, vec(k))
+                end do
+                xmed = 0.5*(xmin + xmax)
+                return
              end if
+
+             if (j < nby2) lo = i
+             if (i > nby2p1) hi = j
+             if (i /= j) then
+                if (lo < hi - 1) cycle
+                exit
+             end if
+             if (i == nby2) lo = nby2
+             if (j == nby2p1) hi = nby2p1
+
+          else
+             if (j < nby2p1) lo = i
+             if (i > nby2p1) hi = j
+             if (i /= j) then
+                if (lo < hi - 1) cycle
+                exit
+             end if
+
+             !> test whether median has been isolated.
+             if (i == nby2p1) return
           end if
+
+          if (lo < hi - 1) cycle
+          exit
        end do
 
-       return
-    End Subroutine Eigsrt
-
-    !!----
-    !!---- Subroutine First_Derivative(x, y, n, d2y, d1y)
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(in),     dimension(:) :: d2y   !  In -> array containing second derivatives
-    !!----                                                                     at the given points
-    !!----    real(kind=cp),    intent(out),    dimension(:) :: d1y   ! Out -> array containing first derivatives
-    !!----                                                                     at the given points
-    !!----
-    !!----    Calculate the First derivate values of the N points
-    !!----
-    !!---- Update: January - 2006
-    !!
-    Subroutine First_Derivative(x,y,n,d2y,d1y)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp), dimension(:), intent(in)  :: d2y
-       real(kind=cp), dimension(:), intent(out) :: d1y
-
-       !---- Local Variables ----!
-       integer       :: i
-       real(kind=cp) :: step, x0, y0, y1, y2
-
-       do i=1,n
-         if (i /= n) then
-           step = x(i+1)-x(i)
-         end if
-         x0 = x(i) - step/2.0
-         call splint(x,y, d2y, n, x0, y0)
-         y1 = y0
-         x0 = x(i) + step/2
-         call splint(x,y, d2y, n, x0, y0)
-         y2 = y0
-         d1y(i) = (y2 - y1) / step
-       end do
-
-       return
-    End Subroutine First_Derivative
-
-    !!----
-    !!---- Subroutine In_Sort(id,n,p,q)
-    !!----    integer, dimension(:), intent(in) :: id  !Integer array to be sorted
-    !!----    integer,               intent(in) :: n   !Number items in the array
-    !!----    integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
-    !!----    integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
-    !!--<<
-    !!----    Subroutine to order in ascending mode the integer array "id".
-    !!----    The input value "n" is the number of items to be ordered in "id".
-    !!----    The array "p" is the initial pointer to "id" (coming from a previous call)
-    !!----    The final pointer holding the order of items.
-    !!-->>
-    !!----
-    !!---- Update: November - 2008
-    !!
-    Subroutine In_Sort(id,n,p,q)
-       !---- Arguments ----!
-       integer, dimension(:), intent(in) :: id  !Integer array to be sorted
-       integer,               intent(in) :: n   !Number items in the array
-       integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
-       integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
-
-       !--- Local Variables ----!
-       integer :: i,j,k,l,m
-       integer, dimension(:),allocatable :: it
-
-       l=minval(id)
-       m=maxval(id)
-       l=l-1
-       m=m-l
-       allocate(it(m))
-       it(1:m)=0
-       do i=1,n
-          j=id(p(i))-l
-          it(j)=it(j)+1
-       end do
-       j=0
-       do i=1,m
-          k=j
-          j=j+it(i)
-          it(i)=k
-       end do
-       do i=1,n
-          j=id(p(i))-l
-          it(j)=it(j)+1
-          j=it(j)
-          q(j)=p(i)
-       end do
-
-       return
-    End Subroutine In_Sort
-
-    !!----
-    !!---- Subroutine Invert_Matrix(a,b,singular,perm)
-    !!----    real(kind=cp), dimension(:,:),  intent( in) :: a
-    !!----    real(kind=cp), dimension(:,:),  intent(out) :: b
-    !!----    LOGICAL,                        intent(out) :: singular
-    !!----    integer, dimension(:),optional, intent(out) :: perm
-    !!--<<
-    !!----    Subroutine to invert a real matrix using LU decomposition.
-    !!----    In case of singular matrix (singular=.true.) instead of the inverse
-    !!----    matrix, the subroutine provides the LU decomposed matrix as used
-    !!----    in Numerical Recipes.
-    !!----    The input matrix is preserved and its inverse (or its LU decomposition)
-    !!----    is provided in "b". The optional argument "perm" holds the row permutation
-    !!----    performed to obtain the LU decomposition.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Invert_Matrix(a,b,singular,perm)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:),  intent(in ) :: a
-       real(kind=cp), dimension(:,:),  intent(out) :: b
-       logical,                        intent(out) :: singular
-       integer, dimension(:),optional, intent(out) :: perm
-
-       !---- Local variables ----!
-       integer                                       :: i,n
-       integer,       dimension(size(a,1))           :: indx
-       real(kind=cp)                                 :: d, det
-       real(kind=cp), dimension(size(a,1),size(a,1)) :: lu
-
-       n=size(a,1)
-       lu=a(1:n,1:n)
-
-       call LU_Decomp(lu,d,singular,indx)
-       if (present(perm)) perm(1:n)=indx(1:n)
-
-       if (singular) then
-          b=lu
-          return
-       else
-          det=0.0
-          do i=1,n
-             d=d*sign(1.0_cp,lu(i,i))
-             det=det + log(abs(lu(i,i)))
-          end do
-          det=d*exp(det)
-          if (abs(det) <= 1.0e-36) then
-             singular=.true.
-             b=lu
-             return
-          end if
-       end if
-
-       b=0.0
-       do i=1,n
-          b(i,i)=1.0
-          call LU_backsub(lu,indx,b(:,i))
-       end do
-
-       return
-    End Subroutine Invert_Matrix
-
-    !!----
-    !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,info)
-    !!----    complex/integer/real(kind=cp), dimension(:),   intent(in)  :: a
-    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: b
-    !!----    integer,                                       intent(in)  :: na,nb,mb
-    !!----    logical,                                       intent(out) :: info
-    !!--<<
-    !!----    Provides the value .TRUE. if the vector A is linear dependent of the
-    !!----    vectors constituting the rows (columns) of the matrix B. In input nb & mb
-    !!----    are the number of rows and columns of B to be considered. The actual
-    !!----    dimension of vector a should be na=max(nb,mb).
-    !!----    The problem is equivalent to determine the rank (in algebraic sense)
-    !!----    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
-    !!----    case it is supposed that na = mb and in the second na = nb.
-    !!----    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
-    !!----    is generated. The function uses floating arithmetic for all types.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    !!--++
-    !!--++ Subroutine Linear_DependentC(a,na,b,nb,mb,info)
-    !!--++    complex, dimension(:),   intent(in)  :: a
-    !!--++    complex, dimension(:,:), intent(in)  :: b
-    !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: info
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
-    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
-    !!--++    are the number of rows and columns of B to be considered. The actual
-    !!--++    dimension of vector a should be na=max(nb,mb).
-    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
-    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
-    !!--++    case it is supposed that na = mb and in the second na = nb.
-    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
-    !!--++    is generated
-    !!--++
-    !!--++    For the case of complex vectors in Cn the problem can be reduced to real vectors
-    !!--++    of dimension R2n. Each complex vector contributes as two real vectors of dimension
-    !!--++    2n: (R,I) and (-I,R). A complex vector V is linearly dependent on n complex vectors
-    !!--++    if V can be written as: V = Sigma{j=1,n}(Cj.Vj), with Cj complex numbers and Vj
-    !!--++    having n complex components. One may write:
-    !!--++
-    !!--++     V = Sigma{j=1,n}(Cj.Vj)
-    !!--++     (R,I) = Sigma{j=1,n} (Cjr Vj + i Cji Vj) = Sigma{j=1,n} (Cjr (Rj,Ij) +  Cji (-Ij,Rj) )
-    !!--++     (R,I) = Sigma{j=1,n} (aj (Rj,Ij) + bj (-Ij,Rj) )  = Sigma{j=1,2n} (Aj.Uj)
-    !!--++     Were Uj=(Rj,Ij) and U(j+1)= (-Ij,Rj)
-    !!--++
-    !!--++    The function uses floating arithmetic for all types.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Linear_DependentC(A,na,B,nb,mb,info)
-       !---- Arguments ----!
-       complex, dimension(:),   intent(in)  :: a
-       complex, dimension(:,:), intent(in)  :: b
-       integer,                 intent(in)  :: na,nb,mb
-       logical,                 intent(out) :: info
-
-       !---- Local variables ----!
-       integer                                                     :: r,n1
-       real(kind=dp), parameter                                    :: tol= 100.0_dp*deps
-       real(kind=dp), dimension(2*max(nb+1,mb+1),2*max(nb+1,mb+1)) :: c
-
-       c=0.0
-       call init_err_mathgen()
-       info=.true.
-       if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
+       if (.not. odd) then
+          xmed = 0.5*(vec(nby2) + vec(nby2p1))
           return
        end if
-
-       if ( na == mb) then
-          n1=2*nb+1
-          if(n1+1 > 2*mb) return !the vector is linear dependent
-          c(1:nb,           1:mb) =  real(b(1:nb,1:mb))
-          c(1:nb,     mb+1:mb+na) = aimag(b(1:nb,1:mb))
-          c(nb+1:2*nb,      1:mb) =-aimag(b(1:nb,1:mb))
-          c(nb+1:2*nb,mb+1:mb+na) =  real(b(1:nb,1:mb))
-          c(n1,             1:mb) =  real(a(1:na))
-          c(n1,      mb+1:mb+na ) = aimag(a(1:na))
-          c(n1+1,           1:mb) =-aimag(a(1:na))
-          c(n1+1,    mb+1:mb+na ) =  real(a(1:na))
-          call rank(c,tol,r)
-          if(r == min(n1+1,2*mb)) info=.false.
-       else if( na == nb) then
-          n1=2*mb+1
-          if(n1+1 > 2*nb) return !the vector is linear dependent
-          c(1:nb,           1:mb) =  real(b(1:nb,1:mb))
-          c(nb+1:nb+na,     1:mb) = aimag(b(1:nb,1:mb))
-          c(1:nb,      mb+1:2*mb) =-aimag(b(1:nb,1:mb))
-          c(nb+1:nb+na,mb+1:2*mb) =  real(b(1:nb,1:mb))
-          c(1:na,             n1) =  real(a(1:na))
-          c(nb+1:nb+na,       n1) = aimag(a(1:na))
-          c(1:na,           1+n1) =-aimag(a(1:na))
-          c(nb+1:nb+na,     1+n1) =  real(a(1:na))
-          call rank(c,tol,r)
-          if(r == min(n1+1,2*nb)) info=.false.
-       else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
+       temp = vec(lo)
+       if (temp > vec(hi)) then
+          vec(lo) = vec(hi)
+          vec(hi) = temp
        end if
+       xmed = vec(nby2p1)
 
        return
-    End Subroutine Linear_DependentC
+    End Subroutine Median_QS
 
-    !!--++
-    !!--++ Subroutine Linear_DependentI(a,na,b,nb,mb,info)
-    !!--++    integer, dimension(:),   intent(in)  :: a
-    !!--++    integer, dimension(:,:), intent(in)  :: b
-    !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: info
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
-    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
-    !!--++    are the number of rows and columns of B to be considered. The actual
-    !!--++    dimension of vector a should be na=max(nb,mb).
-    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
-    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
-    !!--++    case it is supposed that na = mb and in the second na = nb.
-    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
-    !!--++    is generated
-    !!--++    The function uses floating arithmetic for all types.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Linear_DependentI(A,na,B,nb,mb,info)
-       !---- Arguments ----!
-       integer, dimension(:),   intent(in)  :: a
-       integer, dimension(:,:), intent(in)  :: b
-       integer,                 intent(in)  :: na,nb,mb
-       logical,                 intent(out) :: info
 
-       !---- Local variables ----!
-       integer                                                 :: r,n1
-       real(kind=dp), parameter                                :: tol= 100.0_dp*deps
-       real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
-
-       c=0.0
-       call init_err_mathgen()
-       info=.true.
-       if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
-          return
-       end if
-
-       if ( na == mb) then
-          n1=nb+1
-          if(n1 > mb) return !the vector is linear dependent
-          c(1:nb,1:mb)=real(b(1:nb,1:mb))
-          c(n1,  1:mb)=real(a(1:na))      !C(nb+1,mb)
-          call rank(c,tol,r)
-          if(r == min(n1,mb)) info=.false.
-       else if( na == nb) then
-          n1=mb+1
-          if(n1 > nb) return !the vector is linear dependent
-          c(1:nb,1:mb)=real(b(1:nb,1:mb))
-          c(1:nb,  n1)=real(a(1:na))     !C(nb,mb+1)
-          call rank(c,tol,r)
-          if(r == min(n1,nb)) info=.false.
-       else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
-       end if
-
-       return
-    End Subroutine Linear_DependentI
-
-    !!--++
-    !!--++ Subroutine Linear_DependentR(a,na,b,nb,mb,info)
-    !!--++    real(kind=cp), dimension(:),   intent(in)  :: a
-    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: b
-    !!--++    integer,                       intent(in)  :: na,nb,mb
-    !!--++    logical,                       intent(out) :: info
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
-    !!--++    vectors constituting the rows (columns) of the matrix B. In input nb & mb
-    !!--++    are the number of rows and columns of B to be considered. The actual
-    !!--++    dimension of vector a should be na=max(nb,mb).
-    !!--++    The problem is equivalent to determine the rank (in algebraic sense)
-    !!--++    of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first
-    !!--++    case it is supposed that na = mb and in the second na = nb.
-    !!--++    and the rank of B is min(nb, mb). If na /= nb and na /= mb an error condition
-    !!--++    is generated
-    !!--++    The function uses floating arithmetic for all types.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Linear_DependentR(A,na,B,nb,mb,info)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:),   intent(in)  :: a
-       real(kind=cp), dimension(:,:), intent(in)  :: b
-       integer,                       intent(in)  :: na,nb,mb
-       logical,                       intent(out) :: info
-
-       !---- Local Variables ----!
-       integer                                                 :: r,n1
-       real(kind=dp), parameter                                :: tol= 100.0_dp*deps
-       real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
-
-       c=0.0
-       call init_err_mathgen()
-       info=.true.
-       if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
-          return
-       end if
-
-       if ( na == mb) then    !Vector added as an additional row
-          n1=nb+1
-          if(n1 > mb) return !the vector is linear dependent
-          c(1:nb,1:mb)=b(1:nb,1:mb)
-          c(n1,  1:mb)=a(1:na)      !C(nb+1,mb)
-          call rank(c,tol,r)
-          if(r == min(n1,mb)) info=.false.
-       else if( na == nb) then   !Vector added as an additional column
-          n1=mb+1
-          if(n1 > nb) return !the vector is linear dependent
-          c(1:nb,1:mb)=b(1:nb,1:mb)
-          c(1:nb,  n1)=a(1:na)     !C(nb,mb+1)
-          call rank(c,tol,r)
-          if(r == min(n1,nb)) info=.false.
-       else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"
-       end if
-
-       return
-    End Subroutine Linear_DependentR
 
     !!----
-    !!---- Subroutine LU_Backsub(a,indx,b)
-    !!----    real(kind=cp),    dimension(:,:),intent(in)     :: a
-    !!----    integer,          dimension(:),  intent(in)     :: indx
-    !!----    real(kind=cp),    dimension(:),  intent(in out) :: b
-    !!--<<
-    !!----    Adapted from Numerical Recipes.
-    !!----    Solves the set of N linear equations A  X = B. Here the N x N matrix A is input,
-    !!----    not as the original matrix A, but rather as its LU decomposition, determined
-    !!----    by the routine LU_DECOMP. INDX is input as the permutation vector of length N
-    !!----    returned by LU_DECOMP. B is input as the right-hand-side vector B,
-    !!----    also of length N, and returns with the solution vector X.
-    !!----    A and INDX are not modified by this routine and can be left in place for successive calls
-    !!----    with different right-hand sides B. This routine takes into account the possibility that B will
-    !!----    begin with many zero elements, so it is efficient for use in matrix inversion.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine LU_Backsub(a,indx,b)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in)     :: a
-       integer,         dimension(:), intent(in)     :: indx
-       real(kind=cp),   dimension(:), intent(in out) :: b
-
-       !---- Local Variables ----!
-       integer       :: i,ii,ll,n
-       real(kind=cp) :: summ
-
-       n=size(a,1)
-       ii=0              !When ii is set to a positive value, it will become the index
-       do i=1,n          !of the first nonvanishing element of b. We now do
-          ll=indx(i)     !the forward substitution. The only new wrinkle is to
-          summ=b(ll)     !unscramble the permutation as we go.
-          b(ll)=b(i)
-          if (ii /= 0) then
-             summ=summ-dot_product(a(i,ii:i-1),b(ii:i-1))
-          else if(summ /= 0.0) then   !A nonzero element was encountered, so from now on
-             ii=i                       !we will have to do the dot product above.
-          end if
-          b(i)=summ
-       end do
-
-       do i=n,1,-1       !Now we do the backsubstitution
-          b(i) = (b(i)-dot_product(a(i,i+1:n),b(i+1:n)))/a(i,i)
-       end do
-
-       return
-    End Subroutine LU_Backsub
-
-    !!----
-    !!---- Subroutine LU_Decomp(a,d,singular,indx)
-    !!----    real(kind=cp),    dimension(:,:),intent(in out) :: a
-    !!----    real(kind=cp),                   intent(out)    :: d
-    !!----    logical,                         intent(out)    :: singular
-    !!----    integer, dimension(:), optional, intent(out)    :: indx
+    !!---- Subroutine LU_Decomp(Array,d,singular,indx)
     !!--<<
     !!----    Subroutine to make the LU decomposition of an input matrix A.
     !!----    The input matrix is destroyed and replaced by a matrix containing
@@ -3521,168 +3492,60 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine LU_Decomp(a,d,singular,indx)
+    Subroutine LU_Decomp(Array,d,singular,indx)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       real(kind=cp),                 intent(out)    :: d
+       real(kind=cp), dimension(:,:), intent(in out) :: array     ! Input array
+       real(kind=cp),                 intent(out)    :: d         ! Information about permutation rows
        logical,                       intent(out)    :: singular
        integer,  dimension(:), intent(out), optional :: indx
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
-       real(kind=cp), parameter           :: vtiny = 1.0e-7_sp !A small number.
+       real(kind=cp), parameter           :: VTINY = 1.0e-7_sp    !A small number.
+       real(kind=cp), dimension(size(a,1)):: vv                   !vv stores the implicit scaling of each row.
        integer                            :: j,imax,n
 
+       !> Init
+       d=0.0_cp
        singular=.false.
-       n=size(a,1)
-       if(present(indx)) then
-         do j=1,n
-           indx(j)=j
-         end do
+
+       n=size(array,1)
+       if (present(indx)) then
+          do j=1,n
+             indx(j)=j
+          end do
        end if
+
        d=1.0                      !No row interchanges yet.
-       vv=maxval(abs(a),dim=2)    !Loop over rows to get the implicit scaling information.
+       vv=maxval(abs(array),dim=2)    !Loop over rows to get the implicit scaling information.
        if (any(abs(vv) <= vtiny)) then   !There is a row of zeros.
           singular=.true.
           return
        end if
        vv=1.0_sp/vv     !Save the scaling.
        do j=1,n
-          imax=(j-1)+imaxloc(vv(j:n)*abs(a(j:n,j)))   !Find the pivot row.
-          if (j /= imax) then                         !Do we need to interchange rows?
-             call swap(a(imax,:),a(j,:))              !Yes, do so...
-             d=-d                                     !...and change the parity of d.
-             vv(imax)=vv(j)                           !Also interchange the scale factor.
+          !imax=(j-1)+imaxloc(vv(j:n)*abs(array(j:n,j)))   !Find the pivot row.
+          imax=(j-1)+maxloc(vv(j:n)*abs(a(j:n,j)),dim=1)
+          if (j /= imax) then                            !Do we need to interchange rows?
+             call swap(array(imax,:),array(j,:))         !Yes, do so...
+             d=-d                                        !...and change the parity of d.
+             vv(imax)=vv(j)                              !Also interchange the scale factor.
           end if
           if (present(indx)) indx(j)=imax
-          if (abs(a(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
-             a(j,j)=vtiny                !(at least to the precision of the algorithm)
+          if (abs(array(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
+             array(j,j)=vtiny                !(at least to the precision of the algorithm)
              singular=.true.             !For some applications on singular matrices,
              !return                      !it is desirable to substitute vtiny for zero.
           end if                         !This is actually the present case
-          a(j+1:n,j)=a(j+1:n,j)/a(j,j)                                    !Divide by the pivot element.
-          a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(a(j+1:n,j),a(j,j+1:n))  !Reduce remaining submatrix.
+          array(j+1:n,j)=array(j+1:n,j)/array(j,j)                                    !Divide by the pivot element.
+          array(j+1:n,j+1:n)=array(j+1:n,j+1:n)-outerprod(array(j+1:n,j),array(j,j+1:n))  !Reduce remaining submatrix.
        end do
 
        return
     End Subroutine LU_Decomp
 
-    !Subroutine LU_Decomp_dp(a,p)
-    !  ! In situ decomposition, corresponds to LAPACK's dgebtrf
-    !   real(kind=dp), intent(in out) :: a(:,:)
-    !   integer,       intent(out  )  :: p(:)
-    !   !--- Local Variables ---!
-    !   integer     :: n, i,j,k,kmax
-    !
-    !   n = size(a,1)
-    !   p = [ ( i, i=1,n ) ]
-    !   do k = 1,n-1
-    !       kmax = maxloc(abs(a(p(k:),k)),1) + k-1
-    !       if (kmax /= k ) p([k, kmax]) = p([kmax, k])
-    !       a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
-    !       forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
-    !   end do
-    !End Subroutine LU_Decomp_dp
 
-    !!----
-    !!---- Subroutine Matinv(a,n)
-    !!----    real(kind=cp), dimension(:,:),intent(in out) :: a
-    !!----    integer     ,                 intent(in)     :: n
-    !!----
-    !!----  Subroutine for inverting a real square matrix.
-    !!----  The input matrix is replaced in output with its inverse.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Matinv(a,n)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       integer     ,                  intent(in)     :: n
 
-       !---- Local variables ----!
-       real(kind=cp)                 :: amax,savec
-       integer, dimension(size(a,1)) :: ik,jk
-       integer                       :: i,j,k,l
 
-       !---- Subroutine to invert a real matrix ----!
-       do k=1,n
-          amax=0.0
-          do
-             do
-                do i=k,n
-                   do j=k,n
-                      if (abs(amax)-abs(a(i,j)) > 0.0) cycle
-                      amax=a(i,j)
-                      ik(k)=i
-                      jk(k)=j
-                   end do
-                end do
-                i=ik(k)
-                if (i-k < 0) cycle
-                exit
-             end do
-
-             if (i-k /= 0) then
-                do j=1,n
-                   savec=a(k,j)
-                   a(k,j)=a(i,j)
-                   a(i,j)=-savec
-                end do
-             end if
-
-             j=jk(k)
-             if (j-k < 0) cycle
-             exit
-          end do
-
-          if (j-k /= 0) then
-             do i=1,n
-                savec=a(i,k)
-                a(i,k)=a(i,j)
-                a(i,j)=-savec
-             end do
-          end if
-
-          do i=1,n
-             if (i-k /= 0)  then
-                a(i,k)=-a(i,k)/amax
-             end if
-          end do
-          do i=1,n
-             do j=1,n
-                if (i-k == 0 .or. j-k == 0) cycle
-                a(i,j)=a(i,j)+a(i,k)*a(k,j)
-             end do
-          end do
-          do j=1,n
-             if (j-k == 0)   cycle
-             a(k,j)=a(k,j)/amax
-          end do
-          a(k,k)=1.0/amax
-       end do     !k
-
-       do l=1,n
-          k=n-l+1
-          j=ik(k)
-          if (j-k > 0) then
-             do i=1,n
-                savec=a(i,k)
-                a(i,k)=-a(i,j)
-                a(i,j)=savec
-             end do
-          end if
-          i=jk(k)
-          if (i-k > 0) then
-             do j=1,n
-                savec=a(k,j)
-                a(k,j)=-a(i,j)
-                a(i,j)=savec
-             end do
-          end if
-       end do
-
-       return
-    End Subroutine Matinv
 
     !!--++
     !!--++ Subroutine Partition(A, marker)
@@ -4276,29 +4139,7 @@
        return
     End Subroutine Sort_R
 
-    !!---
-    !!---- Subroutine Sort_Strings(arr)
-    !!----    character(len=*), dimension(:), intent(in out) :: arr
-    !!----
-    !!----    Sort an array of string
-    !!----
-    !!---- Update: March - 2005
-    !!
-    Recursive Subroutine Sort_Strings(Arr)
-       !---- Argument ----!
-       character(len=*), dimension(:), intent(in out) :: Arr
 
-       !---- Local variables ----!
-       integer :: iq
-
-       if (size(Arr) > 1) then
-          call Partition(Arr, iq)
-          call Sort_Strings(Arr(:iq-1))
-          call Sort_Strings(Arr(iq:))
-       end if
-
-       return
-    End Subroutine Sort_Strings
 
     !!----
     !!---- Subroutine Spline(x, y, n, yp1, ypn, y2)
