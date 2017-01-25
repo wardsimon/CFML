@@ -289,20 +289,20 @@
     End Function Factorial_SP
 
     !!--++
-    !!--++ Elemental Function Negligiblec(Vec)
+    !!--++ Elemental Function Negligiblec(X)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate if a complex number is negligible
     !!--++
     !!--++ Update: February - 2005
     !!
-    Elemental Function Negligiblec(Vec) Result(Neglig)
+    Elemental Function Negligiblec(X) Result(Neglig)
        !---- Argument ----!
-       complex, intent( in) :: Vec        ! Argument
+       complex, intent( in) :: X        ! Argument
        logical              :: Neglig
 
        Neglig=.false.
-       if (abs(Vec) > epss) return
+       if (abs(X) > epss) return
 
        Neglig=.true.
 
@@ -310,20 +310,20 @@
     End Function Negligiblec
 
     !!--++
-    !!--++ Elemental Function Negligibler(Vec)
+    !!--++ Elemental Function Negligibler(X)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is negligible (abs < EPSS)
     !!--++
     !!--++ Update: February - 2005
     !!
-    Elemental Function Negligibler(Vec) Result(neglig)
+    Elemental Function Negligibler(X) Result(neglig)
        !---- Argument ----!
-       real(kind=cp), intent( in) :: Vec     ! Vector
+       real(kind=cp), intent( in) :: X     ! Vector
        logical                    :: Neglig
 
        Neglig=.false.
-       if (abs(Vec) > epss) return
+       if (abs(X) > epss) return
 
        Neglig=.true.
 
@@ -2170,7 +2170,7 @@
        return
     End Function Lower_Triangular_R
 
-        !!----
+    !!----
     !!---- Function Matinv(Array,n) Result(a)
     !!----
     !!----  Inverting a real square matrix.
@@ -3232,32 +3232,32 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine LU_Backsub(A,indx,B)
+    Subroutine LU_Backsub(Array,indx,Vec)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in)     :: A      ! Input array(N,N)
+       real(kind=cp), dimension(:,:), intent(in)     :: Array  ! Input array(N,N)
        integer,         dimension(:), intent(in)     :: indx   ! Permutation vector
-       real(kind=cp),   dimension(:), intent(in out) :: B      ! Vector
+       real(kind=cp),   dimension(:), intent(in out) :: Vec    ! Vector
 
        !---- Local Variables ----!
        integer       :: i,ii,ll,n
        real(kind=cp) :: summ
 
-       n=size(a,1)
+       n=size(array,1)
        ii=0              !When ii is set to a positive value, it will become the index
        do i=1,n          !of the first nonvanishing element of b. We now do
           ll=indx(i)     !the forward substitution. The only new wrinkle is to
-          summ=b(ll)     !unscramble the permutation as we go.
-          b(ll)=b(i)
+          summ=vec(ll)     !unscramble the permutation as we go.
+          vec(ll)=vec(i)
           if (ii /= 0) then
-             summ=summ-dot_product(a(i,ii:i-1),b(ii:i-1))
+             summ=summ-dot_product(array(i,ii:i-1),vec(ii:i-1))
           else if(summ /= 0.0) then   !A nonzero element was encountered, so from now on
              ii=i                       !we will have to do the dot product above.
           end if
-          b(i)=summ
+          vec(i)=summ
        end do
 
        do i=n,1,-1       !Now we do the backsubstitution
-          b(i) = (b(i)-dot_product(a(i,i+1:n),b(i+1:n)))/a(i,i)
+          vec(i) = (vec(i)-dot_product(array(i,i+1:n),vec(i+1:n)))/array(i,i)
        end do
 
        return
