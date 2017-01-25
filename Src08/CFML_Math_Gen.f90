@@ -52,18 +52,14 @@
               Debye, Equal_Matrix, Equal_Vector, Euclidean_Norm, In_limits, Locate,   &
               Lower_Triangular, Modulo_Lat, Norm, Outerprod, Pgcd, Ppcm, Pythag,      &
               Scalar, Trace, Upper_Triangular, Zbelong, Determinant, MatInv,          &
-              Linear_Dependent
+              Linear_Dependent, Splint
 
     !---- List of public subroutines ----!
     public :: Co_Prime_vector, Diagonalize_SH, First_Derivative, In_Sort,             &
               Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub,                 &
-              Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,      &
-              Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-              Median_QS
+              Sort_Strings, Median_QS, Points_in_Line2D, Rank, Second_Derivative,     &
+              Set_Epsg, SmoothingVec, Sort, Spline, Svdcmp, Swap
 
-    !---- List of public overloaded procedures: subroutines ----!
-    public :: RTan, Rank, Sort,   &
-              Svdcmp, Swap
 
     !---- Definitions ----!
     real(kind=cp), parameter :: EP_SS=1.0E-12_cp  ! Internal epsilon value used for comparison in matrix operations
@@ -2159,15 +2155,15 @@
 
 
        m=n
-       p=size(A(:,1))
-       q=size(A(1,:))
+       p=size(Array(:,1))
+       q=size(Array(1,:))
 
        if(n > p .or. n > q) m=min(p,q)
 
        T=0
        do j=1,m
           do i=j,m
-             T(i,j)=A(i,j)
+             T(i,j)=Array(i,j)
           end do
        end do
 
@@ -2566,6 +2562,53 @@
        return
     End Function Scalar_R
 
+    !!----
+    !!---- Function Splint(Xa, Ya, Y2a, n, x, y)
+    !!----
+    !!----    Cubic - spline interpolation at x value
+    !!----
+    !!---- Note: Y2a is obtained from spline procedure
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Splint(Xa, Ya, Y2a, N, X) Result(y)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:), intent(in)  :: Xa   ! Vector of X points
+       real(kind=cp), dimension(:), intent(in)  :: Ya   ! Vecot of Y=F(Xi) points
+       real(kind=cp), dimension(:), intent(in)  :: Y2a  ! Second derivatives at Xi points (Spline)
+       integer ,                    intent(in)  :: N    ! Number of points
+       real(kind=cp),               intent(in)  :: X    ! X Value to be evaluated
+       real(kind=cp)                            :: Y    ! The value
+
+       !---- Local Variables ----!
+       integer          :: klo, khi, k
+       real(kind=cp)    :: h, a, b
+
+       klo=1
+       khi=n
+       do
+          if (khi-klo > 1) then
+             k=(khi+klo)/2
+             if (xa(k) > x) then
+                khi=k
+             else
+                klo=k
+             end if
+             cycle
+          else
+             exit
+          end if
+       end do
+
+       h=xa(khi)-xa(klo)
+       a=(xa(khi)-x)/h
+       b=(x-xa(klo))/h
+
+       y=a*ya(klo)+b*ya(khi)+((a**3-a)*y2a(klo)+(b**3-b)* y2a(khi))*(h**2)/6.0
+
+       return
+    End Function Splint
+
     !!--++
     !!--++ Function Trace_C(Array)
     !!--++
@@ -2761,8 +2804,8 @@
        logical                                    :: belong
 
        !---- Local variables ----!
-       integer                             :: i
-       real(kind=cp),   dimension(size(v)) :: vect
+       integer                               :: i
+       real(kind=cp),   dimension(size(vec)) :: vect
 
        belong=.false.
        vect= abs(real(nint (vec))-vec)
@@ -3036,10 +3079,9 @@
              step = x(i+1)-x(i)
           end if
           x0 = x(i) - step/2.0
-          call splint(x,y, d2y, n, x0, y0)
-          y1 = y0
+          y1=splint(x,y, d2y, n, x0)
           x0 = x(i) + step/2
-          call splint(x,y, d2y, n, x0, y0)
+          y2=splint(x,y, d2y, n, x0)
           y2 = y0
           d1y(i) = (y2 - y1) / step
        end do
@@ -3222,120 +3264,147 @@
     End Subroutine LU_Backsub
 
     !!----
-    !!---- Subroutine Set_Epsg(Neweps)
-    !!----
-    !!---- Sets global EPSS to the value "neweps". If Not argument is given, then
-    !!---- EPSS is set to default value epss=1.0E-5_sp
-    !!----
-    !!---- Update: April - 2005
-    !!
-    Subroutine Set_Epsg(Neweps)
-       !---- Arguments ----!
-       real(kind=cp), optional, intent( in) :: neweps
-
-
-       if (present(neweps)) then
-          epss=neweps
-       else
-          epss=1.0E-5_sp
-       end if
-
-       return
-    End Subroutine Set_Epsg
-
-    !!----
-    !!---- Subroutine Rtan(y,x,ang,deg)
-    !!----    real(sp/dp),               intent( in) :: x,y
-    !!----    real(sp/dp),               intent(out) :: ang
-    !!----    character(len=*),optional, intent( in) :: deg
-    !!----
-    !!----    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
-    !!----    cos(ang) are those of y and x. If deg is present, return ang in degrees.
+    !!---- Subroutine LU_Decomp(Array,d,singular,indx)
+    !!--<<
+    !!----    Subroutine to make the LU decomposition of an input matrix A.
+    !!----    The input matrix is destroyed and replaced by a matrix containing
+    !!----    in its upper triangular part (plus diagonal) the matrix U. The
+    !!----    lower triangular part contains the nontrivial part (Lii=1) of matrix L.
+    !!----    The output is rowwise permutation of the initial matrix. The vector INDX
+    !!----    recording the row permutation. D is output as +/-1 depending on whether
+    !!----    the number of row interchanges was even or odd, respectively.
+    !!-->>
     !!----
     !!---- Update: February - 2005
     !!
-
-    !!--++
-    !!--++ Subroutine Rtan_dp(y,x,ang,deg)
-    !!--++    real(dp),                  intent( in) :: x,y
-    !!--++    real(dp),                  intent(out) :: ang
-    !!--++    character(len=*),optional, intent( in) :: deg
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
-    !!--++    cos(ang) are those of y and x. If deg is present, return ang in degrees.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Rtan_dp(y,x,ang,deg)
+    Subroutine LU_Decomp(Array,d,singular,indx)
        !---- Arguments ----!
-       real(kind=dp),              Intent( In)   :: x,y
-       real(kind=dp),              Intent(Out)   :: ang
-       character(len=*), optional, Intent( In)   :: deg
+       real(kind=cp), dimension(:,:), intent(in out) :: array     ! Input array
+       real(kind=cp),                 intent(out)    :: d         ! Information about permutation rows
+       logical,                       intent(out)    :: singular
+       integer,  dimension(:), intent(out), optional :: indx
 
        !---- Local variables ----!
-       real(kind=dp):: abx,aby
+       real(kind=cp), parameter               :: VTINY = 1.0e-7_sp    !A small number.
+       real(kind=cp), dimension(size(array,1)):: vv                   !vv stores the implicit scaling of each row.
+       integer                                :: j,imax,n
 
-       abx=abs(x)
-       aby=abs(y)
-       if ((abx < eps) .and. (aby < eps)) then
-          ang = 0.0_dp
-          return
-       else if(abx < eps) then
-          ang = pi/2.0_dp
-       else if(aby < abx) then
-          ang = atan(aby/abx)
-          if(x < 0.0_dp) ang = pi-ang
-       else
-          ang = pi/2.0_dp - atan(abx/aby)
-          if(x < 0.0_dp) ang = pi-ang
+       !> Init
+       d=0.0_cp
+       singular=.false.
+
+       n=size(array,1)
+       if (present(indx)) then
+          do j=1,n
+             indx(j)=j
+          end do
        end if
-       if (y < 0.0_dp) ang = -ang
-       if (present(deg)) ang = ang*to_deg
+
+       d=1.0                      !No row interchanges yet.
+       vv=maxval(abs(array),dim=2)    !Loop over rows to get the implicit scaling information.
+       if (any(abs(vv) <= vtiny)) then   !There is a row of zeros.
+          singular=.true.
+          return
+       end if
+       vv=1.0_sp/vv     !Save the scaling.
+       do j=1,n
+          !imax=(j-1)+imaxloc(vv(j:n)*abs(array(j:n,j)))   !Find the pivot row.
+          imax=(j-1)+maxloc(vv(j:n)*abs(array(j:n,j)),dim=1)
+          if (j /= imax) then                            !Do we need to interchange rows?
+             call swap(array(imax,:),array(j,:))         !Yes, do so...
+             d=-d                                        !...and change the parity of d.
+             vv(imax)=vv(j)                              !Also interchange the scale factor.
+          end if
+          if (present(indx)) indx(j)=imax
+          if (abs(array(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
+             array(j,j)=vtiny                !(at least to the precision of the algorithm)
+             singular=.true.             !For some applications on singular matrices,
+             !return                      !it is desirable to substitute vtiny for zero.
+          end if                         !This is actually the present case
+          array(j+1:n,j)=array(j+1:n,j)/array(j,j)                                    !Divide by the pivot element.
+          array(j+1:n,j+1:n)=array(j+1:n,j+1:n)-outerprod(array(j+1:n,j),array(j,j+1:n))  !Reduce remaining submatrix.
+       end do
 
        return
-    End Subroutine Rtan_dp
+    End Subroutine LU_Decomp
 
     !!--++
-    !!--++ Subroutine Rtan_sp(x,y,ang,deg)
-    !!--++    real(sp),                  intent( in) :: x,y
-    !!--++    real(sp),                  intent(out) :: ang
-    !!--++    character(len=*),optional, intent( in) :: deg
+    !!--++ Subroutine Masked_Swap_R(A,B,Mask)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Returns ang=arctan(y/x) in the quadrant where the signs sin(ang) and
-    !!--++    cos(ang) are those of y and x. If deg is present, return ang in degrees.
+    !!--++    Swap the contents of a and b if mask=.true.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Rtan_sp(y,x,ang,deg)
+    Subroutine Masked_Swap_R(A,B,Mask)
        !---- Arguments ----!
-       real(kind=sp),              Intent( In)   :: x,y
-       real(kind=sp),              Intent(Out)   :: ang
-       character(len=*), optional, Intent( In)   :: deg
+       real(kind=cp), intent(in out) :: a       ! Value 1
+       real(kind=cp), intent(in out) :: b       ! Value 2
+       logical,           intent(in) :: mask    ! Mask to apply
 
-       !---- local variables ----!
-       real(kind=sp):: abx,aby
+       !---- Local Variables ----!
+       real(kind=cp) :: swp
 
-       abx=abs(x)
-       aby=abs(y)
-       if ((abx < eps) .and. (aby < eps)) then
-          ang = 0.0_sp
-          return
-       else if(abx < eps) then
-          ang = pi/2.0_sp
-       else if(aby < abx) then
-          ang = atan(aby/abx)
-          if(x < 0.0_sp) ang = pi-ang
-       else
-          ang = pi/2.0_sp - atan(abx/aby)
-          if(x < 0.0_sp) ang = pi-ang
+       if (mask) then
+          swp=a
+          a=b
+          b=swp
        end if
-       if(y < 0.0_sp) ang = -ang
-       if (present(deg)) ang = ang*to_deg
 
        return
-    End Subroutine Rtan_sp
+    End Subroutine Masked_Swap_R
+
+    !!--++
+    !!--++ Subroutine Masked_Swap_Rm(Array1,Array2,Mask)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Swap the contents of a and b where mask=.true.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Masked_Swap_Rm(Array1,Array2,Mask)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:,:), intent(in out) :: array1  ! Array 1
+       real(kind=cp), dimension(:,:), intent(in out) :: array2  ! Array2
+       logical,       dimension(:,:), intent(in)     :: mask    ! Mask to apply
+
+       !---- Local variables ----!
+       real(kind=cp), dimension(size(array1,1),size(array1,2)) :: swp
+
+       where (mask)
+          swp=array1
+          array1=array2
+          array2=swp
+       end where
+
+       return
+    End Subroutine Masked_Swap_Rm
+
+    !!--++
+    !!--++ Subroutine Masked_Swap_Rv(Vec1,Vec2,Mask)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Swap the contents of VEC1 and VEC2 where mask=.true.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Masked_Swap_Rv(Vec1,Vec2,Mask)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:), intent(in out) :: Vec1  ! Vector 1
+       real(kind=cp), dimension(:), intent(in out) :: Vec2  ! Vector 2
+       logical,       dimension(:), intent(in)     :: mask  ! Mask to apply
+
+       !---- Local variables ----!
+       real(kind=cp), dimension(size(vec1)) :: swp
+
+       where (mask)
+          swp=vec1
+          vec1=vec2
+          vec2=swp
+       end where
+
+       return
+    End Subroutine Masked_Swap_Rv
 
     !!----
     !!---- Subroutine Median_QS(Vec, n, Xmed)
@@ -3352,7 +3421,7 @@
        !---- Argument ----!
        real(kind=cp), dimension(:), intent(in out) :: Vec      ! Vector
        integer,                     intent(in)     :: n        ! Dimension of Vector
-       real(kind=cp,                intent(out)    :: xmed     ! Mean value of Vector
+       real(kind=cp),               intent(out)    :: xmed     ! Mean value of Vector
 
        !---- Local Variables ----!
        integer       :: hi, lo, nby2, nby2p1, mid, i, j, k
@@ -3409,7 +3478,7 @@
                  j = j - 1
               end do
               if (i < j) then
-                 temp = x(i)
+                 temp = vec(i)
                  vec(i) = vec(j)
                  vec(j) = temp
                  i = i + 1
@@ -3476,81 +3545,8 @@
        return
     End Subroutine Median_QS
 
-
-
-    !!----
-    !!---- Subroutine LU_Decomp(Array,d,singular,indx)
-    !!--<<
-    !!----    Subroutine to make the LU decomposition of an input matrix A.
-    !!----    The input matrix is destroyed and replaced by a matrix containing
-    !!----    in its upper triangular part (plus diagonal) the matrix U. The
-    !!----    lower triangular part contains the nontrivial part (Lii=1) of matrix L.
-    !!----    The output is rowwise permutation of the initial matrix. The vector INDX
-    !!----    recording the row permutation. D is output as +/-1 depending on whether
-    !!----    the number of row interchanges was even or odd, respectively.
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine LU_Decomp(Array,d,singular,indx)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: array     ! Input array
-       real(kind=cp),                 intent(out)    :: d         ! Information about permutation rows
-       logical,                       intent(out)    :: singular
-       integer,  dimension(:), intent(out), optional :: indx
-
-       !---- Local variables ----!
-       real(kind=cp), parameter           :: VTINY = 1.0e-7_sp    !A small number.
-       real(kind=cp), dimension(size(a,1)):: vv                   !vv stores the implicit scaling of each row.
-       integer                            :: j,imax,n
-
-       !> Init
-       d=0.0_cp
-       singular=.false.
-
-       n=size(array,1)
-       if (present(indx)) then
-          do j=1,n
-             indx(j)=j
-          end do
-       end if
-
-       d=1.0                      !No row interchanges yet.
-       vv=maxval(abs(array),dim=2)    !Loop over rows to get the implicit scaling information.
-       if (any(abs(vv) <= vtiny)) then   !There is a row of zeros.
-          singular=.true.
-          return
-       end if
-       vv=1.0_sp/vv     !Save the scaling.
-       do j=1,n
-          !imax=(j-1)+imaxloc(vv(j:n)*abs(array(j:n,j)))   !Find the pivot row.
-          imax=(j-1)+maxloc(vv(j:n)*abs(a(j:n,j)),dim=1)
-          if (j /= imax) then                            !Do we need to interchange rows?
-             call swap(array(imax,:),array(j,:))         !Yes, do so...
-             d=-d                                        !...and change the parity of d.
-             vv(imax)=vv(j)                              !Also interchange the scale factor.
-          end if
-          if (present(indx)) indx(j)=imax
-          if (abs(array(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
-             array(j,j)=vtiny                !(at least to the precision of the algorithm)
-             singular=.true.             !For some applications on singular matrices,
-             !return                      !it is desirable to substitute vtiny for zero.
-          end if                         !This is actually the present case
-          array(j+1:n,j)=array(j+1:n,j)/array(j,j)                                    !Divide by the pivot element.
-          array(j+1:n,j+1:n)=array(j+1:n,j+1:n)-outerprod(array(j+1:n,j),array(j,j+1:n))  !Reduce remaining submatrix.
-       end do
-
-       return
-    End Subroutine LU_Decomp
-
-
-
-
-
     !!--++
     !!--++ Subroutine Partition(A, marker)
-    !!--++    character(len=*), dimension(:), intent(in out) :: A
-    !!--++    integer,                        intent(out)    :: marker
     !!--++
     !!--++    (Private)
     !!--++    Utilised by Sort_Strings.
@@ -3559,8 +3555,8 @@
     !!
     Subroutine Partition(A, Marker)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in out) :: A
-       integer,                        intent(   out) :: marker
+       character(len=*), dimension(:), intent(in out) :: A         ! String
+       integer,                        intent(   out) :: marker    ! Integer
 
        !---- Local variables ----!
        integer                  :: i, j
@@ -3583,7 +3579,7 @@
              i = i+1
           end do
           if (i < j) then
-             !---- exchange A(i) and A(j)
+             !> exchange A(i) and A(j)
              temp = A(i)
              A(i) = A(j)
              A(j) = temp
@@ -3601,14 +3597,10 @@
 
     !!----
     !!---- Subroutine Points_In_Line2D(X1, XN, N, XP)
-    !!----    real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
-    !!----    real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
-    !!----    integer,                       intent(in)  :: N    ! Number of Total points
-    !!----    real(kind=cp), dimension(:,:), intent(out) :: XP   ! List of points
     !!----
     !!----    The routine calculate N points belonging to the line defined
-    !!----    by X1 and Xn with equal distance between them. XP contains
-    !!----    X1,X2,.....,XN points.
+    !!----    by X1 and Xn with equal distance between them.
+    !!----    XP (2,N) contains X1,X2,.....,XN points.
     !!----
     !!---- Update: April 2008
     !!
@@ -3716,47 +3708,34 @@
        return
     End Subroutine Points_In_Line2D
 
-    !!----
-    !!---- Subroutine Rank(a,tol,r)
-    !!----    real(sp/dp), dimension(:,:), intent( in) :: a
-    !!----    real(sp/dp),                 intent( in) :: tol
-    !!----    integer,                     intent(out) :: r
-    !!----
-    !!----    Computes the rank (in algebraic sense) of the rectangular matrix A.
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
     !!--++ Subroutine Rank_dp(a,tol,r)
-    !!--++    real(dp), dimension(:,:), intent( in) :: a
-    !!--++    real(dp),                 intent( in) :: tol
-    !!--++    integer,                  intent(out) :: r
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Rank_dp(a,tol,r)
+    Subroutine Rank_dp(Array,tol,r)
        !---- Arguments ----!
-       real(kind=dp), dimension(:,:),intent( in)      :: a
-       real(kind=dp),                intent( in)      :: tol
-       integer,                      intent(out)      :: r
+       real(kind=dp), dimension(:,:),intent( in)      :: Array     ! Rectangular Matrix
+       real(kind=dp),                intent( in)      :: tol       ! Tolerance
+       integer,                      intent(out)      :: r         ! Rank of Array
 
-       !---- Arguments ----!
-       real(kind=dp), dimension(size(a,1),size(a,2))  :: u
-       real(kind=dp), dimension(size(a,2))            :: w
-       real(kind=dp), dimension(size(a,2),size(a,2))  :: v
-       integer                                        :: i
+       !---- Local Variables ----!
+       real(kind=dp), dimension(size(array,1),size(array,2))  :: u
+       real(kind=dp), dimension(size(array,2))                :: w
+       real(kind=dp), dimension(size(array,2),size(array,2))  :: v
+       integer                                                :: i
 
-       u=a
+       u=array
        call svdcmp(u,w,v)
+
        if (ERR_MathGen) then
           r=0
        else
           r=0
-          do i=1,size(a,2)
+          do i=1,size(array,2)
              if(w(i) > tol) r=r+1
           end do
        end if
@@ -3766,34 +3745,31 @@
 
     !!--++
     !!--++ Subroutine Rank_sp(a,tol,r)
-    !!--++    real(sp), dimension(:,:), intent( in) :: a
-    !!--++    real(sp),                 intent( in) :: tol
-    !!--++    integer,                  intent(out) :: r
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Rank_sp(a,tol,r)
+    Subroutine Rank_sp(Array,tol,r)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:),intent( in)      :: a
-       real(kind=sp),                intent( in)      :: tol
-       integer,                      intent(out)      :: r
+       real(kind=sp), dimension(:,:),intent( in)      :: array   ! Rectagular matrix
+       real(kind=sp),                intent( in)      :: tol     ! Tolerance
+       integer,                      intent(out)      :: r       ! Rank of Array
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a,1),size(a,2))  :: u
-       real(kind=sp), dimension(size(a,2))            :: w
-       real(kind=sp), dimension(size(a,2),size(a,2))  :: v
+       real(kind=sp), dimension(size(array,1),size(array,2))  :: u
+       real(kind=sp), dimension(size(array,2))            :: w
+       real(kind=sp), dimension(size(array,2),size(array,2))  :: v
        integer :: i
 
-       u=a
+       u=array
        call svdcmp(u,w,v)
        if (ERR_MathGen) then
           r=0
        else
           r=0
-          do i=1,size(a,2)
+          do i=1,size(array,2)
              if(w(i) > tol) r=r+1
           end do
        end if
@@ -3803,11 +3779,6 @@
 
     !!----
     !!---- Subroutine Second_Derivative(x, y, n, d2y)
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(out),    dimension(n) :: d2y    ! Out -> array containing second derivatives
-    !!----                                                                     at the given points
     !!----
     !!----    Calculate the second derivate of N Points
     !!----
@@ -3815,10 +3786,10 @@
     !!
     Subroutine Second_Derivative(x,y,n,d2y)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp), dimension(:), intent(out) :: d2y
+       real(kind=cp), dimension(:), intent(in)  :: x     ! X array
+       real(kind=cp), dimension(:), intent(in)  :: y     ! Y array Yi=F(Xi)
+       integer ,                    intent(in)  :: n     ! Dimension of X and Y
+       real(kind=cp), dimension(:), intent(out) :: d2y   ! Vector conytining the second derivatives en Xi
 
        !---- Local Variables ----!
        integer                     :: i, k
@@ -3850,33 +3821,58 @@
     End Subroutine Second_Derivative
 
     !!----
+    !!---- Subroutine Set_Epsg(Neweps)
+    !!----
+    !!---- Sets global EPSS to the value "neweps".
+    !!---- If Not argument is given, then EPSS is set to default value
+    !!----
+    !!---- EPSS (default) = 1.0E-5_sp
+    !!----
+    !!---- Update: April - 2005
+    !!
+    Subroutine Set_Epsg(Neweps)
+       !---- Arguments ----!
+       real(kind=cp), optional, intent( in) :: neweps
+
+       if (present(neweps)) then
+          epss=neweps
+       else
+          epss=1.0E-5_sp
+       end if
+
+       return
+    End Subroutine Set_Epsg
+
+    !!----
     !!---- Subroutine SmoothingVec(Y, N, NIter, Ys)
     !!----    real(kind=cp),    dimension(:),           intent(in out) :: Y      !  In Out-> Array to be smoothed
     !!----    integer,                                  intent(in)     :: N      !  In -> Number of points
     !!----    integer,                                  intent(in)     :: NIter  !  In -> Number of iterations
     !!----    real(kind=cp),    dimension(:), optional, intent(out)    :: datY   !  Out-> Array smoothed
     !!----
-    !!----    Procedure to smooth the array values
+    !!----    Procedure to smooth a vector values
     !!----
     !!---- Update: January - 2006
     !!
-    Subroutine SmoothingVec(Y, N, Niter, Ys)
+    Subroutine SmoothingVec(Vec, N, Iter, VecS)
        !---- Arguments ----!
-       real(kind=cp),dimension(:),            intent(in out) :: Y
-       integer,                               intent(in)     :: n
-       integer,                               intent(in)     :: niter
-       real(kind=cp),dimension(:), optional,  intent(out)    :: Ys
+       real(kind=cp),dimension(:),            intent(in out) :: Vec    ! Vector to be smoothed
+       integer,                               intent(in)     :: n      ! Number of Points
+       integer,                               intent(in)     :: iter   ! Number of iterations
+       real(kind=cp),dimension(:), optional,  intent(out)    :: VecS   ! Vector smoothed if present
 
        !---- Local Variables ----!
        integer                     :: n1, n2
-       integer                     :: i, iter
-       real(kind=cp), dimension (n):: datYs
+       integer                     :: i, j
+       real(kind=cp), dimension (n):: Y,datYs
 
 
        n1 = 4
        n2 = n-3
 
-       do iter = 1 ,niter
+       y=vec(1:n)
+
+       do j = 1 ,iter
           datYs(n1-1)=((Y(n1-2)+Y(n1))*10.0+(Y(n1-3)+Y(n1+1))*5.0+Y(n1+2))/31.0
           datYs(n1-2)=((Y(n1-3)+Y(n1-1))*10.0+Y(n1)*5.0+Y(n1+1))/26.0
           datYs(n1-3)=(Y(n1-2)*10.0+Y(n1-1)*5.0+Y(n1))/16.0
@@ -3889,45 +3885,33 @@
           datYs(n2+2)=((Y(n2+3)+Y(n2+1))*10.0+Y(n2)*5.0+Y(n2-1))/26.0
           datYs(n2+3)=(Y(n2+2)*10.0+Y(n2+1)*5.0+Y(n2))/16.0
 
-          if(present(Ys)) then
-             Ys(1:n) = datYs(1:n)
-          else
-             Y(1:n) = datYs(1:n)
-          end if
+          y=datYs
        end do
+
+       !> Output procedure
+       if (present(VecS)) then
+          VecS(1:n) = datYs(1:n)
+       else
+          Vec(1:n) = datYs(1:n)
+       end if
 
        return
     End Subroutine SmoothingVec
 
-    !!---
-    !!---- Subroutine Sort(a,n,indx)
-    !!----    integer/real(kind=cp)  dimension(:), intent( in) :: a
-    !!----    integer,                             intent( in) :: n
-    !!----    integer,               dimension(:), intent(out) :: indx
-    !!----
-    !!----    Sort an array such the a(indx(j)) is in ascending
-    !!----    order for j=1,2,...,N.
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
-    !!--++ Subroutine Sort_I(Arr,N,Indx)
-    !!--++    integer, dimension(:), intent( in) :: arr
-    !!--++    integer,               intent( in) :: n
-    !!--++    integer, dimension(:), intent(out) :: indx
+    !!--++ Subroutine Sort_I(Vec,N,Indx)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Sort an array such the arr(indx(j)) is in ascending
+    !!--++    Sort a vector such the vec(indx(j)) is in ascending
     !!--++    order for j=1,2,...,N.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Sort_I(arr,n,indx)
+    Subroutine Sort_I(vec,n,indx)
        !---- Arguments ----!
-       integer, dimension(:), intent(in ) :: arr
-       integer              , intent(in ) :: n
-       integer, dimension(:), intent(out) :: indx
+       integer, dimension(:), intent(in ) :: vec     ! Vector to be sorted
+       integer              , intent(in ) :: n       ! Dimension of the vector
+       integer, dimension(:), intent(out) :: indx    ! Index for sort values
 
        !---- Local Variables ----!
        integer, parameter           :: m=7
@@ -3949,9 +3933,9 @@
           if (ir-l < m) then
              doext: do j=l+1,ir
                 indxt=indx(j)
-                a=arr(indxt)
+                a=Vec(indxt)
                 do i=j-1,1,-1
-                   if (arr(indx(i)) <= a)  then
+                   if (Vec(indx(i)) <= a)  then
                       indx(i+1)=indxt
                       cycle doext
                    end if
@@ -3970,17 +3954,17 @@
              itemp=indx(k)
              indx(k)=indx(l+1)
              indx(l+1)=itemp
-             if (arr(indx(l+1)) > arr(indx(ir)))then
+             if (Vec(indx(l+1)) > Vec(indx(ir)))then
                 itemp=indx(l+1)
                 indx(l+1)=indx(ir)
                 indx(ir)=itemp
              end if
-             if (arr(indx(l)) > arr(indx(ir)))then
+             if (Vec(indx(l)) > Vec(indx(ir)))then
                 itemp=indx(l)
                 indx(l)=indx(ir)
                 indx(ir)=itemp
              end if
-             if (arr(indx(l+1)) > arr(indx(l)))then
+             if (Vec(indx(l+1)) > Vec(indx(l)))then
                 itemp=indx(l+1)
                 indx(l+1)=indx(l)
                 indx(l)=itemp
@@ -3988,13 +3972,13 @@
              i=l+1
              j=ir
              indxt=indx(l)
-             a=arr(indxt)
+             a=Vec(indxt)
              do
                 i=i+1
-                if (arr(indx(i)) < a)  cycle
+                if (Vec(indx(i)) < a)  cycle
                 do
                    j=j-1
-                   if (arr(indx(j)) > a) cycle
+                   if (Vec(indx(j)) > a) cycle
                    exit
                 end do
                 if (j < i) exit
@@ -4026,29 +4010,26 @@
     End Subroutine Sort_I
 
     !!--++
-    !!--++ Subroutine Sort_R(arr,n,indx)
-    !!--++    real(kind=cp),dimension(:), intent( in) :: arr
-    !!--++    integer,                    intent( in) :: n
-    !!--++    integer,      dimension(:), intent(out) :: indx
+    !!--++ Subroutine Sort_R(vec,n,indx)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Sort an array such the arr(indx(j)) is in ascending
+    !!--++    Sort a vector such the vec(indx(j)) is in ascending
     !!--++    order for j=1,2,...,N.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Sort_R(arr,n,indx)
+    Subroutine Sort_R(Vec,n,indx)
        !---- Arguments ----!
-       real(kind=cp),dimension(:), intent(in) :: arr
-       integer,                    intent(in) :: n
-       integer,      dimension(:), intent(out):: indx
+       real(kind=cp),dimension(:), intent(in) :: Vec    ! Vector to be sorted
+       integer,                    intent(in) :: n      ! Dimension of Vector
+       integer,      dimension(:), intent(out):: indx   ! Index
 
        !---- Local Variables ----!
        integer, parameter           :: m=7
        integer, parameter           :: nstack=50  !nstack=2log2(n)
        integer, dimension(nstack)   :: istack
-       integer :: i,indxt,ir,itemp,j,jstack,k,l
-       real(kind=cp)    :: a
+       integer                      :: i,indxt,ir,itemp,j,jstack,k,l
+       real(kind=cp)                :: a
 
        call init_Err_MathGen()
        do j=1,n
@@ -4063,9 +4044,9 @@
           if (ir-l < m) then
              doext: do j=l+1,ir
                 indxt=indx(j)
-                a=arr(indxt)
+                a=Vec(indxt)
                 do i=j-1,1,-1
-                   if (arr(indx(i)) <= a)  then
+                   if (Vec(indx(i)) <= a)  then
                       indx(i+1)=indxt
                       cycle doext
                    end if
@@ -4084,17 +4065,17 @@
              itemp=indx(k)
              indx(k)=indx(l+1)
              indx(l+1)=itemp
-             if (arr(indx(l+1)) > arr(indx(ir)))then
+             if (Vec(indx(l+1)) > Vec(indx(ir)))then
                 itemp=indx(l+1)
                 indx(l+1)=indx(ir)
                 indx(ir)=itemp
              end if
-             if (arr(indx(l)) > arr(indx(ir)))then
+             if (Vec(indx(l)) > Vec(indx(ir)))then
                 itemp=indx(l)
                 indx(l)=indx(ir)
                 indx(ir)=itemp
              end if
-             if (arr(indx(l+1)) > arr(indx(l)))then
+             if (Vec(indx(l+1)) > Vec(indx(l)))then
                 itemp=indx(l+1)
                 indx(l+1)=indx(l)
                 indx(l)=itemp
@@ -4102,13 +4083,13 @@
              i=l+1
              j=ir
              indxt=indx(l)
-             a=arr(indxt)
+             a=Vec(indxt)
              do
                 i=i+1
-                if (arr(indx(i)) < a)  cycle
+                if (Vec(indx(i)) < a)  cycle
                 do
                    j=j-1
-                   if (arr(indx(j)) > a) cycle
+                   if (Vec(indx(j)) > a) cycle
                    exit
                 end do
                 if (j < i) exit
@@ -4139,29 +4120,21 @@
        return
     End Subroutine Sort_R
 
-
-
     !!----
     !!---- Subroutine Spline(x, y, n, yp1, ypn, y2)
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
-    !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=cp),    intent(in)                   :: yp1   !  In -> Derivate of Point 1
-    !!----    real(kind=cp),    intent(in)                   :: ypn   !  In -> Derivate of Point N
-    !!----    real(kind=cp),    intent(out),    dimension(n) :: y2    ! Out -> array containing second derivatives
     !!----                                                                     at the given points
     !!----    Spline  N points
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Spline(x,y,n,yp1,ypn,y2)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: x
-       real(kind=cp), dimension(:), intent(in)  :: y
-       integer ,                    intent(in)  :: n
-       real(kind=cp),               intent(in)  :: yp1
-       real(kind=cp),               intent(in)  :: ypn
-       real(kind=cp), dimension(:), intent(out) :: y2
+       !---- Arguments ----!!
+       real(kind=cp), dimension(:), intent(in)  :: x    ! Vector X
+       real(kind=cp), dimension(:), intent(in)  :: y    ! Vector Y=F(Xi)
+       integer ,                    intent(in)  :: n    ! Dimension of X
+       real(kind=cp),               intent(in)  :: yp1  ! Derivate on Point 1
+       real(kind=cp),               intent(in)  :: ypn  ! Derivate on Point N
+       real(kind=cp), dimension(:), intent(out) :: y2   ! Vector containing Second derivatives at given points
 
        !---- Local Variables ----!
        integer                     :: i, k
@@ -4198,92 +4171,24 @@
        return
     End Subroutine Spline
 
-    !!----
-    !!---- Subroutine Splint(x, y, y2, n, xp, yp)
-    !!----    real(kind=cp),    intent(in), dimension(n) :: x  !  In -> Array X
-    !!----    real(kind=cp),    intent(in), dimension(n) :: y  !  In -> Array Y=F(X)
-    !!----    real(kind=cp),    intent(in), dimension(n) :: y2 !  In -> Array Second Derivatives in X
-    !!----    integer ,         intent(in)               :: n  !  In -> Dimension of XA,YA,Y2A
-    !!----    real(kind=cp),    intent(in)               :: xp !  In -> Point to evaluate
-    !!----    real(kind=cp),    intent(out),             :: yp ! Out -> Interpoled value
-    !!----
-    !!----    Spline Interpolation
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Splint(xa,ya,y2a,n,x,y)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in)  :: xa
-       real(kind=cp), dimension(:), intent(in)  :: ya
-       real(kind=cp), dimension(:), intent(in)  :: y2a
-       integer ,                    intent(in)  :: n
-       real(kind=cp),               intent(in)  :: x
-       real(kind=cp),               intent(out) :: y
-
-       !---- Local Variables ----!
-       integer          :: klo, khi, k
-       real(kind=cp)    :: h, a, b
-
-       klo=1
-       khi=n
-       do
-          if (khi-klo > 1) then
-             k=(khi+klo)/2
-             if (xa(k) > x) then
-                khi=k
-             else
-                klo=k
-             end if
-             cycle
-          else
-             exit
-          end if
-       end do
-
-       h=xa(khi)-xa(klo)
-       a=(xa(khi)-x)/h
-       b=(x-xa(klo))/h
-       y=a*ya(klo)+b*ya(khi)+((a**3-a)*y2a(klo)+(b**3-b)* y2a(khi))*(h**2)/6.0
-
-       return
-    End Subroutine Splint
-
-    !!----
-    !!---- Subroutine Svdcmp(a,w,v)
-    !!----    real(sp/dp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!----    real(sp/dp),dimension(:),  intent(   out) :: w  !W(n)
-    !!----    real(sp/dp),dimension(:,:),intent(   out) :: v  !V(n,n)
-    !!--<<
-    !!----    Given an M�N matrix A ,this routine computes its singular value decomposition,
-    !!----    A = U W VT . The matrix U replaces A on output. The diagonal matrix of
-    !!----    singular values W is output as the N-dimensional vector w. The NxN matrix V
-    !!----    (not the transpose VT )is output as v .
-    !!----    Adapted from Numerical Recipes. Valid for arbitrary real matrices
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
     !!--++ Subroutine Svdcmp_dp(a,w,v)
-    !!--++    real(dp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!--++    real(dp),dimension(:),  intent(   out) :: w  !W(n)
-    !!--++    real(dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Given an M x N matrix A ,this routine computes its singular value decomposition,
     !!--++    A = U  W  VT . The matrix U replaces A on output. The diagonal matrix of
     !!--++    singular values W is output as the N-dimensional vector w. The NxN matrix V
     !!--++    (not the transpose VT )is output as v .
+    !!--++
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
     !!--++ Update: February - 2005
     !!
     Subroutine Svdcmp_dp(a,w,v)
        !---- Arguments ----!
-       real(kind=dp),dimension(:,:),intent(in out) ::a
-       real(kind=dp),dimension(:),  intent(   out) ::w
-       real(kind=dp),dimension(:,:),intent(   out) ::v
+       real(kind=dp),dimension(:,:),intent(in out) ::a   ! A(m,n)
+       real(kind=dp),dimension(:),  intent(   out) ::w   ! W(n)
+       real(kind=dp),dimension(:,:),intent(   out) ::v   ! V(n,n)
 
        !---- Local variables ----!
        integer, parameter                  :: num_its=500
@@ -4458,9 +4363,6 @@
 
     !!--++
     !!--++ Subroutine Svdcmp_sp(a,w,v)
-    !!--++    real(sp),dimension(:,:),intent(in out) :: a  !A(m,n)
-    !!--++    real(sp),dimension(:),  intent(   out) :: w  !W(n)
-    !!--++    real(sp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Given an M x N matrix A ,this routine computes its singular value decomposition,
@@ -4473,9 +4375,9 @@
     !!
     Subroutine Svdcmp_sp(a,w,v)
        !---- Arguments ----!
-       real(kind=sp),dimension(:,:),intent(in out) :: a
-       real(kind=sp),dimension(:),  intent(   out) :: w
-       real(kind=sp),dimension(:,:),intent(   out) :: v
+       real(kind=sp),dimension(:,:),intent(in out) :: a  ! A(m,n)
+       real(kind=sp),dimension(:),  intent(   out) :: w  ! W(n)
+       real(kind=sp),dimension(:,:),intent(   out) :: v  ! V(n,n)
 
        !---- Local variables ----!
        integer, parameter                 :: num_its=500
@@ -4649,32 +4551,8 @@
        return
     End Subroutine Svdcmp_sp
 
-    !!----
-    !!---- Subroutine Swap(a,b) or Swap(a,b,mask)
-    !!----    integer,real(cp),complex, intent( in out) :: a, b
-    !!----      or
-    !!----    integer,real(cp),complex, dimension(:), intent( in out) :: a, b
-    !!----      or
-    !!----    integer,real(cp),complex, dimension(:,:), intent( in out) :: a, b
-    !!----      or
-    !!----    real(kind=cp),  intent(in out) :: a,b
-    !!----    logical,        intent(in)     :: mask
-    !!----      or
-    !!----    real(kind=cp), dimension(:), intent(in out) :: a,b
-    !!----    logical,       dimension(:), intent(in)     :: mask
-    !!----      or
-    !!----    real(kind=cp), dimension(:,:), intent(in out) :: a,b
-    !!----    logical,       dimension(:,:), intent(in)     :: mask
-    !!----
-    !!----    Swap the contents of a and b, when mask (if given) is true.
-    !!----
-    !!----
-    !!---- Update: February - 2005
-    !!
-
     !!--++
     !!--++ Subroutine Swap_C(a,b)
-    !!--++    complex, intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4683,8 +4561,8 @@
     !!
     Subroutine Swap_C(a,b)
        !---- Arguments ----!
-       complex, intent(in out) :: a
-       complex, intent(in out) :: b
+       complex, intent(in out) :: a  ! Complex value
+       complex, intent(in out) :: b  ! Complex value
 
        !---- Local variables ----!
        complex :: dum
@@ -4697,128 +4575,122 @@
     End Subroutine Swap_C
 
     !!--++
-    !!--++ Subroutine Swap_Cm(A,B)
-    !!--++    complex, dimension(:,:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Cm(array1,array2)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of array1 and array2
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Cm(a,b)
+    Subroutine Swap_Cm(array1,array2)
        !---- Arguments ----!
-       complex, dimension(:,:), intent(in out) :: a
-       complex, dimension(:,:), intent(in out) :: b
+       complex, dimension(:,:), intent(in out) :: array1
+       complex, dimension(:,:), intent(in out) :: array2
 
        !---- Local variables ----!
-       complex, dimension(size(a,1),size(a,2)) :: dum
+       complex, dimension(size(array1,1),size(array1,2)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=array1
+       array1=array2
+       array2=dum
 
        return
     End Subroutine Swap_Cm
 
     !!--++
-    !!--++ Subroutine Swap_Cv(a,b)
-    !!--++    complex, dimension(:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Cv(Vec1,Vec2)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of Vec1 and Vec2
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Cv(a,b)
+    Subroutine Swap_Cv(Vec1,Vec2)
        !---- Arguments ----!
-       complex, dimension(:), intent(in out) :: a
-       complex, dimension(:), intent(in out) :: b
+       complex, dimension(:), intent(in out) :: Vec1
+       complex, dimension(:), intent(in out) :: Vec2
 
        !---- Local variables ----!
-       complex, dimension(size(a)) :: dum
+       complex, dimension(size(vec1)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=vec1
+       vec1=vec2
+       vec2=dum
 
        return
     End Subroutine Swap_Cv
 
     !!--++
-    !!--++ Subroutine Swap_I(A,B)
-    !!--++    integer , intent(in out) :: a,b
+    !!--++ Subroutine Swap_I(i,j)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of i and j
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_I(A,B)
+    Subroutine Swap_I(i,j)
        !---- Arguments ----!
-       integer , intent(in out) :: a
-       integer , intent(in out) :: b
+       integer , intent(in out) :: i ! Integer
+       integer , intent(in out) :: j ! Integer
 
        !---- Local variables ----!
        integer  :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=i
+       i=j
+       j=dum
 
        return
     End Subroutine Swap_I
 
     !!--++
-    !!--++ Subroutine Swap_Im(A,B)
-    !!--++    integer, dimension(:,:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Im(array1,array2)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Im(A,B)
+    Subroutine Swap_Im(Array1,Array2)
        !---- Arguments ----!
-       integer, dimension(:,:), intent(in out) :: a
-       integer, dimension(:,:), intent(in out) :: b
+       integer, dimension(:,:), intent(in out) :: array1
+       integer, dimension(:,:), intent(in out) :: array2
 
        !---- Local Variables ----!
-       integer, dimension(size(a,1),size(a,2)) :: dum
+       integer, dimension(size(array1,1),size(array1,2)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=array1
+       array1=array2
+       array2=dum
 
        return
     End Subroutine Swap_Im
 
     !!--++
-    !!--++ Subroutine Swap_Iv(A,B)
-    !!--++    integer, dimension(:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Iv(Vec1,Vec2)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of Vec1 and Vec2
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Iv(A,B)
+    Subroutine Swap_Iv(Vec1,Vec2)
        !---- Arguments ----!
-       integer, dimension(:), intent(in out) :: a
-       integer, dimension(:), intent(in out) :: b
+       integer, dimension(:), intent(in out) :: Vec1
+       integer, dimension(:), intent(in out) :: Vec2
 
        !---- Local Variables ----!
-       integer, dimension(size(a)) :: dum
+       integer, dimension(size(Vec1)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=Vec1
+       Vec1=Vec2
+       Vec2=dum
 
        return
     End Subroutine Swap_Iv
 
     !!--++
     !!--++ Subroutine Swap_R(A,B)
-    !!--++    real(kind=cp) , intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4841,142 +4713,53 @@
     End Subroutine Swap_R
 
     !!--++
-    !!--++ Subroutine Swap_Rm(A,B)
-    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Rm(Array1,Array2)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of array1 and array2
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Rm(A,B)
+    Subroutine Swap_Rm(Array1,Array2)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       real(kind=cp), dimension(:,:), intent(in out) :: b
+       real(kind=cp), dimension(:,:), intent(in out) :: array1
+       real(kind=cp), dimension(:,:), intent(in out) :: array2
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a,1),size(a,2)) :: dum
+       real(kind=cp), dimension(size(array1,1),size(array1,2)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=array1
+       array1=array2
+       array2=dum
 
        return
     End Subroutine Swap_Rm
 
     !!--++
-    !!--++ Subroutine Swap_Rv(A,B)
-    !!--++    real(kind=cp), dimension(:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_Rv(Vec1,Vec2)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b
+    !!--++    Swap the contents of Vec1 and Vec2
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Rv(A,B)
+    Subroutine Swap_Rv(Vec1,Vec2)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in out) :: a
-       real(kind=cp), dimension(:), intent(in out) :: b
+       real(kind=cp), dimension(:), intent(in out) :: Vec1
+       real(kind=cp), dimension(:), intent(in out) :: Vec2
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a)) :: dum
+       real(kind=cp), dimension(size(Vec1)) :: dum
 
-       dum=a
-       a=b
-       b=dum
+       dum=vec1
+       vec1=vec2
+       vec2=dum
 
        return
     End Subroutine Swap_Rv
 
     !!--++
-    !!--++ Subroutine Masked_Swap_R(A,B,Mask)
-    !!--++    real(kind=cp), intent(in out) :: a,b
-    !!--++    logical,           intent(in) :: mask
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b if mask=.true.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Masked_Swap_R(A,B,Mask)
-       !---- Arguments ----!
-       real(kind=cp), intent(in out) :: a
-       real(kind=cp), intent(in out) :: b
-       logical,           intent(in) :: mask
-
-       !---- Local Variables ----!
-       real(kind=cp) :: swp
-
-       if (mask) then
-          swp=a
-          a=b
-          b=swp
-       end if
-
-       return
-    End Subroutine Masked_Swap_R
-
-    !!--++
-    !!--++ Subroutine Masked_Swap_Rm(A,B,Mask)
-    !!--++    real(kind=cp), dimension(:,:),intent(in out) :: a,b
-    !!--++    logical,       dimension(:,:),    intent(in) :: mask
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b where mask=.true.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Masked_Swap_Rm(A,B,Mask)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       real(kind=cp), dimension(:,:), intent(in out) :: b
-       logical,       dimension(:,:), intent(in)     :: mask
-
-       !---- Local variables ----!
-       real(kind=cp), dimension(size(a,1),size(a,2)) :: swp
-
-       where (mask)
-          swp=a
-          a=b
-          b=swp
-       end where
-
-       return
-    End Subroutine Masked_Swap_Rm
-
-    !!--++
-    !!--++ Subroutine Masked_Swap_Rv(A,B,Mask)
-    !!--++    real(kind=cp), dimension(:),intent(in out) :: a,b
-    !!--++    logical,       dimension(:),    intent(in) :: mask
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Swap the contents of a and b where mask=.true.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Masked_Swap_Rv(A,B,Mask)
-       !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in out) :: a
-       real(kind=cp), dimension(:), intent(in out) :: b
-       logical,       dimension(:), intent(in)     :: mask
-
-       !---- Local variables ----!
-       real(kind=cp), dimension(size(a))           :: swp
-
-       where (mask)
-          swp=a
-          a=b
-          b=swp
-       end where
-
-       return
-    End Subroutine Masked_Swap_Rv
-
-    !!--++
     !!--++ Subroutine Tqli1(d,e,n)
-    !!--++    real(kind=cp), dimension(:), intent (in out):: d
-    !!--++    real(kind=cp), dimension(:), intent (in out):: e
-    !!--++    integer,                     intent (in)    :: n
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4996,7 +4779,7 @@
        integer,                     intent(in )   :: n
 
        !---- Local variables ----!
-       integer, parameter :: NMAX_ITER=200
+       integer, parameter :: NMAX_ITER=500
        integer      :: i, iter, l, m, mv
        real(kind=cp):: b, c, dd, f, g, p, r, s, comp
 
@@ -5065,10 +4848,6 @@
 
     !!--++
     !!--++ Subroutine Tqli2(d,e,n,z)
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=cp), dimension(:,:), intent (in out):: z
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -5094,7 +4873,7 @@
        real(kind=cp), dimension(:,:), intent(in out) :: z    ! z(np,np)
 
        !---- Local Variables ----!
-       integer, parameter :: NMAX_ITER=200
+       integer, parameter :: NMAX_ITER=500
        integer       :: i, iter, k, l, m, mv
        real(kind=cp) :: b, c, dd, f, g, p, r, s, comp
 
@@ -5172,10 +4951,6 @@
 
     !!--++
     !!--++ Subroutine Tred1(a,n,d,e)
-    !!--++    real(kind=cp), dimension(:,:), intent (in out):: a
-    !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find only eigenvalues
@@ -5256,10 +5031,6 @@
 
     !!--++
     !!--++ Subroutine Tred2(a,n,d,e)
-    !!--++    real(kind=cp), dimension(:,:), intent (in out) :: a
-    !!--++    integer,                       intent (in)     :: n
-    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: d
-    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: e
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find the complete set

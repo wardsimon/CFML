@@ -45,7 +45,7 @@ Module CFML_DefPar
     !-------------------!
     !---- PARAMETER ----!
     !-------------------!
-    integer, parameter, dimension(1000),  :: PRIMES =                                     & ! List of the first 1000 prime numbers
+    integer, parameter, dimension(1000) :: PRIMES =                                       & ! List of the first 1000 prime numbers
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
              31,     37,     41,     43,     47,     53,     59,     61,     67,     71,  &
              73,     79,     83,     89,     97,    101,    103,    107,    109,    113,  &
@@ -153,9 +153,9 @@ Module CFML_DefPar
     !---- VARIABLES ----!
     !-------------------!
 
-
-    character(len=256), public :: ERR_MathGen_Mess     ! String containing information about the last error
-    logical,            public :: ERR_MathGen          ! Logical Variable indicating an error in CFML_Math_General module
+    !---- Math_Geneneral ----!
+    character(len=256) :: ERR_MathGen_Mess     ! String containing information about the last error
+    logical            :: ERR_MathGen          ! Logical Variable indicating an error in CFML_Math_General module
 
 
 
