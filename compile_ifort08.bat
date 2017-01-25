@@ -45,22 +45,26 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src
+   cd %CRYSFML%\Src08
 rem
-   echo **>>>> Compiler Options <<<<**
+   echo.
+   echo ***************************
+   echo ****  Compiler Options ****
+   echo ***************************
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
    echo OPT2:%OPT2%
    echo OPT3:%OPT3%
-   echo **>>>> End Compiler Options <<<<**
+   echo ***************************
    echo.
 rem
    echo **---- Level 0 ----**
-   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   ifort /c CFML_GlobalDeps_Windows_IFORT.f90        /nologo %OPT1% %OPT2%
+   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT1% %OPT2%
 rem
-   ifort /c CFML_math_gen.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_Definitions.f90                      /nologo %OPT1% %OPT2%
+   ifort /c CFML_Math_Gen.f90                         /nologo %OPT1% %OPT2%
+   goto FIN
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
@@ -164,3 +168,4 @@ rem
 rem
    cd %CRYSFML%\Scripts\Windows
 rem
+:FIN
