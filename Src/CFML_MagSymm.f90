@@ -136,7 +136,8 @@
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
               Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group,Cleanup_Symmetry_Operators, &
-              Set_Magnetic_Space_Group, Get_mOrbit_mom, get_moment_ctr, get_stabilizerm
+              Set_Magnetic_Space_Group, Get_mOrbit_mom, get_moment_ctr, get_stabilizerm, &
+              Setting_Change_MagGroup
 
     !---- Definitions ----!
 
@@ -4695,10 +4696,10 @@
        MSpGn%NumOps=MSpGn%Multip/MSpGn%Num_Lat
        nalat=0
        do i=1,MSpGn%multip
-         MSpGn%SymOp(i)%Rot=sm(:,:,i)
+         MSpGn%SymOp(i)%Rot=nint(sm(:,:,i))
          MSpGn%SymOp(i)%tr=tm(:,i)
-         im=determ_a(sm(:,:,i))*inv_time(i)
-         MSpGn%MSymOp(i)%Rot=sm(:,:,i)*im
+         im=nint(determ_a(sm(:,:,i)))*inv_time(i)
+         MSpGn%MSymOp(i)%Rot=nint(sm(:,:,i))*im
          MSpGn%MSymOp(i)%Phas=inv_time(i)
          if(equal_matrix(MSpGn%SymOp(i)%Rot,identity,3) .and. inv_time(i)==-1) then
            nalat=nalat+1
