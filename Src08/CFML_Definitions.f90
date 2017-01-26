@@ -235,18 +235,38 @@ Module CFML_DefPar
       character(len=40), dimension(Max_Free_Par) :: nampar    =" "      !Names of parameters
    End Type LSQ_State_Vector_type
 
+   !!----
+   !!---- TYPE :: DERIV_TOF_TYPE
+   !!--..
+   !!---- Type Definition for TOF Profiles
+   !!----
+   !!---- Update: 11/07/2015
+   !!
+   Type :: Deriv_TOF_Type
+      real(kind=cp) :: alfa  = 0.0    ! omega_a  DOmega/Dalpha
+      real(kind=cp) :: beta  = 0.0    ! omega_b  DOmega/Dbeta
+      real(kind=cp) :: dt    = 0.0    ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
+      real(kind=cp) :: sigma = 0.0    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
+      real(kind=cp) :: gamma = 0.0    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
+      real(kind=cp) :: eta   = 0.0    ! omega_e  DOmega/Deta                     "
+      real(kind=cp) :: kappa = 0.0    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
+   End Type Deriv_TOF_Type
+
 
    !-------------------!
    !---- VARIABLES ----!
    !-------------------!
 
-   logical            :: ERR_MathGen=.false.          ! Logical Variable indicating an error in CFML_Math_General module
-   logical            :: ERR_Random =.false.          ! Logical Variable indicating an error in CFML_Random_Generators module
-   logical            :: ERR_Spher  =.false.          ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
+   logical            :: ERR_MathGen =.false.          ! Logical Variable indicating an error in CFML_Math_General module
+   logical            :: ERR_Random  =.false.          ! Logical Variable indicating an error in CFML_Random_Generators module
+   logical            :: ERR_Spher   =.false.          ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
 
-   character(len=256) :: ERR_MathGen_Mess = " "       ! String containing information about the last error
-   character(len=256) :: ERR_Random_Mess  = " "       ! String containing information about the last error
-   character(len=256) :: Err_Spher_Mess   = " "       ! String containing information about the last error
+   logical            :: Init_ProfVal=.false.
+   logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
+
+   character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
+   character(len=256) :: Err_Spher_Mess   = " "        ! String containing information about the last error
 
 
 
