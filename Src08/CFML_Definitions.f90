@@ -39,13 +39,17 @@
 !!----
 !!
 Module CFML_DefPar
-   !---- Variables ----!
-   Implicit None
+   !---- Use Modules ----!
+   use CFML_GlobalDeps, only : cp
 
-    !-------------------!
-    !---- PARAMETER ----!
-    !-------------------!
-    integer, parameter, dimension(1000) :: PRIMES =                                       & ! List of the first 1000 prime numbers
+   !---- Local Variables ----!
+   implicit none
+
+   !-------------------!
+   !---- PARAMETER ----!
+   !-------------------!
+   integer, parameter                  :: MAX_FREE_PAR=3000                                 ! Maximum number of free parameters
+   integer, parameter, dimension(1000) :: PRIMES =                                        & ! List of the first 1000 prime numbers
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
              31,     37,     41,     43,     47,     53,     59,     61,     67,     71,  &
              73,     79,     83,     89,     97,    101,    103,    107,    109,    113,  &
@@ -148,18 +152,104 @@ Module CFML_DefPar
            7841,   7853,   7867,   7873,   7877,   7879,   7883,   7901,   7907,   7919 /)
 
 
+   !---------------!
+   !---- TYPES ----!
+   !---------------!
 
-    !-------------------!
-    !---- VARIABLES ----!
-    !-------------------!
+   !!----
+   !!---- TYPE :: Points_Interval_Type
+   !!--..
+   !!---- Type used for FFT routines
+   !!----
+   !!
+   Type :: Points_Interval_Type
+      integer       :: Np   = 0              ! Number of Points
+      real(kind=cp) :: Low  = 0.0            ! Lower range value
+      real(kind=cp) :: High = 0.0            ! Upper range value
+   End Type Points_Interval_Type
 
-    !---- Math_Geneneral ----!
-    character(len=256) :: ERR_MathGen_Mess     ! String containing information about the last error
-    logical            :: ERR_MathGen          ! Logical Variable indicating an error in CFML_Math_General module
+   !!----
+   !!---- TYPE :: LSQ_CONDITIONS_TYPE
+   !!--..
+   !!----  Derived type encapsulating all necessary conditions for running the LSQ algorithm
+   !!----
+   !!
+   Type :: LSQ_Conditions_Type
+      logical          :: constr  =.false.   ! if true box constraint of percent% are applied to parameters
+      logical          :: reached =.false.   ! if true convergence was reached in the algorithm
+      integer          :: corrmax =50        ! value of correlation in % to output
+      integer          :: nfev    =0         ! number of function evaluations (output component, useful for assessing LM algorithm)
+      integer          :: njev    =0         ! number of Jacobian evaluations                 "
+      integer          :: icyc    =0         ! number of cycles of refinement or maximum number of function evaluations in LM
+                                             ! In LM procedures the default value is icyc = maxfev = 100(npvar+1)
+      integer          :: npvar   =0         ! number of effective free parameters of the model
+      integer          :: iw      =0         ! indicator for weighting scheme (if iw=1 => w=1/yc)
+      integer          :: nprint  =0         ! indicator for printing during iterations, if nprint > 0 printing each nprint iterations
+      real(kind=cp)    :: tol     =0.0       ! tolerance value for applying stopping criterion in LM algorithm
+      real(kind=cp)    :: percent =0.0       ! %value of maximum variation of a parameter w.r.t.
+                                             ! the intial value before fixing it
+   End Type LSQ_Conditions_Type
+
+   !!----
+   !!---- TYPE :: LSQ_DATA_TYPE
+   !!--..
+   !!----
+   !!----  Derived type encapsulating the observed and calculated data as well as the
+   !!----  weighting factors, a variable related with each observed value and the
+   !!----  total number of observations. It is responsibility of the calling program to
+   !!----  allocate the components before calling the Marquardt_fit procedure.
+   !!----
+   !!---- Update: 11/07/2015
+   !!
+   Type :: LSQ_Data_Type
+      integer                                 :: nobs=0  !total number of observations
+      integer                                 :: iw  =0  !Indicator for type of values contained in component sw
+      real(kind=cp), dimension(:),allocatable :: x       !Vector containing a relevant quantity for each observation (x-coordinate ...)
+      real(kind=cp), dimension(:),allocatable :: y       !Vector containing the observed values
+      real(kind=cp), dimension(:),allocatable :: sw      !Vector containing the standard deviation of observations if iw=0
+                                                         !or the weight factors for least squares refinement if iw=1
+      real(kind=cp), dimension(:),allocatable :: yc      !Vector containing the calculated values
+   End Type LSQ_Data_type
+
+   !!----
+   !!---- TYPE :: LSQ_STATE_VECTOR_TYPE
+   !!--..
+   !!----  Derived type encapsulating the vector state defining a set of parameter
+   !!----  for calculating the model function and running the LSQ algorithm.
+   !!----  Now, with the introduction of code_comp and mul, the codes may be also interpreted
+   !!----  as the ordinal number in the LSQ list of independent parameters. Depending on the
+   !!----  the way the user program attributes codes and constraints a call to the subroutine
+   !!----  Modify_Codes_State_Vector (see below)
+   !!----
+   !!---- Update: 11/07/2015
+   !!
+   Type :: LSQ_State_Vector_Type
+      integer                                    :: np        = 0       !total number of model parameters <= Max_Free_Par
+      logical                                    :: code_comp = .false. !If .true. the codes are interpreted as number in the LSQ list
+      integer(kind=2)                            :: code_max  = 0       !Maximum code number (used in case of code_comp=.true.)
+      real(kind=cp),     dimension(Max_Free_Par) :: mul       = 1.0     !Vector of multipliers (used in case of code_comp=.true.)
+      real(kind=cp),     dimension(Max_Free_Par) :: pv        = 0.0     !Vector of parameters
+      real(kind=cp),     dimension(Max_Free_Par) :: spv       = 0.0     !Vector of standard deviations
+      real(kind=cp),     dimension(Max_Free_Par) :: dpv       = 0.0     !Vector of derivatives at a particular point
+      integer(kind=2),   dimension(Max_Free_Par) :: code      = 0       !pointer for selecting variable parameters
+      character(len=40), dimension(Max_Free_Par) :: nampar    =" "      !Names of parameters
+   End Type LSQ_State_Vector_type
+
+
+   !-------------------!
+   !---- VARIABLES ----!
+   !-------------------!
+
+   logical            :: ERR_MathGen=.false.          ! Logical Variable indicating an error in CFML_Math_General module
+   logical            :: ERR_Random =.false.          ! Logical Variable indicating an error in CFML_Random_Generators module
+   logical            :: ERR_Spher  =.false.          ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
+
+   character(len=256) :: ERR_MathGen_Mess = " "       ! String containing information about the last error
+   character(len=256) :: ERR_Random_Mess  = " "       ! String containing information about the last error
+   character(len=256) :: Err_Spher_Mess   = " "       ! String containing information about the last error
 
 
 
- Contains
 
 
 
