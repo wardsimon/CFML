@@ -52,13 +52,13 @@
               Debye, Equal_Matrix, Equal_Vector, Euclidean_Norm, In_limits, Locate,   &
               Lower_Triangular, Modulo_Lat, Norm, Outerprod, Pgcd, Ppcm, Pythag,      &
               Scalar, Trace, Upper_Triangular, Zbelong, Determinant, MatInv,          &
-              Linear_Dependent, Splint
+              Linear_Dependent, Splint, Plgndr
 
     !---- List of public subroutines ----!
     public :: Co_Prime_vector, Diagonalize_SH, First_Derivative, In_Sort,             &
               Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub,                 &
               Sort_Strings, Median_QS, Points_in_Line2D, Rank, Second_Derivative,     &
-              Set_Epsg, SmoothingVec, Sort, Spline, Svdcmp, Swap
+              Set_Epsg, SmoothingVec, Sort, Spline, Svdcmp, Swap, Sph_Jn
 
 
     !---- Definitions ----!
@@ -329,6 +329,65 @@
 
        return
     End Function Negligibler
+
+    !!----
+    !!---- FUNCTION PLGNDR
+    !!----
+    !!----    Compute the Legendre Polynomial Pml(x).
+    !!----
+    !!---- Here m and l are integers satisfying
+    !!----    0 <= m <= l
+    !!----   -1 <= x <= 1.
+    !!----
+    !!---- Update: 11/07/2015
+    !!
+    Elemental Function Plgndr(l,m,x) result(plmx)
+       !---- Arguments ----!
+       integer,      intent (in) :: l
+       integer,      intent (in) :: m
+       real(kind=cp),intent (in) :: x
+       real(kind=cp)             :: plmx
+
+       !---- Local variables ----!
+       integer       :: i, ll
+       real(kind=cp) :: fact, pll, pmm, pmmp1, somx2
+
+
+       !> Check limits
+       if (m < 0 .or. m > l .or. abs(x) > 1.0) then
+          plmx=0.0
+          return
+       end if
+
+       !> Calculation
+       pmm=1.0
+       if (m > 0) then                  !Compute P(m,m)
+          somx2=sqrt((1.0_cp-x)*(1.0_cp+x))
+          fact=1.0_cp
+          do i=1,m
+             pmm=-pmm*fact*somx2
+             fact=fact+2.0_cp
+          end do
+       end if
+
+       if (l == m) then
+          plmx=pmm
+       else
+          pmmp1=x*real(2*m+1,kind=cp)*pmm           !Compute P(m,m+1)
+          if (l == m+1) then
+             plmx=pmmp1                 !Compute P(m,L), L > m+1
+          else
+             do ll=m+2,l
+                pll=(x*real(2*ll-1,kind=cp)*pmmp1-real(ll+m-1,kind=cp)*pmm)/real(ll-m,kind=cp)
+                pmm=pmmp1
+                pmmp1=pll
+             end do
+             plmx=pll
+          end if
+       end if
+
+       return
+    End Function Plgndr
 
     !!--++
     !!--++ Function CHEVAL
@@ -1375,6 +1434,24 @@
 
        return
     End Function Determinant_R
+
+    !!--++
+    !!--++ FUNCTION ENVJ
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++
+    !!--++ Update: 11/07/2015
+    !!
+    Pure Function Envj(N,X) Result(Y)
+       !---- Arguments ----!
+       integer,       intent(in) :: n
+       real(Kind=dp), intent(in) :: x
+       real(Kind=dp)             :: y
+
+       y=0.5_dp*log10(6.28_dp*real(n,kind=dp))-n*log10(1.36_dp*x/real(n,kind=dp))
+
+       return
+    End Function Envj
 
     !!--++
     !!--++ Logical Function Equal_Matrix_I(Arr1, Arr2, N)
@@ -2608,6 +2685,92 @@
 
        return
     End Function Splint
+
+    !!--++
+    !!--++ FUNCTION START1
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Determine the starting point for backward
+    !!--++    recurrence such that the magnitude of Jn(x) at that point is
+    !!--++    about 10^(-MP).
+    !!--++
+    !!--++ Update: 11/07/2015
+    !!
+    Pure Function Start1(X,Mp) Result (Start)
+       !---- Arguments ----!
+       real(kind=dp), intent(in) :: x         ! Argument of Jn(x)
+       integer, intent(in)       :: mp        ! Value of magnitude
+       integer                   :: start
+
+       !---- Local variables ----!
+       integer      :: n1,n0,nn, it
+       real(kind=dp):: f,f0,f1,a0
+
+       a0=abs(x)
+       n0=int(1.1_dp*a0)+1
+       f0=envj(n0,a0)-mp
+       n1=n0+5
+       f1=envj(n1,a0)-mp
+       do it=1,20
+          nn=n1-(n1-n0)/(1.0_dp-f0/f1)
+          f=envj(nn,a0)-mp
+          if (abs(nn-n1) < 1) exit
+          n0=n1
+          f0=f1
+          n1=nn
+          f1=f
+       end do
+       start=nn
+
+       return
+    End Function Start1
+
+    !!--++
+    !!--++ FUNCTION START2
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Determine the starting point for backward
+    !!--++    recurrence such that all Jn(x) has MP significants digits
+    !!--++
+    !!--++ Update: 11/07/2015
+    !!
+    Pure Function Start2(X,N,Mp) Result(Start)
+       !---- Arguments ----!
+       real(kind=dp), intent(in) :: x     ! Argument of Jn(x)
+       integer,       intent(in) :: n     ! Order of Jn(x)
+       integer,       intent(in) :: mp    ! Significant digit
+       integer                   :: start
+
+       !---- Local variables ----!
+       real(kind=dp) :: a0, hmp, ejn, obj,f,f0,f1
+       integer       :: n0,n1,nn, it
+
+       a0=abs(x)
+       hmp=0.5_dp*mp
+       ejn=envj(n,a0)
+       if (ejn <= hmp) then
+          obj=mp
+          n0=int(1.1_dp*a0)+1  ! +1 was absent in the original version ... this solves the problem of
+       else                    ! Intel, gfortran and g95 compilers ... Lahey was calculating well event if n0=0!
+          obj=hmp+ejn
+          n0=n
+       end if
+       f0=envj(n0,a0)-obj
+       n1=n0+5
+       f1=envj(n1,a0)-obj
+       do it=1,20
+          nn=n1-(n1-n0)/(1.0_dp-f0/f1)
+          f=envj(nn,a0)-obj
+          if (abs(nn-n1) < 1) exit
+          n0=n1
+          f0=f1
+          n1=nn
+          f1=f
+       end do
+       start=nn+10
+
+       return
+    End Function Start2
 
     !!--++
     !!--++ Function Trace_C(Array)
@@ -4121,9 +4284,73 @@
     End Subroutine Sort_R
 
     !!----
+    !!---- SUBROUTINE SPH_JN
+    !!----
+    !!----    Compute spherical Bessel functions jn(x) and their derivatives
+    !!----
+    !!---- Update: 11/07/2015
+    !!
+    Subroutine Sph_Jn(n,x,nm,jn,djn)
+       !---- Arguments ----!
+       integer,                       intent(in)  :: n   !Order of jn(x) (n=0,1,2,3,...)
+       real(kind=dp),                 intent(in)  :: x   !Argument of jn(x)
+       integer,                       intent(out) :: nm  !Highest order computed
+       real(kind=dp), dimension(0:n), intent(out) :: jn  !array with spherical Bessel functions jn(x)
+       real(kind=dp), dimension(0:n), intent(out) :: djn !array with derivatives jn'(x)
+
+       !---- Local variables ----!
+       integer       :: k,m
+       real(kind=dp) :: sa,sb, f,f1,f0, cs
+
+       nm=n
+       if (abs(x) <= 1.0e-30_dp) then
+          do k=0,n
+             jn(k) = 0.0_dp
+             djn(k)= 0.0_dp
+          end do
+          jn(0)=1.0_dp
+          djn(1)=1.0_dp/3.0_dp
+          return
+       end if
+
+       jn(0)=sin(x)/x
+       jn(1)=(jn(0)-cos(x))/x
+       if (n >= 2) then
+          sa=jn(0)
+          sb=jn(1)
+          m=start1(x,200)
+          if (m < n) then
+             nm=m
+          else
+             m=start2(x,n,15)
+          end if
+          f0=0.0_dp
+          f1=1.0e-100_dp
+          do k=m,0,-1
+             f=(2.0_dp*k+3.0_dp)*f1/x-f0
+             if (k <= nm) jn(k)=f
+             f0=f1
+             f1=f
+          end do
+          if (abs(sa) > abs(sb)) cs=sa/f
+          if (abs(sa) <= abs(sb)) cs=sb/f0
+          do k=0,nm
+             jn(k)=cs*jn(k)
+          end do
+       end if
+
+       djn(0)=(cos(x)-sin(x)/x)/x
+       do k=1,nm
+          djn(k)=jn(k-1)-(k+1.0_dp)*jn(k)/x
+       end do
+
+       return
+    End Subroutine Sph_Jn
+
+    !!----
     !!---- Subroutine Spline(x, y, n, yp1, ypn, y2)
-    !!----                                                                     at the given points
-    !!----    Spline  N points
+    !!----
+    !!----    Spline  N points at the given points
     !!----
     !!---- Update: February - 2005
     !!
