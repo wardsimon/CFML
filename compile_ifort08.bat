@@ -58,15 +58,27 @@ rem
    echo ***************************
    echo.
 rem
-   echo **---- Level 0 ----**
+   echo .... Global Dependencies for CFML
 rem
    ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT1% %OPT2%
 rem
+   echo .... Definitions in CFML
+rem
    ifort /c CFML_Definitions.f90                      /nologo %OPT1% %OPT2%
+rem
+   echo .... Mathematics Procedures
+rem
    ifort /c CFML_Math_Gen.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
-   ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
+   ifort /c CFML_Spher_Harm.f90                       /nologo %OPT1% %OPT2%
+   ifort /c CFML_Random.f90                           /nologo %OPT1% %OPT2%
+   ifort /c CFML_Ffts.f90                             /nologo %OPT1% %OPT2%
+rem
+   echo .... Profiles Functions
+rem
+   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
+   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
+   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
+rem
    goto FIN
    ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
@@ -74,9 +86,6 @@ rem
    ) else (
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
-   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
@@ -168,4 +177,5 @@ rem
    cd %CRYSFML%\Scripts\Windows
 rem
 :FIN
+   del *.obj *.mod > nul
    cd ..
