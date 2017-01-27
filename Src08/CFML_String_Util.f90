@@ -61,13 +61,13 @@
     public :: Equal_Sets_Text, L_Case, Pack_String, String_Count, Strip_String, U_Case
 
     !---- List of public subroutines ----!
-    public :: Cutst, Format_String_R, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname,  &
+    public :: Cutst, FindFmt, Format_String_R, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname,  &
               Get_Extension, Get_Filename, Get_Fraction_1Dig, Get_Fraction_2Dig, Get_Mat_From_Symb, &
-              Get_Num_String, Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat,        &
+              Get_Vec_From_String, Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat,        &
               Get_Transf, &
               Getnum, Getnum_std,     &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
-              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt,   &
+              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase,  Init_FindFmt,   &
               NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
               SString_Replace
 
@@ -786,18 +786,18 @@
     End Subroutine FindFMT_Err
 
     !!----
-    !!---- Subroutine Format_String_R(Val, W, String)
+    !!---- Subroutine Format_String_R(Val, W, Str)
     !!----
     !!---- Obtain a string containing the format for write a real value VAL
     !!---- with w number of characters
     !!----
     !!---- Update: January 2017
     !!
-    Subroutine Format_String_R(Val, W, String)
+    Subroutine Format_String_R(Val, W, Str)
        !---- Arguments ----!
        real,             intent(in)  :: val        ! Value to be output
        integer,          intent(in)  :: w          ! Width of the output format
-       character(len=*), intent(out) :: string     ! String containing de Format
+       character(len=*), intent(out) :: str     ! String containing de Format
 
        !---- Local Variables ----!
        character(len=4) :: carw,card
@@ -806,7 +806,7 @@
        real             :: x, xlim
 
        !> Init
-       string=" "
+       str=" "
 
        !> error indicated if string returns blank
 
@@ -814,15 +814,15 @@
        !> Alternative: if (val /= val) then
        !> if (isnan(val))then
        if (ieee_is_nan(val)) then
-          string(1:w-3)=" "
-          string(w-2:w)="NaN"
+          str(1:w-3)=" "
+          str(w-2:w)="NaN"
           return
        end if
 
        !> Test for INF
        if (.not. ieee_is_finite(val)) then
-          string(1:w-3)=" "
-          string(w-2:w)="INF"
+          str(1:w-3)=" "
+          str(w-2:w)="INF"
           return
        end if
 
@@ -848,7 +848,7 @@
           card=adjustl(card)
           forms='(E'//trim(carw)//'.'//trim(card)//')'
 
-          write(unit=string,fmt=trim(forms)) val
+          write(unit=str,fmt=trim(forms)) val
 
           return
        end if
@@ -874,7 +874,7 @@
        card=adjustl(card)
        forms='(F'//trim(carw)//'.'//trim(card)//')'
 
-       write(unit=string,fmt=trim(forms)) val
+       write(unit=str,fmt=trim(forms)) val
 
        return
     End Subroutine Format_String_R
@@ -1224,14 +1224,14 @@
        split(2)= pack_string(Symb(i+1:j-1))
        split(3)= pack_string(Symb(j+1:))
        do i=1,3
-          call Get_Num_String(trim(split(i)), cod, Mat(i,:))
+          call Get_Vec_From_String(trim(split(i)), cod, Mat(i,:))
        end do
 
        return
     End Subroutine Get_Mat_From_Symb
 
     !!----
-    !!----  Subroutine Get_Num_String(string,cod, v)
+    !!----  Subroutine Get_Vec_From_String(string,cod, v)
     !!----
     !!----  Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
     !!----  a real vector from symbol of the form:  m1a+m2b+m3c. Similar comments
@@ -1239,7 +1239,7 @@
     !!----
     !!----  Updated: January  - 2014 (JRC).
     !!
-    Subroutine Get_Num_String(Str,Cod, Vec)
+    Subroutine Get_Vec_From_String(Str,Cod, Vec)
        !---- Arguments ----!
        character(len=*),                intent(in)  :: str   ! Input string
        character(len=1), dimension(3),  intent(in)  :: cod   ! Code
@@ -1440,7 +1440,7 @@
        end do
 
        return
-    End Subroutine Get_Num_String
+    End Subroutine Get_Vec_From_String
 
     !!----
     !!---- Subroutine Get_Separator_Pos(Str,sep,pos,nsep)
