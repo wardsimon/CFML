@@ -200,7 +200,7 @@ contains
                 k22=sum(MGp%kvec(:,(num_k+1))*MGp%kvec(:,(num_k+1)))
                 k12=sum(MGp%kvec(:,(num_k+1))*MGp%kvec(:,num_k))
                 kdif=k12/sqrt(k11*k22)
-                if (kdif<-0.99d0) then
+                if (kdif < -0.99) then
                    write(unit=*,fmt="(a)") " Skip -k propagation vectors"
                    stop
                 end if
@@ -427,7 +427,7 @@ contains
           allocate(MhMultilist%Mhlist(iset)%Mh(Npol))
           MhMultilist%Mhlist(iset)%Nref= Npol
 
-          if(all(abs(MGp%kvec(:,iv)-k0(:)).lt.0.001d0)) then
+          if(all(abs(MGp%kvec(:,iv)-k0(:)) < 0.001)) then
             allocate(MNhkl%Ref(Npol))
             MNhkl%NRef=Npol
           end if
@@ -463,7 +463,7 @@ contains
           end do !Loop on polarised observations
 
           if(all(abs(MGp%kvec(:,iv)-k0(:)) < 0.001)) then
-            if(iv.gt.1) write(unit=*,fmt="(a)") "Presently for k=0 only one propagation vector is forseen"
+            if(iv> 1) write(unit=*,fmt="(a)") "Presently for k=0 only one propagation vector is forseen"
 
             do iobs=1,Npol !Loop on polarised and MN observations
               call Init_Structure_Factors(MNhkl,A,Spg,mode="NUC",lun=lun)
@@ -581,7 +581,7 @@ contains
           end do
 
         ! calculate weight Nhkl%Ref(i)%w 1/sFo
-        Nhkl%Ref(:)%w=1.d0/max([(Nhkl%Ref(i)%sFo**2,i=1,Nhkl%Nref)],eps)
+        Nhkl%Ref(:)%w=1.00/max([(Nhkl%Ref(i)%sFo**2,i=1,Nhkl%Nref)],eps)
         Scalef=sum( [(Nhkl%Ref(i)%Fc*Nhkl%Ref(i)%Fo *Nhkl%Ref(i)%w,i=1,Nhkl%NRef)])/ &
             sum( [(Nhkl%Ref(i)%Fc**2 *Nhkl%Ref(i)%w,i=1,Nhkl%NRef)] )
 
@@ -609,7 +609,7 @@ contains
           do iv=1,num_k
             read(unit=lin,fmt=*) m,vk(:,iv)
             ! check if -k is given, skip if yes
-            if(iv.gt.1) then
+            if(iv > 1) then
               k11=sum(vk(:,(iv-1))*vk(:,(iv-1)))
               k22=sum(vk(:,iv)*vk(:,iv))
               k12=sum(vk(:,(iv-1))*vk(:,iv))
@@ -954,7 +954,7 @@ contains
       real(kind=cp),dimension(3)  :: SPV
       complex                     :: NSF
 
-      k0=(/0.d0,0.d0,0.d0/)
+      k0=(/0.00,0.00,0.00/)
       Npol=Multidata%Nobs(iset)
       Mag_dom=Multidata%MagDom(iset)
 
@@ -963,12 +963,12 @@ contains
       PolariMultilist%Polarilist(iset)%Nref= Npol
 
       do j=1,Npol ! Loop over hkl observations
-         NSF=cmplx(0.d0,0.d0)
+         NSF=cmplx(0.00,0.00)
          SPV=PolaroMultilist%Polarolist(iset)%Polaro(j)%SPV
          Pin=PolaroMultilist%Polarolist(iset)%Polaro(j)%P
-         if(Multidata%MNset(iset) /= 0) NSF=cmplx(sqrt(MNOblist%Ob(j)%Gobs),0.d0)
+         if(Multidata%MNset(iset) /= 0) NSF=cmplx(sqrt(MNOblist%Ob(j)%Gobs),0.00)
          !here iv=1
-         if(all(abs(MGp%kvec(:,1)-k0(:)).lt.0.001d0)) NSF=cmplx(MNhkl%Ref(j)%A,MNhkl%Ref(j)%B)
+         if(all(abs(MGp%kvec(:,1)-k0(:)) < 0.00100)) NSF=cmplx(MNhkl%Ref(j)%A,MNhkl%Ref(j)%B)
 
          !Calculate magnetic structure factor and magnetic interaction vector
          ! as mode='y' MiV w.r.t. cartesian crystallographic frame
@@ -1030,19 +1030,19 @@ contains
 
       Npol=Multidata%Nobs(iset)
       Mag_dom=Multidata%MagDom(iset)
-      k0=(/0.d0,0.d0,0.d0/)
+      k0=(/0.00,0.00,0.00/)
 
       if(allocated(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)) deallocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)
       allocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs(Npol))
       PolariMultisVslist%PolarisVslist(iset)%Nref= Npol
 
       do iobs=1,Npol ! Loop over hkl observations
-         NSF=cmplx(0.d0,0.d0)
+         NSF=cmplx(0.00,0.00)
          SPV=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%SPV
          Pin=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%P
-         if(Multidata%MNset(iset) /= 0) NSF=cmplx(sqrt(MNOblist%Ob(iobs)%Gobs),0.d0)
+         if(Multidata%MNset(iset) /= 0) NSF=cmplx(sqrt(MNOblist%Ob(iobs)%Gobs),0.00)
          !here iv=1
-         if(all(abs(MGp%kvec(:,1)-k0(:)).lt.0.001d0)) NSF=cmplx(MNhkl%Ref(j)%A,MNhkl%Ref(j)%B)
+         if(all(abs(MGp%kvec(:,1)-k0(:)) < 0.001)) NSF=cmplx(MNhkl%Ref(j)%A,MNhkl%Ref(j)%B)
 
          nch=1
          if(Mag_Dom%chir) nch=2
@@ -1060,11 +1060,11 @@ contains
           end do !loop over chiral domains
         end do !loop over S-domains
 
-        if(Pin > 0.d0) then
+        if(Pin > 0.00) then
           do i=1,3
             do j=1,3
-              if((Ipp(i,j)+Imp(i,j)).le.eps) then
-                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
+              if((Ipp(i,j)+Imp(i,j)) <= eps) then
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.00
               else
                 PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = &
                         (Ipp(i,j)-Imp(i,j))/(Ipp(i,j)+Imp(i,j))
@@ -1073,11 +1073,11 @@ contains
           end do
         end if
 
-        if(Pin < 0.d0) then
+        if(Pin < 0.00) then
           do i=1,3
             do j=1,3
-              if((Imm(i,j)+Ipm(i,j)).le.eps) then
-                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
+              if((Imm(i,j)+Ipm(i,j)) <= eps) then
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.00
               else
                 PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = &
                           -(Imm(i,j)-Ipm(i,j))/(Imm(i,j)+Ipm(i,j))
