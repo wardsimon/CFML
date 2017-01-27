@@ -44,7 +44,7 @@
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: Cp, Dp, Eps, Pi, To_Rad
     Use CFML_DefPar,       only: Err_Spher, Err_Spher_Mess
-    Use CFML_Math_General, only: Plgndr, Sph_Jn
+    Use CFML_Math_General, only: poly_legendre, Sph_Jn
 
     !---- Definitions ----!
     implicit none
@@ -362,7 +362,7 @@
        else
           pphi = sin(m*phi*to_rad)
        end if
-       ylmp=plgndr(l,m,x)*pphi
+       ylmp=poly_legendre(l,m,x)*pphi
        norm=real(2*l+1,kind=dp)
 
        do i=l-m+1,l+m
@@ -426,7 +426,7 @@
        else
           pphi = sin(m*pphi)     !sin(m*phi)
        end if
-       ylmp=plgndr(l,m,x)*pphi
+       ylmp=poly_legendre(l,m,x)*pphi
        norm=real(2*l+1,kind=dp)
 
        do i=l-m+1,l+m  !this is not executed when l=m=0 !!!

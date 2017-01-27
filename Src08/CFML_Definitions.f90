@@ -236,6 +236,16 @@ Module CFML_DefPar
    End Type LSQ_State_Vector_type
 
    !!----
+   !!---- TYPE :: ERR_TEXT_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Err_Text_Type
+      integer :: nlines
+      character (len=132), dimension(5) :: txt
+   End Type Err_Text_Type
+
+   !!----
    !!---- TYPE :: DERIV_TOF_TYPE
    !!--..
    !!---- Type Definition for TOF Profiles
@@ -260,6 +270,7 @@ Module CFML_DefPar
    logical            :: ERR_MathGen =.false.          ! Logical Variable indicating an error in CFML_Math_General module
    logical            :: ERR_Random  =.false.          ! Logical Variable indicating an error in CFML_Random_Generators module
    logical            :: ERR_Spher   =.false.          ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
+   logical            :: Err_String  =.false.          ! Logical Variable indicating an error in CFML_String_Utilities module
 
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
@@ -267,10 +278,15 @@ Module CFML_DefPar
    character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
    character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
    character(len=256) :: Err_Spher_Mess   = " "        ! String containing information about the last error
+   character(len=256) :: Err_String_Mess  = " "        ! String containing information about the last error
+
+   integer            :: win_console = -1              ! Code number for Scroll Window (Variable only in use for Winteracter code)
+
+   integer            :: iErr_fmt    = 0               ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
 
 
-
-
+   Type (Err_Text_Type)  :: Mess_FindFMT = &           ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
+        Err_Text_Type(0,(/" "," "," "," "," "/))
 
 
 End Module CFML_DefPar

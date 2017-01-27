@@ -52,7 +52,7 @@
               Debye, Equal_Matrix, Equal_Vector, Euclidean_Norm, In_limits, Locate,   &
               Lower_Triangular, Modulo_Lat, Norm, Outerprod, Pgcd, Ppcm, Pythag,      &
               Scalar, Trace, Upper_Triangular, Zbelong, Determinant, MatInv,          &
-              Linear_Dependent, Splint, Plgndr
+              Linear_Dependent, Splint, Poly_Legendre
 
     !---- List of public subroutines ----!
     public :: Co_Prime_vector, Diagonalize_SH, First_Derivative, In_Sort,             &
@@ -333,15 +333,15 @@
     !!----
     !!---- FUNCTION PLGNDR
     !!----
-    !!----    Compute the Legendre Polynomial Pml(x).
+    !!----    Compute the Associated Legendre Polynomial Pml(x).
     !!----
-    !!---- Here m and l are integers satisfying
+    !!---- Here m (order) and l (degree) are integers satisfying
     !!----    0 <= m <= l
     !!----   -1 <= x <= 1.
     !!----
     !!---- Update: 11/07/2015
     !!
-    Elemental Function Plgndr(l,m,x) result(plmx)
+    Elemental Function Poly_Legendre(l,m,x) result(plmx)
        !---- Arguments ----!
        integer,      intent (in) :: l
        integer,      intent (in) :: m
@@ -387,7 +387,7 @@
        end if
 
        return
-    End Function Plgndr
+    End Function Poly_Legendre
 
     !!--++
     !!--++ Function CHEVAL
