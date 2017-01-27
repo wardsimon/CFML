@@ -79,13 +79,15 @@ rem
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
 rem
-   goto FIN
-   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
+   echo .... IO Messages /String Utilities
+rem
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
    ) else (
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
+   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
+   goto FIN
 rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
