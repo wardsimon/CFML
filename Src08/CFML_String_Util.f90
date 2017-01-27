@@ -61,15 +61,12 @@
     public :: Equal_Sets_Text, L_Case, Pack_String, String_Count, Strip_String, U_Case
 
     !---- List of public subroutines ----!
-    public :: Cutst, FindFmt, Format_String_R, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname,  &
-              Get_Extension, Get_Filename, Get_Fraction_1Dig, Get_Fraction_2Dig, Get_Mat_From_Symb, &
-              Get_Vec_From_String, Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat,        &
-              Get_Transf, &
-              Getnum, Getnum_std,     &
-              Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
-              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase,  Init_FindFmt,   &
-              NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
-              SString_Replace
+    public :: Cutst, FindFmt, Format_String_R, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname,   &
+              Get_Extension, Get_Filename, Get_Fraction_1Dig, Get_Fraction_2Dig, Get_Mat_From_Symb,           &
+              Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat, Get_Transf, Get_Vec_From_String, &
+              Getnum, Getnum_Std, Getword, Inc_LineNum, Init_ERR_String, Init_FindFMT, LCase, Number_lines,   &
+              NumCol_from_NumFmt, Read_Key_str, Read_Key_strVal, Read_Key_Value, Read_Key_ValueSTD,           &
+              Reading_Lines, Setnum_Std, SubString_Replace, Ucase
 
 
     !--------------------!
@@ -1248,7 +1245,7 @@
        !--- Local variables ---!
        integer                                 :: i,k,ns,np,nterm,m,nsp,jk,jp
        integer, dimension(3)                   :: j,pos,neg, klist
-       character(len=len(string)),dimension(3) :: split
+       character(len=len(str)), dimension(3)   :: split
 
        call Get_Separator_Pos(str,"+",pos,np)
        call Get_Separator_Pos(str,"-",neg,ns)
@@ -1703,18 +1700,14 @@
           end if
        else
           ERR_String=.true.
-          ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(string)
+          ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
        end if
 
        return
     End Subroutine Get_Transf
 
     !!----
-    !!---- Subroutine Getnum(Line, Vet, Ivet, Iv)
-    !!----    character(len=*),              intent( in) :: Line    !  In -> Input String to convert
-    !!----    real(kind=cp), dimension(:),   intent(out) :: Vet     ! Out -> Vector of real numbers
-    !!----    integer,dimension(:),          intent(out) :: Ivet    ! Out -> Vector of integer numbers
-    !!----    integer,                       intent(out) :: Iv      ! Out -> Number of numbers in Vet/Ivet
+    !!---- Subroutine Getnum(Str, Vet, Ivet, Iv)
     !!----
     !!----    Converts a string to numbers and write on VET/IVET if real/integer. Control
     !!----    of errors is possible by inquiring the global variables ERR_STRING and
@@ -1722,16 +1715,16 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Getnum(line,vet,ivet,iv)
+    Subroutine Getnum(Str,vet,ivet,iv)
        !---- Argument ----!
-       character (len=*),          intent ( in) :: line
-       real(kind=cp), dimension(:),intent (out) :: vet
-       integer, dimension(:),      intent (out) :: ivet
-       integer,                    intent (out) :: iv
+       character (len=*),          intent ( in) :: Str   ! Input String to convert
+       real(kind=cp), dimension(:),intent (out) :: vet   ! Vector of real numbers
+       integer, dimension(:),      intent (out) :: ivet  ! Vector of integer numbers
+       integer,                    intent (out) :: iv    ! Number of numbers in Vet/Ivet
 
        !---- Local variables ----!
        logical                   :: numero
-       character (len=len(line)) :: resto,cifre
+       character (len=len(Str))  :: resto,cifre
        integer                   :: i,isum,ncharl,nchard,isegno,iniz,ipoi,idec,idig
        integer                   :: nchart, npos,nchard1,isum_exp,ioper
        real(kind=cp)             :: suma,segno,dec
@@ -1743,7 +1736,7 @@
        ivet=0
        vet=0.0
 
-       resto=u_case(line)
+       resto=u_case(Str)
 
        do
           ioper=0
@@ -1856,11 +1849,7 @@
     End Subroutine Getnum
 
     !!----
-    !!---- Subroutine Getnum_Std(Line, Value, Std, Ic)
-    !!----    character(len=*),            intent( in) :: Line    !  In -> Input String
-    !!----    real(kind=cp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real numbers
-    !!----    real(kind=cp), dimension(:), intent(out) :: Std     ! Out -> Vector of standard deviation values
-    !!----    integer,                     intent(out) :: Ic      ! Out -> Number of components of vector Value
+    !!---- Subroutine Getnum_Std(Str, Value, Std, Ic)
     !!----
     !!----    Converts a string to a numbers with standard deviation with format: x.fffff(s)
     !!----    Control of errors is possible by inquiring the global variables ERR_STRING
@@ -1868,15 +1857,15 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine GetNum_Std(line, value, std, ic)
+    Subroutine GetNum_Std(Str, value, std, ic)
        !----Arguments ----!
-       character(len=*),             intent( in) :: line
-       real(kind=cp), dimension(:),  intent(out) :: value
-       real(kind=cp), dimension(:),  intent(out) :: std
-       integer,                      intent(out) :: ic
+       character(len=*),             intent( in) :: Str     ! Input String
+       real(kind=cp), dimension(:),  intent(out) :: value   ! Vector of values with real numbers
+       real(kind=cp), dimension(:),  intent(out) :: std     ! Vector of standard deviation values
+       integer,                      intent(out) :: ic      ! Number of components of vector Value
 
        !---- Local Variables ----!
-       character(len=len(line))               :: resto,dire,numm
+       character(len=len(Str))               :: resto,dire,numm
        integer                                :: iv,nlong,i
        integer                                :: np, np1, np2
        integer, dimension(size(value))        :: ivet
@@ -1888,20 +1877,20 @@
        call init_err_string()
 
        !---- Initial Checks ----!
-       if (len_trim(line) == 0) then
+       if (len_trim(Str) == 0) then
           err_string=.true.
           ERR_String_Mess="Blank line"
           return
        end if
-       i=index(line,"!")
+       i=index(Str,"!")
        if(i /= 0) then
-         resto=adjustl(line(1:i-1))
+         resto=adjustl(Str(1:i-1))
        else
-         i=index(line,"#")
+         i=index(Str,"#")
          if(i /= 0) then
-           resto=adjustl(line(1:i-1))
+           resto=adjustl(Str(1:i-1))
          else
-           resto=adjustl(line)
+           resto=adjustl(Str)
          end if
        end if
 
@@ -1974,10 +1963,7 @@
     End Subroutine GetNum_Std
 
     !!----
-    !!---- Subroutine Getword(Line, Dire, Ic)
-    !!----    character(len=*),              intent( in) :: Line   !  In -> Input String
-    !!----    character(len=*),dimension(:), intent(out) :: Dire   ! Out -> Vector of Words
-    !!----    integer,                       intent(out) :: Ic     ! Out -> Number of words
+    !!---- Subroutine Getword(Str, Dire, Ic)
     !!----
     !!----    Determines the number of words (Ic) in the string "Line" and generates a
     !!----    character vector "Dire" with separated words.
@@ -1987,21 +1973,21 @@
     !!----
     !!---- Update: July - 2011
     !!
-    Subroutine Getword(line,dire,ic)
+    Subroutine Getword(Str,dire,ic)
        !---- Argument ----!
-       character (len=*),                 intent ( in) :: line
-       character (len=*), dimension(:),   intent (out) :: dire
-       integer,                           intent (out) :: ic
+       character (len=*),                 intent ( in) :: Str   ! Input string
+       character (len=*), dimension(:),   intent (out) :: dire  ! Vector of Words
+       integer,                           intent (out) :: ic    ! Number of words
 
        !---- Local variables ----!
-       character (len=len(line)) :: line1,line2
+       character (len=len(Str))  :: line1,line2
        integer                   :: nlong2
        integer                   :: ndim, j
 
        call init_err_string()
        ic=0
        ndim=size(dire)
-       line1=line
+       line1=Str
 
        do
           line1=adjustl(line1)
@@ -2017,7 +2003,7 @@
                exit
              end if
           else
-             call cutst(line1,line2=line2,nlong2=nlong2)
+             call cutst(line1,str2=line2,nlong2=nlong2)
           end if
           if (nlong2 == 0) exit
           ic=ic+1
@@ -2034,7 +2020,6 @@
 
     !!----
     !!---- Subroutine Inc_LineNum(line_n)
-    !!----  integer, intent(in) :: line_n
     !!----
     !!----    Increments the current line number
     !!----    Used when a way of reading other than FindFMT is used
@@ -2043,7 +2028,7 @@
     !!
     Subroutine Inc_LineNum(line_n)
        !---- Argument ----!
-       integer, intent(in) :: line_n
+       integer, intent(in) :: line_n ! Increments the current line number
 
        line_nb=line_nb+line_n
 
@@ -2060,7 +2045,7 @@
     !!
     Subroutine Init_Err_String()
 
-       err_string=.false.
+       ERR_String=.false.
        ERR_String_Mess=" "
 
        return
@@ -2082,76 +2067,76 @@
        integer, optional, intent(in) :: nline
 
        line_nb=0
-       if(present(nline)) line_nb=nline
+       if (present(nline)) line_nb=nline
+
        Mess_FindFMT = Err_Text_Type(0,(/" "," "," "," "," "/))
 
        return
     End Subroutine Init_FindFMT
 
     !!----
-    !!---- Subroutine Lcase(Line)
-    !!----    character(len=*), intent(in out) :: Line
+    !!---- Subroutine Lcase(Str)
     !!----
     !!----    Conversion to lower case. Line is modified
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Lcase(line)
+    Subroutine Lcase(Str)
        !---- Argument ----!
-       character (len=*), intent(in out) :: line
+       character (len=*), intent(in out) :: Str
 
-       line=l_case(line)
+       Str=l_case(Str)
 
        return
     End Subroutine Lcase
 
     !!----
     !!---- Subroutine Number_Lines(Filename,n, input_string)
-    !!----    character(len=*), intent(in) :: Filename     !  In -> Name of the file
-    !!----    integer        , intent(out) :: N            ! Out -> Number of lines in the file
-    !!----    character(len=*), optional,intent(in) :: input_string   ! In -> String to exit
     !!----
-    !!----    Return the number of lines contained in a file. The file will be opened and closed before
-    !!----    returning to the calling unit.
+    !!----    Return the number of lines contained in a file.
+    !!----    The file will be opened and closed before returning to the calling unit.
     !!----    If 'input_string' is present, return the number of lines until 'input_string' is founded
     !!----    as first string in the line
     !!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
     !!----
-    !!---- Update: February - 2005, March-2014 (removing the "opened" inquire, JRC)
+    !!---- Update: March-2014
     !!
     Subroutine Number_Lines(filename,n, input_string)
        !---- Arguments ----!
-       character(len=*), intent(in)  :: filename
-       integer,          intent(out) :: n
-       character(len=*), optional, intent(in) :: input_string       ! TR may 2013
+       character(len=*),           intent(in)  :: filename      ! Nane of File
+       integer,                    intent(out) :: n             ! Number of lines
+       character(len=*), optional, intent(in)  :: input_string  ! String to Exit
 
        !---- Local Variables ----!
        logical            :: info
        integer            :: lun,cond
-       character (len=256):: read_line                             ! TR may 2013
-       integer            :: long                                  ! TR may 2013
+       character (len=256):: read_line
+       integer            :: long
 
        !---- Init ----!
-       info=.false.
-       call get_logunit(lun)
        n=0
+
+       info=.false.
        cond=0
 
-       if(present(input_string)) long = len_trim(input_string)    ! TR may 2013
+       long=0
+       if (present(input_string)) long = len_trim(input_string)
 
        !---- Exist filename ? ----!
        inquire (file=filename,exist=info)
        if (.not. info) return
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       !> Open file
+       open(newunit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Counting lines ----!
        do
           read(unit=lun,fmt="(a)",iostat=cond) read_line
           if (cond /= 0) exit
           read_line=adjustl(read_line)
-          if(present(input_string)) then                                         ! TR may 2013
-            if(u_case(read_line(1:long)) == u_case(input_string(1:long))) exit
+
+          if (present(input_string)) then
+             if (u_case(read_line(1:long)) == u_case(input_string(1:long))) exit
           end if
           n=n+1
        end do
@@ -2162,26 +2147,27 @@
     End Subroutine Number_Lines
 
     !!----
-    !!---- Subroutine NumCol_from_NumFmt(Text,n_col)
-    !!----    character (len=*), intent(in) :: text   !  In -> String: "InPUT Format String"
-    !!----    Integer,           intent(out):: n_col  ! Out -> Integer number of columns
+    !!---- Subroutine NumCol_from_NumFmt(Str,n_col)
     !!----
     !!----    Provides the number of columns spanned by a numeric format field F,I,G,E
     !!----
     !!---- Update: January - 2006
     !!
-    Subroutine NumCol_from_NumFmt(Text,n_col)
+    Subroutine NumCol_from_NumFmt(Str,n_col)
        !---- Argument ----!
-       character (len=*), intent(in) :: text
-       Integer,           intent(out) :: n_col
+       character (len=*), intent(in)  :: Str    ! Input format string
+       Integer,           intent(out) :: n_col  ! Integer number of columns
 
        !---- Local variables ----!
-       integer  :: i,j,L,ncom,n1,n2,point,ier
-       integer,dimension(0:len(Text)) :: pos
-       character (len=len(Text)) :: fm
-       character (len=10) :: string
+       integer                         :: i,j,L,ncom,n1,n2,point,ier
+       integer, dimension(0:len(Str))  :: pos
+       character (len=len(Str))        :: fm
+       character (len=10)              :: string
 
-       fm=U_case(adjustl(Text))
+       !> Init
+       call Init_Err_String()
+
+       fm=U_case(adjustl(Str))
        fm=pack_string(fm)
        L=len_trim(fm)
        fm=fm(2:L-1)
@@ -2189,139 +2175,143 @@
        ncom=0
        pos(0)=0
        do i=1,L
-         if(fm(i:i) == ",") then
-            ncom=ncom+1
-            pos(ncom)=i
-         end if
+          if (fm(i:i) == ",") then
+             ncom=ncom+1
+             pos(ncom)=i
+          end if
        end do
        ncom=ncom+1
        pos(ncom)=L+1
        n_col=0
        do i=1,ncom
-         string=" "
-         string=fm(pos(i-1)+1:pos(i)-1)
-         point=index(string,".")
-         if( point /= 0) string=string(1:point-1)
-         L=len_trim(string)
-         do j=1,L
-           point=index("FIGEX",string(j:j))
-           if(point /= 0) then
-              point=j
-              exit
-           end if
-         end do
-         n1=0
-         Select Case (point)
-            Case(0)
-              n_col=0
-              exit
-            Case(1)
-              string(point:point) = " "
-              read(unit=string,fmt=*,iostat=ier) n2
-              if(ier /= 0) n2=0
-              n1=1
-            Case default
-              if(string(point:point)=="X") then
+          string=" "
+          string=fm(pos(i-1)+1:pos(i)-1)
+          point=index(string,".")
+          if ( point /= 0) string=string(1:point-1)
+          L=len_trim(string)
+          do j=1,L
+             point=index("FIGEX",string(j:j))
+             if (point /= 0) then
+                point=j
+                exit
+             end if
+          end do
+          n1=0
+          Select Case (point)
+             Case(0)
+                n_col=0
+                exit
+             Case(1)
                 string(point:point) = " "
-                n1=1
                 read(unit=string,fmt=*,iostat=ier) n2
-                if(ier /= 0) n2=0
-              else
-                string(point:point) = " "
-                read(unit=string,fmt=*,iostat=ier) n1,n2
-                if(ier /= 0) n2=0
-              end if
-         End Select
-         n_col=n_col+n1*n2
+                if (ier /= 0) n2=0
+                n1=1
+            Case default
+               if (string(point:point)=="X") then
+                  string(point:point) = " "
+                  n1=1
+                  read(unit=string,fmt=*,iostat=ier) n2
+                  if (ier /= 0) n2=0
+               else
+                  string(point:point) = " "
+                  read(unit=string,fmt=*,iostat=ier) n1,n2
+                  if (ier /= 0) n2=0
+               end if
+          End Select
+          n_col=n_col+n1*n2
        end do
-       if(n_col == 0) then
-              err_string=.true.
-              ERR_String_Mess="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
+       if (n_col == 0) then
+          err_string=.true.
+          ERR_String_Mess="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
        end if
+
        return
     End Subroutine NumCol_from_NumFmt
 
-    !!--..  Subroutine Read_Fract(str,valu)
-    !!--..   Character(len=*), intent(in) :: str
-    !!--..   real(kind=cp),    intent(out):: valu
+    !!----
+    !!--..  Subroutine Read_Fract(str,value)
     !!--..
     !!--..  Auxiliary subroutine for reading a string containing a real number
     !!--..  or a fraction. Is able to handle simple symbols:"", "-", "+", means
     !!--..  respectively: 1,-1,1
     !!--..
     !!--..  Created: February - 2012 (JRC).
-    !!--..
-    Subroutine Read_Fract(str,valu)
-     Character(len=*), intent(in) :: str
-     real(kind=cp),    intent(out):: valu
-     !--- Local variables ---!
-     integer :: k, ierr
-     real(kind=cp) :: num,den
+    !!
+    Subroutine Read_Fract(str,value)
+       !---- Arguments ----!
+       Character(len=*), intent(in) :: str     ! Input String
+       real(kind=cp),    intent(out):: value   ! Value
 
-     if(len_trim(str) == 0) then
-       valu=1.0
+       !--- Local variables ---!
+       integer       :: k, ierr
+       real(kind=cp) :: num, den
+
+       !> Init
+       call init_err_string()
+
+       if (len_trim(str) == 0) then
+          value=1.0
+          return
+
+       else if(len_trim(str) == 1) then
+          if (str == "+") then
+             value=1.0
+             return
+          else if(str == "-") then
+             value=-1.0
+             return
+          end if
+       end if
+
+       k=index(str,"/")
+       if (k == 0) then !a single number
+          read(unit=str,fmt=*,iostat=ierr) value
+          if (ierr /= 0) then
+             value=0.0
+             ERR_String= .true.
+             ERR_String_Mess=" The provided symbol is illegal: "//trim(str)
+             return
+          end if
+       else !fraction
+          read(unit=str(1:k-1),fmt=*,iostat=ierr) num
+          if (ierr /= 0) then
+             value=0.0
+             ERR_String= .true.
+             ERR_String_Mess=" The provided symbol is illegal: "//str(1:k-1)
+             return
+          end if
+          read(unit=str(k+1:),fmt=*,iostat=ierr) den
+          if (ierr /= 0) then
+             value=0.0
+             ERR_String= .true.
+             ERR_String_Mess=" The provided symbol is illegal: "//str(k+1:)
+             return
+          end if
+
+          value=num/den
+       end if
+
        return
-     else if(len_trim(str) == 1) then
-       if(str == "+") then
-        valu=1.0
-        return
-       else if(str == "-") then
-        valu=-1.0
-        return
-       end if
-     end if
-     k=index(str,"/")
-     if(k == 0) then !a single number
-       read(unit=str,fmt=*,iostat=ierr) valu
-       if(ierr /= 0) then
-          valu=0.0
-          ERR_String= .true.
-          ERR_String_Mess=" The provided symbol is illegal: "//trim(str)
-          return
-       end if
-     else !fraction
-       read(unit=str(1:k-1),fmt=*,iostat=ierr) num
-       if(ierr /= 0) then
-          valu=0.0
-          ERR_String= .true.
-          ERR_String_Mess=" The provided symbol is illegal: "//str(1:k-1)
-          return
-       end if
-       read(unit=str(k+1:),fmt=*,iostat=ierr) den
-       if(ierr /= 0) then
-          valu=0.0
-          ERR_String= .true.
-          ERR_String_Mess=" The provided symbol is illegal: "//str(k+1:)
-          return
-       end if
-       valu=num/den
-     end if
     End Subroutine Read_Fract
 
 
     !!----
-    !!---- Subroutine Read_Key_Str(Filevar,Nline_Ini,Nline_End,Keyword,String)
-    !!----    character(len=*),dimension(:), intent(in)      :: Filevar      !  In -> Input vector of String
-    !!----    integer,                       intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                   ! Out -> Pointer to final position in search
-    !!----    integer,                       intent(in)      :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),              intent(in)      :: Keyword      !  In -> Word to search
-    !!----    character(len=*),              intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    character(len=1), optional,    intent(in)      :: comment      !  In -> Character that define a comment line
+    !!---- Subroutine Read_Key_Str(Filevar,Nline_Ini,Nline_End,Keyword,String, comment)
     !!----
-    !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
-    !!----    "nline_end".
+    !!----    Read a string on "filevar" starting with a particular "keyword" between lines
+    !!----    "nline_ini" and "nline_end".
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Read_Key_Str(filevar,nline_ini,nline_end,keyword,string,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)      :: filevar
-       integer,                        intent(in out)  :: nline_ini
-       integer,                        intent(in)      :: nline_end
-       character(len=*),               intent(in)      :: keyword
-       character(len=*),               intent(out)     :: string
-       character(len=1), optional,     intent(in)      :: comment
+       character(len=*), dimension(:), intent(in)      :: filevar     ! Input vector of String
+       integer,                        intent(in out)  :: nline_ini   ! Pointer to initial position to search
+                                                                      ! Out -> Pointer to final position in search
+       integer,                        intent(in)      :: nline_end   ! Pointer to final position to search
+       character(len=*),               intent(in)      :: keyword     ! Word to search
+       character(len=*),               intent(out)     :: string      ! Rest of the input string
+       character(len=1), optional,     intent(in)      :: comment     ! Character that define a comment line
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line,linec
@@ -2332,6 +2322,7 @@
        !---- Initial value ----!
        cc=' '
        if (present(comment)) cc=comment
+
        nt=min(size(filevar),nline_end)
        string=" "
        key =adjustl(keyword)
@@ -2356,16 +2347,6 @@
 
     !!----
     !!---- Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv,comment)
-    !!----    character(len=*),dimension(:),          intent(in)      :: Filevar      !  In -> Input vector of String
-    !!----    integer,                                intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                            ! Out -> Pointer to final position in search
-    !!----    integer,                                intent(in)      :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),                       intent(in)      :: Keyword      !  In -> Word to search
-    !!----    character(len=*),                       intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real numbers
-    !!----    integer,dimension(:),         optional  intent(out)     :: Ivet         ! Out -> Vector for integer numbers
-    !!----    integer,                      optional, intent(out)     :: Iv           ! Out -> Number of numbers
-    !!----    character(len=1),             optional, intent(in)      :: comment
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet". The variable
@@ -2375,15 +2356,16 @@
     !!
     Subroutine Read_Key_StrVal(filevar,nline_ini,nline_end,keyword,string,vet,ivet,iv,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:),           intent(in)      :: filevar
-       integer,                                  intent(in out)  :: nline_ini
-       integer,                                  intent(in)      :: nline_end
-       character(len=*),                         intent(in)      :: keyword
-       character(len=*),                         intent(out)     :: string
-       real(kind=cp),dimension(:),     optional, intent(out)     :: vet
-       integer,dimension(:),           optional, intent(out)     :: ivet
-       integer,                        optional, intent(out)     :: iv
-       character(len=1),               optional, intent(in)      :: comment
+       character(len=*), dimension(:),           intent(in)      :: filevar       !  In -> Input vector of String
+       integer,                                  intent(in out)  :: nline_ini     !  In -> Pointer to initial position to search
+                                                                                  ! Out -> Pointer to final position in search
+       integer,                                  intent(in)      :: nline_end     !  In -> Pointer to final position to search
+       character(len=*),                         intent(in)      :: keyword       !  In -> Word to search
+       character(len=*),                         intent(out)     :: string        ! Out -> Rest of the input string
+       real(kind=cp),dimension(:),     optional, intent(out)     :: vet           ! Out -> Vector for real numbers
+       integer,dimension(:),           optional, intent(out)     :: ivet          ! Out -> Vector for integer numbers
+       integer,                        optional, intent(out)     :: iv            ! Out -> Number of numbers
+       character(len=1),               optional, intent(in)      :: comment       ! Character that define a comment line
 
        !---- Local Variable ----!
        logical                        :: sval
@@ -2425,9 +2407,6 @@
        if (sval .and. (len_trim(string) > 0) ) then
           line=string
 
-          !---- String Value ----!
-          !call cutst(line,np,string)
-
           !---- Values ----!
           call getnum(line,vet,ivet,iv)
           if (iv <=0) then
@@ -2441,16 +2420,6 @@
 
     !!----
     !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment,line_key)
-    !!----    character(len=*),dimension(:), intent(in)      :: Filevar     !  In -> Input vector of String
-    !!----    integer,                       intent(in out)  :: Nline_Ini   !  In -> Pointer to initial position to search
-    !!----                                                                  ! Out -> Pointer to final position in search
-    !!----    integer,                       intent(in)      :: Nline_End   !  In -> Pointer to final position to search
-    !!----    character(len=*),              intent(in)      :: Keyword     !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real numbers
-    !!----    integer,dimension(:),          intent(out)     :: Ivet        ! Out -> Vector for integer numbers
-    !!----    integer,                       intent(out)     :: Iv          ! Out -> Number of components
-    !!----    character(len=1),     optional, intent(in)     :: comment     ! Consider the character passed in comment as a comment to skip the line
-    !!----    character(len=*),     optional, intent(out)    :: Iv          ! Out -> Cut line where keyword is read
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet".
@@ -2459,15 +2428,16 @@
     !!
     Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment,line_key)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)     :: filevar
-       integer,                        intent(in out) :: nline_ini
-       integer,                        intent(in)     :: nline_end
-       character(len=*),               intent(in)     :: keyword
-       real(kind=cp),dimension(:),     intent(out)    :: vet
-       integer,dimension(:),           intent(out)    :: ivet
-       integer,                        intent(out)    :: iv
-       character(len=1),     optional, intent(in)     :: comment
-       character(len=*),     optional, intent(out)    :: line_key
+       character(len=*), dimension(:), intent(in)     :: filevar            !  In -> Input vector of String
+       integer,                        intent(in out) :: nline_ini          !  In -> Pointer to initial position to search
+                                                                            ! Out -> Pointer to final position in search
+       integer,                        intent(in)     :: nline_end          !  In -> Pointer to final position to search
+       character(len=*),               intent(in)     :: keyword            !  In -> Word to search
+       real(kind=cp),dimension(:),     intent(out)    :: vet                ! Out -> Vector for real numbers
+       integer,dimension(:),           intent(out)    :: ivet               ! Out -> Vector for integer numbers
+       integer,                        intent(out)    :: iv                 ! Out -> Number of components
+       character(len=1),     optional, intent(in)     :: comment            ! Consider the character passed in comment as a comment to skip the line
+       character(len=*),     optional, intent(out)    :: line_key           ! Out -> Cut line where keyword is read
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
@@ -2507,14 +2477,6 @@
 
     !!----
     !!---- Subroutine Read_Key_Valuest(Filevar,Nline_Ini,Nline_End,Keyword,Vet1,Vet2,Iv,comment)
-    !!----    character(len=*),dimension(:),  intent(in)     :: Filevar      !  In -> Input vector of String
-    !!----    integer,                        intent(in out) :: Nline_Ini    !  In -> Pointer to initial position to search
-    !!----                                                                   ! Out -> Pointer to final position in search
-    !!----    integer,                        intent(in)     :: Nline_End    !  In -> Pointer to final position to search
-    !!----    character(len=*),               intent(in)     :: Keyword      !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real numbers
-    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet2         ! Out -> Vector of standard deviations
-    !!----    integer,                        intent(out)    :: Iv           ! Out -> Number of components
     !!----
     !!----    Read parameters and standard deviation on the line of "filevar" starting with a particular "keyword".
     !!----    The search is done between lines "nline_ini" and "nline_end".
@@ -2523,14 +2485,15 @@
     !!
     Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv,comment)
        !---- Arguments ----!
-       character(len=*), dimension(:),  intent(in)     :: filevar
-       integer,                         intent(in out) :: nline_ini
-       integer,                         intent(in)     :: nline_end
-       character(len=*),                intent(in)     :: keyword
-       real(kind=cp),dimension(:),      intent(out)    :: vet1
-       real(kind=cp),dimension(:),      intent(out)    :: vet2
-       integer,                         intent(out)    :: iv
-       character(len=1),      optional, intent(in)     :: comment
+       character(len=*), dimension(:),  intent(in)     :: filevar         !  In -> Input vector of String
+       integer,                         intent(in out) :: nline_ini       !  In -> Pointer to initial position to search
+                                                                          ! Out -> Pointer to final position in search
+       integer,                         intent(in)     :: nline_end       !  In -> Pointer to final position to search
+       character(len=*),                intent(in)     :: keyword         !  In -> Word to search
+       real(kind=cp),dimension(:),      intent(out)    :: vet1            ! Out -> Vector of real numbers
+       real(kind=cp),dimension(:),      intent(out)    :: vet2            ! Out -> Vector of standard deviations
+       integer,                         intent(out)    :: iv              ! Out -> Number of components
+       character(len=1),      optional, intent(in)     :: comment         ! Consider the character passed in comment as a comment to skip the line
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
@@ -2567,9 +2530,6 @@
 
     !!----
     !!---- Subroutine Reading_Lines(Filename,Nlines,Filevar)
-    !!----    character(len= *), intent(in)                :: Filename   !  In -> Filename
-    !!----    integer,           intent(in)                :: Nlines     !  In -> Number of lines to read
-    !!----    character(len= *), dimension(:), intent(out) :: Filevar    ! Out -> String vector
     !!----
     !!----    Read nlines of the file and put the information on Filevar. The file is opened to read the
     !!----    lines and closed before returning to the calling unit.
@@ -2578,9 +2538,9 @@
     !!
     Subroutine Reading_Lines(filename,nlines,filevar)
        !---- Arguments ----!
-       character(len=*),               intent( in) :: filename
-       integer,                        intent( in) :: nlines
-       character(len=*), dimension(:), intent(out) :: filevar
+       character(len=*),               intent( in) :: filename       !  In -> Filename
+       integer,                        intent( in) :: nlines         !  In -> Number of lines to read
+       character(len=*), dimension(:), intent(out) :: filevar        ! Out -> String vector
 
        !---- Local Variables ----!
        logical :: info
@@ -2589,7 +2549,6 @@
        !---- Init ----!
        call init_err_string()
        info=.false.
-       call get_logunit(lun)
 
        !---- Exist filename ? ----!
        inquire (file=filename,exist=info)
@@ -2599,7 +2558,7 @@
           return
        end if
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       open(newunit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Reading... ----!
        do i=1,nlines
@@ -2614,20 +2573,17 @@
     !!----
     !!----
     !!---- Subroutine SetNum_Std(Value,Std,Line)
-    !!----    real(kind=cp),            intent(in)  :: Value
-    !!----    real(kind=cp),            intent(in)  :: Std
-    !!----    character(len=*),intent (out):: Line
     !!----
     !!----    String with real value and standard deviation
     !!----    quoted in parenthesis
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine SetNum_Std(Value, Std, Line)
+    Subroutine SetNum_Std(Value, Std, Str)
        !---- Argument ----!
-       real(kind=cp),   intent(in)  :: Value
-       real(kind=cp),   intent(in)  :: Std
-       character(len=*),intent(out) :: Line
+       real(kind=cp),   intent(in)  :: Value    ! Value
+       real(kind=cp),   intent(in)  :: Std      ! Standard deviation
+       character(len=*),intent(out) :: Str      ! String containing the information
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
@@ -2641,8 +2597,8 @@
           else
              write(unit=aux,fmt="(f16.5)") value
           end if
-          line=adjustl(aux)
-          if (line(1:1) /= "-") line=" "//trim(line)
+          str=adjustl(aux)
+          if (str(1:1) /= "-") str=" "//trim(str)
           return
        end if
 
@@ -2657,8 +2613,8 @@
 
        aux=" "
        write(unit=aux,fmt=*) value
-       line=trim(adjustl(aux))
-       n=len_trim(line)
+       str=trim(adjustl(aux))
+       n=len_trim(str)
        if(n-np < 6) n=np+6
        fmtcar="f"
        if (n < 10) then
@@ -2678,36 +2634,32 @@
 
        aux=" "
        write(unit=aux,fmt=fmtcar) value
-       line=trim(adjustl(aux))
-       n=len_trim(line)
-       if (line(n:n) == ".") then
-          line(n:n)=" "
+       str=trim(adjustl(aux))
+       n=len_trim(str)
+       if (str(n:n) == ".") then
+          str(n:n)=" "
        end if
-       line=trim(line)//"("
-       n=len_trim(line)
-       np=len(line)-n-1             !number of available places for writing
+       str=trim(str)//"("
+       n=len_trim(str)
+       np=len(str)-n-1             !number of available places for writing
        aux=" "
        write(unit=aux,fmt=*) iy
        aux=pack_string(aux)
        long=len_trim(aux)
-       if(long > np) then
-         line=line(1:n-2)//"("//aux(1:np)//")"
+       if (long > np) then
+          str=str(1:n-2)//"("//aux(1:np)//")"
        else
-          line=line(1:n)//trim(aux)//")"
+          str=str(1:n)//trim(aux)//")"
        end if
-       line=pack_string(line)
+       str=pack_string(str)
 
-       if(line(1:1) /= "-") line=" "//trim(line)
+       if (str(1:1) /= "-") str=" "//trim(str)
 
        return
     End Subroutine SetNum_Std
 
     !!--++
     !!--++ Subroutine SGetFTMfield(GetFTMfield,FMTfields,nFld,nFldMax)
-    !!--++    Integer ,          intent(out)    ::  GetFTMfield
-    !!--++    Character (len=*) ,intent( in)    ::  FMTfields     !  -> format descriptor
-    !!--++    Integer ,          intent(in out) ::  nFld          ! <-> current field in format descriptor
-    !!--++    Integer ,          intent( in)    ::  nFldMax       !  -> max. number of fields in format descriptor
     !!--++
     !!--++    (PRIVATE)
     !!--++    Get current field type
@@ -2716,10 +2668,10 @@
     !!
     Subroutine SGetFTMfield(GetFTMfield,FMTfields,nFld,nFldMax)
        !---- Arguments ----!
-       Character (len=*) ,intent( in)    ::  FMTfields
-       Integer ,          intent(in out) ::  nFld
-       Integer ,          intent( in)    ::  nFldMax
        Integer ,          intent(out)    ::  GetFTMfield
+       Character (len=*) ,intent( in)    ::  FMTfields        !  -> format descriptor
+       Integer ,          intent(in out) ::  nFld             ! <-> current field in format descriptor
+       Integer ,          intent( in)    ::  nFldMax          !  -> max. number of fields in format descriptor
 
        !---- Local variables ----!
        character (len=1) ::  Car
@@ -2755,12 +2707,7 @@
     End Subroutine SGetFTMfield
 
     !!----
-    !!----
-    !!---- Subroutine SString_Replace(string, substr, rep_string,warning)
-    !!----    character(len=*), intent(in out) :: string
-    !!----    character(len=*), intent(in)     :: substr
-    !!----    character(len=*), intent(in)     :: rep_string
-    !!----    character(len=*), intent(out)    :: warning
+    !!---- Subroutine SubString_Replace(string, substr, repstr,warning)
     !!----
     !!----    Subroutine to replace a substring (substr) by another one (rep_string)
     !!----    within a given string (string). The original string is modified on output.
@@ -2770,66 +2717,68 @@
     !!----
     !!---- Updated: May - 2014
     !!
-    Subroutine SString_Replace(string, substr, rep_string,warning)
-      character(len=*), intent(in out) :: string
-      character(len=*), intent(in)     :: substr
-      character(len=*), intent(in)     :: rep_string
-      character(len=*), intent(out)    :: warning
-      ! --- Local variables ---!
-      integer                                      :: i,j,lstr,ncount,nsubs,d,dmax
-      integer,            dimension(:),allocatable :: pos
-      character(len=1024),dimension(:),allocatable :: splitted_string
+    Subroutine SubString_Replace(string, substr, repstr, warning)
+       !---- Arguments ----!
+       character(len=*), intent(in out) :: string   ! Input/output string
+       character(len=*), intent(in)     :: substr   ! Subtring to be replaced
+       character(len=*), intent(in)     :: repstr   ! String for add
+       character(len=*), intent(out)    :: warning  ! Message
 
-      lstr=len(substr)
-      warning=" "
-      i=index(rep_string,substr)
-      if(i /= 0) then !Check if the substring to be replaced is contained in the replacing string
-         !In such case the alternative short code doesn't work ... we have to use the longer analysis below
-         ncount=String_Count(string,trim(substr))+1
-         allocate(pos(ncount))
-         allocate(splitted_string(ncount))
-         call Get_Substring_Positions(string,substr,pos,nsubs)
-         dmax=0
-         do i=2,nsubs
-           d=pos(i)-pos(i-1)
-           if(d > dmax) dmax=d
-         end do
-         if(dmax > 1024) write(unit=warning,fmt="(a)") " => Warning! ... string too long to be fetch into the splitted_string"
-         !Construct the splitted string
-         j=1
-         splitted_string(j)=string(1:pos(j)-1)
-         do
-           j=j+1
-           if(j > nsubs) exit
-           splitted_string(j)=string(pos(j-1)+lstr:pos(j)-1)
-         end do
-         splitted_string(ncount)=string(pos(nsubs)+lstr:)
-         !Construct now the full string
-         string=""
-         do i=1,nsubs
-           string=trim(string)//trim(splitted_string(i))//rep_string
-         end do
-         string=trim(string)//trim(splitted_string(ncount))
+       ! --- Local variables ---!
+       integer                                      :: i,j,lstr,ncount,nsubs,d,dmax
+       integer,            dimension(:),allocatable :: pos
+       character(len=1024),dimension(:),allocatable :: splitted_string
 
-      else  !The following short code works easily when substr is not contained in rep_string
+       lstr=len(substr)
+       warning=" "
 
-         do
-           i=index(string,substr)
-           if (i == 0) exit
-           string=string(1:i-1)//rep_string//trim(string(i+lstr:))
-         end do
+       i=index(repstr,substr)
+       if (i /= 0) then
+          !> Check if the substring to be replaced is contained in the replacing string
+          !> In such case the alternative short code doesn't work ... we have to use the longer analysis below
+          ncount=String_Count(string,trim(substr))+1
+          allocate(pos(ncount))
+          allocate(splitted_string(ncount))
+          call Get_Substring_Positions(string,substr,pos,nsubs)
 
-      end if
-      return
-    End Subroutine SString_Replace
+          dmax=0
+          do i=2,nsubs
+             d=pos(i)-pos(i-1)
+             if (d > dmax) dmax=d
+          end do
+          if (dmax > 1024) write(unit=warning,fmt="(a)") " => Warning! ... string too long to be fetch into the splitted_string"
+
+          !>Construct the splitted string
+          j=1
+          splitted_string(j)=string(1:pos(j)-1)
+          do
+             j=j+1
+             if (j > nsubs) exit
+             splitted_string(j)=string(pos(j-1)+lstr:pos(j)-1)
+          end do
+          splitted_string(ncount)=string(pos(nsubs)+lstr:)
+
+          !> Construct now the full string
+          string=""
+          do i=1,nsubs
+             string=trim(string)//trim(splitted_string(i))//repstr
+          end do
+          string=trim(string)//trim(splitted_string(ncount))
+
+       else
+          !> The following short code works easily when substr is not contained in repstr
+          do
+             i=index(string,substr)
+             if (i == 0) exit
+             string=string(1:i-1)//repstr//trim(string(i+lstr:))
+          end do
+       end if
+
+       return
+    End Subroutine SubString_Replace
 
     !!--++
     !!--++ Subroutine TreatMCharField(iFld,aLine,L_Line,nC_L,nC_X)
-    !!--++    Integer,          intent(in out)  :: iFld   ! <-> "A" format size (1 to 9)
-    !!--++    Character(len=*), intent(in)      :: aLine  !  -> data line to be analysed
-    !!--++    Integer,          intent(in)      :: L_Line !  -> true length of data Line
-    !!--++    Integer,          intent(in out)  :: nC_L   ! <-> current character in data line
-    !!--++    Integer,          intent(out)     :: nC_X   ! <-  number of characters in X format field (now nx -> trn)
     !!--++
     !!--++    (PRIVATE)
     !!--++    Fixed length "A1 to A9" field : A<iFld-48>
@@ -2839,11 +2788,11 @@
     !!
     Subroutine TreatMCharField(iFld,aLine,L_Line,nC_L,nC_X)
        !---- Arguments ----!
-       Integer,           intent(in out)  :: iFld
-       Character (len=*), intent(in)      :: aLine
-       Integer,           intent(in)      :: L_Line
-       Integer,           intent(in out)  :: nC_L
-       Integer,           intent(out)     :: nC_X
+       Integer,           intent(in out)  :: iFld      ! <-> "A" format size (1 to 9)
+       Character (len=*), intent(in)      :: aLine     !  -> data line to be analysed
+       Integer,           intent(in)      :: L_Line    !  -> true length of data Line
+       Integer,           intent(in out)  :: nC_L      ! <-> current character in data line
+       Integer,           intent(out)     :: nC_X      ! <-  number of characters in X format field (now nx -> trn)
 
        !---- Local variables ----!
        Character (len=1) ::   Car
@@ -2913,11 +2862,6 @@
 
     !!--++
     !!--++ Subroutine TreatNumerField(iFld,aLine,L_Line,nC_L,nCar)
-    !!--++    Integer ,          intent( in)    ::  iFld   !  -> field type
-    !!--++    Character (len=*), intent(in out) ::  aLine  ! <-> data line
-    !!--++    Integer ,          intent( in)    ::  L_Line !  -> true length of the data line
-    !!--++    Integer ,          intent(in out) ::  nC_L   ! <-> counts characters in data line
-    !!--++    Integer ,          intent(in out) ::  nCar   ! <-> counts characters in format field
     !!--++
     !!--++    (PRIVATE)
     !!--++    Free "I" and "F" formats
@@ -2928,7 +2872,7 @@
     Subroutine TreatNumerField(iFld,aLine,L_Line,nC_L,nCar)
        !---- Arguments ----!
        Integer ,          intent( in)    ::  iFld   ! field type
-       Character (len=*), intent(in out) ::  aLine
+       Character (len=*), intent(in out) ::  aLine  ! data line
        Integer ,          intent( in)    ::  L_Line ! true length of the data line
        Integer ,          intent(in out) ::  nC_L   ! counts characters in data line
        Integer ,          intent(in out) ::  nCar   ! counts characters in format field
@@ -3100,18 +3044,17 @@
     End Subroutine TreatNumerField
 
     !!----
-    !!---- Subroutine Ucase(Line)
-    !!----    character(len=*) :: Line
+    !!---- Subroutine Ucase(Str)
     !!----
     !!----    Conversion to upper case. Line is modified
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Ucase(line)
+    Subroutine Ucase(Str)
        !---- Argument ----!
-       character (len=*), intent(in out) :: line
+       character (len=*), intent(in out) :: Str
 
-       line=u_case(line)
+       str=u_case(str)
 
        return
     End Subroutine Ucase
