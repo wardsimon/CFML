@@ -45,8 +45,7 @@
 !!
 Module CFML_PowderProfiles_Finger
    !---- Use Modules ----!
-   Use CFML_GlobalDeps, only: cp, pi, to_rad, to_deg
-   Use CFML_DefPar,     only: init_profval
+   Use CFML_DefPar,     only: cp, pi, to_rad, to_deg, init_profval
 
    !---- Definitions ----!
    implicit none

@@ -41,7 +41,7 @@
 !!
 Module CFML_PowderProfiles_CW
    !---- Use Files ----!
-   Use CFML_GlobalDeps, only: cp
+   Use CFML_DefPar, only: cp
 
    !---- Variables ----!
    implicit none

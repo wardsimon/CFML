@@ -56,8 +56,7 @@
 !!
 Module CFML_PowderProfiles_TOF
    !---- Use Modules ----!
-   Use CFML_GlobalDeps, only: cp, dp, sp
-   Use CFML_DefPar,     only: Lorcomp, Deriv_TOF_Type
+   Use CFML_DefPar,     only: cp, dp, sp, Lorcomp, Deriv_TOF_Type
 
    !---- Definitions ----!
    implicit none

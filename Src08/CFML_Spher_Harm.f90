@@ -42,8 +42,7 @@
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,   only: Cp, Dp, Eps, Pi, To_Rad
-    Use CFML_DefPar,       only: Err_Spher, Err_Spher_Mess
+    Use CFML_DefPar,       only: Cp, Dp, Eps, Pi, To_Rad, Err_Spher, Err_Spher_Mess
     Use CFML_Math_General, only: poly_legendre, Sph_Jn
 
     !---- Definitions ----!

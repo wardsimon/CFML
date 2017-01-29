@@ -40,7 +40,7 @@
 !!
 Module CFML_DefPar
    !---- Use Modules ----!
-   use CFML_GlobalDeps, only : cp
+   use CFML_GlobalDeps
 
    !---- Local Variables ----!
    implicit none
@@ -169,6 +169,49 @@ Module CFML_DefPar
    End Type Points_Interval_Type
 
    !!----
+   !!---- TYPE :: OPT_CONDITIONS_TYPE
+   !!----
+   !!----    This TYPE has been introduced to simplify the call to optimization
+   !!----    procedures. It contains the optimization parameters useful for different
+   !!----    algorithms.
+   !!----
+   !!----    All integer components are initialized to zero and the real components
+   !!----    are initilized as indicated below.
+   !!----    A variable of this type should be defined by the user and all their
+   !!----    input parameters (in) must be provided before calling the procedures.
+   !!----    On output from the procedure the (out) items are provided for checking.
+   !!----
+   !!
+   Type :: Opt_Conditions_Type
+      character(len=20) :: method = " "    ! Name of the method
+      integer           :: nmeth  = 0      ! 0= conjugate gradient, 1= BFGS method
+      integer           :: npar   = 0      ! Number of free parameters
+      integer           :: mxfun  = 0      ! Maximum number function calls
+      integer           :: loops  = 0      ! Useful for SIMPLEX method: = 0
+      integer           :: iquad  = 0      ! For SIMPLEX, if iquad/= 0 fitting to a quadratic
+      integer           :: iout   = 0      ! =0 no printing for Quasi_Newton & Conjugate Gradient. Partial printing for Simplex (<0 no printing).
+                                           ! > 0 printing each iout iterations/evaluations
+      integer           :: nflag  = 0      ! Flag value states which condition caused the exit of the optimization subroutine
+                                           !       If NFLAG=0, the algorithm has converged.
+                                           !       If NFLAG=1, the maximum number of function
+                                           !          evaluations have been used.
+                                           !       If NFLAG=2, the linear search has failed to
+                                           !          improve the function value. This is the
+                                           !          usual exit if either the function or the
+                                           !          gradient is incorrectly coded.
+                                           !       If NFLAG=3, The search vector was not
+                                           !          a descent direction. This can only be caused
+                                           !          by roundoff,and may suggest that the
+                                           !          convergence criterion is too strict.
+      integer           :: ifun   = 0      ! Total number of function and gradient evaluations
+      integer           :: iter   = 0      ! Total number of search directions used in the algorithm
+      real(kind=cp)     :: eps    = 0.0    ! Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum
+                                           ! of one and the norm of the vector X. Initialized to 1.0E-6
+      real(kind=cp)     :: acc    = 0.0    ! ACC is a user supplied estimate of machine accuracy ACC=10.0E-20 has proved satisfactory
+                                           ! For simplex method this should be changed to 1.0e-6
+   End Type Opt_Conditions_Type
+
+   !!----
    !!---- TYPE :: LSQ_CONDITIONS_TYPE
    !!--..
    !!----  Derived type encapsulating all necessary conditions for running the LSQ algorithm
@@ -267,10 +310,12 @@ Module CFML_DefPar
    !---- VARIABLES ----!
    !-------------------!
 
-   logical            :: ERR_MathGen =.false.          ! Logical Variable indicating an error in CFML_Math_General module
-   logical            :: ERR_Random  =.false.          ! Logical Variable indicating an error in CFML_Random_Generators module
-   logical            :: ERR_Spher   =.false.          ! Logical Variable indicating an error in CFML_Spherical_Harmonics module
-   logical            :: Err_String  =.false.          ! Logical Variable indicating an error in CFML_String_Utilities module
+   logical            :: ERR_MathGen =.false.          ! Error flag in CFML_Math_General module
+   logical            :: ERR_Random  =.false.          ! Error flag in CFML_Random_Generators module
+   logical            :: ERR_Spher   =.false.          ! Error flag in CFML_Spherical_Harmonics module
+   logical            :: ERR_String  =.false.          ! Error flag in CFML_String_Utilities module
+   logical            :: ERR_Math3D  =.false.          ! Error flag in CFML_Math_3D module
+   logical            :: ERR_Optim   =.false.          ! Error flag in CFML_Optimization_General module
 
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
@@ -279,6 +324,8 @@ Module CFML_DefPar
    character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
    character(len=256) :: Err_Spher_Mess   = " "        ! String containing information about the last error
    character(len=256) :: Err_String_Mess  = " "        ! String containing information about the last error
+   character(len=256) :: Err_Math3D_Mess  = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Optim_Mess   = " "        ! String containing information about the last error
 
    integer            :: win_console = -1              ! Code number for Scroll Window (Variable only in use for Winteracter code)
 

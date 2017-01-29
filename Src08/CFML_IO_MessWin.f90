@@ -56,8 +56,7 @@ Module CFML_IO_Messages
                               WEditFile, WEditPutTextPart, WindowSelect, WInfoEditor,       &
                               CommandLine,WInfoScreen,CourierNew,win_message
 
-   use CFML_GlobalDeps, only: OPS
-   Use CFML_DefPar,     only: win_console
+   Use CFML_DefPar,     only: OPS, win_console
 
    !---- Definitions ----!
    implicit none

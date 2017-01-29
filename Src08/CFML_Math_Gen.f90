@@ -39,8 +39,8 @@
 !!
  Module CFML_Math_General
     !---- Use Modules ----!
-    Use CFML_GlobalDeps
-    Use CFML_DefPar, only : Err_MathGen, Err_MathGen_Mess, Primes
+    Use CFML_DefPar, only : CP, SP, DP, DEPS, PI, TPI, Primes,  &
+                            Err_MathGen, Err_MathGen_Mess
 
     !---- Variables ----!
     implicit none

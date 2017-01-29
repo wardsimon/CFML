@@ -111,8 +111,7 @@
 !!
  Module CFML_Random_Generators
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,   only: cp,dp
-    Use CFML_DefPar,       only: Err_Random, Err_Random_Mess
+    Use CFML_DefPar,       only: cp,sp,dp, Err_Random, Err_Random_Mess
 
     !---- Definitions ----!
     implicit none

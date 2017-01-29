@@ -48,8 +48,7 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_GlobalDeps,   only: cp, ops_sep
-    use CFML_DefPar,       only: iErr_fmt, Err_Text_Type, Mess_FindFMT, Err_String, Err_String_Mess
+    use CFML_DefPar,       only: cp, ops_sep, iErr_fmt, Err_Text_Type, Mess_FindFMT, Err_String, Err_String_Mess
     use CFML_Math_General, only: Negligible, Zbelong
     use ieee_arithmetic,   only: ieee_is_nan,ieee_is_finite
 
