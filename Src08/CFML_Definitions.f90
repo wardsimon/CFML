@@ -55,13 +55,33 @@ Module CFML_DefPar
    integer, parameter :: BVS_SPECIES_N = 247   ! Maximum Number of species in BVS_Table
    integer, parameter :: MAX_FREE_PAR  =3000   ! Maximum number of free parameters
    integer, parameter :: NUM_CHEM_INFO = 108   ! Number of total Chem_info Data
-   integer, parameter :: NUM_DELTA_FP  = 98    ! Number of total Delta (Fp,Fpp) Data
+   integer, parameter :: NUM_DELTA_FP  =  98   ! Number of total Delta (Fp,Fpp) Data
    integer, parameter :: NUM_MAG_FORM  = 119   ! Number of total Magnetic_Form Data
    integer, parameter :: NUM_MAG_J2    =  97   ! Number of <j2> Magnetic_Form Data
    integer, parameter :: NUM_MAG_J4    =  97   ! Number of <j4> Magnetic_Form Data
    integer, parameter :: NUM_MAG_J6    =  39   ! Number of <j6> Magnetic_Form Data
    integer, parameter :: NUM_XRAY_FORM = 214   ! Number of total Xray_Form Data
    integer, parameter :: SBVS_SPECIES_N= 168   ! Maximum Number of species in SBVS_Table
+
+   integer, parameter, dimension(36,3,3)  :: MOD6 = reshape (  (/              &  ! Matrix Types For Rotational Operators In Conventional Basis
+       1,-1,-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1,                   &  ! 1->24 Oh, 25->36 D6h
+      -1, 1, 0, 0, 0, 0, 1, 0,-1,-1, 0, 1, 0, 1,-1, 0,-1, 1,                   &
+       0, 0, 0, 0, 1,-1,-1, 1, 0, 0, 0, 0, 1,-1,-1, 1, 0, 0,                   &
+       0, 0, 0, 0, 0, 0, 0, 1,-1, 0,-1, 1, 1, 0,-1,-1, 0, 1,                   &
+       0, 0, 0, 0, 0, 0, 0, 0, 1,-1,-1, 1, 0, 0, 0, 0, 0, 0,                   &
+       0, 0,-1, 1, 1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       0, 0, 0, 0, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 0,                   &
+       0, 0, 0, 0, 0, 0, 0,-1, 1, 0, 1,-1, 1,-1, 0,-1, 1, 0,                   &
+       1,-1, 1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       0, 0, 1,-1, 1,-1, 1,-1, 0,-1, 1, 0, 0,-1, 1, 0, 1,-1,                   &
+       0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 0, 0, 0, 0,-1, 1,                   &
+      -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       0, 0, 0, 0, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       0, 0, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       0, 0, 0, 0, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0, 0, 0, 1, 1,                   &
+      -1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                   &
+       1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0,-1,-1, 1, 1, 0, 0,                   &
+       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1 /), (/36,3,3/) )
 
    integer, parameter, dimension(1000) :: PRIMES =    & ! List of the first 1000 prime numbers
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
@@ -165,51 +185,240 @@ Module CFML_DefPar
            7727,   7741,   7753,   7757,   7759,   7789,   7793,   7817,   7823,   7829,  &
            7841,   7853,   7867,   7873,   7877,   7879,   7883,   7901,   7907,   7919 /)
 
+   character(len=*), parameter, dimension(24)            :: BC_D6h =(/                &      ! Bradley & Cracknell Notation
+             "  E  "," C+_3"," C-_3"," C_2 "," C-_6"," C+_6","C'_23","C'_21","C'_22", &
+             "C`_23","C`_21","C`_22","  I  "," S-_6"," S+_6"," s_h "," S+_3"," S-_3", &
+             " s_v3"," s_v1"," s_v2"," s_d3"," s_d1"," s_d2" /)
+   character(len=*), parameter, dimension(48)            :: BC_Oh =(/                 &      ! Bradley & Cracknell Notation
+             "  E  "," C_2z"," C_2y"," C_2x","C+_31","C+_34","C+_33","C+_32","C-_31", &
+             "C-_33","C-_32","C-_34"," C_2a"," C_2b","C-_4z","C+_4z","C-_4x"," C_2d", &
+             " C_2f","C+_4x","C+_4y"," C_2c","C-_4y"," C_2e","  I  "," s_z "," s_y ", &
+             " s_x ","S-_61","S-_64","S-_63","S-_62","S+_61","S+_63","S+_62","S+_64", &
+             " s_da"," s_db","S+_4z","S-_4z","S+_4x"," s_dd"," s_df","S-_4x","S-_4y", &
+             " s_dc","S+_4y"," s_de"  /)
    character(len=*), parameter, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS = (/"O-2 "/)          ! Anions known from Stefan Adams and R. Prasada Rao
-   character(len=*), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS  = (/"O-2 ","F-1 ", &  !  Anions known from O'Keefe, Bresse, Brown
+   character(len=*), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS  = (/"O-2 ","F-1 ", &  ! Anions known from O'Keefe, Bresse, Brown
              "CL-1","BR-1","I-1 ","S-2 ","SE-2","TE-2","N-3 ","P-3 ","AS-3","H-1 ","O-1 ", &
              "SE-1"/)
-   character(len=*), parameter, dimension(0:35)          :: REFERENCES  = (/               &  ! List of Reference for BVS Data
-         "Unknown                                                                         ", &  !0
-         "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
-         "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &  !2
-         "Adams, 2001, Acta Cryst. B57, 278-287 (includes second neighbours)              ", &  !3
-         "Hu et al. (1995) Inorg. Chim. Acta, 232, 161-165.                               ", &  !4
-         "I.D.Brown Private communication                                                 ", &  !5
-         "Brown et al. (1984) Inorg. Chem. 23, 4506-4508                                  ", &  !6
-         "Palenik (1997) Inorg. Chem. 36 4888-4890                                        ", &  !7
-         "Kanowitz and Palenik (1998) Inorg. Chem. 37 2086-2088                           ", &  !8
-         "Wood and Palenik (1998) Inorg. Chem. 37 4149-4151                               ", &  !9
-         "Liu and Thorp (1993) Inorg. Chem. 32 4102-4105                                  ", &  !10
-         "Palenik (1997) Inorg. Chem. 36 3394-3397                                        ", &  !11
-         "Shields, Raithby, Allen and Motherwell (1999) Acta Cryst.B56, 455-465           ", &  !12
-         "Chen, Zhou and Hu (2002) Chinese Sci. Bul. 47, 978-980.                         ", &  !13
-         "Kihlbourg (1963) Ark. Kemi 21 471; Schroeder 1975 Acta Cryst. B31, 2294         ", &  !14
-         "Allmann (1975) Monatshefte Chem. 106, 779                                       ", &  !15
-         "Zachariesen (1978) J.Less Common Metals 62, 1                                   ", &  !16
-         "Krivovichev and Brown (2001) Z. Krist. 216, 245                                 ", &  !17
-         "Burns, Ewing and Hawthorne (1997) Can. Miner. 35,1551-1570                      ", &  !18
-         "Garcia-Rodriguez, et al. (2000) Acta Cryst. B56, 565-569                        ", &  !19
-         "Mahapatra et al. (1996) J. Amer.Chem. Soc. 118, 11555                           ", &  !20
-         "Wood and Palenik (1999) Inorg. Chem. 38, 1031-1034                              ", &  !21
-         "Wood and Palenik (1999) Inorg. Chem. 38, 3926-3930                              ", &  !22
-         "Wood, Abboud, Palenik and Palenik (2000) Inorg. Chem. 39, 2065-2068             ", &  !23
-         "Tytko, Mehnike and Kurad (1999) Structure and Bonding 93, 1-66                  ", &  !24
-         "Gundemann, et al.(1999) J. Phys. Chem. A 103, 4752-4754                         ", &  !25
-         "Zocchi (2000) Solid State Sci. 2 383-387                                        ", &  !26
-         "Jensen, Palenik and Tiekiak (2001) Polyhedron 20, 2137                          ", &  !27
-         "Roulhac and Palenik (2002) Inorg. Chem. 42, 118-121                             ", &  !28
-         "Holsa et al.(2002) J.Solid State Chem 165, 48-55                                ", &  !29
-         "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &  !30
-         "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &  !31
-         "J.Rodriguez-Carvajal, Private communication                                     ", &  !32
-         "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
-         "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
-         "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
+   character(len=*), parameter, dimension(72)            :: DEPMAT = (/           &           ! Magnetic array
+             "( Dx, Dy, Dz)      ","(-Dx,-Dy, Dz)      ","(-Dx, Dy,-Dz)      ",   &
+             "( Dx,-Dy,-Dz)      ","( Dz, Dx, Dy)      ","( Dz,-Dx,-Dy)      ",   &
+             "(-Dz,-Dx, Dy)      ","(-Dz, Dx,-Dy)      ","( Dy, Dz, Dx)      ",   &
+             "(-Dy, Dz,-Dx)      ","( Dy,-Dz,-Dx)      ","(-Dy,-Dz, Dx)      ",   &
+             "( Dy, Dx,-Dz)      ","(-Dy,-Dx,-Dz)      ","( Dy,-Dx, Dz)      ",   &
+             "(-Dy, Dx, Dz)      ","( Dx, Dz,-Dy)      ","(-Dx, Dz, Dy)      ",   &
+             "(-Dx,-Dz,-Dy)      ","( Dx,-Dz, Dy)      ","( Dz, Dy,-Dx)      ",   &
+             "( Dz,-Dy, Dx)      ","(-Dz, Dy, Dx)      ","(-Dz,-Dy,-Dx)      ",   &
+             "(-Dx,-Dy,-Dz)      ","( Dx, Dy,-Dz)      ","( Dx,-Dy, Dz)      ",   &
+             "(-Dx, Dy, Dz)      ","(-Dz,-Dx,-Dy)      ","(-Dz, Dx, Dy)      ",   &
+             "( Dz, Dx,-Dy)      ","( Dz,-Dx, Dy)      ","(-Dy,-Dz,-Dx)      ",   &
+             "( Dy,-Dz, Dx)      ","(-Dy, Dz, Dx)      ","( Dy, Dz,-Dx)      ",   &
+             "(-Dy,-Dx, Dz)      ","( Dy, Dx, Dz)      ","(-Dy, Dx,-Dz)      ",   &
+             "( Dy,-Dx,-Dz)      ","(-Dx,-Dz, Dy)      ","( Dx,-Dz,-Dy)      ",   &
+             "( Dx, Dz, Dy)      ","(-Dx, Dz,-Dy)      ","(-Dz,-Dy, Dx)      ",   &
+             "(-Dz, Dy,-Dx)      ","( Dz,-Dy,-Dx)      ","( Dz, Dy, Dx)      ",   &
+             "( Dx   ,    Dy, Dz)","(   -Dy, Dx-Dy, Dz)","(-Dx+Dy,-Dx   , Dz)",   &
+             "(-Dx   ,   -Dy, Dz)","(    Dy,-Dx+Dy, Dz)","( Dx-Dy, Dx   , Dz)",   &
+             "(    Dy, Dx   ,-Dz)","( Dx-Dy,   -Dy,-Dz)","(-Dx   ,-Dx+Dy,-Dz)",   &
+             "(   -Dy,-Dx   ,-Dz)","(-Dx+Dy,    Dy,-Dz)","( Dx   , Dx-Dy,-Dz)",   &
+             "(-Dx   ,   -Dy,-Dz)","(    Dy,-Dx+Dy,-Dz)","( Dx-Dy, Dx   ,-Dz)",   &
+             "( Dx   ,    Dy,-Dz)","(   -Dy, Dx-Dy,-Dz)","(-Dx+Dy,-Dx   ,-Dz)",   &
+             "(   -Dy,-Dx   , Dz)","(-Dx+Dy,    Dy, Dz)","( Dx   , Dx-Dy, Dz)",   &
+             "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"   /)
+   character(len=* ), parameter, dimension(24)           :: INTSYMD6H =(/          &     ! International Symbols For Point Group Elements Of 6/mmm (D6h)
+             "  1           "," 3+ ( 0, 0, z)"," 3- ( 0, 0, z)","  2 ( 0, 0, z)",  &
+             " 6- ( 0, 0, z)"," 6+ ( 0, 0, z)","  2 ( x, x, 0)","  2 ( x, 0, 0)",  &
+             "  2 ( 0, y, 0)","  2 ( x,-x, 0)","  2 ( x,2x, 0)","  2 (2x, x, 0)",  &
+             " -1           ","-3+ ( 0, 0, z)","-3- ( 0, 0, z)","  m ( x, y, 0)",  &
+             "-6- ( 0, 0, z)","-6+ ( 0, 0, z)","  m ( x,-x, z)","  m ( x,2x, z)",  &
+             "  m (2x, x, z)","  m ( x, x, z)","  m ( x, 0, z)","  m ( 0, y, z)"   /)
+   character(len=* ), parameter, dimension(48)           :: INTSYMOH = (/          &
+             "  1           ","  2 ( 0, 0, z)","  2 ( 0, y, 0)","  2 ( x, 0, 0)",  &     ! International Symbols For Point Group Elements Of M3M (Oh)
+             " 3+ ( x, x, x)"," 3+ (-x, x,-x)"," 3+ ( x,-x,-x)"," 3+ (-x,-x, x)",  &
+             " 3- ( x, x, x)"," 3- ( x,-x,-x)"," 3- (-x,-x, x)"," 3- (-x, x,-x)",  &
+             "  2 ( x, x, 0)","  2 ( x,-x, 0)"," 4- ( 0, 0, z)"," 4+ ( 0, 0, z)",  &
+             " 4- ( x, 0, 0)","  2 ( 0, y, y)","  2 ( 0, y,-y)"," 4+ ( x, 0, 0)",  &
+             " 4+ ( 0, y, 0)","  2 ( x, 0, x)"," 4- ( 0, y, 0)","  2 (-x, 0, x)",  &
+             " -1           ","  m ( x, y, 0)","  m ( x, 0, z)","  m ( 0, y, z)",  &
+             "-3+ ( x, x, x)","-3+ (-x, x,-x)","-3+ ( x,-x,-x)","-3+ (-x,-x, x)",  &
+             "-3- ( x, x, x)","-3- ( x,-x,-x)","-3- (-x,-x, x)","-3- (-x, x,-x)",  &
+             "  m ( x,-x, z)","  m ( x, x, z)","-4- ( 0, 0, z)","-4+ ( 0, 0, z)",  &
+             "-4- ( x, 0, 0)","  m ( x, y,-y)","  m ( x, y, y)","-4+ ( x, 0, 0)",  &
+             "-4+ ( 0, y, 0)","  m (-x, y, x)","-4- ( 0, y, 0)","  m ( x, y, x)"   /)
+   character(len=*), parameter, dimension(24)            :: KOV_D6H=(/           &       ! Kovalev Notation
+             " h1"," h3"," h5"," h4"," h6"," h2","h11"," h9"," h7"," h8","h12",  &
+             "h10","h13","h15","h17","h16","h18","h14","h23",                    &
+             "h21","h19","h20","h24","h22"/)
+   character(len=*), parameter, dimension(48)            :: KOV_OH=(/                   &  ! Kovalev Notation
+             " h1"," h4"," h3"," h2"," h9","h10","h12","h11"," h5"," h7"," h6"," h8",   &
+             "h16","h13","h15","h14","h20","h18","h17","h19","h24","h23",               &
+             "h22","h21","h25","h28","h27","h26","h33","h34","h36","h35",               &
+             "h29","h31","h30","h32","h40","h37","h39","h38","h44","h42",               &
+             "h41","h43","h48","h47","h46","h45"/)
+   character(len=* ), parameter, dimension( 8)           :: LATT =(/         &   ! Lattice Traslations
+             "  P: { 000 }                                       ",          &
+             "  A: { 000;  0  1/2 1/2 }+                         ",          &
+             "  B: { 000; 1/2  0  1/2 }+                         ",          &
+             "  C: { 000; 1/2 1/2  0  }+                         ",          &
+             "  I: { 000; 1/2 1/2 1/2 }+                         ",          &
+             "  R: { 000; 2/3 1/3 1/3; 1/3 2/3 2/3   }+          ",          &
+             "  F: { 000;  0  1/2 1/2; 1/2  0  1/2; 1/2 1/2  0 }+",          &
+             "  Z: { 000;  Unconventional Z-centering vectors  }+"   /)
+   character(len=*), parameter, dimension(16)            :: LAUE_CLASS=(/     &   ! Laue Class
+             "-1   ","2/m  ","mmm  ","4/m  ","4/mmm","-3 R ","-3m R","-3   ", &
+             "-3m1 ","-31m ","6/m  ","6/mmm","m-3  ","m-3m ","m3   ","m3m  "/)
+   character(len=*), parameter, dimension(48)            :: LITVIN_POINT_OP_LABEL=(/                  &
+             "1       ","2x      ","2y      ","2z      ","3xyz-1  ","3xy-z   ","3-xyz   ","3x-yz   ", &
+             "3xyz    ","3x-yz-1 ","3xy-z-1 ","3-xyz-1 ","2-xy    ","4z      ","4z-1    ","2xy     ", &
+             "2-yz    ","2yz     ","4x      ","4x-1    ","2-xz    ","4y-1    ","2xz     ","4y      ", &
+             "-1      ","mx      ","my      ","mz      ","-3xyz-1 ","-3xy-z  ","-3-xyz  ","-3x-yz  ", &
+             "-3xyz   ","-3x-yz-1","-3xy-z-1","-3-xyz-1","m-xy    ","-4z     ","-4z-1   ","mxy     ", &
+             "m-yz    ","myz     ","-4x     ","-4x-1   ","m-xz    ","-4y-1   ","mxz     ","-4y     "/)
+   character(len=*), parameter, dimension(48)            :: LITVIN_POINT_OP=(/     &
+             "x,y,z   ", "x,-y,-z ", "-x,y,-z ", "-x,-y,z ", "y,z,x   ",           &
+             "y,-z,-x ", "-y,z,-x ", "-y,-z,x ", "z,x,y   ", "z,-x,-y ",           &
+             "-z,x,-y ", "-z,-x,y ", "-y,-x,-z", "-y,x,z  ", "y,-x,z  ",           &
+             "y,x,-z  ", "-x,-z,-y", "-x,z,y  ", "x,-z,y  ", "x,z,-y  ",           &
+             "-z,-y,-x", "-z,y,x  ", "z,-y,x  ", "z,y,-x  ", "-x,-y,-z",           &
+             "-x,y,z  ", "x,-y,z  ", "x,y,-z  ", "-y,-z,-x", "-y,z,x  ",           &
+             "y,-z,x  ", "y,z,-x  ", "-z,-x,-y", "-z,x,y  ", "z,-x,y  ",           &
+             "z,x,-y  ", "y,x,z   ", "y,-x,-z ", "-y,x,-z ", "-y,-x,z ",           &
+             "x,z,y   ", "x,-z,-y ", "-x,z,-y ", "-x,-z,y ", "z,y,x   ",           &
+             "z,-y,-x ", "-z,y,-x ", "-z,-y,x "/)
+   character(len=*), parameter, dimension(24)            :: LITVIN_POINT_OP_HEX_LABEL=(/     &
+             "1    ","6z   ","3z   ","2z   ","3z-1 ","6z-1 ","2x   ","21   ",                &
+             "2xy  ","22   ","2y   ","23   ","-1   ","-6z  ","-3z  ","mz   ",                &
+             "-3z-1","-6z-1","mx   ","m1   ","mxy  ","m2   ","my   ","m3   "/)
+   character(len=*), parameter, dimension(24)            :: LITVIN_POINT_OP_HEX=(/          &
+             "x,y,z     ","x-y,x,z   ","-y,x-y,z  ","-x,-y,z   ","-x+y,-x,z ","y,-x+y,z  ", &
+             "x-y,-y,-z ","x,x-y,-z  ","y,x,-z    ","-x+y,y,-z ","-x,-x+y,-z","-y,-x,-z  ", &
+             "-x,-y,-z  ","-x+y,-x,-z","y,-x+y,-z ","x,y,-z    ","x-y,x,-z  ","-y,x-y,-z ", &
+             "-x+y,y,z  ","-x,-x+y,z ","-y,-x,z   ","x-y,-y,z  ","x,x-y,z   ","y,x,z     "/)
+   character(len=*), parameter, dimension(72)            :: MAGMAT = (/           &
+             "( Mx, My, Mz)      ","(-Mx,-My, Mz)      ","(-Mx, My,-Mz)      ",   &
+             "( Mx,-My,-Mz)      ","( Mz, Mx, My)      ","( Mz,-Mx,-My)      ",   &
+             "(-Mz,-Mx, My)      ","(-Mz, Mx,-My)      ","( My, Mz, Mx)      ",   &
+             "(-My, Mz,-Mx)      ","( My,-Mz,-Mx)      ","(-My,-Mz, Mx)      ",   &
+             "( My, Mx,-Mz)      ","(-My,-Mx,-Mz)      ","( My,-Mx, Mz)      ",   &
+             "(-My, Mx, Mz)      ","( Mx, Mz,-My)      ","(-Mx, Mz, My)      ",   &
+             "(-Mx,-Mz,-My)      ","( Mx,-Mz, My)      ","( Mz, My,-Mx)      ",   &
+             "( Mz,-My, Mx)      ","(-Mz, My, Mx)      ","(-Mz,-My,-Mx)      ",   &
+             "(-Mx,-My,-Mz)      ","( Mx, My,-Mz)      ","( Mx,-My, Mz)      ",   &
+             "(-Mx, My, Mz)      ","(-Mz,-Mx,-My)      ","(-Mz, Mx, My)      ",   &
+             "( Mz, Mx,-My)      ","( Mz,-Mx, My)      ","(-My,-Mz,-Mx)      ",   &
+             "( My,-Mz, Mx)      ","(-My, Mz, Mx)      ","( My, Mz,-Mx)      ",   &
+             "(-My,-Mx, Mz)      ","( My, Mx, Mz)      ","(-My, Mx,-Mz)      ",   &
+             "( My,-Mx,-Mz)      ","(-Mx,-Mz, My)      ","( Mx,-Mz,-My)      ",   &
+             "( Mx, Mz, My)      ","(-Mx, Mz,-My)      ","(-Mz,-My, Mx)      ",   &
+             "(-Mz, My,-Mx)      ","( Mz,-My,-Mx)      ","( Mz, My, Mx)      ",   &
+             "( Mx   ,    My, Mz)","(   -My, Mx-My, Mz)","(-Mx+My,-Mx   , Mz)",   &
+             "(-Mx   ,   -My, Mz)","(    My,-Mx+My, Mz)","( Mx-My, Mx   , Mz)",   &
+             "(    My, Mx   ,-Mz)","( Mx-My,   -My,-Mz)","(-Mx   ,-Mx+My,-Mz)",   &
+             "(   -My,-Mx   ,-Mz)","(-Mx+My,    My,-Mz)","( Mx   , Mx-My,-Mz)",   &
+             "(-Mx   ,   -My,-Mz)","(    My,-Mx+My,-Mz)","( Mx-My, Mx   ,-Mz)",   &
+             "( Mx   ,    My,-Mz)","(   -My, Mx-My,-Mz)","(-Mx+My,-Mx   ,-Mz)",   &
+             "(   -My,-Mx   , Mz)","(-Mx+My,    My, Mz)","( Mx   , Mx-My, Mz)",   &
+             "(    My, Mx   , Mz)","( Mx-My,   -My, Mz)","(-Mx   ,-Mx+My, Mz)"   /)
+   character(len=*), parameter, dimension(24)            :: ML_D6H=(/                   &   ! Miller & Love Notation
+             " 1"," 3"," 5"," 4"," 6"," 2"," 9"," 7","11","12","10"," 8","13","15","17",&
+             "16","18","14","21","19","23","24","22","20"/)
+   character(len=*), parameter, dimension(48)            :: ML_Oh=(/                    &   ! Miller & Love Notation
+             " 1"," 4"," 3"," 2"," 9","10","12","11"," 5"," 7"," 6"," 8","16","13","15",&
+             "14","20","18","17","19","24","23","22","21","25","28","27","26","33","34",&
+             "36","35","29","31","30","32","40","37","39","38","44","42","41","43","48",&
+             "47","46","45"/)
+   character(len=*), parameter, dimension(41)            :: POINT_GROUP=(/      &           ! Point Group Symbols
+             "1    ","-1   ","2    ","m    ","2/m  ","222  ","mm2  ","m2m  ",   &
+             "2mm  ","mmm  ","4    ","-4   ","4/m  ","422  ","4mm  ","-42m ",   &
+             "-4m2 ","4/mmm","3    ","-3   ","32   ","3m   ","-3m  ","312  ",   &
+             "31m  ","-31m ","6    ","-6   ","6/m  ","622  ","6mm  ","-62m ",   &
+             "-6m2 ","6/mmm","23   ","m-3  ","432  ","-43m ","m-3m ","m3   ",   &
+             "m3m  "/)
+   character(len=*), parameter, dimension(0:35)          :: REFERENCES  = (/                     &  ! List of Reference for BVS Data
+             "Unknown                                                                         ", &  !0
+             "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
+             "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &  !2
+             "Adams, 2001, Acta Cryst. B57, 278-287 (includes second neighbours)              ", &  !3
+             "Hu et al. (1995) Inorg. Chim. Acta, 232, 161-165.                               ", &  !4
+             "I.D.Brown Private communication                                                 ", &  !5
+             "Brown et al. (1984) Inorg. Chem. 23, 4506-4508                                  ", &  !6
+             "Palenik (1997) Inorg. Chem. 36 4888-4890                                        ", &  !7
+             "Kanowitz and Palenik (1998) Inorg. Chem. 37 2086-2088                           ", &  !8
+             "Wood and Palenik (1998) Inorg. Chem. 37 4149-4151                               ", &  !9
+             "Liu and Thorp (1993) Inorg. Chem. 32 4102-4105                                  ", &  !10
+             "Palenik (1997) Inorg. Chem. 36 3394-3397                                        ", &  !11
+             "Shields, Raithby, Allen and Motherwell (1999) Acta Cryst.B56, 455-465           ", &  !12
+             "Chen, Zhou and Hu (2002) Chinese Sci. Bul. 47, 978-980.                         ", &  !13
+             "Kihlbourg (1963) Ark. Kemi 21 471; Schroeder 1975 Acta Cryst. B31, 2294         ", &  !14
+             "Allmann (1975) Monatshefte Chem. 106, 779                                       ", &  !15
+             "Zachariesen (1978) J.Less Common Metals 62, 1                                   ", &  !16
+             "Krivovichev and Brown (2001) Z. Krist. 216, 245                                 ", &  !17
+             "Burns, Ewing and Hawthorne (1997) Can. Miner. 35,1551-1570                      ", &  !18
+             "Garcia-Rodriguez, et al. (2000) Acta Cryst. B56, 565-569                        ", &  !19
+             "Mahapatra et al. (1996) J. Amer.Chem. Soc. 118, 11555                           ", &  !20
+             "Wood and Palenik (1999) Inorg. Chem. 38, 1031-1034                              ", &  !21
+             "Wood and Palenik (1999) Inorg. Chem. 38, 3926-3930                              ", &  !22
+             "Wood, Abboud, Palenik and Palenik (2000) Inorg. Chem. 39, 2065-2068             ", &  !23
+             "Tytko, Mehnike and Kurad (1999) Structure and Bonding 93, 1-66                  ", &  !24
+             "Gundemann, et al.(1999) J. Phys. Chem. A 103, 4752-4754                         ", &  !25
+             "Zocchi (2000) Solid State Sci. 2 383-387                                        ", &  !26
+             "Jensen, Palenik and Tiekiak (2001) Polyhedron 20, 2137                          ", &  !27
+             "Roulhac and Palenik (2002) Inorg. Chem. 42, 118-121                             ", &  !28
+             "Holsa et al.(2002) J.Solid State Chem 165, 48-55                                ", &  !29
+             "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &  !30
+             "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &  !31
+             "J.Rodriguez-Carvajal, Private communication                                     ", &  !32
+             "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
+             "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
+             "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
+   character(len=*), parameter, dimension(7)             :: SYS_CRY =(/      &
+             "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
+             "Trigonal    ","Hexagonal   ","Cubic       " /)
+   character(len=*), parameter, dimension(24)            :: X_D6H = (/             &
+             "( x  ,   y, z)","(  -y, x-y, z)","(-x+y,-x  , z)","(-x  ,  -y, z)",  &
+             "(   y,-x+y, z)","( x-y, x  , z)","(   y, x  ,-z)","( x-y,  -y,-z)",  &
+             "(-x  ,-x+y,-z)","(  -y,-x  ,-z)","(-x+y,   y,-z)","( x  , x-y,-z)",  &
+             "(-x  ,  -y,-z)","(   y,-x+y,-z)","( x-y, x  ,-z)","( x  ,   y,-z)",  &
+             "(  -y, x-y,-z)","(-x+y,-x  ,-z)","(  -y,-x  , z)","(-x+y,   y, z)",  &
+             "( x  , x-y, z)","(   y, x  , z)","( x-y,  -y, z)","(-x  ,-x+y, z)"   /)
+   character(len=*), parameter, dimension(48)            :: X_OH = (/                       &
+             "( x, y, z)","(-x,-y, z)","(-x, y,-z)","( x,-y,-z)","( z, x, y)","( z,-x,-y)", &
+             "(-z,-x, y)","(-z, x,-y)","( y, z, x)","(-y, z,-x)","( y,-z,-x)","(-y,-z, x)", &
+             "( y, x,-z)","(-y,-x,-z)","( y,-x, z)","(-y, x, z)","( x, z,-y)","(-x, z, y)", &
+             "(-x,-z,-y)","( x,-z, y)","( z, y,-x)","( z,-y, x)","(-z, y, x)","(-z,-y,-x)", &
+             "(-x,-y,-z)","( x, y,-z)","( x,-y, z)","(-x, y, z)","(-z,-x,-y)","(-z, x, y)", &
+             "( z, x,-y)","( z,-x, y)","(-y,-z,-x)","( y,-z, x)","(-y, z, x)","( y, z,-x)", &
+             "(-y,-x, z)","( y, x, z)","(-y, x,-z)","( y,-x,-z)","(-x,-z, y)","( x,-z,-y)", &
+             "( x, z, y)","(-x, z,-y)","(-z,-y, x)","(-z, y,-x)","( z,-y,-x)","( z, y, x)"  /)
+   character(len=*), parameter, dimension(24)            :: ZAK_D6H =(/               &         ! Zak Notation
+             "   E   "," C(z)_3","C(2z)_3","  C_2  ","C(5z)_6"," C(z)_6","  U(xy)",   &
+             "  U(x) ","  U(y) ","  U(3) ","  U(2) ","  U(1) ","   I   ","S(5z)_6",   &
+             " S(z)_6","  s(z) "," S(z)_3","S(2z)_3"," s(xy) ","  s(x) ","  s(y) ",   &
+             "  s(3) ","  s(2) ","  s(1) " /)
+   character(len=*), parameter, dimension(48)            :: ZAK_OH =(/                &         ! Zak Notation
+             "     E     ","    U(z)   ","    U(y)   ","    U(x)   ","  C(xyz)_3 ",   &
+             " C(-xy-z)_3"," C(x-y-z)_3"," C(-x-yz)_3"," C(2xyz)_3 ","C(2x-y-z)_3",   &
+             " C(2x-yz)_3","C(-2xy-z)_3","    U(xy)  ","   U(-xy)  ","   C(3z)_4 ",   &
+             "   C(z)_4  ","   C(3x)_4 ","    U(yz)  ","   U(y-z)  ","   C(x)_4  ",   &
+             "   C(y)_4  ","    U(xz)  ","   C(3y)_4 ","   U(x-z)  ","      I    ",   &
+             "    s(z)   ","    s(y)   ","    s(x)   "," S(5xyz)_6 ","S(-5xy-z)_6",   &
+             "S(5x-y-z)_6","S(-5x-yz)_6","  S(xyz)_6 "," S(x-y-z)_6"," S(-x-yz)_6",   &
+             " S(-xy-z)_6","    s(xy)  ","   s(-xy)  ","   S(z)_4  ","  S(3z)_4  ",   &
+             "   S(x)_4  ","    s(yz)  ","   s(y-z)  ","  S(3x)_4  ","  S(3y)_4  ",   &
+             "    s(xz)  ","   S(y)_4  ","   s(x-z)  " /)
 
    real(kind=cp), parameter, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS_RION = (/1.40/)            ! Radii Ionic for Anions in BVEL
    real(kind=cp), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS_RION =  (/1.40, 1.19, &     ! Ionic Radii for Anions
                   1.67, 1.95, 2.16, 1.84, 1.98, 2.21, 1.71, 2.12, 2.22, 2.08, 1.35, 1.80/)
+   real(kind=cp), parameter, dimension(3,2)           :: LTR_A =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
+   real(kind=cp), parameter, dimension(3,2)           :: LTR_B =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
+   real(kind=cp), parameter, dimension(3,2)           :: LTR_C =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
+   real(kind=cp), parameter, dimension(3,4)           :: LTR_F =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5, &
+                                                                            0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) )
+   real(kind=cp), parameter, dimension(3,2)           :: LTR_I =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
+   real(kind=cp), parameter, dimension(3,3)           :: LTR_R =reshape ( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0, &
+                                                                              1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) )
+
 
    !---------------!
    !---- TYPES ----!
@@ -472,6 +681,51 @@ Module CFML_DefPar
    End Type sBvs_Par_Type
 
    !!----
+   !!---- TYPE :: SPGR_INFO_TYPE
+   !!--..
+   !!----    Definition for General Info about Space Groups
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Type :: Spgr_Info_Type
+      integer                 :: N         = 0        ! Number of the Spacegroup
+      character (len=12)      :: HM        = " "      ! Hermann-Mauguin
+      character (len=16)      :: Hall      = " "      ! Hall
+      integer                 :: Laue      = 0        ! Laue Group
+      integer                 :: Pg        = 0        ! Point group
+      integer, dimension(6)   :: Asu       = 0        ! Asymmetric unit * 24
+      character (len= 5)      :: Inf_Extra = " "      ! Extra information
+   End Type Spgr_Info_Type
+
+   !!----
+   !!---- TYPE :: TABLE_EQUIV_TYPE
+   !!--..
+   !!----    Definition for Equivalences on a Table
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Type :: Table_Equiv_Type
+      character(len= 6)      :: SC  = " "           ! Schoenflies
+      character(len=17)      :: ML  = " "           ! Miller & Love
+      character(len=18)      :: KO  = " "           ! Kovalev
+      character(len=32)      :: BC  = " "           ! Bradley & Cracknell
+      character(len=18)      :: ZA  = " "           ! Zak
+   End Type Table_Equiv_Type
+
+   !!----
+    !!---- TYPE :: WYCK_INFO_TYPE
+    !!--..
+    !!----    Definition for Wyckoff Positions acording to IT
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Type :: Wyck_Info_Type
+       character (len=12)               :: HM     = " "    ! Hermann-Mauguin
+       integer                          :: Norbit = 0      ! Number of orbites
+       character (len=15),dimension(26) :: Corbit = " "    ! Generator of the orbit
+    End Type Wyck_Info_Type
+
+   !!----
    !!---- TYPE :: XRAY_FORM_TYPE
    !!--..
    !!---- Update: February - 2005
@@ -507,6 +761,7 @@ Module CFML_DefPar
    logical            :: ERR_Math3D  =.false.          ! Error flag in CFML_Math_3D module
    logical            :: ERR_Optim   =.false.          ! Error flag in CFML_Optimization_General module
    logical            :: ERR_LSQ     =.false.          ! Error flag in CFML_Optimization_LSQ module
+   logical            :: ERR_Symtab  =.false.          ! Error flag in CFML_Symmetry_Tables module
 
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
@@ -518,6 +773,7 @@ Module CFML_DefPar
    character(len=256) :: ERR_Math3D_Mess  = " "        ! String containing information about the last error
    character(len=256) :: ERR_Optim_Mess   = " "        ! String containing information about the last error
    character(len=256) :: ERR_LSQ_Mess     = " "        ! String containing information about the last error
+   character(len=256) :: ERR_SymTab_Mess  = " "        ! String containing information about the last error
 
    character(len=150) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
 
@@ -548,6 +804,9 @@ Module CFML_DefPar
    Type(Magnetic_Form_Type),     allocatable, dimension(:)   :: Magnetic_j6     ! Tabulated magnetic form factor J6
    Type(sBvs_Par_Type),          allocatable, dimension(:)   :: sBVS_Table
    Type(Xray_Form_Type),         allocatable, dimension(:)   :: Xray_Form       ! Tabulated Xray scattering factor coefficients
+   Type(Spgr_Info_Type),         allocatable, dimension(:)   :: Spgr_Info       ! General Info about Space Groups
+   Type(Table_Equiv_Type),       allocatable, dimension(:)   :: System_Equiv
+   Type(Wyck_Info_Type),         allocatable, dimension(:)   :: Wyckoff_Info    ! Wyckoff information
 
    Type(Err_Text_Type)                     :: Mess_FindFMT = &  ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
         Err_Text_Type(0,(/" "," "," "," "," "/))
