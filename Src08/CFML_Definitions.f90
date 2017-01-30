@@ -45,11 +45,18 @@ Module CFML_DefPar
    !---- Local Variables ----!
    implicit none
 
-   !-------------------!
-   !---- PARAMETER ----!
-   !-------------------!
-   integer, parameter                  :: MAX_FREE_PAR=3000                                 ! Maximum number of free parameters
-   integer, parameter, dimension(1000) :: PRIMES =                                        & ! List of the first 1000 prime numbers
+   !--------------------!
+   !---- PARAMETERS ----!
+   !--------------------!
+   integer, parameter :: AP_SPECIES_N  = 183   ! Number of atomic properties species in:  Ap_Table
+   integer, parameter :: BVEL_ANIONS_N =   1   ! Number of anions known in BVEL Table in: Stefan Adams and R. Prasada Rao
+   integer, parameter :: BVEL_SPECIES_N= 132   ! Maximum Number of species in BVEL_Table
+   integer, parameter :: BVS_ANIONS_N  =  14   ! Number of anions known in BVS Table in O"Keefe, Breese, Brown
+   integer, parameter :: BVS_SPECIES_N = 247   ! Maximum Number of species in BVS_Table
+   integer, parameter :: MAX_FREE_PAR  =3000   ! Maximum number of free parameters
+   integer, parameter :: SBVS_SPECIES_N= 168   ! Maximum Number of species in SBVS_Table
+
+   integer, parameter, dimension(1000) :: PRIMES =    & ! List of the first 1000 prime numbers
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
              31,     37,     41,     43,     47,     53,     59,     61,     67,     71,  &
              73,     79,     83,     89,     97,    101,    103,    107,    109,    113,  &
@@ -151,65 +158,133 @@ Module CFML_DefPar
            7727,   7741,   7753,   7757,   7759,   7789,   7793,   7817,   7823,   7829,  &
            7841,   7853,   7867,   7873,   7877,   7879,   7883,   7901,   7907,   7919 /)
 
+   character(len=*), parameter, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS = (/"O-2 "/)          ! Anions known from Stefan Adams and R. Prasada Rao
+   character(len=*), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS  = (/"O-2 ","F-1 ", &  !  Anions known from O'Keefe, Bresse, Brown
+             "CL-1","BR-1","I-1 ","S-2 ","SE-2","TE-2","N-3 ","P-3 ","AS-3","H-1 ","O-1 ", &
+             "SE-1"/)
+   character(len=*), parameter, dimension(0:35)          :: REFERENCES  = (/               &  ! List of Reference for BVS Data
+         "Unknown                                                                         ", &  !0
+         "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
+         "Brese and O'Keeffe, (1991), Acta Cryst. B47, 192-197 (extrapolated)             ", &  !2
+         "Adams, 2001, Acta Cryst. B57, 278-287 (includes second neighbours)              ", &  !3
+         "Hu et al. (1995) Inorg. Chim. Acta, 232, 161-165.                               ", &  !4
+         "I.D.Brown Private communication                                                 ", &  !5
+         "Brown et al. (1984) Inorg. Chem. 23, 4506-4508                                  ", &  !6
+         "Palenik (1997) Inorg. Chem. 36 4888-4890                                        ", &  !7
+         "Kanowitz and Palenik (1998) Inorg. Chem. 37 2086-2088                           ", &  !8
+         "Wood and Palenik (1998) Inorg. Chem. 37 4149-4151                               ", &  !9
+         "Liu and Thorp (1993) Inorg. Chem. 32 4102-4105                                  ", &  !10
+         "Palenik (1997) Inorg. Chem. 36 3394-3397                                        ", &  !11
+         "Shields, Raithby, Allen and Motherwell (1999) Acta Cryst.B56, 455-465           ", &  !12
+         "Chen, Zhou and Hu (2002) Chinese Sci. Bul. 47, 978-980.                         ", &  !13
+         "Kihlbourg (1963) Ark. Kemi 21 471; Schroeder 1975 Acta Cryst. B31, 2294         ", &  !14
+         "Allmann (1975) Monatshefte Chem. 106, 779                                       ", &  !15
+         "Zachariesen (1978) J.Less Common Metals 62, 1                                   ", &  !16
+         "Krivovichev and Brown (2001) Z. Krist. 216, 245                                 ", &  !17
+         "Burns, Ewing and Hawthorne (1997) Can. Miner. 35,1551-1570                      ", &  !18
+         "Garcia-Rodriguez, et al. (2000) Acta Cryst. B56, 565-569                        ", &  !19
+         "Mahapatra et al. (1996) J. Amer.Chem. Soc. 118, 11555                           ", &  !20
+         "Wood and Palenik (1999) Inorg. Chem. 38, 1031-1034                              ", &  !21
+         "Wood and Palenik (1999) Inorg. Chem. 38, 3926-3930                              ", &  !22
+         "Wood, Abboud, Palenik and Palenik (2000) Inorg. Chem. 39, 2065-2068             ", &  !23
+         "Tytko, Mehnike and Kurad (1999) Structure and Bonding 93, 1-66                  ", &  !24
+         "Gundemann, et al.(1999) J. Phys. Chem. A 103, 4752-4754                         ", &  !25
+         "Zocchi (2000) Solid State Sci. 2 383-387                                        ", &  !26
+         "Jensen, Palenik and Tiekiak (2001) Polyhedron 20, 2137                          ", &  !27
+         "Roulhac and Palenik (2002) Inorg. Chem. 42, 118-121                             ", &  !28
+         "Holsa et al.(2002) J.Solid State Chem 165, 48-55                                ", &  !29
+         "Trzesowska, Kruszynski & Bartezak (2004) Acta Cryst. B60, 174-178               ", &  !30
+         "Locock & Burns (2004) Z.Krist. 219, 267-271                                     ", &  !31
+         "J.Rodriguez-Carvajal, Private communication                                     ", &  !32
+         "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
+         "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
+         "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "/)   !35
+
+   real(kind=cp), parameter, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS_RION = (/1.40/)            ! Radii Ionic for Anions in BVEL
+   real(kind=cp), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS_RION =  (/1.40, 1.19, &     ! Ionic Radii for Anions
+                  1.67, 1.95, 2.16, 1.84, 1.98, 2.21, 1.71, 2.12, 2.22, 2.08, 1.35, 1.80/)
 
    !---------------!
    !---- TYPES ----!
    !---------------!
 
    !!----
-   !!---- TYPE :: Points_Interval_Type
+   !!---- TYPE :: Atomic_Properties_Type
    !!--..
-   !!---- Type used for FFT routines
+   !!----    Type Definition for single atomic properties
    !!----
+   !!---- Created: January - 2015
    !!
-   Type :: Points_Interval_Type
-      integer       :: Np   = 0              ! Number of Points
-      real(kind=cp) :: Low  = 0.0            ! Lower range value
-      real(kind=cp) :: High = 0.0            ! Upper range value
-   End Type Points_Interval_Type
+   Type, public :: Atomic_Properties_Type
+       integer          :: Z      = 0   ! Atomic number
+       character(len=4) :: Symb   = " " ! Element with charge
+       integer          :: oxs    = 0   ! Nominal oxidation state
+       integer          :: dox    = 0   ! Default oxidation state
+       real             :: Mass   = 0.0 ! Atomic mass in atomic units
+       integer          :: n      = 0   ! Principal Quantum number (period)
+       integer          :: g      = 0   ! Group in the periodic table
+       integer          :: b      = 0   ! Block (s:0, p:1, d:2, f:3)
+       real             :: Rc     = 0.0 ! Covalent radius
+       real             :: sigma  = 0.0 ! Softness
+   End Type Atomic_Properties_Type
 
    !!----
-   !!---- TYPE :: OPT_CONDITIONS_TYPE
+   !!---- TYPE :: BVEL_PAR_TYPE
+   !!--..
+   !!----    Type Definition for BVEL Parameters
    !!----
-   !!----    This TYPE has been introduced to simplify the call to optimization
-   !!----    procedures. It contains the optimization parameters useful for different
-   !!----    algorithms.
-   !!----
-   !!----    All integer components are initialized to zero and the real components
-   !!----    are initilized as indicated below.
-   !!----    A variable of this type should be defined by the user and all their
-   !!----    input parameters (in) must be provided before calling the procedures.
-   !!----    On output from the procedure the (out) items are provided for checking.
-   !!----
+   !!---- Created: December - 2014
    !!
-   Type :: Opt_Conditions_Type
-      character(len=20) :: method = " "    ! Name of the method
-      integer           :: nmeth  = 0      ! 0= conjugate gradient, 1= BFGS method
-      integer           :: npar   = 0      ! Number of free parameters
-      integer           :: mxfun  = 0      ! Maximum number function calls
-      integer           :: loops  = 0      ! Useful for SIMPLEX method: = 0
-      integer           :: iquad  = 0      ! For SIMPLEX, if iquad/= 0 fitting to a quadratic
-      integer           :: iout   = 0      ! =0 no printing for Quasi_Newton & Conjugate Gradient. Partial printing for Simplex (<0 no printing).
-                                           ! > 0 printing each iout iterations/evaluations
-      integer           :: nflag  = 0      ! Flag value states which condition caused the exit of the optimization subroutine
-                                           !       If NFLAG=0, the algorithm has converged.
-                                           !       If NFLAG=1, the maximum number of function
-                                           !          evaluations have been used.
-                                           !       If NFLAG=2, the linear search has failed to
-                                           !          improve the function value. This is the
-                                           !          usual exit if either the function or the
-                                           !          gradient is incorrectly coded.
-                                           !       If NFLAG=3, The search vector was not
-                                           !          a descent direction. This can only be caused
-                                           !          by roundoff,and may suggest that the
-                                           !          convergence criterion is too strict.
-      integer           :: ifun   = 0      ! Total number of function and gradient evaluations
-      integer           :: iter   = 0      ! Total number of search directions used in the algorithm
-      real(kind=cp)     :: eps    = 0.0    ! Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum
-                                           ! of one and the norm of the vector X. Initialized to 1.0E-6
-      real(kind=cp)     :: acc    = 0.0    ! ACC is a user supplied estimate of machine accuracy ACC=10.0E-20 has proved satisfactory
-                                           ! For simplex method this should be changed to 1.0e-6
-   End Type Opt_Conditions_Type
+   Type :: Bvel_Par_Type
+      character(len=5)                       :: symb    = " "    !Symbol of the cation
+      real(kind=cp),dimension(bvel_anions_n) :: Avcoor  = 0.0    !Average cation coordination number
+      real(kind=cp),dimension(bvel_anions_n) :: Rzero   = 0.0    !Modified Bond-Valence parameter R0
+      real(kind=cp),dimension(bvel_anions_n) :: Rcutoff = 0.0    !Cutoff distance in Angstroms
+      real(kind=cp),dimension(bvel_anions_n) :: Dzero   = 0.0    !First Morse potential parameter (eV)
+      real(kind=cp),dimension(bvel_anions_n) :: Rmin    = 0.0    !Second Morse potential parameter (Angstroms)
+      real(kind=cp),dimension(bvel_anions_n) :: alpha   = 0.0    !Third Morse potential parameter (1/b) (Angstroms^-1)
+      integer      ,dimension(bvel_anions_n) :: refnum  = 0      !Pointer to reference paper
+   End Type Bvel_Par_Type
+
+   !!---- TYPE :: BVS_PAR_TYPE
+   !!--..
+   !!----    Definition for BVS Parameters
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Type :: Bvs_Par_Type
+      character (len=4)                     :: Symb    = " "      ! Chemical symbol
+      real(kind=cp),dimension(bvs_anions_n) :: d0      = 0.0      ! D0 Parameter
+      real(kind=cp),dimension(bvs_anions_n) :: b_par   = 0.0      ! B Parameter
+      integer      ,dimension(bvs_anions_n) :: refnum  = 0        ! Integer pointing to the reference paper
+   End Type Bvs_Par_Type
+
+   !!----
+   !!---- TYPE :: DERIV_TOF_TYPE
+   !!--..
+   !!---- Type Definition for TOF Profiles
+   !!----
+   !!---- Update: 11/07/2015
+   !!
+   Type :: Deriv_TOF_Type
+      real(kind=cp) :: alfa  = 0.0    ! omega_a  DOmega/Dalpha
+      real(kind=cp) :: beta  = 0.0    ! omega_b  DOmega/Dbeta
+      real(kind=cp) :: dt    = 0.0    ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
+      real(kind=cp) :: sigma = 0.0    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
+      real(kind=cp) :: gamma = 0.0    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
+      real(kind=cp) :: eta   = 0.0    ! omega_e  DOmega/Deta                     "
+      real(kind=cp) :: kappa = 0.0    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
+   End Type Deriv_TOF_Type
+
+   !!----
+   !!---- TYPE :: ERR_TEXT_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Err_Text_Type
+      integer :: nlines
+      character (len=132), dimension(5) :: txt
+   End Type Err_Text_Type
 
    !!----
    !!---- TYPE :: LSQ_CONDITIONS_TYPE
@@ -279,31 +354,74 @@ Module CFML_DefPar
    End Type LSQ_State_Vector_type
 
    !!----
-   !!---- TYPE :: ERR_TEXT_TYPE
-   !!--..
-   !!---- Update: February - 2005
+   !!---- TYPE :: OPT_CONDITIONS_TYPE
+   !!----
+   !!----    This TYPE has been introduced to simplify the call to optimization
+   !!----    procedures. It contains the optimization parameters useful for different
+   !!----    algorithms.
+   !!----
+   !!----    All integer components are initialized to zero and the real components
+   !!----    are initilized as indicated below.
+   !!----    A variable of this type should be defined by the user and all their
+   !!----    input parameters (in) must be provided before calling the procedures.
+   !!----    On output from the procedure the (out) items are provided for checking.
+   !!----
    !!
-   Type :: Err_Text_Type
-      integer :: nlines
-      character (len=132), dimension(5) :: txt
-   End Type Err_Text_Type
+   Type :: Opt_Conditions_Type
+      character(len=20) :: method = " "    ! Name of the method
+      integer           :: nmeth  = 0      ! 0= conjugate gradient, 1= BFGS method
+      integer           :: npar   = 0      ! Number of free parameters
+      integer           :: mxfun  = 0      ! Maximum number function calls
+      integer           :: loops  = 0      ! Useful for SIMPLEX method: = 0
+      integer           :: iquad  = 0      ! For SIMPLEX, if iquad/= 0 fitting to a quadratic
+      integer           :: iout   = 0      ! =0 no printing for Quasi_Newton & Conjugate Gradient. Partial printing for Simplex (<0 no printing).
+                                           ! > 0 printing each iout iterations/evaluations
+      integer           :: nflag  = 0      ! Flag value states which condition caused the exit of the optimization subroutine
+                                           !       If NFLAG=0, the algorithm has converged.
+                                           !       If NFLAG=1, the maximum number of function
+                                           !          evaluations have been used.
+                                           !       If NFLAG=2, the linear search has failed to
+                                           !          improve the function value. This is the
+                                           !          usual exit if either the function or the
+                                           !          gradient is incorrectly coded.
+                                           !       If NFLAG=3, The search vector was not
+                                           !          a descent direction. This can only be caused
+                                           !          by roundoff,and may suggest that the
+                                           !          convergence criterion is too strict.
+      integer           :: ifun   = 0      ! Total number of function and gradient evaluations
+      integer           :: iter   = 0      ! Total number of search directions used in the algorithm
+      real(kind=cp)     :: eps    = 0.0    ! Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum
+                                           ! of one and the norm of the vector X. Initialized to 1.0E-6
+      real(kind=cp)     :: acc    = 0.0    ! ACC is a user supplied estimate of machine accuracy ACC=10.0E-20 has proved satisfactory
+                                           ! For simplex method this should be changed to 1.0e-6
+   End Type Opt_Conditions_Type
 
    !!----
-   !!---- TYPE :: DERIV_TOF_TYPE
+   !!---- TYPE :: Points_Interval_Type
    !!--..
-   !!---- Type Definition for TOF Profiles
+   !!---- Type used for FFT routines
    !!----
-   !!---- Update: 11/07/2015
    !!
-   Type :: Deriv_TOF_Type
-      real(kind=cp) :: alfa  = 0.0    ! omega_a  DOmega/Dalpha
-      real(kind=cp) :: beta  = 0.0    ! omega_b  DOmega/Dbeta
-      real(kind=cp) :: dt    = 0.0    ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
-      real(kind=cp) :: sigma = 0.0    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
-      real(kind=cp) :: gamma = 0.0    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
-      real(kind=cp) :: eta   = 0.0    ! omega_e  DOmega/Deta                     "
-      real(kind=cp) :: kappa = 0.0    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
-   End Type Deriv_TOF_Type
+   Type :: Points_Interval_Type
+      integer       :: Np   = 0              ! Number of Points
+      real(kind=cp) :: Low  = 0.0            ! Lower range value
+      real(kind=cp) :: High = 0.0            ! Upper range value
+   End Type Points_Interval_Type
+
+   !!---- TYPE :: sBVS_PAR_TYPE
+   !!--..
+   !!----    Definition for sBVS Parameters
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Type :: sBvs_Par_Type
+      character (len=4)                     :: Symb    = " "      ! Chemical symbol
+      real(kind=cp),dimension(bvs_anions_n) :: d0      = 0.0      ! D0 Parameter
+      real(kind=cp),dimension(bvs_anions_n) :: b_par   = 0.0      ! B Parameter
+      real(kind=cp),dimension(bvs_anions_n) :: cn      = 0.0      ! Preferred Coordination
+      real(kind=cp),dimension(bvs_anions_n) :: ctoff   = 0.0      ! Cutoff distance
+      integer      ,dimension(bvs_anions_n) :: refnum  = 0        ! Integer pointing to the reference paper
+   End Type sBvs_Par_Type
 
 
    !-------------------!
@@ -323,21 +441,36 @@ Module CFML_DefPar
 
    character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
    character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
-   character(len=256) :: Err_Spher_Mess   = " "        ! String containing information about the last error
-   character(len=256) :: Err_String_Mess  = " "        ! String containing information about the last error
-   character(len=256) :: Err_Math3D_Mess  = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Spher_Mess   = " "        ! String containing information about the last error
+   character(len=256) :: ERR_String_Mess  = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Math3D_Mess  = " "        ! String containing information about the last error
    character(len=256) :: ERR_Optim_Mess   = " "        ! String containing information about the last error
    character(len=256) :: ERR_LSQ_Mess     = " "        ! String containing information about the last error
 
    character(len=150) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
 
+   integer            :: iErr_fmt    = 0               ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
    integer            :: win_console = -1              ! Code number for Scroll Window (Variable only in use for Winteracter code)
 
-   integer            :: iErr_fmt    = 0               ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
+   integer,                      allocatable, dimension(:,:) :: Table_ref    ! Matrix N_Species x N_Species with references for BVS parameters
+
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Alpha  ! Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Avcoor ! Matrix N_Species x N_Species of Average coordination parameters for BVEL
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_b      ! Matrix N_Species x N_Species of B parameters for BVS
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_d0     ! Matrix N_Species x N_Species of D0 for BVS
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Dzero  ! Matrix N_Species x N_Species of Dzero parameters for BVEL
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Rcutoff! Matrix N_Species x N_Species of Rcutoff parameters for BVEL
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Rmin   ! Matrix N_Species x N_Species of Rmin parameters for BVEL
+   real(kind=cp),                allocatable, dimension(:,:) :: Table_Rzero  ! Matrix N_Species x N_Species of Rzero (equivalent to D0 in BVS) parameters for BVEL
 
 
-   Type (Err_Text_Type)  :: Mess_FindFMT = &           ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
-        Err_Text_Type(0,(/" "," "," "," "," "/))
+   Type(Atomic_Properties_Type), allocatable, dimension(:)   :: AP_Table
+   Type(Bvel_Par_Type),          allocatable, dimension(:)   :: BVEL_Table
+   Type(Bvs_Par_Type),           allocatable, dimension(:)   :: BVS_Table
+   Type(sBvs_Par_Type),          allocatable, dimension(:)   :: sBVS_Table
+
+   Type (Err_Text_Type)                                      :: Mess_FindFMT = &  ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
+         Err_Text_Type(0,(/" "," "," "," "," "/))
 
 
 End Module CFML_DefPar
