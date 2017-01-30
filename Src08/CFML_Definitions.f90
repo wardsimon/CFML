@@ -54,6 +54,13 @@ Module CFML_DefPar
    integer, parameter :: BVS_ANIONS_N  =  14   ! Number of anions known in BVS Table in O"Keefe, Breese, Brown
    integer, parameter :: BVS_SPECIES_N = 247   ! Maximum Number of species in BVS_Table
    integer, parameter :: MAX_FREE_PAR  =3000   ! Maximum number of free parameters
+   integer, parameter :: NUM_CHEM_INFO = 108   ! Number of total Chem_info Data
+   integer, parameter :: NUM_DELTA_FP  = 98    ! Number of total Delta (Fp,Fpp) Data
+   integer, parameter :: NUM_MAG_FORM  = 119   ! Number of total Magnetic_Form Data
+   integer, parameter :: NUM_MAG_J2    =  97   ! Number of <j2> Magnetic_Form Data
+   integer, parameter :: NUM_MAG_J4    =  97   ! Number of <j4> Magnetic_Form Data
+   integer, parameter :: NUM_MAG_J6    =  39   ! Number of <j6> Magnetic_Form Data
+   integer, parameter :: NUM_XRAY_FORM = 214   ! Number of total Xray_Form Data
    integer, parameter :: SBVS_SPECIES_N= 168   ! Maximum Number of species in SBVS_Table
 
    integer, parameter, dimension(1000) :: PRIMES =    & ! List of the first 1000 prime numbers
@@ -209,13 +216,24 @@ Module CFML_DefPar
    !---------------!
 
    !!----
+   !!---- TYPE, PUBLIC :: ANOMALOUS_SC_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Anomalous_Sc_Type
+      character(len= 2)            :: Symb = " "        ! Symbol of the Chemical species
+      real(kind=cp), dimension(5)  :: Fp   = 0.0        ! Delta Fp
+      real(kind=cp), dimension(5)  :: Fpp  = 0.0        ! Delta Fpp
+   End Type Anomalous_Sc_Type
+
+   !!----
    !!---- TYPE :: Atomic_Properties_Type
    !!--..
    !!----    Type Definition for single atomic properties
    !!----
    !!---- Created: January - 2015
    !!
-   Type, public :: Atomic_Properties_Type
+   Type :: Atomic_Properties_Type
        integer          :: Z      = 0   ! Atomic number
        character(len=4) :: Symb   = " " ! Element with charge
        integer          :: oxs    = 0   ! Nominal oxidation state
@@ -258,6 +276,26 @@ Module CFML_DefPar
       real(kind=cp),dimension(bvs_anions_n) :: b_par   = 0.0      ! B Parameter
       integer      ,dimension(bvs_anions_n) :: refnum  = 0        ! Integer pointing to the reference paper
    End Type Bvs_Par_Type
+
+   !!----
+   !!---- TYPE, PUBLIC :: CHEM_INFO_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Chem_Info_Type
+      character (len= 2)         :: Symb   = " "      ! Symbol of the Element
+      character (len=12)         :: Name   = " "      ! Name of the Element
+      integer                    :: Z      = 0        ! Atomic Number
+      real(kind=cp)              :: AtWe   = 0.0      ! Atomic weight
+      real(kind=cp)              :: RCov   = 0.0      ! Covalent Radius
+      real(kind=cp)              :: RWaals = 0.0      ! van der Waals Radius
+      real(kind=cp)              :: VAtm   = 0.0      ! Atomic volumen
+      integer, dimension(5)      :: Oxid   = 0        ! Oxidation State
+      real(kind=cp), dimension(5):: Rion   = 0.0      ! Ionic Radius (depending of the oxidation)
+      real(kind=cp)              :: SctF   = 0.0      ! Fermi length [10**(-12) cm]
+      real(kind=cp)              :: SedInc = 0.0      ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
+      real(kind=cp)              :: Sea    = 0.0      ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+   End Type Chem_Info_Type
 
    !!----
    !!---- TYPE :: DERIV_TOF_TYPE
@@ -354,6 +392,16 @@ Module CFML_DefPar
    End Type LSQ_State_Vector_type
 
    !!----
+    !!---- TYPE :: MAGNETIC_FORM_TYPE
+    !!--..
+    !!---- Update: February - 2005
+    !!
+    Type :: Magnetic_Form_Type
+       character (len= 4)         :: Symb = " "         ! Symbol of the Chemical species
+       real(kind=cp), dimension(7):: SctM = 0.0        ! Scattering Factors
+    End Type Magnetic_Form_Type
+
+   !!----
    !!---- TYPE :: OPT_CONDITIONS_TYPE
    !!----
    !!----    This TYPE has been introduced to simplify the call to optimization
@@ -423,6 +471,30 @@ Module CFML_DefPar
       integer      ,dimension(bvs_anions_n) :: refnum  = 0        ! Integer pointing to the reference paper
    End Type sBvs_Par_Type
 
+   !!----
+   !!---- TYPE :: XRAY_FORM_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Xray_Form_Type
+      character (len= 4)         :: Symb = " "      ! Symbol of the Chemical species
+      integer                    :: Z    = 0        ! Atomic Number
+      real(kind=cp), dimension(4):: a    = 0.0      ! Coefficients for calculating the X-ray scattering factors
+      real(kind=cp), dimension(4):: b    = 0.0      ! f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
+      real(kind=cp)              :: c    = 0.0      ! s=sinTheta/Lambda
+   End Type Xray_Form_Type
+
+   !!----
+   !!---- TYPE :: XRAY_WAVELENGTH_TYPE
+   !!--..
+   !!---- Update: February - 2005
+   !!
+   Type :: Xray_Wavelength_Type
+      character (len= 2)         :: Symb  = " "       ! Symbol of the Chemical species
+      real(kind=cp), dimension(2):: Kalfa = 0.0       ! K-Serie for X-ray
+      real(kind=cp)              :: Kbeta = 0.0       ! K-Serie for X-ray
+   End Type Xray_Wavelength_Type
+
 
    !-------------------!
    !---- VARIABLES ----!
@@ -464,13 +536,30 @@ Module CFML_DefPar
    real(kind=cp),                allocatable, dimension(:,:) :: Table_Rzero  ! Matrix N_Species x N_Species of Rzero (equivalent to D0 in BVS) parameters for BVEL
 
 
+
+   Type(Anomalous_Sc_Type),      allocatable, dimension(:)   :: Anomalous_ScFac ! Table of Delta-Fp and Delta-Fpp for 5 common radiations.
    Type(Atomic_Properties_Type), allocatable, dimension(:)   :: AP_Table
    Type(Bvel_Par_Type),          allocatable, dimension(:)   :: BVEL_Table
    Type(Bvs_Par_Type),           allocatable, dimension(:)   :: BVS_Table
+   Type(Chem_Info_Type),         allocatable, dimension(:)   :: Chem_Info       ! Tabulated chemical data
+   Type(Magnetic_Form_Type),     allocatable, dimension(:)   :: Magnetic_Form   ! Tabulated magnetic form factor data
+   Type(Magnetic_Form_Type),     allocatable, dimension(:)   :: Magnetic_j2     ! Tabulated magnetic form factor J2
+   Type(Magnetic_Form_Type),     allocatable, dimension(:)   :: Magnetic_j4     ! Tabulated magnetic form factor J4
+   Type(Magnetic_Form_Type),     allocatable, dimension(:)   :: Magnetic_j6     ! Tabulated magnetic form factor J6
    Type(sBvs_Par_Type),          allocatable, dimension(:)   :: sBVS_Table
+   Type(Xray_Form_Type),         allocatable, dimension(:)   :: Xray_Form       ! Tabulated Xray scattering factor coefficients
 
-   Type (Err_Text_Type)                                      :: Mess_FindFMT = &  ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
-         Err_Text_Type(0,(/" "," "," "," "," "/))
+   Type(Err_Text_Type)                     :: Mess_FindFMT = &  ! Text composed of a maximum of 5 lines to inform about position or error (findFMT)
+        Err_Text_Type(0,(/" "," "," "," "," "/))
+
+   Type(Xray_Wavelength_Type), parameter, dimension(7) :: XRAY_WAVELENGTHS =(/ &  ! Tabulated K-Series for Xray
+        Xray_Wavelength_type("CR",(/2.28988,2.29428/),2.08480), &
+        Xray_Wavelength_type("FE",(/1.93631,1.94043/),1.75650), &
+        Xray_Wavelength_type("CU",(/1.54059,1.54431/),1.39220), &
+        Xray_Wavelength_type("MO",(/0.70932,0.71360/),0.63225), &
+        Xray_Wavelength_type("AG",(/0.55942,0.56380/),0.49708), &
+        Xray_Wavelength_type("CO",(/1.78919,1.79321/),1.62083), &
+        Xray_Wavelength_type("NI",(/1.65805,1.66199/),1.50017)  /)
 
 
 End Module CFML_DefPar

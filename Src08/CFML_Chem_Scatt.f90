@@ -44,369 +44,92 @@
 !!---- HISTORY
 !!----    Updated: 04/03/2011
 !!----
-!!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,       only: Cp
-!!--++    Use CFML_String_Utilities, only: L_Case, U_Case
-!!----
-!!---- VARIABLES
-!!----    ANOMALOUS_SC_TYPE
-!!----    ANOMALOUS_SCFAC
-!!----    CHEM_INFO_TYPE
-!!----    CHEM_INFO
-!!----    MAGNETIC_FORM_TYPE
-!!----    MAGNETIC_FORM
-!!----    MAGNETIC_J2
-!!----    MAGNETIC_J4
-!!----    MAGNETIC_J6
-!!----    NUM_CHEM_INFO
-!!----    NUM_DELTA_FP
-!!----    NUM_MAG_FORM
-!!----    NUM_MAG_J2
-!!----    NUM_MAG_J4
-!!----    NUM_MAG_J6
-!!----    NUM_XRAY_FORM
-!!----    XRAY_FORM_TYPE
-!!----    XRAY_FORM
-!!----    XRAY_WAVELENGTH_TYPE
-!!----    XRAY_WAVELENGTHS
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       GET_ATOMIC_MASS
-!!----       GET_ATOMIC_VOL
-!!----       GET_CHEMSYMB
-!!----       GET_COVALENT_RADIUS
-!!----       GET_FERMI_LENGTH
-!!----       GET_ABS_XS
-!!----       GET_INC_XS
-!!----       GET_IONIC_RADIUS
-!!----       REMOVE_CHEM_INFO
-!!----       REMOVE_DELTA_FP_FPP
-!!----       REMOVE_MAGNETIC_FORM
-!!----       REMOVE_XRAY_FORM
-!!----       SET_CHEM_INFO
-!!----       SET_DELTA_FP_FPP
-!!----       SET_MAGNETIC_FORM
-!!----       SET_XRAY_FORM
 !!----
 !!
  Module CFML_Scattering_Chemical_Tables
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,       only: Cp
+    Use CFML_DefPar,           only: CP
     Use CFML_String_Utilities, only: U_Case, L_Case
 
     implicit none
 
     private
 
+    !---- List of public Functions ----!
+    public :: Get_Abs_Xs, Get_Atomic_Mass, Get_Atomic_Vol, Get_Covalent_radius, Get_Fermi_Length
+
     !---- List of public subroutines ----!
-    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Ionic_radius
-    public :: Get_Fermi_Length, Get_Abs_Xs, Get_Inc_Xs
+    public :: Get_ChemSymb, Get_Ionic_radius
+    public ::   Get_Inc_Xs
     public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
     public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
 
-    !---- Definitions ----!
-
-    !!----
-    !!---- TYPE, PUBLIC :: ANOMALOUS_SC_TYPE
-    !!--..
-    !!---- Type, public :: Anomalous_Sc_Type
-    !!----    character (len= 2)           :: Symb  ! Symbol of the Chemical species
-    !!----    real(kind=cp), dimension(5)  :: Fp    ! Delta Fp
-    !!----    real(kind=cp), dimension(5)  :: Fpp   ! Delta Fpp
-    !!---- End Type Anomalous_Sc_Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Anomalous_Sc_Type
-       character(len= 2)            :: Symb
-       real(kind=cp), dimension(5)  :: Fp
-       real(kind=cp), dimension(5)  :: Fpp
-    End Type Anomalous_Sc_Type
-
-    !!----
-    !!---- ANOMALOUS_SCFAC
-    !!----    Type(Anomalous_Sc_Type), allocatable, dimension(:), public :: Anomalous_ScFac
-    !!----
-    !!----    Table of Delta-Fp and Delta-Fpp for 5 common radiations.
-    !!----    The order is the following:
-    !!--<<
-    !!----                          1         2         3          4          5
-    !!----        Wavelenghts:     Cr        Fe        Cu         Mo         Ag
-    !!----             Lambda   2.28962   1.93597   1.54051    0.70926    0.556363
-    !!-->>
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Anomalous_Sc_Type), allocatable, dimension(:), public :: Anomalous_ScFac
-
-    !!----
-    !!---- TYPE, PUBLIC :: CHEM_INFO_TYPE
-    !!--..
-    !!---- Type, public :: Chem_Info_Type
-    !!----    character (len= 2)         :: Symb     ! Symbol of the Element
-    !!----    character (len=12)         :: Name     ! Name of the Element
-    !!----    integer                    :: Z        ! Atomic Number
-    !!----    real(kind=cp)              :: AtWe     ! Atomic weight
-    !!----    real(kind=cp)              :: RCov     ! Covalent Radio
-    !!----    real(kind=cp)              :: RWaals   ! van der Waals Radio
-    !!----    real(kind=cp)              :: VAtm     ! Atomic volumen
-    !!----    integer, dimension(5)      :: Oxid     ! Oxidation State
-    !!----    real(kind=cp), dimension(5):: Rion     ! Ionic Radio (depending of the oxidation)
-    !!----    real(kind=cp)              :: SctF     ! Scattering length Fermi
-    !!----    real(kind=cp)              :: SedInc   ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
-    !!----    real(kind=cp)              :: Sea      ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
-    !!---- End Type Chem_Info_Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Chem_Info_Type
-       character (len= 2)         :: Symb          ! Symbol of the Element
-       character (len=12)         :: Name          ! Name of the Element
-       integer                    :: Z             ! Atomic Number
-       real(kind=cp)              :: AtWe          ! Atomic weight
-       real(kind=cp)              :: RCov          ! Covalent Radius
-       real(kind=cp)              :: RWaals        ! van der Waals Radius
-       real(kind=cp)              :: VAtm          ! Atomic volumen
-       integer, dimension(5)      :: Oxid          ! Oxidation State
-       real(kind=cp), dimension(5):: Rion          ! Ionic Radius (depending of the oxidation)
-       real(kind=cp)              :: SctF          ! Fermi length [10**(-12) cm]
-       real(kind=cp)              :: SedInc        ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
-       real(kind=cp)              :: Sea           ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
-    End Type Chem_Info_Type
-
-    !!----
-    !!---- CHEM_INFO
-    !!----    Type (Chem_Info_Type), allocatable, dimension(:), public :: Chem_Info
-    !!----
-    !!----    Tabulated chemical data according to the items specified in the definition of Chem_Info_Type.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Chem_Info_Type), allocatable, dimension(:), public :: Chem_Info
-
-    !!----
-    !!---- TYPE :: MAGNETIC_FORM_TYPE
-    !!--..
-    !!---- Type, public :: Magnetic_Form_Type
-    !!----    character (len= 4)          :: Symb   ! Symbol of the Chemical species
-    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors
-    !!---- End Type Magnetic_Form_Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Magnetic_Form_Type
-       character (len= 4)         :: Symb         ! Symbol of the Chemical species
-       real(kind=cp), dimension(7):: SctM
-    End Type Magnetic_Form_Type
-
-    !!----
-    !!---- MAGNETIC_FORM
-    !!----    Type (Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_Form
-    !!----
-    !!----    Tabulated magnetic form factor data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_Form
-
-    !!----
-    !!---- MAGNETIC_J2
-    !!----    Type (Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_j2
-    !!----
-    !!----    Tabulated magnetic form factor J2
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_j2
-
-    !!----
-    !!---- MAGNETIC_J4
-    !!----    Type (Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_J4
-    !!----
-    !!----    Tabulated magnetic form factor J4
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_j4
-
-    !!----
-    !!---- MAGNETIC_J6
-    !!----    Type (Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_J6
-    !!----
-    !!----    Tabulated magnetic form factor J6
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Magnetic_Form_Type), allocatable, dimension(:), public :: Magnetic_j6
-
-    !!----
-    !!---- NUM_CHEM_INFO
-    !!----    integer, parameter, public :: Num_Chem_Info = 108
-    !!----
-    !!----    Number of total Chem_info Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Chem_Info = 108
-
-    !!----
-    !!---- NUM_DELTA_FP
-    !!----    integer, parameter, public :: Num_Delta_Fp  = 98
-    !!----
-    !!----    Number of total Delta (Fp,Fpp) Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Delta_Fp  = 98
-
-    !!----
-    !!---- NUM_MAG_FORM
-    !!----    integer, parameter, public :: Num_Mag_Form  = 117
-    !!----
-    !!----    Number of total Magnetic_Form Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Mag_Form  = 119
-
-    !!----
-    !!---- NUM_MAG_J2
-    !!----    integer, parameter, public :: Num_Mag_J2 = 97
-    !!----
-    !!----    Number of <j2> Magnetic_Form Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Mag_j2  = 97
-
-    !!----
-    !!---- NUM_MAG_J4
-    !!----    integer, parameter, public :: Num_Mag_J4 = 97
-    !!----
-    !!----    Number of <j4> Magnetic_Form Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Mag_j4  = 97
-
-    !!----
-    !!---- NUM_MAG_J6
-    !!----    integer, parameter, public :: Num_Mag_J6 = 39
-    !!----
-    !!----    Number of <j5> Magnetic_Form Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Mag_j6  = 39
-
-    !!----
-    !!---- NUM_XRAY_FORM
-    !!----    integer, parameter, public :: Num_Xray_Form = 214
-    !!----
-    !!----    Number of total Xray_Form Data
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: Num_Xray_Form = 214
-
-    !!----
-    !!---- TYPE :: XRAY_FORM_TYPE
-    !!--..
-    !!---- Type, public :: Xray_Form_Type
-    !!----    character (len= 4)         :: Symb  ! Symbol of the Chemical species
-    !!----    integer                    :: Z     ! Atomic Number
-    !!----    real(kind=cp), dimension(4):: a     ! Coefficients for calculating the X-ray scattering factors
-    !!----    real(kind=cp), dimension(4):: b     ! f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
-    !!----    real(kind=cp)              :: c     ! s=sinTheta/Lambda
-    !!---- End Type Xray_Form_Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Xray_Form_Type
-       character (len= 4)         :: Symb
-       integer                    :: Z
-       real(kind=cp), dimension(4):: a
-       real(kind=cp), dimension(4):: b
-       real(kind=cp)              :: c
-    End Type Xray_Form_Type
-
-    !!----
-    !!---- XRAY_FORM
-    !!----    Type (Xray_Form_Type), allocatable, dimension(:), public :: Xray_Form
-    !!----
-    !!----    Tabulated Xray scattering factor coefficients
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Xray_Form_Type), allocatable, dimension(:), public :: Xray_Form
-
-    !!----
-    !!---- TYPE :: XRAY_WAVELENGTH_TYPE
-    !!--..
-    !!---- Type, public :: Xray_Wavelength_Type
-    !!----    character (len= 2)                :: Symb  ! Symbol of the Chemical species
-    !!----    real(kind=cp), dimension(2)       :: Kalfa ! K-Serie for X-ray
-    !!----    real(kind=cp)                     :: Kbeta ! K-Serie for X-ray
-    !!---- End Type Xray_Wavelength_Type
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type, public :: Xray_Wavelength_Type
-       character (len= 2)         :: Symb
-       real(kind=cp), dimension(2):: Kalfa
-       real(kind=cp)              :: Kbeta
-    End Type Xray_Wavelength_Type
-
-    !!----
-    !!---- XRAY_WAVELENGTHS
-    !!----    Type (Xray_Wavelength_Type), dimension(7), public :: Xray_Wavelengths
-    !!----
-    !!----    Tabulated K-Series for Xray
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Type(Xray_Wavelength_Type), dimension(7), public :: Xray_Wavelengths =(/                            &
-                                                Xray_Wavelength_type("CR",(/2.28988,2.29428/),2.08480), &
-                                                Xray_Wavelength_type("FE",(/1.93631,1.94043/),1.75650), &
-                                                Xray_Wavelength_type("CU",(/1.54059,1.54431/),1.39220), &
-                                                Xray_Wavelength_type("MO",(/0.70932,0.71360/),0.63225), &
-                                                Xray_Wavelength_type("AG",(/0.55942,0.56380/),0.49708), &
-                                                Xray_Wavelength_type("CO",(/1.78919,1.79321/),1.62083), &
-                                                Xray_Wavelength_type("NI",(/1.65805,1.66199/),1.50017)  /)
-
  Contains
+    !!----
+    !!---- Function Get_Abs_Xs(nam) Result(u)
+    !!----
+    !!----    Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
+    !!----
+    !!---- Update: April - 2013
+    !!
+    Function Get_Abs_Xs(Symb,u) Result(u)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: Symb  ! Chemical Symbol
+       real(kind=cp)                 :: u     ! absorption cross-section
 
-    !---------------------!
-    !---- Subroutines ----!
-    !---------------------!
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       !> Init
+       u=0.0
+
+       !> Get Chemical Symbol
+       atm_car=u_case(symb(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,NUM_CHEM_INFO
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             u=chem_info(i)%Sea
+             exit
+          end if
+       end do
+
+       return
+    End Function Get_Abs_Xs
 
     !!----
-    !!---- Subroutine Get_Atomic_Mass(Atm,Mass)
-    !!----    character(len=2), intent(in)  :: Atm
-    !!----    real(kind=cp),    intent(out) :: Mass
+    !!---- Function Get_Atomic_Mass(Atm) Result(Mass)
     !!----
     !!----    Provides the atomic mass given the chemical symbol of the element
     !!----    In case of problems the returned mass is ZERO.
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Get_Atomic_Mass(atm,mass)
+    Function Get_Atomic_Mass(Symb) Result(Mass)
        !---- Arguments ----!
-       character(len=2), intent (in) :: atm
-       real(kind=cp),    intent(out) :: Mass
+       character(len=*), intent (in) :: Symb  ! Chemical symbol
+       real(kind=cp)                 :: Mass
 
        !---- Local variables ----!
        character(len=2) :: atm_car
        integer :: i
 
+       !> Init
        mass=0.0
-       atm_car=u_case(atm)
+
+       !> Get Chemical Symbol
+       atm_car=u_case(symb(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
        if (.not. allocated(chem_info) ) call set_chem_info()
 
-       do i=1,Num_Chem_Info
+       do i=1,NUM_CHEM_INFO
           if (index(atm_car,chem_info(i)%Symb) /=0) then
              mass=chem_info(i)%AtWe
              exit
@@ -414,32 +137,36 @@
        end do
 
        return
-    End Subroutine Get_Atomic_Mass
+    End Function Get_Atomic_Mass
 
     !!----
-    !!---- Subroutine Get_Atomic_Vol(Atm,Vol)
-    !!----    character(len=2), intent(in)  :: Atm
-    !!----    real(kind=cp),    intent(out) :: Vol
+    !!---- Function Get_Atomic_Vol(Symb) Result(Vol)
     !!----
     !!----    Provides the atomic volume given the chemical symbol of the element
     !!----    In case of problems the returned Volume is ZERO.
     !!----
     !!---- Update: March- 2013
     !!
-    Subroutine Get_Atomic_Vol(atm,vol)
+    Function Get_Atomic_Vol(Symb) Result(Vol)
        !---- Arguments ----!
-       character(len=2), intent (in) :: atm
-       real(kind=cp),    intent(out) :: Vol
+       character(len=*), intent (in) :: Symb   ! Chemical symbol
+       real(kind=cp)                 :: Vol    ! Atomic volume
 
        !---- Local variables ----!
        character(len=2) :: atm_car
        integer :: i
 
+       !> Init
        vol=0.0
-       atm_car=u_case(atm)
+
+       !> Get Chemical Symbol
+       atm_car=u_case(symb(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
        if (.not. allocated(chem_info) ) call set_chem_info()
 
-       do i=1,Num_Chem_Info
+       do i=1,NUM_CHEM_INFO
           if (index(atm_car,chem_info(i)%Symb) /=0) then
              vol=chem_info(i)%VAtm
              exit
@@ -447,13 +174,85 @@
        end do
 
        return
-    End Subroutine Get_Atomic_Vol
+    End Function Get_Atomic_Vol
+
+    !!----
+    !!---- Function Get_Covalent_Radius(Symb) Result(Rad)
+    !!----
+    !!----    Provides the covalent radius given the chemical symbol of the element
+    !!----    In case of problems the returned radius is 1.4 angstroms.
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Get_Covalent_Radius(Symb) Result(Rad)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: Symb  ! Chemical symbol
+       real(kind=cp)                 :: rad   ! Covalent radius
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       !> Init
+       rad=1.4
+
+       !> Get Chemical Symbol
+       atm_car=u_case(nam(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,NUM_CHEM_INFO
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             rad=chem_info(i)%RCov
+             exit
+          end if
+       end do
+
+       return
+    End Function Get_Covalent_Radius
+
+    !!----
+    !!---- Function Get_Fermi_Length(nam,b)
+    !!----
+    !!----    Provides the Fermi length (in 10-12 cm) given the chemical
+    !!----    symbol of the element. In case of problems the returned Fermi
+    !!----    length is 0.0 10-12 cm.
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Get_Fermi_Length(Symb) Result(b)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: Symb ! Chemical symbol
+       real(kind=cp)                 :: b    ! Fermi
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       !> Init
+       b=0.0
+
+       !> Get Chemical Symbol
+       atm_car=u_case(nam(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,NUM_CHEM_INFO
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             b=chem_info(i)%SctF
+             exit
+          end if
+       end do
+
+       return
+    End Function Get_Fermi_Length
 
     !!----
     !!---- Subroutine Get_ChemSymb(Label, ChemSymb, Z)
-    !!----   character(len=*),  intent(in) :: Label    ! Label
-    !!----   character(len=*),  intent(out):: ChemSymb ! Chemical Symbol
-    !!----   integer, optional, intent(out):: Z        ! Atomic number
     !!----
     !!----  Subroutine to get the chemical symbol from label and optionally
     !!----  the atomic number
@@ -467,11 +266,13 @@
        integer, optional, intent(out):: Z        ! Atomic number
 
        !---- Local variables ----!
-       character(len=*),  parameter :: parcar="1234567890+-."
+       character(len=*),  parameter :: PARCAR="1234567890+-."
        character(len=2)             :: car
        integer                      :: npos
 
+       !> Init
        ChemSymb="**"
+
        car=adjustl(label)
        npos=index(parcar,car(2:2))
        if (npos /=0) car(2:2)=" "
@@ -482,7 +283,7 @@
        if (present(z)) then
           if (.not. allocated(chem_info) ) call set_chem_info()
           car=u_case(chemsymb)
-          do npos=1,num_chem_info
+          do npos=1,NUM_CHEM_INFO
              if (car == Chem_Info(npos)%Symb) then
                 Z=Chem_Info(npos)%Z
                 exit
@@ -493,72 +294,9 @@
        return
     End Subroutine Get_ChemSymb
 
-    !!----
-    !!---- Subroutine Get_Covalent_Radius(nam,rad)
-    !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=cp),    intent(out) :: rad
-    !!----
-    !!----    Provides the covalent radius given the chemical symbol of the element
-    !!----    In case of problems the returned radius is 1.4 angstroms.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Get_Covalent_Radius(nam,rad)
-       !---- Arguments ----!
-       character(len=*), intent (in) :: nam
-       real(kind=cp),    intent(out) :: rad
 
-       !---- Local variables ----!
-       character(len=2) :: atm_car
-       integer          :: i
 
-       rad=1.4
-       atm_car=u_case(nam(1:2))
-       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
-       if (.not. allocated(chem_info) ) call set_chem_info()
-       do i=1,Num_Chem_Info
-          if (index(atm_car,chem_info(i)%Symb) /=0) then
-             rad=chem_info(i)%RCov
-             exit
-          end if
-       end do
 
-       return
-    End Subroutine Get_Covalent_Radius
-
-    !!----
-    !!---- Subroutine Get_Fermi_Length(nam,b)
-    !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=cp),    intent(out) :: b
-    !!----
-    !!----    Provides the Fermi length (in 10-12 cm) given the chemical
-    !!----    symbol of the element. In case of problems the returned Fermi
-    !!----    length is 0.0 10-12 cm.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Get_Fermi_Length(nam,b)
-       !---- Arguments ----!
-       character(len=*), intent (in) :: nam
-       real(kind=cp),    intent(out) :: b
-
-       !---- Local variables ----!
-       character(len=2) :: atm_car
-       integer          :: i
-
-       b=0.0
-       atm_car=u_case(nam(1:2))
-       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
-       if (.not. allocated(chem_info) ) call set_chem_info()
-       do i=1,Num_Chem_Info
-          if (index(atm_car,chem_info(i)%Symb) /=0) then
-             b=chem_info(i)%SctF
-             exit
-          end if
-       end do
-
-       return
-    End Subroutine Get_Fermi_Length
 
     !!----
     !!---- Subroutine Get_Inc_Xs(nam,u)
@@ -595,40 +333,7 @@
        return
     End Subroutine Get_Inc_Xs
 
-    !!----
-    !!---- Subroutine Get_Abs_Xs(nam,u)
-    !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=cp),    intent(out) :: u
-    !!----
-    !!----    Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
-    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
-    !!----
-    !!----
-    !!---- Update: April - 2013
-    !!
 
-    Subroutine Get_Abs_Xs(nam,u)
-       !---- Arguments ----!
-       character(len=*), intent (in) :: nam
-       real(kind=cp),    intent(out) :: u
-
-       !---- Local variables ----!
-       character(len=2) :: atm_car
-       integer          :: i
-
-       u=0.0
-       atm_car=u_case(nam(1:2))
-       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
-       if (.not. allocated(chem_info) ) call set_chem_info()
-       do i=1,Num_Chem_Info
-          if (index(atm_car,chem_info(i)%Symb) /=0) then
-             u=chem_info(i)%Sea
-             exit
-          end if
-       end do
-
-       return
-    End Subroutine Get_Abs_Xs
 
     !!----
     !!---- Subroutine Get_Ionic_Radius(nam,valence,rad)
