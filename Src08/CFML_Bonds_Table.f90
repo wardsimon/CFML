@@ -44,33 +44,10 @@
 !!---- HISTORY
 !!----    Update: 04/03/2011
 !!----
-!!----
-!!---- DEPENDENCIES
-!!--++    CFML_GlobalDeps, only: cp
-!!--++    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
-!!----
-!!----
-!!---- VARIABLES
-!!----    BONDS_LENGTH_TABLE
-!!----    ERR_BOND
-!!----    ERR_BOND_MESS
-!!--++    SET_BT_VARIABLE
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----
-!!----    Subroutines:
-!!----       GET_BONDS_TABLE
-!!--++       GET_BONDS_TABLE_SYMBOL              [OVERLOADED]
-!!--++       GET_BONDS_TABLE_Z                   [OVERLOADED]
-!!----       INIT_ERR_BOND
-!!----       REMOVE_BONDS_TABLE
-!!----       SET_BONDS_TABLE
-!!----
 !!
  Module CFML_Bond_Tables
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                 only: Cp
+    Use CFML_DefPar,                     only: CP, ERR_Bond, ERR_Bond_Mess, Bond_Length_Table
     Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
     !---- Variables ----!
@@ -79,56 +56,9 @@
     private
 
     !---- List of public subroutines ----!
-    public  :: Get_Bonds_Table, Remove_Bonds_Table, Set_Bonds_Table, Init_Err_Bond
-
-    !---- List of private subroutines ----!
-    private :: Get_Bonds_Table_Symbol, Get_Bonds_Table_Z
-
-    !---- Definitions ----!
-
-    !!----
-    !!---- Bond_Length_Table
-    !!----    real, public, allocatable, dimension(:,:,:) :: Bond_Length_Table
-    !!----
-    !!----    Variable to hold the Bonds length between type of atoms. Order by Z
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=cp), public, allocatable, dimension(:,:,:) :: Bond_Length_Table
-
-    !----
-    !!---- ERR_BOND
-    !!----    logical :: err_bond
-    !!----
-    !!----    Logical Variable indicating an error in CFML_Bond_Tables module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: ERR_Bond
-
-    !!----
-    !!---- ERR_BOND_MESS
-    !!----    character(len=150) :: ERR_Bond_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: ERR_Bond_Mess
-
-    !!----
-    !!---- Set_BT_Variable
-    !!----    logical, private :: Set_BT_Variable
-    !!----
-    !!----    Define if the Variable Bond_Length_Table was loaded or not
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, private :: Set_BT_Variable = .false.
-
+    public  :: Get_Bonds_Table, Deallocate_Bonds_Table, Init_Err_Bond, Set_Bonds_Table
 
     !---- Interfaces - Overlapp ----!
-
     Interface  Get_Bonds_Table
        Module Procedure Get_Bonds_Table_Symbol
        Module Procedure Get_Bonds_Table_Z
@@ -136,23 +66,22 @@
 
  Contains
 
-    !---- Subroutines ----!
     !!----
-    !!---- Subroutine Get_Bonds_Table(Symbol1/Z1,Symbol2/Z2,Bonds)
-    !!----    character(len=*)/integer,           intent(in)  :: Symbol1
-    !!----    character(len=*)/integer,           intent(in)  :: Symbol2
-    !!----    real(kind=cp),dimension(3),         intent(out) :: Bonds
+    !!---- Subroutine Deallocate_Bonds_Table()
     !!----
-    !!----    Fills the components of the Bond_Length_Table variable
+    !!----    Deallocating Bond_Length_Table
     !!----
     !!---- Update: February - 2005
     !!
+    Subroutine Deallocate_Bonds_Table()
+
+       if (allocated(Bond_Length_Table)) deallocate(Bond_Length_Table)
+
+       return
+    End Subroutine Deallocate_Bonds_Table
 
     !!--++
     !!--++ Subroutine Get_Bonds_Table_Symbol(Symbol1,Symbol2,Bonds)
-    !!--++    character(len=*),           intent(in)  :: Symbol1
-    !!--++    character(len=*),           intent(in)  :: Symbol2
-    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable
@@ -172,7 +101,7 @@
        call Get_ChemSymb(Symbol1, Symb1, Z1)
        call Get_ChemSymb(Symbol2, Symb2, Z2)
 
-       if (.not. Set_BT_Variable) call Set_Bonds_Table()
+       if (.not. allocated(Bond_Length_Table)) call Set_Bonds_Table()
        call Get_Bonds_Table_Z(Z1,Z2,Bonds)
 
        return
@@ -180,9 +109,6 @@
 
     !!--++
     !!--++ Subroutine Get_Bonds_Table_Z(Z1,Z2,Bonds)
-    !!--++    integer,                    intent(in)  :: Z1
-    !!--++    integer,                    intent(in)  :: Z2
-    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable
@@ -199,7 +125,7 @@
        if (z1 <= 0 .or. z1 > 103) return
        if (z2 <= 0 .or. z2 > 103) return
 
-       if (.not. Set_BT_Variable) call Set_Bonds_Table()
+       if (.not. allocated(Bond_Length_Table)) call Set_Bonds_Table()
        bonds=bond_length_table(:,z1,z2)
 
        return
@@ -220,20 +146,6 @@
 
        return
     End Subroutine Init_Err_Bond
-
-    !!----
-    !!---- Subroutine Remove_Bonds_Table()
-    !!----
-    !!----    Deallocating Bond_Length_Table
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Remove_Bonds_Table()
-
-       if (allocated(Bond_Length_Table)) deallocate(Bond_Length_Table)
-
-       return
-    End Subroutine Remove_Bonds_Table
 
     !!----
     !!---- Subroutine Set_Bonds_Table()
@@ -2380,8 +2292,6 @@
                                           0.000, 0.000, 0.000, 0.000, 0.000,  &
                                           0.000, 0.000, 0.000, 0.000, 0.000,  &
                                           0.000, 0.000, 0.000 /)
-
-       Set_BT_Variable =.true.
 
        return
     End Subroutine Set_Bonds_Table

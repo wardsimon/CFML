@@ -407,6 +407,7 @@ Module CFML_DefPar
              "   S(x)_4  ","    s(yz)  ","   s(y-z)  ","  S(3x)_4  ","  S(3y)_4  ",   &
              "    s(xz)  ","   S(y)_4  ","   s(x-z)  " /)
 
+
    real(kind=cp), parameter, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS_RION = (/1.40/)            ! Radii Ionic for Anions in BVEL
    real(kind=cp), parameter, dimension(BVS_ANIONS_N)  :: BVS_ANIONS_RION =  (/1.40, 1.19, &     ! Ionic Radii for Anions
                   1.67, 1.95, 2.16, 1.84, 1.98, 2.21, 1.71, 2.12, 2.22, 2.08, 1.35, 1.80/)
@@ -754,6 +755,7 @@ Module CFML_DefPar
    !---- VARIABLES ----!
    !-------------------!
 
+   logical            :: ERR_Bond    =.false.          ! Error flag in CFML_Bond_Tables module
    logical            :: ERR_MathGen =.false.          ! Error flag in CFML_Math_General module
    logical            :: ERR_Random  =.false.          ! Error flag in CFML_Random_Generators module
    logical            :: ERR_Spher   =.false.          ! Error flag in CFML_Spherical_Harmonics module
@@ -766,6 +768,7 @@ Module CFML_DefPar
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
 
+   character(len=256) :: ERR_Bond_Mess    = " "        ! String containing information about the last error
    character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
    character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
    character(len=256) :: ERR_Spher_Mess   = " "        ! String containing information about the last error
@@ -782,6 +785,7 @@ Module CFML_DefPar
 
    integer,                      allocatable, dimension(:,:) :: Table_ref    ! Matrix N_Species x N_Species with references for BVS parameters
 
+   real(kind=cp),                allocatable, dimension(:,:,:) :: Bond_Length_Table ! Variable to hold the Bonds length between type of atoms. Order by Z
    real(kind=cp),                allocatable, dimension(:,:) :: Table_Alpha  ! Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
    real(kind=cp),                allocatable, dimension(:,:) :: Table_Avcoor ! Matrix N_Species x N_Species of Average coordination parameters for BVEL
    real(kind=cp),                allocatable, dimension(:,:) :: Table_b      ! Matrix N_Species x N_Species of B parameters for BVS
