@@ -48,7 +48,10 @@
 !!
  Module CFML_Scattering_Chemical_Tables
     !---- Use Modules ----!
-    Use CFML_DefPar,           only: CP
+    Use CFML_DefPar,           only: CP, NUM_CHEM_INFO, NUM_DELTA_FP, NUM_MAG_FORM, NUM_MAG_J2,             &
+                                     NUM_MAG_J4, NUM_MAG_J6, NUM_XRAY_FORM, Chem_Info, chem_info_type,      &
+                                     Anomalous_ScFac, Anomalous_Sc_Type, Magnetic_Form, Magnetic_Form_Type, &
+                                     Magnetic_J2, Magnetic_J4, Magnetic_J6, Xray_Form, xray_form_type
     Use CFML_String_Utilities, only: U_Case, L_Case
 
     implicit none
@@ -56,24 +59,24 @@
     private
 
     !---- List of public Functions ----!
-    public :: Get_Abs_Xs, Get_Atomic_Mass, Get_Atomic_Vol, Get_Covalent_radius, Get_Fermi_Length
+    public :: Get_Abs_Xs, Get_Atomic_Mass, Get_Atomic_Vol, Get_Covalent_radius, Get_Fermi_Length, &
+              Get_Inc_Xs, Get_Ionic_radius
 
     !---- List of public subroutines ----!
-    public :: Get_ChemSymb, Get_Ionic_radius
-    public ::   Get_Inc_Xs
-    public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
-    public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
+    public :: Deallocate_Chem_Info, Deallocate_Delta_Fp_Fpp, Deallocate_Magnetic_Form,            &
+              Deallocate_Xray_Form, Get_ChemSymb, Set_Chem_Info, Set_Delta_Fp_Fpp,                &
+              Set_Magnetic_Form, Set_Xray_Form
 
  Contains
     !!----
-    !!---- Function Get_Abs_Xs(nam) Result(u)
+    !!---- Function Get_Abs_Xs(Symb) Result(u)
     !!----
     !!----    Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
     !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
     !!----
     !!---- Update: April - 2013
     !!
-    Function Get_Abs_Xs(Symb,u) Result(u)
+    Function Get_Abs_Xs(Symb) Result(u)
        !---- Arguments ----!
        character(len=*), intent (in) :: Symb  ! Chemical Symbol
        real(kind=cp)                 :: u     ! absorption cross-section
@@ -197,7 +200,7 @@
        rad=1.4
 
        !> Get Chemical Symbol
-       atm_car=u_case(nam(1:2))
+       atm_car=u_case(Symb(1:2))
        if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
 
        !> Load if necessary
@@ -235,7 +238,7 @@
        b=0.0
 
        !> Get Chemical Symbol
-       atm_car=u_case(nam(1:2))
+       atm_car=u_case(Symb(1:2))
        if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
 
        !> Load if necessary
@@ -250,6 +253,145 @@
 
        return
     End Function Get_Fermi_Length
+
+    !!----
+    !!---- Function Get_Inc_Xs(Symb) Result(u)
+    !!----
+    !!----    Provides incoherent scattering neutron cross-section (barns -> [10**(-24) cm**2] )
+    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
+    !!----
+    !!----
+    !!---- Update: Mai - 2013
+    !!
+    Function Get_Inc_Xs(Symb) Result(u)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: Symb
+       real(kind=cp)                 :: u
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       !> Init
+       u=0.0
+
+       !> Get Chemical Symbol
+       atm_car=u_case(Symb(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,NUM_CHEM_INFO
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             u=chem_info(i)%SedInc
+             exit
+          end if
+       end do
+
+       return
+    End Function Get_Inc_Xs
+
+    !!----
+    !!---- Function Get_Ionic_Radius(nam,valence) Result(Rad)
+    !!----
+    !!----    Provides the ionic radius given the chemical symbol of the element
+    !!----    and the valence as an integer. In case of problems the returned radius is 0.0 angstroms.
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Get_Ionic_Radius(Symb,valence) Result(Rad)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: Symb
+       integer,          intent (in) :: valence
+       real(kind=cp)                 :: rad
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i,j
+
+       !> Init
+       rad=0.0
+
+       !> Get Chemical Symbol
+       atm_car=u_case(Symb(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+
+       !> Load if necessary
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,NUM_CHEM_INFO
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             do j=1,5
+                if (valence == chem_info(i)%oxid(j)) then
+                   rad=chem_info(i)%Rion(j)
+                   exit
+                end if
+             end do
+          end if
+       end do
+
+       return
+    End Function Get_Ionic_Radius
+
+    !!----
+    !!---- Subroutine Deallocate_Chem_Info()
+    !!----
+    !!----    Deallocate Chem_Info Table
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Deallocate_Chem_Info()
+
+       if (allocated(chem_info)) deallocate(chem_info)
+
+       return
+    End Subroutine Deallocate_Chem_Info
+
+    !!----
+    !!---- Subroutine Deallocate_Delta_Fp_Fpp()
+    !!----
+    !!----    Deallocate Anomalous_ScFac Table
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Deallocate_Delta_Fp_Fpp()
+
+       if (allocated(Anomalous_ScFac)) deallocate(Anomalous_ScFac)
+
+       return
+    End Subroutine Deallocate_Delta_Fp_Fpp
+
+    !!----
+    !!---- Subroutine Deallocate_Magnetic_Form()
+    !!----
+    !!----    Deallocate Magnetic_Form Table
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Deallocate_Magnetic_Form()
+
+       if (allocated(Magnetic_Form)) deallocate(Magnetic_Form)
+       if (allocated(Magnetic_j2))   deallocate(Magnetic_j2)
+       if (allocated(Magnetic_j4))   deallocate(Magnetic_j4)
+       if (allocated(Magnetic_j6))   deallocate(Magnetic_j6)
+
+       return
+    End Subroutine Deallocate_Magnetic_Form
+
+    !!----
+    !!---- Subroutine Deallocate_Xray_Form()
+    !!----
+    !!----    Deallocate Xray_Form Table
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Deallocate_Xray_Form()
+
+       if (allocated(Xray_Form)) deallocate(Xray_Form)
+
+       return
+    End Subroutine Deallocate_Xray_Form
 
     !!----
     !!---- Subroutine Get_ChemSymb(Label, ChemSymb, Z)
@@ -294,145 +436,6 @@
        return
     End Subroutine Get_ChemSymb
 
-
-
-
-
-    !!----
-    !!---- Subroutine Get_Inc_Xs(nam,u)
-    !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=cp),    intent(out) :: u
-    !!----
-    !!----    Provides incoherent scattering neutron cross-section (barns -> [10**(-24) cm**2] )
-    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
-    !!----
-    !!----
-    !!---- Update: Mai - 2013
-    !!
-
-    Subroutine Get_Inc_Xs(nam,u)
-       !---- Arguments ----!
-       character(len=*), intent (in) :: nam
-       real(kind=cp),    intent(out) :: u
-
-       !---- Local variables ----!
-       character(len=2) :: atm_car
-       integer          :: i
-
-       u=0.0
-       atm_car=u_case(nam(1:2))
-       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
-       if (.not. allocated(chem_info) ) call set_chem_info()
-       do i=1,Num_Chem_Info
-          if (index(atm_car,chem_info(i)%Symb) /=0) then
-             u=chem_info(i)%SedInc
-             exit
-          end if
-       end do
-
-       return
-    End Subroutine Get_Inc_Xs
-
-
-
-    !!----
-    !!---- Subroutine Get_Ionic_Radius(nam,valence,rad)
-    !!----    character(len=*), intent (in) :: nam
-    !!----    integer,          intent (in) :: valence
-    !!----    real(kind=cp),    intent(out) :: rad
-    !!----
-    !!----    Provides the ionic radius given the chemical symbol of the element
-    !!----    and the valence as an integer. In case of problems the returned radius is 0.0 angstroms.
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Get_Ionic_Radius(nam,valence,rad)
-       !---- Arguments ----!
-       character(len=*), intent (in) :: nam
-       integer,          intent (in) :: valence
-       real(kind=cp),    intent(out) :: rad
-
-       !---- Local variables ----!
-       character(len=2) :: atm_car
-       integer          :: i,j
-
-       rad=0.0
-       atm_car=u_case(nam(1:2))
-       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
-       if (.not. allocated(chem_info) ) call set_chem_info()
-       do i=1,Num_Chem_Info
-          if (index(atm_car,chem_info(i)%Symb) /=0) then
-             do j=1,5
-                if (valence == chem_info(i)%oxid(j)) then
-                   rad=chem_info(i)%Rion(j)
-                   exit
-                end if
-             end do
-          end if
-       end do
-
-       return
-    End Subroutine Get_Ionic_Radius
-
-    !!----
-    !!---- Subroutine Remove_Chem_Info()
-    !!----
-    !!----    Deallocate Chem_Info Table
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Remove_Chem_Info()
-
-       if (allocated(chem_info)) deallocate(chem_info)
-
-       return
-    End Subroutine Remove_Chem_Info
-
-    !!----
-    !!---- Subroutine Remove_Delta_Fp_Fpp()
-    !!----
-    !!----    Deallocate Anomalous_ScFac Table
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Remove_Delta_Fp_Fpp()
-
-       if (allocated(Anomalous_ScFac)) deallocate(Anomalous_ScFac)
-
-       return
-    End Subroutine Remove_Delta_Fp_Fpp
-
-    !!----
-    !!---- Subroutine Remove_Magnetic_Form()
-    !!----
-    !!----    Deallocate Magnetic_Form Table
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Remove_Magnetic_Form()
-
-       if (allocated(Magnetic_Form)) deallocate(Magnetic_Form)
-       if (allocated(Magnetic_j2))   deallocate(Magnetic_j2)
-       if (allocated(Magnetic_j4))   deallocate(Magnetic_j4)
-       if (allocated(Magnetic_j6))   deallocate(Magnetic_j6)
-
-       return
-    End Subroutine Remove_Magnetic_form
-
-    !!----
-    !!---- Subroutine Remove_Xray_Form()
-    !!----
-    !!----    Deallocate Xray_Form Table
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Remove_Xray_Form()
-
-       if (allocated(Xray_Form)) deallocate(Xray_Form)
-
-       return
-    End Subroutine Remove_Xray_form
-
     !!----
     !!---- Subroutine Set_Chem_Info()
     !!----    Allocates and loads the table  chem_info(num_chem_info):
@@ -455,7 +458,7 @@
     !!
     Subroutine Set_Chem_Info()
 
-       if (.not. allocated(chem_info)) allocate(chem_info(num_chem_info))
+       if (.not. allocated(chem_info)) allocate(chem_info(NUM_CHEM_INFO))
 
        !  Symb , Name, Z , AtWe  , RCov , RWaals, VAtm, Oxid(5), Rion(5), b=SctF, SedInc, Sea
        chem_info( 1:10) = (/  &
@@ -711,7 +714,7 @@
     !!
     Subroutine Set_Delta_Fp_Fpp()
 
-       if (.not. allocated(anomalous_ScFac)) allocate(anomalous_ScFac(Num_Delta_Fp))
+       if (.not. allocated(anomalous_ScFac)) allocate(anomalous_ScFac(NUM_DELTA_FP))
 
        Anomalous_ScFac( 1)=Anomalous_Sc_Type("h ", (/   0.000,   0.000,   0.000,   0.000,   0.000/), &
                                                    (/   0.000,   0.000,   0.000,   0.000,   0.000/)  )
@@ -922,10 +925,10 @@
     !!
     Subroutine Set_Magnetic_Form()
 
-       if (.not. allocated(magnetic_form)) allocate(magnetic_form(num_mag_form))
-       if (.not. allocated(magnetic_j2))   allocate(magnetic_j2(num_mag_j2))
-       if (.not. allocated(magnetic_j4))   allocate(magnetic_j4(num_mag_j4))
-       if (.not. allocated(magnetic_j6))   allocate(magnetic_j6(num_mag_j6))
+       if (.not. allocated(magnetic_form)) allocate(magnetic_form(NUM_MAG_FORM))
+       if (.not. allocated(magnetic_j2))   allocate(magnetic_j2(NUM_MAG_J2))
+       if (.not. allocated(magnetic_j4))   allocate(magnetic_j4(NUM_MAG_J4))
+       if (.not. allocated(magnetic_j6))   allocate(magnetic_j6(NUM_MAG_J6))
 
        Magnetic_Form(  1) = Magnetic_Form_Type("MSC0", &
                                               (/  0.251200, 90.029602,  0.329000, 39.402100,  0.423500, 14.322200, -0.004300/) )
@@ -1427,7 +1430,7 @@
     !!
     Subroutine Set_Xray_Form()
 
-       if (.not. allocated(xray_form)) allocate(xray_form(num_xray_form))
+       if (.not. allocated(xray_form)) allocate(xray_form(NUM_XRAY_FORM))
 
        Xray_form( 1:10) = (/ &
                           xray_form_type("h   ",  1, (/  0.493002,   0.322912,   0.140191,   0.040810/), &
