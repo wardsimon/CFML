@@ -28,7 +28,7 @@ elseif(UNIX)
         set(STRING_UTILS CFML_String_Util.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux.f90)
-        set(STRING_UTILS CFML_String_Util.f90)
+        set(STRING_UTILS CFML_String_Util_gf.f90)
     endif()
 endif()
 
@@ -78,7 +78,7 @@ set(CRYSFML_COMMON_SOURCES
 set_source_files_properties(${CRYSFML_COMMON_SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
 # Those files need specific optimization flags.
-set_source_files_properties(CFML_BVSpar.f90 CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS1})
+set_source_files_properties(CFML_BVSpar.f90 CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAG ${OPT_FLAGS1})
 set_source_files_properties(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS2})
 
 #################################
