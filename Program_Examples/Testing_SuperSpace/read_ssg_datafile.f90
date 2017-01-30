@@ -73,6 +73,7 @@
              pos_group(L)= i-1
            end if
          end do
+         rewind(i_db)
          ! skip heading
          read(i_db,*)
          read(i_db,*)
