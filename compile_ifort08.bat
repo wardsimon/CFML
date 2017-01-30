@@ -69,6 +69,7 @@ rem
    echo .... Mathematics Procedures
 rem
    ifort /c CFML_Math_Gen.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_Spher_Harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_Random.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_Ffts.f90                             /nologo %OPT1% %OPT2%
@@ -87,17 +88,18 @@ rem
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
    ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
-   goto FIN
 rem
-   echo **---- Level 1 ----**
-   echo .... Mathematical(II), Optimization, Tables, Patterns
+   echo .... Optimization procedures
 rem
-   ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
-   ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
+rem
+   echo .... Tables definitions
+rem
    ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
+   goto FIN
+   ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
+   ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**
