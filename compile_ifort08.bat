@@ -60,11 +60,11 @@ rem
 rem
    echo .... Global Dependencies for CFML
 rem
-   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT1% %OPT2%
+   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT0% %OPT2%
 rem
    echo .... Definitions in CFML
 rem
-   ifort /c CFML_Definitions.f90                      /nologo %OPT1% %OPT2%
+   ifort /c CFML_Definitions.f90                      /nologo %OPT0% %OPT2%
 rem
    echo .... Mathematics Procedures
 rem
@@ -97,15 +97,15 @@ rem
    echo .... Tables definitions
 rem
    ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
-   goto FIN
    ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
    ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
+   ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
+   goto FIN
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
-   ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
    ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
