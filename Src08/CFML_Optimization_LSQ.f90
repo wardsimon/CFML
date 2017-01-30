@@ -261,8 +261,8 @@
 !!
  Module CFML_Optimization_LSQ
     !---- Use Files ----!
-    Use CFML_DefPar,   only: Cp, Dp
-    Use CFML_LSQ_TypeDef
+    Use CFML_DefPar,       only: CP, DP, MAX_FREE_PAR, Err_LSQ, Err_LSQ_Mess, &
+                                 LSQ_Conditions_Type, LSQ_Data_Type, LSQ_State_Vector_Type
     Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm, &
                                  Upper_Triangular,SVDcmp
 
@@ -272,114 +272,26 @@
     private
 
     !---- List of public functions ----!
-    public  :: fchisq
-    !---- List of public overloaded procedures: functions ----!
+    public  :: Chi_SQ
 
     !---- List of public subroutines ----!
-    public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM
-
-    !---- List of public overloaded procedures: subroutines ----!
-
-    !---- List of private functions ----!
-
-    !---- List of private subroutines ----!
-    private :: marquardt_fit_v1,marquardt_fit_v2,curfit_v1,curfit_v2,box_constraints,output_cyc,&
-               LM_Dif, lmdif, LM_Der, LM_DerV, lmder, fdjac2, lmpar, qrfac, qrsolv, lmder1, lmdif1
+    public  :: Info_LSQ_LM, Info_LSQ_Output, Levenberg_Marquardt_Fit, Marquardt_Fit,  &
+               Modify_Codes_State_Vector
 
     !---- Definitions ----!
 
-    !!--++
-    !!--++ CH
-    !!--++    real(kind=cp),     dimension(Max_Free_Par), private   :: ch
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Vector holding the change in the values of parameters (ch = pn - pv)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par), private   :: ch         ! ch = pn - pv
+    real(kind=cp), dimension(Max_Free_Par)              :: ch      = 0.0   ! Vector holding the change in the values of parameters (ch = pn - pv)
+    real(kind=cp), dimension(Max_Free_Par)              :: pn      = 0.0   ! Vector with new values of parameters
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par) :: correl  = 0.0   ! Variance/covariance/correlation matrix
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par) :: curv_mat= 0.0   ! Curvature matrix
 
-    !!--++
-    !!--++ CORREL
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: correl
-    !!--++
-    !!--++    Variance/covariance/correlation matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: correl     !Variance/covariance/correlation matrix
-
-
-    !!--++
-    !!--++ CURV_MAT
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: curv_mat
-    !!--++
-    !!--++    Curvature matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: curv_mat   !Curvature matrix
-
-    !!----
-    !!---- ERR_LSQ
-    !!----    logical, public  :: ERR_LSQ
-    !!----
-    !!----    Logical variable. The vaule .true. indicates that an error condition occurs
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public   :: ERR_Lsq =.false.
-
-    !!----
-    !!---- ERR_LSQ_MESS
-    !!----    Character(len=150), public  :: Err_Lsq_Mess
-    !!----
-    !!----    Character variable containing the error message associated to the
-    !!----    ocurrence of an error condition
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Character(len=150), public  :: ERR_Lsq_Mess
-
-    !!----
-    !!---- INFO_LSQ_MESS
-    !!----    Character(len=150), public  :: Info_Lsq_Mess
-    !!----
-    !!----    Character variable containing the information message associated to the
-    !!----    exit parameter "info" of the Levenberg_Marquardt_Fit procedure.
-    !!----
-    !!---- Update: August - 2005
-    !!
-    Character(len=150), public  :: Info_Lsq_Mess
-
-
-    !!--++
-    !!--++ NAMFREE
-    !!--++    character(len=40), dimension(Max_Free_Par), private   :: namfree
-    !!--++
-    !!--++  (PRIVATE)
-    !!--++  Names of refined parameters
-    !!--++
-    !!--++ Update: January - 2014
-    !!
-    character(len=40), dimension(Max_Free_Par), private,save   :: namfree    !Names of refined parameters
-
-    !!--++
-    !!--++ PN
-    !!--++    real(kind=cp), dimension(Max_Free_Par), public   :: pn
-    !!--++
-    !!--++    Vector with new values of parameters
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par), private   :: pn   !Vector with new values of parameters
+    character(len=40), dimension(Max_Free_Par)          :: namfree = " "   ! Names of refined parameters
 
     !---- Interfaces ----!
-
-    Interface Marquardt_fit
-      Module Procedure Marquardt_Fit_v1
-      Module Procedure Marquardt_Fit_v2
-    End Interface
+    Interface Info_LSQ_LM
+      Module Procedure Info_LSQ_LM_VS
+      Module Procedure Info_LSQ_LM_V
+    End Interface Info_LSQ_LM
 
     Interface Levenberg_Marquardt_Fit
       Module Procedure LM_Dif
@@ -389,34 +301,27 @@
       Module Procedure lmder1
     End Interface Levenberg_Marquardt_Fit
 
-    Interface Info_LSQ_LM
-      Module Procedure Info_LSQ_LM_VS
-      Module Procedure Info_LSQ_LM_V
-    End Interface Info_LSQ_LM
+    Interface Marquardt_fit
+      Module Procedure Marquardt_Fit_v1
+      Module Procedure Marquardt_Fit_v2
+    End Interface
 
  Contains
 
-    !---- Functions ----!
-
     !!----
-    !!---- Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
-    !!----    integer, intent(in)                    :: Nfr
-    !!----    integer, intent(in)                    :: Nobs
-    !!----    real(kind=cp), intent(in),dimension(:) :: y
-    !!----    real(kind=cp), intent(in),dimension(:) :: w
-    !!----    real(kind=cp), intent(in),dimension(:) :: yc
+    !!---- Function chi_sq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
     !!----
     !!----    Evaluate reduced chi2
     !!----
     !!---- Update: February - 2005
     !!
-    Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
+    Function Chi_SQ(Nfr,Nobs,Y,W,Yc) Result(Chisq)
        !---- Arguments ----!
        integer,                    intent(in) :: nfr
-       integer,                    intent(in) :: nobs
-       real(kind=cp),dimension(:), intent(in) :: y
-       real(kind=cp),dimension(:), intent(in) :: w
-       real(kind=cp),dimension(:), intent(in) :: yc
+       integer,                    intent(in) :: nobs      ! Number of data
+       real(kind=cp),dimension(:), intent(in) :: y         ! Input value
+       real(kind=cp),dimension(:), intent(in) :: w         ! Weights
+       real(kind=cp),dimension(:), intent(in) :: yc        ! Calculated value
        real(kind=cp)                          :: chisq
 
        !---- Local variables ----!
@@ -429,115 +334,10 @@
        chisq=chisq/real(nfr)
 
        return
-    End Function Fchisq
-
-    !---- Subroutines ----!
-
-    !!----
-    !!---- Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
-    !!----   integer,       dimension(:),intent (in out) :: Lcodes
-    !!----   real(kind=cp), dimension(:),intent (in out) :: Multip
-    !!----   integer,                    intent (in out) :: Lcode_max
-    !!----
-    !!----  This subroutine should be called with the arguments corresponding to
-    !!----  the components  Lcodes=LSQ_State_Vector%code, Multip=LSQ_State_Vector%mul
-    !!----  and Lcode_max=maxval(LSQ_State_Vector%code) before using the LSQ methods
-    !!----  in which and object of LSQ_State_Vector_type exist and LSQ_State_Vector%code_comp=.true.
-    !!----  This allows the use of constraints once the codes have been attributed.
-    !!----
-    Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
-       !---- Arguments ----!
-       integer,       dimension(:),intent (in out) :: Lcodes
-       real(kind=cp), dimension(:),intent (in out) :: Multip
-       integer,                    intent (in out) :: Lcode_max
-
-       !--- Local variables ---!
-       integer                       ::  k, L , j, n_given, Lcm, n_att,ndisp, nn, ni, ndispm,maxs
-       integer, dimension(Lcode_max) :: dispo
-       real(kind=cp), parameter      :: e=0.001
-
-       !> Check correlated parameters and already used codes
-       ndisp=0
-       n_given=0
-       dispo(:)=0
-       Lcm=size(Lcodes)
-       !> First Pass
-       Do L=1, Lcode_max
-          ni=0
-          do k=1, Lcm
-             if (L == Lcodes(k)) ni=ni+1
-          end do
-          if (ni == 0) then
-             ndisp=ndisp+1   !number of disponible codes
-             dispo(ndisp)=L  !disponible code number
-          else
-             n_given=n_given+1  !number of given codes
-          end if
-       end do !=1,Lcode_max
-
-       if (ndisp == 0) return  !all codes have been attributed
-
-       !> Attributing numbers to parameters (not already attributed) with multipliers
-       !> different from zero. First the attribution is taken from the vector dispo() and
-       !> continued, after finishing the disponible codes, from Lcode_max+1, ...
-       !> If after attributing the codes ndisp /=0, then a displacement of all parameters
-       !> is done and the maximum number of parameters to be refined is diminished by
-       !> ndisp
-       ndispm=ndisp !number of disponible codes before attributing code numbers
-       ni=0
-       nn=Lcode_max
-       n_att=0
-       do j=1,Lcm
-          if (abs(Multip(j)) > e .and. Lcodes(j) == 0 ) then
-             if (abs(Multip(j)) > 1.001) then
-                Multip(j)=sign(1.0_cp,Multip(j))*(abs(Multip(j))-1.0)
-             end if
-             if (ndisp==0) then
-                nn=nn+1
-                Lcodes(j)=nn
-                n_att=n_att+1
-             else
-                ni=ni+1
-                Lcodes(j)=dispo(ni)
-                n_att=n_att+1
-                ndisp=ndisp-1
-             end if
-          end if
-       end do
-
-       if (ndisp == 0) then
-          if (nn > Lcode_max) Lcode_max=nn
-          return  !all parameters have been attributed
-       end if
-
-       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
-
-       !> Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
-       n_att=ndispm-ndisp+1
-       do L=Lcode_max, maxs+1,-1
-          nn=0
-          do j =1,Lcm
-             if (L == Lcodes(j)) then
-                Lcodes(j)=dispo(n_att)
-                nn=nn+1
-             end if
-          end do
-          if (nn == 0) cycle
-          n_att=n_att+1
-          if(n_att > ndispm) exit
-       end do !i=Lcode_max,maxs+1,-1
-       Lcode_max=maxs
-
-       return
-    End Subroutine Modify_Codes_State_Vector
+    End Function Chi_SQ
 
     !!--++
     !!--++ Subroutine Box_Constraints(A,Sa,Fixed,c,vs)
-    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: a
-    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: sa
-    !!--++    logical                        ,         intent(   out) :: fixed
-    !!--++    Type(LSQ_Conditions_type),               intent(in)     :: c     !conditions for refinement
-    !!--++    Type(LSQ_State_Vector_type),             intent(in)     :: vs    !State vector
     !!--++
     !!--++    (PRIVATE)
     !!--++    This subroutine avoid a peak-position parameter undergoing a change
@@ -587,28 +387,7 @@
 
     !!--++
     !!--++  Subroutine Curfit_v1(Model_Functn, X, Y, W, Nobs, c, A, Sa, Fl, Yc, Chir, Ifail)
-    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
-    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
-    !!--++     real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
-    !!--++     integer,                             intent(in)      :: nobs  !number of observations
-    !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: a     !vector of parameter
-    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
-    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=cp),                       intent(out)     :: chir
-    !!--++     integer,                    intent(out)     :: ifail
     !!--++
-    !!--++     Interface
-    !!--++      Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!--++         use CFML_GlobalDeps, only: cp
-    !!--++         integer,                             intent(in) :: iv
-    !!--++         real(kind=cp),                       intent(in) :: xv
-    !!--++         real(kind=cp),dimension(:),          intent(in) :: aa
-    !!--++         real(kind=cp),                       intent(out):: ycalc
-    !!--++         real(kind=cp),dimension(:),optional, intent(out):: der
-    !!--++      End Subroutine Model_Functn
-    !!--++     End Interface
     !!--++
     !!--++ Update: February - 2003
     !!
@@ -624,17 +403,18 @@
        real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
        real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
        real(kind=cp),                       intent(out)     :: chir
-       integer,                             intent(out)     :: ifail,nt
+       integer,                             intent(out)     :: ifail
+       integer,                             intent(out)     :: nt
 
        Interface
-        Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-           use CFML_GlobalDeps, only: cp
-           integer,                             intent(in) :: iv
-           real(kind=cp),                       intent(in) :: xv
-           real(kind=cp),dimension(:),          intent(in) :: aa
-           real(kind=cp),                       intent(out):: ycalc
-           real(kind=cp),dimension(:),optional, intent(out):: der
-        End Subroutine Model_Functn
+          Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
+             use CFML_DefPar, only: cp
+             integer,                             intent(in) :: iv
+             real(kind=cp),                       intent(in) :: xv
+             real(kind=cp),dimension(:),          intent(in) :: aa
+             real(kind=cp),                       intent(out):: ycalc
+             real(kind=cp),dimension(:),optional, intent(out):: der
+          End Subroutine Model_Functn
        End Interface
 
        !---- Local variables ----!
@@ -689,7 +469,7 @@
        end do
 
        !---- Evaluate CHI2 at starting point ----!
-       chisq1=fchisq(nfr,nobs,y,w,yc)  !chi2 before inverting and applying shifts
+       chisq1=chi_sq(nfr,nobs,y,w,yc)  !chi2 before inverting and applying shifts
 
        !---- Invert modified curvature matrix to find new parameters
        do ntr=1,ntrials
@@ -733,7 +513,7 @@
              call model_functn(i,x(i),yc(i),b)
           end do
 
-          chir=fchisq(nfr,nobs,y,w,yc)
+          chir=chi_sq(nfr,nobs,y,w,yc)
 
           if (ntr == ntrials .or. fl > 1.0e+20 ) then    !no improvement
              ifail=1
@@ -766,47 +546,28 @@
 
     !!--++
     !!--++  Subroutine Curfit_v2(Model_Functn, d, c, vs, Fl, Chir, Ifail)
-    !!--++     Type(LSQ_Data_type)                  intent(in out)  :: d     !Data
-    !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State Vector with model parameters
-    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=cp),                       intent(out)     :: chir
-    !!--++     integer,                    intent(out)     :: ifail
-    !!--++
-    !!--++     Interface
-    !!--++      Subroutine Model_Functn(iv,xv,ycalc,Vsa,der)
-    !!--++         use CFML_GlobalDeps, only: cp
-    !!--++         use CFML_LSQ_TypeDef,  only: LSQ_State_Vector_type
-    !!--++         integer,                             intent(in) :: iv
-    !!--++         real(kind=cp),                       intent(in) :: xv
-    !!--++         real(kind=cp),                       intent(out):: ycalc
-    !!--++         Type(LSQ_State_Vector_type),         intent(in) :: Vsa
-    !!--++         real(kind=cp),dimension(:),optional, intent(out):: der
-    !!--++      End Subroutine Model_Functn
-    !!--++     End Interface
     !!--++
     !!--++ Update: February - 2003
     !!
     Subroutine Curfit_v2(Model_Functn, d, c, vs, Fl, Chir, Ifail,nt)
        !---- Arguments ----!
-       Type(LSQ_Data_Type),                 intent(in out)  :: d
-       Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-       Type(LSQ_State_Vector_type),         intent(in out)  :: vs
-       real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+       Type(LSQ_Data_Type),                 intent(in out)  :: d     ! Data
+       Type(LSQ_Conditions_type),           intent(in)      :: c     ! Conditions for refinement
+       Type(LSQ_State_Vector_type),         intent(in out)  :: vs    ! State vector with model parameters
+       real(kind=cp),                       intent(in out)  :: fl    ! Marquardt LAMBDA value
        real(kind=cp),                       intent(out)     :: chir
-       integer,                             intent(out)     :: ifail,nt
+       integer,                             intent(out)     :: ifail
+       integer,                             intent(out)     :: nt
 
        Interface
-        Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
-           use CFML_GlobalDeps, only: cp
-           use CFML_LSQ_TypeDef,  only: LSQ_State_Vector_type
-           integer,                    intent(in)     :: iv
-           real(kind=cp),              intent(in)     :: xv
-           real(kind=cp),              intent(out)    :: ycalc
-           Type(LSQ_State_Vector_type),intent(in out) :: Vsa
-           Logical, optional,          intent(in)     :: calder
-        End Subroutine Model_Functn
+          Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
+             use CFML_DefPar, only: cp, LSQ_State_Vector_type
+             integer,                    intent(in)     :: iv
+             real(kind=cp),              intent(in)     :: xv
+             real(kind=cp),              intent(out)    :: ycalc
+             Type(LSQ_State_Vector_type),intent(in out) :: Vsa
+             Logical, optional,          intent(in)     :: calder
+          End Subroutine Model_Functn
        End Interface
 
        !---- Local variables ----!
@@ -835,7 +596,6 @@
        !---- (BETA=DP*ALFA)--- DP=BETA*ALFA(-1)    ----!
        beta(:) =0.0
        curv_mat(:,:)=0.0
-
 
        do i=1,d%nobs
           call model_functn(i,d%x(i),d%yc(i),lvs,.true.)
@@ -871,7 +631,7 @@
        end do
 
        !---- Evaluate CHI2 at starting point ----!
-       chisq1=fchisq(nfr,d%nobs,d%y,d%sw,d%yc)  !chi2 before inverting and applying shifts
+       chisq1=chi_sq(nfr,d%nobs,d%y,d%sw,d%yc)  !chi2 before inverting and applying shifts
 
        !---- Invert modified curvature matrix to find new parameters
        do ntr=1,ntrials   !Apply the Marquardt procedure without re-calculating derivatives in the call to the function
@@ -925,7 +685,7 @@
              call model_functn(i,d%x(i),d%yc(i),lvs)
           end do
 
-          chir=fchisq(nfr,d%nobs,d%y,d%sw,d%yc)
+          chir=chi_sq(nfr,d%nobs,d%y,d%sw,d%yc)
 
           if (ntr == ntrials .or. fl > 1.0e+20 ) then    !no improvement
              ifail=1
@@ -961,28 +721,12 @@
              if(change_par) vs%spv(i)=sb(ncount)
           end if
        end do
+
        return
     End Subroutine Curfit_v2
 
     !!--++
     !!--++ Subroutine Fdjac2(Fcn, M, N, X, Fvec, Fjac, Iflag, Epsfcn)
-    !!--++   Integer,                       Intent(In)      :: m
-    !!--++   Integer,                       Intent(In)      :: n
-    !!--++   Real (Kind=cp),dimension(n),   Intent(In Out)  :: x
-    !!--++   Real (Kind=cp),dimension(m),   Intent(In)      :: fvec
-    !!--++   Real (Kind=cp),dimension(:,:), Intent(Out)     :: fjac     ! fjac(ldfjac,n)
-    !!--++   Integer,                       Intent(In Out)  :: iflag
-    !!--++   Real (Kind=cp),                Intent(In)      :: epsfcn
-    !!--++
-    !!--++   Interface
-    !!--++     Subroutine fcn(m, n, x, fvec, iflag)
-    !!--++       Use CFML_GlobalDeps, Only: cp
-    !!--++       Integer,                     Intent(In)      :: m, n
-    !!--++       Real (Kind=cp),Dimension(:), Intent(In)      :: x
-    !!--++       Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
-    !!--++       Integer,                     Intent(In Out)  :: iflag
-    !!--++     End Subroutine fcn
-    !!--++   End Interface
     !!--++
     !!--..   Original documentation:
     !!--..
@@ -1060,7 +804,7 @@
 
        Interface
           Subroutine fcn(m, n, x, fvec, iflag)
-             Use CFML_GlobalDeps, Only: cp
+             Use CFML_DefPar, Only: cp
              Integer,                     Intent(In)      :: m, n
              Real (Kind=cp),Dimension(:), Intent(In)      :: x
              Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
@@ -1093,11 +837,6 @@
 
     !!--..
     !!--..  Subroutine Info_LSQ_LM_V(Chi2,Lun,c,v,vstd,vnam)
-    !!--..   real(kind=cp),                 intent(in) :: chi2         !Final Chi2
-    !!--..   integer,                       intent(in) :: lun          !Logical unit for output
-    !!--..   type(LSQ_conditions_type),     intent(in) :: c            !Conditions of the refinement
-    !!--..   real(kind=cp),   dimension(:), intent(in) :: v,vstd       !State vector and standad deviations (parameters of the model)
-    !!--..   character(len=*),dimension(:), intent(in) :: vnam         !Names of the refined parameters
     !!--..
     !!--..  Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
     !!--..
@@ -1105,17 +844,16 @@
     !!
     Subroutine Info_LSQ_LM_V(Chi2,Lun,c,v,vstd,vnam)
        !---- Arguments ----!
-       real(kind=cp),                 intent(in) :: chi2
-       integer,                       intent(in) :: lun
-       type(LSQ_conditions_type),     intent(in) :: c
-       real(kind=cp),   dimension(:), intent(in) :: v,vstd
-       character(len=*),dimension(:), intent(in) :: vnam
+       real(kind=cp),                 intent(in) :: chi2    ! Final Chi2
+       integer,                       intent(in) :: lun     ! Logical unit for output
+       type(LSQ_conditions_type),     intent(in) :: c       ! Conditions of the refinement
+       real(kind=cp),   dimension(:), intent(in) :: v,vstd  ! State vector and standad deviations (parameters of the model)
+       character(len=*),dimension(:), intent(in) :: vnam    ! Names of the refined parameters
+
        !---- Local variables ----!
        integer       :: i,j,inum
 
        !---- Correlation matrix ----!
-       !Here the correlation matrix is already well calculated
-
        write(unit=lun,fmt="(/,a,/)")   " => Correlation Matrix: "
 
        do i=1,c%npvar
@@ -1146,13 +884,13 @@
        write(unit=lun,fmt="(/,a,/)") &
        "    Parameter name     No.(LSQ)         Final-Value   Standard Deviation"
        do i=1,c%npvar
-        write(unit=lun,fmt="(a,i6,2f20.5)") "    "//vnam(i),i,v(i),vstd(i)
+          write(unit=lun,fmt="(a,i6,2f20.5)") "    "//vnam(i),i,v(i),vstd(i)
        end do
        write(unit=lun,fmt="(/,a,g13.5)")  " => Final value of Chi2: ",chi2
        write(unit=lun,fmt="(a)")  " => Well-behaved LSQ-problems give Tikhonov regularization equal to zero (convergence status above)"
        write(unit=lun,fmt="(a)")  &
        " => In ill-behaved LSQ-problems Tikhonov regularization is selected equal to 10^-6*Maximum(Singular Value) in SVDecomposition"
-       if(chi2 > 1.0) then
+       if (chi2 > 1.0) then
           write(unit=lun,fmt="(a)") " => The LSQ-standard deviations have been mutiplied by SQRT(Chi2)"
        end if
 
@@ -1161,10 +899,6 @@
 
     !!--..
     !!--..  Subroutine Info_LSQ_LM_VS(Chi2,Lun,c,vs)
-    !!--..   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
-    !!--..   integer,                    intent(in)     :: lun        !Logical unit for output
-    !!--..   type(LSQ_conditions_type),  intent(in)     :: c          !Conditions of the refinement
-    !!--..   type(LSQ_State_Vector_type),intent(in)     :: vs         !State vector (parameters of the model)
     !!--..
     !!--..  Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
     !!--..
@@ -1172,10 +906,10 @@
     !!
     Subroutine Info_LSQ_LM_VS(Chi2,Lun,c,vs)
        !---- Arguments ----!
-       real(kind=cp),              intent(in)     :: chi2
-       integer,                    intent(in)     :: lun
-       type(LSQ_conditions_type),  intent(in)     :: c
-       type(LSQ_State_Vector_type),intent(in)     :: vs
+       real(kind=cp),              intent(in)     :: chi2     !Final Chi2
+       integer,                    intent(in)     :: lun      !Logical unit for output
+       type(LSQ_conditions_type),  intent(in)     :: c        !Conditions of the refinement
+       type(LSQ_State_Vector_type),intent(in)     :: vs       !State vector (parameters of the model)
 
        !---- Local variables ----!
        integer       :: i,j,inum
@@ -1223,52 +957,40 @@
        inum=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
-            inum=inum+1
-            write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
+             inum=inum+1
+             write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
 
        write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
-
 
        return
     End Subroutine Info_LSQ_LM_VS
 
     !!----
     !!----  Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
-    !!----   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
-    !!----   real(kind=cp),              intent(in)     :: FL         !Final Marquardt lambda
-    !!----   integer,                    intent(in)     :: nobs       !Number of data points
-    !!----   real(kind=cp),dimension(:), intent(in)     :: x          !Array with abcisae of Data points
-    !!----   real(kind=cp),dimension(:), intent(in)     :: y          !Array with data point values
-    !!----   real(kind=cp),dimension(:), intent(in)     :: yc         !Array with calculated values
-    !!----   real(kind=cp),dimension(:), intent(in)     :: w          !Array with weight factors
-    !!----   integer,                    intent(in)     :: lun        !Logical unit for output
-    !!----   type(LSQ_conditions_type),  intent(in)     :: c          !Conditions of the refinement
-    !!----   type(LSQ_State_Vector_type),intent(in)     :: vs         !State vector (parameters of the model)
-    !!----   character(len=*), optional, intent(in)     :: out_obscal !If present the vectors X,Y,Yc,Sig(=sqrt(1/w))
-    !!----                                                            !Are output in a file called LM_fit.xy
     !!----
-    !!----  Subroutine for output information at the end of refinement
+    !!----  Output information at the end of refinement
     !!----
     !!---- Update: August - 2009
     !!
     Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
        !---- Arguments ----!
-       real(kind=cp),              intent(in)     :: chi2
-       real(kind=cp),              intent(in)     :: FL
-       integer,                    intent(in)     :: nobs
-       real(kind=cp),dimension(:), intent(in)     :: x
-       real(kind=cp),dimension(:), intent(in)     :: y
-       real(kind=cp),dimension(:), intent(in)     :: yc
-       real(kind=cp),dimension(:), intent(in)     :: w
-       integer,                    intent(in)     :: lun
-       type(LSQ_conditions_type),  intent(in)     :: c
-       type(LSQ_State_Vector_type),intent(in)     :: vs
-       character(len=*), optional, intent(in)     :: out_obscal
+       real(kind=cp),              intent(in)     :: chi2           !Final Chi2
+       real(kind=cp),              intent(in)     :: FL             !Final Marquardt lambda
+       integer,                    intent(in)     :: nobs           !Number of data points
+       real(kind=cp),dimension(:), intent(in)     :: x              !Array with abcisae of Data points
+       real(kind=cp),dimension(:), intent(in)     :: y              !Array with data point values
+       real(kind=cp),dimension(:), intent(in)     :: yc             !Array with calculated values
+       real(kind=cp),dimension(:), intent(in)     :: w              !Array with weight factors
+       integer,                    intent(in)     :: lun            !Logical unit for output
+       type(LSQ_conditions_type),  intent(in)     :: c              !Conditions of the refinement
+       type(LSQ_State_Vector_type),intent(in)     :: vs             !State vector (parameters of the model)
+       character(len=*), optional, intent(in)     :: out_obscal     !If present the vectors X,Y,Yc,Sig(=sqrt(1/w))
+                                                                    !Are output in a file called LM_fit.xy
 
        !---- Local variables ----!
-       integer       :: i,j,inum, lob=22
+       integer       :: i,j,inum,lob
        real(kind=dp) :: rfact,rwfact,riobs,rex
        real(kind=cp) :: del,g2
 
@@ -1328,15 +1050,15 @@
        inum=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
-            inum=inum+1
-            write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
+             inum=inum+1
+             write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
        write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
 
        if (present(out_obscal)) then
-          !---- Output of a file with the observed and calculated curves ----!
-          open(unit=lob,file="LM_fit.xy",status="replace", action="write")
+          !> Output of a file with the observed and calculated curves
+          open(newunit=lob,file="LM_fit.xy",status="replace", action="write")
           write(unit=lob,fmt="(a)") "!        X             Y-obs          Y-calc           Sigma"
           do i=1,nobs
              write(unit=lob,fmt="(4f16.4)") x(i),y(i),yc(i),sqrt(1.0/w(i))
@@ -1350,27 +1072,6 @@
 
     !!--++
     !!--++   Subroutine LM_Der(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
-    !!--++     Integer,                     Intent(In)      :: m        !Number of observations
-    !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-    !!--++     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-    !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-    !!--++     logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
-    !!--++                                                              !of making unambiguous the generic procedure
-    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
-    !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-    !!--++
-    !!--++     !--- Local Variables ---!
-    !!--++     Interface
-    !!--++       Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
-    !!--++         Use CFML_GlobalDeps, Only: cp
-    !!--++         Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-    !!--++         Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
-    !!--++         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-    !!--++       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-    !!--++     End Interface
-    !!--++
     !!--++
     !!--++     This interface to lmder has been modified with respect to the original
     !!--++     lmder1 (also available in the overloaded procedure) in order to use the
@@ -1388,23 +1089,24 @@
     !!
     Subroutine LM_Der(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
        !---- Arguments ----!
-       Integer,                               Intent(In)      :: m
-       type(LSQ_conditions_type),             Intent(In Out)  :: c
-       type(LSQ_State_Vector_type),           Intent(In Out)  :: Vs
-       Real (Kind=cp),                        Intent(out)     :: chi2
-       logical,                               Intent(in)      :: calder
-       character(len=*),                      Intent(out)     :: infout
+       Integer,                               Intent(In)      :: m             !Number of observations
+       type(LSQ_conditions_type),             Intent(In Out)  :: c             !Conditions of refinement
+       type(LSQ_State_Vector_type),           Intent(In Out)  :: Vs            !State vector
+       Real (Kind=cp),                        Intent(out)     :: chi2          !final Chi2
+       logical,                               Intent(in)      :: calder        !logical (should be .true.) used only for purposes
+                                                                               !of making unambiguous the generic procedure
+       character(len=*),                      Intent(out)     :: infout        !Information about the refinement (min length 256)
        real (Kind=cp), dimension(:),optional, Intent(out)     :: residuals
 
        Interface
-         Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                       Intent(In)    :: m, n
-            Real (Kind=cp),Dimension(:),   Intent(In)    :: x
-            Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec
-            Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac
-            Integer,                       Intent(In Out):: iflag
-         End Subroutine Model_Functn
+          Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                       Intent(In)    :: m, n               !Number of obserations and free parameters
+             Real (Kind=cp),Dimension(:),   Intent(In)    :: x                  !Array with the values of free parameters: x(1:n)
+             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec               !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+             Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac               !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
+             Integer,                       Intent(In Out):: iflag              !If iflag=1 calculate only fvec without changing fjac
+          End Subroutine Model_Functn                                           !If iflag=2 calculate only fjac keeping fvec fixed
        End Interface
 
        !--- Local Variables ---!
@@ -1430,9 +1132,9 @@
        Chi2=1.0e35
        infout=" "
 
-       !     check the input parameters for errors.
+       !>  check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+          write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
                         " nb of free (refined) parameters: ", n, &
                         ", number of observations: ", m, &
                         ", tolerance: ", c%tol
@@ -1440,17 +1142,17 @@
        end if
 
        j=0
-       if(vs%code_comp) then
+       if (vs%code_comp) then
           !save the initial values of all parameters
           vp=vs%pv(1:vs%np)
           do j=1,n
-            do i=1,vs%np
-               if(vs%code(i) == j) then
-                  x(j)=Vs%pv(i)
-                  namfree(j)=vs%nampar(i)
-                  exit
-               end if
-            end do
+             do i=1,vs%np
+                if (vs%code(i) == j) then
+                   x(j)=Vs%pv(i)
+                   namfree(j)=vs%nampar(i)
+                   exit
+                end if
+             end do
           end do
           xo=x !saving the initial free parameter
        else
@@ -1464,12 +1166,13 @@
 
        ! Initial calculation of Chi2
        iflag=1
-       if(calder) iflag=1
+       if (calder) iflag=1
        Call Model_Functn(m, n, x, fvec, fjac, iflag)
-       ichi2=enorm(m,fvec)
+       ichi2=enorm(fvec,m)
        if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
+
        !If ( c%icyc < 5*n) then
        !   maxfev = 100*(n + 1)
        !   c%icyc= maxfev
@@ -1482,12 +1185,12 @@
        mode = 1
        nprint = c%nprint
 
-       ! Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
+       !> Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
        Call lmder(Model_Functn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev,  &
                   mode, factor, nprint, info, nfev, njev, ipvt)
 
-       !Calculate final Chi2 or norm
-       chi2=enorm(m,fvec)
+       !> Calculate final Chi2 or norm
+       chi2=enorm(fvec,m)
        if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
@@ -1500,6 +1203,7 @@
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
        !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+
        curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
@@ -1512,12 +1216,13 @@
        !iflag=2
        !Call Model_Functn(m, n, x, fvec, fjac, iflag)
        !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac)
+
        do j=1,n
           denj=curv_mat(j,j)
           if( denj <= zero) denj=1.0
           do i=1,n
              deni=curv_mat(i,i)
-             if( deni <= zero) deni=1.0
+             if ( deni <= zero) deni=1.0
              correl(j,i)=curv_mat(j,i)/sqrt(denj*deni)
           end do
           correl(j,j)=1.00001
@@ -1526,7 +1231,7 @@
        If (.not. singular) then
           Do i=1,n
              deni = curv_mat(i,i)
-             if( deni <= zero) deni=1.0
+             if ( deni <= zero) deni=1.0
              sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
           End Do
        Else
@@ -1543,10 +1248,10 @@
 
        !Update the State vector Vs
        n=0
-       if(vs%code_comp) then
+       if (vs%code_comp) then
           Do i=1,Vs%np
              if (Vs%code(i) == 0) then
-                 Vs%spv(i)=0.0
+                Vs%spv(i)=0.0
              Else
                 n=vs%code(i)
                 Vs%pv(i) = vp(i)+(x(n)-xo(n))*Vs%mul(i)
@@ -1610,28 +1315,6 @@
 
     !!--++
     !!--++   Subroutine LM_DerV(Model_Functn, m, c, V, Vstd, chi2, calder, infout,residuals)
-    !!--++     Integer,                     Intent(In)      :: m        !Number of observations
-    !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-    !!--++     Real (Kind=cp),dimension(:), Intent(In Out)  :: V        !State vector
-    !!--++     Real (Kind=cp),dimension(:), Intent(In Out)  :: Vstd     !Standard deviations vector
-    !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-    !!--++     logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
-    !!--++                                                              !of making unambiguous the generic procedure
-    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
-    !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-    !!--++
-    !!--++     !--- Local Variables ---!
-    !!--++     Interface
-    !!--++       Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
-    !!--++         Use CFML_GlobalDeps, Only: cp
-    !!--++         Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-    !!--++         Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
-    !!--++         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-    !!--++       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-    !!--++     End Interface
-    !!--++
     !!--++
     !!--++     This interface to lmder has been modified with respect to the original
     !!--++     lmder1 (also available in the overloaded procedure) in order to use the
@@ -1644,28 +1327,29 @@
     !!
     Subroutine LM_DerV(Model_Functn, m, c, V, Vstd, chi2, calder, infout,residuals)
        !---- Arguments ----!
-       Integer,                               Intent(In)      :: m
-       type(LSQ_conditions_type),             Intent(In Out)  :: c
-       Real (Kind=cp), dimension(:),          Intent(In Out)  :: V,Vstd
-       Real (Kind=cp),                        Intent(out)     :: chi2
-       logical,                               Intent(in)      :: calder
-       character(len=*),                      Intent(out)     :: infout
+       Integer,                               Intent(In)      :: m               !Number of observations
+       type(LSQ_conditions_type),             Intent(In Out)  :: c               !Conditions of refinement
+       Real (Kind=cp), dimension(:),          Intent(In Out)  :: V               !State vector
+       Real (Kind=cp), dimension(:),          Intent(In Out)  :: Vstd            !Standard deviations vector
+       Real (Kind=cp),                        Intent(out)     :: chi2            !final Chi2
+       logical,                               Intent(in)      :: calder          !logical (should be .true.) used only for purposes
+                                                                                 !of making unambiguous the generic procedure
+       character(len=*),                      Intent(out)     :: infout          !Information about the refinement (min length 256)
        real (Kind=cp), dimension(:),optional, Intent(out)     :: residuals
 
        Interface
-         Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                       Intent(In)    :: m, n
-            Real (Kind=cp),Dimension(:),   Intent(In)    :: x
-            Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec
-            Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac
-            Integer,                       Intent(In Out):: iflag
-         End Subroutine Model_Functn
+          Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                       Intent(In)    :: m, n                 !Number of obserations and free parameters
+             Real (Kind=cp),Dimension(:),   Intent(In)    :: x                    !Array with the values of free parameters: x(1:n)
+             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec                 !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+             Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac                 !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
+             Integer,                       Intent(In Out):: iflag                !If iflag=1 calculate only fvec without changing fjac
+          End Subroutine Model_Functn                                             !If iflag=2 calculate only fjac keeping fvec fixed
        End Interface
 
        !--- Local Variables ---!
-       Integer                                    :: i,j, maxfev, mode, nfev, njev, nprint, n, &
-                                                     iflag,info
+       Integer                                    :: i,j, maxfev, mode, nfev, njev, nprint, n, iflag,info
        Integer,        dimension(c%npvar)         :: ipvt
        Integer,        dimension(c%npvar,c%npvar) :: p,id
        Real (Kind=cp), dimension(c%npvar,c%npvar) :: U,VS,Sigm
@@ -1689,7 +1373,7 @@
 
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+          write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
                         " nb of free (refined) parameters: ", n, &
                         ", number of observations: ", m, &
                         ", tolerance: ", c%tol
@@ -1700,7 +1384,7 @@
        iflag=1
        if(calder) iflag=1  !Just for for purposes of making unambiguous the generic procedure
        Call Model_Functn(m, n, v, fvec, fjac, iflag)
-       ichi2=enorm(m,fvec)
+       ichi2=enorm(fvec,m)
        if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
@@ -1721,7 +1405,7 @@
                   mode, factor, nprint, info, nfev, njev, ipvt)
 
        !Calculate final Chi2 or norm
-       chi2=enorm(m,fvec)
+       chi2=enorm(fvec,m)
        if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
@@ -1735,39 +1419,39 @@
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
        !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
 
-        curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
-        do j=1,n
-           p(1:n,j) = id(1:n,ipvt(j))
-        end do
-        curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
-        Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
-        !If the final curvature matrix is singular perform a Tikhonov
-        !regularization (This increases the error bars!)
-        Tikhonov=0.0
-        if(singular) then
+       curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
+       do j=1,n
+          p(1:n,j) = id(1:n,ipvt(j))
+       end do
+       curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
+       Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+       !If the final curvature matrix is singular perform a Tikhonov
+       !regularization (This increases the error bars!)
+       Tikhonov=0.0
+       if (singular) then
           Err_lsq =.true.
           Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
           j=0
           do
-            !first do a SVD decomposition
-            U=curv_mat(1:n,1:n)
-            call SVDcmp(U,Sig,VS)
-            Tikhonov=maxval(Sig)*1.0e-6
-            Sig=Sig+Tikhonov
-            Sigm=0.0
-            do i=1,n
-               Sigm(i,i)=Sig(i)
-            end do
-            curv_mat(1:n,1:n)=matmul(U,matmul(Sigm,transpose(VS)))
-            Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
-            if(.not. singular) exit
-            j=j+1
-            if(j > 3) exit
+             !first do a SVD decomposition
+             U=curv_mat(1:n,1:n)
+             call SVDcmp(U,Sig,VS)
+             Tikhonov=maxval(Sig)*1.0e-6
+             Sig=Sig+Tikhonov
+             Sigm=0.0
+             do i=1,n
+                Sigm(i,i)=Sig(i)
+             end do
+             curv_mat(1:n,1:n)=matmul(U,matmul(Sigm,transpose(VS)))
+             Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+             if (.not. singular) exit
+             j=j+1
+             if (j > 3) exit
           end do
-          if(j <= 3) then
-            Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
+          if (j <= 3) then
+             Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
           end if
-        end if
+       end if
        !
        !Alternatively, make an additional direct final call to the model function in order to calculate the Jacobian J,
        !curvature matrix A=Jt.J, invert it and take the diagonal elements for calculating the standard
@@ -1784,29 +1468,28 @@
           End Do
           !Now correl is the true correlation matrix
           forall (i=1:n,j=1:n)
-              correl(i,j)=correl(i,j)/sqrt(correl(i,i)*correl(j,j))
+             correl(i,j)=correl(i,j)/sqrt(correl(i,i)*correl(j,j))
           end forall
        Else
           !Here correl is the "pseudo"-inverse of the curvature-matrix
           Do i=1,n
-             if( deni <= zero) then
-               Vstd(i) = 99999.9
+             if ( deni <= zero) then
+                Vstd(i) = 99999.9
              else
-               Vstd(i) = sqrt(chi2*abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
+                Vstd(i) = sqrt(chi2*abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
              end if
           End Do
           !Pseudo-correlation matrix
           do j=1,n
              denj=correl(j,j)
-             if( denj <= zero) denj=1.0
+             if ( denj <= zero) denj=1.0
              do i=1,n
                 deni=correl(i,i)
-                if( deni <= zero) deni=1.0
+                if ( deni <= zero) deni=1.0
                 correl(j,i)=correl(j,i)/sqrt(denj*deni)
              end do
           end do
        End if
-
 
        Select Case (info)
           Case(0)
@@ -1814,37 +1497,37 @@
           Case(1)
              c%reached=.true.
              write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov, &
-               "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
+              "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
 
           Case(2)
              c%reached=.true.
              write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
-                "     Convergence reached: The relative error between x and the solution is at most ",c%tol
+               "     Convergence reached: The relative error between x and the solution is at most ",c%tol
 
           Case(3)
             c%reached=.true.
              write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
-             "     Convergence reached: The relative error "// &
-             "in the sum of squares and the difference between x and the solution are both at most ",c%tol
+            "     Convergence reached: The relative error "// &
+            "in the sum of squares and the difference between x and the solution are both at most ",c%tol
 
           Case(4,8)
              c%reached=.true.
              write(unit=infout,fmt="(a,g12.5,a)") "Tikhonov regularization:", Tikhonov, &
-              "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+             "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
 
           Case(5)
              c%reached=.false.
              write(unit=infout,fmt="(a,i6)") &
-             "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+            "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
 
           Case(6)
              c%reached=.false.
              write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
-                                            " is too small! No further reduction in the sum of squares is possible"
+                                           " is too small! No further reduction in the sum of squares is possible"
           Case(7)
              c%reached=.false.
              write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
-                                            " is too small! No further improvement in the approximate solution x seems to be possible"
+                                           " is too small! No further improvement in the approximate solution x seems to be possible"
        End Select
        if (present(residuals)) residuals(1:m)=fvec(1:m)
 
@@ -1853,26 +1536,6 @@
 
     !!--++
     !!--++   Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals,idebug)
-    !!--++     Integer,                     Intent(In)      :: m        !Number of observations
-    !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-    !!--++     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-    !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
-    !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-    !!--++     integer,                     optional, intent(in)  :: idebug !logical unit for writing results
-    !!--++     !--- Local Variables ---!
-    !!--++     Interface
-    !!--++       Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
-    !!--++         Use CFML_GlobalDeps, Only: cp
-    !!--++         Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-    !!--++         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-    !!--++       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-    !!--++     End Interface
-    !!--++
-    !!--++
-    !!--++
     !!--++
     !!--++  This interface to lmdif has been modified with respect to the original lmdif1 (also available in
     !!--++  the overloaded procedure) in order to use the LSQ types of this module.
@@ -1887,27 +1550,26 @@
     !!
     Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals,idebug)
        !---- Arguments ----!
-       Integer,                     Intent(In)      :: m        !Number of observations
-       type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-       type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-       Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-       character(len=*),            Intent(out)     :: infout   !Information about the refinement  (min length 256)
+       Integer,                     Intent(In)            :: m        !Number of observations
+       type(LSQ_conditions_type),   Intent(In Out)        :: c        !Conditions of refinement
+       type(LSQ_State_Vector_type), Intent(In Out)        :: Vs       !State vector
+       Real (Kind=cp),              Intent(out)           :: chi2     !final Chi2
+       character(len=*),            Intent(out)           :: infout   !Information about the refinement  (min length 256)
        Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-       integer,                     optional, intent(in)  :: idebug !logical unit for writing results
+       integer,                     optional, intent(in)  :: idebug   !logical unit for writing results
 
        Interface
-         Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
-            Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-            Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-            Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-         End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+          Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
+             Use CFML_DefPar, Only: cp
+             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
+             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+             Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+          End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
        End Interface
 
        !--- Local Variables ---!
-       Integer                              :: i,j, maxfev, mode, nfev, nprint, n, &
-                                               iflag,info
+       Integer                              :: i,j, maxfev, mode, nfev, nprint, n, iflag,info
        Integer,        dimension(c%npvar)   :: ipvt
        Integer, dimension(c%npvar,c%npvar)  :: p,id
        Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo
@@ -1930,7 +1592,7 @@
        infout=" "
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+          write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
                         " nb of free (refined) parameters: ", n, &
                         ", number of observations: ", m, &
                         ", tolerance: ", c%tol
@@ -1939,17 +1601,17 @@
 
 
        j=0
-       if(vs%code_comp) then
+       if (vs%code_comp) then
           !save the initial values of all parameters
           vp=vs%pv(1:vs%np)
           do j=1,n
-            do i=1,vs%np
-               if(vs%code(i) == j) then
-                  x(j)=Vs%pv(i)
-                  namfree(j)=vs%nampar(i)
-                  exit
-               end if
-            end do
+             do i=1,vs%np
+                if (vs%code(i) == j) then
+                   x(j)=Vs%pv(i)
+                   namfree(j)=vs%nampar(i)
+                   exit
+                end if
+             end do
           end do
           xo=x !saving the initial free parameter
        else
@@ -1964,7 +1626,7 @@
        !Initial calculation of Chi2
        iflag=1
        Call Model_Functn(m, n, x, fvec, iflag)
-       ichi2=enorm(m,fvec)
+       ichi2=enorm(fvec,m)
        if (ichi2 < 1.0e15) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
@@ -1986,7 +1648,7 @@
                   mode, factor, nprint, info, nfev, fjac, ipvt)
 
        !Calculate final Chi2 or norm
-       chi2=enorm(m,fvec)
+       chi2=enorm(fvec,m)
        if (chi2 < 1.0e15) then
           chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
        end if
@@ -2015,27 +1677,26 @@
           correl(j,j)=1.0001
        end do
 
-       if(present(idebug)) then
-         formt="(100g10.3)"
-         !write(unit=formt(2:5),fmt="(i4)") n/12
-         write(unit=idebug,fmt="(a,i5,a,/)") "  Output pseudo-Jacobian for ",n," free parameters"
-         do j=1,n
-           write(unit=idebug,fmt=formt) fjac(j,1:n)
-         end do
-         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the calculated Curvature matrix for ",n," free parameters"
-         write(unit=idebug,fmt=formt) (curv_mat(j,j),j=1,n)
-         write(unit=idebug,fmt="(a,g14.4)") "  Maxvalue of Correl before inversion: ",maxval(correl)
-         write(unit=idebug,fmt="(a,g14.4)") "  Minvalue of Correl before inversion: ",minval(correl)
+       if (present(idebug)) then
+          formt="(100g10.3)"
+          !write(unit=formt(2:5),fmt="(i4)") n/12
+          write(unit=idebug,fmt="(a,i5,a,/)") "  Output pseudo-Jacobian for ",n," free parameters"
+          do j=1,n
+             write(unit=idebug,fmt=formt) fjac(j,1:n)
+          end do
+          write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the calculated Curvature matrix for ",n," free parameters"
+          write(unit=idebug,fmt=formt) (curv_mat(j,j),j=1,n)
+          write(unit=idebug,fmt="(a,g14.4)") "  Maxvalue of Correl before inversion: ",maxval(correl)
+          write(unit=idebug,fmt="(a,g14.4)") "  Minvalue of Correl before inversion: ",minval(correl)
        end if
 
        Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
 
-       if(present(idebug)) then
-         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the Inverse Correlation matrix for ",n," free parameters"
-         write(unit=idebug,fmt=formt) (correl(j,j),j=1,n)
-         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Variances for ",n," free parameters"
-         write(unit=idebug,fmt=formt) (correl(j,j)/curv_mat(j,j),j=1,n)
-
+       if (present(idebug)) then
+          write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the Inverse Correlation matrix for ",n," free parameters"
+          write(unit=idebug,fmt=formt) (correl(j,j),j=1,n)
+          write(unit=idebug,fmt="(/,a,i5,a,/)") "  Variances for ",n," free parameters"
+          write(unit=idebug,fmt=formt) (correl(j,j)/curv_mat(j,j),j=1,n)
        end if
 
        If (.not. singular) then
@@ -2047,10 +1708,10 @@
        Else
           Do i=1,n
              deni = curv_mat(i,i)
-             if( deni <= zero) then
-               sx(i) = 99999.9
+             if ( deni <= zero) then
+                sx(i) = 99999.9
              else
-               sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
+                sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
              end if
           End Do
           Err_lsq =.true.
@@ -2059,7 +1720,7 @@
 
        !Update the State vector Vs
        n=0
-       if(vs%code_comp) then
+       if (vs%code_comp) then
           Do i=1,Vs%np
              if (Vs%code(i) == 0) then
                  Vs%spv(i)=0.0
@@ -2127,34 +1788,6 @@
     !!--++
     !!--++  Subroutine lmder(fcn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev, &
     !!--++                   mode, factor, nprint, info, nfev, njev, ipvt)
-    !!--++    Integer,                        Intent(In)      :: m
-    !!--++    Integer,                        Intent(In)      :: n
-    !!--++    Real (Kind=cp), Dimension(:),   Intent(In Out)  :: x
-    !!--++    Real (Kind=cp), Dimension(m),   Intent(Out)     :: fvec
-    !!--++    Real (Kind=cp), Dimension(:,:), Intent(Out)     :: fjac    ! fjac(ldfjac,n)
-    !!--++    Real (Kind=cp),                 Intent(In)      :: ftol
-    !!--++    Real (Kind=cp),                 Intent(In)      :: xtol
-    !!--++    Real (Kind=cp),                 Intent(In Out)  :: gtol
-    !!--++    Integer,                        Intent(In Out)  :: maxfev
-    !!--++    Integer,                        Intent(In)      :: mode
-    !!--++    Real (Kind=cp),                 Intent(In)      :: factor
-    !!--++    Integer,                        Intent(In)      :: nprint
-    !!--++    Integer,                        Intent(Out)     :: info
-    !!--++    Integer,                        Intent(Out)     :: nfev
-    !!--++    Integer,                        Intent(Out)     :: njev
-    !!--++    Integer,        Dimension(:),   Intent(Out)     :: ipvt
-    !!--++
-    !!--++    Interface
-    !!--++      Subroutine fcn(m, n, x, fvec, fjac, iflag)
-    !!--++        Use CFML_GlobalDeps, Only: cp
-    !!--++        Integer,                       Intent(In)      :: m, n
-    !!--++        Real (Kind=cp),Dimension(:),   Intent(In)      :: x
-    !!--++        Real (Kind=cp),Dimension(:),   Intent(In Out)  :: fvec
-    !!--++        Real (Kind=cp),Dimension(:,:), Intent(Out)     :: fjac
-    !!--++        Integer,                       Intent(In Out)  :: iflag
-    !!--++      End Subroutine fcn
-    !!--++    End Interface
-    !!--++
     !!--++
     !!--..  Original Documentation
     !!--..
@@ -2331,14 +1964,14 @@
        Integer,        Dimension(:),   Intent(Out)     :: ipvt
 
        Interface
-         Subroutine fcn(m, n, x, fvec, fjac, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                       Intent(In)      :: m, n
-            Real (Kind=cp),Dimension(:),   Intent(In)      :: x
-            Real (Kind=cp),Dimension(:),   Intent(In Out)  :: fvec
-            Real (Kind=cp),Dimension(:,:), Intent(Out)     :: fjac
-            Integer,                       Intent(In Out)  :: iflag
-         End Subroutine fcn
+          Subroutine fcn(m, n, x, fvec, fjac, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                       Intent(In)      :: m, n
+             Real (Kind=cp),Dimension(:),   Intent(In)      :: x
+             Real (Kind=cp),Dimension(:),   Intent(In Out)  :: fvec
+             Real (Kind=cp),Dimension(:,:), Intent(Out)     :: fjac
+             Integer,                       Intent(In Out)  :: iflag
+          End Subroutine fcn
        End Interface
 
        !--- Local Variables ---!
@@ -2365,63 +1998,63 @@
            .OR. maxfev <= 0 .OR. factor <= zero) lmerror=.true.
 
        If (mode == 2 .and. .not. lmerror) Then
-         Do j = 1, n
-            If (diag(j) <= zero) Then
-               lmerror=.true.
-               exit
-            End If
-         End Do
+          Do j = 1, n
+             If (diag(j) <= zero) Then
+                lmerror=.true.
+                exit
+             End If
+          End Do
        End If
 
        !     Evaluate the function at the starting point and calculate its norm.
        If (.not. lmerror) then
-         iflag = 1
-         Call fcn(m, n, x, fvec, fjac, iflag)
-         nfev = 1
-         If (iflag < 0) lmerror=.true.
+          iflag = 1
+          Call fcn(m, n, x, fvec, fjac, iflag)
+          nfev = 1
+          If (iflag < 0) lmerror=.true.
        end if
 
        If (.not. lmerror) then
-         fnorm = enorm(m, fvec)
+          fnorm = enorm(fvec,m)
 
-         !     Initialize Levenberg-Marquardt parameter and iteration counter.
-         par = zero
-         iter = 1
-         Do_Out: Do !     Beginning of the outer loop.
+          !     Initialize Levenberg-Marquardt parameter and iteration counter.
+          par = zero
+          iter = 1
+          Do_Out: Do !     Beginning of the outer loop.
 
-            !        Calculate the Jacobian matrix.
-            iflag = 2
-            Call fcn(m, n, x, fvec, fjac, iflag)
-            njev = njev + 1
-            If (iflag < 0) Exit Do_Out
+             !        Calculate the Jacobian matrix.
+             iflag = 2
+             Call fcn(m, n, x, fvec, fjac, iflag)
+             njev = njev + 1
+             If (iflag < 0) Exit Do_Out
 
-            !        If Requested, call fcn to enable printing of iterates.
-            If (nprint > 0) Then
-               iflag = 0
-               If (Mod(iter-1,nprint) == 0) Call fcn(m, n, x, fvec, fjac, iflag)
-               If (iflag < 0) Exit Do_Out
-            End If
+             !        If Requested, call fcn to enable printing of iterates.
+             If (nprint > 0) Then
+                iflag = 0
+                If (Mod(iter-1,nprint) == 0) Call fcn(m, n, x, fvec, fjac, iflag)
+                If (iflag < 0) Exit Do_Out
+             End If
 
-            !        Compute the qr factorization of the jacobian.
-            Call qrfac(m, n, fjac, .TRUE., ipvt, wa1, wa2)
+             !        Compute the qr factorization of the jacobian.
+             Call qrfac(m, n, fjac, .TRUE., ipvt, wa1, wa2)
 
-            !        On the first iteration and if mode is 1, scale according
-            !        to the norms of the columns of the initial jacobian.
-            If (iter == 1) Then
-               If (mode /= 2) Then
-                  Do j = 1, n
-                     diag(j) = wa2(j)
-                     If (wa2(j) == zero) diag(j) = one
-                  End Do
-               End If
+             !        On the first iteration and if mode is 1, scale according
+             !        to the norms of the columns of the initial jacobian.
+             If (iter == 1) Then
+                If (mode /= 2) Then
+                   Do j = 1, n
+                      diag(j) = wa2(j)
+                      If (wa2(j) == zero) diag(j) = one
+                   End Do
+                End If
 
-               !        On the first iteration, calculate the norm of the scaled x
-               !        and initialize the step bound delta.
-               wa3(1:n) = diag(1:n)*x(1:n)
-               xnorm = enorm(n,wa3)
-               delta = factor*xnorm
-               If (delta == zero) delta = factor
-            End If
+                !        On the first iteration, calculate the norm of the scaled x
+                !        and initialize the step bound delta.
+                wa3(1:n) = diag(1:n)*x(1:n)
+                xnorm = enorm(wa3,n)
+                delta = factor*xnorm
+                If (delta == zero) delta = factor
+             End If
 
             !        Form (q transpose)*fvec and store the first n components in qtf.
             wa4(1:m) = fvec(1:m)
@@ -2474,7 +2107,7 @@
                   wa2(j) = x(j) + wa1(j)
                   wa3(j) = diag(j)*wa1(j)
                End Do
-               pnorm = enorm(n, wa3)
+               pnorm = enorm(wa3,n)
 
                !           On the first iteration, adjust the initial step bound.
                If (iter == 1) delta = Min(delta,pnorm)
@@ -2484,7 +2117,7 @@
                Call fcn(m, n, wa2, wa4, fjac, iflag)
                nfev = nfev + 1
                If (iflag < 0) Exit Do_Out
-               fnorm1 = enorm(m, wa4)
+               fnorm1 = enorm(wa4,m)
 
                !           Compute the scaled actual reduction.
                actred = -one
@@ -2498,7 +2131,7 @@
                   temp = wa1(l)
                   wa3(1:j) = wa3(1:j) + fjac(1:j,j)*temp
                End Do
-               temp1 = enorm(n,wa3)/fnorm
+               temp1 = enorm(wa3,n)/fnorm
                temp2 = (Sqrt(par)*pnorm)/fnorm
                prered = temp1**2 + temp2**2/p5
                dirder = -(temp1**2 + temp2**2)
@@ -2529,7 +2162,7 @@
                      wa2(j) = diag(j)*x(j)
                   End Do
                   fvec(1:m) = wa4(1:m)
-                  xnorm = enorm(n,wa2)
+                  xnorm = enorm(wa2,n)
                   fnorm = fnorm1
                   iter = iter + 1
                End If
@@ -2565,26 +2198,6 @@
 
     !!--++
     !!--++   Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, nprint, info, ipvt)
-    !!--++     Integer,                        Intent(In)      :: m
-    !!--++     Integer,                        Intent(In)      :: n
-    !!--++     Real (Kind=cp),Dimension(:),    Intent(In Out)  :: x
-    !!--++     Real (Kind=cp),Dimension(:),    Intent(Out)     :: fvec
-    !!--++     Real (Kind=cp),Dimension(:,:),  Intent(In Out)  :: fjac
-    !!--++     Real (Kind=cp),                 Intent(In)      :: tol
-    !!--++     Integer,                        Intent(In)      :: nprint
-    !!--++     Integer,                        Intent(Out)     :: info
-    !!--++     Integer,Dimension(:),           Intent(In Out)  :: ipvt
-    !!--++     !--- Local Variables ---!
-    !!--++     Interface
-    !!--++       Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
-    !!--++         Use CFML_GlobalDeps, Only: cp
-    !!--++         Integer,                       Intent(In)    :: m, n
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In)    :: x
-    !!--++         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec
-    !!--++         Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac
-    !!--++         Integer,                       Intent(In Out):: iflag
-    !!--++       End Subroutine Model_Functn
-    !!--++     End Interface
     !!--++
     !!--++     The purpose of lmder1 is to minimize the sum of the squares of m nonlinear
     !!--++     functions in n variables by a modification of the levenberg-marquardt
@@ -2706,14 +2319,14 @@
        Integer,Dimension(:),           Intent(In Out)  :: ipvt
 
        Interface
-         Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                       Intent(In)    :: m, n
-            Real (Kind=cp),Dimension(:),   Intent(In)    :: x
-            Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec
-            Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac
-            Integer,                       Intent(In Out):: iflag
-         End Subroutine Model_Functn
+          Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                       Intent(In)    :: m, n
+             Real (Kind=cp),Dimension(:),   Intent(In)    :: x
+             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec
+             Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac
+             Integer,                       Intent(In Out):: iflag
+          End Subroutine Model_Functn
        End Interface
 
        !--- Local Variables ---!
@@ -2722,8 +2335,10 @@
        Real (Kind=cp), Parameter :: factor = 100.0_CP, zero = 0.0_CP
 
        info = 0
-       !     check the input parameters for errors.
+
+       !> check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. tol < zero ) Return
+
        maxfev = 100*(n + 1)
        ftol = tol
        xtol = tol
@@ -2739,32 +2354,6 @@
     !!--++
     !!--++   Subroutine lmdif(fcn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn,  &
     !!--++                    mode, factor, nprint, info, nfev, fjac, ipvt)
-    !!--++     INTEGER,                       INTENT(IN)    :: m
-    !!--++     INTEGER,                       INTENT(IN)    :: n
-    !!--++     REAL (kind=cp),dimension(:),   INTENT(IN OUT):: x
-    !!--++     REAL (kind=cp),dimension(:),   INTENT(OUT)   :: fvec
-    !!--++     REAL (kind=cp),                INTENT(IN)    :: ftol
-    !!--++     REAL (kind=cp),                INTENT(IN)    :: xtol
-    !!--++     REAL (kind=cp),                INTENT(IN OUT):: gtol
-    !!--++     INTEGER,                       INTENT(IN OUT):: maxfev
-    !!--++     REAL (kind=cp),                INTENT(IN OUT):: epsfcn
-    !!--++     INTEGER,                       INTENT(IN)    :: mode
-    !!--++     REAL (kind=cp),                INTENT(IN)    :: factor
-    !!--++     INTEGER,                       INTENT(IN)    :: nprint
-    !!--++     INTEGER,                       INTENT(OUT)   :: info
-    !!--++     INTEGER,                       INTENT(OUT)   :: nfev
-    !!--++     REAL (kind=cp),dimension(:,:), INTENT(OUT)   :: fjac     ! fjac(ldfjac,n)
-    !!--++     INTEGER,dimension(:),          INTENT(OUT)   :: ipvt(:)
-    !!--++
-    !!--++     INTERFACE
-    !!--++       SUBROUTINE fcn(m, n, x, fvec, iflag)
-    !!--++         Use CFML_GlobalDeps, only: cp
-    !!--++         INTEGER,                     INTENT(IN)      :: m, n
-    !!--++         REAL (kind=cp),dimension(:), INTENT(IN)      :: x
-    !!--++         REAL (kind=cp),dimension(:), INTENT(IN OUT)  :: fvec
-    !!--++         INTEGER,                     INTENT(IN OUT)  :: iflag
-    !!--++       END SUBROUTINE fcn
-    !!--++     END INTERFACE
     !!--++
     !!--++
     !!--..  Original documentation
@@ -2942,13 +2531,13 @@
        Integer,        Dimension(:),   Intent(Out)   :: ipvt(:)
 
        Interface
-         Subroutine fcn(m, n, x, fvec, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                     Intent(In)      :: m, n
-            Real (Kind=cp),Dimension(:), Intent(In)      :: x
-            Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
-            Integer,                     Intent(In Out)  :: iflag
-         End Subroutine fcn
+          Subroutine fcn(m, n, x, fvec, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                     Intent(In)      :: m, n
+             Real (Kind=cp),Dimension(:), Intent(In)      :: x
+             Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
+             Integer,                     Intent(In Out)  :: iflag
+          End Subroutine fcn
        End Interface
 
        !--- Local Variables ---!
@@ -2991,7 +2580,7 @@
        end if
 
        if (.not. lmerror) then
-          fnorm = enorm(m, fvec)
+          fnorm = enorm(fvec,m)
 
           !     initialize levenberg-marquardt parameter and iteration counter.
           par = zero
@@ -3029,7 +2618,7 @@
                 !        On the first iteration, calculate the norm of the scaled x
                 !        and initialize the step bound delta.
                 wa3(1:n) = diag(1:n)*x(1:n)
-                xnorm = enorm(n, wa3)
+                xnorm = enorm(wa3,n)
                 delta = factor*xnorm
                 If (delta == zero) delta = factor
              End If
@@ -3085,7 +2674,7 @@
                    wa2(j) = x(j) + wa1(j)
                    wa3(j) = diag(j)*wa1(j)
                 End Do
-                pnorm = enorm(n, wa3)
+                pnorm = enorm(wa3,n)
 
                 !           on the first iteration, adjust the initial step bound.
                 If (iter == 1) delta = Min(delta, pnorm)
@@ -3095,7 +2684,7 @@
                 Call fcn(m, n, wa2, wa4, iflag)
                 nfev = nfev + 1
                 If (iflag < 0) Exit Do_Out
-                fnorm1 = enorm(m, wa4)
+                fnorm1 = enorm(wa4,m)
 
                 !           compute the scaled actual reduction.
                 actred = -one
@@ -3111,7 +2700,7 @@
                       wa3(i) = wa3(i) + fjac(i,j)*temp
                    End Do
                 End Do
-                temp1 = enorm(n,wa3)/fnorm
+                temp1 = enorm(wa3,n)/fnorm
                 temp2 = (Sqrt(par)*pnorm)/fnorm
                 prered = temp1**2 + temp2**2/p5
                 dirder = -(temp1**2 + temp2**2)
@@ -3143,7 +2732,7 @@
                       wa2(j) = diag(j)*x(j)
                    End Do
                    fvec(1:m) = wa4(1:m)
-                   xnorm = enorm(n, wa2)
+                   xnorm = enorm(wa2,n)
                    fnorm = fnorm1
                    iter = iter + 1
                 End If
@@ -3178,24 +2767,6 @@
 
     !!--++
     !!--++  Subroutine lmdif1(fcn, m, n, x, fvec, tol, nprint, info, iwa)
-    !!--++     Integer,                     Intent(In)      :: m
-    !!--++     Integer,                     Intent(In)      :: n
-    !!--++     Real (Kind=cp),Dimension(:), Intent(In Out)  :: x
-    !!--++     Real (Kind=cp),Dimension(:), Intent(Out)     :: fvec
-    !!--++     Real (Kind=cp),              Intent(In)      :: tol
-    !!--++     Integer,                     Intent(In)      :: nprint
-    !!--++     Integer,                     Intent(Out)     :: info
-    !!--++     Integer,Dimension(:),        Intent(Out)     :: iwa
-    !!--++
-    !!--++     Interface
-    !!--++       Subroutine fcn(m, n, x, fvec, iflag)
-    !!--++         Use CFML_GlobalDeps, Only: cp
-    !!--++         Integer,                     Intent(In)      :: m, n
-    !!--++         Real (Kind=cp),Dimension(:), Intent(In)      :: x
-    !!--++         Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
-    !!--++         Integer,                     Intent(In Out)  :: iflag
-    !!--++       End Subroutine fcn
-    !!--++     End Interface
     !!--++
     !!--..  Original documentation
     !!--..
@@ -3293,13 +2864,13 @@
        Integer,Dimension(:),        Intent(Out)     :: iwa
 
        Interface
-         Subroutine Model_Functn(m, n, x, fvec, iflag)
-            Use CFML_GlobalDeps, Only: cp
-            Integer,                     Intent(In)      :: m, n
-            Real (Kind=cp),Dimension(:), Intent(In)      :: x
-            Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
-            Integer,                     Intent(In Out)  :: iflag
-         End Subroutine Model_Functn
+          Subroutine Model_Functn(m, n, x, fvec, iflag)
+             Use CFML_DefPar, Only: cp
+             Integer,                     Intent(In)      :: m, n
+             Real (Kind=cp),Dimension(:), Intent(In)      :: x
+             Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
+             Integer,                     Intent(In Out)  :: iflag
+          End Subroutine Model_Functn
        End Interface
 
        !--- Local Variables ---!
@@ -3328,15 +2899,6 @@
 
     !!--++
     !!--++   Subroutine lmpar(n, r, ipvt, diag, qtb, delta, par, x, sdiag)
-    !!--++      Integer,                        Intent(In)      :: n
-    !!--++      Real (Kind=cp), dimension(:,:), Intent(In Out)  :: r
-    !!--++      Integer,        dimension(:),   Intent(In)      :: ipvt
-    !!--++      Real (Kind=cp), dimension(:),   Intent(In)      :: diag
-    !!--++      Real (Kind=cp), dimension(:),   Intent(In)      :: qtb
-    !!--++      Real (Kind=cp),                 Intent(In)      :: delta
-    !!--++      Real (Kind=cp),                 Intent(Out)     :: par
-    !!--++      Real (Kind=cp), dimension(:),   Intent(Out)     :: x
-    !!--++      Real (Kind=cp), dimension(:),   Intent(Out)     :: sdiag
     !!--++
     !!--..  Original documentation:
     !!--..
@@ -3472,7 +3034,7 @@
        !     for acceptance of the gauss-newton direction.
        iter = 0
        wa2(1:n) = diag(1:n)*x(1:n)
-       dxnorm = enorm(n, wa2)
+       dxnorm = enorm(wa2,n)
        fp = dxnorm - delta
        If (fp <= p1*delta) lmerror=.true.
        If (.not. lmerror) then
@@ -3490,7 +3052,7 @@
                 suma = Dot_Product( r(1:j-1,j), wa1(1:j-1) )
                 wa1(j) = (wa1(j) - suma)/r(j,j)
              End Do
-             temp = enorm(n,wa1)
+             temp = enorm(wa1,n)
              parl = ((fp/delta)/temp)/temp
           End If
 
@@ -3500,7 +3062,7 @@
              l = ipvt(j)
              wa1(j) = suma/diag(l)
           End Do
-          gnorm = enorm(n,wa1)
+          gnorm = enorm(wa1,n)
           paru = gnorm/delta
           If (paru == zero) paru = dwarf/Min(delta,p1)
 
@@ -3520,7 +3082,7 @@
              wa1(1:n) = temp*diag(1:n)
              Call qrsolv(n, r, ipvt, wa1, qtb, x, sdiag)
              wa2(1:n) = diag(1:n)*x(1:n)
-             dxnorm = enorm(n, wa2)
+             dxnorm = enorm(wa2,n)
              temp = fp
              fp = dxnorm - delta
 
@@ -3541,7 +3103,7 @@
                 jp1 = j + 1
                 wa1(jp1:n) = wa1(jp1:n) - r(jp1:n,j)*temp
              End Do
-             temp = enorm(n,wa1)
+             temp = enorm(wa1,n)
              parc = ((fp/delta)/temp)/temp
 
              !        depending on the sign of the function, update parl or paru.
@@ -3560,85 +3122,8 @@
        Return
     End Subroutine lmpar
 
-    !!----
-    !!---- Subroutine Marquardt_Fit(Model_Functn, X, Y, W, Yc, Nobs, c, vs, Ipr, Chi2, scroll_lines)
-    !!----    real(kind=cp), dimension(:),             intent(in)     :: x             !Vector of x-values
-    !!----    real(kind=cp), dimension(:),             intent(in)     :: y             !Vector of observed y-values
-    !!----    real(kind=cp), dimension(:),             intent(in out) :: w             !Vector of weights-values (1/variance)
-    !!----    real(kind=cp), dimension(:),             intent(   out) :: yc            !Vector of calculated y-values
-    !!----    integer                    ,             intent(in)     :: nobs          !Number of effective components of x,y,w,yc
-    !!----    type(LSQ_conditions_type),               intent(in out) :: c             !Conditions for the algorithm
-    !!----    type(LSQ_State_Vector_type),             intent(in out) :: vs            !State vector for the model calculation
-    !!----    integer                    ,             intent(in)     :: Ipr           !Logical unit for writing
-    !!----    real(kind=cp),                           intent(out)    :: chi2          !Reduced Chi-2
-    !!----    character(len=*),dimension(:), optional, intent(out)    :: scroll_lines  !If present, part of the output is stored
-    !!----                                                                             !in this text for treatment in the calling program
-    !!----
-    !!----    Model_functn                                                             !Name of the subroutine calculating yc(i) for point x(i)
-    !!----    Interface                                                                !Interface for the Model_Functn subroutine
-    !!----       Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!----          use CFML_GlobalDeps, only: cp
-    !!----          integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
-    !!----          real(kind=cp),                       intent(in) :: xv     !Value of x(i)
-    !!----          real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-    !!----          real(kind=cp),dimension(:),          intent(in) :: aa     !Vector of parameters
-    !!----          real(kind=cp),dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
-    !!----       End Subroutine Model_Functn
-    !!----    End Interface
-    !!----
-    !!----     or
-    !!----
-    !!---- Subroutine Marquardt_Fit(Model_Functn, d, c, vs, Ipr, Chi2, scroll_lines)
-    !!----    Type(LSQ_Data_Type),                     intent(in out) :: d             !Vector of x-values
-    !!----    type(LSQ_conditions_type),               intent(in out) :: c             !Conditions for the algorithm
-    !!----    type(LSQ_State_Vector_type),             intent(in out) :: vs            !State vector for the model calculation
-    !!----    integer                    ,             intent(in)     :: Ipr           !Logical unit for writing
-    !!----    real(kind=cp),                           intent(out)    :: chi2          !Reduced Chi-2
-    !!----    character(len=*),dimension(:), optional, intent(out)    :: scroll_lines  !If present, part of the output is stored
-    !!----                                                                             !in this text for treatment in the calling program
-    !!----
-    !!----    Model_functn                                                             !Name of the subroutine calculating yc(i) for point x(i)
-    !!----    Interface                                                                !Interface for the Model_Functn subroutine
-    !!----       Subroutine Model_Functn(iv,Xv,ycalc,Vsa,calder)
-    !!----          use CFML_GlobalDeps, only: cp
-    !!----          integer,                    intent(in)     :: iv     !Number of the component: "i" in x(i)
-    !!----          real(kind=cp),              intent(in)     :: xv     !Value of x(i)
-    !!----          real(kind=cp),              intent(out)    :: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-    !!----          Type(LSQ_State_Vector_type),intent(in out) :: Vsa    !Parameters, codes, and derivatives
-    !!----          logical,optional,           intent(in)     :: calder !If present, derivatives, stored in Vsa%dpv, are calculated
-    !!----       End Subroutine Model_Functn
-    !!----    End Interface
-    !!----
-    !!----
-    !!---- Update: January 2010
-    !!
-
     !!--++
     !!--++ Subroutine Marquardt_Fit_v1(Model_Functn, X, Y, W, Yc, Nobs, c, vs, Ipr, Chi2, scroll_lines)
-    !!--++    real(kind=cp), dimension(:),intent(in)     :: x      !Vector of x-values
-    !!--++    real(kind=cp), dimension(:),intent(in)     :: y      !Vector of observed y-values
-    !!--++    real(kind=cp), dimension(:),intent(in out) :: w      !Vector of weights-values (1/variance)
-    !!--++    real(kind=cp), dimension(:),intent(   out) :: yc     !Vector of calculated y-values
-    !!--++    integer                    ,intent(in)     :: nobs   !Number of effective components of x,y,w,yc
-    !!--++    type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
-    !!--++    type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
-    !!--++    integer                    ,intent(in)     :: Ipr    !Logical unit for writing
-    !!--++    real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
-    !!--++    character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
-    !!--++                                                                           !in this text for treatment in the calling program
-    !!--++
-    !!--++    Model_functn                                            !Name of the subroutine calculating yc(i) for point x(i)
-    !!--++    Interface                                               !Interface for the Model_Functn subroutine
-    !!--++       Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!--++            use CFML_GlobalDeps, only: cp
-    !!--++            integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
-    !!--++            real(kind=cp),                       intent(in) :: xv     !Value of x(i)
-    !!--++            real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-    !!--++            real(kind=cp),dimension(:),          intent(in) :: aa     !Vector of parameters
-    !!--++            real(kind=cp),dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
-    !!--++       End Subroutine Model_Functn
-    !!--++    End Interface
-    !!--++
     !!--++
     !!--++    Subroutine for applying the Levenberg-Marquardt method for Least-Squares.
     !!--++    The user must provide a model function according to the interface above.
@@ -3674,24 +3159,27 @@
     !!
     Subroutine Marquardt_Fit_v1(Model_Functn,X,Y,W,Yc,Nobs,c,vs,Ipr,Chi2,scroll_lines)
        !---- Arguments ----!
-       real(kind=cp),   dimension(:), intent(in)             :: x,y
-       real(kind=cp),   dimension(:), intent(in out)         :: w
-       real(kind=cp),   dimension(:), intent(   out)         :: yc
-       integer,                       intent(in)             :: nobs,Ipr
-       type(LSQ_conditions_type),     intent(in out)         :: c
-       type(LSQ_State_Vector_type),   intent(in out)         :: vs
-       real(kind=cp),                 intent(   out)         :: chi2
-       character(len=*),dimension(:), intent(out), optional  :: scroll_lines
+       real(kind=cp),   dimension(:), intent(in)             :: x              !Vector of x-values
+       real(kind=cp),   dimension(:), intent(in)             :: y              !Vector of observed y-values
+       real(kind=cp),   dimension(:), intent(in out)         :: w              !Vector of weights-values (1/variance)
+       real(kind=cp),   dimension(:), intent(   out)         :: yc             !Vector of calculated y-values
+       integer,                       intent(in)             :: nobs           !Number of effective components of x,y,w,yc
+       type(LSQ_conditions_type),     intent(in out)         :: c              !Conditions for the algorithm
+       type(LSQ_State_Vector_type),   intent(in out)         :: vs             !State vector for the model calculation
+       integer,                       intent(in)             :: Ipr            !Logical unit for writing
+       real(kind=cp),                 intent(   out)         :: chi2           !Reduced Chi-2
+       character(len=*),dimension(:), intent(out), optional  :: scroll_lines   !If present, part of the output is stored
+                                                                               !in this text for treatment in the calling program
 
        Interface
-        Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-           use CFML_GlobalDeps, only: cp
-           integer,                             intent(in) :: iv
-           real(kind=cp),                       intent(in) :: xv
-           real(kind=cp),dimension(:),          intent(in) :: aa
-           real(kind=cp),                       intent(out):: ycalc
-           real(kind=cp),dimension(:),optional, intent(out):: der
-        End Subroutine Model_Functn
+          Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
+             use CFML_DefPar, only: cp
+             integer,                             intent(in) :: iv             !Number of the component: "i" in x(i)
+             real(kind=cp),                       intent(in) :: xv             !Value of x(i)
+             real(kind=cp),                       intent(out):: ycalc          !Value of yc at point x(i) => ycalc=yc(i)
+             real(kind=cp),dimension(:),          intent(in) :: aa             !Vector of parameters
+             real(kind=cp),dimension(:),optional, intent(out):: der            !Derivatives of the function w.r.t. free parameters
+          End Subroutine Model_Functn
        End Interface
 
        !---- local variables ----!
@@ -3868,26 +3356,6 @@
 
     !!--++
     !!--++ Subroutine Marquardt_Fit_v2(Model_Functn, d, c, vs, Ipr, Chi2, scroll_lines)
-    !!--++    Type(LSQ_Data_Type),                     intent(in out) :: d             !Vector of x-values
-    !!--++    type(LSQ_conditions_type),               intent(in out) :: c             !Conditions for the algorithm
-    !!--++    type(LSQ_State_Vector_type),             intent(in out) :: vs            !State vector for the model calculation
-    !!--++    integer                    ,             intent(in)     :: Ipr           !Logical unit for writing
-    !!--++    real(kind=cp),                           intent(out)    :: chi2          !Reduced Chi-2
-    !!--++    character(len=*),dimension(:), optional, intent(out)    :: scroll_lines  !If present, part of the output is stored
-    !!--++                                                                             !in this text for treatment in the calling program
-    !!--++
-    !!--++    Model_functn                                                             !Name of the subroutine calculating yc(i) for point x(i)
-    !!--++    Interface                                                                !Interface for the Model_Functn subroutine
-    !!--++       Subroutine Model_Functn(iv,Xv,ycalc,Vsa,calder)
-    !!--++          use CFML_GlobalDeps, only: cp
-    !!--++          integer,                    intent(in)     :: iv     !Number of the component: "i" in x(i)
-    !!--++          real(kind=cp),              intent(in)     :: xv     !Value of x(i)
-    !!--++          real(kind=cp),              intent(out)    :: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-    !!--++          Type(LSQ_State_Vector_type),intent(in out) :: Vsa    !Parameters, codes, and derivatives
-    !!--++          logical,optional,           intent(in)     :: calder !If present, derivatives, stored in Vsa%dpv, are calculated
-    !!--++       End Subroutine Model_Functn
-    !!--++    End Interface
-    !!--++
     !!--++
     !!--++    Subroutine for applying the Levenberg-Marquardt method for Least-Squares.
     !!--++    The user must provide a model function according to the interface above.
@@ -3940,23 +3408,23 @@
     !!
     Subroutine Marquardt_Fit_v2(Model_Functn,d,c,vs,Ipr,Chi2,scroll_lines)
        !---- Arguments ----!
-       Type(LSQ_Data_Type),           intent(in out)         :: d
-       type(LSQ_conditions_type),     intent(in out)         :: c
-       type(LSQ_State_Vector_type),   intent(in out)         :: vs
-       integer,                       intent(in)             :: Ipr
-       real(kind=cp),                 intent(   out)         :: chi2
-       character(len=*),dimension(:), intent(out), optional  :: scroll_lines
+       Type(LSQ_Data_Type),           intent(in out)         :: d              !Vector of x-values
+       type(LSQ_conditions_type),     intent(in out)         :: c              !Conditions for the algorithm
+       type(LSQ_State_Vector_type),   intent(in out)         :: vs             !State vector for the model calculation
+       integer,                       intent(in)             :: Ipr            !Logical unit for writing
+       real(kind=cp),                 intent(   out)         :: chi2           !Reduced Chi-2
+       character(len=*),dimension(:), intent(out), optional  :: scroll_lines   !If present, part of the output is stored
+                                                                               !in this text for treatment in the calling program
 
        Interface
-        Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
-           use CFML_GlobalDeps, only: cp
-           use CFML_LSQ_TypeDef,  only: LSQ_State_Vector_type
-           integer,                     intent(in)     :: iv
-           real(kind=cp),               intent(in)     :: xv
-           real(kind=cp),               intent(out)    :: ycalc
-           Type(LSQ_State_Vector_type), intent(in out) :: Vsa
-           logical,optional,            intent(in)     :: calder
-        End Subroutine Model_Functn
+          Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
+             use CFML_DefPar, only: cp, LSQ_State_Vector_type
+             integer,                     intent(in)     :: iv            !Number of the component: "i" in x(i)
+             real(kind=cp),               intent(in)     :: xv            !Value of x(i)
+             real(kind=cp),               intent(out)    :: ycalc         !Value of yc at point x(i) => ycalc=yc(i)
+             Type(LSQ_State_Vector_type), intent(in out) :: Vsa           !Parameters, codes, and derivatives
+             logical,optional,            intent(in)     :: calder        !If present, derivatives, stored in Vsa%dpv, are calculated
+          End Subroutine Model_Functn
        End Interface
 
        !---- local variables ----!
@@ -4022,7 +3490,7 @@
              do i=1,d%nobs            !Calculation of the function for all points with the previous parameters
                 call model_functn(i,d%x(i),d%yc(i),vs)
              end do
-             chi2=fchisq(d%nobs-c%npvar,d%nobs,d%y,d%sw,d%yc)
+             chi2=chi_sq(d%nobs-c%npvar,d%nobs,d%y,d%sw,d%yc)
              line= " "
              write(unit=line,fmt="(a,i5,2(a,f14.6),a,i3)") " => Marquardt convergence not reached! Cycle No.:",&
                                             li,"  Last Chi2 =",chi2, "  Marquardt-Lambda: ",fl, "  Ntrials: ",nt
@@ -4110,12 +3578,104 @@
        return
     End Subroutine Marquardt_Fit_v2
 
+    !!----
+    !!---- Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
+    !!----
+    !!----  This subroutine should be called with the arguments corresponding to
+    !!----  the components  Lcodes=LSQ_State_Vector%code, Multip=LSQ_State_Vector%mul
+    !!----  and Lcode_max=maxval(LSQ_State_Vector%code) before using the LSQ methods
+    !!----  in which and object of LSQ_State_Vector_type exist and LSQ_State_Vector%code_comp=.true.
+    !!----  This allows the use of constraints once the codes have been attributed.
+    !!----
+    !!
+    Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
+       !---- Arguments ----!
+       integer,       dimension(:),intent (in out) :: Lcodes
+       real(kind=cp), dimension(:),intent (in out) :: Multip
+       integer,                    intent (in out) :: Lcode_max
+
+       !--- Local variables ---!
+       integer                       ::  k, L , j, n_given, Lcm, n_att,ndisp, nn, ni, ndispm,maxs
+       integer, dimension(Lcode_max) :: dispo
+       real(kind=cp), parameter      :: e=0.001
+
+       !> Check correlated parameters and already used codes
+       ndisp=0
+       n_given=0
+       dispo(:)=0
+       Lcm=size(Lcodes)
+       !> First Pass
+       Do L=1, Lcode_max
+          ni=0
+          do k=1, Lcm
+             if (L == Lcodes(k)) ni=ni+1
+          end do
+          if (ni == 0) then
+             ndisp=ndisp+1   !number of disponible codes
+             dispo(ndisp)=L  !disponible code number
+          else
+             n_given=n_given+1  !number of given codes
+          end if
+       end do !=1,Lcode_max
+
+       if (ndisp == 0) return  !all codes have been attributed
+
+       !> Attributing numbers to parameters (not already attributed) with multipliers
+       !> different from zero. First the attribution is taken from the vector dispo() and
+       !> continued, after finishing the disponible codes, from Lcode_max+1, ...
+       !> If after attributing the codes ndisp /=0, then a displacement of all parameters
+       !> is done and the maximum number of parameters to be refined is diminished by
+       !> ndisp
+       ndispm=ndisp !number of disponible codes before attributing code numbers
+       ni=0
+       nn=Lcode_max
+       n_att=0
+       do j=1,Lcm
+          if (abs(Multip(j)) > e .and. Lcodes(j) == 0 ) then
+             if (abs(Multip(j)) > 1.001) then
+                Multip(j)=sign(1.0_cp,Multip(j))*(abs(Multip(j))-1.0)
+             end if
+             if (ndisp==0) then
+                nn=nn+1
+                Lcodes(j)=nn
+                n_att=n_att+1
+             else
+                ni=ni+1
+                Lcodes(j)=dispo(ni)
+                n_att=n_att+1
+                ndisp=ndisp-1
+             end if
+          end if
+       end do
+
+       if (ndisp == 0) then
+          if (nn > Lcode_max) Lcode_max=nn
+          return  !all parameters have been attributed
+       end if
+
+       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
+
+       !> Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
+       n_att=ndispm-ndisp+1
+       do L=Lcode_max, maxs+1,-1
+          nn=0
+          do j =1,Lcm
+             if (L == Lcodes(j)) then
+                Lcodes(j)=dispo(n_att)
+                nn=nn+1
+             end if
+          end do
+          if (nn == 0) cycle
+          n_att=n_att+1
+          if(n_att > ndispm) exit
+       end do !i=Lcode_max,maxs+1,-1
+       Lcode_max=maxs
+
+       return
+    End Subroutine Modify_Codes_State_Vector
+
     !!--++
     !!--++  Subroutine Output_Cyc(Ic,Lun,Chi2,vs)
-    !!--++   integer,                    intent(in) :: ic  !cycle number
-    !!--++   integer,                    intent(in) :: lun !logical number of the output file
-    !!--++   real(kind=cp),              intent(in) :: chi2
-    !!--++   type(LSQ_State_Vector_type),intent(in) :: vs
     !!--++
     !!--++  (PRIVATE)
     !!--++  Subroutine for output information on each cycle
@@ -4155,13 +3715,6 @@
 
     !!--++
     !!--++  Subroutine qrfac(m, n, a, pivot, ipvt, rdiag, acnorm)
-    !!--++     Integer,                       Intent(In)      :: m
-    !!--++     Integer,                       Intent(In)      :: n
-    !!--++     Real (Kind=cp),Dimension(:,:), Intent(In Out)  :: a
-    !!--++     Logical,                       Intent(In)      :: pivot
-    !!--++     Integer,Dimension(:),          Intent(Out)     :: ipvt
-    !!--++     Real (Kind=cp),Dimension(:),   Intent(Out)     :: rdiag
-    !!--++     Real (Kind=cp),Dimension(:),   Intent(Out)     :: acnorm
     !!--++
     !!--..  Original documentation:
     !!--..
@@ -4240,23 +3793,22 @@
        Real (Kind=cp), Dimension(n) :: wa
        Real (Kind=cp), Parameter    :: one = 1.0_CP, p05 = 0.05_CP, zero = 0.0_CP
 
-       !     epsmch is the machine precision.
+       !> epsmch is the machine precision.
        epsmch = Epsilon(zero)
 
-       !     compute the initial column norms and initialize several arrays.
+       !> compute the initial column norms and initialize several arrays.
        Do j = 1, n
-          acnorm(j) = enorm(m,a(1:,j))
+          acnorm(j) = enorm(a(1:,j),m)
           rdiag(j) = acnorm(j)
           wa(j) = rdiag(j)
           If (pivot) ipvt(j) = j
        End Do
 
-       !     Reduce a to r with Householder transformations.
+       !> Reduce a to r with Householder transformations.
        minmn = Min(m,n)
        Do j = 1, minmn
           If (pivot) Then
-
-             !Bring the column of largest norm into the pivot position.
+             !> Bring the column of largest norm into the pivot position.
              kmax = j
              Do k = j, n
                 If (rdiag(k) > rdiag(kmax)) kmax = k
@@ -4278,7 +3830,7 @@
 
           !     Compute the Householder transformation to reduce the
           !     j-th column of a to a multiple of the j-th unit vector.
-          ajnorm = enorm(m-j+1, a(j:,j))
+          ajnorm = enorm( a(j:,j),m-j+1)
           If (ajnorm == zero) Cycle
           If (a(j,j) < zero) ajnorm = -ajnorm
           a(j:m,j) = a(j:m,j)/ajnorm
@@ -4294,7 +3846,7 @@
              temp = a(j,k)/rdiag(k)
              rdiag(k) = rdiag(k)*Sqrt(Max(zero, one-temp**2))
              If (p05*(rdiag(k)/wa(k))**2 > epsmch) Cycle
-             rdiag(k) = enorm(m-j, a(jp1:,k))
+             rdiag(k) = enorm(a(jp1:,k),m-j)
              wa(k) = rdiag(k)
           End Do
           rdiag(j) = -ajnorm
@@ -4305,13 +3857,6 @@
 
     !!--++
     !!--++ Subroutine qrsolv(n, r, ipvt, diag, qtb, x, sdiag)
-    !!--++    Integer,                        Intent(In)      :: n
-    !!--++    Real (Kind=cp), dimension(:,:), Intent(In Out)  :: r
-    !!--++    Integer, dimension(:),          Intent(In)      :: ipvt
-    !!--++    Real (Kind=cp), dimension(:),   Intent(In)      :: diag
-    !!--++    Real (Kind=cp), dimension(:),   Intent(In)      :: qtb
-    !!--++    Real (Kind=cp), dimension(:),   Intent(Out)     :: x
-    !!--++    Real (Kind=cp), dimension(:),   Intent(Out)     :: sdiag
     !!--++
     !!--..    Original documentation:
     !!--..

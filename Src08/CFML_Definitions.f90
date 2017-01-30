@@ -316,6 +316,7 @@ Module CFML_DefPar
    logical            :: ERR_String  =.false.          ! Error flag in CFML_String_Utilities module
    logical            :: ERR_Math3D  =.false.          ! Error flag in CFML_Math_3D module
    logical            :: ERR_Optim   =.false.          ! Error flag in CFML_Optimization_General module
+   logical            :: ERR_LSQ     =.false.          ! Error flag in CFML_Optimization_LSQ module
 
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
@@ -326,6 +327,9 @@ Module CFML_DefPar
    character(len=256) :: Err_String_Mess  = " "        ! String containing information about the last error
    character(len=256) :: Err_Math3D_Mess  = " "        ! String containing information about the last error
    character(len=256) :: ERR_Optim_Mess   = " "        ! String containing information about the last error
+   character(len=256) :: ERR_LSQ_Mess     = " "        ! String containing information about the last error
+
+   character(len=150) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
 
    integer            :: win_console = -1              ! Code number for Scroll Window (Variable only in use for Winteracter code)
 
