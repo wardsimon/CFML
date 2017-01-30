@@ -21,19 +21,20 @@ Program SSPG_Info
    !---- Use Modules ----!
    use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
                                              Write_SpaceGroup
+   use CFML_String_Utilities,          only: Get_Fraction_1Dig
 
    use CFML_Propagation_Vectors,       only: Group_k_Type, Set_Gk, K_Star, &
                                              Write_Group_k, k_EQUIV
 
    use CFML_GlobalDeps,                only: cp
 
-   use CFML_Math_General, only: Determinant, Equal_Matrix, Equal_Vector, Modulo_Lat
+   use CFML_Math_General, only: Determinant, Equal_Matrix, Equal_Vector, Modulo_Lat, Zbelong
 
    !---- Variables ----!
 
    implicit none
 
-   integer :: i, j, m, n, sizegg, iter, cnt1, cnt2, cnt3, nmax, k, k1, k2, t1, t2, possibleCombinations, seclimit
+   integer :: i, j, m, n, sizegg, iter, cnt1, cnt2, cnt3, nmax, k, k1, k2, t1, t2, possibleCombinations, seclimit, l
    integer :: nmatrices, nmatricesRS, npossibleTs, size_Gk, size_Gkmink, size_m, size_mn, theTrueSize, dim_buff, sizeResults
 
    real                       :: anImprobableNumber, buff1, buff2
@@ -43,6 +44,7 @@ Program SSPG_Info
    !--- To prompt the user: "Enter a space group"
    !
    character(len=20)      :: spgr
+   character(len=512)     :: aux_string
    type(Space_Group_type) :: grp_espacial
    character(len=1) :: default_example ! len=1 since choice is just 'y' or 'n'
 
@@ -75,6 +77,8 @@ Program SSPG_Info
    real, dimension(:,:),     allocatable :: vectors_T, vectors_T_hat_0, vectors_T_hat_1, vectors_T_hat_2     ! The translations
    real, dimension(:,:),     allocatable :: PP, PM  ! a test matrix for multiplication
    integer, dimension(:,:),  allocatable :: multiplitable  !
+   real, dimension(128) :: movn
+   integer              :: n_movn
 
    logical :: equal
 
@@ -253,8 +257,8 @@ Program SSPG_Info
      n_values_Gk     = INDEX_MATRICES(matrices_R_S, 4, nmatrices)
      size_m=SIZE(m_values)
      size_mn=size_m*SIZE(n_values_Gk)
-     WRITE(*,*) " m values:            ", m_values        !," ----------", size_m ! is fixed
-     WRITE(*,*) " n indexes:           ", n_values_Gkmink !," ----------", size_Gkmink
+     WRITE(*,"(a,6i4)") " m values:            ", nint(m_values)        !," ----------", size_m ! is fixed
+     WRITE(*,"(a,128i4)") " n indexes:           ", nint(n_values_Gkmink) !," ----------", size_Gkmink
      !WRITE(*,*) " n values of Gk:      ", n_values_Gk     !," ----------", size_Gk  ! beware!!! is 4 or 8??
      !WRITE(*,*) " possible m/n values:   "
 
@@ -273,7 +277,7 @@ Program SSPG_Info
      !WRITE(*,*) "after trimming ", TRIMMER(vec_T4_possible_values,theTrueSize)
      !WRITE(*,*) " possible m/n values: "
      !WRITE(*,*) " possible m/n values---> ", vec_T4_possible_values, theTrueSize
-     WRITE(*,*) " possible t=(m/n) values: ", TRIMMER(vec_T4_possible_values,theTrueSize)
+    ! WRITE(*,*) " possible t=(m/n) values: ", TRIMMER(vec_T4_possible_values,theTrueSize)
 
      !write the result to a clean vector of size 'theTrueSize'
      if(allocated(vec_T4_possible_values_definitive)) deallocate(vec_T4_possible_values_definitive)
@@ -281,7 +285,14 @@ Program SSPG_Info
      vec_T4_possible_values_definitive=-1 ! just in case, to check if anything fails
      vec_T4_possible_values_definitive=TRIMMER(vec_T4_possible_values,theTrueSize)
      WRITE(*,*) " possible t values, deft: ", vec_T4_possible_values_definitive
-
+     aux_string=" "
+     l=0
+     call get_m_over_n(m_values,n_values_Gkmink,movn,n_movn)
+     do i=1,n_movn
+       call Get_Fraction_1Dig(movn(i),aux_string(l+2:))
+       l=len_trim(aux_string)
+     end do
+     write(*,"(a)") trim(aux_string)
 
      ! futura sol. elegante
      !WRITE(*,*) " n values of Gk-k", INDEX_MATRICES(matrices_R_S, 4, nmatrices, ext=1)
@@ -555,7 +566,7 @@ WRITE(*,*) ""
 WRITE(*,*) "         |  n    |   matrix R_g ID |  t=(t1,t2,t3,t4)    "
  WRITE(*,*) ""
 do k1=1,seclimit !53! 4096!cnt1
-   WRITE(*,*) " ",k1, "    ",(FINAL_RESULT5(k1,k2),k2=1,5) !sort-ear
+   WRITE(*,"(a,i4,a,5f10.3)") " ",k1, "    ",(FINAL_RESULT5(k1,k2),k2=1,5) !sort-ear
 end do
 
 !check, get tr vectors and matrices and get results
@@ -593,6 +604,35 @@ end do
 !--- FUNCTIONS--------------------------------------------
 
 contains
+
+  subroutine get_m_over_n(m_vector,n_vector,movn,nind)
+    real, dimension(:), intent(in) :: m_vector
+    real, dimension(:), intent(in) :: n_vector
+    real, dimension(:), intent(out) :: movn
+    integer,            intent(out) :: nind
+
+    !Local variables
+    integer :: lm,ln,i,j,k
+    real    :: coc
+    lm=size(m_vector)
+    ln=size(n_vector)
+    nind=1
+    movn(1)=0
+    do i=2,lm
+      do_j:do j=1,ln
+        if( m_vector(i) > n_vector(j)) cycle
+        coc= m_vector(i)/n_vector(j)
+        if(Zbelong(coc)) cycle
+        do k=nind,1,-1
+          if(abs(coc-movn(k)) < 0.00001) then
+            cycle do_j
+          end if
+        end do
+        nind=nind+1
+        movn(nind) = coc
+      end do do_j
+    end do
+  end subroutine get_m_over_n
 
 !----------------------------------------------------------------------------
 ! TO DO: built in functions to get nrows, ncols and nmatrices in a set (:,:,:)
@@ -1163,12 +1203,12 @@ implicit none
 !---parameters
 real(kind=cp), dimension(:,:,:),   intent(in)    :: matrices_A
 real(kind=cp), dimension(4),       intent(in)    :: vec_T4_possible_values_definitively
-
+integer,       dimension(:,:),   allocatable     ::  table
 logical :: isGroup
 
 !---local variables
    integer, dimension(:,:),   allocatable  :: R
-   integer, dimension(:,:),   allocatable  :: A,P,identity,minus_identity,table
+   integer, dimension(:,:),   allocatable  :: A,P,identity,minus_identity
    integer, dimension(:,:,:), allocatable  :: G, SS, SG
    integer :: ngroup, nmaxx , i, j, k, kk1, kk2, m, n, nrows, nrowsread, nrowsread2, ppp, q, iter, iter2, sizegg, &
               trials, idet, min, max, ssIndex, sizess, sizesg, zcnt, nonzeros, cnt, cntr, newelem, &
@@ -1420,7 +1460,7 @@ nmatrices_after=0
 !      a kind of trimmer of zeroes should be implemented
 
 WRITE(*,*) ""
-dim_buff=GET_ROWS_MATRIX(real(G(:,:,1)))!
+dim_buff= size(G(:,:,1),dim=1) !GET_ROWS_MATRIX(real(G(:,:,1)))!
 nmatrices_after=GET_NMATRICES_NOTZERO(real(G), dim_buff) ! sic
 
 

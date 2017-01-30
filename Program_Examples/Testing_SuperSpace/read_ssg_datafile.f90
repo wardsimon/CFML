@@ -199,6 +199,7 @@
       Implicit None
 
       Type, public   :: SSym_Oper_Type
+        integer                              :: inv
         integer, allocatable, dimension(:,:) :: Rot
         real,    allocatable, dimension(:)   :: tr
       End Type SSym_Oper_Type
