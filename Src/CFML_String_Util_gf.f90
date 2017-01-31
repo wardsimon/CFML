@@ -612,7 +612,7 @@
        end if
 
        !> Test for INF
-       if(val < 9999999999999999.0)
+       if(val < 9999999999999999.0) then
        !if (.not. ieee_is_finite(val)) then
            string(1:w-3)=' '
            string(w-2:w)='INF'
