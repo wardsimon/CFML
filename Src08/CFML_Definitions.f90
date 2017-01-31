@@ -508,6 +508,31 @@ Module CFML_DefPar
    End Type Chem_Info_Type
 
    !!----
+   !!----  TYPE :: CRYSTAL_CELL_TYPE
+   !!--..
+   !!---- Updated: November - 2013
+   !!
+   Type :: Crystal_Cell_Type
+      real(kind=cp),dimension(3)   :: cell        = 0.0      ! a,b,c parameters
+      real(kind=cp),dimension(3)   :: ang         = 0.0      ! alpha, beta and gamma parameters
+      real(kind=cp),dimension(3)   :: cell_std    = 0.0      ! Sigma values for a,b and c
+      real(kind=cp),dimension(3)   :: ang_std     = 0.0      ! Sigma values for alpha, beta and gamma
+      integer,      dimension(3)   :: lcell       = 0        ! Code number for refinement in optimization procedures
+      integer,      dimension(3)   :: lang        = 0        ! Code number for refinement in optimization procedures
+      real(kind=cp),dimension(3)   :: rcell       = 0.0      ! Reciprocal cell parameters
+      real(kind=cp),dimension(3)   :: rang        = 0.0      ! Reciprocal cell parameters
+      real(kind=cp),dimension(3,3) :: GD          = 0.0      ! Direct Metric matrix
+      real(kind=cp),dimension(3,3) :: GR          = 0.0      ! Reciprocal Metric matrix
+      real(kind=cp),dimension(3,3) :: Cr_Orth_cel = 0.0      ! Matrix conversion to Orthogonal
+      real(kind=cp),dimension(3,3) :: Orth_Cr_cel = 0.0      ! Matrix conversion from Orthogonal
+      real(kind=cp),dimension(3,3) :: BL_M        = 0.0      ! Busing-Levy B-matrix
+      real(kind=cp),dimension(3,3) :: BL_Minv     = 0.0      ! Inverse of Busing-Levy B-matrix
+      real(kind=cp)                :: CellVol     = 0.0      ! Direct volumen cell
+      real(kind=cp)                :: RCellVol    = 0.0      ! Reciprocal volume cell
+      character (len=1)            :: CartType    = "A"      ! Cartesian Frame type: if CartType='A' (x // a)
+   End Type Crystal_Cell_Type
+
+   !!----
    !!---- TYPE :: DERIV_TOF_TYPE
    !!--..
    !!---- Type Definition for TOF Profiles
@@ -523,6 +548,99 @@ Module CFML_DefPar
       real(kind=cp) :: eta   = 0.0    ! omega_e  DOmega/Deta                     "
       real(kind=cp) :: kappa = 0.0    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
    End Type Deriv_TOF_Type
+
+   !!----
+   !!---- TYPE :: DIFFRACTION_PATTERN_TYPE
+   !!--..
+   !!----    Definition for Diffraction Pattern Type
+   !!----
+   !!---- Update: April - 2011
+   !!
+   Type, public :: Diffraction_Pattern_Type
+      character(len=180)                          :: Title    = " "    ! Identification of the pattern
+      character(len=20)                           :: diff_kind= " "    ! type of radiation
+      character(len=20)                           :: scat_var = " "    ! x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
+      character(len=40)                           :: xax_text = " "    ! x-axis legend, eg. "Lambda (Angstroms)"
+      character(len=40)                           :: yax_text = " "    ! y-axis legend, eg. "Intensity (arb. units)"
+      character(len=20)                           :: instr    = " "    ! file type
+      character(len=512)                          :: filename = " "    ! file name
+      character(len=512)                          :: filepath = " "    ! file path
+      real(kind=cp)                               :: xmin     = 0.0
+      real(kind=cp)                               :: xmax     = 0.0
+      real(kind=cp)                               :: ymin     = 0.0
+      real(kind=cp)                               :: ymax     = 0.0
+      real(kind=cp)                               :: scal     = 0.0
+      real(kind=cp)                               :: monitor  = 0.0
+      real(kind=cp)                               :: norm_mon = 0.0
+      real(kind=cp)                               :: col_time = 0.0
+      real(kind=cp)                               :: step     = 0.0
+      real(kind=cp)                               :: Tsamp    = 0.0    ! Sample Temperature
+      real(kind=cp)                               :: Tset     = 0.0    ! Setting Temperature (wished temperature)
+      integer                                     :: npts     = 0      ! Number of points
+      logical                                     :: ct_step  =.false. ! Constant step
+      logical                                     :: gy       =.false. ! Logical for Graphics
+      logical                                     :: gycalc   =.false. !
+      logical                                     :: gbgr     =.false. !
+      logical                                     :: gsigma   =.false. !
+      logical                                     :: sig_var  =.true.  ! If .true. the content of sigma is in fact the variance
+
+      logical                                     :: al_x     =.false. ! Logicals for Allocations
+      logical                                     :: al_y     =.false.
+      logical                                     :: al_ycalc =.false.
+      logical                                     :: al_bgr   =.false.
+      logical                                     :: al_sigma =.false.
+      logical                                     :: al_istat =.false.
+      real(kind=cp), dimension (5)                :: conv     = 0.0    ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+
+      real(kind=cp), dimension (:), allocatable   :: x                 ! Scattering variable (2theta...)
+      real(kind=cp), dimension (:), allocatable   :: y                 ! Experimental intensity
+      real(kind=cp), dimension (:), allocatable   :: sigma             ! observations sigma or variance (depending on sig_var)
+      integer,       dimension (:), allocatable   :: istat             ! Information about the point "i"
+      real(kind=cp), dimension (:), allocatable   :: ycalc             ! Calculated intensity
+      real(kind=cp), dimension (:), allocatable   :: bgr               ! Background
+      integer,       dimension (:), allocatable   :: nd                ! Number of detectors contributing to the point "i"
+   End Type Diffraction_Pattern_Type
+
+   Type :: XRD_Pattern_Type
+      character(len=180)                          :: Title     = " "    ! Identification of the pattern
+      character(len=20)                           :: diff_kind = " "    ! type of radiation
+      character(len=20)                           :: scat_var  = " "    ! x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
+      real(kind=cp)                               :: Wavelength= 0.0    ! Radiation
+      real(Kind=cp)                               :: TSamp     = 0.0    ! Temperature
+      real(kind=cp)                               :: xmin      = 0.0
+      real(kind=cp)                               :: xmax      = 0.0
+      real(kind=cp)                               :: step      = 0.0
+      integer                                     :: npts      = 0      ! Number of points
+      real(kind=cp), dimension (:), allocatable   :: x                  ! Scattering variable (2theta...)
+      real(kind=cp), dimension (:), allocatable   :: yobs               ! Experimental intensity
+      real(kind=cp), dimension (:), allocatable   :: sigma              ! observations sigma or variance (depending on sig_var)
+      real(kind=cp), dimension (:), allocatable   :: ycalc              ! Calculated intensity
+      real(kind=cp), dimension (:), allocatable   :: bgr                ! Background
+   End Type XRD_Pattern_Type
+
+   Type, extends (XRD_Pattern_Type) :: ND_Pattern_Type
+      character(len=20)                           :: instr    = " "    ! file type
+      character(len=512)                          :: filename = " "    ! file name
+      character(len=512)                          :: filepath = " "    ! file path
+      real(kind=cp)                               :: scal     = 0.0
+      real(kind=cp)                               :: monitor  = 0.0
+      real(kind=cp)                               :: norm_mon = 0.0
+      real(kind=cp)                               :: col_time = 0.0
+      real(kind=cp)                               :: Tset     = 0.0    ! Setting Temperature (wished temperature)
+      logical                                     :: ct_step  =.false. ! Constant step
+      logical                                     :: sig_var  =.true.  ! If .true. the content of sigma is in fact the variance
+
+      character(len=40)                           :: xax_text = " "    ! x-axis legend, eg. "Lambda (Angstroms)"
+      character(len=40)                           :: yax_text = " "    ! y-axis legend, eg. "Intensity (arb. units)"
+      logical                                     :: gyobs    =.false. ! Logical for Graphics
+      logical                                     :: gycalc   =.false. !
+      logical                                     :: gbgr     =.false. !
+      logical                                     :: gsigma   =.false. !
+      real(kind=cp), dimension (5)                :: conv     = 0.0    ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+
+      integer,       dimension (:), allocatable   :: istat             ! Information about the point "i"
+      integer,       dimension (:), allocatable   :: nd                ! Number of detectors contributing to the point "i"
+   End Type ND_Pattern_Type
 
    !!----
    !!---- TYPE :: ERR_TEXT_TYPE
@@ -714,6 +832,27 @@ Module CFML_DefPar
    End Type Table_Equiv_Type
 
    !!----
+   !!----  TYPE :: TWOFOLD_AXES_TYPE
+   !!--..
+   !!----  All components are initialised to zero in the type declaration
+   !!----
+   !!---- Update: October - 2008
+   !!
+   Type  :: Twofold_Axes_Type
+      integer                        :: ntwo     = 0        ! Number of two-fold axes
+      real(kind=cp)                  :: tol      = 3.0      ! Angular tolerance (ca 3 degrees)
+      real(kind=cp) ,dimension(3,12) :: caxes    = 0.0      ! Cartesian components of two-fold axes
+      integer,dimension(3,12)        :: dtwofold = 0        ! Direct indices of two-fold axes
+      integer,dimension(3,12)        :: rtwofold = 0        ! Reciprocal indices of two-fold axes
+      integer,dimension(12)          :: dot      = 0        ! Scalar product of reciprocal and direct indices
+      real(kind=cp), dimension(12)   :: cross    = 0.0      ! Angle between direct and reciprocal axes ( < tol)
+      real(kind=cp), dimension(12)   :: maxes    = 0.0      ! Modulus of the zone axes (two-fold axes) vectors
+      real(kind=cp), dimension(3)    :: a        = 0.0      ! Cartesian components of direct cell parameters
+      real(kind=cp), dimension(3)    :: b        = 0.0      ! Cartesian components of direct cell parameters
+      real(kind=cp), dimension(3)    :: c        = 0.0      ! Cartesian components of direct cell parameters
+   End Type Twofold_Axes_Type
+
+   !!----
     !!---- TYPE :: WYCK_INFO_TYPE
     !!--..
     !!----    Definition for Wyckoff Positions acording to IT
@@ -750,12 +889,29 @@ Module CFML_DefPar
       real(kind=cp)              :: Kbeta = 0.0       ! K-Serie for X-ray
    End Type Xray_Wavelength_Type
 
+   !!----
+   !!----  TYPE :: ZONE_AXIS_TYPE
+   !!--..
+   !!----  This type comes from ResVis. It is useful to have it as a genereal type for
+   !!----  many kinds of applications. Used in the subroutine Get_Basis_From_UVW.
+   !!----
+   !!---- Updated: February - 2012
+   !!
+   Type :: Zone_Axis_Type
+     Integer               :: nlayer = 0      ! number of the reciprocal layer considered normally nlayer=0
+     Integer, dimension(3) :: uvw    = 0      ! Indices of the zone axis
+     Integer, dimension(3) :: rx     = 0      ! Indices (reciprocal vector) of the basis vector 1
+     Integer, dimension(3) :: ry     = 0      ! Indices (reciprocal vector) of the basis vector 2
+   End Type Zone_Axis_Type
+
 
    !-------------------!
    !---- VARIABLES ----!
    !-------------------!
 
    logical            :: ERR_Bond    =.false.          ! Error flag in CFML_Bond_Tables module
+   logical            :: ERR_Crys    =.false.          ! Error flag in CFML_Crystal_Metrics module
+   logical            :: ERR_Diffpatt=.false.          ! Error flag in CFML_Diffraction_Patterns module
    logical            :: ERR_MathGen =.false.          ! Error flag in CFML_Math_General module
    logical            :: ERR_Random  =.false.          ! Error flag in CFML_Random_Generators module
    logical            :: ERR_Spher   =.false.          ! Error flag in CFML_Spherical_Harmonics module
@@ -769,6 +925,8 @@ Module CFML_DefPar
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
 
    character(len=256) :: ERR_Bond_Mess    = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Crys_Mess    = " "        ! String containing information about the last error
+   character(len=256) :: ERR_Diffpat_Mess = " "        ! String containing information about the last error
    character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
    character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
    character(len=256) :: ERR_Spher_Mess   = " "        ! String containing information about the last error
