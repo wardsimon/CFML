@@ -126,7 +126,8 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_Crys, Err_Crys_Mess
+    Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_Crys, Err_Crys_Mess, Crystal_Cell_Type, &
+                                  Zone_Axis_Type
     Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
     Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
@@ -135,17 +136,17 @@
     private
 
     !---- List of public functions ----!
-    public :: Cart_U_vector, Cart_vector,  &
-              Convert_B_Betas, Convert_B_U, &
+    public :: Cart_U_vector, Cart_vector, Convert_B_Betas, Convert_B_U, &
               Convert_Betas_B, Convert_Betas_U, Convert_U_B,            &
-              Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma,  &
-              Get_Betas_From_Biso
+              Convert_U_Betas, Get_Betas_From_Biso, Rot_matrix,         &
+              Sigma_VolumeCell, U_Equiv
 
     !---- List of public subroutines ----!
-    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
+    public :: Change_Setting_Cell, Get_Basis_from_UVW, &
+               Init_Err_Crys, Set_Crystal_Cell,           &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
               Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,   &
-              Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell,&
+              Get_Transfm_Matrix, Volume_Sigma_from_Cell,&
               Read_Bin_Crystal_Cell,Write_Bin_Crystal_Cell
 
 
@@ -255,6 +256,281 @@
        return
     End Function Cart_Vector
 
+    !!--..
+    !!--.. Betas are defined by the following expression of the temperature factor:
+    !!--.. Taniso= exp( -(beta11 h^2 + beta22 k^2 + beta33 l^2 + 2 (beta12 h k + beta13 h l + beta23 k l)) )
+    !!--.. Taniso= exp( -(bet(1) h^2 + bet(2) k^2 + bet(3) l^2 + 2 (bet(4) h k + bet(5) h l + bet(6) k l)) )
+    !!--..
+    !!--.. Us are defined by the following expression of the temperature factor:
+    !!--.. Taniso= exp( -2pi^2 (h^2 (a*)^2 U11+ k^2 (b*)^2 U22+ l^2 (c*)^2 U33+
+    !!--..                2 (h k (a*) (b*) U12+ h l (a*) (c*) U13+  k l (b*) (c*) U23)) )
+    !!--..
+
+    !!----
+    !!---- Function Convert_B_Betas(B,Cell) Result(Beta)
+    !!----
+    !!---- Taniso= exp( -(beta11 h^2 + beta22 k^2 + beta33 l^2 +
+    !!----              2 (beta12 h k + beta13 h l + beta23 k l)) )
+    !!----
+    !!----    Convert Thermal factors from B to Betas
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_B_Betas(B,Cell) Result(Beta)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6), intent(in)  :: B      ! B Factors
+       type (Crystal_cell_Type),   intent(in)  :: Cell   ! Cell Variable
+       real(kind=cp),dimension(6)              :: Beta   ! Betas
+
+       beta(1)=0.25*b(1)*cell%gr(1,1)                ! beta11
+       beta(2)=0.25*b(2)*cell%gr(2,2)                ! beta22
+       beta(3)=0.25*b(3)*cell%gr(3,3)                ! beta33
+       beta(4)=0.25*b(4)*cell%rcell(1)*cell%rcell(2) ! beta12
+       beta(5)=0.25*b(5)*cell%rcell(1)*cell%rcell(3) ! beta13
+       beta(6)=0.25*b(6)*cell%rcell(2)*cell%rcell(3) ! beta23
+
+       return
+    End Function Convert_B_Betas
+
+    !!----
+    !!---- Function Convert_B_U(B) Result(U)
+    !!----
+    !!----   Taniso= exp( -2pi^2 (h^2 (a*)^2 U11+ k^2 (b*)^2 U22+ l^2 (c*)^2 U33+
+    !!----                 2 (h k (a*) (b*) U12+ h l (a*) (c*) U13+  k l (b*) (c*) U23)) )
+    !!----
+    !!----    Convert Thermal factors from B to U
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_B_U(B) Result(U)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6),  intent(in)  :: B  ! B Factors
+       real(kind=cp),dimension(6)               :: U  ! U Factors
+
+       u=b/(4.0*tpi2)
+
+       return
+    End Function Convert_B_U
+
+    !!----
+    !!---- Function Convert_Betas_B(Beta,Cell) Result(B)
+    !!----
+    !!----    Convert Thermal factors from Betas to B
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_Betas_B(Beta,Cell) Result(B)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6), intent(in)  :: Beta ! Betas factor
+       type (Crystal_cell_Type),   intent(in)  :: Cell ! Cell Variable
+       real(kind=cp),dimension(6)              :: B    ! B Factors
+
+       b(1)=4.0*beta(1)/cell%gr(1,1)                  ! B11
+       b(2)=4.0*beta(2)/cell%gr(2,2)                  ! B22
+       b(3)=4.0*beta(3)/cell%gr(3,3)                  ! B33
+       b(4)=4.0*beta(4)/(cell%rcell(1)*cell%rcell(2)) ! B12
+       b(5)=4.0*beta(5)/(cell%rcell(1)*cell%rcell(3)) ! B13
+       b(6)=4.0*beta(6)/(cell%rcell(2)*cell%rcell(3)) ! B23
+
+       return
+    End Function Convert_Betas_B
+
+    !!----
+    !!---- Function Convert_Betas_U(Beta,Cell) Result(U)
+    !!----
+    !!----    Convert Thermal factors from Betas to U
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_Betas_U(Beta,Cell) Result(U)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6),intent(in)  :: Beta   ! Betas factor
+       type (Crystal_cell_Type),  intent(in)  :: Cell   ! Cell variable
+       real(kind=cp),dimension(6)             :: U
+
+       u(1)=beta(1)/(tpi2*cell%gr(1,1))                ! U11
+       u(2)=beta(2)/(tpi2*cell%gr(2,2))                ! U22
+       u(3)=beta(3)/(tpi2*cell%gr(3,3))                ! U33
+       u(4)=beta(4)/(tpi2*cell%rcell(1)*cell%rcell(2)) ! U12
+       u(5)=beta(5)/(tpi2*cell%rcell(1)*cell%rcell(3)) ! U13
+       u(6)=beta(6)/(tpi2*cell%rcell(2)*cell%rcell(3)) ! U23
+
+       return
+    End Function Convert_Betas_U
+
+    !!----
+    !!---- Function Convert_U_B(U) Result(B)
+    !!----
+    !!----    Convert Thermal factors from U to B
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_U_B(U) Result(B)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6),        intent(in)  :: U  ! Thermal factor
+       real(kind=cp),dimension(6)                     :: B  ! B Thermal factor
+
+       b=4.0*tpi2*u
+
+       return
+    End Function Convert_U_B
+
+    !!----
+    !!---- Function Convert_U_Betas(U,Cell) Result(Beta)
+    !!----
+    !!----    Convert Thermal factors from U to Betas
+    !!----
+    !!---- Update: February - 2003
+    !!
+    Function Convert_U_Betas(U,Cell) Result(Beta)
+       !---- Arguments ----!
+       real(kind=cp),dimension(6),intent(in)  :: U       ! Thermal factor
+       type (Crystal_cell_Type),  intent(in)  :: Cell    ! Cell variable
+       real(kind=cp),dimension(6)             :: Beta
+
+       beta(1)=tpi2*u(1)*cell%gr(1,1)                ! beta11
+       beta(2)=tpi2*u(2)*cell%gr(2,2)                ! beta22
+       beta(3)=tpi2*u(3)*cell%gr(3,3)                ! beta33
+       beta(4)=tpi2*u(4)*cell%rcell(1)*cell%rcell(2) ! beta12
+       beta(5)=tpi2*u(5)*cell%rcell(1)*cell%rcell(3) ! beta13
+       beta(6)=tpi2*u(6)*cell%rcell(2)*cell%rcell(3) ! beta23
+
+       return
+    End Function Convert_U_Betas
+
+    !!----
+    !!---- Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+    !!----
+    !!----    Get Betas from Biso
+    !!----
+    !!---- Update: April - 2013
+    !!
+    Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+       !--- Argument ----!
+       real(kind=cp),             intent(in)  :: Biso   ! Biso factor
+       type (Crystal_cell_Type),  intent(in)  :: Cell   ! Cell variable
+       real(kind=cp),dimension(6)             :: Betas
+
+       !---- Local variables ----!
+       real(kind=cp), dimension (3,3) :: L,LT,U,bet
+       integer                        :: i
+
+       !> Init
+       betas=0.0
+
+       l=Cell%Orth_Cr_cel
+       lt=Transpose(l)
+
+       u = 0.0
+       do i=1,3
+          u(i,i) = 0.25*biso
+       end do
+       bet= matmul (l,lt)
+       bet= matmul (bet,u)
+       do i=1,3
+          betas(i) = bet(i,i)
+       end do
+
+       betas(4) = bet(1,2)
+       betas(5) = bet(1,3)
+       betas(6) = bet(2,3)
+
+       return
+    End Function Get_Betas_from_Biso
+
+    !!--++
+    !!--++ Function Metrics(A,B) Result(G)
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Constructs the metric tensor
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Metrics(cell,ang) Result(G)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3)  , intent(in ) :: cell  ! cell parameters (a, b, c)
+       real(kind=cp), dimension(3)  , intent(in ) :: ang   ! angle parameters (alpha, beta, gamma)
+       real(kind=cp), dimension(3,3)              :: G     ! Metric tensor
+
+       !---- Local Variables ----!
+       integer :: i
+
+       G(1,2)= cell(1)*cell(2)*cosd(ang(3))
+       G(1,3)= cell(1)*cell(3)*cosd(ang(2))
+       G(2,3)= cell(2)*cell(3)*cosd(ang(1))
+
+       do i=1,3
+          G(i,i)= cell(i)*cell(i)
+       end do
+
+       G(2,1)=G(1,2)
+       G(3,1)=G(1,3)
+       G(3,2)=G(2,3)
+
+       return
+    End Function Metrics
+
+    !!----
+    !!---- Function Rot_Matrix(U, Phi, Cell)
+    !!----
+    !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
+    !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
+    !!----    keeping the reference frame unchanged.
+    !!----
+    !!----    If one wants to calculate the components of the vector "v" in a rotated
+    !!----    reference frame it suffices to invoke the function using "-phi".
+    !!----    If "Celda" is present, "U" is in fractional coordinates,
+    !!----    if not "U" is in cartesian coordinates.
+    !!----
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Function Rot_Matrix(U,Phi,Cell) Result(Rm)
+       !---- Argument ----!
+       real(kind=cp), dimension(3),        intent(in) :: U      ! Vector
+       real(kind=cp),                      intent(in) :: Phi    ! Degrees to rotate
+       type (Crystal_Cell_Type), optional, intent(in) :: Cell   ! Celda variable
+       real(kind=cp), dimension(3,3)                  :: RM     ! Gibbs matrix)
+
+       !---- Local variables ----!
+       real(kind=cp)               :: c, s, umc, umod
+       real(kind=cp), dimension(3) :: UU
+
+       !> Init
+       rm=0.0
+
+       if (present(cell)) then
+          uu= matmul(cell%cr_orth_cel,u)
+       else
+          uu=u
+       end if
+
+       umod=sqrt(dot_product(uu,uu))
+
+       if (umod < tiny(1.0)) then
+          uu=(/0.0,0.0,1.0/)
+       else
+          uu= uu/umod
+       end if
+
+       c= cosd(phi)
+       s= sind(phi)
+       umc = 1.0-c
+       rm(1,1)= c + umc*uu(1)**2
+       rm(1,2)= umc*uu(1)*uu(2)- s*uu(3)
+       rm(1,3)= umc*uu(1)*uu(3)+ s*uu(2)
+
+       rm(2,1)= umc*uu(2)*uu(1)+ s*uu(3)
+       rm(2,2)= c+ umc*uu(2)**2
+       rm(2,3)= umc*uu(2)*uu(3)- s*uu(1)
+
+       rm(3,1)= umc*uu(3)*uu(1)- s*uu(2)
+       rm(3,2)= umc*uu(3)*uu(2)+ s*uu(1)
+       rm(3,3)= c + umc*uu(3)**2
+
+       return
+    End Function Rot_Matrix
+
     !!----
     !!---- Function Sigma_VolumeCell(Cell) result(sigma)
     !!----
@@ -303,310 +579,17 @@
        return
     End Function Sigma_VolumeCell
 
-    !!--..
-    !!--.. Betas are defined by the following expression of the temperature factor:
-    !!--.. Taniso= exp( -(beta11 h^2 + beta22 k^2 + beta33 l^2 + 2 (beta12 h k + beta13 h l + beta23 k l)) )
-    !!--.. Taniso= exp( -(bet(1) h^2 + bet(2) k^2 + bet(3) l^2 + 2 (bet(4) h k + bet(5) h l + bet(6) k l)) )
-    !!--..
-    !!--.. Us are defined by the following expression of the temperature factor:
-    !!--.. Taniso= exp( -2pi^2 (h^2 (a*)^2 U11+ k^2 (b*)^2 U22+ l^2 (c*)^2 U33+
-    !!--..                2 (h k (a*) (b*) U12+ h l (a*) (c*) U13+  k l (b*) (c*) U23)) )
-    !!--..
-
     !!----
-    !!---- Function Convert_B_Betas(B,Cell) Result(Beta)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: B
-    !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=cp),dimension(6)              :: Beta
-    !!----
-    !!----    Convert Thermal factors from B to Betas
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_B_Betas(B,Cell) Result(Beta)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6), intent(in)  :: B
-       type (Crystal_cell_Type),   intent(in)  :: Cell
-       real(kind=cp),dimension(6)              :: Beta
-
-       beta(1)=0.25*b(1)*cell%gr(1,1)                ! beta11
-       beta(2)=0.25*b(2)*cell%gr(2,2)                ! beta22
-       beta(3)=0.25*b(3)*cell%gr(3,3)                ! beta33
-       beta(4)=0.25*b(4)*cell%rcell(1)*cell%rcell(2) ! beta12
-       beta(5)=0.25*b(5)*cell%rcell(1)*cell%rcell(3) ! beta13
-       beta(6)=0.25*b(6)*cell%rcell(2)*cell%rcell(3) ! beta23
-
-       return
-    End Function Convert_B_Betas
-
-    !!----
-    !!---- Function Convert_B_U(B) Result(U)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: B
-    !!----    real(kind=cp),dimension(6)              :: U
-    !!----
-    !!----    Convert Thermal factors from B to U
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_B_U(B) Result(U)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6),  intent(in)  :: B
-       real(kind=cp),dimension(6)               :: U
-
-       u=b/(4.0*tpi2)
-
-       return
-    End Function Convert_B_U
-
-    !!----
-    !!---- Function Convert_Betas_B(Beta,Cell) Result(B)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: Beta
-    !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=cp),dimension(6)              :: B
-    !!----
-    !!----    Convert Thermal factors from Betas to B
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_Betas_B(Beta,Cell) Result(B)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6), intent(in)  :: Beta
-       type (Crystal_cell_Type),   intent(in)  :: Cell
-       real(kind=cp),dimension(6)              :: B
-
-       b(1)=4.0*beta(1)/cell%gr(1,1)                  ! B11
-       b(2)=4.0*beta(2)/cell%gr(2,2)                  ! B22
-       b(3)=4.0*beta(3)/cell%gr(3,3)                  ! B33
-       b(4)=4.0*beta(4)/(cell%rcell(1)*cell%rcell(2)) ! B12
-       b(5)=4.0*beta(5)/(cell%rcell(1)*cell%rcell(3)) ! B13
-       b(6)=4.0*beta(6)/(cell%rcell(2)*cell%rcell(3)) ! B23
-
-       return
-    End Function Convert_Betas_B
-
-    !!----
-    !!---- Function Convert_Betas_U(Beta,Cell) Result(U)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: Beta
-    !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=cp),dimension(6)              :: U
-    !!----
-    !!----    Convert Thermal factors from Betas to U
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_Betas_U(Beta,Cell) Result(U)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6),intent(in)  :: Beta
-       type (Crystal_cell_Type),  intent(in)  :: Cell
-       real(kind=cp),dimension(6)             :: U
-
-       u(1)=beta(1)/(tpi2*cell%gr(1,1))                ! U11
-       u(2)=beta(2)/(tpi2*cell%gr(2,2))                ! U22
-       u(3)=beta(3)/(tpi2*cell%gr(3,3))                ! U33
-       u(4)=beta(4)/(tpi2*cell%rcell(1)*cell%rcell(2)) ! U12
-       u(5)=beta(5)/(tpi2*cell%rcell(1)*cell%rcell(3)) ! U13
-       u(6)=beta(6)/(tpi2*cell%rcell(2)*cell%rcell(3)) ! U23
-
-       return
-    End Function Convert_Betas_U
-
-    !!----
-    !!---- Function Convert_U_B(U) Result(B)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: U
-    !!----    real(kind=cp),dimension(6)              :: B
-    !!----
-    !!----    Convert Thermal factors from U to B
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_U_B(U) Result(B)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6),        intent(in)  :: U
-       real(kind=cp),dimension(6)                     :: B
-
-       b=4.0*tpi2*u
-
-       return
-    End Function Convert_U_B
-
-    !!----
-    !!---- Function Convert_U_Betas(U,Cell) Result(Beta)
-    !!----    real(kind=cp),dimension(6), intent(in)  :: U
-    !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=cp),dimension(6)              :: Beta
-    !!----
-    !!----    Convert Thermal factors from U to Betas
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Function Convert_U_Betas(U,Cell) Result(Beta)
-       !---- Arguments ----!
-       real(kind=cp),dimension(6),intent(in)  :: U
-       type (Crystal_cell_Type),  intent(in)  :: Cell
-       real(kind=cp),dimension(6)             :: Beta
-
-       beta(1)=tpi2*u(1)*cell%gr(1,1)                ! beta11
-       beta(2)=tpi2*u(2)*cell%gr(2,2)                ! beta22
-       beta(3)=tpi2*u(3)*cell%gr(3,3)                ! beta33
-       beta(4)=tpi2*u(4)*cell%rcell(1)*cell%rcell(2) ! beta12
-       beta(5)=tpi2*u(5)*cell%rcell(1)*cell%rcell(3) ! beta13
-       beta(6)=tpi2*u(6)*cell%rcell(2)*cell%rcell(3) ! beta23
-
-       return
-    End Function Convert_U_Betas
-
-    !!----
-    !!---- Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
-    !!----    real(kind=cp),             intent(in)  :: Biso
-    !!----    type (Crystal_cell_Type),  intent(in)  :: Cell
-    !!----    real(kind=cp),dimension(6)             :: Betas
-    !!----
-    !!----    Get Betas from Biso
-    !!----
-    !!---- Update: April - 2013
-    !!
-    Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
-       !--- Argument ----!
-       real(kind=cp),             intent(in)  :: Biso
-       type (Crystal_cell_Type),  intent(in)  :: Cell
-       real(kind=cp),dimension(6)             :: Betas
-
-       !---- Local variables ----!
-       real(kind=cp), dimension (3,3) :: L,LT,U,bet
-       integer                        :: i
-
-       betas=0.0
-
-       l=Cell%Orth_Cr_cel
-       lt=Transpose(l)
-       u = 0.0
-       do i=1,3
-          u(i,i) = 0.25*biso
-       end do
-       bet= matmul (l,lt)
-       bet= matmul (bet,u)
-       do i=1,3
-          betas(i) = bet(i,i)
-       end do
-
-       betas(4) = bet(1,2)
-       betas(5) = bet(1,3)
-       betas(6) = bet(2,3)
-
-       return
-    End Function Get_Betas_from_Biso
-
-    !!--++
-    !!--++ Function Metrics(A,B) Result(G)
-    !!--++    real(kind=cp), dimension(3)  , intent(in ) :: a   !  In -> Cell Parameters
-    !!--++    real(kind=cp), dimension(3)  , intent(in ) :: b   !  In -> Ang Parameters
-    !!--++    real(kind=cp), dimension(3,3)              :: g   ! Out -> Metrics array
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Constructs the metric tensor
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Metrics(A,B) Result(G)
-       !---- Arguments ----!
-       real(kind=cp), dimension(3)  , intent(in ) :: a
-       real(kind=cp), dimension(3)  , intent(in ) :: b
-       real(kind=cp), dimension(3,3)              :: g
-
-       !---- Local Variables ----!
-       integer :: i
-
-       G(1,2)= a(1)*a(2)*cosd(b(3))
-       G(1,3)= a(1)*a(3)*cosd(b(2))
-       G(2,3)= a(2)*a(3)*cosd(b(1))
-
-       do i=1,3
-          G(i,i)= a(i)*a(i)
-       end do
-
-       G(2,1)=G(1,2)
-       G(3,1)=G(1,3)
-       G(3,2)=G(2,3)
-
-       return
-    End Function Metrics
-
-    !!----
-    !!---- Function Rot_Matrix(U, Phi, Celda)
-    !!----    real(kind=cp), dimension(3),        intent(in) :: U
-    !!----    real(kind=cp),                      intent(in) :: Phi
-    !!----    type (Crystal_Cell_Type), optional, intent(in) :: Celda
-    !!----    real(kind=cp), dimension(3,3)                  :: Rm
-    !!----
-    !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
-    !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
-    !!----    keeping the reference frame unchanged.
-    !!----
-    !!----    If one wants to calculate the components of the vector "v" in a rotated
-    !!----    reference frame it suffices to invoke the function using "-phi".
-    !!----    If "Celda" is present, "U" is in "Celda" coordinates,
-    !!----    if not "U" is in cartesian coordinates.
-    !!----
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Function Rot_Matrix(U,Phi,Celda) Result(Rm)
-       !---- Argument ----!
-       real(kind=cp), dimension(3), intent(in)        :: U
-       real(kind=cp), intent(in)                      :: phi
-       type (Crystal_Cell_Type), optional, intent(in) :: Celda
-       real(kind=cp), dimension(3,3)                  :: RM
-
-       !---- Local variables ----!
-       real(kind=cp)               :: c, s, umc, umod
-       real(kind=cp), dimension(3) :: UU
-
-
-       if (present(celda)) then
-          uu= matmul(celda%cr_orth_cel,u)
-       else
-          uu=u
-       end if
-
-       umod=sqrt(dot_product(uu,uu))
-
-       if (umod < tiny(1.0)) then
-          uu=(/0.0,0.0,1.0/)
-       else
-          uu= uu/umod
-       end if
-
-       c= cosd(phi)
-       s= sind(phi)
-       umc = 1.0-c
-       rm(1,1)= c+ umc*uu(1)**2
-       rm(1,2)= umc*uu(1)*uu(2)- s*uu(3)
-       rm(1,3)= umc*uu(1)*uu(3)+ s*uu(2)
-
-       rm(2,1)= umc*uu(2)*uu(1)+ s*uu(3)
-       rm(2,2)= c+ umc*uu(2)**2
-       rm(2,3)= umc*uu(2)*uu(3)- s*uu(1)
-
-       rm(3,1)= umc*uu(3)*uu(1)- s*uu(2)
-       rm(3,2)= umc*uu(3)*uu(2)+ s*uu(1)
-       rm(3,3)= c+ umc*uu(3)**2
-
-       return
-    End Function Rot_Matrix
-
-    !!----
-    !!---- Function U_Equiv(Cell, Th_U) Result(Uequi)
-    !!----    type(Crystal_Cell_Type),    intent(in)     :: Cell    !  In -> Cell variable
-    !!----    real(kind=cp), dimension(6),intent(in)     :: Th_U    !  In -> U parameters
+    !!---- Function U_Equiv(Th_U,Cell) Result(Uequi)
     !!----
     !!----    Subroutine to obtain the U equiv from U11 U22 U33 U12 U13 U23
     !!----
     !!---- Update: February - 2005
     !!
-    Function U_Equiv(Cell, Th_U) Result(Uequi)
+    Function U_Equiv(Th_U,Cell) Result(Uequi)
        !---- Arguments ----!
-       type (Crystal_cell_Type),    intent(in)  :: Cell
-       real(kind=cp), dimension(6), intent(in)  :: Th_U
+       real(kind=cp), dimension(6), intent(in)  :: Th_U   ! Thermal U
+       type (Crystal_cell_Type),    intent(in)  :: Cell   ! Cell Variable
        real(kind=cp)                            :: Uequi
 
        !---- Local variables ----!
@@ -639,16 +622,8 @@
        return
     End Function U_Equiv
 
-    !---------------------!
-    !---- Subroutines ----!
-    !---------------------!
-
     !!----
     !!---- Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
-    !!----    type (Crystal_Cell_Type),      intent( in)    :: Cell
-    !!----    real(kind=cp), dimension (3,3),intent( in)    :: Mat
-    !!----    type (Crystal_Cell_Type),      intent(out)    :: Celln
-    !!----    character (len=*), optional,   intent (in)    :: matkind
     !!----
     !!---- Calculates a new cell giving the transformation matrix.
     !!---- The input matrix can be given as the S-matrix in International
@@ -659,10 +634,10 @@
     !!
     Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
        !---- Arguments ----!
-       type (Crystal_Cell_Type),      intent( in)    :: Cell
-       real(kind=cp), dimension (3,3),intent( in)    :: Mat
-       type (Crystal_Cell_Type),      intent(out)    :: Celln
-       character(len=*),  optional,   intent (in)    :: Matkind
+       type (Crystal_Cell_Type),      intent( in) :: Cell     ! Cell variable
+       real(kind=cp), dimension (3,3),intent( in) :: Mat      ! Transformation matrix
+       type (Crystal_Cell_Type),      intent(out) :: Celln    ! New cell parameters
+       character(len=*),  optional,   intent (in) :: Matkind  ! "IT" as S-Matrix in the I.T. Table
 
        !--- Local variables ---!
        integer                       :: i
@@ -682,11 +657,11 @@
          ST=Mat
        end if
 
-       !---- Get the new metric tensor
-       !---- GDN= Mat GD MatT  or GDN= ST GD S
+       !> Get the new metric tensor
+       !> GDN= Mat GD MatT  or GDN= ST GD S
        gn=matmul(ST,matmul(Cell%GD,S))
 
-       !---- Calculate new cell parameters from the new metric tensor
+       !> Calculate new cell parameters from the new metric tensor
        do i=1,3
           Cellv(i)=sqrt(gn(i,i))
        end do
@@ -694,20 +669,14 @@
        angl(2)=acosd(Gn(1,3)/(cellv(1)*cellv(3)))
        angl(3)=acosd(Gn(1,2)/(cellv(1)*cellv(2)))
 
-       !---- Construct the new cell
+       !> Construct the new cell
        call Set_Crystal_Cell(cellv,angl,Celln)
 
        return
     End Subroutine Change_Setting_Cell
 
     !!----
-    !!---- Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
-    !!----    real(kind=cp)             intent(in) :: dmin  !minimum d-spacing (smax=1/dmin)
-    !!----    integer, dimension(3),    intent(in) :: u     !Zone axis indices
-    !!----    type (Crystal_Cell_Type), intent(in) :: cell
-    !!----    type (Zone_Axis_Type),    intent(out):: ZoneB !Object containing u and basis vector in the plane
-    !!----    logical,                  intent(out):: ok
-    !!----    character(len=*),optional,intent(in) :: mode
+    !!---- Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,ok,mode)
     !!----
     !!----  Subroutine to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
     !!----  lattice vectors satisfying the equation
@@ -721,17 +690,16 @@
     !!----  If mode="R", dmin corresponds n(uvw)max
     !!----  This subroutine has been imported from resvis_proc.f90.
     !!----
-    !!----  Created: February 2006 (Imported from old programs for electron diffraction, Thesis JRC)
     !!----  Updated: February 2012 (JRC)
     !!----
-    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
+    Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,ok,mode)
        !--- Arguments ---!
-       real(kind=cp),            intent(in) :: dmin
-       integer, dimension(3),    intent(in) :: u
-       type (Crystal_Cell_Type), intent(in) :: cell
-       type (Zone_Axis_Type),    intent(out):: ZoneB
-       logical,                  intent(out):: ok
-       character(len=*),optional,intent(in) :: mode
+       real(kind=cp),            intent(in) :: dmin    ! Minimum d-spacing (smax=1/dmin)
+       integer, dimension(3),    intent(in) :: u       ! Zone axis indices
+       type (Crystal_Cell_Type), intent(in) :: cell    ! Cell type object
+       type (Zone_Axis_Type),    intent(out):: ZoneB   ! Object containing u and basis vector in the plane
+       logical,                  intent(out):: ok      ! OK
+       character(len=*),optional,intent(in) :: mode    ! "R" if input zone axis is a reciprocal lattice vector
 
        !--- Local Variables ---!
        integer                :: n,ik,il,um,iv,i1,i2,i,coun01,coun02,coun1,coun2
@@ -743,6 +711,7 @@
        integer,dimension(3,2) :: bas
        real                   :: rv,s2max
 
+       !> Init
        ZoneB%nlayer=0
        ZoneB%uvw=u
        ok=.false.
@@ -755,37 +724,37 @@
        iv=u(i)
        mu=u
        if (iv < 0) then
-         mu=-u
-         iv=-iv
+          mu=-u
+          iv=-iv
        end if
 
        Select Case (i)
-         Case(1)
-           i1=2; i2=3
-         Case(2)
-           i1=1; i2=3
-         Case(3)
-           i1=1; i2=2
+          Case(1)
+             i1=2; i2=3
+          Case(2)
+             i1=1; i2=3
+          Case(3)
+             i1=1; i2=2
        End Select
 
        rm(1)=100000.0; rm(2)=rm(1)
        bas(:,1) = (/ 71,121, 113/)
        bas(:,2) = (/117, 91,-111/)
 
-       if(present(mode)) then
-         s2max=dmin*dmin   !here dmin is really n_max
-         kmax=nint(dmin/Cell%cell(i1)+1.0)
-         lmax=nint(dmin/Cell%cell(i2)+1.0)
-         kmax=min(um,kmax)
-         lmax=min(um,lmax)
-         mat=cell%gd
+       if (present(mode)) then
+          s2max=dmin*dmin   !here dmin is really n_max
+          kmax=nint(dmin/Cell%cell(i1)+1.0)
+          lmax=nint(dmin/Cell%cell(i2)+1.0)
+          kmax=min(um,kmax)
+          lmax=min(um,lmax)
+          mat=cell%gd
        else
-         s2max=1.0/(dmin*dmin)
-         kmax=nint(Cell%cell(i1)/dmin+1.0)
-         lmax=nint(Cell%cell(i2)/dmin+1.0)
-         kmax=min(um,kmax)
-         lmax=min(um,lmax)
-         mat=cell%gr
+          s2max=1.0/(dmin*dmin)
+          kmax=nint(Cell%cell(i1)/dmin+1.0)
+          lmax=nint(Cell%cell(i2)/dmin+1.0)
+          kmax=min(um,kmax)
+          lmax=min(um,lmax)
+          mat=cell%gr
        end if
 
        kmin=-kmax; lmin=-lmax
@@ -832,13 +801,7 @@
     End Subroutine Get_Basis_From_Uvw
 
     !!----
-    !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)
-    !!----   Type(Twofold_Axes_Type), intent(in)  :: twofold
-    !!----   Type(Crystal_Cell_Type), intent(out) :: Cell
-    !!----   integer, dimension(3,3), intent(out) :: tr
-    !!----   character(len=*),        intent(out) :: message
-    !!----   logical,                 intent(out) :: ok
-    !!----   real(kind=cp), optional, intent(in)  :: told
+    !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,told)
     !!----
     !!----  This subroutine provides the "conventional" (or quasi! being still tested )
     !!----  from the supplied object "twofold" that has been obtained from a previous
@@ -858,14 +821,12 @@
     !!----
     !!---- Update: November - 2008
     !!----
-    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)
+    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,told)
        !---- Arguments ----!
-       Type(Twofold_Axes_Type), intent(in)  :: Twofold
-       Type(Crystal_Cell_Type), intent(out) :: Cell
-       integer, dimension(3,3), intent(out) :: tr
-       character(len=*),        intent(out) :: message
-       logical,                 intent(out) :: ok
-       real(kind=cp), optional, intent(in)  :: told
+       Type(Twofold_Axes_Type), intent(in)  :: Twofold   ! Type Object
+       Type(Crystal_Cell_Type), intent(out) :: Cell      ! Cell type object
+       integer, dimension(3,3), intent(out) :: tr        ! Tr Matrix
+       real(kind=cp), optional, intent(in)  :: told      ! Tolerance for compare distances
 
        !---- Local variables ----!
        integer, dimension(1)          :: ix
@@ -879,7 +840,13 @@
        integer                        :: iu,iv,iw,nax,i,j,k,m,namina,naminb,naminc,ia
        real(kind=cp)                  :: dot,ep,domina,dominb,dominc,aij,aik,ajk
        real(kind=cp)                  :: delt,tola
-       logical                        :: hexap, hexac
+       logical                        :: hexap, hexac,ok
+       character(len=80)              :: message
+
+
+       !> Init
+       call init_Err_cryst()
+       message=" "
 
        a=twofold%a; b=twofold%b; c=twofold%c
        delt=twofold%tol
@@ -1076,8 +1043,8 @@
                 End if
 
                 if ( j == 0) then
-                   message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
-                   ok=.false.
+                   Err_Crys=.true.
+                   ERR_Crys_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                    return
                 else
                    Select Case (j)
@@ -1149,8 +1116,8 @@
                       End Select
 
                    Else
-                      message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
-                      ok=.false.
+                      Err_Crys=.true.
+                      ERR_Crys_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                       return
                    End if
                 End if !j==0
@@ -1191,8 +1158,8 @@
              namina=ab(1)
              naminb=ab(2)
              if (namina == 0 .or. naminb == 0) then
-                ok=.false.
-                message="Basis vectors a-b not found!"
+                Err_Crys=.true.
+                ERR_Crys_Mess="Basis vectors a-b not found!"
                 return
              end if
 
@@ -1218,8 +1185,8 @@
                 Case(2)
                    message="Tetragonal, I-centred cell"
                 Case(3:)
-                   message="Error in tetragonal cell"
-                   ok=.false.
+                   Err_Crys=.true.
+                   ERR_Crys_Mess="Error in tetragonal cell"
                    return
              End Select
 
@@ -1265,7 +1232,8 @@
                    end if
                 end do
              else
-                ok=.false.
+                Err_Crys=.true.
+                ERR_Crys_Mess=trim(message)
                 return
              end if
 
@@ -1290,8 +1258,8 @@
                 End Select
 
              else
-                ok=.false.
-                message="The c-axis of a hexagonal cell was not found!"
+                Err_Crys=.true.
+                ERR_Crys_Mess="The c-axis of a hexagonal cell was not found!"
                 return
              end if
 
@@ -1335,9 +1303,9 @@
 
              Select Case (namina)
                 Case(0)
-                  write(unit=message,fmt="(a)") "Pseudo-cubic but tolerance too small ... "
-                  ok=.false.
-                  return
+                   Err_Crys=.true.
+                   ERR_Crys_Mess="Pseudo-cubic but tolerance too small ... "
+                   return
                 Case(1)
                    message="Cubic, Primitive cell"
                 Case(2)
@@ -1365,7 +1333,8 @@
 
           case default
              write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
-             ok=.false.
+             Err_Crys=.true.
+             ERR_Crys_Mess=trim(message)
              return
 
       End Select
@@ -1374,6 +1343,8 @@
       ang(1)=acosd(dot_product(v2/mv(2),v3/mv(3)))
       ang(2)=acosd(dot_product(v1/mv(1),v3/mv(3)))
       ang(3)=acosd(dot_product(v1/mv(1),v2/mv(2)))
+
+      !> New Cell
       Call Set_Crystal_Cell(mv(1:3),ang(1:3),Cell)
       ok=.true.
 
