@@ -101,6 +101,7 @@
 !!----       GET_NUM_STRING
 !!----       GET_SEPARATOR_POS
 !!----       GET_SUBSTRING_POSITIONS
+!!----       GET_SYMB_FROM_MAT
 !!----       GET_TRANSF
 !!----       GETNUM
 !!----       GETNUM_STD
@@ -143,7 +144,7 @@
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
               Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
               Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String, SString_Replace,                &
-              Get_Substring_Positions
+              Get_Substring_Positions,Get_Symb_From_Mat
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err,Read_Fract
@@ -440,7 +441,7 @@
 
     !!--++
     !!--++ LINE_NB
-    !!--++    integer :: Line_Nb
+    !!--++    integer, private, save :: Line_Nb
     !!--++
     !!--++    (PRIVATE)
     !!--++    Line number updated each time the procedure findFMT is called
@@ -448,7 +449,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Integer, private :: Line_Nb   ! Line number
+    Integer, private, save :: Line_Nb   ! Line number
 
     !!----
     !!---- MESS_FINDFMT
@@ -468,7 +469,7 @@
     !-------------------!
 
     !!----
-    !!---- Logical Function Equal_Sets_Text(Text1,N1,Text2,N2) Result(Equal_sets_texto)
+    !!---- Function Equal_Sets_Text(Text1,N1,Text2,N2) Result(Equal_sets_texto)
     !!----    character(len=*), dimension(:), intent(in) :: Text1   ! In -> String array
     !!----    integer,                        intent(in) :: N1      ! In -> Lines on Text1 variable
     !!----    character(len=*), dimension(:), intent(in) :: Text2   ! In -> String array
@@ -515,7 +516,7 @@
     End Function Equal_Sets_Text
 
     !!----
-    !!---- Character Function L_Case(Text) Result (Mtext)
+    !!---- Function L_Case(Text) Result (Mtext)
     !!----    character (len=*), intent(in) :: text   !  In -> String: "InPUT Line"
     !!----    character (len=len(text))     :: mtex   ! Out -> String: "input line"
     !!----
@@ -543,7 +544,7 @@
     End Function L_Case
 
     !!----
-    !!---- Character Function Pack_String(String) Result (Strp)
+    !!---- Function Pack_String(String) Result (Strp)
     !!----    character (len=*), intent(in) :: String
     !!----    character (len=*)             :: Strp
     !!----
@@ -572,7 +573,7 @@
     End Function Pack_String
 
     !!----
-    !!---- Character Function Rformat(Val, W) Result(String)
+    !!---- Function Rformat(Val, W) Result(String)
     !!----    real,    intent(in) :: Val
     !!----    integer, intent(in) :: W
     !!----    character(len=*)    :: String
@@ -611,10 +612,11 @@
        end if
 
        !> Test for INF
-       if (val < 9999999) then
-          string(1:w-3)=' '
-          string(w-2:w)='INF'
-          return
+       if(val < 9999999999999999.0)
+       !if (.not. ieee_is_finite(val)) then
+           string(1:w-3)=' '
+           string(w-2:w)='INF'
+           return
        end if
 
        x=val+0.001    ! EXTRA FOR SAFETY
@@ -703,7 +705,7 @@
     End Function String_Count
 
     !!----
-    !!---- Character Function Strip_String(string, to_strip) Result(striped_string)
+    !!---- Function Strip_String(string, to_strip) Result(striped_string)
     !!----    character (len=*), intent(in) :: string          !  In ->
     !!----    character (len=*), intent(in) :: to_string       !  In ->
     !!----    character (len=len(text))     :: striped_string  ! Out ->
@@ -729,7 +731,7 @@
     End Function Strip_String
 
     !!----
-    !!---- Character Function U_Case(Text) Result (Mtext)
+    !!---- Function U_Case(Text) Result (Mtext)
     !!----    character (len=*), intent(in) :: text   !  In -> String:"Input Line"
     !!----    character (len=len(text))     :: mtext  ! Out -> String:"INPUT LINE"
     !!----
@@ -1076,9 +1078,9 @@
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
-
+             aLine=adjustl(aLine)
              l_line = len_trim(aLine)    ! true length without trailing spaces
-             if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") aLine(1:l_line)
+             if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") trim(aLine)
              if (aLine(1:1) == "!" .or. aLine(1:1) == "#" .or. L_line == 0) then
                 Line_Nb=Line_Nb+1
              else
@@ -1602,7 +1604,7 @@
     !!----  is strictly equivalent to the symbol given above.
     !!----  This subroutine has been modified in order to accept data of the form:
     !!----   3a/2+b-c/4, a-3b/2,c+b/2. Now the letters may be followed by the division
-    !!----  symbol. Befor this modification the previous item should had be given as:
+    !!----  symbol. Before this modification the previous item should had be given as:
     !!----   3/2a+b-1/4c, a-3/2b,c+1/2b. Singular matrices are also accepted, for instance
     !!----  the matrix corresponding to the string: 0,a+b,0 was previously incorrect, now
     !!----  the constructed matrix is as expected:
@@ -1633,83 +1635,6 @@
       end do
       return
     End Subroutine Get_Mat_From_Symb
-
-    !!----  Subroutine Get_Transf(string,mat,v,cod)
-    !!----    character(len=*),                         intent(in)  :: string
-    !!----    real(kind=cp),dimension(3,3),             intent(out) :: mat
-    !!----    real(kind=cp),dimension(3),               intent(out) :: v
-    !!----    character(len=1), optional,dimension(4),  intent(in)  :: cod
-    !!----
-    !!----  This subroutine extracts the transformation matrix and the vector
-    !!----  corresponding to the change of origin from a symbol of the form:
-    !!----  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c;t1,t2,t3.
-    !!----  The order may be matrix;origin or origin;matrix. Parenthesis may
-    !!----  accompany the symbol like in (a,b+c,c-b;1/2,0,1/2). The basis vectors
-    !!----  a,b,c and the separator ";" may be changed by putting them into the
-    !!----  optional array cod. For instance if cod=["u","v","w","|"] a sort of
-    !!----  Seitz symbom may be read.
-    !!----
-    !!----  Created: January 2014 (JRC)
-    !!----
-    Subroutine Get_Transf(string,mat,v,cod)
-      character(len=*),                         intent(in)  :: string
-      real(kind=cp),dimension(3,3),             intent(out) :: mat
-      real(kind=cp),dimension(3),               intent(out) :: v
-      character(len=1), optional,dimension(4),  intent(in)  :: cod
-      !--- Local variables ---!
-      character(len=1), dimension(4) :: cd
-      character(len=len(string))     :: transf_key,cmat,ori
-      integer  :: i,j,nc
-      integer,dimension(2) :: pos
-
-      call init_err_string()
-      cd=(/"a","b","c",";"/)
-      if(present(cod)) cd=cod
-      transf_key=string
-      !Remove the parenthesis is present
-      j=index(transf_key,"(")
-      if(j /= 0) transf_key(j:j)= " "
-      j=index(transf_key,")")
-      if(j /= 0) transf_key(j:j)= " "
-      transf_key=adjustl(l_case(transf_key))
-
-      !Determine the order in which the string is provided
-      i=index(transf_key,cd(4))
-      if(i /= 0) then
-         cmat=transf_key(1:i-1)
-         j=index(cmat,cd(1))
-         if(j == 0) then
-            ori=cmat
-            cmat=transf_key(i+1:)
-         else
-            ori=transf_key(i+1:)
-         end if
-         call Get_Mat_From_Symb(cMat,mat,cd(1:3))
-         if(ERR_String) then
-           ERR_String_Mess=" Bad matrix setting...: "//trim(ERR_String_Mess)
-         end if
-         !Origin
-         Call Get_Separator_Pos(ori,",",pos,nc)
-         if(nc /= 2)then
-           ERR_String=.true.
-           ERR_String_Mess=" Bad origin setting...: "//trim(ori)
-           return
-         else
-           call Read_Fract(ori(1:pos(1)-1),v(1))
-           call Read_Fract(ori(pos(1)+1:pos(2)-1),v(2))
-           call Read_Fract(ori(pos(2)+1:),v(3))
-           if(ERR_String) then
-             ERR_String_Mess=" Bad origing setting...: "//trim(ERR_String_Mess)//" :: "//trim(ori)
-             return
-           end if
-         end if
-      else
-         ERR_String=.true.
-         ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(string)
-      end if
-      return
-    End Subroutine Get_Transf
-
 
     !!----  Subroutine Get_Num_String(string,v,cod)
     !!----    character(len=*),                intent(in)  :: string
@@ -1915,6 +1840,256 @@
     End Subroutine Get_Num_String
 
     !!----
+    !!---- Subroutine Get_Separator_Pos(line,car,pos,ncar)
+    !!----   character(len=*),      intent(in)  :: line  ! In -> Input String
+    !!----   character(len=1),      intent(in)  :: car   ! In -> Separator character
+    !!----   integer, dimension(:), intent(out) :: pos   ! Out -> Vector with positions of "car" in "Line"
+    !!----   integer,               intent(out) :: ncar  ! Out -> Number of appearance of "car" in "Line"
+    !!----
+    !!----    Determines the positions of the separator character "car" in string "Line" and generates
+    !!----    the vector Pos containing the positions. The number of times the character "car" appears
+    !!----    In "Line" is stored in "ncar".
+    !!----    The separator "car" is not counted within substrings of "Line" that are written within
+    !!----    quotes. The following example illustrates the functionning of the subroutine
+    !!----
+    !!----       !       12345678901234567890123456789012345678901234567890
+    !!----        line =' 23, "List, of, authors", this book, year=1989'
+    !!----
+    !!----    A call like:  call Get_Separator_Pos(line,',',pos,ncar) provides
+    !!----    ncar= 3
+    !!----    pos= (/ 4, 25, 36, 0, ..../)
+    !!----
+    !!---- Update: December 2009
+    !!
+    Subroutine Get_Separator_Pos(line,car,pos,ncar)
+      character(len=*),      intent(in)  :: line
+      character(len=1),      intent(in)  :: car
+      integer, dimension(:), intent(out) :: pos
+      integer,               intent(out) :: ncar
+      integer :: i,j,k
+
+      ncar=0
+      j=0
+      do i=1,len_trim(line)
+        j=j+1
+        if(line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
+          do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
+            j=j+1
+            if(line(j:j) /= '"') cycle
+            exit
+          end do
+        end if
+        if(line(j:j) == car) then
+          ncar=ncar+1
+          pos(ncar)=j
+        end if
+      end do
+      return
+    End Subroutine Get_Separator_Pos
+
+    !!----
+    !!---- Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
+    !!----   character(len=*),      intent(in)  :: string   ! In -> Input String
+    !!----   character(len=*),      intent(in)  :: substr   ! In -> Substring
+    !!----   integer, dimension(:), intent(out) :: pos      ! Out -> Vector with positions of the firs character of "substr" in "String"
+    !!----   integer,               intent(out) :: nsubs    ! Out -> Number of appearance of "substr" in "String"
+    !!----
+    !!----    Determines the positions of the substring "substr" in "String" and generates
+    !!----    the vector Pos containing the positions of the first character of "substr" in "String".
+    !!----    The number of times the "substr" appears in "String" is stored in "nsubs".
+    !!----
+    !!----     Updated: May 2014
+
+    Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
+      character(len=*),      intent(in)  :: string
+      character(len=*),      intent(in)  :: substr
+      integer, dimension(:), intent(out) :: pos
+      integer,               intent(out) :: nsubs
+      integer :: i,j,lsubs
+
+      nsubs=0
+      lsubs=len_trim(substr)
+      j=0
+      do i=1,len_trim(string)
+        j=j+1
+        if(string(j:j+lsubs-1) == trim(substr)) then
+          nsubs=nsubs+1
+          pos(nsubs)=j
+        end if
+      end do
+      return
+    End Subroutine Get_Substring_Positions
+
+    !!----  Subroutine Get_Symb_From_Mat(Mat,Symb,cod)
+    !!----    real,dimension(3,3),             intent(in)   :: Mat
+    !!----    character(len=*),                intent(out)  :: Symb
+    !!----    character(len=1), dimension(3),  intent(in)   :: cod
+    !!----
+    !!----  Subroutine to construct a symbol of the form:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
+    !!----  from a real matrix of quasi-rational numbers.
+    !!----  The symbols: a,b,c are not exclusive. The last variable contains the
+    !!----  equivalent ones, for instance cod=(/"u","v","w"/) or cod=(/"x","y","z"/).
+    !!----  The numbers m(i) are real numbers that are converted to fractions.
+    !!----  The input real matrix corresponds to:
+    !!----                           / m1   m2   m3 \
+    !!----                    Mat = |  m4   m5   m6  |
+    !!----                           \ m7   m8   m9 /
+    !!----
+    !!----   Created: November - 2016 (JRC)
+    !!----
+    Subroutine Get_Symb_From_Mat(Mat,Symb,cod)
+      real(kind=cp),dimension(3,3),    intent(in)  :: Mat
+      character(len=*),                intent(out) :: Symb
+      character(len=1), dimension(3),  intent(in)  :: cod
+      !---- local variables ----!
+      integer :: i,j,k,fin,nc,aux
+      real(kind=cp), dimension(3) :: v
+      character(len=len(Symb)), dimension(3) :: split,msp
+      integer,dimension(2) :: pos
+
+      !call init_err_string()
+      msp=" "
+      do i=1,3
+        v=Mat(i,:)
+        call Frac_Trans_2Dig(v,split(i))
+        split(i)=split(i)(2:len_trim(split(i))-1)
+      end do
+
+      do i=1,3
+        v=Mat(i,:)
+        Call Get_Separator_Pos(split(i),",",pos,nc)
+        if(v(2) < 0.0) then
+          msp(1)=split(i)(1:pos(1)-1)
+        else
+          msp(1)=split(i)(1:pos(1)-1)//"  +"
+        end if
+        if(v(3) < 0.0) then
+          msp(2)=split(i)(pos(1)+1:pos(2)-1)
+        else
+          msp(2)=split(i)(pos(1)+1:pos(2)-1)//"  +"
+        end if
+        msp(3)=split(i)(pos(2)+1:)
+
+        do j=1,3
+          if(trim(msp(j)) == '0' .or. trim(msp(j)) == '0  +') then
+             msp(j)=" "
+          end if
+        end do
+
+        do j=1,3
+          if(len_trim(msp(j)) == 0) cycle
+          k=index(msp(j),"/")
+          if(k /= 0) then
+            if(msp(j)(k-1:k-1) == "1") then
+              read(unit=msp(j)(1:k-1),fmt=*) aux
+              if(aux == 1 .or. aux == -1) then
+                msp(j)(k-1:k-1)=cod(j)
+              else
+                msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k+1:)
+              end if
+            else
+              msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k+1:)
+            end if
+          else
+            k=index(msp(j),"1")
+            read(unit=msp(j),fmt=*) aux
+            if(aux == 1 .or. aux == -1) then
+              msp(j)(k:k)=cod(j)
+            else
+              k=index(msp(j),"+")
+              if(k /= 0) then
+                 msp(j)(k-1:k-1) = cod(j)
+              else
+                 msp(j)=trim(msp(j))//cod(j)
+              end if
+            end if
+          end if
+        end do
+        split(i)=Pack_String(msp(1)//msp(2)//msp(3))
+        fin=len_trim(split(i))
+        if(split(i)(fin:fin) == "+") split(i)(fin:fin)= " "
+      end do
+      Symb=Pack_String(split(1)//","//split(2)//","//split(3))
+      return
+    End Subroutine Get_Symb_From_Mat
+
+    !!----  Subroutine Get_Transf(string,mat,v,cod)
+    !!----    character(len=*),                         intent(in)  :: string
+    !!----    real(kind=cp),dimension(3,3),             intent(out) :: mat
+    !!----    real(kind=cp),dimension(3),               intent(out) :: v
+    !!----    character(len=1), optional,dimension(4),  intent(in)  :: cod
+    !!----
+    !!----  This subroutine extracts the transformation matrix and the vector
+    !!----  corresponding to the change of origin from a symbol of the form:
+    !!----  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c;t1,t2,t3.
+    !!----  The order may be matrix;origin or origin;matrix. Parenthesis may
+    !!----  accompany the symbol like in (a,b+c,c-b;1/2,0,1/2). The basis vectors
+    !!----  a,b,c and the separator ";" may be changed by putting them into the
+    !!----  optional array cod. For instance if cod=["u","v","w","|"] a sort of
+    !!----  Seitz symbol may be read.
+    !!----
+    !!----  Created: January 2014 (JRC)
+    !!----
+    Subroutine Get_Transf(string,mat,v,cod)
+      character(len=*),                         intent(in)  :: string
+      real(kind=cp),dimension(3,3),             intent(out) :: mat
+      real(kind=cp),dimension(3),               intent(out) :: v
+      character(len=1), optional,dimension(4),  intent(in)  :: cod
+      !--- Local variables ---!
+      character(len=1), dimension(4) :: cd
+      character(len=len(string))     :: transf_key,cmat,ori
+      integer  :: i,j,nc
+      integer,dimension(2) :: pos
+
+      call init_err_string()
+      cd=(/"a","b","c",";"/)
+      if(present(cod)) cd=cod
+      transf_key=string
+      !Remove the parenthesis is present
+      j=index(transf_key,"(")
+      if(j /= 0) transf_key(j:j)= " "
+      j=index(transf_key,")")
+      if(j /= 0) transf_key(j:j)= " "
+      transf_key=adjustl(l_case(transf_key))
+
+      !Determine the order in which the string is provided
+      i=index(transf_key,cd(4))
+      if(i /= 0) then
+         cmat=transf_key(1:i-1)
+         j=index(cmat,cd(1))
+         if(j == 0) then
+            ori=cmat
+            cmat=transf_key(i+1:)
+         else
+            ori=transf_key(i+1:)
+         end if
+         call Get_Mat_From_Symb(cMat,mat,cd(1:3))
+         if(ERR_String) then
+           ERR_String_Mess=" Bad matrix setting...: "//trim(ERR_String_Mess)
+         end if
+         !Origin
+         Call Get_Separator_Pos(ori,",",pos,nc)
+         if(nc /= 2)then
+           ERR_String=.true.
+           ERR_String_Mess=" Bad origin setting...: "//trim(ori)
+           return
+         else
+           call Read_Fract(ori(1:pos(1)-1),v(1))
+           call Read_Fract(ori(pos(1)+1:pos(2)-1),v(2))
+           call Read_Fract(ori(pos(2)+1:),v(3))
+           if(ERR_String) then
+             ERR_String_Mess=" Bad origing setting...: "//trim(ERR_String_Mess)//" :: "//trim(ori)
+             return
+           end if
+         end if
+      else
+         ERR_String=.true.
+         ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(string)
+      end if
+      return
+    End Subroutine Get_Transf
+
+    !!----
     !!---- Subroutine Getnum(Line, Vet, Ivet, Iv)
     !!----    character(len=*),              intent( in) :: Line    !  In -> Input String to convert
     !!----    real(kind=cp), dimension(:),   intent(out) :: Vet     ! Out -> Vector of real numbers
@@ -2082,7 +2257,7 @@
 
        !---- Local Variables ----!
        character(len=len(line))               :: resto,dire,numm
-       integer                                :: iv,nlong
+       integer                                :: iv,nlong,i
        integer                                :: np, np1, np2
        integer, dimension(size(value))        :: ivet
        real(kind=cp), dimension(size(value))  :: vet
@@ -2098,7 +2273,17 @@
           ERR_String_Mess="Blank line"
           return
        end if
-       resto=adjustl(line)
+       i=index(line,"!")
+       if(i /= 0) then
+         resto=adjustl(line(1:i-1))
+       else
+         i=index(line,"#")
+         if(i /= 0) then
+           resto=adjustl(line(1:i-1))
+         else
+           resto=adjustl(line)
+         end if
+       end if
 
        do
           if (len_trim(resto) == 0) exit
@@ -2167,87 +2352,6 @@
 
        return
     End Subroutine GetNum_Std
-
-    !!----
-    !!---- Subroutine Get_Separator_Pos(line,car,pos,ncar)
-    !!----   character(len=*),      intent(in)  :: line  ! In -> Input String
-    !!----   character(len=1),      intent(in)  :: car   ! In -> Separator character
-    !!----   integer, dimension(:), intent(out) :: pos   ! Out -> Vector with positions of "car" in "Line"
-    !!----   integer,               intent(out) :: ncar  ! Out -> Number of appearance of "car" in "Line"
-    !!----
-    !!----    Determines the positions of the separator character "car" in string "Line" and generates
-    !!----    the vector Pos containing the positions. The number of times the character "car" appears
-    !!----    In "Line" is stored in "ncar".
-    !!----    The separator "car" is not counted within substrings of "Line" that are written within
-    !!----    quotes. The following example illustrates the functionning of the subroutine
-    !!----
-    !!----       !       12345678901234567890123456789012345678901234567890
-    !!----        line =' 23, "List, of, authors", this book, year=1989'
-    !!----
-    !!----    A call like:  call Get_Separator_Pos(line,',',pos,ncar) provides
-    !!----    ncar= 3
-    !!----    pos= (/ 4, 25, 36, 0, ..../)
-    !!----
-    !!---- Update: December 2009
-    !!
-    Subroutine Get_Separator_Pos(line,car,pos,ncar)
-      character(len=*),      intent(in)  :: line
-      character(len=1),      intent(in)  :: car
-      integer, dimension(:), intent(out) :: pos
-      integer,               intent(out) :: ncar
-      integer :: i,j,k
-
-      ncar=0
-      j=0
-      do i=1,len_trim(line)
-        j=j+1
-        if(line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
-          do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
-            j=j+1
-            if(line(j:j) /= '"') cycle
-            exit
-          end do
-        end if
-        if(line(j:j) == car) then
-          ncar=ncar+1
-          pos(ncar)=j
-        end if
-      end do
-      return
-    End Subroutine Get_Separator_Pos
-
-    !!----
-    !!---- Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
-    !!----   character(len=*),      intent(in)  :: string   ! In -> Input String
-    !!----   character(len=*),      intent(in)  :: substr   ! In -> Substring
-    !!----   integer, dimension(:), intent(out) :: pos      ! Out -> Vector with positions of the firs character of "substr" in "String"
-    !!----   integer,               intent(out) :: nsubs    ! Out -> Number of appearance of "substr" in "String"
-    !!----
-    !!----    Determines the positions of the substring "substr" in "String" and generates
-    !!----    the vector Pos containing the positions of the first character of "substr" in "String".
-    !!----    The number of times the "substr" appears in "String" is stored in "nsubs".
-    !!----
-    !!----     Updated: May 2014
-
-    Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
-      character(len=*),      intent(in)  :: string
-      character(len=*),      intent(in)  :: substr
-      integer, dimension(:), intent(out) :: pos
-      integer,               intent(out) :: nsubs
-      integer :: i,j,lsubs
-
-      nsubs=0
-      lsubs=len_trim(substr)
-      j=0
-      do i=1,len_trim(string)
-        j=j+1
-        if(string(j:j+lsubs-1) == trim(substr)) then
-          nsubs=nsubs+1
-          pos(nsubs)=j
-        end if
-      end do
-      return
-    End Subroutine Get_Substring_Positions
 
     !!----
     !!---- Subroutine Getword(Line, Dire, Ic)
@@ -2903,7 +3007,7 @@
        !---- Argument ----!
        real(kind=cp),   intent(in)  :: Value
        real(kind=cp),   intent(in)  :: Std
-       character(len=*),intent (out):: Line
+       character(len=*),intent(out) :: Line
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
@@ -2915,7 +3019,7 @@
           if (abs(value) > 999999.0) then
              write(unit=aux,fmt=*) value
           else
-             write(unit=aux,fmt="(f14.6)") value
+             write(unit=aux,fmt="(f16.5)") value
           end if
           line=adjustl(aux)
           if (line(1:1) /= "-") line=" "//trim(line)
@@ -2967,7 +3071,7 @@
        aux=pack_string(aux)
        long=len_trim(aux)
        if(long > np) then
-         line=line(1:n)//aux(1:np)//")"
+         line=line(1:n-2)//"("//aux(1:np)//")"
        else
           line=line(1:n)//trim(aux)//")"
        end if
