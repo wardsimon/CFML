@@ -203,7 +203,7 @@ The following generators are available on this platform:
 
  For working only with console programs:
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
- cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/gfortran -D CRYSFML_PREFIX=LibC ../../.
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran -D CRYSFML_PREFIX=LibC ../../.
 
  To get Winteracter working do:
  ------------------------------
