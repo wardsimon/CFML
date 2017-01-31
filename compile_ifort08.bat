@@ -100,15 +100,20 @@ rem
    ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
    ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
    ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
-   goto FIN
-   ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
+   goto UNO
 rem
-   echo **---- Level 2 ----**
-   echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
+   echo .... Patterns Information
+rem
+   ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
+   goto FIN
+rem
+:UNO
+   echo .... Crystal Metrics
 rem
    ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
+   goto FIN
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 3 ----**
    echo .... EoS, Reflections, Atoms
