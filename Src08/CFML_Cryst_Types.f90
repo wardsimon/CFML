@@ -129,7 +129,7 @@
     Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_Crys, Err_Crys_Mess, Crystal_Cell_Type, &
                                   Zone_Axis_Type
     Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
-    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+    Use CFML_Math_3D,      only : Invert_Array3x3, determ_3x3, determ_Vec, Cross_Product
 
     implicit none
 
@@ -142,17 +142,12 @@
               Sigma_VolumeCell, U_Equiv
 
     !---- List of public subroutines ----!
-    public :: Change_Setting_Cell, Get_Basis_from_UVW, &
-               Init_Err_Crys, Set_Crystal_Cell,           &
-              Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
-              Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,   &
-              Get_Transfm_Matrix, Volume_Sigma_from_Cell,&
-              Read_Bin_Crystal_Cell,Write_Bin_Crystal_Cell
-
-
-    !---- List of public overloaded procedures: subroutines ----!
-
-    public  :: Niggli_Cell
+    public :: Change_Setting_Cell, Get_Basis_from_UVW, Get_Conventional_Cell, Get_Cryst_Family, &
+              Get_Deriv_Orth_Cell, Get_Primitive_Cell, Get_Transfm_Matrix, Get_TwoFold_Axes,    &
+              Init_Err_Crys, Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell,           &
+              Write_Crystal_Cell,      &
+              Volume_Sigma_from_Cell,&
+              Write_Bin_Crystal_Cell
 
 
     !---- Definitions ----!
@@ -908,7 +903,7 @@
 
              !The two shortest vectors perpendicular to the primary twofold axis have been found
              !and the transformation matrix has been constructed
-             namina=determ_A(tr)
+             namina=determ_3x3(tr)
              if (namina < 0) then   !right handed system
                 tr(2,:)=-tr(2,:)
                 v2=-v2
@@ -979,7 +974,7 @@
              dominc=dot_product(v1/mv(1),v2/mv(2))
 
              if (abs(domina) < ep .and. abs(dominb) < ep .and. abs(dominc) < ep) then !orthorhombic
-                namina=determ_A(tr)
+                namina=determ_3x3(tr)
                 if (namina < 0) then
                    tr(3,:)=-tr(3,:)
                    v3=-v3
@@ -1096,7 +1091,7 @@
                    end do do_iu
 
                    If (ok) then
-                      namina=determ_A(tr)
+                      namina=determ_3x3(tr)
                       if (namina < 0) then
                          tr(3,:)=-tr(3,:)
                          namina=-namina
@@ -1172,7 +1167,7 @@
              mv(1)=twofold%maxes(namina)
              mv(2)=twofold%maxes(naminb)
              mv(3)=twofold%maxes(naminc)
-             namina=determ_A(tr)
+             namina=determ_3x3(tr)
              if (namina < 0) then
                 tr(3,:)=-tr(3,:)
                 v3=-v3
@@ -1243,7 +1238,7 @@
                    mv(i)=u(i)
                 end do
                 v3 = twofold%caxes(:,rw(3))
-                namina=determ_A(tr)
+                namina=determ_3x3(tr)
                 if (namina < 0) then
                    tr(3,:)=-tr(3,:)
                    v3=-v3
@@ -1294,7 +1289,7 @@
              v1 = twofold%caxes(:,rw(1))
              v2 = twofold%caxes(:,rw(2))
              v3 = twofold%caxes(:,rw(3))
-             namina=determ_A(tr)
+             namina=determ_3x3(tr)
              if (namina < 0) then
                 tr(3,:)=-tr(3,:)
                 v3=-v3
@@ -1353,10 +1348,6 @@
 
     !!----
     !!---- Subroutine Get_Cryst_Family(Cell,Car_Family,Car_Symbol,Car_System)
-    !!----    type(Crystal_Cell_type),         intent(in ) :: Cell
-    !!----    character(len=*),                intent(out) :: Car_Family
-    !!----    character(len=*),                intent(out) :: Car_Symbol
-    !!----    character(len=*),                intent(out) :: Car_System
     !!----
     !!---- Obtain the Crystal Family, Symbol and System from cell parameters
     !!----
@@ -1364,7 +1355,7 @@
     !!----
     Subroutine Get_Cryst_Family(Cell,Car_Family,Car_Symbol,Car_System)
        !---- Arguments ----!
-       type(Crystal_Cell_type),   intent(in ) :: Cell
+       type(Crystal_Cell_type),   intent(in ) :: Cell        ! Input cell object
        character(len=*),          intent(out) :: Car_Family
        character(len=*),          intent(out) :: Car_Symbol
        character(len=*),          intent(out) :: Car_System
@@ -1512,10 +1503,6 @@
 
     !!--++
     !!--++ Subroutine Get_Cryst_Orthog_Matrix(Cellv,Ang, Crystort,Cartype)
-    !!--++    real(kind=cp), dimension(3  ), intent (in ) :: cellv           !  In ->  a,b,c parameters
-    !!--++    real(kind=cp), dimension(3  ), intent (in ) :: ang             !  In ->  angles parameters of cell
-    !!--++    real(kind=cp), dimension(3,3), intent (out) :: CrystOrt        ! Out ->  Conversion matrix (a) = (e) CrystOrt
-    !!--++    character (len=1), optional,   intent (in)  :: CarType         !  In ->  Type of Cartesian axes
     !!--++
     !!--++    (PRIVATE)
     !!--++    Obtains the matrix giving the crystallographic basis in
@@ -1553,11 +1540,12 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Get_Cryst_Orthog_Matrix(Cellv,Ang, Crystort,CarType)
+    Subroutine Get_Cryst_Orthog_Matrix(Cell, Ang, Crystort, CarType)
        !---- Arguments ----!
-       real(kind=cp), dimension(3  ), intent (in ) :: cellv,ang
-       real(kind=cp), dimension(3,3), intent (out) :: CrystOrt
-       character (len=1), optional,   intent (in ) :: CarType
+       real(kind=cp), dimension(3  ), intent (in ) :: cell        ! Cell parameters a,b and c
+       real(kind=cp), dimension(3  ), intent (in ) :: ang         ! Angle alpha, beta and gamma
+       real(kind=cp), dimension(3,3), intent (out) :: CrystOrt    ! Conversion matrix (a) = (e) CrystOrt
+       character (len=1), optional,   intent (in ) :: CarType     ! Type of Cartesian axes
 
        !---- Local Variables ----!
        real(kind=cp) :: cosgas, singas
@@ -1570,15 +1558,15 @@
              !    c = (  c cosbeta, -c sinbeta cosalpha*, c sinbeta sinalpha* )
              cosgas =(cosd(ang(3))*cosd(ang(2))-cosd(ang(1)))/(sind(ang(3))*sind(ang(2)))
              singas = sqrt(1.0-cosgas**2)
-             CrystOrt(1,1) = cellv(1)
-             CrystOrt(1,2) = cellv(2)*cosd(ang(3))
-             CrystOrt(1,3) = cellv(3)*cosd(ang(2))
+             CrystOrt(1,1) = cell(1)
+             CrystOrt(1,2) = cell(2)*cosd(ang(3))
+             CrystOrt(1,3) = cell(3)*cosd(ang(2))
              CrystOrt(2,1) = 0.0
-             CrystOrt(2,2) = cellv(2)*sind(ang(3))
-             CrystOrt(2,3) =-cellv(3)*sind(ang(2))*cosgas
+             CrystOrt(2,2) = cell(2)*sind(ang(3))
+             CrystOrt(2,3) =-cell(3)*sind(ang(2))*cosgas
              CrystOrt(3,1) = 0.0
              CrystOrt(3,2) = 0.0
-             CrystOrt(3,3) = cellv(3)*sind(ang(2))*singas
+             CrystOrt(3,3) = cell(3)*sind(ang(2))*singas
              return
           end if
        end if
@@ -1591,24 +1579,21 @@
        !    c = (         0         ,         0           , c         )
        cosgas =(cosd(ang(1))*cosd(ang(2))-cosd(ang(3)))/(sind(ang(1))*sind(ang(2)))
        singas = sqrt(1.0-cosgas**2)
-       CrystOrt(1,1) = cellv(1)*sind(ang(2))*singas
+       CrystOrt(1,1) = cell(1)*sind(ang(2))*singas
        CrystOrt(1,2) = 0.0
        CrystOrt(1,3) = 0.0
-       CrystOrt(2,1) =-cellv(1)*sind(ang(2))*cosgas
-       CrystOrt(2,2) = cellv(2)*sind(ang(1))
+       CrystOrt(2,1) =-cell(1)*sind(ang(2))*cosgas
+       CrystOrt(2,2) = cell(2)*sind(ang(1))
        CrystOrt(2,3) = 0.0
-       CrystOrt(3,1) = cellv(1)*cosd(ang(2))
-       CrystOrt(3,2) = cellv(2)*cosd(ang(1))
-       CrystOrt(3,3) = cellv(3)
+       CrystOrt(3,1) = cell(1)*cosd(ang(2))
+       CrystOrt(3,2) = cell(2)*cosd(ang(1))
+       CrystOrt(3,3) = cell(3)
 
        return
     End Subroutine Get_Cryst_Orthog_Matrix
 
     !!----
     !!---- Subroutine Get_Deriv_Orth_Cell(Cellp,De_Orthcell,Cartype)
-    !!----    type(Crystal_Cell_type),         intent(in ) :: cellp
-    !!----    real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
-    !!----    character (len=1), optional,     intent(in ) :: CarType
     !!----
     !!----    Subroutine to get derivative matrix of the transformation matrix
     !!----    to orthogonal frame. Useful for calculations of standard deviations
@@ -1620,22 +1605,22 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Get_Deriv_Orth_Cell(Cellp,De_Orthcell,Cartype)
+    Subroutine Get_Deriv_Orth_Cell(Cell,De_Orthcell,Cartype)
        !---- Arguments ----!
-       type(Crystal_Cell_type),         intent(in ) :: cellp
-       real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
+       type(Crystal_Cell_type),         intent(in ) :: cell          ! Cell object
+       real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell   ! Derivates respect cell parameters
        character (len=1), optional,     intent(in ) :: CarType
 
        !---- Local Variables ----!
        real(kind=cp) ::  ca,cb,cg,sa,sb,sg,f,g, fa,fb,fc,ga,gb,gc
 
        de_Orthcell=0.0
-       ca=cosd(cellp%ang(1))
-       cb=cosd(cellp%ang(2))
-       cg=cosd(cellp%ang(3))
-       sa=sind(cellp%ang(1))
-       sb=sind(cellp%ang(2))
-       sg=sind(cellp%ang(3))
+       ca=cosd(cell%ang(1))
+       cb=cosd(cell%ang(2))
+       cg=cosd(cell%ang(3))
+       sa=sind(cell%ang(1))
+       sb=sind(cell%ang(2))
+       sg=sind(cell%ang(3))
 
        if (present(CarType)) then
           if (CarType == "A" .or. CarType == "a" ) then  ! x//a
@@ -1683,27 +1668,27 @@
              ! dM_dalpha=  (   0          0          c*fa )
              !             (   0          0          c*ga )
              !
-             de_Orthcell(2,3,4) = cellp%cell(3)*fa
-             de_Orthcell(3,3,4) = cellp%cell(3)*ga
+             de_Orthcell(2,3,4) = cell%cell(3)*fa
+             de_Orthcell(3,3,4) = cell%cell(3)*ga
 
              !
              !             (   0          0         -c*sb )
              ! dM_dbeta =  (   0          0          c*fb )
              !             (   0          0          c*gb )
              !
-             de_Orthcell(1,3,5) = -cellp%cell(3)*sb
-             de_Orthcell(2,3,5) =  cellp%cell(3)*fb
-             de_Orthcell(3,3,5) =  cellp%cell(3)*gb
+             de_Orthcell(1,3,5) = -cell%cell(3)*sb
+             de_Orthcell(2,3,5) =  cell%cell(3)*fb
+             de_Orthcell(3,3,5) =  cell%cell(3)*gb
 
              !
              !              (   0        -b*sg         0   )
              ! dM_dgamma =  (   0         b*cg        c*fc )
              !              (   0          0          c*gc )
              !
-             de_Orthcell(1,2,6) = -cellp%cell(2)*sg
-             de_Orthcell(2,2,6) =  cellp%cell(2)*cg
-             de_Orthcell(2,3,6) =  cellp%cell(3)*fc
-             de_Orthcell(3,3,6) =  cellp%cell(3)*gc
+             de_Orthcell(1,2,6) = -cell%cell(2)*sg
+             de_Orthcell(2,2,6) =  cell%cell(2)*cg
+             de_Orthcell(2,3,6) =  cell%cell(3)*fc
+             de_Orthcell(3,3,6) =  cell%cell(3)*gc
 
              return
           end if
@@ -1758,37 +1743,33 @@
        ! dM_dalpha=  ( a*fa       -b*ca        0 )
        !             (   0         b*sa        0 )
        !
-       de_Orthcell(1,1,4) = cellp%cell(1)*ga
-       de_Orthcell(2,1,4) = cellp%cell(1)*fa
-       de_Orthcell(2,2,4) =-cellp%cell(2)*ca
-       de_Orthcell(3,2,4) = cellp%cell(2)*sa
+       de_Orthcell(1,1,4) = cell%cell(1)*ga
+       de_Orthcell(2,1,4) = cell%cell(1)*fa
+       de_Orthcell(2,2,4) =-cell%cell(2)*ca
+       de_Orthcell(3,2,4) = cell%cell(2)*sa
 
        !
        !             (  a*gb        0         0 )
        ! dM_dbeta =  (  a*fb        0         0 )
        !             ( -a*sb        0         0 )
        !
-       de_Orthcell(1,1,5) = cellp%cell(1)*gb
-       de_Orthcell(2,1,5) = cellp%cell(1)*fb
-       de_Orthcell(3,1,5) =-cellp%cell(1)*sb
+       de_Orthcell(1,1,5) = cell%cell(1)*gb
+       de_Orthcell(2,1,5) = cell%cell(1)*fb
+       de_Orthcell(3,1,5) =-cell%cell(1)*sb
 
        !
        !              (  a*gc     0      0   )
        ! dM_dgamma =  (  a*fc     0      0   )
        !              (   0       0      0   )
        !
-       de_Orthcell(1,1,6) = cellp%cell(1)*gc
-       de_Orthcell(2,1,6) = cellp%cell(1)*fc
+       de_Orthcell(1,1,6) = cell%cell(1)*gc
+       de_Orthcell(2,1,6) = cell%cell(1)*fc
 
        return
     End Subroutine Get_Deriv_Orth_Cell
 
     !!----
     !!---- Subroutine Get_Primitive_Cell(Lat_Type,Centred_Cell,Primitive_Cell,Transfm)
-    !!----    character(len=*),               intent(in)  :: lat_type
-    !!----    type(Crystal_Cell_Type),        intent(in)  :: centred_cell
-    !!----    type(Crystal_Cell_Type),        intent(out) :: primitive_cell
-    !!----    real(kind=cp), dimension(3,3),  intent(out) :: transfm
     !!----
     !!----    Subroutine for getting the primitive cell from a centred cell
     !!----    On input Lat_type is the lattice type: P,A,B,C,I,R or F
@@ -1851,22 +1832,18 @@
     End Subroutine Get_Primitive_Cell
 
     !!----
-    !!---- Subroutine Get_Transfm_Matrix(cella,cellb,trm,ok,tol)
-    !!----    type(Crystal_Cell_Type),     intent(in) :: cella,cellb
-    !!----    real(kind=cp),dimension(3,3),intent(out):: trm
-    !!----    Logical,                     intent(out):: ok
-    !!----    real(kind=cp),optional,      intent(in) :: tol
+    !!---- Subroutine Get_Transfm_Matrix(cella,cellb,trm,tol)
     !!----
     !!----    Subroutine for getting the transformation matrix between two
     !!----    primitive unit cells (the range of indices is fixed to -2 to 2)
     !!----
     !!---- Update: January - 2011
     !!
-    Subroutine Get_Transfm_Matrix(cella,cellb,trm,ok,tol)
+    Subroutine Get_Transfm_Matrix(cella,cellb,trm,tol)
        !---- Arguments ----!
-       type(Crystal_Cell_Type),     intent(in) :: cella,cellb
+       type(Crystal_Cell_Type),     intent(in) :: cella
+       type(Crystal_Cell_Type),     intent(in) :: cellb
        real(kind=cp),dimension(3,3),intent(out):: trm
-       Logical,                     intent(out):: ok
        real(kind=cp),optional,      intent(in) :: tol
 
        !---- Local variables ----!
@@ -1874,10 +1851,15 @@
        integer,dimension(3,3)  :: Nu
        integer                 :: j,i1,i2,i3,i4,i5,i6,i7,i8,i9
        real(kind=cp)           :: tolt
+       logical                 :: ok
 
        tolt=0.3
        if(present(tol)) tolt=tol
+
+       call init_err_crys()
+       trm=0.0
        ok=.false.
+
        dox: do i1=-2,2                     !         |i1  i4  i7|
           do i2=-2,2                       !    Nu = |i2  i5  i8|
              do i3=-2,2                    !         |i3  i6  i9|
@@ -1906,14 +1888,16 @@
           end do           !i2
        end do  dox       !i1
 
+       if (.not. ok) then
+          Err_Crys=.false.
+          ERR_Crys_Mess=" Get_Transfm_Matrix failed obtaining the transformation matrix! "
+       end if
+
        return
     End Subroutine Get_Transfm_Matrix
 
     !!----
     !!---- Subroutine Get_TwoFold_Axes(Celln,Tol,Twofold)
-    !!----    type(Crystal_Cell_Type), intent (in) :: Celln
-    !!----    real(kind=cp),           intent (in) :: tol !angular tolerance in degrees
-    !!----    Type(Twofold_Axes_Type), intent(out) :: twofold
     !!----
     !!----    Subroutine for getting the possible two-fold axes (within an
     !!----    angular tolerance tol) existing in the lattice generated by the
@@ -1927,10 +1911,10 @@
     !!----
     !!---- Update: November - 2008
     !!
-    Subroutine Get_TwoFold_Axes(Celln,Tol,Twofold)
+    Subroutine Get_TwoFold_Axes(Cell,Tol,Twofold)
        !---- Arguments ----!
-       type(Crystal_Cell_Type), intent (in) :: Celln
-       real(kind=cp),           intent (in) :: Tol !angular tolerance in degrees
+       type(Crystal_Cell_Type), intent (in) :: Cell      ! Cell object
+       real(kind=cp),           intent (in) :: Tol       !angular tolerance in degrees
        Type(twofold_axes_type), intent(out) :: Twofold
 
        !---- Local variables ----!
@@ -1944,15 +1928,15 @@
        real(kind=cp)                  :: dot,crossm
 
        maxes=0.0; crossa=0.0; dota=0; caxes=0.0; dtw=0; rtw=0
-       a=Celln%Cr_Orth_cel(:,1)
-       b=Celln%Cr_Orth_cel(:,2)
-       c=Celln%Cr_Orth_cel(:,3)
+       a=Cell%Cr_Orth_cel(:,1)
+       b=Cell%Cr_Orth_cel(:,2)
+       c=Cell%Cr_Orth_cel(:,3)
        twofold%a=a
        twofold%b=b
        twofold%c=c
-       as=cross_product(b,c)/Celln%CellVol !Reciprocal lattice vectors in
-       bs=cross_product(c,a)/Celln%CellVol !Cartesian components
-       cs=cross_product(a,b)/Celln%CellVol
+       as=cross_product(b,c)/Cell%CellVol !Reciprocal lattice vectors in
+       bs=cross_product(c,a)/Cell%CellVol !Cartesian components
+       cs=cross_product(a,b)/Cell%CellVol
        ntwo=0
        imax=2   !Is inough if the input cell is the Buerger or Niggli cell
 
@@ -1975,7 +1959,7 @@
                             crossm=atand(dot/real(n))
                             if (abs(crossm) <= tol) then
                                do m=1,ntwo
-                                  if (determ_V((/17,41,71/),v,dtw(:,m) ) == 0) cycle do_il
+                                  if (determ_Vec((/17,41,71/),v,dtw(:,m) ) == 0) cycle do_il
                                end do
                                ntwo=ntwo+1
                                dtw(:,ntwo)= v
@@ -2011,6 +1995,67 @@
     End Subroutine Get_TwoFold_Axes
 
     !!----
+    !!---- Subroutine Get_Volume_Sigma(cell,ang,sigc,siga,volume,sigv)
+    !!----
+    !!----    Calculates the volume and their standard deviation from unit cell
+    !!----    parameters. If the standard deviations of cell parameters are zero
+    !!----    the result is sigma=0.0, otherwise the calculation is performed.
+    !!----    It is assumed that there is no correlation (covariance terms) between
+    !!----    the standard deviations of the different cell parameters.
+    !!----
+    !!---- Updated: January - 2013 (JGP)
+    !!
+    Subroutine Get_Volume_Sigma(cell,ang,sigc,siga,volume,sigv)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),  intent(in) :: Cell   !  In  ->  a,b,c parameters
+       real(kind=cp), dimension(3),  intent(in) :: Ang    !  In  -> alpha, beta, gamma
+       real(kind=cp), dimension(3),  intent(in) :: SigC   !  In  -> sigmas for a ,b and c
+       real(kind=cp), dimension(3),  intent(in) :: SigA   !  In  -> sigmas for angles
+       real(kind=cp),                intent(out):: Volume ! Out  -> Volume from cell parameters
+       real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
+
+       !---- Local Variables ----!
+       real(kind=cp) :: a,b,c,ca,cb,cg,sa,sb,sg
+       real(kind=cp) :: t, dvda, dvdb, dvdc, dvdalpha, dvdbeta, dvdgamma
+
+       !> Init
+       volume=0.0
+       sigv=0.0
+
+       a=cell(1)
+       b=cell(2)
+       c=cell(3)
+       ca=cosd(ang(1))
+       cb=cosd(ang(2))
+       cg=cosd(ang(3))
+       sa=sind(ang(1))
+       sb=sind(ang(2))
+       sg=sind(ang(3))
+
+       t=sqrt(1.0 - ca**2 - cb**2 - cg**2 + 2.0*ca*cb*cg)
+
+       volume=a*b*c*t
+
+       if(sum(abs(sigc)) < eps .and. sum(abs(siga)) < eps ) return
+
+       dvda=b*c*t
+       dvdb=a*c*t
+       dvdc=a*b*t
+
+       dvdalpha=(a*b*c)*( (sa/t)*(ca-cb*cg) )
+       dvdbeta= (a*b*c)*( (sb/t)*(cb-ca*cg) )
+       dvdgamma=(a*b*c)*( (sg/t)*(cg-ca*cb) )
+
+       sigv= (dvda*sigc(1))**2 + (dvdb*sigc(2))**2 + (dvdc*sigc(3))**2 +  &
+             (dvdalpha*siga(1)*to_rad)**2 + (dvdbeta*siga(2)*to_rad)**2 + &
+             (dvdgamma*siga(3)*to_rad)**2
+
+       sigv=sqrt(sigv)
+
+       return
+    End Subroutine Get_Volume_Sigma
+
+    !!----
     !!---- SUBROUTINE INIT_ERR_CRYS()
     !!----
     !!----    Initialize Flags of Errors in this module
@@ -2025,33 +2070,8 @@
        return
     End Subroutine Init_Err_Crys
 
-    !!----
-    !!---- Subroutine Niggli_Cell(XXX,Niggli_Point,Celln,Trans)
-    !!----   XXX is one of:
-    !!----   real(kind=cp),dimension(6),              intent(in out) :: Ad             ! Cell Parameters
-    !!----   or
-    !!----   real(kind=cp),dimension(2,3),            intent(in out) :: N_Mat          ! Niggli Matrix
-    !!----   or
-    !!----   real(kind=cp)                            intent(in out) :: A, B, C, Alfa, Beta, Gamma
-    !!----   or
-    !!----   type(Crystal_Cell_Type),                 intent(in out ):: cell
-    !!----   or
-    !!----   real(kind=cp),dimension(3),              intent(in)     :: A,B,C         ! 3 vectors
-    !!----   real(kind=cp),dimension(5), optional,    intent(out)    :: Niggli_Point
-    !!----   type(Crystal_Cell_Type),optional,        intent(out)    :: Celln
-    !!----   real(kind=cp), dimension(3,3), optional, intent(out)    :: Trans
-    !!----
-    !!----    Calculates the Niggli cell
-    !!----
-    !!---- Update: October - 2008
-    !!
-
     !!--++
     !!--++ Subroutine Niggli_Cell_ABC(Ad,Niggli_Point,Celln,Trans)
-    !!--++    real(kind=cp),dimension(6),              intent(in out) :: Ad
-    !!--++    real(kind=cp),dimension(5), optional,    intent(out)    :: Niggli_Point
-    !!--++    type(Crystal_Cell_Type),optional,        intent(out)    :: celln
-    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)    :: trans
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the list of cell parameters
@@ -2106,10 +2126,6 @@
 
     !!--++
     !!--++ Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Celln,Trans)    !Scalar algorithm
-    !!--++    real(kind=cp),dimension(2,3),              intent(in out) :: n_mat
-    !!--++    real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
-    !!--++    type(Crystal_Cell_Type), optional,         intent(out)    :: celln
-    !!--++    real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the Niggli Matrix (part of the metrics)
@@ -2279,9 +2295,9 @@
           ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
           call Set_Crystal_Cell(cel,ang, Celln)
           if (present(trans)) then
-            Call Get_Transfm_Matrix(cellp,celln,trm,ok)
-            if(ok) then
-              trans=trm
+            Call Get_Transfm_Matrix(cellp,celln,trm)
+            if (.not. err_crys) then
+               trans=trm
             else
               trans=identity
             end if
@@ -2293,10 +2309,6 @@
 
     !!--++
     !!--++ Subroutine Niggli_Cell_Params(A,B,C,Al,Be,Ga,Niggli_Point,Celln,Trans)
-    !!--++    real(kind=cp),                           intent (in out)  :: a,b,c,al,be,ga
-    !!--++    real(kind=cp),dimension(5), optional,    intent(out)      :: Niggli_Point
-    !!--++    type(Crystal_Cell_Type),optional,        intent(out)      :: celln
-    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)      :: trans
     !!--++
     !!--++    (OVERLOAD)
     !!--++     Calculates the Niggli cell when the input is the list of cell parameters
@@ -2355,11 +2367,6 @@
 
     !!--++
     !!--++ Subroutine Niggli_Cell_Type(Cell,Niggli_Point,Celln,Trans)
-    !!--++    type(Crystal_Cell_Type),                 intent(in out ) :: cell
-    !!--++    real(kind=cp),dimension(5),    optional, intent(out)     :: Niggli_Point
-    !!--++    type(Crystal_Cell_Type),       optional, intent(out)     :: celln
-    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)     :: trans
-    !!--++
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is an object of type Crystal_Cell_Type
@@ -2407,10 +2414,6 @@
 
     !!--++
     !!--++ Subroutine Niggli_Cell_Vect(A,B,C,Niggli_Point,Celln,Trans)
-    !!--++    real(kind=cp),dimension(3),                intent(in)     :: a,b,c
-    !!--++    real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
-    !!--++    type(Crystal_Cell_Type),         optional, intent(out)    :: celln
-    !!--++    real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is given as three vectors
@@ -2431,7 +2434,7 @@
        real(kind=cp), dimension(2,3) :: n_mat
        real(kind=cp)                 :: det
 
-       det=determ_V(a,b,c)
+       det=determ_Vec(a,b,c)
        if (abs(det) < 0.0001) then
           Err_Crys=.true.
           ERR_Crys_Mess=" The three input vectors are nor linearly independent!"
@@ -2458,10 +2461,7 @@
     End Subroutine Niggli_Cell_Vect
 
     !!----
-    !!---- Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
-    !!----    Type (Crystal_Cell_Type),  intent(out) :: Celda   ! Out -> Cell variable
-    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
-    !!----    logical,                   intent(out) :: ok
+    !!---- Subroutine Read_Bin_Crystal_Cell(Iunit, Cell)
     !!----
     !!----    Reads the cell characteristics in a binary file associated to the
     !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
@@ -2469,41 +2469,43 @@
     !!----
     !!----    Updated: February - 2013
     !!
-    Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
+    Subroutine Read_Bin_Crystal_Cell(Iunit, Cell)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(out) :: Celda
-       Integer,                   intent(in)  :: Lun
-       logical,                   intent(out) :: ok
+       Integer,                   intent(in)  :: Iunit
+       Type (Crystal_Cell_Type),  intent(out) :: Cell
+
+       !---- Local Variables ----!
        integer :: ier
-       ok=.true.
-       read(unit=lun,iostat=ier)             &
-                       Celda%cell,           &
-                       Celda%ang,            &
-                       Celda%cell_std,       &
-                       Celda%ang_std,        &
-                       Celda%rcell,          &
-                       Celda%rang,           &
-                       Celda%GD,Celda%GR,    &
-                       Celda%Cr_Orth_cel,    &
-                       Celda%Orth_Cr_cel,    &
-                       Celda%BL_M,           &
-                       Celda%BL_Minv,        &
-                       Celda%CellVol,        &
-                       Celda%RCellVol,       &
-                       Celda%CartType
-       if( ier /= 0) ok=.false.
+
+       call init_err_crys()
+
+       read(unit=IUnit,iostat=ier)           &
+                       Cell%cell,           &
+                       Cell%ang,            &
+                       Cell%cell_std,       &
+                       Cell%ang_std,        &
+                       Cell%rcell,          &
+                       Cell%rang,           &
+                       Cell%GD,Celda%GR,    &
+                       Cell%Cr_Orth_cel,    &
+                       Cell%Orth_Cr_cel,    &
+                       Cell%BL_M,           &
+                       Cell%BL_Minv,        &
+                       Cell%CellVol,        &
+                       Cell%RCellVol,       &
+                       Cell%CartType
+
+       if ( ier /= 0) then
+          ERR_Crys=.true.
+          ERR_Crys_Mess=" Problems reading the Cell information from Binary File!"
+       end if
+
        return
     End Subroutine Read_Bin_Crystal_Cell
 
 
     !!--++
     !!--++ Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
-    !!--++    real(kind=cp), dimension(3), intent(in ) :: a        !  In -> a,b,c
-    !!--++    real(kind=cp), dimension(3), intent(in ) :: ang      !  In -> alpha,beta,gamma
-    !!--++    real(kind=cp), dimension(3), intent(out) :: ar       !  In -> a*,b*,c*
-    !!--++    real(kind=cp), dimension(3), intent(out) :: angr     !  In -> alpha*,beta*,gamma*
-    !!--++    real(kind=cp),               intent(out) :: vol      ! Out -> Vol
-    !!--++    real(kind=cp),               intent(out) :: volr     ! Out -> Vol*
     !!--++
     !!--++    (PRIVATE)
     !!--++    Calculates the reciprocal lattice vectors and cell volume
@@ -2512,9 +2514,9 @@
     !!
     Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent(in ) :: a,ang
-       real(kind=cp), dimension(3), intent(out) :: ar,angr
-       real(kind=cp),               intent(out) :: vol,volr
+       real(kind=cp), dimension(3), intent(in ) :: a,ang    ! Cell parameters
+       real(kind=cp), dimension(3), intent(out) :: ar,angr  ! Reciprocal cell parameters
+       real(kind=cp),               intent(out) :: vol,volr ! Vol and Vol*
 
        !---- Local Variables ----!
        integer        :: i
@@ -2549,11 +2551,6 @@
 
     !!----
     !!---- Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
-    !!----    real(kind=cp), dimension (3),        intent(in ) :: cellv   !  In -> a,b,c
-    !!----    real(kind=cp), dimension (3),        intent(in ) :: angl    !  In -> angles of cell parameters
-    !!----    Type (Crystal_Cell_Type),            intent(out) :: Celda   !  Out-> Celda components
-    !!----    character (len=1),          optional,intent(in ) :: CarType !  In -> Type of Cartesian Frame
-    !!----    real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl
     !!----
     !!----    Constructs the object "Celda" of type Crystal_Cell. Control for error
     !!----    is present
@@ -2562,14 +2559,15 @@
     !!
     Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
        !---- Arguments ----!
-       real(kind=cp), dimension (3),        intent(in ) :: cellv, angl
-       Type (Crystal_Cell_Type),            intent(out) :: Celda
-       character (len=1),          optional,intent(in ) :: CarType
-       real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl
+       real(kind=cp), dimension (3),        intent(in ) :: cellv, angl  ! Cell parameters
+       Type (Crystal_Cell_Type),            intent(out) :: Celda        ! Cell Object
+       character (len=1),          optional,intent(in ) :: CarType      ! Cartesian frame
+       real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl  ! Sigma values
 
        !---- Local Variables ----!
-       integer :: ifail
+       !integer :: ifail
 
+       !> Init
        call Init_Err_Crys()
 
        if (present(scell) .and. present(sangl)) then
@@ -2586,6 +2584,7 @@
        Celda%ang=angl
        where(Celda%ang < eps) Celda%ang =90.0
        call recip(cellv,angl,Celda%rcell,Celda%rang,Celda%CellVol,Celda%RCellVol)
+
        if (present(CarType)) then
           call Get_Cryst_Orthog_matrix(cellv,angl,Celda%Cr_Orth_cel,CarType)
           Celda%CartType=CarType
@@ -2593,9 +2592,11 @@
           call Get_Cryst_Orthog_matrix(cellv,angl,Celda%Cr_Orth_cel)
           Celda%CartType="C"
        end if
-       call matrix_inverse(Celda%Cr_Orth_cel,Celda%Orth_Cr_cel,ifail)
 
-       if (ifail /= 0) then
+       !call matrix_inverse(Celda%Cr_Orth_cel,Celda%Orth_Cr_cel,ifail)
+       Celda%Orth_Cr_cel=Invert_array3x3(Celda%Cr_Orth_cel)
+
+       if (all(abs(Celda%Orth_Cr_cel)) < tiny(0.0)) then
           err_crys=.true.
           ERR_Crys_Mess=" Bad cell parameters "
           return
@@ -2619,9 +2620,11 @@
           Celda%bl_m(2,1)=0.0
           Celda%bl_m(3,1)=0.0
           Celda%bl_m(3,2)=0.0
-          call matrix_inverse(Celda%bl_m,Celda%bl_minv,ifail)
 
-          if (ifail /= 0) then
+          !call matrix_inverse(Celda%bl_m,Celda%bl_minv,ifail)
+          Celda%bl_minv=Invert_array3x3(Celda%bl_m)
+
+          if (all(abs(Celda%bl_minv)) < tiny(0.0)) then
              err_crys=.true.
              ERR_Crys_Mess=" Bad cell parameters "
              return
@@ -2632,76 +2635,7 @@
     End Subroutine Set_Crystal_Cell
 
     !!----
-    !!---- Subroutine Volume_Sigma_from_Cell(cell,ang,sigc,siga,volume,sigv)
-    !!----    real(kind=cp), dimension(3),  intent(in) :: Cell   !  In  ->  a,b,c parameters
-    !!----    real(kind=cp), dimension(3),  intent(in) :: Ang    !  In  -> alpha, beta, gamma
-    !!----    real(kind=cp), dimension(3),  intent(in) :: SigC   !  In  -> sigmas for a ,b and c
-    !!----    real(kind=cp), dimension(3),  intent(in) :: SigA   !  In  -> sigmas for angles
-    !!----    real(kind=cp),                intent(out):: Volume ! Out  -> Volume from cell parameters
-    !!----    real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
-    !!----
-    !!----    Calculates the volume and their standard deviation from unit cell
-    !!----    parameters. If the standard deviations of cell parameters are zero
-    !!----    the result is sigma=0.0, otherwise the calculation is performed.
-    !!----    It is assumed that there is no correlation (covariance terms) between
-    !!----    the standard deviations of the different cell parameters.
-    !!----
-    !!---- Updated: January - 2013 (JGP)
-    !!
-    Subroutine Volume_Sigma_from_Cell(cell,ang,sigc,siga,volume,sigv)
-       !---- Arguments ----!
-       real(kind=cp), dimension(3),  intent(in) :: Cell   !  In  ->  a,b,c parameters
-       real(kind=cp), dimension(3),  intent(in) :: Ang    !  In  -> alpha, beta, gamma
-       real(kind=cp), dimension(3),  intent(in) :: SigC   !  In  -> sigmas for a ,b and c
-       real(kind=cp), dimension(3),  intent(in) :: SigA   !  In  -> sigmas for angles
-       real(kind=cp),                intent(out):: Volume ! Out  -> Volume from cell parameters
-       real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
-
-       !---- Local Variables ----!
-       real(kind=cp) :: a,b,c,ca,cb,cg,sa,sb,sg
-       real(kind=cp) :: t, dvda, dvdb, dvdc, dvdalpha, dvdbeta, dvdgamma
-
-       !> Init
-       volume=0.0
-       sigv=0.0
-
-       a=cell(1)
-       b=cell(2)
-       c=cell(3)
-       ca=cosd(ang(1))
-       cb=cosd(ang(2))
-       cg=cosd(ang(3))
-       sa=sind(ang(1))
-       sb=sind(ang(2))
-       sg=sind(ang(3))
-
-       t=sqrt(1.0 - ca**2 - cb**2 - cg**2 + 2.0*ca*cb*cg)
-
-       volume=a*b*c*t
-
-       if(sum(abs(sigc)) < eps .and. sum(abs(siga)) < eps ) return
-
-       dvda=b*c*t
-       dvdb=a*c*t
-       dvdc=a*b*t
-
-       dvdalpha=(a*b*c)*( (sa/t)*(ca-cb*cg) )
-       dvdbeta= (a*b*c)*( (sb/t)*(cb-ca*cg) )
-       dvdgamma=(a*b*c)*( (sg/t)*(cg-ca*cb) )
-
-       sigv= (dvda*sigc(1))**2 + (dvdb*sigc(2))**2 + (dvdc*sigc(3))**2 +  &
-             (dvdalpha*siga(1)*to_rad)**2 + (dvdbeta*siga(2)*to_rad)**2 + &
-             (dvdgamma*siga(3)*to_rad)**2
-
-       sigv=sqrt(sigv)
-
-       return
-    End Subroutine Volume_Sigma_from_Cell
-
-    !!----
-    !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
-    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
-    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
+    !!---- Subroutine Write_Crystal_Cell(Iunit,Cell)
     !!----
     !!----    Writes the cell characteristics in a binary file associated to the
     !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
@@ -2709,24 +2643,36 @@
     !!----
     !!---- Update: February - 2013
     !!
-    Subroutine Write_Bin_Crystal_Cell(Celda,Lun)
+    Subroutine Write_Bin_Crystal_Cell(Iunit,Cell)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(in) :: Celda
-       Integer,                   intent(in) :: Lun
-       write(unit=lun) Celda%cell,           &
-                       Celda%ang,            &
-                       Celda%cell_std,       &
-                       Celda%ang_std,        &
-                       Celda%rcell,          &
-                       Celda%rang,           &
-                       Celda%GD,Celda%GR,    &
-                       Celda%Cr_Orth_cel,    &
-                       Celda%Orth_Cr_cel,    &
-                       Celda%BL_M,           &
-                       Celda%BL_Minv,        &
-                       Celda%CellVol,        &
-                       Celda%RCellVol,       &
-                       Celda%CartType
+       Integer,                   intent(in) :: Iunit
+       Type (Crystal_Cell_Type),  intent(in) :: Cell
+
+       !---- Local Variables ----!
+       integer :: ier
+
+       call init_err_crys()
+
+       write(unit=Iunit, iostat=ier) Cell%cell,         &
+                                   Cell%ang,            &
+                                   Cell%cell_std,       &
+                                   Cell%ang_std,        &
+                                   Cell%rcell,          &
+                                   Cell%rang,           &
+                                   Cell%GD,Celda%GR,    &
+                                   Cell%Cr_Orth_cel,    &
+                                   Cell%Orth_Cr_cel,    &
+                                   Cell%BL_M,           &
+                                   Cell%BL_Minv,        &
+                                   Cell%CellVol,        &
+                                   Cell%RCellVol,       &
+                                   Cell%CartType
+
+       if ( ier /= 0) then
+          ERR_Crys=.true.
+          ERR_Crys_Mess=" Problems writting the Cell information from Binary File!"
+       end if
+
        return
     End Subroutine Write_Bin_Crystal_Cell
 
