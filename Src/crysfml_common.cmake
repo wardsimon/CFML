@@ -71,6 +71,7 @@ set(CRYSFML_COMMON_SOURCES
     ${STRING_UTILS}
     CFML_EoS_Mod.f90
     CFML_SXTAL_Geom.f90
+    CFML_Rational_Arithmetic.f90
     CFML_Symmetry.f90
     CFML_Sym_Table.f90)
 

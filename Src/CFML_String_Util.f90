@@ -552,7 +552,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Pack_String(String) Result (Strp)
+    Pure Function Pack_String(String) Result (Strp)
        !---- Argument ----!
        character (len=*), intent(in)    :: string
        character (len=len_trim(string)) :: strp
