@@ -1,18 +1,18 @@
 !     Last change:  TR   14 Feb 2007    2:20 pm
 subroutine space_group_info
- use cryscalc_module,                ONLY : ON_SCREEN, space_group_symbol, symm_op_string,               &
-                                            keyword_SYMM, symm_op_xyz, symm_op_mat, nb_symm_op,          &
-                                            WRITE_SPG_info, Write_SPG_info_all, WRITE_SPG_EXTI,          &
-                                            write_SPG_subgroups, message_text, SPG, keyword_create_CIF,  &                        
-                                            keyword_CELL, unit_cell, input_PCR, known_cell_esd,          &
-											keyword_read_INS, keyword_ATOM_list, nb_atom, debug_proc
+ use cryscalc_module,                ONLY : ON_SCREEN, write_details, space_group_symbol, symm_op_string, &
+                                            keyword_SYMM, symm_op_xyz, symm_op_mat, nb_symm_op,           &
+                                            WRITE_SPG_info, Write_SPG_info_all, WRITE_SPG_EXTI,           &
+                                            write_SPG_subgroups, message_text, SPG, keyword_create_CIF,   &
+                                            keyword_CELL, unit_cell, input_PCR, known_cell_esd,           &
+                                            keyword_read_INS, keyword_ATOM_list, nb_atom, debug_proc
  use CIF_module,                     ONLY : CIF_cell_measurement, CIF_diffrn_reflns
- 
+
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, write_spacegroup,  Symmetry_Symbol,   &
                                             Wyckoff_Type, Wyck_Pos_Type,                          &
                                             get_T_SubGroups, space_group_type,                    &
                                             Lattice_trans, similar_transf_SG
-                                            
+
  Use CFML_Reflections_Utilities,     ONLY : search_extinctions
  USE macros_module,                  ONLY : replace_car
  USE IO_module,                      ONLY : write_info
@@ -24,8 +24,8 @@ subroutine space_group_info
  INTEGER                           :: i, i1, i2, i_error
  character (len=100), dimension(24):: texto
  CHARACTER (LEN=40)                :: input_line
- REAL                              :: esd
- CHARACTER (LEN=6)                 :: esd_string
+ logical                           :: file_exist
+
 
  ! variables for sub_groups
   real, dimension (3,3)                 :: trans
@@ -49,6 +49,7 @@ subroutine space_group_info
   return
  endif
 
+ IF(.not. write_SPG_subgroups) then
  IF(WRITE_SPG_info) then
   CLOSE(UNIT=3)
   open (unit=3, file="sg.out", status="replace")
@@ -59,13 +60,7 @@ subroutine space_group_info
   endif
   close (UNIT=3)
 
-!  call system('echo off')
-!  call system('type sg.out')
-!  close(unit=2)
-!  call system('copy cryscalc.log + sg.out')
-!  call system('echo on')
-
-  if(ON_SCREEN) then
+  if(ON_SCREEN .and. write_details) then
    OPEN(UNIT=3, FILE="sg.out")
    do
     READ(3, '(a)', IOSTAT=i_error) read_line
@@ -73,13 +68,14 @@ subroutine space_group_info
     call write_info(TRIM(read_line))
    END do
    CLOSE(UNIT=3)
-  endif 
-  
+  endif
+
   CLOSE(UNIT=2)
   open (UNIT=2, FILE='cryscalc.log', ACTION="write",position = "append")
  else
-  IF(.NOT. input_PCR .and. .not. keyword_read_INS) then    
-   call write_info('')   
+  IF(WRITE_details) then
+  IF(.NOT. input_PCR .and. .not. keyword_read_INS) then
+   call write_info('')
    WRITE(message_text, '(2a)')   '          > HM symbol : ', SPG%SPG_symb
    call write_info(TRIM(message_text))
    WRITE(message_text, '(a,i3)') '                 IT # : ', SPG%NumSpg
@@ -101,16 +97,18 @@ subroutine space_group_info
      WRITE(message_text, '(a,i3)') '               chiral : no'
     endif
     call write_info(TRIM(message_text))
-   endif	
-   
+   endif
+
    WRITE(message_text, '(a,i3)') ' general multiplicity : ', SPG%multip
    call write_info(TRIM(message_text))
-   
-   call write_info('')   
-   call write_info('    Enter SG_INFO keyword for more details about selected space group.')
+
+   call write_info('')
+   call write_info('    Enter SG_INFO [ALL] keyword for more details about selected space group.')
    call write_info('')
   endif
+  end if
  END if
+
 
  ! liste le 'reduced set' des operateurs de symetrie
  IF(WRITE_SPG_info)   call write_symm_op_reduced_set()             ! space_group.F90
@@ -128,7 +126,7 @@ subroutine space_group_info
 !  call system('echo on')
 
 
-  if(ON_SCREEN) then
+  if(ON_SCREEN  .and. write_details) then
    OPEN(UNIT=3, FILE="sg.out")
    do
     READ(3, '(a)', IOSTAT=i_error) read_line
@@ -136,10 +134,10 @@ subroutine space_group_info
     call write_info(TRIM(read_line))
    enddo
   endif
-  CLOSE(UNIT=3) 
+  CLOSE(UNIT=3)
   CLOSE(UNIT=2)
   open (UNIT=2, FILE='CRYSCALC.log', ACTION="write",position = "append")
- endif
+ endif  ! fin de la condition IF(.not. write_SPG_subgroups) then
 
 
  ! operateurs de symétrie du groupe
@@ -185,8 +183,8 @@ subroutine space_group_info
 
    ! CIF_Thmin, CIF_Thmax
     call write_CIF_file("CIF_THMIN,THMAX")
-	
-	IF(nb_atom /=0 .AND. ON_SCREEN)  call write_atom_list
+
+   IF(nb_atom /=0 .AND. ON_SCREEN)  call write_atom_list
   endif
  endif
 
@@ -194,22 +192,24 @@ subroutine space_group_info
  !call write_info('')
  !call write_info(' >> Wyckoff positions:')
  !write(message_text,*)'            .num_orbit: ', SPG%Wyckoff%num_orbit
- !call write_info(message_text))
+ !call write_info(trim(message_text))
  !call write_info(' ')
  !do i=1, SPG%Wyckoff%num_orbit
- ! write(message_text,*) '  site multiplicity: ', SPG%wyckoff%orbit(i)%multp
- ! call write_info(message_text))
- ! write(message_text,*) '  site norb        : ', SPG%wyckoff%orbit(i)%norb
- ! call write_info(message_text))
- ! do j=1,SPG%wyckoff%orbit(i)%norb,3
- ! write(message_text, *) '          ', SPG%wyckoff%orbit(i)%str_orbit(j:j+2)
- ! call write_info(message_text))
- ! END do
+  !write(message_text,*) '  site multiplicity: ', SPG%wyckoff%orbit(i)%multp
+  !call write_info(trim(message_text))
+  !write(message_text,*) '  site norb        : ', SPG%wyckoff%orbit(i)%norb
+  !call write_info(trim(message_text))
+  !do j=1,SPG%wyckoff%orbit(i)%norb,3
+  !write(message_text, *) '          ', SPG%wyckoff%orbit(i)%norb, '     ', SPG%wyckoff%orbit(i)%str_orbit(j:j+2)
+  !call write_info(trim(message_text))
+  !END do
  !end do
 
 
  ! determination des regles d'extinctions du groupe d'espace
  !if (WRITE_SPG_exti) call search_extinctions(SPG)
+
+ end if ! fin de la condition "IF(.not. write_SPG_subgroups) then"
 
  ! sub-groups
   if (write_SPG_subgroups) then
@@ -218,105 +218,119 @@ subroutine space_group_info
    trans(1,1) = 1.
    trans(2,2) = 1.
    trans(3,3) = 1.
-   ! origine 
+   ! origine
    orig(:) = 0.
-   
+
    !> Construct the subgroup of SPG that is compatible
    call similar_transf_SG(trans,orig,SpG,SpGn)
 
    !> with the transformation matrix and change of origin give above
-   call write_spacegroup(SPGn,full=.true.)
+   CLOSE(UNIT=3)
+   open (unit=3, file="sg.out", status="replace")
+   call write_spacegroup(SPGn, iunit=3, full=.true.) ! results in a file
+   close (UNIT=3)
+   ! print results on screen
+   OPEN(UNIT=3, FILE="sg.out")
+   do
+    READ(3, '(a)', IOSTAT=i_error) read_line
+    IF(i_error < 0) exit
+    call write_info(TRIM(read_line))
+   END do
+   CLOSE(UNIT=3)
+
 
    !> Determine all subgroups of the new space group
    call get_T_SubGroups(SPGn,SubGroup,nsg)
-   
-   write(message_text, "(a)") " => LIST of Translationengleische Subgroups: "
+
+   if(WRITE_details) then
+   write(message_text, "(2x,a)") " => LIST of Translationengleische Subgroups: "
    call write_info('')
    call write_info(trim(message_text))
    call write_info('')
 
+
    do i=1,nsg
     j=SPGn%Multip/SubGroup(i)%multip
     ng=SubGroup(i)%numops
-    write(message_text,fmt="(4a,i2,30a)") " => ", SubGroup(i)%Spg_Symb, SubGroup(i)%hall,&
+    write(message_text,fmt="(2x,4a,i2,30a)") " => ", SubGroup(i)%Spg_Symb, SubGroup(i)%hall,&
                                           " Index: [",j,"]   ->  { ", (trim(SubGroup(i)%SymopSymb(l))//" : ",l=1,ng-1),&
                                           trim(SubGroup(i)%SymopSymb(ng))," }    ", trim(SubGroup(i)%centre)
-                                    
+
     call write_info(trim(message_text))
 
-   end do   
+   end do
+   end if
   endif
 
- 
+
   if(WRITE_SPG_info .AND. SPG%centred ==1 .and. on_screen) then
-    call test_enantio(SPG%NumSPG, enantio)    
-	call test_chiral(SPG%NUmSPG, chiral)
-    call test_polar(SPG%NUmSPG, polar)	
-	call write_info("")   
-	if(chiral) then
-	 call write_info(" => Chiral space group:          yes")
-	else
-	 call write_info(" => Chiral space group:          no")
-	endif
-	if(polar) then
-	 call write_info(" => Polar space group:           yes")
-	else
-	 call write_info(" => Polar space group:           no")
-	endif
+    call test_enantio(SPG%NumSPG, enantio)
+    call test_chiral(SPG%NUmSPG, chiral)
+    !call test_polar(SPG%NUmSPG, polar)
+    call test_polar_2(SPG%PG, polar)
+    call write_info("")
+    if(chiral) then
+     call write_info(" => Chiral (Sohncke) space group: yes")
+    else
+     call write_info(" => Chiral (Sohncke) space group: no")
+    endif
+    if(polar) then
+     call write_info(" => Polar space group:            yes")
+    else
+     call write_info(" => Polar space group:            no")
+    endif
     if(enantio) then
-     call write_info(" => Enantiomorphic space group:  yes")
- 	 call write_info(" => Inverse structure in SHELXL: MOVE 1 1 1 -1 and invert translation parts of the s.o.")
-    else	
-	 call get_MOVE_string(Move_string)
-     call write_info(" => Enantiomorphic space group:  no")
-	 call write_info(" => Inverse structure in SHELXL: "//trim(MOVE_string))
-    endif 
-   endif 	
+     call write_info(" => Enantiomorphic space group:   yes")
+     call write_info(" => Inverse structure in SHELXL: MOVE 1 1 1 -1 and invert translation parts of the s.o.")
+    else
+     call get_MOVE_string(Move_string)
+     call write_info(" => Enantiomorphic space group:   no")
+     call write_info(" => Inverse structure in SHELXL:  "//trim(MOVE_string))
+    endif
+   endif
+
+   inquire(file = 'sg.out', exist=file_exist)
+   if(file_exist)  call system("del sg.out")
 
  return
 end subroutine space_group_info
 
-!-----------------------------------------------------------------------------------
+!!-----------------------------------------------------------------------------------!!
 subroutine get_SITE_info(input_string)
- USE cryscalc_module 
+ USE cryscalc_module
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
                                             symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
-											Get_symSymb
+                                            Get_symSymb
  USE macros_module,                  ONLY : u_case
  USE CFML_Math_General,              ONLY : acosd, set_epsg, set_epsg_default
-
- !USE CFML_constants,                 ONLY : sp 
  USE CFML_GlobalDeps,                 ONLY : sp, cp
 
  implicit none
   character (len=*), intent(in)      :: input_string
  ! local variables
-  INTEGER                            :: i, j, k
+  INTEGER                            :: i, j
   REAL (kind=cp), DIMENSION(3)       :: r
   INTEGER                            :: site_multiplicity
-  INTEGER                            :: Wyck_mult
-
-  type(wyckoff_type)   :: wyckoff
-
+  type(wyckoff_type)                 :: wyckoff
   real (kind=cp) , dimension(3,192)  :: orbit
   CHARACTER (LEN=80)                 :: text80
   CHARACTER (LEN=40)                 :: Symm_Symb
   integer, dimension(192)            :: effsym  ! Pointer to effective symops
   integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
-  !integer                            :: ss_ptr  
+  !integer                            :: ss_ptr
   integer                            :: order
   real(kind=cp),     dimension(3,48) :: atr
   integer, dimension(3,3)            :: Rsym
-  real,    dimension(3)      :: tt
-
-  
+  real,    dimension(3)              :: tt
   LOGICAL, DIMENSION(nb_atom)        :: write_site_info_label
-  
-  ! pour determiner les constraintes sur les Bij 
-  REAL , DIMENSION(6)                :: beta_ij 
+
+  ! pour determiner les constraintes sur les Bij
+  REAL , DIMENSION(6)                :: beta_ij
   integer                            :: codini
   real(kind=cp), dimension(6)        :: codes  !codewords for positions
+
+  logical, dimension(nb_atom_site_info) :: label_ok
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_INFO ("//trim(input_string)//")")
 
@@ -325,36 +339,39 @@ subroutine get_SITE_info(input_string)
   !call set_spacegroup(space_group_symbol, SPG)     ! <<<<<<<<<
 
   IF(.NOT. site_info_all_atoms) then
-    do i=1,nb_atom
-     write_site_info_label(i) = .false.
+   write_site_info_label = .false.
+   do i=1, nb_atom_site_info
+    label_ok(i) = .false.
+    do j=1, nb_atom
+     if(u_case(atom_label(j)) == u_case(site_info_label(i)) ) then
+      write_site_info_label(j) = .true.
+      label_ok(i) = .true.
+      cycle
+     end if
+    end do
+    if(.not. label_ok(i)) call write_info('        >> Wrong ' // trim(site_info_label(i)) // ' atom !!')
+   end do
 
-     do j=1, nb_atom_site_info
-      IF(u_case(atom_label(i)) == u_case(site_info_label(j)) ) then
-       write_site_info_label(i) = .true.
-       cycle
-      endif
-     END do
-
-    END do
   else
    write_site_info_label(1:nb_atom) = .true.
   endif
 
 
   do i=1, nb_atom
-   IF(.NOT. write_site_info_label(i)) cycle
+  IF(.NOT. write_site_info_label(i)) cycle
 
    text80 = ''
-   
+
    r(1:3)= atom_coord(1:3,i)  ! coord. atomiques
 
+   if(write_details) then
    call write_info(' ')
-   !WRITE(message_text,'(a,3F10.5)') '  ATOM POSITIONS: ',r(1:3)
-   WRITE(message_text,'(a,i4, a6)') '  ATOM #: ',i, trim(atom_label(i))
+   WRITE(message_text,'(5x,a,i4, a6)') 'ATOM #: ',i, trim(atom_label(i))
    call write_info(trim(message_text))
    call write_info(' ')
+   end if
 
-   
+
 
  !  call Get_Orbit(r, SPG, Wyck_mult, orbit, effsym, ss_ptr )
 
@@ -366,100 +383,120 @@ subroutine get_SITE_info(input_string)
 
    !WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', wyckoff%num_orbit
    !call write_info(trim(message_text))
-   
+
    site_multiplicity = Get_Multip_Pos(r, SPG)
    atom_mult(i) = site_multiplicity
 
-
-   WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
+   if(write_details) then
+   WRITE(message_text,'(a,I5)')               '     . site multiplicity: ', site_multiplicity
    call write_info(trim(message_text))
-   
-   WRITE(message_text,'(a,F12.8)')  '     . site occupancy   : ', real(site_multiplicity)/SPG%multip
+   WRITE(message_text,'(a,I3,a,i3,a,F12.8)')  '     . site occupancy   : ', site_multiplicity, ' / ' , &
+                                              SPG%multip, ' = ', real(site_multiplicity)/SPG%multip
    call write_info(trim(message_text))
-   
-   
    call write_info('     . list of symmetry operators and symmetry elements of the site point group:')
+   end if
 
    !do j=1, site_multiplicity
    do j=1, order
-     Rsym = SPG%SymOp(ss_ptr(j))%Rot
-     tt   = SPG%SymOp(ss_ptr(j))%tr + atr(:,j)
-     call Get_SymSymb(Rsym,tt,Symm_Symb)
-     call symmetry_symbol(Symm_Symb,text80)  
-	 write(message_text,'(7x, a,i3,a,a,a)') ' Operator ',j,': ', Symm_Symb,trim(text80)
-	 call write_info(trim(message_text))
+    Rsym = SPG%SymOp(ss_ptr(j))%Rot
+    tt   = SPG%SymOp(ss_ptr(j))%tr + atr(:,j)
+    call Get_SymSymb(Rsym,tt,Symm_Symb)
+    call symmetry_symbol(Symm_Symb,text80)
+    if(write_details) then
+     write(message_text,'(7x, a,i3,a,a,a)') ' Operator ',j,': ', Symm_Symb,trim(text80)
+     call write_info(trim(message_text))
+    end if
    end do
- 
 
 
-   ! orbit
-    call write_info(' ')
-    call write_info('     --> Complete orbit of the atom: ')
-    call write_info(' ')
+
+  ! orbit
+   if(write_details) then
+   call write_info(' ')
+   call write_info('     --> Complete orbit of the atom: ')
+   call write_info(' ')
+   end if
 
    effsym(1) = 1
    do j=1,  wyckoff%num_orbit
-    SPG%SymopSymb(effsym(1)) = 'x,y,z' 
-	if(j <10) then
-     write(message_text,"(10x,a6,a,i1,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,":   ",orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
+    nb_atom_orbit = nb_atom_orbit + 1
+    atom_orbit%coord(1:3, nb_atom_orbit) = orbit(1:3, j)
+    !atom_orbit%label(nb_atom_orbit) = atom_label(i)
+    atom_orbit%typ(nb_atom_orbit)  = atom_typ(i)
+    atom_orbit%Biso(nb_atom_orbit) = atom_Biso(i)
+    atom_orbit%occ_perc(nb_atom_orbit) = atom_occ_perc(i)
+
+
+    SPG%SymopSymb(effsym(1)) = 'x,y,z'
+    if(j <10) then
+     write(atom_orbit%label(nb_atom_orbit), '(2a,i1)') trim(atom_label(i)), '_',j
+     write(message_text,"(10x,a6,a,i1,a,3f9.5,tr4,a)") trim(atom_label(i)), '_',j,":   ",orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     elseif(j < 100) then
-     write(message_text,"(10x,a6,a,i2,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,":  ", orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
+     write(atom_orbit%label(nb_atom_orbit), '(2a,i2)') trim(atom_label(i)), '_',j
+     write(message_text,"(10x,a6,a,i2,a,3f9.5,tr4,a)") trim(atom_label(i)), '_',j,":  ", orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     else
-     write(message_text,"(10x,a6,a,i3,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,": ",  orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
+     write(atom_orbit%label(nb_atom_orbit), '(2a,i3)') trim(atom_label(i)), '_',j
+     write(message_text,"(10x,a6,a,i3,a,3f9.5,tr4,a)") trim(atom_label(i)), '_',j,": ",  orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     endif
-    call write_info(trim(message_text))  
+    if(write_details) call write_info(trim(message_text))
+
    END do
-   
+
+   if(write_details) then
    if(len_trim(input_string) /=0) then
    if(len_trim(input_string)==3 .and. input_string(1:3) == 'pcr') then
     call write_info('')
-	call write_info('!Atom Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes')
+    call write_info('!Atom Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes')
     call write_info('!    beta11   beta22   beta33   beta12   beta13   beta23  /Codes')
     do j=1,  wyckoff%num_orbit
      write(message_text, '(a6,a,i1,2a,3f9.5,3x,a)') trim(atom_label(i)),'_',j,"   ",trim(atom_typ(i)), orbit(:,j), &
-	                                                '   0.300    1.000   0   0   0'      
-	 call write_info(trim(message_text))
-	 write(message_text, '(17x,a)')   '0.000    0.000    0.000      0.000    0.000' 
-	 call write_info(trim(message_text))
-	end do
+                                                '   0.300    1.000   0   0   0'
+     call write_info(trim(message_text))
+     write(message_text, '(17x,a)')   '0.000    0.000    0.000      0.000    0.000'
+     call write_info(trim(message_text))
+    end do
    end if
-   
+
+
    if(len_trim(input_string)==7 .and. input_string(1:7) == 'pcr_mag') then
     call write_info('')
-	call write_info('!Atom Typ  Mag Vek    X      Y      Z       Biso   Occ      Rx      Ry      Rz')
+    call write_info('!Atom Typ  Mag Vek    X      Y      Z       Biso   Occ      Rx      Ry      Rz')
     call write_info('!     Ix     Iy     Iz    beta11  beta22  beta33   MagPh')
     do j=1,  wyckoff%num_orbit
      write(message_text, '(a6,a,i1,3a,3f8.5,a)') trim(atom_label(i)),'_',j,"   ?",trim(atom_typ(i)), '?   1   0  ', orbit(:,j), &
-	                                                ' 0.30000 1.00000   0.000   0.000   0.000'      
-	 call write_info(trim(message_text))
-	 write(message_text, '(29x,a)')   '0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00' 
-	 call write_info(trim(message_text))
-	 write(message_text, '(20x,a)')   '0.000   0.000   0.000   0.000   0.000   0.000 0.00000' 
-	 call write_info(trim(message_text))
-	 write(message_text, '(20x,a)')   ' 0.00    0.00    0.00    0.00    0.00    0.00    0.00' 
-	 call write_info(trim(message_text))
-	end do
-   end if
-   end if
+                                                ' 0.30000 1.00000   0.000   0.000   0.000'
+     call write_info(trim(message_text))
+     write(message_text, '(29x,a)')   '0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00'
+     call write_info(trim(message_text))
+     write(message_text, '(20x,a)')   '0.000   0.000   0.000   0.000   0.000   0.000 0.00000'
+     call write_info(trim(message_text))
+     write(message_text, '(20x,a)')   ' 0.00    0.00    0.00    0.00    0.00    0.00    0.00'
+     call write_info(trim(message_text))
+    end do
+   end if ! condition if (len_trim(input_string)==3 .and. input_string(1:3) == 'pcr')
+   end if ! condition if (len_trim(input_string) /=0)
+   end if ! condition if (write_details)
 
-   
+
    ! constrains on ADP
-  
-   beta_ij(1:6) = 0.01 
+
+   beta_ij(1:6) = 0.01
    codini = 0
    codes(:) = 1.
    call Get_Atombet_Ctr(r, beta_ij, SPG, codini, codes)
 
+   if(write_details) then
    call write_info(' ')
    call write_info('     --> Constraints on anisotropic ADP (11 22 33 12 13 23): ')
    call write_info(' ')
    write(message_text, '(8x,6(2x,F6.2))') codes(1:6)
-   call write_info(trim(message_text))  
+   call write_info(trim(message_text))
+   end if
 
 
 
   end do
-  
+
   call set_epsg_default()
  return
 
@@ -467,40 +504,33 @@ end subroutine get_site_info
 
 !-----------------------------------------------------------------------------------
 subroutine get_SITE_mult()
- USE cryscalc_module 
+ USE cryscalc_module
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
                                             symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
-											Get_symSymb
+                                            Get_symSymb
  USE macros_module,                  ONLY : u_case
  USE CFML_Math_General,              ONLY : set_epsg, set_epsg_default
 
  USE CFML_GlobalDeps,                 ONLY : sp, cp
 
  implicit none
-  
+
  ! local variables
-  INTEGER                            :: i, j, k
+  INTEGER                            :: i
   REAL (kind=cp), DIMENSION(3)       :: r
   INTEGER                            :: site_multiplicity
-  INTEGER                            :: Wyck_mult
 
   type(wyckoff_type)   :: wyckoff
 
   real (kind=cp) , dimension(3,192)  :: orbit
-  CHARACTER (LEN=80)                 :: text80
-  CHARACTER (LEN=40)                 :: Symm_Symb
   integer, dimension(192)            :: effsym  ! Pointer to effective symops
   integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
-  !integer                            :: ss_ptr  
+  !integer                            :: ss_ptr
   integer                            :: order
   real(kind=cp),     dimension(3,48) :: atr
-  integer, dimension(3,3)            :: Rsym
-  real,    dimension(3)      :: tt
 
-  
-  LOGICAL, DIMENSION(nb_atom)        :: write_site_info_label
-   
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_MULTIPLICITY")
 
   call set_epsg(0.0011_cp)  !In mathematical comparisons -> CFML_Math_General
@@ -515,20 +545,20 @@ subroutine get_SITE_mult()
    call write_info(trim(message_text))
    call write_info(' ')
 
- 
+
    call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
    call Get_stabilizer(r, SPG, order, ss_ptr, atr)
    site_multiplicity = Get_Multip_Pos(r, SPG)
    atom_mult(i) = site_multiplicity
-   
-   
+
+
 
    WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
    call write_info(trim(message_text))
 
   end do
-  
- 
+
+
   call set_epsg_default()
  return
 
@@ -536,50 +566,44 @@ end subroutine get_site_mult
 
 !-----------------------------------------------------------------------------------
 subroutine get_SITE_multiplicity(r, site_multiplicity)
- USE cryscalc_module 
+ USE cryscalc_module
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
                                             symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
-											Get_symSymb
+                                            Get_symSymb
  USE macros_module,                  ONLY : u_case
  USE CFML_Math_General,              ONLY : set_epsg, set_epsg_default
 
  USE CFML_GlobalDeps,                 ONLY : sp, cp
 
  implicit none
-  
- ! local variables  
+
+ ! local variables
   REAL (kind=cp), DIMENSION(3), intent(in)       :: r
   INTEGER,                      intent(out)      :: site_multiplicity
-  INTEGER                            :: j, k
-  
-  INTEGER                            :: Wyck_mult
   type(wyckoff_type)                 :: wyckoff
 
   real (kind=cp) , dimension(3,192)  :: orbit
-  CHARACTER (LEN=80)                 :: text80
-  CHARACTER (LEN=40)                 :: Symm_Symb
   integer, dimension(192)            :: effsym  ! Pointer to effective symops
   integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
   integer                            :: order
   real(kind=cp),     dimension(3,48) :: atr
-  integer, dimension(3,3)            :: Rsym
-  
 
-  
-   
+
+
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_MULTIPLICITY")
 
-  
+
   call set_epsg(0.0011_cp)  !In mathematical comparisons -> CFML_Math_General
 
    call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
    call Get_stabilizer(r, SPG, order, ss_ptr, atr)
    site_multiplicity = Get_Multip_Pos(r, SPG)
-      
+
   call set_epsg_default()
-  
-  
+
+
  return
 
 end subroutine get_site_multiplicity
@@ -590,16 +614,15 @@ end subroutine get_site_multiplicity
 subroutine write_symm_op_reduced_set()
  USE IO_module,                      ONLY : write_info
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, searchop, write_sym
- USE cryscalc_module,                ONLY : ON_SCREEN, SPG, message_text, debug_proc
+ USE cryscalc_module,                ONLY : ON_SCREEN, write_details, SPG, message_text, debug_proc
  USE CFML_symmetry_tables,           ONLY : intsymoh,x_oh, intsymd6h,x_d6h
 
  implicit none
-  CHARACTER(LEN=3)                :: string_numor
   INTEGER                         :: i, j, i1, i2
   INTEGER, DIMENSION(192)         :: indx_op
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "WRITE_SYMM_OP_REDUCED_SET")
-  
+
   !open (unit=3, file="sg.out", status="replace")
   !do i=1, SPG%multip
   ! WRITE(*,*)
@@ -615,7 +638,7 @@ subroutine write_symm_op_reduced_set()
  !  call write_sym(3, indx_op(i), SPG%Symop(i)%rot(1:3,1:3), SPG%Symop(i)%tr(1:3), 0., .false.)
  ! END do
 
-  if(ON_SCREEN) then
+  if(ON_SCREEN .and. write_details) then
    call write_info('')
    call write_info('  -> Reduced set of symmetry operators:')
    call write_info('')
@@ -629,11 +652,11 @@ subroutine write_symm_op_reduced_set()
     call searchop(SPG%Symop(i)%rot(1:3,1:3), i1, i2, indx_op(i))
     j = ABS(indx_op(i))
     if (j<0) j=j+24
-    if(ON_SCREEN) then
+    if(ON_SCREEN .and. write_details) then
      WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymoh(j),' --> ',x_oh(j),   &
-	                                                       ' + {', SPG%Symop(i)%tr(1:3),'}'
+                                                            ' + {', SPG%Symop(i)%tr(1:3),'}'
      call write_info(TRIM(message_text))
-    endif 
+    endif
    end do
 
   else
@@ -645,9 +668,9 @@ subroutine write_symm_op_reduced_set()
     IF(j < 0) j=j+12
     if(ON_SCREEN) then
      WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymd6h(j),' --> ',x_d6h(j),  &
-	                                                       ' + {',SPG%Symop(i)%tr(1:3),'}'
+                                                            ' + {',SPG%Symop(i)%tr(1:3),'}'
      call write_info(TRIM(message_text))
-    endif 
+    endif
    end do
   endif
   if(ON_SCREEN) call write_info('')
@@ -713,13 +736,13 @@ end subroutine write_symm_op_reduced_set
     !!----   Updated: 14 July 2011
     !!----
 
-    !Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes,ord,ss,att,Ipr)	
-	Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes)	
-	  USE CFML_globaldeps,                only : cp
-	  USE CFML_crystallographic_symmetry, only : Space_group_type, Get_stabilizer, Sym_b_relations
-	  
-	  
-	  implicit none
+    !Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes,ord,ss,att,Ipr)
+Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes)
+   USE CFML_globaldeps,                only : cp
+   USE CFML_crystallographic_symmetry, only : Space_group_type, Get_stabilizer, Sym_b_relations
+
+
+   implicit none
        real(kind=cp), dimension(3),             intent(in    ) :: x
        real(kind=cp), dimension(6),             intent(in out) :: betas
        type(Space_Group_type),                  intent(in    ) :: Spgr
@@ -732,13 +755,12 @@ end subroutine write_symm_op_reduced_set
        ! Local variables
        character (len=1), dimension(6)   :: cdd
        real(kind=cp),     dimension(6)   :: multip
-       integer                           :: i,j,order
+       integer                           :: j,order
        real(kind=cp)                     :: suma
        integer,           dimension(48)  :: ss_ptr
        integer,           dimension(6)   :: codd
        integer,           dimension(3,3) :: Rsym
        real(kind=cp),     dimension(3,3) :: bet,bett,Rs
-       real(kind=cp),     dimension(3)   :: tr
        real(kind=cp),     dimension(6)   :: cod,multi
        real(kind=cp),     dimension(3,48):: atr
        real(kind=cp),     parameter      :: epss=0.01_cp

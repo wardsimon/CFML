@@ -15,11 +15,14 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   INTEGER                                :: PGF_style
   character (len=64)                     :: titre
   REAL                                   :: Xmin, Xmax, Ymin, Ymax
+  LOGICAL                                :: FCF_plot, FCF_plot_stl
 
   !if(debug_proc%level_2)  call write_debug_proc_level(2, "create_PGF_file")
   
  ! creation d'un fichier format PGF (pour WinPLOTR): F2 = f(sinTheta/wave)
 
+ FCF_plot     = .false.
+ FCF_plot_stl = .false.
  long = len_trim(X_legend)
  
  ! entete
@@ -52,6 +55,26 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    titre =  'F2_=_f(Theta)'
    PGF_style = 0
   END IF
+ ELSEIF(long ==3) then
+  if(X_legend(1:3) == 'fcf') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2c = f(F2o)'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : F2_obs'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2_calc'
+   titre =  'F2_c = f(F2_o)'
+   PGF_style = 0
+   FCF_plot  = .true.
+  end if
+ ELSEIF(long ==7) then
+  if(X_legend(1:7) == 'fcf_stl') then
+   WRITE(11,'(a)')      '# MAIN LEGEND TEXT: F2c - F2o = f(sinTheta/lambda)'
+   WRITE(11,'(a)')      '# X LEGEND TEXT   : sinTheta/lambda'
+   WRITE(11,'(a)')      '# Y LEGEND TEXT   : F2_calc - F2_obs'
+   titre =  'F2_c - F2_o = f(SinTheta/lambda)'
+   PGF_style = 0
+   FCF_plot_stl  = .true.
+  end if
+  
+ 
  ELSEIF(long ==4) then
   if(X_legend(1:4) == 'bcoh') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron coherent scattering length'
@@ -245,8 +268,13 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
  Ymin = minval(Y(1:npts))
  Ymax = maxval(Y(1:npts))
 
+ 
  !write(11, '(a,4(x,F4.2),a)') '#   XMIN XMAX     : ', 0., Xmax, 0., Xmax, ' 1 1'
+ if(.not. FCF_plot) then
  write(11, '(a,2(1x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10
+ else
+ write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Xmin, Xmax
+ endif
  write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
 
  WRITE(11,'(a,i6)')     '# NUMBER OF PATTERNS: 1'
@@ -259,9 +287,15 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
  write(11,'(a,I1)')     '#             STYLE : ', PGF_style
  write(11,'(a)')        '#   DATA: X Y COMM'
 
- do i=1, npts
-  write(11,'(F10.6,1x,F15.5,5x,a)') X(i), Y(i), string(i)
- END do
+ if(.not. FCF_plot) then
+  do i=1, npts
+   write(11,'(F10.6,1x,F15.5,5x,a)') X(i), Y(i), string(i)
+  END do
+ else
+  do i=1, npts
+   write(11,'(F15.5,1x,F15.5,5x,a)') X(i), Y(i), string(i)
+  END do
+ end if
  WRITE(11,'(a)') '# END OF FILE'
 
 

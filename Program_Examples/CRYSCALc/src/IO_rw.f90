@@ -52,7 +52,7 @@ module IO_module
 
   !---- Creation de la fenetre cryscalc_window si necessaire ----!
   if (.not. wscroll) then
-     cryscalc_window = create_window(window_name="CRYSCALC (TR/CDIFX/2014)",x=0.1,y=0.01,    &
+     cryscalc_window = create_window(window_name="CRYSCALC (TR/CDIFX/2016)",x=0.1,y=0.01,    &
                                     width= 0.8, height=0.45,                               &
                                     paint_code=SCROLL_TEXT,                                &
                                     text_font=select_font(typeface='courier',point=8))

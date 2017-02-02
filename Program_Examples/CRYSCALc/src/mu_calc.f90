@@ -11,7 +11,7 @@ subroutine absorption_calculation
   INTEGER             :: k
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "absorption_calculation")
-  
+
  if(ON_SCREEN) then
  call write_info( '                                                    ')
  call write_info( '         Absorption coefficient calculation  (mu)   ')
@@ -51,7 +51,7 @@ subroutine absorption_calculation
 
    IF(.not. anti_cathode) then
     write(message_text, '(8x, a,F10.5,a)') '!! Xrays cross section are not tabulated for the current wavelength (', &
-	                                       wavelength,  ' A)'
+                                           wavelength,  ' A)'
     call write_info(trim(message_text))
     write(message_text, '(8x,a)')          '   Molybdenum wavelength values will be used !!'
     call write_info(trim(message_text))
@@ -114,7 +114,7 @@ subroutine calcul_X_mu(input_string)
   CHARACTER (LEN=*), INTENT(IN)   :: input_string
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_X_mu ("//trim(input_string)//")")
-  
+
   if(ON_SCREEN) then
    IF(input_string(1:2) == 'Ag') then
     WRITE(message_text, '(a,F10.5,a)')  '      ----  Wavelength Ka_Ag = ', X_target(1)%wave(1), ' A '
@@ -145,41 +145,41 @@ subroutine calcul_X_mu(input_string)
 
  RETURN
 end subroutine calcul_X_mu
+
 !-------------------------------------------------------------------
 subroutine write_mu(input_string)
  USE cryscalc_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,                &
                              keyword_TRANSMISSION, nb_dim_transmission, dim_transmission, keyword_create_CIF, &
-                             keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_D8_Venture_Cu,  &
-                             keyword_WRITE_REF_D8_VENTURE_Mo, absorption, SADABS_ratio,                       &
-					 		 SADABS_Tmin, SADABS_Tmax, keyword_create_archive, debug_proc
+                             keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_D8V_Cu,         &
+                             keyword_WRITE_REF_D8V_Mo, ABSORPTION, SADABS, keyword_create_archive, debug_proc
  USE IO_module,       ONLY : write_info
  USE math_module,     ONLY : transmission
 
  implicit none
   CHARACTER (LEN=*), INTENT(IN)   :: input_string
-  REAL                            :: d_min, d_max, T_min, T_max, T
+  REAL                            :: d_min, d_max, T
   INTEGER                         :: i
   REAL, parameter                 :: EPS=0.001
-  
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_mu ("//trim(input_string)//")")
- 
+
  if(ON_SCREEN  .and. .not. keyword_create_archive) then
   call write_info(' ')
-  WRITE(message_text,'(a,F10.5,a)') '   > mu:   ',absorption%mu,     ' cm-1'
+  WRITE(message_text,'(a,F10.5,a)') '   > mu:   ',ABSORPTION%mu,     ' cm-1'
    call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F10.5,a)') '           ',0.1*absorption%mu, ' mm-1'
+  WRITE(message_text,'(a,F10.5,a)') '           ',0.1*ABSORPTION%mu, ' mm-1'
    call write_info(TRIM(message_text))
  endif
 
  IF(keyword_create_CIF)  call write_CIF_file('ABSORPTION')
 
  if (keyword_SIZE) then
-  if(ON_SCREEN  .and. .not. keyword_create_archive .and. crystal%radius < eps) then
+  if(ON_SCREEN  .and. .not. keyword_create_archive .and. crystal%radius > eps) then
    call write_info(' ')
    WRITE(message_text,'(a,F10.5,a)')  '   > <R>   : ', crystal%radius, ' mm'
    call write_info(TRIM(message_text))
-   
-   WRITE(message_text,'(a,F10.5)')    '   > mu*<R>: ',0.1*absorption%mu*  crystal%radius
+
+   WRITE(message_text,'(a,F10.5)')    '   > mu*<R>: ',0.1*ABSORPTION%mu*  crystal%radius
    call write_info(TRIM(message_text))
    call write_info(' ')
   endif
@@ -187,41 +187,41 @@ subroutine write_mu(input_string)
   d_min = MINVAL(crystal%size)
   d_max = MAXVAL(crystal%size)
 
-  absorption%Tmin = transmission(0.1*absorption%mu, d_max)
-  absorption%Tmax = transmission(0.1*absorption%mu, d_min)
+  ABSORPTION%Tmin = transmission(0.1*ABSORPTION%mu, d_max)
+  ABSORPTION%Tmax = transmission(0.1*ABSORPTION%mu, d_min)
 
   if(ON_SCREEN .and. .not. keyword_create_archive) then
    call write_info('')
-   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Min of transmission (for x =  ',d_max, ' mm) = ', absorption%Tmin
+   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Min of transmission (for x =  ',d_max, ' mm) = ', ABSORPTION%Tmin
    call write_info(TRIM(message_text))
-   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Max of transmission (for x =  ',d_min, ' mm) = ', absorption%Tmax
+   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Max of transmission (for x =  ',d_min, ' mm) = ', ABSORPTION%Tmax
    call write_info(TRIM(message_text))
   end if
 
   IF(keyword_create_CIF .or. keyword_create_archive) then
-   IF(keyword_WRITE_REF_APEX)          call write_CIF_file('SADABS')
-   IF(keyword_WRITE_REF_X2S)           call write_CIF_file('SADABS')
-   IF(keyword_WRITE_REF_D8_VENTURE_Cu) call write_CIF_file('SADABS')
-   IF(keyword_WRITE_REF_D8_VENTURE_Mo) call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_APEX)   call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_X2S)    call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_D8V_Cu) call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_D8V_Mo) call write_CIF_file('SADABS')
    call Get_SADABS_ratio()
 
    if(keyword_create_archive ) then
-    if(sadabs_ratio >0.) absorption%Tmin = absorption%Tmax *sadabs_ratio	
+    if(SADABS%ratio >0.) ABSORPTION%Tmin = ABSORPTION%Tmax * SADABS%ratio
    else
     call write_CIF_file('TMIN')
     call write_CIF_file('TMAX')
-   end if	
+   end if
    if(ON_SCREEN .and. .not. keyword_create_archive) then
     call write_info("")
     call write_info("   Tmax and Tmin values correspond to EXPECTED values calculated from crystal size." )
-    if(SADABS_ratio > 0.) then
+    if(SADABS%ratio > 0.) then
      call write_info("   If SADABS program has been used for absorption correction, it provided one ")
      call write_info("   'relative-correction-factor'. In such a case, Tmax should be given as")
      call write_info("   Tmax_expected and Tmin = Tmax * 'relative-correction-factor'")
-     write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
+     write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', SADABS%ratio, ' = ', ABSORPTION%Tmax * SADABS%ratio
      call write_info(trim(message_text))
-    elseif(SADABS_Tmin > 0. .and. SADABS_Tmax > 0.) then
-     write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
+    elseif(SADABS%Tmin > 0. .and. SADABS%Tmax > 0.) then
+     write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', SADABS%ratio, ' = ', ABSORPTION%Tmax * SADABS%ratio
      call write_info(trim(message_text))
     endif
     call write_info("")
@@ -236,7 +236,7 @@ subroutine write_mu(input_string)
    call write_info('')
    call write_info('      dimension (mm)             transmission coefficient')
    do i=1, nb_dim_transmission
-    T = transmission(0.1*absorption%mu, dim_transmission(i))
+    T = transmission(0.1*ABSORPTION%mu, dim_transmission(i))
     WRITE(message_text, '(10x,F7.4,20x,F10.4)') dim_transmission(i), T
    call write_info(TRIM(message_text))
    end do
@@ -262,8 +262,8 @@ subroutine write_mu(input_string)
 
  RETURN
 end subroutine write_mu
-!-------------------------------------------------------------------
 
+!-------------------------------------------------------------------
 subroutine neutron_cross_section()
  USE atome_module
  USE cryscalc_module, ONLY         : ON_SCREEN, nb_atoms_type, wavelength, atom_typ, SFAC, num_atom, &
@@ -277,7 +277,7 @@ subroutine neutron_cross_section()
   REAL                             :: neutron_velocity
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "neutron_cross_section")
-  
+
   neutron_velocity = 3952. / wavelength
   if(ON_SCREEN) then
    WRITE(message_text,'(1x,a,F7.2)')        '    neutron velocity (m/s): ', neutron_velocity
@@ -296,7 +296,7 @@ subroutine neutron_cross_section()
    if(ON_SCREEN) then
     WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC%type(i), num_atom(i), sfac%number(i),                 &
                                                      atom(num_atom(i))%N_SED_coh,  atom(num_atom(i))%N_SED_inc, &
-													 atom(num_atom(i))%SEA,                                     &
+                                                     atom(num_atom(i))%SEA,                                     &
                                                      atom(num_atom(i))%N_SE_absorption
     call write_info(TRIM(message_text))
    endif
@@ -330,16 +330,14 @@ subroutine neutron_absorption()
 end subroutine    neutron_absorption
 
 !-------------------------------------------------
-
 subroutine X_attenuation_calculation()
  USE atome_module,    ONLY : atom
- USE cryscalc_module,  ONLY : ON_SCREEN, absorption, nb_atoms_type, SFAC, num_atom, nb_at, message_text
+ USE cryscalc_module,  ONLY : ON_SCREEN, ABSORPTION, nb_atoms_type, SFAC, num_atom, nb_at, message_text
  USE wavelength_module
  USE IO_module,       ONLY : write_info
 
  implicit none
-  INTEGER                    :: i, k
-
+  INTEGER                    :: i
 
  IF(X_target(1)%logic) THEN   ! Ag
    do i=1, nb_atoms_type
@@ -377,7 +375,7 @@ subroutine X_attenuation_calculation()
   call write_info(' ')
  endif
 
- absorption%mu = 0.
+ ABSORPTION%mu = 0.
  do i=1, nb_atoms_type
   if(ON_SCREEN) then
    !WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC%type(i), num_atom(i), SFAC%number(i), atom(num_atom(i))%X_attenuation
@@ -385,7 +383,7 @@ subroutine X_attenuation_calculation()
                                                      atom(num_atom(i))%X_attenuation
    call write_info(trim(message_text))
   endif
-  absorption%mu = absorption%mu +  nb_at(i)*atom(num_atom(i))%X_attenuation*1.E-24
+  ABSORPTION%mu = ABSORPTION%mu +  nb_at(i)*atom(num_atom(i))%X_attenuation*1.E-24
  end do
 
 
@@ -396,7 +394,7 @@ end subroutine X_attenuation_calculation
 !--------------------------------------------------------------
 subroutine F000_calculation(beam)
  USE cryscalc_module
- USE atomic_data 
+ USE atomic_data
  USE IO_module, ONLY : write_info
 
  implicit none
@@ -408,7 +406,7 @@ subroutine F000_calculation(beam)
    ! F000: nombre total d'electrons dans la maille
    do i=1, nb_atoms_type
     !F000 = F000 + SFAC%number(i)*num_atom(i)
-	F000 = F000 + SFAC%number(i)*atom(Num_atom(i))%Z
+    F000 = F000 + SFAC%number(i)*atom(Num_atom(i))%Z
    end do
   else
    ! F000: somme des
@@ -429,18 +427,16 @@ subroutine F000_calculation(beam)
 end subroutine F000_calculation
 
 !--------------------------------------------------------------
-
-
 subroutine Absorption_routine
  use cryscalc_module, only : keyword_CELL, keyword_WAVE, keyword_CONT, keyword_CHEM, message_text, debug_proc
  USE IO_module ,     ONLY : write_info
 
  implicit none
- 
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "absorption_routine")
- 
+
  if(.not. keyword_CELL) then
-  write(unit=message_text, fmt='(2a)') ' Cell parameters are mandatory for a absorption coefficient calculation.', & 
+  write(unit=message_text, fmt='(2a)') ' Cell parameters are mandatory for a absorption coefficient calculation.', &
                                        ' Please enter CELL keyword to input cell parameters.'
   call write_info(trim(message_text))
   call write_info('')
@@ -454,7 +450,7 @@ subroutine Absorption_routine
   call write_info('')
   return
  endif
- 
+
 ! if(.not. keyword_CONT .and. .not. keyword_CHEM) then
 !  write(unit=message_text, fmt='(2a)') ' Cell content is mandatory for a absorption coefficient calculation.', &
 !                                       ' Please enter CONT keyword to input cell content.'
@@ -462,10 +458,10 @@ subroutine Absorption_routine
 !  call write_info('')
 !  return
 ! endif
- 
+
  call atomic_identification()
  call atomic_density_calculation()
  call absorption_calculation
- 
+
  return
 end subroutine Absorption_routine

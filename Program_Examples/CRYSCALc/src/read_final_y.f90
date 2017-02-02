@@ -8,8 +8,8 @@ subroutine get_cell_parameters_from_FINAL_Y_file(file_unit, cell_param)
  implicit none
   INTEGER, INTENT(IN)                  :: file_unit
   REAL,    INTENT(OUT),   dimension(6) :: cell_param
-  character (len=256)                  :: line, new_line
-  integer                              :: ier, i1, i2
+  character (len=256)                  :: line
+  integer                              :: ier
   CHARACTER (LEN=32)                   :: required_string
   integer                              :: long_string
 
@@ -54,17 +54,16 @@ end subroutine get_cell_parameters_from_FINAL_Y_file
 !----------------------------------------------------------------------
 subroutine get_modulation_vect(file_unit, qvec_type, nv)
  use IO_module
- 
- 
+
+
  implicit none
   INTEGER, INTENT(IN)                  :: file_unit
   LOGICAL, INTENT(OUT)                 :: QVEC_type
   integer, intent(inout)               :: nv
   real, dimension(3,8)                 :: QVEC
-  
-  character (len=256)                  :: line, new_line
+  character (len=256)                  :: line
   character (len=256)                  :: message
-  integer                              :: ier, i, i1, i2
+  integer                              :: ier, i
   CHARACTER (LEN=32)                   :: required_string
   integer                              :: long_string
 
@@ -86,30 +85,30 @@ subroutine get_modulation_vect(file_unit, qvec_type, nv)
     line = line(long_string+1:)
     line = ADJUSTL(line)
 
-	nv = nv + 1 
+    nv = nv + 1
     call get_real_value_from_FINAL_Y('DH="', QVEC(nv, 1), line)
     call get_real_value_from_FINAL_Y('DK="', QVEC(nv, 2), line)
     call get_real_value_from_FINAL_Y('DL="', QVEC(nv, 3), line)
     QVEC_type = .true.
     !exit
-	cycle
+    cycle
    endif
-   
-    
+
+
    required_string = "</CELL>"
    long_string = len_trim(required_string)
    IF(TRIM(line(1:long_string)) == required_string(1:long_string)) exit
-   
+
   end do
 
   call write_info('')
   do i=1, nv
-   write(message, '(a,i1,a,3F8.4)') ' . Modulation vector #', i, '   : ', QVEC(i,1), QVEC(i,2), QVEC(i,3)   
-   call write_info(trim(message))   
+   write(message, '(a,i1,a,3F8.4)') ' . Modulation vector #', i, '   : ', QVEC(i,1), QVEC(i,2), QVEC(i,3)
+   call write_info(trim(message))
   end do
   call write_info('')
-  
-  
+
+
 
  RETURN
 
@@ -138,6 +137,7 @@ subroutine get_real_value_from_FINAL_Y(required_string, real_value, line)
 
   return
 end subroutine get_real_value_from_FINAL_Y
+
 !----------------------------------------------------------------------
 subroutine get_integer_value_from_FINAL_Y(required_string, integer_value, line)
  CHARACTER (LEN=*), INTENT(IN)    :: required_string
@@ -168,8 +168,8 @@ subroutine read_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_F2, H_sig, H_
  REAL,    INTENT(OUT) :: H_F2, H_sig
  LOGICAL, INTENT(OUT) :: H_ok
  !local variables
-  character (len=256)                  :: line, new_line
-  integer                              :: ier, i1, i2
+  character (len=256)                  :: line
+  integer                              :: ier
   CHARACTER (LEN=32)                   :: required_string
   integer                              :: long_string
 
@@ -208,8 +208,8 @@ subroutine read_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_F2, H_sig, H_
 END do
 
 end subroutine read_reflexion_from_FINAL_Y
-!----------------------------------------------------------------------
 
+!----------------------------------------------------------------------
 subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, H_sig, nvk, H_ok)
  INTEGER, INTENT(IN)  :: file_unit
  INTEGER, INTENT(OUT) :: H_h, H_k, H_l, H_m
@@ -217,8 +217,8 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
  INTEGER, INTENT(IN)  :: nvk
  LOGICAL, INTENT(OUT) :: H_ok
  !local variables
-  character (len=256)                  :: line, new_line
-  integer                              :: ier, i, i1, i2, ivk
+  character (len=256)                  :: line
+  integer                              :: ier, i, ivk
   CHARACTER (LEN=32)                   :: required_string, M_string
   integer                              :: long_string
 
@@ -227,11 +227,11 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
    IF(ier <0) then
     H_ok = .false.
     return
-   endif 
+   endif
    required_string = '<REFLECTION'
    long_string = LEN_TRIM(required_string)
-   IF(TRIM(line(1:long_string)) == required_string(1:long_string)) exit  
-  end do 
+   IF(TRIM(line(1:long_string)) == required_string(1:long_string)) exit
+  end do
 
   do
    read(file_unit, '(a)', iostat=ier) line
@@ -239,7 +239,7 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
     H_ok = .false.
     return
    endif
-  
+
    required_string = '<INDEX'
    long_string = LEN_TRIM(required_string)
    IF(TRIM(line(1:long_string)) == required_string(1:long_string)) then
@@ -249,14 +249,13 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
     call get_integer_value_from_FINAL_Y('H="',  H_h, line)
     call get_integer_value_from_FINAL_Y('K="',  H_k, line)
     call get_integer_value_from_FINAL_Y('L="',  H_l, line)
-	H_m = 0
-	do i=1, nvk
-	 write(M_string, '(a,i1,a)') 'M',i,'="'
-     call get_integer_value_from_FINAL_Y(trim(M_string), ivk, line)	 
+    H_m = 0
+    do i=1, nvk
+     write(M_string, '(a,i1,a)') 'M',i,'="'
+     call get_integer_value_from_FINAL_Y(trim(M_string), ivk, line)	
      !call get_integer_value_from_FINAL_Y('M1="', ivk, line)
-	 if(ivk /=0) H_m = i*ivk
-	 	 
-	end do
+     if(ivk /=0) H_m = i*ivk
+    end do
 
    endif
 
@@ -275,7 +274,7 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
    endif
   END do
 
-
+ return
 end subroutine read_mod_reflexion_from_FINAL_Y
 !----------------------------------------------------------------------
 
@@ -287,9 +286,7 @@ subroutine get_wavelength_from_FINAL_Y_file(file_unit, wave)
   INTEGER, INTENT(IN)                  :: file_unit
   REAL,    INTENT(OUT)                 :: wave
   character (len=256)                  :: line
-  CHARACTER (LEN=256)                  :: champ_text
-  REAL                                 :: champ_value
-  integer                              :: i, ier
+  integer                              :: ier
 
 
   do

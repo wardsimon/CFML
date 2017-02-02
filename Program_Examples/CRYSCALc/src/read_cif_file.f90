@@ -1,5 +1,4 @@
 !     Last change:  TR   11 Oct 2007    6:53 pm
-!     Last change:  TR   11 Oct 2007    6:53 pm
 
  ! lecture fichier .CIF
  !  source: EDPCR (JGP)
@@ -26,19 +25,19 @@ subroutine read_CIF_input_file(input_file, input_string)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)            :: input_file
   CHARACTER (len=*), INTENT(IN)            :: input_string
-  INTEGER                                  :: i, long_input_string
+  INTEGER                                  :: i, ier, long_input_string
 
   ! local variable for .CIF file
-  integer                                    :: nb_lines, npos
+  integer                                     :: nb_lines, npos
   character(len=256),dimension(:),allocatable :: file_cif
-  character(len=40),dimension(48)            :: car_symop
+  character(len=60),dimension(48)             :: car_symop
 
-  integer                                    :: n_elem_atm    ! N. of different species
+  integer                                     :: n_elem_atm    ! N. of different species
   !real            ,  dimension(15)           :: n_elem        ! Number of elementos into the same species
-  character(len=2),  dimension(15)           :: elem_atm      ! Character to identify the specie
-  character(len=40)                          :: symb_spgr
-  logical                                    :: input_out
-  logical                                    :: tmp_on_screen
+  character(len=2),  dimension(15)            :: elem_atm      ! Character to identify the specie
+  character(len=40)                           :: symb_spgr
+  logical                                     :: input_out
+  logical                                     :: tmp_on_screen, input_string_cell
 
  ! sept 2014 -------------------------------------------------
   REAL (kind=cp), DIMENSION(3)               :: r
@@ -53,31 +52,38 @@ subroutine read_CIF_input_file(input_file, input_string)
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_CIF_INPUT_FILE ("//trim(input_string)//")")
 
-  IF (INI_create_PRF .and. .not. ON_SCREEN_PRF) then
+  IF (INI_create%PRF .and. .not. ON_SCREEN_PRF) then
    tmp_on_screen = on_screen
    on_screen = .false.
   else
    tmp_on_screen = .true.
   end if
 
-
   long_input_string = len_trim(input_string)
-  input_out = .true.
+  input_out           = .true.
+  input_string_cell   = .false.
   if(long_input_string == 6) then
    if(input_string(1:6) == 'NO_OUT') input_out = .false.
+  elseif(long_input_string == 4) then
+   if(input_string(1:4) == 'CELL')   input_string_CELL = .true.
   endif
 
+
+
   close(unit=CIF_read_unit)  ! indispensable pour G95
-   
+
   call number_lines(trim(input_file),nb_lines)
   if (nb_lines ==0) then
-   call write_info(' > No lines could be read. Program will be stopped')
+   call write_info(' > No lines can be read. Program will be stopped')
    stop
   end if
-  
- 
+
   if (allocated(file_cif)) deallocate(file_cif)
-  allocate(file_cif(nb_lines))
+
+  allocate(file_cif(nb_lines), stat=ier)
+  if(ier/=0) call write_alloc_error("file_cif")
+
+
   file_cif=' '
 
  !---- Cargando Fichero en variable ----!
@@ -86,7 +92,7 @@ subroutine read_CIF_input_file(input_file, input_string)
   !---- TITL ----!
   npos=1
   call Read_Cif_Title(file_cif, npos, nb_lines, main_title)
-  if(input_out .and. ON_SCREEN) then
+  if(input_out .and. ON_SCREEN .and. write_details) then
    call write_info(' ' )
    call write_info('  . TITL: '//trim(main_title))
   endif
@@ -102,7 +108,7 @@ subroutine read_CIF_input_file(input_file, input_string)
   IF(unit_cell%volume < 0.1) call volume_calculation('no_out')  ! << oct. 2011
 
   keyword_CELL  = .true.
-  if(ON_SCREEN) then
+  if(ON_SCREEN .and. write_details) then
    call write_info(' ')
    write(message_text,'(a,6F10.4)') '  . CELL: ', (unit_cell%param(i), i=1,6)
    call write_info(TRIM(message_text))
@@ -110,6 +116,8 @@ subroutine read_CIF_input_file(input_file, input_string)
    call write_info(TRIM(message_text))
   endif
 
+  IF(input_string_CELL) return
+  if(FCF_plot_stl)      return
 
 
   !---- OBTAIN SPACE GROUP ----!
@@ -118,42 +126,63 @@ subroutine read_CIF_input_file(input_file, input_string)
   call read_cif_hm(file_cif ,npos, nb_lines, symb_spgr)
 
   if(index(symb_spgr, '::R') /=0) symb_spgr = replace_car(symb_spgr, '::R', ':R')
+  if(index(symb_spgr, ':H')  /=0) symb_spgr = symb_spgr(1:index(symb_spgr, ':H')-2)
+  !if(index(symb_spgr, ' H')  /=0) symb_spgr = symb_spgr(1:index(symb_spgr, ' H')-1)
+  if(index(symb_spgr, ':')   /=0) symb_spgr = symb_spgr(1:index(symb_spgr, ':') -1)
+
   if(symb_spgr(2:2) /= ' ') symb_spgr = symb_spgr(1:1) // ' ' // symb_spgr(2:)
 
   if (len_trim(symb_spgr) > 0) then
    call Set_SpaceGroup(symb_spgr, SPG)
-   if(ON_SCREEN) then
+   if(ON_SCREEN .and. write_details) then
     call write_info(' ')
-    call write_info('     >> SPACE GROUP extracted from _symmetry_space_group_name_H-M CIF field')
+    write(message_text, '(a)') '     >> SPACE GROUP extracted from "_symmetry_space_group_name_H-M" '
+    call write_info(trim(message_text))
+    write(message_text, '(a)') '                               or  "_space_group_name_H-M_alt" CIF field'
+    call write_info(trim(message_text))
    endif
 
   else
+   if(ON_SCREEN .and. write_details .and. npos /=1) then
+    call write_info(' ')
+    call write_info('     >> Space group can not be extracted from "_symmetry_space_group_name_H-M CIF" field.')
+    call write_info('     >> Probable causes: . "_symmetry_space_group_name_H-M CIF" field is missing.')
+    call write_info('                         . quotes are missing for the space group symbol.')
+    call write_info(' ')
+   end if
    npos=1
    call read_cif_hall(file_cif ,npos, nb_lines, symb_spgr)
+
    if (len_trim(symb_spgr) > 0) then
     call Set_SpaceGroup(symb_spgr, SPG)
-    if(ON_SCREEN) then
+    if(ON_SCREEN .and. write_details) then
      call write_info(' ')
-     call write_info('     >> SPACE GROUP extracted from _symmetry_space_group_name_Hall CIF field')
+     call write_info('     >> SPACE GROUP extracted from "_symmetry_space_group_name_Hall" CIF field')
     endif
 
    else
     npos=1
     call read_cif_symm(file_cif, npos ,nb_lines, nb_symm_op, car_symop)
+    if(ON_SCREEN .and. write_details .and. nb_symm_op == 0) then
+     call write_info('')
+     call write_info('     >> No symmetry operator: Space group can not be deduced !!')
+     call write_info('')
+     return
+    end if
     symb_spgr=' '
     call set_spacegroup("  ", SPG, car_symop, nb_symm_op,'GEN')
 
     !call get_hallsymb_from_gener(SPG)
-
-    if(SPG%NumSpg == 0 .and. on_screen) then
-     call write_info('')
-     call write_info('     >> Space group can not be deduced from symmetry operators list !!')
-    !else
-    ! call write_info('')
-    ! call write_info('     >> Space group deduced from symmetry operators list !!')
+    if(on_screen .and. write_details) then
+     if(SPG%NumSpg == 0) then
+      call write_info('')
+      call write_info('     >> Space group can not be deduced from symmetry operators list !!')
+     else
+      call write_info('')
+      call write_info('     >> Space group deduced from symmetry operators list !!')
+     end if
     end if
    end if
-
   end if
 
   space_group_symbol = SPG%Spg_Symb
@@ -162,14 +191,14 @@ subroutine read_CIF_input_file(input_file, input_string)
   IF(SPG%NumSPG /=0) then
    keyword_SPGR   = .true.
    WRITE_SPG_info = .true.
-   if(ON_SCREEN) then
+   if(ON_SCREEN .and. write_details) then
     call write_info(' ')
     call write_info('  . SPACE GROUP: '//TRIM(space_group_symbol))
    endif
   else
    keyword_SPGR   = .false.
    WRITE_SPG_info = .false.
-   if(ON_SCREEN) then
+   if(ON_SCREEN .and. write_details) then
     call write_info(' ')
     call write_info('     >> Unknown space group !!')
    endif
@@ -184,7 +213,7 @@ subroutine read_CIF_input_file(input_file, input_string)
   call Read_Cif_Atom(file_cif, npos, nb_lines, nb_atom, Atm_list)
 
   IF(nb_atom /=0) then
-   if(ON_SCREEN) then
+   if(ON_SCREEN .and. write_details) then
     call write_info(' ')
     call write_info('  . ATOM LIST: ')
     call write_info(' ')
@@ -224,7 +253,7 @@ subroutine read_CIF_input_file(input_file, input_string)
 
     atom_Biso(i)      = atom_adp_equiv(i)
 
-     if(ON_SCREEN) then
+     if(ON_SCREEN .and. write_details) then
       !write(message_text,'(2x,2(1x,a),4F10.5,I4)')  atom_label(i)(1:6), atom_typ (i)(1:6) , &
   !                                              atom_coord(1:3,i), atom_occ_perc(i), atom_mult(i)
       !call write_info(TRIM(message_text))
@@ -240,11 +269,11 @@ subroutine read_CIF_input_file(input_file, input_string)
 
    end do
   else
-   if(on_screen) then
+   if(on_screen .and. write_details) then
     call write_info('')
     call write_info('  > No atoms founded in the CIF file !')
     call write_info('')
-   end if	
+   end if
   endif
 
   call Deallocate_atom_list(Atm_list)
@@ -257,7 +286,7 @@ subroutine read_CIF_input_file(input_file, input_string)
 
    !call set_epsg_default()
 
-   IF (INI_create_PRF .and. .not. ON_SCREEN_PRF) on_screen = tmp_on_screen
+   IF (INI_create%PRF .and. .not. ON_SCREEN_PRF) on_screen = tmp_on_screen
 
 return
 end subroutine read_CIF_input_file
@@ -266,15 +295,15 @@ end subroutine read_CIF_input_file
 subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
  USE cryscalc_module, ONLY : keyword_WAVE, wavelength, keyword_SIZE, Z_unit, keyword_ZUNIT,    &
                              crystal, unit_cell, nb_atoms_type, molecule,                      &
-                             SADABS_absorption_coeff, SFAC, sto,Z_unit,                        &
-                             keyword_create_ARCHIVE, on_screen, debug_proc
+                             SADABS, SFAC, sto, Z_unit,                                        &
+                             keyword_create_ARCHIVE, on_screen, on_screen_CIF_item, debug_proc
  USE CIF_module
  USE macros_module,   ONLY : nombre_de_colonnes, remove_car
  USE IO_module,       ONLY : write_info
  implicit none
   INTEGER, INTENT(IN)            :: input_unit
   CHARACTER (LEN=*), INTENT(IN)  :: input_CIF_file
-  CHARACTER (LEN=256)            :: string_value
+  CHARACTER (LEN=256)            :: string_value, read_line
   CHARACTER (LEN=256)            :: CIF_string
   INTEGER                        :: nb_arg, i1, i2, long
   LOGICAL                        :: ok
@@ -294,15 +323,18 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
    READ(string_value, *) wavelength
    read(string_value, *) CIF_cell_measurement%wavelength
    call incident_beam
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   endif
 
 
   ! crystal description
+  rewind(unit=input_unit)
   CIF_string = '_exptl_crystal_description'
   call get_champ_value(input_unit,  trim(CIF_string), string_value, ok)
+
   if(ok .and. crystal%morph(1:1) == '?') then
    crystal%morph = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! crystal colour
@@ -310,26 +342,25 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. crystal%color(1:1) == '?') then
    crystal%color = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! SIZE
   CIF_string = '_exptl_crystal_size_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
-
   IF(ok) then
    IF(string_value(1:1) /= '?')  then
     READ(string_value, *)  crystal%size(1)
     READ(string_value, *)  crystal%size_max
-    ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+    if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
    endif
    CIF_string = '_exptl_crystal_size_mid'
    call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
    IF(ok) then
-    IF(string_value(1:1)/= '?') then
+    IF(string_value(1:1) /= '?') then
      READ(string_value, *) crystal%size(2)
      READ(string_value, *) crystal%size_mid
-     ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+     if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
     endif
     CIF_string = '_exptl_crystal_size_min'
     call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
@@ -337,12 +368,12 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
      IF(string_value(1:1) /= '?') then
       READ(string_value, *) crystal%size(3)
       READ(string_value, *) crystal%size_min
-      ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+      if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
      endif
      keyword_SIZE = .true.
     endif
    endif
-   call crystal_volume_calculation('no_out')
+   if(keyword_size) call crystal_volume_calculation('no_out')
   endif
 
   IF(crystal%size(1) < 0.000001 .AND.  crystal%size(2) < 0.000001  .AND. crystal%size(3) < 0.000001) keyword_size = .false.
@@ -355,7 +386,7 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
    keyword_ZUNIT = .true.
    READ(string_value, *) Z_unit
    READ(string_value, '(a)') CIF_parameter%cell_formula_units_Z
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   endif
   molecule%Z_unit = int(Z_unit)
 
@@ -371,9 +402,9 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
    call nombre_de_colonnes(string_value, nb_arg)
    call decode_CHEM_string(string_value, nb_arg)
    molecule%formula = string_value
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   endif
- 
+
   !call Get_CIF_value(input_unit, string_value, molecule%formula)
 
    ! chemical formula weight
@@ -381,17 +412,26 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%formula_weight(1:1) == '?') then
    read(string_value, '(a)') CIF_parameter%formula_weight
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   endif
 
 
+  !! july 2015
+  ! ! space group
+  ! CIF_string = '_symmetry_space_group_name_H-M'
+  ! call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  ! IF(ok) then
+  !  READ(string_value, *) CIF_parameter%symmetry_space_group
+  !  if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  ! end if
+  !! -------------------------------------------------------------------
 
     ! wave:
   CIF_string = '_cell_measurement_wavelength'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok) then
    READ(string_value, *) CIF_cell_measurement%wavelength
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
 
@@ -401,49 +441,49 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_length_a(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_length_a
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string =  '_cell_length_b'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_length_b(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_length_b
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_cell_length_c'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_length_c(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_length_c
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   endif
 
   CIF_string = '_cell_angle_alpha'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_angle_alpha(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_angle_alpha
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_cell_angle_beta'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_angle_beta(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_angle_beta
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_cell_angle_gamma'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   IF(ok .and. CIF_parameter%CELL_angle_gamma(1:1) == '?') then
    READ(string_value, '(a)') CIF_parameter%CELL_angle_gamma
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_cell_volume'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%CELL_volume(1:1) == '?') then
    read(string_value, '(a)') CIF_parameter%Cell_volume
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   if(CIF_parameter%Cell_volume(1:1) /='?') then
    i1 = INDEX(string_value, '(')
@@ -458,7 +498,7 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%CELL_volume(1:1) == '?') then
    read(string_value, '(a)') CIF_parameter%Cell_volume
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   if(.not. keyword_create_archive) return
@@ -468,19 +508,19 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string),   string_value, ok)
   if(ok .and. crystal%density_meas(1:1) =='?') then
    crystal%density_meas = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_exptl_crystal_density_diffrn'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. crystal%density_diffrn(1:1) =='?') then
    crystal%density_diffrn = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_exptl_crystal_density_method'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. crystal%density_method(1:1) =='?') then
    crystal%density_method = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! F000
@@ -488,7 +528,7 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. crystal%F000(1:1) == '?' ) then
    crystal%F000 = trim(string_value)
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! THmin, THmax
@@ -496,33 +536,33 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if (ok  .and. CIF_cell_measurement%reflns_used < 0.) then
    READ(string_value, *) CIF_cell_measurement%reflns_used
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_cell_measurement_theta_min'
   call get_champ_value(input_unit, trim(CIF_string),    string_value, ok)
   if (ok  .and. CIF_cell_measurement%theta_min < 0.) then
    READ(string_value, *) CIF_cell_measurement%theta_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_cell_measurement_theta_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if (ok .and. CIF_cell_measurement%theta_max < 0.) then
    READ(string_value, *) CIF_cell_measurement%theta_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_theta_min'
   call get_champ_value(input_unit, trim(CIF_string),    string_value, ok)
   if (ok .and. CIF_diffrn_reflns%theta_min < 0.) then
    READ(string_value, *) CIF_diffrn_reflns%theta_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_diffrn_reflns_theta_max'
   call get_champ_value(input_unit, trim(CIF_string),    string_value, ok)
   if (ok .and. CIF_diffrn_reflns%theta_max < 0.) then
    READ(string_value, *) CIF_diffrn_reflns%theta_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
 
@@ -532,17 +572,17 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   !if (ok) READ(string_value, *) CIF_cell_measurement%temperature
   if (ok .and. CIF_cell_measurement%temperature(1:1) == '?') then
    READ(string_value, '(a)') CIF_cell_measurement%temperature
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! absorption
   CIF_string = '_exptl_absorpt_coefficient_mu'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
 
-  if(ok .and. SADABS_absorption_coeff(1:1) == '?') then
-   read(string_value,'(a)') SADABS_absorption_coeff
+  if(ok .and. SADABS%absorption_coeff(1:1) == '?') then
+   read(string_value,'(a)') SADABS%absorption_coeff
    read(string_value,'(a)') CIF_parameter%absorption_coefficient_mu
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if(ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   !
@@ -550,143 +590,157 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%diffrn_reflns_av_R_equivalents == '?') then
    read(string_value,'(a)') CIF_parameter%diffrn_reflns_av_R_equivalents
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string =  '_diffrn_reflns_av_sigmai/neti'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%diffrn_reflns_av_R_sigma == '?')  then
    read(string_value,'(a)') CIF_parameter%diffrn_reflns_av_R_sigma
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_av_uneti/neti'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%diffrn_reflns_av_R_sigma == '?') then
    read(string_value,'(a)') CIF_parameter%diffrn_reflns_av_R_sigma
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_number'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%diffrn_reflns_number == '?') then
    read(string_value, '(a)') CIF_parameter%diffrn_reflns_number
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_limit_h_min'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%h_min == '?') then
    read(string_value, *) CIF_parameter%h_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string =  '_diffrn_reflns_limit_h_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%h_max == '?') then
    read(string_value, *) CIF_parameter%h_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_limit_k_min'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%k_min == '?') then
    read(string_value, *) CIF_parameter%k_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_limit_k_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%k_max == '?') then
    read(string_value, *) CIF_parameter%k_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_limit_l_min'
   call get_champ_value(input_unit, trim(CIF_string) , string_value, ok)
   if(ok .and. CIF_parameter%l_min == '?') then
    read(string_value, *) CIF_parameter%l_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_limit_l_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%l_max == '?') then
    read(string_value, *) CIF_parameter%l_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_theta_min'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%theta_min == '?') then
    read(string_value, *) CIF_parameter%theta_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_theta_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%theta_max == '?') then
    read(string_value, *) CIF_parameter%theta_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_reflns_theta_full'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%theta_full == '?') then
    read(string_value, *) CIF_parameter%theta_full
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_measured_fraction_theta_full'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
-  if(ok .and. CIF_parameter%diffrn_theta_full == '?') then
-   read(string_value, '(a)') CIF_parameter%diffrn_theta_full
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+  !if(ok .and. CIF_parameter_DEVICE%diffrn_theta_full == '?') then
+  if(ok) then
+   read(string_value, '(a)') CIF_parameter_DEVICE%diffrn_theta_full
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_diffrn_measured_fraction_theta_max'
-  call get_champ_value(input_unit, trim(CIf_string), string_value, ok)
-  if(ok .and. CIF_parameter%diffrn_theta_max == '?') then
-   read(string_value, '(a)') CIF_parameter%diffrn_theta_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  !if(ok .and. CIF_parameter_DEVICE%diffrn_theta_max == '?') then
+  if(ok)  then
+   read(string_value, '(a)') CIF_parameter_DEVICE%diffrn_theta_max
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_reflns_number_total'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%reflns_number_total == '?') then
    read(string_value, '(a)') CIF_parameter%reflns_number_total
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_reflns_number_gt'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%reflns_number_gt == '?') then
    read(string_value, '(a)') CIF_parameter%reflns_number_gt
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
+
   CIF_string = '_refine_ls_weighting_details'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_weighting_details == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_weighting_details
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
+
+  CIF_string = '_computing_structure_refinement'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. string_value(1:1) /= '?') then
+   read(string_value, '(a)') CIF_parameter_DEVICE%computing_structure_refinement
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+
+
   CIF_string = '_atom_sites_solution_primary'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%atom_sites_solution_1 == '?') then
    read(string_value, '(a)') CIF_parameter%atom_sites_solution_1
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
+
   CIF_string = '_atom_sites_solution_secondary'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%atom_sites_solution_2 == '?') then
    read(string_value, '(a)') CIF_parameter%atom_sites_solution_2
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
+
   CIF_string = '_atom_sites_solution_hydrogens'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%atom_sites_solution_H == '?') then
    read(string_value, '(a)') CIF_parameter%atom_sites_solution_H
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   ! H treatment
@@ -697,111 +751,167 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_extinction_method == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_extinction_method
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_extinction_coef'
   call get_champ_value(input_unit, trim(CIF_string) , string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_extinction_coef == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_extinction_coef
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_refine_ls_number_reflns'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_number_reflns == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_number_reflns
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_number_parameters'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_number_parameters == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_number_parameters
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_number_restraints'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_number_restraints == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_number_restraints
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_R_factor_all'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_R_factor_all == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_R_factor_all
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_R_factor_gt'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_R_factor_gt == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_R_factor_gt
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_wR_factor_ref'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_wR_factor_ref == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_wR_factor_ref
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_wR_factor_gt'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_wR_factor_gt == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_wR_factor_gt
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
   CIF_string = '_refine_ls_goodness_of_fit_ref'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_goodness_of_fit_ref == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_goodness_of_fit_ref
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_restrained_S_all'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_restrained_S_all == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_restrained_S_all
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_shift/su_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_shift_su_max == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_shift_su_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_ls_shift/su_mean'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_ls_shift_su_mean == '?') then
    read(string_value, '(a)') CIF_parameter%refine_ls_shift_su_mean
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
+
+  CIF_string = '_refine_ls_abs_structure_flack'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%abs_structure_Flack == '?') then
+   read(string_value, '(a)') CIF_parameter%abs_structure_Flack
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+  CIF_string = '_refine_ls_abs_structure_details'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%abs_structure_details(1) == '?') then
+   n_details = 1
+   if(string_value(1:1) == ';') then
+    CIF_parameter%abs_structure_details(n_details) = ";"
+    do
+    read(unit = input_unit , fmt='(a)')  read_line
+    read_line = adjustl(read_line)
+    n_details = n_details + 1
+    read(read_line, '(a)') CIF_parameter%abs_structure_details(n_details)
+    if(read_line(1:1) == ';') exit
+   end do
+   else
+    read(string_value, '(a)') CIF_parameter%abs_structure_details(n_details)
+   endif
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+
 
   CIF_string = '_refine_diff_density_max'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_diff_density_max == '?') then
    read(string_value, '(a)') CIF_parameter%refine_diff_density_max
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_diff_density_min'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_diff_density_min == '?') then
    read(string_value, '(a)') CIF_parameter%refine_diff_density_min
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
   CIF_string = '_refine_diff_density_rms'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. CIF_parameter%refine_diff_density_rms == '?') then
    read(string_value, '(a)') CIF_parameter%refine_diff_density_rms
-   ! if(keyword_create_archive) call write_info('  > '//CIF_string(1:32)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
 
+  CIF_string = '_shelx_res_checksum'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%shelx_res_checksum == '?') then
+   read(string_value, '(a)') CIF_parameter%shelx_res_checksum
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
 
+  CIF_string = '_shelx_hkl_checksum'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%shelx_hkl_checksum == '?') then
+   read(string_value, '(a)') CIF_parameter%shelx_hkl_checksum
+   !if(ON_screen_CIF_item) call write_info('  > '//CIF_string(1:48)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
 
-
+  CIF_string = '_shelx_fab_checksum'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%shelx_fab_checksum == '?') then
+   read(string_value, '(a)') CIF_parameter%shelx_fab_checksum
+   !if(ON_screen_CIF_item) call write_info('  > '//CIF_string(1:48)//'extracted from '//trim(input_CIF_file))
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
 
   return
 end subroutine read_CIF_input_file_TR
 
-!------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
+ subroutine Write_extracted_cif_parameter(input_string_1, input_CIF_file, input_string_2)
+  USE IO_module
+  implicit none
+  character (len=*), intent(in) :: input_string_1, input_CIF_file, input_string_2
+
+  call write_info('  > '//input_string_1//'extracted from '//trim(input_CIF_file)//' ['//trim(input_string_2)//']')
+
+  return
+ end subroutine Write_extracted_cif_parameter
+
+!-------------------------------------------------------------------------------
 subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_esd)
  USE IO_module
  USE cryscalc_module, only : debug_proc
@@ -837,7 +947,7 @@ subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_e
     read(line(16:),'(a)') cell_a_string
     call get_cell_param(cell_a_string, cell_param(1), cell_param_esd(1), 'a')
     logical_cell(1) = .true.
-	CIF_parameter%cell_length_a = adjustl(cell_a_string)
+    CIF_parameter%cell_length_a = adjustl(cell_a_string)
 
 
    elseif(trim(line(1:14))=='_cell_length_b') then
@@ -890,8 +1000,8 @@ end subroutine get_cell_parameters_from_cif_file
 !----------------------------------------------------------------------
 subroutine get_CIF_parameters_from_import_CIF(file_unit)
  use CRYSCALC_module, only : debug_proc, crystal, molecule, keyword_SIZE, keyword_CHEM, &
-                             SFAC, nb_atoms_type, sto,Z_unit
- USE CIF_module,      only : CIF_parameter, CIF_CELL_measurement
+                             SFAC, nb_atoms_type, sto,Z_unit, ON_screen, WRITE_details
+ USE CIF_module,      only : CIF_parameter, CIF_parameter_DEVICE, CIF_CELL_measurement
  USE IO_module,       only : write_info
  USE macros_module,   only : nombre_de_colonnes
 
@@ -902,6 +1012,9 @@ subroutine get_CIF_parameters_from_import_CIF(file_unit)
   character (len=256)                  :: cif_string
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_CIF_PARAMETERS_FROM_CIF_FILE")
+
+
+  ON_screen = WRITE_details
 
   REWIND(UNIT=file_unit)
   do
@@ -920,15 +1033,18 @@ subroutine get_CIF_parameters_from_import_CIF(file_unit)
     read(line(22:),'(a)') molecule%formula
     molecule%formula = adjustl(molecule%formula)
     long = len_trim(molecule%formula)
-    if(molecule%formula(1:1) == "'" .and. molecule%formula(long:long) == "'") molecule%formula = molecule%formula(2:long-1)
-	if(molecule%formula(1:1) /= '?' .and. len_trim(molecule%formula)/=0) then
+    !if(molecule%formula(1:1) == "'" .and. molecule%formula(long:long) == "'") molecule%formula = molecule%formula(2:long-1)
+    if(molecule%formula(1:1) == "'") molecule%formula = molecule%formula(2:)
+    long = len_trim(molecule%formula)
+    if(molecule%formula(long:long) == "'") molecule%formula = molecule%formula(:long-1)
+    if(molecule%formula(1:1) /= '?' .and. len_trim(molecule%formula)/=0) then
      call nombre_de_colonnes(molecule%formula, nb_col)
      call decode_CHEM_string(molecule%formula, nb_col)
      call atomic_identification()
      call molecular_weight
      SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit
     end if
-	
+
 
    elseif(trim(line(1:29))=='_cell_measurement_temperature') then
     read(line(30:),'(a)') CIF_cell_measurement%temperature
@@ -936,17 +1052,16 @@ subroutine get_CIF_parameters_from_import_CIF(file_unit)
 
    elseif(trim(line(1:29))=='_cell_measurement_reflns_used') then
     !read(line(30:), *) CIF_cell_measurement%reflns_used
-	read(line(30:), '(a)') CIF_string
-	CIF_string = adjustl(CIF_string)
-	if(CIF_string(1:1) /= '?') then
-	 read(CIF_string, *,iostat=ier) CIF_cell_measurement%reflns_used
+    read(line(30:), '(a)') CIF_string
+    CIF_string = adjustl(CIF_string)
+    if(CIF_string(1:1) /= '?') then
+     read(CIF_string, *,iostat=ier) CIF_cell_measurement%reflns_used
       if(ier /=0) then
       call write_info(" Error reading '_cell_measurement_reflns_used' string value !")
       stop
      end if
     end if
-	
-	
+
 
    elseif(trim(line(1:27))=='_cell_measurement_theta_min') then
     read(line(28:), '(a)') CIF_string
@@ -971,14 +1086,14 @@ subroutine get_CIF_parameters_from_import_CIF(file_unit)
      end if
 
    elseif(trim(line(1:23))=='_diffrn_radiation_probe') then
-    read(line(24:), '(a)') CIF_parameter%diffrn_radiation_probe
-    CIF_parameter%diffrn_radiation_probe = adjustl(CIF_parameter%diffrn_radiation_probe)
+    read(line(24:), '(a)') CIF_parameter_DEVICE%diffrn_radiation_probe
+    CIF_parameter_DEVICE%diffrn_radiation_probe = adjustl(CIF_parameter_DEVICE%diffrn_radiation_probe)
    elseif(trim(line(1:31))=='_diffrn_radiation_monochromator') then
-    read(line(32:), '(a)') CIF_parameter%diffrn_radiation_monochromator
-    CIF_parameter%diffrn_radiation_monochromator = adjustl(CIF_parameter%diffrn_radiation_monochromator)
+    read(line(32:), '(a)') CIF_parameter_DEVICE%diffrn_radiation_monochromator
+    CIF_parameter_DEVICE%diffrn_radiation_monochromator = adjustl(CIF_parameter_DEVICE%diffrn_radiation_monochromator)
    elseif(trim(line(1:24))=='_diffrn_radiation_source') then
-    read(line(25:), '(a)') CIF_parameter%diffrn_radiation_source
-    CIF_parameter%diffrn_radiation_source = adjustl(CIF_parameter%diffrn_radiation_source)
+    read(line(25:), '(a)') CIF_parameter_DEVICE%diffrn_radiation_source
+    CIF_parameter_DEVICE%diffrn_radiation_source = adjustl(CIF_parameter_DEVICE%diffrn_radiation_source)
 
    elseif(trim(line(1:26))=='_exptl_crystal_description') then
     read(line(27:), '(a)') crystal%morph
@@ -1148,12 +1263,12 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
    read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
-    call write_info(' ... No wavelength in the import.cif file !!')
+    call write_info('  ... No wavelength in the import.cif file !!')
     call write_info('')
     return
    ELSEIF(ier >0) then
     call write_info(' ')
-    call write_info(' ... Problem reading wavelength value in import.cif file !!')
+    call write_info('  ... Problem reading wavelength value in import.cif file !!')
     call write_info('')
     return
    endif
@@ -1173,7 +1288,7 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
    ! exit
    !endif
 
-   if(trim(line(1:28))=='_diffrn_radiation_wavelength') then
+   if(trim(line(1:28))=='_diffrn_radiation_wavelength' .or. trim(line(1:28)) == '_cell_measurement_wavelength') then
     READ(line, *, IOSTAT=ier ) champ_text, champ_value
     !if(ier/=0) then
     ! call write_info('')
@@ -1226,7 +1341,6 @@ subroutine get_crystal_system_from_CIF_file(file_unit, crystal_system)
   character (len=256)                  :: line
   CHARACTER (LEN=256)                  :: champ_text, champ_value
   integer                              :: ier
-  LOGICAL                              :: logical_wave
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_CRYSTAL_SYSTEM_FROM_CIF_FILE")
 
@@ -1287,7 +1401,7 @@ end subroutine get_crystal_system_from_CIF_file
 
 subroutine get_H_M_from_CIF_file(file_unit, H_M)
  USE macros_module,   ONLY : l_case
- USE cryscalc_module, ONLY : debug_proc
+ USE cryscalc_module, ONLY : write_details, debug_proc
  USE IO_module
  implicit none
   INTEGER,           INTENT(IN)        :: file_unit
@@ -1295,22 +1409,26 @@ subroutine get_H_M_from_CIF_file(file_unit, H_M)
   character (len=256)                  :: line
   CHARACTER (LEN=256)                  :: champ_text, champ_value
   integer                              :: ier
-  LOGICAL                              :: logical_wave
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_H_M_FROM_CIF_FILE")
 
   rewind(file_unit)
+  H_M = '?'     ! new 19.06.2015
   do
    read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
-    call write_info('')
-    call write_info(' ... No Hermann Mauguin space group in the import.cif file !!')
-    call write_info('')
+    if(write_details) then
+     call write_info('')
+     call write_info(' ... No Hermann Mauguin space group in the import.cif file !!')
+     call write_info('')
+    end if
     return
    ELSEIF(ier >0) then
-    call write_info('')
-    call write_info(' ... Problem reading crystal system in import.cif file !!')
-    call write_info('')
+    if(write_details) then
+     call write_info('')
+     call write_info(' ... Problem reading crystal system in import.cif file !!')
+     call write_info('')
+    end if
     return
    endif
 
@@ -1349,24 +1467,31 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
  CHARACTER (LEN=256)              :: READ_line
  integer                          :: ier, long_string, long_line
 
+
  if(debug_proc%level_3)  call write_debug_proc_level(3, "GET_CHAMP_VALUE ("//trim(string_text)//")")
 
 
 
  REWIND(UNIT=CIF_unit)
 
+
  ok = .false.
  do
   READ(CIF_unit, '(a)', IOSTAT=ier) read_line
   if(ier/=0) return
+  if(ier <0) return
+
+  !if(index(read_line, '_shelx_res_file') /=0) return      ! evite de lire les fichiers .RES et .HKL (gain de temps)
+  !if(index(read_line, '_shelx_hkl_file') /=0) return      ! evite de lire les fichiers .RES et .HKL (gain de temps)
 
   read_line   = ADJUSTL(read_line)
   long_line   = len_trim(read_line)
-  read_line   = l_case(read_line)
+  !read_line   = l_case(read_line)
   if(long_line == 0) cycle
   long_string = LEN_TRIM(string_text)
 
-  IF(READ_line(1:long_string) == TRIM(l_case(string_text))) then
+
+  IF(l_case(READ_line(1:long_string)) == TRIM(l_case(string_text))) then
    if(long_line == long_string) then  ! la valeur du champ n'est pas sur la même ligne
     read(CIF_unit, '(a)', iostat=ier) read_line
     if(ier/=0) return
@@ -1385,7 +1510,8 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
 
  return
 end subroutine get_champ_value
-!--------------------------------------------------------------------------
+
+!!-------------------------------------------------------------------!!
 
 subroutine read_lines_before_hkl(file_unit, cos_exist)
  use cryscalc_module, only : debug_proc
@@ -1505,8 +1631,8 @@ end subroutine read_SQUEEZE_file
 
 ! ----------------------------------------------------------------------------------
  subroutine read_and_modif_ARCHIVE(input_unit)
-  use cryscalc_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit, &
-                              SADABS_ratio, CIFdep, ACTA, CIF_format80, include_RES_file,           &
+  use cryscalc_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit,    &
+                              SADABS, CIFdep, ACTA, CIF_format80, include_RES_file, SPG,               &
                               include_HKL_file, tmp_unit, cryscalc, archive_cif, molecule, debug_proc
   use CIF_module
   use macros_module,   only : u_case, test_file_exist, Get_Wingx_job, Get_current_folder_name, Get_sample_ID_from_folder_name
@@ -1514,7 +1640,7 @@ end subroutine read_SQUEEZE_file
   implicit none
    integer, intent(in)               :: input_unit
    character (len=256)               :: read_line
-   integer                           :: i_error, i, i1, i2, long 
+   integer                           :: i_error, i, j, i1, i2, long
    integer                           :: n_line
    logical                           :: file_exist
    logical                           :: diffracto
@@ -1524,14 +1650,13 @@ end subroutine read_SQUEEZE_file
 
    character (len=256)               :: CIF_string, tmp_string
    character (len=16), dimension(16) :: CIF_str
-   character (len=16), dimension(8)  :: CIF_str_fmt
    character (len=64)                :: fmt_, fmt_final
    character (len=256)               :: job, sample_ID, diffraction_date
    character (len=256)               :: wingx_structure_dir, current_folder
    character (len=256)               :: wingx_res_file, wingx_hkl_file
    character (len=256)               :: CIF_sep_line
-   logical                           :: linear
    logical                           :: contain_H
+   logical                           :: sym_op_included
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_AND_MODIF_ARCHIVE")
 
@@ -1580,7 +1705,23 @@ end subroutine read_SQUEEZE_file
   ! determination du nombre de champ dans la boucle _atom_site_aniso
   call Get_CIF_champ_nb(input_unit, '_atom_site_aniso_label', CIF_atom_site_aniso_item_nb, CIF_atom_site_aniso_loop_numor)
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! pour compatibilite de la routine avec le fichier archive.cif cree par WinGX
+  ! a partir d'un fichier.CIF cree par SHELXL-2014 (les operateurs de symetrie ne sont
+  ! pas inclus dans l'archive.cif)
 
+  rewind(unit = input_unit)
+  ! recherche de "_space_group_symop_operation_xyz
+  sym_op_included = .false.
+  do
+   read(input_unit, '(a)', iostat=i_error) read_line
+   if(i_error < 0) exit ! fin du fichier
+   if(index(read_line, "_space_group_symop_operation_xyz") /=0 .or. &
+      index(read_line, "_symmetry_equiv_pos_as_xyz") /=0) then
+    sym_op_included = .true.
+    exit
+   end if
+  end do
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1601,10 +1742,10 @@ end subroutine read_SQUEEZE_file
     exit
    end if
   end do
-  
+
   ! molecular sum
   rewind(unit = input_unit)
-  do 
+  do
    read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    long = len_trim('_chemical_formula_sum')
@@ -1679,7 +1820,7 @@ end subroutine read_SQUEEZE_file
     exit
    endif
   end do
-  
+
 
   ! squeeze  ?
   squeeze_results = .false.
@@ -1720,6 +1861,7 @@ end subroutine read_SQUEEZE_file
   do
    read(input_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit
+
    if(.not. author_data) then
     if(index(read_line, '#  CIF files read  :' ) /=0) then
      call write_CIF(CIF_archive_unit, trim(read_line))
@@ -1793,13 +1935,25 @@ end subroutine read_SQUEEZE_file
 
    if(index(read_line, '_chemical_formula_moiety') /=0) then
     write(CIF_archive_unit, '(4a)') '_chemical_formula_moiety                ', "'",trim(CIF_parameter%formula_sum), "'"
-	cycle
+    cycle
    end if
    if(index(read_line, '_chemical_formula_sum') /=0) then
     write(CIF_archive_unit, '(4a)') '_chemical_formula_sum                   ', "'",trim(CIF_parameter%formula_sum), "'"
-	cycle
+    cycle
    end if
-   
+
+   ! ------------- oct. 2015. ------------------------------------------------
+   if(index(read_line, '_cell_length_a') /=0 .and. .not. sym_op_included) then
+    write(CIF_archive_unit, '(a)') 'loop_'
+    write(CIF_archive_unit, '(a)') '_space_group_symop_operation_xyz'
+    do j=1, SPG%Multip   !
+     write(CIF_archive_unit, '(3a)') "'", trim(SPG%SymopSymb(j)), "'"
+    end do
+
+    write(CIF_archive_unit, '(a)') ' '
+   end if
+   ! -----------------------------------------------------------------------------
+
    if(index(read_line, '_exptl_absorpt_coefficient_mu') /=0 .and.  &
       .not. correction_absorption) then
       ! les info. sur les corrections d'absorption sont recuperees dans le fichier CRYSCALC.cif
@@ -1873,35 +2027,65 @@ end subroutine read_SQUEEZE_file
    ! cycle
    !endif
 
+
    if(index(read_line, '_diffrn_ambient_temperature')   /= 0    .and.  &
       .not. diffracto) then
-    if(u_case(DEVICE%diffracto(1:4)) == 'APEX' .or. u_case(DEVICE%diffracto(1:3)) == 'X2S') then
-     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
-     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
-     write(CIF_archive_unit, '(2a)') "_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
+    !if(u_case(DEVICE%diffracto(1:4)) == 'APEX' .or. u_case(DEVICE%diffracto(1:3)) == 'X2S') then
+    if(DEVICE%APEX .or. DEVICE%X2S) then
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_measurement_method)
+     write(CIF_archive_unit, '(2a)') "_diffrn_detector                        ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_detector)
      write(CIF_archive_unit, '(a)') trim(read_line)
-    elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_source                          ", trim(CIF_parameter%diffrn_source)
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector_area_resol_mean        ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device              ", trim(CIF_parameter%diffrn_measurement_device)
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
-     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
+    !elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
+    elseif(DEVICE%KCCD) then
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_source                          ", trim(CIF_parameter_DEVICE%diffrn_source)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector                        ", trim(CIF_parameter_DEVICE%diffrn_detector)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector_area_resol_mean        ", &
+                                     trim(CIF_parameter_DEVICE%diffrn_detector_area_resol_mean)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device              ", &
+                                     trim(CIF_parameter_DEVICE%diffrn_measurement_device)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device_type         ", &
+                                     trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_method              ", trim(CIF_parameter_DEVICE%diffrn_measurement_method)
+     WRITE(CIF_archive_unit, '(a)') trim(read_line)
+    !elseif(u_case(DEVICE%diffracto(1:10)) == 'D8 VENTURE' .or. u_case(DEVICE%diffracto(1:10)) == 'D8_VENTURE' .or. &
+    !       u_case(DEVICE%diffracto(1:3))  == 'D8V') then
+    elseif(DEVICE%D8V) then
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_measurement_method)
+     write(CIF_archive_unit, '(2a)') "_diffrn_detector                        ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_detector)
+     WRITE(CIF_archive_unit, '(2a)') "_diffrn_radiation_source                ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_radiation_source)
+     WRITE(CIF_archive_unit, '(2a)') "_diffrn_radiation_monochromator         ", &
+                                      trim(CIF_parameter_DEVICE%diffrn_radiation_monochromator)
      WRITE(CIF_archive_unit, '(a)') trim(read_line)
     endif
     cycle
    endif
 
+   !if(index(read_line, '_diffrn_radiation_monochromator')   /= 0  .and. u_case(DEVICE%diffracto(1:10)) == 'D8 VENTURE') then
+   if(index(read_line, '_diffrn_radiation_monochromator')   /= 0  .and. DEVICE%D8V) then
+    cycle
+   endif
+
+
    if(index(read_line, '_computing_structure_solution') /=0) then
-    write(CIF_archive_unit, '(2a)') "_computing_structure_solution           ",trim(CIF_parameter%computing_structure_solution)
+    write(CIF_archive_unit, '(2a)') "_computing_structure_solution           ", &
+                                     trim(CIF_parameter_DEVICE%computing_structure_solution)
     cycle
    endif
 
    if(index(read_line, '_computing_publication_material') /=0) then
     write(CIF_archive_unit, '(a)')     "_computing_publication_material          "
     WRITE(CIF_archive_unit, '(a)')     ";"
-    WRITE(CIF_archive_unit, '(10x,a)') trim(CIF_parameter%computing_publication_material_1)
-    WRITE(CIF_archive_unit, '(10x,a)') trim(CIF_parameter%computing_publication_material_2)
+    WRITE(CIF_archive_unit, '(10x,a)') trim(CIF_parameter_DEVICE%computing_publication_material_1)
+    WRITE(CIF_archive_unit, '(10x,a)') trim(CIF_parameter_DEVICE%computing_publication_material_2)
     WRITE(CIF_archive_unit, '(a)')     ";"
     if(len_trim(adjustl(read_line)) == len_trim('_computing_publication_material')) then
      read(input_unit, '(a)', iostat = i_error) read_line
@@ -1940,7 +2124,8 @@ end subroutine read_SQUEEZE_file
        write(CIF_archive_unit, '(a)')   '# End of res file'
         ! -------  juillet 2014 : add jobname.hkl
        if(include_HKL_file) then
-        write(wingx_hkl_file, '(4a)') trim(wingx_structure_dir),'\', trim(job), '.hkl'
+        ! include .hkl file
+         write(wingx_hkl_file, '(4a)') trim(wingx_structure_dir),'\', trim(job), '.hkl'
         call test_file_exist(trim(wingx_hkl_file), file_exist, 'out')
         if(file_exist) then
          call write_info('')
@@ -1963,6 +2148,7 @@ end subroutine read_SQUEEZE_file
          !write(CIF_archive_unit, '(a)')   '_shelx_hkl_checksum              ?'
          write(CIF_archive_unit, '(a)')   '# End of hkl file'
         endif
+
        end if
        write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
       endif
@@ -2025,46 +2211,45 @@ end subroutine read_SQUEEZE_file
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:CIF_atom_site_item_nb)
 
-	 if(CIF_atom_site_refinement_flags_numor /=0) then
-     long = len_trim(CIF_str(CIF_atom_site_refinement_flags_numor))
-     if(index(CIF_str(CIF_atom_site_refinement_flags_numor), 'P') /=0) then ! occ. partielle
-      call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
-      if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
-       if(CIF_atom_site_item_nb == 12) then
-        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a5,a4,2a2)'
-       else
-        if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
-         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2)'
+     if(CIF_atom_site_refinement_flags_numor /=0) then
+      long = len_trim(CIF_str(CIF_atom_site_refinement_flags_numor))
+      if(index(CIF_str(CIF_atom_site_refinement_flags_numor), 'P') /=0) then ! occ. partielle
+       call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
+       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
+        if(CIF_atom_site_item_nb == 12) then
+         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a5,a4,2a2)'
         else
-         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)'
-        end if
-       endif
-      elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
-       if(CIF_atom_site_item_nb == 12) then
-        write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a5,a4,2a2,a3)'
-       else
-        if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
-         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2,a3)'
+         if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+          write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2)'
+         else
+          write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)'
+         end if
+        endif
+       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
+        if(CIF_atom_site_item_nb == 12) then
+         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a5,a4,2a2,a3)'
         else
-         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)'
+         if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+          write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2,a3)'
+         else
+          write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)'
+         endif
         endif
        endif
-      endif
 
-     else
-
-      call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
-      if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
-       if(CIF_atom_site_item_nb==12) then
-        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a5,a3,2a2)'
-       else
-        if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
-         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a2,a5,a3,2a2)'
+      else
+       call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
+       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
+        if(CIF_atom_site_item_nb==12) then
+         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a5,a3,2a2)'
         else
-         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a3,a5,a3,2a2)'
-        end if
-       endif
-      elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
+         if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+          write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a2,a5,a3,2a2)'
+         else
+          write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a3,a5,a3,2a2)'
+         end if
+        endif
+       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
 
        if(CIF_atom_site_item_nb==12) then
         write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a2,a5,a3,2a2,a3)'
@@ -2077,31 +2262,30 @@ end subroutine read_SQUEEZE_file
        endif
       endif
      end if
-     
-	 else  ! CIF_atom_site_refinement_flags_numor /= 0  (SHELX2014)
-	  call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
+
+    else  ! CIF_atom_site_refinement_flags_numor /= 0  (SHELX-2014)
+      call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
        if(CIF_atom_site_item_nb==11) then
-	    if(len_trim(CIF_str(CIF_atom_site_occupancy_numor)) == 1) then     ! occupation = 1
+        if(len_trim(CIF_str(CIF_atom_site_occupancy_numor)) == 1) then     ! occupation = 1
          write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a5,a3,a2)'
-		else
-		 write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a7,a5,a3,a2)'
-		endif
+        else
+         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a5,a3,a2)'
+        endif
        endif
-	   
+
       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
 
        if(CIF_atom_site_item_nb==11) then
-  	    if(len_trim(CIF_str(CIF_atom_site_occupancy_numor)) == 1) then     ! occupation = 1
+        if(len_trim(CIF_str(CIF_atom_site_occupancy_numor)) == 1) then     ! occupation = 1
          write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a2,a5,a3,a2,a3)'
-		else
-		 write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a7,a5,a3,a2,a3)'
-		endif
+        else
+         write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a7,a5,a3,a2,a3)'
+        endif
        endif
       endif
-  
-	 end if   ! CIF_atom_site_refinement_flags_numor /= 0
-      
+     end if   ! CIF_atom_site_refinement_flags_numor /= 0
+
      write(tmp_string, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
      if(len_trim(tmp_string) > 80 .and. .not. CIF_format80) then
       write(CIF_archive_unit, '(a)') trim(read_line)
@@ -2324,12 +2508,14 @@ end subroutine read_SQUEEZE_file
    endif
   end do
 
+  if(fmt_(1:1) == ',') fmt_ = trim(fmt_(2:))
+
   return
  end subroutine Get_fmt
 
 !---------------------------------------------------------------------------
  subroutine Get_SADABS_ratio
-  use cryscalc_module, only : SADABS_ratio, SADABS_Tmin, SADABS_Tmax, IMPORT_cif_unit, debug_proc
+  use cryscalc_module, only : SADABS, IMPORT_cif_unit, debug_proc
   use macros_module,   only : test_file_exist
   implicit none
    integer                  :: i_error,i1
@@ -2349,13 +2535,13 @@ end subroutine read_SQUEEZE_file
    i1 = index(read_line, '# Ratio of minimum to maximum apparent transmission:')
    if (i1 /=0) then
     i1 = index(read_line, ':')
-    read(read_line(i1+1:), *) SADABS_ratio
-    if(SADABS_ratio < 0. .or. SADABS_ratio > 1.) SADABS_ratio = -999.
+    read(read_line(i1+1:), *) SADABS%ratio
+    if(SADABS%ratio < 0. .or. SADABS%ratio > 1.) SADABS%ratio = -999.
    endif
   end do
   close(unit=IMPORT_CIF_unit)
 
-  if(SADABS_ratio < 0.) then
+  if(SADABS%ratio < 0.) then
    open(unit = IMPORT_CIF_unit, file = 'import.cif', iostat=i_error)
    call test_file_exist("import.cif", file_exist, 'out')
    do
@@ -2365,8 +2551,8 @@ end subroutine read_SQUEEZE_file
     i1 = index(read_line, '# Estimated minimum and maximum transmission:')
     if (i1 /=0) then
      i1 = index(read_line, ':')
-     read(read_line(i1+1:), *) SADABS_Tmin, SADABS_Tmax
-     SADABS_ratio = SADABS_Tmin / SADABS_Tmax
+     read(read_line(i1+1:), *) SADABS%Tmin, SADABS%Tmax
+     SADABS%ratio = SADABS%Tmin / SADABS%Tmax
     endif
    end do
    close(unit=IMPORT_CIF_unit)
@@ -2408,7 +2594,7 @@ subroutine  Get_CIF_champ_numor(input_unit, input_string, output_numor)
      if(read_line(1:5) == 'loop_') exit
     end do
     do
-	 output_numor = output_numor + 1
+     output_numor = output_numor + 1
      read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) return
      read_line = adjustl(read_line)
@@ -2445,7 +2631,7 @@ subroutine Get_CIF_champ_nb(input_unit, input_string, output_nb, output_nb2)
     read_line = adjustl(read_line)
     if(index(read_line, trim(input_string)) == 0) cycle
 
-     do
+    do
      backspace(unit=input_unit)
      backspace(unit=input_unit)
      output_nb2 = output_nb2 - 1
@@ -2630,7 +2816,7 @@ subroutine Create_ACE_from_CIF
  USE macros_module,                   ONLY : u_case
 
   implicit none
-  integer                           :: i, j
+  integer                           :: i
   character (len=32), dimension(6)  :: cell_string
   character (len=64)                :: ACE_string
   character (len=32), dimension(3)  :: coord_string
@@ -2715,7 +2901,7 @@ subroutine Create_ACE_from_CIF
          (abs(unit_cell%param(6) - 120.) < eps)) then
          write(ACE_unit, '(a)')          'Hexagonal description'
       else
-         write( ACE_unit, '(a)')          'Trigonal description'
+         write(ACE_unit, '(a)')          'Trigonal description'
       endif
 
    endif
@@ -2729,7 +2915,7 @@ subroutine Create_ACE_from_CIF
     write(coord_string(1), '(F8.5)')  atom_coord(1:1,i)
     write(coord_string(2), '(F8.5)')  atom_coord(2:2,i)
     write(coord_string(3), '(F8.5)')  atom_coord(3:3,i)
-    write(ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_typ(i))), tab, '0+', tab,         &
+    write(ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_typ(i))), tab, '0+', tab,          &
                                     trim(adjustl(coord_string(1))), tab,                 &
                                     trim(adjustl(coord_string(2))), tab,                 &
                                     trim(adjustl(coord_string(3))), tab,                 &
@@ -2758,19 +2944,16 @@ subroutine create_PAT_PRF
 
 
   HKL_2THETA     = .true.
-  X_min          = 0.
-  X_max          = 120.
-
   create_PAT     = .true.
   write_HKL      = .true.
   keyword_GENHKL = .true.
-  !wavelength = X_target(3)%wave(1)   ! Ka1_Cu
   wavelength  = pdp_simu%wave
   beam_type   = pdp_simu%beam
 
-  if(beam_type(1:8) == 'neutrons') then
+  !if(beam_type(1:8) == 'neutrons') then
+  if(pdp_simu%beam(1:8) == 'neutrons') then
    X_min = N_pattern%xmin
-   X_max = X_pattern%xmax
+   X_max = N_pattern%xmax
   else
    X_min = X_pattern%xmin
    X_max = X_pattern%xmax
@@ -2810,13 +2993,25 @@ subroutine Get_CIF_numors(input_unit)
   call Get_CIF_champ_numor(input_unit, '_atom_site_calc_flag', CIF_atom_site_calc_flag_numor)
 
  ! champ _atom_site_refinement_flags
-  call Get_CIF_champ_numor(input_unit, '_atom_site_refinement_flag', CIF_atom_site_refinement_flags_numor)
+  call Get_CIF_champ_numor(input_unit, '_atom_site_refinement_flags', CIF_atom_site_refinement_flags_numor)
+
+ ! champ _atom_site_refinement_flags_occupancy
+  call Get_CIF_champ_numor(input_unit, '_atom_site_refinement_flags_posn', CIF_atom_site_refinement_flags_posn_numor)
+
+ ! champ _atom_site_refinement_flags_occupancy
+  call Get_CIF_champ_numor(input_unit, '_atom_site_refinement_flags_adp', CIF_atom_site_refinement_flags_adp_numor)
+
+ ! champ _atom_site_refinement_flags_occupancy
+  call Get_CIF_champ_numor(input_unit, '_atom_site_refinement_flags_occupancy', CIF_atom_site_refinement_flags_occ_numor)
 
  ! champ _atom_site_occupancy
   call Get_CIF_champ_numor(input_unit, '_atom_site_occupancy', CIF_atom_site_occupancy_numor)
 
- ! champ _atom_site_symmetry_multiplicity
+ ! champ _atom_site_symmetry_multiplicity / _atom_site_site_symmetry_order
   call Get_CIF_champ_numor(input_unit, '_atom_site_symmetry_multiplicity', CIF_atom_site_symm_multiplicity_numor)
+  if(CIF_atom_site_symm_multiplicity_numor == 0) then
+  call Get_CIF_champ_numor(input_unit, '_atom_site_site_symmetry_order', CIF_atom_site_symm_multiplicity_numor)
+  end if
 
 
  ! champ _atom_site_disorder_assembly
@@ -2828,3 +3023,261 @@ subroutine Get_CIF_numors(input_unit)
 
  return
 end subroutine Get_CIF_numors
+!----------------------------------------------------------------------------------------------------------
+
+subroutine Extract_from_CIF
+ ! extract .res and .hkl file from a CIF file
+
+  use cryscalc_module, only : archive_cif, CIF_unit, INS_unit, HKL_unit
+  use macros_module,   only : test_file_exist
+  use IO_module
+
+  implicit none
+   logical                     :: file_exist
+   character (len=256)         :: read_line
+   character (len=256)         :: RES_file, HKL_file, FAB_file
+   integer                     :: i1, long, i_error, pv
+
+  i1 = index(archive_CIF, '.')
+  if(i1 == 0) then
+   archive_cif = trim(archive_cif)//'.cif'
+   i1 = index(archive_CIF, '.')
+  end if
+
+  call test_file_exist(trim(archive_cif), file_exist, 'out')
+  if(.not. file_exist) call end_of_program
+
+  RES_file = archive_CIF(1:i1-1)//'_.res'
+  HKL_file = archive_CIF(1:i1-1)//'_.hkl'
+  FAB_file = archive_CIF(1:i1-1)//'_.fab'
+
+
+  open(unit=CIF_unit, file = trim(archive_cif), iostat=i_error)
+   do
+    read(unit=CIF_unit, fmt='(a)', iostat=i_error) read_line
+    if(i_error /=0) exit
+    !read_line = adjustl(read_line)
+    if(read_line(1:1) == '#') cycle
+
+    long = len_trim(read_line)
+    if(long == 0) cycle
+    if(long == 15) then
+     if(read_line(1:15) == '_shelx_res_file') then
+      open(unit= INS_unit, file=trim(RES_file))
+      call write_info('    >> Extract .RES file : '//trim(RES_file))
+      do
+       read(unit=CIF_unit, fmt='(a)', iostat=i_error) read_line
+       if(i_error /=0) exit
+       !read_line = adjustl(read_line)
+       long = len_trim(read_line)
+       if(long == 1) then
+        if(read_line(1:1) == ';') cycle
+       end if
+       if(long >= 19) then
+        if(read_line(1:19) == '_shelx_res_checksum') exit
+       end if
+       write(INS_unit, '(a)') trim(read_line)
+      end do
+      close (unit = INS_unit)
+     end if
+
+     if(read_line(1:15) == '_shelx_hkl_file') then
+      open(unit= HKL_unit, file=trim(HKL_file))
+      call write_info('    >> Extract .HKL file : '//trim(HKL_file))
+      do
+       read(unit=CIF_unit, fmt='(a)', iostat=i_error) read_line
+       if(i_error /=0) exit
+       !read_line = adjustl(read_line)
+       long = len_trim(read_line)
+       if(long == 1) then
+        if(read_line(1:1) == ';') cycle
+       end if
+       if(long >= 19) then
+        if(read_line(1:19) == '_shelx_hkl_checksum') exit
+       end if
+       write(HKL_unit, '(a)') trim(read_line)
+      end do
+      close (unit = HKL_unit)
+     end if
+
+     if(read_line(1:15) == '_shelx_fab_file') then
+      pv = 0
+      open(unit= HKL_unit, file=trim(FAB_file))
+      call write_info('    >> Extract .FAB file : '//trim(FAB_file))
+      do
+       read(unit=CIF_unit, fmt='(a)', iostat=i_error) read_line
+       if(i_error /=0) exit
+       !read_line = adjustl(read_line)
+       long = len_trim(read_line)
+       if(long == 1) then
+        if(read_line(1:1) == ';') then
+         pv = pv + 1
+         if(pv ==1) cycle
+         if(pv ==2) exit
+        end if
+       end if
+       !if(long >= 33) then
+       ! if(read_line(1:33) == '_platon_squeeze_void_probe_radius') exit
+       !end if
+       write(HKL_unit, '(a)') trim(read_line)
+      end do
+      close (unit = HKL_unit)
+     end if
+
+
+    end if
+
+   end do
+  close(unit=CIF_unit)
+
+ return
+end subroutine Extract_from_CIF
+
+!!------------------------------------------------------------------------------------------------------------!!
+ subroutine write_CIF_output(input_string)
+  use CRYSCALC_module, only : CIF_read_unit, CIF_file_name
+  USE IO_module
+  implicit none
+  character (len=*), intent(in)     :: input_string
+  character (len=256)               :: read_line, output_string
+  character (len=16), dimension(16) :: CIF_str
+  character (len=64)                :: fmt_, fmt_final
+  integer                           :: long, i_error
+  logical                           :: ask_bonds, ask_angles, ask_torsion, ask_htab
+  logical                           :: ans_bonds, ans_angles, ans_torsion, ans_htab
+
+  ask_bonds    = .false.
+  ask_angles   = .false.
+  ask_torsion  = .false.
+  ask_htab     = .false.
+  ans_bonds    = .false.
+  ans_angles   = .false.
+  ans_torsion  = .false.
+  ans_htab     = .false.
+
+
+  long = len_trim(input_string)
+  if(long == 5) then
+   if(input_string(1:5) == "BONDS") ask_bonds = .true.
+  elseif(long == 6) then
+   if(input_string(1:6) == "ANGLES") ask_angles = .true.
+  elseif(long == 7) then
+   if(input_string(1:7) == "TORSION") ask_torsion = .true.
+  elseif(long == 4) then
+   if(input_string(1:4) == "HTAB") ask_htab = .true.
+  end if
+
+  OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
+
+    do
+      read(CIF_read_unit, '(a)', iostat=i_error) read_line
+      if(i_error /=0) exit
+      !if(len_trim(read_line) == 0) exit
+      read_line = adjustl(read_line)
+
+      if(ask_BONDS) then
+       if(index(read_line, '_geom_bond_publ_flag') /=0) then
+        do
+         read(CIF_read_unit, '(a)', iostat=i_error) read_line
+         if(i_error /=0) exit
+          if(len_trim(read_line) == 0) exit
+          !read(read_line, *) CIF_str(1:5)
+         !write(output_string, '(2a5, a12,2a12)') CIF_str(1:5)
+         read(read_line, *) CIF_str(1:3)
+         write(output_string, '(2a5, a12)') CIF_str(1:3)
+         call write_info(trim(output_string))
+        end do
+        ans_BONDS = .true.
+       end if
+
+      elseif(ask_ANGLES) then
+       if(index(read_line, '_geom_angle_publ_flag') /=0) then
+        do
+         read(CIF_read_unit, '(a)', iostat=i_error) read_line
+         if(i_error /=0) exit
+          if(len_trim(read_line) == 0) exit
+          !read(read_line, *) CIF_str(1:7)
+         !call get_fmt(1, CIF_str(4:4), fmt_, 100)
+         !write(fmt_final, '(3a)') '(3a5,', trim(fmt_), ',3a8)'
+         !write(output_string, fmt_final) CIF_str(1:7)
+          read(read_line, *) CIF_str(1:4)
+         call get_fmt(1, CIF_str(4:4), fmt_, 100)
+         write(fmt_final, '(3a)') '(3a5,', trim(fmt_), ')'
+         write(output_string, fmt_final) CIF_str(1:4)
+         call write_info(trim(output_string))
+        end do
+        ans_ANGLES = .true.
+       end if
+
+         elseif(ask_TORSION) then
+       if(index(read_line, '_geom_torsion_publ_flag') /=0) then
+        do
+         read(CIF_read_unit, '(a)', iostat=i_error) read_line
+         if(i_error /=0) exit
+          if(len_trim(read_line) == 0) exit
+          !read(read_line, *) CIF_str(1:10)
+         !call get_fmt(1, CIF_str(5:5), fmt_, -100)
+         !write(fmt_final, '(3a)') '(4a5,', trim(fmt_), ',x,5a8)'
+         !write(output_string, fmt_final) CIF_str(1:10)
+          read(read_line, *) CIF_str(1:5)
+         call get_fmt(1, CIF_str(5:5), fmt_, -100)
+         write(fmt_final, '(3a)') '(4a5,', trim(fmt_), ')'
+         write(output_string, fmt_final) CIF_str(1:5)
+         call write_info(trim(output_string))
+        end do
+        ans_TORSION = .true.
+       end if
+
+        elseif(ask_HTAB) then
+       if(index(read_line, '_geom_hbond_site_symmetry_A') /=0) then
+        do
+         read(CIF_read_unit, '(a)', iostat=i_error) read_line
+         if(i_error /=0) exit
+          if(len_trim(read_line) == 0) exit
+         read(read_line, *) CIF_str(1:8)
+         write(output_string, '(3a5, 4a12,a6)') CIF_str(1:8)
+         call write_info(trim(output_string))
+        end do
+        ans_HTAB = .true.
+       end if
+      end if
+     end do
+
+
+  CLOSE(UNIT=CIF_read_unit)
+
+  if(ask_BONDS .and. .not. ans_BONDS) then
+   call write_info('')
+   call write_info('  No bonds founded in the CIF file !!')
+   call write_info('')
+   return
+  end if
+
+  if(ask_BONDS .and. .not. ans_BONDS) then
+   call write_info('')
+   call write_info('  No bonds founded in the CIF file !!')
+   call write_info('')
+   return
+  end if
+
+  if(ask_TORSION .and. .not. ans_TORSION) then
+   call write_info('')
+   call write_info('  No torsion angles founded in the CIF file !!')
+   call write_info('')
+   return
+  end if
+
+  if(ask_HTAB .and. .not. ans_HTAB) then
+   call write_info('')
+   call write_info('  No hydrogen bonds founded in the CIF file !!')
+   call write_info('')
+   return
+  end if
+
+
+
+
+
+   return
+ end subroutine write_CIF_output
+!!------------------------------------------------------------------------------------------------------------!!

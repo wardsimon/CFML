@@ -157,12 +157,19 @@ module matrix_module
     Matrice(ligne, col) = 1
    else
     READ(string, *) Matrice(ligne, col)
-    READ(input_string(k-2:k-2),*) string
-    IF(string == "+") then
-     sign_R        = 1.
-    ELSEIF(string == '-') then
-     sign_R        = -1.
-    endif
+    if(index(input_string, "+") /=0 .or. index(input_string, "-") /=0) then
+     READ(input_string(k-2:k-2),*) string
+    else
+     READ(input_string(k-1:k-1),*) string
+    end if
+    !IF(string == "+") then
+    ! sign_R        = 1.
+    !ELSEIF(string == '-') then
+    ! sign_R        = -1.
+    !endif
+    sign_R        = 1.
+    if(index(input_string, "+") /=0) sign_R = 1.
+    if(index(input_string, "-") /=0) sign_R = -1.
    endif
 
   endif

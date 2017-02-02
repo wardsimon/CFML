@@ -15,7 +15,7 @@ subroutine read_PCR_input_file
   real                                     :: f, f1
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_PCR_input_file")
-  
+
   !REWIND(UNIT=PCR_read_unit)
 
 
@@ -28,8 +28,10 @@ subroutine read_PCR_input_file
   ! TITL
   if (read_line(1:4) == 'COMM') then
    READ(read_line(5:), '(a)')  main_title
+   if(write_details) then
    call write_info(' ' )
    call write_info('  . TITL: '//trim(main_title))
+   end if
   else
    main_title = ''
   end if
@@ -45,8 +47,10 @@ subroutine read_PCR_input_file
    READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) wavelength
    keyword_WAVE = .true.
 
+   if(write_details) then
    write(message_text,fmt='(a,F10.5)')  '  > WAVE: ', wavelength
    call write_info(TRIM(message_text))
+   end if
    exit
   end if
  end do
@@ -64,7 +68,7 @@ subroutine read_PCR_input_file
    exit
   end if
  END do
- 
+
 
 
  !"!Atom Typ"
@@ -98,9 +102,11 @@ subroutine read_PCR_input_file
      READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
      IF(i_error < 0) EXIT   ! fin du fichier
     end do
+    if(write_details) then
     WRITE(message_text,fmt='(a,2a6,5(1x,F8.5))') '  > ATOM: ', trim(atom_label(n_atom)),trim(atom_typ(n_atom)),  &
-	                                             (atom_coord(i,n_atom),i=1,3), atom_Biso(n_atom), atom_occ(n_atom)
+                                                 (atom_coord(i,n_atom),i=1,3), atom_Biso(n_atom), atom_occ(n_atom)
     call write_info(TRIM(message_text))
+    end if
 
    end do
 
@@ -119,19 +125,21 @@ subroutine read_PCR_input_file
    READ(read_line(1:i-1), fmt='(a)', IOSTAT=i_error) space_group_symbol
    IF(i_error /= 0) EXIT
    space_group_symbol = ADJUSTL(space_group_symbol)
+   if (write_details) then
    WRITE(message_text, fmt='(2a)') '  > Space group : ', space_group_symbol
    call write_info(TRIM(message_text))
+   end if
    keyword_SPGR = .true.
    call space_group_info()
    exit
   end if
  END do
- 
+
  if(keyword_SPGR) then
   atom_mult(1) = Get_Multip_Pos(atom_coord(1:3,1), SPG)
   f1 = atom_occ(1) * REAL(SPG%Multip) / REAL(atom_mult(1))
   f1 = 1./f1
-  do i = 1, nb_atom   
+  do i = 1, nb_atom
    atom_mult(i) = Get_Multip_Pos(atom_coord(1:3,i), SPG)
    f =  SPG%Multip / atom_mult(i)
    atom_occ_perc(i) = atom_occ(i) *  f * f1
@@ -149,8 +157,10 @@ subroutine read_PCR_input_file
   if (i/=0) then
    READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) (unit_cell%param(i),i=1,6)
    !IF(i_error /= 0) EXIT
+   if(write_details) then
    WRITE(message_text,fmt='( a,6F10.4)') '  > CELL PARAMETERS: ', (unit_cell%param(i),i=1,6)
    call write_info(TRIM(message_text))
+   end if
    keyword_CELL = .true.
    exit
   endif
@@ -176,51 +186,13 @@ subroutine read_CEL_input_file(input_file)
   integer                          :: i_error, nb_col
   integer                          :: i, n_atom
   integer                          :: atomic_number
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_CEL_input_file")
-  
- ! do 
- !  read(unit = CEL_read_unit, '(a)', iostat=i_error) read_line
- !  if(i_error /=0) exit
- !  adjusted_line = adjustl(read_line)
- !  if(u_case(adjusted_line(1:4)) == 'CELL') then
- !   read(adjusted_line(6:), *) (unit_cell%param(i),i=1,6)
- !   keyword_CELL = .true.
- !   
- !  elseif(u_case(adjusted_line(1:4)) == 'RGNR') then
- !   read(adjusted_line(6:), '(a)') space_group_symbol
- !   !call set_spacegroup(sg_numor, SPG)
- !   call space_group_info()
- !   if(SPG%NumSpg /=0) keyword_SPGR = .true.
- !   
- !  elseif(u_case(adjusted_line(1:5)) == 'NATOM') then
- !   read(adjusted_line(7:), *) nb_atom
- !   do n_atom=1, nb_atom
- !    read(unit = CEL_read_unit, '(a)', iostat = i_error) read_line
- !    if(i_error /=0) exit
- !    adjusted_line = adjustl(read_line)
- !    call nombre_de_colonnes(adjusted_line, nb_col)
- !    if(nb_col < 5) then
- !     call write_info('')
- !     call write_info('  > Problem reading '//trim(input_file)//' file. Wrong format ?')
- !     call write_info('')
- !     return 
- !    elseif(nb_col == 7) then
- !     read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), atom_occ_perc(n_atom), atom_Biso(n_atom)      
- !    elseif(nb_col == 6) then
- !     read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), atom_occ_perc(n_atom)      
- !    else
- !     read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)     
- !    endif
- !     
- !    call get_atom_typ(atomic_number, atom_typ(n_atom)) 
- !   end do 
- !  endif
- ! end do
- 
+
+
   ! line 1 : CELL
   read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
-  if(i_error /=0) then! 
+  if(i_error /=0) then
    call write_info('')
    call write_info(' Error reading '//trim(input_file)// ' at line 1 (CELL).')
    call write_info('')
@@ -229,19 +201,19 @@ subroutine read_CEL_input_file(input_file)
   end if
   adjusted_line = adjustl(read_line)
   if(u_case(adjusted_line(1:4)) == 'CELL') then
-   read(adjusted_line(6:), fmt=*) (unit_cell%param(i),i=1,6) 
+   read(adjusted_line(6:), fmt=*) (unit_cell%param(i),i=1,6)
   else
    call write_info('')
    call write_info(' Error reading ' //trim(input_file)// ' at line 1 (CELL).')
    call write_info('')
    close(unit=CEL_read_unit)
    return
-  endif 
+  endif
   keyword_CELL = .true.
-  
+
   ! line 2 : natoms
    read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
-  if(i_error /=0) then! 
+  if(i_error /=0) then!
    call write_info('')
    call write_info(' Error reading ' //trim(input_file) // ' at line 2 (natom).')
    call write_info('')
@@ -250,11 +222,11 @@ subroutine read_CEL_input_file(input_file)
   end if
   adjusted_line = adjustl(read_line)
   if(u_case(adjusted_line(1:5)) == 'NATOM') then
-   read(adjusted_line(7:), fmt=*) nb_atom   
+   read(adjusted_line(7:), fmt=*) nb_atom
   else
    nb_atom = 1
    backspace(unit = CEL_read_unit)
-  endif 
+  endif
   do n_atom = 1, nb_atom
    read(unit = CEL_read_unit, fmt='(a)', iostat = i_error) read_line
    if(i_error /=0) exit
@@ -265,26 +237,26 @@ subroutine read_CEL_input_file(input_file)
     call write_info('  > Problem reading '//trim(input_file)//' file. Wrong format ?')
     call write_info('')
     close(unit = CEL_read_unit)
-    return 
+    return
    elseif(nb_col == 7) then
     read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), &
-	                           atom_occ_perc(n_atom), atom_Biso(n_atom)      
+                              atom_occ_perc(n_atom), atom_Biso(n_atom)
    elseif(nb_col == 6) then
     read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), &
-	                           atom_occ_perc(n_atom)      
+                               atom_occ_perc(n_atom)
    else
-    read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)  
-    atom_occ_perc(n_atom) = 1.   
+    read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)
+    atom_occ_perc(n_atom) = 1.
    endif
-      
-   call get_atom_typ(atomic_number, atom_typ(n_atom)) 
-  end do 
- 
 
-  
+   call get_atom_typ(atomic_number, atom_typ(n_atom))
+  end do
+
+
+
   ! ligne suivante : groupe d'espace
   read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
-  if(i_error /=0) then! 
+  if(i_error /=0) then!
    call write_info('')
    call write_info(' Error reading ' //trim(input_file) // ' (rgnr).')
    call write_info('')
@@ -297,10 +269,10 @@ subroutine read_CEL_input_file(input_file)
    call space_group_info()
    if(SPG%NumSpg /=0) keyword_SPGR = .true.
   end if
-  
+
   close(CEL_read_unit)
-   
-  
+
+
 
  return
 end subroutine read_CEL_input_file
@@ -309,15 +281,13 @@ end subroutine read_CEL_input_file
 
 subroutine Get_atom_typ(atomic_number, atomic_symbol)
  USE cryscalc_module,                  ONLY : known_atomic_label
- USE CFML_Scattering_Chemical_Tables, ONLY : set_chem_info, chem_info, Num_Chem_Info  
+ USE CFML_Scattering_Chemical_Tables, ONLY : set_chem_info, chem_info, Num_Chem_Info
 
  implicit none
   integer, intent(in)                    :: atomic_number
   character (len=2), intent(out)         :: atomic_symbol
-  integer                                :: i, j
+  integer                                :: i
 
-  
-  
   CALL set_chem_info
 
   do i=1 , Num_Chem_Info
@@ -326,7 +296,7 @@ subroutine Get_atom_typ(atomic_number, atomic_symbol)
     exit
    end if
   end do
-  
-  
+
+
  return
-end subroutine Get_atom_typ 
+end subroutine Get_atom_typ

@@ -21,9 +21,9 @@ subroutine read_INS_input_file(input_file, input_string)
   CHARACTER (LEN=*), INTENT(IN)                :: input_file
   CHARACTER (LEN=*), INTENT(IN)                :: input_string
   CHARACTER (LEN=256)                          :: read_line
-  INTEGER                                      :: i, n, i1, i2, i_error
+  INTEGER                                      :: i, n, i1, i2, ier, i_error
   integer                                      :: j, k, long, long_input_string
-  INTEGER, DIMENSION(500)                      :: n_sl            ! nombre d'atomes avec le meme label
+  INTEGER, DIMENSION(1000)                     :: n_sl            ! nombre d'atomes avec le meme label
   character (len=8), dimension(:), allocatable :: atom_new_label  ! nouveaux labels des atomes
 
 
@@ -36,7 +36,7 @@ subroutine read_INS_input_file(input_file, input_string)
   character(len=80),dimension(:),allocatable :: fileshx
   character(len=40)                          :: car_gsp
 
-  CHARACTER(LEN=48)                          :: op_string
+  CHARACTER(LEN=64)                          :: op_string
   !type (Crystal_Cell_Type)                   :: crystal_cell
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_INS_input_file ("//trim(input_string)//")")
@@ -50,6 +50,15 @@ subroutine read_INS_input_file(input_file, input_string)
    if(input_string(1:4) == 'CELL')    input_string_CELL = .true.
   endif
 
+ ! ---------- nov. 2016 ---------------------------------------------------------------
+  long = len_trim(input_file)
+  if(u_case(input_file(long-3:long)) == '.HKL') then
+   call write_info('')
+   call write_info('  !! .hkl file is not comptabible with READ_INS keyword !! ')
+   call write_info('')
+   return
+  end if
+ ! ------------------------------------------------------------------------------------
 
  ! lecture fichier SHELXL.INS
  ! read .INS input file for SHELX
@@ -63,12 +72,13 @@ subroutine read_INS_input_file(input_file, input_string)
   end if
 
   if (nb_lines ==0) then
-   call write_info(' > No lines could be read. Program will be stopped')
+   call write_info(' > No lines can be read. Program will be stopped')
    stop
   end if
 
   if (allocated(fileshx)) deallocate(fileshx)
-  allocate(fileshx(nb_lines))
+  allocate(fileshx(nb_lines), stat=ier)
+   if(ier/=0) call write_alloc_error("fileshx")
   fileshx=' '
 
  !---- Cargando Fichero en variable ----!
@@ -77,7 +87,7 @@ subroutine read_INS_input_file(input_file, input_string)
  !---- TITL ----!
   npos=1
   call Read_Shx_Titl(fileshx, npos, nb_lines, main_Title)
-  if(input_OUT) then
+  if(input_OUT .and. write_details .and. .not. input_string_CELL) then
     input_out = .true.
     call write_info(' ' )
     call write_info('  . TITL: '//trim(main_title))
@@ -100,7 +110,9 @@ subroutine read_INS_input_file(input_file, input_string)
   keyword_WAVE  = .true.
   keyword_ZUNIT = .true.
 
-  if(input_OUT) then
+  IF(input_string_CELL) return
+
+  if(input_OUT .and. write_details) then
    call write_info(' ')
    write(message_text,'(a,6F10.4)') '  . CELL: ', (unit_cell%param(i), i=1,6)
    call write_info(TRIM(message_text))
@@ -113,21 +125,20 @@ subroutine read_INS_input_file(input_file, input_string)
   endif
 
 
-  call volume_calculation('')
+  !call volume_calculation('')
   !call incident_beam()
-  IF(input_string_CELL) return
+
 
 
  !---- OBTAIN SPACE GROUP (LATT / SYMM) ----!
  ! >> LATT
  call Read_Shx_Latt(fileshx, npos, nb_lines, n_latt)
-
  ! >> SYMM
  call Read_Shx_Symm(fileshx, npos, nb_lines, nb_symm_op, car_symop)
  symm_nb = nb_symm_op
 
-
- if (n_latt > 0) then
+ if (n_latt > 0) then        ! janvier 2017
+ !if (n_latt > 1) then       ! janvier 2017
   nb_symm_op=nb_symm_op+1
   car_symop(nb_symm_op)='-X,-Y,-Z'
   centro_string = 'centric'
@@ -136,7 +147,8 @@ subroutine read_INS_input_file(input_file, input_string)
  end if
 
  keyword_SYMM = .true.
-
+ 
+ 
  select case (abs(n_latt))
     case (2) ! I
        nb_symm_op=nb_symm_op+1
@@ -171,7 +183,7 @@ subroutine read_INS_input_file(input_file, input_string)
  end select ! nl
  symm_nb = nb_symm_op
 
- if(input_OUT) then
+ if(input_OUT .and. write_details) then
   call write_info(' ')
   IF(ABS(n_latt) /= 1) then
    write(message_text,'(a,i2,4a)') '  . LATT: ',n_latt, ' (',TRIM(centro_string), ' / ',trim(nlatt_string)
@@ -195,7 +207,7 @@ subroutine read_INS_input_file(input_file, input_string)
    symm_op_string(3,i) = op_string(i2+1:)
  end do
 
- if(input_OUT) then
+ if(input_OUT .and. write_details) then
   if(nb_symm_op /=0) then
    call write_info(' ')
    write(message_text,*) ' . Number of symmetry operations: ',nb_symm_op
@@ -213,8 +225,12 @@ subroutine read_INS_input_file(input_file, input_string)
   call get_hallsymb_from_gener(SPG)
   space_group_symbol = SPG%Spg_Symb
 
+  !write(*,*) ' space_group_IT     : ', spg%numspg
+  !write(*,*) ' space_group_symbol : ', trim(SPG%Spg_Symb)
+  !write(*,*) ' space_group Hall   : ', trim(SPG%Hall)
+
   !space_group_multip = SPG%multip
-  if(input_OUT) then
+  if(input_OUT .and. write_details) then
    IF(LEN_TRIM(space_group_symbol) /=0) then
     keyword_SPGR = .true.
     call write_info(' ')
@@ -230,10 +246,18 @@ subroutine read_INS_input_file(input_file, input_string)
 
  !---- ATOMS ----!
   call Read_Shx_Cont(fileshx, npos, nb_lines, n_elem_atm, elem_atm, n_elem)
+
   keyword_SFAC_UNIT = .true.
   call Read_Shx_Fvar(fileshx, npos, nb_lines, n_fvar, fvar)
 
-  if(input_OUT) then
+  if(n_elem_atm == 0) then
+   call write_info('')
+   call write_info('  SFAC/UNIT is missing in the .INS file !')
+   call write_info('')
+   return
+  end if
+
+  if(input_OUT .and. write_details) then
    if(n_elem_atm < 10) then
     write(fmt_sfac, '(a,i1,a)') '(a,',n_elem_atm,'(2x,a))'
     write(fmt_unit, '(a,i1,a)') '(a,',n_elem_atm,'F6.1)'
@@ -257,6 +281,13 @@ subroutine read_INS_input_file(input_file, input_string)
   call Read_Shx_Atom(fileshx, npos, nb_lines, n_fvar, fvar, elem_atm, crystal_cell, Atm_list)
   !! pb si pas d'atome dans le fichier.ins: cas d'un fichier pour SHELXS !!
 
+   if(Atm_list%natoms == 0) then
+    call write_info('')
+    call write_info('  No atomic coordinates in the .INS file !')
+    call write_info('')
+    return
+   end if
+
    nb_atom = Atm_list%natoms
    call write_info('')
    do i=1,nb_atom
@@ -266,6 +297,7 @@ subroutine read_INS_input_file(input_file, input_string)
      atom_coord(1:3,i) = Atm_list%atom(i)%x
      atom_occ(i)       = Atm_list%atom(i)%occ
      atom_mult(i)      = Atm_list%atom(i)%mult
+     atom_adp_type(i)  = Atm_list%atom(i)%thtype
      if(SPG%NumSPG /=0) then
       atom_mult(i)      = Get_Multip_Pos(atom_coord(1:3,i), SPG)
       atom_occ_perc(i)  = atom_occ(i) / (SPG%multip/atom_mult(i))
@@ -279,7 +311,7 @@ subroutine read_INS_input_file(input_file, input_string)
      if (atom_Biso(i) < 0.0) atom_Biso(i)=1.0
      atom_adp_aniso(1:6,i) = Atm_list%atom(i)%u(1:6)
 
-     if(input_OUT) then
+     if(input_OUT .and. write_details) then
       write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4,F10.5,6f10.5)') i,  atom_label(i), atom_typ(i) , &
                                                                          atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), &
                                                                          atom_mult(i), atom_occ_perc(i), Atm_list%atom(i)%u(1:6)
@@ -290,7 +322,8 @@ subroutine read_INS_input_file(input_file, input_string)
 
    if(.not. input_OUT) then  ! CRYSCALC create_ins
     if(allocated(atom_new_label))  deallocate(atom_new_label)
-    allocate (atom_new_label(Atm_list%natoms))
+    allocate (atom_new_label(Atm_list%natoms) , stat=ier)
+     if(ier/=0) call write_alloc_error("atom_new_label")
 
    ! modif. des labels pour éviter les doublons
     do i=1, Atm_list%natoms
@@ -320,7 +353,8 @@ subroutine read_INS_input_file(input_file, input_string)
    endif
 
    if(input_OUT)  call Deallocate_atom_list(Atm_list)
-   if (allocated(fileshx)) deallocate(fileshx)
+   if (allocated(fileshx)) deallocate(fileshx, stat=ier)
+    if(ier/=0) call write_alloc_error("fileshx")
 
 
   ! pour compatibilite avec CRYSCALC
@@ -367,6 +401,8 @@ subroutine read_INS_input_file(input_file, input_string)
    endif
 
    crystal%size(1:3) = var(1:3)
+   call get_crystal_SIZE_min_max
+   call crystal_volume_calculation('out')
    keyword_SIZE = .true.
   end if
  END do
@@ -377,9 +413,10 @@ end subroutine read_INS_input_file
 
 !--------------------------------------------------------------------------------------------------
 subroutine read_INS_SHELX_lines()
- USE SHELX_module,    only : SHELX_line_nb, SHELX_line
+ USE SHELX_module,    only : SHELX_line_nb, SHELX_line_nb_max, SHELX_line
  use cryscalc_module, only : INS_read_unit, debug_proc
  use macros_module,   only : u_case
+ USE IO_module
 
  implicit none
   character (len=256)                      :: read_line
@@ -395,7 +432,7 @@ subroutine read_INS_SHELX_lines()
   do
    read(INS_read_unit , '(a)', iostat=i_error) read_line
    if(i_error /=0) exit
-   read_line = adjustl(read_line)
+   !read_line = adjustl(read_line)
    read_line = u_case(read_line)
 
    select case(read_line(1:4))
@@ -407,15 +444,93 @@ subroutine read_INS_SHELX_lines()
 
     case default
      SHELX_line_nb = SHELX_line_nb + 1
+     if(SHELX_line_nb > SHELX_line_nb_max) then
+      call write_info('')
+      call write_info(' >> Number of lines in .INS/.RES file larger than array dimension !')
+      call write_info('    CRYSCALC will be stopped.')
+      call write_info('')
+      stop
+     end if
      read(read_line, '(a)', iostat=i_error) SHELX_line(SHELX_line_nb)
 
+
    end select
-
-
   end do
 
+
+ return
 end subroutine read_INS_SHELX_lines
-!----------------------------------------------------------------
+
+!!----------------------------------------------------------------
+subroutine Read_INS_and_ADD_ABIN
+ USE CRYSCALC_module, only : INS_unit, INS_file_name, tmp_unit, debug_proc
+ USE IO_module,       only : write_info
+
+ implicit none
+  integer                   :: ier, long
+  character (len=256)       :: read_line
+  logical                   :: ABIN_present, INS_modif
+
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "Read_INS_and_ADD_ABIN")
+
+ open(unit=INS_unit, file=trim(INS_file_name))
+ open(unit=tmp_unit, file="ABIN.ins")
+
+ ! premiere lecture pour detecter si ABIN est present
+
+  ABIN_present = .false.
+  INS_modif    = .false.
+
+  do
+   read(unit=INS_unit, fmt='(a)', iostat=ier) read_line
+   if(ier /=0) exit
+
+   if(read_line(1:4) == "ABIN") then
+    ABIN_present = .true.
+    exit
+   end if
+  end do
+
+  rewind(unit=INS_unit)
+
+
+
+  do
+   read(unit=INS_unit, fmt='(a)', iostat=ier) read_line
+   if(ier /=0) exit
+
+   long = len_trim(read_line)
+   if(read_line(1:4) == 'L.S.') then
+    if(read_line(long-2:long) == "511") then
+     write(unit=tmp_unit, fmt='(a)') read_line(1:long-3)
+     else
+     write(unit=tmp_unit, fmt='(a)') trim(read_line)
+    end if
+    if(.not. ABIN_present) then
+     write(unit=tmp_unit, fmt='(a)') "ABIN"
+     INS_modif = .true.
+    end if
+   else
+    write(unit=tmp_unit, fmt='(a)') trim(read_line)
+   end if
+  end do
+
+ close (unit=tmp_unit)
+ close (unit=INS_unit)
+
+ if(INS_modif) then
+  call system("copy ABIN.INS "//trim(INS_file_name))
+  call write_info("")
+  call write_info("ABIN keyword has been added in the "//trim(INS_file_name)//" file.")
+  call write_info("")
+ end if
+
+ call system("del ABIN.INS")
+
+ return
+end subroutine Read_INS_and_ADD_ABIN
+
+!!----------------------------------------------------------------
 subroutine create_TRANSF_ins
  use cryscalc_module, only : INS_unit, unit_cell, SPG, wavelength, Z_unit, Mat, nb_atom, &
                              ATOM_typ, Atom_Ueq, Atom_occ, ATOM_label, new_atom_coord, debug_proc
@@ -429,7 +544,7 @@ subroutine create_TRANSF_ins
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_TRANSF_INS")
 
- open (unit = INS_unit, file = 'CRYSCAL_transf.ins')
+ open (unit = INS_unit, file = 'CRYSCALC_transf.ins')
   !WRITE(UNIT = INS_unit, '(3(a, 3(1x,F7.4)))')  'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
   WRITE(INS_unit, '(2a)')            'TITL new space group: ', TRIM(SPG%SPG_Symb)
   WRITE(INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
@@ -456,24 +571,24 @@ subroutine create_TRANSF_ins
   write(INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
   !--- non interpreted lines -----------
   if(SHELX_line_nb > 1) then
-   do i=2, SHELX_line_nb
+   do i=1, SHELX_line_nb
+    if(SHELX_line(i)(1:4) == "    ") cycle
     write(INS_unit, '(a)') trim(SHELX_line(i))
    end do
   endif
-
   write(INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
 
 
  !--- Atoms -----!
   do i=1,nb_atom
     call get_atom_order(atom_typ(i), atom_order)
-    write(ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
+    write(ins_unit,'(a4,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
   end do
 
   WRITE(ins_unit, '(a)') 'HKLF  4'
   WRITE(ins_unit, '(a)') 'END'
   call write_info('')
-  call write_info('   >> The CRYSCAL_transf.ins file has been created.')
+  call write_info('   >> The CRYSCALC_transf.ins file has been created.')
   call write_info('')
 
  close (unit = INS_unit)
@@ -563,11 +678,12 @@ subroutine create_NEW_ins
    WRITE(INS_UNIT, '(2a)') 'SYMM ',TRIM(car_symop(op_num))
 
  END do
-  ! deduction du nouveau symbol du groupe
- do op_num = 1, symm_nb
+
+ ! deduction du nouveau symbol du groupe
+  do op_num = 1, symm_nb
    WRITE(message_text, *) op_num, car_symop(op_num)
    call write_info(trim(message_text))
- end do
+  end do
 
 !  call set_spacegroup(' ', SPG, car_symop, nb_symm_op, 'gen')
   call set_spacegroup(' ', SPG, car_symop, symm_nb, 'gen')
@@ -617,7 +733,7 @@ subroutine get_atom_order(atom_string, atom_order)
   CHARACTER (LEN=*), INTENT(IN)         :: atom_string
   INTEGER,           INTENT(OUT)        :: atom_order
   ! local variables
-  INTEGER                               :: i, j
+  INTEGER                               :: j
 
    do j=1, nb_atoms_type
     IF(atom_string(1:) == elem_atm(j)(1:) .or. atom_string(1:) == SFAC%type(j)(1:)) then
@@ -630,18 +746,15 @@ subroutine get_atom_order(atom_string, atom_order)
 end subroutine get_atom_order
 
 !--------------------------------------------------------------
-subroutine read_TIDY_out_input_file(input_file)
+subroutine read_TIDY_out_input_file()
  USE macros_module
  use cryscalc_module
  USE IO_module
  use CFML_Crystallographic_Symmetry   , only : set_spacegroup
 
  implicit none
-  CHARACTER (LEN=*), INTENT(IN)            :: input_file
   character (len=256)                      :: read_line, new_line
-  character (len=20)                       :: new_SG
   integer                                  :: i_error, i1, i2, long
-  real, dimension(3)                       :: coord
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_TIDY_out_input_file")
 
@@ -732,11 +845,12 @@ end subroutine read_TIDY_out_input_file
 
 subroutine create_CELL_object()
  use CFML_crystal_metrics, only   : set_crystal_cell
- use cryscalc_module      , only   : unit_cell, crystal_cell, cartesian_frame
+ use cryscalc_module     , only   : unit_cell, crystal_cell, cartesian_frame
 
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell, cartesian_frame%type)
-  crystal_cell%cell_std(1:3) = unit_cell%param_esd(1:3)
-  crystal_cell%ang_std(1:3)  = unit_cell%param_esd(4:6)
+  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell, cartesian_frame%type, &
+                        unit_cell%param_esd(1:3), unit_cell%param_esd(4:6))
+  !crystal_cell%cell_std(1:3) = unit_cell%param_esd(1:3)
+  !crystal_cell%ang_std(1:3)  = unit_cell%param_esd(4:6)
 
   return
 end subroutine create_CELL_object

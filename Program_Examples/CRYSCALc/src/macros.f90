@@ -23,15 +23,17 @@ MODULE MACROS_module
               replace_car,               &
               replace_car1,              &
               replace_car2,              &
-			  verif_hkl_format,          &
-			  multiple,                  &
-			  answer_yes,                &
-			  answer_no,                 &
+              verif_hkl_format,          &
+              multiple,                  &
+              answer_yes,                &
+              answer_no,                 &
               write_message,             &
               check_character,           &
-			  Get_current_folder_name,   &
-			  Get_sample_ID_from_folder_name, &
-              Get_Wingx_job
+              Get_current_folder_name,   &
+              Get_sample_ID_from_folder_name, &
+              Get_Proposer_from_current_folder_name,  &
+              Get_Wingx_job,             &
+              Stop_cryscalc
 
 
   interface signe
@@ -76,6 +78,7 @@ MODULE MACROS_module
    end if
   end do
 
+  return
  end subroutine Nombre_de_colonnes
 
 !------------------------------------------------
@@ -166,46 +169,32 @@ MODULE MACROS_module
 
 
 !-------------------------------------------------------------------
-
- subroutine test_file_exist(file_name, file_exist, input_string)
+subroutine test_file_exist(file_name, file_exist, input_string)
   use IO_module
   CHARACTER(LEN=*), INTENT(IN)          :: file_name
   LOGICAL,          INTENT(INOUT)       :: file_exist
   CHARACTER(LEN=*), INTENT(IN)          :: input_string
   character(len=256)                    :: text_info
+  integer                               :: i1
+  logical                               :: empty_line
 
   inquire (FILE=TRIM(file_name), EXIST=file_exist)
- ! if (.not. file_exist) then
- !  write(*,'(a)') ' '
- !  write(*,'(a)') '  >>> '// trim(file_name) //' does not exist !'
- !  WRITE(*,'(a)') ' '
- !  write(2,'(a)') ' '
- !  write(2,'(a)') '  >>> '// trim(file_name) //' does not exist !'
- !  WRITE(2,'(a)') ' '
-!
-!  ! stop
-!  end if
 
+  empty_line = .true.
+  i1 = index(file_name, '.gif')
+  if (i1 /=0) empty_line = .false.
 
-  !if(len_trim(file_name) == 0) then
-  ! call write_info('')
-  ! call write_info(' archive.cif file not defined !')
-  ! call write_info('')
-  ! return
-  !endif
-  
   if(.not. file_exist .and. input_string(1:3) == 'out') then
-   call write_info('')
+   if(empty_line) call write_info('')
    write(text_info, '(3a)') ' >>> ', trim(file_name), ' does not exist !'
    call write_info(trim(text_info))
-   call write_info('')
+   if(empty_line) call write_info('')
   endif
 
   return
  end subroutine test_file_exist
+
 !-------------------------------------------------------------------
-!
-!
 subroutine error_message(error_string)
  CHARACTER (LEN=*), INTENT(IN)    :: error_string
 
@@ -216,6 +205,7 @@ subroutine error_message(error_string)
  WRITE(2,'(3a)') '   >> Error reading file at line: ',TRIM(error_string), ' !'
  WRITE(2,'(a)' ) ' '
  !stop
+
  return
 
 end subroutine error_message
@@ -372,7 +362,8 @@ end subroutine error_message
 
 !  return
 ! end subroutine replace_car3
- !-------------------------------------------------------------------
+
+!-------------------------------------------------------------------
  function replace_car(chaine, car1, car2) result(new_chaine)
   ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
   ! dans une chaine
@@ -383,7 +374,6 @@ end subroutine error_message
    CHARACTER (LEN=len(chaine))         :: new_chaine
    character (len=1)                   :: new_car
    INTEGER                             :: i
-   integer                             :: len_car1
    logical                             :: modif_car2
 
 
@@ -400,27 +390,27 @@ end subroutine error_message
 
    modif_car2 = .false.
    do i = 1, len_trim(car2)
-    if(index(car1, car2(i:i)) /=0) then	  
+    if(index(car1, car2(i:i)) /=0) then
      if(index(chaine, '/') /=0) then
-	  new_car = "/"
-	 else
+      new_car = "/"
+     else
       if(index(chaine, '/') /=0) then
-	   new_car ="!"
-      endif	  
-     endif	 
-	 new_chaine = replace_car2(chaine, car1(1:1), new_car)
-	 new_chaine = replace_car2(new_chaine, new_car, car2)
-	 
-	 modif_car2 = .true.
-	 exit
+       new_car ="!"
+      endif
+     endif
+     new_chaine = replace_car2(chaine, car1(1:1), new_car)
+     new_chaine = replace_car2(new_chaine, new_car, car2)
+     modif_car2 = .true.
+     exit
     end if
-   end do	
-   
+   end do
+
    if(.not. modif_car2)  new_chaine =  replace_car2(chaine, car1, car2)
 
    return
  end function replace_car
- !-------------------------------------------------------------------
+
+!-------------------------------------------------------------------
  function replace_car1(chaine, car1, car2) result(new_chaine)
   ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
   ! dans une chaine
@@ -431,35 +421,33 @@ end subroutine error_message
    CHARACTER (LEN=len(chaine))         :: new_chaine
    character (len=1)                   :: new_car
    INTEGER                             :: i
-   integer                             :: len_car1
    logical                             :: modif_car2
 
 
    new_chaine = chaine
    modif_car2 = .false.
    do i = 1, len_trim(car2)
-    if(index(car1, car2(i:i)) /=0) then	  
+    if(index(car1, car2(i:i)) /=0) then
      !if(index(chaine, '/') /=0) then
-	 ! new_car = "/"
-	 !else
+     ! new_car = "/"
+     !else
      ! if(index(chaine, '/') /=0) then
-	 !  new_car ="!"
-     ! endif	  
-     !endif	 
-	 new_chaine = replace_car2(chaine, car1(1:1), new_car)
-	 new_chaine = replace_car2(new_chaine, new_car, car2)
-	 
-	 modif_car2 = .true.
-	 exit
+     !  new_car ="!"
+     ! endif
+     !endif
+     new_chaine = replace_car2(chaine, car1(1:1), new_car)
+     new_chaine = replace_car2(new_chaine, new_car, car2)
+     modif_car2 = .true.
+     exit
     end if
    end do
-   
-   
+
+
    if(.not. modif_car2)  new_chaine =  replace_car2(chaine, car1, car2)
 
    return
  end function replace_car1
- 
+
   !-------------------------------------------------------------------
  function replace_car2(chaine, car1, car2) result(new_chaine)
   ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
@@ -486,7 +474,7 @@ end subroutine error_message
 
   return
  end function replace_car2
- 
+
 
 
 !-------------------------------------------------------------------
@@ -495,27 +483,26 @@ function verif_hkl_format(hkl_format) result(new_format)
  implicit none
   character (len=*) , intent(in)  :: hkl_format
   CHARACTER (LEN=32)              :: new_format
- 
-  integer                            :: i1, i2, long
-  
+  integer                         :: i1, long
+
   new_format = hkl_format
-  
+
   long = len_trim(new_format)
-  
+
   i1 = index(new_format, "'")
   if(i1 /=0)   new_format = remove_car(new_format, "'")
-    
+
   i1 = index(new_format, '"')
   if(i1 /=0)   new_format = remove_car(new_format, '"')
-  
+
   i1 = index(new_format, '(')
   if(i1 /=0)   new_format = remove_car(new_format, '(')
-  
+
   i1 = index(new_format, ')')
   if(i1 /=0)   new_format = remove_car(new_format, ')')
   new_format = '('//trim(new_format)//')'
-   
- 
+
+
  return
 end function verif_hkl_format
 !-------------------------------------------------------------------
@@ -525,8 +512,8 @@ function multiple(n, m) result(multipl)   ! n multiple de m ?
  implicit none
   integer, intent(in)   :: n, m
   logical               :: multipl
-  
-  
+
+
   multipl = .false.
   if(m*int(n/m) == n) multipl = .true.
 
@@ -534,26 +521,26 @@ end function multiple
 
 !-------------------------------------------------------------------
 function answer_yes(input_string) result(answer_y)
- 
+
  implicit none
   character (*), intent(in)  :: input_string
   logical                    :: answer_y
- 
+
   answer_y = .false.
   if(input_string(1:1) == '1' .or. Input_string(1:1) == 'y'  .or. input_string(1:1) == 'Y') answer_y = .true.
- 
+
 end function answer_yes
 
 !-------------------------------------------------------------------
 function answer_no(input_string) result(answer_n)
- 
+
  implicit none
   character (*), intent(in)  :: input_string
   logical                    :: answer_n
- 
+
   answer_n = .false.
   if(input_string(1:1) == '0' .or. Input_string(1:1) == 'n'  .or. input_string(1:1) == 'n') answer_n = .true.
- 
+
 end function answer_no
 
 
@@ -578,7 +565,6 @@ end function answer_no
 
 !---------------------------------------------------------------------
 ! verif. si un caractere est une lettre, symbole, chiffre
-
 subroutine  check_character(input_character, alpha_char, numeric_char)
  implicit none
   CHARACTER (LEN=1), INTENT(IN)           :: input_character
@@ -639,12 +625,12 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
 
  return
 end subroutine check_character
-!------------------------------------------------------------------------------------
 
+!------------------------------------------------------------------------------------
 subroutine Get_current_folder_name(folder_name)
 
  character(len=256), intent(out) :: folder_name
- integer                         :: i, i1, i_error
+ integer                         :: i, i_error
  character(len=256)              :: read_line
 
  folder_name = '?'
@@ -652,10 +638,10 @@ subroutine Get_current_folder_name(folder_name)
   open (unit=22, file="temp_file")
    do i=1, 4
     read(22,'(a)', iostat=i_error) read_line
-	if(i_error /=0) exit
-	if(i==4 .and. index(read_line,':') /=0) then
-	 folder_name = trim(read_line(index(read_line,':')-1:))
-	endif
+    if(i_error /=0) exit
+    if(i==4 .and. index(read_line,':') /=0) then
+     folder_name = trim(read_line(index(read_line,':')-1:))
+    endif
    end do
 
   close(unit=22)
@@ -668,19 +654,96 @@ subroutine Get_sample_ID_from_folder_name(current_folder, sample_ID)
  character (len=*),   intent(in)    :: current_folder
  character (len=256), intent(out)   :: sample_ID
  integer                            :: i1, i2
- 
+
    sample_ID = 'job'
-   i1 = index(current_folder, '\', back=.true.) 
+   i1 = index(current_folder, '\', back=.true.)
    if(i1 /=0) then
-	i2 = index(current_folder(i1+1:),"_")
-    if(i2 /=0) then	 
-	  write(sample_ID, '(a)') current_folder(i1+1:i1+i2-1)
-	 endif 
-	endif
-	
+    i2 = index(current_folder(i1+1:),"_")
+     if(i2 /=0) then
+     write(sample_ID, '(a)') current_folder(i1+1:i1+i2-1)
+    endif
+   endif
+
  return
-end subroutine Get_sample_ID_from_folder_name 
-	 
+end subroutine Get_sample_ID_from_folder_name
+
+!------------------------------------------------------------------------------------
+subroutine Get_Proposer_from_current_folder_name(current_folder, proposer_name, proposer_team)
+
+ character (len=*),   intent(in)    :: current_folder
+ character (len=256), intent(out)   :: proposer_name
+ character (len=256), intent(out)   :: proposer_team
+ integer                            :: i, i1, long
+ character (len=256)                :: new_string, last_folder
+ logical                            :: work_folder
+
+   proposer_name = '?'
+   proposer_team = '?'
+   work_folder   = .false.
+
+   i1=index(current_folder, '\', back=.true.)
+   if(i1 /=0) last_folder = current_folder(i1+1:)
+   long = len_trim(last_folder)
+   if(long == 4) then
+    if(last_folder(1:4) == 'work') work_folder = .true.
+   end if
+
+   if(work_folder) then
+    new_string = current_folder
+    do i=1, 3
+     i1 = index(new_string, '\', back=.true.)
+     if(i1 /= 0) then
+      write(new_string, '(a)')  new_string(1:i1-1)
+     else
+      proposer_name = '?'
+      proposer_team = '?'
+      return
+     end if
+
+     if (i > 1) then
+      i1 = index(new_string, '\', back=.true.)
+      if(i1 /=0) then
+       if (i==2) then
+        proposer_name = new_string(i1+1:)
+       elseif (i==3) then
+        proposer_team = new_string(i1+1:)
+       end if
+      end if
+     end if
+    end do
+
+   else
+    new_string = current_folder
+    do i=1, 2
+     i1 = index(new_string, '\', back=.true.)
+     if(i1 /= 0) then
+      write(new_string, '(a)')  new_string(1:i1-1)
+     else
+      proposer_name = '?'
+      proposer_team = '?'
+      return
+     end if
+
+     if (i >= 1) then
+      i1 = index(new_string, '\', back=.true.)
+      if(i1 /=0) then
+       if (i==1) then
+        proposer_name = new_string(i1+1:)
+       elseif (i==2) then
+        proposer_team = new_string(i1+1:)
+       end if
+      end if
+     end if
+    end do
+   end if
+
+
+ return
+end subroutine Get_Proposer_from_current_folder_name
+
+!------------------------------------------------------------------------------------
+
+
 !------------------------------------------------------------------------------------
 subroutine Get_WinGX_job(job, wingx_structure_directory)
  use IO_module
@@ -725,10 +788,10 @@ subroutine Get_WinGX_job(job, wingx_structure_directory)
     read(22, '(a)', iostat=i_error) read_line
     if(i_error /=0) exit
     read_line = adjustl(read_line)
-	if(index(read_line, 'StructureDirectory=') /=0) then
+    if(index(read_line, 'StructureDirectory=') /=0) then
      i1 = index(read_line, '=')
      read(read_line(i1+1 :), '(a)') Wingx_Structure_directory
-	elseif(index(read_line, 'StructureName=') /=0) then
+    elseif(index(read_line, 'StructureName=') /=0) then
      i1 = index(read_line, '=')
      read(read_line(i1+1 :), '(a)') job
      exit
@@ -741,7 +804,20 @@ subroutine Get_WinGX_job(job, wingx_structure_directory)
  return
 end subroutine Get_WinGX_job
 
-!------------------------------------------------------------------------------------
+!--------------------------------------------------------------------
+subroutine Stop_cryscalc
+   use IO_module, only  : write_info
+
+   call write_info('')
+   call write_info('  !! Problem opening cryscalc.log file. Please exit other instances of CRYSCALC. !!')
+   call write_info('  !! Program will be stopped. !!')
+   call write_info('')
+   stop
+
+ return
+end subroutine Stop_cryscalc
+
+!!------------------------------------------------------------------------------------
 END module macros_module
 
 

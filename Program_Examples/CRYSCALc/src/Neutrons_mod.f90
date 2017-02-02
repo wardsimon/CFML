@@ -69,7 +69,7 @@
       atom( 91: 96)%SEA = (/ 200.6,      7.57,    175.9,    558.,        75.3,   16.2/)
       atom(200)%SEA = 0.
       atom(201)%SEA = .00052
-	
+
      return
 
   end subroutine definition_data_neutrons
@@ -84,7 +84,7 @@
  !              J.E. Lynn and P.A. Seeger, Los Alamos National Laboratory
  !  tables : E, Re(b), Im(b)  E en ev, b en fm (10-15 m, soit 10-13 cm)
  !
- !  Thanks to Pierric Lemoine (ISCR) for taping data for paper
+ !  Thanks to Pierric Lemoine (ISCR) for taping data from previous article
 
  ! natural Sm
    !RE_label(1) = "Sm_nat"
@@ -115,7 +115,7 @@
    RE_Sm_nat(25, :) = (/0.25,  6.06, -0.43,  6.08/)
    RE_Sm_nat(26, :) = (/0.26,  5.95, -0.38,  5.97/)
    RE_Sm_nat(27, :) = (/0.27,  5.85, -0.34,  5.86/)
-   RE_Sm_nat(28, :) = (/0.28,  5.76, -0.31,  5.77/)   
+   RE_Sm_nat(28, :) = (/0.28,  5.76, -0.31,  5.77/)
    RE_Sm_nat(29, :) = (/0.29,  5.68, -0.28,  5.68/)
    RE_Sm_nat(30, :) = (/0.30,  5.60, -0.25,  5.61/)
    RE_Sm_nat(31, :) = (/0.31,  5.53, -0.23,  5.54/)

@@ -25,17 +25,19 @@ subroutine read_CFL_input_file(inp_unit)
 
   IF (LEN_TRIM(read_line) == 0) cycle
   IF (read_line(1:1) == '! ' .or. read_line(1:1) == '#') cycle
-  
+
   i1 = index(read_line, '!')
   if(i1 /=0) read_line = trim(read_line(1:i1-1))
 
   call identification_CFL_keywords(read_line)
-  call identification_keywords(read_line)
-  
+  if(unknown_CFL_keyword) then
+  call identification_keywords(read_line)           ! read_KEYW.F90
+  end if
+
  ! call run_keyword_interactive(current_keyword)
 
  END do
- close(unit=inp_unit)
+ !close(unit=inp_unit)
 
 ! !IF(.NOT. keyword_BEAM .AND. keyword_WAVE .and. keyword_SFAC_UNIT ) then
 ! IF(.NOT. keyword_BEAM .AND. ( keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)) then
@@ -66,12 +68,13 @@ subroutine incident_beam()
   integer             :: i
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "INCIDENT_BEAM")
-  
+
   X_rays   = .true.
   neutrons = .false.
-  
+
   X_target(1:tabulated_target_nb)%logic = .false.
-  
+  anti_cathode    = .false.
+
   do i=1, tabulated_target_nb
    if(ABS(wavelength - X_target(i)%wave(1)) < LOCK_wave_value) then
     wavelength = X_target(i)%wave(1)
@@ -80,7 +83,7 @@ subroutine incident_beam()
     exit
    end if
   end do
-  
+
   !if(.not. anti_cathode) then
   ! X_target(2)%logic = .true.  ! Mo
   ! anti_cathode = .true.
@@ -88,6 +91,7 @@ subroutine incident_beam()
 
   return
 end subroutine incident_beam
+
 !-------------------------------------------------------------------------
  subroutine identification_CFL_keywords(read_line)
   USE cryscalc_module
@@ -97,7 +101,7 @@ end subroutine incident_beam
 
   USE IO_module
   implicit none
-  CHARACTER (LEN=*), INTENT(IN)            :: read_line
+  CHARACTER (LEN=*), INTENT(INOUT)         :: read_line
   CHARACTER (LEN=32)                       :: input_keyword, input_arg
   INTEGER                                  :: long_kw
   REAL,               DIMENSION(10)        :: var
@@ -108,7 +112,9 @@ end subroutine incident_beam
   !LOGICAL                                  :: lecture_ok
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "IDENTIFICATION_CFL_KEYWORDS")
-  
+
+  if(.not. keyword_NO_details) WRITE_details = .true.
+
   READ(read_line, *) input_keyword
   input_keyword = ADJUSTL(input_keyword)
   long_kw = LEN_TRIM(input_keyword)
@@ -124,22 +130,83 @@ end subroutine incident_beam
    arg_line = ADJUSTL(arg_line)
   endif
   call nombre_de_colonnes(arg_line, nb_arg)
+   !write(*,*) ' arg_line: ', trim(arg_line), '  ', nb_arg, write_details
+
   IF(nb_arg/=0)  then
    READ(arg_line, *, IOSTAT=i_error) arg_string(1:nb_arg)
+   !write(*,*) arg_string(1:nb_arg)
    IF(i_error /=0) then
     call write_info('')
     WRITE(message_text, '(3a)') ' ... Error reading ', TRIM(input_keyword), ' arguments ...'
     call write_info(TRIM(message_text))
     return
    endif
+  ! do i=1, nb_arg
+  !  arg_string(i) = u_case(arg_string(i))
+    !long = len_trim(arg_string(i))
+    !if(long >= 6) then
+    ! if(arg_string(i)(1:6) == 'NO_OUT' .or. arg_string(i)(1:6) == 'NO_DET') then
+    !  WRITE_details = .false.
+    ! end if
+    !end if
+    !if(long >=10) then
+    ! if(arg_string(i)(1:10) == 'NO_DETAILS') then
+    !  WRITE_details = .false.
+    ! end if
+    !end if
+   !end do
+  endif
+
+  if(nb_arg /=0) then
+  !write(*,*) ' arg_line : ', trim(arg_line)
+   i1 = index(arg_line, "NO_DETAILS")
+   if(i1 /=0) then
+    arg_line = remove_car(arg_line, "NO_DETAILS")
+    read_line = remove_car(read_line, "NO_DETAILS")
+    write_details = .false.
+   else
+    i1 = index(arg_line, "NO_DET")
+    if (i1 /=0) then
+     arg_line = remove_car(arg_line, "NO_DET")
+     read_line = remove_car(read_line, "NO_DET")
+     write_details = .false.
+    else
+     i1 = index(arg_line, "NO_OUT")
+     if(i1 /=0) then
+      arg_line = remove_car(arg_line, "NO_OUT")
+      read_line = remove_car(read_line, "NO_OUT")
+      write_details = .false.
+     end if
+    end if
+   endif
+  !write(*,*) ' arg_line : ', trim(arg_line)
+  end if
+
+ !write(*,*) 'write_details : ', write_details
+  if(.not. WRITE_details) then
+   nb_arg = nb_arg - 1
+   !arg_line = remove_car(arg_line, 'NO_DETAILS')
+   !arg_line = remove_car(arg_line, 'NO_DET')
+   !arg_line = remove_car(arg_line, 'NO_OUT')
+
+   !READ(arg_line, *, IOSTAT=i_error) arg_string(1:nb_arg)
+   call get_arg_string(arg_line, nb_arg, arg_string)
    do i=1, nb_arg
     arg_string(i) = u_case(arg_string(i))
    end do
-  endif
+  end if
 
+
+ !write(*,*) ' arg_line: ', trim(arg_line), '  ', nb_arg
+ !do i=1, nb_arg
+ ! write(*,*) i, trim(arg_string(i))
+ !end do
+ !write(*,*) ' read_line: ', trim(read_line)
+ !write(*,*) 'write_details : ', write_details
+ !pause
   IF(mode_interactif)   WRITE(CFL_unit, '(a)') TRIM(read_line)
 
- 
+
   select case (TRIM(input_keyword))
 
    case ('ACTA', 'CIF', 'CREATE_CIF')
@@ -151,83 +218,87 @@ end subroutine incident_beam
     WRITE(CIF_unit, '(a)') ''
     WRITE(CIF_unit, '(a)') 'data_cryscalc'
     WRITE(CIF_unit, '(a)') ''
-    
+
    case ('CREATE_ACE')
     keyword_create_ACE = .true.
 
    case ('CREATE_CEL')
     keyword_create_CEL = .true.
-    
+
    case ('CREATE_CFL')
     keyword_create_CFL = .true.
-    
+
    case ('CREATE_FST')
     keyword_create_FST = .true.
-	
+
    !case ('CREATE_CIF_PYMOL')
-   ! create_CIF_PYMOL = .true.   
-     
+   ! create_CIF_PYMOL = .true.
+
    case ('CREATE_INS')
-    keyword_create_INS = .true.  
-      
- 
+    keyword_create_INS = .true.
+
+
    case ('TITL', 'TITLE')
 
     READ(arg_line, '(a)') main_title
+    if(write_details) then
     call write_info(' ' )
     call write_info('  . TITL: '//trim(main_title))
+    end if
 
    CASE ('CELL', 'CELL_PARAMETERS')
-    input_CELL_P4P  = .false.
-    input_CELL_M50  = .false.
-    input_CELL_INS  = .false.
-	input_CELL_CIF  = .false.
-	input_CELL_RED  = .false.
-	
-    input_CELL = .false.
+    input_CELL%P4P  = .false.
+    input_CELL%M50  = .false.
+    input_CELL%INS  = .false.
+    input_CELL%CIF  = .false.
+    input_CELL%RED  = .false.
+    input_CELL%file = .false.
+    UB_mat_log      = .false.
+    known_cell_ESD  = .false.
+
     IF(nb_arg /=0) then
      i1 = INDEX(arg_string(1), '.')
      IF(i1/=0) then
       IF(arg_string(1)(i1:) == '.P4P') then
-       input_CELL_P4P  = .true.
-       input_CELL      = .true.
+       input_CELL%P4P  = .true.
+       input_CELL%file = .true.
        WRITE(P4P_file_name, '(a)') arg_string(1)
       ELSEIF(arg_string(1)(i1:) == '.M50') then
-       input_CELL_M50  = .true.
-       input_CELL      = .true.
+       input_CELL%M50  = .true.
+       input_CELL%file = .true.
        WRITE(M50_file_name, '(a)') arg_string(1)
-	  ELSEIF(arg_string(1)(i1:) == '.CIF' .OR.  arg_string(1)(i1:) == '.CIF_OD') then
-       input_CELL_CIF  = .true.
-       input_CELL      = .true.	
-       WRITE(CIF_file_name, '(a)') arg_string(1)	   
+      ELSEIF(arg_string(1)(i1:) == '.CIF' .OR.  arg_string(1)(i1:) == '.CIF_OD') then
+       input_CELL%CIF  = .true.
+       input_CELL%file = .true.
+       WRITE(CIF_file_name, '(a)') arg_string(1)
       ELSEIF(arg_string(1)(i1:) == '.INS' .OR.  arg_string(1)(i1:) == '.RES') then
-       input_CELL_INS = .true.
-       input_CELL     = .true.
+       input_CELL%INS  = .true.
+       input_CELL%file = .true.
        WRITE(INS_file_name, '(a)') arg_string(1)
       ELSEIF(arg_string(1)(i1:) == '.X') then
-       input_CELL_X = .true.
-       input_CELL   = .true.
+       input_CELL%X     = .true.
+       input_CELL%file  = .true.
        WRITE(X_file_name, '(a)') arg_string(1)
       ELSEIF(arg_string(1)(i1:) == '.RMAT') then
-       input_CELL_RMAT = .true.
-       input_CELL      = .true.
+       input_CELL%RMAT = .true.
+       input_CELL%file = .true.
        WRITE(RMAT_file_name, '(a)') arg_string(1)
-	  ELSEIF(arg_string(1)(i1:) == '.RED') then
-       input_CELL_RED  = .true.
-       input_CELL	   = .true.
-	   WRITE(RED_file_name, '(a)') arg_string(1)
+      ELSEIF(arg_string(1)(i1:) == '.RED') then
+       input_CELL%RED  = .true.
+       input_CELL%file = .true.
+       WRITE(RED_file_name, '(a)') arg_string(1)
       endif
      endif
     endif
 
-    IF(.not. input_CELL) then
+    IF(.not. input_CELL%file) then
      IF(nb_arg == 1) then
       arg_string(2:3) = arg_string(1)
       arg_string(4:6) = '90.0'
      elseif(nb_arg == 2) then      ! systeme tetragonal
       arg_string(3) = arg_string(2)  ! parametre C
-      arg_string(2) = arg_string(1)      
-      arg_string(4:6) = '90.0' 
+      arg_string(2) = arg_string(1)
+      arg_string(4:6) = '90.0'
      elseIF(nb_arg == 3) then
       arg_string(4:6) = '90.0'
      ELSEIF(nb_arg == 4) then
@@ -235,13 +306,13 @@ end subroutine incident_beam
       arg_string(4) = '90.0'
       arg_string(6) = '90.0'
      elseif (nb_arg < 6) then
-      call check_arg('6' , 'CELL')
+      call check_arg_nb('6' , 'CELL')
       return
      endif
     endif
 
     var(1:10) = 0.
-    IF(.NOT. input_CELL) then
+    IF(.NOT. input_CELL%file) then
      do i=1, 6
       i1 = INDEX(arg_string(i), '(')
       i2 = INDEX(arg_string(i), ')')
@@ -266,17 +337,29 @@ end subroutine incident_beam
      !READ(arg_string(1:6), *, IOSTAT=i_error) (var(i), i=1,6)
      !IF(i_error /=0) call error_message('CELL')
 
+     !WRITE_details = .true.
+     !do i=1, nb_arg
+     ! long = len_trim(arg_string(i))
+     ! if (long >= 6) then
+     !  if(u_case(arg_string(i)(1:6)) == 'NO_OUT' .or. u_case(arg_string(i)(1:6)) == 'NO_DET') then
+     !   WRITE_details = .false.
+     !  end if
+     ! end if
+     !end do
+
      !if(var(1) < 2.) then ! for compatibility with INS SHELX input file (CELL keyword)
-     IF(nb_arg == 7) then
+     IF(nb_arg == 7 .and. WRITE_details) then
       READ(arg_string(1:7), *, IOSTAT=i_error) (var(i), i=1,7)
       IF(i_error /=0) then
        call error_message('CELL')
        return
       endif
       wavelength = var(1)
+      if(write_details) then
       call write_info(' ')
       WRITE(message_text,'( a,F10.5)') '  > WAVELENGTH (A):', wavelength
-       call write_info(TRIM(message_text))
+      call write_info(TRIM(message_text))
+      end if
       IF(keyword_create_CIF)  call write_CIF_file('WAVE')
       keyword_WAVE = .true.
       unit_cell%param(1:6) = var(2:7)
@@ -285,7 +368,7 @@ end subroutine incident_beam
      endif
 
     else
-     IF(input_CELL_P4P) then
+     IF(input_CELL%P4P) then
       call read_P4P_file(TRIM(P4P_file_name))
       IF(.NOT. lecture_ok) then
        call write_info('')
@@ -293,7 +376,7 @@ end subroutine incident_beam
        call write_info('')
        return
       endif
-     ELSEIF(input_CELL_M50) then
+     ELSEIF(input_CELL%M50) then
       call read_M50_file(TRIM(M50_file_name), lecture_ok)
       IF(.NOT. lecture_ok) then
        call write_info('')
@@ -301,11 +384,12 @@ end subroutine incident_beam
        call write_info('')
        return
       endif
-	 ELSEIF(input_CELL_CIF) then
-      call READ_CIF_input_file(TRIM(CIF_file_name), 'out')
-      
-	  
-     ELSEIF(input_CELL_INS) then
+     ELSEIF(input_CELL%CIF) then
+      !call READ_CIF_input_file(TRIM(CIF_file_name), 'out')
+      call READ_CIF_input_file(TRIM(CIF_file_name), 'CELL')
+
+
+     ELSEIF(input_CELL%INS) then
       call read_INS_input_file(TRIM(INS_file_name), "CELL")
        !IF(.NOT. lecture_ok) then
        ! call write_info('')
@@ -313,21 +397,21 @@ end subroutine incident_beam
        ! call write_info('')
        ! return
        !endif
-     ELSEIF(input_CELL_X) then
+     ELSEIF(input_CELL%X) then
       call READ_X_input_file(TRIM(X_file_name), lecture_OK)
       IF(.NOT. lecture_OK) then
        call write_info('')
        call write_info('   >>> Problem reading DENZO .x file')
        call write_info('')
       endif
-     ELSEIF(input_CELL_RMAT) then
+     ELSEIF(input_CELL%RMAT) then
       call READ_RMAT_input_file(TRIM(RMAT_file_name), lecture_OK)
       IF(.NOT. lecture_OK) then
        call write_info('')
        call write_info('   >>> Problem reading DIRAX .rmat file')
        call write_info('')
       endif
-	 ELSEIF(input_CELL_RED) then
+     ELSEIF(input_CELL%RED) then
       call READ_RED_input_file(TRIM(RED_file_name), lecture_OK)
       IF(.NOT. lecture_OK) then
        call write_info('')
@@ -337,9 +421,16 @@ end subroutine incident_beam
      endif
     endif
 
-    call write_info('')
-    WRITE(message_text,'( a,6F10.4)') '  > CELL PARAMETERS: ', (unit_cell%param(i),i=1,6)
-    call write_info(TRIM(message_text))
+
+   !IF(.NOT. input_CELL%file) then
+    if(write_details) then
+     call write_info('')
+     WRITE(message_text,'( a,6F12.5)') '  > CELL PARAMETERS: ', (unit_cell%param(i),i=1,6)
+     call write_info(TRIM(message_text))
+     WRITE(message_text,'( a,6F12.5)') '                     ', (unit_cell%param_esd(i),i=1,6)
+     call write_info(TRIM(message_text))
+    end if
+   !end if
     keyword_CELL = .true.
 
     !call volume_calculation('out')
@@ -350,7 +441,7 @@ end subroutine incident_beam
 
    CASE ('SIZE', 'CRYSTAL_SIZE')
     IF(nb_arg < 3) then
-     call check_arg('3', 'SIZE')
+     call check_arg_nb('3', 'SIZE')
      return
     endif
 
@@ -364,13 +455,15 @@ end subroutine incident_beam
     crystal%size(1:3) = var(1:3)
     keyword_SIZE = .true.
 
+
    CASE ('WAVE', 'WAVELENGTH', 'WL', 'LAMBDA')
     IF(nb_arg ==0) then
-     call check_arg('0', 'WAVE')
+     call check_arg_nb('0', 'WAVE')
      return
     endif
+
     var(1:10) = 0.
-	if(beam_type(1:6) == 'x-rays') then
+    if(beam_type(1:6) == 'x-rays') then
      call get_X_radiation(arg_string(1))
     !if(.not. keyword_WAVE) then
      if(.not. anti_cathode) then
@@ -378,35 +471,34 @@ end subroutine incident_beam
       IF(i_error /=0) then
        call error_message('WAVE')
        return
-      endif     
+      endif
       wavelength = var(1)
      endif
     else
-	 read(arg_string(1), *,  IOSTAT= i_error) var(1)
+     read(arg_string(1), *,  IOSTAT= i_error) var(1)
      IF(i_error /=0) then
       call error_message('WAVE')
       return
-     endif     
-	 wavelength = var(1)
-	endif    
-	
-	call write_wave_features()
+     endif
+     wavelength = var(1)
+    endif
+
+    call write_wave_features()
     keyword_WAVE = .true.
     IF(keyword_create_CIF)  call write_CIF_file('WAVE')
 
     !anti_cathode = .false.
-    !do i=1, tabulated_target_nb 
+    !do i=1, tabulated_target_nb
     ! IF(X_target(i)%logic) anti_cathode = .true.
     !ENDDO
-    
-    IF(.not. anti_cathode) call incident_beam       !
 
+    IF(.not. neutrons .and. .not. anti_cathode) call incident_beam       !
     IF(keyword_FILE .AND. .NOT. known_theta) call calcul_theta()
 
 
    CASE ('BEAM', 'JOBTYPE', 'JOBTYP')
     IF(nb_arg ==0) then
-     call check_arg('0', 'BEAM')
+     call check_arg_nb('0', 'BEAM')
      return
     endif
     read(arg_string(1),*, iostat=i_error) input_arg
@@ -421,7 +513,7 @@ end subroutine incident_beam
      electrons = .false.
      beam_type = 'x-rays'
      !call get_X_radiation(beam_type)
-	 call get_X_radiation(trim(input_arg))
+     call get_X_radiation(trim(input_arg))
      keyword_wave = .true.
     ELSEIF(input_arg(1:4) == 'NEUT') then
      neutrons  = .true.
@@ -438,7 +530,7 @@ end subroutine incident_beam
     ELSEIF(input_arg(1:4) == 'ELEC') then
      electrons = .true.
      neutrons  = .false.
-     X_rays    = .false.     
+     X_rays    = .false.
      beam_type = 'electrons'
      if(nb_arg==2) then
       read(arg_string(2), *, iostat=i_error) var(2)
@@ -449,24 +541,32 @@ end subroutine incident_beam
      endif
     endif
     keyword_beam = .true.
-	call write_info('    . beam_type: '// trim(beam_type))
+    if(write_details) then
+    call write_info('    . beam type: '// trim(beam_type))
+    end if
 
 
    CASE ('SPGR', 'SG', 'SPACE_GROUP')
     IF(nb_arg ==0) then
-     call check_arg('0', 'SPGR')
+     call check_arg_nb('0', 'SPGR')
      return
     endif
     read(arg_line, '(a)') space_group_symbol
+    if(write_details) then
     call write_info('')
     WRITE(message_text,'(2a)')   '  > SPACE GROUP : ', TRIM(space_group_symbol)
     call write_info(TRIM(message_text))
+    end if
     keyword_SPGR = .true.
+    WRITE_SPG_info          = .false.
+    write_SPG_info_all      = .false.
+    WRITE_SPG_exti          = .false.
+    write_SPG_all           = .false.
 
 
    CASE ('Z', 'ZUNIT', 'Z_UNIT' )
     IF(nb_arg ==0) then
-     call check_arg('0', 'ZUNIT')
+     call check_arg_nb('0', 'ZUNIT')
      return
     endif
 
@@ -491,7 +591,7 @@ end subroutine incident_beam
 
    CASE ('SFAC')
     if(nb_arg == 0) then
-     call check_arg('0', 'SFAC')
+     call check_arg_nb('0', 'SFAC')
      return
     endif
     nb_atoms_type = nb_arg
@@ -534,12 +634,18 @@ end subroutine incident_beam
 
    CASE ('CONT')
     IF(nb_arg ==0) then
-     call check_arg('0', 'CONT')
+     call check_arg_nb('0', 'CONT')
      return
     endif
 
     nb_atoms_type = INT(nb_arg / 2.)
-    READ(arg_line, *)( SFAC%type(i), SFAC%number(i), i = 1, nb_atoms_type)
+    READ(arg_line, *, iostat=i_error)( SFAC%type(i), SFAC%number(i), i = 1, nb_atoms_type)
+    if(i_error /=0) then
+     call write_info('')
+     call write_info(' ! Wrong format for CONT keyword !')
+     call write_info('')
+     return
+    end if
     call write_info('')
     WRITE(message_text,'(2a)') '  > ',TRIM(read_line)
     call write_info(TRIM(message_text))
@@ -555,17 +661,17 @@ end subroutine incident_beam
 
    CASE ('CHEM', 'CHEM_FORM', 'CHEMICAL_FORMULA')
     IF(nb_arg ==0) then
-     call check_arg('0', 'CHEM')
+     call check_arg_nb('0', 'CHEM')
      return
     endif
     call decode_CHEM_string(arg_line, nb_arg)
 
    case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
     keyword_MU = .true.
-    
+
    CASE ('ATOM', 'ATM')
     IF(nb_arg <5) then
-     call check_arg('5', 'ATOM')
+     call check_arg_nb('5', 'ATOM')
      return
     endif
 
@@ -588,7 +694,7 @@ end subroutine incident_beam
     READ(arg_string(1),*) atom_label(nb_atom)
     READ(arg_string(2),*) atom_typ(nb_atom)
 
-	
+
     do i=3, nb_arg
      i1 = INDEX(arg_string(i), '(')
      i2 = INDEX(arg_string(i), ')')
@@ -601,7 +707,7 @@ end subroutine incident_beam
      endif
     end do
 
-    ! recherche de coordonnes sous forme fractionnaire
+    ! recherche de coordonnees sous forme fractionnaire
     atom_Biso(nb_atom)     = 0.
     atom_occ(nb_atom)      = 1.
     atom_occ_perc(nb_atom) = 1.
@@ -625,24 +731,25 @@ end subroutine incident_beam
      !endif
     END IF
 
-
+    if(write_details) then
     call write_info(' ')
     if(i /=0)  then
       WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
-	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
+                                               (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
     else
      IF(nb_arg == 3) then
       WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
-	                                           (atom_coord(i,nb_atom),i=1,3)
+                                               (atom_coord(i,nb_atom),i=1,3)
      ELSEIF(nb_arg == 4) then
       WRITE(message_text,'(a,2a6,4(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
-	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom)
+                                               (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom)
      ELSEIF(nb_arg == 5) then
       WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
-	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
+                                               (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
      endif
     endif
     call write_info(TRIM(message_text))
+    end if
 
    ! WRITE(message_text,*) ' 2: ', atom_label(nb_atom),atom_typ(nb_atom)
    ! call write_info(trim(message_text))
@@ -654,7 +761,7 @@ end subroutine incident_beam
 
    CASE ('HKL' )
     IF(nb_arg <3) then
-     call check_arg('3', 'HKL')
+     call check_arg_nb('3', 'HKL')
      return
     endif
     IF(mode_interactif) then
@@ -684,7 +791,7 @@ end subroutine incident_beam
 
    CASE ('SF_HKL', 'SFAC_HKL')
     IF(nb_arg <3) then
-     call check_arg('3', 'SFAC_HKL')
+     call check_arg_nb('3', 'SFAC_HKL')
      return
     endif
     IF(mode_interactif) then
@@ -693,7 +800,7 @@ end subroutine incident_beam
      nb_hkl_SFAC_calc = nb_hkl_SFAC_calc + 1
     endif
     var(1:10) = 0.
-    
+
     read(arg_string(1:3), *, IOSTAT=i_error)  var(1:3)
     IF(i_error /=0) then
      call error_message('SFAC_HKL')
@@ -705,7 +812,7 @@ end subroutine incident_beam
     H(2,nb_hkl_SFAC_calc) = var(2)
     H(3,nb_hkl_SFAC_calc) = var(3)
     WRITE(message_text,'(a,3F6.2)') '  > Structure factor calculation for : ', &
-	                                H(1,nb_hkl_SFAC_calc), H(2,nb_hkl_SFAC_calc), H(3,nb_hkl_SFAC_calc)
+                                    H(1,nb_hkl_SFAC_calc), H(2,nb_hkl_SFAC_calc), H(3,nb_hkl_SFAC_calc)
     call write_info(TRIM(message_text))
 
     IF(.NOT. keyword_CELL) then
@@ -718,10 +825,10 @@ end subroutine incident_beam
 
    CASE ('QVEC', 'Q_VEC', 'Q_VECTOR', 'KVEC', 'K_VEC', 'K_VECTOR', 'MOD_VEC', 'MODULATION_VECTOR')
     IF(nb_arg <3) then
-     call check_arg('3', 'QVEC')
+     call check_arg_nb('3', 'QVEC')
      return
     endif
-    
+
     ! recherche forme fractionnaire
     i = index(arg_line, '/')
     if(i/=0) then
@@ -736,16 +843,49 @@ end subroutine incident_beam
      qvec(1) = var(1)
      qvec(2) = var(2)
      qvec(3) = var(3)
-    endif 
+    endif
     keyword_QVEC = .true.
-    WRITE(message_text, '(a,3F6.2)') '  > QVEC: ', qvec(1:3)
+    WRITE(message_text, '(a,3F10.6)') '  > QVEC: ', qvec(1:3)
     call write_info(TRIM(message_text))
 
+   CASE ('STAR_K')
+    WRITE_STAR_K = .true.
+    routine_TR   = .false.
+    if(nb_arg /=0) then
+     if(len_trim(arg_string(1)) == 2) then
+      if(arg_string(1)(1:2) == 'TR') routine_TR = .true.
+     end if
+    end if
+    call write_info('  > STAR_K')
+
+
+
+   CASE ('SUPERCELL')
+    IF(nb_arg <3) then
+     call check_arg_nb('3', 'SUPERCELL')
+     return
+    endif
+    var(1:10) = 0.
+    READ(arg_string(1:3), *, iostat=i_error) var(1:3)
+    if(i_error /=0) then
+     call error_message('SUPERCELL')
+     return
+    end if
+    sup_cell(1) = int(var(1))
+    sup_cell(2) = int(var(2))
+    sup_cell(3) = int(var(3))
+    do i=1, 3
+     if(sup_cell(i) == 0) sup_cell(i) = 1
+    end do
+    keyword_SUPERCELL = .true.
+    call write_SUPERCELL
+
+    if(nb_arg > 3 .and. arg_string(4) == 'PCR') SUPERCELL_pcr = .true.
 
 
    CASE ('SYMM', 'SYM', 'SYMMETRY_OPERATOR')
     IF(nb_arg ==0) then
-     call check_arg('0', 'SYMM')
+     call check_arg_nb('0', 'SYMM')
      return
     endif
 
@@ -812,7 +952,7 @@ subroutine check_matrice(M)
   INTEGER                               :: i, j, n
 
   if(debug_proc%level_2)  write(debug_proc%unit, '(a)') " . routine : CHECK_MATRICE"
-  
+
   ! verifie si la matrice (3,3) est entiere ou reelle
 
   Mat_integer = .false.
@@ -833,7 +973,6 @@ subroutine check_matrice(M)
 end subroutine check_matrice
 
 !--------------------------------------------------------------------
-
 subroutine get_atom_coord(input_line)
  USE cryscalc_module, ONLY : atom_coord, atom_Biso, atom_occ, atom_occ_perc, nb_atom, debug_proc
  use macros_module,   only : nombre_de_colonnes
@@ -844,10 +983,10 @@ subroutine get_atom_coord(input_line)
   integer, parameter                          :: nb_fraction = 11
   CHARACTER (LEN=12), DIMENSION(nb_fraction)  :: ratio_string_neg, ratio_string_pos
   real,               DIMENSION(nb_fraction)  :: ratio_real_neg,   ratio_real_pos
-  INTEGER                                     :: i, nb_col
+  INTEGER                                     :: i, i_c, nb_col
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_ATOM_COORD")
-  
+
   ratio_string_pos(1:nb_fraction) = (/'1/2',                            &
                                       '1/3', '2/3',                     &
                                       '1/4', '3/4',                     &
@@ -870,75 +1009,96 @@ subroutine get_atom_coord(input_line)
   ratio_real_neg(1:nb_fraction) = -ratio_real_pos(1:nb_fraction)
 
 
-  ! coord. x
-  input_line = ADJUSTL(input_line)
-  i = INDEX(input_line, ' ')
+  do i_c = 1, 3   ! coord x, y, z
+   input_line = ADJUSTL(input_line)
+   i = INDEX(input_line, ' ')
+   string = input_line(1:i-1)
+   string = ADJUSTL(string)
+   input_line = input_line(i+1:)
 
-  string = input_line(1:i-1)
-  string = ADJUSTL(string)
-  input_line = input_line(i+1:)
-
-  do i = 1, nb_fraction
-   IF(string(1:3) == ratio_string_pos(i)(1:3)) then
-    atom_coord(1, nb_atom) = ratio_real_pos(i)
-    exit
-
-   ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
-    atom_coord(1, nb_atom) = ratio_real_neg(i)
-    exit
-
-   else
-    READ(string, *) atom_coord(1, nb_atom)
-   endif
+   do i = 1, nb_fraction
+    IF(string(1:3) == ratio_string_pos(i)(1:3)) then
+     atom_coord(i_c, nb_atom) = ratio_real_pos(i)
+     exit
+    ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
+     atom_coord(i_c, nb_atom) = ratio_real_neg(i)
+     exit
+    else
+     READ(string, *) atom_coord(i_c, nb_atom)
+    endif
+   end do
   end do
+
+
+  ! coord. x
+  !input_line = ADJUSTL(input_line)
+  !i = INDEX(input_line, ' ')
+  !string = input_line(1:i-1)
+  !string = ADJUSTL(string)
+  !input_line = input_line(i+1:)
+
+  !do i = 1, nb_fraction
+  ! IF(string(1:3) == ratio_string_pos(i)(1:3)) then
+  !  atom_coord(1, nb_atom) = ratio_real_pos(i)
+  !  exit
+  !
+  ! ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
+  !  atom_coord(1, nb_atom) = ratio_real_neg(i)
+  !  exit
+  !
+  ! else
+  !  READ(string, *) atom_coord(1, nb_atom)
+  ! endif
+  !end do
 
   ! coord y
-  input_line = ADJUSTL(input_line)
-  i = INDEX(input_line, ' ')
-  string = input_line(1:i-1)
-  string = ADJUSTL(string)
-  input_line = input_line(i+1:)
+  !input_line = ADJUSTL(input_line)
+  !i = INDEX(input_line, ' ')
+  !string = input_line(1:i-1)
+  !string = ADJUSTL(string)
+  !input_line = input_line(i+1:)
 
-  do i = 1, nb_fraction
-   IF(string(1:3) == ratio_string_pos(i)(1:3)) then
-    atom_coord(2, nb_atom) = ratio_real_pos(i)
-    exit
+  !do i = 1, nb_fraction
+  ! IF(string(1:3) == ratio_string_pos(i)(1:3)) then
+  !  atom_coord(2, nb_atom) = ratio_real_pos(i)
+  !  exit
 
-   ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
-    atom_coord(2, nb_atom) = ratio_real_neg(i)
-    exit
+  !ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
+   !atom_coord(2, nb_atom) = ratio_real_neg(i)
+   !exit
 
-   else
-    READ(string, *) atom_coord(2, nb_atom)
-   endif
-  end do
+   !else
+   ! READ(string, *) atom_coord(2, nb_atom)
+   !endif
+  !end do
 
 
 
   ! coord z
-  input_line = ADJUSTL(input_line)
-  i = INDEX(input_line, ' ')
-  string = input_line(1:i-1)
-  string = ADJUSTL(string)
-  do i = 1, nb_fraction
-   IF(string(1:3) == ratio_string_pos(i)(1:3)) then
-    atom_coord(3, nb_atom) = ratio_real_pos(i)
-    exit
+  !input_line = ADJUSTL(input_line)
+  !i = INDEX(input_line, ' ')
+  !string = input_line(1:i-1)
+  !string = ADJUSTL(string)
+  !do i = 1, nb_fraction
+  ! IF(string(1:3) == ratio_string_pos(i)(1:3)) then
+  !  atom_coord(3, nb_atom) = ratio_real_pos(i)
+  !  exit
 
-   ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
-    atom_coord(3, nb_atom) = ratio_real_neg(i)
-    exit
+  ! ELSEIF(string(1:4) == ratio_string_neg(i)(1:4)) then
+  !  atom_coord(3, nb_atom) = ratio_real_neg(i)
+  !  exit
 
-   else
-    READ(string, *) atom_coord(3, nb_atom)
-   endif
-  end do
+  ! else
+  !  READ(string, *) atom_coord(3, nb_atom)
+  ! endif
+  !end do
 
   ! Biso? occ ?
   input_line = ADJUSTL(input_line)
-  i = INDEX(input_line, ' ')
-  string = input_line(i:)
-  string = ADJUSTL(string)
+  !i = INDEX(input_line, ' ')
+  !string = input_line(i:)
+  !string = ADJUSTL(string)
+  string = input_line
   call nombre_de_colonnes(string, nb_col)
   if(nb_col == 1) then
    read(string, *) atom_Biso(nb_atom)
@@ -949,8 +1109,8 @@ subroutine get_atom_coord(input_line)
 
  return
 end subroutine get_atom_coord
-!--------------------------------------------------------------------
 
+!--------------------------------------------------------------------
 subroutine get_qvec_coord(input_line)
  USE cryscalc_module, ONLY : qvec, debug_proc
  use macros_module,   only : nombre_de_colonnes
@@ -958,21 +1118,22 @@ subroutine get_qvec_coord(input_line)
  implicit none
   CHARACTER (LEN=*), INTENT(INOUT)            :: input_line
   CHARACTER (LEN=32)                          :: string
-  INTEGER                                      :: i, k, nb_col
+  INTEGER                                      :: i, k
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_QVEC_COORD")
-  
+
   call Def_fractions
- 
-  
+
+
   do k=1, 3
    input_line = ADJUSTL(input_line)
    i = INDEX(input_line, ' ')
 
    string = input_line(1:i-1)
    string = ADJUSTL(string)
+
    if(string(1:1) == '+') string = string(2:)
-   
+
    do i = 1, nb_fraction
     IF(string(1:3) == ratio_string_pos(i)(1:3)) then
      Qvec(k) = ratio_real_pos(i)
@@ -986,9 +1147,11 @@ subroutine get_qvec_coord(input_line)
      READ(string, *) Qvec(k)
     endif
    end do
+
+   i = INDEX(input_line, ' ')
    input_line = input_line(i+1:)
   end do
-  
+
  return
 end subroutine get_qvec_coord
 
@@ -1002,19 +1165,22 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
  implicit none
   CHARACTER(LEN=*),   INTENT(INOUT)  :: arg_line
   INTEGER,            INTENT(INOUT)  :: nb_arg
-  CHARACTER(len=256)                 :: new_line, new_arg_line
   !local variables
   CHARACTER (LEN=64), DIMENSION(20)  :: arg_string
-  INTEGER                            :: i, j
+  INTEGER                            :: i, j, long
   CHARACTER (LEN=1)                  :: car
   LOGICAL                            :: alpha_char, numeric_char
   !INTEGER                            :: n_alpha, n_num, n_blank
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "DECODE_CHEM_STRING")
-  
+
+  long = len_trim(arg_line)
+  if(arg_line(1:1) == '"' .and. arg_line(long:long) == '"' .or. &
+     arg_line(1:1) == "'" .and. arg_line(long:long) == "'") arg_line = arg_line(2:long-1)
+
 !! Insere des blancs si necessaire dans la chaine arg_line
      if(nb_arg == 1) call Insert_blank(arg_line, nb_arg)
-	  
+
 !    n_alpha = 0
 !    n_num   = 0
 !    n_blank = 0
@@ -1028,7 +1194,7 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
 !      if(i==1 .and. numeric_char) then
 !       call write_info('   ... WRONG CHEMICAL FORMULA ...')
 !       call write_info('')
-!       return       
+!       return
 !      endif
 !      if(alpha_char .and.  n_num /=0) then
 !      write(*,*) ' i  = ', i
@@ -1040,7 +1206,7 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
 !         write(*,*) ' >> ', trim(new_line)
 !         new_arg_line = new_line
 !         write(*,*) ' >> ', trim(new_arg_line)
-!   
+!
 !       n_num   = 0
 !       n_alpha = 0
 !       n_blank = n_blank + 1
@@ -1048,13 +1214,13 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
 !     end do
 !     arg_line = new_arg_line
 !     call nombre_de_colonnes(arg_line, nb_arg)
-!     
+!
 !     write(*,*) ' >> ', trim(arg_line)
 !    end if
-     
+
 !! ----------------------------------------------------------
 
-   
+
     nb_atoms_type = nb_arg
     READ(arg_line,*) arg_string(1:nb_arg)
 
@@ -1071,7 +1237,7 @@ na: do i=1, nb_atoms_type
       endif
 
       IF(numeric_char) then
-       READ(arg_string(i)(1:j-1),*) SFAC%type(i)        
+       READ(arg_string(i)(1:j-1),*) SFAC%type(i)
        READ(arg_string(i)(j:),   *) STO(i)
        CYCLE na
       endif
@@ -1100,6 +1266,7 @@ na: do i=1, nb_atoms_type
 
  return
 end subroutine decode_CHEM_string
+
 !-----------------------------------------------------------------
 subroutine get_content()
  USE cryscalc_module, ONLY : SFAC, nb_atoms_type, molecule
@@ -1108,7 +1275,7 @@ subroutine get_content()
 
    molecule%content = ''
    do i=1, nb_atoms_type
-    WRITE(molecule%content , '(4a,F6.2)') TRIM(molecule%content), ' ', TRIM(SFAC%type(i)), ' ',  SFAC%number(i)
+    WRITE(molecule%content , '(4a,F8.2)') TRIM(molecule%content), ' ', TRIM(SFAC%type(i)), ' ',  SFAC%number(i)
    end do
 
  return
@@ -1120,7 +1287,7 @@ Subroutine Insert_blank(arg_line, nb_arg)
  USE macros_module,   only : check_character, nombre_de_colonnes
  USE IO_module,       ONLY : write_info
 
- 
+
   implicit none
    character (len=*), intent(inout) :: arg_line
    integer          , intent(inout) :: nb_arg
@@ -1131,9 +1298,9 @@ Subroutine Insert_blank(arg_line, nb_arg)
    integer                          :: i
    character (len=1)                :: car
    logical                          :: alpha_char, numeric_char
-   
+
    if(debug_proc%level_2)  call write_debug_proc_level(2, "INSERT_BLANK")
-   
+
 !! Insere des blancs si necessaire dans la chaine arg_line
 !! ex: AA11BB22C33  ==>> AA11 BB22 C33
 
@@ -1142,7 +1309,7 @@ Subroutine Insert_blank(arg_line, nb_arg)
     n_blank = 0
     new_arg_line = arg_line
 
-	do i = 1, len_trim(arg_line)
+    do i = 1, len_trim(arg_line)
      car = arg_line(i:i)
      call check_character(car, alpha_char, numeric_char)
      if(alpha_char)   n_alpha = n_alpha + 1
@@ -1150,7 +1317,7 @@ Subroutine Insert_blank(arg_line, nb_arg)
      if(i==1 .and. numeric_char) then
       call write_info('   ... WRONG CHEMICAL FORMULA ...')
       call write_info('')
-      return       
+      return
      endif
      if(alpha_char .and.  n_num /=0) then
       write(new_line, '(3a)') new_arg_line(1:i+n_blank-1), ' ', trim(arg_line(i:))
@@ -1161,9 +1328,9 @@ Subroutine Insert_blank(arg_line, nb_arg)
       endif
      end do
      arg_line = new_arg_line
-     nb_arg   = n_blank + 1 
-     
-     
+     nb_arg   = n_blank + 1
+
+
     return
-end subroutine Insert_blank     
+end subroutine Insert_blank
 !! ----------------------------------------------------------

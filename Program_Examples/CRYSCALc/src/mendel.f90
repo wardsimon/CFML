@@ -32,7 +32,7 @@ subroutine write_mag_lines ()
   end do
   !IF(i1 /=0) return
 
-  i1=0
+  !i1=0
   long = LEN_TRIM(mag_atom_label)
   ! if (long==0) return
   do i=1, nb_mag_4f_lines
@@ -49,10 +49,17 @@ subroutine write_mag_lines ()
    endif
   end do
 
+   if(i1==0) then
+    call write_info('')
+    call write_info(' Please check the input magnetic atom (ex: Mn3+ and not Mn+3)')
+    call write_info('')
+   end if
+
+
   return
 end subroutine write_mag_lines
-!------------------------------------------------------------------
 
+!------------------------------------------------------------------
 subroutine write_shannon_lines ()
  USE cryscalc_module, ONLY : shannon_atom_label, message_text, known_shannon_lines
  use shannon_module
@@ -85,11 +92,12 @@ subroutine write_shannon_lines ()
 
   return
 end subroutine write_shannon_lines
+
 !---------------------------------------------------------------
 subroutine write_atomic_features()
  USE cryscalc_module,                 ONLY : mendel_atom_label, mendel_atom_nb, message_text, pi, &
                                              known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x, &
-											 debug_proc
+                                             debug_proc
  USE CFML_Scattering_Chemical_Tables, ONLY : set_chem_info, set_xray_form, set_delta_fp_fpp
  USE IO_module,                       ONLY : write_info
  use atomic_data
@@ -97,12 +105,13 @@ subroutine write_atomic_features()
  USE Xrays_data
 
  implicit none
-  INTEGER                  :: i, j
+  INTEGER                  :: i
   CHARACTER (LEN=4)        :: symb_car
+  CHARACTER (LEN=6)        :: symbol
   LOGICAL                  :: ok
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features")
-  
+
   if(.not. known_atomic_label)  then
    call definition_atomic_label    ! %symbol, %name
    known_atomic_label = .true.
@@ -130,15 +139,20 @@ subroutine write_atomic_features()
 
 
   do i=1, mendel_atom_nb
-
-   call verif_atomic_symbol(mendel_atom_label(i), symb_car, ok)
+   call verif2_atomic_symbol(mendel_atom_label(i), symb_car, ok)
    if(.not. ok) then
     call verif_atomic_number(mendel_atom_label(i), symb_car, ok)
     if(ok) call verif_atomic_symbol(mendel_atom_label(i), symb_car, ok)
     IF(.not. ok) return
-   end if	
-   
-   
+   end if
+
+   call write_info('')
+   call symbol_to_write(mendel_atom_label(i),  symbol)
+   WRITE(message_text, '(3a)')        '  >> ', TRIM(symbol), ':'
+   call write_info(TRIM(message_text))
+   call write_info('')
+
+
 
    call write_atomic_features_from_CFML(symb_car)
    call write_atomic_features_from_ATOME_module(symb_car)
@@ -160,7 +174,6 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)   :: input_symb_car
   CHARACTER (LEN=*), INTENT(OUT)  :: symb_car
-  CHARACTER (LEN=6)               :: symbol
   LOGICAL,           INTENT(OUT)  :: ok
   INTEGER                         :: i1, j
 
@@ -190,15 +203,45 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
   end do
 
   ok = .true.
-  call write_info('')
-  
-  call symbol_to_write(input_symb_car,  symbol)
-  WRITE(message_text, '(3a)')        '  >> ', TRIM(symbol), ':'
-  call write_info(TRIM(message_text))
-  call write_info('')
+  !call write_info('')
+
+  !call symbol_to_write(input_symb_car,  symbol)
+  !WRITE(message_text, '(3a)')        '  >> ', TRIM(symbol), ':'
+  !call write_info(TRIM(message_text))
+  !call write_info('')
 
  return
 end subroutine verif_atomic_symbol
+
+!!-----------------------------------------------------------------------------!!
+! le symbole ne peut pas etre sous la forme M+x ou Mx+
+subroutine verif2_atomic_symbol(input_symb_car, symb_car, ok)
+
+ USE atome_module,    ONLY : atom
+ USE macros_module,   ONLY : u_case, remove_car
+ USE IO_module,       ONLY : write_info
+ USE cryscalc_module, ONLY : message_text
+
+ implicit none
+  CHARACTER (LEN=*), INTENT(IN)   :: input_symb_car
+  CHARACTER (LEN=*), INTENT(OUT)  :: symb_car
+  LOGICAL,           INTENT(OUT)  :: ok
+  INTEGER                         :: i
+  character (len=1)               :: i_string
+
+  symb_car = input_symb_car
+  symb_car = remove_car(symb_car, '+')
+  symb_car = remove_car(symb_car, '-')
+  do i=1, 9
+   write(i_string, '(i1)') i
+  symb_car = remove_car(symb_car, i_string)
+  end do
+
+  ok = .true.
+  return
+
+end subroutine verif2_atomic_symbol
+
 
 !-----------------------------------------------------------------------------
 subroutine verif_atomic_number(input_symb_car, symb_car, ok)
@@ -211,14 +254,12 @@ subroutine verif_atomic_number(input_symb_car, symb_car, ok)
   CHARACTER (LEN=*), INTENT(INOUT) :: input_symb_car
   CHARACTER (LEN=*), INTENT(OUT)   :: symb_car
   LOGICAL,           INTENT(OUT)   :: ok
-  INTEGER                          :: i1, j
   INTEGER                          :: atom_number
 
   ok = .false.
-  
   read(input_symb_car, *) atom_number
   if(atom_number == 0) return
-  
+
   if(atom_number == 201) then
    input_symb_car = "D"
    symb_car       = "D"
@@ -227,11 +268,11 @@ subroutine verif_atomic_number(input_symb_car, symb_car, ok)
    call write_info('   !!! '//TRIM(input_symb_car)// ': incorrect atomic number !!')
    return
   else
-   input_symb_car = atom(atom_number)%symbol   
-  endif  
-  
+   input_symb_car = atom(atom_number)%symbol
+  endif
+
   ok = .true.
-  
+
   !call write_info('')
   !WRITE(message_text, '(3a)')        '  >> ', TRIM(input_symb_car), ':'
   !call write_info(TRIM(message_text))
@@ -241,7 +282,6 @@ subroutine verif_atomic_number(input_symb_car, symb_car, ok)
 end subroutine verif_atomic_number
 
 !-----------------------------------------------------------------------------
-
 subroutine write_atomic_features_from_ATOME_module(symb_car)
  USE atome_module,    ONLY : atom
  USE macros_module,   ONLY : u_case
@@ -253,14 +293,14 @@ subroutine write_atomic_features_from_ATOME_module(symb_car)
   INTEGER                        :: j, k
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features_from_atome_module")
-  
+
    j=0
    do
     j=j+1
     if (u_case(symb_car(1:))== atom(j)%symbol(1:)) exit    ! atome_module
    end do
 
-   WRITE(message_text, '(a,F8.4)')    '    . Atomic density           : ', atom(j)%density                                      
+   WRITE(message_text, '(a,F8.4)')    '    . Atomic density           : ', atom(j)%density
    call write_info(TRIM(message_text))
    WRITE(message_text, '(2a)')        '    . Electronic configuration : ', atom(j)%config_electr
    call write_info(TRIM(message_text))
@@ -286,7 +326,7 @@ subroutine write_atomic_features_from_ATOME_module(symb_car)
    IF(atom(j)%SEA > 0.0001) then
     WRITE(message_text, '(a,F10.4,a)') '    . absorption cross section (v=2200m/s): ', atom(j)%SEA,                 ' barns'
    else
-    WRITE(message_text, '(a)')         '    . absorption cross section (v=2200m/s): unknown or zero' 
+    WRITE(message_text, '(a)')         '    . absorption cross section (v=2200m/s): unknown or zero'
    endif
    call write_info(TRIM(message_text))
    call write_info('')
@@ -336,7 +376,7 @@ subroutine write_atomic_features_from_CFML(symb_car)
   CHARACTER (LEN=16)            :: fmt_, symbol
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features_from__CFML")
-  
+
   do j=1, Num_Chem_Info
     if (u_case(symb_car(1:))== u_case(chem_info(j)%symb(1:))) exit
   end do
@@ -350,7 +390,7 @@ subroutine write_atomic_features_from_CFML(symb_car)
   ! WRITE(message_text,'(2a)')      '    . Symbole                  : ', trim(u_case(chem_info(j)%symb(1:1))//l_case(chem_info(j)%symb(2:)))
   !end if
   WRITE(message_text,'(2a)')      '    . Symbole                  : ', trim(symbol)
-  
+
   call write_info(TRIM(message_text))
   WRITE(message_text,'(2a)')      '    . Name                     : ', TRIM(chem_info(j)%NAME)
   call write_info(TRIM(message_text))
@@ -395,7 +435,7 @@ subroutine write_X_rays_scatt_factors(symb_car)
  USE macros_module,                    ONLY : u_case
  USE IO_module,                        ONLY : write_info
 
- 
+
     !!----    Coefficients for calculating the X-ray scattering factors
     !!----        f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
     !!----
@@ -408,13 +448,13 @@ subroutine write_X_rays_scatt_factors(symb_car)
   REAL, DIMENSION(100)          :: stl, f0
   LOGICAL                       :: ok
 
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_X_rays_scatt_factors")
 
   !call Set_Xray_Form ! definition des facteurs de diffusion
 
   call Allocate_PGF_data_arrays(76)
-  
+
   !do i=1, mendel_atom_nb
    ok = .false.
    do j=1, Num_Xray_Form
@@ -439,9 +479,9 @@ subroutine write_X_rays_scatt_factors(symb_car)
    call write_info( '    where s=sinTheta/Lambda')
    call write_info( '')
    !call write_info( '   => X-ray scattering coeff. (A1,A2,A3,A4,B1,B2,B3,B4,C):')
-   call write_info( '   => X-ray scattering coeff. (A1,B1,A2,B2,A3,B3,A4, B4,C):')
+   call write_info( '   => X-ray scattering coeff. (A1,B1,A2,B2,A3,B3,A4,B4,C):')
    call write_info( '')
-   
+
    call symbol_to_write(Xray_form(j)%symb,  symbol)
    write(message_text, '(2a)')      '   Element: ', trim(symbol)
    !write(message_text, '(2a)')      '   Element: ', u_case(Xray_form(j)%symb)
@@ -453,6 +493,9 @@ subroutine write_X_rays_scatt_factors(symb_car)
                                                     Xray_form(j)%A(4), Xray_form(j)%B(4), Xray_form(j)%C
    call write_info(TRIM(message_text))
    call write_info('')
+
+   write(message_text, '(5x,a,F8.3)')     'at s = 0 : f(O) = ', sum(Xray_form(j)%A(1:4)) + Xray_form(j)%C
+   call write_info(trim(message_text))
 
    IF(mendel_plot) then
     do i=1,76
@@ -472,29 +515,29 @@ subroutine write_X_rays_scatt_factors(symb_car)
      call write_info('')
     else
      !call system('winplotr '//trim(pgf_file%name), .true. )   ! lf95
-	 call system('winplotr '//trim(pgf_file%name))             ! g95
+     call system('winplotr '//trim(pgf_file%name))             ! g95
     endif
    endif
 
   !END do
  RETURN
 end subroutine write_X_rays_scatt_factors
-!
+
 !-------------------------------------------------------------------
 subroutine write_X_rays_anomalous_factors(symb_car)
  USE CFML_Scattering_Chemical_Tables
  USE cryscalc_module,            ONLY : message_text, mendel_atom_nb,  mendel_atom_label, debug_proc
  USE macros_module,              ONLY : u_case
  USE IO_module,                  ONLY : write_info
- 
+
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: symb_car
   CHARACTER (len=6)             :: symbol
-  INTEGER                       :: i,j, i1
+  INTEGER                       :: j
   LOGICAL                       :: ok
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_X_rays_anomalous_factors")
-  
+
   !call Set_Delta_Fp_Fpp ! definition des facteurs de diffusion anomale fp et fpp
 
   !do i=1, mendel_atom_nb
@@ -528,7 +571,7 @@ subroutine write_X_rays_anomalous_factors(symb_car)
 
    call write_info('')
    call write_info('  . Values of Delta_Fp and Delta_Fpp anomalous dispersion coefficients')
-   call write_info('    for 5 common radiation')
+   call write_info('    for 5 common radiations')
    call write_info('')
    call write_info('    Wavelenghts:       Cr        Fe        Cu        Mo        Ag')
    call write_info('         Lambda   2.28962   1.93597   1.54051   0.70926  0.556363')
@@ -547,8 +590,8 @@ subroutine write_X_rays_anomalous_factors(symb_car)
   !END do
 
 END subroutine write_X_rays_anomalous_factors
-!-------------------------------------------------------------------
 
+!-------------------------------------------------------------------
 subroutine WRITE_data(input_string)
  USE IO_module,       ONLY : write_info
  USE cryscalc_module, ONLY : message_text, pgf_data, pgf_file,                           &
@@ -569,10 +612,10 @@ subroutine WRITE_data(input_string)
 
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_data ("//trim(input_string)//")")
-  
+
   !call Allocate_PGF_data_arrays(96)
   call Allocate_PGF_data_arrays(100)  ! nov. 2014 : permet de visualiser Gd_157 (100 valeurs)
-  
+
   if(.not. known_atomic_label)  then
    call definition_atomic_label    ! %symbol, %name
    known_atomic_label = .true.
@@ -615,7 +658,7 @@ subroutine WRITE_data(input_string)
          call write_info('')
         else
          !call system('winplotr '//trim(pgf_file%name), .true. )
-		 call system('winplotr '//trim(pgf_file%name))
+         call system('winplotr '//trim(pgf_file%name))
         endif
 
         pgf_file%name = 'neutrons_sedinc.pgf'
@@ -624,7 +667,7 @@ subroutine WRITE_data(input_string)
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom(1:96)%sedinc, pgf_data%string, 96, "sedinc")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
-		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))              ! g95
+        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))              ! g95
 
         pgf_file%name = 'neutrons_sea.pgf'
         do i=1,96
@@ -632,56 +675,56 @@ subroutine WRITE_data(input_string)
         END do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom(1:96)%sea, pgf_data%string, 96, "sea")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
-		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
+        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
        END if
 
       case ('neutrons_RE_ALL')
-	   call write_info('     Element : '//trim(current_RE_label))
-       call write_info('')	 
+       call write_info('     Element : '//trim(current_RE_label))
+       call write_info('')
        call write_info('       b : neutrons scattering length (10^-12cm)')
-       call write_info('')	 
+       call write_info('')
        call write_info('            E(ev)     l(A)     Re(b)     Im(b)       |b|')
-       call write_info('')	 
+       call write_info('')
 
-	   if(current_RE == 1) then
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 2) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
-	   elseif(current_RE == 3) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 4) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
-	   elseif(current_RE == 5) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)	
-	   elseif(current_RE == 6) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
-	   elseif(current_RE == 7) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
-	   elseif(current_RE == 8) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
-	   elseif(current_RE == 9) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 10) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
-	   elseif(current_RE == 11) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 12) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
-	   elseif(current_RE == 13) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
-	   elseif(current_RE == 14) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
-	   end if
+       if(current_RE == 1) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 2) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
+       elseif(current_RE == 3) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 4) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
+       elseif(current_RE == 5) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 6) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
+       elseif(current_RE == 7) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
+       elseif(current_RE == 8) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
+       elseif(current_RE == 9) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 10) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
+       elseif(current_RE == 11) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 12) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
+       elseif(current_RE == 13) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
+       elseif(current_RE == 14) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
+      end if
        do i=1, current_RE_n
-	    lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-	    WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
-        call write_info(TRIM(message_text))	
-	   end do
-	   
-	   IF(data_neutrons_PLOT) then
+        lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+        WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
+        call write_info(TRIM(message_text))
+       end do
+
+       IF(data_neutrons_PLOT) then
         pgf_file%name = 'neutrons_'//trim(current_RE_label)//".pgf"
-		open(unit=11, file=trim(PGF_file%name))
-		 WRITE(11,'(a)')      '# .PGF (winPLOTR Graphics file) created by CRYSCALC:'
+        open(unit=11, file=trim(PGF_file%name))
+         WRITE(11,'(a)')      '# .PGF (winPLOTR Graphics file) created by CRYSCALC:'
          WRITE(11,'(a)')      '#'
          WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
          WRITE(11,'(a)')      '#             Resonance effects in neutron scattering lengths or rare-earth nuclides'
@@ -689,14 +732,14 @@ subroutine WRITE_data(input_string)
          WRITE(11,'(2a)')     '# MAIN LEGEND TEXT: Neutron coherent scattering length for ', trim(current_RE_label)
          WRITE(11,'(a)')      '# X LEGEND TEXT   : Energy (ev)'
          WRITE(11,'(a)')      '# Y LEGEND TEXT   : b (10^-12 cm) [Re, Im, Mod]'
-		 Xmin = minval(current_RE_data(1:current_RE_n, 1))
-		 Xmax = maxval(current_RE_data(1:current_RE_n, 1))
-		 Ymin = 0.1*minval(current_RE_data(1:current_RE_n, 2:4))
-		 Ymax = 0.1*maxval(current_RE_data(1:current_RE_n, 2:4))
+         Xmin = minval(current_RE_data(1:current_RE_n, 1))
+         Xmax = maxval(current_RE_data(1:current_RE_n, 1))
+         Ymin = 0.1*minval(current_RE_data(1:current_RE_n, 2:4))
+         Ymax = 0.1*maxval(current_RE_data(1:current_RE_n, 2:4))
          write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
          WRITE(11,'(a)')               '# NUMBER OF PATTERNS: 3'
-         
-		! data 1 : Re
+
+        ! data 1 : Re
          WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
          WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 1
          write(11,'(a)')        '#             TITLE : Re_b = f(energy)'
@@ -704,17 +747,17 @@ subroutine WRITE_data(input_string)
          write(11,'(a)')        '#            MARKER : 4'
          write(11,'(a)')        '#              SIZE : 1.5'
          write(11,'(a)')        '#             STYLE : 1'
-         write(11,'(a)')        '#   DATA: X Y COMM'          
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', Re(b)= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
-		end do  
-		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, current_RE_n)              
+         write(11,'(a)')        '#   DATA: X Y COMM'
+        do i=1, current_RE_n
+         pgf_data%X(i) = current_RE_data(i, 1)
+         lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+         WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                                    ', l(A)= ', lambda_E, &
+                                                    ', Re(b)= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
+        end do
+        call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, current_RE_n)
 
-		! data 2 : Im
+        ! data 2 : Im
          WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
          WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 2
          write(11,'(a)')        '#             TITLE : Im_b = f(energy)'
@@ -722,17 +765,17 @@ subroutine WRITE_data(input_string)
          write(11,'(a)')        '#            MARKER : 4'
          write(11,'(a)')        '#              SIZE : 1.5'
          write(11,'(a)')        '#             STYLE : 1'
-         write(11,'(a)')        '#   DATA: X Y COMM'          
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', Im(b)= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
-		end do  
-		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, current_RE_n)              
-		
-		! data 3 : module
+         write(11,'(a)')        '#   DATA: X Y COMM'
+        do i=1, current_RE_n
+         pgf_data%X(i) = current_RE_data(i, 1)
+         lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+         WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                            ', l(A)= ', lambda_E, &
+                                            ', Im(b)= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
+        end do
+        call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, current_RE_n)
+
+        ! data 3 : module
          WRITE(11,'(a1,80a1)')  '#',('-',i=1,80)
          WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', 3
          write(11,'(a)')        '#             TITLE : Mod(b) = f(energy)'
@@ -740,135 +783,135 @@ subroutine WRITE_data(input_string)
          write(11,'(a)')        '#            MARKER : 4'
          write(11,'(a)')        '#              SIZE : 1.5'
          write(11,'(a)')        '#             STYLE : 1'
-         write(11,'(a)')        '#   DATA: X Y COMM'          
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', |b|= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
-		end do  
-		call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, current_RE_n)              
-	    
-		WRITE(11,'(a)') '# END OF FILE'
-		close(unit=11)
-		IF(LEN_TRIM(winplotr_exe) == 0) then
-         call write_info('')
-         call write_info(' Warning: WinPLOTR is not installed ')
-         call write_info('')
-        else
- 	 	 call system('winplotr '//trim(pgf_file%name))
-        endif
-	   end if	
-	   
-
-	  case ('neutrons_RE')
-	   !current_RE_label = RE_label(current_RE)
-       call write_info('     Element : '//trim(current_RE_label))
-       call write_info('')	 
-       call write_info('       b : neutrons scattering length (10^-12cm)')
-       call write_info('')	 
-       call write_info('            E(ev)     l(A)     Re(b)     Im(b)       |b|')
-       call write_info('')	 
-
-	   if(current_RE == 1) then
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 2) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
-	   elseif(current_RE == 3) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 4) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
-	   elseif(current_RE == 5) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)	
-	   elseif(current_RE == 6) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
-	   elseif(current_RE == 7) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
-	   elseif(current_RE == 8) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
-	   elseif(current_RE == 9) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 10) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
-	   elseif(current_RE == 11) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
-	   elseif(current_RE == 12) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
-	   elseif(current_RE == 13) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
-	   elseif(current_RE == 14) then	
-	    current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
-	   end if
-
-	   
-       do i=1, current_RE_n
-	    lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-	    WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
-        call write_info(TRIM(message_text))	   
-	   end do
-	   
-	  IF(data_neutrons_PLOT) then
-        pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_mod.pgf"
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', b= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
-		end do
-		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, &
-		                     current_RE_n, 'RE_data_mod')
-		
+         write(11,'(a)')        '#   DATA: X Y COMM'
+         do i=1, current_RE_n
+          pgf_data%X(i) = current_RE_data(i, 1)
+          lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+          WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                                     ', l(A)= ', lambda_E, &
+                                                     ', |b|= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
+         end do
+         call create_PGF_file_multi(11,pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, current_RE_n)
+         WRITE(11,'(a)') '# END OF FILE'
+         close(unit=11)
         IF(LEN_TRIM(winplotr_exe) == 0) then
          call write_info('')
          call write_info(' Warning: WinPLOTR is not installed ')
          call write_info('')
         else
- 	 	 call system('winplotr '//trim(pgf_file%name))
+         call system('winplotr '//trim(pgf_file%name))
         endif
-		
+       end if
+
+
+      case ('neutrons_RE')
+       !current_RE_label = RE_label(current_RE)
+       call write_info('     Element : '//trim(current_RE_label))
+       call write_info('')
+       call write_info('       b : neutrons scattering length (10^-12cm)')
+       call write_info('')
+       call write_info('            E(ev)     l(A)     Re(b)     Im(b)       |b|')
+       call write_info('')
+
+       if(current_RE == 1) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Sm_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 2) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Sm_149(1:current_RE_n, 1:4)
+       elseif(current_RE == 3) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Eu_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 4) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Eu_151(1:current_RE_n, 1:4)
+       elseif(current_RE == 5) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 6) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_155(1:current_RE_n, 1:4)
+       elseif(current_RE == 7) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Gd_157(1:current_RE_n, 1:4)
+       elseif(current_RE == 8) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Dy_164(1:current_RE_n, 1:4)
+       elseif(current_RE == 9) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Er_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 10) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Er_167(1:current_RE_n, 1:4)
+       elseif(current_RE == 11) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_nat(1:current_RE_n, 1:4)
+       elseif(current_RE == 12) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_168(1:current_RE_n, 1:4)
+       elseif(current_RE == 13) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Yb_174(1:current_RE_n, 1:4)
+       elseif(current_RE == 14) then
+        current_RE_data(1:current_RE_n, 1:4) = RE_Lu_176(1:current_RE_n, 1:4)
+       end if
+
+
+       do i=1, current_RE_n
+        lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+        WRITE(message_text, '(2x,I4,5(2X,F8.3))') i, current_RE_data(i, 1), lambda_E,0.10*current_RE_data(i, 2:4)
+        call write_info(TRIM(message_text))
+       end do
+
+      IF(data_neutrons_PLOT) then
+        pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_mod.pgf"
+        do i=1, current_RE_n
+         pgf_data%X(i) = current_RE_data(i, 1)
+         lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+         WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                            ', l(A)= ', lambda_E, &
+                                            ', b= ', 0.1*current_RE_data(i,4), ' 10^-12cm'
+        end do
+        call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,4), pgf_data%string, &
+                             current_RE_n, 'RE_data_mod')
+
+        IF(LEN_TRIM(winplotr_exe) == 0) then
+         call write_info('')
+         call write_info(' Warning: WinPLOTR is not installed ')
+         call write_info('')
+        else
+         call system('winplotr '//trim(pgf_file%name))
+        endif
+
         pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_Re.pgf"
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', b= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
-		end do
-		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, &
-		                     current_RE_n, 'RE_data_Re')
- 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
+        do i=1, current_RE_n
+         pgf_data%X(i) = current_RE_data(i, 1)
+         lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+         WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                                    ', l(A)= ', lambda_E, &
+                                                    ', b= ', 0.1*current_RE_data(i,2), ' 10^-12cm'
+        end do
+        call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,2), pgf_data%string, &
+                             current_RE_n, 'RE_data_Re')
+        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
 
 
-		pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_Im.pgf"
-		do i=1, current_RE_n
-		 pgf_data%X(i) = current_RE_data(i, 1)
-		 lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
-		 WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
-		                                            ', l(A)= ', lambda_E, &
-		                                            ', b= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
-		end do
-		call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, &
-		                     current_RE_n, 'RE_data_Im')
- 		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
+        pgf_file%name = 'neutrons_'//trim(current_RE_label)//"_Im.pgf"
+        do i=1, current_RE_n
+         pgf_data%X(i) = current_RE_data(i, 1)
+         lambda_E = 9.045/SQRT(current_RE_data(i, 1)*1000.)
+         WRITE(pgf_data%string(i), '(3(a,F8.3),a)') 'E(ev)= ', current_RE_data(i, 1), &
+                                                    ', l(A)= ', lambda_E, &
+                                                    ', b= ', 0.1*current_RE_data(i,3), ' 10^-12cm'
+        end do
+        call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, 0.1*current_RE_data(1:current_RE_n,3), pgf_data%string, &
+                             current_RE_n, 'RE_data_Im')
+        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
 
 
 
       END if
 
- 
-	   
+
+
       case ('xrays')
        call write_info('                    total interaction cross section (in barns)')
-	   write(message_text, '(2a)')  '     Element               Ag             Mo             Cu             Ni', &
-                                    '	   Co             Fe             Cr'
+       write(message_text, '(2a)')  '     Element               Ag             Mo             Cu             ', &
+                                    'Ni             Co             Fe             Cr'
+
        call write_info(trim(message_text))
        call write_info('')
 
        do i=1, 96
         WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol,  atom(i)%tics(1), atom(i)%tics(2), atom(i)%tics(3), &
-		                                               atom(i)%tics(4), atom(i)%tics(5), atom(i)%tics(6), atom(i)%tics(7)
+                                                       atom(i)%tics(4), atom(i)%tics(5), atom(i)%tics(6), atom(i)%tics(7)
         call write_info(TRIM(message_text))
        end do
        !IF(data_xrays_PLOT) then
@@ -926,21 +969,21 @@ subroutine WRITE_data(input_string)
           call write_info('')
          else
           !call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.) ! lf95
-		  call system('winplotr '//TRIM(PGF_file%NAME))          ! g95
+          call system('winplotr '//TRIM(PGF_file%NAME))          ! g95
          endif
        endif
 
 
        call write_info('')
        call write_info('                    Mass attenuation coefficient (cm2/g)')
-	   write(message_text, '(2a)') '     Element               Ag             Mo             Cu             ', &
-	                               'Ni             Co             Fe             Cr'
+       write(message_text, '(2a)') '     Element               Ag             Mo             Cu             ', &
+                                   'Ni             Co             Fe             Cr'
        call write_info(trim(message_text))
        call write_info('')
 
        do i=1, 96
         WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol, atom(i)%cam(1), atom(i)%cam(2), atom(i)%cam(3), &
-		                                               atom(i)%cam(4), atom(i)%cam(5), atom(i)%cam(6), atom(i)%cam(7)
+                                                       atom(i)%cam(4), atom(i)%cam(5), atom(i)%cam(6), atom(i)%cam(7)
         call write_info(TRIM(message_text))
        end do
        !IF(data_xrays_PLOT) then
@@ -997,7 +1040,7 @@ subroutine WRITE_data(input_string)
           call write_info('')
          else
           !call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.)  ! lf95
-		  call system('winplotr '//TRIM(PGF_file%NAME))           ! g95
+          call system('winplotr '//TRIM(PGF_file%NAME))           ! g95
          endif
        endif
 
@@ -1024,10 +1067,10 @@ subroutine WRITE_data(input_string)
          call write_info('')
         else
          !call system('winplotr '//trim(pgf_file%name), .true. )  ! lf95
-		 call system('winplotr '//trim(pgf_file%name))            ! g95
+         call system('winplotr '//trim(pgf_file%name))            ! g95
         endif
        ENDIF
-       
+
       case ('radius')
        call write_info('     Element        atomic radius')
        call write_info('')
@@ -1050,10 +1093,10 @@ subroutine WRITE_data(input_string)
          call write_info('')
         else
          !call system('winplotr '//trim(pgf_file%name), .true. )  ! lf95
-		 call system('winplotr '//trim(pgf_file%name))            ! g95
+         call system('winplotr '//trim(pgf_file%name))            ! g95
         endif
        ENDIF
-  
+
 
       case('weight')
        call write_info('     Element        weight')
@@ -1076,7 +1119,7 @@ subroutine WRITE_data(input_string)
          call write_info('')
         else
          !call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
-		 call system('winplotr '//trim(pgf_file%name))              ! g95
+         call system('winplotr '//trim(pgf_file%name))              ! g95
         endif
        end if
 
@@ -1085,17 +1128,18 @@ subroutine WRITE_data(input_string)
  RETURN
 end subroutine write_data
 
+!!------------------------------------------------------------------------------------------
 subroutine symbol_to_write(symbol, ws)
  use macros_module, only : u_case, l_case
  implicit none
   character (len=*), intent(in)  :: symbol
   character (len=4), intent(out) :: ws
-  
-  
+
+
   if(len_trim(symbol) == 1) then
    ws = u_case(symbol(1:1))
   else
-   ws = u_case(symbol(1:1))//l_case(symbol(2:)) 
+   ws = u_case(symbol(1:1))//l_case(symbol(2:))
   end if
 
    return

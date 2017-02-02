@@ -20,7 +20,7 @@ module IO_module
   return
  end subroutine read_input_line
 
- !-----------------------------------------------------------
+!-----------------------------------------------------------
  subroutine write_info(string_info)
    character (len=*) , intent(in) :: string_info
    integer                        :: i_error
@@ -30,16 +30,16 @@ module IO_module
    write(2,'(2x,a)', iostat=i_error) ' '
    if(i_error /=0) then
     write(*,*) ' Unable to write in cryscalc.log file. Please check permissions in the current folder !'
-	write(*,*) ' Program will be stopped !'
-	stop
+    write(*,*) ' Program will be stopped !'
+    stop
    endif
   else
    write(*,'(2x,a)') string_info
    write(2,'(2x,a)', iostat=i_error) string_info
    if(i_error /=0) then
     write(*,*) ' Unable to write in cryscalc.log file. Please check permissions in the current folder !'
-	write(*,*) ' Program will be stopped !'
-	stop
+    write(*,*) ' Program will be stopped !'
+    stop
    endif
   endif
   return

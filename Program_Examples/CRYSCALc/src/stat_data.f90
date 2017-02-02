@@ -1,7 +1,7 @@
 !     Last change:  TR   19 Sep 2006    4:01 pm
 !--------------------------------------------------------------------------
  subroutine test_ratio_I_sig()
- USE cryscalc_module, ONLY : message_text, debug_proc 
+ USE cryscalc_module, ONLY : message_text, debug_proc
  use hkl_module,      only : F2, sig_F2, n_ref
  USE IO_module,       ONLY : write_info
   implicit none
@@ -12,7 +12,7 @@
    integer                                     :: i, n
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "test_ratio_I_sig")
-  
+
    ! statistique sur les I/sig
    nb_I_neg = 0
    nb_sig0  = 0
@@ -216,7 +216,7 @@ subroutine  stat_repartition_sintheta_lambda()
   character(len=128)                    :: fmt_, range_
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_sintheta_lambda")
-  
+
   sintheta_lambda_max = maxval(sintheta_lambda(1:n_ref))
 
   nb_shell(1:15)=0
@@ -276,12 +276,12 @@ subroutine  stat_repartition_sintheta_lambda()
   do i=1, 15
    F2_mean_shell(i) =   F2_mean_shell(i)/nb_shell(i)
   end do
-   call write_info(' ')
-   call write_info('   ---- Number of reflections in sintheta/lambda ranges:')
-   call write_info(' ')   
-   call write_info('  sinTheta/lambda range       reflections            <F2>        F2_min        F2_max')
+  call write_info(' ')
+  call write_info('   ---- Number of reflections in sintheta/lambda ranges:')
+  call write_info(' ')
+  call write_info('  sinTheta/lambda range       reflections            <F2>        F2_min        F2_max')
 
-   fmt_ = '(a,3x,I8,a,F7.3,a,3(5x,F9.2))'
+  fmt_ = '(a,3x,I8,a,F7.3,a,3(5x,F9.2))'
   do i = 1, 15
    if (nb_shell(i) ==0) cycle
    WRITE(range_,'(8x,F4.1,a,F4.1)') REAL(i-1)/10, ' -- ',REAL(i)/10
@@ -300,11 +300,11 @@ end subroutine  stat_repartition_sintheta_lambda
 
 subroutine  stat_repartition_d_hkl()
  USE cryscalc_module, ONLY   : message_text, debug_proc
- use hkl_module,      ONLY   :  F2, sig_F2, d_hkl, n_ref
+ use hkl_module,      ONLY   : F2, sig_F2, d_hkl, n_ref
  USE IO_module,       ONLY   : write_info
  implicit none
   ! local variables
-  real                                  :: d_hkl_max, d_hkl_min
+  real                                  :: d_hkl_max, d_hkl_min, d_hkl_delta
   integer, dimension(10)                :: nb_shell
   REAL,    DIMENSION(10)                :: d_shell_min, d_shell_max
   real,    dimension(10)                :: F2_mean_shell, F2_min_shell, F2_max_shell
@@ -312,53 +312,102 @@ subroutine  stat_repartition_d_hkl()
   character(len=128)                    :: fmt_, range_
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_d_hkl")
-  
-  d_hkl_max = maxval(d_hkl(1:n_ref))
-  d_hkl_min = maxval(d_hkl(1:n_ref))
 
+  d_hkl_max = maxval(d_hkl(1:n_ref))
+  d_hkl_min = minval(d_hkl(1:n_ref))
+  d_hkl_delta = d_hkl_max - d_hkl_min
+
+  ! repartition par tranche de d
   nb_shell(1:10)=0
   F2_mean_shell(1:10) = 0.
   F2_min_shell(1:10)  = 1.E09
   F2_max_shell(1:10)  = -1.E09
 
-
-
   do i=1, n_ref
-   if (i <= 0.1*n_ref) then
-    call statistic_d_shell(1, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.2*n_ref) then
-    call statistic_d_shell(2, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.3*n_ref) then
-    call statistic_d_shell(3, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.4*n_ref) then
-    call statistic_d_shell(4, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.5*n_ref) then
-    call statistic_d_shell(5, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.6*n_ref) then
-    call statistic_d_shell(6, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.7*n_ref) then
-    call statistic_d_shell(7, nb_shell,  d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.8*n_ref) then
-    call statistic_d_shell(8, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-   elseif (i <= 0.9*n_ref) then
-    call statistic_d_shell(9, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   if (d_hkl(i) <= d_hkl_min + 0.1*d_hkl_delta) then
+    call statistic_d_shell(1,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.2*d_hkl_delta) then
+    call statistic_d_shell(2,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.3*d_hkl_delta) then
+    call statistic_d_shell(3,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.4*d_hkl_delta) then
+    call statistic_d_shell(4,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.5*d_hkl_delta) then
+    call statistic_d_shell(5,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.6*d_hkl_delta) then
+    call statistic_d_shell(6,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.7*d_hkl_delta) then
+    call statistic_d_shell(7,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.8*d_hkl_delta) then
+    call statistic_d_shell(8,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (d_hkl(i) <= d_hkl_min + 0.9*d_hkl_delta) then
+    call statistic_d_shell(9,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
    else
-    call statistic_d_shell(10, nb_shell, d_hkl(i),  F2(i),F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
-
+    call statistic_d_shell(10, nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
    end if
-
   end do
 
   do i=1, 10
    F2_mean_shell(i) =   F2_mean_shell(i)/nb_shell(i)
   end do
 
-   call write_info(' ')
-   call write_info('   ---- Number of reflections in d_hkl ranges:')
-   call write_info(' ')
-   call write_info('        d_hkl range        reflections           <F2>        F2_min        F2_max')
+  call write_info(' ')
+  call write_info('   ---- Number of reflections in d_hkl ranges:')
+  call write_info(' ')
+  call write_info('        d_hkl range              reflections           <F2>        F2_min        F2_max')
 
-   fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
+  fmt_ = '(a,3x,I8,a,F7.3,a,3(5x,F9.2))'
+  do i = 1, 10
+   if (nb_shell(i) ==0) cycle
+
+   WRITE(range_,'(8x,F5.2,a,F5.2)') d_shell_min(i), ' -- ',d_shell_max(i)
+   WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),  ' (',100*real(nb_shell(i))/real(n_ref),' %)',   &
+                             F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+
+   call write_info(TRIM(message_text))
+  end do
+  call write_info('')
+
+  ! repartition par tranche de nref/10
+  nb_shell(1:10)=0
+  F2_mean_shell(1:10) = 0.
+  F2_min_shell(1:10)  = 1.E09
+  F2_max_shell(1:10)  = -1.E09
+
+  do i=1, n_ref
+   if (i <= 0.1*n_ref) then
+    call statistic_d_shell(1,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.2*n_ref) then
+    call statistic_d_shell(2,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.3*n_ref) then
+    call statistic_d_shell(3,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.4*n_ref) then
+    call statistic_d_shell(4,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.5*n_ref) then
+    call statistic_d_shell(5,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.6*n_ref) then
+    call statistic_d_shell(6,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.7*n_ref) then
+    call statistic_d_shell(7,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.8*n_ref) then
+    call statistic_d_shell(8,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   elseif (i <= 0.9*n_ref) then
+    call statistic_d_shell(9,  nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   else
+    call statistic_d_shell(10, nb_shell, d_hkl(i), F2(i), F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+   end if
+  end do
+
+  do i=1, 10
+   F2_mean_shell(i) =   F2_mean_shell(i)/nb_shell(i)
+  end do
+
+  call write_info(' ')
+  call write_info('   ---- Number of reflections in d_hkl ranges:')
+  call write_info(' ')
+  call write_info('        d_hkl range        reflections           <F2>        F2_min        F2_max')
+
+  fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
   do i = 1, 10
    if (nb_shell(i) ==0) cycle
 
@@ -367,6 +416,8 @@ subroutine  stat_repartition_d_hkl()
    call write_info(TRIM(message_text))
   end do
   call write_info('')
+
+
 
  return
 
@@ -378,21 +429,21 @@ end subroutine  stat_repartition_d_hkl
 subroutine  stat_repartition_theta ()
  USE cryscalc_module, ONLY   : message_text, debug_proc
  USE hkl_module,      ONLY   : F2, sig_F2, theta_hkl, n_ref
- 
+
 
  USE IO_module,       ONLY   : write_info
  implicit none
   ! local variables
   real                                  :: theta_max, theta_min
-  integer, dimension(12)                :: nb_shell, nb_expected
+  integer, dimension(12)                :: nb_shell
   REAL,    DIMENSION(12)                :: theta_shell
   real,    dimension(12)                :: F2_mean_shell, F2_min_shell, F2_max_shell
-  integer                               :: i, j
+  integer                               :: i
   character(len=128)                    :: fmt_, range_
- 
+
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_theta")
-  
+
   theta_min = minval(theta_hkl(1:n_ref))
   theta_max = maxval(theta_hkl(1:n_ref))
 
@@ -462,31 +513,41 @@ subroutine  stat_repartition_theta ()
    F2_mean_shell(i) =   F2_mean_shell(i)/nb_shell(i)
   end do
 
-   call write_info('')
-   call write_info('   ---- Number of reflections in theta ranges:')
-   call write_info('')
-   call write_info('        theta range        reflections           <F2>        F2_min        F2_max')
+  call write_info('')
+  call write_info('   ---- Number of reflections in theta ranges:')
+  call write_info('')
+  call write_info('        theta range              reflections           <F2>        F2_min        F2_max')
 
-   fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
+  !fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
+  fmt_ = '(a,3x,I8,a,F7.3,a,3(5x,F9.2))'
   do i = 1, 12
    if (nb_shell(i) ==0) cycle
    if (i==1) then
     WRITE(range_, '(8x,F5.2,a,F5.2)')  0.00, ' -- ',theta_shell(i)
    ELSEIF(i==12) then
-    WRITE(range_, '(8x,F5.2,a)')       theta_shell(i-1), ' --      ' 
+    WRITE(range_, '(8x,F5.2,a)')       theta_shell(i-1), ' --      '
    else
     WRITE(range_,'(8x,F5.2,a,F5.2)')   theta_shell(i-1), ' -- ',theta_shell(i)
    endif
-   
-   
+
+
    if(i/=12) then
-    WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+    !WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+    WRITE(message_text, fmt_)  TRIM(range_),nb_shell(i),  ' (',100*real(nb_shell(i))/real(n_ref),' %)',   &
+                             F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+
+
    else
-    WRITE(message_text, fmt_)  range_(1:22),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
-   end if   
+    !WRITE(message_text, fmt_)  range_(1:22),nb_shell(i),   F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+    WRITE(message_text, fmt_)  range_(1:22),nb_shell(i),  ' (',100*real(nb_shell(i))/real(n_ref),' %)',   &
+                             F2_mean_shell(i) , F2_min_shell(i) , F2_max_shell(i)
+
+   end if
    call write_info(TRIM(message_text))
   end do
   call write_info('')
+
+
 
  return
 
@@ -522,11 +583,7 @@ subroutine  statistic_d_shell(num_shell, nb_shell, d_hkl_, F2_,F2_mean_shell, F2
 end subroutine statistic_d_shell
 
 
-!-------------------------------------------------------------------------------------------
 !-----------------------------------------------------------------------------------------
-
-
-
 subroutine statistic_shell(num_shell, F2_, nb_shell, F2_mean_shell, F2_min_shell, F2_max_shell,dim_shell)
  use cryscalc_module, only : debug_proc
  implicit none
@@ -558,18 +615,66 @@ subroutine statistics_on_E2()
  implicit none
   INTEGER   :: i
   real      :: n_1, n_2, n_3
+  !real      :: E2m1
+
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "statistics_on_E2")
 
- write(message_text,'(a)')              '   ---- Statistics on E and E2: '
+  write(message_text,'(a)')              '   ---- E and E2 statistics: '
   call write_info(TRIM(message_text))
+  call write_info('')
 
-  F2_mean = SUM(F2(1:n_ref)) / n_ref
+  !F2(1:n_ref) = F2(1:n_ref) *0.1
+
+  F2_mean     = SUM(F2(1:n_ref)) / n_ref
   E2(1:n_ref) = F2(1:n_ref) / F2_mean
-  E2_mean = SUM(E2(1:n_ref)) / n_ref
-  E2m1_mean = SUM(ABS(E2(1:n_ref)-1))/n_ref
+  E2_mean     = SUM(E2(1:n_ref)) / n_ref
+  E2m1_mean   = SUM(ABS(E2(1:n_ref)-1))/n_ref
+  !write(*,*)' <F2>   = ', F2_mean
+  !write(*,*)' <E2-1> = ', E2m1_means
+  !write(*,*)' E2_min E2_max : ', minval(E2(1:n_ref)), maxval(E2(1:n_ref))
 
+  !E2m1 = 0.
+  !do i=1, n_ref
+  !  E2m1 = E2m1 + abs(E2(i)-1)
+  !!write(*,*) i, F2(i), E2(i), E2(i)-1., ABS(E2(i)-1.)
+  !!if(E2(i) > 2) PAUSE
+  !end do
+  !E2m1_mean = E2m1 / n_ref
+  !write(*,*)' <E2-1> = ', E2m1_mean
+
+
+  !E2(1:n_ref) = n_ref * F2(1:n_ref) / sum(F2(1:n_ref))
+  !E2_mean     = SUM(E2(1:n_ref)) / n_ref
+  !E2m1_mean = SUM(ABS(E2(1:n_ref) - 1)) / n_ref
+
+  !write(*,*) ' E2_mean = ', E2_mean
+  !write(*,*) 'Sum_E2 = ', E2_mean*n_ref
+  !write(*,*)' <E2-1> = ', E2m1_mean
+
+  !pause
+
+  !nn = 0
+  do i=1, n_ref
+   if(E2(i) < 0.0001) then
+  !  nn = nn + 1
+  !  !write(*,'(5x,2i6, 3F12.5)') nn, i, F2(i), E2(i), F2_mean
+    E2(i) = 0.0001
+   end if
+  end do
   E(1:n_ref)  = SQRT(E2(1:n_ref))
+
+  !E2m1_mean = sum(abs(E(1:n_ref)**2 -1)) / n_ref
+  !write(*,*)' <E2-1> = ', E2m1_mean
+
+  !do i=1, n_ref
+  ! !if(E2(i) < 0.0001) cycle
+  ! E2m1_mean = E2m1_mean + abs(E2(i)-1)
+  !end do
+  !E2m1_mean = E2m1_mean / n_ref
+  ! write(*,*)' <E2-1> = ', E2m1_mean
+  !pause
+
   E_mean = SUM(E(1:n_ref)) / n_ref
 
   E3(1:n_ref) = E(1:n_ref)**3
@@ -603,27 +708,27 @@ subroutine statistics_on_E2()
   n_2 = (n_2 /n_ref) * 100
   n_3 = (n_3 /n_ref) * 100
 
-  WRITE(message_text,*) '              centro     non-centro           exp.'
+  WRITE(message_text,*) '               centro      non-centro            exp.'
   call write_info(TRIM(message_text))
   WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**2>:  ', 1.000, 1.000, E2_mean
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**3>:  ', 1.000, 1.000, E3_mean
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**4>:  ', 1.000, 1.000, E4_mean
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**5>:  ', 1.000, 1.000, E5_mean
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**6>:  ', 1.000, 1.000, E6_mean
-  call write_info(TRIM(message_text))
+  !WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**3>:  ', 1.000, 1.000, E3_mean
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**4>:  ', 1.000, 1.000, E4_mean
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**5>:  ', 1.000, 1.000, E5_mean
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E)**6>:  ', 1.000, 1.000, E6_mean
+  !call write_info(TRIM(message_text))
   WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '  <ABS(E2-1)>:  ', 0.968, 0.736, E2m1_mean
   call write_info(TRIM(message_text))
   WRITE(message_text,'(a,F6.3,10x,F6.3,10xF6.3)') '     <ABS(E)>:  ', 0.798, 0.886, E_mean
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F5.2,10x,F5.2,10xF5.2)') '  %ABS(E)>1.0:  ', 31.7, 36.8 , n_1
+  WRITE(message_text,'(a,F5.2,10x,F6.2,11xF5.2)') '  %ABS(E)>1.0:  ', 31.7, 36.8 , n_1
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F5.2,10x,F5.2,10xF5.2)') '  %ABS(E)>2.0:  ',  4.6,  1.8 , n_2
+  WRITE(message_text,'(a,F5.2,10x,F6.2,11xF5.2)') '  %ABS(E)>2.0:  ',  4.6,  1.8 , n_2
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F5.2,10x,F5.2,10xF5.2)') '  %ABS(E)>3.0:  ',  0.3,  0.02, n_3
+  WRITE(message_text,'(a,F5.2,10x,F6.2,11xF5.2)') '  %ABS(E)>3.0:  ',  0.3,  0.02, n_3
   call write_info(TRIM(message_text))
 
  RETURN

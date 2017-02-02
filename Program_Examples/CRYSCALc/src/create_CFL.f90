@@ -615,19 +615,31 @@ subroutine create_INS_file(input_file, extension)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)        :: input_file, extension
   ! local variables
-  INTEGER                              :: i, n_atom, atom_order
+  INTEGER                              :: i, long, atom_order
   CHARACTER(LEN=256)                   :: created_INS_file
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "create_INS_file")
 
-  if(input_file(1:12) == 'cryscalc.ins') then
-   created_INS_file = 'cryscalc.ins'
-  else
-   i= INDEX(input_file, '.')
-   WRITE(created_INS_file, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'.INS'
-  endif
+  !if(len_trim(input_file) >= 12) then
+  ! if(input_file(1:12) == 'cryscalc.ins') then
+  !  created_INS_file = 'cryscalc.ins'
+  ! else
+  !  i= INDEX(input_file, '.')
+  !  WRITE(created_INS_file, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'.INS'
+  ! end if
+  !else
+  ! i= INDEX(input_file, '.')
+  ! WRITE(created_INS_file, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'.INS'
+  !endif
+
+  i = index(input_file, '.')
+  WRITE(created_INS_file, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'.INS'
+  if(len_trim(input_file) >=12) then
+   if(input_file(1:12) == 'cryscalc.ins') created_INS_file = 'cryscalc.ins'
+  end if
 
   !call Write_SHX_template(TRIM(created_INS_file), 2, TRIM(main_title), wavelength, INT(Z_unit), crystal_cell, SPG, Atm_list)
+  close(unit=4)
   OPEN(UNIT=4, FILE=TRIM(created_INS_file))
 
    WRITE(4, '(2a)')                                   'TITL ', TRIM(main_title)
@@ -690,8 +702,11 @@ subroutine create_INS_file(input_file, extension)
     ! write(4,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , atom_coord(1:3,i), 10.+atom_occ(i) ,   atom_adp_equiv(i)
     !endif
 
+    long = len_trim(atom_typ(i))
+    if (long == 1 .and. atom_typ(i)(1:1) == 'H' .and. no_H) cycle
+
     if(atom_adp_equiv(i) < 0.00001) atom_adp_equiv(i) = 8*pi**2. * 0.03
-    if(atom_order == 0) then	
+    if(atom_order == 0) then
      write(4,'(a,1x,a,5F10.5)')  atom_label(i), '   ?', atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_adp_equiv(i)/(8*pi**2.)
     else
      write(4,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , atom_coord(1:3,i), 10.+atom_occ(i) ,   atom_adp_equiv(i)/(8*pi**2.)
@@ -705,12 +720,121 @@ subroutine create_INS_file(input_file, extension)
   close (UNIT=4)
 
   call write_info('')
-  write(message_text, '(3a)') '   >> ', trim(created_INS_file), ' file has been created.'
+  if(no_H) then
+   write(message_text, '(3a)') '   >> ', trim(created_INS_file), ' file has been created (H atoms have been excluded).'
+  else
+   write(message_text, '(3a)') '   >> ', trim(created_INS_file), ' file has been created.'
+  end if
   call write_info(trim(message_text))
   call write_info('')
 
   return
 end subroutine create_INS_file
+
+!------------------------------------------------------------------------
+subroutine create_PCR_file(input_file, extension)
+ USE cryscalc_module
+ USE Pattern_profile_module
+
+! USE CFML_IO_FORMATS, ONLY : Write_Shx_Template
+ USE SHELX_module
+ USE IO_module
+
+ implicit none
+  CHARACTER (LEN=*), INTENT(IN)        :: input_file, extension
+  ! local variables
+  INTEGER                              :: i, long
+  CHARACTER(LEN=256)                   :: created_PCR_file
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_PCR_file")
+
+  long = len_trim(input_file)
+  if(long >= 12) then
+   if(input_file(1:12) == 'cryscalc.pcr') then
+    created_PCR_file = 'cryscalc.pcr'
+   end if
+  else
+   i= INDEX(input_file, '.')
+   WRITE(created_PCR_file, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'.PCR'
+  endif
+
+  if(X_rays) then   ! RX D8 CSM
+   pattern = X_pattern
+   PV = X_PV
+  else
+   pattern = N_pattern
+   PV = N_PV
+  end if
+
+
+  OPEN(UNIT=4, FILE=TRIM(created_PCR_file))
+   WRITE(4, '(a)')          'COMM PCR file created by CRYSCALC'
+   WRITE(4, '(a)')          '!Job Npr Nph Nba Nex Nsc Nor Dum Iwg Ilo Ias Res Ste Nre Cry Uni Cor Opt Aut'
+   write(4, '(i4,a)')       Pattern%job, '   5   1   0   0   0   0   1   0   0   0   0   0   0   0   0   0   1   1'
+
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '!Ipr Ppl Ioc Mat Pcr Ls1 Ls2 Ls3 NLI Prf Ins Rpa Sym Hkl Fou Sho Ana'
+   write(4, '(a)')          '   0   0   1   0   1   0   4   0   0   1   6   1   1   0   0   1   1'
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '! Lambda1  Lambda2    Ratio    Bkpos    Wdt    Cthm     muR   AsyLim   Rpolarz  2nd-muR -> Patt# 1'
+   write(4, '(2F9.6,a)')    pdp_simu%wave, pdp_simu%wave, '  1.00000   70.000  6.0000  0.7899  0.0000  160.00    0.0000  0.0000'
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '!NCY  Eps  R_at  R_an  R_pr  R_gl     Thmin       Step       Thmax    PSD    Sent0'
+   write(4, '(a,3F10.4,a)') '  1  0.10  1.00  1.00  1.00  1.00', Pattern%Xmin, Pattern%step, Pattern%Xmax, '   0.000   0.000'
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '   0    !Number of refined parameters'
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '!  Zero    Code    SyCos    Code   SySin    Code  Lambda     Code MORE ->Patt# 1'
+   write(4, '(a)')          ' 0.00000   00.0  0.00000    0.0  0.00000    0.0 0.000000    0.00   0'
+   write(4, '(a)')          '!   Background coefficients/codes  for Pattern#  1  (Polynomial of 6th degree)'
+   write(4, '(F12.3,a)')    Pattern%background, '    0.000       0.000       0.000       0.000       0.000'
+   write(4, '(a)')          '       00.00       00.00       00.00       00.00       00.00       00.00'
+   write(4, '(a)')          '!-------------------------------------------------------------------------------'
+   write(4, '(a)')          '!  Data for PHASE number:   1  ==> Current R_Bragg for Pattern#  1:     0.00'
+   write(4, '(a)')          '!-------------------------------------------------------------------------------'
+   if(len_trim(main_title) /=0) then
+    write(4, '(a)')         TRIM(main_title)
+   else
+    write(4, '(a)')          'Phase #1:'
+   end if
+   write(4, '(a)')          '!'
+   write(4, '(a)')          '!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More'
+   write(4, '(I4,a)')       nb_atom, '   0   0 0.0 0.0 1.0   0   0   0   0   0          0.000   0   5   0'
+   write(4, '(2a)')         trim(SPG%SPG_symb), '             <--Space group symbol'
+   write(4, '(a)')          '!Atom   Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes'
+
+   do i=1, nb_atom
+    write(4, '(2a,5(1x,F8.5), a)')  &
+                            atom_label(i), atom_typ(i), atom_coord(1:3,i), atom_Biso(i), atom_occ(i), &
+                            '   0   0   0    0'
+    write(4, '(a)')         '                 0.00     0.00     0.00     0.00     0.00'
+   end do
+
+   write(4, '(a)')        '!-------> Profile Parameters for Pattern #  1'
+   write(4, '(a)')        '!  Scale        Shape1      Bov      Str1      Str2      Str3   Strain-Model'
+   write(4, '(F10.6,F10.5,a)')   Pattern%scale, PV%eta0, '   0.00000   0.00000   0.00000   0.00000       0'
+   write(4, '(a)')         '     0.000     0.000     0.000     0.000     0.000     0.000'
+   write(4, '(a)')         '!       U         V          W           X          Y        GauSiz   LorSiz Size-Model'
+   write(4, '(4(1x,F10.6),a)')  PV%U, PV%V, PV%W, PV%eta1, '   0.000000   0.000000   0.000000    0'
+   write(4, '(a)')         '      0.000      0.000      0.000      0.000      0.000      0.000      0.000'
+   write(4, '(a)')         '!     a          b         c        alpha      beta       gamma'
+   write(4, '(6(1x,F10.6))')  unit_cell%param(1:3), unit_cell%param(4:6)
+   write(4, '(a)')         '    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000'
+   write(4, '(a)')         '!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L'
+   write(4, '(a)')         '0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000'
+   write(4, '(a)')         '   0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00'
+
+  close (UNIT=4)
+
+  call write_info('')
+  write(message_text, '(3a)') '   >> ', trim(created_PCR_file), ' file has been created.'
+  call write_info(trim(message_text))
+  call write_info('')
+
+  return
+end subroutine create_PCR_file
+
 
 !------------------------------------------------------------------------
 subroutine create_TIDY_file(input_file, extension)
@@ -721,7 +845,7 @@ subroutine create_TIDY_file(input_file, extension)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)        :: input_file, extension
   ! local variables
-  INTEGER                              :: i, i1, n_atom, atom_order
+  INTEGER                              :: i, i1
   CHARACTER(LEN=256)                   :: TIDY_file
   real, dimension(3)                   :: coord
 
@@ -767,6 +891,7 @@ subroutine create_SOLVE_input_files
 
  return
 end subroutine create_SOLVE_input_files
+
 !------------------------------------------------------------------------
 subroutine create_SIR_file()
  USE cryscalc_module, ONLY : SPG, molecule, unit_cell, debug_proc
@@ -819,6 +944,7 @@ subroutine create_SIR_file()
 
  RETURN
 end subroutine create_SIR_file
+
 !------------------------------------------------------------------------
 subroutine create_SHELXS_file()
  USE cryscalc_module, ONLY : main_title, keyword_SIZE, SPG, molecule, unit_cell, wavelength, &
@@ -1065,7 +1191,6 @@ end subroutine create_SHELXS_file
  end subroutine mandatory_keyword
 
 !------------------------------------------------------------------------
-
 subroutine get_SHELX_nlatt()
  USE cryscalc_module, ONLY : SPG, debug_proc
  use SHELX_module,    only : n_latt

@@ -11,7 +11,6 @@ module structural_report_module
 end module structural_report_module
 
 !---------------------------------------------------------------------------------------------------------------
-
 module LATEX_module
   implicit none
 
@@ -29,15 +28,16 @@ module special_characters_module
 
 
 end module special_characters_module
-!---------------------------------------------------------------------------------------------------------------
 
+!---------------------------------------------------------------------------------------------------------------
 subroutine create_structural_report
- USE cryscalc_module, only : debug_proc
+ USE cryscalc_module, only :  debug_proc
+
+ USE CIF_module
 
  implicit none
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_structural_report")
-
 
   call Get_CIF_parameters
   call create_report_header
@@ -51,13 +51,12 @@ subroutine create_structural_report
 end subroutine create_structural_report
 
 !---------------------------------------------------------------------------------------------------------------
-
-
 subroutine Get_CIF_parameters()
- USE structural_report_module,     ONLY : job, op_string
- USE MACROS_module,                ONLY : test_file_exist,  l_case
- USE cryscalc_module,              ONLY : CIF_unit, archive_CIF, debug_proc, include_squeeze, debug_proc
- use CIF_module,                   ONLY : CIF_parameter
+ USE structural_report_module,        ONLY : job, op_string
+ USE MACROS_module,                   ONLY : test_file_exist,  l_case
+ USE cryscalc_module,                 ONLY : CIF_unit, archive_CIF, debug_proc, include_squeeze, SPG, debug_proc
+ use CIF_module,                      ONLY : CIF_parameter, CIF_parameter_DEVICE
+ USE CFML_Crystallographic_Symmetry,  ONLY : set_spacegroup
  USE IO_module
 
  implicit none
@@ -156,10 +155,14 @@ subroutine Get_CIF_parameters()
         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_weight)
 
        case ('_symmetry_cell_setting', '_space_group_crystal_system')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_cell_setting)
+        if (CIF_parameter%symmetry_cell_setting == '?') then
+         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_cell_setting)
+        end if
 
        case ('_symmetry_space_group_name_h-m', '_space_group_name_h-m', '_space_group_name_h-m_alt')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_space_group)
+        if(CIF_parameter%symmetry_space_group =='?' ) then
+         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_space_group)
+        end if
 
        case ('_symmetry_int_tables_number', '_space_group_it_number')
         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_IT_number)
@@ -182,6 +185,7 @@ subroutine Get_CIF_parameters()
          if(.not. symm_id) then
           read(CIF_input_line, '(a)') op_string(n_op)
          else
+          CIF_input_line = adjustl(CIF_input_line)
           op_string(n_op) = CIF_input_line(index(CIF_input_line, ' '):)
          endif
          op_string(n_op) = adjustl(op_string(n_op))
@@ -191,6 +195,12 @@ subroutine Get_CIF_parameters()
          endif
         end do
 
+        if(CIF_parameter%symmetry_space_group == "?") then
+         ! creation du groupe d'espace a partir des operateurs de symetrie
+         call set_spacegroup("  ", SPG, op_string, n_op,'GEN')
+         CIF_parameter%symmetry_space_group  = SPG%spg_symb
+         CIF_parameter%symmetry_cell_setting = SPG%CrystalSys
+        end if
 
        case ('_cell_length_a')
         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_length_a)
@@ -249,7 +259,7 @@ subroutine Get_CIF_parameters()
         !READ(CIF_field_value, '(a)') CIF_parameter%restraints_number
          call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%restraints_number)
 
-       case ('_refine_ls_abs_structure_flack')        
+       case ('_refine_ls_abs_structure_flack')
          call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%abs_structure_Flack)
 
        case ('_refine_ls_wr_factor_gt')
@@ -280,38 +290,41 @@ subroutine Get_CIF_parameters()
         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_diff_density_rms)
 
        case ('_diffrn_measurement_device_type')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_device)
-        IF(CIF_parameter%diffracto_device(1:6) == 'APEXII') then
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_device)
+        IF(CIF_parameter_DEVICE%diffracto_device(1:6) == 'APEXII') then
          device_mark =  'Bruker-AXS'
          device_type =  'APEXII Kappa-CCD diffractometer'
-        elseif(CIF_parameter%diffracto_device(1:3) == 'X2S') then
+        ELSEIF(CIF_parameter_DEVICE%diffracto_device(1:3) == 'D8V') then
+         device_mark =  'Bruker-AXS'
+         device_type =  'D8 Venture Kappa-CCD diffractometer'
+        elseif(CIF_parameter_DEVICE%diffracto_device(1:3) == 'X2S') then
          device_mark = 'Bruker-AXS'
          device_type = 'SMART X2S benchtop diffractometer'
-        elseif(CIF_parameter%diffracto_device(1:8) == 'KappaCCD') then
+        elseif(CIF_parameter_DEVICE%diffracto_device(1:8) == 'KappaCCD') then
          device_mark = 'Nonius'
          device_type = 'KappaCCD'
-        ELSEIF(CIF_parameter%diffracto_device(1:11) == 'CCD Saphire') then
+        ELSEIF(CIF_parameter_DEVICE%diffracto_device(1:11) == 'CCD Saphire') then
          device_mark = 'Oxford Diffraction'
          device_type = 'Xcalibur Saphire 3'
         endif
 
 
        case ('_diffrn_ambient_temperature')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_temperature)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_temperature)
 
        case ('_diffrn_radiation_type')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_type)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_radiation_type)
 
        case ('_diffrn_radiation_probe')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_probe)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_radiation_probe)
        case ('_diffrn_radiation_source')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_source)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_radiation_source)
        case ('_diffrn_radiation_monochromator')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_monochromator)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_radiation_monochromator)
 
 
        case ('_diffrn_radiation_wavelength')
-        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_wavelength)
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter_DEVICE%diffracto_radiation_wavelength)
 
        CASE ('_refine_ls_hydrogen_treatment')
         call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%H_treatment)
@@ -376,9 +389,9 @@ subroutine Get_CIF_parameters()
   return
 
  end subroutine Get_CIF_parameters
-!-------------------------------------------------------------------------
 
- subroutine  create_report_header
+!-------------------------------------------------------------------------
+subroutine  create_report_header
   USE structural_report_module
   USE MACROS_module,                ONLY : u_case, Get_wingx_job,  Get_current_folder_name
   USE cryscalc_module,              ONLY : HTML_unit, text_unit, LATEX_unit, archive_CIF,  text_report, HTML_report, &
@@ -395,20 +408,19 @@ subroutine Get_CIF_parameters()
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_report_header")
 
-
  i1 = INDEX(archive_cif, '.', back=.true.)
  if(HTML_report) then
-  WRITE(HTML_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.HTML'
+  WRITE(HTML_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.html'
   open (UNIT=HTML_unit, FILE=TRIM(HTML_structural_report_file))
  endif
 
  if(text_report) then
-  WRITE(TEXT_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.TXT'
+  WRITE(TEXT_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.txt'
   open (UNIT=text_unit, FILE=TRIM(TEXT_structural_report_file))
  endif
 
  if(latex_report) then
-  WRITE(LATEX_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.LTX'
+  WRITE(LATEX_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.ltx'
   open (UNIT=latex_unit, FILE=TRIM(LATEX_structural_report_file))
   WRITE(PDF_structural_report_file, '(2a)') archive_CIF(1:i1-1), '_structural_report.pdf'
  endif
@@ -432,7 +444,7 @@ subroutine Get_CIF_parameters()
   WRITE(HTML_unit, '(a)') "<HTML>"
   WRITE(HTML_unit, '(a)') "<HEAD>"
   call write_HTML_css(HTML_unit, 'report')
-  WRITE(HTML_unit, '(a)') "<TITLE>Structural report</TITLE>"
+  WRITE(HTML_unit, '(3a)') "<TITLE>Structural report [", trim(AUTHOR%team),"]</TITLE>"
   WRITE(HTML_unit, '(a)') "</HEAD>"
   WRITE(HTML_unit, '(a)') "<BODY BGCOLOR='#FFFFFF' style='font-family:Times new roman; font-size:14; line-height:150%'>"
  endif
@@ -513,11 +525,11 @@ subroutine  create_report
                                           check_character, Get_wingx_job,  Get_current_folder_name, replace_car, multiple, &
                                           replace_car2
  USE cryscalc_module,              ONLY : CIF_unit, HTML_unit, text_unit, LATEX_unit, archive_CIF, long_report,        &
-                                          CIF_torsion_limit, text_report, HTML_report, LATEX_report,                   &
+                                          CIF_torsion_limit, text_report, HTML_report, LATEX_report, report_logo,      &
                                           SQUEEZE, my_browser, my_pdflatex, cryscalc, message_text, debug_proc,        &
                                           cryscalc, structure_solution, structure_refinement, author,                  &
                                           report_header, include_SQUEEZE, debug_proc
- USE CIF_module,                   ONLY : CIF_parameter, CIF_CELL_measurement
+ USE CIF_module,                   ONLY : CIF_parameter, CIF_parameter_DEVICE, CIF_CELL_measurement
  USE external_applications_module, ONLY : launch_browser, launch_word, launch_pdflatex
  USE IO_module
  USE LATEX_module,                 ONLY : logo
@@ -526,21 +538,24 @@ subroutine  create_report
 
  implicit none
  LOGICAL                             :: file_exist
- CHARACTER (LEN=256)                 :: CIF_input_line, CIF_field, CIF_field_value
- CHARACTER (LEN=512)                 :: HTML_string, new_HTML_string
+ CHARACTER (LEN=256)                 :: CIF_input_line, CIF_field, output_line
+ CHARACTER (LEN=512)                 :: HTML_string
  CHARACTER (LEN=256), dimension(4)   :: report_string
  CHARACTER (LEN=512)                 :: LATEX_string
  CHARACTER (LEN=256)                 :: DOS_command
- CHARACTER (LEN=32)                  :: GIF_file, PNG_file
+ CHARACTER (LEN=256)                 :: solving_method
+ CHARACTER (LEN=32)                  :: GIF_file, PNG_file, JPG_file
+ CHARACTER (LEN=32)                  :: IMG_file
+ CHARACTER (LEN=32)                  :: job_latex
+ LOGICAL                             :: PNG_type, JPG_type
  INTEGER                             :: i_error, long_field, long, i, i1, i2
- integer                             :: n, n_op, op_numor
+ integer                             :: n, op_numor
 
  integer,   dimension(500)           :: op_n       ! numero de l'op. de sym.
  integer,   dimension(500,3)         :: op_t       ! partie translation
  integer,   dimension(3)             :: t
  integer                             :: n_sym_htab, n_sym_dist, n_sym_ang, n_sym_tor
  integer                             :: nb_col
- CHARACTER (LEN=64)                  :: device_mark, device_type
 
  CHARACTER (LEN=12), dimension(500) :: site_sym
  CHARACTER (len=12), dimension(500) :: dico
@@ -549,28 +564,25 @@ subroutine  create_report
  CHARACTER (LEN=12), dimension(2)    :: dist_atom
  CHARACTER (LEN=12)                  :: dist_value
  CHARACTER (LEN=12)                  :: dist_sym
-
  CHARACTER (LEN=12), dimension(3)    :: ang_atom
  CHARACTER (LEN=12)                  :: ang_value
+ real                                :: ang_value_real
+ CHARACTER (LEN=12)                  :: ang_esd_string
  CHARACTER (LEN=12), dimension(2)    :: ang_sym
-
  CHARACTER (LEN=12), dimension(4)    :: torsion_ang_atom
  CHARACTER (LEN=12)                  :: torsion_ang_value
  CHARACTER (LEN=12), dimension(4)    :: torsion_sym
  real                                :: torsion_value_real
+ CHARACTER (LEN=12)                  :: torsion_esd_string
+ INTEGER                             :: torsion_esd
 
 
  CHARACTER (LEN=12)                  :: atom_label, atom_typ, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
  CHARACTER (LEN=12)                  :: atom_U11, atom_U22, atom_U33, atom_U23, atom_U13, atom_U12
  CHARACTER (len=12)                  :: site_label_D, site_label_H, site_label_A
  CHARACTER (len=12)                  :: dist_DH, dist_HA, dist_DA, angle_DHA, site_sym_A
-
- LOGICAL                             :: alpha_car, num_car
- CHARACTER (LEN=10)                  :: date, time
- character (len=256)                 :: wingx_structure_dir
- character (len=10)                  :: AUTHOR_initiales
-
- real                                :: T_min, T_max
+ LOGICAL                             :: alpha_car, num_car, feder
+ LOGICAL                             :: SHELXL_2014, created_by_CRYSCALC
 
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_report")
@@ -585,7 +597,8 @@ subroutine  create_report
  if(HTML_report) then
   WRITE(HTML_unit, '(a)')  "<br>"
   WRITE(HTML_unit, '(a)')  "<div class='cadre'>"
-  WRITE(HTML_unit, '(3a)') "<p class='title_main'><i>", trim(job),"</i>: Crystal structure report</p><br>"
+  !WRITE(HTML_unit, '(3a)') "<p class='title_main'><i>", trim(job),"</i>: Crystal structure report</p><br>"
+  WRITE(HTML_unit, '(3a)') "<p class='title_main'><font face='courier'>", trim(job),"</font>: Crystal structure report</p><br>"
   WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;X-ray crystallographic study</p>"
  endif
 
@@ -594,8 +607,8 @@ subroutine  create_report
   WRITE(LATEX_unit, '(a)')  ""
   !job = replace_car(job, '_', '/')
   !job = replace_car(job, "/", "\_")
-  job = replace_car(job, '_', '\_')
-  WRITE(LATEX_unit, '(4a)')  '\titre{', trim(job), ': Crystal structure report','}'
+  job_latex = replace_car(job, '_', '\_')
+  WRITE(LATEX_unit, '(4a)')  '\titre{', trim(job_latex), '}{: Crystal structure report','}'
   WRITE(LATEX_unit, '(a)')   '\SousTitre{X-ray crystallographic study}'
  endif
 
@@ -603,7 +616,92 @@ subroutine  create_report
   if(CIF_parameter%formula_moiety == '?' .or. len_trim(CIF_parameter%formula_moiety) ==0)  &
      CIF_parameter%formula_moiety = CIF_parameter%formula_sum
 
-  if(index(CIF_parameter%diffrn_measurement_device_type, 'X2S') /=0) then
+  !----------
+  long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+  if(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:1)== "'"           .and. &
+     CIF_parameter_DEVICE%diffrn_measurement_device_type(long:long)== "'") then
+    if(CIF_parameter_DEVICE%diffrn_measurement_device_type(2:11) == "D8 VENTURE") then
+     feder = .true.
+    else
+     feder = .false.
+    end if
+   else
+    WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer,"
+    IF(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:10) == "D8 VENTURE")  then
+     feder = .true.
+    else
+     feder = .false.
+    end if
+   endif
+  !--------
+
+
+  ! oct. 2016
+  ! ----------- insertion de l'image du cristal dans .HTML et .Latex ----------------
+  ! recherche de la presence de fichier.PNG/.JPG
+  if(.not. TEXT_report) then
+   file_exist = .false.
+   JPG_type = .false.
+   PNG_type = .false.
+
+   do
+    write(PNG_file, '(2a)') trim(job), ".png"
+    call test_file_exist(trim(PNG_file), file_exist, 'no_out')
+    if(file_exist) then
+    ! janvier 2017 : conversion fichier.png en fichier.jpg (plus petit) avec Convert (ImageMagick)
+     write(JPG_file, '(2a)') trim(job), ".jpg"
+     write(DOS_command, '(4a)') 'convert -bordercolor rgb(255,255,255) -border 1 ', trim(PNG_file), ' ', trim(JPG_file)
+     call system(trim(DOS_command))
+     call test_file_exist(trim(JPG_file), file_exist, 'no_out')
+     if(file_exist) then
+      if(.not. LATEX_report) then
+       write(IMG_file, '(2a)') trim(JPG_file)
+       JPG_type = .true.
+      else      ! le .JPG cree par CONVERT ne convient pas pour PDFLATEX
+       write(IMG_file, '(2a)') trim(PNG_file)
+       PNG_type = .true.
+      end if
+      !call system("del "//trim(PNG_file))
+     else
+      write(IMG_file, '(2a)') trim(PNG_file)
+      PNG_type = .true.
+     end if
+     exit
+    end if
+
+    write(IMG_file, '(2a)') trim(job), ".jpg"
+    call test_file_exist(trim(IMG_file), file_exist, 'no_out')
+    if(file_exist) then
+     JPG_type = .true.
+     exit
+    end if
+
+    exit
+   end do
+
+
+
+   if(file_exist) then
+    if(HTML_report) then
+     WRITE(HTML_unit, '(a)') ""
+     WRITE(HTML_unit, '(a)') "<br>"
+     WRITE(HTML_unit, '(3a)') '<center><img width=300 src="', trim(IMG_file),'"></center>'
+    endif
+
+    if(LATEX_report) then
+     WRITE(LATEX_unit, '(a)') ""
+     write(LATEX_unit, '(a)')  '\begin{figure}[h]'
+     write(LATEX_unit, '(a)')  ' \centering'
+     write(LATEX_unit, '(3a)') ' \includegraphics[width=200.pt]{',trim(IMG_file),'}'
+     write(LATEX_unit, '(a)')  '\end{figure}'
+    endif
+   endif
+  end if ! fin de la condition if (.not. TXT_report)
+
+  ! ---------------------------------------------
+
+
+  if(index(CIF_parameter_DEVICE%diffrn_measurement_device_type, 'X2S') /=0) then
    if(HTML_report .or. LATEX_report) then
     call report_crystal_study("X2S")
    endif
@@ -615,62 +713,128 @@ subroutine  create_report
    WRITE(HTML_unit, '(a)') "<p class='retrait_1'>"
    WRITE(HTML_unit, '(a)')  ""
    !WRITE(HTML_unit, '(5a)', advance='NO') "(",TRIM(CIF_parameter%formula_moiety),"); M = ",TRIM(CIF_parameter%formula_weight),"."
-   WRITE(HTML_unit, '(5a)', advance='NO') "(",TRIM(HTML_string),"); <i>M</i> = ",TRIM(CIF_parameter%formula_weight),". "
-   long = len_trim(CIF_parameter%diffrn_measurement_device_type)
-   if(CIF_parameter%diffrn_measurement_device_type(1:1)== "'"           .and. &
-      CIF_parameter%diffrn_measurement_device_type(long:long)== "'") then
-    WRITE(HTML_unit, '(4a)') CIF_parameter%diffrn_measurement_device_type(2:long-1), " diffractometer,"
+   WRITE(HTML_unit, '(5a)', advance='NO') "(",TRIM(HTML_string),"); <i>M</i> = ",TRIM(CIF_parameter%formula_weight),".&nbsp;"
+
+   long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+   if(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:1)== "'"           .and. &
+      CIF_parameter_DEVICE%diffrn_measurement_device_type(long:long)== "'") then
+    if(feder) then
+     WRITE(HTML_unit, '(4a)') CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1), " diffractometer  [*],&nbsp;"
+    else
+     WRITE(HTML_unit, '(4a)') CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1), " diffractometer,&nbsp;"
+    end if
    else
-    WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter%diffrn_measurement_device_type), " diffractometer,"
+    IF(feder)  then
+     WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer [*],&nbsp;"
+    else
+     WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer,&nbsp;"
+    end if
    endif
+
+   !long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+   !if(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:1)== "'"           .and. &
+   !   CIF_parameter_DEVICE%diffrn_measurement_device_type(long:long)== "'") then
+   ! WRITE(HTML_unit, '(4a)') CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1), " diffractometer"
+   ! if(CIF_parameter_DEVICE%diffrn_measurement_device_type(2:11) == "D8 VENTURE") then
+   !  write(HTML_unit, '(a)', advance='NO') " [*],&nbsp;"
+   !  feder = .true.
+   ! else
+   !  write(HTML_unit, '(a)', advance='NO') ",&nbsp;"
+   !  feder = .false.
+   ! end if
+   !else
+   ! WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer,"
+   ! IF(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:10) == "D8 VENTURE")  then
+   !  write(HTML_unit, '(a)', advance='NO') " [*], "
+   !  feder = .true.
+   ! else
+   !  write(HTML_unit, '(a)', advance='NO') " ,&nbsp;"
+   !  feder = .false.
+   ! end if
+   !endif
   endif
+
 
   if(LATEX_report) then
    CALL transf_moiety_string("LATEX", CIF_parameter%formula_moiety , LATEX_string)
    !LATEX_string = CIF_parameter%formula_moiety
    WRITE(LATEX_unit, '(a)')  ""
    WRITE(LATEX_unit, '(a)')  "{\setlength{\baselineskip}{1.2\baselineskip}"
-   WRITE(LATEX_unit, '(5a)', advance='NO') "($",TRIM(LATEX_string),"$); $M = ",TRIM(CIF_parameter%formula_weight),"$. "
-   long = len_trim(CIF_parameter%diffrn_measurement_device_type)
-   if(CIF_parameter%diffrn_measurement_device_type(1:1)== "'"           .and. &
-      CIF_parameter%diffrn_measurement_device_type(long:long)== "'") then
-    WRITE(LATEX_unit, '(4a)') CIF_parameter%diffrn_measurement_device_type(2:long-1), " diffractometer,"
+   WRITE(LATEX_unit, '(5a)', advance='NO') "\noindent ($",TRIM(LATEX_string),"$); $M = ",TRIM(CIF_parameter%formula_weight),"$. "
+
+   long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+   if(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:1)== "'"           .and. &
+      CIF_parameter_DEVICE%diffrn_measurement_device_type(long:long)== "'") then
+    WRITE(LATEX_unit, '(4a)') CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1), " diffractometer"
+    if(feder) then
+     write(LATEX_unit, '(a)') " [*],~"
+    else
+     write(LATEX_unit, '(a)') " ,~"
+    end if
    else
-    WRITE(LATEX_unit, '(4a)') TRIM(CIF_parameter%diffrn_measurement_device_type), " diffractometer,"
+    WRITE(LATEX_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer"
+    IF(feder)  then
+     write(LATEX_unit, '(a)', advance='NO') " [*], "
+    else
+     write(LATEX_unit, '(a)', advance='NO') " ,;"
+    end if
    endif
+
+
+   !long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
+   !if(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:1)== "'"           .and. &
+   !   CIF_parameter_DEVICE%diffrn_measurement_device_type(long:long)== "'") then
+   ! WRITE(LATEX_unit, '(4a)') CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1), " diffractometer"
+   ! if(CIF_parameter_DEVICE%diffrn_measurement_device_type(2:11) == "D8 VENTURE") then
+   !  write(LATEX_unit, '(a)') " [*],~"
+   !  feder = .true.
+   ! else
+   !  write(LATEX_unit, '(a)') " ,~"
+   !  feder = .false.
+   ! end if
+   !else
+   ! WRITE(LATEX_unit, '(4a)') TRIM(CIF_parameter_DEVICE%diffrn_measurement_device_type), " diffractometer"
+   ! IF(CIF_parameter_DEVICE%diffrn_measurement_device_type(1:10) == "D8 VENTURE")  then
+   !  write(LATEX_unit, '(a)', advance='NO') " [*], "
+   !  feder = .true.
+   ! else
+   !  write(LATEX_unit, '(a)', advance='NO') " ,;"
+   !  feder = .false.
+   ! end if
+   !endif
   endif
 
 
-  IF(CIF_parameter%diffracto_radiation_type(1:5) == 'MoK\a') then
+  IF(CIF_parameter_DEVICE%diffracto_radiation_type(1:5) == 'MoK\a') then
    if(HTML_report) then
     WRITE(HTML_unit, '(a)', advance='NO') "Mo-K&alpha; radiation "
    endif
    if(LATEX_report) then
     WRITE(LATEX_unit, '(a)', advance='NO') "$Mo-K_{\alpha}$ radiation "
    endif
-  ELSEIF(CIF_parameter%diffracto_radiation_type(1:5) == 'CuK\a') then
+  ELSEIF(CIF_parameter_DEVICE%diffracto_radiation_type(1:5) == 'CuK\a') then
    if(HTML_report) then
     WRITE(HTML_unit, '(a)', advance='NO') "Cu-K&alpha; radiation "
    endif
    if(LATEX_report) then
     WRITE(LATEX_unit, '(a)', advance='NO') "$Cu-K_{\alpha}$ radiation "
    endif
-  
+
   else
    if(HTML_report) then
-    WRITE(HTML_unit, '(a)', advance='NO') TRIM(CIF_parameter%diffracto_radiation_type), " radiation"
+    WRITE(HTML_unit, '(a)', advance='NO') TRIM(CIF_parameter_DEVICE%diffracto_radiation_type), " radiation"
    endif
    if(LATEX_report) then
-    WRITE(LATEX_unit, '(a)', advance='NO') TRIM(CIF_parameter%diffracto_radiation_type), " radiation"
+    WRITE(LATEX_unit, '(a)', advance='NO') TRIM(CIF_parameter_DEVICE%diffracto_radiation_type), " radiation"
    endif
   endif
   if(HTML_report) then
-   WRITE(HTML_unit, '(3a)') "(&lambda; = ", TRIM(CIF_parameter%diffracto_radiation_wavelength)," Å),"
-   WRITE(HTML_unit, '(3a)', advance='NO') "<i>T</i> = ", TRIM(CIF_parameter%diffracto_temperature), " K; "
+   WRITE(HTML_unit, '(3a)') "(&lambda; = ", TRIM(CIF_parameter_DEVICE%diffracto_radiation_wavelength)," Å),"
+   WRITE(HTML_unit, '(3a)', advance='NO') "<i>T</i> = ", TRIM(CIF_parameter_DEVICE%diffracto_temperature), " K; "
   endif
   if(LATEX_report) then
-   WRITE(LATEX_unit, '(3a)') "($\lambda$ = ", TRIM(CIF_parameter%diffracto_radiation_wavelength)," \AA),"
-   WRITE(LATEX_unit, '(3a)', advance='NO') "$T = ", TRIM(CIF_parameter%diffracto_temperature), " K$; "
+   WRITE(LATEX_unit, '(3a)') "($\lambda$ = ", TRIM(CIF_parameter_DEVICE%diffracto_radiation_wavelength)," \AA),"
+   WRITE(LATEX_unit, '(3a)', advance='NO') "$T = ", TRIM(CIF_parameter_DEVICE%diffracto_temperature), " K$; "
   endif
 
   alpha_car    = .false.
@@ -700,59 +864,75 @@ subroutine  create_report
 
   if(HTML_report) then
    call report_cell_parameters("HTML")
-   WRITE(HTML_unit, '(3a)', advance='NO') "<i>Z</i> = ",TRIM(CIF_parameter%formula_units_Z), ", "
+   WRITE(HTML_unit, '(3a)', advance='NO') "&nbsp;<i>Z</i> = ",TRIM(CIF_parameter%formula_units_Z), ", "
    WRITE(HTML_unit, '(3a)') "<i>d</i> = ",TRIM(CIF_parameter%exptl_density), " g.cm<sup>-3</sup>, "
    WRITE(HTML_unit, '(3a)') "&mu; = ",TRIM(CIF_parameter%exptl_mu), " mm<sup>-1</sup>. "
   endif
 
   if(LATEX_report) then
    call report_cell_parameters("LATEX")
-
-   WRITE(LATEX_unit, '(3a)', advance='NO') "$Z = ",TRIM(CIF_parameter%formula_units_Z), "$, "
+   WRITE(LATEX_unit, '(3a)', advance='NO') "~$Z = ",TRIM(CIF_parameter%formula_units_Z), "$, "
    WRITE(LATEX_unit, '(3a)') "$d = ",TRIM(CIF_parameter%exptl_density), "~g.cm^{-3}$, "
    WRITE(LATEX_unit, '(3a)') "$\mu = ",TRIM(CIF_parameter%exptl_mu), "~mm^{-1}$. "
   endif
 
 
-  !SQUEEZE%procedure = .false.
-  !if(include_SQUEEZE) then
-  !inquire(file= trim(SQUEEZE%file), exist= file_exist)
-  !if(file_exist) then
-  ! SQUEEZE%procedure = .true.
-  !else
-  ! inquire(file= "sqz.sqf", exist= file_exist)
-  ! if(file_exist)  then
-  !  SQUEEZE%procedure = .true.
-  !  SQUEEZE%file = "sqz.sqf"
-  ! else
-  !  inquire(file="platon_sqr.sqf", exist = file_exist)  ! cree par PLATON version jan. 2013
-  !  if(file_exist) then
-  !   SQUEEZE%procedure != .true.
-  !   SQUEEZE%file = "platon_sqr.sqf"
-  !  endif
-  ! endif
-  !endif
-  !end if
+  long = len_trim(structure_solution%name)
+  if(long == 6) then
+   if(u_case(structure_solution%name) == 'SHELXT') then
+    solving_method = 'dual-space algorithm'
+   endif
+  else
+   solving_method = 'direct methods'
+  end if
 
+  SHELXL_2014 = .false.
+  long = len_trim(structure_refinement%name)
+  if(long == 11) then
+   if(structure_refinement%name(1:11) == 'SHELXL-2014' .or. &
+      structure_refinement%name(1:11) == 'SHELXL-2016') SHELXL_2014 = .true.
+  endif
+
+ 
   if(HTML_report) then
    !WRITE(HTML_unit, '(a)') "The structure was solved by direct methods using the SIR97 program [1], "
-   WRITE(HTML_unit, '(3a)') "The structure was solved by direct methods using the <i>",  &
+   WRITE(HTML_unit, '(4a)') "The structure was solved by ", trim(solving_method), " using the <i>",  &
                              u_case(trim(structure_solution%name)), "</i> program [1], "
    WRITE(HTML_unit, '(a)')  "and then refined with full-matrix least-square methods based on <i>F</i><sup>2</sup>"
    if(CIF_parameter%WinGX_used) then
-     WRITE(HTML_unit, '(4a)') "(<i>", u_case(trim(structure_refinement%name)), "</i>) [2] ", &
-                              "with the aid of the <i>WINGX</i> [3] program."
+    WRITE(HTML_unit, '(4a)') "(<i>", u_case(trim(structure_refinement%name)), "</i>) [2] ", &
+                             "with the aid of the <i>WINGX</i> [3] program."
+    if(include_SQUEEZE) then
+      if(SHELXL_2014) then
+      WRITE(HTML_unit, '(3a)')  "The contribution of the disordered solvents to the structure factors was ", &
+                                "calculated by the <i>PLATON</i> SQUEEZE procedure [4] and then taken into account ", &
+                                "in the final <i>SHELXL-2014</i> least-square refinement."
+     else
+      WRITE(HTML_unit, '(4a)') "The contribution of the disordered solvents to the calculated structure factors was ",    &
+                               "estimated following the <i>BYPASS</i> algorithm [4], implemented as the <i>SQUEEZE</i> ", &
+                               "option in <i>PLATON</i> [5]. A new data set, free of solvent contribution, was then ",    &
+                               "used in the final refinement."
+     end if
+    end if
    else
     WRITE(HTML_unit, '(3a)') "(<i>", u_case(trim(structure_refinement%name)), "</i>) [2]."
-   endif
+    if(include_SQUEEZE) then
+      if(SHELXL_2014) then
+      WRITE(HTML_unit, '(3a)')  "The contribution of the disordered solvents to the structure factors was ", &
+                                "calculated by the <i>PLATON</i> SQUEEZE procedure [3] and then taken into account ", &
+                                "in the final <I>SHELXL-2014</i> least-square refinement."
+     else
+      WRITE(HTML_unit, '(4a)') "The contribution of the disordered solvents to the calculated structure factors was ",    &
+                               "estimated following the <i>BYPASS</i> algorithm [3], implemented as the <i>SQUEEZE</i> ", &
+                               "option in <i>PLATON</i> [4]. A new data set, free of solvent contribution, was then ",    &
+                               "used in the final refinement."
+     end if
+    end if
+
+   end if
+
 
    !if(SQUEEZE%procedure) then
-   if(include_SQUEEZE) then
-    WRITE(HTML_unit, '(a)') "The contribution of the disordered solvents to the calculated structure factors was "
-    WRITE(HTML_unit, '(3a)') "estimated following the <i>BYPASS</i> algorithm [4], implemented as the <i>SQUEEZE</i> ", &
-                             "option in <i>PLATON</i> [5]. A new data set, free of solvent contribution, was then ",    &
-                            "used in the final refinement."
-   endif
 
    WRITE(HTML_unit, '(a)') "All non-hydrogen atoms were refined with anisotropic atomic displacement parameters. "
    IF(CIF_parameter%H_treatment(1:5) == 'mixed') then
@@ -771,22 +951,43 @@ subroutine  create_report
   endif
 
    if(LATEX_report) then
-    WRITE(LATEX_unit, '(3a)') "The structure was solved by direct methods using the ",  &
+    WRITE(LATEX_unit, '(5a)') "The structure was solved by ", trim(solving_method), " using the ",  &
                               u_case(trim(structure_solution%name)), " program [1], "
     if(CIF_parameter%WinGX_used) then
      WRITE(LATEX_unit, '(3a)') "and then refined with full-matrix least-square methods based on $F^2$ (", &
                                u_case(trim(structure_refinement%name)), ") [2] with the aid of the WINGX [3] program."
+     if(include_SQUEEZE) then
+       if(SHELXL_2014) then
+       WRITE(LATEX_unit, '(3a)') "The contribution of the disordered solvents to the structure factors was ", &
+                                 "calculated by the \textit{PLATON} SQUEEZE procedure [4] and then taken into account", &
+                                 " in the final \textit{SHELXL-2014} least-square refinement."
+      else
+       WRITE(LATEX_unit, '(4a)') "The contribution of the disordered solvents to the calculated structure factors was ", &
+                                 "estimated following the \textit{BYPASS} algorithm [4], implemented as the \textit{SQUEEZE} ", &
+                                 "option in \textit{PLATON} [5]. A new data set, free of solvent contribution, was then ",    &
+                                 "used in the final refinement."
+      end if
+     end if
+
+
     else
      WRITE(LATEX_unit, '(3a)') "and then refined with full-matrix least-square methods based on $F^2$ (", &
                                u_case(trim(structure_refinement%name)), " program [2])."
-    endif
-    !if(SQUEEZE%procedure) then
-    if(include_SQUEEZE) then
-     WRITE(LATEX_unit, '(a)') "The contribution of the disordered solvents to the calculated structure factors was "
-     WRITE(LATEX_unit, '(3a)') "estimated following the BYPASS algorithm [4], implemented as the SQUEEZE ", &
-                               "option in PLATON [5]. A new data set, free of solvent contribution, was then ",    &
-                               "used in the final refinement."
+     if(include_SQUEEZE) then
+      if(SHELXL_2014) then
+       WRITE(LATEX_unit, '(3a)') "The contribution of the disordered solvents to the structure factors was ", &
+                                 "calculated by the \textit{PLATON} SQUEEZE procedure [3] and then taken into account", &
+                                 " in the final \textit{SHELXL-2014} least-square refinement."
+      else
+       WRITE(LATEX_unit, '(4a)') "The contribution of the disordered solvents to the calculated structure factors was ", &
+                                 "estimated following the \textit{BYPASS} algorithm [3], implemented as the \textit{SQUEEZE} ", &
+                                 "option in \textit{PLATON} [4]. A new data set, free of solvent contribution, was then ",    &
+                                 "used in the final refinement."
+      end if
      endif
+
+    endif
+
 
     WRITE(LATEX_unit, '(a)') "All non-hydrogen atoms were refined with anisotropic atomic displacement parameters. "
     IF(CIF_parameter%H_treatment(1:5) == 'mixed') then
@@ -797,11 +998,11 @@ subroutine  create_report
                               "$F^2$ with ", TRIM(CIF_parameter%reflns_number_total), " unique intensities and "
     WRITE(LATEX_unit, '(2a)') TRIM(CIF_parameter%refine_ls_number_parameters), &
                             " parameters converged at $\omega R(F^2) =~"
-   WRITE(LATEX_unit, '(3a)') TRIM(CIF_parameter%refine_ls_wR_factor_gt), "~(RF =~", TRIM(CIF_parameter%refine_ls_R_factor_gt)
-   WRITE(LATEX_unit, '(3a)') ")~$for ", TRIM(CIF_parameter%reflns_number_gt), " observed reflections with ($I > 2\sigma $)."
-   WRITE(LATEX_unit, '(a)') ""
-   WRITE(LATEX_unit, '(a)') "\par}"
-  endif
+    WRITE(LATEX_unit, '(3a)') TRIM(CIF_parameter%refine_ls_wR_factor_gt), "~(RF =~", TRIM(CIF_parameter%refine_ls_R_factor_gt)
+    WRITE(LATEX_unit, '(3a)') ")~$for ", TRIM(CIF_parameter%reflns_number_gt), " observed reflections with ($I > 2\sigma $)."
+    WRITE(LATEX_unit, '(a)') ""
+    WRITE(LATEX_unit, '(a)') "\par}"
+   endif
 
 
 
@@ -810,17 +1011,31 @@ subroutine  create_report
    WRITE(HTML_unit, '(3a)') "[1] &nbsp; ", trim(structure_solution%reference),   "<br>"
    WRITE(HTML_unit, '(3a)') "[2] &nbsp; ", trim(structure_refinement%reference), "<br>"
    if(CIF_parameter%WinGX_used) then
-   !WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 1999, 32, 837-838<br>"
-   WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 2012, 45, 849-854<br>"
+    WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 2012, 45, 849-854<br>"
+    if(include_SQUEEZE) then
+     if(SHELXL_2014) then
+      WRITE(HTML_unit, '(a)') "[4] &nbsp; A.L. Spek, Acta Cryst. (2015) C71, 9-18<br>"
+     else
+      WRITE(HTML_unit, '(a)') "[4] &nbsp; P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201<br>"
+      WRITE(HTML_unit, '(a)') "[5] &nbsp; A. L. Spek, J. Appl. Cryst. (2003), 36, 7-13<br>"
+     end if
+    end if
+   else
+    if(include_SQUEEZE) then
+     if(SHELXL_2014) then
+      WRITE(HTML_unit, '(a)') "[3] &nbsp; A. L. Spek, Acta Cryst. (2015), C71, 9-18<br>"
+     else
+      WRITE(HTML_unit, '(a)') "[3] &nbsp; P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201<br>"
+      WRITE(HTML_unit, '(a)') "[4] &nbsp; A. L. Spek, J. Appl. Cryst. (2003), 36, 7-13<br>"
+     end if
+    end if
    end if
-   !if(SQUEEZE%procedure) then
-   if(include_SQUEEZE) then
-    WRITE(HTML_unit, '(a)') "[4] &nbsp; P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201<br>"
-    WRITE(HTML_unit, '(a)') "[5] &nbsp; A. L. Spek, J. Appl. Cryst. (2003), 36, 7-13<br>"
-   end if
+
+   IF(feder) WRITE(HTML_unit, '(a)') '<br><span class="founds">[*] Thanks to FEDER founds</span>'
    WRITE(HTML_unit, '(a)') "</p>"
    WRITE(HTML_unit, '(a)') "<br>"
-  endif
+  end if
+
   if(LATEX_report) then
    WRITE(LATEX_unit, '(a)') ""
    WRITE(LATEX_unit, '(a)') "\begin{enumerate}"
@@ -829,13 +1044,33 @@ subroutine  create_report
    !WRITE(LATEX_unit, '(a)')  "\item  L. J. Farrugia, J. Appl. Cryst., 1999, 32, 837-838"
    WRITE(LATEX_unit, '(a)')  "\item   L. J. Farrugia, J. Appl. Cryst., 2012, 45, 849-854"
    if(SQUEEZE%procedure) then
-    WRITE(LATEX_unit, '(a)') "\item P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201"
-    WRITE(LATEX_unit, '(a)') "\item A. L. Spek, J. Appl. Cryst. (2003), 36, 7-13"
+    if(SHELXL_2014) then
+     WRITE(LATEX_unit, '(a)') "\item A.L. Spek, Acta Cryst. (2015) C71, 9-18"
+    else
+     WRITE(LATEX_unit, '(a)') "\item P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201"
+     WRITE(LATEX_unit, '(a)') "\item A. L. Spek, J. Appl. Cryst. (2003), 36, 7-13"!
+    end if
    end if
    WRITE(LATEX_unit, '(a)') "\end{enumerate}"
+
+   IF(feder) then
+    WRITE(LATEX_unit, '(a)') "\vspace{0.5cm}"
+    WRITE(LATEX_unit, '(a)') "\header{[*] Thanks to the FEDER founds}"
+    write(LATEX_unit, '(a)') '\footnotesize'
+   end if
    WRITE(LATEX_unit, '(a)') ""
-  endif
+
+  end if
   end if   ! fin de la condition sur le type de diffracto. utilise
+
+  long = len_trim(CIF_parameter%crystal_colour)
+  if(CIF_parameter%crystal_colour(1:1) == '"' .and. CIF_parameter%crystal_colour(long:long) == '"') then
+   CIF_parameter%crystal_colour = CIF_parameter%crystal_colour(2:long-1)
+  end if
+  if(CIF_parameter%crystal_colour(1:1) == "'" .and. CIF_parameter%crystal_colour(long:long) == "'") then
+   CIF_parameter%crystal_colour = CIF_parameter%crystal_colour(2:long-1)
+  end if
+
 
   if(HTML_report) then
 
@@ -850,14 +1085,16 @@ subroutine  create_report
     WRITE(HTML_unit, '(10x,2a)') "Extended  formula                      ", TRIM(adjustl(HTML_string))
    end if
    WRITE(HTML_unit, '(10x,2a)') "Formula weight                         ", TRIM(CIF_parameter%formula_weight)
-   WRITE(HTML_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter%diffracto_temperature)," <i>K</i>"
-   WRITE(HTML_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), " Å "
+   WRITE(HTML_unit, '(10x,3a)') "Temperature                            ", &
+                                 TRIM(CIF_parameter_DEVICE%diffracto_temperature)," <i>K</i>"
+   WRITE(HTML_unit, '(10x,3a)') "Wavelength                             ", &
+                                 TRIM(CIF_parameter_DEVICE%diffracto_radiation_wavelength), " Å "
    HTML_string = CIF_parameter%symmetry_space_group
    call check_letter_string(HTML_string, .false.)
    call check_indice_string(HTML_string)
 
    !WRITE(HTML_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
-   !                             "<i>",TRIM(HTML_string),"</i>"							
+   !                             "<i>",TRIM(HTML_string),"</i>"
    WRITE(HTML_unit, '(10x,4a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
                                 TRIM(HTML_string)
    WRITE(HTML_unit, '(10x,6a)') "Unit cell dimensions                   ", "a = ", TRIM(CIF_parameter%cell_length_a), &
@@ -899,9 +1136,9 @@ subroutine  create_report
     WRITE(HTML_unit, '(10x,6a)') "Data / restraints / parameters         ", TRIM(CIF_parameter%reflns_number_total), " / ", &
                                TRIM(CIF_parameter%restraints_number), " / ", TRIM(CIF_parameter%refine_ls_number_parameters)
     if(CIF_parameter%abs_structure_Flack(1:1) /= '?') then
-	WRITE(HTML_unit, '(10x,2a)') "Flack parameter                        ", TRIM(CIF_parameter%abs_structure_Flack)
-    end if	
-    WRITE(HTML_unit, '(10x,2a)') "<sup>b</sup>Goodness-of-fit                       ", TRIM(CIF_parameter%Chi2)
+    WRITE(HTML_unit, '(10x,2a)') "Flack parameter                        ", TRIM(CIF_parameter%abs_structure_Flack)
+    end if
+    WRITE(HTML_unit, '(10x,2a)') "<sup>b</sup>S (Goodness-of-fit)                    ", TRIM(CIF_parameter%Chi2)
    else
     WRITE(HTML_unit, '(10x,2a)') "Unique reflections                     ", TRIM(CIF_parameter%reflns_number_total)
     WRITE(HTML_unit, '(10x,2a)') "Refined parameters                     ", TRIM(CIF_parameter%refine_ls_number_parameters)
@@ -939,6 +1176,7 @@ subroutine  create_report
    WRITE(LATEX_unit, '(a)')  "\newpage"
    WRITE(LATEX_unit, '(a)') "\SousTitre{Structural data}"
    WRITE(LATEX_unit, '(a)') "\begin{alltt}"
+
    CALL transf_moiety_string("LATEX_alltt", CIF_parameter%formula_sum , LATEX_string)
    WRITE(LATEX_unit, '(10x,4a)') "Empirical formula                      ", "\(",TRIM(adjustl(LATEX_string)),"\)"
    if(CIF_parameter%formula_sum(1:len_trim(CIF_parameter%formula_sum)) /=   &
@@ -947,11 +1185,11 @@ subroutine  create_report
     WRITE(LATEX_unit, '(10x,4a)') "Extended  formula                      ", "\(",TRIM(adjustl(LATEX_string)),"\)"
    end if
    WRITE(LATEX_unit, '(10x,2a)') "Formula weight                         ", TRIM(CIF_parameter%formula_weight)
-   WRITE(LATEX_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter%diffracto_temperature)," K"
-   WRITE(LATEX_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), &
-                                 " \AA "
+   WRITE(LATEX_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter_DEVICE%diffracto_temperature)," K"
+   WRITE(LATEX_unit, '(10x,3a)') "Wavelength                             ", &
+                                  TRIM(CIF_parameter_DEVICE%diffracto_radiation_wavelength), " \AA "
    LATEX_string = CIF_parameter%symmetry_space_group
-   call check_letter_string(LATEX_string, .true.)
+   !call check_letter_string(LATEX_string, .true.)
    call check_indice_string(LATEX_string)
 
    WRITE(LATEX_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
@@ -963,7 +1201,7 @@ subroutine  create_report
    WRITE(LATEX_unit, '(10x,6a)') "                                       ", "c = ", TRIM(CIF_parameter%cell_length_c), &
                                 " \AA, \(\gamma\) = ", TRIM(CIF_parameter%cell_angle_gamma), " \degre"
    WRITE(LATEX_unit, '(10x,3a)') "Volume                                 ", TRIM(CIF_parameter%cell_volume), " \AA\(\sp{3}\)"
-   WRITE(LATEX_unit, '(10x,5a)') "Z, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ' , ', &
+   WRITE(LATEX_unit, '(10x,5a)') "Z, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ', ', &
                                 TRIM(CIF_parameter%exptl_density), " (\(g.cm\sp{-1}\))"
    WRITE(LATEX_unit, '(10x,3a)') "Absorption coefficient                 ", TRIM(CIF_parameter%exptl_mu), " \(mm\sp{-1}\)"
 
@@ -973,16 +1211,16 @@ subroutine  create_report
    WRITE(LATEX_unit, '(10x,2a)') "Crystal color                          ", TRIM(CIF_parameter%crystal_colour)
    WRITE(LATEX_unit, '(10x,5a)') "Theta range for data collection        ", TRIM(CIF_parameter%theta_min), " to ", &
                                 TRIM(CIF_parameter%theta_max), " \degre"
-   WRITE(LATEX_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), " , ", &
+   WRITE(LATEX_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), ", ", &
                                 TRIM(CIF_parameter%h_max)
-   WRITE(LATEX_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), " , ", &
+   WRITE(LATEX_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), ", ", &
                                 TRIM(CIF_parameter%k_max)
-   WRITE(LATEX_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), " , ", &
+   WRITE(LATEX_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), ", ", &
                                 TRIM(CIF_parameter%l_max)
    WRITE(LATEX_unit, '(10x,7a)') "Reflections collected / unique         ", TRIM(CIF_parameter%diffrn_reflns_number), &
                                " / ", TRIM(CIF_parameter%reflns_number_total), " [\(\sp{a}\)R(int) = ",                &
                                TRIM(CIF_parameter%diffrn_reflns_av_R_equivalents), "]"
-   WRITE(LATEX_unit, '(10x,2a)') "Reflections [\(I>2\sigma\)]                   ",	CIF_parameter%reflns_number_gt
+   WRITE(LATEX_unit, '(10x,2a)') "Reflections [\(I>2\sigma\)]                   ",    CIF_parameter%reflns_number_gt
    WRITE(LATEX_unit, '(10x,2a)') "Completeness to theta_max              ", TRIM(CIF_parameter%completeness)
    WRITE(LATEX_unit, '(10x,2a)') "Absorption correction type             ", TRIM(CIF_parameter%absorption_correction_type)
    if(CIF_parameter%absorption_correction_type(1:4) /= 'none') then
@@ -1037,16 +1275,17 @@ subroutine  create_report
 
   if(text_report) then
    write(text_unit, '(a)') ''
-   write(text_unit, '(2x,3a)') 'Table 1. Crystal data and structure refinement for ', trim(job),'.'
+   write(text_unit, '(2x,3a)') 'Table 1: Crystal data and structure refinement for ', trim(job),'.'
    write(text_unit, '(a)') ''
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,2a)') "Empirical formula                      ", TRIM(CIF_parameter%formula_sum)
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,2a)') "Formula weight                         ", TRIM(CIF_parameter%formula_weight)
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter%diffracto_temperature)," K"
+   WRITE(text_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter_DEVICE%diffracto_temperature)," K"
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), " Å "
+   WRITE(text_unit, '(10x,3a)') "Wavelength                             ", &
+                                 TRIM(CIF_parameter_DEVICE%diffracto_radiation_wavelength), " Å "
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,4a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
                                 TRIM(CIF_parameter%symmetry_space_group)
@@ -1061,7 +1300,7 @@ subroutine  create_report
    WRITE(text_unit, '(10x,3a)') "Volume                                 ", TRIM(CIF_parameter%cell_volume), " Å3"
 
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,5a)') "Z, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ' , ', &
+   WRITE(text_unit, '(10x,5a)') "Z, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ', ', &
                                TRIM(CIF_parameter%exptl_density), " (g.cm-3)"
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,3a)') "Absorption coefficient                 ", TRIM(CIF_parameter%exptl_mu), " mm-1"
@@ -1077,11 +1316,11 @@ subroutine  create_report
    WRITE(text_unit, '(10x,5a)') "Theta range for data collection        ", TRIM(CIF_parameter%theta_min), " to ", &
                                 TRIM(CIF_parameter%theta_max), " °"
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), " , ", &
+   WRITE(text_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), ", ", &
                                 TRIM(CIF_parameter%h_max)
-   WRITE(text_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), " , ", &
+   WRITE(text_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), ", ", &
                                 TRIM(CIF_parameter%k_max)
-   WRITE(text_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), " , ", &
+   WRITE(text_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), ", ", &
                                 TRIM(CIF_parameter%l_max)
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,7a)') "Reflections collected / unique         ", TRIM(CIF_parameter%diffrn_reflns_number), &
@@ -1109,21 +1348,24 @@ subroutine  create_report
 
    if(CIF_parameter%abs_structure_Flack(1:1) /= '?') then
     write(text_unit, '(a)') ''
-	WRITE(text_unit, '(10x,2a)')"Flack parameter                        ", TRIM(CIF_parameter%abs_structure_Flack)
-    end if	
+    WRITE(text_unit, '(10x,2a)')"Flack parameter                        ", TRIM(CIF_parameter%abs_structure_Flack)
+    end if
 
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,5a)') "Final R indices [I>2sigma(I)]          ", "R1a = ",  &
-                                TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", wR2b = ",          &
+   WRITE(text_unit, '(10x,5a)') "Final R indices [I>2sigma(I)]          ", "R1  = ",  &
+                                TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", wR2  = ",          &
                                 TRIM(CIF_parameter%refine_ls_wR_factor_gt)
    write(text_unit, '(a)') ''
-   WRITE(text_unit, '(10x,5a)') "R indices (all data)                   ", "R1a = ",        &
-                               TRIM(CIF_parameter%refine_ls_R_factor_all), ", wR2b = ",           &
+   WRITE(text_unit, '(10x,5a)') "R indices (all data)                   ", "R1  = ",        &
+                               TRIM(CIF_parameter%refine_ls_R_factor_all), ", wR2  = ",           &
                                TRIM(CIF_parameter%refine_ls_wR_factor_ref)
    write(text_unit, '(a)') ''
    WRITE(text_unit, '(10x,5a)') "Largest diff. peak and hole            ", TRIM(CIF_parameter%refine_diff_density_max),     &
                                " and ", TRIM(CIF_parameter%refine_diff_density_min), "  e.Å-3"
    WRITE(text_unit, '(a)')      ""
+
+
+
   endif
 
 
@@ -1145,7 +1387,7 @@ subroutine  create_report
   if(text_report) then
    WRITE(text_unit, '(a)')  ""
    WRITE(text_unit, '(a)')  ""
-   WRITE(text_unit, '(2x,a)')  "Table 2. Atomic coordinates, site occupancy (%) and equivalent isotropic displacement "
+   WRITE(text_unit, '(2x,a)')  "Table 2: Atomic coordinates, site occupancy (%) and equivalent isotropic displacement "
    WRITE(text_unit, '(2x,3a)') "         parameters (Å^2) for ", trim(job), "."
    WRITE(text_unit, '(2x,a)')  "         U(eq) is defined as one third of the trace of the orthogonalized Uij tensor."
    WRITE(text_unit, '(a)')  ""
@@ -1154,16 +1396,29 @@ subroutine  create_report
   if(LATEX_report) then   ! positions atomiques
    WRITE(LATEX_unit, '(a)')   "\newpage"
    WRITE(LATEX_unit, '(3a)')  "\SousTitre{Atomic coordinates, site occupancy (\%) and equivalent isotropic displacement ", &
-                              "parameters ($\AA^2$). U(eq) is defined as one third of the trace of the ",           &
+                              "parameters (\AA$^2$). U(eq) is defined as one third of the trace of the ",           &
                               "orthogonalized $U_{ij}$ tensor.}"
    WRITE(LATEX_unit, '(a)')  ""
    WRITE(LATEX_unit, '(a)') "\begin{verbatim}"
   endif
 
 
-!---------------------------------------------------------------------
-
-
+!----------------------------------------------------------------------------------
+   ! verif. si le fichier.CIF a ete cree par CRYSCALC et est formatte
+  created_by_cryscalc = .false.
+  OPEN(UNIT = CIF_unit, FILE=TRIM(archive_cif))
+    do
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     IF(i_error < 0)            exit
+     IF(LEN_TRIM(CIF_input_line)==0) cycle
+     if(index(CIF_input_line, 'CIF file created and formatted by CRYSCALC') /=0) then
+      created_by_cryscalc = .true.
+      exit
+     end if
+     if(index(CIF_input_line, 'data_') /=0) exit
+    end do
+  CLOSE(unit=CIF_unit)
+!----------------------------------------------------------------------------------
 
    OPEN(UNIT = CIF_unit, FILE=TRIM(archive_cif))
     do
@@ -1183,17 +1438,17 @@ subroutine  create_report
      select case (CIF_field(1:long_field))
          case ('_atom_site_label')
           if(HTML_report) then
-           WRITE(HTML_unit, '(10x,a)') "Atom           x              y              z              occ.               U(eq)"
+           WRITE(HTML_unit, '(10x,a)') "Atom     x            y            z               occ.        U(eq)"
            WRITE(HTML_unit, '(a)')     ""
           end if
           if(text_report) then
-           WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
-           WRITE(text_unit, '(10x,a)') "Atom           x              y              z              occ.               U(eq)"
-           WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
+           WRITE(text_unit, '(5x,82a1)')  ("-",i=1,82)
+           WRITE(text_unit, '(10x,a)') "Atom     x            y            z               occ.        U(eq)"
+           WRITE(text_unit, '(5x,82a1)')  ("-",i=1,82)
            WRITE(text_unit, '(a)')     ""
           endif
           if(LATEX_report) then
-           WRITE(LATEX_unit, '(5x,a)') "Atom           x              y              z              occ.               U(eq)"
+           WRITE(LATEX_unit, '(5x,a)') "Atom     x            y            z               occ.        U(eq)"
            WRITE(LATEX_unit, '(a)')    ""
           endif
           do
@@ -1218,24 +1473,34 @@ subroutine  create_report
            enddo
            CIF_parameter%atom = CIF_input_line
            call nombre_de_colonnes(CIF_parameter%atom, nb_col)
-           if(nb_col ==5) then
+            if(nb_col ==5) then
             READ(CIF_parameter%atom, *) atom_label, atom_typ, atom_x, atom_y, atom_z
             atom_Ueq = '?'
             atom_occ = '?'
            else
             READ(CIF_parameter%atom, *) atom_label, atom_typ, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
            endif
+           if(created_by_cryscalc) then   ! le fichier .CIF n'est pas formate
+            write(output_line, '(5x,2(a,4x),2a)') CIF_parameter%atom(1:4), CIF_parameter%atom(9:47), atom_occ(1:12), atom_Ueq(1:12)
+           else                           ! le fichier .CIF n'est pas formate
+            WRITE(output_line, '(5x,8a)') atom_label(1:4), atom_x(1:12), atom_y(1:12), atom_z(1:12), &
+                                           atom_Ueq(1:12), atom_adp_type(1:12), atom_occ(1:12)
+           end if
            if(HTML_report) then
-            WRITE(HTML_unit, '(10x,6(a,3x))') atom_label(1:12), atom_x(1:12), atom_y(1:12), atom_z(1:12), atom_occ(1:12), &
-                                              atom_Ueq(1:12)
+            write(HTML_unit, '(5x,a)') trim(output_line)
+            !WRITE(HTML_unit, '(10x,a,4x,a,4x,2a)') CIF_parameter%atom(1:4), CIF_parameter%atom(9:47), atom_occ(1:12), atom_Ueq(1:12)
            endif
            if(text_report) then
-            WRITE(text_unit, '(10x,6(a,3x))') atom_label(1:12), atom_x(1:12), atom_y(1:12), atom_z(1:12), atom_occ(1:12), &
-                                              atom_Ueq(1:12)
+            write(text_unit, '(5x,a)') trim(output_line)
+            !WRITE(text_unit, '(10x,a,4x,a,4x,2a)') CIF_parameter%atom(1:4), CIF_parameter%atom(9:47), atom_occ(1:12), atom_Ueq(1:12)
+            !WRITE(text_unit, '(10x,8a)') atom_label(1:4), atom_typ(1:4), atom_x(1:12), atom_y(1:12), atom_z(1:12), &
+            !                                       atom_Ueq(1:12), atom_adp_type(1:12), atom_occ(1:12)
            endif
            if(LATEX_report) then
-            WRITE(LATEX_unit, '(5x,6(a,3x))') atom_label(1:12), atom_x(1:12), atom_y(1:12), atom_z(1:12), atom_occ(1:12), &
-                                              atom_Ueq(1:12)
+            !WRITE(LATEX_unit, '(5x,6(a,3x))') atom_label(1:12), atom_x(1:12), atom_y(1:12), atom_z(1:12), atom_occ(1:12), &
+            !                                  atom_Ueq(1:12)
+            !WRITE(LATEX_unit, '(5x,a,4x,a,4x,2a)') CIF_parameter%atom(1:4), CIF_parameter%atom(9:47), atom_occ(1:12), atom_Ueq(1:12)
+            write(LATEX_unit, '(a)') trim(output_line)
            endif
           END do
 
@@ -1252,7 +1517,7 @@ subroutine  create_report
      WRITE(LATEX_unit, '(a)') '\end{verbatim}'
      WRITE(LATEX_unit, '(a)') ''
     end if
-    if(TEXT_report) WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
+    if(TEXT_report) WRITE(text_unit, '(5x,80a1)')  ("-",i=1,80)
 
 
 !-----------------------------------------------------------------------------
@@ -1303,21 +1568,24 @@ subroutine  create_report
              WRITE(HTML_unit, '(3a)') "<p class='retrait_1'>The anisotropic displacement factor exponent takes the form: ", &
                                       "-2&pi;<sup>2</sup> [ h<sup>2</sup> a*<sup>2</sup> U<sub>11</sub> + ... ", &
                                       "+ 2 h k a* b* U<sub>12</sub> ]. </p>"
-             WRITE(HTML_unit, '(10x,2a)') "Atom           U11            U22            U33            ",   &
-                                          "U23            U13            U12"
+!             WRITE(HTML_unit, '(10x,2a)') "Atom           U11            U22            U33            ",   &
+!                                          "U23            U13            U12"
+             WRITE(HTML_unit, '(10x,a)') "Atom     U11          U22          U33          U23          U13          U12"
              WRITE(HTML_unit, '(a)')  ""
             endif
             if(text_report) then
              WRITE(text_unit, '(a)') ""
              WRITE(text_unit, '(a)') ""
-             WRITE(text_unit, '(2x,3a)') "Table 3. Anisotropic displacement parameters (Å^2) for ",trim(job),"."
+             WRITE(text_unit, '(2x,3a)') "Table 3: Anisotropic displacement parameters (Å^2) for ",trim(job),"."
              WRITE(text_unit, '(2x,a)')  "         The anisotropic displacement factor exponent takes the form:"
              WRITE(text_unit, '(2x,a)')  "         -2pi^2 [ h^2 a*^2 U11> + ...  + 2 h k a* b* U12 ]."
              WRITE(text_unit, '(a)')  ""
-             WRITE(text_unit, '(5x,110a1)')  ("-",i=1,110)
-             WRITE(text_unit, '(10x,2a)') "Atom           U11            U22            U33            ",   &
-                                          "U23            U13            U12"
-             WRITE(text_unit, '(5x,110a1)')  ("-",i=1,110)
+             WRITE(text_unit, '(5x,92a1)')  ("-",i=1,92)
+             !WRITE(text_unit, '(10x,2a)') "Atom           U11            U22            U33            ",   &
+             !                             "U23            U13            U12"
+             WRITE(text_unit, '(10x,a)') "Atom     U11          U22          U33          U23          U13          U12"
+
+             WRITE(text_unit, '(5x,92a1)')  ("-",i=1,92)
              WRITE(text_unit, '(a)')  ""
             endif
             if(LATEX_report) then
@@ -1325,25 +1593,39 @@ subroutine  create_report
                                        "$-2\pi [h^2 a^{*2} U_{11} + ... + 2hka^*b^*U_{12}]$"
              WRITE(LATEX_unit, '(a)')  ""
              WRITE(LATEX_unit, '(a)')  "\begin{verbatim}"
-             WRITE(LATEX_unit, '(5x,2a)') "Atom           U11            U22            U33            ",   &
-                                          "U23            U13            U12"
+             !WRITE(LATEX_unit, '(5x,2a)') "Atom           U11            U22            U33            ",   &
+             !                             "U23            U13            U12"
+             WRITE(LATEX_unit, '(10x,a)') "Atom     U11          U22          U33          U23          U13          U12"
+
              WRITE(LATEX_unit, '(a)')  ""
             endif
            endif
            CIF_parameter%atom = CIF_input_line
            READ(CIF_parameter%atom, *) atom_label, atom_U11, Atom_U22, atom_U33, atom_U23, atom_U13, atom_U12
+           if(created_by_cryscalc) then
+            WRITE(output_line, '(10x,a,4x,a)')  CIF_parameter%atom(1:4), trim(CIF_parameter%atom(5:))
+           else
+             WRITE(output_line, '(10x,7(a,3x))') atom_label(1:4), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
+                                                atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+           end if
            if(HTML_report) then
-            WRITE(HTML_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
-                                               atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+!            WRITE(HTML_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
+!                                               atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+!            WRITE(HTML_unit, '(10x,a,4x,a)')  CIF_parameter%atom(1:4), CIF_parameter%atom(5:)
+            WRITE(HTML_unit, '(a)') trim(output_line)
            endif
            if(text_report) then
-            WRITE(text_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
-                                               atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+!            WRITE(text_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
+!                                               atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+!            WRITE(text_unit, '(10x,a,4x,a)')  CIF_parameter%atom(1:4), CIF_parameter%atom(5:)
+             WRITE(text_unit, '(a)') trim(output_line)
            endif
 
            if(LATEX_report) then
-            WRITE(LATEX_unit, '(5x,7(a,3x))')  atom_label(1:5), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
-                                               atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+            !WRITE(LATEX_unit, '(5x,7(a,3x))')  atom_label(1:5), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
+            !                                   atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+            !WRITE(LATEX_unit, '(10x,a,4x,a)')  CIF_parameter%atom(1:4), CIF_parameter%atom(5:)
+            WRITE(LATEX_unit, '(a)') trim(output_line)
            endif
 
           END do
@@ -1355,7 +1637,7 @@ subroutine  create_report
     close (UNIT = CIF_unit)
     if(HTML_report   .and. n /=0)  WRITE(HTML_unit, '(a)')  "</pre>"
     if(LATEX_report  .and. n /=0)  WRITE(LATEX_unit, '(a)')  "\end{verbatim}"
-    if(TEXT_report   .and. n /=0)  WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
+    if(TEXT_report   .and. n /=0)  WRITE(text_unit, '(5x,110a1)')  ("-",i=1,110)
 
 
 !-----------------------------------------------------------------------------
@@ -1399,13 +1681,13 @@ subroutine  create_report
          n = n + 1
          if(n==1) then
           if(HTML_report) then
-           WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Bond lengths [Å]</p>"
+           WRITE(HTML_unit, '(a)') "<br><p class='title_2'>&nbsp;&nbsp;Bond lengths [Å]</p>"
            WRITE(HTML_unit, '(a)')  "<pre style='font-size:14' class='color_grey1'>"
           endif
           if(text_report) then
            WRITE(text_unit, '(a)') ""
            WRITE(text_unit, '(a)') ""
-           WRITE(text_unit, '(2x,3a)') "Table 4. Bond lengths [Å] for ", trim(job), '.'
+           WRITE(text_unit, '(2x,3a)') "Table 4: Bond lengths [Å] for ", trim(job), '.'
            WRITE(text_unit, '(a)')  ""
           endif
           if(LATEX_report) then
@@ -1527,6 +1809,17 @@ subroutine  create_report
          CIF_parameter%angle = CIF_input_line
          READ(CIF_parameter%angle, *) ang_atom(1), ang_atom(2), ang_atom(3), ang_value, ang_sym(1), ang_sym(2)
          ang_sym(1:2) = adjustl(ang_sym(1:2))
+
+         i1 = index(ang_value, '(')
+         i2 = index(ang_value, ')')
+         if(i1 /=0 .and. i2 /=0 .and. i2 > i1) then
+          read(ang_value(1:i1-1),    *) ang_value_real
+          read(ang_value(i1:i2), *) ang_esd_string
+         else
+          read(ang_value, *) ang_value_real
+          ang_esd_string = ''
+         end if
+
          if(n==1) then
           if(HTML_report) then
            WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Angles [°]</p>"
@@ -1534,7 +1827,8 @@ subroutine  create_report
           endif
           if(text_report) then
            WRITE(text_unit, '(a)') ""
-           WRITE(text_unit, '(2x,3a)') "Table 5. Angles [deg] for ", trim(job), "."
+           WRITE(text_unit, '(a)') ""
+           WRITE(text_unit, '(2x,3a)') "Table 5: Angles [deg] for ", trim(job), "."
            WRITE(text_unit, '(a)')  ""
           endif
           if(LATEX_report) then
@@ -1563,8 +1857,10 @@ subroutine  create_report
          write(report_string(1), '(2a)') trim(ang_atom(1)), trim(report_string(1))
          write(report_string(2), '(2a)') trim(ang_atom(3)), trim(report_string(2))
          if(HTML_report) then
-          write(HTML_string, '(10x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
-                                         report_string(2)(1:8), ' = ', trim(ang_value)
+          !write(HTML_string, '(10x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+          !                               report_string(2)(1:8), ' = ', trim(ang_value)
+          write(HTML_string, '(10x,6a,F7.2,a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+                                                report_string(2)(1:8), ' = ', ang_value_real, ang_esd_string
           !if(n == 2*int(n/2)) then
           if(multiple(n,2)) then
            write(HTML_unit, '(3a)') '<span class="ligne_1">',HTML_string(1:70),'</span>'
@@ -1573,12 +1869,16 @@ subroutine  create_report
           end if
          endif
          if(text_report) then
-          write(text_unit, '(10x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
-                                       report_string(2)(1:8), ' = ', trim(ang_value)
+          !write(text_unit, '(10x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+          !                             report_string(2)(1:8), ' = ', trim(ang_value)
+          write(text_unit, '(10x,6a,F7.2,a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+                                              report_string(2)(1:8), ' = ', ang_value_real, ang_esd_string
          endif
          if(LATEX_report) then
-          write(LATEX_unit, '(5x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
-                                       report_string(2)(1:8), ' = ', trim(ang_value)
+          !write(LATEX_unit, '(5x,7a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+          !                             report_string(2)(1:8), ' = ', trim(ang_value)
+          write(LATEX_unit, '(10x,6a,F7.2,a)') report_string(1)(1:8), ' - ', ang_atom(2)(1:8), ' - ', &
+                                               report_string(2)(1:8), ' = ', ang_value_real, ang_esd_string
          endif
 
         end do
@@ -1657,7 +1957,8 @@ subroutine  create_report
           endif
           if(text_report) then
            WRITE(text_unit, '(a)') ""
-           WRITE(text_unit, '(2x,3a)') "Table 6. Torsion angles [deg] for ", trim(job), '.'
+           WRITE(text_unit, '(a)') ""
+           WRITE(text_unit, '(2x,3a)') "Table 6: Torsion angles [deg] for ", trim(job), '.'
            WRITE(text_unit, '(a)')  ""
           endif
           if(LATEX_report) then
@@ -1674,14 +1975,17 @@ subroutine  create_report
          i1 = index(torsion_ang_value, '(')
          i2 = index(torsion_ang_value, ')')
          if(i1 /=0 .and. i2 /=0 .and. i2 > i1) then
-          read(torsion_ang_value(i1+1:i2-1), *) torsion_value_real
+          read(torsion_ang_value(1:i1-1), *) torsion_value_real
+          !read(torsion_ang_value(i1+1:i2-1), *) torsion_value_real
+          read(torsion_ang_value(i1:i2),*)      torsion_esd_string
+          read(torsion_ang_value(i1+1:i2-1), *) torsion_esd
          else
           read(torsion_ang_value, *) torsion_value_real
          endif
-         if(torsion_value_real > CIF_torsion_limit) then
-          n = n -1
-          cycle
-         endif
+         !if(abs(torsion_value_real) > CIF_torsion_limit) then
+         ! n = n -1
+         ! cycle
+         !endif
 
          do i=1, 4
           report_string(i) = ''
@@ -1702,10 +2006,16 @@ subroutine  create_report
        write(report_string(3), '(2a)') trim(torsion_ang_atom(3)), trim(report_string(3))
        write(report_string(4), '(2a)') trim(torsion_ang_atom(4)), trim(report_string(4))
        if(HTML_report) then
-        WRITE(HTML_string, '(10x, 9a)') report_string(1)(1:8), ' - ', &
+        !WRITE(HTML_string, '(10x, 8a,1a12)') report_string(1)(1:8), ' - ', &
+        !                                report_string(2)(1:8), ' - ', &
+        !                                report_string(3)(1:8), ' - ', &
+        !                                report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+
+        WRITE(HTML_string, '(10x, 8a,F7.2,a)') report_string(1)(1:8), ' - ', &
                                         report_string(2)(1:8), ' - ', &
                                         report_string(3)(1:8), ' - ', &
-                                        report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+                                        report_string(4)(1:8), ' = ', torsion_value_real, trim(torsion_esd_string)
+
         !if(n == 2*int(n/2)) then
         if(multiple(n,2)) then
          write(HTML_unit, '(3a)') '<span class="ligne_1">',HTML_string(1:70),'</span>'
@@ -1714,16 +2024,25 @@ subroutine  create_report
         end if
        endif
        if(text_report) then
-        WRITE(text_unit, '(10x, 9a)') report_string(1)(1:8), ' - ', &
-                                      report_string(2)(1:8), ' - ', &
-                                      report_string(3)(1:8), ' - ', &
-                                      report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+ !       WRITE(text_unit, '(10x, 9a)') report_string(1)(1:8), ' - ', &
+ !                                     report_string(2)(1:8), ' - ', &
+ !                                     report_string(3)(1:8), ' - ', &
+ !                                     report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+         WRITE(text_unit, '(10x, 8a,F7.2,a)') report_string(1)(1:8), ' - ', &
+                                             report_string(2)(1:8), ' - ', &
+                                             report_string(3)(1:8), ' - ', &
+                                             report_string(4)(1:8), ' = ', torsion_value_real, trim(torsion_esd_string)
+
        endif
        if(LATEX_report) then
-        WRITE(LATEX_unit, '(5x, 9a)') report_string(1)(1:8), ' - ', &
+        !WRITE(LATEX_unit, '(5x, 9a)') report_string(1)(1:8), ' - ', &
+        !                              report_string(2)(1:8), ' - ', &
+        !                              report_string(3)(1:8), ' - ', &
+        !                              report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+        WRITE(LATEX_unit, '(5x, 8a,F7.2,a)') report_string(1)(1:8), ' - ', &
                                       report_string(2)(1:8), ' - ', &
                                       report_string(3)(1:8), ' - ', &
-                                      report_string(4)(1:8), ' = ', trim(torsion_ang_value)
+                                      report_string(4)(1:8), ' = ', torsion_value_real, trim(torsion_esd_string)
        endif
       end do
 
@@ -1806,7 +2125,7 @@ subroutine  create_report
           if(text_report) then
            WRITE(text_unit, '(a)') ""
            WRITE(text_unit, '(a)') ""
-           WRITE(text_unit, '(2x,3a)') "Table 7. Hydrogen bonds [A and deg.] for ", trim(job), '.'
+           WRITE(text_unit, '(2x,3a)') "Table 7: Hydrogen bonds [A and deg.] for ", trim(job), '.'
            WRITE(text_unit, '(a)')  ""
           endif
           if(LATEX_report) then
@@ -1894,11 +2213,11 @@ subroutine  create_report
 
   file_exist = .false.
   do
-   i1 = index(CIF_parameter%diffracto_temperature, "(")
+   i1 = index(CIF_parameter_DEVICE%diffracto_temperature, "(")
    if(i1 /=0) then
-    write(GIF_file, '(4a)') trim(job), "_", CIF_parameter%diffracto_temperature(1:i1-1), "K_ortep.gif"
+    write(GIF_file, '(4a)') trim(job), "_", CIF_parameter_DEVICE%diffracto_temperature(1:i1-1), "K_ortep.gif"
    else
-    write(GIF_file, '(4a)') trim(job), "_", TRIM(CIF_parameter%diffracto_temperature), "K_ortep.gif"
+    write(GIF_file, '(4a)') trim(job), "_", TRIM(CIF_parameter_DEVICE%diffracto_temperature), "K_ortep.gif"
    endif
    call test_file_exist(trim(GIF_file), file_exist, 'out')
    if(file_exist) exit
@@ -2013,8 +2332,8 @@ subroutine  create_report
    call write_info(' LATEX pdf : '//trim(PDF_structural_report_file))
    call system(TRIM(PDF_structural_report_file))
 
-   call system('del '//trim(logo(1)))
-   call system('del '//trim(logo(2)))
+   call system('del '//trim(report_logo(1)))
+   call system('del '//trim(report_logo(2)))
 
   else
    call write_info('')
@@ -2068,8 +2387,6 @@ end subroutine get_sym_op
 
 
 !------------------------------------------------------------------------
-
-
 subroutine TRANSF_moiety_string(code, input_string, output_string)
  use macros_module,   only : nombre_de_colonnes, check_character
  use cryscalc_module, only : debug_proc
@@ -2079,9 +2396,9 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
   character (len=512), intent(out)    :: output_string
   character (len=256)                 :: tmp_string
   character (len=8), dimension(2)     :: balise
-  integer                             :: i, j, i1, long, nb_col, num, num_alpha
+  integer                             :: i, j, i1, nb_col, num, num_alpha
   character (len=8),  dimension(32)   :: part_string
-  LOGICAL                             :: alpha_char, numeric_char
+  LOGICAL                             :: alpha_char, numeric_char, espace_vide
   character (len=1)                   :: espace
   character (len=8)                   :: espace_2
 
@@ -2089,6 +2406,7 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
 
 
   output_string = ''
+  espace_vide   = .false.
   if(code == 'HTML') then
    balise(1) = '<sub>'
    balise(2) = '</sub>'
@@ -2099,6 +2417,7 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
    balise(2) = '~'
    espace    = ' '
    espace_2  = ' '
+   espace_vide = .true.
   elseif(code == 'LATEX') then
    balise(1) = '_{'
    balise(2) = '}'
@@ -2109,6 +2428,7 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
    balise(2) = '}'
    espace    = ' '
    espace_2  = ' '
+   espace_vide = .true.
   endif
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2151,7 +2471,11 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
      if(num ==0) then
       if(num_alpha == 1 .and. i/=1) then
        !write(OUTPUT_string, '(3a)') trim(OUTPUT_string), espace(1:1) , part_string(i)(j:j)  ! espaces
-       write(OUTPUT_string, '(3a)') trim(OUTPUT_string), trim(espace_2) , part_string(i)(j:j)  ! espaces	
+       if(.not. espace_vide) then
+        write(OUTPUT_string, '(3a)') trim(OUTPUT_string), trim(espace_2) , part_string(i)(j:j)  ! espaces
+       else
+        write(OUTPUT_string, '(3a)') trim(OUTPUT_string), espace_2(1:1) , part_string(i)(j:j)  ! espaces
+       end if
        !write(OUTPUT_string, '(2a)') trim(OUTPUT_string),  part_string(i)(j:j)        ! pas d'espaces dans la chaine
       else
        write(OUTPUT_string, '(2a)') trim(OUTPUT_string), part_string(i)(j:j)
@@ -2178,7 +2502,11 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
      else
       !write(OUTPUT_string, '(3a)') trim(OUTPUT_string), espace(1:1), part_string(i)(j:j)
       if(num == 1 .and. i/=1) then
-       write(OUTPUT_string, '(3a)') trim(OUTPUT_string), trim(espace_2), part_string(i)(j:j)
+       if(.not. espace_vide) then
+        write(OUTPUT_string, '(3a)') trim(OUTPUT_string), trim(espace_2), part_string(i)(j:j)
+       else
+        write(OUTPUT_string, '(3a)') trim(OUTPUT_string), espace_2(1:1), part_string(i)(j:j)
+       end if
       else
        write(OUTPUT_string, '(2a)') trim(OUTPUT_string), part_string(i)(j:j)
       endif
@@ -2227,11 +2555,9 @@ subroutine Get_num_site_sym(n_sym, site_sym, current_sym, num_site_sym)
 end subroutine Get_num_site_sym
 
 !---------------------------------------------------------------------
-!
-subroutine  Get_num_site_sym_new(n_sym, site_sym, current_sym, num_site_sym, dico)
+subroutine  Get_num_site_sym_new(n_sym, current_sym, num_site_sym, dico)
  implicit none
   integer,                             intent(in)    :: n_sym
-  CHARACTER (LEN=12), dimension(500),  intent(in)    :: site_sym
   CHARACTER (LEN=12),                  intent(in)    :: current_sym
   INTEGER           , dimension(500),  intent(inout) :: num_site_sym
   character (len=12), dimension(500),  intent(inout) :: dico
@@ -2382,7 +2708,7 @@ end subroutine Get_CIF_value
 
 
 
-!--------------------------------------------------------------------------
+!!-------------------------------------------------------------------------------------!!
 subroutine check_indice_string(string)
  ! met un caractere en indice si necessaire (chaine = groupe d'espace)
  use cryscalc_module, only : HTML_report, LATEX_report
@@ -2427,8 +2753,7 @@ subroutine check_indice_string(string)
  end subroutine Check_indice_string
 
 
-!--------------------------------------------------------------------------
-
+!!--------------------------------------------------------------------------!!
 subroutine Check_letter_string(string, latexTT)
  ! met un caractere en indice si necessaire (chaine = groupe d'espace)
  use cryscalc_module, only : HTML_report, LATEX_report
@@ -2436,8 +2761,8 @@ subroutine Check_letter_string(string, latexTT)
  implicit none
  character (len=*), intent(inout)  :: string
  logical, intent(in)               :: latexTT
- character (len=256)               :: SG_string, str2
- integer                           :: i,j,k1, k2,k,l
+ character (len=256)               :: SG_string
+ integer                           :: i
  logical                           :: alpha_car, numeric_car
 
 
@@ -2454,7 +2779,11 @@ subroutine Check_letter_string(string, latexTT)
     SG_string = trim(SG_string)//"&nbsp;"
     cycle
    elseif(LATEX_report) then
-    SG_string = trim(SG_string)//'~'
+    if(latexTT) then
+     SG_string = trim(SG_string)//' '
+    else
+     SG_string = trim(SG_string)//'~'
+    end if
     cycle
    endif
   end if
@@ -2468,17 +2797,17 @@ subroutine Check_letter_string(string, latexTT)
    elseif(LATEX_report) then
     SG_string = trim(SG_string)//"\textit{"//string(i:i)//"}"
    endif
-   if(i==1) then
-    if(HTML_report) then
-     SG_string = trim(SG_string)//"&nbsp;"
-    elseif(LATEX_report) then
-     if(latexTT) then
-      SG_string = trim(SG_string)//' '
-     else
-      SG_string = trim(SG_string)//'~'
-     endif
-    end if
-   end if
+   !if(i==1) then
+   ! if(HTML_report) then
+   !  SG_string = trim(SG_string)//"&nbsp;"
+   ! elseif(LATEX_report) then
+   !  if(latexTT) then
+   !   SG_string = trim(SG_string)//' '
+   !  else
+   !   SG_string = trim(SG_string)//'~'
+   !  endif
+   ! end if
+   !end if
   else
    if(i==2 .and. LATEX_report .and. latexTT) then
     SG_string = trim(SG_string)//' '//string(i:i)
@@ -2493,23 +2822,22 @@ subroutine Check_letter_string(string, latexTT)
   return
 end subroutine Check_letter_string
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
+!------------------------------------------------------------------------------------------------------
 subroutine Latex_preambule
  use LATEX_module,    only : logo
- use cryscalc_module, only : LATEX_unit, archive_cif, cryscalc, debug_proc
+ use cryscalc_module, only : LATEX_unit, archive_cif, cryscalc, report_logo, debug_proc
 
  implicit none
   character (len=256), dimension(2)   :: logo_full
   logical,             dimension(2)   :: file_exist
   character (len=256)                 :: DOS_command
+  integer                             :: i, nb_files_exist, num_file_exist
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "latex_preambule")
 
   logo_full = ''
-  logo(1) = 'CDIFX_logo.jpg'
-  logo(2) = 'ISCR_logo.jpg'
+  !logo(1) = '\img\CDIFX_logo.jpg'
+  !logo(2) = '\img\ISCR_logo.jpg'
 
  WRITE(LATEX_unit, '(a)')  "% Structural report (LATEX file) created by CRYSCALC.exe"
  WRITE(LATEX_unit, '(2a)') "%      Starting CIF file : ", trim(archive_CIF)
@@ -2523,14 +2851,15 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') '\usepackage[francais,english]{babel} % adaptation de LaTeX à la langue française'
  write(LATEX_unit, '(a)') '% geometrie de la page'
  write(LATEX_unit, '(a)') '\usepackage[dvips,lmargin=2.5cm,rmargin=2.5cm,tmargin=2.5cm,bmargin=2.5cm]{geometry}'
- write(LATEX_unit, '(a)') '\usepackage{color}               % utilisation des couleurs'
- write(LATEX_unit, '(a)') "\usepackage{graphicx}            % insertion d'images"
- write(LATEX_unit, '(a)') '\usepackage{fancybox}            % fonctions encadrement'
- write(LATEX_unit, '(a)') '\renewcommand{\thefootnote}{\*}  % supprime le numero de la footnote'
+ write(LATEX_unit, '(a)') '\usepackage{color}                 % utilisation des couleurs'
+ write(LATEX_unit, '(a)') "\usepackage{graphicx}              % insertion d'images"
+ write(LATEX_unit, '(a)') '\usepackage{fancybox}              % fonctions encadrement'
+ write(LATEX_unit, '(a)') '\renewcommand{\thefootnote}{\*}    % supprime le numero de la footnote'
  write(LATEX_unit, '(a)') "\usepackage[flushmargin]{footmisc} % supprime l'indentation de la footnote"
  write(LATEX_unit, '(a)') "\usepackage[pdftex,colorlinks=true,urlcolor=gris50,pdfstartview=FitH]{hyperref}   % hyperliens"
  write(LATEX_unit, '(a)') ''
  write(LATEX_unit, '(a)') "\usepackage{alltt}  % permet l'ecriture mathematique a l'interieur de l'environnement verbatim"
+ write(LATEX_unit, '(a)') "\usepackage[T1]{fontenc}"
  write(LATEX_unit, '(a)') '%%%%%%%%%% defintion de couleurs %%%%'
  write(LATEX_unit, '(a)') '\definecolor{gris50}{gray}{0.50}'
  write(LATEX_unit, '(a)') '\definecolor{gris75}{gray}{0.75}'
@@ -2538,6 +2867,7 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') '\definecolor{violet}     {rgb}{0.5,     0,       0.5}        % rgb{128,0,128)    #800080'
  write(LATEX_unit, '(a)') '\definecolor{red_25b}    {rgb}{0.5,     0,       0.1}        % rgb{127,0,25)     #7F0019'
  write(LATEX_unit, '(a)') '\definecolor{vert_titre} {rgb}{0.95294, 0.98039, 0.90196}    % rgb(243,250,230)  #F3FAE6'
+ write(LATEX_unit, '(a)') '\definecolor{bleu_titre} {rgb}{0.843,   0.890,   0.929}      % rgb(215,227,237)  #D7E3ED'
  write(LATEX_unit, '(a)') '\definecolor{fonce_titre}{rgb}{0.28125, 0.22266, 0.38672}    % rgb(72, 57,99)    #483963'
  write(LATEX_unit, '(a)') '%%%%%%%%%%%%% macros %%%%%%%%%%%%%%%%'
  write(LATEX_unit, '(a)') '\newcommand{\bs}   {$\backslash$}'
@@ -2548,13 +2878,14 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') '}'
  write(LATEX_unit, '(a)') ''
  write(LATEX_unit, '(a)') '% titre'
- write(LATEX_unit, '(a)') '\newcommand{\titre}  [1] {'
+ write(LATEX_unit, '(a)') '\newcommand{\titre}  [2] {'
  write(LATEX_unit, '(a)') ' \begin{center}'
- write(LATEX_unit, '(a)') '\fcolorbox{black}{vert_titre}'
+ write(LATEX_unit, '(a)') '\fcolorbox{black}{bleu_titre}'
  write(LATEX_unit, '(a)') '{'
  write(LATEX_unit, '(a)') '\parbox{8cm}{'
  write(LATEX_unit, '(a)') '\begin{center}'
- write(LATEX_unit, '(a)') '\textcolor{fonce_titre}{\textit{#1}}'
+ write(LATEX_unit, '(a)') '\textcolor{fonce_titre}{\texttt{\textbf{#1}}}'
+ write(LATEX_unit, '(a)') '\textcolor{fonce_titre}{\textit{#2}}'
  write(LATEX_unit, '(a)') '\end{center}'
  write(LATEX_unit, '(a)') '}'
  write(LATEX_unit, '(a)') '}'
@@ -2583,42 +2914,64 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') ''
 
  if(len_trim(cryscalc%path_name) /= 0) then
-  file_exist = .false.
-  write(logo_full(1), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(1))
-  inquire(file = trim(logo_full(1)), exist = file_exist(1))
-  write(logo_full(2), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(2))
-  inquire(file = trim(logo_full(2)), exist = file_exist(2))
+  !file_exist = .false.
+  !write(logo_full(1), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(1))
+  !inquire(file = trim(logo_full(1)), exist = file_exist(1))
+  !write(logo_full(2), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(2))
+  !inquire(file = trim(logo_full(2)), exist = file_exist(2))
 
-  if(file_exist(1) .and. file_exist(2)) then
-   ! les fichiers doivent etre dans le repertoire de travail
-   write(DOS_command, '(3a)') 'copy ', trim(logo_full(1)), ' .'
-   call system(trim(DOS_command))
+  !if(file_exist(1) .and. file_exist(2)) then
+  ! ! les fichiers doivent etre dans le repertoire de travail
+  ! write(DOS_command, '(3a)') 'copy ', trim(logo_full(1)), ' .'
+  ! call system(trim(DOS_command))
+!
+!   write(DOS_command, '(3a)') 'copy ', trim(logo_full(2)), ' .'
+!   call system(trim(DOS_command))
+!   write(LATEX_unit, '(a)') ''
+!   write(LATEX_unit, '(a)') '\begin{figure}[h]'
+!   !write(LATEX_unit, '(a)') '% \includegraphics[width=50.pt]{img/ISCR_logo.png} \includegraphics[width=40.pt]{img/cdifx_logo.jpg}'
+!   write(LATEX_unit, '(5a)') ' \includegraphics[height=30.pt]{', trim(logo(1)), '}  \includegraphics[height=30.pt]{', &
+!                             trim(logo(2)), '}'
+!   write(LATEX_unit, '(a)') '\end{figure}'
+!   write(LATEX_unit, '(a)') ''
+!  endif
 
-   write(DOS_command, '(3a)') 'copy ', trim(logo_full(2)), ' .'
-   call system(trim(DOS_command))
+  nb_files_exist = 0
+  do i=1, 2
+   file_exist = .false.
+   write(logo_full(i), '(3a)') trim(cryscalc%path_name), '\img\', trim(report_logo(i))
+   inquire(file = trim(logo_full(i)), exist = file_exist(i))
+   if(file_exist(i)) then
+    nb_files_exist = nb_files_exist + 1
+    num_file_exist = i
+    ! les fichiers doivent etre dans le repertoire de travail
+    write(DOS_command, '(3a)') 'copy ', trim(logo_full(i)), ' .'
+    call system(trim(DOS_command))
+   end if
+  end do
 
-
+  if(nb_files_exist/=0) then
    write(LATEX_unit, '(a)') ''
    write(LATEX_unit, '(a)') '\begin{figure}[h]'
-   !write(LATEX_unit, '(a)') '% \includegraphics[width=50.pt]{img/ISCR_logo.png} \includegraphics[width=40.pt]{img/cdifx_logo.jpg}'
-   write(LATEX_unit, '(5a)') ' \includegraphics[height=30.pt]{', trim(logo(1)), '}  \includegraphics[height=30.pt]{', &
-                             trim(logo(2)), '}'
+   if(nb_files_exist == 2) then
+    write(LATEX_unit, '(5a)') ' \includegraphics[height=30.pt]{', trim(report_logo(1)), '}  \includegraphics[height=30.pt]{', &
+                              trim(report_logo(2)), '}'
+   else
+    write(LATEX_unit, '(3a)') ' \includegraphics[height=30.pt]{', trim(logo(num_file_exist)), '}'
+   end if
    write(LATEX_unit, '(a)') '\end{figure}'
    write(LATEX_unit, '(a)') ''
-
-
   endif
+
  endif
 
  return
 end subroutine Latex_preambule
 
 !----------------------------------------------------------------------------------------------------------------------------
-
-
 subroutine Latex_End
  use LATEX_module,    only : logo
- use cryscalc_module, only : LATEX_unit, cryscalc, debug_proc
+ use cryscalc_module, only : LATEX_unit, cryscalc, report_logo, debug_proc
 
  implicit none
 
@@ -2633,14 +2986,13 @@ subroutine Latex_End
 
  write(LATEX_unit, '(a)') '\end{document}'
 
- !call system('del '//trim(logo(1)))
- !call system('del '//trim(logo(2)))
+ !call system('del '//report_trim(logo(1)))
+ !call system('del '//report_trim(logo(2)))
 
  return
 end subroutine Latex_End
 
 !------------------------------------------------------------------------------------
-
 subroutine check_LATEX_file_name(LATEX_string)
  use macros_module, only : replace_car
  implicit none
@@ -2661,7 +3013,7 @@ subroutine report_crystal_study(diffracto)
  use special_characters_module
  implicit none
   character (len=*), intent(in)    :: diffracto    ! APEX, KCCD, X2S
-  CHARACTER (LEN=512)              :: HTML_string, LATEX_string
+  CHARACTER (LEN=512)              :: LATEX_string
   real                             :: T_min, T_max
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "report_crystal_study")
@@ -2682,7 +3034,7 @@ subroutine report_crystal_study(diffracto)
     write(HTML_unit, '(a)')  ""
     write(HTML_unit, '(a)')  "The detailed data collection stategy was as follows:<br>"
     write(HTML_unit, '(a)')  "&nbsp;&nbsp;  Detector distance : 40 mm<br>"
-    write(HTML_unit, '(a)')  "&nbsp;&nbsp;  Detector swing angle (fixed 2&theta;) : -20°"	
+    write(HTML_unit, '(a)')  "&nbsp;&nbsp;  Detector swing angle (fixed 2&theta;) : -20°"
     write(HTML_unit, '(a)')  "<pre>"
     write(HTML_unit, '(10x,a)')  "  Run       &Omega;(start)     &Omega;(end)         &Phi;     Frames"
     write(HTML_unit, '(10x,a)')  "    1           -20.       160.       0.0        360"
@@ -2814,6 +3166,7 @@ subroutine report_crystal_study(diffracto)
 
  return
 end subroutine report_crystal_study
+
 !------------------------------------------------------------------------------------
 subroutine report_cell_parameters(doc_type)
  use CRYSCALC_module, only  : HTML_unit, LATEX_unit, debug_proc

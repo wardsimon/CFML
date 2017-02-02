@@ -10,23 +10,21 @@ subroutine Niggli_CELL_TR()
   implicit none
    REAL, DIMENSION(6)            :: A
    REAL                          :: CosAlfa, CosBeta, CosGamma
-   INTEGER                       :: i
-   REAL                          :: tmp_value
    REAL, parameter               :: eps = 0.1
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "Niggli_cell_TR")
-   
-  a(1) = unit_cell%param(1) **2.
-  a(2) = unit_cell%param(2) **2.
-  a(3) = unit_cell%param(3) **2.
 
-  CosAlfa  = COSd(unit_cell%param(4))
-  Cosbeta  = COSd(unit_cell%param(5))
-  Cosgamma = COSd(unit_cell%param(6))
+   a(1) = unit_cell%param(1) **2.
+   a(2) = unit_cell%param(2) **2.
+   a(3) = unit_cell%param(3) **2.
 
-  a(4) = 2*unit_cell%param(2) * unit_cell%param(3) * CosAlfa
-  a(5) = 2*unit_cell%param(1) * unit_cell%param(3) * CosBeta
-  a(6) = 2*unit_cell%param(1) * unit_cell%param(2) * Cosgamma
+   CosAlfa  = COSd(unit_cell%param(4))
+   Cosbeta  = COSd(unit_cell%param(5))
+   Cosgamma = COSd(unit_cell%param(6))
+
+   a(4) = 2*unit_cell%param(2) * unit_cell%param(3) * CosAlfa
+   a(5) = 2*unit_cell%param(1) * unit_cell%param(3) * CosBeta
+   a(6) = 2*unit_cell%param(1) * unit_cell%param(2) * Cosgamma
 
 
    ! N1
@@ -144,9 +142,10 @@ subroutine change(a, b)
   a = b
   b = tmp_value
 
+ return
 end subroutine change
-!--------------------------------------------------------
 
+!--------------------------------------------------------
 subroutine get_cell_sym(a, cell_sym)
  implicit none
  REAL, DIMENSION(6), INTENT(IN)   :: a
@@ -193,19 +192,22 @@ subroutine get_cell_sym(a, cell_sym)
 end subroutine   get_cell_sym
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+!!------------------------------------------------------------------------------------------------------
 subroutine Niggli_cell_CFML
- USE CFML_Crystal_Metrics, only : Niggli_cell
+ USE CFML_Crystal_Metrics, only : Niggli_cell, Crystal_cell_type
  USE cryscalc_module,      ONLY : unit_cell, message_text, debug_proc
  USE IO_module,            ONLY : write_info
  implicit none
   real, parameter       :: eps_par = 0.01
   real, parameter       :: eps_ang = 0.05
   logical               :: original_Niggli
- 
+
+  real, dimension(5)      :: Niggli_point
+  type(crystal_cell_type) :: cellN
+  real, dimension(3,3)    :: Niggli_mat
+
  if(debug_proc%level_2)  call write_debug_proc_level(2, "Niggli_cell_CFML")
- 
+
     !!--.. Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
     !!--.. There are an infinite number of primitive unit cells generating the same lattice L.
     !!--.. N={a,b,c} is a Buerger cell if and only if |a|+|b|+|c| is a minimal value for all primitive
@@ -219,11 +221,12 @@ subroutine Niggli_cell_CFML
 
 
  unit_cell%tmp = unit_cell%param
- call Niggli_cell(unit_cell%param)          ! unit_cell : 
- 
+ !call Niggli_cell(unit_cell%param)          ! unit_cell :
+ call Niggli_cell(unit_cell%param, Niggli_point, cellN, Niggli_mat)
+
  unit_cell%niggli = unit_cell%param
  unit_cell%param  = unit_cell%tmp
- 
+
    call write_info('            >>> Niggli cell parameters:  ')
 
    WRITE(message_text,'(a,F10.5,a)') '                 .     a = ', unit_cell%niggli(1),' (A)'
@@ -239,29 +242,36 @@ subroutine Niggli_cell_CFML
    WRITE(message_text,'(a,F10.5,a)') '                 . gamma = ', unit_cell%niggli(6),' (deg)'
     call write_info(TRIM(message_text))
 
-   original_Niggli = .false.	
+   original_Niggli = .false.
    if(abs(unit_cell%param(1) - unit_cell%niggli(1)) < eps_par) then
     if(abs(unit_cell%param(2) - unit_cell%niggli(2)) < eps_par) then
-	 if(abs(unit_cell%param(3) - unit_cell%niggli(3)) < eps_par) then
-	  if(abs(unit_cell%param(4) - unit_cell%niggli(4)) < eps_ang) then
-	   if(abs(unit_cell%param(5) - unit_cell%niggli(5)) < eps_ang) then
-	    if(abs(unit_cell%param(6) - unit_cell%niggli(6)) < eps_ang) then
-		 original_Niggli = .true.
+     if(abs(unit_cell%param(3) - unit_cell%niggli(3)) < eps_par) then
+      if(abs(unit_cell%param(4) - unit_cell%niggli(4)) < eps_ang) then
+       if(abs(unit_cell%param(5) - unit_cell%niggli(5)) < eps_ang) then
+        if(abs(unit_cell%param(6) - unit_cell%niggli(6)) < eps_ang) then
+         original_Niggli = .true.
         end if
        end if
       end if
      end if
     end if
    end if
-   
+
    call write_info('')
    if(original_Niggli) then
     call write_info('    >> Original cell WAS the Niggli one !')
    else
     call write_info('    >> Original cell WAS NOT the Niggli one !')
-   end if 
+    call write_info('')
+    write(message_text, '(a,3F4.0)')   '         Niggli matrix:  ', Niggli_mat(1, 1), Niggli_mat(1, 2) , Niggli_mat(1, 3)
+    call write_info(trim(message_text))
+    write(message_text, '(25x,3F4.0)')  Niggli_mat(2, 1), Niggli_mat(2, 2) , Niggli_mat(2, 3)
+    call write_info(trim(message_text))
+    write(message_text, '(25x,3F4.0)')  Niggli_mat(3, 1), Niggli_mat(3, 2) , Niggli_mat(3, 3)
+    call write_info(trim(message_text))
+   end if
 
    !call Niggli_cell_TR ! juste pour comparer les resultats
-   
+
  return
-endsubroutine Niggli_cell_CFML
+end subroutine Niggli_cell_CFML

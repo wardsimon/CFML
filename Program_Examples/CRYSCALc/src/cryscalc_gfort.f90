@@ -20,9 +20,12 @@ subroutine read_keywords_from_file(arg_file)
   CHARACTER (LEN=*), INTENT(IN)            :: arg_file
   CHARACTER (LEN=256)                      :: input_file
   CHARACTER (LEN=256)                      :: extension, arg_string
+  LOGICAL                                  :: CFL_file
   LOGICAL                                  :: file_exist
   INTEGER                                  :: long
   INTEGER                                  :: i, i1, nb_col
+  !LOGICAL                                  :: step_by_step
+  LOGICAL                                  :: lecture_ok
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "read_keywords_from_file")
 
@@ -174,8 +177,8 @@ subroutine read_keywords_from_file(arg_file)
       else                              ! option #2 du menu principal
        close(unit=CFL_read_unit)
        OPEN(UNIT=CFL_read_unit, FILE=TRIM(input_file), ACTION="read")
-       call read_CFL_input_file(CFL_read_unit)         ! read_CFL.F90
-       call read_input_file_KEYWORDS(CFL_read_unit)    ! read_KEYW.F90
+       call read_CFL_input_file(CFL_read_unit)          ! read_CFL.F90
+       call read_input_file_KEYWORDS(CFL_read_unit)     ! read_KEYW.F90
        close(unit=CFL_read_unit)
       endif
 
@@ -271,9 +274,6 @@ subroutine run_keywords()
  USE HKL_module
  USE IO_module
 
- implicit none
-  character (len=256)         :: input_key
-
  if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keywords")
 
  if(ON_SCREEN) then
@@ -327,7 +327,7 @@ subroutine run_keywords()
  IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
   call atomic_identification()                                                   ! calculs.F90
   IF(keyword_CELL)                      call atomic_density_calculation()        ! calculs.F90
-  IF(keyword_ZUNIT)                     call molecular_weight()                  ! calculs.F90
+  IF(keyword_ZUNIT)                        call molecular_weight()                  ! calculs.F90
   IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()               ! calculs.F90
   IF(keyword_CELL)                      call absorption_calculation()            ! mu_calc.F90
  END if
@@ -335,13 +335,10 @@ subroutine run_keywords()
  ! liste groupes d'espace
  IF(keyword_LSPGR)  call list_space_groups()              ! cryscalc_lsg.F90
 
+
  ! calcul des d_
  if(nb_hkl /=0           .and. keyword_CELL)        call calcul_dhkl
  if(nb_hkl_SFAC_calc /=0 .and. keyword_SFAC_HKL)    call calcul_SFAC_hkl
-
- if(keyword_SPGR )    call space_group_info                 ! space_group.F90
- !IF(WRITE_STAR_K)     call star_K_TR()                    !
- IF(WRITE_STAR_K)     call star_K_CFML()                    !
 
 
  ! transformation de la maille
@@ -352,19 +349,20 @@ subroutine run_keywords()
   if (keyword_FILE)  call transf_HKL_file
   call transf_coord()
   IF(input_INS .and. ABS(Mat_det) -1. < 0.001 ) call create_NEW_INS()
-
-  IF (keyword_SPGR )          call find_new_group()
  end if
 
  IF(keyword_LST_MAT) call write_list_matrice()
 
  IF(keyword_TRANSL    .and. nb_atom /=0)  call transl_coord
- IF(keyword_INSIDE    .AND. nb_atom /=0)  call inside_unit_cell()
 
+ IF(keyword_INSIDE    .AND. nb_atom /=0)  call inside_unit_cell()
 
  IF(keyword_ATOM_list .AND. nb_atom /=0)  call write_atom_list
  IF(keyword_ADP_list  .AND. nb_atom /=0)  call write_atom_list
 
+ if(keyword_SPGR )    call space_group_info                 ! space_group.F90
+ !IF(WRITE_STAR_K)     call star_K_TR()                    !
+ IF(WRITE_STAR_K)     call star_K_CFML()                    !
 
  ! generation des equivalents
  if (keyword_SYMM ) call decode_sym_op()
@@ -384,6 +382,7 @@ subroutine run_keywords()
  ! distance calculation between atom_1 and atom_2 ---------------------
  IF(nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
  IF(nb_diff_calc /=0 .and. keyword_DIFF)  call calcul_differences
+
 
  ! angles
  if (nb_ang_calc /=0 .and. keyword_CELL)  call calcul_angles
@@ -422,16 +421,16 @@ subroutine run_keywords()
 
   call def_HKL_rule()
   if (nb_shell /=0) then
-   call read_and_sort_hkl('shell')
+   call read_and_sort_hkl('shell', 'out')
   else
-   call read_and_sort_hkl('sort')
+   call read_and_sort_hkl('sort', 'out')
   endif
 !  if (nb_shell /=0)       call read_and_sort_hkl('shell')
 !  if (nb_sort  /=0)       call read_and_sort_hkl('sort')
-  IF(keyword_RINT)        call calcul_global_Rint('', 'out')
+  IF(keyword_RINT)        call calcul_global_Rint('', "out")
 
   IF(keyword_search_exti) call search_exti()     ! recherche extinctions systematiques
-  IF(keyword_search_SPGR) call search_SPGR()     ! recherche d'un groupe d'espace
+  IF(keyword_search_SPGR) call search_SPGR('out')     ! recherche d'un groupe d'espace
   IF(keyword_FIND_HKL)    call search_hkl()      ! recherche reflection hkl particuliere
   IF(keyword_FIND_HKL_list .and. HKL_list%EXTI_number/=0)  call search_HKL_list() ! recherche reflections obeissant à une règle d'extinctions
   IF(keyword_FIND_HKL_pos)     call search_HKL_F2('POS')
@@ -439,12 +438,10 @@ subroutine run_keywords()
   IF(keyword_FIND_HKL_ABSENT)  call search_HKL_F2('ABSENT')
 
   if(keyword_OBV_REV)     call twin_obverse_reverse    ! obv_rev.F90
-
-  IF(keyword_SPGR)        call get_numref_SPG()
-
   IF(keyword_search_tetra)     call search_tetragonal_axis
   IF(keyword_search_mono)      call search_monoclinic_angle
 
+  IF(keyword_SPGR)        call get_numref_SPG()
  end if
 
  if (WRITE_triclinic_transf)  call transf_triclinic      ! transf.F90
@@ -485,16 +482,12 @@ subroutine run_keywords()
   IF(keyword_WRITE_REF_DENZO)         call write_REF('DENZO')
   IF(keyword_WRITE_REF_SADABS)        call write_REF('SADABS')
  endif
-
  if(keyword_PAUSE) then
   if (gfortran) then
    call write_info(' Press <Enter> key to continue.')
    read(*,*)
-  elseif(lf95_w) then
-   call write_info(' Press any key + <Enter> key to continue.')
-   call read_input_line(input_key)
-  else
-   pause
+  !else
+  ! pause
   endif
  endif
 
@@ -547,6 +540,7 @@ subroutine check_CIF_input_file(input_file)
 
  implicit none
   CHARACTER (LEN=*), INTENT(IN)       :: input_file
+  character (len=256)                 :: CIF_string
   INTEGER                             :: i, i1, i2, i_error
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "check_CIF_input_file")
@@ -628,7 +622,7 @@ subroutine get_P4P_file_name(P4P_file_name)
  use cryscalc_module, only : debug_proc
  implicit none
   CHARACTER(LEN=*), INTENT(INOUT) :: P4P_file_name
-  INTEGER                         :: ier, n_P4P
+  INTEGER                         :: i, ier, n_P4P
   CHARACTER (LEN=256)             :: read_line
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "get_P4P_file_name")
