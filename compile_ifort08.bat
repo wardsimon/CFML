@@ -30,8 +30,10 @@ rem
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
       (set OPT0=/Od)
       (set OPT1=/O2)
+rem --- Testing JGP
+      (set OPT1=/O3)
    )
-   if [%_I15]==[N] (
+   if [%_I17]==[N] (
       (set OPT2=/Qvec-report0)
    ) else (
       (set OPT2=/Qopt-report:0)
@@ -79,6 +81,7 @@ rem
    ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
+   ifort /c CFML_Extinction_Correction.f90            /nologo %OPT1% %OPT2%
 rem
    echo .... IO Messages /String Utilities
 rem
@@ -132,7 +135,6 @@ rem
    echo **---- Level 5 ----**
    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
-   ifort /c CFML_Extinction_Correction.f90           /nologo %OPT1% %OPT2%
    ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
    ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
