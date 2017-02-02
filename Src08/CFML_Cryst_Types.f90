@@ -127,7 +127,7 @@
 
     !---- Use files ----!
     Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_Crys, Err_Crys_Mess, Crystal_Cell_Type, &
-                                  Zone_Axis_Type
+                                  Zone_Axis_Type, Twofold_Axes_Type
     Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
     Use CFML_Math_3D,      only : Invert_Array3x3, determ_3x3, determ_Vec, Cross_Product
 
@@ -144,10 +144,8 @@
     !---- List of public subroutines ----!
     public :: Change_Setting_Cell, Get_Basis_from_UVW, Get_Conventional_Cell, Get_Cryst_Family, &
               Get_Deriv_Orth_Cell, Get_Primitive_Cell, Get_Transfm_Matrix, Get_TwoFold_Axes,    &
-              Init_Err_Crys, Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell,           &
-              Write_Crystal_Cell,      &
-              Volume_Sigma_from_Cell,&
-              Write_Bin_Crystal_Cell
+              Init_Err_Crys, Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell,              &
+              Write_Crystal_Cell
 
 
     !---- Definitions ----!
@@ -2486,7 +2484,8 @@
                        Cell%ang_std,        &
                        Cell%rcell,          &
                        Cell%rang,           &
-                       Cell%GD,Celda%GR,    &
+                       Cell%GD,             &
+                       Cell%GR,             &
                        Cell%Cr_Orth_cel,    &
                        Cell%Orth_Cr_cel,    &
                        Cell%BL_M,           &
@@ -2596,7 +2595,7 @@
        !call matrix_inverse(Celda%Cr_Orth_cel,Celda%Orth_Cr_cel,ifail)
        Celda%Orth_Cr_cel=Invert_array3x3(Celda%Cr_Orth_cel)
 
-       if (all(abs(Celda%Orth_Cr_cel)) < tiny(0.0)) then
+       if (all( abs(Celda%Orth_Cr_cel) < tiny(0.0))) then
           err_crys=.true.
           ERR_Crys_Mess=" Bad cell parameters "
           return
@@ -2624,7 +2623,7 @@
           !call matrix_inverse(Celda%bl_m,Celda%bl_minv,ifail)
           Celda%bl_minv=Invert_array3x3(Celda%bl_m)
 
-          if (all(abs(Celda%bl_minv)) < tiny(0.0)) then
+          if (all( abs(Celda%Orth_Cr_cel) < tiny(0.0))) then
              err_crys=.true.
              ERR_Crys_Mess=" Bad cell parameters "
              return
@@ -2659,7 +2658,8 @@
                                    Cell%ang_std,        &
                                    Cell%rcell,          &
                                    Cell%rang,           &
-                                   Cell%GD,Celda%GR,    &
+                                   Cell%GD,             &
+                                   Cell%GR,             &
                                    Cell%Cr_Orth_cel,    &
                                    Cell%Orth_Cr_cel,    &
                                    Cell%BL_M,           &
@@ -2678,59 +2678,57 @@
 
     !!----
     !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
-    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
-    !!----    Integer,optional           intent(in)  :: lun     !  In -> Unit to write
     !!----
     !!----    Writes the cell characteristics in a file associated to the
     !!----    logical unit lun
     !!----
     !!---- Update: January - 2011
     !!
-    Subroutine Write_Crystal_Cell(Celda,Lun)
+    Subroutine Write_Crystal_Cell(Cell,Iunit)
        !---- Arguments ----!
-       Type (Crystal_Cell_Type),  intent(in) :: Celda
-       Integer,optional,          intent(in) :: Lun
+       Type (Crystal_Cell_Type),  intent(in) :: Cell   ! Cell object
+       Integer,optional,          intent(in) :: Iunit
 
        !---- Local variables ----!
-       integer            :: iunit
+       integer            :: lun
        integer            :: i,j
 
-       iunit=6
-       if (present(lun)) iunit=lun
+       lun=6
+       if (present(iunit)) lun=iunit
 
-       Write(unit=iunit,fmt="(/,a)")    "        Metric information:"
-       Write(unit=iunit,fmt="(a,/)")    "        -------------------"
-       Write(unit=iunit,fmt="(a,/)")    " => Direct cell parameters:"
-       Write(unit=iunit,fmt="(3(a,f12.4))")"         a = ", Celda%cell(1),"      b = ", Celda%cell(2), "      c = ", Celda%cell(3)
-       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha = ", Celda%ang(1) ,"   beta = ", Celda%ang(2) , "  gamma = ", Celda%ang(3)
-       Write(unit=iunit,fmt="(a,f12.4)")   "                        Direct Cell Volume = ",Celda%CellVol
-       Write(unit=iunit,fmt="(/,a,/)")     " => Reciprocal cell parameters:"
-       Write(unit=iunit,fmt="(3(a,f12.6))")"         a*= ", Celda%rcell(1),"      b*= ",Celda%rcell(2),"      c*= ", Celda%rcell(3)
-       Write(unit=iunit,fmt="(3(a,f12.3))")"     alpha*= ", Celda%rang(1) ,"   beta*= ",Celda%rang(2) ,"  gamma*= ", Celda%rang(3)
-       Write(unit=iunit,fmt="(a,f12.8)")   "                    Reciprocal Cell Volume = ",Celda%RCellVol
-       Write(unit=iunit,fmt="(/,a,/)")     " => Direct and Reciprocal Metric Tensors:"
-       Write(unit=iunit,fmt="(a)")         "                   GD                                       GR"
+       Write(unit=lun,fmt="(/,a)")    "        Metric information:"
+       Write(unit=lun,fmt="(a,/)")    "        -------------------"
+       Write(unit=lun,fmt="(a,/)")    " => Direct cell parameters:"
+       Write(unit=lun,fmt="(3(a,f12.4))")"         a = ", cell%cell(1),"      b = ", cell%cell(2), "      c = ", cell%cell(3)
+       Write(unit=lun,fmt="(3(a,f12.3))")"     alpha = ", cell%ang(1) ,"   beta = ", cell%ang(2) , "  gamma = ", cell%ang(3)
+       Write(unit=lun,fmt="(a,f12.4)")   "                        Direct Cell Volume = ",cell%CellVol
+       Write(unit=lun,fmt="(/,a,/)")     " => Reciprocal cell parameters:"
+       Write(unit=lun,fmt="(3(a,f12.6))")"         a*= ", cell%rcell(1),"      b*= ",cell%rcell(2),"      c*= ", cell%rcell(3)
+       Write(unit=lun,fmt="(3(a,f12.3))")"     alpha*= ", cell%rang(1) ,"   beta*= ",cell%rang(2) ,"  gamma*= ", cell%rang(3)
+       Write(unit=lun,fmt="(a,f12.8)")   "                    Reciprocal Cell Volume = ",cell%RCellVol
+       Write(unit=lun,fmt="(/,a,/)")     " => Direct and Reciprocal Metric Tensors:"
+       Write(unit=lun,fmt="(a)")         "                   GD                                       GR"
 
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%GD(i,j),j=1,3),"      ", (Celda%GR(i,j),j=1,3)
+          Write(unit=lun,fmt="(3f12.4,a,3f12.6)") (cell%GD(i,j),j=1,3),"      ", (cell%GR(i,j),j=1,3)
        end do
 
-       if (Celda%CartType == "A") then
-          Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
+       if (cell%CartType == "A") then
+          Write(unit=lun,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
        else
-          Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
+          Write(unit=lun,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
        end if
 
-       Write(unit=iunit,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
-       Write(unit=iunit,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
+       Write(unit=lun,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
+       Write(unit=lun,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%Cr_Orth_cel(i,j),j=1,3),"      ", (Celda%Orth_Cr_cel(i,j),j=1,3)
+          Write(unit=lun,fmt="(3f12.4,a,3f12.6)") (cell%Cr_Orth_cel(i,j),j=1,3),"      ", (cell%Orth_Cr_cel(i,j),j=1,3)
        end do
 
-       Write(unit=iunit,fmt="(/,a)")     "     Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix"
-       Write(unit=iunit,fmt="(a)")       "                BL_M                                      BL_Minv  "
+       Write(unit=lun,fmt="(/,a)")     "     Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix"
+       Write(unit=lun,fmt="(a)")       "                BL_M                                      BL_Minv  "
        do i=1,3
-          Write(unit=iunit,fmt="(3f12.6,a,3f12.4)") (Celda%BL_M(i,j),j=1,3),"      ", (Celda%BL_Minv(i,j),j=1,3)
+          Write(unit=lun,fmt="(3f12.6,a,3f12.4)") (cell%BL_M(i,j),j=1,3),"      ", (cell%BL_Minv(i,j),j=1,3)
        end do
 
        return
