@@ -1,6 +1,6 @@
 
 
-cd ../../src
+cd ../src
 
 del *.o
 del *.mod
@@ -8,21 +8,21 @@ del *.map
 
 
 
-      gfortran -c -O3 -funroll-loops  -msse2  cryscalc_mod.f90        -I%CRYSFML%\GFORTRAN\libC
 
+      gfortran -c -O3 -funroll-loops  -msse2  cryscalc_mod.f90        -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  IO_console.f90          -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  text_mod.f90            -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  math_mod.f90            -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  matrix_mod.f90
       gfortran -c -O3 -funroll-loops  -msse2  macros.f90
-
-      gfortran -c -O3 -funroll-loops  -msse2  cryscalc_ext.f90        -I%CRYSFML%\GFORTRAN\libC
+      gfortran -c -O3 -funroll-loops  -msse2  cryscalc_mod2.f90       -I%CRYSFML%\GFORTRAN\libC
+rem   gfortran -c -O3 -funroll-loops  -msse2  cryscalc_ext.f90        -I%CRYSFML%\GFORTRAN\libC  << renamed as cryscalc_mod2.F90
       gfortran -c -O3 -funroll-loops  -msse2  obv_rev.f90             -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  neutrons_mod.f90
       gfortran -c -O3 -funroll-loops  -msse2  xrays_mod.f90
       gfortran -c -O3 -funroll-loops  -msse2  atome_mod.f90
-      gfortran -c -O3 -funroll-loops  -msse2  shannon_mod.f90
-      gfortran -c -O3 -funroll-loops  -msse2  mag_table.f90
+rem      gfortran -c -O3 -funroll-loops  -msse2  shannon_mod.f90    << now included in atome_mod.F90
+rem      gfortran -c -O3 -funroll-loops  -msse2  mag_table.f90      << now included in atome_mod.F90
       gfortran -c -O3 -funroll-loops  -msse2  calculs.f90             -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  therm.f90               -I%CRYSFML%\GFORTRAN\libC
 
@@ -35,7 +35,18 @@ del *.map
       gfortran -c -O3 -funroll-loops  -msse2  space_group.f90         -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  transf.f90              -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  cryscalc_main_gfort.f90 -I%CRYSFML%\GFORTRAN\libC
-      gfortran -c -O3 -funroll-loops  -msse2  cryscalc.f90            -I%CRYSFML%\GFORTRAN\libC
+      gfortran -c -O3 -funroll-loops  -msse2  cryscalc_gfort.f90      -I%CRYSFML%\GFORTRAN\libC
+
+
+REM Get CFML version and date of compilation
+      gfortran -c -O3 -funroll-loops  -msse2 cryscalc_cfml_ver.f90
+      gfortran -o  cryscalc_cfml_ver cryscalc_cfml_ver.o
+      del  cryscalc_cfml_ver.o
+      cryscalc_cfml_ver
+      gfortran -c -O3 -funroll-loops  -msse2  cc_cfml_ver.f90         -I%CRYSFML%\GFORTRAN\libC
+REM
+
+
       gfortran -c -O3 -funroll-loops  -msse2  cryscalc_init.f90       -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  inter_cons.f90          -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_CFL.f90            -I%CRYSFML%\GFORTRAN\libC
@@ -43,7 +54,7 @@ del *.map
       gfortran -c -O3 -funroll-loops  -msse2  read_PCR.f90            -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_KEYW.f90           -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_CIF_file.f90       -I%CRYSFML%\GFORTRAN\libC
-      gfortran -c -O3 -funroll-loops  -msse2  create_archive_cif.f90  -I%CRYSFML%\GFORTRAN\libC
+      gfortran -c -O3 -funroll-loops  -msse2  create_archive_CIF.f90  -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  SIR_to_INS.f90          -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_final_y.f90
       gfortran -c -O3 -funroll-loops  -msse2  read_CELL.f90           -I%CRYSFML%\GFORTRAN\libC
@@ -75,5 +86,5 @@ del *.o
 del *.mod
 del *.map
 
-cd ../scripts/windows
+cd ../scripts
 
