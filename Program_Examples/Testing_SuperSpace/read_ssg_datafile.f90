@@ -46,11 +46,12 @@
         character(len=512) :: ssg_file
         character(len=4) :: line
          !imax=0
+         i_db=1; ier=0
          ok=.true.
          mess=" "
          ! open data file
          ssg_file='ssg_datafile.txt'
-         open(newunit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
+         open(unit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.
            mess= 'Error opening the database file: '//trim(ssg_file)
