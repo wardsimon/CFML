@@ -198,12 +198,12 @@
 
     Module CFML_SuperSpaceGroups
       use ssg_datafile
+      use CFML_Rational_Arithmentic
       Implicit None
 
       Type, public   :: SSym_Oper_Type
-        integer                              :: inv
-        integer, allocatable, dimension(:,:) :: Rot
-        real,    allocatable, dimension(:)   :: tr
+        integer                                     :: inv !Time reversal (+1 non associated with 1', -1 associated with 1')
+        Type(rational), allocatable, dimension(:,:) :: Op  !                    non-primed element          primed element
       End Type SSym_Oper_Type
 
       Type, public        :: SuperSpaceGroup_Type
@@ -229,7 +229,7 @@
         real,   allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
         real,   allocatable,dimension(:,:)  :: kv            !k-vectors (3,d)
         integer,allocatable,dimension(:)    :: time_rev      !Multip
-        integer,allocatable,dimension(:,:,:):: Om            !Operator matrices (4+d,4+d,Multip) common denominator at (4+d,4+d)
+        integer,allocatable,dimension(:,:,:):: Om            !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
         character(len=80),allocatable,    dimension(:)  :: SymopSymb  ! Alphanumeric Symbols for SYMM
         type(SSym_Oper_Type),allocatable, dimension(:)  :: SymOp      ! Crystallographic symmetry operators
 
@@ -237,8 +237,10 @@
 
 
     Contains
-      Subroutine Set_SSG_Read()
-      End Subroutine Set_SSG_Read
+
+      Subroutine Set_SSG_Reading_Database()
+
+      End Subroutine Set_SSG__Reading_Database
 
     End Module CFML_SuperSpaceGroups
 
