@@ -143,9 +143,9 @@
 
     !---- List of public subroutines ----!
     public :: Change_Setting_Cell, Get_Basis_from_UVW, Get_Conventional_Cell, Get_Cryst_Family, &
-              Get_Deriv_Orth_Cell, Get_Primitive_Cell, Get_Transfm_Matrix, Get_TwoFold_Axes,    &
+              Get_Deriv_Orth_Cell, Get_Primitive_Cell, Get_Transform_Matrix, Get_TwoFold_Axes,  &
               Init_Err_Crys, Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell,              &
-              Write_Crystal_Cell
+              Write_Bin_Crystal_Cell, Write_Crystal_Cell
 
 
     !---- Definitions ----!
@@ -573,15 +573,15 @@
     End Function Sigma_VolumeCell
 
     !!----
-    !!---- Function U_Equiv(Th_U,Cell) Result(Uequi)
+    !!---- Function U_Equiv(U,Cell) Result(Uequi)
     !!----
     !!----    Subroutine to obtain the U equiv from U11 U22 U33 U12 U13 U23
     !!----
     !!---- Update: February - 2005
     !!
-    Function U_Equiv(Th_U,Cell) Result(Uequi)
+    Function U_Equiv(U,Cell) Result(Uequi)
        !---- Arguments ----!
-       real(kind=cp), dimension(6), intent(in)  :: Th_U   ! Thermal U
+       real(kind=cp), dimension(6), intent(in)  :: U   ! Thermal U
        type (Crystal_cell_Type),    intent(in)  :: Cell   ! Cell Variable
        real(kind=cp)                            :: Uequi
 
@@ -599,12 +599,12 @@
        cosb=cosd(cell%ang(2))
        cosg=cosd(cell%ang(3))
 
-       u11=Th_u(1)
-       u22=Th_u(2)
-       u33=Th_u(3)
-       u12=Th_u(4)
-       u13=Th_u(5)
-       u23=Th_u(6)
+       u11=u(1)
+       u22=u(2)
+       u33=u(3)
+       u12=u(4)
+       u13=u(5)
+       u23=u(6)
        uequi= (1.0/3.0) * (u11 * a * a * as * as + &
                            u22 * b * b * bs * bs + &
                            u33 * c * c * cs * cs + &
@@ -669,7 +669,7 @@
     End Subroutine Change_Setting_Cell
 
     !!----
-    !!---- Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,ok,mode)
+    !!---- Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,mode)
     !!----
     !!----  Subroutine to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
     !!----  lattice vectors satisfying the equation
@@ -685,13 +685,12 @@
     !!----
     !!----  Updated: February 2012 (JRC)
     !!----
-    Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,ok,mode)
+    Subroutine Get_Basis_From_UVW(dmin,u,cell,ZoneB,mode)
        !--- Arguments ---!
        real(kind=cp),            intent(in) :: dmin    ! Minimum d-spacing (smax=1/dmin)
        integer, dimension(3),    intent(in) :: u       ! Zone axis indices
        type (Crystal_Cell_Type), intent(in) :: cell    ! Cell type object
        type (Zone_Axis_Type),    intent(out):: ZoneB   ! Object containing u and basis vector in the plane
-       logical,                  intent(out):: ok      ! OK
        character(len=*),optional,intent(in) :: mode    ! "R" if input zone axis is a reciprocal lattice vector
 
        !--- Local Variables ---!
@@ -703,10 +702,14 @@
        real, dimension(3,3)   :: mat
        integer,dimension(3,2) :: bas
        real                   :: rv,s2max
+       logical                :: ok
 
        !> Init
+       call init_err_crys()
+
        ZoneB%nlayer=0
        ZoneB%uvw=u
+
        ok=.false.
 
        au=abs(u)
@@ -790,6 +793,11 @@
        if (coun1 >= 2 .or. (coun1 == 1 .and. coun01 == 2)) ZoneB%rx=-ZoneB%rx
        if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
 
+       if (.not. ok ) then
+          Err_Crys=.true.
+          ERR_Crys_Mess=" Error in Get_Basis_From_uvW"
+       end if
+
        return
     End Subroutine Get_Basis_From_Uvw
 
@@ -814,12 +822,12 @@
     !!----
     !!---- Update: November - 2008
     !!----
-    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,told)
+    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,tol)
        !---- Arguments ----!
        Type(Twofold_Axes_Type), intent(in)  :: Twofold   ! Type Object
        Type(Crystal_Cell_Type), intent(out) :: Cell      ! Cell type object
        integer, dimension(3,3), intent(out) :: tr        ! Tr Matrix
-       real(kind=cp), optional, intent(in)  :: told      ! Tolerance for compare distances
+       real(kind=cp), optional, intent(in)  :: tol      ! Tolerance for compare distances
 
        !---- Local variables ----!
        integer, dimension(1)          :: ix
@@ -849,7 +857,7 @@
        ab=0; mv=0.0; ang=0.0; row=0; inp=0
        ok=.true.
        tola=0.2
-       if(present(told)) tola=told
+       if(present(tol)) tola=tol
 
        Select Case(twofold%ntwo)
           Case (1)    !Monoclinic
@@ -1837,7 +1845,7 @@
     !!----
     !!---- Update: January - 2011
     !!
-    Subroutine Get_Transfm_Matrix(cella,cellb,trm,tol)
+    Subroutine Get_Transform_Matrix(cella,cellb,trm,tol)
        !---- Arguments ----!
        type(Crystal_Cell_Type),     intent(in) :: cella
        type(Crystal_Cell_Type),     intent(in) :: cellb
@@ -1892,7 +1900,7 @@
        end if
 
        return
-    End Subroutine Get_Transfm_Matrix
+    End Subroutine Get_Transform_Matrix
 
     !!----
     !!---- Subroutine Get_TwoFold_Axes(Celln,Tol,Twofold)
@@ -2556,10 +2564,10 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
+    Subroutine Set_Crystal_Cell(Cellv,Angl,Cell,Cartype,Scell,Sangl)
        !---- Arguments ----!
        real(kind=cp), dimension (3),        intent(in ) :: cellv, angl  ! Cell parameters
-       Type (Crystal_Cell_Type),            intent(out) :: Celda        ! Cell Object
+       Type (Crystal_Cell_Type),            intent(out) :: Cell         ! Cell Object
        character (len=1),          optional,intent(in ) :: CarType      ! Cartesian frame
        real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl  ! Sigma values
 
@@ -2570,60 +2578,60 @@
        call Init_Err_Crys()
 
        if (present(scell) .and. present(sangl)) then
-          Celda%cell_std=scell
-          Celda%ang_std=sangl
+          cell%cell_std=scell
+          cell%ang_std=sangl
        else
-          Celda%cell_std=0.0
-          Celda%ang_std=0.0
-          Celda%lcell=0    !These codes are attributed in refinement programs
-          Celda%lang=0     !In order to preserve the values given by these programs the
+          cell%cell_std=0.0
+          cell%ang_std=0.0
+          cell%lcell=0    !These codes are attributed in refinement programs
+          cell%lang=0     !In order to preserve the values given by these programs the
        end if              !procedure should be invoked with standard deviations
 
-       Celda%cell=cellv
-       Celda%ang=angl
-       where(Celda%ang < eps) Celda%ang =90.0
-       call recip(cellv,angl,Celda%rcell,Celda%rang,Celda%CellVol,Celda%RCellVol)
+       cell%cell=cellv
+       cell%ang=angl
+       where(cell%ang < eps) cell%ang =90.0
+       call recip(cellv,angl,cell%rcell,cell%rang,cell%CellVol,cell%RCellVol)
 
        if (present(CarType)) then
-          call Get_Cryst_Orthog_matrix(cellv,angl,Celda%Cr_Orth_cel,CarType)
-          Celda%CartType=CarType
+          call Get_Cryst_Orthog_matrix(cellv,angl,cell%Cr_Orth_cel,CarType)
+          cell%CartType=CarType
        else
-          call Get_Cryst_Orthog_matrix(cellv,angl,Celda%Cr_Orth_cel)
-          Celda%CartType="C"
+          call Get_Cryst_Orthog_matrix(cellv,angl,cell%Cr_Orth_cel)
+          cell%CartType="C"
        end if
 
-       !call matrix_inverse(Celda%Cr_Orth_cel,Celda%Orth_Cr_cel,ifail)
-       Celda%Orth_Cr_cel=Invert_array3x3(Celda%Cr_Orth_cel)
+       !call matrix_inverse(cell%Cr_Orth_cel,cell%Orth_Cr_cel,ifail)
+       cell%Orth_Cr_cel=Invert_array3x3(cell%Cr_Orth_cel)
 
-       if (all( abs(Celda%Orth_Cr_cel) < tiny(0.0))) then
+       if (all( abs(cell%Orth_Cr_cel) < tiny(0.0))) then
           err_crys=.true.
           ERR_Crys_Mess=" Bad cell parameters "
           return
        end if
 
-       Celda%GD=Metrics(cellv,angl)
-       Celda%GR=Metrics(Celda%rcell,Celda%rang)
+       cell%GD=Metrics(cellv,angl)
+       cell%GR=Metrics(cell%rcell,cell%rang)
 
        ! Busing-Levy matrix component
-       !(it corresponds to the transpose of Orth_Cr_cel when Celda%CartType="C")
-       If (Celda%CartType == "C") then
-          Celda%bl_m=Transpose(Celda%Orth_Cr_cel)
-          Celda%bl_minv=Transpose(Celda%Cr_Orth_cel)
+       !(it corresponds to the transpose of Orth_Cr_cel when cell%CartType="C")
+       If (cell%CartType == "C") then
+          cell%bl_m=Transpose(cell%Orth_Cr_cel)
+          cell%bl_minv=Transpose(cell%Cr_Orth_cel)
        else
-          Celda%bl_m(1,1)=celda%rcell(1)
-          Celda%bl_m(1,2)=celda%rcell(2)*cosd(celda%rang(3))
-          Celda%bl_m(1,3)=celda%rcell(3)*cosd(celda%rang(2))
-          Celda%bl_m(2,2)=celda%rcell(2)*sind(celda%rang(3))
-          Celda%bl_m(2,3)=-(celda%rcell(3)*sind(celda%rang(2))*cosd(celda%ang(1)))
-          Celda%bl_m(3,3)=1.0/celda%cell(3)
-          Celda%bl_m(2,1)=0.0
-          Celda%bl_m(3,1)=0.0
-          Celda%bl_m(3,2)=0.0
+          cell%bl_m(1,1)=cell%rcell(1)
+          cell%bl_m(1,2)=cell%rcell(2)*cosd(cell%rang(3))
+          cell%bl_m(1,3)=cell%rcell(3)*cosd(cell%rang(2))
+          cell%bl_m(2,2)=cell%rcell(2)*sind(cell%rang(3))
+          cell%bl_m(2,3)=-(cell%rcell(3)*sind(cell%rang(2))*cosd(cell%ang(1)))
+          cell%bl_m(3,3)=1.0/cell%cell(3)
+          cell%bl_m(2,1)=0.0
+          cell%bl_m(3,1)=0.0
+          cell%bl_m(3,2)=0.0
 
-          !call matrix_inverse(Celda%bl_m,Celda%bl_minv,ifail)
-          Celda%bl_minv=Invert_array3x3(Celda%bl_m)
+          !call matrix_inverse(cell%bl_m,cell%bl_minv,ifail)
+          cell%bl_minv=Invert_array3x3(cell%bl_m)
 
-          if (all( abs(Celda%Orth_Cr_cel) < tiny(0.0))) then
+          if (all( abs(cell%Orth_Cr_cel) < tiny(0.0))) then
              err_crys=.true.
              ERR_Crys_Mess=" Bad cell parameters "
              return

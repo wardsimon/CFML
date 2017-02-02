@@ -225,14 +225,14 @@ Module CFML_DefPar
              "( Dx   ,    Dy,-Dz)","(   -Dy, Dx-Dy,-Dz)","(-Dx+Dy,-Dx   ,-Dz)",   &
              "(   -Dy,-Dx   , Dz)","(-Dx+Dy,    Dy, Dz)","( Dx   , Dx-Dy, Dz)",   &
              "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"   /)
-   character(len=* ), parameter, dimension(24)           :: INTSYMD6H =(/          &     ! International Symbols For Point Group Elements Of 6/mmm (D6h)
+   character(len=* ), parameter, dimension(24)           :: INTSYM_D6H =(/          &     ! International Symbols For Point Group Elements Of 6/mmm (D6h)
              "  1           "," 3+ ( 0, 0, z)"," 3- ( 0, 0, z)","  2 ( 0, 0, z)",  &
              " 6- ( 0, 0, z)"," 6+ ( 0, 0, z)","  2 ( x, x, 0)","  2 ( x, 0, 0)",  &
              "  2 ( 0, y, 0)","  2 ( x,-x, 0)","  2 ( x,2x, 0)","  2 (2x, x, 0)",  &
              " -1           ","-3+ ( 0, 0, z)","-3- ( 0, 0, z)","  m ( x, y, 0)",  &
              "-6- ( 0, 0, z)","-6+ ( 0, 0, z)","  m ( x,-x, z)","  m ( x,2x, z)",  &
              "  m (2x, x, z)","  m ( x, x, z)","  m ( x, 0, z)","  m ( 0, y, z)"   /)
-   character(len=* ), parameter, dimension(48)           :: INTSYMOH = (/          &
+   character(len=* ), parameter, dimension(48)           :: INTSYM_OH = (/          &
              "  1           ","  2 ( 0, 0, z)","  2 ( 0, y, 0)","  2 ( x, 0, 0)",  &     ! International Symbols For Point Group Elements Of M3M (Oh)
              " 3+ ( x, x, x)"," 3+ (-x, x,-x)"," 3+ ( x,-x,-x)"," 3+ (-x,-x, x)",  &
              " 3- ( x, x, x)"," 3- ( x,-x,-x)"," 3- (-x,-x, x)"," 3- (-x, x,-x)",  &
@@ -936,7 +936,7 @@ Module CFML_DefPar
    character(len=256) :: ERR_LSQ_Mess     = " "        ! String containing information about the last error
    character(len=256) :: ERR_SymTab_Mess  = " "        ! String containing information about the last error
 
-   character(len=150) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
+   character(len=256) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
 
    integer            :: iErr_fmt    = 0               ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
    integer            :: win_console = -1              ! Code number for Scroll Window (Variable only in use for Winteracter code)

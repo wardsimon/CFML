@@ -113,7 +113,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Equal_Sets_Text(Text1,N1,Text2,N2) result(Equal_sets_texto)
+    Pure Function Equal_Sets_Text(Text1,N1,Text2,N2) result(Equal_sets_texto)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in) :: text1             ! Vector of String
        character(len=*), dimension(:), intent(in) :: text2             ! Vector of String
@@ -155,7 +155,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function L_Case(Str) Result (LStr)
+    Pure Function L_Case(Str) Result (LStr)
        !---- Argument ----!
        character (len=*), intent(in) :: Str    ! Input String
        character (len=len(str))      :: LStr   ! lower case of Text
@@ -181,7 +181,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Pack_String(Str) Result (Strp)
+    Pure Function Pack_String(Str) Result (Strp)
        !---- Argument ----!
        character (len=*), intent(in) :: str    ! Input String
        character (len=len_trim(str)) :: strp   ! Output string
@@ -208,7 +208,7 @@
     !!----
     !!---- Updated: May - 2014
     !!
-    Function String_Count(str,substr) result(coun)
+    Pure Function String_Count(str,substr) result(coun)
        !---- Arguments ----!
        character(len=*), intent(in) :: str       ! Input String
        character(len=*), intent(in) :: substr    ! Substring model
@@ -241,7 +241,7 @@
     !!----
     !!---- Update: January - 2010
     !!
-    Function Strip_String(str, to_strip) Result(striped_string)
+    Pure Function Strip_String(str, to_strip) Result(striped_string)
        !---- Arguments----!
        character (len = *), intent(in) :: str            ! Input string
        character (len = *), intent(in) :: to_strip       ! Pattern
@@ -267,7 +267,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function U_Case(Str) Result (UStr)
+    Pure Function U_Case(Str) Result (UStr)
        !---- Argument ----!
        character (len=*), intent(in) :: Str
        character (len=len(Str))      :: UStr
