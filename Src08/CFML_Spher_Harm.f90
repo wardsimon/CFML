@@ -42,7 +42,7 @@
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use CFML_DefPar,       only: Cp, Dp, Eps, Pi, To_Rad, Err_Spher, Err_Spher_Mess
+    Use CFML_DefPar,       only: Cp, Dp, Eps, Pi, To_Rad, Err_CFML, Err_CFML_Mess, Init_Err_CFML
     Use CFML_Math_General, only: poly_legendre, Sph_Jn
 
     !---- Definitions ----!
@@ -52,8 +52,7 @@
 
     !---- Public procedures ----!
     public :: Cubic_Harm_Ang, Cubic_Harm_Ucvec, Int_Slater_Bessel, Real_Spher_Harm_Ang, &
-              Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec, Init_Err_Spher,       &
-              Pikout_Lj_Cubic
+              Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec, Pikout_Lj_Cubic
 
  Contains
 
@@ -600,21 +599,6 @@
     !---------------------!
 
     !!----
-    !!---- SUBROUTINE INIT_ERR_SPHER
-    !!----
-    !!----    Initialize the errors flags in CFML_Spherical_Harmonics
-    !!----
-    !!---- Update: 11/07/2015
-    !!
-    Subroutine Init_Err_Spher()
-
-       ERR_Spher=.false.
-       ERR_Spher_Mess=" "
-
-       return
-    End Subroutine Init_Err_Spher
-
-    !!----
     !!---- SUBROUTINE PIKOUT_LJ_CUBIC
     !!--<<
     !!----    Picking out rules for indices of cubic harmonics for the 5 cubic groups
@@ -634,7 +618,7 @@
        integer :: k,lc
 
        lc=-1
-       call Init_Err_Spher()
+       call Init_Err_CFML()
 
        if (present(lun)) lc=lun
 
@@ -749,8 +733,8 @@
                 write(unit=lc,fmt="(5(a,2i3,a))") ( "  (",lj(1,k),lj(2,k),")",  k=1,ncoef)
              end if
           case default
-             ERR_Spher=.true.
-             ERR_Spher_Mess=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
+             Err_CFML=.true.
+             Err_CFML_Mess=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
 
        end select
 

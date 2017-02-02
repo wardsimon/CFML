@@ -111,7 +111,7 @@
 !!
  Module CFML_Random_Generators
     !---- Use Modules ----!
-    Use CFML_DefPar,       only: cp,sp,dp, Err_Random, Err_Random_Mess
+    Use CFML_DefPar,       only: CP,SP,DP, Err_CFML, Err_CFML_Mess, Init_Err_CFML
 
     !---- Definitions ----!
     implicit none
@@ -123,7 +123,7 @@
                random_exponential,    random_gamma,        random_gamma1,      random_gamma2,                 &
                random_inv_gauss,      random_neg_binomial, random_normal,      random_poisson, random_t,      &
                random_von_mises,      random_weibull,      random_mvnorm,      random_order,                  &
-               seed_random_number,    init_err_random
+               seed_random_number
 
     !--------------------!
     !---- PARAMETERS ----!
@@ -271,21 +271,6 @@
        return
     End Subroutine Gpp_F
 
-    !!----
-    !!---- SUBROUTINE INIT_ERR_RANDOM
-    !!----
-    !!----    Initialize the errors flags in CFML_Random_Generators
-    !!----
-    !!---- Update: 11/07/2015
-    !!
-    Subroutine Init_Err_Random()
-
-       err_random=.false.
-       ERR_Random_Mess=" "
-
-       return
-    End Subroutine Init_Err_Random
-
     !!--++
     !!--++ SUBROUTINE INTEGRAL
     !!--++
@@ -408,10 +393,10 @@
        real(kind=cp), save       :: d, f, h, t, c
        logical,       save       :: swap
 
-       call init_err_random()
+       call init_Err_CFML()
        if (aa <= zero .or. bb <= zero) then
-          err_random=.true.
-          ERR_Random_Mess="Impermissible Shape Parameter Value(s)"
+          Err_CFML=.true.
+          Err_CFML_Mess="Impermissible Shape Parameter Value(s)"
           return
        end if
 
@@ -814,10 +799,10 @@
        logical, intent(in)        :: first
        real(kind=cp) ,intent(out) :: fn_val
 
-       call init_err_random()
+       call init_Err_CFML()
        if (s <= zero) then
-          err_random=.true.
-          ERR_Random_Mess="Shape Parameter Value Must Be Positive"
+          Err_CFML=.true.
+          Err_CFML_Mess="Shape Parameter Value Must Be Positive"
           return
        end if
 
@@ -856,10 +841,10 @@
        real(kind=cp), save      :: b, h
        real(kind=cp), parameter :: sixty4 = 64.0, three = 3.0, pt75 = 0.75
 
-       call init_err_random()
+       call init_Err_CFML()
        if (s <= one) then
-          err_random=.true.
-          ERR_Random_Mess="Impermissible Shape Parameter Value"
+          Err_CFML=.true.
+          Err_CFML_Mess="Impermissible Shape Parameter Value"
           return
        end if
 
@@ -909,10 +894,10 @@
        real(kind=cp)       :: r, x, w
        real(kind=cp), save :: a, p, c, uf, vr, d
 
-       call init_err_random()
+       call init_Err_CFML()
        if (s <= zero .or. s >= one) then
-          err_random=.true.
-          ERR_Random_Mess="Shape Parameter Value Outside Permitted Range"
+          Err_CFML=.true.
+          Err_CFML_Mess="Shape Parameter Value Outside Permitted Range"
           return
        end if
 
@@ -920,8 +905,8 @@
           a = one - s
           p = a/(a + s*exp(-a))
           if (s < vsmall) then
-             err_random=.true.
-             ERR_Random_Mess="Shape Parameter Value Too Small"
+             Err_CFML=.true.
+             Err_CFML_Mess="Shape Parameter Value Too Small"
              return
           end if
           c = one/s
@@ -982,25 +967,25 @@
        real(kind=cp), save      :: a, c, d, e
        real(kind=cp), parameter :: quart = 0.25
 
-        call init_err_random()
+        call init_Err_CFML()
        if (h < zero .or. b <= zero) then
-           err_random=.true.
-           ERR_Random_Mess="Impermissible Distribution Parameter Values"
+           Err_CFML=.true.
+           Err_CFML_Mess="Impermissible Distribution Parameter Values"
           return
        end if
 
        if (first) then                        ! initialization, if necessary
           if (h > quart*b*sqrt(vlarge)) then
-             err_random=.true.               !Not possible in F (pure Functions!)
-             ERR_Random_Mess="The Ratio H:B Is Too Small"
+             Err_CFML=.true.               !Not possible in F (pure Functions!)
+             Err_CFML_Mess="The Ratio H:B Is Too Small"
              return
           end if
           e = b*b
           d = h + one
           ym = (-d + sqrt(d*d + e))/b
           if (ym < vsmall) then
-             err_random=.true.
-             ERR_Random_Mess="The Value Of B Is Too Small"
+             Err_CFML=.true.
+             Err_CFML_Mess="The Value Of B Is Too Small"
              return
           end if
 
@@ -1012,8 +997,8 @@
           w = xm*ym
           a = w**(-half*h) * sqrt(xm/ym) * exp(-e*(r - ym - one/ym))
           if (a < vsmall) then
-             err_random=.true.
-             ERR_Random_Mess="The Value Of H Is Too Large"
+             Err_CFML=.true.
+             Err_CFML_Mess="The Value Of H Is Too Large"
              return
           end if
           c = -d*log(xm) - e*r
@@ -1063,10 +1048,10 @@
        real(kind=cp) :: y, v
        integer, save :: n2
 
-        call init_err_random()
+        call init_Err_CFML()
        if (n < 1) then
-          err_random=.true.
-          ERR_Random_Mess="Size Of Vector Is Non Positive"
+          Err_CFML=.true.
+          Err_CFML_Mess="Size Of Vector Is Non Positive"
           return
        end if
        ier = 0
@@ -1143,10 +1128,10 @@
        real(kind=cp)               :: q, x, st, uln, v, r, s, y, g
        integer            :: k, i, n
 
-       call init_err_random()
+       call init_Err_CFML()
        if (sk <= zero .or. p <= zero .or. p >= one) then
-          err_random=.true.
-          ERR_Random_Mess="impermissible distribution parameter values"
+          Err_CFML=.true.
+          Err_CFML_Mess="impermissible distribution parameter values"
           return
        end if
        q = one - p
@@ -1168,8 +1153,8 @@
        s = zero
        uln = -LOG(vsmall)
        if (st > -uln/log(q)) then
-          err_random=.true.
-          ERR_Random_Mess=" P Is Too Large For This Value Of Sk"
+          Err_CFML=.true.
+          Err_CFML_Mess=" P Is Too Large For This Value Of Sk"
           return
        end if
        y = q**st
@@ -1352,10 +1337,10 @@
                                    five = 5.0, sixteen = 16.0
        integer                  :: mm = 0
 
-       call init_err_random()
+       call init_Err_CFML()
        if (m < 1) then
-          err_random=.true.
-          ERR_Random_Mess="Impermissible Degrees Of Freedom"
+          Err_CFML=.true.
+          Err_CFML_Mess="Impermissible Degrees Of Freedom"
           return
        end if
 
@@ -1413,17 +1398,17 @@
        real(kind=cp)                       :: sump, r, th, lambda, rlast
        real(kind=dp)                       :: dk
 
-       call init_err_random()
+       call init_Err_CFML()
        if (first) then                        ! initialization, if necessary
           if (k < zero) then
-             err_random=.true.
-             ERR_Random_Mess="Error in argument k for random_von_Mises"
+             Err_CFML=.true.
+             Err_CFML_Mess="Error in argument k for random_von_Mises"
              return
           end if
           nk = k + k + one
           if (nk > 20) then
-             err_random=.true.
-             ERR_Random_Mess="Error in argument k for random_von_Mises"
+             Err_CFML=.true.
+             Err_CFML_Mess="Error in argument k for random_von_Mises"
              return
           end if
           dk = k

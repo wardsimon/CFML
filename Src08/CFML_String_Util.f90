@@ -48,7 +48,8 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_DefPar,       only: cp, ops_sep, iErr_fmt, Err_Text_Type, Mess_FindFMT, Err_String, Err_String_Mess
+    use CFML_DefPar,       only: CP, OPS_SEP, iErr_fmt, Err_Text_Type, Mess_FindFMT, Err_CFML, Err_CFML_Mess, &
+                                 Init_Err_CFML
     use CFML_Math_General, only: Negligible, Zbelong
     use ieee_arithmetic,   only: ieee_is_nan,ieee_is_finite
 
@@ -63,9 +64,9 @@
     public :: Cutst, FindFmt, Format_String_R, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname,   &
               Get_Extension, Get_Filename, Get_Fraction_1Dig, Get_Fraction_2Dig, Get_Mat_From_Symb,           &
               Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat, Get_Transf, Get_Vec_From_String, &
-              Getnum, Getnum_Std, Getword, Inc_LineNum, Init_ERR_String, Init_FindFMT, LCase, Number_lines,   &
-              NumCol_from_NumFmt, Read_Key_str, Read_Key_strVal, Read_Key_Value, Read_Key_ValueSTD,           &
-              Reading_Lines, Setnum_Std, SubString_Replace, Ucase
+              Getnum, Getnum_Std, Getword, Inc_LineNum, Init_FindFMT, LCase, Number_lines, NumCol_from_NumFmt,&
+              Read_Key_str, Read_Key_strVal, Read_Key_Value, Read_Key_ValueSTD, Reading_Lines, Setnum_Std,    &
+              SubString_Replace, Ucase
 
 
     !--------------------!
@@ -1211,7 +1212,7 @@
        character(len=len(Symb)), dimension(3) :: split
 
        !> Init
-       call init_err_string()
+       call init_Err_CFML()
 
        i=index(Symb,",")
        j=index(Symb,",",back=.true.)
@@ -1405,8 +1406,8 @@
           do i=1,nterm-1
              if (k == klist(i)) then
                 !> This is impossible in principle
-                ERR_string= .true.
-                ERR_string_Mess=" The provided symbol is illegal: "//trim(str)
+                Err_CFML= .true.
+                Err_CFML_Mess=" The provided symbol is illegal: "//trim(str)
                 return
              end if
           end do
@@ -1651,7 +1652,7 @@
        integer,dimension(2)           :: pos
 
        !> Init
-       call init_err_string()
+       call init_Err_CFML()
 
        cd=(/"a","b","c",";"/)
        if (present(cod)) cd=cod
@@ -1677,29 +1678,29 @@
              ori=transf_key(i+1:)
           end if
           call Get_Mat_From_Symb(cMat,cd(1:3),mat)
-          if (ERR_String) then
-             ERR_String_Mess=" Bad matrix setting...: "//trim(ERR_String_Mess)
+          if (Err_CFML) then
+             Err_CFML_Mess=" Bad matrix setting...: "//trim(Err_CFML_Mess)
              return
           end if
 
           !>Origin
           Call Get_Separator_Pos(ori,",",pos,nc)
           if (nc /= 2)then
-             ERR_String=.true.
-             ERR_String_Mess=" Bad origin setting...: "//trim(ori)
+             Err_CFML=.true.
+             Err_CFML_Mess=" Bad origin setting...: "//trim(ori)
              return
           else
              call Read_Fract(ori(1:pos(1)-1),vec(1))
              call Read_Fract(ori(pos(1)+1:pos(2)-1),vec(2))
              call Read_Fract(ori(pos(2)+1:),vec(3))
-             if (ERR_String) then
-                ERR_String_Mess=" Bad origing setting...: "//trim(ERR_String_Mess)//" :: "//trim(ori)
+             if (Err_CFML) then
+                Err_CFML_Mess=" Bad origing setting...: "//trim(Err_CFML_Mess)//" :: "//trim(ori)
                 return
              end if
           end if
        else
-          ERR_String=.true.
-          ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
+          Err_CFML=.true.
+          Err_CFML_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
        end if
 
        return
@@ -1709,8 +1710,8 @@
     !!---- Subroutine Getnum(Str, Vet, Ivet, Iv)
     !!----
     !!----    Converts a string to numbers and write on VET/IVET if real/integer. Control
-    !!----    of errors is possible by inquiring the global variables ERR_STRING and
-    !!----    ERR_String_Mess
+    !!----    of errors is possible by inquiring the global variables Err_CFML and
+    !!----    Err_CFML_Mess
     !!----
     !!---- Update: February - 2005
     !!
@@ -1730,7 +1731,7 @@
        real(kind=cp)             :: sum_m
 
        !---- Initializing variables ----!
-       call init_err_string()
+       call init_Err_CFML()
        iv=0
        ivet=0
        vet=0.0
@@ -1756,8 +1757,8 @@
              numero=.false.
           end do
           if (.not. numero) then
-             err_string=.true.
-             ERR_String_Mess="The variable cannot be computed as a number in GETNUM "
+             Err_CFML=.true.
+             Err_CFML_Mess="The variable cannot be computed as a number in GETNUM "
              return
           end if
 
@@ -1794,8 +1795,8 @@
                    idec=idec-1
                 end if
              else
-                err_string=.true.
-                ERR_String_Mess="Limits of digit variable exceeded in GETNUM"
+                Err_CFML=.true.
+                Err_CFML_Mess="Limits of digit variable exceeded in GETNUM"
                 return
              end if
           end do
@@ -1816,8 +1817,8 @@
                 if (idig >= 1 .and. idig <= 10)  then
                    isum_exp=isum_exp*10+(idig-1)
                 else
-                   err_string=.true.
-                   ERR_String_Mess="Limits of digit variable exceeded in GETNUM"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Limits of digit variable exceeded in GETNUM"
                    return
                 end if
              end do
@@ -1851,8 +1852,8 @@
     !!---- Subroutine Getnum_Std(Str, Value, Std, Ic)
     !!----
     !!----    Converts a string to a numbers with standard deviation with format: x.fffff(s)
-    !!----    Control of errors is possible by inquiring the global variables ERR_STRING
-    !!----    and ERR_String_Mess.
+    !!----    Control of errors is possible by inquiring the global variables Err_CFML
+    !!----    and Err_CFML_Mess.
     !!----
     !!---- Update: February - 2005
     !!
@@ -1873,12 +1874,12 @@
        value=0.0
        std  =0.0
        ic   =0
-       call init_err_string()
+       call init_Err_CFML()
 
        !---- Initial Checks ----!
        if (len_trim(Str) == 0) then
-          err_string=.true.
-          ERR_String_Mess="Blank line"
+          Err_CFML=.true.
+          Err_CFML_Mess="Blank line"
           return
        end if
        i=index(Str,"!")
@@ -1902,16 +1903,16 @@
           if ( (np2 < np1) .or.               &  ! ")" before than "("
                (np1==0 .and. np2 >0) .or.     &  ! "(" doesn"t exists
                (np2==0 .and. np1 >0) ) then      ! ")" doesn"t exists
-             err_string=.true.
-             ERR_String_Mess="Wrong format using Standard values"
+             Err_CFML=.true.
+             Err_CFML_Mess="Wrong format using Standard values"
              return
           end if
 
           if (np1 == 0 .and. np2 ==0) then
              call getnum(dire,vet,ivet,iv)
-             if (iv /= 1 .or. err_string) then
-                err_string=.true.
-                ERR_String_Mess="Bad format"
+             if (iv /= 1 .or. Err_CFML) then
+                Err_CFML=.true.
+                Err_CFML_Mess="Bad format"
                 return
              end if
              ic=ic+1
@@ -1921,9 +1922,9 @@
              np=index(numm,".")
              if (np == 0) then
                 call getnum(numm,vet,ivet,iv)
-                if (iv /= 1 .or. err_string) then
-                   err_string=.true.
-                   ERR_String_Mess="Bad format"
+                if (iv /= 1 .or. Err_CFML) then
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Bad format"
                    return
                 end if
                 ic=ic+1
@@ -1931,26 +1932,26 @@
                 numm=dire(np1+1:np2-1)
                 call getnum(numm,vet,ivet,iv)
                 if (iv /= 1) then
-                   err_string=.true.
-                   ERR_String_Mess="Bad format"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Bad format"
                    return
                 end if
                 std(ic)=vet(1)
              else
                 np=np1-np-1
                 call getnum(numm,vet,ivet,iv)
-                if (iv /= 1 .or. err_string) then
-                   err_string=.true.
-                   ERR_String_Mess="Bad format"
+                if (iv /= 1 .or. Err_CFML) then
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Bad format"
                    return
                 end if
                 ic=ic+1
                 value(ic)=vet(1)
                 numm=dire(np1+1:np2-1)
                 call getnum(numm,vet,ivet,iv)
-                if (iv /= 1 .or. err_string) then
-                   err_string=.true.
-                   ERR_String_Mess="Bad format"
+                if (iv /= 1 .or. Err_CFML) then
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Bad format"
                    return
                 end if
                 std(ic)=vet(1)/(10.0**np)
@@ -1966,8 +1967,8 @@
     !!----
     !!----    Determines the number of words (Ic) in the string "Line" and generates a
     !!----    character vector "Dire" with separated words.
-    !!----    Control of errors is possible by inquiring the global variables ERR_STRING
-    !!----    and ERR_String_Mess. The last modification allows to treat strings between
+    !!----    Control of errors is possible by inquiring the global variables Err_CFML
+    !!----    and Err_CFML_Mess. The last modification allows to treat strings between
     !!----    quotes as a single word.
     !!----
     !!---- Update: July - 2011
@@ -1983,7 +1984,7 @@
        integer                   :: nlong2
        integer                   :: ndim, j
 
-       call init_err_string()
+       call init_Err_CFML()
        ic=0
        ndim=size(dire)
        line1=Str
@@ -1997,8 +1998,8 @@
                nlong2=len_trim(line2)
                line1 = line1(j+2:)
              else
-               err_string=.true.
-               ERR_String_Mess="Non balanced quotes!"
+               Err_CFML=.true.
+               Err_CFML_Mess="Non balanced quotes!"
                exit
              end if
           else
@@ -2007,8 +2008,8 @@
           if (nlong2 == 0) exit
           ic=ic+1
           if (ic > ndim) then
-             err_string=.true.
-             ERR_String_Mess="Dimension of DIRE exceeded"
+             Err_CFML=.true.
+             Err_CFML_Mess="Dimension of DIRE exceeded"
              exit
           end if
           dire(ic)=line2(:nlong2)
@@ -2033,22 +2034,6 @@
 
        return
     End Subroutine Inc_LineNum
-
-    !!----
-    !!---- Subroutine Init_Err_String()
-    !!----
-    !!----    Initializes general error variables for this module as:
-    !!----    ERR_STRING=.false. ;  ERR_String_Mess=" "
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_String()
-
-       ERR_String=.false.
-       ERR_String_Mess=" "
-
-       return
-    End Subroutine Init_Err_String
 
     !!----
     !!---- Subroutine Init_FindFMT(nline)
@@ -2164,7 +2149,7 @@
        character (len=10)              :: string
 
        !> Init
-       call Init_Err_String()
+       call Init_Err_CFML()
 
        fm=U_case(adjustl(Str))
        fm=pack_string(fm)
@@ -2220,8 +2205,8 @@
           n_col=n_col+n1*n2
        end do
        if (n_col == 0) then
-          err_string=.true.
-          ERR_String_Mess="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
+          Err_CFML=.true.
+          Err_CFML_Mess="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
        end if
 
        return
@@ -2246,7 +2231,7 @@
        real(kind=cp) :: num, den
 
        !> Init
-       call init_err_string()
+       call init_Err_CFML()
 
        if (len_trim(str) == 0) then
           value=1.0
@@ -2267,23 +2252,23 @@
           read(unit=str,fmt=*,iostat=ierr) value
           if (ierr /= 0) then
              value=0.0
-             ERR_String= .true.
-             ERR_String_Mess=" The provided symbol is illegal: "//trim(str)
+             Err_CFML= .true.
+             Err_CFML_Mess=" The provided symbol is illegal: "//trim(str)
              return
           end if
        else !fraction
           read(unit=str(1:k-1),fmt=*,iostat=ierr) num
           if (ierr /= 0) then
              value=0.0
-             ERR_String= .true.
-             ERR_String_Mess=" The provided symbol is illegal: "//str(1:k-1)
+             Err_CFML= .true.
+             Err_CFML_Mess=" The provided symbol is illegal: "//str(1:k-1)
              return
           end if
           read(unit=str(k+1:),fmt=*,iostat=ierr) den
           if (ierr /= 0) then
              value=0.0
-             ERR_String= .true.
-             ERR_String_Mess=" The provided symbol is illegal: "//str(k+1:)
+             Err_CFML= .true.
+             Err_CFML_Mess=" The provided symbol is illegal: "//str(k+1:)
              return
           end if
 
@@ -2466,7 +2451,7 @@
           call cutst(line)
           call getnum(line,vet,ivet,iv)
           if(present(line_key)) line_key=line
-          if (err_string) exit
+          if (Err_CFML) exit
           nline_ini=i
           exit
        end do
@@ -2519,7 +2504,7 @@
           line=line(np:)
           call cutst(line)
           call getnum_std(line,vet1,vet2,iv)
-          if (err_string) exit
+          if (Err_CFML) exit
           nline_ini=i
           exit
        end do
@@ -2546,14 +2531,14 @@
        integer :: lun,i
 
        !---- Init ----!
-       call init_err_string()
+       call init_Err_CFML()
        info=.false.
 
        !---- Exist filename ? ----!
        inquire (file=filename,exist=info)
        if (.not. info) then
-          err_string=.true.
-          ERR_String_Mess="The file"//trim(filename)//" does not exist "
+          Err_CFML=.true.
+          Err_CFML_Mess="The file"//trim(filename)//" does not exist "
           return
        end if
 

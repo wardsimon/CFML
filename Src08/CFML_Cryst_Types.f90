@@ -126,8 +126,8 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_Crys, Err_Crys_Mess, Crystal_Cell_Type, &
-                                  Zone_Axis_Type, Twofold_Axes_Type
+    Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_CFML, Err_CFML_Mess, Init_Err_CFML, &
+                                  Crystal_Cell_Type, Zone_Axis_Type, Twofold_Axes_Type
     Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
     Use CFML_Math_3D,      only : Invert_Array3x3, determ_3x3, determ_Vec, Cross_Product
 
@@ -144,8 +144,8 @@
     !---- List of public subroutines ----!
     public :: Change_Setting_Cell, Get_Basis_from_UVW, Get_Conventional_Cell, Get_Cryst_Family, &
               Get_Deriv_Orth_Cell, Get_Primitive_Cell, Get_Transform_Matrix, Get_TwoFold_Axes,  &
-              Init_Err_Crys, Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell,              &
-              Write_Bin_Crystal_Cell, Write_Crystal_Cell
+              Niggli_Cell, Read_Bin_Crystal_Cell, Set_Crystal_Cell, Write_Bin_Crystal_Cell,     &
+              Write_Crystal_Cell
 
 
     !---- Definitions ----!
@@ -705,7 +705,7 @@
        logical                :: ok
 
        !> Init
-       call init_err_crys()
+       call init_Err_CFML()
 
        ZoneB%nlayer=0
        ZoneB%uvw=u
@@ -794,8 +794,8 @@
        if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
 
        if (.not. ok ) then
-          Err_Crys=.true.
-          ERR_Crys_Mess=" Error in Get_Basis_From_uvW"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Error in Get_Basis_From_uvW"
        end if
 
        return
@@ -846,7 +846,7 @@
 
 
        !> Init
-       call init_Err_cryst()
+       call init_Err_CFMLt()
        message=" "
 
        a=twofold%a; b=twofold%b; c=twofold%c
@@ -1044,8 +1044,8 @@
                 End if
 
                 if ( j == 0) then
-                   Err_Crys=.true.
-                   ERR_Crys_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                    return
                 else
                    Select Case (j)
@@ -1117,8 +1117,8 @@
                       End Select
 
                    Else
-                      Err_Crys=.true.
-                      ERR_Crys_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+                      Err_CFML=.true.
+                      Err_CFML_Mess="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                       return
                    End if
                 End if !j==0
@@ -1159,8 +1159,8 @@
              namina=ab(1)
              naminb=ab(2)
              if (namina == 0 .or. naminb == 0) then
-                Err_Crys=.true.
-                ERR_Crys_Mess="Basis vectors a-b not found!"
+                Err_CFML=.true.
+                Err_CFML_Mess="Basis vectors a-b not found!"
                 return
              end if
 
@@ -1186,8 +1186,8 @@
                 Case(2)
                    message="Tetragonal, I-centred cell"
                 Case(3:)
-                   Err_Crys=.true.
-                   ERR_Crys_Mess="Error in tetragonal cell"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Error in tetragonal cell"
                    return
              End Select
 
@@ -1233,8 +1233,8 @@
                    end if
                 end do
              else
-                Err_Crys=.true.
-                ERR_Crys_Mess=trim(message)
+                Err_CFML=.true.
+                Err_CFML_Mess=trim(message)
                 return
              end if
 
@@ -1259,8 +1259,8 @@
                 End Select
 
              else
-                Err_Crys=.true.
-                ERR_Crys_Mess="The c-axis of a hexagonal cell was not found!"
+                Err_CFML=.true.
+                Err_CFML_Mess="The c-axis of a hexagonal cell was not found!"
                 return
              end if
 
@@ -1304,8 +1304,8 @@
 
              Select Case (namina)
                 Case(0)
-                   Err_Crys=.true.
-                   ERR_Crys_Mess="Pseudo-cubic but tolerance too small ... "
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Pseudo-cubic but tolerance too small ... "
                    return
                 Case(1)
                    message="Cubic, Primitive cell"
@@ -1334,8 +1334,8 @@
 
           case default
              write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
-             Err_Crys=.true.
-             ERR_Crys_Mess=trim(message)
+             Err_CFML=.true.
+             Err_CFML_Mess=trim(message)
              return
 
       End Select
@@ -1428,8 +1428,8 @@
              !   Car_Symbol ="a"
              !   Car_System ="Triclinic"
              !else
-             !   Err_Crys=.true.
-             !   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+             !   Err_CFML=.true.
+             !   Err_CFML_Mess=" Error obtaining Crystal Familiy"
              !end if
 
           case (2) ! two angles are equal
@@ -1441,8 +1441,8 @@
                       Car_Symbol ="h"
                       Car_System ="Hexagonal"
                    else
-                      Err_Crys=.true.
-                      ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                      Err_CFML=.true.
+                      Err_CFML_Mess=" Error obtaining Crystal Familiy"
                    end if
                 else
                    !---- Monoclinic ----!
@@ -1458,8 +1458,8 @@
                    Car_Symbol ="m"
                    Car_System ="Monoclinic"
                 else
-                   Err_Crys=.true.
-                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                   Err_CFML=.true.
+                   Err_CFML_Mess=" Error obtaining Crystal Familiy"
                 end if
              end if
 
@@ -1479,8 +1479,8 @@
                          Car_Symbol ="t"
                          Car_System ="Tetragonal"
                       else
-                         err_crys=.true.
-                         ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                         Err_CFML=.true.
+                         Err_CFML_Mess=" Error obtaining Crystal Familiy"
                       end if
 
                    case (3)
@@ -1497,8 +1497,8 @@
                    Car_Symbol ="h"
                    Car_System ="Trigonal"
                 else
-                   Err_Crys=.true.
-                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                   Err_CFML=.true.
+                   Err_CFML_Mess=" Error obtaining Crystal Familiy"
                 end if
              end if
 
@@ -1862,7 +1862,7 @@
        tolt=0.3
        if(present(tol)) tolt=tol
 
-       call init_err_crys()
+       call init_Err_CFML()
        trm=0.0
        ok=.false.
 
@@ -1895,8 +1895,8 @@
        end do  dox       !i1
 
        if (.not. ok) then
-          Err_Crys=.false.
-          ERR_Crys_Mess=" Get_Transfm_Matrix failed obtaining the transformation matrix! "
+          Err_CFML=.false.
+          Err_CFML_Mess=" Get_Transfm_Matrix failed obtaining the transformation matrix! "
        end if
 
        return
@@ -2061,21 +2061,6 @@
        return
     End Subroutine Get_Volume_Sigma
 
-    !!----
-    !!---- SUBROUTINE INIT_ERR_CRYS()
-    !!----
-    !!----    Initialize Flags of Errors in this module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_Crys()
-
-       Err_Crys=.false.
-       ERR_Crys_Mess=" "
-
-       return
-    End Subroutine Init_Err_Crys
-
     !!--++
     !!--++ Subroutine Niggli_Cell_ABC(Ad,Niggli_Point,Celln,Trans)
     !!--++
@@ -2116,7 +2101,7 @@
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
 
-       if (Err_Crys) return
+       if (Err_CFML) return
        if (present(celln)) celln=celda
 
        !Reconstruct the new cell (Niggli Cell)
@@ -2155,7 +2140,7 @@
        real(kind=cp), dimension(3)   :: cel,ang
        integer                       :: iu,iv,iw, ncount ! ncount is the counter no more that Numiter=100
                                                          ! iterations are permitted. In case of exhausting
-                                                         ! the iteration Err_Crys=.true. but the current
+                                                         ! the iteration Err_CFML=.true. but the current
                                                          ! cell is output anyway
        real(kind=cp),parameter        :: epr=0.0001      !Relative epsilon
        integer, parameter             :: numiter=100
@@ -2278,8 +2263,8 @@
        n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
 
        if (.not. ok) Then
-          Err_Crys=.true.
-          ERR_Crys_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
+          Err_CFML=.true.
+          Err_CFML_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
           return
        end if
 
@@ -2302,7 +2287,7 @@
           call Set_Crystal_Cell(cel,ang, Celln)
           if (present(trans)) then
             Call Get_Transfm_Matrix(cellp,celln,trm)
-            if (.not. err_crys) then
+            if (.not. Err_CFML) then
                trans=trm
             else
               trans=identity
@@ -2335,15 +2320,15 @@
        real(kind=cp), dimension(2,3)    :: n_mat
 
 
-       call Init_Err_Crys()
+       call Init_Err_CFML()
        if ( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
-          Err_Crys=.true.
-          ERR_Crys_Mess=" The provided angles cannot set a unit cell!"
+          Err_CFML=.true.
+          Err_CFML_Mess=" The provided angles cannot set a unit cell!"
           return
        end if
 
        call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
-       if (Err_Crys) return
+       if (Err_CFML) return
 
        n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
        n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
@@ -2359,7 +2344,7 @@
        else
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
-       if (Err_Crys) return
+       if (Err_CFML) return
 
        if (present(celln)) then
           celln=celda
@@ -2391,7 +2376,7 @@
        type(Crystal_Cell_Type)         :: celda
        real(kind=cp), dimension(2,3)   :: n_mat
 
-       call Init_Err_Crys()
+       call Init_Err_CFML()
        celda=cell
        n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
        n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
@@ -2407,7 +2392,7 @@
        else
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
-       if (Err_Crys) return
+       if (Err_CFML) return
 
        if (present(celln)) then
           celln=celda
@@ -2442,8 +2427,8 @@
 
        det=determ_Vec(a,b,c)
        if (abs(det) < 0.0001) then
-          Err_Crys=.true.
-          ERR_Crys_Mess=" The three input vectors are nor linearly independent!"
+          Err_CFML=.true.
+          Err_CFML_Mess=" The three input vectors are nor linearly independent!"
           return
        end if
        n_mat(1,1)=dot_product(a,a); n_mat(1,2)=dot_product(b,b); n_mat(1,3)=dot_product(c,c)
@@ -2460,7 +2445,7 @@
        else
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
-       if (Err_Crys) return
+       if (Err_CFML) return
        if (present(celln)) celln=celda
 
        return
@@ -2483,7 +2468,7 @@
        !---- Local Variables ----!
        integer :: ier
 
-       call init_err_crys()
+       call init_Err_CFML()
 
        read(unit=IUnit,iostat=ier)           &
                        Cell%cell,           &
@@ -2503,8 +2488,8 @@
                        Cell%CartType
 
        if ( ier /= 0) then
-          ERR_Crys=.true.
-          ERR_Crys_Mess=" Problems reading the Cell information from Binary File!"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Problems reading the Cell information from Binary File!"
        end if
 
        return
@@ -2575,7 +2560,7 @@
        !integer :: ifail
 
        !> Init
-       call Init_Err_Crys()
+       call Init_Err_CFML()
 
        if (present(scell) .and. present(sangl)) then
           cell%cell_std=scell
@@ -2604,8 +2589,8 @@
        cell%Orth_Cr_cel=Invert_array3x3(cell%Cr_Orth_cel)
 
        if (all( abs(cell%Orth_Cr_cel) < tiny(0.0))) then
-          err_crys=.true.
-          ERR_Crys_Mess=" Bad cell parameters "
+          Err_CFML=.true.
+          Err_CFML_Mess=" Bad cell parameters "
           return
        end if
 
@@ -2632,8 +2617,8 @@
           cell%bl_minv=Invert_array3x3(cell%bl_m)
 
           if (all( abs(cell%Orth_Cr_cel) < tiny(0.0))) then
-             err_crys=.true.
-             ERR_Crys_Mess=" Bad cell parameters "
+             Err_CFML=.true.
+             Err_CFML_Mess=" Bad cell parameters "
              return
           end if
        end if
@@ -2658,7 +2643,7 @@
        !---- Local Variables ----!
        integer :: ier
 
-       call init_err_crys()
+       call init_Err_CFML()
 
        write(unit=Iunit, iostat=ier) Cell%cell,         &
                                    Cell%ang,            &
@@ -2677,8 +2662,8 @@
                                    Cell%CartType
 
        if ( ier /= 0) then
-          ERR_Crys=.true.
-          ERR_Crys_Mess=" Problems writting the Cell information from Binary File!"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Problems writting the Cell information from Binary File!"
        end if
 
        return

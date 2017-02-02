@@ -167,7 +167,7 @@
 !!
 Module CFML_FFT
    !---- Use Modules ----!
-   use CFML_DefPar,     only : cp, sp, dp, Points_Interval_Type
+   use CFML_DefPar,     only : CP, SP, DP, Points_Interval_Type
 
    !---- Local Variables ----!
    implicit none

@@ -261,7 +261,7 @@
 !!
  Module CFML_Optimization_LSQ
     !---- Use Files ----!
-    Use CFML_DefPar,       only: CP, DP, MAX_FREE_PAR, Err_LSQ, Err_LSQ_Mess, &
+    Use CFML_DefPar,       only: CP, DP, MAX_FREE_PAR, Err_CFML, Err_CFML_Mess, Init_Err_CFML, &
                                  LSQ_Conditions_Type, LSQ_Data_Type, LSQ_State_Vector_Type
     Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm, &
                                  Upper_Triangular,SVDcmp
@@ -454,8 +454,8 @@
 
        do i=1,c%npvar
           if (curv_mat(i,i) < 1.0e-30) then
-             Err_lsq =.true.
-             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
+             Err_CFML =.true.
+             write(unit=Err_CFML_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",i," -> ",trim(namfree(i))
              ifail=2
              return
@@ -483,14 +483,14 @@
           call Invert_Matrix(correl(1:c%npvar,1:c%npvar),correl(1:c%npvar,1:c%npvar),singular)
 
           if (singular) then
-             Err_lsq =.true.
+             Err_CFML =.true.
              do i=1,c%npvar
                 if (correl(i,i) < 1.0e-20) then
                    j=i !iperm(i)
                    exit
                 end if
              end do
-             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
+             write(unit=Err_CFML_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",j," -> ",trim(namfree(j))
              ifail=2
              return
@@ -616,8 +616,8 @@
 
        do i=1,c%npvar
           if (curv_mat(i,i) < 1.0e-30) then
-             Err_lsq =.true.
-             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
+             Err_CFML =.true.
+             write(unit=Err_CFML_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",i," -> ",trim(namfree(i))
              ifail=2
              return
@@ -652,14 +652,14 @@
           call Invert_Matrix(correl(1:c%npvar,1:c%npvar),correl(1:c%npvar,1:c%npvar),singular)
 
           if (singular) then
-             Err_lsq =.true.
+             Err_CFML =.true.
              do i=1,c%npvar
                 if (correl(i,i) < 1.0e-20) then
                    j=i !iperm(i)
                    exit
                 end if
              end do
-             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
+             write(unit=Err_CFML_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",j," -> ",trim(namfree(j))
              ifail=2
              return
@@ -1242,8 +1242,8 @@
                 exit
              end if
           End Do
-          Err_lsq =.true.
-          Err_Lsq_Mess=" Singular Matrix at the end of LM_Der for calculating std deviations ..."
+          Err_CFML =.true.
+          Err_CFML_Mess=" Singular Matrix at the end of LM_Der for calculating std deviations ..."
        End if
 
        !Update the State vector Vs
@@ -1429,8 +1429,8 @@
        !regularization (This increases the error bars!)
        Tikhonov=0.0
        if (singular) then
-          Err_lsq =.true.
-          Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
+          Err_CFML =.true.
+          Err_CFML_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
           j=0
           do
              !first do a SVD decomposition
@@ -1449,7 +1449,7 @@
              if (j > 3) exit
           end do
           if (j <= 3) then
-             Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
+             Err_CFML_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
           end if
        end if
        !
@@ -1714,8 +1714,8 @@
                 sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
              end if
           End Do
-          Err_lsq =.true.
-          Err_Lsq_Mess=" => Singular Matrix at the end of LM_Der for calculating std deviations ... provided sigmas are dubious!"
+          Err_CFML =.true.
+          Err_CFML_Mess=" => Singular Matrix at the end of LM_Der for calculating std deviations ... provided sigmas are dubious!"
        End if
 
        !Update the State vector Vs
@@ -3229,7 +3229,7 @@
 
           if (ifail /= 0) then
              line= " "
-             write(unit=line,fmt="(a,i3,a)") " => IFAIL /= 0 : ",ifail, " "//trim(ERR_Lsq_Mess)
+             write(unit=line,fmt="(a,i3,a)") " => IFAIL /= 0 : ",ifail, " "//trim(Err_CFML_Mess)
              if(present(scroll_lines)) then
                 ntex=ntex+1
                 scroll_lines(ntex)=line
@@ -3466,7 +3466,7 @@
 
           if (ifail /= 0) then
              line= " "
-             write(unit=line,fmt="(a,i3,a)") " => IFAIL /= 0 : ",ifail, " "//trim(ERR_Lsq_Mess)
+             write(unit=line,fmt="(a,i3,a)") " => IFAIL /= 0 : ",ifail, " "//trim(Err_CFML_Mess)
              if(present(scroll_lines)) then
                 ntex=ntex+1
                 scroll_lines(ntex)=line

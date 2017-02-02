@@ -56,7 +56,7 @@
 !!
 Module CFML_PowderProfiles_TOF
    !---- Use Modules ----!
-   Use CFML_DefPar,     only: cp, dp, sp, Lorcomp, Deriv_TOF_Type
+   Use CFML_DefPar,     only: CP, DP, SP, Lorcomp, Deriv_TOF_Type
 
    !---- Definitions ----!
    implicit none
@@ -82,13 +82,6 @@ Module CFML_PowderProfiles_TOF
    End Interface
 
  Contains
-    !!----
-    !!---- FUNCTION ERFCP
-    !!----
-    !!----    Derivative of the complementary error function
-    !!----
-    !!---- Update: 11/07/2015
-    !!
 
     !!--++
     !!--++ FUNCTION DERFCCP
@@ -172,10 +165,6 @@ Module CFML_PowderProfiles_TOF
 
        return
     End Function Expi_E1
-
-    !---------------------!
-    !---- Subroutines ----!
-    !---------------------!
 
     !!----
     !!---- SUBROUTINE TOF_CARPENTER

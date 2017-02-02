@@ -41,9 +41,8 @@
 !!
  Module CFML_Math_3D
     !---- Use Modules ----!
-    Use CFML_DefPar,       only: cp, sp, dp, pi, to_rad, to_deg, &
-                                 Err_MathGen, Err_MathGen_Mess,  &
-                                 Err_Math3D, Err_Math3D_Mess
+    Use CFML_DefPar, only: CP, SP, DP, PI, TO_RAD, TO_DEG, Err_CFML, Err_CFML_Mess, &
+                           Init_Err_CFML
 
     implicit none
 
@@ -55,8 +54,8 @@
 
     !---- List of public subroutines ----!
     public :: Get_Cart_From_Cylin, Get_Cart_From_Spher, Get_Cylin_from_Cart, Get_Spher_from_Cart,   &
-              Init_Err_Math3D, Matrix_DiagEigen, Resolv_Sist_1X2, Resolv_Sist_1X3, Resolv_Sist_2X2, &
-              Resolv_Sist_2X3, Resolv_Sist_3X3, Set_Eps
+              Matrix_DiagEigen, Resolv_Sist_1X2, Resolv_Sist_1X3, Resolv_Sist_2X2, Resolv_Sist_2X3, &
+              Resolv_Sist_3X3, Set_Eps
 
     !-------------------!
     !---- Variables ----!
@@ -1079,21 +1078,6 @@
     End Subroutine Get_Spher_from_Cart_sp
 
     !!----
-    !!---- Subroutine Init_Err_Math3D()
-    !!----
-    !!----    Initialize the errors flags in CFML_Math_3D
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_Math3D()
-
-       ERR_Math3D=.false.
-       ERR_Math3D_Mess=" "
-
-       return
-    End Subroutine Init_Err_Math3D
-
-    !!----
     !!---- Subroutine Matrix_DiagEigen(Array, EigenValues, EigenVec)
     !!----
     !!----    Diagonalize the matrix Array, put eigenvalues in EigenValues and
@@ -1117,7 +1101,7 @@
        real(kind=cp)                 :: holdik, holdki, sigma2
 
        !> Init
-       call init_err_math3d()
+       call init_Err_CFML()
 
        nm1=n-1
        itmax=50
@@ -1198,8 +1182,8 @@
           sigma1=sigma2
        end do
 
-       ERR_Math3D =.true.
-       ERR_Math3D_Mess=" Convergence not reached in diagonalization "
+       Err_CFML =.true.
+       Err_CFML_Mess=" Convergence not reached in diagonalization "
 
        return
     End Subroutine Matrix_DiagEigen
@@ -1222,7 +1206,7 @@
        integer, dimension(2),         intent(out) :: ix     ! 1: x, 2: y, 3: z
 
        !> Init
-       call init_err_math3d()
+       call init_Err_CFML()
        ts = 0.0
        x  = 1.0
        ix = 0
@@ -1233,8 +1217,8 @@
              ix(1)=1
              ix(2)=2
           else
-             ERR_Math3D=.true.
-             ERR_Math3D_Mess="Inconsistent solution (1x2)"
+             Err_CFML=.true.
+             Err_CFML_Mess="Inconsistent solution (1x2)"
           end if
           return
        end if
@@ -1285,7 +1269,7 @@
        real(kind=cp), dimension(2)    :: x1
 
        !> Init
-       call init_err_math3d()
+       call init_Err_CFML()
        ts = 0.0
        x  = 1.0
        ix = 0
@@ -1301,8 +1285,8 @@
                    ix(i)=i
                 end do
              else
-                ERR_Math3D=.true.
-                ERR_Math3D_Mess="Inconsistent solution (1 x 3)"
+                Err_CFML=.true.
+                Err_CFML_Mess="Inconsistent solution (1 x 3)"
              end if
 
           case (2)
@@ -1360,8 +1344,8 @@
                end select
 
           case (0)
-             ERR_Math3D=.true.
-             ERR_Math3D_Mess="Inconsistent case ax+by+cz=t (1x3)"
+             Err_CFML=.true.
+             Err_CFML_Mess="Inconsistent case ax+by+cz=t (1x3)"
        end select
 
        return
@@ -1391,7 +1375,7 @@
        real(kind=cp)           :: rden, rnum
 
        !> Init
-       call init_err_math3d()
+       call init_Err_CFML()
        ts    = 0.0
        x     = 1.0
        ix    = 0
@@ -1421,8 +1405,8 @@
                    ix(1)=1
                    ix(2)=2
                 else
-                   ERR_Math3D=.true.
-                   ERR_Math3D_Mess="Inconsistent solution (2x2)"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Inconsistent solution (2x2)"
                 end if
 
              case (1)
@@ -1493,7 +1477,7 @@
        real(kind=cp), dimension(2)      :: ts1, x1
 
        !---- Initialize ----!
-       call init_err_math3d()
+       call init_Err_CFML()
        ts    = 0.0
        x     = 1.0
        ix    = 0
@@ -1510,8 +1494,8 @@
                    ix(i)=i
                 end do
              else
-                ERR_Math3D=.true.
-                ERR_Math3D_Mess="Inconsistent solution in (2x3)"
+                Err_CFML=.true.
+                Err_CFML_Mess="Inconsistent solution in (2x3)"
              end if
 
           case (2)
@@ -1982,7 +1966,7 @@
        real(kind=cp),dimension(3,3)     :: rw
 
        !---- Initialize ----!
-       call init_err_math3d()
+       call init_Err_CFML()
        ts  = 0.0
        x   = 1.0
        ix  = 0
@@ -2025,8 +2009,8 @@
                       ix(i)=i
                    end do
                 else
-                   ERR_Math3D=.true.
-                   ERR_Math3D_Mess="Inconsistent system (3 x 3)"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="Inconsistent system (3 x 3)"
                 end if
 
              !---- Two rows with zeroes ----!

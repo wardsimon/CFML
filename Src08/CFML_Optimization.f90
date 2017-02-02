@@ -43,7 +43,7 @@
 !!
  Module CFML_Optimization_General
     !---- Use Files ----!
-    use CFML_DefPar,           only: cp, Opt_Conditions_Type, ERR_Optim, ERR_Optim_Mess
+    use CFML_DefPar,           only: cp, Opt_Conditions_Type, ERR_CFML, ERR_CFML_Mess, Init_Err_CFML
     use CFML_String_Utilities, only: l_case
 
     !---- Definitions ----!
@@ -52,8 +52,8 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Csendes_Global,Cg_Quasi_Newton,Init_Err_Optim, Init_Opt_Conditions, Nelder_Mead_Simplex, &
-              Local_Min_DFP, Local_Min_Rand, Set_Opt_Conditions, Local_Optimize, &
+    public :: Csendes_Global,Cg_Quasi_Newton, Init_Opt_Conditions, Nelder_Mead_Simplex, &
+              Local_Min_DFP, Local_Min_Rand, Set_Opt_Conditions, Local_Optimize,        &
               Write_Optimization_Conditions
 
     !--------------------!
@@ -1065,9 +1065,9 @@
        real(kind=cp), parameter                  :: zero = 0.0_cp, one = 1.0_cp, two = 2.0_cp, ten = 10.0_cp
 
        if (nparm <= 0) then
-          Err_Optim=.true.
-          ERR_Optim_Mess="  ERROR: Negative number of parameters! "
-          write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
+          Err_CFML=.true.
+          Err_CFML_Mess="  ERROR: Negative number of parameters! "
+          write(unit=ipr,fmt="(a)")   Err_CFML_Mess
           return
        end if
 
@@ -1075,9 +1075,9 @@
           mmin(i) = mini(i)
           mmax(i) = maxi(i)
           if (mmin(i) == mmax(i)) then
-             Err_Optim=.true.
-             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
-             write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
+             Err_CFML=.true.
+             write(unit=Err_CFML_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             write(unit=ipr,fmt="(a)")   Err_CFML_Mess
              return
           end if
        end do
@@ -1504,21 +1504,6 @@
 
        return
     End Subroutine Fun
-
-    !!----
-    !!---- Subroutine Init_Err_Optim()
-    !!----
-    !!----    Initialize the errors flags in this Module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_Optim()
-
-       ERR_Optim=.false.
-       ERR_Optim_Mess=" "
-
-       return
-    End Subroutine Init_Err_Optim
 
     !!----
     !!---- SUBROUTINE INIT_OPT_CONTITIONS
@@ -2110,9 +2095,9 @@
 
        do i = 1, n
           if (mini(i) == maxi(i)) then
-             Err_Optim=.true.
-             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
-             if(present(ipr)) write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
+             Err_CFML=.true.
+             write(unit=Err_CFML_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             if(present(ipr)) write(unit=ipr,fmt="(a)")   Err_CFML_Mess
              return
           end if
           mmax(i) = (maxi(i)-mini(i)) * 0.5
@@ -2174,8 +2159,8 @@
 
        do i = 1, n
           if (mini(i) == maxi(i)) then
-             Err_Optim=.true.
-             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             Err_CFML=.true.
+             write(unit=Err_CFML_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
              return
           end if
           mmax(i) = (maxi(i)-mini(i)) * 0.5
@@ -3096,7 +3081,7 @@
 
 
        !> Init
-       call Init_Err_Optim()
+       call Init_Err_CFML()
        call Init_Opt_Conditions(Opt)
 
        mth=.false.
@@ -3112,8 +3097,8 @@
                 end if
              end do
              if (.not. mth) then
-                Err_Optim=.true.
-                ERR_Optim_Mess="ERROR, no optimization method has been provided!"
+                Err_CFML=.true.
+                Err_CFML_Mess="ERROR, no optimization method has been provided!"
                 return
              end if
 
@@ -3124,8 +3109,8 @@
                    if (ipos /= 0) then
                       read(unit=file_lines(j)(ipos+7:), fmt=*, iostat=ier) rval
                       if (ier /= 0) then
-                         Err_Optim=.true.
-                         write(unit=ERR_Optim_Mess,fmt="(a)") "ERROR reading optimization condition: "//keyword(k)
+                         Err_CFML=.true.
+                         write(unit=Err_CFML_Mess,fmt="(a)") "ERROR reading optimization condition: "//keyword(k)
                          return
                       end if
 

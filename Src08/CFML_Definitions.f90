@@ -909,33 +909,11 @@ Module CFML_DefPar
    !---- VARIABLES ----!
    !-------------------!
 
-   logical            :: ERR_Bond    =.false.          ! Error flag in CFML_Bond_Tables module
-   logical            :: ERR_Crys    =.false.          ! Error flag in CFML_Crystal_Metrics module
-   logical            :: ERR_Diffpatt=.false.          ! Error flag in CFML_Diffraction_Patterns module
-   logical            :: ERR_MathGen =.false.          ! Error flag in CFML_Math_General module
-   logical            :: ERR_Random  =.false.          ! Error flag in CFML_Random_Generators module
-   logical            :: ERR_Spher   =.false.          ! Error flag in CFML_Spherical_Harmonics module
-   logical            :: ERR_String  =.false.          ! Error flag in CFML_String_Utilities module
-   logical            :: ERR_Math3D  =.false.          ! Error flag in CFML_Math_3D module
-   logical            :: ERR_Optim   =.false.          ! Error flag in CFML_Optimization_General module
-   logical            :: ERR_LSQ     =.false.          ! Error flag in CFML_Optimization_LSQ module
-   logical            :: ERR_Symtab  =.false.          ! Error flag in CFML_Symmetry_Tables module
-
+   logical            :: ERR_CFML    =.false.          ! Error flag in CFML Library
    logical            :: Init_ProfVal=.false.
    logical            :: Lorcomp     =.false.          ! .true. if there are Lorentzian components
 
-   character(len=256) :: ERR_Bond_Mess    = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Crys_Mess    = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Diffpat_Mess = " "        ! String containing information about the last error
-   character(len=256) :: ERR_MathGen_Mess = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Random_Mess  = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Spher_Mess   = " "        ! String containing information about the last error
-   character(len=256) :: ERR_String_Mess  = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Math3D_Mess  = " "        ! String containing information about the last error
-   character(len=256) :: ERR_Optim_Mess   = " "        ! String containing information about the last error
-   character(len=256) :: ERR_LSQ_Mess     = " "        ! String containing information about the last error
-   character(len=256) :: ERR_SymTab_Mess  = " "        ! String containing information about the last error
-
+   character(len=256) :: ERR_CFML_Mess    = " "        ! String containing information about the last error
    character(len=256) :: Info_Lsq_Mess    = " "        ! Information in Levenberg_Marquardt_Fit procedure
 
    integer            :: iErr_fmt    = 0               ! Integer signaling if an error has occurred (/=0) in using the procedure findFMT
@@ -981,6 +959,24 @@ Module CFML_DefPar
         Xray_Wavelength_type("AG",(/0.55942,0.56380/),0.49708), &
         Xray_Wavelength_type("CO",(/1.78919,1.79321/),1.62083), &
         Xray_Wavelength_type("NI",(/1.65805,1.66199/),1.50017)  /)
+
+ Contains
+
+    !!----
+    !!---- Subroutine Init_Err_CFML()
+    !!----
+    !!----    Initialize the errors flags in CFML Library
+    !!----
+    !!---- Update: February - 2017
+    !!
+    Subroutine Init_Err_CFML()
+
+       ERR_CFML=.false.
+       ERR_CFML_Mess=" "
+
+       return
+    End Subroutine Init_Err_CFML
+
 
 
 End Module CFML_DefPar

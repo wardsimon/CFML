@@ -40,7 +40,7 @@
  Module CFML_Math_General
     !---- Use Modules ----!
     Use CFML_DefPar, only : CP, SP, DP, DEPS, PI, TPI, Primes,  &
-                            Err_MathGen, Err_MathGen_Mess
+                            Err_CFML, Err_CFML_Mess, Init_ERR_CFML
 
     !---- Variables ----!
     implicit none
@@ -56,9 +56,9 @@
 
     !---- List of public subroutines ----!
     public :: Co_Prime_vector, Diagonalize_SH, First_Derivative, In_Sort,             &
-              Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub,                 &
-              Sort_Strings, Median_QS, Points_in_Line2D, Rank, Second_Derivative,     &
-              Set_Epsg, SmoothingVec, Sort, Spline, Svdcmp, Swap, Sph_Jn
+              Invert_Matrix, LU_Decomp, LU_Backsub, Sort_Strings,                     &
+              Median_QS, Points_in_Line2D, Rank, Second_Derivative, Set_Epsg,         &
+              SmoothingVec, Sort, Spline, Svdcmp, Swap, Sph_Jn
 
 
     !---- Definitions ----!
@@ -390,7 +390,7 @@
     End Function Poly_Legendre
 
     !!--++
-    !!--++ Function CHEVAL
+    !!--++ Function CHEVAL_Debye
     !!--++
     !!--++ PRIVATE (USED FOR DEBYE FUNCTIONS)
     !!--++ This function evaluates a Chebyshev series, using the Clenshaw method
@@ -399,7 +399,7 @@
     !!--++
     !!--++  Update:  January - 2017
     !!
-    Function Cheval(n, a, t) Result(fval)
+    Function Cheval_Debye(n, a, t) Result(fval)
        !---- Arguments ----!
        integer,                       intent(in) :: N  ! The no. of terms in the sequence
        real(kind=dp), dimension(0:N), intent(in) :: A  ! The coefficients of the Chebyshev series
@@ -459,7 +459,7 @@
        end if
 
        return
-    End Function Cheval
+    End Function Cheval_Debye
 
     !!--++
     !!--++ Logical Function Co_Linear_C(Vec1, Vec2, N)
@@ -687,15 +687,15 @@
 
        !> Check
        if (n <= 0) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="The order for Debye function was ZERO!"
+          Err_CFML=.true.
+          Err_CFML_Mess="The order for Debye function was ZERO!"
           return
        end if
 
        if (x < 0.0_dp) then
           if (abs(x) > tpi) then
-             ERR_MathGen=.true.
-             ERR_MathGen_Mess="The argument is negative and less than 2Pi"
+             Err_CFML=.true.
+             Err_CFML_Mess="The argument is negative and less than 2Pi"
              return
           end if
           fval =DebyeN(n,x)
@@ -711,8 +711,8 @@
                 fval=Debye4(x)
              case (5:)
                 if (x > tpi) then
-                   ERR_MathGen=.true.
-                   ERR_MathGen_Mess="The argument was greater then 2Pi and the order >= 5!"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="The argument was greater then 2Pi and the order >= 5!"
                   return
                 end if
                 fval=DebyeN(n,x)
@@ -749,15 +749,15 @@
 
        !> Check
        if (n <= 0) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="The order for Debye function was ZERO!"
+          Err_CFML=.true.
+          Err_CFML_Mess="The order for Debye function was ZERO!"
           return
        end if
 
        if (x < 0.0) then
           if (abs(x) > tpi) then
-             ERR_MathGen=.true.
-             ERR_MathGen_Mess="The argument is negative and less than 2Pi"
+             Err_CFML=.true.
+             Err_CFML_Mess="The argument is negative and less than 2Pi"
              return
           end if
           ff =DebyeN(n,xx)
@@ -773,8 +773,8 @@
                 ff=Debye4(xx)
              case (5:)
                 if (x > tpi) then
-                   ERR_MathGen=.true.
-                   ERR_MathGen_Mess="The argument was greater then 2Pi and the order >= 5!"
+                   Err_CFML=.true.
+                   Err_CFML_Mess="The argument was greater then 2Pi and the order >= 5!"
                    return
                 end if
                 ff=DebyeN(n,xx)
@@ -783,8 +783,8 @@
 
        !> Result
        if (dble(huge(fval)) < ff) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="The value is greater than huge value for real case! in Debye Function"
+          Err_CFML=.true.
+          Err_CFML_Mess="The value is greater than huge value for real case! in Debye Function"
           return
        else
           fval=real(ff)
@@ -858,8 +858,8 @@
        !> Check xx >= 0.0
        if (xx < 0.0_dp) then
           !> Error activated
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="DEBYE1 doesn't work with negative Argument"
+          Err_CFML=.true.
+          Err_CFML_Mess="DEBYE1 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -880,7 +880,7 @@
              fval = ((xx-nine)*xx+thirt6) / thirt6
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb1,t) - quart * xx
+             fval = cheval_debye(nterms,adeb1,t) - quart * xx
           end if
 
        else
@@ -977,8 +977,8 @@
        !> Check xx >= 0.0
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="DEBYE2 doesn't work with negative Argument"
+          Err_CFML=.true.
+          Err_CFML_Mess="DEBYE2 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -1001,7 +1001,7 @@
              fval = ((xx-eight)*xx+twent4) / twent4
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb2,t) - xx / three
+             fval = cheval_debye(nterms,adeb2,t) - xx / three
           end if
 
        else
@@ -1103,8 +1103,8 @@
        !> Error test
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="DEBYE3 doesn't work with negative Argument"
+          Err_CFML=.true.
+          Err_CFML_Mess="DEBYE3 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -1130,7 +1130,7 @@
              fval = ((xx-sevp5)*xx+twenty) / twenty
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb3,t) - pt375 * xx
+             fval = cheval_debye(nterms,adeb3,t) - pt375 * xx
           end if
 
        else
@@ -1235,8 +1235,8 @@
        !> Error test
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="DEBYE4 doesn't work with negative Argument"
+          Err_CFML=.true.
+          Err_CFML_Mess="DEBYE4 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -1262,7 +1262,7 @@
              fval = ((twopt5*xx-eightn)*xx+forty5) / forty5
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb4,t) - (xx+xx) / five
+             fval = cheval_debye(nterms,adeb4,t) - (xx+xx) / five
           end if
 
        else
@@ -1330,8 +1330,8 @@
        !> Check
        if (abs(x) > 2.0*pi) then
           ! Error Flag
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess="The absolute value of argument for DEBYEN was greater than 2PI "
+          Err_CFML=.true.
+          Err_CFML_Mess="The absolute value of argument for DEBYEN was greater than 2PI "
           return
        end if
 
@@ -1804,11 +1804,11 @@
        real(kind=dp), dimension(2*max(nb+1,mb+1),2*max(nb+1,mb+1)) :: c
 
        !> Init
-       call init_err_mathgen()
+       call init_Err_CFML()
        info=.true.
        if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -1841,8 +1841,8 @@
           call rank(c,tol,r)
           if(r == min(n1+1,2*nb)) info=.false.
        else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -1879,11 +1879,11 @@
        real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
 
        !> Init
-       call init_err_mathgen()
+       call init_Err_CFML()
        info=.true.
        if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -1904,8 +1904,8 @@
           call rank(c,tol,r)
           if(r == min(n1,nb)) info=.false.
        else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -1942,11 +1942,11 @@
        real(kind=dp), dimension(max(nb+1,mb+1),max(nb+1,mb+1)) :: c
 
        !> Init
-       call init_err_mathgen()
+       call init_Err_CFML()
        info=.true.
        if (nb > size(array,1) .or. mb > size(array,2) .or. na > size(vec) ) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -1967,8 +1967,8 @@
           call rank(c,tol,r)
           if(r == min(n1,nb)) info=.false.
        else
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -3086,14 +3086,14 @@
 
 
        !> Init
-       call init_err_mathgen()
+       call init_Err_CFML()
        e_val=0.0_cp
        if (present(e_vect)) e_vect=0.0_cp
 
        !> Check
        if (n > size(Array,1) .or. n > size(Array,2)) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Diagonalize_HERM: Error in dimension of input matrix: Array(m,m) with m < n "
+          Err_CFML=.true.
+          Err_CFML_Mess=" Diagonalize_HERM: Error in dimension of input matrix: Array(m,m) with m < n "
           return
        end if
 
@@ -3140,14 +3140,14 @@
        real(kind=cp),        dimension(n)     :: e
 
        !> Init
-       call init_err_mathgen()
+       call init_Err_CFML()
        e_val=0.0_cp
        if (present(e_vect)) e_vect=0.0_cp
 
        !> Check
        if (n > size(Array,1) .or. n > size(Array,2)) then
-          ERR_MathGen=.true.
-          ERR_MathGen_Mess=" Diagonalize_SYMM: Error in dimension of input matrix: Array(m,m) with m < n "
+          Err_CFML=.true.
+          Err_CFML_Mess=" Diagonalize_SYMM: Error in dimension of input matrix: Array(m,m) with m < n "
           return
        end if
 
@@ -3304,21 +3304,6 @@
 
        return
     End Subroutine In_Sort
-
-    !!----
-    !!---- Subroutine Init_Err_Mathgen()
-    !!----
-    !!----    Initialize the errors flags in CFML_Math_General
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_MathGen()
-
-       ERR_MathGen=.false.
-       ERR_MathGen_Mess=" "
-
-       return
-    End Subroutine Init_Err_MathGen
 
     !!----
     !!---- Subroutine Invert_Matrix(Array,Array_Inv,Singular,Perm)
@@ -3894,7 +3879,7 @@
        u=array
        call svdcmp(u,w,v)
 
-       if (ERR_MathGen) then
+       if (Err_CFML) then
           r=0
        else
           r=0
@@ -3928,7 +3913,7 @@
 
        u=array
        call svdcmp(u,w,v)
-       if (ERR_MathGen) then
+       if (Err_CFML) then
           r=0
        else
           r=0
@@ -4083,7 +4068,7 @@
        integer                      :: i,indxt,ir,itemp,j,jstack,k,l
        integer                      :: a
 
-       call init_Err_MathGen()
+       call init_Err_CFML()
        do j=1,n
           indx(j)=j
        end do
@@ -4153,8 +4138,8 @@
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                ERR_MathGen=.true.
-                ERR_MathGen_Mess=" NSTACK too small in SORT"
+                Err_CFML=.true.
+                Err_CFML_Mess=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -4194,7 +4179,7 @@
        integer                      :: i,indxt,ir,itemp,j,jstack,k,l
        real(kind=cp)                :: a
 
-       call init_Err_MathGen()
+       call init_Err_CFML()
        do j=1,n
           indx(j)=j
        end do
@@ -4264,8 +4249,8 @@
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                ERR_MathGen=.true.
-                ERR_MathGen_Mess=" NSTACK too small in SORT"
+                Err_CFML=.true.
+                Err_CFML_Mess=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -4426,10 +4411,10 @@
 
        m=size(a,1)
        n=size(a,2)
-       call init_err_mathgen()
+       call init_Err_CFML()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          ERR_MathGen = .true.
-          ERR_MathGen_Mess = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
+          Err_CFML = .true.
+          Err_CFML_Mess = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
           return
        end if
        g=0.0_dp
@@ -4535,8 +4520,8 @@
                 exit
              end if
              if (its == num_its) then
-                ERR_MathGen = .true.
-                ERR_MathGen_Mess = " => SVDcmp_dp: convergence not reached ! "
+                Err_CFML = .true.
+                Err_CFML_Mess = " => SVDcmp_dp: convergence not reached ! "
                 return
              end if
              x=w(l)
@@ -4616,10 +4601,10 @@
 
        m=size(a,1)
        n=size(a,2)
-       call init_err_mathgen()
+       call init_Err_CFML()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          ERR_MathGen = .true.
-          ERR_MathGen_Mess = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
+          Err_CFML = .true.
+          Err_CFML_Mess = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
           return
        end if
        g=0.0
@@ -4725,8 +4710,8 @@
                 exit
              end if
              if (its == num_its) then
-                ERR_MathGen = .true.
-                ERR_MathGen_Mess = " => SVDcmp_sp: convergence not reached ! "
+                Err_CFML = .true.
+                Err_CFML_Mess = " => SVDcmp_sp: convergence not reached ! "
                 return
              end if
              x=w(l)             !Shift from ottom 2-y-2 minor.
@@ -5010,7 +4995,7 @@
        integer      :: i, iter, l, m, mv
        real(kind=cp):: b, c, dd, f, g, p, r, s, comp
 
-       call init_Err_MathGen()
+       call init_Err_CFML()
        do i=2,n
           e(i-1)=e(i)
        end do
@@ -5031,8 +5016,8 @@
 
              if (m /= l) then
                 if (iter == NMAX_ITER) then
-                   ERR_MathGen=.true.
-                   ERR_MathGen_Mess=" Too many iterations in TQLI1"
+                   Err_CFML=.true.
+                   Err_CFML_Mess=" Too many iterations in TQLI1"
                    exit
                 end if
 
@@ -5104,7 +5089,7 @@
        integer       :: i, iter, k, l, m, mv
        real(kind=cp) :: b, c, dd, f, g, p, r, s, comp
 
-       call init_Err_MathGen()
+       call init_Err_CFML()
        do i=2,n
           e(i-1)=e(i)
        end do
@@ -5125,8 +5110,8 @@
              m=mv
              if (m /= l) then
                 if (iter == NMAX_ITER) then
-                   ERR_MathGen=.true.
-                   ERR_MathGen_Mess=" Too many iterations in TQLI2"
+                   Err_CFML=.true.
+                   Err_CFML_Mess=" Too many iterations in TQLI2"
                    exit
                 end if
 

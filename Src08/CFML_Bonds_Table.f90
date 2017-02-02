@@ -47,7 +47,7 @@
 !!
  Module CFML_Bond_Tables
     !---- Use Modules ----!
-    Use CFML_DefPar,                     only: CP, ERR_Bond, ERR_Bond_Mess, Bond_Length_Table
+    Use CFML_DefPar,                     only: CP, Bond_Length_Table
     Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
     !---- Variables ----!
@@ -56,7 +56,7 @@
     private
 
     !---- List of public subroutines ----!
-    public  :: Get_Bonds_Table, Deallocate_Bonds_Table, Init_Err_Bond, Set_Bonds_Table
+    public  :: Get_Bonds_Table, Deallocate_Bonds_Table, Set_Bonds_Table
 
     !---- Interfaces - Overlapp ----!
     Interface  Get_Bonds_Table
@@ -130,22 +130,6 @@
 
        return
     End Subroutine Get_Bonds_Table_Z
-
-    !!----
-    !!---- Subroutine Init_Err_Bond()
-    !!----
-    !!----    Initializes general error variables for this module as:
-    !!----    ERR_BOND=.false. ;  ERR_Bond_Mess=" "
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Init_Err_BOND()
-
-       ERR_Bond=.false.
-       ERR_Bond_Mess=" "
-
-       return
-    End Subroutine Init_Err_Bond
 
     !!----
     !!---- Subroutine Set_Bonds_Table()

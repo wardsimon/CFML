@@ -41,7 +41,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_DefPar,           only: CP, ERR_symtab, ERR_symtab_Mess, Spgr_Info, spgr_info_type, &
+    Use CFML_DefPar,           only: CP, ERR_CFML, ERR_CFML_Mess, Init_Err_CFML, Spgr_Info, spgr_info_type, &
                                      System_Equiv, table_equiv_type, Wyckoff_Info, Wyck_Info_type
     Use CFML_String_Utilities, only: U_Case
 
@@ -126,7 +126,8 @@
        character(len=len(spg)) :: symb,sp
 
        !> Init
-       err_symtab=.false.
+       call init_err_cfml()
+
        if (.not. it_set) call set_IT_gen()
        ok=.false.
 
@@ -151,8 +152,8 @@
        end if
 
        if (.not. ok) then
-          ERR_symtab=.true.
-          ERR_SymTab_Mess=" Error in the symbol or number of the space group"
+          Err_CFML=.true.
+          Err_CFML_Mess=" Error in the symbol or number of the space group"
        end if
 
        return
