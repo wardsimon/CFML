@@ -128,7 +128,7 @@
     !---- Use files ----!
     Use CFML_DefPar,       only : CP, EPS, PI, TO_RAD, Err_CFML, Err_CFML_Mess, Init_Err_CFML, &
                                   Crystal_Cell_Type, Zone_Axis_Type, Twofold_Axes_Type
-    Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
+    Use CFML_Math_General, only : CosD, SinD, ACosD, ATanD, Co_Prime, swap, Sort, Co_Linear
     Use CFML_Math_3D,      only : Invert_Array3x3, determ_3x3, determ_Vec, Cross_Product
 
     implicit none
@@ -1420,7 +1420,7 @@
        n2=count(icodp==icodp(1))
        select case (n1)
           case (1) ! all are differents
-          	 Car_Family="Triclinic"
+             Car_Family="Triclinic"
              Car_Symbol ="a"
              Car_System ="Triclinic"
              !if (n2 ==1) then

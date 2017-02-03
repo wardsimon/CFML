@@ -39,7 +39,7 @@
 !!
  Module CFML_Math_General
     !---- Use Modules ----!
-    Use CFML_DefPar, only : CP, SP, DP, DEPS, PI, TPI, Primes,  &
+    Use CFML_DefPar, only : CP, SP, DP, DEPS, PI, TPI, TO_RAD, TO_DEG, Primes,  &
                             Err_CFML, Err_CFML_Mess, Init_ERR_CFML
 
     !---- Variables ----!
