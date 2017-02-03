@@ -41,8 +41,9 @@
 !!
  Module CFML_Math_3D
     !---- Use Modules ----!
-    Use CFML_DefPar, only: CP, SP, DP, PI, TO_RAD, TO_DEG, Err_CFML, Err_CFML_Mess, &
-                           Init_Err_CFML
+    Use CFML_DefPar,       only: CP, SP, DP, PI, TO_RAD, TO_DEG, Err_CFML, Err_CFML_Mess, &
+                                 Init_Err_CFML
+    Use CFML_Math_General, only: CosD, SinD
 
     implicit none
 

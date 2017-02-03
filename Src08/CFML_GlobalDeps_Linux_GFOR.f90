@@ -109,7 +109,7 @@ Module CFML_GlobalDeps
       !> Compiler
       select case (trim(compiler))
          case ('IFOR')
-            inquire(directory=trim(linea), exist=info)
+            !inquire(directory=trim(linea), exist=info)
 
          case default
             inquire(file=trim(linea)//'.' , exist=info)

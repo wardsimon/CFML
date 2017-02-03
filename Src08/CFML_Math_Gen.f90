@@ -48,7 +48,8 @@
     private
 
     !---- List of public functions ----!
-    public :: Factorial, Factorial_SP, Factorial_DP, Negligible, Co_Linear, Co_prime, &
+    public :: AcosD, AsinD, Atan2D, AtanD, CosD, SinD, TanD, Factorial,               &
+              Factorial_SP, Factorial_DP, Negligible, Co_Linear, Co_prime,            &
               Debye, Equal_Matrix, Equal_Vector, Euclidean_Norm, In_limits, Locate,   &
               Lower_Triangular, Modulo_Lat, Norm, Outerprod, Pgcd, Ppcm, Pythag,      &
               Scalar, Trace, Upper_Triangular, Zbelong, Determinant, MatInv,          &
@@ -68,6 +69,41 @@
 
 
     !---- Interfaces - Overloaded ----!
+    Interface  Acosd
+       Module Procedure Acosd_dp
+       Module Procedure Acosd_sp
+    End Interface
+
+    Interface  Asind
+       Module Procedure Asind_dp
+       Module Procedure Asind_sp
+    End Interface
+
+    Interface  Atan2d
+       Module Procedure Atan2d_dp
+       Module Procedure Atan2d_sp
+    End Interface
+
+    Interface  Atand
+       Module Procedure Atand_dp
+       Module Procedure Atand_sp
+    End Interface
+
+    Interface  Cosd
+       Module Procedure Cosd_dp
+       Module Procedure Cosd_sp
+    End Interface
+
+    Interface  Sind
+       Module Procedure Sind_dp
+       Module Procedure Sind_sp
+    End Interface
+
+    Interface  Tand
+       Module Procedure Tand_dp
+       Module Procedure Tand_sp
+    End Interface
+
     Interface  Debye
        Module Procedure Debye_DP
        Module Procedure Debye_SP
@@ -198,6 +234,292 @@
  Contains
 
     !---- Functions ----!
+
+    !!--++
+    !!--++ Elemental Function Acosd_dp(x) Result(arc_cos)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse cosine function -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Acosd_dp(x) Result(arc_cos)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: arc_cos
+
+       if (abs(x) > 1.0_dp ) then
+          if (x > 0.0_dp)  then
+             arc_cos=0.0_dp
+          else
+             arc_cos=180.0_dp
+          end if
+       else
+          arc_cos=acos(x)*to_DEG
+       end if
+
+       return
+    End Function Acosd_dp
+
+    !!--++
+    !!--++ Elemental Function Acosd_sp(x) Result(arc_cos)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse cosine function -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Acosd_sp(x) Result(arc_cos)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: arc_cos
+
+       if (abs(x) > 1.0_sp ) then
+          if (x > 0.0_sp)  then
+             arc_cos=0.0_sp
+          else
+             arc_cos=180.0_sp
+          end if
+       else
+          arc_cos=acos(x)*to_DEG
+       end if
+
+       return
+    End Function Acosd_sp
+
+    !!--++
+    !!--++ Elemental Function Asind_dp(x) result(arc_sin)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse sine function -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Asind_dp(x) Result(arc_sin)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: arc_sin
+
+       if (abs(x) > 1.0_dp ) then
+          if (x > 0.0_dp) then
+             arc_sin=90.0_dp
+          else
+             arc_sin=-90.0_dp
+          end if
+       else
+          arc_sin=asin(x)*to_DEG
+       end if
+
+       return
+    End Function Asind_dp
+
+    !!--++
+    !!--++ Elemental Function Asind_sp(x) result(arc_sin)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse sine function -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Asind_sp(x) Result(arc_sin)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: arc_sin
+
+       if (abs(x) > 1.0_sp ) then
+          if (x > 0.0_sp) then
+             arc_sin=90.0_sp
+          else
+             arc_sin=-90.0_sp
+          end if
+       else
+          arc_sin=asin(x)*to_DEG
+       end if
+
+       return
+    End Function Asind_sp
+
+    !!--++
+    !!--++ Elemental Function Atan2d_dp(y,x) Result(atande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse tangent function of y/x
+    !!--++    y,x have the same units -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Atan2d_dp(y,x) Result(atand)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: y,x
+       real(kind=dp)             :: atand
+
+       atand=atan2(y,x)*to_DEG
+
+       return
+    End Function Atan2d_dp
+
+    !!--++
+    !!--++ Elemental Function Atan2d_sp(y,x) Result(atande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse tangent function of y/x
+    !!--++    y,x have the same units -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Atan2d_sp(y,x) Result(atande)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: y,x
+       real(kind=sp)             :: atande
+
+       atande=atan2(y,x)*to_DEG
+
+       return
+    End Function Atan2d_sp
+
+    !!--++
+    !!--++ Elemental Function Atand_dp(x) result(atande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse tangent function, X no units -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Atand_dp(x) Result(atand)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: atand
+
+       atand=atan(x)*to_DEG
+
+       return
+    End Function Atand_dp
+
+    !!--++
+    !!--++ Function Atand_sp(x) result(atande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Inverse tangent function, X no units -> output in Degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Atand_sp(x) Result(atande)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: atande
+
+       atande=atan(x)*to_DEG
+
+       return
+    End Function Atand_sp
+
+    !!--++
+    !!--++ Elemental Function Cosd_dp(x) Result(cosine)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Cosine function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Cosd_dp(x) Result(cosine)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: cosine
+
+       cosine=cos(to_RAD*x)
+
+       return
+    End Function Cosd_dp
+
+    !!--++
+    !!--++ Elemental Function Cosd_sp(x) Result(cosine)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Cosine function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Cosd_sp(x) Result(cosine)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: cosine
+
+       cosine=cos(to_RAD*x)
+
+       return
+    End Function Cosd_sp
+
+    !!--++
+    !!--++ Elemental Function Sind_dp(x) Result(sine)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Sine function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Sind_dp(x) Result(sine)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: sine
+
+       sine=sin(to_RAD*x)
+
+       return
+    End Function Sind_dp
+
+    !!--++
+    !!--++ Elemental Function Sind_sp(x) Result(sine)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Sine function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Sind_sp(x) Result(sine)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: sine
+
+       sine=sin(to_RAD*x)
+
+       return
+    End Function Sind_sp
+
+    !!--++
+    !!--++ Elemental Function Tand_dp(x) Result(tande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Tangent function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Tand_dp(x) Result(tand)
+       !---- Argument ----!
+       real(kind=dp), intent(in) :: x
+       real(kind=dp)             :: tand
+
+       tand=tan(to_RAD*x)
+
+       return
+    End Function Tand_dp
+
+    !!--++
+    !!--++ Elemental Function Tand_sp(x) Result(tande)
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Tangent function, X in degrees
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Elemental Function Tand_sp(x) Result(tande)
+       !---- Argument ----!
+       real(kind=sp), intent(in) :: x
+       real(kind=sp)             :: tande
+
+       tande=tan(to_RAD*x)
+
+       return
+    End Function Tand_sp
 
     !!----
     !!---- Elemental Function Factorial(n) Result(fact)
