@@ -3,6 +3,7 @@
       implicit none
 
       public :: Read_SSG
+      logical, public            :: database_read=.false.
       integer, parameter, public ::m_cen=16, m_ncl=322, m_ngs=16697, m_ops=48, &
                                    m_dim=6, m_cond=50, m_qv=3 !D=3+d (d=3)
       !
@@ -44,8 +45,9 @@
         integer :: i,j,k,m,n,imax,nmod,iclass
         integer :: i_db, ier, line_pos,L
         character(len=512) :: ssg_file
-        character(len=4) :: line
+        character(len=4)   :: line
          !imax=0
+         if(database_read) return
          i_db=1; ier=0
          ok=.true.
          mess=" "
@@ -81,10 +83,8 @@
          read(i_db,*)
          ! read number of Bravais classes
          read(i_db,*) nclasses
-         line_pos=4
          ! read each Bravais class
          do m=1,nclasses
-           line_pos=line_pos+1
            read(i_db,*)n,iclass_nmod(m),iclass_number(m), iclass_spacegroup(m),iclass_nstars(m), &
                      (iclass_nmodstar(i,m),i=1,iclass_nstars(m))
            nmod=iclass_nmod(m)
@@ -93,51 +93,39 @@
              write(mess,"(a,i3)") 'Error in ssg_datafile @reading Bravais class #: ',m
              return
            end if
-           pos_class(m)=line_pos
 
-           line_pos=line_pos+1
            read(i_db,*)class_nlabel(m),class_label(m)
            line_pos=line_pos+1
            read(i_db,*)(((iclass_qvec(i,j,k,m),i=1,3),j=1,3),k=1,nmod)
-           line_pos=line_pos+1
            read(i_db,*)iclass_ncentering(m)
-           line_pos=line_pos+iclass_ncentering(m)-1
-           !if(iclass_ncentering(m) > imax) imax=iclass_ncentering(m)
            read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
          end do
 
          ! read number of superspace groups
-         line_pos=line_pos+1
          read(i_db,*)ngroups
          ! read each superspace group
 
          do m=1,ngroups
            !write(6,'(i5)')m
-           line_pos=line_pos+1
            read(i_db,*)n,igroup_number(m),igroup_class(m),igroup_spacegroup(m)
            if(n /= m)then
              ok=.false.
              write(mess,"(a,i3)") 'Error in ssg_datafile @reading group#: ',m
              return
            end if
-           pos_group(m)=line_pos
            iclass=igroup_class(m)
            nmod=iclass_nmod(iclass)
-           line_pos=line_pos+1
            read(i_db,*)group_nlabel(m),group_label(m)
-           line_pos=line_pos+1
            read(i_db,*)igroup_nops(m)
-           line_pos=line_pos+igroup_nops(m)-1
            read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
-           line_pos=line_pos+1
            read(i_db,*)igroup_nconditions(m)
-           !if(igroup_nconditions(m) > imax) imax=igroup_nconditions(m)
            if(igroup_nconditions(m) > 0)then
                line_pos=line_pos+igroup_nconditions(m)-1
                read(i_db,*)(((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4), &
                           k=1,igroup_nconditions(m))
            end if
          end do
+         database_read=.true.
       End Subroutine Read_SSG
 
       Subroutine Read_single_SSG(num,ok,Mess)
@@ -169,7 +157,25 @@
          read(unit=i_pos,fmt=*) !skip group line
          read(unit=i_pos,fmt=*) pos_group
          close(unit=i_pos)
+         read(i_db,*)
+         read(i_db,*)
+         read(i_db,*)
+         ! read number of Bravais classes
+         read(i_db,*) nclasses
+         ! read each Bravais class
+         do m=1,nclasses
+           read(i_db,*)n,iclass_nmod(m),iclass_number(m), iclass_spacegroup(m),iclass_nstars(m), &
+                     (iclass_nmodstar(i,m),i=1,iclass_nstars(m))
+           nmod=iclass_nmod(m)
+           read(i_db,*)class_nlabel(m),class_label(m)
+           read(i_db,*)(((iclass_qvec(i,j,k,m),i=1,3),j=1,3),k=1,nmod)
+           read(i_db,*)iclass_ncentering(m)
+           read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
+         end do
+         rewind(i_db)
+         !write(*,"(10i8)") pos_group
          n_skip=pos_group(num)-1
+         !write(*,"(a,i12)") "Skipping ",n_skip
          do i=1,n_skip
            read(unit=i_db,fmt=*)
          end do
@@ -177,7 +183,7 @@
          read(i_db,*)n,igroup_number(m),igroup_class(m),igroup_spacegroup(m)
          if(n /= m)then
            ok=.false.
-           write(mess,"(a,i3)") 'Error in ssg_datafile @reading group#: ',m
+           write(mess,"(a,2i5)") 'Error in ssg_datafile @reading group#: ',m,n
            return
          end if
          iclass=igroup_class(m)
@@ -185,12 +191,6 @@
          read(i_db,*)group_nlabel(m),group_label(m)
          read(i_db,*)igroup_nops(m)
          read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
-         read(i_db,*)igroup_nconditions(m)
-         if(igroup_nconditions(m) > 0)then
-             read(i_db,*)(((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4), &
-                        k=1,igroup_nconditions(m))
-         end if
-
       End Subroutine Read_single_SSG
 
     End Module ssg_datafile
@@ -198,16 +198,30 @@
 
     Module CFML_SuperSpaceGroups
       use ssg_datafile
-      use CFML_Rational_Arithmentic
+      use CFML_Rational_Arithmetic
+
       Implicit None
 
+      public :: operator (*)
+
+      interface operator (*)
+        module procedure multiply_ssg_symop
+      end interface
+
+      !!---- Type, public   :: SSym_Oper_Type
+      !!----
+      !!---- Rational matrix of special type dimension (3+d+1,3+d+1)
+      !!---- The matrix of the superspace operator is extended with
+      !!---- a column containing the translation in supespace plus
+      !!---- a zero 3+d+1 row and + or -1 for time reversal at position
+      !!---- (3+d+1,3+d+1). In order to limit the operators to the
+      !!---- factor group the translations, a modulo-1 is applied
+      !!---- in the multiplication of two operators.
       Type, public   :: SSym_Oper_Type
-        integer                                     :: inv !Time reversal (+1 non associated with 1', -1 associated with 1')
-        Type(rational), allocatable, dimension(:,:) :: Op  !                    non-primed element          primed element
+        Type(rational), allocatable, dimension(:,:) :: Mat
       End Type SSym_Oper_Type
 
       Type, public        :: SuperSpaceGroup_Type
-
         logical           :: standard_setting=.true.  !true or false
         Character(len=60) :: SSG_symbol=" "
         Character(len=60) :: SSG_Bravais=" "
@@ -238,9 +252,58 @@
 
     Contains
 
-      Subroutine Set_SSG_Reading_Database()
+      Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
+        integer,                    intent(in)  :: num
+        type(SuperSpaceGroup_Type), intent(out) :: ssg
+        Logical,                    intent(out) :: ok
+        character(len=*),           intent(out) :: ssg
+        !
+        if(.not. database_read)  then
+         call Read_single_SSG(num,ok,Mess)
+         ssg%standard_setting=.true.
+         nmod=iclass_nmod(iclass)
+         read(i_db,*)group_nlabel(m),group_label(m)
+         read(i_db,*)igroup_nops(m)
+         read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
+         read(i_db,*)iclass_ncentering(m)
+         read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
 
-      End Subroutine Set_SSG__Reading_Database
+        iclass=igroup_class(num)
+
+        ssg%SSG_symbol=group_label(num)
+        ssg%SSG_Bravais=class_label(iclass)
+        ssg%SSG_nlabel=group_nlabel(num)
+        ssg%Parent_spg=" "
+        ssg%trn_from_parent="a,b,c;0,0,0"
+        ssg%trn_to_standard="a,b,c;0,0,0"
+        ssg%Centre=" "    ! Alphanumeric information about the center of symmetry
+        ssg%d=iclass_nmod(iclass)         !(d=1,2,3, ...) number of q-vectors
+        ssg%Parent_num=0  ! Number of the parent Group
+        ssg%Bravais_num=0 ! Number of the Bravais class
+        ssg%Num_Lat=iclass_ncentering(num)     ! Number of lattice points in a cell
+        ssg%Num_aLat=0    ! Number of anti-lattice points in a cell
+        ssg%Centred=1     ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+        ssg%NumOps=igroup_nops(num)      ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
+        ssg%Multip==igroup_nops(num)*      ! General multiplicity
+
+        real,   allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
+        real,   allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
+        real,   allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
+        real,   allocatable,dimension(:,:)  :: kv            !k-vectors (3,d)
+        character(len=80),allocatable,    dimension(:)  :: SymopSymb  ! Alphanumeric Symbols for SYMM
+        type(SSym_Oper_Type),allocatable, dimension(:)  :: SymOp      ! Crystallographic symmetry operators
+
+      End Subroutine Set_SSG_Reading_Database
+
+      function multiply_ssg_symop(Op1,Op2) result (Op3)
+        type(SSym_Oper_Type), intent(in) :: Op1,Op2
+        type(SSym_Oper_Type)             :: Op3
+        integer :: n,d
+        n=size(Op1%Mat,dim=1)
+        d=n-1
+        Op3%Mat=matmul(Op1%Mat,Op2%Mat)
+        Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
+      end function multiply_ssg_symop
 
     End Module CFML_SuperSpaceGroups
 
@@ -253,29 +316,29 @@
       character(len=130) :: message
       logical :: ok
 
-      call Read_SSG(ok,message)
-      if(.not. ok) then
-        write(*,"(a)") "   !!! "//message//" !!!"
-        stop
-      end if
+      !call Read_SSG(ok,message)
+      !if(.not. ok) then
+      !  write(*,"(a)") "   !!! "//message//" !!!"
+      !  stop
+      !end if
       !!
-      open(unit=1,file="class+group_pos.txt",status="replace",action="write")
-      write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
-      write(1,"(10i7)") pos_class
-      write(1,"(a,i6)") "Space Group positions in database, Number of groups ",m_ngs
-      write(1,"(10i7)") pos_group
-      close(unit=1)
-
+      !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
+      !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
+      !write(1,"(10i7)") pos_class
+      !write(1,"(a,i6)") "Space Group positions in database, Number of groups ",m_ngs
+      !write(1,"(10i7)") pos_group
+      !close(unit=1)
+      !stop
       do
         write(*,"(a)",advance="no") " => Enter the number of the SSG: "
         read(*,*) m
         if(m == 0) exit
-        !Call Read_single_SSG(m,ok,Message)
-        Call Read_SSG(ok,Message)
-        if(.not. ok) then
-          write(*,"(a)") "   !!! "//trim(message)//" !!!"
-          stop
-        end if
+        Call Read_single_SSG(m,ok,Message)
+        !Call Read_SSG(ok,Message)
+        !if(.not. ok) then
+        !  write(*,"(a)") "   !!! "//trim(message)//" !!!"
+        !  stop
+        !end if
         write(*,"(3(a,i5))") " Group number:",igroup_number(m), " Bravais class:",igroup_class(m), "  Basic Group #:",igroup_spacegroup(m)
         iclass=igroup_class(m)
         nmod=iclass_nmod(iclass)

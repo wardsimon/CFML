@@ -49,12 +49,11 @@
     Use CFML_GlobalDeps,       only : cp,dp
     Use CFML_String_Utilities, only : Pack_String
     Use CFML_Math_general,     only : determinant,invert_matrix
+
     implicit none
     private
-    public :: rational  !Type
-    public :: rational_simplify, rational_determinant,& !Calculation Procedures
-              rational_inv_matrix
-    public :: print_rational !transform a rational type to a string like xxx/yyy
+
+    ! Public operators and assignment
     public :: assignment (=)
     public :: operator (//)
     public :: operator (+)
@@ -67,17 +66,21 @@
     public :: operator (>=)
     public :: operator (==)
     public :: operator (/=)
-    public :: abs
-    public :: int
-    public :: nint
-    public :: modulo
-    public :: mod
-    public :: dot_product
-    public :: maxval
-    public :: minval
-    public :: maxloc
-    public :: minloc
-    public :: matmul
+
+    !Public types
+    public :: rational
+
+    !Public functions
+    public :: rational_simplify, rational_determinant,& !Calculation Procedures
+              print_rational  !transform a rational type to a string like xxx/yyy
+
+    !Public subroutines
+    public :: rational_inv_matrix
+
+
+    !Public overloaded intrinsic functions (transpose is not needed)
+    public :: abs, int, nint, modulo, mod, dot_product, maxval, minval, &
+              maxloc,minloc, matmul, sum
 
     type :: rational
       integer :: numerator
@@ -88,24 +91,36 @@
     character(len=80), public :: Err_Rational_Mess
 
     interface assignment (=)
-      module procedure assign_rational_int, assign_rational_real
-      module procedure assign_int_rational, assign_real_rational
+      module procedure assign_rational_int
+      module procedure assign_int_rational
+      module procedure assign_rational_real_cp
+      module procedure assign_rational_real_dp
+      module procedure assign_real_rational_cp
+      module procedure assign_real_rational_dp
     end interface
 
+    !Constructor of a rational from two integers
     interface operator (//)
       module procedure make_rational
     end interface
 
     interface operator (+)
       module procedure rational_add
+      module procedure rational_integer_add
+      module procedure integer_rational_add
     end interface
 
     interface operator (-)
-      module procedure rational_minus, rational_subtract
+      module procedure rational_minus
+      module procedure rational_subtract
+      module procedure integer_rational_subtract
+      module procedure rational_integer_subtract
     end interface
 
     interface operator (*)
       module procedure rational_multiply
+      module procedure integer_rational_multiply
+      module procedure rational_integer_multiply
     end interface
 
     interface operator (/)
@@ -154,6 +169,7 @@
 
     interface mod
       module procedure rational_mod
+      module procedure rational_mod_int
     end interface
 
     interface dot_product
@@ -186,7 +202,18 @@
       module procedure rational_minloc_mat
     end interface
 
+    interface sum
+      module procedure rational_sum_vec
+    end interface
+
   contains
+
+    elemental function make_rational (numerator, denominator) result (res)
+      integer, intent (in) :: numerator
+      integer, intent (in) :: denominator
+      type (rational) :: res
+      res = rational (numerator, denominator)
+    end function make_rational
 
     pure recursive function gcd (i, j) result (res)
       integer, intent (in) :: i
@@ -207,27 +234,20 @@
       res = r % numerator / g // r % denominator / g
     end function rational_simplify
 
-    elemental function make_rational (numerator, denominator) result (res)
-      integer, intent (in) :: numerator
-      integer, intent (in) :: denominator
-      type (rational) :: res
-      res = rational (numerator, denominator)
-    end function make_rational
-
     subroutine assign_rational_int (res, i)
       type (rational), intent (out) :: res  !, volatile
       integer,         intent (in)  :: i
       res = i // 1
     end subroutine assign_rational_int
 
-    elemental subroutine assign_rational_real (res,xr)
+    elemental subroutine assign_rational_real_cp (res,xr)
       type (rational), intent(out) :: res  !, volatile
       real(kind=cp),   intent (in) :: xr
       integer                     :: maxden,ai,t,si
-      real(kind=cp)               :: x,startx !,er1,er2
+      real(kind=cp)               :: x,rai,eps !,startx,er1,er2
       integer, dimension(0:1,0:1) :: m
 
-      maxden=99
+      maxden=99; eps=1.0e-6_cp
       m = 0; m(0,0)=1; m(1,1)=1
       si=sign(1.0,xr)
       x=abs(xr)
@@ -240,9 +260,10 @@
         m(0,1) = m(0,0); m(0,0) = t
         t = m(1,0) * ai + m(1,1)
         m(1,1) = m(1,0)
-	      m(1,0) =  t
-        if( x == real(ai,kind=cp)) exit !division by zero
-        x = 1/(x - real(ai,kind=cp))
+        m(1,0) =  t
+        rai=real(ai,kind=cp)
+        if( abs(x - rai) < eps) exit !division by zero
+        x = 1.0_cp/(x - rai)
       end do
       res= si*m(0,0)// m(1,0)
 
@@ -253,7 +274,34 @@
       ! m(1,2) = mm(1,2) * ai + mm(2,2)
       ! er2=startx - real(m(1,1),kind=8) / real(m(1,2),kind=8)
 
-    end subroutine assign_rational_real
+    end subroutine assign_rational_real_cp
+
+    elemental subroutine assign_rational_real_dp (res,xr)
+      type (rational), intent(out) :: res
+      real(kind=dp),   intent (in) :: xr
+      integer                      :: maxden,ai,t,si
+      real(kind=dp)                :: x,rai,eps
+      integer, dimension(0:1,0:1)  :: m
+
+      maxden=99; eps=1.0E-8_dp
+      m = 0; m(0,0)=1; m(1,1)=1
+      si=sign(1.0_dp,xr)
+      x=abs(xr)
+
+      do
+        ai=int(x)
+        if( m(1,0)*ai+m(1,1) > maxden) exit
+        t = m(0,0) * ai + m(0,1)
+        m(0,1) = m(0,0); m(0,0) = t
+        t = m(1,0) * ai + m(1,1)
+        m(1,1) = m(1,0)
+	      m(1,0) =  t
+	      rai=real(ai,kind=dp)
+        if( abs(x - rai ) < eps) exit !division by zero
+        x = 1.0_dp/(x - rai)
+      end do
+      res= si*m(0,0)// m(1,0)
+    end subroutine assign_rational_real_dp
 
     elemental subroutine assign_int_rational (i, res)
       type (rational), intent (in)   :: res  !, volatile
@@ -261,11 +309,17 @@
       i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
     end subroutine assign_int_rational
 
-    elemental subroutine assign_real_rational (x,res)
+    elemental subroutine assign_real_rational_cp (x,res)
       type (rational), intent(in)   :: res
       real(kind=cp),   intent (out) :: x
+      x=real(res%numerator,kind=cp)/real(res%denominator,kind=cp)
+    end subroutine assign_real_rational_cp
+
+    elemental subroutine assign_real_rational_dp (x,res)
+      type (rational), intent(in)   :: res
+      real(kind=dp),   intent (out) :: x
       x=real(res%numerator,kind=dp)/real(res%denominator,kind=dp)
-    end subroutine assign_real_rational
+    end subroutine assign_real_rational_dp
 
     elemental function rational_add (r, s) result (res)
       type (rational), intent (in) :: r
@@ -275,6 +329,22 @@
           & r % denominator * s % denominator
       res=rational_simplify(res)
     end function rational_add
+
+    elemental function integer_rational_add (i, s) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: s
+      type (rational) :: res
+      res = (i * s % denominator +  s % numerator) // s % denominator
+      res=rational_simplify(res)
+    end function integer_rational_add
+
+    elemental function rational_integer_add (s, i) result (res)
+      type (rational), intent (in) :: s
+      integer,         intent (in) :: i
+      type (rational) :: res
+      res = (i * s % denominator +  s % numerator) // s % denominator
+      res=rational_simplify(res)
+    end function rational_integer_add
 
     elemental function rational_minus (r) result (res)
       type (rational), intent (in) :: r
@@ -292,6 +362,22 @@
       res=rational_simplify(res)
     end function rational_subtract
 
+    elemental function integer_rational_subtract (i, s) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: s
+      type (rational) :: res
+      res = (i * s % denominator -  s % numerator) //  s % denominator
+      res=rational_simplify(res)
+    end function integer_rational_subtract
+
+    elemental function rational_integer_subtract (s,i) result (res)
+      type (rational), intent (in) :: s
+      integer,         intent (in) :: i
+      type (rational) :: res
+      res = (s % numerator - i * s % denominator) //  s % denominator
+      res=rational_simplify(res)
+    end function rational_integer_subtract
+
     elemental function rational_multiply (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
@@ -299,6 +385,22 @@
       res = r % numerator * s % numerator // r % denominator * s % denominator
       res=rational_simplify(res)
     end function rational_multiply
+
+    elemental function integer_rational_multiply (i, s) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: s
+      type (rational) :: res
+      res = i * s % numerator // s % denominator
+      res=rational_simplify(res)
+    end function integer_rational_multiply
+
+    elemental function rational_integer_multiply (s,i) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: s
+      type (rational) :: res
+      res = i * s % numerator // s % denominator
+      res=rational_simplify(res)
+    end function rational_integer_multiply
 
     elemental function rational_divide (r, s) result (res)
       type (rational), intent (in) :: r
@@ -362,7 +464,7 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_ge
 
-    function rational_eq (r, s) result (res)
+    elemental function rational_eq (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       logical :: res
@@ -412,6 +514,26 @@
       integer :: res
       res = mod (r % numerator, r % denominator)
     end function rational_mod
+
+    !Fortran MOD and MODULO
+    !Syntax: MOD (a, p)  MODULO(a, p)
+    !Arguments
+    !a must be of type INTEGER or REAL.
+    !p must be of the same type and kind as a. Its value must not be zero.
+    !The result is the same type and kind as a
+    !Results
+    ! MOD -> Its value is a - INT(a / p) * p.
+    ! MODULO ->
+    ! If a is a REAL, the result value is: a - FLOOR(a / p) * p.
+    ! If a is an INTEGER, MODULO(a, p) has the value r such that
+    ! a = q * p + r, where q is an INTEGER and r is nearer to zero than p.
+
+    elemental function rational_mod_int (r,i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      type (rational)              :: res
+      res = mod (real(r % numerator)/ real(r % denominator),real(i) )
+    end function rational_mod_int
 
     function rational_dot_product (r1,r2) result (res)
       type (rational), dimension(:), intent (in) :: r1,r2
@@ -666,5 +788,15 @@
         end if
       end do
     end function rational_minloc_vect
+
+    function rational_sum_vec(vec) result(suma)
+      type(rational), dimension(:), intent(in) :: vec
+      type(rational)                           :: suma
+      !Local variables
+      real(kind=dp), dimension(size(vec)) :: rvec
+      rvec=vec
+      suma=sum(rvec)
+      suma=rational_simplify(suma)
+    end function rational_sum_vec
 
   End Module CFML_Rational_Arithmetic
