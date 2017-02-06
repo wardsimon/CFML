@@ -18,7 +18,7 @@
       character(len=50), dimension(m_ncl)          :: class_label=" "  !   class label
       integer,           dimension(3,3,m_qv,m_ncl) :: iclass_qvec=0    !   q vectors
       integer,           dimension(m_ncl)          :: iclass_ncentering=0 ! number of centering translations
-      integer,  dimension(m_dim+1,m_cen,m_ncl)     :: iclass_centering=0  ! centering translations: d integers followed by a common denominator
+      integer,  dimension(m_dim+1,m_cen,m_ncl)     :: iclass_centering=0  ! centering translations: D=3+d integers followed by a common denominator
       integer                             :: ngroups=0           ! number of superspace groups
       integer,           dimension(m_ngs) :: igroup_number=0    ! for each superspace group,  group number
       integer,           dimension(m_ngs) :: igroup_class=0     ! Bravais class
@@ -252,22 +252,37 @@
 
     Contains
 
+      Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
+        integer,                                        intent(in)      :: d,multip
+        type(SSym_Oper_Type),allocatable, dimension(:), intent(in out)  :: SymOp
+        integer :: i,Di
+        if(allocated(SymOp)) deallocate(SymOp)
+        allocate(SymOp(multip))
+        Di=3+d+1
+        do i=1,multip
+          allocate(SymOp(i)%Mat(Di,Di))
+          SymOp(i)%Mat=0//1
+        end do
+      End Subroutine Allocate_SSG_SymmOps
+
       Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
         integer,                    intent(in)  :: num
         type(SuperSpaceGroup_Type), intent(out) :: ssg
         Logical,                    intent(out) :: ok
-        character(len=*),           intent(out) :: ssg
+        character(len=*),           intent(out) :: Mess
         !
+        integer :: i,j,d,nmod,D
         if(.not. database_read)  then
          call Read_single_SSG(num,ok,Mess)
-         ssg%standard_setting=.true.
-         nmod=iclass_nmod(iclass)
          read(i_db,*)group_nlabel(m),group_label(m)
          read(i_db,*)igroup_nops(m)
          read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
          read(i_db,*)iclass_ncentering(m)
          read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
-
+        end if
+        nmod=iclass_nmod(iclass)
+        D=3+nmod+1
+        ssg%standard_setting=.true.
         iclass=igroup_class(num)
 
         ssg%SSG_symbol=group_label(num)
@@ -276,22 +291,24 @@
         ssg%Parent_spg=" "
         ssg%trn_from_parent="a,b,c;0,0,0"
         ssg%trn_to_standard="a,b,c;0,0,0"
-        ssg%Centre=" "    ! Alphanumeric information about the center of symmetry
-        ssg%d=iclass_nmod(iclass)         !(d=1,2,3, ...) number of q-vectors
-        ssg%Parent_num=0  ! Number of the parent Group
-        ssg%Bravais_num=0 ! Number of the Bravais class
+        ssg%Centre=" "             ! Alphanumeric information about the center of symmetry
+        ssg%d=iclass_nmod(iclass)  !(d=1,2,3, ...) number of q-vectors
+        ssg%Parent_num=0           ! Number of the parent Group
+        ssg%Bravais_num=0          ! Number of the Bravais class
         ssg%Num_Lat=iclass_ncentering(num)     ! Number of lattice points in a cell
-        ssg%Num_aLat=0    ! Number of anti-lattice points in a cell
-        ssg%Centred=1     ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-        ssg%NumOps=igroup_nops(num)      ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
-        ssg%Multip==igroup_nops(num)*      ! General multiplicity
-
-        real,   allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
-        real,   allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
-        real,   allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
-        real,   allocatable,dimension(:,:)  :: kv            !k-vectors (3,d)
-        character(len=80),allocatable,    dimension(:)  :: SymopSymb  ! Alphanumeric Symbols for SYMM
-        type(SSym_Oper_Type),allocatable, dimension(:)  :: SymOp      ! Crystallographic symmetry operators
+        ssg%Num_aLat=0                ! Number of anti-lattice points in a cell
+        ssg%Centred=1                 ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+        ssg%NumOps=igroup_nops(num)        ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
+        ssg%Multip==igroup_nops(num)* iclass_ncentering(num)     ! General multiplicity
+        Allocate(ssg%Latt_trans(D-1,ssg%Num_Lat)
+        nmod=iclass_nmod(iclass)
+        do j=1,iclass_ncentering(num)
+           ssg%Latt_trans(1:nmod+3,j)= real(iclass_centering(1:nmod+3,j,num))/real(iclass_centering(nmod+4,j,num))
+        end do
+        call Allocate_SSG_SymmOps(d,multip,SymOp)
+        do i=1,ssg%NumOps
+           SymOp(i)%Mat= igroup_ops(1:nmod+4,1:nmod+4,i,num)//igroup_ops(nmod+4,nmod+4,i,num)
+        end do
 
       End Subroutine Set_SSG_Reading_Database
 

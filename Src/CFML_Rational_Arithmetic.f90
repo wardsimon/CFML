@@ -188,7 +188,7 @@
 
     interface matmul
       module procedure rational_matmul_matvec
-      module procedure rational_matmul_vecmat
+      !module procedure rational_matmul_vecmat
       module procedure rational_matmul_matmat
     end interface
 
@@ -568,22 +568,22 @@
       end if
     end function rational_matmul_matvec
 
-    function rational_matmul_vecmat (vec,mat) result (vec_out)
-      type (rational), dimension(:),   intent (in) :: vec
-      type (rational), dimension(:,:), intent (in) :: mat
-      type (rational), dimension(size(vec))        :: vec_out
-
-      integer :: n1,n2,n3,i
-      n1=size(mat,dim=1); n2=size(mat,dim=2); n3=size(vec)
-      if(n1 == n2 .and. n2 == n3) then
-        do i=1,n3
-          vec_out(i) = rational_simplify (dot_product(vec,mat(:,i)))
-        end do
-      else
-        Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a,3i4)") "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3
-      end if
-    end function rational_matmul_vecmat
+    !function rational_matmul_vecmat (vec,mat) result (vec_out)
+    !  type (rational), dimension(:),   intent (in) :: vec
+    !  type (rational), dimension(:,:), intent (in) :: mat
+    !  type (rational), dimension(size(vec))        :: vec_out
+    !
+    !  integer :: n1,n2,n3,i
+    !  n1=size(mat,dim=1); n2=size(mat,dim=2); n3=size(vec)
+    !  if(n1 == n2 .and. n2 == n3) then
+    !    do i=1,n3
+    !      vec_out(i) = rational_simplify (dot_product(vec,mat(:,i)))
+    !    end do
+    !  else
+    !    Err_Rational=.true.
+    !    write(unit=Err_Rational_Mess,fmt="(a,3i4)") "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3
+    !  end if
+    !end function rational_matmul_vecmat
 
     function rational_matmul_matmat (mat1,mat2) result (mat_out)
       type (rational), dimension(:,:), intent (in) :: mat1
