@@ -112,6 +112,7 @@
 !!----       GET_CRYSTAL_SYSTEM
 !!--++       GET_CRYSTAL_SYSTEM_R_OP   [Overloaded]
 !!--++       GET_CRYSTAL_SYSTEM_R_ST   [Overloaded]
+!!----       GET_GENERATORS_FROM_SPGSYMBOL
 !!----       GET_GENSYMB_FROM_GENER
 !!----       GET_HALLSYMB_FROM_GENER
 !!----       GET_LATTICE_TYPE
@@ -210,7 +211,8 @@
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,       &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
-               Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group
+               Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group, &
+               Get_Generators_From_SpGSymbol
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -2060,6 +2062,115 @@
        return
     End Subroutine Get_Crystal_System_R_ST
 
+    !!----
+    !!---- Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen)
+    !!----    Type(Space_Group_Type),         intent (in) :: SpG
+    !!----    Character(len=*), dimension(:), intent(out) :: gen
+    !!----    integer,          dimension(:), intent(out) :: point_op
+    !!----    integer,                        intent(out) :: ngen
+    !!----
+    !!----    This subroutine provides the generators of the space group that
+    !!----    are explicitly written in the Hermann-Mauguin symbol of the space group.
+    !!----    The generators of the lattice are ignored. The generators gen(i),are written
+    !!----    in the Jones faithful representation. There are ngen generators and the
+    !!----    integer vector "point_op" contains the index of the corresponding operator in
+    !!----    the list of the total SpG%Multip operators
+    !!----
+    !!----   Update: February - 2017
+    !!----
+    Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen)
+      Type(Space_Group_Type),         intent (in) :: SpG
+      Character(len=*), dimension(:), intent(out) :: gen
+      integer,          dimension(:), intent(out) :: point_op
+      integer,                        intent(out) :: ngen
+      !--- Local variables ---!
+      integer :: i,j,n,m
+      character(len=6), dimension(5) :: sgen,msgen
+      logical,          dimension(10):: done
+      character(len=6)               :: symbg
+      character(len=20)              :: spg_symb
+      character(len=60)              :: op_symb
+      character(len=2), dimension(11):: screw=["21","31","32","41","42","43","61","62","63","64","65"]
+      character(len=1), dimension(11):: rm_screw=["2","3","3","4","4","4","6","6","6","6","6"]
+
+      point_op=0; done=.false.
+      spg_symb=adjustl(SpG%SPG_Symb(2:))
+      i=index(spg_symb,":")
+      if( i /= 0) spg_symb=spg_symb(1:i-1)
+      j=index(spg_symb," ")
+      n=1
+      sgen(n)=spg_symb(1:j-1)
+      i=index(sgen(n),"/")
+      if(i /= 0) then
+        sgen(n+1)=sgen(n)(i+1:)
+        sgen(n)=sgen(n)(1:i-1)
+        n=n+1
+      end if
+      n=n+1
+      spg_symb=spg_symb(j+1:)
+      if(len_trim(spg_symb) /= 0) then
+        j=index(spg_symb," ")
+        sgen(n)= spg_symb(1:j-1)
+        i=index(sgen(n),"/")
+        if(i /= 0) then
+          sgen(n+1)=sgen(n)(i+1:)
+          sgen(n)=sgen(n)(1:i-1)
+          n=n+1
+        end if
+        spg_symb = spg_symb(j+1:)
+        if(len_trim(spg_symb) /= 0) then
+          n=n+1
+          sgen(n)=spg_symb
+          i=index(sgen(n),"/")
+          if(i /= 0) then
+            sgen(n+1)=sgen(n)(i+1:)
+            sgen(n)=sgen(n)(1:i-1)
+            n=n+1
+          end if
+        end if
+      else
+        n=n-1
+      end if
+      m=0
+      do i=1,n
+        if(sgen(i)(1:1) == "1") cycle
+        m=m+1
+        msgen(m)=sgen(i)
+      end do
+      do i=1,m
+        sgen(i)=msgen(i)
+      end do
+
+      ngen = m
+      !Remove the second number for screw axes
+      do j=1,ngen
+        do i=1,11
+          if(trim(sgen(j)) == screw(i)) then
+            sgen(j)= rm_screw(i)
+            exit
+          end if
+        end do
+      end do
+
+      do i=2,SpG%Multip
+         op_symb=" "
+         call Symmetry_Symbol(SpG%SymopSymb(i),op_symb)
+         j=index(op_symb," ")
+         symbg=op_symb(1:j-1)
+         do j=1,ngen
+           if(index(symbg,trim(sgen(j))) /= 0  .and. .not. done(j)) then
+             point_op(j)=i
+             done(j)=.true.
+             exit
+           end if
+         end do
+         if(all(done(1:ngen))) exit
+      end do
+      do j=1,ngen
+        i=point_op(j)
+        gen(j)=SpG%SymopSymb(i)
+      end do
+    End Subroutine Get_Generators_From_SpGSymbol
     !!----
     !!---- Subroutine Get_GenSymb_from_Gener(gen,ngen, SpaceH)
     !!----    character(len=*),dimension(:),  intent(in) :: gen     !  In -> list of generators is string mode
@@ -7936,6 +8047,11 @@
                 read(unit=spgm(1:12),fmt=*,iostat=ier) ivet(1)
 
                 if( ier == 0) then
+                   if(ivet(1) < 1 .or. ivet(1) > 230) then
+                     err_symm=.true.
+                     ERR_Symm_Mess=" The number of the space group should be in the interval [1,230]"
+                     return
+                   end if
                    do i=1,num_spgr_info
                      if (ivet(1) == spgr_info(i)%n) then
                         num=i
