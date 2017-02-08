@@ -72,7 +72,8 @@
 
     !Public functions
     public :: rational_simplify, rational_determinant,& !Calculation Procedures
-              print_rational  !transform a rational type to a string like xxx/yyy
+              print_rational, &  !transform a rational type to a string like xxx/yyy
+              equal_rational_matrix,equal_rational_vector
 
     !Public subroutines
     public :: rational_inv_matrix
@@ -125,6 +126,7 @@
 
     interface operator (/)
       module procedure rational_divide
+      module procedure rational_divide_int
     end interface
 
     interface operator (<)
@@ -231,7 +233,11 @@
       type (rational) :: res
       integer :: g
       g = gcd (r % numerator, r % denominator)
-      res = r % numerator / g // r % denominator / g
+      if(g /= 0) then
+        res = (r % numerator / g) // (r % denominator / g)
+      else
+        res= 0//0
+      end if
     end function rational_simplify
 
     subroutine assign_rational_int (res, i)
@@ -382,7 +388,7 @@
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       type (rational) :: res
-      res = r % numerator * s % numerator // r % denominator * s % denominator
+      res = r % numerator * s % numerator // (r % denominator * s % denominator)
       res=rational_simplify(res)
     end function rational_multiply
 
@@ -415,6 +421,18 @@
         res=0//0
       end if
     end function rational_divide
+
+    elemental function rational_divide_int (r, is) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: is
+      type (rational) :: res
+      if(is /= 0) then
+        res = r % numerator // (r % numerator*is)
+        res=rational_simplify(res)
+      else
+        res=0//0
+      end if
+    end function rational_divide_int
 
     function rational_lt (r, s) result (res)
       type (rational), intent (in) :: r
@@ -798,5 +816,37 @@
       suma=sum(rvec)
       suma=rational_simplify(suma)
     end function rational_sum_vec
+
+    function equal_rational_vector(vec1,vec2) result(eq)
+      type(rational), dimension(:), intent(in) :: vec1,vec2
+      logical                                  :: eq      !
+      integer:: i,n1,n2
+
+      n1=size(vec1); n2=size(vec2)
+      eq=.false.
+      if(n1 /= n2) return
+      do i=1,n1
+        if(vec1(i) /= vec2(i)) return
+      end do
+      eq=.true.
+    end function equal_rational_vector
+
+    function equal_rational_matrix(Mat1,Mat2) result(eq)
+      type(rational), dimension(:,:), intent(in) :: Mat1,Mat2
+      logical                                    :: eq
+      !
+      integer:: i,j,n11,n12,n21,n22
+
+      n11=size(Mat1,dim=1); n12=size(Mat1,dim=2)
+      n21=size(Mat2,dim=1); n22=size(Mat2,dim=2)
+      eq=.false.
+      if(n11 /= n21 .or. n12 /= n22) return
+      do j=1,n12
+        do i=1,n11
+          if(Mat1(i,j) /= Mat2(i,j)) return
+        end do
+      end do
+      eq=.true.
+    end function equal_rational_matrix
 
   End Module CFML_Rational_Arithmetic
