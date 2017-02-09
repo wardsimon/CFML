@@ -2,7 +2,7 @@
       ! read data for (3+d)-dimensional superspace groups (d=1,2,3)
       implicit none
 
-      public :: Read_SSG
+      public :: Read_SSG, Read_single_SSG
       logical, public            :: database_read=.false.
       integer, parameter, public :: m_cen=16, m_ncl=322, m_ngs=16697, m_ops=48, &
                                     m_dim=6, m_cond=50, m_qv=3 !D=3+d (d=3)
@@ -196,11 +196,13 @@
 
     Module CFML_SuperSpaceGroups
       use ssg_datafile
+      use CFML_String_Utilities, only: pack_string
       use CFML_Rational_Arithmetic
 
       Implicit None
       private
-      public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group
+      public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
+                Get_SSymSymb_from_Mat
 
       public :: operator (*)
       interface operator (*)
@@ -254,244 +256,306 @@
 
     Contains
 
-      Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
-        integer,                                        intent(in)      :: d,multip
-        type(SSym_Oper_Type),allocatable, dimension(:), intent(in out)  :: SymOp
-        integer :: i,Dp
+    Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
+      integer,                                        intent(in)      :: d,multip
+      type(SSym_Oper_Type),allocatable, dimension(:), intent(in out)  :: SymOp
+      integer :: i,Dp
 
-        if(allocated(SymOp)) deallocate(SymOp)
-        allocate(SymOp(multip))
-        Dp=3+d+1
-        do i=1,multip
-          allocate(SymOp(i)%Mat(Dp,Dp))
-          SymOp(i)%Mat=0//1
-        end do
-      End Subroutine Allocate_SSG_SymmOps
+      if(allocated(SymOp)) deallocate(SymOp)
+      allocate(SymOp(multip))
+      Dp=3+d+1
+      do i=1,multip
+        allocate(SymOp(i)%Mat(Dp,Dp))
+        SymOp(i)%Mat=0//1
+      end do
+    End Subroutine Allocate_SSG_SymmOps
 
-      Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
-        integer,                    intent(in)  :: num
-        type(SuperSpaceGroup_Type), intent(out) :: ssg
-        Logical,                    intent(out) :: ok
-        character(len=*),           intent(out) :: Mess
-        !
-        integer :: i,j,nmod,Dp,D,iclass
-        type(rational), dimension(:,:), allocatable :: Inv
-        character(len=15) :: forma
-        logical :: inv_found
+    Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
+      integer,                    intent(in)  :: num
+      type(SuperSpaceGroup_Type), intent(out) :: ssg
+      Logical,                    intent(out) :: ok
+      character(len=*),           intent(out) :: Mess
+      !
+      integer :: i,j,nmod,Dp,D,iclass
+      type(rational), dimension(:,:), allocatable :: Inv
+      character(len=15) :: forma
+      logical :: inv_found
 
-        if(.not. database_read)  then
-           call Read_single_SSG(num,ok,Mess)
-           if(.not. ok) return
-        end if
-        iclass=igroup_class(num)
-        nmod=iclass_nmod(iclass)
-        D=3+nmod
-        Dp=D+1
-        ssg%standard_setting=.true.
-        ssg%SSG_symbol=group_label(num)
-        ssg%SSG_Bravais=class_label(iclass)
-        ssg%SSG_nlabel=group_nlabel(num)
-        i=index(ssg%SSG_symbol,"(")
-        ssg%Parent_spg=ssg%SSG_symbol(1:i-1)
-        ssg%trn_from_parent="a,b,c;0,0,0"
-        ssg%trn_to_standard="a,b,c;0,0,0"
-        ssg%Centre="Acentric"                  ! Alphanumeric information about the center of symmetry
-        ssg%d=nmod                             !(d=1,2,3, ...) number of q-vectors
-        ssg%Parent_num=igroup_spacegroup(num)  ! Number of the parent Group
-        ssg%Bravais_num=igroup_class(num)      ! Number of the Bravais class
-        ssg%Num_Lat=iclass_ncentering(iclass)  ! Number of lattice points in a cell
-        if( ssg%Num_Lat > 1 .and. ssg%SSG_symbol(1:1) == "P" ) then
-          ssg%SPG_Lat="Z"
-        else
-          ssg%SPG_Lat=ssg%SSG_symbol(1:1)
-        end if
+      if(.not. database_read)  then
+         call Read_single_SSG(num,ok,Mess)
+         if(.not. ok) return
+      end if
+      iclass=igroup_class(num)
+      nmod=iclass_nmod(iclass)
+      D=3+nmod
+      Dp=D+1
+      ssg%standard_setting=.true.
+      ssg%SSG_symbol=group_label(num)
+      ssg%SSG_Bravais=class_label(iclass)
+      ssg%SSG_nlabel=group_nlabel(num)
+      i=index(ssg%SSG_symbol,"(")
+      ssg%Parent_spg=ssg%SSG_symbol(1:i-1)
+      ssg%trn_from_parent="a,b,c;0,0,0"
+      ssg%trn_to_standard="a,b,c;0,0,0"
+      ssg%Centre="Acentric"                  ! Alphanumeric information about the center of symmetry
+      ssg%d=nmod                             !(d=1,2,3, ...) number of q-vectors
+      ssg%Parent_num=igroup_spacegroup(num)  ! Number of the parent Group
+      ssg%Bravais_num=igroup_class(num)      ! Number of the Bravais class
+      ssg%Num_Lat=iclass_ncentering(iclass)  ! Number of lattice points in a cell
+      if( ssg%Num_Lat > 1 .and. ssg%SSG_symbol(1:1) == "P" ) then
+        ssg%SPG_Lat="Z"
+      else
+        ssg%SPG_Lat=ssg%SSG_symbol(1:1)
+      end if
 
 
-        ssg%Num_aLat=0                         ! Number of anti-lattice points in a cell
-        ssg%Centred= 1                         ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-        ssg%NumOps=igroup_nops(num)            ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
-        ssg%Multip=igroup_nops(num)* max(iclass_ncentering(iclass),1)     ! General multiplicity
+      ssg%Num_aLat=0                         ! Number of anti-lattice points in a cell
+      ssg%Centred= 1                         ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+      ssg%NumOps=igroup_nops(num)            ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
+      ssg%Multip=igroup_nops(num)* max(iclass_ncentering(iclass),1)     ! General multiplicity
 
-        Allocate(ssg%Latt_trans(D,ssg%Num_Lat))
-        Allocate(ssg%aLatt_trans(D,ssg%Num_aLat))
-        Allocate(ssg%kv(3,nmod))
-        Allocate(ssg%time_rev(ssg%Multip))
-        Allocate(ssg%Centre_coord(D))
-        call Allocate_SSG_SymmOps(ssg%d,ssg%Multip,ssg%SymOp)
+      Allocate(ssg%Latt_trans(D,ssg%Num_Lat))
+      Allocate(ssg%aLatt_trans(D,ssg%Num_aLat))
+      Allocate(ssg%kv(3,nmod))
+      Allocate(ssg%time_rev(ssg%Multip))
+      Allocate(ssg%Centre_coord(D))
+      call Allocate_SSG_SymmOps(ssg%d,ssg%Multip,ssg%SymOp)
 
-        ssg%kv=0.0; ssg%Latt_trans=0//1; ssg%aLatt_trans=0//1; ssg%time_rev=1; ssg%Centre_coord=0//1
-        nmod=iclass_nmod(iclass)
-        !forma="(a,i3, i4)"
-        !write(forma(7:7),"(i1)") Dp
-        do j=1,iclass_ncentering(iclass)
-           !write(*,forma) " Vector #",j, iclass_centering(1:Dp,j,iclass)
-           ssg%Latt_trans(1:D,j)= rational_simplify(iclass_centering(1:D,j,iclass)//iclass_centering(Dp,j,iclass))
-        end do
-        do i=1,ssg%NumOps
-           ssg%SymOp(i)%Mat= rational_simplify(igroup_ops(1:Dp,1:Dp,i,num)//igroup_ops(Dp,Dp,i,num))
-        end do
+      ssg%kv=0.0; ssg%Latt_trans=0//1; ssg%aLatt_trans=0//1; ssg%time_rev=1; ssg%Centre_coord=0//1
+      nmod=iclass_nmod(iclass)
+      !forma="(a,i3, i4)"
+      !write(forma(7:7),"(i1)") Dp
+      do j=1,iclass_ncentering(iclass)
+         !write(*,forma) " Vector #",j, iclass_centering(1:Dp,j,iclass)
+         ssg%Latt_trans(1:D,j)= rational_simplify(iclass_centering(1:D,j,iclass)//iclass_centering(Dp,j,iclass))
+      end do
+      do i=1,ssg%NumOps
+         ssg%SymOp(i)%Mat= rational_simplify(igroup_ops(1:Dp,1:Dp,i,num)//igroup_ops(Dp,Dp,i,num))
+      end do
 
-        !Look for a centre of symmetry
-        inv_found=.false.
-        allocate(Inv(D,D))
-        Inv=0//1
-        do i=1,D
-          Inv(i,i) = -1//1
-        end do
-        do i=1,ssg%NumOps
-          if(equal_rational_matrix(Inv,ssg%SymOp(i)%Mat(1:D,1:D))) then
-            if(sum(ssg%SymOp(i)%Mat(1:D,Dp)) == 0//1) then
-              ssg%Centred=2
-              ssg%Centre_coord=0//1
-              ssg%Centre="Centrosymmetric with centre at origin"
-            else
-              ssg%Centred=0
-              ssg%Centre_coord=ssg%SymOp(i)%Mat(1:D,Dp)/2
-              write(unit=ssg%Centre,fmt="(a)") "Centrosymmetric with centre at : "//print_rational(ssg%Centre_coord)
-            end if
-            exit
+      !Look for a centre of symmetry
+      inv_found=.false.
+      allocate(Inv(D,D))
+      Inv=0//1
+      do i=1,D
+        Inv(i,i) = -1//1
+      end do
+      do i=1,ssg%NumOps
+        if(equal_rational_matrix(Inv,ssg%SymOp(i)%Mat(1:D,1:D))) then
+          if(sum(ssg%SymOp(i)%Mat(1:D,Dp)) == 0//1) then
+            ssg%Centred=2
+            ssg%Centre_coord=0//1
+            ssg%Centre="Centrosymmetric with centre at origin"
+          else
+            ssg%Centred=0
+            ssg%Centre_coord=ssg%SymOp(i)%Mat(1:D,Dp)/2
+            write(unit=ssg%Centre,fmt="(a)") "Centrosymmetric with centre at : "//print_rational(ssg%Centre_coord)
           end if
-        end do
-
-      End Subroutine Set_SSG_Reading_Database
-
-      function multiply_ssg_symop(Op1,Op2) result (Op3)
-        type(SSym_Oper_Type), intent(in) :: Op1,Op2
-        type(SSym_Oper_Type)             :: Op3
-        integer :: n,d,i
-        n=size(Op1%Mat,dim=1)
-        d=n-1
-        Op3%Mat=matmul(Op1%Mat,Op2%Mat)
-        Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
-        do i=1,d
-          if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
-        end do
-      end function multiply_ssg_symop
-
-      Subroutine Write_SSG(SpaceGroup,iunit,full)
-        type(SuperSpaceGroup_Type), intent(in) :: SpaceGroup
-        integer, optional,          intent(in) :: iunit
-        logical, optional,          intent(in) :: full
-        !---- Local variables ----!
-        integer :: lun,i,j,k,D,Dp,nlines
-        character(len=40),dimension(:),  allocatable :: vector
-        character(len=40),dimension(:,:),allocatable :: matrix
-        character(len=15) :: forma
-        integer,  parameter                      :: max_lines=192
-        character (len=100), dimension(max_lines):: texto
-        logical                                  :: print_latt
-
-        lun=6
-        print_latt=.false.
-        if (present(iunit)) lun=iunit
-        if (present(full))  print_latt=.true.
-
-        D=3+SpaceGroup%d
-        Dp=D+1
-        allocate(vector(D),matrix(Dp,Dp))
-        write(unit=lun,fmt="(/,a,/)")  " "
-        write(unit=lun,fmt="(/,/,a)")          "        Information on SuperSpace Group: "
-        write(unit=lun,fmt="(a,/ )")           "        ------------------------------- "
-        write(unit=lun,fmt="(a,a)")           " =>   Number of Space group: ", trim(SpaceGroup%SSG_nlabel)
-        write(unit=lun,fmt="(a,a)")           " => SuperSpace Group Symbol: ", trim(SpaceGroup%SSG_symbol)
-        write(unit=lun,fmt="(a,a)")           " =>    Bravais Class Symbol: ", trim(SpaceGroup%SSG_Bravais)
-        write(unit=lun,fmt="(a,a)")           " =>      Parent Space Group: ", trim(SpaceGroup%Parent_spg)
-        if(.not. SpaceGroup%standard_setting) then
-          write(unit=lun,fmt="(a,a)")         " =>     Transf. from Parent: ", trim(SpaceGroup%trn_from_parent)
-          write(unit=lun,fmt="(a,a)")         " =>     Transf. to Standard: ", trim(SpaceGroup%trn_to_standard)
+          exit
         end if
-        write(unit=lun,fmt="(a,a)")           " =>          Centrosymmetry: ", trim(SpaceGroup%Centre)
-        write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
+      end do
 
-        write(unit=lun,fmt="(a,i3)")          " => Number of  Parent Group: ", SpaceGroup%Parent_num
-        write(unit=lun,fmt="(a,i3)")          " => Number of Bravais Class: ", SpaceGroup%Bravais_num
-        write(unit=lun,fmt="(a,i3)")          " => Number of q-vectors (d): ", SpaceGroup%d
-        write(unit=lun,fmt="(a,i3)")          " =>   # of Centring Vectors: ", max(SpaceGroup%Num_Lat-1,0)
-        write(unit=lun,fmt="(a,i3)")          " => # Anti-Centring Vectors: ", SpaceGroup%Num_aLat
+    End Subroutine Set_SSG_Reading_Database
 
-        !write(unit=lun,fmt="(a,a)")           " =>          Crystal System: ", trim(SpaceGroup%CrystalSys)
-        !write(unit=lun,fmt="(a,a)")           " =>              Laue Class: ", trim(SpaceGroup%Laue)
-        !write(unit=lun,fmt="(a,a)")           " =>             Point Group: ", trim(SpaceGroup%Pg)
+    function multiply_ssg_symop(Op1,Op2) result (Op3)
+      type(SSym_Oper_Type), intent(in) :: Op1,Op2
+      type(SSym_Oper_Type)             :: Op3
+      integer :: n,d,i
+      n=size(Op1%Mat,dim=1)
+      d=n-1
+      Op3%Mat=matmul(Op1%Mat,Op2%Mat)
+      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
+      do i=1,d
+        if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
+      end do
+    end function multiply_ssg_symop
 
+    Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type)
+       !---- Arguments ----!
+       type(rational),dimension(:,:), intent( in) :: Mat
+       character (len=*),             intent(out) :: symb
+       logical, optional,             intent( in) :: x1x2x3_type
 
-        write(unit=lun,fmt="(a,i3)")          " =>  Reduced Number of S.O.: ", SpaceGroup%NumOps
-        write(unit=lun,fmt="(a,i3)")          " =>    General multiplicity: ", SpaceGroup%Multip
-        !write(unit=lun,fmt="(a,i4)")          " =>  Generators (exc. -1&L): ", SpaceGroup%num_gen
-        if (SpaceGroup%centred == 0) then
-           write(unit=lun,fmt="(a,a)")        " =>               Centre at: ", print_rational(SpaceGroup%Centre_coord)
-        end if
-        if (print_latt .and. max(SpaceGroup%Num_lat-1,0) > 0) then
-           texto(:) (1:100) = " "
-           write(unit=lun,fmt="(a,i3)")       " =>        Centring vectors: ",max(SpaceGroup%Num_lat-1,0)
-           nlines=1
-           forma="(a,i2,a,   a)"
-           write(unit=forma(9:11),fmt="(i3)") D
-           do i=2,SpaceGroup%Num_lat
-              vector=print_rational(SpaceGroup%Latt_trans(:,i))
-              if (mod(i-1,2) == 0) then
-                 write(unit=texto(nlines)(51:100),fmt=forma) &
-                                            " => Latt(",i-1,"): ",(trim(vector(j))//" ",j=1,D)
-                 nlines=nlines+1
-              else
-                 write(unit=texto(nlines)( 1:50),fmt=forma)  &
-                                            " => Latt(",i-1,"): ",(trim(vector(j))//" ",j=1,D)
-              end if
-           end do
-           do i=1,nlines
-              write(unit=lun,fmt="(a)") texto(i)
-           end do
-        end if
-        !Writing of the rational operator matrices
-        forma="( a8)"
-        write(forma(2:2),"(i1)") Dp
-        do i=1,SpaceGroup%NumOps
-          matrix=print_rational(SpaceGroup%SymOp(i)%Mat)
-          write(unit=lun,fmt="(a,i3)") "  Rational Operator #",i
-          do j=1,Dp
-             write(unit=lun,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+       !---- Local Variables ----!
+       character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
+       character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
+       character(len=3),dimension(10) :: x_typ
+       character(len= 15)               :: car
+       character(len= 40),dimension(10) :: sym
+       integer                          :: i,j,Dp,d
+       Dp=size(Mat,dim=1)
+       d=Dp-1
+       x_typ=xyz
+       if(present(x1x2x3_type)) then
+         if(x1x2x3_type) x_typ=x1x2x3
+       end if
+       !---- Main ----!
+       symb=" "
+       do i=1,d
+          sym(i)=" "
+          do j=1,d
+             if(Mat(i,j) == 1) then
+                sym(i) = trim(sym(i))//"+"//trim(x_typ(j))
+             else if(Mat(i,j) == -1) then
+                sym(i) =  trim(sym(i))//"-"//trim(x_typ(j))
+             else if(Mat(i,j) /= 0) then
+               car=" "
+               write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
+               if(Mat(i,j) > 0) car="+"//trim(car)
+               sym(i)=trim(sym(i))//pack_string(car)
+             end if
           end do
+          !Write here the translational part for each component
+          if (Mat(i,Dp) /= 0) then
+             car=adjustl(print_rational(Mat(i,Dp)))
+             if(car(1:1) == "-") then
+                sym(i)=trim(sym(i))//trim(car)
+             else
+                sym(i)=trim(sym(i))//"+"//trim(car)
+             end if
+          end if
+          sym(i)=adjustl(sym(i))
+          if(sym(i)(1:1) == "+")  then
+            sym(i)(1:1) = " "
+            sym(i)=adjustl(sym(i))
+          end if
+          sym(i)=pack_string(sym(i))
+       end do
+       symb=sym(1)
+       do i=2,d
+         symb=trim(symb)//","//trim(sym(i))
+       end do
+       car=print_rational(Mat(Dp,Dp))
+       symb=trim(symb)//","//trim(car)
+    End Subroutine Get_SSymSymb_from_Mat
+
+    Subroutine Write_SSG(SpaceGroup,iunit,full,x1x2x3_typ)
+      type(SuperSpaceGroup_Type), intent(in) :: SpaceGroup
+      integer, optional,          intent(in) :: iunit
+      logical, optional,          intent(in) :: full
+      logical, optional,          intent(in) :: x1x2x3_typ
+      !---- Local variables ----!
+      integer :: lun,i,j,k,D,Dp,nlines
+      character(len=40),dimension(:),  allocatable :: vector
+      character(len=40),dimension(:,:),allocatable :: matrix
+      character(len=15) :: forma
+      integer,  parameter                      :: max_lines=192
+      character (len=100), dimension(max_lines):: texto
+      logical                                  :: print_latt,xyz_typ
+
+      lun=6
+      print_latt=.false.
+      if (present(iunit)) lun=iunit
+      if (present(full))  print_latt=.true.
+      xyz_typ=.false.
+      if(present(x1x2x3_typ)) then
+        if(x1x2x3_typ) xyz_typ=.true.
+      end if
+
+      D=3+SpaceGroup%d
+      Dp=D+1
+      allocate(vector(D),matrix(Dp,Dp))
+      write(unit=lun,fmt="(/,a,/)")  " "
+      write(unit=lun,fmt="(/,/,a)")          "        Information on SuperSpace Group: "
+      write(unit=lun,fmt="(a,/ )")           "        ------------------------------- "
+      write(unit=lun,fmt="(a,a)")           " =>   Number of Space group: ", trim(SpaceGroup%SSG_nlabel)
+      write(unit=lun,fmt="(a,a)")           " => SuperSpace Group Symbol: ", trim(SpaceGroup%SSG_symbol)
+      write(unit=lun,fmt="(a,a)")           " =>    Bravais Class Symbol: ", trim(SpaceGroup%SSG_Bravais)
+      write(unit=lun,fmt="(a,a)")           " =>      Parent Space Group: ", trim(SpaceGroup%Parent_spg)
+      if(.not. SpaceGroup%standard_setting) then
+        write(unit=lun,fmt="(a,a)")         " =>     Transf. from Parent: ", trim(SpaceGroup%trn_from_parent)
+        write(unit=lun,fmt="(a,a)")         " =>     Transf. to Standard: ", trim(SpaceGroup%trn_to_standard)
+      end if
+      write(unit=lun,fmt="(a,a)")           " =>          Centrosymmetry: ", trim(SpaceGroup%Centre)
+      write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
+
+      write(unit=lun,fmt="(a,i3)")          " => Number of  Parent Group: ", SpaceGroup%Parent_num
+      write(unit=lun,fmt="(a,i3)")          " => Number of Bravais Class: ", SpaceGroup%Bravais_num
+      write(unit=lun,fmt="(a,i3)")          " => Number of q-vectors (d): ", SpaceGroup%d
+      write(unit=lun,fmt="(a,i3)")          " =>   # of Centring Vectors: ", max(SpaceGroup%Num_Lat-1,0)
+      write(unit=lun,fmt="(a,i3)")          " => # Anti-Centring Vectors: ", SpaceGroup%Num_aLat
+
+      !write(unit=lun,fmt="(a,a)")           " =>          Crystal System: ", trim(SpaceGroup%CrystalSys)
+      !write(unit=lun,fmt="(a,a)")           " =>              Laue Class: ", trim(SpaceGroup%Laue)
+      !write(unit=lun,fmt="(a,a)")           " =>             Point Group: ", trim(SpaceGroup%Pg)
+
+
+      write(unit=lun,fmt="(a,i3)")          " =>  Reduced Number of S.O.: ", SpaceGroup%NumOps
+      write(unit=lun,fmt="(a,i3)")          " =>    General multiplicity: ", SpaceGroup%Multip
+      !write(unit=lun,fmt="(a,i4)")          " =>  Generators (exc. -1&L): ", SpaceGroup%num_gen
+      if (SpaceGroup%centred == 0) then
+         write(unit=lun,fmt="(a,a)")        " =>               Centre at: ", print_rational(SpaceGroup%Centre_coord)
+      end if
+      if (print_latt .and. max(SpaceGroup%Num_lat-1,0) > 0) then
+         texto(:) (1:100) = " "
+         write(unit=lun,fmt="(a,i3)")       " =>        Centring vectors: ",max(SpaceGroup%Num_lat-1,0)
+         nlines=1
+         forma="(a,i2,a,   a)"
+         write(unit=forma(9:11),fmt="(i3)") D
+         do i=2,SpaceGroup%Num_lat
+            vector=print_rational(SpaceGroup%Latt_trans(:,i))
+            if (mod(i-1,2) == 0) then
+               write(unit=texto(nlines)(51:100),fmt=forma) &
+                                          " => Latt(",i-1,"): ",(trim(vector(j))//" ",j=1,D)
+               nlines=nlines+1
+            else
+               write(unit=texto(nlines)( 1:50),fmt=forma)  &
+                                          " => Latt(",i-1,"): ",(trim(vector(j))//" ",j=1,D)
+            end if
+         end do
+         do i=1,nlines
+            write(unit=lun,fmt="(a)") texto(i)
+         end do
+      end if
+      !Writing of the rational operator matrices
+      forma="( a8)"
+      write(forma(2:2),"(i1)") Dp
+
+      do i=1,SpaceGroup%NumOps
+        call Get_SSymSymb_from_Mat(SpaceGroup%SymOp(i)%Mat,texto(1),xyz_typ)
+        write(unit=lun,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(texto(1))
+      end do
+
+    End Subroutine Write_SSG
+
+    !This subroutine assumes that Op contains the identity as the first operator, followed
+    !by few generators. The value of ngen icludes also the identity
+    Subroutine Gen_Group(ngen,Op,multip)
+      integer,                            intent(in)     :: ngen
+      type(SSym_Oper_Type), dimension(:), intent(in out) :: Op
+      integer,                            intent(out)    :: multip
+      !--- Local variables ---!
+      integer :: i,j,k,n, nt,max_op
+      type(SSym_Oper_Type) :: Opt
+      logical, dimension(size(Op),size(Op)) :: done
+
+      max_op=size(Op)
+      done=.false.
+      done(1,:) = .true.
+      done(:,1) = .true.
+      nt=ngen
+
+      do_ext:do
+        n=nt
+        do i=1,n
+          do_j:do j=1,n
+            if(done(i,j)) cycle
+            Opt=Op(i)*Op(j)
+            do k=1,nt
+              if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) cycle do_j
+            end do
+            done(i,j)=.true.
+            nt=nt+1
+            if(nt > max_op) then
+              exit do_ext
+            end if
+            Op(nt)=Opt
+          end do do_j
         end do
-
-      End Subroutine Write_SSG
-
-      !This subroutine assumes that Op contains the identity as the first operator, followed
-      !by few generators. The value of ngen icludes also the identity
-      Subroutine Gen_Group(ngen,Op,multip)
-        integer,                            intent(in)     :: ngen
-        type(SSym_Oper_Type), dimension(:), intent(in out) :: Op
-        integer,                            intent(out)    :: multip
-        !--- Local variables ---!
-        integer :: i,j,k,n, nt,max_op
-        type(SSym_Oper_Type) :: Opt
-        logical, dimension(size(Op),size(Op)) :: done
-
-        max_op=size(Op)
-        done=.false.
-        done(1,:) = .true.
-        done(:,1) = .true.
-        nt=ngen
-
-        do_ext:do
-          n=nt
-          do i=1,n
-            do_j:do j=1,n
-              if(done(i,j)) cycle
-              Opt=Op(i)*Op(j)
-              do k=1,nt
-                if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) cycle do_j
-              end do
-              done(i,j)=.true.
-              nt=nt+1
-              if(nt > max_op) then
-                exit do_ext
-              end if
-              Op(nt)=Opt
-            end do do_j
-          end do
-          if ( n == nt) exit do_ext
-        end do do_ext
-        multip=nt
-      End Subroutine Gen_Group
+        if ( n == nt) exit do_ext
+      end do do_ext
+      multip=nt
+    End Subroutine Gen_Group
 
     End Module CFML_SuperSpaceGroups
 
@@ -508,6 +572,7 @@
       logical :: ok
       type(SuperSpaceGroup_Type) :: SSpaceGroup
       character(len=40),dimension(:,:),allocatable :: matrix
+      character(len=60) :: Operator_Symbol
 
       call Read_SSG(ok,message)
       if(.not. ok) then
@@ -536,11 +601,11 @@
         !  write(*,"(a)") "   !!! "//trim(message)//" !!!"
         !  stop
         !end if
-        write(*,"(3(a,i5))") " Group number:",igroup_number(m), " Bravais class:",igroup_class(m), "  Basic Group #:",igroup_spacegroup(m)
-        iclass=igroup_class(m)
-        nmod=iclass_nmod(iclass)
-        write(*,"(a,tr4,a)")  group_nlabel(m), group_label(m)
-        write(*,"(a,i3)") " Number of operators:", igroup_nops(m)
+        !write(*,"(3(a,i5))") " Group number:",igroup_number(m), " Bravais class:",igroup_class(m), "  Basic Group #:",igroup_spacegroup(m)
+        !iclass=igroup_class(m)
+        !nmod=iclass_nmod(iclass)
+        !write(*,"(a,tr4,a)")  group_nlabel(m), group_label(m)
+        !write(*,"(a,i3)") " Number of operators:", igroup_nops(m)
         !do k=1,igroup_nops(m)
         !  write(*,"(a,i3)") " Operator #",k
         !  forma="(  i4)"
@@ -569,11 +634,14 @@
         forma="( a8)"
         write(forma(2:2),"(i1)") Dp
         do i=1,multip
-          matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
-          write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
-          do j=1,Dp
-             write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-          end do
+          call Get_SSymSymb_from_Mat(SSpaceGroup%SymOp(i)%Mat,Operator_Symbol,.true.)
+          write(unit=*,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(Operator_Symbol)
+
+          !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
+          !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
+          !do j=1,Dp
+          !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+          !end do
         end do
         !write(*,"(a,i3)") " Reflection conditions: ",igroup_nconditions(m)
         !if(igroup_nconditions(m) > 0)then

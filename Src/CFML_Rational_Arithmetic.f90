@@ -34,6 +34,9 @@
 !!---- MODULE: CFML_Rational_Arithmetic
 !!----   INFO: Extension of the module: "module_rational" from
 !!----         https://rosettacode.org/wiki/Arithmetic/Rational#Fortran
+!!----         It is intented for making algebra with not too big numerators
+!!----         and denominators. The implementation of error control against
+!!----         oveflows is not yet done.
 !!----
 !!---- HISTORY
 !!----    Created: 01/02/2017
@@ -131,26 +134,38 @@
 
     interface operator (<)
       module procedure rational_lt
+      module procedure rational_lt_integer
+      module procedure integer_lt_rational
     end interface
 
     interface operator (<=)
       module procedure rational_le
+      module procedure rational_le_integer
+      module procedure integer_le_rational
     end interface
 
     interface operator (>)
       module procedure rational_gt
+      module procedure rational_gt_integer
+      module procedure integer_gt_rational
     end interface
 
     interface operator (>=)
       module procedure rational_ge
+      module procedure rational_ge_integer
+      module procedure integer_ge_rational
     end interface
 
     interface operator (==)
       module procedure rational_eq
+      module procedure rational_eq_integer
+      module procedure integer_eq_rational
     end interface
 
     interface operator (/=)
       module procedure rational_ne
+      module procedure rational_ne_integer
+      module procedure integer_ne_rational
     end interface
 
     interface abs
@@ -446,6 +461,25 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_lt
 
+    function rational_lt_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical                      :: res
+      type (rational) :: r_simple
+
+      r_simple = rational_simplify (r)
+      res = r_simple % numerator < i * r_simple % denominator
+    end function rational_lt_integer
+
+    function integer_lt_rational (i,r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = i * r_simple % denominator < r_simple % numerator
+    end function integer_lt_rational
+
     function rational_le (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
@@ -458,17 +492,54 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_le
 
+    function rational_le_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = r_simple % numerator <= i * r_simple % denominator
+    end function rational_le_integer
+
+    function integer_le_rational (i, r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = i * r_simple % denominator  <= r_simple % numerator
+    end function integer_le_rational
+
+
     function rational_gt (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
+      logical                      :: res
       type (rational) :: r_simple
       type (rational) :: s_simple
-      logical :: res
       r_simple = rational_simplify (r)
       s_simple = rational_simplify (s)
       res = r_simple % numerator * s_simple % denominator > &
           & s_simple % numerator * r_simple % denominator
     end function rational_gt
+
+    function rational_gt_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = r_simple % numerator > i * r_simple % denominator
+    end function rational_gt_integer
+
+    function integer_gt_rational (i, r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = i * r_simple % denominator > r_simple % numerator
+    end function integer_gt_rational
 
     function rational_ge (r, s) result (res)
       type (rational), intent (in) :: r
@@ -482,6 +553,24 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_ge
 
+    function rational_ge_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = r_simple % numerator >= i * r_simple % denominator
+    end function rational_ge_integer
+
+    function integer_ge_rational (i, r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical                      :: res
+      type (rational) :: r_simple
+      r_simple = rational_simplify (r)
+      res = i * r_simple % denominator >= r_simple % numerator
+    end function integer_ge_rational
+
     elemental function rational_eq (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
@@ -489,12 +578,42 @@
       res = r % numerator * s % denominator == s % numerator * r % denominator
     end function rational_eq
 
+    elemental function rational_eq_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical :: res
+      res = r % denominator == 1 .and. r % numerator == i
+    end function rational_eq_integer
+
+    elemental function integer_eq_rational(i, r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical :: res
+      res = r % denominator == 1 .and. r % numerator == i
+    end function integer_eq_rational
+
     function rational_ne (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       logical :: res
       res = r % numerator * s % denominator /= s % numerator * r % denominator
     end function rational_ne
+
+    elemental function rational_ne_integer (r, i) result (res)
+      type (rational), intent (in) :: r
+      integer,         intent (in) :: i
+      logical :: res
+      res = r % numerator /= i * r % denominator
+    end function rational_ne_integer
+
+    elemental function integer_ne_rational(i, r) result (res)
+      integer,         intent (in) :: i
+      type (rational), intent (in) :: r
+      logical :: res
+      res = r % numerator /= i * r % denominator
+    end function integer_ne_rational
+
+
 
     elemental function rational_abs (r) result (res)
       type (rational), intent (in) :: r
