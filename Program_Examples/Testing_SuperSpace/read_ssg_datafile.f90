@@ -196,13 +196,13 @@
 
     Module CFML_SuperSpaceGroups
       use ssg_datafile
-      use CFML_String_Utilities, only: pack_string
+      use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
       use CFML_Rational_Arithmetic
 
       Implicit None
       private
       public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
-                Get_SSymSymb_from_Mat
+                Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb
 
       public :: operator (*)
       interface operator (*)
@@ -357,6 +357,18 @@
 
     End Subroutine Set_SSG_Reading_Database
 
+    elemental function mod1(r) result(res)
+      type(rational), intent(in) :: r
+      type(rational)             :: res
+      integer :: i
+      if(r%denominator > r%numerator) then
+        res=r
+      else
+        i=mod(r%numerator,r%denominator)
+        res=i//r%denominator
+      end if
+    end function mod1
+
     function multiply_ssg_symop(Op1,Op2) result (Op3)
       type(SSym_Oper_Type), intent(in) :: Op1,Op2
       type(SSym_Oper_Type)             :: Op3
@@ -365,32 +377,209 @@
       d=n-1
       Op3%Mat=matmul(Op1%Mat,Op2%Mat)
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
+      !Op3%Mat(1:d,n)=mod1(Op3%Mat(1:d,n))
       do i=1,d
         if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
       end do
     end function multiply_ssg_symop
 
+    Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
+      character(len=*),                intent(in)  :: Symb
+      type(rational),dimension(:,:),   intent(out) :: Mat
+      !---- local variables ----!
+      integer :: i,j,k,Dp, d, np,ns, n,m,inv,num,den,ind
+      character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
+      character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
+      character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
+      character(len=3),dimension(10)           :: x_typ
+      character(len=len(Symb)), dimension(size(Mat,dim=1))  :: split
+      character(len=len(Symb))                              :: string,pSymb,translation,transf
+      character(len=10),        dimension(size(Mat,dim=1))  :: subst
+      integer,                  dimension(size(Mat,dim=1)-1):: pos,pn
+      logical                                               :: abc_transf
+
+      Dp=size(Mat,dim=1)
+      d=Dp-1
+      abc_transf=.false.
+      x_typ=xyz
+      i=index(Symb,"x2")
+      if(i /= 0) x_typ=x1x2x3
+      i=index(Symb,"b")
+      if(i /= 0) then
+        x_typ=abc
+        abc_transf=.true.
+      end if
+      Mat=0//1
+      if(abc_transf) then
+        i=index(Symb,";")
+        if(i == 0) return !check for errors
+        translation=pack_string(Symb(i+1:)//",0")
+        pSymb=pack_string(Symb(1:i-1)//",1")
+        call Get_Separator_Pos(translation,",",pos,np)
+        if(np /= d-1) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the origin coordinates"
+          return
+        end if
+        j=1
+        do i=1,d
+          split(i)=translation(j:pos(i)-1)
+          j=pos(i)+1
+        end do
+
+        do i=1,d
+            k=index(split(i),"/")
+            if(k /= 0) then
+              read(unit=split(i)(1:k-1),fmt=*) num
+              read(unit=split(i)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=split(i),fmt=*) num
+            end if
+            Mat(i,Dp)= num//den
+        end do
+        split=" "
+
+      else
+
+        pSymb=pack_string(Symb)
+
+      end if
+
+      pos=0
+      call Get_Separator_Pos(pSymb,",",pos,np)
+      if(np /= d) then
+        err_ssg=.true.
+        err_ssg_mess="Error in the symbol of the operator"
+        return
+      end if
+
+      read(unit=pSymb(pos(np)+1:),fmt=*) inv
+      Mat(Dp,Dp)=inv//1
+      j=1
+      do i=1,d
+        split(i)=pSymb(j:pos(i)-1)
+        j=pos(i)+1
+        !write(*,"(i3,a)")  i, "  "//trim(split(i))
+      end do
+      !Analysis of each item
+                      !   |     |  |  |  <- pos(i)
+      !items of the form  -x1+3/2x2-x3+x4+1/2
+                      !   |  |     |  |  |  <- pn(m)
+                      !   -  +3/2  -  +  +1/2
+      do i=1,d
+        string=split(i)
+        pn=0; m=0
+        do j=1,len_trim(string)
+          if(string(j:j) == "+" .or. string(j:j) == "-" ) then
+            m=m+1
+            pn(m)=j
+          end if
+        end do
+        if(m /= 0) then
+          if(pn(1) == 1) then
+            n=0
+          else
+            subst(1)=string(1:pn(1)-1)
+            n=1
+          end if
+          do k=1,m-1
+            n=n+1
+            subst(n)=string(pn(k):pn(k+1)-1)
+          end do
+          if(pn(m) < len_trim(string)) then
+            n=n+1
+            subst(n)=string(pn(m):)
+          end if
+        else
+          n=1
+          subst(1)=string
+        end if
+
+        !write(*,"(11a)") " ---->  "//trim(string),("  "//trim(subst(k)),k=1,n)
+
+        ! Now we have n substrings of the form +/-p/qXn  or +/-p/q or +/-pXn/q or Xn or -Xn
+        ! Look for each substring the item x_typ and replace it by 1 or nothing
+        ! m is reusable now
+        do j=1,n
+          k=0
+          do m=1,d
+             k=index(subst(j),trim(x_typ(m)))
+             if(k /= 0) then
+               ind=m
+               exit
+             end if
+          end do
+          if(k == 0) then !pure translation
+            k=index(subst(j),"/")
+            if(k /= 0) then
+              read(unit=subst(j)(1:k-1),fmt=*) num
+              read(unit=subst(j)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=subst(j),fmt=*) num
+            end if
+            Mat(i,Dp)= num//den
+          else  !Component m of the row_vector
+            !suppress the symbol
+            subst(j)(k:k+len_trim(x_typ(ind))-1)=" "
+            if( k == 1 ) then
+              subst(j)(1:1)="1"
+            else if(subst(j)(k-1:k-1) == "+" .or. subst(j)(k-1:k-1) == "-") then
+              subst(j)(k:k)="1"
+            else
+              subst(j)=pack_string(subst(j))
+            end if
+            !Now read the integer or the rational
+            k=index(subst(j),"/")
+            if( k /= 0) then
+              read(unit=subst(j)(1:k-1),fmt=*) num
+              read(unit=subst(j)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=subst(j),fmt=*) num
+            end if
+            Mat(i,ind)=num//den
+          end if
+        end do
+      end do
+
+    End Subroutine Get_Mat_From_SSymSymb
+
+
     Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type)
        !---- Arguments ----!
        type(rational),dimension(:,:), intent( in) :: Mat
        character (len=*),             intent(out) :: symb
-       logical, optional,             intent( in) :: x1x2x3_type
+       character(len=*), optional,    intent( in) :: x1x2x3_type
 
        !---- Local Variables ----!
        character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
        character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
+       character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
        character(len=3),dimension(10) :: x_typ
        character(len= 15)               :: car
+       character(len= 40)               :: translation
        character(len= 40),dimension(10) :: sym
-       integer                          :: i,j,Dp,d
+       integer                          :: i,j,Dp,d,k
+       logical                          :: abc_type
        Dp=size(Mat,dim=1)
        d=Dp-1
        x_typ=xyz
+       abc_type=.false.
        if(present(x1x2x3_type)) then
-         if(x1x2x3_type) x_typ=x1x2x3
+         Select Case (trim(x1x2x3_type))
+          Case("xyz")
+            x_typ=xyz
+          Case("x1x2x3")
+            x_typ=x1x2x3
+          Case("abc")
+            x_typ=abc
+            abc_type=.true.
+         End Select
        end if
        !---- Main ----!
-       symb=" "
+       symb=" "; translation=" "
        do i=1,d
           sym(i)=" "
           do j=1,d
@@ -399,20 +588,38 @@
              else if(Mat(i,j) == -1) then
                 sym(i) =  trim(sym(i))//"-"//trim(x_typ(j))
              else if(Mat(i,j) /= 0) then
-               car=" "
-               write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
+               car=adjustl(print_rational(Mat(i,j)))
+               k=index(car,"/")
+               if(k /= 0) then
+                 if(car(1:1) == "1") then
+                   car=trim(x_typ(j))//car(k:)
+                 else if(car(1:2) == "-1") then
+                   car="-"//trim(x_typ(j))//car(k:)
+                 else
+                   car=car(1:k-1)//trim(x_typ(j))//car(k:)
+                 end if
+               else
+                 car=trim(car)//trim(x_typ(j))
+               end if
+               !write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
                if(Mat(i,j) > 0) car="+"//trim(car)
                sym(i)=trim(sym(i))//pack_string(car)
              end if
           end do
           !Write here the translational part for each component
           if (Mat(i,Dp) /= 0) then
-             car=adjustl(print_rational(Mat(i,Dp)))
-             if(car(1:1) == "-") then
-                sym(i)=trim(sym(i))//trim(car)
-             else
-                sym(i)=trim(sym(i))//"+"//trim(car)
-             end if
+            car=adjustl(print_rational(Mat(i,Dp)))
+            if(abc_type) then
+              translation=trim(translation)//","//trim(car)
+            else
+               if(car(1:1) == "-") then
+                  sym(i)=trim(sym(i))//trim(car)
+               else
+                  sym(i)=trim(sym(i))//"+"//trim(car)
+               end if
+            end if
+          else
+            if(abc_type) translation=trim(translation)//",0"
           end if
           sym(i)=adjustl(sym(i))
           if(sym(i)(1:1) == "+")  then
@@ -425,8 +632,12 @@
        do i=2,d
          symb=trim(symb)//","//trim(sym(i))
        end do
-       car=print_rational(Mat(Dp,Dp))
-       symb=trim(symb)//","//trim(car)
+       if(abc_type)then
+          symb=trim(symb)//";"//trim(translation(2:))
+       else
+          car=print_rational(Mat(Dp,Dp))
+          symb=trim(symb)//","//trim(car)
+       end if
     End Subroutine Get_SSymSymb_from_Mat
 
     Subroutine Write_SSG(SpaceGroup,iunit,full,x1x2x3_typ)
@@ -438,18 +649,18 @@
       integer :: lun,i,j,k,D,Dp,nlines
       character(len=40),dimension(:),  allocatable :: vector
       character(len=40),dimension(:,:),allocatable :: matrix
-      character(len=15) :: forma
-      integer,  parameter                      :: max_lines=192
-      character (len=100), dimension(max_lines):: texto
-      logical                                  :: print_latt,xyz_typ
+      character(len=15)                            :: forma,xyz_typ
+      integer,  parameter                          :: max_lines=192
+      character (len=100), dimension(max_lines)    :: texto
+      logical                                      :: print_latt
 
       lun=6
       print_latt=.false.
       if (present(iunit)) lun=iunit
       if (present(full))  print_latt=.true.
-      xyz_typ=.false.
+      xyz_typ="xyz"
       if(present(x1x2x3_typ)) then
-        if(x1x2x3_typ) xyz_typ=.true.
+        xyz_typ="x1x2x3"
       end if
 
       D=3+SpaceGroup%d
@@ -568,17 +779,18 @@
 
       integer :: iclass,nmod,i,j,k,m,multip,Dp
       character(len=20)  :: forma
-      character(len=130) :: message
+      character(len=130) :: message,symb
       logical :: ok
       type(SuperSpaceGroup_Type) :: SSpaceGroup
+      type(rational),   dimension(:,:),allocatable :: Mat
       character(len=40),dimension(:,:),allocatable :: matrix
       character(len=60) :: Operator_Symbol
 
-      call Read_SSG(ok,message)
-      if(.not. ok) then
-        write(*,"(a)") "   !!! "//message//" !!!"
-        stop
-      end if
+      !call Read_SSG(ok,message)
+      !if(.not. ok) then
+      !  write(*,"(a)") "   !!! "//message//" !!!"
+      !  stop
+      !end if
       !!
       !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
       !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
@@ -588,13 +800,42 @@
       !close(unit=1)
       !stop
       do
-        write(*,"(a)",advance="no") " => Enter the number of the SSG: "
-        read(*,*) m
-        if(m <= 0) exit
-        if(m > 16697) then
-          write(*,"(a)") " => There are only 16697 superspace groups in the database! "
-          cycle
-        end if
+        write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
+        read(*,*) Dp
+        if(Dp < 4) exit
+        if(allocated(mat)) deallocate(Mat)
+        allocate(Mat(Dp,Dp))
+        if(allocated(matrix)) deallocate(Matrix)
+        allocate(Matrix(Dp,Dp))
+        forma="( a8)"
+        write(forma(2:2),"(i1)") Dp
+        do
+           write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
+           read(*,"(a)") symb
+           if(len_trim(symb) == 0) exit
+           call Get_Mat_From_SSymSymb(Symb,Mat)
+           matrix=print_rational(Mat)
+           write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
+           do j=1,Dp
+              write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+           end do
+           !Retransformation to a symbol
+           write(unit=*,fmt="(a)")" "
+           call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
+           write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
+           call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
+           write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
+           call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
+           write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
+        end do
+
+        !write(*,"(a)",advance="no") " => Enter the number of the SSG: "
+        !read(*,*) m
+        !if(m <= 0) exit
+        !if(m > 16697) then
+        !  write(*,"(a)") " => There are only 16697 superspace groups in the database! "
+        !  cycle
+        !end if
         !Call Read_single_SSG(m,ok,Message)
         !Call Read_SSG(ok,Message)
         !if(.not. ok) then
@@ -615,34 +856,36 @@
         !    !write(*,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
         !  end do
         !end do
-        call Set_SSG_Reading_Database(m,SSpaceGroup,ok,message)
-        if(.not. ok) then
-          write(*,"(a)") "   !!! "//message//" !!!"
-          stop
-        end if
-        call Write_SSG(SSpaceGroup,full=.true.)
-        Dp=size(SSpaceGroup%SymOp(1)%Mat,dim=1)
-        if(SSpaceGroup%Centred == 2) then
-          SSpaceGroup%SymOp(4)%Mat = -SSpaceGroup%SymOp(1)%Mat
-          SSpaceGroup%SymOp(4)%Mat(Dp,Dp) = 1
-        end if
-        Call Gen_Group(4,SSpaceGroup%SymOp,multip)
-        !Writing of the rational operator matrices
-        Write(*,*) " Number of generated operators: ",multip
-        if(allocated(matrix)) deallocate(Matrix)
-        allocate(Matrix(Dp,Dp))
-        forma="( a8)"
-        write(forma(2:2),"(i1)") Dp
-        do i=1,multip
-          call Get_SSymSymb_from_Mat(SSpaceGroup%SymOp(i)%Mat,Operator_Symbol,.true.)
-          write(unit=*,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(Operator_Symbol)
 
-          !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
-          !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
-          !do j=1,Dp
-          !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-          !end do
-        end do
+        !call Set_SSG_Reading_Database(m,SSpaceGroup,ok,message)
+        !if(.not. ok) then
+        !  write(*,"(a)") "   !!! "//message//" !!!"
+        !  stop
+        !end if
+
+        !call Write_SSG(SSpaceGroup,full=.true.)
+        !Dp=size(SSpaceGroup%SymOp(1)%Mat,dim=1)
+        !if(SSpaceGroup%Centred == 2) then
+        !  SSpaceGroup%SymOp(4)%Mat = -SSpaceGroup%SymOp(1)%Mat
+        !  SSpaceGroup%SymOp(4)%Mat(Dp,Dp) = 1
+        !end if
+        !Call Gen_Group(4,SSpaceGroup%SymOp,multip)
+        !!Writing of the rational operator matrices
+        !Write(*,*) " Number of generated operators: ",multip
+        !if(allocated(matrix)) deallocate(Matrix)
+        !allocate(Matrix(Dp,Dp))
+        !forma="( a8)"
+        !write(forma(2:2),"(i1)") Dp
+        !do i=1,multip
+        !  call Get_SSymSymb_from_Mat(SSpaceGroup%SymOp(i)%Mat,Operator_Symbol,.true.)
+        !  write(unit=*,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(Operator_Symbol)
+        !
+        !  !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
+        !  !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
+        !  !do j=1,Dp
+        !  !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+        !  !end do
+        !end do
         !write(*,"(a,i3)") " Reflection conditions: ",igroup_nconditions(m)
         !if(igroup_nconditions(m) > 0)then
         ! do k=1,igroup_nconditions(m)
