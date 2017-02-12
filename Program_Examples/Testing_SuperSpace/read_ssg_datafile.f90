@@ -730,7 +730,7 @@
     End Subroutine Write_SSG
 
     !This subroutine assumes that Op contains the identity as the first operator, followed
-    !by few generators. The value of ngen icludes also the identity
+    !by few non-equal generators. The value of ngen icludes also the identity
     Subroutine Gen_Group(ngen,Op,multip)
       integer,                            intent(in)     :: ngen
       type(SSym_Oper_Type), dimension(:), intent(in out) :: Op
@@ -758,6 +758,7 @@
             done(i,j)=.true.
             nt=nt+1
             if(nt > max_op) then
+              nt=nt-1
               exit do_ext
             end if
             Op(nt)=Opt
@@ -782,15 +783,16 @@
       character(len=130) :: message,symb
       logical :: ok
       type(SuperSpaceGroup_Type) :: SSpaceGroup
+      type(SuperSpaceGroup_Type), dimension(100) :: spg
       type(rational),   dimension(:,:),allocatable :: Mat
       character(len=40),dimension(:,:),allocatable :: matrix
       character(len=60) :: Operator_Symbol
 
-      !call Read_SSG(ok,message)
-      !if(.not. ok) then
-      !  write(*,"(a)") "   !!! "//message//" !!!"
-      !  stop
-      !end if
+      call Read_SSG(ok,message)
+      if(.not. ok) then
+        write(*,"(a)") "   !!! "//message//" !!!"
+        stop
+      end if
       !!
       !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
       !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
@@ -800,42 +802,42 @@
       !close(unit=1)
       !stop
       do
-        write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
-        read(*,*) Dp
-        if(Dp < 4) exit
-        if(allocated(mat)) deallocate(Mat)
-        allocate(Mat(Dp,Dp))
-        if(allocated(matrix)) deallocate(Matrix)
-        allocate(Matrix(Dp,Dp))
-        forma="( a8)"
-        write(forma(2:2),"(i1)") Dp
-        do
-           write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
-           read(*,"(a)") symb
-           if(len_trim(symb) == 0) exit
-           call Get_Mat_From_SSymSymb(Symb,Mat)
-           matrix=print_rational(Mat)
-           write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
-           do j=1,Dp
-              write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-           end do
-           !Retransformation to a symbol
-           write(unit=*,fmt="(a)")" "
-           call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
-           write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
-           call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
-           write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
-           call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
-           write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
-        end do
+        !write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
+        !read(*,*) Dp
+        !if(Dp < 4) exit
+        !if(allocated(mat)) deallocate(Mat)
+        !allocate(Mat(Dp,Dp))
+        !if(allocated(matrix)) deallocate(Matrix)
+        !allocate(Matrix(Dp,Dp))
+        !forma="( a8)"
+        !write(forma(2:2),"(i1)") Dp
+        !do
+        !   write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
+        !   read(*,"(a)") symb
+        !   if(len_trim(symb) == 0) exit
+        !   call Get_Mat_From_SSymSymb(Symb,Mat)
+        !   matrix=print_rational(Mat)
+        !   write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
+        !   do j=1,Dp
+        !      write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+        !   end do
+        !   !Retransformation to a symbol
+        !   write(unit=*,fmt="(a)")" "
+        !   call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
+        !   write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
+        !   call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
+        !   write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
+        !   call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
+        !   write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
+        !end do
 
-        !write(*,"(a)",advance="no") " => Enter the number of the SSG: "
-        !read(*,*) m
-        !if(m <= 0) exit
-        !if(m > 16697) then
-        !  write(*,"(a)") " => There are only 16697 superspace groups in the database! "
-        !  cycle
-        !end if
+        write(*,"(a)",advance="no") " => Enter the number of the SSG: "
+        read(*,*) m
+        if(m <= 0) exit
+        if(m > 16697) then
+          write(*,"(a)") " => There are only 16697 superspace groups in the database! "
+          cycle
+        end if
         !Call Read_single_SSG(m,ok,Message)
         !Call Read_SSG(ok,Message)
         !if(.not. ok) then
@@ -857,35 +859,47 @@
         !  end do
         !end do
 
-        !call Set_SSG_Reading_Database(m,SSpaceGroup,ok,message)
-        !if(.not. ok) then
-        !  write(*,"(a)") "   !!! "//message//" !!!"
-        !  stop
-        !end if
+        call Set_SSG_Reading_Database(m,SSpaceGroup,ok,message)
+        if(.not. ok) then
+          write(*,"(a)") "   !!! "//message//" !!!"
+          stop
+        end if
 
-        !call Write_SSG(SSpaceGroup,full=.true.)
-        !Dp=size(SSpaceGroup%SymOp(1)%Mat,dim=1)
+        call Write_SSG(SSpaceGroup,full=.true.)
+        Dp=size(SSpaceGroup%SymOp(1)%Mat,dim=1)
         !if(SSpaceGroup%Centred == 2) then
         !  SSpaceGroup%SymOp(4)%Mat = -SSpaceGroup%SymOp(1)%Mat
         !  SSpaceGroup%SymOp(4)%Mat(Dp,Dp) = 1
         !end if
-        !Call Gen_Group(4,SSpaceGroup%SymOp,multip)
-        !!Writing of the rational operator matrices
-        !Write(*,*) " Number of generated operators: ",multip
+
+        !Generate subgroups
+
+        do i=2,SSpaceGroup%numops-1
+          call Allocate_SSG_SymmOps(Dp-4,2*SSpaceGroup%multip,spg(i)%SymOp)
+          spg(i)%SymOp(1)=SSpaceGroup%SymOp(1)
+          spg(i)%SymOp(2)=SSpaceGroup%SymOp(i)
+          spg(i)%SymOp(3)=SSpaceGroup%SymOp(i+1)
+          spg(i)%SymOp(3)%Mat(Dp,Dp)=-1//1
+          spg(i)%SymOp(4)=spg(i)%SymOp(1)
+          spg(i)%SymOp(4)%Mat(Dp,Dp)=-1//1
+          spg(i)%SymOp(4)%Mat(Dp-1,Dp)=1//2
+          Call Gen_Group(4,spg(i)%SymOp,multip)
+        !Writing of the rational operator matrices
+          Write(*,"(2(a,i4))") " Number of generated operators for subgroup # ",i,":",multip
         !if(allocated(matrix)) deallocate(Matrix)
         !allocate(Matrix(Dp,Dp))
         !forma="( a8)"
         !write(forma(2:2),"(i1)") Dp
-        !do i=1,multip
-        !  call Get_SSymSymb_from_Mat(SSpaceGroup%SymOp(i)%Mat,Operator_Symbol,.true.)
-        !  write(unit=*,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(Operator_Symbol)
-        !
-        !  !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
-        !  !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
-        !  !do j=1,Dp
-        !  !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-        !  !end do
-        !end do
+          do j=1,multip
+            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"xyz")
+            write(unit=*,fmt="(a,i3,a)") "  Operator # ",j,"  "//trim(Operator_Symbol)
+            !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
+            !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
+            !do j=1,Dp
+            !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+            !end do
+          end do
+        end do
         !write(*,"(a,i3)") " Reflection conditions: ",igroup_nconditions(m)
         !if(igroup_nconditions(m) > 0)then
         ! do k=1,igroup_nconditions(m)

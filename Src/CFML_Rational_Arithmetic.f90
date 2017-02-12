@@ -91,8 +91,8 @@
       integer :: denominator
     end type rational
 
-    logical,           public :: Err_Rational=.false.
-    character(len=80), public :: Err_Rational_Mess
+    logical,            public :: Err_Rational=.false.
+    character(len=132), public :: Err_Rational_Mess
 
     interface assignment (=)
       module procedure assign_rational_int
@@ -251,7 +251,7 @@
       if(g /= 0) then
         res = (r % numerator / g) // (r % denominator / g)
       else
-        res= 0//0
+        res= r
       end if
     end function rational_simplify
 
@@ -433,7 +433,7 @@
         res = r % numerator * s % denominator // denom
         res=rational_simplify(res)
       else
-        res=0//0
+        res=0//1
       end if
     end function rational_divide
 
