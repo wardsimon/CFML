@@ -1,201 +1,5 @@
-    Module ssg_datafile
-      ! read data for (3+d)-dimensional superspace groups (d=1,2,3)
-      implicit none
-
-      public :: Read_SSG, Read_single_SSG
-      logical, public            :: database_read=.false.
-      integer, parameter, public :: m_cen=16, m_ncl=322, m_ngs=16697, m_ops=48, &
-                                    m_dim=6, m_cond=50, m_qv=3 !D=3+d (d=3)
-      !
-      integer                     :: nclasses=0         ! number of Bravais classes
-      integer,   dimension(m_ncl) :: iclass_nmod=0      ! for each Bravais class: number of modulation q vectors
-      integer,   dimension(m_ncl) :: iclass_number=0    ! class number
-      integer,   dimension(m_ncl) :: iclass_spacegroup=0! basic space group of lattice
-      integer,   dimension(m_ncl) :: iclass_nstars=0    ! number of different stars of q
-      integer, dimension(3,m_ncl) :: iclass_nmodstar=0  ! number of modulation q vectors for each star
-
-      character(len=5),  dimension(m_ncl)          :: class_nlabel=" " ! class number label: 1.1, 1.2, 1.3, etc.
-      character(len=50), dimension(m_ncl)          :: class_label=" "  !   class label
-      integer,           dimension(3,3,m_qv,m_ncl) :: iclass_qvec=0    !   q vectors
-      integer,           dimension(m_ncl)          :: iclass_ncentering=0 ! number of centering translations
-      integer,  dimension(m_dim+1,m_cen,m_ncl)     :: iclass_centering=0  ! centering translations: D=3+d integers followed by a common denominator
-      integer                             :: ngroups=0           ! number of superspace groups
-      integer,           dimension(m_ngs) :: igroup_number=0    ! for each superspace group,  group number
-      integer,           dimension(m_ngs) :: igroup_class=0     ! Bravais class
-      integer,           dimension(m_ngs) :: igroup_spacegroup=0! Basic space group
-      character(len=13), dimension(m_ngs) :: group_nlabel=" " !   group number label: 1.1.1.1, 2,1,1,1, etc.
-      character(len=60), dimension(m_ngs) :: group_label=" "  !   group label
-      integer,           dimension(m_ngs) :: igroup_nops      !   number of operators
-      !   (d+1)x(d+1) augmented matrix for each operator in supercentered setting
-      !   common denominator in element (d+1,d+1)
-      integer, dimension(m_dim+1,m_dim+1,m_ops,m_ngs) :: igroup_ops=0
-      integer,                       dimension(m_ngs) :: igroup_nconditions=0     ! number of reflection conditions
-      integer,    dimension(m_dim,m_dim,m_cond,m_ngs) :: igroup_condition1=0  ! matrix representation of righthand side
-      integer,        dimension(m_dim+1,m_cond,m_ngs) :: igroup_condition2=0  ! vector representation of lefthand side
-      integer,  dimension(m_ngs) :: pos_group !position in the file of the groups
-      integer,  dimension(m_ncl) :: pos_class !position in the file of the Bravais classes
-      integer,  dimension(m_ncl+m_ngs) :: pos_all !position in the file of all
-
-      contains
-
-      Subroutine Read_SSG(ok,mess)
-        logical,          intent(out) :: ok
-        character(len=*), intent(out) :: mess
-        !
-        integer :: i,j,k,m,n,imax,nmod,iclass
-        integer :: i_db, ier,L
-        character(len=512) :: ssg_file
-        character(len=4)   :: line
-         !imax=0
-         if(database_read) return
-         i_db=1; ier=0
-         ok=.true.
-         mess=" "
-         ! open data file
-         ssg_file='ssg_datafile.txt'
-         open(unit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
-         if(ier /= 0) then
-           ok=.false.
-           mess= 'Error opening the database file: '//trim(ssg_file)
-           return
-         end if
-         L=0
-         do i=1,2526
-           read(i_db,"(a)") line
-           if(line(1:1) == '"') then
-             L=L+1
-             pos_class(L)= i-1
-           end if
-         end do
-         L=0
-         do i=2527,300000
-           read(i_db,"(a)",iostat=ier) line
-           if (ier /= 0) exit
-           if(line(1:1) == '"') then
-             L=L+1
-             pos_group(L)= i-1
-           end if
-         end do
-         rewind(i_db)
-         ! skip heading
-         read(i_db,*)
-         read(i_db,*)
-         read(i_db,*)
-         ! read number of Bravais classes
-         read(i_db,*) nclasses
-         ! read each Bravais class
-         do m=1,nclasses
-           read(i_db,*)n,iclass_nmod(m),iclass_number(m), iclass_spacegroup(m),iclass_nstars(m), &
-                     (iclass_nmodstar(i,m),i=1,iclass_nstars(m))
-           nmod=iclass_nmod(m)
-           if(n /= m) then
-             ok=.false.
-             write(mess,"(a,i3)") 'Error in ssg_datafile @reading Bravais class #: ',m
-             return
-           end if
-
-           read(i_db,*)class_nlabel(m),class_label(m)
-           read(i_db,*)(((iclass_qvec(i,j,k,m),i=1,3),j=1,3),k=1,nmod)
-           read(i_db,*)iclass_ncentering(m)
-           read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
-         end do
-
-         ! read number of superspace groups
-         read(i_db,*)ngroups
-         ! read each superspace group
-
-         do m=1,ngroups
-           !write(6,'(i5)')m
-           read(i_db,*)n,igroup_number(m),igroup_class(m),igroup_spacegroup(m)
-           if(n /= m)then
-             ok=.false.
-             write(mess,"(a,i3)") 'Error in ssg_datafile @reading group#: ',m
-             return
-           end if
-           iclass=igroup_class(m)
-           nmod=iclass_nmod(iclass)
-           read(i_db,*)group_nlabel(m),group_label(m)
-           read(i_db,*)igroup_nops(m)
-           read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
-           read(i_db,*)igroup_nconditions(m)
-           if(igroup_nconditions(m) > 0)then
-               read(i_db,*)(((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4), &
-                          k=1,igroup_nconditions(m))
-           end if
-         end do
-         database_read=.true.
-      End Subroutine Read_SSG
-
-      Subroutine Read_single_SSG(num,ok,Mess)
-        integer,          intent(in)  :: num
-        logical,          intent(out) :: ok
-        character(len=*), intent(out) :: mess
-        !
-        integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass
-        character(len=512) ssg_file,pos_file
-         ok=.true.
-         mess=" "
-         ! open data file
-         ssg_file='ssg_datafile.txt'
-         open(newunit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
-         if(ier /= 0) then
-           ok=.false.
-           mess= 'Error opening the database file: '//trim(ssg_file)
-           return
-         end if
-         pos_file='class+group_pos.txt'
-         open(newunit=i_pos,file=pos_file,status='old',action='read',position='rewind',iostat=ier)
-         if(ier /= 0) then
-           ok=.false.
-           mess= 'Error opening the database file: '//trim(pos_file)
-           return
-         end if
-         read(unit=i_pos,fmt=*) !skip class line
-         read(unit=i_pos,fmt=*) pos_class
-         read(unit=i_pos,fmt=*) !skip group line
-         read(unit=i_pos,fmt=*) pos_group
-         close(unit=i_pos)
-         read(i_db,*)
-         read(i_db,*)
-         read(i_db,*)
-         ! read number of Bravais classes
-         read(i_db,*) nclasses
-         ! read each Bravais class
-         do m=1,nclasses
-           read(i_db,*)n,iclass_nmod(m),iclass_number(m), iclass_spacegroup(m),iclass_nstars(m), &
-                     (iclass_nmodstar(i,m),i=1,iclass_nstars(m))
-           nmod=iclass_nmod(m)
-           read(i_db,*)class_nlabel(m),class_label(m)
-           read(i_db,*)(((iclass_qvec(i,j,k,m),i=1,3),j=1,3),k=1,nmod)
-           read(i_db,*)iclass_ncentering(m)
-           read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
-         end do
-         rewind(i_db)
-         !write(*,"(10i8)") pos_group
-         n_skip=pos_group(num)-1
-         !write(*,"(a,i12)") "Skipping ",n_skip
-         do i=1,n_skip
-           read(unit=i_db,fmt=*)
-         end do
-         m=num
-         read(i_db,*)n,igroup_number(m),igroup_class(m),igroup_spacegroup(m)
-         if(n /= m)then
-           ok=.false.
-           write(mess,"(a,2i5)") 'Error in ssg_datafile @reading group#: ',m,n
-           return
-         end if
-         iclass=igroup_class(m)
-         nmod=iclass_nmod(iclass)
-         read(i_db,*)group_nlabel(m),group_label(m)
-         read(i_db,*)igroup_nops(m)
-         read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
-      End Subroutine Read_single_SSG
-
-    End Module ssg_datafile
-
-
     Module CFML_SuperSpaceGroups
-      use ssg_datafile
+      use CFML_ssg_datafile
       use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
       use CFML_Rational_Arithmetic
 
@@ -256,6 +60,28 @@
 
     Contains
 
+     !!---- function multiply_ssg_symop(Op1,Op2) result (Op3)
+     !!----
+     !!---- The arguments are two SSym_Oper_Type operators and the
+     !!---- result is another SSym_Oper_Type operator. This implements
+     !!---- the operator (*) between SSym_Oper_Type objects making the
+     !!---- rational multiplications of the D+1 matrices and taking
+     !!---- only positive translations modulo-1.
+     !!----
+     !!----   Created : February 2017 (JRC)
+     function multiply_ssg_symop(Op1,Op2) result (Op3)
+      type(SSym_Oper_Type), intent(in) :: Op1,Op2
+      type(SSym_Oper_Type)             :: Op3
+      integer :: n,d,i
+      n=size(Op1%Mat,dim=1)
+      d=n-1
+      Op3%Mat=matmul(Op1%Mat,Op2%Mat)
+      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
+       do i=1,d
+        if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
+      end do
+    end function multiply_ssg_symop
+
     Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
       integer,                                        intent(in)      :: d,multip
       type(SSym_Oper_Type),allocatable, dimension(:), intent(in out)  :: SymOp
@@ -270,31 +96,56 @@
       end do
     End Subroutine Allocate_SSG_SymmOps
 
-    elemental function mod1(r) result(res)
-      type(rational), intent(in) :: r
-      type(rational)             :: res
-      integer :: i
-      if(r%denominator > r%numerator) then
-        res=r
-      else
-        i=mod(r%numerator,r%denominator)
-        res=i//r%denominator
-      end if
-    end function mod1
+    !This subroutine assumes that Op contains the identity as the first operator, followed
+    !by few non-equal generators. The value of ngen icludes also the identity
+    Subroutine Gen_Group(ngen,Op,multip,table)
+      integer,                                        intent(in)     :: ngen
+      type(SSym_Oper_Type), dimension(:),             intent(in out) :: Op
+      integer,                                        intent(out)    :: multip
+      integer, dimension(:,:), allocatable, optional, intent(out)    :: table
+      !--- Local variables ---!
+      integer :: i,j,k,n, nt,max_op
+      type(SSym_Oper_Type) :: Opt
+      logical, dimension(size(Op),size(Op)) :: done
+      integer, dimension(size(Op),size(Op)) :: tb
+      max_op=size(Op)
+      done=.false.
+      done(1,:) = .true.
+      done(:,1) = .true.
+      tb(1,:) = [(i,i=1,max_op)]
+      tb(:,1) = [(i,i=1,max_op)]
+      nt=ngen
 
-    function multiply_ssg_symop(Op1,Op2) result (Op3)
-      type(SSym_Oper_Type), intent(in) :: Op1,Op2
-      type(SSym_Oper_Type)             :: Op3
-      integer :: n,d,i
-      n=size(Op1%Mat,dim=1)
-      d=n-1
-      Op3%Mat=matmul(Op1%Mat,Op2%Mat)
-      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
-      !Op3%Mat(1:d,n)=mod1(Op3%Mat(1:d,n))
-      do i=1,d
-        if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
-      end do
-    end function multiply_ssg_symop
+      do_ext:do
+        n=nt
+        do i=1,n
+          do_j:do j=1,n
+            if(done(i,j)) cycle
+            Opt=Op(i)*Op(j)
+            do k=1,nt
+              if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) then
+                tb(i,j)=k
+                cycle do_j
+              end if
+            end do
+            done(i,j)=.true.
+            nt=nt+1
+            if(nt > max_op) then
+              nt=nt-1
+              exit do_ext
+            end if
+            tb(i,j)=nt
+            Op(nt)=Opt
+          end do do_j
+        end do
+        if ( n == nt) exit do_ext
+      end do do_ext
+      multip=nt
+      if(present(table)) then
+        allocate(Table(multip,multip))
+        Table=tb
+      end if
+    End Subroutine Gen_Group
 
     Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
       integer,                    intent(in)  :: num
@@ -308,7 +159,7 @@
       character(len=15) :: forma
       logical :: inv_found
 
-      if(.not. database_read)  then
+      if(.not. ssg_database_allocated)  then
          call Read_single_SSG(num,ok,Mess)
          if(.not. ok) return
       end if
@@ -406,7 +257,6 @@
       end do
 
     End Subroutine Set_SSG_Reading_Database
-
 
 
     Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
@@ -761,183 +611,5 @@
       end if
     End Subroutine Write_SSG
 
-    !This subroutine assumes that Op contains the identity as the first operator, followed
-    !by few non-equal generators. The value of ngen icludes also the identity
-    Subroutine Gen_Group(ngen,Op,multip)
-      integer,                            intent(in)     :: ngen
-      type(SSym_Oper_Type), dimension(:), intent(in out) :: Op
-      integer,                            intent(out)    :: multip
-      !--- Local variables ---!
-      integer :: i,j,k,n, nt,max_op
-      type(SSym_Oper_Type) :: Opt
-      logical, dimension(size(Op),size(Op)) :: done
 
-      max_op=size(Op)
-      done=.false.
-      done(1,:) = .true.
-      done(:,1) = .true.
-      nt=ngen
-
-      do_ext:do
-        n=nt
-        do i=1,n
-          do_j:do j=1,n
-            if(done(i,j)) cycle
-            Opt=Op(i)*Op(j)
-            do k=1,nt
-              if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) cycle do_j
-            end do
-            done(i,j)=.true.
-            nt=nt+1
-            if(nt > max_op) then
-              nt=nt-1
-              exit do_ext
-            end if
-            Op(nt)=Opt
-          end do do_j
-        end do
-        if ( n == nt) exit do_ext
-      end do do_ext
-      multip=nt
-    End Subroutine Gen_Group
-
-    End Module CFML_SuperSpaceGroups
-
-    Program read_ssg_datafile
-      use ssg_datafile
-      use CFML_SuperSpaceGroups
-      use CFML_Rational_Arithmetic
-
-      implicit none
-
-      integer :: iclass,nmod,i,j,k,m,multip,Dp
-      character(len=20)  :: forma
-      character(len=130) :: message,symb
-      logical :: ok
-      type(SuperSpaceGroup_Type) :: SSpaceGroup
-      type(SuperSpaceGroup_Type), dimension(100) :: spg
-      type(rational),   dimension(:,:),allocatable :: Mat
-      character(len=40),dimension(:,:),allocatable :: matrix
-      character(len=60) :: Operator_Symbol
-
-      call Read_SSG(ok,message)
-      if(.not. ok) then
-        write(*,"(a)") "   !!! "//message//" !!!"
-        stop
-      end if
-      !!
-      !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
-      !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
-      !write(1,"(10i7)") pos_class
-      !write(1,"(a,i6)") "Space Group positions in database, Number of groups ",m_ngs
-      !write(1,"(10i7)") pos_group
-      !close(unit=1)
-      !stop
-      do
-        !write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
-        !read(*,*) Dp
-        !if(Dp < 4) exit
-        !if(allocated(mat)) deallocate(Mat)
-        !allocate(Mat(Dp,Dp))
-        !if(allocated(matrix)) deallocate(Matrix)
-        !allocate(Matrix(Dp,Dp))
-        !forma="( a8)"
-        !write(forma(2:2),"(i1)") Dp
-        !do
-        !   write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
-        !   read(*,"(a)") symb
-        !   if(len_trim(symb) == 0) exit
-        !   call Get_Mat_From_SSymSymb(Symb,Mat)
-        !   matrix=print_rational(Mat)
-        !   write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
-        !   do j=1,Dp
-        !      write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-        !   end do
-        !   !Retransformation to a symbol
-        !   write(unit=*,fmt="(a)")" "
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
-        !   write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
-        !   write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
-        !   write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
-        !end do
-
-        write(*,"(a)",advance="no") " => Enter the number of the SSG: "
-        read(*,*) m
-        if(m <= 0) exit
-        if(m > 16697) then
-          write(*,"(a)") " => There are only 16697 superspace groups in the database! "
-          cycle
-        end if
-        !Call Read_single_SSG(m,ok,Message)
-        !Call Read_SSG(ok,Message)
-        !if(.not. ok) then
-        !  write(*,"(a)") "   !!! "//trim(message)//" !!!"
-        !  stop
-        !end if
-        !write(*,"(3(a,i5))") " Group number:",igroup_number(m), " Bravais class:",igroup_class(m), "  Basic Group #:",igroup_spacegroup(m)
-        !iclass=igroup_class(m)
-        !nmod=iclass_nmod(iclass)
-        !write(*,"(a,tr4,a)")  group_nlabel(m), group_label(m)
-        !write(*,"(a,i3)") " Number of operators:", igroup_nops(m)
-        !do k=1,igroup_nops(m)
-        !  write(*,"(a,i3)") " Operator #",k
-        !  forma="(  i4)"
-        !  write(forma(2:3),"(i2)") nmod+4
-        !  do i=1,nmod+4
-        !    write(*,forma) igroup_ops(i,1:nmod+4,k,m)
-        !    !write(*,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
-        !  end do
-        !end do
-
-        call Set_SSG_Reading_Database(m,SSpaceGroup,ok,message)
-        if(.not. ok) then
-          write(*,"(a)") "   !!! "//message//" !!!"
-          stop
-        end if
-
-        call Write_SSG(SSpaceGroup,full=.true.)
-        Dp=size(SSpaceGroup%SymOp(1)%Mat,dim=1)
-        !if(SSpaceGroup%Centred == 2) then
-        !  SSpaceGroup%SymOp(4)%Mat = -SSpaceGroup%SymOp(1)%Mat
-        !  SSpaceGroup%SymOp(4)%Mat(Dp,Dp) = 1
-        !end if
-
-        !Generate subgroups
-
-        do i=2,SSpaceGroup%numops-1
-          call Allocate_SSG_SymmOps(Dp-4,2*SSpaceGroup%multip,spg(i)%SymOp)
-          spg(i)%SymOp(1)=SSpaceGroup%SymOp(1)
-          spg(i)%SymOp(2)=SSpaceGroup%SymOp(i)
-          spg(i)%SymOp(3)=SSpaceGroup%SymOp(i+1)
-          spg(i)%SymOp(3)%Mat(Dp,Dp)=-1//1
-          spg(i)%SymOp(4)=spg(i)%SymOp(1)
-          spg(i)%SymOp(4)%Mat(Dp,Dp)=-1//1
-          spg(i)%SymOp(4)%Mat(Dp-1,Dp)=1//2
-          Call Gen_Group(4,spg(i)%SymOp,multip)
-        !Writing of the rational operator matrices
-          Write(*,"(2(a,i4))") " Number of generated operators for subgroup # ",i,":",multip
-        !if(allocated(matrix)) deallocate(Matrix)
-        !allocate(Matrix(Dp,Dp))
-        !forma="( a8)"
-        !write(forma(2:2),"(i1)") Dp
-          do j=1,multip
-            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"xyz")
-            write(unit=*,fmt="(a,i3,a)") "  Operator # ",j,"  "//trim(Operator_Symbol)
-            !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
-            !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
-            !do j=1,Dp
-            !   write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-            !end do
-          end do
-        end do
-        !write(*,"(a,i3)") " Reflection conditions: ",igroup_nconditions(m)
-        !if(igroup_nconditions(m) > 0)then
-        ! do k=1,igroup_nconditions(m)
-        !   write(*,*)((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4)
-        ! end do
-        !end if
-      end do
-
-    End Program read_ssg_datafile
+  End Module CFML_SuperSpaceGroups

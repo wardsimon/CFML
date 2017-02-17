@@ -71,7 +71,7 @@ else
 	  OPT1="-c -O -ffree-line-length-none"
             ;;
       'ifort')
-          OPT1="-c -O -w -vec-report0"
+          OPT1="-c -O -w"
             ;;
       'lf95')
           OPT1="-c -O --nchk --tpp"
@@ -96,14 +96,14 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'gfortran')
-      INC="-I../../GFortran/LibC"
-      LIB="-L../../GFortran/LibC"
+      INC="-I$CRYSFML/GFortran/LibC"
+      LIB="-L$CRYSFML/GFortran/LibC"
       LIBSTATIC="-lcrysfml"
       LIBDYNAMIC="-lcrysfml"
      ;;
    'ifort')
-      INC="-I../../Intel/LibC"
-      LIB="-L../../Intel/LibC"
+      INC="-I$CRYSFML/ifort64/LibC"
+      LIB="-L$CRYSFML/ifort64/LibC"
       LIBDYNAMIC="-lcrysfml"
       LIBSTATIC="-lcrysfml"
      ;;
