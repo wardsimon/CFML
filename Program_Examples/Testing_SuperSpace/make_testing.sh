@@ -96,16 +96,25 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'gfortran')
+     
       INC="-I$CRYSFML/GFortran/LibC"
       LIB="-L$CRYSFML/GFortran/LibC"
       LIBSTATIC="-lcrysfml"
       LIBDYNAMIC="-lcrysfml"
      ;;
    'ifort')
-      INC="-I$CRYSFML/ifort64/LibC"
-      LIB="-L$CRYSFML/ifort64/LibC"
-      LIBDYNAMIC="-lcrysfml"
-      LIBSTATIC="-lcrysfml"
+      if [ $DEBUG = "deb" ]
+      then
+        INC="-I$CRYSFML/ifort64_debug/LibC"
+        LIB="-L$CRYSFML/ifort64_debug/LibC"
+        LIBDYNAMIC="-lcrysfml"
+        LIBSTATIC="-lcrysfml"
+      else
+        INC="-I$CRYSFML/ifort64/LibC"
+        LIB="-L$CRYSFML/ifort64/LibC"
+        LIBDYNAMIC="-lcrysfml"
+        LIBSTATIC="-lcrysfml"
+      fi
      ;;
    'lf95')
       INC="--mod .:../../Lahey/LibC"
@@ -117,24 +126,26 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 read_ssg_datafile.f90    $INC
+$COMP $OPT1 CFML_ssg_datafile.f90       $INC
+$COMP $OPT1 CFML_SuperSpaceGroups.f90   $INC
+$COMP $OPT1 testing_ssg.f90             $INC
 
 case $COMP
 in
   'af95')
-     $COMP *.o  -o read_ssg_datafile -static $LIB $LIBSTATIC
+     $COMP *.o  -o testing_ssg -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o read_ssg_datafile  $LIB $LIBSTATIC
+     $COMP *.o  -o testing_ssg  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o read_ssg_datafile  $LIB $LIBSTATIC
+     $COMP *.o  -o testing_ssg  $LIB $LIBSTATIC
      ;;
   'ifort')
-     $COMP *.o -o read_ssg_datafile -static-intel $LIB $LIBSTATIC
+     $COMP *.o -o testing_ssg -static-intel $LIB $LIBSTATIC
      ;;
   'lf95')
-     $COMP *.o --out read_ssg_datafile --staticlink $LIB $LIBDYNAMIC
+     $COMP *.o --out testing_ssg --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
 rm -rf *.o *.mod
