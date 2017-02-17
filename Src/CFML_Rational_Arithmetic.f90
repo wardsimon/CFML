@@ -316,8 +316,8 @@
         m(0,1) = m(0,0); m(0,0) = t
         t = m(1,0) * ai + m(1,1)
         m(1,1) = m(1,0)
-	      m(1,0) =  t
-	      rai=real(ai,kind=dp)
+        m(1,0) =  t
+        rai=real(ai,kind=dp)
         if( abs(x - rai ) < eps) exit !division by zero
         x = 1.0_dp/(x - rai)
       end do
