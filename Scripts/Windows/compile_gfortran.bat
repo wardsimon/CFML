@@ -49,6 +49,7 @@ rem
    gfortran -c %OPTC% CFML_random.f90                           %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_ffts.f90                             %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_string_util.f90                      %OPT1% %OPT2%
+   gfortran -c %OPTC% CFML_Rational_Arithmetic.f90              %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      gfortran -c %OPTC% CFML_io_messwin.f90                     %OPT1% %OPT2% %OPT3%
    ) else (
@@ -109,6 +110,7 @@ rem
    echo **---- Level 7 ----**
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
+   gfortran -c %OPTC% CFML_Magnetic_Groups.f90                 %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_magsymm.f90                         %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_optimization_san.f90                %OPT1% %OPT2% %OPT3%
    gfortran -c %OPTC% CFML_refcodes.f90                        %OPT1% %OPT2%
