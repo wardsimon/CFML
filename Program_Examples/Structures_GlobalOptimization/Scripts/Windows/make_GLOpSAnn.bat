@@ -19,6 +19,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTD
    goto END
 rem
 rem ****---- Absoft Compiler ----****
@@ -40,6 +41,12 @@ rem ****---- Intel Compiler ----****
    ifort /c GLOpSAnn.f90           /O3 /nologo /IC:\CrysFML\ifort\LibC
    rem ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:64000000
    link /subsystem:console /stack:64000000 /out:GLOpSAnn.exe *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib
+   goto END
+:IFORTD
+   ifort /c observ.f90           /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c cost_functions.f90   /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c GLOpSAnn.f90         /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /subsystem:console  /out:GLOpSAnn.exe *.obj  C:\CrysFML\ifort_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

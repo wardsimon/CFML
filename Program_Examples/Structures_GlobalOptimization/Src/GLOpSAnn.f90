@@ -572,13 +572,20 @@ Program Global_Optimization_Xtal_structures
 
 End Program Global_Optimization_Xtal_structures
 
-Subroutine Write_FST(fst_file)
+    !!----       Subroutine Write_FST(fst_file,v,cost)
+    !!----          character(len=*),     intent(in):: fst_file
+    !!----          real,dimension(:),    intent(in):: v
+    !!----          real,                 intent(in):: cost
+    !!----       End Subroutine Write_FST
+Subroutine Write_FST(fst_file,v,cost)
    !---- Arguments ----!
    use CFML_String_Utilities,      only:  get_logunit
    Use CFML_Keywords_Code_Parser,  only:  VState_to_AtomsPar
    use cost_functions,             only:  Cell,A,SpG
 
    character(len=*),     intent(in):: fst_file
+   real,dimension(:),    intent(in):: v
+   real,                 intent(in):: cost
 
    !----- Local variables -----!
    integer :: lun,i,nc, ier

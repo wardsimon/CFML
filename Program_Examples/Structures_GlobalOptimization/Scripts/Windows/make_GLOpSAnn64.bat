@@ -33,12 +33,12 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c observ.f90             /O3 /nologo /IC:\CrysFML\ifort64\LibC
-   ifort /c cost_functions.f90     /O3 /nologo /IC:\CrysFML\ifort64\LibC
-   ifort /c GLOpSAnn.f90           /O3 /nologo /IC:\CrysFML\ifort64\LibC
+   ifort /c observ.f90             /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c cost_functions.f90     /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c GLOpSAnn.f90           /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
    rem ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib /link /stack:64000000
    ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib ^
-          /link /subsystem:console /stack:64000000
+          /link /subsystem:console 
    goto END
 rem
 rem **---- G95 Compiler ----**
