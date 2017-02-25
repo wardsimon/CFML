@@ -658,7 +658,7 @@
        !
        ! IF(INEG .EQ. 1)J=J+1        ! reinstate if we want to only allow for neg sign, and start with J=1
        !
-       d=w-j
+       d=w-j-ineg
        if (d < 0) d=0     ! safety: should never happen
 
        write(unit=carw,fmt='(i4)') w
