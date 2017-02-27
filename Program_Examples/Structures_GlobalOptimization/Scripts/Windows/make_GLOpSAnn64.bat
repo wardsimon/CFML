@@ -19,6 +19,7 @@ cd ..\..\Src
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTD
    goto END
 rem
 rem ****---- Absoft Compiler ----****
@@ -33,12 +34,17 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c observ.f90             /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c cost_functions.f90     /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c GLOpSAnn.f90           /Od /nologo /heap-arrays /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c observ.f90            /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
+   ifort /c cost_functions.f90    /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
+   ifort /c GLOpSAnn.f90          /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
    rem ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib /link /stack:64000000
-   ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib ^
-          /link /subsystem:console 
+   ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib  
+   goto END
+:IFORTD
+   ifort /c observ.f90           /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c cost_functions.f90   /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c GLOpSAnn.f90         /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
+   ifort   /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
