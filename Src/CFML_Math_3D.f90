@@ -1518,7 +1518,7 @@
        !---- Arguments ----!
        integer,                                 intent(in) :: N       ! Number of Points
        real(kind=cp), dimension(:,:),           intent(in) :: Coord   ! Coordinates (1...N,3)
-       real(kind=cp), dimension(:,:),           intent(in) :: SCoord   ! Sigmas Coordinates (1...N,3)
+       real(kind=cp), dimension(:,:),           intent(in) :: SCoord  ! Sigmas Coordinates (1...N,3)
        real(kind=cp), dimension(4),             intent(out):: Plane   ! Eq: Ax + By + Cz +D =0
        real(kind=cp), dimension(4),   optional, intent(out):: SPlane  ! RMS for Plane parameters
        character(len=*),              optional, intent(in) :: Mode    ! If present: F for Fractional coordinates

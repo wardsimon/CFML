@@ -2480,6 +2480,11 @@
 !_space_group_magn.name_OG "I_P4'/m"
 !_space_group_magn.point_group "4/m1'"
 
+!_space_group.magn_number_BNS   84.58
+!_space_group.magn_name_BNS     "P_I 4_2/m"
+!_space_group.magn_point_group "4/m1'"
+!_space_group.magn_point_group_number "11.2.36"
+
 !loop_
 !_space_group_magn_transforms.id
 !_space_group_magn_transforms.Pp_abc
@@ -2490,16 +2495,16 @@
 
 
 
-             Case("_magnetic_space_group_standard_setting")
+             Case("_magnetic_space_group_standard_setting","_magnetic_space_group.standard_setting")
                 chars=adjustl(line(j+1:))
                 if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
-                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_standard_setting"
+                write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_standard_setting -> "//trim(chars)
              
              Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%Parent_spg=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_name_h-m"
+                write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_name_h-m -> "// MGp%Parent_spg
 
              Case("_parent_space_group.it_number","_parent_space_group_it_number")
                 read(unit=lowline(j:),fmt=*,iostat=ier) m
@@ -2509,47 +2514,60 @@
                   return
                 end if
                 MGp%Parent_num=m
-                !write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_it_number"
+                write(unit=*,fmt="(a,i4)") "  Treating item: _parent_space_group_it_number -> ", MGp%Parent_num
 
-             Case("_magnetic_space_group_bns_number","_space_group_magn.number_bns")
+             Case("_magnetic_space_group_bns_number","_space_group.magn_number_bns","_space_group_magn.number_bns")
                 shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
                 MGp%BNS_number=shubk
-                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_bns"
+                write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_bns -> "//trim(MGp%BNS_number)
 
-             Case("_magnetic_space_group_bns_name","_space_group_magn.name_bns")
+             Case("_magnetic_space_group_bns_name","_space_group_magn.name_bns","_space_group.magn_name_bns")
                 shubk=adjustl(line(j+1:))
-                m=len_trim(shubk)
-                MGp%BNS_symbol=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns"
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%BNS_symbol=shubk
+                write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns -> "//trim(MGp%BNS_symbol)
 
-             Case("_magnetic_space_group_og_number","_space_group_magn.number_og")
+             Case("_magnetic_space_group_og_number","_space_group_magn.number_og","_space_group.magn_number_og")
                 shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
                 MGp%OG_number=shubk
-                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_og"
+                write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_og -> "//trim(MGp%OG_number)
 
-             Case("_magnetic_space_group_point_group","_space_group_magn.point_group")
+             Case("_magnetic_space_group_point_group","_space_group_magn.point_group","_space_group.magn_point_group")
                 shubk=adjustl(line(j+1:))
-                m=len_trim(shubk)
-                MGp%PG_symbol=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _space_group_magn.point_group"
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%PG_symbol=shubk
+                write(unit=*,fmt="(a)") "  Treating item: _space_group_magn.point_group -> "//trim(MGp%PG_symbol)
                 
-             Case("_magnetic_space_group_og_name","_space_group_magn.name_og")
+             Case("_magnetic_space_group_og_name","_space_group_magn.name_og","_space_group.magn_name_og")
                 shubk=adjustl(line(j+1:))
-                m=len_trim(shubk)
-                MGp%OG_symbol=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og"
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%OG_symbol=shubk
+                write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og -> "//trim(MGp%OG_symbol)
+
+!_magnetic_space_group.standard_setting              'no'
+!_magnetic_space_group.transform_from_parent_Pp_abc  'a,b,c;0,0,0'
+!_magnetic_space_group.transform_to_standard_Pp_abc  'a,b,c;1/2,0,0'
 
              Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc")
                 shubk=adjustl(line(j+1:))
-                m=len_trim(shubk)
-                MGp%trn_from_parent=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc"
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%trn_from_parent=shubk
+                write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
 
              Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
                 shubk=adjustl(line(j+1:))
-                m=len_trim(shubk)
-                MGp%trn_to_standard=shubk(2:m-1)
-                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_to_standard_pp_abc"
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%trn_to_standard=shubk
+                write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_to_standard_pp_abc -> "//trim(MGp%trn_to_standard)
 
              Case("_magnetic_cell_length_a","_cell_length_a")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2561,7 +2579,7 @@
                 cel(1)=values(1)
                 cel_std(1)=std(1)
                 MGp%m_cell=.true.
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_a"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_length_a"
 
              Case("_magnetic_cell_length_b","_cell_length_b")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2572,7 +2590,7 @@
                 end if
                 cel(2)=values(1)
                 cel_std(2)=std(1)
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_b"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_length_b"
 
              Case("_magnetic_cell_length_c","_cell_length_c")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2583,7 +2601,7 @@
                 end if
                 cel(3)=values(1)
                 cel_std(3)=std(1)
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_c"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_length_c"
 
              Case("_magnetic_cell_angle_alpha","_cell_angle_alpha")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2594,7 +2612,7 @@
                 end if
                 ang(1)=values(1)
                 ang_std(1)=std(1)
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_alpha"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_angle_alpha"
 
              Case("_magnetic_cell_angle_beta","_cell_angle_beta")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2605,7 +2623,7 @@
                 end if
                 ang(2)=values(1)
                 ang_std(2)=std(1)
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_beta"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_angle_beta"
 
              Case("_magnetic_cell_angle_gamma","_cell_angle_gamma")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2616,7 +2634,7 @@
                 end if
                 ang(3)=values(1)
                 ang_std(3)=std(1)
-                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_gamma"
+                write(unit=*,fmt="(a)") "  Treating item: _cell_angle_gamma"
 
              Case("loop_")
                  i=i+1
@@ -2772,15 +2790,15 @@
                    
                    Case("_space_group_symop_magn_operation.id")
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
-                      !do k=1,2
-                        i=i+1
-                        j=index(mcif%line(i),"_space_group_symop_magn_operation.xyz")
-                        if(j == 0 ) then
-                          err_magsym=.true.
-                          ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_operation loop"
-                          return
-                        end if
-                      !end do
+                      
+                      i=i+1
+                      j=index(mcif%line(i),"_space_group_symop_magn_operation.xyz")
+                      if(j == 0 ) then
+                        err_magsym=.true.
+                        ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_operation loop"
+                        return
+                      end if
+                      
                       k=0
                       do
                         i=i+1
@@ -2793,7 +2811,7 @@
                       MGp%Multip=k
 
                                                        
-                   Case("_space_group_symop.magn_id","_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
+                   Case("_space_group_symop.magn_id")   !here the symmetry operators are separated from the translations
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
                       do k=1,2
                         i=i+1                   
@@ -2819,24 +2837,61 @@
 
                       num_rsym=k
        
+                   Case("_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
+                      i=i+1                   
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
+                        err_magsym=.true.
+                        ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_operation loop"
+                        return
+                      end if
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation_mxmymz") == 0) then
+                         no_symop_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+
+                      num_rsym=k
                                                                
-                   Case("_space_group_symop.magn_centering_id","_space_group_symop_magn_centering_id")   !here we read the translations and anti-translations
+                   Case("_space_group_symop.magn_centering_id")   !here we read the translations and anti-translations
                       write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
                       do k=1,2
                         i=i+1
                         if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0 .and. &
-                           index(mcif%line(i),"_space_group_symop_magn_centering") == 0 .and. &
-                           index(mcif%line(i),"_space_group_symop_magn_centering.xyz") == 0) then
+                           index(mcif%line(i),"_space_group_symop_magn_centering") == 0 ) then
                           err_magsym=.true.
                           ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_centering loop"
                           return 
                         end if
                       end do
                       if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0 .and. &
-                         index(mcif%line(i),"_space_group_symop_magn_centering_mxmymz") == 0 .and. &
-                         index(mcif%line(i),"_space_group_symop_magn_centering.xyz") == 0) then
+                         index(mcif%line(i),"_space_group_symop_magn_centering_mxmymz") == 0 ) then
                          i=i-1
                          no_cent_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        cent_strings(k)=mcif%line(i)
+                      end do
+                      num_centering=k
+
+                   Case("_space_group_symop_magn_centering.id")   !here we read the translations and anti-translations
+                      write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
+                      i=i+1
+                      if(index(mcif%line(i),"_space_group_symop_magn_centering.xyz") == 0) then
+                        err_magsym=.true.
+                        ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_centering.xyz loop"
+                        return 
                       end if
                       k=0
                       do
