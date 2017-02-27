@@ -413,6 +413,7 @@
     !!----   character(len=15)                              :: OG_number
     !!----   Character(len=34)                              :: BNS_symbol
     !!----   Character(len=34)                              :: OG_symbol
+    !!----   Character(len=34)                              :: PG_symbol
     !!----   Integer                                        :: MagType
     !!----   Integer                                        :: Parent_num
     !!----   Character(len=20)                              :: Parent_spg
@@ -470,6 +471,7 @@
        character(len=15)                              :: OG_number=" "
        Character(len=34)                              :: BNS_symbol=" "
        Character(len=34)                              :: OG_symbol=" "
+       Character(len=34)                              :: PG_symbol=" "
        Integer                                        :: MagType=0
        Integer                                        :: Parent_num=0
        Character(len=20)                              :: Parent_spg=" "
@@ -10327,6 +10329,7 @@
        write(unit=lun,fmt="(a,i3)")          " =>        Type of Magnetic group: ", SG%MagType
        write(unit=lun,fmt="(a,i3)")          " =>           Parent group number: ", SG%Parent_num
        write(unit=lun,fmt="(a,a)")           " =>           Parent group Symbol: ", trim(SG%Parent_spg)
+       write(unit=lun,fmt="(a,a)")           " =>   Magnetic point group Symbol: ", trim(SG%PG_symbol)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation from parent: ", trim(SG%trn_from_parent)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation to standard: ", trim(SG%trn_to_standard)
        write(unit=lun,fmt="(a,a)")           " =>  Transformation from standard: ", trim(SG%trn_from_standard)
