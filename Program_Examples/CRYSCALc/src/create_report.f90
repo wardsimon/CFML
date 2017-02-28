@@ -1042,7 +1042,9 @@ subroutine  create_report
    WRITE(LATEX_unit, '(2a)') "\item ", trim(structure_solution%reference)
    WRITE(LATEX_unit, '(2a)') "\item ", trim(structure_refinement%reference)
    !WRITE(LATEX_unit, '(a)')  "\item  L. J. Farrugia, J. Appl. Cryst., 1999, 32, 837-838"
+   if(CIF_parameter%WinGX_used) then
    WRITE(LATEX_unit, '(a)')  "\item   L. J. Farrugia, J. Appl. Cryst., 2012, 45, 849-854"
+   end if
    if(SQUEEZE%procedure) then
     if(SHELXL_2014) then
      WRITE(LATEX_unit, '(a)') "\item A.L. Spek, Acta Cryst. (2015) C71, 9-18"

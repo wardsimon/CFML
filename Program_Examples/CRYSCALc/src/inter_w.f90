@@ -634,7 +634,8 @@ subroutine run_keyword_interactive(current_keyword)
        if (nb_dhkl_value /=0) call X_space_calculation('DHKL')
 
       CASE ('HKL')
-       if(nb_hkl /=0 .and. keyword_CELL)    call calcul_dhkl
+       !if(nb_hkl /=0 .and. keyword_CELL)    call calcul_dhkl
+	   if(nb_hkl /=0)    call calcul_dhkl
 
       CASE ('SF_HKL', 'SFAC_HKL')
        if(nb_hkl /=0 .and. keyword_CELL .and. keyword_SPGR ) call Calcul_SFAC_HKL
@@ -710,7 +711,7 @@ subroutine run_keyword_interactive(current_keyword)
         if(keyword_find_HKL) call search_hkl()               ! recherche reflection particuliere
 
       case ('EQUIV', 'EQUIV_HKL')
-       call search_hkl_EQUIV()
+       if(keyword_FIND_HKL_EQUIV) call search_hkl_EQUIV()
 
       !case ('LIST_HKL', 'LST_HKL', 'LIST_HKL_EXTI', 'LST_HKL_EXTI')
       !CASE ("WRITE_HKL", "WRITE_HKL_LIST", "WRITE_HKL_LST")
@@ -901,8 +902,14 @@ subroutine run_keyword_interactive(current_keyword)
       case ('REF_DENZO', 'WRITE_DENZO', 'DENZO')
        call write_REF('DENZO')
 
-      case ('REF_SHELX', 'SHELX')
+      case ('REF_SHELX')
         call write_REF('SHELX')
+
+      case ('REF_SIR')
+        call write_REF('SIR')
+		
+      case ("REF_SPF", "REF_SUPERFLIP", "SPF", "SUPERFLIP")
+        call write_REF('SPF')		
 
       case ('REF_SADABS', 'REF_SAD', 'SADABS')
        call write_REF('SADABS')
@@ -1099,6 +1106,7 @@ subroutine Reset
     call Deallocate_HKL_arrays
     call deallocate_PGF_data_arrays
     call Def_transformation_matrix
+	call SPG_init
     call cryscalc_INIT
     call read_cryscalc_ini()
     mode_interactif = tmp_logical

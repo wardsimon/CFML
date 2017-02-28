@@ -72,6 +72,10 @@ program crystallographic_calculations
     len_cmd_line = len_cmd_line + len_trim(cmd_arg(i)) + 1
     cmd_line = trim(cmd_line)// ' ' //trim(cmd_arg(i))
    end do
+   
+   call check_command_line(cmd_line, nb_arg)  ! 27 fev. 2017
+   
+   
    i_arg_DEBUG      = 0
    i_arg_NOOUT      = 0
    i_arg_NOHKL      = 0
@@ -131,14 +135,17 @@ program crystallographic_calculations
     end if
 
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'RAW=' ) then
+	 if(index(u_case(RAW_file_name), '.RAW') ==0) RAW_file_name = trim(RAW_file_name)//'.RAW' 
      RAW_file_name = cmd_arg(i)(5:)
      keyword_RAW = .true.
     end if
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'ABS=' ) then
+	 if(index(u_case(ABS_file_name), '.ABS') ==0) ABS_file_name = trim(ABS_file_name)//'.ABS' 
      ABS_file_name = cmd_arg(i)(5:)
      !keyword_ABS = .true.
     end if
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'HKL=' ) then
+	 if(index(u_case(HKL_file_name), '.HKL') ==0) HKL_file_name = trim(HKL_file_name)//'.HKL' 
      HKL_file_name = cmd_arg(i)(5:)
      if (index(u_case(HKL_file_name), "_4.HKL") /=0) then
       twinabs_file = .true.
@@ -712,6 +719,52 @@ program crystallographic_calculations
  call end_of_program()
 
 end program crystallographic_calculations
+
+!------------------------------------------------------------------------------
+! ----------- 27 fev. 2017 ------------------------------
+
+subroutine Check_command_line(cmd_line, nb_arg)
+ USE macros_module, only : nombre_de_colonnes
+  implicit none
+  character (len=256), intent(inout) :: cmd_line
+  integer            , intent(inout) :: nb_arg
+  character (len=256), dimension(10) :: cmd_arg
+  integer                            :: i, i1
+
+  ! 
+  if(nb_arg /=0) then
+   do i=1, nb_arg
+    i1 = index(cmd_line, "P4P=")
+	if(i1/=0) then
+	 cmd_line = cmd_line(1:i1+3)// adjustl(cmd_line(i1+4:))
+	 exit
+	end if
+   end do
+   
+   call nombre_de_colonnes(cmd_line, nb_arg)
+   do i=1, nb_arg
+    i1 = index(cmd_line, "HKL=")
+	if(i1/=0) then
+	 cmd_line = cmd_line(1:i1+3)// adjustl(cmd_line(i1+4:))
+	 exit
+	end if
+   end do
+   
+   call nombre_de_colonnes(cmd_line, nb_arg)
+   do i=1, nb_arg
+    i1 = index(cmd_line, "ABS=")
+	if(i1/=0) then
+	 cmd_line = cmd_line(1:i1+3)// adjustl(cmd_line(i1+4:))
+	 exit
+	end if
+   end do
+   
+   call nombre_de_colonnes(cmd_line, nb_arg)
+  end if
+ 
+ return
+end subroutine Check_command_line
+
 
 !!---------------------------------------------------------------------------------------
 

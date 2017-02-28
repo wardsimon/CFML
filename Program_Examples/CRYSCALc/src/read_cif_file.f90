@@ -714,6 +714,26 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
    if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
+  CIF_string = '_reflns_Friedel_coverage'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%Friedel_coverage == '?') then
+   read(string_value, '(a)') CIF_parameter%Friedel_coverage
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+  CIF_string = '_reflns_Friedel_fraction_full'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%Friedel_fraction_full == '?') then
+   read(string_value, '(a)') CIF_parameter%Friedel_fraction_full
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+  CIF_string = '_reflns_Friedel_fraction_max'
+  call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
+  if(ok .and. CIF_parameter%Friedel_fraction_max == '?') then
+   read(string_value, '(a)') CIF_parameter%Friedel_fraction_max
+   if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
+  end if
+
+  
   CIF_string = '_computing_structure_refinement'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. string_value(1:1) /= '?') then

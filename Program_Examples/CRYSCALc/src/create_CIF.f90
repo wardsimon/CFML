@@ -298,7 +298,7 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(a, F8.1)')  "_exptl_crystal_F_000                          ", F000
 
       case ('CHEMICAL_INFORMATION')
-  call write_CIF_section("CHEMICAL_INFORMATION")
+  call write_CIF_section("CHEMICAL INFORMATION")
 
 
       case('CHEMICAL_2')

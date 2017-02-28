@@ -68,26 +68,51 @@ subroutine cryscalc_init()
   DEVICE%Xcalibur  = .false.
   DEVICE%SuperNova = .false.
 
-
-
+  
+  !Structure_solution%title       = "SIR97: a new tool for crystal structure determination and refinement"
+  !Structure_solution%DOI         = "10.1107/S0021889898007717"
   Structure_solution%name         = 'SIR97'
   Structure_solution%reference    = 'A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, '// &
                                     'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, '//   &
                                     'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   Structure_solution%CIF_ref      = 'SIR97 (Altomare et al., 1999)'
   
+  
+  !Structure_solution%title        = "SIR2004: an improved tool for crystal structure determination and refinement"
+  !Structure_solution%DOI          = "10.1107/S002188980403225X"
   !Structure_solution%name         = 'SIR2004'
   !Structure_solution%reference    = 'M.C. Burla, R. Caliandro, M. Camalli, B. Carrozzini, '//  &
   !                                   'G. Cascarano, L. De Caro, C. Giacovazzo, G. Polidori, '// & 
   !  								  'R. Spagna, J. Appl. Cryst. (2005) 38, 381-388'
   !Structure_solution%CIF_ref      = 'SIR2004 (Burla., 2005)  '
- 
+
+  !Structure_solution%title        = 'SHELXT - Integrated space-goup and crystal-structure determination'
+  !Structure_solution%DOI          = '10.1107/S2053273314026370'
+  !Structure_solution%name         = 'SHELXT'
+  !Structure_solution%reference    = 'Sheldrick G.M., Acta Cryst. A71 (2015) 3-8'
+  !Structure_solution%CIF_ref      = 'SHELXT (Sheldrick G.M., 2015)'
+
+  !Structure_solution%title        = 'Superflip - a computer program for the solution of crystal structures by charge flipping in arbitrary dimensions'
+  !Structure_solution%DOI          = '10.1107/S0021889807029238'
+  !Structure_solution%name         = 'Superflip'
+  !Structure_solution%reference    = 'Palatinus L., Chapuis G., J. Appl. Cryst. (2007, 40, 786-790'
+  !Structure_solution%CIF_ref      = 'SUPERFLIP (Palatinus et al, 2007)'
+
   
   CIF_parameter%atom_sites_solution_1 = "direct"    ! "structure-invariant direct methods"
   CIF_parameter%atom_sites_solution_2 = "difmap"    ! "difference Fourier map"
+  !Structure_refinement%title     = 'A short history of SHELX'
+  !Structure_refinement%DOI       = '10.1107/S0108767307043930'
   Structure_refinement%name       = 'SHELXL-97'
   Structure_refinement%reference  = 'Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
   Structure_refinement%CIF_ref    = 'SHELXL-97 (Sheldrick, 2008)'
+  
+  !Structure_refinement%title     = 'Crystal structure refinement with SHELXL'
+  !Structure_refinement%DOI       = '10.1107/S2053229614024218'
+  Structure_refinement%name       = 'SHELXL-2014'
+  Structure_refinement%reference  = 'SHELXL-2014/6: Sheldrick G.M., Acta Cryst. C71 (2015) 3-8'
+  Structure_refinement%CIF_ref    = 'SHELXL-2014/6 (Sheldrick, 2015)'
+  
   Absorption_correction%name      = '?'
   Absorption_correction%reference = '?'
   Absorption_correction%CIF_ref   = '?'
@@ -176,8 +201,11 @@ subroutine cryscalc_init()
   SHELX%version      = ''
   SHELX%details      = '?'
 
-
-
+  SIR%name           = '?'
+  SIR%details        = '?'
+  
+  SPF%name           = '?'
+  SPF%details        = '?'
 
   nb_da          = 0
   nb_ra          = 0
@@ -645,7 +673,12 @@ subroutine cryscalc_init()
   CIF_parameter%abs_structure_details            = '?'
   CIF_parameter%shelx_res_checksum               = '?'
   CIF_parameter%shelx_hkl_checksum               = '?'
-  CIF_parameter%shelx_fab_checksum               = '?'
+  CIF_parameter%shelx_fab_checksum               = '?' 
+  CIF_parameter%Friedel_coverage                 = "?"
+  CIF_parameter%Friedel_fraction_full            = "?"
+  CIF_parameter%Friedel_fraction_max             = "?"
+  
+  CIF_parameter%WinGX_used                           = .false.
 
   CIF_parameter_DEVICE%diffracto_device                  = '?'
   CIF_parameter_DEVICE%diffracto_radiation_type          = '?'
@@ -682,11 +715,17 @@ subroutine cryscalc_init()
   write(CIF_parameter_DEVICE%computing_structure_solution,   '(3a)') "'", trim(structure_solution%CIF_ref),   "'"
   write(CIF_parameter_DEVICE%computing_structure_refinement, '(3a)') "'", trim(structure_refinement%CIF_ref), "'"
   !CIF_parameter_DEVICE%computing_molecular_graphics         = "'Ortep-3 for Windows (Farrugia, 1997)'"
-  CIF_parameter_DEVICE%computing_molecular_graphics         = "'SXGRAPH (Farrugia, 1999), Mercury (CSD, 2014)'"
+  CIF_parameter_DEVICE%computing_molecular_graphics         = "'SXGRAPH (Farrugia, 1999), Mercury (CSD, 2016)'"
   CIF_parameter_DEVICE%computing_publication_material_1     = "WinGX publication routines (Farrugia, 2012),"
   CIF_parameter_DEVICE%computing_publication_material_2     = "CRYSCALC (T. Roisnel, local program, 2016)"
+  
+  ! -------------- WinGX features -----------------------------------------
+  ! ref   : Farrugia L. J., J. Appl. Crystallogr. 1999, 32, 837-838
+  ! title : WinGX suite for small-molecule single-crystal crystallography
+  ! DOI   : 10.1107/S0021889899006020 
+  ! -----------------------------------------------------------------------
 
-  CIF_parameter%WinGX_used                           = .false.
+  
 
 
   SW_DENZO%data_collection                              = "'Collect (Nonius BV, 1997-2000)'"
@@ -883,9 +922,44 @@ subroutine cryscalc_init()
   SHELX%details(2)  = "_computing_structure_solution    'SHELXS-97:     Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'"
   SHELX%details(3)  = "_computing_structure_solution    'SHELXT:        Sheldrick G.M., Acta Cryst. A71 (2015) 3-8'"
   SHELX%details(4)  = "_computing_structure_refinement  'SHELXL-97:     Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'"
-  SHELX%details(5)  = "_computing_structure_refinement  'SHELXL-2014/7: Sheldrick G.M., Acta Cryst. C71 (2015) 3-8'"
+  SHELX%details(5)  = "_computing_structure_refinement  'SHELXL-2014/6: Sheldrick G.M., Acta Cryst. C71 (2015) 3-8'"
   SHELX%details(6)  = ";"
-
+  
+  SHELX%details(10) = "SHELXL-97"
+  SHELX%details(11) = "  Sheldrick G.M., Acta Cryst. A64 (2008), 112-122"
+  SHELX%details(12) = "  A short history of SHELX"
+  SHELX%details(13) = "  DOI: http://dx.doi.org/10.1107/S0108767307043930"
+  SHELX%details(14) = "SHELXL-2014"
+  SHELX%details(15) = "  Sheldrick G.M., Acta Cryst. C71 (2015) 3-8"
+  SHELX%details(16) = "  Crystal structure refinement with SHELXL"
+  SHELX%details(17) = "  DOI: http://dx.doi.org/10.1107/S2053229614024218"
+  SHELX%details(18) = "SHELXT"
+  SHELX%details(19) = "  Sheldrick G.M., Acta Cryst. A71 (2015) 3-8"
+  SHELX%details(20) = "  SHELXT - Integrated space-group and crystal-structure determination"
+  SHELX%details(21) = "  DOI: http://dx.doi.org/10.1107/S2053273314026370"
+  
+  SIR%details(1)    = "SIR97"
+  SIR%details(2)    = "  A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, "// &
+                      "G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119"
+  SIR%details(3)    = "  SIR97: a new tool for crystal structure determination and refinement"
+  SIR%details(4)    = "  DOI: http://dx.doi.org/10.1107/S0021889898007717"
+  SIR%details(5)    = "SIR2004"
+  SIR%details(6)    = "  M.C. Burla, R. Caliandro, M. Camalli, B. Carrozzini, G. Cascarano, L. De Caro, C. Giacovazzo, " // &
+                      "G. Polidori, R. Spagna, J. Appl. Cryst. (2005) 38, 381-388"
+  SIR%details(7)    = "  SIR2004: an improved tool for crystal structure determination and refinement"
+  SIR%details(8)    = "  DOI: http://dx.doi.org/10.1107/S002188980403225X"
+  SIR%details(9)    = "SIR2014"
+  SIR%details(10)   = "  M.C. Burla, R. Caliandro, B. Carrozzini, G. L. Cascarano, C. Cuocci, C. Giacovazzo, M. Mallamo, "// &
+                      "A. Mazzoneb and G. Polidori, J. Appl. Cryst. (2015). 48, 306–309"
+  SIR%details(11)   = "  SIR2004: an improved tool for crystal structure determination and refinement"
+  SIR%details(12)   = "  DOI: http://dx.doi.org/10.1107/S1600576715001132"
+ 
+  SPF%details(1)    = "SUPERFLIP"
+  SPF%details(2)    = "  Palatinus L., Chapuis G., J. Appl. Cryst. (2007, 40, 786-790"
+  SPF%details(3)    = "  Superflip - a computer program for the solution of crystal structures by charge flipping " // &
+                      "in arbitrary dimensions"
+  SPF%details(4)    = "  DOI: http://dx.doi.org/10.1107/S0021889807029238"
+  
 
   ABS_CRYSALIS%type       = "_exptl_absorpt_correction_type                          multi-scan"
   ABS_CRYSALIS%details(1) = "_exptl_absorpt_process_details"
@@ -1165,19 +1239,19 @@ subroutine cryscalc_init()
     'READ_HKLF5         ', 'READ_INS           ', 'READ_NREPORT       ', 'READ_PCR           ', 'READ_TIDY_OUT      ', &
     'REC_ANG            ', 'REDUCE_CELL        ', 'REF_ABS_CRYSALIS   ', 'REF_D8V_CU         ', 'REF_D8V_MO         ', &
     'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', 'REF_KCCD           ', 'REF_SADABS         ', &
-    'REF_SHELX          ', 'REF_SUPERNOVA      ', 'REF_X2S            ', 'REF_XCALIBUR       ', 'RESET              ', &
-    'RINT               ', 'RHOMB_HEX          ', 'SAVE_SETTINGS      ', 'SEARCH_EXTI        ', 'SEARCH_MONO        ', &
-    'SEARCH_SPGR        ', 'SEARCH_TETRA       ', 'SET                ', 'SETTING            ', 'SFAC               ', &
-    'SF_HKL             ', 'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', 'SG_INFO            ', &
-    'SG_SUB             ', 'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', 'SITE_INFO          ', &
-    'SIZE               ', 'SORT               ', 'STAR_K             ', 'STL                ', 'SUPERCELL          ', &
-    'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', 'THETA              ', &
-    'TITL               ', 'TOLMAN_ANGLE       ', 'TRANSLATION        ', 'TRANSMISSION       ', 'UB_MATRIX          ', &
-    'UPDATE             ', 'USER_MAT           ', 'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', &
-    'TWO_THETA          ', 'UNIT               ', 'WAVE               ', 'WEB                ', 'WRITE_ADP          ', &
-    'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_QVEC         ', &
-    'WRITE_SG           ', 'WRITE_SUPERCELL    ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'WRITE_ZUNIT        ', &
-    'X_WAVE             ', 'ZUNIT              ' /)
+    'REF_SHELX          ', 'REF_SIR            ', 'REF_SUPERFLIP      ', 'REF_SUPERNOVA      ', 'REF_X2S            ', &
+	'REF_XCALIBUR       ', 'RESET              ', 'RINT               ', 'RHOMB_HEX          ', 'SAVE_SETTINGS      ', &
+	'SEARCH_EXTI        ', 'SEARCH_MONO        ', 'SEARCH_SPGR        ', 'SEARCH_TETRA       ', 'SET                ', &
+	'SETTING            ', 'SFAC               ', 'SF_HKL             ', 'SG                 ', 'SG_ALL             ', &
+	'SG_EXTI            ', 'SG_INFO            ', 'SG_SUB             ', 'SHANNON            ', 'SHELL              ', &
+	'SHIFT_2TH          ', 'SITE_INFO          ', 'SIZE               ', 'SORT               ', 'STAR_K             ', &
+	'STL                ', 'SUPERCELL          ', 'SYMM               ', 'SYST               ', 'THERM              ', &
+	'THERM_SHELX        ', 'THETA              ', 'TITL               ', 'TOLMAN_ANGLE       ', 'TRANSLATION        ', &
+	'TRANSMISSION       ', 'UB_MATRIX          ', 'UPDATE             ', 'USER_MAT           ', 'TRICLINIC          ', &
+	'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', 'WAVE               ', &
+	'WEB                ', 'WRITE_ADP          ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', &
+	'WRITE_DEVICE       ', 'WRITE_QVEC         ', 'WRITE_SG           ', 'WRITE_SUPERCELL    ', 'WRITE_SYM_OP       ', &
+	'WRITE_WAVE         ', 'WRITE_ZUNIT        ', 'X_WAVE             ', 'ZUNIT              ' /)
 
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
@@ -1277,67 +1351,69 @@ subroutine cryscalc_init()
   numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 94
   numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 95
   numor = numor + 1;    HELP_REF_SHELX_numor           =  numor  ! 96
-  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 97
-  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  ! 98
-  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  ! 99
-  numor = numor + 1;    HELP_RESET_numor               =  numor  !100
-  numor = numor + 1;    HELP_RINT_numor                =  numor  !101
-  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  !102
-  numor = numor + 1;    HELP_SAVE_SETTINGS_numor       =  numor  !103
-  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  !104
-  numor = numor + 1;    HELP_SEARCH_MONO_numor         =  numor  !105
-  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  !106
-  numor = numor + 1;    HELP_SEARCH_TETRA_numor        =  numor  !107
-  numor = numor + 1;    HELP_SET_numor                 =  numor  !108
-  numor = numor + 1;    HELP_SETTING_numor             =  numor  !109
-  numor = numor + 1;    HELP_SFAC_numor                =  numor  !110
-  numor = numor + 1;    HELP_SFHKL_numor               =  numor  !111
-  numor = numor + 1;    HELP_SG_numor                  =  numor  !112
-  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  !113
-  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  !114
-  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  !115
-  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  !116
-  numor = numor + 1;    HELP_SHANNON_numor             =  numor  !117
-  numor = numor + 1;    HELP_SHELL_numor               =  numor  !118
-  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !119
-  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !120
-  numor = numor + 1;    HELP_SIZE_numor                =  numor  !121
-  numor = numor + 1;    HELP_SORT_numor                =  numor  !122
-  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !123
-  numor = numor + 1;    HELP_STL_numor                 =  numor  !124
-  numor = numor + 1;    HELP_SUPERCELL_numor           =  numor  !125
-  numor = numor + 1;    HELP_SYMM_numor                =  numor  !126
-  numor = numor + 1;    HELP_SYST_numor                =  numor  !127
-  numor = numor + 1;    HELP_THERM_numor               =  numor  !128
-  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !129
-  numor = numor + 1;    HELP_THETA_numor               =  numor  !130
-  numor = numor + 1;    HELP_TITL_numor                =  numor  !131
-  numor = numor + 1;    HELP_TOLMAN_ANGLE_numor        =  numor  !132
-  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !133
-  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !134
-  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !135
-  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !136
-  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !137
-  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !138
-  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !139
-  numor = numor + 1;    HELP_UNIT_numor                =  numor  !140
-  numor = numor + 1;    HELP_UPDATE_numor              =  numor  !141
-  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !142
-  numor = numor + 1;    HELP_WAVE_numor                =  numor  !143
-  numor = numor + 1;    HELP_WEB_numor                 =  numor  !144
-  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !145
-  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !146
-  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !147
-  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !148
-  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !149
-  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !150
-  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !151
-  numor = numor + 1;    HELP_WRITE_SUPERCELL_numor     =  numor  !152
-  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !153
-  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !154
-  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !155
-  numor = numor + 1;    HELP_X_wave_numor              =  numor  !156
-  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !157
+  numor = numor + 1;    HELP_REF_SIR_numor             =  numor  ! 97
+  numor = numor + 1;    HELP_REF_SPF_numor             =  numor  ! 98
+  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 99
+  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  !100
+  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  !101
+  numor = numor + 1;    HELP_RESET_numor               =  numor  !102
+  numor = numor + 1;    HELP_RINT_numor                =  numor  !103
+  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  !104
+  numor = numor + 1;    HELP_SAVE_SETTINGS_numor       =  numor  !105
+  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  !106
+  numor = numor + 1;    HELP_SEARCH_MONO_numor         =  numor  !107
+  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  !108
+  numor = numor + 1;    HELP_SEARCH_TETRA_numor        =  numor  !109
+  numor = numor + 1;    HELP_SET_numor                 =  numor  !110
+  numor = numor + 1;    HELP_SETTING_numor             =  numor  !111
+  numor = numor + 1;    HELP_SFAC_numor                =  numor  !112
+  numor = numor + 1;    HELP_SFHKL_numor               =  numor  !113
+  numor = numor + 1;    HELP_SG_numor                  =  numor  !114
+  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  !115
+  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  !116
+  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  !117
+  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  !118
+  numor = numor + 1;    HELP_SHANNON_numor             =  numor  !119
+  numor = numor + 1;    HELP_SHELL_numor               =  numor  !120
+  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !121
+  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !122
+  numor = numor + 1;    HELP_SIZE_numor                =  numor  !123
+  numor = numor + 1;    HELP_SORT_numor                =  numor  !124
+  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !125
+  numor = numor + 1;    HELP_STL_numor                 =  numor  !126
+  numor = numor + 1;    HELP_SUPERCELL_numor           =  numor  !127
+  numor = numor + 1;    HELP_SYMM_numor                =  numor  !128
+  numor = numor + 1;    HELP_SYST_numor                =  numor  !129
+  numor = numor + 1;    HELP_THERM_numor               =  numor  !130
+  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !121
+  numor = numor + 1;    HELP_THETA_numor               =  numor  !132
+  numor = numor + 1;    HELP_TITL_numor                =  numor  !133
+  numor = numor + 1;    HELP_TOLMAN_ANGLE_numor        =  numor  !134
+  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !135
+  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !136
+  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !137
+  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !138
+  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !139
+  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !140
+  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !141
+  numor = numor + 1;    HELP_UNIT_numor                =  numor  !142
+  numor = numor + 1;    HELP_UPDATE_numor              =  numor  !143
+  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !144
+  numor = numor + 1;    HELP_WAVE_numor                =  numor  !145
+  numor = numor + 1;    HELP_WEB_numor                 =  numor  !146
+  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !147
+  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !148
+  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !149
+  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !150
+  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !151
+  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !152
+  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !153
+  numor = numor + 1;    HELP_WRITE_SUPERCELL_numor     =  numor  !154
+  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !155
+  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !156
+  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !157
+  numor = numor + 1;    HELP_X_wave_numor              =  numor  !158
+  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !159
 
 
  end subroutine cryscalc_init
@@ -4110,3 +4186,18 @@ subroutine write_setting_line(save_settings, input_string)
  end subroutine write_setting_line
 
 !!-------------------------------------------------------------------------------------------------------------------
+
+subroutine SPG_init
+ use cryscalc_module,                ONLY : SPG
+ use CFML_crystallographic_symmetry, ONLY : set_spacegroup, space_group_type
+
+  SPG%NumSPG      = 0
+  SPG%SPG_symb    = ""
+  SPG%CrystalSys  = ""
+  SPG%Laue        = ""
+  SPG%Bravais     = ""
+  SPG%Multip      = 0
+  SPG%centre      = ""
+
+ return
+end subroutine SPG_init

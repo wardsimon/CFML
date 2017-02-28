@@ -229,7 +229,8 @@ end subroutine Calcul_SFAC_hkl
 
 !-------------------------------------------------------------------------------------------
 subroutine generate_HKL()
- USE CFML_Reflections_Utilities,  ONLY : Get_MaxNumRef, HKL_gen, reflect_type, Reflection_list_type, reflection_type, HKL_uni
+ USE CFML_Reflections_Utilities,  ONLY : Get_MaxNumRef, HKL_gen, Hkl_uni, HKL_gen_SXTAL, reflect_type, Reflection_list_type, &
+                                         reflection_type, HKL_uni
  USE CFML_Structure_factors
  Use CFML_Crystallographic_Symmetry, only: Get_Multip_Pos, Write_SpaceGroup
  USE CFML_Crystal_Metrics,        ONLY : Set_Crystal_Cell, Write_Crystal_Cell
@@ -385,8 +386,12 @@ subroutine generate_HKL()
 
  !if(.not. on_screen) call write_info('     ... generation of hkl reflections ...')
 
- call HKL_gen(crystal_cell, SPG, Friedel, STL_min, STL_max, Num_ref, reflex_HKL )
-
+ if(.not. Friedel) then
+  call Hkl_GEN_SXTAL(crystal_cell, SPG,  STL_min, STL_max, Num_ref, reflex_HKL )
+ else
+  call HKL_gen(crystal_cell, SPG, Friedel, STL_min, STL_max, Num_ref, reflex_HKL )
+ end if
+ 
  if(on_screen .and. write_details) then
   call write_info(' ')
   if(HKL_STL) then
@@ -411,6 +416,11 @@ subroutine generate_HKL()
   call write_info(trim(message_text))
   call write_info(' ')
  end if
+ 
+ 
+ !call Hkl_uni(crystal_cell, SPG, Friedel, STL_min, STL_max, "s", Num_ref, reflex_HKL )
+
+
 
  if(Num_ref ==0) return
 
@@ -424,7 +434,7 @@ subroutine generate_HKL()
   call write_info(TRIM(message_text))
   call write_info('')
  end if
-
+ 
  if(.not. write_HKL .and. .not. create_PAT) then
   DEALLOCATE (reflex_HKL)
   deallocate (ordered_array)
@@ -529,7 +539,7 @@ subroutine generate_HKL()
     if(ier/=0) call write_alloc_error("sf_2")
 
    call HKL_uni(crystal_cell, SPG, .true., STL_min, STL_max, "s", num_ref, reflex_list_HKL)
-
+   
    ! chargement des facteurs de diffusion
    ! call Init_structure_factors (HKL_objet, Atoms_objet, SPG_objet, mode, lun)
    ! mode = XRA : Xrays

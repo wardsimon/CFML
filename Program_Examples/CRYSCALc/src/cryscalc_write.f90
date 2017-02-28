@@ -792,16 +792,18 @@ end subroutine write_molecular_features
 
 !-----------------------------------------------------------------------------------------------------
 subroutine write_REF(input_string)
- USE cryscalc_module, ONLY : keyword_create_CIF, SW_EVAL, SADABS, SHELX, ABS_CRYSALIS, CIF_unit, WRITE_ref_CIF, debug_proc
+ USE cryscalc_module, ONLY : keyword_create_CIF, SW_EVAL, SADABS, SHELX, SIR, SPF, ABS_CRYSALIS, CIF_unit, WRITE_ref_CIF, &
+                             write_details, debug_proc
  USE CIF_module,      ONLY : CIF_parameter_DEVICE_KCCD,     CIF_parameter_DEVICE_APEX,      CIF_parameter_DEVICE_X2S,    &
                              CIF_parameter_DEVICE_XCALIBUR, CIF_parameter_DEVICE_SUPERNOVA, CIF_parameter_DEVICE_D8V_Cu, &
                              CIF_parameter_DEVICE_D8V_Mo
  USE IO_module,       ONLY : write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string
- INTEGER                      :: long_input_string, i
+ INTEGER                      :: long_input_string, i, k
  LOGICAL                      :: input_KCCD, input_APEX, input_X2S, input_XCALIBUR, input_SUPERNOVA
  LOGICAL                      :: input_EVAL, input_DENZO, input_SADABS, input_SHELX, input_ABS_CRYSALIS
+ LOGICAL                      :: input_SIR, input_SPF
  LOGICAL                      :: input_D8V_Cu, input_D8V_Mo
  LOGICAL                      :: file_opened
 
@@ -811,6 +813,8 @@ subroutine write_REF(input_string)
  input_KCCD          = .false.
  input_APEX          = .false.
  input_X2S           = .false.
+ input_SIR           = .false.
+ input_SPF           = .false.
  input_XCALIBUR      = .false.
  input_SUPERNOVA     = .false.
  input_EVAL          = .false.
@@ -823,6 +827,8 @@ subroutine write_REF(input_string)
 
  if(long_input_string == 3) then
   if(input_string(1:3)  == 'X2S')           input_X2S = .true.
+  if(input_string(1:3)  == 'SIR')           input_SIR = .true.
+  if(input_string(1:3)  == 'SPF')           input_SPF = .true.
  elseif(long_input_string == 4) then
   if(input_string(1:4)  == 'KCCD')          input_KCCD = .true.
   if(input_string(1:4)  == 'APEX')          input_APEX = .true.
@@ -1194,6 +1200,15 @@ subroutine write_REF(input_string)
   do i=1, 6
    call write_info(trim(SHELX%details(i)))
   end do
+  if(write_details) then
+   do k=1, 3
+    call write_info('') 
+    do i=10+4*(k-1), 13+4*(k-1)
+     call write_info(trim(SHELX%details(i)))
+    end do
+   end do	
+  end if
+
 
   if(keyword_create_CIF .or. WRITE_ref_CIF) then
    !call write_CIF_file('SHELX')
@@ -1208,6 +1223,46 @@ subroutine write_REF(input_string)
    end do
    write(CIF_unit, '(a)') ''
   endif
+  
+ ELSEIF(input_SIR) then
+  call write_info("")
+  call write_info("#----------------------------------------------------------------------------#")
+  call write_info("#                        SIR TEAM PROGRAMS                                   #")
+  call write_info("#----------------------------------------------------------------------------#")
+  call write_info("")
+  if(write_details) then
+   do k=1, 3
+    call write_info('') 
+    do i=1+4*(k-1), 4+4*(k-1)
+     call write_info(trim(SIR%details(i)))
+    end do
+   end do	
+  else
+   call write_info('') 
+   do k=1, 3
+     call write_info(trim(SIR%details(1+4*(k-1))))
+   end do	
+ 
+  end if
+
+ ELSEIF(input_SPF) then
+  call write_info("")
+  call write_info("#----------------------------------------------------------------------------#")
+  call write_info("#                        SUPERFLIP PROGRAM                                   #")
+  call write_info("#----------------------------------------------------------------------------#")
+  call write_info("")
+  if(write_details) then
+   do k=1, 1
+    call write_info('') 
+    do i=1+4*(k-1), 4+4*(k-1)
+     call write_info(trim(SPF%details(i)))
+    end do
+   end do	
+  else
+   do k=1, 1
+     call write_info(trim(SPF%details(1+4*(k-1))))
+   end do	
+  end if
 
 
   ELSEIF(input_ABS_CRYSALIS) then

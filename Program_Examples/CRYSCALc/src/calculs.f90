@@ -671,7 +671,7 @@ END subroutine crystal_volume_calculation
 !-------------------------------------------------------------------------------
 subroutine calcul_dhkl
  use cryscalc_module, only         : pi, unit_cell, wavelength, keyword_WAVE,  keyword_SPGR,          &
-                                     cell_star, cos_angle_star,                                       &
+                                     keyword_CELL, cell_star, cos_angle_star,                         &
                                      nb_hkl, H, shift_2theta, keyword_QVEC, Qvec, message_text, SPG,  &
                                      debug_proc
 
@@ -691,6 +691,14 @@ subroutine calcul_dhkl
  logical                              :: absent, angle_OK
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_dhkl")
+
+ 
+ IF(.NOT. keyword_CELL) then
+  call write_info('')
+  call write_info('   CELL parameters have to be known for d_hkl calculation ...')
+  call write_info('')
+  return
+ endif
 
  IF(unit_cell%volume < 0.1) call volume_calculation('out')
 
@@ -739,7 +747,7 @@ subroutine calcul_dhkl
    HQ(:) = H(: ,i)
    absent=HKL_Absent(HQ(:), SPG)
    if(absent) then
-    write(message_text, '(5x,   3(1x,F6.2),5xa)')   HQ(1:3), ' <<< not allowed !'
+    write(message_text, '(5x,   3(1x,F6.2),5xa)')   HQ(1:3), ' <<< not allowed in the current space group!'
     call write_info(trim(message_text))
     cycle
    endif
@@ -1457,17 +1465,13 @@ subroutine Calcul_plane
      call write_info('')
      write(message_text,'(5x,a)') ' >> Plane equation : Ax + By + Cz + D = 0'
      call write_info(trim(message_text))
-     !write(message_text,'(10x,a,2F10.5)')  'A = ', plane(1), splane(1)
-     write(message_text,'(10x,a,F10.5)')  'A = ', plane(1)
+     write(message_text,'(10x,2(a,F10.5),a)')  'A = ', plane(1), "  (", splane(1), ")"
      call write_info(trim(message_text))
-     !write(message_text,'(10x,a,2F10.5)')  'B = ', plane(2), splane(2)
-     write(message_text,'(10x,a,F10.5)')  'B = ', plane(2)
+     write(message_text,'(10x,2(a,F10.5),a)')  'B = ', plane(2), "  (", splane(2), ")"
      call write_info(trim(message_text))
-     !write(message_text,'(10x,a,2F10.5)')  'C = ', plane(3), splane(3)
-     write(message_text,'(10x,a,F10.5)')  'C = ', plane(3)
+     write(message_text,'(10x,2(a,F10.5),a)')  'C = ', plane(3), "  (", splane(3), ")"
      call write_info(trim(message_text))
-     !write(message_text,'(10x,a,2F10.5)')  'D = ', plane(4), splane(4)
-     write(message_text,'(10x,a,F10.5)')  'D = ', plane(4)
+     write(message_text,'(10x,2(a,F10.5),a)')  'D = ', plane(4), "  (", splane(4), ")"
      call write_info(trim(message_text))
     end if
 

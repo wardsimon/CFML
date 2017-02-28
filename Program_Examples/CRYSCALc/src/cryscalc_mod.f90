@@ -216,9 +216,11 @@ module cryscalc_module
    CHARACTER (LEN=16)                :: name
    CHARACTER (LEN=16)                :: version
    CHARACTER (len=80)                :: type
-   CHARACTER (len=128), dimension(6) :: details
+   CHARACTER (len=256), dimension(22):: details   
   end type SHELX_type
   type (SHELX_type) :: SHELX
+  type (SHELX_type) :: SIR
+  type (SHELX_type) :: SPF
 
 
   TYPE, PUBLIC :: SAINT_type
@@ -509,8 +511,8 @@ module cryscalc_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max  = 157      ! nombre max. d'arguments de HELP
-  INTEGER, PARAMETER                           :: nb_numor_max = 157
+  INTEGER, PARAMETER                           :: nb_help_max  = 159      ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_numor_max = 159
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -662,6 +664,8 @@ module cryscalc_module
   LOGICAL                                      :: keyword_WRITE_REF_KCCD
   LOGICAL                                      :: keyword_WRITE_REF_SADABS
   LOGICAL                                      :: keyword_WRITE_REF_SHELX
+  LOGICAL                                      :: keyword_WRITE_REF_SIR
+  LOGICAL                                      :: keyword_WRITE_REF_SPF
   LOGICAL                                      :: keyword_WRITE_REF_SUPERNOVA
   LOGICAL                                      :: keyword_WRITE_REF_ABS_CRYSALIS
   LOGICAL                                      :: keyword_WRITE_REF_X2S
@@ -905,6 +909,8 @@ module cryscalc_module
   INTEGER         :: HELP_REF_KCCD_numor
   INTEGER         :: HELP_REF_SADABS_numor
   INTEGER         :: HELP_REF_SHELX_numor
+  INTEGER         :: HELP_REF_SIR_numor
+  INTEGER         :: HELP_REF_SPF_numor
   INTEGER         :: HELP_REF_SUPERNOVA_numor
   INTEGER         :: HELP_REF_X2S_numor
   INTEGER         :: HELP_REF_D8V_Cu_numor
@@ -1088,6 +1094,8 @@ module cryscalc_module
    CHARACTER (len=256)               :: name      ! programme utilise
    CHARACTER (len=256)               :: reference ! reference associée
    CHARACTER (len=256)               :: CIF_ref   ! reference associée pour fichier.CIF (max = 80 car)
+   CHARACTER (len=256)               :: title
+   CHARACTER (len=256)               :: DOI
   END type PROGRAM_type
   type (PROGRAM_type) :: Structure_solution
   type (PROGRAM_type) :: Structure_refinement
@@ -1709,6 +1717,10 @@ module CIF_module
    CHARACTER (LEN=256)                :: shelx_hkl_checksum
    CHARACTER (LEN=256)                :: shelx_fab_checksum
    LOGICAL                            :: WinGX_used
+   CHARACTER (LEN=256)                :: Friedel_coverage
+   CHARACTER (LEN=256)                :: Friedel_fraction_max
+   CHARACTER (LEN=256)                :: Friedel_fraction_full
+  
   END TYPE CIF_parameter_type
   TYPE (CIF_parameter_type) :: CIF_parameter
 

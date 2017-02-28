@@ -523,6 +523,7 @@ END subroutine interactive_mode
       case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
        if(keyword_MU) call Absorption_routine
 
+ 
       CASE ('SITE_INFO', 'LIST_SITE_INFO', 'GEN_EQUIV_ATOMS', 'WYCKOFF')
         !site_info_all_atoms = .true.
         IF(nb_atom /=0 .AND. keyword_SPGR) then
@@ -664,7 +665,8 @@ END subroutine interactive_mode
        if (nb_dhkl_value /=0) call X_space_calculation('DHKL')
 
       CASE ('HKL')
-       if(nb_hkl /=0 .and. keyword_CELL)    call calcul_dhkl
+       !if(nb_hkl /=0 .and. keyword_CELL)    call calcul_dhkl
+	   if(nb_hkl /=0)    call calcul_dhkl
 
       CASE ('SF_HKL', 'SFAC_HKL')
        if(nb_hkl_SFAC_calc /=0 .and. keyword_CELL .and. keyword_SPGR ) call Calcul_SFAC_HKL
@@ -736,7 +738,7 @@ END subroutine interactive_mode
         if(keyword_find_HKL) call search_hkl()                                     ! recherche reflection particuliere
 
       case ('EQUIV', 'EQUIV_HKL')
-       call search_hkl_EQUIV()
+       if(keyword_FIND_HKL_EQUIV) call search_hkl_EQUIV()
 
       !case ('LIST_HKL', 'LST_HKL', 'LIST_HKL_EXTI', 'LST_HKL_EXTI')
       !CASE ("WRITE_HKL", "WRITE_HKL_LIST", "WRITE_HKL_LST")
@@ -931,10 +933,17 @@ END subroutine interactive_mode
       case ('REF_DENZO', 'WRITE_DENZO', 'DENZO')
         call write_REF('DENZO')
 
-      case ('REF_SHELX', 'SHELX')
+      case ('REF_SHELX')
         call write_REF('SHELX')
 
-       case ('REF_SADABS', 'REF_SAD', 'SADABS')
+      case ('REF_SIR')
+        call write_REF('SIR')
+		
+      case ("REF_SPF", "REF_SUPERFLIP", "SPF", "SUPERFLIP")
+        call write_REF('SPF')
+		
+
+      case ('REF_SADABS', 'REF_SAD', 'SADABS')
         call write_REF('SADABS')
 
       case ('REF_ABS_CRYSALIS')
@@ -1139,9 +1148,12 @@ subroutine Reset
     call Deallocate_HKL_arrays
     call deallocate_PGF_data_arrays
     call Def_transformation_matrix
+	call SPG_init
     call cryscalc_INIT
     call read_cryscalc_ini()
     mode_interactif = tmp_logical
 
  return
 end subroutine Reset
+
+

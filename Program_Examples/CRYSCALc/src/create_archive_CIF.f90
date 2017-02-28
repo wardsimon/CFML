@@ -401,6 +401,26 @@ subroutine read_cif_and_create_ARCHIVE
   WRITE(CIF_unit, '(2a)') "_reflns_number_total                    ", trim(CIF_parameter%reflns_number_total)
   WRITE(CIF_unit, '(2a)') "_reflns_number_gt                       ", trim(CIF_parameter%reflns_number_gt)
   WRITE(CIF_unit, '(2a)') "_reflns_threshold_expression            ", ">2sigma(I)"
+ 
+  if(CIF_parameter%Friedel_coverage(1:1) /="?") then
+   WRITE(CIF_unit, '(2a)') "_reflns_Friedel_coverage                ", trim(CIF_parameter%Friedel_coverage)
+   WRITE(CIF_unit, '(2a)') "_reflns_Friedel_fraction_max            ", trim(CIF_parameter%Friedel_fraction_max)
+   WRITE(CIF_unit, '(2a)') "_reflns_Friedel_fraction_full           ", trim(CIF_parameter%Friedel_fraction_full)
+   WRITE(CIF_unit, '(a)')  ""
+   WRITE(CIF_unit, '(a)')  "_reflns_special_details"
+   WRITE(CIF_unit, '(a)')  ";"
+   WRITE(CIF_unit, '(a)')  "Reflections were merged by SHELXL according to the crystal"
+   WRITE(CIF_unit, '(a)')  "class for the calculation of statistics and refinement."
+   WRITE(CIF_unit, '(a)')  ""
+   WRITE(CIF_unit, '(a)')  "_reflns_Friedel_fraction is defined as the number of unique"
+   WRITE(CIF_unit, '(a)')  "Friedel pairs measured divided by the number that would be"
+   WRITE(CIF_unit, '(a)')  "possible theoretically, ignoring centric projections and"
+   WRITE(CIF_unit, '(a)')  "systematic absences."
+   WRITE(CIF_unit, '(a)')  ";"
+  endif
+ 
+  
+  
   call write_CIF_file('COMPUTER_PROGRAMS')
 
   call write_CIF_file('REFINEMENT_INFO')
@@ -802,7 +822,7 @@ subroutine Include_RES_file_into_CIF
      job_FAB_file = input_CIF_file(1)(1:i1)//'fab'
      call test_file_exist(trim(job_FAB_file), file_exist, 'no_out')
      if(file_exist) then
-     write(CIF_unit, '(2a)') '# .FAB SHELXL file: ', trim(job_HKL_file)
+     write(CIF_unit, '(2a)') '# .FAB SHELXL file: ', trim(job_FAB_file)
      end if
      write(CIF_unit, '(a,79a1)')  '#', ('.',i=1,79)
      write(CIF_unit, '(a)')  ''

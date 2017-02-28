@@ -164,6 +164,14 @@ subroutine identification_keywords(read_line)
 
    case ('EXPERT_MODE', 'EXPERT', 'EXPERT_ON')
     expert_mode = .true.
+	if (nb_arg /=0) then
+	 long = len_trim(arg_string(1))
+	 if(long == 2) then
+	  if (arg_string(i)(1:2) == 'ON') expert_mode = .true.
+	 elseif(long == 3) then
+	  if (arg_string(i)(1:3) == 'OFF') expert_mode = .false.
+	 end if
+	end if
 
    case ('USER_MODE', 'USER', 'EXPERT_OFF')
     if(expert_mode) expert_mode = .false.
@@ -970,7 +978,7 @@ subroutine identification_keywords(read_line)
      IF(arg_string(i+3)(1:7) == 'FRIEDEL' ) search_friedel = .true.
     end do
 
-   case ('EQUIV', 'EQUIV_HKL', 'SEARCH_EQUIV', 'SEARCH_EQUIV_HKL', 'FIND_EQUIV', 'FIND_EQUIV_HKL')
+   case ('EQUIV', 'EQUIV_HKL', 'SEARCH_EQUIV', 'SEARCH_EQUIV_HKL', 'FIND_EQUIV', 'FIND_EQUIV_HKL')   
     IF(nb_arg < 3) then
      call check_arg_nb('3', 'EQUIV')
      return
@@ -3265,10 +3273,16 @@ subroutine identification_keywords(read_line)
     keyword_WRITE_REF_DENZO = .true.
     if(nb_arg /=0) call check_write_CIF(nb_arg, arg_string)
 
-   case ('REF_SHELX', 'SHELX')
+   case ('REF_SHELX')
     keyword_WRITE_REF_SHELX = .true.
-    if(nb_arg /=0) call check_write_CIF(nb_arg, arg_string)
+	if(nb_arg /=0) call check_write_CIF(nb_arg, arg_string)
 
+    case ('REF_SIR')
+     keyword_WRITE_REF_SIR  = .true.
+
+    case ("REF_SPF", "REF_SUPERFLIP")
+     keyword_WRITE_REF_SPF  = .true.
+	
    case ('REF_SADABS', 'REF_SAD', 'SADABS')
     keyword_WRITE_REF_SADABS = .true.
     if(nb_arg /=0) call check_write_CIF(nb_arg, arg_string)
