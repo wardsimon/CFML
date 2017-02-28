@@ -2419,7 +2419,7 @@
 
        !---- Local Variables ----!
        integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat, ier, j, m, n, k, L,   &
-                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering,det
+                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering,det,kfin
        integer,          dimension(10)     :: lugar
        integer,          dimension(7)      :: irrep_pos
        integer,          dimension(5)      :: pos
@@ -2428,7 +2428,7 @@
        real(kind=cp),    dimension(6)      :: values,std
        real(kind=cp),    dimension(3,3)    :: matr
        real(kind=cp),    dimension(3,384)  :: orb
-       character(len=132)                  :: lowline,keyword,line, mxmymz_op
+       character(len=132)                  :: lowline,keyword,line, mxmymz_op,linat
        character(len=132),dimension(384)   :: sym_strings, cent_strings
        character(len=132),dimension(384)   :: atm_strings
        character(len=132),dimension(384)   :: mom_strings
@@ -2903,10 +2903,19 @@
 
                    Case("_magnetic_atom_site_label","_atom_site_label")
                       !write(unit=*,fmt="(a)") "  Treating item: _atom_site_label"
+                      !Count the number of keywords following the _loop
+                      do k=1,10
+                      	linat=adjustl(mcif%line(i+k))
+                      	if(linat(1:1) /=  "_") then
+                      		kfin=k+1
+                      		iv=i+k
+                      		exit
+                      	end if
+                      end do
                       lugar=0
                       lugar(1)=1
                       j=1
-                      do k=1,9
+                      do k=1,kfin
                          i=i+1
                          if(index(mcif%line(i),"_atom_site_type_symbol") /= 0) then
                             j=j+1
@@ -2962,7 +2971,7 @@
                           return
                       end if
 
-                      i=i-1
+                      i=iv-1
                       nitems=count(lugar > 0)
 
                       k=0
@@ -2971,7 +2980,7 @@
                         if(i > mcif%nlines) exit
                         if(len_trim(mcif%line(i)) == 0) exit
                         k=k+1
-                        atm_strings(k)=mcif%line(i)
+                        atm_strings(k)=adjustl(mcif%line(i))
                       end do
                       num_matom=k
                       !Treat late the list atoms
@@ -5358,9 +5367,9 @@
        end if
        write(unit=Ipr,fmt="(a)")
        write(unit=Ipr,fmt="(a)")  "loop_"
-       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_id"
-       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_operation_xyz"
-       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_operation_mxmymz"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.id"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.xyz"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.mxmymz"
        do i=1,MSGp%Multip            !New mCIF format
           write(unit=invc,fmt="(i2)") nint(MSgp%MSymop(i)%Phas)
           if(invc(1:1) == " ") invc(1:1)="+"
