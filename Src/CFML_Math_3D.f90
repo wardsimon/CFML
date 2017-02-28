@@ -65,11 +65,11 @@
 !!--++       INVERT_DP                 [Overloaded]
 !!--++       INVERT_SP                 [Overloaded]
 !!----       MAT_CROSS
-!!--++       MAT_CROSS_CMPL_dp     [Overloaded]
-!!--++       MAT_CROSS_CMPL_sp     [Overloaded]
-!!--++       MAT_CROSS_dp          [Overloaded]
-!!--++       MAT_CROSS_in          [Overloaded]
-!!--++       MAT_CROSS_sp          [Overloaded]
+!!--++       MAT_CROSS_CMPL_dp         [Overloaded]
+!!--++       MAT_CROSS_CMPL_sp         [Overloaded]
+!!--++       MAT_CROSS_dp              [Overloaded]
+!!--++       MAT_CROSS_in              [Overloaded]
+!!--++       MAT_CROSS_sp              [Overloaded]
 !!----       POLYHEDRON_VOLUME
 !!----       ROTATE_OX
 !!----       ROTATE_OY
@@ -1637,9 +1637,9 @@
              pm=0.0
              if (a(1) == 0.0_cp .and. a(2) == 0.0_cp .and. a(3) == 0.0_cp) then
                 pm(1)=1.0
-             elseif (a(2) == 0.0_cp .and. a(4) == 0.0_cp .and. a(5) == 0.0_cp) then
+             else if (a(2) == 0.0_cp .and. a(4) == 0.0_cp .and. a(5) == 0.0_cp) then
                 pm(2)=1.0
-             elseif (a(3) == 0.0_cp .and. a(5) == 0.0_cp .and. a(6) == 0.0_cp) then
+             else if (a(3) == 0.0_cp .and. a(5) == 0.0_cp .and. a(6) == 0.0_cp) then
                 pm(3)=1.0
              else
                 da=a(1)+a(4)+a(6)

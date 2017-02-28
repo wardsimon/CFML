@@ -2419,8 +2419,7 @@
 
        !---- Local Variables ----!
        integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat, ier, j, m, n, k, L,   &
-                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering
-       real(kind=cp)                       :: det
+                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering,det
        integer,          dimension(10)     :: lugar
        integer,          dimension(7)      :: irrep_pos
        integer,          dimension(5)      :: pos
@@ -3113,9 +3112,8 @@
                 line=Pack_String(line)
                 call Read_Xsym(line,1,MGp%MSymop(i)%Rot)                            
               else
-              	matr=MGp%Symop(i)%Rot
-              	det=determ_a(matr)
-              	MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*nint(det*MGp%MSymOp(i)%phas)
+              	det=determ_a(MGp%Symop(i)%Rot)
+              	MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*det*nint(MGp%MSymOp(i)%phas)
               	call Get_Symsymb(MGp%MSymOp(i)%Rot,(/0.0,0.0,0.0/),line)
                 !Expand the operator "line" to convert it to mx,my,mz like
                 mxmymz_op=" "
