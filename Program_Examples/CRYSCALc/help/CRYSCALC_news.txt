@@ -1,20 +1,28 @@
    
-    *************************************************************
-    *                                                           *
-    *                 CRYSTALLOGRAPHIC CALCULATIONS             *
-    *                                                           *
-    *                                                           *
-    *                          T. Roisnel                       *
-    *                 (CDIFX - ISCR UMR6226 Rennes)             *
-    *                           Feb. 2015                       *
-    *                                                           *
-    *            [with courtesy of JRC and JGP for CFML]        *
-    *                                                           *
-    *                                                           *
-    *         contact  : thierry.roisnel@univ-rennes1.fr        *
-    *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
-    *                                                           *
-    *************************************************************
+      *****************************************************************
+      *                                                               *
+      *                         C R Y S C A L C                       *
+      *                                                               *
+      *                 (CRYSTALLOGRAPHIC CALCULATIONS)               *
+      *                                                               *
+      *               makes the crystallographer life easier !        *
+      *                                                               *
+      *                       Ver. February 2017                      *
+      *                                                               *
+      *---------------------------------------------------------------*
+      *                                                               *
+      *                           T. Roisnel                          *
+      *                                                               *
+      *                        CDIFX/PRATS/ISCR                       *
+      *               UMR6226 CNRS-Univ. Rennes 1, France             *
+      *                                                               *
+      *             [with courtesy of JRC and JGP for CFML]           *
+      *                                                               *
+      *                                                               *
+      *           contact  : thierry.roisnel@univ-rennes1.fr          *
+      *          Web site : www.cdifx.univ-rennes1.fr/cryscalc        *
+      *                                                               *
+      *****************************************************************
    
    
      Main new features implemented in CRYSCALC:
@@ -23,17 +31,259 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
+   . Jan. 17 :
+     # NEWS keyword can contain "EXPERT_ONLY" as argument to output only
+       CRYSCALC news available only in expert mode.
+     # "EULER_TO_KAPPA" routine has been corrected for Chi values
+       larger than 180 : Chi is then transformed to 360. - Chi).
+     # ABIN keyword allows to read and modify a .INS file by adding
+       the ABIN SHELXL instruction (not included if .INS written
+       by SXGRAPH interface of WinGX).
+     # The CRYSCALC routine associated to STAR_K keyword has been changed to
+       the "K_Star" routine of CFML.
+       The previous routine can still be output using the TR argument
+       for STAR_K (available only in expert mode)
+     # PLANE keyword accept more than 3 atoms for the calculation
+       of a mean plane equation.
+     # Compilation of CRYSCALC with the latest version of CRYSFML
+       (dec. 2016)
+     # New CELL_ESD keyword: input of esd's for cell parameters and
+       calculation of corresponding unit cell volume ESD.
+     # New GET_TRANSF_MAT keyword provides the transformation matrix
+       between two primitive unit cells (determinant of the matrix
+       is equal to 1).
+     # New REDUCE keyword provides conventional unit cell parameters
+       and transformation matrix between input cell and conventional
+       cell(s). The routine is based on Get_conventional_Unit_Cells
+       program written by JRC using procedures implemented in CRYSFML.
+   
+   
+   . Dec. 16 :
+     # New WRITE_BONDS, WRITE_ANGLES, WRITE_TORSION_ANGLES, WRITE_HTAB
+       keywords are available after a READ_CIF instruction.
+       [only in EPERT mode]
+     # When creating import.CIF from .P4P and .HKL files, scans features
+       (type of scan, DX, exposition time, starting angles for theta, omega
+       phi and chi motors) are extracted from .sfrm images.
+   
+   . Nov. 16 :
+     # "WRITE_ATOMS cart" keyword leads to the creation of a cryscalc.xyz file
+       for PyMOL (http://www.pymol.org/).
+     # NO_DETAILS keyword will lead to a very short and restricted output.
+       [only in EXPERT mode]
+     # TOLMAN keyword: van der Waals radius for ligands can be given as
+       arguments. If not specified, defaut values are coming from
+       CRYSFML library, excepted for H atoms (r=1.2A).
+       ex: TOLMAN CO1 P1 H1A H11A H21A 1.22 1.22 1.22
+     # When creating import.CIF from .P4P and .HKL files, crystal to detector
+       distance is now extracted from .sfrm files for every scan of the data
+       collection.
+     # New "NO_H" argument for CREATE_INS argument will exclude
+       hydrogen atoms from the created .INS file.
+     # New "NO_details" argument can be applied to most of the keywords,
+       excepted WRITE* keyword. This action will lead to a very short
+       and restricted output.
+     # New REM keyword: non interpreted command. Can be useful
+       to skip a command in a CFL input file. This keyword can
+       be replaced by "!" or "#" character.
+   
+   . Oct. 16 :
+     # New READ_HKLF5 keyword: read HKLF5 format data file containing
+       structure factors of a twin crystal.
+     # New REF_SHELX keyword: output references for SHELXL and SHELXT
+       software.
+     # If a .png/.jpg file corresponding to the crystal picture is present
+       in the current folder (named as sample_ID.png/.jpg), it will be
+       embedded in the final structural report.
+     # New TOLMAN_ANGLE keyword: calculation of the Tolman cone angle
+       as defined from crystallographic data and Van der Waals radii in
+       "Transition Met. Chem. 20, 533 (1995)". The TOLMAN_ANGLE keyword
+       has to be followed by the labelling of the 5 atoms defining the cone,
+       corresponding to metal, centered atom and 3 ligand atoms respectively
+   
+   . Sept. 16 :
+     # Cosmetic changes in the .HTML/.TXT/.PDF structural reports
+     # Redundancy is now calculated and output during Rint calculation.
+     # New "KAPPA_TO_EULER" AND "EULER_TO_KAPPA" keywords allow to convert
+       motors angles values of single crystal diffractometer from Kappa to
+       Eulerian geometry (and opposite)
+   
+   . July 16 :
+     # .FAB file created by SHELXL201x is now embedded in the
+       cryscalc_archive_hkl.cif file in the case of SQUEEZE
+       procedure has been used.
+     # Mean value of atomic volume for non H hydrogen atoms is now output after
+       molecular density calculation for compounds containing H atoms.
+   
+   . June 16 :
+     # New HKLF5 keyword: 9 arguments are necessary to input the 3*3
+       transformation matrix components. Combined with FILE keyword,
+       a hklf5 format data file is then created. Overlapping reflections
+       criteria can be defined in the cryscalc.ini setting file through
+       "ref_overlap_criteria=" keyword in the [OPTIONS] section. Defaut
+       value is 0.15 and max. value has been fixed to 0.25
+     # Corrections of minor bugs, specially when .CFL input file is read from
+       option #2 in the main menu.
+     # New EXTRACT command line argument: extract .res and .hkl files
+       embedded in an archive .CIF file.
+     # New features for SUPERCELL instruction:
+        . cell parameters are updated
+        . if space group of initial cell is know, space group is
+          updated to P 1.
+     # STAR_K keyword: the arms of the K star are now correct
+       for primitive and centered space groups.
+     # New "CONDENSED" argument for WRITE_SYM_OP keyword:
+       output symmetry operators list in a condensed way.
+   
+   . May 16 :
+     # New ONLY_X argument for CONN keyword : output connectivity
+       between atoms of the same X species.
+     # CONN keyword: MIN and MAX arguments are now taken into
+       account correctly.
+     # Correction of bug in the "STAR_K" keyword routine :
+       The arms of the K star are now ouput for primitive
+       space groups (not yet ouput for others).
+     # new SAVE_SETTINGS keyword will save cryscalc.ini setting file
+       in the current folder. This can be useful if no setting file
+       is present in the CRYSCALC folder.
+     # WRITE_CELL keyword: standart deviations of cell parameters
+       and volume are ouput if they are known.
+   
+   . April 16 :
+     # Results of Rint calculation was bugged for successive
+       calculation without using RESET keyword. This is corrected.
+     # New FCF_FILE keyword: read .fcf file create by SHELX
+       IF "PLOT" is given as argument, a *_FCF.PGF file for WinPLOTR
+       is created (Fc2=f(Fo2) curve)
+       IF "PLOT_STL" is given as argument, a *_FCF_stl.PGF file
+       is created (Fc2 - Fo2 = f(sinThetal/lambda) curve).
+       If WinPLOTR is already installed, .PGF file is automatically
+       displayed.
+   
+   . March 16 :
+     # New features in the header of the import.cif file
+       created from .P4P, .HKL and .ABS files coming from
+       single crystal data reduction in APEX2 and APEX3
+       (Bruker AXS software).
+     # MONOCLINIC keyword : condensed output if "no_out" is
+       given as argument.
+   
+   . February 16 :
+     # New DIFF keyword : calculation of the components
+       of the difference atomic coordinates vector
+       between 2 input atoms
+     # New PLANE keyword : calculation of the 4 components
+       of the plane equation Ax+By+Cz+D=0, given three
+       atoms coordinates.
+     # New SEARCH_TETRA keyword : determine tetragonal axis
+       from hkl data integrated in a pseudo-cubic
+       unit cell by calculating successively internal R values
+       for the most probable space group of following different
+       setting: abc, cab, bca
+   
+   . January 16 :
+     # New UPDATE/NO_UPDATE arguments for MAT keyword
+     # New SUPERCELL input keyword: calculation of atomic coordinates
+       in a superstructure cell.
+     # _shelx_res_checksum and _shelx_hkl_checksum items are included
+        in the archive.cif file for compatibility with PLATON Checkcif
+        and cif files created by SHELXL-2014.
+   
+   . Dec. 15 :
+     # Minor correction in the header of import.cif created from .P4P and .HKL files
+   
+   . Nov. 15 :
+     # DIST keyword : "_*" option after second label allows to calculate
+       interatomic distance between first input atome and the closest
+       equivalent second atom (space group has of course to be known).
+       example : DIST Mo1 Mo2_*
+   
+   . Oct. 15 :
+     # HKL_diff keyword : calculation of F2 difference for common reflections of 2
+                          hkl files.
+     # UPDATE keyword : download the lastest version of CRYSCALC from the web site
+                        (www.cdifx.univ.rennes1.fr/progs/cryscalc/cryscalc.exe
+       Remark: Browser has to defined in the setting file.
+     # Minor cosmetic changes in import.cif
+   
+   . Sept. 15 :
+     # Polar character of space group has been corrected : point group
+       has to be one of the following :
+       1, 2, 3, 4, 6, mm2, m2m, 2mm, 3m, 3m1, 31m, 4mm, 6mm
+     # "include_experimenter" field can be input in the cryscalc.ini setting file :
+       experimenter features, coming from [AUTHOR] section, are then included
+       in the archive_cryscalc.cif file.
+     # import.cif file created from .P4P and .HKL files contains the number of scans
+       of the data collection and related features (exposition time, frames width,
+       number of frames)
+     # NIGGLI ouput: Niggli matrix is now output
+   
+   . July 15 :
+     # THERM ouput: some calculation outputs were wrong in the case of
+                    "matrix U non-positive definite".
+   
+   . June 15 :
+     # SEARCH_EXTI keyword can have a string optional argument : if "ALL"
+       is given as argument, all reflections are considered, without applying
+       any criteria.
+     # A small bug has been corrected in the SEARCH_GROUP routine. It appeared
+       only when searching from only centered space groups and the symmetry
+       was unknown in the import.cif input file.
+     # Two logos for the structural_report.pdf can be specified in the
+       [OPTIONS] section of the setting file. These .jpg files will be used
+       included in the structural report (Latex and pdf formats). They
+       have first to be present in the \img folder of the CRYSCALC directory.
+       ex:
+         report_logo_1   = CDIFX_logo.jpg
+         report_logo_2   = ISCR_logo.jpg
+   
+   . May 15 :
+     # new SEARCH_MONO keyword : determine monoclinic angle
+       from hkl data integrated with a pseudo-orthorhombic
+       unit cell by calculating successively internal R values
+       for "P 2 1 1", "P 1 2 1" and "P 1 1 2" space groups.
+     # CONN output: polyedron distorsion is calculated as:
+       distorsion = SUM((dist-dist_av)/dist_av)**2) / n
+       with n: number of ligands
+            dist_av: average distance
+     # Minor changes for D8 Venture data file
+   
+   . April 15 :
+     # New DETAILS argument for WRITE_ADP keyword
+   
+   . March 15 :
+     # New CREATE_PCR keyword : create .PCR input file
+       for FullProf (pattern simulation). Structural data
+       have to be previously input through for example
+       READ_CIF or READ_INS keywords. In such a case,
+       profile features can be specified in the setting file
+       ([PATTERN SIMULATION (Pseudo-Voigt profile)] section).
+     # "create_pcr=1" can be spectified in the [COMMAND LINE ARGUMENTS]
+       section of the setting file to create automatic PCR file
+       from command line run of CRYSCALC
+   
    . Feb. 15 :
+     # New arguments for SEARCH_GROUP keyword :
+       . P  : provide only primitive space groups
+       . ALL: provide primitive and centered space groups
+       . CENTERED/NOT_P: provide only centered space groups
+     # CIF files created by SHELXL2014 are correctly read (changes in
+       in CRYSFML to read new CIF strings as :
+        . _space_group_name_H-M_alt
+        . _space_group_symop_operation_xyz
+        . _space_group_crystal_system
      # Parameters for D8 Venture diffractometer (Bruker AXS) has been included and
        can be accessed from setting file in [DEVICE] section through :
-       "diffractometer = D8_VENTURE_Cu"  or
-       "diffractometer = D8_VENTURE_Mo"  or
+       "diffractometer = D8_VENTURE_Cu"  or "diffractometer = D8V_Cu"
+       "diffractometer = D8_VENTURE_Mo"  or "diffractometer = D8V_Mo"
+       for Cu and Mo radiations respectively.
      # Flack parameter is now provided in HTML and TXT reports.
    
    . Dec. 14 :
      # Archive.cif command line argument can be followed by "NO_HKL",
        allowing to exclude HKL file in final archive, independently
        of the contain of cryscalc.ini setting file.
+   
    . Nov. 14 :
      # New argument for DATA_neutrons keyword, allowing to provide
        to the user neutron scattering length versus energy for
@@ -70,11 +320,12 @@
        First cif file corresponds to the main CIF file created by
        refinement software and next ones to supplementary cif files
        to complete the archive.
-       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import
-            . my_job : main .CIF file, used to extract structural
-                       parameters
-            . import : secondary .CIF file, containing experimental
-                       parameters (crystal and experimental features, ...)
+       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job.cif import.cif
+            . my_job.cif : main .CIF file, used to extract structural
+                           parameters
+            . import.cif : secondary .CIF file, containing experimental
+                           parameters (crystal and experimental features, ...)
+   
    . Sept. 14 :
      # new CREATE_SOLVE keyword:
        . create input files for structure solving software as SIR97,
@@ -90,7 +341,7 @@
      # "include_HKL_file" field can be input in the cryscalc.ini setting file to
        embed the contain of hkl SHEXL file in the archive_cryscalc.cif file.
        The SHELXL hkl file name corresponds to the last project ID in WinGX.
-     # NOT TO CONFUSE, CRYSCAL PROGRAM HAS BEEN RENAMED AS
+     # TO AVOID CONFUSION, CRYSCAL PROGRAM HAS BEEN RENAMED AS
        CRYSCALC. FEATURES OF THE SOFTWARE HAVE TO BE CHANGED
        CONSEQUENTLY :
         . environnement variable : CRYSCALC
@@ -187,6 +438,11 @@
        cartesian frame, metric tensors and Busing-Levy B-matrix. Cartesian
        frame type can be specified by "CART_A" (x//a) and "CART_C" (x//c).
        argument.
+     # DEBUG, DEBUG_2 and DEBUG_3 keywords : access to debug modes and create
+       cryscalc_debug.txt file. In level_2 debug mode, this file contains
+       the name of main called routines. In level_3 mode, this file
+       contains more explanations.
+       [only in EXPERT mode]
    
    . March 13 :
      # New keywords related to TIDY software (standardisation of inorganic
@@ -269,12 +525,32 @@
      # new argument for BARY keyword
      # "HKL_statistics" keyword (value = 0/1) can be input in the cryscalc.ini
        setting file to output or not statistics on hkl reflections.
+     # Export mode can be specified in the setting file through the expert_mode
+       string in the setting file. If active, this mode allows to enter new
+       specific keywords. This mode can also be activated through the
+       "EXPERT_MODE" keyword and put OFF with "USER_mode" keyword.
+       Examples:
+        FIC   : "FILE import.cif"
+        ST25  : "SHELL THETA 2.5 25"
+       MAN_EXPERT keyword has been added to output the list of instructions in
+       this expert mode.
+       The list of expert mode keywords can be output through the "MAN_EXPERT"
+       keyword if this kind of mode is activated.
+       [only in EXPERT mode]
    
    . July 12 :
      # FILE keyword: .COL file created by COLL5 (ILL / format =4)
                       can be read
      # FILE keyword: .INT file created by DATARED can be read
      # CELL keyword: .RED file for DATARED can be read
+     # REPORT_LATEX argument can be specified when launching CRYSCALC
+       for the command line. In such a case:
+       . structural_report.ltx file is created, in a LATEX format
+       . pdflatex is launched to create a .pdf file.
+         If a .GIF file is present in the current folder for crystal
+         structure visualisation, it is first converted in .png file
+         to be included in the final pdf document.
+       [only in EXPERT mode]
      # New OUT_n argument for FILE keyword, allowing to output every
        n reflection features (index, h,k,l,F2,sig)
    

@@ -1,31 +1,29 @@
 <!-- CRYSCALc user's guide (HTML file) created by CRYSCALc.exe
      Web site : http://www.cdifx.univ-rennes/cryscalc.htm
-     Version : Feb. 2015
+     Version : February 2017
      Author  : Thierry Roisnel (CDIFX / ISCR UMR6226 - Rennes)
 !-->
 <HTML>
 <HEAD>
 <style TYPE='text/css'>
-  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }
-  .title_1    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
-  .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; margin-right:50px; background-color:#f5f5f5; }
-  .title_3    { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
-  .header   { font-family:'Trebuchet MS',Arial; font-size:10px; color:#CCCCCC; margin-left:50px; line-height: 10pt;}
-  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt;  }
-  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
-  .item       { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
-  .item_2     { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
-  .ligne_1    { background-color : #FAFAFA;}
-  .ligne_2    { background-color : #EEEEEE;}
-  .color_grey1{color:#323232;}
-  .cadre { background:#fafafa; border: 1px solid #F9F9F9;
-           margin-top: 0px; margin-left: 25px; margin-right: 25px; padding-right: 0px;
-           -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-           -border-radius: 10px;}
-  hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0; margin-left:50px; margin-right:50px;}
-
- a:link,
+  .title_main { font-family: Calibri, 'Trebuchet MS', Arial; font-size:24px; color:#584C70; margin-left:250px; margin-right:250px; text-align:center; font-weight:bold; line-height:40.0pt; border-width: 1px; border-style: solid; border-color :#584C70; background:  -webkit-linear-gradient(to right, RGBa(88,76,112,0.29) 0%, RGBa(88,76,112,0.1) 100%);}
+  .title_main { font-family: Calibri, 'Trebuchet MS', Arial; font-size:24px; color:#584C70; margin-left:250px; margin-right:250px; text-align:center; font-weight:bold; line-height:40.0pt; border-width: 1px; border-style: solid; border-color :#584C70; background:     -moz-linear-gradient(to right, RGBa(88,76,112,0.29) 0%, RGBa(88,76,112,0.1) 100%);}
+  .title_main { font-family: Calibri, 'Trebuchet MS', Arial; font-size:24px; color:#584C70; margin-left:250px; margin-right:250px; text-align:center; font-weight:bold; line-height:40.0pt; border-width: 1px; border-style: solid; border-color :#584C70; background:      -ms-linear-gradient(to right, RGBa(88,76,112,0.29) 0%, RGBa(88,76,112,0.1) 100%);}
+  .title_main { font-family: Calibri, 'Trebuchet MS', Arial; font-size:24px; color:#584C70; margin-left:250px; margin-right:250px; text-align:center; font-weight:bold; line-height:40.0pt; border-width: 1px; border-style: solid; border-color :#584C70; background:       -o-linear-gradient(to right, RGBa(88,76,112,0.29) 0%, RGBa(88,76,112,0.1) 100%);}
+  .title_main { font-family: Calibri, 'Trebuchet MS', Arial; font-size:24px; color:#584C70; margin-left:250px; margin-right:250px; text-align:center; font-weight:bold; line-height:40.0pt; border-width: 1px; border-style: solid; border-color :#584C70; background:         -linear-gradient(to right, RGBa(88,76,112,0.29) 0%, RGBa(88,76,112,0.1) 100%);}
+  .title_1    { font-family: Calibri, 'Trebuchet MS', Arial; font-size:20px; color:#880000; margin-left:25px;  margin-right:50px; font-weight:bold; background-color:#f5f5f5; border-width: 1px; border-style: solid; border-color : #880000; }
+  .title_2    { font-family: Calibri, 'Trebuchet MS', Arial; font-size:20px; color:#880000; text-align:center; line-height:30.0pt; margin-left:50px; margin-right:50px; background-color:#f5f5f5; border-width: 1px; border-style: solid; border-color : #880000; }
+  .title_3    { font-family: 'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
+  .date       { font-family: 'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px; background-color:#f5f5f5;    }
+  .date       { font-family: 'Courier new';        font-size:14px; color:#f5f5f5; font-weight:bold; margin-left:30px; background-color:#660000;    }
+  .header     { font-family: Arial; font-size:10px; color:#CCCCCC;  text-align:left; margin-left:50px; line-height:10px;}
+  .retrait_1  { font-family: Calibri, 'Trebuchet MS', Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#323232; }
+  .retrait_2  { font-family: Calibri, 'Trebuchet MS', Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
+  .item       { font-family: Calibri, 'Trebuchet MS', Arial; font-size:14px; color:#aa0000;}
+  .item_2     { font-family: Calibri, 'Trebuchet MS', Arial; font-size:16px; color:#aa0000;}
+  .color_grey1 {color : #323232;}
+hr {border-color: #CCC; background-color: #CCC;height:1px; padding: 0; border: 0; margin-left:50px; margin-right:50px; }
+  a:link,
   a:active
     { color:#666666;
       text-decoration:none;
@@ -48,22 +46,25 @@
 <p class='title_main'>CRYSCALc</p>
 <pre style='font-size:14' class='color_grey1'>
 <center>
-  *************************************************************
-  *                                                           *
-  *                 CRYSTALLOGRAPHIC CALCULATIONS             *
-  *                                                           *
-  *                                                           *
-  *                          T. Roisnel                       *
-  *                 (CDIFX - ISCR UMR6226 Rennes)             *
-  *                           Feb. 2015                       *
-  *                                                           *
-  *            [with courtesy of JRC and JGP for CFML]        *
-  *                                                           *
-  *                                                           *
-  *         contact  : thierry.roisnel@univ-rennes1.fr        *
-  *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
-  *                                                           *
-  *************************************************************
+****************************************************************
+
+C R Y S C A L C
+
+(CRYSTALLOGRAPHIC CALCULATIONS)
+
+      makes the crystallographer life easier !
+
+Ver. February 2017
+
+---------------------------------------------------------------*
+
+T. Roisnel
+
+CDIFX/PRATS/ISCR
+UMR6226 CNRS-Univ. Rennes 1, France
+
+[with courtesy of JRC and JGP for CFML]
+
 
 </center>
 
@@ -141,6 +142,12 @@
    program with the corresponding keyword(s) as argument(s):
       d:> cryscalc MAN CELL
 
+   Recommendations:
+   To get all facilities of CRYSCALC, it is recommanded to define the CRYSCALC
+   variable environment, that has to point to the folder where CRYSCALC has been
+   installed (ex: d:\progs). Furthermore, some special options of CRYSCALC can not
+   be fully executed if WINPLOTR (http://www.cdix.univ-rennes1.fr/winplotr) has
+   not been installed previously.
 
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
@@ -156,6 +163,7 @@
    <li class="item"><A HREF="#BARY">BARY</A>
    <li class="item"><A HREF="#BEAM">BEAM</A>
    <li class="item"><A HREF="#CELL">CELL</A>
+   <li class="item"><A HREF="#CELL_ESD">CELL_ESD</A>
    <li class="item"><A HREF="#CHEM">CHEM</A>
    <li class="item"><A HREF="#CONN">CONN</A>
    <li class="item"><A HREF="#CONT">CONT</A>
@@ -164,6 +172,7 @@
    <li class="item"><A HREF="#CREATE_CFL">CREATE_CFL</A>
    <li class="item"><A HREF="#CREATE_FST">CREATE_FST</A>
    <li class="item"><A HREF="#CREATE_INS">CREATE_INS</A>
+   <li class="item"><A HREF="#CREATE_PCR">CREATE_PCR</A>
    <li class="item"><A HREF="#CREATE_REPORT">CREATE_REPORT</A>
    <li class="item"><A HREF="#CREATE_SOLVE">CREATE_SOLVE</A>
    <li class="item"><A HREF="#CREATE_TIDY">CREATE_TIDY</A>
@@ -175,68 +184,84 @@
    <li class="item"><A HREF="#DATA_NEUTRONS">DATA_NEUTRONS</A>
    <li class="item"><A HREF="#DATA_XRAYS">DATA_XRAYS</A>
    <li class="item"><A HREF="#DIAG_MAT">DIAG_MAT</A>
+   <li class="item"><A HREF="#DIFF">DIFF</A>
    <li class="item"><A HREF="#DIR_ANG">DIR_ANG</A>
    <li class="item"><A HREF="#DIST">DIST</A>
    <li class="item"><A HREF="#DIST_DHA">DIST_DHA</A>
    <li class="item"><A HREF="#EDIT">EDIT</A>
    <li class="item"><A HREF="#EQUIV_HKL">EQUIV_HKL</A>
+   <li class="item"><A HREF="#EULER_TO_KAPPA">EULER_TO_KAPPA</A>
    <li class="item"><A HREF="#EXIT">EXIT</A>
+   <li class="item"><A HREF="#FCF_FILE">FCF_FILE</A>
    <li class="item"><A HREF="#FILE">FILE</A>
    <li class="item"><A HREF="#FIND_HKL">FIND_HKL</A>
    <li class="item"><A HREF="#FIND_HKL_LIST">FIND_HKL_LIST</A>
    <li class="item"><A HREF="#FRIEDEL">FRIEDEL</A>
    <li class="item"><A HREF="#GEN_HKL">GEN_HKL</A>
+   <li class="item"><A HREF="#GET_TRANS_MAT">GET_TRANS_MAT</A>
    <li class="item"><A HREF="#HEADER">HEADER</A>
    <li class="item"><A HREF="#HEX_RHOMB">HEX_RHOMB</A>
    <li class="item"><A HREF="#HKL">HKL</A>
+   <li class="item"><A HREF="#HKL_DIFF">HKL_DIFF</A>
    <li class="item"><A HREF="#HKL_NEG">HKL_NEG</A>
    <li class="item"><A HREF="#HKL_POS">HKL_POS</A>
+   <li class="item"><A HREF="#HKLF5">HKLF5</A>
    <li class="item"><A HREF="#INSIDE">INSIDE</A>
-   <li class="item"><A HREF="#LIST_EXTI">LIST_EXTI</A>
-   <li class="item"><A HREF="#LIST_KEYS">LIST_KEYS</A>
-   <li class="item"><A HREF="#LIST_LAUE">LIST_LAUE</A>
-   <li class="item"><A HREF="#LIST_MATR">LIST_MATR</A>
-   <li class="item"><A HREF="#LIST_SG">LIST_SG</A>
+   <li class="item"><A HREF="#KAPPA_TO_EULER">KAPPA_TO_EULER</A>
+   <li class="item"><A HREF="#LIST_EXTI/LST_EXTI">LIST_EXTI/LST_EXTI</A>
+   <li class="item"><A HREF="#LIST_KEYS/LST_KEYS">LIST_KEYS/LST_KEYS</A>
+   <li class="item"><A HREF="#LIST_LAUE/LST_LAUE">LIST_LAUE/LST_LAUE</A>
+   <li class="item"><A HREF="#LIST_MATR/LST_MATR">LIST_MATR/LST_MATR</A>
+   <li class="item"><A HREF="#LIST_SG/LST_SG">LIST_SG/LST_SG</A>
    <li class="item"><A HREF="#MAG">MAG</A>
    <li class="item"><A HREF="#MAN">MAN</A>
    <li class="item"><A HREF="#MAN_HTML">MAN_HTML</A>
    <li class="item"><A HREF="#MATMUL">MATMUL</A>
    <li class="item"><A HREF="#MATR">MATR</A>
-   <li class="item"><A HREF="#OBV_REV">OBV_REV</A>
    <li class="item"><A HREF="#MENDEL">MENDEL</A>
    <li class="item"><A HREF="#MERGE">MERGE</A>
    <li class="item"><A HREF="#MONOCLINIC">MONOCLINIC</A>
    <li class="item"><A HREF="#NEWS">NEWS</A>
    <li class="item"><A HREF="#NIGGLI">NIGGLI</A>
+   <li class="item"><A HREF="#OBV_REV">OBV_REV</A>
    <li class="item"><A HREF="#P4P">P4P</A>
    <li class="item"><A HREF="#PAUSE">PAUSE</A>
    <li class="item"><A HREF="#PERMUT">PERMUT</A>
+   <li class="item"><A HREF="#PLANE">PLANE</A>
    <li class="item"><A HREF="#Q_HKL">Q_HKL</A>
    <li class="item"><A HREF="#QVEC">QVEC</A>
    <li class="item"><A HREF="#READ_CEL">READ_CEL</A>
    <li class="item"><A HREF="#READ_CIF">READ_CIF</A>
    <li class="item"><A HREF="#READ_FACES">READ_FACES</A>
+   <li class="item"><A HREF="#READ_HKLF5">READ_HKLF5</A>
    <li class="item"><A HREF="#READ_INS">READ_INS</A>
    <li class="item"><A HREF="#READ_NREPORT">READ_NREPORT</A>
    <li class="item"><A HREF="#READ_PCR">READ_PCR</A>
    <li class="item"><A HREF="#READ_TIDY_OUT">READ_TIDY_OUT</A>
    <li class="item"><A HREF="#REC_ANG">REC_ANG</A>
+   <li class="item"><A HREF="#REDUCE_CELL">REDUCE_CELL</A>
    <li class="item"><A HREF="#REF_ABS_CRYSALIS">REF_ABS_CRYSALIS</A>
-   <li class="item"><A HREF="#REF_D8_VENTURE_CU">REF_D8_VENTURE_CU</A>
-   <li class="item"><A HREF="#REF_D8_VENTURE_MO">REF_D8_VENTURE_MO</A>
+   <li class="item"><A HREF="#REF_D8V_CU">REF_D8V_CU</A>
+   <li class="item"><A HREF="#REF_D8V_MO">REF_D8V_MO</A>
    <li class="item"><A HREF="#REF_APEX">REF_APEX</A>
    <li class="item"><A HREF="#REF_DENZO">REF_DENZO</A>
    <li class="item"><A HREF="#REF_EVAL">REF_EVAL</A>
    <li class="item"><A HREF="#REF_KCCD">REF_KCCD</A>
    <li class="item"><A HREF="#REF_SADABS">REF_SADABS</A>
+   <li class="item"><A HREF="#REF_SHELX">REF_SHELX</A>
+   <li class="item"><A HREF="#REF_SIR">REF_SIR</A>
+   <li class="item"><A HREF="#REF_SUPERFLIP">REF_SUPERFLIP</A>
    <li class="item"><A HREF="#REF_SUPERNOVA">REF_SUPERNOVA</A>
    <li class="item"><A HREF="#REF_X2S">REF_X2S</A>
    <li class="item"><A HREF="#REF_XCALIBUR">REF_XCALIBUR</A>
    <li class="item"><A HREF="#RESET">RESET</A>
    <li class="item"><A HREF="#RINT">RINT</A>
    <li class="item"><A HREF="#RHOMB_HEX">RHOMB_HEX</A>
+   <li class="item"><A HREF="#SAVE_SETTINGS">SAVE_SETTINGS</A>
    <li class="item"><A HREF="#SEARCH_EXTI">SEARCH_EXTI</A>
+   <li class="item"><A HREF="#SEARCH_MONO">SEARCH_MONO</A>
    <li class="item"><A HREF="#SEARCH_SPGR">SEARCH_SPGR</A>
+   <li class="item"><A HREF="#SEARCH_TETRA">SEARCH_TETRA</A>
    <li class="item"><A HREF="#SET">SET</A>
    <li class="item"><A HREF="#SETTING">SETTING</A>
    <li class="item"><A HREF="#SFAC">SFAC</A>
@@ -254,15 +279,18 @@
    <li class="item"><A HREF="#SORT">SORT</A>
    <li class="item"><A HREF="#STAR_K">STAR_K</A>
    <li class="item"><A HREF="#STL">STL</A>
+   <li class="item"><A HREF="#SUPERCELL">SUPERCELL</A>
    <li class="item"><A HREF="#SYMM">SYMM</A>
    <li class="item"><A HREF="#SYST">SYST</A>
    <li class="item"><A HREF="#THERM">THERM</A>
    <li class="item"><A HREF="#THERM_SHELX">THERM_SHELX</A>
    <li class="item"><A HREF="#THETA">THETA</A>
    <li class="item"><A HREF="#TITL">TITL</A>
+   <li class="item"><A HREF="#TOLMAN_ANGLE">TOLMAN_ANGLE</A>
    <li class="item"><A HREF="#TRANSLATION">TRANSLATION</A>
    <li class="item"><A HREF="#TRANSMISSION">TRANSMISSION</A>
    <li class="item"><A HREF="#UB_MATRIX">UB_MATRIX</A>
+   <li class="item"><A HREF="#UPDATE">UPDATE</A>
    <li class="item"><A HREF="#USER_MAT">USER_MAT</A>
    <li class="item"><A HREF="#TRICLINIC">TRICLINIC</A>
    <li class="item"><A HREF="#TWIN_HEXA">TWIN_HEXA</A>
@@ -277,12 +305,13 @@
    <li class="item"><A HREF="#WRITE_CHEM">WRITE_CHEM</A>
    <li class="item"><A HREF="#WRITE_DEVICE">WRITE_DEVICE</A>
    <li class="item"><A HREF="#WRITE_QVEC">WRITE_QVEC</A>
+   <li class="item"><A HREF="#WRITE_SG">WRITE_SG</A>
+   <li class="item"><A HREF="#WRITE_SUPERCELL">WRITE_SUPERCELL</A>
    <li class="item"><A HREF="#WRITE_SYM_OP">WRITE_SYM_OP</A>
    <li class="item"><A HREF="#WRITE_WAVE">WRITE_WAVE</A>
    <li class="item"><A HREF="#WRITE_ZUNIT">WRITE_ZUNIT</A>
    <li class="item"><A HREF="#X_WAVE">X_WAVE</A>
    <li class="item"><A HREF="#ZUNIT">ZUNIT</A>
-   <li class="item"><A HREF="#WRITE_SG">WRITE_SG</A>
 </ul></ul><br>
 <pre style='font-size:14' class='color_grey1'> 
 <A HREF="#cryscalc_main">[return]</a>
@@ -296,7 +325,7 @@
                                           output
                            . arg = "OUT": requested reflections are output on
                                           the screen
-                           . arg = "WRITE": requested reflextions are output
+                           . arg = "WRITE": requested reflections are output
                                             in a HKL file
                            . arg = real_value (n_sig): only reflections with
                                                        I/sig > n_sig are output
@@ -329,13 +358,13 @@
 <A NAME="ANG"></A>
 <p class='title_3'>  > ANG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . arguments:           3 character strings
+    . arguments:           3 characters strings
     . meaning:             calculation of the angle defined by three atoms
                            labelled by the atom labels (cf ATOM keyword)
     . example:             ANG C8 C10 C9
 
   or
-    . arguments:           4 character strings
+    . arguments:           4 characters strings
     . meaning:             calculation of the angle defined by the segments
                            constituted by atoms couples labelled as S_1, S_2
                            and S_3, S_4 respectively (cf ATOM keyword)
@@ -366,7 +395,7 @@
 <A NAME="ATOM"></A>
 <p class='title_3'>  > ATOM:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           2 character strings and 5 reals
+    . arguments:           2 characters strings and 5 reals
     . meaning:             . string #1: atomic label
                            . string #2: atom type (can contain oxdation state)
                            . x,y,z atomic reduced coordinates
@@ -404,12 +433,16 @@
 <A NAME="BARY"></A>
 <p class='title_3'>  > BARY:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . arguments:           n character strings
+    . arguments:           n characters strings
                            or "ALL"
     . meaning:             calculation of the coordinates of the centroid of the
                            n atoms known by the atom label (cf ATOM keyword)
+                           if arg_2 = ">", all atoms of same species from fist
+                           and third arguments will be considered in the calculation.
                            if arg="ALL": all input atoms are considered
-    . examples:            BARY C8 C10 C9 C11
+    . examples:            BARY C31 C32 C33 C34 C35
+                           BARY C31 > C35
+                           BARY C31 > C34 C35
                            BARY ALL
     . identical keywords:  BARY, CENTROID
 
@@ -418,7 +451,7 @@
 <A NAME="BEAM"></A>
 <p class='title_3'>  > BEAM:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           character string
+    . arguments:           characters string
     . meaning:             type of the incident beam:
                              - BEAM NEUT  for neutrons
                              - BEAM ELECTRONS  for electrons
@@ -437,10 +470,10 @@
 <A NAME="CELL"></A>
 <p class='title_3'>  > CELL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           6 reals or 1 character string
+    . arguments:           6 reals or 1 characters string
     . meaning:              - reals: unit cell parameters in A (a, b, c) and
                                      angle in deg. (alfa, beta, gamma)
-                            - character string: file name containing unit cell
+                            - characters string: file name containing unit cell
                               parameters.
                               Following files can be read:
                                . INS/RES file for SHELXL
@@ -452,15 +485,30 @@
                            direct and reciprocal unit cell parameters
     . example:             CELL 7.6520 7.8450 11.0760 90. 90. 90.
                            CELL my_saint_data.P4P
-                           CELL my_janat_data.m50
+                           CELL my_jana_data.m50
     . identical keywords   CELL, CELL_PARAMETERS
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="CELL_ESD"></A>
+<p class='title_3'>  > CELL_ESD:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                INPUT keyword
+    . arguments:           6 reals max.
+    . meaning:             ESD for unit cell parameters in A (a, b, c) and
+                           angle in deg. (alfa, beta, gamma)
+                           . if only 1 real is input, metric is supposed to be cubic
+                           . if only 2 reals are input, metric is supposed to be tetragonal
+                           . if only 3 reals are input, metric is supposed to be  orthorhombic
+    . output:              calculation of ESD for unit cell volume
+    . example:             CELL_ESD  0.0011 0.0013 0.0037  0.004 0.004 0.003
+    . identical keywords   CELL_ESD, ESD_CELL
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="CHEM"></A>
 <p class='title_3'>  > CHEM:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           n "El_i_n_i" character strings (without blank
+    . arguments:           n "El_i_n_i" characters strings (without blank
                            character between label and number)
     . meaning:             Molecular chemical formula: El_i is the chemical
                            symbol of the species i and n_i is the corresponding
@@ -478,16 +526,22 @@
 <p class='title_3'>  > CONN:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
     . argument:            atom_label + dist_max
-    . optional arguments:  ALL, ALL_X, NO_X, ANG, BVS, VOL, SHAPE, SELF, MIN=, M
-                           CONDENSED
-    . meaning:             determine the connectivity around the atom "atom_labe
+    . optional arguments:  ALL, ALL_X, NO_X, ONLY_X, ANG, BVS, VOL, SHAPE, SELF,
+                           MIN=, MAX=, CONDENSED
+    . meaning:             Determine the connectivity around the atom "atom_label"
                            with interatomic distances calculated between MIN
                            and MAX values.
+                           Calculate the polyedron distorsion as:
+                            distorsion = SUM((dist-dist_av)/dist_av)**2) / n
+                            with n: number of ligands
+                                 dist_av: average distance
                            Default values for MIN and MAX = 0.4 and 3.0 A.
                            if argument=ALL, the program will calculate
                            connectivity around all atoms.
                            if argument=ALL_X, the program will calculate
                            connectivity around all atoms of the species X.
+                           if argument=ONLY_X, the program will calculate
+                           connectivity between all atoms of the species X.
                            if argument=NO_X, the program will exclude
                            connectivity with all atoms of the species X.
                            if "ANG" is present, interatomic angles will
@@ -495,12 +549,12 @@
                            if "BVS" is present, bond valence sums
                             calculations are performed.
                            if "VOL" is present, polyedron volume is calculated
-                            (ref. : VOLCAL program of L. W. FINGER included in C
+                            (ref. : VOLCAL program of L. W. FINGER included in CFML).
                            if "SHAPE" is present, an input file
                             for SHAPE program (http://www.ee.ub.es/) is created.
                             derivative SHAPE arguments : SHAPE_A (a//x),
                             SHAPE_C (x//c)
-                           if SELF (or AUTO) is present, output distances betwee
+                           if SELF (or AUTO)is present, output distances between
                             atoms from the same label
                            if CONDENSED is present, short ouput is created
                             ex: CONN Yb1 SELF 10.
@@ -509,7 +563,7 @@
                             ex: CONN ALL_Nd
                             ex: CONN ALL ANG CONDENSED
                             ex: CONN Cu1 no_H
-    . output:              interatomic distances, bond distribution and optional
+    . output:              interatomic distances, bond distribution and optional BVS
                            calculations.
                            Effective distance is calculated as follows:
                            r_eff=[N/Sum(r^-3)]^1/3
@@ -525,7 +579,7 @@
 <A NAME="CONT"></A>
 <p class='title_3'>  > CONT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           n "El_i  n_i"(character string, real) couples
+    . arguments:           n "El_i  n_i"(characters string, real) couples
     . meaning:             unit cell contents: El_i is the chemical symbol of
                            the species i and n_i is the corresponding number
                            of atoms in the unit cell
@@ -605,11 +659,28 @@
 <A NAME="CREATE_INS"></A>
 <p class='title_3'>  > CREATE_INS</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . argument:            no
+    . optional argument:   no_H
     . meaning:             create .INS file for SHELXL from a CIF file
+                           if "no_H" is given as argument, the .INS file
+                           will not contain Hydrogen atoms.
     . mandatory keyword:   READ_CIF file.cif
     . dependent parameter: CREATE_INS parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .INS file will
+                           be automatically created if a .CIF file is
+                           given as argument when CRYSCALc is launching
+                           from a command line :
+                           > cryscalc file.cif
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="CREATE_PCR"></A>
+<p class='title_3'>  > CREATE_PCR</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             create .PCR file for FullProf (pattern simulation)
+    . mandatory keyword:   READ_CIF file.cif
+    . dependent parameter: CREATE_PCR parameter value in the CRYSCALC.INI
+                           setting file. If equal to 1, a .PCR file will
                            be automatically created if a .CIF file is
                            given as argument when CRYSCALc is launching
                            from a command line :
@@ -640,11 +711,10 @@
 <p class='title_3'>  > CREATE_SOLVE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                output keyword
     . meaning:             create input files for structure solving software as
-                           SIR97; SHELXS/T and SUPERFLIP
+                           SIR97, SHELXS/T and SUPERFLIP
     . optional argument:   no
     . dependent parameter: CELL parameters, cell content, space group and
                            hkl file has to be provided
-
     . identical keywords:  CREATE_SOLVE, CREATE_TO_SOLVE, CREATE_FILES_TO_SOLVE,
                            SOLVE
 
@@ -743,9 +813,9 @@
                             J.E. Lynn and P.A. Seeger, L.A.N.L.
                            if arg=PLOT: create a PGF file and plot it with
                             WinPLOTR
-                           if arg=PLOT_ALL: create a PGF file containing Re, Im,
+                           if arg=PLOT_ALL: create a PGF file containing Re, Im, parts
                            and modulus of scattering length (available only
-                           for input rare earth). PGF file is then plotted with
+                           for input rare earth). PGF file is then plotted with WinPLOTR
      . see:                Xrays_DATA
      . example:            DATA_NEUTRONS Gd_157 PLOT_all
      . identical keywords: DATA_NEUTRONS, NEUTRONS_DATA, DATA_NEUTRON,
@@ -758,7 +828,7 @@
      . type:               OUTPUT keyword
      . optional argument:  PLOT
      . meaning:            list X-ray data for all atoms (total interaction
-                           cross section for Ag, Mo, Cu, Co, Fe and Cr radiation
+                           cross section for Ag, Mo, Cu, Co, Fe and Cr radiations)
                            X-ray data are extracted from :
                             Tables Internationales vol.C  1995, p.200-206,
                             Tables Internationales vol.C  1995, p. 193-199
@@ -780,6 +850,28 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="DIFF"></A>
+<p class='title_3'>  > DIFF:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                CALCULATION keyword
+    . arguments:           2 characters strings
+    . meaning:             calculation of the components of the difference vector
+                           between atoms labelled by their atom labels (cf ATOM keyword)
+    . remark:              atom label can refer to equivalent position through
+                           a particular symmetry operator (cf SYMM keyword)
+                           atomic label, with n refering to the number of
+                           symmetry operator in the list.
+                           If the symmetry operator is unknown, "_*" option allows
+                           to generate all equivalent positions from the current
+                           space group operators. Corresponding difference vectors
+                           are output.
+    . example:             DIFF C8 C10
+                           DIFF C10 C9
+                           DIFF C10 C9_$1
+                           DIFF C10 C9_*
+    . identical keywords:  DIFF, DIFFERENCE, DIFF_CALC, DIFFERENCE_CALCULATION
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="DIR_ANG"></A>
 <p class='title_3'>  > DIR_ANG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
@@ -798,22 +890,27 @@
 <A NAME="DIST"></A>
 <p class='title_3'>  > DIST:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . arguments:           2 character strings
+    . arguments:           2 characters strings
     . meaning:             calculation of the interatomic distance between 2
                            atoms labelled by their atom labels (cf ATOM keyword)
     . remark:              atom label can refer to equivalent position through
                            a particular symmetry operator (cf SYMM keyword)
                            atomic label, with n refering to the number of
                            symmetry operator in the list.
+                           If the symmetry operator is unknown, "_*" option allows
+                           to generate all equivalent positions from the current
+                           space group operators and distances smaller than d_max
+                           are output.
     . example:             DIST C8 C10
                            DIST C10 C9
                            DIST C10 C9_$1
+                           DIST C10 C9_*
     . identical keywords:  DIST, DISTANCE, ATOMIC_DISTANCE
 
   > DIST_MULT:
 
     . type:                CALCULATION keyword
-    . arguments:           1 real (x) + 2 character strings (A B)
+    . arguments:           1 real (x) + 2 characters strings (A B)
     . meaning:              - calculation of the interatomic distance between 2
                               atoms labelled by their atom labels A and B
     .                       - calculation of the coordinate of the point M
@@ -824,7 +921,7 @@
   > DIST_PLUS:
 
     . type:                CALCULATION keyword
-    . arguments:           1 real (x) + 2 character strings (A B)
+    . arguments:           1 real (x) + 2 characters strings (A B)
     . meaning:              - calculation of the interatomic distance between 2
                               atoms labelled by their atom labels A and B
     .                       - calculation of the coordinate of the point M
@@ -835,7 +932,7 @@
   > DIST_DHA:
 
     . type:                CALCULATION keyword
-    . arguments:           2 character strings (D A)
+    . arguments:           2 characters strings (D A)
     . aoptional argument:  1 real d_H (default value=0.9 Ang.)
     . meaning:              - calculation of the interatomic distance between
                               donor (D) and acceptor atoms (A)
@@ -848,14 +945,14 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="DIST_DHA"></A>
-<p class='title_3'>                                                                                </p> <pre style='font-size:14' class='color_grey1'>
+<p class='title_3'>                                                                                                                                </p> <pre style='font-size:14' class='color_grey1'>
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="EDIT"></A>
 <p class='title_3'>  > EDIT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                output keyword
-    . argument:            1 character string (filename)
-    . meaning:             open the file given as argument with the editor defin
+    . argument:            1 characters string (filename)
+    . meaning:             open the file given as argument with the editor defined
                            in the CRYSCALC.ini setting file
     . example:             edit my_cryscalc.cfl
     . related keywords:    SET, SETTING
@@ -870,11 +967,24 @@
     . meaning:             search for equivalent reflections (Space group is
                            mandatory)
                            . arg = FRIEDEL: search for Friedel reflections
+                            (useful only for acentric space groups)
     . output:              list of required hkl reflections
     . mandatory keyword:   SPGR
     . identical keywords:  EQUIV, EQUIV_HKL, SEARCH_EQUIV, SEARCH_EQUIV_HKL,
                            FIND_EQUIV, FIND_EQUIV_HKL
     . example:             EQUIV 1 1 0 FRIEDEL
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="EULER_TO_KAPPA"></A>
+<p class='title_3'>  > KAPPA_TO_EULER:</p> <pre style='font-size:14' class='color_grey1'>
+     . type:               calculation keyword
+     . argument:           3 real values, corresponding to phi, omega and
+                           kappa values (in degrees)
+     . meaning:            convert motors angles values of single crystal
+                           diffractometer from Kappa to Eulerien geometry,
+                           given Phi, Omega and Kappa values.
+     . identical keywords: KAPPA, KAPPA_TO_EULER
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -888,10 +998,30 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="FCF_FILE"></A>
+<p class='title_3'>  > FCF_FILE:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                INPUT keyword
+    . argument :           1 characters string
+    . meaning:             read .FCF file name, created by SHELXL and containing
+                           a list of h, k, l, F2_calc, F2_obs,  sig_F2
+    . output:              . calculation of R1 and wR2 agreement factors
+
+    . optional arguments:
+                           PLOT : create a *_FCF.PGF file for WinPLOTR
+                                  (F2c = f(F2o) curve)
+                           PLOT_STL : create a *_FCF_stl.PGF file for WinPLOTR
+                                      (F2c - F2o = f(FSinTheta/lambda) curve
+                           OUT_n : output every n reflections
+    . examples:            FCF_FILE my_FCF_FILE.FCF
+                           FCF_FILE FCF.fcf out_n plot
+    . identical keywords:  FCF_FILE, FILE_FCF, READ_FCF
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="FILE"></A>
 <p class='title_3'>  > FILE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           1 character string reals
+    . arguments:           1 characters string
     . meaning:             read .HKL file name,  containing a list of
                            h, k, l, F2,  sig_F2
                             . available formats for HKL file:
@@ -908,18 +1038,21 @@
                             . statistic on collected data
                            . if space group is known (see SPGR keyword), the
                              number of reflections in agreement is output
-
-    . optional arguments: NEG: negative reflections are treated as follows:
+                           . if F2_max > 999999.99, all intensities are divided
+                             by 10 until F2_max is lower than this upper value.
+                             Sigmas are of course divided by the same coeffficient
+                             and a new *_sx.hk file is then created (Shelx format).
+    . optional arguments:  NEG: negative reflections are treated as follows:
                              if (F2      < 0.0001)  F2 = 0.0001
                              if (sig_F2_ < 0.00001) sig_F2_=sqrt(abs(F2)
                            PLOT (dependent keywords = CELL, WAVE)
-                           OUT_n : write every n reflections
-                           STAT  : statistics ouput on hkl reflections
-                           NO_STAT  : no statistics output on hkl reflections
-                           FREE  : free format for hkl data (only h,k,l,F2
-                                   and sig_F2 are read.
-                           FMT=  : format of the hkl file  (default format
-                                   corresponds to the SHELX format (3I4, 2F8.2)
+                           OUT_n  : write every n reflections
+                           STAT   : statistics ouput on hkl reflections
+                           NO_STAT: no statistics output on hkl reflections
+                           FREE   : free format for hkl data (only h,k,l,F2
+                                   and sig_F2 are read).
+                           FMT=   : format of the hkl file  (default format
+                                    corresponds to the SHELX format (3I4, 2F8.2)
     . action:              plot the F2=f(sinTheta/lambda) curve with WinPLOTR
     . examples:            FILE my_HKL_FILE.HKL
                            FILE import.CIF plot
@@ -989,7 +1122,7 @@
                               31. hkl h=2n+1,k=2n+1
                               32. hkl h=2n+1,l=2n+1
                               33. hkl k=2n+1,l=2n+1
-                            or a character string in the following list :
+                            or a characters string in the following list :
                             A, B, C, I, F corresponding to the #13, #14, #15,
                             #16 and #17 in the previous list.
 
@@ -1009,14 +1142,14 @@
    . mandatory keyword:   FILE
    . examples:            FIND_HKL_LIST 5 OUT ALL
                           FIND_HKL_LIST I WRITE SUPPRESS
-   . identical keywords:  FIND_HKL_LIST, FIND_HKL_LST, EXTRACT_HKL_LIST, EXTRACT
+   . identical keywords:  FIND_HKL_LIST, FIND_HKL_LST, EXTRACT_HKL_LIST, EXTRACT_HKL_LST
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="FRIEDEL"></A>
 <p class='title_3'>  > FRIEDEL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (characters string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             calculate the number of Friedel pairs in a hkl file
     . mandatory keyword:   FILE, SPGR if no symmetry argument
@@ -1028,7 +1161,7 @@
 <A NAME="GEN_HKL"></A>
 <p class='title_3'>  > GEN_HKL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                calculation keyword
-    . arguments:           character strings
+    . arguments:           characters strings
     . meaning:             generate a hkl reflections list in a particular
                            scattering range:
                             . STL_min=xx  STL_max=xx for SinTheta/lambda
@@ -1045,7 +1178,7 @@
                            In the case where scattering variable is 2theta, a
                             list of I/Imax is output.
     . optional arguments    "OUT": a list of generated reflections will be ouput
-                            "PM2K": hkl reflections list stored in the PM2K form
+                            "PM2K": hkl reflections list stored in the PM2K format
                             "PAT": In the case where scattering variable is
                             2theta, atoms are input and space group is know,
                             a diffraction pattern is then created. Two different
@@ -1065,8 +1198,23 @@
     . examples             GEN_HKL theta_min=0. THETA_max=25. OUT
                            GEN_HKL d_min=0.5.   d_max=5.
                            GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT
-                           GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT SIZE=15
+                           GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT SIZE=150
     . identical keywords:  GEN_HKL, GENERATE_HKL, GENERATE_HKL_LIST
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="GET_TRANS_MAT"></A>
+<p class='title_3'> > GET_TRANS_MAT:</p> <pre style='font-size:14' class='color_grey1'>
+   . type:                 calculation keyword
+   . argument:             no
+   . meaning:              determination of the transformation
+                           matrix between two primitive unit cells
+                           (matrix determinant is equal to 1).
+                           if CELL keyword has been previously input,
+                           the input parameters are corresponding to
+                           cell #1, and only cell #2 parameters will be
+                           asked to input.
+   . identical keywords:   GET_TRANS_MAT, GET_TRANSF_MAT, GTM
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1074,7 +1222,7 @@
 <p class='title_3'> > HEADER:</p> <pre style='font-size:14' class='color_grey1'>
    . type:                 OUTPUT keyword
    . argument:             no
-   . meaning:              write header text of CRYSCALc
+   . meaning:              write header text of CRYSCALC
    . identical keywords:   HEADER, HEAD
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1104,19 +1252,37 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="HKL_DIFF"></A>
+<p class='title_3'>  > HKL_DIFF:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                INPUT keyword
+    . arguments:           2 characters strings
+    . meaning:             hkl_1 and hkl_2 files:
+                             .HKL (SHELX format)
+                             .INT (for FullProf; format is specified in the second line)
+    . output:              calculation of difference F2 for common hkl reflections
+                           create HKL_diff.hkl output file (SHELX format) containing
+                           h k l F2 and sig, with:
+                            F2  = F2_1 - F2_2
+                            sig = sqrt(sig_1**2 + sig_2**2)
+    . remark:              This can be usefull to extract magnetic contribution from data
+                           collections in the magnetic and paramagnetic temperatureranges.
+    . example:             HKL_diff 2K.int 10K.int
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="HKL_NEG"></A>
 <p class='title_3'>  > HKL_NEG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:               output keyword
     . arguments:          no
     . meaning:            search for negative intensity reflections in a HKL
                           file
-    . optional keywords: . arg = "OUT": requested reflections are output on the
+    . optional keywords:  . arg = "OUT": requested reflections are output on the
                                          screen
-                          . arg = "WRITE": requested reflextions are output in a
+                          . arg = "WRITE": requested reflections are output in a
                                            HKL file
     . mandatory keyword:  FILE
     . identical keywords: HKL_NEG, HKL_NEGATIVE, NEG_HKL, NEGATIVE_HKL
-    . relared keyword:    HKL_POS
+    . related keyword:    HKL_POS
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1126,15 +1292,32 @@
     . arguments:          no
     . meaning:            search for positive intensity reflections in a HKL
                           file
-    . optional keywords: . arg = "OUT": requested reflections are output on the
+    . optional keywords:  . arg = "OUT": requested reflections are output on the
                                          screen
-                          . arg = "WRITE": requested reflextions are output in a
+                          . arg = "WRITE": requested reflections are output in a
                                            HKL file
                           . arg = real_value (n_sig): only positive reflections
                                   with I > n_sig*sig(F2) are output
     . mandatory keyword:  FILE
     . identical keywords: HKL_POS, HKL_POSITIVE, POS_HKL, POSITIVE_HKL
     . relared keyword:    HKL_NEG
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="HKLF5"></A>
+<p class='title_3'>  > HKLF5:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:               input keyword
+    . arguments:          9 integers or reals values
+    . meaning:            transformation (3,3) matrix components
+    . optional keywords:  no
+    . output:             apply the transformation matrix on hkl file
+                          and create hklf5 format data file.
+                          Overlapping reflections criteria can be defined
+                          in the setting file with "ref_overlap_criteria="
+                          keyword in the [OPTIONS] section. Default value is 0.15
+                          and allowed maximum value is 0.25.
+    . mandatory keyword:  FILE
+    . identical keywords: HKLF5, CREATE_HKLF5
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1149,7 +1332,11 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="LIST_EXTI"></A>
+<A NAME="KAPPA_TO_EULER"></A>
+<p class='title_3'>                                                                                                                                </p> <pre style='font-size:14' class='color_grey1'>
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="LIST_EXTI/LST_EXTI"></A>
 <p class='title_3'> > LIST_EXTI_RULE:</p> <pre style='font-size:14' class='color_grey1'>
    . type:                 OUTPUT keyword
    . argument:             no
@@ -1158,15 +1345,15 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="LIST_KEYS"></A>
+<A NAME="LIST_KEYS/LST_KEYS"></A>
 <p class='title_3'>  > LIST_KEYS:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optional argument:  character string containing "*" character
+    . optional argument:  characters string containing "*" character
     . meaning:             list of keywords:
                            . if no argument: all the keywords are listed
                            . if "*" character is present in the character
                              string: all the keywords containing the
-                             the character string before or after the "*"
+                             the characters string before or after the "*"
                              will be listed
     . identical keywords:  KEY, KEYS, LST_KEYS, LIST_KEYS, LST_KEYWORDS,
                            LIST_KEYWORDS
@@ -1175,7 +1362,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="LIST_LAUE"></A>
+<A NAME="LIST_LAUE/LST_LAUE"></A>
 <p class='title_3'>  > LIST_LAUE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
@@ -1186,21 +1373,22 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="LIST_MATR"></A>
+<A NAME="LIST_MATR/LST_MATR"></A>
 <p class='title_3'>  > LIST_MAT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUPUT keyword
     . arguments:           no
-    . meaning:             list of transformation matrices implemented in CRYSCA
+    . meaning:             list of transformation matrices implemented in CRYSCALc
                            (direct and inverse matrices)
     . identical keywords:  LST_MAT, LST_MATR, LST_MATRIX, LIST_MAT, LIST_MATR,
-                           LIST_MATRIX, LIST_TRANSFORMATION_MATRIX
+                           MAT_LST, MAT_LIST, MATR_LST, MATR_LIST, LIST_MATRIX,
+                           LIST_TRANSFORMATION_MATRIX
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="LIST_SG"></A>
+<A NAME="LIST_SG/LST_SG"></A>
 <p class='title_3'>  > LIST_SG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUPUT keyword
-    . arguments:           character strings
+    . arguments:           characters strings
                            available arguments (order is not important):
                            . symmetry arguments: "all", "centric", "acentric",
                              "triclinic", "monoclinic", "orthorhombic",
@@ -1220,6 +1408,9 @@
                            . "multi": output the general multiciplicity of the
                                       space group
     . meaning:             list space groups
+                           if CHIRAL is given as argument: list only the 65 chiral
+                           space groups (Sohncke groups), i.e. containing only rotation
+                           or screw axes
     . examples:            LST_SG tetragonal centric:  list tetragonal and
                            centric space groups
                            LST_SG acentric monoclinic C: list monoclinic,
@@ -1228,6 +1419,7 @@
                             Laue class
                            LST_SG trigonal enantio
                            LST_SG cubic chiral
+                           LST_SG chiral
     . identical keywords:  LIST_SG, LST_SG, LIST_SPACE_GROUPS
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1235,12 +1427,12 @@
 <A NAME="MAG"></A>
 <p class='title_3'>  > MAG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . arguments :          character string (atom or ion label)
+    . arguments :          characters string (atom or ion label)
     . outputs:             list magnetic features of the  current ion or atom:
                            electronic configuration, level, magnetic moment ...
                            for 3d and 4f elements
     . identical keywords:  MAG, MAGNETIC
-    . examples:            mag mn+3
+    . examples:            mag Mn3+
     .                      mag TB
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1248,13 +1440,13 @@
 <A NAME="MAN"></A>
 <p class='title_3'>  > MAN:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optional arguments:  character strings
+    . optional arguments:  characters strings
     . meaning:             get the CRYSCALc manual
     . output:              list the meaning and use of CRYSCALc keywords
                            . if no arguments: all the keywords are listed
                            . optional arguments are keywords name
-                           . if "*" character in the character string: all the
-                             keywords containing the character string before
+                           . if "*" character in the characters string: all the
+                             keywords containing the characters string before
                              or after the "*" will be listed
     . examples:            MAN wave cell
                            MAN ANG*
@@ -1300,33 +1492,33 @@
     . special arguments  :     "I"  : identity matrix
                               "-I" : inverse matrix
   or
-    . arguments:           3 character strings: a, -a, b, -b, c, -c
+    . arguments:           3 characters strings: a, -a, b, -b, c, -c
     . meaning:             setting of the unit cell
     . example:             MATR  -c b a
   or
-    . arguments:           2 character strings: P, A, B, C, I, F, R_rev, R_obv
+    . arguments:           2 characters strings: P, A, B, C, I, F, R_rev, R_obv
     . meaning:             Bravais lattices of the original and final cells.
                            The transformation matrices are related to matrices
                            from #8 to #21 in the matrix list
     . example:             MATR C P
                            MATR R_obv R_rev
 
-    . output:              calculation of new cell parameters (dependent
-                           keyword = CELL)
-                           calculation of new atomic coordinates (dependent
-                           keyword = ATOM)
-                           calculation of new hkl Miller indices (dependent
-                           keyword = HKL)
-                           create a new file containing the new hkl indices
-                           (dependent keyword = FILE)
-    . identical keywords:  MAT, MATR, MATRIX
+    . optional argument:   UPDATE/NO_UPDATE: update or not cell parameters and atomic
+                           coordinates after transformation (independently of the
+                           "update_parameters" value in the setting file)
+    . output:              calculation of new cell parameters (dependent keyword = CELL),
+                           new atomic coordinates (dependent keyword = ATOM) and new
+                           hkl Miller indices (dependent keyword = HKL)
+                           create a new file containing the new hkl indices (dependent
+                           keyword = FILE)
+    . identical keywords:  MAT, MATR, MATRIX, TRANS, TRANSF
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="OBV_REV"></A>
+<A NAME="MENDEL"></A>
 <p class='title_3'>  > MENDEL:</p> <pre style='font-size:14' class='color_grey1'>
-    . type:                OUTOUT keyword
-    . arguments:           character strings
+    . type:                OUTPUT keyword
+    . arguments:           characters strings
     . meaning:             atom type or atomic number
     . output:              get atomic features: atomic number, weight,
                             density, electronic configuration, oxydation
@@ -1347,10 +1539,10 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="MENDEL"></A>
+<A NAME="MERGE"></A>
 <p class='title_3'>  > MERGE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (characters string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             merge the data in the current symmetry and create
                            a xxx_merge.HKL file
@@ -1359,21 +1551,20 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="MERGE"></A>
+<A NAME="MONOCLINIC"></A>
 <p class='title_3'>  > MONOCLINIC:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . arguments :          no argument
     . outputs:             . list the transformation matrices for equivalent
                              monoclinic settings
                            . if CELL exists: apply the transformation matrices
                              to give new monoclinic cell parameters
-    . mandatory keyword:   no
+    . mandatory keyword:   NO_OUT
     . optional keyword:    CELL
     . identical keywords:  MONOCLINIC, MONOC, MONOCL
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="MONOCLINIC"></A>
+<A NAME="NEWS"></A>
 <p class='title_3'>  > NEWS:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . outputs:             list the last new facilities implemented in CRYSCALc
@@ -1383,7 +1574,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="NEWS"></A>
+<A NAME="NIGGLI"></A>
 <p class='title_3'>  > NIGGLI_CELL</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . arguments :          no argument
@@ -1394,7 +1585,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="NIGGLI"></A>
+<A NAME="OBV_REV"></A>
 <p class='title_3'>  > OBV_REV:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . arguments :          1 integer
@@ -1417,9 +1608,9 @@
     . type:                OUTPUT keyword
     . optional arguments : P4P file name
     . meaning:             read the .P4P file (created by SAINT) present in the
-                           current folder (if more than one .P4P file is present
+                           current folder (if more than one .P4P file is present,
                            select a P4P file in a .P4P file list) and create
-                           a P4P.cif file containing cell parameters (and esd's)
+                           a P4P.cif file containing cell parameters (and esd's),
                            wavelength, number of reflections used to refined the
                            cell parameters and related theta_min and theta_max.
     . identical keywords:  P4P, READ_P4P
@@ -1447,6 +1638,18 @@
                            applying matrix #n
                            if cell parameters are unknown: list the
                            transformation matrix
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="PLANE"></A>
+<p class='title_3'>  > PLANE:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . arguments :          3 atom labels mininum (max.=20)
+    . meaning:             calculate the equation of the mean plane (Ax+By+Cz+D=0)
+                           containing input atoms.
+    . outputs:             output the four components A, B, C and D of the plane
+                           equation.
+    . identical keywords:  PLANE, PLAN
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1479,7 +1682,7 @@
 <A NAME="READ_CEL"></A>
 <p class='title_3'>  > READ_CEL</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . argument:            1 character string corresponding to a CEL file name
+    . argument:            1 characters string corresponding to a CEL file name
     . meaning:             read a CEL format file (PowderCELL format) to extract
                            structural features as: space group, cell parameters
                            and atomic positions.
@@ -1491,8 +1694,8 @@
 <A NAME="READ_CIF"></A>
 <p class='title_3'>  > READ_CIF</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . argument:            1 character string corresponding to a CIF file name
-    . meaning:             read a CIF format file to extract structural features
+    . argument:            1 characters string corresponding to a CIF file name
+    . meaning:             read a CIF format file to extract structural features:
                            as: space group and/or symmetry operators, cell
                            parameters, atomic positions, wave ...
     . identical keywords:  READ_CIF, READ_CIF_FILE, CIF_FILE
@@ -1503,9 +1706,9 @@
 <A NAME="READ_FACES"></A>
 <p class='title_3'>  > READ_FACES</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . optional argument:   1 character string corresponding file name
+    . optional argument:   1 characters string corresponding file name
                            containing crystal shape habitus :
-                           - absorb.ins file created by Collect software (Nonius
+                           - absorb.ins file created by Collect software (Nonius).
                            - faces.def file created by WinGX.
                            if absent, shape file = absorb.ins
     . meaning:             read a file containaing crystal shape as
@@ -1516,10 +1719,25 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="READ_HKLF5"></A>
+<p class='title_3'>  > READ_HKLF5</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                input keyword
+    . argument:            1 characters string corresponding to a HKLF5 file
+                           name
+    . optional argument:   "OUT"
+    . meaning:             read a HKLF5 format data file containing structure factors
+                           of a twinned crystal.
+                           If "OUT" is given as argument, the list of clusters of
+                           reflexions will be output.
+    . identical keywords:  READ_HKLF5, FILE_HKLF5
+    . example:             READ_HKLF5  twin5.hkl
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="READ_INS"></A>
 <p class='title_3'>  > READ_INS</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . argument:            1 character string corresponding to a INS/RES file
+    . argument:            1 characters string corresponding to a INS/RES file
                            name (SHELX)
     . meaning:             read a .INS/.RES SHELX format file to extract
                            structural features as: space group and/or symmetry
@@ -1535,7 +1753,7 @@
     . optional argument:   browse
     . meaning:             read nreport.html file created by the Nonius software
                            suite for KCCD diffractometer.
-                           If 'browse' is given as argument, launch the browser
+                           If 'browse' is given as argument, launch the browser defined
                            in the 'cryscalc.ini' setting file
                            If not, ouputs the HTML file on screen (without tags)
     . identical keywords:  READ_NREPORT, READ_HTML_REPORT, READ_NREPORTHTML
@@ -1545,7 +1763,7 @@
 <A NAME="READ_PCR"></A>
 <p class='title_3'>  > READ_PCR</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . argument:            1 character string corresponding to a PCR file name
+    . argument:            1 characters string corresponding to a PCR file name
     . meaning:             read a PCR FullProf format file to extract structural
                            features as: space group and/or symmetry operators,
                            cell parameters, atomic positions, wave ...
@@ -1557,12 +1775,11 @@
 <A NAME="READ_TIDY_OUT"></A>
 <p class='title_3'>  > READ_TIDY_OUT</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
-    . optional argument:   1 character string corresponding to the TIDY output f
+    . optional argument:   1 characters string corresponding to the TIDY output file
                            to be read. Default name=stidy.out
-    . meaning:             read a output file created by TIDY and extract all st
-                           features as: space group ,
-                           cell parameters, atomic positions
-    . identical keywords:  READ_TIDY_OUT, READ_TIDY_OUTPUT, READ_TIDY_OUTPUT_FIL
+    . meaning:             read a output file created by TIDY and extract all structural
+                           features as: space group, cell parameters, atomic positions.
+    . identical keywords:  READ_TIDY_OUT, READ_TIDY_OUTPUT, READ_TIDY_OUTPUT_FILE
     . example:             READ_TIDY_OUT
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1581,46 +1798,57 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="REDUCE_CELL"></A>
+<p class='title_3'>  > REDUCE:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                CALCULATION keyword
+    . argument:            1 character string, corresponding to the Bravais lattice:
+                            P, A, B, C, I, R, F (default = P)
+    . meaning:             calculation of conventional unit cell parameters and
+                           transformation matrix between input cell and conventional
+                           cell(s). The routine is based on Get_conventional_Unit_Cells
+                           program written by JRC using procedures implemented in CRYSFML.
+    . mandatory keyword:   CELL
+    . identical keywords:  REDUCE, REDUCE_CELL, REDUCED, REDUCED_CELL
+    . example:             REDUCE F
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="REF_ABS_CRYSALIS"></A>
 <p class='title_3'> > REF_ABS_CRYSALIS</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write absorption correction procedure implemented
                            in CRYSALIS software (Agilent Technologies)
-    . optional argument:  CIF
-
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_ABS_CRYSALIS
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="REF_D8_VENTURE_CU"></A>
+<A NAME="REF_D8V_CU"></A>
 <p class='title_3'> > REF_APEX</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write APEXII diffractometer programs and device refer
-    . optional argument:  CIF
-
+    . meaning:             write APEXII diffractometer programs and device references
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_APEX, REF_APEXII, WRITE_APEX, WRITE_APEXII,
                            APEX, APEXII
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="REF_D8_VENTURE_MO"></A>
-<p class='title_3'> > REF_D8_VENTURE_Cu</p> <pre style='font-size:14' class='color_grey1'>
+<A NAME="REF_D8V_MO"></A>
+<p class='title_3'> > REF_D8V_Cu</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write D8 Venture diffractometer programs and device r
-    . optional argument:  CIF
-
-    . identical keywords:  REF_D8_VENTURE_Cu
+    . meaning:             write D8 Venture diffractometer programs and device references
+    . optional argument:   CIF/ACTA
+    . identical keywords:  REF_D8V_Cu, REF_D8_VENTURE_CU
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="REF_APEX"></A>
-<p class='title_3'> > REF_D8_VENTURE_Mo</p> <pre style='font-size:14' class='color_grey1'>
+<p class='title_3'> > REF_D8V_Mo</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write D8 Venture diffractometer programs and device r
-    . optional argument:  CIF
-
-    . identical keywords:  REF_D8_VENTURE_Mo
+    . meaning:             write D8 Venture diffractometer programs and device references
+    . optional argument:   CIF/ACTA
+    . identical keywords:  REF_D8V_Mo, REF_D8_VENTURE_Mo
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="REF_DENZO"></A>
@@ -1628,8 +1856,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write EVALCCD references
-    . optional argument:  CIF
-
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_EVAL, REF_EVALCCD, WRITE_EVAL, WRITE_EVALCCD,
                            EVAL, EVALCCD
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1639,7 +1866,7 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write DENZO/SCALEPACK references
-    . optional argument:  CIF
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_DENZO, WRITE_DENZO, DENZO
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1648,9 +1875,8 @@
 <p class='title_3'> > REF_KCCD</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write KCCD diffractometer software and device referen
-    . optional argument:  CIF
-
+    . meaning:             write KCCD diffractometer software and device references
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_KCCD, KCCD
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1659,18 +1885,43 @@
     . type:                OUTPUT keyword
     . argument:            no
     . meaning:             write SADABS references
-    . optional argument:  CIF
-
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_SAD, SADABS
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="REF_SHELX"></A>
+<p class='title_3'> > REF_SHELX</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write SHELXS/T and SHELXL references
+    . optional argument:   CIF/ACTA
+    . identical keywords:  REF_SHELX
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="REF_SIR"></A>
+<p class='title_3'> > REF_SIR</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write SIR team programs references
+    . optional argument:   no
+    . identical keywords:  REF_SIR
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="REF_SUPERFLIP"></A>
+<p class='title_3'> > REF_SUPERFLIP</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write SUPERFLIP program reference
+    . optional argument:   no
+    . identical keywords:  REF_SPF, REF_SUPERFLIP
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="REF_SUPERNOVA"></A>
 <p class='title_3'> > REF_SUPERNOVA</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write SUPERNOVA diffractometer programs and device re
-    . optional argument:  CIF
-
+    . meaning:             write SUPERNOVA diffractometer programs and device references
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_SUPERNOVA
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1678,9 +1929,8 @@
 <p class='title_3'> > REF_X2S</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write SMART X2S diffractometer programs and device re
-    . optional argument:  CIF
-
+    . meaning:             write SMART X2S diffractometer programs and device references
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_X2S, REF_SMART_X2S
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1688,9 +1938,8 @@
 <p class='title_3'> > REF_XCALIBUR</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write XCALIBUR diffractometer sotware and device refe
-    . optional argument:  CIF
-
+    . meaning:             write XCALIBUR diffractometer sotware and device references
+    . optional argument:   CIF/ACTA
     . identical keywords:  REF_SUPERNOVA
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1707,7 +1956,7 @@
 <A NAME="RINT"></A>
 <p class='title_3'>  > RINT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . optional argument:  symmetry (character string): "TRIC", "MONO", "ORTHO",
+    . optional argument:  symmetry (characters string): "TRIC", "MONO", "ORTHO",
                            "TETRA", "TRIG", "HEXA", "CUB"
     . meaning:             calculate the internal Rint value
                            calculate the completeness of the data collection
@@ -1728,12 +1977,24 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="SAVE_SETTINGS"></A>
+<p class='title_3'>  > SAVE_SETTINGS:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . arguments :          no argument
+    . outputs:             create a cryscalc.ini setting file in the current folder
+    . identical keywords:  SAVE_SETTINGS, SAVE_SETTING
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="SEARCH_EXTI"></A>
 <p class='title_3'>  > SEARCH_EXTI:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . arguments:           2 optional real arguments: n_sig, ratio_criteria
+    . arguments:           1 optional characters string or 2 optional real arguments:
+                           n_sig, ratio_criteria
     . meaning:             analyse hkl reflections list and search systematic
                            extinctions
+                           if arg="ALL" : all reflections are considered. In the
+                           other case,
                              . n_sig: only reflections with I/sig > n_sig will
                                be analysed
                              . ratio_criteria:
@@ -1743,6 +2004,30 @@
     . mandatory keyword:   FILE
     . identical keywords:  SEARCH_EXTI, FIND_EXTI
     . example:             SEARCH_EXTI 2 0.02
+    . example:             SEARCH_EXTI ALL
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="SEARCH_MONO"></A>
+<p class='title_3'>  > SEARCH_MONO:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . optional argument:   criterias for searching monoclinic angle
+    . meaning:             determine monoclinic angle from hkl data integrated
+                           in a pseudo-orthorhombic unit cell by calculating
+                           internal R values for "P 2 1 1", "P 1 2 1" and
+                           "P 1 1 2" space groups.
+                           Criterias correspond to the max. shift of the angles
+                           respect to 90. and minimum value of Rint respect to the
+                           other Rint values respectively.
+                           Default values of these criteria are 2.5 and 0.2 respectively.
+                           Criteria_1: if more than one angle shift towards 90. deg. is
+                           greater than this criteria value, monoclinic angle search
+                           will be stopped.
+                           Criteria_2: Rint for the right monoclinic angle has to be
+                           lower than criteria_2*Rint for the others.
+    . mandatory keyword:   FILE
+    . identical keywords:  SEARCH_MONO, SEARCH_MONOCLINIC, SEARCH_MONO_ANGLE,
+                           SEARCH_MONOCLINIC_ANGLE, GET_MONO_ANGLE, GET_MONOCLINIC_ANGLE
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1750,9 +2035,9 @@
 <p class='title_3'>  > SEARCH_SPACE_GROUP:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                calculation keyword
     . optional arguments:  2 real : n_sig and threshold
-                           1 character string, defining the crystal system:
-                            M/mono, O/ortho, T/tetra, R/trig, H/hexa, C/cub
-                            GET
+                           1 characters string, defining the crystal system:
+                            M/mono, O/ortho, T/tetra, R/trig, H/hexa, C/cub,
+                            GET, ALL, P, CENTERED/NOT_P, "OMA/ONLY"
     . meaning:             search in a hkl file systematic extinctions and
                            propose space groups in agreement with observed
                            extinctions.
@@ -1761,11 +2046,53 @@
                             . a threshold is also applied: only the
                             reflections with F2 > threshold * max(F2) are
                             considered. Default value is threshold=0.03
-                           If GET is input as argument, the most probable
-                           space group will be considered
+                           If P is input as argument, only primitive space groups
+                           will be output.
+                           If ALL is given as argument, all space groups (centered
+                           and primitive) will be output.
+                           If CENTERED/NOT_P is given as argument, only non primitive
+                           (centered ) space groups will be output.
+                           If GET is input as argument, the most probable space
+                           group will be considered.
+                           In the monoclinic case, if "OMA/ONLY" is given as argument,
+                           only space groups with monoclinic angle compatible with unit
+                           cell parameters will be ouput. For example, if beta is the
+                           monoclinic angle, only "L 1 x 1" space groups will be
+                           considered. Monoclinic angle in unit cell parameters has to be
+                           far from 90. of "search_mono_criteria" value (default
+                           value=2.5, defined in the setting file ([OPTIONS] section)
+                           This OMA/ONLY option can also be defined through
+                           "search_SG_only_mono" field in the setting file ([OPTIONS]
+                           section)
     . mandatory keyword:   FILE
     . identical keywords:  SEARCH_SPGR, SEARCH_SPACE_GROUP, SEARCH_GROUP,
                            CHECK_SPGR,  CHECK_SPACE_GROUP,  CHECK_GROUP
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="SEARCH_TETRA"></A>
+<p class='title_3'>  > SEARCH_TETRA:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . optional argument:   3 criterias for searching tetragonal axis
+    . meaning:             determine tetragonal axis from hkl data integrated
+                           in a pseudo-cubic unit cell by calculating
+                           internal R values in abc, cab and bca settings.
+                           Criterias correspond to the max. shift for
+                           cell parameters respect to mean cell parameter values
+                           and max. shift for the angles respect to 90. respectively
+                           and minimum value of Rint respect to the other Rint values.
+                           Default values for these criteria are: 0.5, 2.5 and 0.2.
+                           Criteria_1: if more than one cell parameter towards the mean
+                           cell parameter value greater than this criteria value,
+                           tetragonal axis search will be stopped.
+                           Criteria_2: if more than one angle shift towards 90. deg. is
+                           greater than this criteria value, tetragonal axis search
+                           will be stopped.
+                           Criteria_3: Rint for the right tetragonal axis has to be
+                           lower than criteria_2*Rint for the others.
+    . example:             SEARCH_TETRA 0.7 3. 0.25
+    . mandatory keyword:   FILE
+    . identical keywords:  SEARCH_TETRA, SEARCH_TETRAGONAL, GET_TETRA, GET_TETRAGONAL
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1792,7 +2119,7 @@
 <A NAME="SFAC"></A>
 <p class='title_3'>  > SFAC:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           n character strings
+    . arguments:           n characters strings
     . meaning.:            list of chemical elements in the molecule
     . output:              - atomic density calculation, in at/cm3
                              (dependent keyword = CELL)
@@ -1829,14 +2156,9 @@
 <A NAME="SG"></A>
 <p class='title_3'>  > SG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments :          character string
-    . meaning:             space group (Hall Mauguin symbol, number in IT
-    . outputs:             . informations on the space group: list of symmetry
-                             operators and symmetry symbols, Wyckoff positions,
-                             extinctions  ...
-                           . get informations on the Wyckoff site: multiplicity,
-                             list of symmetry operators and symmetry elements of
-                             the site point group
+    . arguments :          characters string
+    . meaning:             space group (Hall Mauguin symbol, number in IT)
+    . outputs:             . general informations on the input space group
                            . if HKL file has been previously read (see FILE
                              keyword), the number of reflections in agreement
                              with the space group is output
@@ -1851,7 +2173,7 @@
     . type:                OUTPUT keyword
     . arguments :          no argument
     . outputs:             get informations on the current space group:
-                            symmetry operator (complete and reduced set), Wyckof
+                            symmetry operator (complete and reduced set), Wyckoff
                             positions, extinction rules ...
     . mandatory keyword:   SPGR
     . identical keywords:  SG_ALL, SP_ALL
@@ -1874,11 +2196,12 @@
 <p class='title_3'>  > SG_INFO:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . outputs:             informations on the space group: list of
-                           symmetry operators and symmetry symbols, Wyckoff
-                           positions
+                           reduced set of symmetry operators and symmetry symbols
     . mandatory keyword:   SPGR
-    . optional argument:  ALL: list all symmetry operators (including
+    . optional argument:   ALL: list all symmetry operators (including
                                 inversion and lattice centring translations)
+                                Wyckoff positions and extinctions rules for
+                                current space group.
     . identical keywords:  SG_INFO, SP_INFO, SPACE_GROUP_INFO,
                            LIST_SPACE_GROUP_INFO
 
@@ -1898,7 +2221,7 @@
 <A NAME="SHANNON"></A>
 <p class='title_3'>  > SHANNON:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . argument:            character string
+    . argument:            characters string
     . outputs:             get effective ionic radii from the Shannon table
                            (Acta Cryst 1976, A32, 751)
                             . ec:     electronic configuration
@@ -1915,7 +2238,7 @@
 <A NAME="SHELL"></A>
 <p class='title_3'>  > SHELL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . arguments:           2 character strings (one mandatory argument) + 2 real
+    . arguments:           2 characters strings (one mandatory argument) + 2 reals
     . meaning:             arg_1 = d:     keeps reflections in the d_min and
                                           d_max range
                                           created hkl file: HKL_shell_d.hkl
@@ -1964,7 +2287,7 @@
 <A NAME="SITE_INFO"></A>
 <p class='title_3'>  > SITE_INFO:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optional arguments : list of atomic labels (character strings)
+    . optional arguments : list of atomic labels (characters strings)
     . outputs:             give information on Wyckoff atomic positions and
                            apply the symmetry operators of the current space
                            group on the atomic positions
@@ -1978,7 +2301,8 @@
                                           output in a FullProf format.
     . mandatory keyword:   SPGR, ATOM
     . example:             SITE_INFO O1 C8
-    . identical keywords:  SITE_INFO, LIST_SITE_INFO
+    . identical keywords:  SITE_INFO, LIST_SITE_INFO, GEN_EQUIV_ATOMS,
+                           WYCKOFF
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1998,7 +2322,7 @@
 <A NAME="SORT"></A>
 <p class='title_3'>  > SORT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                CALCULATION keyword
-    . arguments:           2 character strings
+    . arguments:           2 characters strings
     . meaning:             arg_1 = d:     sort HKL file in increasing d_hkl
                                           (dependent keyword: CELL)
                                           created hkl file: HKL_sort_d.hkl
@@ -2031,11 +2355,10 @@
     . type:                CALCULATION keyword
     . argument:            no
     . meaning:             apply rotational parts of symmetry operators
-    .                      on propagation wave components to determine
-    .                      the star of k
-    . outputs:             d_hkl(A), Q(A-1)
-                           theta(deg) for known wavelength
-    . mandatory keywords:   SPGR, QVEC
+    .                      of the current space group on propagation wave components
+    .                      to determine the star of k.
+    . outputs:             list of k vectors and arms of the k star
+    . mandatory keywords:  SPGR, QVEC
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2049,6 +2372,21 @@
     . optional keyword:   WAVE
     . identical keywords:  STL, STL_HKL, SINTHETA/WAVE, SINTHETA/LAMBDA
     . example:             STL 0.70
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="SUPERCELL"></A>
+<p class='title_3'>  > SUPERCELL:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                input keyword
+    . arguments :          3 reals + 1 optional characters string
+    . meaning:             components of a superstructure cell
+    . outputs:             if atoms are input, calculate the atomic coordinates
+                           in the superstructure cell.
+    . mandatory keyword:   CELL
+    . identical keywords:  SUPERCELL
+    . optional argument:   "pcr": output list of atomic coordinates in a .PCR
+                           FullProf format.
+    . example:             SUPERCELL 2 2 2 pcr
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2080,7 +2418,7 @@
 <A NAME="SYST"></A>
 <p class='title_3'>  > SYST:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                EXTERNAL keyword
-    . arguments:           1 character string
+    . arguments:           1 characters string
     . meaning:             launch an external command or program
     . example:             SYST dir *.CFL / P
     . identical keywords:  SYST, CMD, COMMAND, DOS, DOS_COMMAND
@@ -2090,7 +2428,7 @@
 <A NAME="THERM"></A>
 <p class='title_3'>  > THERM:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT/OUTPUT keyword
-    . arguments:           1 character string + reals
+    . arguments:           1 characters string + reals
     . meaning:             conversion of atomic displacement parameters:
                            . available arguments:
                              - "Uiso", "U_iso": conversion from Uiso to Biso
@@ -2103,7 +2441,7 @@
                                beta_ij to B_ij and U_ij
                            . reals values correspond to isotropic thermal
                              parameters values (Biso or Uiso) or anisotropic
-                             thermal parameters (Uij, Bij, Beta) in the followin
+                             thermal parameters (Uij, Bij, Beta) in the following
                              order: 11, 22, 33, 12, 13, 23
     . examples:            THERM Biso 0.52 0.76 0.35
                            THERM B_ij 0.01 0.01 0.01 0.0 0.0 0.0
@@ -2115,7 +2453,7 @@
 <A NAME="THERM_SHELX"></A>
 <p class='title_3'>  > THERM_SHELX:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT/OUTPUT keyword
-    . arguments:           1 character string + reals
+    . arguments:           1 characters string + reals
     . meaning:             conversion of atomic displacement parameters:
                            . available arguments:
                              - "Uiso", "U_iso": conversion from Uiso to Biso
@@ -2128,8 +2466,8 @@
                                beta_ij to B_ij and U_ij
                            . reals values correspond to isotropic thermal
                              parameters values (Biso or Uiso) or anisotropic
-                             thermal parameters (Uij, Bij, Beta) in the followin
-                             order: 11, 22, 33, 23, 13, 12 (as in SHELXL program
+                             thermal parameters (Uij, Bij, Beta) in the following
+                             order: 11, 22, 33, 23, 13, 12 (as in SHELXL program)
     . examples:            THERM Biso 0.52 0.76 0.35
                            THERM B_ij 0.01 0.01 0.01 0.0 0.0 0.0
     . mandatory keyword    CELL for anisotropic thermal parameters conversion
@@ -2152,10 +2490,28 @@
 <A NAME="TITL"></A>
 <p class='title_3'>  > TITL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           character strings
+    . arguments:           characters strings
     . meaning:             title of the job
     . example:             Ammonium bitartrate
     . identical keywords:  TITL, TITLE
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="TOLMAN_ANGLE"></A>
+<p class='title_3'>  > TOLMAN_ANGLE</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                INPUT keyword
+    . arguments:           5 characters strings, corresponding to metal, centered atom
+                           and 3 ligand atoms respectively
+    . optional arguments:  3 optional arguments can be input to specified the van der
+                           Waals radii that will be used in the calculation. If not
+                           defined, default values are extracted from CRYSFML library,
+                           excepted for Hydrogen (r=1.2 A).
+    . meaning:             calculation of the Tolman cone angle, as defined
+                           in "Transition Met. Chem. 20, 533 (1995)
+    . example:             TOLMAN_ANGLE S1 P1 H1a HC2a H3a
+                           TOLMAN_ANGLE S1 P1 H1a HC2a H3a 1.25 1.25 1.25
+    . identical keywords:  TOLMAN_CONE_ANGLE, TOLMAN_CONE
+                           TOLMAN_ANGLE, CONE_ANGLE, CONE, TOLMAN
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2170,7 +2526,7 @@
     . mandatory keyword:   ATOM
     . examples:             TRANSLATION 0.5 0.5 0.5
                             MOVE 1. 1. 1.5 -1.
-    . identical keywords:  TRANSLATION, TRANS, TRANSLATE, MOVE
+    . identical keywords:  TRANSLATION, TRANSLATE, MOVE
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2198,25 +2554,25 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="USER_MAT"></A>
+<A NAME="UPDATE"></A>
 <p class='title_3'>  > TWIN_HEXA:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . arguments :          no argument
-    . outputs:             . list the transformation matrices for hexagonal sett
+    . outputs:             . list the transformation matrices for hexagonal setting
                            . if CELL exists: apply the transformation matrices
                              to give new cell parameters
     . mandatory keyword:   no
     . optional keyword:    CELL
-    . identical keywords:  HEXA_TWIN, HEXA_TWINNING, HEXAGONAL_TWIN, HEXAGONAL_T
-                           TWIN_HEXA, TWIN_HEXAGONAL, TWINNING_HEXA, TWINNING_HE
+    . identical keywords:  HEXA_TWIN, HEXA_TWINNING, HEXAGONAL_TWIN, HEXAGONAL_TWINNING
+                           TWIN_HEXA, TWIN_HEXAGONAL, TWINNING_HEXA, TWINNING_HEXAGONAL
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TRICLINIC"></A>
+<A NAME="USER_MAT"></A>
 <p class='title_3'>  > TWIN_PSEUDO_HEXA:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . arguments :          no argument
-    . outputs:             . list the transformation matrices for pseudo-hexagon
+    . outputs:             . list the transformation matrices for pseudo-hexagonal
                               setting in a monoclinic unit cell
                            . if CELL exists: apply the transformation matrices
                              to give new cell parameters
@@ -2226,7 +2582,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWIN_HEXA"></A>
+<A NAME="TRICLINIC"></A>
 <p class='title_3'>  > TWO_THETA:</p> <pre style='font-size:14' class='color_grey1'>
     . argument:            real values
     . meaning:             2Theta (deg) values
@@ -2237,7 +2593,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWIN_PSEUDO_HEXA"></A>
+<A NAME="TWIN_HEXA"></A>
 <p class='title_3'>  > UB_MAT:</p> <pre style='font-size:14' class='color_grey1'>
     . arguments:           9 reals
     . meaning:             UB matrix components in the following order:
@@ -2251,10 +2607,10 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWO_THETA"></A>
+<A NAME="TWIN_PSEUDO_HEXA"></A>
 <p class='title_3'>  > UNIT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           n character strings
+    . arguments:           n characters strings
     . meaning:             list of chemical elements in the molecule
     . output:              - atomic density calculation, in at/cm3
                              (dependent keyword = CELL)
@@ -2273,15 +2629,26 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="TWO_THETA"></A>
+<p class='title_3'>  > UPDATE:</p> <pre style='font-size:14' class='color_grey1'>
+    . meaning:             download the latest version of CRYSCALC
+                           from the CRYSCALC web site:
+                           www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.exe
+    . remark:              browser has to be defined in the setting file
+                           ([EXTERNAL APPLICATIONS] section)
+
+    . identical keywords:  UPDATE, DOWNLOAD
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="UNIT"></A>
 <p class='title_3'>  > USER_MAT:</p> <pre style='font-size:14' class='color_grey1'>
     . arguments:           "#" + 1 integer
-    . meaning:             number of user matrix in the matrices list defined  b
+    . meaning:             number of user matrix in the matrices list defined  by
                            the user in the cryscalc.ini setting file
     . example:             USER_MAT  #3
   or
-    . arguments:           "$" character string
-    . meaning:             this character string has to be one of the comment te
+    . arguments:           "$" characters string
+    . meaning:             this characters string has to be one of the comment text
                            accompagnying the matrix defined by the user in the
                            cryscalc.ini setting file
     . example:             MATR  $2a
@@ -2301,9 +2668,9 @@
 <A NAME="WAVE"></A>
 <p class='title_3'>  > WAVE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
-    . arguments:           1 real or 1 character string
+    . arguments:           1 real or 1 characters string
     . meaning:             . real value: wavelength value in A
-                           . character string:
+                           . characters string:
                               - "X_Ag" or "XAG": wavelength = 0.556363 A
                               - "X_Mo" or "XMO": wavelength = 0.71073 A
                               - "X_Cu" or "XCU": wavelength = 1.5406 A
@@ -2321,10 +2688,9 @@
 <p class='title_3'>  > WEB:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            web site name or address
-    . meaning:             web site name can be one of the following: CDIFX
+    . meaning:             web site name can be one of the following: CDIFX, CRYSCALC
                            or site name defined in the cryscalc.ini setting file
                            in the [WEB] section
-    . mandatory argument:  CELL or FILE .CIF
     . identical keywords:  WEB, INTERNET
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -2332,9 +2698,11 @@
 <A NAME="WRITE_ADP"></A>
 <p class='title_3'>  > WRITE_ADP:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . argument:            no
+    . optional argument:   DETAILS
     . meaning:             write anisotropic displacements parameters
-    . mandatory action :   ADP have to be read previously in a CIF file
+                           if DETAILS is given as argument, output details
+                           on ADP
+    . mandatory action :   ADP have to be read previously in a .INS of .CIF file
     . identical keywords:  WRITE_ADP, WRITE_UIJ
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -2377,8 +2745,10 @@
 <p class='title_3'>  > WRITE_DEVICE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write device features defined in the cryscalc.ini set
-    . identical keywords:  WRITE_DEVICE, OUTPUT_DEVICE
+    . meaning:             write device features defined in the cryscalc.ini setting file
+    . identical keywords:  WRITE_DEVICE, OUTPUT_DEVICE, DEVICE
+                           WRITE_DIFFRACTO, OUTPUT_DIFFRACTO, DIFFRACTO
+    	                     WRITE_DIFFRACTOMETER, OUTPUT_DIFFRACTOMETER, DIFFRACTOMETER
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2392,7 +2762,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="WRITE_SYM_OP"></A>
+<A NAME="WRITE_SG"></A>
 <p class='title_3'>  > WRITE_SG:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
@@ -2402,33 +2772,47 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="WRITE_WAVE"></A>
+<A NAME="WRITE_SUPERCELL"></A>
+<p class='title_3'>  > WRITE_SUPERCELL</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write superstructure cell
+    . mandatory keyword :  CELL, SUPERCELL
+    . identical keywords:  WRITE_SUPERCELL, OUTPUT_SUPERCELL
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="WRITE_SYM_OP"></A>
 <p class='title_3'>  > WRITE_SYM_OP:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . optional arguments : SHELX
+    . optional arguments : SHELX, ONE_LINE, CONDENSED
     . outputs:             list of symmetry operators (alphanumeric form,
                            rotational and translational parts with the SYMM
                            keyword
                            if argument="SHELX": output reduced set of
                            symmetry operators for the given space group
-                           in a SHELX format (NLAT; SYMM)
+                           in a SHELX format (NLAT, SYMM)
+                           if argument="ONE_LINE": symmetry operators are merged
+                           in a single line, separated by ";" character, for
+                           if argument="CONDENSED": symmetry operators are ouput
+                           in a condensed way.
     . mandatory keyword:   SPGR or SYMM
     . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYMP, WRITE_SYMM,
                            WRITE_SYMMETRY_OPERATORS, WRITE_SYMOP
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="WRITE_ZUNIT"></A>
+<A NAME="WRITE_WAVE"></A>
 <p class='title_3'>  > WRITE_WAVE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             write cell parameters (direct and reciprocal space)
+    . meaning:             write current wavelength features
     . mandatory keyword :  WAVE
     . identical keywords:  WRITE_WAVE, OUTPUT_WAVE
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="X_WAVE"></A>
+<A NAME="WRITE_ZUNIT"></A>
 <p class='title_3'>  > WRITE_ZUNIT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
@@ -2438,18 +2822,18 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="ZUNIT"></A>
+<A NAME="X_WAVE"></A>
 <p class='title_3'>  > X_WAVE:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                output keyword
     . optional argument:   target nature (Ag, Mo, Cu, Ni, Co, Fe, Cr)
-    . meaning:             if no optional argument, output Ka1 and Ka2 wavelengt
+    . meaning:             if no optional argument, output Ka1 and Ka2 wavelength
                            value (in A) for main radiations: Ag, Mo, Cu, Ni, Co,
                            Fe and Cr
     . identical keywords:  XRAYS_WAVELENGTH, X_WAVE
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="WRITE_SG"></A>
+<A NAME="ZUNIT"></A>
 <p class='title_3'>  > ZUNIT:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                INPUT keyword
     . arguments:           1 real
@@ -2470,7 +2854,7 @@
        ex : > cryscalc HTML
 </pre>
 <p class='title_3'>   > HTML_BROWSE  :</p><pre style='font-size:14' class='color_grey1'>
-       Create 'cryscalc.html' file user's guide (HTML format) and launch the bro
+       Create 'cryscalc.html' file user's guide (HTML format) and launch the browser
        previously defined in the 'cryscalc.ini' setting file'
        ex : > cryscalc HTML_BROWSE
 </pre>
@@ -2501,6 +2885,13 @@
         Create a HTML report from 'archive.cif' file or from the
         .CIF file give as a second argument.
          ex : > cryscalc report
+         ex : > cryscalc report my_archive.cif
+</pre>
+<p class='title_3'>   > REPORT_TXT :</p><pre style='font-size:14' class='color_grey1'>
+        Create a .TXT report from 'archive.cif' file or from the
+        .CIF file give as a second argument.
+         ex : > cryscalc report_txt
+         ex : > cryscalc report_txt my_archive.cif
 </pre>
 <p class='title_3'>   > ARCHIVE.CIF :</p><pre style='font-size:14' class='color_grey1'>
        . Read 'archive.cif' CIF file
@@ -2509,7 +2900,7 @@
          diffractometer features, structure solution program ...
          A new 'cryscalc_archive.cif' file is then created.
        Remark : diffractometer and structure solution program can be defined
-                in the 'cryscalc.ini' setting file in the [DEVICE] and [PROGRAMS
+                in the 'cryscalc.ini' setting file in the [DEVICE] and [PROGRAMS]
                 parts respectively.
 </pre>
 <p class='title_3'>   > CREATE_ARCHIVE :</p><pre style='font-size:14' class='color_grey1'>
@@ -2524,9 +2915,13 @@
        to the author of the deposition (name, address), extracted from
        the 'cryscalc.ini' setting file ([AUTHOR/USER] part)
 </pre>
+<p class='title_3'>   > EXTRACT :</p><pre style='font-size:14' class='color_grey1'>
+       Combined with 'ARCHIVE.CIF' argument, this optional argument
+       extracts .res and . hkl files embedded in the archive.cif file
+</pre>
 <p class='title_3'>   > SOLVE_TO_INS/CREATE_INS :</p><pre style='font-size:14' class='color_grey1'>
        . read STRUCT.CIF file and get cell parameters with esd's
-       . read import.RES created by SIRxx or SHELXS
+       . read import.RES created by SIRxx or SHELXS/T
        . create job.INS file for SHELXL with correct esd's and different
          useful SHELXL keywords (ACTA, BOND$H ...)
 </pre>
@@ -2554,18 +2949,260 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
-   . Feb. 15 :
+<span class="date"> Jan. 17 </span><br>
+     # NEWS keyword can contain "EXPERT_ONLY" as argument to output only
+       CRYSCALC news available only in expert mode.
+     # "EULER_TO_KAPPA" routine has been corrected for Chi values
+       larger than 180 : Chi is then transformed to 360. - Chi).
+     # ABIN keyword allows to read and modify a .INS file by adding
+       the ABIN SHELXL instruction (not included if .INS written
+       by SXGRAPH interface of WinGX).
+     # The CRYSCALC routine associated to STAR_K keyword has been changed to
+       the "K_Star" routine of CFML.
+       The previous routine can still be output using the TR argument
+       for STAR_K (available only in expert mode)
+     # PLANE keyword accept more than 3 atoms for the calculation
+       of a mean plane equation.
+     # Compilation of CRYSCALC with the latest version of CRYSFML
+       (dec. 2016)
+     # New CELL_ESD keyword: input of esd's for cell parameters and
+       calculation of corresponding unit cell volume ESD.
+     # New GET_TRANSF_MAT keyword provides the transformation matrix
+       between two primitive unit cells (determinant of the matrix
+       is equal to 1).
+     # New REDUCE keyword provides conventional unit cell parameters
+       and transformation matrix between input cell and conventional
+       cell(s). The routine is based on Get_conventional_Unit_Cells
+       program written by JRC using procedures implemented in CRYSFML.
+   
+   
+<span class="date"> Dec. 16 </span><br>
+     # New WRITE_BONDS, WRITE_ANGLES, WRITE_TORSION_ANGLES, WRITE_HTAB
+       keywords are available after a READ_CIF instruction.
+       [only in EPERT mode]
+     # When creating import.CIF from .P4P and .HKL files, scans features
+       (type of scan, DX, exposition time, starting angles for theta, omega
+       phi and chi motors) are extracted from .sfrm images.
+   
+<span class="date"> Nov. 16 </span><br>
+     # "WRITE_ATOMS cart" keyword leads to the creation of a cryscalc.xyz file
+       for PyMOL (http://www.pymol.org/).
+     # NO_DETAILS keyword will lead to a very short and restricted output.
+       [only in EXPERT mode]
+     # TOLMAN keyword: van der Waals radius for ligands can be given as
+       arguments. If not specified, defaut values are coming from
+       CRYSFML library, excepted for H atoms (r=1.2A).
+       ex: TOLMAN CO1 P1 H1A H11A H21A 1.22 1.22 1.22
+     # When creating import.CIF from .P4P and .HKL files, crystal to detector
+       distance is now extracted from .sfrm files for every scan of the data
+       collection.
+     # New "NO_H" argument for CREATE_INS argument will exclude
+       hydrogen atoms from the created .INS file.
+     # New "NO_details" argument can be applied to most of the keywords,
+       excepted WRITE* keyword. This action will lead to a very short
+       and restricted output.
+     # New REM keyword: non interpreted command. Can be useful
+       to skip a command in a CFL input file. This keyword can
+       be replaced by "!" or "#" character.
+   
+<span class="date"> Oct. 16 </span><br>
+     # New READ_HKLF5 keyword: read HKLF5 format data file containing
+       structure factors of a twin crystal.
+     # New REF_SHELX keyword: output references for SHELXL and SHELXT
+       software.
+     # If a .png/.jpg file corresponding to the crystal picture is present
+       in the current folder (named as sample_ID.png/.jpg), it will be
+       embedded in the final structural report.
+     # New TOLMAN_ANGLE keyword: calculation of the Tolman cone angle
+       as defined from crystallographic data and Van der Waals radii in
+       "Transition Met. Chem. 20, 533 (1995)". The TOLMAN_ANGLE keyword
+       has to be followed by the labelling of the 5 atoms defining the cone,
+       corresponding to metal, centered atom and 3 ligand atoms respectively
+   
+<span class="date"> Sept. 16 </span><br>
+     # Cosmetic changes in the .HTML/.TXT/.PDF structural reports
+     # Redundancy is now calculated and output during Rint calculation.
+     # New "KAPPA_TO_EULER" AND "EULER_TO_KAPPA" keywords allow to convert
+       motors angles values of single crystal diffractometer from Kappa to
+       Eulerian geometry (and opposite)
+   
+<span class="date"> July 16 </span><br>
+     # .FAB file created by SHELXL201x is now embedded in the
+       cryscalc_archive_hkl.cif file in the case of SQUEEZE
+       procedure has been used.
+     # Mean value of atomic volume for non H hydrogen atoms is now output after
+       molecular density calculation for compounds containing H atoms.
+   
+<span class="date"> June 16 </span><br>
+     # New HKLF5 keyword: 9 arguments are necessary to input the 3*3
+       transformation matrix components. Combined with FILE keyword,
+       a hklf5 format data file is then created. Overlapping reflections
+       criteria can be defined in the cryscalc.ini setting file through
+       "ref_overlap_criteria=" keyword in the [OPTIONS] section. Defaut
+       value is 0.15 and max. value has been fixed to 0.25
+     # Corrections of minor bugs, specially when .CFL input file is read from
+       option #2 in the main menu.
+     # New EXTRACT command line argument: extract .res and .hkl files
+       embedded in an archive .CIF file.
+     # New features for SUPERCELL instruction:
+        . cell parameters are updated
+        . if space group of initial cell is know, space group is
+          updated to P 1.
+     # STAR_K keyword: the arms of the K star are now correct
+       for primitive and centered space groups.
+     # New "CONDENSED" argument for WRITE_SYM_OP keyword:
+       output symmetry operators list in a condensed way.
+   
+<span class="date"> May 16 </span><br>
+     # New ONLY_X argument for CONN keyword : output connectivity
+       between atoms of the same X species.
+     # CONN keyword: MIN and MAX arguments are now taken into
+       account correctly.
+     # Correction of bug in the "STAR_K" keyword routine :
+       The arms of the K star are now ouput for primitive
+       space groups (not yet ouput for others).
+     # new SAVE_SETTINGS keyword will save cryscalc.ini setting file
+       in the current folder. This can be useful if no setting file
+       is present in the CRYSCALC folder.
+     # WRITE_CELL keyword: standart deviations of cell parameters
+       and volume are ouput if they are known.
+   
+<span class="date"> April 16 </span><br>
+     # Results of Rint calculation was bugged for successive
+       calculation without using RESET keyword. This is corrected.
+     # New FCF_FILE keyword: read .fcf file create by SHELX
+       IF "PLOT" is given as argument, a *_FCF.PGF file for WinPLOTR
+       is created (Fc2=f(Fo2) curve)
+       IF "PLOT_STL" is given as argument, a *_FCF_stl.PGF file
+       is created (Fc2 - Fo2 = f(sinThetal/lambda) curve).
+       If WinPLOTR is already installed, .PGF file is automatically
+       displayed.
+   
+<span class="date"> March 16 </span><br>
+     # New features in the header of the import.cif file
+       created from .P4P, .HKL and .ABS files coming from
+       single crystal data reduction in APEX2 and APEX3
+       (Bruker AXS software).
+     # MONOCLINIC keyword : condensed output if "no_out" is
+       given as argument.
+   
+<span class="date"> February 16 </span><br>
+     # New DIFF keyword : calculation of the components
+       of the difference atomic coordinates vector
+       between 2 input atoms
+     # New PLANE keyword : calculation of the 4 components
+       of the plane equation Ax+By+Cz+D=0, given three
+       atoms coordinates.
+     # New SEARCH_TETRA keyword : determine tetragonal axis
+       from hkl data integrated in a pseudo-cubic
+       unit cell by calculating successively internal R values
+       for the most probable space group of following different
+       setting: abc, cab, bca
+   
+<span class="date"> January 16 </span><br>
+     # New UPDATE/NO_UPDATE arguments for MAT keyword
+     # New SUPERCELL input keyword: calculation of atomic coordinates
+       in a superstructure cell.
+     # _shelx_res_checksum and _shelx_hkl_checksum items are included
+        in the archive.cif file for compatibility with PLATON Checkcif
+        and cif files created by SHELXL-2014.
+   
+<span class="date"> Dec. 15 </span><br>
+     # Minor correction in the header of import.cif created from .P4P and .HKL files
+   
+<span class="date"> Nov. 15 </span><br>
+     # DIST keyword : "_*" option after second label allows to calculate
+       interatomic distance between first input atome and the closest
+       equivalent second atom (space group has of course to be known).
+       example : DIST Mo1 Mo2_*
+   
+<span class="date"> Oct. 15 </span><br>
+     # HKL_diff keyword : calculation of F2 difference for common reflections of 2
+                          hkl files.
+     # UPDATE keyword : download the lastest version of CRYSCALC from the web site
+                        (www.cdifx.univ.rennes1.fr/progs/cryscalc/cryscalc.exe
+       Remark: Browser has to defined in the setting file.
+     # Minor cosmetic changes in import.cif
+   
+<span class="date"> Sept. 15 </span><br>
+     # Polar character of space group has been corrected : point group
+       has to be one of the following :
+       1, 2, 3, 4, 6, mm2, m2m, 2mm, 3m, 3m1, 31m, 4mm, 6mm
+     # "include_experimenter" field can be input in the cryscalc.ini setting file :
+       experimenter features, coming from [AUTHOR] section, are then included
+       in the archive_cryscalc.cif file.
+     # import.cif file created from .P4P and .HKL files contains the number of scans
+       of the data collection and related features (exposition time, frames width,
+       number of frames)
+     # NIGGLI ouput: Niggli matrix is now output
+   
+<span class="date"> July 15 </span><br>
+     # THERM ouput: some calculation outputs were wrong in the case of
+                    "matrix U non-positive definite".
+   
+<span class="date"> June 15 </span><br>
+     # SEARCH_EXTI keyword can have a string optional argument : if "ALL"
+       is given as argument, all reflections are considered, without applying
+       any criteria.
+     # A small bug has been corrected in the SEARCH_GROUP routine. It appeared
+       only when searching from only centered space groups and the symmetry
+       was unknown in the import.cif input file.
+     # Two logos for the structural_report.pdf can be specified in the
+       [OPTIONS] section of the setting file. These .jpg files will be used
+       included in the structural report (Latex and pdf formats). They
+       have first to be present in the \img folder of the CRYSCALC directory.
+       ex:
+         report_logo_1   = CDIFX_logo.jpg
+         report_logo_2   = ISCR_logo.jpg
+   
+<span class="date"> May 15 </span><br>
+     # new SEARCH_MONO keyword : determine monoclinic angle
+       from hkl data integrated with a pseudo-orthorhombic
+       unit cell by calculating successively internal R values
+       for "P 2 1 1", "P 1 2 1" and "P 1 1 2" space groups.
+     # CONN output: polyedron distorsion is calculated as:
+       distorsion = SUM((dist-dist_av)/dist_av)**2) / n
+       with n: number of ligands
+            dist_av: average distance
+     # Minor changes for D8 Venture data file
+   
+<span class="date"> April 15 </span><br>
+     # New DETAILS argument for WRITE_ADP keyword
+   
+<span class="date"> March 15 </span><br>
+     # New CREATE_PCR keyword : create .PCR input file
+       for FullProf (pattern simulation). Structural data
+       have to be previously input through for example
+       READ_CIF or READ_INS keywords. In such a case,
+       profile features can be specified in the setting file
+       ([PATTERN SIMULATION (Pseudo-Voigt profile)] section).
+     # "create_pcr=1" can be spectified in the [COMMAND LINE ARGUMENTS]
+       section of the setting file to create automatic PCR file
+       from command line run of CRYSCALC
+   
+<span class="date"> Feb. 15 </span><br>
+     # New arguments for SEARCH_GROUP keyword :
+       . P  : provide only primitive space groups
+       . ALL: provide primitive and centered space groups
+       . CENTERED/NOT_P: provide only centered space groups
+     # CIF files created by SHELXL2014 are correctly read (changes in
+       in CRYSFML to read new CIF strings as :
+        . _space_group_name_H-M_alt
+        . _space_group_symop_operation_xyz
+        . _space_group_crystal_system
      # Parameters for D8 Venture diffractometer (Bruker AXS) has been included and
        can be accessed from setting file in [DEVICE] section through :
-       "diffractometer = D8_VENTURE_Cu"  or
-       "diffractometer = D8_VENTURE_Mo"  or
+       "diffractometer = D8_VENTURE_Cu"  or "diffractometer = D8V_Cu"
+       "diffractometer = D8_VENTURE_Mo"  or "diffractometer = D8V_Mo"
+       for Cu and Mo radiations respectively.
      # Flack parameter is now provided in HTML and TXT reports.
    
-   . Dec. 14 :
+<span class="date"> Dec. 14 </span><br>
      # Archive.cif command line argument can be followed by "NO_HKL",
        allowing to exclude HKL file in final archive, independently
        of the contain of cryscalc.ini setting file.
-   . Nov. 14 :
+   
+<span class="date"> Nov. 14 </span><br>
      # New argument for DATA_neutrons keyword, allowing to provide
        to the user neutron scattering length versus energy for
        some rare earths and isotopes. The following arguments can be
@@ -2581,7 +3218,7 @@
        section of the setting file.
        Example: cryscalc job.cif PAT
    
-   . Oct. 14 :
+<span class="date"> Oct. 14 </span><br>
      # New [USER SHORTCUTS] section of the cryscalc.ini, defining
        some keywords shortcuts (max. = 10). The shortcut and its
        details (CRYSCALC keyword) has to be separated by "=" character.
@@ -2601,12 +3238,13 @@
        First cif file corresponds to the main CIF file created by
        refinement software and next ones to supplementary cif files
        to complete the archive.
-       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import
-            . my_job : main .CIF file, used to extract structural
-                       parameters
-            . import : secondary .CIF file, containing experimental
-                       parameters (crystal and experimental features, ...)
-   . Sept. 14 :
+       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job.cif import.cif
+            . my_job.cif : main .CIF file, used to extract structural
+                           parameters
+            . import.cif : secondary .CIF file, containing experimental
+                           parameters (crystal and experimental features, ...)
+   
+<span class="date"> Sept. 14 </span><br>
      # new CREATE_SOLVE keyword:
        . create input files for structure solving software as SIR97,
          SHELXS/T and SUPERFLIP.
@@ -2617,11 +3255,11 @@
      # Some statistics on F2_mean, sig_mean ... have been added in the
         output of the FILE keyword.
    
-   . July 14 :
+<span class="date"> July 14 </span><br>
      # "include_HKL_file" field can be input in the cryscalc.ini setting file to
        embed the contain of hkl SHEXL file in the archive_cryscalc.cif file.
        The SHELXL hkl file name corresponds to the last project ID in WinGX.
-     # NOT TO CONFUSE, CRYSCAL PROGRAM HAS BEEN RENAMED AS
+     # TO AVOID CONFUSION, CRYSCAL PROGRAM HAS BEEN RENAMED AS
        CRYSCALC. FEATURES OF THE SOFTWARE HAVE TO BE CHANGED
        CONSEQUENTLY :
         . environnement variable : CRYSCALC
@@ -2630,7 +3268,7 @@
        CRYSCALC will be included in the distribution of the FullProf Suite
        in a near future.
    
-   . June 14 :
+<span class="date"> June 14 </span><br>
      # New argument for CONN keyword:
         . NO_xx : exclude xx atoms type from listing
           ex ! CONN Cu1 NO_H
@@ -2638,14 +3276,14 @@
        part in the setting file (cryscalc.ini) : X-ray diffraction pattern
        is then created (PRF file FullProf format) after reading a CIF file.
    
-   . May 14 :
+<span class="date"> May 14 </span><br>
      # Corrections of bugs caused by the new CRYSFML library
        specially in bond distribution routine
      # New arguments for CONN keyword:
         . ANG : interatomic angle calculation
         . CONDENSED : short output
    
-   . March 14 :
+<span class="date"> March 14 </span><br>
      # ALL_X argument for CONN keyword:
        output atomic connectivity for all atoms
        of the X species.
@@ -2656,18 +3294,18 @@
        polyedron volume calculation, based on VOLCAL program
        of L. W. FINGER, included in CFML
    
-   . Feb 14 :
+<span class="date"> Feb 14 </span><br>
      # BARY keyword:
        Centroid calculation can be applied with only 2 input atoms
      # Bug has been corrected in the HTML report combined with
        SQUEEZE option.
    
-   . Nov 13 :
+<span class="date"> Nov 13 </span><br>
      # STAR_K keyword:
        Apply rotational parts of the symmetry operators of a given
        space group on the components of a propagation wave vector.
    
-   . Oct 13 :
+<span class="date"> Oct 13 </span><br>
      # CONN keyword:
        . new argument for GEN_HKL keyword : PM2K
          PM2K_hkl.inp is created : its contains hkl reflections list
@@ -2676,7 +3314,7 @@
          in cryscalc.ini setting file ([PARAMETERS] section)
        . calculation of effective interatomic distances
    
-   . Sept 13 :
+<span class="date"> Sept 13 </span><br>
      # new SELF argument for CONN keyword: output interatomic
        distance only between atoms with same labels.
        This can be useful for M-M distances in a organometallic complex.
@@ -2685,17 +3323,17 @@
        ex. : READ_FACES faces.Def
    
    
-   . July 13 :
+<span class="date"> July 13 </span><br>
      # New DHA keyword : calculation of H position given donor and
        acceptor atoms.
      # Change in MENDEL argument that can be atomic number.:
        ex: MENDEL 59
    
-   . May 13 :
+<span class="date"> May 13 </span><br>
      # READ_INS keyword: by default, Q peaks are not read.
        Q_PEAKS argument has to be specified for not skipping Q peaks
    
-   . April 13 :
+<span class="date"> April 13 </span><br>
      # new arguments for CREATE_FST keyword:
        MOLE : space group line is commented to draw
        only atoms of the asymmetric unit cell
@@ -2718,14 +3356,19 @@
        cartesian frame, metric tensors and Busing-Levy B-matrix. Cartesian
        frame type can be specified by "CART_A" (x//a) and "CART_C" (x//c).
        argument.
+     # DEBUG, DEBUG_2 and DEBUG_3 keywords : access to debug modes and create
+       cryscalc_debug.txt file. In level_2 debug mode, this file contains
+       the name of main called routines. In level_3 mode, this file
+       contains more explanations.
+       [only in EXPERT mode]
    
-   . March 13 :
+<span class="date"> March 13 </span><br>
      # New keywords related to TIDY software (standardisation of inorganic
        crystal-structure data (Acta Cryst. 1984, A40, 169-183):
        - CREATE_TIDY   : create input file for TIDY from a .CIF or .INS file
        - READ_TIDY_out : read output file from TIDY (default name = stidy.out)
    
-   . Feb. 13 :
+<span class="date"> Feb. 13 </span><br>
      # CONN keyword can have BVS argument for Bond Valence Sum Calculation.
        Oxidation state of the input atoms have to be provided trough the
        ATOM keyword.
@@ -2741,7 +3384,7 @@
        section of the cryscalc.ini setting file, for X-ray and neutron pattern
        calculation.
    
-   . Jan. 13 :
+<span class="date"> Jan. 13 </span><br>
      # When creating archive_cryscal.cif file, CRYSCALC is looking for
        output files creating by different versions of SQUEEZE procedure
        in PLATON, as platon.sqf or platon_sqr.sqf (PLATON jan. 2013)
@@ -2760,11 +3403,11 @@
      # New "DIST_X" and "DIST_PLUS" keywords allow to calculate the coordinates
        of a particular point aligned with with the input atoms
    
-   . Dec. 12 :
+<span class="date"> Dec. 12 </span><br>
      # New "FRIEDEL" keyword allows to get number pairs of Friedel
        in hkl file
    
-   . Nov. 12 :
+<span class="date"> Nov. 12 </span><br>
      # Particular format for .hkl file (h,k,l F2, sig) can be specified
        in the setting file in the [OPTIONS] section through the
        hkl_format keyword.
@@ -2778,7 +3421,7 @@
         . if argument="PCR_MAG", the list of magnetic atoms
           is output in a FullProf format (.PCR)
    
-   . Oct. 12 :
+<span class="date"> Oct. 12 </span><br>
      # "CIF file for Pymol can be created by putting "PYMOL" as
        argument of "READ_CIF", "READ_INS" and "READ_CEL"
        keywords (example: FILE file.cif pymol) or in the command line
@@ -2796,20 +3439,40 @@
       when reading .hkl file, with the FMT argument.
        Example : FILE filename.hkl fmt=3I4,2F15.2
    
-   . Sept 12 :
+<span class="date"> Sept 12 </span><br>
      # new argument for BARY keyword
      # "HKL_statistics" keyword (value = 0/1) can be input in the cryscalc.ini
        setting file to output or not statistics on hkl reflections.
+     # Export mode can be specified in the setting file through the expert_mode
+       string in the setting file. If active, this mode allows to enter new
+       specific keywords. This mode can also be activated through the
+       "EXPERT_MODE" keyword and put OFF with "USER_mode" keyword.
+       Examples:
+        FIC   : "FILE import.cif"
+        ST25  : "SHELL THETA 2.5 25"
+       MAN_EXPERT keyword has been added to output the list of instructions in
+       this expert mode.
+       The list of expert mode keywords can be output through the "MAN_EXPERT"
+       keyword if this kind of mode is activated.
+       [only in EXPERT mode]
    
-   . July 12 :
+<span class="date"> July 12 </span><br>
      # FILE keyword: .COL file created by COLL5 (ILL / format =4)
                       can be read
      # FILE keyword: .INT file created by DATARED can be read
      # CELL keyword: .RED file for DATARED can be read
+     # REPORT_LATEX argument can be specified when launching CRYSCALC
+       for the command line. In such a case:
+       . structural_report.ltx file is created, in a LATEX format
+       . pdflatex is launched to create a .pdf file.
+         If a .GIF file is present in the current folder for crystal
+         structure visualisation, it is first converted in .png file
+         to be included in the final pdf document.
+       [only in EXPERT mode]
      # New OUT_n argument for FILE keyword, allowing to output every
        n reflection features (index, h,k,l,F2,sig)
    
-   . June 12 :
+<span class="date"> June 12 </span><br>
      # SHIFT_2TH keyword can now be followed by three values,
        corresponding to a constant, cos and sin dependent shifts
        respectively.
@@ -2821,7 +3484,7 @@
        and modified by the user. These css files contains
        styles that are used in the HTML documents.
    
-   . April 12 :
+<span class="date"> April 12 </span><br>
      # MOVE/TRANSLATE keyword accepts 4 arguments, as the MOVE
        instruction on SHELXL. Optional 4th argument corresponds to
        the sign to multiply atomic coordinates. New atomic
@@ -2830,19 +3493,19 @@
        t_x, t_y and t_z translation and the 4th argument is
        taken equal to +1.
    
-   . March 12 :
+<span class="date"> March 12 </span><br>
      # GET argument can be input with SEARCH_GROUP keyword:
        the most probable space group is then considered
      # Cell parameters are deduced from UB matrix when P4P file or
        import.cif file contain this information. Use WRITE_CELL
        keyword to output these cell parameters.
    
-   . January 12 :
+<span class="date"> January 12 </span><br>
      # CRYSCALC has been compiled with the new CRYSFML library
      # MOVE instruction for SHELXL (output of SG_INFO for acentric
        space group) is now correct for non conventional settings
    
-   . December 11 :
+<span class="date"> December 11 </span><br>
      # Some minor changes have been performed in the code to be compiled
        with Intel Fortran Compiler
      # HKL arrays are now dimensionned dynamically. Default dimension is
@@ -2856,7 +3519,7 @@
        - input wavelength = 1.53 and LOCK_wave_value = 0.02  : wl = 1.5406
        - input wavelength = 1.53 and LOCK_wave_value = 0.005 : wl = 1.53
    
-   . November 11 :
+<span class="date"> November 11 </span><br>
      # Minor corrections in the HTML report in the "symmetry transformations
        used to generate equivalent atoms" parts (distances, angles, torsion
        angles and hydrogen bonds)
@@ -2870,7 +3533,7 @@
       to be in agreement with the CFML library.
    
    
-   . October 11 :
+<span class="date"> October 11 </span><br>
      # LST_SG keyword :
        - "enantio" argument can se specified to output
          enantiomorphic space goups
@@ -2889,7 +3552,7 @@
        SHELX order, i.e. 11 22 33 23 13 12
    
    
-   . July 11 :
+<span class="date"> July 11 </span><br>
      # Up to 5 extra matrices can be provided by the user in the cryscalc.ini
        setting file in the [USER TRANSFORMATION MATRICES] section. These
        matrices are defined through the "MAT_n" keyword followed by the 9
@@ -2912,22 +3575,22 @@
      # Include "_symmetry_space_group_name_H-M" string in the import.cif file
        created from .P4P and .HKL file
    
-   . June 11 :
+<span class="date"> June 11 </span><br>
      # CRYSCALC has been compiled with new version of CFML (5.00)
    
-   . May 11 :
+<span class="date"> May 11 </span><br>
      # Bug has been corrected in the structure factor calculation routine
      # Total number of electrons is output after CHEM keyword.
      # The matrix used for the hexagonal to rhomboedral system was corrupted.
    
-   . April 11 :
+<span class="date"> April 11 </span><br>
      # Some changes in the routine to get new space group after matrix
        transformation
      # Some changes in the monoclinic transformation matrix list
      # A non systematic bug in the bonds distribution list (CONN keyword)
        has been corrected
    
-   . Feb. 11 :
+<span class="date"> Feb. 11 </span><br>
      # Stucture factors calculation can be performed for electrons
        diffraction (GEN_HKL and SF_HKL routines). This has to be
        specified by the BEAM keyword and "ELECTRONS" argument
@@ -2953,13 +3616,13 @@
      # Cosmetic changes in the Fortran codes to allow the compilation
        with the free G95 Fortran compiler.
    
-   . Jan. 11 :
+<span class="date"> Jan. 11 </span><br>
      # CREATE_FST keyword allows to create a .FST file for
        FullProf Studio after reading a CIF file.
      # "create_FST" field can be input in the "[COMMAND LINE ARGUMENTS]" part
        in the setting file (cryscalc.ini)
    
-   . Dec. 10 :
+<span class="date"> Dec. 10 </span><br>
      # New extinction rules for FIND_HKL_LIST keyword:
        . hhl with h+l=2n
        . hkk with k+h=2n
@@ -2968,16 +3631,16 @@
        of samples without H atoms, "_atom_sites_solution_hydrogens" and
        "_refine_ls_hydrogen_treatment" cif field lines are removed
    
-   . Nov. 10 :
+<span class="date"> Nov. 10 </span><br>
      # Connectivity calculations are followed by a bonds distribution list
      # Transformation matrix components can be input as fractional values
         Example : matrix 1/2 1/2 0.   -1/2 1/2 0. 0. 0. 1
      # Cosmetic changes in HTML structural report
    
-   . Oct. 10 :
+<span class="date"> Oct. 10 </span><br>
      # A threshold value can be given as argument to the SEARCH_GROUP keyword
    
-   . Sept. 10 :
+<span class="date"> Sept. 10 </span><br>
      # FIND_HKL_list argument value can be negative and allows to search
        reflections with opposite rule than for positive value.
      # SIR_TO_INS command line argument has been replaced by SOLVE_TO_INS
@@ -2993,14 +3656,14 @@
        define temperature and thermal parameter threshold to skip atoms
        This avoids to enter these values related to the CREATE_INS keyword
    
-   . June 10 :
+<span class="date"> June 10 </span><br>
      # Bugs in the FIND_HKL_LIST routine has been corrected
    
-   . April 10 :
+<span class="date"> April 10 </span><br>
      # Some items of the experimental part in the HTML structure report are now
        in italic in agreement with published articles.
    
-   . March 10 :
+<span class="date"> March 10 </span><br>
      # WRITE_DEVICE keyword
      # WRITE_HKL keyword has been replaced by FIND_HKL_LIST.
        The SUPPRESS/REMOVE argument for FIND_HKL_LIST keyword
@@ -3017,7 +3680,7 @@
        a given hkl reflection
      # New WRITE_BEAM and WRITE_QVEC keywords
    
-   . Feb. 10:
+<span class="date"> Feb. 10</span><br>
      # CREATE_CEL keyword allows to create a .CEL file for PowderCELL
        after reading a CIF file.
      # CREATE_INS keyword allows to create a .INS file for SHELXL
@@ -3034,16 +3697,16 @@
      # cryscalc file.p4p: if crystal faces are present in the .P4P file,
         they are extracted and saved in the import.cif.
    
-   . Jan. 10:
+<span class="date"> Jan. 10</span><br>
      # Bug in _trans.HKL file has been corrected.
    
-   . Nov. 09:
+<span class="date"> Nov. 09</span><br>
      # If a "platon_ortep.gif" file is present in the current folder, it is
        automatically incorporated in the HTML report file
      # If final.y file contains QVEC field and related parameters,
        a hklm file is created
    
-   . Oct. 09:
+<span class="date"> Oct. 09</span><br>
      # If a hkl file is input, the transformed hkl file is
        loaded automatically after MATRIX keyword
      # Shannon table value for magnesium is corrected (Mg+2)
@@ -3053,7 +3716,7 @@
      # SHELX reference has been changed to :
        G. M. Sheldrick, Acta Cryst A, 2008, A64, 112-122
    
-   . Sept. 09:
+<span class="date"> Sept. 09</span><br>
      # TWIN_PSEUDO_HEXA keyword
      # TWIN_HEXA keyword
      # Bugs in the routine to create the archive_cryscalc.cif file has
@@ -3063,11 +3726,11 @@
      # CRYSCALC has been compiled with new version of CFML (4.00)
      # Bugs in the connectivity calculation routine has been corrected
    
-   . Feb. 09:
+<span class="date"> Feb. 09</span><br>
      # CHECK_GROUP can now determine trigonal space group
      # SG_ALL keyword output sub-groups of the current space group
    
-   . Jan. 09:
+<span class="date"> Jan. 09</span><br>
      # .RAW file can be given as argument in the command line
        i.e. d:\> CRYSCALC my_file.RAW
        CRYSCALC is then reading my_file.RAW and will create a
@@ -3076,7 +3739,7 @@
        Same behavior can be optained by associating a selected RAW file to
        CRYSCALC program in the Windows file folder
    
-   . Nov. 08:
+<span class="date"> Nov. 08</span><br>
      # GEN_HKL accepts now Q_min and Q_max arguments
      # SEARCH_HKL arguments can be h, k or l letters.
        ex: SEARCH_HKL h 0 0
@@ -3087,7 +3750,7 @@
        - LOG    : create a cryscalc.log file
        - NO_OUT : no output information are written on screen
    
-   . oct. 08:
+<span class="date"> oct. 08</span><br>
      # CRYSCALC archive.cif : for archive.cif files created with the new version of
        WinGX (sept. 2008), CRYSCALC is skipping the whole part of the cif file
        containing programs references, to created the cryscal_archive.cif file
@@ -3100,7 +3763,7 @@
        SHELXL, and contains right cell parameters and esd's, Mo wavelength
        and useful instructions such as ACTA, BOND$H, CONF, TEMP ...
    
-   . sept. 08:
+<span class="date"> sept. 08</span><br>
      # CRYSCALC archive.cif : CRYSCALC is reading archive.cif and cryscalc.cif
        files and creating completed archive_cryscalc.cif file
    
@@ -3108,20 +3771,20 @@
        This keyword can be useful when commands are executed from a CFL
        commands file
    
-   . july 08:
+<span class="date"> july 08</span><br>
      # REPORT/REPORT_long: CIF fields can be independly in lower and
        upper cases
    
    
-   . april 08:
+<span class="date"> april 08</span><br>
      # CONN keyword: calculation of connectivity around a selected atom
        given as argument.
    
-   . sept. 07:
+<span class="date"> sept. 07</span><br>
      # SEARCH_SPGR keyword: search for a space group, given a hkl list and
        a given crystal system (Thanks to JRC for the CHECK_GROUP routine)
    
-   . july 07:
+<span class="date"> july 07</span><br>
      # MATMUL keyword for 3*3 matrix multiplication
      # CIF file can be given as a second argument if "REPORT" or "REPORT_long"
        is given at first. A CIF_file_structural_report.HTML is then created
@@ -3133,7 +3796,7 @@
        Same behavior can be optained by associating a selected P4P file to
        CRYSCALC program in the Windows file folder
    
-   . april 07:
+<span class="date"> april 07</span><br>
      # MERGE keyword: merge equivalent reflections of the current HKL file
    
      # REPORT keyword can be interpreted in command line:
@@ -3143,15 +3806,15 @@
        and contains text about the crystallographic study. The browser
        defined in the "cryscalc.ini" file is then launch
    
-   . march 07:
+<span class="date"> march 07</span><br>
      # .x file (created by DENZO) and .rmat file (created by DIRAX) can be
        passed as argument for CELL keyword
    
-   . feb. 07:
+<span class="date"> feb. 07</span><br>
      # RESET keyword for input parameters and arrays initialization
    
    
-   . jan. 07:
+<span class="date"> jan. 07</span><br>
      # THERM keyword can performed conversion of anisotropic displacement
        parameters:
        new available arguments: U_ij, B_ij, Beta_ij
@@ -3159,20 +3822,20 @@
        Arguments may follow this keyword.
      # Wcryscalc for Windows has been created.
    
-   . nov. 06:
+<span class="date"> nov. 06</span><br>
      # X rays data for Ag, Fe and Cr have been tabulated
      # \> cryscalc P4P:
         CRYSCALC is looking in the current folder, for a P4P file (created
         by SAINT) and a HKL file (created by SADABS). Import.cif file is then
         created and can be directly read by WinGX as a KappaCCD file
    
-   . oct. 06:
+<span class="date"> oct. 06</span><br>
      # MAG keyword:     output magnetic features for a 3d or 4f ion
      # SHANNON keyword: get effective ionic radii from Shannon article
       (Acta Cryst. 1976, A32, 751)
      # P4P keyword:     read P4P file created by SAINT (Bruker-AXS)
    
-   . sept. 06:
+<span class="date"> sept. 06</span><br>
      # FILE keyword: .m91 and .m95 files created by JANA can be read
      # CELL keyword: .m50 file can be read
    
@@ -3212,7 +3875,7 @@ environment variable.</p>
     <font color="darkred">[USER]</font>
     name        = ROISNEL
     first_name  = Thierry
-    address     = Centre de Diffractom&eacute;trie X, UMR6511 CNRS Universit&éacutre; de Rennes 1,Sciences Chimiques de Rennes, 35042 RENNES Cedex France
+    address     = Centre de Diffractom&eacute;trie X, UMR6226 CNRS Universit&eacute; de Rennes 1,Institut des Sciences Chimiques de Rennes, 35042 RENNES Cedex France
     email       = thierry.roisnel@univ-rennes1.fr
     web         = www.cdifx.univ-rennes1.fr
     team        = CDIFX
@@ -3240,36 +3903,43 @@ environment variable.</p>
     create_PAT_PRF   = 1          ! .PRF file for FullProf
 
     <font color="darkred">[PROGRAMS]</font>
-    structure_solution_name         = SIR97
-    structure_solution_reference    = A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119
-    structure_solution_cif_ref      = SIR97 (Altomare et al., 1999)
-    structure_refinement_name       = SHELXL-97
-    structure_refinement_reference  = Sheldrick G.M., Acta Cryst. A64 (2008), 112-122
-    structure_refinement_cif_ref    = SHELXL-97 (Sheldrick, 2008)
+    structure_solution_name         = SHELXT
+    structure_solution_reference    = G.M. Sheldrick, Acta Cryst. A71 (2015) 3-8
+    structure_solution_cif_ref      = SHELXT (Sheldrick, 2015)
+    structure_refinement_name       = SHELXL-2014
+    structure_refinement_reference  = G.M. Sheldrick, Acta Cryst. C71 (2015), 3-8
+    structure_refinement_cif_ref    = SHELXL-2014/7 (Sheldrick, 2015)
     absorption_correction_name      = SADABS
-    absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
-    absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
+    absorption_correction_reference = Sheldrick G.M. (2014), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
+    absorption_correction_cif_ref   = Sheldrick G.M. (2014), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
 
     <font color="darkred">[OPTIONS]</font>
     LOCK_wave_value             = 0.02      ! lock current wavelength to anticathode value
-    CIF_format80                = 0         ! formatted line, when creating a CIF file,  if more than 80 characters
-    CIF_torsion_limit           = 170.      ! exclude torsion angle if greater than this limit
-    include_RES_file            = 1         ! include .RES file in the archive_cryscalc.cif file
-    include_HKL_file            = 1         ! include .HKL file in the archive_cryscalc.cif file
     update_parameters           = 1         ! update parameters after transformation(cell parameters, atomic coordinates) 
-    report_header               = 1         ! Write header in structural report
     skip_start_menu             = 1         ! Skip start menu
     hkl_statistics              = 1         ! Ouput statistics on hkl reflections
     hkl_format                  = 3I4,2F8.2 ! format for .hkl file (h,k,l,F2,sig)
     cartesian_frame_type        = A         ! A: x//a ; C: x //c
     pdp_beam                    = X         ! Beam for powder diffraction pattern calculation (N for neutrons / X for X-rays)
     pdp_wave                    = 1.5406    ! Wavelength used for powder diffraction pattern calculation
+    ref_overlap_criteria        = 0.10      ! criteria on hkl index for overlapped reflections criteria
+    search_mono_criteria        = 2.5       ! max. diff. between monoclinic angle and 90. 
+    search_SG_only_mono         = 1         ! output only monoclinic space groups compatible with unit cell metrics
+
+    <font color="darkred">[ARCHIVE_AND_REPORT]</font>
+    CIF_format80                = 0         ! formatted line, when creating a CIF file,  if more than 80 characters
+    CIF_torsion_limit           = 170.      ! exclude torsion angle if greater than this limit
+    CIF_author                  = 0         ! include author name and address in CIF file
+    include_RES_file            = 1         ! include .RES file in the archive_cryscalc.cif file
+    include_HKL_file            = 1         ! include .HKL file in the archive_cryscalc.cif file
+    include_experimenter        = 1         ! include experimenter name in the archive_cryscalc.cif file
+    report_header               = 1         ! Write header in structural report
 
     <font color="darkred">[PATTERN SIMULATION (Pseudo-Voigt profile)]  </font>
-    X_profile_U                  = 0.0055    ! U value of the Cagliotti formula : FWHM2 = U*TAN**2(theta) + V*TAN(theta) + W
+    X_profile_U                  = 0.0055    ! U value of the Cagliotti formula :  cccFWHM2 = U*TAN**2(theta) + V*TAN(theta) + W
     X_profile_V                  = -0.0015   ! V value 
     X_profile_W                  = 0.0036    ! W value 
-    X_profile_eta0               = 0.3       ! Lorentzian components : eta = eta° + 2theta * eta1
+    X_profile_eta0               = 0.3       ! Lorentzian components : eta = eta0 + 2theta * eta1
     X_profile_eta1               = 0.         
     X_pattern_step               = 0.01       
     X_pattern_xmin               = 0.         
@@ -3284,18 +3954,20 @@ environment variable.</p>
     N_pattern_step               = 0.025      
     N_pattern_xmin               = 0.         
     N_pattern_xmax               = 120.       
-    N_pattern_scale              = 1000.      
+    N_pattern_scale              = 100.       
     N_pattern_background         = 50.        
 
     <font color="darkred">[USER TRANSFORMATION MATRICES]</font>
     MAT_1                        =     2.  0.  0.    0.  1.  0.    0.  0.  1.   !  2abc
     MAT_2                        =     1.  0.  0.    0.  2.  0.    0.  0.  1.   !  a2bc
     MAT_3                        =     1.  0.  0.    0.  1.  0.    0.  0.  2.   !  ab2c
+    MAT_4                        =     2.  0.  0.    0.  2.  0.    0.  0.  2.   !  2a2b2c
 
 
-    <font color="darkred">[USER SHORTCUTS]</font>
+    <font color="darkred">[USER SHORTCUTS]</font>          ! only in expert mode
     RCJ                  = READ_CIF job.cif
     RIJ                  = READ_INS job.ins
+    CALC                 = DOS calc
 
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
@@ -3308,6 +3980,7 @@ environment variable.</p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_si_x.cfl">  Simulation of a X-ray diffraction pattern for Si</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_si_x_100.cfl">  Simulation of a X-ray diffraction pattern for Si (particles size=100A)</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_si_n.cfl">  Simulation of a neutron diffraction pattern for Si</a><p>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/supercell_quartz.cfl">  Simulation of a X-ray diffraction pattern in a supercell (quartz example)</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_y2o3.cfl">  Atom connectivity in Y2O3</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_y2o3_bvs.cfl">  Bond valence calculation in Y2O3</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_ambi_mu.cfl">  X-ray absorption coefficient calculation (case of ammonium bitartrate)</a>
@@ -3344,6 +4017,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>TR / CDIFX - Feb. 2015</i></P>
+<p class='retrait_2'>last updated: <i>TR / CDIFX - February 2017</i></P>
 </BODY>
 </HTML>
