@@ -1,6 +1,6 @@
 
 
-cd ..\..\src
+cd ..\src
 
 del *.obj
 del *.mod
@@ -73,11 +73,12 @@ REM
 
 
 
-   ifort /exe:cryscalc_ifort *.obj /F100000000 "%CRYSFML%"\ifort\libc\crysfml.lib
+   ifort /exe:cryscalc       *.obj             "%CRYSFML%"\ifort_debug\LibC\CrysFML.lib /link /stack:64000000
+   ifort /exe:cryscalc_ifort *.obj /F100000000 "%CRYSFML%"\ifort_debug\libc\crysfml.lib
  upx cryscalc_ifort.exe
 
 rem del *.obj
 rem del *.mod
 rem del *.map
 
-rem cd ..\scripts\windows
+rem cd ..\scripts

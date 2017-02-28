@@ -1,5 +1,5 @@
 
-cd ..\src
+cd ..\..\src
 
 del *.obj
 del *.mod
@@ -79,4 +79,4 @@ rem del *.obj
 rem del *.mod
 del *.map
 
-rem cd ..\scripts
+rem cd ..\scripts\windows
