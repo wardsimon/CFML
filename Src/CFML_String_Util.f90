@@ -3018,7 +3018,7 @@
           if (abs(value) > 999999.0) then
              write(unit=aux,fmt=*) value
           else
-             write(unit=aux,fmt="(f16.5)") value
+             write(unit=aux,fmt="(f16.6)") value
           end if
           line=adjustl(aux)
           if (line(1:1) /= "-") line=" "//trim(line)
