@@ -37,8 +37,8 @@ rem ****---- Intel Compiler ----****
    ifort /c observ.f90            /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
    ifort /c cost_functions.f90    /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
    ifort /c GLOpSAnn.f90          /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
-   rem ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib /link /stack:64000000
-   ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib  
+   ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib /link /stack:64000000
+rem   ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib
    goto END
 :IFORTD
    ifort /c observ.f90           /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
