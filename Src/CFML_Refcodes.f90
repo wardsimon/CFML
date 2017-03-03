@@ -5502,7 +5502,7 @@
           end if
        end if
 
-       !---- Set the rest elements in Contsraints ----!
+       !---- Set the rest elements in Constraints ----!
        n=1
        do
           n=n+1
