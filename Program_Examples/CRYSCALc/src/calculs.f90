@@ -1460,7 +1460,7 @@ subroutine Calcul_plane
       call write_info('')
       call write_info(trim(ERR_Math3D_Mess))
       call write_info('')
-      return
+	  return
      end if
      call write_info('')
      write(message_text,'(5x,a)') ' >> Plane equation : Ax + By + Cz + D = 0'
@@ -1474,6 +1474,7 @@ subroutine Calcul_plane
      write(message_text,'(10x,2(a,F10.5),a)')  'D = ', plane(4), "  (", splane(4), ")"
      call write_info(trim(message_text))
     end if
+    call write_info("")
 
 
     ! new routine in dec. 2016

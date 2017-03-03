@@ -1467,23 +1467,15 @@ subroutine center_CIF_line(import_string)
    call center_CIF_line('Data collection')
    WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_empty)
 
-   write(import_string, '(2a)') "Software               : ", Experiment%ACQ_soft
+   write(import_string, '(2a)') "Software        : ", Experiment%ACQ_soft
    call write_cif_line(trim(import_string))
 
-   !write(import_string, '(2a)') "Crystal to detector distance (mm) : ", Experiment%DX
-   !call write_cif_line(trim(import_string))
    write(import_string, '(a,i2)')    "Number of scans : ",EXP_SCAN%nb
    call write_cif_line(trim(import_string))
    if(EXP_SCAN%STL) then
     write(import_string, '(a,i2,a)') "Option          : shutterless mode"
     call write_cif_line(trim(import_string))
    end if
-   !call write_cif_line(trim(import_string))
-
-   !write(import_string, '(a)') " Scan      Time per frame (s)        Frame width (deg)    DX (mm)  Frames"
-   !call write_cif_line(trim(import_string))
-   !write(import_string, '(a)') "           Theta         Omega       Phi          Chi"
-   !call write_cif_line(trim(import_string))
 
    if(EXP_scan%sfrm_exist(1)) then
     call write_info('')
@@ -1494,18 +1486,6 @@ subroutine center_CIF_line(import_string)
    end if
 
    do i=1, EXP_SCAN%nb
-    !if(i<10) then
-    ! write(import_string, '(4x,i1,8x,F6.1,19x,F6.3, 15x,F4.1, 5x,i4)')  &
-    !                                   i,EXP_SCAN%exposition_time(i), EXP_SCAN%frame_width(i), EXP_SCAN%DX(i), EXP_SCAN%nb_frames(i)
-    !else
-    ! write(import_string, '(4x,i2,7x,F6.1,19x,F6.3, 15x,F4.1, 5x,i4)')  &
-    !                                   i,EXP_SCAN%exposition_time(i), EXP_SCAN%frame_width(i), EXP_SCAN%DX(i), EXP_SCAN%nb_frames(i)
-    !endif
-    !call write_cif_line(trim(import_string))
-
-    !write(import_string, '(10x,4(5x,F8.2))') EXP_scan%theta(i), EXP_scan%omega(i), EXP_scan%phi(i), EXP_scan%chi(i)
-    !call write_cif_line(trim(import_string))
-
     if(EXP_scan%sfrm_exist(i)) then
      if(DEVICE%D8V .and. EXP_SCAN%nb_frames(i) == 180 .and. EXP_scan%theta(i) < 0.01 .and. EXP_scan%phi(i) < 0.01) &
         EXP_scan%axis(i) = 'Fast'

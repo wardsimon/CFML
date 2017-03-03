@@ -32,7 +32,7 @@ subroutine read_INS_input_file(input_file, input_string)
   LOGICAL                                  :: input_out, input_string_cell
 
   ! local variable for SHELX.INS file
-  integer                                    :: nb_lines, npos
+  integer                                    :: nb_lines, npos 
   character(len=80),dimension(:),allocatable :: fileshx
   character(len=40)                          :: car_gsp
 
@@ -135,8 +135,10 @@ subroutine read_INS_input_file(input_file, input_string)
  call Read_Shx_Latt(fileshx, npos, nb_lines, n_latt)
  ! >> SYMM
  call Read_Shx_Symm(fileshx, npos, nb_lines, nb_symm_op, car_symop)
- symm_nb = nb_symm_op
-
+ symm_nb = nb_symm_op 
+ !if(npos > nb_lines) npos = 1       ! necessaire pour Gfortran dans le cas ou SYMM est absent (cas triclinique)
+ ! >>> change in CFML (mars 2017) 
+ 
  if (n_latt > 0) then        ! janvier 2017
  !if (n_latt > 1) then       ! janvier 2017
   nb_symm_op=nb_symm_op+1

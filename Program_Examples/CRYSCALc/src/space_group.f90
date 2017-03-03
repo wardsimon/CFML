@@ -5,7 +5,7 @@ subroutine space_group_info
                                             WRITE_SPG_info, Write_SPG_info_all, WRITE_SPG_EXTI,           &
                                             write_SPG_subgroups, message_text, SPG, keyword_create_CIF,   &
                                             keyword_CELL, unit_cell, input_PCR, known_cell_esd,           &
-                                            keyword_read_INS, keyword_ATOM_list, nb_atom, debug_proc
+                                            keyword_read_INS, keyword_ATOM_list, nb_atom, debug_proc, write_details
  use CIF_module,                     ONLY : CIF_cell_measurement, CIF_diffrn_reflns
 
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, write_spacegroup,  Symmetry_Symbol,   &
@@ -263,7 +263,7 @@ subroutine space_group_info
   endif
 
 
-  if(WRITE_SPG_info .AND. SPG%centred ==1 .and. on_screen) then
+  if(WRITE_SPG_info .AND. SPG%centred ==1 .and. on_screen .and. write_details) then
     call test_enantio(SPG%NumSPG, enantio)
     call test_chiral(SPG%NUmSPG, chiral)
     !call test_polar(SPG%NUmSPG, polar)

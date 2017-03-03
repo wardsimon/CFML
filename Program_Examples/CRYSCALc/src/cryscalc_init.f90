@@ -17,7 +17,7 @@ subroutine cryscalc_init()
   winplotr_path_name  = ''
   winplotr_exe        = ''
 
-  CRYSCALC%version      = 'February 2017'
+  CRYSCALC%version      = 'March 2017'
   CRYSCALC%date         = '?'
   CRYSCALC%author       = 'Thierry Roisnel (CDIFX / ISCR UMR6226 - Rennes)'
   CRYSCALC%mail         = "thierry.roisnel@univ-rennes1.fr"
