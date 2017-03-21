@@ -3015,15 +3015,7 @@
        real(kind=cp)     :: y
 
        if (abs(std) < 0.0000001) then
-!          if (abs(value) > 999999.0) then
-!            write(unit=aux,fmt=*) value
-!         else
-!            write(unit=aux,fmt="(f16.6)") value
-!         end if
-!> The above code is inconsistent with use of kind=cp and results in output that has meaningless digits
-!> The size of the output field should be set depending on the precision:
           aux=rformat(value,precision(value)+2)
-!
           line=adjustl(aux)
           if (line(1:1) /= "-") line=" "//trim(line)
           return

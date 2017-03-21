@@ -3379,8 +3379,8 @@ Contains
    !!----
    !!---- Calculate Partial derivates of Pressure respect to Params
    !!----
-   !!---- Date: 17/07/2015 
-   !!---- Date: 21/03/2017 : Added optional xtype argument and trapping 
+   !!---- Date: 17/07/2015
+   !!---- Date: 21/03/2017 : Added optional xtype argument and trapping
    !!
    Subroutine Deriv_Partial_P(V,T,Eospar,td,xtype,calc)
       !---- Arguments ----!
@@ -3389,7 +3389,7 @@ Contains
       type(Eos_Type),                     intent(in)  :: Eospar  ! Eos Parameter
       real(kind=cp), dimension(n_eospar), intent(out) :: td      ! derivatives dP/d(param)
       integer,optional,                   intent(in)  :: xtype   ! =0 for V,T input, =1 for Kt,T =2 for Ks,T
-      character(len=*),optional,          intent(in)  :: calc    ! 'all' if all derivs required. If absent, then just params with iref=1 calculated 
+      character(len=*),optional,          intent(in)  :: calc    ! 'all' if all derivs required. If absent, then just params with iref=1 calculated
 
       !---- Local Variables ----!
       integer                                         :: itype
@@ -3402,20 +3402,20 @@ Contains
       if(present(xtype))itype=xtype
       cstring='ref'
       if(present(calc))cstring=u_case(adjustl(calc))
-      
-      
+
+
       !> Calculate derivatives by both methods if possible: correct values are returned for linear
       call Deriv_Partial_P_Numeric(V,T,Eospar,tdn,itype,cstring)
       !> Default to numeric, because they are always available:
       td(1:n_eospar)=tdn(1:n_eospar)
-      
+
       if(itype == 0 .and. .not. Eospar%pthermaleos)then
       call Deriv_Partial_P_Analytic(V,T,Eospar,tda)
         if (eospar%itran ==0 .and. eospar%imodel /=6) then ! imodel=6 is APL, not yet coded
             td(1:4)=tda(1:4)                   ! analytic for Vo and moduli terms because these are exact even at small P
         end if
       endif
-      
+
 
       return
    End Subroutine Deriv_Partial_P
@@ -3665,8 +3665,8 @@ Contains
    !!--++
    !!--++ Calculates the partial derivatives of P with respect to the EoS
    !!--++ at a given property and t point, and returns  them in array td
-   !!--++ 
-   !!--++ 
+   !!--++
+   !!--++
    !!--++ Date: 17/03/2017 Generalised version of previous code
    !!
    Subroutine Deriv_Partial_P_Numeric(X1,X2,Eospar,td,xtype,calc)
@@ -3674,9 +3674,10 @@ Contains
       real(kind=cp),                      intent(in) :: X1,X2   ! The two parameter values (eg P and T)
       type(Eos_Type),                     intent(in) :: Eospar  ! Eos Parameters
       real(kind=cp), dimension(n_eospar), intent(out):: td      ! derivatives dP/d(param)
-      integer,optional,                   intent(in) :: xtype   ! =0 for V,T input, =1 for Kt,T =2 for Ks,T
-      character(len=*),optional,          intent(in) :: calc    ! 'all' if all derivs required. If absent, then just params with iref=1 calculated       
-      
+      integer,         optional,          intent(in) :: xtype   ! =0 for V,T input, =1 for Kt,T =2 for Ks,T
+      character(len=*),optional,          intent(in) :: calc    ! 'all' if all derivs required.
+                                                                ! If absent, then just params with iref=1 calculated
+
 
       !---- Local Variables ----!
       type(Eos_Type)                 :: Eost                 ! Eos Parameter local copy
@@ -3691,12 +3692,12 @@ Contains
       Call Init_err_eos
       itype=0
       if(present(xtype))itype=xtype
-      
-      iall=.false.      !default is calc params with iref=1
-      if(present(calc))then
-          if(index(u_case(adjustl(calc)),'ALL') > 0)iall=.true.
-      endif
-      
+
+      iall=.false.      ! default is calc params with iref=1
+      if (present(calc) )then
+         if (index(u_case(adjustl(calc)),'ALL') > 0) iall=.true.
+      end if
+
       td=0.0_cp
       eost=eospar
       call Set_Eos_Use(eost)
@@ -3760,7 +3761,7 @@ Contains
       !> no need to fix derivatives for linear eos by this method
 
       return
-   End Subroutine Deriv_Partial_P_Numeric 
+   End Subroutine Deriv_Partial_P_Numeric
 
    !!----
    !!---- SUBROUTINE EOS_CAL
@@ -7011,6 +7012,6 @@ Contains
       return
    End Subroutine Write_Info_Eos_Transition
 
- 
+
 
 End Module CFML_EoS
