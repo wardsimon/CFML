@@ -69,11 +69,11 @@ Module CFML_EoS
              Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase
 
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
-             Deriv_Partial_P, EoS_Cal, EoS_Cal_Esd, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd, FfCal_EoS,              &
-             Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition, Init_EoS_Type, &
-             Init_Err_EoS, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File, Set_Eos_Names, Set_Eos_Use,       &
-             Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File, Write_Eoscal, Write_Info_Conlev,  &
-             Write_Info_EoS, Deriv_partial_P_new
+             Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
+             FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
+             Init_EoS_Type, Init_Err_EoS, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File, Set_Eos_Names,     &
+             Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File, Write_Eoscal,        &
+             Write_Info_Conlev, Write_Info_EoS
 
 
    !--------------------!
@@ -239,10 +239,10 @@ Module CFML_EoS
    !!---- Update: January - 2013
    !!
    Type, public :: EoS_Data_List_Type
-      character(len=80)                              :: Title=" "     ! Title of dataset (normally from input datafile)
-      character(len=40)                              :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
-      integer                                        :: N=0           ! Number of EoS Data List
-      integer, dimension(NCOL_DATA_MAX)              :: IC_Dat=0      ! Which values are input
+      character(len=80)                             :: Title=" "     ! Title of dataset (normally from input datafile)
+      character(len=40)                             :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
+      integer                                       :: N=0           ! Number of EoS Data List
+      integer, dimension(NCOL_DATA_MAX)             :: IC_Dat=0      ! Which values are input
       type(EoS_Data_Type), allocatable, dimension(:) :: EoSD          ! EoS Data Parameters
    End Type EoS_Data_List_Type
 
@@ -634,8 +634,7 @@ Contains
       select case(eospar%itherm)
          case(1:5)  ! Normal isothermal eos at T
           select case(eospar%icross)
-             case(1)
-                kp0=eospar%params(3)  !Old linear variation of K with T, no Kp variation
+             case(1)  !Old linear variation of K with T, no Kp variation
 
              case(2)
                 vr=Get_V0_T(T,EosPar)/eospar%params(1)            !normally Vr > 0, but if negative thermal expansion, not
@@ -644,7 +643,7 @@ Contains
           end select
 
        case(6,7)        ! Thermal pressure model: value at Tref
-          !kp0=eospar%params(3) ! Is set in the beginning of procedure
+
       end select
 
       return
@@ -882,7 +881,7 @@ Contains
       vol=v
       temp=t
       e=eospar
-      call Deriv_Partial_P(vol,temp,e,td)  ! gets all derivatives dP/dparam in array td
+      call Deriv_Partial_P(vol,temp,e,td,xtype=0,calc='ALL')  ! gets all derivatives dP/dparam in array td
 
       !> esd
       do i=1,n_eospar
@@ -901,7 +900,7 @@ Contains
    !!--++ FUNCTION GET_PRESSURE_K
    !!--++
    !!--++ PRIVATE
-   !!--++ Gets ...
+   !!--++ returns the pressure for a known bulk modulus K and temperature T
    !!--++
    !!--++ Update: 16/03/2017
    !!--++
@@ -1060,7 +1059,7 @@ Contains
 
       !---- Local Variables ----!
       integer       :: itype
-      real(kind=cp) :: val,vol, agt
+      real(kind=cp) :: vol, val, agt
 
       !> Init
       itype=0               ! default
@@ -3380,31 +3379,43 @@ Contains
    !!----
    !!---- Calculate Partial derivates of Pressure respect to Params
    !!----
-   !!---- Date: 17/07/2015
+   !!---- Date: 17/07/2015 
+   !!---- Date: 21/03/2017 : Added optional xtype argument and trapping 
    !!
-   Subroutine Deriv_Partial_P(V,T,Eospar,td)
+   Subroutine Deriv_Partial_P(V,T,Eospar,td,xtype,calc)
       !---- Arguments ----!
       real(kind=cp),                      intent(in)  :: V       ! Volume
       real(kind=cp),                      intent(in)  :: T       ! Temperature
       type(Eos_Type),                     intent(in)  :: Eospar  ! Eos Parameter
       real(kind=cp), dimension(n_eospar), intent(out) :: td      ! derivatives dP/d(param)
+      integer,optional,                   intent(in)  :: xtype   ! =0 for V,T input, =1 for Kt,T =2 for Ks,T
+      character(len=*),optional,          intent(in)  :: calc    ! 'all' if all derivs required. If absent, then just params with iref=1 calculated 
 
       !---- Local Variables ----!
-      real(kind=cp), dimension(n_eospar) :: tda,tdn                ! analytic and numeric derivatives
-
-      !> Calculate derivatives by both methods: correct values are returned for linear
-      call Deriv_Partial_P_Analytic(V,T,Eospar,tda)
-      call Deriv_Partial_P_Numeric(V,T,Eospar,tdn)
+      integer                                         :: itype
+      real(kind=cp), dimension(n_eospar)              :: tda,tdn                ! analytic and numeric derivatives
+      character(len=10)                               :: cstring
 
       !> Init
       td=0.0_cp
-
+      itype=0
+      if(present(xtype))itype=xtype
+      cstring='ref'
+      if(present(calc))cstring=u_case(adjustl(calc))
+      
+      
+      !> Calculate derivatives by both methods if possible: correct values are returned for linear
+      call Deriv_Partial_P_Numeric(V,T,Eospar,tdn,itype,cstring)
       !> Default to numeric, because they are always available:
       td(1:n_eospar)=tdn(1:n_eospar)
-
-      if (eospar%itran ==0 .and. eospar%imodel /=6) then ! imodel=6 is APL, not yet coded
-         td(1:4)=tda(1:4)                   ! analytic for Vo and moduli terms because these are exact even at small P
-      end if
+      
+      if(itype == 0 .and. .not. Eospar%pthermaleos)then
+      call Deriv_Partial_P_Analytic(V,T,Eospar,tda)
+        if (eospar%itran ==0 .and. eospar%imodel /=6) then ! imodel=6 is APL, not yet coded
+            td(1:4)=tda(1:4)                   ! analytic for Vo and moduli terms because these are exact even at small P
+        end if
+      endif
+      
 
       return
    End Subroutine Deriv_Partial_P
@@ -3652,37 +3663,58 @@ Contains
    !!--++
    !!--++ SUBROUTINE DERIV_PARTIAL_P_NUMERIC
    !!--++
-   !!--++ PRIVATE
    !!--++ Calculates the partial derivatives of P with respect to the EoS
-   !!--++ at a given v,t point, and returns  them in array td
-   !!--++
-   !!--.. 27-Feb-2013: RJA edits to use IREF as in original
-   !!--++
-   !!--++ Date: 17/07/2015
+   !!--++ at a given property and t point, and returns  them in array td
+   !!--++ 
+   !!--++ 
+   !!--++ Date: 17/03/2017 Generalised version of previous code
    !!
-   Subroutine Deriv_Partial_P_Numeric(V,T,Eospar,td)
+   Subroutine Deriv_Partial_P_Numeric(X1,X2,Eospar,td,xtype,calc)
       !---- Arguments ----!
-      real(kind=cp),                      intent(in) :: V       ! Volume
-      real(kind=cp),                      intent(in) :: T       ! Temperature
-      type(Eos_Type),                     intent(in) :: Eospar  ! Eos Parameter
+      real(kind=cp),                      intent(in) :: X1,X2   ! The two parameter values (eg P and T)
+      type(Eos_Type),                     intent(in) :: Eospar  ! Eos Parameters
       real(kind=cp), dimension(n_eospar), intent(out):: td      ! derivatives dP/d(param)
+      integer,optional,                   intent(in) :: xtype   ! =0 for V,T input, =1 for Kt,T =2 for Ks,T
+      character(len=*),optional,          intent(in) :: calc    ! 'all' if all derivs required. If absent, then just params with iref=1 calculated       
+      
 
       !---- Local Variables ----!
       type(Eos_Type)                 :: Eost                 ! Eos Parameter local copy
       real(kind=cp), dimension(-2:2) :: p                    ! array for calc p values
       real(kind=cp)                  :: delfactor,del,d_prev,delmin
-      integer                        :: i,j,icycle
+      integer                        :: i,j,icycle,itype
+      logical                        :: warn            ! local warn flag
+      logical                        :: iall            ! .true. if all derivs required
+
 
       !> Initialise
+      Call Init_err_eos
+      itype=0
+      if(present(xtype))itype=xtype
+      
+      iall=.false.      !default is calc params with iref=1
+      if(present(calc))then
+          if(index(u_case(adjustl(calc)),'ALL') > 0)iall=.true.
+      endif
+      
       td=0.0_cp
       eost=eospar
       call Set_Eos_Use(eost)
+
+      warn=.false.
+
+      !> Check
+      if(itype < 0 .or. itype > n_data_types)then
+        err_eos=.true.
+        Err_EoS_Mess='No type set for deriv_partial_p'
+        return
+      endif
 
       !> Set the inital shift factor (fraction of parameter value)
       delfactor=0.01_cp
 
       do i=1,n_eospar
-         if (eospar%iuse(i) == 1) then             ! refineable parameters only
+        if (eospar%iref(i) == 1 .or. iall) then    ! only refined parameters
             del=delfactor*eospar%params(i)         ! the initial shift estimate
             delmin=delfactor/eospar%factor(i)      ! scale required min shift by print factors
             if (abs(del) < delmin) del=delmin      ! trap param values that are zero
@@ -3693,29 +3725,42 @@ Contains
                do j=-2,2,1
                   eost=eospar                                             !reset eos params
                   eost%params(i)=eost%params(i)+float(j)*del              ! apply shift to a parameter
-                  p(j)=get_pressure(v,t,eost)                             ! calc resulting P
+                  p(j)=get_pressure_x(x1,x2,eost,itype)                  ! calc resulting P
                end do
 
                td(i)=(p(-2)+8.0_cp*(p(1)-p(-1))-p(2))/(12.0_cp*del)       ! derivative to second order approximation
 
                !write(6,'(''  Param # '',i2,'' Cycle '',i2,'': deriv = '',ES14.6,'' delp = '',f5.3,'' del= '',f9.4)')i,icycle,td(i),p(2)-p(-2),del
 
+               ! to trap problems
+               if (err_eos)then
+                  td(i)=d_prev     ! previous cycle value
+                  call init_err_eos  ! clear errors
+                  warn=.true.       ! warning flag
+                  exit iter
+               end if
+
                if (abs(td(i)) < 1.0E-8) exit iter                         ! zero deriv
                if (icycle > 0 .and. &
-                   abs(d_prev-td(i))/td(i) < 1.0E-4) exit iter            ! deriv converged to 1 part in 10^4
+                            abs(d_prev-td(i))/td(i) < 1.0E-4) exit iter    ! deriv converged to 1 part in 10^4
 
                d_prev=td(i)                ! store last deriv value
                del=2.0_cp*del              ! increase the shift
                icycle=icycle+1
-               if (icycle > 5) exit iter   ! Do not allow 2*shift to exceed 64% of param value
+               if (icycle > 5) exit iter    ! Do not allow 2*shift to exceed 64% of param value
             end do iter
-         end if
+          end if
       end do
+
+      if (warn)then
+         warn_eos=.true.
+         warn_eos_mess='Error calculating some derivatives in Least squares'
+      end if
 
       !> no need to fix derivatives for linear eos by this method
 
       return
-   End Subroutine Deriv_Partial_P_Numeric
+   End Subroutine Deriv_Partial_P_Numeric 
 
    !!----
    !!---- SUBROUTINE EOS_CAL
@@ -3828,9 +3873,8 @@ Contains
                vec(11)=eospar%params(11)
          end select
 
-         !> phase transition
-         !vec(24)=3.0_cp*eospar%params(24)
-         !vec(26)=3.0_cp*eospar%params(26)
+         !> phase transition: no changes required for linear
+
 
       end if
 
@@ -6311,10 +6355,8 @@ Contains
       !> Eos parameters
       do i=1,n_eospar
          valp=eos%params(i)*eos%factor(i)
-         if (abs(valp) < 9999.9)then
-            write(text,'(f12.6)')valp
-         else if(abs(valp) < 1.0E11_cp)then
-            text=rformat(valp,12)
+         if(abs(valp) < 1.0E7_cp)then
+            text=rformat(valp,precision(valp)+2)
          else
             write(text,'(''    Inf'')')
          end if
@@ -6969,94 +7011,6 @@ Contains
       return
    End Subroutine Write_Info_Eos_Transition
 
-   !!--++
-   !!--++ SUBROUTINE DERIV_PARTIAL_P_NEW
-   !!--++
-   !!--++ Subroutine that ...
-   !!--++
-   !!--++ Date: 17/03/2017
-   !!
-   Subroutine Deriv_Partial_P_New(X1,X2,itype,Eospar,td)
-      !---- Arguments ----!
-      real(kind=cp),                      intent(in) :: X1,X2   ! The two parameter values (eg P and T)
-      integer,                            intent(in) :: itype   ! =1 for V,T input, =2 for K,T
-      type(Eos_Type),                     intent(in) :: Eospar  ! Eos Parameters
-      real(kind=cp), dimension(n_eospar), intent(out):: td      ! derivatives dP/d(param)
-
-      !---- Local Variables ----!
-      type(Eos_Type)                 :: Eost                 ! Eos Parameter local copy
-      real(kind=cp), dimension(-2:2) :: p                    ! array for calc p values
-      real(kind=cp)                  :: delfactor,del,d_prev,delmin
-      integer                        :: i,j,icycle
-      logical                        :: warn            ! local warn flag
-
-
-      !> Initialise
-      Call Init_err_eos
-
-      td=0.0_cp
-      eost=eospar
-      call Set_Eos_Use(eost)
-
-      warn=.false.
-
-      !> Check
-      if(itype < 0 .or. itype > n_data_types)then
-        err_eos=.true.
-        Err_EoS_Mess='No type set for deriv_partial_p'
-        return
-      endif
-
-      !> Set the inital shift factor (fraction of parameter value)
-      delfactor=0.01_cp
-
-      do i=1,n_eospar
-         if (eospar%iref(i) == 1) then              ! only refined parameters
-            del=delfactor*eospar%params(i)         ! the initial shift estimate
-            delmin=delfactor/eospar%factor(i)      ! scale required min shift by print factors
-            if (abs(del) < delmin) del=delmin      ! trap param values that are zero
-            icycle=0                               ! iteration count
-            d_prev=0.0_cp
-
-       iter:do                                ! top of loop over iterations
-               do j=-2,2,1
-                  eost=eospar                                             !reset eos params
-                  eost%params(i)=eost%params(i)+float(j)*del              ! apply shift to a parameter
-                  p(j)=get_pressure_x(x1,x2,eost,itype)                  ! calc resulting P
-               end do
-
-               td(i)=(p(-2)+8.0_cp*(p(1)-p(-1))-p(2))/(12.0_cp*del)       ! derivative to second order approximation
-
-               !write(6,'(''  Param # '',i2,'' Cycle '',i2,'': deriv = '',ES14.6,'' delp = '',f5.3,'' del= '',f9.4)')i,icycle,td(i),p(2)-p(-2),del
-
-               ! to trap problems
-               if (err_eos)then
-                  td(i)=d_prev     ! previous cycle value
-                  call init_err_eos  ! clear errors
-                  warn=.true.       ! warning flag
-                  exit iter
-               end if
-
-               if (abs(td(i)) < 1.0E-8) exit iter                         ! zero deriv
-               if (icycle > 0 .and. &
-                            abs(d_prev-td(i))/td(i) < 1.0E-4) exit iter    ! deriv converged to 1 part in 10^4
-
-               d_prev=td(i)                ! store last deriv value
-               del=2.0_cp*del              ! increase the shift
-               icycle=icycle+1
-               if (icycle > 5) exit iter    ! Do not allow 2*shift to exceed 64% of param value
-            end do iter
-         end if
-      end do
-
-      if (warn)then
-         warn_eos=.true.
-         warn_eos_mess='Error calculating some derivatives in Least squares'
-      end if
-
-      !> no need to fix derivatives for linear eos by this method
-
-      return
-   End Subroutine Deriv_Partial_P_New
+ 
 
 End Module CFML_EoS
