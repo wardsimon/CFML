@@ -1295,13 +1295,14 @@
        real(kind=cp), Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
        real(kind=cp), Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
        real(kind=cp), Dimension(3,3), Intent(Out) :: UB       !Busing-Levy UB-matrix
+       Integer,                       Intent(Out) :: ierr
 
        !--- Local Variables ---!
        real(kind=cp), Dimension(3)  :: h1c,h2c,v1,v2
        real(kind=cp), Dimension(3,3):: trpc,trpo,u
-       Integer                      :: ierr
-
-       !Calculation of the reciprocal components in the cartesian reciprocal axes
+       
+       ierr=0
+       !Calculation of the reciprocal components in the cartesian reciprocal axes   
        h1c=Matmul(B,h1)
        h2c=Matmul(B,h2)
        v1=h1o
