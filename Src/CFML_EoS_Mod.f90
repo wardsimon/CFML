@@ -365,7 +365,7 @@ Contains
       real(kind=cp),  optional, intent(in) :: DeltaT  ! Delta T
 
       !---- Local Variables ----!
-      real(kind=cp) :: dKdT, vp, vm, del,t0
+      real(kind=cp) :: dKdT, del
 
       !> Init
       del=30.0_cp                        ! good number for accuracy
@@ -379,12 +379,6 @@ Contains
       else
          dKdT=(Get_K(p,t+del,eospar)-Get_K(p,t-del,eospar))/(2.0_cp*del)
       end if
-
-      !> Previous code
-      !> Volume
-      !vp=get_volume(p,t+del,eospar)
-      !vm=get_volume(p,t-del,eospar)
-      !dKdT=(k_cal(vp,t+del,eospar)-k_cal(vm,t-del,eospar))/(2.0_cp*del)
 
       return
    End Function dKdT_Cal
@@ -524,7 +518,7 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp) :: Grun                 !The resulting gruneisen gamma
-      real(kind=cp) :: V0,VV0
+      real(kind=cp) :: VV0
 
       !> Must be careful with transitions because eospar%params(1) is the high phase V0
       !> V0=get_volume(eospar%pref,eospar%tref,eospar) (Nov 2016)
@@ -665,7 +659,7 @@ Contains
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
 
       !---- Local Variables ----!
-      real(kind=cp)  :: kpp0,vr
+      real(kind=cp)  :: kpp0
       type(Eos_Type) :: eost     ! workspace
 
       !> Init
@@ -915,10 +909,10 @@ Contains
 
       !---- Local Variables ----!
       integer            :: ic,irev
-      real(kind=cp)      :: p,temp,ktarget,kcalc,ktol,step,del,delprev,pprev,deltest,v0,step_prev
-      real(kind=cp)      :: ptr,vtr,kdiff,v,pmindiff
-      real(kind=cp)      :: k0,vol,steptest
-      character(len=255) :: ltext
+      real(kind=cp)      :: p,temp,ktarget,kcalc,ktol,step,del,delprev,pprev,v0,step_prev
+      real(kind=cp)      :: pmindiff
+      real(kind=cp)      :: k0,steptest
+      !character(len=255) :: ltext
 
       !>init
       ic=0
@@ -1106,10 +1100,10 @@ Contains
 
       !---- Local Variables ----!
       integer                   :: i,j
-      real(kind=cp)             :: VV0,Val,tp,tt,vm,vp,km,kp,va,vb,dvdp
+      real(kind=cp)             :: VV0,Val,tt,vm,vp,km,kp,va,vb,dvdp
       type(Eos_Type)            :: eosm,eosp,eosv     ! Eos for local Murn at Tminus and Tplus
       character(len=10)         :: Var
-      character(len=60)         :: text
+      !character(len=60)         :: text
 
       !>Init
       Val=0.0_cp
@@ -2071,8 +2065,8 @@ Contains
       !---- Local Variables ----!
       integer                            :: j
       real(kind=cp)                      :: kc
-      real(kind=cp)                      :: vv0,k0,kp,kpp,vol1,f,vol,vref
-      real(kind=cp)                      :: a,b,c,nu,del,pr,vt,dPdV,delv,kc1
+      real(kind=cp)                      :: vv0,k0,kp,kpp,f,vol
+      real(kind=cp)                      :: a,b,c,nu,vt,dPdV,delv
       real(kind=cp)                      :: x,pFG0,c0,c2,da,db,dc              ! For APL
       real(kind=cp)                      :: vs,Ttr,dVs                         ! for transition calculations
       real(kind=cp), dimension(N_EOSPAR) :: ev
@@ -2310,14 +2304,14 @@ Contains
       integer                            :: j
       type(Eos_Type)                     :: eosbare
       real(kind=cp)                      :: kpc
-      real(kind=cp)                      :: vv0,k0,kp,kpp,vol1,ptr,vol,vs,ttr,betap_tran,betap_bare,k
+      real(kind=cp)                      :: vv0,k0,kp,kpp,ptr,vol,vs,ttr,betap_tran,betap_bare,k
       real(kind=cp)                      :: a,b,f,rkp_top, rkp_bot,nu,dkdv,vt
       real(kind=cp)                      :: c,c0,c2,da,db,dc,d2a,d2b,d2c,group,dgroup,x,PFG0,kc   ! APL
       real(kind=cp), dimension(N_EOSPAR) :: ev
       real(kind=cp), dimension(3)        :: abc     ! Tait parameters
       real(kind=cp)                      :: dVsdP,d2VsdP2
       real(kind=cp),dimension(-2:2)      :: kpt
-      real(kind=cp)                      :: delv,vol2,rk1,rk2,p1,p2,p0,del,kc_pth
+      real(kind=cp)                      :: delv
       real(Kind=cp)                      :: Ptrue    ! Input pressure if present. The true pressure without Pthermal subtracted
       real(Kind=cp)                      :: Pcorr    ! Pressure minus Pthermal.
 
@@ -2836,7 +2830,7 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp) :: pth,thtref,exp0,eta0,vlocal
-      real(kind=cp) :: vv0,gammaV, thetaD,factor
+      real(kind=cp) :: gammaV, thetaD,factor
       real(kind=cp),dimension(n_eospar) :: ev
 
       !> Local copy
