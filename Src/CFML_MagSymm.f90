@@ -3825,6 +3825,8 @@
        do j=1,3
          if(abs(multi(j)) < epss .or. cdd(j) == '0' ) then
            codes(j) = 0.0_cp
+         else if(multi(j) < 0) then 
+           codes(j) = sign(1.0_cp, multi(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
          else
            codes(j) = sign(1.0_cp, multip(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
          end if
