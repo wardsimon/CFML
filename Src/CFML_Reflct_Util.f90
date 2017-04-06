@@ -1874,8 +1874,8 @@
        Select Case(ShubG%MagType)
          Case(1,3)
            n_id=0
-           do i=1,ShubG%numops
-              k = matmul(h,ShubG%MSymOp(i)%Rot)
+           do i=1,ShubG%Multip
+              k = matmul(h,ShubG%SymOp(i)%Rot)
               if (hkl_equal(h,k)) then
                  r1=cos(tpi*dot_product(ShubG%SymOp(i)%Tr,real(h)))
                  n_id=n_id+Trace(ShubG%MSymOp(i)%Rot*nint(r1))
@@ -3060,7 +3060,7 @@
        type (Magnetic_Space_Group_Type) ,             intent(in)     :: ShubG
        real(kind=cp),                                 intent(in)     :: sintlmax
        integer,                                       intent(out)    :: num_ref
-       type (Reflect_Type), dimension(:), allocatable,intent(out)   :: reflex
+       type (Reflect_Type), dimension(:), allocatable,intent(out)    :: reflex
 
        !---- Local variables ----!
        real(kind=cp)         :: sval !,vmin,vmax
