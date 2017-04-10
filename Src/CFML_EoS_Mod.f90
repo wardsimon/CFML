@@ -5544,7 +5544,7 @@ Contains
          if (.not. eospar%linear) then
             ptext(1)='units as volume data'
          else
-            ptext(1)='units as cell parameters'
+            ptext(1)='units as length data'
          end if
       end if
 
@@ -5883,6 +5883,26 @@ Contains
       n=19
       if (n > n_eospar) n=n_eospar
 
+      !> Set the V0 name and comment here, in case eos is thermal only
+      if (.not. eospar%linear) then
+         eospar%ParName(1) ='V0   '
+         eospar%comment(1) = 'Reference pressure volume:'
+         if (len_trim(eospar%vscale_name) > 0) then
+            eospar%comment(1) = trim(eospar%comment(1))//' units are '//trim(eospar%vscale_name)
+         else
+            eospar%comment(1) = trim(eospar%comment(1))//' units as volume data'
+         endif
+      else          !Linear
+         eospar%ParName(1) ='L0   '
+         eospar%comment(1) ='Reference pressure length:'
+         if (len_trim(eospar%vscale_name) > 0) then
+            eospar%comment(1) = trim(eospar%comment(1))//' units are '//trim(eospar%vscale_name)
+         else
+            eospar%comment(1) = trim(eospar%comment(1))//' units as length data'
+         endif      
+      endif
+      
+
       select case(eospar%itherm)
          case (0)
             eospar%parname(10:n) = ' '
@@ -5904,7 +5924,13 @@ Contains
             eospar%comment(10) = 'Constant of thermal expansion x10^5 K^-1'
             eospar%comment(11) = 'Sqrt term of thermal expansion x10^4 K^-1/2'
 
-         case (4)
+         case (4)    ! Kroll needs Kp as well (in case no pressure eos)
+            eospar%parname(3) = 'Kp   '         
+            eospar%comment(3) = 'dK/dP: dimensionless'
+            if(eospar%linear)then
+                eospar%parname(3) = 'Mp   '         
+                eospar%comment(3) = 'dM/dP: dimensionless'
+            endif
             eospar%parname(10:11) = (/'alph0','Th_E '/)
             eospar%comment(10) = 'Constant of thermal expansion at Tref x10^5 K^-1'
             eospar%comment(11) = 'Einstein temperature in K'
