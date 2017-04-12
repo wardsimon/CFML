@@ -117,6 +117,7 @@
        type(Space_Group_Type)           :: G0
        integer                          :: ngk=0
        logical                          :: k_equiv_minusk=.false.
+       logical                          :: minusk=.false.
        integer, dimension(192)          :: p=0
        integer, dimension(48,48)        :: co=0
        integer                          :: nk=0
@@ -323,7 +324,11 @@
        Gk%ngk = 1
        Gk%stark(:,1) = k  !<- First arm of the star of k
        Gk%k_equiv_minusk = .true. !it is supposed that k equiv -k
+       Gk%minusk=.false.
+       
+       !Test if there is an operator mapping k to -k       
        if (SpaceGroup%Centred /= 1) then  !Centric space group (centric: 0, 2, acentric:1)
+       	  Gk%minusk=.true.
           j=ng+1      !the operator SpaceGroup%SymOp(j) is the inversion centre
           h = hkl_R(k,SpaceGroup%SymOp(j))  !h is here -k because only the rotational part of SpaceGroup%SymOp(j)
                                             !is applied to k and this rotational part is always -I (I:identity matrix)
@@ -333,7 +338,13 @@
           ng=ng*2  !Now ng is updated to count also the symmetry elements of SpaceGroup in which
                    !there are the operators transformed by the inversion centre.
        else   !A-centric
-          if (.not. k_EQUIV(k,-k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
+       	 do j=2,ng
+       	 	 h = hkl_R(k,SpaceGroup%SymOp(j))
+           if (k_EQUIV(h,-k, SpaceGroup%SPG_lat))  then
+           	Gk% minusk=.true.
+           end if
+         end do
+         if(.not. Gk%minusk) Gk%k_equiv_minusk = .false.         
        end if
 
        do_ng: do i=2,ng   !From 2 because the first element is always the identity and k is equivalent to k!
@@ -366,7 +377,7 @@
           Gk%co(1,Gk%nk)    = i        !First of the co-set representatives
        end do do_ng
 
-       if(present(ext)) then
+       if(present(ext) .and. .not. Gk%k_equiv_minusk .and. Gk%minusk) then
          m=Gk%ngk
          do_ext: do i=2, Gk%nk
             h= Gk%stark(:,i)
@@ -419,11 +430,15 @@
            exit
         end if
        end do
-       if(present(ext)) then
+       if(present(ext) .and. .not. Gk%k_equiv_minusk ) then
           do i=Gk%ngk+1,2*Gk%ngk
             ngen=ngen+1
             j=Gk%p(i)
-            gen(ngen)=Gk%G0%SymopSymb(j)
+            if(j /= 0) then
+               gen(ngen)=Gk%G0%SymopSymb(j)
+            else
+             	 ngen=ngen-1
+            end if
           end do
        end if
        !Add now the lattice translations
@@ -482,16 +497,25 @@
        write(unit=lu,fmt="(a,/)") "      ===================================="
 
        h=Gk%stark(:,1)
+       m=Gk%ngk
+       if(.not. Gk%k_equiv_minusk .and. Gk%minusk) m=m*2
+       
        write(unit=lu,fmt="(a,3f8.4,a)") " => The input propagation vector is: K=(",h," )"
        if (Gk%k_equiv_minusk) then
-          write(unit=lu,fmt="(a,i3,a)")    " => K .. IS .. equivalent to -K "
+          write(unit=lu,fmt="(a,i3,a)")    " =>  K .. IS .. equivalent to -K, the extended little group is G(k) "
+       else if (Gk%minusk) then
+          write(unit=lu,fmt="(a,i3,a)")    " =>  K .. IS NOT .. equivalent to -K, the extended little group is G(k,-k) "
        else
-          write(unit=lu,fmt="(a,i3,a)")    " => K .. IS NOT .. equivalent to -K "
+          write(unit=lu,fmt="(a,i3,a)")    " => -K .. IS NOT .. in the star of k, the extended little group is G(k,-k)=G(k) "
        end if
        write(unit=lu,fmt="(a)")           " => The operators following the k-vectors constitute the co-set decomposition G[Gk]"
        write(unit=lu,fmt="(a)    ")       "    The list of equivalent k-vectors are also given on the right of operators.     "
-       write(unit=lu,fmt="(a,48(i3,a))")  " => Numerals of the extended little group operators:  {",(Gk%p(j),",",j=1,2*Gk%ngk-1),&
-                                               Gk%p(2*Gk%ngk)," }"
+       if(m > 1) then
+         write(unit=lu,fmt="(a,48(i3,a))")  " => Numerals of the extended little group operators:  {",(Gk%p(j),",",j=1,m-1),&
+                                               Gk%p(m)," }"
+       else
+         write(unit=lu,fmt="(a,i3,a)")  " => Numerals of the extended little group operators:  {",Gk%p(1),"}"
+        end if
        write(unit=lu,fmt="(a,i3,a,/)")" => The star of K is formed by the following ",Gk%nk," vectors:"
 
        m=0

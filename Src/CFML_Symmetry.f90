@@ -3187,11 +3187,19 @@
              exit
           end if
        end do
+      
+       Select Case(k) !check that it is OK for badly generated Hall symbol
+       	 case(1:2)
+       	 	  if(SpaceGroup%NumOps > 1) k=0
+       	 case(3:15)
+       	 	  if(SpaceGroup%NumOps > 2) k=0
+       	 case(16:74)
+       	 	  if(SpaceGroup%NumOps > 4) k=0
+       End Select
 
        if(hall(1:1) /= "-") hall=" "//hall
-       Spacegroup%Hall=hall
-
-       if (k /= 0) then
+       
+       if (k /= 0) then       
           SpaceGroup%NumSpg       = spgr_info(k)%n
           SpaceGroup%Spg_Symb     = spgr_info(k)%hm
                 call get_laue_str(spgr_info(k)%laue,SpaceGroup%Laue)
@@ -3206,7 +3214,6 @@
        else
           SpaceGroup%Spg_Symb     = "Unknown"
           SpaceGroup%Info         = "User-provided generators "
-
        end if
 
        if (present(SpaceH) ) SpaceH=hall
@@ -8191,7 +8198,7 @@
                 ng=ngen
                 istart=1
                 num_g=ng
-                call Get_GenSymb_from_Gener(gen,ng,SpaceGroup%gHall)
+                !call Get_GenSymb_from_Gener(gen,ng,SpaceGroup%gHall) !to be changed for standard setting + basis change
                 do i=1,ngen
                    call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
                 end do
@@ -8202,7 +8209,7 @@
              end if
              call Get_SO_from_Gener(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy, &
                                     Co,Num_g,Spgm)
-
+             SpaceGroup%Spg_Symb     = "unknown"
              SpaceGroup%CrystalSys   = sys_cry(isystm)
              SpaceGroup%SG_setting   = "Non-Conventional (user-given operators)"
              SpaceGroup%SPG_lat      = Lat_Ch
@@ -8485,7 +8492,7 @@
           SpaceGroup%centre = trim(SpaceGroup%centre)//"  Gen(-1):"//SpaceGroup%SymopSymb(NG+1)
        end if
 
-       if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
+       !if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
 
        !write(*,"(a)") " => Wyckoff information"
 
