@@ -5946,7 +5946,7 @@ Contains
             eospar%comment(11) = 'Einstein temperature in K'
 
          case (7)
-            eospar%parname(10:12) = (/'Gamm0','ThMGD','qMGD'/)
+            eospar%parname(10:12) = (/'Gamm0','ThMGD','qMGD '/)
             eospar%comment(10) = 'MGD Gamma0, dimensionless'
             eospar%comment(11) = 'Debye temperature in K'
             eospar%comment(12) = 'Volume scaling of MGD gamma, dimensionless'

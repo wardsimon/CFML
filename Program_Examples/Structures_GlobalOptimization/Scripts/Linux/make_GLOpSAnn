@@ -70,8 +70,8 @@ if [ $DEBUG == "Y" ]; then
           OPT2="-c -g -fbacktrace -ffree-line-length-none"
           ;;
       "ifort")
-          OPT1="-c -g -warn -$ARCH"
-          OPT2="-c -g -warn -$ARCH"
+          OPT1="-c -g -debug=full -backtrace -warn -$ARCH"
+          OPT2="-c -g -debug=full -backtrace -warn -$ARCH"
           ;;
    esac
 else
@@ -83,8 +83,8 @@ else
       "ifort")
           #OPT1="-c -O -warn -$ARCH -Qvec-report0"
           #OPT2="-c -O0 -warn -$ARCH -Qvec-report0"
-          OPT1="-c -O  -warn -$ARCH -qopt-report=0"
-          OPT2="-c -O0 -warn -$ARCH -qopt-report=0"
+          OPT1="-c -O3  -warn -$ARCH -qopt-report=0 -paralell "
+          OPT2="-c -O0  -warn -$ARCH -qopt-report=0"
           ;;
    esac
 fi
@@ -136,6 +136,7 @@ esac
 #
 upx GLOpSAnn
 rm -rf *.o *.mod  
+cp GLOpSAnn $FULLPROF/.
 mv GLOpSAnn $PROGCFML/DistFPS/$VERS
 #
 #
