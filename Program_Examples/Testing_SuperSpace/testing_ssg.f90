@@ -30,35 +30,37 @@
       !close(unit=1)
       !stop
       do
-        !write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
-        !read(*,*) Dp
-        !if(Dp < 4) exit
-        !if(allocated(mat)) deallocate(Mat)
-        !allocate(Mat(Dp,Dp))
-        !if(allocated(matrix)) deallocate(Matrix)
-        !allocate(Matrix(Dp,Dp))
-        !forma="( a8)"
-        !write(forma(2:2),"(i1)") Dp
-        !do
-        !   write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
-        !   read(*,"(a)") symb
-        !   if(len_trim(symb) == 0) exit
-        !   call Get_Mat_From_SSymSymb(Symb,Mat)
-        !   matrix=print_rational(Mat)
-        !   write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
-        !   do j=1,Dp
-        !      write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
-        !   end do
-        !   !Retransformation to a symbol
-        !   write(unit=*,fmt="(a)")" "
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
-        !   write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
-        !   write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
-        !   call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
-        !   write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
-        !end do
-
+        write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
+        read(*,*) Dp
+        if(Dp < 4) exit
+        if(allocated(mat)) deallocate(Mat)
+        allocate(Mat(Dp,Dp))
+        if(allocated(matrix)) deallocate(Matrix)
+        allocate(Matrix(Dp,Dp))
+        forma="( a8)"
+        write(forma(2:2),"(i1)") Dp
+        do
+           write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
+           read(*,"(a)") symb
+           if(len_trim(symb) == 0) exit
+           call Get_Mat_From_SSymSymb(Symb,Mat)
+           matrix=print_rational(Mat)
+           write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
+           do j=1,Dp
+              write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dp)
+           end do
+           !Retransformation to a symbol
+           write(unit=*,fmt="(a)")" "
+           call Get_SSymSymb_from_Mat(Mat,Symb,"xyz")
+           write(unit=*,fmt="(a)") "     xyz_type: "//trim(Symb)
+           call Get_SSymSymb_from_Mat(Mat,Symb,"x1x2x3")
+           write(unit=*,fmt="(a)") "  x1x2x3_type: "//trim(Symb)
+           call Get_SSymSymb_from_Mat(Mat,Symb,"abc")
+           write(unit=*,fmt="(a)") "     abc_type: "//trim(Symb)
+        end do
+        
+        cycle
+        
         write(*,"(a)",advance="no") " => Enter the number of the SSG: "
         read(*,*) m
         if(m <= 0) exit

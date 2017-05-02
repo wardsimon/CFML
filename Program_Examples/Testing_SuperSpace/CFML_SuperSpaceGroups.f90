@@ -140,6 +140,10 @@
         end do
         if ( n == nt) exit do_ext
       end do do_ext
+      if(any(done(1:nt,1:nt) == .false. ) ) then
+      	Err_ssg=.true.
+      	Err_ssg_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
+      end if
       multip=nt
       if(present(table)) then
         allocate(Table(multip,multip))
