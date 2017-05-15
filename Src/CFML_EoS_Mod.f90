@@ -824,8 +824,12 @@ Contains
          i=i+1
 
          if (abs(plast-p) < 0.0001) exit         ! iteration has converged
-         if (i > 1000) exit
-
+         if (i > 1000)then
+            err_eos=.true.
+            err_eos_mess='No convergence in Transition loop in Get_Pressure'
+            return
+         endif
+         
          !> Here if not converged:               ! works provided phase boundary is almost linear
          if (first .or. abs(plast-p) < difp) then
             vs=get_transition_strain(p,T,eospar)
@@ -1798,16 +1802,19 @@ Contains
             else
                kp=ev(3)
             end if
-            Tn= ev(11)/Tref                        ! theta/Tref
-            C=Tn*Tn*exp(Tn)/(exp(tn)-1.0_cp)**2.0_cp
-            B=-1.0/kp/(kp+2.0_cp)
-            if (t > 0.05_cp*ev(11)) then                               ! to avoid numerical problems at T=0
-               A=ev(10)*ev(11)/C *(1.0_cp/(exp(ev(11)/T)-1.0_cp) - 1.0_cp/(exp(Tn)-1.0_cp) )
-            else
-               A=ev(10)*ev(11)/C *(-1.0_cp/(exp(Tn)-1.0_cp) )          ! because when T=0 then 1.0/exp(Tein/T) = 0
-            end if
-            V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*(1.0_cp - kp*(kp+2.0_cp)*A/(kp+1.0_cp))**B)
-
+            if(abs(kp-1) < 0.0001 .or. abs(kp/(kp+2.0_cp)) < 0.0001)then
+                V=ev(1)                             ! In these cases algebra shows V=V0
+            else                
+                Tn= ev(11)/Tref                        ! theta/Tref
+                C=Tn*Tn*exp(Tn)/(exp(tn)-1.0_cp)**2.0_cp
+                B=-1.0/kp/(kp+2.0_cp)
+                if (t > 0.05_cp*ev(11)) then                               ! to avoid numerical problems at T=0
+                   A=ev(10)*ev(11)/C *(1.0_cp/(exp(ev(11)/T)-1.0_cp) - 1.0_cp/(exp(Tn)-1.0_cp) )
+                else
+                   A=ev(10)*ev(11)/C *(-1.0_cp/(exp(Tn)-1.0_cp) )          ! because when T=0 then 1.0/exp(Tein/T) = 0
+                end if
+                V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*(1.0_cp - kp*(kp+2.0_cp)*A/(kp+1.0_cp))**B)
+            endif
          case(5)                    ! Salje, Tref fixed at zero
             A=T/ev(11)
             if (A < 0.001) then
@@ -1946,6 +1953,7 @@ Contains
       eos%itran=0       ! turn off transition
 
       dp1=p-get_pressure(vol,t,eos)
+      if(err_eos)return
 
       !> estimate the step to make in vol to get closer
       k=k0+p*kp                          ! Murn-like guess estimate to avoid recursive call back here when pthermal used
@@ -1964,6 +1972,7 @@ Contains
          !> Increment Volume
          vol=vol+step
          dp2=p-get_pressure(vol,t,eos)
+         if(err_eos)return
          nstep=nstep+1
 
          !> test for sufficient convergence
@@ -4991,7 +5000,7 @@ Contains
          !> Read the numbers on this line
          nlines_datum=nlines_datum+1
          call getnum_std(line,vet,vetsd,iv)
-         if (iv == 0) then
+         if (iv == 0) then        
             err_eos=.true.
             Err_EoS_Mess='No values found on line '//trim(car)//' of data file!'
             dat%n=ndat
