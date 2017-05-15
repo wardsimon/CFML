@@ -5,7 +5,7 @@
 
       implicit none
 
-      integer :: iclass,nmod,i,j,k,m,multip,Dp, i1,i2,i3, ng
+      integer :: iclass,nmod,i,j,k,m,multip,Dp, i1,i2,i3, ng,nk
       character(len=20)  :: forma
       character(len=130) :: message,symb
       logical :: ok
@@ -30,15 +30,18 @@
       !close(unit=1)
       !stop
       do
-        write(*,"(a)",advance="no")  " => Enter the dimension d of the matrix: "
-        read(*,*) Dp
-        if(Dp < 4) exit
+        write(*,"(a)",advance="no")  " => Enter the number of propagation vectors (nk > 0): "
+        read(*,*) nk
+        if(nk < 1) exit
+        Dp=4+nk
         if(allocated(mat)) deallocate(Mat)
         allocate(Mat(Dp,Dp))
         if(allocated(matrix)) deallocate(Matrix)
         allocate(Matrix(Dp,Dp))
         forma="( a8)"
         write(forma(2:2),"(i1)") Dp
+        write(*,"(a,i2)")  " => You should enter the symbol of an extended matrix of dimension: ",Dp
+        write(*,"(a)")  " => Example for nk=1 :  x1-x2,x2+1/2,x3-x1+3/4,x4+1/2,-1 (the last symbol is time inversion) "
         do
            write(*,"(a)",advance="no")  " => Enter the symbol of the operator: "
            read(*,"(a)") symb

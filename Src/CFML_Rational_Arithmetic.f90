@@ -79,7 +79,7 @@
               equal_rational_matrix,equal_rational_vector
 
     !Public subroutines
-    public :: rational_inv_matrix
+    public :: rational_inv_matrix, rational_modulo_lat
 
 
     !Public overloaded intrinsic functions (transpose is not needed)
@@ -255,7 +255,7 @@
       end if
     end function rational_simplify
 
-    subroutine assign_rational_int (res, i)
+    pure subroutine assign_rational_int (res, i)
       type (rational), intent (out) :: res  !, volatile
       integer,         intent (in)  :: i
       res = i // 1
@@ -449,7 +449,7 @@
       end if
     end function rational_divide_int
 
-    function rational_lt (r, s) result (res)
+    pure function rational_lt (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       type (rational) :: r_simple
@@ -461,7 +461,7 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_lt
 
-    function rational_lt_integer (r, i) result (res)
+    pure function rational_lt_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer,         intent (in) :: i
       logical                      :: res
@@ -471,7 +471,7 @@
       res = r_simple % numerator < i * r_simple % denominator
     end function rational_lt_integer
 
-    function integer_lt_rational (i,r) result (res)
+    pure function integer_lt_rational (i,r) result (res)
       integer,         intent (in) :: i
       type (rational), intent (in) :: r
       logical                      :: res
@@ -480,7 +480,7 @@
       res = i * r_simple % denominator < r_simple % numerator
     end function integer_lt_rational
 
-    function rational_le (r, s) result (res)
+    pure function rational_le (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       type (rational) :: r_simple
@@ -492,7 +492,7 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_le
 
-    function rational_le_integer (r, i) result (res)
+    pure function rational_le_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer,         intent (in) :: i
       logical                      :: res
@@ -501,7 +501,7 @@
       res = r_simple % numerator <= i * r_simple % denominator
     end function rational_le_integer
 
-    function integer_le_rational (i, r) result (res)
+    pure function integer_le_rational (i, r) result (res)
       integer,         intent (in) :: i
       type (rational), intent (in) :: r
       logical                      :: res
@@ -511,7 +511,7 @@
     end function integer_le_rational
 
 
-    function rational_gt (r, s) result (res)
+    pure function rational_gt (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       logical                      :: res
@@ -523,7 +523,7 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_gt
 
-    function rational_gt_integer (r, i) result (res)
+    pure function rational_gt_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer,         intent (in) :: i
       logical                      :: res
@@ -532,7 +532,7 @@
       res = r_simple % numerator > i * r_simple % denominator
     end function rational_gt_integer
 
-    function integer_gt_rational (i, r) result (res)
+    pure function integer_gt_rational (i, r) result (res)
       integer,         intent (in) :: i
       type (rational), intent (in) :: r
       logical                      :: res
@@ -541,7 +541,7 @@
       res = i * r_simple % denominator > r_simple % numerator
     end function integer_gt_rational
 
-    function rational_ge (r, s) result (res)
+    pure function rational_ge (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       type (rational) :: r_simple
@@ -553,7 +553,7 @@
           & s_simple % numerator * r_simple % denominator
     end function rational_ge
 
-    function rational_ge_integer (r, i) result (res)
+    pure function rational_ge_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer,         intent (in) :: i
       logical                      :: res
@@ -562,7 +562,7 @@
       res = r_simple % numerator >= i * r_simple % denominator
     end function rational_ge_integer
 
-    function integer_ge_rational (i, r) result (res)
+    pure function integer_ge_rational (i, r) result (res)
       integer,         intent (in) :: i
       type (rational), intent (in) :: r
       logical                      :: res
@@ -592,7 +592,7 @@
       res = r % denominator == 1 .and. r % numerator == i
     end function integer_eq_rational
 
-    function rational_ne (r, s) result (res)
+    pure function rational_ne (r, s) result (res)
       type (rational), intent (in) :: r
       type (rational), intent (in) :: s
       logical :: res
@@ -639,6 +639,27 @@
       res = nint(real(r%numerator,kind=dp)/real(r%denominator,kind=dp))
     end function nint_rational
 
+
+    elemental subroutine rational_modulo_lat (r)  
+      type (rational), intent (in out) :: r
+     
+      do 
+      	 if(r < 0//1) then
+      	 	 r=r+1
+      	 else
+      	 	 exit
+      	 end if
+      end do
+      
+      do 
+      	 if(r >= 1//1) then
+      	 	 r=r-1
+      	 else
+      	 	 exit
+      	 end if
+      end do
+            
+    end subroutine rational_modulo_lat
 
     elemental function rational_modulo (r) result (res)
       type (rational), intent (in) :: r
@@ -850,7 +871,7 @@
       end if
     end Subroutine rational_inv_matrix
 
-    function rational_maxloc_mat(Mat) result(pos_max)
+    pure function rational_maxloc_mat(Mat) result(pos_max)
       type(rational), dimension(:,:), intent(in) :: Mat
       integer,        dimension(2)               :: pos_max
       !Local variables
@@ -870,7 +891,7 @@
       end do
     end function rational_maxloc_mat
 
-    function rational_maxloc_vect(vec) result(pos_max)
+    pure function rational_maxloc_vect(vec) result(pos_max)
       type(rational), dimension(:), intent(in) :: vec
       integer                                  :: pos_max
       !Local variables
@@ -887,7 +908,7 @@
       end do
     end function rational_maxloc_vect
 
-    function rational_minloc_mat(Mat) result(pos_min)
+    pure function rational_minloc_mat(Mat) result(pos_min)
       type(rational), dimension(:,:), intent(in) :: Mat
       integer,        dimension(2)               :: pos_min
       !Local variables
@@ -908,7 +929,7 @@
 
     end function rational_minloc_mat
 
-    function rational_minloc_vect(vec) result(pos_min)
+    pure function rational_minloc_vect(vec) result(pos_min)
       type(rational), dimension(:), intent(in) :: vec
       integer                                  :: pos_min
       !Local variables
@@ -926,7 +947,7 @@
       end do
     end function rational_minloc_vect
 
-    function rational_sum_vec(vec) result(suma)
+    pure function rational_sum_vec(vec) result(suma)
       type(rational), dimension(:), intent(in) :: vec
       type(rational)                           :: suma
       !Local variables
@@ -936,7 +957,7 @@
       suma=rational_simplify(suma)
     end function rational_sum_vec
 
-    function equal_rational_vector(vec1,vec2) result(eq)
+    pure function equal_rational_vector(vec1,vec2) result(eq)
       type(rational), dimension(:), intent(in) :: vec1,vec2
       logical                                  :: eq      !
       integer:: i,n1,n2
@@ -950,7 +971,7 @@
       eq=.true.
     end function equal_rational_vector
 
-    function equal_rational_matrix(Mat1,Mat2) result(eq)
+    pure function equal_rational_matrix(Mat1,Mat2) result(eq)
       type(rational), dimension(:,:), intent(in) :: Mat1,Mat2
       logical                                    :: eq
       !

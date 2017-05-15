@@ -1,75 +1,128 @@
-    Module CFML_SuperSpaceGroups
-      use CFML_ssg_datafile
-      use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
-      use CFML_Rational_Arithmetic
+  Module CFML_SuperSpaceGroups
+    use CFML_GlobalDeps, only: cp
+    use CFML_ssg_datafile
+    use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
+    use CFML_Rational_Arithmetic
+    use CFML_Crystal_Metrics,  only: Crystal_Cell_Type
 
-      Implicit None
-      private
-      public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
-                Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb
+    Implicit None
+    private
+    public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
+              Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections
 
-      public :: operator (*)
-      interface operator (*)
-        module procedure multiply_ssg_symop
-      end interface
-      private :: multiply_ssg_symop
+    public :: operator (*)
+    interface operator (*)
+      module procedure multiply_ssg_symop
+    end interface
+    private :: multiply_ssg_symop
 
-      !!---- Type, public   :: SSym_Oper_Type
-      !!----
-      !!---- Rational matrix of special type dimension (3+d+1,3+d+1)
-      !!---- The matrix of the superspace operator is extended with
-      !!---- a column containing the translation in supespace plus
-      !!---- a zero 3+d+1 row and + or -1 for time reversal at position
-      !!---- (3+d+1,3+d+1). In order to limit the operators to the
-      !!---- factor group the translations, a modulo-1 is applied
-      !!---- in the multiplication of two operators.
-      Type, public   :: SSym_Oper_Type
-        Type(rational), allocatable, dimension(:,:) :: Mat
-      End Type SSym_Oper_Type
+    !!---- Type, public   :: SSym_Oper_Type
+    !!----
+    !!---- Rational matrix of special type dimension (3+d+1,3+d+1)
+    !!---- The matrix of the superspace operator is extended with
+    !!---- a column containing the translation in supespace plus
+    !!---- a zero 3+d+1 row and + or -1 for time reversal at position
+    !!---- (3+d+1,3+d+1). In order to limit the operators to the
+    !!---- factor group the translations, a modulo-1 is applied
+    !!---- in the multiplication of two operators.
+    Type, public   :: SSym_Oper_Type
+      Type(rational), allocatable, dimension(:,:) :: Mat
+    End Type SSym_Oper_Type
 
-      Type, public        :: SuperSpaceGroup_Type
-        logical                                          :: standard_setting=.true.  !true or false
-        Character(len=60)                                :: SSG_symbol=" "
-        Character(len=60)                                :: SSG_Bravais=" "
-        Character(len=13)                                :: SSG_nlabel=" "
-        Character(len=20)                                :: Parent_spg=" "
-        Character(len=80)                                :: trn_from_parent=" "
-        Character(len=80)                                :: trn_to_standard=" "
-        character(len=80)                                :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
-        Character(len=1)                                 :: SPG_Lat="P"   ! Symbol of the lattice
-        integer                                          :: d=1           !(d=1,2,3, ...) number of q-vectors
-        integer                                          :: Parent_num=0  ! Number of the parent Group
-        integer                                          :: Bravais_num=0 ! Number of the Bravais class
-        integer                                          :: Num_Lat=0     ! Number of lattice points in a cell
-        integer                                          :: Num_aLat=0    ! Number of anti-lattice points in a cell
-        integer                                          :: Centred=1     ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-        integer                                          :: NumOps=0      ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
-        integer                                          :: Multip=0      ! General multiplicity
-        real,                allocatable,dimension(:,:)  :: kv            ! k-vectors (3,d)
-        integer,             allocatable,dimension(:)    :: time_rev      ! Time Reversal
-        type(rational),      allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
-        type(rational),      allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
-        type(rational),      allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
-        !type(rational),      allocatable,dimension(:,:,:):: Om            !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
-        type(SSym_Oper_Type),allocatable, dimension(:)   :: SymOp         ! Crystallographic symmetry operators
-        character(len=80),   allocatable,dimension(:)    :: SymopSymb     ! Alphanumeric Symbols for SYMM
-      End Type SuperSpaceGroup_Type
+    Type, public        :: SuperSpaceGroup_Type
+      logical                                          :: standard_setting=.true.  !true or false
+      Character(len=60)                                :: SSG_symbol=" "
+      Character(len=60)                                :: SSG_Bravais=" "
+      Character(len=13)                                :: SSG_nlabel=" "
+      Character(len=20)                                :: Parent_spg=" "
+      Character(len=80)                                :: trn_from_parent=" "
+      Character(len=80)                                :: trn_to_standard=" "
+      character(len=80)                                :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
+      Character(len=1)                                 :: SPG_Lat="P"   ! Symbol of the lattice
+      integer                                          :: d=1           !(d=1,2,3, ...) number of q-vectors
+      integer                                          :: Parent_num=0  ! Number of the parent Group
+      integer                                          :: Bravais_num=0 ! Number of the Bravais class
+      integer                                          :: Num_Lat=0     ! Number of lattice points in a cell
+      integer                                          :: Num_aLat=0    ! Number of anti-lattice points in a cell
+      integer                                          :: Centred=1     ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+      integer                                          :: NumOps=0      ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
+      integer                                          :: Multip=0      ! General multiplicity
+      real,                allocatable,dimension(:,:)  :: kv            ! k-vectors (3,d)
+      integer,             allocatable,dimension(:)    :: time_rev      ! Time Reversal
+      type(rational),      allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
+      type(rational),      allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
+      type(rational),      allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
+      !type(rational),      allocatable,dimension(:,:,:):: Om            !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
+      type(SSym_Oper_Type),allocatable, dimension(:)   :: SymOp         ! Crystallographic symmetry operators
+      character(len=80),   allocatable,dimension(:)    :: SymopSymb     ! Alphanumeric Symbols for SYMM
+    End Type SuperSpaceGroup_Type
 
-      logical, public :: Err_ssg
-      character(len=80), public :: Err_ssg_mess
+    !!----
+    !!---- TYPE: sReflect_Type
+    !!----
+    !!---- Type, Public :: sReflect_Type
+    !!----    integer,dimension(:),allocatable :: H       ! H
+    !!----    integer                          :: Mult=0  ! mutiplicity
+    !!----    real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
+    !!----    integer                          :: imag=0  !=0 nuclear reflection, 1=magnetic, 2=both
+    !!---- End Type sReflect_Type
+    !!----
+    !!----
 
-    Contains
+    Type, Public :: sReflect_Type
+       integer,dimension(:),allocatable :: H       ! H
+       integer                          :: Mult=0  ! mutiplicity
+       real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
+    End Type sReflect_Type
+    
+    Type, Public, extends(sReflect_Type) :: sReflection_Type
+       real(kind=cp)        :: Fo    ! Observed Structure Factor
+       real(kind=cp)        :: Fc    ! Calculated Structure Factor
+       real(kind=cp)        :: SFo   ! Sigma of  Fo
+       real(kind=cp)        :: Phase ! Phase in degrees
+       real(kind=cp)        :: A     ! real part of the Structure Factor
+       real(kind=cp)        :: B     ! Imaginary part of the Structure Factor       
+    End Type sReflection_Type
+    
+    Type, Public, extends(sReflection_Type) :: gReflection_Type
+       integer                          :: imag=0        !=0 nuclear reflection, 1=magnetic, 2=both
+       real(kind=cp)                    :: mIvo          ! Observed modulus of the Magnetic Interaction vector
+       real(kind=cp)                    :: sigma_mIvo    ! Sigma of observed modulus of the Magnetic Interaction vector
+       complex(kind=cp),dimension(3)    :: msF           ! Magnetic Structure Factor       
+       complex(kind=cp),dimension(3)    :: mIv           ! Magnetic Interaction vector      
+    End Type gReflection_Type
+    
+    !!----
+    !!---- TYPE :: SREFLECTION_LIST_TYPE
+    !!--..
+    !!---- Type, public :: sReflection_List_Type
+    !!----    integer                                        :: NRef ! Number of Reflections
+    !!----    type(sReflect_Type),allocatable,dimension(:) :: Ref  ! Reflection List
+    !!---- End Type sReflection_List_Type
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Type, public :: sReflection_List_Type
+       integer                                          :: NRef  ! Number of Reflections
+       class(sReflect_Type),allocatable, dimension(:)   :: Ref   ! Reflection List
+    End Type sReflection_List_Type
 
-     !!---- function multiply_ssg_symop(Op1,Op2) result (Op3)
-     !!----
-     !!---- The arguments are two SSym_Oper_Type operators and the
-     !!---- result is another SSym_Oper_Type operator. This implements
-     !!---- the operator (*) between SSym_Oper_Type objects making the
-     !!---- rational multiplications of the D+1 matrices and taking
-     !!---- only positive translations modulo-1.
-     !!----
-     !!----   Created : February 2017 (JRC)
-     function multiply_ssg_symop(Op1,Op2) result (Op3)
+
+    logical, public :: Err_ssg
+    character(len=80), public :: Err_ssg_mess
+
+  Contains
+
+    !!---- function multiply_ssg_symop(Op1,Op2) result (Op3)
+    !!----
+    !!---- The arguments are two SSym_Oper_Type operators and the
+    !!---- result is another SSym_Oper_Type operator. This implements
+    !!---- the operator (*) between SSym_Oper_Type objects making the
+    !!---- rational multiplications of the D+1 matrices and taking
+    !!---- only positive translations modulo-1.
+    !!----
+    !!----   Created : February 2017 (JRC)
+    function multiply_ssg_symop(Op1,Op2) result (Op3)
       type(SSym_Oper_Type), intent(in) :: Op1,Op2
       type(SSym_Oper_Type)             :: Op3
       integer :: n,d,i
@@ -78,9 +131,38 @@
       Op3%Mat=matmul(Op1%Mat,Op2%Mat)
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
        do i=1,d
-        if(Op3%Mat(i,n) < 0//1) Op3%Mat(i,n) = Op3%Mat(i,n) + 1
+       	 do
+            if(Op3%Mat(i,n) < 0//1) then
+            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1
+            else
+            	exit
+            end if
+         end do
       end do
     end function multiply_ssg_symop
+
+    !Pure Subroutine reduced_translation(Mat)
+    !	type(rational), dimension(:,:), intent( in out) :: Mat
+    !	integer :: d,i,n
+    !	n=size(Mat,dim=1)
+    !	d=n-1
+    !  do i=1,d
+    !  	 do
+    !       if(Mat(i,n) < 0) then
+    !       	Mat(i,n) = Mat(i,n) + 1
+    !       else
+    !       	exit
+    !       end if
+    !     end do
+    !  	 do
+    !       if(Mat(i,n) > 1) then
+    !       	Mat(i,n) = Mat(i,n) - 1
+    !       else
+    !       	exit
+    !       end if
+    !    end do
+    !  end do
+    !End Subroutine reduced_translation
 
     Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
       integer,                                        intent(in)      :: d,multip
@@ -267,7 +349,7 @@
       character(len=*),                intent(in)  :: Symb
       type(rational),dimension(:,:),   intent(out) :: Mat
       !---- local variables ----!
-      integer :: i,j,k,Dp, d, np,ns, n,m,inv,num,den,ind
+      integer :: i,j,k,Dp, d, np,ns, n,m,inv,num,den,ind,ier
       character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
       character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
       character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
@@ -334,8 +416,12 @@
         return
       end if
 
-      read(unit=pSymb(pos(np)+1:),fmt=*) inv
-      Mat(Dp,Dp)=inv//1
+      read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv
+      if(ier == 0) then
+        Mat(Dp,Dp)=inv//1
+      else
+        Mat(Dp,Dp)=1//1
+      end if
       j=1
       do i=1,d
         split(i)=pSymb(j:pos(i)-1)
@@ -614,6 +700,204 @@
          end do
       end if
     End Subroutine Write_SSG
+    
+    Function H_S(hkl,Cell,nk,kv) result(s)
+    	integer, dimension(:),                  intent(in) :: hkl
+     	type(Crystal_Cell_Type),                intent(in) :: Cell
+    	integer, optional,                      intent(in) :: nk
+    	real(kind=cp),dimension(:,:), optional, intent(in) :: kv
+    	real(kind=cp)   :: s
+    	!--- Local variables ---!
+    	real(kind=cp), dimension(3) :: h 
+    	integer :: i
+    	
+    	h=hkl(1:3)
+    	if(present(nk) .and. present(kv)) then
+    	   do i=1,nk
+    	    	h=h+hkl(3+i)*kv(:,i)
+    	   end do
+    	end if
+      s= 0.5*sqrt( h(1)*h(1)*Cell%GR(1,1) +     h(2)*h(2)*Cell%GR(2,2) + &
+                   h(3)*h(3)*Cell%GR(3,3) + 2.0*h(1)*h(2)*Cell%GR(1,2) + &
+               2.0*h(1)*h(3)*Cell%GR(1,3) + 2.0*h(2)*h(3)*Cell%GR(2,3) )    	
+    End Function H_S
+    
+    !!----
+    !!---- Subroutine  Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex)
+    !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
+    !!----    Type (Magnetic_Space_Group_Type) , intent(in) :: ShubG           !Magnetic Space Group object
+    !!----    real(kind=cp),                     intent(in) :: sintlmax        !Maximum SinTheta/Lambda
+    !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
+    !!----
+    !!----    Calculate unique reflections between two values of
+    !!----    sin_theta/lambda.  The output is not ordered.
+    !!----
+    !!---- Created: March - 2016
+    !!
+    
+    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,SSG,powder)
+       !---- Arguments ----!
+       type (Crystal_Cell_Type),                        intent(in)     :: Cell
+       real(kind=cp),                                   intent(in)     :: sintlmax
+       integer,                                         intent(out)    :: num_ref
+       class (sReflect_Type), dimension(:), allocatable,intent(out)    :: reflex
+       integer,                       optional,         intent(in)     :: nk
+       integer,       dimension(:),   optional,         intent(in)     :: nharm
+       real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
+       type (SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
+       character(len=*),              optional,         intent(in)     :: powder
 
+       !---- Local variables ----!
+       real(kind=cp)         :: sval !,vmin,vmax
+       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
+                                maxpos, mp, iprev,Dp, nf
+       integer, dimension(:),   allocatable :: hh,kk,nulo
+       integer, dimension(:,:), allocatable :: hkl,hklm
+       integer, dimension(:),   allocatable :: indx,ini,fin,itreat
+       real,    dimension(:),   allocatable :: sv,sm
+       logical :: kvect
+
+       Dp=3
+       kvect=present(nk) .and. present(nharm) .and. present(kv)
+       if(kvect) Dp=3+nk             !total dimension of the reciprocal space       
+       hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
+       kmax=nint(Cell%cell(2)*2.0*sintlmax+1.0)
+       lmax=nint(Cell%cell(3)*2.0*sintlmax+1.0)
+       hmin=-hmax; kmin=-kmax; lmin= -lmax
+       maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
+       if(kvect) then
+          do k=1,nk
+            	 maxref=maxref*2*nharm(k)
+          end do
+       end if
+       allocate(hkl(Dp,maxref),indx(maxref),sv(maxref),hh(Dp),kk(Dp),nulo(Dp))
+       nulo=0
+
+       num_ref=0
+       !Generation of fundamental reflections
+       ext_do: do h=hmin,hmax
+          do k=kmin,kmax
+             do l=lmin,lmax
+                hh=0
+                hh(1:3)=[h,k,l]                
+                sval=H_s(hh,Cell)
+                if (sval > sintlmax) cycle                
+                num_ref=num_ref+1
+                if(num_ref > maxref) then
+                   num_ref=maxref
+                   exit ext_do
+                end if
+                sv(num_ref)=sval
+                hkl(:,num_ref)=hh
+             end do
+          end do
+       end do ext_do
+       
+       !Generation of satellites
+       if(kvect) then
+       	 k=0
+       	 do_ex: do
+           k = k + 1
+           if(k > nk) exit do_ex
+            	nf=num_ref
+      	      do i=1,nf
+       	      	 hh=hkl(:,i)
+       	   	 	   do j=1,nharm(k)
+       	   	 	   	 hh(3+k)=j
+                   sval=H_s(hh,Cell,nk,kv)
+                   if (sval > sintlmax) cycle                
+                   num_ref=num_ref+1
+                   if(num_ref > maxref) then
+                      num_ref=maxref
+                      exit do_ex
+                   end if
+                   sv(num_ref)=sval
+                   hkl(:,num_ref)=hh
+       	   	 	   end do
+       	      end do       	  
+         end do do_ex
+       end if
+
+      ! if(present(powder)) call sort(sv,num_ref,indx)
+      !
+      ! allocate(hklm(Dp,num_ref),sm(num_ref),ini(num_ref),fin(num_ref),itreat(num_ref))
+      ! do i=1,num_ref
+      !   j=indx(i)
+      !   hklm(:,i)=hkl(:,j)
+      !   sm(i)=sv(j)
+      ! end do
+      ! deallocate(hkl,sv,indx)
+      ! itreat=0; ini=0; fin=0
+      ! indp=0
+      ! do i=1,num_ref              !Loop over all reflections
+      !   !write(*,"(i6,3i5,i8)") i, hklm(:,i),itreat(i)
+      !   if(itreat(i) == 0) then   !If not yet treated do the following
+      !     hh(:)=hklm(:,i)
+      !     indp=indp+1  !update the number of independent reflections
+      !     itreat(i)=i  !Make this reflection treated
+      !     ini(indp)=i  !put pointers for initial and final equivalent reflections
+      !     fin(indp)=i
+      !     do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
+      !         if(abs(sm(i)-sm(j)) > 0.000001) exit
+      !         kk=hklm(:,j)
+      !         if(hkl_equiv(hh,kk,SSG)) then   ! if  hh eqv kk
+      !           itreat(j) = i                 ! add kk to the list equivalent to i
+      !           fin(indp)=j
+      !         end if
+      !     end do
+      !   end if !itreat
+      ! end do
+      !
+      ! !Selection of the most convenient independent reflections
+      ! allocate(hkl(Dp,indp),sv(indp),indx(indp))
+      ! indx=2 !nuclear and magnetic contribution by default
+      ! do i=1,indp
+      !   maxpos=0
+      !   indj=ini(i)
+      !   iprev=itreat(indj)
+      !   do j=ini(i),fin(i)
+      !     if(iprev /= itreat(j)) cycle
+      !     hh=hklm(:,j)
+      !     mp=count(hh > 0)
+      !     if(mp > maxpos) then
+      !       indj=j
+      !       maxpos=mp
+      !     end if
+      !   end do !j
+      !   hkl(:,i)=hklm(:,indj)
+      !   if(hkl(1,i) < 0) hkl(:,i)=-hkl(:,i)
+      !   sv(i)=sm(indj)
+      ! end do
+      ! !Now apply systematic absences other than lattice type
+      ! num_ref=0
+      ! do i=1,indp
+      !   hh=hkl(:,i)
+      !   if(Hkl_Absent(hh,ShubG)) then
+      !     if(mHKL_Absent(hh,ShubG)) then
+      !       cycle
+      !     else
+      !       indx(i)=1   !pure magnetic
+      !     end if
+      !   else
+      !     if(mHKL_Absent(hh,ShubG)) indx(i)=0  !pure nuclear
+      !   end if
+      !   num_ref=num_ref+1
+      !   hklm(:,num_ref)=hh
+      !   sm(num_ref) = sv(i)
+      ! end do
+       !Final assignments
+       if(allocated(reflex)) deallocate(reflex)
+       allocate(reflex(num_ref))
+       do i=1,num_ref
+         hh=hkl(:,i)
+         reflex(i)%h    = hh
+         reflex(i)%s    = sm(i)
+         !reflex(i)%mult = h_mult(hh,ShubG)
+         !reflex(i)%imag = indx(i)
+       end do
+       return
+    End Subroutine Gen_SReflections
+    
 
   End Module CFML_SuperSpaceGroups
