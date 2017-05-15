@@ -1,7 +1,7 @@
   Module CFML_SuperSpaceGroups
     use CFML_GlobalDeps,       only: cp,tpi
     use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
-    use CFML_Math_General,     only: sort, trace
+    use CFML_Math_General,     only: sort, trace,iminloc
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup,Get_Generators_From_SpGSymbol, &
                                               set_Intersection_SPG, Write_SpaceGroup
@@ -267,16 +267,64 @@
       do i=1,nk
          call K_Star(kv(:,i),SpG,Gk,.true.)
          call Set_Gk(Gk,Gkks(i),.true.)
-         call Write_Spacegroup(Gkks(i),Full=.true.)
+         !call Write_Spacegroup(Gkks(i),Full=.true.)
       end do
       if(nk > 1) then !Determine the intersection of the space groups 
-        call set_Intersection_SPG(nk,Gkks,Gkk)
+        call set_Intersection_SPG(Gkks,Gkk)
       else 
         Gkk=Gkks(1)
       end if
       call Write_Spacegroup(Gkk,Full=.true.)
       
     End Subroutine Set_SSGs_from_Gkk 
+    
+    
+   !Subroutine Set_Intersection_SPGt(SpGs,SpG)      
+   !  Type (Space_Group_Type),dimension(:), intent(in)   :: SpGs
+   !  Type (Space_Group_Type),              intent(out)  :: SpG
+   !  !--- Local Variables ---!
+   !  integer :: i,j,k,ng,ipos,n
+   !  character(len=40),dimension(192) :: gen
+   !  logical,dimension(size(SpGs(:))) :: estak
+   !        
+   !  write(*,"(/a/)") " => entering subroutine Set_Intersection_SPGt "
+   !  ipos=iminloc(SpGs(:)%multip)
+   !  ng=1
+   !  gen(1)="x,y,z"
+   !  n=size(SpGs(:))
+   !  estak=.false.
+   !  estak(ipos)=.true.
+   !  
+   !  write(*,"(3(a,i3))") " => Number of space groups: ",n, "  Position: ",ipos,"  Multiplicity:",SpGs(ipos)%multip
+   !  
+   !  do_ext:do i=2,SpGs(ipos)%multip
+   !    ng=ng+1
+   !    gen(ng)=SpGs(ipos)%SymopSymb(i)
+   !    
+   !    do j=1,n
+   !       if(j == ipos) cycle
+   !       estak(j)=.false.
+   !       do k=2,SpGs(j)%multip
+   !       	 write(*,"(2i4,a,a)") k,ng, "   "//trim(gen(ng))//"   "//trim(SpGs(j)%SymopSymb(k))
+   !         if(trim(SpGs(j)%SymopSymb(k)) == trim(gen(ng))) then
+   !         	 estak(j)=.true.
+   !         	 exit
+   !         end if
+   !       end do          
+   !    end do
+   !    write(*,*) estak
+   !    k=count(estak(1:n))
+   !    if(k /= n) then  
+   !      ng=ng-1
+   !      cycle 
+   !    end if        
+   !    !Passing here means that the operator is common to all space groups
+   !    if(ng > 192) exit
+   !  end do do_ext
+   !  call Set_SpaceGroup(" ",SpG,gen,ng,Mode="GEN")
+   !  
+   !End Subroutine Set_Intersection_SPGt 
+    
 
 
     Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)

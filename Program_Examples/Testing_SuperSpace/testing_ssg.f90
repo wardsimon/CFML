@@ -21,11 +21,11 @@
       character(len=60) :: Operator_Symbol
       real, dimension(3,8) :: kv
 
-      call Read_SSG(ok,message)
-      if(.not. ok) then
-        write(*,"(a)") "   !!! "//message//" !!!"
-        stop
-      end if
+      !call Read_SSG(ok,message)
+      !if(.not. ok) then
+      !  write(*,"(a)") "   !!! "//message//" !!!"
+      !  stop
+      !end if
       !!
       !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
       !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl

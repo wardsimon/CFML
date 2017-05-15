@@ -3190,12 +3190,16 @@
        end do
       
        Select Case(k) !check that it is OK for badly generated Hall symbol
-       	 case(1:2)
-       	 	  if(SpaceGroup%NumOps > 1) k=0
-       	 case(3:15)
-       	 	  if(SpaceGroup%NumOps > 2) k=0
-       	 case(16:74)
-       	 	  if(SpaceGroup%NumOps > 4) k=0
+       	 case(1:14)
+       	 	  if(SpaceGroup%NumOps /= 1) k=0
+       	 case(15:162)
+       	 	  if(SpaceGroup%NumOps /= 2) k=0
+       	 case(163:426)
+       	 	  if(SpaceGroup%NumOps /= 4) k=0
+       	 case(427:494)
+       	 	  if(SpaceGroup%NumOps /= 8) k=0
+       	 case(495:503)
+       	 	  if(SpaceGroup%NumOps /= 3) k=0
        End Select
 
        if(hall(1:1) /= "-") hall=" "//hall
@@ -3203,9 +3207,11 @@
        if (k /= 0) then       
           SpaceGroup%NumSpg       = spgr_info(k)%n
           SpaceGroup%Spg_Symb     = spgr_info(k)%hm
-                call get_laue_str(spgr_info(k)%laue,SpaceGroup%Laue)
-                call get_PointGroup_str(spgr_info(k)%pg,SpaceGroup%PG)
-          SpaceGroup%Info         = spgr_info(k)%inf_extra
+          SpaceGroup%hall         = spgr_info(k)%hall
+          call get_laue_str(spgr_info(k)%laue,SpaceGroup%Laue)
+          call get_PointGroup_str(spgr_info(k)%pg,SpaceGroup%PG)
+          SpaceGroup%Info             = spgr_info(k)%inf_extra
+          SpaceGroup%SG_Setting       = "Tabulated Setting"
           SpaceGroup%R_Asym_Unit(1,1) = real(spgr_info(k)%asu(1))/24.0
           SpaceGroup%R_Asym_Unit(2,1) = real(spgr_info(k)%asu(2))/24.0
           SpaceGroup%R_Asym_Unit(3,1) = real(spgr_info(k)%asu(3))/24.0
@@ -3214,7 +3220,8 @@
           SpaceGroup%R_Asym_Unit(3,2) = real(spgr_info(k)%asu(6))/24.0
        else
           SpaceGroup%Spg_Symb     = "Unknown"
-          SpaceGroup%Info         = "User-provided generators "
+          SpaceGroup%Info         = "User-provided generators"
+          SpaceGroup%SG_Setting   = "Non-standard Setting"
        end if
 
        if (present(SpaceH) ) SpaceH=hall
@@ -7968,33 +7975,41 @@
     !!----     
     !!----   Created:  May 2017 (JRC)  
     !!----     
-    Subroutine Set_Intersection_SPG(n,SpGs,SpG)
-      integer,                              intent(in)   :: n
-      Type (Space_Group_Type),dimension(n), intent(out)  :: SpGs
+    Subroutine Set_Intersection_SPG(SpGs,SpG)      
+      Type (Space_Group_Type),dimension(:), intent(in)   :: SpGs
       Type (Space_Group_Type),              intent(out)  :: SpG
       !--- Local Variables ---!
-      integer :: i,j,k,ng,ipos
+      integer :: i,j,k,ng,ipos,n
       character(len=40),dimension(192) :: gen
-      logical :: esta
-      
+      logical,dimension(size(SpGs(:))) :: estak
+            
       ipos=iminloc(SpGs(:)%multip)
       ng=1
       gen(1)="x,y,z"
+      n=size(SpGs(:))
+      estak=.false.
+      estak(ipos)=.true.
       
       do_ext:do i=2,SpGs(ipos)%multip
         ng=ng+1
         gen(ng)=SpGs(ipos)%SymopSymb(i)
-        esta=.false.
+        
         do j=1,n
            if(j == ipos) cycle
+           estak(j)=.false.
            do k=2,SpGs(j)%multip
-             if(SpGs(j)%SymopSymb(k) == gen(ng)) esta=.true.
-           end do
-           if(.not. esta) then  
-             ng=ng-1
-             cycle do_ext
-           end if
+             if(SpGs(j)%SymopSymb(k) == gen(ng)) then
+             	 estak(j)=.true.
+             	 exit
+             end if
+           end do          
         end do
+        
+        k=count(estak(1:n))
+        if(k /= n) then  
+          ng=ng-1
+          cycle 
+        end if        
         !Passing here means that the operator is common to all space groups
         if(ng > 192) exit
       end do do_ext
@@ -8537,7 +8552,7 @@
           SpaceGroup%centre = trim(SpaceGroup%centre)//"  Gen(-1):"//SpaceGroup%SymopSymb(NG+1)
        end if
 
-       !if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
+       if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
 
        !write(*,"(a)") " => Wyckoff information"
 
