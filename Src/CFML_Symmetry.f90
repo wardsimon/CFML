@@ -149,6 +149,7 @@
 !!----       READ_SYMTRANS_CODE
 !!----       READ_XSYM
 !!----       SEARCHOP
+!!----       SET_INTERSECTION_SPG
 !!----       SET_SPACEGROUP
 !!----       SET_SPG_MULT_TABLE
 !!----       SETTING_CHANGE
@@ -180,7 +181,7 @@
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,       only: cp
     Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
-                                     Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default
+                                     Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default,iminloc
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
                                      Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
@@ -212,7 +213,7 @@
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
                Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group, &
-               Get_Generators_From_SpGSymbol
+               Get_Generators_From_SpGSymbol,Set_Intersection_SPG
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -7956,6 +7957,50 @@
 
        return
     End Subroutine Searchop
+    
+    !!----     
+    !!---- Subroutine Set_Intersection_SPG(n,SpGs,SpG)
+    !!----   integer,                              intent(in)   :: n    !number of input space groups
+    !!----   Type (Space_Group_Type),dimension(n), intent(out)  :: SpGs !List of space groups
+    !!----   Type (Space_Group_Type),              intent(out)  :: SpG  !Intersection Space Group
+    !!----     
+    !!----   This subroutine calculate the intersection of the provided space groups  
+    !!----     
+    !!----   Created:  May 2017 (JRC)  
+    !!----     
+    Subroutine Set_Intersection_SPG(n,SpGs,SpG)
+      integer,                              intent(in)   :: n
+      Type (Space_Group_Type),dimension(n), intent(out)  :: SpGs
+      Type (Space_Group_Type),              intent(out)  :: SpG
+      !--- Local Variables ---!
+      integer :: i,j,k,ng,ipos
+      character(len=40),dimension(192) :: gen
+      logical :: esta
+      
+      ipos=iminloc(SpGs(:)%multip)
+      ng=1
+      gen(1)="x,y,z"
+      
+      do_ext:do i=2,SpGs(ipos)%multip
+        ng=ng+1
+        gen(ng)=SpGs(ipos)%SymopSymb(i)
+        esta=.false.
+        do j=1,n
+           if(j == ipos) cycle
+           do k=2,SpGs(j)%multip
+             if(SpGs(j)%SymopSymb(k) == gen(ng)) esta=.true.
+           end do
+           if(.not. esta) then  
+             ng=ng-1
+             cycle do_ext
+           end if
+        end do
+        !Passing here means that the operator is common to all space groups
+        if(ng > 192) exit
+      end do do_ext
+      call Set_SpaceGroup(" ",SpG,gen,ng,Mode="GEN")
+      
+    End Subroutine Set_Intersection_SPG 
 
     !!----
     !!---- Subroutine Set_Spacegroup(Spacegen, Spacegroup, Gen, Ngen, Mode, Force_Hall)
