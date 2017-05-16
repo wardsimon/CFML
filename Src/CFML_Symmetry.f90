@@ -3188,7 +3188,7 @@
              exit
           end if
        end do
-      
+
        Select Case(k) !check that it is OK for badly generated Hall symbol
        	 case(1:14)
        	 	  if(SpaceGroup%NumOps /= 1) k=0
@@ -3203,8 +3203,8 @@
        End Select
 
        if(hall(1:1) /= "-") hall=" "//hall
-       
-       if (k /= 0) then       
+
+       if (k /= 0) then
           SpaceGroup%NumSpg       = spgr_info(k)%n
           SpaceGroup%Spg_Symb     = spgr_info(k)%hm
           SpaceGroup%hall         = spgr_info(k)%hall
@@ -3220,7 +3220,7 @@
           SpaceGroup%R_Asym_Unit(3,2) = real(spgr_info(k)%asu(6))/24.0
        else
           SpaceGroup%Spg_Symb     = "Unknown"
-          SpaceGroup%Info         = "User-provided generators"
+          SpaceGroup%Info         = "Gen."
           SpaceGroup%SG_Setting   = "Non-standard Setting"
        end if
 
@@ -7964,36 +7964,36 @@
 
        return
     End Subroutine Searchop
-    
-    !!----     
+
+    !!----
     !!---- Subroutine Set_Intersection_SPG(n,SpGs,SpG)
     !!----   integer,                              intent(in)   :: n    !number of input space groups
     !!----   Type (Space_Group_Type),dimension(n), intent(out)  :: SpGs !List of space groups
     !!----   Type (Space_Group_Type),              intent(out)  :: SpG  !Intersection Space Group
-    !!----     
-    !!----   This subroutine calculate the intersection of the provided space groups  
-    !!----     
-    !!----   Created:  May 2017 (JRC)  
-    !!----     
-    Subroutine Set_Intersection_SPG(SpGs,SpG)      
+    !!----
+    !!----   This subroutine calculate the intersection of the provided space groups
+    !!----
+    !!----   Created:  May 2017 (JRC)
+    !!----
+    Subroutine Set_Intersection_SPG(SpGs,SpG)
       Type (Space_Group_Type),dimension(:), intent(in)   :: SpGs
       Type (Space_Group_Type),              intent(out)  :: SpG
       !--- Local Variables ---!
       integer :: i,j,k,ng,ipos,n
       character(len=40),dimension(192) :: gen
       logical,dimension(size(SpGs(:))) :: estak
-            
+
       ipos=iminloc(SpGs(:)%multip)
       ng=1
       gen(1)="x,y,z"
       n=size(SpGs(:))
       estak=.false.
       estak(ipos)=.true.
-      
+
       do_ext:do i=2,SpGs(ipos)%multip
         ng=ng+1
         gen(ng)=SpGs(ipos)%SymopSymb(i)
-        
+
         do j=1,n
            if(j == ipos) cycle
            estak(j)=.false.
@@ -8002,20 +8002,19 @@
              	 estak(j)=.true.
              	 exit
              end if
-           end do          
+           end do
         end do
-        
         k=count(estak(1:n))
-        if(k /= n) then  
+        if(k /= n) then
           ng=ng-1
-          cycle 
-        end if        
+          cycle
+        end if
         !Passing here means that the operator is common to all space groups
         if(ng > 192) exit
       end do do_ext
       call Set_SpaceGroup(" ",SpG,gen,ng,Mode="GEN")
-      
-    End Subroutine Set_Intersection_SPG 
+
+    End Subroutine Set_Intersection_SPG
 
     !!----
     !!---- Subroutine Set_Spacegroup(Spacegen, Spacegroup, Gen, Ngen, Mode, Force_Hall)

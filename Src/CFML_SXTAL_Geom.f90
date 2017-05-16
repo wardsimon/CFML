@@ -1300,9 +1300,9 @@
        !--- Local Variables ---!
        real(kind=cp), Dimension(3)  :: h1c,h2c,v1,v2
        real(kind=cp), Dimension(3,3):: trpc,trpo,u
-       
+
        ierr=0
-       !Calculation of the reciprocal components in the cartesian reciprocal axes   
+       !Calculation of the reciprocal components in the cartesian reciprocal axes
        h1c=Matmul(B,h1)
        h2c=Matmul(B,h2)
        v1=h1o

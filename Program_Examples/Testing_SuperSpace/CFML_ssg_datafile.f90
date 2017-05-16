@@ -6,7 +6,7 @@
 
     public  :: Read_SSG, Read_single_SSG
     logical, public            :: ssg_database_allocated=.false.
-    !logical, public            :: Err_ssg_database=.false. 
+    !logical, public            :: Err_ssg_database=.false.
     !character,len(80),public   :: Err_ssg_database_mess
     integer, parameter, public :: m_cen=16, m_ncl=322, m_ngs=16697, m_ops=48, &
                                   m_dim=6, m_cond=50, m_qv=3 !D=3+d (d=3)
@@ -32,7 +32,7 @@
     integer,           dimension(:)       , allocatable :: igroup_nops        !   number of operators
     !   (D+1)x(D+1) augmented matrix for each operator in supercentered setting
     !   common denominator in element (D+1,D+1)
-    integer, dimension(:,:,:,:), allocatable :: igroup_ops 
+    integer, dimension(:,:,:,:), allocatable :: igroup_ops
     integer, dimension(:)      , allocatable :: igroup_nconditions  ! number of reflection conditions
     integer, dimension(:,:,:,:), allocatable :: igroup_condition1   ! matrix representation of righthand side
     integer, dimension(:,:,:)  , allocatable :: igroup_condition2   ! vector representation of lefthand side
@@ -41,61 +41,61 @@
     integer, dimension(:)      , allocatable :: pos_all             !position in the file of all
 
     contains
-      	
+
       Subroutine Allocate_SSG_database()
         if(ssg_database_allocated) return
-        if(.not. allocated(iclass_nmod))        allocate(iclass_nmod (m_ncl))                         ; iclass_nmod=0      
-        if(.not. allocated(iclass_number))      allocate(iclass_number(m_ncl))                        ; iclass_number=0        
+        if(.not. allocated(iclass_nmod))        allocate(iclass_nmod (m_ncl))                         ; iclass_nmod=0
+        if(.not. allocated(iclass_number))      allocate(iclass_number(m_ncl))                        ; iclass_number=0
         if(.not. allocated(iclass_spacegroup))  allocate(iclass_spacegroup(m_ncl))                    ; iclass_spacegroup=0
-        if(.not. allocated(iclass_nstars))      allocate(iclass_nstars(m_ncl))                        ; iclass_nstars=0        
-        if(.not. allocated(iclass_nmodstar))    allocate(iclass_nmodstar(3,m_ncl))                    ; iclass_nmodstar=0    
-        if(.not. allocated(class_nlabel))       allocate(class_nlabel(m_ncl))                         ; class_nlabel=" " 
-        if(.not. allocated(class_label ))       allocate(class_label (m_ncl))                         ; class_label =" "  
-        if(.not. allocated(iclass_qvec ))       allocate(iclass_qvec (3,3,m_qv,m_ncl))                ; iclass_qvec =0    
-        if(.not. allocated(iclass_ncentering))  allocate(iclass_ncentering(m_ncl))                    ; iclass_ncentering=0 
-        if(.not. allocated(iclass_centering ))  allocate(iclass_centering(m_dim+1,m_cen,m_ncl))       ; iclass_centering =0  
-        
-        if(.not. allocated(igroup_number    ))  allocate(igroup_number(m_ngs))                        ; igroup_class=0                 
-        if(.not. allocated(igroup_class     ))  allocate(igroup_class(m_ngs))                         ; igroup_class=0                 
-        if(.not. allocated(igroup_spacegroup))  allocate(igroup_spacegroup(m_ngs))                    ; igroup_spacegroup=0            
-        if(.not. allocated(group_nlabel     ))  allocate(group_nlabel(m_ngs))                         ; group_nlabel=" " 
-        if(.not. allocated(group_label      ))  allocate(group_label(m_ngs))                          ; group_label=" "  
-        if(.not. allocated(igroup_nops      ))  allocate(igroup_nops(m_ngs))                          ; igroup_nops=0      
+        if(.not. allocated(iclass_nstars))      allocate(iclass_nstars(m_ncl))                        ; iclass_nstars=0
+        if(.not. allocated(iclass_nmodstar))    allocate(iclass_nmodstar(3,m_ncl))                    ; iclass_nmodstar=0
+        if(.not. allocated(class_nlabel))       allocate(class_nlabel(m_ncl))                         ; class_nlabel=" "
+        if(.not. allocated(class_label ))       allocate(class_label (m_ncl))                         ; class_label =" "
+        if(.not. allocated(iclass_qvec ))       allocate(iclass_qvec (3,3,m_qv,m_ncl))                ; iclass_qvec =0
+        if(.not. allocated(iclass_ncentering))  allocate(iclass_ncentering(m_ncl))                    ; iclass_ncentering=0
+        if(.not. allocated(iclass_centering ))  allocate(iclass_centering(m_dim+1,m_cen,m_ncl))       ; iclass_centering =0
+
+        if(.not. allocated(igroup_number    ))  allocate(igroup_number(m_ngs))                        ; igroup_class=0
+        if(.not. allocated(igroup_class     ))  allocate(igroup_class(m_ngs))                         ; igroup_class=0
+        if(.not. allocated(igroup_spacegroup))  allocate(igroup_spacegroup(m_ngs))                    ; igroup_spacegroup=0
+        if(.not. allocated(group_nlabel     ))  allocate(group_nlabel(m_ngs))                         ; group_nlabel=" "
+        if(.not. allocated(group_label      ))  allocate(group_label(m_ngs))                          ; group_label=" "
+        if(.not. allocated(igroup_nops      ))  allocate(igroup_nops(m_ngs))                          ; igroup_nops=0
         if(.not. allocated(igroup_ops        )) allocate(igroup_ops(m_dim+1,m_dim+1,m_ops,m_ngs))     ; igroup_ops        =0
-        if(.not. allocated(igroup_nconditions)) allocate(igroup_nconditions(m_ngs))                   ; igroup_nconditions=0  
-        if(.not. allocated(igroup_condition1 )) allocate(igroup_condition1(m_dim,m_dim,m_cond,m_ngs)) ; igroup_condition1 =0  
-        if(.not. allocated(igroup_condition2 )) allocate(igroup_condition2(m_dim+1,m_cond,m_ngs))     ; igroup_condition2 =0  
-        if(.not. allocated(pos_group ))         allocate(pos_group(m_ngs))                            ; pos_group=0       
-        if(.not. allocated(pos_class ))         allocate(pos_class(m_ncl))                            ; pos_class=0             
-        if(.not. allocated(pos_all   ))         allocate(pos_all(m_ncl+m_ngs))                        ; pos_all  =0           
+        if(.not. allocated(igroup_nconditions)) allocate(igroup_nconditions(m_ngs))                   ; igroup_nconditions=0
+        if(.not. allocated(igroup_condition1 )) allocate(igroup_condition1(m_dim,m_dim,m_cond,m_ngs)) ; igroup_condition1 =0
+        if(.not. allocated(igroup_condition2 )) allocate(igroup_condition2(m_dim+1,m_cond,m_ngs))     ; igroup_condition2 =0
+        if(.not. allocated(pos_group ))         allocate(pos_group(m_ngs))                            ; pos_group=0
+        if(.not. allocated(pos_class ))         allocate(pos_class(m_ncl))                            ; pos_class=0
+        if(.not. allocated(pos_all   ))         allocate(pos_all(m_ncl+m_ngs))                        ; pos_all  =0
         ssg_database_allocated=.true.
       End Subroutine Allocate_SSG_database
-      
+
       Subroutine deAllocate_SSG_database()
         if( .not. ssg_database_allocated) return
-        if( allocated(iclass_nmod))        deallocate(iclass_nmod)       
-        if( allocated(iclass_number))      deallocate(iclass_number)     
-        if( allocated(iclass_spacegroup))  deallocate(iclass_spacegroup) 
-        if( allocated(iclass_nstars))      deallocate(iclass_nstars)     
-        if( allocated(iclass_nmodstar))    deallocate(iclass_nmodstar)   
-        if( allocated(class_nlabel))       deallocate(class_nlabel)      
-        if( allocated(class_label ))       deallocate(class_label )      
-        if( allocated(iclass_qvec ))       deallocate(iclass_qvec)       
-        if( allocated(iclass_ncentering))  deallocate(iclass_ncentering) 
-        if( allocated(iclass_centering ))  deallocate(iclass_centering)  
-        if( allocated(igroup_number))      deallocate(igroup_number)      
-        if( allocated(igroup_class))       deallocate(igroup_class)      
-        if( allocated(igroup_spacegroup))  deallocate(igroup_spacegroup) 
-        if( allocated(group_nlabel))       deallocate(group_nlabel)      
-        if( allocated(group_label ))       deallocate(group_label)       
-        if( allocated(igroup_nops ))       deallocate(igroup_nops)       
-        if( allocated(igroup_ops))         deallocate(igroup_ops)        
+        if( allocated(iclass_nmod))        deallocate(iclass_nmod)
+        if( allocated(iclass_number))      deallocate(iclass_number)
+        if( allocated(iclass_spacegroup))  deallocate(iclass_spacegroup)
+        if( allocated(iclass_nstars))      deallocate(iclass_nstars)
+        if( allocated(iclass_nmodstar))    deallocate(iclass_nmodstar)
+        if( allocated(class_nlabel))       deallocate(class_nlabel)
+        if( allocated(class_label ))       deallocate(class_label )
+        if( allocated(iclass_qvec ))       deallocate(iclass_qvec)
+        if( allocated(iclass_ncentering))  deallocate(iclass_ncentering)
+        if( allocated(iclass_centering ))  deallocate(iclass_centering)
+        if( allocated(igroup_number))      deallocate(igroup_number)
+        if( allocated(igroup_class))       deallocate(igroup_class)
+        if( allocated(igroup_spacegroup))  deallocate(igroup_spacegroup)
+        if( allocated(group_nlabel))       deallocate(group_nlabel)
+        if( allocated(group_label ))       deallocate(group_label)
+        if( allocated(igroup_nops ))       deallocate(igroup_nops)
+        if( allocated(igroup_ops))         deallocate(igroup_ops)
         if( allocated(igroup_nconditions)) deallocate(igroup_nconditions)
-        if( allocated(igroup_condition1 )) deallocate(igroup_condition1) 
-        if( allocated(igroup_condition2 )) deallocate(igroup_condition2) 
-        if( allocated(pos_group))          deallocate(pos_group)         
-        if( allocated(pos_class))          deallocate(pos_class)         
-        if( allocated(pos_all  ))          deallocate(pos_all)           
+        if( allocated(igroup_condition1 )) deallocate(igroup_condition1)
+        if( allocated(igroup_condition2 )) deallocate(igroup_condition2)
+        if( allocated(pos_group))          deallocate(pos_group)
+        if( allocated(pos_class))          deallocate(pos_class)
+        if( allocated(pos_all  ))          deallocate(pos_all)
         ssg_database_allocated=.false.
       End Subroutine deAllocate_SSG_database
 
@@ -121,7 +121,7 @@
            ok=.false.
            mess= 'Error opening the database file: '//trim(ssg_file)
            return
-         end if   
+         end if
          L=0
          do i=1,2526
            read(i_db,"(a)") line
@@ -163,7 +163,7 @@
            read(i_db,*)iclass_ncentering(m)
            read(i_db,*)((iclass_centering(i,j,m),i=1,nmod+4),j=1,iclass_ncentering(m))
          end do
- 
+
          ! read number of superspace groups
          read(i_db,*)ngroups
          ! read each superspace group
@@ -251,7 +251,7 @@
          nmod=iclass_nmod(iclass)
          read(i_db,*)group_nlabel(m),group_label(m)
          read(i_db,*)igroup_nops(m)
-         read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))  
+         read(i_db,*)(((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
          call deAllocate_SSG_database()
       End Subroutine Read_single_SSG
 

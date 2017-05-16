@@ -35,14 +35,25 @@
       !close(unit=1)
       !stop
       do
+        !Testing the generation of a superspace group from a space group and propagation vectors
+        write(*,"(a)",advance="no")  " => Enter the space group (number or Hermann-Mauguin symbol): "
+        read(*,"(a)") symb
         write(*,"(a)",advance="no")  " => Enter the number of propagation vectors (nk > 0): "
         read(*,*) nk
         if(nk < 1) exit
   		  do i=1,nk
   		  	write(*,"(a,i2,a)",advance="no") " => Enter propagation vector # ",i," : "
-  		  	read(*,*) kv(:,i) 
+  		  	read(*,*) kv(:,i)
   		  end do
-        
+
+        if(len_trim(symb) == 0) exit
+        call Set_SpaceGroup(symb,SpG)
+        call Write_SpaceGroup(SpG,full=.true.)
+
+        write(*,"(//,a)") "  INTERSECTION SPACE GROUP"
+        write(*,"(a)")    "  ========================"
+        call Set_SSGs_from_Gkk(SpG,nk,kv(:,1:nk))
+
         !Dd=4+nk
         !if(allocated(mat)) deallocate(Mat)
         !allocate(Mat(Dd,Dd))
@@ -73,7 +84,7 @@
         !end do
         !
         !cycle
-        
+
         !write(*,"(//,a)",advance="no") " => Enter the number of the SSG: "
         !read(*,*) m
         !if(m <= 0) exit
@@ -116,7 +127,7 @@
         !!  SSpaceGroup%SymOp(4)%Mat(Dd,Dd) = 1
         !!end if
         !
-        !!Generate subgroups 
+        !!Generate subgroups
         !i1=0; i2=0; i3=0
         !if(SSpaceGroup%Num_Lat > 1) then
         !  i1=SSpaceGroup%NumOps+1
@@ -179,19 +190,9 @@
         !   write(*,*)((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4)
         ! end do
         !end if
-        
-        
-        !Testing the generation of a superspace group from a space group and propagation vectors
-        write(*,"(a)",advance="no")  " => Enter the space group (number or Hermann-Mauguin symbol): "
-        read(*,"(a)") symb
-        if(len_trim(symb) == 0) exit
-        call Set_SpaceGroup(symb,SpG)
-        call Write_SpaceGroup(SpG,full=.true.)
-        
-        write(*,"(//,a)") "  ITERSECTION SPACE GROUP"
-        call Set_SSGs_from_Gkk(SpG,nk,kv(:,1:nk))
-        
-        
+
+
+
       end do
 
     End Program read_ssg_datafile

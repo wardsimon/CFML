@@ -640,25 +640,25 @@
     end function nint_rational
 
 
-    elemental subroutine rational_modulo_lat (r)  
+    elemental subroutine rational_modulo_lat (r)
       type (rational), intent (in out) :: r
-     
-      do 
+
+      do
       	 if(r < 0//1) then
       	 	 r=r+1
       	 else
       	 	 exit
       	 end if
       end do
-      
-      do 
+
+      do
       	 if(r >= 1//1) then
       	 	 r=r-1
       	 else
       	 	 exit
       	 end if
       end do
-            
+
     end subroutine rational_modulo_lat
 
     elemental function rational_modulo (r) result (res)

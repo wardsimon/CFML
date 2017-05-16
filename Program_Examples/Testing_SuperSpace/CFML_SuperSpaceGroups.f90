@@ -79,24 +79,24 @@
        integer                          :: Mult=0  ! mutiplicity
        real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
     End Type sReflect_Type
-    
+
     Type, Public, extends(sReflect_Type) :: sReflection_Type
        real(kind=cp)        :: Fo    ! Observed Structure Factor
        real(kind=cp)        :: Fc    ! Calculated Structure Factor
        real(kind=cp)        :: SFo   ! Sigma of  Fo
        real(kind=cp)        :: Phase ! Phase in degrees
        real(kind=cp)        :: A     ! real part of the Structure Factor
-       real(kind=cp)        :: B     ! Imaginary part of the Structure Factor       
+       real(kind=cp)        :: B     ! Imaginary part of the Structure Factor
     End Type sReflection_Type
-    
+
     Type, Public, extends(sReflection_Type) :: gReflection_Type
        integer                          :: imag=0        !=0 nuclear reflection, 1=magnetic, 2=both
        real(kind=cp)                    :: mIvo          ! Observed modulus of the Magnetic Interaction vector
        real(kind=cp)                    :: sigma_mIvo    ! Sigma of observed modulus of the Magnetic Interaction vector
-       complex(kind=cp),dimension(3)    :: msF           ! Magnetic Structure Factor       
-       complex(kind=cp),dimension(3)    :: mIv           ! Magnetic Interaction vector      
+       complex(kind=cp),dimension(3)    :: msF           ! Magnetic Structure Factor
+       complex(kind=cp),dimension(3)    :: mIv           ! Magnetic Interaction vector
     End Type gReflection_Type
-    
+
     !!----
     !!---- TYPE :: SREFLECTION_LIST_TYPE
     !!--..
@@ -169,9 +169,9 @@
         end do
       end do
     End Subroutine reduced_translation
-    
-    
-    
+
+
+
 
     Subroutine Allocate_SSG_SymmOps(d,multip,SymOp)
       integer,                                        intent(in)      :: d,multip
@@ -246,85 +246,90 @@
       type(Space_Group_Type),                                intent(in)  :: SpG
       integer,                                               intent(in)  :: nk
       real(kind=cp),dimension(:,:),                          intent(in)  :: kv
-     ! type(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out) :: ssg
-     ! integer,                                               intent(out) :: nss
-      !--- Local variables ---!      
+      !type(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out) :: ssg
+      !integer,                                               intent(out) :: nss
+      !--- Local variables ---!
       character(len=132) :: line
       integer :: i,j,k,Dd
-      type(Space_Group_Type),dimension(nk) :: Gkks !extended Little Groups 
+      type(Space_Group_Type),dimension(nk) :: Gkks !extended Little Groups
       type(Space_Group_Type)               :: Gkk  !extended Little Group (Intersection of Litte Groups for all nk)
       type(SuperSpaceGroup_Type)           :: trial_ssg
-      Type (Group_k_Type)                  :: Gk      
+      Type (Group_k_Type)                  :: Gk
       real(kind=cp), dimension(3+nk)       :: tr
       integer,       dimension(3+nk,3+nk)  :: Mat
-      
+
       !Initializing variables
       Err_ssg=.false.
       Err_ssg_mess=" "
       Dd=3+nk+1 !Dimension of the extended matrices of ssg
-      
+
       !Determine the extended little Groups
       do i=1,nk
          call K_Star(kv(:,i),SpG,Gk,.true.)
          call Set_Gk(Gk,Gkks(i),.true.)
-         !call Write_Spacegroup(Gkks(i),Full=.true.)
+         call Write_Spacegroup(Gkks(i),Full=.true.)
       end do
-      if(nk > 1) then !Determine the intersection of the space groups 
-        call set_Intersection_SPG(Gkks,Gkk)
-      else 
+      if(nk > 1) then !Determine the intersection of the space groups
+        call set_Intersection_SPGt(Gkks,Gkk)
+      else
         Gkk=Gkks(1)
       end if
       call Write_Spacegroup(Gkk,Full=.true.)
-      
-    End Subroutine Set_SSGs_from_Gkk 
-    
-    
-   !Subroutine Set_Intersection_SPGt(SpGs,SpG)      
-   !  Type (Space_Group_Type),dimension(:), intent(in)   :: SpGs
-   !  Type (Space_Group_Type),              intent(out)  :: SpG
-   !  !--- Local Variables ---!
-   !  integer :: i,j,k,ng,ipos,n
-   !  character(len=40),dimension(192) :: gen
-   !  logical,dimension(size(SpGs(:))) :: estak
-   !        
-   !  write(*,"(/a/)") " => entering subroutine Set_Intersection_SPGt "
-   !  ipos=iminloc(SpGs(:)%multip)
-   !  ng=1
-   !  gen(1)="x,y,z"
-   !  n=size(SpGs(:))
-   !  estak=.false.
-   !  estak(ipos)=.true.
-   !  
-   !  write(*,"(3(a,i3))") " => Number of space groups: ",n, "  Position: ",ipos,"  Multiplicity:",SpGs(ipos)%multip
-   !  
-   !  do_ext:do i=2,SpGs(ipos)%multip
-   !    ng=ng+1
-   !    gen(ng)=SpGs(ipos)%SymopSymb(i)
-   !    
-   !    do j=1,n
-   !       if(j == ipos) cycle
-   !       estak(j)=.false.
-   !       do k=2,SpGs(j)%multip
-   !       	 write(*,"(2i4,a,a)") k,ng, "   "//trim(gen(ng))//"   "//trim(SpGs(j)%SymopSymb(k))
-   !         if(trim(SpGs(j)%SymopSymb(k)) == trim(gen(ng))) then
-   !         	 estak(j)=.true.
-   !         	 exit
-   !         end if
-   !       end do          
-   !    end do
-   !    write(*,*) estak
-   !    k=count(estak(1:n))
-   !    if(k /= n) then  
-   !      ng=ng-1
-   !      cycle 
-   !    end if        
-   !    !Passing here means that the operator is common to all space groups
-   !    if(ng > 192) exit
-   !  end do do_ext
-   !  call Set_SpaceGroup(" ",SpG,gen,ng,Mode="GEN")
-   !  
-   !End Subroutine Set_Intersection_SPGt 
-    
+      !Derive possible superspace groups from Gkk
+      !First: colorless groups of type 1
+      !Second: black and white groups of type 3
+      !Third: black and white groups of type 4
+
+    End Subroutine Set_SSGs_from_Gkk
+
+
+    Subroutine Set_Intersection_SPGt(SpGs,SpG)
+      Type (Space_Group_Type),dimension(:), intent(in)   :: SpGs
+      Type (Space_Group_Type),              intent(out)  :: SpG
+      !--- Local Variables ---!
+      integer :: i,j,k,ng,ipos,n
+      character(len=40),dimension(192) :: gen
+      logical,dimension(size(SpGs(:))) :: estak
+
+      write(*,"(/a/)") " => Entering subroutine Set_Intersection_SPGt "
+      ipos=iminloc(SpGs(:)%multip)
+      ng=1
+      gen(1)="x,y,z"
+      n=size(SpGs(:))
+      estak=.false.
+      estak(ipos)=.true.
+
+      write(*,"(3(a,i3))") " => Number of space groups: ",n, "  Position: ",ipos,"  Multiplicity:",SpGs(ipos)%multip
+
+      do_ext:do i=2,SpGs(ipos)%multip
+        ng=ng+1
+        gen(ng)=SpGs(ipos)%SymopSymb(i)
+
+        do j=1,n
+           if(j == ipos) cycle
+           estak(j)=.false.
+           do k=2,SpGs(j)%multip
+           	 write(*,"(2i4,a,a)") k,ng, "   "//trim(gen(ng))//"   "//trim(SpGs(j)%SymopSymb(k))
+             if(trim(SpGs(j)%SymopSymb(k)) == trim(gen(ng))) then
+             	 estak(j)=.true.
+             	 exit
+             end if
+           end do
+        end do
+        write(*,*) estak
+        k=count(estak(1:n))
+        if(k /= n) then
+          write(*,"(a,i3)") "  Operator: "//trim(gen(ng))//"  Discarded  ng=",ng-1
+          ng=ng-1
+          cycle
+        end if
+        !Passing here means that the operator is common to all space groups
+        if(ng > 192) exit
+      end do do_ext
+      call Set_SpaceGroup(" ",SpG,gen,ng,Mode="GEN")
+
+    End Subroutine Set_Intersection_SPGt
+
 
 
     Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
@@ -795,7 +800,7 @@
          end do
       end if
     End Subroutine Write_SSG
-    
+
     Function H_S(hkl,Cell,nk,kv) result(s)
     	integer, dimension(:),                  intent(in) :: hkl
      	type(Crystal_Cell_Type),                intent(in) :: Cell
@@ -803,9 +808,9 @@
     	real(kind=cp),dimension(:,:), optional, intent(in) :: kv
     	real(kind=cp)   :: s
     	!--- Local variables ---!
-    	real(kind=cp), dimension(3) :: h 
+    	real(kind=cp), dimension(3) :: h
     	integer :: i
-    	
+
     	h=hkl(1:3)
     	if(present(nk) .and. present(kv)) then
     	   do i=1,nk
@@ -814,15 +819,15 @@
     	end if
       s= 0.5*sqrt( h(1)*h(1)*Cell%GR(1,1) +     h(2)*h(2)*Cell%GR(2,2) + &
                    h(3)*h(3)*Cell%GR(3,3) + 2.0*h(1)*h(2)*Cell%GR(1,2) + &
-               2.0*h(1)*h(3)*Cell%GR(1,3) + 2.0*h(2)*h(3)*Cell%GR(2,3) )    	
+               2.0*h(1)*h(3)*Cell%GR(1,3) + 2.0*h(2)*h(3)*Cell%GR(2,3) )
     End Function H_S
-    
+
     Function H_Equal(H,K) Result (Info)
        !---- Arguments ----!
        integer, dimension(:), intent(in) :: h,k
        logical                           :: info
        integer :: i
-       
+
        info=.true.
        do i=1,size(h)
          if (h(i) /= k(i)) then
@@ -832,8 +837,8 @@
        end do
 
     End Function H_Equal
-    
-    
+
+
     Function H_Equiv(H,K,SSG,Friedel) Result (Info)
        !---- Arguments ----!
        integer, dimension(:),        intent(in)  :: h,k
@@ -849,7 +854,7 @@
        info=.false.
        nops= SSG%numops
        if(SSG%centred /= 1) nops=nops*2
-       
+
        Dd=size(h)
        do i=1,nops
           Mat=SSG%SymOp(i)%Mat(1:Dd,1:Dd)
@@ -870,7 +875,7 @@
 
        return
     End Function H_Equiv
-    
+
     Function H_Lat_Absent(h,Latt,n) result(info)
        integer,        dimension(:),  intent (in) :: h
        type(rational), dimension(:,:),intent (in) :: Latt
@@ -892,7 +897,7 @@
           exit
        end do
        return
-    End Function H_Lat_Absent    
+    End Function H_Lat_Absent
 
     Function H_Absent_SSG(H,SSG) Result(Info)
        !---- Arguments ----!
@@ -906,7 +911,7 @@
        real(kind=cp)                      :: r1,r2
        Integer,dimension(size(h),size(h)) :: Mat
        real(kind=cp),dimension(size(h))   :: tr
-       
+
        info=.false.
        Dd=size(h)
        do i=1,SSG%multip
@@ -922,8 +927,8 @@
              end if
           end if
        end do
-    End Function H_Absent_SSG    
-         
+    End Function H_Absent_SSG
+
     Function mH_Absent_SSG(H,SSG) Result(Info)
        !---- Arguments ----!
        integer, dimension(:),       intent (in) :: h
@@ -977,7 +982,7 @@
     !!----
     !!---- Created: March - 2016
     !!
-    
+
     Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder)
        !---- Arguments ----!
        type (Crystal_Cell_Type),                        intent(in)     :: Cell
@@ -1004,7 +1009,7 @@
 
        Dd=3
        kvect=present(nk) .and. present(nharm) .and. present(kv)
-       if(kvect) Dd=3+nk             !total dimension of the reciprocal space       
+       if(kvect) Dd=3+nk             !total dimension of the reciprocal space
        hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
        kmax=nint(Cell%cell(2)*2.0*sintlmax+1.0)
        lmax=nint(Cell%cell(3)*2.0*sintlmax+1.0)
@@ -1015,7 +1020,7 @@
             	 maxref=maxref*2*nharm(k)
           end do
           allocate(max_s(nk))
-          if(present(maxsinl)) then 
+          if(present(maxsinl)) then
             max_s=maxsinl
           else
             max_s=sintlmax
@@ -1030,12 +1035,12 @@
           do k=kmin,kmax
              do l=lmin,lmax
                 hh=0
-                hh(1:3)=[h,k,l]                
+                hh(1:3)=[h,k,l]
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
-                if(present(SSG)) then 
-                   if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle   
-                end if            
+                if(present(SSG)) then
+                   if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
+                end if
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
@@ -1046,7 +1051,7 @@
              end do
           end do
        end do ext_do
-       
+
        !Generation of satellites
        if(kvect) then
        	 k=0
@@ -1061,8 +1066,8 @@
        	   	 	     	 hh(3+k)=ia*j
                      sval=H_s(hh,Cell,nk,kv)
                      if (sval > max_s(k)) cycle
-                     if(present(SSG)) then 
-                        if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle   
+                     if(present(SSG)) then
+                        if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
                      end if
                      num_ref=num_ref+1
                      if(num_ref > maxref) then
@@ -1070,15 +1075,15 @@
                         exit do_ex
                      end if
                      sv(num_ref)=sval
-                     hkl(:,num_ref)=hh                     
+                     hkl(:,num_ref)=hh
                    end do  !j
        	   	 	   end do !ia
-       	      end do  !i     	  
+       	      end do  !i
          end do do_ex
        end if
 
        call sort(sv,num_ref,indx)
-      
+
        allocate(hklm(Dd,num_ref-1),sm(num_ref-1),ini(num_ref-1),fin(num_ref-1),itreat(num_ref-1))
        do i=2,num_ref  !Eliminate the reflection 0 0 0 0 0 ...
          j=indx(i)
@@ -1108,7 +1113,7 @@
              end do
            end if !itreat
          end do
-         
+
          !Selection of the most convenient independent reflections
          allocate(hkl(Dd,indp),sv(indp),indx(indp))
          indx=2 !nuclear and magnetic contribution by default
@@ -1158,6 +1163,6 @@
        end do
        return
     End Subroutine Gen_SReflections
-    
+
 
   End Module CFML_SuperSpaceGroups
