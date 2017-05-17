@@ -5656,11 +5656,37 @@
     !!----    real(sp/dp),dimension(:),  intent(   out) :: w  !W(n)
     !!----    real(sp/dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--<<
-    !!----    Given an M�N matrix A ,this routine computes its singular value decomposition,
-    !!----    A = U W VT . The matrix U replaces A on output. The diagonal matrix of
-    !!----    singular values W is output as the N-dimensional vector w. The NxN matrix V
-    !!----    (not the transpose VT )is output as v .
-    !!----    Adapted from Numerical Recipes. Valid for arbitrary real matrices
+    !!--++  Singular Value Decomposition of a matrix:
+    !!--++  Let A be an m x n matrix such that the number of rows m is greater than or equal to the
+    !!--++  number of columns n. Then there exists:
+    !!--++  (i)    an m x n column orthogonal matrix U
+    !!--++  (ii)   an n x n diagonal matrix W, with positive or zero elements (singular values of A), and
+    !!--++  (iii)  an n x n orthogonal matrix V such that: A = U S Vt. This is the Singular Value
+    !!--++         Decomposition (SVD) of A
+    !!--++  For any matrix A the matrix AtA is normal with non-negative eigenvalues. The singular values of A
+    !!--++  are the square roots of the eigenvalues of AtA
+    !!--++  If A is n x n, its inverse is A^-1 = V diag(1/w) Ut
+    !!--++  The condition number of A is the ratio of its largest singular value to its smallest singular value
+    !!--++
+    !!--++  The set of vectors x such that Ax=0 is a linear vector space,called the null space of A.
+    !!--++  If A is invertible, the null space of A is the zero vector
+    !!--++  If A is singular, the null space will contain non-zero vectors
+    !!--++  The dimension of the null space of A is called the nullity of A: n = Rank(A)+Nullity(A)
+    !!--++
+    !!--++  Consider a set of homogeneous equations Ax=0. Any vector x in the null space of A is a solution.
+    !!--++  Hence any column of V whose corresponding singular value is zero is a solution
+    !!--++
+    !!--++  Now consider Ax=b. A solution only exists if b lies in the range of A
+    !!--++  If so, then the set of equations does have a solution. In fact, it has infinitely many solutions
+    !!--++  because if x is a solution and y is in the null space of A, then x+y is also a solution. If we want a
+    !!--++  particular solution, then we might want to pick the solution x with the smallest length |x|^2.
+    !!--++  The solution is x = V diag(1/w) Ut b. Where, for each singular value wi=0, 1/wi is replaced by zero
+    !!--++
+    !!----  Given an m x n matrix A, this subroutine computes its singular value decomposition,
+    !!----  A = U W Vt . The matrix U replaces A on output. The diagonal matrix of
+    !!----  singular values W is output as the n-dimensional vector w. The nxn matrix V
+    !!----  (not the transpose Vt )is output as v .
+    !!----  Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!-->>
     !!----
     !!---- Update: February - 2005
@@ -5673,11 +5699,11 @@
     !!--++    real(dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Given an M x N matrix A ,this routine computes its singular value decomposition,
-    !!--++    A = U  W  VT . The matrix U replaces A on output. The diagonal matrix of
-    !!--++    singular values W is output as the N-dimensional vector w. The NxN matrix V
-    !!--++    (not the transpose VT )is output as v .
-    !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
+    !!----  Given an m x n matrix A, this subroutine computes its singular value decomposition,
+    !!----  A = U W Vt . The matrix U replaces A on output. The diagonal matrix of
+    !!----  singular values W is output as the n-dimensional vector w. The nxn matrix V
+    !!----  (not the transpose Vt )is output as v .
+    !!----  Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -5866,33 +5892,7 @@
     !!--++
     !!--++    (OVERLOADED)
     !!--++
-    !!--++  Singular Value Decomposition of a matrix:
-    !!--++  Let A be an m x n matrix such that the number of rows m is greater than or equal to the number of columns n.
-    !!--++  Then there exists:
-    !!--++  (i)    an m x n column orthogonal matrix U
-    !!--++  (ii)   an n x n diagonal matrix W, with positive or zero elements (singular values of A), and
-    !!--++  (iii)  an n x n orthogonal matrix V such that: A = U S Vt This is the Singular Value Decomposition (SVD) of A
-    !!--++
-    !!--++  For any matrix A the matrix At.A is normal with non-negative eigenvalues. The singular values of A
-    !!--++  are the square roots of the eigenvalues of At.A
-    !!--++  If A is n x n, its inverse is A^-1 = V diag(1/w) Ut
-    !!--++  The condition number of A is the ratio of its largest singular value to its smallest singular value
-    !!--++
-    !!--++  The set of vectors x such that Ax=0 is a linear vector space,called the null space of A.
-    !!--++  If A is invertible, the null space of A is the zero vector
-    !!--++  If A is singular, the null space will contain non-zero vectors
-    !!--++  The dimension of the null space of A is called the nullity of A: n = Rank(A)+Nullity(A)
-    !!--++
-    !!--++  Consider a set of homogeneous equations Ax=0. Any vector x in the null space of A is a solution.
-    !!--++  Hence any column of V whose corresponding singular value is zero is a solution
-    !!--++
-    !!--++  Now consider Ax=b. A solution only exists if b lies in the range of A
-    !!--++  If so, then the set of equations does have a solution. In fact, it has infinitely many
-    !!--++  solutions because if x is a solution and y is in the null space of A, then x+y is also a solution.
-    !!--++  If we want a particular solution, then we might want to pick the solution x with the smallest length
-    !!--++  |x|^2. The solution is x = V diag(1/w) Ut b. Where, for each singular value wi=0, 1/wi is replaced by zero
-    !!--++
-    !!--++  Given an m x n matrix A ,this routine computes its singular value decomposition,
+    !!--++  Given an m x n matrix A, this routine computes its singular value decomposition,
     !!--++  A = U W Vt . The matrix U replaces A on output. The diagonal matrix of
     !!--++  singular values W is output as the n-dimensional vector w. The n X n matrix V
     !!--++  (not the transpose Vt )is output as v.
