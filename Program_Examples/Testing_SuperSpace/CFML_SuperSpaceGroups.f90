@@ -417,7 +417,118 @@
 
     End Subroutine Sylvester_Solver_sp
 
+    Subroutine row_echelon(matrix)
+      real(kind=cp), dimension(:,:), intent(in out) :: matrix
+      !--- Local variables ---!
+      integer :: pivot, n_row, n_column
+      integer :: r, i
+      real(kind=cp), dimension(:), allocatable :: trow
 
+      pivot = 1
+      n_row = size(matrix, 1)
+      n_column = size(matrix, 2)
+
+      allocate(trow(n_column))
+
+      do r = 1, n_row
+         if ( n_column <= pivot ) exit
+         i = r
+         do while ( matrix(i, pivot) == 0 )
+            i = i + 1
+            if ( n_row == i ) then
+               i = r
+               pivot = pivot + 1
+               if ( n_column == pivot ) return
+            end if
+         end do
+         trow = matrix(i, :)
+         matrix(i, :) = matrix(r, :)
+         matrix(r, :) = trow
+         matrix(r, :) = matrix(r, :) / matrix(r, pivot)
+         do i = 1, n_row
+            if ( i /= r ) matrix(i, :) = matrix(i, :) - matrix(r, :) * matrix(i, pivot)
+         end do
+         pivot = pivot + 1
+      end do
+    End Subroutine row_echelon
+
+    Subroutine row_echelon_rational(matrix)
+      type(rational), dimension(:,:), intent(in out) :: matrix
+      !--- Local variables ---!
+      integer :: pivot, n_row, n_column
+      integer :: r, i
+      type(rational), dimension(:), allocatable :: trow
+
+      pivot = 1
+      n_row = size(matrix, 1)
+      n_column = size(matrix, 2)
+
+      allocate(trow(n_column))
+
+      do r = 1, n_row
+         if ( n_column <= pivot ) exit
+         i = r
+         do while ( matrix(i, pivot) == 0//1 )
+            i = i + 1
+            if ( n_row == i ) then
+               i = r
+               pivot = pivot + 1
+               if ( n_column == pivot ) return
+            end if
+         end do
+         trow = matrix(i, :)
+         matrix(i, :) = matrix(r, :)
+         matrix(r, :) = trow
+         matrix(r, :) = matrix(r, :) / matrix(r, pivot)
+         do i = 1, n_row
+            if ( i /= r ) matrix(i, :) = matrix(i, :) - matrix(r, :) * matrix(i, pivot)
+         end do
+         pivot = pivot + 1
+      end do
+    End Subroutine row_echelon
+
+    ! Matrix example (Gaussian elimination). This brings the given mxn matrix A
+    ! into (column) echelon form. The algorithm uses partial pivoting. The
+    ! permutation of the columns is returned in the index array.
+
+    ! Note that this algorithm is prepared to work on transposed matrices, as Pure
+    ! matrices are stored in row-major order. Hence it computes a column echelon
+    ! form. In Pure land this becomes a row echelon form which is what we want.
+
+    Subroutine gauss(m, n, A, index)
+      implicit none
+      value n, m
+      integer i, j, k, p, q, n, m
+      double precision A(m,n), pivot, x, y
+      integer index(n)
+      do i = 1, n
+         index(i) = i
+      end do
+      do i = 1, n
+         ! partial pivoting
+         k = 0; pivot = 0.0
+         do j = i, n
+            x = A(i, index(j))
+            if (abs(x) > abs(pivot)) then
+               k = j; pivot = x
+            end if
+         end do
+         x = pivot
+         if (abs(x) == 0.0) exit ! zero pivot, bail out
+         ! the pivot column
+         p = index(k)
+         if (i /= k) then
+            index(k) = index(i); index(i) = p
+         end if
+         ! normalize the pivot column
+         A(:, p) = A(:, p) / x
+         ! subtract multiples of the pivot column from the remaining columns
+         do k = i+1, n
+            q = index(k); y = A(i, q)
+            A(:, q) = A(:, q) - y*A(:, p)
+         end do
+      end do
+    End Subroutine gauss
     !!---- function multiply_ssg_symop(Op1,Op2) result (Op3)
     !!----
     !!---- The arguments are two SSym_Oper_Type operators and the
