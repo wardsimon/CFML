@@ -1760,7 +1760,7 @@ Contains
       type(Eos_Type), intent(in) :: EoSPar   ! Eos Parameter
 
       !---- Local Variables ----!
-      real(kind=cp)                      :: V,kp
+      real(kind=cp)                      :: V,kp,AK
       real(kind=cp)                      :: Tref,A,B,C,Tn,tt
       real(kind=cp)                      :: delt,delt2
       real(kind=cp), dimension(n_eospar) :: ev
@@ -1813,8 +1813,17 @@ Contains
                 else
                    A=ev(10)*ev(11)/C *(-1.0_cp/(exp(Tn)-1.0_cp) )          ! because when T=0 then 1.0/exp(Tein/T) = 0
                 end if
-                V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*(1.0_cp - kp*(kp+2.0_cp)*A/(kp+1.0_cp))**B)
+              !  V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*(1.0_cp - kp*(kp+2.0_cp)*A/(kp+1.0_cp))**B)
+              AK=1.0_cp - kp*(kp+2.0_cp)*A/(kp+1.0_cp)
+              if(AK < tiny(0._cp))then
+                  V=ev(1)       ! for safe return
+                  err_eos=.true.
+                  err_eos_mess='T exceeds valid limit for Kroll expansion in get_V0_T'
+              else  
+                  V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*AK**B)
+              endif
             endif
+            
          case(5)                    ! Salje, Tref fixed at zero
             A=T/ev(11)
             if (A < 0.001) then
@@ -1860,6 +1869,8 @@ Contains
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
       real(kind=cp)                     :: pa           ! pa=p-pth
+
+      
 
       !> Init
       v=0.0_cp
@@ -1910,18 +1921,21 @@ Contains
 
       !> Analytic solution for Murnaghan:  use this for first guess for other EoS except Tait
       vfactor=(1.0_cp + kp*pa/k0)
-      if (vfactor < 0.0 .and. kp > 0.0)then
-         v=v0        ! safe value for when 1+k0*pa/k0 is negative
+  !  if (vfactor < 0.0 .and. kp > 0.0)then
+      if (vfactor < 0.0)then
+         v=v0        ! safe value for when 1+kp*pa/k0 is negative
       else
          v=v0*(vfactor)**(-1.0_cp/kp)
       end if
 
       !> Cannot do the following if MGD pthermal
       if (eospar%itherm /=7) then
-         if (eospar%imodel ==1) then
+         if (eospar%imodel ==1) then                        
+         !> Exact solution for Murnaghan
             if (eospar%linear) v=v**(1.0_cp/3.0_cp)
             if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
-            if (vfactor < 0.0 .and. kp > 0.0) then
+            !if (vfactor < 0.0 .and. kp > 0.0) then
+            if (vfactor < 0.0) then
                err_eos=.true.
                err_eos_mess='Pressure < -K0/Kp: yields meaningless volumes for Murnaghhan EoS'
             end if
@@ -1958,7 +1972,12 @@ Contains
       !> estimate the step to make in vol to get closer
       k=k0+p*kp                          ! Murn-like guess estimate to avoid recursive call back here when pthermal used
       if (eospar%linear)k=k*3.0_cp       ! The iteration is working with linear quantities
-      step= -1.0_cp*vol*dp1/k            ! by definition of bulk modulus
+      if(abs(k) > abs(dp1/1000.))then
+          step= -1.0_cp*vol*dp1/k            ! by definition of bulk modulus
+      else
+          step = -1.0_cp*vol*dp1/10.        ! trap for k being close to zero, to prevent step becoming NaN
+      endif
+      if(abs(step) < eos%params(1)/1000.)step=eos%params(1)/1000.
 
       nstep=0
       do
@@ -1976,7 +1995,17 @@ Contains
          nstep=nstep+1
 
          !> test for sufficient convergence
-         if (abs(step) < PREC*Vol) exit          ! 1 part in 100,000 in volume
+!         if (abs(step) < PREC*Vol)exit  ! 1 part in 100,000 in volume
+         if(abs(dp2) < abs(prec*vol*k0))exit    ! If dP2 very small, finished 
+         if (abs(step) < PREC*Vol)then  ! 1 part in 100,000 in volume
+            if(abs(abs(dP2)-abs(10.0*step*k0/vol)) > abs(max(0.005,p/1000.)))then
+                err_eos=.true.
+                write(err_eos_mess,'(''Convergence problem in Get_Volume: dP = '',f6.3,''>> K0*dV/V'')')dP2
+            endif
+            exit
+         endif
+         
+                 
 
          !> not converged, so adjust step size
          if (dp1*dp2 < 0.0_cp) then
@@ -1994,7 +2023,10 @@ Contains
       end do
 
       !> now set return value depending on success or not
-      v=vol           ! success
+      v=vol           
+      
+          
+          
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
 
       return
@@ -3790,6 +3822,7 @@ Contains
       parvals(5)=dKdT_cal(p,t,eospar)           ! dK/dT at this P,T
       parvals(6)=alpha_cal(p,t,eospar)          ! 1/V.dV/dT at this T
 
+
       call physical_check(p,t,eospar)           ! produce warnings based on P,T
 
       return
@@ -4661,6 +4694,8 @@ Contains
 
       !> Basic checks
       v=get_volume(p,t,e)
+      if(err_eos)return         ! added 18/05/2017
+      
       if (v < tiny(0.0) ) then
          err_eos=.true.
          write(unit=car, fmt='(2f10.1)') p, t
