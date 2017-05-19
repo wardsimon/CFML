@@ -485,7 +485,7 @@
          end do
          pivot = pivot + 1
       end do
-    End Subroutine row_echelon
+    End Subroutine row_echelon_rational
 
     ! Matrix example (Gaussian elimination). This brings the given mxn matrix A
     ! into (column) echelon form. The algorithm uses partial pivoting. The
@@ -529,6 +529,8 @@
          end do
       end do
     End Subroutine gauss
+
+
     !!---- function multiply_ssg_symop(Op1,Op2) result (Op3)
     !!----
     !!---- The arguments are two SSym_Oper_Type operators and the
