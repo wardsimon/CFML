@@ -71,9 +71,9 @@ Module CFML_EoS
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
-             Init_EoS_Type, Init_Err_EoS, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File, Set_Eos_Names,     &
-             Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File, Write_Eoscal,        &
-             Write_Info_Conlev, Write_Info_EoS
+             Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
+             Set_Eos_Names, Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
+             Write_Eoscal, Write_Info_Conlev, Write_Info_EoS
 
 
    !--------------------!
@@ -1967,7 +1967,11 @@ Contains
       eos%itran=0       ! turn off transition
 
       dp1=p-get_pressure(vol,t,eos)
-      if(err_eos)return
+      if(err_eos)then
+          if(eospar%linear)v=v**(1.0_cp/3.0_cp)           ! to ensure reasonable return value if linear
+          return
+      endif
+      
 
       !> estimate the step to make in vol to get closer
       k=k0+p*kp                          ! Murn-like guess estimate to avoid recursive call back here when pthermal used
@@ -1980,18 +1984,18 @@ Contains
       if(abs(step) < eos%params(1)/1000.)step=eos%params(1)/1000.
 
       nstep=0
-      do
+      iter: do
          !> Trap infinite loops
          if (nstep > 10000)then
             err_eos=.true.
             err_eos_mess='No convergence in Get_Volume'
-            exit
+            exit iter
          endif
 
          !> Increment Volume
          vol=vol+step
          dp2=p-get_pressure(vol,t,eos)
-         if(err_eos)return
+         if(err_eos)exit iter
          nstep=nstep+1
 
          !> test for sufficient convergence
@@ -2002,7 +2006,7 @@ Contains
                 err_eos=.true.
                 write(err_eos_mess,'(''Convergence problem in Get_Volume: dP = '',f6.3,''>> K0*dV/V'')')dP2
             endif
-            exit
+            exit iter
          endif
          
                  
@@ -2020,8 +2024,7 @@ Contains
          end if
 
          dp1=dp2        ! update delta-p values and go back for next cycle
-      end do
-
+      end do iter
       !> now set return value depending on success or not
       v=vol           
       
@@ -4677,10 +4680,10 @@ Contains
    !!--++
    !!--++ SUBROUTINE PHYSICAL_CHECK
    !!--++
-   !!--++ PRIVATE
+   !!--++ 
    !!--++ Check if the parameters have physical sense
    !!--++
-   !!--++ Date: 17/07/2015
+   !!--++ Date: 17/07/2015 modified 22/05/2017
    !!
    Subroutine Physical_Check(P,T,E)
       !---- Arguments ----!
@@ -4694,7 +4697,12 @@ Contains
 
       !> Basic checks
       v=get_volume(p,t,e)
-      if(err_eos)return         ! added 18/05/2017
+      if(err_eos)then         ! added 22/05/2017
+           write(unit=car, fmt='(2f10.1)') p, t
+           car=adjustl(car)
+           err_eos_mess='Volume cannot be calculated at P,T = '//trim(car)
+           return             ! have to return if error, because other tests cannot be done
+      end if
       
       if (v < tiny(0.0) ) then
          err_eos=.true.
