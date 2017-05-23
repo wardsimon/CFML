@@ -2000,7 +2000,7 @@ Contains
 
          !> test for sufficient convergence
 !         if (abs(step) < PREC*Vol)exit  ! 1 part in 100,000 in volume
-         if(abs(dp2) < abs(prec*vol*k0))exit    ! If dP2 very small, finished 
+         if(abs(dp2) < abs(prec*k0))exit    ! If dP2 very small, finished; from dP= -K.dV/V and prec=dV/V 
          if (abs(step) < PREC*Vol)then  ! 1 part in 100,000 in volume
             if(abs(abs(dP2)-abs(10.0*step*k0/vol)) > abs(max(0.005,p/1000.)))then
                 err_eos=.true.
