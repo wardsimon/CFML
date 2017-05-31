@@ -10,6 +10,8 @@ rem
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
+   ifort /c CFML_Rational_Arithmetic_test.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Matrix_Mod.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c CFML_ssg_datafile.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c CFML_SuperSpaceGroups.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c testing_ssg.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
@@ -18,6 +20,8 @@ rem ****---- Intel Compiler ----****
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c CFML_Rational_Arithmetic_test.f90   -I../../GFortran/LibC
+   gfortran -c Matrix_Mod.f90   -I../../GFortran/LibC
    gfortran -c CFML_ssg_datafile.f90   -I../../GFortran/LibC
    gfortran -c CFML_SuperSpaceGroups.f90   -I../../GFortran/LibC
    gfortran -c testing_ssg.f90   -I../../GFortran/LibC
