@@ -5,16 +5,25 @@ rem ****
 :CONT
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTD
    goto END
 rem
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c CFML_Rational_Arithmetic_test.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c Matrix_Mod.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c CFML_ssg_datafile.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c CFML_SuperSpaceGroups.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c testing_ssg.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_Rational_Arithmetic_test.f90 /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c Matrix_Mod.f90                    /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c CFML_ssg_datafile.f90             /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c CFML_SuperSpaceGroups.f90         /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c testing_ssg.f90                   /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
+   ifort /exe:testing_ssg *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   goto END
+:IFORTD
+   ifort /c CFML_Rational_Arithmetic_test.f90 /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Matrix_Mod.f90                    /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_ssg_datafile.f90             /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_SuperSpaceGroups.f90         /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c testing_ssg.f90                   /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /exe:testing_ssg *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
    goto END
 rem

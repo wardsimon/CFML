@@ -95,10 +95,13 @@
 
     logical,            public :: Err_Rational=.false.
     character(len=132), public :: Err_Rational_Mess
+    integer(kind=ik),   public :: maximum_denominator=99_ik
 
     interface assignment (=)
       module procedure assign_rational_int
+      module procedure assign_rational_intik
       module procedure assign_int_rational
+      module procedure assign_intik_rational
       module procedure assign_rational_real_cp
       module procedure assign_rational_real_dp
       module procedure assign_real_rational_cp
@@ -108,6 +111,7 @@
     !Constructor of a rational from two integers
     interface operator (//)
       module procedure make_rational
+      module procedure make_rational_int
     end interface
 
     interface operator (+)
@@ -234,6 +238,13 @@
       res = rational (numerator, denominator)
     end function make_rational
 
+    elemental function make_rational_int (numerator, denominator) result (res)
+      integer, intent (in) :: numerator
+      integer, intent (in) :: denominator
+      type (rational) :: res
+      res = rational (int(numerator,kind=ik), int(denominator,kind=ik))
+    end function make_rational_int
+
     pure recursive function gcd (i, j) result (res)
       integer(kind=ik), intent (in) :: i
       integer(kind=ik), intent (in) :: j
@@ -247,8 +258,8 @@
 
     elemental function rational_simplify (r) result (res)
       type (rational), intent (in) :: r
-      type (rational) :: res
-      integer :: g
+      type (rational)              :: res
+      integer (kind=ik) :: g
       g = gcd (r % numerator, r % denominator)
       if(g /= 0) then
         res = (r % numerator / g) // (r % denominator / g)
@@ -257,20 +268,26 @@
       end if
     end function rational_simplify
 
-    pure subroutine assign_rational_int (res, i)
+    pure subroutine assign_rational_intik (res, i)
       type (rational),  intent (out) :: res  !, volatile
       integer(kind=ik), intent (in)  :: i
       res = i // 1_ik
+    end subroutine assign_rational_intik
+    
+    pure subroutine assign_rational_int (res, i)
+      type (rational),  intent (out) :: res  !, volatile
+      integer, intent (in)           :: i
+      res = i // 1 
     end subroutine assign_rational_int
 
     elemental subroutine assign_rational_real_cp (res,xr)
       type (rational), intent(out) :: res  !, volatile
       real(kind=cp),   intent (in) :: xr
-      integer                     :: maxden,ai,t,si
-      real(kind=cp)               :: x,rai,eps !,startx,er1,er2
+      integer(kind=ik)             :: maxden,ai,t,si
+      real(kind=cp)                :: x,rai,eps !,startx,er1,er2
       integer(kind=ik), dimension(0:1,0:1) :: m
 
-      maxden=99; eps=1.0e-6_cp
+      maxden=maximum_denominator; eps=1.0e-6_cp
       m = 0; m(0,0)=1_ik; m(1,1)=1_ik
       si=sign(1.0,xr)
       x=abs(xr)
@@ -302,7 +319,7 @@
     elemental subroutine assign_rational_real_dp (res,xr)
       type (rational), intent(out) :: res
       real(kind=dp),   intent (in) :: xr
-      integer                      :: maxden,ai,t,si
+      integer(kind=ik)             :: maxden,ai,t,si
       real(kind=dp)                :: x,rai,eps
       integer(kind=ik), dimension(0:1,0:1)  :: m
 
@@ -328,9 +345,15 @@
 
     elemental subroutine assign_int_rational (i, res)
       type (rational), intent (in)   :: res  !, volatile
-      integer(kind=ik),intent (out)  :: i
+      integer,         intent (out)  :: i
       i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
     end subroutine assign_int_rational
+    
+    elemental subroutine assign_intik_rational (i, res)
+      type (rational), intent (in)   :: res  !, volatile
+      integer(kind=ik),intent (out)  :: i
+      i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
+    end subroutine assign_intik_rational
 
     elemental subroutine assign_real_rational_cp (x,res)
       type (rational), intent(in)   :: res

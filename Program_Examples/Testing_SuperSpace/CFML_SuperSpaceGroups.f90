@@ -115,8 +115,8 @@
     End Type sReflection_List_Type
 
 
-    logical, public :: Err_ssg
-    character(len=80), public :: Err_ssg_mess
+    logical,            public :: Err_ssg
+    character(len=180), public :: Err_ssg_mess
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
 
   Contains
@@ -137,11 +137,11 @@
       n=size(Op1%Mat,dim=1)
       d=n-1
       Op3%Mat=matmul(Op1%Mat,Op2%Mat)
-      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1)
+      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_ik)
        do i=1,d
        	 do
-            if(Op3%Mat(i,n) < 0//1) then
-            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1
+            if(Op3%Mat(i,n) < 0_ik//1_ik) then
+            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1_ik
             else
             	exit
             end if
@@ -156,15 +156,15 @@
     	d=n-1
       do i=1,d
       	 do
-           if(Mat(i,n) < 0) then
-           	Mat(i,n) = Mat(i,n) + 1
+           if(Mat(i,n) < 0_ik) then
+           	Mat(i,n) = Mat(i,n) + 1_ik
            else
            	exit
            end if
          end do
       	 do
-           if(Mat(i,n) > 1) then
-           	Mat(i,n) = Mat(i,n) - 1
+           if(Mat(i,n) > 1_ik) then
+           	Mat(i,n) = Mat(i,n) - 1_ik
            else
            	exit
            end if
@@ -183,7 +183,7 @@
       Dd=3+d+1
       do i=1,multip
         allocate(SymOp(i)%Mat(Dd,Dd))
-        SymOp(i)%Mat=0//1
+        SymOp(i)%Mat=0_ik//1_ik
       end do
     End Subroutine Allocate_SSG_SymmOps
 
@@ -206,6 +206,8 @@
       tb(1,:) = [(i,i=1,max_op)]
       tb(:,1) = [(i,i=1,max_op)]
       nt=ngen
+      Err_ssg=.false.
+      Err_ssg_mess=" "
 
       do_ext:do
         n=nt
@@ -216,6 +218,7 @@
             do k=1,nt
               if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) then
                 tb(i,j)=k
+                done(i,j)=.true.
                 cycle do_j
               end if
             end do
@@ -231,10 +234,24 @@
         end do
         if ( n == nt) exit do_ext
       end do do_ext
-      if(any(done(1:nt,1:nt) == .false. ) ) then
+      !do j=1,nt
+      !  do i=1,nt
+      !    if(.not. done(i,j)) then 
+      !       write(*,"(2(a,i4),a)") " Operation: ",i," x ",j," not done!"
+      !       Err_ssg=.true.
+      !       Err_ssg_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
+      !    end if
+      !  end do
+      !end do
+      if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
       	Err_ssg=.true.
       	Err_ssg_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
       end if
+      if(nt == max_op) then
+        Err_ssg=.true.
+      	Err_ssg_mess= "Max_Operations reached! "//trim(Err_ssg_mess)
+      end if
+      
       multip=nt
       if(present(table)) then
         allocate(Table(multip,multip))
@@ -386,7 +403,7 @@
       call Allocate_SSG_SymmOps(ssg%d,ssg%Multip,ssg%SymOp)
       Allocate(ssg%SymopSymb(ssg%Multip))
 
-      ssg%kv=0.0; ssg%Latt_trans=0//1; ssg%aLatt_trans=0//1; ssg%time_rev=1; ssg%Centre_coord=0//1
+      ssg%kv=0.0; ssg%Latt_trans=0_ik//1_ik; ssg%aLatt_trans=0_ik//1_ik; ssg%time_rev=1_ik; ssg%Centre_coord=0_ik//1_ik
       nmod=iclass_nmod(iclass)
       !forma="(a,i3, i4)"
       !write(forma(7:7),"(i1)") Dd
@@ -417,7 +434,7 @@
             ssg%Centre="Centrosymmetric with centre at origin"
           else
             ssg%Centred=0
-            ssg%Centre_coord=ssg%SymOp(i)%Mat(1:D,Dd)/2
+            ssg%Centre_coord=ssg%SymOp(i)%Mat(1:D,Dd)/2_ik
             write(unit=ssg%Centre,fmt="(a)") "Centrosymmetric with centre at : "//print_rational(ssg%Centre_coord)
           end if
           exit
@@ -649,11 +666,11 @@
        do i=1,d
           sym(i)=" "
           do j=1,d
-             if(Mat(i,j) == 1) then
+             if(Mat(i,j) == 1_ik) then
                 sym(i) = trim(sym(i))//"+"//trim(x_typ(j))
-             else if(Mat(i,j) == -1) then
+             else if(Mat(i,j) == -1_ik) then
                 sym(i) =  trim(sym(i))//"-"//trim(x_typ(j))
-             else if(Mat(i,j) /= 0) then
+             else if(Mat(i,j) /= 0_ik) then
                car=adjustl(print_rational(Mat(i,j)))
                k=index(car,"/")
                if(k /= 0) then
@@ -668,12 +685,12 @@
                  car=trim(car)//trim(x_typ(j))
                end if
                !write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
-               if(Mat(i,j) > 0) car="+"//trim(car)
+               if(Mat(i,j) > 0_ik) car="+"//trim(car)
                sym(i)=trim(sym(i))//pack_string(car)
              end if
           end do
           !Write here the translational part for each component
-          if (Mat(i,Dd) /= 0) then
+          if (Mat(i,Dd) /= 0_ik) then
             car=adjustl(print_rational(Mat(i,Dd)))
             if(abc_type) then
               translation=trim(translation)//","//trim(car)

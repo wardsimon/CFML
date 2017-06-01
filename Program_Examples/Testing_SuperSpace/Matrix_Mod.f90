@@ -216,41 +216,51 @@
     subroutine identity_complex(d, identity)                       ! Returns the complex dxd identity matrix
       integer,                             intent(in) :: d         ! Dimension of the identity matrix
       complex(kind=dp),dimension(1:d,1:d),intent(out) :: identity  ! Identity matrix
-      integer :: j, k
-      forall ( j = 1:d, k = 1:d, j /= k ) identity(j,k) = (0.0_sp,0.0_sp)
-      forall ( j = 1:d, k = 1:d, j == k ) identity(j,k) = (1.0_sp,0.0_sp)
+      integer :: i
+      identity = (0.0_sp,0.0_sp)
+      do i=1,d
+        identity(i,i) = (1.0_sp,0.0_sp)
+      end do
     end subroutine identity_complex
 
     subroutine identity_sp(d, identity)
       integer,                            intent(in) :: d         ! Dimension of the identity matrix
       real(kind=sp), dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
-      integer :: j, k
-      forall ( j = 1:d, k = 1:d, j /= k ) identity(j,k) = 0.0_sp
-      forall ( j = 1:d, k = 1:d, j == k ) identity(j,k) = 1.0_sp
+      integer :: i
+      identity = 0.0_sp
+      do i=1,d
+        identity(i,i) = 1.0_sp
+      end do
     end subroutine identity_sp
 
     subroutine identity_dp(d, identity)
       integer,                            intent(in) :: d         ! Dimension of the identity matrix
       real(kind=dp), dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
-      integer :: j, k
-      forall ( j = 1:d, k = 1:d, j /= k ) identity(j,k) = 0.0_dp
-      forall ( j = 1:d, k = 1:d, j == k ) identity(j,k) = 1.0_dp
+      integer :: i
+      identity = 0.0_dp 
+      do i=1,d
+        identity(i,i) = 1.0_dp 
+      end do
     end subroutine identity_dp
 
     subroutine identity_int(d, identity)
       integer,                      intent(in) :: d         ! Dimension of the identity matrix
       integer, dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
-      integer :: j, k
-      forall ( j = 1:d, k = 1:d, j /= k ) identity(j,k) = 0
-      forall ( j = 1:d, k = 1:d, j == k ) identity(j,k) = 1
+      integer :: i
+      identity = 0 
+      do i=1,d
+        identity(i,i) = 1 
+      end do
     end subroutine identity_int
 
     subroutine identity_rational(d, identity)
       integer,                             intent(in) :: d         ! Dimension of the identity matrix
       type(rational), dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
-      integer :: j, k
-      forall ( j = 1:d, k = 1:d, j /= k ) identity(j,k) = 0_ik//1_ik
-      forall ( j = 1:d, k = 1:d, j == k ) identity(j,k) = 1_ik//1_ik
+      integer :: i
+      identity = 0_ik//1_ik 
+      do i=1,d
+        identity(i,i) = 1_ik//1_ik
+      end do
     end subroutine identity_rational
 
     !!Solve the Sylvester square matrix equation AX-XB=C to look for transformation matrices relating a set of Symmetry Operators
