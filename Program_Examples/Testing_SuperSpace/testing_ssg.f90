@@ -141,6 +141,7 @@
         ng=4
         do i=2,SSpaceGroup%numops-1
           spg(i)%SymOp(1)=SSpaceGroup%SymOp(1)
+          
           spg(i)%SymOp(2)=SSpaceGroup%SymOp(i)
           spg(i)%SymOp(3)=SSpaceGroup%SymOp(i+1)
           spg(i)%SymOp(3)%Mat(Dd,Dd)=-1//1
