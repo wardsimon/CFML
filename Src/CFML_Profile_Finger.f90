@@ -1210,20 +1210,20 @@
     !!
     Subroutine Prof_Val( eta, gamma, asym1, asym2, twoth, twoth0, dprdt, dprdg,  &
                          dprde , dprds , dprdd , profval, use_asym, use_hps)
-      real(kind=cp), Intent(In)    :: eta
-      real(kind=cp), Intent(In)    :: gamma
-      real(kind=cp), Intent(In)    :: asym1
-      real(kind=cp), Intent(In)    :: asym2
-      real(kind=cp), Intent(In)    :: twoth
-      real(kind=cp), Intent(In)    :: twoth0
-      real(kind=cp), Intent(Out)   :: dprdt
-      real(kind=cp), Intent(Out)   :: dprdg
-      real(kind=cp), Intent(Out)   :: dprde
-      real(kind=cp), Intent(Out)   :: dprds
-      real(kind=cp), Intent(Out)   :: dprdd
-      real(kind=cp), Intent(Out)   :: profval
-      Logical,       Intent(In)    :: use_asym
-      Logical,       Intent(In)    :: use_hps
+      real(kind=cp),   Intent(In)    :: eta
+      real(kind=cp),   Intent(In)    :: gamma
+      real(kind=cp),   Intent(In)    :: asym1
+      real(kind=cp),   Intent(In)    :: asym2
+      real(kind=cp),   Intent(In)    :: twoth
+      real(kind=cp),   Intent(In)    :: twoth0
+      real(kind=cp),   Intent(Out)   :: dprdt
+      real(kind=cp),   Intent(Out)   :: dprdg
+      real(kind=cp),   Intent(Out)   :: dprde
+      real(kind=cp),   Intent(Out)   :: dprds
+      real(kind=cp),   Intent(Out)   :: dprdd
+      real(kind=cp),   Intent(Out)   :: profval
+      Logical,         Intent(In)    :: use_asym
+      Logical,         Intent(In)    :: use_hps
 
       !---- Local Variables ----!
 
@@ -1254,10 +1254,11 @@
       real(kind=cp) :: sumwg, sumwrg, sumwrdgda ,sumwdgdb , sumwrdgdb
       real(kind=cp) :: sumwgdrdg, sumwgdrde, sumwgdrd2t
       real(kind=cp) :: sumwx
+      real(kind=cp),parameter :: eps_close=0.00001
       logical       :: re_calculate
 
       ! First simple calculation of Pseudo-Voigt if asymmetry is not used
-      if(.not. use_asym) then
+      if(.not. use_asym .or. abs(twoth0-90.0) < 0.4) then
         call Psvoigtian(twoth,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
         profval = tmp
         dprds = 0.0
@@ -1354,7 +1355,7 @@
           dfi_einfl = dfunc_int(einflr,twoth0r)
           normv_analytic = Min(s_l,d_l)/d_l*(pi_over_two - dfi_einfl)
           normv_analytic = normv_analytic + apb*half_over_dl*(dfi_einfl-dfi_emin)   &
-                       -2.0_cp*half_over_dl*(extra_int(einflr)-extra_int(eminr))
+                          -2.0_cp*half_over_dl*(extra_int(einflr)-extra_int(eminr))
           tmp= half_over_dl*(pi - dfi_einfl - dfi_emin)
           tmp1=half_over_dl*(dfi_einfl - dfi_emin)
           If(d_l < s_l) Then
@@ -1403,7 +1404,7 @@
           If (Abs(cosdelta) < 1.0E-15) cosdelta = 1.0E-15
           rcosdelta = Abs(1.0 / cosdelta)
           tmp = cosdelta*cosdelta - cstwoth*cstwoth
-          If (tmp > 0.0) Then
+          If (tmp > eps_close) Then
             tmp1 = Sqrt(tmp)
             f = Abs(cstwoth) / tmp1           !h-function in FCJ
           Else
@@ -1438,15 +1439,27 @@
         End Do  ! loop over left, right side of quadrature
       End Do
 
-      If (abs(sumwg) <= eps) sumwg = 1.0_cp
-      profval = sumwrg / sumwg
-      dprdt = sumwgdrd2t/ sumwg
-      dprdg = sumwgdrdg / sumwg
-      dprde = sumwgdrde / sumwg
+      If (abs(sumwg) <= eps) then
+      	 !sumwg = 1.0_cp
+         profval = 0.0
+         dprdt = 0.0
+         dprdg = 0.0
+         dprde = 0.0
+      else
+         profval = sumwrg / sumwg
+         dprdt = sumwgdrd2t/ sumwg
+         dprdg = sumwgdrdg / sumwg
+         dprde = sumwgdrde / sumwg
+      end if
       !
-      If(normv_analytic <= eps) normv_analytic=1.0_cp
-      dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
-      dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
+      If(normv_analytic <= eps) then
+      	!normv_analytic=1.0_cp
+      	dprdd = 0.0
+      	dprds = 0.0
+      else
+        dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
+        dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
+      end if
 
       If (use_hps .or. asym2 < eps) Then
         dprds = 0.5_cp*(dprdd + dprds)  !S is really D+S
