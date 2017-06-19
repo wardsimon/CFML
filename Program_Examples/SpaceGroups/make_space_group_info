@@ -96,8 +96,8 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'gfortran')
-      INC="-I../../GFortran/LibC"
-      LIB="-L../../GFortran/LibC"
+      INC="-I../../GFortran64/LibC"
+      LIB="-L../../GFortran64/LibC"
       LIBSTATIC="-lcrysfml"
       LIBDYNAMIC="-lcrysfml"
      ;;
