@@ -55,7 +55,7 @@
         if(.not. allocated(iclass_ncentering))  allocate(iclass_ncentering(m_ncl))                    ; iclass_ncentering=0
         if(.not. allocated(iclass_centering ))  allocate(iclass_centering(m_dim+1,m_cen,m_ncl))       ; iclass_centering =0
 
-        if(.not. allocated(igroup_number    ))  allocate(igroup_number(m_ngs))                        ; igroup_class=0
+        if(.not. allocated(igroup_number    ))  allocate(igroup_number(m_ngs))                        ; igroup_number=0
         if(.not. allocated(igroup_class     ))  allocate(igroup_class(m_ngs))                         ; igroup_class=0
         if(.not. allocated(igroup_spacegroup))  allocate(igroup_spacegroup(m_ngs))                    ; igroup_spacegroup=0
         if(.not. allocated(group_nlabel     ))  allocate(group_nlabel(m_ngs))                         ; group_nlabel=" "
