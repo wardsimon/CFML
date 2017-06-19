@@ -95,7 +95,7 @@
 
     logical,            public :: Err_Rational=.false.
     character(len=132), public :: Err_Rational_Mess
-    integer(kind=ik),   public :: maximum_denominator=99_ik
+    integer(kind=ik),   public :: maximum_denominator=999_ik
 
     interface assignment (=)
       module procedure assign_rational_int
@@ -323,7 +323,7 @@
       real(kind=dp)                :: x,rai,eps
       integer(kind=ik), dimension(0:1,0:1)  :: m
 
-      maxden=99; eps=1.0E-8_dp
+      maxden=maximum_denominator; eps=1.0e-8_dp
       m = 0; m(0,0)=1_ik; m(1,1)=1_ik
       si=sign(1.0_dp,xr)
       x=abs(xr)
@@ -715,7 +715,7 @@
       type (rational),  intent (in) :: r
       integer(kind=ik), intent (in) :: i
       type (rational)               :: res
-      res = mod (real(r % numerator)/ real(r % denominator),real(i) )
+      res = mod (real(r % numerator,kind=dp)/ real(r % denominator,kind=dp),real(i,kind=dp) )
     end function rational_mod_int
 
     function rational_dot_product (r1,r2) result (res)
