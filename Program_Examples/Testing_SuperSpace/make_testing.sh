@@ -96,11 +96,19 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'gfortran')
-     
-      INC="-I$CRYSFML/GFortran/LibC"
-      LIB="-L$CRYSFML/GFortran/LibC"
-      LIBSTATIC="-lcrysfml"
-      LIBDYNAMIC="-lcrysfml"
+
+      if [ $DEBUG = "deb" ]
+      then
+        INC="-I$CRYSFML/GFortran64_debug/LibC"
+        LIB="-L$CRYSFML/GFortran64_debug/LibC"
+        LIBSTATIC="-lcrysfml"
+        LIBDYNAMIC="-lcrysfml"
+      else
+        INC="-I$CRYSFML/GFortran64/LibC"
+        LIB="-L$CRYSFML/GFortran64/LibC"
+        LIBSTATIC="-lcrysfml"
+        LIBDYNAMIC="-lcrysfml"
+     fi
      ;;
    'ifort')
       if [ $DEBUG = "deb" ]
@@ -126,9 +134,11 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 CFML_ssg_datafile.f90       $INC
-$COMP $OPT1 CFML_SuperSpaceGroups.f90   $INC
-$COMP $OPT1 testing_ssg.f90             $INC
+$COMP $OPT1 CFML_Rational_Arithmetic_test.f90  $INC
+$COMP $OPT1 Matrix_Mod.f90                     $INC
+$COMP $OPT1 CFML_ssg_datafile.f90              $INC
+$COMP $OPT1 CFML_SuperSpaceGroups.f90          $INC
+$COMP $OPT1 testing_ssg.f90                    $INC
 
 case $COMP
 in
