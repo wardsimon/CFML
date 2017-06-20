@@ -449,7 +449,7 @@
     End Subroutine Calc_BVS
 
     !!----
-    !!---- Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+    !!---- Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp,bvel_map)
     !!----    !---- Arguments ----!
     !!----    type (Atoms_Conf_List_type), intent(in) :: A
     !!----    type (Space_Group_Type),     intent(in) :: SpG
@@ -464,6 +464,7 @@
     !!----    real(kind=cp), optional,     intent(out):: vol
     !!----    real(kind=cp), optional,     intent(out):: emin
     !!----    integer,       optional,     intent(out):: npix
+    !!----    real(kind=cp), optional,  dimension(:,:,:), allocatable, intent(out) :: bvel_map
     !!----
     !!----    Calculate Bond-Valence energy landscape map where the energy at each point of the grid
     !!----    is determined by a species representative defined in atname. The BV-site Energy value
@@ -472,7 +473,7 @@
     !!----
     !!---- Created: January 2015
     !!
-    Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp)
+    Subroutine Calc_Map_BVEL(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp,bvel_map)
        !---- Arguments ----!
        type (Atoms_Conf_List_type), intent(in) :: A
        type (Space_Group_Type),     intent(in) :: SpG
@@ -488,6 +489,7 @@
        real(kind=cp), optional,     intent(out):: emin
        integer,       optional,     intent(out):: npix
        logical,       optional,     intent(in) :: outp
+       real(kind=cp), optional,  dimension(:,:,:), allocatable, intent(out) :: bvel_map
 
        !---- Local variables ----!
        character(len=4)                             :: car,atm
@@ -747,6 +749,10 @@
              write (unit=jbvs,fmt='(10g14.5)') map_bvs
           end if
          close(unit=jbvs)
+       end if
+       if(present(bvel_map)) then
+         allocate(bvel_map(ndimx,ndimy,ndimz))
+         bvel_map=map_bvs
        end if
        call write_grid_VESTA(map_bvs,cell,"Bond Valence Energy Landscape",trim(filecod)//"_bvel","P")
        return

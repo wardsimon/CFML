@@ -25,7 +25,7 @@ Program Test_Percolation
 
   Emin        = Minval(rho)
   rho         = rho - Emin
-  Emin        = 0.
+  Emin        = 0.0
   Eini        = 0.0
   Eend        = 3.0
   dE          = 0.5
@@ -41,10 +41,10 @@ Program Test_Percolation
   Call Percol_Analysis(rho,Emin,Eini,Eend,dE,E_percol)
 
   Do i = 1 , 3
-     If (E_percol(i) > 0.) Then
-        Write(unit=*,fmt="(4x,a,a1,a,f6.2,a3)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
+     If (E_percol(i) > 0.0) Then
+        Write(unit=*,fmt="(tr4,a,a1,a,f6.2,a3)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
      Else
-        Write(unit=*,fmt="(4x,a,a1,a)") "Percolation along ", axis(i), ": No"
+        Write(unit=*,fmt="(tr4,a,a1,a)") "Percolation along ", axis(i), ": No"
      End If
   End Do
   
@@ -54,21 +54,21 @@ Program Test_Percolation
   Do i = 1 , 3
      dE = dE_ini
      If (E_percol(i) > 0.) Then
-        Write(unit=*,fmt="(4x,a,a1)") "axis ", axis(i)
+        Write(unit=*,fmt="(tr4,a,a1)") "axis ", axis(i)
         Eini = E_percol(i) - dE
         dE   = 0.1
         Eend = E_percol(i) + 0.01
-        Write(unit=*,fmt="(6x,a,f4.2,a,f4.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
+        Write(unit=*,fmt="(tr6,a,f4.2,a,f4.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
         Call Percol_Analysis(rho,Emin,Eini,Eend,dE,E_percol_aux,axis=i)
         E_percol(i) = E_percol_aux(i)
-        Write(unit=*,fmt="(8x,a,f6.2,a3)") "Percolation energy: ", E_percol(i), " eV"
+        Write(unit=*,fmt="(tr8,a,f6.2,a3)") "Percolation energy: ", E_percol(i), " eV"
         Eini = E_percol(i) - dE
         dE   = 0.01
         Eend = E_percol(i) + 0.01
-        Write(unit=*,fmt="(6x,a,f4.2,a,f4.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
+        Write(unit=*,fmt="(tr6,a,f4.2,a,f4.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
         Call Percol_Analysis(rho,Emin,Eini,Eend,dE,E_percol_aux,axis=i)
         E_percol(i) = E_percol_aux(i)
-        Write(unit=*,fmt="(8x,a,f6.2,a3,/)") "Percolation energy: ", E_percol(i), " eV"
+        Write(unit=*,fmt="(tr8,a,f6.2,a3,/)") "Percolation energy: ", E_percol(i), " eV"
      End If
   End Do
 

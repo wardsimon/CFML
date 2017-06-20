@@ -29,29 +29,29 @@
 
    Implicit None
 
-    !---- Definitions ----!
+   !---- Definitions ----!
 
-    !!----
-    !!----  TYPE :: NODE
-    !!----
-    !!----  Type :: Node
-    !!----    Integer                     :: nbonds, nbonds_pbc  ! number of bonds of the node, 
-    !!----                                                       ! with and without periodic boundary conditions (pbc)
-    !!----    Integer                     :: Type                ! Type of node
-    !!----                                                         0: inside unit cell
-    !!----                                                         1: on a  face
-    !!----                                                         2: on an edge
-    !!----                                                         3: on a  corner
-    !!----    Integer                     :: state               ! 0: non-visited
-    !!----                                                       ! 1: visited 
-    !!----    Integer                     :: cc, cc_pbc          ! connected component to which the node belongs, 
-    !!----                                                         with and without pbc
-    !!----    Integer, Dimension(12)      :: bond, bond_pbc      ! bonds of the node
-    !!----    Real(kind=cp), Dimension(3) :: xyz, xyz_aux        ! coordinates of the node
-    !!----  End Type Node
-    !!----
-    !!----  Update: July - 2016
-    !!
+   !!----
+   !!----  TYPE :: NODE
+   !!----
+   !!----  Type :: Node
+   !!----    Integer                     :: nbonds, nbonds_pbc  ! number of bonds of the node, 
+   !!----                                                       ! with and without periodic boundary conditions (pbc)
+   !!----    Integer                     :: Type                ! Type of node
+   !!----                                                         0: inside unit cell
+   !!----                                                         1: on a  face
+   !!----                                                         2: on an edge
+   !!----                                                         3: on a  corner
+   !!----    Integer                     :: state               ! 0: non-visited
+   !!----                                                       ! 1: visited 
+   !!----    Integer                     :: cc, cc_pbc          ! connected component to which the node belongs, 
+   !!----                                                         with and without pbc
+   !!----    Integer, Dimension(12)      :: bond, bond_pbc      ! bonds of the node
+   !!----    Real(kind=cp), Dimension(3) :: xyz, xyz_aux        ! coordinates of the node
+   !!----  End Type Node
+   !!----
+   !!----  Update: July - 2016
+   !!
 
    Type, Private :: node
       Integer                     :: nbonds, nbonds_pbc    
@@ -63,30 +63,30 @@
       Real(kind=cp), Dimension(3) :: xyz, xyz_aux
    End Type node
 
-    !!----
-    !!---- NODES
-    !!----     Type (Node), dimension(:), allocatable :: Nodes
-    !!----
-    !!----     Nodes of the graph
-    !!----
-    !!---- Update: July - 2016
-    !!
+   !!----
+   !!---- NODES
+   !!----     Type (Node), dimension(:), allocatable :: Nodes
+   !!----
+   !!----     Nodes of the graph
+   !!----
+   !!---- Update: July - 2016
+   !!
    Type(node), Dimension(:), Allocatable      :: nodes
 
-    !!----
-    !!----  TYPE :: COMPONENT
-    !!----
-    !!----  Type :: Component
-    !!----    Integer                            :: nbonds  ! number of bonds 
-    !!----    Integer                            :: state   ! 0: non-visited
-    !!----                                                  ! 1: visited 
-    !!----    Integer                            :: cc      ! component index
-    !!----    Integer                            :: pbc     ! bonds of the node
-    !!----    Integer, Dimension(:), Allocatable :: bond    ! component-component bonds
-    !!----  End Type Component
-    !!----
-    !!----  Update: July - 2016
-    !!
+   !!----
+   !!----  TYPE :: COMPONENT
+   !!----
+   !!----  Type :: Component
+   !!----    Integer                            :: nbonds  ! number of bonds 
+   !!----    Integer                            :: state   ! 0: non-visited
+   !!----                                                  ! 1: visited 
+   !!----    Integer                            :: cc      ! component index
+   !!----    Integer                            :: pbc     ! bonds of the node
+   !!----    Integer, Dimension(:), Allocatable :: bond    ! component-component bonds
+   !!----  End Type Component
+   !!----
+   !!----  Update: July - 2016
+   !!
    Type, Private :: component
       Integer                            :: nbonds
       Integer                            :: state
@@ -95,14 +95,14 @@
       Integer, Dimension(:), Allocatable :: bond
    End Type component
 
-    !!----
-    !!---- CTS
-    !!----     Type (Component), dimension(:), allocatable :: cts
-    !!----
-    !!----     Connected components of the graph
-    !!----
-    !!---- Update: July - 2016
-    !!
+   !!----
+   !!---- CTS
+   !!----     Type (Component), dimension(:), allocatable :: cts
+   !!----
+   !!----     Connected components of the graph
+   !!----
+   !!---- Update: July - 2016
+   !!
    Type(component), Dimension(:), Allocatable :: cts
 
  Contains
@@ -111,16 +111,16 @@
    !---- Subroutines ----!
    !---------------------!
 
-    !!----
-    !!---- Subroutine Read_BVEL(filnam,Lun,rho)
-    !!----     Character(len=*),                             Intent(in)  :: filnam ! .pgrid filename
-    !!----     Integer,                                      Intent(in)  :: Lun    ! local unit
-    !!----     Real(kind=cp), Dimension(:,:,:), Allocatable, Intent(out) :: rho    ! BVEL data
-    !!----
-    !!----     Subroutine for reading the BVEL from a .pgrid file
-    !!----
-    !!---- Update: July - 2016
-    !!
+   !!----
+   !!---- Subroutine Read_BVEL(filnam,Lun,rho)
+   !!----     Character(len=*),                             Intent(in)  :: filnam ! .pgrid filename
+   !!----     Integer,                                      Intent(in)  :: Lun    ! local unit
+   !!----     Real(kind=cp), Dimension(:,:,:), Allocatable, Intent(out) :: rho    ! BVEL data
+   !!----
+   !!----     Subroutine for reading the BVEL from a .pgrid file
+   !!----
+   !!---- Update: July - 2016
+   !!
    Subroutine Read_BVEL(filnam,lun,rho)
      !---- Arguments ----!
      Character(len=*),                             Intent(in)  :: filnam
@@ -163,7 +163,7 @@
    End Subroutine Read_BVEL
 
    !!----
-   !!---- Subroutine Percol_Analysis(Lun) 
+   !!---- Subroutine Percol_Analysis(Lun,Emin,Eini,Eend,dE,E_percol,axis,Lun) 
    !!----     Real(kind=cp), Dimension(:,:,:), Allocatable, Intent(in)    :: rho      ! 3D map
    !!----     Real(kind=cp),                                Intent(in)    :: Emin     ! Minval of rho
    !!----     Real(kind=cp),                                Intent(in)    :: Eini     ! Initial isosurface value
@@ -219,13 +219,13 @@
 
      If (iprin) Then
         Write(unit=lun,fmt="(/,/,7(a,/))")                                &
-             "            ================================="           , &
-             "            ======== PERCOL_ANALYSIS ========"           , &
-             "            ================================="           , &
-             "       *******************************************     " , &
-             "       * Percolation Analysis from *.pgrid files *     " , &
-             "       *******************************************     " , &
-             "          (JRC - ILL, version: January 2016 )"
+             "              ================================="           , &
+             "              ======== PERCOL_ANALYSIS ========"           , &
+             "              ================================="           , &
+             "       ***********************************************     " , &
+             "       * Percolation Analysis from Energy Landscapes *     " , &
+             "       ***********************************************     " , &
+             "         (NAK-JRC - ILL, version: January 2016 )"
         Write(unit=lun,fmt=*) " "
      End If
 
@@ -279,7 +279,7 @@
         If (iprin) Write(unit=lun,fmt="(10x,a)") 'Computing nodes....'
         
         Do i = 1 , 3
-           !  [1. / real(ngrid(i))] is a measure of the density of points along dimension i
+           !  [1.0/ real(ngrid(i))] is a measure of the density of points along dimension i
            !  drmin will be used to determine when two nodes are equivalent by translation symmetry
            drmin(i) = 0.01 / Real(ngrid(i))
         End Do
@@ -424,8 +424,8 @@
         
         If (iprin) Write(unit=lun,fmt="(8x,a,/)") 'Computing connected components (Depth First Search algorithm)....'
   
-        m          = 0
-        ncc        = 0
+        m   = 0
+        ncc = 0
 
         Do 
            allvisited = .True.

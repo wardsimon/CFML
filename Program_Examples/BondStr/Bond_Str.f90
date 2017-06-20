@@ -21,6 +21,7 @@ Program Bond_Str
    Use CFML_Export_VTK
    use CFML_BVSpar
    use CFML_BVS_Energy_Calc
+   use CFML_Percolation
 
    !---- Variables ----!
    Implicit None
@@ -43,11 +44,15 @@ Program Bond_Str
    integer                         :: ndimx,ndimy,ndimz
 
    logical                         :: esta, arggiven=.false.,sout=.false.,cif=.false.,out_cif=.false.
-   logical                         :: read_bvparm=.false., restr=.false., bvs_calc=.true.
+   logical                         :: read_bvparm=.false., restr=.false., bvs_calc=.true., percolation=.false.
    logical                         :: vdist=.false.,read_bvelparm=.false.,rest_file=.false.
    logical                         :: map_calc=.false., soft=.false., bvel_calc=.false., outp=.false., outf=.false.
    real                            :: ttol=20.0,dmax,dangl, rdmax,ramin
-   real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol,emin
+   real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol 
+   
+   Real(kind=cp) Emin,Eini,Eend,dE,dE_ini
+   Real(kind=cp), Dimension(3) :: E_percol,E_percol_aux
+   Real(kind=cp), Dimension(:,:,:), Allocatable :: bvel_map
 
    ! Arguments on the command line
    lr=0
@@ -255,6 +260,11 @@ Program Bond_Str
             outp=.true.
             if(index(line,"GFOU") /= 0) outf=.true.
          end if
+         
+         if (line(1:11) == "PERCOLATION")  then
+            percolation=.true.
+         end if
+         
          !--- JGP ----!
          if (line(1:4) == "MAP " .or. line(1:4) == "BVEL") then
 
@@ -444,15 +454,28 @@ Program Bond_Str
          write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
          if(delta > 0.01) then
            if(outp) then
-             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf)
+           	 if(percolation) then
+               call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf,bvel_map)
+           	 else
+               call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf)
+             end if
            else
-             call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+           	 if(percolation) then
+               call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,bvel_map=bvel_map)
+           	 else
+               call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+             end if
            end if
            write (unit=lun, fmt='(/,a,f10.4,a)')" => Value of Delta (for volume calculation) :",delta," eV"
            write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
            write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
            write (unit=lun, fmt='(a,f10.4)')    " => Minum Energy (in eV):", emin
            write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
+           
+           if(percolation) then           	
+           	 call Percolation_Calc()
+           end if
+        
          else
            if(outp) then
              call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,outp=outf)
@@ -504,6 +527,57 @@ Program Bond_Str
 
  Contains
 
+   Subroutine Percolation_Calc()
+   	  real :: Eminim
+      Character(len=*), Dimension(3), parameter :: axis=["a","b","c"]
+      bvel_map    = bvel_map - Emin
+      Eminim      = 0.0
+      Eini        = 0.0
+      Eend        = 3.0
+      dE          = 0.5
+      E_percol(:) = -1.
+      
+      ! Percolation analysis
+      
+      Write(unit=lun,fmt="(/,a)") " => Computing first estimation of percolation energies (it can take some minutes) ...."
+      
+      Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol)
+      
+      Do i = 1 , 3
+         If (E_percol(i) > 0.0) Then
+            Write(unit=lun,fmt="(tr4,a,a1,a,f6.2,a3)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
+         Else
+            Write(unit=lun,fmt="(tr4,a,a1,a)") "Percolation along ", axis(i), ": No"
+         End If
+      End Do
+      
+      Write(unit=lun,fmt="(/,a)") " => Refining energies...."
+      
+      dE_ini = dE
+      Do i = 1 , 3
+         dE = dE_ini
+         If (E_percol(i) > 0.0) Then
+            Write(unit=lun,fmt="(tr4,a,a1)") "axis ", axis(i)
+            Eini = E_percol(i) - dE
+            dE   = 0.1
+            Eend = E_percol(i) + 0.01
+            Write(unit=lun,fmt="(tr6,a,f5.2,a,f5.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"           
+            Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol_aux,axis=i)
+            E_percol(i) = E_percol_aux(i)
+            Write(unit=lun,fmt="(tr8,a,f6.2,a3)") "Percolation energy above Emin: ", E_percol(i), " eV"
+            Eini = E_percol(i) - dE
+            dE   = 0.01
+            Eend = E_percol(i) + 0.01
+            Write(unit=lun,fmt="(tr6,a,f5.2,a,f5.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
+            Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol_aux,axis=i)
+            E_percol(i) = E_percol_aux(i)
+            Write(unit=lun,fmt="(tr8,a,f6.2,a3,/)") "Percolation energy: ", E_percol(i), " eV"
+         End If
+      End Do
+   	
+   End Subroutine Percolation_Calc
+   
+   
    Subroutine Write_Vesta_File()
 
       integer                                     :: lun, i, j, n,np, pol,k,cent
