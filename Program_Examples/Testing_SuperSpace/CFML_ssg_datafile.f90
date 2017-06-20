@@ -1,6 +1,7 @@
   Module CFML_ssg_datafile
       ! Read data for (3+d)=D-dimensional superspace groups (d=1,2,3)
       !
+    use CFML_GlobalDeps, only :: OPS, OPS_SEP
     implicit none
     !private
 
@@ -99,12 +100,13 @@
         ssg_database_allocated=.false.
       End Subroutine deAllocate_SSG_database
 
-      Subroutine Read_SSG(ok,mess)
+      Subroutine Read_SSG(database_path,ok,mess)
+      	character(len=*), intent(in)  :: database_path
         logical,          intent(out) :: ok
         character(len=*), intent(out) :: mess
         !
         integer :: i,j,k,m,n,imax,nmod,iclass
-        integer :: i_db, ier,L
+        integer :: i_db, ier,L,n
         character(len=512) :: ssg_file
         character(len=4)   :: line
          !imax=0
@@ -115,7 +117,16 @@
          ok=.true.
          mess=" "
          ! open data file
-         ssg_file='ssg_datafile.txt'
+         n=len_trim(database_path)
+         if(n == 0) then
+         	 ssg_file='ssg_datafile.txt'
+         else
+           if(database_path(n:n) /= OPS_SEP) then
+               ssg_file=trim(database_path)//OPS_SEP//'ssg_datafile.txt'
+           else
+               ssg_file=trim(database_path)//'ssg_datafile.txt'
+           end if
+         end if        
          open(unit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.

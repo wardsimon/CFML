@@ -175,7 +175,7 @@
         !forma="( a8)"
         !write(forma(2:2),"(i1)") Dd
           do j=1,multip
-            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"xyz")
+            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"x1x2x3")
             write(unit=*,fmt="(a,i3,a)") "  Operator # ",j,"  "//trim(Operator_Symbol)
             !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
             !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i
