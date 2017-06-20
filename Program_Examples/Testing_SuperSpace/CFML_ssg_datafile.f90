@@ -1,7 +1,7 @@
   Module CFML_ssg_datafile
       ! Read data for (3+d)=D-dimensional superspace groups (d=1,2,3)
       !
-    use CFML_GlobalDeps, only :: OPS, OPS_SEP
+    use CFML_GlobalDeps, only: OPS, OPS_SEP
     implicit none
     !private
 
@@ -106,7 +106,7 @@
         character(len=*), intent(out) :: mess
         !
         integer :: i,j,k,m,n,imax,nmod,iclass
-        integer :: i_db, ier,L,n
+        integer :: i_db, ier,L
         character(len=512) :: ssg_file
         character(len=4)   :: line
          !imax=0
