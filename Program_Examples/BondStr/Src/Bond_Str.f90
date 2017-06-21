@@ -76,7 +76,7 @@ Program Bond_Str
            "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
            "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
            "    ***********************************************************************" , &
-           "                     (JRC - ILL, version: January 2015 )"
+           "                     (JRC - ILL, version: June 2017 )"
    write(unit=*,fmt=*) " "
    call set_epsg(0.001_cp)  !needed for well controlling the calculation of multiplicities
    if(.not. arggiven) then
@@ -116,7 +116,7 @@ Program Bond_Str
            "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
            "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
            "    ***********************************************************************" , &
-           "                     (JRC - ILL, version: January 2015 )"
+           "                     (JRC - ILL, version: June 2017 )"
    write(unit=lun,fmt="(a,/)") " "
    dmax=3.2
    dangl=0.0
@@ -450,7 +450,7 @@ Program Bond_Str
          end if
 
       else if(bvel_calc) then
-
+         Write(unit=*,fmt="(/,a)") " => Calculation of Bond-Valence Energy Landscape Map (it can take some minutes) ...."
          write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
          if(delta > 0.01) then
            if(outp) then
@@ -539,15 +539,16 @@ Program Bond_Str
       
       ! Percolation analysis
       
+      Write(unit=*,fmt="(/,a)") " => Calculation of percolation energies (it can take some minutes) ...."
       Write(unit=lun,fmt="(/,a)") " => Computing first estimation of percolation energies (it can take some minutes) ...."
       
       Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol)
       
       Do i = 1 , 3
          If (E_percol(i) > 0.0) Then
-            Write(unit=lun,fmt="(tr4,a,a1,a,f6.2,a3)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
+            Write(unit=lun,fmt="(tr4,3a,f6.2,a)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
          Else
-            Write(unit=lun,fmt="(tr4,a,a1,a)") "Percolation along ", axis(i), ": No"
+            Write(unit=lun,fmt="(tr4,3a)") "Percolation along ", axis(i), ": No"
          End If
       End Do
       
@@ -557,21 +558,21 @@ Program Bond_Str
       Do i = 1 , 3
          dE = dE_ini
          If (E_percol(i) > 0.0) Then
-            Write(unit=lun,fmt="(tr4,a,a1)") "axis ", axis(i)
+            Write(unit=lun,fmt="(tr4,2a)") "axis ", axis(i)
             Eini = E_percol(i) - dE
             dE   = 0.1
             Eend = E_percol(i) + 0.01
-            Write(unit=lun,fmt="(tr6,a,f5.2,a,f5.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"           
+            Write(unit=lun,fmt="(tr6,a,2(f5.2,a))") "Searching percolation between ",Eini," and ",Eend," eV"           
             Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol_aux,axis=i)
             E_percol(i) = E_percol_aux(i)
-            Write(unit=lun,fmt="(tr8,a,f6.2,a3)") "Percolation energy above Emin: ", E_percol(i), " eV"
+            Write(unit=lun,fmt="(tr8,a,f6.2,a)") "Percolation energy above Emin: ", E_percol(i), " eV"
             Eini = E_percol(i) - dE
             dE   = 0.01
             Eend = E_percol(i) + 0.01
-            Write(unit=lun,fmt="(tr6,a,f5.2,a,f5.2,a)") "Searching percolation between ",Eini," and ",Eend," eV"
+            Write(unit=lun,fmt="(tr6,a,2(f5.2,a))") "Searching percolation between ",Eini," and ",Eend," eV"
             Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol_aux,axis=i)
             E_percol(i) = E_percol_aux(i)
-            Write(unit=lun,fmt="(tr8,a,f6.2,a3,/)") "Percolation energy: ", E_percol(i), " eV"
+            Write(unit=lun,fmt="(tr8,a,2(f6.2,a),/)") "Percolation energy above Emin: ", E_percol(i), " eV,   Isosurface for VESTA: ", E_percol(i)+Emin," eV"
          End If
       End Do
    	

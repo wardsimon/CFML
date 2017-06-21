@@ -16,7 +16,7 @@ fi
 #
 # BondStr Directory
 #
-cd $CRYSFML/Program_Examples/BondStr
+cd $CRYSFML/Program_Examples/BondStr/Src
 #
 # Compiler Name
 #
@@ -115,7 +115,8 @@ echo " ########################################################"
 echo " #### Bond_Str Program                         (1.0) ####"
 echo " #### JRC - JGP                        CopyLeft-2009 ####"
 echo " ########################################################"
-$COMP $OPT1 Bond_Str.f90  $INC
+$COMP $OPT1  CFML_Percolation.f90 $INC
+$COMP $OPT1  Bond_Str.f90  $INC
 case $COMP
 in
   'af95')
@@ -141,4 +142,5 @@ upx --compress-icons=0 bond_str
 # Purge files
 #
 rm -rf *.o *.mod
+cd $CRYSFML/Program_Examples/BondStr/Scripts/Linux
 #
