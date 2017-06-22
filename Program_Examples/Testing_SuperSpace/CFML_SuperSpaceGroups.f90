@@ -287,6 +287,7 @@
       	Op(k)=gen(i)
       end do
       ngeff=k
+      nt=ngeff
       call Gen_Group(ngeff,Op,nt)
       if(Err_ssg) then
       	write(unit=*,fmt="(a)") " => ERROR !  "//trim(Err_ssg_mess)

@@ -242,6 +242,11 @@
 
         if(allocated(gen)) deallocate(gen)
         allocate(gen(ng))
+        call Allocate_SSG_SymmOps(nk,ng,gen)
+        if(allocated(Matrix)) deallocate(Matrix)
+        allocate(Matrix(Dd,Dd))
+        forma="( a8)"
+        write(forma(2:2),"(i1)") Dd
         do i=1,ng
            write(*,"(a,i2,a)",advance="no")  " => Enter the symbol of the generator #",i," : "
            read(*,"(a)") symb
