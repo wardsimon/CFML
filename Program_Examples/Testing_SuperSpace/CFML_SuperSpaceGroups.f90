@@ -13,7 +13,8 @@
     Implicit None
     private
     public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
-              Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections, Set_SSGs_from_Gkk
+              Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections, Set_SSGs_from_Gkk, &
+              Gen_SSGroup
 
 
     public :: operator (*)
@@ -80,6 +81,7 @@
        integer,dimension(:),allocatable :: H       ! H
        integer                          :: Mult=0  ! mutiplicity
        real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
+       integer                          :: imag=0  !=0 nuclear reflection, 1=magnetic, 2=both
     End Type sReflect_Type
 
     Type, Public, extends(sReflect_Type) :: sReflection_Type
@@ -92,7 +94,6 @@
     End Type sReflection_Type
 
     Type, Public, extends(sReflection_Type) :: gReflection_Type
-       integer                          :: imag=0        !=0 nuclear reflection, 1=magnetic, 2=both
        real(kind=cp)                    :: mIvo          ! Observed modulus of the Magnetic Interaction vector
        real(kind=cp)                    :: sigma_mIvo    ! Sigma of observed modulus of the Magnetic Interaction vector
        complex(kind=cp),dimension(3)    :: msF           ! Magnetic Structure Factor
@@ -118,6 +119,7 @@
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
+    integer, private, parameter :: max_mult=1024
 
   Contains
 
@@ -234,15 +236,6 @@
         end do
         if ( n == nt) exit do_ext
       end do do_ext
-      !do j=1,nt
-      !  do i=1,nt
-      !    if(.not. done(i,j)) then 
-      !       write(*,"(2(a,i4),a)") " Operation: ",i," x ",j," not done!"
-      !       Err_ssg=.true.
-      !       Err_ssg_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
-      !    end if
-      !  end do
-      !end do
       if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
       	Err_ssg=.true.
       	Err_ssg_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
@@ -258,6 +251,128 @@
         Table=tb
       end if
     End Subroutine Gen_Group
+
+    Subroutine Gen_SSGroup(ngen,gen,SSG)
+      integer,                             intent(in)  :: ngen
+      type(SSym_Oper_Type), dimension(:),  intent(in)  :: gen
+      type(SuperSpaceGroup_Type),          intent(out) :: SSG
+      !--- Local variables ---!
+      integer :: i,j,k,n, nt, Dd, Dex, ngeff, nlat,nalat
+      type(SSym_Oper_Type), dimension(max_mult) :: Op
+      type(SSym_Oper_Type) :: Opt
+      type(Rational),dimension(size(gen(1)%Mat,dim=1),size(gen(1)%Mat,dim=2)) :: identity
+      integer, dimension(max_mult) :: ind_lat,ind_alat
+      logical :: esta
+
+      nt=ngen
+      Err_ssg=.false.
+      Err_ssg_mess=" "
+      SSG%standard_setting=.false.
+      Dex=size(gen(1)%Mat,dim=1) 
+      Dd=Dex-1
+      SSG%d= Dex-4
+      call Identity_Matrix(Dex,identity)
+      Op(1)%Mat=identity
+      j=0
+      do i=1,ngen
+      	if(equal_rational_matrix(gen(1)%Mat,identity)) then
+      		j=i
+      		exit
+      	end if
+      end do
+      k=1
+      do i=1,ngen
+      	if(i == j) cycle
+      	k=k+1
+      	Op(k)=gen(i)
+      end do
+      ngeff=k
+      call Gen_Group(ngeff,Op,nt)
+      if(Err_ssg) then
+      	write(unit=*,fmt="(a)") " => ERROR !  "//trim(Err_ssg_mess)
+      	return
+      end if
+
+      if(allocated(SSG%SymOp)) deallocate(SSG%SymOp)
+      allocate(SSG%SymOp(nt))
+      if(allocated(SSG%Centre_coord))  deallocate(SSG%Centre_coord)
+      allocate(SSG%Centre_coord(Dd))
+      if(allocated(SSG%time_rev))  deallocate(SSG%time_rev)
+      allocate(SSG%time_rev(nt))
+      SSG%SymOp(:)=Op(1:nt)
+      SSG%multip=nt
+      do i=1,nt
+      	call Get_SSymSymb_from_Mat(SSG%SymOp(i)%Mat,SSG%SymOpSymb(i),"x1x2x3")
+      end do
+      
+      !Search for an inversion centre
+      j=0
+      do i=2,nt
+      	if(equal_rational_matrix(SSG%SymOp(i)%Mat(1:Dd,1:Dd),-identity(1:Dd,1:Dd))) then
+      		j=i
+      		exit
+      	end if
+      end do
+      SSG%Centre_coord=0_ik//1_ik
+      if( j /= 0) then
+      	k=0
+      	do i=1,Dd
+      		if(SSG%SymOp(i)%Mat(Dex,i) /= 0_ik//1_ik) then
+      			k=i
+      			exit
+      		end if
+      	end do
+      	if(k == 0) then
+      		SSG%Centre="Centric with centre at origin"
+      		SSG%Centred=2
+      	else
+      		SSG%Centre="Centric with centre NOT at origin"
+      		SSG%Centred=0
+      		SSG%Centre_coord(:)=SSG%SymOp(k)%Mat(Dex,1:Dd)/2_ik
+      	end if
+      else
+      	SSG%Centre="Acentric"
+      	SSG%Centred=1
+      end if
+      !if(any())
+      
+      do i=1,nt
+      	SSG%time_rev(i)=SSG%SymOp(i)%Mat(Dex,Dex)
+      end do
+      if(.not. any(SSG%time_rev == -1)) SSG%MagType=1
+      nlat=0
+      nalat=0
+      do i=2,nt
+      	if(equal_rational_matrix(SSG%SymOp(i)%Mat(1:Dd,1:Dd),identity(1:Dd,1:Dd))) then
+      	  if(SSG%SymOp(i)%Mat(Dex,Dex) == 1_ik) then
+      	  	 nlat=nlat+1
+      	  	 ind_lat(nlat)=i
+      	  else
+      	  	 nalat=nalat+1
+      	  	 ind_alat(nalat)=i
+      	  end if
+      	end if
+      end do
+      SSG%Num_Lat=nlat
+      SSG%Num_aLat=nalat
+      if(nalat /= 0) then
+      	 SSG%MagType=4
+      	 allocate(SSG%aLatt_trans(Dd,nalat))
+      	 do i=1,nalat
+      	 	  j=ind_alat(i)
+      	 	  SSG%aLatt_trans(:,i)=SSG%SymOp(j)%Mat(Dex,1:Dd)
+         end do
+      end if
+      if(nlat /= 0) then
+      	 SSG%SPG_Lat="X"
+      	 allocate(SSG%Latt_trans(Dd,nlat))
+      	 do i=1,nlat
+      	 	  j=ind_lat(i)
+      	 	  SSG%Latt_trans(:,i)=SSG%SymOp(j)%Mat(Dex,1:Dd)
+         end do
+      end if
+            
+    End Subroutine Gen_SSGroup
 
     Subroutine Set_SSGs_from_Gkk(SpG,nk,kv)!,ssg,nss)
       type(Space_Group_Type),                                intent(in)  :: SpG
@@ -985,14 +1100,73 @@
            end do
        End Select
     End Function mH_Absent_SSG
+    
+    !!----
+    !!---- Function  H_Mult(H, Spacegroup,Friedel)
+    !!----    integer, dimension(:),    intent(in) :: h
+    !!----    Type (SSpace_Group_Type), intent(in) :: SpaceGroup
+    !!----    Logical,                  intent(in) :: Friedel
+    !!----
+    !!----    Calculate the multiplicity of the reflection
+    !!----
+    !!----    Created: June - 2017
+    !!
+    Function H_Mult(H,Spacegroup,Friedel) Result(N)
+       !---- Arguments ----!
+       integer, dimension(:),       intent (in)  :: h
+       Type (SuperSpaceGroup_Type), intent (in)  :: SpaceGroup
+       Logical,                     intent (in)  :: Friedel
+       integer                                   :: N
+
+       !---- Local Variables ----!
+       logical                                      :: esta
+       integer, dimension(size(h))                  :: k
+       integer, dimension(size(h),size(h))          :: Mat
+       integer                                      :: i,j,ng,Dd
+       integer, dimension(size(h),SpaceGroup%numops):: klist
+
+       ng=SpaceGroup%numops
+       n=1
+       Dd=size(h)
+
+       !if NG = 0 (strange case), skip it, fix by Petr
+       if (ng > 1) then
+           klist(:,1)=h(:)
+
+           do i=2,ng
+           	  Mat=SpaceGroup%SymOp(i)%Mat(1:Dd,1:Dd)
+              k = matmul(h,Mat)
+              esta=.false.
+              do j=1,n
+                 if (h_equal(k,klist(:,j)) .or. h_equal(-k,klist(:,j))) then
+                    esta=.true.
+                    exit
+                 end if
+              end do
+              if (esta) cycle
+              n=n+1
+              klist(:,n) = k
+           end do
+       end if
+       if (Friedel .or. SpaceGroup%centred == 2) then
+           n=n*2
+       end if
+
+       return
+    End Function H_Mult    
 
     !!----
-    !!---- Subroutine  Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex)
-    !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
-    !!----    Type (Magnetic_Space_Group_Type) , intent(in) :: ShubG           !Magnetic Space Group object
-    !!----    real(kind=cp),                     intent(in) :: sintlmax        !Maximum SinTheta/Lambda
-    !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
-    !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
+    !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder)
+    !!----   type (Crystal_Cell_Type),                        intent(in)     :: Cell
+    !!----   real(kind=cp),                                   intent(in)     :: sintlmax
+    !!----   integer,                                         intent(out)    :: num_ref
+    !!----   class (sReflect_Type), dimension(:), allocatable,intent(out)    :: reflex
+    !!----   integer,                       optional,         intent(in)     :: nk
+    !!----   integer,       dimension(:),   optional,         intent(in)     :: nharm
+    !!----   real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
+    !!----   real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
+    !!----   type (SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
+    !!----   character(len=*),              optional,         intent(in)     :: powder
     !!----
     !!----    Calculate unique reflections between two values of
     !!----    sin_theta/lambda.  The output is not ordered.
@@ -1175,8 +1349,8 @@
        do i=1,num_ref
          reflex(i)%h    = hklm(:,i)
          reflex(i)%s    = sm(i)
-         !reflex(i)%mult = h_mult(hh,ShubG)
-         !reflex(i)%imag = indx(i)
+         reflex(i)%mult = h_mult(hh,SSG,.true.)
+         reflex(i)%imag = indx(i)
        end do
        return
     End Subroutine Gen_SReflections

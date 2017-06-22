@@ -4,12 +4,12 @@ program test_reflections
   use CFML_Crystal_Metrics
   use CFML_SuperSpaceGroups
   Use CFML_String_Utilities, only : Pack_String
-  Use CFML_Math_General,     only : invert_matrix
   implicit none
 
   character(len=80)             :: line,fmto,fileout
   type(sReflection_List_Type)   :: ref
   type(Crystal_Cell_Type)       :: cell
+  type(SSpace_Group_Type)       :: SSG
   real(kind=cp), dimension(3)   :: abc,albega
   real(kind=cp), dimension(3,6) :: kv
   real(kind=cp)                 :: sintlmax=0.5
@@ -55,6 +55,13 @@ program test_reflections
   	do i=1,Ref%nref
   		write(i_out,fmto) Ref%ref(i)%h,Ref%ref(i)%s
   	end do
+  	
+  	!Generate now only the equivalent reflections
+  	if(nk /= 0) then
+  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,SSG,powder="powder")
+  	else
+  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,SSG=SSG,powder="powder")
+  	end if
   	
   end do
 

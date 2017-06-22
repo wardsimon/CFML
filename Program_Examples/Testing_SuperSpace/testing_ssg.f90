@@ -15,6 +15,7 @@
       type(SuperSpaceGroup_Type),   dimension(200) :: spg
       !type(Space_Group_Type) :: SpG,SpGk
       type(Group_k_type)     :: Gk
+      type(SSym_Oper_Type), dimension(:), allocatable  :: gen
       type(rational),   dimension(:,:),allocatable :: Mat
       integer,          dimension(:,:),allocatable :: table
       character(len=40),dimension(:,:),allocatable :: matrix
@@ -22,11 +23,11 @@
       real, dimension(3,8) :: kv
       real :: tini,tfin,tpar
 
-      call Read_SSG(" ",ok,message)
-      if(.not. ok) then
-        write(*,"(a)") "   !!! "//message//" !!!"
-        stop
-      end if
+      !call Read_SSG(" ",ok,message)
+      !if(.not. ok) then
+      !  write(*,"(a)") "   !!! "//message//" !!!"
+      !  stop
+      !end if
       !!
       !open(unit=1,file="class+group_pos.txt",status="replace",action="write")
       !write(1,"(a,i6)") "Bravais Classes positions in database, Number of classes ",m_ncl
@@ -36,6 +37,7 @@
       !close(unit=1)
       !stop
       do
+      	
         !Testing the generation of a superspace group from a space group and propagation vectors
         !write(*,"(a)",advance="no")  " => Enter the space group (number or Hermann-Mauguin symbol): "
         !read(*,"(a)") symb
@@ -86,6 +88,11 @@
         !end do
         !
         !cycle
+        
+        !---------------------------------------
+        !Test access using the number of the SSG
+        !---------------------------------------
+        
 
         !write(*,"(//,a)",advance="no") " => Enter the number of the SSG: "
         !read(*,*) m
@@ -198,25 +205,57 @@
         !   write(*,*)((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4)
         ! end do
         !end if
-
+        
+        !----------------------------
         !Test access using the parent
-        write(*,"(//,a)",advance="no") " => Enter the number of the parent space group: "
-        read(*,*) m
-        if(m <= 0) exit
-        write(*,"(//,a)",advance="no") " => Enter the number of modulation vectors (<=3): "
+        !----------------------------
+        
+        !write(*,"(//,a)",advance="no") " => Enter the number of the parent space group: "
+        !read(*,*) m
+        !if(m <= 0) exit
+        !write(*,"(//,a)",advance="no") " => Enter the number of modulation vectors (<=3): "
+        !read(*,*) nk
+        !if(nk < 1) exit
+        !do i=1,m_ngs
+        !	symb=group_nlabel(i)
+        !	j=index(symb,".")
+        !	read(symb(1:j-1),*) k
+        !	if(k /= m) cycle
+        !  iclass=igroup_class(i)
+        !	if(nk /= iclass_nmod(igroup_class(i))) cycle       	
+        !	write(*,"(i6,a)") i, "  "//group_label(i)
+        !end do
+        !cycle
+        
+        !----------------------------
+        !Test of the subroutine Gen_SSGroup(ngen,gen,SSG)
+        !----------------------------
+        
+        
+        write(*,"(a)",advance="no")  " => Enter the number of modulation vectors: " 
         read(*,*) nk
-        if(nk < 1) exit
-        do i=1,m_ngs
-        	symb=group_nlabel(i)
-        	j=index(symb,".")
-        	read(symb(1:j-1),*) k
-        	if(k /= m) cycle
-          iclass=igroup_class(i)
-        	if(nk /= iclass_nmod(igroup_class(i))) cycle       	
-        	write(*,"(i6,a)") i, "  "//group_label(i)
+        Dd=4+nk
+        write(*,"(2(a,i2),a)")  " => Extended Matrices of dimension: ",Dd," corresponding to ",nk," mod. vectors"
+        write(*,"(a)",advance="no")  " => Enter the number of generators: " 
+        read(*,*) ng
+        if(ng == 0) exit        
+
+        if(allocated(gen)) deallocate(gen)
+        allocate(gen(ng))
+        do i=1,ng
+           write(*,"(a,i2,a)",advance="no")  " => Enter the symbol of the generator #",i," : "
+           read(*,"(a)") symb
+           if(len_trim(symb) == 0) exit
+           call Get_Mat_From_SSymSymb(Symb,gen(i)%Mat)
+           matrix=print_rational(gen(i)%Mat)
+           write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
+           do j=1,Dd
+              write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dd)
+           end do
         end do
         
-
+        call Gen_SSGroup(ng,gen,SSpaceGroup)
+        call Write_SSG(SSpaceGroup,full=.true.)
       end do
 
     End Program read_ssg_datafile
