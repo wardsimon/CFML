@@ -188,6 +188,7 @@
 
     interface modulo
       module procedure rational_modulo
+      module procedure rational_modulo_int
     end interface
 
     interface mod
@@ -648,7 +649,7 @@
 
     elemental function rational_int (r) result (res)
       type (rational), intent (in) :: r
-      integer :: res
+      integer(kind=ik) :: res
       res = r % numerator / r % denominator
     end function rational_int
 
@@ -660,8 +661,8 @@
 
     elemental function nint_rational (r) result(res)
       type (rational),  intent (in)  :: r
-      integer                        :: res
-      res = nint(real(r%numerator,kind=dp)/real(r%denominator,kind=dp))
+      integer(kind=ik)               :: res
+      res = nint(real(r%numerator,kind=dp)/real(r%denominator,kind=dp),kind=ik)
     end function nint_rational
 
 
@@ -692,6 +693,15 @@
       res = modulo (r % numerator, r % denominator)
     end function rational_modulo
 
+    elemental function rational_modulo_int (r,i) result (res)
+      type (rational), intent (in) :: r
+      integer(kind=ik),intent(in)  :: i
+      type (rational) :: res
+      real(kind=dp) :: val
+      val = modulo (real(r % numerator,kind=dp)/ real(r % denominator,kind=dp),real(i,kind=dp))
+      res = val
+    end function rational_modulo_int
+
     elemental function rational_mod (r) result (res)
       type (rational), intent (in) :: r
       integer :: res
@@ -715,7 +725,9 @@
       type (rational),  intent (in) :: r
       integer(kind=ik), intent (in) :: i
       type (rational)               :: res
-      res = mod (real(r % numerator,kind=dp)/ real(r % denominator,kind=dp),real(i,kind=dp) )
+      real(kind=dp) :: val
+      val = mod (real(r % numerator,kind=dp)/ real(r % denominator,kind=dp),real(i,kind=dp))
+      res = val
     end function rational_mod_int
 
     function rational_dot_product (r1,r2) result (res)

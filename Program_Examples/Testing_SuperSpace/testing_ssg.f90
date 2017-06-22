@@ -232,7 +232,7 @@
         !----------------------------
         
         
-        write(*,"(a)",advance="no")  " => Enter the number of modulation vectors: " 
+        write(*,"(//,a)",advance="no")  " => Enter the number of modulation vectors: " 
         read(*,*) nk
         Dd=4+nk
         write(*,"(2(a,i2),a)")  " => Extended Matrices of dimension: ",Dd," corresponding to ",nk," mod. vectors"

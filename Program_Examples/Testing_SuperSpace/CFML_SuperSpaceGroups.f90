@@ -137,9 +137,16 @@
       type(SSym_Oper_Type)             :: Op3
       integer :: n,d,i
       n=size(Op1%Mat,dim=1)
+      allocate(Op3%Mat(n,n))  !needed for f95
       d=n-1
-      Op3%Mat=matmul(Op1%Mat,Op2%Mat)
+      Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
+      !write(*,*) Op3%Mat(1:d,n)
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_ik)
+      !call rational_modulo_lat(Op3%Mat(1:d,n))
+      ! do i=1,d
+      ! 	  write(*,*) Op3%Mat(i,n)
+      !  	Op3%Mat(i,n)=mod(Op3%Mat(i,n),1_ik)
+      ! end do
        do i=1,d
        	 do
             if(Op3%Mat(i,n) < 0_ik//1_ik) then
@@ -257,8 +264,8 @@
       type(SSym_Oper_Type), dimension(:),  intent(in)  :: gen
       type(SuperSpaceGroup_Type),          intent(out) :: SSG
       !--- Local variables ---!
-      integer :: i,j,k,n, nt, Dd, Dex, ngeff, nlat,nalat
-      type(SSym_Oper_Type), dimension(max_mult) :: Op
+      integer :: i,j,k,n, nt, Dd, Dex, ngeff, nlat,nalat, d
+      type(SSym_Oper_Type), dimension(:), allocatable :: Op
       type(SSym_Oper_Type) :: Opt
       type(Rational),dimension(size(gen(1)%Mat,dim=1),size(gen(1)%Mat,dim=2)) :: identity
       integer, dimension(max_mult) :: ind_lat,ind_alat
@@ -270,7 +277,9 @@
       SSG%standard_setting=.false.
       Dex=size(gen(1)%Mat,dim=1) 
       Dd=Dex-1
+      d=Dd-3
       SSG%d= Dex-4
+      call Allocate_SSG_SymmOps(d,max_mult,Op)
       call Identity_Matrix(Dex,identity)
       Op(1)%Mat=identity
       j=0
@@ -296,6 +305,8 @@
 
       if(allocated(SSG%SymOp)) deallocate(SSG%SymOp)
       allocate(SSG%SymOp(nt))
+      if(allocated(SSG%SymOpSymb)) deallocate(SSG%SymOpSymb)
+      allocate(SSG%SymOpSymb(nt))
       if(allocated(SSG%Centre_coord))  deallocate(SSG%Centre_coord)
       allocate(SSG%Centre_coord(Dd))
       if(allocated(SSG%time_rev))  deallocate(SSG%time_rev)
@@ -778,7 +789,8 @@
          End Select
        end if
        !---- Main ----!
-       symb=" "; translation=" "
+       symb=" "
+       translation=" "
        do i=1,d
           sym(i)=" "
           do j=1,d
@@ -876,8 +888,9 @@
         write(unit=lun,fmt="(a,a)")         " =>     Transf. from Parent: ", trim(SpaceGroup%trn_from_parent)
         write(unit=lun,fmt="(a,a)")         " =>     Transf. to Standard: ", trim(SpaceGroup%trn_to_standard)
       end if
+      write(unit=lun,fmt="(a,i3)")           " =>           Magnetic Type: ", SpaceGroup%MagType
       write(unit=lun,fmt="(a,a)")           " =>          Centrosymmetry: ", trim(SpaceGroup%Centre)
-      write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
+      write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", "  "//trim(SpaceGroup%SPG_Lat)
 
       write(unit=lun,fmt="(a,i3)")          " => Number of  Parent Group: ", SpaceGroup%Parent_num
       write(unit=lun,fmt="(a,i3)")          " => Number of Bravais Class: ", SpaceGroup%Bravais_num
