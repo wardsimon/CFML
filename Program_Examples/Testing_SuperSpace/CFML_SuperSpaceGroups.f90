@@ -259,10 +259,12 @@
       end if
     End Subroutine Gen_Group
 
-    Subroutine Gen_SSGroup(ngen,gen,SSG)
+    Subroutine Gen_SSGroup(ngen,gen,SSG,x1x2x3_type,table)
       integer,                             intent(in)  :: ngen
       type(SSym_Oper_Type), dimension(:),  intent(in)  :: gen
       type(SuperSpaceGroup_Type),          intent(out) :: SSG
+      character(len=*), optional,          intent(in)  :: x1x2x3_type
+      integer, dimension(:,:), allocatable, optional, intent(out) :: table
       !--- Local variables ---!
       integer :: i,j,k,n, nt, Dd, Dex, ngeff, nlat,nalat, d
       type(SSym_Oper_Type), dimension(:), allocatable :: Op
@@ -297,7 +299,13 @@
       end do
       ngeff=k
       nt=ngeff
-      call Gen_Group(ngeff,Op,nt)
+      
+      if(present(table)) then
+        call Gen_Group(ngeff,Op,nt,table)
+      else
+        call Gen_Group(ngeff,Op,nt)
+      end if
+      
       if(Err_ssg) then
       	write(unit=*,fmt="(a)") " => ERROR !  "//trim(Err_ssg_mess)
       	return
@@ -346,12 +354,7 @@
       	SSG%Centre="Acentric"
       	SSG%Centred=1
       end if
-      !if(any())
-      
-      do i=1,nt
-      	SSG%time_rev(i)=SSG%SymOp(i)%Mat(Dex,Dex)
-      end do
-      if(.not. any(SSG%time_rev == -1)) SSG%MagType=1
+
       nlat=0
       nalat=0
       do i=2,nt
@@ -365,22 +368,35 @@
       	  end if
       	end if
       end do
-      SSG%Num_Lat=nlat
+      SSG%Num_Lat=nlat+1
       SSG%Num_aLat=nalat
+      
+      !Determine the type of magnetic group and select centring translations and anti-translations
+      !if(any()) <- implement any for rational arrays      
+      do i=1,nt
+      	SSG%time_rev(i)=SSG%SymOp(i)%Mat(Dex,Dex)
+      end do
+      if(.not. any(SSG%time_rev == -1)) SSG%MagType=1
+      
       if(nalat /= 0) then
       	 SSG%MagType=4
       	 allocate(SSG%aLatt_trans(Dd,nalat))
+      	 SSG%aLatt_trans=0_ik//1_ik
       	 do i=1,nalat
       	 	  j=ind_alat(i)
-      	 	  SSG%aLatt_trans(:,i)=SSG%SymOp(j)%Mat(Dex,1:Dd)
+      	 	  SSG%aLatt_trans(:,i)=SSG%SymOp(j)%Mat(1:Dd,Dex)
          end do
+      else if(SSG%MagType /= 1 ) then
+      	 SSG%MagType=3
       end if
-      if(nlat /= 0) then
+      
+      if(nlat /=  0) then
       	 SSG%SPG_Lat="X"
-      	 allocate(SSG%Latt_trans(Dd,nlat))
+      	 allocate(SSG%Latt_trans(Dd,nlat+1))
+      	 SSG%Latt_trans=0_ik//1_ik
       	 do i=1,nlat
       	 	  j=ind_lat(i)
-      	 	  SSG%Latt_trans(:,i)=SSG%SymOp(j)%Mat(Dex,1:Dd)
+      	 	  SSG%Latt_trans(:,i+1)=SSG%SymOp(j)%Mat(1:Dd,Dex)
          end do
       end if
             
@@ -476,16 +492,17 @@
 
 
 
-    Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess)
+    Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess,x1x2x3_type)
       integer,                    intent(in)  :: num
       type(SuperSpaceGroup_Type), intent(out) :: ssg
       Logical,                    intent(out) :: ok
       character(len=*),           intent(out) :: Mess
+      character(len=*),optional,  intent(in)  :: x1x2x3_type
       !
       integer :: i,j,nmod,Dd,D,iclass,m
       type(rational), dimension(:,:), allocatable :: Inv
       type(SSym_Oper_Type)                        :: transla
-      character(len=15) :: forma
+      character(len=15) :: forma,xyz_typ
       logical :: inv_found
 
       if(.not. ssg_database_allocated)  then
@@ -582,8 +599,10 @@
         Err_ssg_mess="Error extending the symmetry operators for a centred cell"
       end if
       !Get the symmetry symbols
+      xyz_typ="xyz"
+      if(present(x1x2x3_type)) xyz_typ=x1x2x3_type
       do i=1,ssg%Multip
-        call Get_SSymSymb_from_Mat(ssg%SymOp(i)%Mat,ssg%SymOpSymb(i),"xyz")
+        call Get_SSymSymb_from_Mat(ssg%SymOp(i)%Mat,ssg%SymOpSymb(i),xyz_typ)
       end do
 
     End Subroutine Set_SSG_Reading_Database
@@ -604,6 +623,8 @@
       integer,                  dimension(size(Mat,dim=1)-1):: pos,pn
       logical                                               :: abc_transf
 
+      err_ssg=.false.
+      err_ssg_mess=" "
       Dd=size(Mat,dim=1)
       d=Dd-1
       abc_transf=.false.
@@ -655,9 +676,15 @@
       pos=0
       call Get_Separator_Pos(pSymb,",",pos,np)
       if(np /= d) then
-        err_ssg=.true.
-        err_ssg_mess="Error in the symbol of the operator"
-        return
+      	if(np == d-1) then
+      		pSymb=trim(pSymb)//",1"
+      		np=np+1
+      		pos(np)=len_trim(pSymb)-1
+        else
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator"
+          return
+        end if
       end if
 
       read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv
@@ -786,6 +813,8 @@
           Case("abc")
             x_typ=abc
             abc_type=.true.
+          Case Default
+          	x_typ=xyz
          End Select
        end if
        !---- Main ----!

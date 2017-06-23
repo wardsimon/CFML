@@ -248,10 +248,18 @@
         forma="( a8)"
         write(forma(2:2),"(i1)") Dd
         do i=1,ng
-           write(*,"(a,i2,a)",advance="no")  " => Enter the symbol of the generator #",i," : "
-           read(*,"(a)") symb
-           if(len_trim(symb) == 0) exit
-           call Get_Mat_From_SSymSymb(Symb,gen(i)%Mat)
+           do
+             write(*,"(a,i2,a)",advance="no")  " => Enter the symbol of the generator #",i," : "
+             read(*,"(a)") symb
+             if(len_trim(symb) == 0) exit
+             call Get_Mat_From_SSymSymb(Symb,gen(i)%Mat)
+             if(err_ssg) then
+             	 write(*,"(a)") " => "//trim(err_ssg_mess)
+             	 cycle
+             else 
+             	 exit
+             end if
+           end do
            matrix=print_rational(gen(i)%Mat)
            write(unit=*,fmt="(a)") "  Rational Matrix corresponding to "//trim(symb)
            do j=1,Dd
@@ -259,8 +267,14 @@
            end do
         end do
         
-        call Gen_SSGroup(ng,gen,SSpaceGroup)
+        call Gen_SSGroup(ng,gen,SSpaceGroup,"xyz",table)
         call Write_SSG(SSpaceGroup,full=.true.)
+        write(unit=*,fmt="(/,a)") " Writing the multiplication table "
+        
+        do j=1,SSpaceGroup%multip
+          write(unit=*,fmt="(1024i4)") table(j,1:SSpaceGroup%multip)
+        end do
+        
       end do
 
     End Program read_ssg_datafile
