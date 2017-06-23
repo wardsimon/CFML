@@ -119,7 +119,7 @@
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
-    integer, private, parameter :: max_mult=1024
+    integer, private, parameter :: max_mult=2048
 
   Contains
 
@@ -249,9 +249,9 @@
       end if
       if(nt == max_op) then
         Err_ssg=.true.
-      	Err_ssg_mess= "Max_Operations reached! "//trim(Err_ssg_mess)
+      	write(Err_ssg_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! Check the input operators!"
       end if
-      
+
       multip=nt
       if(present(table)) then
         allocate(Table(multip,multip))
@@ -277,7 +277,7 @@
       Err_ssg=.false.
       Err_ssg_mess=" "
       SSG%standard_setting=.false.
-      Dex=size(gen(1)%Mat,dim=1) 
+      Dex=size(gen(1)%Mat,dim=1)
       Dd=Dex-1
       d=Dd-3
       SSG%d= Dex-4
@@ -299,13 +299,13 @@
       end do
       ngeff=k
       nt=ngeff
-      
+
       if(present(table)) then
         call Gen_Group(ngeff,Op,nt,table)
       else
         call Gen_Group(ngeff,Op,nt)
       end if
-      
+
       if(Err_ssg) then
       	write(unit=*,fmt="(a)") " => ERROR !  "//trim(Err_ssg_mess)
       	return
@@ -324,7 +324,7 @@
       do i=1,nt
       	call Get_SSymSymb_from_Mat(SSG%SymOp(i)%Mat,SSG%SymOpSymb(i),"x1x2x3")
       end do
-      
+
       !Search for an inversion centre
       j=0
       do i=2,nt
@@ -370,14 +370,14 @@
       end do
       SSG%Num_Lat=nlat+1
       SSG%Num_aLat=nalat
-      
+
       !Determine the type of magnetic group and select centring translations and anti-translations
-      !if(any()) <- implement any for rational arrays      
+      !if(any()) <- implement any for rational arrays
       do i=1,nt
       	SSG%time_rev(i)=SSG%SymOp(i)%Mat(Dex,Dex)
       end do
       if(.not. any(SSG%time_rev == -1)) SSG%MagType=1
-      
+
       if(nalat /= 0) then
       	 SSG%MagType=4
       	 allocate(SSG%aLatt_trans(Dd,nalat))
@@ -389,7 +389,7 @@
       else if(SSG%MagType /= 1 ) then
       	 SSG%MagType=3
       end if
-      
+
       if(nlat /=  0) then
       	 SSG%SPG_Lat="X"
       	 allocate(SSG%Latt_trans(Dd,nlat+1))
@@ -399,7 +399,7 @@
       	 	  SSG%Latt_trans(:,i+1)=SSG%SymOp(j)%Mat(1:Dd,Dex)
          end do
       end if
-            
+
     End Subroutine Gen_SSGroup
 
     Subroutine Set_SSGs_from_Gkk(SpG,nk,kv)!,ssg,nss)
@@ -612,6 +612,7 @@
       character(len=*),                intent(in)  :: Symb
       type(rational),dimension(:,:),   intent(out) :: Mat
       !---- local variables ----!
+      type(rational) :: det
       integer :: i,j,k,Dd, d, np,ns, n,m,inv,num,den,ind,ier
       character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
       character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
@@ -677,6 +678,14 @@
       call Get_Separator_Pos(pSymb,",",pos,np)
       if(np /= d) then
       	if(np == d-1) then
+      		do i=1,d
+      			j=index(pSymb,trim(x_typ(i)))
+      			if(j == 0) then !error in the symbol
+              err_ssg=.true.
+              err_ssg_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+              return
+      			end if
+      		end do
       		pSymb=trim(pSymb)//",1"
       		np=np+1
       		pos(np)=len_trim(pSymb)-1
@@ -685,6 +694,15 @@
           err_ssg_mess="Error in the symbol of the operator"
           return
         end if
+      else !Check the presence of all symbols
+      	do i=1,d
+      		j=index(pSymb(1:pos(np)),trim(x_typ(i)))
+      		if(j == 0) then !error in the symbol
+            err_ssg=.true.
+            err_ssg_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+            return
+      		end if
+      	end do
       end if
 
       read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv
@@ -781,6 +799,16 @@
         end do
       end do
 
+      !Final check that the determinant of the rotational matrix is integer
+      det=rational_determinant(Mat)
+      if(det%denominator /= 1) then
+         err_ssg=.true.
+         err_ssg_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+      end if
+      if(det%numerator == 0) then
+         err_ssg=.true.
+         err_ssg_mess="The matrix of the operator is singular! -> det="//print_rational(det)
+      end if
     End Subroutine Get_Mat_From_SSymSymb
 
 
@@ -1143,7 +1171,7 @@
            end do
        End Select
     End Function mH_Absent_SSG
-    
+
     !!----
     !!---- Function  H_Mult(H, Spacegroup,Friedel)
     !!----    integer, dimension(:),    intent(in) :: h
@@ -1196,7 +1224,7 @@
        end if
 
        return
-    End Function H_Mult    
+    End Function H_Mult
 
     !!----
     !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder)
