@@ -119,7 +119,7 @@
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
-    integer, private, parameter :: max_mult=2048
+    integer, private, parameter :: max_mult=4096
 
   Contains
 
@@ -204,7 +204,7 @@
       integer,                                        intent(out)    :: multip
       integer, dimension(:,:), allocatable, optional, intent(out)    :: table
       !--- Local variables ---!
-      integer :: i,j,k,n, nt,max_op
+      integer :: i,j,k,n, nt,max_op,Dd,D
       type(SSym_Oper_Type) :: Opt
       logical, dimension(size(Op),size(Op)) :: done
       integer, dimension(size(Op),size(Op)) :: tb
@@ -215,6 +215,8 @@
       tb(1,:) = [(i,i=1,max_op)]
       tb(:,1) = [(i,i=1,max_op)]
       nt=ngen
+      Dd=size(Op(1)%Mat,dim=1)
+      D=Dd-1
       Err_ssg=.false.
       Err_ssg_mess=" "
 
@@ -249,7 +251,7 @@
       end if
       if(nt == max_op) then
         Err_ssg=.true.
-      	write(Err_ssg_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! Check the input operators!"
+      	write(Err_ssg_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
       end if
 
       multip=nt
@@ -337,16 +339,24 @@
       if( j /= 0) then
       	k=0
       	do i=1,Dd
-      		if(SSG%SymOp(i)%Mat(Dex,i) /= 0_ik//1_ik) then
+      		if(SSG%SymOp(j)%Mat(Dex,i) /= 0_ik//1_ik) then
       			k=i
       			exit
       		end if
       	end do
       	if(k == 0) then
-      		SSG%Centre="Centric with centre at origin"
-      		SSG%Centred=2
+      	  if(SSG%SymOp(j)%Mat(Dex,Dex) == 1_ik//1_ik) then
+      	  	SSG%Centre="Centric with centre at origin"
+      		else if(SSG%SymOp(j)%Mat(Dex,Dex) == -1_ik//1_ik) then
+      	  	SSG%Centre="Centre of symmetry at origin associated with time inversion"
+      		end if
+     		  SSG%Centred=2
       	else
-      		SSG%Centre="Centric with centre NOT at origin"
+      	  if(SSG%SymOp(j)%Mat(Dex,Dex) == 1_ik//1_ik) then
+      	   	SSG%Centre="Centric with centre NOT at origin"
+      		else if(SSG%SymOp(j)%Mat(Dex,Dex) == -1_ik//1_ik) then
+      	  	SSG%Centre="Centre of symmetry NOT at origin associated with time inversion"
+      		end if
       		SSG%Centred=0
       		SSG%Centre_coord(:)=SSG%SymOp(k)%Mat(Dex,1:Dd)/2_ik
       	end if
@@ -608,6 +618,18 @@
     End Subroutine Set_SSG_Reading_Database
 
 
+    !!---- Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
+    !!----   character(len=*),                intent(in)  :: Symb
+    !!----   type(rational),dimension(:,:),   intent(out) :: Mat
+    !!----
+    !!----  This subroutine provides the rational matrix Mat in standard
+    !!----  form (all translation components positive) corresponding to the
+    !!----  operator symbol Symb in Jone's faithfull notation.
+    !!----  The symbol is not modified but the matrix contain reduced translation.
+    !!----  Some checking on the correctness of the symbol is performed
+    !!----
+    !!----  Created: June 2017 (JRC)
+    !!----
     Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
       character(len=*),                intent(in)  :: Symb
       type(rational),dimension(:,:),   intent(out) :: Mat
@@ -672,6 +694,24 @@
 
         pSymb=pack_string(Symb)
 
+      end if
+
+      if(index(pSymb,"=") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol '=' is forbidden!"
+          return
+      end if
+
+      if(index(pSymb,";") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol ';' is forbidden!"
+          return
+      end if
+
+      if(index(pSymb,".") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol '.' is forbidden!"
+          return
       end if
 
       pos=0
@@ -798,6 +838,9 @@
           end if
         end do
       end do
+
+      !Put the generator in standard form with positive translations
+      call reduced_translation(Mat)
 
       !Final check that the determinant of the rotational matrix is integer
       det=rational_determinant(Mat)
