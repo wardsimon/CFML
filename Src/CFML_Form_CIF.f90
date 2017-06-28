@@ -1006,7 +1006,8 @@
           exit
        end do
 
-       if (all(lugar > 0)) then
+       !if (all(lugar > 0)) then
+	   if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
           nct=count(lugar > 0)
           nline_ini=nline
           string=" "
