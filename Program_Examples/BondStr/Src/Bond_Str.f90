@@ -48,8 +48,8 @@ Program Bond_Str
    logical                         :: vdist=.false.,read_bvelparm=.false.,rest_file=.false.
    logical                         :: map_calc=.false., soft=.false., bvel_calc=.false., outp=.false., outf=.false.
    real                            :: ttol=20.0,dmax,dangl, rdmax,ramin
-   real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol 
-   
+   real                            :: drmax,delta,qval,tini,tfin,qn,qp,vol, E_end=3.0
+
    Real(kind=cp) Emin,Eini,Eend,dE,dE_ini
    Real(kind=cp), Dimension(3) :: E_percol,E_percol_aux
    Real(kind=cp), Dimension(:,:,:), Allocatable :: bvel_map
@@ -260,11 +260,13 @@ Program Bond_Str
             outp=.true.
             if(index(line,"GFOU") /= 0) outf=.true.
          end if
-         
+
          if (line(1:11) == "PERCOLATION")  then
+            read(line(12:),fmt=*,iostat=ier) E_end
+            if(ier /= 0)  E_end=3.0
             percolation=.true.
          end if
-         
+
          !--- JGP ----!
          if (line(1:4) == "MAP " .or. line(1:4) == "BVEL") then
 
@@ -469,13 +471,13 @@ Program Bond_Str
            write (unit=lun, fmt='(/,a,f10.4,a)')" => Value of Delta (for volume calculation) :",delta," eV"
            write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
            write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
-           write (unit=lun, fmt='(a,f10.4)')    " => Minum Energy (in eV):", emin
+           write (unit=lun, fmt='(a,f10.4)')    " => Minimum Energy (in eV):", emin
            write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
-           
-           if(percolation) then           	
+
+           if(percolation) then
            	 call Percolation_Calc()
            end if
-        
+
          else
            if(outp) then
              call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,outp=outf)
@@ -533,17 +535,18 @@ Program Bond_Str
       bvel_map    = bvel_map - Emin
       Eminim      = 0.0
       Eini        = 0.0
-      Eend        = 3.0
+      Eend        = E_end
       dE          = 0.5
-      E_percol(:) = -1.
-      
+      E_percol(:) = -1.0
+
       ! Percolation analysis
-      
-      Write(unit=*,fmt="(/,a)") " => Calculation of percolation energies (it can take some minutes) ...."
-      Write(unit=lun,fmt="(/,a)") " => Computing first estimation of percolation energies (it can take some minutes) ...."
-      
+
+      Write(unit=*,fmt="(/,a)")   " => Computing a first rough estimation of percolation energies (it can take some minutes) ...."
+      Write(unit=lun,fmt="(/,a)") " => Computing a first rough estimation of percolation energies ...."
+      Write(unit=lun,fmt="(a,f6.2,a)")   "    Maximum energy above the ground state for estimation of percolation:",Eend, " eV"
+
       Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol)
-      
+
       Do i = 1 , 3
          If (E_percol(i) > 0.0) Then
             Write(unit=lun,fmt="(tr4,3a,f6.2,a)") "Percolation along ", axis(i), ": Yes, Percolation energy: ", E_percol(i), " eV"
@@ -551,18 +554,18 @@ Program Bond_Str
             Write(unit=lun,fmt="(tr4,3a)") "Percolation along ", axis(i), ": No"
          End If
       End Do
-      
+
       Write(unit=lun,fmt="(/,a)") " => Refining energies...."
-      
+
       dE_ini = dE
       Do i = 1 , 3
          dE = dE_ini
          If (E_percol(i) > 0.0) Then
-            Write(unit=lun,fmt="(tr4,2a)") "axis ", axis(i)
+            Write(unit=lun,fmt="(tr4,a)") axis(i)//"-axis"
             Eini = E_percol(i) - dE
             dE   = 0.1
             Eend = E_percol(i) + 0.01
-            Write(unit=lun,fmt="(tr6,a,2(f5.2,a))") "Searching percolation between ",Eini," and ",Eend," eV"           
+            Write(unit=lun,fmt="(tr6,a,2(f5.2,a))") "Searching percolation between ",Eini," and ",Eend," eV"
             Call Percol_Analysis(bvel_map,Eminim,Eini,Eend,dE,E_percol_aux,axis=i)
             E_percol(i) = E_percol_aux(i)
             Write(unit=lun,fmt="(tr8,a,f6.2,a)") "Percolation energy above Emin: ", E_percol(i), " eV"
@@ -575,10 +578,10 @@ Program Bond_Str
             Write(unit=lun,fmt="(tr8,a,2(f6.2,a),/)") "Percolation energy above Emin: ", E_percol(i), " eV,   Isosurface for VESTA: ", E_percol(i)+Emin," eV"
          End If
       End Do
-   	
+
    End Subroutine Percolation_Calc
-   
-   
+
+
    Subroutine Write_Vesta_File()
 
       integer                                     :: lun, i, j, n,np, pol,k,cent

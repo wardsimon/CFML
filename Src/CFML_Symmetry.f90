@@ -6543,7 +6543,7 @@
     !!---- Subroutine Get_String_Resolv(T,X,Ix,Symb)
     !!----    real(kind=cp), dimension(3), intent( in) :: t      !  In -> Traslation part
     !!----    real(kind=cp), dimension(3), intent( in) :: x      !  In -> real part of variable
-    !!----    integer, dimension(3),       intent( in) :: ix     !  In -> Frags: 1:x, 2:y, 3:z
+    !!----    integer,       dimension(3), intent( in) :: ix     !  In -> Frags: 1:x, 2:y, 3:z
     !!----    character (len=*),           intent(out) :: symb   ! Out -> String
     !!----
     !!----    Returning a string for point, axes or plane give as
@@ -6555,8 +6555,8 @@
        !---- Arguments ----!
        real(kind=cp), dimension(3),      intent( in) :: t
        real(kind=cp), dimension(3),      intent( in) :: x
-       integer, dimension(3),   intent( in) :: ix
-       character (len=*),       intent(out) :: symb
+       integer,       dimension(3),      intent( in) :: ix
+       character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
        character(len=60) :: car

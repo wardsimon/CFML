@@ -2206,7 +2206,7 @@
     !!
     Subroutine Resolv_Sist_1x3(w,t,ts,x,ix)
        !---- Arguments ----!
-       integer,dimension(3), intent( in) :: w
+       integer,dimension(3),          intent( in) :: w
        real(kind=cp),                 intent( in) :: t
        real(kind=cp), dimension(3),   intent(out) :: ts
        real(kind=cp), dimension(3),   intent(out) :: x
