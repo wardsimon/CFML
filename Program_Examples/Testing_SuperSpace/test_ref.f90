@@ -9,7 +9,7 @@ program test_reflections
   character(len=80)             :: line,fmto,fileout
   type(sReflection_List_Type)   :: ref
   type(Crystal_Cell_Type)       :: cell
-  type(SSpace_Group_Type)       :: SSG
+  type(SuperSpaceGroup_Type)    :: SSG
   real(kind=cp), dimension(3)   :: abc,albega
   real(kind=cp), dimension(3,6) :: kv
   real(kind=cp)                 :: sintlmax=0.5
@@ -36,7 +36,8 @@ program test_reflections
   	read(line,*) nk
   	write(i_out,"(/,a,i3)") " => Number of Propagation Vectors: ",nk
   	Dd=3
-  	fmto="( i4,f12.4)"
+  	!     123456789012345678
+  	fmto="(i8,tr4, i4,f12.4,tr4,2i2)"
   	if(nk /= 0) then
   		Dd=Dd+nk
   		do i=1,nk
@@ -44,25 +45,26 @@ program test_reflections
   			read(*,*) kv(:,i), nharm(i),sintl(i)
   			write(i_out,"(a,i2,a,3f10.5,a,i2,a,f10.5)") "     Propagation vector # ",i," : [",kv(:,i)," ], Number of harmonics:  ",nharm(i), "   Max_SinT/L: ",sintl(i)
   		end do
-  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl)
+  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,order="yes")
   	else
-  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref)
+  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,order="yes")
   	end if
-    write(fmto(2:2),"(i1)") Dd
-    write(i_out,"(/,a,i8)")" => Total number of reflections: ", Ref%nref 
+    write(fmto(9:9),"(i1)") Dd
+    write(i_out,"(/,a,i8)")" => Total number of reflections: ", Ref%nref
     write(i_out,"(/,a)")   "       List of Reflections  "
     write(i_out,"(a,/)")   "       ===================  "
   	do i=1,Ref%nref
-  		write(i_out,fmto) Ref%ref(i)%h,Ref%ref(i)%s
+  		write(*,fmto)     i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag
+  		write(i_out,fmto) i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag
   	end do
-  	
+
   	!Generate now only the equivalent reflections
-  	if(nk /= 0) then
-  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,SSG,powder="powder")
-  	else
-  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,SSG=SSG,powder="powder")
-  	end if
-  	
+  	!if(nk /= 0) then
+  	!	call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,SSG,powder="powder")
+  	!else
+  	!	call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,SSG=SSG,powder="powder")
+  	!end if
+
   end do
 
 end program test_reflections

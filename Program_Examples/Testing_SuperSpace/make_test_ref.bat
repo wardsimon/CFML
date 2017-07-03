@@ -10,9 +10,11 @@ rem
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c CFML_ssg_datafile.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c CFML_SuperSpaceGroups.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c test_ref.f90 /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_Rational_Arithmetic_test.f90 /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Matrix_Mod.f90                    /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_ssg_datafile.f90             /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_SuperSpaceGroups.f90         /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c test_ref.f90                      /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /exe:test_ref *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
    goto END
 rem

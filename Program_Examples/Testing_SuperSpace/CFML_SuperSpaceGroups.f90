@@ -1217,9 +1217,9 @@
 
     !!----
     !!---- Function  H_Mult(H, Spacegroup,Friedel)
-    !!----    integer, dimension(:),    intent(in) :: h
-    !!----    Type (SSpace_Group_Type), intent(in) :: SpaceGroup
-    !!----    Logical,                  intent(in) :: Friedel
+    !!----    integer, dimension(:),       intent(in) :: h
+    !!----    Type (SuperSpaceGroup_Type), intent(in) :: SpaceGroup
+    !!----    Logical,                     intent(in) :: Friedel
     !!----
     !!----    Calculate the multiplicity of the reflection
     !!----
@@ -1288,7 +1288,7 @@
     !!---- Created: March - 2016
     !!
 
-    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder)
+    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,order,SSG,powder)
        !---- Arguments ----!
        type (Crystal_Cell_Type),                        intent(in)     :: Cell
        real(kind=cp),                                   intent(in)     :: sintlmax
@@ -1300,19 +1300,23 @@
        real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
        type (SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: powder
+       character(len=*),              optional,         intent(in)     :: order
 
        !---- Local variables ----!
        real(kind=cp)         :: sval !,vmin,vmax
+       real(kind=cp)         :: epsr=0.00000001, delt=0.000001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
-                                maxpos, mp, iprev,Dd, nf, ia
+                                maxpos, mp, iprev,Dd, nf, ia, i0
        integer,      dimension(:),   allocatable :: hh,kk,nulo
        integer,      dimension(:,:), allocatable :: hkl,hklm
-       integer,      dimension(:),   allocatable :: indx,ini,fin,itreat
+       integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
        real(kind=cp),dimension(:),   allocatable :: max_s
        real(kind=cp),dimension(:),   allocatable :: sv,sm
-       logical :: kvect
+       logical :: kvect,ordering
 
        Dd=3
+       ordering=.false.
+       if(present(order) .or. present(powder)) ordering=.true.
        kvect=present(nk) .and. present(nharm) .and. present(kv)
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
        hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
@@ -1331,9 +1335,9 @@
             max_s=sintlmax
           end if
        end if
-       allocate(hkl(Dd,maxref),indx(maxref),sv(maxref),hh(Dd),kk(Dd),nulo(Dd))
+       allocate(hkl(Dd,maxref),indx(maxref),indtyp(maxref),ind(maxref),sv(maxref),hh(Dd),kk(Dd),nulo(Dd))
        nulo=0
-
+       indtyp=2
        num_ref=0
        !Generation of fundamental reflections
        ext_do: do h=hmin,hmax
@@ -1343,8 +1347,18 @@
                 hh(1:3)=[h,k,l]
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
+                mp=2
                 if(present(SSG)) then
                    if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
+                   if(H_Absent_SSG(hh,SSG)) then
+                     if(mH_Absent_SSG(hh,SSG)) then
+                       cycle
+                     else
+                       mp=1   !pure magnetic
+                     end if
+                   else
+                     if(mH_Absent_SSG(hh,SSG)) mp=0  !pure nuclear
+                   end if
                 end if
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
@@ -1353,6 +1367,7 @@
                 end if
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
+                indtyp(num_ref)=mp
              end do
           end do
        end do ext_do
@@ -1371,8 +1386,18 @@
        	   	 	     	 hh(3+k)=ia*j
                      sval=H_s(hh,Cell,nk,kv)
                      if (sval > max_s(k)) cycle
+                     mp=2
                      if(present(SSG)) then
                         if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
+                        if(H_Absent_SSG(hh,SSG)) then
+                          if(mH_Absent_SSG(hh,SSG)) then
+                            cycle
+                          else
+                            mp=1   !pure magnetic
+                          end if
+                        else
+                          if(mH_Absent_SSG(hh,SSG)) mp=0  !pure nuclear
+                        end if
                      end if
                      num_ref=num_ref+1
                      if(num_ref > maxref) then
@@ -1381,90 +1406,103 @@
                      end if
                      sv(num_ref)=sval
                      hkl(:,num_ref)=hh
+                     indtyp(num_ref)=mp
                    end do  !j
        	   	 	   end do !ia
        	      end do  !i
          end do do_ex
        end if
 
-       call sort(sv,num_ref,indx)
-
-       allocate(hklm(Dd,num_ref-1),sm(num_ref-1),ini(num_ref-1),fin(num_ref-1),itreat(num_ref-1))
-       do i=2,num_ref  !Eliminate the reflection 0 0 0 0 0 ...
-         j=indx(i)
-         hklm(:,i-1)=hkl(:,j)
-         sm(i-1)=sv(j)
+       !Suppress the reflection 0 0 0 0 0 ...
+       do i=1,num_ref
+         if(sv(i) < epsr) then
+          i0=i
+          exit
+         end if
+       end do
+       !write(*,*) "  i0=",i0
+       do i=i0+1,num_ref
+         sv(i-1)=sv(i)
+         hkl(:,i-1)=hkl(:,i)
+         indtyp(i-1)=indtyp(i)
        end do
        num_ref=num_ref-1
-       deallocate(hkl,sv,indx)
-       if(present(SSG) .and. present(powder)) then
-         itreat=0; ini=0; fin=0
-         indp=0
-         do i=1,num_ref              !Loop over all reflections
-           !write(*,"(i6,3i5,i8)") i, hklm(:,i),itreat(i)
-           if(itreat(i) == 0) then   !If not yet treated do the following
-             hh(:)=hklm(:,i)
-             indp=indp+1  !update the number of independent reflections
-             itreat(i)=i  !Make this reflection treated
-             ini(indp)=i  !put pointers for initial and final equivalent reflections
-             fin(indp)=i
-             do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
-                 if(abs(sm(i)-sm(j)) > 0.000001) exit
-                 kk=hklm(:,j)
-                 if(h_equiv(hh,kk,SSG)) then     ! if  hh eqv kk
-                   itreat(j) = i                 ! add kk to the list equivalent to i
-                   fin(indp)=j
-                 end if
-             end do
-           end if !itreat
-         end do
 
-         !Selection of the most convenient independent reflections
-         allocate(hkl(Dd,indp),sv(indp),indx(indp))
-         indx=2 !nuclear and magnetic contribution by default
-         do i=1,indp
-           maxpos=0
-           indj=ini(i)
-           iprev=itreat(indj)
-           do j=ini(i),fin(i)
-             if(iprev /= itreat(j)) cycle
-             hh=hklm(:,j)
-             mp=count(hh > 0)
-             if(mp > maxpos) then
-               indj=j
-               maxpos=mp
-             end if
-           end do !j
-           hkl(:,i)=hklm(:,indj)
-           if(hkl(1,i) < 0) hkl(:,i)=-hkl(:,i)
-           sv(i)=sm(indj)
-         end do
-         !Now apply systematic absences other than lattice type
-         num_ref=0
-         do i=1,indp
-           hh=hkl(:,i)
-           if(H_Absent_SSG(hh,SSG)) then
-             if(mH_Absent_SSG(hh,SSG)) then
-               cycle
-             else
-               indx(i)=1   !pure magnetic
-             end if
-           else
-             if(mH_Absent_SSG(hh,SSG)) indx(i)=0  !pure nuclear
-           end if
-           num_ref=num_ref+1
-           hklm(:,num_ref)=hh
-           sm(num_ref) = sv(i)
-         end do
-       end if  !SSG and Powder
+       if(ordering) then
+          call sort(sv,num_ref,indx)
+
+          allocate(hklm(Dd,num_ref),sm(num_ref))
+          do i=1,num_ref
+            j=indx(i)
+            hklm(:,i)=hkl(:,j)
+            sm(i)=sv(j)
+            ind(i)=indtyp(j)
+          end do
+          indtyp(1:num_ref)=ind(1:num_ref) !contains now the type of reflection in the proper order
+          hkl(:,1:num_ref)=hklm(:,1:num_ref)
+          sv(1:num_ref)=sm(1:num_ref)
+          if(present(SSG) .and. present(powder)) then
+            deallocate(hkl,sv,indx,ind)
+            allocate(ini(num_ref),fin(num_ref),itreat(num_ref))
+            itreat=0; ini=0; fin=0
+            indp=0
+            do i=1,num_ref       !Loop over all reflections
+              !write(*,"(i6,3i5,i8)") i, hklm(:,i),itreat(i)
+              if(itreat(i) == 0) then   !If not yet treated do the following
+                hh(:)=hklm(:,i)
+                indp=indp+1  !update the number of independent reflections
+                itreat(i)=i  !Make this reflection treated
+                ini(indp)=i  !put pointers for initial and final equivalent reflections
+                fin(indp)=i
+                do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
+                    if(abs(sm(i)-sm(j)) > delt) exit
+                    kk=hklm(:,j)
+                    if(h_equiv(hh,kk,SSG)) then     ! if  hh eqv kk
+                      itreat(j) = i                 ! add kk to the list equivalent to i
+                      fin(indp)=j
+                    end if
+                end do
+              end if !itreat
+            end do
+
+            !Selection of the most convenient independent reflections
+            allocate(hkl(Dd,indp),sv(indp),ind(indp))
+            do i=1,indp
+              maxpos=0
+              indj=ini(i)
+              iprev=itreat(indj)
+              do j=ini(i),fin(i)
+                if(iprev /= itreat(j)) cycle
+                hh=hklm(:,j)
+                mp=count(hh > 0)
+                if(mp > maxpos) then
+                  indj=j
+                  maxpos=mp
+                end if
+              end do !j
+              hkl(:,i)=hklm(:,indj)
+              if(hkl(1,i) < 0) hkl(:,i)=-hkl(:,i)
+              sv(i)=sm(indj)
+              ind(i)=indtyp(indj)
+            end do
+            indtyp(1:indp)=ind(1:indp)
+            num_ref=indp
+          end if  !SSG and Powder
+       end if !present "order"
+
        !Final assignments
        if(allocated(reflex)) deallocate(reflex)
        allocate(reflex(num_ref))
        do i=1,num_ref
-         reflex(i)%h    = hklm(:,i)
-         reflex(i)%s    = sm(i)
-         reflex(i)%mult = h_mult(hh,SSG,.true.)
-         reflex(i)%imag = indx(i)
+         allocate(reflex(i)%h(Dd)) !needed in f95
+         reflex(i)%h    = hkl(:,i)
+         reflex(i)%s    = sv(i)
+         if(present(SSG)) then
+           reflex(i)%mult = h_mult(reflex(i)%h,SSG,.true.)
+         else
+           reflex(i)%mult = 1
+         end if
+         reflex(i)%imag = indtyp(i)
        end do
        return
     End Subroutine Gen_SReflections
