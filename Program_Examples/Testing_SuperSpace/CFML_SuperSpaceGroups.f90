@@ -14,7 +14,7 @@
     private
     public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
               Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections, Set_SSGs_from_Gkk, &
-              Gen_SSGroup
+              Gen_SSGroup, Print_Matrix_SSGop
 
 
     public :: operator (*)
@@ -1093,14 +1093,15 @@
        logical                                   :: info
 
        !---- Local Variables ----!
-       integer                                :: i, nops,Dd
-       integer, dimension(size(h))            :: hh
-       Integer,dimension(size(h),size(h))     :: Mat
-
+       integer                                      :: i, nops,Dd 
+       integer, dimension(size(h))                  :: hh
+       Integer, dimension(size(h),size(h))          :: Mat
+       
+       
        info=.false.
-       nops= SSG%numops
-       if(SSG%centred /= 1) nops=nops*2
-
+       nops= SSG%NumOps
+       if(SSG%centred /= 1) nops=min(nops*2,SSG%Multip)
+ 
        Dd=size(h)
        do i=1,nops
           Mat=SSG%SymOp(i)%Mat(1:Dd,1:Dd)
@@ -1121,6 +1122,25 @@
 
        return
     End Function H_Equiv
+    
+    Subroutine Print_Matrix_SSGop(SSop,lun)   
+       Type(SSym_Oper_Type), intent(in) :: SSop
+       integer, optional,    intent(in) :: lun
+       !
+       character(len=8),dimension(size(SSop%Mat,dim=1),size(SSop%Mat,dim=2)) :: Matrix
+       character(len=5) :: forma
+       integer          :: Dd, j, k, iout
+       
+       iout=6
+       if(present(lun)) iout=lun
+       Dd=size(SSop%Mat,dim=1)
+       forma="( a8)"
+       write(forma(2:2),"(i1)") Dd
+       matrix=print_rational(SSop%Mat)
+       do j=1,Dd
+          write(unit=iout,fmt=forma) (trim(Matrix(j,k)) //" ",k=1,Dd)
+       end do
+    End Subroutine Print_Matrix_SSGop
 
     Function H_Lat_Absent(h,Latt,n) result(info)
        integer,        dimension(:),  intent (in) :: h
@@ -1285,7 +1305,7 @@
     !!----    Calculate unique reflections between two values of
     !!----    sin_theta/lambda.  The output is not ordered.
     !!----
-    !!---- Created: March - 2016
+    !!---- Created: June 2017
     !!
 
     Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,order,SSG,powder)
@@ -1319,6 +1339,7 @@
        if(present(order) .or. present(powder)) ordering=.true.
        kvect=present(nk) .and. present(nharm) .and. present(kv)
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
+       
        hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
        kmax=nint(Cell%cell(2)*2.0*sintlmax+1.0)
        lmax=nint(Cell%cell(3)*2.0*sintlmax+1.0)
@@ -1349,9 +1370,14 @@
                 if (sval > sintlmax) cycle
                 mp=2
                 if(present(SSG)) then
-                   if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
+                   if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) then
+                    write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                    cycle
+                   end if
                    if(H_Absent_SSG(hh,SSG)) then
+                     write(*,"(a,10i4)") " Absent Nuclear reflection: ",hh
                      if(mH_Absent_SSG(hh,SSG)) then
+                       write(*,"(a,10i4)") " Absent Magnetic reflection: ",hh
                        cycle
                      else
                        mp=1   !pure magnetic
@@ -1388,9 +1414,14 @@
                      if (sval > max_s(k)) cycle
                      mp=2
                      if(present(SSG)) then
-                        if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) cycle
+                        if (H_Lat_Absent(hh,SSG%Latt_trans,SSG%Num_Lat)) then
+                           write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                           cycle
+                        end if
                         if(H_Absent_SSG(hh,SSG)) then
+                          write(*,"(a,10i4)") " Absent Nuclear reflection: ",hh
                           if(mH_Absent_SSG(hh,SSG)) then
+                            write(*,"(a,10i4)") " Absent Magnetic reflection: ",hh
                             cycle
                           else
                             mp=1   !pure magnetic
@@ -1459,7 +1490,7 @@
                     kk=hklm(:,j)
                     if(h_equiv(hh,kk,SSG)) then     ! if  hh eqv kk
                       itreat(j) = i                 ! add kk to the list equivalent to i
-                      fin(indp)=j
+                      fin(indp) = j
                     end if
                 end do
               end if !itreat
