@@ -2,8 +2,8 @@
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
 
   Module Data_Articles_Mod
-   Use CFML_String_Utilities, only: Pack_String, get_separator_pos, SString_Replace
-   !Use CFML_procedures, only: Pack_String, get_separator_pos, SString_Replace
+   !Use CFML_String_Utilities, only: Pack_String, get_separator_pos, SString_Replace
+   Use CFML_procedures, only: Pack_String, get_separator_pos, SString_Replace
    implicit none
    private
    public :: ISI_string

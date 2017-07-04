@@ -2,8 +2,8 @@
 !!---- information obtained from the ILL database saved in "Tabulated" format.
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
   Program ILL_Pubs_WoS
-   use CFML_String_Utilities, only: lcase
-   !use CFML_Procedures, only: lcase
+   !use CFML_String_Utilities, only: lcase
+   use CFML_Procedures, only: lcase
    use Data_Articles_Mod
    implicit none
    integer, parameter      :: max_chars=204800
