@@ -1156,7 +1156,7 @@
        info=.false.
        do i=2,n
           Lat=Latt(:,i)
-          r1=dot_product(Lat,real(h))
+          r1=dot_product(Lat,real(h,kind=cp))
           r2=nint(r1)
           k=nint(2.0*r1)
           if(mod(k,2) /= 0) info=.true.
@@ -1185,7 +1185,7 @@
           k = matmul(h,Mat)
           if (h_equal(h,k)) then
              tr=SSG%SymOp(i)%Mat(Dd+1,1:Dd)
-             r1=dot_product(tr,real(h))
+             r1=dot_product(tr,real(h,kind=cp))
              r2=nint(r1)
              if (abs(r1-r2) > eps_ref) then
                 info=.true.
