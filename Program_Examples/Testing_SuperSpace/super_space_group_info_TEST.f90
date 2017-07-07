@@ -25,10 +25,14 @@ Program SSPG_Info
   use CFML_GlobalDeps,                only: cp
   use CFML_Propagation_Vectors,       only: Group_k_Type, Set_Gk, K_Star, &
                                             Write_Group_k, k_EQUIV
+
   !use CFML_SuperSpaceGroups
-  use CFML_SuperSpaceGroups_MYTEST
+  use CFML_SuperSpaceGroups_LOCAL ! module name, not file
 
+  use CFML_Rational_Arithmetic_test
+  use Matrix_Mod
 
+  
    !---- Variables ----!
    implicit none
 
@@ -57,6 +61,11 @@ Program SSPG_Info
    type(SuperSpaceGroup_Type), dimension(:), allocatable  :: SSGs_out
    integer                                                :: nSSGs
 
+   type(SuperSpaceGroup_Type), dimension(8)  :: SSGs_out_test !only case nss=8
+   integer                                   :: lun
+   !character(len=80),    dimension(6,6)                  :: cMat1
+   character(len=80),    dimension(5,5)                  :: cMat1
+   character(len=80),    dimension(:,:),allocatable      :: cMat2
 
 
    !---- Procedure ----!
@@ -124,19 +133,25 @@ WRITE(*,*) " "
 !--- the final goal is to write Set_SSGs_from_Gkk
 !    we adapt here the new parameters: nk, kv
 !  
+!
+!--- CASE nk=1
+!write(*,*) "testing with 1 k-vec"
+!nkvecs=1 
+!if(allocated(kvecs)) deallocate(kvecs) 
+!allocate(kvecs(3,nkvecs))
+!kvecs=0 ! init
+!kvecs(:,1)=vec_k 
+
+
+!--- CASE nk>1
+write(*,*) "testing with 2 k-vecs"
+nkvecs=2 
 if(allocated(kvecs)) deallocate(kvecs) 
-allocate(kvecs(1,3))
+allocate(kvecs(3,nkvecs))
+kvecs=0 ! init
+kvecs(:,1)=vec_k 
+kvecs(:,2)=vec_k + [0.201, 0., 0.]
 
-!--- testing with 1 k-vec
-!
-nkvecs=1 
-kvecs(1,:)=vec_k 
-
-!--- testing with 2 k-vecs
-!
-!nkvecs=2 
-!kvecs(1,:)=vec_k 
-!kvecs(2,:)=vec_k + [0.201, 0., 0.]
 
 
 !---++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -154,9 +169,6 @@ enddo
 !---++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   
 
-!> NEXT STEPS
-!>
-!> MSSG types from SSGs
 
 WRITE(*,*) " "
 WRITE(*,*) " ========================================================================"
