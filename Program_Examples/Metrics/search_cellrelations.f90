@@ -2,17 +2,24 @@
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, Err_Crys_Mess, Init_err_crys,  &
                                      Change_Setting_Cell,Set_Crystal_Cell, Write_Crystal_Cell,   &
                                      get_primitive_cell
+    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Set_SpaceGroup
     use CFML_String_utilities, only: l_case
-    use CFML_Math_3D,          only: Invert_A
+    use CFML_Math_3D,          only: Invert_A,determ_A
     use CFML_Math_General,     only: acosd
+    use CFML_Reflections_Utilities, only: Reflect_Type,Hkl_Gen_Sxtal
     implicit none
-    real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2
+    integer, parameter          :: n_ref=300, nk=24
+    real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2,k1,k2
     real,    dimension(6)       :: bestsol
-    integer, dimension(3,3)     :: mat,bestmat
-    real,    dimension(3,3)     :: base,trans,newc,gn,tp,stp,itp,istp
+    integer, dimension(3,3)     :: mat,bestmat 
+    real,    dimension(3,nk)    :: k_ind
+    real,    dimension(3,3)     :: base,trans,newc,gn,tp,stp,itp,istp,trans_inv,ttrans,ttrans_inv
+    real,    dimension(3)       :: hkl_bas,k_bas,hkl
+    type(Reflect_Type),dimension(n_ref) :: hkl_sup
+    type(Space_Group_type)      :: SpGr
     character(len=1)            :: lat_type,slat_type
     type (Crystal_Cell_Type)    :: cell, supercell, pcell, psupercell
-    logical :: possible,centred,scentred
+    logical :: possible,centred,scentred,k1_given=.false.,k2_given=.false.
 
     !Use the information about the centring lattice to obtain the primitive cell
     !of the original sublattice. Generates supercells by integer linear combinations
@@ -22,7 +29,7 @@
 
     character(len=256) :: fileinp, fileout, line
     integer :: i,j,lun=1,lout=2, ier,i1,i2,i3,i4,i5,i6,i7,i8,i9,iratio,n,irvol
-    integer :: ia1,ia2,ib1,ib2,ic1,ic2, iargc,narg,isol,nn,im, neq
+    integer :: ia1,ia2,ib1,ib2,ic1,ic2, iargc,narg,isol,nn,im, neq,Num_Ref,n_kind=0
     real    :: tol1,tol2,rvol,rfac,bestr,sm,start,fin
 
 
@@ -58,6 +65,16 @@
       if( i /= 0) read(unit=line(4:),fmt=*) tol1,tol2
       i=index(line,"indices")
       if( i /= 0) read(unit=line(8:),fmt=*) ia1,ia2,ib1,ib2,ic1,ic2
+      i=index(line,"k1")
+      if( i /= 0) then
+      	read(unit=line(8:),fmt=*) k1
+      	k1_given=.true.
+      end if
+      i=index(line,"k2")
+      if( i /= 0) then
+      	read(unit=line(8:),fmt=*) k2
+      	k2_given=.true.
+      end if
     end do
     centred=.true.
     scentred=.true.
@@ -97,6 +114,7 @@
     else
       istp=stp
     end if
+    call Set_SpaceGroup(slat_type//" 1",SpGr)
     pcel2=pSuperCell%cell
     pang2=pSuperCell%ang
     rvol=pSuperCell%CellVol/pcell%CellVol
@@ -215,12 +233,99 @@
     write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding conventional cell parameters are: ",cel,ang
     write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The observed      conventional cell parameters are: ",cel2,ang2
     write(unit=lout,fmt="(a)") " => Transformation matrix between conventional cells: "
+!!--..    List Of Matrix Relationships For Crystallographic Applications
+!!--..
+!!--..    Small "t" is for transpose, inv(F) is the inverse of matrix F
+!!--..
+!!--..    Basis vectors as symbolic matrices
+!!--..       At = (a,b,c)  At'=(a',b',c') ;  At* = (a*,b*,c*)  At*'=(a*',b*',c*')
+!!--..
+!!--..    Direct and reciprocal metric tensors: G, G*=inv(G)
+!!--..    X  column vector in     direct space, referred to basis A
+!!--..    X* column vector in reciprocal space, referred to basis A*
+!!--..
+!!--..       A'  = M  A           X'  = inv(Mt) X
+!!--..       A*  = G* A           X*  =   G     X
+!!--..       A*' = inv(Mt) A*     X*' =   M     X*
+!!--..
+!!--..       G' = M G Mt          G*' = inv(Mt) G* inv(M)
 
-    gn=matmul(istp,matmul(real(bestmat),tp))
-    do i=1,3
-      write(unit=lout,fmt="(a, 3i4)") "                           ",nint(gn(i,:))
+
+    trans=matmul(istp,matmul(real(bestmat),tp))
+    trans_inv=Invert_A(trans)
+    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | A |    /",nint(trans(1,:))," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
+    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a,f8.4)") "       | B | = | ",nint(trans(2,:)),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
+    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | C |    \",nint(trans(3,:))," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
+    ttrans=transpose(trans)
+    ttrans_inv=transpose(trans_inv)
+
+    write(unit=lout,fmt="(/,a, 3i4,a,3f8.4,a)")    "       | A*|    /",nint(ttrans(1,:))," \ | a*|      | a*|   /",ttrans_inv(1,:)," \ | A*|"  
+    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a,f8.4)") "       | B*| = | ",nint(ttrans(2,:)),"  || b*|      | b*|= | ",ttrans_inv(2,:),"  || B*|       determinant:",determ_a(trans_inv)  
+    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | C*|    \",nint(ttrans(3,:))," / | c*|      | c*|   \",ttrans_inv(3,:)," / | C*|"  
+
+    !Search propagation vectors relating the two unit cells
+    !Generate allowed reflections in the superstructure cell up to s=0.5
+    call Hkl_Gen_Sxtal(supercell,SpGr,0.0,0.25,Num_Ref,hkl_sup)
+    write(unit=lout,fmt="(/,a)") " ==============================================================="
+    write(unit=lout,fmt="(a)")   " Indexing of superstructure reflection in the substructure basis"
+    write(unit=lout,fmt="(a,/)") " ==============================================================="
+    write(unit=lout,fmt="(a)") "         Num_Ref   Hs    Ks    Ls         Hb      Kb      Lb     hb    kb    lb         k-vector"
+    do i=1,Num_ref
+    	hkl_bas=matmul(trans_inv,hkl_sup(i)%h)
+    	k_bas=hkl_bas-real(nint(hkl_bas))
+    	call k_independent(k_bas)
+    	write(unit=lout,fmt="(t8,i8,3i6,tr4,3f8.4,3i6,tr4,3f8.5)") i, hkl_sup(i)%h,hkl_bas,nint(hkl_bas),k_bas
     end do
-    call cpu_time(fin)
+
+    if(k1_given) then
+    	k2=matmul(trans,k1)
+      write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
+    else if(k2_given) then
+    	k1=matmul(trans_inv,k2)
+      write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")" 
+      write(unit=lout,fmt="(/,a)") " ==============================================================="
+      write(unit=lout,fmt="(a)")   " Indexing of superstructure satellites in the substructure basis"
+      write(unit=lout,fmt="(a,/)") " ==============================================================="
+      write(unit=lout,fmt="(a)") "         Num_Ref     Hs      Ks      Ls         Hb      Kb      Lb     hb    kb    lb         k-vector"
+      
+      do i=1,Num_ref
+      	hkl=hkl_sup(i)%h+k2
+      	hkl_bas=matmul(trans_inv,hkl)
+      	k_bas=hkl_bas-real(nint(hkl_bas))
+      	call k_independent(k_bas)
+      	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f8.5)") " +k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
+      	hkl=hkl_sup(i)%h-k2
+      	hkl_bas=matmul(trans_inv,hkl)
+      	k_bas=hkl_bas-real(nint(hkl_bas))
+      	call k_independent(k_bas)
+      	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f8.5)") " -k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
+      end do
+      write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
+      do i=1,n_kind
+      		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
+      end do
+    end if
+    
+    call cpu_time(fin)                                                                                                       
     write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
-    stop
+    contains
+    	subroutine k_independent(k)
+    		real, dimension(3), intent(in):: k
+    		real :: del=0.001
+    		integer :: n
+    		if(sum(abs(k)) < del) return
+    		!write(*,*) n_kind,k
+    		if(n_kind == 0) then
+    			n_kind=n_kind+1
+    			k_ind(:,n_kind) = k
+    		else
+    			do n=1,n_kind
+    				if(sum(abs(k-k_ind(:,n))) < del) return
+    				if(sum(abs(k+k_ind(:,n))) < del) return
+    			end do
+    		  n_kind=n_kind+1
+    		  k_ind(:,n_kind) = k
+    		end if
+    	end subroutine k_independent 
+    	
   End Program Cell_Relations
