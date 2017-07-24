@@ -312,19 +312,29 @@
     	subroutine k_independent(k)
     		real, dimension(3), intent(in):: k
     		real :: del=0.001
-    		integer :: n
+    		integer :: n,neg
     		if(sum(abs(k)) < del) return
     		!write(*,*) n_kind,k
     		if(n_kind == 0) then
     			n_kind=n_kind+1
-    			k_ind(:,n_kind) = k
+    			neg=count(k+del < 0.0)
+    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then    			  
+       		  k_ind(:,n_kind) = -k
+       		else
+       		  k_ind(:,n_kind) =  k
+       		end if
     		else
     			do n=1,n_kind
     				if(sum(abs(k-k_ind(:,n))) < del) return
     				if(sum(abs(k+k_ind(:,n))) < del) return
     			end do
     		  n_kind=n_kind+1
-    		  k_ind(:,n_kind) = k
+    			neg=count(k+del < 0.0)
+    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then    			  
+       		  k_ind(:,n_kind) = -k
+       		else
+       		  k_ind(:,n_kind) =  k
+       		end if
     		end if
     	end subroutine k_independent 
     	
