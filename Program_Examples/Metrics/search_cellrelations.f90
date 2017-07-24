@@ -300,11 +300,11 @@
       	call k_independent(k_bas)
       	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f8.5)") " -k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
       end do
-      write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
-      do i=1,n_kind
-      		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
-      end do
     end if
+    write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
+    do i=1,n_kind
+    		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
+    end do
     
     call cpu_time(fin)                                                                                                       
     write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
