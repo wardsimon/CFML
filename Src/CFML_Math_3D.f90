@@ -1530,9 +1530,9 @@
        character(len=1)                           :: c_mode
        real(kind=cp), allocatable, dimension(:,:) :: ox,sox,cox
 
-       integer                                    :: ns1
+       integer                                    :: ns1,ns2
        real(kind=cp), dimension(3)                :: pm,sdm,ppm,am,xm,dr,diff,sam
-       real(kind=cp), dimension(6)                :: a,ra
+       real(kind=cp), dimension(6)                :: a,ac,ra
        real(kind=cp), dimension(10)               :: c
        real(kind=cp), dimension(N)                :: w2
        real(kind=cp)                              :: sdd, da, db, dg, dep, dl, dy, sd
@@ -1633,20 +1633,21 @@
                 a(5)=a(5) + (ox(i,2)-xm(2))*(ox(i,3)-xm(3))
                 a(6)=a(6) + (ox(i,3)-xm(3))**2
              end do
+             ac=abs(a)
 
              pm=0.0
-             if (a(1) == 0.0_cp .and. a(2) == 0.0_cp .and. a(3) == 0.0_cp) then
+             if (ac(1) <= tiny(1.0_cp) .and. ac(2) <= tiny(1.0_cp) .and. ac(3) <= tiny(1.0_cp)) then
                 pm(1)=1.0
-             else if (a(2) == 0.0_cp .and. a(4) == 0.0_cp .and. a(5) == 0.0_cp) then
+             elseif (ac(2) <= tiny(1.0_cp) .and. ac(4) <= tiny(1.0_cp) .and. ac(5) <= tiny(1.0_cp)) then
                 pm(2)=1.0
-             else if (a(3) == 0.0_cp .and. a(5) == 0.0_cp .and. a(6) == 0.0_cp) then
+             elseif (ac(3) <= tiny(1.0_cp) .and. ac(5) <= tiny(1.0_cp) .and. ac(6) <= tiny(1.0_cp)) then
                 pm(3)=1.0
              else
                 da=a(1)+a(4)+a(6)
                 db= -(a(1)*a(4) + a(1)*a(6) + a(4)*a(6)) + a(2)**2 + a(3)**2 *a(5)**2
                 dg= a(1)*a(4)*a(6) + 2.0*(a(2)*a(3)*a(5))-(a(1)*a(5)**2+a(4)*a(3)**2+a(6)*a(2)**2)
 
-                if (abs(dg) >= 1.0e-6) then
+                if (abs(dg) >= eps) then
                    dep=db**2 - 4.0*da*dg
                    if (dep < 0.0_cp) then
                       !> Error
@@ -1655,11 +1656,11 @@
                       return
                    end if
                    dl=(-db - sqrt(dep))/(2.0*da)
-                   if (abs(dl) >= 1.0e-6) then
+                   if (abs(dl) >= eps) then
                       do
                          dy=dl**3 + da*dl**2 + db*dl + dg
                          dl= dl - dy/(3.0*dl**2 + 2.0*da*dl + db)
-                         if (abs(dy) <= 1.0e-6) exit
+                         if (abs(dy) <= eps) exit
                       end do
                    end if
                 else
@@ -1674,6 +1675,7 @@
              pamu=sqrt(pm(1)**2 + pm(2)**2 + pm(3)**2)
              pm=pm/pamu
 
+             ns2=0
              do
                 do i=1,N
                    w2(i)=1.0/((pm(1)*sox(i,1))**2+(pm(2)*sox(i,2))**2 +(pm(3)*sox(i,3))**2)
@@ -1702,7 +1704,7 @@
                 a(6)=c(8)-(c(9)**2)/c(10)
 
                 det=a(1)*a(4)*a(6) + 2.0*a(2)*a(3)*a(5) - a(1)*a(5)*a(5) - a(4)*a(3)*a(3) - a(6)*a(2)*a(2)
-                if (abs(det) <= 1.0e-9) then
+                if (abs(det) <= 0.1*eps) then
                    d1=0.0
                    do i=1,3
                       d1=d1+pm(i)*xm(i)
@@ -1725,7 +1727,7 @@
                    ppm=ppm/pamu
 
                    diff=abs(abs(ppm)-abs(pm))
-                   if (diff(1) < 1.0e-5 .and. diff(2) < 1.0e-5 .and. diff(3) < 1.0e-5) then
+                   if (diff(1) < eps .and. diff(2) < eps .and. diff(3) < eps) then
                       xm=0.0
                       do i=1,3
                          do j=1,N
@@ -1738,6 +1740,9 @@
                       end do
                       exit
                    else
+                      ns2=ns2+1
+                      if (ns2 > NMAX_ITER) exit
+
                       pm=ppm
                       cycle
                    end if
@@ -1749,13 +1754,14 @@
              am=ppm
              df = d1
           end if
+
           ns1 =ns1+1
           do i=1,3
              dr(i)=abs(ppm(i)-am(i))
-             if (dr(i) > 1.0e-7) sdm(i)=sdm(i)+dr(i)**2
+             if (dr(i) > 0.1*eps) sdm(i)=sdm(i)+dr(i)**2
           end do
           dd=abs(d1-df)
-          if (dd > 1.0e-7) sdd=sdd+dd**2
+          if (dd > 0.1*eps) sdd=sdd+dd**2
 
           if ((ns1 - NMAX_ITER-1) == 0) exit
 
@@ -1783,10 +1789,10 @@
 
        sam=0.0
        do i=1,3
-          if (sdm(i) > 1.0e-16) sam(i)=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdm(i))
+          if (sdm(i) > 1.0e-8) sam(i)=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdm(i))
        end do
        sd=0.0
-       if (sdd > 1.0e-16) sd=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdd)
+       if (sdd > 1.0e-8) sd=(1.0/(1.0e-3*sqrt(200.0)))*sqrt(sdd)
 
        !> Results
        plane(1:3)=am
