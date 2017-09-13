@@ -33,18 +33,21 @@ Program SPG_Info
       !> Setting the Space Group Information
       call set_spacegroup(spgr,grp_espacial)
       if(err_symm) then
-        write(unit=*,fmt="(a)") "   ERROR: "//trim(err_symm_mess)
+        write(unit=*,fmt="(a)") "    Warning: "//trim(err_symm_mess)
+        cycle
       end if
       !> Writing the SpaceGroup Information
       call Write_SpaceGroup(grp_espacial, full=.true.)
       ! Pointing out the operators in the HM-symbol
       call Get_Generators_From_SpGSymbol(grp_espacial,gen,point_op,ngen)
-      write(unit=*,fmt="(/,a,i3,a)") " => Generators of the Space Group: # ",grp_espacial%NumSpg,"  "//trim(grp_espacial%SPG_Symb)
-      do i=1,ngen
-        j=point_op(i)
-        call Symmetry_Symbol(grp_espacial%SymopSymb(j),op_symb)
-        write(unit=*,fmt="(a,i3,a)") "    Generator #",i, "  "//gen(i)(1:30)//"Symbol: "//trim(op_symb)
-      end do
+      if(ngen > 0 .and. point_op(1) > 0) then
+        write(unit=*,fmt="(/,a,i3,a)") " => Generators of the Space Group: # ",grp_espacial%NumSpg,"  "//trim(grp_espacial%SPG_Symb)
+        do i=1,ngen
+          j=point_op(i)
+          call Symmetry_Symbol(grp_espacial%SymopSymb(j),op_symb)
+          write(unit=*,fmt="(a,i3,a)") "    Generator #",i, "  "//gen(i)(1:30)//"Symbol: "//trim(op_symb)
+        end do
+      end if
       write(unit=*,fmt="(a)") "   "
    end do
 

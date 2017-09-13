@@ -8134,7 +8134,6 @@
                      end if
                    end do
                 end if
-
             case("HAL")
                 do i=1,num_spgr_info
                    if (spgm(1:16) == u_case(spgr_info(i)%hall)) then
@@ -8143,6 +8142,11 @@
                    end if
                 end do
           End select
+          if(num < 0) then 
+               err_symm=.true.
+               ERR_Symm_Mess=" Bad MODE in the call to set_SpaceGroup: "//opcion
+               return
+          end if
 
        else       ! detect automatically the symbol of the group
 
@@ -8473,7 +8477,10 @@
              return
        end select
 
-       if (err_symm) return
+       if (err_symm) then
+        if(len_trim(ERR_Symm_Mess) == 0) ERR_Symm_Mess="Error in the provided symbol/number of the space group"
+        return
+       end if
        if (Is_Hexa(ng,ss)) SpaceGroup%Hexa=.true.
 
        hexa=SpaceGroup%Hexa  !added 24/05/2007
