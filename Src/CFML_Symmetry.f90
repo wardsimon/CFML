@@ -8142,12 +8142,7 @@
                    end if
                 end do
           End select
-          if(num < 0) then 
-               err_symm=.true.
-               ERR_Symm_Mess=" Bad MODE in the call to set_SpaceGroup: "//opcion
-               return
-          end if
-
+          !No control of error here because there are other options below
        else       ! detect automatically the symbol of the group
 
           call getnum(spgm,vet,ivet,iv)
