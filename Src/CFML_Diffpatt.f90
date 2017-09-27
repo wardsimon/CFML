@@ -1326,18 +1326,20 @@
     End Subroutine Read_Pattern_Dmc
 
     !!--++
-    !!--++ Subroutine Read_Pattern_Free(i_dat,Pat)
+    !!--++ Subroutine Read_Pattern_Free(i_dat,Pat,ext)
     !!--++    integer,                         intent(in)     :: i_dat
     !!--++    type (diffraction_pattern_type), intent(in out) :: Pat
+    !!--++    character(len=*), optional,      intent(in)     :: ext
     !!--++
     !!--++    Read a pattern for Free
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_Free(i_dat,Pat)
+    Subroutine Read_Pattern_Free(i_dat,Pat,ext)
        !---- Arguments ----!
        integer,                         intent(in)     :: i_dat
        type (diffraction_pattern_type), intent(in out) :: Pat
+       character(len=*), optional,      intent(in)     :: ext
 
        !---- Local Variables ----!
        integer                                      :: i,no,ier,inum,nc,iv
@@ -1345,7 +1347,7 @@
        character(len=180)                           :: aline
        character(len=20), dimension(10)             :: dire
        real(kind=cp), dimension(3)                  :: vet
-       logical                                      :: title_given
+       logical                                      :: title_given,ext_given, rigaku
 
        call init_err_diffpatt()
        title_given=.false.
@@ -1358,6 +1360,12 @@
        pat%xmax=0.0
        pat%step=0.0
        pat%scat_var="2theta"
+       ext_given=.false.
+       rigaku=.false.
+       if(present(ext)) ext_given=.true.
+       if(ext_given) then
+       	 if(trim(ext) == ".MDI") rigaku=.true.
+       end if
 
        do
           read(unit=i_dat,fmt="(a)",iostat=ier) aline
@@ -1397,7 +1405,7 @@
                 Pat%title=trim(aline(i+7:))
                 title_given=.true.
             end if
-            cycle
+            cycle          	
           end if
           ! BANK Information
           if (aline(1:4) == "BANK") then
@@ -1406,7 +1414,21 @@
              pat%xmax=pat%xmin+(pat%npts-1)*pat%step
              exit
           end if
-
+          if(rigaku) then
+          	if(.not. title_given) then
+          		title_given=.true.
+          		Pat%title=trim(adjustl(aline))
+          		cycle
+          	else
+          		call getword(aline,dire,nc)
+          		call getnum(trim(dire(1))//' '//trim(dire(2))//' '//trim(dire(6)),vet,ivet,iv)
+              pat%xmin=vet(1)
+              pat%step=vet(2)
+              pat%xmax=vet(3)
+              pat%npts = nint((pat%xmax-pat%xmin)/pat%step+1.0)
+          	  exit
+          	end if
+          end if
           ! Reading Xmin, Step, Xmax, Title (optional)
           call getword(aline,dire,nc)
           if (nc > 2) then
@@ -2386,7 +2408,9 @@
              dif_pat%instr  = " 11  - "//mode
 
           case default
-             call Read_Pattern_free(i_dat,dif_pat)
+             i=index(filename,".",back=.true.)
+             extdat=u_case(filename(i:))
+             call Read_Pattern_free(i_dat,dif_pat,extdat)
              if(Err_diffpatt) return
              dif_pat%diff_kind = "unknown"
              dif_pat%instr  = "  0  - "//"Free format"
