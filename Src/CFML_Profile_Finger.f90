@@ -1295,7 +1295,7 @@
         apb = s_l + d_l
         amb = s_l - d_l
         ! Catch special case of S_L = D_L
-        If (Abs(amb) < 0.00001) Then
+        If (Abs(amb) <= eps) Then
           s_eq_d = .TRUE.
         Else
           s_eq_d = .FALSE.
@@ -1347,7 +1347,7 @@
         If (s_eq_d) Then
           dfi_einfl = pi_over_two
           normv_analytic = (dfi_einfl - dfi_emin) -  &
-              half_over_dl*(extra_int(einflr)-extra_int(eminr))
+              2.0_cp*half_over_dl*(extra_int(einflr)-extra_int(eminr))
           df_dh_factor =  half_over_dl * (pi_over_two - dfi_emin)
           df_ds_factor =  half_over_dl * (pi_over_two - dfi_emin)
           df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
@@ -1390,7 +1390,7 @@
       sumwgdrde = 0.0
       sumwx = 0.0
       ! Compute the convolution integral
-      Do k = ngt2 , ngt
+      Do k = ngt2+1 , ngt
         Do side = 1,2
           If (side == 1) Then
             delta = (twoth0 + emin)/2 + (twoth0 - emin) * xp(k + it)/2
