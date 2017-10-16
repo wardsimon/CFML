@@ -132,7 +132,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public  :: np_SAN=80
+    integer, parameter, public  :: np_SAN=1024
 
     !!----
     !!----  TYPE :: MULTISTATE_VECTOR_TYPE
