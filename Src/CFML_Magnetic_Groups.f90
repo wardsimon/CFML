@@ -299,9 +299,8 @@
     ! open data file
     Call Get_LogUnit(i_mag)
     Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="stream")
-    !Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="transparent") ! For Lahey
     !For the old Lahey compiler use this
-    !Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted")
+    !Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="transparent") ! For Lahey
     ! read nonhexagonal point operators
     Do i=1,48
       Read(i_mag)n,point_op_label(i),point_op_xyz(i),  &
@@ -368,10 +367,9 @@
     !*****************************************************************************
     ! open data file
     Call Get_LogUnit(i_mag)
-    !Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="stream",form="unformatted")
-    Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="transparent",form="unformatted")  !For Lahey
+    Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="stream",form="unformatted")
     !For the old Lahey compiler use this
-    !Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",form="unformatted")
+    !Open(unit=i_mag,File='magnetic_data.bin',status="replace",action="write",access="transparent",form="unformatted")  !For Lahey
     ! read nonhexangonal point operators
     Do i=1,48
       Write(i_mag) i,point_op_label(i),point_op_xyz(i),  &
