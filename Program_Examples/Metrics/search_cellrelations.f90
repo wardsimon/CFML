@@ -2,13 +2,14 @@
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, Err_Crys_Mess, Init_err_crys,  &
                                      Change_Setting_Cell,Set_Crystal_Cell, Write_Crystal_Cell,   &
                                      get_primitive_cell
-    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Set_SpaceGroup
-    use CFML_String_utilities, only: l_case
+    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Set_SpaceGroup 
+    use CFML_String_utilities, only: l_case, Get_Symb_From_Mat, Get_Separator_Pos
     use CFML_Math_3D,          only: Invert_A,determ_A
     use CFML_Math_General,     only: acosd
     use CFML_Reflections_Utilities, only: Reflect_Type,Hkl_Gen_Sxtal
     implicit none
     integer, parameter          :: n_ref=300, nk=24
+    integer, dimension(2)       :: pos
     real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2,k1,k2
     real,    dimension(6)       :: bestsol
     integer, dimension(3,3)     :: mat,bestmat 
@@ -18,6 +19,7 @@
     type(Reflect_Type),dimension(n_ref) :: hkl_sup
     type(Space_Group_type)      :: SpGr
     character(len=1)            :: lat_type,slat_type
+    character(len=30)           :: abc_symb,iabc_symb
     type (Crystal_Cell_Type)    :: cell, supercell, pcell, psupercell
     logical :: possible,centred,scentred,k1_given=.false.,k2_given=.false.
 
@@ -28,16 +30,15 @@
     !parameter and each angle. Output the matrices giving cells within tolerance.
 
     character(len=256) :: fileinp, fileout, line
-    integer :: i,j,lun=1,lout=2, ier,i1,i2,i3,i4,i5,i6,i7,i8,i9,iratio,n,irvol
+    integer :: i,j,lun=1,lout=2, ier,i1,i2,i3,i4,i5,i6,i7,i8,i9,iratio,n,irvol,ncar
     integer :: ia1,ia2,ib1,ib2,ic1,ic2, iargc,narg,isol,nn,im, neq,Num_Ref,n_kind=0
     real    :: tol1,tol2,rvol,rfac,bestr,sm,start,fin
 
 
-    narg=iargc()
+    narg=COMMAND_ARGUMENT_COUNT()
     if(narg /= 0) then
-      CALL getarg(1,fileinp)
+      call GET_COMMAND_ARGUMENT(1,fileinp)
       open(unit=lun,file=trim(fileinp),status="old",action="read",position="rewind",iostat=ier)
-      CALL getarg(2,fileout)
     end if
     if(ier /=0 .or. narg == 0) then
     ! reading data
@@ -50,6 +51,15 @@
       end do
       write(unit=*,fmt="(a)") " => Enter the name of the output file: "
       read(unit=*,fmt="(a)") fileout
+    else if (narg == 2) then 
+      call GET_COMMAND_ARGUMENT(2,fileout)
+    else if (narg == 1) then 
+      i=index(fileinp,".", back=.true.)
+      if(i /= 0) then 
+        fileout=trim(fileinp)//".out"
+      else 
+        fileout=fileinp(1:i)//"out"
+      end if
     end if
 
     open(unit=lout,file=trim(fileout),status="replace",action="write")
@@ -84,6 +94,9 @@
     write(unit=lout,fmt="(a)") "  ------------------------------"
     write(unit=lout,fmt="(a)") "  PROGRAM: Search_Cell_Relations"
     write(unit=lout,fmt="(a)") "  ------------------------------"
+    write(unit=*,fmt="(/a)") "  ------------------------------"
+    write(unit=*,fmt="(a)") "  PROGRAM: Search_Cell_Relations"
+    write(unit=*,fmt="(a)") "  ------------------------------"
     write(unit=lout,fmt="(/,a)") "  => INPUT SUBCELL DATA"
     call Write_Crystal_Cell(Cell,Lout)
     call Get_Primitive_Cell(lat_type,cell,pcell,tp)
@@ -126,6 +139,7 @@
     n=0
     bestr=1000000.0
     nn=0
+    isol=0
     call cpu_time(start)
     do i1=ia1,ia2                        !         |i1  i2  i3|
      do i2=ib1,ib2                       ! Trans = |i4  i5  i6|  = mat
@@ -200,7 +214,7 @@
                  write(unit=lout,fmt="(a)") " => Transformation matrix between conventional cells: "
                  gn=matmul(istp,matmul(trans,tp))
                  do i=1,3
-                   write(unit=lout,fmt="(a, 3i4)") "                           ",nint(gn(i,:))
+                   write(unit=lout,fmt="(a, 3f8.4)") "                           ",gn(i,:)
                  end do
                end if
                write(unit=lout,fmt="(a)") "    ----------------------------------------------------------------------"
@@ -214,100 +228,122 @@
       end do          !i3
      end do           !i2
     end do            !i1
-    write(unit=lout,fmt="(a,i6,a,f10.5)") " => The best solution is the number ",isol,&
-                                                     " with average deviation: ",bestr
-    write(unit=lout,fmt="(a,i3,a)")  " => There are other ",neq," equivalent solutions in the list"
-    write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding primitive cell parameters are: ",bestsol
-    write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The observed      primitive cell parameters are: ",pcel2,pang2
-    call Set_Crystal_Cell(bestsol(1:3),bestsol(4:6),pSuperCell) !use primitive for convenience
-    base=transpose(pSuperCell%Cr_Orth_cel)  !basis vectors of the primitive cell
-    newc=matmul(real(istp),base)            !Transformation to conventional cell
-    gn=matmul(newc,transpose(newc))         !Metric tensor of the conventional cell
-    do i=1,3
-       Cel(i)=sqrt(gn(i,i))
-    end do
-    ang(1)=acosd(Gn(2,3)/(cel(2)*cel(3)))
-    ang(2)=acosd(Gn(1,3)/(cel(1)*cel(3)))
-    ang(3)=acosd(Gn(1,2)/(cel(1)*cel(2)))
-
-    write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding conventional cell parameters are: ",cel,ang
-    write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The observed      conventional cell parameters are: ",cel2,ang2
-    write(unit=lout,fmt="(a)") " => Transformation matrix between conventional cells: "
-!!--..    List Of Matrix Relationships For Crystallographic Applications
-!!--..
-!!--..    Small "t" is for transpose, inv(F) is the inverse of matrix F
-!!--..
-!!--..    Basis vectors as symbolic matrices
-!!--..       At = (a,b,c)  At'=(a',b',c') ;  At* = (a*,b*,c*)  At*'=(a*',b*',c*')
-!!--..
-!!--..    Direct and reciprocal metric tensors: G, G*=inv(G)
-!!--..    X  column vector in     direct space, referred to basis A
-!!--..    X* column vector in reciprocal space, referred to basis A*
-!!--..
-!!--..       A'  = M  A           X'  = inv(Mt) X
-!!--..       A*  = G* A           X*  =   G     X
-!!--..       A*' = inv(Mt) A*     X*' =   M     X*
-!!--..
-!!--..       G' = M G Mt          G*' = inv(Mt) G* inv(M)
-
-
-    trans=matmul(istp,matmul(real(bestmat),tp))
-    trans_inv=Invert_A(trans)
-    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | A |    /",nint(trans(1,:))," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
-    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a,f8.4)") "       | B | = | ",nint(trans(2,:)),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
-    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | C |    \",nint(trans(3,:))," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
-    ttrans=transpose(trans)
-    ttrans_inv=transpose(trans_inv)
-
-    write(unit=lout,fmt="(/,a, 3i4,a,3f8.4,a)")    "       | A*|    /",nint(ttrans(1,:))," \ | a*|      | a*|   /",ttrans_inv(1,:)," \ | A*|"  
-    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a,f8.4)") "       | B*| = | ",nint(ttrans(2,:)),"  || b*|      | b*|= | ",ttrans_inv(2,:),"  || B*|       determinant:",determ_a(trans_inv)  
-    write(unit=lout,fmt="(a, 3i4,a,3f8.4,a)")      "       | C*|    \",nint(ttrans(3,:))," / | c*|      | c*|   \",ttrans_inv(3,:)," / | C*|"  
-
-    !Search propagation vectors relating the two unit cells
-    !Generate allowed reflections in the superstructure cell up to s=0.5
-    call Hkl_Gen_Sxtal(supercell,SpGr,0.0,0.25,Num_Ref,hkl_sup)
-    write(unit=lout,fmt="(/,a)") " ==============================================================="
-    write(unit=lout,fmt="(a)")   " Indexing of superstructure reflection in the substructure basis"
-    write(unit=lout,fmt="(a,/)") " ==============================================================="
-    write(unit=lout,fmt="(a)") "         Num_Ref   Hs    Ks    Ls         Hb      Kb      Lb     hb    kb    lb         k-vector"
-    do i=1,Num_ref
-    	hkl_bas=matmul(trans_inv,hkl_sup(i)%h)
-    	k_bas=hkl_bas-real(nint(hkl_bas))
-    	call k_independent(k_bas)
-    	write(unit=lout,fmt="(t8,i8,3i6,tr4,3f8.4,3i6,tr4,3f8.5)") i, hkl_sup(i)%h,hkl_bas,nint(hkl_bas),k_bas
-    end do
-
-    if(k1_given) then
-    	k2=matmul(trans,k1)
-      write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
-    else if(k2_given) then
-    	k1=matmul(trans_inv,k2)
-      write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")" 
-      write(unit=lout,fmt="(/,a)") " ==============================================================="
-      write(unit=lout,fmt="(a)")   " Indexing of superstructure satellites in the substructure basis"
-      write(unit=lout,fmt="(a,/)") " ==============================================================="
-      write(unit=lout,fmt="(a)") "         Num_Ref     Hs      Ks      Ls         Hb      Kb      Lb     hb    kb    lb         k-vector"
+    
+    if(isol == 0) then 
+      write(unit=lout,fmt="(/,a)") " => No solution found! " 
+      write(unit=*,fmt="(/,/,a)")  " => No solution found! " 
+    else 
+      write(unit=lout,fmt="(a,i6,a,f10.5)") " => The best solution is the number ",isol,&
+                                                       " with average deviation: ",bestr
+      write(unit=lout,fmt="(a,i3,a)")  " => There are other ",neq," equivalent solutions in the list"
+      write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding primitive cell parameters are: ",bestsol
       
+      call Set_Crystal_Cell(bestsol(1:3),bestsol(4:6),pSuperCell) !use primitive for convenience
+      base=transpose(pSuperCell%Cr_Orth_cel)  !basis vectors of the primitive cell
+      newc=matmul(real(istp),base)            !Transformation to conventional cell
+      gn=matmul(newc,transpose(newc))         !Metric tensor of the conventional cell
+      do i=1,3
+         Cel(i)=sqrt(gn(i,i))
+      end do
+      ang(1)=acosd(Gn(2,3)/(cel(2)*cel(3)))
+      ang(2)=acosd(Gn(1,3)/(cel(1)*cel(3)))
+      ang(3)=acosd(Gn(1,2)/(cel(1)*cel(2)))
+      
+      write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding conventional cell parameters are: ",cel,ang
+      write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The observed      conventional cell parameters are: ",cel2,ang2
+      write(unit=lout,fmt="(a)") " => Transformation matrix between conventional cells: "
+      !!--..    List Of Matrix Relationships For Crystallographic Applications
+      !!--..
+      !!--..    Small "t" is for transpose, inv(F) is the inverse of matrix F
+      !!--..
+      !!--..    Basis vectors as symbolic matrices
+      !!--..       At = (a,b,c)  At'=(a',b',c') ;  At* = (a*,b*,c*)  At*'=(a*',b*',c*')
+      !!--..
+      !!--..    Direct and reciprocal metric tensors: G, G*=inv(G)
+      !!--..    X  column vector in     direct space, referred to basis A
+      !!--..    X* column vector in reciprocal space, referred to basis A*
+      !!--..
+      !!--..       A'  = M  A           X'  = inv(Mt) X
+      !!--..       A*  = G* A           X*  =   G     X
+      !!--..       A*' = inv(Mt) A*     X*' =   M     X*
+      !!--..
+      !!--..       G' = M G Mt          G*' = inv(Mt) G* inv(M)
+      
+      
+      trans=matmul(istp,matmul(real(bestmat),tp))
+      trans_inv=Invert_A(trans)
+      call Get_Symb_From_Mat(trans,abc_symb,(/"a","b","c"/)) 
+      call Get_Separator_Pos(abc_symb,",",pos,ncar)
+      abc_symb=" A="//abc_symb(1:pos(1)-1)//"  B="//abc_symb(pos(1)+1:pos(2)-1)//"  C="//abc_symb(pos(2)+1:)
+      call Get_Symb_From_Mat(trans_inv,iabc_symb,(/"A","B","C"/)) 
+      call Get_Separator_Pos(iabc_symb,",",pos,ncar)
+      iabc_symb=" a="//iabc_symb(1:pos(1)-1)//"  b="//iabc_symb(pos(1)+1:pos(2)-1)//"  c="//iabc_symb(pos(2)+1:)
+      
+      write(unit=lout,fmt="(/t17,a,t64,a/)") trim(abc_symb),trim(iabc_symb)
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
+      
+      write(unit=*,fmt="(//a)") " => FINAL conventional cell transformation:"
+      write(unit=*,fmt="(/t17,a,t64,a/)") trim(abc_symb),trim(iabc_symb)
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
+      ttrans=transpose(trans)
+      ttrans_inv=transpose(trans_inv)
+      
+      write(unit=lout,fmt="(/,a, 3f8.4,a,3f8.4,a)")    "       | A*|    /",ttrans(1,:)," \ | a*|      | a*|   /",ttrans_inv(1,:)," \ | A*|"  
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B*| = | ",ttrans(2,:),"  || b*|      | b*|= | ",ttrans_inv(2,:),"  || B*|       determinant:",determ_a(trans_inv)  
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C*|    \",ttrans(3,:)," / | c*|      | c*|   \",ttrans_inv(3,:)," / | C*|"  
+      
+      !Search propagation vectors relating the two unit cells
+      !Generate allowed reflections in the superstructure cell up to s=0.5
+      call Hkl_Gen_Sxtal(supercell,SpGr,0.0,0.25,Num_Ref,hkl_sup)
+      write(unit=lout,fmt="(/,a)") " ==============================================================="
+      write(unit=lout,fmt="(a)")   " Indexing of superstructure reflection in the substructure basis"
+      write(unit=lout,fmt="(a,/)") " ==============================================================="
+      write(unit=lout,fmt="(a)") "         Num_Ref   Hs    Ks    Ls         Hb      Kb      Lb     hb    kb    lb           k-vector"
       do i=1,Num_ref
-      	hkl=hkl_sup(i)%h+k2
-      	hkl_bas=matmul(trans_inv,hkl)
+      	hkl_bas=matmul(trans_inv,hkl_sup(i)%h)
       	k_bas=hkl_bas-real(nint(hkl_bas))
       	call k_independent(k_bas)
-      	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f8.5)") " +k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
-      	hkl=hkl_sup(i)%h-k2
-      	hkl_bas=matmul(trans_inv,hkl)
-      	k_bas=hkl_bas-real(nint(hkl_bas))
-      	call k_independent(k_bas)
-      	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f8.5)") " -k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
+      	write(unit=lout,fmt="(t8,i8,3i6,tr4,3f8.4,3i6,tr4,3f9.5)") i, hkl_sup(i)%h,hkl_bas,nint(hkl_bas),k_bas
+      end do
+      
+      if(k1_given) then
+      	k2=matmul(trans,k1)
+        write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
+      else if(k2_given) then
+      	k1=matmul(trans_inv,k2)
+        write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")" 
+        write(unit=lout,fmt="(/,a)") " ==============================================================="
+        write(unit=lout,fmt="(a)")   " Indexing of superstructure satellites in the substructure basis"
+        write(unit=lout,fmt="(a,/)") " ==============================================================="
+        write(unit=lout,fmt="(a)") "         Num_Ref     Hs      Ks      Ls         Hb      Kb      Lb     hb    kb    lb           k-vector"
+        
+        do i=1,Num_ref
+        	hkl=hkl_sup(i)%h+k2
+        	hkl_bas=matmul(trans_inv,hkl)
+        	k_bas=hkl_bas-real(nint(hkl_bas))
+        	call k_independent(k_bas)
+        	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f9.5)") " +k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
+        	hkl=hkl_sup(i)%h-k2
+        	hkl_bas=matmul(trans_inv,hkl)
+        	k_bas=hkl_bas-real(nint(hkl_bas))
+        	call k_independent(k_bas)
+        	write(unit=lout,fmt="(t4,a,i8,3f8.4,tr4,3f8.4,3i6,tr4,3f9.5)") " -k ",i, hkl,hkl_bas,nint(hkl_bas),k_bas
+        end do
+      end if
+      write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
+      do i=1,n_kind
+      		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
       end do
     end if
-    write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
-    do i=1,n_kind
-    		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
-    end do
     
     call cpu_time(fin)                                                                                                       
-    write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
+    write(unit=*,fmt="(/,a,f10.2,a)")     " => CPU-Time: ", fin-start," seconds"
+    write(unit=lout,fmt="(/,a,f10.2,a)")  " => CPU-Time: ", fin-start," seconds"
+    
     contains
     	subroutine k_independent(k)
     		real, dimension(3), intent(in):: k

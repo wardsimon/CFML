@@ -7159,8 +7159,9 @@
     !!----     1  0  1                      c'=a+c
     !!----     And the change of origin given by (0.5,0.0,0.5)
     !!----     The subroutine provide the symbol: (1/2,0,1/2; a-c,2b,a+c)
-    !!----     If "oposite" is provided theh the symbol: (a-c,2b,a+c; 1/2,0,1/2)
-    !!----
+    !!----     If "oposite" is provided then the output is the symbol: (a-c,2b,a+c; 1/2,0,1/2)
+    !!----     Warning! This procedure works only for integer matrices, for rational matrices
+    !!----     please use the procedure Get_Symb_From_Mat in CFML_String_Utilities module.
     !!----
     !!---- Update: November - 2012, February 2016 (optional argument)
     !!
