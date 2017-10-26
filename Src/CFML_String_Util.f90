@@ -1984,10 +1984,10 @@
               if(aux == 1 .or. aux == -1) then
                 msp(j)(k-1:k-1)=cod(j)
               else
-                msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k+1:)
+                msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k:)
               end if
             else
-              msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k+1:)
+              msp(j)=msp(j)(1:k-1)//cod(j)//msp(j)(k:)
             end if
           else
             k=index(msp(j),"1")

@@ -1,2 +1,2 @@
-ifort search_cellrelations.f90  /I"%CRYSFML%"\ifort\LibC "%CRYSFML%"\ifort\libC\crysfml.lib
+ifort search_cellrelations.f90 /debug=full /traceback  /I"%CRYSFML%"\ifort_debug\LibC "%CRYSFML%"\ifort_debug\libC\crysfml.lib
 del *.obj *.mod *.map

@@ -10,7 +10,7 @@
     implicit none
     integer, parameter          :: n_ref=300, nk=24
     integer, dimension(2)       :: pos
-    real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2,k1,k2
+    real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2,k1=0.0,k2=0.0
     real,    dimension(6)       :: bestsol
     integer, dimension(3,3)     :: mat,bestmat 
     real,    dimension(3,nk)    :: k_ind
@@ -19,7 +19,7 @@
     type(Reflect_Type),dimension(n_ref) :: hkl_sup
     type(Space_Group_type)      :: SpGr
     character(len=1)            :: lat_type,slat_type
-    character(len=30)           :: abc_symb,iabc_symb
+    character(len=50)           :: abc_symb,iabc_symb
     type (Crystal_Cell_Type)    :: cell, supercell, pcell, psupercell
     logical :: possible,centred,scentred,k1_given=.false.,k2_given=.false.
 
@@ -56,9 +56,9 @@
     else if (narg == 1) then 
       i=index(fileinp,".", back=.true.)
       if(i /= 0) then 
-        fileout=trim(fileinp)//".out"
-      else 
         fileout=fileinp(1:i)//"out"
+      else 
+        fileout=trim(fileinp)//".out"
       end if
     end if
 
@@ -77,12 +77,12 @@
       if( i /= 0) read(unit=line(8:),fmt=*) ia1,ia2,ib1,ib2,ic1,ic2
       i=index(line,"k1")
       if( i /= 0) then
-      	read(unit=line(8:),fmt=*) k1
+      	read(unit=line(i+3:),fmt=*) k1
       	k1_given=.true.
       end if
       i=index(line,"k2")
       if( i /= 0) then
-      	read(unit=line(8:),fmt=*) k2
+      	read(unit=line(i+3:),fmt=*) k2
       	k2_given=.true.
       end if
     end do
@@ -312,7 +312,7 @@
       
       if(k1_given) then
       	k2=matmul(trans,k1)
-        write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
+        write(unit=lout,fmt="(/,2(a,3f9.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
       else if(k2_given) then
       	k1=matmul(trans_inv,k2)
         write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")" 
@@ -336,7 +336,7 @@
       end if
       write(unit=lout,fmt="(/,a,i3)") " => Number of independent k-vectors in the basic cell: ",n_kind
       do i=1,n_kind
-      		write(unit=lout,fmt="(a,i2,a,3f8.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
+      		write(unit=lout,fmt="(a,i2,a,3f9.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
       end do
     end if
     
