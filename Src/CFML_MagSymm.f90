@@ -1205,18 +1205,22 @@
        real(kind=cp), dimension(3)      :: tr,v
        character(len=132)               :: line,ShOp_symb,setting,Parent
        character(len=40),dimension(10)  :: words
-       logical                          :: u_type,m_type,inv_type
+       logical                          :: u_type,m_type,inv_type, ttst,nonmag
 
        typ=l_case(adjustl(mode))
 
        call Init_Magnetic_Space_Group_Type(MGp)
 
        !Check if the database has to be read.
+       nonmag=.false.; ttst=.false.
        if(typ /= "database") then
           do i=n_ini,n_end
            line=l_case(adjustl(file_line(i)))
-           ind=index(line,"transform from standard:")
-           if(ind /= 0) then
+           ind=index(line,"transform to standard:")
+           if(ind /= 0) ttst=.true.
+           ind=index(line,"<--nonmagnetic")
+           if(ind /= 0) nonmag=.true.
+           if(nonmag .and. ttst) then
              typ="database"
              exit
            end if
@@ -1449,19 +1453,20 @@
              end if
              ini=n_ini+1
              line=adjustl(file_line(ini))
-             ind=index(line,"Transform from standard:")
+                       !     123456789012345678901234567890
+             ind=index(line,"Transform to standard:")
              if(ind == 0) then
                Err_Magsym=.true.
-               Err_Magsym_Mess=" The transformation from standard is needed even if it is: a,b,c;0,0,0 "
+               Err_Magsym_Mess=" The transformation to standard is needed even if it is: a,b,c;0,0,0 "
                return
              else
                ind=index(line,"<--")
                if( ind == 0) then
-                 line=adjustl(line(26:))
+                 line=adjustl(line(23:))
                  ind=index(line," ")
-                 setting=line(26:ind)
+                 setting=line(23:ind)
                else
-                 setting=line(26:ind-1)
+                 setting=line(23:ind-1)
                end if
              end if
              ini=ini+1
@@ -1482,7 +1487,7 @@
                Parent=trim(Parent)//"  "//line(23:j-1)
              end if
 !C_ac  number: "9.41"                           <--Magnetic Space Group (BNS symbol and number)
-!Transform from standard:  c,-b,a;0,0,0         <--Basis transformation from BNS to current setting
+!Transform to standard:  c,-b,a;0,0,0           <--Basis transformation from current setting to standard BNS
 !Parent Space Group: Pna2_1  IT_number:   33    <--Non-magnetic Parent Group
 !123456789012345678901234567890
 !Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
