@@ -63,6 +63,7 @@
 !!----       PURGE_DIFFRACTION_PATTERN
 !!----       READ_BACKGROUND_FILE
 !!----       READ_PATTERN
+!!--++       READ_PATTERN_CIF               [Private]
 !!--++       READ_PATTERN_D1A_D2B           [Private]
 !!--++       READ_PATTERN_D1A_D2B_OLD       [Private]
 !!--++       READ_PATTERN_D1B_D20           [Private]
@@ -93,7 +94,7 @@
     Use CFML_GlobalDeps,       only : cp,ops_sep
     Use CFML_Math_General,     only : spline, splint, locate,second_derivative
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
-                                      get_logunit, u_case, getword, getnum
+                                      get_logunit, u_case, getword, getnum, GetNum_Std
 
     implicit none
 
@@ -115,7 +116,7 @@
                Read_Pattern_Panalytical_Csv, Read_Pattern_Panalytical_Jcp,                 &
                Read_Pattern_Panalytical_Udf, Read_Pattern_Panalytical_Xrdml,               &
                Read_Pattern_Socabim, Read_Pattern_Time_Variable, Read_Pattern_Xysigma,     &
-               Set_Background_Inter, Set_Background_Poly
+               Set_Background_Inter, Set_Background_Poly, Read_Pattern_CIF
 
     !---- Definitions ----!
 
@@ -992,6 +993,145 @@
     !!
 
     !!--++
+    !!--++ Subroutine Read_Pattern_CIF(i_dat,Pat)
+    !!--++    integer,                         intent(in)     :: i_dat
+    !!--++    type (diffraction_pattern_type), intent(in out) :: pat
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Read a pattern from a CIF file
+    !!--++
+    !!--++ Update: November - 2017
+    !!
+    Subroutine Read_Pattern_CIF(i_dat,Pat)
+       !---- Arguments ----!
+       integer,                         intent(in)     :: i_dat
+       type (diffraction_pattern_type), intent(in out) :: Pat
+
+       !---- Local Variables ----!
+       character(len=120),dimension(:),allocatable  :: file_lines
+       character(len=1)                             :: aux
+       integer                                      :: i, n, nlines, ic, ier
+       real(kind=cp), dimension(6)                  :: values, std
+       integer,       dimension(6)                  :: pos
+       integer :: line_block_id, line_probe, line_loop, line_point_id, line_npoints, line_start_data
+
+       call init_err_diffpatt()
+       nlines=0
+       do
+         read(unit=i_dat,fmt="(a)",iostat=ier) aux
+         if(ier /= 0) exit
+         nlines=nlines+1
+       end do
+       if(nlines < 10) then
+         Err_diffpatt=.true.
+         ERR_DiffPatt_Mess=" Number of lines too small to hold a diffraction pattern, check your CIF file!"
+         return
+       end if
+       rewind(unit=i_dat)
+       allocate(file_lines(nlines))
+       line_block_id=0; line_probe=0; line_loop=0; line_point_id=0; line_npoints=0; line_start_data=0
+       do i=1,nlines
+         read(unit=i_dat,fmt="(a)",iostat=ier) file_lines(i)
+         if(index(file_lines(i),"_pd_block_id") /= 0) line_block_id=i
+         if(index(file_lines(i),"_diffrn_radiation_probe") /= 0) line_probe=i
+         if(index(file_lines(i),"_loop") /= 0 .and. line_loop == 0) line_loop=i
+         if(index(file_lines(i),"_pd_proc_number_of_points") /= 0 ) line_npoints=i
+       end do
+
+       if(line_npoints == 0) then
+         Err_diffpatt=.true.
+         ERR_DiffPatt_Mess=" No line with the number of points in the pattern, check your CIF file!"
+         return
+       else
+         read(unit=file_lines(line_npoints)(27:),fmt=*,iostat=ier) pat%npts
+         if (ier /= 0) then
+            Err_diffpatt=.true.
+            ERR_DiffPatt_Mess=" Error reading the number of points in the pattern, check your CIF file!"
+            return
+         end if
+       end if
+
+       call Allocate_Diffraction_Pattern(pat)
+       if(line_block_id > 0) pat%title=file_lines(line_block_id)(13:)
+       if(line_probe > 0) pat%diff_kind = adjustl(file_lines(line_probe)(24:))
+       pat%Tsamp=0.0
+       pat%Tset=0.0
+       pat%scal=1.0
+       pat%monitor=0.0
+       n=0
+       pos=0
+!loop_
+!_pd_proc_point_id
+!_pd_proc_2theta_corrected
+!_pd_proc_intensity_total
+!_pd_calc_intensity_total
+!_pd_proc_intensity_bkg_calc
+
+       do i=line_loop+1, line_loop+10
+         n=n+1
+         if(index(file_lines(i),"_pd_proc_point_id") /= 0) then
+          pos(1)=n
+          Cycle
+         end if
+         if(index(file_lines(i),"_pd_proc_2theta_corrected") /= 0) then
+           pat%scat_var =  "2theta"
+           pat%xax_text =  "2theta(degrees)"
+           pos(2)=n
+           Cycle
+         end if
+         if(index(file_lines(i),"_pd_proc_d_spacing") /= 0) then
+           pat%scat_var =  "d-spacing"
+           pat%xax_text =  "d-spacing(Angstroms)"
+           pat%diff_kind=  "Neutrons (TOF)"
+           pos(2)=n
+           Cycle
+         end if
+         if(index(file_lines(i),"_pd_proc_intensity_total") /= 0) then
+           pos(3)=n
+           cycle
+         end if
+         if(index(file_lines(i),"_pd_calc_intensity_total") /= 0) then
+           pos(4)=n
+           Cycle
+         end if
+         if(index(file_lines(i),"_pd_proc_intensity_bkg_calc") /= 0) then
+           pos(5)=n
+           Cycle
+          end if
+         if(len_trim(file_lines(i)) == 0) then
+           line_start_data=i+1
+           exit
+         end if
+       end do
+       if(pos(2) == 0 .or. pos(3) == 0) then  !Error experimental data are lacking
+          Err_diffpatt=.true.
+          ERR_DiffPatt_Mess=" Error: experimental data are lacking, check your CIF file!"
+          return
+       end if
+
+       n=0
+
+       do i=line_start_data, nlines
+         n=n+1
+         if(n > pat%npts) exit
+         call GetNum_Std(file_lines(i), values, std, ic)
+         if(ic < 2) exit
+         pat%x(n) = values(pos(2))
+         pat%y(n) = values(pos(3))
+         pat%sigma(n) = std(pos(3))
+         if(pos(4) /= 0) pat%ycalc(n) = std(pos(4))
+         if(pos(5) /= 0) pat%bgr(n) = std(pos(5))
+       end do
+
+       pat%xmin=pat%x(1)
+       pat%xmax=pat%x(pat%npts)
+       pat%step=(pat%xmax-pat%xmin)/real(pat%npts-1)
+       pat%ymin=minval(pat%y(1:pat%npts))
+       pat%ymax=maxval(pat%y(1:pat%npts))
+       return
+    End Subroutine Read_Pattern_CIF
+
+    !!--++
     !!--++ Subroutine Read_Pattern_D1A_D2B(i_dat,Pat)
     !!--++    integer,                         intent(in)     :: i_dat
     !!--++    type (diffraction_pattern_type), intent(in out) :: pat
@@ -1405,7 +1545,7 @@
                 Pat%title=trim(aline(i+7:))
                 title_given=.true.
             end if
-            cycle          	
+            cycle
           end if
           ! BANK Information
           if (aline(1:4) == "BANK") then
@@ -2269,6 +2409,13 @@
        end if
 
        select case (modem)
+
+          case ("CIF")
+            call Read_Pattern_CIF(i_dat,dif_pat)
+             dif_pat%yax_text =  "Intensity (arb. units)"
+             dif_pat%instr  = "  XY  - "//mode
+             dif_pat%ct_step = .false.
+
           case ("D1B" , "D20")
              call Read_Pattern_d1b_d20(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
