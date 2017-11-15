@@ -1034,7 +1034,7 @@
          read(unit=i_dat,fmt="(a)",iostat=ier) file_lines(i)
          if(index(file_lines(i),"_pd_block_id") /= 0) line_block_id=i
          if(index(file_lines(i),"_diffrn_radiation_probe") /= 0) line_probe=i
-         if(index(file_lines(i),"_loop") /= 0 .and. line_loop == 0) line_loop=i
+         if(index(file_lines(i),"loop_") /= 0 .and. line_loop == 0) line_loop=i
          if(index(file_lines(i),"_pd_proc_number_of_points") /= 0 ) line_npoints=i
        end do
 
@@ -1060,13 +1060,6 @@
        pat%monitor=0.0
        n=0
        pos=0
-!loop_
-!_pd_proc_point_id
-!_pd_proc_2theta_corrected
-!_pd_proc_intensity_total
-!_pd_calc_intensity_total
-!_pd_proc_intensity_bkg_calc
-
        do i=line_loop+1, line_loop+10
          n=n+1
          if(index(file_lines(i),"_pd_proc_point_id") /= 0) then
