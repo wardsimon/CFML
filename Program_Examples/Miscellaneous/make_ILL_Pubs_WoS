@@ -47,7 +47,7 @@ else
           OPT1="-c -O3"
             ;;
       'ifort')
-          OPT1="-c -O3 -vec-report0"
+          OPT1="-c -O3 -qopt-report=0"
             ;;
    esac
 fi
