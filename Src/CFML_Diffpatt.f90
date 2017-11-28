@@ -1012,11 +1012,13 @@
        character(len=1)                             :: aux
        integer                                      :: i, n, nlines, ic, ier
        real(kind=cp), dimension(6)                  :: values, std
+       real(kind=cp)                                :: chi2
        integer,       dimension(6)                  :: pos
        integer :: line_block_id, line_probe, line_loop, line_point_id, line_npoints, line_start_data
 
        call init_err_diffpatt()
        nlines=0
+       chi2=0.0
        do
          read(unit=i_dat,fmt="(a)",iostat=ier) aux
          if(ier /= 0) exit
@@ -1112,9 +1114,18 @@
          pat%x(n) = values(pos(2))
          pat%y(n) = values(pos(3))
          pat%sigma(n) = std(pos(3))
-         if(pos(4) /= 0) pat%ycalc(n) = std(pos(4))
-         if(pos(5) /= 0) pat%bgr(n) = std(pos(5))
+         if(pos(4) /= 0) pat%ycalc(n) = values(pos(4))
+         if(pos(5) /= 0) pat%bgr(n) = values(pos(5))
+         if(pat%sigma(n) > 0.001) then
+           chi2=chi2+((pat%y(n)-pat%ycalc(n))/pat%sigma(n))**2
+         end if
        end do
+       chi2=chi2/real(pat%npts)
+       i=len_trim(pat%title)
+       write(unit=pat%title(i+2:),fmt="(a,g12.4)") "  Chi2(free) = ",chi2
+       pat%gy=.true.
+       pat%gycalc=.true.
+       pat%gbgr=.true.
 
        pat%xmin=pat%x(1)
        pat%xmax=pat%x(pat%npts)
@@ -2404,7 +2415,7 @@
        select case (modem)
 
           case ("CIF")
-            call Read_Pattern_CIF(i_dat,dif_pat)
+             call Read_Pattern_CIF(i_dat,dif_pat)
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  XY  - "//mode
              dif_pat%ct_step = .false.
