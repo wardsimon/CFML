@@ -6631,7 +6631,7 @@
     End Subroutine Get_String_Resolv
 
     !!----
-    !!----  Subroutine Get_SubOrbits(X,Spg,ptr,Mult,orb,ind,conv)
+    !!----  Subroutine Get_SubOrbits(X,Spg,ptr,Mult,orb,ind,conv,no_putincell)
     !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,dimension(:),         intent( in) :: ptr   !  In -> Pointer to symops of a subgroup
@@ -6639,6 +6639,8 @@
     !!----    real, dimension(:,:),         intent(out) :: orb   !  Out -> List of equivalent positions
     !!----    integer,dimension(:),         intent(out) :: ind   !  Out -> Integer giving the number of the suborbits
     !!----    character(len=*), optional,   intent( in) :: conv  !  In  -> If present centring transl. are considered
+    !!----    logical, optional,            intent(in)  :: no_putincell !if present no lattice translation to put the
+    !!----                                                              !generated atom inside the unit cell
     !!----
     !!----    Obtain the multiplicity and list of equivalent positions
     !!----    modulo lattice translations (including centring!) of a
@@ -6653,7 +6655,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Get_SubOrbits(x,Spg,ptr,mult,orb,ind,conv)
+    Subroutine Get_SubOrbits(x,Spg,ptr,mult,orb,ind,conv,no_putincell)
        !---- Arguments ----!
        real(kind=cp), dimension(3),    intent (in) :: x
        type(Space_Group_type),         intent (in) :: spg
@@ -6662,6 +6664,7 @@
        real(kind=cp),dimension(:,:),   intent(out) :: orb
        integer,dimension(:),           intent(out) :: ind
        character(len=*), optional,     intent( in) :: conv
+       logical, optional,              intent( in) :: no_putincell
 
        !---- Local variables ----!
        integer                                 :: i,j, nt,is, numorb
@@ -6675,7 +6678,7 @@
        orb(:,1)=x(:)
        ext: do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)
-          xx=modulo_lat(xx)
+          if(.not. present(no_putincell)) xx=modulo_lat(xx)
           do nt=1,mult
              v=orb(:,nt)-xx(:)
              if (Lattice_trans(v,laty)) cycle ext
@@ -6693,7 +6696,7 @@
            is= ptr(j)
            if(is == 0) exit
            xx=ApplySO(Spg%SymOp(is),xi)
-           xx=modulo_lat(xx)
+           if(.not. present(no_putincell)) xx=modulo_lat(xx)
            do nt=1,mult
               if(ind(nt) /= 0) cycle
               v=orb(:,nt)-xx(:)

@@ -90,13 +90,14 @@
     !!----    type(Space_Group_Type)        :: G0             !Initial space group
     !!----    integer                       :: ngk            !Number of elements of G_k
     !!----    logical                       :: k_equiv_minusk !true if k equiv -k
+    !!----    logical                       :: minusk         !true if there is at least one operator transforming k into -k (even if there's no inversion centre)
     !!----    integer,      dimension(192)  :: p              !Pointer to operations of G0 that changes/fix k
     !!----                                                    !First indices: G_k, last indices: Stark
     !!----    integer, dimension(48,48)     :: co             !Pointers of symmetry operators of G0 constituting the
-    !!----                                                    !coset representatives of a particula k-vector of the star
+    !!----                                                    !coset representatives of a particular k-vector of the star
     !!                                                        !Only the nk x nk submatrix is used, the rest is zero.
     !!----    integer                       :: nk             !Number of star arms
-    !!----    real(kind=cp),dimension(3,24) :: stark          !Star of the wave vector k
+    !!----    real(kind=cp),dimension(3,48) :: stark          !Star of the wave vector k
     !!---- End Type Group_K_Type
     !!----
     !!--<<
@@ -325,8 +326,8 @@
        Gk%stark(:,1) = k  !<- First arm of the star of k
        Gk%k_equiv_minusk = .true. !it is supposed that k equiv -k
        Gk%minusk=.false.
-       
-       !Test if there is an operator mapping k to -k       
+
+       !Test if there is an operator mapping k to -k
        if (SpaceGroup%Centred /= 1) then  !Centric space group (centric: 0, 2, acentric:1)
        	  Gk%minusk=.true.
           j=ng+1      !the operator SpaceGroup%SymOp(j) is the inversion centre
@@ -344,23 +345,23 @@
            	Gk% minusk=.true.
            end if
          end do
-         if(.not. Gk%minusk) Gk%k_equiv_minusk = .false.         
+         if(.not. Gk%minusk) Gk%k_equiv_minusk = .false.
        end if
 
        do_ng: do i=2,ng   !From 2 because the first element is always the identity and k is equivalent to k!
                           !We discard the operators containing centring translations with ordering
-                          !numbers > 2*SpaceGroup%numops if there is an inversion centre
+                          !numbers > 2 * SpaceGroup%numops if there is an inversion centre
           h = hkl_R(k,SpaceGroup%SymOp(i))
 
           !---- this operation belong to Gk
           if (k_EQUIV(h,k, SpaceGroup%SPG_lat)) then !h is equivalent to k, so the current symmetry operator "i", belongs to Gk
              Gk%ngk = Gk%ngk +1    !Increase the number of elements of Gk
              Gk%p(Gk%ngk)      = i !The operator "i" belongs to Gk
-             Gk%co(Gk%ngk,1)   = i
+             Gk%co(Gk%ngk,1)   = i !First column of matrix CO (coset representatives of Gk)
              cycle do_ng
           end if
           !---- Passing here means that h is not equivalent to k, so there is eventually a
-          !-----new k-vector (=h) to be added to the list of the star.
+          !-----new k-vector (=h) to be added to the list of the k-star.
           !---- Look if the generated h-vector is already equivalent to
           !---- one of the list
           do j=1, Gk%nk
@@ -499,7 +500,7 @@
        h=Gk%stark(:,1)
        m=Gk%ngk
        if(.not. Gk%k_equiv_minusk .and. Gk%minusk) m=m*2
-       
+
        write(unit=lu,fmt="(a,3f8.4,a)") " => The input propagation vector is: K=(",h," )"
        if (Gk%k_equiv_minusk) then
           write(unit=lu,fmt="(a,i3,a)")    " =>  K .. IS .. equivalent to -K, the extended little group is G(k) "
@@ -515,7 +516,7 @@
                                                Gk%p(m)," }"
        else
          write(unit=lu,fmt="(a,i3,a)")  " => Numerals of the extended little group operators:  {",Gk%p(1),"}"
-        end if
+       end if
        write(unit=lu,fmt="(a,i3,a,/)")" => The star of K is formed by the following ",Gk%nk," vectors:"
 
        m=0
