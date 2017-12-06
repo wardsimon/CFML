@@ -3481,7 +3481,7 @@
     !!
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_Reflect(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
+    !!--++ Subroutine  Hkl_Uni_Reflect(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order,check_ok)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3490,6 +3490,7 @@
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
     !!--++    logical,                optional,  intent(in) :: no_order
+    !!--++    logical,                optional,  intent(out):: check_ok
     !!--++
     !!--++    (Overloaded)
     !!--++    Calculate unique reflections between two values (value1,value2)
@@ -3498,7 +3499,7 @@
     !!--++
     !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_Reflect(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
+    Subroutine Hkl_Uni_Reflect(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order,check_ok)
        !---- Arguments ----!
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
@@ -3508,6 +3509,7 @@
        integer,                              intent(out)    :: num_ref
        type (Reflect_Type),    dimension(:), intent(out)    :: reflex
        logical,                   optional,  intent(in)     :: no_order
+       logical,                   optional,  intent(out)    :: check_ok
 
        !---- Local variables ----!
        real(kind=cp)                         :: vmin,vmax,sval
@@ -3527,6 +3529,7 @@
           vmin=1.0/(2.0*max(value1,value2))
           vmax=1.0/(2.0*min(value1,value2))
        end if
+       if(present(check_ok)) check_ok=.true.
 
        hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
@@ -3625,6 +3628,7 @@
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
+                   if(present(check_ok)) check_ok=.false.
                    exit ext_do
                 end if
                 hkl(:,num_ref)= kk
@@ -3653,7 +3657,7 @@
     End Subroutine Hkl_Uni_reflect
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_Reflection(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex, no_order)
+    !!--++ Subroutine  Hkl_Uni_Reflection(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex, no_order,check_ok)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3662,6 +3666,7 @@
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
     !!--++    logical,                optional,  intent(in) :: no_order
+    !!--++    logical,                optional,  intent(out):: check_ok
     !!--++
     !!--++    (Overloaded)
     !!--++    Calculate unique reflections between two values (value1,value2)
@@ -3670,7 +3675,7 @@
     !!--++
     !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_Reflection(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
+    Subroutine Hkl_Uni_Reflection(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order,check_ok)
        !---- Arguments ----!
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
@@ -3680,6 +3685,7 @@
        integer,                              intent(out)    :: num_ref
        type (Reflection_Type), dimension(:), intent(out)    :: reflex
        logical,                   optional,  intent(in)     :: no_order
+       logical,                   optional,  intent(out)    :: check_ok
 
        !---- Local variables ----!
        real(kind=cp)                         :: vmin,vmax,sval
@@ -3699,6 +3705,7 @@
           vmin=1.0/(2.0*max(value1,value2))
           vmax=1.0/(2.0*min(value1,value2))
        end if
+       if(present(check_ok)) check_ok=.true.
 
        hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
@@ -3797,6 +3804,7 @@
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
+                   if(present(check_ok)) check_ok=.false.
                    exit ext_do
                 end if
                 hkl(:,num_ref)=kk
@@ -3826,7 +3834,7 @@
     End Subroutine Hkl_Uni_Reflection
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_ReflList(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order)
+    !!--++ Subroutine  Hkl_Uni_ReflList(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order,check_ok)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3835,6 +3843,7 @@
     !!--++    Integer            ,               intent(in) :: MaxRef   !Maximum Number of reflections to be generated
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex   !Ordered set of reflections
     !!--++    logical,                optional,  intent(in) :: no_order
+    !!--++    logical,                optional,  intent(out):: check_ok
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate unique reflections between two values (value1,value2)
@@ -3843,7 +3852,7 @@
     !!--++
     !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_ReflList(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order)
+    Subroutine Hkl_Uni_ReflList(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order,check_ok)
        !---- Arguments ----!
        type (Crystal_Cell_Type),       intent(in)     :: crystalcell
        type (Space_Group_Type) ,       intent(in)     :: spacegroup
@@ -3853,6 +3862,7 @@
        integer,                        intent(in)     :: MaxRef
        type (Reflection_List_Type),    intent(out)    :: reflex
        logical,             optional,  intent(in)     :: no_order
+       logical,             optional,  intent(out)    :: check_ok
 
        !---- Local variables ----!
        real(kind=cp)                   :: vmin,vmax,sval
@@ -3871,7 +3881,7 @@
           vmin=1.0/(2.0*max(value1,value2))
           vmax=1.0/(2.0*min(value1,value2))
        end if
-
+       if(present(check_ok)) check_ok=.true.
        hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*vmax+1.0)
@@ -3969,6 +3979,7 @@
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
+                   if(present(check_ok)) check_ok=.false.
                    exit ext_do
                 end if
                 hkl(:,num_ref)=kk
