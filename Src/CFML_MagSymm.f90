@@ -977,8 +977,10 @@
        MGp%mcif=.true.
        MGp%m_cell=.false.
        MGp%m_constr=.false.
+       MGp%trn_to_parent=" "
        MGp%trn_from_parent=" "
        MGp%trn_to_standard=" "
+       MGp%trn_from_standard=" "
        MGp%Multip=0
        MGp%n_wyck=0
        MGp%n_kv=0
@@ -1492,10 +1494,12 @@
 !123456789012345678901234567890
 !Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
              !write(*,"(a)") trim(symbol)//" "//trim(setting)//" "//trim(parent)
+             ! trn_to=.true. always because magCIF considers thre transformation from the current
+             ! setting to the standard setting
              if(len_trim(Parent) /= 0) then
-               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent)
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent,trn_to=.true.)
              else
-               call Set_Magnetic_Space_Group(symbol,setting,MGp)
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
              end if
              return       !The clean-up of operators is not needed
        End Select
@@ -2476,15 +2480,15 @@
           j=index(lowline," ")
           keyword=lowline(1:j-1)
           !write(*,"(a)") " Keyword: "//trim(keyword)
-          
+
           Select Case (trim(keyword))
 
              Case("_magnetic_space_group_standard_setting","_magnetic_space_group.standard_setting")
                 chars=adjustl(line(j+1:))
                 if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
                 !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_standard_setting -> "//trim(chars)
-             
-             Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m")
+
+             Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m","_parent_space_group.name_h-m_alt")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%Parent_spg=shubk(2:m-1)
@@ -2511,7 +2515,7 @@
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
-                MGp%BNS_symbol=shubk
+                MGp%BNS_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns -> "//trim(MGp%BNS_symbol)
 
              Case("_magnetic_space_group_og_number","_space_group_magn.number_og","_space_group.magn_number_og")
@@ -2525,29 +2529,41 @@
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
-                MGp%PG_symbol=shubk
+                MGp%PG_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group_magn.point_group -> "//trim(MGp%PG_symbol)
-                
+
              Case("_magnetic_space_group_og_name","_space_group_magn.name_og","_space_group.magn_name_og")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
-                MGp%OG_symbol=shubk
+                MGp%OG_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og -> "//trim(MGp%OG_symbol)
 
              Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
-                MGp%trn_from_parent=shubk
+                MGp%trn_from_parent=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
+
+             Case("_parent_space_group.transform_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%trn_to_parent=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
 
              Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
-                MGp%trn_to_standard=shubk
-                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_to_standard_pp_abc -> "//trim(MGp%trn_to_standard)
+                MGp%trn_to_standard=pack_string(shubk)
+
+             Case("_space_group_magn.transform_bns_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                MGp%trn_to_standard=pack_string(shubk)
 
              Case("_magnetic_cell_length_a","_cell_length_a")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -2624,10 +2640,10 @@
                  keyword=lowline(1:j-1)
                  !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
                  Select Case(trim(keyword))
-                 	
+
                  	 Case("_space_group_magn_transforms.id")
                       !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
-                      
+
                       do k=1,2
                         i=i+1
                         if(index(mcif%line(i),"_space_group_magn_transforms") == 0) then
@@ -2638,13 +2654,13 @@
                       end do
                       i=i+1
                       call getword(mcif%line(i),lab_items,iv)
-                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)                    
+                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)
                       if(lab_items(3)(1:3) == "BNS") then
                         MGp%trn_to_standard=lab_items(2)
                       end if
-                      i=i+1 
-                      call getword(mcif%line(i),lab_items,iv)                       
-                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)                    
+                      i=i+1
+                      call getword(mcif%line(i),lab_items,iv)
+                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)
                       if(lab_items(3)(1:2) == "OG") then
                         !nothing to do
                       end if
@@ -2769,7 +2785,7 @@
                       num_constr=k
                       MGp%m_constr=.true.
                       !Treat later the constraints
-                                                           
+
                    Case("_magnetic_space_group_symop_id")
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
                       do k=1,3
@@ -2791,10 +2807,10 @@
                       !now allocate the list of symmetry operators
                       num_sym=k
                       MGp%Multip=k
-                   
+
                    Case("_space_group_symop_magn_operation.id")
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
-                      
+
                       i=i+1
                       j=index(mcif%line(i),"_space_group_symop_magn_operation.xyz")
                       if(j == 0 ) then
@@ -2802,7 +2818,7 @@
                         ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_operation loop"
                         return
                       end if
-                      
+
                       k=0
                       do
                         i=i+1
@@ -2814,11 +2830,11 @@
                       num_sym=k
                       MGp%Multip=k
 
-                                                       
+
                    Case("_space_group_symop.magn_id")   !here the symmetry operators are separated from the translations
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
                       do k=1,2
-                        i=i+1                   
+                        i=i+1
                         if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
                            index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
                           err_magsym=.true.
@@ -2840,10 +2856,10 @@
                       end do
 
                       num_rsym=k
-       
-                   Case("_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
+
+                   Case("_space_group_symop_magn_id","_space_group_symop_magn.id")   !here the symmetry operators are separated from the translations
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
-                      i=i+1                   
+                      i=i+1
                       if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
                          index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
                         err_magsym=.true.
@@ -2863,7 +2879,7 @@
                       end do
 
                       num_rsym=k
-                                                               
+
                    Case("_space_group_symop.magn_centering_id")   !here we read the translations and anti-translations
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
                       do k=1,2
@@ -2872,7 +2888,7 @@
                            index(mcif%line(i),"_space_group_symop_magn_centering") == 0 ) then
                           err_magsym=.true.
                           ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_centering loop"
-                          return 
+                          return
                         end if
                       end do
                       if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0 .and. &
@@ -2895,7 +2911,7 @@
                       if(index(mcif%line(i),"_space_group_symop_magn_centering.xyz") == 0) then
                         err_magsym=.true.
                         ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_centering.xyz loop"
-                        return 
+                        return
                       end if
                       k=0
                       do
@@ -2993,7 +3009,7 @@
                    Case("_magnetic_atom_site_moment_label","_atom_site_moment_label","_atom_site_moment.label")
                       !write(unit=*,fmt="(a)") "  Treating item: _atom_site_moment_label"
                       do k=1,3
-                        i=i+1                  
+                        i=i+1
                         if(index(mcif%line(i),"_atom_site_moment_crystalaxis") == 0 .and. &
                            index(mcif%line(i),"_atom_site_moment.crystalaxis") == 0) then
                           err_magsym=.true.
@@ -3002,10 +3018,10 @@
                         end if
                       end do
                       i=i+1
-                      if(index(mcif%line(i),"_atom_site_moment.symmform") /= 0) then 
-                      	!write(*,*) " _atom_site_moment.symmform FOUND"                 
+                      if(index(mcif%line(i),"_atom_site_moment.symmform") /= 0) then
+                      	!write(*,*) " _atom_site_moment.symmform FOUND"
                       	mom_symmform=.true.
-                      else                      	
+                      else
                       	i=i-1
                       end if
                       k=0
@@ -3075,7 +3091,7 @@
             end do
 
           else
-          	
+
           	if( num_rsym == 0) num_rsym=num_sym
             ! First allocate the full number of symmetry operators after decoding if centering lattice
             ! have been provided and if the group is centred or not
@@ -3084,7 +3100,7 @@
             else
                MGp%Multip=num_rsym*num_centering
             end if
-            
+
             num_sym=MGp%Multip
             if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
             allocate(Mgp%SymopSymb(num_sym))
@@ -3113,7 +3129,7 @@
               end if
               MGp%SymopSymb(i)=MGp%SymopSymb(i)(1:k-1)
               call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
-              
+
               !Now construc the magnetic rotation symbols
               line=adjustl(line(j+1:))
               if(len_trim(line) /= 0) then
@@ -3124,7 +3140,7 @@
                   if(line(k:k) == "m") line(k:k)=" "
                 end do
                 line=Pack_String(line)
-                call Read_Xsym(line,1,MGp%MSymop(i)%Rot)                            
+                call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
               else
               	det=determ_a(MGp%Symop(i)%Rot)
               	MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*det*nint(MGp%MSymOp(i)%phas)
@@ -3145,8 +3161,8 @@
                 end do
                 MGp%MSymopSymb(i)=trim(mxmymz_op)
               end if
-              
-            
+
+
             end do
             !Decode lattice translations and anti-translations
 
@@ -3830,7 +3846,7 @@
        do j=1,3
          if(abs(multi(j)) < epss .or. cdd(j) == '0' ) then
            codes(j) = 0.0_cp
-         else if(multi(j) < 0) then 
+         else if(multi(j) < 0) then
            codes(j) = sign(1.0_cp, multi(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
          else
            codes(j) = sign(1.0_cp, multip(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
@@ -3892,32 +3908,34 @@
     End Subroutine get_stabilizerm
 
     !!----
-    !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MGp,parent,mcif,keepd)
+    !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
     !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
     !!----    character (len=*),                intent(in ):: setting     !  In -> setting in the form -a,c,2b;1/2,0,0 (if empty no transformation is performed)
     !!----    Type (Magnetic_Space_Group_Type), intent(out):: MGp         ! Out -> Magnetic Space Group object
     !!----    character (len=*), optional,      intent(in ):: Parent      !  In -> Parent crystallographic group
     !!----    logical,  optional,               intent(in ):: mcif        !  In -> True if one wants to store the symbols as mx,my,mz
-    !!----    logical,  optional,               intent(in ):: keepd        !  In -> True if one wants to keep the database allocated
+    !!----    logical,  optional,               intent(in ):: keepd       !  In -> True if one wants to keep the database allocated
+    !!----    logical,  optional,               intent(in ):: trn_to      !  In -> True if the setting is from current TO standard setting
     !!----
     !!----    Subroutine constructing the object MGp from the BNS symbol by
     !!----    reading the database compiled by Harold T. Stokes and Branton J. Campbell
     !!----
     !!---- Created: November - 2016 (JRC)
     !!
-    Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd)
+    Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
       character(len=*),               intent (in)  :: symb,setting
       type(Magnetic_Space_Group_Type),intent (out) :: MSpg
       character(len=*),optional,      intent (in)  :: parent
       logical,         optional,      intent (in)  :: mcif
       logical,         optional,      intent (in)  :: keepd
+      logical,         optional,      intent (in)  :: trn_to
       !--- Local variables ---!
       integer                          :: i,j,m,inv_time,k,n,L,ier,num,idem
-      !real(kind=cp)                    :: det
+      real(kind=cp)                    :: det
       !real(kind=cp), dimension(3)      :: orig
       real(kind=cp), dimension(3,3)    :: e !,S,Sinv
       integer, dimension(3,3)          :: identity
-      character(len=132)               :: line,ShOp_symb
+      character(len=256)               :: line,ShOp_symb
       logical                          :: change_setting,centring
       type(Magnetic_Space_Group_Type)  :: MGp
 
@@ -3970,7 +3988,35 @@
       MGp%BNS_symbol=spacegroup_label_bns(num)
       MGp%OG_symbol=spacegroup_label_og(num)
       MGp%MagType=magtype(num)
-      if(len_trim(setting) == 0) then
+      !Setting the magnetic point group symbol from the BNS label
+      m=0
+      Select Case (MGp%MagType)
+      	 Case(1,2,3)
+      	 	 MGp%PG_Symbol=MGp%BNS_symbol(2:) !Remove the type of lattice
+      	 	 do i=2,len_trim(MGp%BNS_symbol)
+      	 	 	 m=m+1
+      	 	 	 if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+      	 	 	 if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+      	   end do
+      	   MGp%PG_Symbol=pack_string(MGp%PG_Symbol)
+
+      	 Case(4)
+      	 	 MGp%PG_Symbol=MGp%BNS_symbol(4:) !Remove the type of lattice
+      	 	 do i=4,len_trim(MGp%BNS_symbol)
+      	 	 	 m=m+1
+      	 	 	 if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+      	 	 .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+      	 	 	 if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+      	   end do
+      	   MGp%PG_Symbol=pack_string(MGp%PG_Symbol//"1'")
+      End Select
+
+      if(len_trim(setting) == 0 .or. setting =='a,b,c;0,0,0') then
         MGp%standard_setting=.true.
       else
         MGp%standard_setting=.false.
@@ -4007,6 +4053,7 @@
         read(unit=line,fmt=*) MGp%Parent_num
         if(MGp%MagType < 4) then
           MGp%Parent_spg=MGp%BNS_symbol
+          if(MGp%MagType == 2) MGp%Parent_spg=MGp%Parent_spg(1:len_trim(MGp%Parent_spg)-2)
           do i=1,len_trim(MGp%Parent_spg)
             if(MGp%Parent_spg(i:i) == "'") MGp%Parent_spg(i:i) = " "
           end do
@@ -4020,7 +4067,7 @@
           if(MGp%Parent_spg(3:3) == "2") then
              MGp%Parent_spg(2:4)=" "
           else
-              MGp%Parent_spg(2:3)=" "
+             MGp%Parent_spg(2:3)=" "
           end if
           do i=1,len_trim(MGp%Parent_spg)
             if(MGp%Parent_spg(i:i) == "'") MGp%Parent_spg(i:i) = " "
@@ -4085,8 +4132,22 @@
         MGp%SymOp(k)%tr=real(wyckoff_bns_fract(:,k,j,num))/real(idem)
         MGp%SymOp(k)%Rot = wyckoff_bns_xyz(:,:,k,j,num)
         MGp%MSymOp(k)%Rot = wyckoff_bns_mag(:,:,k,j,num)
-        inv_time=ops_bns_timeinv(k,num)
-        MGp%MSymOp(k)%Phas=inv_time
+        !inv_time=ops_bns_timeinv(k,num)  !Errors in the Database ... to be explored
+        !MGp%MSymOp(k)%Phas=inv_time
+        det=determ_a(MGp%SymOp(k)%Rot)
+        if(det > 0.0) then
+        	 if(equal_matrix(MGp%MSymOp(k)%Rot,MGp%SymOp(k)%Rot,3)) then
+        	 	  MGp%MSymOp(k)%Phas=1.0
+        	 else
+        	 	  MGp%MSymOp(k)%Phas=-1.0
+        	 end if
+        else
+        	 if(equal_matrix(MGp%MSymOp(k)%Rot,-MGp%SymOp(k)%Rot,3)) then
+        	 	  MGp%MSymOp(k)%Phas=1.0
+        	 else
+        	 	  MGp%MSymOp(k)%Phas=-1.0
+        	 end if
+        end if
         if(MGp%mcif) then
            Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k)%Rot,MGp%MSymOp(k)%Rot,MGp%SymOp(k)%tr,ShOp_symb,MGp%mcif)
         else
@@ -4096,7 +4157,8 @@
         i=index(ShOp_symb,";")
         MGp%SymopSymb(k)=ShOp_symb(2:i-1)
         MGp%MSymopSymb(k)=ShOp_symb(i+1:len_trim(ShOp_symb)-1)
-        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. inv_time < 0) m=m+1 !counting anti-translations
+        if(MGp%MagType == 2) cycle
+        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. MGp%MSymOp(k)%Phas < 0.0) m=m+1 !counting anti-translations
       End Do
 
       if(centring) then
@@ -4120,13 +4182,16 @@
       MGp%Num_aLat=m       ! Number of anti-lattice points in a cell
       if(allocated(MGp%aLatt_trans)) deallocate(MGp%aLatt_trans)
       allocate(MGp%aLatt_trans(3,m))     ! Lattice anti-translations
+
       m=0
-      do k=1,MGp%multip
-        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. MGp%MSymOp(k)%Phas < 0) then
-          m=m+1
-          MGp%aLatt_trans(:,m) = MGp%SymOp(k)%tr
-        end if
-      end do
+      if(MGp%MagType /= 2) then
+        do k=1,MGp%multip
+          if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. MGp%MSymOp(k)%Phas < 0) then
+            m=m+1
+            MGp%aLatt_trans(:,m) = MGp%SymOp(k)%tr
+          end if
+        end do
+      end if
       MGp%Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
       MGp%Centre_coord=0.0 ! Fractional coordinates of the inversion centre
       do k=1,wyckoff_pos_count(j,num)
@@ -4149,7 +4214,11 @@
         MGp%NumOps=MGp%NumOps/2
       end if
       if(change_setting) then
-        call Setting_Change_MagGroup(setting,MGp,MSpg)
+      	if(present(trn_to)) then
+          call Setting_Change_MagGroup(setting,MGp,MSpg,trn_to)
+      	else
+          call Setting_Change_MagGroup(setting,MGp,MSpg)
+        end if
         if(Err_MagSym) then
           if(.not. present(keepd)) call deAllocate_DataBase()
           return
@@ -4655,10 +4724,12 @@
     End Subroutine Set_Shubnikov_Group
 
     !!----
-    !!---- Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn)
+    !!---- Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn,trn_to)
     !!----   character(len=*),                 intent(in) :: setting ! New origing in the old basis
     !!----   type (Magnetic_Space_Group_Type), intent(in) :: MSpG    ! Input space group
     !!----   type (Magnetic_Space_Group_Type), intent(out):: MSpGn   ! New space group in the new setting.
+    !!----   logical, optional,                intent(in) :: trn_to  ! True if the input setting is "to standard"
+    !!----                                                           ! If not present it is intrepreded as "from standard"
     !!----
     !!----    Transform the symmetry operators of the magnetic space group to
     !!----    a new basis given by the matrix "mat" and vector "orig", extracted
@@ -4666,11 +4737,12 @@
     !!----
     !!---- Created: November - 2016 (JRC)
     !!
-    Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn)
+    Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn,trn_to)
        !---- Arguments ----!
        character(len=*),                 intent(in) :: setting
        type (Magnetic_Space_Group_Type), intent(in) :: MSpG
        type (Magnetic_Space_Group_Type),intent(out) :: MSpGn
+       logical, optional,                intent(in) :: trn_to
        !--- Local variables ---!
        integer                 :: i, j, k, L, im, m, ngm,n, &
                                   nalat,nlat
@@ -4684,10 +4756,10 @@
        real(kind=cp), dimension (3,3)  :: S, Sinv, rot, rotn, mat, Matinv  !S is the ITC matrix P.
        integer,       dimension (3,3)  :: identity
        real(kind=cp), dimension (  3)  :: tr, trn, v, orig, iorig
-       logical                         :: lattl,change_only_origin
+       logical                         :: lattl
        character(len=80)               :: symbtr
        !character(len=60),dimension(15) :: gen
-       character(len=80)               :: nsetting,isetting
+       character(len=80)               :: isetting
        character(len=132)              :: ShOp_symb
        real(kind=cp), allocatable, dimension(:,:,:) :: sm
        real(kind=cp), allocatable, dimension(:,:)   :: tm
@@ -4702,7 +4774,7 @@
        else
          call Get_Transf(setting,mat,orig)
          det=determ_a(mat)
-         if( det < 1) then
+         if( det < 0.0) then
            Err_MagSym_Mess=" => The transformation matrix should have a positive determinant!"
            Err_MagSym=.true.
            return
@@ -4714,8 +4786,8 @@
             Err_MagSym_Mess= " => Wrong setting! Inversion Matrix Failed in Set_Magnetic_Space_Group!"
             return
          end if
-!----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)   O'=-inv(Mt)O
-!----  A=inv(M)A'             X= Mt X'+ O       O= - Mt O'
+         !----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)   O'=-inv(Mt)O
+         !----  A=inv(M)A'             X= Mt X'+ O       O= - Mt O'
          call matrix_inverse(Mat,Matinv,i)
          iorig=-matmul(Sinv,Orig)
          !Invers transformation -> to standard
@@ -4724,15 +4796,27 @@
          symbtr=symbtr(2:i-1)
          call Get_Symb_From_Mat(Matinv,isetting,(/"a","b","c"/))
          isetting=trim(isetting)//";"//trim(symbtr)
-         MSpGn%trn_to_standard= isetting
+         if(present(trn_to)) then
+         	  if(trn_to) then
+       	 	    rot=S
+       	 	    rotn=Sinv
+       	 	    S=rotn
+       	 	    Sinv=rot
+       	 	    v=orig
+       	 	    tr=iorig
+       	 	    orig=tr
+       	 	    iorig=v
+         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
+         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         	  else
+         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
+         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         	  end if
+         else
+         	  write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
+         	  write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         end if
        end if
-       change_only_origin=.false.
-       S=transpose(Mat)
-       nsetting = trim(setting)//"   -> det:"
-       if(equal_matrix(S,e,3)) change_only_origin=.true.
-       i=len_trim(nsetting)
-       write(unit=nsetting(i+2:),fmt="(f6.2)") det
-       MSpGn%trn_from_standard=nsetting
 
        L=0
        if (MSpG%Num_Lat > 1) then  !Original lattice is centered

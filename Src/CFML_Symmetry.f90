@@ -422,6 +422,7 @@
     !!----   logical                                        :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
     !!----   logical                                        :: m_cell !true if magnetic cell is used for symmetry operators
     !!----   logical                                        :: m_constr !true if constraints have been provided
+    !!----   Character(len=40)                              :: trn_to_parent
     !!----   Character(len=40)                              :: trn_from_parent
     !!----   Character(len=40)                              :: trn_to_standard
     !!----   Character(len=40)                              :: trn_from_standard
@@ -480,6 +481,7 @@
        logical                                        :: mcif=.false.     !true if mx,my,mz notation is used , false is u,v,w notation is used
        logical                                        :: m_cell=.true.    !true if magnetic cell is used for symmetry operators
        logical                                        :: m_constr=.false. !true if constraints have been provided
+       Character(len=40)                              :: trn_to_parent=" "
        Character(len=40)                              :: trn_from_parent=" "
        Character(len=40)                              :: trn_to_standard=" "
        Character(len=40)                              :: trn_from_standard=" "
@@ -10402,6 +10404,7 @@
        write(unit=lun,fmt="(a,i3)")          " =>           Parent group number: ", SG%Parent_num
        write(unit=lun,fmt="(a,a)")           " =>           Parent group Symbol: ", trim(SG%Parent_spg)
        write(unit=lun,fmt="(a,a)")           " =>   Magnetic point group Symbol: ", trim(SG%PG_symbol)
+       write(unit=lun,fmt="(a,a)")           " =>    Transformation   to parent: ", trim(SG%trn_to_parent)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation from parent: ", trim(SG%trn_from_parent)
        write(unit=lun,fmt="(a,a)")           " =>    Transformation to standard: ", trim(SG%trn_to_standard)
        write(unit=lun,fmt="(a,a)")           " =>  Transformation from standard: ", trim(SG%trn_from_standard)
@@ -10420,6 +10423,11 @@
        write(unit=lun,fmt="(a,a)")           " =>                Centrosymmetry: ", SG%Centre
 
        write(unit=lun,fmt="(a,i3)")          " =>        Generators (exc. -1&L): ", SG%num_gen
+       if(SG%MagType == 2) then
+         write(unit=lun,fmt="(/,a)")         " =>  This is a Paramagnetic Space Group: the number of cosets should be doubled with TimeReversal = +1"
+       end if
+
+
        if (SG%Num_Lat > 1) then
           texto(:) (1:100) = " "
           write(unit=lun,fmt="(a,i3)")       " => Centring vectors:",SG%Num_Lat-1
@@ -10477,12 +10485,14 @@
        do i=1,nop
           texto(1)=" "
           call Symmetry_Symbol(SG%SymopSymb(i),texto(1))
+          call Get_Shubnikov_Operator_Symbol(SG%SymOp(i)%Rot,SG%MSymOp(i)%Rot,SG%SymOp(i)%tr,ShOp_symb,.true.)
+          !j=index(trim(ShOp_symb)," ",back=.true.)
           if(SG%MSymop(i)%Phas < 0.0) then
+          !if(trim(ShOp_symb(j+1:)) == "-1") then
             texto(1)=adjustl(texto(1))
             j=index(texto(1)," ")
             texto(1)=texto(1)(1:j-1)//"' "//texto(1)(j+1:)
           end if
-          call Get_Shubnikov_Operator_Symbol(SG%SymOp(i)%Rot,SG%MSymOp(i)%Rot,SG%SymOp(i)%tr,ShOp_symb,.true.)
 
           write(unit=lun,fmt="(a,i3,2a,t60,2a)") " => SYMM(",i,"): ",trim(ShOp_symb), &
                                                     "Symbol: ",trim(texto(1))
