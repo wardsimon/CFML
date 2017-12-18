@@ -192,7 +192,7 @@
     !!---- TYPE :: MAGNETIC_GROUP_TYPE
     !!--..
     !!---- Type, Public :: Magnetic_Group_Type
-    !!----    Character(len=30)           :: Shubnikov !Shubnikov symbol (Hermman-Mauguin + primes)
+    !!----    Character(len=50)           :: Shubnikov !Shubnikov symbol (Hermman-Mauguin + primes)
     !!----    type(Space_Group_Type)      :: SpG       !Crystallographic space group
     !!----    integer, dimension(192)     :: tinv      !When a component is +1 no time inversion is associated
     !!---- End Type Magnetic_Group_Type                !If tinv(i)=-1, the time inversion is associated to operator "i"
@@ -208,7 +208,7 @@
     !!---- Update: April - 2005
     !!
     Type, Public :: Magnetic_Group_Type
-       Character(len=30)           :: Shubnikov
+       Character(len=50)           :: Shubnikov
        type(Space_Group_Type)      :: SpG
        integer, dimension(192)     :: tinv
     End Type Magnetic_Group_Type
@@ -568,7 +568,7 @@
       logical                    :: centrosymm
       Type(MSym_Oper_Type),dimension(MSpG%Multip) :: MSymOp
       Type(Sym_Oper_Type), dimension(MSpG%Multip) :: SymOp
-      character(len=40),   dimension(MSpG%Multip) :: SymbSymOp,SymbMSymOp
+      character(len=80),   dimension(MSpG%Multip) :: SymbSymOp,SymbMSymOp
       character (len=*),dimension(0:2), parameter  :: Centro = &
                                          (/"Centric (-1 not at origin)", &
                                            "Acentric                  ", &
@@ -1199,7 +1199,7 @@
        !
        ! --- Local variables ---!
        character(len=8)                 :: typ
-       character(len=20)                :: Symbol
+       character(len=40)                :: Symbol
        integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
                                            num_sym,m,nop,k,n,L,ier,icount
        integer, dimension(3,3)          :: isim,msim
@@ -1597,10 +1597,10 @@
        real(kind=cp),dimension(3,3)  :: cart_to_cryst
        real(kind=cp),dimension(12)   :: coef
        character(len=132)            :: lowline,line
-       character(len=30)             :: magmod, shubk
+       character(len=50)             :: magmod, shubk
        character(len=2)              :: lattice, chardom
        character(len=4)              :: symbcar
-       character(len=30)             :: msyr
+       character(len=50)             :: msyr
        logical                       :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
                                         irreps_begin, bfcoef_begin, magdom_begin, done, spg_given
        type(Magnetic_Group_Type)     :: SG
@@ -2445,7 +2445,7 @@
        character(len=132),dimension(30)    :: irreps_strings
        character(len=132),dimension(30)    :: kv_strings
        character(len=20), dimension(15)    :: lab_items
-       character(len=40)                   :: shubk
+       character(len=50)                   :: shubk
        character(len=2)                    :: chars
        character(len=10)                   :: label
        character(len=4)                    :: symbcar
@@ -5028,7 +5028,7 @@
 
        !---- Local Variables ----!
        character (len=100), dimension( 4):: texto
-       character (len=40)                :: aux
+       character (len=80)                :: aux
        integer :: i,j,k,l, nlines,n,m,mult,nt
        real(kind=cp)                  :: x
        complex                        :: ci
@@ -5317,7 +5317,7 @@
        type(Crystal_Cell_Type),optional,intent(in)           :: Cell
        !
        Character(len=132)             :: line
-       character(len=40),dimension(6) :: text
+       character(len=80),dimension(6) :: text
        character(len=2)               :: invc
        real(kind=cp)                  :: occ,occ_std,uiso,uiso_std
        integer :: i,j

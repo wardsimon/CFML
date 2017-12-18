@@ -2195,8 +2195,8 @@
 
        !----Local variables ----!
        character(len= 1)          :: LatSymb
-       character(len=20)          :: centr
-       character(len=40)          :: gen_symb
+       character(len=40)          :: centr
+       character(len=80)          :: gen_symb
        integer                    :: ng, ini, i, orden,L,j
        integer, dimension(3,3,24) :: ss
        integer, dimension(3,3)    :: nulo,unitm
@@ -2348,7 +2348,7 @@
        !----Local variables ----!
        character(len= 1)        :: axes,axes2
        character(len= 3)        :: tras
-       character(len=20)        :: Hall
+       character(len=40)        :: Hall
        character(len=*), dimension(13), parameter :: traslacion =&
                            (/"N","A","B","C","D","U","V","W","1","2","3","4","5"/)
 
@@ -3832,8 +3832,8 @@
       !---- Local variables ----!
       integer :: i
       character(len=25) :: transl
-      character(len=8)  :: operator_symb
-      character(len=6)  :: Fracc
+      character(len=12)  :: operator_symb
+      character(len=12)  :: Fracc
 
       if(hexa) then
         Operator_symb=Litvin_point_op_hex_label(iop)
@@ -3885,7 +3885,7 @@
        !---- local variables ----!
        real(kind=cp), dimension (  3), parameter  :: nul = (/ 0.0, 0.0, 0.0/)
        real(kind=cp), dimension (3,3)  :: S
-       character (len=22)     :: tro
+       character (len=40)     :: tro
        integer                :: i
 
        if (present(matkind)) then
@@ -3944,7 +3944,7 @@
       !---- Local variables ----!
       integer                 :: i,i1,i2,idet
       integer, dimension(3,3) :: sMat
-      character(len=25)       :: xyz_op, uvw_op, mxmymz_op
+      character(len=40)       :: xyz_op, uvw_op, mxmymz_op
       character(len=2)        :: time_inv
 
       call Get_SymSymb(Mat,tr,xyz_op)
@@ -6827,8 +6827,8 @@
 
        !---- Local Variables ----!
        character(len=*),dimension(3),parameter :: xyz=(/"x","y","z"/)
-       character(len= 25)              :: car
-       character(len= 25),dimension(3) :: sym
+       character(len= 30)              :: car
+       character(len= 30),dimension(3) :: sym
        integer           :: i,j
 
        !---- Main ----!
@@ -6881,7 +6881,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 25):: car
+       character(len= 30):: car
        integer           :: i,j,k, np,npp,npos
        real(kind=cp)     :: suma
 
@@ -7015,7 +7015,7 @@
        logical, dimension(:,:), optional,    intent(out) :: point
        !--- Local variables ---!
        integer                            :: i,L,j,k, nc, maxg,ng , nla, i1,i2,nop
-       character (len=30), dimension(192) :: gen
+       character (len=40), dimension(192) :: gen
        logical                            :: newg, cen_added
 
        maxg=size(SubG)
@@ -7177,8 +7177,8 @@
       logical,optional,              intent(in) :: oposite
       !---- Local variables ----!
       integer :: i
-      character(len=25) :: xyz_op, transl
-      character(len=6)  :: Fracc
+      character(len=40) :: xyz_op, transl
+      character(len=12)  :: Fracc
       call Get_SymSymb(Mat,(/0.0_cp,0.0_cp,0.0_cp/),xyz_op)
       do i=1,len_trim(xyz_op)
         if(xyz_op(i:i) == "x")  xyz_op(i:i)="a"
@@ -7219,8 +7219,8 @@
       character(len=*),              intent(out):: Transl_symb
       !---- Local variables ----!
       integer :: i
-      character(len=25) :: transl
-      character(len=6)  :: Fracc
+      character(len=40) :: transl
+      character(len=12)  :: Fracc
 
       transl=" "
       do i=1,3
@@ -9019,7 +9019,7 @@
        real(kind=cp), dimension (  3)      :: tr, trn, v
        logical                             :: lattl,change_only_origin
        character(len=80)                   :: symbsg
-       character(len=60),dimension(15)     :: gen
+       character(len=80),dimension(15)     :: gen
        character(len=180)                  :: setting
        real(kind=cp),  dimension(3,3,Spg%Multip) :: sm
        real(kind=cp),  dimension(3,Spg%Multip)   :: tm
@@ -9293,7 +9293,7 @@
        logical                         :: latt
        character(len=40),dimension(60) :: gen
        integer,       dimension (60)   :: pt
-       character(len=40)               :: string
+       character(len=80)               :: string
        character(len=80)               :: setting, symbsg
        character(len=12)               :: csys
        character(len=1)                :: lattsymb, crys
