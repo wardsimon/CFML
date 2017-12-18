@@ -4759,7 +4759,7 @@
        logical                         :: lattl
        character(len=80)               :: symbtr
        !character(len=60),dimension(15) :: gen
-       character(len=80)               :: isetting
+       character(len=120)              :: isetting
        character(len=132)              :: ShOp_symb
        real(kind=cp), allocatable, dimension(:,:,:) :: sm
        real(kind=cp), allocatable, dimension(:,:)   :: tm
@@ -4863,6 +4863,7 @@
           end do doi !i
        end if
        !The new multiplicity is obtained by multiplying the old one by the determinant
+       MSpGn%PG_Symbol=MSpG%PG_Symbol
        MSpGn%multip=nint(MSpG%multip*det)
        allocate(sm(3,3,MSpGn%multip),tm(3,MSpGn%multip),inv_time(MSpGn%multip))
 

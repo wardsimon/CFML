@@ -422,10 +422,10 @@
     !!----   logical                                        :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
     !!----   logical                                        :: m_cell !true if magnetic cell is used for symmetry operators
     !!----   logical                                        :: m_constr !true if constraints have been provided
-    !!----   Character(len=40)                              :: trn_to_parent
-    !!----   Character(len=40)                              :: trn_from_parent
-    !!----   Character(len=40)                              :: trn_to_standard
-    !!----   Character(len=40)                              :: trn_from_standard
+    !!----   Character(len=80)                              :: trn_to_parent
+    !!----   Character(len=80)                              :: trn_from_parent
+    !!----   Character(len=80)                              :: trn_to_standard
+    !!----   Character(len=80)                              :: trn_from_standard
     !!----   character(len=12)                              :: CrystalSys       ! Crystal system
     !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
     !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
@@ -481,10 +481,10 @@
        logical                                        :: mcif=.false.     !true if mx,my,mz notation is used , false is u,v,w notation is used
        logical                                        :: m_cell=.true.    !true if magnetic cell is used for symmetry operators
        logical                                        :: m_constr=.false. !true if constraints have been provided
-       Character(len=40)                              :: trn_to_parent=" "
-       Character(len=40)                              :: trn_from_parent=" "
-       Character(len=40)                              :: trn_to_standard=" "
-       Character(len=40)                              :: trn_from_standard=" "
+       Character(len=80)                              :: trn_to_parent=" "
+       Character(len=80)                              :: trn_from_parent=" "
+       Character(len=80)                              :: trn_to_standard=" "
+       Character(len=80)                              :: trn_from_standard=" "
        character(len=12)                              :: CrystalSys=" "       ! Crystal system
        character(len= 3)                              :: SPG_lat=" "          ! Lattice type
        character(len= 4)                              :: SPG_latsy=" "        ! Lattice type Symbol
