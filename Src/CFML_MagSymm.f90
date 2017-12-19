@@ -4806,15 +4806,14 @@
        	 	    tr=iorig
        	 	    orig=tr
        	 	    iorig=v
-         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
-         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
          	  else
-         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
-         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
          	  end if
          else
-         	  write(unit=MSpGn%trn_to_standard,fmt="(a,f12.4)") adjustl(trim(isetting)//"   -> det: "),1.0/det
-         	  write(unit=MSpGn%trn_from_standard,fmt="(a,f12.4)") adjustl(trim(setting)//"   -> det: "),det
+         	  write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
          end if
        end if
 
