@@ -2539,7 +2539,8 @@
                 MGp%OG_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og -> "//trim(MGp%OG_symbol)
 
-             Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc")
+             Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc", &
+                   "_parent_space_group.child_transform_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
                 if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
@@ -2808,7 +2809,7 @@
                       num_sym=k
                       MGp%Multip=k
 
-                   Case("_space_group_symop_magn_operation.id")
+                   Case("_space_group_symop_magn_operation.id","_space_group_symop_magn.id") !The second item is added to be compatible with BCS error
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
 
                       i=i+1
@@ -2830,15 +2831,14 @@
                       num_sym=k
                       MGp%Multip=k
 
-
-                   Case("_space_group_symop.magn_id")   !here the symmetry operators are separated from the translations
+                   Case("_space_group_symop.magn_id")
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
                       do k=1,2
                         i=i+1
                         if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
                            index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
                           err_magsym=.true.
-                          ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_operation loop"
+                          ERR_MagSym_Mess=" Error reading the _space_group_symop_magn_operation loop"
                           return
                         end if
                       end do
@@ -2857,7 +2857,7 @@
 
                       num_rsym=k
 
-                   Case("_space_group_symop_magn_id","_space_group_symop_magn.id")   !here the symmetry operators are separated from the translations
+                   Case("_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
                       !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
                       i=i+1
                       if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
