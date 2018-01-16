@@ -41,8 +41,9 @@ INSTR  D3_instrm.geom  !name of the instrument file (contains WAVE, GEOM, UBMAT 
 !    0.0863517  -0.1534547   0.0134032
 !   -0.1688478  -0.0783243   0.0079406
 !   -0.0013389  -0.0195595  -0.1369527
-!  Orientation of the crystal giving two reflections in the scattering plane (Normal Beam assumed!) an the omega angle of the first reflection
 
+!  Orientation of the crystal giving two reflections in the scattering plane (Normal Beam assumed!) 
+!  and the omega angle of the first reflection. This calculates the UB matrix
 ORIENT_VH  0 0 1   1 0 0   27.32
 
 SCHWINGER
