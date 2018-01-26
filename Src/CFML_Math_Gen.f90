@@ -4134,39 +4134,42 @@
     End Subroutine Determinant_R
 
     !!----
-    !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect)
+    !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect,norder)
     !!----    complex/real,      dimension(:,:), intent( in)  :: A
     !!----    integer,                           intent( in)  :: n
     !!----    real(kind=cp),     dimension(:),   intent(out)  :: E_val
     !!----    complex, optional, dimension(:,:), intent(out)  :: E_vect
+    !!----    logical, optional,                 intent(out)  :: norder !if present no ordering
     !!----
     !!----    Diagonalize Symmetric/Hermitian matrices.
-    !!----    The eigen_values E_val are sorted in descending order. The columns
-    !!----    of E_vect are the corresponding eigenvectors.
+    !!----    The eigen_values E_val are sorted in descending order if 'norder' is not present.
+    !!----    The columns of E_vect are the corresponding eigenvectors.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January -2018 (JRC)
     !!
 
     !!--++
-    !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
+    !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect,norder)
     !!--++    complex,           dimension(:,:), intent( in)  :: A
     !!--++    integer,                           intent( in)  :: n
     !!--++    real(kind=cp),     dimension(:),   intent(out)  :: E_val
     !!--++    complex, optional, dimension(:,:), intent(out)  :: E_vect
+    !!--++    logical, optional,                 intent(in)   :: norder !if present no ordering
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize Hermitian matrices.
-    !!--++    The eigen_values E_val are sorted in descending order. The columns
-    !!--++    of E_vect are the corresponding eigenvectors.
+    !!--++    The eigen_values E_val are sorted in descending order if 'norder' is not present.
+    !!--++    The columns of E_vect are the corresponding eigenvectors.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: February - 2005, January -2018 (JRC)
     !!
-    Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
+    Subroutine Diagonalize_Herm(a,n,e_val,e_vect,norder)
        !---- Arguments ----!
        complex,           dimension(:,:), intent( in)  :: A
        integer,                           intent( in)  :: n
        real(kind=cp),     dimension(:),   intent(out)  :: E_val
        complex, optional, dimension(:,:), intent(out)  :: E_vect
+       logical, optional,                 intent(in)   :: norder
 
        !---- Local variables ----!
        real(kind=cp),        dimension(2*n,2*n)   :: aux
@@ -4190,12 +4193,12 @@
        if (present(E_vect)) then
           call tred2(aux,nn,d,e)
           call tqli2(d,e,nn,aux)
-          call eigsrt(d,aux,nn,1)
+          if(.not. present(norder)) call eigsrt(d,aux,nn,1)
           e_vect(1:n,1:n)=cmplx(aux(1:n,1:nn:2),aux(n+1:nn,1:nn:2))
        else
           call tred1(aux,nn,d,e)
           call tqli1(d,e,nn)
-          call eigsrt(d,aux,nn,0)
+          if(.not. present(norder)) call eigsrt(d,aux,nn,0)
        end if
        e_val(1:n)=d(1:nn:2)
 
@@ -4203,7 +4206,7 @@
     End Subroutine Diagonalize_Herm
 
     !!--++
-    !!--++ Subroutine Diagonalize_Symm(a,n,e_val,e_vect)
+    !!--++ Subroutine Diagonalize_Symm(a,n,e_val,e_vect,norder)
     !!--++    real(kind=cp)            dimension(:,:),intent( in)  :: A      (input matrix with)
     !!--++    integer,                                intent( in)  :: n      (actual dimension)
     !!--++    real(kind=cp),           dimension(:),  intent(out)  :: E_val  (eigenvalues)
@@ -4211,17 +4214,18 @@
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize symmetric matrices
-    !!--++    The eigen_values E_val are sorted in descending order. The columns
-    !!--++    of E_vect are the corresponding eigenvectors.
+    !!--++    The eigen_values E_val are sorted in descending order if 'norder' is not present.
+    !!--++    The columns of E_vect are the corresponding eigenvectors.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: February - 2005, January -2018 (JRC)
     !!
-    Subroutine Diagonalize_Symm(A,n,E_Val,E_vect)
+    Subroutine Diagonalize_Symm(A,n,E_Val,E_vect,norder)
        !---- Arguments ----!
        real(kind=cp),           dimension(:,:), intent( in)  :: A
        integer,                                 intent( in)  :: n
        real(kind=cp),           dimension(:),   intent(out)  :: E_val
        real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect
+       logical,       optional,                 intent(in)   :: norder
 
        !---- Local variables ----!
        real(kind=cp),        dimension(n,n)   :: aux
@@ -4239,12 +4243,12 @@
        if (present(E_vect)) then
           call tred2(aux,n,E_val,e)
           call tqli2(E_val,e,n,aux)
-          call eigsrt(E_val,aux,n,1)
+          if(.not. present(norder)) call eigsrt(E_val,aux,n,1)
           e_vect(1:n,1:n)=aux
        else
           call tred1(aux,n,E_val,e)
           call tqli1(E_val,e,n)
-          call eigsrt(E_val,aux,n,0)
+          if(.not. present(norder)) call eigsrt(E_val,aux,n,0)
        end if
 
        return
