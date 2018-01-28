@@ -850,16 +850,21 @@
              anod=amid + zobs/psd%agap
              cath=cmid - xobs/psd%cgap
 
-            Case(3)                         ! Still to be checked!
-             xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19-like Horizontal banana
-             zobs=tn*(psd%radius + psd%yoff) - psd%zoff
+            Case(3)                         ! Now checked!
+             !xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19-like Horizontal banana
+             !zobs=tn*(psd%radius + psd%yoff) - psd%zoff
+             e=sqrt(1 + tn*tn)
+             f=psd%yoff*td*e - psd%xoff
+             g=psd%radius*sqrt(1.0 + td*td + td*td*tn*tn)
+             xobs=psd%radius*( atan(td*e) + asin(f/g) )
+             zobs=tn*( psd%radius*cos(xobs/psd%radius) + psd%yoff ) - psd%zoff
              anod=amid - zobs/psd%agap
              cath=cmid - xobs/psd%cgap
 
           End Select
 
-          If (anod > 0.0 .AND. anod < real(psd%nano-1) .AND.  &
-              cath > 0.0 .AND. cath < real(psd%ncat-1)) Return
+          If (anod > 0.0 .and. anod < real(psd%nano-1) .AND.  &
+              cath > 0.0 .and. cath < real(psd%ncat-1)) Return
              ierr=-1
        Else
 
@@ -886,13 +891,22 @@
              nup=atan2d(z,d)
 
             Case(3)
-              xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana
+              !xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana
+              !zobs=(amid-anod)*psd%agap     ! Need to check yoff at large xobs
+              !a=    xobs   + psd%xoff
+              !b=psd%radius + psd%yoff
+              !z=    zobs   + psd%zoff
+              !gamp=gamm + (a/b)*to_deg
+              !nup=Atan2d(z,b)
+
+              xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana (like in retreat)
               zobs=(amid-anod)*psd%agap     ! Need to check yoff at large xobs
-              a=    xobs   + psd%xoff
-              b=psd%radius + psd%yoff
+              a= psd%radius*sin(xobs/psd%radius) + psd%xoff
+              b= psd%radius*cos(xobs/psd%radius) + psd%yoff
               z=    zobs   + psd%zoff
-              gamp=gamm + (a/b)*to_deg
-              nup=Atan2d(z,b)
+              gamp=gamm + Atan2d(a,b)
+              d=sqrt(a*a + b*b)
+              nup=Atan2d(z,d)
 
           End Select
        End If
