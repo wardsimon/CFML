@@ -179,7 +179,7 @@ Module Ref_Gen
                     schwinger=.true.
 
                 case("orient_hh")
-                    if(.not.wave_read .and. .not. inst_read) then
+                    if(.not. wave_read .and. .not. inst_read) then
                       write(unit=*,fmt="(a)") " => Wavelength shoud be provided!"
                       return
                     else if(.not. wave_read) then
