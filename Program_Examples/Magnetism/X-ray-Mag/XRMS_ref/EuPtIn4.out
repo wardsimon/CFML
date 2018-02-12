@@ -1,0 +1,350 @@
+
+        Metric information:
+        -------------------
+
+ => Direct cell parameters:
+
+         a =       4.5420      b =      16.9550      c =       7.3890
+     alpha =       90.000   beta =       90.000  gamma =       90.000
+                        Direct Cell Volume =     569.0239
+
+ => Reciprocal cell parameters:
+
+         a*=     0.220167      b*=     0.058980      c*=     0.135336
+     alpha*=       90.000   beta*=       90.000  gamma*=       90.000
+                    Reciprocal Cell Volume =   0.00175740
+
+ => Direct and Reciprocal Metric Tensors:
+
+                   GD                                       GR
+     20.6298      0.0000      0.0000          0.048474    0.000000    0.000000
+      0.0000    287.4720      0.0000          0.000000    0.003479    0.000000
+      0.0000      0.0000     54.5973          0.000000    0.000000    0.018316
+
+ =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   
+
+     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix
+              Cr_Orth_cel                               Orth_Cr_cel  
+      4.5420      0.0000      0.0000          0.220167   -0.000000   -0.000000
+      0.0000     16.9550      0.0000         -0.000000    0.058980   -0.000000
+      0.0000      0.0000      7.3890          0.000000   -0.000000    0.135336
+
+     Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix
+                BL_M                                      BL_Minv  
+    0.220167    0.000000    0.000000            4.5420     -0.0000     -0.0000
+    0.000000    0.058980   -0.000000           -0.0000     16.9550      0.0000
+    0.000000    0.000000    0.135336            0.0000     -0.0000      7.3890
+
+
+        Information on Space Group: 
+        --------------------------- 
+
+ =>   Number of Space group:  63
+ =>  Hermann-Mauguin Symbol: C m c m
+ =>             Hall Symbol: -C 2c 2
+ =>            Setting Type: IT (Generated from Hermann-Mauguin symbol)
+ =>          Crystal System: Orthorhombic
+ =>              Laue Class: mmm
+ =>             Point Group: mmm
+ =>         Bravais Lattice: C
+ =>          Lattice Symbol: oC
+ =>  Reduced Number of S.O.:   4
+ =>    General multiplicity:  16
+ =>          Centrosymmetry: Centric (-1 at origin)
+ =>  Generators (exc. -1&L):   2
+ =>         Asymmetric unit:  0.000 <= x <=  0.500
+                              0.000 <= y <=  0.500
+                              0.000 <= z <=  1.000
+ => Centring vectors:  1
+ => Latt( 1): (1/2,1/2,0)                                                                           
+
+ => List of all Symmetry Operators and Symmetry Symbols
+
+ => SYMM(  1): x,y,z                             Symbol: 1
+ => SYMM(  2): x,-y,-z                           Symbol: 2 x,0,0
+ => SYMM(  3): -x,y,-z+1/2                       Symbol: 2 0,y,1/4
+ => SYMM(  4): -x,-y,z+1/2                       Symbol: 2 (0,0,1/2) 0,0,z
+ => SYMM(  5): -x,-y,-z                          Symbol: -1 0,0,0
+ => SYMM(  6): -x,y,z                            Symbol: m 0,y,z
+ => SYMM(  7): x,-y,z+1/2                        Symbol: c x,0,z
+ => SYMM(  8): x,y,-z+1/2                        Symbol: m x,y,1/4
+ => SYMM(  9): x+1/2,y+1/2,z                     Symbol: t (1/2,1/2,0)
+ => SYMM( 10): x+1/2,-y+1/2,-z                   Symbol: 2 (1/2,0,0) x,1/4,0
+ => SYMM( 11): -x+1/2,y+1/2,-z+1/2               Symbol: 2 (0,1/2,0) 1/4,y,1/4
+ => SYMM( 12): -x+1/2,-y+1/2,z+1/2               Symbol: 2 (0,0,1/2) 1/4,1/4,z
+ => SYMM( 13): -x+1/2,-y+1/2,-z                  Symbol: -1 1/4,1/4,0
+ => SYMM( 14): -x+1/2,y+1/2,z                    Symbol: b 1/4,y,z
+ => SYMM( 15): x+1/2,-y+1/2,z+1/2                Symbol: n (1/2,0,1/2) x,1/4,z
+ => SYMM( 16): x+1/2,y+1/2,-z+1/2                Symbol: n (1/2,1/2,0) x,y,1/4
+
+ => Special Wyckoff Positions for C m c m
+ 
+    Multp     Site        Representative Coordinates (centring translations excluded)
+      8       g              x,y,1/4             x,-y,3/4            -x,y,1/4                                
+                             -x,-y,3/4                                                                       
+ 
+      8       f              0,y,z               0,-y,-z             0,y,-z+1/2                              
+                             0,-y,z+1/2                                                                      
+ 
+      8       e              x,0,0               -x,0,1/2            -x,0,0                                  
+                             x,0,1/2                                                                         
+ 
+      8       d              1/4,1/4,0           1/4,3/4,0           3/4,1/4,1/2                             
+                             3/4,3/4,1/2                                                                     
+ 
+      4       c              0,y,1/4             0,-y,3/4                                                    
+ 
+      4       b              0,1/2,0             0,1/2,1/2                                                   
+ 
+      4       a              0,0,0               0,0,1/2                                                     
+ 
+
+        Atoms information:
+        ------------------
+
+    Atom      Chem        x/a       y/b       z/c       Biso     Occ       Mult
+    ===========================================================================
+    Eu         Eu       0.0000    0.1266    0.2500    1.1400    0.5000        4  None
+    Pt         Pt       0.0000    0.7765    0.2500   -0.9810    0.5000        4  None
+    In1        In       0.0000    0.3159    0.0488   -1.5140    1.0000        8  None
+    In2        In       0.0000    0.9333    0.2500   -0.7550    0.5000        4  None
+    In3        In       0.0000    0.5000    0.0000   -0.9120    0.5000        4  None
+
+===================================
+== Magnetic Symmetry Information ==
+===================================
+
+ => Magnetic  model name: euptin4
+ => Crystal lattice type: C
+ => Number of Irreducible Representations:  1
+ => Number of basis functions of Irreducible Representation #  1 : -3  Indicators for real(0)/imaginary(1):  0 0 0
+ => The crystallographic structure is centric (-1 at origin) 
+ => The magnetic structure is anti-centric  
+ => Number of propagation vectors:  1
+ => Propagation vectors # 1 = (  0.5000  0.5000  0.4258 )
+ => Centring vectors:  1
+ => Latt( 1): (1/2,1/2,0)                                                                           
+
+ => List of all Symmetry Operators and Symmetry Symbols
+
+ => SYMM(  1):  x,y,z                            Symbol: 1
+    BASR( 1, 1):    4.3290   0.0000   0.0000     0.0000   4.3290   0.0000     0.0000   0.0000   4.3290
+    BASI( 1, 1):    0.0000   0.0000   0.0000     0.0000   0.0000   0.0000     0.0000   0.0000   0.0000
+ => SYMM(  2):  -x,-y+1,z+1/2                    Symbol: 2 (0,0,1/2) 0,1/2,z
+    BASR( 2, 1):   -1.0000   0.0000   0.0000     0.0000  -1.0000   0.0000     0.0000   0.0000   1.0000
+    BASI( 2, 1):    4.2119   0.0000   0.0000     0.0000   4.2119   0.0000     0.0000   0.0000  -4.2119
+
+====================================
+== Magnetic Structure Information ==
+====================================
+
+ 
+== Magnetic Asymmetric Unit Data ==
+ 
+
+  The Fourier coefficients are of the form: Sk(j) = 1/2 Sum(i){Ci* Basf(i,imat)} exp {-2pi i Mphask(j)}
+  Where Ci are coefficients given below, Basf are the basis functions given above -> Irrep# imat
+   Atom Eu        MEU2   0.00000   0.12660   0.25000   1.14000   1.00000
+  Coef_BasF( 1) = 1/2 {(    0.30000    0.20000    0.10000)}  exp { -2pi i   0.00000}  -> Irrep #   1
+
+ 
+== List of all atoms and Fourier coefficients in the primitive cell ==
+ 
+
+ =>  Atom Eu        ( 1) :  0.00000  0.12660  0.25000
+     Sk( 1) = 1/2 {(    1.29870    0.86580    0.43290) + i (    0.00000    0.00000    0.00000)}
+ =>  Atom Eu        ( 2) :  0.00000  0.87340  0.75000
+     Sk( 1) = 1/2 {(   -0.30000   -0.20000    0.10000) + i (    1.26357    0.84238   -0.42119)}
+  
+=> Iteration number:    1  Chi2 =    43937980.    
+=> Iteration number:    2  Chi2 =    43937980.    
+=> Iteration number:    3  Chi2 =    4533560.5    
+=> Iteration number:    4  Chi2 =    4533560.5    
+=> Iteration number:    5  Chi2 =    743015.56    
+=> Iteration number:    6  Chi2 =    743015.56    
+=> Iteration number:    7  Chi2 =    171777.36    
+=> Iteration number:    8  Chi2 =    171777.34    
+=> Iteration number:    9  Chi2 =    171734.58    
+=> Iteration number:   10  Chi2 =    365.11438    
+=> Iteration number:   11  Chi2 =    365.11426    
+=> Iteration number:   12  Chi2 =    362.94736    
+=> Iteration number:   13  Chi2 =    51.958637    
+=> Iteration number:   14  Chi2 =    51.958584    
+=> Iteration number:   15  Chi2 =    51.861115    
+=> Iteration number:   16  Chi2 =    51.402569    
+=> Iteration number:   17  Chi2 =    51.402561    
+=> Iteration number:   18  Chi2 =    51.402206    
+=> Iteration number:   19  Chi2 =    51.345730    
+=> Iteration number:   20  Chi2 =    51.345703    
+=> Iteration number:   21  Chi2 =    51.332478    
+=> Iteration number:   22  Chi2 =    51.270920    
+=> Iteration number:   23  Chi2 =    51.270908    
+=> Iteration number:   24  Chi2 =    51.262608    
+=> Iteration number:   25  Chi2 =    51.224438    
+=> Iteration number:   26  Chi2 =    51.224380    
+=> Iteration number:   27  Chi2 =    51.176090    
+=> Iteration number:   28  Chi2 =    51.091370    
+=> Iteration number:   29  Chi2 =    51.091339    
+=> Iteration number:   30  Chi2 =    51.040630    
+=> Iteration number:   31  Chi2 =    50.971180    
+=> Iteration number:   32  Chi2 =    50.809727    
+=> Iteration number:   33  Chi2 =    50.809704    
+=> Iteration number:   34  Chi2 =    50.805172    
+=> Iteration number:   35  Chi2 =    50.774597    
+=> Iteration number:   36  Chi2 =    50.774551    
+=> Iteration number:   37  Chi2 =    50.711361    
+=> Iteration number:   38  Chi2 =    50.687923    
+=> Iteration number:   39  Chi2 =    50.687870    
+=> Iteration number:   40  Chi2 =    50.604145    
+=> Iteration number:   41  Chi2 =    50.554581    
+=> Iteration number:   42  Chi2 =    50.554531    
+=> Iteration number:   43  Chi2 =    50.468258    
+=> Iteration number:   44  Chi2 =    50.404202    
+=> Iteration number:   45  Chi2 =    50.404156    
+=> Iteration number:   46  Chi2 =    50.325855    
+=> Iteration number:   47  Chi2 =    50.318974    
+=> Iteration number:   48  Chi2 =    50.318913    
+=> Iteration number:   49  Chi2 =    50.218838    
+=> Iteration number:   50  Chi2 =    50.182739    
+=> Iteration number:   51  Chi2 =    50.182693    
+=> Iteration number:   52  Chi2 =    50.086365    
+=> Iteration number:   53  Chi2 =    50.063324    
+=> Iteration number:   54  Chi2 =    50.063293    
+=> Iteration number:   55  Chi2 =    49.963898    
+=> Iteration number:   56  Chi2 =    49.896454    
+=> Iteration number:   57  Chi2 =    49.896412    
+=> Iteration number:   58  Chi2 =    49.828266    
+=> Iteration number:   59  Chi2 =    49.794041    
+=> Iteration number:   60  Chi2 =    49.794003    
+=> Iteration number:   61  Chi2 =    49.715382    
+=> Iteration number:   62  Chi2 =    49.689068    
+=> Iteration number:   63  Chi2 =    49.689026    
+=> Iteration number:   64  Chi2 =    49.603790    
+=> Iteration number:   65  Chi2 =    49.578609    
+=> Iteration number:   66  Chi2 =    49.578583    
+=> Iteration number:   67  Chi2 =    49.492878    
+=> Iteration number:   68  Chi2 =    49.478409    
+=> Iteration number:   69  Chi2 =    49.478367    
+=> Iteration number:   70  Chi2 =    49.384342    
+=> Iteration number:   71  Chi2 =    49.271809    
+=> Iteration number:   72  Chi2 =    49.236645    
+=> Iteration number:   73  Chi2 =    49.236591    
+=> Iteration number:   74  Chi2 =    49.148972    
+=> Iteration number:   75  Chi2 =    49.144321    
+=> Iteration number:   76  Chi2 =    49.144276    
+=> Iteration number:   77  Chi2 =    49.036518    
+=> Iteration number:   78  Chi2 =    49.018673    
+=> Iteration number:   79  Chi2 =    49.018627    
+=> Iteration number:   80  Chi2 =    48.925491    
+=> Iteration number:   81  Chi2 =    48.818424    
+=> Iteration number:   82  Chi2 =    48.816570    
+=> Iteration number:   83  Chi2 =    48.816528    
+=> Iteration number:   84  Chi2 =    48.714817    
+=> Iteration number:   85  Chi2 =    48.709095    
+=> Iteration number:   86  Chi2 =    48.709064    
+=> Iteration number:   87  Chi2 =    48.616741    
+=> Iteration number:   88  Chi2 =    48.608414    
+=> Iteration number:   89  Chi2 =    48.608372    
+=> Iteration number:   90  Chi2 =    48.522472    
+=> Iteration number:   91  Chi2 =    48.513309    
+=> Iteration number:   92  Chi2 =    48.513279    
+=> Iteration number:   93  Chi2 =    48.430401    
+=> Iteration number:   94  Chi2 =    48.321758    
+=> Iteration number:   95  Chi2 =    48.320942    
+=> Iteration number:   96  Chi2 =    48.320908    
+=> Iteration number:   97  Chi2 =    48.230579    
+=> Iteration number:   98  Chi2 =    48.204620    
+=> Iteration number:   99  Chi2 =    48.204578    
+=> Iteration number:  100  Chi2 =    48.149261    
+=> Iteration number:  101  Chi2 =    48.107574    
+=> Iteration number:  102  Chi2 =    48.107540    
+=> Iteration number:  103  Chi2 =    48.067097    
+=> Iteration number:  104  Chi2 =    48.036896    
+=> Iteration number:  105  Chi2 =    48.036854    
+=> Iteration number:  106  Chi2 =    47.975124    
+=> Iteration number:  107  Chi2 =    47.942707    
+=> Iteration number:  108  Chi2 =    47.942684    
+=> Iteration number:  109  Chi2 =    47.903652    
+=> Iteration number:  110  Chi2 =    47.889332    
+=> Iteration number:  111  Chi2 =    47.889286    
+=> Iteration number:  112  Chi2 =    47.797577    
+=> Iteration number:  113  Chi2 =    47.761230    
+=> Iteration number:  114  Chi2 =    47.761189    
+=> Iteration number:  115  Chi2 =    47.748478    
+=> Iteration number:  116  Chi2 =    47.675823    
+=> Iteration number:  117  Chi2 =    47.675785    
+=> Iteration number:  118  Chi2 =    47.595890    
+=> Iteration number:  119  Chi2 =    47.595871    
+=> Iteration number:  120  Chi2 =    47.546917    
+=> Iteration number:  121  Chi2 =    47.546879    
+=> Iteration number:  122  Chi2 =    47.517658    
+=> Iteration number:  123  Chi2 =    47.448380    
+=> Iteration number:  124  Chi2 =    47.448345    
+=> Iteration number:  125  Chi2 =    47.363308    
+=> Iteration number:  126  Chi2 =    47.363266    
+=> Iteration number:  127  Chi2 =    47.305431    
+=> Iteration number:  128  Chi2 =    47.305389    
+=> Iteration number:  129  Chi2 =    47.227905    
+=> Iteration number:  130  Chi2 =    47.227875    
+=> Iteration number:  131  Chi2 =    47.167816    
+=> Iteration number:  132  Chi2 =    47.167789    
+=> Iteration number:  133  Chi2 =    47.128204    
+=> Iteration number:  134  Chi2 =    47.128174    
+=> Iteration number:  135  Chi2 =    47.072128    
+=> Iteration number:  136  Chi2 =    47.072113    
+=> Iteration number:  137  Chi2 =    47.016190    
+=> Iteration number:  138  Chi2 =    47.016163    
+=> Iteration number:  139  Chi2 =    46.944660    
+=> Iteration number:  140  Chi2 =    46.944641    
+=> Iteration number:  141  Chi2 =    46.918060    
+=> Iteration number:  142  Chi2 =    46.918034    
+=> Iteration number:  143  Chi2 =    46.810654    
+=> Iteration number:  144  Chi2 =    46.810650    
+=> Iteration number:  145  Chi2 =    46.788864    
+=> Iteration number:  146  Chi2 =    46.788860    
+=> Iteration number:  147  Chi2 =    46.782696    
+=> Iteration number:  148  Chi2 =    46.782696    
+=> Iteration number:  149  Chi2 =    46.744186    
+=> Iteration number:  150  Chi2 =    46.744183    
+=> Iteration number:  151  Chi2 =    46.729736    
+=> Iteration number:  152  Chi2 =    46.717850    
+=> Iteration number:  153  Chi2 =    46.717850    
+=> Iteration number:  154  Chi2 =    46.710751    
+=> Iteration number:  155  Chi2 =    46.710751    
+=> Iteration number:  156  Chi2 =    46.699589    
+=> Iteration number:  157  Chi2 =    46.699574    
+=> Iteration number:  158  Chi2 =    46.668278    
+=> Iteration number:  159  Chi2 =    46.668262    
+=> Iteration number:  160  Chi2 =    46.654171    
+=> Iteration number:  161  Chi2 =    46.654156    
+=> Iteration number:  162  Chi2 =    46.641262    
+=> Iteration number:  163  Chi2 =    46.637421    
+=> Iteration number:  164  Chi2 =    46.637417    
+=> Iteration number:  165  Chi2 =    46.613689    
+=> Iteration number:  166  Chi2 =    46.613682    
+=> Iteration number:  167  Chi2 =    46.611359    
+=> Iteration number:  168  Chi2 =    46.609100    
+=> Iteration number:  169  Chi2 =    46.609100    
+=> Iteration number:  170  Chi2 =    46.606083    
+=> Iteration number:  171  Chi2 =    46.604183    
+=> Iteration number:  172  Chi2 =    46.602795    
+=> Iteration number:  173  Chi2 =    46.602787    
+=> Iteration number:  174  Chi2 =    46.601933    
+=> Iteration number:  175  Chi2 =    46.600250    
+=> Iteration number:  176  Chi2 =    46.599426    
+=> Iteration number:  177  Chi2 =    46.599422    
+=> Iteration number:  178  Chi2 =    46.599361    
+=> Iteration number:  179  Chi2 =    46.599361    
+=> Iteration number:  180  Chi2 =    46.599331    
+=> Iteration number:  181  Chi2 =    46.599262    
+=> Iteration number:  182  Chi2 =    46.599213    
+  Data       h       k       l        Iobs       Icalc
+   0.500   6.500   0.426    21.55115     5.65955
+   0.500   7.500   0.426   100.00000    33.53508
+   0.500   8.500   0.426    96.24661    89.37291
+   0.500   9.500   0.426    13.60598    51.82380
+   0.500  10.500   0.426    16.50635     1.78089
+   0.500  11.500   0.426    79.64887    16.40505
+   0.500  12.500   0.426    62.75006    34.70482
+   0.500  13.500   0.426     7.26516    15.63137
+   0.500  14.500   0.426    10.97317     0.25453
