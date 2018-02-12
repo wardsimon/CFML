@@ -2226,7 +2226,7 @@
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                !write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:6) == "bfcoef" ) then
                    num_skp=num_skp+1
                    if (num_skp > 12) then

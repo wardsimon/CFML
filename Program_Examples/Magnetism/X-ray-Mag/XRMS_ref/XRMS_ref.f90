@@ -70,7 +70,7 @@ program XRMS_ref
       write(unit=*,fmt='(a,i1,a,f14.6,a,f14.6,a)') 'Parameter (', i, ') = ', vs%pv(i),' (+/-',vs%spv(i),')'
    end do
    
-   call Levenberg_Marquardt_Fit(intensities_nder,dat%nobs,cond,vs,chi2,inform) ! Numerical derivatives
+   call Levenberg_Marquardt_Fit(intensities_noder,dat%nobs,cond,vs,chi2,inform) ! Numerical derivatives
    !call Levenberg_Marquardt_Fit(intensities_der,dat%nobs,cond,vs,chi2,.true.,inform) ! Analytical derivatives
    write(unit=*,fmt='(a)') inform
 

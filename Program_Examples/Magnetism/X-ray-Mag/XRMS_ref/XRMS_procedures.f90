@@ -8,6 +8,7 @@ module XRMS_procedures
    use CFML_atom_typedef,                 only: matom_type
    use CFML_crystallographic_symmetry,    only: applyso
    use CFML_geometry_calc
+   use CFML_String_Utilities,             only: getword
 
    use global_data
 
@@ -60,19 +61,18 @@ module XRMS_procedures
       type(file_list_type)    :: hkl_list
       integer                 :: i, n_head, n_refl, j, n_col
       character(len=132)      :: new_line
+      character(len=20), dimension(50) :: dire
+      integer, dimension(1000):: point_to_ref
       
       call file_to_filelist(f_hkl,hkl_list)
       
       n_head = 0
       n_refl = 0
-      do i=1,hkl_list%nlines
-         new_line = hkl_list%line(i)
-         if (new_line(1:1) == '!') then
-            n_head = n_head + 1
-            cycle
-         end if
-         if (len_trim(new_line) < 1) cycle
+      do i=1,hkl_list%nlines         
+         new_line = adjustl(hkl_list%line(i))
+         if (new_line(1:1) == '!' .or. len_trim(new_line) < 1 ) cycle
          n_refl = n_refl + 1
+         point_to_ref(n_refl)=i
       end do
       
       if (n_refl < 1) then
@@ -80,20 +80,7 @@ module XRMS_procedures
          write(unit=*,fmt='(a)') 'No reflections have been detected.'
          stop
       end if
-      
-      new_line = hkl_list%line(n_head+1)
-      j = 1
-      n_col = 0
-      do
-         if (len_trim(new_line(j:)) < 1) exit
-         i = index(new_line(j:), ' ')
-         if (i /= 1) then
-            n_col = n_col + 1
-            j = j + i - 1
-         else
-            j = j + 1
-         end if
-      end do
+      call Getword(hkl_list%line(n_refl),dire,n_col)
       
       if (n_col < 4) then
          write(unit=*,fmt='(a)') 'Please, check the data file '//trim(f_hkl)//'.'
@@ -106,14 +93,13 @@ module XRMS_procedures
       allocate(refl_list%mh(n_refl))
       
       do i=1,n_refl
-         new_line = hkl_list%line(n_head+i)
+         new_line = hkl_list%line(point_to_ref(i))
+         write(*,"(a)") trim(new_line)
          if (n_col == 4) then
-            read(new_line,fmt=*) refl_list%mh(i)%h(1), refl_list%mh(i)%h(2), &
-                                 refl_list%mh(i)%h(3), refl_list%mh(i)%fobs2
+            read(new_line,fmt=*) refl_list%mh(i)%h(:), refl_list%mh(i)%fobs2
             refl_list%mh(i)%sfobs2 = sqrt(refl_list%mh(i)%fobs2)
          else if (n_col == 5) then
-            read(new_line,fmt=*) refl_list%mh(i)%h(1), refl_list%mh(i)%h(2), &
-                                 refl_list%mh(i)%h(3), refl_list%mh(i)%fobs2, &
+            read(new_line,fmt=*) refl_list%mh(i)%h(:), refl_list%mh(i)%fobs2, &
                                  refl_list%mh(i)%sfobs2
          end if
       end do
