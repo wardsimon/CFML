@@ -1,7 +1,7 @@
   How to use CMake with CrysFML in Windows environments
   =====================================================
 
- - Download CMake 2.8 for Windows and install it in a directory without blancs
+ - Download CMake for Windows and install it in a directory without blancs
    (to be compatible with all kind of compilers), e.g. c:\CMake2.8
 
  - Do not put the CMake directories in the general PATH (see below)
@@ -36,11 +36,11 @@
 
  - Create a directory: Build in the place of your choice. One can create other directories
    inside it for different kinds of build. Examples
-    c:\CrysFML\Build\ifort_production
+    c:\CrysFML\Build\ifort_release
     c:\CrysFML\Build\ifort_debug
-    c:\CrysFML\Build\ifort_64_production
+    c:\CrysFML\Build\ifort_64_release
     c:\CrysFML\Build\ifort_64_debug
-    c:\CrysFML\Build\gfortran_production
+    c:\CrysFML\Build\gfortran_release
     c:\CrysFML\Build\gfortran_debug
    .....................
 
