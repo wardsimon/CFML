@@ -5242,7 +5242,7 @@
        !---- Nl is the number of refinement parameter
 
        npos=index(label(1),"_")
-       if (npos ==0) then
+       if (npos == 0) then
           err_refcodes=.true.
           ERR_RefCodes_Mess="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
           return
