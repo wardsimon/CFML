@@ -7,6 +7,7 @@ module XRMS_procedures
    use CFML_reflections_utilities,        only: hkl_s, hkl_equal
    use CFML_atom_typedef,                 only: matom_type
    use CFML_crystallographic_symmetry,    only: applyso
+   use CFML_magnetic_symmetry,            only: applymso
    use CFML_geometry_calc
    use CFML_String_Utilities,             only: getword
 
@@ -58,15 +59,14 @@ module XRMS_procedures
       type(magh_list_type_xrms),    intent(out) :: refl_list
       
       !  Local variables
-      type(file_list_type)    :: hkl_list
-      integer                 :: i, n_head, n_refl, j, n_col
-      character(len=132)      :: new_line
-      character(len=20), dimension(50) :: dire
-      integer, dimension(1000):: point_to_ref
+      type(file_list_type)             :: hkl_list
+      integer                          :: i, n_refl, n_col
+      character(len=128)               :: new_line
+      character(len=24),dimension(50)  :: dire
+      integer,dimension(1000)          :: point_to_ref
       
       call file_to_filelist(f_hkl,hkl_list)
       
-      n_head = 0
       n_refl = 0
       do i=1,hkl_list%nlines         
          new_line = adjustl(hkl_list%line(i))
@@ -80,21 +80,21 @@ module XRMS_procedures
          write(unit=*,fmt='(a)') 'No reflections have been detected.'
          stop
       end if
-      call Getword(hkl_list%line(n_refl),dire,n_col)
+      
+      call getword(hkl_list%line(point_to_ref(n_refl)),dire,n_col)
       
       if (n_col < 4) then
          write(unit=*,fmt='(a)') 'Please, check the data file '//trim(f_hkl)//'.'
          write(unit=*,fmt='(a)') 'There is some problem with the file format.'
          stop
       end if
-      
+
       refl_list%nref = n_refl
       if (allocated(refl_list%mh)) deallocate(refl_list%mh)
       allocate(refl_list%mh(n_refl))
       
       do i=1,n_refl
          new_line = hkl_list%line(point_to_ref(i))
-         write(*,"(a)") trim(new_line)
          if (n_col == 4) then
             read(new_line,fmt=*) refl_list%mh(i)%h(:), refl_list%mh(i)%fobs2
             refl_list%mh(i)%sfobs2 = sqrt(refl_list%mh(i)%fobs2)
@@ -106,25 +106,39 @@ module XRMS_procedures
       return
    end subroutine read_hkl_file
    
-   subroutine read_hkl_output(filename,refl_list)
-      character(len=*),             intent(in)        :: filename
+   subroutine read_hkl_output(f_matr,refl_list)
+      character(len=*),             intent(in)        :: f_matr
       type(magh_list_type_xrms),    intent(inout)     :: refl_list
       
       !  Local variables
-      integer           :: i, j
+      type(file_list_type)             :: hkl_matr_list
+      character(len=128)               :: new_line
+      character(len=24),dimension(10)  :: list_str
+      real,dimension(3)                :: new_refl
+      integer                          :: i, j, l 
       
-      open(unit=8,file=filename,status='old',action='read')
-      
-      do i=1,refl_list%nref
-         do j=1,3
-            read(unit=8,fmt=*)
-         end do
-         read(unit=8,fmt=*) refl_list%mh(i)%kf(:)
-         read(unit=8,fmt=*)
-         do j=1,3
-            read(unit=8,fmt=*) refl_list%mh(i)%tmatrix(j,:)
-         end do
-         read(unit=8,fmt=*)
+      call file_to_filelist(f_matr,hkl_matr_list)
+
+      do i=1,hkl_matr_list%nlines
+         new_line = adjustl(hkl_matr_list%line(i))
+         if (len_trim(new_line) < 1 ) cycle
+         
+         call getword(new_line,list_str(:),l)
+         if (list_str(2) == 'h' .and. list_str(3) == 'k') then
+            new_line = hkl_matr_list%line(i+1)
+            read(new_line,fmt=*) new_refl(:)
+            do j=1,refl_list%nref
+               if (equal_vector(refl_list%mh(j)%h,new_refl,3)) then
+                  new_line = hkl_matr_list%line(i+3)
+                  read(new_line,fmt=*) refl_list%mh(j)%kf(:)
+                  do l = 1,3
+                     new_line = hkl_matr_list%line(i+4+l)
+                     read(new_line,fmt=*) refl_list%mh(j)%tmatrix(l,:)
+                  end do
+                  exit
+               end if
+            end do
+         end if
       end do
       return
    end subroutine read_hkl_output
@@ -160,9 +174,9 @@ module XRMS_procedures
       !  Initial values for state vector
       vs%np = 4
       vs%pv(1) = scale_fact
-      vs%pv(2) = magn_atom_list%atom(1)%cbas(1,1)
-      vs%pv(3) = magn_atom_list%atom(1)%cbas(2,1)
-      vs%pv(4) = magn_atom_list%atom(1)%cbas(3,1)
+      vs%pv(2) = magn_atom_list%atom(1)%Skr(1,1)
+      vs%pv(3) = magn_atom_list%atom(1)%Skr(2,1)
+      vs%pv(4) = magn_atom_list%atom(1)%Skr(3,1)
       vs%code(1:vs%np) = 1
    
       !  Conditions for running LSQ refinement
@@ -262,6 +276,45 @@ module XRMS_procedures
       return
    end function magn_moment
    
+   !  Function magn_moment_msym(m_atom,latt,n_so) result(m_mom)
+   !     !  Arguments
+   !     type(matom_type),       intent(in)  :: m_atom
+   !     real,dimension(3),      intent(in)  :: latt
+   !     integer,                intent(in)  :: n_so
+   !     real,dimension(3)       intent(out) :: m_mom
+   !
+   !  This function calculates the magnetic moment of m_atom
+   !  corresponding to magn_model%symop(n_so)
+   !  and located at unit cell given by vector latt,
+   !  using MSYM format in input file.
+   !
+   function magn_moment_msym(m_atom,latt,n_so) result(m_mom)
+      !  Arguments
+      type(matom_type),       intent(in)  :: m_atom
+      real,dimension(3),      intent(in)  :: latt
+      integer,                intent(in)  :: n_so
+      real,dimension(3)                   :: m_mom
+      
+      !  Local variables
+      integer                 :: i, k, l
+      complex,dimension(3)    :: Sk0, Skj
+      real                    :: latt_ph
+      
+      m_mom(1:3) = 0.0
+      do k=1,magn_model%nkv
+         Sk0(:) = (m_atom%Skr(:,k) + cmplx(0,1)*m_atom%Ski(:,k))
+         Sk0(:) = Sk0(:)*exp(-tpi*cmplx(0,1)*m_atom%mphas(k))
+         do l=1,magn_model%nmsym
+            Skj = applyMSO(magn_model%msymop(n_so,l),Sk0)
+            latt_ph = tpi*(dot_product(magn_model%kvec(:,k),latt))
+            do i=1,3
+               m_mom(i) = m_mom(i) + real(Skj(i))*cos(latt_ph) + aimag(Skj(i))*sin(latt_ph)
+            end do
+         end do
+      end do
+      return
+   end function magn_moment_msym
+   
    function magn_str_factor(m_refl) result(m_str_f)
       !  Arguments
       type(magh_type_xrms),      intent(in)     :: m_refl
@@ -269,14 +322,15 @@ module XRMS_procedures
       
       !  Local variables
       integer                 :: i, j
-      real,dimension(3)       :: x_atom, m_mom, m_mom_star, m_mom_lab, z_mom_lab 
+      real,dimension(3)       :: x_atom, l_vect, m_mom, m_mom_star, m_mom_lab, z_mom_lab 
       complex                 :: scatt_ampl
       real                    :: phase
       
+      l_vect = (/0.0, 0.0, 0.0/)
       m_str_f = cmplx(0.0)
       do i=1,magn_atom_list%natoms
          do j=1,magn_model%numops
-            m_mom = magn_moment(magn_atom_list%atom(i),j)
+            m_mom = magn_moment_msym(magn_atom_list%atom(i),l_vect,j)
             m_mom_star = matmul(matrix_mom_star,m_mom)
             m_mom_lab = matmul(m_refl%tmatrix,m_mom_star)
             z_mom_lab = m_mom_lab/euclidean_norm(3,m_mom_lab)
@@ -422,7 +476,7 @@ module XRMS_procedures
       !  Local variables
       integer                          :: i,l,j
       real(kind=cp)                    :: chi, chi_old = 1.0e20, abs_lor
-      real,dimension(3)                :: m_mom, m_mom_lab, bstar_lab
+      real,dimension(3)                :: m_mom, m_mom_lab, bstar_lab, l_vect
       complex                          :: m_str_f
       real,dimension(3,3)              :: matr_mom_lab, matr_lab, matr_det
 
@@ -436,13 +490,13 @@ module XRMS_procedures
       
       !  Update the magnetic model (mixing coefficients)
       do i=2,vs%np
-         magn_atom_list%atom(1)%cbas(i-1,1) = vs%pv(i)
+         magn_atom_list%atom(1)%skr(i-1,1) = vs%pv(i)
       end do
 
       chi = 0.0
       do i=1,sample_refl_list%nref
          m_str_f = magn_str_factor(sample_refl_list%mh(i))
-         abs_lor = factor_abs_lor(sample_refl_list%mh(i))
+         !abs_lor = factor_abs_lor(sample_refl_list%mh(i))
          dat%yc(i) = scale_fact*m_str_f*conjg(m_str_f)
          fvec(i) = (dat%y(i)-dat%yc(i))/dat%sw(i)
          chi = chi + fvec(i)*fvec(i)
@@ -462,7 +516,8 @@ module XRMS_procedures
       !chi = chi + fvec(m-1)*fvec(m-1)
       
       !  Value of the second restriction: |m_mom|^2 = 1
-      m_mom = magn_moment(magn_atom_list%atom(1),1)
+      l_vect = (/0.0, 0.0, 0.0/)
+      m_mom = magn_moment_msym(magn_atom_list%atom(1),l_vect,1)
       matr_lab = sample_refl_list%mh(1)%tmatrix
       matr_mom_lab = matmul(matr_lab,matrix_mom_star)
       m_mom_lab = matmul(matr_mom_lab,m_mom)

@@ -1,0 +1,28 @@
+TITLE   EuPtIn4 
+SPGR   C m c m
+CELL     4.5420   16.9550   7.3890   90.000   90.000   90.000
+!       Lab   Scatt   x         y         z          Biso      Occ
+ATOM    Eu     Eu    0.0000    0.3734    0.2500     1.1400    0.5000
+ATOM    Pt     Pt    0.0000    0.7235    0.2500    -0.9810    0.5000
+ATOM    In1    In    0.0000    0.1841    0.0488    -1.5140    1.0000
+ATOM    In2    In    0.0000    0.5667    0.2500    -0.7550    0.5000
+ATOM    In3    In    0.0000    0.0000    0.0000    -0.9120    0.5000
+
+Mag_Structure
+!
+Magmod   EuPtIn4 (magnetic structure)
+lattice -C
+kvect   0.5000  0.5000  0.4258
+!
+SYMM x,y,z
+MSYM u,v,w,0.0                                                      
+SYMM -x,-y+1,z+1/2 
+MSYM -u,-v,w,0.2128999                                             
+!
+!     Lab  ScFF      x         y        z        Biso     Occ
+!     Kv    MagM     Rx        Ry       Rz       Ix       Iy      Iz        MPhas
+matom Eu    MEU2   0.0000    0.3734   0.2500   1.1400   1.0000
+skp    1  1   0.10  -0.10  0.10   0.0   0.0   0.0  0.0
+!
+End_Mag_Structure
+!

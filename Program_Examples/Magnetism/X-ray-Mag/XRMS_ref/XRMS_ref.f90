@@ -29,6 +29,9 @@ program XRMS_ref
    character(len=256)                           :: inform
    
    real,dimension(3,3)           :: matr_man, matr_cfml
+   
+   real,dimension(3)    :: orig = (/0.0, 0.0, 0.0/)
+   real,dimension(3)    :: m_mom
 
    !  Procedures
 
@@ -45,8 +48,9 @@ program XRMS_ref
    n_end = str_file%nlines
    call readn_set_magnetic_structure(str_file,n_ini,n_end,magn_model,magn_atom_list)
 
-   call read_hkl_file('EuPtIn4.hkl',sample_refl_list)
+   call read_hkl_file(dataname,sample_refl_list)
    call read_hkl_output('hkl_matrices_output.txt',sample_refl_list)
+   
    matrix_mom_star = 0.0
    do i=1,3
       matrix_mom_star(i,i) = unit_cell%cell(i)/tpi
@@ -62,8 +66,8 @@ program XRMS_ref
    
    write(unit=*,fmt='(a)') 'Starting the refinement...'
    write(unit=*,fmt='(a)') ''
-   !write(unit=luo,fmt='(a)') 'Starting the refinement...'
-   !write(unit=luo,fmt='(a)') ''
+   write(unit=luo,fmt='(a)') 'Starting the refinement...'
+   write(unit=luo,fmt='(a)') ''
    write(unit=*,fmt='(a)') 'Initial parameters -----'
    write(unit=*,fmt='(a,i5)') 'Number of parameters: ', vs%np
    do i=1,vs%np
@@ -73,7 +77,7 @@ program XRMS_ref
    call Levenberg_Marquardt_Fit(intensities_noder,dat%nobs,cond,vs,chi2,inform) ! Numerical derivatives
    !call Levenberg_Marquardt_Fit(intensities_der,dat%nobs,cond,vs,chi2,.true.,inform) ! Analytical derivatives
    write(unit=*,fmt='(a)') inform
-
+   
    write(unit=*,fmt='(a)') 'Final parameters -----'
    write(unit=*,fmt='(a,i5)') 'Number of parameters: ', vs%np
    do i=1,vs%np
@@ -83,14 +87,16 @@ program XRMS_ref
    !write(unit=*,fmt=*) dat%yc(dat%nobs-1)
    write(unit=*,fmt=*) dat%yc(dat%nobs)
    
-   write(unit=luo,fmt='(a6,3a8,2a12)') 'Data', 'h', 'k', 'l', 'Iobs', 'Icalc'
+   write(unit=*,fmt='(/3a8,2a12)') 'h', 'k', 'l', 'Iobs', 'Icalc'
    do i=1,sample_refl_list%nref
       m_refl = sample_refl_list%mh(i)
       m_str_f = magn_str_factor(m_refl)
       fcalc2 = scale_fact*m_str_f*conjg(m_str_f)
-      write(unit=luo,fmt='(3f8.3,2f12.5)') m_refl%h, m_refl%fobs2, fcalc2
+      write(unit=*,fmt='(3f8.3,2f12.5)') m_refl%h, m_refl%fobs2, fcalc2
    end do
 
-   close(unit=1)
+   call write_intensities()
+   
+   close(unit=luo)
    
 end program XRMS_ref
