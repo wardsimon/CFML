@@ -2,8 +2,7 @@
 rem
 rem Intel Compilation
 rem
-   ifort CFML_Atomic_Data.f90 /c /O1 /nologo /I"%CRYSFML%"\ifort\libc
-   ifort Formal_Charges.f90   /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
+   ifort test_Formal_Charges.f90   /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
    ifort /exe:Formal_Charges *.obj "%CRYSFML%"\ifort\libc\crysfml.lib
 rem
 rem Compress executable

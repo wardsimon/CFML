@@ -5,7 +5,7 @@
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
 !!---- in military applications.
 !!----
-!!---- Copyright (C) 1999-2015  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!---- Copyright (C) 1999-2018  Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
@@ -17,6 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
+!!----               Nebil A. Katcho    (ILL)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -37,7 +38,7 @@
 !!----         configuration properties depending on the crystal structure: BVS, Energy,....
 !!----
 !!---- HISTORY
-!!----    Updated: 16/12/2014
+!!----    Updated: 16/12/2014, 20/02/2018
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -61,22 +62,25 @@
 !!----       COST_BVS
 !!----       COST_BVS_COULOMBREP
 !!----       DEALLOCATE_ATOMS_CONF_LIST
+!!----       EWALD
 !!----       INIT_ERR_CONF
 !!----       SET_TABLE_D0_B
 !!----       SPECIES_ON_LIST
+!!----       SET_FORMAL_CHARGES
 !!----
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_GlobalDeps,                 only: Sp,Cp,dp
-    Use CFML_Math_General,               only: Sort_Strings,Sort,cosd
+    Use CFML_GlobalDeps,                 only: Sp,Cp,dp,pi,tpi
+    Use CFML_Math_3D,                    only: cross_product
+    Use CFML_Math_General,               only: Sort_Strings,Sort,cosd,set_epsg
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
-    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius
+    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius, Set_Chem_Info
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
-    use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
+    use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, get_orbit
     use CFML_Atom_TypeDef,               only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
-                                               Deallocate_Atom_List, AtList1_ExtenCell_AtList2
-    use CFML_Geometry_Calc,              only: Coord_Info, Distance
+                                               Deallocate_Atom_List, AtList1_ExtenCell_AtList2, Atoms_Cell_Type, Allocate_Atoms_Cell
+    use CFML_Geometry_Calc,              only: Coord_Info, Distance, calc_dist_angle_sigma
     use CFML_Export_VTK,                 only: write_grid_VESTA
     use CFML_BVSpar
 
@@ -88,7 +92,8 @@
     !---- List of public subroutines ----!
     public :: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List,           &
               Init_Err_Conf, Set_Table_d0_b, Species_on_List, Set_Table_BVEL_Params,    &
-              Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Calc_Map_BVEL
+              Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Calc_Map_BVEL, Ewald,        &
+              Set_Formal_Charges
 
     !---- List of public private ----!
     private :: Bond_Valence, Complete_Table, Complete_Table_BVEL, get_soft_covalent_radius
@@ -145,6 +150,45 @@
     !!
     character(len=150), public :: ERR_Conf_Mess
 
+    !!----
+    !!---- ERR_CHAR
+    !!----    logical, public  :: err_char
+    !!----
+    !!----    Logical Variable taking the value .true. if an error  in formal charges subroutine
+    !!----
+    !!---- Update: July - 2016
+    !!
+    Logical, Public :: ERR_Char
+
+    !!----
+    !!---- ERR_CHAR_MESS
+    !!----    character(len=150), public:: ERR_Char_Mess
+    !!----
+    !!----    String containing information about the last error in formal charges subroutine
+    !!----
+    !!---- Update: July - 2016
+    !!
+    Character(len=150), Public :: ERR_Char_Mess
+
+    !!----
+    !!---- WARN_CHAR
+    !!----    logical, public  :: warn_char
+    !!----
+    !!----    Logical Variable taking the value .true. if a warning  in formal charges subroutine
+    !!----
+    !!---- Update: July - 2016
+    !!
+    Logical, Public :: WARN_Char
+
+    !!----
+    !!---- WARN_CHAR_MESS
+    !!----    character(len=150), public:: ERR_Warn_Mess
+    !!----
+    !!----    String containing information about the last warning
+    !!----
+    !!---- Update: July - 2016
+    !!
+    Character(len=150), Public :: WARN_Char_Mess
 
  Contains
 
@@ -1372,6 +1416,192 @@
     End Subroutine Deallocate_Atoms_Conf_List
 
     !!----
+    !!---- Subroutine Ewald(Lattvec,Vol,Ac,e)
+    !!----
+    !!----   Real(kind=cp), Dimension(3,3),  Intent(in)   :: Lattvec !Transformation matrix from Crystallographic to Cartesian components
+    !!----   Real(kind=cp),                  Intent(in)   :: Vol     !Volume of the unit cell
+    !!----   Type (Atoms_Cell_Type),         Intent(in)   :: Ac      !List of atoms in the unit cell
+    !!----   Real(kind=dp),                  Intent(out)  :: e       !Electrostatic lattice energy
+    !!----
+    !!----   This subroutine computes the electrostatic energy using the Ewald method.
+    !!----
+    !!----  Update: February - 2018
+    !!
+    Subroutine Ewald(Lattvec,Vol,Ac,e)
+
+      Real(kind=cp), Dimension(3,3),  Intent(in)   :: Lattvec
+      Real(kind=cp),                  Intent(in)   :: Vol
+      Type (Atoms_Cell_Type),         Intent(in)   :: Ac
+      Real(kind=dp),                  Intent(out)  :: e
+
+      !---- Local Variables ----!
+      Integer                                    :: i, j, k, h, l, ik, nk
+      Integer, Dimension(3)                      :: ncell, nrcell
+      Real(kind=dp), Parameter                   :: k_coul = 14.39963977d0   ! eV * angstrom
+      Real(kind=dp), Parameter                   :: k_boltz = 8.617332358e-5 ! eV / K
+      Real(kind=dp), Parameter                   :: beta = 0.4
+      Real(kind=dp), Parameter                   :: rcut = 12.               ! angstrom
+      Real(kind=dp), Parameter                   :: kcut =  4.               ! angstrom ^ -1
+      Real(kind=dp)                              :: rcut2, kcut2, four_beta2, pi, twopi, fourpi
+      Real(kind=dp)                              :: r2, e_s, e_l, e_self, fase, sk2
+      Real(kind=dp), Dimension(2)                :: sk
+      Real(kind=dp), Dimension(3)                :: latt, rlatt, rdmin, kdmin, r0, r, a, b, c
+      Real(kind=dp), Dimension(3,3)              :: rlattvec
+      Real(kind=dp), Dimension(:),   Allocatable :: expok
+      Real(kind=dp), Dimension(:,:), Allocatable :: xyz, errorfc, g
+
+      ! Constants
+
+      rcut2       = rcut * rcut
+      kcut2       = kcut * kcut
+      fourpi      = 4.0 * pi
+      four_beta2  = 4.0 * beta * beta
+
+      ! Compute reciprocal lattice vectors rlattvec from the transformation matrix
+      ! of a vector in direct space referred to the crystal basis (a,b,c) to Cartesian components on the
+      ! basis (e1,e2,e3). The column vectors of lattvec are the components of a,b and c
+      ! with respect to the basis (e1,e2,e3)
+
+      rlattvec(1:3,1) = cross_product(lattvec(1:3,2),lattvec(1:3,3))
+      rlattvec(1:3,2) = cross_product(lattvec(1:3,3),lattvec(1:3,1))
+      rlattvec(1:3,3) = cross_product(lattvec(1:3,1),lattvec(1:3,2))
+
+      rlattvec = rlattvec * tpi / Vol
+
+      ! Compute module of lattice and reciprocal lattice vectors
+
+      Do i = 1 , 3
+         latt(i)  = Dot_product(lattvec(1:3,i),lattvec(1:3,i))
+         rlatt(i) = Dot_product(rlattvec(1:3,i),rlattvec(1:3,i))
+         latt(i)  = Sqrt(latt(i))
+         rlatt(i) = Sqrt(rlatt(i))
+      End Do
+
+      Do i = 1 , 3
+         rdmin(i)  = Dot_product(lattvec(1:3,i),rlattvec(1:3,i))
+         kdmin(i)  = rdmin(i) / latt(i)
+         rdmin(i)  = rdmin(i) / rlatt(i)
+         ncell(i)  = Int(rcut / rdmin(i)) + 1
+         nrcell(i) = Int(kcut / kdmin(i)) + 1
+      End Do
+
+      ! Direct to Cartesian Coordinates
+
+      Allocate(xyz(3,Ac%Nat))
+
+      Do i = 1 , Ac%Nat
+         Do j = 1 , 3
+            xyz(j,i) = 0.0_dp
+            Do k = 1 , 3
+               xyz(j,i) = xyz(j,i) + lattvec(j,k) * Ac%XYZ(k,i)
+            End Do
+         End Do
+      End Do
+
+      ! - Arrays construction: ERRORFC, G, EXPOK
+
+      ! - ERROFC
+
+      Allocate(errorfc(Ac%Nat,Ac%Nat))
+
+      Do i = 1 , Ac%Nat
+         Do j = 1 , Ac%Nat
+            errorfc(i,j) = 0.0_dp
+            r0(1:3) = xyz(:,j) - xyz(:,i)
+            Do h = -ncell(1) , ncell(1)
+               Do k = -ncell(2) , ncell(2)
+                  Do l = -ncell(3) , ncell(3)
+                     If (i /= j .Or.  h /= 0 .Or. k /= 0 .Or. l /= 0) Then
+                        r(1:3) = r0(1:3) + h * lattvec(1:3,1) + k * lattvec(1:3,2) + l * lattvec(1:3,3)
+                        r2 = Dot_Product(r(1:3),r(1:3))
+                        If (r2 <= rcut2) Then
+                           r(1)         = Sqrt(r2)
+                           errorfc(i,j) = errorfc(i,j) + erfc(beta * r(1)) / r(1)
+                        End If
+                     End If
+                  End Do
+               End Do
+            End Do
+         End Do
+      End Do
+
+      ! - G:  reciprocal vectors used in the sum
+
+      nk = (2 * nrcell(1) + 1) * (2 * nrcell(2) + 1) * (2 * nrcell(3) + 1)
+
+      Allocate(g(1:nk,1:4))
+
+      nk = 0
+      i  = 0
+      g  = 0
+
+      Do h = - nrcell(1) , nrcell(1)
+         a(1:3) = h * rlattvec(1:3,1)
+         Do k = - nrcell(2) , nrcell(2)
+            b(1:3) = k * rlattvec(1:3,2)
+            Do l = - nrcell(3) , nrcell(3)
+               c(1:3) = l * rlattvec(1:3,3)
+               r(1:3) = a(1:3) + b(1:3) + c(1:3)
+               r2 = Dot_Product(r(1:3),r(1:3))
+               If (r2 <= kcut2 .And. r2 > 0.0_dp) Then
+                  nk        = nk + 1
+                  g(nk,1:3) = r(1:3)
+                  g(nk,4)   = r2
+               End If
+            End Do
+         End Do
+      End Do
+
+      ! - EXPOK
+
+      Allocate(expok(1:nk))
+
+      Do ik = 1 , nk
+         expok(ik) = Exp((-g(ik,4) / four_beta2)) / g(ik,4)
+      end Do
+
+      ! - Compute energy
+
+      e_self = 0.0_dp
+      e_s    = 0.0_dp
+      e_l    = 0.0_dp
+
+      ! - E_SELF
+
+      Do i = 1 , Ac%Nat
+         e_self = e_self + Ac%Charge(i) * Ac%Charge(i)
+      End Do
+
+      ! - E_S (Real space contribution)
+
+      Do i = 1 , Ac%Nat
+         Do j = 1 , Ac%Nat
+            e_s = e_s + Ac%Charge(i) * Ac%Charge(j) * errorfc(i,j)
+         End Do
+      End Do
+
+      ! E_L (Reciprocal space contribution)
+
+      Do ik = 1 , nk
+         sk(1:2) = 0.0_dp
+         Do j = 1 , Ac%Nat
+            fase = Dot_product(xyz(1:3,j),g(ik,1:3))
+            sk(1) = sk(1) + Ac%Charge(j) * cos(fase)
+            sk(2) = sk(2) + Ac%Charge(j) * Sin(fase)
+         End Do
+         sk2 = sk(1) ** 2 + sk(2) ** 2
+         e_l = e_l + expok(ik) * sk2
+      End Do
+
+      e_s    = e_s * k_coul / 2.0_dp
+      e_l    = e_l * k_coul * fourpi / 2.0_dp / Vol
+      e_self = e_self * k_coul * beta  / Sqrt(pi)
+      e      = (e_s + e_l - e_self) / Ac%Nat
+
+    End Subroutine Ewald
+
+
+    !!----
     !!---- Subroutine get_soft_covalent_radius(nam,radius)
     !!----    character(len=*), intent(in) :: nam    ! In -> Name of the species containing the charge
     !!----    real(kind=cp),    intent(out):: radius ! Out-> Covalent radius according to Ap_Table
@@ -1410,6 +1640,640 @@
        return
     End Subroutine Init_Err_Conf
 
+    !!----
+    !!---- Subroutine Set_Charges(SpGr,Cell,A,charges,filcod)
+    !!----     Type (Space_Group_Type),     Intent(in)    :: SpGr
+    !!----     Type (Crystal_Cell_Type),    Intent(in)    :: Cell
+    !!----     Type (Atom_List_Type),       Intent(inout) :: A
+    !!----     Real(kind=cp), Dimension(*), Intent(out)   :: charges
+    !!----     Character(len=*), Optional,  Intent(in)    :: filcod
+    !!----
+    !!----    This subroutine sets atomic charges for object A using
+    !!----    bond-valence sums. Output is stored in Formal_Charges.fch
+    !!----    or filcod.fch if filcod is provided.
+    !!----
+    !!---- Update: July - 2016
+    !!
+    Subroutine Set_Formal_Charges(SpGr,Cell,A,charges,filcod)
+      !---- Arguments ----!
+      Type (Space_Group_Type),     Intent(in)    :: SpGr
+      Type (Crystal_Cell_Type),    Intent(in)    :: Cell
+      Type (Atom_List_Type),       Intent(inout) :: A
+      Real(kind=cp), Dimension(*), Intent(out)   :: charges
+      Character(len=*), Optional,  Intent(in)    :: filcod
+
+      !---- Local variables ----!
+      Type (Atoms_Cell_Type)                     :: Ac
+      Type (Atoms_Conf_List_Type)                :: Acl
+
+      Character(len=2)                           :: label
+
+      Integer                                    :: i,j,k,orbit_mult,icomb,l,is
+      Integer                                    :: nmax_val=10
+      Integer                                    :: nelements,nsites,nanions,nanions_candidate,ncombinations,nsolutions
+      Integer                                    :: maxv,minv
+      Integer                                    :: icm,icn,sig1,sig2
+      Integer                                    :: lun=1
+      Integer, Dimension(:), Allocatable         :: anion_candidate,nvalences_all,nvalences,first_neighbor,iontype,contador
+      Integer, Dimension(:), Allocatable         :: atom2elem,atom2site,tmre
+      Integer, Dimension(:,:), Allocatable       :: valence,valence_all
+
+      Real(kind=cp)                              :: tol,s0,q2,dd,q1,str,dav
+      Real(kind=cp)                              :: rmin,total_charge,sumq_min
+      Real(kind=cp)                              :: penalty_aux,sumq_aux
+      Real(kind=cp)                              :: Dmax=4.,Dangle=0.,zerocharge=0.1,ttol=30.,DQ=0.1
+      Real(kind=cp), Dimension(:), Allocatable   :: siteocc,sumq,sumq_old,penalty
+      Real(kind=cp), Dimension(:), Allocatable   :: bvsum_aux,solution_aux
+      Real(kind=cp), Dimension(:,:), Allocatable :: combination,solution,bvsum
+
+      Logical                                    :: soft
+      Logical                                    :: newelement,newsite,incremento,electroneutrality,ordered
+
+      Type Element
+         Character(len=2)                        :: ChemSymb
+         Character(len=10)                       :: Lab
+         Integer                                 :: Z
+         Integer                                 :: Type
+      End Type Element
+
+      Type(Element), Dimension(:), Allocatable   :: Elem
+
+      ERR_Char  = .False.
+      WARN_Char = .False.
+
+      If (Present(filcod)) Then
+         Open(unit=lun,file=Trim(filcod)//".fch",status="replace",action="write")
+      Else
+         Open(unit=lun,file="Formal_Charges.fch", status="replace",action="write")
+      End If
+
+      Write(unit=lun,fmt="(/,/,7(a,/))")                              &
+           "             ============================"           , &
+           "             ====== FORMAL CHARGES ======"           , &
+           "             ============================"           , &
+           "    ***********************************************" , &
+           "    *  Formal charges from  *.cfl or *.cif files  *" , &
+           "    ***********************************************" , &
+           "      (Nebil A. Katcho - ILL, version: July 2016 )"
+      Write(unit=lun,fmt="(a,/)") " "
+
+      ! -------------------
+      ! Build the unit cell
+      ! -------------------
+
+      Call Allocate_Atoms_Cell(A%Natoms,SpGr%Multip,0.,Ac)
+      Call Set_Epsg(0.001) !needed for well controlling the calculation of multiplicities
+
+      Write(unit=lun,fmt="(a,i3)") "    Space Group Number: ", SpGr%NumSpg
+      Write(unit=lun,fmt="(a,a,/)") "    Space Group Symbol: ", SpGr%Spg_Symb
+
+      Ac%Nat = 0
+      j      = 1
+
+      Do i = 1 , A%Natoms
+         Ac%Nat = Ac%Nat + A%Atom(i)%Mult
+         Ac%Noms(j:Ac%Nat) = A%Atom(i)%Lab
+         Call Get_Orbit(A%Atom(i)%X,SpGr,orbit_mult,Ac%XYZ(:,j:Ac%Nat))
+
+         If (orbit_mult .Ne. A%Atom(i)%Mult) Then
+            ERR_Char = .True.
+            ERR_Char_Mess = "Error in multiplicities. Check space group"
+            Return
+         End If
+
+         j = j + A%Atom(i)%Mult
+      End Do
+
+      ! -----------------------------------
+      ! Classify ions as cations and anions
+      ! -----------------------------------
+
+      Call Set_Chem_Info()
+      Call Set_Atomic_Properties()
+
+      ! - Determine elements
+
+      nelements         = 0
+      nanions_candidate = 0
+
+      Allocate(anion_candidate(A%natoms),atom2elem(A%natoms))
+
+      Do i = 1 , A%Natoms
+         newelement         = .True.
+         anion_candidate(i) = 0
+         label = A%Atom(i)%ChemSymb
+         Call Get_ChemSymb(label,A%Atom(i)%ChemSymb,A%Atom(i)%Z)
+         Do j = 1 , i - 1
+            If (A%Atom(i)%ChemSymb == A%Atom(j)%ChemSymb) Then
+               newelement = .False.
+               atom2elem(i) = atom2elem(j)
+            End If
+         End Do
+         If (newelement) Then
+            nelements    = nelements + 1
+            atom2elem(i) = nelements
+         End If
+      End Do
+
+      Write(unit=lun,fmt="(a,i2/)") " => Number of elements found: ", nelements
+
+      ! - Determine number of sites
+
+      nsites = 0
+
+      Allocate(atom2site(A%natoms))
+
+      Do i = 1 , A%Natoms
+         newsite = .True.
+         Do j = 1 , i -1
+            If (Abs(A%Atom(i)%X(1)-A%Atom(j)%X(1)) < 0.01 .And. &
+                Abs(A%Atom(i)%X(2)-A%Atom(j)%X(2)) < 0.01 .And. &
+                Abs(A%Atom(i)%X(3)-A%Atom(j)%X(3)) < 0.01) Then
+               newsite = .False.
+               atom2site(i) = atom2site(j)
+            End If
+         End Do
+         If (newsite) Then
+            nsites = nsites + 1
+            atom2site(i) = nsites
+         End If
+      End Do
+
+      Allocate(siteocc(nsites))
+
+      siteocc(:) = 0.
+
+      Do i = 1 , A%Natoms
+         siteocc(atom2site(i)) = siteocc(atom2site(i)) + A%Atom(i)%Occ
+      End Do
+
+      Write(unit=lun,fmt="(a,i2/)") " => Number of crystallographic sites found: ", nsites
+
+      ! - Determine which elements are transition metal or rare earths
+
+      Allocate(tmre(A%Natoms))
+
+      tmre(:) = 0
+
+      Do i = 1 , A%Natoms
+         If ( (A%Atom(i)%Z > 20 .And. A%Atom(i)%Z < 31) .Or. &
+              (A%Atom(i)%Z > 38 .And. A%Atom(i)%Z < 49) .Or. &
+              (A%Atom(i)%Z > 56 .And. A%Atom(i)%Z < 81) .Or. &
+              (A%Atom(i)%Z > 88)) tmre(i) = 1
+      End Do
+
+      ! - Extract all possible valences
+
+      Write(unit=lun,fmt="(a,/)") " => Extracting valences from Atomic Properties Table...."
+
+      Allocate(valence_all(nmax_val,A%Natoms),nvalences_all(A%Natoms))
+
+      nvalences_all(:) = 0
+
+      Do i = 1 , A%Natoms
+         j = 1
+         Do
+            If (Ap_Table(j)%Z == A%Atom(i)%Z) Then
+               Exit
+            Else
+               j = j + 1
+            End If
+         End Do
+         Do
+            If (Ap_Table(j)%Z == A%Atom(i)%Z) Then
+               nvalences_all(i) = nvalences_all(i) + 1
+               valence_all(nvalences_all(i),i) = Ap_Table(j)%oxs
+               j = j + 1
+            Else
+               Exit
+            End If
+         End Do
+      End Do
+
+      ! - Determine anions candidates
+
+      Write(unit=lun,fmt="(a,/)") " => Searching ions that can be anions...."
+
+      Do i = 1 , A%Natoms
+         j = 1
+         Do
+            If (valence_all(j,i) < 0) Then
+               anion_candidate(i) = -1
+               nanions_candidate  = nanions_candidate + 1
+            End If
+            j = j + 1
+            If (j > nvalences_all(i) .Or. &
+                 anion_candidate(i) == -1) Exit
+         End Do
+      End Do
+
+      If (nanions_candidate == 0) Then
+         ERR_Char = .True.
+         ERR_Char_Mess = "Error in anions candidates. No anion candidate has been found"
+         Return
+      End If
+
+      Write(unit=lun,fmt="(tr4,a)") "----------------"
+      Write(unit=lun,fmt="(tr4,a)") "Anion candidates"
+      Write(unit=lun,fmt="(tr4,a)") "----------------"
+
+      Do i = 1 , A%natoms
+         If (anion_candidate(i) == 0) Then
+            Write(unit=lun,fmt="(tr4,a4,tr9,a)") A%Atom(i)%Lab, " NO"
+         Else
+            Write(unit=lun,fmt="(tr4,a4,tr9,a)") A%Atom(i)%Lab, "YES"
+         End If
+      End Do
+
+      Write(unit=lun,fmt="(tr4,a,/)") "----------------"
+
+      ! - Determine first neighbor of anions candidates
+
+      Allocate(first_neighbor(A%Natoms))
+      first_neighbor(:) = 0
+
+      ! First neighbors
+
+      Write(unit=lun,fmt="(a,/)") " => Computing first neighbor of anion candidates (needed to define cations and anions)...."
+      Write(unit=lun,fmt="(tr4,a)")  "-----------------------"
+      Write(unit=lun,fmt="(tr4,a)")  "First neighbor distance"
+      Write(unit=lun,fmt="(tr4,a)")  "-----------------------"
+
+      Call Calc_Dist_Angle_Sigma(Dmax,Dangle,Cell,SpGr,A)
+
+      Do i = 1 , A%natoms
+         rmin = 1d8
+         Do j = 1 , coord_info%Max_coor
+            If (coord_info%N_CooAtm(j,i) /= 0) Then
+               If (coord_info%Dist(j,i) < rmin) Then
+                  rmin = coord_info%Dist(j,i)
+                  first_neighbor(i) = coord_info%N_CooAtm(j,i)
+               End If
+            End If
+         End Do
+         If (first_neighbor(i) == 0) Then
+            ERR_Char = .True.
+            ERR_Char_Mess = "Error in coordination. Coordination for atom "//Trim(A%Atom(i)%Lab)//" is zero. Increase Dmax"
+            Return
+         End If
+         Write(unit=lun,fmt="(tr4,a4,tr2,a4,tr7,f6.3)") A%Atom(i)%Lab,A%Atom(first_neighbor(i))%Lab,rmin
+      End Do
+
+      Write(unit=lun,fmt="(tr4,a,/)") "-----------------------"
+
+      ! - Classify ions as anions and cations
+
+      Call Set_Pauling_Electronegativity()
+
+      Allocate(iontype(A%natoms))
+
+      iontype(:) = 0
+
+      ! Ions with anion_candidate = 0 be cations
+      ! Ions with anion_candidate < 0 can be cations or anions
+      !     - if the first neighbor anion_candidate = 0, it is an anion
+      !     - if the first neighbor anion_candidate .ne. 0,
+      !          it is a cation if it has lower electronegativity
+      !          it is an anion otherwise
+
+      Do i = 1 , A%Natoms
+         If (anion_candidate(i) == 0) iontype(i) = 1
+      End Do
+
+      Do i = 1 , A%Natoms
+         If (anion_candidate(i) == -1) Then
+            If (anion_candidate(first_neighbor(i)) == 0) Then
+               If (iontype(i) <= 0) Then
+                  iontype(i) = -1
+               Else
+                  ERR_Char = .True.
+                  ERR_Char_Mess = "Error in classification. Atom "//Trim(A%Atom(i)%Lab)//" has been classified as anion and cation"
+                  Return
+               End If
+            Else
+               If (PaulingX(A%Atom(i)%Z) < PaulingX(A%Atom(first_neighbor(i))%Z)) Then
+                  If (iontype(i) >= 0) Then
+                     iontype(i) = 1
+                  Else
+                     ERR_Char = .True.
+                     ERR_Char_Mess = "Error in classification. Atom "&
+                          //Trim(A%Atom(i)%Lab)//" has been classified as anion and cation"
+                     Return
+                  End If
+                  If (iontype(first_neighbor(i)) == 1) Then
+                     ERR_Char = .True.
+                     ERR_Char_Mess = "Error in classification. Atom "&
+                          //Trim(A%Atom(first_neighbor(i))%Lab)//" has been classified as anion and cation"
+                     Return
+                  Else
+                     iontype(first_neighbor(i)) = -1
+                  End If
+               Else
+                  If (iontype(i) <= 0) Then
+                     iontype(i) = -1
+                  Else
+                     ERR_Char = .True.
+                     ERR_Char_Mess = "Error in classification. Atom "&
+                          //Trim(A%Atom(i)%Lab)//" has been classified as anion and cation"
+                     Return
+                  End If
+                  If (iontype(first_neighbor(i)) == -1) Then
+                     ERR_Char = .True.
+                     ERR_Char_Mess = "Error in classification. Atom "&
+                          //Trim(A%Atom(first_neighbor(i))%Lab)//" has been classified as anion and cation"
+                     Return
+                  Else
+                     iontype(first_neighbor(i)) = 1
+                  End If
+               End If
+            End If
+         End If
+      End Do
+
+      Write(unit=lun,fmt="(a,/)") " => Anion / Cation assignment...."
+      Write(unit=lun,fmt="(tr4,a)") "----------------"
+      Write(unit=lun,fmt="(tr4,a)") "Anions / Cations"
+      Write(unit=lun,fmt="(tr4,a)") "----------------"
+
+      Do i = 1 , A%natoms
+
+         If (iontype(i) == 1) Then
+            Write(unit=lun,fmt="(tr4,a4,tr6,a)") A%Atom(i)%Lab, "CATION"
+         Else If (iontype(i) == -1) Then
+            Write(unit=lun,fmt="(tr4,a4,tr6,a)") A%Atom(i)%Lab, " ANION"
+         End If
+
+      End Do
+
+      Write(unit=lun,fmt="(tr4,a,/)") "----------------"
+
+      ! - Get cationic and anionic valences
+
+      Allocate(valence(nmax_val,A%Natoms),nvalences(A%Natoms))
+
+      nvalences(:) = 0
+
+      Do i = 1 , A%Natoms
+         Do j = 1 , nvalences_all(i)
+            If ( (iontype(i) ==  1 .And. valence_all(j,i) > 0) .Or. &
+                 (iontype(i) == -1 .And. valence_all(j,i) < 0) ) Then
+               nvalences(i) = nvalences(i) + 1
+               valence(nvalences(i),i) = valence_all(j,i)
+            End If
+         End Do
+         If (A%Atom(i)%Z == 8) nvalences(i) = 1 ! Correction for oxygen, there are two valences = -2 in Atomic Properties Table
+      End Do
+
+      Write(unit=lun,fmt="(a,/)") " => Possible atomic valences...."
+      Write(unit=lun,fmt="(tr4,a)") "-----------------------------------------"
+      Write(unit=lun,fmt="(tr4,a)") "Ion, Valences"
+      Write(unit=lun,fmt="(tr4,a)") "-----------------------------------------"
+
+      Do i = 1 , A%Natoms
+         Write(unit=lun,fmt="(tr4,a4)",advance='no') A%Atom(i)%ChemSymb
+         Do j = 1 , nvalences(i)
+            Write(unit=lun,fmt="(tr3,i2,1x)",advance='no') valence(j,i)
+         End Do
+         Write(unit=lun,fmt=*)
+      End Do
+
+      Write(unit=lun,fmt="(tr4,a,/)") "-----------------------------------------"
+
+      ! ----------------------------------------------
+      ! Find solutions which fulfill electroneutrality
+      ! ----------------------------------------------
+
+      Write(unit=lun,fmt="(a,/)") " => Searching for combinations that fulfill the electroneutrality rule..."
+
+      ncombinations=1
+
+      Do i = 1 , A%Natoms
+         ncombinations = ncombinations * nvalences(i)
+      End Do
+
+      Allocate(combination(A%Natoms,ncombinations))
+      Allocate(sumq(ncombinations))
+      Allocate(contador(A%Natoms))
+
+      nsolutions  = 0
+      sumq_min    = 1d8
+      contador(:) = 1
+
+      Do icomb = 1 , ncombinations
+         total_charge = 0.
+         Do j = 1 , A%Natoms
+            combination(j,icomb) = valence(contador(j),j)
+            total_charge         = total_charge + valence(contador(j),j) * A%atom(j)%occ
+         End Do
+         sumq(icomb) = Abs(total_charge)
+         If (Abs(total_charge) < sumq_min) sumq_min = Abs(total_charge)
+         If (icomb < ncombinations) Then
+            incremento = .False.
+            j = A%Natoms
+            Do
+               If (contador(j) < nvalences(j)) Then
+                  contador(j) = contador(j) + 1
+                  incremento  = .True.
+               Else
+                  contador(j) = 1
+                  j = j - 1
+               End If
+               If (incremento) Exit
+            End Do
+         End If
+      End Do
+
+      If (sumq_min <= zerocharge) Then
+         electroneutrality = .True.
+      Else
+         electroneutrality = .False.
+         Write(unit=lun,fmt="(tr8,a)") "No solution found fulfilling electroneutrality. Possible problems:"
+         Write(unit=lun,fmt="(tr12,a)") " - wrong compositions"
+         Write(unit=lun,fmt="(tr12,a)") " - fractional charge --> mixed valence oxidation state"
+         Write(unit=lun,fmt="(tr12,a)") " - unusual oxidation state (not tabulated)"
+         WARN_Char = .True.
+         WARN_Char_Mess = "WARNING! No solution found fulfilling electroneutrality"
+      End If
+
+      Write(unit=lun,fmt="(a,/)") " => Selecting combinations...."
+
+      nsolutions = 0
+      Do i = 1 , ncombinations
+         If (sumq(i) <= sumq_min + DQ) nsolutions = nsolutions + 1
+      End Do
+
+      Allocate(sumq_old(ncombinations))
+      sumq_old(:) = sumq(:)
+      Deallocate(sumq)
+      Allocate(solution(A%Natoms,nsolutions),sumq(nsolutions))
+
+      nsolutions = 0
+      Do i = 1 , ncombinations
+         If (sumq_old(i) <= sumq_min+0.01) Then
+            nsolutions = nsolutions + 1
+            solution(:,nsolutions) = combination(:,i)
+            sumq(nsolutions) = sumq_old(i)
+         End If
+      End Do
+
+      Deallocate(combination)
+      Deallocate(sumq_old)
+
+      Write(unit=lun,fmt="(tr4,i10,tr2,a,/)") nsolutions, "solutions found"
+      Write(unit=lun,fmt="(tr4,a,/)") "Computing penalizations...."
+      Write(unit=lun,fmt="(tr8,a,/)") "For each ion, atomic valence and (bond valence sum)"
+
+      ! ---------------------
+      ! Compute penalizations
+      ! ---------------------
+
+      Call Allocate_Atoms_Conf_List(A%Natoms,Acl)
+      Allocate(bvsum(A%Natoms,nsolutions),penalty(nsolutions))
+
+      ! If for a given crystallographic site, there are
+      ! two or more transition/rare earth metals, we apply
+      ! a penalization if the difference between the maximum
+      ! and minimum valence >= 3
+
+      Do is = 1 , nsolutions
+         penalty(is) = 0.
+         Do i = 1 , nsites
+            maxv = 0
+            minv = 0
+            k    = 0
+            Do j = 1 , A%Natoms
+               If (tmre(j) == 1 .And. atom2site(j) == i) Then
+                  k = k + 1
+                  If (k == 1) Then
+                     maxv = solution(j,is)
+                     minv = solution(j,is)
+                  Else
+                     If (solution(j,is) > maxv) maxv = solution(j,is)
+                     If (solution(j,is) < minv) minv = solution(j,is)
+                  End If
+               End If
+            End Do
+            If ((maxv-minv) > 2) penalty(is) = penalty(is) + maxv - minv
+         End Do
+      End Do
+
+      Do is = 1 , nsolutions
+         Acl%atom(1:A%natoms)=A%atom(:)
+         Do j = 1 , A%Natoms
+            Acl%Atom(j)%Charge = solution(j,is)
+         End Do
+
+         soft=.False.
+         Call Init_Err_Conf
+         Call Species_on_List(Acl,SpGr%Multip,ttol)
+         Call Set_Table_d0_b(Acl)
+         If (Err_Conf) Then
+            soft=.True.
+            Call Init_Err_Conf
+            Call Species_on_List(Acl,SpGr%Multip,ttol,soft)
+            Call Set_Table_d0_b(Acl,soft=soft)
+         End If
+         If (Err_Conf) Return
+
+         ! Compute BVS sums
+
+         tol = Acl%tol*0.01
+         If (tol <= 0.001) tol=0.20
+
+         Do i = 1 , Acl%natoms
+            icm         = coord_info%coord_num(i)
+            l           = Acl%Atom(i)%ind(1)
+            q1          = Acl%Atom(i)%charge
+            sig1        = Sign(1.0_cp,q1)
+            icn         = 0
+            dav         = 0.
+            bvsum(i,is) = 0.0
+            Do j = 1 , icm
+               k           = Acl%Atom(coord_info%n_cooatm(j,i))%ind(1)
+               q2          = Acl%Atom(coord_info%n_cooatm(j,i))%charge
+               sig2        = Sign(1.0_cp,q2)
+               If (sig1 == sig2) Cycle
+               dd          = coord_info%dist(j,i)
+               If (dd > (Acl%Radius(l)+Acl%Radius(k))*(1.0+tol)) Cycle
+               icn         = icn + 1
+               dav         = dav + dd
+               s0          = coord_info%s_dist(j,i)
+               str         = Exp((Table_d0(l,k)-dd)/Table_b(l,k))
+               str         = str*Acl%Atom(coord_info%n_cooatm(j,i))%VarF(1)
+               bvsum(i,is) = bvsum(i,is)+str
+            End Do
+            penalty(is) = penalty(is) + &
+                 (Abs(bvsum(i,is) - Abs(Acl%Atom(i)%Charge))) * Acl%Atom(i)%Occ / siteocc(atom2site(i))
+         End Do
+      End Do
+
+      ! - Order solutions according to the penalty
+
+      Allocate(solution_aux(A%Natoms),bvsum_aux(A%Natoms))
+      ordered = .False.
+
+      Do
+         ordered = .True.
+         Do i = 1 , nsolutions - 1
+            If (penalty(i+1) < penalty(i)) Then
+               ordered = .False.
+               penalty_aux     = penalty(i+1)
+               sumq_aux        = sumq(i+1)
+               solution_aux(:) = solution(:,i+1)
+               bvsum_aux(:)    = bvsum(:,i+1)
+               penalty(i+1)    = penalty(i)
+               sumq(i+1)       = sumq(i)
+               solution(:,i+1) = solution(:,i)
+               bvsum(:,i+1)    = bvsum(:,i)
+               penalty(i)      = penalty_aux
+               sumq(i)         = sumq_aux
+               solution(:,i)   = solution_aux(:)
+               bvsum(:,i)      = bvsum_aux(:)
+            End If
+         End Do
+         If (ordered) Exit
+      End Do
+
+      Write(unit=lun,fmt="(tr5)",advance="no")
+
+      Do i = 1 , A%Natoms
+         Write(unit=lun,fmt="(a)",advance='no') "------------------"
+      End Do
+      Write(unit=lun,fmt="(a)") "--------------------------"
+
+      Do i = 1 , A%Natoms
+         Write(unit=lun,fmt="(tr5,a4,tr9)",advance="no") A%Atom(i)%Lab
+      End Do
+
+      Write(unit=lun,fmt="(tr10,a)") "Penalty  Total_Charge"
+      Write(unit=lun,fmt="(tr5)",advance="no")
+
+      Do i = 1 , A%Natoms
+         Write(unit=lun,fmt="(a)",advance='no') "------------------"
+      End Do
+      Write(unit=lun,fmt="(a)") "--------------------------"
+
+      Do i = 1 , nsolutions
+         Write(unit=lun,fmt="(tr4)",advance="no")
+
+         Do j = 1 , A%Natoms
+            Write(unit=lun,fmt="(f5.2,a,f7.4,a,tr4)",advance='no') &
+                 solution(j,i),"(",bvsum(j,i),")"
+         End Do
+
+         Write(unit=lun,fmt="(tr5,f8.3,f14.5)") penalty(i),sumq(i)
+      End Do
+
+      Write(unit=lun,fmt="(tr5)",advance="no")
+
+      Do i = 1 , A%Natoms
+         Write(unit=lun,fmt="(a)",advance='no') "------------------"
+      End Do
+      Write(unit=lun,fmt="(a,/)") "--------------------------"
+
+      charges(1:A%Natoms) = solution(1:A%Natoms,1)
+
+    End Subroutine Set_Formal_Charges
 
     !!----
     !!---- Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel)

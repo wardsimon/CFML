@@ -7,12 +7,13 @@
 Program Test_Formal_Charges
 
   !---- Use Modules ----!
+  Use CFML_GlobalDeps
   Use CFML_Crystal_Metrics,             Only: Crystal_Cell_Type
   Use CFML_Crystallographic_Symmetry,   Only: Space_Group_Type
   Use CFML_Atom_TypeDef,                Only: Atom_List_Type
   Use CFML_IO_Formats,                  Only: Readn_set_Xtal_Structure,ERR_Form_Mess,err_form,File_List_Type,Write_CFL
-  Use CFML_BVS_Energy_Calc,             Only: Err_Conf, Err_Conf_Mess
-  Use CFML_Formal_Charges
+  Use CFML_BVS_Energy_Calc,             Only: Err_Conf, Err_Conf_Mess, Set_Formal_Charges, Err_char,Err_Char_Mess, &
+                                              Warn_Char,Warn_Char_Mess
 
   !---- Variables ----!
   Implicit None
@@ -27,7 +28,7 @@ Program Test_Formal_Charges
 
   Integer                                    :: i,j,k
   Integer                                    :: narg,lun=19
-  
+
   Real(kind=cp), Dimension(:), Allocatable   :: charges
   Logical                                    :: arggiven=.False.,esta,cif=.False.,out_cif=.False.,input_charges=.False.
   Logical                                    :: identical=.True.
@@ -66,9 +67,9 @@ Program Test_Formal_Charges
      Call Readn_set_Xtal_Structure(Trim(filcod)//".cif",Cell,SpGr,A,Mode="CIF",file_list=fich_cif)
      ! Store oxidation states, if any
      i=1
-     Do 
+     Do
         line=adjustl(fich_cif%line(i))
-        If (line(1:27) == "_atom_type_oxidation_number") Then 
+        If (line(1:27) == "_atom_type_oxidation_number") Then
            Do j = 1 , A%Natoms
               line=Adjustl(fich_cif%line(i+j))
               k = Index(line," ")
@@ -91,7 +92,7 @@ Program Test_Formal_Charges
   ! Objects Cell, SpGr and A must be built before calling this subroutine
 
   Allocate(charges(A%Natoms))
-  Call Set_Charges(SpGr,Cell,A,charges,filcod)
+  Call Set_Formal_Charges(SpGr,Cell,A,charges,filcod)
 
   If (Err_Conf) Then
      Write(unit=*,fmt="(a)") Trim(Err_Conf_Mess)
@@ -108,9 +109,9 @@ Program Test_Formal_Charges
   If (WARN_Char) Write(unit=*,fmt="(a)") Trim(WARN_Char_Mess)
 
   ! Check if charges have given in the input file
-  
+
   i = 1
-  Do 
+  Do
      If (A%Atom(i)%Charge /= 0) input_charges = .True.
      If (input_charges) Exit
      i = i + 1
