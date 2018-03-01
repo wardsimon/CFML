@@ -2,8 +2,10 @@
 rem
 rem Intel Compilation
 rem
-   ifort test_Formal_Charges.f90   /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
+   ifort Formal_Charges.f90 /warn  /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
    ifort /exe:Formal_Charges *.obj "%CRYSFML%"\ifort\libc\crysfml.lib
+rem   ifort Formal_Charges.f90 /warn  /c /debug=full /traceback /nologo /I"%CRYSFML%"\ifort_debug\libc
+rem   ifort /exe:Formal_Charges *.obj "%CRYSFML%"\ifort_debug\libc\crysfml.lib
 rem
 rem Compress executable
 rem

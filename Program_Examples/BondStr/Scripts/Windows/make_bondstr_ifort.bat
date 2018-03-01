@@ -3,7 +3,6 @@ rem
 rem Intel Compilation
 cd %CRYSFML%\Program_Examples\BondStr\Src
 rem
-   ifort CFML_Percolation.f90 /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
    ifort Bond_Str.f90         /c /O3 /nologo /I"%CRYSFML%"\ifort\libc
    ifort /exe:Bond_Str *.obj "%CRYSFML%"\ifort\libc\crysfml.lib
 rem

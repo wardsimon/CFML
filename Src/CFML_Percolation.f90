@@ -35,7 +35,7 @@
    !!----  TYPE :: NODE
    !!----
    !!----  Type :: Node
-   !!----    Integer                     :: nbonds, nbonds_pbc  ! number of bonds of the node, 
+   !!----    Integer                     :: nbonds, nbonds_pbc  ! number of bonds of the node,
    !!----                                                       ! with and without periodic boundary conditions (pbc)
    !!----    Integer                     :: Type                ! Type of node
    !!----                                                         0: inside unit cell
@@ -43,8 +43,8 @@
    !!----                                                         2: on an edge
    !!----                                                         3: on a  corner
    !!----    Integer                     :: state               ! 0: non-visited
-   !!----                                                       ! 1: visited 
-   !!----    Integer                     :: cc, cc_pbc          ! connected component to which the node belongs, 
+   !!----                                                       ! 1: visited
+   !!----    Integer                     :: cc, cc_pbc          ! connected component to which the node belongs,
    !!----                                                         with and without pbc
    !!----    Integer, Dimension(12)      :: bond, bond_pbc      ! bonds of the node
    !!----    Real(kind=cp), Dimension(3) :: xyz, xyz_aux        ! coordinates of the node
@@ -54,9 +54,9 @@
    !!
 
    Type, Private :: node
-      Integer                     :: nbonds, nbonds_pbc    
+      Integer                     :: nbonds, nbonds_pbc
       Integer                     :: Type                ! 1: interior, -1: face, -2: edge, -3: vertex
-      Integer                     :: state               ! 0: non-visited, 1: visited 
+      Integer                     :: state               ! 0: non-visited, 1: visited
       Integer                     :: cc, cc_pbc          ! connected component to which the node belongs, before and after pbc
       Integer, Dimension(3)       :: face
       Integer, Dimension(12)      :: bond, bond_pbc
@@ -77,9 +77,9 @@
    !!----  TYPE :: COMPONENT
    !!----
    !!----  Type :: Component
-   !!----    Integer                            :: nbonds  ! number of bonds 
+   !!----    Integer                            :: nbonds  ! number of bonds
    !!----    Integer                            :: state   ! 0: non-visited
-   !!----                                                  ! 1: visited 
+   !!----                                                  ! 1: visited
    !!----    Integer                            :: cc      ! component index
    !!----    Integer                            :: pbc     ! bonds of the node
    !!----    Integer, Dimension(:), Allocatable :: bond    ! component-component bonds
@@ -106,7 +106,7 @@
    Type(component), Dimension(:), Allocatable :: cts
 
  Contains
-  
+
    !---------------------!
    !---- Subroutines ----!
    !---------------------!
@@ -136,7 +136,7 @@
      Character(len=79)                            :: title
 
      ! -----------------
-     ! Read the BVEL map 
+     ! Read the BVEL map
      ! -----------------
 
      Open(Lun, file = filnam, &
@@ -147,23 +147,23 @@
      Read(Lun) version
      Read(Lun) title(1:79),end_line
      Read(Lun) gType
-     Read(Lun) fType !=0                                                                                                             
-     Read(Lun) nval  !=1                                                                                                             
-     Read(Lun) ndim  !=3                                                                                                             
+     Read(Lun) fType !=0
+     Read(Lun) nval  !=1
+     Read(Lun) ndim  !=3
      Read(Lun) ngrid
-     Read(Lun) nASYM !                                                                                                               
+     Read(Lun) nASYM !
      Read(Lun) Cell%cell,Cell%ang
-  
+
      Allocate(rho(ngrid(1),ngrid(2),ngrid(3)))
 
-     Read(11) rho
-  
-     Close(11)
+     Read(Lun) rho
+
+     Close(Lun)
 
    End Subroutine Read_BVEL
 
    !!----
-   !!---- Subroutine Percol_Analysis(Lun,Emin,Eini,Eend,dE,E_percol,axis,Lun) 
+   !!---- Subroutine Percol_Analysis(Lun,Emin,Eini,Eend,dE,E_percol,axis,Lun)
    !!----     Real(kind=cp), Dimension(:,:,:), Allocatable, Intent(in)    :: rho      ! 3D map
    !!----     Real(kind=cp),                                Intent(in)    :: Emin     ! Minval of rho
    !!----     Real(kind=cp),                                Intent(in)    :: Eini     ! Initial isosurface value
@@ -172,7 +172,7 @@
    !!----     Real(kind=cp), Dimension(3),                  Intent(inout) :: E_percol ! Treshold values at which percolation starts
    !!----     Integer, Optional,                            Intent(in)    :: axis     ! Axis for which percolation is searched
    !!----                                                                               1: x, 2: y, 3: z
-   !!----                                                                               If axis is not given percolation is 
+   !!----                                                                               If axis is not given percolation is
    !!----                                                                               searched for every axis
    !!----     Integer, Optional,                            Intent(in)    :: lun      ! Local unit
    !!----
@@ -192,26 +192,24 @@
      Integer, Optional,                            Intent(in)    :: lun
 
      !---- Local variables ----!
-     Integer                                      :: i, j, k, l, m, n, v, ic, jc, kc, cc_aux
-     Integer                                      :: narg, nlevel, np_max, ncc, nbonds_aux, nbonds_in, nbonds_out, ncc_pbc
-     Integer                                      :: err=3
+     Integer                                      :: i, j, k, l, m, v, ic, jc, kc
+     Integer                                      :: nlevel, np_max, ncc, nbonds_in, nbonds_out, ncc_pbc
      Integer,         Dimension(3)                :: ngrid
      Integer,         Dimension(0:4)              :: nnodes
-     Integer,         Dimension(12)               :: bond_aux
      Integer,         Dimension(2,0:2)            :: tricon
      Integer,         Dimension(:), Allocatable   :: npoints, id
 
-     Real(kind=cp)                                :: dr, dE_max
+     Real(kind=cp)                                :: dr
      Real(kind=cp), Dimension(3)                  :: drmin, t
      Real(kind=cp), Dimension(:),     Allocatable :: levels
      Real(kind=cp), Dimension(:,:),   Allocatable :: xyz
-  
+
      Character(len=2)                             :: MC_method
-     
+
      Logical                                      :: newbond,allvisited,pbc,iprin
      Logical, Dimension(3)                        :: percolation
      Logical, Dimension(:), Allocatable           :: newnode
-     
+
      iprin = .False.
      If (Present(lun)) Then
         If (lun > 0) iprin = .True.
@@ -225,7 +223,7 @@
              "       ***********************************************     " , &
              "       * Percolation Analysis from Energy Landscapes *     " , &
              "       ***********************************************     " , &
-             "         (NAK-JRC - ILL, version: January 2016 )"
+             "       (Nebil A. Katcho - ILL, version: January 2016 )"
         Write(unit=lun,fmt=*) " "
      End If
 
@@ -249,17 +247,17 @@
      levels(1)      = Eini
      percolation(:) = .False.
 
-     Do 
+     Do
 
         ! ----------------------
         ! Compute the isosurface
         ! ----------------------
-        
+
         If (iprin) Then
-           Write(unit=lun,fmt="(4x,a,f6.2,a3,/)")  "Energy above the minimum = ", levels(1) - Emin, " eV"
-           Write(unit=lun,fmt="(8x,a,/)") 'Computing Isosurface....'
+           Write(unit=lun,fmt="(tr4,a,f6.2,a3,/)")  "Energy above the minimum = ", levels(1) - Emin, " eV"
+           Write(unit=lun,fmt="(tr8,a,/)") 'Computing Isosurface....'
         End If
-        
+
         Call Calculate_Mesh(rho,ngrid,nlevel,levels,MC_Method,npoints,xyz)
 
         ! ---------------------------------------------
@@ -269,21 +267,21 @@
         !    2. Store the nodes
         !    3. Store conectivity (bonds)
         ! ---------------------------------------------
-        
-        If (iprin) Write(unit=lun,fmt="(8x,a,/)") 'Extracting Graph from the Isosurface....'
-        
+
+        If (iprin) Write(unit=lun,fmt="(tr8,a,/)") 'Extracting Graph from the Isosurface....'
+
         Allocate(id(npoints(1)),newnode(npoints(1)))
-        
-        !  1.)  
-        
+
+        !  1.)
+
         If (iprin) Write(unit=lun,fmt="(10x,a)") 'Computing nodes....'
-        
+
         Do i = 1 , 3
            !  [1.0/ real(ngrid(i))] is a measure of the density of points along dimension i
            !  drmin will be used to determine when two nodes are equivalent by translation symmetry
            drmin(i) = 0.01 / Real(ngrid(i))
         End Do
-        
+
         Do i = 1 , npoints(1)
            ! Put every point inside the unit cell
            Do j = 1 , 3
@@ -294,7 +292,7 @@
               End If
            End Do
         End Do
-        
+
         nnodes(:)  = 0
 
         Do i = 1 , npoints(1)
@@ -308,7 +306,7 @@
                  Exit
               End If
            End Do
-           If (newnode(i)) Then 
+           If (newnode(i)) Then
               nnodes(4) = nnodes(4) + 1
               id(i)  = nnodes(4)
            Else
@@ -318,12 +316,12 @@
 
         ! 2.)
 
-        If (iprin) Write(unit=lun,fmt="(10x,a)") 'Storing nodes....'
+        If (iprin) Write(unit=lun,fmt="(tr10,a)") 'Storing nodes....'
 
         Allocate(nodes(nnodes(4)))
 
         Do i = 1 , npoints(1)
-           If (newnode(i)) Then 
+           If (newnode(i)) Then
               nodes(id(i))%xyz(:)     = xyz(1:3,i)
               nodes(id(i))%state      = 0
               nodes(id(i))%cc         = 0
@@ -333,7 +331,7 @@
               ! Classify the node: 0 (interior), 1 (face), 2 (edge), 3 (vertex)
               nodes(id(i))%type = 0
               Do j = 1 , 3
-                 If (Abs(nodes(id(i))%xyz(j) - 0.0d0) < 1e-6) Then 
+                 If (Abs(nodes(id(i))%xyz(j) - 0.0d0) < 1e-6) Then
                     nodes(id(i))%type    = nodes(id(i))%type + 1
                  Else If (Abs(nodes(id(i))%xyz(j) - 1.0d0) < 1e-6) Then
                     nodes(id(i))%type    = nodes(id(i))%type + 1
@@ -344,13 +342,13 @@
         End Do
 
         ! 3.)
-        
+
         if (iprin) Write(unit=lun,fmt="(10x,a,/)") 'Computing bonds....'
 
         i          = 1
         nbonds_in  = 0
         nbonds_out = 0
-  
+
         Do j = 1 , npoints(1) / 3 ! run over each triangle stored in xyz
            ! tricon stores the triangle conectivity
            !        i ------ i+1
@@ -369,14 +367,14 @@
               Do l = 1 , 2 ! store the two bonds if they haven't previously be stored
                  newbond = .True.
                  Do m = 1 , nodes(id(v))%nbonds
-                    If (nodes(id(v))%bond(m) == id(tricon(l,k))) Then 
+                    If (nodes(id(v))%bond(m) == id(tricon(l,k))) Then
                        newbond = .False.
                        Exit
                     End If
                  End Do
                  If (newbond) Then
                     Do m = 1 , nodes(id(v))%nbonds_pbc
-                       If (nodes(id(v))%bond_pbc(m) == id(tricon(l,k))) Then 
+                       If (nodes(id(v))%bond_pbc(m) == id(tricon(l,k))) Then
                           newbond = .False.
                           Exit
                        End If
@@ -409,25 +407,25 @@
         Deallocate(newnode)
 
         If (iprin) Then
-           Write(unit=lun,fmt="(12x,a,i6)")   "Total    nodes: ", nnodes(4)
-           Write(unit=lun,fmt="(12x,a,i6)")   "Interior nodes: ", nnodes(0)
-           Write(unit=lun,fmt="(12x,a,i6)")   "Face     nodes: ", nnodes(1)
-           Write(unit=lun,fmt="(12x,a,i6)")   "Edge     nodes: ", nnodes(2)
-           Write(unit=lun,fmt="(12x,a,i6)")   "Vertex   nodes: ", nnodes(3)
-           Write(unit=lun,fmt="(12x,a,i6)")   "Interior bonds: ", nbonds_in
-           Write(unit=lun,fmt="(12x,a,i6,/)") "Exterior bonds: ", nbonds_out
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Total    nodes: ", nnodes(4)
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Interior nodes: ", nnodes(0)
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Face     nodes: ", nnodes(1)
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Edge     nodes: ", nnodes(2)
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Vertex   nodes: ", nnodes(3)
+           Write(unit=lun,fmt="(tr12,a,i6)")   "Interior bonds: ", nbonds_in
+           Write(unit=lun,fmt="(tr12,a,i6,/)") "Exterior bonds: ", nbonds_out
         End If
 
         ! ----------------------------
         ! Compute connected components
         ! ----------------------------
-        
-        If (iprin) Write(unit=lun,fmt="(8x,a,/)") 'Computing connected components (Depth First Search algorithm)....'
-  
+
+        If (iprin) Write(unit=lun,fmt="(tr8,a,/)") 'Computing connected components (Depth First Search algorithm)....'
+
         m   = 0
         ncc = 0
 
-        Do 
+        Do
            allvisited = .True.
            m          = m + 1
            Do i = m , nnodes(4)
@@ -459,7 +457,7 @@
            cts(i)%state  = 0
            cts(i)%nbonds = 0
         End Do
-        
+
         Do i  = 1 , nnodes(4)
            ic = nodes(i)%cc
            Do j = 1 , nodes(i)%nbonds_pbc
@@ -481,7 +479,7 @@
         m       = 0
         ncc_pbc = 0
 
-        Do 
+        Do
            allvisited = .True.
            m          = m + 1
            Do i = m , ncc
@@ -498,7 +496,7 @@
            End Do
            If (allvisited) Exit
         End Do
-     
+
         If (iprin) Write(unit=lun,fmt="(12x,a,i6,/)") &
              "Number of connected components found after  applying boundary conditions: ", ncc_pbc
 
@@ -513,12 +511,12 @@
            End Do
            cts(jc)%pbc = 1
         End Do
-     
+
         ! Apply boundary conditions
 
         Do i = 1 , ncc_pbc
            ic = 1
-           Do 
+           Do
               If (cts(ic)%cc == i .And. cts(ic)%pbc == 0) Then
                  Do j = 1 , nnodes(4)
                     If (nodes(j)%cc == ic .And. nodes(j)%nbonds_pbc > 0) Then
@@ -529,17 +527,17 @@
                              Do v = 1 , 3
                                 dr = nodes(j)%xyz(v) - nodes(k)%xyz(v)
                                 If (dr > 0.5) Then
-                                   t(v) = -1. 
+                                   t(v) = -1.
                                 Else If (dr < -0.5) Then
-                                   t(v) =  1. 
-                                Else 
+                                   t(v) =  1.
+                                Else
                                    t(v) =  0.
                                 End If
                              End Do
                              cts(ic)%pbc = 1
                              Do m = 1 , nnodes(4)
                                 If (nodes(m)%cc == ic) &
-                                     nodes(m)%xyz(:) = nodes(m)%xyz(:) + t(:) 
+                                     nodes(m)%xyz(:) = nodes(m)%xyz(:) + t(:)
                              End Do
                           End If
                        End Do
@@ -555,7 +553,7 @@
               If (ic > ncc) ic = 1
            End Do
         End Do
-     
+
         ! --------------------
         ! Percolation analysis
         ! --------------------
@@ -570,7 +568,7 @@
                     l = nodes(j)%bond_pbc(k)
                     Do v = 1 , 3
                        dr = nodes(j)%xyz(v) - nodes(l)%xyz(v)
-                       If (Abs(dr) > 0.5 .And. .Not. percolation(v)) Then 
+                       If (Abs(dr) > 0.5 .And. .Not. percolation(v)) Then
                           percolation(v) = .True.
                           E_percol(v)    = levels(1) - Emin
                        End If
@@ -580,25 +578,25 @@
            End Do
         End Do
 
-        If (iprin) Then 
+        If (iprin) Then
            Write(unit=lun,fmt="()")
 
            If (percolation(1)) Then
-              Write(unit=lun,fmt="(12x,a,f6.2,a3)") "Percolation along a: Yes, Percolation energy: ", E_percol(1), " eV"
+              Write(unit=lun,fmt="(tr12,a,f6.2,a3)") "Percolation along a: Yes, Percolation energy: ", E_percol(1), " eV"
            Else
-              Write(unit=lun,fmt="(12x,a)") "Percolation along a: No"
+              Write(unit=lun,fmt="(tr12,a)") "Percolation along a: No"
            End If
-     
+
            If (percolation(2)) Then
-              Write(unit=lun,fmt="(12x,a,f6.2,a3)") "Percolation along b: Yes, Percolation energy: ", E_percol(2), " eV"
+              Write(unit=lun,fmt="(tr12,a,f6.2,a3)") "Percolation along b: Yes, Percolation energy: ", E_percol(2), " eV"
            Else
-              Write(unit=lun,fmt="(12x,a)") "Percolation along b: No"
+              Write(unit=lun,fmt="(tr12,a)") "Percolation along b: No"
            End If
-     
+
            If (percolation(3)) Then
-              Write(unit=lun,fmt="(12x,a,f6.2,a3/)") "Percolation along c: Yes, Percolation energy: ", E_percol(3), " eV"
+              Write(unit=lun,fmt="(tr12,a,f6.2,a3/)") "Percolation along c: Yes, Percolation energy: ", E_percol(3), " eV"
            Else
-              Write(unit=lun,fmt="(12x,a,/)") "Percolation along c: No"
+              Write(unit=lun,fmt="(tr12,a,/)") "Percolation along c: No"
            End If
 
         End If
@@ -627,15 +625,10 @@
    End Subroutine Percol_Analysis
 
    Recursive Subroutine DFS_N(id,ncc)
-     
-     Implicit None
-
      Integer, Intent(in) :: id, ncc
      Integer             :: j, k
-     
      nodes(id)%state  = 1
      nodes(id)%cc     = ncc
-     
      Do j = 1 , nodes(id)%nbonds
         k = nodes(id)%bond(j)
         If (nodes(k)%state == 0) Call DFS_N(k,ncc)
@@ -644,20 +637,17 @@
    End Subroutine DFS_N
 
    Recursive Subroutine DFS_C(id,ncc)
-
-     Implicit None
-
      Integer, Intent(in) :: id, ncc
      Integer             :: j, k
-     
+
      cts(id)%state  = 1
      cts(id)%cc     = ncc
-     
+
      Do j = 1 , cts(id)%nbonds
         k = cts(id)%bond(j)
         If (cts(k)%state == 0) Call DFS_C(k,ncc)
      End Do
-     
+
    End Subroutine DFS_C
 
  End Module CFML_Percolation

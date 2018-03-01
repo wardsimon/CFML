@@ -781,17 +781,16 @@
        type (atom_list_type),            intent(out)     :: Atm_List
 
        !---- Local Variables ----!
-       character(len=len(filevar(1)))               :: string,cp_str
-       character(len=20),dimension(15)              :: label
-
-       integer                         :: i, j, nc, nct, nline, iv
-       !integer, dimension(1)           :: ivet
-       integer, dimension( 8)          :: lugar   !   1 -> label
-                                                  !   2 -> Symbol
-                                                  ! 3-5 -> coordinates
-                                                  !   6 -> occupancy
-                                                  !   7 -> Uequi
-                                                  !   8 -> Biso
+       character(len=len(filevar(1)))      :: string,cp_str
+       character(len=20),dimension(15)     :: label
+       type(Atom_Type)                     :: aux_atm
+       integer                             :: i, j, nc, nct, nline, iv, First
+       integer, dimension( 8)              :: lugar   !   1 -> label
+                                                      !   2 -> Symbol
+                                                      ! 3-5 -> coordinates
+                                                      !   6 -> occupancy
+                                                      !   7 -> Uequi
+                                                      !   8 -> Biso
        real(kind=cp), dimension(1)     :: vet1,vet2
        type(atom_list_type)            :: Atm
 
@@ -1007,7 +1006,7 @@
        end do
 
        !if (all(lugar > 0)) then
-	   if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
+	     if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
           nct=count(lugar > 0)
           nline_ini=nline
           string=" "
@@ -1054,6 +1053,26 @@
        end if
        nline_ini=nline
 
+       !Look for the first atoms fully occupying the site and put it in first position
+       !This is needed for properly calculating the occupation factors
+       !after normalization in subroutine Readn_Set_XTal_CIF
+       vet1(1)=maxval(atm%atom(:)%occ)  !Normalize occupancies
+       atm%atom(:)%occ=atm%atom(:)%occ/vet1(1)
+       First=1
+       do i=1,n_atom
+        if(abs(atm%atom(i)%occ-1.0) < 0.0001) then
+          First=i
+          exit
+        end if
+       end do
+       !Swapping the orinal atom at the first position with the first having full occupation
+       if(First /= 1) Then
+         aux_atm=atm%atom(1)
+         atm%atom(1)=atm%atom(First)
+         atm%atom(First)=aux_atm
+       end if
+
+       !Put the first atom the first having a full occupation factor 1.0
        !---- Adjusting ... ----!
        if (n_atom > 0) then
           call allocate_atom_list(n_atom,Atm_list)
@@ -4076,7 +4095,7 @@
 
        write(unit=iunit,fmt="(a)") " "
        write(unit=iunit,fmt="(a)") "loop_"
-       write(unit=iunit,fmt="(a)") "    _symmetry_equiv_pos_as_xyz   #<--must include 'x,y,z'"
+       write(unit=iunit,fmt="(a)") "    _symmetry_equiv_pos_as_xyz"
        do i=1,SpG%multip
           line="'"//trim(SpG%SymopSymb(i))//"'"
           write(iunit,'(a)') trim(line)
@@ -4236,9 +4255,9 @@
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_av_sigmaI/netI        ?"
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_theta_min             ?"
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_theta_max             ?"
-               write(unit=iunit,fmt="(a)") "_diffrn_reflns_theta_full            ?   # Not in version 2.0.1"
-               write(unit=iunit,fmt="(a)") "_diffrn_measured_fraction_theta_max  ?   # Not in version 2.0.1"
-               write(unit=iunit,fmt="(a)") "_diffrn_measured_fraction_theta_full ?   # Not in version 2.0.1"
+               write(unit=iunit,fmt="(a)") "_diffrn_reflns_theta_full            ?"
+               write(unit=iunit,fmt="(a)") "_diffrn_measured_fraction_theta_max  ?"
+               write(unit=iunit,fmt="(a)") "_diffrn_measured_fraction_theta_full ?"
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_limit_h_min           ?"
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_limit_h_max           ?"
                write(unit=iunit,fmt="(a)") "_diffrn_reflns_limit_k_min           ?"
@@ -4317,8 +4336,8 @@
             case (0)
                write(unit=iunit,fmt="(a)") " "
                write(unit=iunit,fmt="(a)") "_reflns_number_total                 ?"
-               write(unit=iunit,fmt="(a)") "_reflns_number_gt                    ?  # Not in version 2.0.1"
-               write(unit=iunit,fmt="(a)") "_reflns_threshold_expression         ?  # Not in version 2.0.1"
+               write(unit=iunit,fmt="(a)") "_reflns_number_gt                    ?"
+               write(unit=iunit,fmt="(a)") "_reflns_threshold_expression         ?"
 
             case (1)
                write(unit=iunit,fmt="(a)") " "
@@ -4355,11 +4374,11 @@
          write(unit=iunit,fmt="(a)") "_refine_ls_R_I_factor                ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_R_Fsqd_factor             ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_R_factor_all              ?"
-         write(unit=iunit,fmt="(a)") "_refine_ls_R_factor_gt               ?   # Not in version 2.0.1"
+         write(unit=iunit,fmt="(a)") "_refine_ls_R_factor_gt               ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_wR_factor_all             ?"
-         write(unit=iunit,fmt="(a)") "_refine_ls_wR_factor_ref             ?   # Not in version 2.0.1"
+         write(unit=iunit,fmt="(a)") "_refine_ls_wR_factor_ref             ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_goodness_of_fit_all       ?"
-         write(unit=iunit,fmt="(a)") "_refine_ls_goodness_of_fit_ref       ?   # Not in version 2.0.1"
+         write(unit=iunit,fmt="(a)") "_refine_ls_goodness_of_fit_ref       ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_restrained_S_all          ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_restrained_S_obs          ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_number_reflns             ?"
@@ -4369,8 +4388,8 @@
          write(unit=iunit,fmt="(a)") "_refine_ls_hydrogen_treatment        ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_weighting_scheme          ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_weighting_details         ?"
-         write(unit=iunit,fmt="(a)") "_refine_ls_shift/su_max              ?   # Not in version 2.0.1"
-         write(unit=iunit,fmt="(a)") "_refine_ls_shift/su_mean             ?   # Not in version 2.0.1"
+         write(unit=iunit,fmt="(a)") "_refine_ls_shift/su_max              ?"
+         write(unit=iunit,fmt="(a)") "_refine_ls_shift/su_mean             ?"
          write(unit=iunit,fmt="(a)") "_refine_diff_density_max             ?"
          write(unit=iunit,fmt="(a)") "_refine_diff_density_min             ?"
          write(unit=iunit,fmt="(a)") "_refine_ls_extinction_method         ?"
@@ -4407,7 +4426,7 @@
        write(unit=iunit,fmt='(a)') "    _atom_site_fract_z"
        write(unit=iunit,fmt='(a)') "    _atom_site_U_iso_or_equiv"
        write(unit=iunit,fmt='(a)') "    _atom_site_occupancy"
-       write(unit=iunit,fmt='(a)') "    _atom_site_adp_type              # Not in version 2.0.1"
+       write(unit=iunit,fmt='(a)') "    _atom_site_adp_type"
        write(unit=iunit,fmt='(a)') "    _atom_site_type_symbol"
 
        !Calculation of the factor corresponding to the occupation factor provided in A

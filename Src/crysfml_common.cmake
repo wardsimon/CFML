@@ -58,6 +58,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Msfac.f90
     CFML_Optimization.f90
     CFML_Optimization_LSQ.f90
+    CFML_Percolation.f90
     CFML_Polar.f90
     CFML_Profile_Finger.f90
     CFML_Profile_Functs.f90
