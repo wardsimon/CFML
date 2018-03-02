@@ -38,7 +38,7 @@ Program Bond_Str
    character(len=4)                :: atname,atm
    character(len=2)                :: Chem
 
-   integer                         :: lun=1, ier,i, lr,ln, i_cfl=2, i_cons=3,i_buf=4
+   integer                         :: lun=1, ier,i, lr,ln, i_cfl=2, i_cons=3,i_buf=4,i_glob=7
    integer                         :: narg,npix, nlong,fcount
    integer                         :: nc,n_bvpar,n_bvelpar,n1,n2,j,n_fst
    integer                         :: ndimx,ndimy,ndimz
@@ -72,6 +72,7 @@ Program Bond_Str
       if(i /= 0) buffer_file=.true.
       arggiven=.true.
       argv(1)=filcod
+      if(buffer_file) filename=filcod(1:i-1)//"_glb.res"
       if(narg > 1) then
         call GET_COMMAND_ARGUMENT(2,argv(2))
         argv(2)=u_case(argv(2))
@@ -101,6 +102,8 @@ Program Bond_Str
 
    if(buffer_file) then
      open(unit=i_buf,file=trim(argv(1)),status="old",action="read",position="rewind")
+     open(unit=i_glob,file=trim(filename),status="replace",action="write")
+     write(unit=i_glob,fmt="(a)") " GLOBAL RESULTS OF THE BVEL ANALYSIS OF BUFFER FILE: "//trim(argv(1))
    end if
    fcount=0
    !---------------------------------------------
@@ -122,7 +125,7 @@ Program Bond_Str
              "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
              "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
              "    ***********************************************************************" , &
-             "                     (JRC - ILL, version: June 2017 )"
+             "                     (JRC - ILL, version: March 2018 )"
      write(unit=*,fmt=*) " "
      call set_epsg(0.001_cp)  !needed for well controlling the calculation of multiplicities
      if(.not. arggiven) then
@@ -171,7 +174,7 @@ Program Bond_Str
              "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
              "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
              "    ***********************************************************************" , &
-             "                     (JRC - ILL, version: June 2017 )"
+             "                     (JRC - ILL, version: March 2018 )"
      write(unit=lun,fmt="(a,/)") " "
      dmax=3.2
      dangl=0.0
@@ -411,7 +414,14 @@ Program Bond_Str
           write(unit=*,fmt="(a,/)")   " => PROGRAM BOND_STR finished in error!"
           write(unit=lun,fmt="(/,a)") "    Species on list: "//trim(ERR_Conf_Mess)
           write(unit=lun,fmt="(a)")   " => PROGRAM BOND_STR finished in error!"
-          call finish()
+          if(buffer_file) then
+            write(unit=*,fmt="(a,/)") " => Continuing with the next file ..."
+            err_conf=.false.
+            call Deallocate_Atoms_Conf_List(Ac)
+            cycle
+          else
+            call finish()
+          end if
        end if
      end if
 
@@ -482,7 +492,14 @@ Program Bond_Str
            write(unit=*,fmt="(a,/)")   " => PROGRAM BOND_STR finished in error!"
            write(unit=lun,fmt="(/,a)") "    Setting Table: "//trim(ERR_Conf_Mess)
            write(unit=lun,fmt="(a)")   " => PROGRAM BOND_STR finished in error!"
-           call finish()
+           if(buffer_file) then
+             write(unit=*,fmt="(a,/)") " => Continuing with the next file ..."
+             err_conf=.false.
+             call Deallocate_Atoms_Conf_List(Ac)
+             cycle
+           else
+             call finish()
+           end if
         end if
 
         ! BVS
@@ -519,11 +536,16 @@ Program Bond_Str
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
                end if
              end if
-             write (unit=lun, fmt='(/,a,f10.4,a)')" => Value of Delta (for volume calculation) :",delta," eV"
+             write (unit=lun, fmt='(/,a)')        " => Migrating species: "//atname
+             write (unit=lun, fmt='(a,f10.4,a)')  " => Value of Delta (for volume calculation) :",delta," eV"
              write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
              write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
              write (unit=lun, fmt='(a,f10.4)')    " => Minimum Energy (in eV):", emin
              write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
+             if(buffer_file .and. npercolation) Then
+                write(unit=i_glob,fmt="(i4,a,t31,a,4(a,f8.3))") fcount," "//trim(filename),atname," delta(eV): ",delta, " Vol(A^3): ",vol, &
+                         " Fraction(%): ",vol/Cell%CellVol*100.0," Emin: ",emin
+             end if
 
              if(percolation) then
              	 call Percolation_Calc()
@@ -618,6 +640,7 @@ Program Bond_Str
    Subroutine Percolation_Calc()
    	  real :: Eminim
       Character(len=*), Dimension(3), parameter :: axis=["a","b","c"]
+      real, dimension(3) :: eval_p
       bvel_map    = bvel_map - Emin
       Eminim      = 0.0
       Eini        = 0.0
@@ -669,8 +692,20 @@ Program Bond_Str
             E_percol(i) = E_percol_aux(i)
             Write(unit=lun,fmt="(tr8,a,2(f6.2,a),/)") "Percolation energy above Emin: ", E_percol(i), " eV,   Isosurface for VESTA: ", E_percol(i)+Emin," eV"
             Write(unit=*,fmt="(tr8,a,2(f6.2,a),/)") "Percolation energy above Emin: ", E_percol(i), " eV,   Isosurface for VESTA: ", E_percol(i)+Emin," eV"
+         Else
+            E_percol(i)=0.0
          End If
       End Do
+      if(buffer_file) then
+         eval_p=E_percol
+         do i=1,3
+           if(E_percol(i) > 0.0) eval_p(i)=E_percol(i)+Emin
+         end do
+         write(unit=i_glob,fmt="(i4,a,t31,a,7(a,f8.3),a,3f8.3)") fcount," "//trim(filename),atname," delta(eV):",delta,"   Vol(A^3):",vol, &
+                  "   Fraction(%):",vol/Cell%CellVol*100.0,"    Emin:",emin, &
+                  "   Emig(a): ",E_percol(1),"   Emig(b): ",E_percol(2),"   Emig(c):",E_percol(3), &
+                  "   Energy(percol,a,b,c):",(eval_p(i),i=1,3)
+      end if
 
    End Subroutine Percolation_Calc
 

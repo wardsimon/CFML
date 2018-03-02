@@ -902,13 +902,6 @@
                 atm%atom(n_atom)%chemSymb=U_case(label(lugar(1))(1:1))//L_case(label(lugar(1))(2:2))
              end if
              atm%atom(n_atom)%SfacSymb=atm%atom(n_atom)%chemSymb
-
-           !   call getnum(label(lugar(1))(2:2),vet1,ivet,iv)
-           !  if (iv <= 0) then
-           !     atm%atom(n_atom)%chemSymb=label(lugar(1))(1:2)
-           !  else
-           !     atm%atom(n_atom)%chemSymb=label(lugar(1))(1:1)
-           !  end if
           end if
 
           call getnum_std(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_fract_x
@@ -4421,6 +4414,7 @@
 
        write(unit=iunit,fmt="(a)") "loop_"
        write(unit=iunit,fmt='(a)') "    _atom_site_label"
+       write(unit=iunit,fmt='(a)') "    _atom_site_type_symbol"
        write(unit=iunit,fmt='(a)') "    _atom_site_fract_x"
        write(unit=iunit,fmt='(a)') "    _atom_site_fract_y"
        write(unit=iunit,fmt='(a)') "    _atom_site_fract_z"
@@ -4444,7 +4438,7 @@
        aniso=.false.
        do i=1,A%natoms
           line(1:132)=" "
-          line(2:)= A%Atom(i)%Lab
+          line(2:)= A%Atom(i)%Lab//"  "//A%Atom(i)%SfacSymb
            ! _atom_site_fract_x, _atom_site_fract_y, _atom_site_fract_z
           do j=1,3
             comm=" "

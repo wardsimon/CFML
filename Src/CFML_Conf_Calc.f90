@@ -2424,10 +2424,10 @@
           do i=1,A%N_Cations
              ic=0; ac=0
              do j=1,sbvs_species_n
-                if (A%Species(i) == sBVS_Table(j)%Symb) then
+                if (trim(A%Species(i)) == trim(sBVS_Table(j)%Symb)) then
                    ic=j
                    do k=1,Ap_species_n
-                     if (A%Species(i) == Ap_Table(k)%Symb) then
+                     if (trim(A%Species(i)) == trim(Ap_Table(k)%Symb)) then
                        ac=k
                        exit
                      end if
@@ -2453,7 +2453,7 @@
              do k=1,A%N_Anions
                 ia=0; an=0
                 do j=1,bvs_anions_n
-                   if (A%Species(A%N_Cations+k) == bvs_anions(j)) then
+                   if (trim(A%Species(A%N_Cations+k)) == trim(bvs_anions(j))) then
                       ia=j
                       do L=1,Ap_species_n
                         if (A%Species(i) == Ap_Table(L)%Symb) then
@@ -2518,7 +2518,7 @@
           do i=1,A%N_Cations
              ic=0
              do j=1,bvel_species_n
-                if (A%Species(i) == BVEL_Table(j)%Symb) then
+                if (trim(A%Species(i)) == trim(BVEL_Table(j)%Symb)) then
                    ic=j
                    exit
                 end if
@@ -2620,7 +2620,7 @@
           ic=0; found=.false.
           if(present(soft)) then
              do j=1,sbvs_species_n
-                if (A%Species(i) == sBVS_Table(j)%Symb) then
+                if (trim(A%Species(i)) == trim(sBVS_Table(j)%Symb)) then
                    ic=j
                    found=.true.
                    exit
@@ -2629,7 +2629,7 @@
           end if
           if(ic == 0) then
             do j=1,bvs_species_n
-               if (A%Species(i) == BVS_Table(j)%Symb) then
+               if (trim(A%Species(i)) == trim(BVS_Table(j)%Symb)) then
                   ic=j
                   exit
                end if
@@ -2653,7 +2653,7 @@
           do k=1,A%N_Anions
              ia=0
              do j=1,bvs_anions_n
-                if (A%Species(A%N_Cations+k) == bvs_anions(j)) then
+                if (trim(A%Species(A%N_Cations+k)) == trim(bvs_anions(j))) then
                    ia=j
                    exit
                 end if
