@@ -2950,7 +2950,7 @@ Module CFML_ILL_Instrm_Data
 
             Case("DET_ALPHAS")
                 if(allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
-                allocate(Current_Instrm%alphas(npx,npz))
+                allocate(Current_Instrm%alphas(npz,npx))
 
                 do j=1,npz
                   read(unit=lun,fmt=*,iostat=ier) Current_Instrm%alphas(j,1:npx)
