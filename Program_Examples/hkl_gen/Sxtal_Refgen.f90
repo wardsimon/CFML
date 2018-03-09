@@ -2,6 +2,7 @@ Module Ref_Gen
 
     use CFML_IO_Formats,      only: file_list_type
     use CFML_Math_General,    only: sind,cosd,acosd,asind,Co_Prime_Vector
+    use CFML_Math_3D,         only: cross_product
     use CFML_ILL_Instrm_data, only: Err_ILLdata_Mess, Err_ILLdata, &
                                     SXTAL_Orient_type, Current_Orient, diffractometer_type, &
                                     Current_Instrm, Read_Current_Instrm, Update_Current_Instrm_UB,&
@@ -34,12 +35,12 @@ Module Ref_Gen
         integer, optional,      intent(out)    :: iop_ord
         !---- Local variables ----!
         character(len=132)   :: line, file_inst
-        real                 :: wave,wav,tmin,tmax,omeg,s1,s2,ang12,tet1,tet2
+        real                 :: wave,wav,tmin,tmax,omeg !,s1,s2,ang12,tet1,tet2
         real, dimension(3,3) :: ub
         integer, dimension(3):: uvw
         real,    dimension(3):: h1,h2,hv
         real, dimension(6)   :: dcel,incel
-        integer              :: i,ier,j, n, lun, i_def, igeom
+        integer              :: i,ier,j, n, i_def, igeom !, lun
         logical              :: esta, ub_read, wave_read, inst_read, trang_read
         type(Zone_Axis_Type) :: zone_axis
 
@@ -179,7 +180,7 @@ Module Ref_Gen
                     schwinger=.true.
 
                 case("orient_hh")
-                    if(.not. wave_read .and. .not. inst_read) then
+                    if(.not.wave_read .and. .not. inst_read) then
                       write(unit=*,fmt="(a)") " => Wavelength shoud be provided!"
                       return
                     else if(.not. wave_read) then
@@ -369,6 +370,7 @@ Program Sxtal_Ref_Gen
     use CFML_GlobalDeps,               only: cp,dp,pi
     use CFML_Math_general,             only: sort
     use CFML_Math_3D,                  only: cross_product
+    use CFML_String_Utilities,         only: cutst,u_case
     use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup, Set_SpaceGroup
     use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List,MAtom_list_Type
     use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
@@ -397,18 +399,18 @@ Program Sxtal_Ref_Gen
 
     type (MagSymm_k_Type)               :: MGp
     type (MAtom_list_Type)              :: Am
-    type (MagH_Type)                    :: Mh
+    !type (MagH_Type)                    :: Mh
     type (MagH_List_Type)               :: Mhkl
 
-    character(len=256)                  :: filcod     !Name of the input file
+    character(len=256)                  :: filcod,cmdline     !Name of the input file and command line
     character(len=256)                  :: mess       !Message after reading the CFL file for ref_gen
     character(len=15)                   :: sinthlamb  !String with stlmax (2nd cmdline argument)
     character(len=30)                   :: comment
     character(len=1)                    :: keyv
     real                                :: stlmin,stlmax     !Minimum and Maximum Sin(Theta)/Lambda
     real                                :: tteta, ss, dspc, SqMiV
-    real,    dimension(3)               :: hr, z1, vk
-    real,    dimension(3,3)             :: ub
+    real,    dimension(3)               :: hr, vk !, z1
+    !real,    dimension(3,3)             :: ub
     real                                :: sn,s2,theta,flip_right,flip_left,up,down,Nuc
     real                                :: start, tend
     integer, dimension(3)               :: h, ord
@@ -419,10 +421,10 @@ Program Sxtal_Ref_Gen
     real, dimension(:,:),allocatable    :: reflx
     integer, dimension(:),  allocatable :: ind
     real,    dimension(:),  allocatable :: fst
-    integer                             :: MaxNumRef, Num, lun=1, ier,i,j, ierr,i_hkl=2, n, iop
-    integer                             :: narg, mul, sig, n_ini, n_end, nm, mu, nv
+    integer                             :: MaxNumRef, lun=1, ier,i,j,i_hkl=2, n, iop, nlong !, Num, ierr
+    integer                             :: narg, mul, sig, n_ini, n_end, nm, nv, maxref !, mu
     logical                             :: esta, arggiven=.false.,sthlgiven=.false., ok=.false., schwinger=.false.,&
-                                           spher=.false.,lim, iop_given=.false., mag_structure=.false.
+                                           spher=.false.,lim, iop_given=.false., mag_structure=.false. , wait_end=.true.
     complex                             :: fn,fx,fe,fsru,fsrd,fslu,fsld
     Type(Scattering_Species_Type)       :: Scattf, add_Scat
     real(kind=dp), parameter            :: schw= -0.00014699
@@ -431,6 +433,10 @@ Program Sxtal_Ref_Gen
 
     !---- Arguments on the command line ----!
     narg=COMMAND_ARGUMENT_COUNT()
+    call Get_Command(Command=Cmdline,Length=nlong)
+    call cutst(cmdline,nlong) !Eliminate the name of the program
+    cmdline=u_case(trim(adjustl(cmdline))) !Capitalize the keywords
+    if(index(cmdline,"NOWAIT") /= 0) wait_end=.false.
     stlmin=0.0
 
     if(narg > 0) then
@@ -477,7 +483,7 @@ Program Sxtal_Ref_Gen
     if(.not. arggiven) then
         write(unit=*,fmt="(a)",advance="no") " => Code of the file xx.cfl (give xx): "
         read(unit=*,fmt="(a)") filcod
-        if(len_trim(filcod) == 0) stop
+        if(len_trim(filcod) == 0) call finish()
     end if
 
     open(unit=lun,file=trim(filcod)//".sfa", status="replace",action="write")
@@ -494,7 +500,7 @@ Program Sxtal_Ref_Gen
     inquire(file=trim(filcod)//".cfl",exist=esta)
     if( .not. esta) then
         write(unit=*,fmt="(a)") " File: "//trim(filcod)//".cfl doesn't exist!"
-        stop
+        call finish()
     end if
 
     call Readn_set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpG,A,Mode="CFL",file_list=fich_cfl)
@@ -541,7 +547,7 @@ Program Sxtal_Ref_Gen
         if(.not. ok) then
             write(unit=*,fmt="(a)") "     Mess: "//trim(mess)
             if(Err_ILLdata) write(unit=*,fmt="(a)") " ILL_data: "//trim(Err_ILLdata_Mess)
-            stop
+            call finish()
         end if
 
         if(.not. sthlgiven) then
@@ -575,6 +581,7 @@ Program Sxtal_Ref_Gen
         else
             n=hkl%nref*Spg%NumOps*max(Spg%Centred,1)
         end if
+        maxref=n
         if(allocated(angles)) deallocate (angles)
         allocate(angles(4,n))
         angles=0.0
@@ -708,7 +715,7 @@ Program Sxtal_Ref_Gen
                 call Init_Mag_Structure_Factors(Mhkl,Am,MGp,lun)
                 if(err_msfac) then
                     write(unit=*,fmt="(a)")  "  "//err_msfac_mess
-                    stop
+                    call finish()
                 end if
                 call Mag_Structure_Factors(Cell,Am,MGp,Mhkl)
                 call Calc_Mag_Interaction_Vector(Mhkl,Cell)  !in {e1,e2,e3} basis (complete Mhkl)
@@ -799,6 +806,7 @@ Program Sxtal_Ref_Gen
                 j=ind(i)
                 write(unit=i_hkl,fmt="(3f9.4,f12.5,4f10.3)") reflx(:,j),fst(j), angles(:,j)
             end do
+            close(unit=i_hkl)
         end if
 
         if(Schwinger .and. A%natoms /= 0) then
@@ -806,7 +814,7 @@ Program Sxtal_Ref_Gen
             call Additional_Scattering_Factors(fich_cfl,add_Scat,ok,mess)
             if(.not. ok) then
               write(unit=*,fmt="(a)") " => "//trim(mess)
-              stop
+              call finish()
             end if
             !  Set nuclear, x-ray, neutron and magnetic form factors coefficients for all the atoms
             !  in the structure
@@ -817,13 +825,16 @@ Program Sxtal_Ref_Gen
             end if
             if(.not. ok) then
               write(unit=*,fmt="(a)") " => "//trim(mess)
-              stop
+              call finish()
             end if
            write(unit=lun,fmt="(/,a)") &
            "   H   K   L   sinT/L  Intensity     FNr       FNi           FXr       FXi           FEr       FEi      Flip_left  Flip_right"// &
                                     "  SRUr      SRUi          SRDr      SRDi          SLUr      SLUi          SLDr      SLDi"
-           n=0
+           if(allocated(angles)) deallocate (angles)
+           allocate(angles(6,maxref))
            angles=0.0
+
+           n=0
            ind=(/(i,i=1,hkl%NRef)/)
            do i=1,hkl%NRef
               hr=real(hkl%ref(i)%h)
@@ -852,22 +863,22 @@ Program Sxtal_Ref_Gen
 
               call calc_angles(Current_Instrm%igeom,sig,hr,ang,comment)
 
-              Select Case (Current_Instrm%igeom)
-
-                  Case(1,2,4)
-                      write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),4f10.3,tr2,a)") &
-                            hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
-                            fsru,fsrd,fslu,fsld,ang,trim(comment)
-
-                  Case(3,-3)
-                      write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),3f10.3,tr2,a)") &
-                            hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
-                            fsru,fsrd,fslu,fsld,ang(1:3),trim(comment)
-              End Select
-
               if(len_trim(comment) == 0) then
+                  Select Case (Current_Instrm%igeom)
+
+                      Case(1,2,4)
+                          write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),4f10.3,tr2,a)") &
+                                hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
+                                fsru,fsrd,fslu,fsld,ang,trim(comment)
+
+                      Case(3,-3)
+                          write(unit=lun,fmt="(3i4,f9.5,f10.4,3(2f10.4,tr4),2f10.5,4(2f10.6,tr4),3f10.3,tr2,a)") &
+                                hkl%Ref(i)%h, hkl%Ref(i)%s,Nuc,fn,fx,fe,flip_left,flip_right,&
+                                fsru,fsrd,fslu,fsld,ang(1:3),trim(comment)
+                  End Select
+
                   n=n+1
-                  angles(1:4,n)  = (/flip_right,flip_right,flip_right,flip_right/)
+                  angles(1:6,n)  = (/ flip_right,flip_left,abs(fsru),abs(fslu),abs(fsrd),abs(fsld) /)
                   reflx(:,n)   = hr
                   fst(n)       = Nuc
               end if
@@ -877,11 +888,15 @@ Program Sxtal_Ref_Gen
 
             call sort(angles(1,:),n,ind)
 
+            open(unit=i_hkl, file=trim(filcod)//".shkl", status="replace",action="write")
+            write(unit=i_hkl,fmt="(a)") &
+            "    H        K        L          sF    flip_right flip_left     fsru      fslu      fsrd      fsld"
             do i=n,1,-1
                 j=ind(i)
-                write(unit=i_hkl,fmt="(3f9.4,f12.5,4f10.3)") reflx(:,j),fst(j), angles(:,j)
+                write(unit=i_hkl,fmt="(3f9.4,f12.5,6f10.5)") reflx(:,j),fst(j), angles(:,j)
             end do
 
+            close(unit=i_hkl)
         end if
 
         write(unit=*,fmt="(a)")    " Normal End of: PROGRAM SXTAL_REFGEN "
@@ -889,6 +904,7 @@ Program Sxtal_Ref_Gen
         if(mag_structure) write(unit=*,fmt="(a,i5)") " Number of accessible magnetic reflections: ",nm
         write(unit=*,fmt="(a)")                      " Results in Files: "//trim(filcod)//".sfa  and "//trim(filcod)//".hkl"
         if(mag_structure) write(unit=*,fmt="(a)")    " Magnetic Satellites in: "//trim(filcod)//".mhkl"
+        if(Schwinger) write(unit=*,fmt="(a)")        " Schwinger scatering in: "//trim(filcod)//".shkl"
     end if
 
     close(unit=lun)
@@ -896,12 +912,20 @@ Program Sxtal_Ref_Gen
     call cpu_time(tend)
 
     write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", tend-start," seconds"
-    write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
-    read(unit=*,fmt="(a)") keyv
 
-    stop
+    call finish()
 
   contains
+
+    Subroutine finish()
+      if(wait_end) then
+        write(unit=*,fmt="(a)",advance="no") " => Please, press <cr> to finish the program"
+        read(unit=*,fmt="(a)") keyv
+        stop
+      else
+        stop
+      end if
+    End Subroutine finish
 
     Function Schwinger_Amplitude(hn,pol,theta,fe,Left,UB)  result(Schwinger)
       real(kind=cp), dimension(3),            intent(in) :: hn,pol
