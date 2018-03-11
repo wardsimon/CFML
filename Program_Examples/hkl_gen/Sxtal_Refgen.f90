@@ -117,7 +117,10 @@ Module Ref_Gen
                         return
                     end if
                     call Read_Current_Instrm(trim(file_inst))
-                    ub=Current_Orient%ub
+                    if(Current_Orient%orient_set .and. .not. ub_read) then
+                      ub=Current_Orient%ub
+                      ub_read=.true.
+                    end if
                     inst_read=.true.
 
                 case("ubmat")
@@ -230,54 +233,6 @@ Module Ref_Gen
             end select
         end do
 
-        if(igeom /= 0 .and. inst_read) Current_Instrm%igeom=igeom !overrides the instrument geometry
-
-        inquire(file="ubfrom.raf",exist=esta)  !checking if "ubfrom.raf" is present in the current directory
-                                               !If present, its content is prioritary w.r.t. the provided values
-                                               !in the CFL file or instrument file.
-        if(.not. ub_read  .or. esta) then      !Read UB-matrix from file ubfrom.raf
-            if(.not. esta) then
-               if(inst_read) then
-                 ub=Current_Orient%ub
-               else
-                 mess="No UB-matrix in instrument/CFL files, no ubfrom.raf available!  "
-                 return
-               end if
-            else  !Read everything from ubfrom.raf
-               call get_logunit(i_def)
-               open(unit=i_def, file="ubfrom.raf", status="old",action="read",position="rewind")
-               do i=1,3
-                 read(unit=i_def,fmt="(a)",iostat=ier) line
-                 read(unit=line(1:50),fmt=*,iostat=ier) ub(i,:)
-                 if(ier /= 0 ) then
-                     mess="Error reading the orientation matrix in file: ubfrom.raf "
-                     return
-                 end if
-               end do
-               ub_read=.true.
-               read(unit=i_def,fmt=*,iostat=ier) wav  !Read wavelength from file ubfrom.raf
-               if(ier == 0 ) then
-                 wave=wav
-                 wave_read=.true.
-               end if
-               read(unit=i_def,fmt=*,iostat=ier) dcel !Read unit cell from file ubfrom.raf
-               if(ier == 0 ) then
-                 if(sum(abs(dcel-incel)) > 0.001) then  !Output information is the unit cell in ubfrom.raf
-                   incel=dcel                           !is different from the values provided in CFL file
-                   !Reconstruct the unit cell type
-                   call Set_Crystal_Cell(incel(1:3),incel(4:6),Cell,"A")
-                   write(unit=ipr,fmt="(/,/,a/)")  "  => New unit cell read from ubfrom.raf !"
-                   call Write_Crystal_Cell(Cell,ipr)
-                 end if
-               end if
-               if(trang_read) then !re-calculate smin,smax for the new wavelength is 2theta-range has been provided
-                  smin=sind(0.5*tmin)/wave
-                  smax=sind(0.5*tmax)/wave
-               end if
-               close(unit=i_def)
-            end if
-        end if
-
         if(.not. inst_read ) then
             file_inst="default_instrument.geom"
             call Set_default_Instrument()
@@ -288,6 +243,48 @@ Module Ref_Gen
             call Write_Current_Instrm_data(i_def,trim(file_inst))
             call flush(i_def)
             close(unit=i_def)
+        end if
+
+        if(igeom /= 0 .and. inst_read) Current_Instrm%igeom=igeom !overrides the instrument geometry
+
+        if(.not. ub_read) then    !There is currently no UB-Matrix, try to read it from ubfrom.raf
+          inquire(file="ubfrom.raf",exist=esta)  !checking if "ubfrom.raf" is present in the current directory
+          if(.not. esta) then
+             mess="No UB-matrix in instrument/CFL files, no ubfrom.raf available!  "
+             return
+          else  !Read everything from ubfrom.raf only in case the UB-matrix and wavelength are not read
+             call get_logunit(i_def)
+             open(unit=i_def, file="ubfrom.raf", status="old",action="read",position="rewind")
+             do i=1,3
+               read(unit=i_def,fmt="(a)",iostat=ier) line
+               read(unit=line(1:50),fmt=*,iostat=ier) ub(i,:)
+               if(ier /= 0 ) then
+                   mess="Error reading the orientation matrix in file: ubfrom.raf "
+                   return
+               end if
+             end do
+             ub_read=.true.
+             read(unit=i_def,fmt=*,iostat=ier) wav  !Read wavelength from file ubfrom.raf
+             if(ier == 0 ) then
+               wave=wav
+               wave_read=.true.
+             end if
+             read(unit=i_def,fmt=*,iostat=ier) dcel !Read unit cell from file ubfrom.raf
+             if(ier == 0 ) then
+               if(sum(abs(dcel-incel)) > 0.001) then  !Output information is the unit cell in ubfrom.raf
+                 incel=dcel                           !is different from the values provided in CFL file
+                 !Reconstruct the unit cell type
+                 call Set_Crystal_Cell(incel(1:3),incel(4:6),Cell,"A")
+                 write(unit=ipr,fmt="(/,/,a/)")  "  => New unit cell read from ubfrom.raf !"
+                 call Write_Crystal_Cell(Cell,ipr)
+               end if
+             end if
+             if(trang_read) then !re-calculate smin,smax for the new wavelength is 2theta-range has been provided
+                smin=sind(0.5*tmin)/wave
+                smax=sind(0.5*tmax)/wave
+             end if
+             close(unit=i_def)
+          end if
         end if
 
         if(ub_read .and. wave_read) call Update_Current_Instrm_UB(trim(file_inst),UB,wave)
@@ -601,7 +598,6 @@ Program Sxtal_Ref_Gen
 
         open(unit=i_hkl, file=trim(filcod)//".hkl", status="replace",action="write")
         call Write_Current_Instrm_data(lun)
-
         if(.not. iop_given) then
             write(unit=*,fmt="(a)") " => Order of reflections: "
             write(unit=*,fmt="(a)") "              0: As set on CFL file (hkl-running) "
@@ -890,7 +886,7 @@ Program Sxtal_Ref_Gen
 
             open(unit=i_hkl, file=trim(filcod)//".shkl", status="replace",action="write")
             write(unit=i_hkl,fmt="(a)") &
-            "    H        K        L          sF    flip_right flip_left     fsru      fslu      fsrd      fsld"
+            "     H        K        L          sF    flip_right flip_left     fsru      fslu      fsrd      fsldrd      fsld"
             do i=n,1,-1
                 j=ind(i)
                 write(unit=i_hkl,fmt="(3f9.4,f12.5,6f10.5)") reflx(:,j),fst(j), angles(:,j)
@@ -954,7 +950,5 @@ Program Sxtal_Ref_Gen
       !change of sign of "i" because the convention used by crystallographers is Q=Kf-Ki
       Schwinger= schw*cmplx(0.0,-1.0)*dot_product(pol,uvect)*fe/abs(tan(theta))
     End Function Schwinger_Amplitude
-
-
 
 End Program Sxtal_Ref_Gen

@@ -1,11 +1,11 @@
 #!/bin/sh
-# Script to compile the Program: hkl_gen
+# Script to compile the Program: simple_hkl_gen
 #
 if [ a$1 = a ]
 then
 cat << !
-make_hkl_gen : Make the hkl_gen Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Linux)
-Syntax       : make_hkl_gen af95:g95:ifort:lf95:gfortran
+make_hkl_gen : Make the simple_hkl_gen Program for Absoft/G95/GFortran/Intel/Lahey Compilers (Linux)
+Syntax       : make_shkl_gen af95:g95:ifort:lf95:gfortran
 !
 exit
 fi
@@ -117,23 +117,23 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 hkl_gen.f90    $INC
+$COMP $OPT1 simple_hkl_gen.f90    $INC
 case $COMP
 in
   'af95')
-     $COMP *.o  -o hkl_gen -static $LIB $LIBSTATIC
+     $COMP *.o  -o simple_hkl_gen -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o hkl_gen  $LIB $LIBSTATIC
+     $COMP *.o  -o simple_hkl_gen  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o hkl_gen  $LIB $LIBSTATIC
+     $COMP *.o  -o simple_hkl_gen  $LIB $LIBSTATIC
      ;;
   'ifort')
-     $COMP *.o -o hkl_gen -static-intel $LIB $LIBSTATIC
+     $COMP *.o -o simple_hkl_gen -static-intel $LIB $LIBSTATIC
      ;;
   'lf95')
-     $COMP *.o --out hkl_gen --staticlink $LIB $LIBDYNAMIC
+     $COMP *.o --out simple_hkl_gen --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
 rm -rf *.o *.mod
