@@ -50,7 +50,8 @@
    real(kind=cp), dimension(3,nfil)        :: zfc
    integer,       dimension(3,maxref)      :: hkl
    integer,       dimension(3)             :: i_uvw, ihkl
-   logical                                 :: UBM_read=.false.
+   integer                                 :: try=0
+   logical                                 :: UBM_read=.false., change_sense=.false.
 
    write(unit=*,fmt="(/a)")"---------------------------------------------"
    write(unit=*,fmt="(a)") "  PROGRAM to simulate FlatCone motions on D10"
@@ -82,16 +83,19 @@
      call Init_Calc_hkl_StrFactors(Atm,"NUC",lambda)
    end if
 
-   do
-     write(unit=*,fmt="(/a)",advance="no") &
-     " => Enter the reciprocal plane (two reflections) or the zone axis to be explored (<cr> to stop): "
-     read(unit=*,fmt="(a)") line
-     if(len_trim(line) == 0) exit
-     read(unit=line,fmt=*,iostat=ier) h1,h2
-     if(ier /= 0) then   !Try to read directly the zone axis
-       read(unit=line,fmt=*,iostat=ier) uvw
-     else
-       uvw=Cross_Product(h1,h2)
+   do_ext: do
+     if(.not. change_sense) then
+        write(unit=*,fmt="(/a)",advance="no") &
+        " => Enter the reciprocal plane (two reflections) or the zone axis to be explored (<cr> to stop): "
+        read(unit=*,fmt="(a)") line
+        if(len_trim(line) == 0) exit
+        read(unit=line,fmt=*,iostat=ier) h1,h2
+        if(ier /= 0) then   !Try to read directly the zone axis
+          read(unit=line,fmt=*,iostat=ier) uvw
+        else
+         uvw=Cross_Product(h1,h2)
+        end if
+        try=0
      end if
      rho1=rho_ini; rho2=rho_fin; npoints=np_ini
      i_uvw=nint(uvw)
@@ -101,16 +105,20 @@
      r1=z1/sqrt(dot_product(z1,z1))     !Unitary vector along the zone-axis when all angles are set to zero
      dstar=1.0/ruvw
      write(unit=*,fmt="(a,3f8.4,a,f8.4,a)") " => The zone axis is: (",uvw,") of module: ",ruvw," angstroms"
+
      do ! loop for changing the level
-       write(unit=*,fmt="(a)",advance="no") " => Enter the level number to be explored: "
-       read(unit=*,fmt=*,iostat=ier) n
-       if(ier /= 0) exit
+       if(.not. change_sense) then
+         write(unit=*,fmt="(a)",advance="no") " => Enter the level number to be explored: "
+         read(unit=*,fmt=*,iostat=ier) n
+         if(ier /= 0) exit
+       end if
        !Calculate the mu-angle
        mu=n*dstar*lambda
        if(abs(mu) > 1.0_cp) then
-         write(unit=*,fmt="(a)") " => Level not accessible !!!"
+         write(unit=*,fmt="(a)") " => Level intrinsically not accessible !!!"
          cycle
        end if
+
        mu=asind(mu)
        dL=(/0.0_cp, sind(mu), cosd(mu)/)
        write(unit=*,fmt="(a,3f10.5,a)") " => The unitary vector r1 is: (",r1,")"
@@ -196,10 +204,22 @@
             write(unit=*,fmt="(4f10.4,tr5,4(a,3f8.4))") rho, om(i),ch(i),ph(i),"(",z2, &
             ")  -> Q-ini=(",q_hkl(:,1,i),")   Q-cent=(",q_hkl(:,nfil/2,i),")   Q-fin=(",q_hkl(:,nfil,i)
          end do
+
          if(.not. ok)  then
            write(unit=*,fmt="(a)")  " => Reciprocal plane not accessible!"
+           if(.not. change_sense .and. try == 0) then
+             change_sense=.true.
+             uvw=-uvw
+             write(unit=*,fmt="(a)") " => Trying oposite [uvw] direction !!!"
+             try=1
+             cycle do_ext
+           else
+             exit
+           end if
            exit
          end if
+
+         change_sense=.false.
          if(nref > 0) then
            write(unit=*,fmt="(/,a,3i4,a,i3)")        " => List of accessible reflections around zone axis [",i_uvw,"] level number ",n
            write(unit=*,fmt="(a,f8.4,a)")   " => The mu-angle  is: ",mu," degrees"
@@ -233,10 +253,13 @@
        end do   !end loop asking for rho-scan
        write(unit=*,fmt="(a)",advance="no") " => Do you want to change the level within the same zone axis ? (<cr> = n): "
        read(unit=*,fmt="(a)")  ans
-       if(ans == "Y" .or. ans == "y") cycle
+       if(ans == "Y" .or. ans == "y") then
+        change_sense=.false.
+        cycle
+       end if
        exit
      end do     !end loop asking for changing the level within the same zone axis
-   end do
+   end do do_ext
    write(unit=*,fmt="(a)")  " => Program terminated normally ..."
 
    contains
