@@ -284,6 +284,8 @@ $COMP $OPT1  CFML_Export_Vtk.f90
 progressionBar
 $COMP $OPT1  CFML_Maps.f90
 progressionBar
+$COMP $OPT1  CFML_Percolation.f90
+progressionBar
 $COMP $OPT1  CFML_Conf_Calc.f90
 progressionBar
 $COMP $OPT1  CFML_Magnetic_Groups.f90
