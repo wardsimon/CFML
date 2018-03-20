@@ -2496,7 +2496,7 @@
     !!----    as first string in the line
     !!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
     !!----
-    !!---- Update: February - 2005, March-2014 (removing the "opened" inquire, JRC)
+    !!---- Update: February - 2005, March-2018 (reintroducing the "opened" inquire, JRC)
     !!
     Subroutine Number_Lines(filename,n, input_string)
        !---- Arguments ----!
@@ -2505,8 +2505,8 @@
        character(len=*), optional, intent(in) :: input_string       ! TR may 2013
 
        !---- Local Variables ----!
-       logical            :: info
-       integer            :: lun,cond
+       logical            :: info,opn
+       integer            :: lun,cond,olun
        character (len=256):: read_line                             ! TR may 2013
        integer            :: long                                  ! TR may 2013
 
@@ -2522,8 +2522,14 @@
        inquire (file=filename,exist=info)
        if (.not. info) return
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       inquire(file=filename,opened=opn, number=olun)   !Check if the file is already opened
 
+       if(opn) then
+          rewind(olun)
+          lun=olun
+       else
+          Open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       end if
        !---- Counting lines ----!
        do
           read(unit=lun,fmt="(a)",iostat=cond) read_line
@@ -2535,7 +2541,7 @@
           n=n+1
        end do
 
-       close(unit=lun)
+       if(.not. opn) close(unit=lun)
 
        return
     End Subroutine Number_Lines
@@ -2953,7 +2959,7 @@
     !!----    Read nlines of the file and put the information on Filevar. The file is opened to read the
     !!----    lines and closed before returning to the calling unit.
     !!----
-    !!---- Update: February - 2005, March-2014 (eliminating the "opened" inquire,JRC)
+    !!---- Update: February - 2005, March-2018 (reintroducing the "opened" inquire,JRC)
     !!
     Subroutine Reading_Lines(filename,nlines,filevar)
        !---- Arguments ----!
@@ -2962,8 +2968,8 @@
        character(len=*), dimension(:), intent(out) :: filevar
 
        !---- Local Variables ----!
-       logical :: info
-       integer :: lun,i
+       logical :: info,opn
+       integer :: lun,i,olun
 
        !---- Init ----!
        call init_err_string()
@@ -2978,14 +2984,21 @@
           return
        end if
 
-       open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       inquire(file=filename,opened=opn, number=olun)   !Check if the file is already opened
+
+       if(opn) then
+          rewind(olun)
+          lun=olun
+       else
+          Open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       end if
 
        !---- Reading... ----!
        do i=1,nlines
           read(unit=lun,fmt="(a)") filevar(i)
        end do
 
-       close(unit=lun)
+       if(.not. opn) close(unit=lun)
 
        return
     End Subroutine Reading_Lines
