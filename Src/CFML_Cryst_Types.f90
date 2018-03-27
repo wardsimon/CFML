@@ -1105,7 +1105,7 @@
        if(present(told)) tola=told
 
        Select Case(twofold%ntwo)
-          Case (1)    !Monoclinic
+          Case (1)    !Monoclinic n-2foldaxes=1
              v2=twofold%caxes(:,1)
              u = v2/twofold%maxes(1)
              tr(2,:)=twofold%dtwofold(:,1)
@@ -1192,7 +1192,7 @@
                    ok=.false.
              End Select
 
-          Case (3)    !Orthorhombic/Trigonal
+          Case (3)    !Orthorhombic/Trigonal n-2foldaxes=3
              u(1:3)=twofold%maxes(1:3)
              ix=minloc(u)
              namina=ix(1)
@@ -1369,7 +1369,7 @@
                 End if !j==0
              End if  !orthorhombic test
 
-          Case (5)    !Tetragonal
+          Case (5)    !Tetragonal n-2foldaxes=5
              m=0
              inp=0
              mv(1:5)=twofold%maxes(1:5)
@@ -1436,7 +1436,7 @@
                    return
              End Select
 
-          Case (7)    !Hexagonal
+          Case (7)    !Hexagonal n-2foldaxes=7
 
              m=0
              inp=0
@@ -1508,7 +1508,7 @@
                 return
              end if
 
-          Case (9)   !Cubic
+          Case (9)   !Cubic n-2foldaxes=9
              m=0
              inp=0
              mv(1:9)=twofold%maxes(1:9)
