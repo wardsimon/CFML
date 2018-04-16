@@ -2491,7 +2491,8 @@
     !!----    character(len=*), optional,intent(in) :: input_string   ! In -> String to exit
     !!----
     !!----    Return the number of lines contained in a file. The file will be opened and closed before
-    !!----    returning to the calling unit.
+    !!----    returning to the calling unit. Or in the case the file is already opened the final
+    !!----    status is that the pointer for reading is put at the "rewind" (first line) position.
     !!----    If 'input_string' is present, return the number of lines until 'input_string' is founded
     !!----    as first string in the line
     !!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
@@ -2541,7 +2542,11 @@
           n=n+1
        end do
 
-       if(.not. opn) close(unit=lun)
+       if(.not. opn) then
+         close(unit=lun)
+       else
+         rewind(unit=lun)
+       end if
 
        return
     End Subroutine Number_Lines

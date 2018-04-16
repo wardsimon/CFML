@@ -827,7 +827,7 @@
        amid=real(psd%nano-1)/2.0
        ierr = 0
 
-       If (mpsd < 0) Then
+       If (mpsd < 0) Then   !Find Cath, Anod given GamM, GamP and NuP
           delga=gamp - gamm
           td=tand(delga)
           tn=tand(nup)
@@ -840,8 +840,8 @@
              g=psd%radius*Sqrt(1.0 + tn*tn + tn*tn*td*td)
              zobs=psd%radius*( Atan(tn*e) + Asin(f/g) )
              xobs=td*( psd%radius*Cos(zobs/psd%radius) + psd%yoff ) - psd%xoff
-             anod=amid - zobs/psd%agap                           ! D19A
-             cath=cmid - xobs/psd%cgap                           ! D19A
+             anod=amid - zobs/psd%agap                          ! D19A
+             cath=cmid - xobs/psd%cgap                          ! D19A
 
             Case(2)                                             ! Flat detector
              cd=cosd(delga)                                     ! D9, D10, Db21
@@ -866,7 +866,8 @@
           If (anod > 0.0 .and. anod < real(psd%nano-1) .AND.  &
               cath > 0.0 .and. cath < real(psd%ncat-1)) Return
              ierr=-1
-       Else
+
+       Else   ! Find GamP, NuP given GamM, Cath and Anod
 
           Select Case(psd%ipsd)
 
@@ -891,13 +892,6 @@
              nup=atan2d(z,d)
 
             Case(3)
-              !xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana
-              !zobs=(amid-anod)*psd%agap     ! Need to check yoff at large xobs
-              !a=    xobs   + psd%xoff
-              !b=psd%radius + psd%yoff
-              !z=    zobs   + psd%zoff
-              !gamp=gamm + (a/b)*to_deg
-              !nup=Atan2d(z,b)
 
               xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana (like in retreat)
               zobs=(amid-anod)*psd%agap     ! Need to check yoff at large xobs
