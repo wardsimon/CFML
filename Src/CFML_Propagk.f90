@@ -342,10 +342,12 @@
        	 do j=2,ng
        	 	 h = hkl_R(k,SpaceGroup%SymOp(j))
            if (k_EQUIV(h,-k, SpaceGroup%SPG_lat))  then
-           	Gk% minusk=.true.
+           	Gk%minusk=.true.
            end if
          end do
-         if(.not. Gk%minusk) Gk%k_equiv_minusk = .false.
+         h=-k
+         if (.not. k_EQUIV(h,k, SpaceGroup%SPG_lat))  Gk%k_equiv_minusk = .false.
+         !if(.not. Gk%minusk) Gk%k_equiv_minusk = .false.
        end if
 
        do_ng: do i=2,ng   !From 2 because the first element is always the identity and k is equivalent to k!
