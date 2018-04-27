@@ -203,7 +203,7 @@ progressionBar()
 	bar=${bar:0:$n}#
   printf "Compiling [$n/$ntotal]: $bar\r"
 }
-ntotal=41      # Nber of files to be compiled
+ntotal=42      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
