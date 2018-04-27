@@ -3930,7 +3930,7 @@
       logical,         optional,      intent (in)  :: keepd
       logical,         optional,      intent (in)  :: trn_to
       !--- Local variables ---!
-      integer                          :: i,j,m,inv_time,k,n,L,ier,num,idem
+      integer                          :: i,j,m,k,n,L,ier,num,idem !,inv_time
       real(kind=cp)                    :: det
       !real(kind=cp), dimension(3)      :: orig
       real(kind=cp), dimension(3,3)    :: e !,S,Sinv
