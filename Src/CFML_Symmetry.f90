@@ -8063,12 +8063,12 @@
                                           (/"Centric (-1 not at origin)", &
                                             "Acentric                  ", &
                                             "Centric (-1 at origin)    "/)
-       character (len=20)               :: Spgm
+       character (len=20)               :: Spgm,spgmc
        character (len=20)               :: ssymb
        character (len=130)              :: gener
        character (len=3)                :: opcion
        character (len=2)                :: Latsy
-       integer                          :: num, i, j, iv, istart
+       integer                          :: num, i, j, iv, istart,ic
        integer,      dimension(1)       :: ivet
        integer,      dimension(5)       :: poscol
        integer                          :: isystm,isymce,ibravl,Num_g
@@ -8101,6 +8101,7 @@
        opcion=" "
        spgm=adjustl(SpaceGen)
        spgm=u_case(spgm)
+       spgmc=spgm
        num=-1
 
        if (present(mode)) then
@@ -8118,28 +8119,45 @@
                 end do
 
             case("ITC")
-                read(unit=spgm(1:12),fmt=*,iostat=ier) ivet(1)
+                ic=0
+                j=index(spgm,":")
+                if (j > 0) then
+                   read(unit=spgm(j+1:j+2),fmt=*,iostat=ier) ic
+                   if (ier /=0) ic=0
+                   spgm=spgm(:j-1)
+                end if  
+                
+                read(unit=spgm,fmt=*,iostat=ier) ivet(1)
 
-                if( ier == 0) then
+                if ( ier == 0) then
                    if(ivet(1) < 1 .or. ivet(1) > 230) then
                      err_symm=.true.
                      ERR_Symm_Mess=" The number of the space group should be in the interval [1,230]"
                      return
                    end if
                    do i=1,num_spgr_info
-                     if (ivet(1) == spgr_info(i)%n) then
-                        num=i
-                      exit
-                     end if
+                      if (ivet(1) == spgr_info(i)%n) then
+                         num=i
+                         exit
+                      end if
                    end do
+                   
+                   j=index(spgr_info(num)%hm,":")
+                   if (j > 0) then
+                      if (ic /= 1) num=num+1
+                   end if
+                    
                 else
+                  
+                   spgm=spgmc
                    do i=1,num_spgr_info
-                     if (spgm(1:12) == spgr_info(i)%hm) then
-                       num=i
-                       exit
-                     end if
+                      if (spgm(1:12) == spgr_info(i)%hm) then
+                         num=i
+                         exit
+                      end if
                    end do
                 end if
+                
             case("HAL")
                 do i=1,num_spgr_info
                    if (spgm(1:16) == u_case(spgr_info(i)%hall)) then
@@ -8149,9 +8167,20 @@
                 end do
           End select
           !No control of error here because there are other options below
+       
        else       ! detect automatically the symbol of the group
 
-          call getnum(spgm,vet,ivet,iv)
+          ic=0
+          j=index(spgm,":")
+          if (j > 0) then
+             read(unit=spgm(j+1:j+2),fmt=*,iostat=ier) ic
+             if (ier /=0) ic=0
+             call getnum(spgm(:j-1),vet,ivet,iv)
+             spgm=spgm(:j-1)
+          else  
+             call getnum(spgm,vet,ivet,iv) 
+          end if
+                
           if (iv /= 1) then
              !---- Is HM Symbol ? ----!
              do i=1,num_spgr_info
@@ -8165,15 +8194,17 @@
                    exit
                 end if
              end do
-              !Special treatment of groups P N M 21 (211), P 21 N M (213),
-              !P M 21 N (215), B A M B (375), C 4 2 21 (429), C -4 B 2 (457)
-              ! and F -4 D 2 (463)   => Force HALL in all these cases
-              if(opcion(1:3) == "HMS" .and.  &
-              (num==211 .or. num==213 .or. num==215  &
-              .or. num==375 .or. num==429 .or. num==457 .or. num==463)) then
-                  opcion(1:3) = "HAL"
-                  spgm=spgr_info(num)%hall
-              end if
+             
+             !Special treatment of groups P N M 21 (211), P 21 N M (213),
+             !P M 21 N (215), B A M B (375), C 4 2 21 (429), C -4 B 2 (457)
+             ! and F -4 D 2 (463)   => Force HALL in all these cases
+             if (opcion(1:3) == "HMS" .and.  &
+                (num==211 .or. num==213 .or. num==215  &
+                .or. num==375 .or. num==429 .or. num==457 .or. num==463)) then
+                opcion(1:3) = "HAL"
+                spgm=spgr_info(num)%hall
+             end if
+             
              !---- Is a standard Hall Symbol ? ----!
              if (num < 0) then
                 do i=1,num_spgr_info
@@ -8193,21 +8224,37 @@
                     opcion="HAL"
                  end if
              end if
+             
           else
+             
              if (ivet(1) > 0 .and. ivet(1) < 231) then
-               do i=1,num_spgr_info
-                   if (ivet(1) == spgr_info(i)%n) then
-                      num=i
-                      spgm=spgr_info(i)%hall
-                      opcion="HAL"
-                      exit
-                   end if
-                end do
+                 do i=1,num_spgr_info
+                    if (ivet(1) == spgr_info(i)%n) then
+                       if (j > 0) then
+                          if (ic /= 1) then
+                             num=i+1
+                             spgm=spgr_info(i+1)%hall
+                             exit
+                          else   
+                             num=i
+                             spgm=spgr_info(i)%hall
+                             exit
+                          end if
+                       else
+                          num=i+1
+                          spgm=spgr_info(i+1)%hall
+                          exit 
+                       end if 
+                    end if
+                 end do           
+                 opcion="HAL"
+                
              else
                 err_symm=.true.
                 ERR_Symm_Mess=" Number of Space Group out of limits"
                 return
              end if
+             
           end if
        end if  ! present(mode)
 
