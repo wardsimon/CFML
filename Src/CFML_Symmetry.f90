@@ -1080,6 +1080,7 @@
     !!----    symbol according to Point_Group array. Zero if Error is present
     !!----
     !!---- Update: July - 2014: added m3 and m3m for compatibility with Laue_class
+    !!---- Update: May - 2018 : added -3m1 -> -3m
     !!
     Function Get_Pointgroup_Num(Pgname) Result(Ipg)
        !---- Arguments ----!
@@ -1093,7 +1094,7 @@
        ipg=0
        pg=adjustl(pgname)
 
-       do i=1,41                ! was 39, now 41 to accomodate m3 and m3m
+       do i=1,42
           if (pg(1:5) == point_group(i)) then
              ipg=i
              exit
@@ -1101,8 +1102,16 @@
        end do
 
        !> return previous numbers for m3 and m3m
-       if(ipg == 40)ipg=36      ! m3 now m-3
-       if(ipg == 41)ipg=39      ! m3m now m-3m
+       select case (ipg)
+          case (40) ! m3 -> m-3
+             ipg=36
+
+          case (41) ! m3m -> m-3m
+             ipg=39
+
+          case (42) ! -3m1 -> -3m
+             ipg=23
+       end select
 
        return
     End Function Get_PointGroup_Num
@@ -8125,8 +8134,8 @@
                    read(unit=spgm(j+1:j+2),fmt=*,iostat=ier) ic
                    if (ier /=0) ic=0
                    spgm=spgm(:j-1)
-                end if  
-                
+                end if
+
                 read(unit=spgm,fmt=*,iostat=ier) ivet(1)
 
                 if ( ier == 0) then
@@ -8141,14 +8150,14 @@
                          exit
                       end if
                    end do
-                   
+
                    j=index(spgr_info(num)%hm,":")
                    if (j > 0) then
                       if (ic /= 1) num=num+1
                    end if
-                    
+
                 else
-                  
+
                    spgm=spgmc
                    do i=1,num_spgr_info
                       if (spgm(1:12) == spgr_info(i)%hm) then
@@ -8157,7 +8166,7 @@
                       end if
                    end do
                 end if
-                
+
             case("HAL")
                 do i=1,num_spgr_info
                    if (spgm(1:16) == u_case(spgr_info(i)%hall)) then
@@ -8167,7 +8176,7 @@
                 end do
           End select
           !No control of error here because there are other options below
-       
+
        else       ! detect automatically the symbol of the group
 
           ic=0
@@ -8177,10 +8186,10 @@
              if (ier /=0) ic=0
              call getnum(spgm(:j-1),vet,ivet,iv)
              spgm=spgm(:j-1)
-          else  
-             call getnum(spgm,vet,ivet,iv) 
+          else
+             call getnum(spgm,vet,ivet,iv)
           end if
-                
+
           if (iv /= 1) then
              !---- Is HM Symbol ? ----!
              do i=1,num_spgr_info
@@ -8194,7 +8203,7 @@
                    exit
                 end if
              end do
-             
+
              !Special treatment of groups P N M 21 (211), P 21 N M (213),
              !P M 21 N (215), B A M B (375), C 4 2 21 (429), C -4 B 2 (457)
              ! and F -4 D 2 (463)   => Force HALL in all these cases
@@ -8204,7 +8213,7 @@
                 opcion(1:3) = "HAL"
                 spgm=spgr_info(num)%hall
              end if
-             
+
              !---- Is a standard Hall Symbol ? ----!
              if (num < 0) then
                 do i=1,num_spgr_info
@@ -8224,9 +8233,9 @@
                     opcion="HAL"
                  end if
              end if
-             
+
           else
-             
+
              if (ivet(1) > 0 .and. ivet(1) < 231) then
                  do i=1,num_spgr_info
                     if (ivet(1) == spgr_info(i)%n) then
@@ -8235,7 +8244,7 @@
                              num=i+1
                              spgm=spgr_info(i+1)%hall
                              exit
-                          else   
+                          else
                              num=i
                              spgm=spgr_info(i)%hall
                              exit
@@ -8243,18 +8252,18 @@
                        else
                           num=i+1
                           spgm=spgr_info(i+1)%hall
-                          exit 
-                       end if 
+                          exit
+                       end if
                     end if
-                 end do           
+                 end do
                  opcion="HAL"
-                
+
              else
                 err_symm=.true.
                 ERR_Symm_Mess=" Number of Space Group out of limits"
                 return
              end if
-             
+
           end if
        end if  ! present(mode)
 
