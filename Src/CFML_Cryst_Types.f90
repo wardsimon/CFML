@@ -238,6 +238,7 @@
     !!----     real(kind=cp),dimension(3,3) :: BL_Minv            ! Inverse of the Busing-Levy B-matrix
     !!----     real(kind=cp)                :: CellVol            ! Direct and Reciprocal
     !!----     real(kind=cp)                :: RCellVol           ! Cell volumes
+    !!----     real(kind=cp)                :: StdVol             ! Sigma for Cell
     !!----     Character (len=1)            :: CartType           ! Cartesian Frame type: if CartType='A'
     !!----                                                        ! the Cartesian Frame has x // a.
     !!----  End Type Crystal_Cell_Type
@@ -255,6 +256,7 @@
        real(kind=cp),dimension(3,3) :: BL_M
        real(kind=cp),dimension(3,3) :: BL_Minv
        real(kind=cp)                :: CellVol
+       real(kind=cp)                :: StdVol
        real(kind=cp)                :: RCellVol
        character (len=1)            :: CartType
     End Type Crystal_Cell_Type
@@ -2842,6 +2844,9 @@
           ERR_Crys_Mess=" Bad cell parameters "
           return
        end if
+
+       !Sigma for Volume
+       Celda%StdVol=Cell_Volume_Sigma(Celda)
 
        Celda%GD=Metrics(cellv,angl)
        Celda%GR=Metrics(Celda%rcell,Celda%rang)
