@@ -63,17 +63,17 @@ Module CFML_EoS
    private
 
    !---- Public procedures ----!
-   public :: Alpha_Cal, Dkdt_Cal, Get_DebyeT, Get_GPT, Get_Grun_PT, Get_K, Get_Pressure, Get_Pressure_Esd, &
+   public :: Alpha_Cal, Dkdt_Cal, Get_DebyeT, Get_GPT, Get_Grun_PT, Get_K, Get_Kp, Get_Pressure, Get_Pressure_Esd, &
              Get_Pressure_X, Get_Property_X, Get_Temperature, Get_Temperature_P0, Get_Transition_Pressure, &
              Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_Volume_S, K_Cal, Kp_Cal,   &
              Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase
 
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
-             Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
+             Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
              Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
              Set_Eos_Names, Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
-             Write_Eoscal, Write_Info_Conlev, Write_Info_EoS
+             Write_Eoscal, Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS
 
 
    !--------------------!
@@ -560,6 +560,31 @@ Contains
 
       return
    End Function Get_K
+   
+   !!----
+   !!---- FUNCTION GET_Kp
+   !!----
+   !!---- Returns the value of K (or M if linear) at P and T
+   !!---- Works by using get_volume(P,T) and then using the V in k_cal
+   !!----
+   !!---- Date: 1/03/2018
+   !!
+   Function Get_Kp(P,T,EosPar) Result(Kp)
+      !---- Arguments ----!
+      real(kind=cp),intent(in)        :: p       ! Pressure
+      real(kind=cp),intent(in)        :: t       ! Tenperature
+      type(Eos_Type),intent(in)       :: Eospar  ! Eos Parameters
+
+      !---- Local Variables ----!
+      real(kind=cp)                   :: kp, v
+
+      v=get_volume(p,t,eospar)
+      kp=kp_cal(v,t,eospar,p=p)
+
+      return
+   End Function Get_Kp
+
+
 
    !!--++
    !!--++ FUNCTION GET_K0_T
@@ -6473,6 +6498,7 @@ Contains
    !!----   Then write_eoscal_header is called from here
    !!----
    !!----   Change: 06/10/2015 to make write_eoscal_header private, and change name from write_eoscal_file
+   !!----   Change: 12/12/2017 created eoscal_text so that errors and values are printed when error state
    !!----
    !!---- Date: 17/07/2015
    !!
@@ -6545,6 +6571,78 @@ Contains
          end if
 
          inner: do
+            call eoscal_text(p,t,Tscale_In,Eos,text)
+             write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error
+            if (err_eos) then
+               text=text(1:14)//':   '//trim(err_eos_mess)
+               write(lun,'(a)')trim(text)
+            end if
+            nprint=nprint+1
+
+            !> Now increment inner loop variable and test for completion
+            if (loop_p) then
+               p=p+pst                           ! inner loop over p
+               if (p > pmax+0.99_cp*pst)exit inner
+            else
+               t=t+tst                           ! inner loop over t
+               if (t > tmax+0.99_cp*tst)exit inner
+            end if
+         end do inner
+
+         write(lun,'(/)')        ! blank line to help some plotting programs
+
+         !> Now increment outer loop variable and test for completion
+         if (loop_p)then
+            t=t+tst                           ! outer loop over t
+            if (t > tmax+0.99_cp*tst)exit outer
+         else
+            p=p+pst                           ! outer loop over p
+            if (p > pmax+0.99_cp*pst)exit outer
+         end if
+      end do outer
+
+      return
+   End Subroutine Write_Eoscal
+
+   !!----
+   !!---- SUBROUTINE EOSCAL_TEXT
+   !!----
+   !!----   Subroutine to write the calculated parameters of an eos to file at one PT point
+   !!----   NO  header info is printed here.
+   !!----  
+   !!----   Normally called from Write_eoscal 
+   !!----
+   !!----   written 12/2017 by extracting code from write_eoscal
+   !!----   in order to allow values and error messages to be written
+   !!
+   Subroutine Eoscal_text(P,T,Tscale_In,Eos,text)
+      !---- Arguments ----!
+      real(kind=cp),    intent(in)  ::  p                   !P to calculate properties
+      real(kind=cp),    intent(in)  ::  t                   !T to calculate properties
+      character(len=*), intent(in)  ::  tscale_in           ! Name of the Tscale for output, either C or K
+      type(EoS_Type),   intent(in)  ::  eos                 ! Eos
+      character(len=255),intent(out):: text                 ! character string with results
+
+      !---- Local variable ----!
+      character(len=1)        :: tscale   ! local name of tscale
+      integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
+      integer                 :: i
+
+      real(kind=cp),dimension(6) :: parvals(7)
+      real(kind=cp),dimension(6) :: esd
+      real(kind=cp),dimension(19):: parout,esdout
+      real(kind=cp)              :: v0,fp,fs,agt
+
+
+      !> Tscale for output: C or K
+      if (len_trim(tscale_in) == 0)then
+         tscale='K'
+      else
+         tscale=U_case(tscale_in)
+         if (tscale /= 'K' .and. tscale /='C')tscale='K'
+      end if
+
+
             call init_err_eos()
             esd=0.
             esdout=0.
@@ -6619,7 +6717,6 @@ Contains
             end if
 
             !> output this datum: dynamic formatting to text string
-            nprint=nprint+1
 
             !>init
             text=''
@@ -6647,41 +6744,15 @@ Contains
             if (eos%itherm > 0 .and. abs(eos%params(18)) > tiny(0.)) &
                     text=trim(text)//'  '//trim(rformat(parout(18),ip(18)))//'  '//trim(rformat(parout(19),ip(19)))
 
-            write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error
-            if (err_eos) then
-               text=text(1:14)//':   '//trim(err_eos_mess)
-               write(lun,'(a)')trim(text)
-            end if
-
-            !> Now increment inner loop variable and test for completion
-            if (loop_p) then
-               p=p+pst                           ! inner loop over p
-               if (p > pmax+0.99_cp*pst)exit inner
-            else
-               t=t+tst                           ! inner loop over t
-               if (t > tmax+0.99_cp*tst)exit inner
-            end if
-         end do inner
-
-         write(lun,'(/)')        ! blank line to help some plotting programs
-
-         !> Now increment outer loop variable and test for completion
-         if (loop_p)then
-            t=t+tst                           ! outer loop over t
-            if (t > tmax+0.99_cp*tst)exit outer
-         else
-            p=p+pst                           ! outer loop over p
-            if (p > pmax+0.99_cp*pst)exit outer
-         end if
-      end do outer
-
       return
-   End Subroutine Write_Eoscal
-
+   End Subroutine Eoscal_text
+   
+   
+   
    !!--++
    !!--++ SUBROUTINE WRITE_EOSCAL_HEADER
    !!--++
-   !!--++ PRIVATE
+   !!--++ PUBLIC
    !!--++ Subroutine that print information on iout unit
    !!--++
    !!--++ Date: 17/07/2015
