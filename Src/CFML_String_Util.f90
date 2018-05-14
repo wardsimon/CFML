@@ -2009,6 +2009,11 @@
         if(split(i)(fin:fin) == "+") split(i)(fin:fin)= " "
       end do
       Symb=Pack_String(split(1)//","//split(2)//","//split(3))
+      i=index(Symb,"+-")
+      if(i /= 0) Symb(i:i)=" "
+      i=index(Symb,"-+")
+      if(i /= 0) Symb(i+1:i+1)=" "
+      Symb=Pack_String(Symb)
       return
     End Subroutine Get_Symb_From_Mat
 
