@@ -3539,7 +3539,7 @@
        ext: do j=2,Spg%Multip
           xx=ApplySO(Spg%SymOp(j),x)
           xx=modulo_lat(xx)
-          mmom=matmul(Spg%MSymOp(j)%Rot,mom)*Spg%MSymOp(j)%Phas
+          mmom=matmul(Spg%MSymOp(j)%Rot,mom)  !*Spg%MSymOp(j)%Phas <= This is already contained in Rot
           do nt=1,mult
              v=orb(:,nt)-xx(:)
              w=morb(:,nt)-mmom(:)
