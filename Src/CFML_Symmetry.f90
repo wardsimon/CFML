@@ -8153,7 +8153,9 @@
 
                    j=index(spgr_info(num)%hm,":")
                    if (j > 0) then
-                      if (ic /= 1) num=num+1
+                      if(ic == 0 .or. ic == 2) then
+                        num=num+1
+                      end if
                    end if
 
                 else
@@ -8226,7 +8228,7 @@
              end if
 
              !---- Using Generators ----!
-             if (num <=0) then
+             if (num <= 0) then
                  if(present(gen)) then
                    opcion="GEN"
                  else  !The last option is a non-standard Hall symbol
@@ -8240,7 +8242,7 @@
                  do i=1,num_spgr_info
                     if (ivet(1) == spgr_info(i)%n) then
                        if (j > 0) then
-                          if (ic /= 1) then
+                          if (ic == 0 .or. ic == 2) then
                              num=i+1
                              spgm=spgr_info(i+1)%hall
                              exit
@@ -8250,9 +8252,16 @@
                              exit
                           end if
                        else
-                          num=i+1
-                          spgm=spgr_info(i+1)%hall
-                          exit
+                          j=index(spgr_info(i)%hm,":")
+                          if(j == 0) then
+                            num=i
+                            spgm=spgr_info(i)%hall
+                            exit
+                          else
+                            num=i+1
+                            spgm=spgr_info(i+1)%hall
+                            exit
+                          end if
                        end if
                     end if
                  end do
