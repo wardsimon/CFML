@@ -1508,7 +1508,7 @@
        rigaku=.false.
        if(present(ext)) ext_given=.true.
        if(ext_given) then
-       	 if(trim(ext) == ".MDI") rigaku=.true.
+         if(trim(ext) == ".MDI") rigaku=.true.
        end if
 
        do
@@ -1559,19 +1559,19 @@
              exit
           end if
           if(rigaku) then
-          	if(.not. title_given) then
-          		title_given=.true.
-          		Pat%title=trim(adjustl(aline))
-          		cycle
-          	else
-          		call getword(aline,dire,nc)
-          		call getnum(trim(dire(1))//' '//trim(dire(2))//' '//trim(dire(6)),vet,ivet,iv)
+            if(.not. title_given) then
+              title_given=.true.
+              Pat%title=trim(adjustl(aline))
+              cycle
+            else
+              call getword(aline,dire,nc)
+              call getnum(trim(dire(1))//' '//trim(dire(2))//' '//trim(dire(6)),vet,ivet,iv)
               pat%xmin=vet(1)
               pat%step=vet(2)
               pat%xmax=vet(3)
               pat%npts = nint((pat%xmax-pat%xmin)/pat%step+1.0)
-          	  exit
-          	end if
+              exit
+            end if
           end if
           ! Reading Xmin, Step, Xmax, Title (optional)
           call getword(aline,dire,nc)

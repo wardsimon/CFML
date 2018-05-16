@@ -1667,7 +1667,7 @@
        n2=count(icodp==icodp(1))
        select case (n1)
           case (1) ! all are differents
-          	 Car_Family="Triclinic"
+             Car_Family="Triclinic"
              Car_Symbol ="a"
              Car_System ="Triclinic"
              !if (n2 ==1) then

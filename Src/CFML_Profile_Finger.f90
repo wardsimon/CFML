@@ -1440,7 +1440,7 @@
       End Do
 
       If (abs(sumwg) <= eps) then
-      	 !sumwg = 1.0_cp
+         !sumwg = 1.0_cp
          profval = 0.0
          dprdt = 0.0
          dprdg = 0.0
@@ -1453,9 +1453,9 @@
       end if
       !
       If(normv_analytic <= eps) then
-      	!normv_analytic=1.0_cp
-      	dprdd = 0.0
-      	dprds = 0.0
+        !normv_analytic=1.0_cp
+        dprdd = 0.0
+        dprds = 0.0
       else
         dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
         dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic

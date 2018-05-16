@@ -999,7 +999,7 @@
        end do
 
        !if (all(lugar > 0)) then
-	     if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
+       if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
           nct=count(lugar > 0)
           nline_ini=nline
           string=" "
@@ -1437,8 +1437,8 @@
                 end if
              case("H")
                 spgr_hm=spgr_hm(:np1-1)
-				        csym2=u_case(spgr_hm(np1-1:np1-1))
-				        if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
+                csym2=u_case(spgr_hm(np1-1:np1-1))
+                if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
 
           end select
        end if

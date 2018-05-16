@@ -329,7 +329,7 @@
 
        !Test if there is an operator mapping k to -k
        if (SpaceGroup%Centred /= 1) then  !Centric space group (centric: 0, 2, acentric:1)
-       	  Gk%minusk=.true.
+          Gk%minusk=.true.
           j=ng+1      !the operator SpaceGroup%SymOp(j) is the inversion centre
           h = hkl_R(k,SpaceGroup%SymOp(j))  !h is here -k because only the rotational part of SpaceGroup%SymOp(j)
                                             !is applied to k and this rotational part is always -I (I:identity matrix)
@@ -339,10 +339,10 @@
           ng=ng*2  !Now ng is updated to count also the symmetry elements of SpaceGroup in which
                    !there are the operators transformed by the inversion centre.
        else   !A-centric
-       	 do j=2,ng
-       	 	 h = hkl_R(k,SpaceGroup%SymOp(j))
+         do j=2,ng
+           h = hkl_R(k,SpaceGroup%SymOp(j))
            if (k_EQUIV(h,-k, SpaceGroup%SPG_lat))  then
-           	Gk%minusk=.true.
+            Gk%minusk=.true.
            end if
          end do
          h=-k
@@ -440,7 +440,7 @@
             if(j /= 0) then
                gen(ngen)=Gk%G0%SymopSymb(j)
             else
-             	 ngen=ngen-1
+               ngen=ngen-1
             end if
           end do
        end if

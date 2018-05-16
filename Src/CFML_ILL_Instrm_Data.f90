@@ -2844,8 +2844,8 @@ Module CFML_ILL_Instrm_Data
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength"
                   return
                 else
-                	Current_Instrm%wave_max=Current_Instrm%wave_min
-                	wave=Current_Instrm%wave_min
+                  Current_Instrm%wave_max=Current_Instrm%wave_min
+                  wave=Current_Instrm%wave_min
                 end if
 
             Case("WAVE_LIMITS")

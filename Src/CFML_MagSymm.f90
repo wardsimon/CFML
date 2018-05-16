@@ -2642,7 +2642,7 @@
                  !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
                  Select Case(trim(keyword))
 
-                 	 Case("_space_group_magn_transforms.id")
+                   Case("_space_group_magn_transforms.id")
                       !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
 
                       do k=1,2
@@ -2926,12 +2926,12 @@
                       !write(unit=*,fmt="(a)") "  Treating item: _atom_site_label"
                       !Count the number of keywords following the _loop
                       do k=1,10
-                      	linat=adjustl(mcif%line(i+k))
-                      	if(linat(1:1) /=  "_") then
-                      		kfin=k+1
-                      		iv=i+k
-                      		exit
-                      	end if
+                        linat=adjustl(mcif%line(i+k))
+                        if(linat(1:1) /=  "_") then
+                          kfin=k+1
+                          iv=i+k
+                          exit
+                        end if
                       end do
                       lugar=0
                       lugar(1)=1
@@ -3019,10 +3019,10 @@
                       end do
                       i=i+1
                       if(index(mcif%line(i),"_atom_site_moment.symmform") /= 0) then
-                      	!write(*,*) " _atom_site_moment.symmform FOUND"
-                      	mom_symmform=.true.
+                        !write(*,*) " _atom_site_moment.symmform FOUND"
+                        mom_symmform=.true.
                       else
-                      	i=i-1
+                        i=i-1
                       end if
                       k=0
                       do
@@ -3092,7 +3092,7 @@
 
           else
 
-          	if( num_rsym == 0) num_rsym=num_sym
+            if( num_rsym == 0) num_rsym=num_sym
             ! First allocate the full number of symmetry operators after decoding if centering lattice
             ! have been provided and if the group is centred or not
             if(num_centering == 0) then
@@ -3142,9 +3142,9 @@
                 line=Pack_String(line)
                 call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
               else
-              	det=determ_a(MGp%Symop(i)%Rot)
-              	MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*det*nint(MGp%MSymOp(i)%phas)
-              	call Get_Symsymb(MGp%MSymOp(i)%Rot,(/0.0,0.0,0.0/),line)
+                det=determ_a(MGp%Symop(i)%Rot)
+                MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*det*nint(MGp%MSymOp(i)%phas)
+                call Get_Symsymb(MGp%MSymOp(i)%Rot,(/0.0,0.0,0.0/),line)
                 !Expand the operator "line" to convert it to mx,my,mz like
                 mxmymz_op=" "
                 do j=1,len_trim(line)
@@ -3995,29 +3995,29 @@
       !Setting the magnetic point group symbol from the BNS label
       m=0
       Select Case (MGp%MagType)
-      	 Case(1,2,3)
-      	 	 MGp%PG_Symbol=MGp%BNS_symbol(2:) !Remove the type of lattice
-      	 	 do i=2,len_trim(MGp%BNS_symbol)
-      	 	 	 m=m+1
-      	 	 	 if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
-      	 	 	 if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
-      	   end do
-      	   MGp%PG_Symbol=pack_string(MGp%PG_Symbol)
+         Case(1,2,3)
+           MGp%PG_Symbol=MGp%BNS_symbol(2:) !Remove the type of lattice
+           do i=2,len_trim(MGp%BNS_symbol)
+             m=m+1
+             if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+           .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+           .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+           .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+             if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+           end do
+           MGp%PG_Symbol=pack_string(MGp%PG_Symbol)
 
-      	 Case(4)
-      	 	 MGp%PG_Symbol=MGp%BNS_symbol(4:) !Remove the type of lattice
-      	 	 do i=4,len_trim(MGp%BNS_symbol)
-      	 	 	 m=m+1
-      	 	 	 if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
-      	 	 .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
-      	 	 	 if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
-      	   end do
-      	   MGp%PG_Symbol=pack_string(MGp%PG_Symbol//"1'")
+         Case(4)
+           MGp%PG_Symbol=MGp%BNS_symbol(4:) !Remove the type of lattice
+           do i=4,len_trim(MGp%BNS_symbol)
+             m=m+1
+             if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+           .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+           .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+           .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+             if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+           end do
+           MGp%PG_Symbol=pack_string(MGp%PG_Symbol//"1'")
       End Select
 
       if(len_trim(setting) == 0 .or. setting =='a,b,c;0,0,0') then
@@ -4140,17 +4140,17 @@
         !MGp%MSymOp(k)%Phas=inv_time
         det=determ_a(MGp%SymOp(k)%Rot)
         if(det > 0.0) then
-        	 if(equal_matrix(MGp%MSymOp(k)%Rot,MGp%SymOp(k)%Rot,3)) then
-        	 	  MGp%MSymOp(k)%Phas=1.0
-        	 else
-        	 	  MGp%MSymOp(k)%Phas=-1.0
-        	 end if
+           if(equal_matrix(MGp%MSymOp(k)%Rot,MGp%SymOp(k)%Rot,3)) then
+              MGp%MSymOp(k)%Phas=1.0
+           else
+              MGp%MSymOp(k)%Phas=-1.0
+           end if
         else
-        	 if(equal_matrix(MGp%MSymOp(k)%Rot,-MGp%SymOp(k)%Rot,3)) then
-        	 	  MGp%MSymOp(k)%Phas=1.0
-        	 else
-        	 	  MGp%MSymOp(k)%Phas=-1.0
-        	 end if
+           if(equal_matrix(MGp%MSymOp(k)%Rot,-MGp%SymOp(k)%Rot,3)) then
+              MGp%MSymOp(k)%Phas=1.0
+           else
+              MGp%MSymOp(k)%Phas=-1.0
+           end if
         end if
         if(MGp%mcif) then
            Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k)%Rot,MGp%MSymOp(k)%Rot,MGp%SymOp(k)%tr,ShOp_symb,MGp%mcif)
@@ -4218,9 +4218,9 @@
         MGp%NumOps=MGp%NumOps/2
       end if
       if(change_setting) then
-      	if(present(trn_to)) then
+        if(present(trn_to)) then
           call Setting_Change_MagGroup(setting,MGp,MSpg,trn_to)
-      	else
+        else
           call Setting_Change_MagGroup(setting,MGp,MSpg)
         end if
         if(Err_MagSym) then
@@ -4801,23 +4801,23 @@
          call Get_Symb_From_Mat(Matinv,isetting,(/"a","b","c"/))
          isetting=trim(isetting)//";"//trim(symbtr)
          if(present(trn_to)) then
-         	  if(trn_to) then
-       	 	    rot=S
-       	 	    rotn=Sinv
-       	 	    S=rotn
-       	 	    Sinv=rot
-       	 	    v=orig
-       	 	    tr=iorig
-       	 	    orig=tr
-       	 	    iorig=v
-         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
-         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
-         	  else
-         	    write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
-         	    write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
-         	  end if
+            if(trn_to) then
+              rot=S
+              rotn=Sinv
+              S=rotn
+              Sinv=rot
+              v=orig
+              tr=iorig
+              orig=tr
+              iorig=v
+              write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+              write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
+            else
+              write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+              write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
+            end if
          else
-         	  write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+            write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
          end if
        end if
 

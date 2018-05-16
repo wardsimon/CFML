@@ -3201,16 +3201,16 @@
        end do
 
        Select Case(k) !check that it is OK for badly generated Hall symbol
-       	 case(1:14)
-       	 	  if(SpaceGroup%NumOps /= 1) k=0
-       	 case(15:162)
-       	 	  if(SpaceGroup%NumOps /= 2) k=0
-       	 case(163:426)
-       	 	  if(SpaceGroup%NumOps /= 4) k=0
-       	 case(427:494)
-       	 	  if(SpaceGroup%NumOps /= 8) k=0
-       	 case(495:503)
-       	 	  if(SpaceGroup%NumOps /= 3) k=0
+         case(1:14)
+            if(SpaceGroup%NumOps /= 1) k=0
+         case(15:162)
+            if(SpaceGroup%NumOps /= 2) k=0
+         case(163:426)
+            if(SpaceGroup%NumOps /= 4) k=0
+         case(427:494)
+            if(SpaceGroup%NumOps /= 8) k=0
+         case(495:503)
+            if(SpaceGroup%NumOps /= 3) k=0
        End Select
 
        if(hall(1:1) /= "-") hall=" "//hall
@@ -8014,8 +8014,8 @@
            estak(j)=.false.
            do k=2,SpGs(j)%multip
              if(SpGs(j)%SymopSymb(k) == gen(ng)) then
-             	 estak(j)=.true.
-             	 exit
+               estak(j)=.true.
+               exit
              end if
            end do
         end do

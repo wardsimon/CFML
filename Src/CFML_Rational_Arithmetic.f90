@@ -644,19 +644,19 @@
       type (rational), intent (in out) :: r
 
       do
-      	 if(r < 0//1) then
-      	 	 r=r+1
-      	 else
-      	 	 exit
-      	 end if
+         if(r < 0//1) then
+           r=r+1
+         else
+           exit
+         end if
       end do
 
       do
-      	 if(r >= 1//1) then
-      	 	 r=r-1
-      	 else
-      	 	 exit
-      	 end if
+         if(r >= 1//1) then
+           r=r-1
+         else
+           exit
+         end if
       end do
 
     end subroutine rational_modulo_lat
