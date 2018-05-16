@@ -29,7 +29,7 @@
 !!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 !!---- Lesser General Public License for more details.
 !!----
-!!---- You should have received a copy of the GNU Lesser General Public
+!!---- You should have received a copy of the GNU of Lesser General Public
 !!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
@@ -50,13 +50,13 @@ Module CFML_GlobalDeps
    !--------------------!
 
    !---- Operating System ----!
-   character(len=*), parameter :: OPS_NAME = "WIN"               ! O.S. Name
+   character(len=*), parameter :: OPS_NAME = "MAC"               ! O.S. Name
    character(len=*), parameter :: OPS_SEP = "\"                  ! O.S. directory separator character
-   integer,          parameter :: OPS = 1                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
+   integer,          parameter :: OPS = 3                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
 
    !---- Compiler ----!
-   character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
-   !character(len=*), parameter :: COMPILER = "GFOR"              ! GFortran Compiler
+   !character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
+   character(len=*), parameter :: COMPILER = "GFOR"              ! GFortran Compiler
 
    !---- Precision ----!
    integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
@@ -79,7 +79,7 @@ Module CFML_GlobalDeps
    logical            :: Err_CFML      = .false.                 ! Error Flag for CrysFML
    integer            :: Err_CFML_Flag = 0                       ! =0 No error, =1 Warning, > 1 Error
    character(len=750) :: Err_CFML_Msg  =" "                      ! Text for Messages
-   
+  
  Contains
 
    !-------------------!
@@ -115,7 +115,7 @@ Module CFML_GlobalDeps
       !> Compiler
       select case (trim(compiler))
          case ('IFOR')
-            inquire(directory=trim(linea), exist=info)
+            !inquire(directory=trim(linea), exist=info)
 
          case default
             inquire(file=trim(linea)//'.' , exist=info)

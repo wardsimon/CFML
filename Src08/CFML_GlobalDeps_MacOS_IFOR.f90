@@ -50,9 +50,9 @@ Module CFML_GlobalDeps
    !--------------------!
 
    !---- Operating System ----!
-   character(len=*), parameter :: OPS_NAME = "WIN"               ! O.S. Name
-   character(len=*), parameter :: OPS_SEP = "\"                  ! O.S. directory separator character
-   integer,          parameter :: OPS = 1                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
+   character(len=*), parameter :: OPS_NAME = "MAC"               ! O.S. Name
+   character(len=*), parameter :: OPS_SEP = "/"                  ! O.S. directory separator character
+   integer,          parameter :: OPS = 3                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
 
    !---- Compiler ----!
    character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
