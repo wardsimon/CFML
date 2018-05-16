@@ -1,0 +1,15 @@
+CrysFML08
+=====================================
+Compilers
+- Intel Fortran Compiler XE2017
+- GFortran 7.3
+
+Changes:
+1.- Global Error Flags
+     Err_CFML        Logical
+     Err_CFML_Flag   Integer
+     Err_CFML_Msg    Character
+     
+2.- Trigonometric functions in degrees (CosD, SinD,...) are now supported by intrinsic procedures 
+3.- Using intrinsic Bessel functions (BESSEL_J0, BESSEL_J1, BESSEL_JN, BESSEL_Y0, BESSEL_Y1, BESSEL_YN) 
+4.- Using an intrinsic ERF function   
