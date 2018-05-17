@@ -22,4 +22,13 @@ Changes on CFML_Math_General Procedures
 6.- Define as optional the dimension of the array for Equal_matrix and Equal Vector
 7.- Change the order of the arguments in IN_LIMITS
 8.- Set_EPGSS without arguments set to default value
-8.- Eliminated RTAN
+9.- Eliminated RTAN
+
+Changes on CFML_Math3D
+=========================
+1.- Deleted the Polyhedron_volume procedure
+2.- Changed names of procedures
+    Determ_A -> Determ_3x3
+    Determ_V -> Determ_Vec
+    Invert_A -> Invert_Array3x3   
+3.- Set_EPS without arguments set to default value     
