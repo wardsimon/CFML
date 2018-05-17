@@ -75,16 +75,16 @@ Module CFML_GlobalDeps
    real(kind=DP), parameter :: DEPS=0.00000001_dp                ! Epsilon value use for comparison of real numbers (DOUBLE)
    real(kind=CP), parameter :: EPS=0.00001_cp                    ! Epsilon value use for comparison of real numbers (SIMPLE)
 
+   !---- Special Characters ----!
+   character(len=2), parameter   :: NEWLINE = char(13)//char(10) ! Newline character
+   character(len=1), parameter   :: TAB     = char(9)            ! TAB character
+   
    !---- Error Flags ----!
-   logical            :: Err_CFML      = .false.                 ! Error Flag for CrysFML
-   integer            :: Err_CFML_Flag = 0                       ! =0 No error, =1 Warning, > 1 Error
-   character(len=750) :: Err_CFML_Msg  =" "                      ! Text for Messages
+   logical                       :: Err_CFML      = .false.      ! Error Flag for CrysFML
+   integer                       :: Err_CFML_Flag = 0            ! =0 No error, =1 Warning, > 1 Error
+   character(len=:), allocatable :: Err_CFML_Msg                 ! Text for Messages
   
  Contains
-
-   !-------------------!
-   !---- Functions ----!
-   !-------------------!
 
    !!----
    !!---- FUNCTION DIRECTORY_EXISTS
@@ -123,5 +123,21 @@ Module CFML_GlobalDeps
 
       return
    End Function Directory_Exists
+   
+   !!----
+   !!---- CLEAR_ERROR
+   !!----
+   !!---- Reset information on Error Variables for CFML
+   !!----
+   !!---- 17/05/2018
+   !!
+   Subroutine Clear_Error()
+      
+      Err_CFML     =.false.
+      Err_CFML_Flag=0
+      Err_CFML_Msg =" "
+      
+      return
+   End Subroutine Clear_Error 
 
 End Module CFML_GlobalDeps

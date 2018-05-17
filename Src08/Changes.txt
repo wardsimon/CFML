@@ -10,6 +10,16 @@ Changes:
      Err_CFML_Flag   Integer
      Err_CFML_Msg    Character
      
-2.- Trigonometric functions in degrees (CosD, SinD,...) are now supported by intrinsic procedures 
-3.- Using intrinsic Bessel functions (BESSEL_J0, BESSEL_J1, BESSEL_JN, BESSEL_Y0, BESSEL_Y1, BESSEL_YN) 
-4.- Using an intrinsic ERF function   
+2.- Define a procedure to clear error variables called CLEAR_ERROR     
+    
+Changes on CFML_Math_General Procedures
+=======================================     
+1.- Trigonometric functions in degrees (CosD, SinD,...) are now supported by intrinsic procedures 
+2.- Using intrinsic Bessel functions (BESSEL_J0, BESSEL_J1, BESSEL_JN, BESSEL_Y0, BESSEL_Y1, BESSEL_YN) 
+3.- Using an intrinsic ERF function 
+4.- Euclidean_Norm with sorted arguments as Vector, dimension
+5.- IMINLOC, IMAXLOC are deleted. Use now the intrinsic function MINLOC, MAXLOC
+6.- Define as optional the dimension of the array for Equal_matrix and Equal Vector
+7.- Change the order of the arguments in IN_LIMITS
+8.- Set_EPGSS without arguments set to default value
+8.- Eliminated RTAN
