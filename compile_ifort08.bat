@@ -1,21 +1,21 @@
 @echo off
-rem ------------------------------------
-rem ---- CrysFML for Intel Compiler ----
-rem ---- JGP-2017                   ----
-rem ------------------------------------
+echo.
+echo --------------------------------------------------
+echo ---- Crystallographic Fortran Modules Library ----
+echo ---- Intel Fortran Compiler XE                ---- 
+echo ---- CrysFML Team. May 2018                   ----
+echo --------------------------------------------------
 rem
 rem ---- INIT ----
    (set _DEBUG=N)
-   (set _I17=N)
    (set _WINTER=N)
    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
 rem
 rem ----
-rem ---- Arguments ----
+rem ---- Arguments 
 rem ----
 :LOOP
     if [%1]==[debug]  (set _DEBUG=Y)
-    if [%1]==[17]     (set _I17=Y)
     if [%1]==[winter] (set _WINTER=Y)
     shift
     if not [%1]==[] goto LOOP
@@ -33,12 +33,9 @@ rem
 rem --- Testing JGP
       (set OPT1=/O3)
    )
-   if [%_I17]==[N] (
-      (set OPT2=/Qvec-report0)
-   ) else (
-      (set OPT2=/Qopt-report:0)
-   )
+   (set OPT2=/Qopt-report:0)
    (set OPT3=)
+rem   
    if [%_WINTER%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (
          (set OPT3=/I%WINTER%\lib.if8)
@@ -50,23 +47,19 @@ rem
    cd %CRYSFML%\Src08
 rem
    echo.
-   echo ***************************
-   echo ****  Compiler Options ****
-   echo ***************************
+   echo ----
+   echo ----  Compiler Options 
+   echo ----
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
    echo OPT2:%OPT2%
    echo OPT3:%OPT3%
-   echo ***************************
+   echo ----
    echo.
 rem
    echo .... Global Dependencies for CFML
 rem
-   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT0% %OPT2%
-rem
-   echo .... Definitions in CFML
-rem
-   ifort /c CFML_Definitions.f90                      /nologo %OPT0% %OPT2%
+   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT0% %OPT2%   
 rem
    echo .... Mathematics Procedures
 rem
@@ -75,27 +68,28 @@ rem
    ifort /c CFML_Spher_Harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_Random.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_Ffts.f90                             /nologo %OPT1% %OPT2%
+   goto FIN
 rem
    echo .... Profiles Functions
 rem
-   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_Extinction_Correction.f90            /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_Extinction_Correction.f90            /nologo %OPT1% %OPT2%
 rem
    echo .... IO Messages /String Utilities
 rem
-   if [%_WINTER%]==[Y] (
-     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
-   ) else (
-     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
-   )
-   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
+rem   if [%_WINTER%]==[Y] (
+rem     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
+rem   ) else (
+rem     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
+rem   )
+rem   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
 rem
    echo .... Optimization procedures
 rem
-   ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
 rem
    echo .... Tables definitions
 rem
@@ -188,5 +182,5 @@ rem
    cd %CRYSFML%\Scripts\Windows
 rem
 :FIN
-   del *.obj *.mod > nul
+rem   del *.obj *.mod > nul
    cd ..
