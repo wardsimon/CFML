@@ -53,7 +53,7 @@
 
     !---- List of public overloaded procedures: functions ----!
     public :: Co_Linear, Debye, Negligible, Equal_Matrix, Equal_Vector, In_limits, &
-              Locate, Lower_Triangular, Pythag, Outerprod, Trace, Zbelong,  Norm,  &
+              Locate, Lower_Triangular,  Outerprod, Trace, Zbelong,  Norm,  &
               Scalar, Upper_Triangular
 
     !---- List of public subroutines ----!
@@ -212,11 +212,6 @@
        Module Procedure Lower_Triangular_R
     End Interface
     
-    Interface  Pythag
-       Module Procedure Pythag_dp
-       Module Procedure Pythag_sp
-    End Interface
-
     Interface Norm
        Module Procedure Norm_I
        Module Procedure Norm_R
@@ -352,7 +347,7 @@
        else
           Fact=1.0_sp
           do i=1,n
-             Fact = Fact * float(i)
+             Fact = Fact * real(i)
           end do
        end if
 
@@ -379,7 +374,7 @@
        else
           Fact=1.0_dp
           do i=1,n
-             Fact = Fact * dble(i)
+             Fact = Fact * real(i,kind=dp)
           end do
        end if
 
@@ -490,7 +485,7 @@
     End Function Poly_Legendre
     
     !!--++
-    !!--++ CHEVAL
+    !!--++ Debye_PR_ChebyshevSeries
     !!--++
     !!--++ PRIVATE (USED FOR DEBYE FUNCTIONS)
     !!--++ This function evaluates a Chebyshev series, using the Clenshaw method
@@ -499,7 +494,7 @@
     !!--++
     !!--++  Update:  January - 2017
     !!
-    Function Cheval(n, a, t) Result(fval)
+    Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)
        !---- Arguments ----!
        integer,                       intent(in) :: N  ! The no. of terms in the sequence
        real(kind=dp), dimension(0:N), intent(in) :: A  ! The coefficients of the Chebyshev series
@@ -560,7 +555,7 @@
        end if
 
        return
-    End Function Cheval
+    End Function Debye_PR_ChebyshevSeries
     
     !!--++
     !!--++ CO_LINEAR_C
@@ -1007,7 +1002,7 @@
              fval = ((xx-nine)*xx+thirt6) / thirt6
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb1,t) - quart * xx
+             fval = Debye_PR_ChebyshevSeries(nterms,adeb1,t) - quart * xx
           end if
 
        else
@@ -1129,7 +1124,7 @@
              fval = ((xx-eight)*xx+twent4) / twent4
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb2,t) - xx / three
+             fval = Debye_PR_ChebyshevSeries(nterms,adeb2,t) - xx / three
           end if
 
        else
@@ -1259,7 +1254,7 @@
              fval = ((xx-sevp5)*xx+twenty) / twenty
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb3,t) - pt375 * xx
+             fval = Debye_PR_ChebyshevSeries(nterms,adeb3,t) - pt375 * xx
           end if
 
        else
@@ -1392,7 +1387,7 @@
              fval = ((twopt5*xx-eightn)*xx+forty5) / forty5
           else
              t = ((xx*xx/eight)-half) - half
-             fval = cheval(nterms,adeb4,t) - (xx+xx) / five
+             fval = Debye_PR_ChebyshevSeries(nterms,adeb4,t) - (xx+xx) / five
           end if
 
        else
@@ -1481,13 +1476,13 @@
     End Function DebyeN
     
     !!--++
-    !!--++ FUNCTION ENVJ
+    !!--++ FUNCTION Debye_PR_Envj
     !!--++
     !!--++    (PRIVATE)
     !!--++
     !!--++ Update: 11/07/2015
     !!
-    Pure Function Envj(N,X) Result(Y)
+    Pure Function Debye_PR_Envj(N,X) Result(Y)
        !---- Arguments ----!
        integer,       intent(in) :: n
        real(Kind=dp), intent(in) :: x
@@ -1496,7 +1491,7 @@
        y=0.5_dp*log10(6.28_dp*real(n,kind=dp))-n*log10(1.36_dp*x/real(n,kind=dp))
 
        return
-    End Function Envj
+    End Function Debye_PR_Envj
     
     !!--++
     !!--++ EQUAL_MATRIX_I
@@ -1975,69 +1970,7 @@
        return
     End Function Ppcm
 
-    !!--++
-    !!--++ PYTHAG_DP
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!--++    Adapted from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Elemental Function Pythag_dp(a,b) Result (c)
-       !---- Arguments ----!
-       real(kind=dp),intent(in):: a,b
-       real(kind=dp)           :: c
-
-       !---- Local variables ----!
-       real(kind=dp)           :: absa,absb
-
-       absa=abs(a)
-       absb=abs(b)
-       if (absa >absb)then
-          c=absa*sqrt(1.0_dp+(absb/absa)**2)
-       else
-          if (absb < tiny(1.0_dp))then
-             c=0.0
-          else
-             c=absb*sqrt(1.0_dp+(absa/absb)**2)
-          end if
-       end if
-
-       return
-    End Function Pythag_dp
-
-    !!--++
-    !!--++ PYTHAG_SP
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Computes c=sqrt(a^2 +b^2 ) without destructive underflow or overflow.
-    !!--++    Adapted from Numerical Recipes.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Elemental Function Pythag_sp(a,b) Result (c)
-       !---- Arguments ----!
-       real(kind=sp),intent(in):: a,b
-       real(kind=sp)           :: c
-
-       !---- Local variables ----!
-       real(kind=sp)           :: absa,absb
-
-       absa=abs(a)
-       absb=abs(b)
-       if (absa > absb) then
-          c=absa*sqrt(1.0_sp+(absb/absa)**2)
-       else
-          if (absb < tiny(1.0_sp)) then
-             c=0.0
-          else
-             c=absb*sqrt(1.0_sp+(absa/absb)**2)
-          end if
-       end if
-
-       return
-    End Function Pythag_sp
+    
 
     !!--++
     !!--++ LOCATE_I
@@ -2343,7 +2276,7 @@
     End Function Scalar_R
     
     !!--++
-    !!--++ FUNCTION START1
+    !!--++ FUNCTION Debye_PR_Start1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
@@ -2352,7 +2285,7 @@
     !!--++
     !!--++ Update: 11/07/2015
     !!
-    Pure Function Start1(X,Mp) Result (Start)
+    Pure Function Debye_PR_Start1(X,Mp) Result (Start)
        !---- Arguments ----!
        real(kind=dp), intent(in) :: x         ! Argument of Jn(x)
        integer, intent(in)       :: mp        ! Value of magnitude
@@ -2364,12 +2297,12 @@
 
        a0=abs(x)
        n0=int(1.1_dp*a0)+1
-       f0=envj(n0,a0)-mp
+       f0=Debye_Pr_Envj(n0,a0)-mp
        n1=n0+5
-       f1=envj(n1,a0)-mp
+       f1=Debye_Pr_Envj(n1,a0)-mp
        do it=1,20
           nn=n1-(n1-n0)/(1.0_dp-f0/f1)
-          f=envj(nn,a0)-mp
+          f=Debye_Pr_Envj(nn,a0)-mp
           if (abs(nn-n1) < 1) exit
           n0=n1
           f0=f1
@@ -2379,10 +2312,10 @@
        start=nn
 
        return
-    End Function Start1
+    End Function Debye_PR_Start1
 
     !!--++
-    !!--++ FUNCTION START2
+    !!--++ FUNCTION Debye_PR_Start2
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
@@ -2390,7 +2323,7 @@
     !!--++
     !!--++ Update: 11/07/2015
     !!
-    Pure Function Start2(X,N,Mp) Result(Start)
+    Pure Function Debye_PR_Start2(X,N,Mp) Result(Start)
        !---- Arguments ----!
        real(kind=dp), intent(in) :: x     ! Argument of Jn(x)
        integer,       intent(in) :: n     ! Order of Jn(x)
@@ -2403,7 +2336,7 @@
 
        a0=abs(x)
        hmp=0.5_dp*mp
-       ejn=envj(n,a0)
+       ejn=Debye_Pr_Envj(n,a0)
        if (ejn <= hmp) then
           obj=mp
           n0=int(1.1_dp*a0)+1  ! +1 was absent in the original version ... this solves the problem of
@@ -2411,12 +2344,12 @@
           obj=hmp+ejn
           n0=n
        end if
-       f0=envj(n0,a0)-obj
+       f0=Debye_Pr_Envj(n0,a0)-obj
        n1=n0+5
-       f1=envj(n1,a0)-obj
+       f1=Debye_Pr_Envj(n1,a0)-obj
        do it=1,20
           nn=n1-(n1-n0)/(1.0_dp-f0/f1)
-          f=envj(nn,a0)-obj
+          f=Debye_Pr_Envj(nn,a0)-obj
           if (abs(nn-n1) < 1) exit
           n0=n1
           f0=f1
@@ -2426,7 +2359,7 @@
        start=nn+10
 
        return
-    End Function Start2
+    End Function Debye_PR_Start2
 
     !!--++
     !!--++ TRACE_C
@@ -2966,14 +2899,14 @@
        aux(  1:n ,n+1:nn) =-aimag(a(1:n ,1:n))   !
 
        if (present(E_vect)) then
-          call tred2(aux,nn,d,e)
-          call tqli2(d,e,nn,aux)
-          if(.not. present(norder)) call eigsrt(d,aux,nn,1)
+          call Diagonalize_PR_Tred2(aux,nn,d,e)
+          call Diagonalize_PR_Tqli2(d,e,nn,aux)
+          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(d,aux,nn,1)
           e_vect(1:n,1:n)=cmplx(aux(1:n,1:nn:2),aux(n+1:nn,1:nn:2))
        else
-          call tred1(aux,nn,d,e)
-          call tqli1(d,e,nn)
-          if(.not. present(norder)) call eigsrt(d,aux,nn,0)
+          call Diagonalize_PR_Tred1(aux,nn,d,e)
+          call Diagonalize_PR_Tqli1(d,e,nn)
+          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(d,aux,nn,0)
        end if
        e_val(1:n)=d(1:nn:2)
 
@@ -3013,21 +2946,21 @@
 
        aux=a(1:n,1:n)
        if (present(E_vect)) then
-          call tred2(aux,n,E_val,e)
-          call tqli2(E_val,e,n,aux)
-          if(.not. present(norder)) call eigsrt(E_val,aux,n,1)
+          call Diagonalize_PR_Tred2(aux,n,E_val,e)
+          call Diagonalize_PR_Tqli2(E_val,e,n,aux)
+          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(E_val,aux,n,1)
           e_vect(1:n,1:n)=aux
        else
-          call tred1(aux,n,E_val,e)
-          call tqli1(E_val,e,n)
-          if(.not. present(norder)) call eigsrt(E_val,aux,n,0)
+          call Diagonalize_PR_Tred1(aux,n,E_val,e)
+          call Diagonalize_PR_Tqli1(E_val,e,n)
+          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(E_val,aux,n,0)
        end if
 
        return
     End Subroutine Diagonalize_Symm
 
     !!--++
-    !!--++ EIGSRT
+    !!--++ Diagonalize_EigenvSort
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for sorting eigenvalues in d(n) and eigenvectors
@@ -3038,7 +2971,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Eigsrt(d,v,n,io)
+    Subroutine Diagonalize_EigenvSort(d,v,n,io)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in out) :: d
        real(kind=cp), dimension(:,:), intent(in out) :: v
@@ -3072,7 +3005,7 @@
        end do
 
        return
-    End Subroutine Eigsrt
+    End Subroutine Diagonalize_EigenvSort
 
     !!----
     !!---- FIRST_DERIVATIVE
@@ -3647,7 +3580,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Partition(A, Marker)
+    Subroutine Sort_PR_Partition(A, Marker)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in out) :: A
        integer,                        intent(   out) :: marker
@@ -3687,7 +3620,7 @@
        end do
 
        return
-    End Subroutine Partition
+    End Subroutine Sort_PR_Partition
 
     !!----
     !!---- POINTS_IN_LINE2D
@@ -4198,7 +4131,7 @@
        integer :: iq
 
        if (size(Str) > 1) then
-          call Partition(Str, iq)
+          call Sort_PR_Partition(Str, iq)
           call Sort_Strings(Str(:iq-1))
           call Sort_Strings(Str(iq:))
        end if
@@ -4335,11 +4268,11 @@
        if (n >= 2) then
           sa=jn(0)
           sb=jn(1)
-          m=start1(x,200)
+          m=Debye_PR_Start1(x,200)
           if (m < n) then
              nm=m
           else
-             m=start2(x,n,15)
+             m=Debye_PR_Start2(x,n,15)
           end if
           f0=0.0_dp
           f1=1.0e-100_dp
@@ -4482,7 +4415,7 @@
                       rv1(i)=c*rv1(i)
                       if ((abs(f)+anorm)==anorm)exit
                       g=w(i)
-                      h=pythag(f,g)
+                      h=hypot(f,g)
                       w(i)=h
                       h=1.0_dp/h
                       c=(g*h)
@@ -4514,7 +4447,7 @@
              g=rv1(nm)
              h=rv1(k)
              f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_dp*h*y)
-             g=pythag(f,1.0_dp)
+             g=hypot(f,1.0_dp)
              f=((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x
              c=1.0_dp
              s=1.0_dp
@@ -4524,7 +4457,7 @@
                 y=w(i)
                 h=s*g
                 g=c*g
-                z=pythag(f,h)
+                z=hypot(f,h)
                 rv1(j)=z
                 c=f/z
                 s=h/z
@@ -4535,7 +4468,7 @@
                 tempn(1:n)=v(1:n,j)
                 v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s
                 v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c
-                z=pythag(f,h)
+                z=hypot(f,h)
                 w(j)=z
                 if ( abs(z) > tiny(1.0_dp) ) then
                    z=1.0_dp/z
@@ -4675,7 +4608,7 @@
                       rv1(i)=c*rv1(i)
                       if ((abs(f)+anorm)==anorm)exit
                       g=w(i)
-                      h=pythag(f,g)
+                      h=hypot(f,g)
                       w(i)=h
                       h=1.0_sp/h
                       c=(g*h)
@@ -4707,7 +4640,7 @@
              g=rv1(nm)
              h=rv1(k)
              f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y)
-             g=pythag(f,1.0_sp)
+             g=hypot(f,1.0_sp)
              f=((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x
              c=1.0  ! Next QR transformation:
              s=1.0
@@ -4717,7 +4650,7 @@
                 y=w(i)
                 h=s*g
                 g=c*g
-                z=pythag(f,h)
+                z=hypot(f,h)
                 rv1(j)=z
                 c=f/z
                 s=h/z
@@ -4728,7 +4661,7 @@
                 tempn(1:n)=v(1:n,j)
                 v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s
                 v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c
-                z=pythag(f,h)
+                z=hypot(f,h)
                 w(j)=z                 !Rotation can e arbitrary if z =0 .
                 if (abs(z) > tiny(1.0_sp) )then
                    z=1.0_sp/z
@@ -4864,7 +4797,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Tqli1(d,e,n)
+    Subroutine Diagonalize_PR_Tqli1(d,e,n)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in out):: d, e ! d(np),e(np)
        integer,                     intent(in )   :: n
@@ -4939,7 +4872,7 @@
        end do
 
        return
-    End Subroutine Tqli1
+    End Subroutine Diagonalize_PR_Tqli1
 
     !!--++
     !!--++  TqlI2
@@ -4961,7 +4894,7 @@
     !!--++
     !!--++  Update: February - 2005
     !!
-    Subroutine Tqli2(d,e,n,z)
+    Subroutine Diagonalize_PR_Tqli2(d,e,n,z)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
        integer,                       intent(in )    :: n
@@ -5044,7 +4977,7 @@
        end do
 
        return
-    End Subroutine Tqli2
+    End Subroutine Diagonalize_PR_Tqli2
 
     !!--++
     !!--++  TRED1
@@ -5060,7 +4993,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Tred1(a,n,d,e)
+    Subroutine Diagonalize_PR_Tred1(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -5124,7 +5057,7 @@
        end do
 
        return
-    End Subroutine Tred1
+    End Subroutine Diagonalize_PR_Tred1
 
     !!--++
     !!--++  TRED2
@@ -5139,7 +5072,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Tred2(a,n,d,e)
+    Subroutine Diagonalize_PR_Tred2(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -5228,7 +5161,7 @@
        end do
 
        return
-    End Subroutine Tred2
+    End Subroutine Diagonalize_PR_Tred2
 
  End Module CFML_Math_General
 
