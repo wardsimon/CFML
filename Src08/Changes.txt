@@ -31,4 +31,9 @@ Changes on CFML_Math3D
     Determ_A -> Determ_3x3
     Determ_V -> Determ_Vec
     Invert_A -> Invert_Array3x3   
-3.- Set_EPS without arguments set to default value     
+3.- Set_EPS without arguments set to default value  
+
+Changes on CFML_Spherical_Harmonics
+==================================  
+1.- SphJn was renamed as Sph_Jn and relocated at CFML_Math_General
+2.- Plgndr was renamed as Poly_Legendre and relocated at CFML_Math_General
