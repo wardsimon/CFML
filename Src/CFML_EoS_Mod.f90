@@ -560,7 +560,7 @@ Contains
 
       return
    End Function Get_K
-   
+
    !!----
    !!---- FUNCTION GET_Kp
    !!----
@@ -854,7 +854,7 @@ Contains
             err_eos_mess='No convergence in Transition loop in Get_Pressure'
             return
          endif
-         
+
          !> Here if not converged:               ! works provided phase boundary is almost linear
          if (first .or. abs(plast-p) < difp) then
             vs=get_transition_strain(p,T,eospar)
@@ -1829,7 +1829,7 @@ Contains
             end if
             if(abs(kp-1) < 0.0001 .or. abs(kp/(kp+2.0_cp)) < 0.0001)then
                 V=ev(1)                             ! In these cases algebra shows V=V0
-            else                
+            else
                 Tn= ev(11)/Tref                        ! theta/Tref
                 C=Tn*Tn*exp(Tn)/(exp(tn)-1.0_cp)**2.0_cp
                 B=-1.0/kp/(kp+2.0_cp)
@@ -1844,11 +1844,11 @@ Contains
                   V=ev(1)       ! for safe return
                   err_eos=.true.
                   err_eos_mess='T exceeds valid limit for Kroll expansion in get_V0_T'
-              else  
+              else
                   V=ev(1)*(-1.0_cp*kp + (1.0_cp+kp)*AK**B)
               endif
             endif
-            
+
          case(5)                    ! Salje, Tref fixed at zero
             A=T/ev(11)
             if (A < 0.001) then
@@ -1895,7 +1895,7 @@ Contains
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
       real(kind=cp)                     :: pa           ! pa=p-pth
 
-      
+
 
       !> Init
       v=0.0_cp
@@ -1955,7 +1955,7 @@ Contains
 
       !> Cannot do the following if MGD pthermal
       if (eospar%itherm /=7) then
-         if (eospar%imodel ==1) then                        
+         if (eospar%imodel ==1) then
          !> Exact solution for Murnaghan
             if (eospar%linear) v=v**(1.0_cp/3.0_cp)
             if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
@@ -1996,7 +1996,7 @@ Contains
           if(eospar%linear)v=v**(1.0_cp/3.0_cp)           ! to ensure reasonable return value if linear
           return
       endif
-      
+
 
       !> estimate the step to make in vol to get closer
       k=k0+p*kp                          ! Murn-like guess estimate to avoid recursive call back here when pthermal used
@@ -2025,7 +2025,7 @@ Contains
 
          !> test for sufficient convergence
 !         if (abs(step) < PREC*Vol)exit  ! 1 part in 100,000 in volume
-         if(abs(dp2) < abs(prec*k0))exit    ! If dP2 very small, finished; from dP= -K.dV/V and prec=dV/V 
+         if(abs(dp2) < abs(prec*k0))exit    ! If dP2 very small, finished; from dP= -K.dV/V and prec=dV/V
          if (abs(step) < PREC*Vol)then  ! 1 part in 100,000 in volume
             if(abs(abs(dP2)-abs(10.0*step*k0/vol)) > abs(max(0.005,p/1000.)))then
                 err_eos=.true.
@@ -2033,8 +2033,8 @@ Contains
             endif
             exit iter
          endif
-         
-                 
+
+
 
          !> not converged, so adjust step size
          if (dp1*dp2 < 0.0_cp) then
@@ -2051,10 +2051,10 @@ Contains
          dp1=dp2        ! update delta-p values and go back for next cycle
       end do iter
       !> now set return value depending on success or not
-      v=vol           
-      
-          
-          
+      v=vol
+
+
+
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
 
       return
@@ -4705,7 +4705,7 @@ Contains
    !!--++
    !!--++ SUBROUTINE PHYSICAL_CHECK
    !!--++
-   !!--++ 
+   !!--++
    !!--++ Check if the parameters have physical sense
    !!--++
    !!--++ Date: 17/07/2015 modified 22/05/2017
@@ -4728,7 +4728,7 @@ Contains
            err_eos_mess='Volume cannot be calculated at P,T = '//trim(car)
            return             ! have to return if error, because other tests cannot be done
       end if
-      
+
       if (v < tiny(0.0) ) then
          err_eos=.true.
          write(unit=car, fmt='(2f10.1)') p, t
@@ -5068,7 +5068,7 @@ Contains
          !> Read the numbers on this line
          nlines_datum=nlines_datum+1
          call getnum_std(line,vet,vetsd,iv)
-         if (iv == 0) then        
+         if (iv == 0) then
             err_eos=.true.
             Err_EoS_Mess='No values found on line '//trim(car)//' of data file!'
             dat%n=ndat
@@ -5976,9 +5976,9 @@ Contains
             eospar%comment(1) = trim(eospar%comment(1))//' units are '//trim(eospar%vscale_name)
          else
             eospar%comment(1) = trim(eospar%comment(1))//' units as length data'
-         endif      
+         endif
       endif
-      
+
 
       select case(eospar%itherm)
          case (0)
@@ -6002,10 +6002,10 @@ Contains
             eospar%comment(11) = 'Sqrt term of thermal expansion x10^4 K^-1/2'
 
          case (4)    ! Kroll needs Kp as well (in case no pressure eos)
-            eospar%parname(3) = 'Kp   '         
+            eospar%parname(3) = 'Kp   '
             eospar%comment(3) = 'dK/dP: dimensionless'
             if(eospar%linear)then
-                eospar%parname(3) = 'Mp   '         
+                eospar%parname(3) = 'Mp   '
                 eospar%comment(3) = 'dM/dP: dimensionless'
             endif
             eospar%parname(10:11) = (/'alph0','Th_E '/)
@@ -6609,8 +6609,8 @@ Contains
    !!----
    !!----   Subroutine to write the calculated parameters of an eos to file at one PT point
    !!----   NO  header info is printed here.
-   !!----  
-   !!----   Normally called from Write_eoscal 
+   !!----
+   !!----   Normally called from Write_eoscal
    !!----
    !!----   written 12/2017 by extracting code from write_eoscal
    !!----   in order to allow values and error messages to be written
@@ -6746,9 +6746,9 @@ Contains
 
       return
    End Subroutine Eoscal_text
-   
-   
-   
+
+
+
    !!--++
    !!--++ SUBROUTINE WRITE_EOSCAL_HEADER
    !!--++
@@ -6841,14 +6841,14 @@ Contains
       if (present(iout)) lun=iout
 
       !> Info
-      write(lun,'(//"Coordinates for confidence ellipse at confidence level of ",f6.2,"%")')delchi_levels(isig)
+      write(lun,'(//a,f6.2,a)') "Coordinates for confidence ellipse at confidence level of ",delchi_levels(isig),"%"
 
       write(lun,'(3x,"X axis as ",a," with variance = ",a)')trim(eos%parname(ix)),trim(rformat(eos%vcv(ix,ix),10))
       write(lun,'(3x,"Y axis as ",a," with variance = ",a)')trim(eos%parname(iy)),trim(rformat(eos%vcv(iy,iy),10))
       write(lun,'(3x,"The covariance of the two variables = ",a)')trim(rformat(eos%vcv(ix,iy),10))
 
-      write(lun,'(//"Data points for plotting: first column is X", &
-                " with two columns with the two Y values at that X"//)')
+      write(lun,'(//,a,//)') &
+                "Data points for plotting: first column is X with two columns with the two Y values at that X"
 
 
       return

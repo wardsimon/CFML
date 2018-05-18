@@ -2682,7 +2682,7 @@
        line2(1)=line
        n=1
        call cutst(line2(1))
-       line2(1)="Uval "//line2(1)
+       line2(1)="Uval "//line2(1)(1:len(line2(1))-5)  !this form of writing is to avoid gfortran warning -Wstring-overflow
        call Read_Key_ValueSTD(line2,n,n,"Uval",vet1,vet2,iv)
 
         if (iv /= 6) then
