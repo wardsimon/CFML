@@ -134,7 +134,7 @@
 
  Contains
     !!--++
-    !!--++ CROSS_PRODUCT_CMPL_DP(
+    !!--++ FUNCTION CROSS_PRODUCT_CMPL_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of the complex vectors u and v
@@ -156,7 +156,7 @@
     End Function Cross_Product_cmpl_dp
 
     !!--++
-    !!--++ CROSS_PRODUCT_CMPL_SP
+    !!--++ FUNCTION CROSS_PRODUCT_CMPL_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of the complex vectors u and v
@@ -178,7 +178,7 @@
     End Function Cross_Product_cmpl_sp
     
     !!--++
-    !!--++ CROSS_PRODUCT_DP
+    !!--++ FUNCTION CROSS_PRODUCT_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of vectors u and v
@@ -200,7 +200,7 @@
     End Function Cross_Product_dp
 
     !!--++
-    !!--++ CROSS_PRODUCT_IN
+    !!--++ FUNCTION CROSS_PRODUCT_IN
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of integer vectors u and v
@@ -223,7 +223,7 @@
     End Function Cross_Product_in
 
     !!--++
-    !!--++ CROSS_PRODUCT_SP
+    !!--++ FUNCTION CROSS_PRODUCT_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the cross product of vectors u and v
@@ -245,7 +245,7 @@
     End Function Cross_Product_sp
 
     !!--++
-    !!--++ DETERM_A_I
+    !!--++ FUNCTION DETERM_A_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of an integer 3x3 matrix
@@ -268,7 +268,7 @@
     End Function Determ_A_I
 
     !!--++
-    !!--++ DETERM_A_R
+    !!--++ FUNCTION DETERM_A_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real 3x3 matrix
@@ -291,7 +291,7 @@
     End Function Determ_A_R
 
     !!--++
-    !!--++ DETERM_V_I
+    !!--++ FUNCTION DETERM_V_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of the components of three vectors
@@ -318,7 +318,7 @@
     End Function Determ_V_I
 
     !!--++
-    !!--++ DETERM_V_R
+    !!--++ FUNCTION DETERM_V_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of the components of three vectors
@@ -345,7 +345,7 @@
     End Function Determ_V_R
     
     !!--++
-    !!--++  INVERT_DP
+    !!--++  FUNCTION INVERT_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate de inverse of a real 3x3 matrix
@@ -383,7 +383,7 @@
     End Function Invert_Dp
 
     !!--++
-    !!--++ INVERT_SP 
+    !!--++ FUNCTION INVERT_SP 
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate de inverse of a real 3x3 matrix
@@ -421,7 +421,7 @@
     End Function Invert_Sp
 
     !!--++
-    !!--++ MAT_CROSS_CMPL_DP
+    !!--++ FUNCTION MAT_CROSS_CMPL_DP
     !!--++
     !!--++ OVERLOADED
     !!--++    Calculates the matrix corresponding to the operator u x
@@ -444,7 +444,7 @@
     End Function Mat_Cross_cmpl_dp
 
     !!--++
-    !!--++ MAT_CROSS_CMPL_SP
+    !!--++ FUNCTION MAT_CROSS_CMPL_SP
     !!--++
     !!--++ OVERLOADED
     !!--++    Calculates the matrix corresponding to the operator u x
@@ -467,7 +467,7 @@
     End Function Mat_Cross_cmpl_sp
 
     !!--++
-    !!--++ MAT_CROSS_DP
+    !!--++ FUNCTION MAT_CROSS_DP
     !!--++
     !!--++ OVERLOADED
     !!--++    Calculates the matrix corresponding to the operator u x
@@ -490,7 +490,7 @@
     End Function Mat_Cross_dp
 
     !!--++
-    !!--++ MAT_CROSS_IN
+    !!--++ FUNCTION MAT_CROSS_IN
     !!--++
     !!--++ OVERLOADED
     !!--++    Calculates the matrix corresponding to the operator u x
@@ -513,7 +513,7 @@
     End Function Mat_Cross_in
 
     !!--++
-    !!--++ MAT_CROSS_SP
+    !!--++ FUNCTION MAT_CROSS_SP
     !!--++
     !!--++ OVERLOADED
     !!--++    Calculates the matrix corresponding to the operator u x
@@ -537,7 +537,7 @@
     
 
     !!----
-    !!---- ROTATE_OX
+    !!---- FUNCTION ROTATE_OX
     !!----
     !!----    X Rotation. Positive rotation is counter-clockwise
     !!----
@@ -570,7 +570,7 @@
     End Function Rotate_OX
 
     !!----
-    !!----  ROTATE_OY
+    !!----  FUNCTION ROTATE_OY
     !!----
     !!----    Y Rotation. Positive rotation is counter-clockwise
     !!----
@@ -603,7 +603,7 @@
     End Function Rotate_OY
 
     !!----
-    !!----  ROTATE_OZ
+    !!----  FUNCTION ROTATE_OZ
     !!----
     !!----    Z Rotation
     !!----
@@ -636,7 +636,7 @@
     End Function Rotate_OZ
     
     !!----
-    !!---- TENSOR_PRODUCT_CMPL_DP
+    !!---- FUNCTION TENSOR_PRODUCT_CMPL_DP
     !!----
     !!----    Calculates the tensor product of vectors Vec1 and Vec2
     !!----
@@ -659,7 +659,7 @@
     End Function Tensor_Product_cmpl_dp
 
     !!----
-    !!---- TENSOR_PRODUCT_CMPL_SP
+    !!---- FUNCTION TENSOR_PRODUCT_CMPL_SP
     !!----
     !!----    Calculates the tensor product of vectors Vec1 and Vec2
     !!----
@@ -681,7 +681,7 @@
     End Function Tensor_Product_cmpl_sp
 
     !!----
-    !!---- TENSOR_PRODUCT_DP
+    !!---- FUNCTION TENSOR_PRODUCT_DP
     !!----
     !!----    Calculates the tensor product of vectors Vec1 and Vec2
     !!----
@@ -704,7 +704,7 @@
     End Function Tensor_Product_dp
 
     !!----
-    !!---- TENSOR_PRODUCT_IN
+    !!---- FUNCTION TENSOR_PRODUCT_IN
     !!----
     !!----    Calculates the tensor product of vectors Vec1 and Vec2
     !!----
@@ -726,7 +726,7 @@
     End Function Tensor_Product_in
 
     !!----
-    !!---- TENSOR_PRODUCT_SP
+    !!---- FUNCTION TENSOR_PRODUCT_SP
     !!----
     !!----    Calculates the tensor product of vectors Vec1 and Vec2
     !!----
@@ -749,7 +749,7 @@
     End Function Tensor_Product_sp
     
     !!----
-    !!---- VEC_LENGTH
+    !!---- FUNCTION VEC_LENGTH
     !!----
     !!----    Length of vector B when A is the Crystallographic
     !!----    to orthogonal matrix length=c
@@ -783,7 +783,7 @@
     !---------------------!
 
     !!----
-    !!---- SET_EPS
+    !!---- SUBROUTINE SET_EPS
     !!----
     !!----    Sets global EPS to the value "neweps"
     !!----
@@ -803,7 +803,7 @@
     End Subroutine Set_Eps
     
     !!--++
-    !!--++ GET_CART_FROM_CYLIN_DP
+    !!--++ SUBROUTINE GET_CART_FROM_CYLIN_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from cylindrical coordinates.
@@ -833,7 +833,7 @@
     End Subroutine Get_Cart_from_Cylin_dp
 
     !!--++
-    !!--++   GET_CART_FROM_CYLIN_SP
+    !!--++   SUBROUTINE GET_CART_FROM_CYLIN_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from cylindrical coordinates.
@@ -862,7 +862,7 @@
     End Subroutine Get_Cart_from_Cylin_sp
 
     !!--++
-    !!--++  GET_CART_FROM_SPHER_DP
+    !!--++  SUBROUTINE GET_CART_FROM_SPHER_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from spherical coordinates.
@@ -897,7 +897,7 @@
     End Subroutine Get_Cart_from_Spher_dp
 
     !!--++
-    !!--++  GET_CART_FROM_SPHER_SP
+    !!--++  SUBROUTINE GET_CART_FROM_SPHER_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the Cartesian coordinates from spherical coordinates.
@@ -931,7 +931,7 @@
     End Subroutine Get_Cart_from_Spher_sp
 
     !!--++
-    !!--++   GET_CYLIN_FROM_CART_DP
+    !!--++   SUBROUTINE GET_CYLIN_FROM_CART_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the cylindrical coordinates from Cartesian coordinates.
@@ -970,7 +970,7 @@
     End Subroutine Get_Cylin_from_Cart_dp
 
     !!--++
-    !!--++   GET_CYLIN_FROM_CART_SP
+    !!--++   SUBROUTINE GET_CYLIN_FROM_CART_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the cylindrical coordinates from Cartesian coordinates.
@@ -1008,7 +1008,7 @@
     End Subroutine Get_Cylin_from_Cart_sp
 
     !!--++
-    !!--++ GET_SPHER_FROM_CART_DP
+    !!--++ SUBROUTINE GET_SPHER_FROM_CART_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the spheric coordinates from rectangular coordinates
@@ -1057,7 +1057,7 @@
     End Subroutine Get_Spher_from_Cart_dp
 
     !!--++
-    !!--++  GET_SPHER_FROM_CART_SP
+    !!--++  SUBROUTINE GET_SPHER_FROM_CART_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determine the spheric coordinates from rectangular coordinates
@@ -1106,7 +1106,7 @@
     End Subroutine Get_Spher_from_Cart_sp
     
     !!----
-    !!----  MATRIX_DIAGEIGEN
+    !!----  SUBROUTINE MATRIX_DIAGEIGEN
     !!----
     !!----    Diagonalize the matrix Array, put eigenvalues in EigenValues and
     !!----    eigenvectors in EigenVec
@@ -1219,7 +1219,7 @@
     End Subroutine Matrix_DiagEigen
     
     !!----
-    !!---- RESOLV_SIST_1X2
+    !!---- SUBROUTINE RESOLV_SIST_1X2
     !!--<<
     !!----     w11 x1 + w12 x2  = t1
     !!----     x_sol(i)= ts(i) + x(i) ix(i)
@@ -1276,7 +1276,7 @@
     End Subroutine Resolv_Sist_1x2
 
     !!----
-    !!----  RESOLV_SIST_1X3
+    !!----  SUBROUTINE RESOLV_SIST_1X3
     !!--<<
     !!----    w11 x1 + w12 x2 + w13 x3 = t1
     !!----    x_sol(i)= ts(i) + x(i) ix(i)
@@ -1385,7 +1385,7 @@
     End Subroutine Resolv_Sist_1x3
 
     !!----
-    !!----  RESOLV_SIST_2X2
+    !!----  SUBROUTINE RESOLV_SIST_2X2
     !!--<<
     !!----     w11 x1 + w12 x2  = t1
     !!----     w21 x1 + w22 x2  = t2
@@ -1483,7 +1483,7 @@
     End Subroutine Resolv_Sist_2x2
 
     !!----
-    !!----  RESOLV_SIST_2X3
+    !!----  SUBROUTINE RESOLV_SIST_2X3
     !!----     w11 x1 + w12 x2 + w13 x3 = t1
     !!----     w21 x1 + w22 x2 + w23 x3 = t2
     !!----     x_sol(i)= ts(i) + x(i) ix(i)
@@ -1972,7 +1972,7 @@
     End Subroutine Resolv_Sist_2x3
 
     !!----
-    !!----  RESOLV_SIST_3X3
+    !!----  SUBROUTINE RESOLV_SIST_3X3
     !!--<<
     !!----   w11 x1 + w12 x2 + w13 x3 = t1
     !!----   w21 x1 + w22 x2 + w23 x3 = t2

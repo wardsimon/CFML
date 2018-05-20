@@ -285,15 +285,13 @@
         Module Procedure swap_c
         Module Procedure swap_i
         Module Procedure swap_r
-        Module Procedure masked_swap_r
+        Module Procedure swap_masked_r
     End interface
 
  Contains
 
-    !---- Functions ----!
-    
     !!----
-    !!---- FACTORIAL 
+    !!---- FUNCTION FACTORIAL 
     !!----
     !!----    Factorial of N.
     !!----    This function works fine only for N <= 12 (Integer *4)
@@ -328,7 +326,7 @@
     End Function Factorial
 
     !!----
-    !!---- FACTORIAL_SP
+    !!---- FUNCTION FACTORIAL_SP
     !!----
     !!----    Factorial of N but the value returned is a real number
     !!----
@@ -355,7 +353,7 @@
     End Function Factorial_SP
 
     !!----
-    !!---- FACTORIAL_DP 
+    !!---- FUNCTION FACTORIAL_DP 
     !!----
     !!----    Factorial of N but the value returned is a double 
     !!----
@@ -382,7 +380,7 @@
     End Function Factorial_DP
     
     !!--++
-    !!--++ NEGLIGIBLEC
+    !!--++ FUNCTION NEGLIGIBLEC
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate if a complex number is negligible (abs < EPSS)
@@ -404,7 +402,7 @@
     End Function Negligiblec
 
     !!--++
-    !!--++ NEGLIGIBLER
+    !!--++ FUNCTION NEGLIGIBLER
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is negligible (abs < EPSS)
@@ -426,7 +424,7 @@
     End Function Negligibler
     
     !!----
-    !!---- FUNCTION PLGNDR
+    !!---- FUNCTION POLY_LEGENDRE
     !!----
     !!----    Compute the Associated Legendre Polynomial Pml(x).
     !!----
@@ -485,7 +483,7 @@
     End Function Poly_Legendre
     
     !!--++
-    !!--++ Debye_PR_ChebyshevSeries
+    !!--++ FUNCTION DEBYE_PR_CHEBYSHEVSERIES
     !!--++
     !!--++ PRIVATE (USED FOR DEBYE FUNCTIONS)
     !!--++ This function evaluates a Chebyshev series, using the Clenshaw method
@@ -496,10 +494,10 @@
     !!
     Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)
        !---- Arguments ----!
-       integer,                       intent(in) :: N  ! The no. of terms in the sequence
-       real(kind=dp), dimension(0:N), intent(in) :: A  ! The coefficients of the Chebyshev series
-       real(kind=dp),                 intent(in) :: T  ! The value at which the series is to be evaluated
-
+       integer,                       intent(in) :: N    ! The no. of terms in the sequence
+       real(kind=dp), dimension(0:N), intent(in) :: A    ! The coefficients of the Chebyshev series
+       real(kind=dp),                 intent(in) :: T    ! The value at which the series is to be evaluated
+       real(kind=dp)                             :: fval ! Return value
        !---- Local Variables ----!
        real(kind=dp), parameter  :: HALF = 0.5_dp
        real(kind=dp), parameter  :: TWO  = 2.0_dp
@@ -558,7 +556,7 @@
     End Function Debye_PR_ChebyshevSeries
     
     !!--++
-    !!--++ CO_LINEAR_C
+    !!--++ FUNCTION CO_LINEAR_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two complex vectors are co-linear
@@ -612,7 +610,7 @@
     End Function Co_linear_C
 
     !!--++
-    !!--++ CO_LINEAR_I
+    !!--++ FUNCTION CO_LINEAR_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer vectors are co-linear
@@ -666,7 +664,7 @@
     End Function Co_linear_I
 
     !!--++
-    !!--++ CO_LINEAR_R
+    !!--++ FUNCTION CO_LINEAR_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two real vectors are co-linear
@@ -719,7 +717,7 @@
     End Function Co_linear_R
     
     !!----
-    !!---- CO_PRIME
+    !!---- FUNCTION CO_PRIME
     !!----
     !!---- Provides the value .TRUE. if the array V contains co-prime
     !!----
@@ -780,7 +778,7 @@
     End Function Co_Prime
     
     !!--++
-    !!--++ DEBYE_DP
+    !!--++ FUNCTION DEBYE_DP
     !!--++
     !!--++ OVERLOADED
     !!--++ Calculates the Debye function of order N
@@ -793,9 +791,7 @@
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of the Debye function
        real(kind=dp), intent(in) :: X ! Value
-
-       !---- Local Variables ----!
-       real(kind=dp) :: fval
+       real(kind=dp)             :: fval
 
        !> Init
        fval=0.0_dp
@@ -842,7 +838,7 @@
     End Function Debye_DP
 
     !!--++
-    !!--++ DEBYE_SP
+    !!--++ FUNCTION DEBYE_SP
     !!--++
     !!--++ OVERLOADED
     !!--++ Calculates the Debye function of order N
@@ -855,9 +851,9 @@
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of the Debye function
        real(kind=sp), intent(in) :: X ! Value
+       real(kind=sp)             :: fval
 
        !---- Local Variables ----!
-       real(kind=sp) :: fval
        real(kind=dp) :: xx,ff
 
        !> Init
@@ -916,7 +912,7 @@
     End Function Debye_SP
 
     !!--++
-    !!--++ Function Debye1(x)
+    !!--++ FUNCTION DEBYE1
     !!--++
     !!--++ Calculates the Debye function of order 1, defined as
     !!--++    DEBYE1(x) = [Integral {0 to x} t/(exp(t)-1) dt] / x
@@ -945,10 +941,10 @@
     Function Debye1(X) Result(Fval)
        !---- Arguments ----!
        real(kind=dp), intent(in) :: X
+       real(kind=dp)             :: fval
 
        !---- Local Variables ----!
        integer       :: i, nexp, nterms
-       real(kind=dp) :: fval
        real(kind=dp) :: expmx, rk, suma, t, xx, xk, xlim, xlow, xupper
 
        real(kind=dp), parameter :: QUART = 0.25_dp
@@ -1032,7 +1028,7 @@
     End Function Debye1
 
     !!--++
-    !!--++ Function Debye2(x)
+    !!--++ FUNCTION DEBYE2
     !!--++
     !!--++ Calculates the Debye function of order 2, defined as
     !!--++    DEBYE2(x) = 2*[Integral {0 to x} t*t/(exp(t)-1) dt] / (x*x)
@@ -1064,10 +1060,10 @@
     Function Debye2(X) Result(Fval)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
+       real(kind=dp)             :: fval
 
        !---- Local Variables ----!
        integer       :: i, nexp, nterms
-       real(kind=dp) :: fval
        real(kind=dp) :: expmx, rk, suma, t, xx, xk, xlim1, xlim2, xlow, xupper
 
        real(kind=dp), parameter :: QUART = 0.25_dp
@@ -1158,7 +1154,7 @@
     End Function Debye2
 
     !!--++
-    !!--++ Function Debye3(x)
+    !!--++ FUNCTION DEBYE3
     !!--++
     !!--++ Calculates the Debye function of order 3, defined as
     !!--++    DEBYE3(x) = 3*[Integral {0 to x} t^3/(exp(t)-1) dt] / (x^3)
@@ -1190,10 +1186,10 @@
     Function Debye3(X) Result(Fval)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
+       real(kind=dp)             :: fval
 
        !---- Local Variables ----!
        integer       :: i, nexp, nterms
-       real(kind=dp) :: fval
        real(kind=dp) :: expmx, rk, suma, t, xx, xk, xki, xlim1, xlim2, xlow, xupper
 
        real(kind=dp), parameter :: PT375 = 0.375_dp
@@ -1289,7 +1285,7 @@
     End Function Debye3
 
     !!--++
-    !!--++ Function Debye4(x)
+    !!--++ FUNCTION DEBYE4
     !!--++
     !!--++ Calculates the Debye function of order 4, defined as
     !!--++    DEBYE4(x) = 4*[Integral {0 to x} t^4/(exp(t)-1) dt] / (x^4)
@@ -1321,10 +1317,10 @@
     Function Debye4(X) Result(FVal)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
+       real(kind=dp)             :: fval
 
        !---- Local Variables ----!
        integer       :: i, nexp, nterms
-       real(kind=dp) :: fval
        real(kind=dp) :: expmx, rk, suma, t, xx, xk, xki, xlim1, xlim2, xlow, xupper
 
        real(kind=dp), parameter :: HALF  = 0.50_dp
@@ -1423,7 +1419,7 @@
     End Function Debye4
 
     !!--++
-    !!--++ DEBYEN
+    !!--++ FUNCTION DEBYEN
     !!--++
     !!--++ Calculates the Debye function of order N of X.
     !!--++
@@ -1435,11 +1431,11 @@
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of Debye function
        real(kind=dp), intent(in) :: X
+       real(kind=dp)             :: Fval
 
        !---- Local Variables ----!
        integer, parameter                        :: KMAX=12
        integer                                   :: k,i
-       real(kind=dp)                             :: Fval
        real(kind=dp)                             :: den,t1,t2
        real(kind=dp), dimension(KMAX), parameter :: B2K=(/                                       &
                                                       1.0_dp/  6.0_dp,        -1.0_dp/  30.0_dp, &
@@ -1476,7 +1472,7 @@
     End Function DebyeN
     
     !!--++
-    !!--++ FUNCTION Debye_PR_Envj
+    !!--++ FUNCTION DEBYE_PR_ENVJ
     !!--++
     !!--++    (PRIVATE)
     !!--++
@@ -1494,7 +1490,7 @@
     End Function Debye_PR_Envj
     
     !!--++
-    !!--++ EQUAL_MATRIX_I
+    !!--++ FUNCTION EQUAL_MATRIX_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer arrays are equal in NxN
@@ -1544,7 +1540,7 @@
     End Function Equal_Matrix_I
 
     !!--++
-    !!--++ EQUAL_MATRIX_R
+    !!--++ FUNCTION EQUAL_MATRIX_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer arrays are equal in NxN
@@ -1594,7 +1590,7 @@
     End Function Equal_Matrix_R
     
     !!--++
-    !!--++ EQUAL_VECTOR_I
+    !!--++ FUNCTION EQUAL_VECTOR_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer vectors are equal in N
@@ -1632,7 +1628,7 @@
     End Function Equal_Vector_I
 
     !!--++
-    !!--++ EQUAL_VECTOR_R
+    !!--++ FUNCTION EQUAL_VECTOR_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if two real(kind=sp) vectors are equal in N
@@ -1670,7 +1666,7 @@
     End Function Equal_Vector_R
     
     !!----
-    !!----  EUCLIDEAN_NORM
+    !!----  FUNCTION EUCLIDEAN_NORM
     !!----
     !!----  This function calculates safely the Euclidean norm of a vector.
     !!----  Intermediate overflows are avoided using this function. The original
@@ -1784,7 +1780,7 @@
     End Function Euclidean_Norm
     
     !!--++
-    !!--++ IN_LIMITS_DP
+    !!--++ FUNCTION IN_LIMITS_DP
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
@@ -1825,7 +1821,7 @@
     End Function in_limits_dp
     
     !!--++
-    !!--++ IN_LIMITS_INT
+    !!--++ FUNCTIONn IN_LIMITS_INT
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
@@ -1866,7 +1862,7 @@
     End Function in_limits_int
 
     !!--++
-    !!--++ IN_LIMITS_SP
+    !!--++ FUNCTION IN_LIMITS_SP
     !!--++
     !!--++   Logical function that is true if all the components of the vector vect
     !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
@@ -1907,7 +1903,7 @@
     End Function in_limits_sp
     
     !!----
-    !!---- PGCD
+    !!---- FUNCTION PGCD
     !!----
     !!----    Function calculating the maximum common divisor of two integers
     !!----
@@ -1915,8 +1911,8 @@
     !!
     Elemental Function Pgcd(a,b) Result(mcd)
        !---- Arguments ----!
-       integer, intent(in) :: a,b
-       integer             :: mcd
+       integer, intent(in) :: a,b   ! Integers
+       integer             :: mcd   ! Maximum common divisor
 
        !---- Local variables ----!
        integer  :: u,v,m
@@ -1936,7 +1932,7 @@
     End Function Pgcd
 
     !!----
-    !!---- PPCM
+    !!---- FUNCTION PPCM
     !!----
     !!----    Function calculating the minimum common multiple of two integers
     !!----
@@ -1944,8 +1940,8 @@
     !!
     Elemental Function Ppcm(a,b) result(mcm)
        !---- Arguments ----!
-       integer, intent(in) :: a,b
-       integer             :: mcm
+       integer, intent(in) :: a,b    ! Integers
+       integer             :: mcm    ! Minimum common multiple
 
        !---- Local variables ----!
        integer :: u,v,w,i
@@ -1970,10 +1966,8 @@
        return
     End Function Ppcm
 
-    
-
     !!--++
-    !!--++ LOCATE_I
+    !!--++ FUNCTION LOCATE_I
     !!--++
     !!--++    Subroutine for locating the index J of an array V(:)
     !!--++    satisfying:
@@ -2020,7 +2014,7 @@
     End Function Locate_I
     
     !!--++
-    !!--++ LOCATE_R
+    !!--++ FUNCTION LOCATE_R
     !!--++
     !!--++    Function for locating the index J of an array XX(:)
     !!--++    satisfying:
@@ -2067,7 +2061,7 @@
     End Function Locate_R
 
     !!----
-    !!---- LOWER_TRIANGULAR_I
+    !!---- FUNCTION LOWER_TRIANGULAR_I
     !!----
     !!----   Updated: October - 2014
     !!----
@@ -2095,7 +2089,7 @@
     End Function Lower_Triangular_I
 
     !!----
-    !!---- LOWER_TRIANGULAR_R
+    !!---- FUNCTION LOWER_TRIANGULAR_R
     !!----
     !!----   Updated: October - 2014
     !!----
@@ -2124,7 +2118,7 @@
     End Function Lower_Triangular_R
 
     !!----
-    !!---- MODULO_LAT
+    !!---- FUNCTION MODULO_LAT
     !!----
     !!----    Reduces a real vector to another with components in
     !!----    the interval [0,1)
@@ -2142,7 +2136,7 @@
     End Function Modulo_Lat
 
     !!--++
-    !!--++ NORM_I
+    !!--++ FUNCTION NORM_I
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
@@ -2164,7 +2158,7 @@
     End Function Norm_I
 
     !!--++
-    !!--++ NORM_R
+    !!--++ FUNCTION NORM_R
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
@@ -2186,7 +2180,7 @@
     End Function Norm_R
 
     !!--++
-    !!--++ OUTERPROD_DP
+    !!--++ FUNCTION OUTERPROD_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the outer product (tensorial product) of two
@@ -2209,7 +2203,7 @@
     End Function Outerprod_dp
 
     !!--++
-    !!--++ OUTERPROD_SP
+    !!--++ FUNCTION OUTERPROD_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the outer product (tensorial product) of two
@@ -2232,7 +2226,7 @@
     End Function Outerprod_sp
 
     !!--++
-    !!--++ SCALAR_R
+    !!--++ FUNCTION SCALAR_R
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
@@ -2254,7 +2248,7 @@
     End Function Scalar_I
 
     !!--++
-    !!--++ SCALAR_R
+    !!--++ FUNCTION SCALAR_R
     !!--++
     !!--++    Scalar Product including metrics
     !!--++
@@ -2276,7 +2270,7 @@
     End Function Scalar_R
     
     !!--++
-    !!--++ FUNCTION Debye_PR_Start1
+    !!--++ FUNCTION DEBYE_PR_START1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
@@ -2315,7 +2309,7 @@
     End Function Debye_PR_Start1
 
     !!--++
-    !!--++ FUNCTION Debye_PR_Start2
+    !!--++ FUNCTION DEBYE_PR_START2
     !!--++
     !!--++    (PRIVATE)
     !!--++    Determine the starting point for backward
@@ -2362,7 +2356,7 @@
     End Function Debye_PR_Start2
 
     !!--++
-    !!--++ TRACE_C
+    !!--++ FUNCTION TRACE_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a complex nxn array
@@ -2387,7 +2381,7 @@
     End Function Trace_C
 
     !!--++
-    !!--++ TRACE_I
+    !!--++ FUNCTION TRACE_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of an integer 3x3 array
@@ -2412,7 +2406,7 @@
     End Function Trace_I
 
     !!--++
-    !!--++ Trace_R
+    !!--++ FUNCTION TRACE_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the trace of a real 3x3 array
@@ -2438,7 +2432,7 @@
 
 
     !!----
-    !!---- UPPER_TRIANGULAR_I
+    !!---- FUNCTION UPPER_TRIANGULAR_I
     !!----
     !!----   Updated: October - 2014
     !!----
@@ -2466,7 +2460,7 @@
     End Function Upper_Triangular_I
 
     !!----
-    !!---- UPPER_TRIANGULAR_R
+    !!---- FUNCTION UPPER_TRIANGULAR_R
     !!----
     !!----   Updated: October - 2014
     !!----
@@ -2494,7 +2488,7 @@
     End Function  Upper_Triangular_R
 
     !!--++
-    !!--++ ZBELONGM
+    !!--++ FUNCTION ZBELONGM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real array is an Integer matrix
@@ -2516,7 +2510,7 @@
     End Function ZbelongM
 
     !!--++
-    !!--++ ZBELONGN
+    !!--++ FUNCTION ZBELONGN
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is an Integer
@@ -2536,7 +2530,7 @@
     End Function ZbelongN
 
     !!--++
-    !!--++ ZbelongV
+    !!--++ FUNCTION ZBELONGV
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real vector is an Integer vector
@@ -2568,7 +2562,7 @@
 
 
     !!----
-    !!---- SET_EPSG
+    !!---- SUBROUTINE SET_EPSG
     !!----
     !!----    Sets/Modify global EPSS.
     !!----    Calling without arguments set to default value 
@@ -2589,7 +2583,7 @@
     End Subroutine Set_Epsg
 
     !!----
-    !!---- AM_MEDIAN
+    !!---- SUBROUTINE AM_MEDIAN
     !!----
     !!---- Subroutine calculating the median of a real array
     !!----      Find the median of X(1), ... , X(N), using as much of the quicksort
@@ -2724,7 +2718,7 @@
     End Subroutine AM_Median
 
     !!----
-    !!----  CO_PRIME_VECTOR
+    !!---- SUBROUTINE CO_PRIME_VECTOR
     !!----
     !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
     !!----     It uses the list of the first thousand prime numbers.
@@ -2776,7 +2770,7 @@
     End Subroutine Co_Prime_vector
 
     !!--++
-    !!--++ DETERMINANT_C
+    !!--++ SUBROUTINE DETERMINANT_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real square matrix.
@@ -2823,7 +2817,7 @@
     End Subroutine Determinant_C
 
     !!--++
-    !!--++ DETERMINANT_R
+    !!--++ SUBROUTINE DETERMINANT_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real square matrix.
@@ -2860,7 +2854,7 @@
     End Subroutine Determinant_R
 
     !!--++
-    !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect,norder)
+    !!--++ SUBROUTINE DIAGONALIZE_HERM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize Hermitian matrices.
@@ -2914,7 +2908,7 @@
     End Subroutine Diagonalize_Herm
 
     !!--++
-    !!--++ DIAGONALIZE_SYMM
+    !!--++ SUBROUTINE DIAGONALIZE_SYMM
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize symmetric matrices
@@ -2960,7 +2954,7 @@
     End Subroutine Diagonalize_Symm
 
     !!--++
-    !!--++ Diagonalize_EigenvSort
+    !!--++ SUBROUTINE DIAGONALIZE_EIGENVSORT
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for sorting eigenvalues in d(n) and eigenvectors
@@ -3008,7 +3002,7 @@
     End Subroutine Diagonalize_EigenvSort
 
     !!----
-    !!---- FIRST_DERIVATIVE
+    !!---- SUBROUTINE FIRST_DERIVATIVE
     !!----
     !!----    Calculate the First derivate values of the N points
     !!----
@@ -3043,7 +3037,7 @@
     End Subroutine First_Derivative
 
     !!----
-    !!---- IN_SORT
+    !!---- SUBROUTINE IN_SORT
     !!--<<
     !!----    Subroutine to order in ascending mode the integer array "id".
     !!----    The input value "n" is the number of items to be ordered in "id".
@@ -3091,7 +3085,7 @@
     End Subroutine In_Sort
 
     !!----
-    !!---- INVERT_MATRIX
+    !!---- SUBROUTINE INVERT_MATRIX
     !!--<<
     !!----    Subroutine to invert a real matrix using LU decomposition.
     !!----    In case of singular matrix (singular=.true.) instead of the inverse
@@ -3150,7 +3144,7 @@
     End Subroutine Invert_Matrix
 
     !!--++
-    !!--++ LINEAR_DEPENDENTC
+    !!--++ SUBROUTINE LINEAR_DEPENDENTC
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3239,7 +3233,7 @@
     End Subroutine Linear_DependentC
 
     !!--++
-    !!--++ Linear_DependentI
+    !!--++ SUBROUTINE Linear_DependentI
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3303,7 +3297,7 @@
     End Subroutine Linear_DependentI
 
     !!--++
-    !!--++ LINEAR_DEPENDENTR
+    !!--++ SUBROUTINE LINEAR_DEPENDENTR
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3366,7 +3360,7 @@
     End Subroutine Linear_DependentR
 
     !!----
-    !!---- LU_BACKSUB
+    !!---- SUBROUTINE LU_BACKSUB
     !!--<<
     !!----    Adapted from Numerical Recipes.
     !!----    Solves the set of N linear equations A  X = B. Here the N x N matrix A is input,
@@ -3413,7 +3407,7 @@
     End Subroutine LU_Backsub
 
     !!----
-    !!---- LU_DECOMP
+    !!---- SUBROUTINE LU_DECOMP
     !!--<<
     !!----    Subroutine to make the LU decomposition of an input matrix A.
     !!----    The input matrix is destroyed and replaced by a matrix containing
@@ -3475,7 +3469,7 @@
     End Subroutine LU_Decomp
 
     !!----
-    !!---- MATINV
+    !!---- SUBROUTINE MATINV
     !!----
     !!----  Subroutine for inverting a real square matrix.
     !!----  The input matrix is replaced in output with its inverse.
@@ -3573,7 +3567,7 @@
     End Subroutine Matinv
 
     !!--++
-    !!--++ PARTITION
+    !!--++ SUBROUTINE SORT_PR_PARTITION
     !!--++
     !!--++    (Private)
     !!--++    Utilised by Sort_Strings.
@@ -3623,7 +3617,7 @@
     End Subroutine Sort_PR_Partition
 
     !!----
-    !!---- POINTS_IN_LINE2D
+    !!---- SUBROUTINE POINTS_IN_LINE2D
     !!----
     !!----    The routine calculate N points belonging to the line defined
     !!----    by X1 and Xn with equal distance between them. XP contains
@@ -3735,7 +3729,7 @@
     End Subroutine Points_In_Line2D
 
     !!--++
-    !!--++ RANK_DP
+    !!--++ SUBROUTINE RANK_DP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
@@ -3769,7 +3763,7 @@
     End Subroutine Rank_dp
 
     !!--++
-    !!--++ RANK_SP
+    !!--++ SUBROUTINE RANK_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Computes the rank (in algebraic sense) of the rectangular matrix A.
@@ -3803,7 +3797,7 @@
     End Subroutine Rank_sp
 
     !!----
-    !!---- SECOND_DERIVATIVE
+    !!---- SUBROUTINE SECOND_DERIVATIVE
     !!----
     !!----    Calculate the second derivate of N Points
     !!----
@@ -3846,7 +3840,7 @@
     End Subroutine Second_Derivative
 
     !!----
-    !!---- SMOOTHINGVEC
+    !!---- SUBROUTINE SMOOTHINGVEC
     !!----
     !!----    Procedure to smooth the vector values
     !!----
@@ -3892,7 +3886,7 @@
     End Subroutine SmoothingVec
 
     !!--++
-    !!--++ Subroutine Sort_I(Arr,N,Indx)
+    !!--++ SUBROUTINE SORT_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sort an array such the arr(indx(j)) is in ascending
@@ -4005,7 +3999,7 @@
     End Subroutine Sort_I
 
     !!--++
-    !!--++ Sort_R
+    !!--++ SUBROUTINE SORT_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Sort an array such the arr(indx(j)) is in ascending
@@ -4117,7 +4111,7 @@
     End Subroutine Sort_R
 
     !!---
-    !!---- SORT_STRINGS
+    !!---- SUBROUTINE SORT_STRINGS
     !!----
     !!----    Sort an array of string
     !!----
@@ -4140,7 +4134,7 @@
     End Subroutine Sort_Strings
 
     !!----
-    !!---- SPLINE
+    !!---- SUBROUTINE SPLINE
     !!----    Spline  N points
     !!----
     !!---- Update: February - 2005
@@ -4190,7 +4184,7 @@
     End Subroutine Spline
 
     !!----
-    !!---- Subroutine Splint
+    !!---- SUBROUTINE  SPLINT
     !!----
     !!----    Spline Interpolation
     !!----
@@ -4298,7 +4292,7 @@
     End Subroutine Sph_Jn
 
     !!--++
-    !!--++ SVDCMP_DP
+    !!--++ SUBROUTINE SVDCMP_DP
     !!--++
     !!--++    (OVERLOADED)
     !!----  Given an m x n matrix A, this subroutine computes its singular value decomposition,
@@ -4491,7 +4485,7 @@
     End Subroutine Svdcmp_dp
 
     !!--++
-    !!--++ SVDCMP_SP
+    !!--++ SUBROUTINE SVDCMP_SP
     !!--++
     !!--++    (OVERLOADED)
     !!--++
@@ -4684,7 +4678,7 @@
     End Subroutine Svdcmp_sp
 
     !!--++
-    !!--++ SwaP_C
+    !!--++ SUBROUTINE SWAP_C
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4706,10 +4700,8 @@
        return
     End Subroutine Swap_C
 
-    
-
     !!--++
-    !!--++  SWAP_I
+    !!--++  SUBROUTINE SWAP_I
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4734,7 +4726,7 @@
     
 
     !!--++
-    !!--++  SWAP_R
+    !!--++  SUBROUTINE SWAP_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4757,14 +4749,14 @@
     End Subroutine Swap_R
 
     !!--++
-    !!--++  MASKED_SWAP_R
+    !!--++  SUBROUTINE SWAP_MASKED_R
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b if mask=.true.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Elemental Subroutine Masked_Swap_R(A,B,Mask)
+    Elemental Subroutine Swap_Masked_R(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -4780,10 +4772,10 @@
        end if
 
        return
-    End Subroutine Masked_Swap_R
+    End Subroutine Swap_Masked_R
 
     !!--++
-    !!--++ Tqli1
+    !!--++ SUBROUTINE DIAGONALIZE_PR_Tqli1
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4875,7 +4867,7 @@
     End Subroutine Diagonalize_PR_Tqli1
 
     !!--++
-    !!--++  TqlI2
+    !!--++  SUBROUTINE DIAGONALIZE_PR_TqlI2
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4980,7 +4972,7 @@
     End Subroutine Diagonalize_PR_Tqli2
 
     !!--++
-    !!--++  TRED1
+    !!--++  SUBROUTINE DIAGONALIZE_PR_TRED1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find only eigenvalues
@@ -5060,7 +5052,7 @@
     End Subroutine Diagonalize_PR_Tred1
 
     !!--++
-    !!--++  TRED2
+    !!--++  SUBROUTINE DIAGONALIZE_PR_TRED2
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find the complete set
