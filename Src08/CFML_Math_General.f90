@@ -54,7 +54,7 @@
     !---- List of public overloaded procedures: functions ----!
     public :: Co_Linear, Debye, Negligible, Equal_Matrix, Equal_Vector, In_limits, &
               Locate, Lower_Triangular,  Outerprod, Trace, Zbelong,  Norm,  &
-              Scalar, Upper_Triangular
+              Scalar, Upper_Triangular, Erfc_Deriv
 
     !---- List of public subroutines ----!
     public ::  Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
@@ -286,6 +286,11 @@
         Module Procedure swap_i
         Module Procedure swap_r
         Module Procedure swap_masked_r
+    End interface
+    
+    Interface Erfc_Deriv
+        Module Procedure Erfc_Deriv_dp
+        Module Procedure Erfc_Deriv_sp
     End interface
 
  
@@ -626,7 +631,19 @@
           !---- Argument ----!       
           real(kind=cp),   dimension(:), intent( in) :: v      ! Input vector       
           logical                                    :: belong       
-       End Function ZbelongV    
+       End Function ZbelongV  
+       
+       Module Function Erfc_Deriv_DP(X) Result(Der)
+          !---- Argument ----!
+          real(kind=dp), intent(in)    :: x
+          real(kind=dp)                :: der
+       End Function Erfc_Deriv_DP 
+       
+       Module Function Erfc_Deriv_SP(X) Result(Der)
+          !---- Argument ----!
+          real(kind=sp), intent(in)    :: x
+          real(kind=sp)                :: der
+       End Function Erfc_Deriv_SP 
  
        Module Pure Subroutine AM_Median(x, n, xmed)    
           !---- Arguments ----!       

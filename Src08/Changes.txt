@@ -37,3 +37,7 @@ Changes on CFML_Spherical_Harmonics
 ==================================  
 1.- SphJn was renamed as Sph_Jn and relocated at CFML_Math_General
 2.- Plgndr was renamed as Poly_Legendre and relocated at CFML_Math_General
+
+Changes on CFML_Functions_TOF
+1.- Erfc is now an intrinsec functions
+2.- Erfc derivate is now included on CFML_Math_Gen
