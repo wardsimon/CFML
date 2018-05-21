@@ -15,7 +15,7 @@ Submodule (CFML_Math_General) Debye
     !!--++
     !!--++  Update:  January - 2017
     !!
-    Module Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)    
+   Module Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)    
        !---- Arguments ----!
        integer,                       intent(in) :: N    ! The no. of terms in the sequence
        real(kind=dp), dimension(0:N), intent(in) :: A    ! The coefficients of the Chebyshev series
@@ -765,106 +765,7 @@ Submodule (CFML_Math_General) Debye
        return
     End Function DebyeN
  
-    !!--++ FUNCTION DEBYE_PR_ENVJ
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++
-    !!--++ Update: 11/07/2015
-    !!
-    Module Pure Function Debye_PR_Envj(N,X) Result(Y)    
-       !---- Arguments ----!
-       integer,       intent(in) :: n
-       real(Kind=dp), intent(in) :: x
-       real(Kind=dp)             :: y
-
-       y=0.5_dp*log10(6.28_dp*real(n,kind=dp))-n*log10(1.36_dp*x/real(n,kind=dp))
-
-       return
-    End Function Debye_PR_Envj
- 
-    !!--++ FUNCTION DEBYE_PR_START1
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Determine the starting point for backward
-    !!--++    recurrence such that the magnitude of Jn(x) at that point is
-    !!--++    about 10^(-MP).
-    !!--++
-    !!--++ Update: 11/07/2015
-    !!
-    Module Pure Function Debye_PR_Start1(X,Mp) Result (Start)    
-       !---- Arguments ----!
-       real(kind=dp), intent(in) :: x         ! Argument of Jn(x)
-       integer, intent(in)       :: mp        ! Value of magnitude
-       integer                   :: start
-
-       !---- Local variables ----!
-       integer      :: n1,n0,nn, it
-       real(kind=dp):: f,f0,f1,a0
-
-       a0=abs(x)
-       n0=int(1.1_dp*a0)+1
-       f0=Debye_Pr_Envj(n0,a0)-mp
-       n1=n0+5
-       f1=Debye_Pr_Envj(n1,a0)-mp
-       do it=1,20
-          nn=n1-(n1-n0)/(1.0_dp-f0/f1)
-          f=Debye_Pr_Envj(nn,a0)-mp
-          if (abs(nn-n1) < 1) exit
-          n0=n1
-          f0=f1
-          n1=nn
-          f1=f
-       end do
-       start=nn
-
-       return
-    End Function Debye_PR_Start1
- 
-    !!--++ FUNCTION DEBYE_PR_START2
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Determine the starting point for backward
-    !!--++    recurrence such that all Jn(x) has MP significants digits
-    !!--++
-    !!--++ Update: 11/07/2015
-    !!
-    Module Pure Function Debye_PR_Start2(X,N,Mp) Result(Start)    
-       !---- Arguments ----!
-       real(kind=dp), intent(in) :: x     ! Argument of Jn(x)
-       integer,       intent(in) :: n     ! Order of Jn(x)
-       integer,       intent(in) :: mp    ! Significant digit
-       integer                   :: start
-
-       !---- Local variables ----!
-       real(kind=dp) :: a0, hmp, ejn, obj,f,f0,f1
-       integer       :: n0,n1,nn, it
-
-       a0=abs(x)
-       hmp=0.5_dp*mp
-       ejn=Debye_Pr_Envj(n,a0)
-       if (ejn <= hmp) then
-          obj=mp
-          n0=int(1.1_dp*a0)+1  ! +1 was absent in the original version ... this solves the problem of
-       else                    ! Intel, gfortran and g95 compilers ... Lahey was calculating well event if n0=0!
-          obj=hmp+ejn
-          n0=n
-       end if
-       f0=Debye_Pr_Envj(n0,a0)-obj
-       n1=n0+5
-       f1=Debye_Pr_Envj(n1,a0)-obj
-       do it=1,20
-          nn=n1-(n1-n0)/(1.0_dp-f0/f1)
-          f=Debye_Pr_Envj(nn,a0)-obj
-          if (abs(nn-n1) < 1) exit
-          n0=n1
-          f0=f1
-          n1=nn
-          f1=f
-       end do
-       start=nn+10
-
-       return
-    End Function Debye_PR_Start2
+    
  
    
 End Submodule Debye
