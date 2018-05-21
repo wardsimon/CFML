@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Sph_Jn
+Submodule (CFML_Math_General) Spherical_JN
  
  Contains
  
@@ -171,4 +171,4 @@ Submodule (CFML_Math_General) Sph_Jn
        return
     End Function Sphjn_PR_Start2
  
-End Submodule Sph_Jn
+End Submodule Spherical_JN

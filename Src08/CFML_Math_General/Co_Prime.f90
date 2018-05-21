@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Co_Prime
+Submodule (CFML_Math_General) CFML_MG_02
  Contains
  
     !!---- FUNCTION CO_PRIME
@@ -117,4 +117,4 @@ Submodule (CFML_Math_General) Co_Prime
        return
     End Subroutine Co_Prime_vector
  
-End Submodule Co_Prime
+End Submodule CFML_MG_02

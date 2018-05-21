@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) AM_Median
+Submodule (CFML_Math_General) CFML_MG_01
  Contains
  
     !!---- SUBROUTINE AM_MEDIAN
@@ -140,4 +140,4 @@ Submodule (CFML_Math_General) AM_Median
        return
     End Subroutine AM_Median
  
-End Submodule AM_Median
+End Submodule CFML_MG_01

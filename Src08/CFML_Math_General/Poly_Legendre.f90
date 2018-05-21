@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Poly_Legendre
+Submodule (CFML_Math_General) CFML_MG_08
  Contains
  
     !!---- FUNCTION POLY_LEGENDRE
@@ -64,4 +64,4 @@ Submodule (CFML_Math_General) Poly_Legendre
        return
     End Function Poly_Legendre
     
-End Submodule Poly_Legendre
+End Submodule CFML_MG_08

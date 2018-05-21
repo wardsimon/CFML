@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Modulo_Lat
+Submodule (CFML_Math_General) CFML_MG_05
  Contains
  
     !!---- FUNCTION MODULO_LAT
@@ -23,4 +23,4 @@ Submodule (CFML_Math_General) Modulo_Lat
        return
     End Function Modulo_Lat
  
-End Submodule Modulo_Lat
+End Submodule CFML_MG_05

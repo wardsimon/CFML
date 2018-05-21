@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) SmoothingVec
+Submodule (CFML_Math_General) CFML_MG_10
  Contains
  
     !!---- SUBROUTINE SMOOTHINGVEC
@@ -51,4 +51,4 @@ Submodule (CFML_Math_General) SmoothingVec
        return
     End Subroutine SmoothingVec
  
-End Submodule SmoothingVec
+End Submodule CFML_MG_10

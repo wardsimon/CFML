@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Invert_Matrix
+Submodule (CFML_Math_General) CFML_MG_04
  Contains
  
     !!---- SUBROUTINE INVERT_MATRIX
@@ -270,4 +270,4 @@ Submodule (CFML_Math_General) Invert_Matrix
     
     
  
-End Submodule Invert_Matrix
+End Submodule CFML_MG_04

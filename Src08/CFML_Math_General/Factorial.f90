@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Factorial
+Submodule (CFML_Math_General) CFML_MG_03
  Contains
  
     Module Elemental Function Factorial(N) Result(Fact)    
@@ -85,4 +85,4 @@ Submodule (CFML_Math_General) Factorial
        return
     End Function Factorial_SP
  
-End Submodule Factorial
+End Submodule CFML_MG_03

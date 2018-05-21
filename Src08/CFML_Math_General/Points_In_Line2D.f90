@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Points_In_Line2D
+Submodule (CFML_Math_General) CFML_MG_07
  Contains
  
     !!---- SUBROUTINE POINTS_IN_LINE2D
@@ -117,4 +117,4 @@ Submodule (CFML_Math_General) Points_In_Line2D
        return
     End Subroutine Points_In_Line2D
  
-End Submodule Points_In_Line2D
+End Submodule CFML_MG_07

@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Pgcd
+Submodule (CFML_Math_General) CFML_MG_06
  Contains
  
     !!---- FUNCTION PGCD
@@ -34,4 +34,4 @@ Submodule (CFML_Math_General) Pgcd
        return
     End Function Pgcd
  
-End Submodule Pgcd
+End Submodule CFML_MG_06

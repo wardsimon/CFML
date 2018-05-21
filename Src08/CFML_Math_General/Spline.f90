@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Spline
+Submodule (CFML_Math_General) CFML_MG_11
  Contains
  
     !!---- SUBROUTINE SPLINE
@@ -174,6 +174,4 @@ Submodule (CFML_Math_General) Spline
        return
     End Subroutine Second_Derivative
     
-    
- 
-End Submodule Spline
+End Submodule CFML_MG_11

@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Math_General) Ppcm
+Submodule (CFML_Math_General) CFML_MG_09
  Contains
  
     !!---- FUNCTION PPCM
@@ -40,4 +40,4 @@ Submodule (CFML_Math_General) Ppcm
        return
     End Function Ppcm
  
-End Submodule Ppcm
+End Submodule CFML_MG_09
