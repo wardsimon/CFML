@@ -784,7 +784,7 @@
        character(len=len(filevar(1)))      :: string,cp_str
        character(len=20),dimension(15)     :: label
        type(Atom_Type)                     :: aux_atm
-       integer                             :: i, j, nc, nct, nline, iv, First
+       integer                             :: i, j, nc, nct, nline, iv, First, nline_big,num_ini
        integer, dimension( 8)              :: lugar   !   1 -> label
                                                       !   2 -> Symbol
                                                       ! 3-5 -> coordinates
@@ -798,9 +798,19 @@
        lugar=0
        call allocate_atom_list(nline_end-nline_ini+1,Atm)
 
+       num_ini=nline_ini
        n_atom=0
-       call Read_Key_StrVal(filevar,nline_ini,nline_end,"_atom_site_",string)
-
+       !Change of _atom_site by _atom_site_label in order to be able the reading
+       !the atoms positions even when the anisotropic parameters are given before
+       call Read_Key_StrVal(filevar,nline_ini,nline_end,"_atom_site_label",string)
+       !Look for the possibility that _atom_site_label is not the first item in the loop
+       do i=nline_ini,num_ini,-1
+         string=adjustl(filevar(i))
+         if(string(1:) == "loop_") then
+          nline_ini=i+1
+          exit
+         end if
+       end do
        j=0
        do i=nline_ini,nline_end
           string=adjustl(filevar(i))
@@ -864,7 +874,7 @@
           return
        end if
        nct=count(lugar > 0)
-
+       nline_big=nline
        nline_ini=nline
        string=" "
        do i=nline_ini,nline_end
@@ -944,9 +954,10 @@
 
        end do
        nline=i
-
+       if(nline >= nline_big) nline_big=nline
        !---- Anisotropic parameters ----!
-       nline_ini=nline
+       nline_ini=num_ini !Changed to be able the reading of anisotropic parameters
+                         !even if given before the coordinates
        lugar=0
        call Read_Key_StrVal(filevar,nline_ini,nline_end,"_atom_site_aniso_",string)
 
@@ -956,6 +967,11 @@
           if ("_atom_site_aniso_label" == string(1:22)) then
              j=j+1
              lugar(1)=j
+             cycle
+          end if
+          if ("_atom_site_aniso_type_symbol" == string(1:28)) then
+             j=j+1
+             lugar(8)=j
              cycle
           end if
           if ("_atom_site_aniso_U_11" == string(1:21)) then
@@ -997,7 +1013,7 @@
           nline=i
           exit
        end do
-
+       if(nline >= nline_big) nline_big=nline
        !if (all(lugar > 0)) then
        if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
           nct=count(lugar > 0)
@@ -1044,7 +1060,8 @@
           end do
 
        end if
-       nline_ini=nline
+       if(nline >= nline_big) nline_big=nline
+       nline_ini=nline_big
 
        !Look for the first atoms fully occupying the site and put it in first position
        !This is needed for properly calculating the occupation factors
