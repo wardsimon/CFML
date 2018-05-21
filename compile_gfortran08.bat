@@ -1,8 +1,10 @@
 @echo off
-rem ---------------------------------------
-rem ---- CrysFML for GFortran Compiler ----
-rem ---- JGP-2015                      ----
-rem ---------------------------------------
+echo.
+echo -------------------------------------------------------
+echo ---- Crystallographic Fortran Modules Library 2018 ----
+echo ---- GFortran Compiler (7.3 Windows/Linux/Max)     ---- 
+echo ---- CrysFML Team                                  ----
+echo -------------------------------------------------------
 rem
 rem ---- INIT ----
    (set _DEBUG=N)
@@ -36,32 +38,109 @@ rem
 rem
    cd %CRYSFML%\Src08
 rem
-
 rem
-   echo **---- Level 0 ----**
-   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
+   echo.
+   echo ----
+   echo ----  Compiler Options 
+   echo ----
+   echo OPTC:%OPTC%
+   echo OPT0:%OPT0%
+   echo OPT1:%OPT1%
+   echo OPT2:%OPT2%
+   echo OPT3:%OPT3%
+   echo ----
+   echo.
 rem
-   gfortran -c %OPTC% CFML_GlobalDeps_Windows_GFOR.f90               %OPT1% %OPT2%
+   echo .... Global Dependencies for CFML
 rem
-   gfortran -c %OPTC% CFML_math_gen.f90                         %OPT1% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90       %OPT1% %OPT2%         
+rem
+   echo .... Mathematics Procedures
+rem
+   gfortran -c %OPTC%  -J.\mod CFML_math_general.f90                 %OPT1% %OPT2%       
+rem 
+rem   Submodulos CFML_Math_General   
+      cd .\CFML_Math_General
+      gfortran -c %OPTC%  -J..\mod AM_Median.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Co_Linear.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Co_Prime.f90                      %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Debye.f90                         %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Determinant.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Diagonalize_SH.f90                %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Equal_Matrix.f90                  %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Equal_Vector.f90                  %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Erfc_Deriv.f90                    %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Factorial.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Invert_Matrix.f90                 %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod In_Limits.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Linear_Dependent.f90              %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Locate.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Lower_Triangular.f90              %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Modulo_Lat.f90                    %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Negligible.f90                    %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Norm.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Outerprod.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Pgcd.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Points_In_Line2D.f90              %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Poly_Legendre.f90                 %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Ppcm.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Rank.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Scalar.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod SmoothingVec.f90                  %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Sort.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Sph_Jn.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Spline.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Svdcmp.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Swap.f90                          %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Trace.f90                         %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Upper_Triangular.f90              %OPT1% %OPT2% 
+      gfortran -c %OPTC%  -J..\mod Zbelong.f90                       %OPT1% %OPT2%   
+      cd ..
+rem      
+   gfortran -c %OPTC% -J.\mod CFML_math_3D.f90                       %OPT1% %OPT2%
+rem 
+rem   Submodulos CFML_Math_3D   
+      cd .\CFML_Math_3D
+      gfortran -c %OPTC%  -J..\mod Cross_Product.f90                 %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Determ_3x3.f90                    %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Determ_Vec.f90                    %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Get_Cart_from_Cylin.f90           %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Get_Cart_from_Spher.f90           %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Get_Cylin_from_Cart.f90           %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Get_Spher_from_Cart.f90           %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Invert_Array3x3.f90               %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Matrix_DiagEigen.f90              %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Mat_Cross.f90                     %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Resolv_Sistem.f90                 %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Rotation_Axes.f90                 %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Tensor_Product.f90                %OPT1% %OPT2%
+      gfortran -c %OPTC%  -J..\mod Vec_Length.f90                    %OPT1% %OPT2%
+      cd ..  
+rem    
+   gfortran -c %OPTC% -J.\mod CFML_spher_harm.f90                    %OPT1% %OPT2%  
+   gfortran -c %OPTC% -J.\mod CFML_random.f90                        %OPT1% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_ffts.f90                          %OPT1% %OPT2%
+rem 
+   echo .... Profiles Functions
+rem
+   gfortran -c %OPTC% -J.\mod CFML_Profile_Functs.f90                %OPT1% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_Profile_Finger.f90                %OPT1% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_Profile_TOF.f90                   %OPT1% %OPT2%
+   goto FIN
+rem   
+rem   
+rem   
    gfortran -c %OPTC% CFML_LSQ_TypeDef.f90                      %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_spher_harm.f90                       %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_random.f90                           %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_ffts.f90                             %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_string_util.f90                      %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      gfortran -c %OPTC% CFML_io_messwin.f90                     %OPT1% %OPT2% %OPT3%
    ) else (
      gfortran -c %OPTC% CFML_io_mess.f90                        %OPT1% %OPT2%
    )
-   gfortran -c %OPTC% CFML_Profile_TOF.f90                      %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_Profile_Finger.f90                   %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_Profile_Functs.f90                   %OPT1% %OPT2%
 rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
-   gfortran -c %OPTC% CFML_math_3D.f90                          %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_optimization.f90                     %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_optimization_lsq.f90                 %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_sym_table.f90                        %OPT0% %OPT2%
@@ -145,3 +224,6 @@ rem
    del *.o *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows
+:FIN
+   del *.o *.obj *.mod > nul
+   cd ..   

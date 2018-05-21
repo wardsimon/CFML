@@ -1,10 +1,10 @@
 @echo off
 echo.
-echo --------------------------------------------------
-echo ---- Crystallographic Fortran Modules Library ----
-echo ---- Intel Fortran Compiler XE                ---- 
-echo ---- CrysFML Team. May 2018                   ----
-echo --------------------------------------------------
+echo -------------------------------------------------------
+echo ---- Crystallographic Fortran Modules Library 2008 ----
+echo ---- Compiler:  Intel Fortran Compiler XE_2017     ---- 
+echo ---- CrysFML Team                                  ----
+echo -------------------------------------------------------
 rem
 rem ---- INIT ----
    (set _DEBUG=N)
@@ -48,7 +48,7 @@ rem
 rem
    echo.
    echo ----
-   echo ----  Compiler Options 
+   echo ----  Set compiler options  
    echo ----
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
@@ -59,23 +59,82 @@ rem
 rem
    echo .... Global Dependencies for CFML
 rem
-   ifort /c CFML_GlobalDeps_Windows_IFOR.f90          /nologo %OPT0% %OPT2%   
+   ifort /c CFML_GlobalDeps_Windows_IFOR.f90     /nologo %OPT0% %OPT2% /module:.\mod  
 rem
    echo .... Mathematics Procedures
 rem
-   ifort /c CFML_Math_Gen.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
-   ifort /c CFML_Spher_Harm.f90                       /nologo %OPT1% %OPT2%
-   ifort /c CFML_Random.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_Ffts.f90                             /nologo %OPT1% %OPT2%
-   goto FIN
+   ifort /c CFML_Math_General.f90                /nologo %OPT1% %OPT2% /module:.\mod
+rem 
+rem   Submodulos CFML_Math_General   
+      cd .\CFML_Math_General
+      ifort /c AM_Median.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Co_Linear.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Co_Prime.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Debye.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Determinant.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Diagonalize_SH.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Equal_Matrix.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Equal_Vector.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Erfc_Deriv.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Factorial.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Invert_Matrix.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c In_Limits.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Linear_Dependent.f90              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Locate.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Lower_Triangular.f90              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Modulo_Lat.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Negligible.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Norm.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Outerprod.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Pgcd.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Points_In_Line2D.f90              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Poly_Legendre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Ppcm.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Rank.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Scalar.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c SmoothingVec.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Sort.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Sph_Jn.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Spline.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Svdcmp.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Swap.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Trace.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Upper_Triangular.f90              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Zbelong.f90                       /nologo %OPT1% %OPT2%  /module:..\mod  
+      cd ..
+rem      
+   ifort /c CFML_math_3D.f90                     /nologo %OPT1% %OPT2% /module:.\mod
+rem 
+rem   Submodulos CFML_Math_3D
+      cd CFML_math_3D
+      ifort /c Cross_Product.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Determ_3x3.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Determ_Vec.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Get_Cart_from_Cylin.f90           /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Get_Cart_from_Spher.f90           /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Get_Cylin_from_Cart.f90           /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Get_Spher_from_Cart.f90           /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Invert_Array3x3.f90               /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Matrix_DiagEigen.f90              /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Mat_Cross.f90                     /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Resolv_Sistem.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Rotation_Axes.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Tensor_Product.f90                /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Vec_Length.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      cd ..
+rem 
+   ifort /c CFML_Spher_Harm.f90                  /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Random.f90                      /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Ffts.f90                        /nologo %OPT1% %OPT2% /module:.\mod
 rem
    echo .... Profiles Functions
 rem
-rem   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
-rem   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
-rem   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
-rem   ifort /c CFML_Extinction_Correction.f90            /nologo %OPT1% %OPT2%
+   ifort /c CFML_Profile_Functs.f90              /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Profile_Finger.f90              /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Profile_TOF.f90                 /nologo %OPT1% %OPT2% /module:.\mod
+rem   
+   ifort /c CFML_Extinction_Correction.f90       /nologo %OPT1% %OPT2% /module:.\mod
+   goto FIN
 rem
    echo .... IO Messages /String Utilities
 rem
