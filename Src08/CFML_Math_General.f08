@@ -411,12 +411,12 @@
           real(kind=dp)             :: Fval       
        End Function DebyeN    
  
-       Module Pure Function Debye_PR_Envj(N,X) Result(Y)    
+       Module Pure Function Sphjn_PR_Envj(N,X) Result(Y)    
           !---- Arguments ----!       
           integer,       intent(in) :: n       
           real(Kind=dp), intent(in) :: x       
           real(Kind=dp)             :: y       
-       End Function Debye_PR_Envj    
+       End Function Sphj_PR_Envj    
  
        Module Function Equal_Matrix_I(a,b,n) result(info)    
           !---- Argument ----!       
@@ -563,20 +563,20 @@
           real(kind=cp)                             :: r      ! Scalar       
        End Function Scalar_R    
  
-       Module Pure Function Debye_PR_Start1(X,Mp) Result (Start)    
+       Module Pure Function Sphjn_PR_Start1(X,Mp) Result (Start)    
           !---- Arguments ----!       
           real(kind=dp), intent(in) :: x         ! Argument of Jn(x)       
           integer, intent(in)       :: mp        ! Value of magnitude       
           integer                   :: start       
-       End Function Debye_PR_Start1    
+       End Function Sphjn_PR_Start1    
  
-       Module Pure Function Debye_PR_Start2(X,N,Mp) Result(Start)    
+       Module Pure Function Sphjn_PR_Start2(X,N,Mp) Result(Start)    
           !---- Arguments ----!       
           real(kind=dp), intent(in) :: x     ! Argument of Jn(x)       
           integer,       intent(in) :: n     ! Order of Jn(x)       
           integer,       intent(in) :: mp    ! Significant digit       
           integer                   :: start       
-       End Function Debye_PR_Start2    
+       End Function Sphjn_PR_Start2    
  
        Module Function Trace_C(a) Result(b)    
           !---- Argument ----!       
