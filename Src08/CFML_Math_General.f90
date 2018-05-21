@@ -416,7 +416,7 @@
           integer,       intent(in) :: n       
           real(Kind=dp), intent(in) :: x       
           real(Kind=dp)             :: y       
-       End Function Sphj_PR_Envj    
+       End Function Sphjn_PR_Envj    
  
        Module Function Equal_Matrix_I(a,b,n) result(info)    
           !---- Argument ----!       

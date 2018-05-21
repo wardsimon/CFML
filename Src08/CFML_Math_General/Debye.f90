@@ -27,7 +27,6 @@ Submodule (CFML_Math_General) Debye
        real(kind=dp), parameter  :: TEST = 0.6_dp
 
        integer       :: i
-       real(kind=dp) :: fval
        real(kind=dp) :: d1, d2, tt, u0, u1, u2
 
 

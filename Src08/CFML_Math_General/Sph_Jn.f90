@@ -108,7 +108,7 @@ Submodule (CFML_Math_General) Sph_Jn
 
        a0=abs(x)
        n0=int(1.1_dp*a0)+1
-       f0=Sphjne_Pr_Envj(n0,a0)-mp
+       f0=Sphjn_Pr_Envj(n0,a0)-mp
        n1=n0+5
        f1=Sphjn_Pr_Envj(n1,a0)-mp
        do it=1,20
