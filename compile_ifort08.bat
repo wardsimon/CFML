@@ -134,7 +134,6 @@ rem
    ifort /c CFML_Profile_TOF.f90                 /nologo %OPT1% %OPT2% /module:.\mod
 rem   
    ifort /c CFML_Extinction_Correction.f90       /nologo %OPT1% %OPT2% /module:.\mod
-   goto FIN
 rem
    echo .... IO Messages /String Utilities
 rem
@@ -143,7 +142,8 @@ rem     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %
 rem   ) else (
 rem     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
 rem   )
-rem   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
+   ifort /c CFML_string_util.f90                 /nologo %OPT1% %OPT2% /module:.\mod
+   goto FIN
 rem
    echo .... Optimization procedures
 rem

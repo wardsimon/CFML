@@ -126,9 +126,11 @@ rem
    gfortran -c %OPTC% -J.\mod CFML_Profile_Functs.f90                %OPT1% %OPT2%
    gfortran -c %OPTC% -J.\mod CFML_Profile_Finger.f90                %OPT1% %OPT2%
    gfortran -c %OPTC% -J.\mod CFML_Profile_TOF.f90                   %OPT1% %OPT2%
+rem   
+   echo .... IO Messages /String Utilities
+rem   
+   gfortran -c %OPTC% -J.\mod CFML_string_util.f90                   %OPT1% %OPT2%
    goto FIN
-rem   
-rem   
 rem   
    gfortran -c %OPTC% CFML_LSQ_TypeDef.f90                      %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_string_util.f90                      %OPT1% %OPT2%
