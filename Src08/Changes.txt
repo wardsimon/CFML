@@ -41,3 +41,10 @@ Changes on CFML_Spherical_Harmonics
 Changes on CFML_Functions_TOF
 1.- Erfc is now an intrinsec functions
 2.- Erfc derivate is now included on CFML_Math_Gen
+
+Changes on CFML_String_Utilities
+==================================  
+1.- Renamed RFormat to Format_Real
+2.- Renamed Getnum to Get_Num
+3.- Renamed Get_Num_Std to Get_NumStd
+4.- Renamed Getword to Get_Word
