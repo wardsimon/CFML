@@ -48,3 +48,7 @@ Changes on CFML_String_Utilities
 2.- Renamed Getnum to Get_Num
 3.- Renamed Get_Num_Std to Get_NumStd
 4.- Renamed Getword to Get_Word
+
+Changes on CFML_BVSpar
+=========================
+1.- Renamed Reference to REF_BVS
