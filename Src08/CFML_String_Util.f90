@@ -55,10 +55,10 @@
     public :: Cutst, Format_Real, Frac_Trans_1Dig, Frac_Trans_2Dig, Get_DateTime, Get_Dirname, &
               Get_Extension, Get_Filename, Get_Fraction_1Dig, Get_Fraction_2Dig,               &
               Get_Mat_From_Symb, Get_Separator_Pos, Get_Substring_Positions, Get_Symb_From_Mat,& 
-              Get_Transf, Get_Vec_From_String, get_num, Get_Numstd, get_word, Inc_LineNum,       &
+              Get_Transf, Get_Vec_From_String, Get_num, Get_Numstd, get_word, Inc_LineNum,     &
               Init_FindFmt, Lcase, Number_lines, NumCol_from_NumFmt, Read_Key_Str,             &
               Read_Key_strVal, Read_Key_Value, Read_Key_ValueSTD, Reading_Lines, Set_numstd,   &
-              Substring_Replace, Ucase
+              Substring_Replace, Ucase, FindFMT
 
 
     !> Parameters
