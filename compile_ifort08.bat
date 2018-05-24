@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo -------------------------------------------------------
-echo ---- Crystallographic Fortran Modules Library 2008 ----
+echo ---- Crystallographic Fortran Modules Library 2018 ----
 echo ---- Compiler:  Intel Fortran Compiler XE_2017     ---- 
 echo ---- CrysFML Team                                  ----
 echo -------------------------------------------------------
@@ -101,6 +101,7 @@ rem   Submodulos CFML_Math_General
       ifort /c Trace.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Upper_Triangular.f90              /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Zbelong.f90                       /nologo %OPT1% %OPT2%  /module:..\mod  
+      move /y *.obj .. > nul
       cd ..
 rem      
    ifort /c CFML_math_3D.f90                     /nologo %OPT1% %OPT2% /module:.\mod
@@ -121,6 +122,7 @@ rem   Submodulos CFML_Math_3D
       ifort /c Rotation_Axes.f90                 /nologo %OPT1% %OPT2% /module:..\mod
       ifort /c Tensor_Product.f90                /nologo %OPT1% %OPT2% /module:..\mod
       ifort /c Vec_Length.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      move /y *.obj .. > nul
       cd ..
 rem 
    ifort /c CFML_Spher_Harm.f90                  /nologo %OPT1% %OPT2% /module:.\mod
@@ -137,34 +139,78 @@ rem
 rem
    echo .... IO Messages /String Utilities
 rem
-rem   if [%_WINTER%]==[Y] (
-rem     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
-rem   ) else (
-rem     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
-rem   )
+   if [%_WINTER%]==[Y] (
+     ifort /c CFML_io_messwin.f90         /nologo %OPT1% %OPT2% %OPT3% /module:.\mod
+   ) else (
+     ifort /c CFML_io_mess.f90                   /nologo %OPT1% %OPT2% /module:.\mod
+   )
    ifort /c CFML_string_util.f90                 /nologo %OPT1% %OPT2% /module:.\mod
+rem  
+rem   Submodulos CFML_String_Utilities
+      cd  CFML_String_Utilities
+      ifort /c StringFullp.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c StringTools.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c StringNum.f90                     /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c StringReadKey.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      move /y *.obj .. > nul
+      cd .. 
+rem
+   echo .... Tables definitions
+rem
+   ifort /c CFML_BVSpar.f90                      /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_chem_scatt.f90                  /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_bonds_table.f90                 /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_sym_table.f90                   /nologo %OPT0% %OPT2% /module:.\mod
+rem 
+   echo .... Rational Arithmetic
+rem
+   ifort /c CFML_Rational_Arithmetic.f90         /nologo %OPT1% %OPT2% /module:.\mod
+rem  
+rem   Submodulos CFML_Rational_Arithmetic
+      cd CFML_Rational_Arithmetic   
+      ifort /c assignment.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c constructor.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c matmul.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c maxloc.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c maxval.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c minloc.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c minval.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c mod.f90                           /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c modulo.f90                        /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_add.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_division.f90             /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_eq.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_ge.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_gt.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_le.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_lt.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_minus.f90                /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_multiply.f90             /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c operator_ne.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c overloads.f90                     /nologo %OPT1% %OPT2% /module:..\mod
+      move /y *.obj .. > nul
+      cd ..
    goto FIN
 rem
+   echo .... Patterns Information
+rem
+   ifort /c CFML_diffpatt.f90                    /nologo %OPT1% %OPT2% /module:.\mod
+   goto FIN
+   
+   ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
+   goto FIN
    echo .... Optimization procedures
 rem
 rem   ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
 rem   ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
 rem
-   echo .... Tables definitions
-rem
-   ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
-   ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
-   ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
-   ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
-   goto UNO
-rem
    echo .... Patterns Information
 rem
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
+   goto TTT
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
    goto FIN
 rem
-:UNO
    echo .... Crystal Metrics
 rem
    ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
@@ -214,6 +260,7 @@ rem
    ifort /c CFML_polar.f90                           /nologo %OPT1% %OPT2%
 rem
 rem
+:TTT
    echo **---- Crysfml Library ----**
 rem
    if [%_WINTER%]==[Y] (
@@ -226,20 +273,21 @@ rem
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (
-     if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
-     mkdir ..\%DIRECTORY%\LibW
-     copy *.mod ..\%DIRECTORY%\LibW > nul
-     move *.lib ..\%DIRECTORY%\LibW > nul
+     if exist ..\%DIRECTORY%\LibW08 rmdir ..\%DIRECTORY%\LibW08 /S /Q
+     mkdir ..\%DIRECTORY%\LibW08
+     copy .\mod\*.mod ..\%DIRECTORY%\LibW08 > nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibW08 > nul
+     move *.lib ..\%DIRECTORY%\LibW08 > nul
    ) else (
-     if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
-     mkdir ..\%DIRECTORY%\LibC
-     copy *.mod ..\%DIRECTORY%\LibC > nul
-     move *.lib ..\%DIRECTORY%\LibC > nul
+     if exist ..\%DIRECTORY%\LibC08 rmdir ..\%DIRECTORY%\LibC08 /S /Q
+     mkdir ..\%DIRECTORY%\LibC08
+     copy .\mod\*.mod ..\%DIRECTORY%\LibC08 > nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibC08 > nul
+     move *.lib ..\%DIRECTORY%\LibC08 > nul
    )
-   del *.obj *.mod *.lst *.bak > nul
+   del *.obj *.lst *.bak > nul
 rem
-   cd %CRYSFML%\Scripts\Windows
+rem   cd %CRYSFML%\Scripts\Windows
 rem
 :FIN
-rem   del *.obj *.mod > nul
    cd ..
