@@ -39,7 +39,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_GlobalDeps,       only: cp, clear_error, err_cfml, err_cfml_flag, err_cfml_msg
+    Use CFML_GlobalDeps,       only: cp, clear_error, err_cfml
     Use CFML_String_Utilities, only: U_Case
 
     !---- Variables ----!
@@ -411,9 +411,9 @@
        end if
 
        if (.not. ok) then
-          err_cfml=.true.
-          err_cfml_flag=2
-          err_cfml_msg=" Error in the symbol or number of the space group"
+          err_cfml%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Error in the symbol or number of the space group"
        end if
 
        return

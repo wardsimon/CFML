@@ -80,9 +80,12 @@ Module CFML_GlobalDeps
    character(len=1), parameter   :: TAB     = char(9)            ! TAB character
     
    !---- Error Flags ----!
-   logical                       :: Err_CFML      = .false.      ! Error Flag for CrysFML
-   integer                       :: Err_CFML_Flag = 0            ! =0 No error, =1 Warning, > 1 Error
-   character(len=:), allocatable :: Err_CFML_Msg                 ! Text for Messages
+   Type :: Err_Type
+      logical            :: state=.false.                        ! State of the error
+      integer            :: flag =0                              ! =0 No error, =1 Warning, > 1 Error
+      character(len=150) :: Msg=" "                              ! Text for Messages
+   End Type Err_Type
+   Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
   
  Contains
 
@@ -133,9 +136,9 @@ Module CFML_GlobalDeps
    !!
    Subroutine Clear_Error()
       
-      Err_CFML     =.false.
-      Err_CFML_Flag=0
-      Err_CFML_Msg =" "
+      Err_CFML%state=.false.
+      Err_CFML%Flag =0
+      Err_CFML%Msg  =" "
       
       return
    End Subroutine Clear_Error 

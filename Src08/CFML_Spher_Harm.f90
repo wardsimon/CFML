@@ -41,8 +41,7 @@
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,   only: Cp, Dp, Eps, Pi, To_Rad, Err_CFML, Err_CFML_Flag, &
-                                 Err_CFML_Msg, clear_error
+    Use CFML_GlobalDeps,   only: Cp, Dp, Eps, Pi, To_Rad, Err_CFML, clear_error
     Use CFML_Math_General, only: poly_legendre, Sph_Jn                           
 
     implicit none
@@ -739,9 +738,9 @@
              end if
              
           case default
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
+             Err_CFML%state=.true.
+             Err_CFML%Flag=2
+             Err_CFML%Msg=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
 
        end select
 

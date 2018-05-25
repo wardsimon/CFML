@@ -32,21 +32,6 @@ Submodule (CFML_Rational_Arithmetic) Overloads
     End Function Rational_Int
 
     !!----
-    !!---- FUNCTION RATIONAL_NINT
-    !!----
-    !!----
-    !!
-    Module Elemental Function Rational_Nint(R) Result(Res)
-       !---- Arguments ----!
-       real(kind=cp), intent (in)  :: r
-       type(rational)              :: res
-       
-       res = nint(r,kind=il) // 1_il
-       
-       return
-    End Function Rational_Nint
-    
-    !!----
     !!---- FUNCTION NINT_RATIONAL
     !!----
     !!----
@@ -83,9 +68,9 @@ Submodule (CFML_Rational_Arithmetic) Overloads
             res = rational_simplify(res + r1(i)*r2(i))
           end do
        else
-         Err_CFML=.true.
-         Err_CFML_Flag=2
-         write(unit=Err_CFML_Msg,fmt="(a,2i4)") &
+         Err_CFML%state=.true.
+         err_cfml%flag=2
+         write(unit=err_cfml%msg,fmt="(a,2i4)") &
               "Error in DOT_PRODUCT: the dimensions of the arguments are different",n1,n2
        end if
        

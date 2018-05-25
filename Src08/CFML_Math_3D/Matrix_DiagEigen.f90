@@ -111,9 +111,9 @@ Submodule (CFML_Math_3D) CFML_M3D_01
        end do
 
        !> Error zone
-       Err_CFML     =.true.
-       Err_CFML_Flag=2
-       Err_CFML_Msg =" Convergence not reached in diagonalization "
+       Err_CFML%state=.true.
+       err_cfml%flag=2
+       err_cfml%msg =" Convergence not reached in diagonalization "
 
        return
     End Subroutine Matrix_DiagEigen

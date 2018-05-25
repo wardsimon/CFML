@@ -506,9 +506,9 @@
           do i=1,nterm-1
              if (k == klist(i)) then
                 !> This is impossible in principle
-                Err_CFML= .true.
-                Err_CFML_Flag=2
-                Err_CFML_Msg=" The provided symbol is illegal: "//trim(str)
+                Err_CFML%state= .true.
+                err_cfml%flag=2
+                err_cfml%msg=" The provided symbol is illegal: "//trim(str)
                 return
              end if
           end do
@@ -698,30 +698,30 @@
              ori=transf_key(i+1:)
           end if
           call Get_Mat_From_Symb(cMat,mat,cd(1:3))
-          if (err_cfml) then
-             err_cfml_msg=" Bad matrix setting...: "//trim(err_cfml_msg)
+          if (err_cfml%state) then
+             err_cfml%msg=" Bad matrix setting...: "//trim(err_cfml%msg)
           end if
          
           !> Origin
           Call Get_Separator_Pos(ori,",",pos,nc)
           if (nc /= 2) then
-             ERR_cfml=.true.
-             err_cfml_flag=2
-             ERR_cfml_Msg=" Bad origin setting...: "//trim(ori)
+             ERR_cfml%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg=" Bad origin setting...: "//trim(ori)
              return
           else
              call Read_Fract(ori(1:pos(1)-1),v(1))
              call Read_Fract(ori(pos(1)+1:pos(2)-1),v(2))
              call Read_Fract(ori(pos(2)+1:),v(3))
-             if (ERR_CFML) then
-                ERR_CFML_Msg=" Bad origing setting...: "//trim(ERR_CFML_Msg)//" :: "//trim(ori)
+             if (ERR_CFML%state) then
+                err_cfml%msg=" Bad origing setting...: "//trim(err_cfml%msg)//" :: "//trim(ori)
                 return
              end if
           end if
        else
-          ERR_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_CFML_Msg=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
        end if
       
        return
@@ -779,9 +779,9 @@
              numero=.false.
           end do
           if (.not. numero) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="The variable cannot be computed as a number in GET_NUM "
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="The variable cannot be computed as a number in GET_NUM "
              return
           end if
 
@@ -818,9 +818,9 @@
                    idec=idec-1
                 end if
              else
-                Err_CFML=.true.
-                Err_CFML_Flag=2
-                Err_CFML_Msg="Limits of digit variable exceeded in GET_NUM"
+                Err_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg="Limits of digit variable exceeded in GET_NUM"
                 return
              end if
           end do
@@ -841,9 +841,9 @@
                 if (idig >= 1 .and. idig <= 10)  then
                    isum_exp=isum_exp*10+(idig-1)
                 else
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Limits of digit variable exceeded in GET_NUM"
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Limits of digit variable exceeded in GET_NUM"
                    return
                 end if
              end do
@@ -904,9 +904,9 @@
 
        !---- Initial Checks ----!
        if (len_trim(Str) == 0) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Blank line"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Blank line"
           return
        end if
        i=index(Str,"!")
@@ -930,18 +930,18 @@
           if ( (np2 < np1) .or.               &  ! ")" before than "("
                (np1==0 .and. np2 >0) .or.     &  ! "(" doesn"t exists
                (np2==0 .and. np1 >0) ) then      ! ")" doesn"t exists
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Wrong format using Standard values"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Wrong format using Standard values"
              return
           end if
 
           if (np1 == 0 .and. np2 ==0) then
              call get_num(dire,vet,ivet,iv)
-             if (iv /= 1 .or. Err_CFML) then
-                Err_CFML=.true.
-                Err_CFML_Flag=2
-                Err_CFML_Msg="Bad format"
+             if (iv /= 1 .or. Err_CFML%state) then
+                Err_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg="Bad format"
                 return
              end if
              ic=ic+1
@@ -951,10 +951,10 @@
              np=index(numm,".")
              if (np == 0) then
                 call get_num(numm,vet,ivet,iv)
-                if (iv /= 1 .or. Err_CFML) then
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Bad format"
+                if (iv /= 1 .or. Err_CFML%state) then
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Bad format"
                    return
                 end if
                 ic=ic+1
@@ -962,29 +962,29 @@
                 numm=dire(np1+1:np2-1)
                 call get_num(numm,vet,ivet,iv)
                 if (iv /= 1) then
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Bad format"
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Bad format"
                    return
                 end if
                 std(ic)=vet(1)
              else
                 np=np1-np-1
                 call get_num(numm,vet,ivet,iv)
-                if (iv /= 1 .or. Err_CFML) then
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Bad format"
+                if (iv /= 1 .or. Err_CFML%state) then
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Bad format"
                    return
                 end if
                 ic=ic+1
                 value(ic)=vet(1)
                 numm=dire(np1+1:np2-1)
                 call get_num(numm,vet,ivet,iv)
-                if (iv /= 1 .or. Err_CFML) then
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Bad format"
+                if (iv /= 1 .or. Err_CFML%state) then
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Bad format"
                    return
                 end if
                 std(ic)=vet(1)/(10.0**np)
@@ -1074,9 +1074,9 @@
        end do
        
        if (n_col == 0) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
        end if
 
        return
@@ -1124,9 +1124,9 @@
           read(unit=str,fmt=*,iostat=ierr) value
           if (ierr /= 0) then
              value=0.0_cp
-             Err_CFML= .true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg=" The provided symbol is illegal: "//trim(str)
+             Err_CFML%state= .true.
+             err_cfml%flag=2
+             err_cfml%msg=" The provided symbol is illegal: "//trim(str)
              return
           end if
           
@@ -1134,18 +1134,18 @@
           read(unit=str(1:k-1),fmt=*,iostat=ierr) num
           if (ierr /= 0) then
              value=0.0_cp
-             Err_CFML= .true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg=" The provided symbol is illegal: "//str(1:k-1)
+             Err_CFML%state= .true.
+             err_cfml%flag=2
+             err_cfml%msg=" The provided symbol is illegal: "//str(1:k-1)
              return
           end if
           
           read(unit=str(k+1:),fmt=*,iostat=ierr) den
           if (ierr /= 0) then
              value=0.0
-             Err_CFML= .true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg=" The provided symbol is illegal: "//str(k+1:)
+             Err_CFML%state= .true.
+             err_cfml%flag=2
+             err_cfml%msg=" The provided symbol is illegal: "//str(k+1:)
              return
           end if
 

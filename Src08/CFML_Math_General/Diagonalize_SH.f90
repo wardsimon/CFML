@@ -32,9 +32,9 @@ Submodule (CFML_Math_General) Diagonalize_SH
 
        call clear_error()
        if (n > size(A,1) .or. n > size(A,2)) then
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -83,9 +83,9 @@ Submodule (CFML_Math_General) Diagonalize_SH
        e_val=0.0_cp
        call clear_error()
        if (n > size(A,1) .or. n > size(A,2)) then
-          ERR_CFML=.true.
-          ERR_CFML_Flag=0
-          ERR_CFML_Msg=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
+          ERR_CFML%state=.true.
+          err_cfml%flag=0
+          err_cfml%msg=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -152,9 +152,9 @@ Submodule (CFML_Math_General) Diagonalize_SH
 
              if (m /= l) then
                 if (iter == NMAX_ITER) then
-                   ERR_CFML=.true.
-                   ERR_CFML_Flag=1
-                   ERR_CFML_Msg=" Too many iterations in TQLI1"
+                   ERR_CFML%state=.true.
+                   err_cfml%flag=1
+                   err_cfml%msg=" Too many iterations in TQLI1"
                    exit
                 end if
 
@@ -247,9 +247,9 @@ Submodule (CFML_Math_General) Diagonalize_SH
              m=mv
              if (m /= l) then
                 if (iter == NMAX_ITER) then
-                   ERR_CFML=.true.
-                   ERR_CFML_Flag=2
-                   ERR_CFML_Msg=" Too many iterations in TQLI2"
+                   ERR_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg=" Too many iterations in TQLI2"
                    exit
                 end if
 

@@ -111,7 +111,7 @@
 !!
  Module CFML_Random_Generators
     !---- Use Modules ----!
-    Use CFML_GlobalDeps, only: cp, dp, Err_CFML, Err_CFML_Flag, Err_CFML_Msg, clear_error
+    Use CFML_GlobalDeps, only: cp, dp, Err_CFML, clear_error
 
     !---- Local Variables ----!
     implicit none
@@ -399,9 +399,9 @@
        !> Init  
        call clear_error()
        if (aa <= zero .or. bb <= zero) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Impermissible Shape Parameter Value(s)"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Impermissible Shape Parameter Value(s)"
           return
        end if
 
@@ -807,9 +807,9 @@
        !> Init
        call clear_error()
        if (s <= zero) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Shape Parameter Value Must Be Positive"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Shape Parameter Value Must Be Positive"
           return
        end if
 
@@ -851,9 +851,9 @@
        !> Init
        call clear_error()
        if (s <= one) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Impermissible Shape Parameter Value"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Impermissible Shape Parameter Value"
           return
        end if
 
@@ -906,9 +906,9 @@
        !> Init
        call Clear_error()
        if (s <= zero .or. s >= one) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Shape Parameter Value Outside Permitted Range"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Shape Parameter Value Outside Permitted Range"
           return
        end if
 
@@ -916,9 +916,9 @@
           a = one - s
           p = a/(a + s*exp(-a))
           if (s < vsmall) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Shape Parameter Value Too Small"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Shape Parameter Value Too Small"
              return
           end if
           c = one/s
@@ -982,26 +982,26 @@
        !> Init
        call clear_error()
        if (h < zero .or. b <= zero) then
-           Err_CFML=.true.
-           Err_CFML_Flag=2
-           Err_CFML_Msg="Impermissible Distribution Parameter Values"
+           Err_CFML%state=.true.
+           err_cfml%flag=2
+           err_cfml%msg="Impermissible Distribution Parameter Values"
           return
        end if
 
        if (first) then                        ! initialization, if necessary
           if (h > quart*b*sqrt(vlarge)) then
-             Err_CFML=.true.               !Not possible in F (pure Functions!)
-             Err_CFML_Flag=2
-             Err_CFML_Msg="The Ratio H:B Is Too Small"
+             Err_CFML%state=.true.               !Not possible in F (pure Functions!)
+             err_cfml%flag=2
+             err_cfml%msg="The Ratio H:B Is Too Small"
              return
           end if
           e = b*b
           d = h + one
           ym = (-d + sqrt(d*d + e))/b
           if (ym < vsmall) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="The Value Of B Is Too Small"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="The Value Of B Is Too Small"
              return
           end if
 
@@ -1013,9 +1013,9 @@
           w = xm*ym
           a = w**(-half*h) * sqrt(xm/ym) * exp(-e*(r - ym - one/ym))
           if (a < vsmall) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="The Value Of H Is Too Large"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="The Value Of H Is Too Large"
              return
           end if
           c = -d*log(xm) - e*r
@@ -1068,9 +1068,9 @@
        !> Init
        call clear_error()
        if (n < 1) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Size Of Vector Is Non Positive"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Size Of Vector Is Non Positive"
           return
        end if
        ier = 0
@@ -1150,9 +1150,9 @@
        !> Init
        call clear_error()
        if (sk <= zero .or. p <= zero .or. p >= one) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="impermissible distribution parameter values"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="impermissible distribution parameter values"
           return
        end if
        q = one - p
@@ -1174,9 +1174,9 @@
        s = zero
        uln = -LOG(vsmall)
        if (st > -uln/log(q)) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg=" P Is Too Large For This Value Of Sk"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" P Is Too Large For This Value Of Sk"
           return
        end if
        y = q**st
@@ -1362,9 +1362,9 @@
        !> Init
        call clear_error()
        if (m < 1) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          Err_CFML_Msg="Impermissible Degrees Of Freedom"
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="Impermissible Degrees Of Freedom"
           return
        end if
 
@@ -1426,16 +1426,16 @@
        call clear_error()
        if (first) then                        ! initialization, if necessary
           if (k < zero) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Error in argument k for random_von_Mises"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Error in argument k for random_von_Mises"
              return
           end if
           nk = k + k + one
           if (nk > 20) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Error in argument k for random_von_Mises"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Error in argument k for random_von_Mises"
              return
           end if
           dk = k

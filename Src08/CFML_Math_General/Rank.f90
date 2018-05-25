@@ -27,7 +27,7 @@ Submodule (CFML_Math_General) Rank
 
        u=a
        call svdcmp(u,w,v)
-       if (ERR_CFML) then
+       if (ERR_CFML%state) then
           r=0
        else
           r=0
@@ -60,7 +60,7 @@ Submodule (CFML_Math_General) Rank
 
        u=a
        call svdcmp(u,w,v)
-       if (ERR_CFML) then
+       if (ERR_CFML%state) then
           r=0
        else
           r=0

@@ -42,7 +42,7 @@
 !!
  Module CFML_Rational_Arithmetic
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,       only : cp, dp, il, err_cfml, err_cfml_flag, err_cfml_msg
+    Use CFML_GlobalDeps,       only : cp, dp, il, err_cfml
     Use CFML_String_Utilities, only : Pack_String
     Use CFML_Math_general,     only : determinant,invert_matrix
 
@@ -751,9 +751,9 @@
           call Determinant(A,n1,determ)
           det=determ
        else
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          write(unit=Err_CFML_Msg,fmt="(a)") &
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          write(unit=err_cfml%msg,fmt="(a)") &
                "Error in Determinant: the provided matrix is not square!"
        end if
        
@@ -782,16 +782,16 @@
           A=Mat
           call Invert_Matrix(A,invA,singular)
           if (singular) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             write(unit=Err_CFML_Msg,fmt="(a)") "Singular Matrix!"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             write(unit=err_cfml%msg,fmt="(a)") "Singular Matrix!"
           else
              invMat=invA
           end if
        else
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          write(unit=Err_CFML_Msg,fmt="(a)") &
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          write(unit=err_cfml%msg,fmt="(a)") &
                "Error in Determinant: the provided matrix is not square!"
        end if
        

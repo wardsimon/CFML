@@ -35,9 +35,9 @@ Submodule (CFML_Math_General) Svdcmp
 
        call clear_error()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          ERR_CFML = .true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg= " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
+          ERR_CFML%state = .true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg= " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
           return
        end if
        g=0.0_dp
@@ -144,9 +144,9 @@ Submodule (CFML_Math_General) Svdcmp
                 exit
              end if
              if (its == num_its) then
-                ERR_CFML = .true.
-                ERR_CFML_Flag=2
-                ERR_CFML_Msg = " => SVDcmp_dp: convergence not reached ! "
+                ERR_CFML%state = .true.
+                ERR_CFML%Flag=2
+                ERR_CFML%Msg = " => SVDcmp_dp: convergence not reached ! "
                 return
              end if
              x=w(l)
@@ -228,9 +228,9 @@ Submodule (CFML_Math_General) Svdcmp
        n=size(a,2)
        call clear_error()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          ERR_CFML = .true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
+          ERR_CFML%state = .true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
           return
        end if
        g=0.0_sp
@@ -336,9 +336,9 @@ Submodule (CFML_Math_General) Svdcmp
                 exit
              end if
              if (its == num_its) then
-                ERR_CFML = .true.
-                ERR_CFML_Flag = 2
-                ERR_CFML_Msg = " => SVDcmp_sp: convergence not reached ! "
+                ERR_CFML%state = .true.
+                ERR_CFML%Flag = 2
+                ERR_CFML%Msg = " => SVDcmp_sp: convergence not reached ! "
                 return
              end if
              x=w(l)             !Shift from ottom 2-y-2 minor.

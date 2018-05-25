@@ -40,7 +40,7 @@
 !!
 Module CFML_Extinction_correction
    !---- Use Modules ----!
-   Use CFML_GlobalDeps, only : cp, clear_error, err_cfml, err_cfml_flag, err_cfml_msg
+   Use CFML_GlobalDeps, only : cp, clear_error, err_cfml
    
    !---- Variables ----!
    Implicit none
@@ -214,10 +214,10 @@ Module CFML_Extinction_correction
        a = lambda*lambda*lambda
        qq=SQRT(ssnn)*lambda
        if (abs(qq) > 1.0_cp) then
-          err_cfml=.true.
-          err_cfml_flag=1
+          err_cfml%state=.true.
+          err_cfml%flag=1
           write(unit=chkl,fmt="(3f8.2)") hkl
-          err_cfml_msg="WARNING!: Extinction correction fixed to 1.0 for for reflection: "//trim(chkl)//&
+          err_cfml%msg="WARNING!: Extinction correction fixed to 1.0 for for reflection: "//trim(chkl)//&
                        "  Check cell parameters !!!"
           return
        else

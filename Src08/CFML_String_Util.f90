@@ -40,7 +40,7 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_GlobalDeps,   only: cp, ops_sep, err_cfml,err_cfml_flag,err_cfml_msg, clear_error
+    use CFML_GlobalDeps,   only: cp, ops_sep, err_cfml, clear_error
     use CFML_Math_General, only: Negligible, Zbelong
     use ieee_arithmetic,   only: ieee_is_nan,ieee_is_finite
 
@@ -496,9 +496,9 @@
        !---- Exist filename ? ----!
        inquire (file=trim(filename),exist=info)
        if (.not. info) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_cfml_Msg="The file"//trim(filename)//" does not exist "
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="The file"//trim(filename)//" does not exist "
           return
        end if
 

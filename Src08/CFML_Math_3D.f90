@@ -44,7 +44,7 @@
  Module CFML_Math_3D
     !---- Use Modules ----!
     Use CFML_GlobalDeps, only: SP, DP, CP, PI, TO_RAD, TO_DEG, &
-                               Err_CFML, Err_CFML_Flag, Err_CFML_Msg
+                               Err_CFML 
 
 
     implicit none

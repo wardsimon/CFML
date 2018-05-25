@@ -97,17 +97,17 @@ Submodule (CFML_Math_General) Debye
 
        !> Check
        if (n <= 0) then
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="The order for Debye function was ZERO!"
+          err_CFML%State=.true.
+          err_CFML%Flag=2
+          err_CFML%Msg="The order for Debye function was ZERO!"
           return
        end if
 
        if (x < 0.0_dp) then
           if (abs(x) > TPI) then
-             ERR_CFML=.true.
-             ERR_CFML_Flag=2
-             ERR_CFML_Msg="The argument is negative and less than 2Pi"
+             err_CFML%state=.true.
+             err_CFML%Flag=2
+             err_CFML%Msg="The argument is negative and less than 2Pi"
              return
           end if
           fval =DebyeN(n,x)
@@ -123,9 +123,9 @@ Submodule (CFML_Math_General) Debye
                 fval=Debye4(x)
              case (5:)
                 if (x > TPI) then
-                   ERR_CFML=.true.
-                   ERR_CFML_Flag=2
-                   ERR_CFML_Msg="The argument was greater then 2Pi and the order >= 5!"
+                   ERR_CFML%state=.true.
+                   ERR_CFML%Flag=2
+                   ERR_CFML%Msg="The argument was greater then 2Pi and the order >= 5!"
                   return
                 end if
                 fval=DebyeN(n,x)
@@ -161,17 +161,17 @@ Submodule (CFML_Math_General) Debye
 
        !> Check
        if (n <= 0) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_CFML_Msg="The order for Debye function was ZERO!"
+          Err_CFML%state=.true.
+          Err_CFML%Flag=2
+          ERR_CFML%Msg="The order for Debye function was ZERO!"
           return
        end if
 
        if (x < 0.0) then
           if (abs(x) > TPI) then
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             ERR_CFML_Msg="The argument is negative and less than 2Pi"
+             Err_CFML%state=.true.
+             Err_CFML%Flag=2
+             ERR_CFML%Msg="The argument is negative and less than 2Pi"
              return
           end if
           ff =DebyeN(n,xx)
@@ -187,9 +187,9 @@ Submodule (CFML_Math_General) Debye
                 ff=Debye4(xx)
              case (5:)
                 if (x > TPI) then
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   ERR_CFML_Msg="The argument was greater then 2Pi and the order >= 5!"
+                   Err_CFML%state=.true.
+                   Err_CFML%Flag=2
+                   ERR_CFML%Msg="The argument was greater then 2Pi and the order >= 5!"
                    return
                 end if
                 ff=DebyeN(n,xx)
@@ -198,9 +198,9 @@ Submodule (CFML_Math_General) Debye
 
        !> Result
        if (dble(huge(fval)) < ff) then
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_CFML_Msg="The value is greater than huge value for real case! in Debye Function"
+          Err_CFML%state=.true.
+          Err_CFML%Flag=2
+          ERR_CFML%Msg="The value is greater than huge value for real case! in Debye Function"
           return
        else
           fval=real(ff)
@@ -272,9 +272,9 @@ Submodule (CFML_Math_General) Debye
        !> Check x >= 0.0
        if (xx < 0.0_dp) then
           !> Error activated
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="DEBYE1 doesn't work with negative Argument"
+          ERR_CFML%state=.true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg="DEBYE1 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -391,9 +391,9 @@ Submodule (CFML_Math_General) Debye
        !> Check xx >= 0.0
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="DEBYE2 doesn't work with negative Argument"
+          ERR_CFML%state=.true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg="DEBYE2 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -517,9 +517,9 @@ Submodule (CFML_Math_General) Debye
        !> Error test
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="DEBYE3 doesn't work with negative Argument"
+          ERR_CFML%state=.true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg="DEBYE3 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -649,9 +649,9 @@ Submodule (CFML_Math_General) Debye
        !> Error test
        if (xx < 0.0_dp) then
           ! Error activated
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="DEBYE4 doesn't work with negative Argument"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg="DEBYE4 doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -744,9 +744,9 @@ Submodule (CFML_Math_General) Debye
        !> Check
        if (abs(x) > 2.0*pi) then
           ! Error Flag
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg="The absolute value of argument for DEBYEN was greater than 2PI "
+          ERR_CFML%state=.true.
+          ERR_CFML%Flag=2
+          ERR_CFML%Msg="The absolute value of argument for DEBYEN was greater than 2PI "
           return
        end if
 

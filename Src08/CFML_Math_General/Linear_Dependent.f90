@@ -51,9 +51,9 @@ Submodule (CFML_Math_General) Linear_Dependent
 
        info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentC: Error in dimension of input matrix or vector"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentC: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -86,9 +86,9 @@ Submodule (CFML_Math_General) Linear_Dependent
           if(r == min(n1+1,2*nb)) info=.false.
 
        else
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentC: input dimension of vector incompatible with matrix"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentC: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -126,9 +126,9 @@ Submodule (CFML_Math_General) Linear_Dependent
        call clear_error()
        info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentI: Error in dimension of input matrix or vector"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentI: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -149,9 +149,9 @@ Submodule (CFML_Math_General) Linear_Dependent
           if(r == min(n1,nb)) info=.false.
 
        else
-          ERR_CFML=.true.
-          ERR_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentI: input dimension of vector incompatible with matrix"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentI: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -189,9 +189,9 @@ Submodule (CFML_Math_General) Linear_Dependent
        call clear_error()
        info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          ERR_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentR: Error in dimension of input matrix or vector"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentR: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -211,9 +211,9 @@ Submodule (CFML_Math_General) Linear_Dependent
           call rank(c,tol,r)
           if(r == min(n1,nb)) info=.false.
        else
-          ERR_CFML=.true.
-          Err_CFML_Flag=2
-          ERR_CFML_Msg=" Linear_DependentR: input dimension of vector incompatible with matrix"
+          ERR_CFML%state=.true.
+          err_cfml%flag=2
+          err_cfml%msg=" Linear_DependentR: input dimension of vector incompatible with matrix"
        end if
 
        return

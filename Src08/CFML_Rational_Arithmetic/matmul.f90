@@ -21,9 +21,9 @@ Submodule (CFML_Rational_Arithmetic) Matmul
              vec_out(i) = rational_simplify(dot_product(mat(i,:),vec))
           end do
        else
-          Err_CFML=.true.
-          Err_CFML_Flag=0
-          write(unit=Err_CFML_Msg,fmt="(a,3i4)") &
+          Err_CFML%state=.true.
+          err_cfml%flag=0
+          write(unit=err_cfml%msg,fmt="(a,3i4)") &
                "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3
        end if
        
@@ -52,9 +52,9 @@ Submodule (CFML_Rational_Arithmetic) Matmul
              end do
           end do
        else
-          Err_CFML=.true.
-          Err_CFML_Flag=2
-          write(unit=Err_CFML_Msg,fmt="(a,4i4)") &
+          Err_CFML%state=.true.
+          err_cfml%flag=2
+          write(unit=err_cfml%msg,fmt="(a,4i4)") &
                "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3,n4
        end if
        

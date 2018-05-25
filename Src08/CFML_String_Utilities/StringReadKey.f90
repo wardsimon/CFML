@@ -180,7 +180,7 @@
           call cutst(line)
           call get_num(line,vet,ivet,iv)
           if(present(line_key)) line_key=line
-          if (Err_CFML) exit
+          if (Err_CFML%state) exit
           nline_ini=i
           exit
        end do
@@ -233,7 +233,7 @@
           line=line(np:)
           call cutst(line)
           call get_numstd(line,vet1,vet2,iv)
-          if (Err_CFML) exit
+          if (Err_CFML%state) exit
           nline_ini=i
           exit
        end do

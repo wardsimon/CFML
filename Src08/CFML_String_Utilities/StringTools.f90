@@ -480,9 +480,9 @@ Submodule (CFML_String_Utilities) StrTools
               nlong2=len_trim(line2)
               line1 = line1(j+2:)
             else
-              Err_CFML=.true.
-              Err_CFML_Flag=2
-              Err_CFML_Msg="Non balanced quotes!"
+              Err_CFML%state=.true.
+              err_cfml%flag=2
+              err_cfml%msg="Non balanced quotes!"
               exit
             end if
          else
@@ -491,9 +491,9 @@ Submodule (CFML_String_Utilities) StrTools
          if (nlong2 == 0) exit
          ic=ic+1
          if (ic > ndim) then
-            Err_CFML=.true.
-            Err_CFML_Flag=2
-            Err_CFML_Msg="Dimension of DIRE exceeded"
+            Err_CFML%state=.true.
+            err_cfml%flag=2
+            err_cfml%msg="Dimension of DIRE exceeded"
             exit
          end if
          dire(ic)=line2(:nlong2)

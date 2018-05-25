@@ -34,9 +34,9 @@ Submodule (CFML_Math_3D) Resolv_System
              ix(1)=1
              ix(2)=2
           else
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Inconsistent solution (1x2)"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Inconsistent solution (1x2)"
           end if
           return
        end if
@@ -102,9 +102,9 @@ Submodule (CFML_Math_3D) Resolv_System
                    ix(i)=i
                 end do
              else
-                Err_CFML=.true.
-                Err_CFML_Flag=2
-                Err_CFML_Msg="Inconsistent solution (1 x 3)"
+                Err_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg="Inconsistent solution (1 x 3)"
              end if
 
           case (2)
@@ -162,9 +162,9 @@ Submodule (CFML_Math_3D) Resolv_System
                end select
 
           case (0)
-             Err_CFML=.true.
-             Err_CFML_Flag=2
-             Err_CFML_Msg="Inconsistent case ax+by+cz=t (1x3)"
+             Err_CFML%state=.true.
+             err_cfml%flag=2
+             err_cfml%msg="Inconsistent case ax+by+cz=t (1x3)"
        end select
 
        return
@@ -223,9 +223,9 @@ Submodule (CFML_Math_3D) Resolv_System
                    ix(1)=1
                    ix(2)=2
                 else
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Inconsistent solution (2x2)"
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Inconsistent solution (2x2)"
                 end if
 
              case (1)
@@ -312,9 +312,9 @@ Submodule (CFML_Math_3D) Resolv_System
                    ix(i)=i
                 end do
              else
-                Err_CFML=.true.
-                Err_CFML_Flag=2
-                Err_CFML_Msg="Inconsistent solution in (2x3)"
+                Err_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg="Inconsistent solution in (2x3)"
              end if
 
           case (2)
@@ -827,9 +827,9 @@ Submodule (CFML_Math_3D) Resolv_System
                       ix(i)=i
                    end do
                 else
-                   Err_CFML=.true.
-                   Err_CFML_Flag=2
-                   Err_CFML_Msg="Inconsistent system (3 x 3)"
+                   Err_CFML%state=.true.
+                   err_cfml%flag=2
+                   err_cfml%msg="Inconsistent system (3 x 3)"
                 end if
 
              !---- Two rows with zeroes ----!

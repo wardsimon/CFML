@@ -194,9 +194,9 @@ Submodule (CFML_Math_General) Sort
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                ERR_CFML=.true.
-                ERR_CFML_Flag=2
-                ERR_CFML_Msg=" NSTACK too small in SORT"
+                ERR_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -305,9 +305,9 @@ Submodule (CFML_Math_General) Sort
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                ERR_CFML=.true.
-                ERR_CFML_Flag=2
-                ERR_CFML_Msg=" NSTACK too small in SORT"
+                ERR_CFML%state=.true.
+                err_cfml%flag=2
+                err_cfml%msg=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then

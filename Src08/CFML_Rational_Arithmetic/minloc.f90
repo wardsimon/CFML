@@ -57,4 +57,4 @@ Submodule (CFML_Rational_Arithmetic) Minloc
        
        return
     End Function Rational_Minloc_Vect
-End Submodulo Minloc
+End Submodule Minloc

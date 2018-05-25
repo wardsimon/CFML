@@ -6,9 +6,10 @@ Compilers
 
 Changes:
 1.- Global Error Flags
-     Err_CFML        Logical
-     Err_CFML_Flag   Integer
-     Err_CFML_Msg    Character
+     A type variable called err_CFML whose components are:
+     Err_CFML%state        Logical
+     Err_CFML%Flag         Integer
+     Err_CFML%Msg          Character
      
 2.- Define a procedure to clear error variables called CLEAR_ERROR     
     

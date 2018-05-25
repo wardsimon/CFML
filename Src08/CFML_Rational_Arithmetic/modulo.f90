@@ -36,4 +36,4 @@ Submodule (CFML_Rational_Arithmetic) Modulo
        return
     End Function Rational_Modulo_Int
  
-End Submodule Module 
+End Submodule Modulo 
