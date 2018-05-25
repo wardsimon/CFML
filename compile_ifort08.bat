@@ -190,14 +190,18 @@ rem   Submodulos CFML_Rational_Arithmetic
       ifort /c overloads.f90                     /nologo %OPT1% %OPT2% /module:..\mod
       move /y *.obj .. > nul
       cd ..
-   goto FIN
 rem
    echo .... Crystal Metrics
 rem
    ifort /c CFML_crystal_metrics.f90             /nologo %OPT1% %OPT2% /module:.\mod
 rem  
-rem   Submodulos CFML_Crystal_Metrics   
-   goto FIN
+rem   Submodulos CFML_Crystal_Metrics
+      cd CFML_Crystal_Metrics
+      ifort /c genmetrics.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ioroutines.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      move /y *.obj .. > nul
+      cd ..  
+   goto TTT
 rem
    echo .... Patterns Information
 rem
