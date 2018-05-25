@@ -56,3 +56,6 @@ Changes on CFML_BVSpar
 
 Changes on CFML_Crystal_Metric
 ================================
+1.- Recip -> ReciprocalCell
+2.- Now the routines using class type for this reason now is better to use in the programs
+     class(type), allocatable :: namevar

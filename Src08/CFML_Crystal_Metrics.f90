@@ -125,13 +125,17 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_GlobalDeps,   only : CP, eps, PI, TO_RAD, err_CFML, clear_error
-    Use CFML_Math_General, only : Co_Prime, swap, Sort, Co_Linear
-    Use CFML_Math_3D,      only : Invert_Array3x3, determ_3x3, determ_Vec, Cross_Product
+    Use CFML_GlobalDeps,       only: CP, eps, PI, TO_RAD, err_CFML, clear_error
+    Use CFML_Math_3D,          only: Invert_Array3x3
+    Use CFML_String_Utilities, only: U_Case
 
     implicit none
 
     private
+    
+    !---- Public Functions ----!
+    public :: Volume_Cell, SigmaVolume, Set_Crystal_Cell
+    public :: Write_Crystal_Cell, Write_Bin_Crystal_Cell, Read_Bin_Crystal_Cell
 
     
     !---- Definitions ----!
@@ -154,6 +158,7 @@
     Type, public, extends(CrysCell_Type) :: CrysCell_M_Type
        real(kind=cp),dimension(3)   :: rcell  =0.0_cp      ! Reciprocal Cell parameters
        real(kind=cp),dimension(3)   :: rang   =0.0_cp      !
+       real(kind=cp)                :: rvol   =0.0_cp
        real(kind=cp),dimension(3,3) :: GD     =0.0_cp      ! Direct Metric Tensor
        real(kind=cp),dimension(3,3) :: GR     =0.0_cp      ! Reciprocal Metric Tensor
        real(kind=cp),dimension(3,3) :: Cr_Orth_cel=0.0_cp  ! Fractional to Cartesian
@@ -222,6 +227,20 @@
     End Interface SigmaVolume
 
     Interface
+       Module Pure Subroutine ReciprocalCell(cell,ang,rcell,rang,rVol)
+          !---- Arguments ----!
+          real(kind=cp), dimension(3), intent(in ) :: cell,ang
+          real(kind=cp), dimension(3), intent(out) :: rcell,rang
+          real(kind=cp),               intent(out) :: rvol
+       End Subroutine ReciprocalCell
+       
+       Module Pure Subroutine Get_Cryst_Orthog_Matrix(Cell,Ang, Mat,CarType)
+          !---- Arguments ----!
+          real(kind=cp), dimension(3  ), intent (in ) :: cell,ang   ! Cell Parameters
+          real(kind=cp), dimension(3,3), intent (out) :: Mat        ! Convsersion matrix
+          character(len=*), optional,    intent (in ) :: CarType    ! Type of Cartesian axes  
+       End Subroutine Get_Cryst_Orthog_Matrix   
+       
        Module Pure Function Metrics(cell,ang) Result(G)
           !---- Arguments ----!
           real(kind=cp), dimension(3)  , intent(in ) :: cell  ! Cell Parameters
@@ -249,7 +268,33 @@
           real(kind=cp), dimension(3), intent(in) :: scell     ! standard deviation for cell parameters
           real(kind=cp), dimension(3), intent(in) :: sang
           real(kind=cp)                           :: sigma     ! Sigma
-       End Function SigmaV_Cell   
+       End Function SigmaV_Cell 
+       
+       Module Subroutine Write_Crystal_Cell(Cell, Iunit)
+          !---- Arguments ----!
+          class(CrysCell_Type),  intent(in) :: Cell         ! Cell object
+          Integer, optional,     intent(in) :: Iunit 
+       End Subroutine Write_Crystal_Cell 
+       
+       Module Subroutine Write_Bin_Crystal_Cell(Cell,Iunit)
+          !---- Arguments ----!
+          class(CrysCell_Type),  intent(in) :: Cell       ! Cell object
+          Integer,               intent(in) :: Iunit  
+       End Subroutine Write_Bin_Crystal_Cell  
+       
+       Module Subroutine Read_Bin_Crystal_Cell(Cell,Iunit)
+          !---- Arguments ----!
+          class(CrysCell_Type),  intent(out) :: Cell       ! Cell object
+          Integer,               intent(in)  :: Iunit  
+       End Subroutine Read_Bin_Crystal_Cell 
+       
+       Module Subroutine Set_Crystal_Cell(VCell,VAng,Cell,Cartype,Vscell,Vsang)
+          !---- Arguments ----!
+          real(kind=cp), dimension(3),         intent(in ) :: Vcell, Vang    ! Cell parameters
+          class(CrysCell_Type),                intent(out) :: Cell           ! Cell Object
+          character (len=*),          optional,intent(in ) :: CarType        ! Orientation in Cartesian
+          real(kind=cp), dimension(3),optional,intent(in ) :: Vscell, Vsang ! Standard deviations  
+       End Subroutine Set_Crystal_Cell    
              
     End Interface
      
