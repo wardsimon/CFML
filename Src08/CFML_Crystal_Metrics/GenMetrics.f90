@@ -1751,6 +1751,144 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
       return
     End Subroutine Get_Conventional_Cell
+    
+    !!----
+    !!---- FUNCTION CART_VECTOR
+    !!----
+    !!----    Convert a vector in crystal space to cartesian components
+    !!----    The value of code has been extended to use also the Busing-Levy
+    !!----    Cartesian system as reference also for direct and reciprocal space.
+    !!----    Codes:
+    !!----    The Cartesian frame is that defined by the setting of the "Celda" object
+    !!----         D: The components are given with respect to basis (a,b,c)
+    !!----         R: The components are given with respect to basis (a*,b*,c*)
+    !!----        BL: The components are given with respect to basis (a*,b*,c*) but
+    !!----            the Cartesian frame is that defined by Busing and Levy
+    !!----       BLD: The components are given with respect to basis (a,b,c) but
+    !!----            the Cartesian frame is that defined by Busing and Levy
+    !!----
+    !!----
+    !!---- Updated: June - 2012
+    !!
+    Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
+       !---- Arguments ----!
+       character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD 
+       real(kind=cp), dimension(3), intent(in) :: v         !  Vector                   
+       class(CrysCell_M_Type),      intent(in) :: Cell     !  Cell object           
+       real(kind=cp), dimension(3)             :: vc        !                           
+
+       !---- Local variable ----!
+       character(len=1) :: car
+       
+       !> Init
+       car=adjustl(mode)
+       Vc=0.0_cp
+       
+       select case (car)
+          case("d","D")
+             vc = matmul(cell%Cr_Orth_cel,v)  !Direct conversion to Cartesian frame
+       
+          case ("r","R")
+             vc = matmul(cell%GR,v)            !Converts to direct space
+             vc = matmul(cell%Cr_Orth_cel,vc)  !Converts to Cartesian frame
+       
+          case ("bl","BL")
+             vc = matmul(cell%BL_M,vc) !Direct conversion to BL Cartesian frame
+       
+          case ("bld","BLD")
+             vc = matmul(cell%GD,v)   !Converts to reciprocal space
+             vc = matmul(cell%BL_M,vc)!Converts to BL Cartesian frame
+       
+       end select
+
+       return
+    End Function Cart_Vector
+    
+    !!----
+    !!---- FUNCTION CART_U_VECTOR
+    !!----
+    !!----    Convert a vector in crystal space to unitary cartesian components
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
+       !---- Arguments ----!
+       character (len=*),           intent(in) :: Mode   ! Options, D, R, BL, BLD
+       real(kind=cp), dimension(3), intent(in) :: v      ! Vector
+       class(CrysCell_M_Type),      intent(in) :: Cell   ! Cell object
+       real(kind=cp), dimension(3)             :: vc
+
+       !---- Local Variables ----!
+       real(kind=cp) :: vmod
+
+       vc=cart_vector(Mode,v,cell)
+       vmod=sqrt(dot_product(vc,vc))
+       if (vmod > 0.0) vc=vc/vmod
+
+       return
+    End Function Cart_U_Vector
+    
+    !!----
+    !!---- Function Rot_MetricalMatrix(U, Phi, Celda)
+    !!----    real(kind=cp), dimension(3),        intent(in) :: U
+    !!----    real(kind=cp),                      intent(in) :: Phi
+    !!----    type (Crystal_Cell_Type), optional, intent(in) :: Celda
+    !!----    real(kind=cp), dimension(3,3)                  :: Rm
+    !!----
+    !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
+    !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
+    !!----    keeping the reference frame unchanged.
+    !!----
+    !!----    If one wants to calculate the components of the vector "v" in a rotated
+    !!----    reference frame it suffices to invoke the function using "-phi".
+    !!----    If "Celda" is present, "U" is in "Celda" coordinates,
+    !!----    if not "U" is in cartesian coordinates.
+    !!----
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+       !---- Argument ----!
+       real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
+       real(kind=cp),                    intent(in) :: phi   ! Degree of rotarion around V
+       class(CrysCell_M_Type), optional, intent(in) :: cell  ! Cell object
+       real(kind=cp), dimension(3,3)                :: Mat   ! Metrical Matrix rotated
+
+       !---- Local variables ----!
+       real(kind=cp)               :: c, s, umc, umod
+       real(kind=cp), dimension(3) :: vc
+
+       !> Init
+       if (present(cell)) then
+          vc= matmul(cell%cr_orth_cel,v)
+       else
+          vc=v
+       end if
+
+       umod=sqrt(dot_product(vc,vc))
+       if (umod < tiny(1.0)) then
+          vc=(/0.0,0.0,1.0/)
+       else
+          vc= vc/umod
+       end if
+
+       c= cosd(phi)
+       s= sind(phi)
+       umc = 1.0-c
+       Mat(1,1)= c+ umc*vc(1)**2
+       Mat(1,2)= umc*vc(1)*vc(2)- s*vc(3)
+       Mat(1,3)= umc*vc(1)*vc(3)+ s*vc(2)
+
+       Mat(2,1)= umc*vc(2)*vc(1)+ s*vc(3)
+       Mat(2,2)= c+ umc*vc(2)**2
+       Mat(2,3)= umc*vc(2)*vc(3)- s*vc(1)
+
+       Mat(3,1)= umc*vc(3)*vc(1)- s*vc(2)
+       Mat(3,2)= umc*vc(3)*vc(2)+ s*vc(1)
+       Mat(3,3)= c+ umc*vc(3)**2
+
+       return
+    End Function Rot_MetricalMatrix
         
  
 End Submodule GenMetrics 

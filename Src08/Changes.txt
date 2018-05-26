@@ -64,4 +64,6 @@ Changes on CFML_Crystal_Metric
           CrysCell_MLS_Type 
           
 4.- Was eliminated the ok agrument in the procedure Get_Transfm_Matrix           
-5.- Was eliminated the ok agrument in the procedure Get_basis_from_uvw           
+5.- Was eliminated the ok agrument in the procedure Get_basis_from_uvw 
+6.- Rot_Matrix renamed as Rot_MetricalMatrix
+7.- Renamed all function about Thermal conversions between U - Betas and B          

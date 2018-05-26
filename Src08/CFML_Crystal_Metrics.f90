@@ -127,7 +127,7 @@
     !---- Use files ----!
     Use CFML_GlobalDeps,       only: CP, eps, PI, TO_RAD, err_CFML, clear_error
     Use CFML_Math_3D,          only: Invert_Array3x3, Determ_Vec, determ_3x3, Cross_Product
-    Use CFML_Math_General,     only: co_linear, sort, co_prime
+    Use CFML_Math_General,     only: co_linear, sort, co_prime, swap
     Use CFML_String_Utilities, only: U_Case
 
     implicit none
@@ -226,6 +226,14 @@
        Module Procedure SigmaV_CellType
        Module Procedure SigmaV_Cell
     End Interface SigmaVolume
+    
+    Interface  Niggli_Cell                   ! The first(s) argument(s) is(are)
+      Module Procedure Niggli_Cell_abc       ! List of cell parameters passed as a 6D vector
+      Module Procedure Niggli_Cell_nigglimat ! Niggli matrix passed as a 2x3 matrix (ultimately applying the algorithm)
+      Module Procedure Niggli_Cell_Params    ! List of cell parameters a,b,c,alpha,beta,gamma
+      Module Procedure Niggli_Cell_type      ! The object Cell is passed as argument
+      Module Procedure Niggli_Cell_Vect      ! Input three vectors in Cartesian components
+    End Interface  Niggli_Cell
 
     Interface
        Module Pure Subroutine ReciprocalCell(cell,ang,rcell,rang,rVol)
@@ -359,8 +367,126 @@
           integer, dimension(3,3), intent(out) :: tr
           character(len=*),        intent(out) :: message
           real(kind=cp), optional, intent(in)  :: told  
-       End Subroutine Get_Conventional_Cell    
-             
+       End Subroutine Get_Conventional_Cell 
+       
+       Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
+          !---- Arguments ----!
+          character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD 
+          real(kind=cp), dimension(3), intent(in) :: v         !  Vector                   
+          class(CrysCell_M_Type),      intent(in) :: Cell      !  Cell object           
+          real(kind=cp), dimension(3)             :: vc        !                
+       End Function Cart_Vector
+       
+       Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
+          !---- Arguments ----!
+          character (len=*),           intent(in) :: Mode   ! Options, D, R, BL, BLD
+          real(kind=cp), dimension(3), intent(in) :: v      ! Vector
+          class(CrysCell_M_Type),      intent(in) :: Cell   ! Cell object
+          real(kind=cp), dimension(3)             :: vc
+       End Function Cart_U_Vector
+       
+       Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+          !---- Argument ----!
+          real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
+          real(kind=cp),                    intent(in) :: phi   ! Degree of rotarion around V
+          class(CrysCell_M_Type), optional, intent(in) :: cell  ! Cell object
+          real(kind=cp), dimension(3,3)                :: Mat   ! Metrical Matrix rotated
+       End Function Rot_MetricalMatrix  
+       
+       Module Pure Function U_Equiv(Cell, Th_U) Result(Uequi)
+          !---- Arguments ----!
+          class(CrysCell_M_Type),      intent(in)  :: Cell    ! Cell object
+          real(kind=cp), dimension(6), intent(in)  :: Th_U    ! U thermal parameters
+          real(kind=cp)                            :: Uequi   ! Uequiv
+       End Function U_Equiv
+       
+       Module Pure Function Get_Betas_from_B(B,Cell) Result(Beta)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6), intent(in)  :: B
+          class(CrysCell_M_Type),     intent(in)  :: Cell
+          real(kind=cp),dimension(6)              :: Beta
+       End Function Get_Betas_from_B
+       
+       Module Pure Function Get_U_from_B(B) Result(U)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6),  intent(in)  :: B
+          real(kind=cp),dimension(6)               :: U
+       End Function Get_U_from_B
+       
+       Module Pure Function Get_B_from_Betas(Beta,Cell) Result(B)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6), intent(in)  :: Beta
+          class(CrysCell_M_Type),     intent(in)  :: Cell
+          real(kind=cp),dimension(6)              :: B   
+       End Function Get_B_from_Betas
+       
+       Module Pure Function Get_Betas_from_U(U,Cell) Result(Beta)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6),intent(in)  :: U
+          class(CrysCell_M_Type),    intent(in)  :: Cell
+          real(kind=cp),dimension(6)             :: Beta    
+       End Function Get_Betas_from_U
+       
+       Module Pure Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+          !--- Argument ----!
+          real(kind=cp),           intent(in)  :: Biso
+          class(CrysCell_M_Type),  intent(in)  :: Cell
+          real(kind=cp), dimension(6)          :: Betas   
+       End Function Get_Betas_from_Biso
+       
+       Module Pure Function Get_U_from_Betas(Beta,Cell) Result(U)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6),intent(in)  :: Beta
+          class(CrysCell_M_Type),    intent(in)  :: Cell
+          real(kind=cp),dimension(6)             :: U  
+       End Function Get_U_from_Betas
+       
+       Module Pure Function Get_B_from_U(U) Result(B)
+          !---- Arguments ----!
+          real(kind=cp),dimension(6), intent(in)  :: U
+          real(kind=cp),dimension(6)              :: B
+       End Function Get_B_from_U  
+       
+       Module Subroutine Niggli_Cell_ABC(CellV,Niggli_Point,Cell,Trans)    
+          !---- Arguments ----!
+          real(kind=cp),dimension(6),             intent(in out) :: CellV         ! Cell parameters in a vector
+          real(kind=cp),dimension(5),   optional, intent(out)    :: Niggli_Point  ! Niggli points
+          class(CrysCell_Type),         optional, intent(out)    :: cell          ! Cell Object
+          real(kind=cp), dimension(3,3),optional, intent(out)    :: trans         ! Transformation matrix 
+       End Subroutine Niggli_Cell_ABC
+       
+       Module Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Cell,Trans)    
+          !---- Arguments ----!
+          real(kind=cp),dimension(2,3),              intent(in out) :: n_mat
+          real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+          class(CrysCell_Type),            optional, intent(out)    :: cell
+          real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans  
+       End Subroutine Niggli_Cell_Nigglimat
+       
+       Module Subroutine Niggli_Cell_Params(A,B,C,Al,Be,Ga,Niggli_Point,Cell,Trans)
+          !---- Arguments ----!
+          real(kind=cp),                           intent (in out)  :: a,b,c,al,be,ga
+          real(kind=cp),dimension(5),    optional, intent(out)      :: Niggli_Point
+          class(CrysCell_Type),          optional, intent(out)      :: cell
+          real(kind=cp), dimension(3,3), optional, intent(out)      :: trans
+       End Subroutine Niggli_Cell_Params
+       
+       Module Subroutine Niggli_Cell_Type(Cell,Niggli_Point,Celln,Trans)
+          !---- Arguments ----!
+          class(CrysCell_M_Type),                  intent(in out ) :: cell
+          real(kind=cp),dimension(5),    optional, intent(out)     :: Niggli_Point
+          class(CrysCell_Type),          optional, intent(out)     :: celln
+          real(kind=cp), dimension(3,3), optional, intent(out)     :: trans   
+       End Subroutine Niggli_Cell_Type
+       
+       Module Subroutine Niggli_Cell_Vect(A,B,C,Niggli_Point,Cell,Trans)
+          !---- Arguments ----!
+          real(kind=cp),dimension(3),                intent(in)     :: a,b,c
+          real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+          class(CrysCell_Type),            optional, intent(out)    :: cell
+          real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
+       End Subroutine Niggli_Cell_Vect
+            
     End Interface
      
  Contains
