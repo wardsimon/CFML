@@ -126,7 +126,8 @@
 
     !---- Use files ----!
     Use CFML_GlobalDeps,       only: CP, eps, PI, TO_RAD, err_CFML, clear_error
-    Use CFML_Math_3D,          only: Invert_Array3x3
+    Use CFML_Math_3D,          only: Invert_Array3x3, Determ_Vec, determ_3x3, Cross_Product
+    Use CFML_Math_General,     only: co_linear, sort, co_prime
     Use CFML_String_Utilities, only: U_Case
 
     implicit none
@@ -294,7 +295,71 @@
           class(CrysCell_Type),                intent(out) :: Cell           ! Cell Object
           character (len=*),          optional,intent(in ) :: CarType        ! Orientation in Cartesian
           real(kind=cp), dimension(3),optional,intent(in ) :: Vscell, Vsang ! Standard deviations  
-       End Subroutine Set_Crystal_Cell    
+       End Subroutine Set_Crystal_Cell 
+       
+       Module Subroutine Get_Cryst_Family(Cell, Str_Family, Str_Symbol, Str_System)
+          !---- Arguments ----!
+          class(CrysCell_Type),   intent(in ) :: Cell
+          character(len=*),       intent(out) :: Str_Family
+          character(len=*),       intent(out) :: Str_Symbol
+          character(len=*),       intent(out) :: Str_System 
+       End Subroutine Get_Cryst_Family  
+       
+       Module Subroutine Get_Deriv_Orth_Cell(Cell,De_Orthcell,Cartype)
+          !---- Arguments ----!
+          class(CrysCell_type),            intent(in ) :: cell
+          real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
+          character (len=1), optional,     intent(in ) :: CarType  
+       End Subroutine Get_Deriv_Orth_Cell 
+       
+       Module Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
+          !---- Arguments ----!
+          class(CrysCell_Type),          intent( in)     :: Cell
+          real(kind=cp), dimension (3,3),intent( in)     :: Mat
+          class(CrysCell_Type),          intent(out)     :: Celln
+          character(len=*),  optional,   intent (in)     :: Matkind  
+       End Subroutine Change_Setting_Cell
+       
+       Module Subroutine Get_Primitive_Cell(Lat_Type,Centred_Cell,Primitive_Cell,Transfm)
+          !---- Arguments ----!
+          character(len=*),              intent(in)  :: lat_type          
+          class(CrysCell_Type),          intent(in)  :: centred_cell      
+          class(CrysCell_Type),          intent(out) :: primitive_cell    
+          real(kind=cp), dimension(3,3), intent(out) :: transfm   
+       End Subroutine Get_Primitive_Cell
+       
+       Module Subroutine Get_Transfm_Matrix(Cella,Cellb,Trm,tol)
+          !---- Arguments ----!
+          class(CrysCell_Type),          intent(in) :: cella  ! Cell object
+          class(CrysCell_Type),          intent(in) :: cellb  ! Cell object
+          real(kind=cp), dimension(3,3), intent(out):: trm    ! Transformation matrix
+          real(kind=cp), optional,       intent(in) :: tol    ! Tolerance   
+       End Subroutine Get_Transfm_Matrix 
+       
+       Module Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,mode)
+          !--- Arguments ---!
+          real(kind=cp),              intent(in) :: dmin      ! Minimum d-spacing (smax=1/dmin)
+          integer, dimension(3),      intent(in) :: u         ! Zone axis indices
+          class(CrysCell_Type),       intent(in) :: cell      ! Cell object
+          type (Zone_Axis_Type),      intent(out):: ZoneB     ! !Object containing u and basis vector in the plane
+          character(len=*), optional, intent(in) :: mode         
+       End Subroutine Get_basis_from_uvw
+       
+       Module Subroutine Get_TwoFold_Axes(Cell,Tol,Twofold)
+          !---- Arguments ----!
+          class(CrysCell_M_Type),   intent (in) :: Cell     ! Cell object
+          real(kind=cp),           intent (in) :: Tol       ! angular tolerance in degrees
+          Type(twofold_axes_type), intent(out) :: Twofold
+       End Subroutine Get_TwoFold_Axes
+       
+       Module Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,told)
+          !---- Arguments ----!
+          Type(Twofold_Axes_Type), intent(in)  :: Twofold
+          class(CrysCell_Type),    intent(out) :: Cell
+          integer, dimension(3,3), intent(out) :: tr
+          character(len=*),        intent(out) :: message
+          real(kind=cp), optional, intent(in)  :: told  
+       End Subroutine Get_Conventional_Cell    
              
     End Interface
      

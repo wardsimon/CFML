@@ -57,5 +57,11 @@ Changes on CFML_BVSpar
 Changes on CFML_Crystal_Metric
 ================================
 1.- Recip -> ReciprocalCell
-2.- Now the routines using class type for this reason now is better to use in the programs
-     class(type), allocatable :: namevar
+2.- Now the routines using class type for different types
+3.- Type: CrysCell_Type     Basic form and Ancient for the rest types by extension
+          CrysCell_M_Type
+          CrysCell_LS_Type
+          CrysCell_MLS_Type 
+          
+4.- Was eliminated the ok agrument in the procedure Get_Transfm_Matrix           
+5.- Was eliminated the ok agrument in the procedure Get_basis_from_uvw           
