@@ -11,7 +11,7 @@ Submodule (CFML_Math_General) CFML_MG_11
     !!----
     !!---- Update: February - 2005
     !!
-    Module Subroutine Spline(x,y,n,yp1,ypn,y2)    
+    Module Pure Subroutine Spline(x,y,n,yp1,ypn,y2)    
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X
        real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)
@@ -61,19 +61,21 @@ Submodule (CFML_Math_General) CFML_MG_11
     !!----
     !!---- Update: February - 2005
     !!
-    Module Subroutine Splint(xa,ya,y2a,n,x,y)    
+    Module Pure Function Splint(xa,ya,y2a,n,x) Result(y)    
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: xa          !  In -> Array X
        real(kind=cp), dimension(:), intent(in)  :: ya          !  In -> Array Y=F(X)
        real(kind=cp), dimension(:), intent(in)  :: y2a         !  In -> Array Second Derivatives in X
        integer ,                    intent(in)  :: n           !  In -> Dimension of XA,YA,Y2A
        real(kind=cp),               intent(in)  :: x           !  In -> Point to evaluate
-       real(kind=cp),               intent(out) :: y           ! Out -> Interpoled value
+       real(kind=cp)                            :: y           ! Out -> Interpoled value
 
        !---- Local Variables ----!
        integer          :: klo, khi, k
        real(kind=cp)    :: h, a, b
 
+       y=0.0_cp
+       
        klo=1
        khi=n
        do
@@ -93,10 +95,12 @@ Submodule (CFML_Math_General) CFML_MG_11
        h=xa(khi)-xa(klo)
        a=(xa(khi)-x)/h
        b=(x-xa(klo))/h
+       
+       !>
        y=a*ya(klo)+b*ya(khi)+((a**3-a)*y2a(klo)+(b**3-b)* y2a(khi))*(h**2)/6.0
 
        return
-    End Subroutine Splint
+    End Function Splint
     
     !!---- SUBROUTINE FIRST_DERIVATIVE
     !!----
@@ -104,7 +108,7 @@ Submodule (CFML_Math_General) CFML_MG_11
     !!----
     !!---- Update: January - 2006
     !!
-    Module Subroutine First_Derivative(x,y,n,d2y,d1y)    
+    Module Pure Subroutine First_Derivative(x,y,n,d2y,d1y)    
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x     ! Input vector
        real(kind=cp), dimension(:), intent(in)  :: y     ! Yi=F(xi)
@@ -121,10 +125,10 @@ Submodule (CFML_Math_General) CFML_MG_11
              step = x(i+1)-x(i)
           end if
           x0 = x(i) - step/2.0
-          call splint(x,y, d2y, n, x0, y0)
+          y0 =splint(x,y, d2y, n, x0)
           y1 = y0
           x0 = x(i) + step/2
-          call splint(x,y, d2y, n, x0, y0)
+          y0 =splint(x,y, d2y, n, x0)
           y2 = y0
           d1y(i) = (y2 - y1) / step
        end do
@@ -138,7 +142,7 @@ Submodule (CFML_Math_General) CFML_MG_11
     !!----
     !!---- Update: January - 2006
     !!
-    Module Subroutine Second_Derivative(x,y,n,d2y)    
+    Module Pure Subroutine Second_Derivative(x,y,n,d2y)    
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x    ! Input X vector
        real(kind=cp), dimension(:), intent(in)  :: y    ! Yi=F(xi)

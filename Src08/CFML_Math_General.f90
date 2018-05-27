@@ -60,7 +60,7 @@
     public ::  Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
                Sort_Strings, Spline, Splint, Set_Epsg,In_Sort,      &
                First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector, AM_Median, Sph_Jn
+               Co_Prime_vector, Median_QS, Sph_Jn
 
     !---- List of public overloaded procedures: subroutines ----!
     public ::  Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
@@ -645,12 +645,12 @@
           real(kind=sp)                :: der
        End Function Erfc_Deriv_SP 
  
-       Module Pure Subroutine AM_Median(x, n, xmed)    
+       Module Pure Subroutine Median_QS(x, n, xmed)    
           !---- Arguments ----!       
           real(kind=cp), dimension(:), intent(in out) :: x      ! In: Vector  Out: Sorted vector       
           integer,                     intent(in)     :: n      ! Number of data in X       
           real(kind=cp),               intent(out)    :: xmed   ! Media of consided data       
-       End Subroutine AM_Median    
+       End Subroutine Median_QS    
  
        Module Subroutine Co_Prime_Vector(V,Cop,f)    
           !---- Arguments ----!       
@@ -699,7 +699,7 @@
           integer,                       intent(in)     :: io       
        End Subroutine Diagonalize_EigenvSort    
  
-       Module Subroutine First_Derivative(x,y,n,d2y,d1y)    
+       Module Pure Subroutine First_Derivative(x,y,n,d2y,d1y)    
           !---- Arguments ----!       
           real(kind=cp), dimension(:), intent(in)  :: x     ! Input vector       
           real(kind=cp), dimension(:), intent(in)  :: y     ! Yi=F(xi)       
@@ -797,7 +797,7 @@
           integer,                      intent(out)      :: r       
        End Subroutine Rank_sp    
  
-       Module Subroutine Second_Derivative(x,y,n,d2y)    
+       Module Pure Subroutine Second_Derivative(x,y,n,d2y)    
           !---- Arguments ----!       
           real(kind=cp), dimension(:), intent(in)  :: x    ! Input X vector       
           real(kind=cp), dimension(:), intent(in)  :: y    ! Yi=F(xi)       
@@ -832,7 +832,7 @@
           character(len=*), dimension(:), intent(in out) :: Str       
        End Subroutine Sort_Strings    
  
-       Module Subroutine Spline(x,y,n,yp1,ypn,y2)    
+       Module Pure Subroutine Spline(x,y,n,yp1,ypn,y2)    
           !---- Arguments ----!       
           real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X       
           real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)       
@@ -842,15 +842,15 @@
           real(kind=cp), dimension(:), intent(out) :: y2              ! Out -> array containing second derivatives       
        End Subroutine Spline    
  
-       Module Subroutine Splint(xa,ya,y2a,n,x,y)    
+       Module Pure Function Splint(xa,ya,y2a,n,x) Result(y)   
           !---- Arguments ----!       
           real(kind=cp), dimension(:), intent(in)  :: xa          !  In -> Array X       
           real(kind=cp), dimension(:), intent(in)  :: ya          !  In -> Array Y=F(X)       
           real(kind=cp), dimension(:), intent(in)  :: y2a         !  In -> Array Second Derivatives in X       
           integer ,                    intent(in)  :: n           !  In -> Dimension of XA,YA,Y2A       
           real(kind=cp),               intent(in)  :: x           !  In -> Point to evaluate       
-          real(kind=cp),               intent(out) :: y           ! Out -> Interpoled value       
-       End Subroutine Splint    
+          real(kind=cp)                            :: y           ! Out -> Interpoled value       
+       End Function Splint    
  
        Module Subroutine Sph_Jn(n,x,nm,jn,djn)    
           !---- Arguments ----!       

@@ -6,7 +6,7 @@
 Submodule (CFML_Math_General) CFML_MG_01
  Contains
  
-    !!---- SUBROUTINE AM_MEDIAN
+    !!---- SUBROUTINE MEDIAN_QS
     !!----
     !!---- Subroutine calculating the median of a real array
     !!----      Find the median of X(1), ... , X(N), using as much of the quicksort
@@ -16,7 +16,7 @@ Submodule (CFML_Math_General) CFML_MG_01
     !!----      Based in Alan Miller's median.f90 code.
     !!----
     !!
-    Module Pure Subroutine AM_Median(x, n, xmed)    
+    Module Pure Subroutine Median_QS(x, n, xmed)    
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in out) :: x      ! In: Vector  Out: Sorted vector
        integer,                     intent(in)     :: n      ! Number of data in X
@@ -138,6 +138,6 @@ Submodule (CFML_Math_General) CFML_MG_01
        xmed = x(nby2p1)
 
        return
-    End Subroutine AM_Median
+    End Subroutine Median_QS
  
 End Submodule CFML_MG_01

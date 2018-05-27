@@ -24,6 +24,8 @@ Changes on CFML_Math_General Procedures
 7.- Change the order of the arguments in IN_LIMITS
 8.- Set_EPGSS without arguments set to default value
 9.- Eliminated RTAN
+10.- Split is now a function
+11.- AM_Median has been renamed as Median_QS
 
 Changes on CFML_Math3D
 =========================
