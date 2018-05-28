@@ -50,7 +50,6 @@ rem
    echo OPT3:%OPT3%
    echo ----
    echo.
-   goto XXX
 rem
    echo .... Global Dependencies for CFML
 rem
@@ -185,7 +184,6 @@ rem   Submodulos CFML_Rational_Arithmetic
       move /y *.o .. > nul
       cd ..
 rem
-:XXX
    echo .... Crystal Metrics
 rem
    gfortran -C %OPTC% -J.\mod CFML_crystal_metrics.f90               %OPT1% %OPT2% 
@@ -199,6 +197,7 @@ rem   Submodulos CFML_Crystal_Metrics
       gfortran -c %OPTC% -J..\mod Nigglicell.f90                     %OPT1% %OPT2% 
       move /y *.o .. > nul
       cd ..  
+   goto FIN
    goto TTT
    echo .... Patterns Information
 rem        
