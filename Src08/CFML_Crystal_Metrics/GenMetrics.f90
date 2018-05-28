@@ -14,7 +14,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     !!----
     !!---- Updated: January - 2013 (JRC)
     !!
-    Module Pure Function SigmaV_CellType(Cell) Result(sigma)
+    Module Function SigmaV_CellType(Cell) Result(sigma)
        !---- Arguments ----!
        class(CrysCell_Type), intent(in) :: Cell      ! Cell Parameters
        real(kind=cp)                    :: sigma     ! Sigma
@@ -67,7 +67,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     !!----
     !!---- Updated: January - 2013 (JRC)
     !!
-    Module Pure Function SigmaV_Cell(cell,ang,scell,sang) Result(sigma)
+    Module Function SigmaV_Cell(cell,ang,scell,sang) Result(sigma)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: cell      ! Cell parameters
        real(kind=cp), dimension(3), intent(in) :: ang 
@@ -116,7 +116,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     !!---- Calculate the volume of a Cell
     !!----
     !!
-    Module Pure Function Volume_Cell(cell,ang) Result(Vol)
+    Module Function Volume_Cell(cell,ang) Result(Vol)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: cell
        real(kind=cp), dimension(3), intent(in) :: ang

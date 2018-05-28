@@ -22,7 +22,7 @@ Submodule (CFML_Math_General) Locate
        integer                          :: j
 
        !---- Local Variables ----!
-       integer :: jl, ju, jm, i1,i2,mi
+       integer :: jl, ju, jm, i1,i2
 
        i1=lbound(v,dim=1)
        i2=ubound(v,dim=1)
@@ -68,7 +68,7 @@ Submodule (CFML_Math_General) Locate
        integer                                :: j
 
        !---- Local Variables ----!
-       integer :: jl, ju, jm, i1,i2,mi
+       integer :: jl, ju, jm, i1,i2
 
        i1=lbound(v,dim=1)
        i2=ubound(v,dim=1)
