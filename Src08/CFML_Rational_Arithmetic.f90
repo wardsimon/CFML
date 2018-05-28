@@ -682,19 +682,19 @@
        type(rational), intent (in out) :: r
 
        do
-      	  if (r < 0_il//1_il) then
-      	 	   r=r+1_il
-      	  else
-      	 	   exit
-      	  end if
+          if (r < 0_il//1_il) then
+             r=r+1_il
+          else
+             exit
+          end if
        end do
 
        do
-      	  if (r >= 1_il//1_il) then
-      	 	   r=r-1_il
-      	  else
-      	 	   exit
-      	  end if
+          if (r >= 1_il//1_il) then
+             r=r-1_il
+          else
+             exit
+          end if
        end do
 
        return

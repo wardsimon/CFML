@@ -61,7 +61,7 @@ Module CFML_GlobalDeps
    !---- Precision ----!
    integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
    integer, parameter :: SP = selected_real_kind(6,30)           ! Simple precision
-   integer, parameter :: IL = selected_int_kind(20)              ! Long Integer
+   integer, parameter :: IL = selected_int_kind(16)              ! Long Integer
 
    integer, parameter :: CP = SP                                 ! Current precision
 

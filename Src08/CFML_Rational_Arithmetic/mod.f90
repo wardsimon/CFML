@@ -1,4 +1,4 @@
-Submodule (CFML_Rational_Arithmetic) Mod
+Submodule (CFML_Rational_Arithmetic) Ov_Mod
 
  Contains
     !!----
@@ -11,7 +11,7 @@ Submodule (CFML_Rational_Arithmetic) Mod
        type(rational), intent (in) :: r
        integer                     :: res
       
-       res = mod (r%numerator, r%denominator)
+       res = mod(r%numerator, r%denominator)
        
        return
     End Function Rational_Mod
@@ -36,4 +36,4 @@ Submodule (CFML_Rational_Arithmetic) Mod
       return
     End Function Rational_Mod_Int
  
-End Submodule Mod
+End Submodule Ov_Mod

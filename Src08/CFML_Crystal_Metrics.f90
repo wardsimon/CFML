@@ -236,21 +236,21 @@
     End Interface  Niggli_Cell
 
     Interface
-       Module Pure Subroutine ReciprocalCell(cell,ang,rcell,rang,rVol)
+       Module Subroutine ReciprocalCell(cell,ang,rcell,rang,rVol)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in ) :: cell,ang
           real(kind=cp), dimension(3), intent(out) :: rcell,rang
           real(kind=cp),               intent(out) :: rvol
        End Subroutine ReciprocalCell
        
-       Module Pure Subroutine Get_Cryst_Orthog_Matrix(Cell,Ang, Mat,CarType)
+       Module Subroutine Get_Cryst_Orthog_Matrix(Cell,Ang, Mat,CarType)
           !---- Arguments ----!
           real(kind=cp), dimension(3  ), intent (in ) :: cell,ang   ! Cell Parameters
           real(kind=cp), dimension(3,3), intent (out) :: Mat        ! Convsersion matrix
           character(len=*), optional,    intent (in ) :: CarType    ! Type of Cartesian axes  
        End Subroutine Get_Cryst_Orthog_Matrix   
        
-       Module Pure Function Metrics(cell,ang) Result(G)
+       Module Function Metrics(cell,ang) Result(G)
           !---- Arguments ----!
           real(kind=cp), dimension(3)  , intent(in ) :: cell  ! Cell Parameters
           real(kind=cp), dimension(3)  , intent(in ) :: ang
@@ -369,7 +369,7 @@
           real(kind=cp), optional, intent(in)  :: told  
        End Subroutine Get_Conventional_Cell 
        
-       Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
+       Module Function Cart_Vector(Mode,V,Cell) Result(Vc)
           !---- Arguments ----!
           character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD 
           real(kind=cp), dimension(3), intent(in) :: v         !  Vector                   
@@ -377,7 +377,7 @@
           real(kind=cp), dimension(3)             :: vc        !                
        End Function Cart_Vector
        
-       Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
+       Module Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
           !---- Arguments ----!
           character (len=*),           intent(in) :: Mode   ! Options, D, R, BL, BLD
           real(kind=cp), dimension(3), intent(in) :: v      ! Vector
@@ -385,7 +385,7 @@
           real(kind=cp), dimension(3)             :: vc
        End Function Cart_U_Vector
        
-       Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+       Module Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
           !---- Argument ----!
           real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
           real(kind=cp),                    intent(in) :: phi   ! Degree of rotarion around V
@@ -489,8 +489,5 @@
             
     End Interface
      
- Contains
-
-    
 
  End Module CFML_Crystal_Metrics

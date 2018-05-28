@@ -1,4 +1,4 @@
-Submodule (CFML_Rational_Arithmetic) Modulo
+Submodule (CFML_Rational_Arithmetic) Ov_Modulo
 
  Contains
     !!----
@@ -36,4 +36,4 @@ Submodule (CFML_Rational_Arithmetic) Modulo
        return
     End Function Rational_Modulo_Int
  
-End Submodule Modulo 
+End Submodule Ov_Modulo 

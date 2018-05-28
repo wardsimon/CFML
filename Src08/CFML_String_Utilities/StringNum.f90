@@ -1176,14 +1176,17 @@
        integer           :: n,np,iy,long
        real(kind=cp)     :: y
 
-       if (abs(std) < 0.0000001) then
+       !> Init
+       if (abs(std) < tiny(1.0)) then
           if (abs(value) > 999999.0) then
              write(unit=aux,fmt=*) value
           else
              write(unit=aux,fmt="(f16.5)") value
           end if
-          str=adjustl(aux)
-          if (str(1:1) /= "-") str=" "//trim(str)
+          aux=adjustl(aux)
+          if (aux(1:1) /= "-") aux=" "//trim(aux)
+          str=trim(aux)
+          
           return
        end if
 
@@ -1236,9 +1239,9 @@
        else
           str=str(1:n)//trim(aux)//")"
        end if
-       str=pack_string(str)
-
-       if (str(1:1) /= "-") str=" "//trim(str)
+       aux=pack_string(str)
+       if (aux(1:1) /= "-") aux=" "//trim(aux)
+       str=trim(aux)
 
        return
     End Subroutine Set_NumStd
