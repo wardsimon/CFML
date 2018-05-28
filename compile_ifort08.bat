@@ -199,6 +199,8 @@ rem   Submodulos CFML_Crystal_Metrics
       cd CFML_Crystal_Metrics
       ifort /c genmetrics.f90                    /nologo %OPT1% %OPT2% /module:..\mod
       ifort /c ioroutines.f90                    /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ThConver.f90                      /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c Nigglicell.f90                    /nologo %OPT1% %OPT2% /module:..\mod
       move /y *.obj .. > nul
       cd ..  
    goto TTT
@@ -224,8 +226,6 @@ rem
 rem
    echo .... Crystal Metrics
 rem
-   ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
-   goto FIN
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
 rem
    echo **---- Level 3 ----**

@@ -23,12 +23,12 @@ rem ---- Options
 rem
    if [%_DEBUG%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=GFortran_debug) else (set DIRECTORY=GFortran64_debug)
-      (set OPT0=-O0 -fdec-math -fbacktrace  -ffree-line-length-none)
-      (set OPT1=-O0 -fdec-math -fbacktrace  -ffree-line-length-none)
+      (set OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
+      (set OPT1=-O0 -std=f2098 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
    ) else (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=GFortran) else (set DIRECTORY=GFortran64)
-      (set OPT0=-O0 -ffree-line-length-none -funroll-loops  -fdec-math -msse2)
-      (set OPT1=-O3 -ffree-line-length-none -funroll-loops  -fdec-math -msse2)
+      (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math )
+      (set OPT1=-O3 -std=f2008 -ffree-line-length-0 -fdec-math )
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
@@ -50,10 +50,11 @@ rem
    echo OPT3:%OPT3%
    echo ----
    echo.
+   goto XXX
 rem
    echo .... Global Dependencies for CFML
 rem
-   gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90       %OPT1% %OPT2%         
+   gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90       %OPT1% %OPT2%  
 rem
    echo .... Mathematics Procedures
 rem
@@ -95,8 +96,9 @@ rem   Submodulos CFML_Math_General
       gfortran -c %OPTC%  -J..\mod Trace.f90                         %OPT1% %OPT2% 
       gfortran -c %OPTC%  -J..\mod Upper_Triangular.f90              %OPT1% %OPT2% 
       gfortran -c %OPTC%  -J..\mod Zbelong.f90                       %OPT1% %OPT2%   
+      move /y *.o .. > nul
       cd ..
-rem      
+rem
    gfortran -c %OPTC% -J.\mod CFML_math_3D.f90                       %OPT1% %OPT2%
 rem 
 rem   Submodulos CFML_Math_3D   
@@ -115,8 +117,9 @@ rem   Submodulos CFML_Math_3D
       gfortran -c %OPTC%  -J..\mod Rotation_Axes.f90                 %OPT1% %OPT2%
       gfortran -c %OPTC%  -J..\mod Tensor_Product.f90                %OPT1% %OPT2%
       gfortran -c %OPTC%  -J..\mod Vec_Length.f90                    %OPT1% %OPT2%
-      cd ..  
-rem    
+      move /y *.o .. > nul
+      cd .. 
+rem
    gfortran -c %OPTC% -J.\mod CFML_spher_harm.f90                    %OPT1% %OPT2%  
    gfortran -c %OPTC% -J.\mod CFML_random.f90                        %OPT1% %OPT2%
    gfortran -c %OPTC% -J.\mod CFML_ffts.f90                          %OPT1% %OPT2%
@@ -129,31 +132,91 @@ rem
 rem   
    echo .... IO Messages /String Utilities
 rem   
+   if [%_WINTER%]==[Y] (
+     gfortran -c %OPTC% -J.\mod CFML_io_messwin.f90                  %OPT1% %OPT2% %OPT3%
+   ) else (
+     gfortran -c %OPTC% -J.\mod CFML_io_mess.f90                     %OPT1% %OPT2%
+   )
+rem 
    gfortran -c %OPTC% -J.\mod CFML_string_util.f90                   %OPT1% %OPT2%
+rem  
+rem   Submodulos CFML_String_Utilities
+      cd  CFML_String_Utilities
+      gfortran -c %OPTC% -J..\mod StringFullp.f90                    %OPT1% %OPT2%
+      gfortran -c %OPTC% -J..\mod StringTools.f90                    %OPT1% %OPT2%
+      gfortran -c %OPTC% -J..\mod StringNum.f90                      %OPT1% %OPT2%
+      gfortran -c %OPTC% -J..\mod StringReadKey.f90                  %OPT1% %OPT2%
+      move /y *.o .. > nul
+      cd ..
+rem
+   echo .... Tables definitions
+   gfortran -c %OPTC% -J.\mod CFML_BVSpar.f90                        %OPT0% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_chem_scatt.f90                    %OPT0% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_bonds_table.f90                   %OPT0% %OPT2%
+   gfortran -c %OPTC% -J.\mod CFML_sym_table.f90                     %OPT0% %OPT2%
+rem  
+rem 
+   echo .... Rational Arithmetic
+rem
+   gfortran -C %OPTC% -J.\mod CFML_Rational_Arithmetic.f90           %OPT1% %OPT2% 
+rem  
+rem   Submodulos CFML_Rational_Arithmetic
+      cd CFML_Rational_Arithmetic   
+      gfortran -c %OPTC% -J..\mod  assignment.f90                    %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  constructor.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  matmul.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  maxloc.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  maxval.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  minloc.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  minval.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  mod.f90                           %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  modulo.f90                        %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_add.f90                  %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_division.f90             %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_eq.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_ge.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_gt.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_le.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_lt.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_minus.f90                %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_multiply.f90             %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  operator_ne.f90                   %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod  overloads.f90                     %OPT1% %OPT2% 
+      move /y *.o .. > nul
+      cd ..
+rem
+:XXX
+   echo .... Crystal Metrics
+rem
+   gfortran -C %OPTC% -J.\mod CFML_crystal_metrics.f90               %OPT1% %OPT2% 
+rem  
+rem   Submodulos CFML_Crystal_Metrics
+      cd CFML_Crystal_Metrics
+      gfortran -c %OPTC% -J..\mod genmetrics.f90                     %OPT1% %OPT2% 
+      goto FIN
+      gfortran -c %OPTC% -J..\mod ioroutines.f90                     %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod ThConver.f90                       %OPT1% %OPT2% 
+      gfortran -c %OPTC% -J..\mod Nigglicell.f90                     %OPT1% %OPT2% 
+      move /y *.o .. > nul
+      cd ..  
+   goto TTT
+   echo .... Patterns Information
+rem        
    goto FIN
 rem   
    gfortran -c %OPTC% CFML_LSQ_TypeDef.f90                      %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_string_util.f90                      %OPT1% %OPT2%
-   if [%_WINTER%]==[Y] (
-     gfortran -c %OPTC% CFML_io_messwin.f90                     %OPT1% %OPT2% %OPT3%
-   ) else (
-     gfortran -c %OPTC% CFML_io_mess.f90                        %OPT1% %OPT2%
-   )
+   
 rem
    echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    gfortran -c %OPTC% CFML_optimization.f90                     %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_optimization_lsq.f90                 %OPT1% %OPT2%
-   gfortran -c %OPTC% CFML_sym_table.f90                        %OPT0% %OPT2%
-   gfortran -c %OPTC% CFML_chem_scatt.f90                       %OPT0% %OPT2%
-   gfortran -c %OPTC% CFML_BVSpar.f90                           %OPT0% %OPT2%
    gfortran -c %OPTC% CFML_diffpatt.f90                         %OPT1% %OPT2%
 rem
    echo **---- Level 2 ----**
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
-   gfortran -c %OPTC% CFML_bonds_table.f90                      %OPT0% %OPT2%
    gfortran -c %OPTC% CFML_cryst_types.f90                      %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_symmetry.f90                         %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_ILL_Instrm_data.f90                  %OPT1% %OPT2%
@@ -175,7 +238,6 @@ rem
    echo **---- Level 5 ----**
    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
-   gfortran -c %OPTC% CFML_Extinction_Correction.f90           %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_sfac.f90                            %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_sxtal_Geom.f90                      %OPT1% %OPT2%
    gfortran -c %OPTC% CFML_propagk.f90                         %OPT1% %OPT2%
@@ -201,6 +263,7 @@ rem
    gfortran -c %OPTC% CFML_polar.f90                           %OPT1% %OPT2%
 rem
 rem
+:TTT
    echo **---- Crysfml Library ----**
 rem
    if [%_WINTER%]==[Y] (
@@ -213,19 +276,19 @@ rem
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (
-     if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
-     mkdir ..\%DIRECTORY%\LibW
-     copy *.mod ..\%DIRECTORY%\LibW > nul
-     move *.lib ..\%DIRECTORY%\LibW > nul
+     if exist ..\%DIRECTORY%\LibW08 rmdir ..\%DIRECTORY%\LibW08 /S /Q
+     mkdir ..\%DIRECTORY%\LibW08
+     copy *.mod ..\%DIRECTORY%\LibW08 > nul
+     move *.lib ..\%DIRECTORY%\LibW08 > nul
    ) else (
-     if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
-     mkdir ..\%DIRECTORY%\LibC
-     copy *.mod ..\%DIRECTORY%\LibC > nul
-     move *.a ..\%DIRECTORY%\LibC > nul
+     if exist ..\%DIRECTORY%\LibC08 rmdir ..\%DIRECTORY%\LibC08 /S /Q
+     mkdir ..\%DIRECTORY%\LibC08
+     copy *.mod ..\%DIRECTORY%\LibC08 > nul
+     move *.a ..\%DIRECTORY%\LibC08 > nul
    )
-   del *.o *.mod *.lst *.bak > nul
+   del *.o  *.lst *.bak > nul
 rem
-   cd %CRYSFML%\Scripts\Windows
+rem   cd %CRYSFML%\Scripts\Windows
 :FIN
-   del *.o *.obj *.mod > nul
+rem   del *.o *.obj *.mod > nul
    cd ..   
