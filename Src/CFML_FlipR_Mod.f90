@@ -12,7 +12,7 @@
       !
       USE CFML_Spherical_Harmonics,   only: Real_Spher_Harm_Ucvec,Real_Spher_HarmCharge_Ucvec, Int_Slater_Bessel
       USE CFML_Reflections_Utilities, only: unit_cart_hkl
-      USE CFML_Crystal_Metrics,       only: cart_vector,
+      USE CFML_Crystal_Metrics,       only: cart_vector
       USE CFML_Extinction_Correction, only: Correct_FlippingRatios
       USE CFML_IO_Messages ,          only: Error_Message
 
