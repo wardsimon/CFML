@@ -144,6 +144,8 @@ Module CFML_GlobalDeps
    !!
    integer, parameter :: cp = sp
 
+   integer, parameter :: IL = selected_int_kind(16)              ! Long Integer
+
    !----------------------------------!
    !---- Trigonometric Parameters ----!
    !----------------------------------!

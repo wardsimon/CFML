@@ -24,7 +24,7 @@ rem
    if [%_DEBUG%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=GFortran_debug) else (set DIRECTORY=GFortran64_debug)
       (set OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
-      (set OPT1=-O0 -std=f2098 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
+      (set OPT1=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
    ) else (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=GFortran) else (set DIRECTORY=GFortran64)
       (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math )

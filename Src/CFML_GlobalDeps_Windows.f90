@@ -212,6 +212,8 @@ Module CFML_GlobalDeps
    !!
    real(kind=cp),  parameter, public  ::  eps=0.00001_cp
 
+   integer, parameter :: IL = selected_int_kind(16)              ! Long Integer
+
  Contains
 
    !-------------------!
