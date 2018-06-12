@@ -899,12 +899,6 @@
              else
                 atm%atom(n_atom)%chemSymb=U_case(label(lugar(2))(1:1))//L_case(label(lugar(2))(2:2))
              end if
-           !  call getnum(label(lugar(2))(2:2),vet1,ivet,iv)
-           !  if (iv <= 0) then
-           !     atm%atom(n_atom)%chemSymb=label(lugar(2))(1:2)
-           !  else
-           !     atm%atom(n_atom)%chemSymb=label(lugar(2))(1:1)
-           !  end if
           else
              if(index("1234567890+-",label(lugar(1))(2:2)) /= 0 ) then
                 atm%atom(n_atom)%chemSymb=U_case(label(lugar(1))(1:1))
@@ -1029,7 +1023,7 @@
              if (nc < nct) cycle
 
              do j=1,n_atom
-                if (atm%atom(j)%lab(1:4) /= label(lugar(1))(1:4)) cycle
+                if (trim(atm%atom(j)%lab) /= trim(label(lugar(1))) ) cycle
 
                 call getnum_std(label(lugar(2)),vet1,vet2,iv)    ! _atom_site_aniso_U_11
                 atm%atom(j)%u(1)=vet1(1)
