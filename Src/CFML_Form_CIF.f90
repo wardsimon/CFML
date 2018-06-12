@@ -781,10 +781,10 @@
        type (atom_list_type),            intent(out)     :: Atm_List
 
        !---- Local Variables ----!
-       character(len=len(filevar(1)))      :: string,cp_str
+       character(len=len(filevar(1)))      :: string
        character(len=20),dimension(15)     :: label
        type(Atom_Type)                     :: aux_atm
-       integer                             :: i, j, nc, nct, nline, iv, First, nline_big,num_ini
+       integer                             :: i, j, nc, nct, nline, iv, First, nline_big,num_ini,mm
        integer, dimension( 8)              :: lugar   !   1 -> label
                                                       !   2 -> Symbol
                                                       ! 3-5 -> coordinates
@@ -876,16 +876,16 @@
        nct=count(lugar > 0)
        nline_big=nline
        nline_ini=nline
-       string=" "
        do i=nline_ini,nline_end
-          string=adjustl(trim(string)//" "//filevar(i))
+          string=adjustl(filevar(i))
           if (string(1:1) == "#" .or. string(1:1) == "?") cycle
           if (len_trim(string) == 0) exit
           if (string(1:1) == "_" .or. string(1:5) == "loop_") exit
-          cp_str=string
-          call getword(cp_str,label,nc)
-          if (nc < nct) cycle
-
+          call getword(string,label,nc)
+          if (nc < nct) then
+            nline=i
+            exit
+          end if
           n_atom=n_atom+1
 
           ! _atom_site_label
@@ -942,12 +942,9 @@
              atm%atom(n_atom)%Biso=0.0     !If anisotropic they
              atm%atom(n_atom)%Biso_std=0.0 !will be put to zero
           end if
-
           atm%atom(n_atom)%utype="u_ij"
-          string=" "
-
        end do
-       nline=i
+
        if(nline >= nline_big) nline_big=nline
        !---- Anisotropic parameters ----!
        nline_ini=num_ini !Changed to be able the reading of anisotropic parameters
@@ -958,6 +955,7 @@
        j=0
        do i=nline_ini,nline_end
           string=adjustl(filevar(i))
+          !write(*,"(i6,a)") i,"  "//trim(string)
           if ("_atom_site_aniso_label" == string(1:22)) then
              j=j+1
              lugar(1)=j
@@ -1012,19 +1010,19 @@
        if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
           nct=count(lugar > 0)
           nline_ini=nline
-          string=" "
+          mm=0
           do i=nline_ini,nline_end
-             string=adjustl(trim(string)//" "//filevar(i))
+             string=adjustl(filevar(i))
              if (string(1:1) == "#" .or. string(1:1) =="?") cycle
              if (len_trim(string) == 0) exit
-
-             cp_str=string
-             call getword(cp_str,label,nc)
-             if (nc < nct) cycle
-
+             call getword(string,label,nc)
+             if (nc < nct) then
+                nline=i
+                exit
+             end if
              do j=1,n_atom
+                if (atm%atom(j)%thtype == "aniso") cycle ! already assigned
                 if (trim(atm%atom(j)%lab) /= trim(label(lugar(1))) ) cycle
-
                 call getnum_std(label(lugar(2)),vet1,vet2,iv)    ! _atom_site_aniso_U_11
                 atm%atom(j)%u(1)=vet1(1)
                 atm%atom(j)%u_std(1)=vet2(1)
@@ -1047,10 +1045,9 @@
                 atm%atom(j)%thtype="aniso"
                 atm%atom(j)%Biso=0.0
                 atm%atom(j)%Biso_std=0.0
+                mm=mm+1
                 exit
              end do
-             nline=i
-             string=" "
           end do
 
        end if
