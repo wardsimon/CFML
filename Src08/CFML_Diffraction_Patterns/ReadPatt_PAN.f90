@@ -342,7 +342,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_Panalytical
           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
           if (ier /= 0) then
              Err_CFML%state=.true.
-             Err_CFML%Flag)2
+             Err_CFML%Flag=2
              Err_CFML%Msg=" Error reading a profile UDF-DATA file"
              
              close (unit=i_dat)

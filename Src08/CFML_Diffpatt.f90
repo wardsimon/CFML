@@ -51,11 +51,13 @@
     public ::  calc_fwhm_peak
 
     !---- List of public subroutines ----!
-    public ::  Allocate_Diffraction_Pattern, Calc_Background, Del_NoisyPoints, &
-               Read_Background_File, Read_Pattern,      &
-               Purge_Diffraction_Pattern, Write_Pattern_XYSig,&
-               Write_Pattern_FreeFormat, Add_Diffraction_Patterns,      &
-               Write_Pattern_INSTRM5
+    public ::  Allocate_Diffraction_Pattern, Deallocate_Diffraction_Pattern, &
+               Read_Pattern
+               !Calc_Background, Del_NoisyPoints, &
+               !Read_Background_File, Read_Pattern,      &
+               !Write_Pattern_XYSig,&
+               !Write_Pattern_FreeFormat, Add_Diffraction_Patterns,      &
+               !Write_Pattern_INSTRM5
 
     !---- Definitions ----!
     
@@ -63,25 +65,25 @@
     !!---- TYPE :: DIFFPAT_TYPE
     !!----
     Type, public :: DiffPat_Type
-       character(len=180)                        :: Title  =" "                  ! Indentification/ Title
-       character(len=20)                         :: KindRad=" "                  ! Type of Radiation
-       character(len=20)                         :: ScatVar=" "                  ! 2Theta, TOF, Q, s, d-spacing, SinTL/L,...
-       real(kind=cp)                             :: xmin   =0.0_cp               ! Maximum and Minimum values for X and Y 
+       character(len=180)                        :: Title  =" "        ! Indentification/ Title
+       character(len=20)                         :: KindRad=" "        ! Type of Radiation
+       character(len=20)                         :: ScatVar=" "        ! 2Theta, TOF, Q, s, d-spacing, SinTL/L,...
+       real(kind=cp)                             :: xmin   =0.0_cp     ! Maximum and Minimum values for X and Y 
        real(kind=cp)                             :: xmax   =0.0_cp  
        real(kind=cp)                             :: ymin   =0.0_cp  
        real(kind=cp)                             :: ymax   =0.0_cp  
-       integer                                   :: NPts   =0                    ! Number of Points
-       logical                                   :: SigVar =.true.               ! .True. for sigma values / .False. for variance
-       real(kind=cp), dimension(5)               :: Wave   =0.0_cp               ! Wave1, Wave2, Dtt1, Dtt2,....
+       integer                                   :: NPts   =0          ! Number of Points
+       logical                                   :: SigVar =.true.     ! .True. for sigma values / .False. for variance
+       real(kind=cp), dimension(5)               :: Wave   =0.0_cp     ! Wave1, Wave2, Dtt1, Dtt2,....
        real(kind=cp), allocatable, dimension (:) :: x 
        real(kind=cp), allocatable, dimension (:) :: y 
        real(kind=cp), allocatable, dimension (:) :: sigma 
     End Type DiffPat_Type
     
     !!----
-    !!---- TYPE :: DIFFPAT_ILL_TYPE
+    !!---- TYPE :: DiffPat_E_Type
     !!----
-    Type, public, extends (DiffPat_Type) ::  DiffPat_ILL_Type
+    Type, public, extends (DiffPat_Type) ::  DiffPat_E_Type
        character(len=30)           :: Instr   =" "                    ! Instrument name
        character(len=80)           :: Filename=" "                    ! Filename
        character(len=512)          :: FilePath=" "                    ! Path
@@ -101,12 +103,12 @@
        real(kind=cp), allocatable, dimension (:) :: bgr               ! Background
        integer,       allocatable, dimension (:) :: istat             ! Information about point "i"
        integer,       allocatable, dimension (:) :: ND                ! Number of Detectors contributing to point "i" 
-    End Type DiffPat_ILL_Type
+    End Type DiffPat_E_Type
 
     !!----
-    !!---- TYPE :: DIFFRACTION_PATTERN_TYPE
+    !!---- TYPE :: DIFFPAT_G_TYPE
     !!----
-    Type, public, extends (DiffPat_ILL_Type) :: DiffPat_G_Type
+    Type, public, extends (DiffPat_E_Type) :: DiffPat_G_Type
        character(len=40)                           :: Legend_X=" "     !x-axis legend, eg. "Lambda (Angstroms)"
        character(len=40)                           :: Legend_Y=" "     !y-axis legend, eg. "Intensity (arb. units)"
        logical                                     :: gy      =.false. ! Flags for Graphics 
@@ -123,7 +125,7 @@
     End Interface
     
     Interface
-       Module Pure Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
+       Module Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
           !---- Arguments ----!
           class(DiffPat_Type),       intent(in) :: Pat      ! Pattern object
           real(kind=cp),             intent(in) :: Xi       ! (Xi,Yi) for point i
@@ -135,7 +137,7 @@
        
        Module Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
           !---- Arguments ----!
-          class(DiffPat_ILL_Type),   intent(in out) :: Pat        ! Pattern object
+          class(DiffPat_E_Type),     intent(in out) :: Pat        ! Pattern object
           integer,                   intent(in)     :: NCyc       ! Number of Cycles to apply
           integer,                   intent(in)     :: Np         ! Number of extension points at L and R.
           real(kind=cp), optional,   intent(in)     :: Xmin       ! Min, max values in X
@@ -153,12 +155,12 @@
           !---- Arguments ----!
           character(len=*),         intent(in   )    :: bck_file      ! Path+Filename of Background file
           character(len=*),         intent(in   )    :: bck_mode
-          class(DiffPat_ILL_Type),  intent(in out)   :: Pat
+          class(DiffPat_E_Type),  intent(in out)   :: Pat
        End Subroutine Read_Background_File
        
        Module Subroutine Set_Background_Poly(Pat, Bkpos, Bckx, N)
           !---- Arguments ----!
-          class(DiffPat_ILL_Type),       intent(in out) :: Pat
+          class(DiffPat_E_Type),         intent(in out) :: Pat
           real (kind=cp),                intent(in    ) :: bkpos
           real (kind=cp), dimension(:),  intent(in    ) :: bckx
           integer,                       intent(in    ) :: n
@@ -166,7 +168,7 @@
        
        Module Subroutine Set_Background_Inter(Pat, Bcky, Bckx, N)
           !---- Arguments ----!
-          class(DiffPat_ILL_Type),       intent(in out) :: Pat
+          class(DiffPat_E_Type),         intent(in out) :: Pat
           real (kind=cp), dimension(:),  intent(in out) :: bcky
           real (kind=cp), dimension(:),  intent(in out) :: bckx
           integer,                       intent(in    ) :: n
@@ -193,7 +195,7 @@
        Module Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
           !---- Arguments ----!
           character(len=*),                intent(in)     :: Filename
-          class(DiffPat_ILL_Type),         intent(in out) :: Pat
+          class(DiffPat_E_Type),           intent(in out) :: Pat
           logical, dimension(:),optional,  intent(in)     :: excl
           real,                 optional,  intent(in)     :: xmin
           real,                 optional,  intent(in)     :: xmax
@@ -226,20 +228,20 @@
        
        Module Subroutine Read_Pattern_D1A_D2B(Filename,Pat)
           !---- Arguments ----!
-          character(len=*),        intent(in)  :: Filename      ! Path+Filename
-          class(DiffPat_ILL_Type), intent(out) :: Pat
+          character(len=*),      intent(in)  :: Filename      ! Path+Filename
+          class(DiffPat_E_Type), intent(out) :: Pat
        End Subroutine Read_Pattern_D1A_D2B 
        
        Module Subroutine Read_Pattern_D1A_D2B_OLD(Filename,Pat)
           !---- Arguments ----!
-          character(len=*),        intent(in)  :: Filename      ! Path+Filename
-          class(DiffPat_ILL_Type), intent(out) :: Pat
+          character(len=*),      intent(in)  :: Filename      ! Path+Filename
+          class(DiffPat_E_Type), intent(out) :: Pat
        End Subroutine Read_Pattern_D1A_D2B_OLD  
        
        Module Subroutine Read_Pattern_D1B_D20(Filename,Pat)
           !---- Arguments ----!
-          character(len=*),        intent(in)  :: Filename      ! Path+Filename
-          class(DiffPat_ILL_Type), intent(out) :: Pat
+          character(len=*),      intent(in)  :: Filename      ! Path+Filename
+          class(DiffPat_E_Type), intent(out) :: Pat
        End Subroutine Read_Pattern_D1B_D20
        
        Module Subroutine Read_Pattern_DMC(Filename,Pat)
@@ -257,8 +259,8 @@
        
        Module Subroutine Read_Pattern_G41(Filename,Pat)
           !---- Arguments ----!
-          character(len=*),        intent(in)  :: Filename      ! Path+Filename
-          class(DiffPat_ILL_Type), intent(out) :: Pat
+          character(len=*),      intent(in)  :: Filename      ! Path+Filename
+          class(DiffPat_E_Type), intent(out) :: Pat
        End Subroutine Read_Pattern_G41
        
        Module Subroutine Read_Pattern_CIF(Filename,Pat)
@@ -363,9 +365,9 @@
        allocate(pat%sigma(n))
        pat%sigma=0.0_cp
        
-       !> class (DiffPat_ILL_Type)
+       !> class (DiffPat_E_Type)
        select type(Pat)
-          class is (DiffPat_ILL_Type)
+          class is (DiffPat_E_Type)
              if (allocated(pat%bgr) ) deallocate(pat%bgr)
              allocate(pat%bgr(n))
              pat%bgr=0.0_cp
@@ -382,20 +384,22 @@
              allocate(pat%nd(n))
              pat%nd=0
             
-             al_x=.true.; al_y=.true.; al_sigma=.true.
-             al_ycalc=.true.
-             al_bgr  =.true.
-             al_istat=.true.
+             Pat%al_x=.true.
+             Pat%al_y=.true.
+             Pat%al_sigma=.true.
+             Pat%al_ycalc=.true.
+             Pat%al_bgr  =.true.
+             Pat%al_istat=.true.
             
        end select
        
        !> class (DiffPat_G_Type)
        select type(Pat)
           type is (DiffPat_G_Type)
-             gy    =.false.
-             gycalc=.false.
-             gsigma=.false.
-             gbgr  =.false.
+             Pat%gy    =.false.
+             Pat%gycalc=.false.
+             Pat%gsigma=.false.
+             Pat%gbgr  =.false.
              
        end select
 
@@ -435,58 +439,58 @@
                 type is (DiffPat_Type)
                    if (allocated(Pat%sigma)) deallocate(Pat%sigma) 
                    
-                class is (DiffPat_ILL_Type)
+                class is (DiffPat_E_Type)
                    if (allocated(Pat%sigma)) deallocate(Pat%sigma) 
                    if (allocated(Pat%ycalc)) deallocate(Pat%ycalc) 
                    if (allocated(Pat%bgr))   deallocate(Pat%bgr) 
                    if (allocated(Pat%istat)) deallocate(Pat%istat) 
                    !if (allocated(Pat%ND))    deallocate(Pat%ND) 
                    
-                   al_sigma=.false.
-                   al_ycalc=.false.
-                   al_bgr  =.false.
-                   al_istat=.false.
+                   Pat%al_sigma=.false.
+                   Pat%al_ycalc=.false.
+                   Pat%al_bgr  =.false.
+                   Pat%al_istat=.false.
              end select
             
           case ("DATAS")
              select type(Pat)
-                class is (DiffPat_ILL_Type)
+                class is (DiffPat_E_Type)
                    if (allocated(Pat%ycalc)) deallocate(Pat%ycalc) 
                    if (allocated(Pat%bgr))   deallocate(Pat%bgr) 
                    if (allocated(Pat%istat)) deallocate(Pat%istat) 
                    !if (allocated(Pat%ND))    deallocate(Pat%ND)
                    
-                   al_ycalc=.false.
-                   al_bgr  =.false.
-                   al_istat=.false.
+                   Pat%al_ycalc=.false.
+                   Pat%al_bgr  =.false.
+                   Pat%al_istat=.false.
              end select
             
           case ("RIETV")
              select type(Pat)
-                class is (DiffPat_ILL_Type)  
+                class is (DiffPat_E_Type)  
                    if (allocated(Pat%istat)) deallocate(Pat%istat)
                    
-                   al_istat=.false.
+                   Pat%al_istat=.false.
              end select
             
           case ("GRAPH")
              select type(Pat)
-                type is (DiffPat_ILL_Type) 
+                type is (DiffPat_E_Type) 
                    if (allocated(Pat%ycalc)) deallocate(Pat%ycalc) 
                    if (allocated(Pat%bgr))   deallocate(Pat%bgr)
                    
-                   al_ycalc=.false.
-                   al_bgr  =.false.
+                   Pat%al_ycalc=.false.
+                   Pat%al_bgr  =.false.
                     
                 type is (DiffPat_G_Type)
                    if (allocated(Pat%ycalc)) deallocate(Pat%ycalc) 
                    if (allocated(Pat%bgr))   deallocate(Pat%bgr)
                    
-                   al_ycalc=.false.
-                   al_bgr  =.false.
+                   Pat%al_ycalc=.false.
+                   Pat%al_bgr  =.false.
                    
-                   gycalc=.false.
-                   gbgr  =.false.  
+                   Pat%gycalc=.false.
+                   Pat%gbgr  =.false.  
              end select
             
           case ("PRF")
@@ -497,375 +501,411 @@
     End Subroutine Deallocate_Diffraction_Pattern
     
     
-
-    !!----
-    !!---- Subroutine Read_Pattern(Filename, Dif_Pat, Mode, header)
-    !!--<<                   or   (Filename, Dif_Pat, NumPat, Mode, header)
-    !!----    character(len=*),                              intent (in)    :: Filename
-    !!----    type (diffraction_pattern_type),               intent (in out):: Dif_Pat
-    !!----    character(len=*), optional,                    intent (in)    :: mode
-    !!----
-    !!----    character(len=*),                              intent (in)    :: Filename
-    !!----    type (diffraction_pattern_type), dimension(:), intent (in out):: Dif_Pat
-    !!----    integer,                                       intent (out)   :: numpat
-    !!----    character(len=*), optional,                    intent (in)    :: mode
-    !!----    character(len=*), optional,                    intent (out)   :: header
-    !!-->>
-    !!----    Read one pattern from a Filename
-    !!----
-    !!---- Update: February - 2005
-    !!
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    
-
-    
-
     !!--++
-    !!--++ Subroutine Read_Pattern_Mult(Filename,Dif_Pat, NumPat, Mode)
-    !!--++    character(len=*),                                          intent (in)      :: filename
-    !!--++    type (diffraction_pattern_type), dimension(:),             intent (in out)  :: dif_pat
-    !!--++    integer,                                                   intent (out)     :: numpat
-    !!--++    character(len=*), optional,                                intent (in)      :: mode
+    !!--++ Subroutine Read_Pattern_Mult
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Read one pattern from a Filename
+    !!--++    Read patterns from a Filename
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_Mult(filename, dif_pat, numpat, mode)
+    Subroutine Read_Pattern_Mult(filename, Patts, NPats, mode)
        !---- Arguments ----!
-       character(len=*),                                          intent (in)      :: filename
-       type (diffraction_pattern_type), dimension(:),             intent (in out)  :: dif_pat
-       integer,                                                   intent (in out)  :: numpat
-       character(len=*), optional,                                intent (in)      :: mode
+       character(len=*),                   intent (in)      :: Filename        ! Path + Name of File containing Patterns
+       class(DiffPat_Type), dimension(:),  intent (out)     :: Patts           ! Pattern objects
+       integer,                            intent (in out)  :: NPats           ! In: Number of Patterns to read, Out: Number of Patterns readed
+       character(len=*), optional,         intent (in)      :: Mode            ! Mode: ISIS, GSAS, XYSIGMA
 
        !---- Local variables ----!
        logical :: esta
        integer :: i_dat, ier,i
 
-       call init_err_diffpatt()
+       !> Init
+       call clear_error()
 
-       inquire(file=filename,exist=esta)
-       if ( .not. esta) then
-          Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
-          return
-       else
-          call get_logunit(i_dat)
-          open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
-          if (ier /= 0) then
-             Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error opening the file "//trim(filename)
-             return
-          end if
-          i=index(filename,OPS_SEP,back=.true.)
-          If( i /= 0) then
-            dif_pat%filename=trim(filename(i+1:))
-            dif_pat%filepath=filename(1:i)
-          Else
-            dif_pat%filename=trim(filename)
-            dif_pat%filepath="."//OPS_SEP
-          End if
-       end if
-
+       !> Mode option
        if (present(mode)) then
           select case (u_case(mode))
               case ("XYSIGMA")
                  !   call  Read_Pattern_xysigma_m(dif_pat,npat)
 
               case ("ISIS")
-                 call Read_Pattern_isis_m(i_dat,dif_pat,numpat)
-                 dif_pat%diff_kind = "neutrons_tof"
-                 dif_pat%scat_var =  "TOF"
-                 dif_pat%xax_text =  "TOF (micro-seconds)"
-                 dif_pat%yax_text =  "Intensity (arb. units)"
-                 dif_pat%instr  = " 14  - "//mode
+                 call Read_Pattern_isis_m(trim(filename),Patts,NPats)
+                 !dif_pat%diff_kind = "neutrons_tof"
+                 !dif_pat%scat_var =  "TOF"
+                 !dif_pat%xax_text =  "TOF (micro-seconds)"
+                 !dif_pat%yax_text =  "Intensity (arb. units)"
+                 !dif_pat%instr  = " 14  - "//mode
 
               case ("GSAS")
                  !   call Read_Pattern_gsas_m(dif_pat,npat)      ! GSAS file
 
               case default
-                 Err_diffpatt=.true.
-                 ERR_DiffPatt_Mess="Invalid Mode"
-                 return
+                 Err_CFML%state=.true.
+                 Err_CFML%Flag=2
+                 Err_CFML%Msg="Invalid Mode for Read Multi Patterns. Please, check it!"
           end select
-          return
-       end if
-       close(unit=i_dat,iostat=ier)
-
-       if (ier/=0) then
-           Err_diffpatt=.true.
-           ERR_DiffPatt_Mess=" Problems closing data file"
+          
+       else   
+          
        end if
 
        return
     End Subroutine Read_Pattern_Mult
 
     
-
     !!--++
-    !!--++ Subroutine Read_Pattern_One(Filename,Dif_Pat, Mode,header,sig)
-    !!--++    character(len=*),                intent (in)    :: filename
-    !!--++    type (diffraction_pattern_type), intent(in out) :: Dif_Pat
-    !!--++    character(len=*), optional,      intent (in)    :: mode
-    !!--++    logical,          optional,      intent (in)    :: sig
+    !!--++ Subroutine Read_Pattern_One
     !!--++
     !!--++    Read one pattern from a Filename. If sig is present the content of Dif_Pat%sigma
     !!--++    is the true sigma not the variance.
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_One(Filename,Dif_Pat,Mode,header,sig)
+    Subroutine Read_Pattern_One(Filename, Pat, Mode, Sig, Header)
        !---- Arguments ----!
-       character(len=*),                intent (in)      :: filename
-       type (diffraction_pattern_type), intent (in out)  :: dif_pat
-       character(len=*), optional,      intent (in)      :: mode
-       character(len=*), optional,      intent (out)     :: header
-       logical,          optional,      intent (in)      :: sig
+       character(len=*),            intent (in)      :: Filename       ! Path Name of File
+       class(DiffPat_Type),         intent (in out)  :: Pat            ! Pattern object
+       character(len=*), optional,  intent (in)      :: mode           ! Mode
+       logical,          optional,  intent (in)      :: sig            ! Sigma or Variance
+       character(len=*), optional,  intent (out)     :: header         ! Header
 
        !---- Local Variables ----!
        character(len=6)                               :: extdat !extension of panalytical file
        character(len=4)                               :: tofn
-       character(len=12)                              :: modem !extension of panalytical file
+       character(len=12)                              :: typef, modem !extension of panalytical file
        logical                                        :: esta,gr
        integer                                        :: i, i_dat,ier
 
-       call init_err_diffpatt()
+       !> Init
+       call clear_error()
 
-       inquire(file=filename,exist=esta)
-       if (.not. esta) then
-          Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
-          return
-       else
-          call get_logunit(i_dat)
-          open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
-          if (ier /= 0) then
-             Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)
-             return
-          end if
-          i=index(filename,OPS_SEP,back=.true.)
-          If( i /= 0) then
-            dif_pat%filename=trim(filename(i+1:))
-            dif_pat%filepath=filename(1:i)
-          Else
-            dif_pat%filename=trim(filename)
-            dif_pat%filepath="."//OPS_SEP
-          End if
-       end if
 
+       Typef="DEFAULT"
+       TofN=" "
+       
        if (present(mode)) then
-          modem=u_case(mode)
-          if(modem(1:7) == "GSASTOF") then
-            if(len_trim(modem) > 7) then
-               tofn="TOF"//modem(8:8)
-               modem="GSASTOF"
-            else
-               tofn="TOF"
-            end if
+          Typef=trim(u_case(mode))
+          if (Typef(1:7) == "GSASTOF") then
+             if (len_trim(mode) > 7) then
+                tofn="TOF"//mode(8:8)
+                typef="GSASTOF"
+             else
+                tofn="TOF"
+             end if
           end if
-       else
-          modem="DEFAULT"
-       end if
-
-       select case (modem)
-
+       end if     
+       
+       select case (trim(typef))
           case ("CIF")
-             call Read_Pattern_CIF(i_dat,dif_pat)
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  XY  - "//mode
-             dif_pat%ct_step = .false.
-
-          case ("D1B" , "D20")
-             call Read_Pattern_d1b_d20(i_dat,dif_pat)
-             dif_pat%diff_kind = "neutrons_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  3  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("NLS")                   ! Data from N.L.S (Brookhaven) Synchrotron Radiation  ,data from synchrotron source and correct data for dead time
-             call Read_Pattern_nls(i_dat,dif_pat)
-             dif_pat%diff_kind = "xrays_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  4  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("G41")                   ! Data from general format of two axis instruments with fixed step in twotheta
-             call Read_Pattern_g41(i_dat,dif_pat)
-             dif_pat%diff_kind = "neutrons_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  5  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("D1A","D2B","3T2","G42")
-             call Read_Pattern_d1a_d2b(i_dat,dif_pat)     ! Data from D1A,D2B  (Files *.sum, renamed *.dat, as prepared by D1ASUM or D2BSUM programs)
-             dif_pat%diff_kind = "neutrons_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  6  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("D1AOLD", "D2BOLD","OLDD1A", "OLDD2B")
-             call Read_Pattern_d1a_d2b_old(i_dat,dif_pat)
-             dif_pat%diff_kind = "neutrons_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  1  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("DMC","HRPT")                   ! Data from DMC,HRPT
-             call Read_Pattern_dmc(i_dat,dif_pat)
-             dif_pat%diff_kind = "neutrons_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  8  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("SOCABIM")
-             call  Read_Pattern_socabim(i_dat,dif_pat)
-             dif_pat%diff_kind = "xrays_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = "  9  - "//mode
-             dif_pat%ct_step = .true.
-
-          case ("XYSIGMA")            !XYSIGMA  data file
-             !Determine if the patter is of G(r) type from PDFGUI
-             i=index(dif_pat%filename,".",back=.true.)
-             if(present(header)) then
-                 if(i /= 0 .and. dif_pat%filename(i:i+2) == ".gr") then
-                   call  Read_Pattern_xysigma(i_dat, dif_pat,gr,header)
-                 else
-                   call  Read_Pattern_xysigma(i_dat, dif_pat,header=header)
-                   dif_pat%diff_kind = "unknown"
-                   dif_pat%instr  = " 10  - "//mode
-                 end if
-             else
-                 if(i /= 0 .and. dif_pat%filename(i:i+2) == ".gr") then
-                   call  Read_Pattern_xysigma(i_dat, dif_pat,gr)
-                 else
-                   call  Read_Pattern_xysigma(i_dat, dif_pat)
-                   dif_pat%diff_kind = "unknown"
-                   dif_pat%instr  = " 10  - "//mode
-                 end if
-             end if
-             if(len_trim(dif_pat%scat_var) == 0) then
-               if(dif_pat%x(dif_pat%npts) > 180.0) then
-                   dif_pat%scat_var =  "TOF"
-               else
-                   dif_pat%scat_var =  "2theta"
-               end if
-             end if
-
-          case ("GSAS")
-             call Read_Pattern_gsas(i_dat,dif_pat)         ! GSAS file
-             dif_pat%diff_kind = "constant_wavelength"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = " 12  - "//mode
-
-          case ("GSASTOF")
-             call Read_Pattern_gsas(i_dat,dif_pat,tofn)         ! GSAS file for TOF
-             dif_pat%diff_kind = "neutrons_tof"
-             dif_pat%scat_var =  "TOF"
-             dif_pat%xax_text =  "TOF(micro-seconds)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = " 12  - "//mode
-
-          case ("PANALYTICAL")
-             i=index(filename,".",back=.true.)
-             extdat=u_case(filename(i:))
-             dif_pat%diff_kind = "xrays_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = " 13  - "//mode
-
-             select case (extdat)
-                case(".CSV")
-                   CALL Read_Pattern_PANalytical_CSV(i_dat,dif_pat)
-
-                case(".UDF")
-                   CALL Read_Pattern_PANalytical_UDF(i_dat,dif_pat)
-
-                case(".JCP")
-                   CALL Read_Pattern_PANalytical_JCP(i_dat,dif_pat)
-
-                case(".XRDML")
-                   CALL Read_Pattern_PANalytical_XRDML(i_dat,dif_pat)
+             call Read_Pattern_CIF(trim(filename),Pat)
+             if (err_CFML%state) return
+             
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%ct_step = .false.
+                   pat%instr  = "  XY  - "//trim(typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%ct_step = .false.
+                   pat%instr  =  "  XY  - "//trim(typef)
+                   pat%legend_Y ="Intensity (arb. units)"
              end select
-
-          case ("TIMEVARIABLE")
-             call Read_Pattern_time_variable(i_dat,dif_pat)
-             dif_pat%diff_kind = "xrays_cw"
-             dif_pat%scat_var =  "2theta"
-             dif_pat%xax_text =  "2theta(degrees)"
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             dif_pat%instr  = " 11  - "//mode
-
-          case default
+            
+          case ("D1B" , "D20")  
+             pat%kindrad = "Neutrons_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                class is (DiffPat_E_Type) 
+                   call Read_Pattern_D1B_D20(trim(filename), Pat)
+                   if (err_CFML%state) return
+                   
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+             
+                   select type(Pat)
+                      type is (DiffPat_G_Type)
+                         pat%legend_X ="2Theta(degrees)"
+                         pat%legend_Y ="Intensity (arb. units)"
+                   end select
+             end select      
+            
+          case ("NLS")
+             call Read_Pattern_NLS(trim(filename), Pat)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "XRay_CW"
+             pat%scatvar = "2Theta"
+             
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="2Theta(degrees)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select
+            
+          case ("G41") 
+             pat%kindrad = "Neutrons_CW"
+             pat%scatvar = "2Theta"
+             select type (Pat)
+                class is (DiffPat_E_Type)
+                   call Read_Pattern_G41(trim(filename), Pat)
+                   if (err_CFML%state) return
+             
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   select type(pat)
+                      type  is (DiffPat_G_Type)
+                         pat%legend_X ="2Theta(degrees)"
+                         pat%legend_Y ="Intensity (arb. units)"
+                   end select      
+             end select 
+            
+          case ("D1A","D2B","3T2","G42")  
+             pat%kindrad = "Neutrons_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                class is (DiffPat_E_Type)
+                   call Read_Pattern_D1A_D2B(trim(filename), Pat)
+                   if (err_CFML%state) return
+             
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   select type(pat)
+                      type is (DiffPat_G_Type)
+                         pat%legend_X ="2Theta(degrees)"
+                         pat%legend_Y ="Intensity (arb. units)"
+                   end select      
+             end select
+            
+          case ("D1AOLD", "D2BOLD","OLDD1A", "OLDD2B") 
+             pat%kindrad = "Neutrons_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                class is (DiffPat_E_Type)
+                   call Read_Pattern_D1A_D2B_OLD(trim(filename), Pat)
+                   if (err_CFML%state) return
+             
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   select type(pat)
+                      type is (DiffPat_G_Type)
+                         pat%legend_X ="2Theta(degrees)"
+                         pat%legend_Y ="Intensity (arb. units)"
+                   end select      
+             end select
+            
+          case ("DMC","HRPT") 
+             pat%kindrad = "Neutrons_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                class is (DiffPat_E_Type)
+                   call Read_Pattern_DMC(trim(filename), Pat)
+                   if (err_CFML%state) return
+             
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   select type(pat)
+                      type is (DiffPat_G_Type)
+                         pat%legend_X ="2Theta(degrees)"
+                         pat%legend_Y ="Intensity (arb. units)"
+                   end select      
+             end select
+             
+          case ("SOCABIM") 
+              call Read_Pattern_SOCABIM(trim(filename), Pat)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "XRay_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%ct_step = .true.
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="2Theta(degrees)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select
+            
+          case ("XYSIGMA") 
+             i=index(filename,".",back=.true.)
+             if (i > 0) then
+                extdat=u_case(filename(i:))
+             else
+                extdat="---"
+             end if     
+             select case (trim(extdat))
+                case (".GR")
+                   if (present(header)) then
+                      call  Read_Pattern_xysigma(filename, Pat, GR, Header)
+                   else
+                      call  Read_Pattern_xysigma(filename, Pat, GR)
+                   end if
+                     
+                case ("---") 
+                   if (present(header)) then
+                      call  Read_Pattern_xysigma(filename, Pat, Header=Header)
+                   else
+                      call  Read_Pattern_xysigma(filename, Pat)
+                   end if 
+             end select
+             if (err_CFML%state) return
+             
+             pat%kindrad = "Unknown"
+             if (pat%x(pat%npts) > 180) then
+                pat%scatvar =  "TOF"
+             else
+                pat%scatvar =  "2Theta"
+             end if  
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_Y ="Intensity (arb. units)"
+                   if (index(pat%scatvar,"TOF") > 0) then
+                      pat%legend_X ="TOF(micro-seconds)"
+                   else
+                      pat%legend_X ="2Theta(degrees)"
+                   end if  
+             end select    
+             
+          case ("GSAS") 
+              call Read_Pattern_GSAS(trim(filename), Pat)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "Constant_Wavelength"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="2Theta(degrees)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select
+             
+          case ("GSASTOF") 
+              call Read_Pattern_GSAS(trim(filename), Pat, TOFN)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "Neutrons_TOF"
+             pat%scatvar = "TOF"
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="TOF(micro-seconds)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select  
+             
+          case ("PANALYTICAL") 
              i=index(filename,".",back=.true.)
              extdat=u_case(filename(i:))
-             call Read_Pattern_free(i_dat,dif_pat,extdat)
-             if(Err_diffpatt) return
-             dif_pat%diff_kind = "unknown"
-             dif_pat%instr  = "  0  - "//"Free format"
-             dif_pat%ct_step = .true.
-             if(len_trim(dif_pat%yax_text) == 0) dif_pat%yax_text =  "Intensity (arb. units)"
-             if(len_trim(dif_pat%xax_text) == 0)  then
-                if(dif_pat%x(dif_pat%npts) > 180.0 ) then
-                    dif_pat%scat_var =  "TOF"
-                    dif_pat%xax_text =  "TOF(micro-seconds)"
-                else
-                    dif_pat%scat_var =  "2theta"
-                    dif_pat%xax_text =  "2theta(degrees)"
-                end if
+             select case (trim(extdat))
+                case (".CSV")
+                   call Read_Pattern_PANalytical_CSV(trim(filename), Pat)
+                   
+                case (".UDF")
+                   call Read_Pattern_PANalytical_UDF(trim(filename), Pat)
+                   
+                case (".JCP")
+                   call Read_Pattern_PANalytical_JCP(trim(filename), Pat)
+                
+                case(".XRDML") 
+                   call Read_Pattern_PANalytical_XRDML(trim(filename), Pat)
+             end select
+             if (err_CFML%state) return
+             
+             pat%kindrad = "XRays_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="2Theta(degrees)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select 
+             
+            
+          case ("TIMEVARIABLE") 
+             call Read_Pattern_Time_Variable(trim(filename), Pat)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "XRays_CW"
+             pat%scatvar = "2Theta"
+             select type(Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr=trim(Typef)
+                  
+                type is (DiffPat_G_Type)
+                   pat%instr=trim(Typef)
+                   
+                   pat%legend_X ="2Theta(degrees)"
+                   pat%legend_Y ="Intensity (arb. units)"
+             end select 
+             
+          case default   
+             i=index(filename,".",back=.true.)
+             extdat=u_case(filename(i:))
+             call Read_Pattern_FREE(trim(filename), Pat, extdat)
+             if (err_CFML%state) return
+             
+             pat%kindrad = "unknown"
+             if (pat%x(pat%npts) > 180.0 ) then
+                pat%scatvar =  "TOF"
              else
-                if(len_trim(dif_pat%scat_var) == 0) dif_pat%scat_var =  "2theta"
-             end if
+                pat%scatvar =  "2Theta"
+             end if  
+             select type (Pat)
+                type is (DiffPat_E_Type)
+                   pat%instr   = "Free format"
+                   pat%ct_step=.true.
+                   
+                type is (DiffPat_G_Type)  
+                   pat%instr   = "Free format"
+                   pat%ct_step=.true.
+                   pat%Legend_Y="Intensity (arb. units)"
+                   
+                   if (index(pat%scatvar,'TOF')> 0) then
+                      pat%Legend_X="TOF(micro-seconds)"
+                   else
+                      pat%Legend_X="2Theta (degrees)"
+                   end if  
+             end select 
+             
        end select
-
-       close(unit=i_dat,iostat=ier)
-       if(present(sig)) then
-          dif_pat%sigma=sqrt(dif_pat%sigma)
-          dif_pat%sig_var=.false.
+       
+       !> CHECK PLEASE
+       if (present(sig)) then
+          if (.not. sig) pat%sigma=sqrt(pat%sigma)
        end if
-       if (ier/=0) then
-          Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Problems closing the data file: "//trim(filename)
-       end if
-
+       
        return
     End Subroutine Read_Pattern_One
-
-    
-
-
-    
 
  End Module CFML_Diffraction_Patterns

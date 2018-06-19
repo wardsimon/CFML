@@ -12,7 +12,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!----
     !!---- Update: April - 2009
     !!
-    Module Pure Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
+    Module Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
        !---- Arguments ----!
        class(DiffPat_Type),       intent(in) :: Pat      ! Pattern object
        real(kind=cp),             intent(in) :: Xi       ! (Xi,Yi) for point i
@@ -43,7 +43,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        !> Locating the index that X(i1) <= Xi < X(i1+1)
        i1=0
-       i1=locate(Pat%x,Pat%npts,xi)
+       i1=locate(Pat%x,xi)
        if (i1 <=0 .or. i1 > Pat%npts) return  ! Error in the search
 
        !> Searching on Left side: Y(j1) <= ym < Y(j1+1)
@@ -165,10 +165,10 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
               
               x1=minval(Patterns(i)%x)
               x2=maxval(Patterns(i)%x)
-              k=locate(Patterns(i)%x,Patterns(i)%npts,Pat%x(j))
+              k=locate(Patterns(i)%x,Pat%x(j))
               if (k == 0) cycle
               nc=nc+1
-              call splint(Patterns(i)%x,Patterns(i)%y,d2y(:,i),Patterns(i)%npts,Pat%x(j),y)
+              y=splint(Patterns(i)%x,Patterns(i)%y,d2y(:,i),Patterns(i)%npts,Pat%x(j))
               fac=cnorm/Patterns(i)%ymax
               Pat%y(j)=Pat%y(j)+ y*fac
               Pat%sigma(j)=Pat%sigma(j)+ Patterns(i)%sigma(k)
@@ -209,7 +209,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!
     Module Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
        !---- Arguments ----!
-       class(DiffPat_ILL_Type),   intent(in out) :: Pat        ! Pattern object
+       class(DiffPat_E_Type),   intent(in out) :: Pat        ! Pattern object
        integer,                   intent(in)     :: NCyc       ! Number of Cycles to apply
        integer,                   intent(in)     :: Np         ! Number of extension points at L and R.
        real(kind=cp), optional,   intent(in)     :: Xmin       ! Min, max values in X
@@ -248,7 +248,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        if (nt < 1) then
           err_CFML%state=.true.
           err_CFML%Flag=2
-          err_CFML%Msg="There aren't background points into the range'
+          err_CFML%Msg="There aren't background points into the range"
           return
        end if
 
@@ -257,7 +257,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        if (abs(x_ini-pat%xmin) <= eps) then
           ind1=1
        else
-          ind1=locate(pat%x,pat%npts,x_ini)
+          ind1=locate(pat%x,x_ini)
           ind1=max(ind1,1)
           ind1=min(ind1,pat%npts)
        end if
@@ -266,7 +266,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        if (abs(x_fin-pat%xmax) <= eps) then
           ind2=pat%npts
        else
-          ind2=locate(pat%x,pat%npts,x_fin)
+          ind2=locate(pat%x,x_fin)
           ind2=min(ind2,pat%npts)
           ind2=max(ind2,1)
        end if
@@ -462,7 +462,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        !---- Arguments ----!
        character(len=*),         intent(in   )    :: bck_file      ! Path+Filename of Background file
        character(len=*),         intent(in   )    :: bck_mode
-       class(DiffPat_ILL_Type),  intent(in out)   :: Pat
+       class(DiffPat_E_Type),  intent(in out)   :: Pat
 
        !---- local variables ----!
        logical                                       :: esta
@@ -518,11 +518,11 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        
        !> Allocating variables
        if (allocated(bck_v)) deallocate(bck_v)
-       allocate(bck_v(bck_points+1)
+       allocate(bck_v(bck_points+1))
        bck_v=0.0_cp
        
        if (allocated(bck_p)) deallocate(bck_p)
-       allocate(bck_p(bck_points+1)
+       allocate(bck_p(bck_points+1))
        bck_p=0.0_cp
        
        rewind(unit=i_bck)
@@ -579,7 +579,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!
     Module Subroutine Set_Background_Poly(Pat, Bkpos, Bckx, N)
        !---- Arguments ----!
-       class(DiffPat_ILL_Type),       intent(in out) :: Pat
+       class(DiffPat_E_Type),       intent(in out) :: Pat
        real (kind=cp),                intent(in    ) :: bkpos
        real (kind=cp), dimension(:),  intent(in    ) :: bckx
        integer,                       intent(in    ) :: n
@@ -611,14 +611,14 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!
     Module Subroutine Set_Background_Inter(Pat, Bcky, Bckx, N)
        !---- Arguments ----!
-       class(DiffPat_ILL_Type),       intent(in out) :: Pat
+       class(DiffPat_E_Type),       intent(in out) :: Pat
        real (kind=cp), dimension(:),  intent(in out) :: bcky
        real (kind=cp), dimension(:),  intent(in out) :: bckx
        integer,                       intent(in    ) :: n
 
        !---- Local variables ----!
        integer        :: nbx, nbac1 , i , j  , nxx
-       real(kind=cp)  :: difl, difr , thx , delt, slope, bstep,p
+       real(kind=cp)  :: difl, difr , thx , delt, slope, bstep,p,step
 
        nbx=1
        nbac1=n
@@ -628,9 +628,10 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        if (difl >= 0) then
           if (pat%ct_step) then
-             nbx=difl/pat%step + 1.5
+             step=pat%x(2)-pat%x(1)
+             nbx=difl/step + 1.5
           else
-             nbx=locate(pat%x,pat%npts,bckx(1))
+             nbx=locate(pat%x,bckx(1))
              if (nbx <= 0) nbx=1
           end if
           do i=1,nbx
@@ -829,7 +830,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        pat%ymax=maxval(pat%y(1:pat%npts))
        
        select type (Pat)
-          class is (DiffPat_ILL_Type)
+          class is (DiffPat_E_Type)
              n=0
              chi2=0.0
              do i=line_start_data, nlines
@@ -904,7 +905,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        rigaku=.false.
 
        no=0
-       pat%ScatVvar="2theta"
+       pat%ScatVar="2theta"
 
        if (present(ext)) ext_given=.true.
        if (ext_given) then
@@ -938,7 +939,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
             
              i=index(aline,"Scattering variable:")
              if (i /= 0) then
-                pat%ScatVvar=adjustl(aline(i+20:))
+                pat%ScatVar=adjustl(aline(i+20:))
              end if
             
              i=index(aline,"TSAMP")
@@ -1047,7 +1048,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        end do
 
        !> Aditional checks
-       if (pat%npts <= 10 .or. pat%xmax <  pat%xmin  .or. pat%step > pat%xmax) then
+       if (pat%npts <= 10 .or. pat%xmax <  pat%xmin  .or. step > pat%xmax) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in Intensity file, Problems reading 2Theta_ini, Step, 2Theta_end !"
@@ -1390,7 +1391,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                 if (ier /= 0) then
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
-                   Err_CFML%Msg" Error reading a profile DATA file of XYSigma format"
+                   Err_CFML%Msg=" Error reading a profile DATA file of XYSigma format"
                    
                    close(unit=i_dat)
                    return
@@ -1546,7 +1547,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           call spline(pat%x(:),pat%y(:),ntt,yp1,ypn,bk(:))
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*step
-             call splint(pat%x(:),pat%y(:),bk(:),ntt,xt,ycor)
+             ycor=splint(pat%x(:),pat%y(:),bk(:),ntt,xt)
              yc(i)=ycor !max(1.0_cp,ycor)
           end do
           do i=1,pat%npts
@@ -1559,7 +1560,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           call spline(pat%x(:),pat%sigma(:),ntt,yp1,ypn,bk(:))
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*step
-             call splint(pat%x(:),pat%sigma(:),bk(:),ntt,xt,ycor)
+             ycor=splint(pat%x(:),pat%sigma(:),bk(:),ntt,xt)
              yc(i)=ycor !max(1.0_cp,ycor)
           end do
           do i=1,pat%npts

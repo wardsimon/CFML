@@ -85,7 +85,7 @@ Submodule (CFML_Diffraction_Patterns) WritePatterns
                 write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
              end if
              
-          class is (DiffPat_ILL_Type)  
+          class is (DiffPat_E_Type)  
              write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsample, pat%tset
              if (pat%ct_step) then
                 write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
@@ -117,7 +117,7 @@ Submodule (CFML_Diffraction_Patterns) WritePatterns
           end if
        
        else
-          if (pat%sig_var) then
+          if (pat%sigvar) then
              do i=ini,ifin
                 write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
              end do
@@ -238,7 +238,7 @@ Submodule (CFML_Diffraction_Patterns) WritePatterns
     Module Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
        !---- Arguments ----!
        character (len=*),               intent(in)     :: Filename
-       class(DiffPat_ILL_Type),         intent(in out) :: Pat
+       class(DiffPat_E_Type),         intent(in out) :: Pat
        logical, dimension(:),optional,  intent(in)     :: excl
        real,                 optional,  intent(in)     :: xmin,xmax
        character (len=*), optional,     intent(in)     :: var
@@ -249,7 +249,7 @@ Submodule (CFML_Diffraction_Patterns) WritePatterns
        !> Init
        call clear_error()
        
-       opennew(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
@@ -307,10 +307,10 @@ Submodule (CFML_Diffraction_Patterns) WritePatterns
           Err_CFML%Msg=" Too high counts ... format error in the file: "//trim(filename)//" at writing!"
        end if
        if (present(var)) then
-          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsamp,Pat%tset, 1,&
+          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 1,&
                                                              Pat%Norm_Mon, Pat%Monitor
        else
-          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsamp,Pat%tset, 0,&
+          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 0,&
                                                              Pat%Norm_Mon, Pat%Monitor
        end if
        Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%x(ini+1)-Pat%x(ini),Pat%x(ifin)

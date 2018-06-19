@@ -11,7 +11,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
     Module Subroutine Read_Pattern_D1A_D2B(Filename,Pat)
        !---- Arguments ----!
        character(len=*),        intent(in)  :: Filename      ! Path+Filename
-       class(DiffPat_ILL_Type), intent(out) :: Pat
+       class(DiffPat_E_Type), intent(out) :: Pat
 
        !---- Local Variables ----!
        character(len=180)                           :: txt1
@@ -68,7 +68,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
        if (ier /= 0)then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
-          Err_CFML_Msg=" Error in Intensity file, check your instr parameter!"
+          Err_CFML%Msg=" Error in Intensity file, check your instr parameter!"
           
           close(unit=i_dat)
           return
@@ -78,7 +78,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
        if (ier /= 0) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
-          Err_CFML_Msg=" Error in Intensity file, check your instr parameter!"
+          Err_CFML%Msg=" Error in Intensity file, check your instr parameter!"
           
           close(unit=i_dat)
           return
@@ -97,7 +97,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
        if (pat%npts <= 0) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
-          Err_CFML_Msg=" Error in Intensity file, Number of points negative or zero!"
+          Err_CFML%Msg=" Error in Intensity file, Number of points negative or zero!"
           
           close(unit=i_dat)
           return
@@ -115,7 +115,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
           if (ier /= 0) then
              Err_CFML%state=.true.
              Err_CFML%Flag=2
-             Err_CFML_Msg=" Error in Intensity file, check your instr parameter!"
+             Err_CFML%Msg=" Error in Intensity file, check your instr parameter!"
              
              close(unit=i_dat)
              return
@@ -150,7 +150,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
     Module Subroutine Read_Pattern_D1A_D2B_OLD(Filename,Pat)
        !---- Arguments ----!
        character(len=*),        intent(in)  :: Filename      ! Path+Filename
-       class(DiffPat_ILL_Type), intent(out) :: Pat
+       class(DiffPat_E_Type), intent(out) :: Pat
        
        !---- Local Variables ----!
        integer                                      :: ier,i,i_dat
@@ -241,7 +241,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
     Module Subroutine Read_Pattern_D1B_D20(Filename,Pat)
        !---- Arguments ----!
        character(len=*),        intent(in)  :: Filename      ! Path+Filename
-       class(DiffPat_ILL_Type), intent(out) :: Pat
+       class(DiffPat_E_Type), intent(out) :: Pat
 
        !---- Local Variables ----!
        character(len=180)                           :: line
@@ -285,7 +285,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ILL
        end do
        pat%title=trim(pat%title)//" "//trim(line)
 
-       read(unit=i_dat,fmt="(f13.0,tr10,f8.3,tr45,4f9.3)  ",iostat=ier) pat%monitor,pat%xmin,step,pat%tset,aux,pat%tsamp
+       read(unit=i_dat,fmt="(f13.0,tr10,f8.3,tr45,4f9.3)  ",iostat=ier) pat%monitor,pat%xmin,step,pat%tset,aux,pat%tsample
        if (ier /= 0 ) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2

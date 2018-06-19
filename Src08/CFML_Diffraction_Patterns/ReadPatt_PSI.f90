@@ -8,7 +8,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_PSI
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_Pattern_DMC(Filename,Pat)
+    Module Subroutine Read_Pattern_DMC(Filename,Pat)
        !---- Arguments ----!
        character (len=*),   intent(in)  :: Filename      ! Path+Filename
        class(DiffPat_type), intent(out) :: pat

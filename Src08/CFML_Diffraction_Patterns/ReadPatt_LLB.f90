@@ -11,7 +11,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_LLB
     Module Subroutine Read_Pattern_G41(Filename,Pat)
        !---- Arguments ----!
        character(len=*),        intent(in)  :: Filename      ! Path+Filename
-       class(DiffPat_ILL_Type), intent(out) :: Pat
+       class(DiffPat_E_Type), intent(out) :: Pat
 
        !---- Local Variables ----!
        character(len=180)                           :: txt1, txt2, txt3
@@ -77,7 +77,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_LLB
          txt3=adjustl(txt3)
          if(txt3(1:1) /= "!") exit
        end do
-       read(unit=txt3, fmt=*, iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
+       read(unit=txt3, fmt=*, iostat=ier)  pat%npts,pat%tsample,pat%tset,ivari,rmon1,rmon2
        if (ier /= 0 )then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
