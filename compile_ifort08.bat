@@ -56,6 +56,7 @@ rem
    echo OPT3:%OPT3%
    echo ----
    echo.
+   goto T1
 rem
    echo .... Global Dependencies for CFML
 rem
@@ -203,12 +204,29 @@ rem   Submodulos CFML_Crystal_Metrics
       ifort /c Nigglicell.f90                    /nologo %OPT1% %OPT2% /module:..\mod
       move /y *.obj .. > nul
       cd ..  
-   goto TTT
 rem
    echo .... Patterns Information
 rem
+:T1
    ifort /c CFML_diffpatt.f90                    /nologo %OPT1% %OPT2% /module:.\mod
-   goto FIN
+rem  
+rem   Submodulos CFML_Diffraction_Patterns
+
+      cd CFML_Diffraction_Patterns
+      ifort /c ReadPatt_ILL.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_LLB.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_NLS.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_PSI.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_ISIS.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_Socabim.f90              /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_GSAS.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c ReadPatt_PAN.f90                  /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c WritePatterns.f90                 /nologo %OPT1% %OPT2% /module:..\mod
+      ifort /c GenPatterns.f90                   /nologo %OPT1% %OPT2% /module:..\mod
+      move /y *.obj .. > nul
+      cd ..
+      
+   goto TTT
    
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
    goto FIN
