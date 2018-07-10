@@ -88,6 +88,8 @@ cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -D CMAK
 
  - Once the above steps worked properly the only thing to do is execute the command:
    nmake install
+   or thes last case use "mingw32-make install"
+
 
  - Each time you modify a file of the library you go to the appropriate directory and
    execute again: nmake install, the system will recopile only the appropriate files taking
