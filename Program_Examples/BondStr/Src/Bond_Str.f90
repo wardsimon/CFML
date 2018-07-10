@@ -559,7 +559,11 @@ Program Bond_Str
              end if
            end if
         else
-           call Calc_BVS(Ac,lun,filecod=filcod)
+           if(n_bvpar /= 0) then                                    ! TR 23.04.2018
+            call Calc_BVS(Ac,lun,n_bvpar,bvparm,filecod=filcod)     ! TR 23.04.2018
+           else
+            call Calc_BVS(Ac,lun,filecod=filcod)
+           end if
         end if
 
      else
