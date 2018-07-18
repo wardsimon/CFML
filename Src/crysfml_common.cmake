@@ -20,6 +20,14 @@ if(WIN32)
 # MacOS
 elseif(APPLE)
     set(GLOBAL_DEPS CFML_GlobalDeps_MacOS.f90)
+    # Intel Fortran compiler
+    if(${COMPILER_NAME} STREQUAL ifort)
+        set(GLOBAL_DEPS CFML_GlobalDeps_MacOS_Intel.f90)
+        set(STRING_UTILS CFML_String_Util.f90)
+    else()
+        set(GLOBAL_DEPS CFML_GlobalDeps_MacOS.f90)
+        set(STRING_UTILS CFML_String_Util_gf.f90)
+    endif()
 # Unix
 elseif(UNIX)
     # Intel Fortran compiler
