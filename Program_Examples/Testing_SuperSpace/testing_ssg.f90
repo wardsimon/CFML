@@ -37,7 +37,7 @@
       !close(unit=1)
       !stop
       do
-      	
+
         !Testing the generation of a superspace group from a space group and propagation vectors
         !write(*,"(a)",advance="no")  " => Enter the space group (number or Hermann-Mauguin symbol): "
         !read(*,"(a)") symb
@@ -88,11 +88,11 @@
         !end do
         !
         !cycle
-        
+
         !---------------------------------------
         !Test access using the number of the SSG
         !---------------------------------------
-        
+
 
         !write(*,"(//,a)",advance="no") " => Enter the number of the SSG: "
         !read(*,*) m
@@ -130,7 +130,7 @@
         !  SSpaceGroup%SymOp(4)%Mat = -SSpaceGroup%SymOp(1)%Mat
         !  SSpaceGroup%SymOp(4)%Mat(Dd,Dd) = 1
         !end if
-        
+
         !Generate subgroups
         !i1=0; i2=0; i3=0
         !if(SSpaceGroup%Num_Lat > 1) then
@@ -148,15 +148,15 @@
         !ng=4
         !do i=2,SSpaceGroup%numops-1
         !  spg(i)%SymOp(1)=SSpaceGroup%SymOp(1)
-        !  
+        !
         !  spg(i)%SymOp(2)=SSpaceGroup%SymOp(i)
         !  spg(i)%SymOp(3)=SSpaceGroup%SymOp(i+1)
         !  spg(i)%SymOp(3)%Mat(Dd,Dd)=-1//1
-        !  
+        !
         !  spg(i)%SymOp(4)=spg(i)%SymOp(1)  !Operator 4 is {1'|000...1/2}
         !  spg(i)%SymOp(4)%Mat(Dd,Dd)=-1//1
         !  spg(i)%SymOp(4)%Mat(Dd-1,Dd)=1//2
-        !  
+        !
         !  if(SSpaceGroup%Num_Lat > 1) then
         !   spg(i)%SymOp(5)=SSpaceGroup%SymOp(i1)
         !   ng=4+1
@@ -168,10 +168,10 @@
         !       ng=4+3
         !     end if
         !   end if
-        !  end if  
-        !  call CPU_TIME(tpar)         
+        !  end if
+        !  call CPU_TIME(tpar)
         !  Call Gen_Group(ng,spg(i)%SymOp,multip,table)
-        !  if(Err_ssg) then 
+        !  if(Err_ssg) then
         !    write(*,"(a)") " => ERROR: "//trim(Err_ssg_mess)
         !    !cycle
         !  end if
@@ -205,11 +205,11 @@
         !   write(*,*)((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4)
         ! end do
         !end if
-        
+
         !----------------------------
         !Test access using the parent
         !----------------------------
-        
+
         !write(*,"(//,a)",advance="no") " => Enter the number of the parent space group: "
         !read(*,*) m
         !if(m <= 0) exit
@@ -222,23 +222,23 @@
         !	read(symb(1:j-1),*) k
         !	if(k /= m) cycle
         !  iclass=igroup_class(i)
-        !	if(nk /= iclass_nmod(igroup_class(i))) cycle       	
+        !	if(nk /= iclass_nmod(igroup_class(i))) cycle
         !	write(*,"(i6,a)") i, "  "//group_label(i)
         !end do
         !cycle
-        
+
         !----------------------------
         !Test of the subroutine Gen_SSGroup(ngen,gen,SSG)
         !----------------------------
-        
-        
-        write(*,"(//,a)",advance="no")  " => Enter the number of modulation vectors: " 
+
+
+        write(*,"(//,a)",advance="no")  " => Enter the number of modulation vectors: "
         read(*,*) nk
         Dd=4+nk
         write(*,"(2(a,i2),a)")  " => Extended Matrices of dimension: ",Dd," corresponding to ",nk," mod. vectors"
-        write(*,"(a)",advance="no")  " => Enter the number of generators: " 
+        write(*,"(a)",advance="no")  " => Enter the number of generators: "
         read(*,*) ng
-        if(ng == 0) exit        
+        if(ng == 0) exit
 
         if(allocated(gen)) deallocate(gen)
         allocate(gen(ng))
@@ -256,7 +256,7 @@
              if(err_ssg) then
              	 write(*,"(a)") " => "//trim(err_ssg_mess)
              	 cycle
-             else 
+             else
              	 exit
              end if
            end do
@@ -266,15 +266,15 @@
               write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dd)
            end do
         end do
-        
+
         call Gen_SSGroup(ng,gen,SSpaceGroup,"xyz",table)
         call Write_SSG(SSpaceGroup,full=.true.)
         write(unit=*,fmt="(/,a)") " Writing the multiplication table "
-        
+
         do j=1,SSpaceGroup%multip
           write(unit=*,fmt="(1024i4)") table(j,1:SSpaceGroup%multip)
         end do
-        
+
       end do
 
     End Program read_ssg_datafile
