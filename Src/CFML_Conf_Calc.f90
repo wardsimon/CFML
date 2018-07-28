@@ -1702,7 +1702,7 @@
            "    ***********************************************" , &
            "    *  Formal charges from  *.cfl or *.cif files  *" , &
            "    ***********************************************" , &
-           "      (Nebil A. Katcho - ILL, version: July 2016 )"
+           "      (Nebil A. Katcho - ILL, version: July 2018)"
       Write(unit=lun,fmt="(a,/)") " "
 
       ! -------------------
@@ -2395,6 +2395,7 @@
        integer :: i,j,k,L,ia,ic,ac,an
        real(kind=cp) :: rmin,d0,cn,b0,r0
        real(kind=cp),parameter :: f1=0.9185, f2=0.2285 !in eV units
+       logical :: soft_true
 
        if (A%N_Spec == 0) then
           err_conf=.true.
@@ -2418,7 +2419,10 @@
        allocate(Table_Alpha(A%N_Spec,A%N_Spec))   ; Table_Alpha   =0.0
        allocate(Table_ref(A%N_Spec,A%N_Spec))     ; Table_ref     =0
 
-       if(present(soft)) then  !Calculate Rmin and D0 from softBVS parameters and softness
+       soft_true=.False.
+       if(present(soft)) soft_true=soft
+
+       if(soft_true) then  !Calculate Rmin and D0 from softBVS parameters and softness
           call Set_Atomic_Properties()
           call Set_SBVS_Table()
           do i=1,A%N_Cations
@@ -2709,8 +2713,8 @@
     !!----    occupation. The first atom in the list must completely
     !!----    occupy its site. If covalent is provided the covalent
     !!----    radius is used instead of the ionic radius. If softbvs is
-    !!----    present the Morse parameters are calculated from softBVS
-    !!----    parameters
+    !!----    present the Set_Atomic_Properties subroutine is called for
+    !!----    calculating Morse parameters if needed.
     !!----
     !!---- Update: March - 2005, December 2014, January 2015
     !!
@@ -2728,10 +2732,12 @@
        character(len=4)                :: canio
        integer                         :: i,im,j,v,ns,nc,na
        real(kind=cp)                   :: fac1,fact
+       logical                         :: soft_true
 
 
        if (A%natoms == 0) return
-
+       soft_true=.False.
+       if(present(softbvs)) soft_true=softbvs
        ns=0
        spec  = " "
        nc=0
@@ -2818,7 +2824,7 @@
           car=A%Species(i)(im+1:im+2)
           read(unit=car,fmt="(i1)") j
           car=A%Species(i)(1:im-1)
-          if(present(covalent) .and. present(softbvs)) then
+          if(present(covalent) .and. soft_true) then
              call get_soft_covalent_radius(A%Species(i),A%Radius(i))
           else if(present(covalent)) then
              call get_covalent_radius(car,A%Radius(i))

@@ -117,7 +117,7 @@ esac
 #
 # Compilation Process
 
-$COMP $OPT1 -fbounds-check CFML_Atomic_Data.f90 formal_charges.f90  $INC
+$COMP $OPT1 -fbounds-check formal_charges.f90  $INC
 case $COMP
 in
   'af95')
@@ -137,4 +137,3 @@ in
      ;;
 esac
 rm -rf *.o *.mod
-#mv -f cryscalcon $PROGCFML/DistFPS/cryscalcon

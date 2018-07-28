@@ -41,6 +41,14 @@ Program Formal_Charges
   ! Arguments on the command line
 
   narg=Command_Argument_Count()
+  Write(unit=*,fmt="(/,/,7(a,/))")                             &
+       "             ============================"           , &
+       "             ====== FORMAL CHARGES ======"           , &
+       "             ============================"           , &
+       "    ***********************************************" , &
+       "    *  Formal charges from  *.cfl or *.cif files  *" , &
+       "    ***********************************************" , &
+       "      (Nebil A. Katcho - ILL, version: July 2018)"
 
   If (narg > 0) Then
      Call GET_COMMAND_ARGUMENT(1,filcod)
@@ -64,7 +72,7 @@ Program Formal_Charges
         call cutst(cmdline,nlong) !Eliminate the name of the program
         call cutst(cmdline,nlong) !Eliminate the first argument (name of the file)
         cmdline=u_case(trim(adjustl(cmdline))) !Capitalize the keywords
-        if(index(cmdline,"SOFTBVS")) soft_bvs=.true.
+        if(index(cmdline,"SOFTBVS") /= 0) soft_bvs=.true.
         Call GET_COMMAND_ARGUMENT(2,speciess)
         if(u_case(speciess) == "SOFTBV") speciess= " "
      end if
@@ -89,7 +97,10 @@ Program Formal_Charges
      If(.Not. arggiven) Then
         Write(unit=*,fmt="(a)",advance='no') " => Code of the file xx.cfl(cif) (give xx): "
         Read(unit=*,fmt="(a)") filcod
-        If(Len_trim(filcod) == 0) call finish()
+        If(Len_trim(filcod) == 0) then
+          Write(unit=*,fmt="(a)") " => No file has been provided!"
+          call finish()
+        end if
      End If
 
      Inquire(file=Trim(filcod)//".cfl",exist=esta)
