@@ -252,12 +252,13 @@
     End Subroutine Bond_Valence
 
     !!----
-    !!---- Subroutine Calc_BVS(A, Ipr, N_BVSm, BVS_M, Filecod)
+    !!---- Subroutine Calc_BVS(A, Ipr, N_BVSm, BVS_M, Filecod,info_string)
     !!----    type (Atoms_Conf_List_type),              intent(in)   :: A            !  In -> Object of Atoms_Conf_List_type
     !!----    integer,                        optional, intent(in)   :: Ipr
     !!----    integer,                        optional, intent(in)   :: n_bvsm       !  In -> Number of modifications
     !!----    character(len=*), dimension(:), optional, intent(in)   :: BVS_M        ! In -> Text with BVS parameters
     !!----    character(len=*),               optional, intent(in)   :: Filecod
+    !!----    character(len=*),               optional, intent(out)  :: info_string
     !!----
     !!----    Subroutine to calculate Bond-Valence sums.
     !!----    Before calling this subroutine it is the responsibility of the calling
@@ -267,16 +268,16 @@
     !!----    should be allocated in the calling program).
     !!----    Control for error is present.
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: March - 2005, July 2018
     !!
-    Subroutine Calc_BVS(A, Ipr, N_Bvsm, Bvs_M, Filecod)
+    Subroutine Calc_BVS(A, Ipr, N_Bvsm, Bvs_M, Filecod, info_string)
        !---- Arguments ----!
        type (Atoms_Conf_List_type),            intent(in)  :: A      !  In -> Object of Atoms_Conf_List_type
        integer,                      optional, intent(in)  :: Ipr
        integer,                      optional, intent(in)  :: N_bvsm
        character(len=*),dimension(:),optional, intent(in)  :: bvs_m
        character(len=*),             optional, intent(in)  :: Filecod
-
+       character(len=*),             optional, intent(out) :: info_string
        !---- Local variables ----!
        integer           :: i,j,k,n1,n2,icm,l,icn,isoc,kk,is0, &
                             isstr,isdav,isigt,ibvs,sig1,sig2
@@ -486,7 +487,7 @@
             gii_b," %"
        write(unit=ibvs,fmt="(a,f7.2,a)")" =>  Normalized   GII(c)= SQRT{ SUM {|BVS-abs(q)|^2*mult}       /N_Atoms_UCell}=", &
             gii_c," /100"
-
+       if(present(info_string)) write(unit=info_string,fmt="(a,f7.2)") " Normalized   GII(c): ",gii_c
        call flush(ibvs)
        close (unit=ibvs)
 
