@@ -219,7 +219,7 @@ Module CFML_EoS
    !!
    Type, public :: EoS_Data_Type
       integer                     :: IUse=0    ! 0=No active, 1= active
-      integer                     :: IGrp=0    ! Group
+      integer, dimension(5)       :: IGrp=0    ! Group
       integer                     :: xtype=0   ! Indicates type of data in V,cell, etc xtype=0 default, xtype=1 isothermal moduli etc
       real(kind=cp)               :: T=298.0   ! Temperature
       real(kind=cp)               :: P=0.0     ! Pressure
@@ -239,10 +239,10 @@ Module CFML_EoS
    !!---- Update: January - 2013
    !!
    Type, public :: EoS_Data_List_Type
-      character(len=80)                             :: Title=" "     ! Title of dataset (normally from input datafile)
-      character(len=40)                             :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
-      integer                                       :: N=0           ! Number of EoS Data List
-      integer, dimension(NCOL_DATA_MAX)             :: IC_Dat=0      ! Which values are input
+      character(len=80)                              :: Title=" "     ! Title of dataset (normally from input datafile)
+      character(len=40)                              :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
+      integer                                        :: N=0           ! Number of EoS Data List
+      integer, dimension(NCOL_DATA_MAX)              :: IC_Dat=0      ! Which values are input
       type(EoS_Data_Type), allocatable, dimension(:) :: EoSD          ! EoS Data Parameters
    End Type EoS_Data_List_Type
 
@@ -751,7 +751,7 @@ Contains
          p=get_props_ptvtable(0.0,t,v,eospar,'P')     ! get_props_ptvtable works in length if linear
          return
       end if
-      
+
 
 
       !> copy Eos parameters to local
@@ -3844,7 +3844,7 @@ Contains
 
       !> Init
       parvals=0.0_cp
-      
+
       call physical_check(eospar,p,t)           ! produce warnings based on P,T
       if(Err_eos)return
 
@@ -4410,20 +4410,20 @@ Contains
             eospar%factor(11)  = 1.0E8_cp
             eospar%TRef        = 298.0_cp             ! Simple thermal expansion,
             eospar%pthermaleos  =.false.
-            
+
          case (2)
             eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E8_cp
             eospar%factor(12)  = 1.0_cp
             eospar%TRef        = 298.0_cp             ! Simple thermal expansion,
             eospar%pthermaleos  =.false.
-            
+
          case (3)
             eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E4_cp
             eospar%TRef        = 298.0_cp             ! Simple thermal expansion,
             eospar%pthermaleos  =.false.
-            
+
          case (4)
             eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
@@ -4431,7 +4431,7 @@ Contains
             eospar%TRef_fixed  = .false.
             eospar%params(11)  = 298.0_cp             ! Einstein temperature
             eospar%pthermaleos  =.false.
-            
+
          case (5)
             eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
@@ -4439,7 +4439,7 @@ Contains
             eospar%TRef_fixed  = .true.
             eospar%params(11)  = 298.0_cp             ! Saturation temperature
             eospar%pthermaleos  =.false.
-            
+
          case (6)
             eospar%factor(10)  = 1.0E5_cp             ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
@@ -4806,7 +4806,7 @@ Contains
 
       return
    End Subroutine Physical_Check_old
-   
+
       !!--++
    !!--++ SUBROUTINE PHYSICAL_CHECK
    !!--++
@@ -4815,7 +4815,7 @@ Contains
    !!--++
    !!--++ Date: 19/07/2018 New routine with new logic
    !!--++ Returns on first error
-   
+
    Subroutine Physical_Check(Ein,Pin,Tin,Vin)
       !---- Arguments ----!
       real(kind=cp),optional,intent(in) :: pin  ! Pressure
@@ -4829,8 +4829,8 @@ Contains
       real(kind=cp)       :: tlimit,pinf,p,v,t
       type(eos_type)      :: e
       logical             :: vpresent
-    
-      
+
+
       !>local copies
       E=Ein
       T=e%tref
@@ -4845,8 +4845,8 @@ Contains
           P=Pin
           n=n+1
       endif
-      
-      
+
+
       ! Volume : This is needed for most tests of most EoS
       V=0._cp
       Vpresent=.false.
@@ -4854,7 +4854,7 @@ Contains
           if(Vin < 0._cp)then
                err_eos=.true.
                err_eos_mess='Volume is negative'
-               return 
+               return
           endif
           V=Vin
           n=n+1
@@ -4863,23 +4863,23 @@ Contains
       if(n == 0)return      !no arguments
       if(e%imodel > 0 .and. e%itherm > 0 .and. n < 2)return   ! not enough arguments for PT eos
 
-      
-       
-      
-          
+
+
+
+
       !> Positive T
-      
+
       if (t < 0.0_cp) then
                err_eos=.true.
                err_eos_mess='T  less than zero K'
                return
       end if
-      
+
       !Now check for valid parameters at reference
 
       call EoSParams_Check(E)
       if(err_eos)return
-      
+
 
       !Now check pthermal and isothermal seperataely
       if(e%pthermaleos)then
@@ -4893,8 +4893,8 @@ Contains
                 err_eos_mess='In thermal pressure EoS, the compressional part of the EoS at Tref is not valid at this volume ='//trim(car)
                 return
             endif
-            
-          
+
+
       else  !isothermal or no thermal: check thermal part first for T being valid
            !> Check validity of normal-type thermal model: only needs T
           select case(e%itherm)
@@ -4929,7 +4929,7 @@ Contains
                    return
                 end if
              end select
-          
+
           !Now check the validity of Eos params at T
             call pveos_check(P,V,T,e,vpresent)
             if(err_eos)then
@@ -4937,19 +4937,19 @@ Contains
                 return
             endif
        endif
-      
-    
-     !If got to here, now check that properties at P,T,V valid of Full EoS 
+
+
+     !If got to here, now check that properties at P,T,V valid of Full EoS
      ! because  checks  above are for the PV part and the TV part, without transitions.
      ! all must be valid for the Eos to be valid
-         
+
       if(.not. vpresent)then        !only done if V not provided at start
           v=get_volume(p,t,e)
           if(err_eos)then         ! added 22/05/2017
                write(unit=car, fmt='(2f10.1)') p, t
                car=adjustl(car)
                err_eos_mess='Volume cannot be calculated at P,T = '//trim(car)
-               return          
+               return
           end if
 
           if (v < tiny(0.0) ) then
@@ -4960,16 +4960,16 @@ Contains
              return
           end if
       endif
-          
-          
-          
+
+
+
       if(.not. e%linear .and. K_cal(V,T,E,P) < tiny(0._cp))then
           write(unit=car, fmt='(2f10.1)') p, t
          car=adjustl(car)
          err_eos_mess='Bulk modulus calculated as zero or negative at P,T = '//trim(car)
          return
       end if
-      
+
 
       !> Produce warning for curved phase boundaries: Pinflection = a/-2b when Ttr=Tr0+aP+bP^2
       if (e%itran>0 .and. abs(e%params(23)) > tiny(0.0) )then
@@ -4982,7 +4982,7 @@ Contains
 
       return
    End Subroutine Physical_Check
-   
+
    !!----
    !!---- SUBROUTINE pveos_check
    !!----
@@ -4990,7 +4990,7 @@ Contains
    !!---- Does not do transition part
    !!----
    !!---- Update: 17/07/2015
-   !!   
+   !!
    Subroutine pveos_check(Pin,Vin,Tin,ein,vpresent)
       !---- Arguments ----!
       real(kind=cp),optional,intent(in) :: pin  ! Pressure
@@ -5004,9 +5004,9 @@ Contains
       real(kind=cp),dimension(3)       :: abc
       real(kind=cp)       :: bp,kc,step,plim,kprev,Vnew,Vprev,klim
       type(eos_type)      :: e
-      
-      
-      
+
+
+
       if(ein%linear)return
       !>local copies
       e=ein
@@ -5022,12 +5022,12 @@ Contains
           e%pthermaleos=.false.
           e%itherm=0
       endif
-      
-      
-      !>prelim stuff for each type of eos, used if vpresent or not
-      
 
-      
+
+      !>prelim stuff for each type of eos, used if vpresent or not
+
+
+
       ! now do further tests dependening on Vpresent
       ! When V is present, calculate K from V,T
       ! And error state when K < K = K(P=0,T)/2, except for Murnaghan which is stable to K=0
@@ -5036,29 +5036,29 @@ Contains
               select case(e%imodel)
               case(1) ! Murngahan: limit is when K=0
                   if(p < -1.0_cp*e%params(2)/e%params(3))err_eos=.true.
-              
+
               case(2,3,4,5,6)   ! BM, Vinet, NS, Tait, APL
                   if(K_cal(V,T,E) < get_K0_T(T,E)/2.0)err_eos=.true.
-                  
+
               end select
           endif
-          
+
       else      ! V was not given, but p was
           if(p < 0._cp)then
               select case(e%imodel)
               case(1) ! Murngahan
                   if(p + 1.0_cp*e%params(2)/e%params(3) < tiny(0.))err_eos=.true.
-              
-        
-              
+
+
+
               case(2,3,4,5,6) ! find V that gives K = K(P=0,T)/2, by iteration
-              
+
                      Klim=get_K0_T(T,E)/2.0_cp
                      Vprev=e%params(1)
                      Kprev=K_cal(Vprev,T,E)
                      V=1.1_cp*e%params(1)
-                 
-                 
+
+
                      do     ! does a newton-raphson search
                          err_eos=.false.
                          kc=K_cal(V,T,E)
@@ -5071,20 +5071,20 @@ Contains
                      !now we have a vlimit
                      plim=get_pressure(V,T,e)
                      if(p < plim)then
-                        err_eos=.true. 
-                        return  
+                        err_eos=.true.
+                        return
                      endif
-                 
+
 
               end select
           endif
-          
-           
+
+
       endif
-      
-      
-      
-   
+
+
+
+
       return
    end Subroutine pveos_check
 
@@ -5441,7 +5441,7 @@ Contains
          !> Writting values on Type
          ndat=ndat+1
          dat%eosd(ndat)%iuse=1          ! Active data
-         dat%eosd(ndat)%igrp=1          ! Group 1
+         dat%eosd(ndat)%igrp(1)=1       ! Group 1
          dat%eosd(ndat)%xtype=idatatype ! Data type
 
          !> Convert to Kelvin
@@ -6873,7 +6873,7 @@ Contains
              else
                 call eoscal_text(p,t,Tscale_In,Eos,text)
                 write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error in calcs with valid eos
-                if (err_eos) write(lun,'(a)')'   *****WARNING:   '//trim(err_eos_mess)                
+                if (err_eos) write(lun,'(a)')'   *****WARNING:   '//trim(err_eos_mess)
              endif
             nprint=nprint+1
 
