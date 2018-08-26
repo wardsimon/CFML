@@ -47,7 +47,7 @@
 !!----
 !!----
 !!
-  Module CFML_Rational_Arithmetic_test
+  Module CFML_Rational_Arithmetic
 
     Use CFML_GlobalDeps,       only : cp,dp
     Use CFML_String_Utilities, only : Pack_String
@@ -1026,4 +1026,4 @@
       eq=.true.
     end function equal_rational_matrix
 
-  End Module CFML_Rational_Arithmetic_test
+  End Module CFML_Rational_Arithmetic
