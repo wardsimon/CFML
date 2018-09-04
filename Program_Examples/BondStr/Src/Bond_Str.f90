@@ -32,7 +32,7 @@ Program Bond_Str
    type (Atoms_Conf_list_Type)     :: Ac
    type (File_List_Type)           :: Fich_cfl
 
-   character(len=256)              :: filcod,restr_file,filename
+   character(len=256)              :: filcod,restr_file,filename,info_string
    character(len=256)              :: line,title,lineor,cmdline
    character(len=80),dimension(15) :: bvparm,bvelparm,fst_cmd, argv
    character(len=4)                :: atname,atm
@@ -125,7 +125,7 @@ Program Bond_Str
              "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
              "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
              "    ***********************************************************************" , &
-             "                     (JRC - ILL, version: March 2018 )"
+             "                     (JRC - ILL, version: July 2018)"
      write(unit=*,fmt=*) " "
      call set_epsg(0.001_cp)  !needed for well controlling the calculation of multiplicities
      if(.not. arggiven) then
@@ -174,7 +174,7 @@ Program Bond_Str
              "    * Distances, angles and Bond-Valence Sums from  *.cfl or *.cif files  *" , &
              "    *     Calculation of BVS and Bond-Valence Energy Landscape maps       *" , &
              "    ***********************************************************************" , &
-             "                     (JRC - ILL, version: March 2018 )"
+             "                     (JRC - ILL, version: July 2018)"
      write(unit=lun,fmt="(a,/)") " "
      dmax=3.2
      dangl=0.0
@@ -361,7 +361,7 @@ Program Bond_Str
         end do
      end if !cif
 
-     if( .not. soft .and. map_calc ) soft=.true.
+     !if( .not. soft .and. map_calc ) soft=.true.
      if(out_cif) then !Generate a CIF file from the CFL file in order to write a complete VESTA file
        call Write_Cif_Template(trim(filcod)//"_gen.cif",2,title,Cell,SpGr,A)
      end if
@@ -401,7 +401,7 @@ Program Bond_Str
        Ac%atom(1:A%natoms)=A%atom
 
        if(bvel_calc) then
-          !if(soft) then
+          !if(soft) then  Called event if soft is .false. to allocate Atomic Properties
             call Species_on_List(Ac,SpGr%Multip,ttol,.true.,soft) !using softBVS for determining Morse parameters
           !else
           !  call Species_on_List(Ac,SpGr%Multip,ttol,.true.) !using covalent radius and table for oxides
@@ -445,15 +445,31 @@ Program Bond_Str
                   call Set_Table_BVEL_Params(Ac,N_bvelpar,bvelparm)
                else
                   call Set_Table_BVEL_Params(Ac)
+                  if(err_conf) then !Change to softBVS
+                    soft=.true.
+                    err_conf=.false.
+                    write(unit=lun,fmt="(/a)") trim(ERR_Conf_Mess)
+                    write(unit=lun,fmt="(a)") " => Error setting BVEL parameters, ... trying softBVS!"
+                    call Set_Table_BVEL_Params(Ac,soft=soft)
+                  end if
                end if
            end if
            if(.not. err_conf) then
               write(unit=lun,fmt="(/a,/,a,/)")  &
-              " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(dmin-d))-1}^2-1]", &
+              " Bond-Valence Energy parameters (D0,Rmin,alpha) for Morse Potential:  D0*[{exp(alpha(Rmin-d))-1}^2-1]", &
                     "   (data read from internal table, provided by the user or calculated from softBVS parameters)"
 
               if(soft) then
-                write(unit=lun,fmt="(a,/)") " Morse parameters D0 and Rmin calculated from softBVS parameters"
+                write(unit=lun,fmt="(a,/)") " Morse parameters calculated from softBVS parameters"
+              else
+                write(unit=lun,fmt="(a,/)") " Morse parameters obtained from internal table"
+              end if
+              if(read_bvelparm) then
+                write(unit=lun,fmt="(a,i3,a)") " Table completed with ",N_bvelpar," parameters {Nc,R0,D0,Rmin,alpha} provided by user"
+                do i=1,N_bvelpar
+                  write(unit=lun,fmt="(i3,a,i3,a)")i,"  "//trim(bvelparm(i))
+                end do
+                write(unit=lun,fmt="(a)") " "
               end if
               do n1=1,Ac%N_Cations
                  do j=1,Ac%N_Anions
@@ -540,7 +556,9 @@ Program Bond_Str
              write (unit=lun, fmt='(a,f10.4,a)')  " => Value of Delta (for volume calculation) :",delta," eV"
              write (unit=lun, fmt='(a,f10.4,a)')  " => Available volume for ion mobility in the unit cell:",vol," angstroms^3"
              write (unit=lun, fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
+             write (unit= * , fmt='(a,f10.2,a)')  " => Volume  fraction for ion mobility in the unit cell:",vol/Cell%CellVol*100.0, " %"
              write (unit=lun, fmt='(a,f10.4)')    " => Minimum Energy (in eV):", emin
+             write (unit=*,   fmt='(a,f10.4)')    " => Minimum Energy (in eV):", emin
              write (unit=lun, fmt='(a,i8)')       " => Number of pixels with Emin < Energy < Emin+Delta: ",npix
              if(buffer_file .and. npercolation) Then
                 write(unit=i_glob,fmt="(i4,a,t31,a,4(a,f8.3))") fcount," "//trim(filename),atname," delta(eV): ",delta, " Vol(A^3): ",vol, &
@@ -559,10 +577,13 @@ Program Bond_Str
              end if
            end if
         else
-           if(n_bvpar /= 0) then                                    ! TR 23.04.2018
-            call Calc_BVS(Ac,lun,n_bvpar,bvparm,filecod=filcod)     ! TR 23.04.2018
+           if(n_bvpar /= 0) then   ! TR 23.04.2018
+            call Calc_BVS(Ac,lun,n_bvpar,bvparm,filecod=filcod, info_string=info_string)     ! JRC 28.07.2018
            else
-            call Calc_BVS(Ac,lun,filecod=filcod)
+            call Calc_BVS(Ac,lun,filecod=filcod,info_string=info_string)
+           end if
+           if(buffer_file) Then
+              write(unit=i_glob,fmt="(i4,a,t31,a)") fcount," "//trim(filename),trim(info_string)
            end if
         end if
 
@@ -629,16 +650,55 @@ Program Bond_Str
    End Subroutine finish
 
    Subroutine get_qval()
+     integer :: n,iv,q
+     !Get the charge for whatever format of the symbol
+     iv=index(atname,"+")
+     Select Case(iv)
+       Case(0) !No + sign
+         n=index(atname,"-") !anion
+         Select Case(n)
+           Case(2) !Element with a single character symbol F-1
+              read(unit=atname(3:),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) q=0
+           Case(3) !Element in the form: F1- or Br-1
+              read(unit=atname(2:2),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) then
+                    read(unit=atname(4:4),fmt="(i1)",iostat=ier)  q
+                    if (ier /= 0) q=0
+              end if
+           Case(4) !Element in the form: Br1-
+              read(unit=atname(3:3),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) q=0
+         End Select
+         q=-q   !anions
+       Case(2) !Element with a single character symbol C+4
+              read(unit=atname(3:),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) q=0
+       Case(3) !Element in the form: C4+ or Fe+3
+              read(unit=atname(2:2),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) then
+                    read(unit=atname(4:4),fmt="(i1)",iostat=ier)  q
+                    if (ier /= 0) q=0
+              end if
+       Case(4) !Element in the form: Fe3+
+              read(unit=atname(3:3),fmt="(i1)",iostat=ier)  q
+              if (ier /= 0) q=0
+     End Select
+     qval = real(q)
+
+     !Get the chemical symbol
      atm=u_case(atname)
      call Get_Chemsymb(atm,chem)
      chem=u_case(chem)
-     nc=index(atname,"+")
-     if(nc > 0) then
-       read(atname(nc+1:),*,iostat=ier) qval
-     else
-       nc=index(atname,"-")
-       if(nc > 0) read(atname(nc:),*,iostat=ier) qval
+     !Write(*,*)  "   Atname1: "//atname
+     !Change the name of the chemical species to put it in "stardard" form: EL+/-n
+     if(len_trim(atname) == 4) then
+       if(iv == 4 .or. n == 4) atname=atname(1:2)//atname(4:4)//atname(3:3)
+     else  !Single character for the Chemical element
+       if(iv == 3 .or. n == 4) atname=atname(1:1)//atname(3:3)//atname(2:2)
      end if
+     !Write(*,*)  "   Atname2: "//atname
+
    End Subroutine get_qval
 
    Subroutine Percolation_Calc()
