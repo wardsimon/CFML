@@ -32,7 +32,7 @@ cat << !
  ????? Syntax : make_crysfml f95:g95:gfortran:ifort [m32|m64] [winter] [debug]
  ????? Default: m64 debug:no wint:no
  ?????
- 
+
 !
 exit 1
 fi
@@ -225,6 +225,8 @@ progressionBar
 $COMP $OPT1  CFML_FFTs.f90
 progressionBar
 $COMP $OPT1  CFML_String_Util.f90
+progressionBar
+$COMP $OPT1  CFML_Rational_Arithmetic.f90
 progressionBar
 if [ "$WINT" == "N" ]; then
    $COMP $OPT1  CFML_IO_Mess.f90       $INC
