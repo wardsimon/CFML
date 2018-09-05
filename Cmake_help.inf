@@ -238,3 +238,10 @@ sudo apt-get install libsm-dev --> install SM and iCE
 sudo apt-get install libxft-dev --> install xft and png
 sudo apt-get install libjpeg-dev
 
+
+Example for SXTALSOFT on Linux
+================================
+Assure that CRYSMFL_LIB and WCRYSMFL_LIB are both set to the proper platform (64 bits or 32 bits), only 64 bits will be developed from now.
+cmake -G "Unix Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$SXTALSOFT/DistSXT/Linux ../.
+
+
