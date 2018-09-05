@@ -15,11 +15,11 @@ rem
     ) else (
        set DISTRIB=%PROGCFML%\DistFPS_64b
        if [x%1 == xdeb] (
-         set INC=/I"%CRYSFML%"\ifort64_debug\libc
-         set CRYSLIB="%CRYSFML%"\ifort64_debug\libC\crysfml.lib
+         set INC=/I"%CRYSFML%"\ifort64_debug\LibC
+         set CRYSLIB="%CRYSFML%"\ifort64_debug\LibC\crysfml.lib
        ) else (
-         set INC=/I"%CRYSFML%"\ifort64\libc
-         set CRYSLIB="%CRYSFML%"\ifort64\libC\crysfml.lib
+         set INC=/I"%CRYSFML%"\ifort64\LibC
+         set CRYSLIB="%CRYSFML%"\ifort64\LibC\crysfml.lib
        )
     )
 if x%1 == xdeb goto DEB
