@@ -239,6 +239,7 @@ Program Formal_Charges
   write(unit=*,fmt="(/a,i5)")      "  Total number of treated files: ",fcount
   write(unit=*,fmt="(a,f10.2,a)")  "  CPU-Time: ", tfin-tini," seconds"
   write(unit=*,fmt="(a,f10.2,a)")  "  CPU-Time: ", (tfin-tini)/60.0," minutes"
+  call finish()
 
   Contains
 
