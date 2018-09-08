@@ -2857,7 +2857,7 @@ Module CFML_ILL_Instrm_Data
                 end if
                 wave=0.5*(Current_Instrm%wave_max-Current_Instrm%wave_min)
 
-            Case("DIM_XY")
+            Case("DIM_XY","DIM_XZ")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%horiz,    Current_Instrm%vert, &
                                                        Current_Instrm%np_horiz, Current_Instrm%np_vert
                 if(ier /= 0) then
@@ -6052,7 +6052,7 @@ Module CFML_ILL_Instrm_Data
             write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MIN: ", Current_Instrm%wave_min
             write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MAX: ", Current_Instrm%wave_max
           end if
-          write(unit=ipr,fmt="(a,2f8.3,2i5)") "DIM_XY ", Current_Instrm%horiz,    Current_Instrm%vert, &
+          write(unit=ipr,fmt="(a,2f8.3,2i5)") "DIM_XZ ", Current_Instrm%horiz,    Current_Instrm%vert, &
                                                     Current_Instrm%np_horiz, Current_Instrm%np_vert
           write(unit=ipr,fmt="(a,2f8.4)") "GAPS_DET ",Current_Instrm%agap, Current_Instrm%cgap
           write(unit=ipr,fmt="(a,f8.5)") "WAVE ",Current_Orient%wave
