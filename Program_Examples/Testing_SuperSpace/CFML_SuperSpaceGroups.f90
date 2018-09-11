@@ -7,7 +7,7 @@
                                               set_Intersection_SPG, Write_SpaceGroup
     use CFML_Propagation_Vectors, only: K_Star, Set_Gk, Group_k_Type
     use CFML_ssg_datafile
-    use CFML_Rational_Arithmetic_test
+    use CFML_Rational_Arithmetic
     use Matrix_Mod
 
     Implicit None
@@ -1093,15 +1093,15 @@
        logical                                   :: info
 
        !---- Local Variables ----!
-       integer                                      :: i, nops,Dd 
+       integer                                      :: i, nops,Dd
        integer, dimension(size(h))                  :: hh
        Integer, dimension(size(h),size(h))          :: Mat
-       
-       
+
+
        info=.false.
        nops= SSG%NumOps
        if(SSG%centred /= 1) nops=min(nops*2,SSG%Multip)
- 
+
        Dd=size(h)
        do i=1,nops
           Mat=SSG%SymOp(i)%Mat(1:Dd,1:Dd)
@@ -1122,15 +1122,15 @@
 
        return
     End Function H_Equiv
-    
-    Subroutine Print_Matrix_SSGop(SSop,lun)   
+
+    Subroutine Print_Matrix_SSGop(SSop,lun)
        Type(SSym_Oper_Type), intent(in) :: SSop
        integer, optional,    intent(in) :: lun
        !
        character(len=8),dimension(size(SSop%Mat,dim=1),size(SSop%Mat,dim=2)) :: Matrix
        character(len=5) :: forma
        integer          :: Dd, j, k, iout
-       
+
        iout=6
        if(present(lun)) iout=lun
        Dd=size(SSop%Mat,dim=1)
@@ -1339,7 +1339,7 @@
        if(present(order) .or. present(powder)) ordering=.true.
        kvect=present(nk) .and. present(nharm) .and. present(kv)
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
-       
+
        hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
        kmax=nint(Cell%cell(2)*2.0*sintlmax+1.0)
        lmax=nint(Cell%cell(3)*2.0*sintlmax+1.0)

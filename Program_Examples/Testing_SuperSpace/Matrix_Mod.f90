@@ -1,7 +1,7 @@
   Module Matrix_Mod
     use CFML_GlobalDeps,       only: sp,dp,cp,tpi
     use CFML_Math_General,     only: sort, trace, iminloc, SVDcmp
-    use CFML_Rational_Arithmetic_test
+    use CFML_Rational_Arithmetic
 
     implicit none
     private
@@ -237,9 +237,9 @@
       integer,                            intent(in) :: d         ! Dimension of the identity matrix
       real(kind=dp), dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
       integer :: i
-      identity = 0.0_dp 
+      identity = 0.0_dp
       do i=1,d
-        identity(i,i) = 1.0_dp 
+        identity(i,i) = 1.0_dp
       end do
     end subroutine identity_dp
 
@@ -247,9 +247,9 @@
       integer,                      intent(in) :: d         ! Dimension of the identity matrix
       integer, dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
       integer :: i
-      identity = 0 
+      identity = 0
       do i=1,d
-        identity(i,i) = 1 
+        identity(i,i) = 1
       end do
     end subroutine identity_int
 
@@ -257,7 +257,7 @@
       integer,                             intent(in) :: d         ! Dimension of the identity matrix
       type(rational), dimension(1:d,1:d), intent(out) :: identity  ! Identity matrix
       integer :: i
-      identity = 0_ik//1_ik 
+      identity = 0_ik//1_ik
       do i=1,d
         identity(i,i) = 1_ik//1_ik
       end do

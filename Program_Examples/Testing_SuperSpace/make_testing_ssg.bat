@@ -11,7 +11,6 @@ rem
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c CFML_Rational_Arithmetic_test.f90 /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
    ifort /c Matrix_Mod.f90                    /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
    ifort /c CFML_ssg_datafile.f90             /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
    ifort /c CFML_SuperSpaceGroups.f90         /O2 /heap-arrays  /nologo /IC:\CrysFML\ifort\LibC
@@ -19,7 +18,6 @@ rem ****---- Intel Compiler ----****
    ifort /exe:testing_ssg *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
 :IFORTD
-   ifort /c CFML_Rational_Arithmetic_test.f90 /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c Matrix_Mod.f90                    /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c CFML_ssg_datafile.f90             /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
    ifort /c CFML_SuperSpaceGroups.f90         /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
@@ -29,7 +27,6 @@ rem ****---- Intel Compiler ----****
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c CFML_Rational_Arithmetic_test.f90   -I../../GFortran/LibC
    gfortran -c Matrix_Mod.f90   -I../../GFortran/LibC
    gfortran -c CFML_ssg_datafile.f90   -I../../GFortran/LibC
    gfortran -c CFML_SuperSpaceGroups.f90   -I../../GFortran/LibC
