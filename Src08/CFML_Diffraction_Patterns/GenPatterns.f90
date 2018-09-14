@@ -6,7 +6,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!----
     !!---- Function that calculate the FHWM of a peak situated on (xi,yi). Then
     !!---- the routine search the Ym value in the range (xi-rlim, xi+rlim) to
-    !!---- obtain the FWHM. 
+    !!---- obtain the FWHM.
     !!----
     !!---- The function return a negative values if an error is ocurred during calculation
     !!----
@@ -16,7 +16,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        !---- Arguments ----!
        class(DiffPat_Type),       intent(in) :: Pat      ! Pattern object
        real(kind=cp),             intent(in) :: Xi       ! (Xi,Yi) for point i
-       real(kind=cp),             intent(in) :: Yi       ! 
+       real(kind=cp),             intent(in) :: Yi       !
        real(kind=cp),             intent(in) :: Ybi      ! Background at point i
        real(kind=cp),optional,    intent(in) :: RLim     ! Limit range in X units to search the point
        real(kind=cp)                         :: V
@@ -84,7 +84,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        return
     End Function Calc_FWHM_Peak
-    
+
     !!----
     !!---- Subroutine Add_Patterns
     !!----
@@ -110,7 +110,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
         !> Checking
         if (N <= 0) return
-        
+
         !> if (all(active) == .false.) return
         if (all(active) .eqv. .false.) return
 
@@ -123,7 +123,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
            Err_CFML%state=.true.
            Err_CFML%Flag=2
            Err_CFML%Msg="Number of Points in the new Pattern was zero! "
-           
+
            return
         end if
 
@@ -132,7 +132,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
            Err_CFML%state=.true.
            Err_CFML%Flag=2
            Err_CFML%Msg="Step size in the new Pattern was close to zero! "
-           
+
            return
         end if
 
@@ -140,7 +140,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
         if (allocated(d2y)) deallocate(d2y)
         allocate(d2y(npts,n))
         d2y=0.0
-        
+
         do i=1,n
            if (.not. active(i)) cycle
            call second_derivative(Patterns(i)%x,Patterns(i)%y,Patterns(i)%npts,d2y(:,i))
@@ -162,7 +162,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
            nc=0
            do i=1,N
               if (.not. active(i) ) cycle
-              
+
               x1=minval(Patterns(i)%x)
               x2=maxval(Patterns(i)%x)
               k=locate(Patterns(i)%x,Pat%x(j))
@@ -195,7 +195,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
         return
     End Subroutine Add_Patterns
-    
+
     !!----
     !!---- SUBROUTINE CALC_BACKGROUND
     !!----
@@ -224,8 +224,8 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        !> Init
        call clear_error()
        pat%bgr=0.0_cp
-       
-       !> Check Pattern 
+
+       !> Check Pattern
        if (pat%npts <= 1) then
           err_CFML%state=.true.
           err_CFML%Flag=2
@@ -238,7 +238,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        x_fin=pat%xmax
        if (present(xmin)) x_ini=xmin
        if (present(xmax)) x_fin=xmax
-       
+
        nt=0
        do i=1,pat%npts
           if (pat%x(i) <= x_ini) cycle
@@ -252,7 +252,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           return
        end if
 
-       !> Locating index that define the range to study 
+       !> Locating index that define the range to study
        ind1=0
        if (abs(x_ini-pat%xmin) <= eps) then
           ind1=1
@@ -330,12 +330,12 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        return
     End Subroutine Calc_BackGround
-    
+
     !!----
     !!---- SUBROUTINE DEL_NOISYPOINTS
     !!----
-    !!---- Delete noisy points in a Pattern. 
-    !!---- 
+    !!---- Delete noisy points in a Pattern.
+    !!----
     !!---- If FileInfo is .true. then a file is created containing
     !!---- information about the elimination of noisy points
     !!----
@@ -360,7 +360,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
         info=.false.
         if (present(FileInfo)) info=FileInfo
-        
+
         NoisyP=0
 
         !> Check Pattern
@@ -409,7 +409,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
               if (cc(i) < cc(i-1)) nomo2=nomo2+1
            end do
            if (nomo1 == 4 .or. nomo2 == 4) cycle cyc_1
-           
+
            sc=4.0_cp*sqrt(suma)
            dif1=cc(3)-2.0_cp*cc(1)+cc(2)
            dif2=cc(3)-2.0_cp*cc(4)+cc(5)
@@ -446,7 +446,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
         return
     End Subroutine Del_NoisyPoints
-    
+
     !!----
     !!---- SUBROUTINE READ_BACKGOUND_FILE
     !!----
@@ -454,7 +454,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
     !!----
     !!----    Mode:
     !!----         Poly | Inter
-    !!----         
+    !!----
     !!----
     !!---- Update: February - 2005
     !!
@@ -484,14 +484,14 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg="The file "//trim(bck_file)//" doesn't exist"
           return
        end if
-       
+
        !> Open Backgriund file
        open(newunit=i_bck,file=trim(bck_file),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg="Error opening the Background file: "//trim(bck_file)
-          return 
+          return
        end if
 
        !> Number of background points
@@ -499,44 +499,44 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        do
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
-          
+
           if (len_trim(line) == 0) cycle
           if (index(line,"!") /= 0) cycle
           if (index(line,"#") /= 0) cycle
           i=i+1
        end do
        bck_points=i
-       
+
        if (bck_points <=0) then
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg="Was impossible to read any background point in the file: "//trim(bck_file)
-          
+
           close (unit=i_bck)
-          return 
-       end if 
-       
+          return
+       end if
+
        !> Allocating variables
        if (allocated(bck_v)) deallocate(bck_v)
        allocate(bck_v(bck_points+1))
        bck_v=0.0_cp
-       
+
        if (allocated(bck_p)) deallocate(bck_p)
        allocate(bck_p(bck_points+1))
        bck_p=0.0_cp
-       
+
        rewind(unit=i_bck)
        do j=1, bck_points
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
-          
+
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)=="#") cycle
-          
+
           read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
           if (ier /= 0) then
              bck_points=j-1
              close(unit=i_bck)
-             
+
              Err_CFML%state=.true.
              Err_CFML%Flag=1
              ERR_CFML%Msg=" WARNING: The reading of Background points was incomplete. Please, check it!"
@@ -546,12 +546,12 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        if (bck_points <=0) then
           Err_CFML%Flag=2
           Err_CFML%Msg="Was impossible to read any background point in the file: "//trim(bck_file)
-          return 
+          return
        end if
-       
+
        close (unit=i_bck)
        car=adjustl(u_case(bck_mode))
-       
+
        select case (car)
           case ("POL") ! Polynomial
              call set_background_poly (Pat, 50.0_cp, bck_p, bck_points )
@@ -568,18 +568,18 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        return
     End Subroutine Read_Background_File
-    
+
     !!--++
     !!--++ SUBROUTINE SET_BACKGROUND_POLY
     !!--++
     !!--++    (PRIVATE)
-    !!--++    Define a Background
+    !!--++    Define a n-polynomial with constanat vlue at bkpos Background
     !!--++
     !!--++ Update: February - 2005
     !!
     Module Subroutine Set_Background_Poly(Pat, Bkpos, Bckx, N)
        !---- Arguments ----!
-       class(DiffPat_E_Type),       intent(in out) :: Pat
+       class(DiffPat_E_Type),         intent(in out) :: Pat
        real (kind=cp),                intent(in    ) :: bkpos
        real (kind=cp), dimension(:),  intent(in    ) :: bckx
        integer,                       intent(in    ) :: n
@@ -591,7 +591,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        allocate(pat%bgr(pat%npts))
        pat%bgr=0.0_cp
        al_bgr=.true.
-       
+
        do i=1, pat%npts
           do j=1,n
              pat%bgr(i)= pat%bgr(i) + bckx(j)*((pat%x(i)/bkpos-1.0)**(j-1))
@@ -600,7 +600,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        return
     End Subroutine Set_Background_Poly
-    
+
     !!--++
     !!--++ SUBROUTINE SET_BACKGROUND_INTER
     !!--++
@@ -667,7 +667,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
 
        return
     End Subroutine Set_Background_Inter
-    
+
     !!--++
     !!--++ Subroutine Read_Pattern_CIF
     !!--++
@@ -702,7 +702,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -712,7 +712,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           return
        end if
 
-       !> Init       
+       !> Init
        nlines=0
        do
          read(unit=i_dat,fmt="(a)",iostat=ier) aux
@@ -723,18 +723,18 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Number of lines too small to hold a diffraction pattern, check your CIF file!"
-          
+
           close(unit=i_dat)
           return
        end if
-       
+
        allocate(file_lines(nlines))
        line_block_id=0; line_probe=0; line_loop=0; line_point_id=0; line_npoints=0; line_start_data=0
-       
+
        rewind(unit=i_dat)
        do i=1,nlines
           read(unit=i_dat,fmt="(a)",iostat=ier) file_lines(i)
-         
+
           if (index(file_lines(i),"_pd_block_id") /= 0) line_block_id=i
           if (index(file_lines(i),"_diffrn_radiation_probe") /= 0) line_probe=i
           if (index(file_lines(i),"loop_") /= 0 .and. line_loop == 0) line_loop=i
@@ -746,7 +746,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" No line with the number of points in the pattern, check your CIF file!"
-         
+
           return
        else
           read(unit=file_lines(line_npoints)(27:),fmt=*,iostat=ier) pat%npts
@@ -754,14 +754,14 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" Error reading the number of points in the pattern, check your CIF file!"
-            
+
              return
           end if
        end if
 
        !> Allocating
        call Allocate_Diffraction_Pattern(pat)
-       
+
        if (line_block_id > 0) pat%title=file_lines(line_block_id)(13:)
        if (line_probe > 0)    pat%kindRad = adjustl(file_lines(line_probe)(24:))
 
@@ -803,12 +803,12 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              exit
           end if
        end do
-       
+
        if (pos(2) == 0 .or. pos(3) == 0) then  !Error experimental data are lacking
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error: experimental data are lacking, check your CIF file!"
-          
+
           return
        end if
 
@@ -818,17 +818,17 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           if (n > pat%npts) exit
           call Get_NumStd(file_lines(i), values, std, ic)
           if (ic < 2) exit
-         
+
           pat%x(n) =  values(pos(2))
           pat%y(n) =  values(pos(3))
           pat%sigma(n) = std(pos(3))
        end do
-       
+
        pat%xmin=pat%x(1)
        pat%xmax=pat%x(pat%npts)
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        select type (Pat)
           class is (DiffPat_E_Type)
              n=0
@@ -838,24 +838,24 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                 if (n > pat%npts) exit
                 call Get_NumStd(file_lines(i), values, std, ic)
                 if (ic < 2) exit
-                  
+
                 if (pos(4) /= 0) pat%ycalc(n) = values(pos(4))
                 if (pos(5) /= 0) pat%bgr(n) = values(pos(5))
-                
+
                 if (pat%sigma(n) > 0.001) then
                    chi2=chi2+((pat%y(n)-pat%ycalc(n))/pat%sigma(n))**2
                 end if
-             end do 
+             end do
              chi2=chi2/real(pat%npts)
-       
+
              i=len_trim(pat%title)
-             write(unit=pat%title(i+2:),fmt="(a,g12.4)") "  Chi2(free) = ",chi2  
-            
+             write(unit=pat%title(i+2:),fmt="(a,g12.4)") "  Chi2(free) = ",chi2
+
        end select
-       
+
        return
     End Subroutine Read_Pattern_CIF
-    
+
     !!--++
     !!--++ Subroutine Read_Pattern_Free
     !!--++
@@ -875,10 +875,10 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        character(len=180)                           :: aline
        character(len=20), dimension(10)             :: dire
        real(kind=cp), dimension(3)                  :: vet
-       real(kind=cp)                                :: step 
+       real(kind=cp)                                :: step
        logical                                      :: title_given,ext_given, rigaku,info
 
-       
+
         !> Init
        call clear_error()
 
@@ -890,7 +890,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -899,7 +899,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" Error opening the file: "//trim(filename)//" for reading!"
           return
        end if
-       
+
        title_given=.false.
        ext_given=.false.
        rigaku=.false.
@@ -918,11 +918,11 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" End of file *.dat"
-             
+
              close(unit=i_dat)
              return
           end if
-          
+
           aline=adjustl(aline)
 
           !> Comment lines using ! or #
@@ -931,38 +931,38 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              if (i /= 0) then
                 !pat%xax_text=adjustl(aline(i+9:))
              end if
-            
+
              i=index(aline,"Legend_Y")
              if (i /= 0) then
                 !pat%yax_text=adjustl(aline(i+9:))
              end if
-            
+
              i=index(aline,"Scattering variable:")
              if (i /= 0) then
                 pat%ScatVar=adjustl(aline(i+20:))
              end if
-            
+
              i=index(aline,"TSAMP")
              if (i /= 0) then
                 !read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
                 !if (ier /= 0) pat%tsamp = 0.0
              end if
-            
+
              i=index(aline,"TITLE")
              if (i /= 0) then
                 Pat%title=trim(aline(i+6:))
                 title_given=.true.
              end if
-            
+
              i=index(aline,"Title:")
              if (i /= 0) then
                 Pat%title=trim(aline(i+7:))
                 title_given=.true.
              end if
-            
+
              cycle
           end if
-          
+
           !> BANK Information
           if (aline(1:4) == "BANK") then
              read(unit=aline(5:41),fmt=*) inum, pat%npts
@@ -970,13 +970,13 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              pat%xmax=pat%xmin+(pat%npts-1)*step
              exit
           end if
-          
+
           if (rigaku) then
              if (.not. title_given) then
                 title_given=.true.
                 Pat%title=trim(adjustl(aline))
                 cycle
-             
+
              else
                 call get_word(aline,dire,nc)
                 call get_num(trim(dire(1))//' '//trim(dire(2))//' '//trim(dire(6)),vet,ivet,iv)
@@ -987,7 +987,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                 exit
              end if
           end if
-          
+
           !> Reading Xmin, Step, Xmax, Title (optional)
           call get_word(aline,dire,nc)
           if (nc > 2) then
@@ -1001,7 +1001,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
                    Err_CFML%Msg=" Error in Intensity file, Step value was zero!"
-                   
+
                    close(unit=-i_dat)
                    return
                 end if
@@ -1039,7 +1039,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" Error on Intensity file, Number of Comment lines was exceeded ( > 7) !"
-             
+
              close(unit=i_dat)
              return
           else
@@ -1052,7 +1052,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in Intensity file, Problems reading 2Theta_ini, Step, 2Theta_end !"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1066,7 +1066,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in Intensity file, Number of intensities values is wrong!!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1077,13 +1077,13 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        if (pat%scatvar == "2theta" .and. pat%xmax > 180.0 ) pat%Scatvar="TOF"
-       
+
        close(unit=i_dat)
        return
     End Subroutine Read_Pattern_Free
-    
+
     !!--++
     !!--++ Subroutine Read_Pattern_Time_Variable
     !!--++
@@ -1104,7 +1104,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        real(kind=cp)                                :: cnorma,step
        integer                                      :: i,ier,i_dat
        logical                                      :: info
-       
+
         !> Init
        call clear_error()
 
@@ -1116,7 +1116,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -1133,7 +1133,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1143,7 +1143,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1153,7 +1153,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1163,7 +1163,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1173,7 +1173,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1183,7 +1183,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1199,7 +1199,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in  Intensity file, check your instr parameter!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1211,7 +1211,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" Zero time in *.DAT "
-             
+
              close(unit=i_dat)
              return
           end if
@@ -1228,14 +1228,14 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        pat%ymax=maxval(pat%y(1:pat%npts))
 
        close(unit=i_dat)
-       
+
        return
     End subroutine Read_Pattern_Time_Variable
-    
+
     !!--++
     !!--++ Subroutine Read_Pattern_XYSigma
     !!--++
-    !!--++    Read a pattern for X,Y,Sigma. 
+    !!--++    Read a pattern for X,Y,Sigma.
     !!--++    Adding (2014) the possibility to read a calculated pattern
     !!--++    in a fouth column. If gr is present a PDFGUI pattern is read.
     !!--++    If header is present the full header of the file is stored in
@@ -1249,10 +1249,10 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        class(DiffPat_Type),        intent(out) :: Pat
        logical,          optional, intent(in)  :: PDF
        character(len=*), optional, intent (out):: Header
-       
+
        !---- Local Variables ----!
        real(kind=cp), parameter                     :: EPS1=1.0E-6
-       
+
        character(len=180)                           :: txt1, aline, fmtfields, fmtformat
        character (len=5)                            :: date1
        integer                                      :: line_da, ntt, interpol, i, j,ier,npp,lenhead,i_dat
@@ -1272,7 +1272,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -1281,7 +1281,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%Msg=" Error opening the file: "//trim(filename)//" for reading!"
           return
        end if
-       
+
        !---- Or X,Y sigma data ----!
        fac_x=1.0
        fac_y=1.0
@@ -1309,7 +1309,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           Err_CFML%state=.true.
           Err_CFML%Flag=2
           Err_CFML%Msg=" Error in Intensity/Profile file, Number of points negative or zero!"
-          
+
           close(unit=i_dat)
           return
        end if
@@ -1327,7 +1327,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
           !pat%xax_text="Distance R(Angstroms)"
           !pat%yax_text="G(R)x1000"
           pat%scatvar="Distance"
-       
+
        else
           read(unit=i_dat,fmt="(a)") txt1
           IF (txt1(1:6) /= "XYDATA") THEN
@@ -1338,7 +1338,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
                    Err_CFML%Msg=" Error reading a profile DATA file of XYSigma format"
-                   
+
                    close(unit=i_dat)
                    return
                 end if
@@ -1349,19 +1349,19 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                    pat%title=adjustl(txt1(j+5:))
                    cycle
                 end if
-                
+
                 i=index(txt1,"Scattering variable:")
                 if (i /= 0) then
                    pat%scatvar=adjustl(txt1(i+20:))
                    cycle
                 end if
-                
+
                 i=index(txt1,"Legend_X")
                 if (i /= 0) then
                    !pat%xax_text = adjustl(txt1(i+9:))
                    cycle
                 end if
-                
+
                 i=index(txt1,"Legend_Y")
                 if (i /= 0) then
                    !pat%yax_text=adjustl(txt1(i+9:))
@@ -1372,7 +1372,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                 read(unit=txt1, fmt=*, iostat=ier) yp1, ypn !This is to detect the beginning of numerical values
                 if ( ier /= 0) cycle
                 backspace (unit=i_dat)
-                
+
                 call init_findfmt(line_da)
                 exit
              end do
@@ -1392,7 +1392,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
                    Err_CFML%Msg=" Error reading a profile DATA file of XYSigma format"
-                   
+
                    close(unit=i_dat)
                    return
                 end if
@@ -1430,7 +1430,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
                       Err_CFML%state=.true.
                       Err_CFML%Flag=2
                       Err_CFML%Msg=" Error reading"
-                      
+
                       close(unit=i_dat)
                       return
                    end if
@@ -1475,12 +1475,12 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" Error reading X,Y, Sigma Ycalc in profile DATA file"
-             
+
              close(unit=i_dat)
              return
           end if
           if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
-          
+
           i=i+1
           if (present(PDF)) then
              read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),dum,pat%sigma(i)
@@ -1491,17 +1491,17 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              Err_CFML%state=.true.
              Err_CFML%Flag=2
              Err_CFML%Msg=" Error in Intensity file, check your instr parameter!"
-             
+
              close(unit=i_dat)
              return
           end if
           if (i > 10 .and. ABS(pat%x(i)) < EPS1 .AND. pat%y(i) < EPS1 .AND.  pat%sigma(i) < EPS1) exit
-          
+
           pat%x(i)=pat%x(i)*fac_x
           pat%y(i)=pat%y(i)*fac_y
-          
+
           !pat%ycalc(i)=pat%ycalc(i)*fac_y
-          
+
           pat%sigma(i)=pat%sigma(i)*fac_y
           pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
           sumavar=sumavar+pat%sigma(i)
@@ -1556,7 +1556,7 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
              bk(i)=0.0
           end do
 
-          !> Second interpolate the sigmas 
+          !> Second interpolate the sigmas
           call spline(pat%x(:),pat%sigma(:),ntt,yp1,ypn,bk(:))
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*step
@@ -1572,10 +1572,10 @@ Submodule (CFML_Diffraction_Patterns) GenPatterns
        end if                       !End If interpol
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        close(unit=i_dat)
 
        return
     End Subroutine Read_Pattern_XYSigma
-    
-End Submodule GenPatterns 
+
+End Submodule GenPatterns

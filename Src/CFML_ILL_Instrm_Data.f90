@@ -393,6 +393,8 @@ Module CFML_ILL_Instrm_Data
    !!----    real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
    !!----    logical                                   :: displaced            ! True if det_offsets /= (0,0,0)
    !!----    real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
+   !!----    logical                                   :: rangtim              !If .true. range_time has been set
+   !!----    real(kind=cp),dimension(:,:,:), allocatable :: range_time         !Curves for calculating the velocitiy of angular motors (2,np,15)
    !!----    real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    !!---- End Type diffractometer_type
    !!----
@@ -448,6 +450,8 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
       logical                                   :: displaced            ! True if det_offsets /= (0,0,0)
       real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre (roD)
+      logical                                   :: rangtim              !If .true. range_time has been set
+      real(kind=cp),dimension(:,:,:), allocatable :: range_time         !Curves for calculating the velocitiy of angular motors (2,np,15)
       real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    End Type diffractometer_type
 
@@ -2265,6 +2269,7 @@ Module CFML_ILL_Instrm_Data
       Current_Instrm%disp_offsets=0.0             !Displacement offsets
       Current_Instrm%displaced=.false.            ! True if det_offsets /= (0,0,0)
       Current_Instrm%det_offsets=0.0              !Offsets X,Y,Z of the detector centre (roD)
+      Current_Instrm%rangtim=.false.
     End Subroutine Init_Current_Instrument
     !!----
     !!---- Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
@@ -2856,7 +2861,7 @@ Module CFML_ILL_Instrm_Data
        !---- Local variables ----!
        character(len=120)             :: line
        character(len=10)              :: key
-       integer                        :: i, j, lun, ier,npx,npz, n1,n2
+       integer                        :: i, j, lun, ier,npx,npz, n1,n2,n3
        real(kind=cp), dimension(3,3)  :: set, ub
        real(kind=cp)                  :: wave
 
@@ -3125,6 +3130,47 @@ Module CFML_ILL_Instrm_Data
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the detector offsets"
                   return
                 end if
+
+            Case("RANGE_TIME")
+                if(n1 == 0) then
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)// &
+                      ", the number of angular motors is needed before giving range_time values"
+                  return
+                end if
+                Current_Instrm%rangtim=.false.
+                if(allocated(Current_Instrm%range_time)) deallocate(Current_Instrm%range_time)
+                allocate(Current_Instrm%range_time(2,10,n1))
+                Current_Instrm%range_time=0.0
+                do j=1,n1
+                  do
+                    read(unit=lun,fmt="(a)",iostat=ier) line ! Name of the motor and number of pairs range - time
+                    if(ier /= 0) then
+                      ERR_ILLData=.true.
+                      ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading section of pairs range - time"
+                      return
+                    end if
+                    line=adjustl(line)
+                    if(len_trim(line) == 0 .or. line(1:1) == "!".or. line(1:1) == "#") cycle
+                    exit
+                  end do
+                  i=index(line," ")
+                  read(unit=line(i:),fmt=*,iostat=ier) n3
+                  if(ier /= 0) then
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading name of motor and number of pairs range - time"
+                    return
+                  end if
+                  do i=1,n3
+                     read(unit=lun,fmt=*,iostat=ier) Current_Instrm%range_time(:,i,j)
+                     if(ier /= 0) then
+                      ERR_ILLData=.true.
+                      ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading pairs range - time for motor: "//trim(line)
+                      return
+                     end if
+                  end do
+                end do
+                Current_Instrm%rangtim=.true.
 
             Case("DET_ALPHAS")
                 if(allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
@@ -6150,7 +6196,7 @@ Module CFML_ILL_Instrm_Data
        character(len=*),optional, intent(in) :: fil
 
        !--- Local variables ---!
-       integer           :: ipr,i
+       integer           :: ipr,i,j,n3
        character(len=16) :: forma
 
 
@@ -6216,6 +6262,17 @@ Module CFML_ILL_Instrm_Data
           if(index(Current_Instrm%geom,"Laue") == 0) write(unit=ipr,fmt="(a,f8.4,a)")  &
                                          "  WAVELENGTH:",Current_Orient%wave," angstroms"
 
+          if (Current_Instrm%rangtim) then
+             write(unit=ipr,fmt="(a)") "RANGE_TIME:"
+             do i=1,Current_Instrm%num_ang
+               n3=count(Current_Instrm%range_time(1,:,i) > 0.0001)
+               write(unit=ipr,fmt="(tr12,a,i4)")  Current_Instrm%ang_names(i),n3
+               do j=1,n3
+                  write(unit=ipr,fmt="(tr12,2f10.4)") Current_Instrm%range_time(:,j,i)
+               end do
+             end do
+          end if
+
        else  !Write a *.geom file, fil should be present!
 
           write(unit=ipr,fmt="(a)")       "INFO "//Current_Instrm%info
@@ -6261,6 +6318,18 @@ Module CFML_ILL_Instrm_Data
                                                              Current_Instrm%ang_offsets(i), &
                                                              Current_Instrm%ang_velocity(i)
           end do
+
+          if (Current_Instrm%rangtim) then
+             write(unit=ipr,fmt="(a)") "RANGE_TIME"
+             do i=1,Current_Instrm%num_ang
+               n3=count(Current_Instrm%range_time(1,:,i) > 0.0001)
+               write(unit=ipr,fmt="(a,i4)")  Current_Instrm%ang_names(i),n3
+               do j=1,n3
+                  write(unit=ipr,fmt="(2f10.4)") Current_Instrm%range_time(:,j,i)
+               end do
+             end do
+          end if
+
           if (Current_Instrm%num_disp > 0) then
              write(unit=ipr,fmt="(a)")    "DISP_LIMITS"
              do i=1,Current_Instrm%num_disp
@@ -6269,6 +6338,7 @@ Module CFML_ILL_Instrm_Data
                                                                 Current_Instrm%disp_offsets(i)
              end do
           end if
+
           write(unit=ipr,fmt="(a,3f10.4)")        "DET_OFF ", Current_Instrm%det_offsets
           if(index(Current_Instrm%geom,"Laue") == 0 .and. Current_Instrm%np_vert < 513 .and. &
                    Current_Instrm%np_horiz < 513) then

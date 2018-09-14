@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Math_General) Locate
  Contains
- 
+
     !!--++ FUNCTION LOCATE_I
     !!--++
     !!--++    Subroutine for locating the index J of an array V(:)
@@ -15,7 +15,7 @@ Submodule (CFML_Math_General) Locate
     !!--++
     !!--++ Update: June - 2011
     !!
-    Module Function Locate_I(V,x) Result(j)    
+    Module Function Locate_I(V,x) Result(j)
        !---- Argument ----!
        integer, dimension(:), intent(in):: v  ! Input vector
        integer,               intent(in):: x  ! Value
@@ -51,7 +51,7 @@ Submodule (CFML_Math_General) Locate
 
        return
     End Function Locate_I
- 
+
     !!--++ FUNCTION LOCATE_R
     !!--++
     !!--++    Function for locating the index J of an array XX(:)
@@ -61,7 +61,7 @@ Submodule (CFML_Math_General) Locate
     !!--++
     !!--++ Update: June - 2011
     !!
-    Module Function Locate_R(V,x) Result(j)    
+    Module Function Locate_R(V,x) Result(j)
        !---- Argument ----!
        real(kind=cp), dimension(:), intent(in):: v
        real(kind=cp),               intent(in):: x
@@ -97,6 +97,6 @@ Submodule (CFML_Math_General) Locate
 
        return
     End Function Locate_R
- 
-   
+
+
 End Submodule Locate

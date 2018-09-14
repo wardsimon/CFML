@@ -1602,7 +1602,8 @@
        character(len=4)              :: symbcar
        character(len=50)             :: msyr
        logical                       :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
-                                        irreps_begin, bfcoef_begin, magdom_begin, done, spg_given
+                                        irreps_begin, bfcoef_begin, magdom_begin, done, spg_given, lattice_given, &
+                                        kvec_given
        type(Magnetic_Group_Type)     :: SG
        type(Space_Group_Type)        :: SpG
 
@@ -1708,6 +1709,8 @@
        skp_begin   =.false.
        bfcoef_begin=.false.
        spg_given   =.false.
+       lattice_given=.false.
+       kvec_given=.false.
        if (present(mag_dom)) then  !Initialise Mag_dom
           Mag_dom%nd=1
           Mag_dom%Chir=.false.
@@ -1777,6 +1780,7 @@
                 MGp%centred = 1
                 MGp%Latt= u_case(lattice(1:1))
              end if
+             lattice_given=.true.
              cycle
           end if
 
@@ -1824,6 +1828,7 @@
                    exit
                 end if
              end do
+             kvec_given=.true.
              cycle
           end if
 
@@ -2257,6 +2262,11 @@
        end do
 
        !Arriving here we have exhausted reading magnetic phase
+       if(num_matom == 0 .and. .not. kvec_given .and. .not. shub_given) then ! No information on magnetic structure is really provided
+         err_magsym=.true.
+         ERR_MagSym_Mess= " No information on magnetic structure is really provided! "
+         return
+       end if
 
        !Check if it is an induced paramagnetic magnetic structure due to an applied magnetic field
        !In such a case use the crystal space group to construct the magnetic matrices. If the symbol

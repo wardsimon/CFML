@@ -1,15 +1,15 @@
 SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
    !---- Global Variables for this SubModule ----!
    implicit none
-   
+
    logical :: ralf_type  =.false.
    logical :: title_given=.false.
- 
+
  Contains
     !!--++
     !!--++ Subroutine Read_Pattern_Isis_M
     !!--++
-    !!--++    Read a pattern for ISIS
+    !!--++    Read a powder pattern from ISIS
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -22,19 +22,19 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
        !---- Local Variables ----!
        integer,       parameter                        :: NPAT_MAX= 100
        real(kind=cp), parameter                        :: EPS1    =1.0e-1
-       
+
        integer                                         :: ntt, i, j, ier, i_dat, npts
        integer, dimension(NPAT_MAX)                    :: npp        !number of points per pattern
        integer                                         :: n_pat      !index of current pattern
-       
+
        real(kind=cp)                                   :: fac_y
        real(kind=cp)                                   :: cnorm
        real(kind=cp)                                   :: sumavar
        real(kind=cp)                                   :: divi
-       
+
        character(len=120)                              :: txt1
        character(len=132)                              :: aline
-       
+
        logical                                         :: bankfound, info
 
        !> Init
@@ -48,7 +48,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
           Err_CFML%Msg=" The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -57,7 +57,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
           Err_CFML%Msg=" Error opening the file: "//trim(filename)//" for reading!"
           return
        end if
-       
+
        !> Init
        fac_y=1000.0
        n_pat=0
@@ -68,7 +68,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
        do
           read(unit=i_dat,fmt="(a)", iostat = ier) txt1
           if (ier /= 0) exit
-          
+
           txt1=adjustl(txt1)
           if (txt1(1:4) == "BANK") then
              n_pat=n_pat+1
@@ -76,10 +76,10 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
                 Err_CFML%state=.true.
                 Err_CFML%Flag=2
                 Err_CFML%Msg=" Error in Intensity file, wrong number of patterns !"
-                
+
                 close(unit=i_dat)
                 return
-             end if  
+             end if
              bankfound=.true.
              cycle
           end if
@@ -121,7 +121,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
              do j=1,npp(n_pat)+1
                 read(unit=i_dat,fmt="(a)",iostat=ier) aline
                 if (ier /= 0)  exit
-                
+
                 if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
                 if (aline(1:4) == "BANK") exit
                 if (len_trim(aline)==0)exit
@@ -132,17 +132,17 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
                    Err_CFML%Msg=" Error reading an ISIS profile DATA file"
-                   
+
                    close(unit=i_dat)
                    return
                 end if
-                
+
                 if (abs(Vpat(n_pat)%x(i)) < EPS1 .and. Vpat(n_pat)%y(i) < EPS1 .and. Vpat(n_pat)%sigma(i) < EPS1) exit
-                
+
                 Vpat(n_pat)%y(i)    =Vpat(n_pat)%y(i)*fac_y
                 Vpat(n_pat)%sigma(i)=(Vpat(n_pat)%sigma(i)*fac_y)**2.0
                 sumavar=sumavar+Vpat(n_pat)%sigma(i)
-                
+
                 if (Vpat(n_pat)%sigma(i) < EPS1) Vpat(n_pat)%sigma(i) =fac_y
                 cnorm=cnorm+Vpat(n_pat)%sigma(i)/max(abs(Vpat(n_pat)%y(i)),0.001_cp)
                 if (i > 1) ntt=ntt+1
@@ -167,7 +167,7 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
                    Err_CFML%state=.true.
                    Err_CFML%Flag=2
                    Err_CFML%Msg=" Error reading an ISIS profile DATA file"
-                   
+
                    close(unit=i_dat)
                    return
                 end if
@@ -181,13 +181,13 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
                 if (i > 1) ntt=ntt+1
              end do
           end if  !RALF question
-          
+
           npts=ntt+1
 
           Vpat(n_pat)%npts=npts
           Vpat(n_pat)%xmin=Vpat(n_pat)%x(1)
           Vpat(n_pat)%xmax=Vpat(n_pat)%x(npts)
-          
+
           cnorm=cnorm/real(npts)
           if (sumavar < EPS1) then
              do i=1,npts
@@ -199,11 +199,11 @@ SubModule (CFML_Diffraction_Patterns) ReadPat_ISIS
           Vpat(n_pat)%ymin=minval(Vpat(n_pat)%y(1:npts))
           Vpat(n_pat)%ymax=maxval(Vpat(n_pat)%y(1:npts))
        end do !n_pat
-      
+
        !> close
        close(unit=i_dat)
-       
+
        return
     End Subroutine Read_Pattern_Isis_M
- 
-End SubModule ReadPat_ISIS 
+
+End SubModule ReadPat_ISIS

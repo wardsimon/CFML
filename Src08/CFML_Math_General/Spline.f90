@@ -5,13 +5,13 @@
 !!
 Submodule (CFML_Math_General) CFML_MG_11
  Contains
- 
+
     !!---- SUBROUTINE SPLINE
     !!----    Spline  N points
     !!----
     !!---- Update: February - 2005
     !!
-    Module Pure Subroutine Spline(x,y,n,yp1,ypn,y2)    
+    Module Pure Subroutine Spline(x,y,n,yp1,ypn,y2)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X
        real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)
@@ -54,14 +54,14 @@ Submodule (CFML_Math_General) CFML_MG_11
 
        return
     End Subroutine Spline
-    
+
     !!---- SUBROUTINE  SPLINT
     !!----
     !!----    Spline Interpolation
     !!----
     !!---- Update: February - 2005
     !!
-    Module Pure Function Splint(xa,ya,y2a,n,x) Result(y)    
+    Module Pure Function Splint(xa,ya,y2a,n,x) Result(y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: xa          !  In -> Array X
        real(kind=cp), dimension(:), intent(in)  :: ya          !  In -> Array Y=F(X)
@@ -75,7 +75,7 @@ Submodule (CFML_Math_General) CFML_MG_11
        real(kind=cp)    :: h, a, b
 
        y=0.0_cp
-       
+
        klo=1
        khi=n
        do
@@ -95,20 +95,20 @@ Submodule (CFML_Math_General) CFML_MG_11
        h=xa(khi)-xa(klo)
        a=(xa(khi)-x)/h
        b=(x-xa(klo))/h
-       
+
        !>
        y=a*ya(klo)+b*ya(khi)+((a**3-a)*y2a(klo)+(b**3-b)* y2a(khi))*(h**2)/6.0
 
        return
     End Function Splint
-    
+
     !!---- SUBROUTINE FIRST_DERIVATIVE
     !!----
     !!----    Calculate the First derivate values of the N points
     !!----
     !!---- Update: January - 2006
     !!
-    Module Pure Subroutine First_Derivative(x,y,n,d2y,d1y)    
+    Module Pure Subroutine First_Derivative(x,y,n,d2y,d1y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x     ! Input vector
        real(kind=cp), dimension(:), intent(in)  :: y     ! Yi=F(xi)
@@ -135,14 +135,14 @@ Submodule (CFML_Math_General) CFML_MG_11
 
        return
     End Subroutine First_Derivative
-    
+
     !!---- SUBROUTINE SECOND_DERIVATIVE
     !!----
     !!----    Calculate the second derivate of N Points
     !!----
     !!---- Update: January - 2006
     !!
-    Module Pure Subroutine Second_Derivative(x,y,n,d2y)    
+    Module Pure Subroutine Second_Derivative(x,y,n,d2y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x    ! Input X vector
        real(kind=cp), dimension(:), intent(in)  :: y    ! Yi=F(xi)
@@ -177,5 +177,26 @@ Submodule (CFML_Math_General) CFML_MG_11
 
        return
     End Subroutine Second_Derivative
-    
+
+    !!---- Module Subroutine Linear_Interpolation(x,y,xi,yi)
+    !!----    real(kind=cp), dimension(:),intent(in)   :: x,y
+    !!----    real(kind=cp),              intent(in)   :: xi
+    !!----    real(kind=cp),              intent(out)  :: yi
+    !!----
+    !!----  Simple Linear Interpolation
+    !!----  Created: September 2018 (JRC)
+    !!----
+    Module Pure Subroutine Linear_Interpolation(x,y,xi,yi)
+       real(kind=cp), dimension(:),intent(in)   :: x,y
+       real(kind=cp),              intent(in)   :: xi
+       real(kind=cp),              intent(out)  :: yi
+       !--- Local variables ---!
+       integer       :: i,np
+       real(kind=cp) :: slope
+       np=size(x)
+       i=locate(x,np,xi)
+       slope=(y(i+1)-y(i))/(x(i+1)-x(i))
+       yi=(xi-x(i))*slope+y(i)
+    End Subroutine Linear_Interpolation
+
 End Submodule CFML_MG_11

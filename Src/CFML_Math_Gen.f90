@@ -180,6 +180,7 @@
 !!--++       LINEAR_DEPENDENTC         [Overloaded]
 !!--++       LINEAR_DEPENDENTI         [Overloaded]
 !!--++       LINEAR_DEPENDENTR         [Overloaded]
+!!--++       LINEAR_INTERPOLATION
 !!----       LU_BACKSUB
 !!----       LU_DECOMP
 !!----       MATINV
@@ -254,7 +255,7 @@
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
                Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
                First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector, AM_Median
+               Co_Prime_vector, AM_Median, Linear_Interpolation
 
     !---- List of public overloaded procedures: subroutines ----!
     public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
@@ -4699,6 +4700,27 @@
 
        return
     End Subroutine Linear_DependentR
+
+    !!---- Subroutine Linear_Interpolation(x,y,xi,yi)
+    !!----    real(kind=cp), dimension(:),intent(in)   :: x,y
+    !!----    real(kind=cp),              intent(in)   :: xi
+    !!----    real(kind=cp),              intent(out)  :: yi
+    !!----
+    !!----  Simple Linear Interpolation
+    !!----  Created: September 2018 (JRC)
+    !!----
+    Subroutine Linear_Interpolation(x,y,xi,yi)
+       real(kind=cp), dimension(:),intent(in)   :: x,y
+       real(kind=cp),              intent(in)   :: xi
+       real(kind=cp),              intent(out)  :: yi
+       !--- Local variables ---!
+       integer       :: i,np
+       real(kind=cp) :: slope
+       np=size(x)
+       i=locate(x,np,xi)
+       slope=(y(i+1)-y(i))/(x(i+1)-x(i))
+       yi=(xi-x(i))*slope+y(i)
+    End Subroutine Linear_Interpolation
 
     !!----
     !!---- Subroutine LU_Backsub(a,indx,b)

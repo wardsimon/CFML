@@ -21,7 +21,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        !--- Local variables ---!
        integer                     :: i
-       real(kind=cp)               :: cr1, cr2 
+       real(kind=cp)               :: cr1, cr2
        real(kind=cp)               :: q,ca,cb,cc,vc,sa,sb,sc
        real(kind=cp), dimension(3) :: var_ang
 
@@ -36,13 +36,13 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           q=cell%scell(i)/cell%cell(i)
           vc=vc+q*q
        end do
-       
+
        if (cr2 > eps) then
           ca=cosd(cell%ang(1)) ;  sa=sind(cell%ang(1))
           cb=cosd(cell%ang(2)) ;  sb=sind(cell%ang(2))
           cc=cosd(cell%ang(3)) ;  sc=sind(cell%ang(3))
           q=1.0-ca*ca-cb*cb-cc*cc+2.0*ca*cb*cc
-          
+
           var_ang = (cell%sang * TO_RAD)**2/q
           vc=vc+ (ca-cb*cc)*(ca-cb*cc)*sa*sa * var_ang(1)
           vc=vc+ (cb-ca*cc)*(cb-ca*cc)*sb*sb * var_ang(2)
@@ -53,7 +53,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Function SigmaV_CellType
-    
+
     !!----
     !!---- FUNCTION SIGMAV_CELLTYPE
     !!----
@@ -70,14 +70,14 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     Module Function SigmaV_Cell(cell,ang,scell,sang) Result(sigma)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: cell      ! Cell parameters
-       real(kind=cp), dimension(3), intent(in) :: ang 
+       real(kind=cp), dimension(3), intent(in) :: ang
        real(kind=cp), dimension(3), intent(in) :: scell     ! standard deviation for cell parameters
        real(kind=cp), dimension(3), intent(in) :: sang
        real(kind=cp)                           :: sigma     ! Sigma
 
        !--- Local variables ---!
        integer                     :: i
-       real(kind=cp)               :: cr1, cr2 
+       real(kind=cp)               :: cr1, cr2
        real(kind=cp)               :: q,ca,cb,cc,vc,sa,sb,sc
        real(kind=cp), dimension(3) :: var_ang
 
@@ -92,13 +92,13 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           q=scell(i)/cell(i)
           vc=vc+q*q
        end do
-       
+
        if (cr2 > eps) then
           ca=cosd(ang(1)) ;  sa=sind(ang(1))
           cb=cosd(ang(2)) ;  sb=sind(ang(2))
           cc=cosd(ang(3)) ;  sc=sind(ang(3))
           q=1.0-ca*ca-cb*cb-cc*cc+2.0*ca*cb*cc
-          
+
           var_ang = (sang * TO_RAD)**2/q
           vc=vc+ (ca-cb*cc)*(ca-cb*cc)*sa*sa * var_ang(1)
           vc=vc+ (cb-ca*cc)*(cb-ca*cc)*sb*sb * var_ang(2)
@@ -109,7 +109,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Function SigmaV_Cell
-    
+
     !!----
     !!---- FUNCTION VOLUME_CELL
     !!----
@@ -121,13 +121,13 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        real(kind=cp), dimension(3), intent(in) :: cell
        real(kind=cp), dimension(3), intent(in) :: ang
        real(kind=cp)                           :: vol
-       
+
        !---- Local Variables ----!
        integer       :: i
        real(kind=cp) :: p,s,cs
        !> Init
        p=1.0_cp; s=1.0_cp
-       
+
        do i=1,3
           cs=cosd(ang(i))
           p=p*cs
@@ -138,10 +138,10 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        do i=1,3
           vol=vol*cell(i)
        end do
-       
+
        return
-    End Function Volume_Cell  
-    
+    End Function Volume_Cell
+
     !!--++
     !!--++ FUNCTION METRICS
     !!--++
@@ -173,7 +173,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Function Metrics
-    
+
     !!--++
     !!--++ SUBROUTINE GET_CRYST_ORTHOG_MATRIX
     !!--++
@@ -225,7 +225,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        car='C'
        if (present(CarType)) car=adjustl(u_case(cartype))
-       
+
        select case (car)
           case ('A')   ! x//a
              !  Transponse of the following matrix:
@@ -243,8 +243,8 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              Mat(3,1) = 0.0
              Mat(3,2) = 0.0
              Mat(3,3) = cell(3)*sind(ang(2))*singas
-             
-          case default  
+
+          case default
              !  By default, the cartesian frame is such as z//c
              !  Transponse of the following matrix:
              !    a = (a sinbeta singamma*, -a sinbeta cosgamma*, a cosbeta )
@@ -261,17 +261,17 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              Mat(3,1) = cell(1)*cosd(ang(2))
              Mat(3,2) = cell(2)*cosd(ang(1))
              Mat(3,3) = cell(3)
-             
-       end select 
-       
+
+       end select
+
        return
-    End Subroutine Get_Cryst_Orthog_Matrix 
-    
+    End Subroutine Get_Cryst_Orthog_Matrix
+
     !!--++
     !!--++ Subroutine ReciprocalCell
     !!--++
     !!--++    (PRIVATE)
-    !!--++    Calculates the reciprocal lattice vectors 
+    !!--++    Calculates the reciprocal lattice vectors
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -288,10 +288,10 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        !> Init
        rcell=0.0_cp; rang=0.0_cp; rvol=0.0_cp     ! Initializing return values
        rvol=0.0_cp
-       
+
        vol=Volume_Cell(cell,ang)
        if (vol <= eps .or. err_CFML%state) return
-       
+
        rvol=1.0_cp/vol
 
        rcell(1)=cell(2)*Cell(3)*sind(ang(1))*rvol
@@ -304,7 +304,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Subroutine ReciprocalCell
-    
+
     !!----
     !!---- SUBROUTINE SET_CRYSTAL_CELL
     !!----
@@ -327,16 +327,16 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        !> a,b,c
        cell%cell=vcell
-       if (present(Vscell)) cell%scell=Vscell 
-       
+       if (present(Vscell)) cell%scell=Vscell
+
        !> angles
        cell%ang=vang
-       if (present(Vsang)) cell%scell=Vsang 
+       if (present(Vsang)) cell%scell=Vsang
        where(cell%ang < eps) cell%ang =90.0_cp
-       
+
        select type (cell)
           class is (Cryscell_M_Type)
-             if (present(Cartype)) cell%cartType=adjustl(u_case(cartype)) 
+             if (present(Cartype)) cell%cartType=adjustl(u_case(cartype))
        end select
 
        !> Volume
@@ -346,28 +346,28 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           err_CFML%Flag=2
           err_CFML%Msg=" Volume of the current cell parameters was zero. Please, check it!"
           return
-       end if   
+       end if
        cell%svol=sigmaVolume(cell)
-       
+
        select type (cell)
           class is (crysCell_M_Type)
-             !> Reciprocal 
+             !> Reciprocal
              call reciprocalcell(Vcell,Vang,cell%rcell,cell%rang,cell%rvol)
-             
+
              !> GD and GR
              cell%GD=metrics(Vcell,Vang)
-             cell%GR=metrics(cell%rcell,cell%rang) 
-             
+             cell%GR=metrics(cell%rcell,cell%rang)
+
              !> Cartesian conversion
              if (cell%cartType /= 'A') cell%cartType='C'
              call Get_Cryst_Orthog_matrix(Vcell,Vang,Cell%Cr_Orth_cel,cell%CartType)
              Cell%Orth_Cr_cel=invert_array3x3(Cell%Cr_Orth_cel)
-                  
-             !> Busing-Levy matrix component 
+
+             !> Busing-Levy matrix component
              if (cell%CartType == "C") then
                 cell%bl_m=Transpose(Cell%Orth_Cr_cel)
                 cell%bl_minv=Transpose(Cell%Cr_Orth_cel)
-                
+
              else
                 Cell%bl_m(1,1)=cell%rcell(1)
                 Cell%bl_m(1,2)=cell%rcell(2)*cosd(cell%rang(3))
@@ -380,12 +380,12 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                 Cell%bl_m(3,2)=0.0_cp
                 Cell%bl_Minv=invert_array3x3(Cell%bl_M)
              end if
-                     
-       end select 
-       
+
+       end select
+
        return
     End Subroutine Set_Crystal_Cell
-    
+
     !!----
     !!---- SUBROUTINE GET_CRYST_FAMILY
     !!----
@@ -411,12 +411,12 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        icodp=0; icoda=0
 
-       !> Codification 
+       !> Codification
 
        !> a
        icodp(1)=1
 
-       !> b 
+       !> b
        if (abs(cell%cell(2)-cell%cell(1)) <= eps) then
           icodp(2)=icodp(1)
        else
@@ -440,7 +440,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           icoda(2)=2
        end if
 
-       !>gamma 
+       !>gamma
        if (abs(cell%ang(3)-cell%ang(1)) <= eps) then
           icoda(3)=icoda(1)
        else
@@ -449,7 +449,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        n1=count(icoda==icoda(1))  ! angles
        n2=count(icodp==icodp(1))  ! parameters
-       
+
        select case (n1)
           case (1) ! All angles are differents
              Str_Family="Triclinic"
@@ -460,13 +460,13 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              if (icoda(1) == icoda(2)) then
                 if (abs(cell%ang(3)-120.0) <= eps) then
                    if (icodp(1)==icodp(2)) then
-                      !> Hexagonal 
+                      !> Hexagonal
                       Str_Family="Hexagonal"
                       Str_Symbol ="h"
                       Str_System ="Hexagonal"
                    end if
                 else
-                   !> Monoclinic 
+                   !> Monoclinic
                    Str_Family="Monoclinic"
                    Str_Symbol ="m"
                    Str_System ="Monoclinic"
@@ -484,19 +484,19 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           case (3) ! all angles are equals
              if (abs(cell%ang(1) - 90.000) <= eps) then
                 select case (n2)
-                   case (1) 
-                      !> Orthorhombic 
+                   case (1)
+                      !> Orthorhombic
                       Str_Family="Orthorhombic"
                       Str_Symbol ="o"
                       Str_System ="Orthorhombic"
 
                    case (2)
-                      !> Tetragonal 
+                      !> Tetragonal
                       if (icodp(1)==icodp(2)) then
                          Str_Family="Tetragonal"
                          Str_Symbol ="t"
                          Str_System ="Tetragonal"
-                      end if   
+                      end if
 
                    case (3)
                       !> Cubic
@@ -507,7 +507,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
              else
                 if (n2 == 3) then
-                   !> Hexagonal with rhombohedral axes 
+                   !> Hexagonal with rhombohedral axes
                    Str_Family="Hexagonal"
                    Str_Symbol ="h"
                    Str_System ="Trigonal"
@@ -515,17 +515,17 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              end if
 
        end select ! n
-       
+
        !> Error?
        if (len_trim(Str_Family) <= 0) then
           err_CFML%state=.true.
           err_CFML%Flag=2
           err_CFML%Msg=" Error obtaining the Crystal Family. Please, check the cell parameters!"
-       end if 
+       end if
 
        return
     End Subroutine Get_Cryst_Family
-    
+
     !!----
     !!---- SUBROUTINE GET_DERIV_ORTH_CELL
     !!----
@@ -551,7 +551,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        !> Init
        de_Orthcell=0.0_cp
-       
+
        car=" "
        if (present(CarType)) car=adjustl(u_case(Cartype))
 
@@ -628,18 +628,18 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              de_Orthcell(2,2,6) =  cell%cell(2)*cg
              de_Orthcell(2,3,6) =  cell%cell(3)*fc
              de_Orthcell(3,3,6) =  cell%cell(3)*gc
-             
-          case default 
+
+          case default
              !  By default, the cartesian frame is such as z//c
              !  Transponse of the following matrix:
              !    a = (a sinbeta singamma*, -a sinbeta cosgamma*, a cosbeta )
              !    b = (         0         ,     b sinalpha      , b cosalpha)
              !    c = (         0         ,         0           , c         )
-             
+
              !         ( a sinbeta singamma*          0             0 )
              !    M =  (-a sinbeta cosgamma*      b sinalpha        0 )
              !         ( a cosbeta                b cosalpha        c )
-             
+
              f=(cg-ca*cb)/sa    !-sinbeta . cosgamma*
              g=SQRT(sb*sb-f*f)  ! sinbeta . singamma*
              fa= cb/sa**2       ! df/dalpha
@@ -648,11 +648,11 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              ga=-f*fa/g         ! dg/dalpha
              gb=(sb*cb-f*fb)/g  ! dg/dbeta
              gc=f/g*fc          ! dg/dgamma
-             
+
              !         ( a*g        0         0 )
              !    M =  ( a*f      b*sa        0 )
              !         ( a*cb     b*ca        c )
-             
+
              !
              !           (   g       0      0 )
              !  dM_da =  (   f       0      0 )
@@ -660,19 +660,19 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              de_Orthcell(1,1,1) = g
              de_Orthcell(1,2,1) = f
              de_Orthcell(1,3,1) = cb
-             
+
              !           (   0      0      0 )
              !  dM_db =  (   0      sa     0 )
              !           (   0      ca     0 )
              de_Orthcell(1,2,2) = sa
              de_Orthcell(3,2,2) = ca
-             
+
              !
              !            (   0      0      0  )
              !  dM_dc =   (   0      0      0  )
              !            (   0      0      1  )
              de_Orthcell(3,3,3) = 1
-             
+
              !
              !             ( a*ga         0          0 )
              ! dM_dalpha=  ( a*fa       -b*ca        0 )
@@ -682,7 +682,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              de_Orthcell(2,1,4) = cell%cell(1)*fa
              de_Orthcell(2,2,4) =-cell%cell(2)*ca
              de_Orthcell(3,2,4) = cell%cell(2)*sa
-             
+
              !
              !             (  a*gb        0         0 )
              ! dM_dbeta =  (  a*fb        0         0 )
@@ -691,19 +691,19 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              de_Orthcell(1,1,5) = cell%cell(1)*gb
              de_Orthcell(2,1,5) = cell%cell(1)*fb
              de_Orthcell(3,1,5) =-cell%cell(1)*sb
-             
+
              !
              !              (  a*gc     0      0   )
              ! dM_dgamma =  (  a*fc     0      0   )
              !              (   0       0      0   )
              !
              de_Orthcell(1,1,6) = cell%cell(1)*gc
-             de_Orthcell(2,1,6) = cell%cell(1)*fc 
-       end select 
-       
+             de_Orthcell(2,1,6) = cell%cell(1)*fc
+       end select
+
        return
     End Subroutine Get_Deriv_Orth_Cell
-    
+
     !!----
     !!---- SUBROUTINE CHANGE_SETTING_CELL
     !!----
@@ -755,16 +755,16 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              angl(3)=acosd(GN(1,2)/(cellv(1)*cellv(2)))
 
              call Set_Crystal_Cell(cellv,angl,Celln)
-          
+
           class default
              err_CFML%state=.true.
              err_CFML%Flag=2
              err_CFML%Msg="The input cell is an incompatible variable for Change_Setting_Cell procedure."
-       end select      
+       end select
 
        return
     End Subroutine Change_Setting_Cell
-    
+
     !!----
     !!---- SUBROUTINE GET_PRIMITIVE_CELL
     !!----
@@ -780,7 +780,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        character(len=*),              intent(in)  :: lat_type          ! Lattice type
        class(CrysCell_Type),          intent(in)  :: centred_cell      ! Input Cell Object
        class(CrysCell_Type),          intent(out) :: primitive_cell    ! Output Cell Object
-       real(kind=cp), dimension(3,3), intent(out) :: transfm           ! Transformation Matrix between Cell objects 
+       real(kind=cp), dimension(3,3), intent(out) :: transfm           ! Transformation Matrix between Cell objects
 
        !---- Local variables ----!
        integer                       :: i
@@ -792,28 +792,28 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        Select Case(lat)
           case("a","A")
              transfm= reshape((/1.0,0.0,0.0,  0.0,0.5,0.5,  0.0,-0.5,0.5/),(/3,3/))
-          
+
           case("b","B")
              transfm= reshape((/0.5,0.0,0.5,  0.0,1.0,0.0, -0.5, 0.0,0.5/),(/3,3/))
-          
+
           case("c","C")
              transfm= reshape((/0.5,0.5,0.0, -0.5,0.5,0.0,  0.0, 0.0,1.0/),(/3,3/))
-          
+
           case("i","I")
              transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.5, 0.5,0.5/),(/3,3/))
-          
+
           case("r","R")
              transfm= reshape((/2.0/3.0, 1.0/3.0, 1.0/3.0,  &
                                -1.0/3.0, 1.0/3.0, 1.0/3.0,  &
                                -1.0/3.0,-2.0/3.0, 1.0/3.0/),(/3,3/))
-          
+
           case("f","F")
              transfm= reshape((/0.5,0.0,0.5,  0.5,0.5,0.0,  0.0, 0.5,0.5/),(/3,3/))
-          
+
           case default  !assumed primitive
              transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))
        End Select
-       
+
        select type (Centred_Cell)
           class is (CrysCell_M_Type)
              transfm=transpose(transfm)
@@ -828,16 +828,16 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              celang(1)=acosd(metric(2,3)/(celp(2)*celp(3)))
              celang(2)=acosd(metric(1,3)/(celp(1)*celp(3)))
              celang(3)=acosd(metric(1,2)/(celp(1)*celp(2)))
-             
+
           class default
              celp=centred_cell%cell
              celang=centred_cell%ang
-       end select         
+       end select
        call Set_Crystal_Cell(celp,celang,primitive_cell)
 
        return
     End Subroutine Get_Primitive_Cell
-    
+
     !!----
     !!---- SUBROUTINE GET_TRANSFM_MATRIX
     !!----
@@ -864,22 +864,22 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        tolt=0.3
        if(present(tol)) tolt=tol
        Trm=0.0_cp
-       
+
        select type(cella)
           type is (CrysCell_type)
              err_CFML%state=.false.
              err_CFML%Flag=2
              err_CFML%Msg=" The input cell type is incompatible to use on Get_Transfm_Matrix"
              return
-             
-          type is (CrysCell_LS_type)  
+
+          type is (CrysCell_LS_type)
              err_CFML%state=.false.
              err_CFML%Flag=2
              err_CFML%Msg=" The input cell type is incompatible to use on Get_Transfm_Matrix"
-             return 
-             
-       end select      
-             
+             return
+
+       end select
+
        ok=.false.
        dox: do i1=-2,2                     !         |i1  i4  i7|
           do i2=-2,2                       !    Nu = |i2  i5  i8|
@@ -908,16 +908,16 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              end do          !i3
           end do           !i2
        end do  dox       !i1
-       
+
        if (.not. ok) then
           err_CFML%state=.true.
           err_CFML%Flag=2
           err_CFML%Msg="Get the transformation Matrix between Cells failed!"
-       end if 
+       end if
 
        return
     End Subroutine Get_Transfm_Matrix
-    
+
     !!----
     !!---- SUBROUTINE GET_BASIS_FROM_UVW
     !!----
@@ -955,22 +955,22 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        !> Init
        ZoneB%nlayer=0
        ZoneB%uvw=u
-       
+
        select type(cell)
           class is (CrysCell_M_Type)
-             if (present(mode)) then 
+             if (present(mode)) then
                 Mat=cell%GD
              else
                 Mat=cell%GR
              end if
-                   
+
           class default
              err_CFML%state=.true.
              err_CFML%Flag=2
-             err_CFML%Msg=" The input cell type is incompatible for this procedure Get_basis_from_uvw" 
-             return 
+             err_CFML%Msg=" The input cell type is incompatible for this procedure Get_basis_from_uvw"
+             return
        end select
-       
+
        ok=.false.
 
        au=abs(u)
@@ -986,10 +986,10 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        Select Case (i)
           Case(1)
              i1=2; i2=3
-             
+
           Case(2)
              i1=1; i2=3
-             
+
           Case(3)
              i1=1; i2=2
        End Select
@@ -1005,7 +1005,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           kmax=min(um,kmax)
           lmax=min(um,lmax)
           !mat=cell%GD
-          
+
        else
           s2max=1.0/(dmin*dmin)
           kmax=nint(Cell%cell(i1)/dmin+1.0)
@@ -1034,7 +1034,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                    bas(:,1)=h
                    rm(1) = rv
                    coun1=coun1+1
-                   
+
                 else if (rv < rm(2) .and. .not. co_linear(bas(:,1),h,3) ) then
                    bas(:,2)=h
                    rm(2) = rv
@@ -1043,11 +1043,11 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              end if
           end do
        end do
-       
+
        ZoneB%rx=bas(:,1)
        ZoneB%ry=bas(:,2)
        if (coun1 >= 1 .and. coun2 >=1) ok=.true.
-       
+
        coun01=0; coun02=0; coun1=0; coun2=0
        do i=1,3
           if (ZoneB%rx(i) < 0) coun1=coun1+1
@@ -1057,16 +1057,16 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        end do
        if (coun1 >= 2 .or. (coun1 == 1 .and. coun01 == 2)) ZoneB%rx=-ZoneB%rx
        if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
-       
+
        if (.not. ok) then
           err_CFML%state=.true.
           err_CFML%Flag=2
           Err_CFML%Msg=" Problems in the Procedure of Get_Basis_From_Uvw"
-       end if 
+       end if
 
        return
     End Subroutine Get_Basis_From_Uvw
-    
+
     !!----
     !!---- SUBROUTINE GET_TWOFOLD_AXES
     !!----
@@ -1084,7 +1084,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     !!
     Module Subroutine Get_TwoFold_Axes(Cell,Tol,Twofold)
        !---- Arguments ----!
-       class(CrysCell_M_Type),   intent (in) :: Cell     ! Cell object
+       class(CrysCell_M_Type),  intent (in) :: Cell     ! Cell object
        real(kind=cp),           intent (in) :: Tol      ! angular tolerance in degrees
        Type(twofold_axes_type), intent(out) :: Twofold
 
@@ -1149,7 +1149,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              end do
           end do
        end do do_iu
-       
+
        call sort(maxes,ntwo,ind)
        do i=1,ntwo
           j=ind(i)
@@ -1165,7 +1165,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Subroutine Get_TwoFold_Axes
-    
+
     !!----
     !!---- SUBROUTINE GET_CONVENTIONAL_CELL
     !!----
@@ -1219,7 +1219,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
        Call Set_Crystal_Cell([1.0,1.0,1.0],[90.0,90.0,90.0],Cell)
        message=" "
        call clear_error()
-       
+
        ok=.true.
        tola=0.2
        if(present(told)) tola=told
@@ -1293,12 +1293,12 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              Select Case (namina)
                 Case(1)
                    message="Monoclinic, primitive cell"
-                   
+
                 Case(2)
                    rw=matmul((/0,1,1/),tr)
                    if (.not. co_prime(rw,3)) then
                       message="Monoclinic, A-centred cell"
-                      
+
                    else
                       rw=matmul((/1,1,1/),tr)
                       if (.not. co_prime(rw,3)) then
@@ -1312,7 +1312,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                 Case(3:)
                    message="Error in monoclinic cell"
                    ok=.false.
-                   
+
                    err_CFML%state=.true.
                    err_CFML%Flag=2
                    err_CFML%Msg="Error for monoclinic cell in Get_Conventional_Cell"
@@ -1418,11 +1418,11 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                 if ( j == 0) then
                    message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                    ok=.false.
-                   
+
                    err_CFML%state=.true.
                    err_CFML%Flag=2
                    err_CFML%Msg=trim(message)
-                   return    
+                   return
                 else
                    Select Case (j)
                       case(1)
@@ -1453,7 +1453,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                    mv(2)=sqrt(dot_product(v2,v2))
                    vi=v1/mv(1)
                    vj=v2/mv(2)
-                   
+
                    ok=.false.
 
                    do_iu: do iu=-3,3
@@ -1496,11 +1496,11 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                    Else
                       message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
                       ok=.false.
-                      
+
                       err_CFML%state=.true.
                       err_CFML%Flag=2
                       err_CFML%Msg=trim(message)
-                      return  
+                      return
                    End if
                 End if !j==0
              End if  !orthorhombic test
@@ -1542,12 +1542,12 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              if (namina == 0 .or. naminb == 0) then
                 ok=.false.
                 message="Basis vectors a-b not found!"
-                
+
                 err_CFML%state=.true.
                 err_CFML%Flag=2
                 err_CFML%Msg=trim(message)
-                return  
-             else   
+                return
+             else
                 tr(1,:) = twofold%dtwofold(:,namina)
                 tr(2,:) = twofold%dtwofold(:,naminb)
                 tr(3,:) = twofold%dtwofold(:,naminc)
@@ -1563,7 +1563,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                    v3=-v3
                    namina=-namina
                 end if
-                
+
                 Select Case (namina)
                    Case(1)
                       message="Tetragonal, Primitive cell"
@@ -1572,11 +1572,11 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                    Case(3:)
                       message="Error in tetragonal cell"
                       ok=.false.
-                      
+
                       err_CFML%state=.true.
                       err_CFML%Flag=2
                       err_CFML%Msg=trim(message)
-                      return  
+                      return
                 End Select
              end if
 
@@ -1623,7 +1623,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                 end do
              else
                 ok=.false.
-                
+
                 err_CFML%state=.true.
                 err_CFML%Flag=2
                 err_CFML%Msg="Error in Hexagonal n-2fold axes=7"
@@ -1653,7 +1653,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
              else
                 ok=.false.
                 message="The c-axis of a hexagonal cell was not found!"
-                
+
                 err_CFML%state=.true.
                 err_CFML%Flag=2
                 err_CFML%Msg=trim(message)
@@ -1702,7 +1702,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
                 Case(0)
                   message="Pseudo-cubic but tolerance too small ... "
                   ok=.false.
-                  
+
                   err_CFML%state=.true.
                   err_CFML%Flag=2
                   err_CFML%Msg=trim(message)
@@ -1735,7 +1735,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
           case default
              write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
              ok=.false.
-             
+
              err_CFML%state=.true.
              err_CFML%Flag=2
              err_CFML%Msg=trim(message)
@@ -1751,7 +1751,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
       return
     End Subroutine Get_Conventional_Cell
-    
+
     !!----
     !!---- FUNCTION CART_VECTOR
     !!----
@@ -1772,38 +1772,38 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
     !!
     Module Function Cart_Vector(Mode,V,Cell) Result(Vc)
        !---- Arguments ----!
-       character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD 
-       real(kind=cp), dimension(3), intent(in) :: v         !  Vector                   
-       class(CrysCell_M_Type),      intent(in) :: Cell     !  Cell object           
-       real(kind=cp), dimension(3)             :: vc        !                           
+       character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD
+       real(kind=cp), dimension(3), intent(in) :: v         !  Vector
+       class(CrysCell_M_Type),      intent(in) :: Cell     !  Cell object
+       real(kind=cp), dimension(3)             :: vc        !
 
        !---- Local variable ----!
        character(len=1) :: car
-       
+
        !> Init
        car=adjustl(mode)
        Vc=0.0_cp
-       
+
        select case (car)
           case("d","D")
              vc = matmul(cell%Cr_Orth_cel,v)  !Direct conversion to Cartesian frame
-       
+
           case ("r","R")
              vc = matmul(cell%GR,v)            !Converts to direct space
              vc = matmul(cell%Cr_Orth_cel,vc)  !Converts to Cartesian frame
-       
+
           case ("bl","BL")
              vc = matmul(cell%BL_M,vc) !Direct conversion to BL Cartesian frame
-       
+
           case ("bld","BLD")
              vc = matmul(cell%GD,v)   !Converts to reciprocal space
              vc = matmul(cell%BL_M,vc)!Converts to BL Cartesian frame
-       
+
        end select
 
        return
     End Function Cart_Vector
-    
+
     !!----
     !!---- FUNCTION CART_U_VECTOR
     !!----
@@ -1827,7 +1827,7 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Function Cart_U_Vector
-    
+
     !!----
     !!---- Function Rot_MetricalMatrix(U, Phi, Celda)
     !!----    real(kind=cp), dimension(3),        intent(in) :: U
@@ -1889,6 +1889,6 @@ Submodule (CFML_Crystal_Metrics) GenMetrics
 
        return
     End Function Rot_MetricalMatrix
-        
- 
-End Submodule GenMetrics 
+
+
+End Submodule GenMetrics
