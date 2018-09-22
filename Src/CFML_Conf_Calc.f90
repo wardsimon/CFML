@@ -73,7 +73,7 @@
     !---- Use Files ----!
     Use CFML_GlobalDeps,                 only: Sp,Cp,dp,pi,tpi
     Use CFML_Math_3D,                    only: cross_product
-    Use CFML_Math_General,               only: Sort_Strings,Sort,cosd,set_epsg
+    Use CFML_Math_General,               only: Sort_Strings,Sort,cosd,set_epsg,epss_val
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb, Get_Covalent_Radius, Set_Chem_Info
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
@@ -1669,7 +1669,7 @@
       Integer, Dimension(:), Allocatable         :: penalty, Ac2Bc
       Integer, Dimension(:,:), Allocatable       :: valence
 
-      Real(kind=cp)                              :: rmin, total_charge, energy_aux, norm, epsv
+      Real(kind=cp)                              :: rmin, total_charge, energy_aux, norm, epsv, old_eps
       Real(kind=cp), Parameter                   :: ZEROCHARGE = 1.0e-4
       Real(kind=cp)                              :: Dmax=4.0, Dangle=0.0
       Real(kind=dp),  Dimension(:), Allocatable  :: energy
@@ -1711,6 +1711,7 @@
       ! -------------------
       call Deallocate_Atoms_Cell(Ac)
       Call Allocate_Atoms_Cell(A%Natoms,SpGr%Multip,0.0,Ac)
+      old_eps=epss_val()
       Call Set_Epsg(epsv) !needed for well controlling the calculation of multiplicities
       Write(unit=lun,fmt="(a,i3)")  "    Space Group Number: ", SpGr%NumSpg
       Write(unit=lun,fmt="(a,a,/)") "    Space Group Symbol: ", SpGr%Spg_Symb
@@ -1868,6 +1869,7 @@
             If (first_neighbor(i) == 0) Then
                ERR_Char = .True.
                ERR_Char_Mess = " => Error! Coordination for atom: "//A%Atom(i)%ChemSymb//" is zero. Increase Dmax!"
+               Call Set_Epsg(old_eps)  !Restore previous value of epss
                Return
             End If
             Write(unit=lun,fmt="(tr4,a4,tr2,a4,tr7,f6.3)") A%Atom(i)%Lab,A%Atom(first_neighbor(i))%Lab,rmin
@@ -1938,6 +1940,7 @@
          If (error_pairs) Then
             ERR_Char = .True.
             ERR_Char_Mess = " => Error in first-neighbor:  Cation-Cation or Anion-Anion first-neighbor pairs have been found"
+            Call Set_Epsg(old_eps)  !Restore previous value of epss
             Return
          End If
 
@@ -1970,6 +1973,7 @@
          If (error_element) Then
             ERR_Char = .True.
             ERR_Char_Mess = " => Error in element:  Cations and anions found for an element"
+            Call Set_Epsg(old_eps)  !Restore previous value of epss
             Return
          End If
 
@@ -2096,6 +2100,7 @@
             If (nelemmix == 0) Then
                ERR_Char = .True.
                ERR_Char_Mess = " => No transition / earth-rare ion found. Unable to set charges"
+               Call Set_Epsg(old_eps)  !Restore previous value of epss
                Return
             Else
                norm = 0.
@@ -2153,6 +2158,7 @@
          If (nsolutions == 0) Then
             ERR_Char = .True.
             ERR_Char_Mess = " => No solution found. Unable to set charges"
+            Call Set_Epsg(old_eps)  !Restore previous value of epss
             Return
           End If
 
@@ -2373,6 +2379,7 @@
       If (warning_valence) Then
          Write(unit=lun,fmt="(a,/)") " => WARNING: Non-integer valences found"
       End If
+      Call Set_Epsg(old_eps)  !Restore previous value of epss
 
     End Subroutine Set_Formal_Charges
 

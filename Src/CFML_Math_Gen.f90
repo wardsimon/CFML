@@ -236,7 +236,7 @@
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,   &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,     &
               Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,&
-              Upper_Triangular, Debye
+              Upper_Triangular, Debye, Epss_val
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -2540,6 +2540,20 @@
 
       return
     End Function Co_Prime
+
+    !!----
+    !!---- Function Epss_val()
+    !!----
+    !!----    Gets global EPSS
+    !!----
+    !!---- Update: September - 2018
+    !!
+    Function Epss_val() result(epsv)
+       !---- Arguments ----!
+       real(kind=cp) :: epsv
+
+       epsv=epss
+    End Function Epss_val
 
     !!----
     !!---- Logical Function Equal_Matrix(A,B,N)

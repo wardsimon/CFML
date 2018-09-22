@@ -7,7 +7,7 @@ Program Bond_Str
    !---- Use Modules ----!
    use CFML_GlobalDeps,                  only: Cp
    use CFML_String_Utilities,            only: u_case, pack_string, setnum_std, cutst
-   use CFML_Math_General,                only: sort,Set_Epsg, Set_Epsg_default,Modulo_Lat, Equal_Vector
+   use CFML_Math_General,                only: sort,Set_Epsg, Set_Epsg_default,Modulo_Lat, Equal_Vector, epss_val
    use CFML_Math_3D,                     only: Determ_A, Cross_Product, Polyhedron_Volume, Get_Spheric_Coord, &
                                                Get_Cart_From_Spher, Get_Centroid_Coord, err_Math3D, err_Math3D_Mess
    use CFML_Crystal_Metrics,             only: Write_Crystal_Cell, Crystal_Cell_Type
@@ -76,7 +76,7 @@ Program Bond_Str
       if(narg > 1) then
         call GET_COMMAND_ARGUMENT(2,argv(2))
         argv(2)=u_case(argv(2))
-        if(index(argv(2),"DUMMY")) then
+        if(index(argv(2),"DUMMY")/=0) then !modify by Nebil
             wait_end=.true.
         else  !Now read the keywords from the command line
           i=index(cmdline,"GII_ONLY")
@@ -106,6 +106,7 @@ Program Bond_Str
      write(unit=i_glob,fmt="(a)") " GLOBAL RESULTS OF THE BVEL ANALYSIS OF BUFFER FILE: "//trim(argv(1))
    end if
    fcount=0
+   call set_epsg(0.001_cp)  ! Nebil 21/09/2018 (Now epss is no more modified beacause the old value is restored by internal procedures)
    !---------------------------------------------
    do   !External loop for treating a buffer file
    !---------------------------------------------
@@ -127,13 +128,11 @@ Program Bond_Str
              "    ***********************************************************************" , &
              "                     (JRC - ILL, version: July 2018)"
      write(unit=*,fmt=*) " "
-     call set_epsg(0.001_cp)  !needed for well controlling the calculation of multiplicities
      if(.not. arggiven) then
         write(unit=*,fmt="(a)") " => Code of the file xx.cfl(cif) (give xx): "
         read(unit=*,fmt="(a)") filcod
         if(len_trim(filcod) == 0) call finish()
      end if
-
      inquire(file=trim(filcod)//".cfl",exist=esta)
      call cpu_time(tini)
 
@@ -154,7 +153,6 @@ Program Bond_Str
         call Readn_set_Xtal_Structure(filename,Cell,SpGr,A,Mode="CIF",file_list=fich_cfl)
         cif=.true.
      end if
-
      fcount=fcount+1
      write(unit=*,fmt="(a,i5,a)") " => Treating file #:",fcount,"  -> "//trim(filename)
 
@@ -206,7 +204,6 @@ Program Bond_Str
      call Write_Crystal_Cell(Cell,lun)
      call Write_SpaceGroup(SpGr,lun,full=.true.)
      call Write_Atom_List(A,lun=lun)
-
      ! Check if Bond-Valence calculation are possible
      do i=1,A%natoms
        if(abs(A%atom(i)%charge) <= 0.001)  then
@@ -549,7 +546,7 @@ Program Bond_Str
              	 if(percolation) then
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,bvel_map=bvel_map)
              	 else
-                 call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix)
+                 call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp=.true.)
                end if
              end if
              write (unit=lun, fmt='(/,a)')        " => Migrating species: "//atname

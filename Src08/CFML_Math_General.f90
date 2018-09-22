@@ -49,7 +49,7 @@
 
     !---- List of public functions ----!
     public :: Factorial, Factorial_SP, Factorial_DP, Co_Prime, Euclidean_Norm, &
-              Pgcd, Ppcm, Modulo_Lat, Poly_Legendre
+              Pgcd, Ppcm, Modulo_Lat, Poly_Legendre, epss_val
 
     !---- List of public overloaded procedures: functions ----!
     public :: Co_Linear, Debye, Negligible, Equal_Matrix, Equal_Vector, In_limits, &
@@ -936,6 +936,20 @@
     End Interface
 
  Contains
+
+    !!----
+    !!---- Function Epss_val()
+    !!----
+    !!----    Gets global EPSS
+    !!----
+    !!---- Update: September - 2018
+    !!
+    Function Epss_val() result(epsv)
+       !---- Arguments ----!
+       real(kind=cp) :: epsv
+
+       epsv=epss
+    End Function Epss_val
 
     !!---- SUBROUTINE SET_EPSG
     !!----

@@ -49,7 +49,8 @@
 !!---- DEPENDENCIES
 !!----
 !!--++    Use CFML_GlobalDeps,       only: Cp
-!!--++    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
+!!--++    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, epss_val,    &
+!!--++                                     Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default,iminloc
 !!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
 !!--++                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
 !!--++                                     U_case, Ucase, Getnum, Frac_Trans_2Dig
@@ -180,7 +181,7 @@
 
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,       only: cp
-    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
+    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, epss_val,    &
                                      Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default,iminloc
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
@@ -1014,10 +1015,12 @@
 
        !---- Local variables ----!
        integer                                :: j, nt
+       real(kind=cp)                          :: old_eps
        real(kind=cp), dimension(3)            :: xx,v
        real(kind=cp), dimension(3,Spg%multip) :: u
 
        !> Init Epss
+       old_eps=epss_val()
        call set_epsg(1.0e-3)
 
        mult=1
@@ -1037,7 +1040,7 @@
        mult=mult*Spg%Numlat
 
        !> Reset value for epss
-       call set_epsg_default()
+       call set_epsg(old_eps)
 
        return
     End Function Get_Multip_Pos
