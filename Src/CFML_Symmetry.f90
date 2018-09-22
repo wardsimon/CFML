@@ -1062,14 +1062,15 @@
        real(kind=cp)                          :: Occ
 
        !---- Local Variables ----!
-
+       real(kind=cp)                          :: old_eps
        !> Init Epss
+       old_eps=epss_val()
        call set_epsg(1.0e-3)
 
        Occ=real(Get_Multip_pos(pto,Spg))/real(Spg%multip)
 
        !> Reset value Epss
-       call set_epsg_default()
+       call set_epsg(old_eps)
 
        return
     End Function Get_Occ_Site
