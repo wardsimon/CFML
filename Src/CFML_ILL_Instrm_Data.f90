@@ -5569,12 +5569,12 @@ Module CFML_ILL_Instrm_Data
           mat=ub
        end if
 
-       det=determ_a(mat)
-       if (abs(det) < eps) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="Singular UB or Setting Matrix"
-          return
-       end if
+       !det=determ_a(mat)
+       !if (abs(det) < eps) then
+       !   ERR_ILLData=.true.
+       !   ERR_ILLData_Mess="Singular UB or Setting Matrix"
+       !   return
+       !end if
 
        Current_Orient%orient_set=.true.
        Current_Orient%wave=wave
@@ -6096,7 +6096,7 @@ Module CFML_ILL_Instrm_Data
        end if
 
        if(allocated(file_lines)) deallocate(file_lines)
-       allocate(file_lines(nlines))
+       allocate(file_lines(nlines+10))
 
        call Get_LogUnit(lun)
        open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
@@ -6144,12 +6144,25 @@ Module CFML_ILL_Instrm_Data
 
           if( read_wave .and. read_UB) exit
        End do
-
-       !Update the corresponding lines
-       write(unit=file_lines(iw)(jw+1:), fmt="(f10.5)") wave
-       do i=1,3
-          write(unit=file_lines(iub+i),   fmt="(3f12.7)") ub(i,:)
-       end do
+       if(iw == 0) then
+          write(unit=file_lines(nlines+1),fmt="(a,f10.5)") "WAVE ",wave
+          nlines=nlines+1
+       else
+          !Update the corresponding line
+          write(unit=file_lines(iw)(jw+1:), fmt="(f10.5)") wave
+       end if
+       if(iub == 0) Then
+         write(unit=file_lines(nlines+1),fmt="(a)") "UBMAT"
+         nlines=nlines+1
+         do i=1,3
+            write(unit=file_lines(nlines+i),   fmt="(3f16.9)") ub(i,:)
+         end do
+         nlines=nlines+3
+       else
+         do i=1,3
+            write(unit=file_lines(iub+i),   fmt="(3f16.9)") ub(i,:)
+         end do
+       end if
 
        set(:,1)=Current_Instrm%e1
        set(:,2)=Current_Instrm%e2
