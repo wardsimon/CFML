@@ -399,8 +399,8 @@
       	 SSG%MagType=3
       end if
 
-      if(nlat /=  0) then
-      	 SSG%SPG_Lat="X"
+      if(nlat /=  0) then      	 
+         SSG%SPG_Lat="X"
       	 allocate(SSG%Latt_trans(Dd,nlat+1))
       	 SSG%Latt_trans=0_ik//1_ik
       	 do i=1,nlat
@@ -617,9 +617,10 @@
     End Subroutine Set_SSG_Reading_Database
 
 
-    !!---- Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
+    !!---- Subroutine Get_Mat_From_SSymSymb(Symb,Mat,invt)
     !!----   character(len=*),                intent(in)  :: Symb
     !!----   type(rational),dimension(:,:),   intent(out) :: Mat
+    !!----   integer, optional                            :: invt
     !!----
     !!----  This subroutine provides the rational matrix Mat in standard
     !!----  form (all translation components positive) corresponding to the
@@ -629,9 +630,10 @@
     !!----
     !!----  Created: June 2017 (JRC)
     !!----
-    Subroutine Get_Mat_From_SSymSymb(Symb,Mat)
+    Subroutine Get_Mat_From_SSymSymb(Symb,Mat,invt)
       character(len=*),                intent(in)  :: Symb
       type(rational),dimension(:,:),   intent(out) :: Mat
+      integer, optional                            :: invt
       !---- local variables ----!
       type(rational) :: det
       integer :: i,j,k,Dd, d, np,ns, n,m,inv,num,den,ind,ier
@@ -746,9 +748,11 @@
 
       read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv
       if(ier == 0) then
-        Mat(Dd,Dd)=inv//1
+        Mat(Dd,Dd)=1//1
+        if (present(invt)) invt = inv
       else
         Mat(Dd,Dd)=1//1
+        if (present(invt)) invt = 1
       end if
       j=1
       do i=1,d
