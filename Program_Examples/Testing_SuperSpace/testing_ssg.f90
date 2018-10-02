@@ -151,10 +151,10 @@
 
           spg(i)%SymOp(2)=SSpaceGroup%SymOp(i)
           spg(i)%SymOp(3)=SSpaceGroup%SymOp(i+1)
-          spg(i)%SymOp(3)%Mat(Dd,Dd)=-1//1
+          spg(i)%SymOp(3)%time_inv=-1
 
           spg(i)%SymOp(4)=spg(i)%SymOp(1)  !Operator 4 is {1'|000...1/2}
-          spg(i)%SymOp(4)%Mat(Dd,Dd)=-1//1
+          spg(i)%SymOp(4)%time_inv=-1
           spg(i)%SymOp(4)%Mat(Dd-1,Dd)=1//2
 
           if(SSpaceGroup%Num_Lat > 1) then
@@ -182,7 +182,7 @@
         !forma="( a8)"
         !write(forma(2:2),"(i1)") Dd
           do j=1,multip
-            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"x1x2x3")
+            call Get_SSymSymb_from_Mat(spg(i)%SymOp(j)%Mat,Operator_Symbol,"x1x2x3",spg(i)%SymOp(j)%time_inv)
             write(unit=*,fmt="(a,i3,a)") "  Operator # ",j,"  "//trim(Operator_Symbol)
             !matrix=print_rational(SSpaceGroup%SymOp(i)%Mat)
             !write(unit=*,fmt="(a,i3)") "  Rational Operator #",i

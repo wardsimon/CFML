@@ -33,11 +33,14 @@
     !!---- factor group the translations, a modulo-1 is applied
     !!---- in the multiplication of two operators.
     Type, public   :: SSym_Oper_Type
+      integer                                     :: time_inv=1 !initializing here in case of not allocating al list
       Type(rational), allocatable, dimension(:,:) :: Mat
     End Type SSym_Oper_Type
 
     Type, public        :: SuperSpaceGroup_Type
       logical                                          :: standard_setting=.true.  !true or false
+      character(len=5)                                 :: PG = " "                 !added by Nebil
+      character(len=5)                                 :: Laue=" "                 !added by Nebil
       Character(len=60)                                :: SSG_symbol=" "
       Character(len=60)                                :: SSG_Bravais=" "
       Character(len=13)                                :: SSG_nlabel=" "
@@ -140,13 +143,7 @@
       allocate(Op3%Mat(n,n))  !needed for f95
       d=n-1
       Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
-      !write(*,*) Op3%Mat(1:d,n)
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_ik)
-      !call rational_modulo_lat(Op3%Mat(1:d,n))
-      ! do i=1,d
-      ! 	  write(*,*) Op3%Mat(i,n)
-      !  	Op3%Mat(i,n)=mod(Op3%Mat(i,n),1_ik)
-      ! end do
        do i=1,d
        	 do
             if(Op3%Mat(i,n) < 0_ik//1_ik) then
@@ -156,6 +153,7 @@
             end if
          end do
       end do
+      Op3%time_inv=Op1%time_inv*Op2%time_inv
     end function multiply_ssg_symop
 
     Pure Subroutine reduced_translation(Mat)
@@ -177,7 +175,7 @@
            else
            	exit
            end if
-        end do
+         end do
       end do
     End Subroutine reduced_translation
 
@@ -194,6 +192,7 @@
         allocate(SymOp(i)%Mat(Dd,Dd))
         SymOp(i)%Mat=0_ik//1_ik
       end do
+      SymOp(:)%time_inv=1
     End Subroutine Allocate_SSG_SymmOps
 
     !This subroutine assumes that Op contains the identity as the first operator, followed
@@ -227,7 +226,7 @@
             if(done(i,j)) cycle
             Opt=Op(i)*Op(j)
             do k=1,nt
-              if(equal_rational_matrix(Opt%Mat,Op(k)%Mat)) then
+              if(equal_rational_matrix(Opt%Mat,Op(k)%Mat) .and. Opt%time_inv == Op(k)%time_inv) then
                 tb(i,j)=k
                 done(i,j)=.true.
                 cycle do_j
@@ -321,10 +320,10 @@
       allocate(SSG%Centre_coord(Dd))
       if(allocated(SSG%time_rev))  deallocate(SSG%time_rev)
       allocate(SSG%time_rev(nt))
-      SSG%SymOp(:)=Op(1:nt)
+      SSG%SymOp(:)=Op(1:nt) !here there is a copy of the time inversion
       SSG%multip=nt
       do i=1,nt
-      	call Get_SSymSymb_from_Mat(SSG%SymOp(i)%Mat,SSG%SymOpSymb(i),"x1x2x3")
+      	call Get_SSymSymb_from_Mat(SSG%SymOp(i)%Mat,SSG%SymOpSymb(i),"x1x2x3",SSG%SymOp(i)%time_inv)
       end do
 
       !Search for an inversion centre
@@ -345,16 +344,16 @@
       		end if
       	end do
       	if(k == 0) then
-      	  if(SSG%SymOp(j)%Mat(Dex,Dex) == 1_ik//1_ik) then
+      	  if(SSG%SymOp(j)%time_inv == 1) then
       	  	SSG%Centre="Centric with centre at origin"
-      		else if(SSG%SymOp(j)%Mat(Dex,Dex) == -1_ik//1_ik) then
+      		else if(SSG%SymOp(j)%time_inv == -1) then
       	  	SSG%Centre="Centre of symmetry at origin associated with time inversion"
       		end if
      		  SSG%Centred=2
       	else
-      	  if(SSG%SymOp(j)%Mat(Dex,Dex) == 1_ik//1_ik) then
+      	  if(SSG%SymOp(j)%time_inv == 1) then
       	   	SSG%Centre="Centric with centre NOT at origin"
-      		else if(SSG%SymOp(j)%Mat(Dex,Dex) == -1_ik//1_ik) then
+      		else if(SSG%SymOp(j)%time_inv == -1) then
       	  	SSG%Centre="Centre of symmetry NOT at origin associated with time inversion"
       		end if
       		SSG%Centred=0
@@ -369,7 +368,7 @@
       nalat=0
       do i=2,nt
       	if(equal_rational_matrix(SSG%SymOp(i)%Mat(1:Dd,1:Dd),identity(1:Dd,1:Dd))) then
-      	  if(SSG%SymOp(i)%Mat(Dex,Dex) == 1_ik) then
+      	  if(SSG%SymOp(i)%time_inv == 1) then
       	  	 nlat=nlat+1
       	  	 ind_lat(nlat)=i
       	  else
@@ -384,7 +383,7 @@
       !Determine the type of magnetic group and select centring translations and anti-translations
       !if(any()) <- implement any for rational arrays
       do i=1,nt
-      	SSG%time_rev(i)=SSG%SymOp(i)%Mat(Dex,Dex)
+      	SSG%time_rev(i)=SSG%SymOp(i)%time_inv
       end do
       if(.not. any(SSG%time_rev == -1)) SSG%MagType=1
 
@@ -855,9 +854,10 @@
     End Subroutine Get_Mat_From_SSymSymb
 
 
-    Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type)
+    Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type,invt)
        !---- Arguments ----!
        type(rational),dimension(:,:), intent( in) :: Mat
+       integer, optional,             intent( in) :: invt
        character (len=*),             intent(out) :: symb
        character(len=*), optional,    intent( in) :: x1x2x3_type
 
@@ -946,8 +946,11 @@
        if(abc_type)then
           symb=trim(symb)//";"//trim(translation(2:))
        else
-          car=print_rational(Mat(Dd,Dd))
-          symb=trim(symb)//","//trim(car)
+         if(present(invt)) then
+           write(unit=car,fmt="(i2)") invt !print_rational(Mat(Dd,Dd))
+           car=adjustl(car)
+           symb=trim(symb)//","//trim(car)
+         end if
        end if
     End Subroutine Get_SSymSymb_from_Mat
 
@@ -1037,7 +1040,7 @@
       if(print_latt) nlines=SpaceGroup%Multip
       if(present(x1x2x3_typ)) then
          do i=1,nlines
-           call Get_SSymSymb_from_Mat(SpaceGroup%SymOp(i)%Mat,texto(1),xyz_typ)
+           call Get_SSymSymb_from_Mat(SpaceGroup%SymOp(i)%Mat,texto(1),xyz_typ,SpaceGroup%SymOp(i)%time_inv)
            write(unit=lun,fmt="(a,i3,a)") "  Operator # ",i,"  "//trim(texto(1))
          end do
       else
@@ -1088,8 +1091,8 @@
     Function H_Equiv(H,K,SSG,Friedel) Result (Info)
        !---- Arguments ----!
        integer, dimension(:),        intent(in)  :: h,k
-       Type (SuperSpaceGroup_Type),  intent (in) :: SSG
-       logical, optional,        intent(in)      :: Friedel
+       Type (SuperSpaceGroup_Type),  intent(in)  :: SSG
+       logical, optional,            intent(in)  :: Friedel
        logical                                   :: info
 
        !---- Local Variables ----!
@@ -1128,16 +1131,21 @@
        integer, optional,    intent(in) :: lun
        !
        character(len=8),dimension(size(SSop%Mat,dim=1),size(SSop%Mat,dim=2)) :: Matrix
-       character(len=5) :: forma
-       integer          :: Dd, j, k, iout
+       character(len=10) :: forma
+       integer           :: Dd, j, k, iout,d_half
 
        iout=6
        if(present(lun)) iout=lun
        Dd=size(SSop%Mat,dim=1)
-       forma="( a8)"
+       d_half=Dd/2
+       forma="( a8,a,i2)"
        write(forma(2:2),"(i1)") Dd
        matrix=print_rational(SSop%Mat)
-       do j=1,Dd
+       do j=1,d_half
+          write(unit=iout,fmt=forma) (trim(Matrix(j,k)) //" ",k=1,Dd)
+       end do
+       write(unit=iout,fmt=forma) (trim(Matrix(d_half+1,k)) //" ",k=1,Dd),"  time_inv=",SSop%time_inv
+       do j=d_half+2,Dd
           write(unit=iout,fmt=forma) (trim(Matrix(j,k)) //" ",k=1,Dd)
        end do
     End Subroutine Print_Matrix_SSGop
