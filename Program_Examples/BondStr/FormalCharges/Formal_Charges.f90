@@ -26,7 +26,7 @@ Program Formal_Charges
   Type (File_List_Type)                      :: Fich_cfl,Fich_cif
 
   Character(len=132)                         :: line,cmdline
-  Character(len=256)                         :: filcod
+  Character(len=256)                         :: filcod,short_name
   character(len=6)                           :: exten,speciess=" ",species
   character(len=2)                           :: aux
   character(len=4),dimension(:),allocatable  :: chemsp
@@ -48,9 +48,10 @@ Program Formal_Charges
        "    ***********************************************" , &
        "    *  Formal charges from  *.cfl or *.cif files  *" , &
        "    ***********************************************" , &
-       "      (Nebil A. Katcho - ILL, version: July 2018)"
+       "    (Nebil A. Katcho - ILL, version: October 2018)"
 
   If (narg > 0) Then
+     call Get_Command(Command=Cmdline,Length=nlong)
      Call GET_COMMAND_ARGUMENT(1,filcod)
      i=Index(filcod,".cfl")
      If(i /= 0) then
@@ -65,16 +66,18 @@ Program Formal_Charges
        wait_end=.true.
      end if
      i=Index(filcod,".buf")
-     If(i /= 0) buffer_file=.true.
+     If(i /= 0) Then
+       buffer_file=.true.
+       wait_end=.true. !in case of giving a buffer
+     end if
      arggiven=.True.
      if(narg > 1) then
-        call Get_Command(Command=Cmdline,Length=nlong)
         call cutst(cmdline,nlong) !Eliminate the name of the program
         call cutst(cmdline,nlong) !Eliminate the first argument (name of the file)
         cmdline=u_case(trim(adjustl(cmdline))) !Capitalize the keywords
         if(index(cmdline,"SOFTBVS") /= 0) soft_bvs=.true.
         Call GET_COMMAND_ARGUMENT(2,speciess)
-        if(u_case(speciess) == "SOFTBV") speciess= " "
+        if(u_case(speciess) == "SOFTBV" .or. u_case(speciess) == "WAIT" ) speciess= " "
      end if
   End If
   if(buffer_file) then
@@ -91,6 +94,12 @@ Program Formal_Charges
        i=index(filcod,".",back=.true.)
        exten=filcod(i:)
        filcod=filcod(1:i-1)
+       i=index(filcod,OPS_SEP,back=.true.)
+       if(i /= 0) then
+         short_name=filcod(i+1:)
+       else
+         short_name=filcod
+       end if
      end if
 
 
@@ -161,8 +170,8 @@ Program Formal_Charges
 
      ! Opening the file for writing
      fcount=fcount+1
-     Open(unit=lun,file=Trim(filcod)//".fch",status="replace",action="write")
-     write(*,"(a,t50,a,i6)") "  => Treating the file: "//trim(filcod)//trim(exten),"#",fcount
+     Open(unit=lun,file=Trim(short_name)//".fch",status="replace",action="write")
+     write(*,"(a,i6,a)") "  => Treating the file: #",fcount, "  "//trim(filcod)//trim(exten)
 
      If (Err_Form) Then
         Write(unit=*,fmt="(a)") Trim(ERR_Form_Mess)
@@ -221,7 +230,7 @@ Program Formal_Charges
        end if
      end if
 
-     Open(unit=i_cfl,file=Trim(filcod)//"_fch.cfl",status="replace",action="write")
+     Open(unit=i_cfl,file=Trim(short_name)//"_fch.cfl",status="replace",action="write")
      Write(unit=i_cfl,fmt="(a)") "Title  CFL-file generated from by Formal_Charges.f90"
      Call Write_CFL(i_cfl,Cell,SpGr,A)
      Write(unit=i_cfl,fmt="(/,a)") "!   Bond_STR instructions"
@@ -232,7 +241,7 @@ Program Formal_Charges
      Close(unit=i_cfl)
      Close(unit=lun)
      if(.not. buffer_file) exit
-     write(unit=i_cflb,fmt="(a)") Trim(filcod)//"_fch.cfl"
+     write(unit=i_cflb,fmt="(a)") Trim(short_name)//"_fch.cfl"
      species=" "  !re-initialize species
   end do
   call cpu_time(tfin)
