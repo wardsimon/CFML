@@ -596,7 +596,7 @@ Subroutine Write_FST(fst_file,v,cost)
    file_fst=fst_file(1:i+3)
    fst_cmd=adjustl(fst_file(i+4:))
    nc=0
-
+   if(cost < -1.0e30) write(unit=*,fmt="(a)",advance="no") "?"  !Just to avoid warning
    do
      i=index(fst_cmd,";")
      if(i /= 0) then
