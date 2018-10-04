@@ -1713,7 +1713,7 @@
 ! an existing file, and creates a suitable filename (name2). name2
 ! equals 'name1.append' append is supplied by the calling routine.
 ! If 'name1.append' is the name of an existing file, then append is
-! set to 'append#' where #=1,2.
+! set to '_#append' where #=1,2.
 !
 !      ARGUMENTS:
 !            name1   -  The name of the input data file. (input).
@@ -1752,7 +1752,7 @@
           end if
         end if
         i=1
-        WRITE(name2,"(a,i1)") trim(bname),i
+        WRITE(name2,"(a,a,i1)") trim(bname),"_",i
         name2=trim(name2)//trim(append)
 
 
@@ -1763,11 +1763,11 @@
             name2=" "
             Select Case (i)
               Case(1:9)
-                  WRITE(name2,"(a,i1)") trim(bname),i
+                  WRITE(name2,"(a,a,i1)") trim(bname),"_",i
               Case(10:99)
-                  WRITE(name2,"(a,i2)") trim(bname),i
+                  WRITE(name2,"(a,a,i2)") trim(bname),"_",i
               Case(100:999)
-                  WRITE(name2,"(a,i3)") trim(bname),i
+                  WRITE(name2,"(a,a,i3)") trim(bname),"_",i
             End Select
             name2=trim(name2)//trim(append)
           else
@@ -6591,7 +6591,7 @@
       end if
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '               _______ FAULTS 2016 _______             '
+      WRITE(iw,"(a)") '               _______ FAULTS 2018 _______             '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)") '                                                       '
@@ -6602,13 +6602,13 @@
       WRITE(iw,"(a)") '       M. M. J. Treacy , M. W. Deem & J. M. Newsam     '
       WRITE(iw,"(a)") '                                                       '
       WRITE(iw,"(a)") '     Authors of FAULTS:                                '
-      WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC Energigune)        '
-      WRITE(iw,"(a)") '      Jokin Rikarte            (CIC Energigune)        '
-      WRITE(iw,"(a)") '      Marine Reynaud           (CIC Energigune)        '
+      WRITE(iw,"(a)") '      Montse Casas-Cabanas     (CIC energiGUNE)        '
+      WRITE(iw,"(a)") '      Marine Reynaud           (CIC energiGUNE)        '
+      WRITE(iw,"(a)") '      Jokin Rikarte            (CIC energiGUNE)        '
       WRITE(iw,"(a)") '      Pavel  Horbach           (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '      Juan Rodriguez-Carvajal  (Institut Laue-Langevin)'
       WRITE(iw,"(a)") '                                                       '
-      WRITE(iw,"(a)") '                   [version: July. 2016]                '
+      WRITE(iw,"(a)") '                [version: October 2018]                '
       WRITE(iw,"(a)") ' ______________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")

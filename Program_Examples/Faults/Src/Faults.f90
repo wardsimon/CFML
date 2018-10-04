@@ -366,27 +366,6 @@
 
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          " STRUCTURAL  "
-       if(aver_cellcalc) then
-          write(i_ftls,"(/,a)")        "!    Layers to be stacked to calculate the average cell "
-          write(i_ftls,"(a,i2)")       "CalcAverCell ", nlay_avcell
-          write(i_ftls,"(25i3)")           lay_avcell(1:nlay_avcell)
-       end if
-       if(aver_cellgiven) then
-          write(i_ftls,"(/,a)")        "!    Average cell parameters (for Bragg positions in PRF file) "
-          write(i_ftls,"(a,6f12.5)")   "AverCell ", aver_cell, aver_ang
-       end if
-       if(aver_spggiven) then
-          write(i_ftls,"(/,a)") "!    Average Space Group (for Bragg positions in PRF file) "
-          write(i_ftls,"(a,/)")   "SpGR "//trim(spgsymb)
-       end if
-
-       if(fst_given) then
-          write(i_ftls,"(/,a,/)") "!    FullProf Studio commands "
-          do i=1,num_fst
-            write(i_ftls,"(a)") "FST_CMD  "//trim(fst_cmd(i))
-          end do
-          write(i_ftls,"(a)") " "
-       end if
 
        write(i_ftls,"(a)")          "!         a            b            c          gamma "
        write(i_ftls,"(a,3f12.6,f12.2)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
@@ -402,6 +381,29 @@
        else
          write(i_ftls,"(a)")        " Lwidth  Infinite"
        end if
+
+       if(aver_cellcalc) then
+          write(i_ftls,"(/,a)")        "!Layers to be stacked to calculate the average cell (for Bragg positions in PRF file)"
+          write(i_ftls,"(a,i2)")       "CalcAverCell ", nlay_avcell
+          write(i_ftls,"(25i3)")           lay_avcell(1:nlay_avcell)
+       end if
+       if(aver_cellgiven) then
+          write(i_ftls,"(/,a)")        "!Average cell parameters (for Bragg positions in PRF file) "
+          write(i_ftls,"(a,6f12.5)")   "AverCell ", aver_cell, aver_ang
+       end if
+       if(aver_spggiven) then
+          write(i_ftls,"(/,a)") "!Average Space Group (for Bragg positions in PRF file) "
+          write(i_ftls,"(a,/)")   "SpGR "//trim(spgsymb)
+       end if
+
+       if(fst_given) then
+          write(i_ftls,"(/,a,/)") "!Commands for structural visualization output (files *.cif, *.vesta and *.fst)"
+          do i=1,num_fst
+            write(i_ftls,"(a)") "FST_CMD  "//trim(fst_cmd(i))
+          end do
+          write(i_ftls,"(a)") " "
+       end if
+
 
        b=1
        a=1
@@ -659,7 +661,7 @@
       integer :: i,j,k,l,lact,n,m, nlayers,nl,nat,ncar,ier !,nseq
       integer, dimension(1000)      :: seq
       integer, dimension(20)        :: pos
-      real(kind=cp), dimension(3)   :: cvect,stck_vect,celax,celang
+      real(kind=cp), dimension(3)   :: cvect,stck_vect,stck_vect_up,celax,celang
       real(kind=dp), dimension(6)   :: cell_fst
       !real(kind=cp)                 :: caxis !Perpendicular to the plane of the layers
       real(kind=cp),     dimension(:,:),allocatable :: xyz
@@ -682,6 +684,7 @@
       mod_seq=.false.
       nl=0
       stck_vect=(/0.0,0.0,0.25/)
+      stck_vect_up=(/0.0,0.0,1.25/)
       do i=1,num_fst
         aux=u_case(fst_cmd(i))
         j=index(aux,"SEQ")
@@ -839,7 +842,7 @@
           end if
         end do
       end do
-      cvect=cvect+stck_vect !add another stacking vector to include all layers within the new cell
+      cvect=cvect+stck_vect_up+stck_vect !add a FAULTS unit cell and another user-defined stacking vector to include all layers within the new cell  
       cell_fst(3)=cvect(3)*cell_c
       xyz(1:2,1:nat)=mod(xyz(1:2,1:nat)+10.0_cp,1.0_cp)
       xyz(3,1:nat)=xyz(3,1:nat)/cvect(3) !Correcting the z-fractional coordinate to the new cell
