@@ -15,13 +15,15 @@ First of all, the users should always read carefully the messages written by FAU
 
 	\item Tabs are not allowed in the input files of FAULTS. Only spaces can be used.
 
-	\item All the non-optionnal sections and keywords have to be present in the .flts input file. 
+	\item All the non-optional sections and keywords have to be present in the .flts input file. 
 
-	\item Contrary to the .pcr input files used in FullProf, a missing refinement code will not considered as zero but will produce an error, so all the refinement codes have to be present in the .flts input file. 
+	\item Contrary to the .pcr input files used in FullProf, a missing refinement code will not be considered as zero but will produce an error, so all the refinement codes have to be present in the .flts input file. 
 
 	\item Contrary to the .pcr input files used in FullProf, empty lines can be used in the .flts input file.
 
-	\item The combination of the profile parameters U, V, W, X should not led to a profile function with negative values (no negative Gaussian and/or Lorentzian FWHM). The user can check this by calculating the Gaussian and and Lorentzian FWHM ($H_{G}^{2}$ and $H_{L}$) with the formula given page \pageref{FWHM} using the program  WinPLOTR \cite{WinplotrPaper, WinplotrWebsite} (Menu \emph{Calculations} $=$$>$ \emph{I.R.F. (U,V,W,X,Y,Z)}) or any spreadsheet.
+	\item The combination of the profile parameters U, V, W, X should not lead to a profile function with negative values (no negative Gaussian and/or Lorentzian FWHM). The user can check this by calculating the Gaussian and Lorentzian FWHM ($H_{G}^{2}$ and $H_{L}$) with the formula given in page \pageref{FWHM} using the program  WinPLOTR \cite{WinplotrPaper, WinplotrWebsite} (Menu \emph{Calculations} $=$$>$ \emph{I.R.F. (U,V,W,X,Y,Z)}) or any spreadsheet.
+	
+	\item  In refinement mode, at least one parameter should be refined.
 
 \end{itemize}
 
@@ -36,7 +38,9 @@ The user should make sure that his/her experimental data file complies with the 
 	\item No intensity can be zero o negative.
 
 	\item Empty lines should be avoided.
-
+	
+  \item If secondary phases are to be included, the 2$\theta$ range and step size of these sub-patterns should be identical to those of the experimental data file to be refined. 
+	
 \end{itemize}
 
 \section{Other remarks}

@@ -80,11 +80,6 @@ data and the type of calculation to be done. This file must be written by the us
 
 The FAULTS input file is similar to the one used in DIFFaX \cite{DiffaxManual}, although there are some differences that should be taken into account to avoid errors. The DIFFaX2FAULTS convertor, which permits to convert DIFFaX input files into FAULTS ones, is available at \url{www.cicenergigune.com/faults/} and within the FullProf Suite at \url{www.ill.eu/sites/fullprof/}.\\  
 
-The other possibility to start creating an input .flts file is to create a template from CIF file. To do this one can call faults program from command line and provide three arguments. The first argument is a target CIF file including extension (i.e. "file.cif"). The second argument is the number of layers within the structure. The third one is a thickness of the layers expressed as cartesian coordinate (for example 0.333).\\
-There is some restrictions using that function:\\
-1) structure described in the CIF file should have P1 symmetry \\
-2) atoms lying on the front face of the layer are related to the next layer.
-
 Free format means that the input file is not case sensitive and that the different sections do not have to follow a concret sequence, however,
 a space is needed between each item and all the section headings and subsection keywords must be present. Each line must not exceed 132 characters, taking into account the blank spaces.
 When the program is run, mistakes will normally generate error messages.
@@ -102,6 +97,14 @@ $$ C_x= sign (a) (10p + |a| )	$$
 \vspace{0.5cm}
 \noindent where \emph {p} specifies the ordinal number of the parameter  \emph{x} and \emph {a} is the factor by which the computed shift (the parameter variation in each refinement cycle)
 will be multiplied before use.\\
+
+%\textbf{WARNING: New tool under testing; there are still some bugs}
+%Another possibility to start creating an input .flts file is to create a template from a CIF file. To do this one can call faults program from a command line and provide three arguments. The first argument is a target CIF file including extension (i.e. "file.cif"). The second argument is the number of layers within the structure. The third one is a thickness of the layers expressed as cartesian coordinate (for example 0.33333).\\
+%There is some restrictions using that function:\\
+%1) structure described in the CIF file should have P1 symmetry \\
+%2) atoms lying on the front face of the layer are related to the next layer.
+% Example: FAULTS cfile.cif 2 0.33333
+
 
 Below, each section, which has to begin with the corresponding heading, is explained in more detail.
 
@@ -147,7 +150,7 @@ To refine the parameters that constitute this section it is not necessary to rec
 and the intensity ratio  ${I_2}/ {I_1}$ (although in the case of monochromatic radiation it is only necessary to introduce $\lambda_{1}$).
 $\lambda$ unit is \AA \thinspace and this line must begin with the keyword \textit{wavelength}.
 \item \textbf{Aberrations:} Keyword \textit{aberrations} followed by values for the instrumental aberrations (zero, sycos and sysin) must be given. As they are refinable, refinement codes must be entered in the next line.
-The parameters sycos and sysin relate to systematic 2Theta shifts having a $cos{\theta}$  and $sin{\theta}$ dependency, respectively, that originate from different physical and/or geometrical problems depending on the
+The parameters sycos and sysin relate to systematic 2$\theta$ shifts having a $cos{\theta}$  and $sin{\theta}$ dependency, respectively, that originate from different physical and/or geometrical problems depending on the
 diffraction geometry (see FullProf manual for more details \cite{FPManual}).
 
 
@@ -254,24 +257,28 @@ To do so, the user should ask the program to generate the output files \textit{.
 \end{tabbing}	
 \end{flushleft}
 
-Then the user can add as many optional lines as needed, each of them beginning with the keyword \textit{FST\_CMD}, followed by the required FullProf Studio commands (see the FullProf Studio manual for more details \cite{FPSManual}). As examples, to control respectively the drawing of Ni-O bonds (of length between 0.0 and 2.3 \AA) and NiOx polyhedra, the user may add the following line:
+Then the user can add as many optional lines as needed, each of them beginning with the keyword \textit{FST\_CMD}, followed by the required FullProf Studio commands (see the FullProf Studio manual for more details \cite{FPSManual}). As examples:\\
+- to control respectively the drawing of Ni-O bonds (of length between 0.0 and 2.3 \AA) and NiOx polyhedra, the user may add the following line:
 \begin{flushleft}
 \begin{tabbing}
-	\hspace*{1.50 cm}FST\_CMD  \=CONN \hspace*{0.20 cm}Ni O \hspace*{0.20 cm}0.0 2.3\\*
+	\hspace*{1.50 cm}FST\_CMD  \=CONN \hspace*{0.20 cm}Ni O \hspace*{0.20 cm}0.0 2.3
 \end{tabbing}	
 \end{flushleft}
-to fix the limits of the volume of the big artificial box to be considered for the plot, the user may add the following line:
+- to fix the limits of the volume of the big artificial box to be considered for the plot, the user may add the following line:
 \begin{flushleft}
 \begin{tabbing}
-	\hspace*{1.50 cm}FST\_CMD  \=BOX  \hspace*{0.20 cm}-2.0 2.0 \hspace*{0.20 cm}-2.0 2.0 \hspace*{0.20 cm}-0.01 1.01 \\*
+	\hspace*{1.50 cm}FST\_CMD  \=BOX  \hspace*{0.20 cm}-2.0 2.0 \hspace*{0.20 cm}-2.0 2.0 \hspace*{0.20 cm} 0.0 0.99 
 \end{tabbing}	
 \end{flushleft}
-and to fix the position of the first layer in the big artificial box, the user may add the following line:
+(note that the upper limit of the box along z should be smaller than 1 to avoid periodicity artifacts in structure visualization programs)\\
+\\
+- to fix the position of the first layer in the big artificial box, the user may add the following line :
 \begin{flushleft}
 \begin{tabbing}
 	\hspace*{1.50 cm}FST\_CMD  \=stack\_vect  \hspace*{0.20 cm}0 0 0.5
 \end{tabbing}	
 \end{flushleft}
+(make sure to choose the z component of this vector so as to include all the atoms of the first and last layers within the visualization box in order to avoid periodicity artifacts in structure visualization programs; x and y components are usually 0)
 
 \end{itemize}
 
