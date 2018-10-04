@@ -939,17 +939,39 @@
           return
        end if
 
-       do j=1, bck_points
+   !***********************************************MR
+   !according to MR, this loop doesn't permit to read all the background points from the file 
+   !    do j=1, bck_points
+   !       read(unit=i_bck,fmt="(a)",iostat=ier) line
+   !       if (ier /= 0) exit
+   !       if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)=="#") cycle
+   !       read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
+   !       if (ier /= 0) then
+   !          Err_diffpatt=.true.
+   !          ERR_DiffPatt_Mess=" Error reading background file!"
+   !          return
+   !       end if
+   !    end do
+   !proposed correction:
+       i=0
+       j=0
+       do 
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)=="#") cycle
-          read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
-          if (ier /= 0) then
-             Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading background file!"
-             return
+          j=j+1
+          if(j<=bck_points) then
+              read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
+              if (ier /= 0) then
+                  Err_diffpatt=.true.
+                  ERR_DiffPatt_Mess=" Error reading background file!"
+                  return
+              end if
+          else if(j>bck_points) then
+              exit
           end if
        end do
+    !***********************************************MR
 
        select case (u_case(bck_mode(1:3)))
           case ("POL") ! Polynomial
