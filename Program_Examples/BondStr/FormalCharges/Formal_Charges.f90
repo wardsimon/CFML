@@ -87,7 +87,7 @@ Program Formal_Charges
   call cpu_time(tini)
   fcount=0
   do !external loop for treating a buffer file
-
+     short_name=filcod
      if(buffer_file) then
        read(unit=i_buf,fmt="(a)",iostat=ier) filcod
        if(ier /= 0) exit
@@ -97,8 +97,6 @@ Program Formal_Charges
        i=index(filcod,OPS_SEP,back=.true.)
        if(i /= 0) then
          short_name=filcod(i+1:)
-       else
-         short_name=filcod
        end if
      end if
 
