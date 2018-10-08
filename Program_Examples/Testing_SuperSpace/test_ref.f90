@@ -31,7 +31,9 @@ program test_reflections
   write(i_out,"(/,a)") " ======================================="
   write(i_out,"(a)")   " Program: Test_Reflections in SuperSpace"
   write(i_out,"(a,/)") " ======================================="
-  do
+
+
+  !do
   	write(*,"(a)",advance="no") " => Enter cell parameters: "
   	read(*,"(a)") line
   	if(len_trim(line)==0) exit
@@ -87,6 +89,6 @@ program test_reflections
   		write(i_out,fmto) i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag
   	end do
 
-  end do
+  !end do
 
 end program test_reflections

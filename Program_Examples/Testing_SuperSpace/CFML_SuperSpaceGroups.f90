@@ -1,6 +1,6 @@
   Module CFML_SuperSpaceGroups
     use CFML_GlobalDeps,       only: sp,dp,cp,tpi
-    use CFML_String_Utilities, only: pack_string, Get_Separator_Pos
+    use CFML_String_Utilities, only: pack_string, Get_Separator_Pos,u_case,l_case
     use CFML_Math_General,     only: sort, trace, iminloc, SVDcmp
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup,Get_Generators_From_SpGSymbol, &
@@ -1570,11 +1570,10 @@
        real(kind=cp), dimension(3)      :: tr,v
        character(len=132)               :: line,ShOp_symb,setting,Parent
        character(len=40),dimension(10)  :: words
-       logical                          :: u_type,m_type,inv_type, ttst,nonmag
+       logical                          :: full_sym=.false., gen_op=.false.
 
        typ=l_case(adjustl(mode))
-       !Check if the database has to be read.
-       nonmag=.false.; ttst=.false.
+       num_sym=0
      !Type, public        :: SuperSpaceGroup_Type
      !  logical                                          :: standard_setting=.true.  !true or false
      !  character(len=5)                                 :: PG = " "                 !added by Nebil
@@ -1606,9 +1605,9 @@
      !End Type SuperSpaceGroup_Type
        Select Case(trim(typ))
 
-          Case("pcr")
-             line=adjustl(file_line(n_ini))
-             ind=index(line,"ssg_symb")
+          Case("pcr","cfl")
+             line=u_case(adjustl(file_line(n_ini)))
+             ind=index(line,"SSG_SYMB")
              if(ind == 0) then
                Err_ssg=.true.
                Err_ssg_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
@@ -1619,255 +1618,83 @@
              end if
              ini=n_ini+1
              Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
-             do i=ini,N_end
+             i=ini
+             do
+               if(i > N_end) exit
                line=adjustl(file_line(i))
-               ind=index(line,"Transform to standard:")
-               if(ind /= 0) then
-                 MGp%trn_to_standard=adjustl(line(ind+22:))
+               if(line(1:1) =="!" .or. line(1:1) =="#") then
+                i=i+1
+                cycle
                end if
-               ind=index(line,"Parent Space Group:")
+               ind=index(line," ")
+               line(1:ind)=u_case(line(1:ind))
+
+               ind=index(line,"DIM")
                if(ind /= 0) then
-                 j=index(line,"IT_number:")
-                 if( j /= 0) then
-                   MGp%Parent_spg=adjustl(line(ind+19:j-1))
-                   read(unit=line(j+10:),fmt=*,iostat=ier) MGp%Parent_num
-                   if(ier /= 0) MGp%Parent_num=0
+                 read(unit=line(ind+3:),fmt=*,iostat=ier) SSG%d
+                 if(ier /= 0) then
+                   Err_ssg=.true.
+                   Err_ssg_Mess=" The d-value (3+d) was not properly read in the instruction 'DIM  d' !"
+                   return
                  else
-                   MGp%Parent_spg=adjustl(line(ind+19:))
+                  if(allocated(SSG%kv)) deallocate(SSG%kv)
+                  allocate(SSG%kv(3,SSG%d))
+                  SSG%kv=0.0
+                  i=i+1
+                  n=0
+                  cycle
                  end if
                end if
-               ind=index(line,"Transform from Parent:")
+
+               ind=index(line,"KVEC")
                if(ind /= 0) then
-                 MGp%trn_from_parent=adjustl(line(ind+22:))
+                 n=n+1
+                 if(n > SSG%d) then
+                   Err_ssg=.true.
+                   Err_ssg_Mess=" The number of k-vector exceed the d-value provided in DIM instruction"
+                   return
+                 end if
+                 read(unit=line(ind+4:),fmt=*,iostat=ier) SSG%kv(:,n)
+                 if( ier /= 0) then
+                   Err_ssg=.true.
+                   write(unit=Err_ssg_Mess,fmt="(a,i2,a)") " The k-vector #",n,"  was not properly read in the instruction 'KVEC  kx ky kz' !"
+                   return
+                 else
+                    i=i+1
+                    cycle
+                 end if
                end if
-               ind=index(line,"N_Clat")
-               if(ind == 0) cycle
-               read(unit=file_line(i+1),fmt=*) Nsym, Cen, N_Clat, N_Ant
-               ini=i+2
-               exit
-             end do
-             if(Nsym == 0) then
-               Err_Magsym=.true.
-               Err_Magsym_Mess=" The number of symmetry operators is not provided in the PCR file! "
-               return
-             end if
-             !Allocate components of the magnetic space group
-             MGp%Num_aLat=0
-             allocate(MGp%Latt_trans(3,N_Clat+1))
-             MGp%Latt_trans=0.0
-             MGp%Num_Lat=N_Clat+1
-             if(N_Ant > 0) then
-               allocate(MGp%aLatt_trans(3,N_Ant))
-               MGp%aLatt_trans=0.0
-               MGp%Num_aLat=N_Ant
-               MGp%MagType=4
-             end if
-             MGp%Numops = Nsym
-             MGp%Centred= max(1,Cen)
-             MGp%Multip = MGp%Numops * MGp%Centred * (MGp%Num_Lat + MGp%Num_aLat)
-             num_sym=MGp%Multip
-             allocate(Mgp%SymopSymb(num_sym))
-             allocate(Mgp%Symop(num_sym))
-             allocate(Mgp%MSymopSymb(num_sym))
-             allocate(Mgp%MSymop(num_sym))
-             if(N_Clat > 0) then
-               do i=ini,N_end
-                 line=adjustl(file_line(i))
-                 ind=index(line,"Centring vectors")
-                 if(ind == 0) cycle
-                 ini=i+1
-                 exit
-               end do
-               if(ind == 0) then
-                 Err_Magsym=.true.
-                 Err_Magsym_Mess=" 'Centring vectors' line is not provided in the PCR file! "
-                 return
-               end if
-               m=1
-               do i=ini,ini+N_Clat-1
-                 m=m+1
-                 read(unit=file_line(i),fmt=*) MGp%Latt_trans(:,m)
-               end do
-               ini=ini+N_Clat
-             end if
-             if(N_Ant > 0) then
-               do i=ini,N_end
-                 line=adjustl(file_line(i))
-                 ind=index(line,"Anti-Centring vectors")
-                 if(ind == 0) cycle
-                 ini=i+1
-                 exit
-               end do
-               if(ind == 0) then
-                 Err_Magsym=.true.
-                 Err_Magsym_Mess=" 'Anti-Centring vectors' line is not provided in the PCR file! "
-                 return
-               end if
-               m=0
-               do i=ini,ini+N_Ant-1
-                 m=m+1
-                 read(unit=file_line(i),fmt=*) MGp%aLatt_trans(:,m)
-               end do
-               ini=ini+N_Ant
-             end if
-             !Check the type of symmetry operators given
-             do i=ini,N_end
-                line=adjustl(file_line(i))
-                if(line(1:1) == "!") cycle
-                j=index(line,"!")
-                if( j > 1) line=line(1:j-1)  !remove comments
-                call Getword(line, words, icount)
-                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type
-                ! Icount=3 => SHSYM  x,-y,z+1/2  -1   <= This type or these types => SHSYM x,-y,z+1/2  -u,v,-w  or SHSYM x,-y,z+1/2  -mx,my,-mz
-                ! Icount=4 => SHSYM x,-y,z+1/2  -u,v,-w -1    <= This type or this type =>  SHSYM  x,-y,z+1/2  -mx,my,-mz  -1
-                if( icount < 2 .or. icount > 4) then
-                 Err_Magsym=.true.
-                 Err_Magsym_Mess=" Error in Shubnikov operator: "//trim(line)
-                 return
-                end if
-                u_type=(index(line,"u") /= 0) .or. (index(line,"U") /= 0)
-                m_type=(index(line,"mx") /= 0) .or. (index(line,"MX") /= 0)
-                if(.not. (u_type .or. m_type)) inv_type=.true.
-                exit
-             end do
 
-             !Reading reduced set of symmetry operators
-             m=0
-             do i=ini,N_end
-               line=adjustl(file_line(i))
-               if(line(1:1) == "!") cycle
-               j=index(line,"!")
-               if( j > 1) line=line(1:j-1)  !remove comments
-               j=index(line," ")
-               line=adjustl(line(j:))
-               m=m+1
-               if(m > Nsym) exit
-               call Getword(line, words, j)
-               Select Case (icount)
-                 Case(2)
-                    j=index(line,",",back=.true.)
-                    MGp%SymopSymb(m)=line(1:j-1)
-                    read(unit=line(j+1:),fmt=*,iostat=ier) n
-                    if(ier /= 0) then
-                       err_magsym=.true.
-                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
-                       return
-                    else
-                       MGp%MSymOp(m)%phas=real(n)
-                    end if
-                    !write(*,"(a,i3)") trim(MGp%SymopSymb(m)),n
-                 Case(3)
-                    MGp%SymopSymb(m)=words(1)
-                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
-
-                 Case(4)
-                    MGp%SymopSymb(m)=words(1)
-                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz
-                    read(unit=words(3),fmt=*,iostat=ier) n
-                    if(ier /= 0) then
-                       err_magsym=.true.
-                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
-                       return
-                    else
-                       MGp%MSymOp(m)%phas=real(n)
-                    end if
-
-               End Select
-               call Read_Xsym(MGp%SymopSymb(m),1,isim,tr)
-               MGp%Symop(m)%Rot=isim
-               MGp%Symop(m)%tr=tr
-               if(inv_type) then
-                 j=determ_a(isim)
-                 msim=nint(MGp%MSymOp(m)%phas)*j*isim
-               else if (u_type) then
-                 line=trim(MGp%MSymopSymb(m))//",0.0"
-                 CALL read_msymm(line,msim,p_mag)
-               else !should be mx,my,mz
-                 line=trim(MGp%MSymopSymb(m))
-                 do j=1,len_trim(line)
-                    if(line(j:j) == "m" .or. line(j:j) == "M") line(j:j)=" "
-                    if(line(j:j) == "x" .or. line(j:j) == "X") line(j:j)="u"
-                    if(line(j:j) == "y" .or. line(j:j) == "Y") line(j:j)="v"
-                    if(line(j:j) == "z" .or. line(j:j) == "Z") line(j:j)="w"
-                 end do
-                 line=pack_string(line)//",0.0"
-                 CALL read_msymm(line,msim,p_mag)
-               end if
-               MGp%MSymop(m)%Rot=msim
-               if(m_type .and. .not. present(uvw)) then
-                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,.true.,invt=j)
-                 MGp%mcif=.true.
-               else
-                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,invt=j)
-                 MGp%mcif=.false.
-               end if
-               !write(*,"(a,i3)") trim(ShOp_symb),j
-               MGp%MSymOp(m)%phas=j
-               if(m_type .and. .not. present(uvw)) then
-                 call Getword(ShOp_symb, words, j)
-                 MGp%MSymopSymb(m)=words(2)
-               else
-                 j=index(ShOp_symb,";")
-                 k=index(ShOp_symb,")")
-                 MGp%MSymopSymb(m)=ShOp_symb(j+1:k-1)
+               ind=index(line,"NSYM_OP")
+               if(ind /= 0) then
+                 read(unit=line(ind+7:),fmt=*,iostat=ier) num_sym
+                 if( ier /= 0) then
+                   Err_ssg=.true.
+                   Err_ssg_Mess= " Error reading the number of symmetry operatores in instruction 'NSYM_OP  num_sym' !"
+                   return
+                 else
+                    if(allocated(SSG%time_rev)) deallocate(SSG%time_rev)
+                    if(allocated(SSG%SymOp)) deallocate(SSG%SymOp)
+                    if(allocated(SSG%SymopSymb)) deallocate(SSG%SymopSymb)
+                    allocate(SSG%time_rev(num_sym),SSG%SymOp(num_sym), SSG%SymopSymb(num_sym))
+                    do n=1,num_sym !the symmetry operators should follow immediately below the NSYM_OP instruction
+                      i=i+1
+                      line=adjustl(file_line(i))
+                      SSG%SymopSymb(n)=line
+                    end do
+                    full_sym=.true.
+                    cycle
+                 end if
                end if
              end do
-
-          Case("cfl") !to be implemented
-             write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
-
-          Case("database")
-             line=adjustl(file_line(n_ini))
-             ind=index(line,"Super_Space")
-             if(ind == 0) then
+             if(num_sym == 0) then
                Err_ssg=.true.
-               Err_ssg_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               Err_ssg_Mess=" The number of symmetry operators is not provided in the PCR/CFL file! "
                return
-             else
-               j=index(line," ")
-               symbol=trim(line(1:j-1))
              end if
-             ini=n_ini+1
-             line=adjustl(file_line(ini))
-                       !     123456789012345678901234567890
-             ind=index(line,"Transform to standard:")
-             if(ind == 0) then
-               Err_ssg=.true.
-               Err_ssg_Mess=" The transformation to standard is needed even if it is: a,b,c;0,0,0 "
-               return
-             else
-               ind=index(line,"<--")
-               if( ind == 0) then
-                 line=adjustl(line(23:))
-                 ind=index(line," ")
-                 setting=line(23:ind)
-               else
-                 setting=line(23:ind-1)
-               end if
-             end if
-             ini=ini+1
-             line=adjustl(file_line(ini))
-             Parent=" "      !12345678901234567890
-             ind= index(line,"Parent space group:")
-             j  = index(line,"IT_number:")
-             if(ind /= 0 .and. j /= 0) then
-               Parent= adjustl(line(20:j-1))
-               ind=index(line,"<--")
-               Parent=trim(Parent)//" "//line(j+10:ind-1)
-             end if
-             ini=ini+1
-             line=adjustl(file_line(ini))
-             ind= index(line,"Transform from Parent:")
-             if(ind /= 0) then
-               j=index(line,"<--")
-               Parent=trim(Parent)//"  "//line(23:j-1)
-             end if
-             if(len_trim(Parent) /= 0) then
-               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent,trn_to=.true.)
-             else
-               call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
-             end if
-             return       !The clean-up of operators is not needed
+
+          Case("database") !to be implemented
+
        End Select
 
     End Subroutine Readn_Set_SuperSpace_Group
