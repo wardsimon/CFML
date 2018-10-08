@@ -104,6 +104,7 @@ Program Formal_Charges
      If(.Not. arggiven) Then
         Write(unit=*,fmt="(a)",advance='no') " => Code of the file xx.cfl(cif) (give xx): "
         Read(unit=*,fmt="(a)") filcod
+        short_name=filcod
         If(Len_trim(filcod) == 0) then
           Write(unit=*,fmt="(a)") " => No file has been provided!"
           call finish()
