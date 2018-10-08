@@ -1,6 +1,6 @@
 program test_reflections
 
-  use CFML_Rational_Arithmetic_test
+  use CFML_Rational_Arithmetic
   use CFML_ssg_datafile
   use CFML_GlobalDeps
   use CFML_Crystal_Metrics

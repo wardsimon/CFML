@@ -14,7 +14,7 @@
     private
     public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
               Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections, Set_SSGs_from_Gkk, &
-              Gen_SSGroup, Print_Matrix_SSGop
+              Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group
 
 
     public :: operator (*)
@@ -63,10 +63,13 @@
       type(rational),      allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
       type(rational),      allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
       type(rational),      allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
-      !type(rational),      allocatable,dimension(:,:,:):: Om            !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
       type(SSym_Oper_Type),allocatable, dimension(:)   :: SymOp         ! Crystallographic symmetry operators
       character(len=80),   allocatable,dimension(:)    :: SymopSymb     ! Alphanumeric Symbols for SYMM
     End Type SuperSpaceGroup_Type
+
+   type,public, extends(SuperSpaceGroup_Type)   :: eSSGroup_Type
+     real(kind=cp), allocatable,dimension(:,:,:):: Om     !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
+   end type eSSGroup_Type
 
     !!----
     !!---- TYPE: sReflect_Type
@@ -117,7 +120,6 @@
        integer                                          :: NRef  ! Number of Reflections
        class(sReflect_Type),allocatable, dimension(:)   :: Ref   ! Reflection List
     End Type sReflection_List_Type
-
 
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
@@ -263,7 +265,7 @@
     Subroutine Gen_SSGroup(ngen,gen,SSG,x1x2x3_type,table)
       integer,                             intent(in)  :: ngen
       type(SSym_Oper_Type), dimension(:),  intent(in)  :: gen
-      type(SuperSpaceGroup_Type),          intent(out) :: SSG
+      class(SuperSpaceGroup_Type),         intent(out) :: SSG
       character(len=*), optional,          intent(in)  :: x1x2x3_type
       integer, dimension(:,:), allocatable, optional, intent(out) :: table
       !--- Local variables ---!
@@ -399,7 +401,7 @@
       	 SSG%MagType=3
       end if
 
-      if(nlat /=  0) then      	 
+      if(nlat /=  0) then
          SSG%SPG_Lat="X"
       	 allocate(SSG%Latt_trans(Dd,nlat+1))
       	 SSG%Latt_trans=0_ik//1_ik
@@ -415,14 +417,14 @@
       type(Space_Group_Type),                                intent(in)  :: SpG
       integer,                                               intent(in)  :: nk
       real(kind=cp),dimension(:,:),                          intent(in)  :: kv
-      !type(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out) :: ssg
+      !class(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out) :: ssg
       !integer,                                               intent(out) :: nss
       !--- Local variables ---!
       character(len=132) :: line
       integer :: i,j,k,Dd
       type(Space_Group_Type),dimension(nk) :: Gkks !extended Little Groups
       type(Space_Group_Type)               :: Gkk  !extended Little Group (Intersection of Litte Groups for all nk)
-      type(SuperSpaceGroup_Type)           :: trial_ssg
+      type(SuperSpaceGroup_Type)          :: trial_ssg
       Type (Group_k_Type)                  :: Gk
       real(kind=cp), dimension(3+nk)       :: tr
       integer,       dimension(3+nk,3+nk)  :: Mat
@@ -503,7 +505,7 @@
 
     Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess,x1x2x3_type)
       integer,                    intent(in)  :: num
-      type(SuperSpaceGroup_Type), intent(out) :: ssg
+      class(SuperSpaceGroup_Type),intent(out) :: ssg
       Logical,                    intent(out) :: ok
       character(len=*),           intent(out) :: Mess
       character(len=*),optional,  intent(in)  :: x1x2x3_type
@@ -1095,7 +1097,7 @@
     Function H_Equiv(H,K,SSG,Friedel) Result (Info)
        !---- Arguments ----!
        integer, dimension(:),        intent(in)  :: h,k
-       Type (SuperSpaceGroup_Type),  intent(in)  :: SSG
+       class(SuperSpaceGroup_Type),  intent(in)  :: SSG
        logical, optional,            intent(in)  :: Friedel
        logical                                   :: info
 
@@ -1180,7 +1182,7 @@
     Function H_Absent_SSG(H,SSG) Result(Info)
        !---- Arguments ----!
        integer, dimension(:),            intent (in) :: h
-       Type (SuperSpaceGroup_Type),      intent (in) :: SSG
+       class(SuperSpaceGroup_Type),      intent (in) :: SSG
        logical                                       :: info
 
        !---- Local Variables ----!
@@ -1210,7 +1212,7 @@
     Function mH_Absent_SSG(H,SSG) Result(Info)
        !---- Arguments ----!
        integer, dimension(:),       intent (in) :: h
-       Type (SuperSpaceGroup_Type), intent (in) :: SSG
+       class(SuperSpaceGroup_Type), intent (in) :: SSG
        logical                                  :: info
 
        !---- Local Variables ----!
@@ -1250,7 +1252,7 @@
     !!----
     !!---- Function  H_Mult(H, Spacegroup,Friedel)
     !!----    integer, dimension(:),       intent(in) :: h
-    !!----    Type (SuperSpaceGroup_Type), intent(in) :: SpaceGroup
+    !!----    class(SuperSpaceGroup_Type), intent(in) :: SpaceGroup
     !!----    Logical,                     intent(in) :: Friedel
     !!----
     !!----    Calculate the multiplicity of the reflection
@@ -1260,7 +1262,7 @@
     Function H_Mult(H,Spacegroup,Friedel) Result(N)
        !---- Arguments ----!
        integer, dimension(:),       intent (in)  :: h
-       Type (SuperSpaceGroup_Type), intent (in)  :: SpaceGroup
+       class(SuperSpaceGroup_Type), intent (in)  :: SpaceGroup
        Logical,                     intent (in)  :: Friedel
        integer                                   :: N
 
@@ -1311,7 +1313,7 @@
     !!----   integer,       dimension(:),   optional,         intent(in)     :: nharm
     !!----   real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
     !!----   real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
-    !!----   type (SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
+    !!----   class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
     !!----   character(len=*),              optional,         intent(in)     :: powder
     !!----
     !!----    Calculate unique reflections between two values of
@@ -1330,7 +1332,7 @@
        integer,       dimension(:),   optional,         intent(in)     :: nharm
        real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
        real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
-       type (SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
+       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: powder
        character(len=*),              optional,         intent(in)     :: order
 
@@ -1550,5 +1552,324 @@
        return
     End Subroutine Gen_SReflections
 
+    Subroutine Readn_Set_SuperSpace_Group(file_line,n_ini,n_end,SSG,mode,nk,uvw)
+       character(len=*),dimension(:),  intent (in)  :: file_line
+       integer,                        intent (in)  :: n_ini,n_end
+       class(SuperSpaceGroup_Type),    intent (out) :: SSG
+       character(len=*),               intent (in)  :: mode
+       integer,          optional,     intent (in)  :: nk !number of modulation vectors in case it is not in file_line
+       character(len=*), optional,     intent (in)  :: uvw
+       !
+       ! --- Local variables ---!
+       character(len=8)                 :: typ
+       character(len=80)                :: Symbol
+       integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
+                                           num_sym,m,nop,k,n,L,ier,icount
+       integer, dimension(3,3)          :: isim,msim
+       real(kind=cp)                    :: p_mag
+       real(kind=cp), dimension(3)      :: tr,v
+       character(len=132)               :: line,ShOp_symb,setting,Parent
+       character(len=40),dimension(10)  :: words
+       logical                          :: u_type,m_type,inv_type, ttst,nonmag
+
+       typ=l_case(adjustl(mode))
+       !Check if the database has to be read.
+       nonmag=.false.; ttst=.false.
+     !Type, public        :: SuperSpaceGroup_Type
+     !  logical                                          :: standard_setting=.true.  !true or false
+     !  character(len=5)                                 :: PG = " "                 !added by Nebil
+     !  character(len=5)                                 :: Laue=" "                 !added by Nebil
+     !  Character(len=60)                                :: SSG_symbol=" "
+     !  Character(len=60)                                :: SSG_Bravais=" "
+     !  Character(len=13)                                :: SSG_nlabel=" "
+     !  Character(len=20)                                :: Parent_spg=" "
+     !  Character(len=80)                                :: trn_from_parent=" "
+     !  Character(len=80)                                :: trn_to_standard=" "
+     !  character(len=80)                                :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
+     !  Character(len=1)                                 :: SPG_Lat="P"   ! Symbol of the lattice
+     !  integer                                          :: MagType       ! 1: No time inversion present, 2: Paramagnetic, 3: 1' is not present, 4: 1' is present
+     !  integer                                          :: d=1           !(d=1,2,3, ...) number of q-vectors
+     !  integer                                          :: Parent_num=0  ! Number of the parent Group
+     !  integer                                          :: Bravais_num=0 ! Number of the Bravais class
+     !  integer                                          :: Num_Lat=0     ! Number of lattice points in a cell
+     !  integer                                          :: Num_aLat=0    ! Number of anti-lattice points in a cell
+     !  integer                                          :: Centred=1     ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+     !  integer                                          :: NumOps=0      ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
+     !  integer                                          :: Multip=0      ! General multiplicity
+     !  real,                allocatable,dimension(:,:)  :: kv            ! k-vectors (3,d)
+     !  integer,             allocatable,dimension(:)    :: time_rev      ! Time Reversal
+     !  type(rational),      allocatable,dimension(:,:)  :: Latt_trans    ! Lattice translations (3+d,Num_lat)
+     !  type(rational),      allocatable,dimension(:,:)  :: aLatt_trans   ! Lattice anti-translations (3+d,Num_alat)
+     !  type(rational),      allocatable,dimension(:)    :: Centre_coord  ! Fractional coordinates of the inversion centre (3+d)
+     !  type(SSym_Oper_Type),allocatable, dimension(:)   :: SymOp         ! Crystallographic symmetry operators
+     !  character(len=80),   allocatable,dimension(:)    :: SymopSymb     ! Alphanumeric Symbols for SYMM
+     !End Type SuperSpaceGroup_Type
+       Select Case(trim(typ))
+
+          Case("pcr")
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"ssg_symb")
+             if(ind == 0) then
+               Err_ssg=.true.
+               Err_ssg_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               return
+             else
+               j=index(line," ")
+               SSG%SSG_symbol=trim(adjustl(line(j:)))
+             end if
+             ini=n_ini+1
+             Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               ind=index(line,"Transform to standard:")
+               if(ind /= 0) then
+                 MGp%trn_to_standard=adjustl(line(ind+22:))
+               end if
+               ind=index(line,"Parent Space Group:")
+               if(ind /= 0) then
+                 j=index(line,"IT_number:")
+                 if( j /= 0) then
+                   MGp%Parent_spg=adjustl(line(ind+19:j-1))
+                   read(unit=line(j+10:),fmt=*,iostat=ier) MGp%Parent_num
+                   if(ier /= 0) MGp%Parent_num=0
+                 else
+                   MGp%Parent_spg=adjustl(line(ind+19:))
+                 end if
+               end if
+               ind=index(line,"Transform from Parent:")
+               if(ind /= 0) then
+                 MGp%trn_from_parent=adjustl(line(ind+22:))
+               end if
+               ind=index(line,"N_Clat")
+               if(ind == 0) cycle
+               read(unit=file_line(i+1),fmt=*) Nsym, Cen, N_Clat, N_Ant
+               ini=i+2
+               exit
+             end do
+             if(Nsym == 0) then
+               Err_Magsym=.true.
+               Err_Magsym_Mess=" The number of symmetry operators is not provided in the PCR file! "
+               return
+             end if
+             !Allocate components of the magnetic space group
+             MGp%Num_aLat=0
+             allocate(MGp%Latt_trans(3,N_Clat+1))
+             MGp%Latt_trans=0.0
+             MGp%Num_Lat=N_Clat+1
+             if(N_Ant > 0) then
+               allocate(MGp%aLatt_trans(3,N_Ant))
+               MGp%aLatt_trans=0.0
+               MGp%Num_aLat=N_Ant
+               MGp%MagType=4
+             end if
+             MGp%Numops = Nsym
+             MGp%Centred= max(1,Cen)
+             MGp%Multip = MGp%Numops * MGp%Centred * (MGp%Num_Lat + MGp%Num_aLat)
+             num_sym=MGp%Multip
+             allocate(Mgp%SymopSymb(num_sym))
+             allocate(Mgp%Symop(num_sym))
+             allocate(Mgp%MSymopSymb(num_sym))
+             allocate(Mgp%MSymop(num_sym))
+             if(N_Clat > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" 'Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=1
+               do i=ini,ini+N_Clat-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%Latt_trans(:,m)
+               end do
+               ini=ini+N_Clat
+             end if
+             if(N_Ant > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Anti-Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" 'Anti-Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=0
+               do i=ini,ini+N_Ant-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%aLatt_trans(:,m)
+               end do
+               ini=ini+N_Ant
+             end if
+             !Check the type of symmetry operators given
+             do i=ini,N_end
+                line=adjustl(file_line(i))
+                if(line(1:1) == "!") cycle
+                j=index(line,"!")
+                if( j > 1) line=line(1:j-1)  !remove comments
+                call Getword(line, words, icount)
+                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type
+                ! Icount=3 => SHSYM  x,-y,z+1/2  -1   <= This type or these types => SHSYM x,-y,z+1/2  -u,v,-w  or SHSYM x,-y,z+1/2  -mx,my,-mz
+                ! Icount=4 => SHSYM x,-y,z+1/2  -u,v,-w -1    <= This type or this type =>  SHSYM  x,-y,z+1/2  -mx,my,-mz  -1
+                if( icount < 2 .or. icount > 4) then
+                 Err_Magsym=.true.
+                 Err_Magsym_Mess=" Error in Shubnikov operator: "//trim(line)
+                 return
+                end if
+                u_type=(index(line,"u") /= 0) .or. (index(line,"U") /= 0)
+                m_type=(index(line,"mx") /= 0) .or. (index(line,"MX") /= 0)
+                if(.not. (u_type .or. m_type)) inv_type=.true.
+                exit
+             end do
+
+             !Reading reduced set of symmetry operators
+             m=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               if(line(1:1) == "!") cycle
+               j=index(line,"!")
+               if( j > 1) line=line(1:j-1)  !remove comments
+               j=index(line," ")
+               line=adjustl(line(j:))
+               m=m+1
+               if(m > Nsym) exit
+               call Getword(line, words, j)
+               Select Case (icount)
+                 Case(2)
+                    j=index(line,",",back=.true.)
+                    MGp%SymopSymb(m)=line(1:j-1)
+                    read(unit=line(j+1:),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       err_magsym=.true.
+                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+                    !write(*,"(a,i3)") trim(MGp%SymopSymb(m)),n
+                 Case(3)
+                    MGp%SymopSymb(m)=words(1)
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
+
+                 Case(4)
+                    MGp%SymopSymb(m)=words(1)
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz
+                    read(unit=words(3),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       err_magsym=.true.
+                       ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+
+               End Select
+               call Read_Xsym(MGp%SymopSymb(m),1,isim,tr)
+               MGp%Symop(m)%Rot=isim
+               MGp%Symop(m)%tr=tr
+               if(inv_type) then
+                 j=determ_a(isim)
+                 msim=nint(MGp%MSymOp(m)%phas)*j*isim
+               else if (u_type) then
+                 line=trim(MGp%MSymopSymb(m))//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               else !should be mx,my,mz
+                 line=trim(MGp%MSymopSymb(m))
+                 do j=1,len_trim(line)
+                    if(line(j:j) == "m" .or. line(j:j) == "M") line(j:j)=" "
+                    if(line(j:j) == "x" .or. line(j:j) == "X") line(j:j)="u"
+                    if(line(j:j) == "y" .or. line(j:j) == "Y") line(j:j)="v"
+                    if(line(j:j) == "z" .or. line(j:j) == "Z") line(j:j)="w"
+                 end do
+                 line=pack_string(line)//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               end if
+               MGp%MSymop(m)%Rot=msim
+               if(m_type .and. .not. present(uvw)) then
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,.true.,invt=j)
+                 MGp%mcif=.true.
+               else
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,invt=j)
+                 MGp%mcif=.false.
+               end if
+               !write(*,"(a,i3)") trim(ShOp_symb),j
+               MGp%MSymOp(m)%phas=j
+               if(m_type .and. .not. present(uvw)) then
+                 call Getword(ShOp_symb, words, j)
+                 MGp%MSymopSymb(m)=words(2)
+               else
+                 j=index(ShOp_symb,";")
+                 k=index(ShOp_symb,")")
+                 MGp%MSymopSymb(m)=ShOp_symb(j+1:k-1)
+               end if
+             end do
+
+          Case("cfl") !to be implemented
+             write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
+
+          Case("database")
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"Super_Space")
+             if(ind == 0) then
+               Err_ssg=.true.
+               Err_ssg_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               return
+             else
+               j=index(line," ")
+               symbol=trim(line(1:j-1))
+             end if
+             ini=n_ini+1
+             line=adjustl(file_line(ini))
+                       !     123456789012345678901234567890
+             ind=index(line,"Transform to standard:")
+             if(ind == 0) then
+               Err_ssg=.true.
+               Err_ssg_Mess=" The transformation to standard is needed even if it is: a,b,c;0,0,0 "
+               return
+             else
+               ind=index(line,"<--")
+               if( ind == 0) then
+                 line=adjustl(line(23:))
+                 ind=index(line," ")
+                 setting=line(23:ind)
+               else
+                 setting=line(23:ind-1)
+               end if
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             Parent=" "      !12345678901234567890
+             ind= index(line,"Parent space group:")
+             j  = index(line,"IT_number:")
+             if(ind /= 0 .and. j /= 0) then
+               Parent= adjustl(line(20:j-1))
+               ind=index(line,"<--")
+               Parent=trim(Parent)//" "//line(j+10:ind-1)
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             ind= index(line,"Transform from Parent:")
+             if(ind /= 0) then
+               j=index(line,"<--")
+               Parent=trim(Parent)//"  "//line(23:j-1)
+             end if
+             if(len_trim(Parent) /= 0) then
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent,trn_to=.true.)
+             else
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+             end if
+             return       !The clean-up of operators is not needed
+       End Select
+
+    End Subroutine Readn_Set_SuperSpace_Group
 
   End Module CFML_SuperSpaceGroups
