@@ -315,7 +315,7 @@
 
        !Here we use the DIFFAX variables or the type Crys
        write(i_ftls,"(a)")          "TITLE"
-       write(i_ftls,"(a)")          crys%ttl
+       write(i_ftls,"(a)")          trim(crys%ttl)
 
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
@@ -842,7 +842,7 @@
           end if
         end do
       end do
-      cvect=cvect+stck_vect_up+stck_vect !add a FAULTS unit cell and another user-defined stacking vector to include all layers within the new cell  
+      cvect=cvect+stck_vect_up+stck_vect !add a FAULTS unit cell and another user-defined stacking vector to include all layers within the new cell
       cell_fst(3)=cvect(3)*cell_c
       xyz(1:2,1:nat)=mod(xyz(1:2,1:nat)+10.0_cp,1.0_cp)
       xyz(3,1:nat)=xyz(3,1:nat)/cvect(3) !Correcting the z-fractional coordinate to the new cell

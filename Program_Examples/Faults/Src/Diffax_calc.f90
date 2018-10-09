@@ -894,7 +894,7 @@
 ! MMJT: external subroutine
 ! external function
       if(lda == 0) nm1=0 !Just to avoid warnings
-      
+
       nm1 = n - 1
       IF (job /= 0) GO TO 50
 
@@ -2338,7 +2338,7 @@
       getspc = .false.
       ok = .true.
       if(len_trim(infile) == 0) ok = .true. !Just to avoid warnings
-      
+
       ! Make sure we are within bounds. If not, adjust.
       min_th = half * th2_min
       max_th = half * th2_max
@@ -3978,7 +3978,7 @@
 ! Open unformatted for binary write.
 !      if(sa.ne.op) open(unit = sa, file = outfile, status = 'new',
 !     |       form = 'unformatted', err = 990, iostat = io_err)
-       if(sa.ne.op) open(unit=sa, file=outfile, access="stream",  &
+       if(sa /= op) open(unit=sa, file=outfile, access="stream",  &
        status="replace", action="write", convert= 'BIG_ENDIAN',   &
        form="unformatted")
 ! some compilers need the following added for true binary output
@@ -7020,8 +7020,8 @@
       ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
-      if(len_trim(strkfile) == 0) i = 0 !Just to avoid warnings      
-      
+      if(len_trim(strkfile) == 0) i = 0 !Just to avoid warnings
+
       q2 = four / (lambda**2)
       !10 WRITE(op,"(a)") ' => Enter h, k, l0, l1, delta l : '
       !READ(cntrl,*,ERR=10) h, k, l0, l1, dl

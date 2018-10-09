@@ -336,7 +336,7 @@
       logical, intent(out) :: logi
 
       integer :: i,i1,i2 !,ier,k
-      character(len=132) :: txt
+      character(len=132) :: txt=" "
 
       logical :: ok_title
 
@@ -353,7 +353,6 @@
         if(i > i2) exit
         txt=adjustl(tfile(i))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
-        txt=adjustl(txt)
         crys%ttl = txt
         ok_title=.true.
       end do
@@ -1739,6 +1738,9 @@
               end if
 
               ok_file=.true.
+
+          Case ('REPLACE_FILES')  !Tune the opening output files to replace previous files
+             replace_files = .true.
 
           Case("EXCLUDED_REGIONS")
               read(unit=txt,fmt=*, iostat=ier) nexcrg
