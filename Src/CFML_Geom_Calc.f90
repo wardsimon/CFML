@@ -216,7 +216,7 @@
     !!--..
     !!---- Type, public :: Point_List_Type
     !!----    integer                                       :: np   !number of points in list
-    !!----    character(len=12), dimension(:),  allocatable :: nam  !name/label associated to each point
+    !!----    character(len=20), dimension(:),  allocatable :: nam  !name/label associated to each point
     !!----    integer,           dimension(:),  allocatable :: p    !integer pointer for various purposes
     !!----    real(kind=cp)      dimension(:,:),allocatable :: x    !fractional coordinates of points
     !!---- End type Point_List_Type
@@ -225,7 +225,7 @@
     !!
     Type, public :: point_list_type
        integer                                       :: np   !number of points in list
-       character(len=12), dimension(:),  allocatable :: nam  !name/label associated to each point
+       character(len=20), dimension(:),  allocatable :: nam  !name/label associated to each point
        integer,           dimension(:),  allocatable :: p    !integer pointer for various purposes
        real(kind=cp),     dimension(:,:),allocatable :: x    !fractional coordinates of points
     End type point_list_type
@@ -2392,13 +2392,8 @@
                    end do
                    nat=nat+1
                    npl%x(:,nat)= xxn
-                   if ( nat < 10) then
-                      write(unit=npl%nam(nat),fmt="(a,i1)") trim(pl%nam(mm))//"_",nat
-                   else if( nat < 100) then
-                      write(unit=npl%nam(nat),fmt="(a,i2)") trim(pl%nam(mm))//"_",nat
-                   else
-                      write(unit=npl%nam(nat),fmt="(a,i3)") trim(pl%nam(mm))//"_",nat
-                   end if
+                   write(unit=npl%nam(nat),fmt="(a,i5)") trim(pl%nam(mm))//"_",nat
+                   npl%nam(nat)=pack_string(npl%nam(nat))
                 end do do_ic
              end do
           end do

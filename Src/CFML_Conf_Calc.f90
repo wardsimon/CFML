@@ -2487,6 +2487,7 @@
                 cn=sbvs_table(ic)%cn(ia)
                 !write(*,"(a,3f12.4)") " => b0,r0,cn: ", b0,r0,cn
                 if( b0+r0 < 0.00001) then
+                  !Try to use b0,r0,cn from manually given BVS parameters
                    err_conf=.true.
                    ERR_Conf_Mess=" Bond-Valence parameters not found for pair: "//trim(A%Species(i))//"-"//bvs_anions(ia)
                    return

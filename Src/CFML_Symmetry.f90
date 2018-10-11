@@ -1641,8 +1641,10 @@
        !---- Local Variables ----!
        logical          :: is_there,axis,plane
        character(len=1) :: Item_SP
-       character(len=*), dimension(16), parameter ::                    &
-                         good=(/"1","2","3","4","5","6","A","B","C","D","M","N","P","/","-"," "/)
+       character(len=*), dimension(16), parameter ::                 &
+                         good=(/"1","2","3","4","5","6","A","B","C", &
+                                "D","M","N","P","/","-"," "/)
+
        integer          :: ncount,five,i,j,l
 
        !---- Check for missprinted symbols ----!
@@ -2368,7 +2370,7 @@
        integer                    :: ng,ngen, ini, i, j, k, orden, nt, npos
        integer, dimension(3)      :: tt, tt1, tt2, tt3
        integer, dimension(6)      :: norden
-       integer, dimension(3,3,24) :: ss
+       integer, dimension(3,3,192) :: ss
        integer, dimension(3,3)    :: ss1
        integer, dimension(3,6), parameter :: lattice=reshape((/0,6,6, 6,0,6, &
                                                      6,6,0, 6,6,6, 8,4,4, 4,8,8/),(/3,6/))
@@ -2422,7 +2424,7 @@
                                                                    0, 0, 0, 0, &
                                                                    0, 0, 0, 0/),(/4,4/))
 
-       real(kind=cp), dimension(3,24)          :: ts
+       real(kind=cp), dimension(3,192)         :: ts
        real(kind=cp), dimension(3)             :: ts1
        type (Gener_Oper_Type),dimension(5) :: generador
 
@@ -2433,7 +2435,9 @@
 
        !---- Load Operators ----!
        ng=SpaceGroup%NumOps
+       !write(*,*) ng
        do i=1,ng
+          !write(*,"(2i5,9i3,3f9.4)") i, SpaceGroup%Symop(i)%rot, SpaceGroup%Symop(i)%tr
           ss(:,:,i) = SpaceGroup%Symop(i)%rot
           ts(:,  i) = SpaceGroup%Symop(i)%tr
        end do
@@ -7120,6 +7124,10 @@
                 end if
                 newg=.true.
                 call set_spacegroup(" ",SubG(L),gen,ng,"gen")
+                if(mod(nop,SubG(L)%Numops) /= 0) then
+                  L=L-1
+                  exit
+                end if
                 do j=1,L-1
                    if (SpGr_Equal(SubG(L), SubG(j))) then
                       newg=.false.

@@ -2049,7 +2049,7 @@
       cd=(/"a","b","c",";"/)
       if(present(cod)) cd=cod
       transf_key=string
-      !Remove the parenthesis is present
+      !Remove the parenthesis if present
       j=index(transf_key,"(")
       if(j /= 0) transf_key(j:j)= " "
       j=index(transf_key,")")
@@ -2070,6 +2070,7 @@
          call Get_Mat_From_Symb(cMat,mat,cd(1:3))
          if(ERR_String) then
            ERR_String_Mess=" Bad matrix setting...: "//trim(ERR_String_Mess)
+           return
          end if
          !Origin
          Call Get_Separator_Pos(ori,",",pos,nc)
