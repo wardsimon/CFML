@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -233,10 +234,10 @@
               Euclidean_Norm,Erf, Factorial_SP, Factorial_DP
 
     !---- List of public overloaded procedures: functions ----!
-    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,   &
-              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,     &
-              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,&
-              Upper_Triangular, Debye, Epss_val
+    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,     &
+              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,       &
+              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,  &
+              Upper_Triangular, Debye, Epss_val, Is_Null_Vector, Is_Diagonal_Matrix
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -255,7 +256,8 @@
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
                Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
                First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
-               Co_Prime_vector, AM_Median, Linear_Interpolation
+               Co_Prime_vector, AM_Median, Linear_Interpolation, RowEchelonForm,      &
+               SmithNormalForm
 
     !---- List of public overloaded procedures: subroutines ----!
     public ::  RTan, Determinant, Diagonalize_Sh, Linear_Dependent, Rank, Sort,   &
@@ -602,6 +604,23 @@
        Module Procedure Debye_DP
        Module Procedure Debye_SP
     End Interface
+
+    interface Is_Null_Vector
+        module procedure Is_Null_Vector_I
+        module procedure Is_Null_Vector_R
+        module procedure Is_Null_Vector_DP
+    end interface
+
+    interface RowEchelonForm               !Only for integer matrices
+        module procedure RowEchelonFormM
+        module procedure RowEchelonFormT
+    end interface
+
+    interface Is_Diagonal_Matrix
+        module procedure Is_Diagonal_Matrix_I
+        module procedure Is_Diagonal_Matrix_R
+        module procedure Is_Diagonal_Matrix_DP
+    end interface
 
  Contains
 
@@ -2864,7 +2883,7 @@
     End Function Imaxloc_R
 
     !!----
-    !!---- Function Iminloc(arr)  Result(miv)
+    !!---- Pure Function Iminloc(arr)  Result(miv)
     !!----  real(kind=sp)/integer, dimension(:), intent(in) :: arr
     !!----  integer                                         :: miv
     !!----
@@ -2874,7 +2893,7 @@
     !!
 
     !!--++
-    !!--++ Function Iminloc_I(arr)  Result(miv)
+    !!--++ Pure Function Iminloc_I(arr)  Result(miv)
     !!--++  integer, dimension(:), intent(in) :: arr
     !!--++  integer                           :: miv
     !!--++
@@ -2882,7 +2901,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Iminloc_I(arr)  Result(miv)
+    Pure Function Iminloc_I(arr)  Result(miv)
        !---- Arguments ----!
        integer, dimension(:), intent(in) :: arr
        integer                           :: miv
@@ -2897,7 +2916,7 @@
     End Function Iminloc_I
 
     !!--++
-    !!--++ Function Iminloc_R(arr)  Result(miv)
+    !!--++ Pure Function Iminloc_R(arr)  Result(miv)
     !!--++  real(kind=sp), dimension(:), intent(in) :: arr
     !!--++  integer                                 :: miv
     !!--++
@@ -2905,7 +2924,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Iminloc_R(arr)  Result(miv)
+    Pure Function Iminloc_R(arr)  Result(miv)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in) :: arr
        integer                                 :: miv
@@ -2920,7 +2939,7 @@
     End Function Iminloc_R
 
     !!----
-    !!---- Function in_limits(n,limits,vect) result(ok)
+    !!---- Pure Function in_limits(n,limits,vect) result(ok)
     !!----   integer,                      intent(in) :: n
     !!----   integer/real, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
     !!----   integer/real, dimension(n),   intent(in) :: vect
@@ -2932,7 +2951,7 @@
     !!----   Updated: March - 2013
     !!
     !!--++
-    !!--++ Function in_limits_int(n,limits,vect) result(ok)
+    !!--++ Pure Function in_limits_int(n,limits,vect) result(ok)
     !!--++   integer,                 intent(in) :: n
     !!--++   integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
     !!--++   integer, dimension(n),   intent(in) :: vect
@@ -2943,7 +2962,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_int(n,limits,vect) result(ok)
+    Pure Function in_limits_int(n,limits,vect) result(ok)
       integer,                 intent(in) :: n
       integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
       integer, dimension(n),   intent(in) :: vect
@@ -2959,7 +2978,7 @@
     End Function in_limits_int
 
     !!--++
-    !!--++ Function in_limits_dp(n,limits,vect) result(ok)
+    !!--++ Pure Function in_limits_dp(n,limits,vect) result(ok)
     !!--++   integer,                       intent(in) :: n
     !!--++   real(kind=dp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
     !!--++   real(kind=dp), dimension(n),   intent(in) :: vect
@@ -2970,7 +2989,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_dp(n,limits,vect) result(ok)
+    Pure Function in_limits_dp(n,limits,vect) result(ok)
       integer,                       intent(in) :: n
       real(kind=dp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
       real(kind=dp), dimension(n),   intent(in) :: vect
@@ -2986,7 +3005,7 @@
     End Function in_limits_dp
 
     !!--++
-    !!--++ Function in_limits_sp(n,limits,vect) result(ok)
+    !!--++ Pure Function in_limits_sp(n,limits,vect) result(ok)
     !!--++   integer,                       intent(in) :: n
     !!--++   real(kind=sp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
     !!--++   real(kind=sp), dimension(n),   intent(in) :: vect
@@ -2997,7 +3016,7 @@
     !!--++
     !!--++   Updated: March - 2013
     !!
-    Function in_limits_sp(n,limits,vect) result(ok)
+    Pure Function in_limits_sp(n,limits,vect) result(ok)
       integer,                       intent(in) :: n
       real(kind=sp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
       real(kind=sp), dimension(n),   intent(in) :: vect
@@ -3011,6 +3030,108 @@
       end do
       return
     End Function in_limits_sp
+
+    !!---- Pure Function Is_Null_Vector_I(v) result(nullv)
+    !!----     integer,       dimension(:), intent(in)  :: v
+    !!----     logical :: nullv
+    !!----
+    Pure Function Is_Null_Vector_I(v) result(nullv)
+        integer,  dimension(:), intent(in)  :: v
+        logical :: nullv
+        integer :: i
+        nullv = .true.
+        do i = 1 , size(v)
+            if (v(i) /= 0) then
+              nullv = .false.
+              exit
+            end if
+        end do
+
+    end Function Is_Null_Vector_I
+
+    Pure Function Is_Null_Vector_R(v) result(nullv)
+        real(kind=cp), dimension(:), intent(in)  :: v
+        logical :: nullv
+        integer :: i
+        nullv = .true.
+        do i = 1 , size(v)
+            if (abs(v(i)) > eps) then
+              nullv = .false.
+              exit
+            end if
+        end do
+
+    end Function Is_Null_Vector_R
+
+    Pure Function Is_Null_Vector_DP(v) result(nullv)
+        real(kind=dp), dimension(:), intent(in)  :: v
+        logical :: nullv
+
+        integer :: i
+
+        nullv = .true.
+        do i = 1 , size(v)
+            if (abs(v(i)) > deps) then
+              nullv = .false.
+              exit
+            end if
+        end do
+
+    end Function Is_Null_Vector_DP
+
+    Pure Function Is_Diagonal_Matrix_I(A) result(info)
+        integer, dimension(:,:),       intent(in)  :: A
+        logical :: info
+
+        integer :: i,j
+
+        info = .true.
+        do_ext: do j = 1 , size(A,2)
+            do i = 1 , size(A,1)
+                if (j /= i .and. A(i,j) /= 0) then
+                    info = .false.
+                    exit do_ext
+                end if
+            end do
+        end do do_ext
+
+    end Function Is_Diagonal_Matrix_I
+
+    Pure Function Is_Diagonal_Matrix_R(A) result(info)
+        real(kind=sp), dimension(:,:), intent(in)  :: A
+        logical :: info
+
+        integer :: i,j
+
+        info = .true.
+        do j = 1 , size(A,2)
+            if (.not. info) exit
+            do i = 1 , size(A,1)
+                if (j /= i .and. abs(A(i,j)) > eps) then
+                    info = .false.
+                    exit
+                end if
+            end do
+        end do
+
+    end Function Is_Diagonal_Matrix_R
+
+    Pure Function Is_Diagonal_Matrix_DP(A) result(info)
+        real(kind=dp), dimension(:,:), intent(in)  :: A
+        logical :: info
+        integer :: i,j
+        info = .true.
+        do j = 1 , size(A,2)
+            if (.not. info) exit
+            do i = 1 , size(A,1)
+                if (j /= i .and. abs(A(i,j)) > deps) then
+                    info = .false.
+                    exit
+                end if
+            end do
+        end do
+
+    end Function Is_Diagonal_Matrix_DP
 
     !!----
     !!---- Function Locate(xx, n, x) Result(j)
@@ -3281,7 +3402,7 @@
        end do
     End Function  Lower_Triangular_R
 
-    !!---- Function Modulo_Lat(U)
+    !!---- Pure Function Modulo_Lat(U)
     !!----    real(kind=cp), dimension(:), intent(in) :: u
     !!----
     !!----    Reduces a real vector to another with components in
@@ -3289,7 +3410,7 @@
     !!----
     !!---- Updated: February - 2005
     !!
-    Function Modulo_Lat(u) result(v)
+    Pure Function Modulo_Lat(u) result(v)
        !---- Argument ----!
        real(kind=cp), dimension(:), intent( in) :: u
        real(kind=cp), dimension(1:size(u))      :: v
@@ -5220,6 +5341,141 @@
 
        return
     End Subroutine Rank_sp
+    !!---- subroutine RowEchelonFormM(M)
+    !!----     integer, dimension(:,:), intent(in out) :: M
+    !!----
+    !!---- Fortran version of RowEchelonForm from the CrystGAP package
+    !!---- The original source code can be found at:
+    !!---- https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
+    !!----
+    !!----
+    subroutine RowEchelonFormM(M)
+        integer, dimension(:,:), intent(in out) :: M
+        integer :: r,c,i,j,a,k
+        integer :: nrow,ncolumn
+        logical :: cleared,echelon
+        integer, dimension(:), allocatable :: row
+
+        nrow    = size(M,1)
+        ncolumn = size(M,2)
+        allocate(row(ncolumn))
+        r = 1  ! index for rows
+        c = 1  ! index for columns
+
+        do
+            if (r > nrow .or. c > ncolumn) exit
+            i = r
+            do
+                !if ( i > r .or. M(i,c) /= 0 ) exit
+                if (i > nrow) exit
+                if (M(i,c) /= 0) exit
+                i = i + 1
+            end do
+
+            if ( i <= nrow ) then
+                row(:) = M(r,:)
+                M(r,:) = M(i,:)
+                M(i,:) = row(:)
+                do j = i + 1 , nrow
+                    a = abs(M(j,c))
+                    if ( a /= 0 .and. a < abs(M(r,c)) ) then
+                        row(:) = M(r,:)
+                        M(r,:) = M(j,:)
+                        M(j,:) = row(:)
+                    end if
+                end do
+                if ( M(r,c) < 0 ) M(r,:) = -1 * M(r,:)
+                cleared = .true.
+                do i = r + 1 , nrow
+                    a = M(i,c)/M(r,c)
+                    if ( a /= 0 ) M(i,:) = M(i,:) - a * M(r,:)
+                    if ( M(i,c) /= 0 ) cleared = .false.
+                end do
+                if ( cleared ) then
+                    r = r + 1
+                    c = c + 1
+                end if
+            else
+                c = c + 1
+            end if
+        end do
+
+    end subroutine RowEchelonFormM
+
+    !!---- subroutine RowEchelonFormT(M,T)
+    !!----     integer, dimension(:,:), intent(in out) :: M
+    !!----     integer, dimension(:,:), intent(in out) :: T
+    !!----  Fortran version of RowEchelonFormT from the CrystGAP package
+    !!----  The original source code can be found at:
+    !!----          https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
+    !!----
+    subroutine RowEchelonFormT(M,T)
+        integer, dimension(:,:), intent(in out) :: M
+        integer, dimension(:,:), intent(in out) :: T
+        integer :: r,c,i,j,a
+        integer :: nrow,ncolumn
+        logical :: cleared
+        integer, dimension(:), allocatable :: row, Trow
+
+        nrow    = size(M,1)
+        ncolumn = size(M,2)
+        allocate(row(ncolumn))
+        allocate(Trow(nrow))
+
+        r = 1  ! index for rows
+        c = 1  ! index for columns
+
+        do
+            if (r > nrow .or. c > ncolumn) exit
+            i = r
+            do
+                !if ( i > r .or. M(i,c) /= 0 ) exit
+                if (i > nrow) exit
+                if (M(i,c) /= 0) exit
+                i = i + 1
+            end do
+
+            if ( i <= nrow ) then
+                row(:)  = M(r,:)
+                M(r,:)  = M(i,:)
+                M(i,:)  = row(:)
+                Trow(:) = T(r,:)
+                T(r,:)  = T(i,:)
+                T(i,:)  = Trow(:)
+                do j = i + 1 , nrow
+                    a = abs(M(j,c))
+                    if ( a /= 0 .and. a < abs(M(r,c)) ) then
+                        row(:)  = M(r,:)
+                        M(r,:)  = M(j,:)
+                        M(j,:)  = row(:)
+                        Trow(:) = T(r,:)
+                        T(r,:)  = T(j,:)
+                        T(j,:)  = Trow(:)
+                    end if
+                end do
+                if ( M(r,c) < 0 ) then
+                    M(r,:) = -1 * M(r,:)
+                    T(r,:) = -1 * T(r,:)
+                end if
+                cleared = .true.
+                do i = r + 1 , nrow
+                    a = M(i,c)/M(r,c)
+                    if ( a /= 0 ) then
+                        M(i,:) = M(i,:) - a * M(r,:)
+                        T(i,:) = T(i,:) - a * T(r,:)
+                    end if
+                    if ( M(i,c) /= 0 ) cleared = .false.
+                end do
+                if ( cleared ) then
+                    r = r + 1
+                    c = c + 1
+                end if
+            else
+                c = c + 1
+            end if
+        end do
+
+    end subroutine RowEchelonFormT
 
     !!----
     !!---- Subroutine Second_Derivative(x, y, n, d2y)
@@ -5268,6 +5524,56 @@
 
        return
     End Subroutine Second_Derivative
+
+    !!----
+    !!---- subroutine SmithNormalForm(M,D,P,Q)
+    !!----     integer, dimension(nr,nc), intent(in)  :: M !(nr,nc)
+    !!----     integer, dimension(nr,nc), intent(out) :: D !(nr,nc)
+    !!----     integer, dimension(nr,nr), intent(out) :: P !(nr,nr)
+    !!----     integer, dimension(nc,nc), intent(out) :: Q !(nc,nc)
+    !!----
+    !!----  Compute the Smith Normal Form D of matrix M: D = PMQ
+    !!----
+    subroutine SmithNormalForm(M,D,P,Q)
+        integer, dimension(:,:), intent(in)  :: M !(nr,nc)
+        integer, dimension(:,:), intent(out) :: D !(nr,nc)
+        integer, dimension(:,:), intent(out) :: P !(nr,nr)
+        integer, dimension(:,:), intent(out) :: Q !(nc,nc)
+        !--- Local variables ---!
+        integer                                 :: i, ndiag, nr, nc
+        logical                                 :: diagonal
+        integer, dimension(size(D,2),size(D,1)) :: Dt
+        nr=size(M,1)
+        nc=size(M,2)
+        ! P and Q must be initialized to the identity matrix
+        P =  0
+        Q =  0
+        do i = 1 , nr
+            P(i,i) = 1
+        end do
+        do i = 1 , nc
+            Q(i,i) = 1
+        end do
+
+        D = M
+        ndiag = 0
+
+        do
+            if (mod(ndiag,2) == 0) then
+                call RowEchelonFormT(D,P)
+                ndiag = ndiag + 1
+                Dt = transpose(D)
+            else
+                call RowEchelonFormT(Dt,Q)
+                ndiag = ndiag + 1
+                D = transpose(Dt)
+            end if
+            if (Is_Diagonal_Matrix(D)) exit
+        end do
+
+        Q = transpose(Q)
+
+    end subroutine SmithNormalForm
 
     !!----
     !!---- Subroutine SmoothingVec(Y, N, NIter, Ys)

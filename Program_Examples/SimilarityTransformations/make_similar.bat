@@ -34,11 +34,13 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    if x%2 == xdeb goto IFORTD
-   ifort /c Similar.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c CFML_SPG_StdRep.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c Similar.f90 /O2 /Qparallel /nologo /IC:\CrysFML\ifort\LibC
    rem ifort /exe:Similar *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    link /subsystem:console /out:Similar.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
 :IFORTD
+   ifort /c CFML_SPG_StdRep.f90 /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
    ifort /c Similar.f90 /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
    ifort /exe:Similar *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
 rem   link /subsystem:console /out:Similar.exe *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib

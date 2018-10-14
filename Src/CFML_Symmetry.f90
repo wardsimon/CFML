@@ -123,7 +123,7 @@
 !!----       GET_POINTGROUP_STR
 !!--++       GET_SEITZ                 [Private]
 !!--++       GET_SEITZ_SYMBOL
-!!--++       GET_SETTING_INFO          [Private]
+!!----       GET_SETTING_INFO
 !!----       GET_SHUBNIKOV_OPERATOR_SYMBOL
 !!----       GET_SO_FROM_FIX
 !!----       GET_SO_FROM_GENER
@@ -214,7 +214,7 @@
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
                Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group, &
-               Get_Generators_From_SpGSymbol,Set_Intersection_SPG
+               Get_Generators_From_SpGSymbol,Set_Intersection_SPG,Get_Setting_Info
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -225,7 +225,7 @@
     !---- List of private subroutines ----!
     private :: Check_Symbol_Hm, Get_Seitz, Get_SymSymbI, Get_SymSymbR, Mod_Trans, Sym_B_Relations_Op  , &
                Sym_B_Relations_St, Symmetry_Symbol_Op, Symmetry_Symbol_Xyz , Symmetry_Symbol_Str,       &
-               Max_Conv_Lattice_Type,Get_Setting_Info,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST, &
+               Max_Conv_Lattice_Type,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST, &
                Setting_Change_Conv,Setting_Change_NonConv
 
 
@@ -7087,16 +7087,21 @@
              end if
              newg=.true.
              call set_spacegroup(" ",SubG(L),gen,ng,"gen")
-             do j=1,L-1
-                if (SpGr_Equal(SubG(L), SubG(j))) then
-                   newg=.false.
-                   exit
-                end if
-             end do
-             if (newg) then
-                call get_HallSymb_from_gener(SubG(L))
+             if(SubG(L)%multip == 0) then
+               L=L-1
+               newg=.false.
              else
-                L=L-1
+               do j=1,L-1
+                  if (SpGr_Equal(SubG(L), SubG(j))) then
+                     newg=.false.
+                     exit
+                  end if
+               end do
+               if (newg) then
+                  call get_HallSymb_from_gener(SubG(L))
+               else
+                  L=L-1
+               end if
              end if
              if (SpG%centred /= 1 .and. newg .and. .not. cen_added) then !add the centre of symmetry if needed
                 ng=ng+1
@@ -7124,20 +7129,21 @@
                 end if
                 newg=.true.
                 call set_spacegroup(" ",SubG(L),gen,ng,"gen")
-                if(mod(nop,SubG(L)%Numops) /= 0) then
+                if(mod(nop,SubG(L)%Numops) /= 0 .or. SubG(L)%multip == 0) then
                   L=L-1
-                  exit
-                end if
-                do j=1,L-1
-                   if (SpGr_Equal(SubG(L), SubG(j))) then
-                      newg=.false.
-                      exit
-                   end if
-                end do
-                if (newg) then
-                   call get_HallSymb_from_gener(SubG(L))
+                  newg=.false.
                 else
-                   L=L-1
+                  do j=1,L-1
+                     if (SpGr_Equal(SubG(L), SubG(j))) then
+                        newg=.false.
+                        exit
+                     end if
+                  end do
+                  if (newg) then
+                     call get_HallSymb_from_gener(SubG(L))
+                  else
+                     L=L-1
+                  end if
                 end if
                 if (SpG%centred /= 1 .and. newg .and. .not. cen_added) then !add the centre of symmetry if needed
                    ng=ng+1
