@@ -1,0 +1,15 @@
+!
+Title  CFL-file generated from FullProf for phase: Ag75Mn25  II
+!
+Cell    4.06190(5)  5.06190(5)  6.06190(5)  90.00000  90.00000  90.00000
+!
+SpGR  P n m a
+!
+!  Atom-strings in the order: Label, Species, x, y, z, Biso, Occ [,2*Spin, charge]
+Atom Ag   Ag     0.00000       0.00000       0.00000       0.00000       1.00000
+Atom Mn   Mn     0.50000       0.00000       0.00000       0.00000       1.00000
+!
+
+transf    2a,b,2c;0,0,0
+index 2
+kvec  0.5  0  0.0
