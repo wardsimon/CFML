@@ -5557,7 +5557,7 @@ Module CFML_ILL_Instrm_Data
        real(kind=cp), dimension(3,3),optional,intent(in)   :: setting
 
        !--- Local variables ---!
-       real(kind=cp)                 :: det
+       !real(kind=cp)                 :: det
        real(kind=cp), dimension(3,3) :: mat
 
        Current_Orient%conv=reshape( (/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))

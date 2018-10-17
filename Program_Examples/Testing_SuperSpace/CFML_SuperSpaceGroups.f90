@@ -68,7 +68,7 @@
     End Type SuperSpaceGroup_Type
 
    type,public, extends(SuperSpaceGroup_Type)   :: eSSGroup_Type
-     real(kind=cp), allocatable,dimension(:,:,:):: Om     !Operator matrices (3+d+1,3+d+1,Multip) common denominator at (4+d,4+d)
+     real(kind=cp), allocatable,dimension(:,:,:):: Om     !Operator matrices (3+d+1,3+d+1,Multip)
    end type eSSGroup_Type
 
     !!----

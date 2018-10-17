@@ -111,9 +111,13 @@
 !!----       EQUAL_MATRIX
 !!--++       EQUAL_MATRIX_I            [Overloaded]
 !!--++       EQUAL_MATRIX_R            [Overloaded]
+!!--++       EQUAL_MATRIX_Ind          [Overloaded]
+!!--++       EQUAL_MATRIX_Rnd          [Overloaded]
 !!----       EQUAL_VECTOR
 !!--++       EQUAL_VECTOR_I            [Overloaded]
 !!--++       EQUAL_VECTOR_R            [Overloaded]
+!!--++       EQUAL_VECTOR_Ind          [Overloaded]
+!!--++       EQUAL_VECTOR_Rnd          [Overloaded]
 !!----       EUCLIDEAN_NORM
 !!----       IMAXLOC
 !!--++       IMAXLOC_I                 [Overloaded]
@@ -237,7 +241,8 @@
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,     &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,       &
               Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,  &
-              Upper_Triangular, Debye, Epss_val, Is_Null_Vector, Is_Diagonal_Matrix
+              Upper_Triangular, Debye, Epss_val, Is_Null_Vector, Is_Diagonal_Matrix, &
+              Ep_ss_val
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -269,7 +274,8 @@
                Linear_DependentR, Rank_dp, Rank_sp, Sort_I, Sort_R, Svdcmp_dp,    &
                Svdcmp_sp, Swap_C, Swap_Cm, Swap_Cv, Swap_I, Swap_Im, Swap_Iv,     &
                Swap_R, Swap_Rm, Swap_Rv, Masked_Swap_R, Masked_Swap_Rm,           &
-               Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition
+               Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition, Set_Epsg_sp,&
+               Set_Epsg_dp
 
 
     !---- Definitions ----!
@@ -294,7 +300,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=cp), parameter, private :: ep_ss=1.0E-12_cp
+    real(kind=dp),  private :: ep_ss=1.0E-12_dp
 
     !!----
     !!---- ERR_MathGen
@@ -482,11 +488,15 @@
     Interface  Equal_Matrix
        Module Procedure Equal_Matrix_I
        Module Procedure Equal_Matrix_R
+       Module Procedure Equal_Matrix_Ind
+       Module Procedure Equal_Matrix_Rnd
     End Interface
 
     Interface  Equal_Vector
        Module Procedure Equal_Vector_I
        Module Procedure Equal_Vector_R
+       Module Procedure Equal_Vector_Ind
+       Module Procedure Equal_Vector_Rnd
     End Interface
 
     Interface  IMaxloc
@@ -541,6 +551,9 @@
        Module Procedure ZbelongM
        Module Procedure ZbelongN
        Module Procedure ZbelongV
+       Module Procedure ZbelongM_dp
+       Module Procedure ZbelongN_dp
+       Module Procedure ZbelongV_dp
     End Interface
 
     Interface  Rtan
@@ -620,6 +633,11 @@
         module procedure Is_Diagonal_Matrix_I
         module procedure Is_Diagonal_Matrix_R
         module procedure Is_Diagonal_Matrix_DP
+    end interface
+
+    interface Set_Epsg
+      module procedure Set_Epsg_sp
+      module procedure Set_Epsg_dp
     end interface
 
  Contains
@@ -2574,8 +2592,15 @@
        epsv=epss
     End Function Epss_val
 
+    Function Ep_ss_val() result(epsv)
+       !---- Arguments ----!
+       real(kind=dp) :: epsv
+
+       epsv=ep_ss
+    End Function Ep_ss_val
+
     !!----
-    !!---- Logical Function Equal_Matrix(A,B,N)
+    !!---- Pure Function Equal_Matrix(A,B,N) result(info)
     !!----    integer/real(kind=cp), dimension(:,:), intent(in)  :: a,b
     !!----    integer,                               intent(in)  :: n
     !!----
@@ -2585,17 +2610,17 @@
     !!
 
     !!--++
-    !!--++ Logical Function Equal_Matrix_I(A, B, N)
+    !!--++ Pure Function Equal_Matrix_I(a,b,n) result(info)
     !!--++    integer, dimension(:,:), intent(in)  :: a
     !!--++    integer, dimension(:,:), intent(in)  :: b
     !!--++    integer,                 intent(in)  :: n
-    !!--++
+    !!--++    logical                             :: info
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer arrays are equal in NxN
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Equal_Matrix_I(a,b,n) result(info)
+    Pure Function Equal_Matrix_I(a,b,n) result(info)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: a,b
        integer                , intent(in) :: n
@@ -2605,8 +2630,8 @@
        integer :: i,j
 
        info=.false.
-       do i=1,n
-          do j=1,n
+       do j=1,n
+          do i=1,n
              if (a(i,j) /= b(i,j)) return
           end do
        end do
@@ -2615,8 +2640,27 @@
        return
     End Function Equal_Matrix_I
 
+    Pure Function Equal_Matrix_Ind(a,b) result(info)
+       !---- Argument ----!
+       integer, dimension(:,:), intent(in) :: a,b
+       logical                             :: info
+
+       !---- Local variables ----!
+       integer :: i,j
+
+       info=.false.
+       do j=1,size(a,2)
+          do i=1,size(a,1)
+             if (a(i,j) /= b(i,j)) return
+          end do
+       end do
+       info=.true.
+
+       return
+    End Function Equal_Matrix_Ind
+
     !!--++
-    !!--++ Logical Function Equal_Matrix_R(A, B, N)
+    !!--++ Pure Function Equal_Matrix_R(a,b,n) result(info)
     !!--++    real(kind=sp), dimension(:,:), intent(in)  :: a
     !!--++    real(kind=sp), dimension(:,:), intent(in)  :: b
     !!--++    integer,                       intent(in)  :: n
@@ -2626,7 +2670,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Equal_Matrix_R(a,b,n) result(info)
+    Pure Function Equal_Matrix_R(a,b,n) result(info)
        !---- Argument ----!
        real(kind=cp), dimension(:,:)   , intent(in) :: a,b
        integer,                          intent(in) :: n
@@ -2636,8 +2680,8 @@
        integer :: i,j
 
        info=.false.
-       do i=1,n
-          do j=1,n
+       do j=1,n
+          do i=1,n
              if (abs(a(i,j) - b(i,j)) > epss ) return
           end do
        end do
@@ -2645,6 +2689,25 @@
 
        return
     End Function Equal_Matrix_R
+
+    Pure Function Equal_Matrix_Rnd(a,b) result(info)
+       !---- Argument ----!
+       real(kind=cp), dimension(:,:), intent(in) :: a,b
+       logical                                   :: info
+
+       !---- Local variables ----!
+       integer :: i,j
+
+       info=.false.
+       do j=1,size(a,2)
+          do i=1,size(a,1)
+             if (abs(a(i,j) - b(i,j)) > epss ) return
+          end do
+       end do
+       info=.true.
+
+       return
+    End Function Equal_Matrix_Rnd
 
     !!----
     !!---- Logical Function Equal_Vector(A,B,N)
@@ -2667,7 +2730,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Equal_Vector_I(a,b,n) result(info)
+    Pure Function Equal_Vector_I(a,b,n) result(info)
        !---- Argument ----!
        integer, dimension(:),   intent(in) :: a,b
        integer                , intent(in) :: n
@@ -2685,6 +2748,24 @@
        return
     End Function Equal_Vector_I
 
+    Pure Function Equal_Vector_Ind(a,b) result(info)
+       !---- Argument ----!
+       integer, dimension(:),   intent(in) :: a,b
+       logical                             :: info
+
+       !---- Local variables ----!
+       integer :: i
+
+       info=.false.
+       if(size(a) /= size(b)) return
+       do i=1,size(a)
+          if (a(i) /= b(i)) return
+       end do
+       info=.true.
+
+       return
+    End Function Equal_Vector_Ind
+
     !!--++
     !!--++ Logical Function Equal_Vector_R(A, B, N)
     !!--++    real(kind=sp), dimension(:), intent(in)  :: a
@@ -2696,7 +2777,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Equal_Vector_R(a,b,n) result(info)
+    Pure Function Equal_Vector_R(a,b,n) result(info)
        !---- Argument ----!
        real(kind=cp), dimension(:)   ,   intent(in) :: a,b
        integer,                          intent(in) :: n
@@ -2713,6 +2794,24 @@
 
        return
     End Function Equal_Vector_R
+
+    Pure Function Equal_Vector_Rnd(a,b) result(info)
+       !---- Argument ----!
+       real(kind=cp), dimension(:)   ,   intent(in) :: a,b
+       logical                                      :: info
+
+       !---- Local variables ----!
+       integer :: i
+
+       info=.false.
+       if(size(a) /= size(b)) return
+       do i=1,size(a)
+          if (abs(a(i) - b(i)) > epss ) return
+       end do
+       info=.true.
+
+       return
+    End Function Equal_Vector_Rnd
 
     !!----
     !!----  Function Euclidean_Norm(n,x) Result(Fn_Val)
@@ -2761,7 +2860,7 @@
     !!----
     !!----  Update: August - 2009
     !!----
-    Function Euclidean_Norm(n,x) Result(Fn_Val)
+    Pure Function Euclidean_Norm(n,x) Result(Fn_Val)
        !---- Arguments ----!
        Integer,                      Intent(In)  :: n
        Real (Kind=cp), Dimension(:), Intent(In)  :: x
@@ -3769,19 +3868,33 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function ZbelongM(v) Result(belong)
+    Pure Function ZbelongM(v) Result(belong)
        !---- Argument ----!
-       real(kind=cp),   dimension(:,:), intent( in) :: v
+       real(kind=sp),   dimension(:,:), intent( in) :: v
        logical                                      :: belong
 
        !---- Local variables ----!
-       real(kind=cp),   dimension(size(v,1),size(v,2)) :: vec
+       real(kind=sp),   dimension(size(v,1),size(v,2)) :: vec
 
        vec= abs(real(nint (v))-v)
        belong=.not. ANY(vec > epss)
 
        return
     End Function ZbelongM
+
+    Pure Function ZbelongM_dp(v) Result(belong)
+       !---- Argument ----!
+       real(kind=dp),   dimension(:,:), intent( in) :: v
+       logical                                      :: belong
+
+       !---- Local variables ----!
+       real(kind=dp),   dimension(size(v,1),size(v,2)) :: vec
+
+       vec= abs(real(nint (v))-v)
+       belong=.not. ANY(vec > ep_ss)
+
+       return
+    End Function ZbelongM_dp
 
     !!--++
     !!--++ Logical Function ZbelongN(A)
@@ -3792,9 +3905,9 @@
     !!--++
     !!--++ Update: February - 2005
    !!
-    Function ZbelongN(a) Result(belong)
+    Pure Function ZbelongN(a) Result(belong)
        !---- Argument ----!
-       real(kind=cp), intent( in) :: a
+       real(kind=sp), intent( in) :: a
        logical                    :: belong
 
        belong=.false.
@@ -3803,6 +3916,18 @@
 
        return
     End Function ZbelongN
+
+    Pure Function ZbelongN_dp(a) Result(belong)
+       !---- Argument ----!
+       real(kind=dp), intent( in) :: a
+       logical                    :: belong
+
+       belong=.false.
+       if (abs(real(nint (a))-a) > ep_ss) return
+       belong=.true.
+
+       return
+    End Function ZbelongN_dp
 
     !!--++
     !!--++ Logical Function ZbelongV(V)
@@ -3813,14 +3938,14 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function ZbelongV(v) Result(belong)
+    Pure Function ZbelongV(v) Result(belong)
        !---- Argument ----!
-       real(kind=cp),   dimension(:), intent( in) :: v
+       real(kind=sp),   dimension(:), intent( in) :: v
        logical                                    :: belong
 
        !---- Local variables ----!
        integer                             :: i
-       real(kind=cp),   dimension(size(v)) :: vec
+       real(kind=sp),   dimension(size(v)) :: vec
 
        belong=.false.
        vec= abs(real(nint (v))-v)
@@ -3831,6 +3956,25 @@
 
        return
     End Function ZbelongV
+
+    Pure Function ZbelongV_dp(v) Result(belong)
+       !---- Argument ----!
+       real(kind=dp),   dimension(:), intent( in) :: v
+       logical                                    :: belong
+
+       !---- Local variables ----!
+       integer                             :: i
+       real(kind=dp),   dimension(size(v)) :: vec
+
+       belong=.false.
+       vec= abs(real(nint (v))-v)
+       do i=1,size(v)
+          if (vec(i) > ep_ss) return
+       end do
+       belong=.true.
+
+       return
+    End Function ZbelongV_dp
 
     !---------------------!
     !---- Subroutines ----!
@@ -3860,14 +4004,23 @@
     !!----
     !!---- Update: April - 2005
     !!
-    Subroutine Set_Epsg(Neweps)
+    Subroutine Set_Epsg_sp(Neweps)
        !---- Arguments ----!
        real(kind=cp), intent( in) :: neweps
 
        epss=neweps
 
        return
-    End Subroutine Set_Epsg
+    End Subroutine Set_Epsg_sp
+
+    Subroutine Set_Epsg_dp(Neweps)
+       !---- Arguments ----!
+       real(kind=dp), intent( in) :: neweps
+
+       ep_ss=neweps
+
+       return
+    End Subroutine Set_Epsg_dp
 
     !!----
     !!---- Subroutine Set_Epsg_Default()
@@ -5351,9 +5504,9 @@
     !!----
     subroutine RowEchelonFormM(M)
         integer, dimension(:,:), intent(in out) :: M
-        integer :: r,c,i,j,a,k
+        integer :: r,c,i,j,a
         integer :: nrow,ncolumn
-        logical :: cleared,echelon
+        logical :: cleared
         integer, dimension(:), allocatable :: row
 
         nrow    = size(M,1)
@@ -5541,7 +5694,6 @@
         integer, dimension(:,:), intent(out) :: Q !(nc,nc)
         !--- Local variables ---!
         integer                                 :: i, ndiag, nr, nc
-        logical                                 :: diagonal
         integer, dimension(size(D,2),size(D,1)) :: Dt
         nr=size(M,1)
         nc=size(M,2)

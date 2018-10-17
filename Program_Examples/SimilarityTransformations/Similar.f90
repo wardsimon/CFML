@@ -1,4 +1,4 @@
-  Program Get_Subgroups
+   Program Get_Subgroups
   !!-----------------------------------------------------------------------------------------------
   !!--- Derived from the Program SIMILAR
   !!--- Purpose: Generate files with geometric transformations of atom positions.
@@ -28,7 +28,7 @@
     Use CFML_IO_formats
 
     Use CFML_Math_3D, only: set_eps, determ_a, invert_A
-    Use CFML_Math_General, only: modulo_lat
+    Use CFML_Math_General, only: modulo_lat,Set_Epsg
 
     Implicit None
 
@@ -87,6 +87,7 @@
     end if
 
     call set_eps(0.001)   !Needed for atom position comparisons
+    call Set_Epsg(0.001)  !Needed for integer estimation
 
     write(unit=*,fmt="(/,/,6(a,/))")                                                 &
     "                    ------ PROGRAM SIMILAR ------",                             &
@@ -304,6 +305,9 @@
         if(trim(group_setting) == "Unknown") then
            write(unit=group_setting(8:),fmt="(i4)") i
            symb_setting(i)=pack_string(group_setting)
+           do n=1,SubGroup(i)%Multip
+               write(*,"(12x,i2,a,a1,i2)") n, " -> "//trim(SubGroup(i)%SymopSymb(n)),",",1
+           end do
         end if
         write(unit=lun,fmt="(4a,i2,30a)") " => ", SubGroup(i)%Spg_Symb, group_setting,&
           "   Index: [",indx,"]   ->  { ", ( trim(SubGroup(i)%SymopSymb(l))//" ; ",l=1,ng-1),&

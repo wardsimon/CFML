@@ -13,7 +13,9 @@ module CFML_SpG_Standard_Representation
 
     implicit none
     Private
-    public:: Get_Standard_Representation
+    public:: Get_P_Matrix,Get_Generators,Get_Origin_Shift,Get_Standard_Representation, Get_Point_Group, &
+             Get_Laue_Class_from_Point_Group
+
 
     !---- Global Variables ----!
 
@@ -1296,7 +1298,7 @@ contains
     subroutine Get_Point_Group(SG)
 
         !---- Arguments ----!
-        type(Space_Group_Type), intent(inout) :: SG ! Space Group
+        type(Space_Group_Type), intent(in out) :: SG ! Space Group
 
         !---- Local variables ----!
         integer       :: i,j,n,t
