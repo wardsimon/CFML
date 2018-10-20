@@ -850,12 +850,12 @@
       !Final check that the determinant of the rotational matrix is integer
       det=rational_determinant(Mat)
       if(det%denominator /= 1) then
-         err_ssg=.true.
-         err_ssg_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+         err_group=.true.
+         err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
       end if
       if(det%numerator == 0) then
-         err_ssg=.true.
-         err_ssg_mess="The matrix of the operator is singular! -> det="//print_rational(det)
+         err_group=.true.
+         err_group_mess="The matrix of the operator is singular! -> det="//print_rational(det)
       end if
     End Subroutine Get_Mat_From_SSymSymb
 
@@ -871,7 +871,7 @@
        character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
        character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
        character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
-       character(len=3),dimension(10) :: x_typ
+       character(len=3),dimension(10)   :: x_typ
        character(len= 15)               :: car
        character(len= 40)               :: translation
        character(len= 40),dimension(10) :: sym
