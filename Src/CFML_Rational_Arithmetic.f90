@@ -87,7 +87,7 @@
               maxloc,minloc, matmul, sum
 
     integer, public, parameter :: ik=8
-    
+
     type :: rational
       integer(kind=ik) :: numerator
       integer(kind=ik) :: denominator
@@ -269,16 +269,16 @@
       end if
     end function rational_simplify
 
-    pure subroutine assign_rational_intik (res, i)
+    elemental subroutine assign_rational_intik (res, i)
       type (rational),  intent (out) :: res  !, volatile
       integer(kind=ik), intent (in)  :: i
       res = i // 1_ik
     end subroutine assign_rational_intik
-    
-    pure subroutine assign_rational_int (res, i)
+
+    elemental subroutine assign_rational_int (res, i)
       type (rational),  intent (out) :: res  !, volatile
       integer, intent (in)           :: i
-      res = i // 1 
+      res = i // 1
     end subroutine assign_rational_int
 
     elemental subroutine assign_rational_real_cp (res,xr)
@@ -349,7 +349,7 @@
       integer,         intent (out)  :: i
       i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
     end subroutine assign_int_rational
-    
+
     elemental subroutine assign_intik_rational (i, res)
       type (rational), intent (in)   :: res  !, volatile
       integer(kind=ik),intent (out)  :: i
@@ -730,37 +730,30 @@
       res = val
     end function rational_mod_int
 
-    function rational_dot_product (r1,r2) result (res)
+    Pure function rational_dot_product (r1,r2) result (res)
       type (rational), dimension(:), intent (in) :: r1,r2
       type (rational) :: res
-      integer :: n1,n2,i
+      integer :: n1,n2,i,nm
       n1=size(r1); n2=size(r2)
       res=0_ik//1_ik
-      if(n1 == n2) then
-        do i=1,n1
-          res = rational_simplify (res + r1(i)*r2(i))
-        end do
-      else
-        Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a,2i4)") "Error in DOT_PRODUCT: the dimensions of the arguments are different",n1,n2
-      end if
+      nm=min(n1,n2)
+      do i=1,nm
+        res = rational_simplify (res + r1(i)*r2(i))
+      end do
     end function rational_dot_Product
 
-    function rational_matmul_matvec (mat,vec) result (vec_out)
+    Pure function rational_matmul_matvec (mat,vec) result (vec_out)
       type (rational), dimension(:,:), intent (in) :: mat
       type (rational), dimension(:),   intent (in) :: vec
       type (rational), dimension(size(vec))        :: vec_out
 
-      integer :: n1,n2,n3,i
+      integer :: n1,n2,n3,i,nm
       n1=size(mat,dim=1); n2=size(mat,dim=2); n3=size(vec)
-      if(n1 == n2 .and. n2 == n3) then
-        do i=1,n3
-          vec_out(i) = rational_simplify (dot_product(mat(i,:),vec))
-        end do
-      else
-        Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a,3i4)") "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3
-      end if
+      nm=min(n2,n3)
+      vec_out=0_ik//1_ik
+      do i=1,nm
+        vec_out(i) = rational_simplify(dot_product(mat(i,1:nm),vec(1:nm)))
+      end do
     end function rational_matmul_matvec
 
     !function rational_matmul_vecmat (vec,mat) result (vec_out)
@@ -780,13 +773,14 @@
     !  end if
     !end function rational_matmul_vecmat
 
-    function rational_matmul_matmat (mat1,mat2) result (mat_out)
+    Pure function rational_matmul_matmat(mat1,mat2) result (mat_out)
       type (rational), dimension(:,:), intent (in) :: mat1
       type (rational), dimension(:,:), intent (in) :: mat2
       type (rational),dimension(size(mat1,dim=1),size(mat2,dim=2)) :: mat_out
 
-      integer :: n1,n2,n3,n4,i,j
+      integer :: n1,n2,n3,n4,i,j,nm
       n1=size(mat1,dim=1); n2=size(mat1,dim=2); n3=size(mat2,dim=1); n4=size(mat2,dim=2)
+      forall ( i = 1:n1 , j = 1:n4 ) mat_out(i,j) = 0_ik/1_ik
       if(n2 == n3) then
         do j=1,n4
           do i=1,n1
@@ -794,12 +788,16 @@
           end do
         end do
       else
-        Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a,4i4)") "Error in MATMUL: the dimensions of the arguments are non-conformable",n1,n2,n3,n4
+        nm=min(n2,n3)
+        do j=1,n4
+          do i=1,n1
+            mat_out(i,j) = rational_simplify (dot_product(mat1(i,1:nm),mat2(1:nm,j)))
+          end do
+        end do
       end if
     end function rational_matmul_matmat
 
-    function rational_maxval_vector (r) result (res)
+    Pure function rational_maxval_vector (r) result (res)
       type (rational), dimension(:), intent (in) :: r
       type (rational) :: res
       integer :: i,n
@@ -810,7 +808,7 @@
       end do
     end function rational_maxval_vector
 
-    function rational_maxval_matrix (r) result (res)
+    Pure function rational_maxval_matrix (r) result (res)
       type (rational), dimension(:,:), intent (in) :: r
       type (rational) :: res
       integer :: i,j,n1,n2
@@ -823,7 +821,7 @@
       end do
     end function rational_maxval_matrix
 
-    function rational_minval_vector (r) result (res)
+    Pure function rational_minval_vector (r) result (res)
       type (rational), dimension(:), intent (in) :: r
       type (rational) :: res
       integer :: i,n
@@ -834,7 +832,7 @@
       end do
     end function rational_minval_vector
 
-    function rational_minval_matrix (r) result (res)
+    Pure function rational_minval_matrix (r) result (res)
       type (rational), dimension(:,:), intent (in) :: r
       type (rational) :: res
       integer :: i,j,n1,n2
@@ -864,23 +862,19 @@
       rtxt=adjustl(Pack_String(rtxt))
     end function print_rational
 
-    function rational_determinant(Mat) result(det)
+    Pure function rational_determinant(Mat) result(det)
       type(rational), dimension(:,:), intent(in) :: Mat
       type(rational) :: det
       !Local variables
       real(kind=cp), dimension(size(Mat,dim=1),size(Mat,dim=2)) :: A
       real(kind=cp) :: determ
-      integer:: n1,n2
+      integer:: n1,n2,nm
 
       n1=size(Mat,dim=1); n2=size(Mat,dim=2)
-      if(n1 == n2) then
-         A=Mat
-         call Determinant(A,n1,determ)
-         det=determ
-      else
-        Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a)") "Error in Determinant: the provided matrix is not square!"
-      end if
+      nm=min(n1,n2)
+      A=Mat
+      call Determinant(A(1:nm,1:nm),nm,determ)
+      det=determ
     end function rational_determinant
 
     Subroutine rational_inv_matrix(Mat,invMat)

@@ -1032,7 +1032,7 @@
     End Function Tand_sp
 
     !!----
-    !!---- Elemental Function BessJ0(x) Result(bessj_0)
+    !!---- Function BessJ0(x) Result(bessj_0)
     !!----    real(kind=sp), intent(in) :: x
     !!----    real(kind=sp)             :: bessj_0
     !!----
@@ -1040,7 +1040,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Elemental Function BessJ0(x) Result(bessj_0)
+    Function BessJ0(x) Result(bessj_0)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: x
        real(kind=cp)             :: bessj_0
@@ -1093,7 +1093,7 @@
     End Function BessJ0
 
     !!----
-    !!---- Elemental Function BessJ1(x) Result(bessj_1)
+    !!---- Function BessJ1(x) Result(bessj_1)
     !!----    real(kind=sp), intent(in) : x
     !!----    real(kind=sp)             : bessj_1
     !!----
@@ -1101,7 +1101,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Elemental Function BessJ1(x) Result(bessj_1)
+    Function BessJ1(x) Result(bessj_1)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: x
        real(kind=cp)             :: bessj_1
@@ -1209,7 +1209,7 @@
           jsum=0       !jsum will alternate between 0 and 1; when it is 1, we
                        !accumulate in sum the even terms in (5.5.16).
           suma=0.
-          bjp=0.
+          bjp=0.0
           bj=1.0
           do j=m,1,-1 ! The downward recurrence.
              bjm=j*tox*bj-bjp
@@ -1362,7 +1362,7 @@
     End Function Debye_DP
 
     !!--++
-    !!--++ Function CHEVAL
+    !!--++ Pure Function CHEVAL
     !!--++
     !!--++ PRIVATE (USED FOR DEBYE FUNCTIONS)
     !!--++ This function evaluates a Chebyshev series, using the Clenshaw method
@@ -1371,7 +1371,7 @@
     !!--++
     !!--++  Update:  January - 2017
     !!
-    Function Cheval(n, a, t) Result(fval)
+    Pure Function Cheval(n, a, t) Result(fval)
        !---- Arguments ----!
        integer,                       intent(in) :: N  ! The no. of terms in the sequence
        real(kind=dp), dimension(0:N), intent(in) :: A  ! The coefficients of the Chebyshev series
@@ -2926,7 +2926,7 @@
     End Function Euclidean_Norm
 
     !!----
-    !!---- Function Imaxloc(arr) Result(mav)
+    !!---- Pure Function Imaxloc(arr) Result(mav)
     !!----  real(kind=sp)/integer, dimension(:), intent(in) :: arr
     !!----  integer                                         :: mav
     !!----
@@ -2936,7 +2936,7 @@
     !!
 
     !!--++
-    !!--++ Function Imaxloc_I(arr) Result(mav)
+    !!--++ Pure Function Imaxloc_I(arr) Result(mav)
     !!--++  integer, dimension(:), intent(in) :: arr
     !!--++  integer                           :: mav
     !!--++
@@ -2944,7 +2944,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Imaxloc_I(iarr) Result(mav)
+    Pure Function Imaxloc_I(iarr) Result(mav)
        !---- Arguments ----!
        integer, dimension(:), intent(in) :: iarr
        integer                           :: mav
@@ -2959,7 +2959,7 @@
     End Function Imaxloc_I
 
     !!--++
-    !!--++ Function Imaxloc_R(arr) Result(mav)
+    !!--++ Pure Function Imaxloc_R(arr) Result(mav)
     !!--++  real(kind=sp), dimension(:), intent(in) :: arr
     !!--++  integer                                 :: mav
     !!--++
@@ -2967,7 +2967,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Imaxloc_R(arr) Result(mav)
+    Pure Function Imaxloc_R(arr) Result(mav)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in) :: arr
        integer                                 :: mav
@@ -3579,7 +3579,7 @@
 
 
     !!----
-    !!---- Function Outerprod(a,b) Result(c)
+    !!---- Pure Function Outerprod(a,b) Result(c)
     !!----    real(sp/dp),dimension(:),intent(in)    :: a,b
     !!----    real(sp/dp),dimension(size(a),size(b)) :: c
     !!----
@@ -3595,7 +3595,7 @@
     !!
 
     !!--++
-    !!--++ Function Outerprod_dp(a,b) Result(c)
+    !!--++ Pure Function Outerprod_dp(a,b) Result(c)
     !!--++    real(dp),dimension(:),intent(in)    :: a,b
     !!--++    real(dp),dimension(size(a),size(b)) :: c
     !!--++
@@ -3609,7 +3609,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Outerprod_dp(a,b)  Result(c)
+    Pure Function Outerprod_dp(a,b)  Result(c)
        !---- Arguments ----!
        real(kind=dp),dimension(:),intent(in)    :: a,b
        real(kind=dp),dimension(size(a),size(b)) :: c
@@ -3620,7 +3620,7 @@
     End Function Outerprod_dp
 
     !!--++
-    !!--++ Function Outerprod_sp(a,b) Result(c)
+    !!--++ Pure Function Outerprod_sp(a,b) Result(c)
     !!--++    real(sp),dimension(:),intent(in)    :: a,b
     !!--++    real(sp),dimension(size(a),size(b)) :: c
     !!--++
@@ -3634,7 +3634,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Outerprod_sp(a,b)  Result(c)
+    Pure Function Outerprod_sp(a,b)  Result(c)
        !---- Arguments ----!
        real(kind=sp),dimension(:),intent(in)    :: a,b
        real(kind=sp),dimension(size(a),size(b)) :: c
@@ -3717,7 +3717,7 @@
     !!
 
     !!--++
-    !!--++ Function Trace_C(A)
+    !!--++ Pure Function Trace_C(A)
     !!--++    complex, dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -3725,7 +3725,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_C(a) Result(b)
+    Pure Function Trace_C(a) Result(b)
        !---- Argument ----!
        complex, dimension(:,:), intent(in) :: a
        complex                             :: b
@@ -3743,7 +3743,7 @@
     End Function Trace_C
 
     !!--++
-    !!--++ Function Trace_I(A)
+    !!--++ Pure Function Trace_I(A)
     !!--++    integer, dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -3751,7 +3751,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_I(a) Result(b)
+    Pure Function Trace_I(a) Result(b)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: a
        integer                             :: b
@@ -3769,7 +3769,7 @@
     End Function Trace_I
 
     !!--++
-    !!--++ Function Trace_R(A)
+    !!--++ Pure Function Trace_R(A)
     !!--++    real(kind=cp), dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -3777,7 +3777,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Trace_R(a) Result(b)
+    Pure Function Trace_R(a) Result(b)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: a
        real(kind=cp)                             :: b
@@ -3803,7 +3803,7 @@
     !!----
     !!----   Updated: October - 2014
     !!----
-    Function Upper_Triangular_I(A,n) Result (T)
+    Pure Function Upper_Triangular_I(A,n) Result (T)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: A
        integer,                 intent(in) :: n
@@ -3828,7 +3828,7 @@
     !!----
     !!----   Updated: October - 2014
     !!----
-    Function Upper_Triangular_R(A,n) Result (T)
+    Pure Function Upper_Triangular_R(A,n) Result (T)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: A
        integer,                       intent(in) :: n
@@ -4268,7 +4268,7 @@
     !!----
     !!----   Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
     !!----
-    Subroutine Co_Prime_Vector(V,Cop,f)
+    Pure Subroutine Co_Prime_Vector(V,Cop,f)
        !---- Arguments ----!
        integer, dimension(:), intent(in)  :: v
        integer, dimension(:), intent(out) :: cop
@@ -4348,7 +4348,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Determinant_C(A,n,determ)
+    Pure Subroutine Determinant_C(A,n,determ)
        !---- Arguments ----!
        complex, dimension(:,:), intent( in) :: A
        integer,                 intent( in) :: n
@@ -4393,7 +4393,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Determinant_R(A,n,determ)
+    Pure Subroutine Determinant_R(A,n,determ)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent( in) :: A
        integer,                       intent( in) :: n
@@ -5029,7 +5029,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine LU_Backsub(a,indx,b)
+    Pure Subroutine LU_Backsub(a,indx,b)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in)     :: a
        integer,         dimension(:), intent(in)     :: indx
@@ -5078,7 +5078,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine LU_Decomp(a,d,singular,indx)
+    Pure Subroutine LU_Decomp(a,d,singular,indx)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a
        real(kind=cp),                 intent(out)    :: d
@@ -6632,7 +6632,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Cm(a,b)
+    Pure Subroutine Swap_Cm(a,b)
        !---- Arguments ----!
        complex, dimension(:,:), intent(in out) :: a
        complex, dimension(:,:), intent(in out) :: b
@@ -6656,7 +6656,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Cv(a,b)
+    Pure Subroutine Swap_Cv(a,b)
        !---- Arguments ----!
        complex, dimension(:), intent(in out) :: a
        complex, dimension(:), intent(in out) :: b
@@ -6680,7 +6680,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_I(A,B)
+    Pure Subroutine Swap_I(A,B)
        !---- Arguments ----!
        integer , intent(in out) :: a
        integer , intent(in out) :: b
@@ -6704,7 +6704,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Im(A,B)
+    Pure Subroutine Swap_Im(A,B)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in out) :: a
        integer, dimension(:,:), intent(in out) :: b
@@ -6728,7 +6728,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Iv(A,B)
+    Pure Subroutine Swap_Iv(A,B)
        !---- Arguments ----!
        integer, dimension(:), intent(in out) :: a
        integer, dimension(:), intent(in out) :: b
@@ -6752,7 +6752,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_R(A,B)
+    Pure Subroutine Swap_R(A,B)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -6776,7 +6776,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Rm(A,B)
+    Pure Subroutine Swap_Rm(A,B)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a
        real(kind=cp), dimension(:,:), intent(in out) :: b
@@ -6800,7 +6800,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Swap_Rv(A,B)
+    Pure Subroutine Swap_Rv(A,B)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in out) :: a
        real(kind=cp), dimension(:), intent(in out) :: b
@@ -6825,7 +6825,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Masked_Swap_R(A,B,Mask)
+    Pure Subroutine Masked_Swap_R(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -6853,7 +6853,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Masked_Swap_Rm(A,B,Mask)
+    Pure Subroutine Masked_Swap_Rm(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a
        real(kind=cp), dimension(:,:), intent(in out) :: b
@@ -6881,7 +6881,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Masked_Swap_Rv(A,B,Mask)
+    Pure Subroutine Masked_Swap_Rv(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in out) :: a
        real(kind=cp), dimension(:), intent(in out) :: b
