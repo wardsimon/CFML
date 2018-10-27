@@ -47,18 +47,16 @@
              newg=.true.
              write(*,*) (trim(gen(j))//" ; ",j=1,ng)
              call Group_Constructor(gen(1:ng),SubG(L))
-             if(SubG(L)%multip == 0) then
-               L=L-1
-               newg=.false.
-             else
-               do j=1,L-1
-                  if (SubG(L) == SubG(j)) then
-                     newg=.false.
-                     exit
-                  end if
-               end do
-               if (.not. newg) L=L-1
-             end if
+             do j=1,L-1
+               write(*,"(a,4i6)") " j, L,mulj,mulL:",j,l,SubG(j)%multip,SubG(L)%multip
+               call print_group(SubG(j))
+               call print_group(SubG(L))
+               if (SubG(L) == SubG(j)) then
+                  newg=.false.
+                  exit
+               end if
+             end do
+             if (.not. newg) L=L-1
              if (SpG%centred /= 1 .and. newg .and. .not. cen_added) then !add the centre of symmetry if needed
                 ng=ng+1
                 gen(ng)=SpG%Symb_Op(nc)

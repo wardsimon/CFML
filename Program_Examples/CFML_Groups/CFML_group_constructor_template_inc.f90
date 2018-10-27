@@ -1,6 +1,5 @@
 ! Template algorithm for constructing an arbitrary group characterized by matrices of
 ! whatever kind and dimensions.
-
        allocate(Op(maxnum_op))
        do i=1,maxnum_op
          call Allocate_Operator(d,Op(i))
@@ -15,13 +14,13 @@
          Op(i+1)%time_inv=invt
        end do
        ngen=ngen+1
-
+       !
        !Construct the raw Group
        call Get_Group_From_Generators(ngen,Op,multip)
        if(Err_group) return
 
-       !Allocate provisionally to 1/4 Multip the lattice translations and anti-Translations
-       allocate(Lat_tr(d-1,multip/4), aLat_tr(d-1,multip/4))
+       !Allocate provisionally to Multip the lattice translations and anti-Translations
+       allocate(Lat_tr(d-1,multip), aLat_tr(d-1,multip))
        allocate(centre_coord(d-1))
 
        call Reorder_Operators(multip, Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
@@ -29,6 +28,9 @@
 
        Grp%multip=multip
        Grp%d=d
+       if(allocated(Grp%Op)) deallocate(Grp%Op)
+       call Allocate_Operators(d,multip,Grp%Op)
+       Grp%Op(1:multip)=Op(1:multip)
 
        !allocate(character(len=40) :: Grp%Symb_Op(multip)) !it doesn't work in gfortran
        if(allocated(Grp%Symb_Op)) Deallocate(Grp%Symb_Op)

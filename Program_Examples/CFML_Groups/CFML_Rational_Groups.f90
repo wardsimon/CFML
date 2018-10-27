@@ -1,12 +1,8 @@
-  Module CFML_Groups
+  Module CFML_Rational_Groups
     Use CFML_GlobalDeps,   only : cp,sp,dp,pi
-    use CFML_Math_General, only : equal_matrix,equal_vector,Zbelong,modulo_lat, sort, Set_Epsg
-    use CFML_Math_3D,      only : determ_A
+    use CFML_Math_General, only : Zbelong,modulo_lat, sort, Set_Epsg
     use CFML_Rational_Arithmetic
     use CFML_String_Utilities, only : pack_string, Get_Separator_Pos
-    Use CFML_Crystallographic_Symmetry, only: Set_SpaceGroup, Space_Group_Type,Get_Transl_Symbol, &
-                                              Get_SymSymb, NS_Space_Group_Type,Sym_Oper_Type,&
-                                              applyso, Lattice_trans,Get_Trasfm_Symbol,SpGr_Equal
 
     implicit none
     Private
@@ -24,38 +20,17 @@
     Type, public :: Symm_Oper_Type
        integer       :: time_inv=1
        integer       :: dt=1  !determinant of the submatrix (1:3,1:3), it should be 1 or -1
-       real(kind=cp), allocatable, dimension(:,:) :: Mat
-    End Type Symm_Oper_Type
-
-    Type, public :: rational_Symm_Oper_Type
-       integer       :: time_inv=1
-       integer       :: dt=1  !determinant of the submatrix (1:3,1:3), it should be 1 or -1
        type(rational), allocatable, dimension(:,:) :: Mat
-    End Type rational_Symm_Oper_Type
+    End Type Symm_Oper_Type
 
     Type, public :: Group_type
       integer :: Multip
       integer :: d  !Dimension of operator matrices (for 2D, d=3, for 3D, d=4, etc.)
       type(Symm_Oper_Type),dimension(:),allocatable:: Op
-      Character(len=80),   dimension(:),allocatable:: Symb_Op !It doesn't work properly ":" in gfortran
+      Character(len=80),   dimension(:),allocatable:: Symb_Op !":" doesn't work properly in gfortran
     End Type Group_type
 
-    Type, extends(Group_type),public :: rational_Group_type
-      type(rational_Symm_Oper_Type),dimension(:),allocatable:: rOp
-    End Type rational_Group_type
-
-    Type, extends(Group_type), public :: raw_spg_type
-      integer :: Numops
-      integer :: centred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
-      integer :: mag_type
-      integer :: num_lat
-      integer :: num_alat
-      real(kind=cp),dimension(:),   allocatable :: centre_coord
-      real(kind=cp),dimension(:,:), allocatable :: Lat_tr
-      real(kind=cp),dimension(:,:), allocatable :: aLat_tr
-    End Type raw_spg_type
-
-    Type, extends(rational_Group_type), public :: rational_spg_type
+    Type, extends(Group_type), public :: Spg_Type
       integer :: Numops
       integer :: centred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
       integer :: mag_type
@@ -64,87 +39,27 @@
       type(rational),dimension(:),   allocatable :: centre_coord
       type(rational),dimension(:,:), allocatable :: Lat_tr
       type(rational),dimension(:,:), allocatable :: aLat_tr
-    End Type rational_spg_type
+    End Type Spg_Type
 
    !------ Interfaces declarations (overloaded procedures)
     public :: operator (*)
     interface operator (*)
       module procedure multiply_Symm_Oper
-      module procedure multiply_Symm_Oper_rational
     end interface
     private :: multiply_Symm_Oper
 
     public :: operator (==)
     interface operator (==)
       module procedure equal_Symm_Oper
-      module procedure equal_rational_Symm_Oper
-      module procedure equal_Group_real
-      module procedure equal_Group_rational
+      module procedure equal_Group
     end interface
-    private :: equal_Symm_Oper,equal_group_real, equal_group_rational,equal_rational_Symm_Oper
-
-    interface Get_Group_From_Generators
-      module procedure Get_Group_From_Generators_real
-      module procedure Get_Group_From_Generators_rational
-    end interface Get_Group_From_Generators
-    private :: Get_Group_From_Generators_real, Get_Group_From_Generators_rational
+    private :: equal_group,equal_Symm_Oper
 
     interface Group_Constructor
       module procedure Group_Constructor_gen
       module procedure Group_Constructor_string
-      module procedure Group_Constructor_rational_gen
-      module procedure Group_Constructor_rational_string
     end interface Group_Constructor
-    Private :: Group_Constructor_gen,Group_Constructor_string, &
-               Group_Constructor_rational_gen,Group_Constructor_rational_string
-
-    interface Allocate_Operator
-      module procedure Allocate_Operator_real
-      module procedure Allocate_Operator_rational
-    end interface Allocate_Operator
-    private :: Allocate_Operator_real, Allocate_Operator_rational
-
-    interface Allocate_Group
-      module procedure Allocate_Group_real
-      module procedure Allocate_Group_rational
-    end interface Allocate_Group
-    private :: Allocate_Group_real, Allocate_Group_rational
-
-    interface Allocate_Operators
-      module procedure Allocate_Operators_real
-      module procedure Allocate_Operators_rational
-    end interface Allocate_Operators
-    private :: Allocate_Operators_real, Allocate_Operators_rational
-
-    interface Symbol_Operator
-      module procedure Symbol_Operator_rational
-      module procedure Symbol_Operator_real
-    end interface Symbol_Operator
-    private :: Symbol_Operator_real, Symbol_Operator_rational
-
-    interface sort_op
-      module procedure sort_op_real
-      module procedure sort_op_rational
-    end interface sort_op
-
-    interface Reorder_Operators
-      module procedure Reorder_Operators_real
-      module procedure Reorder_Operators_rational
-    end interface Reorder_Operators
-    private :: Reorder_Operators_real, Reorder_Operators_rational
-
-    interface print_group
-      module procedure print_rational_group
-      module procedure print_real_group
-    end interface print_group
-    private :: print_rational_group, print_real_group
-
-    interface Get_SubGroups
-      module procedure Get_SubGroups_real
-      module procedure Get_SubGroups_rational
-    end interface
-    private :: Get_SubGroups_real, Get_SubGroups_rational
-
+    Private :: Group_Constructor_gen,Group_Constructor_string
 
     !Private symbols for parsing operators in both senses: Symbol <-> Operator
     character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
@@ -156,25 +71,6 @@
     Pure function multiply_Symm_Oper(Op1,Op2) result (Op3)
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       type(Symm_Oper_Type)             :: Op3
-      integer :: n,d,i
-      n=size(Op1%Mat,dim=1)
-      allocate(Op3%Mat(n,n))
-      d=n-1
-      Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
-      do i=1,d     !Put translations in the interval [0.0,1.0)
-         if(Op3%Mat(i,n) < 0.0_cp) then
-         	  Op3%Mat(i,n) = Op3%Mat(i,n) + 1.0_cp
-         else if(Op3%Mat(i,n) >= 1.0_cp) then
-         	  Op3%Mat(i,n) = Op3%Mat(i,n) - 1.0_cp
-         end if
-      end do
-      Op3%time_inv=Op1%time_inv*Op2%time_inv
-      Op3%dt=Op1%dt*Op2%dt
-    End Function multiply_Symm_Oper
-
-    Pure function multiply_Symm_Oper_rational(Op1,Op2) result (Op3)
-      type(rational_Symm_Oper_Type), intent(in) :: Op1,Op2
-      type(rational_Symm_Oper_Type)             :: Op3
       integer :: n,d,i
       n=size(Op1%Mat,dim=1)
       allocate(Op3%Mat(n,n))
@@ -192,79 +88,53 @@
       end do
       Op3%time_inv=Op1%time_inv*Op2%time_inv
       Op3%dt=Op1%dt*Op2%dt
-    End Function multiply_Symm_Oper_rational
+    End Function multiply_Symm_Oper
 
     Pure function equal_Symm_Oper(Op1,Op2) result (info)
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       logical                          :: info
       info=.false.
       if(Op1%time_inv == Op2%time_inv) then
-        if(equal_matrix(Op1%Mat,Op2%Mat)) info=.true.
+        if(equal_rational_matrix(Op1%Mat,Op2%Mat)) info=.true.
       end if
     end function equal_Symm_Oper
 
-    Pure function equal_rational_Symm_Oper(Op1,Op2) result (info)
-      type(rational_Symm_Oper_Type), intent(in) :: Op1,Op2
-      logical                                   :: info
-      info=.false.
-      if(Op1%time_inv == Op2%time_inv) then
-        if(equal_rational_matrix(Op1%Mat,Op2%Mat)) info=.true.
-      end if
-    end function equal_rational_Symm_Oper
-
-    Pure Function equal_Group_rational(Gr1,Gr2) result (info)
-      type(rational_spg_type), intent(in) :: Gr1,Gr2
-      logical                              :: info
+    Pure Function equal_Group(Gr1,Gr2) result (info)
+      type(Spg_Type), intent(in) :: Gr1,Gr2
+      logical                    :: info
       integer :: i,j
       info=.false.
       if(Gr1%multip /= Gr2%multip) return
       do i=2,Gr1%multip
         do j=2,Gr2%multip
-           if(Gr1%rOp(i) == Gr2%rOp(j)) then
+           if(Gr1%Op(i) == Gr2%Op(j)) then
              info=.true.
              exit
            end if
         end do
         if(.not. info) return
       end do
-    End Function equal_Group_rational
-
-    Pure Function equal_Group_real(Gr1,Gr2) result (info)
-      type(raw_spg_type), intent(in) :: Gr1,Gr2
-      logical                        :: info
-      integer :: i,j
-      info=.false.
-      if(Gr1%multip /= Gr2%multip) return
-      do i=2,Gr1%multip
-        do j=2,Gr2%multip
-           if( Gr1%Op(i) == Gr2%Op(j)) then
-             info=.true.
-             exit
-           end if
-        end do
-        if(.not. info) return
-      end do
-    End Function equal_Group_real
+    End Function equal_Group
 
     Pure Function is_Lattice_vec(V,Ltr,nlat) Result(Lattice_Transl)
        !---- Argument ----!
-       real(kind=cp), dimension(:),   intent( in) :: v
-       real(kind=cp), dimension(:,:), intent( in) :: Ltr
-       integer,                       intent( in) :: nlat
-       logical                                    :: Lattice_Transl
+       type(rational), dimension(:),   intent( in) :: v
+       type(rational), dimension(:,:), intent( in) :: Ltr
+       integer,                        intent( in) :: nlat
+       logical                                     :: Lattice_Transl
 
        !---- Local variables ----!
-       real(kind=cp)   , dimension(size(v)) :: vec
-       integer                              :: i
+       type(rational), dimension(size(v)) :: vec
+       integer                            :: i
 
        Lattice_Transl=.false.
 
-       if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
+       if (IsInteger(v)) then       ! if v is an integral vector =>  v is a lattice vector
           Lattice_Transl=.true.
        else                       ! if not look for lattice type
           do i=1,nlat
             vec=Ltr(:,i)-v
-            if (Zbelong(vec)) then
+            if (IsInteger(vec)) then
               Lattice_Transl=.true.
               return
             end if
@@ -272,22 +142,11 @@
        end if
     End Function is_Lattice_vec
 
-    Function Symbol_Operator_real(Op) result(symb)
+    Function Symbol_Operator(Op) result(symb)
       type(Symm_Oper_Type) :: Op
       Character(len=80)    :: symb
-      type(rational),dimension(:,:),allocatable :: Mat
-      integer :: n
-      n=size(Op%Mat,1)
-      allocate (Mat(n,n))
-      Mat=Op%Mat
-      call Get_Symb_Op_from_Mat(Mat,Symb,"xyz",Op%time_inv)
-    End Function Symbol_Operator_real
-
-    Function Symbol_Operator_rational(Op) result(symb)
-      type(rational_Symm_Oper_Type) :: Op
-      Character(len=80)    :: symb
       call Get_Symb_Op_from_Mat(Op%Mat,Symb,"xyz",Op%time_inv)
-    End Function Symbol_Operator_rational
+    End Function Symbol_Operator
 
     Function Get_dimension(Symbol) result(d)
        character(len=*), intent (in) :: Symbol
@@ -317,24 +176,9 @@
       end if
     End Subroutine Init_Group
 
-    Subroutine Allocate_Operator_real(d,Op)
-       integer,              intent(in)     :: d
-       type(Symm_Oper_Type), intent(in out) :: Op
-       integer :: i
-       if(allocated(Op%Mat)) deallocate(Op%Mat)
-       allocate(Op%Mat(d,d))
-       !Inititalize to identity matrix
-       Op%Mat=0.0
-       do i=1,d
-         Op%Mat(i,i)=1.0
-       end do
-       Op%time_inv=1
-       Op%dt=1
-    End Subroutine Allocate_Operator_real
-
-    Subroutine Allocate_Operator_rational(d,Op)
+   Subroutine Allocate_Operator(d,Op)
        integer,                       intent(in)     :: d
-       type(rational_Symm_Oper_Type), intent(in out) :: Op
+       type(Symm_Oper_Type), intent(in out) :: Op
        integer :: i
        if(allocated(Op%Mat)) deallocate(Op%Mat)
        allocate(Op%Mat(d,d))
@@ -345,7 +189,7 @@
        end do
        Op%time_inv=1
        Op%dt=1
-    End Subroutine Allocate_Operator_rational
+    End Subroutine Allocate_Operator
 
     !!---- Subroutine Allocate_Operators(d,multip,Op)
     !!----    integer,              intent(in)     :: d,multip
@@ -353,8 +197,8 @@
     !!----
     !!----  Multip is the expected maximum number of operators
     !!----
-    Subroutine Allocate_Operators_real(d,multip,Op)
-       integer,              intent(in)     :: d,multip
+    Subroutine Allocate_Operators(d,multip,Op)
+       integer,                                         intent(in)     :: d,multip
        type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
        integer :: i
        if(allocated(Op)) deallocate(Op)
@@ -362,42 +206,18 @@
        do i=1,multip
          call Allocate_Operator(d,Op(i))
        end do
-    End Subroutine Allocate_Operators_real
+    End Subroutine Allocate_Operators
 
-    Subroutine Allocate_Operators_rational(d,multip,Op)
-       integer,                                                  intent(in)     :: d,multip
-       type(rational_Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
-       integer :: i
-       if(allocated(Op)) deallocate(Op)
-       allocate(Op(multip))
-       do i=1,multip
-         call Allocate_Operator(d,Op(i))
-       end do
-    End Subroutine Allocate_Operators_rational
-
-    Subroutine Allocate_Group_rational(d,multip,Gr)
-       integer,                 intent(in)     :: d,multip
-       type(rational_spg_Type), intent(in out) :: Gr
-       integer :: i
-       if(allocated(Gr%Op)) deallocate(Gr%Op)
-       if(allocated(Gr%rOp)) deallocate(Gr%rOp)
-       allocate(Gr%Op(multip),Gr%rOp(multip))
-       do i=1,multip
-         call Allocate_Operator(d,Gr%Op(i))
-         call Allocate_Operator(d,Gr%rOp(i))
-       end do
-    End Subroutine Allocate_Group_rational
-
-    Subroutine Allocate_Group_real(d,multip,Gr)
-       integer,                 intent(in)     :: d,multip
-       type(raw_spg_Type), intent(in out) :: Gr
+    Subroutine Allocate_Group(d,multip,Gr)
+       integer,        intent(in)     :: d,multip
+       type(Spg_Type), intent(in out) :: Gr
        integer :: i
        if(allocated(Gr%Op)) deallocate(Gr%Op)
        allocate(Gr%Op(multip))
        do i=1,multip
          call Allocate_Operator(d,Gr%Op(i))
        end do
-    End Subroutine Allocate_Group_real
+    End Subroutine Allocate_Group
 
     Pure Subroutine reduced_translation(Mat)
     	type(rational), dimension(:,:), intent( in out) :: Mat
@@ -422,37 +242,74 @@
       end do
     End Subroutine reduced_translation
 
-    Subroutine Get_Group_From_Generators_real(ngen,Op,multip,table)
-       use CFML_Math_3D, only : determinant_typed => determ_A
-      integer,                                        intent(in)     :: ngen
-      type(Symm_Oper_Type), dimension(:),             intent(in out) :: Op
-      integer,                                        intent(out)    :: multip
-      integer, dimension(:,:), allocatable, optional, intent(out)    :: table
+    Subroutine Get_Group_From_Generators(ngen,Op,multip,table)
+      integer,                               intent(in)     :: ngen
+      type(Symm_Oper_Type), dimension(:),    intent(in out) :: Op
+      integer,                               intent(out)    :: multip
+      integer, dimension(:,:), allocatable, optional, intent(out) :: table
       !--- Local variables ---!
       integer :: i,j,k,n,nt,max_op
       type(Symm_Oper_Type) :: Opt
       logical, dimension(size(Op),size(Op)) :: done
       integer, dimension(size(Op),size(Op)) :: tb
 
-      include "CFML_get_group_template_inc.f90"
+      max_op=size(Op)
+      n=size(Op(1)%Mat,dim=1)
+      call Allocate_Operator(n,Opt)
+      done=.false.
+      done(1,:) = .true.
+      done(:,1) = .true.
+      tb(1,:) = [(i,i=1,max_op)] !It is supposed that the first generator is the identity
+      tb(:,1) = [(i,i=1,max_op)]
+      nt=ngen
+      Err_group=.false.
+      Err_group_mess=" "
+      !Ensure that determinant of generators are calculated
+      do i=1,ngen
+        Op(i)%dt=rational_determinant(Op(i)%Mat(1:3,1:3))
+      end do
 
-    End Subroutine Get_Group_From_Generators_real
+      do_ext:do
+        n=nt
+        do i=1,n
+          do_j:do j=1,n
+            if(done(i,j)) cycle
+            Opt=Op(i)*Op(j)
+            do k=1,nt
+              if(Opt == Op(k)) then
+                tb(i,j)=k
+                done(i,j)=.true.
+                cycle do_j
+              end if
+            end do
+            done(i,j)=.true.
+            nt=nt+1
+            if(nt > max_op) then
+              nt=nt-1
+              exit do_ext
+            end if
+            tb(i,j)=nt
+            Op(nt)=Opt
+          end do do_j
+        end do
+        if ( n == nt) exit do_ext
+      end do do_ext
 
-    Subroutine Get_Group_From_Generators_rational(ngen,Op,multip,table)
-      use CFML_Rational_Arithmetic, determinant_typed => rational_determinant
-      integer,                                        intent(in)     :: ngen
-      type(rational_Symm_Oper_Type), dimension(:),    intent(in out) :: Op
-      integer,                                        intent(out)    :: multip
-      integer, dimension(:,:), allocatable, optional, intent(out)    :: table
-      !--- Local variables ---!
-      integer :: i,j,k,n,nt,max_op
-      type(rational_Symm_Oper_Type) :: Opt
-      logical, dimension(size(Op),size(Op)) :: done
-      integer, dimension(size(Op),size(Op)) :: tb
+      if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
+      	Err_group=.true.
+      	Err_group_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
+      end if
+      if(nt == max_op) then
+        Err_group=.true.
+      	write(Err_group_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
+      end if
 
-      include "CFML_get_group_template_inc.f90"
-
-    End Subroutine Get_Group_From_Generators_rational
+      multip=nt
+      if(present(table)) then
+        allocate(Table(multip,multip))
+        Table=tb
+      end if
+    End Subroutine Get_Group_From_Generators
 
     Subroutine Get_Symb_Op_from_Mat(Mat,Symb,x1x2x3_type,invt)
        !---- Arguments ----!
@@ -560,7 +417,7 @@
     !!----
     !!----  This subroutine provides the rational matrix Mat in standard
     !!----  form (all translation components positive) corresponding to the
-    !!----  operator symbol Symb in Jone's faithfull notation.
+    !!----  operator symbol Symb in Jone's faithful notation.
     !!----  The symbol is not modified but the matrix contain reduced translation.
     !!----  Some checking on the correctness of the symbol is performed
     !!----
@@ -790,7 +647,7 @@
       end if
     End Subroutine Get_Mat_From_Symb_Op
 
-    subroutine sort_op_real(n, Op,cod)
+    subroutine sort_op(n, Op,cod)
         integer, intent(in) :: n
         type(Symm_Oper_Type) ,dimension(n), intent(in out):: Op
         character(len=*), intent(in) :: cod
@@ -817,133 +674,281 @@
             Op(j + 1) = Ops
             option(j+1) = opso
         end do
-    end subroutine sort_op_real
+    end subroutine sort_op
 
-    subroutine sort_op_rational(n, Op,cod)
-        integer, intent(in) :: n
-        type(rational_Symm_Oper_Type) ,dimension(n), intent(in out):: Op
-        character(len=*), intent(in) :: cod
-        !
-        type(rational_Symm_Oper_Type) :: Ops
-        integer :: i, j,opso
-        integer, dimension(n) :: option
-        if(cod == "tim") then
-          option=Op(:)%time_inv
-        else
-          option=Op(:)%dt
-        end if
-        do i = 2, n
-            Ops = Op(i)
-            opso= Ops%dt
-            if(cod == "tim") opso= Ops%time_inv
-            j = i - 1
-            do while (j >= 1)
-                if (option(j) >= opso) exit
-                Op(j + 1) = Op(j)
-                option(j + 1) =  option(j)
-                j = j - 1
-            end do
-            Op(j + 1) = Ops
-            option(j+1) = opso
-        end do
-    end subroutine sort_op_rational
 
-    Subroutine Reorder_Operators_real(multip,Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
+
+    Subroutine Reorder_Operators(multip,Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
+      use CFML_Rational_Arithmetic, equal_matrix => equal_rational_matrix
       integer,                            intent(in)     :: multip
       type(Symm_Oper_Type), dimension(:), intent(in out) :: Op
       integer,                            intent(out)    :: num_lat,num_alat,Numops, centred, mag_type
-      real(kind=cp),dimension(:,:),       intent(out)    :: Lat_tr
-      real(kind=cp),dimension(:,:),       intent(out)    :: aLat_tr
-      real(kind=cp),dimension(:),         intent(out)    :: centre_coord
-      !--- Local variables ---!
-      integer :: i,j,L,n,m,Ng,invt,i_centre,d
-      real(kind=cp), dimension(multip) :: tr   !Sum of absolute values of Translations components associated to the array of operators
-      logical,       dimension(multip) :: nul  !Logical to control the exclusion of an operator from the independet list
-      real(kind=cp), dimension(:,:),allocatable:: identity,invers,imat !(d,d)
-      type(Symm_Oper_Type), dimension(multip)  :: Opr,Op_Lat,Op_aLat
-      type(Symm_Oper_Type)                     :: Op_aux,Op_aux1,Op_aux2, &
-                                                  Op_centre,Op_identp
-      real(kind=cp), parameter :: loc_eps=0.001
-      real(kind=cp)            :: tmin
-      real(kind=cp)            :: ZERO,ONE,ONE_HALF
-      ZERO=0.0_cp; ONE=1.0_cp; ONE_HALF=0.5_cp
-      include "CFML_reorder_operators_template_inc.f90"
-
-    End Subroutine Reorder_Operators_real
-
-    Subroutine Reorder_Operators_rational(multip,Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
-      use CFML_Rational_Arithmetic, equal_matrix => equal_rational_matrix
-      integer,                            intent(in)      :: multip
-      type(rational_Symm_Oper_Type), dimension(:), intent(in out) :: Op
-      integer,                             intent(out)    :: num_lat,num_alat,Numops, centred, mag_type
-      type(rational),dimension(:,:),       intent(out)    :: Lat_tr
-      type(rational),dimension(:,:),       intent(out)    :: aLat_tr
-      type(rational),dimension(:),         intent(out)    :: centre_coord
+      type(rational),dimension(:,:),      intent(out)    :: Lat_tr
+      type(rational),dimension(:,:),      intent(out)    :: aLat_tr
+      type(rational),dimension(:),        intent(out)    :: centre_coord
       !--- Local variables ---!
       integer :: i,j,L,n,m,Ng,invt,i_centre,d
       real(kind=cp), dimension(multip) :: tr   !Sum of absolute values of Translations components associated to the array of operators
       logical,       dimension(multip) :: nul  !Logical to control the exclusion of an operator from the independet list
       type(rational), dimension(:,:),allocatable:: identity,invers,imat !(d,d)
-      type(rational_Symm_Oper_Type), dimension(multip)  :: Opr,Op_Lat,Op_aLat
-      type(rational_Symm_Oper_Type)                     :: Op_aux,Op_aux1,Op_aux2, &
-                                                           Op_centre,Op_identp
+      type(Symm_Oper_Type), dimension(multip)  :: Opr,Op_Lat,Op_aLat
+      type(Symm_Oper_Type)                     :: Op_aux,Op_aux1,Op_aux2, &
+                                                  Op_centre,Op_identp
       real(kind=cp), parameter :: loc_eps=0.001
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
 
       ZERO=0_ik/1_ik;  ONE=1_ik/1_ik; ONE_HALF=1_ik/2_ik
 
-      include "CFML_reorder_operators_template_inc.f90"
-    End Subroutine Reorder_Operators_rational
+      !Initializing
+      n=size(Op(1)%Mat,1) !dimension of the full square matrices
+      d=n-1               !here d is the dimension of the square matrix containing rotational operator
+      allocate(identity(d,d),invers(d,d),imat(d,d))
+      call Allocate_Operator(n,Op_identp)   ! {1|0}'
+      identity=ZERO; nul=.false.; mag_type=1
+      do i=1,d
+        Op_identp%Mat(i,i)=ONE
+        identity(i,i)=ONE
+      end do
+      Op_identp%time_inv=-1
+      invers=-identity !Inversion
+      centred=1 !Default value for non-centrosymmetric groups
 
-    Subroutine Group_Constructor_gen(gen,Grp)
-       character(len=*),dimension(:),intent(in) :: gen
-       Type(raw_spg_Type),       intent(in out) :: Grp
-       !--- Local variables ---!
+      !Insertion sort putting the negative determinants at the bottom
+      call sort_Op(multip,Op(1:multip),"det")
+      do i=1,Multip
+        tr(i)=sum(abs(Op(i)%Mat(1:d,n)))
+        call Allocate_Operator(n,Opr(i))
+      end do
 
-       type(Symm_Oper_Type), dimension(:),allocatable  :: Op
-       integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
-       real(kind=cp),  dimension(:)  ,allocatable :: centre_coord
-       real(kind=cp),  dimension(:,:),allocatable :: Lat_tr, aLat_tr
-       character(len=80) :: Symb_Op
-       type(rational), dimension(:,:),allocatable :: Mat
-       !
-       ngen=size(gen)
-       ! Get dimension of the generator matrices
-       d=get_dimension(gen(1))
-       allocate(Op(maxnum_op))
-       do i=1,maxnum_op
-         call Allocate_Operator(d,Op(i))
-       end do
-       allocate(Mat(d,d))
 
-       !Construct the list of the generators on top of Op. The identity is always the first operator
-       do i=1,ngen
-         call Get_Mat_From_Symb_Op(gen(i),Mat,invt)
-         if(Err_group) return
-         Op(i+1)%Mat=Mat
-         Op(i+1)%time_inv=invt
-       end do
-       ngen=ngen+1
+      !Testing
+      !write(*,*) " "
+      !write(*,*) "List of operators after re-ordering by determinant: "
+      !m=0
+      !do i=1,Multip
+      !  if(nul(i)) cycle
+      !  m=m+1
+      !  write(*,"(2i5,a30,f12.5,i6,tr2,L)") m,i,trim(Symbol_Operator(Op(i))),tr(i),Op(i)%dt,nul(i)
+      !end do
+      !end Testing
 
-       include "CFML_group_constructor_template_inc.f90"
 
-    End Subroutine Group_Constructor_gen
+      !Check if the group is paramagnetic
+      j=0
+      do i=2,Multip
+        if(Op(i)== Op_identp) then
+          j=i
+          exit
+        end if
+      end do
+      if(j /= 0) Then
+        do i=2,Multip   !Nullify all primed operators
+          if(Op(i)%time_inv < 0) nul(i) = .true.
+        end do
+        mag_type=2
+      end if
+      !----End intial re-ordering
 
-    !!----  Subroutine Group_Constructor_rational_ext(n,Opx,Grp)
+      !Look for centre of symmetry, and centring translations
+      num_lat=0; num_alat=0; tmin=1.0e8; i_centre=0
+      do j=2,Multip
+         if(nul(j)) cycle
+         invt= Op(j)%time_inv
+         imat=Op(j)%Mat(1:d,1:d)
+         if(equal_matrix(identity,imat) .and. invt == 1) then
+            num_lat=num_lat+1
+            Lat_tr(:,num_lat)=Op(j)%Mat(1:d,n)
+            Op_Lat(num_lat)=Op(j)
+            nul(j)=.true.   !Nullify centring translations
+            cycle
+         end if
+         if(equal_matrix(imat,invers) .and. invt == 1 ) then
+             nul(j) = .true.
+             if(tr(j) < tmin) Then
+               tmin= tr(j)
+               i_centre=j
+             end if
+         end if
+      end do
+
+      if(i_centre /= 0) then
+         Op_centre=Op(i_centre)
+         centre_coord=ONE_HALF*Op(i_centre)%Mat(1:d,n)
+         if(tr(i_centre) < loc_eps) then
+           centred = 2
+         else
+           centred = 0
+         end if
+      end if
+
+      do j=2,Multip-1   !Nullify operators deduced by lattice translations and centre of symmetry
+         if(nul(j)) cycle
+
+           if(mag_type ==2) then
+             Op_aux=Op(j)*Op_identp
+             do i=j+1,Multip
+                if(nul(i)) cycle
+                if(Op_aux == Op(i)) then
+                   nul(i)=.true.
+                end if
+             end do
+           end if
+
+           if(num_lat > 0 .and. i_centre /= 0) then
+              Op_aux=Op(j)*Op_centre
+              do L=1,num_lat
+                 Op_aux1=Op(j)*Op_Lat(L)
+                 Op_aux2=Op_aux1*Op_centre
+                 do i=j+1,Multip
+                    if(nul(i)) cycle
+                    if(Op_aux == Op(i) .or. Op_aux1 == Op(i) .or. Op_aux2 == Op(i)) then
+                       nul(i)=.true.
+                    end if
+                 end do
+              end do
+              cycle
+           end if
+
+           if(num_lat > 0) then
+              do L=1,num_lat
+                 Op_aux=Op(j)*Op_Lat(L)
+                 do i=j+1,Multip
+                    if(nul(i)) cycle
+                    if(Op_aux == Op(i)) then
+                       nul(i)=.true.
+                    end if
+                 end do
+              end do
+           end if
+
+           if(i_centre /= 0) then
+              Op_aux=Op(j)*Op_centre
+              do i=j+1,Multip
+                 if(nul(i)) cycle
+                 if(Op_aux == Op(i) ) then
+                    nul(i)=.true.
+                 end if
+              end do
+           end if
+      end do
+
+      !Determine the lattice anti-translations
+      do_ext: do j=2,Multip
+        if(nul(j)) cycle
+        invt= Op(j)%time_inv
+        imat=Op(j)%Mat(1:d,1:d)
+        if(equal_matrix(identity,imat) .and. invt == -1) then
+          num_alat=num_alat+1
+          aLat_tr(:,num_alat)=Op(j)%Mat(1:d,n)
+          Op_aLat(num_alat)=Op(j)
+        end if
+      end do  do_ext !j=2,Multip
+
+
+      if(num_alat > 0) then
+        if(mag_type /= 2) then
+          mag_type=4
+        end if
+      else
+        if(mag_type /= 2) then
+          if(any(Op(:)%time_inv < 0)) mag_type=3
+        end if
+      end if
+
+      ! => Determine the reduced set of symmetry operators"
+      j=0
+      do i=1,Multip
+        if(nul(i)) cycle
+        j=j+1
+        Opr(j) = Op(i)
+      end do
+      Numops=j
+
+      !Promote the reduced set of symmetry operators to the top of the list
+      Op(1:j)=Opr(1:j)
+
+      !Reorder the reduced set putting primed elements at the bottom
+      call sort_op(Numops,Op(1:Numops),"tim")
+
+      !Testing
+      !write(*,*) " "
+      !write(*,*) "List of reduced set of operators after re-ordering by time inversion: "
+      !m=0
+      !do i=1,Numops
+      !  if(nul(i)) cycle
+      !  m=m+1
+      !  write(*,"(2i5,a30,f12.5,i6,tr2,L)") m,i,trim(Symbol_Operator(Op(i))),tr(i),Op(i)%time_inv,nul(i)
+      !end do
+      !end Testing
+
+      if(i_centre /= 0) then
+        m=j*2*(num_lat+1)
+      else
+        m=j*(num_lat+1)
+      end if
+      if(mag_type == 2) m=m*2
+      if( m /= Multip) then !Check that it is OK
+        write(unit=Err_group_mess,fmt="(2(a,i4))") " Warning! Multip=",Multip, " Calculated Multip: ",m
+        Err_group=.true.
+        return
+      end if
+
+      !Re-Construct, in an ordered way, all the symmetry operators
+      !starting with the reduced set
+      m=Numops
+      ng=m
+      if(i_centre /= 0) then   !First apply the centre of symmetry
+        do i=1,Numops
+          m=m+1
+          Op(m) = Op(i) * Op_centre
+        end do
+      end if
+
+      ng=m  ! Number or symmetry operators including centre of symmetry
+
+      if(Num_Lat > 0) then  !Fourth apply the lattice centring translations
+        do L=1,Num_Lat
+           do i=1,ng
+             m=m+1
+             Op(m)=Op_Lat(L)*Op(i)
+           end do
+        end do
+      end if
+
+      if(mag_type == 2) then
+         ng=m
+         do i=1,ng
+           m=m+1
+           Op(m)=Op_identp*Op(i)
+         end do
+      end if
+
+      !Normally here the number of operators should be equal to multiplicity
+      !Test that everything is OK
+      ng=m
+      if(ng /= Multip) then
+        Err_group=.true.
+        write(unit=Err_group_mess,fmt="(2(a,i3))") " => Problem! the multiplicity ",Multip," has not been recovered, value of ng=",ng
+      end if
+    End Subroutine Reorder_Operators
+
+
+
+    !!----  Subroutine Group_Constructor_ext(n,Opx,Grp)
     !!----     integer,                                    intent(in)      :: n
-    !!----     type(rational_Symm_Oper_Type), dimension(:),intent(in)      :: Opx
+    !!----     type(Symm_Oper_Type), dimension(:),intent(in)      :: Opx
     !!----     type(rational_spg_Type),                    intent(in out)  :: Grp
     !!----
     !!----  This subroutine completes Grp win "n" additional generators
     !!----
     !!----
-    !Subroutine Group_Constructor_rational_ext(n,Opx,Grp)
+    !Subroutine Group_Constructor_ext(n,Opx,Grp)
     !   integer,                                    intent(in)      :: n
-    !   type(rational_Symm_Oper_Type), dimension(:),intent(in)      :: Opx
-    !   type(rational_spg_Type),                    intent(in out)  :: Grp
+    !   type(Symm_Oper_Type), dimension(:),intent(in)      :: Opx
+    !   type(Spg_Type),                    intent(in out)  :: Grp
     !   !--- Local variables ---!
-    !   type(rational_Symm_Oper_Type), dimension(:),allocatable :: Op
+    !   type(Symm_Oper_Type), dimension(:),allocatable :: Op
     !   integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type,n
     !   type(rational), dimension(:)  ,allocatable  :: centre_coord
     !   type(rational), dimension(:,:),allocatable  :: Lat_tr, aLat_tr
@@ -967,104 +972,54 @@
     !   ngen=ngen+1
     !
     !   include "CFML_group_constructor_template_inc.f90"
-    !   call Allocate_Operators(d,multip,Grp%rOp)
-    !   Grp%rOp(1:multip)=Op(1:multip)
-    !End Subroutine Group_Constructor_rational_ext
+    !End Subroutine Group_Constructor_ext
 
 
-    Subroutine Group_Constructor_rational_gen(gen,Grp)
-       character(len=*),dimension(:),intent(in) :: gen
-       type(rational_spg_Type), intent(in out)  :: Grp
+    Subroutine Group_Constructor_gen(gen,Grp)
+       character(len=*),dimension(:),intent(in)     :: gen
+       type(Spg_Type),               intent(in out) :: Grp
        !--- Local variables ---!
-       type(rational_Symm_Oper_Type), dimension(:),allocatable :: Op
-       integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type,n
-       type(rational), dimension(:)  ,allocatable  :: centre_coord
-       type(rational), dimension(:,:),allocatable  :: Lat_tr, aLat_tr
-       type(rational), dimension(:,:),allocatable  :: Mat
+       type(Symm_Oper_Type), dimension(:),  allocatable :: Op
+       type(rational),       dimension(:),  allocatable :: centre_coord
+       type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
+       type(rational),       dimension(:,:),allocatable :: Mat
        character(len=80) :: Symb_Op
+       integer :: d,i,j,n,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
 
        ngen=size(gen)
        ! Get dimension of the generator matrices
        d=get_dimension(gen(1))
-       allocate(Op(maxnum_op))
-       do i=1,maxnum_op
-         call Allocate_Operator(d,Op(i))
-       end do
-       allocate(Mat(d,d))
-
-       !Construct the list of the generators on top of Op. The identity is always the first operator
-       do i=1,ngen
-         call Get_Mat_From_Symb_Op(gen(i),Mat,invt)
-         if(Err_group) return
-         Op(i+1)%Mat=Mat
-         Op(i+1)%time_inv=invt
-       end do
-       ngen=ngen+1
-
        include "CFML_group_constructor_template_inc.f90"
-       call Allocate_Operators(d,multip,Grp%rOp)
-       Grp%rOp(1:multip)=Op(1:multip)
-        !do n=1,Multip
-        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%rOp(n)%time_inv
-        !   do i=1,Grp%d
-        !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%rOp(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
-        !   end do
-        !end do
-    End Subroutine Group_Constructor_rational_gen
-
+       !do n=1,Multip
+       !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
+       !   do i=1,Grp%d
+       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
+       !   end do
+       !end do
+    End Subroutine Group_Constructor_gen
 
     Subroutine Group_Constructor_string(generatorList,Grp)
-       character(len=*),   intent(in)     :: generatorList
-       type(raw_spg_type), intent(in out) :: Grp
+       character(len=*), intent(in)     :: generatorList
+       type(Spg_Type),   intent(in out) :: Grp
        !--- Local variables ---!
-       character(len=40),dimension(:),allocatable :: gen
-       type(Symm_Oper_Type), dimension(:), allocatable:: Op
-       integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
-       real(kind=cp),  dimension(:)  ,allocatable  :: centre_coord
-       real(kind=cp),  dimension(:,:),allocatable  :: Lat_tr, aLat_tr
+       character(len=40),    dimension(:),  allocatable :: gen
+       type(Symm_Oper_Type), dimension(:),  allocatable :: Op
+       type(rational),       dimension(:),  allocatable :: centre_coord
+       type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
+       type(rational),       dimension(:,:),allocatable :: Mat
+       integer :: d,i,j,ngen,n,invt,multip,centred,Numops,num_lat,num_alat,mag_type
        character(len=80) :: Symb_Op
-       type(rational), dimension(:,:),allocatable :: Mat
-       !
+
        allocate(gen(maxnum_op))
        call Get_Operators_From_String(generatorList,d,ngen,gen)
-
        include "CFML_group_constructor_template_inc.f90"
-
+       !do n=1,Multip
+       !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
+       !   do i=1,Grp%d
+       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
+       !   end do
+       !end do
     End Subroutine Group_Constructor_string
-
-    Subroutine Group_Constructor_rational_string(generatorList,Grp) !,mode)
-       character(len=*),        intent(in)     :: generatorList
-       type(rational_spg_Type), intent(in out) :: Grp
-       !character(len=*),        intent(in)     :: mode
-       !--- Local variables ---!
-       character(len=40),dimension(:),allocatable :: gen
-       type(rational_Symm_Oper_Type), dimension(:),allocatable :: Op
-       integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
-       type(rational), dimension(:)  ,allocatable  :: centre_coord
-       type(rational), dimension(:,:),allocatable  :: Lat_tr, aLat_tr
-       type(rational), dimension(:,:),allocatable  :: Mat
-       character(len=80) :: Symb_Op
-
-       allocate(gen(maxnum_op))
-       call Get_Operators_From_String(generatorList,d,ngen,gen)
-       allocate(Op(maxnum_op))
-       do i=1,maxnum_op
-         call Allocate_Operator(d,Op(i))
-       end do
-       allocate(Mat(d,d))
-
-       !Construct the list of the generators on top of Op. The identity is always the first operator
-       do i=1,ngen
-         call Get_Mat_From_Symb_Op(gen(i),Mat,invt)
-         if(Err_group) return
-         Op(i+1)%Mat=Mat
-         Op(i+1)%time_inv=invt
-       end do
-       ngen=ngen+1
-       !
-       include "CFML_group_constructor_template_inc.f90"
-       Grp%rOp=Op(1:multip)
-    End Subroutine Group_Constructor_rational_string
 
     Subroutine Get_Operators_From_String(generatorList,d,ngen,gen)
        character(len=*),              intent(in)  :: generatorList
@@ -1133,10 +1088,10 @@
     !!----   that if the group is centrosymmetric the position of the corresponding
     !!----   operator is Numops+1
     !!----
-    Subroutine Get_SubGroups_rational(SpG,SubG,nsg,point)
+    Subroutine Get_SubGroups(SpG,SubG,nsg,point)
     !!   !---- Arguments ----!
-        type(rational_spg_type),             intent( in) :: SpG
-        type(rational_spg_type),dimension(:),intent(out) :: SubG
+        type(Spg_Type),                      intent( in) :: SpG
+        type(Spg_Type),dimension(:),         intent(out) :: SubG
         integer,                             intent(out) :: nsg
         logical, dimension(:,:), optional,   intent(out) :: point
        !--- Local variables ---!
@@ -1145,8 +1100,8 @@
        character (len=40), dimension(:),allocatable :: gen
        character (len=40), dimension(30)            :: gen_lat
        character (len=40)                           :: gen_cent
-       type(rational_Symm_Oper_Type)                :: Op_cent
-       type(rational_Symm_Oper_Type), dimension(30) :: Op_lat
+       type(Symm_Oper_Type)                         :: Op_cent
+       type(Symm_Oper_Type), dimension(30)          :: Op_lat
 
 
        maxg=size(SubG)
@@ -1158,13 +1113,16 @@
           nop=nop*2 !!number of symmetry operators excluding lattice centrings
           nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
           gen_cent=SpG%Symb_Op(nc)
-          Op_cent=SpG%rOp(nc)
+          call Allocate_Operator(SpG%d,Op_cent)
+          Op_cent=SpG%Op(nc)
        end if
-       do i=2,SpG%num_lat
-          ng=ng+1
-          gen_lat(ng)= SpG%Symb_Op(1+nop*(i-1))
-          Op_lat(ng)= SpG%rOp(1+nop*(i-1))
-       end do
+       if(SpG%num_lat > 0) then
+         do i=2,SpG%num_lat
+            ng=ng+1
+            gen_lat(ng)= SpG%Symb_Op(1+nop*(i-1))
+            Op_lat(ng)= SpG%Op(1+nop*(i-1))
+         end do
+       end if
        !First work with the Numops operators to determine the subgroups, the other subgroups
        !will be obtained adding progressively the rest of generators (centre of symmetry and
        !lattice centrings.
@@ -1216,89 +1174,69 @@
          ns_2=L-ns_1
        end if
        !---- Determine now the groups with three rotational generators (probably this is not needed!)
-       if(SpG%numops > 3) then
-         ng=3
-         do i=2,SpG%numops-1
-            gen(1) = SpG%Symb_Op(i)
-            do j=i+1,SpG%numops-1
-              gen(2)=SpG%Symb_Op(j)
-              do m=j+1,SpG%numops
-                 gen(3)=SpG%Symb_Op(m)
-                 L=L+1
-                 if (L > maxg) then
-                    nsg=maxg
-                    return
-                 end if
-                 newg=.true.
-                 call Group_Constructor(gen(1:ng),SubG(L))
-                 do k=1,L-1
-                   if (SubG(L) == SubG(k)) then
-                      newg=.false.
-                      exit
-                   end if
-                 end do
-                 if (.not. newg) L=L-1
-              end do
-            end do
-         end do
-         ns_3=L-(ns_2+ns_1)
-       end if
+       !if(SpG%numops > 3) then
+       !  ng=3
+       !  do i=2,SpG%numops-1
+       !     gen(1) = SpG%Symb_Op(i)
+       !     do j=i+1,SpG%numops-1
+       !       gen(2)=SpG%Symb_Op(j)
+       !       do m=j+1,SpG%numops
+       !          gen(3)=SpG%Symb_Op(m)
+       !          L=L+1
+       !          if (L > maxg) then
+       !             nsg=maxg
+       !             return
+       !          end if
+       !          newg=.true.
+       !          call Group_Constructor(gen(1:ng),SubG(L))
+       !          do k=1,L-1
+       !            if (SubG(L) == SubG(k)) then
+       !               newg=.false.
+       !               exit
+       !            end if
+       !          end do
+       !          if (.not. newg) L=L-1
+       !       end do
+       !     end do
+       !  end do
+       !  ns_3=L-(ns_2+ns_1)
+       !end if
        n_nc_group=L
+       nsg=L
+
        !---- Determine now the new groups adding a centre of symmetry if it exists
-       if (SpG%centred /= 1) then !This doubles the number of groups
-         do i=1,n_nc_group
-           L=L+1
+       !if (SpG%centred /= 1) then !This doubles the number of groups
+       !  do i=1,n_nc_group
+       !    L=L+1
+       !
+       !    call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
+       !    k=SubG(i)%numops
+       !    do j=1,SubG(i)%numops
+       !      SubG(L)%Op(j)=SubG(i)%Op(j)
+       !      SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+       !      k=k+1
+       !      SubG(L)%Op(k)=SubG(i)%Op(j)*Op_cent
+       !      !SubG(L)%Op(k)=(SubG(L)%Op(k))
+       !      SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+       !    end do
+       !    !call Extends_Group(SubG(L),gen_cent)
+       !  end do
+       !end if
 
-           call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-           k=SubG(i)%numops
-           do j=1,SubG(i)%numops
-             SubG(L)%Op(j)=SubG(i)%Op(j)
-             SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-             k=k+1
-             SubG(L)%rOp(k)=SubG(i)%rOp(j)*Op_cent
-             !SubG(L)%Op(k)=(SubG(L)%rOp(k))
-             SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%rOp(k))
-           end do
-           !call Extends_Group(SubG(L),gen_cent)
-         end do
-       end if
 
-
-       write(*,*) "Number of subgroups with up to three rotational generators: ",L
-       do i=1,L
-          write(*,*) "Subgroup # ",i
-          call print_group(SubG(i))
-       end do
+       !write(*,*) "Number of subgroups with up to three rotational generators: ",L
+       !do i=1,L
+       !   write(*,*) "Subgroup # ",i
+       !   call print_group(SubG(i))
+       !end do
 
        !include "CFML_subgroups_template_inc.f90"
-    End Subroutine Get_SubGroups_rational
+    End Subroutine Get_SubGroups
 
-    Subroutine Get_SubGroups_real(SpG,SubG,nsg,point)
-    !   !---- Arguments ----!
-        type(raw_spg_type) ,              intent( in) :: SpG
-        type(raw_spg_type) ,dimension(:), intent(out) :: SubG
-        integer,                          intent(out) :: nsg
-        logical, dimension(:,:), optional,intent(out) :: point
-       !--- Local variables ---!
-       integer  :: i,L,j,k, nc, maxg,ng , nla, i1,i2,nop
-       logical  :: newg, cen_added
-       character (len=40), dimension(:),allocatable :: gen
 
-       maxg=size(SubG)
-       allocate(gen(SpG%multip))
-       ng=0
-       nop=SpG%numops !number of symmetry operators excluding lattice centrings
-       if (SpG%centred /= 1) nop=nop*2
-       do i=2,SpG%num_lat
-          ng=ng+1
-          gen(ng)= SpG%Symb_Op(1+nop*(i-1))
-       end do
-       include "CFML_subgroups_template_inc.f90"
-    End Subroutine Get_SubGroups_real
-
-    subroutine print_rational_Group(Grp,lun)
-      type(rational_spg_type), intent(in)   :: Grp
-      integer, optional,       intent(in)   :: lun
+    subroutine print_Group(Grp,lun)
+      type(Spg_Type),    intent(in)   :: Grp
+      integer, optional, intent(in)   :: lun
       integer :: iout,i,j
       iout=6 !To be replaced by Fortran environment value
       if(present(lun)) iout=lun
@@ -1336,50 +1274,6 @@
       do i=1,Grp%Multip
         write(unit=iout,fmt="(i5,a)") i,"  ->  "//trim(Grp%Symb_Op(i))
       end do
-    end subroutine print_rational_Group
+    end subroutine print_Group
 
-    subroutine print_real_Group(Grp,lun)
-      type(raw_spg_type), intent(in)   :: Grp
-      integer, optional,  intent(in)   :: lun
-      integer :: iout,i,j
-      character(len=12) :: forma="(a,  f8.4,a)"
-      iout=6 !To be replaced by Fortran environment value
-      if(present(lun)) iout=lun
-      write(unit=iout,fmt="(a)")        "    General Space Group"
-      write(unit=iout,fmt="(a)")        "    -------------------"
-      write(unit=iout,fmt="(a,i4)")     "     Op-Dimension: ",Grp%d
-      write(unit=iout,fmt="(a,i4)")     "  Space-Dimension: ",Grp%d-1
-      write(unit=iout,fmt="(a,i4)")     "     Multiplicity: ",Grp%multip
-      write(unit=iout,fmt="(a,i4)")     "          MagType: ",Grp%mag_type
-      write(unit=iout,fmt="(a,i4)")     "           NumOps: ",Grp%numops
-      write(unit=iout,fmt="(a,i4)")     "          Centred: ",Grp%centred
-      write(unit=iout,fmt="(a,i4)")     "          Num_Lat: ",Grp%num_lat
-      write(unit=iout,fmt="(a,i4)")     "         Num_aLat: ",Grp%num_alat
-      write(unit=forma(4:5),fmt="(i2)") Grp%d-1
-      if(Grp%centred == 1) then
-         write(unit=iout,fmt="(a)")     "     Centre_coord: none!"
-      else
-         !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
-         write(unit=iout,fmt=forma) "     Centre_coord: [",(Grp%centre_coord(i),i=1,Grp%d-1),"]"
-      end if
-      if(Grp%num_lat > 0) then
-        write(unit=iout,fmt="(/a)")      "  Centring translations:"
-        do i=1,Grp%num_lat
-           !write(unit=iout,fmt="(i3,tr4,10f8.3)") i,Grp%Lat_tr(:,i)
-         write(unit=iout,fmt=forma) "      [",(Grp%Lat_tr(j,i),j=1,Grp%d-1),"]"
-       end do
-      end if
-      if(Grp%num_alat > 0) then
-        write(unit=iout,fmt="(/a)")      "  Anti-translations:"
-        do i=1,Grp%num_alat
-          ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
-         write(unit=iout,fmt=forma) "      [",(Grp%aLat_tr(j,i),j=1,Grp%d-1),"]"
-        end do
-      end if
-      write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators:"
-      do i=1,Grp%Multip
-        write(unit=iout,fmt="(i5,a)") i,"  ->  "//trim(Grp%Symb_Op(i))
-      end do
-    end subroutine print_real_Group
-
-  End Module CFML_Groups
+  End Module CFML_Rational_Groups

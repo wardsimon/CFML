@@ -75,8 +75,8 @@
 
     !Public functions
     public :: rational_simplify, rational_determinant,& !Calculation Procedures
-              print_rational, &  !transform a rational type to a string like xxx/yyy
-              equal_rational_matrix,equal_rational_vector
+              print_rational,  &  !transform a rational type to a string like xxx/yyy
+              IsInteger, equal_rational_matrix,equal_rational_vector
 
     !Public subroutines
     public :: rational_inv_matrix, rational_modulo_lat
@@ -224,6 +224,12 @@
     interface minloc
       module procedure rational_minloc_vect
       module procedure rational_minloc_mat
+    end interface
+
+    interface IsInteger
+      module procedure IsInteger_rational_scalar
+      module procedure IsInteger_rational_vector
+      module procedure IsInteger_rational_matrix
     end interface
 
     interface sum
@@ -982,10 +988,12 @@
       type(rational), dimension(:), intent(in) :: vec
       type(rational)                           :: suma
       !Local variables
-      real(kind=dp), dimension(size(vec)) :: rvec
-      rvec=vec
-      suma=sum(rvec)
-      suma=rational_simplify(suma)
+      integer :: i,n
+      n=size(vec)
+      suma=0_ik/1_ik
+      do i=1,n
+        suma=suma+vec(i)
+      end do
     end function rational_sum_vec
 
     pure function equal_rational_vector(vec1,vec2) result(eq)
@@ -1019,5 +1027,43 @@
       end do
       eq=.true.
     end function equal_rational_matrix
+
+    pure function IsInteger_rational_matrix(Mat) result(is_int)
+      type(rational), dimension(:,:), intent(in) :: Mat
+      logical                                    :: is_int
+      !
+      integer:: i,j,n1,n2
+
+      n1=size(Mat,dim=1); n2=size(Mat,dim=2)
+      is_int=.false.
+      do j=1,n1
+        do i=1,n2
+          if(Mat(i,j)%denominator /= 1_ik ) return
+        end do
+      end do
+      is_int=.true.
+    end function IsInteger_rational_matrix
+
+    pure function IsInteger_rational_vector(vec) result(is_int)
+      type(rational), dimension(:), intent(in) :: vec
+      logical                                  :: is_int
+      !
+      integer:: i,n
+
+      n=size(vec)
+      is_int=.false.
+      do i=1,n
+        if(vec(i)%denominator /= 1_ik ) return
+      end do
+      is_int=.true.
+    end function IsInteger_rational_vector
+
+    pure function IsInteger_rational_scalar(rat) result(is_int)
+      type(rational), intent(in) :: rat
+      logical         :: is_int
+      !
+      is_int=.false.
+      if(rat%denominator /= 1_ik ) is_int=.true.
+    end function IsInteger_rational_scalar
 
   End Module CFML_Rational_Arithmetic
