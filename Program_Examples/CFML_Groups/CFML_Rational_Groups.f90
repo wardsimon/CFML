@@ -1,6 +1,6 @@
   Module CFML_Rational_Groups
-    Use CFML_GlobalDeps,   only : cp,sp,dp,pi
-    use CFML_Math_General, only : Zbelong,modulo_lat, sort, Set_Epsg
+    Use CFML_GlobalDeps,   only : cp
+    use CFML_Math_General, only : sort, Set_Epsg
     use CFML_Rational_Arithmetic
     use CFML_String_Utilities, only : pack_string, Get_Separator_Pos
 
@@ -9,7 +9,8 @@
     Public  :: Allocate_Operator, Allocate_Operators, Init_Group, Get_Operators_From_String
     Public  :: Group_Constructor, Get_Group_From_Generators, is_Lattice_vec, Get_dimension, &
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
-               print_group,Get_SubGroups,Allocate_Group
+               print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
+               Get_subgroups_from_Table
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
@@ -214,9 +215,13 @@
        integer :: i
        if(allocated(Gr%Op)) deallocate(Gr%Op)
        allocate(Gr%Op(multip))
+       Gr%d=d
+       Gr%multip=multip
        do i=1,multip
          call Allocate_Operator(d,Gr%Op(i))
        end do
+       if(allocated(Gr%Symb_Op)) deallocate(Gr%Symb_Op)
+       allocate(Gr%Symb_Op(multip))
     End Subroutine Allocate_Group
 
     Pure Subroutine reduced_translation(Mat)
@@ -242,11 +247,218 @@
       end do
     End Subroutine reduced_translation
 
-    Subroutine Get_Group_From_Generators(ngen,Op,multip,table)
+    !!---- Subroutine Get_Multiplication_Table(Op,Table)
+    !!----   type(Symm_Oper_Type), dimension(:), intent(in) :: Op
+    !!----   integer, dimension(:,:),allocatable,intent(out):: Table
+    !!----
+    !!----   This subroutine construct the Cayley table of a Group
+    !!----   defined by the rational operators Op. It is assumed that
+    !!----   the first element is the identity.
+    !!----
+    Subroutine Get_Multiplication_Table(Op,Table)
+      type(Symm_Oper_Type), dimension(:), intent(in) :: Op
+      integer, dimension(:,:),allocatable,intent(out):: Table
+      integer:: i,j,m,Multip
+      type(Symm_Oper_Type) :: Opm
+      multip=size(Op)
+      allocate(Table(multip,multip))
+      Table=0
+      Table(1,:) = [(i,i=1,multip)] !It is supposed that the first operator is the identity
+      Table(:,1) = [(i,i=1,multip)]
+      do i=2,multip
+        do j=2,multip
+          Opm=Op(i)*Op(j)
+          do m=1,multip
+            if(Opm == Op(m)) then
+               Table(i,j)=m
+               exit
+            end if
+          end do
+        end do
+      end do
+    End Subroutine Get_Multiplication_Table
+
+    Pure Function Equal_sets(set1,set2) result(eq)    !To be tested
+      integer, dimension(:),intent(in) :: set1,set2
+      logical                          :: eq
+      integer :: ord,i
+
+      eq=.false.
+      ord=size(set1)
+      if(size(set2) /= ord) return
+      eq=.true.
+      do i=1,ord
+        if( any(set2 == set1(i)) ) cycle
+        eq=.false.
+      end do
+    End Function Equal_sets
+
+    !!---- Pure Function included_in_set(set1,set2) result(eq)
+    !!----   integer, dimension(:),intent(in) :: set1,set2
+    !!----   logical                          :: eq
+    !!----
+    !!---- The value of the function is true if all the elements
+    !!---- of set1 are present in set2
+    !!----
+    Pure Function included_in_set(set1,set2) result(eq)  !To be tested
+      integer, dimension(:),intent(in) :: set1,set2
+      logical                          :: eq
+      integer :: ord,i
+
+      eq=.false.
+      ord=size(set1)
+      if(size(set2) < ord) return
+      eq=.true.
+      do i=1,ord
+        if( any(set2 == set1(i)) ) cycle
+        eq=.false.
+      end do
+    End Function included_in_set
+
+    Subroutine Get_group_from_Table(n,G,Table,ord)   !To be tested
+      integer,                 intent(in)     :: n   !Number of initial elements in G
+      integer, dimension(:),   intent(in out) :: G   !Vector containing the different elements of the groups
+      integer, dimension(:,:), intent(in)     :: Table
+      integer,                 intent(out)    :: ord !order or the final group
+      integer :: i,j,k,m,nt,mult,ij
+      logical, dimension(size(Table,1),size(Table,1)) :: done
+      integer, dimension(:),allocatable :: ind
+      mult=size(Table,1)
+      done=.false.
+      !done(1,:) = .true.
+      !done(:,1) = .true.
+      nt=n
+      do_ext:do
+        m=nt
+        do i=1,m
+          do_j:do j=1,m
+            if(done(i,j)) cycle do_j
+            ij=table(i,j)
+            do k=1,nt
+              if(ij == G(k)) then
+                done(i,j)=.true.
+                cycle do_j
+              end if
+            end do
+            done(i,j)=.true.
+            nt=nt+1
+            G(nt)=ij
+            if(nt > mult) then
+              nt=nt-1
+              exit do_ext
+            end if
+          end do do_j
+        end do  !i
+        if ( m == nt) exit do_ext
+      end do do_ext
+      ord=nt
+      !Order the group by ascending order
+      !allocate(ind(nt))
+      !call sort(G(1:nt),nt,ind)
+      !G(1:nt)=G(ind(1:nt))
+    End Subroutine Get_group_from_Table
+
+    Subroutine Get_subgroups_from_Table(Table,G,ord,ns)  !This is not currently working or it is too low
+      integer, dimension(:,:),intent(in):: Table
+      integer, dimension(:,:),allocatable, intent(out) :: G   !Vector containing the different elements of the groups
+      integer, dimension(:),  allocatable, intent(out) :: ord !order or each group
+      integer,                             intent(out) :: ns  !Number of subgroups
+      integer:: i,j,k,n,m,Multip,L,mi,mj,mk,mij,mji,mik,mjk,mki,mkj,maxsub
+      logical:: new
+      multip=size(Table,1)
+      !Estimated maximum number of subgroups
+      maxsub=2**16
+      allocate(G(multip,maxsub),ord(maxsub))
+      Ord=1
+      G=0
+      G(1,:) = 1
+      L=0
+      !One generator
+      if(multip > 1) then
+         do i=2,multip
+           L=L+1
+           G(:,L)=0
+           G(1,L)=1
+           G(2,L)=i
+           !write(*,*) L,G(1:2,L)
+           call Get_group_from_Table(2,G(:,L),table,ord(L))
+           !Verify if this group already exists
+           do n=1,L-1
+             if(Equal_sets(G(1:Ord(n),n),G(1:Ord(L),L))) then
+                L=L-1
+                exit
+             end if
+           end do
+             write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
+         end do
+      else
+        ns=1
+        return
+      end if
+      ns=L
+      !two generatora
+      if(multip > 3) then
+        do_ext:do i=2,multip-1
+          do j=i+1,multip
+             L=L+1
+             if(L > maxsub) then
+                L= maxsub
+                exit do_ext
+             end if
+             G(:,L)=0
+             G(1,L)=1
+             G(2,L)=i
+             G(3,L)=j
+             call Get_group_from_Table(3,G(:,L),table,ord(L))
+             !Verify if this group already exists
+             do n=1,L-1
+               if(Equal_sets(G(1:Ord(n),n),G(1:Ord(L),L))) then
+                  L=L-1
+                  exit
+               end if
+             end do
+             write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
+          end do
+        end do do_ext
+      else
+        ns=L
+        return
+      end if
+      ns=L
+      !if(multip > 3) then
+      !  do_ext1:do i=2,multip-2  !three generatora
+      !    do j=i+1,multip-1
+      !      do k=j+1,multip
+      !         L=L+1
+      !         if(L > maxsub) then
+      !            L= maxsub
+      !            exit do_ext1
+      !         end if
+      !         G(:,L)=0
+      !         G(1,L)=1
+      !         G(2,L)=i
+      !         G(3,L)=j
+      !         G(4,L)=k
+      !         !ord(L)=4   !{ 1, i, j, k }
+      !         call Get_group_from_Table(4,G(:,L),table,ord(L))
+      !         do n=1,L-1
+      !           if(Equal_sets(G(1:Ord(n),n),G(1:Ord(L),L))) then
+      !              L=L-1
+      !              exit
+      !           end if
+      !         end do
+      !       write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
+      !      end do
+      !    end do
+      !  end do do_ext1
+      !end if
+      !ns=L
+    End Subroutine Get_subgroups_from_Table
+
+    Subroutine Get_Group_From_Generators(ngen,Op,multip)
       integer,                               intent(in)     :: ngen
       type(Symm_Oper_Type), dimension(:),    intent(in out) :: Op
       integer,                               intent(out)    :: multip
-      integer, dimension(:,:), allocatable, optional, intent(out) :: table
       !--- Local variables ---!
       integer :: i,j,k,n,nt,max_op
       type(Symm_Oper_Type) :: Opt
@@ -259,8 +471,6 @@
       done=.false.
       done(1,:) = .true.
       done(:,1) = .true.
-      tb(1,:) = [(i,i=1,max_op)] !It is supposed that the first generator is the identity
-      tb(:,1) = [(i,i=1,max_op)]
       nt=ngen
       Err_group=.false.
       Err_group_mess=" "
@@ -277,7 +487,6 @@
             Opt=Op(i)*Op(j)
             do k=1,nt
               if(Opt == Op(k)) then
-                tb(i,j)=k
                 done(i,j)=.true.
                 cycle do_j
               end if
@@ -288,7 +497,6 @@
               nt=nt-1
               exit do_ext
             end if
-            tb(i,j)=nt
             Op(nt)=Opt
           end do do_j
         end do
@@ -303,12 +511,7 @@
         Err_group=.true.
       	write(Err_group_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
       end if
-
       multip=nt
-      if(present(table)) then
-        allocate(Table(multip,multip))
-        Table=tb
-      end if
     End Subroutine Get_Group_From_Generators
 
     Subroutine Get_Symb_Op_from_Mat(Mat,Symb,x1x2x3_type,invt)
@@ -1034,13 +1237,21 @@
        !Determine the dimension from the generatorList (first operator)
 
        i=index(generatorList,";")
-       Symbol=generatorList(1:i-1)
+       if(i == 0) then !there is only one generator and ";" is not given
+         Symbol=generatorList
+       else
+         Symbol=generatorList(1:i-1)
+       end if
 
        d=Get_dimension(Symbol)
 
        call Get_Separator_Pos(generatorList,";",pos,np)
 
        !Verify if there is a final ";" not followed by a generator
+       if(np == 0) then !there is only one generator and ";" is not given
+         np=1
+         Pos(np)=len_trim(generatorList)+2 !add artificially a position for ";"
+       end if
        if(len_trim(generatorList(Pos(np)+1:)) == 0) then
          ngen=np  !final ;
        else
@@ -1086,7 +1297,13 @@
     !!----   This subroutine provides all subgroups of a generic space group
     !!----   It is supposed that the operators have been already ordered, so
     !!----   that if the group is centrosymmetric the position of the corresponding
-    !!----   operator is Numops+1
+    !!----   operator is Numops+1, moreover if it is centred the symmetry operators
+    !!----   are orderd as:
+    !!----  [1...Numops] {-1|t}*[1...Numops] {1|t1}*[1...Numops] {-1|t}*[1 ... Numops]}
+    !!----  {1|t2}*[1...Numops] {-1|t}*[1 ... Numops]} ....
+    !!----  where t1,t2, ... are the centring translations
+    !!----  This ordering facilitates the calculation of the major part of subgroups
+    !!----  (excluding those for which less centring translations are considered)
     !!----
     Subroutine Get_SubGroups(SpG,SubG,nsg,point)
     !!   !---- Arguments ----!
@@ -1095,7 +1312,7 @@
         integer,                             intent(out) :: nsg
         logical, dimension(:,:), optional,   intent(out) :: point
        !--- Local variables ---!
-       integer  :: i,L,j,k,m, nc, maxg,ng , nla, i1,i2,nop,n,ns_1,ns_2,ns_3,n_nc_group
+       integer  :: i,L,j,k,m,d, nc, mp,maxg,ng,kb, nla, i1,i2,nop,n,ns_1,ns_2,ns_3,n_nc_group
        logical  :: newg, cen_added
        character (len=40), dimension(:),allocatable :: gen
        character (len=40), dimension(30)            :: gen_lat
@@ -1106,6 +1323,7 @@
 
        maxg=size(SubG)
        allocate(gen(SpG%multip))
+       d=SpG%d
        !---- Construct first the generators of centring translations ----!
        ng=0; nc=0
        nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
@@ -1117,10 +1335,10 @@
           Op_cent=SpG%Op(nc)
        end if
        if(SpG%num_lat > 0) then
-         do i=2,SpG%num_lat
+         do i=1,SpG%num_lat
             ng=ng+1
-            gen_lat(ng)= SpG%Symb_Op(1+nop*(i-1))
-            Op_lat(ng)= SpG%Op(1+nop*(i-1))
+            gen_lat(ng)= SpG%Symb_Op(1+nop*i)
+            Op_lat(ng)= SpG%Op(1+nop*i)
          end do
        end if
        !First work with the Numops operators to determine the subgroups, the other subgroups
@@ -1173,64 +1391,186 @@
          end do
          ns_2=L-ns_1
        end if
-       !---- Determine now the groups with three rotational generators (probably this is not needed!)
-       !if(SpG%numops > 3) then
-       !  ng=3
-       !  do i=2,SpG%numops-1
-       !     gen(1) = SpG%Symb_Op(i)
-       !     do j=i+1,SpG%numops-1
-       !       gen(2)=SpG%Symb_Op(j)
-       !       do m=j+1,SpG%numops
-       !          gen(3)=SpG%Symb_Op(m)
-       !          L=L+1
-       !          if (L > maxg) then
-       !             nsg=maxg
-       !             return
-       !          end if
-       !          newg=.true.
-       !          call Group_Constructor(gen(1:ng),SubG(L))
-       !          do k=1,L-1
-       !            if (SubG(L) == SubG(k)) then
-       !               newg=.false.
-       !               exit
-       !            end if
-       !          end do
-       !          if (.not. newg) L=L-1
-       !       end do
-       !     end do
-       !  end do
-       !  ns_3=L-(ns_2+ns_1)
-       !end if
-       n_nc_group=L
        nsg=L
-
+       n_nc_group=L
+       !write(*,*) " Number of subgroups of the first Numops elements: ",n_nc_group
        !---- Determine now the new groups adding a centre of symmetry if it exists
-       !if (SpG%centred /= 1) then !This doubles the number of groups
-       !  do i=1,n_nc_group
-       !    L=L+1
-       !
-       !    call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-       !    k=SubG(i)%numops
-       !    do j=1,SubG(i)%numops
-       !      SubG(L)%Op(j)=SubG(i)%Op(j)
-       !      SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-       !      k=k+1
-       !      SubG(L)%Op(k)=SubG(i)%Op(j)*Op_cent
-       !      !SubG(L)%Op(k)=(SubG(L)%Op(k))
-       !      SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-       !    end do
-       !    !call Extends_Group(SubG(L),gen_cent)
-       !  end do
-       !end if
+       if (SpG%centred /= 1) then !This doubles the number of groups
+         do i=1,n_nc_group
+           L=L+1
+           call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
+           if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
+           allocate(SubG(L)%centre_coord(d-1))
+           if(SubG(i)%num_alat /= 0) then
+               if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
+               allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
+               SubG(L)%aLat_tr=SubG(i)%aLat_tr
+               SubG(L)%num_alat=SubG(i)%num_alat
+           end if
+           k=SubG(i)%numops
+           do j=1,SubG(i)%numops
+             SubG(L)%Op(j)=SubG(i)%Op(j)
+             SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+             k=k+1
+             SubG(L)%Op(k)=SubG(i)%Op(j)*Op_cent
+             SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+           end do
+           SubG(L)%Numops=SubG(i)%Numops
+           SubG(L)%mag_type=SubG(i)%mag_type
+           SubG(L)%centred=SpG%centred
+           SubG(L)%centre_coord=SpG%centre_coord
+         end do
+       end if
+       nsg=L
+       n_nc_group=L
+       !if (SpG%centred /= 1) write(*,*) " Number of subgroups of adding a centre of symmetry: ",n_nc_group
 
+       !Determine now the rest of groups adding the lattice translations if they exist in the
+       !original space group
+       if(SpG%num_lat > 0) then
+         Select Case (SpG%num_lat)
+           case(1)
+             do i=1,n_nc_group
+               L=L+1
+               call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
+               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
+               allocate(SubG(L)%centre_coord(d-1))
+               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
+               allocate(SubG(L)%Lat_tr(d-1,1))
+               SubG(L)%Lat_tr(:,1)=SpG%Lat_tr(:,1)
+               if(SubG(i)%num_alat /= 0) then
+                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
+                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
+                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
+                   SubG(L)%num_alat=SubG(i)%num_alat
+               end if
+               SubG(L)%num_lat=1
+               if(SubG(i)%centred /= 1) then
+                  k=SubG(i)%numops*2
+               else
+                  k=SubG(i)%numops
+               end if
+               kb=k
+               do j=1,kb
+                 SubG(L)%Op(j)=SubG(i)%Op(j)
+                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               SubG(L)%Multip=2*SubG(i)%Multip
+               SubG(L)%Numops=SubG(i)%Numops
+               SubG(L)%mag_type=SubG(i)%mag_type
+               SubG(L)%centred=SubG(i)%centred
+               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
+             end do
+           case(2)
+             do i=1,n_nc_group
+               L=L+1
+               call Allocate_Group(SpG%d,3*SubG(i)%multip,SubG(L))
+               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
+               allocate(SubG(L)%centre_coord(d-1))
+               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
+               allocate(SubG(L)%Lat_tr(d-1,2))
+               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
+               SubG(L)%num_lat=2
+               if(SubG(i)%num_alat /= 0) then
+                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
+                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
+                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
+                   SubG(L)%num_alat=SubG(i)%num_alat
+               end if
+               if(SubG(i)%centred /= 1) then
+                  k=SubG(i)%numops*2
+               else
+                  k=SubG(i)%numops
+               end if
+               kb=k
+               do j=1,kb
+                 SubG(L)%Op(j)=SubG(i)%Op(j)
+                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               do j=1,kb
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               SubG(L)%Multip=3*SubG(i)%Multip
+               SubG(L)%Numops=SubG(i)%Numops
+               SubG(L)%mag_type=SubG(i)%mag_type
+               SubG(L)%centred=SubG(i)%centred
+               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
+             end do
+           case(3)
+             do i=1,n_nc_group
+               L=L+1
+               call Allocate_Group(SpG%d,4*SubG(i)%multip,SubG(L))
+               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
+               allocate(SubG(L)%centre_coord(d-1))
+               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
+               allocate(SubG(L)%Lat_tr(d-1,3))
+               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
+               SubG(L)%num_lat=3
+               if(SubG(i)%num_alat /= 0) then
+                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
+                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
+                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
+                   SubG(L)%num_alat=SubG(i)%num_alat
+               end if
+               if(SubG(i)%centred /= 1) then
+                  k=SubG(i)%numops*2
+               else
+                  k=SubG(i)%numops
+               end if
+               kb=k
+               do j=1,kb
+                 SubG(L)%Op(j)=SubG(i)%Op(j)
+                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               do j=1,kb
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               do j=1,kb
+                 k=k+1
+                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(3)
+                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
+               end do
+               SubG(L)%Multip=4*SubG(i)%Multip
+               SubG(L)%Numops=SubG(i)%Numops
+               SubG(L)%mag_type=SubG(i)%mag_type
+               SubG(L)%centred=SubG(i)%centred
+               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
+             end do
+         End Select
 
-       !write(*,*) "Number of subgroups with up to three rotational generators: ",L
-       !do i=1,L
-       !   write(*,*) "Subgroup # ",i
-       !   call print_group(SubG(i))
-       !end do
+       end if
 
+       nsg=L
+       if(present(point)) then
+         point=.false.
+         do j=1,nsg
+           L=1
+           do i=1,SpG%multip
+              do k=L,SubG(j)%multip
+               if(SubG(j)%Symb_Op(k) == SpG%Symb_Op(i)) then
+                  point(i,j) = .true.
+                  L=k+1
+                  exit
+               end if
+              end do
+           end do
+         end do
+       end if
        !include "CFML_subgroups_template_inc.f90"
+
     End Subroutine Get_SubGroups
 
 

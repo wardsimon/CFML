@@ -1,8 +1,13 @@
    Program test_groups
      use CFML_Rational_Groups
-     character(len=256)   :: generatorList
-     type(Spg_Type)                   :: Grp
-     type(Spg_Type), dimension(512)   :: sGrp
+     character(len=256)                  :: generatorList
+                                                  !123456789012345678
+     character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)"
+     type(Spg_Type)                      :: Grp
+     type(Spg_Type), dimension(512)      :: sGrp
+     integer, dimension(:,:),allocatable :: table
+     integer, dimension(:,:),allocatable :: G
+     integer, dimension(:),  allocatable :: ord
      integer :: i,j,L,nsg
      real :: start, fin
      call Init_Group(2048) !Maximum admissible multiplicity
@@ -17,6 +22,15 @@
          else
             call print_Group(Grp)
          end if
+         !call Get_Multiplication_Table(Grp%Op,table)
+         !!do i=1,Grp%multip
+         !!   write(*,"(128i4)") (Table(i,j),j=1,Grp%multip)
+         !!end do
+         !Call Get_subgroups_from_Table(Table(1:Grp%Numops,1:Grp%Numops),G,ord,nsg)
+         !do i=1,nsg
+         !   write(forma(11:13),"(i3)") ord(i)
+         !   write(*,forma) i," {",G(1:ord(i),i),"   }",ord(i)
+         !end do
          call get_subgroups(Grp,sGrp,nsg)
          if(nsg > 0) Then
            do L=1,nsg
