@@ -367,7 +367,7 @@
       logical:: new
       multip=size(Table,1)
       !Estimated maximum number of subgroups
-      maxsub=2**16
+      maxsub=4096
       allocate(G(multip,maxsub),ord(maxsub))
       Ord=1
       G=0
