@@ -69,6 +69,43 @@
 
     Contains
 
+    Pure recursive Function rdet(a) result(acc)
+      type(rational), dimension(:,:), intent(in) :: a
+      type(rational) :: acc
+      !Local variables
+      type(rational), dimension(size(a,dim=1)-1, size(a,dim=1)-1) :: b
+      type(rational) :: sgn
+      integer :: i, n
+      n=size(a,dim=1)
+      if (n == 1) then
+        acc = a(1,1)
+      else
+        acc = 0_ik//1_ik
+        sgn = 1_ik/1_ik
+        do i=1,n
+          b(:, :(i-1)) = a(2:, :i-1)
+          b(:, i:) = a(2:, i+1:)
+          acc = acc + sgn * a(1, i) * rdet(b)
+          sgn = sgn * (-1_ik/1_ik)
+        end do
+      end if
+    End Function rdet
+
+    subroutine lu(a,p)
+      !   in situ decomposition, corresponds to LAPACK's dgebtrf
+      real(8), intent(in out) :: a(:,:)
+      integer, intent(out  )  :: p(:)
+      integer                 :: n,i,j,k,kmax
+      n = size(a,1)
+      p = [ ( i, i=1,n ) ]
+      do k = 1,n-1
+          kmax = maxloc(abs(a(p(k:),k)),1) + k-1
+          if (kmax /= k ) p([k, kmax]) = p([kmax, k])
+          a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
+          forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
+      end do
+    end subroutine
+
     Pure function multiply_Symm_Oper(Op1,Op2) result (Op3)
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       type(Symm_Oper_Type)             :: Op3
@@ -476,7 +513,8 @@
       Err_group_mess=" "
       !Ensure that determinant of generators are calculated
       do i=1,ngen
-        Op(i)%dt=rational_determinant(Op(i)%Mat(1:3,1:3))
+        !Op(i)%dt=rational_determinant(Op(i)%Mat(1:3,1:3))
+        Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
       end do
 
       do_ext:do
@@ -639,7 +677,9 @@
       character(len=10),        dimension(size(Mat,dim=1))  :: subst
       integer,                  dimension(size(Mat,dim=1)-1):: pos,pn
       logical                                               :: abc_transf
-
+      !for checking
+      character(len=40),dimension(size(Mat,dim=1),size(Mat,dim=1)) :: matrix
+      character(len=5) :: forma
       err_group=.false.
       err_group_mess=" "
       Dd=size(Mat,dim=1)
@@ -839,7 +879,8 @@
       call reduced_translation(Mat)
 
       !Final check that the determinant of the rotational matrix is integer
-      det=rational_determinant(Mat)
+      !det=rational_determinant(Mat)
+      det=rdet(Mat)
       if(det%denominator /= 1) then
          err_group=.true.
          err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
@@ -847,6 +888,13 @@
       if(det%numerator == 0) then
          err_group=.true.
          err_group_mess="The matrix of the operator is singular! -> det="//print_rational(det)
+         matrix=print_rational(Mat)
+         Write(*,*) "The matrix of the operator is singular!"
+         forma="( a8)"
+         write(forma(2:2),"(i1)") Dd
+         do j=1,Dd
+            write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dd)
+         end do
       end if
     End Subroutine Get_Mat_From_Symb_Op
 

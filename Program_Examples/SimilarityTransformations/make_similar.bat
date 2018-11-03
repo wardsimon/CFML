@@ -59,4 +59,4 @@ rem **---- GFORTRAN Compiler ----**
    goto END
 rem
 :END
-   del *.obj *.mod *.o *.map *.bak > nul
+   del *.obj *.mod *.o *.map *.bak *.pdb > nul

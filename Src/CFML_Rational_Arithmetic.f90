@@ -51,7 +51,7 @@
 
     Use CFML_GlobalDeps,       only : cp,dp
     Use CFML_String_Utilities, only : Pack_String
-    Use CFML_Math_general,     only : determinant,invert_matrix
+    Use CFML_Math_general,     only : invert_matrix !determinant,
 
     implicit none
     private
@@ -868,20 +868,50 @@
       rtxt=adjustl(Pack_String(rtxt))
     end function print_rational
 
-    Pure function rational_determinant(Mat) result(det)
-      type(rational), dimension(:,:), intent(in) :: Mat
+    !!---- Pure recursive Function rational_determinant(a) result(det)
+    !!----   type(rational), dimension(:,:), intent(in) :: a
+    !!----   type(rational) :: det
+    !!----
+    !!---- This function for calculating the determinant is not very efficient but
+    !!---- largely enough for our needs. Will be probably replaced by another one
+    !!---- using LU decomposition
+    !!----
+    Pure recursive Function rational_determinant(a) result(det)
+      type(rational), dimension(:,:), intent(in) :: a
       type(rational) :: det
       !Local variables
-      real(kind=cp), dimension(size(Mat,dim=1),size(Mat,dim=2)) :: A
-      real(kind=cp) :: determ
-      integer:: n1,n2,nm
+      type(rational), dimension(size(a,dim=1)-1, size(a,dim=1)-1) :: b
+      type(rational) :: sgn
+      integer :: i, n
+      n=size(a,dim=1)
+      if (n == 1) then
+        det = a(1,1)
+      else
+        det = 0_ik//1_ik
+        sgn = 1_ik/1_ik
+        do i=1,n
+          b(:, :(i-1)) = a(2:, :i-1)
+          b(:, i:) = a(2:, i+1:)
+          det = det + sgn * a(1, i) * rational_determinant(b)
+          sgn = sgn * (-1_ik/1_ik)
+        end do
+      end if
+    End Function rational_determinant
 
-      n1=size(Mat,dim=1); n2=size(Mat,dim=2)
-      nm=min(n1,n2)
-      A=Mat
-      call Determinant(A(1:nm,1:nm),nm,determ)
-      det=determ
-    end function rational_determinant
+    !Pure function rational_determinant(Mat) result(det)
+    !  type(rational), dimension(:,:), intent(in) :: Mat
+    !  type(rational) :: det
+    !  !Local variables
+    !  real(kind=cp), dimension(size(Mat,dim=1),size(Mat,dim=2)) :: A
+    !  real(kind=cp) :: determ
+    !  integer:: n1,n2,nm
+    !
+    !  n1=size(Mat,dim=1); n2=size(Mat,dim=2)
+    !  nm=min(n1,n2)
+    !  A=Mat
+    !  call Determinant(A(1:nm,1:nm),nm,determ)
+    !  det=determ
+    !end function rational_determinant
 
     Subroutine rational_inv_matrix(Mat,invMat)
       type(rational), dimension(:,:), intent(in)  :: Mat
@@ -907,6 +937,97 @@
         write(unit=Err_Rational_Mess,fmt="(a)") "Error in Determinant: the provided matrix is not square!"
       end if
     end Subroutine rational_inv_matrix
+
+    Subroutine Matinv(a,ainv)
+       !---- Arguments ----!
+       type(rational), dimension(:,:), intent(in) :: a
+       type(rational), dimension(:,:), intent(out):: ainv
+       !---- Local variables ----!
+       type(rational)                :: amax,savec
+       integer, dimension(size(a,1)) :: ik,jk
+       integer                       :: i,j,k,l,n
+
+       !---- Subroutine to invert a rational matrix ----!
+       ainv=a
+       n=size(a,1)
+       do k=1,n
+          amax=0_ik/1_ik
+          do
+             do
+                do i=k,n
+                   do j=k,n
+                      if (abs(amax)-abs(ainv(i,j)) > 0_ik/1_ik) cycle
+                      amax=ainv(i,j)
+                      ik(k)=i
+                      jk(k)=j
+                   end do
+                end do
+                i=ik(k)
+                if (i-k < 0) cycle
+                exit
+             end do
+
+             if (i-k /= 0) then
+                do j=1,n
+                   savec=ainv(k,j)
+                   ainv(k,j)=ainv(i,j)
+                   ainv(i,j)=-savec
+                end do
+             end if
+
+             j=jk(k)
+             if (j-k < 0) cycle
+             exit
+          end do
+
+          if (j-k /= 0) then
+             do i=1,n
+                savec=ainv(i,k)
+                ainv(i,k)=ainv(i,j)
+                ainv(i,j)=-savec
+             end do
+          end if
+
+          do i=1,n
+             if (i-k /= 0)  then
+                ainv(i,k)=-ainv(i,k)/amax
+             end if
+          end do
+          do i=1,n
+             do j=1,n
+                if (i-k == 0 .or. j-k == 0) cycle
+                ainv(i,j)=ainv(i,j)+ainv(i,k)*ainv(k,j)
+             end do
+          end do
+          do j=1,n
+             if (j-k == 0)   cycle
+             ainv(k,j)=ainv(k,j)/amax
+          end do
+          ainv(k,k)=1_ik/amax
+       end do     !k
+
+       do l=1,n
+          k=n-l+1
+          j=ik(k)
+          if (j-k > 0) then
+             do i=1,n
+                savec=ainv(i,k)
+                ainv(i,k)=-ainv(i,j)
+                ainv(i,j)=savec
+             end do
+          end if
+          i=jk(k)
+          if (i-k > 0) then
+             do j=1,n
+                savec=ainv(k,j)
+                ainv(k,j)=-ainv(i,j)
+                ainv(i,j)=savec
+             end do
+          end if
+       end do
+
+       return
+    End Subroutine Matinv
 
     pure function rational_maxloc_mat(Mat) result(pos_max)
       type(rational),  dimension(:,:), intent(in) :: Mat
