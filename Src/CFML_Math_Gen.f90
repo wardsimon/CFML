@@ -121,7 +121,8 @@
 !!----       EUCLIDEAN_NORM
 !!----       IMAXLOC
 !!--++       IMAXLOC_I                 [Overloaded]
-!!--++       IMAXLOC_R                 [OVerloaded]
+!!--++       IMAXLOC_sp                [OVerloaded]
+!!--++       IMAXLOC_dp                [OVerloaded]
 !!----       IMINLOC
 !!--++       IMINLOC_I                 [Overloaded]
 !!--++       IMINLOC_R                 [OVerloaded]
@@ -173,7 +174,8 @@
 !!----       CO_PRIME_VECTOR
 !!----       DETERMINANT
 !!--++       DETERMINANT_C             [Overloaded]
-!!--++       DETERMINANT_R             [Overloaded]
+!!--++       DETERMINANT_sp            [Overloaded]
+!!--++       DETERMINANT_dp            [Overloaded]
 !!----       DIAGONALIZE_SH
 !!--++       DIAGONALIZE_HERM          [Overloaded]
 !!--++       DIAGONALIZE_SYMM          [Overloaded]
@@ -187,7 +189,11 @@
 !!--++       LINEAR_DEPENDENTR         [Overloaded]
 !!--++       LINEAR_INTERPOLATION
 !!----       LU_BACKSUB
+!!----       LU_BACKSUB_sp
+!!----       LU_BACKSUB_dp
 !!----       LU_DECOMP
+!!--++       LU_DECOMP_sp
+!!--++       LU_DECOMP_dp
 !!----       MATINV
 !!--++       PARTITION                 [Private]
 !!----       POINTS_IN_LINE2D
@@ -212,9 +218,12 @@
 !!--++       SWAP_I                    [Overloaded]
 !!--++       SWAP_IM                   [Overloaded]
 !!--++       SWAP_IV                   [Overloaded]
-!!--++       SWAP_R                    [Overloaded]
-!!--++       SWAP_RM                   [Overloaded]
-!!--++       SWAP_RV                   [Overloaded]
+!!--++       SWAP_SP                   [Overloaded]
+!!--++       SWAP_DP                   [Overloaded]
+!!--++       SWAP_spM                  [Overloaded]
+!!--++       SWAP_spV                  [Overloaded]
+!!--++       SWAP_dpM                  [Overloaded]
+!!--++       SWAP_dpV                  [Overloaded]
 !!--++       MASKED_SWAP_R             [Overloaded]
 !!--++       MASKED_SWAP_RM            [Overloaded]
 !!--++       MASKED_SWAP_RV            [Overloaded]
@@ -251,7 +260,7 @@
                Co_linear_C, Co_linear_I, Co_linear_R, Equal_Matrix_I,              &
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
                Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
-               ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
+               ZbelongN, ZbelongV, Imaxloc_I, Iminloc_I,                           &
                Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb,           &
                In_limits_dp, In_limits_sp, In_Limits_int, Lower_Triangular_I,      &
                Lower_Triangular_R, Upper_Triangular_I, Upper_Triangular_R, Cheval, &
@@ -269,11 +278,11 @@
                Svdcmp, Swap
 
     !---- List of private subroutines ----!
-    private :: RTan_dp, RTan_sp, Determinant_C,Determinant_R, Diagonalize_Herm,   &
+    private :: RTan_dp, RTan_sp, Determinant_C,Determinant_sp, Diagonalize_Herm,   &
                Diagonalize_Symm, Eigsrt, Linear_DependentC, Linear_DependentI,    &
                Linear_DependentR, Rank_dp, Rank_sp, Sort_I, Sort_R, Svdcmp_dp,    &
                Svdcmp_sp, Swap_C, Swap_Cm, Swap_Cv, Swap_I, Swap_Im, Swap_Iv,     &
-               Swap_R, Swap_Rm, Swap_Rv, Masked_Swap_R, Masked_Swap_Rm,           &
+               Masked_Swap_R, Masked_Swap_Rm, Determinant_dp,  &
                Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition, Set_Epsg_sp,&
                Set_Epsg_dp
 
@@ -501,12 +510,14 @@
 
     Interface  IMaxloc
        Module Procedure IMaxloc_I
-       Module Procedure IMaxloc_R
+       Module Procedure IMaxloc_sp
+       Module Procedure IMaxloc_dp
     End Interface
 
     Interface  IMinloc
        Module Procedure IMinloc_I
-       Module Procedure IMinloc_R
+       Module Procedure IMinloc_sp
+       Module Procedure IMinloc_dp
     End Interface
 
     Interface  Locate
@@ -563,7 +574,8 @@
 
     Interface  Determinant
        Module Procedure Determinant_c
-       Module Procedure Determinant_r
+       Module Procedure Determinant_sp
+       Module Procedure Determinant_dp
     End Interface
 
     Interface  Diagonalize_SH
@@ -605,9 +617,12 @@
         Module Procedure swap_i
         Module Procedure swap_im
         Module Procedure swap_iv
-        Module Procedure swap_r
-        Module Procedure swap_rm
-        Module Procedure swap_rv
+        Module Procedure swap_sp
+        Module Procedure swap_dp
+        Module Procedure swap_spm
+        Module Procedure swap_spv
+        Module Procedure swap_dpm
+        Module Procedure swap_dpv
         Module Procedure masked_swap_r
         Module Procedure masked_swap_rm
         Module Procedure masked_swap_rv
@@ -638,6 +653,21 @@
     interface Set_Epsg
       module procedure Set_Epsg_sp
       module procedure Set_Epsg_dp
+    end interface
+
+    interface LU_decomp
+      module procedure LU_decomp_sp
+      module procedure LU_decomp_dp
+    end interface
+
+    interface LU_Backsub
+      module procedure LU_Backsub_sp
+      module procedure LU_Backsub_dp
+    end interface
+
+    interface Invert_Matrix
+      module procedure Invert_Matrix_sp
+      module procedure Invert_Matrix_dp
     end interface
 
  Contains
@@ -2967,9 +2997,9 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Function Imaxloc_R(arr) Result(mav)
+    Pure Function Imaxloc_sp(arr) Result(mav)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in) :: arr
+       real(kind=sp), dimension(:), intent(in) :: arr
        integer                                 :: mav
 
        !---- Local variables ----!
@@ -2979,7 +3009,21 @@
        mav=imax(1)
 
        return
-    End Function Imaxloc_R
+    End Function Imaxloc_sp
+
+    Pure Function Imaxloc_dp(arr) Result(mav)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:), intent(in) :: arr
+       integer                                 :: mav
+
+       !---- Local variables ----!
+       integer, dimension(1) :: imax
+
+       imax=maxloc(arr(:))
+       mav=imax(1)
+
+       return
+    End Function Imaxloc_dp
 
     !!----
     !!---- Pure Function Iminloc(arr)  Result(miv)
@@ -3023,9 +3067,9 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Function Iminloc_R(arr)  Result(miv)
+    Pure Function Iminloc_sp(arr)  Result(miv)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in) :: arr
+       real(kind=sp), dimension(:), intent(in) :: arr
        integer                                 :: miv
 
        !---- Local variables ----!
@@ -3035,7 +3079,21 @@
        miv=imin(1)
 
        return
-    End Function Iminloc_R
+    End Function Iminloc_sp
+
+    Pure Function Iminloc_dp(arr)  Result(miv)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:), intent(in) :: arr
+       integer                                 :: miv
+
+       !---- Local variables ----!
+       integer, dimension(1) :: imin
+
+       imin=minloc(arr(:))
+       miv=imin(1)
+
+       return
+    End Function Iminloc_dp
 
     !!----
     !!---- Pure Function in_limits(n,limits,vect) result(ok)
@@ -4311,7 +4369,7 @@
 
     !!----
     !!---- Subroutine Determinant(A,n,determ)
-    !!----    complex/real(sp), dimension(:,:), intent( in) :: A      !input square matrix (n,n)
+    !!----    complex/real(sp,dp), dimension(:,:), intent( in) :: A      !input square matrix (n,n)
     !!----    integer,                          intent( in) :: n      !actual dimension of A
     !!----    real(kind=sp),                    intent(out) :: determ !det(A) if real
     !!----                                                             det(AR)^2 + det(AI)^2 if complex
@@ -4383,7 +4441,7 @@
     End Subroutine Determinant_C
 
     !!--++
-    !!--++ Subroutine Determinant_R(A,n,determ)
+    !!--++ Subroutine Determinant_sp(A,n,determ)
     !!--++    real(kind=cp), dimension(:,:),intent( in) :: A   (input square matrix (n,n))
     !!--++    integer,                      intent( in) :: n   (actual dimension of A)
     !!--++    real(kind=cp),                intent(out) :: determ  (determinant )
@@ -4393,15 +4451,15 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Subroutine Determinant_R(A,n,determ)
+    Pure Subroutine Determinant_sp(A,n,determ)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent( in) :: A
+       real(kind=sp), dimension(:,:), intent( in) :: A
        integer,                       intent( in) :: n
-       real(kind=cp),                 intent(out) :: determ
+       real(kind=sp),                 intent(out) :: determ
 
        !---- local variables ----!
-       real(kind=cp),    dimension(n,n)  :: AC
-       real(kind=cp)                     :: d
+       real(kind=sp),    dimension(n,n)  :: AC
+       real(kind=sp)                     :: d
        integer                           :: i
        logical                           :: singular
 
@@ -4420,8 +4478,36 @@
        end if
 
        return
-    End Subroutine Determinant_R
+    End Subroutine Determinant_sp
 
+    Pure Subroutine Determinant_dp(A,n,determ)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:,:), intent( in) :: A
+       integer,                       intent( in) :: n
+       real(kind=dp),                 intent(out) :: determ
+
+       !---- local variables ----!
+       real(kind=dp),    dimension(n,n)  :: AC
+       real(kind=dp)                     :: d
+       integer                           :: i
+       logical                           :: singular
+
+       ac=A(1:n,1:n)
+       call lu_decomp(ac,d,singular)
+
+       if (singular) then
+          determ=0.0
+       else
+          determ=0.0
+          do i=1,n
+             d=d*sign(1.0_cp,ac(i,i))
+             determ=determ + log(abs(ac(i,i)))
+          end do
+          determ=d*exp(determ)
+       end if
+
+       return
+    End Subroutine Determinant_dp
     !!----
     !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect,norder)
     !!----    complex/real,      dimension(:,:), intent( in)  :: A
@@ -4707,18 +4793,18 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Invert_Matrix(a,b,singular,perm)
+    Subroutine Invert_Matrix_sp(a,b,singular,perm)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:),  intent(in ) :: a
-       real(kind=cp), dimension(:,:),  intent(out) :: b
+       real(kind=sp), dimension(:,:),  intent(in ) :: a
+       real(kind=sp), dimension(:,:),  intent(out) :: b
        logical,                        intent(out) :: singular
        integer, dimension(:),optional, intent(out) :: perm
 
        !---- Local variables ----!
        integer                                       :: i,n
        integer,       dimension(size(a,1))           :: indx
-       real(kind=cp)                                 :: d, det
-       real(kind=cp), dimension(size(a,1),size(a,1)) :: lu
+       real(kind=sp)                                 :: d, det
+       real(kind=sp), dimension(size(a,1),size(a,1)) :: lu
 
        n=size(a,1)
        lu=a(1:n,1:n)
@@ -4750,8 +4836,52 @@
        end do
 
        return
-    End Subroutine Invert_Matrix
+    End Subroutine Invert_Matrix_sp
 
+    Subroutine Invert_Matrix_dp(a,b,singular,perm)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:,:),  intent(in ) :: a
+       real(kind=dp), dimension(:,:),  intent(out) :: b
+       logical,                        intent(out) :: singular
+       integer, dimension(:),optional, intent(out) :: perm
+
+       !---- Local variables ----!
+       integer                                       :: i,n
+       integer,       dimension(size(a,1))           :: indx
+       real(kind=dp)                                 :: d, det
+       real(kind=dp), dimension(size(a,1),size(a,1)) :: lu
+
+       n=size(a,1)
+       lu=a(1:n,1:n)
+
+       call LU_Decomp(lu,d,singular,indx)
+       if (present(perm)) perm(1:n)=indx(1:n)
+
+       if (singular) then
+          b=lu
+          return
+       else
+          det=0.0
+          do i=1,n
+             d=d*sign(1.0_cp,lu(i,i))
+             det=det + log(abs(lu(i,i)))
+          end do
+          det=d*exp(det)
+          if (abs(det) <= 1.0e-36) then
+             singular=.true.
+             b=lu
+             return
+          end if
+       end if
+
+       b=0.0
+       do i=1,n
+          b(i,i)=1.0
+          call LU_backsub(lu,indx,b(:,i))
+       end do
+
+       return
+    End Subroutine Invert_Matrix_dp
     !!----
     !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,info)
     !!----    complex/integer/real(kind=cp), dimension(:),   intent(in)  :: a
@@ -5029,15 +5159,15 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Pure Subroutine LU_Backsub(a,indx,b)
+    Pure Subroutine LU_Backsub_sp(a,indx,b)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in)     :: a
+       real(kind=sp), dimension(:,:), intent(in)     :: a
        integer,         dimension(:), intent(in)     :: indx
-       real(kind=cp),   dimension(:), intent(in out) :: b
+       real(kind=sp),   dimension(:), intent(in out) :: b
 
        !---- Local Variables ----!
        integer       :: i,ii,ll,n
-       real(kind=cp) :: summ
+       real(kind=sp) :: summ
 
        n=size(a,1)
        ii=0              !When ii is set to a positive value, it will become the index
@@ -5058,8 +5188,38 @@
        end do
 
        return
-    End Subroutine LU_Backsub
+    End Subroutine LU_Backsub_sp
 
+    Pure Subroutine LU_Backsub_dp(a,indx,b)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:,:), intent(in)     :: a
+       integer,         dimension(:), intent(in)     :: indx
+       real(kind=dp),   dimension(:), intent(in out) :: b
+
+       !---- Local Variables ----!
+       integer       :: i,ii,ll,n
+       real(kind=dp) :: summ
+
+       n=size(a,1)
+       ii=0              !When ii is set to a positive value, it will become the index
+       do i=1,n          !of the first nonvanishing element of b. We now do
+          ll=indx(i)     !the forward substitution. The only new wrinkle is to
+          summ=b(ll)     !unscramble the permutation as we go.
+          b(ll)=b(i)
+          if (ii /= 0) then
+             summ=summ-dot_product(a(i,ii:i-1),b(ii:i-1))
+          else if(summ /= 0.0_dp) then   !A nonzero element was encountered, so from now on
+             ii=i                        !we will have to do the dot product above.
+          end if
+          b(i)=summ
+       end do
+
+       do i=n,1,-1       !Now we do the backsubstitution
+          b(i) = (b(i)-dot_product(a(i,i+1:n),b(i+1:n)))/a(i,i)
+       end do
+
+       return
+    End Subroutine LU_Backsub_dp
     !!----
     !!---- Subroutine LU_Decomp(a,d,singular,indx)
     !!----    real(kind=cp),    dimension(:,:),intent(in out) :: a
@@ -5078,16 +5238,16 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Pure Subroutine LU_Decomp(a,d,singular,indx)
+    Pure Subroutine LU_Decomp_sp(a,d,singular,indx)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       real(kind=cp),                 intent(out)    :: d
+       real(kind=sp), dimension(:,:), intent(in out) :: a
+       real(kind=sp),                 intent(out)    :: d
        logical,                       intent(out)    :: singular
        integer,  dimension(:), intent(out), optional :: indx
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
-       real(kind=cp), parameter           :: vtiny = 1.0e-7_sp !A small number.
+       real(kind=sp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
+       real(kind=sp), parameter           :: vtiny = 1.0e-7_sp !A small number.
        integer                            :: j,imax,n
 
        singular=.false.
@@ -5122,7 +5282,53 @@
        end do
 
        return
-    End Subroutine LU_Decomp
+    End Subroutine LU_Decomp_sp
+
+    Pure Subroutine LU_Decomp_dp(a,d,singular,indx)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:,:), intent(in out) :: a
+       real(kind=dp),                 intent(out)    :: d
+       logical,                       intent(out)    :: singular
+       integer,  dimension(:), intent(out), optional :: indx
+
+       !---- Local variables ----!
+       real(kind=dp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
+       real(kind=dp), parameter           :: vtiny = 1.0e-35_dp !A small number.
+       integer                            :: j,imax,n
+
+       singular=.false.
+       n=size(a,1)
+       if(present(indx)) then
+         do j=1,n
+           indx(j)=j
+         end do
+       end if
+       d=1.0                      !No row interchanges yet.
+       vv=maxval(abs(a),dim=2)    !Loop over rows to get the implicit scaling information.
+       if (any(abs(vv) <= vtiny)) then   !There is a row of zeros.
+          singular=.true.
+          return
+       end if
+       vv=1.0_sp/vv     !Save the scaling.
+       do j=1,n
+          imax=(j-1)+imaxloc(vv(j:n)*abs(a(j:n,j)))   !Find the pivot row.
+          if (j /= imax) then                         !Do we need to interchange rows?
+             call swap(a(imax,:),a(j,:))              !Yes, do so...
+             d=-d                                     !...and change the parity of d.
+             vv(imax)=vv(j)                           !Also interchange the scale factor.
+          end if
+          if (present(indx)) indx(j)=imax
+          if (abs(a(j,j)) <= vtiny) then !If the pivot element is zero the matrix is singular.
+             a(j,j)=vtiny                !(at least to the precision of the algorithm)
+             singular=.true.             !For some applications on singular matrices,
+             !return                      !it is desirable to substitute vtiny for zero.
+          end if                         !This is actually the present case
+          a(j+1:n,j)=a(j+1:n,j)/a(j,j)                                    !Divide by the pivot element.
+          a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(a(j+1:n,j),a(j,j+1:n))  !Reduce remaining submatrix.
+       end do
+
+       return
+    End Subroutine LU_Decomp_dp
 
     !Subroutine LU_Decomp_dp(a,p)
     !  ! In situ decomposition, corresponds to LAPACK's dgebtrf
@@ -6752,10 +6958,10 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Subroutine Swap_R(A,B)
+    Pure Subroutine Swap_sp(A,B)
        !---- Arguments ----!
-       real(kind=cp), intent(in out) :: a
-       real(kind=cp), intent(in out) :: b
+       real(kind=sp), intent(in out) :: a
+       real(kind=sp), intent(in out) :: b
 
        !---- Local variables ----!
        real(kind=cp) :: dum
@@ -6765,10 +6971,25 @@
        b=dum
 
        return
-    End Subroutine Swap_R
+    End Subroutine Swap_sp
+
+    Pure Subroutine Swap_dp(A,B)
+       !---- Arguments ----!
+       real(kind=dp), intent(in out) :: a
+       real(kind=dp), intent(in out) :: b
+
+       !---- Local variables ----!
+       real(kind=cp) :: dum
+
+       dum=a
+       a=b
+       b=dum
+
+       return
+    End Subroutine Swap_dp
 
     !!--++
-    !!--++ Subroutine Swap_Rm(A,B)
+    !!--++ Subroutine Swap_spm(A,B)
     !!--++    real(kind=cp), dimension(:,:), intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
@@ -6776,44 +6997,74 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Subroutine Swap_Rm(A,B)
+    Pure Subroutine Swap_spm(A,B)
        !---- Arguments ----!
-       real(kind=cp), dimension(:,:), intent(in out) :: a
-       real(kind=cp), dimension(:,:), intent(in out) :: b
+       real(kind=sp), dimension(:,:), intent(in out) :: a
+       real(kind=sp), dimension(:,:), intent(in out) :: b
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a,1),size(a,2)) :: dum
+       real(kind=sp), dimension(size(a,1),size(a,2)) :: dum
 
        dum=a
        a=b
        b=dum
 
        return
-    End Subroutine Swap_Rm
+    End Subroutine Swap_spm
+
+    Pure Subroutine Swap_dpm(A,B)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:,:), intent(in out) :: a
+       real(kind=dp), dimension(:,:), intent(in out) :: b
+
+       !---- Local variables ----!
+       real(kind=dp), dimension(size(a,1),size(a,2)) :: dum
+
+       dum=a
+       a=b
+       b=dum
+
+       return
+    End Subroutine Swap_dpm
 
     !!--++
-    !!--++ Subroutine Swap_Rv(A,B)
-    !!--++    real(kind=cp), dimension(:), intent(in out) :: a,b
+    !!--++ Subroutine Swap_spv(A,B)
+    !!--++    real(kind=sp), dimension(:), intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
     !!--++
     !!--++ Update: February - 2005
     !!
-    Pure Subroutine Swap_Rv(A,B)
+    Pure Subroutine Swap_spv(A,B)
        !---- Arguments ----!
-       real(kind=cp), dimension(:), intent(in out) :: a
-       real(kind=cp), dimension(:), intent(in out) :: b
+       real(kind=sp), dimension(:), intent(in out) :: a
+       real(kind=sp), dimension(:), intent(in out) :: b
 
        !---- Local variables ----!
-       real(kind=cp), dimension(size(a)) :: dum
+       real(kind=sp), dimension(size(a)) :: dum
 
        dum=a
        a=b
        b=dum
 
        return
-    End Subroutine Swap_Rv
+    End Subroutine Swap_spv
+
+    Pure Subroutine Swap_dpv(A,B)
+       !---- Arguments ----!
+       real(kind=dp), dimension(:), intent(in out) :: a
+       real(kind=dp), dimension(:), intent(in out) :: b
+
+       !---- Local variables ----!
+       real(kind=dp), dimension(size(a)) :: dum
+
+       dum=a
+       a=b
+       b=dum
+
+       return
+    End Subroutine Swap_dpv
 
     !!--++
     !!--++ Subroutine Masked_Swap_R(A,B,Mask)

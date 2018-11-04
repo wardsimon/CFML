@@ -36,10 +36,21 @@
 !!----         https://rosettacode.org/wiki/Arithmetic/Rational#Fortran
 !!----         It is intented for making algebra with not too big numerators
 !!----         and denominators. The implementation of error control against
-!!----         oveflows is not yet done.
+!!----         oveflows is not yet done. To avoid partially this the module
+!!----         uses integer of 8 bytes (integer kind ik=8). Subroutines
+!!----         for inverting matrices are provided: a special subroutine working
+!!----         strictly with rational numbers 'Matinv_rational' and the subroutine
+!!----         'rational_inv_matrix' that uses LU decomposition through double
+!!----         precision and reconvesion to an approximate rational matrix.
+!!----         The control of the maximum denominator is done through a global
+!!----         variable called 'maximum_denominator'.
+!!----         For small rational number everything seems to work, specially for
+!!----         matrices representing symmetry operators in superspace and
+!!----         transformation of them by not too complex change of basis.
 !!----
 !!---- HISTORY
 !!----    Created: 01/02/2017
+!!----    Last updated: 03/11/2018 (JRC)
 !!----
 !!---- DEPENDENCIES
 !!----
@@ -49,37 +60,44 @@
 !!
   Module CFML_Rational_Arithmetic
 
-    Use CFML_GlobalDeps,       only : cp,dp
+    Use CFML_GlobalDeps,       only : sp,cp,dp
     Use CFML_String_Utilities, only : Pack_String
-    Use CFML_Math_general,     only : invert_matrix !determinant,
+    Use CFML_Math_general,     only : invert_matrix
 
     implicit none
     private
 
     ! Public operators and assignment
-    public :: assignment (=)
-    public :: operator (//)
-    public :: operator (+)
-    public :: operator (-)
-    public :: operator (*)
-    public :: operator (/)
-    public :: operator (<)
-    public :: operator (<=)
-    public :: operator (>)
-    public :: operator (>=)
-    public :: operator (==)
-    public :: operator (/=)
+    public :: assignment (=)     ! Elemental Assignement rational<=>rational,real<=>rational, integer<=>rational of different types (sp,dp,int,int_ik)
+    public :: operator (//)      ! Elemental Definition of rationals using numerator and denominator integers, e.g. 23_ik//34_ik
+    public :: operator (+)       ! Elemental Addition of rationals and rational plus integers
+    public :: operator (-)       ! Elemental subtraction of rationals and rational plus integers
+    public :: operator (*)       ! Elemental Multiplication of rationals or rationals by integers and viceversa
+    public :: operator (/)       ! Elemental division of rationals or rationals by integers and viceversa
+    public :: operator (<)       ! Pure 'less than' operator comparing rational<=>rational rational<=>integer
+    public :: operator (<=)      ! Pure 'less or equal than' operator comparing rational<=>rational rational<=>integer
+    public :: operator (>)       ! Pure 'greater than' operator comparing rational<=>rational rational<=>integer
+    public :: operator (>=)      ! Pure 'greater or equal than' operator comparing rational<=>rational rational<=>integer
+    public :: operator (==)      ! Pure 'logical equal to' operator comparing rational<=>rational rational<=>integer
+    public :: operator (/=)      ! Pure 'logical no-equal to' operator comparing rational<=>rational rational<=>integer
 
     !Public types
-    public :: rational
+    public :: rational               !type definition. Constructor:  rational(numerator, denominator)
 
     !Public functions
-    public :: rational_simplify, rational_determinant,& !Calculation Procedures
-              print_rational,  &  !transform a rational type to a string like xxx/yyy
-              IsInteger, equal_rational_matrix,equal_rational_vector
+    public :: rational_simplify, &   !Simplification of fractions, normally called in the majority of operations
+              rational_determinant,& !Calculation Procedures using a recursive subroutine (valid only for small rationals)
+              Short_Rational,  &     !Convert rational with big numerator and denominator to a limited denominator given by user
+              print_rational,  &     !transform a rational type to a string like xxx/yyy
+              IsInteger,       &     !Logical function applied to rationals: scalar, vector and matrix
+              equal_rational_matrix,&!Logical function telling if two matrices are equal
+              equal_rational_vector,&!Logical function telling if two vectors are equal
+              recip                  !Calculates the reciprocal of a rational  a/b -> b/a
 
     !Public subroutines
-    public :: rational_inv_matrix, rational_modulo_lat
+    public :: rational_inv_matrix, & !Calculates the inverse of a rational matrix using double precision arithmetic
+              rational_modulo_lat, & !Reduces a translation vector to that with values in the interval [0_ik, 1_ik)
+              Matinv_rational        !Uses rational arithmetic to invert a matrix of small rationals (no checking of overflow)
 
 
     !Public overloaded intrinsic functions (transpose is not needed)
@@ -102,16 +120,16 @@
       module procedure assign_rational_intik
       module procedure assign_int_rational
       module procedure assign_intik_rational
-      module procedure assign_rational_real_cp
+      module procedure assign_rational_real_sp
       module procedure assign_rational_real_dp
-      module procedure assign_real_rational_cp
+      module procedure assign_real_rational_sp
       module procedure assign_real_rational_dp
     end interface
 
     !Constructor of a rational from two integers
     interface operator (//)
-      module procedure make_rational
-      module procedure make_rational_int
+      module procedure make_rational       !input integers of 8bytes   4_ik//5_ik
+      module procedure make_rational_int   !input integers of 4bytes   3//4
     end interface
 
     interface operator (+)
@@ -183,7 +201,7 @@
     end interface
 
     interface nint
-      module procedure nint_rational
+      module procedure nint_rational      !Produces an integer kind=ik
     end interface
 
     interface modulo
@@ -287,14 +305,13 @@
       res = i // 1
     end subroutine assign_rational_int
 
-    elemental subroutine assign_rational_real_cp (res,xr)
-      type (rational), intent(out) :: res  !, volatile
-      real(kind=cp),   intent (in) :: xr
-      integer(kind=ik)             :: maxden,ai,t,si
-      real(kind=cp)                :: x,rai,eps !,startx,er1,er2
+    elemental subroutine assign_rational_real_sp (res,xr)
+      type (rational),  intent(out) :: res  !, volatile
+      real(kind=sp),    intent(in)  :: xr
+      integer(kind=ik)              :: maxden,ai,t,si
+      real(kind=sp)                 :: x,rai,eps !,startx,er1,er2
       integer(kind=ik), dimension(0:1,0:1) :: m
-
-      maxden=maximum_denominator; eps=1.0e-6_cp
+      maxden=maximum_denominator; eps=1.0e-6_sp
       m = 0; m(0,0)=1_ik; m(1,1)=1_ik
       si=sign(1.0,xr)
       x=abs(xr)
@@ -308,9 +325,9 @@
         t = m(1,0) * ai + m(1,1)
         m(1,1) = m(1,0)
         m(1,0) =  t
-        rai=real(ai,kind=cp)
+        rai=real(ai,kind=sp)
         if( abs(x - rai) < eps) exit !division by zero
-        x = 1.0_cp/(x - rai)
+        x = 1.0_sp/(x - rai)
       end do
       res= si*m(0,0)// m(1,0)
 
@@ -321,13 +338,13 @@
       ! m(1,2) = mm(1,2) * ai + mm(2,2)
       ! er2=startx - real(m(1,1),kind=8) / real(m(1,2),kind=8)
 
-    end subroutine assign_rational_real_cp
+    end subroutine assign_rational_real_sp
 
-    elemental subroutine assign_rational_real_dp (res,xr)
-      type (rational), intent(out) :: res
-      real(kind=dp),   intent (in) :: xr
-      integer(kind=ik)             :: maxden,ai,t,si
-      real(kind=dp)                :: x,rai,eps
+    elemental subroutine assign_rational_real_dp(res,xr)
+      type (rational),  intent(out) :: res
+      real(kind=dp),    intent (in) :: xr
+      integer(kind=ik)              :: maxden,ai,t,si
+      real(kind=dp)                 :: x,rai,eps
       integer(kind=ik), dimension(0:1,0:1)  :: m
 
       maxden=maximum_denominator; eps=1.0e-8_dp
@@ -350,6 +367,14 @@
       res= si*m(0,0)// m(1,0)
     end subroutine assign_rational_real_dp
 
+    elemental function recip(r) result (reciprocal)
+      type(rational), intent (in) :: r
+      type(rational)              :: reciprocal
+      reciprocal= 0_ik
+      if(r%numerator /= 0_ik) &
+        reciprocal= r%denominator // r%numerator
+    end function recip
+
     elemental subroutine assign_int_rational (i, res)
       type (rational), intent (in)   :: res  !, volatile
       integer,         intent (out)  :: i
@@ -362,11 +387,11 @@
       i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
     end subroutine assign_intik_rational
 
-    elemental subroutine assign_real_rational_cp (x,res)
+    elemental subroutine assign_real_rational_sp (x,res)
       type (rational), intent(in)   :: res
-      real(kind=cp),   intent (out) :: x
-      x=real(res%numerator,kind=cp)/real(res%denominator,kind=cp)
-    end subroutine assign_real_rational_cp
+      real(kind=sp),   intent (out) :: x
+      x=real(res%numerator,kind=sp)/real(res%denominator,kind=sp)
+    end subroutine assign_real_rational_sp
 
     elemental subroutine assign_real_rational_dp (x,res)
       type (rational), intent(in)   :: res
@@ -474,12 +499,24 @@
       integer(kind=ik),intent (in) :: is
       type (rational) :: res
       if(is /= 0) then
-        res = r % numerator // (r % numerator*is)
+        res = r % numerator // (r % denominator*is)
         res=rational_simplify(res)
       else
         res=0_ik//1_ik
       end if
     end function rational_divide_int
+
+    elemental function int_divide_rational (is,r) result (res)
+      integer(kind=ik),intent (in) :: is
+      type (rational), intent (in) :: r
+      type (rational) :: res
+      if(r /= 0_ik/1_ik) then
+        res = r % denominator // (r % numerator*is)
+        res=rational_simplify(res)
+      else
+        res=0_ik//1_ik
+      end if
+    end function int_divide_rational
 
     pure function rational_lt (r, s) result (res)
       type (rational), intent (in) :: r
@@ -610,14 +647,14 @@
       res = r % numerator * s % denominator == s % numerator * r % denominator
     end function rational_eq
 
-    elemental function rational_eq_integer (r, i) result (res)
+    Pure function rational_eq_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer(kind=ik),         intent (in) :: i
       logical :: res
       res = r % denominator == 1 .and. r % numerator == i
     end function rational_eq_integer
 
-    elemental function integer_eq_rational(i, r) result (res)
+    pure function integer_eq_rational(i, r) result (res)
       integer(kind=ik),intent (in) :: i
       type (rational), intent (in) :: r
       logical :: res
@@ -631,21 +668,19 @@
       res = r % numerator * s % denominator /= s % numerator * r % denominator
     end function rational_ne
 
-    elemental function rational_ne_integer (r, i) result (res)
+    pure function rational_ne_integer (r, i) result (res)
       type (rational), intent (in) :: r
       integer(kind=ik),         intent (in) :: i
       logical :: res
       res = r % numerator /= i * r % denominator
     end function rational_ne_integer
 
-    elemental function integer_ne_rational(i, r) result (res)
+    pure function integer_ne_rational(i, r) result (res)
       integer(kind=ik),intent (in) :: i
       type (rational), intent (in) :: r
       logical :: res
       res = r % numerator /= i * r % denominator
     end function integer_ne_rational
-
-
 
     elemental function rational_abs (r) result (res)
       type (rational), intent (in) :: r
@@ -659,18 +694,11 @@
       res = r % numerator / r % denominator
     end function rational_int
 
-    elemental function rational_nint (r) result(res)
-      real(kind=cp),  intent (in)  :: r
-      type (rational)              :: res
-      res = nint(r,kind=ik) // 1_ik
-    end function rational_nint
-
     elemental function nint_rational (r) result(res)
       type (rational),  intent (in)  :: r
       integer(kind=ik)               :: res
       res = nint(real(r%numerator,kind=dp)/real(r%denominator,kind=dp),kind=ik)
     end function nint_rational
-
 
     elemental subroutine rational_modulo_lat (r)
       type (rational), intent (in out) :: r
@@ -779,10 +807,23 @@
     !  end if
     !end function rational_matmul_vecmat
 
+    Function Short_Rational(r,maxdenom) result(sh)
+      type(rational),   intent (in) :: r
+      integer(kind=ik), intent (in) :: maxdenom
+      type(rational)  :: sh
+      real(kind=dp)    :: val
+      integer(kind=ik) :: ival
+      ival=maximum_denominator
+      maximum_denominator=maxdenom
+      val=real(r%numerator,kind=dp)/real(r%denominator,kind=dp)
+      sh=val
+      maximum_denominator=ival
+    End Function Short_Rational
+
     Pure function rational_matmul_matmat(mat1,mat2) result (mat_out)
-      type (rational), dimension(:,:), intent (in) :: mat1
-      type (rational), dimension(:,:), intent (in) :: mat2
-      type (rational),dimension(size(mat1,dim=1),size(mat2,dim=2)) :: mat_out
+      type(rational), dimension(:,:), intent (in) :: mat1
+      type(rational), dimension(:,:), intent (in) :: mat2
+      type(rational), dimension(size(mat1,dim=1),size(mat2,dim=2)) :: mat_out
 
       integer :: n1,n2,n3,n4,i,j,nm
       n1=size(mat1,dim=1); n2=size(mat1,dim=2); n3=size(mat2,dim=1); n4=size(mat2,dim=2)
@@ -853,7 +894,7 @@
 
     elemental function print_rational(r) result (rtxt)
       type(rational),  intent(in)  :: r
-      character(len=50)            :: rtxt
+      character(len=81)            :: rtxt
       type(rational) :: sr
       if(r%denominator /= 0_ik) then
         sr=rational_simplify(r)
@@ -861,9 +902,9 @@
         sr=r
       end if
       if(sr%denominator == 1_ik) then
-        write(unit=rtxt,fmt="(i20)") sr%numerator
+        write(unit=rtxt,fmt="(i40)") sr%numerator
       else
-        write(unit=rtxt,fmt="(i20,a,i20)") sr%numerator,"/",sr%denominator
+        write(unit=rtxt,fmt="(i40,a,i40)") sr%numerator,"/",sr%denominator
       end if
       rtxt=adjustl(Pack_String(rtxt))
     end function print_rational
@@ -913,11 +954,19 @@
     !  det=determ
     !end function rational_determinant
 
+    !!---- Subroutine rational_inv_matrix(Mat,invMat)
+    !!----   type(rational), dimension(:,:), intent(in)  :: Mat
+    !!----   type(rational), dimension(:,:), intent(out) :: invMat
+    !!----
+    !!----  This calculates the inverse of a matrix converting it previously to
+    !!----  a double precision matrix. The final invMat is an approximation according
+    !!----  to the value of the 'maximum_denominator' value
+    !!----
     Subroutine rational_inv_matrix(Mat,invMat)
       type(rational), dimension(:,:), intent(in)  :: Mat
       type(rational), dimension(:,:), intent(out) :: invMat
       !Local variables
-      real(kind=cp), dimension(size(Mat,dim=1),size(Mat,dim=2)) :: A,invA
+      real(kind=dp), dimension(size(Mat,dim=1),size(Mat,dim=2)) :: A,invA
       integer :: n1,n2
       logical :: singular
 
@@ -930,39 +979,48 @@
             Err_Rational=.true.
             write(unit=Err_Rational_Mess,fmt="(a)") "Singular Matrix!"
          else
-            invMat=invA
+            invMat=invA  !This gives an approximation according to the 'maximum_denominator' value
          end if
       else
         Err_Rational=.true.
-        write(unit=Err_Rational_Mess,fmt="(a)") "Error in Determinant: the provided matrix is not square!"
+        write(unit=Err_Rational_Mess,fmt="(a)") "Error: the provided matrix is not square!"
       end if
     end Subroutine rational_inv_matrix
 
-    Subroutine Matinv(a,ainv)
+    !!---- Subroutine Matinv_rational(a,ainv)
+    !!----    !---- Arguments ----!
+    !!----    type(rational), dimension(:,:), intent(in) :: a
+    !!----    type(rational), dimension(:,:), intent(out):: ainv
+    !!----
+    !!----    This subroutine uses rational types for calculating the inverse of
+    !!----    a rational matrix. It works only with small rational and dimension
+    !!----    of the matrices (the maximum dimension may be n=9-10)
+    !!----
+    Subroutine Matinv_rational(a,ainv)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent(in) :: a
        type(rational), dimension(:,:), intent(out):: ainv
        !---- Local variables ----!
        type(rational)                :: amax,savec
-       integer, dimension(size(a,1)) :: ik,jk
+       integer, dimension(size(a,1)) :: ink,jnk
        integer                       :: i,j,k,l,n
 
        !---- Subroutine to invert a rational matrix ----!
        ainv=a
        n=size(a,1)
        do k=1,n
-          amax=0_ik/1_ik
+          amax=0_ik//1_ik
           do
              do
                 do i=k,n
                    do j=k,n
-                      if (abs(amax)-abs(ainv(i,j)) > 0_ik/1_ik) cycle
+                      if (abs(amax)-abs(ainv(i,j)) > 0_ik//1_ik) cycle
                       amax=ainv(i,j)
-                      ik(k)=i
-                      jk(k)=j
+                      ink(k)=i
+                      jnk(k)=j
                    end do
                 end do
-                i=ik(k)
+                i=ink(k)
                 if (i-k < 0) cycle
                 exit
              end do
@@ -975,7 +1033,7 @@
                 end do
              end if
 
-             j=jk(k)
+             j=jnk(k)
              if (j-k < 0) cycle
              exit
           end do
@@ -990,7 +1048,7 @@
 
           do i=1,n
              if (i-k /= 0)  then
-                ainv(i,k)=-ainv(i,k)/amax
+                ainv(i,k)=-ainv(i,k)*recip(amax)
              end if
           end do
           do i=1,n
@@ -1001,14 +1059,14 @@
           end do
           do j=1,n
              if (j-k == 0)   cycle
-             ainv(k,j)=ainv(k,j)/amax
+             ainv(k,j)=ainv(k,j)*recip(amax)
           end do
-          ainv(k,k)=1_ik/amax
+          ainv(k,k)=recip(amax)
        end do     !k
 
        do l=1,n
           k=n-l+1
-          j=ik(k)
+          j=ink(k)
           if (j-k > 0) then
              do i=1,n
                 savec=ainv(i,k)
@@ -1016,7 +1074,7 @@
                 ainv(i,j)=savec
              end do
           end if
-          i=jk(k)
+          i=jnk(k)
           if (i-k > 0) then
              do j=1,n
                 savec=ainv(k,j)
@@ -1027,7 +1085,7 @@
        end do
 
        return
-    End Subroutine Matinv
+    End Subroutine Matinv_rational
 
     pure function rational_maxloc_mat(Mat) result(pos_max)
       type(rational),  dimension(:,:), intent(in) :: Mat
