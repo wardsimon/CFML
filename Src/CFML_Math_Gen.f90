@@ -1160,7 +1160,7 @@
        real(kind=dp), parameter :: s5=          376.9991397_dp
        real(kind=dp), parameter :: s6=            1.0_dp
 
-       real(kind=dp)            :: y
+       real(kind=cp)            :: y
        real(kind=cp)            :: ax,xx,z
 
        if (abs(x) < 1.0e-05) then
@@ -2053,7 +2053,7 @@
        real (kind=dp), parameter :: S(4) = (/ 9.41537750555460D+01,  1.87114811799590D+02,  9.90191814623914D+01, &
                                               1.80124575948747D+01 /)
 
-       real (kind=cp) :: ax, bot, t, top, x2
+       real (kind=dp) :: ax, bot, t, top, x2
 
        !> Init
        ax = ABS(x)
@@ -2066,7 +2066,7 @@
           return
        end if
 
-       if (ax <= 4.0_cp) then
+       if (ax <= 4.0_dp) then
           top = ((((((p(1)*ax + p(2))*ax + p(3))*ax + p(4))*ax + p(5))*ax  &
               + p(6))*ax + p(7))*ax + p(8)
           bot = ((((((q(1)*ax + q(2))*ax + q(3))*ax + q(4))*ax + q(5))*ax  &
@@ -2077,7 +2077,7 @@
           return
        end if
 
-       if (ax < 5.8_cp) then
+       if (ax < 5.8_dp) then
           x2 = x*x
           t = one / x2
           top = (((r(1)*t + r(2))*t + r(3))*t + r(4))*t + r(5)
@@ -4471,7 +4471,7 @@
        else
           determ=0.0
           do i=1,n
-             d=d*sign(1.0_cp,ac(i,i))
+             d=d*sign(1.0_sp,ac(i,i))
              determ=determ + log(abs(ac(i,i)))
           end do
           determ=d*exp(determ)
@@ -4500,7 +4500,7 @@
        else
           determ=0.0
           do i=1,n
-             d=d*sign(1.0_cp,ac(i,i))
+             d=d*sign(1.0_dp,ac(i,i))
              determ=determ + log(abs(ac(i,i)))
           end do
           determ=d*exp(determ)
@@ -4818,7 +4818,7 @@
        else
           det=0.0
           do i=1,n
-             d=d*sign(1.0_cp,lu(i,i))
+             d=d*sign(1.0_sp,lu(i,i))
              det=det + log(abs(lu(i,i)))
           end do
           det=d*exp(det)
@@ -4863,7 +4863,7 @@
        else
           det=0.0
           do i=1,n
-             d=d*sign(1.0_cp,lu(i,i))
+             d=d*sign(1.0_dp,lu(i,i))
              det=det + log(abs(lu(i,i)))
           end do
           det=d*exp(det)
