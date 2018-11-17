@@ -6,7 +6,7 @@
 Program Bond_Str
    !---- Use Modules ----!
    use CFML_GlobalDeps,                  only: Cp
-   use CFML_String_Utilities,            only: u_case, pack_string, setnum_std, cutst
+   use CFML_String_Utilities,            only: u_case, pack_string, setnum_std, cutst,getword
    use CFML_Math_General,                only: sort,Set_Epsg, Set_Epsg_default,Modulo_Lat, Equal_Vector, epss_val
    use CFML_Math_3D,                     only: Determ_A, Cross_Product, Polyhedron_Volume, Get_Spheric_Coord, &
                                                Get_Cart_From_Spher, Get_Centroid_Coord, err_Math3D, err_Math3D_Mess
@@ -314,7 +314,7 @@ Program Bond_Str
                  read_bvelparm=.true.
                  n_bvelpar=n_bvelpar+1
                  nc=index(line,' ')
-                 bvelparm(n_bvpar)=adjustl(line(nc+1:))
+                 bvelparm(n_bvelpar)=adjustl(line(nc+1:))
                  cycle
               end if
 
@@ -366,7 +366,7 @@ Program Bond_Str
      ! Distances, Angles, Restraints Calculations
      if (restr) then
         if(rest_file) then
-          write(*,*) trim(restr_file)//"   => rdmax,ramin: ",rdmax,ramin
+          !write(*,*) trim(restr_file)//"   => rdmax,ramin: ",rdmax,ramin
           call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun, i_cons,filrest=restr_file,rdmax=rdmax,ramin=ramin)
         else
           call Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spgr, A, lun, i_cons,rdmax=rdmax,ramin=ramin)
@@ -433,12 +433,18 @@ Program Bond_Str
            write(unit=lun,fmt="(a,/)") "    ---------------------------------------------------"
            if(soft) then
                if(read_bvelparm) then
+                  if(read_bvparm) call Set_Table_d0_b(Ac,n_bvpar,bvparm,soft)  !The table completes with extra data
                   call Set_Table_BVEL_Params(Ac,N_bvelpar,bvelparm,soft)
+               else if(read_bvparm) then
+                  call Set_Table_BVEL_Params(Ac,N_bvelpar,bvparm,soft,n_bvpar)
                else
                   call Set_Table_BVEL_Params(Ac,soft=soft)
                end if
            else
                if(read_bvelparm) then
+                  if(read_bvparm) then
+                    call Set_Table_d0_b(Ac,n_bvpar,bvparm,soft)  !The table completes with extra data
+                  end if
                   call Set_Table_BVEL_Params(Ac,N_bvelpar,bvelparm)
                else
                   call Set_Table_BVEL_Params(Ac)
@@ -462,7 +468,7 @@ Program Bond_Str
                 write(unit=lun,fmt="(a,/)") " Morse parameters obtained from internal table"
               end if
               if(read_bvelparm) then
-                write(unit=lun,fmt="(a,i3,a)") " Table completed with ",N_bvelpar," parameters {Nc,R0,D0,Rmin,alpha} provided by user"
+                write(unit=lun,fmt="(a,i3,a)") " Table completed with ",N_bvelpar," set of parameters {Nc,R0,Cutoff,D0,Rmin,alpha} provided by user"
                 do i=1,N_bvelpar
                   write(unit=lun,fmt="(i3,a,i3,a)")i,"  "//trim(bvelparm(i))
                 end do
@@ -537,15 +543,15 @@ Program Bond_Str
            write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
            if(delta > 0.01) then
              if(outp) then
-             	 if(percolation) then
+               if(percolation) then
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf,bvel_map)
-             	 else
+               else
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outf)
                end if
              else
-             	 if(percolation) then
+               if(percolation) then
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,bvel_map=bvel_map)
-             	 else
+               else
                  call Calc_Map_BVEL(Ac,Spgr,Cell,trim(filcod),ndimx,ndimy,ndimz,atname,drmax,delta,vol,emin,npix,outp=.true.)
                end if
              end if
@@ -563,7 +569,7 @@ Program Bond_Str
              end if
 
              if(percolation) then
-             	 call Percolation_Calc()
+               call Percolation_Calc()
              end if
 
            else
@@ -595,6 +601,7 @@ Program Bond_Str
 
      if (.not. cif .and. bvs_calc .and. .not. map_calc .and. .not. bvel_calc ) then
         call system("type "//trim(filcod)//"_sum.bvs")
+        !call execute_command_line ("type "//trim(filcod)//"_sum.bvs")
      end if
      write(unit=*,fmt="(/,a)")   " => Normal End of: PROGRAM BOND_STR "
      write(unit=*,fmt="(a)")     " => Global results in File: "//trim(filcod)//".bvs"
@@ -650,6 +657,7 @@ Program Bond_Str
      integer :: n,iv,q
      !Get the charge for whatever format of the symbol
      iv=index(atname,"+")
+     n=0
      Select Case(iv)
        Case(0) !No + sign
          n=index(atname,"-") !anion
@@ -682,7 +690,7 @@ Program Bond_Str
               if (ier /= 0) q=0
      End Select
      qval = real(q)
-
+     !write(*,*) atname,qval
      !Get the chemical symbol
      atm=u_case(atname)
      call Get_Chemsymb(atm,chem)
@@ -699,7 +707,7 @@ Program Bond_Str
    End Subroutine get_qval
 
    Subroutine Percolation_Calc()
-   	  real :: Eminim
+      real :: Eminim
       Character(len=*), Dimension(3), parameter :: axis=["a","b","c"]
       real, dimension(3) :: eval_p
       bvel_map    = bvel_map - Emin
@@ -861,7 +869,7 @@ Program Bond_Str
       write(unit=lun,fmt="(a)")    "SURFS   0  1  1"
       write(unit=lun,fmt="(a)")    "SECTS  96  0"
       write(unit=lun,fmt="(a,i1)") "POLYS  ",pol
-      call flush(lun)
+      flush(unit=lun)
       close(unit=lun)
    End Subroutine Write_Vesta_File
    !!----

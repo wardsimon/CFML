@@ -543,8 +543,8 @@
        integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                      :: i1,j1,k1,sig1,sig2,ncont
        real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
-       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, d_cutoff, &
-                                                       dzero, alpha,c_rep,c_atr
+       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, &
+                                                       dzero, alpha,c_rep,c_atr !, d_cutoff
        real(kind=cp), dimension(3)                  :: pto,pta,step,extend
        real(kind=cp),   dimension(:,:,:), allocatable :: map_bvs
        integer(kind=2), dimension(:,:,:), allocatable :: contrib
@@ -676,7 +676,7 @@
                    dzero=Table_Dzero(n1,n2)
                     dmin=Table_Rmin(n1,n2)
                    alpha=Table_Alpha(n1,n2)
-                   d_cutoff=Table_Rcutoff(n1,n2)
+                   !d_cutoff=Table_Rcutoff(n1,n2) !not used, see below
                    occ=At2%Atom(n)%VarF(1)
                    c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
                    c_atr=occ*dzero
@@ -691,7 +691,7 @@
                             if (sig1 == sig2) then
                                 rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
                             else
-                               !if(dd > d_cutoff) cycle
+                               !if(dd > d_cutoff) cycle  !local d_cutoff not used, only drmax is used!
                                sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
                             end if
                          end do
@@ -1164,7 +1164,7 @@
     !!----    Sets up the table of BVEL parameters (add provided external values)
     !!----    Completing the table when the user gives his/her own BVEL parameters
     !!----
-    !!---- Created: December - 2014
+    !!---- Created: December - 2014, modified November-2018
     !!
     Subroutine Complete_Table_BVEL(A,N_bvel,bvel)
        type (Atoms_Conf_List_type),   intent(in) :: A      !  In -> Object of Atoms_Conf_List_type
@@ -1183,7 +1183,7 @@
                  ian=0
                  if (ic < 8 ) then
                           err_conf=.true.
-                          ERR_Conf_Mess="Cation-Anion {Nc,R0,D0,Rmin,alpha} parameters must be provided"
+                          ERR_Conf_Mess="Cation-Anion {Nc,R0,Cutoff,D0,Rmin,alpha} parameters must be provided"
                           return
                  end if
 
@@ -1210,7 +1210,7 @@
                     ERR_Conf_Mess="One of the given cations is not found in the atom list"
                     return
                  end if
-
+                 !write(*,*) " Assigning -> "//trim(bvel(k))
                  read(unit=dire(3),fmt=*) Avcoor
                  read(unit=dire(4),fmt=*) Rzero
                  read(unit=dire(5),fmt=*) Rcutoff
@@ -2393,17 +2393,19 @@
     !!----
     !!---- Created: December - 2014
     !!
-    Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel,soft)
+    Subroutine Set_Table_BVEL_Params(A,N_bvel,bvel,soft,nread)
        type (Atoms_Conf_List_type),            intent(in)  :: A
        integer,                      optional, intent(in)  :: N_bvel
        character(len=*),dimension(:),optional, intent(in)  :: bvel
        logical,                      optional, intent(in)  :: soft
+       integer,                      optional, intent(in)  :: nread
 
        !---- Local Variables ----!
-       integer :: i,j,k,L,ia,ic,ac,an
+       integer :: i,j,k,L,ia,ic,ac,an,i1,i2
+       character(len=80) :: aux
        real(kind=cp) :: rmin,d0,cn,b0,r0
        real(kind=cp),parameter :: f1=0.9185, f2=0.2285 !in eV units
-       logical :: soft_true
+       logical :: soft_true,found
 
        if (A%N_Spec == 0) then
           err_conf=.true.
@@ -2429,7 +2431,6 @@
 
        soft_true=.False.
        if(present(soft)) soft_true=soft
-
        if(soft_true) then  !Calculate Rmin and D0 from softBVS parameters and softness
           call Set_Atomic_Properties()
           call Set_SBVS_Table()
@@ -2477,9 +2478,18 @@
                    end if
                 end do
                 if (ia == 0 .or. an == 0) then
-                   err_conf=.true.
-                   ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
-                   return
+                   if(.not. present(N_bvel)) then
+                     err_conf=.true.
+                     ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(i)
+                     return
+                   else
+                      call Complete_Table_BVEL(A,N_bvel,bvel)
+                      if(err_conf) then
+                           return
+                      else
+                           cycle
+                      end if
+                   end if
                 end if
 
                 b0=sbvs_table(ic)%b_par(ia)
@@ -2488,14 +2498,43 @@
                 !write(*,"(a,3f12.4)") " => b0,r0,cn: ", b0,r0,cn
                 if( b0+r0 < 0.00001) then
                   !Try to use b0,r0,cn from manually given BVS parameters
-                   err_conf=.true.
-                   ERR_Conf_Mess=" Bond-Valence parameters not found for pair: "//trim(A%Species(i))//"-"//bvs_anions(ia)
-                   return
+                   if(present(nread)) Then
+                     found=.false.
+                     do j=1,nread
+                       i1=index(bvel(j),trim(A%Species(i)))
+                       i2=index(bvel(j),trim(bvs_anions(ia)))
+                       if(i1 /= 0 .and. i2 /= 0) Then
+                         found=.true.
+                         aux=adjustl(bvel(i)(i2:))
+                         i1=index(aux," ")
+                         read(unit=aux(i1:),fmt=*) r0,b0,cn
+                         exit
+                       end if
+                     end do
+                     if(.not. found) then
+                       err_conf=.true.
+                       ERR_Conf_Mess=" In the user-provided bond-Valence parameters there's no pair: "//trim(A%Species(i))//"-"//bvs_anions(ia)
+                       return
+                     end if
+                   else
+                     if(.not. present(N_bvel)) then
+                       err_conf=.true.
+                       ERR_Conf_Mess=" Bond-Valence parameters not found for pair: "//trim(A%Species(i))//"-"//bvs_anions(ia)
+                       return
+                     else
+                        call Complete_Table_BVEL(A,N_bvel,bvel)
+                        if(err_conf) then
+                             return
+                        else
+                             cycle
+                        end if
+                     end if
+                   end if
                 end if
                 if( cn < 0.1 ) cn=6.0
                 Table_Avcoor (i,A%N_Cations+k)=cn
                 Table_Rzero  (i,A%N_Cations+k)=r0
-                Table_Rcutoff(i,A%N_Cations+k)=sbvs_table(ic)%ctoff(ia)
+                Table_Rcutoff(i,A%N_Cations+k)=max(sbvs_table(ic)%ctoff(ia),4.5)
                 Table_Alpha  (i,A%N_Cations+k)=1.0/b0
                 Table_ref    (i,A%N_Cations+k)=sbvs_table(ic)%refnum(ia)
 
@@ -2560,9 +2599,18 @@
                    end if
                 end do
                 if (ia == 0) then
-                   err_conf=.true.
-                   ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
-                   return
+                   if(.not. present(N_bvel)) then
+                     err_conf=.true.
+                     ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
+                     return
+                   else
+                      call Complete_Table_BVEL(A,N_bvel,bvel)
+                      if(err_conf) then
+                           return
+                      else
+                           cycle
+                      end if
+                   end if
                 end if
                 Table_Avcoor (i,A%N_Cations+k)=bvel_table(ic)%Avcoor(ia)
                 Table_Rzero  (i,A%N_Cations+k)=bvel_table(ic)%Rzero(ia)
