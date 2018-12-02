@@ -112,8 +112,8 @@
 !!--..    A change of geometry is always possible by providing the components of the
 !!--..    axes {e1,e2,e3} with respect to the standard {i,j,k} BL-frame
 !!--..
-!!--..    igeom=1: Bissectrice (PSI=0)
-!!--..    igeom=2: Bissecting - HiCHI
+!!--..    igeom=1: Bisecting (PSI=0)
+!!--..    igeom=2: Bisecting - HiCHI
 !!--..    igeom=3: Normal beam
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
@@ -369,7 +369,7 @@ Module CFML_ILL_Instrm_Data
    !!----    real(kind=cp)                             :: tiltx_d=0.0          ! Tilt of the flat detector around x-axis (normally = nu_d)
    !!----    real(kind=cp)                             :: tilty_d=0.0          ! Tilt of the flat detector around y-axis (normally = 0)
    !!----    real(kind=cp)                             :: tiltz_d=0.0          ! Tilt of the flat detector around z-axis (normally = 0)
-   !!----    integer                                   :: igeom                ! 1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+   !!----    integer                                   :: igeom                ! 1: Bisecting (PSI=0),2: Bisecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
    !!----    integer                                   :: ipsd                 ! 1: Flat,2: Vertically Curved detector (used in D19amd)
    !!----    real(kind=cp),dimension(3)                :: e1                   ! Components of e1 in {i,j,k}
    !!----    real(kind=cp),dimension(3)                :: e2                   ! Components of e2 in {i,j,k}
@@ -427,7 +427,7 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp)                             :: tiltx_d=0.0          ! Tilt of the flat detector around x-axis (normally = nu_d)
       real(kind=cp)                             :: tilty_d=0.0          ! Tilt of the flat detector around y-axis (normally = 0)
       real(kind=cp)                             :: tiltz_d=0.0          ! Tilt of the flat detector around z-axis (normally = 0)
-      integer                                   :: igeom                ! 1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+      integer                                   :: igeom                ! 1: Bisecting (PSI=0),2: Bisecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
       integer                                   :: ipsd                 ! 1: Flat,2: Vertically Curved detector (used in D19amd), 3:
       real(kind=cp),dimension(3)                :: e1                   ! Components of e1 in {i,j,k}
       real(kind=cp),dimension(3)                :: e2                   ! Components of e2 in {i,j,k}
@@ -2241,7 +2241,7 @@ Module CFML_ILL_Instrm_Data
       Current_Instrm%tiltx_d=0.0                  ! Tilt of the flat detector around x-axis (normally = nu_d)
       Current_Instrm%tilty_d=0.0                  ! Tilt of the flat detector around y-axis (normally = 0)
       Current_Instrm%tiltz_d=0.0                  ! Tilt of the flat detector around z-axis (normally = 0)
-      Current_Instrm%igeom=0                      ! 1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+      Current_Instrm%igeom=0                      ! 1: Bisecting (PSI=0),2: Bisecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
       Current_Instrm%ipsd=0                       ! 1: Flat,2: Vertically Curved detector (used in D19amd), 3:
       Current_Instrm%e1=(/1.0,0.0,0.0/)           ! Components of e1 in {i,j,k}
       Current_Instrm%e2=(/0.0,1.0,0.0/)           ! Components of e2 in {i,j,k}

@@ -61,7 +61,7 @@
 !!--..
 !!--..    Some words about notation and conventions
 !!--..
-!!--..    A reflection in r.l.u. units is represented by a real(kind=cp) vector h
+!!--..    A reflection in r.l.u. units is represented by a real vector h
 !!--..    The same vector referred to the Cartesian laboratory system when all
 !!--..    motor angles are set to zero is noted as z1, so that [z1]= [UB] [h]
 !!--..    where [] denotes a column matrices for 3-D vectors.
@@ -468,7 +468,7 @@
     !!----    SUBROUTINE *** CALANG ***
     !!----    VERSION DU 6/10/1976
     !!----    CALCULE LES ANGLES 2THETA OMEGA CHI PHI  :
-    !!----           IPARA=1  GEOMETRIE BISSECTRICE (PSI=0)
+    !!----           IPARA=1  GEOMETRIE BISECTING (PSI=0)
     !!----           IPARA=2  GEOMETRIE BISECTING - HICHI  (D9, displex,cryostat)
     !!----           IPARA=3  GEOMETRIE NORMAL BEAM
     !!----           IPARA=4  GEOMETRIE PARALLELE (PSI=90)  (D15,D16)
@@ -1628,10 +1628,10 @@
       !
       s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0_cp/)   !z4   diffraction position
       call Phi_Mat(omega,Rot)
-      ho2=matmul(transpose(rot),s2)               !z1   zero motor angles
+      ho2=matmul(transpose(rot),s2)                  !z1   zero motor angles
       s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0_cp/)   !z4   diffraction position
       call Phi_mat(omega+del_omega,Rot)
-      ho1=matmul(transpose(rot),s1)               !z1   zero motor angles
+      ho1=matmul(transpose(rot),s1)                  !z1   zero motor angles
       !
       ! Generate UB-matrix
       !
