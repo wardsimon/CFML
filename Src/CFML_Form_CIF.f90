@@ -3725,6 +3725,7 @@
               else
                 call readn_set_xtal_shx(file_dat,nlines,Cell,Spg,A)
               end if
+
            case default
               !---- CFL Format ----!
               if (present(Job_Info)) then
@@ -3759,7 +3760,6 @@
 
        end select
 
-       return
     End Subroutine Readn_Set_Xtal_Structure_Split
 
     !!----

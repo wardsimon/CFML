@@ -928,6 +928,8 @@ Contains
 
        if (allocated(Ac%noms)       )   deallocate (Ac%noms)
        if (allocated(Ac%xyz)        )   deallocate (Ac%xyz)
+       if (allocated(Ac%charge)     )   deallocate (Ac%charge)
+       if (allocated(Ac%moment)     )   deallocate (Ac%moment)
        if (allocated(Ac%var_free)   )   deallocate (Ac%var_free)
        if (allocated(Ac%neighb)     )   deallocate (Ac%neighb)
        if (allocated(Ac%neighb_atom))   deallocate (Ac%neighb_atom)
@@ -935,7 +937,6 @@ Contains
        if (allocated(Ac%trans)      )   deallocate (Ac%trans)
        if (allocated(Ac%ddist)      )   deallocate (Ac%ddist)
        if (allocated(Ac%ddlab)      )   deallocate (Ac%ddlab)
-
        return
     End Subroutine Deallocate_Atoms_Cell
 
