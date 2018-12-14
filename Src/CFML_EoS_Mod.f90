@@ -5,21 +5,21 @@
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
 !!---- in military applications.
 !!----
-!!---- Copyright (C) 1999-2015  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!---- Copyright (C) 1999-2018  Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
-!!----                          Universita di Padova, Padova, ITALY
+!!----                          Universita di Pavia, Pavia, ITALY
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL) (CrysFML)
 !!----          Javier Gonzalez-Platas  (ULL) (CrysFML)
-!!----          Ross John Angel               (EoS)
+!!----          Ross John Angel         (Pavia)   (EoS)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross John Angel    (Dpto. Geoscienze, Universita di Padova, Italy)
+!!----               Ross John Angel    (Universita di Pavia, Italy)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,8 @@
 !!----    ...   2015: Modifications for 2003 compatibility and Eos development (RJA,  JGP)
 !!----    ...   2016: Modifications for curved phase boundaries and fitting moduli (RJA)
 !!----    ...   2016: Modifications to add PVT table to EoS structure as alternative to EoS parameters (RJA)
-!!----
+!!----    ...   2017: Split write_eoscal to improve error handling, new thermalP eos (RJA) 
+!!----    ...   2018: New routines: physical_check, get_kp, added pscale,vscale,lscale to data_list_type (RJA)
 !!
 Module CFML_EoS
    !---- Use Modules ----!
@@ -68,7 +69,7 @@ Module CFML_EoS
              Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_Volume_S, K_Cal, Kp_Cal,   &
              Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase
 
-   public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
+   public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Check_scales, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
              Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
@@ -88,7 +89,7 @@ Module CFML_EoS
    integer, public, parameter :: N_TRANS_MODELS=3   ! Number of possible Transition models
    integer, public, parameter :: N_SHEAR_MODELS=1   ! Number of possible Shear models
    integer, public, parameter :: N_CROSS_MODELS=2   ! Number of possible Cross-term models
-   integer, public, parameter :: N_DATA_TYPES=2     ! Number of possible data types (V,Kt,Ks etc)
+   integer, public, parameter :: N_DATA_TYPES=2     ! Number of possible data types in addition to V (Kt,Ks etc)
 
 
    character(len=*), public, parameter, dimension(-1:N_PRESS_MODELS) :: PMODEL_NAMES=(/    &      ! Name of the Pressure Models
@@ -219,7 +220,7 @@ Module CFML_EoS
    !!
    Type, public :: EoS_Data_Type
       integer                     :: IUse=0    ! 0=No active, 1= active
-      integer, dimension(5)       :: IGrp=0    ! Group
+      integer , dimension(5)      :: IGrp=0    ! Group
       integer                     :: xtype=0   ! Indicates type of data in V,cell, etc xtype=0 default, xtype=1 isothermal moduli etc
       real(kind=cp)               :: T=298.0   ! Temperature
       real(kind=cp)               :: P=0.0     ! Pressure
@@ -243,6 +244,9 @@ Module CFML_EoS
       character(len=40)                              :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
       integer                                        :: N=0           ! Number of EoS Data List
       integer, dimension(NCOL_DATA_MAX)              :: IC_Dat=0      ! Which values are input
+      character(len=15)                              :: Pscale_name=" "       ! Description of the Pressure scale of data (e.g. GPa)
+      character(len=15)                              :: Vscale_name=" "       ! Description of the units of volume data (e.g. A3/cell)
+      character(len=15)                              :: Lscale_name=" "       ! Description of the units of linear data  (e.g. A)
       type(EoS_Data_Type), allocatable, dimension(:) :: EoSD          ! EoS Data Parameters
    End Type EoS_Data_List_Type
 
@@ -3250,6 +3254,63 @@ Contains
 
       return
    End Subroutine Calc_Conlev
+   
+   
+   Subroutine Check_Scales(E,dat)
+      !---- Arguments ----!
+      type(Eos_Type),              intent(in)  :: E          ! EoS 
+      type (eos_data_list_type),   intent(in)  :: dat        ! data structure
+      !---- Local Variables ----!
+      character(len=40)       :: name
+      
+      !> Init
+      Call Init_Err_EoS()
+      
+      !>Checks
+      !>If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
+      if(e%itherm == 7)then
+        if(len_trim(E%pscale_name) == 0)then
+            Warn_EoS=.true.
+            Warn_Eos_Mess='MGD EoS must have a Pscale'
+        endif
+        if(len_trim(E%Vscale_name) == 0 .or. index(U_case(E%Vscale_name),'MOL') == 0)then
+            Warn_EoS=.true.
+            if(len_trim(Warn_EoS_Mess) == 0)then
+                Warn_Eos_Mess='MGD EoS must have a Vscale in molar volume'
+            else
+                Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale in molar volume'
+            endif
+        endif
+        if(len_trim(Warn_EoS_Mess) /= 0)Warn_Eos_Mess=trim(Warn_Eos_Mess)//' set to get correct results. '       
+      endif
+      
+      !>For all EoS compare data and eos scales
+       if(len_trim(E%pscale_name) /= 0 .and. len_trim(dat%Pscale_name) /=0)then
+           if(trim(u_case(adjustl(E%pscale_name))) /= trim(u_case(adjustl(dat%Pscale_name))))then
+                Warn_EoS=.true.
+                if(len_trim(Warn_EoS_Mess) > 0)Warn_Eos_Mess=trim(Warn_Eos_Mess)//' And'
+                Warn_Eos_Mess=trim(Warn_Eos_Mess)//' Pscales of data and EoS are different.'
+           endif
+       endif
+   
+       if(len_trim(E%vscale_name) /= 0 )then
+           if(e%linear)then
+               name=trim(u_case(adjustl(dat%Lscale_name)))
+           else
+               name=trim(u_case(adjustl(dat%Vscale_name)))
+           endif
+           if(len_trim(name) /= 0)then
+               if(trim(u_case(adjustl(E%vscale_name))) /= trim(name))then
+                   Warn_EoS=.true.
+                    if(len_trim(Warn_EoS_Mess) > 0)Warn_Eos_Mess=trim(Warn_Eos_Mess)//' And'
+                    Warn_Eos_Mess=trim(Warn_Eos_Mess)//' Vscales of data and EoS are different'
+               endif
+           endif
+           
+       endif    
+        
+      return
+   End Subroutine Check_Scales
 
    !!----
    !!---- SUBROUTINE DEALLOCATE_EOS_DATA_LIST
@@ -5093,7 +5154,7 @@ Contains
    !!----
    !!---- General routine to read data for Eos
    !!----
-   !!---- Update: 17/07/2015
+   !!---- Update: 06/12/2018  RJA: reading of Vscale and Pscale from file
    !!
    Subroutine Read_EoS_DataFile(fname,dat)
       !---- Arguments ----!
@@ -5162,7 +5223,40 @@ Contains
       j=nlines
       call Read_Key_Str(flines, i, j, 'TScale', line,'#')
       if (len_trim(line) > 0) Ts=U_case(trim(adjustl(line)))
+      
+      !> PScale
+      i=1
+      j=nlines
+      call Read_Key_Str(flines, i, j, 'PScale', line,'#')
+      if (len_trim(line) > 0)then
+          line=adjustl(U_case(line))
+          j=len_trim(line)
+          if(j-i > 15)j=15
+          dat%Pscale_name=line(1:j)
+      endif    
 
+      !> VScale
+      i=1
+      j=nlines
+      call Read_Key_Str(flines, i, j, 'VScale', line,'#')
+      if (len_trim(line) > 0)then
+          line=adjustl(U_case(line))
+          j=len_trim(line)
+          if(j-i > 15)j=15
+          dat%Vscale_name=line(1:j)
+      endif    
+      
+      !> LScale
+      i=1
+      j=nlines
+      call Read_Key_Str(flines, i, j, 'LScale', line,'#')
+      if (len_trim(line) > 0)then
+          line=adjustl(U_case(line))
+          j=len_trim(line)
+          if(j-i > 15)j=15
+          dat%Lscale_name=line(1:j)
+      endif    
+      
       !> DataType: sets idatatype for temporary use
       i=1
       j=nlines
@@ -6625,6 +6719,31 @@ Contains
          write(unit=lun,fmt='(a)',iostat=ierr)    '#'
       end if
 
+      !> Scales
+      if (len_trim(dat%Pscale_name) > 0)then
+         write(unit=lun,fmt='(a,a)',iostat=ierr)  'PSCALE ',trim(dat%Pscale_name)
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      end if
+      if (len_trim(dat%Vscale_name) > 0)then
+         write(unit=lun,fmt='(a,a)',iostat=ierr)  'VSCALE ',trim(dat%Vscale_name)
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      end if
+      if (len_trim(dat%Lscale_name) > 0)then
+         write(unit=lun,fmt='(a,a)',iostat=ierr)  'LSCALE ',trim(dat%Lscale_name)
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      end if
+      
+      !> Datatype: we assume that all data are the same type: responsibility of calling program
+      select case(dat%eosd(1)%xtype)
+      case(1)
+         write(unit=lun,fmt='(a)',iostat=ierr)  'DATATYPE MODULI ISOTHERMAL'
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'          
+      case(2)
+         write(unit=lun,fmt='(a)',iostat=ierr)  'DATATYPE MODULI ADIABATIC'
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'        
+      end select
+      
+      
       !> build format line
       text='FORMAT 1'
       do i=ini,iend
