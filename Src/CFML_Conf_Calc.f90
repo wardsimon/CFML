@@ -1433,30 +1433,30 @@
       Real(kind=cp), Dimension(3,3),  Intent(in)   :: Lattvec
       Real(kind=cp),                  Intent(in)   :: Vol
       Type (Atoms_Cell_Type),         Intent(in)   :: Ac
-      Real(kind=dp),                  Intent(out)  :: e
+      Real(kind=8),                   Intent(out)  :: e
 
-      Integer                                      :: i, j, k, h, l, ik, nk, iall
+      Integer                                         i, j, k, h, l, ik, nk
       Integer, Dimension(3)                        :: ncell, nrcell
 
-      Real(kind=dp), Parameter                     :: k_coul = 14.39963977_dp     ! eV * angstrom
-      Real(kind=dp), Parameter                     :: k_boltz = 8.617332358e-5_dp ! eV / K
-      Real(kind=dp), Parameter                     :: beta = 0.4_dp
-      Real(kind=dp), Parameter                     :: rcut = 12.0_dp           ! angstrom
-      Real(kind=dp), Parameter                     :: kcut =  4.0_dp           ! angstrom ^ -1
-      Real(kind=dp)                                :: rcut2, kcut2, four_beta2, fourpi
-      Real(kind=dp)                                :: r2, e_s, e_l, e_self, fase, sk2
-      Real(kind=dp), Dimension(2)                  :: sk
-      Real(kind=dp), Dimension(3)                  :: latt, rlatt, rdmin, kdmin, r0, r, a, b, c
+      Real(kind=dp), Parameter                      :: k_coul = 14.39963977_dp     ! eV * angstrom
+      Real(kind=dp), Parameter                      :: k_boltz = 8.617332358e-5_dp ! eV / K
+      Real(kind=dp), Parameter                      :: beta = 0.4_dp
+      Real(kind=dp), Parameter                      :: rcut = 12.0_dp              ! angstrom
+      Real(kind=dp), Parameter                      :: kcut =  4.0_dp              ! angstrom ^ -1
+      Real(kind=dp)                                    rcut2, kcut2, four_beta2, fourpi
+      Real(kind=dp)                                 :: r2, e_s, e_l, e_self, fase, sk2
+      Real(kind=dp),  Dimension(2)                  :: sk
+      Real(kind=dp),  Dimension(3)                  :: latt, rlatt, rdmin, kdmin, r0, r, a, b, c
       Real(kind=cp), Dimension(3,3)                :: rlattvec
-      Real(kind=cp), Dimension(:),   Allocatable   :: expok
+      Real(kind=cp), Dimension(:), Allocatable     :: expok
       Real(kind=cp), Dimension(:,:), Allocatable   :: xyz, errorfc, g
 
       ! Constants
 
-      rcut2         = rcut * rcut
-      kcut2         = kcut * kcut
+      rcut2         = rcut ** 2
+      kcut2         = kcut ** 2
       fourpi      = 4.0_dp * pi
-      four_beta2  = 4.0_dp * beta * beta
+      four_beta2  = 4.0_dp * beta*beta
 
       ! Compute reciprocal lattice vectors rlattvec
 
@@ -1484,10 +1484,10 @@
       End Do
 
       ! Direct to Cartesian Coordinates
-      if(allocated(xyz)) deallocate(xyz)
+
       Allocate(xyz(3,Ac%Nat))
       xyz=0.0
-      Do i = 1, Ac%Nat
+      Do i = 1 , Ac%Nat
         xyz(:,i)= matmul(lattvec,Ac%XYZ(:,i))
       End Do
 
@@ -1495,12 +1495,11 @@
 
       ! - ERROFC
 
-      if(allocated(errorfc)) deallocate(errorfc)
       Allocate(errorfc(Ac%Nat,Ac%Nat))
 
       Do i = 1 , Ac%Nat
          Do j = 1 , Ac%Nat
-            errorfc(i,j) = 0.0
+            errorfc(i,j) = 0.
             r0 = xyz(:,j) - xyz(:,i)
             Do h = -ncell(1) , ncell(1)
                Do k = -ncell(2) , ncell(2)
@@ -1515,6 +1514,7 @@
                            r(1)         = Sqrt(r2)
                            errorfc(i,j) = errorfc(i,j) + erfc(beta * r(1)) / r(1)
                         End If
+
                      End If
                   End Do
                End Do
@@ -1526,12 +1526,11 @@
 
       nk = (2 * nrcell(1) + 1) * (2 * nrcell(2) + 1) * (2 * nrcell(3) + 1)
 
-      if(allocated(g)) deallocate(g)
       Allocate(g(1:nk,1:4))
 
       nk = 0
       i  = 0
-      g  = 0.0_dp
+      g  = 0
 
       Do h = - nrcell(1) , nrcell(1)
          a = h * rlattvec(:,1)
@@ -1541,7 +1540,7 @@
                c = l * rlattvec(:,3)
                r = a  + b + c
                r2 = Dot_Product(r,r)
-               If (r2 <= kcut2 .And. r2 > 0.0_dp) Then
+               If (r2 <= kcut2 .And. r2 > 0.0d0) Then
                   nk        = nk + 1
                   g(nk,1:3) = r
                   g(nk,4)   = r2
@@ -1552,7 +1551,6 @@
 
       ! - EXPOK
 
-      if(allocated(expok)) deallocate(expok)
       Allocate(expok(1:nk))
 
       Do ik = 1 , nk
@@ -1582,7 +1580,7 @@
       ! E_L (Reciprocal space contribution)
 
       Do ik = 1 , nk
-         sk(1:2) = 0.0_dp
+         sk(1:2) = 0.0d0
          Do j = 1 , Ac%Nat
             fase = Dot_product(xyz(1:3,j),g(ik,1:3))
             sk(1) = sk(1) + Ac%Charge(j) * cos(fase)
@@ -1591,8 +1589,8 @@
          sk2 = sk(1) ** 2 + sk(2) ** 2
          e_l = e_l + expok(ik) * sk2
       End Do
-      e_s    = e_s * k_coul / 2.0_dp
-      e_l    = e_l * k_coul * fourpi / 2.0_dp / Vol
+      e_s    = e_s * k_coul / 2.
+      e_l    = e_l * k_coul * fourpi / 2. / Vol
       e_self = e_self * k_coul * beta  / Sqrt(pi)
       e      = (e_s + e_l - e_self) / Ac%Nat
     End Subroutine Ewald
@@ -2162,7 +2160,7 @@
             ERR_Char_Mess = " => No solution found. Unable to set charges"
             Call Set_Epsg(old_eps)  !Restore previous value of epss
             Return
-         End If
+          End If
 
          ! We compute how many unusual valences are in each solution, and set a penalty according to this
 

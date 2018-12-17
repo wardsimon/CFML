@@ -8,7 +8,7 @@
      integer, dimension(:,:),allocatable :: table
      integer, dimension(:,:),allocatable :: G
      integer, dimension(:),  allocatable :: ord
-     integer :: i,j,L,nsg
+     integer :: i,j,L,nsg,ind,indexg
      real :: start, fin
      call Init_Group(2048) !Maximum admissible multiplicity
      do
@@ -22,6 +22,8 @@
          else
             call print_Group(Grp)
          end if
+         write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction): "
+         read(*,*) indexg
          !call Get_Multiplication_Table(Grp%Op,table)
          !!do i=1,Grp%multip
          !!   write(*,"(128i4)") (Table(i,j),j=1,Grp%multip)
@@ -31,10 +33,14 @@
          !   write(forma(11:13),"(i3)") ord(i)
          !   write(*,forma) i," {",G(1:ord(i),i),"   }",ord(i)
          !end do
-         call get_subgroups(Grp,sGrp,nsg)
+         if(indexg == 0) then
+           call get_subgroups(Grp,sGrp,nsg)
+         else
+           call get_subgroups(Grp,sGrp,nsg,indexg)
+         end if
          if(nsg > 0) Then
            do L=1,nsg
-              write(*,"(/a,i3)") "  SUB-GROUP NUMBER #",L
+              write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
               call print_Group(sGrp(L))
            end do
          end if

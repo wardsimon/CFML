@@ -66,6 +66,7 @@
     character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
     character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
     character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
+    integer,parameter, dimension(0:2) :: cent=[2,1,2]  !Multiplier for calculating the total multiplicity
 
     Contains
 
@@ -927,8 +928,6 @@
         end do
     end subroutine sort_op
 
-
-
     Subroutine Reorder_Operators(multip,Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
       use CFML_Rational_Arithmetic, equal_matrix => equal_rational_matrix
       integer,                            intent(in)     :: multip
@@ -951,237 +950,8 @@
 
       ZERO=0_ik/1_ik;  ONE=1_ik/1_ik; ONE_HALF=1_ik/2_ik
 
-      !Initializing
-      n=size(Op(1)%Mat,1) !dimension of the full square matrices
-      d=n-1               !here d is the dimension of the square matrix containing rotational operator
-      allocate(identity(d,d),invers(d,d),imat(d,d))
-      call Allocate_Operator(n,Op_identp)   ! {1|0}'
-      identity=ZERO; nul=.false.; mag_type=1
-      do i=1,d
-        Op_identp%Mat(i,i)=ONE
-        identity(i,i)=ONE
-      end do
-      Op_identp%time_inv=-1
-      invers=-identity !Inversion
-      centred=1 !Default value for non-centrosymmetric groups
+      include "CFML_reorder_operators_template_inc.f90"
 
-      !Insertion sort putting the negative determinants at the bottom
-      call sort_Op(multip,Op(1:multip),"det")
-      do i=1,Multip
-        tr(i)=sum(abs(Op(i)%Mat(1:d,n)))
-        call Allocate_Operator(n,Opr(i))
-      end do
-
-
-      !Testing
-      !write(*,*) " "
-      !write(*,*) "List of operators after re-ordering by determinant: "
-      !m=0
-      !do i=1,Multip
-      !  if(nul(i)) cycle
-      !  m=m+1
-      !  write(*,"(2i5,a30,f12.5,i6,tr2,L)") m,i,trim(Symbol_Operator(Op(i))),tr(i),Op(i)%dt,nul(i)
-      !end do
-      !end Testing
-
-
-      !Check if the group is paramagnetic
-      j=0
-      do i=2,Multip
-        if(Op(i)== Op_identp) then
-          j=i
-          exit
-        end if
-      end do
-      if(j /= 0) Then
-        do i=2,Multip   !Nullify all primed operators
-          if(Op(i)%time_inv < 0) nul(i) = .true.
-        end do
-        mag_type=2
-      end if
-      !----End intial re-ordering
-
-      !Look for centre of symmetry, and centring translations
-      num_lat=0; num_alat=0; tmin=1.0e8; i_centre=0
-      do j=2,Multip
-         if(nul(j)) cycle
-         invt= Op(j)%time_inv
-         imat=Op(j)%Mat(1:d,1:d)
-         if(equal_matrix(identity,imat) .and. invt == 1) then
-            num_lat=num_lat+1
-            Lat_tr(:,num_lat)=Op(j)%Mat(1:d,n)
-            Op_Lat(num_lat)=Op(j)
-            nul(j)=.true.   !Nullify centring translations
-            cycle
-         end if
-         if(equal_matrix(imat,invers) .and. invt == 1 ) then
-             nul(j) = .true.
-             if(tr(j) < tmin) Then
-               tmin= tr(j)
-               i_centre=j
-             end if
-         end if
-      end do
-
-      if(i_centre /= 0) then
-         Op_centre=Op(i_centre)
-         centre_coord=ONE_HALF*Op(i_centre)%Mat(1:d,n)
-         if(tr(i_centre) < loc_eps) then
-           centred = 2
-         else
-           centred = 0
-         end if
-      end if
-
-      do j=2,Multip-1   !Nullify operators deduced by lattice translations and centre of symmetry
-         if(nul(j)) cycle
-
-           if(mag_type ==2) then
-             Op_aux=Op(j)*Op_identp
-             do i=j+1,Multip
-                if(nul(i)) cycle
-                if(Op_aux == Op(i)) then
-                   nul(i)=.true.
-                end if
-             end do
-           end if
-
-           if(num_lat > 0 .and. i_centre /= 0) then
-              Op_aux=Op(j)*Op_centre
-              do L=1,num_lat
-                 Op_aux1=Op(j)*Op_Lat(L)
-                 Op_aux2=Op_aux1*Op_centre
-                 do i=j+1,Multip
-                    if(nul(i)) cycle
-                    if(Op_aux == Op(i) .or. Op_aux1 == Op(i) .or. Op_aux2 == Op(i)) then
-                       nul(i)=.true.
-                    end if
-                 end do
-              end do
-              cycle
-           end if
-
-           if(num_lat > 0) then
-              do L=1,num_lat
-                 Op_aux=Op(j)*Op_Lat(L)
-                 do i=j+1,Multip
-                    if(nul(i)) cycle
-                    if(Op_aux == Op(i)) then
-                       nul(i)=.true.
-                    end if
-                 end do
-              end do
-           end if
-
-           if(i_centre /= 0) then
-              Op_aux=Op(j)*Op_centre
-              do i=j+1,Multip
-                 if(nul(i)) cycle
-                 if(Op_aux == Op(i) ) then
-                    nul(i)=.true.
-                 end if
-              end do
-           end if
-      end do
-
-      !Determine the lattice anti-translations
-      do_ext: do j=2,Multip
-        if(nul(j)) cycle
-        invt= Op(j)%time_inv
-        imat=Op(j)%Mat(1:d,1:d)
-        if(equal_matrix(identity,imat) .and. invt == -1) then
-          num_alat=num_alat+1
-          aLat_tr(:,num_alat)=Op(j)%Mat(1:d,n)
-          Op_aLat(num_alat)=Op(j)
-        end if
-      end do  do_ext !j=2,Multip
-
-
-      if(num_alat > 0) then
-        if(mag_type /= 2) then
-          mag_type=4
-        end if
-      else
-        if(mag_type /= 2) then
-          if(any(Op(:)%time_inv < 0)) mag_type=3
-        end if
-      end if
-
-      ! => Determine the reduced set of symmetry operators"
-      j=0
-      do i=1,Multip
-        if(nul(i)) cycle
-        j=j+1
-        Opr(j) = Op(i)
-      end do
-      Numops=j
-
-      !Promote the reduced set of symmetry operators to the top of the list
-      Op(1:j)=Opr(1:j)
-
-      !Reorder the reduced set putting primed elements at the bottom
-      call sort_op(Numops,Op(1:Numops),"tim")
-
-      !Testing
-      !write(*,*) " "
-      !write(*,*) "List of reduced set of operators after re-ordering by time inversion: "
-      !m=0
-      !do i=1,Numops
-      !  if(nul(i)) cycle
-      !  m=m+1
-      !  write(*,"(2i5,a30,f12.5,i6,tr2,L)") m,i,trim(Symbol_Operator(Op(i))),tr(i),Op(i)%time_inv,nul(i)
-      !end do
-      !end Testing
-
-      if(i_centre /= 0) then
-        m=j*2*(num_lat+1)
-      else
-        m=j*(num_lat+1)
-      end if
-      if(mag_type == 2) m=m*2
-      if( m /= Multip) then !Check that it is OK
-        write(unit=Err_group_mess,fmt="(2(a,i4))") " Warning! Multip=",Multip, " Calculated Multip: ",m
-        Err_group=.true.
-        return
-      end if
-
-      !Re-Construct, in an ordered way, all the symmetry operators
-      !starting with the reduced set
-      m=Numops
-      ng=m
-      if(i_centre /= 0) then   !First apply the centre of symmetry
-        do i=1,Numops
-          m=m+1
-          Op(m) = Op(i) * Op_centre
-        end do
-      end if
-
-      ng=m  ! Number or symmetry operators including centre of symmetry
-
-      if(Num_Lat > 0) then  !Fourth apply the lattice centring translations
-        do L=1,Num_Lat
-           do i=1,ng
-             m=m+1
-             Op(m)=Op_Lat(L)*Op(i)
-           end do
-        end do
-      end if
-
-      if(mag_type == 2) then
-         ng=m
-         do i=1,ng
-           m=m+1
-           Op(m)=Op_identp*Op(i)
-         end do
-      end if
-
-      !Normally here the number of operators should be equal to multiplicity
-      !Test that everything is OK
-      ng=m
-      if(ng /= Multip) then
-        Err_group=.true.
-        write(unit=Err_group_mess,fmt="(2(a,i3))") " => Problem! the multiplicity ",Multip," has not been recovered, value of ng=",ng
-      end if
     End Subroutine Reorder_Operators
 
 
@@ -1335,11 +1105,12 @@
 
     End Subroutine Get_Operators_From_String
 
-    !!---- Subroutine Get_SubGroups(SpG,SubG,nsg,point)
+    !!---- Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
     !!---- !   !---- Arguments ----!
     !!----     Class (Group_Type) ,              intent( in) :: SpG
     !!----     Class (Group_Type) ,dimension(:), intent(out) :: SubG
     !!----     integer,                          intent(out) :: nsg
+    !!----     integer,                 optional,intent(in)  :: indexg
     !!----     logical, dimension(:,:), optional,intent(out) :: point
     !!----
     !!----   This subroutine provides all subgroups of a generic space group
@@ -1352,13 +1123,15 @@
     !!----  where t1,t2, ... are the centring translations
     !!----  This ordering facilitates the calculation of the major part of subgroups
     !!----  (excluding those for which less centring translations are considered)
+    !!----  If indexg is present only the subgroups of index=indexg are output
     !!----
-    Subroutine Get_SubGroups(SpG,SubG,nsg,point)
-    !!   !---- Arguments ----!
-        type(Spg_Type),                      intent( in) :: SpG
-        type(Spg_Type),dimension(:),         intent(out) :: SubG
-        integer,                             intent(out) :: nsg
-        logical, dimension(:,:), optional,   intent(out) :: point
+    Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
+       !---- Arguments ----!
+        type(Spg_Type),                   intent( in) :: SpG
+        type(Spg_Type),dimension(:),      intent(out) :: SubG
+        integer,                          intent(out) :: nsg
+        integer,                 optional,intent(in)  :: indexg
+        logical, dimension(:,:), optional,intent(out) :: point
        !--- Local variables ---!
        integer  :: i,L,j,k,m,d, nc, mp,maxg,ng,kb, nla, i1,i2,nop,n,ns_1,ns_2,ns_3,n_nc_group
        logical  :: newg, cen_added
@@ -1367,263 +1140,39 @@
        character (len=40)                           :: gen_cent
        type(Symm_Oper_Type)                         :: Op_cent
        type(Symm_Oper_Type), dimension(30)          :: Op_lat
-
+       type(Spg_Type),dimension(:), allocatable     :: sG
+       integer, dimension(size(SubG))               :: index_sg,ind
 
        maxg=size(SubG)
        allocate(gen(SpG%multip))
        d=SpG%d
-       !---- Construct first the generators of centring translations ----!
-       ng=0; nc=0
-       nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
-       if (SpG%centred /= 1) then
-          nop=nop*2 !!number of symmetry operators excluding lattice centrings
-          nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
-          gen_cent=SpG%Symb_Op(nc)
-          call Allocate_Operator(SpG%d,Op_cent)
-          Op_cent=SpG%Op(nc)
-       end if
-       if(SpG%num_lat > 0) then
-         do i=1,SpG%num_lat
-            ng=ng+1
-            gen_lat(ng)= SpG%Symb_Op(1+nop*i)
-            Op_lat(ng)= SpG%Op(1+nop*i)
-         end do
-       end if
-       !First work with the Numops operators to determine the subgroups, the other subgroups
-       !will be obtained adding progressively the rest of generators (centre of symmetry and
-       !lattice centrings.
-       L=0
-       !---- Determine first the groups with only one rotational generator
-       ng=1
-       do i=2,SpG%numops
-          gen(1) = SpG%Symb_Op(i)
-          L=L+1
-          if (L > maxg) then
-             nsg=maxg
-             return
-          end if
-          newg=.true.
-          !write(*,*) (trim(gen(j))//" ; ",j=1,ng)
-          call Group_Constructor(gen(1:ng),SubG(L))
-          do k=1,L-1
-            if (SubG(L) == SubG(k)) then
-               newg=.false.
-               exit
-            end if
-          end do
-          if (.not. newg) L=L-1
-       end do
-       ns_1=L
-       !---- Determine now the groups with two rotational generators
-       if(SpG%numops > 2) then
-         ng=2
-         do i=2,SpG%numops-1
-            gen(1) = SpG%Symb_Op(i)
-            do j=i+1,SpG%numops
-              gen(2)=SpG%Symb_Op(j)
-              L=L+1
-              if (L > maxg) then
-                 nsg=maxg
-                 return
-              end if
-              newg=.true.
-              call Group_Constructor(gen(1:ng),SubG(L))
-              do k=1,L-1
-                if (SubG(L) == SubG(k)) then
-                   newg=.false.
-                   exit
-                end if
-              end do
-              if (.not. newg) L=L-1
-            end do
-         end do
-         ns_2=L-ns_1
-       end if
-       nsg=L
-       n_nc_group=L
-       !write(*,*) " Number of subgroups of the first Numops elements: ",n_nc_group
-       !---- Determine now the new groups adding a centre of symmetry if it exists
-       if (SpG%centred /= 1) then !This doubles the number of groups
-         do i=1,n_nc_group
-           L=L+1
-           call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-           if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-           allocate(SubG(L)%centre_coord(d-1))
-           if(SubG(i)%num_alat /= 0) then
-               if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-               allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-               SubG(L)%aLat_tr=SubG(i)%aLat_tr
-               SubG(L)%num_alat=SubG(i)%num_alat
-           end if
-           k=SubG(i)%numops
-           do j=1,SubG(i)%numops
-             SubG(L)%Op(j)=SubG(i)%Op(j)
-             SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
+       include "CFML_subgroups_template_inc.f90"
+       if(present(indexg)) then
+         k=0
+         do L=1,nsg
+           index_sg(L)=Spg%multip/SubG(L)%multip
+           if( index_sg(L) == indexg) then
              k=k+1
-             SubG(L)%Op(k)=SubG(i)%Op(j)*Op_cent
-             SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-           end do
-           SubG(L)%Numops=SubG(i)%Numops
-           SubG(L)%mag_type=SubG(i)%mag_type
-           SubG(L)%centred=SpG%centred
-           SubG(L)%centre_coord=SpG%centre_coord
+             ind(k)=L
+           end if
          end do
-       end if
-       nsg=L
-       n_nc_group=L
-       !if (SpG%centred /= 1) write(*,*) " Number of subgroups of adding a centre of symmetry: ",n_nc_group
-
-       !Determine now the rest of groups adding the lattice translations if they exist in the
-       !original space group
-       if(SpG%num_lat > 0) then
-         Select Case (SpG%num_lat)
-           case(1)
-             do i=1,n_nc_group
-               L=L+1
-               call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,1))
-               SubG(L)%Lat_tr(:,1)=SpG%Lat_tr(:,1)
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
-               end if
-               SubG(L)%num_lat=1
-               if(SubG(i)%centred /= 1) then
-                  k=SubG(i)%numops*2
-               else
-                  k=SubG(i)%numops
-               end if
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Multip=2*SubG(i)%Multip
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
-             end do
-           case(2)
-             do i=1,n_nc_group
-               L=L+1
-               call Allocate_Group(SpG%d,3*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,2))
-               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
-               SubG(L)%num_lat=2
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
-               end if
-               if(SubG(i)%centred /= 1) then
-                  k=SubG(i)%numops*2
-               else
-                  k=SubG(i)%numops
-               end if
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Multip=3*SubG(i)%Multip
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
-             end do
-           case(3)
-             do i=1,n_nc_group
-               L=L+1
-               call Allocate_Group(SpG%d,4*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,3))
-               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
-               SubG(L)%num_lat=3
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
-               end if
-               if(SubG(i)%centred /= 1) then
-                  k=SubG(i)%numops*2
-               else
-                  k=SubG(i)%numops
-               end if
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(3)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Multip=4*SubG(i)%Multip
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
-             end do
-         End Select
-
-       end if
-
-       nsg=L
-       if(present(point)) then
-         point=.false.
-         do j=1,nsg
-           L=1
-           do i=1,SpG%multip
-              do k=L,SubG(j)%multip
-               if(SubG(j)%Symb_Op(k) == SpG%Symb_Op(i)) then
-                  point(i,j) = .true.
-                  L=k+1
-                  exit
-               end if
-              end do
+         nsg=k
+         if(nsg /= 0) then
+           allocate(sG(nsg))
+           do k=1,nsg
+             sG(k)=SubG(ind(k))
            end do
-         end do
+           do L=1,nsg
+             SubG(L)=sG(L)
+           end do
+         end if
        end if
-       !include "CFML_subgroups_template_inc.f90"
 
     End Subroutine Get_SubGroups
 
 
     subroutine print_Group(Grp,lun)
-      type(Spg_Type),    intent(in)   :: Grp
+      class(Spg_Type),    intent(in)   :: Grp
       integer, optional, intent(in)   :: lun
       integer :: iout,i,j
       iout=6 !To be replaced by Fortran environment value

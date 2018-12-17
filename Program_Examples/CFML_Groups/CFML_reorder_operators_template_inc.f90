@@ -47,10 +47,12 @@
         end if
       end do
       if(j /= 0) Then
-        do i=2,Multip   !Nullify all primed operators
-          if(Op(i)%time_inv < 0) nul(i) = .true.
-        end do
-        mag_type=2
+        if(Op(j)%time_inv < 0) then
+          do i=2,Multip   !Nullify all primed operators
+            if(Op(i)%time_inv < 0) nul(i) = .true.
+          end do
+          mag_type=2
+        end if
       end if
       !----End intial re-ordering
 
@@ -188,12 +190,7 @@
 
 
 
-
-      if(i_centre /= 0) then
-        m=j*2*(num_lat+1)
-      else
-        m=j*(num_lat+1)
-      end if
+      m=Numops*(num_lat+1)*cent(centred)
       if(mag_type == 2) m=m*2
       if( m /= Multip) then !Check that it is OK
         write(unit=Err_group_mess,fmt="(2(a,i4))") " Warning! Multip=",Multip, " Calculated Multip: ",m
