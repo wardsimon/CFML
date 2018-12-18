@@ -255,6 +255,8 @@
        allocate(Gr%Op(multip))
        Gr%d=d
        Gr%multip=multip
+       Gr%num_lat=0
+       Gr%num_alat=0
        do i=1,multip
          call Allocate_Operator(d,Gr%Op(i))
        end do
@@ -1203,7 +1205,7 @@
       if(Grp%num_alat > 0) then
         write(unit=iout,fmt="(/a)")      "  Anti-translations:"
         do i=1,Grp%num_alat
-          ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
+         !write(*,"(i3,tr4,10f8.3)") i,real(Grp%aLat_tr(:,i))
          write(unit=iout,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if

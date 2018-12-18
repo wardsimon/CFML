@@ -40,8 +40,8 @@ rem **---- GFORTRAN Compiler ----**
    gfortran *.o -o groups    -L../../GFortran/LibC   -lcrysfml
    goto END
 :GFORD
-   gfortran -c CFML_Rational_Groups.f90 -g -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c groups.f90    -g -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c CFML_Rational_Groups.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c groups.f90    -g -fbounds-check -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
    gfortran *.o -o groups    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem

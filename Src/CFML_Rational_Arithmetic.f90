@@ -102,7 +102,7 @@
 
     !Public overloaded intrinsic functions (transpose is not needed)
     public :: abs, int, nint, modulo, mod, dot_product, maxval, minval, &
-              maxloc,minloc, matmul, sum
+              maxloc,minloc, matmul, sum, real
 
     integer, public, parameter :: ik=8
 
@@ -242,6 +242,10 @@
     interface minloc
       module procedure rational_minloc_vect
       module procedure rational_minloc_mat
+    end interface
+
+    interface real
+      module procedure rational_real
     end interface
 
     interface IsInteger
@@ -693,6 +697,12 @@
       integer(kind=ik) :: res
       res = r % numerator / r % denominator
     end function rational_int
+
+    elemental function rational_real(r) result (res)
+      type (rational),  intent (in) :: r
+      real(kind=dp) :: res
+      res = real(r % numerator,kind=dp) / real(r % denominator,kind=dp)
+    end function rational_real
 
     elemental function nint_rational (r) result(res)
       type (rational),  intent (in)  :: r
