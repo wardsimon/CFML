@@ -122,7 +122,6 @@ else(WIN32)
     libfind_library(XMU Xmu)
     libfind_library(X11 X11)
     libfind_library(XEXT Xext)
-    libfind_library(XP Xp)
     libfind_library(SM SM)
     libfind_library(ICE ICE)
     libfind_library(XFT Xft)
@@ -142,7 +141,6 @@ else(WIN32)
                                  XMU_LIBRARY
                                  X11_LIBRARY
                                  XEXT_LIBRARY
-                                 XP_LIBRARY
                                  SM_LIBRARY
                                  ICE_LIBRARY
                                  XFT_LIBRARY
