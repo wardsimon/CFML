@@ -230,7 +230,7 @@
                                       Rot_Matrix
     Use CFML_Geometry_Calc,     Only: Get_OmegaChiPhi, Get_Matrix_moving_v_to_u,ERR_Geom_Mess,&
                                       ERR_Geom, Get_Anglen_Axis_From_Rotmat, Set_Rotation_Matrix
-    Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
+    Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm,SXTAL_Numor_type
     Use CFML_IO_Formats,        Only: file_list_type
 
     !---- Variables ----!

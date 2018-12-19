@@ -11,6 +11,7 @@ set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
 # Those file are generated during the build.
 set(CRYSFML_COMMON_OBJECTS_DIR ${PROJECT_BINARY_DIR}/Src/CMakeFiles/crysfml_common.dir)
+
 set(CRYSFML_COMMON_OBJECTS ${CRYSFML_COMMON_SOURCES})
 add_suffix(CRYSFML_COMMON_OBJECTS ${CMAKE_Fortran_OUTPUT_EXTENSION})
 add_prefix(${CRYSFML_COMMON_OBJECTS_DIR}/ CRYSFML_COMMON_OBJECTS)

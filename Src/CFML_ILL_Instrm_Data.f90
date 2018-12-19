@@ -226,8 +226,12 @@
 !!--++       WRITE_SXTAL_NUMOR               [Overloaded]
 !!----
 !!
+
+
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
+
+   use, intrinsic :: iso_c_binding
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
    Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint, sort
@@ -235,6 +239,18 @@ Module CFML_ILL_Instrm_Data
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
+
+#ifdef USE_HDF
+
+   use CFML_ILL_Instrm_Data_Nexus, only:fra1,Read_Numor_D19_NXS2,Read_Header_NXS,Get_Header_Numor_NXS,  &
+                                    Read_Init_NXS,get_Header_ScanType_NXS,get_Header_Instr_Name_NXS,  &
+                                    get_Header_SubT_NXS,  &
+                                    Read_IntegerBloc_NXS,get_IntegerBloc_NXS,  &
+                                    Read_FloatBloc_NXS,get_FloatBloc_NXS,&
+                                    Read_DataBlocParam_NXS,get_DataBlocTime_NXS,get_DataBlocMoni_NXS,&
+                                    get_DataBlocTotalCount_NXS,get_DataBlocAngle1_NXS,&
+                                    get_DataBlocDataFull_NXS
+#endif
 
    !---- Variables ----!
    Implicit none
@@ -260,7 +276,8 @@ Module CFML_ILL_Instrm_Data
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
              Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
              Read_Calibration_File_D2B, Read_Calibration_File_D4, Adding_Numors_D1A_DiffPattern, &
-             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern
+             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern, &
+             Read_Numor_D19_NXS
 
 
    !---- Definitions ----!
@@ -1068,6 +1085,17 @@ Module CFML_ILL_Instrm_Data
       Module Procedure Write_HeaderInfo_SXTAL_Numor
    End Interface
 
+
+!   Interface
+!       subroutine fra1()
+!   End Interface
+
+!   Interface
+!       subroutine Read_Numor_D19_NXS
+!   End Interface
+
+
+
  Contains
 
     !!--++
@@ -1122,8 +1150,6 @@ Module CFML_ILL_Instrm_Data
 
         !> Checking dimensions
         ndet=PNumors(1)%nbdata
-        !write(*,*) " Number of    numors: ",n
-        !write(*,*) " Number of detectors: ",ndet
         npoints=0
         do i=1,n
            if (.not. actlist(i)) cycle
@@ -4517,6 +4543,7 @@ Module CFML_ILL_Instrm_Data
        type(SXTAL_numor_type)         , intent(inout) :: n
        integer, optional, dimension(:), intent(in)    :: frames
 
+
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
        integer, dimension(:), allocatable           :: temp_frames
@@ -4562,10 +4589,8 @@ Module CFML_ILL_Instrm_Data
 
           ! Store the input numor filename in the numor structure.
           n%filename = trim(filename)
-
           ! Define the number of lines of the header and frame blocks.
           call define_numor_header_frame_size(trim(filename),n%header_size,n%frame_size)
-
           ! If an error occured, stop here.
           if (err_illdata) return
 
@@ -4597,14 +4622,12 @@ Module CFML_ILL_Instrm_Data
           ! Get the numor id.
           call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
           n%numor=numor
-
           ! Instr/Experimental Name/ Date
           call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
           if (idum > 0) then
              n%instrm=line(1:4)
              n%header=line(5:14)//"   "//line(15:32)
           end if
-
           ! Title/Sample
           call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
           if (idum > 0) then
@@ -4622,7 +4645,6 @@ Module CFML_ILL_Instrm_Data
              n%nbdata=ivalues(24)            ! Number of Points
              n%icdesc(1:7)=ivalues(25:31)
           end if
-
           ! Real values
           call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
           if (nval_f > 0) then
@@ -4642,7 +4664,6 @@ Module CFML_ILL_Instrm_Data
           end if
 
        end if
-
        ! If the numor was only opened for reading the header, stops here.
        if(Instrm_Info_only) return
 
@@ -4700,7 +4721,6 @@ Module CFML_ILL_Instrm_Data
        if (allocated(n%counts)) deallocate(n%counts)
        allocate(n%counts(n%nbdata,n_selected_frames))
        n%counts=0.0
-
        ! Allocate the motor angles array.
        if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
        allocate(n%tmc_ang(n%nbang+3,n_selected_frames))
@@ -4748,6 +4768,7 @@ Module CFML_ILL_Instrm_Data
              n%tmc_ang(2:3,i)=rvalues(2:3)
              n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
 
+
           ! Case where the number of motors angles is incorrect. Stops here.
           else
              write(unit=car,fmt='(i5)') n%selected_frames(i)
@@ -4780,6 +4801,268 @@ Module CFML_ILL_Instrm_Data
        return
 
     End Subroutine Read_Numor_D19
+
+
+    Subroutine Read_Numor_D19_NXS(filename,n,frames,succes)
+        !---- Arguments ----!
+        character(len=*)               , intent(in)    :: filename
+        type(SXTAL_numor_type)         , intent(inout) :: n
+        integer, optional, dimension(:), intent(in)    :: frames
+        logical succes
+#ifdef USE_HDF
+
+        !---- Local Variables ----!
+        !       character(len=80), dimension(:), allocatable :: filevar
+        integer, dimension(:), allocatable           :: temp_frames
+        integer                                      :: i, n_selected_frames
+        character(len=512)   filenamenxs
+        logical                                      :: info
+        integer size1,ki,kj
+        integer,  dimension(:), allocatable :: tabi
+        real   ,  dimension(:), allocatable :: tabr
+        integer   ,  dimension(:), allocatable :: tabAllCount
+        integer m1
+
+        !       real   ,  dimension(:), allocatable :: tabTime
+        !       real   ,  dimension(:), allocatable :: tabMoni
+        !       real   ,  dimension(:), allocatable :: tabSumDet
+        !       real   ,  dimension(:), allocatable :: tabAngle1
+        !        real      sum_frame
+        !       real   tini ,tfin
+
+        succes = .false.
+
+        ! The error flags are initialized.
+        call init_err_illdata()
+!        call cpu_time(tini)
+
+        ! Flag used for inquiring the input file.
+        info=.false.
+        filenamenxs = filename // ".nxs"
+        ! write (*,*) ' Read_Numor_D19_NXS check file ',filenamenxs
+
+        ! Check first that the input file exists.
+        inquire (file=filenamenxs,exist=info)
+
+        ! If the input file does not exist, stop here.
+        if (.not. info) then
+            err_illdata = .true.
+            err_illdata_mess = " The file "//trim(filenamenxs)//" does not exist."
+            write (*,*) " The file " ,trim(filenamenxs)," does not exist."
+            succes = .false.
+            return
+        end if
+
+         ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
+        if (trim(filename) /= trim(n%filename)) then
+            ! Intiliaze the numor.
+            call init_sxtal_numor(n)
+            n%header_size=42
+            n%nframes=0 ! need ?
+        end if
+
+        ! Init NXS file Redader
+        ! inquire (file=filenamenxs,opened=info)
+        call Read_Init_NXS(filename)
+        call Read_Header_NXS()
+
+        ! Intiliaze the numor.
+        call init_sxtal_numor(n)
+        call Get_Header_Numor_NXS(n%numor)
+        !DBG        write (*,*) ' Read_Numor_D19_NXS numor   ',n%numor
+
+        n%scantype= 'omega'
+        n%instrm='xxxx'
+        size1 = 4
+        call get_Header_Instr_Name_NXS(n%instrm,size1)
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  instrm ',n%instrm
+
+        n%title='tttttttttttttttttttttttttt'
+        size1 = 40
+        call get_Header_SubT_NXS(n%title,size1)
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  title  ',n%title
+
+        !    READ IntegerBloc
+        size1 = 31
+        if (allocated(tabi)) deallocate(tabi)
+        allocate(tabi(size1))
+
+        call Read_IntegerBloc_NXS()
+        call get_IntegerBloc_NXS(tabi,size1)
+        n%manip=tabi(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+        n%nbang=tabi(5)              ! Total number of angles moved during scan
+        n%nframes=tabi(7)            ! Measured Frames. In general equal to those prescripted
+        n% icalc=tabi(9)
+        n%nbdata=tabi(24)            ! Number of Points
+        n%icdesc(1:7)=tabi(25:31)
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  manip   ', n%manip
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  nbang  ', n%nbang
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  nframes  ', n%nframes
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  icalc  ', n% icalc
+        !DBG        write (*,*) 'Read_Numor_D19_NXS  nbdata  ', n%nbdata
+        deallocate(tabi)
+
+        !    READ FloatBloc
+        size1 = 50
+        if (allocated(tabr)) deallocate(tabr)
+        allocate(tabr(size1))
+        call Read_FloatBloc_NXS()
+        call get_FloatBloc_NXS(tabr,size1)
+
+        n%HMin=tabr(1:3)          ! HKL min
+        n%angles=tabr(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+        n%ub(1,:)=tabr(9:11)      !
+        n%ub(2,:)=tabr(12:14)     ! UB Matrix
+        n%ub(3,:)=tabr(15:17)     !
+        n%wave=tabr(18)           ! Wavelength
+        n%HMax=tabr(22:24)        ! HKL max
+        n%dh=tabr(25:27)          ! Delta HKL
+        n%dist=tabr(30)           ! distance
+        n%scans=tabr(36:38)       ! Scan start, Scan step, Scan width
+        n%preset=tabr(39)         ! Preset
+        n%cpl_fact=tabr(43)       ! Coupling factor
+        n%conditions=tabr(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%HMin  ',  n%HMin
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%angles ',  n%angles
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%ub(1,:) ',  n%ub(1,:)
+        !DBG     write (*,*) 'Read_Numor_D19_NXS  n%ub(2,:)  ',  n%ub(2,:)
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%ub(3,:)  ',  n%ub(3,:)
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%wave  ',  n%wave
+        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%HMax  ',  n%HMax
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%dh ',  n%dh
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%dist',  n%dist
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%scans ',  n%scans
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%preset  ',  n%preset
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%cpl_fact  ',  n%cpl_fact
+        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%conditions  ',  n%conditions
+
+        ! If the numor was only opened for reading the header, stops here.
+        if(Instrm_Info_only) return
+
+        ! Case where the user only wants a subset of frames to be included in the numor structure.
+        if (present(frames)) then
+            ! This temporary array will store only those of the selected frames that are in [1,nframes].
+            write (*,*) 'Read_Numor_D19_NXS ARRAY Subset TODOOOOOOOO '
+            allocate(temp_frames(n%nframes))
+            n_selected_frames = 0
+            do i = 1, size(frames)
+                if (frames(i) < 1 .or. frames(i) > n%nframes) cycle
+                n_selected_frames = n_selected_frames + 1
+                temp_frames(n_selected_frames) = frames(i)
+            end do
+
+            ! If none of the selected frame fall in [1,nframes], stops here.
+            if (n_selected_frames <= 0) then
+                err_illdata = .true.
+                err_illdata_mess = " Invalid frames selection."
+                return
+            end if
+
+            ! Sets the selected_frames field of the numor structure with the selected frames within [1,nframes].
+            allocate(n%selected_frames(n_selected_frames))
+            n%selected_frames(1:n_selected_frames) = temp_frames
+            deallocate(temp_frames)
+        ! Case where no frame selection was provided by the user. All the frames will be included in the numor structure.
+        else
+            !DBG          write (*,*) 'Read_Numor_D19_NXS ARRAY ALL FRAME  n%nframes ' ,n%nframes
+            allocate(n%selected_frames(n%nframes))
+            n%selected_frames = (/(i, i=1,n%nframes)/)
+            n_selected_frames = n%nframes
+        end if
+        !DBG       call cpu_time(tfin)
+        !DBG       write(*,*) " => CPU-time for Read_Numor_D19_NXS 07: ", (tfin-tini)
+        !DBG       write(*,*) 'Read_Numor_D19_NXS  count array ',n%nbdata
+        !DBG       write(*,*) 'Read_Numor_D19_NXS  count array ',n_selected_frames
+        ! Allocate the count array.
+        if (allocated(n%counts)) deallocate(n%counts)
+        allocate(n%counts(n%nbdata,n_selected_frames))
+        n%counts=0.0
+        !DBG      write(*,*) 'Read_Numor_D19_NXS  motor angles array ',n%nbang+3
+        ! Allocate the motor angles array.
+        if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+        allocate(n%tmc_ang(n%nbang+3,n_selected_frames))
+        n%tmc_ang=0.0
+
+        !      size1 = n_selected_frames
+        !      if (allocated(tabTime)) deallocate(tabTime)
+        !      allocate(tabTime(size1))
+        !      if (allocated(tabMoni)) deallocate(tabMoni)
+        !      allocate(tabMoni(size1))
+        !      if (allocated(tabSumDet)) deallocate(tabSumDet)
+        !      allocate(tabSumDet(size1))
+        !      if (allocated(tabAngle1)) deallocate(tabAngle1)
+        !      allocate(tabAngle1(size1))
+        !      call cpu_time(tfin)
+        call Read_DataBlocParam_NXS()
+        call get_DataBlocTime_NXS(n%tmc_ang(1,:) ,size1)
+        ! debug
+        !     do i = 1, size1
+        !           n%tmc_ang(1,i) = tabTime(i)
+        !            write(*,*) 'For Time[',i,']= ',n%tmc_ang(1,i)
+        !     end do
+
+        call get_DataBlocMoni_NXS(n%tmc_ang(2,:) ,size1)
+        ! debug
+        !     do i = 1, size1
+        !        n%tmc_ang(2,i) = tabMoni(i)
+        !         write(*,*) 'For Moni[',i,']= ',n%tmc_ang(2,i)
+        !     end do
+
+        call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:) ,size1)
+        ! debug
+        !     do i = 1, size1
+        !        n%tmc_ang(3,i) = tabSumDet(i)
+        !         write(*,*) 'For TotalCount[',i,']= ',n%tmc_ang(3,i)
+        !     end do
+
+        !      call get_DataBlocAngle1_NXS(tabAngle1 ,size1)
+        call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),size1)
+        ! debug
+        !      do i = 1, size1
+        !         write(*,*) 'For Angle1[',i,']= ',n%tmc_ang(4,i)
+        !      end do
+
+
+
+        !      call cpu_time(tfin)
+        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 09: ", (tfin-tini)
+
+        ! Allocate the count array.
+        if (allocated(n%counts)) deallocate(n%counts)
+        allocate(n%counts(n%nbdata,n_selected_frames))
+
+        if (allocated(tabAllCount)) deallocate(tabAllCount)
+        allocate(tabAllCount(n%nbdata*n_selected_frames))
+
+        !      call cpu_time(tfin)
+        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 10: ", (tfin-tini)
+        n%counts=0.0
+        size1 = n%nbdata*n_selected_frames
+        call get_DataBlocDataFull_NXS( tabAllCount,size1)
+        !      call cpu_time(tfin)
+        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 11: ", (tfin-tini)
+        do ki = 1, n_selected_frames
+            do kj = 1,  n%nbdata
+                m1 = kj + (ki-1)*n%nbdata
+                n%counts(kj,ki) = tabAllCount( m1  )
+            enddo
+        end do
+        !DBG
+        !     call cpu_time(tfin)
+        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 12 : ", (tfin-tini)
+        !      do ki = 1, 3
+        !        sum_frame = 0
+        !        do kj = 1,  n%nbdata
+        !          sum_frame = sum_frame + n%counts(kj,ki)
+        !        end do
+        !         write(*,*) 'Read_Numor_D19_NXS  SumFrame[',ki,']= ', sum_frame
+        !      end do
+
+        succes = .true.
+#endif
+    End Subroutine Read_Numor_D19_NXS
+
 
     !!----
     !!---- Subroutine Read_Numor_Generic(filevar,N)
@@ -5299,10 +5582,15 @@ Module CFML_ILL_Instrm_Data
        !---- Local variables ----!
        character(len=4)       :: instr
        integer                :: n
+       logical                :: nxs_succes
+
+       write (*,*)  ' Read_SXTAL_Numor filename ',filename
+       write (*,*)  ' Read_SXTAL_Numor instrument ',instrument
 
        ! Initialize
        ERR_ILLData=.false.
        ERR_ILLData_Mess= ' '
+       nxs_succes=.false.
 
        ! Check
        if (len_trim(filename) <= 0 .or. len_trim(instrument) <=0 ) return
@@ -5334,8 +5622,13 @@ Module CFML_ILL_Instrm_Data
              call Read_Numor_D16(trim(filename),num)
 
           case ('D19')
-             call Read_Numor_D19(trim(filename),num,frames)
-
+             call Read_Numor_D19_NXS(trim(filename),num,frames,nxs_succes)
+             if (.not.(nxs_succes)) then
+                write(*,*) 'Reading ASCII files'
+                call Read_Numor_D19(trim(filename),num,frames)
+             else
+               write(*,*) 'Reading NEXUS files'
+             endif
           case default
              ERR_ILLData=.true.
              ERR_ILLData_Mess= " Not Implemented for the SXTAL Instrument name: "//trim(instrument)
