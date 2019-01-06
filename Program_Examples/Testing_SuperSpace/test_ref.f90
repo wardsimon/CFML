@@ -33,8 +33,8 @@ program test_reflections
   write(i_out,"(a,/)") " ======================================="
 
 
-  !do
-  	write(*,"(a)",advance="no") " => Enter cell parameters: "
+  do
+  	write(*,"(a)",advance="no") " => Enter cell parameters (<cr>=exit): "
   	read(*,"(a)") line
   	if(len_trim(line)==0) exit
   	read(line,*) abc,albega
@@ -58,13 +58,8 @@ program test_reflections
     call Write_SSG(SSG,iunit=i_out,full=.true.)
     Dd=size(SSG%SymOp(1)%Mat,dim=1)-1
     nk=Dd-3
-  	!write(*,"(a)",advance="no") " => Enter the number of propagation vectors (<= 8): "
-  	!read(*,"(a)") line
-  	!if(len_trim(line)==0) exit
-  	!read(line,*) nk
   	write(*,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
   	write(i_out,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
-  	!Dd=3
   	!     123456789012345678
   	fmto="(i8,tr4, i4,f12.4,tr4,2i2)"
   	if(nk /= 0) then
@@ -74,9 +69,9 @@ program test_reflections
   			read(*,*) kv(:,i), nharm(i),sintl(i)
   			write(i_out,"(a,i2,a,3f10.5,a,i2,a,f10.5)") "     Propagation vector # ",i," : [",kv(:,i)," ], Number of harmonics:  ",nharm(i), "   Max_SinT/L: ",sintl(i)
   		end do
-  		!call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,order="yes")
+  		call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,order="yes")
       !     Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,order,SSG,powder)
-      call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,SSG=SSG,powder="powder")
+      !call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,nk,nharm,kv,sintl,SSG=SSG,powder="powder")
   	else
   	  call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,order="yes")
   	end if
@@ -89,6 +84,6 @@ program test_reflections
   		write(i_out,fmto) i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag
   	end do
 
-  !end do
+  end do
 
 end program test_reflections

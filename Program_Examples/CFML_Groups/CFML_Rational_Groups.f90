@@ -10,14 +10,23 @@
     Public  :: Group_Constructor, Get_Group_From_Generators, is_Lattice_vec, Get_dimension, &
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
-               Get_subgroups_from_Table
+               Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
     character(len=256),public :: Err_group_mess
 
-   !-------Type declarations
+    !-------Type declarations
 
+    !!---- Type, public   :: Sym_Oper_Type
+    !!----
+    !!---- Rational matrix of special type dimension (3+d+1,3+d+1)
+    !!---- The matrix of the symmetry operator is extended with
+    !!---- a column containing the translation in the 3+d space plus
+    !!---- a zero 3+d+1 row and +1 at position (3+d+1,3+d+1).
+    !!---- In order to limit the operators to the factor group w.r.t.
+    !!---- translations, a modulo-1 is applied in the multiplication
+    !!---- of two operators.
     Type, public :: Symm_Oper_Type
        integer       :: time_inv=1
        integer       :: dt=1  !determinant of the submatrix (1:3,1:3), it should be 1 or -1
@@ -68,7 +77,20 @@
     character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
     integer,parameter, dimension(0:2) :: cent=[2,1,2]  !Multiplier for calculating the total multiplicity
 
+    type(rational), dimension(:,:),allocatable, public :: identity_matrix
+
     Contains
+
+    Subroutine Set_Identity_Matrix(d)
+      integer, intent(in) :: d
+      integer :: i
+      if(allocated(identity_matrix)) deallocate(identity_matrix)
+      allocate(identity_matrix(d,d))
+      identity_matrix=0_ik//1_ik
+      do i=1,d
+        identity_matrix(i,i) = 1_ik//1_ik
+      end do
+    End Subroutine Set_Identity_Matrix
 
     Pure recursive Function rdet(a) result(acc)
       type(rational), dimension(:,:), intent(in) :: a
@@ -181,11 +203,27 @@
        end if
     End Function is_Lattice_vec
 
-    Function Symbol_Operator(Op) result(symb)
-      type(Symm_Oper_Type) :: Op
-      Character(len=80)    :: symb
-      call Get_Symb_Op_from_Mat(Op%Mat,Symb,"xyz",Op%time_inv)
+    Function Symbol_Operator(Op,x1x2x3_type) result(symb)
+      type(Symm_Oper_Type),     intent(in) :: Op
+      character(len=*),optional,intent(in) :: x1x2x3_type
+      Character(len=80)                    :: symb
+      if(present(x1x2x3_type)) then
+        call Get_Symb_Op_from_Mat(Op%Mat,Symb,x1x2x3_type,Op%time_inv)
+      else
+        call Get_Symb_Op_from_Mat(Op%Mat,Symb,"xyz",Op%time_inv)
+      end if
     End Function Symbol_Operator
+
+    Function Operator_from_Symbol(symb) result(Op)
+      character(len=*),         intent(in) :: symb
+      type(Symm_Oper_Type)                 :: Op
+      ! --- Local variables ---!
+      integer :: d
+      d=Get_dimension(Symb)
+      allocate(Op%Mat(d,d))
+      call Get_Mat_From_Symb_Op(Symb,Op%Mat,Op%time_inv)
+      Op%dt=rdet(Op%Mat(1:3,1:3))
+    End Function Operator_from_Symbol
 
     Function Get_dimension(Symbol) result(d)
        character(len=*), intent (in) :: Symbol
@@ -216,16 +254,14 @@
     End Subroutine Init_Group
 
    Subroutine Allocate_Operator(d,Op)
-       integer,                       intent(in)     :: d
+       integer,              intent(in)     :: d
        type(Symm_Oper_Type), intent(in out) :: Op
        integer :: i
        if(allocated(Op%Mat)) deallocate(Op%Mat)
        allocate(Op%Mat(d,d))
        !Inititalize to identity matrix
-       Op%Mat=0_ik//1_ik
-       do i=1,d
-         Op%Mat(i,i)=1_ik
-       end do
+       call Set_Identity_Matrix(d)
+       Op%Mat=Identity_Matrix
        Op%time_inv=1
        Op%dt=1
     End Subroutine Allocate_Operator
@@ -255,8 +291,6 @@
        allocate(Gr%Op(multip))
        Gr%d=d
        Gr%multip=multip
-       Gr%num_lat=0
-       Gr%num_alat=0
        do i=1,multip
          call Allocate_Operator(d,Gr%Op(i))
        end do
@@ -495,64 +529,76 @@
       !ns=L
     End Subroutine Get_subgroups_from_Table
 
-    Subroutine Get_Group_From_Generators(ngen,Op,multip)
-      integer,                               intent(in)     :: ngen
-      type(Symm_Oper_Type), dimension(:),    intent(in out) :: Op
-      integer,                               intent(out)    :: multip
+    !This subroutine assumes that Op contains the identity as the first operator, followed
+    !by few non-equal generators. The value of ngen icludes also the identity
+    Subroutine Get_Group_From_Generators(ngen,Op,multip,table)
+      integer,                                        intent(in)     :: ngen
+      type(Symm_Oper_Type), dimension(:),             intent(in out) :: Op
+      integer,                                        intent(out)    :: multip
+      integer, dimension(:,:), allocatable, optional, intent(out)    :: table
       !--- Local variables ---!
       integer :: i,j,k,n,nt,max_op
       type(Symm_Oper_Type) :: Opt
       logical, dimension(size(Op),size(Op)) :: done
       integer, dimension(size(Op),size(Op)) :: tb
 
-      max_op=size(Op)
-      n=size(Op(1)%Mat,dim=1)
-      call Allocate_Operator(n,Opt)
-      done=.false.
-      done(1,:) = .true.
-      done(:,1) = .true.
-      nt=ngen
-      Err_group=.false.
-      Err_group_mess=" "
-      !Ensure that determinant of generators are calculated
-      do i=1,ngen
-        !Op(i)%dt=rational_determinant(Op(i)%Mat(1:3,1:3))
-        Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
-      end do
+      include "CFML_get_group_template_inc.f90"
 
-      do_ext:do
-        n=nt
-        do i=1,n
-          do_j:do j=1,n
-            if(done(i,j)) cycle
-            Opt=Op(i)*Op(j)
-            do k=1,nt
-              if(Opt == Op(k)) then
-                done(i,j)=.true.
-                cycle do_j
-              end if
-            end do
-            done(i,j)=.true.
-            nt=nt+1
-            if(nt > max_op) then
-              nt=nt-1
-              exit do_ext
-            end if
-            Op(nt)=Opt
-          end do do_j
-        end do
-        if ( n == nt) exit do_ext
-      end do do_ext
-
-      if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
-      	Err_group=.true.
-      	Err_group_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
-      end if
-      if(nt == max_op) then
-        Err_group=.true.
-      	write(Err_group_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
-      end if
-      multip=nt
+      !max_op=size(Op)
+      !n=size(Op(1)%Mat,dim=1)
+      !call Allocate_Operator(n,Opt)
+      !done=.false.
+      !done(1,:) = .true.
+      !done(:,1) = .true.
+      !tb(1,:) = [(i,i=1,max_op)]
+      !tb(:,1) = [(i,i=1,max_op)]
+      !nt=ngen
+      !Err_group=.false.
+      !Err_group_mess=" "
+      !!Ensure that determinant of generators are calculated
+      !do i=1,ngen
+      !  Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
+      !end do
+      !
+      !do_ext:do
+      !  n=nt
+      !  do i=1,n
+      !    do_j:do j=1,n
+      !      if(done(i,j)) cycle
+      !      Opt=Op(i)*Op(j)
+      !      do k=1,nt
+      !        if(Opt == Op(k)) then
+      !          tb(i,j)=k
+      !          done(i,j)=.true.
+      !          cycle do_j
+      !        end if
+      !      end do
+      !      done(i,j)=.true.
+      !      nt=nt+1
+      !      if(nt > max_op) then
+      !        nt=nt-1
+      !        exit do_ext
+      !      end if
+      !      tb(i,j)=nt
+      !      Op(nt)=Opt
+      !    end do do_j
+      !  end do
+      !  if ( n == nt) exit do_ext
+      !end do do_ext
+      !
+      !if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
+      !	Err_group=.true.
+      !	Err_group_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
+      !end if
+      !if(nt == max_op) then
+      !  Err_group=.true.
+      !	write(Err_group_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
+      !end if
+      !multip=nt
+      !if(present(table)) then
+      !  allocate(Table(multip,multip))
+      !  Table=tb
+      !end if
     End Subroutine Get_Group_From_Generators
 
     Subroutine Get_Symb_Op_from_Mat(Mat,Symb,x1x2x3_type,invt)
@@ -560,7 +606,7 @@
        type(rational),dimension(:,:), intent( in) :: Mat
        character (len=*),             intent(out) :: symb
        character(len=*), optional,    intent( in) :: x1x2x3_type
-       integer, optional,             intent( in) :: invt
+       integer,          optional,    intent( in) :: invt
 
        !---- Local Variables ----!
        character(len=3),dimension(10)    :: x_typ
@@ -654,7 +700,7 @@
        end if
     End Subroutine Get_Symb_Op_from_Mat
 
-    !!---- Subroutine Get_Mat_From_SSymSymb(Symb,Mat,invt)
+    !!---- Subroutine Get_Mat_From_Symb_Op(Symb,Mat,invt)
     !!----   character(len=*),                intent(in)  :: Symb
     !!----   type(rational),dimension(:,:),   intent(out) :: Mat
     !!----   integer, optional                            :: invt
@@ -670,7 +716,7 @@
     Subroutine Get_Mat_From_Symb_Op(Symb,Mat,invt)
       character(len=*),                intent(in)  :: Symb
       type(rational),dimension(:,:),   intent(out) :: Mat
-      integer, optional                            :: invt
+      integer, optional,               intent(out) :: invt
       !---- local variables ----!
       type(rational) :: det
       integer :: i,j,k,Dd, d, np,ns, n,m,inv,num,den,ind,ier
@@ -998,9 +1044,10 @@
     !End Subroutine Group_Constructor_ext
 
 
-    Subroutine Group_Constructor_gen(gen,Grp)
+    Subroutine Group_Constructor_gen(gen,Grp,x1x2x3_type)
        character(len=*),dimension(:),intent(in)     :: gen
-       type(Spg_Type),               intent(in out) :: Grp
+       class(Spg_Type),              intent(in out) :: Grp
+       character(len=*),optional,    intent(in)     :: x1x2x3_type
        !--- Local variables ---!
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
        type(rational),       dimension(:),  allocatable :: centre_coord
@@ -1010,6 +1057,13 @@
        integer :: d,i,j,n,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
 
        ngen=size(gen)
+       !Calculate the effective number of generators
+       do i=1,ngen
+         if(len_trim(gen(i)) == 0 ) then
+           ngen=i-1
+           exit
+         end if
+       end do
        ! Get dimension of the generator matrices
        d=get_dimension(gen(1))
        include "CFML_group_constructor_template_inc.f90"
@@ -1021,9 +1075,10 @@
        !end do
     End Subroutine Group_Constructor_gen
 
-    Subroutine Group_Constructor_string(generatorList,Grp)
-       character(len=*), intent(in)     :: generatorList
-       type(Spg_Type),   intent(in out) :: Grp
+    Subroutine Group_Constructor_string(generatorList,Grp,x1x2x3_type)
+       character(len=*),         intent(in)     :: generatorList
+       class(Spg_Type),          intent(in out) :: Grp
+       character(len=*),optional,intent(in)     :: x1x2x3_type
        !--- Local variables ---!
        character(len=40),    dimension(:),  allocatable :: gen
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
@@ -1205,7 +1260,7 @@
       if(Grp%num_alat > 0) then
         write(unit=iout,fmt="(/a)")      "  Anti-translations:"
         do i=1,Grp%num_alat
-         !write(*,"(i3,tr4,10f8.3)") i,real(Grp%aLat_tr(:,i))
+          ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
          write(unit=iout,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if

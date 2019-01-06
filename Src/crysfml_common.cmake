@@ -43,7 +43,6 @@ endif()
 # The sources files for crysfml_common library.
 set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
-    CFML_GlobalDeps_Linux_Intel.f90
     CFML_Atom_Mod.f90
     CFML_Bonds_Table.f90
     CFML_BVSpar.f90

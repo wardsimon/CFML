@@ -11,9 +11,9 @@
       nt=ngen
       Err_group=.false.
       Err_group_mess=" "
-      !Ensure that determinant of generators are calculated
+      !Ensure that determinants of generators are calculated
       do i=1,ngen
-        Op(i)%dt=nint(determinant_typed(Op(i)%Mat(1:3,1:3)))
+        Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
       end do
 
       do_ext:do

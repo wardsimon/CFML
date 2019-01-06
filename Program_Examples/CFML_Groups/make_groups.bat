@@ -6,6 +6,18 @@ rem **** Author: JRC + JGP
 rem **** Revision: Nov-2008
 rem ****
 rem
+    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
+    if [%TARGET_ARCH%]==[ia32]  (
+         set  INC=/I"%CRYSFML%"\ifort\LibC
+         set  INCD=/I"%CRYSFML%"\ifort_debug\LibC
+         set  CRYSLIB="%CRYSFML%"\ifort\LibC\crysfml.lib
+         set CRYSLIBD="%CRYSFML%"\ifort_debug\libC\crysfml.lib
+      ) else (
+         set  INC=/I"%CRYSFML%"\ifort64\LibC
+         set  INCD=/I"%CRYSFML%"\ifort64_debug\LibC
+         set  CRYSLIB="%CRYSFML%"\ifort64\LibC\crysfml.lib
+         set CRYSLIBD="%CRYSFML%"\ifort64_debug\libC\crysfml.lib
+      )
    if not x%1 == x goto CONT
    cls
    echo    MAKE_GROUPS: Testing CFML_Groups
@@ -20,17 +32,15 @@ rem
    goto END
 rem ****---- Intel Compiler ----****
 :IFORT
-   if x%2 == xdeb goto IFORTD
-   ifort /c CFML_Rational_Groups.f90  /O2 /Qparallel /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c groups.f90                /O2 /Qparallel /nologo /IC:\CrysFML\ifort\LibC
-   ifort /exe:groups *.obj C:\CrysFML\ifort\LibC\crysfml.lib /link /stack:64000000
-rem   link /subsystem:console /out:get_standard.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+
+   ifort /c CFML_Rational_Groups.f90  /O2 /Qparallel /nologo %INC%
+   ifort /c groups.f90                /O2 /Qparallel /nologo %INC%
+   ifort /exe:groups *.obj %CRYSLIB% /link /stack:64000000
    goto END
 :IFORTD
-   ifort /c CFML_Rational_Groups.f90  /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
-   ifort /c groups.f90       /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
-   ifort /exe:groups *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
-rem   link /subsystem:console /out:get_standard.exe *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   ifort /c CFML_Rational_Groups.f90  /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /c groups.f90       /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /exe:groups *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**

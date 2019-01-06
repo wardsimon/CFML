@@ -850,12 +850,12 @@
       !Final check that the determinant of the rotational matrix is integer
       det=rational_determinant(Mat)
       if(det%denominator /= 1) then
-         err_group=.true.
-         err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+         err_ssg=.true.
+         err_ssg_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
       end if
       if(det%numerator == 0) then
-         err_group=.true.
-         err_group_mess="The matrix of the operator is singular! -> det="//print_rational(det)
+         err_ssg=.true.
+         err_ssg_mess="The matrix of the operator is singular! -> det="//print_rational(det)
       end if
     End Subroutine Get_Mat_From_SSymSymb
 

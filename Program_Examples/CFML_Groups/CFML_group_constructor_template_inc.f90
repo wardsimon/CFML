@@ -26,6 +26,7 @@
        call Reorder_Operators(multip, Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
        if(Err_group) return
 
+       Grp%multip=multip
        Grp%d=d
        if(allocated(Grp%Op)) deallocate(Grp%Op)
        call Allocate_Operators(d,multip,Grp%Op)
@@ -36,7 +37,6 @@
        allocate(Grp%Symb_Op(multip))
        do i=1,multip
           Grp%Symb_Op(i)=trim(Symbol_Operator(Op(i)))
-         ! write(*,"(i4,a)") i,"  "//Grp%Symb_Op(i)
        end do
 
        if(num_lat > 0) then
@@ -55,7 +55,13 @@
        Grp%num_lat     = num_lat
        Grp%num_alat    = num_alat
        Grp%centre_coord= centre_coord
-       Grp%multip      = multip !Numops*(num_lat+1)*cent(centred)
        if(num_lat  > 0)  Grp%Lat_tr = Lat_tr(1:d-1,1:Num_Lat)
        if(num_alat > 0)  Grp%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
+       if(present(x1x2x3_type)) then
+         if(trim(x1x2x3_type) /= 'xyz') then
+           do i=1,Grp%Multip
+             Grp%Symb_Op(i)=Symbol_Operator(Grp%Op(i),x1x2x3_type)
+           end do
+         end if
+       end if
 
