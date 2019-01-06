@@ -407,7 +407,7 @@
       end if
 
 
-      ssg%mag_type= 1                         ! No time-reversal is associated with the symmetry operators
+      ssg%mag_type= 1                        ! No time-reversal is associated with the symmetry operators
       ssg%Num_aLat=0                         ! Number of anti-lattice points in a cell
       ssg%Centred= 1                         ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
       ssg%NumOps=igroup_nops(num)            ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
@@ -518,7 +518,7 @@
         write(unit=lun,fmt="(a,a)")         " =>     Transf. from Parent: ", trim(SpaceGroup%trn_from_parent)
         write(unit=lun,fmt="(a,a)")         " =>     Transf. to Standard: ", trim(SpaceGroup%trn_to_standard)
       end if
-      write(unit=lun,fmt="(a,i3)")           " =>           Magnetic Type: ", SpaceGroup%mag_type
+      write(unit=lun,fmt="(a,i3)")          " =>           Magnetic Type: ", SpaceGroup%mag_type
       write(unit=lun,fmt="(a,a)")           " =>          Centrosymmetry: ", trim(SpaceGroup%Centre)
       write(unit=lun,fmt="(a,a)")           " =>         Bravais Lattice: ", "  "//trim(SpaceGroup%SPG_Lat)
 
@@ -921,14 +921,14 @@
                 mp=2
                 if(present(SSG)) then
                    if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                     write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                     !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
                      cycle
                    end if
                    if(H_Absent_SSG(hh,SSG)) then
-                     write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
+                     !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
                      if(SSG%Mag_type /= 2) then
                        if(mH_Absent_SSG(hh,SSG)) then
-                         write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
+                         !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                          cycle
                        else
                          mp=1   !pure magnetic
@@ -971,14 +971,14 @@
                      mp=2
                      if(present(SSG)) then
                         if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                           write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                           !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
                            cycle
                         end if
                         if(H_Absent_SSG(hh,SSG)) then
-                            write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
+                            !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
                           if(SSG%Mag_type /= 2) then
                             if(mH_Absent_SSG(hh,SSG)) then
-                              write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
+                              !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                               cycle
                             else
                               mp=1   !pure magnetic
@@ -1220,8 +1220,16 @@
        end if
        if(len_trim(generators_string) /= 0) then
           call Group_Constructor(generators_string,SSG)
+          if(SSG%centred /= 1) SSG%Centre="Centrosymmetric"
+          if(SSG%Num_Lat > 0) then
+             SSG%SPG_Lat="Z"
+          end if
        else if(num_gen > 0) then
           call Group_Constructor(gen,SSG)
+          if(SSG%centred /= 1) SSG%Centre="Centrosymmetric"
+          if(SSG%Num_Lat > 0) then
+             SSG%SPG_Lat="Z"
+          end if
        else if(num_group /= 0) then
           if(present(x1x2x3_type)) then
             call Set_SSG_Reading_Database(num_group,ssg,Err_ssg,Err_ssg_Mess,x1x2x3_type)

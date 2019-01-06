@@ -6,6 +6,8 @@ rem ****
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
    if x%1 == xifortd    goto IFORTD
+   if x%1 == xifort64    goto IFORT64
+   if x%1 == xifort64d    goto IFORT64D
    goto END
 rem
 rem
@@ -23,7 +25,21 @@ rem
    ifort /c CFML_Rational_Groups.f90     /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
    ifort /c CFML_SuperSpaceGroups.f90    /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
    ifort /c test_ref.f90                 /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
-   ifort /exe:test_ref *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   ifort /exe:test_ref *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   goto END
+:IFORT64
+   ifort /c CFML_ssg_datafile.f90        /O3      /IC:\CrysFML\ifort64\LibC
+   ifort /c CFML_Rational_Groups.f90     /O3      /IC:\CrysFML\ifort64\LibC
+   ifort /c CFML_SuperSpaceGroups.f90    /O3      /IC:\CrysFML\ifort64\LibC
+   ifort /c test_ref.f90                 /O3      /IC:\CrysFML\ifort64\LibC
+   ifort /exe:test_ref *.obj C:\CrysFML\ifort64\LibC\crysfml.lib /link /stack:128000000
+   goto END
+:IFORT64D
+   ifort /c CFML_ssg_datafile.f90        /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c CFML_Rational_Groups.f90     /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c CFML_SuperSpaceGroups.f90    /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c test_ref.f90                 /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
+   ifort /exe:test_ref *.obj C:\CrysFML\ifort64_debug\LibC\crysfml.lib
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
