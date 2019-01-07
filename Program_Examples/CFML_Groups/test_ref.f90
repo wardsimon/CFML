@@ -17,6 +17,7 @@ program test_reflections
   type(kvect_info_type)         :: kinfo
   real(kind=cp), dimension(3)   :: abc,albega,h
   real(kind=cp), dimension(3,6) :: kv
+  real(kind=cp), dimension(3,6) :: kcomp
   real(kind=cp)                 :: sintlmax=0.5,tini,tfin
   integer                       :: nk,i,Dd,i_out,m,j,narg
   integer,       dimension(6)   :: nharm=1
@@ -60,6 +61,10 @@ program test_reflections
         end if
       end do
       call Write_SSG(SSG,full=.true.,kinfo=kinfo)
+      call k_SSG_compatible(SSG,kcomp)
+      do i=1,6
+        write(*,"(i4,a,3f10.5,a)") i," [",kcomp(:,i)," ]"
+      end do
   end if
 
   open(newunit=i_out,file=fileout,status="replace",action="write")
@@ -88,6 +93,7 @@ program test_reflections
          write(*,"(a)") "   !!! "//message//" !!!"
          stop
        end if
+       call Write_SSG(SSG,full=.true.,kinfo=kinfo)
        Dd=size(SSG%Op(1)%Mat,dim=1)-1
        nk=Dd-3
   	   write(*,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
@@ -99,7 +105,6 @@ program test_reflections
   	   		read(*,*) kinfo%kv(:,i), kinfo%nharm(i),kinfo%sintlim(i)
   	   	end do
        end if
-       call Write_SSG(SSG,full=.true.,kinfo=kinfo)
   	end if
     call Write_SSG(SSG,iunit=i_out,full=.true.,kinfo=kinfo)
   	!     1234567890123456789012345678901234567

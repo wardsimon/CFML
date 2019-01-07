@@ -14,7 +14,7 @@
     Implicit None
     private
     public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,  &
-              Gen_SReflections, Set_SSGs_from_Gkk, &
+              Gen_SReflections, Set_SSGs_from_Gkk, k_SSG_compatible, &
               Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group
 
     Type, extends(Spg_Type), public :: SuperSpaceGroup_Type
@@ -479,6 +479,33 @@
       end do
 
     End Subroutine Set_SSG_Reading_Database
+    
+    Subroutine k_SSG_compatible(SSG,k_out)
+      class(Spg_Type),                                    intent(in)  :: SSG
+      !real(kind=cp), dimension(3,size(SSG%Op(1)%Mat,1)-4),intent(out) :: k_out
+      real(kind=cp), dimension(3,6),intent(out) :: k_out
+      !--- Local variables ---!
+      real(kind=cp), dimension(3,6) :: kini
+      real(kind=cp), dimension(3,  SSG%multip) :: kv
+      real(kind=cp), dimension(3,3,SSG%multip) :: mat
+      integer :: i,j,k
+      kini(:,1)= [0.1234,0.4532,0.7512]
+      kini(:,2)= [0.0000,0.4532,0.7512]
+      kini(:,3)= [0.1234,0.0000,0.7512]
+      kini(:,4)= [0.1234,0.4532,0.5000]
+      kini(:,5)= [0.5000,0.4532,0.5000]
+      kini(:,6)= [0.3333,0.5000,0.6666]
+      k_out=0.0
+      do i=1,SSG%multip
+        mat(:,:,i)=SSG%Op(i)%Mat(1:3,1:3)
+      end do
+      do j=1,6
+        do i=1,SSG%multip
+          kv(:,i)=matmul(kini(:,j),mat(:,:,i))
+          k_out(:,j)=k_out(:,j)+kv(:,i)
+        end do
+      end do      
+    End Subroutine k_SSG_compatible
 
     Subroutine Write_SSG(SpaceGroup,iunit,full,x1x2x3_typ,kinfo)
       type(SuperSpaceGroup_Type),     intent(in) :: SpaceGroup
