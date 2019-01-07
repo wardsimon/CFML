@@ -137,8 +137,8 @@ if [ $DEBUG == "Y" ]; then
           OPT2="-c -g -fbacktrace -ffree-line-length-none"
           ;;
       "ifort")
-          OPT1="-c -g -warn -$ARCH"
-          OPT2="-c -g -warn -$ARCH"
+          OPT1="-c -g -fpp -warn -$ARCH"
+          OPT2="-c -g -fpp -warn -$ARCH"
           ;;
    esac
 else
@@ -156,8 +156,8 @@ else
           OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
           ;;
       "ifort")
-          OPT1="-c -O -warn -$ARCH -Qopt-report=0"
-          OPT2="-c -O0 -warn -$ARCH -Qopt-report=0"
+          OPT1="-c -O -fpp -warn -$ARCH -Qopt-report=0"
+          OPT2="-c -O0 -fpp -warn -$ARCH -Qopt-report=0"
           ;;
    esac
 fi
@@ -203,7 +203,7 @@ progressionBar()
 	bar=${bar:0:$n}#
   printf "Compiling [$n/$ntotal]: $bar\r"
 }
-ntotal=42      # Nber of files to be compiled
+ntotal=43      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
