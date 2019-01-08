@@ -208,6 +208,9 @@ The following generators are available on this platform:
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
 
+ For cases in which Linux is embeded in Windows (no winteracter)
+cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/Linux_gfortran -D CRYSFML_PREFIX=LibC  ../../.
+
  make -j4 -l4
  install
 
