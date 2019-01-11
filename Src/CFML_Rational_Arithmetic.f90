@@ -92,13 +92,19 @@
               IsInteger,       &     !Logical function applied to rationals: scalar, vector and matrix
               equal_rational_matrix,&!Logical function telling if two matrices are equal
               equal_rational_vector,&!Logical function telling if two vectors are equal
-              recip                  !Calculates the reciprocal of a rational  a/b -> b/a
+              recip,&                !Calculates the reciprocal of a rational  a/b -> b/a
+              rational_colinear,&    !Logical function telling if two vectors are colinear
+              rational_trace,&       !Returns the trace of a square matrix
+              IsDiagonalMatrix       !Logical function telling if the matrix is diagonal
 
     !Public subroutines
     public :: rational_inv_matrix, & !Calculates the inverse of a rational matrix using double precision arithmetic
               rational_modulo_lat, & !Reduces a translation vector to that with values in the interval [0_ik, 1_ik)
-              Matinv_rational        !Uses rational arithmetic to invert a matrix of small rationals (no checking of overflow)
-
+              Matinv_rational,&      !Uses rational arithmetic to invert a matrix of small rationals (no checking of overflow)
+              rational_rank,&        !Computes the rank of a rational matrix
+              rational_identity_matrix,& !Returns an identity matrix
+              rational_rowechelonform, & !Put a matrix in a rowechelonform
+              rational_smithnormalform
 
     !Public overloaded intrinsic functions (transpose is not needed)
     public :: abs, int, nint, modulo, mod, dot_product, maxval, minval, &
@@ -256,6 +262,11 @@
 
     interface sum
       module procedure rational_sum_vec
+    end interface
+    
+    interface Rational_RowEchelonForm
+        module procedure RowEchelonForm_Rational
+        module procedure RowEchelonFormT_Rational
     end interface
 
   contains
@@ -1254,5 +1265,330 @@
       is_int=.false.
       if(rat%denominator /= 1_ik ) is_int=.true.
     end function IsInteger_rational_scalar
+    
+    function Rational_Colinear(a,b,n) Result(co_linear)
+    
+        !---- Argument ----!
+        type(rational), dimension(n), intent(in) :: a
+        type(rational), dimension(n), intent(in) :: b
+        integer,                      intent(in) :: n
+        logical                                  :: co_linear
+
+        !---- Local variables ----!
+        integer        :: i,ia,ib       
+        type(rational) :: c, d
+
+        co_linear=.true.
+        do i=1,n
+            if (abs(a(i)%numerator) > 0) then
+                ia=i
+                exit
+            end if
+        end do
+        do i=1,n
+            if (abs(b(i)%numerator) > 0) then
+                ib=i
+                exit
+            end if
+        end do
+        if (ia /= ib) then
+            co_linear=.false.
+            return
+        else
+            c = a(ia) / b(ib)
+            do i = 1 , n
+                if ((a(i) - c * b(i) /= (0//1))) then
+                    co_linear=.false.
+                    return
+                end if
+            end do
+        end if
+
+    end function Rational_Colinear
+    
+    function Rational_Trace(Mat) result(tr)  
+    
+        !---- Arguments ----!
+        type(rational), dimension(:,:), intent(in) :: Mat
+        type(rational) :: tr
+      
+        !---- Local variables ----!
+        integer:: n1,n2,i
+
+        n1=size(Mat,dim=1); n2=size(Mat,dim=2)
+        if(n1 == n2) then
+            tr = 0
+            do i = 1 , n1
+                tr = tr + Mat(i,i)
+            end do
+        else
+            Err_Rational=.true.
+            write(unit=Err_Rational_Mess,fmt="(a)") "Error in Trace: matrix is not a square matrix!"
+        end if
+
+    end function Rational_Trace
+    
+    logical function IsDiagonalMatrix(A) Result(diagonal)
+    
+        !---- Arguments ----!
+        type(rational), dimension(:,:), intent(in) :: A
+        
+        !---- Local variables ----!
+        integer :: i,j
+        
+        diagonal = .true.
+        !if (size(A,1) /= size(A,2)) then
+        !    diagonal = .false.
+        !    return
+        !end if
+        do i = 1 , size(A,1)
+            do j = 1 , size(A,2)
+                if (i /= j .and. A(i,j) /= (0//1)) then
+                    diagonal = .false.
+                    return
+                end if
+            end do
+        end do
+        
+    end function IsDiagonalMatrix    
+    
+    subroutine Rational_Rank(M,r) 
+    
+        !---- Arguments ----!
+        type(rational), dimension(:,:), intent(in)  :: M
+        integer,                        intent(out) :: r
+
+        !---- Local variables ----! 
+        integer :: i,nNull
+        type(rational), dimension(:),   allocatable :: nullVector
+        type(rational), dimension(:,:), allocatable :: U
+        
+        allocate(U(size(M,1),size(M,2)),nullVector(size(M,2)))
+        
+        U = M
+        nNull = 0
+        nullVector(:) = 0 // 1
+
+        call Rational_RowEchelonForm(U)
+        do i = 1 , size(U,1)
+            if (equal_rational_vector(U(i,:),nullVector)) nNull = nNull + 1
+        end do
+    
+        r = size(M,1) - nNull
+        
+    end subroutine Rational_Rank
+    
+    subroutine Rational_Identity_Matrix(n,I)
+    
+        !---- Arguments ----!
+        integer, intent(in)            :: n
+        type(rational), dimension(n,n) :: I
+        
+        !---- Local variables ----!
+        integer :: j
+
+        I(:,:) = 0 // 1
+        do j = 1 , n
+            I(j,j) = 1 // 1
+        end do
+        
+    end subroutine Rational_Identity_Matrix            
+    
+    !!---- Subroutine RowEchelonForm_Rational(M)
+    !!----    integer, dimension(:,:), intent(inout) :: M
+    !!----
+    !!---- Fortran version of RowEchelonForm from the CrystGAP package.
+    !!---- Adapted for rational matrices. The original source code
+    !!---- can be found at:
+    !!----      https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
+    !!----
+    !!---- Updated: September - 2018
+    !!
+    
+    subroutine RowEchelonForm_Rational(M)
+    
+        !---- Arguments ----!
+        type(rational), dimension(:,:), intent(inout) :: M
+    
+        !---- Local variables ----!
+        integer :: r,c,i,j,k
+        integer :: nrow,ncolumn
+        logical :: cleared,echelon
+        type(rational) :: a
+        type(rational), dimension(:), allocatable :: row
+    
+        nrow    = size(M,1)
+        ncolumn = size(M,2)
+        allocate(row(ncolumn))
+        r = 1  ! index for rows
+        c = 1  ! index for columns
+
+        do
+            if (r > nrow .or. c > ncolumn) exit
+            i = r
+            do 
+                !if ( i > r .or. M(i,c) /= 0 ) exit
+                if (i > nrow) exit
+                if (M(i,c) /= (0//1)) exit
+                i = i + 1
+            end do
+            
+            if ( i <= nrow ) then
+                row(:) = M(r,:)
+                M(r,:) = M(i,:)
+                M(i,:) = row(:)
+                do j = i + 1 , nrow
+                    a = abs(M(j,c))
+                    if ( a /= (0//1) .and. a < abs(M(r,c)) ) then
+                        row(:) = M(r,:)
+                        M(r,:) = M(j,:)
+                        M(j,:) = row(:)
+                    end if
+                end do
+                if ( M(r,c) < (0//1) ) M(r,:) = -M(r,:)
+                cleared = .true.
+                do i = r + 1 , nrow
+                    a = M(i,c)/M(r,c)
+                    if ( a /= (0//1) ) M(i,:) = M(i,:) - a * M(r,:)
+                    if ( M(i,c) /= (0//1) ) cleared = .false.
+                end do
+                if ( cleared ) then
+                    r = r + 1
+                    c = c + 1
+                end if
+            else
+                c = c + 1
+            end if
+        end do
+            
+    end subroutine RowEchelonForm_Rational
+    
+    !!---- Subroutine RowEchelonFormT_Rational
+    !!----      integer, dimension(:,:), intent(inout) :: M
+    !!----      integer, dimension(:,:), intent(inout) :: T
+    !!----
+    !!---- Fortran version of RowEchelonFormT from the CrystGAP package
+    !!---- The original source code can be found at:
+    !!----         https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
+    !!----
+    !!---- Updated: September - 2018
+    !!
+    
+    subroutine RowEchelonFormT_Rational(M,T)
+    
+        !---- Arguments ----!
+        type(rational), dimension(:,:), intent(inout) :: M
+        type(rational), dimension(:,:), intent(inout) :: T
+    
+        !---- Local variables ----!
+        integer        :: r,c,i,j
+        integer        :: nrow,ncolumn
+        logical        :: cleared
+        type(rational) :: a
+        type(rational), dimension(:), allocatable :: row, Trow
+    
+        nrow    = size(M,1)
+        ncolumn = size(M,2)
+        allocate(row(ncolumn))
+        allocate(Trow(nrow))
+
+        r = 1  ! index for rows
+        c = 1  ! index for columns
+       
+        do
+            if (r > nrow .or. c > ncolumn) exit
+            i = r
+
+            do 
+                !if ( i > r .or. M(i,c) /= 0 ) exit
+                if (i > nrow) exit
+                if (M(i,c) /= (0//1)) exit
+                i = i + 1
+            end do
+            
+            if ( i <= nrow ) then
+                row(:)  = M(r,:)
+                M(r,:)  = M(i,:)
+                M(i,:)  = row(:)
+                Trow(:) = T(r,:)
+                T(r,:)  = T(i,:)
+                T(i,:)  = Trow(:)
+                do j = i + 1 , nrow
+                    a = abs(M(j,c))
+                    if ( a /= (0//1) .and. a < abs(M(r,c)) ) then
+                        row(:)  = M(r,:)
+                        M(r,:)  = M(j,:)
+                        M(j,:)  = row(:)
+                        Trow(:) = T(r,:)
+                        T(r,:)  = T(j,:)
+                        T(j,:)  = Trow(:)
+                    end if
+                end do
+                if ( M(r,c) < (0//1) ) then
+                    M(r,:) = - M(r,:)
+                    T(r,:) = - T(r,:)
+                end if
+                cleared = .true.
+                do i = r + 1 , nrow
+                    a = M(i,c)/M(r,c)
+                    if ( a /= (0//1) ) then
+                        M(i,:) = M(i,:) - a * M(r,:)
+                        T(i,:) = T(i,:) - a * T(r,:)
+                    end if
+                    if ( M(i,c) /= (0//1) ) cleared = .false.
+                end do
+                if ( cleared ) then
+                    r = r + 1
+                    c = c + 1
+                end if
+            else
+                c = c + 1
+            end if
+        end do
+            
+    end subroutine RowEchelonFormT_Rational
+    
+    subroutine Rational_SmithNormalForm(M,nr,nc,D,P,Q)
+       
+        !---- Arguments ----!
+        type(rational), dimension(nr,nc), intent(in)  :: M
+        integer,                          intent(in)  :: nr
+        integer,                          intent(in)  :: nc
+        type(rational), dimension(nr,nc), intent(out) :: D
+        type(rational), dimension(nr,nr), intent(out) :: P
+        type(rational), dimension(nc,nc), intent(out) :: Q
+        
+        !---- Local variables ----!
+        integer                          :: i,j,k,ndiag
+        type(rational), dimension(nc,nr) :: Dt
+        
+        ! P and Q must be initialized to the identity matrix  
+        call Rational_Identity_Matrix(nr,P)
+        call Rational_Identity_Matrix(nc,Q)
+
+        D = M
+        ndiag = 0
+        
+        do 
+            if (mod(ndiag,2) == 0) then
+                call Rational_RowEchelonForm(D,P)
+                ndiag = ndiag + 1
+                Dt = transpose(D)
+            else  
+                call Rational_RowEchelonForm(Dt,Q)
+                ndiag = ndiag + 1
+                D = transpose(Dt)
+            end if
+            if (IsDiagonalMatrix(D)) exit
+            if (ndiag > 100) then
+                err_rational = .true.
+                err_rational_mess = "Error in Rational_SmithNormalForm. Unable to diagonalize matrix."
+                return
+            end if
+        end do
+        
+        Q = transpose(Q)
+
+    end subroutine Rational_SmithNormalForm
 
   End Module CFML_Rational_Arithmetic
