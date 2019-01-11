@@ -1966,12 +1966,12 @@ contains
         
         err_std = .false.
         
-        if (G%d == 4) then  
+        if (G%d == 4 .and. G%mag_type == 1) then  
             ! Crystallographic space group
             call Identify_Crystallographic_Group(G)
         else
-            err_std      = .true.
-            err_std_mess = "Error in Identify_Group. Unable to identify group. G%d different from 4"
+            !err_std      = .true.
+            !err_std_mess = "Error in Identify_Group. Unable to identify group. G%d different from 4"
             return
         end if
         
