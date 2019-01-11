@@ -85,6 +85,7 @@ cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -D CMAK
 cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC  ..\..\.
 
 cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran -D CRYSFML_PREFIX=LibC ..\..\.
+cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -DGUI=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC  ..\..\.
 
  - Once the above steps worked properly the only thing to do is execute the command:
    nmake install
@@ -204,11 +205,11 @@ The following generators are available on this platform:
  ======================================================
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
- 
+
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
  cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
 
- For cases in which Linux is embeded in Windows (no winteracter)
+For cases in which Linux is embeded in Windows (no winteracter)
 cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/Linux_gfortran -D CRYSFML_PREFIX=LibC  ../../.
 
  make -j4 -l4
