@@ -41,11 +41,17 @@
     End Type Group_type
 
     Type, extends(Group_type), public :: Spg_Type
-      integer :: Numops
+      integer :: numspg = 0 
+      integer :: Numops = 0
       integer :: centred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
-      integer :: mag_type
-      integer :: num_lat
-      integer :: num_alat
+      integer :: mag_type = 0
+      integer :: num_lat  = 0
+      integer :: num_alat = 0
+      character(len=1) :: spg_lat
+      character(len=:), allocatable :: spg_symb
+      character(len=:), allocatable :: pg
+      character(len=:), allocatable :: laue
+      character(len=:), allocatable :: mat2std
       type(rational),dimension(:),   allocatable :: centre_coord
       type(rational),dimension(:,:), allocatable :: Lat_tr
       type(rational),dimension(:,:), allocatable :: aLat_tr
@@ -1244,6 +1250,11 @@
       write(unit=iout,fmt="(a,i4)")     "          Centred: ",Grp%centred
       write(unit=iout,fmt="(a,i4)")     "          Num_Lat: ",Grp%num_lat
       write(unit=iout,fmt="(a,i4)")     "         Num_aLat: ",Grp%num_alat
+      write(unit=iout,fmt="(a,i4)")     "     Group number: ",Grp%numspg
+      write(unit=iout,fmt="(a, a)")     "     Group symbol: ",Grp%spg_symb
+      write(unit=iout,fmt="(a, a)")     "      Point group: ",Grp%pg
+      write(unit=iout,fmt="(a, a)")     "       Laue class: ",Grp%laue    
+      write(unit=iout,fmt="(a, a)")     "   Transf. to std: ",Grp%mat2std
       if(Grp%centred == 1) then
          write(unit=iout,fmt="(a)")     "     Centre_coord: none!"
       else
