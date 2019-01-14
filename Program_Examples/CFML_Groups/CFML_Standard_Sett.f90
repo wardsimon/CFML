@@ -15,7 +15,7 @@
 !!----    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type,Set_SpaceGroup
 !!----
 !!---- VARIABLES
-!!----    err_std 
+!!----    err_std
 !!----    err_std_mess
 !!----
 !!---- PROCEDURES
@@ -44,7 +44,7 @@
 !!----       SET_RIGHT_HANDEDNESS
 !!----       SMALLEST_INTEGRAL_VECTOR
 !!----
-!! 
+!!
 module CFML_Standard_Settings
 
     !---- Used External Modules ----!
@@ -53,11 +53,11 @@ module CFML_Standard_Settings
     use CFML_String_Utilities,          only: Get_Separator_Pos,Pack_String
     use CFML_Symmetry_Tables,           only: Spgr_Info,Set_Spgr_Info
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type,Set_SpaceGroup
-    
+
     implicit none
-    
+
     private
-    
+
     !---- List of public variables and types ----!
     public :: err_std, err_std_mess
 
@@ -70,14 +70,14 @@ module CFML_Standard_Settings
 
     !!----
     !!---- err_std
-    !!----    logical, public :: err_std 
+    !!----    logical, public :: err_std
     !!----
     !!----    Logical Variable to indicate an error on this module.
     !!----
     !!---- Update: January - 2019
     !!
     logical :: err_std
-    
+
     !!----
     !!---- err_std_mess
     !!----    character(len=:), public :: err_std_mess
@@ -87,24 +87,24 @@ module CFML_Standard_Settings
     !!---- Update: January - 2019
     !!
     character(len=:), allocatable :: err_std_mess
-    
+
 contains
 
     !---- Functions ----!
-    
+
     !!---- function Positive_Sense_of_Rotation(W,axis) result(positive)
     !!----      type(rational), dimension(3,3), intent(in)  :: W
     !!----      type(rational), dimension(3),   intent(in)  :: axis
     !!----      logical,                        intent(out) :: positive
     !!----
-    !!---- Evaluates if axis corresponds with the positive sense of rotation 
-    !!---- of the rotation matrix W. 
+    !!---- Evaluates if axis corresponds with the positive sense of rotation
+    !!---- of the rotation matrix W.
     !!----
     !!---- Updated: September - 2018
     !!----
-    
+
     logical function Positive_Sense_of_Rotation(W,axis) result(positive)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: W
         type(rational), dimension(3),   intent(in)  :: axis
@@ -129,9 +129,9 @@ contains
         end if
 
     end function Positive_Sense_of_Rotation
-       
+
     !---- Subroutines ----!
-    
+
     !!---- Subroutine Get_A_Matrices(LaueClass,A,n)
     !!----      character(len=5),                 intent(in)  :: LaueClass
     !!----      type(rational), dimension(3,3,6), intent(out) :: A
@@ -141,7 +141,7 @@ contains
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_A_Matrices(LaueClass,A,n)
 
         !---- Arguments ----!
@@ -153,7 +153,7 @@ contains
         integer                          :: i
         type(rational), dimension(3,3)   :: R1,R2,R3
         type(rational), dimension(3,3,6) :: Ainv
-  
+
         select case (trim(LaueClass))
 
             case ("2/m")
@@ -215,19 +215,19 @@ contains
         end do
 
     end subroutine Get_A_Matrices
-    
+
     !!---- Subroutine Get_Generators(spaceGroupNumber,symOp,nSymOp,G,nGen)
     !!----      integer,                                 intent(in)  :: spaceGroupNumber
-    !!----      type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     
-    !!----      integer,                                 intent(in)  :: nSymOp    
-    !!----      type(rational),      dimension(4,4,3),   intent(out) :: G         
-    !!----      integer,                                 intent(out) :: nGen      
+    !!----      type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp
+    !!----      integer,                                 intent(in)  :: nSymOp
+    !!----      type(rational),      dimension(4,4,3),   intent(out) :: G
+    !!----      integer,                                 intent(out) :: nGen
     !!----
     !!---- Returns the generators for the space group = spaceGroupNumber
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_Generators(spaceGroupNumber,symOp,nSymOp,G,nGen)
 
         integer,                                 intent(in)  :: spaceGroupNumber
@@ -243,7 +243,7 @@ contains
         type(rational), dimension(3,3)       :: identity
         type(rational), dimension(4,4)       :: W
         integer, dimension(:,:), allocatable :: idd
-        
+
         err_std = .false.
         if (spaceGroupNumber < 1 .or. spaceGroupNumber > 230) then
             err_std = .true.
@@ -256,7 +256,7 @@ contains
         inversion     = 0
         call Rational_Identity_Matrix(3,identity)
         allocate(idd(nSymOp,2))
-        
+
         ! Look for an inversion center
         do i = 1 , nSymOp
             if (Equal_Rational_Matrix(-symOp(i)%Mat(1:3,1:3),identity)) then
@@ -265,28 +265,28 @@ contains
             end if
         end do
 
-        if (spaceGroupNumber < 3) then ! Triclinic     
-        
+        if (spaceGroupNumber < 3) then ! Triclinic
+
             if (inversion == 0) then
                 nGen = 1
                 ! Search for the onefold axis
                 call Get_Rotations(symOp(:),nSymOp,1,n,idd)
                 G(:,:,1) = symOp(idd(1,1))%Mat
             end if
-            
-            else if (spaceGroupNumber < 16)  then ! Monoclinic   
-        
+
+            else if (spaceGroupNumber < 16)  then ! Monoclinic
+
             nGen = 1
-            ! Search for a twofold axis 
+            ! Search for a twofold axis
             call Get_Rotations(symOp(:),nSymOp,2,n,idd)
             G(:,:,1) = symOp(idd(1,1))%Mat
             ! Choose proper rotations if the spacegroup is centrosymmetric
             if (inversion > 0) G(1:3,1:3,1) = (idd(1,2)//1) * G(1:3,1:3,1)
-            
+
         else if (spaceGroupNumber < 75)  then ! Orthorhombic
-        
+
             nGen = 2
-            ! Search for the two fold axes along [001] and [010] 
+            ! Search for the two fold axes along [001] and [010]
             call Get_Rotations(symOP(:),nSymOp,2,n,idd)
             ngaux = 0
             do i = 1 , n
@@ -298,10 +298,10 @@ contains
                     if (ngaux == 2) exit
                 end if
             end do
-            
+
         else if (spaceGroupNumber < 143) then ! Tetragonal
-        
-            ! Search for the fourfold axis along [001] 
+
+            ! Search for the fourfold axis along [001]
             call Get_Rotations(symOp(:),nSymOp,4,n,idd)
             do i = 1 , n
                 call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
@@ -313,7 +313,7 @@ contains
                     end if
                 end if
             end do
-            ! Look for a possible twofold axis along [100] 
+            ! Look for a possible twofold axis along [100]
             call Get_Rotations(symOp(:),nSymOp,2,n,idd)
             do i = 1 , n
                 call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
@@ -323,10 +323,10 @@ contains
                     exit
                 end if
             end do
-            
+
         else if (spaceGroupNumber < 168) then ! Trigonal
-        
-            ! Search for the threefold axis along [001] 
+
+            ! Search for the threefold axis along [001]
             call Get_Rotations(symOP(:),nSymOp,3,n,idd)
             do i = 1 , n
                 call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
@@ -338,7 +338,7 @@ contains
                     end if
                 end if
             end do
-            ! Search for a possible twofold axis along [110] or [-110] 
+            ! Search for a possible twofold axis along [110] or [-110]
             call Get_Rotations(symOp(:),nSymOp,2,n,idd)
             do i = 1 , n
                 call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
@@ -349,9 +349,9 @@ contains
                     exit
                 end if
             end do
-            
+
         else if (spaceGroupNumber < 195) then ! Hexagonal
-        
+
             ! Search for the sixfold axis along [001] in SGtarget
             call Get_Rotations(symOp(:),nSymOp,6,n,idd)
             do i = 1 , n
@@ -374,9 +374,9 @@ contains
                     exit
                 end if
             end do
-            
+
         else
-        
+
             ! Search for the fourfold axis along [001] in SGtarget
             call Get_Rotations(symOp(:),nSymOp,4,n,idd)
             do i = 1 , n
@@ -413,9 +413,9 @@ contains
                     end if
                 end if
             end do
-            
+
         end if
-        
+
         if (inversion > 0) then
             ! Choose proper rotations if the spacegroup is centrosymmetric
             do i = 1 , nGen
@@ -431,31 +431,31 @@ contains
         end if
 
     end subroutine Get_Generators
-    
+
     !!---- Subroutine Get_HM_Standard(numSpg,symbolHM)
-    !!----      integer,           intent(in)  :: numSpg 
+    !!----      integer,           intent(in)  :: numSpg
     !!----      character(len=12), intent(out) :: symbolHM
     !!----
     !!---- Returns the Herman-Maugin symbol for the standard
     !!----
     !!---- Updated: September - 2018
     !!----
-    
+
     subroutine Get_HM_Standard(numSpg,symbolHM)
-        
+
         !---- Arguments ----!
-        integer,           intent(in)  :: numSpg 
+        integer,           intent(in)  :: numSpg
         character(len=12), intent(out) :: symbolHM
-        
+
         !---- Local variables ----!
         integer i,n
         integer, dimension(1) :: posSep
-        
+
         if (numSpg < 0 .or. numSpg > 230) then
             write(*,'(a)') "Error in Get_HM_Standard subroutine: numSpg out of range"
             return
         end if
-        
+
         call Set_Spgr_Info()
         i = 1
         do
@@ -470,9 +470,9 @@ contains
             end if
             i = i + 1
         end do
-        
+
     end subroutine Get_HM_Standard
-    
+
     !!---- Subroutine Get_Lattice_Type(L,Latc,lattyp)
     !!----      integer,                        intent( in) :: L
     !!----      type(rational), dimension(:,:), intent( in) :: Latc
@@ -482,9 +482,9 @@ contains
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_Lattice_Type(L,Latc,lattyp)
-       
+
         !---- Arguments ----!
         integer,                        intent( in) :: L
         type(rational), dimension(:,:), intent( in) :: Latc
@@ -494,10 +494,10 @@ contains
         integer :: i,j
         logical :: latt_p, latt_a, latt_b, latt_c, latt_i, latt_r, latt_s, latt_h, latt_f, latt_z
         integer, dimension(10):: latt_given
-       
+
         type(rational), dimension(3,10) :: lattice
-        
-        lattice(:,1)  = (/ 0//1,1//2,1//2 /) 
+
+        lattice(:,1)  = (/ 0//1,1//2,1//2 /)
         lattice(:,2)  = (/ 1//2,0//1,1//2 /)
         lattice(:,3)  = (/ 1//2,1//2,0//1 /)
         lattice(:,4)  = (/ 1//2,1//2,1//2 /)
@@ -582,24 +582,24 @@ contains
         if (latt_f) lattyp="F"
 
         return
-       
+
     end subroutine Get_Lattice_Type
-    
+
     !!---- Subroutine Get_Lattice_Type_from_M(M,lattyp,info)
     !!----      type(rational), dimension(3,3), intent(in)  :: M
     !!----      character,                      intent(out) :: lattyp
     !!----      logical, optional,              intent(in)  :: output
     !!----
     !!---- The M matrix transforms a primitive basis to a standard
-    !!---- basis. The columns of the inverse of the M matrix contain 
-    !!---- the primitive vectors of the lattice expressed in the 
+    !!---- basis. The columns of the inverse of the M matrix contain
+    !!---- the primitive vectors of the lattice expressed in the
     !!---- standard basis.
     !!----
     !!---- Updated: September - 2018
     !!----
-    
+
     subroutine Get_Lattice_Type_from_M(M,lattyp,output)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: M
         character,                      intent(out) :: lattyp
@@ -610,7 +610,7 @@ contains
         logical   :: singular,newt
         type(rational) :: det
         logical,        dimension(3)   :: isOrigin
-        type(rational), dimension(3)   :: t        
+        type(rational), dimension(3)   :: t
         type(rational), dimension(3,3) :: Minv,Maux
         type(rational), dimension(3,3) :: latc
 
@@ -618,7 +618,7 @@ contains
         call Rational_Inv_Matrix(M,Minv)
         det = rational_determinant(Minv)
         det = (1//1) / det
-        
+
         if (mod(det%Numerator,det%Denominator) /= 0) then
             err_std = .true.
             err_std_mess = "Error in Get_Lattice_Type_from_M. &
@@ -667,35 +667,35 @@ contains
         end if
 
     end subroutine Get_Lattice_Type_from_M
-    
+
     !!---- Subroutine Get_Mc_Matrix
     !!----      character(len=5),               intent(in)  :: LaueClass
     !!----      type(rational), dimension(3,3), intent(in)  :: Mp
     !!----      type(rational), dimension(3,3), intent(out) :: Mc
-    !!----      logical, optional,              intent(in)  :: output   
+    !!----      logical, optional,              intent(in)  :: output
     !!----
-    !!---- Computes a correction matrix if necessary. A correction needed 
-    !!---- in some cases for cubic groups with primitive lattices has been 
+    !!---- Computes a correction matrix if necessary. A correction needed
+    !!---- in some cases for cubic groups with primitive lattices has been
     !!---- introduced in the subroutine Get_A_Matrices, for the case m-3.
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_Mc_Matrix(LaueClass,Mp,Mc,output)
-    
+
         !---- Arguments ----!
         character(len=*),               intent(in)  :: LaueClass
         type(rational), dimension(3,3), intent(in)  :: Mp
         type(rational), dimension(3,3), intent(out) :: Mc
         logical, optional,              intent(in)  :: output
-        
+
         !---- Local variables ----!
         character                      :: lattyp
         character(len=60)              :: symb
         logical                        :: singular
         type(rational), dimension(3,3) :: Mcinv
         type(rational), dimension(4,4) :: McAux
-    
+
         if (present(output)) then
             write(*,'(8x,a)') " => Constructing (Mc,0) matrix...."
             write(*,'(8x,a)') "    This matrix corrects (M',0) if (M',0) does not &
@@ -773,7 +773,7 @@ contains
                     Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
                     Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
                 end if
-                
+
             case default
 
                 Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
@@ -801,7 +801,7 @@ contains
     !!----
     !!---- It returns a 3x3 matrix Mp which transforms the
     !!---- original setting in a setting where basis vectors
-    !!---- are along the symmetry axes of the Laue class. 
+    !!---- are along the symmetry axes of the Laue class.
     !!
     !!----           [ bx1 by1 bz1 ]
     !!----      Mp = [ bx2 by2 bz2 ]
@@ -811,13 +811,13 @@ contains
     !!
 
     subroutine Get_Mp_Matrix(G,P,Mp,output)
-    
+
         !---- Arguments ----!
         type(spg_type),                 intent(in)  :: G
         type(rational), dimension(3,3), intent(in)  :: P
         type(rational), dimension(3,3), intent(out) :: Mp
         logical, optional,              intent(in)  :: output
-        
+
         !---- Local variables ----!
         integer            :: i,j,k,n,n_,nCubicAxes
         character(len=256) :: symb
@@ -829,21 +829,21 @@ contains
         type(rational),    dimension(3,4) :: vPerp,cubicAxes
         type(rational),    dimension(4,4) :: MpAux
         integer,           dimension(:,:), allocatable :: idd
-               
+
         axisName(2) = "twofold"
         axisName(3) = "threefold"
         axisName(4) = "fourfold"
         axisName(6) = "sixfold"
-        
+
         call Rational_Inv_Matrix(P,Pinv)
-        
+
         if (present(output)) then
             write(*,'(8x,a)') " => Constructing (M',0) matrix...."
             write(*,'(12x,a)') "This matrix transforms the primitive basis in a basis with &
             vectors along the symmetry axes of the Laue class"
             write(*,'(12x,2a)') "Laue Class: ", G%laue
         end if
-        
+
         select case (trim(G%laue))
             case ("-1")
                 Mp = reshape ( (/ 1//1,0//1,0//1,&
@@ -867,7 +867,7 @@ contains
                 W = MatMul(Pinv,W)
                 call Get_Rotation_Axis(W,bz)
                 if (err_std) return
-                if (present(output)) then 
+                if (present(output)) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(1:3)%Numerator
                     write(*,'(12x,a)') "Searching for lattice vectors perpendicular to the rotation axis. &
                     Building the complete basis..."
@@ -913,7 +913,7 @@ contains
                     axis linearly independent from the first"
                     return
                 end if
-                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator                
+                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
                 by = matmul(W,bx)
                 Mp(:,1) = bx
                 Mp(:,2) = by
@@ -954,7 +954,7 @@ contains
                     axis linearly independent from the first"
                     return
                 end if
-                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator                
+                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
                 by = matmul(W,bx)
                 Mp(:,1) = bx
                 Mp(:,2) = by
@@ -1028,7 +1028,7 @@ contains
                                 Mp(:,2) = (1//2) * (cubicAxes(:,1) + by)
                                 Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)
                                 ! For lattice I, Mp is not integral (there is a lattice
-                                ! point at the middle of each diagonal. We must multiply 
+                                ! point at the middle of each diagonal. We must multiply
                                 ! by two in order to get the diagonal of the cube
                                 if (.not. IsInteger(Mp)) Mp = (2//1) * Mp
                                 PM = matmul(P,Mp)
@@ -1060,10 +1060,10 @@ contains
                     return
                 end if
         end select
-        
+
         call Set_Right_Handedness(Mp)
-        
-        if (present(output)) then     
+
+        if (present(output)) then
             write(*,'(12x,a)',advance='no') "Primitive setting --> Quasi-Standard setting transformation: "
             call Set_Identity_Matrix(4)
             MpAux          = identity_matrix
@@ -1071,9 +1071,9 @@ contains
             call Get_SSymSymb_from_Mat(transpose(MpAux),symb,"abc")
             write(*,'(a)') trim(symb)
         end if
-        
+
     end subroutine Get_Mp_Matrix
-    
+
     !!---- Subroutine Get_Origin_Shift(G,G_,ng,P,origShift,shift)
     !!----      type(rational), dimension(4,4,ng), intent(in)  :: G
     !!----      type(rational), dimension(4,4,ng), intent(in)  :: G_
@@ -1083,21 +1083,21 @@ contains
     !!----      logical,                           intent(out) :: shift
     !!----
     !!---- Tries to make G = G_ by an origin shift. If a solution is found,
-    !!---- it returns shift = .true. P is used to express G and G_ in a 
+    !!---- it returns shift = .true. P is used to express G and G_ in a
     !!---- primitive basis
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_Origin_Shift(G,G_,ng,P_,origShift,shift)
-        
+
         type(rational), dimension(4,4,ng), intent(in)  :: G
         type(rational), dimension(4,4,ng), intent(in)  :: G_
         integer,                           intent(in)  :: ng
         type(rational), dimension(3,3),    intent(in)  :: P_
         type(rational), dimension(3),      intent(out) :: origShift
         logical,                           intent(out) :: shift
-        
+
         integer :: i,j,k,l,r,nr
         logical :: singular
         type(rational), dimension(3,3)    :: identity
@@ -1120,7 +1120,7 @@ contains
             Gx(:,:,i) = matmul(Gx(:,:,i),P)
             Gx(:,:,i) = matmul(Pinv,Gx(:,:,i))
         end do
-        
+
         ! Build the equation to compute the origin shift
         !      U x cp = b (mod Z)
         if (.not. allocated(U)) then
@@ -1141,8 +1141,8 @@ contains
                     U(r,l) = Gt(k,l,j) - identity(k,l)
                 end do
             end do
-        end do       
-        call Rational_SmithNormalForm(U,nr,3,D,T,V)  
+        end do
+        call Rational_SmithNormalForm(U,nr,3,D,T,V)
         b = matmul(T,b)
         do j = 1 , 3
             if (D(j,j) == (0//1)) then
@@ -1157,7 +1157,7 @@ contains
             end if
         end do
         do j = 4 , nr
-            if (mod(b(j,1)%Numerator,b(j,1)%Denominator) /= 0) then 
+            if (mod(b(j,1)%Numerator,b(j,1)%Denominator) /= 0) then
                 shift = .false.
                 return
             end if
@@ -1182,12 +1182,12 @@ contains
     !!
 
     subroutine Get_P_Matrix(G,P,output)
-    
+
         !---- Arguments ----!
         type(spg_type),                 intent(in)  :: G
         type(rational), dimension(3,3), intent(out) :: P
         logical, optional,              intent(in)  :: output
-        
+
         !---- Local variables ----!
         integer                                     :: i,j,k,n,m
         integer                                     :: nLatt,nAuxVec,nCentringVec
@@ -1199,15 +1199,15 @@ contains
         type(rational), dimension(3,3)              :: Pinv,A
         type(rational), dimension(4,4)              :: PAux
         type(rational), dimension(:,:), allocatable :: auxVec,centringVec
-        
+
         primitive   = .false.
         nullVec(:)  = 0//1
-        
+
         if (present(output)) then
             write(*,'(8x,a)') " => Constructing (P,0) matrix...."
             write(*,'(12x,a)') "This matrix transforms the original basis in a primitive basis"
         end if
-        
+
         nLatt = 1
         do i = 1 , G%num_lat
             if (.not. equal_rational_vector(G%Lat_tr(:,i),nullVec))  nLatt = nLatt + 1
@@ -1225,7 +1225,7 @@ contains
         else
             ! Build an expanded list of centring vectors
             nAuxVec = 0
-            rNumLat = (G%num_lat+G%num_alat+1)//1 
+            rNumLat = (G%num_lat+G%num_alat+1)//1
             allocate(auxVec(3,G%num_lat+G%num_alat))
             do i = 1 , G%num_lat
                 if (.not. equal_rational_vector(G%lat_tr(:,i),nullVec)) then
@@ -1238,7 +1238,7 @@ contains
                     nAuxVec = nAuxVec + 1
                     auxVec(:,nAuxVec) = G%alat_tr(:,i)
                 end if
-            end do                    
+            end do
             allocate(centringVec(4,8*nAuxVec))
             nCentringVec = 0
             do n = 1 , nAuxVec
@@ -1254,7 +1254,7 @@ contains
                             if (k == 1 .and. auxVec(3,n)%numerator == 0) cycle
                             v(3)%numerator   = auxVec(3,n)%numerator - k*auxVec(3,n)%denominator
                             v(3)%denominator = auxVec(3,n)%denominator
-                            v(4) = dot_product(v(1:3),v(1:3))                            
+                            v(4) = dot_product(v(1:3),v(1:3))
                             ! Check if there is linear dependence with previous vectors
                             linearDependence = .False.
                             do m = 1 , nCentringVec
@@ -1324,22 +1324,22 @@ contains
                 end do
             end do
         end do
-        
+
         if (.not. primitive) then
             err_std = .true.
             err_std_mess = "Error in Get_P_Matrix subroutine. A primitive basis cannot be found"
             write(*,'(12x,a)') err_std_mess
             return
-        else if (present(output)) then     
-            write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "            
+        else if (present(output)) then
+            write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
             call Rational_Identity_Matrix(4,Paux)
             PAux(1:3,1:3) = P
             call Get_SSymSymb_from_Mat(transpose(PAux),symb,"abc")
             write(*,'(a)') trim(symb)
         end if
-           
+
     end subroutine Get_P_Matrix
-    
+
     !!---- Subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
     !!----      type(rational), dimension(3,3), intent(in)  :: W
     !!----      type(rational), dimension(3,4), intent(in)  :: perpAxis
@@ -1354,16 +1354,16 @@ contains
     !!
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: W
         type(rational), dimension(3,4), intent(in)  :: perpAxis
         type(rational), dimension(3),   intent(in)  :: bz
         type(rational), dimension(3),   intent(out) :: bx
         type(rational), dimension(3),   intent(out) :: by
-    
+
         !---- Local variables ----!
         integer                           :: i,j,n,imin,order
         type(rational)                    :: detW,minDet
@@ -1371,10 +1371,10 @@ contains
         type(rational), dimension(:),   allocatable :: det
         integer,        dimension(:,:), allocatable :: test_
         type(rational), dimension(:,:), allocatable :: byAux
-    
+
         err_std  = .false.
         detW     = rational_determinant(W)
-        
+
         if (detW%Numerator == detW%Denominator) then
             A = W
         else if (detW%Numerator == -detW%Denominator) then
@@ -1385,14 +1385,14 @@ contains
             Determinant is not +-1"
             return
         end if
-        
+
         B(:,3)   = bz(:)
         call Get_Rotation_Order(A,order)
-    
+
         select case (order)
 
             case (2)
-        
+
                 Allocate(det(6),test_(6,2))
                 n = 0
                 do i = 1 , 4
@@ -1401,13 +1401,13 @@ contains
                         test_(n,1) = i
                         test_(n,2) = j
                         B(:,1)     = perpAxis(:,i)
-                        B(:,2)     = perpAxis(:,j)                    
+                        B(:,2)     = perpAxis(:,j)
                         det(n)     = rational_determinant(B)
                     end do
                 end do
-            
+
                 ! Select the combination with the smallest determinant
-            
+
                 imin   = 1
                 minDet = abs(det(1))
                 do i = 2 , 6
@@ -1419,9 +1419,9 @@ contains
 
                 bx(:) = perpAxis(:,test_(imin,1))
                 by(:) = perpAxis(:,test_(imin,2))
-        
+
             case (3,4,6)
-                   
+
                 allocate(det(4),test_(4,1),byAux(3,4))
                 do i = 1 , 4
                     byAux(:,i) = matmul(A,perpAxis(:,i))
@@ -1429,7 +1429,7 @@ contains
                     B(:,2)     = byAux(:,i)
                     det(i)     = rational_determinant(B)
                 end do
-            
+
                 imin = 1
                 minDet = abs(det(1))
                 do i = 2 , 4
@@ -1438,30 +1438,30 @@ contains
                         minDet = abs(det(i))
                     end if
                 end do
-            
+
                 bx(:) = perpAxis(:,imin)
                 by(:) = byAux(:,imin)
-                        
+
         end select
-    
+
     end subroutine Get_Pseudo_Standard_Base
-    
+
     !!---- Subroutine Get_Rotation_Axis(W,axis)
     !!----    type(rational), dimension(3,3), intent(in)  :: W     !rotation matrix
     !!----    type(rational), dimension(3),   intent(out) :: axis  !shortest vector along the rotation axisP
     !!----
-    !!---- It computes the shortest lattice vector along the rotation 
+    !!---- It computes the shortest lattice vector along the rotation
     !!---- axis of the symmetry operation W
     !!----
     !!---- Updated: January - 2019
     !!
-    
+
     subroutine Get_Rotation_Axis(W,axis)
-    
+
         !---- Arguments ----!
-        type(rational), dimension(3,3), intent(in)  :: W     
-        type(rational), dimension(3),   intent(out) :: axis  
-    
+        type(rational), dimension(3,3), intent(in)  :: W
+        type(rational), dimension(3),   intent(out) :: axis
+
         !---- Local variables ----!
         integer        :: i,j,rnk,nzeros_aux
         logical        :: ordered
@@ -1469,7 +1469,7 @@ contains
         type(rational), dimension(3,3) :: A,U
         integer,        dimension(3) :: nzeros
         type(rational), dimension(3) :: row,axisaux
-    
+
         det = rational_determinant(W)
 
         if (det%Numerator == det%Denominator) then
@@ -1481,8 +1481,8 @@ contains
             err_std_mess = "Error in Get_Rotation_Axis subroutine. &
             Determinant is not +-1"
             return
-        end if  
-        
+        end if
+
         do i = 1 , 3
             A(i,i) = A(i,i) - (1//1)
         end do
@@ -1496,10 +1496,10 @@ contains
             Rank of matrix U is not two"
             return
         end if
-    
+
         ! If there is a row with all zero entries,
         ! we put it in the last row
-    
+
         nzeros = 0
         do i = 1 , 3
             do j = 1 , 3
@@ -1510,7 +1510,7 @@ contains
                 end if
             end do
         end do
-        
+
         do
             i = 1
             ordered = .true.
@@ -1527,17 +1527,17 @@ contains
             end do
             if ( ordered ) exit
         end do
-    
+
         ! Compute the axis direction
-       
-        if ( U(3,3) /= (0//1) ) then 
+
+        if ( U(3,3) /= (0//1) ) then
             axis(3) = (0//1)
         else if ( U(2,3) /= (0//1) .and. U(2,2) == (0//1) ) then
             axis(3) = (0//1)
-        else 
+        else
             axis(3) = (1//1)  ! Free choice
         end if
-    
+
         if ( U(2,2) /= (0//1) ) then
             axis(2) = - U(2,3) * axis(3) / U(2,2)
             if (U(1,1) == (0//1)) then
@@ -1545,50 +1545,50 @@ contains
             else
                 axis(1) = - ( U(1,2) * axis(2) + U(1,3) * axis(3) ) / U(1,1)
             end if
-        else ! axis(3) must be zero because row(2) cannot be zero 
+        else ! axis(3) must be zero because row(2) cannot be zero
             if ( U(1,2) == (0//1) ) then
                 axis(2) = (1//1) ! Free choice
-                axis(1) = - ( U(1,2) * axis(2) + U(1,3) * axis(3) ) / U(1,1) 
-            else 
+                axis(1) = - ( U(1,2) * axis(2) + U(1,3) * axis(3) ) / U(1,1)
+            else
                 axis(1) = (1//1) ! Free choice
                 axis(2) = - ( U(1,1) * axis(1) + U(1,3) * axis(3) ) / U(1,2)
-            end if        
+            end if
         end if
 
         call Smallest_Integral_Vector(axis)
-               
+
         ! Choose the eigenvector axis with axis(3) > 0. If axis(3) = 0, choose axis with
         ! axis(2) > 0. If axis(2) = 0, choose axis with axis(1) > 0
-        
+
         do i = 3, 1, -1
             if (axis(i) /= (0//1)) then
                 if (axis(i) < (0//1)) axis = -axis
                 exit
             end if
         end do
-            
-    end subroutine Get_Rotation_Axis    
-    
+
+    end subroutine Get_Rotation_Axis
+
     !!---- Subroutine Get_Rotation_Order(W,order)
     !!----     type(rational), dimension(3,3), intent(in)  :: W
     !!----     integer,                        intent(out) :: order
     !!----
-    !!---- Returns the rotation order of a symmetry operation 
+    !!---- Returns the rotation order of a symmetry operation
     !!----
     !!---- Updated: September - 2018
     !!----
-    
+
     subroutine Get_Rotation_Order(W,order)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: W
         integer,                        intent(out) :: order
-        
+
         !---- Local variables ----!
         integer :: i
         type(rational) :: tr
         integer, dimension(6)   :: traces
-        
+
         err_std = .false.
         tr = rational_trace(W)
         if (mod(tr%Numerator,tr%Denominator) == 0) then
@@ -1606,14 +1606,14 @@ contains
                 case default
                     err_std = .True.
                     err_std_mess = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
-            end select 
+            end select
         else
             err_std = .True.
             err_std_mess = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
         end if
-    
+
     end subroutine Get_Rotation_Order
-    
+
     !!---- Subroutine Get_Rotations(symOP,nSymOP,order,n,idd)
     !!----    type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
     !!----    integer,                                 intent(in)  :: nSymOP
@@ -1622,34 +1622,34 @@ contains
     !!----    integer, dimension(nSymOP,2),            intent(out) :: idd
     !!----
     !!---- It returns the number of symmetry operations in array symOp
-    !!---- with rotational part of order n. The corresponding index 
+    !!---- with rotational part of order n. The corresponding index
     !!---- and value of the determinant are returned in idd.
     !!----
     !!---- Updated: September - 2018
     !!
-    
-    subroutine Get_Rotations(symOP,nSymOP,n,nso,idd)       
-    
+
+    subroutine Get_Rotations(symOP,nSymOP,n,nso,idd)
+
         !---- Arguments ----!
         type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
         integer,                                 intent(in)  :: nSymOP
         integer,                                 intent(in)  :: n
         integer,                                 intent(out) :: nso
         integer, dimension(nSymOP,2),            intent(out) :: idd
-    
+
         !---- Local variables ----!
         integer                           :: i,d,t
         type(rational)                    :: det,tr
         integer,           dimension(6)   :: traces
         character(len=20), dimension(6)   :: axisName
-    
+
         err_std = .false.
         axisName(1) = "onefold"
         axisName(2) = "twofold"
         axisName(3) = "threefold"
         axisName(4) = "fourfold"
         axisName(6) = "sixfold"
-    
+
         traces(1) =  3
         traces(2) = -1
         traces(3) =  0
@@ -1673,57 +1673,57 @@ contains
             end if
             t = tr%Numerator / tr%Denominator
             if ( d == 1 .and. t == traces(n) .or. d == -1 .and. t == -traces(n)) then
-                nso = nso + 1            
+                nso = nso + 1
                 idd(nso,1) = i
                 idd(nso,2) = d
             end if
         end do
-        
+
         !if (nso == 0) then
         !    err_std      = .true.
         !    err_std_mess = "Error in Get_Rotations. Unable to find the "&
         !        //trim(axisName(n))//" axis"
         !end if
 
-    end subroutine Get_Rotations    
-    
+    end subroutine Get_Rotations
+
     !!---- Subroutine Get_S_Matrix
     !!----      type(rational), dimension(3,3), intent(in)  :: W
     !!----      type(rational), dimension(3,3), intent(out) :: S
     !!----
     !!---- Given a rotation matrix W, computes the matrix S defined as:
     !!----           S = W + W^2 + W^3 + ... + W^n
-    !!---- where n is the order of the rotation axis. This matrix is 
+    !!---- where n is the order of the rotation axis. This matrix is
     !!---- used to find vectors perpendicular to the rotation axis. For
     !!---- a vector x perpendicular to the rotation axis, since Sx = 0.
     !!----
     !!---- Updated: September - 2018
     !!----
     !!
-    
+
     subroutine Get_S_Matrix(W,S)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: W
         type(rational), dimension(3,3), intent(out) :: S
 
-    
+
         !---- Local variables ----!
         integer                        :: i,order
         type(rational), dimension(3,3) :: Waux
-    
+
         call Get_Rotation_Order(W,order)
-        
+
         S    = W
         Waux = W
-    
+
         do i = 2 , order
             Waux = MatMul(Waux,W)
             S    = S + Waux
         end do
 
     end subroutine Get_S_Matrix
-    
+
     !!---- Subroutine Get_Vectors_Perpendicular_To_Rotation_Axis(W,vPerp)
     !!----    type(rational), dimension(3,3), intent(in)  :: W
     !!----    type(rational), dimension(3,4), intent(out) :: vPerp
@@ -1735,23 +1735,23 @@ contains
     !!---- Updated: September - 2018
     !!----
     !!
-    
+
     subroutine Get_Vectors_Perpendicular_To_Rotation_Axis(W,vPerp)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(in)  :: W
         type(rational), dimension(3,4), intent(out) :: vPerp
-    
+
         !---- Local variables ----!
         integer        :: i
         integer        :: order,rnk,row,nzeros
         type(rational) :: det
         type(rational), dimension(3)   :: nullVector
         type(rational), dimension(3,3) :: A,S,U
-        
+
         nullVector(:) = 0 // 1
         det = rational_determinant(W)
-        
+
         if (det%Numerator == det%Denominator) then
             A = W
         else if (det%Numerator == -det%Denominator) then
@@ -1762,13 +1762,13 @@ contains
             Determinant is not +-1"
             return
         end if
-        
+
         call Get_S_Matrix(A,S)
         call Rational_RowEchelonForm(S)
         U = S
-        
+
         ! Check that the rank of the U matrix is one
-    
+
         call Rational_Rank(U,rnk)
 
         if ( rnk /= 1 ) then
@@ -1777,22 +1777,22 @@ contains
             Rank of matrix U is not one"
             return
         end if
-        
+
         ! Find a row different from zeros
-           
+
         do i = 1 , 3
             if (.not. equal_rational_vector(U(i,:),nullVector)) exit
         end do
         row = i
-        
+
         ! Count the number of zeros of the first row of the echelon matrix
-    
+
         nzeros = 0
         do i = 1 , 3
             if (U(row,i) == (0//1)) nzeros = nzeros + 1
         end do
-        
-        ! Build the four shortest vectors perpendicular to the rotation axis    
+
+        ! Build the four shortest vectors perpendicular to the rotation axis
 
         select case (nzeros)
             case (0)
@@ -1843,10 +1843,10 @@ contains
                         vPerp(2,1) = 0//1
                         vPerp(3,1) = 1//1
                         vPerp(1,2) = 1//1
-                        vPerp(2,2) = -U(row,1) / U(row,2) 
+                        vPerp(2,2) = -U(row,1) / U(row,2)
                         vPerp(3,2) = 0//1
                         vPerp(1,3) = 1//1
-                        vPerp(2,3) = -U(row,1) / U(row,2) 
+                        vPerp(2,3) = -U(row,1) / U(row,2)
                         vPerp(3,3) = 1//1
                         vPerp(1,4) = 1//1
                         vPerp(2,4) = -U(row,1) / U(row,2)
@@ -1893,8 +1893,8 @@ contains
         do i = 1 , 4
             call Smallest_Integral_Vector(vPerp(:,i))
         end do
-        
-    end subroutine Get_Vectors_Perpendicular_To_Rotation_Axis   
+
+    end subroutine Get_Vectors_Perpendicular_To_Rotation_Axis
 
     !!---- Subroutine Identify_Crystallographic_Group(G)
     !!----     type(spg_type), intent(inout)  :: G
@@ -1911,7 +1911,7 @@ contains
     !!
 
     subroutine Identify_Crystallographic_Group(G)
-    
+
         !---- Arguments ----!
         type(spg_type), intent(inout) :: G
 
@@ -1924,49 +1924,49 @@ contains
         call Set_Crystallographic_Point_Group(G)
         if (err_std) return
         !write(*,'(8x,2a)') " => Crystallographic point group: ", G%pg
-        
+
         call Set_Laue_Class(G)
         if (err_std) return
         !write(*,'(8x,2a)') " => Laue class: ", G%laue
-        
+
         !call Get_P_Matrix(G,P,output=.true.)
         call Get_P_Matrix(G,P)
         if (err_std) return
-        
+
         !call Get_Mp_Matrix(G,P,Mp,output=.true.)
         call Get_Mp_Matrix(G,P,Mp)
         if (err_std) return
-        
+
         !call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
         call Get_Mc_Matrix(G%laue,Mp,Mc)
         if (err_std) return
-        
+
         M = matmul(Mp,Mc)
-        call Get_Lattice_Type_from_M(M,lattyp)  
+        call Get_Lattice_Type_from_M(M,lattyp)
         call Get_A_Matrices(G%laue,A,n)
         !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=.true.)
         call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
-        
+
     end subroutine Identify_Crystallographic_Group
-        
+
     !!---- Subroutine Identify_Group(G)
     !!----     type(spg_type), intent(inout)  :: G
     !!----
     !!---- Initialize the identification of the group by calling
-    !!---- the appropiate subroutine according to the nature  of 
+    !!---- the appropiate subroutine according to the nature  of
     !!---- the group -crystallographic, magnetic, superspace-.
     !!----
     !!---- Updated January - 2019
     !!
 
     subroutine Identify_Group(G)
-    
+
         !---- Arguments ----!
         type(spg_type), intent(inout) :: G
-        
+
         err_std = .false.
-        
-        if (G%d == 4 .and. G%mag_type == 1) then  
+
+        if (G%d == 4 .and. G%mag_type == 1) then
             ! Crystallographic space group
             call Identify_Crystallographic_Group(G)
         else
@@ -1974,15 +1974,15 @@ contains
             !err_std_mess = "Error in Identify_Group. Unable to identify group. G%d different from 4"
             return
         end if
-        
-    end subroutine Identify_Group 
+
+    end subroutine Identify_Group
 
     !!---- Match_Crystallographic_Space_Group(G,P,M,A,n,output)
-    !!----      type(spg_type),                   intent(inout) :: G      
-    !!----      type(rational), dimension(3,3),   intent(in)    :: P        
-    !!----      type(rational), dimension(3,3),   intent(in)    :: M        
-    !!----      type(rational), dimension(3,3,n), intent(in)    :: A         
-    !!----      integer,                          intent(in)    :: n  
+    !!----      type(spg_type),                   intent(inout) :: G
+    !!----      type(rational), dimension(3,3),   intent(in)    :: P
+    !!----      type(rational), dimension(3,3),   intent(in)    :: M
+    !!----      type(rational), dimension(3,3,n), intent(in)    :: A
+    !!----      integer,                          intent(in)    :: n
     !!----      logical,        optional,         intent(in)    :: output
     !!----
     !!---- Tries to match the space group G against one of the 230
@@ -1992,23 +1992,23 @@ contains
     !!----
     !!---- Updated: January - 2019
     !!
-    
+
     subroutine Match_Crystallographic_Space_Group(G,P,M,A,n,output)
 
         !---- Arguments ----!
         type(spg_type),                   intent(inout) :: G        ! space group in the original setting
         type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
-        type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices-        
+        type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices-
         integer,                          intent(in)    :: n        ! number of A matrices (six as maximum)
         logical,        optional,         intent(in)    :: output
-        
+
         !---- Local variables ----!
         integer                                         :: s,i,j,k,ng,ng_,dmax
-        integer                                         :: firstSpaceGroup,lastSpaceGroup,numSpg    
+        integer                                         :: firstSpaceGroup,lastSpaceGroup,numSpg
         character(len=12)                               :: sgString
         character(len=256)                              :: symb
-        logical                                         :: shift 
+        logical                                         :: shift
         type(spg_type)                                  :: G_target
         type(space_group_type)                          :: G_std
         type(rational),       dimension(3)              :: origShift
@@ -2018,7 +2018,7 @@ contains
         type(rational),       dimension(4,4,3)          :: gen_std,gen_x
         type(rational),       dimension(4,4,n)          :: C_
         type(Symm_Oper_Type), dimension(:), allocatable :: op
-        
+
         select case (trim(G%laue))
 
             case ("-1")
@@ -2062,14 +2062,14 @@ contains
                 firstSpaceGroup = 0
                 lastSpaceGroup  = -1
 
-        end select       
+        end select
 
         do s = 1 , n  ! Loop over C matrices
             G_(s)         = G
             MA            = matmul(M,A(:,:,s))
             C_(1:3,1:3,s) = matmul(P,MA)
             C_(1:3,4,s)   = (/ 0//1,0//1,0//1 /)
-            C_(4,1:4,s)   = (/ 0//1,0//1,0//1,1//1 /)           
+            C_(4,1:4,s)   = (/ 0//1,0//1,0//1,1//1 /)
             call Rational_Inv_Matrix(C_(:,:,s),Cinv)
             ! Compute symmetry operations in the new basis
             do j = 1 , G%Multip
@@ -2090,7 +2090,7 @@ contains
                 G_(s)%alat_tr(1:3,j) = matmul(Cinv(1:3,1:3),G%alat_tr(1:3,j))
                 call PBC(G_(s)%alat_tr(1:3,j))
             end do
-            ! Get Lattice Type            
+            ! Get Lattice Type
             call Get_Lattice_Type_from_M(MA,G_(s)%spg_lat)
         end do
         do numSpg = firstSpaceGroup , lastSpaceGroup
@@ -2112,7 +2112,7 @@ contains
                     end do
                     ! Get generators from the standard space group
                     call Get_Generators(G_std%NumSpg,op,G_std%Multip,gen_std,ng)
-                    if (err_std) return               
+                    if (err_std) return
                     ! Try to get these generators from SGaux(s)
                     ng_ = 0
                     do i = 1 , ng
@@ -2127,10 +2127,10 @@ contains
                         end do
                     end do
                     if (ng /= ng_) cycle
-                    if (present(output)) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s    
+                    if (present(output)) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s
                    ! Build a spg_type object from space_group_type object
                     G_target%num_alat = 0
-                    G_target%num_lat  = G_std%NumLat - 1 ! In spg_type (000) is not included in lattice translations                   
+                    G_target%num_lat  = G_std%NumLat - 1 ! In spg_type (000) is not included in lattice translations
                     G_target%Multip   = G_std%Multip
                     if (allocated(G_target%lat_tr)) deallocate(G_target%lat_tr)
                     if (G_target%num_lat > 0) then
@@ -2140,7 +2140,7 @@ contains
                     if (allocated(G_target%op)) deallocate(G_target%op)
                     allocate(G_target%op(G_std%Multip))
                     do i = 1 , G_std%Multip
-                        allocate (G_target%op(i)%Mat(3,3)) 
+                        allocate (G_target%op(i)%Mat(3,3))
                         G_target%op(i)%Mat = G_std%symop(i)%Rot
                     end do
                     call Get_P_Matrix(G_target,P_target(1:3,1:3))
@@ -2148,14 +2148,14 @@ contains
                     ! Try to match the standard by an origin shift
                     call Get_Origin_Shift(gen_x(:,:,1:ng),gen_std(:,:,1:ng),ng,P_target,origShift,shift)
                     if (shift) then
-                        if (present(output)) write(*,'(8x,a)') 'Done!'                        
+                        if (present(output)) write(*,'(8x,a)') 'Done!'
                         C(1:3,1:3) = C_(1:3,1:3,s)
                         C(4,:)     = C_(4,:,s)
                         origShift  = matmul(C(1:3,1:3),origShift)
                         C(4,1:3) = origShift(1:3)
                         call Get_SSymSymb_from_Mat(transpose(C),symb,"abc")
                         if (present(output)) then
-                            write(*,'(12x,a)',advance='no') "Original setting --> Standard crystallographic setting: "                            
+                            write(*,'(12x,a)',advance='no') "Original setting --> Standard crystallographic setting: "
                             write(*,'(a)') trim(symb)
                         end if
                         G%numspg   = G_std%numspg
@@ -2169,12 +2169,12 @@ contains
                 end if
             end do
         end do
-        
+
         err_std = .true.
         err_std_mess = "Unable to indentify the space group"
 
     end subroutine Match_Crystallographic_Space_Group
-    
+
     !!---- Subroutine PBC(vector)
     !!----     type(rational), dimension(:), intent(inout) :: vector
     !!----
@@ -2183,15 +2183,15 @@ contains
     !!----
     !!---- Updated: October - 2018
     !!
-    
+
     subroutine PBC(vector)
-        
+
         !---- Arguments ----!
         type(rational), dimension(:), intent(inout) :: vector
-    
+
         !---- Local variables ----!
         integer :: i
-        
+
         do i = 1 , size(vector)
             if (vector(i) > (1//1)) then
                 vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_ik)
@@ -2199,22 +2199,22 @@ contains
                 vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_ik) + (1//1)
             end if
         end do
-        
+
     end subroutine PBC
-    
+
     !!---- Subroutine Set_Crystallographic_Point_Group(G)
-    !!----     type(spg_type), intent(inout) :: G 
+    !!----     type(spg_type), intent(inout) :: G
     !!----
-    !!----  Determines the crystallographic point group of the group G. 
+    !!----  Determines the crystallographic point group of the group G.
     !!----
     !!----  Updated: January - 2019
     !!
-    
+
     subroutine Set_Crystallographic_Point_Group(G)
-    
+
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G 
-        
+        type(spg_type), intent(inout) :: G
+
         !---- Local variables ----!
         integer                                            :: i,j,k,n,d,t
         integer                                            :: nRepSymOp
@@ -2223,12 +2223,12 @@ contains
         integer,               dimension(6)                :: nRot
         type(Symm_Oper_Type),  dimension(:),   allocatable :: repSymOp ! representative operations
         integer,               dimension(:,:), allocatable :: idd
-        
+
         ! Initialization
         nRot(:)  = 0  ! number of selected rotations of order 1,2,...,6
         err_std  = .false.
         G%pg     = ""
-        G%numops = G%multip / (G%num_lat+G%num_alat+1)       
+        G%numops = G%multip / (G%num_lat+G%num_alat+1)
         if (G%centred /= 1) G%numops = G%numops / 2
         allocate(repSymOp(G%numops))
         ! Get the rotations of the representative matrices
@@ -2258,7 +2258,7 @@ contains
                     nRepSymOp > G%numops"
                     return
                 end if
-                repSymOp(nRepSymOp) = G%op(i)                    
+                repSymOp(nRepSymOp) = G%op(i)
                 tr  = rational_trace(G%op(i)%Mat(1:3,1:3))
                 if (mod(tr%numerator,tr%denominator) /= 0) then
                     err_std      = .true.
@@ -2279,10 +2279,10 @@ contains
                         nRot(6) = nRot(6) + 1
                     case(3)
                         nRot(1) = nRot(1) + 1
-                end select 
+                end select
             end if
         end do
-        ! Get the point group      
+        ! Get the point group
         allocate(idd(G%numops,2))
         if (nRot(3) == 8) then ! Cubic
             if (nRepSymOp == 12) then
@@ -2309,7 +2309,7 @@ contains
                     call Get_Rotations(repSymOp,nRepSymOp,6,n,idd)
                     if (idd(1,2) == 1) then
                         G%PG = "6"
-                    else 
+                    else
                         G%PG = "-6"
                     end if
                 else
@@ -2322,7 +2322,7 @@ contains
                         call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
                         if (n == 7 .and. idd(1,2) == 1) then
                             G%PG = "622"
-                        else 
+                        else
                             G%PG = "6mm"
                         end if
                     else if (idd(1,2) == -1) then
@@ -2370,7 +2370,7 @@ contains
                         call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
                         if (n == 5 .and. idd(1,2) == 1) then
                             G%PG = "422"
-                        else 
+                        else
                             G%PG = "4mm"
                         end if
                     else if (n == 2 .and. idd(1,2) == -1) then
@@ -2385,7 +2385,7 @@ contains
                 call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
                 if (n == 3 .and. idd(1,2) == 1) then
                     G%PG = "222"
-                else 
+                else
                     G%PG = "mm2"
                 end if
             else
@@ -2407,16 +2407,16 @@ contains
                 G%PG = "1"
             else
                 G%PG = "-1"
-            end if        
+            end if
         end if
-        
+
         if (G%PG == "") then
             err_std = .true.
             err_std_mess = "Error in Set_Crystallographic_Point_Group_Basic. Unable to identify point group"
         end if
-        
+
     end subroutine Set_Crystallographic_Point_Group
-    
+
     !!---- Subroutine Set_Laue_Class(G)
     !!----     type(spg_type), intent(inout) :: G
     !!----
@@ -2424,14 +2424,14 @@ contains
     !!----
     !!---- Updated: January - 2019
     !!
-    
+
     subroutine Set_Laue_Class(G)
-        
+
         !---- Arguments ----!
         type(spg_type), intent(inout) :: G
-        
+
         select case (trim(G%pg))
-        
+
             case ("1","-1")
                 G%laue = "-1"
             case ("2","m","2/m")
@@ -2458,17 +2458,17 @@ contains
                 err_std = .true.
                 err_std_mess = "Error in Set_Laue_Class. Inconsistent crystallographic point group."
         end select
-        
+
     end subroutine Set_Laue_Class
-    
+
     !!---- Subroutine Set_Right_Handedness
     !!----      type(rational), dimension(3,3), intent(inout) :: A
     !!
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Set_Right_Handedness(A)
-    
+
         !---- Arguments ----!
         type(rational), dimension(3,3), intent(inout) :: A
 
@@ -2485,7 +2485,7 @@ contains
         end if
 
     end subroutine Set_Right_Handedness
-    
+
     !!---- Subroutine Smallest_Integral_Vector(v)
     !!----     type(rational), dimension(:), intent(inout) :: v
     !!----
@@ -2494,56 +2494,56 @@ contains
     !!----
     !!---- Updated: January - 2019
     !!
-     
-    subroutine Smallest_Integral_Vector(v)  
-    
+
+    subroutine Smallest_Integral_Vector(v)
+
         !---- Arguments ----!
         type(rational), dimension(:), intent(inout) :: v
-        
+
         !---- Local variables ----!
         integer                :: i
         integer, dimension(25) :: primos = (/ 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97 /)
         type(rational), dimension(size(v)) :: vAux
-        
+
         do i = 1 , size(v)
             v = v(i)%Denominator * v
         end do
-        
+
         do i = 1 , 25
             vAux = v / (primos(i)//1)
-            do 
+            do
                 if (.not. IsInteger(vAux)) exit
                 v    = vAux
                 vAux = v / (primos(i)//1)
             end do
         end do
-        
+
     end subroutine Smallest_Integral_Vector
-        
+
     !subroutine smallest_integral_vector(v)  !added by Nebil
-    
+
         !---- Arguments ----!
     !    type(rational), dimension(:), intent(inout) :: v
-        
+
         !---- Local variables ----!
     !    integer                :: i
     !    integer, dimension(25) :: primos = (/ 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97 /)
     !    type(rational), dimension(size(v)) :: vAux
-        
+
     !    do i = 1 , size(v)
     !        v = v(i)%Denominator * v
     !    end do
-        
+
     !    do i = 1 , 25
     !        vAux = v / (primos(i)//1)
     !        if (IsInteger(vAux)) v = vAux
     !    end do
-        
-    !end subroutine smallest_integral_vector   
+
+    !end subroutine smallest_integral_vector
     ! Provisional
-    
+
     Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type,invt)
-    
+
        !---- Arguments ----!
        type(rational),dimension(:,:), intent( in) :: Mat
        integer, optional,             intent( in) :: invt
@@ -2642,5 +2642,5 @@ contains
          end if
        end if
     End Subroutine Get_SSymSymb_from_Mat
-    
+
 end module

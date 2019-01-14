@@ -41,7 +41,7 @@
     End Type Group_type
 
     Type, extends(Group_type), public :: Spg_Type
-      integer :: numspg = 0 
+      integer :: numspg = 0
       integer :: Numops = 0
       integer :: centred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
       integer :: mag_type = 0
@@ -52,6 +52,7 @@
       character(len=:), allocatable :: pg
       character(len=:), allocatable :: laue
       character(len=:), allocatable :: mat2std
+      character(len=:), allocatable :: generators_list
       type(rational),dimension(:),   allocatable :: centre_coord
       type(rational),dimension(:,:), allocatable :: Lat_tr
       type(rational),dimension(:,:), allocatable :: aLat_tr
@@ -1064,12 +1065,16 @@
 
        ngen=size(gen)
        !Calculate the effective number of generators
+       Grp%generators_list="       "
        do i=1,ngen
          if(len_trim(gen(i)) == 0 ) then
            ngen=i-1
            exit
          end if
+         Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
+       Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
+       !write(*,"(a)") trim(Grp%generators_list)
        ! Get dimension of the generator matrices
        d=get_dimension(gen(1))
        include "CFML_group_constructor_template_inc.f90"
@@ -1095,6 +1100,9 @@
        character(len=80) :: Symb_Op
 
        allocate(gen(maxnum_op))
+       i=len_trim(generatorList)
+       Grp%generators_list=trim(generatorList)
+       if(Grp%generators_list(i:i) == ";") Grp%generators_list=Grp%generators_list(1:i-1)
        call Get_Operators_From_String(generatorList,d,ngen,gen)
        include "CFML_group_constructor_template_inc.f90"
        !do n=1,Multip
@@ -1253,8 +1261,10 @@
       write(unit=iout,fmt="(a,i4)")     "     Group number: ",Grp%numspg
       write(unit=iout,fmt="(a, a)")     "     Group symbol: ",Grp%spg_symb
       write(unit=iout,fmt="(a, a)")     "      Point group: ",Grp%pg
-      write(unit=iout,fmt="(a, a)")     "       Laue class: ",Grp%laue    
+      write(unit=iout,fmt="(a, a)")     "       Laue class: ",Grp%laue
       write(unit=iout,fmt="(a, a)")     "   Transf. to std: ",Grp%mat2std
+      write(unit=iout,fmt="(a, a)")     "  Generators List: ",Grp%generators_list
+
       if(Grp%centred == 1) then
          write(unit=iout,fmt="(a)")     "     Centre_coord: none!"
       else

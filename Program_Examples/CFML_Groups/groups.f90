@@ -13,25 +13,27 @@ Program test_groups
     integer, dimension(:),  allocatable :: ord
     integer :: i,j,L,nsg,ind,indexg
     real :: start, fin
-    
+
     call Init_Group(2048) !Maximum admissible multiplicity
     do
         write(*,'(/,a)',advance='no') "Introduce generators: "
         read(*,'(a)') generatorList
         if (len_trim(generatorList) == 0) exit
         call CPU_TIME(start)
+
         call Group_Constructor(generatorList,Grp)
         if (Err_group) then
             write(*,'(/,4x,a)') Err_group_Mess
+            cycle
         else
             call Identify_Group(Grp)
             if (err_std) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                stop
+                !stop
             end if
             call print_Group(Grp)
         end if
-        write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction): "
+        write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
         read(*,*) indexg
         !call Get_Multiplication_Table(Grp%Op,table)
         !!do i=1,Grp%multip
@@ -44,13 +46,15 @@ Program test_groups
         !end do
         if(indexg == 0) then
             call get_subgroups(Grp,sGrp,nsg)
-        else
+        else if(indexg > 0) then
             call get_subgroups(Grp,sGrp,nsg,indexg)
+        else
+            cycle
         end if
         if(nsg > 0) Then
             do L=1,nsg
                 write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
-                call Identify_Group(sGrp(L)) 
+                call Identify_Group(sGrp(L))
                 if (err_std) then
                     write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
                 else
@@ -61,5 +65,5 @@ Program test_groups
         call CPU_TIME(fin)
         write(*,"(a,f12.3,a)") "CPU_TIME for this calculation: ",fin-start," seconds"
     end do
-    
+
 End Program test_groups

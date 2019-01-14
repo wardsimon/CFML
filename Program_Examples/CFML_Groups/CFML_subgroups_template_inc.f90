@@ -9,12 +9,14 @@
           call Allocate_Operator(SpG%d,Op_cent)
           Op_cent=SpG%Op(nc)
        end if
+       nla=0
        if(SpG%num_lat > 0) then
          do i=1,SpG%num_lat
             ng=ng+1
             gen_lat(ng)= SpG%Symb_Op(1+nop*i)
             Op_lat(ng)= SpG%Op(1+nop*i)
          end do
+         nla=ng
        end if
        !First work with the Numops operators to determine the subgroups, the other subgroups
        !will be obtained adding progressively the rest of generators (centre of symmetry and
@@ -32,13 +34,17 @@
           newg=.true.
           !write(*,*) (trim(gen(j))//" ; ",j=1,ng)
           call Group_Constructor(gen(1:ng),SubG(L))
-          do k=1,L-1
-            if (SubG(L) == SubG(k)) then
-               newg=.false.
-               exit
-            end if
-          end do
-          if (.not. newg) L=L-1
+          if(.not. Err_group) then
+             do k=1,L-1
+               if (SubG(L) == SubG(k)) then
+                  newg=.false.
+                  exit
+               end if
+             end do
+             if (.not. newg) L=L-1
+          else
+             L=L-1
+          end if
        end do
        ns_1=L
        !---- Determine now the groups with two rotational generators
@@ -55,13 +61,17 @@
               end if
               newg=.true.
               call Group_Constructor(gen(1:ng),SubG(L))
-              do k=1,L-1
-                if (SubG(L) == SubG(k)) then
-                   newg=.false.
-                   exit
-                end if
-              end do
-              if (.not. newg) L=L-1
+              if(.not. Err_group) then
+                do k=1,L-1
+                  if (SubG(L) == SubG(k)) then
+                     newg=.false.
+                     exit
+                  end if
+                end do
+                if (.not. newg) L=L-1
+              else
+                L=L-1
+              end if
             end do
          end do
          ns_2=L-ns_1
@@ -74,29 +84,22 @@
        if (SpG%centred /= 1) then !This doubles the number of groups
          do i=1,n_nc_group
            L=L+1
-           call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-           if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-           allocate(SubG(L)%centre_coord(d-1))
-           if(SubG(i)%num_alat /= 0) then
-               if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-               allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-               SubG(L)%aLat_tr=SubG(i)%aLat_tr
-               SubG(L)%num_alat=SubG(i)%num_alat
+           !List of generators for the new group
+           kb= SpG%numops+1
+           SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(SpG%Symb_Op(kb))
+           newg=.true.
+           call Group_Constructor(SubG(L)%generators_list,SubG(L))
+           if(.not. Err_group) then
+             do k=1,L-1
+               if (SubG(L) == SubG(k)) then
+                  newg=.false.
+                  exit
+               end if
+             end do
+             if (.not. newg) L=L-1
+           else
+             L=L-1
            end if
-
-           k=SubG(i)%numops
-           do j=1,SubG(i)%numops
-             SubG(L)%Op(j)=SubG(i)%Op(j)
-             SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-             k=k+1
-             SubG(L)%Op(k)=SubG(i)%Op(j)*Op_cent
-             SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-           end do
-           SubG(L)%Numops=SubG(i)%Numops
-           SubG(L)%mag_type=SubG(i)%mag_type
-           SubG(L)%centred=SpG%centred
-           SubG(L)%centre_coord=SpG%centre_coord
-           SubG(L)%Multip= 2*SubG(i)%multip
          end do
        end if
        nsg=L
@@ -106,117 +109,26 @@
        !Determine now the rest of groups adding the lattice translations if they exist in the
        !original space group
        if(SpG%num_lat > 0) then
-         Select Case (SpG%num_lat)
-           case(1)
+         do j=1,nla
              do i=1,n_nc_group
                L=L+1
-               call Allocate_Group(SpG%d,2*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,1))
-               SubG(L)%Lat_tr(:,1)=SpG%Lat_tr(:,1)
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
+               SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(gen_lat(j))
+               newg=.true.
+               call Group_Constructor(SubG(L)%generators_list,SubG(L))
+               if(.not. Err_group) then
+                 do k=1,L-1
+                   if (SubG(L) == SubG(k)) then
+                      newg=.false.
+                      exit
+                   end if
+                 end do
+                 if (.not. newg) L=L-1
+               else
+                 L=L-1
                end if
-               SubG(L)%num_lat=1
-               k=SubG(i)%numops*cent(SubG(i)%centred)
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Multip=2*SubG(i)%Multip
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
              end do
-           case(2)
-             do i=1,n_nc_group
-               L=L+1
-               call Allocate_Group(SpG%d,3*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,2))
-               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
-               SubG(L)%num_lat=2
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
-               end if
-               k=SubG(i)%numops*cent(SubG(i)%centred)
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Multip=3*SubG(i)%Multip
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
-             end do
-           case(3)
-             do i=1,n_nc_group
-               L=L+1
-               call Allocate_Group(SpG%d,4*SubG(i)%multip,SubG(L))
-               if(allocated(SubG(L)%centre_coord)) deallocate(SubG(L)%centre_coord)
-               allocate(SubG(L)%centre_coord(d-1))
-               if(allocated(SubG(L)%Lat_tr)) deallocate(SubG(L)%Lat_tr)
-               allocate(SubG(L)%Lat_tr(d-1,3))
-               SubG(L)%Lat_tr(:,:)=SpG%Lat_tr(:,:)
-               SubG(L)%num_lat=3
-               if(SubG(i)%num_alat /= 0) then
-                   if(allocated(SubG(L)%aLat_tr)) deallocate(SubG(L)%aLat_tr)
-                   allocate(SubG(L)%aLat_tr(d-1,SubG(i)%num_alat))
-                   SubG(L)%aLat_tr=SubG(i)%aLat_tr
-                   SubG(L)%num_alat=SubG(i)%num_alat
-               end if
-               k=SubG(i)%numops*cent(SubG(i)%centred)
-               kb=k
-               do j=1,kb
-                 SubG(L)%Op(j)=SubG(i)%Op(j)
-                 SubG(L)%Symb_Op(j)=SubG(i)%Symb_Op(j)
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(1)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(2)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               do j=1,kb
-                 k=k+1
-                 SubG(L)%Op(k)=SubG(i)%Op(j)*Op_lat(3)
-                 SubG(L)%Symb_Op(k)=Symbol_Operator(SubG(L)%Op(k))
-               end do
-               SubG(L)%Numops=SubG(i)%Numops
-               SubG(L)%mag_type=SubG(i)%mag_type
-               SubG(L)%centred=SubG(i)%centred
-               if(SubG(L)%centred /= 1) SubG(L)%centre_coord=SpG%centre_coord
-               SubG(L)%Multip=4*SubG(i)%Numops
-             end do
-         End Select
-
+             n_nc_group=n_nc_group+L
+         end do
        end if
 
        !Include now the case in which the original group is paramagnetic
