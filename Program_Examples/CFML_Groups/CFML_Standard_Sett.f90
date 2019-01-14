@@ -1026,7 +1026,7 @@ contains
                                 bz(:) = cubicAxes(:,4) - ((2 * k)//1) * cubicAxes(:,4)
                                 Mp(:,1) = (1//2) * (cubicAxes(:,1) + bx)
                                 Mp(:,2) = (1//2) * (cubicAxes(:,1) + by)
-                                Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)
+                                Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)                                
                                 ! For lattice I, Mp is not integral (there is a lattice
                                 ! point at the middle of each diagonal. We must multiply
                                 ! by two in order to get the diagonal of the cube
@@ -1036,6 +1036,9 @@ contains
                                 if (.not. Err_Rational) then
                                     standard = .true.
                                     do n_ = 1 , n
+                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,1)
+                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,2)
+                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,3)
                                         W = MatMul(G%op(idd(n_,1))%Mat(1:3,1:3),PM)
                                         W = MatMul(PMinv,W)
                                         if (IsInteger(W)) then
@@ -1055,7 +1058,7 @@ contains
                 end if
                 if (.not. standard) then
                     err_std = .true.
-                    err_std_mess = "Error in Get_Mprime_Matrix: &
+                    err_std_mess = "Error in Get_Mp_Matrix: &
                     Unable to build a standard setting for the cubic crystal system..."
                     return
                 end if
