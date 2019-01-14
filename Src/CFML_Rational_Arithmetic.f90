@@ -992,6 +992,7 @@
       logical :: singular
 
       singular=.false.
+      err_rational=.false.
       n1=size(Mat,dim=1); n2=size(Mat,dim=2)
       if(n1 == n2) then
          A=Mat
@@ -1239,6 +1240,7 @@
       do j=1,n1
         do i=1,n2
           if(Mat(i,j)%denominator /= 1_ik ) return
+          !if (mod(Mat(i,j)%Numerator,Mat(i,j)%Denominator) /= 0) return
         end do
       end do
       is_int=.true.
