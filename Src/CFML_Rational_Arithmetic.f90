@@ -263,7 +263,7 @@
     interface sum
       module procedure rational_sum_vec
     end interface
-    
+
     interface Rational_RowEchelonForm
         module procedure RowEchelonForm_Rational
         module procedure RowEchelonFormT_Rational
@@ -1267,9 +1267,9 @@
       is_int=.false.
       if(rat%denominator /= 1_ik ) is_int=.true.
     end function IsInteger_rational_scalar
-    
+
     function Rational_Colinear(a,b,n) Result(co_linear)
-    
+
         !---- Argument ----!
         type(rational), dimension(n), intent(in) :: a
         type(rational), dimension(n), intent(in) :: b
@@ -1277,8 +1277,8 @@
         logical                                  :: co_linear
 
         !---- Local variables ----!
-        integer        :: i,ia,ib       
-        type(rational) :: c, d
+        integer        :: i,ia,ib
+        type(rational) :: c
 
         co_linear=.true.
         do i=1,n
@@ -1307,13 +1307,13 @@
         end if
 
     end function Rational_Colinear
-    
-    function Rational_Trace(Mat) result(tr)  
-    
+
+    function Rational_Trace(Mat) result(tr)
+
         !---- Arguments ----!
         type(rational), dimension(:,:), intent(in) :: Mat
         type(rational) :: tr
-      
+
         !---- Local variables ----!
         integer:: n1,n2,i
 
@@ -1329,15 +1329,15 @@
         end if
 
     end function Rational_Trace
-    
+
     logical function IsDiagonalMatrix(A) Result(diagonal)
-    
+
         !---- Arguments ----!
         type(rational), dimension(:,:), intent(in) :: A
-        
+
         !---- Local variables ----!
         integer :: i,j
-        
+
         diagonal = .true.
         !if (size(A,1) /= size(A,2)) then
         !    diagonal = .false.
@@ -1351,22 +1351,22 @@
                 end if
             end do
         end do
-        
-    end function IsDiagonalMatrix    
-    
-    subroutine Rational_Rank(M,r) 
-    
+
+    end function IsDiagonalMatrix
+
+    subroutine Rational_Rank(M,r)
+
         !---- Arguments ----!
         type(rational), dimension(:,:), intent(in)  :: M
         integer,                        intent(out) :: r
 
-        !---- Local variables ----! 
+        !---- Local variables ----!
         integer :: i,nNull
         type(rational), dimension(:),   allocatable :: nullVector
         type(rational), dimension(:,:), allocatable :: U
-        
+
         allocate(U(size(M,1),size(M,2)),nullVector(size(M,2)))
-        
+
         U = M
         nNull = 0
         nullVector(:) = 0 // 1
@@ -1375,17 +1375,17 @@
         do i = 1 , size(U,1)
             if (equal_rational_vector(U(i,:),nullVector)) nNull = nNull + 1
         end do
-    
+
         r = size(M,1) - nNull
-        
+
     end subroutine Rational_Rank
-    
+
     subroutine Rational_Identity_Matrix(n,I)
-    
+
         !---- Arguments ----!
         integer, intent(in)            :: n
         type(rational), dimension(n,n) :: I
-        
+
         !---- Local variables ----!
         integer :: j
 
@@ -1393,9 +1393,9 @@
         do j = 1 , n
             I(j,j) = 1 // 1
         end do
-        
-    end subroutine Rational_Identity_Matrix            
-    
+
+    end subroutine Rational_Identity_Matrix
+
     !!---- Subroutine RowEchelonForm_Rational(M)
     !!----    integer, dimension(:,:), intent(inout) :: M
     !!----
@@ -1406,19 +1406,19 @@
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine RowEchelonForm_Rational(M)
-    
+
         !---- Arguments ----!
         type(rational), dimension(:,:), intent(inout) :: M
-    
+
         !---- Local variables ----!
-        integer :: r,c,i,j,k
+        integer :: r,c,i,j
         integer :: nrow,ncolumn
-        logical :: cleared,echelon
+        logical :: cleared
         type(rational) :: a
         type(rational), dimension(:), allocatable :: row
-    
+
         nrow    = size(M,1)
         ncolumn = size(M,2)
         allocate(row(ncolumn))
@@ -1428,13 +1428,13 @@
         do
             if (r > nrow .or. c > ncolumn) exit
             i = r
-            do 
+            do
                 !if ( i > r .or. M(i,c) /= 0 ) exit
                 if (i > nrow) exit
                 if (M(i,c) /= (0//1)) exit
                 i = i + 1
             end do
-            
+
             if ( i <= nrow ) then
                 row(:) = M(r,:)
                 M(r,:) = M(i,:)
@@ -1462,9 +1462,9 @@
                 c = c + 1
             end if
         end do
-            
+
     end subroutine RowEchelonForm_Rational
-    
+
     !!---- Subroutine RowEchelonFormT_Rational
     !!----      integer, dimension(:,:), intent(inout) :: M
     !!----      integer, dimension(:,:), intent(inout) :: T
@@ -1475,20 +1475,20 @@
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine RowEchelonFormT_Rational(M,T)
-    
+
         !---- Arguments ----!
         type(rational), dimension(:,:), intent(inout) :: M
         type(rational), dimension(:,:), intent(inout) :: T
-    
+
         !---- Local variables ----!
         integer        :: r,c,i,j
         integer        :: nrow,ncolumn
         logical        :: cleared
         type(rational) :: a
         type(rational), dimension(:), allocatable :: row, Trow
-    
+
         nrow    = size(M,1)
         ncolumn = size(M,2)
         allocate(row(ncolumn))
@@ -1496,18 +1496,18 @@
 
         r = 1  ! index for rows
         c = 1  ! index for columns
-       
+
         do
             if (r > nrow .or. c > ncolumn) exit
             i = r
 
-            do 
+            do
                 !if ( i > r .or. M(i,c) /= 0 ) exit
                 if (i > nrow) exit
                 if (M(i,c) /= (0//1)) exit
                 i = i + 1
             end do
-            
+
             if ( i <= nrow ) then
                 row(:)  = M(r,:)
                 M(r,:)  = M(i,:)
@@ -1547,11 +1547,11 @@
                 c = c + 1
             end if
         end do
-            
+
     end subroutine RowEchelonFormT_Rational
-    
+
     subroutine Rational_SmithNormalForm(M,nr,nc,D,P,Q)
-       
+
         !---- Arguments ----!
         type(rational), dimension(nr,nc), intent(in)  :: M
         integer,                          intent(in)  :: nr
@@ -1559,24 +1559,24 @@
         type(rational), dimension(nr,nc), intent(out) :: D
         type(rational), dimension(nr,nr), intent(out) :: P
         type(rational), dimension(nc,nc), intent(out) :: Q
-        
+
         !---- Local variables ----!
-        integer                          :: i,j,k,ndiag
+        integer                          :: ndiag
         type(rational), dimension(nc,nr) :: Dt
-        
-        ! P and Q must be initialized to the identity matrix  
+
+        ! P and Q must be initialized to the identity matrix
         call Rational_Identity_Matrix(nr,P)
         call Rational_Identity_Matrix(nc,Q)
 
         D = M
         ndiag = 0
-        
-        do 
+
+        do
             if (mod(ndiag,2) == 0) then
                 call Rational_RowEchelonForm(D,P)
                 ndiag = ndiag + 1
                 Dt = transpose(D)
-            else  
+            else
                 call Rational_RowEchelonForm(Dt,Q)
                 ndiag = ndiag + 1
                 D = transpose(Dt)
@@ -1588,7 +1588,7 @@
                 return
             end if
         end do
-        
+
         Q = transpose(Q)
 
     end subroutine Rational_SmithNormalForm

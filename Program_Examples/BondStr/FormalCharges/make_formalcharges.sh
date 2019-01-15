@@ -136,5 +136,6 @@ in
      $COMP *.o --out Formal_Charges --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
+cp Formal_Charges $FULLPROF/.
 mv Formal_Charges $PROGCFML/DistFPS/Linux64/.
 rm -rf *.o *.mod
