@@ -86,9 +86,9 @@
            L=L+1
            !List of generators for the new group
            kb= SpG%numops+1
-           SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(SpG%Symb_Op(kb))
+           aux_string=adjustl(SubG(i)%generators_list//";"//trim(SpG%Symb_Op(kb)))
            newg=.true.
-           call Group_Constructor(SubG(L)%generators_list,SubG(L))
+           call Group_Constructor(aux_string,SubG(L))
            if(.not. Err_group) then
              do k=1,L-1
                if (SubG(L) == SubG(k)) then
@@ -112,9 +112,9 @@
          do j=1,nla
              do i=1,n_nc_group
                L=L+1
-               SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(gen_lat(j))
+               aux_string=adjustl(SubG(i)%generators_list//";"//trim(gen_lat(j)))
                newg=.true.
-               call Group_Constructor(SubG(L)%generators_list,SubG(L))
+               call Group_Constructor(aux_string,SubG(L))
                if(.not. Err_group) then
                  do k=1,L-1
                    if (SubG(L) == SubG(k)) then
@@ -127,7 +127,6 @@
                  L=L-1
                end if
              end do
-             n_nc_group=n_nc_group+L
          end do
        end if
 

@@ -39,17 +39,17 @@ rem ****---- Intel Compiler ----****
    ifort /exe:groups *.obj %CRYSLIB% /link /stack:64000000
    goto END
 :IFORTD
-   ifort /c CFML_Rational_Groups.f90  /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /c CFML_Standard_Sett.f90  /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /c groups.f90       /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /c CFML_Rational_Groups.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /c CFML_Standard_Sett.f90   /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /c groups.f90               /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
    ifort /exe:groups *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c CFML_Rational_Groups.f90  -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c CFML_Standard_Sett.f90  -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c groups.f90       -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c CFML_Rational_Groups.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c CFML_Standard_Sett.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c groups.f90   -fbounds-check    -ffree-line-length-0  -I../../GFortran/LibC
    gfortran *.o -o groups    -L../../GFortran/LibC   -lcrysfml
    goto END
 :GFORD

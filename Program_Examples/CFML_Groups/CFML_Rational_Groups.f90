@@ -260,7 +260,34 @@
       end if
     End Subroutine Init_Group
 
-   Subroutine Allocate_Operator(d,Op)
+    !!---- Subroutine Initialize_Group(Grp)
+    !!----  class(Group_type),  intent(in out) :: Grp
+    !!----
+    !!---- Initializes the components that are not allocatable arrays
+    !!----
+    Subroutine Initialize_Group(Grp)
+      class(Group_type),  intent(in out) :: Grp
+      Grp%multip=0
+      Grp%d=0
+      Select type(Grp)
+        type is (Spg_Type)
+           Grp%numspg   = 0
+           Grp%Numops   = 0
+           Grp%centred  = 1
+           Grp%mag_type = 0
+           Grp%num_lat  = 0
+           Grp%num_alat = 0
+           Grp%spg_lat  = " "
+           Grp%spg_symb = "    "
+           Grp%pg       = "    "
+           Grp%laue     = "    "
+           Grp%mat2std  = "    "
+           Grp%generators_list = "    "
+        End Select
+    End Subroutine Initialize_Group
+
+
+    Subroutine Allocate_Operator(d,Op)
        integer,              intent(in)     :: d
        type(Symm_Oper_Type), intent(in out) :: Op
        integer :: i
@@ -1064,6 +1091,7 @@
        integer :: d,i,j,n,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
 
        ngen=size(gen)
+       call Initialize_Group(Grp)
        !Calculate the effective number of generators
        Grp%generators_list="       "
        do i=1,ngen
@@ -1099,9 +1127,10 @@
        integer :: d,i,j,ngen,n,invt,multip,centred,Numops,num_lat,num_alat,mag_type
        character(len=80) :: Symb_Op
 
+       call Initialize_Group(Grp)
        allocate(gen(maxnum_op))
        i=len_trim(generatorList)
-       Grp%generators_list=trim(generatorList)
+       Grp%generators_list=generatorList
        if(Grp%generators_list(i:i) == ";") Grp%generators_list=Grp%generators_list(1:i-1)
        call Get_Operators_From_String(generatorList,d,ngen,gen)
        include "CFML_group_constructor_template_inc.f90"
@@ -1209,6 +1238,7 @@
        character (len=40), dimension(:),allocatable :: gen
        character (len=40), dimension(30)            :: gen_lat
        character (len=40)                           :: gen_cent
+       character (len=120)                          :: aux_string
        type(Symm_Oper_Type)                         :: Op_cent
        type(Symm_Oper_Type), dimension(30)          :: Op_lat
        type(Spg_Type),dimension(:), allocatable     :: sG
