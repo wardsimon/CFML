@@ -1293,7 +1293,7 @@
       write(unit=iout,fmt="(a, a)")     "      Point group: ",Grp%pg
       write(unit=iout,fmt="(a, a)")     "       Laue class: ",Grp%laue
       write(unit=iout,fmt="(a, a)")     "   Transf. to std: ",Grp%mat2std
-      if(len_trim(Grp%generators_list)) /= 0) then
+      if(len_trim(Grp%generators_list) /= 0) then
         write(unit=iout,fmt="(a, a)")   "  Generators List: ",Grp%generators_list
       end if
 
