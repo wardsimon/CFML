@@ -1,0 +1,94 @@
+    -------------------------------------------------------
+    Instalación de GFORTRAN a partir de los ficheros fuente
+    -------------------------------------------------------
+
+    1. Antes de comenzar con la instalación de gfortran, es necesario tener instaladas 
+       las siguientes librerías:
+   
+        - GMP: https://gmplib.org/
+    
+        - MPFR: https://www.mpfr.org/
+    
+        - MPC: http://www.multiprecision.org/mpc/
+    
+        Asumimos que las vamos a instalar en el directorio ~/local . Creamos un directorio
+        ~/build donde vamos a poner los tar correspondientes a las librerías gmp, mpfr
+        y mpc descargadas de la red.
+        
+        1.a Instalación de gmp
+             
+            Es necesario tener instalado m4. En Ubuntu, m4 se instala haciendo 
+                
+               sudo apt-get install m4
+
+            Una vez instalado m4, entramos en ~/build
+                
+               tar xvf gmp-6.1.2.tar.gz
+               cd gmp-6.1.2
+               ./configure --prefix=~/local/gmp --exec_prefix=~/local/gmp
+               make
+               make check
+               make install
+                
+            Si no han existido errores, deberemos tener una carpeta gmp/ en ~/local
+             
+        1.b Instalación de mpfr
+        
+            cd ~/build
+            tar zxvf mpfr-4.0.1.tar.gz
+            cd mpfr-4.0.1
+            ./configure --prefix=~/local/mpfr --exec_prefix=~/local/mpfr --with-gmp=~/local/gmp
+            make
+            make check
+            make install
+             
+            Si no han existido errores, deberemos tener una carpeta mpfr/ en ~/local
+             
+        1.c Instalación de mpc
+             
+            cd ~/build
+            tar zxvf mpc-1.1.0.tar.gz
+            cd mpc-1.1.0
+            ./configure --prefix=~/local/mpc --exec_prefix=~/local/mpc --with-gmp=~/local/gmp --with-mpfr=~/local/mpfr
+            make
+            make check
+            make install
+             
+            Si no han existido errores, deberemos tener una carpeta mpc/ en ~/local
+             
+        Ponemos las librerías en un mismo directorio
+        
+            cd ~/local
+            mkdir lib
+            cd lib
+            ln -s ../gmp/lib/lib* .
+            ln -s ../mpfr/lib/lib* .
+            ln -s ../mpc/lib/lib* .
+            
+        Añadimos este directorio a LD_LIBRARY_PATH en ~/.bashrc
+        
+            LD_LIBRARY_PATH=~/local/lib:$LD_LIBRARY_PATH
+            
+    2. Instalación de gcc
+            
+        Abrimos una nueva terminal, de manera que LD_LIBRARY_PATH esté actualizado. 
+        
+            cd ~/build
+            tar xvf gcc-8.2.0.tar.gz
+            cd gcc-8.2.0
+            ./configure --prefix=~/local/gcc --exec_prefix=~/local/gcc --with-gmp=~/local/gmp --with-mpfr=~/local/mpfr --with-mpc=~/local/mpc 
+            make 
+            make install
+            
+        Si no han existido errores, tras varias horas deberemos tener una carpeta gcc/ en ~/local.
+        Es probable que tras ejecutar configure, se obtenga un error debido a la falta de librerías
+        para 32 bits. En este caso, añadir --disable-multilib a la ejecución anterior de configure.
+        Para terminar, incluimos las librerías de gcc en ~local/lib
+        
+            cd ~/local/lib
+            ln -s ../gcc/lib64/lib* .
+        
+            
+            
+            
+            
