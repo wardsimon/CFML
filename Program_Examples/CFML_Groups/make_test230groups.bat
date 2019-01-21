@@ -20,8 +20,8 @@ rem
       )
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_GROUPS: Testing CFML_Groups
-   echo    Syntax: make_groups [gfortran/ifort] [deb]
+   echo    MAKE_test230groups: Testing CFML_Groups
+   echo    Syntax: make_test230groups [gfortran/ifort] [deb]
    goto END
 rem
 :CONT
@@ -33,31 +33,31 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
 
-   ifort /c CFML_Rational_Groups.f90  /O3 /Qparallel /nologo %INC%
-   ifort /c CFML_Standard_Sett.f90    /O3 /Qparallel /nologo %INC%
-   ifort /c groups.f90                /O3 /Qparallel /nologo %INC%
-   ifort /exe:groups *.obj %CRYSLIB% /link /stack:256000000
+   ifort /c CFML_Rational_Groups.f90  /O2 /Qparallel /nologo %INC%
+   ifort /c CFML_Standard_Sett.f90    /O2 /Qparallel /nologo %INC%
+   ifort /c test230_groups.f90        /O2 /Qparallel /nologo %INC%
+   ifort /exe:test230_groups *.obj %CRYSLIB% /link /stack:256000000
    goto END
 :IFORTD
    ifort /c CFML_Rational_Groups.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
    ifort /c CFML_Standard_Sett.f90   /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /c groups.f90               /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /exe:groups *.obj %CRYSLIBD%
+   ifort /c test230_groups.f90       /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /exe:test230_groups *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c -O3 CFML_Rational_Groups.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c -O3 CFML_Standard_Sett.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c -O3 groups.f90   -fbounds-check    -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran *.o -o groups_gf    -L../../GFortran/LibC   -lcrysfml
+   gfortran -c CFML_Rational_Groups.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c CFML_Standard_Sett.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c test230_groups.f90   -fbounds-check    -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran *.o -o test230_groups_gf    -L../../GFortran/LibC   -lcrysfml
    goto END
 :GFORD
    gfortran -c CFML_Rational_Groups.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
    gfortran -c CFML_Standard_Sett.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c groups.f90    -g -fbounds-check -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran *.o -o groups_gf    -L../../GFortran/LibC   -lcrysfml
+   gfortran -c test230_groups.f90    -g -fbounds-check -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran *.o -o test230_groups_gf    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END
-rem   del *.obj *.mod *.o *.map *.bak *.pdb > nul
+   del *.obj *.mod *.o *.map *.bak *.pdb > nul

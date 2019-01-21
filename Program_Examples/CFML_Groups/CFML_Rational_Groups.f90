@@ -10,7 +10,8 @@
     Public  :: Group_Constructor, Get_Group_From_Generators, is_Lattice_vec, Get_dimension, &
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
-               Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol
+               Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol, &
+               Get_SubGroups_cosets
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
@@ -121,7 +122,7 @@
       end if
     End Function rdet
 
-    subroutine lu(a,p)
+    Subroutine lu(a,p)
       !   in situ decomposition, corresponds to LAPACK's dgebtrf
       real(8), intent(in out) :: a(:,:)
       integer, intent(out  )  :: p(:)
@@ -134,9 +135,9 @@
           a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
           forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
       end do
-    end subroutine
+    End Subroutine
 
-    Pure function multiply_Symm_Oper(Op1,Op2) result (Op3)
+    Pure Function multiply_Symm_Oper(Op1,Op2) result (Op3)
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       type(Symm_Oper_Type)             :: Op3
       integer :: n,d,i
@@ -158,31 +159,52 @@
       Op3%dt=Op1%dt*Op2%dt
     End Function multiply_Symm_Oper
 
-    Pure function equal_Symm_Oper(Op1,Op2) result (info)
+    Pure Function equal_Symm_Oper(Op1,Op2) result (info)
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       logical                          :: info
       info=.false.
       if(Op1%time_inv == Op2%time_inv) then
         if(equal_rational_matrix(Op1%Mat,Op2%Mat)) info=.true.
       end if
-    end function equal_Symm_Oper
+    End Function equal_Symm_Oper
 
     Pure Function equal_Group(Gr1,Gr2) result (info)
       type(Spg_Type), intent(in) :: Gr1,Gr2
       logical                    :: info
       integer :: i,j
+      logical :: esta
       info=.false.
       if(Gr1%multip /= Gr2%multip) return
       do i=2,Gr1%multip
+        esta=.false.
         do j=2,Gr2%multip
            if(Gr1%Op(i) == Gr2%Op(j)) then
-             info=.true.
+             esta=.true.
              exit
            end if
         end do
-        if(.not. info) return
+        if(.not. esta) return
       end do
+      info=.true.
     End Function equal_Group
+
+    Function is_lattice_centring(Op) result (info)
+      type(Symm_Oper_Type),intent(in) :: Op
+      logical                        :: info
+      integer :: dr
+      dr=size(Op%Mat(:,1))-1
+      info=.false.
+      if(equal_rational_matrix(identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
+    End Function is_lattice_centring
+
+    Function is_inversion_centre(Op) result (info)
+      type(Symm_Oper_Type),intent(in) :: Op
+      logical                        :: info
+      integer :: dr
+      dr=size(Op%Mat(:,1))-1
+      info=.false.
+      if(equal_rational_matrix(-identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
+    End Function is_inversion_centre
 
     Pure Function is_Lattice_vec(V,Ltr,nlat) Result(Lattice_Transl)
        !---- Argument ----!
@@ -1205,6 +1227,144 @@
 
     End Subroutine Get_Operators_From_String
 
+    Subroutine Get_SubGroups_cosets(SpG,SubG,nsg,indexg)
+       !---- Arguments ----!
+        type(Spg_Type),                   intent( in) :: SpG
+        type(Spg_Type),dimension(:),      intent(out) :: SubG
+        integer,                          intent(out) :: nsg
+        integer,                 optional,intent(in)  :: indexg
+       !--- Local variables ---!
+       integer  :: i,L,j,k,m,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng
+       logical  :: newg, cen_added
+       character (len=40), dimension(:),allocatable :: gen,gen_min
+       character (len=40), dimension(30)            :: gen_lat
+       character (len=256),dimension(:),allocatable :: list_gen
+       character (len=40)                           :: gen_cent, gen_aux
+       character (len=120)                          :: aux_string
+       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
+       type(Symm_Oper_Type), dimension(30)          :: Op_lat
+       type(Spg_Type), dimension(:),  allocatable   :: sG
+       type(rational), dimension(:,:),allocatable   :: Mat
+
+       !Test if generators are available
+       if(len_trim(SpG%generators_list) ==  0) then !construct a procedure for selecting the minimal set of generators
+         Err_group=.true.
+         Err_group_mess=" A list of the generators of the main group is needed!"
+         return
+       end if
+       maxg=size(SubG)
+       allocate(gen(SpG%multip))
+       d=SpG%d
+       ng=0; nc=0
+       nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
+       if (SpG%centred /= 1) then
+          nop=nop*2        !!number of symmetry operators excluding lattice centrings
+          nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
+          gen_cent=SpG%Symb_Op(nc)
+          call Allocate_Operator(SpG%d,Op_cent)
+          Op_cent=SpG%Op(nc)  !Operator corresponding to the centre of symmetry
+       end if
+       nla=0
+       if(SpG%num_lat > 0) then
+         do i=1,SpG%num_lat
+            ng=ng+1
+            gen_lat(ng)= SpG%Symb_Op(1+nop*i)
+            Op_lat(ng)= SpG%Op(1+nop*i)  !Operators corresponding to the lattice centring vectors
+         end do
+         nla=ng
+       end if
+       !Formation of the list of possible generators extracted from list of generators of the input Group
+       call Get_Operators_From_String(SpG%generators_list,d,ngen,gen_min)
+       !Purge the list of operators eliminating centre of symmetry and Lattice Translations
+
+       n=0
+       ng=ngen
+       if(allocated(gen)) deallocate(gen)
+       if (SpG%centred /= 1) ng=ngen*2
+       allocate(gen(ng))
+       gen=" "
+       do i=1,ngen
+         gen_aux=gen_min(i)
+         Op_aux=Operator_from_Symbol(gen_aux)
+         if(is_inversion_centre(Op_aux)) cycle
+         if(is_lattice_centring(Op_aux)) cycle
+         n=n+1
+         gen(n) = gen_aux
+         if (SpG%centred /= 1) then
+           n=n+1
+           Op_aux=Op_aux*Op_cent
+           gen(n) = Symbol_Operator(Op_aux)
+         end if
+       end do
+       ngen=n
+       mp=2**(ngen+2)
+       if(allocated(list_gen)) deallocate(list_gen)
+       allocate(list_gen(mp))
+       write(*,*) "List_gen allocated for ",mp," elements"
+       L=0
+       if(ngen >= 3) then
+          do i=1,ngen-2
+            do j=i+1,ngen-1
+              do k=j+1,ngen
+                L=L+1
+                list_gen(L)=trim(gen(i))//";"//trim(gen(j))//";"//trim(gen(k))
+              end do
+            end do
+          end do
+       end if
+       if(ngen >= 2) then
+          do i=1,ngen-1
+            do j=i+1,ngen
+                L=L+1
+                list_gen(L)=trim(gen(i))//";"//trim(gen(j))
+            end do
+          end do
+       end if
+       if(ngen >= 1) then
+          do i=1,ngen
+            L=L+1
+            list_gen(L)=trim(gen(i))
+          end do
+       end if
+       mp=L
+       if(SpG%num_lat > 0)  then
+         do j=1,SpG%num_lat
+           do i=1,mp
+              L=L+1
+              list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+           end do
+         end do
+       end if
+       nsg=L
+       !write(*,"(a,i6)") " => Total number of elements in the list of generators: ",mp
+       !
+       !do i=1,mp
+       !  write(*,"(a)") "  "//trim(list_gen(i))
+       !end do
+
+       !Now generate the subgroups
+       n=0
+       do L=1,nsg
+        n=n+1
+        call Group_Constructor(List_gen(L),SubG(n))
+        if(present(indexg)) then
+          idx=SpG%multip/SubG(n)%multip
+          if(idx /= indexg) then
+            n=max(0,n-1)
+            cycle
+          end if
+        end if
+        do i=n-1,1,-1
+          if(SubG(n) == SubG(i)) then
+            n=max(0,n-1)
+            exit
+          end if
+        end do
+       end do
+       nsg=n
+
+    End Subroutine Get_SubGroups_cosets
+
     !!---- Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
     !!---- !   !---- Arguments ----!
     !!----     Class (Group_Type) ,              intent( in) :: SpG
@@ -1243,31 +1403,32 @@
        type(Symm_Oper_Type), dimension(30)          :: Op_lat
        type(Spg_Type),dimension(:), allocatable     :: sG
        integer, dimension(size(SubG))               :: index_sg,ind
+       integer :: idx
 
        maxg=size(SubG)
        allocate(gen(SpG%multip))
        d=SpG%d
        include "CFML_subgroups_template_inc.f90"
-       if(present(indexg)) then
-         k=0
-         do L=1,nsg
-           index_sg(L)=Spg%multip/SubG(L)%multip
-           if( index_sg(L) == indexg) then
-             k=k+1
-             ind(k)=L
-           end if
-         end do
-         nsg=k
-         if(nsg /= 0) then
-           allocate(sG(nsg))
-           do k=1,nsg
-             sG(k)=SubG(ind(k))
-           end do
-           do L=1,nsg
-             SubG(L)=sG(L)
-           end do
-         end if
-       end if
+       !if(present(indexg)) then
+       !  k=0
+       !  do L=1,nsg
+       !    index_sg(L)=Spg%multip/SubG(L)%multip
+       !    if( index_sg(L) == indexg) then
+       !      k=k+1
+       !      ind(k)=L
+       !    end if
+       !  end do
+       !  nsg=k
+       !  if(nsg /= 0) then
+       !    allocate(sG(nsg))
+       !    do k=1,nsg
+       !      sG(k)=SubG(ind(k))
+       !    end do
+       !    do L=1,nsg
+       !      SubG(L)=sG(L)
+       !    end do
+       !  end if
+       !end if
 
     End Subroutine Get_SubGroups
 
