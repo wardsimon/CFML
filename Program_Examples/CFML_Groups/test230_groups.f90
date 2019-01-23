@@ -6,10 +6,12 @@ Program test230_groups
 
     character(len=256)                  :: generatorList
     character(len=5)                    :: aux
+    character(len=15)                   :: forma
     type(Spg_Type)                      :: Grp
     type(Spg_Type), dimension(4096)     :: sGrp
-    integer :: i,j,L,nsg,ind,indexg,lun
+    integer :: i,j,L,nsg,ind,indexg,lun,nc
     real :: start, fin,par
+    integer, dimension(:), allocatable  :: cosets
 
     call Init_Group(2048) !Maximum admissible multiplicity
     call CPU_TIME(start)
@@ -32,7 +34,9 @@ Program test230_groups
             write(lun,"(a,i4, a20,a)") "  Group number: ",i,"  Symb: "//trim(Grp%spg_symb),"  Transf. to standard: "//trim(Grp%mat2std)
             write(lun,"(a)")   "  ------------------------------------------------------------------------------"
         end if
-        call get_subgroups_cosets(Grp,sGrp,nsg)
+
+        call get_subgroups_subgen(Grp,sGrp,nsg)
+
         if(nsg > 0) Then
             write(lun,"(a,i4)") "  Total number of subgroups: ",nsg
             do L=1,nsg
@@ -42,6 +46,16 @@ Program test230_groups
               else
                 write(lun,"(2(a,i4),a20,a)") "  Sub-Group Number #",L, " of index: ",Grp%multip/sGrp(L)%multip, &
                 "  Symb: "//trim(sGrp(L)%spg_symb),"  Transf. to standard: "//trim(sGrp(L)%mat2std)
+                !Write the coset decomposition of Grp with respect to the current subgroup
+                call Get_Cosets(Grp,sGrp(L),cosets)
+                nc=size(cosets)
+                if(nc > 0) then
+                    !     12345678901234
+                   forma="(a,i3,a,    a)"
+                   write(forma(9:12),"(i4)") nc
+                   write(lun,forma) "  Coset decomposition of  G: "//trim(Grp%spg_symb)//"(",nc+1,") =  H("//trim(sGrp(L)%spg_symb)//")  + ",("{"//trim(Grp%Symb_Op(cosets(j)))//"} H + ",j=1,nc-1), &
+                   "{"//trim(Grp%Symb_Op(cosets(nc)))//"} H"
+                end if
               end if
             end do
         end if

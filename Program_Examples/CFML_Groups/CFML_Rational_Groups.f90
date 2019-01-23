@@ -11,7 +11,7 @@
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
                Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol, &
-               Get_SubGroups_cosets
+               Get_SubGroups_Subgen, Get_Cosets
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
@@ -1227,12 +1227,64 @@
 
     End Subroutine Get_Operators_From_String
 
-    Subroutine Get_SubGroups_cosets(SpG,SubG,nsg,indexg)
+    Subroutine Get_Cosets(G,H,cosets)
+      type(Spg_Type), intent( in)  :: G  !Group G > H
+      type(Spg_Type), intent( in)  :: H  !Subgroup of G
+      integer, dimension(:), allocatable, intent (out) :: cosets
+      integer :: i,j,k,n,m
+      character(len=80) :: OpSymb
+      type(Symm_Oper_Type) :: Op
+      integer, dimension(G%multip) :: ind
+      logical, dimension(G%multip) :: done
+      logical :: nlat_assigned,ncent_assigned
+      n=0; ind=0; done=.false.
+      call Allocate_Operator(G%d,Op)
+      !nlat_assigned=.false. ;
+      do_G: do i=2, G%multip
+        if(done(i)) cycle
+        OpSymb=G%Symb_Op(i)
+        do j=2,H%multip
+          if(trim(OpSymb) == trim(H%Symb_Op(j)) ) cycle do_G
+        end do
+        n=n+1
+        ind(n)=i
+        ncent_assigned=.false.
+        !Remove the new operators in aH from the list to be considered
+        do k=2,H%multip
+          Op=G%Op(i)*H%Op(k)
+          do m=2,G%multip
+            if(equal_Symm_Oper(Op,G%Op(m))) then
+              done(m)=.true.
+              if(.not. ncent_assigned) then
+                if(is_inversion_centre(G%Op(m))) then
+                  ind(n)=m
+                  ncent_assigned=.true.
+                  exit
+                end if
+              end if
+              !if(.not. nlat_assigned) then
+              !  if(is_lattice_centring(G%Op(m))) then
+              !    ind(n)=m
+              !    nlat_assigned=.true.
+              !  end if
+              !end if
+              exit
+            end if
+          end do
+        end do
+      end do do_G
+
+      if(allocated(cosets)) deallocate(cosets)
+      allocate(cosets(n))
+      cosets=ind(1:n)
+    End Subroutine Get_Cosets
+
+    Subroutine Get_SubGroups_Subgen(SpG,SubG,nsg,indexg)
        !---- Arguments ----!
-        type(Spg_Type),                   intent( in) :: SpG
-        type(Spg_Type),dimension(:),      intent(out) :: SubG
-        integer,                          intent(out) :: nsg
-        integer,                 optional,intent(in)  :: indexg
+       type(Spg_Type),                   intent( in) :: SpG
+       type(Spg_Type),dimension(:),      intent(out) :: SubG
+       integer,                          intent(out) :: nsg
+       integer,                 optional,intent(in)  :: indexg
        !--- Local variables ---!
        integer  :: i,L,j,k,m,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng
        logical  :: newg, cen_added
@@ -1300,7 +1352,7 @@
        mp=2**(ngen+2)
        if(allocated(list_gen)) deallocate(list_gen)
        allocate(list_gen(mp))
-       write(*,*) "List_gen allocated for ",mp," elements"
+       !write(*,*) "List_gen allocated for ",mp," elements"
        L=0
        if(ngen >= 3) then
           do i=1,ngen-2
@@ -1363,7 +1415,7 @@
        end do
        nsg=n
 
-    End Subroutine Get_SubGroups_cosets
+    End Subroutine Get_SubGroups_Subgen
 
     !!---- Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
     !!---- !   !---- Arguments ----!
@@ -1435,8 +1487,9 @@
 
     subroutine print_Group(Grp,lun)
       class(Spg_Type),    intent(in)   :: Grp
-      integer, optional, intent(in)   :: lun
+      integer, optional,  intent(in)   :: lun
       integer :: iout,i,j
+
       iout=6 !To be replaced by Fortran environment value
       if(present(lun)) iout=lun
       write(unit=iout,fmt="(a)")        "    General Space Group"
