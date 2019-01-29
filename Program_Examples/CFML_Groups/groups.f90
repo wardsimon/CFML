@@ -56,9 +56,9 @@ Program test_groups
         !Testing Get_subgroups_cosets
 
         if(indexg == 0) then
-          call get_subgroups_cosets(Grp,sGrp,nsg)
+          call get_subgroups_subgen(Grp,sGrp,nsg)
         else if(indexg > 0) then
-          call get_subgroups_cosets(Grp,sGrp,nsg,indexg)
+          call get_subgroups_subgen(Grp,sGrp,nsg,indexg)
         else
           cycle
         end if
