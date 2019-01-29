@@ -1265,7 +1265,7 @@
       logical         :: is_int
       !
       is_int=.false.
-      if(rat%denominator /= 1_ik ) is_int=.true.
+      if(rat%denominator == 1_ik ) is_int=.true.
     end function IsInteger_rational_scalar
 
     function Rational_Colinear(a,b,n) Result(co_linear)
