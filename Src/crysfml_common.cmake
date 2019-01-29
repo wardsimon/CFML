@@ -43,6 +43,7 @@ endif()
 # The sources files for crysfml_common library.
 set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
+    CFML_ILL_Instrm_Data_Nexus.f90
     CFML_Atom_Mod.f90
     CFML_Bonds_Table.f90
     CFML_BVSpar.f90
@@ -55,7 +56,6 @@ set(CRYSFML_COMMON_SOURCES
     CFML_FFTs.f90
     CFML_Form_CIF.f90
     CFML_Geom_Calc.f90
-    CFML_ILL_Instrm_Data_Nexus.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
     CFML_Magnetic_Groups.f90
