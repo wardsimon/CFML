@@ -32,9 +32,9 @@ rem
       (set OPT1=/O2)
    )
    if [%_I15]==[N] (
-      (set OPT2=/Qvec-report0)
+      (set OPT2=/fpp /Qvec-report0)
    ) else (
-      (set OPT2=/Qopt-report:0)
+      (set OPT2=/fpp /Qopt-report:0)
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
