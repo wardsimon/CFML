@@ -122,6 +122,9 @@ fi
 #
 # Compilation Options
 #
+echo " ---- Selected options "
+echo " ---- Comp: $COMP, Arch: $ARCH, Wint: $WINT, Debug: $DEBUG"
+#
 if [ $DEBUG == "Y" ]; then
    case "$COMP" in
       "f95")
@@ -156,8 +159,8 @@ else
           OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
           ;;
       "ifort")
-          OPT1="-c -O -fpp -warn -$ARCH -Qopt-report=0"
-          OPT2="-c -O0 -fpp -warn -$ARCH -Qopt-report=0"
+          OPT1="-c -O -fpp -nowarn -$ARCH -qopt-report=0"
+          OPT2="-c -O0 -fpp -nowarn -$ARCH -qopt-report=0"
           ;;
    esac
 fi
@@ -207,6 +210,8 @@ ntotal=43      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
+# **---- Level 0 ----**
+#---------- Mathematical(I), String_Utilities, Messages, Powder Profiles
 progressionBar
 if [ "$COMP" == "ifort" ]; then
    $COMP $OPT1  CFML_GlobalDeps_MacOs_Intel.f90
@@ -239,6 +244,8 @@ progressionBar
 $COMP $OPT1  CFML_Profile_Finger.f90
 progressionBar
 $COMP $OPT1  CFML_Profile_Functs.f90
+# **---- Level 1 ----**
+# .... Mathematical(II), Optimization, Tables, Patterns
 progressionBar
 $COMP $OPT1  CFML_Math_3D.f90
 progressionBar
@@ -253,6 +260,8 @@ progressionBar
 $COMP $OPT2  CFML_BVSpar.f90
 progressionBar
 $COMP $OPT1  CFML_Diffpatt.f90
+# **---- Level 2 ----**
+# .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 progressionBar
 $COMP $OPT2  CFML_Bonds_Table.f90
 progressionBar
@@ -261,18 +270,24 @@ progressionBar
 $COMP $OPT1  CFML_Symmetry.f90
 progressionBar
 $COMP $OPT1  CFML_ILL_Instrm_Data.f90
+# **---- Level 3 ----**
+# .... EoS, Reflections, Atoms
 progressionBar
 $COMP $OPT1  CFML_EoS_Mod.f90
 progressionBar
 $COMP $OPT1  CFML_Reflct_Util.f90
 progressionBar
 $COMP $OPT1  CFML_Atom_Mod.f90
+# **---- Level 4 ----**
+# .... Formats, Geometry, Molecules
 progressionBar
 $COMP $OPT1  CFML_Geom_Calc.f90
 progressionBar
 $COMP $OPT1  CFML_Molecules.f90
 progressionBar
 $COMP $OPT1  CFML_Form_CIF.f90
+# **---- Level 5 ----**
+# .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 progressionBar
 $COMP $OPT1  CFML_Extinction_Correction.f90
 progressionBar
@@ -281,14 +296,16 @@ progressionBar
 $COMP $OPT1  CFML_SXTAL_Geom.f90
 progressionBar
 $COMP $OPT1  CFML_Propagk.f90
+# **---- Level 6 ----**
+# .... Maps, BVS, Energy Configurations
 progressionBar
 $COMP $OPT1  CFML_Export_Vtk.f90
 progressionBar
 $COMP $OPT1  CFML_Maps.f90
 progressionBar
-$COMP $OPT1  CFML_Percolation.f90
-progressionBar
 $COMP $OPT1  CFML_Conf_Calc.f90
+# **---- Level 7 ----**
+# .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 progressionBar
 $COMP $OPT1  CFML_Magnetic_Groups.f90
 progressionBar
@@ -297,12 +314,20 @@ progressionBar
 $COMP $OPT1  CFML_Optimization_SAn.f90 $INC
 progressionBar
 $COMP $OPT1  CFML_Refcodes.f90
+# **---- Level 8 ----**
+# .... Magnetic Structure Factors, Polarimetry
 progressionBar
 $COMP $OPT1  CFML_Msfac.f90
 progressionBar
 $COMP $OPT1  CFML_Polar.f90
 #
-# Making CrysFML Library
+# ##--- Obsolete ????? ---#
+progressionBar
+$COMP $OPT1  CFML_Percolation.f90
+echo " "
+#
+#
+# ------- Making CrysFML Library -------
 #
 DIRLIB="LibC"
 LIBNAME="libcrysfml.a"
@@ -311,7 +336,10 @@ if [ "$WINT" == "Y" ]; then
    LIBNAME="libwcrysfml.a"
 fi
 #echo "DIRLIB: $DIRLIB  LIBNAME: $LIBNAME WINT: $WINT"
-ar cr $LIBNAME *.o
+#ar -c -r $LIBNAME *.o
+ar -c -r -v $LIBNAME *.o
+#
+# -------- Move files and clean up --------
 mv *.mod $CRYSFML/$IDIR/$DIRLIB
 mv *.a $CRYSFML/$IDIR/$DIRLIB
 rm *.o

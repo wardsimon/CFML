@@ -123,7 +123,7 @@ chmod +x $CRYSFML/Scripts/MacOS/make_crysfml.sh
 #
 
 #
-# Console version
+# Console version   ##### /LibC/libcrysfml.a  #####
 #
 if [ "$CONS" == "Y" ]; then
    OPT1=""
@@ -132,10 +132,11 @@ if [ "$CONS" == "Y" ]; then
    fi      
    $CRYSFML/Scripts/MacOS/make_crysfml.sh $COMP $ARCH $OPT1
 fi  
-
+echo " "
+echo " "
 
 #
-# Winteracter version
+# Winteracter version     ##### /LibW/libwcrysfml.a #####
 #
 if [ "$WINT" == "Y" ]; then
    OPT2=""
@@ -143,7 +144,6 @@ if [ "$WINT" == "Y" ]; then
       OPT2="debug"
    fi     
    OPT1="winter" 
-
    $CRYSFML/Scripts/MacOS/make_crysfml.sh $COMP $ARCH $OPT1 $OPT2
 fi
 

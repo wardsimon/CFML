@@ -81,8 +81,8 @@ else
           OPT2="-c -O0 -ffree-line-length-none -funroll-loops"
           ;;
       "ifort")
-          OPT1="-c -O -warn -$ARCH -Qopt-report=0"
-          OPT2="-c -O0 -warn -$ARCH -Qopt-report=0"
+          OPT1="-c -O -warn -$ARCH -qopt-report=0"
+          OPT2="-c -O0 -warn -$ARCH -qopt-report=0"
           ;;
    esac
 fi
