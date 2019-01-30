@@ -95,7 +95,8 @@
               recip,&                !Calculates the reciprocal of a rational  a/b -> b/a
               rational_colinear,&    !Logical function telling if two vectors are colinear
               rational_trace,&       !Returns the trace of a square matrix
-              IsDiagonalMatrix       !Logical function telling if the matrix is diagonal
+              IsDiagonalMatrix,&     !Logical function telling if the matrix is diagonal
+              IsNullVector           !Logical function telling if the vector is the null vector
 
     !Public subroutines
     public :: rational_inv_matrix, & !Calculates the inverse of a rational matrix using double precision arithmetic
@@ -1353,6 +1354,24 @@
         end do
 
     end function IsDiagonalMatrix
+    
+    logical function IsNullVector(v) Result(null)
+    
+        !---- Arguments ----!
+        type(rational), dimension(:), intent(in) :: v
+
+        !---- Local variables ----!
+        integer :: i
+
+        null = .true.
+        do i = 1 , size(v)
+            if (v(i) /= (0//1)) then
+                null = .false.
+                return
+            end if
+        end do
+    
+    end function IsNullVector    
 
     subroutine Rational_Rank(M,r)
 
