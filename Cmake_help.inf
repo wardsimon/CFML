@@ -70,11 +70,13 @@ Building CrysFML for use with HDF5
 ==================================
 We should use the alternative CFML_ILL_Instrm_Data_Nexus.f90 instead of CFML_ILL_Instrm_Data.f90. This is done via pre-processor.
 cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D USE_HDF=ON -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64HDF -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows\debug ..\..\.
 
 Example for SXTALSOFT on Windows
 ================================
 Assure that CRYSMFL_LIB and WCRYSMFL_LIB are both set to the proper platform (64 bits or 32 bits), only 64 bits will be developed from now.
 cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows ..\.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows\debug ..\..\.
 
 WARNING: When you get in troubles you have to remove completely all files and directories created by cmake in c:\CrysFML\Build\ifort_XXXX
          and repeat the command(s) above.
