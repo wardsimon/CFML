@@ -5584,8 +5584,8 @@ Module CFML_ILL_Instrm_Data
        integer                :: n
        logical                :: nxs_succes
 
-       write (*,*)  ' Read_SXTAL_Numor filename ',filename
-       write (*,*)  ' Read_SXTAL_Numor instrument ',instrument
+       !write (*,*)  ' Read_SXTAL_Numor filename ',filename
+       !write (*,*)  ' Read_SXTAL_Numor instrument ',instrument
 
        ! Initialize
        ERR_ILLData=.false.
