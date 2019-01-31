@@ -7,14 +7,14 @@
           nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
           gen_cent=SpG%Symb_Op(nc)
           call Allocate_Operator(SpG%d,Op_cent)
-          Op_cent=SpG%Op(nc)  !Operator corresponding to the centre of symmetry
+          Op_cent=SpG%Op(nc)
        end if
        nla=0
        if(SpG%num_lat > 0) then
          do i=1,SpG%num_lat
             ng=ng+1
             gen_lat(ng)= SpG%Symb_Op(1+nop*i)
-            Op_lat(ng)= SpG%Op(1+nop*i)  !Operators corresponding to the lattice centring vectors
+            Op_lat(ng)= SpG%Op(1+nop*i)
          end do
          nla=ng
        end if
@@ -22,82 +22,47 @@
        !will be obtained adding progressively the rest of generators (centre of symmetry and
        !lattice centrings.
        L=0
-       !---- Determine first the groups with three rotational generators
-       if(nop > 3) then
-         ng=3
-         do i=2, SpG%numops    !SpG%numops-1
-            gen(1) = SpG%Symb_Op(i)
-            do j=i+1,nop-1  !SpG%numops
-              gen(2)=SpG%Symb_Op(j)
-              do m=j+1,nop
-                gen(3)=SpG%Symb_Op(m)
-                L=L+1
-                if (L > maxg) then
-                   nsg=maxg
-                   return
-                end if
-                newg=.true.; Err_group=.false.
-                !write(*,"(a,i5,a)") "  Group # ",L, "  "//trim(gen(1))//"  "//trim(gen(2))//"  "//trim(gen(3))
-                call Group_Constructor(gen(1:ng),SubG(L))
-                index_sg(L)=SpG%multip/SubG(L)%multip
-                if(index_sg(L) == 1) then
-                   L=L-1
-                   cycle
-                end if
-                if(present(indexg)) then
-                   if(index_sg(L) /= indexg) then
-                     L=L-1
-                     cycle
-                   end if
-                end if
-                if(.not. Err_group) then
-                  do k=L-1,1,-1
-                    if(index_sg(L) /= index_sg(k)) cycle
-                    if (SubG(L) == SubG(k)) then
-                       newg=.false.
-                       exit
-                    end if
-                  end do
-                  if (.not. newg) then
-                    L=L-1
-                  end if
-                else
-                  L=L-1
-                end if
-              end do
-            end do
-         end do
-       end if
-       ns_3=L
+       !---- Determine first the groups with only one rotational generator
+       ng=1
+       do i=2,SpG%numops
+          gen(1) = SpG%Symb_Op(i)
+          L=L+1
+          if (L > maxg) then
+             nsg=maxg
+             return
+          end if
+          newg=.true.
+          !write(*,*) (trim(gen(j))//" ; ",j=1,ng)
+          call Group_Constructor(gen(1:ng),SubG(L))
+          if(.not. Err_group) then
+             do k=1,L-1
+               if (SubG(L) == SubG(k)) then
+                  newg=.false.
+                  exit
+               end if
+             end do
+             if (.not. newg) L=L-1
+          else
+             L=L-1
+          end if
+       end do
+       ns_1=L
        !---- Determine now the groups with two rotational generators
-       !if(SpG%numops > 2) then
-       if(nop > 2) then
+       if(SpG%numops > 2) then
          ng=2
-         do i=2, SpG%numops    !SpG%numops-1
+         do i=2,SpG%numops-1
             gen(1) = SpG%Symb_Op(i)
-            do j=i+1,nop   !SpG%numops
+            do j=i+1,SpG%numops
               gen(2)=SpG%Symb_Op(j)
               L=L+1
               if (L > maxg) then
                  nsg=maxg
                  return
               end if
-              newg=.true.; Err_group=.false.
+              newg=.true.
               call Group_Constructor(gen(1:ng),SubG(L))
-              index_sg(L)=SpG%multip/SubG(L)%multip
-              if(index_sg(L) == 1) then
-                 L=L-1
-                 cycle
-              end if
-              if(present(indexg)) then
-                 if(index_sg(L) /= indexg) then
-                   L=L-1
-                   cycle
-                 end if
-              end if
               if(.not. Err_group) then
-                do k=L-1,ns_3,-1
-                  if(index_sg(L) /= index_sg(k)) cycle
+                do k=1,L-1
                   if (SubG(L) == SubG(k)) then
                      newg=.false.
                      exit
@@ -109,76 +74,23 @@
               end if
             end do
          end do
+         ns_2=L-ns_1
        end if
-       ns_2=L-ns_3
-       nsg=L
-       !---- Determine finally the groups with only one rotational generator (cyclic groups)
-       ng=1
-       do i=2,nop !SpG%numops
-          gen(1) = SpG%Symb_Op(i)
-          L=L+1
-          if (L > maxg) then
-             nsg=maxg
-             return
-          end if
-          newg=.true.; Err_group=.false.
-          !write(*,*) (trim(gen(j))//" ; ",j=1,ng)
-          call Group_Constructor(gen(1:ng),SubG(L))
-          index_sg(L)=SpG%multip/SubG(L)%multip
-          if(index_sg(L) == 1) then
-             L=L-1
-             cycle
-          end if
-          if(present(indexg)) then
-             if(index_sg(L) /= indexg) then
-               L=L-1
-               cycle
-             end if
-          end if
-          if(.not. Err_group) then
-             do k=L-1,nsg,-1
-               if(index_sg(L) /= index_sg(k)) cycle
-               if (SubG(L) == SubG(k)) then
-                  newg=.false.
-                  exit
-               end if
-             end do
-             if (.not. newg) L=L-1
-          else
-             L=L-1
-          end if
-       end do
        nsg=L
        n_nc_group=L
+       !write(*,*) " Number of subgroups of the first Numops elements: ",n_nc_group
 
        !---- Determine now the new groups adding a centre of symmetry (without lattice centring) if it exists
        if (SpG%centred /= 1) then !This doubles the number of groups
          do i=1,n_nc_group
-           if(SubG(i)%centred == 0 .or. SubG(i)%centred == 2) cycle
            L=L+1
-           if (L > maxg) then
-              nsg=maxg
-              return
-           end if
            !List of generators for the new group
-           aux_string=adjustl(SubG(i)%generators_list//";"//trim(gen_cent))
-           newg=.true.; Err_group=.false.
-           !write(*,"(a,i5,a)") "  Group # ",L,"  "//trim(aux_string)
-           call Group_Constructor(aux_string,SubG(L))
-           index_sg(L)=SpG%multip/SubG(L)%multip
-           if(index_sg(L) == 1) then
-              L=L-1
-              cycle
-           end if
-           if(present(indexg)) then
-              if(index_sg(L) /= indexg) then
-                L=L-1
-                cycle
-              end if
-           end if
+           kb= SpG%numops+1
+           SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(SpG%Symb_Op(kb))
+           newg=.true.
+           call Group_Constructor(SubG(L)%generators_list,SubG(L))
            if(.not. Err_group) then
-             do k=L-1,n_nc_group,-1
-               if(index_sg(L) /= index_sg(k)) cycle
+             do k=1,L-1
                if (SubG(L) == SubG(k)) then
                   newg=.false.
                   exit
@@ -190,36 +102,21 @@
            end if
          end do
        end if
+       nsg=L
        n_nc_group=L
+       !if (SpG%centred /= 1) write(*,*) " Number of subgroups of adding a centre of symmetry: ",n_nc_group
 
        !Determine now the rest of groups adding the lattice translations if they exist in the
        !original space group
-
        if(SpG%num_lat > 0) then
          do j=1,nla
              do i=1,n_nc_group
                L=L+1
-               if (L > maxg) then
-                  nsg=maxg
-                  return
-               end if
-               aux_string=adjustl(SubG(i)%generators_list//";"//trim(gen_lat(j)))
-               newg=.true.; Err_group=.false.
-               call Group_Constructor(aux_string,SubG(L))
-               index_sg(L)=SpG%multip/SubG(L)%multip
-               if(index_sg(L) == 1) then
-                  L=L-1
-                  cycle
-               end if
-               if(present(indexg)) then
-                  if(index_sg(L) /= indexg) then
-                    L=L-1
-                    cycle
-                  end if
-               end if
+               SubG(L)%generators_list=SubG(i)%generators_list//";"//trim(gen_lat(j))
+               newg=.true.
+               call Group_Constructor(SubG(L)%generators_list,SubG(L))
                if(.not. Err_group) then
-                 do k=L-1,n_nc_group,-1
-                   if(index_sg(L) /= index_sg(k)) cycle
+                 do k=1,L-1
                    if (SubG(L) == SubG(k)) then
                       newg=.false.
                       exit
@@ -230,6 +127,7 @@
                  L=L-1
                end if
              end do
+             n_nc_group=n_nc_group+L
          end do
        end if
 

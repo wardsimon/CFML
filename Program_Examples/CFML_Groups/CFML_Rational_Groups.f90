@@ -11,7 +11,7 @@
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
                Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol, &
-               Get_SubGroups_Subgen, Get_Cosets
+               Get_SubGroups_Subgen, Get_Cosets,reduced_translation
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
@@ -43,18 +43,24 @@
 
     Type, extends(Group_type), public :: Spg_Type
       integer :: numspg = 0
-      integer :: Numops = 0
+      integer :: numshu = 0
+      integer :: numops = 0
       integer :: centred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
+      integer :: anticentred !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1' at origin)
       integer :: mag_type = 0
       integer :: num_lat  = 0
       integer :: num_alat = 0
       character(len=1) :: spg_lat
-      character(len=:), allocatable :: spg_symb
-      character(len=:), allocatable :: pg
-      character(len=:), allocatable :: laue
-      character(len=:), allocatable :: mat2std
-      character(len=:), allocatable :: generators_list
+      character(len=1), dimension(2) :: shub_lat
+      character(len=:), allocatable  :: spg_symb
+      character(len=:), allocatable  :: shu_symb
+      character(len=:), allocatable  :: pg
+      character(len=:), allocatable  :: laue
+      character(len=:), allocatable  :: mat2std
+      character(len=:), allocatable  :: mat2std_shu
+      character(len=:), allocatable  :: generators_list
       type(rational),dimension(:),   allocatable :: centre_coord
+      type(rational),dimension(:),   allocatable :: anticentre_coord
       type(rational),dimension(:,:), allocatable :: Lat_tr
       type(rational),dimension(:,:), allocatable :: aLat_tr
     End Type Spg_Type
@@ -293,17 +299,19 @@
       Grp%d=0
       Select type(Grp)
         type is (Spg_Type)
-           Grp%numspg   = 0
-           Grp%Numops   = 0
-           Grp%centred  = 1
-           Grp%mag_type = 0
-           Grp%num_lat  = 0
-           Grp%num_alat = 0
-           Grp%spg_lat  = " "
-           Grp%spg_symb = "    "
-           Grp%pg       = "    "
-           Grp%laue     = "    "
-           Grp%mat2std  = "    "
+           Grp%numspg      = 0
+           Grp%Numops      = 0
+           Grp%centred     = 1
+           Grp%anticentred = 1
+           Grp%mag_type    = 0
+           Grp%num_lat     = 0
+           Grp%num_alat    = 0
+           Grp%spg_lat     = " "
+           Grp%spg_symb    = "    "
+           Grp%pg          = "    "
+           Grp%laue        = "    "
+           Grp%mat2std     = "    "
+           Grp%mat2std_shu = "    "
            Grp%generators_list = "    "
         End Select
     End Subroutine Initialize_Group
@@ -356,25 +364,36 @@
 
     Pure Subroutine reduced_translation(Mat)
     	type(rational), dimension(:,:), intent( in out) :: Mat
-    	integer :: d,i,n
+    	integer :: d,i,n,m
     	n=size(Mat,dim=1)
     	d=n-1
       do i=1,d
-      	 do
-           if(Mat(i,n) < 0_ik) then
-           	Mat(i,n) = Mat(i,n) + 1_ik
-           else
-           	exit
-           end if
-         end do
-      	 do
-           if(Mat(i,n) > 1_ik) then
-           	Mat(i,n) = Mat(i,n) - 1_ik
-           else
-           	exit
-           end if
-         end do
+      	 !do
+         !  if(Mat(i,n) < 0_ik) then
+         !  	Mat(i,n) = Mat(i,n) + 1_ik
+         !  else
+         !  	exit
+         !  end if
+         !end do
+      	 !do
+         !  if(Mat(i,n) > 1_ik) then
+         !  	Mat(i,n) = Mat(i,n) - 1_ik
+         !  else
+         !  	exit
+         !  end if
+         !end do
+         if (IsInteger(Mat(i,n))) then
+            Mat(i,n) = (0 // 1)
+         else
+            m = Mat(i,n)%numerator / Mat(i,n)%denominator
+            if (Mat(i,n) > 0_ik) then
+                Mat(i,n) = Mat(i,n) - (m // 1)
+            else
+                Mat(i,n) = Mat(i,n) - (m // 1) + (1 // 1)
+            end if
+         end if
       end do
+      
     End Subroutine reduced_translation
 
     !!---- Subroutine Get_Multiplication_Table(Op,Table)
@@ -805,7 +824,7 @@
         translation=pack_string(Symb(i+1:)//",0")
         pSymb=pack_string(Symb(1:i-1)//",1")
         call Get_Separator_Pos(translation,",",pos,np)
-        if(np /= d-1) then
+        if(np /= d) then
           Err_group=.true.
           Err_group_mess="Error in the origin coordinates"
           return
@@ -985,11 +1004,11 @@
 
       !Final check that the determinant of the rotational matrix is integer
       !det=rational_determinant(Mat)
-      det=rdet(Mat)
-      if(det%denominator /= 1) then
-         err_group=.true.
-         err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
-      end if
+      !det=rdet(Mat)
+      !if(det%denominator /= 1) then
+      !   err_group=.true.
+      !   err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+      !end if
       if(det%numerator == 0) then
          err_group=.true.
          err_group_mess="The matrix of the operator is singular! -> det="//print_rational(det)
@@ -1032,14 +1051,15 @@
         end do
     end subroutine sort_op
 
-    Subroutine Reorder_Operators(multip,Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
+    Subroutine Reorder_Operators(multip,Op,centred,centre_coord,anticentred,anticentre_coord,Numops,num_lat,num_alat,Lat_tr,aLat_tr,mag_type)
       use CFML_Rational_Arithmetic, equal_matrix => equal_rational_matrix
       integer,                            intent(in)     :: multip
       type(Symm_Oper_Type), dimension(:), intent(in out) :: Op
-      integer,                            intent(out)    :: num_lat,num_alat,Numops, centred, mag_type
+      integer,                            intent(out)    :: num_lat,num_alat,Numops, centred, anticentred, mag_type
       type(rational),dimension(:,:),      intent(out)    :: Lat_tr
       type(rational),dimension(:,:),      intent(out)    :: aLat_tr
       type(rational),dimension(:),        intent(out)    :: centre_coord
+      type(rational),dimension(:),        intent(out)    :: anticentre_coord
       !--- Local variables ---!
       integer :: i,j,L,n,m,Ng,invt,i_centre,d
       real(kind=cp), dimension(multip) :: tr   !Sum of absolute values of Translations components associated to the array of operators
@@ -1052,7 +1072,7 @@
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
 
-      ZERO=0_ik/1_ik;  ONE=1_ik/1_ik; ONE_HALF=1_ik/2_ik
+      ZERO=0//1;  ONE=1//1; ONE_HALF=1//2
 
       include "CFML_reorder_operators_template_inc.f90"
 
@@ -1106,11 +1126,11 @@
        character(len=*),optional,    intent(in)     :: x1x2x3_type
        !--- Local variables ---!
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
-       type(rational),       dimension(:),  allocatable :: centre_coord
+       type(rational),       dimension(:),  allocatable :: centre_coord,anticentre_coord       
        type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
        type(rational),       dimension(:,:),allocatable :: Mat
        character(len=80) :: Symb_Op
-       integer :: d,i,j,n,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type
+       integer :: d,i,j,n,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
 
        ngen=size(gen)
        call Initialize_Group(Grp)
@@ -1143,10 +1163,10 @@
        !--- Local variables ---!
        character(len=40),    dimension(:),  allocatable :: gen
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
-       type(rational),       dimension(:),  allocatable :: centre_coord
+       type(rational),       dimension(:),  allocatable :: centre_coord,anticentre_coord
        type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
        type(rational),       dimension(:,:),allocatable :: Mat
-       integer :: d,i,j,ngen,n,invt,multip,centred,Numops,num_lat,num_alat,mag_type
+       integer :: d,i,j,ngen,n,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
        character(len=80) :: Symb_Op
 
        call Initialize_Group(Grp)
@@ -1494,41 +1514,50 @@
       if(present(lun)) iout=lun
       write(unit=iout,fmt="(a)")        "    General Space Group"
       write(unit=iout,fmt="(a)")        "    -------------------"
-      write(unit=iout,fmt="(a,i4)")     "     Op-Dimension: ",Grp%d
-      write(unit=iout,fmt="(a,i4)")     "  Space-Dimension: ",Grp%d-1
-      write(unit=iout,fmt="(a,i4)")     "     Multiplicity: ",Grp%multip
-      write(unit=iout,fmt="(a,i4)")     "          MagType: ",Grp%mag_type
-      write(unit=iout,fmt="(a,i4)")     "           NumOps: ",Grp%numops
-      write(unit=iout,fmt="(a,i4)")     "          Centred: ",Grp%centred
-      write(unit=iout,fmt="(a,i4)")     "          Num_Lat: ",Grp%num_lat
-      write(unit=iout,fmt="(a,i4)")     "         Num_aLat: ",Grp%num_alat
-      write(unit=iout,fmt="(a,i4)")     "     Group number: ",Grp%numspg
-      write(unit=iout,fmt="(a, a)")     "     Group symbol: ",Grp%spg_symb
-      write(unit=iout,fmt="(a, a)")     "      Point group: ",Grp%pg
-      write(unit=iout,fmt="(a, a)")     "       Laue class: ",Grp%laue
-      write(unit=iout,fmt="(a, a)")     "   Transf. to std: ",Grp%mat2std
+      write(unit=iout,fmt="(a,i4)")     "                  Op-Dimension: ",Grp%d
+      write(unit=iout,fmt="(a,i4)")     "               Space-Dimension: ",Grp%d-1
+      write(unit=iout,fmt="(a,i4)")     "                  Multiplicity: ",Grp%multip
+      write(unit=iout,fmt="(a,i4)")     "                       MagType: ",Grp%mag_type
+      write(unit=iout,fmt="(a,i4)")     "                        NumOps: ",Grp%numops
+      write(unit=iout,fmt="(a,i4)")     "                       Centred: ",Grp%centred
+      write(unit=iout,fmt="(a,i4)")     "                       Num_Lat: ",Grp%num_lat
+      write(unit=iout,fmt="(a,i4)")     "                      Num_aLat: ",Grp%num_alat
+      write(unit=iout,fmt="(a, a)")     "  Crystallographic Point group: ",Grp%pg
+      write(unit=iout,fmt="(a, a)")     "                    Laue class: ",Grp%laue
+      write(unit=iout,fmt="(a,i4)")     "            Space Group number: ",Grp%numspg
+      write(unit=iout,fmt="(a,i4)")     "        Shubnikov Group number: ",Grp%numshu
+      write(unit=iout,fmt="(a, a)")     "            Space Group symbol: ",Grp%spg_symb
+      write(unit=iout,fmt="(a, a)")     "        Shubnikov Group symbol: ",Grp%shu_symb
+      write(unit=iout,fmt="(a, a)")     "       To space group standard: ",Grp%mat2std
+      write(unit=iout,fmt="(a, a)")     "   To Shubnikov group standard: ",Grp%mat2std_shu
       if(len_trim(Grp%generators_list) /= 0) then
-        write(unit=iout,fmt="(a, a)")   "  Generators List: ",Grp%generators_list
+        write(unit=iout,fmt="(a, a)")   "               Generators List: ",Grp%generators_list
       end if
 
       if(Grp%centred == 1) then
-         write(unit=iout,fmt="(a)")     "     Centre_coord: none!"
+         write(unit=iout,fmt="(a)")     "                  Centre_coord: none!"
       else
          !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
-         write(unit=iout,fmt="(a,10a)") "     Centre_coord: [ ",(trim(print_rational(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "                  Centre_coord: [ ",(trim(print_rational(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
+      end if
+      if(Grp%anticentred == 1) then
+         write(unit=iout,fmt="(a)")     "             Anti-Centre_coord: none!"
+      else
+         !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
+         write(unit=iout,fmt="(a,10a)") "             Anti-Centre_coord: [ ",(trim(print_rational(Grp%anticentre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
       if(Grp%num_lat > 0) then
-        write(unit=iout,fmt="(/a)")      "  Centring translations:"
+        write(unit=iout,fmt="(/a)")      "        Centring translations:"
         do i=1,Grp%num_lat
            !write(unit=iout,fmt="(i3,tr4,10f8.3)") i,Grp%Lat_tr(:,i)
-         write(unit=iout,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%Lat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(print_rational(Grp%Lat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if
       if(Grp%num_alat > 0) then
-        write(unit=iout,fmt="(/a)")      "  Anti-translations:"
+        write(unit=iout,fmt="(/a)")      "            Anti-translations:"
         do i=1,Grp%num_alat
           ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
-         write(unit=iout,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(print_rational(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if
       write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators:"

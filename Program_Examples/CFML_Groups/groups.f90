@@ -35,11 +35,11 @@ Program test_groups
             cycle
         else
             call Identify_Group(Grp)
+            call print_Group(Grp)
             if (err_std) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
                 !stop
             end if
-            call print_Group(Grp)
         end if
         write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
         read(*,*) indexg

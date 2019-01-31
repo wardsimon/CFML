@@ -21,9 +21,9 @@
 
        !Allocate provisionally to Multip the lattice translations and anti-Translations
        allocate(Lat_tr(d-1,multip), aLat_tr(d-1,multip))
-       allocate(centre_coord(d-1))
+       allocate(centre_coord(d-1),anticentre_coord(d-1))
 
-       call Reorder_Operators(multip, Op, centred, centre_coord, Numops, num_lat, num_alat, Lat_tr, aLat_tr,mag_type)
+       call Reorder_Operators(multip,Op,centred,centre_coord,anticentred,anticentre_coord,Numops,num_lat,num_alat,Lat_tr,aLat_tr,mag_type)
        if(Err_group) return
 
        Grp%multip=multip
@@ -48,13 +48,17 @@
          allocate(Grp%aLat_tr(1:d-1,1:Num_aLat))
        end if
        if(allocated(Grp%centre_coord)) Deallocate(Grp%centre_coord)
+       if(allocated(Grp%anticentre_coord)) Deallocate(Grp%anticentre_coord)
        allocate(Grp%centre_coord(1:d-1))
-       Grp%Numops      = Numops
-       Grp%centred     = centred
-       Grp%mag_type    = mag_type
-       Grp%num_lat     = num_lat
-       Grp%num_alat    = num_alat
-       Grp%centre_coord= centre_coord
+       allocate(Grp%anticentre_coord(1:d-1))
+       Grp%Numops           = Numops
+       Grp%centred          = centred
+       Grp%anticentred      = anticentred
+       Grp%mag_type         = mag_type
+       Grp%num_lat          = num_lat
+       Grp%num_alat         = num_alat
+       Grp%centre_coord     = centre_coord
+       Grp%anticentre_coord = anticentre_coord
        if(num_lat  > 0)  Grp%Lat_tr = Lat_tr(1:d-1,1:Num_Lat)
        if(num_alat > 0)  Grp%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
        if(present(x1x2x3_type)) then

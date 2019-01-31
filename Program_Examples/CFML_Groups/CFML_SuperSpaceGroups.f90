@@ -1,6 +1,6 @@
   Module CFML_SuperSpaceGroups
     use CFML_GlobalDeps,       only: sp,dp,cp,tpi
-    use CFML_String_Utilities, only: u_case,l_case
+    use CFML_String_Utilities, only: u_case,l_case,pack_string,get_separator_pos
     use CFML_Math_General,     only: sort, trace, iminloc
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, ERR_Crys, ERR_Crys_mess, set_Crystal_Cell
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup,Get_Generators_From_SpGSymbol, &
@@ -15,13 +15,12 @@
     private
     public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,  &
               Gen_SReflections, Set_SSGs_from_Gkk, k_SSG_compatible, &
-              Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group
+              Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group, &
+              Get_SSymSymb_from_Mat, Get_Mat_From_SSymSymb
 
     Type, extends(Spg_Type), public :: SuperSpaceGroup_Type
-      integer                             :: NumSpg=0  !Number of the group
+      !integer                             :: NumSpg=0  !Number of the group
       logical                             :: standard_setting=.true.  !true or false
-      character(len=5)                    :: PG = " "                 !added by Nebil
-      character(len=5)                    :: Laue=" "                 !added by Nebil
       Character(len=60)                   :: SSG_symbol=" "
       Character(len=60)                   :: SSG_Bravais=" "
       Character(len=13)                   :: SSG_nlabel=" "
@@ -29,7 +28,7 @@
       Character(len=80)                   :: trn_from_parent=" "
       Character(len=80)                   :: trn_to_standard=" "
       character(len=80)                   :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
-      Character(len=1)                    :: SPG_Lat="P"   ! Symbol of the lattice
+      !Character(len=1)                    :: SPG_Lat="P"   ! Symbol of the lattice
       integer                             :: nk=1           !(nk=1,2,3, ...) number of q-vectors
       integer                             :: Parent_num=0  ! Number of the parent Group
       integer                             :: Bravais_num=0 ! Number of the Bravais class
@@ -1375,5 +1374,368 @@
         SSG%Op(i)=Operator_from_Symbol(SSG%Symb_Op(i))
       end do
     End Subroutine copy_mSpG_to_SSG
+    
+    Subroutine Get_SSymSymb_from_Mat(Mat,Symb,x1x2x3_type,invt)
+       !---- Arguments ----!
+       type(rational),dimension(:,:), intent( in) :: Mat
+       integer, optional,             intent( in) :: invt
+       character (len=*),             intent(out) :: symb
+       character(len=*), optional,    intent( in) :: x1x2x3_type
+
+       !---- Local Variables ----!
+       character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
+       character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
+       character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
+       character(len=3),dimension(10) :: x_typ
+       character(len= 15)               :: car
+       character(len= 40)               :: translation
+       character(len= 40),dimension(10) :: sym
+       integer                          :: i,j,Dd,d,k
+       logical                          :: abc_type
+       Dd=size(Mat,dim=1)
+       d=Dd-1
+       x_typ=xyz
+       abc_type=.false.
+       if(present(x1x2x3_type)) then
+         Select Case (trim(x1x2x3_type))
+          Case("xyz")
+            x_typ=xyz
+          Case("x1x2x3")
+            x_typ=x1x2x3
+          Case("abc")
+            x_typ=abc
+            abc_type=.true.
+          Case Default
+          	x_typ=xyz
+         End Select
+       end if
+       !---- Main ----!
+       symb=" "
+       translation=" "
+       do i=1,d
+          sym(i)=" "
+          do j=1,d
+             if(Mat(i,j) == 1_ik) then
+                sym(i) = trim(sym(i))//"+"//trim(x_typ(j))
+             else if(Mat(i,j) == -1_ik) then
+                sym(i) =  trim(sym(i))//"-"//trim(x_typ(j))
+             else if(Mat(i,j) /= 0_ik) then
+               car=adjustl(print_rational(Mat(i,j)))
+               k=index(car,"/")
+               if(k /= 0) then
+                 if(car(1:1) == "1") then
+                   car=trim(x_typ(j))//car(k:)
+                 else if(car(1:2) == "-1") then
+                   car="-"//trim(x_typ(j))//car(k:)
+                 else
+                   car=car(1:k-1)//trim(x_typ(j))//car(k:)
+                 end if
+               else
+                 car=trim(car)//trim(x_typ(j))
+               end if
+               !write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
+               if(Mat(i,j) > 0_ik) car="+"//trim(car)
+               sym(i)=trim(sym(i))//pack_string(car)
+             end if
+          end do
+          !Write here the translational part for each component
+          if (Mat(i,Dd) /= 0_ik) then
+            car=adjustl(print_rational(Mat(i,Dd)))
+            if(abc_type) then
+              translation=trim(translation)//","//trim(car)
+            else
+               if(car(1:1) == "-") then
+                  sym(i)=trim(sym(i))//trim(car)
+               else
+                  sym(i)=trim(sym(i))//"+"//trim(car)
+               end if
+            end if
+          else
+            if(abc_type) translation=trim(translation)//",0"
+          end if
+          sym(i)=adjustl(sym(i))
+          if(sym(i)(1:1) == "+")  then
+            sym(i)(1:1) = " "
+            sym(i)=adjustl(sym(i))
+          end if
+          sym(i)=pack_string(sym(i))
+       end do
+       symb=sym(1)
+       do i=2,d
+         symb=trim(symb)//","//trim(sym(i))
+       end do
+       if(abc_type)then
+          symb=trim(symb)//";"//trim(translation(2:))
+       else
+         if(present(invt)) then
+           write(unit=car,fmt="(i2)") invt !print_rational(Mat(Dd,Dd))
+           car=adjustl(car)
+           symb=trim(symb)//","//trim(car)
+         end if
+       end if
+    End Subroutine Get_SSymSymb_from_Mat
+    
+    !!---- Subroutine Get_Mat_From_SSymSymb(Symb,Mat,invt)
+    !!----   character(len=*),                intent(in)  :: Symb
+    !!----   type(rational),dimension(:,:),   intent(out) :: Mat
+    !!----   integer, optional                            :: invt
+    !!----
+    !!----  This subroutine provides the rational matrix Mat in standard
+    !!----  form (all translation components positive) corresponding to the
+    !!----  operator symbol Symb in Jone's faithfull notation.
+    !!----  The symbol is not modified but the matrix contain reduced translation.
+    !!----  Some checking on the correctness of the symbol is performed
+    !!----
+    !!----  Created: June 2017 (JRC)
+    !!----
+    Subroutine Get_Mat_From_SSymSymb(Symb,Mat,invt)
+      character(len=*),                intent(in)  :: Symb
+      type(rational),dimension(:,:),   intent(out) :: Mat
+      integer, optional                            :: invt
+      !---- local variables ----!
+      type(rational) :: det
+      integer :: i,j,k,Dd, d, np,ns, n,m,inv,num,den,ind,ier
+      character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
+      character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
+      character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
+      character(len=3),dimension(10)           :: x_typ
+      character(len=len(Symb)), dimension(size(Mat,dim=1))  :: split
+      character(len=len(Symb))                              :: string,pSymb,translation,transf
+      character(len=10),        dimension(size(Mat,dim=1))  :: subst
+      integer,                  dimension(size(Mat,dim=1)-1):: pos,pn
+      logical                                               :: abc_transf
+
+      err_ssg=.false.
+      err_ssg_mess=" "
+      Dd=size(Mat,dim=1)
+      d=Dd-1
+      abc_transf=.false.
+      x_typ=xyz
+      i=index(Symb,"x2")
+      if(i /= 0) x_typ=x1x2x3
+      i=index(Symb,"b")
+      if(i /= 0) then
+        x_typ=abc
+        abc_transf=.true.
+      end if
+      Mat=0//1
+      if(abc_transf) then
+        i=index(Symb,";")
+        if(i == 0) return !check for errors
+        translation=pack_string(Symb(i+1:)//",0")
+        pSymb=pack_string(Symb(1:i-1)//",1")
+        call Get_Separator_Pos(translation,",",pos,np)
+        if(np /= d-1) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the origin coordinates"
+          return
+        end if
+        j=1
+        do i=1,d
+          split(i)=translation(j:pos(i)-1)
+          j=pos(i)+1
+        end do
+
+        do i=1,d
+            k=index(split(i),"/")
+            if(k /= 0) then
+              read(unit=split(i)(1:k-1),fmt=*) num
+              read(unit=split(i)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=split(i),fmt=*) num
+            end if
+            Mat(i,Dd)= num//den
+        end do
+        split=" "
+
+      else
+
+        pSymb=pack_string(Symb)
+
+      end if
+
+      if(index(pSymb,"=") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol '=' is forbidden!"
+          return
+      end if
+
+      if(index(pSymb,";") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol ';' is forbidden!"
+          return
+      end if
+
+      if(index(pSymb,".") /= 0) then
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator: symbol '.' is forbidden!"
+          return
+      end if
+
+      pos=0
+      call Get_Separator_Pos(pSymb,",",pos,np)
+      if(np /= d) then
+      	if(np == d-1) then
+      		do i=1,d
+      			j=index(pSymb,trim(x_typ(i)))
+      			if(j == 0) then !error in the symbol
+              err_ssg=.true.
+              err_ssg_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+              return
+      			end if
+      		end do
+      		pSymb=trim(pSymb)//",1"
+      		np=np+1
+      		pos(np)=len_trim(pSymb)-1
+        else
+          err_ssg=.true.
+          err_ssg_mess="Error in the symbol of the operator"
+          return
+        end if
+      else !Check the presence of all symbols
+      	do i=1,d
+      		j=index(pSymb(1:pos(np)),trim(x_typ(i)))
+      		if(j == 0) then !error in the symbol
+            err_ssg=.true.
+            err_ssg_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+            return
+      		end if
+      	end do
+      end if
+
+      read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv
+      if(ier == 0) then
+        Mat(Dd,Dd)=1//1
+        if (present(invt)) invt = inv
+      else
+        Mat(Dd,Dd)=1//1
+        if (present(invt)) invt = 1
+      end if
+      j=1
+      do i=1,d
+        split(i)=pSymb(j:pos(i)-1)
+        j=pos(i)+1
+        !write(*,"(i3,a)")  i, "  "//trim(split(i))
+      end do
+      !Analysis of each item
+                      !   |     |  |  |  <- pos(i)
+      !items of the form  -x1+3/2x2-x3+x4+1/2
+                      !   |  |     |  |  |  <- pn(m)
+                      !   -  +3/2  -  +  +1/2
+      do i=1,d
+        string=split(i)
+        pn=0; m=0
+        do j=1,len_trim(string)
+          if(string(j:j) == "+" .or. string(j:j) == "-" ) then
+            m=m+1
+            pn(m)=j
+          end if
+        end do
+        if(m /= 0) then
+          if(pn(1) == 1) then
+            n=0
+          else
+            subst(1)=string(1:pn(1)-1)
+            n=1
+          end if
+          do k=1,m-1
+            n=n+1
+            subst(n)=string(pn(k):pn(k+1)-1)
+          end do
+          if(pn(m) < len_trim(string)) then
+            n=n+1
+            subst(n)=string(pn(m):)
+          end if
+        else
+          n=1
+          subst(1)=string
+        end if
+
+        !write(*,"(11a)") " ---->  "//trim(string),("  "//trim(subst(k)),k=1,n)
+
+        ! Now we have n substrings of the form +/-p/qXn  or +/-p/q or +/-pXn/q or Xn or -Xn
+        ! Look for each substring the item x_typ and replace it by 1 or nothing
+        ! m is reusable now
+        do j=1,n
+          k=0
+          do m=1,d
+             k=index(subst(j),trim(x_typ(m)))
+             if(k /= 0) then
+               ind=m
+               exit
+             end if
+          end do
+          if(k == 0) then !pure translation
+            k=index(subst(j),"/")
+            if(k /= 0) then
+              read(unit=subst(j)(1:k-1),fmt=*) num
+              read(unit=subst(j)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=subst(j),fmt=*) num
+            end if
+            Mat(i,Dd)= num//den
+          else  !Component m of the row_vector
+            !suppress the symbol
+            subst(j)(k:k+len_trim(x_typ(ind))-1)=" "
+            if( k == 1 ) then
+              subst(j)(1:1)="1"
+            else if(subst(j)(k-1:k-1) == "+" .or. subst(j)(k-1:k-1) == "-") then
+              subst(j)(k:k)="1"
+            else
+              subst(j)=pack_string(subst(j))
+            end if
+            !Now read the integer or the rational
+            k=index(subst(j),"/")
+            if( k /= 0) then
+              read(unit=subst(j)(1:k-1),fmt=*) num
+              read(unit=subst(j)(k+1:),fmt=*) den
+            else
+              den=1
+              read(unit=subst(j),fmt=*) num
+            end if
+            Mat(i,ind)=num//den
+          end if
+        end do
+      end do
+
+      !Put the generator in standard form with positive translations
+      call reduced_translation(Mat)
+
+      !Final check that the determinant of the rotational matrix is integer
+      det=rational_determinant(Mat)
+      if(det%denominator /= 1) then
+         err_ssg=.true.
+         err_ssg_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+      end if
+      if(det%numerator == 0) then
+         err_ssg=.true.
+         err_ssg_mess="The matrix of the operator is singular! -> det="//print_rational(det)
+      end if
+    End Subroutine Get_Mat_From_SSymSymb
+    
+    Pure Subroutine reduced_translation(Mat)
+    	type(rational), dimension(:,:), intent( in out) :: Mat
+    	integer :: d,i,n
+    	n=size(Mat,dim=1)
+    	d=n-1
+      do i=1,d
+      	 do
+           if(Mat(i,n) < 0_ik) then
+           	Mat(i,n) = Mat(i,n) + 1_ik
+           else
+           	exit
+           end if
+         end do
+      	 do
+           if(Mat(i,n) > 1_ik) then
+           	Mat(i,n) = Mat(i,n) - 1_ik
+           else
+           	exit
+           end if
+         end do
+      end do
+    End Subroutine reduced_translation
 
   End Module CFML_SuperSpaceGroups

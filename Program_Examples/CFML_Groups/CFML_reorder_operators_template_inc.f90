@@ -17,7 +17,8 @@
       Op_identp%time_inv=-1
       invers=-identity !Inversion
       centred=1 !Default value for non-centrosymmetric groups
-
+      anticentred=1
+      
       !Insertion sort putting the negative determinants at the bottom
       call sort_Op(multip,Op(1:multip),"det")
       do i=1,Multip
@@ -141,7 +142,7 @@
 
       !Determine the lattice anti-translations
       do_ext: do j=2,Multip
-        if(nul(j)) cycle
+        !if(nul(j)) cycle
         invt= Op(j)%time_inv
         imat=Op(j)%Mat(1:d,1:d)
         if(equal_matrix(identity,imat) .and. invt == -1) then
@@ -235,3 +236,16 @@
         Err_group=.true.
         write(unit=Err_group_mess,fmt="(2(a,i3))") " => Problem! the multiplicity ",Multip," has not been recovered, value of ng=",ng
       end if
+      
+      !Determine if the group contain the primed inversion
+      do i = 1 , ng
+        if(equal_matrix(Op(i)%Mat(1:d,1:d),invers) .and. Op(i)%time_inv == -1 ) then
+            anticentre_coord(1:d)=ONE_HALF*Op(i)%Mat(1:d,n)
+            if(tr(i) < loc_eps) then
+                anticentred = 2
+            else
+                anticentred = 0
+            end if
+            exit
+        end if
+      end do
