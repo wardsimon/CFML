@@ -585,7 +585,7 @@ contains
         character(len=*),               intent(out) :: lattyp
 
         !---- Local variables ----!
-        integer :: i,j
+        integer :: i,j,nlat
         logical :: latt_p,latt_a,latt_b,latt_c,latt_i,latt_r,latt_s,latt_h,latt_f,latt_z
         integer, dimension(10):: latt_given
 
@@ -602,17 +602,26 @@ contains
         lattice(:,9)  = (/ 2//3,1//3,0//1 /)
         lattice(:,10) = (/ 1//3,2//3,0//1 /)
 
-        if (l > 3) then  !non conventional centring
+        ! Check for primitive and non conventional centrings
+        nlat   = 0
+        latt_p = .true.
+        do i = 1 , L
+            if (.not. IsInteger(latc(1:3,i))) then
+                latt_p = .false.
+                nlat   = nlat + 1
+            end if
+        end do
+        if (latt_p) then    ! primitive
+            lattyp="P"
+            return
+        end if
+        if (nlat > 3) then  !non conventional centring
             lattyp="Z"
             err_std = .true.
             err_std_mess = "Error in Get_Lattice_Type. Number of centring vectors > 3."
             return
-        else if(l == 0) then !primitive lattice
-            lattyp="P"
-            return
         end if
-
-        latt_p=.true.
+        
         latt_a=.false.
         latt_b=.false.
         latt_c=.false.
@@ -669,7 +678,7 @@ contains
             latt_p=.false.
             latt_i=.false.
         end if
-        if (latt_p) lattyp="P"
+
         if (latt_a) lattyp="A"
         if (latt_b) lattyp="B"
         if (latt_c) lattyp="C"
@@ -1549,6 +1558,7 @@ contains
         centringVec(:,ncentringVec+2) = (/ 0//1, 1//1, 0//1, 1//1 /)
         centringVec(:,ncentringVec+3) = (/ 0//1, 0//1, 1//1, 1//1 /)
         ncentringVec = ncentringVec + 3
+        
         ! Combine three vectors until a primitive setting is found
         primitive = .false.
         do i = 1 , nCentringVec
@@ -2394,24 +2404,24 @@ contains
         type(rational), dimension(3,3)   :: P,Mp,Mc,M
         type(rational), dimension(3,3,6) :: A       
 
-        !call Get_P_Matrix(G,P,output=.true.)
-        call Get_P_Matrix(G,P)
+        call Get_P_Matrix(G,P,output=.true.)
+        !call Get_P_Matrix(G,P)
         if (err_std) return
 
-        !call Get_Mp_Matrix(G,P,Mp,output=.true.)
-        call Get_Mp_Matrix(G,P,Mp)
+        call Get_Mp_Matrix(G,P,Mp,output=.true.)
+        !call Get_Mp_Matrix(G,P,Mp)
         if (err_std) return
 
-        !call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
-        call Get_Mc_Matrix(G%laue,Mp,Mc)
+        call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
+        !call Get_Mc_Matrix(G%laue,Mp,Mc)
         if (err_std) return
 
         M = matmul(Mp,Mc)
         call Get_Lattice_Type_from_M(M,lattyp)
         if (err_std) return
         call Get_A_Matrices_Crys(G%laue,A,n)
-        !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=.true.)
-        call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
+        call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=.true.)
+        !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
 
     end subroutine Identify_Crystallographic_Space_Group
 
@@ -2764,15 +2774,15 @@ contains
         logical,        optional,  intent(in)    :: output
         
         !---- Local variables ----!
-        integer                                                    :: i,j,k,n,nlat,nalat,ngen,ngen_
+        integer                                                    :: i,j,k,n,ngen,ngen_
         integer                                                    :: iniG,endG
         integer                                                    :: nPointOper,nA,ntVectors
-        logical                                                    :: shift
+        logical                                                    :: newt,shift
         character(len=256)                                         :: symb
         character(len=1),          dimension(2)                    :: magLat
         type(symm_oper_type),      dimension(3)                    :: Gt
         type(rational),            dimension(3)                    :: origShift
-        type(rational),            dimension(3,2)                  :: vAux
+        type(rational),            dimension(3,3)                  :: vAux
         type(rational),            dimension(3,3)                  :: identity,latTr
         type(rational),            dimension(3,4)                  :: alatTr
         type(rational),            dimension(4,4)                  :: Ccorr,identity_aux
@@ -2869,16 +2879,37 @@ contains
         ! matrix is corrected by multiplying it by Ccorr.
         
         call Rational_Identity_Matrix(4,Ccorr)
-        G_aux(1)   = G
+        G_aux(1)  = G
+        vAux(:,1) = (/ 1//1,0//1,0//1 /)
+        vAux(:,2) = (/ 0//1,1//1,0//1 /)
+        vAux(:,3) = (/ 0//1,0//1,1//1 /)
         do i = 1 , G_aux(1)%num_alat
+            !write(*,*) "a",G_aux(1)%alat_tr(:,i)%numerator,G_aux(1)%alat_tr(:,i)%denominator
             G_aux(1)%aLat_tr(1:3,i) = matmul(Cinv(1:3,1:3,1),G%aLat_tr(1:3,i))
-            if (IsInteger(G_aux(1)%aLat_tr(1:3,i))) then
-                do j = 1 , 3
-                    if (IsInteger(G_aux(1)%aLat_tr(j,i)) .and. &
-                        (G_aux(1)%aLat_tr(j,i) /= (0//1))) Ccorr(j,j) = 2
-                end do
+            !write(*,*) "a",G_aux(1)%alat_tr(:,i)%numerator,G_aux(1)%alat_tr(:,i)%denominator
+            !write(*,*)
+            if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,1))) then
+                Ccorr(1,1) = 2
+            else if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,2))) then
+                Ccorr(2,2) = 2
+            else if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,3))) then
+                Ccorr(3,3) = 2
             end if
+            !if (IsInteger(G_aux(1)%aLat_tr(1:3,i))) then
+            !    do j = 1 , 3
+            !        if (IsInteger(G_aux(1)%aLat_tr(j,i)) .and. &
+            !            (G_aux(1)%aLat_tr(j,i) /= (0//1))) Ccorr(j,j) = 2
+            !    end do
+            !end if
         end do
+        !write(*,*) "a",G_aux(1)%lat_tr(:,1)%numerator,G_aux(1)%lat_tr(:,1)%denominator
+        !G_aux(1)%Lat_tr(1:3,1) = matmul(Cinv(1:3,1:3,1),G%Lat_tr(1:3,1))
+        !write(*,*) "a",G_aux(1)%lat_tr(:,1)%numerator,G_aux(1)%lat_tr(:,1)%denominator
+        !stop
+        !write(*,*) Ccorr(1,1),Ccorr(2,2),Ccorr(3,3)
+        !do i = 1 , G_aux(1)%num_lat
+        !    G_aux(1)%Lat_tr(1:3,i) = matmul(Cinv(1:3,1:3,1),G%Lat_tr(1:3,i))
+        !end do
         C(:,:,1) = matmul(C(:,:,1),Ccorr(:,:))
         
         ! For tetragonal systems with anti-translations along [100] or [010], a rotation of pi/4 along
@@ -2899,6 +2930,7 @@ contains
             end do
         end if
         
+        !write(*,*) Ccorr(1,1),Ccorr(2,2),Ccorr(3,3);stop
         ! Combine A's and C
         do n = 1 , nA
             C(:,:,n)     = C(:,:,1)
@@ -2910,23 +2942,43 @@ contains
         call Rational_Identity_Matrix(3,identity)
         do n = 1 , nA
             G_aux(n) = G
-            nlat     = 0
-            nalat    = 0
+            G_aux(n)%num_lat  = 0
+            G_aux(n)%num_alat = 0
             do i = 1 , G_aux(n)%multip 
                 G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
                 G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
                 call reduced_translation(G_aux(n)%Op(i)%Mat)
                 if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
-                    .not. IsNullVector(G_aux(n)%Op(i)%Mat(1:3,4))) then
-                    if (G_aux(n)%Op(i)%time_inv == 1) then
-                        nlat = nlat + 1
-                        G_aux(n)%Lat_tr(1:3,nlat) = G_aux(n)%Op(i)%Mat(1:3,4)
+                    .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
+                    if (G_aux(n)%Op(i)%time_inv == 1) then                        
+                        newt = .true.
+                        do j = 1 , G_aux(n)%num_lat
+                            if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
+                                                      G_aux(n)%Lat_tr(1:3,j))) then
+                                newt = .false.
+                                exit
+                            end if
+                        end do
+                        if (newt) then
+                            G_aux(n)%num_lat = G_aux(n)%num_lat + 1
+                            G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat) = G_aux(n)%Op(i)%Mat(1:3,4)
+                            !write(*,*) n,G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat)%numerator,G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat)%denominator
+                        end if
                     else
-                        nalat = nalat + 1
-                        G_aux(n)%aLat_tr(1:3,nalat) = G_aux(n)%Op(i)%Mat(1:3,4)
+                        newt = .true.
+                        do j = 1 , G_aux(n)%num_alat
+                            if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
+                                                      G_aux(n)%aLat_tr(1:3,j))) then
+                                newt = .false.
+                                exit
+                            end if
+                        end do
+                        if (newt) then
+                            G_aux(n)%num_alat = G_aux(n)%num_alat + 1
+                            G_aux(n)%aLat_tr(1:3,G_aux(n)%num_alat) = G_aux(n)%Op(i)%Mat(1:3,4)
+                        end if
                     end if
                 end if
-                
                 ! Map each symmetry operation in pointerToOper
                 j = 1
                 do
@@ -2946,11 +2998,19 @@ contains
             end do
             
             ! Get the magnetic lattice type for each setting
+            !write(*,*) G_aux(n)%num_lat,G_aux(n)%num_alat,nA
             call Get_Magnetic_Lattice_Type(G_aux(n)%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
-                                           G_aux(n)%alat_tr,G_aux(n)%shub_lat)
-                                           
+                                           G_aux(n)%alat_tr,G_aux(n)%shu_lat)
+            !do i = 1 , G_aux(n)%num_Lat
+            !    write(*,*) "t",G_aux(n)%lat_tr(:,i)%numerator,G_aux(n)%lat_tr(:,i)%denominator
+            !end do
+            !do i = 1 , G_aux(n)%num_aLat
+            !    write(*,*) "a",G_aux(n)%alat_tr(:,i)%numerator,G_aux(n)%alat_tr(:,i)%denominator
+            !end do
+            !write(*,*) G_aux(n)%shu_lat
+            !if (err_std) return                           
             ! Correct symbol for triclinic systems with anti-translations
-            if (G_aux(n)%numSpg < 3 .and. G_aux(n)%shub_lat(2) /= " ") G_aux(n)%shub_lat(2) = "S"
+            if (G_aux(n)%numSpg < 3 .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
             
             ! Get generators
             call Get_Generators(G_aux(n)%NumSpg,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
@@ -2963,21 +3023,23 @@ contains
             end do
             ! Compute the P matrix
             call Get_P_Matrix(G_aux(n),P(:,:,n))
-            
-        end do   
-               
+            if (err_std) return
+        end do  
+        !stop       
         ! Try to match G against one of the Shubnikov groups
-
+        
         do i = iniG , endG
-            if (magtype(i) == G%mag_type .and. ops_count(i) == (G%multip/(G%num_lat+1))) then                
+            !write(*,*) i, ops_count(i), magtype(i), G%multip/(G%num_lat+1), G%mag_type
+            if (magtype(i) == G%mag_type .and. ops_count(i) == (G%multip/(G%num_lat+1))) then
+                !write(*,*) i
                 ! Extract magnetic lattice type from symbol
                 magLat(1) = spacegroup_label_bns(i)(1:1)
                 magLat(2) = " "
                 if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)
                 
                 do n = 1 , nA
-                    if (G_aux(n)%shub_lat(1) .ne. magLat(1) .or. &
-                        G_aux(n)%shub_lat(2) .ne. magLat(2)) cycle
+                    if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
+                        G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
                         
                     ! Try to find the same set of generators in the standard magnetic group
                     ngen_ = 0
@@ -2992,6 +3054,7 @@ contains
                             end if    
                         end do
                     end do
+                    !write(*,*) i,n,ngen,ngen_
                     if (ngen_ == ngen) then
                         if (present(output)) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
                             trim(spacegroup_label_bns(i)),", setting ", n

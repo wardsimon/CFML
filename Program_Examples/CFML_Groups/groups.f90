@@ -38,7 +38,7 @@ Program test_groups
             call print_Group(Grp)
             if (err_std) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                !stop
+                stop
             end if
         end if
         write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
@@ -75,10 +75,10 @@ Program test_groups
             do L=1,nsg
                 write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
                 call Identify_Group(sGrp(L))
+                call print_Group(sGrp(L))
                 if (err_std) then
-                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                else
-                    call print_Group(sGrp(L))
+                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)  
+                    stop
                 end if
             end do
         end if

@@ -51,7 +51,7 @@
       integer :: num_lat  = 0
       integer :: num_alat = 0
       character(len=1) :: spg_lat
-      character(len=1), dimension(2) :: shub_lat
+      character(len=1), dimension(2) :: shu_lat
       character(len=:), allocatable  :: spg_symb
       character(len=:), allocatable  :: shu_symb
       character(len=:), allocatable  :: pg
@@ -300,6 +300,7 @@
       Select type(Grp)
         type is (Spg_Type)
            Grp%numspg      = 0
+           Grp%numshu      = 0
            Grp%Numops      = 0
            Grp%centred     = 1
            Grp%anticentred = 1
@@ -307,7 +308,10 @@
            Grp%num_lat     = 0
            Grp%num_alat    = 0
            Grp%spg_lat     = " "
+           Grp%shu_lat(1)  = " "
+           Grp%shu_lat(2)  = " "
            Grp%spg_symb    = "    "
+           Grp%shu_symb    = "    "
            Grp%pg          = "    "
            Grp%laue        = "    "
            Grp%mat2std     = "    "
