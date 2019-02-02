@@ -379,7 +379,7 @@ contains
             call Get_Rotations(symOp(:),nSymOp,2,n,idd)
             G(1) = symOp(idd(1,1))
             ! Choose proper rotations if the spacegroup is centrosymmetric
-            if (inversion > 0) G(1)%Mat(1:3,1:3) = (idd(1,2)//1) * G(1)%Mat(1:3,1:3)
+            !if (inversion > 0) G(1)%Mat(1:3,1:3) = (idd(1,2)//1) * G(1)%Mat(1:3,1:3)
 
         else if (spaceGroupNumber < 75)  then ! Orthorhombic
 
@@ -393,6 +393,12 @@ contains
                     (axis(1) == (0//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
                     ngaux = ngaux + 1
                     G(ngaux) = symOp(idd(i,1))
+                    !write(*,*) "Inside"
+                    !do j = 1 , 4
+                    !    write(*,*) symOp(idd(i,1))%Mat(j,:)%numerator,symOp(idd(i,1))%Mat(j,:)%denominator
+                    !end do
+                    !write(*,*) symOp(idd(i,1))%time_inv
+                    !write(*,*)
                     if (ngaux == 2) exit
                 end if
             end do
@@ -516,10 +522,12 @@ contains
 
         if (inversion > 0) then
             ! Choose proper rotations if the spacegroup is centrosymmetric
-            do i = 1 , nGen
-                det = rational_determinant(G(i)%Mat(1:3,1:3))
-                G(i)%Mat(1:3,1:3) = det * G(i)%Mat(1:3,1:3)
-            end do
+            !do i = 1 , nGen
+            !    det = rational_determinant(G(i)%Mat(1:3,1:3))
+            !    G(i)%Mat(1:3,1:3) = det * G(i)%Mat(1:3,1:3)
+            !    !G(i)%time_inv     = symOp(inversion)%time_inv * G(i)%time_inv
+            !    write(*,*) "Hola ",symOp(inversion)%time_inv,G(i)%time_inv,G(i)%time_inv*symOp(inversion)%time_inv
+            !end do
             nGen = nGen + 1
             G(nGen) = symOp(inversion)
         end if
@@ -1596,7 +1604,6 @@ contains
         if (.not. primitive) then
             err_std = .true.
             err_std_mess = "Error in Get_P_Matrix subroutine. A primitive basis cannot be found"
-            write(*,'(12x,a)') err_std_mess
             return
         else if (present(output)) then
             write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
@@ -3013,13 +3020,47 @@ contains
             if (G_aux(n)%numSpg < 3 .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
             
             ! Get generators
+            !do j = 1 , G_aux(n)%multip
+            !    do k = 1 , 4
+            !        write(*,*) G_aux(n)%Op(j)%Mat(k,:)%numerator,G_aux(n)%Op(j)%Mat(k,:)%denominator
+            !    end do
+            !    write(*,*) G_aux(n)%Op(j)%time_inv
+            !    write(*,*)
+            !end do
             call Get_Generators(G_aux(n)%NumSpg,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
-            
+            !write(*,*) "Generators ",ngen
+            !do j = 1 , ngen
+            !    do k = 1 , 4
+            !        write(*,*) Gx(j,n)%Mat(k,:)%numerator,Gx(j,n)%Mat(k,:)%denominator
+            !    end do
+            !    write(*,*) Gx(j,n)%time_inv
+            !    write(*,*)
+            !end do!;stop
             ! Map generators to G_aux(n)%Op
             do i = 1 , ngen
+                idx(i,n) = 0
                 do j = 1 , G_aux(n)%multip
                     if (G_aux(n)%Op(j) == Gx(i,n)) idx(i,n) = j
-                end do               
+                end do
+                if (idx(i,n) == 0) then
+                    err_std = .true.
+                    err_std_mess = "Error in Match_Shubnikov_Group_3_4. Generator cannot be mapped."
+                    !do k = 1 , 4
+                    !    write(*,*) Gx(i,n)%Mat(k,:)%numerator,Gx(i,n)%Mat(k,:)%denominator
+                    !end do
+                    !write(*,*) n,i,Gx(i,n)%time_inv!,Gx(i,n)%dt
+                    !write(*,*)
+                    !do j = 1 , G_aux(n)%multip
+                    !    if (Equal_Rational_Matrix(G_aux(n)%Op(j)%Mat(1:4,1:4),Gx(i,n)%Mat(1:4,1:4))) then
+                    !        do k = 1 , 4
+                    !            !write(*,*) G_aux(n)%Op(j)%Mat(k,:)%numerator,G_aux(n)%Op(j)%Mat(k,:)%denominator
+                    !        end do
+                    !        write(*,*) n,i,G_aux(n)%Op(j)%time_inv!,G_aux(n)%Op(j)%dt
+                    !        !write(*,*)
+                    !    end if
+                    !end do
+                    return
+                end if
             end do
             ! Compute the P matrix
             call Get_P_Matrix(G_aux(n),P(:,:,n))
