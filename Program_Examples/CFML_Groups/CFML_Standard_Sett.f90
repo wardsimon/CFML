@@ -2792,13 +2792,12 @@ contains
         type(rational),            dimension(3,3)                  :: vAux
         type(rational),            dimension(3,3)                  :: identity,latTr
         type(rational),            dimension(3,4)                  :: alatTr
-        type(rational),            dimension(4,4)                  :: Ccorr,identity_aux
+        type(rational),            dimension(4,4)                  :: identity_aux
         type(symm_oper_type),      dimension(3,6)                  :: Gx
-        type(rational),            dimension(4,4,6)                :: C,Cinv
         type(rational),            dimension(3,3,6)                :: A
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
-        type(rational),            dimension(:,:,:),   allocatable :: pointOper,P
+        type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,Ccell,Cinvcell,Ccorr,Cinvcorr,pointOper,P
         type(rational),            dimension(:,:,:),   allocatable :: tVectors
         
         ! Make some checks to ensure this subroutine is used properly
@@ -2868,7 +2867,12 @@ contains
         allocate(G_aux(nA))
         allocate(idx(3,nA))
         allocate(pointerToOper(G%multip,nA))
-        allocate(P(3,3,nA))
+        allocate(P(3,3,nA),C(4,4,nA),Cinv(4,4,nA),Ccell(4,4,nA),Ccorr(4,4,nA))
+        
+        ! Initialize G_aux
+        do n = 1 , nA
+            G_aux(n) = G
+        end do
         
         ! Get the transformation matrix to the standard crystallographic setting       
         call Get_Mat_From_Symb_Op(G%mat2std,C(:,:,1))
@@ -2881,74 +2885,62 @@ contains
         C(4,:,1)     = (/ 0,0,0,1 /)
         call Rational_Inv_Matrix(C(:,:,1),Cinv(:,:,1))
         
-        ! Compute anti-translations in the standard setting. If there are integer anti-translations,
-        ! the standard magnetic cell is a supercell of the standard crystallographic cell. The C 
-        ! matrix is corrected by multiplying it by Ccorr.
-        
-        call Rational_Identity_Matrix(4,Ccorr)
-        G_aux(1)  = G
-        vAux(:,1) = (/ 1//1,0//1,0//1 /)
-        vAux(:,2) = (/ 0//1,1//1,0//1 /)
-        vAux(:,3) = (/ 0//1,0//1,1//1 /)
-        do i = 1 , G_aux(1)%num_alat
-            !write(*,*) "a",G_aux(1)%alat_tr(:,i)%numerator,G_aux(1)%alat_tr(:,i)%denominator
-            G_aux(1)%aLat_tr(1:3,i) = matmul(Cinv(1:3,1:3,1),G%aLat_tr(1:3,i))
-            !write(*,*) "a",G_aux(1)%alat_tr(:,i)%numerator,G_aux(1)%alat_tr(:,i)%denominator
-            !write(*,*)
-            if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,1))) then
-                Ccorr(1,1) = 2
-            else if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,2))) then
-                Ccorr(2,2) = 2
-            else if (Equal_Rational_Vector(abs(G_aux(1)%aLat_tr(1:3,i)),vAux(:,3))) then
-                Ccorr(3,3) = 2
-            end if
-            !if (IsInteger(G_aux(1)%aLat_tr(1:3,i))) then
-            !    do j = 1 , 3
-            !        if (IsInteger(G_aux(1)%aLat_tr(j,i)) .and. &
-            !            (G_aux(1)%aLat_tr(j,i) /= (0//1))) Ccorr(j,j) = 2
-            !    end do
-            !end if
-        end do
-        !write(*,*) "a",G_aux(1)%lat_tr(:,1)%numerator,G_aux(1)%lat_tr(:,1)%denominator
-        !G_aux(1)%Lat_tr(1:3,1) = matmul(Cinv(1:3,1:3,1),G%Lat_tr(1:3,1))
-        !write(*,*) "a",G_aux(1)%lat_tr(:,1)%numerator,G_aux(1)%lat_tr(:,1)%denominator
-        !stop
-        !write(*,*) Ccorr(1,1),Ccorr(2,2),Ccorr(3,3)
-        !do i = 1 , G_aux(1)%num_lat
-        !    G_aux(1)%Lat_tr(1:3,i) = matmul(Cinv(1:3,1:3,1),G%Lat_tr(1:3,i))
-        !end do
-        C(:,:,1) = matmul(C(:,:,1),Ccorr(:,:))
-        
-        ! For tetragonal systems with anti-translations along [100] or [010], a rotation of pi/4 along
-        ! z must be applied
-        vAux(:,1) = (/ 1//2,0//1,0//1 /)
-        vAux(:,2) = (/ 0//1,1//2,0//1 /)
-        if (G%numspg > 74 .and. G%numspg < 143) then
-            do i = 1 , G_aux(1)%num_alat
-                if (Equal_Rational_Vector(G_aux(1)%aLat_tr(1:3,i),vAux(1:3,1)) .or. &
-                    Equal_Rational_Vector(G_aux(1)%aLat_tr(1:3,i),vAux(1:3,2))) then
-                    Ccorr(1,1:4) = (/ 1//2,-1//2, 0//1, 0//1 /)
-                    Ccorr(2,1:4) = (/ 1//2, 1//2, 0//1, 0//1 /)
-                    Ccorr(3,1:4) = (/ 0//1, 0//1, 1//1, 0//1 /)
-                    Ccorr(4,1:4) = (/ 0//1, 0//1, 0//1, 0//1 /)
-                    C(:,:,1) = matmul(C(:,:,1),Ccorr(:,:))
-                    exit
-                end if
-            end do
-        end if
-        
-        !write(*,*) Ccorr(1,1),Ccorr(2,2),Ccorr(3,3);stop
         ! Combine A's and C
         do n = 1 , nA
             C(:,:,n)     = C(:,:,1)
             C(1:3,1:3,n) = matmul(C(1:3,1:3,n),A(:,:,n))
             call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
-        end do              
-        
-        ! Put G in all possible settings
-        call Rational_Identity_Matrix(3,identity)
+        end do
+
+        ! Get the magnetic cell for each setting
+        vAux(:,1) = (/ 1//1,0//1,0//1 /)
+        vAux(:,2) = (/ 0//1,1//1,0//1 /)
+        vAux(:,3) = (/ 0//1,0//1,1//1 /)
         do n = 1 , nA
-            G_aux(n) = G
+            call Rational_Identity_Matrix(4,Ccell(:,:,n))
+            do i = 1 , G%num_alat
+                G_aux(n)%aLat_tr(1:3,i) = matmul(Cinv(1:3,1:3,n),G%aLat_tr(1:3,i))
+                if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,1))) then
+                    Ccell(1,1,n) = 2
+                else if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,2))) then
+                    Ccell(2,2,n) = 2
+                else if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,3))) then
+                    Ccell(3,3,n) = 2
+                end if
+            end do
+        end do
+        
+        ! For tetragonal systems, a rotation of pi/4 along z could be required to get the standard
+        vAux(:,1) = (/ 1//2,0//1,0//1 /)
+        vAux(:,2) = (/ 0//1,1//2,0//1 /)
+        do n = 1 , nA
+            if (G_aux(n)%numspg > 74 .and. G_aux(n)%numspg < 143) then            
+                do i = 1 , G_aux(1)%num_alat
+                    if (Equal_Rational_Vector(G_aux(n)%aLat_tr(1:3,i),vAux(1:3,1)) .or. &
+                        Equal_Rational_Vector(G_aux(n)%aLat_tr(1:3,i),vAux(1:3,2))) then
+                        Ccorr(1,1:4,n) = (/ 1//2,-1//2, 0//1, 0//1 /)
+                        Ccorr(2,1:4,n) = (/ 1//2, 1//2, 0//1, 0//1 /)
+                        Ccorr(3,1:4,n) = (/ 0//1, 0//1, 1//1, 0//1 /)
+                        Ccorr(4,1:4,n) = (/ 0//1, 0//1, 0//1, 1//1 /)
+                        exit
+                    end if
+                end do
+            else               
+                call Rational_Identity_Matrix(4,Ccorr(:,:,n))
+            end if
+        end do
+        
+        ! C matrix --> [C] = [C][Ccell][Ccorr]
+        do n = 1 , nA
+            C(:,:,n) = matmul(C(:,:,n),Ccell(:,:,n))
+            C(:,:,n) = matmul(C(:,:,n),Ccorr(:,:,n))
+            call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
+        end do
+
+        ! Change of setting --> [G_aux] = [Cinv][G_aux][C]
+        call Rational_Identity_Matrix(3,identity)
+        do n = 1 , nA            
+            G_aux(n)          = G
             G_aux(n)%num_lat  = 0
             G_aux(n)%num_alat = 0
             do i = 1 , G_aux(n)%multip 
@@ -2969,7 +2961,6 @@ contains
                         if (newt) then
                             G_aux(n)%num_lat = G_aux(n)%num_lat + 1
                             G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat) = G_aux(n)%Op(i)%Mat(1:3,4)
-                            !write(*,*) n,G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat)%numerator,G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat)%denominator
                         end if
                     else
                         newt = .true.
@@ -2986,7 +2977,12 @@ contains
                         end if
                     end if
                 end if
-                ! Map each symmetry operation in pointerToOper
+            end do
+        end do
+        
+        ! Map each symmetry operation in pointerToOper for every possible setting        
+        do n = 1 , nA
+            do i = 1 , G_aux(n)%multip                
                 j = 1
                 do
                     if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
@@ -3000,42 +2996,21 @@ contains
                         A symmetry operation of the group cannot be matched against tabulated symmetry operations"
                         return
                     end if
-                end do
-                
+                end do                
             end do
+        end do
             
-            ! Get the magnetic lattice type for each setting
-            !write(*,*) G_aux(n)%num_lat,G_aux(n)%num_alat,nA
+        ! Get the magnetic lattice type for every setting
+        do n = 1 , nA
             call Get_Magnetic_Lattice_Type(G_aux(n)%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
-                                           G_aux(n)%alat_tr,G_aux(n)%shu_lat)
-            !do i = 1 , G_aux(n)%num_Lat
-            !    write(*,*) "t",G_aux(n)%lat_tr(:,i)%numerator,G_aux(n)%lat_tr(:,i)%denominator
-            !end do
-            !do i = 1 , G_aux(n)%num_aLat
-            !    write(*,*) "a",G_aux(n)%alat_tr(:,i)%numerator,G_aux(n)%alat_tr(:,i)%denominator
-            !end do
-            !write(*,*) G_aux(n)%shu_lat
-            !if (err_std) return                           
+                                           G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
             ! Correct symbol for triclinic systems with anti-translations
             if (G_aux(n)%numSpg < 3 .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
-            
-            ! Get generators
-            !do j = 1 , G_aux(n)%multip
-            !    do k = 1 , 4
-            !        write(*,*) G_aux(n)%Op(j)%Mat(k,:)%numerator,G_aux(n)%Op(j)%Mat(k,:)%denominator
-            !    end do
-            !    write(*,*) G_aux(n)%Op(j)%time_inv
-            !    write(*,*)
-            !end do
+        end do
+        
+        ! Get generators for every setting
+        do n = 1 , nA
             call Get_Generators(G_aux(n)%NumSpg,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
-            !write(*,*) "Generators ",ngen
-            !do j = 1 , ngen
-            !    do k = 1 , 4
-            !        write(*,*) Gx(j,n)%Mat(k,:)%numerator,Gx(j,n)%Mat(k,:)%denominator
-            !    end do
-            !    write(*,*) Gx(j,n)%time_inv
-            !    write(*,*)
-            !end do!;stop
             ! Map generators to G_aux(n)%Op
             do i = 1 , ngen
                 idx(i,n) = 0
@@ -3045,28 +3020,29 @@ contains
                 if (idx(i,n) == 0) then
                     err_std = .true.
                     err_std_mess = "Error in Match_Shubnikov_Group_3_4. Generator cannot be mapped."
-                    !do k = 1 , 4
-                    !    write(*,*) Gx(i,n)%Mat(k,:)%numerator,Gx(i,n)%Mat(k,:)%denominator
-                    !end do
-                    !write(*,*) n,i,Gx(i,n)%time_inv!,Gx(i,n)%dt
-                    !write(*,*)
-                    !do j = 1 , G_aux(n)%multip
-                    !    if (Equal_Rational_Matrix(G_aux(n)%Op(j)%Mat(1:4,1:4),Gx(i,n)%Mat(1:4,1:4))) then
-                    !        do k = 1 , 4
-                    !            !write(*,*) G_aux(n)%Op(j)%Mat(k,:)%numerator,G_aux(n)%Op(j)%Mat(k,:)%denominator
-                    !        end do
-                    !        write(*,*) n,i,G_aux(n)%Op(j)%time_inv!,G_aux(n)%Op(j)%dt
-                    !        !write(*,*)
-                    !    end if
-                    !end do
                     return
                 end if
             end do
-            ! Compute the P matrix
+        end do
+        
+        ! Compute the P matrix for every setting
+        do n = 1 , nA
             call Get_P_Matrix(G_aux(n),P(:,:,n))
-            if (err_std) return
+            err_std = .false.
+            !if (err_std) then
+            !    write(*,*) n,G_aux(n)%shu_lat
+            !    write(*,*) 'tr'
+            !    do i = 1 , G_aux(n)%num_lat
+            !        write(*,*) G_aux(n)%lat_tr(:,i)
+            !    end do
+            !    write(*,*) 'antitr'
+            !    do i = 1 , G_aux(n)%num_alat
+            !        write(*,*) G_aux(n)%alat_tr(:,i)
+            !    end do
+            !    return
+            !end if
         end do  
-        !stop       
+      
         ! Try to match G against one of the Shubnikov groups
         
         do i = iniG , endG
