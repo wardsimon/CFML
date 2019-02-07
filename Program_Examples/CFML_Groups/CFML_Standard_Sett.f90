@@ -44,7 +44,7 @@
 !!----       IDENTIFY_GROUP
 !!----       IDENTIFY_LAUE_CLASS
 !!----       IDENTIFY_SHUBNIKOV_GROUP
-!!----       MATCH_SHUBNIKOV_GROUP_3_4
+!!----       MATCH_SHUBNIKOV_GROUP
 !!----       MATCH_CRYSTALLOGRAPHIC_SPACE_GROUP
 !!----       SET_RIGHT_HANDEDNESS
 !!----       SMALLEST_INTEGRAL_VECTOR
@@ -222,8 +222,8 @@ contains
 
     end subroutine Get_A_Matrices_Crys
     
-    !!---- Subroutine Get_A_Matrices_Shub(numspg,A,n)
-    !!----      integer,                          intent(in)  :: numspg
+    !!---- Subroutine Get_A_Matrices_Shub(laueClass,A,n)
+    !!----      character(len=*),                 intent(in)  :: laueClass
     !!----      type(rational), dimension(3,3,6), intent(out) :: A
     !!----      integer,                          intent(out) :: n
     !!----
@@ -232,12 +232,12 @@ contains
     !!---- Updated: September - 2018
     !!
     
-    subroutine Get_A_Matrices_Shub(spgNum,A,n)
+    subroutine Get_A_Matrices_Shub(laueClass,A,n)
 
         ! Matrices for different settings
         
         !---- Arguments ----!
-        integer,                          intent(in)  :: spgNum
+        character(len=*),                 intent(in)  :: laueClass
         type(rational), dimension(3,3,6), intent(out) :: A
         integer,                          intent(out) :: n
         
@@ -247,72 +247,63 @@ contains
         A(2,1:3,1) = (/ 0, 1, 0 /)
         A(3,1:3,1) = (/ 0, 0, 1 /)
         
-        if (spgNum < 3) then ! Triclinic
-            n = 3
-            ! setting b,c,a
-            A(1,1:3,2) = (/ 0, 0, 1 /)
-            A(2,1:3,2) = (/ 1, 0, 0 /)
-            A(3,1:3,2) = (/ 0, 1, 0 /)
-            ! setting c,a,b
-            A(1,1:3,3) = (/ 0, 1, 0 /)
-            A(2,1:3,3) = (/ 0, 0, 1 /)
-            A(3,1:3,3) = (/ 1, 0, 0 /)
-        else if (spgNum < 16) then ! Monoclinic
-            n = 6
-            ! setting c,b,-a-c
-            A(1,1:3,2) = (/ 0, 0,-1 /)
-            A(2,1:3,2) = (/ 0, 1, 0 /)
-            A(3,1:3,2) = (/ 1, 0,-1 /)
-            ! setting -a-c,b,a
-            A(1,1:3,3) = (/-1, 0, 1 /)
-            A(2,1:3,3) = (/ 0, 1, 0 /)
-            A(3,1:3,3) = (/-1, 0, 0 /)
-            ! setting c,-b,a  
-            A(1,1:3,4) = (/ 0, 0, 1 /)
-            A(2,1:3,4) = (/ 0,-1, 0 /)
-            A(3,1:3,4) = (/ 1, 0, 0 /)
-            ! setting -a-c,-b,c
-            A(1,1:3,5) = (/-1, 0, 0 /)
-            A(2,1:3,5) = (/ 0,-1, 0 /)
-            A(3,1:3,5) = (/-1, 0, 1 /)
-            ! setting a,-b,-a-c
-            A(1,1:3,6) = (/ 1, 0,-1 /)
-            A(2,1:3,6) = (/ 0,-1, 0 /)
-            A(3,1:3,6) = (/ 0, 0,-1 /)
-        else if (spgNum < 75) then ! Orthorhombic 
-            n = 6
-            ! setting b,c,a
-            A(1,1:3,2) = (/ 0, 0, 1 /)
-            A(2,1:3,2) = (/ 1, 0, 0 /)
-            A(3,1:3,2) = (/ 0, 1, 0 /)
-            ! setting c,a,b
-            A(1,1:3,3) = (/ 0, 1, 0 /)
-            A(2,1:3,3) = (/ 0, 0, 1 /)
-            A(3,1:3,3) = (/ 1, 0, 0 /)
-            ! setting a,c,-b
-            A(1,1:3,4) = (/ 1, 0, 0 /)
-            A(2,1:3,4) = (/ 0, 0,-1 /)
-            A(3,1:3,4) = (/ 0, 1, 0 /)
-            ! setting c,b,-a
-            A(1,1:3,5) = (/ 0, 0,-1 /)
-            A(2,1:3,5) = (/ 0, 1, 0 /)
-            A(3,1:3,5) = (/ 1, 0, 0 /)
-            ! setting b,a,-c
-            A(1,1:3,6) = (/ 0, 1, 0 /)
-            A(2,1:3,6) = (/ 1, 0, 0 /)
-            A(3,1:3,6) = (/ 0, 0,-1 /)
-        else if (spgNum > 142 .and. spgNum < 168) then ! Trigonal
-            n = 2
-            ! reverse -> obverse setting
-            A(1,1:3,2) = (/-1., 0., 0. /)
-            A(2,1:3,2) = (/ 0.,-1., 0. /)
-            A(3,1:3,2) = (/ 0., 0., 1. /)
-        end if
+        select case (trim(laueClass))
+            case ("2/m") ! Monoclinic
+                n = 6
+                ! setting c,b,-a-c
+                A(1,1:3,2) = (/ 0, 0,-1 /)
+                A(2,1:3,2) = (/ 0, 1, 0 /)
+                A(3,1:3,2) = (/ 1, 0,-1 /)
+                ! setting -a-c,b,a
+                A(1,1:3,3) = (/-1, 0, 1 /)
+                A(2,1:3,3) = (/ 0, 1, 0 /)
+                A(3,1:3,3) = (/-1, 0, 0 /)
+                ! setting c,-b,a  
+                A(1,1:3,4) = (/ 0, 0, 1 /)
+                A(2,1:3,4) = (/ 0,-1, 0 /)
+                A(3,1:3,4) = (/ 1, 0, 0 /)
+                ! setting -a-c,-b,c
+                A(1,1:3,5) = (/-1, 0, 0 /)
+                A(2,1:3,5) = (/ 0,-1, 0 /)
+                A(3,1:3,5) = (/-1, 0, 1 /)
+                ! setting a,-b,-a-c
+                A(1,1:3,6) = (/ 1, 0,-1 /)
+                A(2,1:3,6) = (/ 0,-1, 0 /)
+                A(3,1:3,6) = (/ 0, 0,-1 /)
+            case ("mmm") ! Orthorhombic 
+                n = 6
+                ! setting b,c,a
+                A(1,1:3,2) = (/ 0, 0, 1 /)
+                A(2,1:3,2) = (/ 1, 0, 0 /)
+                A(3,1:3,2) = (/ 0, 1, 0 /)
+                ! setting c,a,b
+                A(1,1:3,3) = (/ 0, 1, 0 /)
+                A(2,1:3,3) = (/ 0, 0, 1 /)
+                A(3,1:3,3) = (/ 1, 0, 0 /)
+                ! setting a,c,-b
+                A(1,1:3,4) = (/ 1, 0, 0 /)
+                A(2,1:3,4) = (/ 0, 0,-1 /)
+                A(3,1:3,4) = (/ 0, 1, 0 /)
+                ! setting c,b,-a
+                A(1,1:3,5) = (/ 0, 0,-1 /)
+                A(2,1:3,5) = (/ 0, 1, 0 /)
+                A(3,1:3,5) = (/ 1, 0, 0 /)
+                ! setting b,a,-c
+                A(1,1:3,6) = (/ 0, 1, 0 /)
+                A(2,1:3,6) = (/ 1, 0, 0 /)
+                A(3,1:3,6) = (/ 0, 0,-1 /)
+            case ("-3","-3 R","-3m","-3m R","-3m1","-31m") ! Trigonal
+                n = 2
+                ! reverse -> obverse setting
+                A(1,1:3,2) = (/-1., 0., 0. /)
+                A(2,1:3,2) = (/ 0.,-1., 0. /)
+                A(3,1:3,2) = (/ 0., 0., 1. /)
+        end select
         
-    end subroutine Get_A_Matrices_Shub    
+    end subroutine Get_A_Matrices_Shub 
 
     !!---- Subroutine Get_Generators(spaceGroupNumber,symOp,nSymOp,G,nGen)
-    !!----      integer,                                 intent(in)  :: spaceGroupNumber
+    !!----      character(len=*),                        intent(in)  :: laueClass
     !!----      type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp
     !!----      integer,                                 intent(in)  :: nSymOp
     !!----      type(Symm_Oper_Type), dimension(3),      intent(out) :: G
@@ -323,9 +314,9 @@ contains
     !!---- Updated: September - 2018
     !!
 
-    subroutine Get_Generators(spaceGroupNumber,symOp,nSymOp,G,nGen)
+    subroutine Get_Generators(laueClass,symOp,nSymOp,G,nGen)
 
-        integer,                                 intent(in)  :: spaceGroupNumber
+        character(len=*),                        intent(in)  :: laueClass ! Laue class
         type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
         integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
         type(Symm_Oper_Type), dimension(3),      intent(out) :: G         ! generators
@@ -340,11 +331,6 @@ contains
         integer, dimension(:,:), allocatable :: idd
 
         err_std = .false.
-        if (spaceGroupNumber < 1 .or. spaceGroupNumber > 230) then
-            err_std = .true.
-            err_std_mess = "Wrong space group number"
-            return
-        end if
 
         ! Initialization
         nGen          = 0
@@ -362,163 +348,162 @@ contains
                 exit
             end if
         end do
+        
+        select case(trim(laueClass))
 
-        if (spaceGroupNumber < 3) then ! Triclinic
+            case ("-1") ! Triclinic
 
-            if (inversion == 0) then
+                if (inversion == 0) then
+                    nGen = 1
+                    ! Search for the onefold axis
+                    call Get_Rotations(symOp(:),nSymOp,1,n,idd)
+                    G(1) = symOp(idd(1,1))
+                end if
+
+            case ("2/m") ! Monoclinic
+
                 nGen = 1
-                ! Search for the onefold axis
-                call Get_Rotations(symOp(:),nSymOp,1,n,idd)
-                G(1) = symOp(idd(1,1))
-            end if
-
-            else if (spaceGroupNumber < 16)  then ! Monoclinic
-
-            nGen = 1
-            ! Search for a twofold axis
-            call Get_Rotations(symOp(:),nSymOp,2,n,idd)
-            G(1) = symOp(idd(1,1))
-            ! Choose proper rotations if the spacegroup is centrosymmetric
-            !if (inversion > 0) G(1)%Mat(1:3,1:3) = (idd(1,2)//1) * G(1)%Mat(1:3,1:3)
-
-        else if (spaceGroupNumber < 75)  then ! Orthorhombic
-
-            nGen = 2
-            ! Search for the two fold axes along [001] and [010]
-            call Get_Rotations(symOP(:),nSymOp,2,n,idd)
-            ngaux = 0
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if ((axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) .or. &
-                    (axis(1) == (0//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
-                    ngaux = ngaux + 1
-                    G(ngaux) = symOp(idd(i,1))
-                    !write(*,*) "Inside"
-                    !do j = 1 , 4
-                    !    write(*,*) symOp(idd(i,1))%Mat(j,:)%numerator,symOp(idd(i,1))%Mat(j,:)%denominator
-                    !end do
-                    !write(*,*) symOp(idd(i,1))%time_inv
-                    !write(*,*)
-                    if (ngaux == 2) exit
-                end if
-            end do
-
-        else if (spaceGroupNumber < 143) then ! Tetragonal
-
-            ! Search for the fourfold axis along [001]
-            call Get_Rotations(symOp(:),nSymOp,4,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                    if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                        G(1) = symOp(idd(i,1))
-                        nGen = 1
-                        exit
-                    end if
-                end if
-            end do
-            ! Look for a possible twofold axis along [100]
-            call Get_Rotations(symOp(:),nSymOp,2,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (1//1) .and. axis(2) == (0//1) .and. axis(3) == (0//1)) then
-                    G(2) = symOp(idd(i,1))
-                    nGen = 2
-                    exit
-                end if
-            end do
-
-        else if (spaceGroupNumber < 168) then ! Trigonal
-
-            ! Search for the threefold axis along [001]
-            call Get_Rotations(symOP(:),nSymOp,3,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                    if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                        G(1) = symOp(idd(i,1))
-                        nGen     = 1
-                        exit
-                    end if
-                end if
-            end do
-            ! Search for a possible twofold axis along [110] or [-110]
-            call Get_Rotations(symOp(:),nSymOp,2,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if ((axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) .or. &
-                    (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
-                    G(2) = symOp(idd(i,1))
-                    nGen     = 2
-                    exit
-                end if
-            end do
-
-        else if (spaceGroupNumber < 195) then ! Hexagonal
-
-            ! Search for the sixfold axis along [001] in SGtarget
-            call Get_Rotations(symOp(:),nSymOp,6,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                    if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                        G(1) = symOp(idd(i,1))
-                        nGen     = 1
-                        exit
-                    end if
-                end if
-            end do
-            ! Look for a possible twofold axis along [-110] in SGtarget
-            call Get_Rotations(symOp(:),nSymOp,2,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) then
-                    G(2) = symOp(idd(i,1))
-                    nGen         = 2
-                    exit
-                end if
-            end do
-
-        else
-
-            ! Search for the fourfold axis along [001] in SGtarget
-            call Get_Rotations(symOp(:),nSymOp,4,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                    if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat,axis)) then
-                        G(1) = symOp(idd(i,1))
-                        nGen = 1
-                        exit
-                    end if
-                end if
-            end do
-            if (nGen == 0) then
-                ! Search for the twofold axis along [001] in SGtarget
+                ! Search for a twofold axis
                 call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                G(1) = symOp(idd(1,1))
+
+            case ("mmm")! Orthorhombic
+
+                nGen = 2
+                ! Search for the two fold axes along [001] and [010]
+                call Get_Rotations(symOP(:),nSymOp,2,n,idd)
+                ngaux = 0
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if ((axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) .or. &
+                        (axis(1) == (0//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
+                        ngaux = ngaux + 1
+                        G(ngaux) = symOp(idd(i,1))
+                        if (ngaux == 2) exit
+                    end if
+                end do
+
+            case ("4/m","4/mmm") ! Tetragonal
+
+                ! Search for the fourfold axis along [001]
+                call Get_Rotations(symOp(:),nSymOp,4,n,idd)
                 do i = 1 , n
                     call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
                     if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                        G(1) = symOp(idd(i,1))
-                        nGen = 1
-                        exit
+                        if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
+                            G(1) = symOp(idd(i,1))
+                            nGen = 1
+                            exit
+                        end if
                     end if
                 end do
-            end if
-            ! Search for a threefold axis along {111} in SGtarget
-            call Get_Rotations(symOp(:),nSymOp,3,n,idd)
-            do i = 1 , n
-                call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
-                if (axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (1//1)) then
-                    if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
+                ! Look for a possible twofold axis along [100]
+                call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (1//1) .and. axis(2) == (0//1) .and. axis(3) == (0//1)) then
                         G(2) = symOp(idd(i,1))
                         nGen = 2
                         exit
                     end if
-                end if
-            end do
+                end do
 
-        end if
+            case ("-3","-3 R","-3m","-3m R","-3m1","-31m") ! Trigonal
+
+                ! Search for the threefold axis along [001]
+                call Get_Rotations(symOP(:),nSymOp,3,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
+                        if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
+                            G(1) = symOp(idd(i,1))
+                            nGen     = 1
+                            exit
+                        end if
+                    end if
+                end do
+                ! Search for a possible twofold axis along [110] or [-110]
+                call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if ((axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) .or. &
+                        (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
+                        G(2) = symOp(idd(i,1))
+                        nGen     = 2
+                        exit
+                    end if
+                end do
+
+            case ("6/m","6/mmm") ! Hexagonal
+
+                ! Search for the sixfold axis along [001] in SGtarget
+                call Get_Rotations(symOp(:),nSymOp,6,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
+                        if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
+                            G(1) = symOp(idd(i,1))
+                            nGen     = 1
+                            exit
+                        end if
+                    end if
+                end do
+                ! Look for a possible twofold axis along [-110] in SGtarget
+                call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) then
+                        G(2) = symOp(idd(i,1))
+                        nGen         = 2
+                        exit
+                    end if
+                end do
+
+            case ("m3","m-3","m3m","m-3m") ! Cubic
+
+                ! Search for the fourfold axis along [001] in SGtarget
+                call Get_Rotations(symOp(:),nSymOp,4,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
+                        if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat,axis)) then
+                            G(1) = symOp(idd(i,1))
+                            nGen = 1
+                            exit
+                        end if
+                    end if
+                end do
+                if (nGen == 0) then
+                    ! Search for the twofold axis along [001] in SGtarget
+                    call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                    do i = 1 , n
+                        call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                        if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
+                            G(1) = symOp(idd(i,1))
+                            nGen = 1
+                            exit
+                        end if
+                    end do
+                end if
+                ! Search for a threefold axis along {111} in SGtarget
+                call Get_Rotations(symOp(:),nSymOp,3,n,idd)
+                do i = 1 , n
+                    call Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3),axis)
+                    if (axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (1//1)) then
+                        if (Positive_Sense_of_Rotation(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
+                            G(2) = symOp(idd(i,1))
+                            nGen = 2
+                            exit
+                        end if
+                    end if
+                end do
+
+            case default
+                err_std = .true.
+                err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
+                return
+                
+        end select
 
         if (inversion > 0) then
             ! Choose proper rotations if the spacegroup is centrosymmetric
@@ -1445,9 +1430,10 @@ contains
 
     end subroutine Get_Origin_Shift
 
-    !!---- Subroutine Get_P_Matrix(G,P,output)
+    !!---- Subroutine Get_P_Matrix(G,P,nospin,output)
     !!----     type(spg_type),                 intent(in)  :: G
     !!----     type(rational), dimension(3,3), intent(out) :: P
+    !!----     logical, optional,              intent(in)  :: nospin
     !!----     logical,        optional,       intent(in)  :: output
     !!----
     !!---- It returns a 3x3 matrix P which transforms the
@@ -1456,11 +1442,12 @@ contains
     !!---- Updated January - 2019
     !!
 
-    subroutine Get_P_Matrix(G,P,output)
+    subroutine Get_P_Matrix(G,P,nospin,output)
 
         !---- Arguments ----!
         type(spg_type),                 intent(in)  :: G
         type(rational), dimension(3,3), intent(out) :: P
+        logical, optional,              intent(in)  :: nospin
         logical, optional,              intent(in)  :: output
 
         !---- Local variables ----!
@@ -1475,6 +1462,7 @@ contains
         type(rational), dimension(4,4)              :: PAux
         type(rational), dimension(:,:), allocatable :: auxVec,centringVec
 
+        err_std     = .false.
         primitive   = .false.
         nullVec(:)  = 0//1
 
@@ -1487,9 +1475,11 @@ contains
         do i = 1 , G%num_lat
             if (.not. equal_rational_vector(G%Lat_tr(:,i),nullVec))  nLatt = nLatt + 1
         end do
-        do i = 1 , G%num_alat
-            if (.not. equal_rational_vector(G%aLat_tr(:,i),nullVec)) nLatt = nLatt + 1
-        end do
+        if (present(nospin)) then
+            do i = 1 , G%num_alat
+                if (.not. equal_rational_vector(G%aLat_tr(:,i),nullVec)) nLatt = nLatt + 1
+            end do
+        end if
 
         if (nLatt == 1) then
             ! Basis is already primitive
@@ -1500,21 +1490,28 @@ contains
         else
             ! Build an expanded list of centring vectors
             nAuxVec = 0
-            rNumLat = (G%num_lat+G%num_alat+1)//1
-            allocate(auxVec(3,G%num_lat+G%num_alat))
+            if (present(nospin)) then
+                rNumLat = (G%num_lat+G%num_alat+1)//1
+                allocate(auxVec(3,G%num_lat+G%num_alat))
+            else
+                rNumLat = (G%num_lat+1)//1
+                allocate(auxVec(3,G%num_lat))
+            end if
             do i = 1 , G%num_lat
                 if (.not. equal_rational_vector(G%lat_tr(:,i),nullVec)) then
                     nAuxVec = nAuxVec + 1
                     auxVec(:,nAuxVec) = G%lat_tr(:,i)
                 end if
             end do
-            do i = 1 , G%num_alat
-                if (.not. equal_rational_vector(G%alat_tr(:,i),nullVec)) then
-                    nAuxVec = nAuxVec + 1
-                    auxVec(:,nAuxVec) = G%alat_tr(:,i)
-                end if
-            end do
-            allocate(centringVec(4,8*nAuxVec))
+            if (present(nospin)) then
+                do i = 1 , G%num_alat
+                    if (.not. equal_rational_vector(G%alat_tr(:,i),nullVec)) then
+                        nAuxVec = nAuxVec + 1
+                        auxVec(:,nAuxVec) = G%alat_tr(:,i)
+                    end if
+                end do
+            end if
+            allocate(centringVec(4,10*nAuxVec))
             nCentringVec = 0
             do n = 1 , nAuxVec
                 do i = 0 , 1
@@ -2411,8 +2408,8 @@ contains
         type(rational), dimension(3,3)   :: P,Mp,Mc,M
         type(rational), dimension(3,3,6) :: A       
 
-        call Get_P_Matrix(G,P,output=.true.)
-        !call Get_P_Matrix(G,P)
+        call Get_P_Matrix(G,P,nospin=.true.,output=.true.)
+        !call Get_P_Matrix(G,P,nospin=.true.)
         if (err_std) return
 
         call Get_Mp_Matrix(G,P,Mp,output=.true.)
@@ -2519,14 +2516,19 @@ contains
     !!----
     !!---- Updated January - 2019
     !!----
-    
+       
     subroutine Identify_Shubnikov_Group(G)
     
         !---- Arguments ----!
         type(spg_type), intent(inout) :: G
         
-        type(rational), dimension(4,4) :: C
-        character(len=256) :: symb
+        !---- Local variables ---!
+        integer                          :: n
+        character                        :: lattyp
+        type(rational), dimension(3,3)   :: P,Mp,Mc,M
+        type(rational), dimension(3,3,6) :: A       
+        type(rational), dimension(4,4)   :: C
+        character(len=256)               :: symb
         
         call Read_Magnetic_Data
         
@@ -2536,22 +2538,24 @@ contains
         call Identify_Laue_Class(G)
         if (err_std) return
         
-        call Identify_Crystallographic_Space_Group(G)
+        call Get_P_Matrix(G,P,output=.true.)
+        !call Get_P_Matrix(G,P)
+        if (err_std) return
+
+        call Get_Mp_Matrix(G,P,Mp,output=.true.)
+        !call Get_Mp_Matrix(G,P,Mp)
+        if (err_std) return
+
+        call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
+        !call Get_Mc_Matrix(G%laue,Mp,Mc)
+        if (err_std) return
+
+        M = matmul(Mp,Mc)
+        call Get_Lattice_Type_from_M(M,lattyp)
         if (err_std) return
         
-        select case (G%mag_type)
-            case (1)
-                G%shu_symb    = G%spg_symb
-                G%mat2std_shu = G%mat2std
-                return
-            case (2)
-                G%shu_symb    = trim(Pack_String(G%spg_symb))//"1'"
-                G%mat2std_shu = G%mat2std
-                return
-            case (3,4)
-                call Match_Shubnikov_Group_3_4(G,output=.true.)
-                return
-        end select                        
+        call Match_Shubnikov_Group(G,P,M,output=.true.)
+        !call Match_Shubnikov_Group(G,P,M)                       
     
     end subroutine Identify_Shubnikov_Group    
 
@@ -2697,7 +2701,7 @@ contains
                         op(i)%Mat(1:3,4)   = G_std%symop(i)%Tr
                     end do
                     ! Get generators from the standard space group
-                    call Get_Generators(G_std%NumSpg,op,G_std%Multip,gen_std,ng)
+                    call Get_Generators(G_std%laue,op,G_std%Multip,gen_std,ng)
                     if (err_std) return
                     ! Try to get these generators from SGaux(s)
                     ng_ = 0
@@ -2762,29 +2766,33 @@ contains
 
     end subroutine Match_Crystallographic_Space_Group
     
-    !!---- Subroutine Match_Shubnikov_Group_3_4(G,output)
+    !!---- Subroutine Match_Shubnikov_Group(G,P,M,output)
     !!----      type(spg_type),                   intent(inout) :: G
+    !!----      type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
+    !!----      type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
     !!----      logical,        optional,         intent(in)    :: output
     !!----
-    !!---- Tries to match the space group G against Shubnikov groups
-    !!---- of type 3 or 4. It returns the group number G%mnmspg, 
-    !!---- group symbol G%mspg_symb and the transformation matrix to 
-    !!---- the standard G%mat2std
+    !!---- Tries to match the space group G against Shubnikov groups. If the
+    !!---- matching is successfull, it writes the group number G%numshu, the
+    !!---- group symbol G%shu_symb and the transformation matrix to the
+    !!---- standard G%mat2std_shu
     !!----
-    !!---- Updated: January - 2019
+    !!---- Updated: February - 2019
     !!
-    
-    subroutine Match_Shubnikov_Group_3_4(G,output)
+       
+    subroutine Match_Shubnikov_Group(G,P,M,output)
     
         !---- Arguments ----!
-        type(spg_type),            intent(inout) :: G
-        logical,        optional,  intent(in)    :: output
+        type(spg_type),                   intent(inout) :: G
+        type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
+        type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
+        logical,        optional,         intent(in)    :: output
         
         !---- Local variables ----!
         integer                                                    :: i,j,k,n,ngen,ngen_
         integer                                                    :: iniG,endG
         integer                                                    :: nPointOper,nA,ntVectors
-        logical                                                    :: newt,shift
+        logical                                                    :: hexagonal,newt,shift
         character(len=256)                                         :: symb
         character(len=1),          dimension(2)                    :: magLat
         type(symm_oper_type),      dimension(3)                    :: Gt
@@ -2792,63 +2800,68 @@ contains
         type(rational),            dimension(3,3)                  :: vAux
         type(rational),            dimension(3,3)                  :: identity,latTr
         type(rational),            dimension(3,4)                  :: alatTr
-        type(rational),            dimension(4,4)                  :: identity_aux
+        type(rational),            dimension(4,4)                  :: identity_aux,Caux
         type(symm_oper_type),      dimension(3,6)                  :: Gx
         type(rational),            dimension(3,3,6)                :: A
+        logical,                   dimension(:),       allocatable :: doTest                    
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
-        type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,Ccell,Cinvcell,Ccorr,Cinvcorr,pointOper,P
+        type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,Cinvcell,pointOper,Paux
         type(rational),            dimension(:,:,:),   allocatable :: tVectors
+
+        ! Initialize variables
+        hexagonal = .false.
         
-        ! Make some checks to ensure this subroutine is used properly
-        if (G%numspg < 1 .or. G%numspg > 230) then
-            err_std = .true.
-            err_std_mess = "Error in Match_Shubnikov_Group_3_4. Crystallographic space group not found."
-            return
-        end if
-        
+        ! Check dimension of the group is four     
         if (G%d /= 4) then
             err_std = .true.
-            err_std_mess = "Error in Match_Shubnikov_Group_3_4. Group dimension different from 4."
+            err_std_mess = "Error in Match_Shubnikov_Group. Group dimension different from 4."
             return
         end if
                 
-        !call Read_Magnetic_Data
+        ! Load table for standard magnetic groups        
+        call Read_Magnetic_Data
         
-        ! Set the range of possible magnetic groups from the 
-        ! crystallographic space group number
-        if (G%numspg < 3)        then ! Triclinic
-            iniG =    1
-            endG  =    7
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard triclinic magnetic groups..."
-        else if (G%numspg < 16)  then ! Monoclinic
-            iniG =    8
-            endG  =   98
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard monoclinic magnetic groups..."
-        else if (G%numspg < 75)  then ! Orthorhombic
-            iniG =   99
-            endG  =  660
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard orthorhombic magnetic groups..."
-        else if (G%numspg < 143) then ! Tetragonal
-            iniG =  661
-            endG  = 1230
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard tetragonal magnetic groups..."
-        else if (G%numspg < 168) then ! Trigonal
-            iniG = 1231
-            endG  = 1338
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard trigonal magnetic groups..."
-        else if (G%numspg < 195) then ! Hexagonal
-            iniG = 1339
-            endG  = 1502
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard hexagonal magnetic groups..."
-        else                           ! Cubic
-            iniG = 1503
-            endG  = 1651
-            if (present(output)) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
-        end if
+        ! Set the range of possible magnetic groups from the laue class
+        select case (trim(G%laue))
+            case ("-1") 
+                iniG  =    1
+                endG  =    7
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard triclinic magnetic groups..."
+            case ("2/m") 
+                iniG =    8
+                endG  =   98
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard monoclinic magnetic groups..."
+            case ("mmm")
+                iniG =   99
+                endG  =  660
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard orthorhombic magnetic groups..."
+            case ("4/m","4/mmm")
+                iniG =  661
+                endG  = 1230
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard tetragonal magnetic groups..."
+            case ("-3","-3 R","-3m","-3m R","-3m1","-31m")
+                iniG = 1231
+                endG  = 1338
+                hexagonal = .true.
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard trigonal magnetic groups..."
+            case ("6/m","6/mmm")
+                iniG = 1339
+                endG  = 1502
+                hexagonal = .true.
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard hexagonal magnetic groups..."
+            case ("m3","m-3","m3m","m-3m")
+                iniG = 1503
+                endG  = 1651
+                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
+            case default
+                err_std = .true.
+                err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
+                return
+        end select
         
         ! Set pointers 
-        if (G%numspg >= 143 .and. G%numspg <= 194) then
+        if (hexagonal) then
             ! Hexagonal systems
             allocate(pointOper(3,3,24))
             pointOper  = point_op_hex_matrix
@@ -2861,83 +2874,35 @@ contains
         end if
 
         ! Get matrices needed for test different settings
-        call Get_A_Matrices_Shub(G%numspg,A,nA)
+        call Get_A_Matrices_Shub(G%laue,A,nA)
 
         ! Allocate memory
         allocate(G_aux(nA))
+        allocate(doTest(nA))
         allocate(idx(3,nA))
         allocate(pointerToOper(G%multip,nA))
-        allocate(P(3,3,nA),C(4,4,nA),Cinv(4,4,nA),Ccell(4,4,nA),Ccorr(4,4,nA))
+        allocate(C(4,4,nA),Cinv(4,4,nA),Paux(3,3,nA))
         
-        ! Initialize G_aux
+        ! Initialize arrays
+        G_aux(:)           = G
+        doTest(:)          = .true.
+        idx(:,:)           = 0
+        pointerToOper(:,:) = 0         
+
+        ! Get transformation matrices for every setting we will test
+        Caux(1:3,1:3) = matmul(P,M)
         do n = 1 , nA
-            G_aux(n) = G
-        end do
-        
-        ! Get the transformation matrix to the standard crystallographic setting       
-        call Get_Mat_From_Symb_Op(G%mat2std,C(:,:,1))
-        if (err_group) then
-            err_std = .true.
-            err_std_mess = err_group_mess
-            return
-        end if
-        C(1:3,1:3,1) = transpose(C(1:3,1:3,1))
-        C(4,:,1)     = (/ 0,0,0,1 /)
-        call Rational_Inv_Matrix(C(:,:,1),Cinv(:,:,1))
-        
-        ! Combine A's and C
-        do n = 1 , nA
-            C(:,:,n)     = C(:,:,1)
-            C(1:3,1:3,n) = matmul(C(1:3,1:3,n),A(:,:,n))
+            C(1:3,1:3,n) = matmul(Caux(1:3,1:3),A(1:3,1:3,n))             
+            C(1:3,4,n)   = (/ 0,0,0 /)
+            C(4,1:4,n)   = (/ 0,0,0,1 /)
+            !write(*,'("C-Matrix, setting ",i1)') n
+            !do i = 1 , 4
+            !    write(*,*) C(i,:,n)
+            !end do
             call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
         end do
-
-        ! Get the magnetic cell for each setting
-        vAux(:,1) = (/ 1//1,0//1,0//1 /)
-        vAux(:,2) = (/ 0//1,1//1,0//1 /)
-        vAux(:,3) = (/ 0//1,0//1,1//1 /)
-        do n = 1 , nA
-            call Rational_Identity_Matrix(4,Ccell(:,:,n))
-            do i = 1 , G%num_alat
-                G_aux(n)%aLat_tr(1:3,i) = matmul(Cinv(1:3,1:3,n),G%aLat_tr(1:3,i))
-                if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,1))) then
-                    Ccell(1,1,n) = 2
-                else if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,2))) then
-                    Ccell(2,2,n) = 2
-                else if (Equal_Rational_Vector(abs(G_aux(n)%aLat_tr(1:3,i)),vAux(:,3))) then
-                    Ccell(3,3,n) = 2
-                end if
-            end do
-        end do
         
-        ! For tetragonal systems, a rotation of pi/4 along z could be required to get the standard
-        vAux(:,1) = (/ 1//2,0//1,0//1 /)
-        vAux(:,2) = (/ 0//1,1//2,0//1 /)
-        do n = 1 , nA
-            if (G_aux(n)%numspg > 74 .and. G_aux(n)%numspg < 143) then            
-                do i = 1 , G_aux(1)%num_alat
-                    if (Equal_Rational_Vector(G_aux(n)%aLat_tr(1:3,i),vAux(1:3,1)) .or. &
-                        Equal_Rational_Vector(G_aux(n)%aLat_tr(1:3,i),vAux(1:3,2))) then
-                        Ccorr(1,1:4,n) = (/ 1//2,-1//2, 0//1, 0//1 /)
-                        Ccorr(2,1:4,n) = (/ 1//2, 1//2, 0//1, 0//1 /)
-                        Ccorr(3,1:4,n) = (/ 0//1, 0//1, 1//1, 0//1 /)
-                        Ccorr(4,1:4,n) = (/ 0//1, 0//1, 0//1, 1//1 /)
-                        exit
-                    end if
-                end do
-            else               
-                call Rational_Identity_Matrix(4,Ccorr(:,:,n))
-            end if
-        end do
-        
-        ! C matrix --> [C] = [C][Ccell][Ccorr]
-        do n = 1 , nA
-            C(:,:,n) = matmul(C(:,:,n),Ccell(:,:,n))
-            C(:,:,n) = matmul(C(:,:,n),Ccorr(:,:,n))
-            call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
-        end do
-
-        ! Change of setting --> [G_aux] = [Cinv][G_aux][C]
+        ! Put G in every setting we will test ---> [G_aux] = [Cinv][G_aux][C]
         call Rational_Identity_Matrix(3,identity)
         do n = 1 , nA            
             G_aux(n)          = G
@@ -2946,6 +2911,11 @@ contains
             do i = 1 , G_aux(n)%multip 
                 G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
                 G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
+                ! if the matrix is not integral, the setting is discarded
+                if (.not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,1:3))) then
+                    doTest(n) = .false.
+                    exit
+                end if
                 call reduced_translation(G_aux(n)%Op(i)%Mat)
                 if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
                     .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
@@ -2978,130 +2948,158 @@ contains
                     end if
                 end if
             end do
-        end do
+            ! If there are integer anti-translations, the setting is discarded
+            do i = 1 , G_aux(n)%num_alat
+                if (.not. isNullVector(G_aux(n)%aLat_Tr(1:3,i)) .and. isInteger(G_aux(n)%aLat_Tr(1:3,i))) then
+                    doTest(n) = .false.
+                    exit
+                end if
+            end do
+            !if (doTest(n)) then
+            !    write(*,'(a,i2)')  "Setting: ",n
+            !    write(*,'(a)')     "    Translations: "
+            !    do i = 1 , G_aux(n)%num_lat
+            !        write(*,'(10x,6i2)') G_aux(n)%lat_tr(:,i)
+            !    end do
+            !    write(*,'(a)')     "    Anti-Translations: "
+            !    do i = 1 , G_aux(n)%num_alat
+            !        write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
+            !    end do
+            !end if
+        end do!;stop
         
         ! Map each symmetry operation in pointerToOper for every possible setting        
         do n = 1 , nA
-            do i = 1 , G_aux(n)%multip                
-                j = 1
-                do
-                    if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
-                        pointerToOper(i,n) = j
-                        exit
-                    end if
-                    j = j + 1
-                    if (j > nPointOper) then
-                        err_std = .true.
-                        err_std_mess = "Error in Magnetic_Space_Group_Matching. &
-                        A symmetry operation of the group cannot be matched against tabulated symmetry operations"
-                        return
-                    end if
-                end do                
-            end do
+            if (doTest(n)) then
+                do i = 1 , G_aux(n)%multip                
+                    j = 1
+                    do
+                        if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
+                            pointerToOper(i,n) = j
+                            exit
+                        end if
+                        j = j + 1
+                        if (j > nPointOper) then
+                            err_std = .true.
+                            err_std_mess = "Error in Magnetic_Space_Group_Matching. &
+                            A symmetry operation of the group cannot be matched against tabulated symmetry operations"
+                            return
+                        end if
+                    end do                
+                end do
+            end if
         end do
-            
+        
         ! Get the magnetic lattice type for every setting
         do n = 1 , nA
-            call Get_Magnetic_Lattice_Type(G_aux(n)%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
-                                           G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
-            ! Correct symbol for triclinic systems with anti-translations
-            if (G_aux(n)%numSpg < 3 .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
+            if (doTest(n)) then
+                call Get_Magnetic_Lattice_Type(G_aux(n)%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
+                                               G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
+                ! Correct symbol for triclinic systems with anti-translations
+                if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
+                !write(*,*) n,G_aux(n)%shu_lat,G_aux(n)%num_alat,G_aux(n)%num_lat
+            end if
         end do
         
         ! Get generators for every setting
         do n = 1 , nA
-            call Get_Generators(G_aux(n)%NumSpg,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
-            ! Map generators to G_aux(n)%Op
-            do i = 1 , ngen
-                idx(i,n) = 0
-                do j = 1 , G_aux(n)%multip
-                    if (G_aux(n)%Op(j) == Gx(i,n)) idx(i,n) = j
+            if (doTest(n)) then
+                call Get_Generators(G_aux(n)%laue,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
+                ! Map generators to G_aux(n)%Op
+                do i = 1 , ngen
+                    idx(i,n) = 0
+                    do j = 1 , G_aux(n)%multip
+                        if (G_aux(n)%Op(j) == Gx(i,n)) idx(i,n) = j
+                    end do
+                    if (idx(i,n) == 0) then
+                        err_std = .true.
+                        err_std_mess = "Error in Match_Shubnikov_Group. Generator cannot be mapped."
+                        return
+                    end if
                 end do
-                if (idx(i,n) == 0) then
-                    err_std = .true.
-                    err_std_mess = "Error in Match_Shubnikov_Group_3_4. Generator cannot be mapped."
-                    return
-                end if
-            end do
+                !write(*,'("Generators for setting ",i2)') n
+                !do i = 1 , ngen
+                !    write(*,'(5x,"Generator ",i1)') i
+                !    do j = 1 , 4
+                !        write(*,'(5x,4i3,"/",i1)') Gx(i,n)%Mat(j,:)%numerator,Gx(i,n)%Mat(j,4)%denominator
+                !    end do
+                !    write(*,'(5x,i3)') Gx(i,n)%time_inv
+                !end do
+                !write(*,'(5x,a)')     "Translations: "
+                !do i = 1 , G_aux(n)%num_lat
+                !    write(*,'(10x,6i2)') G_aux(n)%lat_tr(:,i)
+                !end do
+                !write(*,'(5x,a)')     "Anti-Translations: "
+                !do i = 1 , G_aux(n)%num_alat
+                !    write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
+                !end do                
+            end if
         end do
         
         ! Compute the P matrix for every setting
         do n = 1 , nA
-            call Get_P_Matrix(G_aux(n),P(:,:,n))
-            err_std = .false.
-            !if (err_std) then
-            !    write(*,*) n,G_aux(n)%shu_lat
-            !    write(*,*) 'tr'
-            !    do i = 1 , G_aux(n)%num_lat
-            !        write(*,*) G_aux(n)%lat_tr(:,i)
-            !    end do
-            !    write(*,*) 'antitr'
-            !    do i = 1 , G_aux(n)%num_alat
-            !        write(*,*) G_aux(n)%alat_tr(:,i)
-            !    end do
-            !    return
-            !end if
-        end do  
-      
-        ! Try to match G against one of the Shubnikov groups
+            if (doTest(n)) then 
+                call Get_P_Matrix(G_aux(n),Paux(:,:,n))
+                if (err_std) doTest(n) = .false.
+            end if
+        end do
+        
+         ! Try to match G against one of the Shubnikov groups
         
         do i = iniG , endG
-            !write(*,*) i, ops_count(i), magtype(i), G%multip/(G%num_lat+1), G%mag_type
             if (magtype(i) == G%mag_type .and. ops_count(i) == (G%multip/(G%num_lat+1))) then
-                !write(*,*) i
                 ! Extract magnetic lattice type from symbol
                 magLat(1) = spacegroup_label_bns(i)(1:1)
                 magLat(2) = " "
-                if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)
-                
+                if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)                
                 do n = 1 , nA
-                    if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
-                        G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
-                        
-                    ! Try to find the same set of generators in the standard magnetic group
-                    ngen_ = 0
-                    do j = 1 , ngen
-                        do k = 1 , ops_count(i)
-                            if (ops_bns_point_op(k,i) == pointerToOper(idx(j,n),n) .and. &
-                                ops_bns_timeinv(k,i) == G_aux(n)%Op(idx(j,n))%time_inv) then
-                                Gt(j) = Gx(j,n)
-                                Gt(j)%Mat(1:3,4) = ops_bns_trans(1:3,k,i) // ops_bns_trans_denom(k,i)
-                                ngen_ = ngen_ + 1
-                                exit
-                            end if    
+                    if (doTest(n)) then
+                        if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
+                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
+                            
+                        ! Try to find the same set of generators in the standard magnetic group
+                        ngen_ = 0
+                        do j = 1 , ngen
+                            do k = 1 , ops_count(i)
+                                if (ops_bns_point_op(k,i) == pointerToOper(idx(j,n),n) .and. &
+                                    ops_bns_timeinv(k,i) == Gx(j,n)%time_inv) then
+                                    Gt(j) = Gx(j,n)
+                                    Gt(j)%Mat(1:3,4) = (ops_bns_trans(1:3,k,i) // ops_bns_trans_denom(k,i))
+                                    ngen_ = ngen_ + 1
+                                    exit
+                                end if    
+                            end do
                         end do
-                    end do
-                    !write(*,*) i,n,ngen,ngen_
-                    if (ngen_ == ngen) then
-                        if (present(output)) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
-                            trim(spacegroup_label_bns(i)),", setting ", n
-                        call Get_Origin_Shift(Gx(1:nGen,n),Gt(1:nGen),nGen,P(1:3,1:3,n),origShift,shift)
-                        if (shift) then
-                            if (present(output)) write(*,'(8x,a)') "Done!"
-                            origShift(1:3) = matmul(C(1:3,1:3,n),origShift)
-                            C(4,1:3,n) = C(1:3,4,n) + origShift(1:3)
-                            C(4,:,n)   = (/ 0,0,0,1 /)
-                            call Get_Symb_Op_from_Mat(transpose(C(:,:,n)),symb,"abc")
-                            if (present(output)) then
-                                write(*,'(12x,a)',advance='no') "Original setting --> Standard magnetic setting: "
-                                write(*,'(a)') trim(symb)
+                        if (ngen_ == ngen) then
+                            if (present(output)) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
+                                trim(spacegroup_label_bns(i)),", setting ", n     
+                            call Get_Origin_Shift(Gx(1:nGen,n),Gt(1:nGen),nGen,Paux(1:3,1:3,n),origShift,shift)
+                            if (shift) then
+                                if (present(output)) write(*,'(8x,a)') "Done!"
+                                origShift(1:3) = matmul(C(1:3,1:3,n),origShift)
+                                C(4,1:3,n) = origShift(1:3)
+                                call Get_Symb_Op_from_Mat(transpose(C(:,:,n)),symb,"abc")
+                                if (present(output)) then
+                                    write(*,'(12x,a)',advance='no') "Original setting --> Standard magnetic setting: "
+                                    write(*,'(a)') trim(symb)
+                                end if
+                                G%shu_symb   = spacegroup_label_bns(i)
+                                G%numshu      = i
+                                G%mat2std_shu = trim(symb)
+                                return
+                            else
+                                if (present(output)) write(*,'(8x,a)') "Failed"    
                             end if
-                            G%shu_symb   = spacegroup_label_bns(i)
-                            G%numshu      = i
-                            G%mat2std_shu = trim(symb)
-                            return
-                        else
-                            if (present(output)) write(*,'(8x,a)') "Failed"    
                         end if
                     end if
                 end do
             end if
-        end do  
-
+        end do      
+        
         err_std = .true.
         err_std_mess = "Unable to indentify the magnetic group"
         
-    end subroutine Match_Shubnikov_Group_3_4
+    end subroutine Match_Shubnikov_Group
 
     !!---- Subroutine PBC(vector)
     !!----     type(rational), dimension(:), intent(inout) :: vector
