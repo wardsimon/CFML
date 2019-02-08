@@ -11,7 +11,7 @@
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
                Get_subgroups_from_Table, Set_Identity_Matrix,Operator_from_Symbol, &
-               Get_SubGroups_Subgen, Get_Cosets,reduced_translation
+               Get_SubGroups_Subgen, Get_Cosets,reduced_translation,Check_Generators
 
     integer, private :: maxnum_op=2048
     logical,           public :: Err_group
@@ -1124,11 +1124,12 @@
     !End Subroutine Group_Constructor_ext
 
 
-    Subroutine Group_Constructor_gen(gen,Grp,x1x2x3_type)
-       character(len=*),dimension(:),intent(in)     :: gen
+    Subroutine Group_Constructor_gen(gen_,Grp,x1x2x3_type)
+       character(len=*),dimension(:),intent(in)     :: gen_
        class(Spg_Type),              intent(in out) :: Grp
        character(len=*),optional,    intent(in)     :: x1x2x3_type
        !--- Local variables ---!
+       character(len=40),    dimension(:),  allocatable :: gen
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
        type(rational),       dimension(:),  allocatable :: centre_coord,anticentre_coord       
        type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
@@ -1136,21 +1137,14 @@
        character(len=80) :: Symb_Op
        integer :: d,i,j,n,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
 
-       ngen=size(gen)
        call Initialize_Group(Grp)
-       !Calculate the effective number of generators
-       Grp%generators_list="       "
+       call Check_Generators(gen_,gen)
+       d    = get_dimension(gen(1))
+       ngen = size(gen)
        do i=1,ngen
-         if(len_trim(gen(i)) == 0 ) then
-           ngen=i-1
-           exit
-         end if
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
        Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
-       !write(*,"(a)") trim(Grp%generators_list)
-       ! Get dimension of the generator matrices
-       d=get_dimension(gen(1))
        include "CFML_group_constructor_template_inc.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
@@ -1165,20 +1159,23 @@
        class(Spg_Type),          intent(in out) :: Grp
        character(len=*),optional,intent(in)     :: x1x2x3_type
        !--- Local variables ---!
-       character(len=40),    dimension(:),  allocatable :: gen
+       character(len=40),    dimension(:),  allocatable :: gen_,gen
        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
        type(rational),       dimension(:),  allocatable :: centre_coord,anticentre_coord
        type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
        type(rational),       dimension(:,:),allocatable :: Mat
-       integer :: d,i,j,ngen,n,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
+       integer :: d,i,j,ngen_,ngen,n,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
        character(len=80) :: Symb_Op
 
        call Initialize_Group(Grp)
-       allocate(gen(maxnum_op))
-       i=len_trim(generatorList)
-       Grp%generators_list=generatorList
-       if(Grp%generators_list(i:i) == ";") Grp%generators_list=Grp%generators_list(1:i-1)
-       call Get_Operators_From_String(generatorList,d,ngen,gen)
+       allocate(gen_(maxnum_op))       
+       call Get_Operators_From_String(generatorList,d,ngen_,gen_)
+       call Check_Generators(gen_,gen)
+       ngen = size(gen)
+       do i=1,ngen
+         Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
+       end do
+       Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
        include "CFML_group_constructor_template_inc.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
@@ -1187,6 +1184,61 @@
        !   end do
        !end do
     End Subroutine Group_Constructor_string
+    
+    !!----
+    subroutine Check_Generators(gen_,gen)
+    
+        !---- Arguments ----!
+        character(len=*), dimension(:),              intent(in)  :: gen_
+        character(len=*), dimension(:), allocatable, intent(out) :: gen
+        
+        !---- Local variables ----!
+        integer                                          :: i,j,k,d,ngen_,ngen,invt
+        logical                                          :: newGen
+        type(Symm_Oper_Type)                             :: Op_
+        character(len=40), dimension(size(gen_))         :: genAux
+        type(Symm_Oper_Type), dimension(:),  allocatable :: Op
+        type(rational),       dimension(:,:),allocatable :: Mat
+                
+        ngen_ = size(gen_)
+        ngen  = 0
+        do i = 1 , ngen_
+            if (len_trim(gen_(i)) == 0) cycle
+            if (ngen == 0) then 
+                d = get_dimension(gen_(i))
+                allocate(Op(0:ngen_))
+                allocate(Mat(d,d))
+                do j = 0 , ngen_
+                    call Allocate_Operator(d,Op(j))
+                end do
+            end if
+            call Get_Mat_From_Symb_Op(gen_(i),Mat,invt)
+            if (err_group) return
+            newGen = .true.
+            do j = 0 , ngen - 1
+                Op_%Mat      = matmul(Op(j)%Mat,Mat)
+                Op_%time_inv = Op(j)%time_inv * invt 
+                do k = 1 , ngen
+                    if (Op_ == Op(k)) then 
+                        newGen = .false. 
+                        exit
+                    end if
+                end do
+                if (.not. newGen) exit
+            end do
+            if (newGen) then
+                nGen = nGen + 1
+                Op(nGen)%Mat      = Mat
+                Op(nGen)%time_inv = invt
+                genAux(nGen)      = gen_(i)
+            end if
+        end do        
+        if (ngen > 0) then
+            allocate(gen(nGen))
+            gen(:) = genAux(1:nGen)
+        end if
+        
+    end subroutine Check_Generators
 
     Subroutine Get_Operators_From_String(generatorList,d,ngen,gen)
        character(len=*),              intent(in)  :: generatorList
