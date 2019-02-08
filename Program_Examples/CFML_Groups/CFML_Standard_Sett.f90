@@ -2719,7 +2719,7 @@ contains
                     end do
                     if (ng /= ng_) cycle
                     if (present(output)) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s
-                   ! Build a spg_type object from space_group_type object
+                    ! Build a spg_type object from space_group_type object
                     G_target%num_alat = 0
                     G_target%num_lat  = G_std%NumLat - 1 ! In spg_type (000) is not included in lattice translations
                     G_target%Multip   = G_std%Multip
@@ -2794,6 +2794,7 @@ contains
         integer                                                    :: nPointOper,nA,ntVectors
         logical                                                    :: hexagonal,newt,shift
         character(len=256)                                         :: symb
+        type(symm_oper_type)                                       :: Op
         character(len=1),          dimension(2)                    :: magLat
         type(symm_oper_type),      dimension(3)                    :: Gt
         type(rational),            dimension(3)                    :: origShift
@@ -2803,9 +2804,11 @@ contains
         type(rational),            dimension(4,4)                  :: identity_aux,Caux
         type(symm_oper_type),      dimension(3,6)                  :: Gx
         type(rational),            dimension(3,3,6)                :: A
-        logical,                   dimension(:),       allocatable :: doTest                    
+        logical,                   dimension(:),       allocatable :: doTest
+        character(len=40),         dimension(:),       allocatable :: gener
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
+        !type(symm_oper_type),      dimension(:,:),     allocatable :: Op
         type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,Cinvcell,pointOper,Paux
         type(rational),            dimension(:,:,:),   allocatable :: tVectors
 
@@ -2902,75 +2905,103 @@ contains
             call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
         end do
         
+        ! Put G in the different settings
+        allocate(gener(G%multip))
+        !call Get_Operators_From_String(G%generators_list,n,ngen,gener)
+        !allocate(Op(ngen,nA))
+        !call Allocate_Operator(G%d,Op_)
+        !do i = 1 , nGen
+        !    call Get_Mat_From_Symb_Op(gener(i),Op_%Mat,Op_%time_inv)
+        !    do n = 1 , nA
+        !        Op(i,n) = Op_
+        !        Op(i,n)%Mat = matmul(Op(i,n)%Mat,C(:,:,n))
+        !        Op(i,n)%Mat = matmul(Cinv(:,:,n),Op(i,n)%Mat)
+        !    end do
+        !end do
+        
+        ! Build groups from generators
+        call Allocate_Operator(G%d,Op)
+        do n = 1 , nA
+            !write(*,'("Setting ",i1)') n
+            do i = 1 , G%multip
+                Op%Mat      = matmul(G%Op(i)%Mat,C(:,:,n))
+                Op%Mat      = matmul(Cinv(:,:,n),Op%Mat)
+                Op%time_inv = G%Op(i)%time_inv
+                call Get_Symb_Op_from_Mat(Op%Mat,gener(i),"xyz",Op%time_inv)
+            end do
+            call Group_Constructor(gener,G_aux(n),"xyz")
+            G_aux(n)%laue = G%laue
+            G_aux(n)%pg   = G%pg
+        end do
         ! Put G in every setting we will test ---> [G_aux] = [Cinv][G_aux][C]
-        call Rational_Identity_Matrix(3,identity)
-        do n = 1 , nA            
-            G_aux(n)          = G
-            G_aux(n)%num_lat  = 0
-            G_aux(n)%num_alat = 0
-            do i = 1 , G_aux(n)%multip 
-                G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
-                G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
-                ! if the matrix is not integral, the setting is discarded
-                if (.not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,1:3))) then
-                    doTest(n) = .false.
-                    exit
-                end if
-                call reduced_translation(G_aux(n)%Op(i)%Mat)
-                if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
-                    .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
-                    if (G_aux(n)%Op(i)%time_inv == 1) then                        
-                        newt = .true.
-                        do j = 1 , G_aux(n)%num_lat
-                            if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
-                                                      G_aux(n)%Lat_tr(1:3,j))) then
-                                newt = .false.
-                                exit
-                            end if
-                        end do
-                        if (newt) then
-                            G_aux(n)%num_lat = G_aux(n)%num_lat + 1
-                            G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat) = G_aux(n)%Op(i)%Mat(1:3,4)
-                        end if
-                    else
-                        newt = .true.
-                        do j = 1 , G_aux(n)%num_alat
-                            if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
-                                                      G_aux(n)%aLat_tr(1:3,j))) then
-                                newt = .false.
-                                exit
-                            end if
-                        end do
-                        if (newt) then
-                            G_aux(n)%num_alat = G_aux(n)%num_alat + 1
-                            G_aux(n)%aLat_tr(1:3,G_aux(n)%num_alat) = G_aux(n)%Op(i)%Mat(1:3,4)
-                        end if
-                    end if
-                end if
-            end do
-            ! If there are integer anti-translations, the setting is discarded
-            do i = 1 , G_aux(n)%num_alat
-                if (.not. isNullVector(G_aux(n)%aLat_Tr(1:3,i)) .and. isInteger(G_aux(n)%aLat_Tr(1:3,i))) then
-                    doTest(n) = .false.
-                    exit
-                end if
-            end do
-            !if (doTest(n)) then
-            !    write(*,'(a,i2)')  "Setting: ",n
-            !    write(*,'(a)')     "    Translations: "
-            !    do i = 1 , G_aux(n)%num_lat
-            !        write(*,'(10x,6i2)') G_aux(n)%lat_tr(:,i)
-            !    end do
-            !    write(*,'(a)')     "    Anti-Translations: "
-            !    do i = 1 , G_aux(n)%num_alat
-            !        write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
-            !    end do
-            !end if
-        end do!;stop
+        !call Rational_Identity_Matrix(3,identity)
+        !do n = 1 , nA            
+        !    G_aux(n)          = G
+        !    G_aux(n)%num_lat  = 0
+        !    G_aux(n)%num_alat = 0
+        !    do i = 1 , G_aux(n)%multip 
+        !        G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
+        !        G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
+        !        ! if the matrix is not integral, the setting is discarded
+        !        if (.not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,1:3))) then
+        !            doTest(n) = .false.
+        !            exit
+        !        end if
+        !        call reduced_translation(G_aux(n)%Op(i)%Mat)
+        !        if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
+        !            .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
+        !            if (G_aux(n)%Op(i)%time_inv == 1) then                        
+        !                newt = .true.
+        !                do j = 1 , G_aux(n)%num_lat
+        !                    if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
+        !                                              G_aux(n)%Lat_tr(1:3,j))) then
+        !                        newt = .false.
+        !                        exit
+        !                    end if
+        !                end do
+        !                if (newt) then
+        !                    G_aux(n)%num_lat = G_aux(n)%num_lat + 1
+        !                    G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat) = G_aux(n)%Op(i)%Mat(1:3,4)
+        !                end if
+        !            else
+        !                newt = .true.
+        !                do j = 1 , G_aux(n)%num_alat
+        !                    if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
+        !                                              G_aux(n)%aLat_tr(1:3,j))) then
+        !                        newt = .false.
+        !                        exit
+        !                    end if
+        !                end do
+        !                if (newt) then
+        !                    G_aux(n)%num_alat = G_aux(n)%num_alat + 1
+        !                    G_aux(n)%aLat_tr(1:3,G_aux(n)%num_alat) = G_aux(n)%Op(i)%Mat(1:3,4)
+        !                end if
+        !            end if
+        !        end if
+        !    end do
+        !    ! If there are integer anti-translations, the setting is discarded
+        !    do i = 1 , G_aux(n)%num_alat
+        !        if (.not. isNullVector(G_aux(n)%aLat_Tr(1:3,i)) .and. isInteger(G_aux(n)%aLat_Tr(1:3,i))) then
+        !            doTest(n) = .false.
+        !            exit
+        !        end if
+        !    end do
+        !    !if (doTest(n)) then
+        !    !    write(*,'(a,i2)')  "Setting: ",n
+        !    !    write(*,'(a)')     "    Translations: "
+        !    !    do i = 1 , G_aux(n)%num_lat
+        !    !        write(*,'(10x,6i2)') G_aux(n)%lat_tr(:,i)
+        !    !    end do
+        !    !    write(*,'(a)')     "    Anti-Translations: "
+        !    !    do i = 1 , G_aux(n)%num_alat
+        !    !        write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
+        !    !    end do
+        !    !end if
+        !end do!;stop
         
         ! Map each symmetry operation in pointerToOper for every possible setting        
         do n = 1 , nA
-            if (doTest(n)) then
+            !if (doTest(n)) then
                 do i = 1 , G_aux(n)%multip                
                     j = 1
                     do
@@ -2987,7 +3018,7 @@ contains
                         end if
                     end do                
                 end do
-            end if
+            !end if
         end do
         
         ! Get the magnetic lattice type for every setting
@@ -2999,7 +3030,7 @@ contains
                 if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
                 !write(*,*) n,G_aux(n)%shu_lat,G_aux(n)%num_alat,G_aux(n)%num_lat
             end if
-        end do
+        end do!;stop
         
         ! Get generators for every setting
         do n = 1 , nA
@@ -3055,8 +3086,7 @@ contains
                 do n = 1 , nA
                     if (doTest(n)) then
                         if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
-                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
-                            
+                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle                            
                         ! Try to find the same set of generators in the standard magnetic group
                         ngen_ = 0
                         do j = 1 , ngen
@@ -3072,7 +3102,7 @@ contains
                         end do
                         if (ngen_ == ngen) then
                             if (present(output)) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
-                                trim(spacegroup_label_bns(i)),", setting ", n     
+                                trim(spacegroup_label_bns(i)),", setting ", n
                             call Get_Origin_Shift(Gx(1:nGen,n),Gt(1:nGen),nGen,Paux(1:3,1:3,n),origShift,shift)
                             if (shift) then
                                 if (present(output)) write(*,'(8x,a)') "Done!"
