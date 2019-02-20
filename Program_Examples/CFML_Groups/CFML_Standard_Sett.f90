@@ -1,7 +1,7 @@
 !!---- MODULE: CFML_Standard_Settings
 !!----   INFO: This module contains everything needed for the identification of
-!!----         crystallographic and magnetic groups, and for the calculation of
-!!----         the corresponding transformation matrices to standard settings.
+!!----         Shubnikov groups, and for the calculation of the associated
+!!----         transformation matrices to standard settings.
 !!----
 !!---- HISTORY
 !!----    Update: 09/01/2019
@@ -757,7 +757,11 @@ contains
                     end if
                 end if
             end do
-            call Get_Lattice_Type(nCentringVectors,latc,lattyp)
+            if (nCentringVectors > 0) then
+                call Get_Lattice_Type(nCentringVectors,latc,lattyp)
+            else
+                lattyp = "P"
+            end if
             if (err_std) return
             if (present(output)) write(*,'(12x,2a)') "Lattice type: ",lattyp
         else
@@ -779,15 +783,16 @@ contains
     !!---- Updated: September - 2018
     !!
 
-    subroutine Get_Magnetic_Lattice_Type(nLat,latV,naLat,alatV,lattyp)
-
+    subroutine Get_Magnetic_Lattice_Type(G)!nLat,latV,naLat,alatV,lattyp)
+    
         !---- Arguments ----!
-        integer,                              intent(in)  :: nLat
-        type(rational),   dimension(3,nLat),  intent(in)  :: latV
-        integer,                              intent(in)  :: naLat
-        type(rational),   dimension(3,naLat), intent(in)  :: alatV
-        character(len=1), dimension(2),       intent(out) :: lattyp
-
+        !integer,                              intent(in)  :: nLat
+        !type(rational),   dimension(3,nLat),  intent(in)  :: latV
+        !integer,                              intent(in)  :: naLat
+        !type(rational),   dimension(3,naLat), intent(in)  :: alatV
+        !character(len=1), dimension(2),       intent(out) :: lattyp
+        type(spg_type), intent(inout) :: G
+        
         !---- Local variables ----!
         integer :: i,j
         logical :: latt_p,latt__a,latt__b,latt__c,latt_a,latt_b,latt_c,latt_i,latt_r
@@ -795,10 +800,14 @@ contains
         type(rational),   dimension(3,9) :: lattice
         
         err_std = .false.
-        lattyp(:)=" "
-        call Get_Lattice_Type(nLat,latV,lattyp(1))
+        G%shu_lat(:)=" "
+        if (G%num_lat > 0) then
+            call Get_Lattice_Type(G%num_Lat,G%Lat_tr,G%shu_lat(1))
+        else
+            G%shu_lat(1) = "P"
+        end if
         if (err_std)    return
-        if (naLat == 0) return
+        if (G%num_aLat == 0) return
 
         lattice(:,1)  = (/ 1//2,0//1,0//1 /)
         lattice(:,2)  = (/ 0//1,1//2,0//1 /)
@@ -820,10 +829,10 @@ contains
         latt_i  = .false.
         latt_r  = .false.
 
-        do i = 1 , naLat
+        do i = 1 , G%num_aLat
             latt_given(:) = 0
             do j = 1 , 9
-                if (equal_rational_vector(alatV(1:3,i),lattice(1:3,j))) then
+                if (equal_rational_vector(G%aLat_tr(1:3,i),lattice(1:3,j))) then
                     latt_given(j) = 1
                     select case (j)
                     case (1)
@@ -847,14 +856,14 @@ contains
                 end if
             end do
             if (sum(latt_given) == 0) then
-                lattyp(2) = "Z"
+                G%shu_lat(2) = "Z"
                 exit
             end if
         end do       
         
-        if (lattyp(2) == " ") then
-            lattyp(2) = "Z"
-            select case (lattyp(1))
+        if (G%shu_lat(2) == " ") then
+            G%shu_lat(2) = "Z"
+            select case (G%shu_lat(1))
                 case ("P")
                     if (sum(latt_given) > 1) then
                         err_std      = .true.
@@ -862,57 +871,57 @@ contains
                         return
                     end if
                     if (latt__a) then
-                        lattyp(2) = "a"
+                        G%shu_lat(2) = "a"
                         return
                     else if (latt__b) then
-                        lattyp(2) = "b"
+                        G%shu_lat(2) = "b"
                         return
                     else if (latt__c) then
-                        lattyp(2) = "c"
+                        G%shu_lat(2) = "c"
                         return
                     else if (latt_a) then
-                        lattyp(2) = "A"
+                        G%shu_lat(2) = "A"
                         return
                     else if (latt_b) then
-                        lattyp(2) = "B"
+                        G%shu_lat(2) = "B"
                     else if (latt_c) then
-                        lattyp(2) = "C"
+                        G%shu_lat(2) = "C"
                         return
                     else if (latt_i) then
-                        lattyp(2) = "I"
+                        G%shu_lat(2) = "I"
                     end if
                 case ("A")
                     if (latt__a .or. latt_i) then
-                        lattyp(2) = "a"
+                        G%shu_lat(2) = "a"
                     else if (latt__b .or. latt__c) then
-                        lattyp(2) = "b"
+                        G%shu_lat(2) = "b"
                     else if (latt_b .or. latt_c) then
-                        lattyp(2) = "B"
+                        G%shu_lat(2) = "B"
                     end if
                 case ("C")
                     if (latt__a .or. latt__b) then
-                        lattyp(2) = "a"
+                        G%shu_lat(2) = "a"
                     else if (latt__c .or. latt_i) then
-                        lattyp(2) = "c"
+                        G%shu_lat(2) = "c"
                     else if (latt_a .or. latt_b) then
-                        lattyp(2) = "A"
+                        G%shu_lat(2) = "A"
                     end if 
                 case ("I")
                     if (latt__a .or. latt_a) then
-                        lattyp(2) = "a"
+                        G%shu_lat(2) = "a"
                     else if (latt__b .or. latt_b) then
-                        lattyp(2) = "b"
+                        G%shu_lat(2) = "b"
                     else if (latt__c .or. latt_c) then
-                        lattyp(2) = "c"
+                        G%shu_lat(2) = "c"
                     end if
                 case ("F")
-                    if (latt__a .or. latt__b .or. latt__c .or. latt_i) lattyp(2) = "S"
+                    if (latt__a .or. latt__b .or. latt__c .or. latt_i) G%shu_lat(2) = "S"
                 case ("R")
-                    if (latt__c .or. latt_r) lattyp(2) = "I"
+                    if (latt__c .or. latt_r) G%shu_lat(2) = "I"
             end select
         end if
         
-        if (lattyp(2) == "Z") then
+        if (G%shu_lat(2) == "Z") then
             err_std = .true.
             err_std_mess = "Error in Get_Magnetic_Lattice_Type. Unable to identify lattice type."
         end if     
@@ -3024,8 +3033,8 @@ contains
         ! Get the magnetic lattice type for every setting
         do n = 1 , nA
             if (doTest(n)) then
-                call Get_Magnetic_Lattice_Type(G_aux(n)%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
-                                               G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
+                call Get_Magnetic_Lattice_Type(G_aux(n))!%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
+                                               !G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
                 ! Correct symbol for triclinic systems with anti-translations
                 if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
                 !write(*,*) n,G_aux(n)%shu_lat,G_aux(n)%num_alat,G_aux(n)%num_lat

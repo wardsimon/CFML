@@ -28,7 +28,7 @@ Program test_groups
           call Get_Generators(aux,generatorList)
         end if
         call CPU_TIME(start)
-
+        
         call Group_Constructor(generatorList,Grp)
         if (Err_group) then
             write(*,'(/,4x,a)') Err_group_Mess
