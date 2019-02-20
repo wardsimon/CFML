@@ -1823,20 +1823,20 @@
        real(kind=cp)  :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
        mpsd  = 1  !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
-      phim  = snum%angles(1)  !Angles corresponding to hmin,kmin,lmin
-      chim  = snum%angles(2)
-      omem  = snum%angles(3)
-      gamm  = snum%angles(4)
-      if(snum%scantype == 'omega') then
-         omem  = snum%tmc_ang(4,ifr)
-      else if(snum%scantype == 'phi') then
-         phim  = snum%tmc_ang(4,ifr)
-      else if(snum%scantype == 'q-scan') then  ! Angles: gamma, omega, Chi,phi, psi?
-         gamm  = snum%tmc_ang(4,ifr)
-         omem  = snum%tmc_ang(5,ifr)
-         chim  = snum%tmc_ang(6,ifr)
-         phim  = snum%tmc_ang(7,ifr)
-      end if
+       phim  = snum%angles(1)  !Angles corresponding to hmin,kmin,lmin
+       chim  = snum%angles(2)
+       omem  = snum%angles(3)
+       gamm  = snum%angles(4)
+       if(snum%scantype == 'omega') then
+          omem  = snum%tmc_ang(4,ifr)
+       else if(snum%scantype == 'phi') then
+          phim  = snum%tmc_ang(4,ifr)
+       else if(snum%scantype == 'q-scan') then  ! Angles: gamma, omega, Chi,phi, psi?
+          gamm  = snum%tmc_ang(4,ifr)
+          omem  = snum%tmc_ang(5,ifr)
+          chim  = snum%tmc_ang(6,ifr)
+          phim  = snum%tmc_ang(7,ifr)
+       end if
 
        anod  = npx
        cath  = npz
@@ -1884,7 +1884,7 @@
     !!----
     !!---- Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer,nusign)
     !!----    real(kind=cp),                 Intent(In)         :: wav    ! Wavelength
-    !!----    real(kind=cp), dimension(3,3), Intent(In)         :: ub     ! [UB] matrix
+    !!----    real(kind=cp), dimension(3,3), Intent(In)         :: ub     ! [UB] matrix or Chi.Phi.[UB] matrix
     !!----    real(kind=cp), dimension(3),   Intent(In)         :: h      ! Miller indices of reflection h
     !!----    Integer,                       Intent(In Out)     :: sig    ! -1 for negative gammas
     !!----    real(kind=cp), dimension(:),   Intent(Out)        :: anbcal ! Normal beam angles
@@ -1894,7 +1894,7 @@
     !!----
     !!--<<    Based on the subroutine CANNB from  A.FILHOL 01-Avr-1981 & 08-Aou-1984
     !!----    Calculation of the normal-beam diffraction angles for reflection h()
-    !!----    from the [UB} matrix of the crystal.
+    !!----    from the [UB] matrix of the crystal.
     !!----    On input:
     !!----    sig      : 1/-1 defines the sign for "GAMMA"
     !!----    If zer is provided, the calculated angles are corrected for zero shifts
@@ -1923,8 +1923,9 @@
        integer,                       Intent(In),optional :: nusign
 
        !---- Local Variables ----!
-       real(kind=cp), Dimension(3) ::  z1,zo1
-       real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2,sn
+       real(kind=cp), Dimension(3) ::  z1,zo1 !Scattering vectors in Lab-system
+       real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga, &
+                                       oma,omb,tom1,tom2,ome,wav2,sn
 
        ier=0
        anbcal(:)=0.0_cp
@@ -1957,7 +1958,7 @@
        thc = Asind(sthc)
        thc = real(sig)*thc
 
-       !-- NU   (Elevation angle of detector)
+       !-- NU   (Elevation angle of scattered beam)
        snu=sn*wav*z1(3)         !Sin(nu) sn=1 for nu > 0 when elevation w.r.t. positive z-axis
        If (Abs(snu) > 1.0_cp  .or. dpl < 0.00001_cp) Then
           ier=2
@@ -1966,7 +1967,7 @@
        cnu=Sqrt(1.0_cp-snu*snu)   !Cos(nu)
 
        !-- GAM    (Projection of 2THETA on the equatorial plane)
-       cga=((1.0_cp+cnu*cnu)-wav2*dpl)
+       cga=(1.0_cp+cnu*cnu)-wav2*dpl
        cga=cga/(2.0_cp*cnu)
        If (Abs(cga) > 1.0_cp) Then
           ier=3
@@ -1982,10 +1983,10 @@
        ome=Atan2d(sig*tom1,tom2)
 
        !- Final angle values
-       anbcal(1)=sig*Acosd(cga)
-       anbcal(2)=ome
-       anbcal(3)=Asind(snu)
-       anbcal(4)=thc
+       anbcal(1)=sig*Acosd(cga) !Gamma of reflection
+       anbcal(2)=ome            !Omega
+       anbcal(3)=Asind(snu)     !Nu
+       anbcal(4)=thc            !Theta
        if (present(zer)) then
           anbcal(1:3) = anbcal(1:3) + zer(1:3)
        end if

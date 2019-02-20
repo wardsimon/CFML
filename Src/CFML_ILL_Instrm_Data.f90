@@ -2991,8 +2991,8 @@ Module CFML_ILL_Instrm_Data
                 wave=0.5*(Current_Instrm%wave_max-Current_Instrm%wave_min)
 
             Case("DIM_XY","DIM_XZ","DIM_XZP")
-                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%horiz,    Current_Instrm%vert, &
-                                                       Current_Instrm%np_horiz, Current_Instrm%np_vert
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%horiz,    Current_Instrm%vert, &  !dimensions in milimeters
+                                                       Current_Instrm%np_horiz, Current_Instrm%np_vert  !number of anodes and cathodes
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the dimensions of the detector"
@@ -3002,7 +3002,7 @@ Module CFML_ILL_Instrm_Data
                 npz = Current_Instrm%np_vert
 
             Case("GAPS_DET")
-                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%agap, Current_Instrm%cgap
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%agap, Current_Instrm%cgap  !Gaps between anodes and between cathodes
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess=&
