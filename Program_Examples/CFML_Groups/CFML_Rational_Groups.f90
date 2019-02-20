@@ -1224,6 +1224,11 @@
                     return
                 end if
             end if
+            if (d < 4) then
+                err_group = .true.
+                err_group_mess = "Error in Check_Generators. Dimension must be at least 4 (3+1)"
+                return
+            end if
             call Get_Mat_From_Symb_Op(gen_(i),Mat,invt)
             if (err_group) return
             call reduced_translation(Mat)
@@ -1283,6 +1288,20 @@
         end if
 
     end subroutine Check_Generators
+    
+    !subroutine Extract_Minimum_Set_of_Generators(Op,gen)
+    
+        !---- Arguments ----!
+        !type(Symm_Oper_Type), dimension(:), intent(in)  :: Op
+        !character(len=*),                   intent(out) :: generatorList
+        
+        !---- Local variables ----!
+        !integer                               :: ngen           
+        !character(len=*), dimension(size(Op)) :: gen
+        
+        ! Look for an inversion center
+    
+    !end subroutine Extract_Minimum_Set_of_Generators
 
     Subroutine Get_Operators_From_String(generatorList,d,ngen,gen)
        character(len=*),              intent(in)  :: generatorList
