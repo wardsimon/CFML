@@ -126,7 +126,7 @@
            else
                ssg_file=trim(database_path)//'ssg_datafile.txt'
            end if
-         end if        
+         end if
          open(unit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.
@@ -200,24 +200,39 @@
          ssg_database_allocated=.true.
       End Subroutine Read_SSG
 
-      Subroutine Read_single_SSG(num,ok,Mess)
+      Subroutine Read_single_SSG(database_path,num,ok,Mess)
+      	character(len=*), intent(in)  :: database_path
         integer,          intent(in)  :: num
         logical,          intent(out) :: ok
         character(len=*), intent(out) :: mess
         !
         integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass
         character(len=512) ssg_file,pos_file
+         if(.not. ssg_database_allocated) then
+         	 call Allocate_SSG_database()
+         end if
          ok=.true.
          mess=" "
          ! open data file
-         ssg_file='ssg_datafile.txt'
+         n=len_trim(database_path)
+         if(n == 0) then
+         	 ssg_file='ssg_datafile.txt'
+           pos_file='class+group_pos.txt'
+         else
+           if(database_path(n:n) /= OPS_SEP) then
+               ssg_file=trim(database_path)//OPS_SEP//'ssg_datafile.txt'
+               pos_file=trim(database_path)//OPS_SEP//'class+group_pos.txt'
+           else
+               ssg_file=trim(database_path)//'ssg_datafile.txt'
+               pos_file=trim(database_path)//'class+group_pos.txt'
+           end if
+         end if
          open(newunit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.
            mess= 'Error opening the database file: '//trim(ssg_file)
            return
          end if
-         pos_file='class+group_pos.txt'
          open(newunit=i_pos,file=pos_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.

@@ -176,6 +176,7 @@
 !!--++       ALLOCATE_SXTAL_NUMORS           [Overloaded]
 !!----       DEFINE_UNCOMPRESS_PROGRAM
 !!----       GET_ABSOLUTE_DATA_PATH
+!!----       GET_COUNTS
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
 !!----       INIT_ERR_ILLDATA
@@ -235,7 +236,7 @@ Module CFML_ILL_Instrm_Data
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
    Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint, sort
-   use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
+   use CFML_String_Utilities,     only: u_case, l_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
@@ -264,7 +265,7 @@ Module CFML_ILL_Instrm_Data
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
              Define_Uncompress_Program, PowderNumors_To_DiffPattern, Write_HeaderInfo_Numor,     &
-             Read_Calibration_File, Initialize_Numor, Init_Err_ILLData
+             Read_Calibration_File, Initialize_Numor, Init_Err_ILLData, Get_Counts
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File,      &
@@ -2003,6 +2004,69 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Get_Absolute_Data_Path
+
+
+    !!----Subroutine Get_Counts(np,snum,machineName,icnt)
+    !!----  integer,                 intent(In)     :: np
+    !!----  Type(Sxtal_Numor_Type),  intent(In)     :: snum
+    !!----  character(len=*),        intent(in)     :: machineName
+    !!----  integer, dimension(:,:), intent(In Out) :: icnt
+    !!----
+    !!----   Read counts of frame "np" from numor "snum" of machine "machineName"
+    !!----   and store them in the 2D matrix icnt
+    !!----   Update: February - 2019 (adapted from peakfind)
+    !!----
+    !!----
+    Subroutine Get_Counts(np,snum,machineName,icnt)
+        integer,                 intent(In)     :: np
+        Type(Sxtal_Numor_Type),  intent(In)     :: snum
+        character(len=*),        intent(in)     :: machineName
+        integer, dimension(:,:), intent(In Out) :: icnt
+        !
+        integer :: ik1,ik2,ix,iy,idx,iyear, xsize, ysize
+
+        xsize = Size(icnt,1)-4 ! account for two pixel border
+        ysize = Size(icnt,2)-4
+
+        ! Set icnt to zero (required for border)
+        icnt = 0
+        ! How to read in the data depends on the machine
+        ! The raw data is stored in snum%counts in the order it is written in the numor
+        ! Ideally the data needs to be put into 'icnt' from the samples point of view
+        select case(l_case(machineName))
+            case('d9','d10')
+                read(snum%header(22:23),"(i2)") iyear
+                if (iyear > 70 .AND. iyear < 99) then
+                    ik1 = 1
+                    ik2 = 0
+                else
+                    ik1 = 0
+                    ik2 = 1
+                end if
+                do ix=1,xsize
+                    do iy=1,ysize
+                        idx=(ix+(iy-1)*xsize)*ik1 + (iy+(ix-1)*ysize)*ik2
+                        icnt(ix+2,iy+2)=snum%counts(idx,np)  !icou(i)
+                    end do
+                end do
+            case('d19_vb')
+                ERR_ILLData_Mess= 'Can''t read D19 Vertical Banana Detector data!'
+                ERR_ILLData=.true.
+                return
+            case ('d19_hb','d19','db21','d16')
+                do ix=1,xsize
+                    do iy=1,ysize
+                        idx = iy+(ix-1)*ysize
+                        icnt(ix+2,iy+2) = snum%counts(idx,np)
+                    end do
+                end do
+            case default
+                ERR_ILLData_Mess= 'Error in Get_Counts: Unknown machine!'
+                ERR_ILLData=.true.
+                return
+        end select
+
+    End Subroutine Get_Counts
 
     !!----
     !!---- Subroutine Get_Next_YearCycle(YearCycle,Reset_To_Most_Recent)
@@ -5621,7 +5685,7 @@ Module CFML_ILL_Instrm_Data
           case ('D16')
              call Read_Numor_D16(trim(filename),num)
 
-          case ('D19')
+          case ('D19','D19_HB')
              call Read_Numor_D19_NXS(trim(filename),num,frames,nxs_succes)
              if (.not.(nxs_succes)) then
                 write(*,*) 'Reading ASCII files'

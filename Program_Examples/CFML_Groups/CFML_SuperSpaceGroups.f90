@@ -13,8 +13,8 @@
 
     Implicit None
     private
-    public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,  &
-              Gen_SReflections, Set_SSGs_from_Gkk, k_SSG_compatible, &
+    public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,   &
+              Generate_Reflections, Set_SSGs_from_Gkk, k_SSG_compatible, &
               Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group
 
     Type, extends(Spg_Type), public :: SuperSpaceGroup_Type
@@ -110,8 +110,16 @@
 
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
+
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
-    integer, private, parameter :: max_mult=4096
+    integer,       parameter, private :: max_mult=4096
+
+
+    interface Generate_Reflections
+      module procedure Gen_SXtal_SReflections
+      module procedure Gen_SReflections
+    end interface Generate_Reflections
+    Private :: Gen_SXtal_SReflections,Gen_SReflections
 
   Contains
 
@@ -322,7 +330,7 @@
       character(len=40),dimension(192) :: gen
       logical,dimension(size(SpGs(:))) :: estak
 
-      write(*,"(/a/)") " => Entering subroutine Set_Intersection_SPGt "
+      !write(*,"(/a/)") " => Entering subroutine Set_Intersection_SPGt "
       ipos=iminloc(SpGs(:)%multip)
       ng=1
       gen(1)="x,y,z"
@@ -330,7 +338,7 @@
       estak=.false.
       estak(ipos)=.true.
 
-      write(*,"(3(a,i3))") " => Number of space groups: ",n, "  Position: ",ipos,"  Multiplicity:",SpGs(ipos)%multip
+      !write(*,"(3(a,i3))") " => Number of space groups: ",n, "  Position: ",ipos,"  Multiplicity:",SpGs(ipos)%multip
 
       do_ext:do i=2,SpGs(ipos)%multip
         ng=ng+1
@@ -340,14 +348,14 @@
            if(j == ipos) cycle
            estak(j)=.false.
            do k=2,SpGs(j)%multip
-           	 write(*,"(2i4,a,a)") k,ng, "   "//trim(gen(ng))//"   "//trim(SpGs(j)%SymopSymb(k))
+           	 !write(*,"(2i4,a,a)") k,ng, "   "//trim(gen(ng))//"   "//trim(SpGs(j)%SymopSymb(k))
              if(trim(SpGs(j)%SymopSymb(k)) == trim(gen(ng))) then
              	 estak(j)=.true.
              	 exit
              end if
            end do
         end do
-        write(*,*) estak
+        !write(*,*) estak
         k=count(estak(1:n))
         if(k /= n) then
           write(*,"(a,i3)") "  Operator: "//trim(gen(ng))//"  Discarded  ng=",ng-1
@@ -361,7 +369,8 @@
 
     End Subroutine Set_Intersection_SPGt
 
-    Subroutine Set_SSG_Reading_Database(num,ssg,ok,Mess,x1x2x3_type)
+    Subroutine Set_SSG_Reading_Database(database_path,num,ssg,ok,Mess,x1x2x3_type)
+      character(len=*),           intent(in)  :: database_path
       integer,                    intent(in)  :: num
       class(SuperSpaceGroup_Type),intent(out) :: ssg
       Logical,                    intent(out) :: ok
@@ -375,7 +384,7 @@
       logical :: inv_found
 
       if(.not. ssg_database_allocated)  then
-         call Read_single_SSG(num,ok,Mess)
+         call Read_single_SSG(database_path,num,ok,Mess)
          if(.not. ok) then
            Err_ssg=.true.
            Err_ssg_mess=Mess
@@ -433,7 +442,7 @@
       do i=1,ssg%NumOps
          ssg%Op(i)%Mat= rational_simplify(igroup_ops(1:Dd,1:Dd,i,num)//igroup_ops(Dd,Dd,i,num))
          call Get_Symb_Op_from_Mat(ssg%Op(i)%Mat,ssg%Symb_Op(i),xyz_typ)
-         write(*,"(i4,a)") i,"  "//trim(ssg%Symb_Op(i))
+         !write(*,"(i4,a)") i,"  "//trim(ssg%Symb_Op(i))
       end do
 
       !Look for a centre of symmetry
@@ -480,7 +489,7 @@
       !Get the symmetry symbols
       do i=1,ssg%Multip
         call Get_Symb_Op_from_Mat(ssg%Op(i)%Mat,ssg%Symb_Op(i),xyz_typ)
-        write(*,*) trim(ssg%Symb_Op(i))
+        !write(*,*) trim(ssg%Symb_Op(i))
       end do
 
     End Subroutine Set_SSG_Reading_Database
@@ -491,8 +500,8 @@
       real(kind=cp), dimension(3,6),intent(out) :: k_out
       !--- Local variables ---!
       real(kind=cp), dimension(3,6) :: kini
-      real(kind=cp), dimension(3,  SSG%multip) :: kv
-      real(kind=cp), dimension(3,3,SSG%multip) :: mat
+      real(kind=cp), dimension(3,  SSG%NumOps) :: kv
+      real(kind=cp), dimension(3,3,SSG%NumOps) :: mat
       integer :: i,j,k
       kini(:,1)= [0.1234,0.4532,0.7512]
       kini(:,2)= [0.0000,0.4532,0.7512]
@@ -500,12 +509,13 @@
       kini(:,4)= [0.1234,0.4532,0.5000]
       kini(:,5)= [0.5000,0.4532,0.5000]
       kini(:,6)= [0.3333,0.5000,0.6666]
-      k_out=0.0
-      do i=1,SSG%multip
+
+      do i=1,SSG%NumOps
         mat(:,:,i)=SSG%Op(i)%Mat(1:3,1:3)
       end do
       do j=1,6
-        do i=1,SSG%multip
+        k_out(:,j)=0.0
+        do i=1,SSG%NumOps
           kv(:,i)=matmul(kini(:,j),mat(:,:,i))
           k_out(:,j)=k_out(:,j)+kv(:,i)
         end do
@@ -880,12 +890,13 @@
     !!---- Created: June 2017
     !!
 
-    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,kinfo,order,SSG,powder)
+    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,mag,kinfo,order,SSG,powder)
        !---- Arguments ----!
        type (Crystal_Cell_Type),                        intent(in)     :: Cell
        real(kind=cp),                                   intent(in)     :: sintlmax
        integer,                                         intent(out)    :: num_ref
        class (sReflect_Type), dimension(:), allocatable,intent(out)    :: reflex
+       logical,                                         intent(in)     :: mag
        type(kvect_info_type),         optional,         intent(in)     :: kinfo
        class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: order
@@ -948,7 +959,7 @@
                 hh(1:3)=[h,k,l]
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
-                mp=2
+                mp=0
                 if(present(SSG)) then
                    if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
                      !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
@@ -956,7 +967,7 @@
                    end if
                    if(H_Absent_SSG(hh,SSG)) then
                      !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-                     if(SSG%Mag_type /= 2) then
+                     if(SSG%Mag_type /= 2 .and. mag) then
                        if(mH_Absent_SSG(hh,SSG)) then
                          !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                          cycle
@@ -967,8 +978,12 @@
                        cycle
                      end if
                    else
-                     if(SSG%Mag_type /= 2) then
-                       if(mH_Absent_SSG(hh,SSG)) mp=0  !pure nuclear
+                     if(SSG%Mag_type /= 2 .and. mag) then
+                       if(mH_Absent_SSG(hh,SSG))  then
+                         mp=0  !pure nuclear
+                       else
+                         mp=2  !nuclear and magnetic
+                       end if
                      end if
                    end if
                 end if
@@ -998,7 +1013,7 @@
        	   	 	     	 hh(3+k)=ia*j
                      sval=H_s(hh,Cell,nk,kv)
                      if (sval > max_s(k)) cycle
-                     mp=2
+                     mp=0
                      if(present(SSG)) then
                         if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
                            !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
@@ -1006,7 +1021,7 @@
                         end if
                         if(H_Absent_SSG(hh,SSG)) then
                             !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-                          if(SSG%Mag_type /= 2) then
+                          if(SSG%Mag_type /= 2 .and. mag) then
                             if(mH_Absent_SSG(hh,SSG)) then
                               !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                               cycle
@@ -1017,8 +1032,12 @@
                             cycle
                           end if
                         else
-                          if(SSG%Mag_type /= 2) then
-                            if(mH_Absent_SSG(hh,SSG)) mp=0  !pure nuclear
+                          if(SSG%Mag_type /= 2 .and. mag) then
+                            if(mH_Absent_SSG(hh,SSG)) then
+                              mp=0  !pure nuclear
+                            else
+                              mp=2
+                            end if
                           end if
                         end if
                      end if
@@ -1129,7 +1148,203 @@
        return
     End Subroutine Gen_SReflections
 
-    Subroutine Readn_Set_SuperSpace_Group(file_line,cell,SSG,kinfo,x1x2x3_type)
+    Subroutine Gen_SXtal_SReflections(Cell,sintlmax,Reflex,mag,kinfo,order,SSG)
+       !---- Arguments ----!
+       type (Crystal_Cell_Type),                        intent(in)     :: Cell
+       real(kind=cp),                                   intent(in)     :: sintlmax
+       class (sReflection_List_Type),                   intent(out)    :: reflex
+       logical,                                         intent(in)     :: mag
+       type(kvect_info_type),         optional,         intent(in)     :: kinfo
+       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
+       character(len=*),              optional,         intent(in)     :: order
+
+       !---- Local variables ----!
+       real(kind=cp)         :: sval !,vmin,vmax
+       real(kind=cp)         :: epsr=0.00000001, delt=0.000001
+       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
+                                maxpos, mp, iprev,Dd, nf, ia, i0, nk, num_ref
+       integer,       dimension(:),   allocatable :: hh,kk,nulo
+       integer,       dimension(:,:), allocatable :: hkl
+       integer,       dimension(:),   allocatable :: indx,indtyp
+       real(kind=cp), dimension(:),   allocatable :: max_s
+       real(kind=cp), dimension(:),   allocatable :: sv
+       integer,       dimension(:),   allocatable :: nharm
+       real(kind=cp), dimension(:,:), allocatable :: kv
+       real(kind=cp), dimension(:),   allocatable :: maxsinl
+       logical :: kvect,ordering
+
+       Dd=3
+       ordering=.false.
+       kvect=.false.
+       if(present(order)) ordering=.true.
+       if(present(kinfo)) then
+         nk=kinfo%nk
+         if(nk /= 0) then
+           allocate(kv(3,nk),nharm(nk),maxsinl(nk))
+           kv=kinfo%kv
+           nharm=kinfo%nharm
+           maxsinl=kinfo%sintlim
+           kvect=.true.
+         end if
+       end if
+       if(kvect) Dd=3+nk             !total dimension of the reciprocal space
+
+       hmax=nint(Cell%cell(1)*2.0*sintlmax+1.0)
+       kmax=nint(Cell%cell(2)*2.0*sintlmax+1.0)
+       lmax=nint(Cell%cell(3)*2.0*sintlmax+1.0)
+       hmin=-hmax; kmin=-kmax; lmin= -lmax
+       maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
+       if(kvect) then
+          do k=1,nk
+            	 maxref=maxref*2*nharm(k)
+          end do
+          allocate(max_s(nk))
+          if(present(kinfo)) then
+            max_s=maxsinl
+          else
+            max_s=sintlmax
+          end if
+       end if
+       allocate(hkl(Dd,maxref),indtyp(maxref),sv(maxref),hh(Dd),kk(Dd),nulo(Dd))
+       nulo=0
+       indtyp=0
+       num_ref=0
+       !Generation of fundamental reflections
+       ext_do: do h=hmin,hmax
+          do k=kmin,kmax
+             do l=lmin,lmax
+                hh=0
+                hh(1:3)=[h,k,l]
+                sval=H_s(hh,Cell)
+                if (sval > sintlmax) cycle
+                mp=0
+                if(present(SSG)) then
+                   if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+                     cycle
+                   end if
+                   if(H_Absent_SSG(hh,SSG)) then
+                     if(SSG%Mag_type /= 2 .and. mag) then
+                       if(mH_Absent_SSG(hh,SSG)) then
+                          cycle
+                       else
+                         mp=1   !pure magnetic
+                       end if
+                     else
+                       cycle
+                     end if
+                   else
+                     if(SSG%Mag_type /= 2 .and. mag) then
+                       if(mH_Absent_SSG(hh,SSG))  then
+                         mp=0  !pure nuclear
+                       else
+                         mp=2  !nuclear and magnetic
+                       end if
+                     end if
+                   end if
+                end if
+                num_ref=num_ref+1
+                if(num_ref > maxref) then
+                   num_ref=maxref
+                   exit ext_do
+                end if
+                sv(num_ref)=sval
+                hkl(:,num_ref)=hh
+                indtyp(num_ref)=mp
+             end do
+          end do
+       end do ext_do
+
+       !Generation of satellites
+       if(kvect) then
+       	 k=0
+       	 do_ex: do
+           k = k + 1
+           if(k > nk) exit do_ex
+            	nf=num_ref
+      	      do i=1,nf
+       	      	 hh=hkl(:,i)
+       	      	 do ia=-1,1,2
+       	   	 	     do j=1,nharm(k)
+       	   	 	     	 hh(3+k)=ia*j
+                     sval=H_s(hh,Cell,nk,kv)
+                     if (sval > max_s(k)) cycle
+                     mp=0
+                     if(present(SSG)) then
+                        if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
+                        if(H_Absent_SSG(hh,SSG)) then
+                          if(SSG%Mag_type /= 2 .and. mag) then
+                            if(mH_Absent_SSG(hh,SSG)) then
+                              cycle
+                            else
+                              mp=1   !pure magnetic
+                            end if
+                          else
+                            cycle
+                          end if
+                        else
+                          if(SSG%Mag_type /= 2 .and. mag) then
+                            if(mH_Absent_SSG(hh,SSG)) then
+                              mp=0  !pure nuclear
+                            else
+                              mp=2
+                            end if
+                          end if
+                        end if
+                     end if
+                     num_ref=num_ref+1
+                     if(num_ref > maxref) then
+                        num_ref=maxref
+                        exit do_ex
+                     end if
+                     sv(num_ref)=sval
+                     hkl(:,num_ref)=hh
+                     indtyp(num_ref)=mp
+                   end do  !j
+       	   	 	   end do !ia
+       	      end do  !i
+         end do do_ex
+       end if
+
+       !Suppress the reflection 0 0 0 0 0 ...
+       do i=1,num_ref
+         if(sv(i) < epsr) then
+          i0=i
+          exit
+         end if
+       end do
+       !write(*,*) "  i0=",i0
+       do i=i0+1,num_ref
+         sv(i-1)=sv(i)
+         hkl(:,i-1)=hkl(:,i)
+         indtyp(i-1)=indtyp(i)
+       end do
+       num_ref=num_ref-1
+
+       allocate(indx(num_ref))
+       indx=[(i,i=1,num_ref)]
+       if(ordering) call sort(sv,num_ref,indx)
+
+       !Final assignments
+       if(allocated(Reflex%Ref)) deallocate(Reflex%Ref)
+       allocate(Reflex%Ref(num_ref))
+       Reflex%Nref=num_ref
+       do i=1,num_ref
+         j=indx(i)
+         allocate(Reflex%Ref(i)%h(Dd)) !needed in f95
+         Reflex%Ref(i)%h    = hkl(:,j)
+         Reflex%Ref(i)%s    = sv(j)
+         if(present(SSG)) then
+           Reflex%Ref(i)%mult = h_mult(Reflex%Ref(i)%h,SSG,.true.)
+         else
+           Reflex%Ref(i)%mult = 1
+         end if
+         Reflex%Ref(i)%imag = indtyp(j)
+       end do
+       return
+    End Subroutine Gen_SXtal_SReflections
+
+    Subroutine Readn_Set_SuperSpace_Group(database_path,file_line,cell,SSG,kinfo,x1x2x3_type)
+       character(len=*), intent(in)                :: database_path
        character(len=*),dimension(:),  intent(in)  :: file_line
        type(Crystal_Cell_Type),        intent(out) :: cell
        class(SuperSpaceGroup_Type),    intent(out) :: SSG
@@ -1273,9 +1488,9 @@
           end if
        else if(num_group /= 0) then
           if(present(x1x2x3_type)) then
-            call Set_SSG_Reading_Database(num_group,ssg,Err_ssg,Err_ssg_Mess,x1x2x3_type)
+            call Set_SSG_Reading_Database(database_path,num_group,ssg,Err_ssg,Err_ssg_Mess,x1x2x3_type)
           else
-            call Set_SSG_Reading_Database(num_group,ssg,Err_ssg,Err_ssg_Mess)
+            call Set_SSG_Reading_Database(database_path,num_group,ssg,Err_ssg,Err_ssg_Mess)
           end if
           if(Err_ssg) then
             Err_ssg_Mess= " Error in generating SSG: "//trim(Err_ssg_Mess)//" from the database"

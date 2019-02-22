@@ -1569,7 +1569,7 @@
        logical :: op
        integer, parameter :: max_iunits=500
 
-       lun=1
+       lun=7
        do
           inquire(unit=lun,opened=op)
           if (.not. op) exit
@@ -3040,14 +3040,14 @@
 
        !> Init
        line=' '
-       
+
        !> Check for negative Std
        if (std < 0.0) then
           err_string=.true.
           ERR_String_Mess="A negative standard deviation was passed on SetNum_Std procedure!"
           return
-       end if  
-       
+       end if
+
        !> check
        if (abs(std) < 0.0000001) then
           aux=rformat(value,precision(value)+2)
@@ -3055,7 +3055,7 @@
           if (line(1:1) /= "-") line=" "//trim(line(1:len(line)-1))
           return
        end if
-       
+
        np=0
        y=std
        do

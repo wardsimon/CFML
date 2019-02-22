@@ -22,7 +22,7 @@ program test_reflections
   integer                       :: nk,i,Dd,i_out,m,j,narg
   integer,       dimension(6)   :: nharm=1
   real(kind=cp), dimension(6)   :: sintl
-  logical :: ok,arggiven,powder
+  logical :: ok,arggiven,powder,mag=.true.
 
 
   fileout="Test_Reflections.out"
@@ -46,6 +46,8 @@ program test_reflections
       fileout=trim(filcod)//"_ref.out"
       call File_To_FileList(cfl_file,File_list)
       call Readn_Set_SuperSpace_Group(File_list%line,cell,SSG,kinfo)
+
+
       if(Err_ssg) then
         write(unit=*,fmt="(a)") trim(Err_ssg_mess)
         stop
@@ -76,11 +78,11 @@ program test_reflections
   do
 
     if(.not. arggiven) then
-  	   write(*,"(a)",advance="no") " => Enter cell parameters (<cr>=exit): "
-  	   read(*,"(a)") line
-  	   if(len_trim(line)==0) exit
-  	   read(line,*) abc,albega
-  	   call set_crystal_cell(abc,albega,cell)
+       write(*,"(a)",advance="no") " => Enter cell parameters (<cr>=exit): "
+       read(*,"(a)") line
+       if(len_trim(line)==0) exit
+       read(line,*) abc,albega
+       call set_crystal_cell(abc,albega,cell)
        write(*,"(//,a)",advance="no") " => Enter the number of the SSG: "
        read(*,*) m
        if(m <= 0) exit
@@ -96,48 +98,46 @@ program test_reflections
        call Write_SSG(SSG,full=.true.,kinfo=kinfo)
        Dd=size(SSG%Op(1)%Mat,dim=1)-1
        nk=Dd-3
-  	   write(*,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
-  	   if(nk /= 0) then
-  	    call Allocate_kvect_info(nk,kinfo)
-  	   	!Dd=Dd+nk
-  	   	do i=1,nk
-  	   		write(*,"(a,i2,a)",advance="no") " => Enter propagation vector # ",i," number of harmonics and maximum SinTheta/Lambda: "
-  	   		read(*,*) kinfo%kv(:,i), kinfo%nharm(i),kinfo%sintlim(i)
-  	   	end do
+       write(*,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
+       if(nk /= 0) then
+        call Allocate_kvect_info(nk,kinfo)
+        !Dd=Dd+nk
+        do i=1,nk
+          write(*,"(a,i2,a)",advance="no") " => Enter propagation vector # ",i," number of harmonics and maximum SinTheta/Lambda: "
+          read(*,*) kinfo%kv(:,i), kinfo%nharm(i),kinfo%sintlim(i)
+        end do
        end if
-  	end if
+    end if
     call Write_SSG(SSG,iunit=i_out,full=.true.,kinfo=kinfo)
-  	!     1234567890123456789012345678901234567
-  	fmto="(i8,tr4, i4,f12.4,tr4,2i2,tr4,3f10.5)"
-
-  	if(nk > 0) then
-  	  !do i=1,nk
-  		! write(i_out,"(a,i2,a,3f10.5,a,i2,a,f10.5)") "     Propagation vector # ",i," : [",kinfo%kv(:,i)," ], Number of harmonics:  ",kinfo%nharm(i), "   Max_SinT/L: ",kinfo%sintlim(i)
+    fmto="(i8,tr4, i4,f12.4,tr4,2i2,tr4,3f10.5)"
+    if(nk > 0) then
+      !do i=1,nk
+      ! write(i_out,"(a,i2,a,3f10.5,a,i2,a,f10.5)") "     Propagation vector # ",i," : [",kinfo%kv(:,i)," ], Number of harmonics:  ",kinfo%nharm(i), "   Max_SinT/L: ",kinfo%sintlim(i)
       !end do
       if(powder) then
-        call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,kinfo,order="yes",SSG=SSG, powder=powder)
+        call  Generate_Reflections(Cell,sintlmax,Ref%nref,Ref%ref,mag,kinfo,order="yes",SSG=SSG, powder=powder)
       else
-        call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,kinfo,order="yes",SSG=SSG)
-  	  end if
-  	else
+        call  Generate_Reflections(Cell,sintlmax,Ref,mag,kinfo,order="yes",SSG=SSG)
+      end if
+    else
       if(powder) then
-  	    call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,SSG=SSG,order="yes",powder=powder)
+        call  Generate_Reflections(Cell,sintlmax,Ref%nref,Ref%ref,mag,SSG=SSG,order="yes",powder=powder)
       else
-        call  Gen_SReflections(Cell,sintlmax,Ref%nref,Ref%ref,order="yes",SSG=SSG)
-  	  end if
-  	end if
+        call  Generate_Reflections(Cell,sintlmax,Ref,mag,order="yes",SSG=SSG)
+      end if
+    end if
     write(fmto(9:9),"(i1)") Dd
     write(i_out,"(/,a,i8)")" => Total number of reflections: ", Ref%nref
     write(i_out,"(/,a)")   "       List of Reflections  "
     write(i_out,"(a,/)")   "       ===================  "
-  	do i=1,Ref%nref
-    	h=Ref%ref(i)%h(1:3)
-    	do j=1,nk
-    	 	h=h+Ref%ref(i)%h(3+j)*kinfo%kv(:,j)
-    	end do
-  		!write(*,fmto)     i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag,h
-  		write(i_out,fmto) i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag,h
-  	end do
+    do i=1,Ref%nref
+      h=Ref%ref(i)%h(1:3)
+      do j=1,nk
+        h=h+Ref%ref(i)%h(3+j)*kinfo%kv(:,j)
+      end do
+      !write(*,fmto)     i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag,h
+      write(i_out,fmto) i, Ref%ref(i)%h,Ref%ref(i)%s,Ref%ref(i)%mult,Ref%ref(i)%imag,h
+    end do
     if(arggiven) exit
   end do
   call cpu_time(tfin)
