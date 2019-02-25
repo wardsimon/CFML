@@ -412,65 +412,83 @@ Module CFML_ILL_Instrm_Data
    !!----    logical                                   :: displaced            ! True if det_offsets /= (0,0,0)
    !!----    real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
    !!----    logical                                   :: rangtim              !If .true. range_time has been set
-   !!----    real(kind=cp),dimension(:,:,:), allocatable :: range_time         !Curves for calculating the velocitiy of angular motors (2,np,15)
+   !!----    real(kind=cp),dimension(:,:,:),allocatable:: range_time           !Curves for calculating the velocitiy of angular motors (2,np,15)
+   !!----    logical                                   :: alpha_correct        !True if alpha correction is to be applied
    !!----    real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
+   !!----    character(len=512)                        :: alpha_file           !Name of the alpha file
+   !!----    logical                                   :: resol_given          !True if the resolution curve has been provided
+   !!----    integer                                   :: nGa,nNu              !Dimensions of the matrix ReSurf
+   !!----    real(kind=cp),dimension(:,:),  allocatable:: ReSurf               !Resolution surface in gamma-Nu space: ReSurf(Nu,Ga)
+   !!----                                                                      !ReSurf(1,1): multiplicative factor to be applied to the widths
+   !!----                                                                      !ReSurf(1,2:nGa): Values of detector Gammas
+   !!----                                                                      !ReSurf(2:nNu,1): Values of detector Nus
+   !!----                                                                      !ReSurf(Nu,Ga)  : (Nu >1, Ga >1) Values of the expected FWHM in degrees
    !!---- End Type diffractometer_type
    !!----
    !!----    Definition for Diffractometer type
    !!----
-   !!---- Update: April - 2008
+   !!---- Update: April - 2008, February -2019
    !!
    Type, public :: diffractometer_type
-      character(len=80)                         :: info                 !information about the instrument
-      character(len=12)                         :: name_inst            !Short name of the instrument
-      character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
-      character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
-      character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
-      character(len=3)                          :: r_ord                ! xyz, yxz, ... Order of detector tilt calculations: xyz means Rx Ry Rz
-      character(len=4)                          :: angl_units           !angle units: "rad","deg"
-      character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
-      real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
-      real(kind=cp)                             :: wave                 !Current wavelength
-      real(kind=cp)                             :: wave_min,wave_max    !Minimum and maximum wavelengths (Laue diffractometers)
-      real(kind=cp)                             :: vert                 !Vertical dimension
-      real(kind=cp)                             :: horiz                !Horizontal dimension
-      real(kind=cp)                             :: agap                 !gap between anodes
-      real(kind=cp)                             :: cgap                 !gap between cathodes
-      integer                                   :: np_vert              !number of pixels in vertical direction
-      integer                                   :: np_horiz             !number of pixels in horizontal direction
-      logical                                   :: tilted               ! True if RD /= I
-      real(kind=cp), dimension(3,3)             :: RD                   ! Rotation matrix giving the orientation of the D-frame w.r.t. the L-frame
-                                                                        ! RD= Rx(tiltz_d) Ry(tilty_d) Rz(tiltz_d)  or with the permutation given by r_order
-      real(kind=cp)                             :: ga_d,nu_d            ! Angles gamma and nu of the detector centre
-      real(kind=cp)                             :: tiltx_d=0.0          ! Tilt of the flat detector around x-axis (normally = nu_d)
-      real(kind=cp)                             :: tilty_d=0.0          ! Tilt of the flat detector around y-axis (normally = 0)
-      real(kind=cp)                             :: tiltz_d=0.0          ! Tilt of the flat detector around z-axis (normally = 0)
-      integer                                   :: igeom                ! 1: Bisecting (PSI=0),2: Bisecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
-      integer                                   :: ipsd                 ! 1: Flat,2: Vertically Curved detector (used in D19amd), 3:
-      real(kind=cp),dimension(3)                :: e1                   ! Components of e1 in {i,j,k}
-      real(kind=cp),dimension(3)                :: e2                   ! Components of e2 in {i,j,k}
-      real(kind=cp),dimension(3)                :: e3                   ! Components of e3 in {i,j,k}
-      logical                                   :: gnxz_limited         ! The limits in gamm, nu, x and z accessible in the detector have been provided
-      real(kind=cp)                             :: gap_min,gap_max      ! gamma minimum , gamma  maximun  (Positive values) | This change is needed due to odd
-      real(kind=cp)                             :: gan_min,gan_max      ! gamma minimum , gamma  maximun  (Negative values) | positions of flat detectors.
-      real(kind=cp)                             :: nu_min,nu_max        ! minimum admissible nu  and maximum admissible nu
-      real(kind=cp)                             :: d_min                ! Resolution limit ... if not given d_min= 2/L_min
-      real(kind=cp)                             :: x_min,x_max          ! in mm
-      real(kind=cp)                             :: z_min,z_max
-      integer                                   :: num_ang              !Number of angular motors
-      character(len=12),dimension(15)           :: ang_names            !Name of angular motors
-      real(kind=cp),dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
-      real(kind=cp),dimension(15)               :: ang_offsets          !Angular offsets
-      real(kind=cp),dimension(15)               :: ang_velocity         !Angular velocity of each motor in degrees/second
-      integer                                   :: num_disp             !Number of displacement motors
-      character(len=12),dimension(10)           :: disp_names           !Name of displacement motors
-      real(kind=cp),dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
-      real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
-      logical                                   :: displaced            ! True if det_offsets /= (0,0,0)
-      real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre (roD)
-      logical                                   :: rangtim              !If .true. range_time has been set
-      real(kind=cp),dimension(:,:,:), allocatable :: range_time         !Curves for calculating the velocitiy of angular motors (2,np,15)
-      real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
+      character(len=80)                          :: info                 !information about the instrument
+      character(len=12)                          :: name_inst            !Short name of the instrument
+      character(len=15)                          :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
+      character(len=6)                           :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
+      character(len=4)                           :: dist_units           !distance units: "mm  ","cm  ","inch"
+      character(len=3)                           :: r_ord                ! xyz, yxz, ... Order of detector tilt calculations: xyz means Rx Ry Rz
+      character(len=4)                           :: angl_units           !angle units: "rad","deg"
+      character(len=30)                          :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
+      real(kind=cp)                              :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
+      real(kind=cp)                              :: wave                 !Current wavelength
+      real(kind=cp)                              :: wave_min,wave_max    !Minimum and maximum wavelengths (Laue diffractometers)
+      real(kind=cp)                              :: vert                 !Vertical dimension
+      real(kind=cp)                              :: horiz                !Horizontal dimension
+      real(kind=cp)                              :: agap                 !gap between anodes
+      real(kind=cp)                              :: cgap                 !gap between cathodes
+      integer                                    :: np_vert              !number of pixels in vertical direction
+      integer                                    :: np_horiz             !number of pixels in horizontal direction
+      logical                                    :: tilted               ! True if RD /= I
+      real(kind=cp), dimension(3,3)              :: RD                   ! Rotation matrix giving the orientation of the D-frame w.r.t. the L-frame
+                                                                         ! RD= Rx(tiltz_d) Ry(tilty_d) Rz(tiltz_d)  or with the permutation given by r_order
+      real(kind=cp)                              :: ga_d,nu_d            ! Angles gamma and nu of the detector centre
+      real(kind=cp)                              :: tiltx_d=0.0          ! Tilt of the flat detector around x-axis (normally = nu_d)
+      real(kind=cp)                              :: tilty_d=0.0          ! Tilt of the flat detector around y-axis (normally = 0)
+      real(kind=cp)                              :: tiltz_d=0.0          ! Tilt of the flat detector around z-axis (normally = 0)
+      integer                                    :: igeom                ! 1: Bisecting (PSI=0),2: Bisecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+      integer                                    :: ipsd                 ! 1: Flat,2: Vertically Curved detector (used in D19amd), 3:
+      real(kind=cp),dimension(3)                 :: e1                   ! Components of e1 in {i,j,k}
+      real(kind=cp),dimension(3)                 :: e2                   ! Components of e2 in {i,j,k}
+      real(kind=cp),dimension(3)                 :: e3                   ! Components of e3 in {i,j,k}
+      logical                                    :: gnxz_limited         ! The limits in gamm, nu, x and z accessible in the detector have been provided
+      real(kind=cp)                              :: gap_min,gap_max      ! gamma minimum , gamma  maximun  (Positive values) | This change is needed due to odd
+      real(kind=cp)                              :: gan_min,gan_max      ! gamma minimum , gamma  maximun  (Negative values) | positions of flat detectors.
+      real(kind=cp)                              :: nu_min,nu_max        ! minimum admissible nu  and maximum admissible nu
+      real(kind=cp)                              :: d_min                ! Resolution limit ... if not given d_min= 2/L_min
+      real(kind=cp)                              :: x_min,x_max          ! in mm
+      real(kind=cp)                              :: z_min,z_max
+      integer                                    :: num_ang              !Number of angular motors
+      character(len=12),dimension(15)            :: ang_names            !Name of angular motors
+      real(kind=cp),dimension(15,2)              :: ang_limits           !Angular limits (up to 15 angular motors)
+      real(kind=cp),dimension(15)                :: ang_offsets          !Angular offsets
+      real(kind=cp),dimension(15)                :: ang_velocity         !Angular velocity of each motor in degrees/second
+      integer                                    :: num_disp             !Number of displacement motors
+      character(len=12),dimension(10)            :: disp_names           !Name of displacement motors
+      real(kind=cp),dimension(10,2)              :: disp_limits          !Displacement limits (up to 15 displacement motors)
+      real(kind=cp),dimension(10)                :: disp_offsets         !Displacement offsets
+      logical                                    :: displaced            ! True if det_offsets /= (0,0,0)
+      real(kind=cp),dimension(3 )                :: det_offsets          !Offsets X,Y,Z of the detector centre (roD)
+      logical                                    :: rangtim              !If .true. range_time has been set
+      real(kind=cp),dimension(:,:,:),allocatable :: range_time           !Curves for calculating the velocitiy of angular motors (2,np,15)
+      real(kind=cp),dimension(:,:),  allocatable :: alphas               !Efficiency corrections for each pixel
+      logical                                    :: alpha_correct        !True if alpha correction is to be applied
+      character(len=512)                         :: alpha_file           !Name of the alpha file
+      logical                                    :: resol_given          !True if the resolution curve has been provided
+      integer                                    :: nGa,nNu              !Dimensions of the matrix ReSurf
+      real(kind=cp),dimension(:,:),  allocatable :: ReSurf               !Resolution surface in gamma-Nu space: ReSurf(Nu,Ga)
+                                                                         !ReSurf(1,1): multiplicative factor to be applied to the widths
+                                                                         !ReSurf(1,2:nGa): Values of detector Gammas
+                                                                         !ReSurf(2:nNu,1): Values of detector Nus
+                                                                         !ReSurf(Nu,Ga)  : (Nu >1, Ga >1) Values of the expected FWHM in degrees
    End Type diffractometer_type
 
    !!----
@@ -2360,6 +2378,9 @@ Module CFML_ILL_Instrm_Data
       Current_Instrm%displaced=.false.            ! True if det_offsets /= (0,0,0)
       Current_Instrm%det_offsets=0.0              !Offsets X,Y,Z of the detector centre (roD)
       Current_Instrm%rangtim=.false.
+      Current_Instrm%alpha_correct=.false.        !Alpha correction not applied
+      Current_Instrm%resol_given=.false.          !Resolution curve not given
+      Current_Instrm%alpha_file=" "
     End Subroutine Init_Current_Instrument
     !!----
     !!---- Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
@@ -2950,12 +2971,13 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local variables ----!
        character(len=120)             :: line
-       character(len=10)              :: key
-       integer                        :: i, j, lun, ier,npx,npz, n1,n2,n3
+       character(len=512)             :: alpha_file
+       character(len=20)              :: keyv
+       integer                        :: i, j, lun, ier,npx,npz, n1,n2,n3,ial
        real(kind=cp), dimension(3,3)  :: set, ub
        real(kind=cp)                  :: wave
 
-       logical                        :: read_set, read_alphas, read_ub, g_lim,n_lim,x_lim,z_lim, r_velo
+       logical                        :: esta,read_set, read_ub, g_lim,n_lim,x_lim,z_lim, r_velo
 
        npx=32  !default values
        npz=32
@@ -2969,7 +2991,6 @@ Module CFML_ILL_Instrm_Data
        end if
 
        read_set    = .false.
-       read_alphas = .false.
        read_ub     = .false.
        g_lim       = .false.
        n_lim       = .false.
@@ -2989,9 +3010,9 @@ Module CFML_ILL_Instrm_Data
          line=adjustl(line)
          if(line(1:1) == "!" .or. line(1:1) == "#" .or. len_trim(line) == 0) cycle
          i=index(line," ")
-         key=u_case(line(1:i-1))
+         keyv=u_case(line(1:i-1))
 
-         Select Case(key)
+         Select Case(keyv)
             Case("INFO")
                 Current_Instrm%info= adjustl(line(i+1:))
 
@@ -3066,7 +3087,7 @@ Module CFML_ILL_Instrm_Data
                 npz = Current_Instrm%np_vert
 
             Case("GAPS_DET")
-                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%agap, Current_Instrm%cgap  !Gaps between anodes and between cathodes
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%cgap, Current_Instrm%agap  !Gaps between anodes and between cathodes
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess=&
@@ -3074,7 +3095,7 @@ Module CFML_ILL_Instrm_Data
                   return
                 end if
 
-            Case("GN_CENTRE")
+            Case("GN_CENTRE","GAMMA_NU_CENTRE")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%ga_d, Current_Instrm%nu_d
                 if(ier /= 0) then
                   ERR_ILLData=.true.
@@ -3262,6 +3283,37 @@ Module CFML_ILL_Instrm_Data
                 end do
                 Current_Instrm%rangtim=.true.
 
+            Case("ALPHA_FILE")
+
+                alpha_file=adjustl(line(11:))
+                inquire(file=trim(alpha_file),exist=esta)
+                if(esta) then
+                  call Get_LogUnit(ial)
+                  open(unit=ial,file=trim(alpha_file),status="old", action="read", position="rewind",iostat=ier)
+                  if (ier /= 0) then
+                     ERR_ILLData=.true.
+                     ERR_ILLData_Mess="Error opening the file: "//trim(alpha_file)
+                     return
+                  end if
+                  if(allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
+                  allocate(Current_Instrm%alphas(npz,npx))
+                  do j=1,npz
+                    read(unit=ial,fmt=*,iostat=ier) Current_Instrm%alphas(j,1:npx)
+                    if(ier /= 0) then
+                      ERR_ILLData=.true.
+                      ERR_ILLData_Mess="Error in file: "//trim(alpha_file)//", reading the efficiency of 2D-detector"
+                      return
+                    end if
+                  end do
+                else
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error the alpha file: "//trim(alpha_file)//", does not exist!"
+                  return
+                end if
+                Current_Instrm%alpha_file=alpha_file
+                Current_Instrm%alpha_correct=.true.
+
+
             Case("DET_ALPHAS")
                 if(allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
                 allocate(Current_Instrm%alphas(npz,npx))
@@ -3274,7 +3326,26 @@ Module CFML_ILL_Instrm_Data
                    return
                   end if
                 end do
-                read_alphas= .true.
+                Current_Instrm%alpha_correct=.true.
+
+            Case("RESOLUTION_SURFACE")
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%nNu, Current_Instrm%nGa
+                if(ier /= 0) then
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the dimension of resolution surface of the 2D-detector"
+                 return
+                end if
+                if(allocated(Current_Instrm%ReSurf)) deallocate(Current_Instrm%ReSurf)
+                allocate(Current_Instrm%ReSurf(Current_Instrm%nNu,Current_Instrm%nGa))
+                do j=1,Current_Instrm%nNu
+                  read(unit=lun,fmt=*,iostat=ier) Current_Instrm%ReSurf(j,1:Current_Instrm%nGa)
+                  if(ier /= 0) then
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the resolution surface of 2D-detector"
+                   return
+                  end if
+                end do
+                Current_Instrm%resol_given=.true.
 
          End Select
        End do
@@ -3287,12 +3358,6 @@ Module CFML_ILL_Instrm_Data
          else
             call Set_Current_Orient(wave,ub)
          end if
-       end if
-
-       if (.not. read_alphas .and. index(Current_Instrm%geom,"Laue") == 0) then
-          if (allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
-          allocate(Current_Instrm%alphas(npx,npz))
-          Current_Instrm%alphas(:,:)=1.0
        end if
        Current_Instrm_set=.true.
 
@@ -6643,6 +6708,16 @@ Module CFML_ILL_Instrm_Data
              end do
           end if
 
+          if (Current_Instrm%resol_given) then
+             write(unit=ipr,fmt="(/,a)") "RESOLUTION SURFACE OF THE INSTRUMENT: "//trim(Current_Instrm%name_inst)
+             n3=Current_Instrm%nGa
+             do i=1,Current_Instrm%nNu
+                write(unit=ipr,fmt="(tr12,20f10.4)") Current_Instrm%ReSurf(i,1:n3)
+             end do
+          else
+             write(unit=ipr,fmt="(/,a)") " => No resolution surface has been provided"
+          end if
+
        else  !Write a *.geom file, fil should be present!
 
           write(unit=ipr,fmt="(a)")       "INFO "//Current_Instrm%info
@@ -6660,7 +6735,7 @@ Module CFML_ILL_Instrm_Data
           end if
           write(unit=ipr,fmt="(a,2f8.3,2i5)")"DIM_XZP     ", Current_Instrm%horiz,    Current_Instrm%vert, &
                                                               Current_Instrm%np_horiz, Current_Instrm%np_vert
-          write(unit=ipr,fmt="(a,2f8.4)")    "GAPS_DET    ",Current_Instrm%agap, Current_Instrm%cgap
+          write(unit=ipr,fmt="(a,2f8.4)")    "GAPS_DET    ",Current_Instrm%cgap, Current_Instrm%agap
           write(unit=ipr,fmt="(a,f8.5)")     "WAVE        ",Current_Orient%wave
           write(unit=ipr,fmt="(a,2f8.5)")    "GN_CENTRE   ",Current_Instrm%ga_d, Current_Instrm%nu_d
           write(unit=ipr,fmt="(a,3f8.5)")    "TILT_ANGLES ",Current_Instrm%Tiltx_d, Current_Instrm%Tilty_d, Current_Instrm%Tiltz_d
@@ -6709,7 +6784,18 @@ Module CFML_ILL_Instrm_Data
              end do
           end if
 
+          if (Current_Instrm%resol_given) then
+             write(unit=ipr,fmt="(/,a)") "RESOLUTION SURFACE OF THE INSTRUMENT: "//trim(Current_Instrm%name_inst)
+             n3=Current_Instrm%nGa
+             do i=1,Current_Instrm%nNu
+                write(unit=ipr,fmt="(tr12,20f10.4)") Current_Instrm%ReSurf(i,1:n3)
+             end do
+          else
+             write(unit=ipr,fmt="(/,a)") " => No resolution surface has been provided"
+           end if
+
           write(unit=ipr,fmt="(a,3f10.4)")        "DET_OFF ", Current_Instrm%det_offsets
+
           if(index(Current_Instrm%geom,"Laue") == 0 .and. Current_Instrm%np_vert < 513 .and. &
                    Current_Instrm%np_horiz < 513) then
             write(unit=ipr,fmt="(a)")             "DET_ALPHAS"
