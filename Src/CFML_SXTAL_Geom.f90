@@ -895,7 +895,7 @@
 
           If (anod > 0.0 .and. anod < real(psd%nano-1) .AND.  &
               cath > 0.0 .and. cath < real(psd%ncat-1)) Return
-             ierr=-1
+              ierr=-1
 
        Else   ! Find GamP, NuP given GamM, Cath and Anod
 

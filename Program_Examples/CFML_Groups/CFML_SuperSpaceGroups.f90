@@ -87,14 +87,14 @@
     End Type sReflection_List_Type
 
     !!----
-    !!---- TYPE :: KVECT_LIST_TYPE
+    !!---- TYPE :: KVECT_INFO_TYPE
     !!--..
-    !!---- Type, public :: KVECT_LIST_TYPE
+    !!---- Type, public :: KVECT_INFO_TYPE
     !!----    integer                                      :: nk        ! Number of k-vectors
     !!----    real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
     !!----    real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
     !!----    integer,allocatable,dimension(:)             :: nharm     ! number of harmonics (nk)
-    !!---- End Type kvect_list_type
+    !!---- End Type kvect_info_type
     !!----
     !!---- This type encapsulates information about modulation
     !!---- vectors irrespective of providing a superspace group

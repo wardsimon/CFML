@@ -445,8 +445,8 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp)                              :: horiz                !Horizontal dimension
       real(kind=cp)                              :: agap                 !gap between anodes
       real(kind=cp)                              :: cgap                 !gap between cathodes
-      integer                                    :: np_vert              !number of pixels in vertical direction
-      integer                                    :: np_horiz             !number of pixels in horizontal direction
+      integer                                    :: np_vert              !number of pixels in vertical direction (anodes in d19)
+      integer                                    :: np_horiz             !number of pixels in horizontal direction (cathodes in d19)
       logical                                    :: tilted               ! True if RD /= I
       real(kind=cp), dimension(3,3)              :: RD                   ! Rotation matrix giving the orientation of the D-frame w.r.t. the L-frame
                                                                          ! RD= Rx(tiltz_d) Ry(tilty_d) Rz(tiltz_d)  or with the permutation given by r_order
@@ -2051,7 +2051,15 @@ Module CFML_ILL_Instrm_Data
         ! How to read in the data depends on the machine
         ! The raw data is stored in snum%counts in the order it is written in the numor
         ! Ideally the data needs to be put into 'icnt' from the samples point of view
-        select case(l_case(machineName))
+        ! Instead of machine name, a number can be provided in order to read the pixels
+        ! in a particular way.
+        ! 1: Column by column with zero at high nu, high gamma (e.g. D19 banana)
+        ! 2: Row by Row with zero at high nu, high gamma (e.g. D9 and D10)
+        ! 3: Row wire by Row with zero at high nu, low gamma (e.g. D19 bidim?)
+        ! 4: Column by column with zero at low nu, low gamma (e.g. D19 bidim on DB21)
+        ! 5: Row by Row wire with zero at high nu, low gamma (e.g. D19 bidim on DB21)
+
+        select case(l_case(trim(machineName)))
             case('d9','d10')
                 read(snum%header(22:23),"(i2)") iyear
                 if (iyear > 70 .AND. iyear < 99) then
@@ -2071,7 +2079,7 @@ Module CFML_ILL_Instrm_Data
                 ERR_ILLData_Mess= 'Can''t read D19 Vertical Banana Detector data!'
                 ERR_ILLData=.true.
                 return
-            case ('d19_hb','d19','db21','d16')
+            case ('d19_hb','d19','db21','d16','1')
                 do ix=1,xsize
                     do iy=1,ysize
                         idx = iy+(ix-1)*ysize
@@ -3077,7 +3085,7 @@ Module CFML_ILL_Instrm_Data
 
             Case("DIM_XY","DIM_XZ","DIM_XZP")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%horiz,    Current_Instrm%vert, &  !dimensions in milimeters
-                                                       Current_Instrm%np_horiz, Current_Instrm%np_vert  !number of anodes and cathodes
+                                                       Current_Instrm%np_horiz, Current_Instrm%np_vert  !number of  cathodes and anodes
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the dimensions of the detector"
