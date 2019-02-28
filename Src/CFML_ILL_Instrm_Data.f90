@@ -1104,6 +1104,10 @@ Module CFML_ILL_Instrm_Data
       Module Procedure Write_HeaderInfo_SXTAL_Numor
    End Interface
 
+   Interface  Get_Counts
+      Module Procedure Get_Counts_int
+      Module Procedure Get_Counts_real
+   End Interface
 
 !   Interface
 !       subroutine fra1()
@@ -1112,8 +1116,6 @@ Module CFML_ILL_Instrm_Data
 !   Interface
 !       subroutine Read_Numor_D19_NXS
 !   End Interface
-
-
 
  Contains
 
@@ -2035,7 +2037,7 @@ Module CFML_ILL_Instrm_Data
     !!----   Update: February - 2019 (adapted from peakfind)
     !!----
     !!----
-    Subroutine Get_Counts(np,snum,machineName,icnt)
+    Subroutine Get_Counts_int(np,snum,machineName,icnt)
         integer,                 intent(In)     :: np
         Type(Sxtal_Numor_Type),  intent(In)     :: snum
         character(len=*),        intent(in)     :: machineName
@@ -2092,7 +2094,66 @@ Module CFML_ILL_Instrm_Data
                 return
         end select
 
-    End Subroutine Get_Counts
+    End Subroutine Get_Counts_int
+
+    Subroutine Get_Counts_real(np,snum,machineName,cnt)
+        integer,                       intent(In)     :: np
+        Type(Sxtal_Numor_Type),        intent(In)     :: snum
+        character(len=*),              intent(in)     :: machineName
+        real(kind=cp), dimension(:,:), intent(In Out) :: cnt
+        !
+        integer :: ik1,ik2,ix,iy,idx,iyear, xsize, ysize
+
+        xsize = Size(cnt,1)-4 ! account for two pixel border
+        ysize = Size(cnt,2)-4
+
+        ! Set cnt to zero (required for border)
+        cnt = 0.0
+        ! How to read in the data depends on the machine
+        ! The raw data is stored in snum%counts in the order it is written in the numor
+        ! Ideally the data needs to be put into 'icnt' from the samples point of view
+        ! Instead of machine name, a number can be provided in order to read the pixels
+        ! in a particular way.
+        ! 1: Column by column with zero at high nu, high gamma (e.g. D19 banana)
+        ! 2: Row by Row with zero at high nu, high gamma (e.g. D9 and D10)
+        ! 3: Row wire by Row with zero at high nu, low gamma (e.g. D19 bidim?)
+        ! 4: Column by column with zero at low nu, low gamma (e.g. D19 bidim on DB21)
+        ! 5: Row by Row wire with zero at high nu, low gamma (e.g. D19 bidim on DB21)
+
+        select case(l_case(trim(machineName)))
+            case('d9','d10')
+                read(snum%header(22:23),"(i2)") iyear
+                if (iyear > 70 .AND. iyear < 99) then
+                    ik1 = 1
+                    ik2 = 0
+                else
+                    ik1 = 0
+                    ik2 = 1
+                end if
+                do ix=1,xsize
+                    do iy=1,ysize
+                        idx=(ix+(iy-1)*xsize)*ik1 + (iy+(ix-1)*ysize)*ik2
+                        cnt(ix+2,iy+2)=snum%counts(idx,np)
+                    end do
+                end do
+            case('d19_vb')
+                ERR_ILLData_Mess= 'Can''t read D19 Vertical Banana Detector data!'
+                ERR_ILLData=.true.
+                return
+            case ('d19_hb','d19','db21','d16','1')
+                do ix=1,xsize
+                    do iy=1,ysize
+                        idx = iy+(ix-1)*ysize
+                        cnt(ix+2,iy+2) = snum%counts(idx,np)
+                    end do
+                end do
+            case default
+                ERR_ILLData_Mess= 'Error in Get_Counts: Unknown machine!'
+                ERR_ILLData=.true.
+                return
+        end select
+
+    End Subroutine Get_Counts_real
 
     !!----
     !!---- Subroutine Get_Next_YearCycle(YearCycle,Reset_To_Most_Recent)
