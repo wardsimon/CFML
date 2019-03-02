@@ -1458,11 +1458,6 @@
 
        end do
 
-       if(.not. cell_given) then
-         Err_ssg=.true.
-         Err_ssg_Mess= " Error: Unit cell parameters not provided! "
-         return
-       end if
        if(len_trim(generators_string) /= 0) then
           call Group_Constructor(generators_string,SSG)
           if(Err_group .or. Err_ssg) then

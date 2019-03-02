@@ -386,6 +386,11 @@
       real(kind=cp), dimension(48)     :: Twin_ang
     End Type twin_type
 
+    interface Get_z1_from_pixel
+      module procedure Get_z1_from_pixel_num
+      module procedure Get_z1_from_pixel_ang
+    end interface
+
  Contains
 
     !!---- Elemental Function chkin180(angle) result(angle_in)
@@ -1805,14 +1810,14 @@
     End Subroutine Get_z1_D9angls
 
     !!----
-    !!---- Subroutine Get_z1_from_pixel(npx,npz,ifr,snum,z1)
+    !!---- Subroutine Get_z1_from_pixel_num(npx,npz,ifr,snum,z1)
     !!----    integer,                intent(in)  :: npx,npz,ifr (pixel and frame)
     !!----    type(SXTAL_Numor_type), intent(in)  :: snum
     !!----    real(kind=cp), dimension(3),     intent(out) :: z1
     !!----
-    !!---- Update: May 2011
+    !!---- Update: May 2011, February 2019 (JRC)
     !!
-    Subroutine Get_z1_from_pixel(npx,npz,ifr,snum,z1)
+    Subroutine Get_z1_from_pixel_num(npx,npz,ifr,snum,z1)
        !---- Arguments ----!
        integer,                      intent(in)  :: npx,npz,ifr
        type(SXTAL_Numor_type),       intent(in)  :: snum
@@ -1822,7 +1827,7 @@
        integer        :: ier, mpsd
        real(kind=cp)  :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
-       mpsd  = 1  !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
+       mpsd  = 1        !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
        phim  = snum%angles(1)  !Angles corresponding to hmin,kmin,lmin
        chim  = snum%angles(2)
        omem  = snum%angles(3)
@@ -1838,8 +1843,8 @@
           phim  = snum%tmc_ang(7,ifr)
        end if
 
-       anod  = npx
-       cath  = npz
+       anod  = npz
+       cath  = npx
        wave  = Current_Orient%wave
 
        ! Find GAMP and NUP for this pixel
@@ -1850,7 +1855,39 @@
        Call z1frmd(wave,chim,phim,gamp,omem,nup,z1)
 
        return
-    End Subroutine Get_z1_from_pixel
+    End Subroutine Get_z1_from_pixel_num
+
+    !!----
+    !!---- Subroutine Get_z1_from_pixel_num(npx,npz,ifr,snum,z1)
+    !!----    integer,                intent(in)  :: npx,npz,ifr (pixel and frame)
+    !!----    type(SXTAL_Numor_type), intent(in)  :: snum
+    !!----    real(kind=cp), dimension(3),     intent(out) :: z1
+    !!----
+    !!---- Update: Created February 2019 (JRC)
+    !!
+    Subroutine Get_z1_from_pixel_ang(wave,npx,npz,gamm,omem,chim,phim,z1)
+       !---- Arguments ----!
+       integer,                      intent(in)  :: npx,npz
+       real(kind=cp),                intent(in)  :: wave,gamm,omem,chim,phim
+       real(kind=cp), dimension(3),  intent(out) :: z1
+
+       !---- Local Variables ----!
+       integer        :: ier, mpsd
+       real(kind=cp)  :: gamp,nup,xobs,zobs,cath,anod
+
+       mpsd  = 1        !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
+       anod  = npz
+       cath  = npx
+
+       ! Find GAMP and NUP for this pixel
+       Call Psd_Convert(mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ier)
+
+       ! Find the scattering vector in cartesian coordinates for this pixel
+       ! from GAMP, NUP, CHIM, OMEGM and PHIM
+       Call z1frmd(wave,chim,phim,gamp,omem,nup,z1)
+
+       return
+    End Subroutine Get_z1_from_pixel_ang
 
     !!----
     !!---- Subroutine normal(v,ierr)
