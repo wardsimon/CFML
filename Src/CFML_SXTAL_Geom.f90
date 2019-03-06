@@ -759,11 +759,11 @@
          Write(Unit=ipr,Fmt="(/,a)")                " => Parameters deduced from the UB matrix "
          Write(Unit=ipr,Fmt="(a,3f12.5,tr4,3f9.4)") " => Direct     cell dimensions: ",acal,angcal
          Write(Unit=ipr,Fmt="(a,3f12.8,tr4,3f9.4)") " => Reciprocal cell dimensions: ",cala,calang
-         Write(Unit=ipr,Fmt="(/,a,/)") " =>  Inverse of UB-Matrix "
-         Write(Unit=ipr,Fmt="(a)")            "             X(PH=0,CH=0)  Y(PH=90,CH=0)    Z(CHI=90)"
-         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          H",ubinv(1,:)
-         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          K",ubinv(2,:)
-         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          L",ubinv(3,:)
+         Write(Unit=ipr,Fmt="(/,a)")" =>               UB-Matrix                                          Inverse of UB-Matrix "
+         Write(Unit=ipr,Fmt="(a)")    "           A*            B*            C*                 X(PH=0,CH=0)  Y(PH=90,CH=0)    Z(CHI=90)"
+         Write(Unit=ipr,Fmt="(a,3f14.8,a,3f14.8)") "  X",ub(1,:),"          H",ubinv(1,:)
+         Write(Unit=ipr,Fmt="(a,3f14.8,a,3f14.8)") "  Y",ub(2,:),"          K",ubinv(2,:)
+         Write(Unit=ipr,Fmt="(a,3f14.8,a,3f14.8)") "  Z",ub(3,:),"          L",ubinv(3,:)
          !.....Now calculate angles between recip axes and orthogonal diffract. axes
          Do  i=1,3
            Do  j=1,3
