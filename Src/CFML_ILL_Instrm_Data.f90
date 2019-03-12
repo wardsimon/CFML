@@ -3155,8 +3155,8 @@ Module CFML_ILL_Instrm_Data
                 npx = Current_Instrm%np_horiz
                 npz = Current_Instrm%np_vert
 
-            Case("GAPS_DET")
-                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%cgap, Current_Instrm%agap  !Gaps between anodes and between cathodes
+            Case("GAPS_DET","GAPS_CA_AN")
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%cgap, Current_Instrm%agap  !Gaps between cathodes and between anodes
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess=&
@@ -6754,18 +6754,18 @@ Module CFML_ILL_Instrm_Data
           write(unit=ipr,fmt="(a,3f8.3 )")   "   e1_COMPNT: ", Current_Instrm%e1
           write(unit=ipr,fmt="(a,3f8.3 )")   "   e2_COMPNT: ", Current_Instrm%e2
           write(unit=ipr,fmt="(a,3f8.3 )")   "   e3_COMPNT: ", Current_Instrm%e3
-
-          write(unit=ipr,fmt="(a)") " "
-          write(unit=ipr,fmt="(a)") "       ORIENTATION MATRIX  UB                       INVERSE OF UB-MATRIX"
-          write(unit=ipr,fmt="(a)") " ---------------------------------------------------------------------------"
-          write(unit=ipr,fmt="(a)") " "
-          write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(1,:), Current_Orient%ubinv(1,:)
-          write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(2,:), Current_Orient%ubinv(2,:)
-          write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(3,:), Current_Orient%ubinv(3,:)
-          write(unit=ipr,fmt="(a)") " "
-          if(index(Current_Instrm%geom,"Laue") == 0) write(unit=ipr,fmt="(a,f8.4,a)")  &
-                                         "  WAVELENGTH:",Current_Orient%wave," angstroms"
-
+          if(Current_Orient%orient_set) then
+             write(unit=ipr,fmt="(a)") " "
+             write(unit=ipr,fmt="(a)") "       ORIENTATION MATRIX  UB                       INVERSE OF UB-MATRIX"
+             write(unit=ipr,fmt="(a)") " ---------------------------------------------------------------------------"
+             write(unit=ipr,fmt="(a)") " "
+             write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(1,:), Current_Orient%ubinv(1,:)
+             write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(2,:), Current_Orient%ubinv(2,:)
+             write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(3,:), Current_Orient%ubinv(3,:)
+             write(unit=ipr,fmt="(a)") " "
+             if(index(Current_Instrm%geom,"Laue") == 0) write(unit=ipr,fmt="(a,f8.4,a)")  &
+                                            "  WAVELENGTH:",Current_Orient%wave," angstroms"
+          end if
           if (Current_Instrm%rangtim) then
              write(unit=ipr,fmt="(a)") "RANGE_TIME:"
              do i=1,Current_Instrm%num_ang
@@ -6804,7 +6804,7 @@ Module CFML_ILL_Instrm_Data
           end if
           write(unit=ipr,fmt="(a,2f8.3,2i5)")"DIM_XZP     ", Current_Instrm%horiz,    Current_Instrm%vert, &
                                                               Current_Instrm%np_horiz, Current_Instrm%np_vert
-          write(unit=ipr,fmt="(a,2f8.4)")    "GAPS_DET    ",Current_Instrm%cgap, Current_Instrm%agap
+          write(unit=ipr,fmt="(a,2f8.4)")    "GAPS_CA_AN  ",Current_Instrm%cgap, Current_Instrm%agap
           write(unit=ipr,fmt="(a,f8.5)")     "WAVE        ",Current_Orient%wave
           write(unit=ipr,fmt="(a,2f8.5)")    "GN_CENTRE   ",Current_Instrm%ga_d, Current_Instrm%nu_d
           write(unit=ipr,fmt="(a,3f8.5)")    "TILT_ANGLES ",Current_Instrm%Tiltx_d, Current_Instrm%Tilty_d, Current_Instrm%Tiltz_d
