@@ -260,24 +260,25 @@ Module CFML_ILL_Instrm_Data
 
    !---- Public Subroutines ----!
    public :: Set_Current_Orient, Read_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
-             Allocate_Numors, Set_ILL_data_directory, Set_Instrm_directory,                      &
+             Allocate_Numors, Set_ILL_data_directory, Set_Instrm_directory, Init_SXTAL_Numor,    &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
              Define_Uncompress_Program, PowderNumors_To_DiffPattern, Write_HeaderInfo_Numor,     &
-             Read_Calibration_File, Initialize_Numor, Init_Err_ILLData, Get_Counts
+             Read_Calibration_File, Initialize_Numor, Init_Err_ILLData, Get_Counts,              &
+             Write_HeaderInfo_SXTAL_Numor,Write_SXTAL_Numor
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File,      &
              Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,         &
              Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,              &
              Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,Read_Numor_D9, &
-             Read_Numor_D16, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,              &
-             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,        &
+             Read_Numor_D16, Read_Numor_D19, Write_POWDER_Numor,                                 &
+             Write_HeaderInfo_POWDER_Numor, Read_Numor_D2B,                                      &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
-             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
+             Read_Numor_D10, Init_Powder_Numor,  Read_Calibration_File_D1A,                      &
              Read_Calibration_File_D2B, Read_Calibration_File_D4, Adding_Numors_D1A_DiffPattern, &
-             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern, &
+             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern,    &
              Read_Numor_D19_NXS
 
 
@@ -721,7 +722,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: icalc           ! angle calculation type
       character(len=32)                          :: header          ! User, local contact, date
       character(len=12)                          :: Instrm          ! Instrument name
-      character(len=32)                          :: title           ! The title of the experiment
+      character(len=60)                          :: title           ! The title of the experiment
       character(len=8)                           :: Scantype        ! omega, phi, etc...
       real(kind=cp), dimension(3)                :: hmin            ! The hkls min
       real(kind=cp), dimension(3)                :: hmax            ! The hkls max
@@ -5822,10 +5823,10 @@ Module CFML_ILL_Instrm_Data
           case ('D19','D19_HB')
              call Read_Numor_D19_NXS(trim(filename),num,frames,nxs_succes)
              if (.not.(nxs_succes)) then
-                write(*,*) 'Reading ASCII files'
+                write(*,"(a)") ' => Reading ASCII files'
                 call Read_Numor_D19(trim(filename),num,frames)
              else
-               write(*,*) 'Reading NEXUS files'
+                write(*,"(a)") ' => Reading NEXUS files'
              endif
           case default
              ERR_ILLData=.true.
@@ -7189,7 +7190,7 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
-       write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title)
        write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//Num%Instrm
        write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
        write(unit=ipr,fmt="(a,f8.3)")   "  COUPLING_FACT: ", Num%cpl_fact
@@ -7232,18 +7233,27 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "  Profile with all counts in detector: "
 
-       do i=1, Num%nframes
-          cou=nint(sum(Num%counts(:,i)))
-          !ang= Num%scans(1)+ real(i-1)*Num%scans(2)
-          tim = Num%tmc_ang(1,i)
-          mon = Num%tmc_ang(2,i)
-          ctot = nint(Num%tmc_ang(3,i))
-          ang1 = Num%tmc_ang(4,i)
-          ang2 = Num%tmc_ang(5,i)
-          write(unit=ipr,fmt="(4f12.2,2i8)") tim,mon,ang1,ang2, ctot, cou
-       end do
-
-       return
+       if(allocated(Num%counts)) then
+         do i=1, Num%nframes
+            cou=nint(sum(Num%counts(:,i)))
+            !ang= Num%scans(1)+ real(i-1)*Num%scans(2)
+            tim = Num%tmc_ang(1,i)
+            mon = Num%tmc_ang(2,i)
+            ctot = nint(Num%tmc_ang(3,i))
+            ang1 = Num%tmc_ang(4,i)
+            ang2 = Num%tmc_ang(5,i)
+            write(unit=ipr,fmt="(4f12.2,2i8)") tim,mon,ang1,ang2, ctot, cou
+         end do
+       else
+         do i=1, Num%nframes
+            tim = Num%tmc_ang(1,i)
+            mon = Num%tmc_ang(2,i)
+            ctot = nint(Num%tmc_ang(3,i))
+            ang1 = Num%tmc_ang(4,i)
+            ang2 = Num%tmc_ang(5,i)
+            write(unit=ipr,fmt="(4f12.2,i8)") tim,mon,ang1,ang2, ctot
+         end do
+       end if
     End Subroutine Write_SXTAL_Numor
 
     !!----
