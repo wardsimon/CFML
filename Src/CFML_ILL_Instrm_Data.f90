@@ -2035,6 +2035,7 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!----   Read counts of frame "np" from numor "snum" of machine "machineName"
     !!----   and store them in the 2D matrix icnt
+    !!----   This matrix is previously dimensioned (nh+4,nv+4)
     !!----   Update: February - 2019 (adapted from peakfind)
     !!----
     !!----
@@ -2097,7 +2098,20 @@ Module CFML_ILL_Instrm_Data
 
     End Subroutine Get_Counts_int
 
-    Subroutine Get_Counts_real(np,snum,machineName,cnt)
+
+    !!----Subroutine Get_Counts(np,snum,machineName,icnt)
+    !!----  integer,                 intent(In)     :: np
+    !!----  Type(Sxtal_Numor_Type),  intent(In)     :: snum
+    !!----  character(len=*),        intent(in)     :: machineName
+    !!----  integer, dimension(:,:), intent(In Out) :: icnt
+    !!----
+    !!----   Read counts of frame "np" from numor "snum" of machine "machineName"
+    !!----   and store them in the 2D matrix icnt
+    !!----   This matrix is previously dimensioned (nh+4,nv+4)
+    !!----   Update: February - 2019 (adapted from peakfind)
+    !!----
+    !!----
+        Subroutine Get_Counts_real(np,snum,machineName,cnt)
         integer,                       intent(In)     :: np
         Type(Sxtal_Numor_Type),        intent(In)     :: snum
         character(len=*),              intent(in)     :: machineName
@@ -2156,7 +2170,6 @@ Module CFML_ILL_Instrm_Data
 
     End Subroutine Get_Counts_real
 
-    !!----
     !!---- Subroutine Get_Next_YearCycle(YearCycle,Reset_To_Most_Recent)
     !!----    character(len=*), intent(out) :: yearcycle
     !!----    logical, optional, intent(in) :: reset_to_most_recent
