@@ -2035,8 +2035,7 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!----   Read counts of frame "np" from numor "snum" of machine "machineName"
     !!----   and store them in the 2D matrix icnt
-    !!----   This matrix is previously dimensioned (nh+4,nv+4)
-    !!----   Update: February - 2019 (adapted from peakfind)
+    !!----   Update: March - 2019
     !!----
     !!----
     Subroutine Get_Counts_int(np,snum,machineName,icnt)
@@ -2047,8 +2046,8 @@ Module CFML_ILL_Instrm_Data
         !
         integer :: ik1,ik2,ix,iy,idx,iyear, xsize, ysize
 
-        xsize = Size(icnt,1)-4 ! account for two pixel border
-        ysize = Size(icnt,2)-4
+        xsize = Size(icnt,1)
+        ysize = Size(icnt,2)
 
         ! Set icnt to zero (required for border)
         icnt = 0
@@ -2076,7 +2075,7 @@ Module CFML_ILL_Instrm_Data
                 do ix=1,xsize
                     do iy=1,ysize
                         idx=(ix+(iy-1)*xsize)*ik1 + (iy+(ix-1)*ysize)*ik2
-                        icnt(ix+2,iy+2)=snum%counts(idx,np)  !icou(i)
+                        icnt(ix,iy)=snum%counts(idx,np)  !icou(i)
                     end do
                 end do
             case('d19_vb')
@@ -2084,12 +2083,13 @@ Module CFML_ILL_Instrm_Data
                 ERR_ILLData=.true.
                 return
             case ('d19_hb','d19','db21','d16','1')
-                do ix=1,xsize
-                    do iy=1,ysize
-                        idx = iy+(ix-1)*ysize
-                        icnt(ix+2,iy+2) = snum%counts(idx,np)
-                    end do
-                end do
+                !do ix=1,xsize
+                !    do iy=1,ysize
+                !        idx = iy+(ix-1)*ysize
+                !        icnt(ix,iy) = snum%counts(idx,np)
+                !    end do
+                !end do
+                icnt=reshape(nint(snum%counts(:,np)),(/xsize,ysize/))
             case default
                 ERR_ILLData_Mess= 'Error in Get_Counts: Unknown machine!'
                 ERR_ILLData=.true.
@@ -2099,19 +2099,18 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Counts_int
 
 
-    !!----Subroutine Get_Counts(np,snum,machineName,icnt)
-    !!----  integer,                 intent(In)     :: np
-    !!----  Type(Sxtal_Numor_Type),  intent(In)     :: snum
-    !!----  character(len=*),        intent(in)     :: machineName
-    !!----  integer, dimension(:,:), intent(In Out) :: icnt
+    !!----Subroutine Get_Counts(np,snum,machineName,cnt)
+    !!----  integer,                       intent(In)     :: np
+    !!----  Type(Sxtal_Numor_Type),        intent(In)     :: snum
+    !!----  character(len=*),              intent(in)     :: machineName
+    !!----  real(kind=cp), dimension(:,:), intent(In Out) :: cnt
     !!----
     !!----   Read counts of frame "np" from numor "snum" of machine "machineName"
     !!----   and store them in the 2D matrix icnt
-    !!----   This matrix is previously dimensioned (nh+4,nv+4)
-    !!----   Update: February - 2019 (adapted from peakfind)
+    !!----   Update: March - 2019
     !!----
     !!----
-        Subroutine Get_Counts_real(np,snum,machineName,cnt)
+    Subroutine Get_Counts_real(np,snum,machineName,cnt)
         integer,                       intent(In)     :: np
         Type(Sxtal_Numor_Type),        intent(In)     :: snum
         character(len=*),              intent(in)     :: machineName
@@ -2119,10 +2118,9 @@ Module CFML_ILL_Instrm_Data
         !
         integer :: ik1,ik2,ix,iy,idx,iyear, xsize, ysize
 
-        xsize = Size(cnt,1)-4 ! account for two pixel border
-        ysize = Size(cnt,2)-4
+        xsize = Size(cnt,1)
+        ysize = Size(cnt,2)
 
-        ! Set cnt to zero (required for border)
         cnt = 0.0
         ! How to read in the data depends on the machine
         ! The raw data is stored in snum%counts in the order it is written in the numor
@@ -2148,7 +2146,7 @@ Module CFML_ILL_Instrm_Data
                 do ix=1,xsize
                     do iy=1,ysize
                         idx=(ix+(iy-1)*xsize)*ik1 + (iy+(ix-1)*ysize)*ik2
-                        cnt(ix+2,iy+2)=snum%counts(idx,np)
+                        cnt(ix,iy)=snum%counts(idx,np)
                     end do
                 end do
             case('d19_vb')
@@ -2156,12 +2154,13 @@ Module CFML_ILL_Instrm_Data
                 ERR_ILLData=.true.
                 return
             case ('d19_hb','d19','db21','d16','1')
-                do ix=1,xsize
-                    do iy=1,ysize
-                        idx = iy+(ix-1)*ysize
-                        cnt(ix+2,iy+2) = snum%counts(idx,np)
-                    end do
-                end do
+                !do ix=1,xsize
+                !    do iy=1,ysize
+                !        idx = iy+(ix-1)*ysize
+                !        cnt(ix,iy) = snum%counts(idx,np)
+                !    end do
+                !end do
+                cnt=reshape(snum%counts(:,np),(/xsize,ysize/))
             case default
                 ERR_ILLData_Mess= 'Error in Get_Counts: Unknown machine!'
                 ERR_ILLData=.true.
