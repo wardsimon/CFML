@@ -1,12 +1,11 @@
 @echo off
 rem ------------------------------------
 rem ---- CrysFML for Intel Compiler ----
-rem ---- JGP-2015                   ----
+rem ---- JGP                   2019 ----
 rem ------------------------------------
 rem
 rem ---- INIT ----
    (set _DEBUG=N)
-   (set _I15=N)
    (set _WINTER=N)
    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
 rem
@@ -15,7 +14,6 @@ rem ---- Arguments ----
 rem ----
 :LOOP
     if [%1]==[debug]  (set _DEBUG=Y)
-    if [%1]==[15]     (set _I15=Y)
     if [%1]==[winter] (set _WINTER=Y)
     shift
     if not [%1]==[] goto LOOP
@@ -31,11 +29,8 @@ rem
       (set OPT0=/Od)
       (set OPT1=/O2)
    )
-   if [%_I15]==[N] (
-      (set OPT2=/fpp /Qvec-report0)
-   ) else (
-      (set OPT2=/fpp /Qopt-report:0)
-   )
+rem   
+   (set OPT2=/fpp /Qopt-report:0)
    (set OPT3=)
    if [%_WINTER%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (
@@ -47,15 +42,17 @@ rem
 rem
    cd %CRYSFML%\Src
 rem
-   echo **---- Compiler Options ----**
+   echo.
+   echo **-------------------------------------**
+   echo **---- CrysFML: Start Compilation  ----**
+   echo **-------------------------------------**
+   echo Compiler Options 
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
    echo OPT2:%OPT2%
    echo OPT3:%OPT3%
-   echo **---- End Compiler Options ----**
    echo.
 rem
-   echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /nologo %OPT1% %OPT2%
@@ -76,7 +73,6 @@ rem   ifort /c CFML_Rational_Arithmetic.f90              /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
    ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 1 ----**
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
@@ -87,7 +83,6 @@ rem
    ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 2 ----**
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
    ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
@@ -95,21 +90,18 @@ rem
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 3 ----**
    echo .... EoS, Reflections, Atoms
 rem
    ifort /c CFML_Eos_Mod.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 4 ----**
    echo .... Formats, Geometry, Molecules
 rem
    ifort /c CFML_geom_calc.f90                        /nologo %OPT1% %OPT2%
    ifort /c CFML_molecules.f90                        /nologo %OPT1% %OPT2%
    ifort /c CFML_form_cif.f90                        /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 5 ----**
    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
    ifort /c CFML_Extinction_Correction.f90           /nologo %OPT1% %OPT2%
@@ -117,14 +109,12 @@ rem
    ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 6 ----**
    echo .... Maps, BVS, Energy Configurations
 rem
    ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
    ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 7 ----**
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
    ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
@@ -132,14 +122,14 @@ rem
    ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
    ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
 rem
-   echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry
 rem
    ifort /c CFML_msfac.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_polar.f90                           /nologo %OPT1% %OPT2%
 rem
 rem
-   echo **---- Crysfml Library ----**
+   echo.
+   echo Creating CrysFML Library 
 rem
    if [%_WINTER%]==[Y] (
      lib /out:wcrysfml.lib *.obj
@@ -147,7 +137,7 @@ rem
      lib /out:crysfml.lib *.obj
    )
 rem
-   echo **---- ifort Directory ----**
+   echo Creating IFORT directory 
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (
@@ -163,5 +153,8 @@ rem
    )
    del *.obj *.mod *.lst *.bak > nul
 rem
+   echo.
+   echo **---- End Compilation for CrysFML ----**
+   echo.
    cd %CRYSFML%\Scripts\Windows
 rem
