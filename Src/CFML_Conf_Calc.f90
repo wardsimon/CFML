@@ -1616,7 +1616,9 @@
           exit
         end if
       end do
-      if(radius < 0.01) radius=1.0
+      if(radius < 0.01) then
+        call Get_Covalent_Radius(nam,radius)
+      end if
     End Subroutine get_soft_covalent_radius
 
     !!----

@@ -398,11 +398,7 @@ Program Bond_Str
        Ac%atom(1:A%natoms)=A%atom
 
        if(bvel_calc) then
-          !if(soft) then  Called event if soft is .false. to allocate Atomic Properties
-            call Species_on_List(Ac,SpGr%Multip,ttol,.true.,soft) !using softBVS for determining Morse parameters
-          !else
-          !  call Species_on_List(Ac,SpGr%Multip,ttol,.true.) !using covalent radius and table for oxides
-          !end if
+          call Species_on_List(Ac,SpGr%Multip,ttol,.true.,.true.) !using effective radius from atomic properties or covalent if not exist!
        else
           call Species_on_List(Ac,SpGr%Multip,ttol)
        end if
