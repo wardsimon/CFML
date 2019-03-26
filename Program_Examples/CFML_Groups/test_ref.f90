@@ -9,24 +9,24 @@ program test_reflections
   use CFML_IO_Formats,       only : File_To_FileList,File_List_Type
   implicit none
 
-  character(len=80)             :: line,fmto,fileout,message,cfl_file,filcod
+  character(len=80)             :: line,fmto,fileout,message,cfl_file,filcod,database_path
   type(sReflection_List_Type)   :: ref
   type(Crystal_Cell_Type)       :: cell
   type(SuperSpaceGroup_Type)    :: SSG
   type(File_List_Type)          :: File_list
   type(kvect_info_type)         :: kinfo
   real(kind=cp), dimension(3)   :: abc,albega,h
-  real(kind=cp), dimension(3,6) :: kv
+  !real(kind=cp), dimension(3,6) :: kv
   real(kind=cp), dimension(3,6) :: kcomp
   real(kind=cp)                 :: sintlmax=0.5,tini,tfin
   integer                       :: nk,i,Dd,i_out,m,j,narg
-  integer,       dimension(6)   :: nharm=1
-  real(kind=cp), dimension(6)   :: sintl
+  !integer,       dimension(6)   :: nharm=1
+  !real(kind=cp), dimension(6)   :: sintl
   logical :: ok,arggiven,powder,mag=.true.
 
-
   fileout="Test_Reflections.out"
-  call Read_SSG("c:\CrysFML\Program_Examples\Testing_SuperSpace",ok,message)
+  database_path="c:\CrysFML\Program_Examples\Testing_SuperSpace"
+  call Read_SSG(trim(database_path),ok,message)
   if(.not. ok) then
     write(*,"(a)") "   !!! "//message//" !!!"
     stop
@@ -45,8 +45,7 @@ program test_reflections
       end if
       fileout=trim(filcod)//"_ref.out"
       call File_To_FileList(cfl_file,File_list)
-      call Readn_Set_SuperSpace_Group(File_list%line,cell,SSG,kinfo)
-
+      call Readn_Set_SuperSpace_Group(database_path,File_list%line,cell,SSG,kinfo)
 
       if(Err_ssg) then
         write(unit=*,fmt="(a)") trim(Err_ssg_mess)
@@ -90,7 +89,7 @@ program test_reflections
          write(*,"(a)") " => There are only 16697 superspace groups in the database! "
          cycle
        end if
-       call Set_SSG_Reading_Database(m,SSG,ok,message,"x1x2x3")
+       call Set_SSG_Reading_Database(database_path,m,SSG,ok,message,"x1x2x3")
        if(.not. ok) then
          write(*,"(a)") "   !!! "//message//" !!!"
          stop

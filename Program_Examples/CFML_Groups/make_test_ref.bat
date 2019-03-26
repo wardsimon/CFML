@@ -13,32 +13,32 @@ rem
 rem
 rem ****---- Intel Compiler ----****
 :IFORTD
-   ifort /c CFML_ssg_datafile.f90             /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c CFML_Rational_Groups.f90          /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c CFML_SuperSpaceGroups.f90         /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c test_ref.f90                      /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c CFML_ssg_datafile.f90             /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC /warn
+   ifort /c CFML_Rational_Groups.f90          /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC /warn
+   ifort /c CFML_SuperSpaceGroups.f90         /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC /warn
+   ifort /c test_ref.f90                      /heap-arrays /debug=full /traceback /nologo /IC:\CrysFML\ifort_debug\LibC /warn
    ifort /exe:test_ref *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
    goto END
 rem
 :IFORT
-   ifort /c CFML_ssg_datafile.f90        /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
-   ifort /c CFML_Rational_Groups.f90     /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
-   ifort /c CFML_SuperSpaceGroups.f90    /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
-   ifort /c test_ref.f90                 /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC
+   ifort /c CFML_ssg_datafile.f90        /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC /warn
+   ifort /c CFML_Rational_Groups.f90     /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC /warn
+   ifort /c CFML_SuperSpaceGroups.f90    /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC /warn
+   ifort /c test_ref.f90                 /O2     /heap-arrays  /IC:\CrysFML\ifort\LibC /warn
    ifort /exe:test_ref *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
 :IFORT64
-   ifort /c CFML_ssg_datafile.f90        /O3      /IC:\CrysFML\ifort64\LibC
-   ifort /c CFML_Rational_Groups.f90     /O3      /IC:\CrysFML\ifort64\LibC
-   ifort /c CFML_SuperSpaceGroups.f90    /O3      /IC:\CrysFML\ifort64\LibC
-   ifort /c test_ref.f90                 /O3      /IC:\CrysFML\ifort64\LibC
+   ifort /c CFML_ssg_datafile.f90        /O3      /IC:\CrysFML\ifort64\LibC /warn
+   ifort /c CFML_Rational_Groups.f90     /O3      /IC:\CrysFML\ifort64\LibC /warn
+   ifort /c CFML_SuperSpaceGroups.f90    /O3      /IC:\CrysFML\ifort64\LibC /warn
+   ifort /c test_ref.f90                 /O3      /IC:\CrysFML\ifort64\LibC /warn
    ifort /exe:test_ref *.obj C:\CrysFML\ifort64\LibC\crysfml.lib /link /stack:128000000
    goto END
 :IFORT64D
-   ifort /c CFML_ssg_datafile.f90        /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c CFML_Rational_Groups.f90     /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c CFML_SuperSpaceGroups.f90    /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c test_ref.f90                 /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC
+   ifort /c CFML_ssg_datafile.f90        /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC /warn
+   ifort /c CFML_Rational_Groups.f90     /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC /warn
+   ifort /c CFML_SuperSpaceGroups.f90    /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC /warn
+   ifort /c test_ref.f90                 /heap-arrays /debug=full /traceback /nologo   /IC:\CrysFML\ifort64_debug\LibC /warn
    ifort /exe:test_ref *.obj C:\CrysFML\ifort64_debug\LibC\crysfml.lib
    goto END
 rem

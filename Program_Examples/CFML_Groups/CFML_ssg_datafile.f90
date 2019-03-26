@@ -105,11 +105,10 @@
         logical,          intent(out) :: ok
         character(len=*), intent(out) :: mess
         !
-        integer :: i,j,k,m,n,imax,nmod,iclass
+        integer :: i,j,k,m,n,nmod,iclass
         integer :: i_db, ier,L
         character(len=512) :: ssg_file
         character(len=4)   :: line
-         !imax=0
          if(.not. ssg_database_allocated) then
          	 call Allocate_SSG_database()
          end if

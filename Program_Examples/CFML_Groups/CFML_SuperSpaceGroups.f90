@@ -145,11 +145,12 @@
       character(len=*), optional,          intent(in)  :: x1x2x3_type
       integer, dimension(:,:), allocatable, optional, intent(out) :: table
       !--- Local variables ---!
-      integer :: i,j,k,n, nt, Dd, Dex, ngeff, nlat,nalat, d
+      integer :: i,j,k, nt, Dd, Dex, ngeff, nlat,nalat, d
       type(Symm_Oper_Type), dimension(:), allocatable :: Op
-      type(Symm_Oper_Type) :: Opt
+      !type(Symm_Oper_Type) :: Opt
       integer, dimension(max_mult) :: ind_lat,ind_alat
-      logical :: esta
+      !logical :: esta
+      character(len=15) :: xyz_typ
 
       nt=ngen
       Err_ssg=.false.
@@ -197,8 +198,10 @@
       allocate(SSG%Centre_coord(Dd))
       SSG%Op(:)=Op(1:nt) !here there is a copy of the time inversion
       SSG%multip=nt
+      xyz_typ="x1x2x3"
+      if(present(x1x2x3_type)) xyz_typ=x1x2x3_type
       do i=1,nt
-      	call Get_Symb_Op_from_Mat(SSG%Op(i)%Mat,SSG%Symb_Op(i),"x1x2x3",SSG%Op(i)%time_inv)
+      	call Get_Symb_Op_from_Mat(SSG%Op(i)%Mat,SSG%Symb_Op(i),xyz_typ,SSG%Op(i)%time_inv)
       end do
 
       !Search for an inversion centre
@@ -288,14 +291,15 @@
       !class(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out) :: ssg
       !integer,                                               intent(out) :: nss
       !--- Local variables ---!
-      character(len=132) :: line
-      integer :: i,j,k,Dd
+      !character(len=132) :: line
+      integer :: i,Dd
       type(Space_Group_Type),dimension(nk) :: Gkks !extended Little Groups
       type(Space_Group_Type)               :: Gkk  !extended Little Group (Intersection of Litte Groups for all nk)
-      type(SuperSpaceGroup_Type)           :: trial_ssg
       Type (Group_k_Type)                  :: Gk
-      real(kind=cp), dimension(3+nk)       :: tr
-      integer,       dimension(3+nk,3+nk)  :: Mat
+        !Variables to be used in development
+      !type(SuperSpaceGroup_Type)           :: trial_ssg
+      !real(kind=cp), dimension(3+nk)       :: tr
+      !integer,       dimension(3+nk,3+nk)  :: Mat
 
       !Initializing variables
       Err_ssg=.false.
@@ -380,7 +384,7 @@
       integer :: i,j,nmod,Dd,D,iclass,m
       type(rational), dimension(:,:), allocatable :: Inv
       type(Symm_Oper_Type)                        :: transla
-      character(len=15) :: forma,xyz_typ
+      character(len=15) :: xyz_typ !forma,
       logical :: inv_found
 
       if(.not. ssg_database_allocated)  then
@@ -502,7 +506,7 @@
       real(kind=cp), dimension(3,6) :: kini
       real(kind=cp), dimension(3,  SSG%NumOps) :: kv
       real(kind=cp), dimension(3,3,SSG%NumOps) :: mat
-      integer :: i,j,k
+      integer :: i,j
       kini(:,1)= [0.1234,0.4532,0.7512]
       kini(:,2)= [0.0000,0.4532,0.7512]
       kini(:,3)= [0.1234,0.0000,0.7512]
@@ -529,7 +533,7 @@
       logical,              optional, intent(in) :: x1x2x3_typ
       type(kvect_info_type),optional, intent(in) :: kinfo
       !---- Local variables ----!
-      integer :: lun,i,j,k,D,Dd,nlines
+      integer :: lun,i,j,D,Dd,nlines
       character(len=40),dimension(:),  allocatable :: vector
       character(len=40),dimension(:,:),allocatable :: matrix
       character(len=15)                            :: forma,xyz_typ
@@ -1160,9 +1164,9 @@
 
        !---- Local variables ----!
        real(kind=cp)         :: sval !,vmin,vmax
-       real(kind=cp)         :: epsr=0.00000001, delt=0.000001
-       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
-                                maxpos, mp, iprev,Dd, nf, ia, i0, nk, num_ref
+       real(kind=cp)         :: epsr=0.00000001 !, delt=0.000001
+       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j, & !,maxpos,iprev,indp,indj
+                                 mp, Dd, nf, ia, i0, nk, num_ref
        integer,       dimension(:),   allocatable :: hh,kk,nulo
        integer,       dimension(:,:), allocatable :: hkl
        integer,       dimension(:),   allocatable :: indx,indtyp
@@ -1352,7 +1356,7 @@
        character(len=*),optional,      intent(in)  :: x1x2x3_type
        !
        ! --- Local variables ---!
-       integer                             :: i,j,ind, num_gen,n,ier,n_end, num_group
+       integer                             :: i,ind, num_gen,n,ier,n_end, num_group
        character(len=132)                  :: line,generators_string
        character(len=20)                   :: spg_symb,shub_symb
        integer, parameter                  :: max_gen=10

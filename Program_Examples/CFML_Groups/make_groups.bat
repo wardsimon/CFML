@@ -33,14 +33,14 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
 
-   ifort /c CFML_Rational_Groups.f90  /O3 /Qparallel /nologo %INC%
-   ifort /c CFML_Standard_Sett.f90    /O3 /Qparallel /nologo %INC%
-   ifort /c groups.f90                /O3 /Qparallel /nologo %INC%
+   ifort /c CFML_Rational_Groups.f90  /O3 /Qparallel /nologo %INC%  /warn
+   ifort /c CFML_Standard_Sett.f90    /O3 /Qparallel /nologo %INC%  /warn
+   ifort /c groups.f90                /O3 /Qparallel /nologo %INC%   
    ifort /exe:groups *.obj %CRYSLIB% /link /stack:256000000
    goto END
 :IFORTD
-   ifort /c CFML_Rational_Groups.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /c CFML_Standard_Sett.f90   /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /c CFML_Rational_Groups.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
+   ifort /c CFML_Standard_Sett.f90   /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
    ifort /c groups.f90               /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
    ifort /exe:groups *.obj %CRYSLIBD%
    goto END
