@@ -29,17 +29,17 @@ rem ---- Options
 rem
    if [%_DEBUG%]==[Y] (
       if [%OPTC%]==[-m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
-      (set OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
-      (set OPT1=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0)
+      (set OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+      (set OPT1=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
    ) else (
       if [%OPTC%]==[-m32] (set DIRECTORY=gfortran) else (set DIRECTORY=gfortran64)
-      (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math)
+      (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
       (set OPT1=-O3 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
    )
    (set OPT3=)
    if [%_WINTER%]==[Y] (
       if [%OPTC%]==[-m32] (set LIBFOR=lib.gnu32/%_VER%) else (set LIBFOR=lib.gnu64/%_VER%)
-      (set OPT3=/I%WINTER%\%LIBFOR%)
+      (set OPT3=-I%WINTER%\%LIBFOR%)
    )
 rem
    cd %CRYSFML%\Src
@@ -152,7 +152,7 @@ rem
      if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
      mkdir ..\%DIRECTORY%\LibW
      copy *.mod ..\%DIRECTORY%\LibW > nul
-     move *.lib ..\%DIRECTORY%\LibW > nul
+     move *.a ..\%DIRECTORY%\LibW > nul
    ) else (
      if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
      mkdir ..\%DIRECTORY%\LibC
