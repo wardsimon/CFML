@@ -8,7 +8,7 @@ rem ---- Default Message ----
 :INIT
    cls
    echo MAKECRYS: Making the CrysFML Library
-   echo Syntax: "makecrys [gfortran|ifort] [all, winter] [debug]"
+   echo Syntax: "makecrys [gfortran[32|64]|ifort] [all, winter] [debug]"
    goto FINAL
 rem ---- Variables ----
 :CONT
@@ -16,10 +16,19 @@ rem ---- Variables ----
    (set _DEBUG=N)
    (set _WINTER=N)
    (set _CONSOLE=Y)
+   (set _GFMODE=32)
 rem
 rem ---- Arguments ----
 :LOOP
     if [%1]==[gfortran] (set _COMPILER=gfortran)
+    if [%1]==[gfortran32] (
+       (set _GFMODE=32)
+       (set _COMPILER=gfortran)
+    )
+    if [%1]==[gfortran64] (
+       (set _GFMODE=64)
+       (set _COMPILER=gfortran)
+    )
     if [%1]==[ifort]    (set _COMPILER=ifort)
     if [%1]==[debug]    (set _DEBUG=Y)
     if [%1]==[winter] (
@@ -45,14 +54,10 @@ rem ---- GFortran
 rem ----
    if [%_COMPILER%]==[gfortran] (
       if [%_CONSOLE%]==[Y] (
-         if [%_DEBUG%]==[N] (call compile_gfortran) else (call compile_gfortran debug)
+         if [%_DEBUG%]==[N] (call compile_gfortran %_GFMODE% ) else (call compile_gfortran %_GFMODE% debug)
       )
       if [%_WINTER%]==[Y] (
-         if [%_DEBUG%]==[N] (call compile_gfortran winter) else (call compile_gfortran winter debug)
-      )
-      if [%_REALWIN%]==[Y] (
-         echo Sorry, option not compatible!!!
-         goto END
+         if [%_DEBUG%]==[N] (call compile_gfortran %_GFMODE% winter) else (call compile_gfortran %_GFMODE% winter debug)
       )
       goto END
    )
