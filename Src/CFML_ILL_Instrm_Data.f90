@@ -4208,8 +4208,7 @@ Module CFML_ILL_Instrm_Data
           npos1=index(line,'Title')
           npos2=index(line,'Subtitle')
           if (npos1 > 0) then
-             line=line(npos1+5:npos2-1)
-             line=adjustl(line)
+             line=adjustl(line(npos1+5:npos2-1))
              npos=index(line,':')
              if (npos > 0) n%title=trim(line(npos+1:))
           end if

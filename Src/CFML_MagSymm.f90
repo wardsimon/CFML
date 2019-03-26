@@ -2517,35 +2517,35 @@
              Case("_magnetic_space_group_bns_number","_space_group.magn_number_bns","_space_group_magn.number_bns")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%BNS_number=shubk
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_bns -> "//trim(MGp%BNS_number)
 
              Case("_magnetic_space_group_bns_name","_space_group_magn.name_bns","_space_group.magn_name_bns")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%BNS_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns -> "//trim(MGp%BNS_symbol)
 
              Case("_magnetic_space_group_og_number","_space_group_magn.number_og","_space_group.magn_number_og")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%OG_number=shubk
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_og -> "//trim(MGp%OG_number)
 
              Case("_magnetic_space_group_point_group","_space_group_magn.point_group","_space_group.magn_point_group")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%PG_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group_magn.point_group -> "//trim(MGp%PG_symbol)
 
              Case("_magnetic_space_group_og_name","_space_group_magn.name_og","_space_group.magn_name_og")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%OG_symbol=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og -> "//trim(MGp%OG_symbol)
 
@@ -2553,27 +2553,27 @@
                    "_parent_space_group.child_transform_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%trn_from_parent=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
 
              Case("_parent_space_group.transform_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%trn_to_parent=pack_string(shubk)
                 !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
 
              Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%trn_to_standard=pack_string(shubk)
 
              Case("_space_group_magn.transform_bns_pp_abc")
                 shubk=adjustl(line(j+1:))
                 k=len_trim(shubk)
-                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=shubk(2:k-1)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
                 MGp%trn_to_standard=pack_string(shubk)
 
              Case("_magnetic_cell_length_a","_cell_length_a")
@@ -3301,7 +3301,7 @@
             line=adjustl(line(j+1:))
             n=len_trim(line)
             if(ktag) then
-              line=line(2:n-1)
+              line=adjustl(line(2:n-1))
               n=n-2
               Call Get_Separator_Pos(line,",",pos,ncar)
             else
@@ -4807,7 +4807,7 @@
          !Invers transformation -> to standard
          call Frac_Trans_2Dig(iorig,symbtr)
          i=len_trim(symbtr)
-         symbtr=symbtr(2:i-1)
+         symbtr=adjustl(symbtr(2:i-1))
          call Get_Symb_From_Mat(Matinv,isetting,(/"a","b","c"/))
          isetting=trim(isetting)//";"//trim(symbtr)
          if(present(trn_to)) then
@@ -5455,7 +5455,7 @@
           write(unit=Ipr,fmt="(a)") "_magnetic_propagation_vector_kxkykz"
           do i=1,MSGp%n_kv
             call Frac_Trans_2Dig(MSGp%kv(:,i),line)
-            line=line(2:len_trim(line)-1)
+            line=adjustl(line(2:len_trim(line)-1))
             write(unit=Ipr,fmt="(a)") trim(MSGp%kv_label(i))//"  '"//trim(line)//"'"
           end do
        end if

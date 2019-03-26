@@ -127,7 +127,8 @@ Module CFML_Export_VTK
     ntot= nx * ny * nz
 
     ! Determine the number of bits used
-    nbytes=sizeof(Z(1,1,1))
+    nbytes=sizeof(z(1,1,1))
+    !nbytes=kind(z(1,1,1))
     nbits=8*nbytes
     !
     ntot_bytes=ntot*nbytes*3

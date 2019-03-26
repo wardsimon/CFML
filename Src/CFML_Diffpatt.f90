@@ -3352,7 +3352,7 @@
            do
               nb_sep = nb_sep + 1
               long=LEN_TRIM(line)
-              line = line(i1+1:long)
+              line = adjustl(line(i1+1:long))
               i1=INDEX(line,separateur)
               if (i1==0) exit
            end do
@@ -3420,7 +3420,7 @@
                        exit
                     end if
                     j=j+1
-                    line= line(i1+1:long)
+                    line= adjustl(line(i1+1:long))
                  end do
               end if
 
