@@ -198,19 +198,19 @@
            end_line=char(13)//char(10)
            write(unit=err_magg_mess,fmt="(a)") " => The FULLPROF environment variable is not defined! "//end_line// &
                                                "    This is needed for localizing the data base: magnetic_data.txt"//end_line// &
-                                               "    that should be within the %FULLPROF%/Docs directory"
+                                               "    that should be within the %FULLPROF%/Databases directory"
         Case Default
            end_line=char(10)
            write(unit=err_magg_mess,fmt="(a)") " => The FULLPROF environment variable is not defined! "//trim(end_line)// &
                                                "    This is needed for localizing the data base: magnetic_data.txt"//trim(end_line)// &
-                                               "    that should be within the $FULLPROF/Docs directory"
+                                               "    that should be within the $FULLPROF/Databases directory"
       End Select
       return
     else
        if(fullprof_suite(n:n) /= OPS_SEP) then
-         database=trim(fullprof_suite)//OPS_SEP//"Docs"//OPS_SEP//'magnetic_data.txt'
+         database=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//'magnetic_data.txt'
        else
-         database=trim(fullprof_suite)//"Docs"//OPS_SEP//'magnetic_data.txt'
+         database=trim(fullprof_suite)//"Databases"//OPS_SEP//'magnetic_data.txt'
        end if
     end if
     Open(unit=i_mag,File=Trim(database),status="old",action="read",position="rewind",iostat=ier)
