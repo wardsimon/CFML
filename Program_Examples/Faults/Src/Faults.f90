@@ -1600,9 +1600,9 @@
          sfname = 'data.sfc'
       else
         if(path_name(i:i) == OPS_SEP) then
-           sfname=trim(path_name)//'data.sfc'
+           sfname=trim(path_name)//'Databases'//OPS_SEP//'data.sfc'
         else
-           sfname=trim(path_name)//OPS_SEP//'data.sfc'
+           sfname=trim(path_name)//OPS_SEP//'Databases'//OPS_SEP//'data.sfc'
         end if
       end if
 
