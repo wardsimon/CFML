@@ -515,7 +515,8 @@
       integer, dimension(:,:),allocatable, intent(out) :: G   !Vector containing the different elements of the groups
       integer, dimension(:),  allocatable, intent(out) :: ord !order or each group
       integer,                             intent(out) :: ns  !Number of subgroups
-      integer:: i,j,n,Multip,L,maxsub !mi,mj,mk,mij,mji,mik,mjk,mki,mkj,
+      integer:: i,j,n,Multip,L,maxsub !,mi,mj,mk,mij,mji,mik,mjk,mki,mkj
+      !logical:: new
       multip=size(Table,1)
       !Estimated maximum number of subgroups
       maxsub=4096
@@ -796,7 +797,7 @@
       integer, optional,               intent(out) :: invt
       !---- local variables ----!
       type(rational) :: det
-      integer :: i,j,k,Dd, d, np,n,m,inv,num,den,ind,ier
+      integer :: i,j,k,Dd, d, np, n,m,inv,num,den,ind,ier
       character(len=3),dimension(10)                        :: x_typ
       character(len=len(Symb)), dimension(size(Mat,dim=1))  :: split
       character(len=len(Symb))                              :: string,pSymb,translation !,transf
@@ -1582,7 +1583,7 @@
         integer,                 optional,intent(in)  :: indexg
         logical, dimension(:,:), optional,intent(out) :: point
        !--- Local variables ---!
-       integer  :: i,L,j,k,d, nc, maxg,ng,kb, nla,nop,ns_1,ns_2,n_nc_group !, i1,i2,ns_3
+       integer  :: i,L,j,k,d, nc,maxg,ng,kb, nla, nop,ns_1,ns_2,n_nc_group !i1,i2,,ns_3
        logical  :: newg !, cen_added
        character (len=40), dimension(:),allocatable :: gen
        character (len=40), dimension(30)            :: gen_lat
@@ -1591,15 +1592,13 @@
        type(Symm_Oper_Type)                         :: Op_cent
        type(Symm_Oper_Type), dimension(30)          :: Op_lat
        type(Spg_Type),dimension(:), allocatable     :: sG
-       integer, dimension(size(SubG))               :: index_sg
-       integer, dimension(size(SubG))               :: ind
+       integer, dimension(size(SubG))               :: index_sg, ind
        !integer :: idx
 
        maxg=size(SubG)
        allocate(gen(SpG%multip))
        d=SpG%d
        include "CFML_subgroups_template_inc.f90"
-
        if(present(indexg)) then
          k=0
          do L=1,nsg
@@ -1647,9 +1646,9 @@
       write(unit=iout,fmt="(a,i4)")     "        Shubnikov Group number: ",Grp%numshu
       write(unit=iout,fmt="(a, a)")     "            Space Group symbol: ",Grp%spg_symb
       write(unit=iout,fmt="(a, a)")     "        Shubnikov Group symbol: ",Grp%shu_symb
-      write(unit=iout,fmt="(a, a)")     "       To space group standard: ",Grp%mat2std
-      write(unit=iout,fmt="(a, a)")     "   To Shubnikov group standard: ",Grp%mat2std_shu
-      if(len_trim(Grp%generators_list) /= 0) then
+      write(unit=iout,fmt="(a, a)")     "       To Standard Space Group: ",Grp%mat2std
+      write(unit=iout,fmt="(a, a)")     "   To Standard Shubnikov Group: ",Grp%Mat2Std_Shu
+      If(Len_Trim(Grp%Generators_List) /= 0) Then
         write(unit=iout,fmt="(a, a)")   "               Generators List: ",Grp%generators_list
       end if
 

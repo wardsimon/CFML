@@ -191,6 +191,7 @@
     call Get_LogUnit(i_mag)
     call GET_ENVIRONMENT_VARIABLE("FULLPROF",fullprof_suite)
     n=len_trim(fullprof_suite)
+    !write(*,*) trim(fullprof_suite)
     if(n == 0) then
       err_magg=.true.
       Select Case (OPS)
@@ -209,8 +210,10 @@
     else
        if(fullprof_suite(n:n) /= OPS_SEP) then
          database=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//'magnetic_data.txt'
+         !write(*,*) trim(database)
        else
          database=trim(fullprof_suite)//"Databases"//OPS_SEP//'magnetic_data.txt'
+         !write(*,*) trim(database)
        end if
     end if
     Open(unit=i_mag,File=Trim(database),status="old",action="read",position="rewind",iostat=ier)

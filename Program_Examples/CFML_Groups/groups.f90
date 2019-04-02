@@ -28,13 +28,13 @@ Program test_groups
           call Get_Generators(aux,generatorList)
         end if
         call CPU_TIME(start)
-        
+
         call Group_Constructor(generatorList,Grp)
         if (Err_group) then
             write(*,'(/,4x,a)') Err_group_Mess
             cycle
         else
-            call Identify_Group(Grp)
+            call Identify_Group(Grp,.false.)
             call print_Group(Grp)
             if (err_std) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
@@ -74,10 +74,10 @@ Program test_groups
         if(nsg > 0) Then
             do L=1,nsg
                 write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
-                call Identify_Group(sGrp(L))
+                call Identify_Group(sGrp(L),.false.)
                 call print_Group(sGrp(L))
                 if (err_std) then
-                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)  
+                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
                     !stop
                 end if
             end do

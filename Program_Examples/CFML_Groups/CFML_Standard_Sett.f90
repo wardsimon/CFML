@@ -164,15 +164,15 @@ contains
 
             case ("2/m")
                 n  = 6
-                R1(1,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R1(2,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R1(3,1:3) = (/ 0//1, 0//1, 1//1 /)
-                R2(1,1:3) = (/ 0//1, 0//1, 1//1 /)
-                R2(2,1:3) = (/ 0//1,-1//1, 0//1 /)
-                R2(3,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R3(1,1:3) = (/-1//1, 0//1, 1//1 /)
-                R3(2,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R3(3,1:3) = (/-1//1, 0//1, 0//1 /)
+                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
+                R1(2,1:3) = [ 0//1, 1//1, 0//1 ]
+                R1(3,1:3) = [ 0//1, 0//1, 1//1 ]
+                R2(1,1:3) = [ 0//1, 0//1, 1//1 ]
+                R2(2,1:3) = [ 0//1,-1//1, 0//1 ]
+                R2(3,1:3) = [ 1//1, 0//1, 0//1 ]
+                R3(1,1:3) = [-1//1, 0//1, 1//1 ]
+                R3(2,1:3) = [ 0//1, 1//1, 0//1 ]
+                R3(3,1:3) = [-1//1, 0//1, 0//1 ]
 
                 Ainv(:,:,1) = R1(:,:)
                 Ainv(:,:,2) = R3(:,:)
@@ -182,15 +182,15 @@ contains
                 Ainv(:,:,6) = matmul(Ainv(:,:,5),R3)
             case ("mmm")
                 n  = 6
-                R1(1,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R1(2,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R1(3,1:3) = (/ 0//1, 0//1, 1//1 /)
-                R2(1,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R2(2,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R2(3,1:3) = (/ 0//1, 0//1,-1//1 /)
-                R3(1,1:3) = (/ 0//1, 0//1, 1//1 /)
-                R3(2,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R3(3,1:3) = (/ 0//1, 1//1, 0//1 /)
+                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
+                R1(2,1:3) = [ 0//1, 1//1, 0//1 ]
+                R1(3,1:3) = [ 0//1, 0//1, 1//1 ]
+                R2(1,1:3) = [ 0//1, 1//1, 0//1 ]
+                R2(2,1:3) = [ 1//1, 0//1, 0//1 ]
+                R2(3,1:3) = [ 0//1, 0//1,-1//1 ]
+                R3(1,1:3) = [ 0//1, 0//1, 1//1 ]
+                R3(2,1:3) = [ 1//1, 0//1, 0//1 ]
+                R3(3,1:3) = [ 0//1, 1//1, 0//1 ]
 
                 Ainv(:,:,1) = R1(:,:)
                 Ainv(:,:,2) = R3(:,:)
@@ -200,19 +200,19 @@ contains
                 Ainv(:,:,6) = matmul(Ainv(:,:,5),R3)
             case ("m-3")
                 n = 2
-                R1(1,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R1(2,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R1(3,1:3) = (/ 0//1, 0//1, 1//1 /)
-                R2(1,1:3) = (/ 0//1,-1//1, 0//1 /)
-                R2(2,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R2(3,1:3) = (/ 0//1, 0//1, 1//1 /)
+                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
+                R1(2,1:3) = [ 0//1, 1//1, 0//1 ]
+                R1(3,1:3) = [ 0//1, 0//1, 1//1 ]
+                R2(1,1:3) = [ 0//1,-1//1, 0//1 ]
+                R2(2,1:3) = [ 1//1, 0//1, 0//1 ]
+                R2(3,1:3) = [ 0//1, 0//1, 1//1 ]
                 Ainv(:,:,1) = R1(:,:)
                 Ainv(:,:,2) = R2(:,:)
             case default
                 n = 1
-                R1(1,1:3) = (/ 1//1, 0//1, 0//1 /)
-                R1(2,1:3) = (/ 0//1, 1//1, 0//1 /)
-                R1(3,1:3) = (/ 0//1, 0//1, 1//1 /)
+                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
+                R1(2,1:3) = [ 0//1, 1//1, 0//1 ]
+                R1(3,1:3) = [ 0//1, 0//1, 1//1 ]
                 Ainv(:,:,1) = R1(:,:)
         end select
 
@@ -221,7 +221,7 @@ contains
         end do
 
     end subroutine Get_A_Matrices_Crys
-    
+
     !!---- Subroutine Get_A_Matrices_Shub(laueClass,A,n)
     !!----      character(len=*),                 intent(in)  :: laueClass
     !!----      type(rational), dimension(3,3,6), intent(out) :: A
@@ -231,76 +231,76 @@ contains
     !!----
     !!---- Updated: September - 2018
     !!
-    
+
     subroutine Get_A_Matrices_Shub(laueClass,A,n)
 
         ! Matrices for different settings
-        
+
         !---- Arguments ----!
         character(len=*),                 intent(in)  :: laueClass
         type(rational), dimension(3,3,6), intent(out) :: A
         integer,                          intent(out) :: n
-        
+
         n = 1
         ! setting a,b,c
-        A(1,1:3,1) = (/ 1, 0, 0 /)
-        A(2,1:3,1) = (/ 0, 1, 0 /)
-        A(3,1:3,1) = (/ 0, 0, 1 /)
-        
+        A(1,1:3,1) = [ 1, 0, 0 ]
+        A(2,1:3,1) = [ 0, 1, 0 ]
+        A(3,1:3,1) = [ 0, 0, 1 ]
+
         select case (trim(laueClass))
             case ("2/m") ! Monoclinic
                 n = 6
                 ! setting c,b,-a-c
-                A(1,1:3,2) = (/ 0, 0,-1 /)
-                A(2,1:3,2) = (/ 0, 1, 0 /)
-                A(3,1:3,2) = (/ 1, 0,-1 /)
+                A(1,1:3,2) = [ 0, 0,-1 ]
+                A(2,1:3,2) = [ 0, 1, 0 ]
+                A(3,1:3,2) = [ 1, 0,-1 ]
                 ! setting -a-c,b,a
-                A(1,1:3,3) = (/-1, 0, 1 /)
-                A(2,1:3,3) = (/ 0, 1, 0 /)
-                A(3,1:3,3) = (/-1, 0, 0 /)
-                ! setting c,-b,a  
-                A(1,1:3,4) = (/ 0, 0, 1 /)
-                A(2,1:3,4) = (/ 0,-1, 0 /)
-                A(3,1:3,4) = (/ 1, 0, 0 /)
+                A(1,1:3,3) = [-1, 0, 1 ]
+                A(2,1:3,3) = [ 0, 1, 0 ]
+                A(3,1:3,3) = [-1, 0, 0 ]
+                ! setting c,-b,a
+                A(1,1:3,4) = [ 0, 0, 1 ]
+                A(2,1:3,4) = [ 0,-1, 0 ]
+                A(3,1:3,4) = [ 1, 0, 0 ]
                 ! setting -a-c,-b,c
-                A(1,1:3,5) = (/-1, 0, 0 /)
-                A(2,1:3,5) = (/ 0,-1, 0 /)
-                A(3,1:3,5) = (/-1, 0, 1 /)
+                A(1,1:3,5) = [-1, 0, 0 ]
+                A(2,1:3,5) = [ 0,-1, 0 ]
+                A(3,1:3,5) = [-1, 0, 1 ]
                 ! setting a,-b,-a-c
-                A(1,1:3,6) = (/ 1, 0,-1 /)
-                A(2,1:3,6) = (/ 0,-1, 0 /)
-                A(3,1:3,6) = (/ 0, 0,-1 /)
-            case ("mmm") ! Orthorhombic 
+                A(1,1:3,6) = [ 1, 0,-1 ]
+                A(2,1:3,6) = [ 0,-1, 0 ]
+                A(3,1:3,6) = [ 0, 0,-1 ]
+            case ("mmm") ! Orthorhombic
                 n = 6
                 ! setting b,c,a
-                A(1,1:3,2) = (/ 0, 0, 1 /)
-                A(2,1:3,2) = (/ 1, 0, 0 /)
-                A(3,1:3,2) = (/ 0, 1, 0 /)
+                A(1,1:3,2) = [ 0, 0, 1 ]
+                A(2,1:3,2) = [ 1, 0, 0 ]
+                A(3,1:3,2) = [ 0, 1, 0 ]
                 ! setting c,a,b
-                A(1,1:3,3) = (/ 0, 1, 0 /)
-                A(2,1:3,3) = (/ 0, 0, 1 /)
-                A(3,1:3,3) = (/ 1, 0, 0 /)
+                A(1,1:3,3) = [ 0, 1, 0 ]
+                A(2,1:3,3) = [ 0, 0, 1 ]
+                A(3,1:3,3) = [ 1, 0, 0 ]
                 ! setting a,c,-b
-                A(1,1:3,4) = (/ 1, 0, 0 /)
-                A(2,1:3,4) = (/ 0, 0,-1 /)
-                A(3,1:3,4) = (/ 0, 1, 0 /)
+                A(1,1:3,4) = [ 1, 0, 0 ]
+                A(2,1:3,4) = [ 0, 0,-1 ]
+                A(3,1:3,4) = [ 0, 1, 0 ]
                 ! setting c,b,-a
-                A(1,1:3,5) = (/ 0, 0,-1 /)
-                A(2,1:3,5) = (/ 0, 1, 0 /)
-                A(3,1:3,5) = (/ 1, 0, 0 /)
+                A(1,1:3,5) = [ 0, 0,-1 ]
+                A(2,1:3,5) = [ 0, 1, 0 ]
+                A(3,1:3,5) = [ 1, 0, 0 ]
                 ! setting b,a,-c
-                A(1,1:3,6) = (/ 0, 1, 0 /)
-                A(2,1:3,6) = (/ 1, 0, 0 /)
-                A(3,1:3,6) = (/ 0, 0,-1 /)
+                A(1,1:3,6) = [ 0, 1, 0 ]
+                A(2,1:3,6) = [ 1, 0, 0 ]
+                A(3,1:3,6) = [ 0, 0,-1 ]
             case ("-3","-3 R","-3m","-3m R","-3m1","-31m") ! Trigonal
                 n = 2
                 ! reverse -> obverse setting
-                A(1,1:3,2) = (/-1., 0., 0. /)
-                A(2,1:3,2) = (/ 0.,-1., 0. /)
-                A(3,1:3,2) = (/ 0., 0., 1. /)
+                A(1,1:3,2) = [-1, 0, 0 ]
+                A(2,1:3,2) = [ 0,-1, 0 ]
+                A(3,1:3,2) = [ 0, 0, 1 ]
         end select
-        
-    end subroutine Get_A_Matrices_Shub 
+
+    end subroutine Get_A_Matrices_Shub
 
     !!---- Subroutine Get_Generators(spaceGroupNumber,symOp,nSymOp,G,nGen)
     !!----      character(len=*),                        intent(in)  :: laueClass
@@ -322,12 +322,9 @@ contains
         type(Symm_Oper_Type), dimension(3),      intent(out) :: G         ! generators
         integer,                                 intent(out) :: nGen      ! number of generators
 
-        integer                              :: i,j,n,ngaux,ng_,inversion
-        logical                              :: matched,positive
-        type(rational)                       :: det
+        integer                              :: i,n,ngaux,inversion
         type(rational), dimension(3)         :: axis
         type(rational), dimension(3,3)       :: identity
-        type(rational), dimension(4,4)       :: W
         integer, dimension(:,:), allocatable :: idd
 
         err_std = .false.
@@ -348,7 +345,7 @@ contains
                 exit
             end if
         end do
-        
+
         select case(trim(laueClass))
 
             case ("-1") ! Triclinic
@@ -502,7 +499,7 @@ contains
                 err_std = .true.
                 err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
                 return
-                
+
         end select
 
         if (inversion > 0) then
@@ -584,16 +581,16 @@ contains
 
         type(rational), dimension(3,10) :: lattice
 
-        lattice(:,1)  = (/ 0//1,1//2,1//2 /)
-        lattice(:,2)  = (/ 1//2,0//1,1//2 /)
-        lattice(:,3)  = (/ 1//2,1//2,0//1 /)
-        lattice(:,4)  = (/ 1//2,1//2,1//2 /)
-        lattice(:,5)  = (/ 2//3,1//3,1//3 /)
-        lattice(:,6)  = (/ 1//3,2//3,2//3 /)
-        lattice(:,7)  = (/ 1//3,2//3,1//3 /)
-        lattice(:,8)  = (/ 2//3,1//3,2//3 /)
-        lattice(:,9)  = (/ 2//3,1//3,0//1 /)
-        lattice(:,10) = (/ 1//3,2//3,0//1 /)
+        lattice(:,1)  = [ 0//1,1//2,1//2 ]
+        lattice(:,2)  = [ 1//2,0//1,1//2 ]
+        lattice(:,3)  = [ 1//2,1//2,0//1 ]
+        lattice(:,4)  = [ 1//2,1//2,1//2 ]
+        lattice(:,5)  = [ 2//3,1//3,1//3 ]
+        lattice(:,6)  = [ 1//3,2//3,2//3 ]
+        lattice(:,7)  = [ 1//3,2//3,1//3 ]
+        lattice(:,8)  = [ 2//3,1//3,2//3 ]
+        lattice(:,9)  = [ 2//3,1//3,0//1 ]
+        lattice(:,10) = [ 1//3,2//3,0//1 ]
 
         ! Check for primitive and non conventional centrings
         nlat   = 0
@@ -614,7 +611,7 @@ contains
             err_std_mess = "Error in Get_Lattice_Type. Number of centring vectors > 3."
             return
         end if
-        
+
         latt_a=.false.
         latt_b=.false.
         latt_c=.false.
@@ -705,13 +702,15 @@ contains
 
         !---- Local variables ----!
         integer   :: i,j,n,nLatticePoints,nCentringVectors
-        logical   :: singular,newt
+        logical   :: newt
         type(rational) :: det
         logical,        dimension(3)   :: isOrigin
         type(rational), dimension(3)   :: t
         type(rational), dimension(3,3) :: Minv,Maux
         type(rational), dimension(3,3) :: latc
-
+        logical :: pout
+        pout = .false.
+        if(present(output)) pout=output
         err_std = .false.
         call Rational_Inv_Matrix(M,Minv)
         det = rational_determinant(Minv)
@@ -727,7 +726,7 @@ contains
         nLatticePoints = det%Numerator / det%Denominator
 
         if ( nLatticePoints > 1 ) then
-            if (present(output)) write(*,'(8x,a,i2,1x,a)') " => Standard lattice is non primitive.",&
+            if (pout) write(*,'(8x,a,i2,1x,a)') " => Standard lattice is non primitive.",&
                                         nLatticePoints,"lattice points in the unit cell"
             nCentringVectors = 0
             Maux             = Minv ! Maux stores lattice points inside the unit cell
@@ -763,14 +762,14 @@ contains
                 lattyp = "P"
             end if
             if (err_std) return
-            if (present(output)) write(*,'(12x,2a)') "Lattice type: ",lattyp
+            if (pout) write(*,'(12x,2a)') "Lattice type: ",lattyp
         else
-            if (present(output)) write(*,'(8x,a)') " => Standard lattice is primitive "
+            if (pout) write(*,'(8x,a)') " => Standard lattice is primitive "
             lattyp = "P"
         end if
 
     end subroutine Get_Lattice_Type_from_M
-    
+
     !!---- Subroutine Get_Magnetic_Lattice_Type(nLat,latV,naLat,alatV,lattyp)
     !!----      integer,                            intent(in)  :: nLat
     !!----      type(rational), dimension(3,nLat),  intent(in)  :: latV
@@ -778,27 +777,27 @@ contains
     !!----      type(rational), dimension(3,naLat), intent(in)  :: alatV
     !!----      character(len=1), dimension(2),     intent(out) :: lattyp
     !!----
-    !!---- Returns the magnetic type symbol from lattice and antilattice translations. 
+    !!---- Returns the magnetic type symbol from lattice and antilattice translations.
     !!----
     !!---- Updated: September - 2018
     !!
 
     subroutine Get_Magnetic_Lattice_Type(G)!nLat,latV,naLat,alatV,lattyp)
-    
+
         !---- Arguments ----!
         !integer,                              intent(in)  :: nLat
         !type(rational),   dimension(3,nLat),  intent(in)  :: latV
         !integer,                              intent(in)  :: naLat
         !type(rational),   dimension(3,naLat), intent(in)  :: alatV
         !character(len=1), dimension(2),       intent(out) :: lattyp
-        type(spg_type), intent(inout) :: G
-        
+        type(spg_type), intent(in out) :: G
+
         !---- Local variables ----!
         integer :: i,j
         logical :: latt_p,latt__a,latt__b,latt__c,latt_a,latt_b,latt_c,latt_i,latt_r
-        integer,          dimension(9)   :: latt_given,alatt_given
+        integer,          dimension(9)   :: latt_given
         type(rational),   dimension(3,9) :: lattice
-        
+
         err_std = .false.
         G%shu_lat(:)=" "
         if (G%num_lat > 0) then
@@ -809,16 +808,16 @@ contains
         if (err_std)    return
         if (G%num_aLat == 0) return
 
-        lattice(:,1)  = (/ 1//2,0//1,0//1 /)
-        lattice(:,2)  = (/ 0//1,1//2,0//1 /)
-        lattice(:,3)  = (/ 0//1,0//1,1//2 /)
-        lattice(:,4)  = (/ 0//1,1//2,1//2 /)
-        lattice(:,5)  = (/ 1//2,0//1,1//2 /)
-        lattice(:,6)  = (/ 1//2,1//2,0//1 /)
-        lattice(:,7)  = (/ 1//2,1//2,1//2 /)
-        lattice(:,8)  = (/ 2//3,1//3,5//6 /)
-        lattice(:,9)  = (/ 1//3,2//3,1//6 /)
-        
+        lattice(:,1)  = [ 1//2,0//1,0//1 ]
+        lattice(:,2)  = [ 0//1,1//2,0//1 ]
+        lattice(:,3)  = [ 0//1,0//1,1//2 ]
+        lattice(:,4)  = [ 0//1,1//2,1//2 ]
+        lattice(:,5)  = [ 1//2,0//1,1//2 ]
+        lattice(:,6)  = [ 1//2,1//2,0//1 ]
+        lattice(:,7)  = [ 1//2,1//2,1//2 ]
+        lattice(:,8)  = [ 2//3,1//3,5//6 ]
+        lattice(:,9)  = [ 1//3,2//3,1//6 ]
+
         latt_p  = .false.
         latt__a = .false.
         latt__b = .false.
@@ -845,7 +844,7 @@ contains
                         latt_a  = .true.
                     case (5)
                         latt_b  = .true.
-                    case (6)    
+                    case (6)
                         latt_c  = .true.
                     case (7)
                         latt_i  = .true.
@@ -859,8 +858,8 @@ contains
                 G%shu_lat(2) = "Z"
                 exit
             end if
-        end do       
-        
+        end do
+
         if (G%shu_lat(2) == " ") then
             G%shu_lat(2) = "Z"
             select case (G%shu_lat(1))
@@ -905,7 +904,7 @@ contains
                         G%shu_lat(2) = "c"
                     else if (latt_a .or. latt_b) then
                         G%shu_lat(2) = "A"
-                    end if 
+                    end if
                 case ("I")
                     if (latt__a .or. latt_a) then
                         G%shu_lat(2) = "a"
@@ -920,13 +919,13 @@ contains
                     if (latt__c .or. latt_r) G%shu_lat(2) = "I"
             end select
         end if
-        
+
         if (G%shu_lat(2) == "Z") then
             err_std = .true.
             err_std_mess = "Error in Get_Magnetic_Lattice_Type. Unable to identify lattice type."
-        end if     
+        end if
 
-    end subroutine Get_Magnetic_Lattice_Type    
+    end subroutine Get_Magnetic_Lattice_Type
 
     !!---- Subroutine Get_Mc_Matrix
     !!----      character(len=5),               intent(in)  :: LaueClass
@@ -952,11 +951,14 @@ contains
         !---- Local variables ----!
         character                      :: lattyp
         character(len=60)              :: symb
-        logical                        :: singular
         type(rational), dimension(3,3) :: Mcinv
         type(rational), dimension(4,4) :: McAux
+        logical :: pout
 
-        if (present(output)) then
+        pout=.false.
+        if(present(output)) pout=output
+
+        if (pout) then
             write(*,'(8x,a)') " => Constructing (Mc,0) matrix...."
             write(*,'(8x,a)') "    This matrix corrects (M',0) if (M',0) does not &
                                    bring the system to a standard setting"
@@ -966,9 +968,9 @@ contains
 
             case ("2/m")  ! Put the two fold axis along b
 
-                Mcinv(1,:) = (/ 0//1, 1//1, 0//1 /)
-                Mcinv(2,:) = (/ 0//1, 0//1, 1//1 /)
-                Mcinv(3,:) = (/ 1//1, 0//1, 0//1 /)
+                Mcinv(1,:) = [ 0//1, 1//1, 0//1 ]
+                Mcinv(2,:) = [ 0//1, 0//1, 1//1 ]
+                Mcinv(3,:) = [ 1//1, 0//1, 0//1 ]
                 call Rational_Inv_Matrix(Mcinv,Mc)
 
             case ("4/m","4/mmm")
@@ -976,19 +978,19 @@ contains
                 call Get_Lattice_Type_from_M(Mp,lattyp)
                 if (err_std) return
                 if (lattyp == "C") then  ! C -> P
-                    Mcinv(1,:) = (/ 1//1, 1//1, 0//1 /)
-                    Mcinv(2,:) = (/ 1//1,-1//1, 0//1 /)
-                    Mcinv(3,:) = (/ 0//1, 0//1,-1//1 /)
+                    Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
+                    Mcinv(2,:) = [ 1//1,-1//1, 0//1 ]
+                    Mcinv(3,:) = [ 0//1, 0//1,-1//1 ]
                     call Rational_Inv_Matrix(Mcinv,Mc)
                 else if (lattyp == "F") then ! F -> I
-                    Mcinv(1,:) = (/ 1//1, 1//1, 0//1 /)
-                    Mcinv(2,:) = (/-1//1, 1//1, 0//1 /)
-                    Mcinv(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
+                    Mcinv(2,:) = [-1//1, 1//1, 0//1 ]
+                    Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                     call Rational_Inv_Matrix(Mcinv,Mc)
                 else
-                    Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [ 1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1, 1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 end if
 
             case ("-3","-3 R")
@@ -996,31 +998,31 @@ contains
                 call Get_Lattice_Type_from_M(Mp,lattyp)
                 if (err_std) return
                 if (lattyp == "S") then ! reverse -> obverse setting
-                    Mc(1,:) = (/-1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1,-1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [-1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1,-1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 else
-                    Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [ 1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1, 1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 end if
 
             case ("-3m","-3m R","-3m1","-31m")
                 call Get_Lattice_Type_from_M(Mp,lattyp)
                 if (err_std) return
                 if (lattyp == "S") then ! reverse -> obverse setting
-                    Mc(1,:) = (/-1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1,-1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [-1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1,-1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 else if (lattyp == "H") then ! H -> P
-                    Mcinv(1,:) = (/ 1//1, 1//1, 0//1 /)
-                    Mcinv(2,:) = (/-1//1, 2//1, 0//1 /)
-                    Mcinv(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
+                    Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
+                    Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                     call Rational_Inv_Matrix(Mcinv,Mc)
                 else
-                    Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [ 1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1, 1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 end if
 
             case ("6/mmm")
@@ -1028,25 +1030,25 @@ contains
                 call Get_Lattice_Type_from_M(Mp,lattyp)
                 if (err_std) return
                 if (lattyp == "H") then ! H -> P
-                    Mcinv(1,:) = (/ 1//1, 1//1, 0//1 /)
-                    Mcinv(2,:) = (/-1//1, 2//1, 0//1 /)
-                    Mcinv(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
+                    Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
+                    Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                     call Rational_Inv_Matrix(Mcinv,Mc)
                 else
-                    Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
-                    Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
-                    Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                    Mc(1,:) = [ 1//1, 0//1, 0//1 ]
+                    Mc(2,:) = [ 0//1, 1//1, 0//1 ]
+                    Mc(3,:) = [ 0//1, 0//1, 1//1 ]
                 end if
 
             case default
 
-                Mc(1,:) = (/ 1//1, 0//1, 0//1 /)
-                Mc(2,:) = (/ 0//1, 1//1, 0//1 /)
-                Mc(3,:) = (/ 0//1, 0//1, 1//1 /)
+                Mc(1,:) = [ 1//1, 0//1, 0//1 ]
+                Mc(2,:) = [ 0//1, 1//1, 0//1 ]
+                Mc(3,:) = [ 0//1, 0//1, 1//1 ]
 
         end select
 
-        if (present(output)) then
+        if (pout) then
             write(*,'(12x,a)',advance='no') "Quasi-standard setting --> Standard setting transformation: "
             call set_identity_matrix(4)
             McAux = identity_matrix
@@ -1093,7 +1095,10 @@ contains
         type(rational),    dimension(3,4) :: vPerp,cubicAxes
         type(rational),    dimension(4,4) :: MpAux
         integer,           dimension(:,:), allocatable :: idd
+        logical :: pout
 
+        pout        = .false.
+        if (present(output)) pout=output
         axisName(2) = "twofold"
         axisName(3) = "threefold"
         axisName(4) = "fourfold"
@@ -1101,7 +1106,7 @@ contains
 
         call Rational_Inv_Matrix(P,Pinv)
 
-        if (present(output)) then
+        if (pout) then
             write(*,'(8x,a)') " => Constructing (M',0) matrix...."
             write(*,'(12x,a)') "This matrix transforms the primitive basis in a basis with &
             vectors along the symmetry axes of the Laue class"
@@ -1110,9 +1115,9 @@ contains
 
         select case (trim(G%laue))
             case ("-1")
-                Mp = reshape ( (/ 1//1,0//1,0//1,&
+                Mp = reshape ( [ 1//1,0//1,0//1,&
                                   0//1,1//1,0//1,&
-                                  0//1,0//1,1//1 /),(/3,3/) )
+                                  0//1,0//1,1//1 ],(/3,3/) )
             case ("2/m","4/m","-3","-3 R","6/m")
                 select case (trim(G%laue))
                     case ("2/m")
@@ -1122,7 +1127,7 @@ contains
                     case ("-3","-3 R","6/m")
                         order(1) = 3
                 end select
-                if (present(output)) write(*,'(12x,3a)') "Searching for the ",trim(axisName(order(1)))," axis..."
+                if (pout) write(*,'(12x,3a)') "Searching for the ",trim(axisName(order(1)))," axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,order(1),n,idd)
                 if (err_std) return
@@ -1131,7 +1136,7 @@ contains
                 W = MatMul(Pinv,W)
                 call Get_Rotation_Axis(W,bz)
                 if (err_std) return
-                if (present(output)) then
+                if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(1:3)%Numerator
                     write(*,'(12x,a)') "Searching for lattice vectors perpendicular to the rotation axis. &
                     Building the complete basis..."
@@ -1144,7 +1149,7 @@ contains
                 Mp(:,3) = bz
                 deallocate(idd)
             case ("4/mmm")
-                if (present(output)) write(*,'(12x,a)') "Searching for the fourfold axis..."
+                if (pout) write(*,'(12x,a)') "Searching for the fourfold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,4,n,idd)
                 if (err_std) return
@@ -1153,7 +1158,7 @@ contains
                 W = MatMul(Pinv,W)
                 call Get_Rotation_Axis(W,bz)
                 if (err_std) return
-                if (present(output)) then
+                if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                     write(*,'(12x,a)') "Searching for the twofold axis..."
                 end if
@@ -1177,14 +1182,14 @@ contains
                     axis linearly independent from the first"
                     return
                 end if
-                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
+                if (pout) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
                 by = matmul(W,bx)
                 Mp(:,1) = bx
                 Mp(:,2) = by
                 Mp(:,3) = bz
                 deallocate(idd)
             case ("-3m","-3m R","-3m1","-31m","6/mmm")
-                if (present(output)) write(*,'(12x,a)') "Searching for the threefold axis..."
+                if (pout) write(*,'(12x,a)') "Searching for the threefold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,3,n,idd)
                 if (err_std) return
@@ -1194,7 +1199,7 @@ contains
                 if (idd(1,2) == -1)  W = -W
                 call Get_Rotation_Axis(W,bz)
                 if (err_std) return
-                if (present(output)) then
+                if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                     write(*,'(12x,a)') "Searching for the twofold axis..."
                 end if
@@ -1218,14 +1223,14 @@ contains
                     axis linearly independent from the first"
                     return
                 end if
-                if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
+                if (pout) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bx(:)%Numerator
                 by = matmul(W,bx)
                 Mp(:,1) = bx
                 Mp(:,2) = by
                 Mp(:,3) = bz
                 deallocate(idd)
             case ("mmm")
-                if (present(output)) write(*,'(12x,a)') "Searching for the three twofold axis..."
+                if (pout) write(*,'(12x,a)') "Searching for the three twofold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,2,n,idd)
                 if (err_std) return
@@ -1243,13 +1248,13 @@ contains
                     if (.not. colinear) then
                         n_ = n_ + 1
                         Mp(:,n_) = bz
-                        if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
+                        if (pout) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                     end if
                     if (n_ == 3) exit
                 end do
                 deallocate(idd)
             case ("m3","m-3","m3m","m-3m")
-                if (present(output)) write(*,'(12x,a)') "Searching for the four threefold axes..."
+                if (pout) write(*,'(12x,a)') "Searching for the four threefold axes..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,3,n,idd)
                 if (err_std) return
@@ -1267,16 +1272,16 @@ contains
                     if (.not. colinear) then
                         nCubicAxes = nCubicAxes + 1
                         cubicAxes(:,nCubicAxes) = bz(:)
-                        if (present(output)) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
+                        if (pout) write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                         if (abs(bz(1)) /= (1//1) .or. &
                             abs(bz(2)) /= (1//1) .or. &
                             abs(bz(3)) /= (1//1)) standard = .false.
                     end if
                 end do
                 if (standard) then
-                    Mp(:,1) = (/ 1//1,0//1,0//1 /)
-                    Mp(:,2) = (/ 0//1,1//1,0//1 /)
-                    Mp(:,3) = (/ 0//1,0//1,1//1 /)
+                    Mp(:,1) = [ 1//1,0//1,0//1 ]
+                    Mp(:,2) = [ 0//1,1//1,0//1 ]
+                    Mp(:,3) = [ 0//1,0//1,1//1 ]
                 else
                     ! Find a combination of cubicAxes for which the threefold axes are along {111}
                     do i = 0 , 1
@@ -1290,7 +1295,7 @@ contains
                                 bz(:) = cubicAxes(:,4) - ((2 * k)//1) * cubicAxes(:,4)
                                 Mp(:,1) = (1//2) * (cubicAxes(:,1) + bx)
                                 Mp(:,2) = (1//2) * (cubicAxes(:,1) + by)
-                                Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)                                
+                                Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)
                                 ! For lattice I, Mp is not integral (there is a lattice
                                 ! point at the middle of each diagonal. We must multiply
                                 ! by two in order to get the diagonal of the cube
@@ -1330,8 +1335,8 @@ contains
 
         call Set_Right_Handedness(Mp)
 
-        if (present(output)) then
-            write(*,'(12x,a)',advance='no') "Primitive setting --> Quasi-Standard setting transformation: "
+        if (pout) then
+            write(*,'(tr12,a)',advance='no') "Primitive setting --> Quasi-Standard setting transformation: "
             call Set_Identity_Matrix(4)
             MpAux          = identity_matrix
             MpAux(1:3,1:3) = Mp
@@ -1366,7 +1371,6 @@ contains
         logical,                             intent(out) :: shift
 
         integer :: i,j,k,l,r,nr
-        logical :: singular
         type(rational), dimension(3,3)    :: identity
         type(rational), dimension(4,4)    :: P,Pinv
         type(rational), dimension(4,4,ng) :: Gx,Gt
@@ -1470,12 +1474,15 @@ contains
         type(rational), dimension(3,3)              :: Pinv,A
         type(rational), dimension(4,4)              :: PAux
         type(rational), dimension(:,:), allocatable :: auxVec,centringVec
+        logical :: pout
 
         err_std     = .false.
         primitive   = .false.
         nullVec(:)  = 0//1
+        pout        = .false.
+        if (present(output)) pout=output
 
-        if (present(output)) then
+        if (pout) then
             write(*,'(8x,a)') " => Constructing (P,0) matrix...."
             write(*,'(12x,a)') "This matrix transforms the original basis in a primitive basis"
         end if
@@ -1492,7 +1499,7 @@ contains
 
         if (nLatt == 1) then
             ! Basis is already primitive
-            if (present(output)) write(*,'(12x,a)') "The basis is already primitive"
+            if (pout) write(*,'(12x,a)') "The basis is already primitive"
             call Rational_Identity_Matrix(3,P)
             primitive = .true.
             return
@@ -1568,11 +1575,11 @@ contains
             if (sorted) exit
         end do
         ! Append the unit translations
-        centringVec(:,ncentringVec+1) = (/ 1//1, 0//1, 0//1, 1//1 /)
-        centringVec(:,ncentringVec+2) = (/ 0//1, 1//1, 0//1, 1//1 /)
-        centringVec(:,ncentringVec+3) = (/ 0//1, 0//1, 1//1, 1//1 /)
+        centringVec(:,ncentringVec+1) = [ 1//1, 0//1, 0//1, 1//1 ]
+        centringVec(:,ncentringVec+2) = [ 0//1, 1//1, 0//1, 1//1 ]
+        centringVec(:,ncentringVec+3) = [ 0//1, 0//1, 1//1, 1//1 ]
         ncentringVec = ncentringVec + 3
-        
+
         ! Combine three vectors until a primitive setting is found
         primitive = .false.
         do i = 1 , nCentringVec
@@ -1611,14 +1618,14 @@ contains
             err_std = .true.
             err_std_mess = "Error in Get_P_Matrix subroutine. A primitive basis cannot be found"
             return
-        else if (present(output)) then
+        else if (pout) then
             write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
             call Rational_Identity_Matrix(4,Paux)
             PAux(1:3,1:3) = P
             call Get_Symb_Op_from_Mat(transpose(PAux),symb,"abc")
-            write(*,'(a)') trim(symb)            
+            write(*,'(a)') trim(symb)
         end if
-        
+
     end subroutine Get_P_Matrix
 
     !!---- Subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
@@ -1749,7 +1756,7 @@ contains
         type(rational) :: det
         type(rational), dimension(3,3) :: A,U
         integer,        dimension(3) :: nzeros
-        type(rational), dimension(3) :: row,axisaux
+        type(rational), dimension(3) :: row
 
         det = rational_determinant(W)
 
@@ -1866,9 +1873,7 @@ contains
         integer,                        intent(out) :: order
 
         !---- Local variables ----!
-        integer :: i
         type(rational) :: tr
-        integer, dimension(6)   :: traces
 
         err_std = .false.
         tr = rational_trace(W)
@@ -2025,7 +2030,7 @@ contains
 
         !---- Local variables ----!
         integer        :: i
-        integer        :: order,rnk,row,nzeros
+        integer        :: rnk,row,nzeros
         type(rational) :: det
         type(rational), dimension(3)   :: nullVector
         type(rational), dimension(3,3) :: A,S,U
@@ -2176,7 +2181,7 @@ contains
         end do
 
     end subroutine Get_Vectors_Perpendicular_To_Rotation_Axis
-    
+
     !!---- Subroutine Identify_Crystallographic_Point_Group(G)
     !!----     type(spg_type), intent(inout) :: G
     !!----
@@ -2191,9 +2196,9 @@ contains
         type(spg_type), intent(inout) :: G
 
         !---- Local variables ----!
-        integer                                            :: i,j,k,n,d,t
+        integer                                            :: i,j,n,d,t
         integer                                            :: numops,nRepSymOp
-        logical                                            :: selected,improper
+        logical                                            :: selected
         type(rational)                                     :: det,tr
         integer,               dimension(6)                :: nRot
         type(Symm_Oper_Type),  dimension(:),   allocatable :: repSymOp ! representative operations
@@ -2390,7 +2395,7 @@ contains
             err_std_mess = "Error in Identify_Crystallographic_Point_Group_Basic. Unable to identify point group"
         end if
 
-    end subroutine Identify_Crystallographic_Point_Group    
+    end subroutine Identify_Crystallographic_Point_Group
 
     !!---- Subroutine Identify_Crystallographic_Space_Group(G)
     !!----     type(spg_type), intent(inout)  :: G
@@ -2406,26 +2411,31 @@ contains
     !!---- Updated January - 2019
     !!
 
-    subroutine Identify_Crystallographic_Space_Group(G)
+    subroutine Identify_Crystallographic_Space_Group(G,output)
 
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G
+        type(spg_type),    intent(in out) :: G
+        logical, optional, intent(in)     :: output
 
         !---- Local variables ---!
         integer                          :: n
         character                        :: lattyp
         type(rational), dimension(3,3)   :: P,Mp,Mc,M
-        type(rational), dimension(3,3,6) :: A       
+        type(rational), dimension(3,3,6) :: A
+        logical :: pout
 
-        call Get_P_Matrix(G,P,nospin=.true.,output=.true.)
+        pout=.false.
+        if(present(output)) pout=output
+
+        call Get_P_Matrix(G,P,nospin=.true.,output=pout)
         !call Get_P_Matrix(G,P,nospin=.true.)
         if (err_std) return
 
-        call Get_Mp_Matrix(G,P,Mp,output=.true.)
+        call Get_Mp_Matrix(G,P,Mp,output=pout)
         !call Get_Mp_Matrix(G,P,Mp)
         if (err_std) return
 
-        call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
+        call Get_Mc_Matrix(G%laue,Mp,Mc,output=pout)
         !call Get_Mc_Matrix(G%laue,Mp,Mc)
         if (err_std) return
 
@@ -2433,7 +2443,7 @@ contains
         call Get_Lattice_Type_from_M(M,lattyp)
         if (err_std) return
         call Get_A_Matrices_Crys(G%laue,A,n)
-        call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=.true.)
+        call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=pout)
         !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
 
     end subroutine Identify_Crystallographic_Space_Group
@@ -2448,22 +2458,28 @@ contains
     !!---- Updated January - 2019
     !!
 
-    subroutine Identify_Group(G)
+    subroutine Identify_Group(G,output)
 
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G
-        
+        type(spg_type),    intent(in out) :: G
+        logical, optional, intent(in)     :: output
+
+        logical :: pout
+
+        pout=.false.
+        if(present(output)) pout=output
+
         err_std = .false.
 
         if (G%d < 4) then
             err_std = .true.
             err_std_mess = "Error in Identify_Group. Group dimension < 4."
             return
-            
+
         else if (G%d == 4) then ! Shubnikov groups
-            
-            call Identify_Shubnikov_Group(G)
-            
+
+            call Identify_Shubnikov_Group(G,pout)
+
         else ! Superspace groups
             err_std      = .true.
             err_std_mess = "Error in Identify_Group. Superspace groups not implemented yet"
@@ -2471,7 +2487,7 @@ contains
         end if
 
     end subroutine Identify_Group
-    
+
     !!---- Subroutine Identify_Laue_Class(G)
     !!----     type(spg_type), intent(inout) :: G
     !!----
@@ -2515,7 +2531,7 @@ contains
         end select
 
     end subroutine Identify_Laue_Class
-    
+
     !!---- Subroutine Identify_Magnetic_Space_Group(G)
     !!----      type(spg_type), intent(inout) :: G
     !!
@@ -2525,48 +2541,54 @@ contains
     !!----
     !!---- Updated January - 2019
     !!----
-       
-    subroutine Identify_Shubnikov_Group(G)
-    
+
+    subroutine Identify_Shubnikov_Group(G,output)
+
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G
-        
+        type(spg_type),    intent(in out) :: G
+        logical, optional, intent(in)     :: output
+
         !---- Local variables ---!
-        integer                          :: n
         character                        :: lattyp
         type(rational), dimension(3,3)   :: P,Mp,Mc,M
-        type(rational), dimension(3,3,6) :: A       
-        type(rational), dimension(4,4)   :: C
-        character(len=256)               :: symb
-        
-        call Read_Magnetic_Data
-        
+        logical :: pout
+
+        pout=.false.
+        if(present(output)) pout=output
+        if(.not. database_allocated) then
+          call Read_Magnetic_Data()
+          if(err_magg) then
+            write(*,"(a)") trim(err_magg_mess)
+            return
+          end if
+        end if
+
         call Identify_Crystallographic_Point_Group(G)
         if (err_std) return
 
         call Identify_Laue_Class(G)
         if (err_std) return
-        
-        call Get_P_Matrix(G,P,output=.true.)
+
+        call Get_P_Matrix(G,P,output=pout)
         !call Get_P_Matrix(G,P)
         if (err_std) return
 
-        call Get_Mp_Matrix(G,P,Mp,output=.true.)
+        call Get_Mp_Matrix(G,P,Mp,output=pout)
         !call Get_Mp_Matrix(G,P,Mp)
         if (err_std) return
 
-        call Get_Mc_Matrix(G%laue,Mp,Mc,output=.true.)
+        call Get_Mc_Matrix(G%laue,Mp,Mc,output=pout)
         !call Get_Mc_Matrix(G%laue,Mp,Mc)
         if (err_std) return
 
         M = matmul(Mp,Mc)
         call Get_Lattice_Type_from_M(M,lattyp)
         if (err_std) return
-        
-        call Match_Shubnikov_Group(G,P,M,output=.true.)
-        !call Match_Shubnikov_Group(G,P,M)                       
-    
-    end subroutine Identify_Shubnikov_Group    
+
+        call Match_Shubnikov_Group(G,P,M,output=pout)
+        !call Match_Shubnikov_Group(G,P,M)
+
+    end subroutine Identify_Shubnikov_Group
 
     !!---- Subroutine Match_Crystallographic_Space_Group(G,P,M,A,n,output)
     !!----      type(spg_type),                   intent(inout) :: G
@@ -2595,20 +2617,24 @@ contains
         logical,        optional,         intent(in)    :: output
 
         !---- Local variables ----!
-        integer                                         :: s,i,j,k,ng,ng_,dmax
+        integer                                         :: s,i,j,ng,ng_
         integer                                         :: firstSpaceGroup,lastSpaceGroup,numSpg
         character(len=12)                               :: sgString
         character(len=256)                              :: symb
-        logical                                         :: antiInv,shift
+        logical                                         :: shift
         type(spg_type)                                  :: G_target
         type(space_group_type)                          :: G_std
         type(rational),       dimension(3)              :: origShift
         type(spg_type),       dimension(n)              :: G_
         type(symm_oper_type), dimension(3)              :: gen_std,gen_x
-        type(rational),       dimension(3,3)            :: MA,P_target,identity
+        type(rational),       dimension(3,3)            :: MA,P_target
         type(rational),       dimension(4,4)            :: C,Cinv,W
         type(rational),       dimension(4,4,n)          :: C_
         type(Symm_Oper_Type), dimension(:), allocatable :: op
+        logical :: pout
+
+        pout=.false.
+        if(present(output)) pout=output
 
         select case (trim(G%laue))
 
@@ -2616,49 +2642,49 @@ contains
 
                 firstSpaceGroup = 1
                 lastSpaceGroup  = 2
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic triclinic space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic triclinic space groups..."
 
             case ("2/m")
 
                 firstSpaceGroup = 3
                 lastSpaceGroup  = 15
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic monoclinic space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic monoclinic space groups..."
 
             case ("mmm")
                 firstSpaceGroup = 16
                 lastSpaceGroup  = 74
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic orthorhombic space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic orthorhombic space groups..."
 
             case ("4/m","4/mmm")
                 firstSpaceGroup = 75
                 lastSpaceGroup  = 142
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic tetragonal space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic tetragonal space groups..."
 
             case ("-3","-3 R","-3m","-3m R","-3m1","-31m")
                 firstSpaceGroup = 143
                 lastSpaceGroup  = 167
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic trigonal space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic trigonal space groups..."
 
             case ("6/m","6/mmm")
                 firstSpaceGroup = 168
                 lastSpaceGroup  = 194
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic hexagonal space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic hexagonal space groups..."
 
             case ("m3","m-3","m3m","m-3m")
                 firstSpaceGroup = 195
                 lastSpaceGroup  = 230
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard crystallographic cubic space groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard crystallographic cubic space groups..."
 
             case default
                 firstSpaceGroup = 0
                 lastSpaceGroup  = -1
 
         end select
-        
+
         do i = 1 , 3
             allocate(gen_std(i)%Mat(4,4),gen_x(i)%Mat(4,4))
         end do
-        
+
         do s = 1 , n  ! Loop over C matrices
             G_(s)         = G
             G_(s)%numops  = G%multip / (G%num_lat + G%num_alat + 1)
@@ -2666,14 +2692,14 @@ contains
             if (G_(s)%centred /= 1) G_(s)%numops  = G_(s)%numops / 2
             MA            = matmul(M,A(:,:,s))
             C_(1:3,1:3,s) = matmul(P,MA)
-            C_(1:3,4,s)   = (/ 0//1,0//1,0//1 /)
-            C_(4,1:4,s)   = (/ 0//1,0//1,0//1,1//1 /)
+            C_(1:3,4,s)   = [ 0//1,0//1,0//1 ]
+            C_(4,1:4,s)   = [ 0//1,0//1,0//1,1//1 ]
             call Rational_Inv_Matrix(C_(:,:,s),Cinv)
             ! Compute symmetry operations in the new basis
             do j = 1 , G%Multip
                 W(1:3,1:3) = G%op(j)%Mat(1:3,1:3)
                 W(1:3,4)   = G%op(j)%Mat(1:3,G%d)
-                W(4,1:4)   = (/ 0//1,0//1,0//1,1//1 /)
+                W(4,1:4)   = [ 0//1,0//1,0//1,1//1 ]
                 W          = matmul(W,C_(:,:,s))
                 W          = matmul(Cinv,W)
                 G_(s)%op(j)%Mat(1:3,1:3) = W(1:3,1:3)
@@ -2690,8 +2716,8 @@ contains
             end do
             ! Get Lattice Type
             call Get_Lattice_Type_from_M(MA,G_(s)%spg_lat)
-        end do       
-        
+        end do
+
         do numSpg = firstSpaceGroup , lastSpaceGroup
             call Get_HM_Standard(numSpg,sgString)
             call Set_Spacegroup(sgString,G_std)
@@ -2721,13 +2747,13 @@ contains
                                 gen_x(ng_) = G_(s)%op(j)
                                 !gen_x(1:3,1:3,ng_) = gen_std(1:3,1:3,i)
                                 !gen_x(1:3,4,ng_)   = G_(s)%op(j)%Mat(1:3,G%d)
-                                !gen_x(4,:,ng_)     = (/ 0//1, 0//1, 0//1, 1//1 /)
+                                !gen_x(4,:,ng_)     = [ 0//1, 0//1, 0//1, 1//1 ]
                                 exit
                             end if
                         end do
                     end do
                     if (ng /= ng_) cycle
-                    if (present(output)) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s
+                    if (pout) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s
                     ! Build a spg_type object from space_group_type object
                     G_target%num_alat = 0
                     G_target%num_lat  = G_std%NumLat - 1 ! In spg_type (000) is not included in lattice translations
@@ -2748,13 +2774,13 @@ contains
                     ! Try to match the standard by an origin shift
                     call Get_Origin_Shift(gen_x(1:ng),gen_std(1:ng),ng,P_target,origShift,shift)
                     if (shift) then
-                        if (present(output)) write(*,'(8x,a)') 'Done!'
+                        if (pout) write(*,'(8x,a)') 'Done!'
                         C(1:3,1:3) = C_(1:3,1:3,s)
                         C(4,:)     = C_(4,:,s)
                         origShift  = matmul(C(1:3,1:3),origShift)
                         C(4,1:3)   = origShift(1:3)
                         call Get_Symb_Op_from_Mat(transpose(C),symb,"abc")
-                        if (present(output)) then
+                        if (pout) then
                             write(*,'(12x,a)',advance='no') "Original setting --> Standard crystallographic setting: "
                             write(*,'(a)') trim(symb)
                         end if
@@ -2763,7 +2789,7 @@ contains
                         G%mat2std  = trim(symb)
                         return
                     else
-                        if (present(output)) write(*,'(8x,a)') 'Failed'
+                        if (pout) write(*,'(tr8,a)') 'Failed'
                         cycle
                     end if
                 end if
@@ -2774,7 +2800,7 @@ contains
         err_std_mess = "Unable to indentify the space group"
 
     end subroutine Match_Crystallographic_Space_Group
-    
+
     !!---- Subroutine Match_Shubnikov_Group(G,P,M,output)
     !!----      type(spg_type),                   intent(inout) :: G
     !!----      type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
@@ -2788,91 +2814,95 @@ contains
     !!----
     !!---- Updated: February - 2019
     !!
-       
+
     subroutine Match_Shubnikov_Group(G,P,M,output)
-    
+
         !---- Arguments ----!
         type(spg_type),                   intent(inout) :: G
         type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
         logical,        optional,         intent(in)    :: output
-        
+
         !---- Local variables ----!
         integer                                                    :: i,j,k,n,ngen,ngen_
         integer                                                    :: iniG,endG
-        integer                                                    :: nPointOper,nA,ntVectors
-        logical                                                    :: hexagonal,newt,shift
+        integer                                                    :: nPointOper,nA
+        logical                                                    :: hexagonal,shift
         character(len=256)                                         :: symb
         type(symm_oper_type)                                       :: Op
         character(len=1),          dimension(2)                    :: magLat
         type(symm_oper_type),      dimension(3)                    :: Gt
         type(rational),            dimension(3)                    :: origShift
-        type(rational),            dimension(3,3)                  :: vAux
-        type(rational),            dimension(3,3)                  :: identity,latTr
-        type(rational),            dimension(3,4)                  :: alatTr
-        type(rational),            dimension(4,4)                  :: identity_aux,Caux
+        type(rational),            dimension(4,4)                  :: Caux
         type(symm_oper_type),      dimension(3,6)                  :: Gx
         type(rational),            dimension(3,3,6)                :: A
         logical,                   dimension(:),       allocatable :: doTest
         character(len=40),         dimension(:),       allocatable :: gener
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
-        !type(symm_oper_type),      dimension(:,:),     allocatable :: Op
-        type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,Cinvcell,pointOper,Paux
-        type(rational),            dimension(:,:,:),   allocatable :: tVectors
+        type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,pointOper,Paux
+        logical :: pout
+
+        pout=.false.
+        if(present(output)) pout=output
 
         ! Initialize variables
         hexagonal = .false.
-        
-        ! Check dimension of the group is four     
+
+        ! Check dimension of the group is four
         if (G%d /= 4) then
             err_std = .true.
             err_std_mess = "Error in Match_Shubnikov_Group. Group dimension different from 4."
             return
         end if
-                
-        ! Load table for standard magnetic groups        
-        call Read_Magnetic_Data
-        
+
+        ! Load table for standard magnetic groups
+        if(.not. database_allocated) then
+          call Read_Magnetic_Data()
+          if(err_magg) then
+            write(*,"(a)") trim(err_magg_mess)
+            return
+          end if
+        end if
         ! Set the range of possible magnetic groups from the laue class
         select case (trim(G%laue))
-            case ("-1") 
+            case ("-1")
                 iniG  =    1
                 endG  =    7
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard triclinic magnetic groups..."
-            case ("2/m") 
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard triclinic magnetic groups..."
+            case ("2/m")
                 iniG =    8
                 endG  =   98
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard monoclinic magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard monoclinic magnetic groups..."
             case ("mmm")
                 iniG =   99
                 endG  =  660
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard orthorhombic magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard orthorhombic magnetic groups..."
             case ("4/m","4/mmm")
                 iniG =  661
                 endG  = 1230
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard tetragonal magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard tetragonal magnetic groups..."
             case ("-3","-3 R","-3m","-3m R","-3m1","-31m")
                 iniG = 1231
                 endG  = 1338
                 hexagonal = .true.
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard trigonal magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard trigonal magnetic groups..."
             case ("6/m","6/mmm")
                 iniG = 1339
                 endG  = 1502
                 hexagonal = .true.
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard hexagonal magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard hexagonal magnetic groups..."
             case ("m3","m-3","m3m","m-3m")
                 iniG = 1503
                 endG  = 1651
-                if (present(output)) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
+                if (pout) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
             case default
                 err_std = .true.
                 err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
                 return
         end select
-        
-        ! Set pointers 
+
+        ! Set pointers
         if (hexagonal) then
             ! Hexagonal systems
             allocate(pointOper(3,3,24))
@@ -2892,28 +2922,28 @@ contains
         allocate(G_aux(nA))
         allocate(doTest(nA))
         allocate(idx(3,nA))
-        allocate(pointerToOper(G%multip,nA))
+        allocate(pointerToOper(2*G%multip,nA))
         allocate(C(4,4,nA),Cinv(4,4,nA),Paux(3,3,nA))
-        
+
         ! Initialize arrays
         G_aux(:)           = G
         doTest(:)          = .true.
         idx(:,:)           = 0
-        pointerToOper(:,:) = 0         
+        pointerToOper(:,:) = 0
 
         ! Get transformation matrices for every setting we will test
         Caux(1:3,1:3) = matmul(P,M)
         do n = 1 , nA
-            C(1:3,1:3,n) = matmul(Caux(1:3,1:3),A(1:3,1:3,n))             
-            C(1:3,4,n)   = (/ 0,0,0 /)
-            C(4,1:4,n)   = (/ 0,0,0,1 /)
+            C(1:3,1:3,n) = matmul(Caux(1:3,1:3),A(1:3,1:3,n))
+            C(1:3,4,n)   = [ 0,0,0 ]
+            C(4,1:4,n)   = [ 0,0,0,1 ]
             !write(*,'("C-Matrix, setting ",i1)') n
             !do i = 1 , 4
             !    write(*,*) C(i,:,n)
             !end do
             call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
         end do
-        
+
         ! Put G in the different settings
         allocate(gener(G%multip))
         !call Get_Operators_From_String(G%generators_list,n,ngen,gener)
@@ -2927,7 +2957,7 @@ contains
         !        Op(i,n)%Mat = matmul(Cinv(:,:,n),Op(i,n)%Mat)
         !    end do
         !end do
-        
+
         ! Build groups from generators
         call Allocate_Operator(G%d,Op)
         do n = 1 , nA
@@ -2944,11 +2974,11 @@ contains
         end do
         ! Put G in every setting we will test ---> [G_aux] = [Cinv][G_aux][C]
         !call Rational_Identity_Matrix(3,identity)
-        !do n = 1 , nA            
+        !do n = 1 , nA
         !    G_aux(n)          = G
         !    G_aux(n)%num_lat  = 0
         !    G_aux(n)%num_alat = 0
-        !    do i = 1 , G_aux(n)%multip 
+        !    do i = 1 , G_aux(n)%multip
         !        G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
         !        G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
         !        ! if the matrix is not integral, the setting is discarded
@@ -2959,7 +2989,7 @@ contains
         !        call reduced_translation(G_aux(n)%Op(i)%Mat)
         !        if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
         !            .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
-        !            if (G_aux(n)%Op(i)%time_inv == 1) then                        
+        !            if (G_aux(n)%Op(i)%time_inv == 1) then
         !                newt = .true.
         !                do j = 1 , G_aux(n)%num_lat
         !                    if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
@@ -3007,11 +3037,11 @@ contains
         !    !    end do
         !    !end if
         !end do!;stop
-        
-        ! Map each symmetry operation in pointerToOper for every possible setting        
+
+        ! Map each symmetry operation in pointerToOper for every possible setting
         do n = 1 , nA
             !if (doTest(n)) then
-                do i = 1 , G_aux(n)%multip                
+                do i = 1 , G_aux(n)%multip
                     j = 1
                     do
                         if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
@@ -3025,22 +3055,22 @@ contains
                             A symmetry operation of the group cannot be matched against tabulated symmetry operations"
                             return
                         end if
-                    end do                
+                    end do
                 end do
             !end if
         end do
-        
+
         ! Get the magnetic lattice type for every setting
         do n = 1 , nA
             if (doTest(n)) then
                 call Get_Magnetic_Lattice_Type(G_aux(n))!%num_Lat,G_aux(n)%lat_tr,G_aux(n)%num_aLat,&
-                                               !G_aux(n)%alat_tr,G_aux(n)%shu_lat)                          
+                                               !G_aux(n)%alat_tr,G_aux(n)%shu_lat)
                 ! Correct symbol for triclinic systems with anti-translations
                 if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
                 !write(*,*) n,G_aux(n)%shu_lat,G_aux(n)%num_alat,G_aux(n)%num_lat
             end if
         end do!;stop
-        
+
         ! Get generators for every setting
         do n = 1 , nA
             if (doTest(n)) then
@@ -3072,30 +3102,30 @@ contains
                 !write(*,'(5x,a)')     "Anti-Translations: "
                 !do i = 1 , G_aux(n)%num_alat
                 !    write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
-                !end do                
+                !end do
             end if
         end do
-        
+
         ! Compute the P matrix for every setting
         do n = 1 , nA
-            if (doTest(n)) then 
+            if (doTest(n)) then
                 call Get_P_Matrix(G_aux(n),Paux(:,:,n))
                 if (err_std) doTest(n) = .false.
             end if
         end do
-        
+
          ! Try to match G against one of the Shubnikov groups
-        
+
         do i = iniG , endG
             if (magtype(i) == G%mag_type .and. ops_count(i) == (G%multip/(G%num_lat+1))) then
                 ! Extract magnetic lattice type from symbol
                 magLat(1) = spacegroup_label_bns(i)(1:1)
                 magLat(2) = " "
-                if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)                
+                if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)
                 do n = 1 , nA
                     if (doTest(n)) then
                         if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
-                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle                            
+                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
                         ! Try to find the same set of generators in the standard magnetic group
                         ngen_ = 0
                         do j = 1 , ngen
@@ -3106,19 +3136,19 @@ contains
                                     Gt(j)%Mat(1:3,4) = (ops_bns_trans(1:3,k,i) // ops_bns_trans_denom(k,i))
                                     ngen_ = ngen_ + 1
                                     exit
-                                end if    
+                                end if
                             end do
                         end do
                         if (ngen_ == ngen) then
-                            if (present(output)) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
+                            if (pout) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
                                 trim(spacegroup_label_bns(i)),", setting ", n
                             call Get_Origin_Shift(Gx(1:nGen,n),Gt(1:nGen),nGen,Paux(1:3,1:3,n),origShift,shift)
                             if (shift) then
-                                if (present(output)) write(*,'(8x,a)') "Done!"
+                                if (pout) write(*,'(8x,a)') "Done!"
                                 origShift(1:3) = matmul(C(1:3,1:3,n),origShift)
                                 C(4,1:3,n) = origShift(1:3)
                                 call Get_Symb_Op_from_Mat(transpose(C(:,:,n)),symb,"abc")
-                                if (present(output)) then
+                                if (pout) then
                                     write(*,'(12x,a)',advance='no') "Original setting --> Standard magnetic setting: "
                                     write(*,'(a)') trim(symb)
                                 end if
@@ -3127,17 +3157,17 @@ contains
                                 G%mat2std_shu = trim(symb)
                                 return
                             else
-                                if (present(output)) write(*,'(8x,a)') "Failed"    
+                                if (pout) write(*,'(8x,a)') "Failed"
                             end if
                         end if
                     end if
                 end do
             end if
-        end do      
-        
+        end do
+
         err_std = .true.
         err_std_mess = "Unable to indentify the magnetic group"
-        
+
     end subroutine Match_Shubnikov_Group
 
     !!---- Subroutine PBC(vector)
@@ -3208,7 +3238,7 @@ contains
 
         !---- Local variables ----!
         integer                :: i
-        integer, dimension(25) :: primos = (/ 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97 /)
+        integer, dimension(25) :: primos = [ 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97 ]
         type(rational), dimension(size(v)) :: vAux
 
         do i = 1 , size(v)
