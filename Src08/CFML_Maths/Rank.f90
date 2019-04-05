@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Rank
+Submodule (CFML_Maths) Sbm_Rank
  Contains
 
     !!----
@@ -231,4 +231,4 @@ Submodule (CFML_Maths) Rank
        return
     End Subroutine Svdcmp
  
-End Submodule Rank
+End Submodule Sbm_Rank

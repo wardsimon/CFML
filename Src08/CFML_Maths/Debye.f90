@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Debye
+Submodule (CFML_Maths) Sbm_Debye
  
  Contains
     !!---- 
@@ -730,4 +730,4 @@ Submodule (CFML_Maths) Debye
        return
     End Function DebyeN
  
-End Submodule Debye
+End Submodule Sbm_Debye
