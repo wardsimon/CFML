@@ -29,7 +29,7 @@
 !!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 !!---- Lesser General Public License for more details.
 !!----
-!!---- You should have received a copy of the GNU of Lesser General Public
+!!---- You should have received a copy of the GNU Lesser General Public
 !!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
@@ -55,8 +55,8 @@ Module CFML_GlobalDeps
    integer,          parameter :: OPS = 3                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
 
    !---- Compiler ----!
-   !character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
-   character(len=*), parameter :: COMPILER = "GFOR"              ! GFortran Compiler
+   character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
+   !character(len=*), parameter :: COMPILER = "GFOR"             ! GFortran Compiler
 
    !---- Precision ----!
    integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
@@ -89,16 +89,19 @@ Module CFML_GlobalDeps
       character(len=80),dimension(5) :: ExMsg=" "                ! Extra Message information
    End Type Err_Type
    Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
-  
+   
  Contains
 
+   !-------------------!
+   !---- Functions ----!
+   !-------------------!
+
    !!----
-   !!---- FUNCTION DIRECTORY_EXISTS
-   !!----
+   !!---- DIRECTORY_EXISTS
    !!----    Generic function dependent of the compiler that return
    !!----    a logical value if a directory exists or not.
    !!----
-   !!---- Update: 11/07/2015
+   !!---- 27/03/2019
    !!
    Function Directory_Exists(DirName) Result(info)
       !---- Argument ----!
@@ -111,7 +114,7 @@ Module CFML_GlobalDeps
 
       !> Init value
       info=.false.
-      
+
       !> Check
       if (len_trim(dirname)<= 0) return
       
@@ -121,9 +124,9 @@ Module CFML_GlobalDeps
       if (linea(nlong:nlong) /= OPS_SEP) linea=trim(linea)//OPS_SEP
 
       !> Compiler
-      select case (trim(compiler))
+      select case (trim(COMPILER))
          case ('IFOR')
-            !inquire(directory=trim(linea), exist=info)
+            inquire(directory=trim(linea), exist=info)
 
          case default
             inquire(file=trim(linea)//'.' , exist=info)
@@ -145,6 +148,6 @@ Module CFML_GlobalDeps
       Err_CFML%ExMsg=" "
       
       return
-   End Subroutine Clear_Error 
+   End Subroutine Clear_Error   
 
 End Module CFML_GlobalDeps

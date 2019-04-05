@@ -56,24 +56,27 @@ Module CFML_GlobalDeps
 
    !---- Compiler ----!
    character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
-   !character(len=*), parameter :: COMPILER = "GFOR"              ! GFortran Compiler
+   !character(len=*), parameter :: COMPILER = "GFOR"             ! GFortran Compiler
 
    !---- Precision ----!
    integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
    integer, parameter :: SP = selected_real_kind(6,30)           ! Simple precision
-   integer, parameter :: IL = selected_int_kind(16)              ! Long Integer
+   integer, parameter :: LI = selected_int_kind(16)              ! Long Integer
 
    integer, parameter :: CP = SP                                 ! Current precision
 
    !---- Trigonometric ----!
-   real(kind=DP), parameter :: PI = 3.141592653589793238463_dp   ! PI value
-   real(kind=DP), parameter :: TO_DEG  = 180.0_dp/PI             ! Conversion from Radians to Degrees
-   real(kind=DP), parameter :: TO_RAD  = pi/180.0_dp             ! Conversion from Degrees to Radians
-   real(kind=DP), parameter :: TPI = 6.283185307179586476925_dp  ! 2*PI
+   real(kind=DP), parameter :: PI = 3.141592653589793238463_DP   ! PI value
+   real(kind=DP), parameter :: TO_DEG  = 180.0_DP/PI             ! Conversion from Radians to Degrees
+   real(kind=DP), parameter :: TO_RAD  = PI/180.0_DP             ! Conversion from Degrees to Radians
+   real(kind=DP), parameter :: TPI = 6.283185307179586476925_DP  ! 2*PI
 
    !---- Numeric ----!
-   real(kind=DP), parameter :: DEPS=0.00000001_dp                ! Epsilon value use for comparison of real numbers (DOUBLE)
-   real(kind=CP), parameter :: EPS=0.00001_cp                    ! Epsilon value use for comparison of real numbers (SIMPLE)
+   real(kind=DP), parameter :: DEPS=0.00000001_DP                ! Epsilon value use for comparison of real numbers (DOUBLE)
+   real(kind=CP), parameter :: EPS=0.00001_CP                    ! Epsilon value use for comparison of real numbers 
+   real(kind=CP), parameter :: V_EPSI=epsilon(1.0_CP)             ! Epsilon value for Current precision
+   real(kind=CP), parameter :: V_HUGE=huge(1.0_CP)                ! Huge value for current precision 
+   real(kind=CP), parameter :: V_TINY=tiny(1.0_CP)                ! Tiny value for current precision
 
    !---- Special Characters ----!
    character(len=2), parameter   :: NEWLINE = char(13)//char(10) ! Newline character
@@ -81,9 +84,9 @@ Module CFML_GlobalDeps
    
    !---- Error Flags ----!
    Type :: Err_Type
-      logical            :: state=.false.                        ! State of the error
-      integer            :: flag =0                              ! =0 No error, =1 Warning, > 1 Error
-      character(len=150) :: Msg=" "                              ! Text for Messages
+      integer                        :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
+      character(len=80)              :: Msg=" "                  ! Text for Message
+      character(len=80),dimension(5) :: ExMsg=" "                ! Extra Message information
    End Type Err_Type
    Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
    
@@ -95,11 +98,10 @@ Module CFML_GlobalDeps
 
    !!----
    !!---- DIRECTORY_EXISTS
-   !!----
    !!----    Generic function dependent of the compiler that return
    !!----    a logical value if a directory exists or not.
    !!----
-   !!---- Update: 11/07/2015
+   !!---- 27/03/2019
    !!
    Function Directory_Exists(DirName) Result(info)
       !---- Argument ----!
@@ -107,20 +109,22 @@ Module CFML_GlobalDeps
       logical                      :: info                  ! Return Value
 
       !---- Local Variables ----!
-      character(len=1024) :: linea
-      integer             :: nlong
+      character(len=:), allocatable :: linea
+      integer                       :: nlong
 
       !> Init value
       info=.false.
 
-      linea=trim(dirname)
+      !> Check
+      if (len_trim(dirname)<= 0) return
+      
+      linea=adjustl(dirname)
       nlong=len_trim(linea)
-      if (nlong ==0) return
 
-      if (linea(nlong:nlong) /= ops_sep) linea=trim(linea)//ops_sep
+      if (linea(nlong:nlong) /= OPS_SEP) linea=trim(linea)//OPS_SEP
 
       !> Compiler
-      select case (trim(compiler))
+      select case (trim(COMPILER))
          case ('IFOR')
             inquire(directory=trim(linea), exist=info)
 
@@ -133,16 +137,15 @@ Module CFML_GlobalDeps
    
    !!----
    !!---- CLEAR_ERROR
+   !!----    Reset information on Error Variables for CFML
    !!----
-   !!---- Reset information on Error Variables for CFML
-   !!----
-   !!---- 17/05/2018
+   !!---- 27/03/2019 
    !!
    Subroutine Clear_Error()
       
-      Err_CFML%state=.false.
-      Err_CFML%Flag=0
+      Err_CFML%IErr=0
       Err_CFML%Msg =" "
+      Err_CFML%ExMsg=" "
       
       return
    End Subroutine Clear_Error   
