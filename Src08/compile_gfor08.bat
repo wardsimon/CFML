@@ -96,7 +96,6 @@ rem   Submodules CFML_Maths
       gfortran -c %OPTC%  -J..\mod Scalar.f90                        %OPT1% 
       gfortran -c %OPTC%  -J..\mod SistCoord_Changes.f90             %OPT1% 
       gfortran -c %OPTC%  -J..\mod Sort.f90                          %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Spline.f90                        %OPT1% 
       gfortran -c %OPTC%  -J..\mod Swap.f90                          %OPT1% 
       gfortran -c %OPTC%  -J..\mod Tensor_Product.f90                %OPT1% 
       gfortran -c %OPTC%  -J..\mod Trace.f90                         %OPT1% 
