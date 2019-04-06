@@ -70,7 +70,7 @@
               Number_Lines, &
               Reading_Lines, Read_Key_Str, Read_Key_StrVal, Read_Key_Value, &
               Read_Key_ValueSTD, &
-              SubString_Replace
+              Sort_Strings, SubString_Replace
               
 
     !--------------------!
@@ -333,6 +333,17 @@
           Integer ,          intent(in out) ::  nFld             ! <-> current field in format descriptor
           Integer ,          intent( in)    ::  nFldMax          !  -> max. number of fields in format descriptor
        End Subroutine SGetFTMfield
+       
+       Module Pure Subroutine Sort_PR_Partition(A, Marker)
+          !---- Arguments ----!
+          character(len=*), dimension(:), intent(in out) :: A
+          integer,                        intent(   out) :: marker
+       End Subroutine Sort_PR_Partition
+       
+       Module Recursive Subroutine Sort_Strings(Str)
+          !---- Argument ----!
+          character(len=*), dimension(:), intent(in out) :: Str
+       End Subroutine Sort_Strings
        
        Module Pure Function String_Count(str,substr) Result(N)
           !---- Arguments ----!

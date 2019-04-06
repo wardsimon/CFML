@@ -75,9 +75,8 @@
               Invert_Matrix_R,               &
               Points_In_Line2D,              &
               RowEchelonForm,                &
-              Set_EPS_Math, SmithNormalForm, Sort_Strings, Svdcmp, Swap, &
-              Resolv_Sist_1x2, Resolv_Sist_1x3, Resolv_Sist_2x2, Resolv_Sist_2x3,&
-              Resolv_Sist_3x3
+              Set_EPS_Math, SmithNormalForm, Svdcmp, Swap, Resolv_Sist_1x2,      &
+              Resolv_Sist_1x3, Resolv_Sist_2x2, Resolv_Sist_2x3, Resolv_Sist_3x3
     
 
 
@@ -1127,23 +1126,12 @@
           integer, dimension(n)              :: indx      ! Index
        End Function Sort_I   
        
-       Module Pure Subroutine Sort_PR_Partition(A, Marker)
-          !---- Arguments ----!
-          character(len=*), dimension(:), intent(in out) :: A
-          integer,                        intent(   out) :: marker
-       End Subroutine Sort_PR_Partition
-       
        Module Function Sort_R(arr,n) Result(indx)    
           !---- Arguments ----!
           real(kind=cp), dimension(:), intent(in ) :: arr       ! Vector
           integer                    , intent(in ) :: n         ! Dimension
           integer, dimension(n)                    :: indx      ! Index
        End Function Sort_R 
-       
-       Module Recursive Subroutine Sort_Strings(Str)
-          !---- Argument ----!
-          character(len=*), dimension(:), intent(in out) :: Str
-       End Subroutine Sort_Strings
        
        Module Pure Function Spline_D2Y(x,y,n,yp1,ypn) Result(ys)
           !---- Arguments ----!

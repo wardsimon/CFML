@@ -555,6 +555,78 @@ Submodule (CFML_Strings) StrTools
       return
    End Subroutine SubString_Replace
    
+   !!---- 
+    !!---- SORT_STRINGS
+    !!----    Sort an array of string
+    !!----
+    !!---- 03/04/2019 
+    !!
+    Module Recursive Subroutine Sort_Strings(Str)    
+       !---- Argument ----!
+       character(len=*), dimension(:), intent(in out) :: Str
+
+       !---- Local variables ----!
+       integer :: iq
+
+       if (size(Str) > 1) then
+          call Sort_PR_Partition(Str, iq)
+          call Sort_Strings(Str(:iq-1))
+          call Sort_Strings(Str(iq:))
+       end if
+
+       return
+    End Subroutine Sort_Strings
+    
+    !!----
+    !!---- SORT_PR_PARTITION
+    !!----
+    !!----    (Private)
+    !!----    Utilised by Sort_Strings.
+    !!----
+    !!---- 03/04/2019 
+    !!
+    Module Pure Subroutine Sort_PR_Partition(A, Marker)    
+       !---- Arguments ----!
+       character(len=*), dimension(:), intent(in out) :: A
+       integer,                        intent(   out) :: marker
+
+       !---- Local variables ----!
+       integer                  :: i, j
+       character(len=len(A(1))) :: temp
+       character(len=len(A(1))) :: x      ! pivot point
+
+       x = A(1)
+       i= 0
+       j= size(A) + 1
+
+       do
+          j = j-1
+          do
+             if (A(j) <= x) exit
+             j = j-1
+          end do
+          i = i+1
+          do
+             if (A(i) >= x) exit
+             i = i+1
+          end do
+          if (i < j) then
+             !---- exchange A(i) and A(j)
+             temp = A(i)
+             A(i) = A(j)
+             A(j) = temp
+          else if (i == j) then
+             marker = i+1
+             return
+          else
+             marker = i
+             return
+          end if
+       end do
+
+       return
+    End Subroutine Sort_PR_Partition
+   
    
    
 End Submodule StrTools   
