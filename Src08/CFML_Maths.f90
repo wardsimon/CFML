@@ -62,7 +62,7 @@
               Outerprod,                     &
               Poly_Legendre,                 &
               Rank, Rotation_OX, Rotation_OY, Rotation_OZ,                       &
-              Scalar, Second_Derivative, Smoothing_Vec, Sort, Spline_Interpol,   &
+              Scalar, Second_Derivative, Smoothing_Vec, Sort, Spline_Interpol, Spline_D2y,  &
               Tensor_Product, Trace,         &
               Upper_Triangular,              &
               Vec_Length,                    &
@@ -75,7 +75,7 @@
               Invert_Matrix_R,               &
               Points_In_Line2D,              &
               RowEchelonForm,                &
-              Set_EPS_Math, SmithNormalForm, Sort_Strings, Spline, Svdcmp, Swap, &
+              Set_EPS_Math, SmithNormalForm, Sort_Strings, Svdcmp, Swap, &
               Resolv_Sist_1x2, Resolv_Sist_1x3, Resolv_Sist_2x2, Resolv_Sist_2x3,&
               Resolv_Sist_3x3
     
@@ -1145,15 +1145,15 @@
           character(len=*), dimension(:), intent(in out) :: Str
        End Subroutine Sort_Strings
        
-       Module Pure Subroutine Spline(x,y,n,yp1,ypn,ys)
+       Module Pure Function Spline_D2Y(x,y,n,yp1,ypn) Result(ys)
           !---- Arguments ----!
           real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X
           real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)
           integer ,                    intent(in)  :: n               !  In -> Dimension of X, Y
           real(kind=cp),               intent(in)  :: yp1             !  In -> Derivate of Point 1
           real(kind=cp),               intent(in)  :: ypn             !  In -> Derivate of Point N
-          real(kind=cp), dimension(:), intent(out) :: ys              ! Out -> array containing second derivatives
-       End Subroutine Spline
+          real(kind=cp), dimension(n)            :: ys              ! Out -> array containing second derivatives
+       End Function Spline_D2Y
        
        Module Pure Function Spline_Interpol(x,y,d2y,n,xi) Result(yi)
           !---- Arguments ----!
