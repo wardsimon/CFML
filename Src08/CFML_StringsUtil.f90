@@ -78,22 +78,6 @@
     !--------------------!
     character(len=*), parameter :: DIGIT         ="0123456789.-"   ! Character parameter for numbers
     
-    !!----
-    !!---- TYPE :: ERR_TEXT_TYPE
-    !!--..
-    !!
-    Type, Public :: Err_Text_Type
-       integer                           :: nlines=0
-       character (len=132), dimension(5) :: txt=" "
-    End Type Err_Text_Type
-    
-    !-------------------!
-    !---- Variables ----!
-    !-------------------!
-    integer,              public :: iErr_fmt      ! Error code value (should be normally = 0) for findFMT procedure
-    Type (Err_Text_Type), public :: Mess_FindFMT  ! Text composed (findFMT) 
-    
-       
     Interface
        Module Subroutine BuildFMT(iFld,nCar,nStr,FMTstring)
           !---- Arguments ----!

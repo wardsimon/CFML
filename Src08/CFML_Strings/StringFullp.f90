@@ -58,7 +58,7 @@ Submodule (CFML_Strings) FullPString
        !> heading symbol "F"
        nStr = nStr + 1
        if (nStr > Len(FMTstring)) then
-          iErr_fmt = iErrStrLength          ! format string length exceeded
+          Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
           return
        end if
 
@@ -86,7 +86,7 @@ Submodule (CFML_Strings) FullPString
              N = Int(nCar/100)
              nStr = nStr + 1
              if (nStr > Len(FMTstring)) then
-                iErr_fmt = iErrStrLength          ! format string length exceeded
+                Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
                 return
              end if
              FMTstring(nStr:nStr) = Char(N+48)
@@ -98,7 +98,7 @@ Submodule (CFML_Strings) FullPString
              N = Int(nCar/10)
              nStr = nStr + 1
              if (nStr > Len(FMTstring)) then
-                iErr_fmt = iErrStrLength          ! format string length exceeded
+                Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
                 return
              end if
              FMTstring(nStr:nStr) = Char(N+48)
@@ -108,7 +108,7 @@ Submodule (CFML_Strings) FullPString
           !> units 
           nStr = nStr + 1
           if (nStr > Len(FMTstring)) then
-             iErr_fmt = iErrStrLength          ! format string length exceeded
+             Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
              return
           end if
           FMTstring(nStr:nStr) = Char(nCar+48)
@@ -117,7 +117,7 @@ Submodule (CFML_Strings) FullPString
           if (iFld == iReal) then
              nStr = nStr + 2
              if (nStr > Len(FMTstring)) then
-                iErr_fmt = iErrStrLength          ! format string length exceeded
+                Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
                 return
              end if
              FMTstring(nStr-1:nStr) = ".0"
@@ -127,7 +127,7 @@ Submodule (CFML_Strings) FullPString
           !> numeric part of "A" fields 
           nStr = nStr + 1
           if (nStr > Len(FMTstring)) then
-             iErr_fmt = iErrStrLength          ! format string length exceeded
+             Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
              return
           end if
           if(iFld <= i_Nine) then
@@ -141,7 +141,7 @@ Submodule (CFML_Strings) FullPString
        !> Add a separator "," after each new FORTRAN field 
        nStr = nStr + 1
        if (nStr > Len(FMTstring)) then
-          iErr_fmt = iErrStrLength          ! format string length exceeded
+          Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
           return
        end if
        FMTstring(nStr:nStr) = ","
@@ -250,15 +250,15 @@ Submodule (CFML_Strings) FullPString
        nFld = 0
        FMTstring = "()"     ! will receive FORTRAN format
        nStr = 1             ! at least a right parentheses in FMTstring
-       iErr_fmt = iErrNone
+       Err_CFML%Ierr = iErrNone
        L_Fields  = Len_trim(FMTfields)
        line_nb = line_nb + 1  ! Update the line number
        !---- Format descriptor in upper case ----!
        if (FMTfields == " ") then
-          iErr_fmt = iErrFields           ! empty FMT format descriptor
+          Err_CFML%Ierr = iErrFields           ! empty FMT format descriptor
           Call FindFMT_Err(aLine,nC_L)
-          Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-          Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+          Err_CFML%nl=Err_CFML%nl+1
+          Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                " => Please check your input file at line: ",Line_Nb," !"
                return
        end if
@@ -270,16 +270,16 @@ Submodule (CFML_Strings) FullPString
           do
              Read(unit=iunit,fmt="(a)",ioStat=ioS) aLine
              if (ioS == -1) then
-                iErr_fmt = iErrEof            ! End Of File
-                Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4)") " => Non FATAL End of file !,  logical unit: ",iunit
+                Err_CFML%Ierr = iErrEof            ! End Of File
+                Err_CFML%nl=Err_CFML%nl+1
+                Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i4)") " => Non FATAL End of file !,  logical unit: ",iunit
                 return                    !leave reading routine to handle end of file
 
              else if (ioS > 0) then
-                iErr_fmt = -ioS-100           ! FORTRAN read error
+                Err_CFML%Ierr = -ioS-100           ! FORTRAN read error
                 Call FindFMT_Err(aLine,nC_L)
-                Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+                Err_CFML%nl=Err_CFML%nl+1
+                Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
@@ -306,19 +306,19 @@ Submodule (CFML_Strings) FullPString
           nCar = 0                    ! new format field
           call SGetFTMfield(GetFTMfield,UFMTfields, nFld, L_fields)
           iFld = GetFTMfield
-          if (iErr_fmt /= iErrNone) then ! Error in field definition
+          if (Err_CFML%Ierr /= iErrNone) then ! Error in field definition
              Call FindFMT_Err(aLine,nC_L)
-             Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+             Err_CFML%nl=Err_CFML%nl+1
+             Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
           if (iFld == iEndFMT) then   ! format exhausted
              if (nFld == 0) then
-                iErr_fmt = iErrInvalField   ! invalid field in FMTfields
+                Err_CFML%Ierr = iErrInvalField   ! invalid field in FMTfields
                 Call FindFMT_Err(aLine,nC_L)
-                Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+                Err_CFML%nl=Err_CFML%nl+1
+                Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              else
@@ -334,24 +334,24 @@ Submodule (CFML_Strings) FullPString
           else if (iFld < iEndFMT) then
              Call TreatNumerField(iFld,aLine,L_Line,nC_L,nCar)
           end if
-          if (iErr_fmt /= iErrNone) then
+          if (Err_CFML%Ierr /= iErrNone) then
              Call FindFMT_Err(aLine,nC_L)
-             Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+             Err_CFML%nl=Err_CFML%nl+1
+             Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
           if ((iFld < iEndFMT .and. nCar == 0) .or. iFld == 0) then
-             iErr_fmt = iErrEmptyField           ! no characters in field
+             Err_CFML%Ierr = iErrEmptyField           ! no characters in field
              return
           end if
 
           !---- Build current FMT element ----!
           Call BuildFMT(iFld,nCar,nStr,FMTstring)
-          if (iErr_fmt /= iErrNone) then   ! format string length exceeded
+          if (Err_CFML%Ierr /= iErrNone) then   ! format string length exceeded
              Call FindFMT_Err(aLine,nC_L)
-             Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+             Err_CFML%nl=Err_CFML%nl+1
+             Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
@@ -364,26 +364,26 @@ Submodule (CFML_Strings) FullPString
 
        !---- If FMT not exhausted we append the remaining fields to ----!
        !---- the format string                                      ----!
-       if (iErr_fmt == iErrNone .and. nFld < L_Fields) then
+       if (Err_CFML%Ierr == iErrNone .and. nFld < L_Fields) then
           !do while (iFld /= iEndFMT)
           do
              if (iFld == iEndFMT) exit
              call SGetFTMfield(GetFTMfield,UFMTfields, nFld, L_fields)
              iFld = GetFTMfield
-             if (iErr_fmt /= iErrNone) then   ! Error in field definition
+             if (Err_CFML%Ierr /= iErrNone) then   ! Error in field definition
                 Call FindFMT_Err(aLine,nC_L)
-                Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+                Err_CFML%nl=Err_CFML%nl+1
+                Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
              if (iFld /= iEndFMT) then
                 nCar=1     !Put ==1 because BuildFMT required INOUT arg.
                 Call BuildFMT(iFld,nCar,nStr,FMTstring)
-                if (iErr_fmt /= iErrNone) then ! format string length exceeded
+                if (Err_CFML%Ierr /= iErrNone) then ! format string length exceeded
                    Call FindFMT_Err(aLine,nC_L)
-                   Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                   Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
+                   Err_CFML%nl=Err_CFML%nl+1
+                   Write(unit=Err_CFML%txt(Err_CFML%nl),fmt="(a,i6,a)")    &
                         " => Please check your input file at line: ",Line_Nb," !"
                    return
                 end if
@@ -434,38 +434,38 @@ Submodule (CFML_Strings) FullPString
        Character (len=40)                              :: LaMarque
 
        !---- Error message ----!
-       if (iErr_fmt == iErrNone .or. iErr_fmt == iErrEof) then
+       if (Err_CFML%Ierr == iErrNone .or. Err_CFML%Ierr == iErrEof) then
           Return
-       else if (iErr_fmt < iErrEof) then
-          Mess_FindFMT%nlines=1
-          Write(unit=Mess_FindFMT%txt(1),fmt="(a,i4)") " "//Message(-2)(1:Len_trim(Message(-2))), -(iErr_fmt+100)
-       else if (iErr_fmt < MssgBeg .or. iErr_fmt > MssgEnd) then
-          Mess_FindFMT%nlines=1
-          Write(unit=Mess_FindFMT%txt(1),fmt="(a,i2)") " FMT decode error number:",iErr_fmt
+       else if (Err_CFML%Ierr < iErrEof) then
+          Err_CFML%nl=1
+          Write(unit=Err_CFML%txt(1),fmt="(a,i4)") " "//Message(-2)(1:Len_trim(Message(-2))), -(Err_CFML%Ierr+100)
+       else if (Err_CFML%Ierr < MssgBeg .or. Err_CFML%Ierr > MssgEnd) then
+          Err_CFML%nl=1
+          Write(unit=Err_CFML%txt(1),fmt="(a,i2)") " FMT decode error number:",Err_CFML%Ierr
        else
-          Mess_FindFMT%nlines=1
-          Write(unit=Mess_FindFMT%txt(1),fmt="(a)") " "//Message(iErr_fmt)(1:Len_trim(Message(iErr_fmt)))
+          Err_CFML%nl=1
+          Write(unit=Err_CFML%txt(1),fmt="(a)") " "//Message(Err_CFML%Ierr)(1:Len_trim(Message(Err_CFML%Ierr)))
        end if
 
        !---- Output data line and print a mark at error location ----!
        Ln = max(Len_trim(aLine),1)
        if (Ln <= 129) then
-          Mess_FindFMT%nlines=2
-          Write(unit=Mess_FindFMT%txt(2),fmt="(tr1,a)") "'"//aLine(1:Ln)//"'"
+          Err_CFML%nl=2
+          Write(unit=Err_CFML%txt(2),fmt="(tr1,a)") "'"//aLine(1:Ln)//"'"
           if (nC_L == 1) then
-             Mess_FindFMT%nlines=3
-             Write(unit=Mess_FindFMT%txt(3),fmt="(tr1,a)")  "  ^----"
+             Err_CFML%nl=3
+             Write(unit=Err_CFML%txt(3),fmt="(tr1,a)")  "  ^----"
           else if (nC_L > 1) then
              Write(unit=LaMarque,fmt="(a,i3,a)")  "(a,", nC_L, "a,a)"
-             Mess_FindFMT%nlines=3
-             write(unit=Mess_FindFMT%txt(3),fmt=LaMarque)  " ",("-",i=1,nC_L),"^"
+             Err_CFML%nl=3
+             write(unit=Err_CFML%txt(3),fmt=LaMarque)  " ",("-",i=1,nC_L),"^"
           end if
        else
-          Mess_FindFMT%nlines=2
-          Write(unit=Mess_FindFMT%txt(2),fmt="(a)") " "//aLine(1:Ln)
+          Err_CFML%nl=2
+          Write(unit=Err_CFML%txt(2),fmt="(a)") " "//aLine(1:Ln)
           Write(unit=LaMarque,fmt="(a,i3,a)")  "(a,", nC_L-1, "a,a)"
-          Mess_FindFMT%nlines=3
-          Write(unit=Mess_FindFMT%txt(3),fmt=LaMarque) " ",("-",i=1,nC_L-1),"^"
+          Err_CFML%nl=3
+          Write(unit=Err_CFML%txt(3),fmt=LaMarque) " ",("-",i=1,nC_L-1),"^"
        end if
 
        return
@@ -503,7 +503,7 @@ Submodule (CFML_Strings) FullPString
 
        line_nb=0
        if(present(nline)) line_nb=nline
-       Mess_FindFMT = Err_Text_Type(0,(/" "," "," "," "," "/))
+       call clear_error()
 
        return
     End Subroutine Init_FindFMT
@@ -549,7 +549,7 @@ Submodule (CFML_Strings) FullPString
              GetFTMfield = 14+i_Zero
           else
              GetFTMfield = iEndFMT
-             iErr_fmt = iErrInvalField         ! Error in field definition
+             Err_CFML%Ierr = iErrInvalField         ! Error in field definition
           end if
        end if
 
@@ -579,7 +579,7 @@ Submodule (CFML_Strings) FullPString
        Logical           ::   ifEnd
 
        nC_X = 0
-       iErr_fmt = 0
+       Err_CFML%Ierr = 0
 
        !---- End of ligne ----!
        if (nC_L >= L_Line) return
@@ -589,7 +589,7 @@ Submodule (CFML_Strings) FullPString
           nC_L = nC_L+1
           Car  = aLine(nC_L:nC_L)
           if (Car /= " " .and. Car /= cTab) then
-             iErr_fmt = iErrSepMiss              ! separator missing
+             Err_CFML%Ierr = iErrSepMiss              ! separator missing
              return
           end if
           nC_X = nC_X+1
@@ -631,7 +631,7 @@ Submodule (CFML_Strings) FullPString
 
        !---- Load size of the A format field ----!
        if (nCar == 0) then
-          iErr_fmt = iErrEmptyField             ! no charac. in field
+          Err_CFML%Ierr = iErrEmptyField             ! no charac. in field
        else
           iFld = nCar+48                    ! true size of the A field
        end if
@@ -662,7 +662,7 @@ Submodule (CFML_Strings) FullPString
        Integer             ::  nPosi                ! number of 1st character in field
        Logical             ::  ifEnd,ifDot,ifSign
 
-       iErr_fmt   = 0
+       Err_CFML%Ierr   = 0
        nCar   = 0
        ifDot  = .false.
        ifSign = .false.
@@ -683,7 +683,7 @@ Submodule (CFML_Strings) FullPString
                    aLine(nC_L:nC_L) = " "      ! previous separator
                 else
                    if (ifSign) then
-                      iErr_fmt = iErrNumber         ! incomplete number
+                      Err_CFML%Ierr = iErrNumber         ! incomplete number
                       return
                    end if
                    nC_L = nC_L-1               ! new separator
@@ -698,7 +698,7 @@ Submodule (CFML_Strings) FullPString
              else if (Car == " ") then
                 !---- a space ----!
                 if (ifSign) then
-                   iErr_fmt = iErrNumber           ! incomplete number
+                   Err_CFML%Ierr = iErrNumber           ! incomplete number
                    return
                 end if
 
@@ -713,7 +713,7 @@ Submodule (CFML_Strings) FullPString
 
        !---- No valid previous separator found (Except for 1st field) ----!
        if (nPosi > 1 .and. nCar == 1) then
-          iErr_fmt = iErrSepMiss                ! separator missing
+          Err_CFML%Ierr = iErrSepMiss                ! separator missing
           return
        end if
 
@@ -723,22 +723,22 @@ Submodule (CFML_Strings) FullPString
        if (Car == ".") then
           ifDot = .true.
           if (iFld /= iReal)  then
-             iErr_fmt = iErrFieldType            ! not an integer field
+             Err_CFML%Ierr = iErrFieldType            ! not an integer field
              Return
           end if
 
        else if(Car == "E".or.Car == "e".or.Car == "d".or.Car == "D") then
           !---- e,E,d,D -> always invalid at this position ----!
           if (iFld == iReal) then
-             iErr_fmt = iErrEfrmt                ! incomplete E or D format
+             Err_CFML%Ierr = iErrEfrmt                ! incomplete E or D format
           else
-             iErr_fmt = iErrInvalC               ! invalid char in int. field
+             Err_CFML%Ierr = iErrInvalC               ! invalid char in int. field
           end if
           return
 
        else if (iChar(Car) < i_Zero .or. iChar(Car) > i_Nine) then
           !---- invalid if not a sign or a digit ----!
-          iErr_fmt = iErrInvalChar        ! invalid character
+          Err_CFML%Ierr = iErrInvalChar        ! invalid character
           return
        end if
 
@@ -759,10 +759,10 @@ Submodule (CFML_Strings) FullPString
              !---- Current character is a decimal point ----!
              if (Car == ".") then
                 if (ifDot) then
-                   iErr_fmt = iErrCharBegg         ! begged character (dot)
+                   Err_CFML%Ierr = iErrCharBegg         ! begged character (dot)
                    Return
                 else if (iFld /= iReal) then
-                   iErr_fmt = iErrFieldType        ! not an integer field
+                   Err_CFML%Ierr = iErrFieldType        ! not an integer field
                    Return
                 else
                    ifDot = .true.
@@ -771,7 +771,7 @@ Submodule (CFML_Strings) FullPString
              else if (Car == " " .or. Car == cTab) then
                 !---- Current character is a space or Tab (separator) ----!
                 if (Car_ == "+" .or. Car_ == "-") then
-                   iErr_fmt = iErrNumber           ! incomplete number
+                   Err_CFML%Ierr = iErrNumber           ! incomplete number
                    return
                 end if
                 ifEnd = .true.
@@ -781,7 +781,7 @@ Submodule (CFML_Strings) FullPString
              else if (Car == "+" .or. Car == "-") then
                 !---- Current character is a sign ----!
                 if (Car_ == "+" .or. Car_ == "-") then
-                   iErr_fmt = iErrCharBegg         ! begged character
+                   Err_CFML%Ierr = iErrCharBegg         ! begged character
                    return
                 else if (nCar > nCar1) then
                    if (iFld == iReal) then
@@ -802,16 +802,16 @@ Submodule (CFML_Strings) FullPString
              else if (Car == "E" .or. Car == "e" .or. Car == "d" .or. Car == "D") then
                 !---- Current character is a "e E d D" ----!
                 if (nCar == nCar1 .or. Car_ == "-" .or. Car_ == "+") then
-                   iErr_fmt = iErrEfrmt            ! incomplete E or D format
+                   Err_CFML%Ierr = iErrEfrmt            ! incomplete E or D format
                    return
                 else if (Car_ == Car) then
-                   iErr_fmt = iErrCharBegg         ! begged character
+                   Err_CFML%Ierr = iErrCharBegg         ! begged character
                    return
                 end if
 
              else if (iChar(Car) < i_Zero .or. iChar(Car) > i_Nine) then
                 !---- Ccurrent character is not a valid one ? ----!
-                iErr_fmt = iErrInvalChar          ! invalid character
+                Err_CFML%Ierr = iErrInvalChar          ! invalid character
                 Return
              end if
           else

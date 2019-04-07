@@ -84,9 +84,10 @@ Module CFML_GlobalDeps
    
    !---- Error Flags ----!
    Type :: Err_Type
-      integer                        :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
-      character(len=80)              :: Msg=" "                  ! Text for Message
-      character(len=80),dimension(5) :: ExMsg=" "                ! Extra Message information
+      integer                         :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
+      character(len=80)               :: Msg=" "                  ! Text for Message
+      integer                         :: nl=0                     ! number of lines
+      character(len=132),dimension(5) :: Txt=" "                  ! Extra Message information
    End Type Err_Type
    Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
    
@@ -145,7 +146,8 @@ Module CFML_GlobalDeps
       
       Err_CFML%IErr=0
       Err_CFML%Msg =" "
-      Err_CFML%ExMsg=" "
+      Err_CFML%nl=0
+      Err_CFML%Txt=" "
       
       return
    End Subroutine Clear_Error   
