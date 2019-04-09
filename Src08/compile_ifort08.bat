@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08
+   cd %CRYSFML%\Src08N
 rem
    echo.
    echo **-------------------------------------**
@@ -103,17 +103,42 @@ rem   Submodules CFML_Maths
       move /y *.obj .. > nul
       cd ..
 rem      
-      echo .... Strings Procedures
-      ifort /c CFML_StringsUtil.f90                  /nologo %OPT1% %OPT2% /module:.\mod
+   echo .... Strings Procedures
+   ifort /c CFML_StringsUtil.f90                     /nologo %OPT1% %OPT2% /module:.\mod
 rem 
 rem   Submodules CFML_Strings   
       cd .\CFML_Strings
-      ifort /c StringTools.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c StringFullp.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c StringNum.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c StringReadKey.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c StringFullp.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c StringTools.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..      
+      cd ..
+rem         
+   echo .... Rational arithmetics
+   ifort /c CFML_RationalArith.f90                  /nologo %OPT1% %OPT2% /module:.\mod
+rem 
+rem   Submodules CFML_Rational   
+      cd .\CFML_Rational 
+      ifort /c Assignment.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Constructor.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Equal_rational.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Generic.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Is_Integer.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_add.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_eq.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_divisor.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_ge.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_gt.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_le.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_lt.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_minus.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_multiply.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_neq.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Overloads.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Rational_RowEchelon.f90               /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..        
       goto END
    
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
@@ -214,6 +239,7 @@ rem
    )
    del *.obj  *.lst *.bak > nul
 rem
+:FIN
    echo.
    echo **---- End Compilation for CrysFML ----**
    echo.
