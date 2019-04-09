@@ -72,6 +72,7 @@ rem   Submodules CFML_Maths
       gfortran -c %OPTC%  -J..\mod Diagonalize_SH.f90                %OPT1% 
       gfortran -c %OPTC%  -J..\mod Equal_Matrix.f90                  %OPT1% 
       gfortran -c %OPTC%  -J..\mod Equal_Vector.f90                  %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Erfc_Der.f90                      %OPT1% 
       gfortran -c %OPTC%  -J..\mod Factorial.f90                     %OPT1% 
       gfortran -c %OPTC%  -J..\mod Invert_Matrix.f90                 %OPT1% 
       gfortran -c %OPTC%  -J..\mod In_Limits.f90                     %OPT1% 

@@ -70,6 +70,7 @@ rem   Submodules CFML_Maths
       ifort /c Diagonalize_SH.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Equal_Matrix.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Equal_Vector.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Erfc_Der.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Factorial.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Invert_Matrix.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c In_Limits.f90                         /nologo %OPT1% %OPT2%  /module:..\mod

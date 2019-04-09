@@ -50,7 +50,7 @@
     !---- List of public functions ----!
     public :: Co_Linear, Co_Prime, Cross_Product, Cubic_Harm_Ang, Cubic_Harm_Ucvec, &
               Debye, Determ, Determ_V,       &
-              Equal_Matrix, Equal_Vector,    &
+              Equal_Matrix, Equal_Vector, Erfc_Deriv,                            &
               Factorial_I, Factorial_R, First_Derivative,                        &
               Gcd, Get_EPS_Math, Get_Cart_from_Cylin, Get_Cart_from_Spher,       &
               Get_Cylin_from_Cart, Get_Cylin_from_Spher, Get_Spher_from_Cart,    &
@@ -382,6 +382,12 @@
           real(kind=cp), dimension(3), intent( in) :: v    ! Vector 2
           real(kind=cp), dimension(3)              :: w    ! u x v
        End Function Cross_Product_R
+       
+       Module Elemental Function Erfc_Deriv(X) Result(Der)
+          !---- Argument ----!
+          real(kind=cp), intent(in)    :: x
+          real(kind=cp)                :: der
+       End Function Erfc_Deriv
        
        Module Function Debye(N,X) Result(Fval)
           !---- Arguments ----!
