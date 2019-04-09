@@ -430,7 +430,7 @@
        inquire (file=trim(filename),exist=info)
        if (.not. info) then
           err_cfml%ierr=1
-          err_cfml%msg="The file"//trim(filename)//" does not exist "
+          err_cfml%msg="STRINGS@READIND_LINES: The file"//trim(filename)//" does not exist "
           return
        end if
 
@@ -487,7 +487,7 @@
        inquire (file=trim(filename),exist=info)
        if (.not. info) then
           err_cfml%ierr=1
-          err_cfml%msg="The file"//trim(filename)//" does not exist "
+          err_cfml%msg="STRINGS@NUMBER_LINES: The file"//trim(filename)//" does not exist "
           return
        end if
 

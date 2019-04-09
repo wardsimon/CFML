@@ -26,7 +26,7 @@ Submodule (CFML_Maths) Sbm_Debye
        !> Check
        if (n <= 0) then
           Err_CFML%IErr=1
-          Err_CFML%Msg="The order for Debye function was ZERO!"
+          Err_CFML%Msg="MATHS@DEBYE: The order for Debye function was ZERO!"
           return
        end if
        
@@ -143,14 +143,14 @@ Submodule (CFML_Maths) Sbm_Debye
        !> Check
        if (n <= 0) then
           err_CFML%IErr=1
-          err_CFML%Msg="The order for Debye function was ZERO!"
+          err_CFML%Msg="MATHS@DEBYE_DP: The order for Debye function was ZERO!"
           return
        end if
 
        if (x < 0.0_dp) then
           if (abs(x) > TPI) then
              err_CFML%IErr=1
-             err_CFML%Msg="The argument is negative and less than 2Pi"
+             err_CFML%Msg="MATHS@DEBYE_DP: The argument is negative and less than 2Pi"
              return
           end if
           fval =DebyeN(n,x)
@@ -167,7 +167,7 @@ Submodule (CFML_Maths) Sbm_Debye
              case (5:)
                 if (x > TPI) then
                    err_CFML%IErr=1
-                   ERR_CFML%Msg="The argument was greater then 2Pi and the order >= 5!"
+                   ERR_CFML%Msg="MATHS@DEBYE_DP: The argument was greater then 2Pi and the order >= 5!"
                   return
                 end if
                 fval=DebyeN(n,x)
@@ -244,7 +244,7 @@ Submodule (CFML_Maths) Sbm_Debye
        if (xx < 0.0_dp) then
           !> Error activated
           err_CFML%IErr=1
-          ERR_CFML%Msg="DEBYE1 doesn't work with negative Argument"
+          ERR_CFML%Msg="MATHS@DEBYE1: doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -362,7 +362,7 @@ Submodule (CFML_Maths) Sbm_Debye
        if (xx < 0.0_dp) then
           ! Error activated
           err_CFML%IErr=1
-          ERR_CFML%Msg="DEBYE2 doesn't work with negative Argument"
+          ERR_CFML%Msg="MATHS@DEBYE2: doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -487,7 +487,7 @@ Submodule (CFML_Maths) Sbm_Debye
        if (xx < 0.0_dp) then
           ! Error activated
           err_CFML%IErr=1
-          ERR_CFML%Msg="DEBYE3 doesn't work with negative Argument"
+          ERR_CFML%Msg="MATHS@DEBYE3: doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -618,7 +618,7 @@ Submodule (CFML_Maths) Sbm_Debye
        if (xx < 0.0_dp) then
           ! Error activated
           err_CFML%IErr=1
-          err_cfml%msg="DEBYE4 doesn't work with negative Argument"
+          err_cfml%msg="MATHS@DEBYE4: doesn't work with negative Argument"
           fval = 0.0_dp
           return
        end if
@@ -712,7 +712,7 @@ Submodule (CFML_Maths) Sbm_Debye
        if (abs(x) > 2.0*pi) then
           ! Error Flag
           err_CFML%IErr=1
-          ERR_CFML%Msg="The absolute value of argument for DEBYEN was greater than 2PI "
+          ERR_CFML%Msg="MATHS@DEBYEN: The absolute value of argument for DEBYEN was greater than 2PI "
           return
        end if
 

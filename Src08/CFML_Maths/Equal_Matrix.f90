@@ -29,7 +29,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(a,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The A Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_C: The A Matrix is not a square matrix NxN"
           return
        end if
 
@@ -38,7 +38,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The B Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_C: The B Matrix is not a square matrix NxN"
           return
        end if
 
@@ -47,7 +47,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=1)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The shape of A and B Matrix are different"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_C: The shape of A and B Matrix are different"
           return
        end if 
 
@@ -91,7 +91,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(a,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The A Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_I: The A Matrix is not a square matrix NxN"
           return
        end if   
 
@@ -100,7 +100,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The B Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_I: The B Matrix is not a square matrix NxN"
           return
        end if   
 
@@ -109,7 +109,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=1)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The shape of A and B Matrix are different"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_I: The shape of A and B Matrix are different"
           return
        end if   
 
@@ -151,7 +151,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(a,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The A Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_R: The A Matrix is not a square matrix NxN"
           return
        end if
 
@@ -160,7 +160,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=2)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The B Matrix is not a square matrix NxN"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_R: The B Matrix is not a square matrix NxN"
           return
        end if
 
@@ -169,7 +169,7 @@ Submodule (CFML_Maths) Equal_Matrix
        ndim2=size(b,dim=1)
        if (ndim /= ndim2) then
           Err_CFML%Ierr=1
-          Err_CFML%Msg=" The shape of A and B Matrix are different"
+          Err_CFML%Msg="MATHS@EQUAL_MATRIX_R: The shape of A and B Matrix are different"
           return
        end if 
 

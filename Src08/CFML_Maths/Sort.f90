@@ -100,7 +100,7 @@ Submodule (CFML_Maths) Sort
              jstack=jstack+2
              if (jstack > nstack) then
                 err_cfml%ierr=1
-                err_cfml%msg=" NSTACK too small in SORT_I procedure"
+                err_cfml%msg="MATHS@SORT_I: NSTACK too small in SORT_I procedure"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -211,7 +211,7 @@ Submodule (CFML_Maths) Sort
              jstack=jstack+2
              if (jstack > nstack) then
                 err_cfml%ierr=1
-                err_cfml%msg=" NSTACK too small in SORT_R procedure"
+                err_cfml%msg="MATHS@SORT_R: NSTACK too small in SORT_R procedure"
                 return
              end if
              if (ir-i+1 >= j-l) then

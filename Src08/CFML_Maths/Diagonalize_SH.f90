@@ -33,7 +33,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        if (n > size(A,1) .or. n > size(A,2)) then
           err_cfml%ierr=1
-          err_cfml%msg=" Error in dimension of input matrix: A(m,m) with m < n Diagonalize_HERM procedure"
+          err_cfml%msg="MATHS@DIAGONALIZE_HERM: Error in dimension of input matrix: A(m,m) with m < n"
           return
        end if
 
@@ -85,7 +85,7 @@ Submodule (CFML_Maths) Diagonalize_SH
        
        if (n > size(A,1) .or. n > size(A,2)) then
           err_cfml%Ierr=1
-          err_cfml%msg=" Error in dimension of input matrix: A(m,m) with m < n for Diagonalize_SYMM"
+          err_cfml%msg="MATHS@DIAGONALIZE_SYMM: Error in dimension of input matrix: A(m,m) with m < n"
           return
        end if
 
@@ -152,7 +152,7 @@ Submodule (CFML_Maths) Diagonalize_SH
              if (m /= l) then
                 if (iter == NMAX_ITER) then
                    err_cfml%ierr=1
-                   err_cfml%msg=" Too many iterations in Diagonalize_PR_TQLI1"
+                   err_cfml%msg="MATHS@DIAGONALIZE_PR_TQLI1: Too many iterations"
                    exit
                 end if
 
@@ -246,7 +246,7 @@ Submodule (CFML_Maths) Diagonalize_SH
              if (m /= l) then
                 if (iter == NMAX_ITER) then
                    err_cfml%ierr=1
-                   err_cfml%msg=" Too many iterations in Diagonalize_PR_TQLI2"
+                   err_cfml%msg="MATHS@DIAGONALIZE_PR_TQLI2: Too many iterations"
                    exit
                 end if
 

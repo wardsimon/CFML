@@ -52,7 +52,7 @@ Submodule (CFML_Maths) Linear_Dependent
        
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%ierr=1
-          err_cfml%msg=" Linear_Dependent_C: Error in dimension of input matrix or vector"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_C: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -87,7 +87,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        else
           err_cfml%ierr=1
-          err_cfml%msg=" Linear_Dependent_C: input dimension of vector incompatible with matrix"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_C: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -127,7 +127,7 @@ Submodule (CFML_Maths) Linear_Dependent
        
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%Ierr=2
-          err_cfml%msg=" Linear_Dependent_I: Error in dimension of input matrix or vector"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_I: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -150,7 +150,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        else
           err_cfml%ierr=1
-          err_cfml%msg=" Linear_Dependent_I: input dimension of vector incompatible with matrix"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_I: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -190,7 +190,7 @@ Submodule (CFML_Maths) Linear_Dependent
        
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%ierr=1
-          err_cfml%msg=" Linear_Dependent_R: Error in dimension of input matrix or vector"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_R: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -212,7 +212,7 @@ Submodule (CFML_Maths) Linear_Dependent
           if (r == min(n1,nb)) info=.false.
        else
           err_cfml%ierr=1
-          err_cfml%msg=" Linear_Dependent_R: input dimension of vector incompatible with matrix"
+          err_cfml%msg="MATHS@LINEAR_DEPENDENT_R: input dimension of vector incompatible with matrix"
        end if
 
        return

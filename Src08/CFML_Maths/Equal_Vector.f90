@@ -30,7 +30,7 @@ Submodule (CFML_Maths) Equal_Vector
        ndim2=size(b)
        if (ndim /= ndim2) then
           Err_CFML%IErr=1
-          Err_CFML%Msg="The size of A and B vector are different!" 
+          Err_CFML%Msg="MATHS@EQUAL_VECTOR_C: The size of A and B vector are different!" 
           return
        end if 
 
@@ -73,7 +73,7 @@ Submodule (CFML_Maths) Equal_Vector
        ndim2=size(b)
        if (ndim /= ndim2) then
           Err_CFML%IErr=1
-          Err_CFML%Msg="The size of A and B vector are different!" 
+          Err_CFML%Msg="MATHS@EQUAL_VECTOR_I: The size of A and B vector are different!" 
           return
        end if   
 
@@ -113,7 +113,7 @@ Submodule (CFML_Maths) Equal_Vector
        ndim2=size(b)
        if (ndim /= ndim2) then
           Err_CFML%IErr=1
-          Err_CFML%Msg="The size of A and B vector are different!" 
+          Err_CFML%Msg="MATHS@EQUAL_VECTOR_R: The size of A and B vector are different!" 
           return
        end if 
 

@@ -23,7 +23,7 @@ Submodule (CFML_Maths) Determinant
        select case (n)
           case (0:1)
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Dimension <=1 for Determinant procedure!"
+             Err_CFML%Msg="MATHS@DETERMINANT_C: Dimension <=1 for Determinant procedure!"
              
           case (2)
              det=Deter2_C(A)
@@ -55,7 +55,7 @@ Submodule (CFML_Maths) Determinant
        select case (n)
           case (0:1)
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Dimension <=1 for Determinant procedure!"
+             Err_CFML%Msg="MATHS@DETERMINANT_I: Dimension <=1 for Determinant procedure!"
              
           case (2)
              det=Deter2_I(A)
@@ -87,7 +87,7 @@ Submodule (CFML_Maths) Determinant
        select case (n)
           case (0:1)
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Dimension <=1 for Determinant procedure!"
+             Err_CFML%Msg="MATHS@DETERMINANT_R: Dimension <=1 for Determinant procedure!"
              
           case (2)
              det=Deter2_R(A)
@@ -134,7 +134,7 @@ Submodule (CFML_Maths) Determinant
 
        if (singular) then
           err_cfml%ierr=1
-          err_cfml%msg="The array is singular!"
+          err_cfml%msg="MATHS@PSEUDODETERM: The array is singular!"
           
        else
           do i=1,nn
@@ -414,7 +414,7 @@ Submodule (CFML_Maths) Determinant
           if (abs(pv) < epsilon(1.0_cp)) then
              !> Error  
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Pivot too small for this complex array!"                                          
+             Err_CFML%Msg="MATHS@DETERN_C: Pivot too small for this complex array!"                                          
              return
           end if                                
 
@@ -465,7 +465,7 @@ Submodule (CFML_Maths) Determinant
        call lu_decomp(ac,d,singular)
        if (singular) then
           err_cfml%Ierr=1
-          err_cfml%msg="The array is singular!"
+          err_cfml%msg="MATHS@DETERN_I:The array is singular!"
           return
        end if
           
@@ -508,7 +508,7 @@ Submodule (CFML_Maths) Determinant
        call lu_decomp(ac,d,singular)
        if (singular) then
           err_cfml%Ierr=1
-          err_cfml%msg="The array is singular!"
+          err_cfml%msg="MATHS@DETERN_R:The array is singular!"
           return
        end if
           

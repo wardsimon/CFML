@@ -71,7 +71,7 @@ Submodule (CFML_Maths) Sbm_Rank
        n=size(a,2)
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
           ERR_CFML%ierr=1
-          ERR_CFML%Msg= " Physical dimensions of arguments in SVDcmp procedure are not compatible "
+          ERR_CFML%Msg= "MATHS@SVDCMP: Physical dimensions of arguments are not compatible "
           return
        end if
        g=0.0_cp
@@ -179,7 +179,7 @@ Submodule (CFML_Maths) Sbm_Rank
              end if
              if (its == num_its) then
                 ERR_CFML%ierr=1
-                ERR_CFML%Msg = " SVDcmp_dp: convergence not reached ! "
+                ERR_CFML%Msg = "MATHS@SVDCMP: convergence not reached ! "
                 return
              end if
              x=w(l)

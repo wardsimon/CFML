@@ -34,7 +34,7 @@ Submodule (CFML_Maths) Resolv_System
              ix(2)=2
           else
              err_cfml%ierr=1
-             err_cfml%msg="Inconsistent solution (1x2)"
+             err_cfml%msg="MATHS@RESOLV_SIST_1x2: Inconsistent solution (1x2)"
           end if
           return
        end if
@@ -100,7 +100,7 @@ Submodule (CFML_Maths) Resolv_System
                 end do
              else
                 err_cfml%ierr=1
-                err_cfml%msg="Inconsistent solution (1 x 3)"
+                err_cfml%msg="MATHS@RESOLV_SIST_1x3: Inconsistent solution (1 x 3)"
              end if
 
           case (2)
@@ -159,7 +159,7 @@ Submodule (CFML_Maths) Resolv_System
 
           case (0)
              err_cfml%ierr=1
-             err_cfml%msg="Inconsistent case ax+by+cz=t (1x3)"
+             err_cfml%msg="MATHS@RESOLV_SIST_1x3: Inconsistent case ax+by+cz=t (1x3)"
        end select
 
        return
@@ -218,7 +218,7 @@ Submodule (CFML_Maths) Resolv_System
                    ix(2)=2
                 else
                    err_cfml%ierr=1
-                   err_cfml%msg="Inconsistent solution (2x2)"
+                   err_cfml%msg="MATHS@RESOLV_SIST_2x2: Inconsistent solution (2x2)"
                 end if
 
              case (1)
@@ -307,7 +307,7 @@ Submodule (CFML_Maths) Resolv_System
                 end do
              else
                 err_cfml%ierr=1
-                err_cfml%msg="Inconsistent solution in (2x3)"
+                err_cfml%msg="MATHS@RESOLV_SIST_2x3: Inconsistent solution in (2x3)"
              end if
 
           case (2)
@@ -820,7 +820,7 @@ Submodule (CFML_Maths) Resolv_System
                    end do
                 else
                    err_cfml%ierr=1
-                   err_cfml%msg="Inconsistent system (3 x 3)"
+                   err_cfml%msg="MATHS@RESOLV_SIST_3x3: Inconsistent system (3 x 3)"
                 end if
 
              !---- Two rows with zeroes ----!

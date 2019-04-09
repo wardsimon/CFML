@@ -26,13 +26,13 @@ Submodule (CFML_Maths) Inverse_Array
        n2=size(a,2)
        if (n1 <=1 .or. n2 <=1) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The dimension of the complex arrary have to be > 1!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_C: The dimension of the complex arrary have to be > 1!"
           return 
        end if
           
        if (n1 /= n2) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The complex arrary have to be square NxN!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_C: The complex arrary have to be square NxN!"
           return
        end if   
        
@@ -73,13 +73,13 @@ Submodule (CFML_Maths) Inverse_Array
        n2=size(a,2)
        if (n1 <=1 .or. n2 <=1) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The dimension of the integer arrary have to be > 1!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_I: The dimension of the integer arrary have to be > 1!"
           return 
        end if
           
        if (n1 /= n2) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The integer arrary have to be square NxN!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_I: The integer arrary have to be square NxN!"
           return
        end if   
        
@@ -122,13 +122,13 @@ Submodule (CFML_Maths) Inverse_Array
        n2=size(a,2)
        if (n1 <=1 .or. n2 <=1) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The dimension of the integer arrary have to be > 1!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_R: The dimension of the integer arrary have to be > 1!"
           return 
        end if
           
        if (n1 /= n2) then
           err_CFML%Ierr=1
-          err_CFML%Msg="The integer arrary have to be square NxN!"
+          err_CFML%Msg="MATHS@INVERSE_ARRAY_R: The integer arrary have to be square NxN!"
           return
        end if 
        
@@ -308,7 +308,7 @@ Submodule (CFML_Maths) Inverse_Array
           if (abs(det) < epsilon(1.0_cp)) then 
              !> Error
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Singular matrix!"
+             Err_CFML%Msg="MATHS@MATINV_C: Singular matrix!"
              return
           end if  
           
@@ -346,7 +346,7 @@ Submodule (CFML_Maths) Inverse_Array
           if (abs(pv) < epsilon(1.0_cp)) then
              !> Error    
              Err_CFML%Ierr=1
-             Err_CFML%Msg="Pivot to small to work fine!"                                        
+             Err_CFML%Msg="MATHS@MATINV_C: Pivot to small to work fine!"                                        
              return
           end if                                
 
@@ -426,7 +426,7 @@ Submodule (CFML_Maths) Inverse_Array
 
        if (singular) then
           err_CFML%Ierr=1
-          err_CFML%Msg="Singular Matrix using LU_Decomp procedure"
+          err_CFML%Msg="MATHS@MATINV_R: Singular Matrix using LU_Decomp procedure"
           b=lu
           return
        else
@@ -438,7 +438,7 @@ Submodule (CFML_Maths) Inverse_Array
           det=d*exp(det)
           if (abs(det) <= tiny(1.0_cp)) then
              err_CFML%Ierr=1
-             err_CFML%Msg="Singular Matrix using LU_Decomp procedure"
+             err_CFML%Msg="MATHS@MATINV_R: Singular Matrix using LU_Decomp procedure"
              b=lu
              return
           end if
