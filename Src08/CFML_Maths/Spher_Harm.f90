@@ -594,7 +594,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(1,11)=10
              lj(2,11)=2
              
-          Case("m3")
+          Case("m3","m-3")
              ncoef=7
              lj(1,1) =0
              lj(2,1) =1
@@ -645,7 +645,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(1,8) =10
              lj(2,8) =1
              
-          case("m3m")
+          case("m3m","m-3m")
              ncoef=5
              lj(1,1) =0
              lj(2,1) =1
