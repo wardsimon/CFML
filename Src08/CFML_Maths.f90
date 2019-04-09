@@ -48,7 +48,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Co_Linear, Co_Prime, Cross_Product,                                & 
+    public :: Co_Linear, Co_Prime, Cross_Product, Cubic_Harm_Ang, Cubic_Harm_Ucvec, &
               Debye, Determ, Determ_V,       &
               Equal_Matrix, Equal_Vector,    &
               Factorial_I, Factorial_R, First_Derivative,                        &
@@ -56,24 +56,25 @@
               Get_Cylin_from_Cart, Get_Cylin_from_Spher, Get_Spher_from_Cart,    &
               Get_Spher_from_Cylin,          &
               Inverse_Array, In_Limits, Is_Diagonal_Matrix, Is_Null_Vector,      &
+              Integral_Slater_Bessel,        &
               Lcm, Linear_Dependent, Linear_Interpol, Locate, Lower_Triangular,  &
               Mat_Cross, Modulo_Lat,         &
               Negligible, Norm,              &
               Outerprod,                     &
               Poly_Legendre,                 &
-              Rank, Rotation_OX, Rotation_OY, Rotation_OZ,                       &
+              Rank, Rotation_OX, Rotation_OY, Rotation_OZ, Real_Spher_Harm_Ang,  &
+              Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec, &
               Scalar, Second_Derivative, Smoothing_Vec, Sort, Spline_Interpol, Spline_D2y,  &
               Tensor_Product, Trace,         &
               Upper_Triangular,              &
               Vec_Length,                    &
               Zbelong
 
-
     !---- List of public subroutines ----!
     public :: Co_Prime_Vector,               &
               Diagonalize_SH,                &
               Invert_Matrix_R,               &
-              Points_In_Line2D,              &
+              Points_In_Line2D, Pikout_Lj_Cubic, &
               RowEchelonForm,                &
               Set_EPS_Math, SmithNormalForm, Svdcmp, Swap, Resolv_Sist_1x2,      &
               Resolv_Sist_1x3, Resolv_Sist_2x2, Resolv_Sist_2x3, Resolv_Sist_3x3
@@ -1273,6 +1274,64 @@
           real(kind=cp),   dimension(:), intent( in) :: v      ! Input vector
           logical                                    :: belong
        End Function Zbelong_V
+       
+       !> Spherical Harmonics
+       Module Elemental Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
+          !---- Arguments ----!
+          integer,      intent (in) :: l          !
+          integer,      intent (in) :: m          !
+          real(kind=cp),intent (in) :: theta      !
+          real(kind=cp),intent (in) :: phi        !
+          real(kind=cp)             :: klm        ! 
+       End Function Cubic_Harm_Ang
+       
+       Module Elemental Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
+          !---- arguments ----!
+          integer,       intent(in) :: n
+          integer,       intent(in) :: l
+          real(kind=cp), intent(in) :: z
+          real(kind=cp), intent(in) :: s
+          real(kind=cp)             :: v
+       End Function Integral_Slater_Bessel
+       
+       Module Elemental Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
+          !---- Arguments ----!
+          integer,      intent (in) :: l         ! Index l >= 0
+          integer,      intent (in) :: m         ! Index m <= l
+          integer,      intent (in) :: p         ! +1: cosinus, -1: sinus
+          real(kind=cp),intent (in) :: theta     ! Spherical coordinate in degree
+          real(kind=cp),intent (in) :: phi       ! Spherical coordinate in degree
+          real(kind=cp)             :: ylmp
+       End Function Real_Spher_Harm_Ang
+       
+       Module Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
+          !---- Arguments ----!
+          integer,                    intent (in) :: l      !
+          integer,                    intent (in) :: m      !
+          real(kind=cp),dimension(3), intent (in) :: u      !
+          real(kind=cp)                           :: Klm    ! 
+       End Function Cubic_Harm_Ucvec
+       
+       Module Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
+          !---- Arguments ----!
+          integer,                    intent (in) :: l,m,p
+          real(kind=cp),dimension(3), intent (in) :: u
+          real(kind=cp)                           :: ylmp
+       End Function Real_Spher_Harm_Ucvec
+       
+       Module Pure Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
+          !---- Arguments ----!
+          integer,                    intent (in) :: l,m,p
+          real(kind=cp),dimension(3), intent (in) :: u        
+          real(kind=cp)                           :: Dlmp
+       End Function Real_Spher_HarmCharge_Ucvec
+       
+       Module Pure Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
+          !---- Arguments ----!
+          character(len=*),         intent(in)  :: group
+          integer, dimension(2,11), intent(out) :: lj
+          integer,                  intent(out) :: ncoef
+       End Subroutine Pikout_Lj_Cubic
        
     End Interface
 

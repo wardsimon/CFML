@@ -94,6 +94,7 @@ rem   Submodules CFML_Maths
       ifort /c Scalar.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c SistCoord_Changes.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Sort.f90                              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Spher_Harm.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Swap.f90                              /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Tensor_Product.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Trace.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
