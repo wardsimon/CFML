@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Rational) Rational_RowEchelonForm
+SubModule (CFML_Rational) RatRowEchelonForm
  
  Contains
    !!----
@@ -151,7 +151,7 @@ SubModule (CFML_Rational) Rational_RowEchelonForm
    End Subroutine Rational_RowEchelonForm_MT
    
    !!----
-   !!---- RATIONAL_ROWECHELONFORM_MT
+   !!---- RATIONAL_SMITHNORMALFORM
    !!----
    !!---- 08/04/2019
    !!
@@ -186,7 +186,7 @@ SubModule (CFML_Rational) Rational_RowEchelonForm
             ndiag = ndiag + 1
             D = transpose(Dt)
          end if
-         if (Is_Rational_DiagonalMatrix(D)) exit
+         if (Rational_Is_DiagonalMatrix(D)) exit
          if (ndiag > 100) then
             Err_CFML%IErr=1
             Err_CFML%Msg="Error in Rational_SmithNormalForm. Unable to diagonalize matrix."
@@ -199,4 +199,4 @@ SubModule (CFML_Rational) Rational_RowEchelonForm
       return
    End Subroutine Rational_SmithNormalForm
  
-End SubModule Rational_RowEchelonForm
+End SubModule RatRowEchelonForm

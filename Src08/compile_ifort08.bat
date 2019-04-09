@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08N
+   cd %CRYSFML%\Src08
 rem
    echo.
    echo **-------------------------------------**
@@ -136,7 +136,7 @@ rem   Submodules CFML_Rational
       ifort /c Operator_multiply.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Operator_neq.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Overloads.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Rational_RowEchelon.f90               /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c RowEchelon.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..        
       goto END

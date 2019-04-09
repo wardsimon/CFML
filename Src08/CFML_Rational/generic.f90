@@ -130,19 +130,19 @@ SubModule (CFML_Rational) Rational_General
       S=R 
       
       do
-      	if (s < 0_LI // 1_LI) then
-      	 	s=s+1_LI
-      	else
-      	 	exit
-      	end if
+         if (s < 0_LI // 1_LI) then
+            s=s+1_LI
+         else
+            exit
+         end if
       end do
 
       do
-      	if (s >= 1_LI // 1_LI) then
-      	 	s=s-1_LI
-      	else
-      	 	exit
-      	end if
+         if (s >= 1_LI // 1_LI) then
+            s=s-1_LI
+         else
+            exit
+         end if
       end do
 
       return

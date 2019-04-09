@@ -42,7 +42,7 @@ rem
       (set OPT3=-I%WINTER%\%LIBFOR%)
    )
 rem
-   cd %CRYSFML%\Src08N
+   cd %CRYSFML%\Src08
 rem
    echo.
    echo **-------------------------------------**
@@ -117,8 +117,33 @@ rem   Submodules CFML_Strings
       gfortran -c %OPTC%  -J..\mod StringFullp.f90                   %OPT1% 
       move /y *.o .. > nul
       cd ..      
-      goto END
 rem
+   echo .... Rational arithmetics
+   gfortran -c %OPTC%  -J.\mod CFML_RationalArith.f90                %OPT1% 
+rem 
+rem   Submodules CFML_Rational   
+      cd .\CFML_Rational 
+      gfortran -c %OPTC% -J..\mod Assignment.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Constructor.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Equal_rational.f90                 %OPT1%
+      gfortran -c %OPTC% -J..\mod Generic.f90                        %OPT1%
+      gfortran -c %OPTC% -J..\mod Is_Integer.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_add.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_eq.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_divisor.f90               %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_ge.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_gt.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_le.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_lt.f90                    %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_minus.f90                 %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_multiply.f90              %OPT1%
+      gfortran -c %OPTC% -J..\mod Operator_neq.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Overloads.f90                      %OPT1%
+      gfortran -c %OPTC% -J..\mod RowEchelon.f90                     %OPT1%
+      move /y *.o .. > nul
+      cd ..        
+      goto END
+      
 :END
 rem
    echo.
