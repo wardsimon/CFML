@@ -97,9 +97,9 @@ Module CFML_Rational
               Rational_Is_NullVector         !Logical function telling if the vector is the null vector
 
     !> Public subroutines
-    public :: rational_identity_matrix,  &   !Returns an identity matrix
-              rational_rowechelonform,   &   !Put a matrix in a rowechelonform
-              rational_smithnormalform
+    public :: Rational_Identity_Matrix,  &   !Returns an identity matrix
+              Rational_RowEchelonForm,   &   !Put a matrix in a rowechelonform
+              Rational_SmithNormalForm
 
     !> Public overloaded intrinsic functions (transpose is not needed)
     public :: abs, int, nint, modulo, mod, dot_product, maxval, minval, &
