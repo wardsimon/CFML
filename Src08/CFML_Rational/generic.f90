@@ -4,7 +4,7 @@
 !!----
 !!
 SubModule (CFML_Rational) Rational_General
- 
+
  Contains
    !!----
    !!---- RATIONAL_CO_LINEAR
@@ -29,9 +29,9 @@ SubModule (CFML_Rational) Rational_General
       else
          n1=size(R)
          n2=size(S)
-      end if         
+      end if
       if (n1 /= n2) return
-      
+
       do i=1,n1
          if (abs(R(i)%numerator) > 0) then
             ia=i
@@ -48,7 +48,7 @@ SubModule (CFML_Rational) Rational_General
          OK=.false.
          return
       end if
-      
+
       c=R(ia) / S(ib)
       do i=1, n1
          if ((R(i) - c * S(i) /= (0//1))) then
@@ -59,7 +59,7 @@ SubModule (CFML_Rational) Rational_General
 
       return
    End Function Rational_Co_linear
-   
+
    !!----
    !!---- RATIONAL_IS_NULLVECTOR
    !!----
@@ -76,17 +76,17 @@ SubModule (CFML_Rational) Rational_General
       !> Init
       nulo = .true.
       n=size(V)
-      
+
       do i=1, n
          if (v(i) /= (0//1)) then
             nulo = .false.
             return
          end if
       end do
-    
-      return 
+
+      return
    End Function Rational_Is_NullVector
-   
+
    !!----
    !!---- RATIONAL_IS_DIAGONALMATRIX
    !!----
@@ -115,7 +115,7 @@ SubModule (CFML_Rational) Rational_General
 
       return
    End Function Rational_Is_DiagonalMatrix
-   
+
    !!----
    !!---- RATIONAL_MODULO_LAT
    !!----
@@ -124,11 +124,11 @@ SubModule (CFML_Rational) Rational_General
    Module Elemental Function Rational_Modulo_Lat(R) Result(S)
       !---- Arguments ----!
       type(rational), intent(in) :: r
-      type(rational)             :: s  
+      type(rational)             :: s
 
       !> Init
-      S=R 
-      
+      S=R
+
       do
          if (s < 0_LI // 1_LI) then
             s=s+1_LI
@@ -147,7 +147,7 @@ SubModule (CFML_Rational) Rational_General
 
       return
    End Function Rational_Modulo_Lat
-   
+
    !!----
    !!---- RATIONAL_RANK
    !!----
@@ -165,7 +165,7 @@ SubModule (CFML_Rational) Rational_General
 
       !> Init
       n1=size(M,1); n2=size(M,2)
-      
+
       allocate(U(n1,n2))
       allocate(nullVector(n2))
 
@@ -181,7 +181,7 @@ SubModule (CFML_Rational) Rational_General
       k=n1 - nNull
       return
    End Function Rational_Rank
-   
+
    !!----
    !!---- RATIONAL_TRACE
    !!----
@@ -202,16 +202,16 @@ SubModule (CFML_Rational) Rational_General
          Err_CFML%Ierr=1
          Err_CFML%Msg="Error in Rational_Trace: matrix is not a square matrix!"
          return
-      end if   
-      
+      end if
+
       do i=1, n1
          r=r + M(i,i)
       end do
 
       return
    End Function Rational_Trace
-    
-   !!---- 
+
+   !!----
    !!---- RATIONAL_DETERM
    !!----
    !!---- This function for calculating the determinant is not very efficient but
@@ -224,12 +224,12 @@ SubModule (CFML_Rational) Rational_General
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: a
       type(rational)                             :: det
-      
+
       !---- Local variables ----!
       type(rational), dimension(size(a,1)-1, size(a,1)-1) :: b
       type(rational)                                      :: sgn
       integer                                             :: i, n
-      
+
       !> Init
       n=size(a,1)
       if (n == 1) then
@@ -244,12 +244,12 @@ SubModule (CFML_Rational) Rational_General
             sgn = sgn * (-1_LI/1_LI)
          end do
       end if
-      
+
       return
    End Function Rational_Determ
-   
-   !!---- 
-   !!---- RATIONAL_INVERSE_ARRAY
+
+   !!----
+   !!---- RATIONAL_INVERSE_MATRX
    !!----
    !!----  This calculates the inverse of a matrix converting it previously to
    !!----  a double precision matrix. The final invMat is an approximation according
@@ -257,11 +257,11 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Function Rational_Inverse_Array(M) Result(B)
+   Module Function Rational_Inverse_Matrix(M) Result(B)
       !---- Local Variables ----!
       type(rational), dimension(:,:),    intent(in)  :: M
       type(rational), dimension(size(M,1),size(M,2)) :: B
-      
+
       !---- Local variables ----!
       real(kind=cp), dimension(size(M,1),size(M,2)) :: A, invA
       integer :: n1,n2
@@ -273,15 +273,15 @@ SubModule (CFML_Rational) Rational_General
          Err_CFML%Ierr=1
          Err_CFML%msg="Error: the provided matrix is not square!"
          return
-      end if    
-      
+      end if
+
       A=M
       invA=Inverse_Arrary(A)
       if (Err_CFML%ierr /=0) return
-      
+
       B=invA ! This gives an approximation according to the 'maximum_denominator' value
 
       return
-   End Function Rational_Inverse_Array
-    
+   End Function Rational_Inverse_Matrix
+
 End SubModule Rational_General

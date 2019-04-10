@@ -29,7 +29,7 @@ rem
       (set OPT0=/Od)
       (set OPT1=/O2)
    )
-rem   
+rem
    (set OPT2=/fpp /Qopt-report:0)
    (set OPT3=)
    if [%_WINTER%]==[Y] (
@@ -46,7 +46,7 @@ rem
    echo **-------------------------------------**
    echo **---- CrysFML: Start Compilation  ----**
    echo **-------------------------------------**
-   echo Compiler Options 
+   echo Compiler Options
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
    echo OPT2:%OPT2%
@@ -57,10 +57,10 @@ rem
 rem
    ifort /c CFML_GlobalDeps_Windows_IFOR.f90         /nologo %OPT1% %OPT2% /module:.\mod
 rem
-   echo .... Mathematics Procedures
+   echo .... Mathematical Procedures
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
-rem 
-rem   Submodules CFML_Maths   
+rem
+rem   Submodules CFML_Maths
       cd .\CFML_Maths
       ifort /c Co_Prime.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Co_Linear.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
@@ -72,7 +72,7 @@ rem   Submodules CFML_Maths
       ifort /c Equal_Vector.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Erfc_Der.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Factorial.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Invert_Matrix.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Inverse_Matrix.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c In_Limits.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_Diagonal_Matrix.f90                /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_Null_Vector.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
@@ -104,11 +104,11 @@ rem   Submodules CFML_Maths
       ifort /c Zbelong.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
-rem      
+rem
    echo .... Strings Procedures
-   ifort /c CFML_StringsUtil.f90                     /nologo %OPT1% %OPT2% /module:.\mod
-rem 
-rem   Submodules CFML_Strings   
+   ifort /c CFML_Strings.f90                     /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem   Submodules CFML_Strings
       cd .\CFML_Strings
       ifort /c StringFullp.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c StringNum.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
@@ -116,12 +116,12 @@ rem   Submodules CFML_Strings
       ifort /c StringTools.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
-rem         
+rem
    echo .... Rational arithmetics
-   ifort /c CFML_RationalArith.f90                  /nologo %OPT1% %OPT2% /module:.\mod
-rem 
-rem   Submodules CFML_Rational   
-      cd .\CFML_Rational 
+   ifort /c CFML_Rational.f90                  /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem   Submodules CFML_Rational
+      cd .\CFML_Rational
       ifort /c Assignment.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Constructor.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Equal_rational.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
@@ -140,9 +140,9 @@ rem   Submodules CFML_Rational
       ifort /c Overloads.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RowEchelon.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..        
+      cd ..
       goto END
-   
+
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
@@ -215,7 +215,7 @@ rem
 :END
 rem
    echo.
-   echo Creating CrysFML Library 
+   echo Creating CrysFML Library
 rem
    if [%_WINTER%]==[Y] (
      lib /out:wcrysfml.lib *.obj
@@ -223,7 +223,7 @@ rem
      lib /out:crysfml.lib *.obj
    )
 rem
-   echo Creating IFORT directory 
+   echo Creating IFORT directory
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (

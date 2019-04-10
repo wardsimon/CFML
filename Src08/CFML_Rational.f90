@@ -61,7 +61,7 @@
 Module CFML_Rational
 
     Use CFML_GlobalDeps, only : CP, LI, Err_CFML
-    Use CFML_Maths,      only : Inverse_Array
+    Use CFML_Maths,      only : Inverse_Matrix
     Use CFML_Strings,    only : Pack_String
 
     implicit none
@@ -90,7 +90,7 @@ Module CFML_Rational
               Rational_Recip,            &   !Calculates the reciprocal of a rational  a/b -> b/a
               Rational_Co_Linear,        &   !Logical function telling if two vectors are colinear
               Rational_Trace,            &   !Returns the trace of a square matrix
-              Rational_Inverse_Array,    &   !Calculates the inverse of a rational matrix
+              Rational_Inverse_Matrix,    &   !Calculates the inverse of a rational matrix
               Rational_Modulo_Lat,       &   !Reduces a translation vector to that with values in the interval [0_ik, 1_ik)
               Rational_Rank,             &   !Computes the rank of a rational matrix
               Rational_Is_DiagonalMatrix,&   !Logical function telling if the matrix is diagonal
@@ -104,8 +104,8 @@ Module CFML_Rational
     !> Public overloaded intrinsic functions (transpose is not needed)
     public :: abs, int, nint, modulo, mod, dot_product, maxval, minval, &
               maxloc,minloc, matmul, sum, real
-    
-    
+
+
     integer(kind=LI),   public, parameter :: MAXIMUM_DENOMINATOR=999_LI
 
     !> Types definitions
@@ -191,7 +191,7 @@ Module CFML_Rational
       module procedure integer_rational_ne
     end interface
 
-    !> Intrinsics Overloads 
+    !> Intrinsics Overloads
     interface abs
       module procedure rational_abs
     end interface
@@ -201,7 +201,7 @@ Module CFML_Rational
     end interface
 
     interface nint
-      module procedure rational_nint      
+      module procedure rational_nint
     end interface
 
     interface modulo
@@ -246,17 +246,17 @@ Module CFML_Rational
     interface real
       module procedure rational_real
     end interface
-    
+
     interface sum
       module procedure rational_sum_vector
     end interface
-    
+
     !> General overloads
     interface Rational_Equal
-      module procedure Rational_Equal_Matrix 
-      module procedure Rational_Equal_Vector 
+      module procedure Rational_Equal_Matrix
+      module procedure Rational_Equal_Vector
     end interface
-    
+
     interface Rational_Is_Integer
       module procedure Is_Integer_rational_scalar
       module procedure Is_Integer_rational_vector
@@ -267,7 +267,7 @@ Module CFML_Rational
       module procedure Rational_RowEchelonForm_M
       module procedure Rational_RowEchelonForm_MT
     end interface
-    
+
     Interface
        !> Constructor //
        Module Elemental Function Make_Rational(Numerator, Denominator) Result(Res)
@@ -276,51 +276,51 @@ Module CFML_Rational
           integer(kind=LI), intent (in) :: denominator
           type(rational)                :: res
        End Function Make_Rational
-       
+
        Module Elemental Function Make_Rational_Int(Numerator, Denominator) Result(Res)
-          !---- Arguments ----! 
+          !---- Arguments ----!
           integer, intent (in) :: numerator
           integer, intent (in) :: denominator
           type(rational)       :: res
        End Function Make_Rational_Int
-       
+
        !> Assignment
        Module Elemental Subroutine Assign_Int_LI_Rational(I, Res)
           !---- Arguments ----!
           type(rational),  intent (in)   :: res  !, volatile
-          integer(kind=LI),intent (out)  :: i  
+          integer(kind=LI),intent (out)  :: i
        End Subroutine Assign_Int_LI_Rational
-       
+
        Module Elemental Subroutine Assign_Int_Rational(I, Res)
           !---- Arguments ----!
           type(rational), intent (in)   :: res  !, volatile
           integer,        intent (out)  :: i
-       End Subroutine Assign_Int_Rational  
-       
+       End Subroutine Assign_Int_Rational
+
        Module Elemental Subroutine Assign_Rational_Int(Res, I)
           !---- Arguments ----!
           type(rational),  intent (out) :: res  ! volatile
-          integer,         intent (in)  :: i  
+          integer,         intent (in)  :: i
        End Subroutine Assign_Rational_Int
-       
+
        Module Elemental Subroutine Assign_Rational_Int_LI(Res, I)
           !---- Arguments ----!
           type(rational),   intent (out) :: res  ! volatile
           integer(kind=LI), intent (in)  :: i
        End Subroutine Assign_Rational_Int_LI
-       
+
        Module Elemental Subroutine Assign_Rational_Real_CP(Res, Xr)
           !---- Arguments ----!
           type(rational), intent(out) :: res  ! volatile
-          real(kind=cp),  intent (in) :: xr   
-       End Subroutine Assign_Rational_Real_CP  
-       
+          real(kind=cp),  intent (in) :: xr
+       End Subroutine Assign_Rational_Real_CP
+
        Module Elemental Subroutine Assign_Real_Rational_CP(X, Res)
           !---- Arguments ----!
           type(rational), intent(in)   :: res
-          real(kind=cp),  intent (out) :: x 
-       End Subroutine Assign_Real_Rational_CP  
-       
+          real(kind=cp),  intent (out) :: x
+       End Subroutine Assign_Real_Rational_CP
+
        !> Operator +
        Module Elemental Function Integer_Rational_Add(I, S) Result(Res)
           !---- Arguments ----!
@@ -328,21 +328,21 @@ Module CFML_Rational
           type(rational),  intent (in) :: s
           type(rational)               :: res
        End Function Integer_Rational_Add
-       
+
        Module Elemental Function Rational_Add(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
-          type(rational)              :: res 
+          type(rational)              :: res
        End Function Rational_Add
-       
+
        Module Elemental Function Rational_Integer_Add(S, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: s
           integer(kind=LI),intent (in) :: i
           type(rational)               :: res
        End Function Rational_Integer_Add
-       
+
        !> Operator -
        Module Elemental Function Integer_Rational_Subtract(I, S) Result(Res)
           !---- Arguments ----!
@@ -350,49 +350,49 @@ Module CFML_Rational
           type(rational),  intent (in) :: s
           type(rational)               :: res
        End Function Integer_Rational_Subtract
-       
+
        Module Elemental Function Rational_Integer_Subtract(S,I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: s
           integer(kind=LI),intent (in) :: i
-          type(rational)               :: res  
+          type(rational)               :: res
        End Function Rational_Integer_Subtract
-       
+
        Module Elemental Function Rational_Minus(R) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational)              :: res
        End Function Rational_Minus
-       
+
        Module Elemental Function Rational_Subtract(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
-          type(rational)              :: res   
-       End Function Rational_Subtract  
-       
-       !> Operator * 
+          type(rational)              :: res
+       End Function Rational_Subtract
+
+       !> Operator *
        Module Elemental Function Integer_Rational_Multiply(I, S) Result(Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: s
           type(rational)               :: res
        End Function Integer_Rational_Multiply
-       
+
        Module Elemental Function Rational_Integer_Multiply(S,I) Result(Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: s
           type(rational)               :: res
        End Function Rational_Integer_Multiply
-       
+
        Module Elemental Function Rational_Multiply(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
-          type(rational)              :: res 
-       End Function Rational_Multiply     
-       
+          type(rational)              :: res
+       End Function Rational_Multiply
+
        !> Operator divisor
        Module Elemental Function Integer_Rational_Divide(I, R) Result(Res)
           !---- Arguments ----!
@@ -400,43 +400,43 @@ Module CFML_Rational
           type (rational),  intent(in) :: r
           type (rational)              :: res
        End Function Integer_Rational_Divide
-       
+
        Module Elemental Function Rational_Divide(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
           type(rational)              :: res
        End Function Rational_Divide
-       
+
        Module Elemental Function Rational_Integer_Divide(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent (in) :: i
-          type(rational)               :: res     
-       End Function Rational_Integer_Divide 
-       
-       !> Operator <  
+          type(rational)               :: res
+       End Function Rational_Integer_Divide
+
+       !> Operator <
        Module Elemental Function Integer_Rational_LT(I,R) Result (Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: r
           logical                      :: res
        End Function Integer_Rational_LT
-       
+
        Module Elemental Function Rational_Integer_LT(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent (in) :: i
-          logical                      :: res 
+          logical                      :: res
        End Function Rational_Integer_LT
-       
+
        Module Elemental Function Rational_LT(R, S) Result(Res)
-          !---- Arguments ----! 
+          !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
           logical                     :: res
        End Function Rational_LT
-       
+
        !> Operator <=
        Module Elemental Function Rational_Integer_LE(R, I) Result(Res)
           !---- Arguments ----!
@@ -444,87 +444,87 @@ Module CFML_Rational
           integer(kind=LI),intent (in) :: i
           logical                      :: res
        End Function Rational_Integer_LE
-       
+
        Module Elemental Function Rational_LE(R, S) Result(Res)
           !---- Argument ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
-          logical                     :: res 
+          logical                     :: res
        End Function Rational_LE
-       
+
        Module Pure Function Integer_Rational_LE(I, R) Result(Res)
-          !---- Arguments ----! 
+          !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: r
           logical                      :: res
-       End Function Integer_Rational_LE   
-       
-       !> Operator > 
+       End Function Integer_Rational_LE
+
+       !> Operator >
        Module Elemental Function Integer_Rational_GT(I, R) Result(Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: r
-          logical                      :: res 
+          logical                      :: res
        End Function Integer_Rational_GT
-       
+
        Module Elemental Function Rational_GT(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
-          logical                     :: res   
+          logical                     :: res
        End Function Rational_GT
-       
+
        Module Elemental Function Rational_Integer_GT(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),   intent (in) :: r
           integer(kind=LI), intent (in) :: i
-          logical                       :: res   
+          logical                       :: res
        End Function Rational_Integer_GT
-       
-       !> Operator >=    
+
+       !> Operator >=
        Module Elemental Function Integer_Rational_GE(I, R) Result(Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: r
-          logical                      :: res   
+          logical                      :: res
        End Function Integer_Rational_GE
-       
+
        Module Elemental Function Rational_GE(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
           logical                     :: res
-       End Function Rational_GE  
-       
+       End Function Rational_GE
+
        Module Elemental Function Rational_Integer_GE(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent (in) :: i
           logical                      :: res
-       End Function Rational_Integer_GE   
-       
+       End Function Rational_Integer_GE
+
        !> Operator ==
        Module Elemental Function Integer_Rational_EQ(I, R) Result(Res)
           !---- Arguments ----!
           integer(kind=LI),intent (in) :: i
           type(rational),  intent (in) :: r
           logical                      :: res
-       End Function Integer_Rational_EQ  
-       
+       End Function Integer_Rational_EQ
+
        Module Elemental Function Rational_EQ(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
           logical                     :: res
-       End Function Rational_EQ 
-       
+       End Function Rational_EQ
+
        Module Elemental Function Rational_Integer_EQ(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent (in) :: i
           logical                      :: res
-       End Function Rational_Integer_EQ 
-       
+       End Function Rational_Integer_EQ
+
        !> Operator /=
        Module Elemental Function Integer_Rational_NE(I, R) Result(Res)
           !---- Arguments ----!
@@ -532,250 +532,250 @@ Module CFML_Rational
           type(rational),  intent (in) :: r
           logical                      :: res
        End Function Integer_Rational_NE
-       
+
        Module Elemental Function Rational_Integer_NE(R, I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent (in) :: i
           logical                      :: res
        End Function Rational_Integer_NE
-       
+
        Module Elemental Function Rational_NE(R, S) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational), intent (in) :: s
           logical                     :: res
        End Function Rational_NE
-       
+
        !> Intrinsic Overloads
        Module Elemental Function Rational_Abs(R) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           type(rational)              :: res
        End Function Rational_Abs
-       
+
        Module Elemental Function Rational_Int(R) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           integer(kind=LI)            :: res
        End Function Rational_Int
-       
+
        Module Elemental Function Rational_Integer_Mod(R,I) Result(Res)
           !---- Arguments ----!
           type(rational),   intent (in) :: r
           integer(kind=LI), intent (in) :: i
           type(rational)                :: res
        End Function Rational_Integer_Mod
-       
+
        Module Elemental Function Rational_Integer_Modulo(R,I) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in) :: r
           integer(kind=LI),intent(in)  :: i
           type(rational)               :: res
        End Function Rational_Integer_Modulo
-       
+
        Module Elemental Function Rational_Mod(R) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           integer                     :: res
        End Function Rational_Mod
-       
+
        Module Elemental Function Rational_Modulo(R) Result(Res)
           !---- Arguments ----!
           type(rational), intent (in) :: r
           integer                     :: res
        End Function Rational_Modulo
-       
+
        Module Elemental Function Rational_Nint(R) Result(Res)
           !---- Arguments ----!
           type(rational),  intent (in)  :: r
           integer(kind=LI)              :: res
        End Function Rational_Nint
-       
+
        Module Elemental Function Rational_Real(R) Result (Res)
           !---- Arguments ----!
           type (rational),  intent(in) :: r
           real(kind=cp)                :: res
        End Function Rational_Real
-       
+
        Module Pure Function Rational_Dot_Product(R1,R2) Result(Res)
           !---- Arguments ----!
           type(rational), dimension(:), intent (in) :: r1
           type(rational), dimension(:), intent (in) :: r2
           type(rational)                            :: res
        End Function Rational_Dot_Product
-       
+
        Module Pure Function Rational_Matmul_Matmat(Mat1,Mat2) Result(Mat_Out)
-          !---- Arguments ----! 
+          !---- Arguments ----!
           type(rational), dimension(:,:), intent (in)                 :: mat1
           type(rational), dimension(:,:), intent (in)                 :: mat2
           type(rational),dimension(size(mat1,dim=1),size(mat2,dim=2)) :: mat_out
        End Function Rational_Matmul_Matmat
-       
+
        Module Pure Function Rational_Matmul_Matvec(Mat,Vec) Result(Vec_Out)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent (in) :: mat
           type(rational), dimension(:),   intent (in) :: vec
           type(rational), dimension(size(vec))        :: vec_out
        End Function Rational_Matmul_Matvec
-       
+
        Module Pure Function Rational_Maxloc_Matrix(Mat) Result(Pos_Max)
           !---- Arguments ----!
           type(rational),  dimension(:,:), intent(in) :: Mat
           integer, dimension(2)                       :: pos_max
        End Function Rational_Maxloc_Matrix
-       
+
        Module Pure Function Rational_Maxloc_Vector(Vec) Result(Pos_Max)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: vec
-          integer                                  :: pos_max 
+          integer                                  :: pos_max
        End Function Rational_Maxloc_Vector
-       
+
        Module Pure Function Rational_Maxval_Matrix(R) Result(Res)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: r
           type(rational)                              :: Res
-       End Function Rational_Maxval_Matrix 
-       
+       End Function Rational_Maxval_Matrix
+
        Module Pure Function Rational_Maxval_Vector(R) Result(Res)
           !---- Arguments ----!
           type(rational), dimension(:), intent (in) :: r
           type(rational)                            :: res
        End Function Rational_Maxval_Vector
-       
+
        Module Pure Function Rational_Minloc_Matrix(Mat) Result(Pos_Min)
           !---- Arguments ----!
           type(rational),  dimension(:,:), intent(in) :: Mat
-          integer, dimension(2)                       :: pos_min  
+          integer, dimension(2)                       :: pos_min
        End Function Rational_Minloc_Matrix
-       
+
        Module Pure Function Rational_Minloc_Vector(Vec) Result(Pos_Min)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: vec
           integer                                  :: pos_min
-       End Function Rational_Minloc_Vector    
-       
+       End Function Rational_Minloc_Vector
+
        Module Pure Function Rational_Minval_Matrix(R) Result(Res)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent (in) :: r
           type(rational)                              :: res
        End Function Rational_Minval_Matrix
-       
+
        Module Pure Function Rational_Minval_Vector(R) Result(Res)
           !---- Arguments ----!
           type(rational), dimension(:), intent (in) :: r
           type(rational)                            :: res
        End Function Rational_Minval_Vector
-       
+
        Module Pure Function Rational_Sum_Vector(Vec) Result(Suma)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: vec
           type(rational)                           :: suma
        End Function Rational_Sum_Vector
-       
+
        !> Equal_Rational
        Module Pure Function Rational_Equal_Matrix(Mat1,Mat2) Result(Equal)
-          !---- Arguments ----! 
+          !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: Mat1,Mat2
           logical                                    :: equal
        End Function Rational_Equal_Matrix
-      
+
        Module Pure Function Rational_Equal_Vector(Vec1,Vec2) Result(Equal)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: vec1, vec2
-          logical                                  :: equal 
+          logical                                  :: equal
        End Function Rational_Equal_Vector
-      
+
        !> Is_Integer_Rational
        Module Elemental Function Is_Integer_Rational_Scalar(R) Result(OK)
           !---- Arguments ----!
           type(rational), intent(in) :: r
           logical                    :: OK
        End Function Is_Integer_Rational_Scalar
-       
+
        Module Pure Function Is_Integer_Rational_Matrix(Mat) Result(OK)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: Mat
-          logical                                    :: OK   
+          logical                                    :: OK
        End Function Is_Integer_Rational_Matrix
-       
+
        Module Pure Function Is_Integer_Rational_Vector(Vec) Result(OK)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: vec
-          logical                                  :: ok  
-       End Function Is_Integer_Rational_Vector 
-       
+          logical                                  :: ok
+       End Function Is_Integer_Rational_Vector
+
        !> Rational_RowEchelonForm
        Module Pure Subroutine Rational_RowEchelonForm_M(M)
           !---- Arguments ----!
-          type(rational), dimension(:,:), intent(inout) :: M 
+          type(rational), dimension(:,:), intent(inout) :: M
        End Subroutine Rational_RowEchelonForm_M
-       
+
        Module Pure Subroutine Rational_RowEchelonForm_MT(M,T)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(inout) :: M
-          type(rational), dimension(:,:), intent(inout) :: T 
-       End Subroutine Rational_RowEchelonForm_MT       
-          
+          type(rational), dimension(:,:), intent(inout) :: T
+       End Subroutine Rational_RowEchelonForm_MT
+
        Module Subroutine Rational_SmithNormalForm(M,D,P,Q)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in)  :: M     ! M(NR,NC)
           type(rational), dimension(:,:), intent(out) :: D     ! D(NR,NC)
           type(rational), dimension(:,:), intent(out) :: P     ! P(NR,NR)
-          type(rational), dimension(:,:), intent(out) :: Q     ! Q(NC,NC) 
-       End Subroutine Rational_SmithNormalForm   
-       
+          type(rational), dimension(:,:), intent(out) :: Q     ! Q(NC,NC)
+       End Subroutine Rational_SmithNormalForm
+
        !> Generic procedures
        Module Elemental Function Rational_Modulo_Lat(R) Result(S)
           !---- Arguments ----!
           type(rational), intent(in) :: r
-          type(rational)             :: s 
+          type(rational)             :: s
        End Function Rational_Modulo_Lat
-       
-       Module Function Rational_Inverse_Array(M) Result(B)
+
+       Module Function Rational_Inverse_Matrix(M) Result(B)
           !---- Local Variables ----!
           type(rational), dimension(:,:),    intent(in)  :: M
-          type(rational), dimension(size(M,1),size(M,2)) :: B   
-       End Function Rational_Inverse_Array
-       
+          type(rational), dimension(size(M,1),size(M,2)) :: B
+       End Function Rational_Inverse_Matrix
+
        Module Function Rational_Trace(M) Result(R)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: M
           type(rational)                             :: R
        End Function Rational_Trace
-       
+
        Module Pure Function Rational_Is_DiagonalMatrix(M) Result(Diagonal)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: M
-          logical                                    :: Diagonal   
+          logical                                    :: Diagonal
        End Function Rational_Is_DiagonalMatrix
-       
+
        Module Pure Function Rational_Is_NullVector(V) Result(nulo)
           !---- Arguments ----!
           type(rational), dimension(:), intent(in) :: v
-          logical                                  :: nulo   
+          logical                                  :: nulo
        End Function Rational_Is_NullVector
-       
+
        Module Pure Function Rational_Co_Linear(R,S,N) Result(OK)
           !---- Argument ----!
           type(rational), dimension(:), intent(in) :: R
           type(rational), dimension(:), intent(in) :: S
           integer, optional,            intent(in) :: n
           logical                                  :: OK
-       End Function Rational_Co_linear   
-       
+       End Function Rational_Co_linear
+
        Module Pure Function Rational_Rank(M) Result(k)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in)  :: M
           integer                                     :: k
        End Function Rational_Rank
-       
+
        Module Pure Recursive Function Rational_Determ(A) Result(Det)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: a
-          type(rational)                             :: det 
-       End Function Rational_Determ    
-      
+          type(rational)                             :: det
+       End Function Rational_Determ
+
     End Interface
 
  contains
@@ -784,27 +784,27 @@ Module CFML_Rational
    !!----
    !!---- 08/04/2019 17:06:26
    !!
-   Pure Subroutine Rational_Identity_Matrix(R) 
+   Pure Subroutine Rational_Identity_Matrix(R)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent(in out) :: R
 
        !---- Local variables ----!
        integer :: j, n1, n2
-        
+
        !> Init
        R= 0 // 1
-        
+
        n1=size(R,1)
        n2=size(R,2)
        if (n1 /= n2) return
-        
+
        do j =1, n1
           R(j,j)= 1 // 1
        end do
 
        return
     End Subroutine Rational_Identity_Matrix
-   
+
     !!----
     !!---- R_GCD
     !!----
@@ -815,16 +815,16 @@ Module CFML_Rational
        integer(kind=LI), intent (in) :: i
        integer(kind=LI), intent (in) :: j
        integer(kind=LI)              :: res
-       
+
        if (j == 0) then
           res=i
        else
           res=r_gcd(j, modulo(i, j))
        end if
-       
+
        return
     End Function R_Gcd
-   
+
     !!----
     !!---- RATIONAL_SIMPLIFY
     !!----
@@ -834,18 +834,18 @@ Module CFML_Rational
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational)              :: res
-       
+
        !---- Local Variables ----!
        integer(kind=LI) :: g
-       
+
        g=r_gcd(r%numerator, r%denominator)
        if (g /= 0) then
           res=(r%numerator / g) // (r%denominator / g)
        else
          res= r
        end if
-    End Function Rational_Simplify  
-    
+    End Function Rational_Simplify
+
     !!----
     !!---- RATIONAL_RECIP
     !!----
@@ -855,27 +855,27 @@ Module CFML_Rational
        !---- Arguments ----!
        type(rational), intent(in) :: r
        type(rational)             :: s
-       
+
        s= 0_LI
        if (r%numerator /= 0_LI) s= r%denominator // r%numerator
-       
+
        return
-    End Function Rational_Recip 
-    
+    End Function Rational_Recip
+
     !!----
     !!---- RATIONAL_STRING
     !!----
     !!---- 08/04/2019
     !!
-    Function Rational_String(R) Result (Str)
+    Elemental Function Rational_String(R) Result (Str)
        !---- Arguments ----!
-       type(rational),  intent(in)   :: r
-       character(len=:), allocatable :: str
-       
+       type(rational),   intent(in)   :: r
+       character(len=81)              :: str
+
        !---- Local Variables ----!
        character(len=132) :: line
        type(rational)     :: sr
-      
+
        if (r%denominator /= 0_LI) then
           sr=rational_simplify(r)
        else
@@ -887,8 +887,8 @@ Module CFML_Rational
           write(unit=line,fmt="(i40,a,i40)") sr%numerator,"/",sr%denominator
        end if
        str=adjustl(Pack_String(line))
-       
+
        return
     End Function Rational_String
-    
+
 End Module CFML_Rational
