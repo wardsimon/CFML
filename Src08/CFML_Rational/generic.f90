@@ -276,7 +276,7 @@ SubModule (CFML_Rational) Rational_General
       end if
 
       A=M
-      invA=Inverse_Arrary(A)
+      invA=Inverse_Matrix(A)
       if (Err_CFML%ierr /=0) return
 
       B=invA ! This gives an approximation according to the 'maximum_denominator' value
