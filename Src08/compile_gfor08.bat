@@ -74,7 +74,7 @@ rem   Submodules CFML_Maths
       gfortran -c %OPTC%  -J..\mod Equal_Vector.f90                  %OPT1% 
       gfortran -c %OPTC%  -J..\mod Erfc_Der.f90                      %OPT1% 
       gfortran -c %OPTC%  -J..\mod Factorial.f90                     %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Invert_Matrix.f90                 %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Inverse_Matrix.f90                 %OPT1% 
       gfortran -c %OPTC%  -J..\mod In_Limits.f90                     %OPT1% 
       gfortran -c %OPTC%  -J..\mod Is_Diagonal_Matrix.f90            %OPT1% 
       gfortran -c %OPTC%  -J..\mod Is_Null_Vector.f90                %OPT1% 
@@ -108,7 +108,7 @@ rem   Submodules CFML_Maths
       cd ..
 rem      
    echo .... Strings Procedures
-   gfortran -c %OPTC%  -J.\mod  CFML_StringsUtil.f90                 %OPT1%
+   gfortran -c %OPTC%  -J.\mod  CFML_Strings.f90                 %OPT1%
 rem 
 rem   Submodules CFML_Strings   
       cd .\CFML_Strings
@@ -121,7 +121,7 @@ rem   Submodules CFML_Strings
       cd ..      
 rem
    echo .... Rational arithmetics
-   gfortran -c %OPTC%  -J.\mod CFML_RationalArith.f90                %OPT1% 
+   gfortran -c %OPTC%  -J.\mod CFML_Rational.f90                %OPT1% 
 rem 
 rem   Submodules CFML_Rational   
       cd .\CFML_Rational 
