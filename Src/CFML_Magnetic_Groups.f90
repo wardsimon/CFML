@@ -5,9 +5,9 @@
    !!---- Brigham Young University, Provo, Utah, USA
    !!----
    Use CFML_GlobalDeps
-   Use CFML_Crystallographic_Symmetry, only: Get_SymSymb, Get_Seitz_Symbol,Get_Trasfm_Symbol, &
-                                             Get_Shubnikov_Operator_Symbol, Get_Transl_Symbol, hexa
-   Use CFML_String_Utilities,          only: Pack_String, Get_Fraction_2Dig, Get_LogUnit
+   Use CFML_Crystallographic_Symmetry, only: Get_Seitz_Symbol,Get_Trasfm_Symbol, &
+                                             Get_Shubnikov_Operator_Symbol, Get_Transl_Symbol
+   Use CFML_String_Utilities,          only: Get_LogUnit
    Use CFML_Math_3D,                   only: matrix_inverse
    Use CFML_Math_General,              only: modulo_lat
 

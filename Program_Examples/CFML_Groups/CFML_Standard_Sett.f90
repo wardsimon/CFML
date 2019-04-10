@@ -2626,7 +2626,7 @@ contains
         type(space_group_type)                          :: G_std
         type(rational),       dimension(3)              :: origShift
         type(spg_type),       dimension(n)              :: G_
-        type(symm_oper_type), dimension(3)              :: gen_std,gen_x
+        type(Symm_Oper_Type), dimension(3)              :: gen_std,gen_x
         type(rational),       dimension(3,3)            :: MA,P_target
         type(rational),       dimension(4,4)            :: C,Cinv,W
         type(rational),       dimension(4,4,n)          :: C_
@@ -3256,4 +3256,4 @@ contains
 
     end subroutine Smallest_Integral_Vector
 
-end module
+end module CFML_Standard_Settings
