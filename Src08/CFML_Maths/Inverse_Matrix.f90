@@ -84,7 +84,7 @@ Submodule (CFML_Maths) Inverse_Matrix
        end if
 
        !> Copy
-       aa=real(a)
+       aa=real(a,kind=cp)
 
        n=n1
        select case (n)
@@ -95,7 +95,8 @@ Submodule (CFML_Maths) Inverse_Matrix
           case (4)
              Ainv=MatInv4_R(aa)
           case default
-             Ainv=MatInvN_R(aa,n)
+             !Ainv=MatInvN_R(aa,n)
+             call Invert_Matrix_R(aa,ainv)
        end select
 
        return
@@ -141,7 +142,8 @@ Submodule (CFML_Maths) Inverse_Matrix
           case (4)
              Ainv=MatInv4_R(A)
           case default
-             Ainv=MatInvN_R(A,n)
+             !Ainv=MatInvN_R(A,n)
+             call Invert_Matrix_R(A,Ainv)
        end select
 
        return
@@ -569,17 +571,24 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv2_C(A) Result(B)
+    Module Function MatInv2_C(A) Result(B)
        !---- arguments ----!
        complex(kind=cp), dimension(2,2), intent(in) :: A  !! Matrix
        complex(kind=cp), dimension(2,2)             :: B   !! Inverse matrix
 
        !---- Local Variables ----!
-       complex(kind=cp)             :: detinv
+       complex(kind=cp)             :: det,detinv
 
        !> Init
        B=cmplx(0.0_cp,0.0_cp)
 
+       !> Deter
+       det=determ(A,2) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV2_C@MATHS: Determinant was zero!" 
+       end if  
+       
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
@@ -598,17 +607,24 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv2_R(A) Result(B)
+    Module Function MatInv2_R(A) Result(B)
        !---- arguments ----!
        real(kind=cp), dimension(2,2), intent(in) :: A   !! Matrix
        real(kind=cp), dimension(2,2)             :: B   !! Inverse matrix
 
        !---- Local Variables ----!
-       real(kind=cp) :: detinv
+       real(kind=cp) :: det, detinv
 
        !> Init
        B=0.0_cp
 
+       !> Deter
+       det=determ(A,2) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV2_R@MATHS: Determinant was zero!" 
+       end if 
+       
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
@@ -627,14 +643,21 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv3_C(A) Result(B)
+    Module Function MatInv3_C(A) Result(B)
        !---- Arguments ----!
        complex(kind=cp), dimension(3,3),intent(in) :: A   !! Matrix
        complex(Kind=cp), dimension(3,3)            :: B   !! Inverse matrix
 
        !---- Local variables ----!
-       complex(Kind=cp) :: detinv
+       complex(Kind=cp) :: det, detinv
 
+       !> Deter
+       det=determ(A,3) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV3_C@MATHS: Determinant was zero!" 
+       end if 
+       
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
                  - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
@@ -660,14 +683,21 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv3_R(A) Result(B)
+    Module Function MatInv3_R(A) Result(B)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
        real(Kind=cp), dimension(3,3)             :: B   !! Inverse matrix
 
        !---- Local variables ----!
-       real(Kind=cp) :: detinv
+       real(Kind=cp) :: det,detinv
 
+       !> Deter
+       det=determ(A,3) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV3_R@MATHS: Determinant was zero!" 
+       end if 
+        
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
                  - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
@@ -693,14 +723,21 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv4_C(A) result(B)
+    Module Function MatInv4_C(A) result(B)
        !---- Arguments ----!
        complex(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
        complex(kind=cp), dimension(4,4)             :: B   !! Inverse matrix
 
        !---- Local Variable ----!
-       complex(kind=cp)             :: detinv
+       complex(kind=cp)             :: det,detinv
 
+       !> Deter
+       det=determ(A,4) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV4_C@MATHS: Determinant was zero!" 
+       end if 
+       
        !> Calculate the inverse determinant of the matrix
        detinv = &
                 1/(A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+ &
@@ -759,14 +796,21 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function MatInv4_R(A) result(B)
+    Module Function MatInv4_R(A) result(B)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: A(4,4)   !! Matrix
        real(kind=cp)             :: B(4,4)   !! Inverse matrix
 
        !---- Local Variable ----!
-       real(kind=cp)             :: detinv
+       real(kind=cp)             :: det, detinv
 
+       !> Deter
+       det=determ(A,4) 
+       if (abs(det) <= epss) then
+          Err_CFML%Ierr=1
+          Err_CFML%MSG="MATINV4_R@MATHS: Determinant was zero!" 
+       end if 
+       
        !> Calculate the inverse determinant of the matrix
        detinv = &
                 1/(A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+ &

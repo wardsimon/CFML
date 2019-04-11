@@ -893,37 +893,37 @@
           real(kind=cp), dimension(3,3)            :: M
        End Function Mat_Cross_R
 
-       Module Pure Function MatInv2_C(A) Result(B)
+       Module Function MatInv2_C(A) Result(B)
           !---- arguments ----!
           complex(kind=cp), dimension(2,2), intent(in) :: A
           complex(kind=cp), dimension(2,2)             :: B
        End Function MatInv2_C
 
-       Module Pure Function MatInv2_R(A) Result(B)
+       Module Function MatInv2_R(A) Result(B)
           !---- arguments ----!
           real(kind=cp), dimension(2,2), intent(in) :: A
           real(kind=cp), dimension(2,2)             :: B
        End Function MatInv2_R
 
-       Module Pure Function MatInv3_C(A) Result(B)
+       Module Function MatInv3_C(A) Result(B)
           !---- arguments ----!
           complex(kind=cp), dimension(3,3), intent(in) :: A
           complex(kind=cp), dimension(3,3)             :: B
        End Function MatInv3_C
 
-       Module Pure Function MatInv3_R(A) Result(B)
+       Module Function MatInv3_R(A) Result(B)
           !---- arguments ----!
           real(kind=cp), dimension(3,3), intent(in) :: A
           real(kind=cp), dimension(3,3)             :: B
        End Function MatInv3_R
 
-       Module Pure Function MatInv4_C(A) Result(B)
+       Module Function MatInv4_C(A) Result(B)
           !---- arguments ----!
           complex(kind=cp), dimension(4,4), intent(in) :: A
           complex(kind=cp), dimension(4,4)             :: B
        End Function MatInv4_C
 
-       Module Pure Function MatInv4_R(A) Result(B)
+       Module Function MatInv4_R(A) Result(B)
           !---- arguments ----!
           real(kind=cp), dimension(4,4), intent(in) :: A
           real(kind=cp), dimension(4,4)             :: B
