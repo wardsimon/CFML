@@ -143,6 +143,18 @@ rem   Submodules CFML_Rational
       gfortran -c %OPTC% -J..\mod Overloads.f90                      %OPT1%
       gfortran -c %OPTC% -J..\mod RowEchelon.f90                     %OPT1%
       move /y *.o .. > nul
+      cd ..    
+rem
+   echo .... Metrics Procedures
+   gfortran -c %OPTC%  -J.\mod CFML_Metrics.f90                %OPT1% 
+rem 
+rem   Submodules CFML_Rational   
+      cd .\CFML_Metrics 
+      gfortran -c %OPTC% -J..\mod GenMetrics.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod IORoutines.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod NiggliCell.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod ThConver.f90                       %OPT1% 
+      move /y *.o .. > nul
       cd ..        
       goto END
       

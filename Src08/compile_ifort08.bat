@@ -72,7 +72,7 @@ rem   Submodules CFML_Maths
       ifort /c Equal_Vector.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Erfc_Der.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Factorial.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Inverse_Matrix.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Inverse_Matrix.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c In_Limits.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_Diagonal_Matrix.f90                /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_Null_Vector.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
@@ -117,8 +117,8 @@ rem   Submodules CFML_Strings
       move /y *.obj .. > nul
       cd ..
 rem
-   echo .... Rational arithmetics
-   ifort /c CFML_Rational.f90                  /nologo %OPT1% %OPT2% /module:.\mod
+   echo .... Rational arithmetics Procedures
+   ifort /c CFML_Rational.f90                        /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Rational
       cd .\CFML_Rational
@@ -141,14 +141,24 @@ rem   Submodules CFML_Rational
       ifort /c RowEchelon.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
+rem
+   echo .... Metrics Procedures 
+   ifort /c CFML_Metrics.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
+rem
+rem   Submodules CFML_Rational
+      cd .\CFML_Metrics
+      ifort /c GenMetrics.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c IORoutines.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c NiggliCell.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ThConver.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..     
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
    ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
    ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
-rem   ifort /c CFML_Rational_Arithmetic.f90              /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
    ) else (
@@ -160,7 +170,6 @@ rem   ifort /c CFML_Rational_Arithmetic.f90              /nologo %OPT1% %OPT2%
 rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
-   ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
