@@ -1,4 +1,5 @@
 Program test_groups
+    use CFML_GlobalDeps
     use CFML_Symmetry_tables, only: Get_Generators
     use CFML_Rational_Groups
     use CFML_Standard_Settings
@@ -30,15 +31,15 @@ Program test_groups
         call CPU_TIME(start)
 
         call Group_Constructor(generatorList,Grp)
-        if (Err_group) then
-            write(*,'(/,4x,a)') Err_group_Mess
+        if (Err_CFML%Ierr /= 0) then
+            write(*,'(/,4x,a)') Err_CFML%Msg
             cycle
         else
             call Identify_Group(Grp,.false.)
             call print_Group(Grp)
             if (err_std) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_group_Mess)
+                write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_CFML%Msg)
             end if
         end if
         write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
@@ -78,7 +79,7 @@ Program test_groups
                 call print_Group(sGrp(L))
                 if (err_std) then
                     write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                    write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_group_Mess)
+                    write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_CFML%Msg)
                 end if
             end do
         end if

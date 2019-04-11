@@ -85,7 +85,7 @@ Module CFML_GlobalDeps
    !---- Error Flags ----!
    Type :: Err_Type
       integer                         :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
-      character(len=80)               :: Msg=" "                  ! Text for Message
+      character(len=180)              :: Msg=" "                  ! Text for Message
       integer                         :: nl=0                     ! number of lines
       character(len=132),dimension(5) :: Txt=" "                  ! Extra Message information
    End Type Err_Type

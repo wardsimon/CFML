@@ -34,30 +34,30 @@ rem ****---- Intel Compiler ----****
 :IFORT
 
    ifort /c CFML_Rational_Groups.f90    /O3 /Qparallel /nologo %INC%  /warn
-   ifort /c CFML_Standard_Settings.f90  /O3 /Qparallel /nologo %INC%  /warn
+   ifort /c CFML_Standard_Sett.f90      /O3 /Qparallel /nologo %INC%  /warn
    ifort /c groups.f90                  /O3 /Qparallel /nologo %INC%
    ifort /exe:groups *.obj %CRYSLIB% /link /stack:256000000
    goto END
 :IFORTD
    ifort /c CFML_Rational_Groups.f90    /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c CFML_Standard_Settings.f90  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
+   ifort /c CFML_Standard_Sett.f90      /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
    ifort /c groups.f90                  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
    ifort /exe:groups *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c -O3 CFML_Rational_Groups.f90   -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c -O3 CFML_Standard_Settings.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c -O3 groups.f90   -fbounds-check    -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c -O3 CFML_Rational_Groups.f90    -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c -O3 CFML_Standard_Sett.f90      -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c -O3 groups.f90   -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC
    gfortran *.o -o groups_gf    -L../../GFortran/LibC   -lcrysfml
    goto END
 :GFORD
    gfortran -c CFML_Rational_Groups.f90   -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c CFML_Standard_Settings.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
-   gfortran -c groups.f90    -g -fbounds-check -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c CFML_Standard_Sett.f90     -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC
+   gfortran -c groups.f90                 -g -fbounds-check -fbacktrace  -ffree-line-length-0  -I../../GFortran/LibC
    gfortran *.o -o groups_gf    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END
-rem   del *.obj *.mod *.o *.map *.bak *.pdb > nul
+   del *.obj *.mod *.o *.map *.bak *.pdb > nul

@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -63,7 +63,7 @@ Module CFML_GlobalDeps
    integer, parameter :: SP = selected_real_kind(6,30)           ! Simple precision
    integer, parameter :: LI = selected_int_kind(16)              ! Long Integer
 
-   integer, parameter :: CP = SP                                 ! Current precision
+   integer, parameter :: CP = DP                                 ! Current precision
 
    !---- Trigonometric ----!
    real(kind=DP), parameter :: PI = 3.141592653589793238463_DP   ! PI value
@@ -73,24 +73,24 @@ Module CFML_GlobalDeps
 
    !---- Numeric ----!
    real(kind=DP), parameter :: DEPS=0.00000001_DP                ! Epsilon value use for comparison of real numbers (DOUBLE)
-   real(kind=CP), parameter :: EPS=0.00001_CP                    ! Epsilon value use for comparison of real numbers 
+   real(kind=CP), parameter :: EPS=0.00001_CP                    ! Epsilon value use for comparison of real numbers
    real(kind=CP), parameter :: V_EPSI=epsilon(1.0_CP)             ! Epsilon value for Current precision
-   real(kind=CP), parameter :: V_HUGE=huge(1.0_CP)                ! Huge value for current precision 
+   real(kind=CP), parameter :: V_HUGE=huge(1.0_CP)                ! Huge value for current precision
    real(kind=CP), parameter :: V_TINY=tiny(1.0_CP)                ! Tiny value for current precision
 
    !---- Special Characters ----!
    character(len=2), parameter   :: NEWLINE = char(13)//char(10) ! Newline character
    character(len=1), parameter   :: TAB     = char(9)            ! TAB character
-   
+
    !---- Error Flags ----!
    Type :: Err_Type
       integer                         :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
-      character(len=80)               :: Msg=" "                  ! Text for Message
+      character(len=180)              :: Msg=" "                  ! Text for Message
       integer                         :: nl=0                     ! number of lines
       character(len=132),dimension(5) :: Txt=" "                  ! Extra Message information
    End Type Err_Type
    Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
-   
+
  Contains
 
    !-------------------!
@@ -118,7 +118,7 @@ Module CFML_GlobalDeps
 
       !> Check
       if (len_trim(dirname)<= 0) return
-      
+
       linea=adjustl(dirname)
       nlong=len_trim(linea)
 
@@ -135,21 +135,21 @@ Module CFML_GlobalDeps
 
       return
    End Function Directory_Exists
-   
+
    !!----
    !!---- CLEAR_ERROR
    !!----    Reset information on Error Variables for CFML
    !!----
-   !!---- 27/03/2019 
+   !!---- 27/03/2019
    !!
    Subroutine Clear_Error()
-      
+
       Err_CFML%IErr=0
       Err_CFML%Msg =" "
       Err_CFML%nl=0
       Err_CFML%Txt=" "
-      
+
       return
-   End Subroutine Clear_Error   
+   End Subroutine Clear_Error
 
 End Module CFML_GlobalDeps

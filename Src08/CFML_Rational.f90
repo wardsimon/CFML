@@ -60,7 +60,7 @@
 !!
 Module CFML_Rational
 
-    Use CFML_GlobalDeps, only : CP, LI, Err_CFML
+    Use CFML_GlobalDeps, only : CP, LI, Err_CFML,Clear_Error
     Use CFML_Maths,      only : Inverse_Matrix
     Use CFML_Strings,    only : Pack_String
 
@@ -90,7 +90,7 @@ Module CFML_Rational
               Rational_Recip,            &   !Calculates the reciprocal of a rational  a/b -> b/a
               Rational_Co_Linear,        &   !Logical function telling if two vectors are colinear
               Rational_Trace,            &   !Returns the trace of a square matrix
-              Rational_Inverse_Matrix,    &   !Calculates the inverse of a rational matrix
+              Rational_Inverse_Matrix,   &   !Calculates the inverse of a rational matrix
               Rational_Modulo_Lat,       &   !Reduces a translation vector to that with values in the interval [0_ik, 1_ik)
               Rational_Rank,             &   !Computes the rank of a rational matrix
               Rational_Is_DiagonalMatrix,&   !Logical function telling if the matrix is diagonal

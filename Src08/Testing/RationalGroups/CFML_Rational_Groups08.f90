@@ -1,8 +1,8 @@
   Module CFML_Rational_Groups
-    Use CFML_GlobalDeps,   only : cp
-    use CFML_Math_General, only : sort, Set_Epsg
-    use CFML_Rational_Arithmetic
-    use CFML_String_Utilities, only : pack_string, Get_Separator_Pos
+    Use CFML_GlobalDeps
+    use CFML_Maths,            only : sort, Set_Eps_Math
+    use CFML_Rational
+    use CFML_Strings,          only : pack_string, Get_Separator_Pos
 
     implicit none
     Private
@@ -14,8 +14,8 @@
                Get_SubGroups_Subgen, Get_Cosets,reduced_translation,Check_Generators
 
     integer, private :: maxnum_op=2048
-    logical,           public :: Err_group
-    character(len=256),public :: Err_group_mess
+    !logical,           public :: Err_group    !Replaced by Err_CFML
+    !character(len=256),public :: Err_group_mess
 
     !-------Type declarations
 
@@ -100,9 +100,9 @@
       integer :: i
       if(allocated(identity_matrix)) deallocate(identity_matrix)
       allocate(identity_matrix(d,d))
-      identity_matrix=0_ik//1_ik
+      identity_matrix=0_LI//1_LI
       do i=1,d
-        identity_matrix(i,i) = 1_ik//1_ik
+        identity_matrix(i,i) = 1_LI//1_LI
       end do
     End Subroutine Set_Identity_Matrix
 
@@ -117,22 +117,22 @@
       if (n == 1) then
         acc = a(1,1)
       else
-        acc = 0_ik//1_ik
-        sgn = 1_ik/1_ik
+        acc = 0_LI//1_LI
+        sgn = 1_LI/1_LI
         do i=1,n
           b(:, :(i-1)) = a(2:, :i-1)
           b(:, i:) = a(2:, i+1:)
           acc = acc + sgn * a(1, i) * rdet(b)
-          sgn = sgn * (-1_ik/1_ik)
+          sgn = sgn * (-1_LI/1_LI)
         end do
       end if
     End Function rdet
 
     Subroutine lu(a,p)
       !   in situ decomposition, corresponds to LAPACK's dgebtrf
-      real(8), intent(in out) :: a(:,:)
-      integer, intent(out  )  :: p(:)
-      integer                 :: n,i,j,k,kmax
+      real(kind=dp), intent(in out) :: a(:,:)
+      integer, intent(out  )        :: p(:)
+      integer                       :: n,i,j,k,kmax
       n = size(a,1)
       p = [ ( i, i=1,n ) ]
       do k = 1,n-1
@@ -151,11 +151,11 @@
       allocate(Op3%Mat(n,n))
       d=n-1
       Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
-      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_ik)
+      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_LI)
        do i=1,d
        	 do
-            if(Op3%Mat(i,n) < 0_ik//1_ik) then
-            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1_ik
+            if(Op3%Mat(i,n) < 0_LI//1_LI) then
+            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1_LI
             else
             	exit
             end if
@@ -170,7 +170,7 @@
       logical                          :: info
       info=.false.
       if(Op1%time_inv == Op2%time_inv) then
-        if(equal_rational_matrix(Op1%Mat,Op2%Mat)) info=.true.
+        if(Rational_Equal(Op1%Mat,Op2%Mat)) info=.true.
       end if
     End Function equal_Symm_Oper
 
@@ -200,7 +200,7 @@
       integer :: dr
       dr=size(Op%Mat(:,1))-1
       info=.false.
-      if(equal_rational_matrix(identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
+      if(Rational_Equal(identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
     End Function is_lattice_centring
 
     Function is_inversion_centre(Op) result (info)
@@ -209,7 +209,7 @@
       integer :: dr
       dr=size(Op%Mat(:,1))-1
       info=.false.
-      if(equal_rational_matrix(-identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
+      if(Rational_Equal(-identity_matrix(1:dr,1:dr),Op%Mat(1:dr,1:dr)) .and. Op%time_inv == 1) info=.true.
     End Function is_inversion_centre
 
     Pure Function is_Lattice_vec(V,Ltr,nlat) Result(Lattice_Transl)
@@ -225,12 +225,12 @@
 
        Lattice_Transl=.false.
 
-       if (IsInteger(v)) then       ! if v is an integral vector =>  v is a lattice vector
+       if (Rational_Is_Integer(v)) then       ! if v is an integral vector =>  v is a lattice vector
           Lattice_Transl=.true.
        else                       ! if not look for lattice type
           do i=1,nlat
             vec=Ltr(:,i)-v
-            if (IsInteger(vec)) then
+            if (Rational_Is_Integer(vec)) then
               Lattice_Transl=.true.
               return
             end if
@@ -278,13 +278,13 @@
     Subroutine Init_Group(maxop,epsg)
       integer,       optional, intent(in) :: maxop
       real(kind=cp), optional, intent(in) :: epsg
-      Err_group=.false.
-      Err_group_mess=" "
+      Err_CFML%Ierr=0
+      Err_CFML%Msg=" "
       if(present(maxop)) maxnum_op=maxop
       if(present(epsg)) then
-        call Set_Epsg(epsg)
+        call Set_Eps_Math(epsg)
       else
-        call Set_Epsg(0.001)
+        call Set_Eps_Math(0.001_cp)
       end if
     End Subroutine Init_Group
 
@@ -372,24 +372,24 @@
     	d=n-1
       do i=1,d
       	 !do
-         !  if(Mat(i,n) < 0_ik) then
-         !  	Mat(i,n) = Mat(i,n) + 1_ik
+         !  if(Mat(i,n) < 0_LI) then
+         !  	Mat(i,n) = Mat(i,n) + 1_LI
          !  else
          !  	exit
          !  end if
          !end do
       	 !do
-         !  if(Mat(i,n) > 1_ik) then
-         !  	Mat(i,n) = Mat(i,n) - 1_ik
+         !  if(Mat(i,n) > 1_LI) then
+         !  	Mat(i,n) = Mat(i,n) - 1_LI
          !  else
          !  	exit
          !  end if
          !end do
-         if (IsInteger(Mat(i,n))) then
+         if (Rational_Is_Integer(Mat(i,n))) then
             Mat(i,n) = (0 // 1)
          else
             m = Mat(i,n)%numerator / Mat(i,n)%denominator
-            if (Mat(i,n) > 0_ik) then
+            if (Mat(i,n) > 0_LI) then
                 Mat(i,n) = Mat(i,n) - (m // 1)
             else
                 Mat(i,n) = Mat(i,n) - (m // 1) + (1 // 1)
@@ -620,7 +620,7 @@
       logical, dimension(size(Op),size(Op)) :: done
       integer, dimension(size(Op),size(Op)) :: tb
 
-      include "CFML_get_group_template_inc.f90"
+      include "CFML_get_group_template_inc08.f90"
 
       !max_op=size(Op)
       !n=size(Op(1)%Mat,dim=1)
@@ -717,12 +717,12 @@
        do i=1,d
           sym(i)=" "
           do j=1,d
-             if(Mat(i,j) == 1_ik) then
+             if(Mat(i,j) == 1_LI) then
                 sym(i) = trim(sym(i))//"+"//trim(x_typ(j))
-             else if(Mat(i,j) == -1_ik) then
+             else if(Mat(i,j) == -1_LI) then
                 sym(i) =  trim(sym(i))//"-"//trim(x_typ(j))
-             else if(Mat(i,j) /= 0_ik) then
-               car=adjustl(print_rational(Mat(i,j)))
+             else if(Mat(i,j) /= 0_LI) then
+               car=adjustl(Rational_String(Mat(i,j)))
                k=index(car,"/")
                if(k /= 0) then
                  if(car(1:1) == "1") then
@@ -736,14 +736,14 @@
                  car=trim(car)//trim(x_typ(j))
                end if
                !write(unit=car,fmt="(i3,a)") int(Mat(i,j)),trim(x_typ(j))
-               if(Mat(i,j) > 0_ik) car="+"//trim(car)
+               if(Mat(i,j) > 0_LI) car="+"//trim(car)
                sym(i)=trim(sym(i))//pack_string(car)
              end if
           end do
 
           !Write here the translational part for each component
-          if (Mat(i,Dd) /= 0_ik) then
-            car=adjustl(print_rational(Mat(i,Dd)))
+          if (Mat(i,Dd) /= 0_LI) then
+            car=adjustl(Rational_String(Mat(i,Dd)))
             if(abc_type) then
               translation=trim(translation)//","//trim(car)
             else
@@ -771,7 +771,7 @@
           symb=trim(symb)//";"//trim(translation(2:))
        else
          if(present(invt)) then
-           write(unit=car,fmt="(i2)") invt !print_rational(Mat(Dd,Dd))
+           write(unit=car,fmt="(i2)") invt !Rational_String(Mat(Dd,Dd))
            car=adjustl(car)
            symb=trim(symb)//","//trim(car)
          end if
@@ -807,8 +807,8 @@
       !for checking
       character(len=40),dimension(size(Mat,dim=1),size(Mat,dim=1)) :: matrix
       character(len=5) :: forma
-      err_group=.false.
-      err_group_mess=" "
+      Err_CFML%Ierr=0
+      Err_CFML%Msg=" "
       Dd=size(Mat,dim=1)
       d=Dd-1
       abc_transf=.false.
@@ -828,8 +828,8 @@
         pSymb=pack_string(Symb(1:i-1)//",1")
         call Get_Separator_Pos(translation,",",pos,np)
         if(np /= d) then
-          Err_group=.true.
-          Err_group_mess="Error in the origin coordinates"
+          Err_CFML%Ierr=1
+          Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in coordinates of the origin "
           return
         end if
         j=1
@@ -858,20 +858,20 @@
       end if
 
       if(index(pSymb,"=") /= 0) then
-          err_group=.true.
-          err_group_mess="Error in the symbol of the operator: symbol '=' is forbidden!"
+          Err_CFML%Ierr=1
+          Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in the symbol of the operator: symbol '=' is forbidden!"
           return
       end if
 
       if(index(pSymb,";") /= 0) then
-          err_group=.true.
-          err_group_mess="Error in the symbol of the operator: symbol ';' is forbidden!"
+          Err_CFML%Ierr=1
+          Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in the symbol of the operator: symbol ';' is forbidden!"
           return
       end if
 
       if(index(pSymb,".") /= 0) then
-          err_group=.true.
-          err_group_mess="Error in the symbol of the operator: symbol '.' is forbidden!"
+          Err_CFML%Ierr=1
+          Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in the symbol of the operator: symbol '.' is forbidden!"
           return
       end if
 
@@ -883,8 +883,8 @@
       		do i=1,d
       			j=index(pSymb,trim(x_typ(i)))
       			if(j == 0) then !error in the symbol
-              Err_group=.true.
-              Err_group_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+              Err_CFML%Ierr=1
+              Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" ) => Symbol:"//trim(pSymb)
               return
       			end if
       		end do
@@ -892,16 +892,16 @@
       		np=np+1
       		pos(np)=len_trim(pSymb)-1
         else
-          err_group=.true.
-          write(err_group_mess,"(a,2i3,a)") "Error in the dimension of the symbol operator: "//trim(pSymb), np,d," for n_commas and dimension"
+          Err_CFML%Ierr=1
+          write(Err_CFML%Msg,"(a,2i3,a)") "Error in the dimension of the symbol operator: "//trim(pSymb), np,d," for n_commas and dimension"
           return
         end if
       else !Check the presence of all symbols
       	do i=1,d
       		j=index(pSymb(1:pos(np)),trim(x_typ(i)))
       		if(j == 0) then !error in the symbol
-            err_group=.true.
-            err_group_mess="Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" )"
+            Err_CFML%Ierr=1
+            Err_CFML%Msg="Get_Mat_From_Symb_Op@CFML_Rational_Groups: Error in the symbol of the operator: Missing ( "//trim(x_typ(i))//" ) => Symbol:"//trim(pSymb)
             return
       		end if
       	end do
@@ -1007,16 +1007,16 @@
       call reduced_translation(Mat)
 
       !Final check that the determinant of the rotational matrix is integer
-      det=rational_determinant(Mat)
+      det=Rational_Determ(Mat)
       det=rdet(Mat)
       !if(det%denominator /= 1) then
       !   err_group=.true.
-      !   err_group_mess="The determinant of the matrix is not integer! -> "//print_rational(det)
+      !   err_group_mess="The determinant of the matrix is not integer! -> "//Rational_String(det)
       !end if
       if(det%numerator == 0) then
-         err_group=.true.
-         err_group_mess="Error in Get_Mat_From_Symb_Op. The matrix of the operator is singular! -> det="//print_rational(det)
-         matrix=print_rational(Mat)
+         Err_CFML%Ierr=1
+         Err_CFML%Msg="Error in Get_Mat_From_Symb_Op@CFML_Rational_Groups: The matrix of the operator is singular! -> det="//Rational_String(det)
+         matrix=Rational_String(Mat)
          Write(*,*) "The matrix of the operator is singular!"
          forma="( a8)"
          write(forma(2:2),"(i1)") Dd
@@ -1056,7 +1056,7 @@
     end subroutine sort_op
 
     Subroutine Reorder_Operators(multip,Op,centred,centre_coord,anticentred,anticentre_coord,Numops,num_lat,num_alat,Lat_tr,aLat_tr,mag_type)
-      use CFML_Rational_Arithmetic, equal_matrix => equal_rational_matrix
+      use CFML_Rational, equal_matrix => Rational_Equal
       integer,                            intent(in)     :: multip
       type(Symm_Oper_Type), dimension(:), intent(in out) :: Op
       integer,                            intent(out)    :: num_lat,num_alat,Numops, centred, anticentred, mag_type
@@ -1072,13 +1072,13 @@
       type(Symm_Oper_Type), dimension(multip)  :: Opr,Op_Lat,Op_aLat
       type(Symm_Oper_Type)                     :: Op_aux,Op_aux1,Op_aux2, &
                                                   Op_centre,Op_identp
-      real(kind=cp), parameter :: loc_eps=0.001
+      real(kind=cp), parameter :: loc_eps=0.001_cp
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
 
       ZERO=0//1;  ONE=1//1; ONE_HALF=1//2
 
-      include "CFML_reorder_operators_template_inc.f90"
+      include "CFML_reorder_operators_template_inc08.f90"
 
     End Subroutine Reorder_Operators
 
@@ -1137,20 +1137,22 @@
        !character(len=80) :: Symb_Op
        integer :: d,i,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
 
+       call Clear_Error()
        call Initialize_Group(Grp)
        !write(*,"(a)") (trim(gen_(i))//"   ",i=1,size(gen_))
        call Check_Generators(gen_,gen)
+       if(Err_CFML%Ierr /= 0) return
        d    = get_dimension(gen(1))
        ngen = size(gen)
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
        Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
-       include "CFML_group_constructor_template_inc.f90"
+       include "CFML_group_constructor_template_inc08.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
        !   do i=1,Grp%d
-       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
+       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(Rational_String(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
        !   end do
        !end do
     End Subroutine Group_Constructor_gen
@@ -1168,23 +1170,24 @@
        integer :: d,i,ngen_,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
        !character(len=80) :: Symb_Op
 
+       call Clear_Error()
        call Initialize_Group(Grp)
        allocate(gen_(maxnum_op))
        call Get_Operators_From_String(generatorList,d,ngen_,gen_)
        !write(*,"(/a)") "Result from Get_Operators_From_String:"
        !write(*,"(a)") (trim(gen_(i))//"   ",i=1,ngen_)
        call Check_Generators(gen_,gen)
-       if (err_group) return
+       if (Err_CFML%Ierr /= 0) return
        ngen = size(gen)
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
        Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
-       include "CFML_group_constructor_template_inc.f90"
+       include "CFML_group_constructor_template_inc08.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
        !   do i=1,Grp%d
-       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(print_rational(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
+       !      write(unit=*,fmt="(a,10a)") "      [ ",(trim(Rational_String(Grp%Op(n)%Mat(j,i)))//" ",j=1,Grp%d),"]"
        !   end do
        !end do
     End Subroutine Group_Constructor_string
@@ -1207,7 +1210,7 @@
         ngen      = 0
         nop       = 0  ! number of different operations generated by combining generators
         init      = .false.
-        err_group = .false.
+        call Clear_Error()
 
         do i = 1 , ngen_
             if (len_trim(gen_(i)) == 0) cycle
@@ -1221,25 +1224,25 @@
             else
                 d_ = get_dimension(gen_(i))
                 if (d /= d_) then
-                    err_group = .true.
-                    err_group_mess = "Error in Check_Generators. Generators of different dimensions."
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg  = "Error in Check_Generators@CFML_Rational_Groups: Generators of different dimensions."
                     return
                 end if
             end if
             if (d < 4) then
-                err_group = .true.
-                err_group_mess = "Error in Check_Generators. Dimension must be at least 4 (3+1)"
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg  = "Error in Check_Generators@CFML_Rational_Groups: Dimension must be at least 4 (3+1)"
                 return
             end if
             call Get_Mat_From_Symb_Op(gen_(i),Mat,invt)
-            if (err_group) return
+            if (Err_CFML%Ierr /= 0) return
             call reduced_translation(Mat)
             ! Do not consider the identity operation
-            if (Equal_Rational_Matrix(Mat,Op(0)%Mat) .and. invt == 1) cycle
+            if (Rational_Equal(Mat,Op(0)%Mat) .and. invt == 1) cycle
             newgen = .true.
             ! Check if the generator has been already generated
             do j = 1 , nop
-                if (Op(j)%time_inv == invt .and. Equal_Rational_Matrix(Op(j)%Mat,Mat)) then
+                if (Op(j)%time_inv == invt .and. Rational_Equal(Op(j)%Mat,Mat)) then
                     newgen = .false.
                     exit
                 end if
@@ -1251,37 +1254,6 @@
                 Op(nop)%time_inv  = invt
                 genAux(ngen)      = gen_(i)
                 nop_              = nop
-                ! Generate all powers of the new generator
-                !do
-                !    Op_%time_inv = Op(nop)%time_inv * invt
-                !    Op_%Mat = matmul(Op(nop)%Mat,Mat)
-                !    call reduced_translation(Op_%Mat)
-                !    if (Equal_Rational_Matrix(Op_%Mat,Op(0)%Mat) .and. Op_%time_inv == 1) exit
-                !    nop = nop + 1
-                !    Op(nop)%Mat = Op_%Mat
-                !    Op(nop)%time_inv = Op_%time_inv
-                !end do
-                ! Generate new operations by combining the different generators
-                !do j = 1 , nop_-1
-                !    do k = nop_, nop
-                !        Op_%time_inv = Op(j)%time_inv * Op(k)%time_inv
-                !        Op_%Mat = matmul(Op(j)%Mat,Op(k)%Mat)
-                !        call reduced_translation(Op_%Mat)
-                !        if (Equal_Rational_Matrix(Mat,Op(0)%Mat) .and. invt == 1) exit
-                !        newop = .true.
-                !        do l = 1 , nop
-                !            if (Op_%time_inv == Op(l)%time_inv .and. Equal_Rational_Matrix(Op_%Mat,Op(l)%Mat)) then
-                !                newop = .false.
-                !                exit
-                !            end if
-                !        end do
-                !        if (newop) then
-                !            nop = nop + 1
-                !            Op(nop)%Mat = Op_%Mat
-                !            Op(nop)%time_inv = Op_%time_inv
-                !        end if
-                !    end do
-                !end do
             end if
         end do
         if (ngen > 0) then
@@ -1441,8 +1413,8 @@
 
        !Test if generators are available
        if(len_trim(SpG%generators_list) ==  0) then !construct a procedure for selecting the minimal set of generators
-         Err_group=.true.
-         Err_group_mess=" A list of the generators of the main group is needed!"
+         Err_CFML%Ierr = 1
+         Err_CFML%Msg  = "Error in Get_SubGroups_Subgen@CFML_Rational_Groups: A list of generators of the parent group is needed!"
          return
        end if
        maxg=size(SubG)
@@ -1601,7 +1573,7 @@
        maxg=size(SubG)
        allocate(gen(SpG%multip))
        d=SpG%d
-       include "CFML_subgroups_template_inc.f90"
+       include "CFML_subgroups_template_inc08.f90"
        if(present(indexg)) then
          k=0
          do L=1,nsg
@@ -1659,26 +1631,26 @@
          write(unit=iout,fmt="(a)")     "                  Centre_coord: none!"
       else
          !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
-         write(unit=iout,fmt="(a,10a)") "                  Centre_coord: [ ",(trim(print_rational(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "                  Centre_coord: [ ",(trim(Rational_String(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
       if(Grp%anticentred == 1) then
          write(unit=iout,fmt="(a)")     "             Anti-Centre_coord: none!"
       else
          !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
-         write(unit=iout,fmt="(a,10a)") "             Anti-Centre_coord: [ ",(trim(print_rational(Grp%anticentre_coord(i)))//" ",i=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "             Anti-Centre_coord: [ ",(trim(Rational_String(Grp%anticentre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
       if(Grp%num_lat > 0) then
         write(unit=iout,fmt="(/a)")      "        Centring translations:"
         do i=1,Grp%num_lat
            !write(unit=iout,fmt="(i3,tr4,10f8.3)") i,Grp%Lat_tr(:,i)
-         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(print_rational(Grp%Lat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(Rational_String(Grp%Lat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if
       if(Grp%num_alat > 0) then
         write(unit=iout,fmt="(/a)")      "            Anti-translations:"
         do i=1,Grp%num_alat
           ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
-         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(print_rational(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
+         write(unit=iout,fmt="(a,10a)") "             [ ",(trim(Rational_String(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
         end do
       end if
       write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators:"

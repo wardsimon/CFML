@@ -12,7 +12,6 @@
 !!----    Use CFML_Rational_Groups
 !!----    Use CFML_String_Utilities,          only: Get_Separator_Pos,Pack_String
 !!----    Use CFML_Symmetry_Tables,           only: Spgr_Info,Set_Spgr_Info
-!!----    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type,Set_SpaceGroup
 !!----    Use CFML_Magnetic_Groups
 !!----
 !!---- VARIABLES
@@ -53,10 +52,11 @@
 module CFML_Standard_Settings
 
     !---- Used External Modules ----!
-    use CFML_Rational_Arithmetic
+    use CFML_GlobalDeps
+    use CFML_Rational
     use CFML_Rational_Groups
-    use CFML_String_Utilities,          only: Get_Separator_Pos,Pack_String
-    use CFML_Symmetry_Tables,           only: Spgr_Info,Set_Spgr_Info
+    use CFML_Strings,           only: Get_Separator_Pos,Pack_String
+    use CFML_Symmetry_Tables,   only: Spgr_Info,Set_Spgr_Info
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type,Set_SpaceGroup
     use CFML_Magnetic_Groups
 
@@ -119,7 +119,7 @@ contains
         type(rational)                 :: det
         type(rational), dimension(3,3) :: U
 
-        det = rational_determinant(W)
+        det = rational_determ(W)
         if (det < (0//1)) then
             U = -W
         else
@@ -217,7 +217,7 @@ contains
         end select
 
         do i = 1 , n
-            call Rational_Inv_Matrix(Ainv(:,:,i),A(:,:,i))
+            A(:,:,i)=Rational_Inverse_Matrix(Ainv(:,:,i))
         end do
 
     end subroutine Get_A_Matrices_Crys
@@ -332,7 +332,7 @@ contains
         ! Initialization
         nGen          = 0
         inversion     = 0
-        call Rational_Identity_Matrix(3,identity)
+        call Rational_Identity_Matrix(identity)
         allocate(idd(nSymOp,2))
         do i = 1 , 3
             allocate(G(i)%Mat(4,4))
@@ -340,7 +340,7 @@ contains
 
         ! Look for an inversion center
         do i = 1 , nSymOp
-            if (Equal_Rational_Matrix(-symOp(i)%Mat(1:3,1:3),identity)) then
+            if (Rational_Equal(-symOp(i)%Mat(1:3,1:3),identity)) then
                 inversion = i
                 exit
             end if
@@ -505,7 +505,7 @@ contains
         if (inversion > 0) then
             ! Choose proper rotations if the spacegroup is centrosymmetric
             !do i = 1 , nGen
-            !    det = rational_determinant(G(i)%Mat(1:3,1:3))
+            !    det = rational_determ(G(i)%Mat(1:3,1:3))
             !    G(i)%Mat(1:3,1:3) = det * G(i)%Mat(1:3,1:3)
             !    !G(i)%time_inv     = symOp(inversion)%time_inv * G(i)%time_inv
             !    write(*,*) "Hola ",symOp(inversion)%time_inv,G(i)%time_inv,G(i)%time_inv*symOp(inversion)%time_inv
@@ -596,7 +596,7 @@ contains
         nlat   = 0
         latt_p = .true.
         do i = 1 , L
-            if (.not. IsInteger(latc(1:3,i))) then
+            if (.not. Rational_Is_Integer(latc(1:3,i))) then
                 latt_p = .false.
                 nlat   = nlat + 1
             end if
@@ -625,7 +625,7 @@ contains
         do i = 1 , L
             latt_given(:) = 0
             do j = 1 , 10
-                if (equal_rational_vector(latc(1:3,i),lattice(1:3,j))) then
+                if (Rational_Equal(latc(1:3,i),lattice(1:3,j))) then
                     latt_given(j) = 1
                     select case (j)
                     case (1)
@@ -712,14 +712,13 @@ contains
         pout = .false.
         if(present(output)) pout=output
         err_std = .false.
-        call Rational_Inv_Matrix(M,Minv)
-        det = rational_determinant(Minv)
+        Minv=Rational_Inverse_Matrix(M)
+        det = rational_determ(Minv)
         det = (1//1) / det
 
         if (mod(det%Numerator,det%Denominator) /= 0) then
             err_std = .true.
-            err_std_mess = "Error in Get_Lattice_Type_from_M. &
-            Inverse of the determinant is not integer"
+            err_std_mess = "Error in Get_Lattice_Type_from_M. Inverse of the determinant is not integer"
             return
         end if
 
@@ -748,7 +747,7 @@ contains
                     t = Maux(:,i) ! t is a centring vector
                     newt = .true.
                     do j = 1 , nCentringVectors
-                       if (Rational_Colinear(t,latc(:,j),3)) newt = .false.
+                       if (Rational_Co_Linear(t,latc(:,j))) newt = .false.
                     end do
                     if (newt) then
                        nCentringVectors = nCentringVectors + 1
@@ -831,7 +830,7 @@ contains
         do i = 1 , G%num_aLat
             latt_given(:) = 0
             do j = 1 , 9
-                if (equal_rational_vector(G%aLat_tr(1:3,i),lattice(1:3,j))) then
+                if (Rational_Equal(G%aLat_tr(1:3,i),lattice(1:3,j))) then
                     latt_given(j) = 1
                     select case (j)
                     case (1)
@@ -971,7 +970,7 @@ contains
                 Mcinv(1,:) = [ 0//1, 1//1, 0//1 ]
                 Mcinv(2,:) = [ 0//1, 0//1, 1//1 ]
                 Mcinv(3,:) = [ 1//1, 0//1, 0//1 ]
-                call Rational_Inv_Matrix(Mcinv,Mc)
+                Mc=Rational_Inverse_Matrix(Mcinv)
 
             case ("4/m","4/mmm")
 
@@ -981,12 +980,12 @@ contains
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [ 1//1,-1//1, 0//1 ]
                     Mcinv(3,:) = [ 0//1, 0//1,-1//1 ]
-                    call Rational_Inv_Matrix(Mcinv,Mc)
+                    Mc=Rational_Inverse_Matrix(Mcinv)
                 else if (lattyp == "F") then ! F -> I
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [-1//1, 1//1, 0//1 ]
                     Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
-                    call Rational_Inv_Matrix(Mcinv,Mc)
+                    Mc=Rational_Inverse_Matrix(Mcinv)
                 else
                     Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                     Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -1018,7 +1017,7 @@ contains
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
                     Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
-                    call Rational_Inv_Matrix(Mcinv,Mc)
+                    Mc=Rational_Inverse_Matrix(Mcinv)
                 else
                     Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                     Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -1033,7 +1032,7 @@ contains
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
                     Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
-                    call Rational_Inv_Matrix(Mcinv,Mc)
+                    Mc=Rational_Inverse_Matrix(Mcinv)
                 else
                     Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                     Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -1096,6 +1095,9 @@ contains
         type(rational),    dimension(4,4) :: MpAux
         integer,           dimension(:,:), allocatable :: idd
         logical :: pout
+        !Debug
+        !character(len=20), dimension(3,3) :: Matrix
+        !integer :: jj,kk
 
         pout        = .false.
         if (present(output)) pout=output
@@ -1104,7 +1106,7 @@ contains
         axisName(4) = "fourfold"
         axisName(6) = "sixfold"
 
-        call Rational_Inv_Matrix(P,Pinv)
+        Pinv=Rational_Inverse_Matrix(P)
 
         if (pout) then
             write(*,'(8x,a)') " => Constructing (M',0) matrix...."
@@ -1171,7 +1173,7 @@ contains
                     U = MatMul(Pinv,U)
                     call Get_Rotation_Axis(U,bx)
                     if (err_std) return
-                    if (.not. rational_colinear(bz,bx,3)) then
+                    if (.not. Rational_Co_Linear(bz,bx)) then
                         colinear = .false.
                         exit
                     end if
@@ -1212,7 +1214,7 @@ contains
                     U = MatMul(Pinv,U)
                     call Get_Rotation_Axis(U,bx)
                     if (err_std) return
-                    if (.not. rational_colinear(bz,bx,3)) then
+                    if (.not. Rational_Co_Linear(bz,bx)) then
                         colinear = .false.
                         exit
                     end if
@@ -1243,7 +1245,7 @@ contains
                     if (err_std) return
                     colinear = .false.
                     do j = 1 , n_
-                        if (rational_colinear(bz,Mp(:,j),3)) colinear = .true.
+                        if (Rational_Co_Linear(bz,Mp(:,j))) colinear = .true.
                     end do
                     if (.not. colinear) then
                         n_ = n_ + 1
@@ -1267,7 +1269,7 @@ contains
                     if (err_std) return
                     colinear = .false.
                     do j = 1 , nCubicAxes
-                        if (rational_colinear(bz,cubicAxes(:,j),3)) colinear = .true.
+                        if (Rational_Co_Linear(bz,cubicAxes(:,j))) colinear = .true.
                     end do
                     if (.not. colinear) then
                         nCubicAxes = nCubicAxes + 1
@@ -1299,18 +1301,16 @@ contains
                                 ! For lattice I, Mp is not integral (there is a lattice
                                 ! point at the middle of each diagonal. We must multiply
                                 ! by two in order to get the diagonal of the cube
-                                if (.not. IsInteger(Mp)) Mp = (2//1) * Mp
+                                if (.not. Rational_Is_Integer(Mp)) Mp = (2//1) * Mp
                                 PM = matmul(P,Mp)
-                                call Rational_Inv_Matrix(PM,PMinv)
-                                if (.not. Err_Rational) then
+                                call Clear_Error()
+                                PMinv=Rational_Inverse_Matrix(PM)
+                                if (Err_CFML%ierr == 0) then
                                     standard = .true.
                                     do n_ = 1 , n
-                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,1)
-                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,2)
-                                        !write(*,*) G%OP(idd(n_,1))%Mat(1:3,3)
                                         W = MatMul(G%op(idd(n_,1))%Mat(1:3,1:3),PM)
                                         W = MatMul(PMinv,W)
-                                        if (IsInteger(W)) then
+                                        if (Rational_Is_Integer(W)) then
                                             call Get_Rotation_Axis(W,bz)
                                             if (abs(bz(1)) /= (1//1) .or. &
                                                 abs(bz(2)) /= (1//1) .or. &
@@ -1320,8 +1320,6 @@ contains
                                             end if
                                         end if
                                     end do
-
-
                                 end if
                             end do
                         end do
@@ -1379,15 +1377,15 @@ contains
         type(rational), dimension(:,:), allocatable :: U,D,T,V
         type(rational), dimension(:,:), allocatable :: b,x
 
-        call Rational_Identity_Matrix(4,P)
-        call Rational_Identity_Matrix(3,identity)
+        call Rational_Identity_Matrix(P)
+        call Rational_Identity_Matrix(identity)
         shift      = .true.
         P(1:3,1:3) = P_
         do i = 1 , ng
             Gx(:,:,i)  = G(i)%Mat
             Gt(:,:,i)  = G_(i)%Mat
         end do
-        call Rational_Inv_Matrix(P,Pinv)
+        Pinv=Rational_Inverse_Matrix(P)
         ! Transform generators to a primitive setting
         do i = 1 , ng
             Gt(:,:,i) = matmul(Gt(:,:,i),P)
@@ -1417,7 +1415,7 @@ contains
                 end do
             end do
         end do
-        call Rational_SmithNormalForm(U,nr,3,D,T,V)
+        call Rational_SmithNormalForm(U,D,T,V)
         b = matmul(T,b)
         do j = 1 , 3
             if (D(j,j) == (0//1)) then
@@ -1491,18 +1489,18 @@ contains
 
         nLatt = 1
         do i = 1 , G%num_lat
-            if (.not. equal_rational_vector(G%Lat_tr(:,i),nullVec))  nLatt = nLatt + 1
+            if (.not. Rational_Equal(G%Lat_tr(:,i),nullVec))  nLatt = nLatt + 1
         end do
         if (present(nospin)) then
             do i = 1 , G%num_alat
-                if (.not. equal_rational_vector(G%aLat_tr(:,i),nullVec)) nLatt = nLatt + 1
+                if (.not. Rational_Equal(G%aLat_tr(:,i),nullVec)) nLatt = nLatt + 1
             end do
         end if
 
         if (nLatt == 1) then
             ! Basis is already primitive
             if (pout) write(*,'(12x,a)') "The basis is already primitive"
-            call Rational_Identity_Matrix(3,P)
+            call Rational_Identity_Matrix(P)
             primitive = .true.
             return
         else
@@ -1516,14 +1514,14 @@ contains
                 allocate(auxVec(3,G%num_lat))
             end if
             do i = 1 , G%num_lat
-                if (.not. equal_rational_vector(G%lat_tr(:,i),nullVec)) then
+                if (.not. Rational_Equal(G%lat_tr(:,i),nullVec)) then
                     nAuxVec = nAuxVec + 1
                     auxVec(:,nAuxVec) = G%lat_tr(:,i)
                 end if
             end do
             if (present(nospin)) then
                 do i = 1 , G%num_alat
-                    if (.not. equal_rational_vector(G%alat_tr(:,i),nullVec)) then
+                    if (.not. Rational_Equal(G%alat_tr(:,i),nullVec)) then
                         nAuxVec = nAuxVec + 1
                         auxVec(:,nAuxVec) = G%alat_tr(:,i)
                     end if
@@ -1548,7 +1546,7 @@ contains
                             ! Check if there is linear dependence with previous vectors
                             linearDependence = .False.
                             do m = 1 , nCentringVec
-                                if (rational_colinear(v(1:3),centringVec(1:3,m),3)) Then
+                                if (Rational_Co_Linear(v(1:3),centringVec(1:3,m))) Then
                                     linearDependence = .True.
                                     if (v(4) < centringVec(4,m)) centringVec(1:4,m) = v(1:4)
                                     exit
@@ -1593,19 +1591,20 @@ contains
                     P(:,1) = centringVec(1:3,i)
                     P(:,2) = centringVec(1:3,j)
                     P(:,3) = centringVec(1:3,k)
-                    call Rational_Inv_Matrix(P,Pinv)
-                    if (.not. Err_Rational) then
-                        det = rational_determinant(P)
+                    call Clear_Error()
+                    Pinv=Rational_Inverse_Matrix(P)
+                    if (Err_CFML%ierr == 0) then
+                        det = rational_determ(P)
                         if (abs((1//1)/det) == rNumLat) then
                             primitive = .true.
                             if (det < 0//1) then
                                 P(:,1) = -P(:,1)
-                                call Rational_Inv_Matrix(P,Pinv)
+                                Pinv=Rational_Inverse_Matrix(P)
                             end if
                             do n = 1 , G%Multip
                                 A = MatMul(G%Op(n)%Mat(1:3,1:3),P)
                                 A = MatMul(Pinv,A)
-                                if (.not. IsInteger(A)) then
+                                if (.not. Rational_Is_Integer(A)) then
                                     primitive = .false.
                                     exit
                                 end if
@@ -1622,7 +1621,7 @@ contains
             return
         else if (pout) then
             write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
-            call Rational_Identity_Matrix(4,Paux)
+            call Rational_Identity_Matrix(Paux)
             PAux(1:3,1:3) = P
             call Get_Symb_Op_from_Mat(transpose(PAux),symb,"abc")
             write(*,'(a)') trim(symb)
@@ -1663,7 +1662,7 @@ contains
         type(rational), dimension(:,:), allocatable :: byAux
 
         err_std  = .false.
-        detW     = rational_determinant(W)
+        detW     = rational_determ(W)
 
         if (detW%Numerator == detW%Denominator) then
             A = W
@@ -1692,7 +1691,7 @@ contains
                         test_(n,2) = j
                         B(:,1)     = perpAxis(:,i)
                         B(:,2)     = perpAxis(:,j)
-                        det(n)     = rational_determinant(B)
+                        det(n)     = rational_determ(B)
                     end do
                 end do
 
@@ -1717,7 +1716,7 @@ contains
                     byAux(:,i) = matmul(A,perpAxis(:,i))
                     B(:,1)     = perpAxis(:,i)
                     B(:,2)     = byAux(:,i)
-                    det(i)     = rational_determinant(B)
+                    det(i)     = rational_determ(B)
                 end do
 
                 imin = 1
@@ -1760,7 +1759,7 @@ contains
         integer,        dimension(3) :: nzeros
         type(rational), dimension(3) :: row
 
-        det = rational_determinant(W)
+        det = rational_determ(W)
 
         if (det%Numerator == det%Denominator) then
             A = W
@@ -1779,7 +1778,7 @@ contains
 
         U = A
         call Rational_RowEchelonForm(U)
-        call Rational_Rank(U,rnk)
+        rnk=Rational_Rank(U)
         if ( rnk /= 2 ) then
             err_std = .true.
             err_std_mess = "Error in Get_Rotation_Axis subroutine. &
@@ -1946,7 +1945,7 @@ contains
 
         nso = 0
         do i = 1 , nSymOP
-            det = rational_determinant(symOp(i)%Mat(1:3,1:3))
+            det = rational_determ(symOp(i)%Mat(1:3,1:3))
             if (mod(det%Numerator,det%Denominator) /= 0) then
                 err_std      = .true.
                 err_std_mess = "Error in Get_Rotations. Determinant is not an integer."
@@ -2038,7 +2037,7 @@ contains
         type(rational), dimension(3,3) :: A,S,U
 
         nullVector(:) = 0 // 1
-        det = rational_determinant(W)
+        det = rational_determ(W)
 
         if (det%Numerator == det%Denominator) then
             A = W
@@ -2057,7 +2056,7 @@ contains
 
         ! Check that the rank of the U matrix is one
 
-        call Rational_Rank(U,rnk)
+        rnk=Rational_Rank(U)
 
         if ( rnk /= 1 ) then
             err_std = .true.
@@ -2069,7 +2068,7 @@ contains
         ! Find a row different from zeros
 
         do i = 1 , 3
-            if (.not. equal_rational_vector(U(i,:),nullVector)) exit
+            if (.not. Rational_Equal(U(i,:),nullVector)) exit
         end do
         row = i
 
@@ -2216,8 +2215,8 @@ contains
         ! Get the rotations of the representative matrices
         nRepSymOp = 0
         do i = 1 , G%Multip
-            !if (Equal_Rational_Matrix(G%op(i)%Mat(1:3,1:3),identity)) cycle
-            det = rational_determinant(G%op(i)%Mat(1:3,1:3))
+            !if (Rational_Equal(G%op(i)%Mat(1:3,1:3),identity)) cycle
+            det = rational_determ(G%op(i)%Mat(1:3,1:3))
             if (mod(det%numerator,det%denominator) /= 0) then
                 err_std      = .true.
                 err_std_mess = "Error in Identify_Crystallographic_Point_Group. Determinant is not an integer."
@@ -2226,8 +2225,8 @@ contains
             d = det%numerator / det%denominator
             selected = .false.
             do j = 1 , nRepSymOp
-                if (Equal_Rational_Matrix(G%op(i)%Mat(1:3,1:3),repSymOp(j)%Mat(1:3,1:3)) .or. &
-                    Equal_Rational_Matrix(G%op(i)%Mat(1:3,1:3),-repSymOp(j)%Mat(1:3,1:3))) then
+                if (Rational_Equal(G%op(i)%Mat(1:3,1:3),repSymOp(j)%Mat(1:3,1:3)) .or. &
+                    Rational_Equal(G%op(i)%Mat(1:3,1:3),-repSymOp(j)%Mat(1:3,1:3))) then
                     selected = .true.
                     exit
                 end if
@@ -2629,6 +2628,7 @@ contains
         logical                                         :: shift
         type(spg_type)                                  :: G_target
         type(space_group_type)                          :: G_std
+        !type(spg_type)                                  :: G_std
         type(rational),       dimension(3)              :: origShift
         type(spg_type),       dimension(n)              :: G_
         type(Symm_Oper_Type), dimension(3)              :: gen_std,gen_x
@@ -2699,7 +2699,7 @@ contains
             C_(1:3,1:3,s) = matmul(P,MA)
             C_(1:3,4,s)   = [ 0//1,0//1,0//1 ]
             C_(4,1:4,s)   = [ 0//1,0//1,0//1,1//1 ]
-            call Rational_Inv_Matrix(C_(:,:,s),Cinv)
+            Cinv= Rational_Inverse_Matrix(C_(:,:,s))
             ! Compute symmetry operations in the new basis
             do j = 1 , G%Multip
                 W(1:3,1:3) = G%op(j)%Mat(1:3,1:3)
@@ -2726,6 +2726,12 @@ contains
         do numSpg = firstSpaceGroup , lastSpaceGroup
             call Get_HM_Standard(numSpg,sgString)
             call Set_Spacegroup(sgString,G_std)
+            !call Group_Constructor(sgString,G_std)
+            !if(err_group) then
+            !    err_std = .true.
+            !    err_std_mess = "Error in Match_Crystallographic_Space_Group. Problem with generators in Group_Constructor!"
+            !    return
+            !end if
             do s = 1 , n
                 if (G_std%NumOps  == G_(s)%NumOps .and. &
                     G_std%Spg_Lat == G_(s)%Spg_Lat .and. &
@@ -2734,6 +2740,10 @@ contains
                     if (allocated(op)) deallocate(op)
                     allocate(op(G_std%Multip))
                     call set_identity_matrix(4)
+                    !do i = 1 , G_std%Multip
+                    !    allocate(op(i)%Mat(4,4))
+                    !    op(i)=G_std%op(i)
+                    !end do
                     do i = 1 , G_std%Multip
                         allocate(op(i)%Mat(4,4))
                         op(i)%Mat          = identity_matrix
@@ -2747,30 +2757,31 @@ contains
                     ng_ = 0
                     do i = 1 , ng
                         do j = 1 , G_(s)%Multip
-                            if (Equal_Rational_Matrix(gen_std(i)%Mat(1:3,1:3),G_(s)%op(j)%Mat(1:3,1:3))) then
+                            if (Rational_Equal(gen_std(i)%Mat(1:3,1:3),G_(s)%op(j)%Mat(1:3,1:3))) then
                                 ng_ = ng_ + 1
                                 gen_x(ng_) = G_(s)%op(j)
-                                !gen_x(1:3,1:3,ng_) = gen_std(1:3,1:3,i)
-                                !gen_x(1:3,4,ng_)   = G_(s)%op(j)%Mat(1:3,G%d)
-                                !gen_x(4,:,ng_)     = [ 0//1, 0//1, 0//1, 1//1 ]
                                 exit
                             end if
                         end do
                     end do
                     if (ng /= ng_) cycle
                     if (pout) write(*,'(12x,3a,i2)',advance = 'no') 'Trying to match space group ', G_std%Spg_Symb, 'setting ', s
-                    ! Build a spg_type object from space_group_type object
                     G_target%num_alat = 0
                     G_target%num_lat  = G_std%NumLat - 1 ! In spg_type (000) is not included in lattice translations
+                    !G_target%num_lat  = G_std%Num_Lat! - 1 ! In spg_type (000) is not included in lattice translations
                     G_target%Multip   = G_std%Multip
                     if (allocated(G_target%lat_tr)) deallocate(G_target%lat_tr)
                     if (G_target%num_lat > 0) then
+                        !allocate(G_target%lat_tr(3,G_target%num_lat))
+                        !G_target%lat_tr(:,:) = G_std%lat_tr(:,:)
                         allocate(G_target%lat_tr(3,G_target%num_lat))
                         G_target%lat_tr(:,:) = G_std%latt_trans(:,2:G_std%NumLat)
                     end if
                     if (allocated(G_target%op)) deallocate(G_target%op)
                     allocate(G_target%op(G_std%Multip))
                     do i = 1 , G_std%Multip
+                        !allocate (G_target%op(i)%Mat(3,3))
+                        !G_target%op(i)%Mat = G_std%op(i)%Mat
                         allocate (G_target%op(i)%Mat(3,3))
                         G_target%op(i)%Mat = G_std%symop(i)%Rot
                     end do
@@ -2823,7 +2834,7 @@ contains
     subroutine Match_Shubnikov_Group(G,P,M,output)
 
         !---- Arguments ----!
-        type(spg_type),                   intent(inout) :: G
+        type(spg_type),                   intent(in out):: G
         type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
         logical,        optional,         intent(in)    :: output
@@ -2847,7 +2858,8 @@ contains
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
         type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,pointOper,Paux
         logical :: pout
-        !character(len=40),         dimension(4,4)                  :: matrix
+        !debug
+        !character(len=20),         dimension(4,4)                  :: matrix
 
         pout=.false.
         if(present(output)) pout=output
@@ -2939,12 +2951,13 @@ contains
 
         ! Get transformation matrices for every setting we will test
         Caux(1:3,1:3) = matmul(P,M)
+
         do n = 1 , nA
             C(1:3,1:3,n) = matmul(Caux(1:3,1:3),A(1:3,1:3,n))
             C(1:3,4,n)   = [ 0,0,0 ]
             C(4,1:4,n)   = [ 0,0,0,1 ]
-            call Rational_Inv_Matrix(C(:,:,n),Cinv(:,:,n))
-         end do
+            Cinv(:,:,n)=Rational_Inverse_Matrix(C(:,:,n))
+        end do
 
         ! Put G in the different settings
         allocate(gener(G%multip))
@@ -2969,77 +2982,16 @@ contains
                 Op%Mat      = matmul(Cinv(:,:,n),Op%Mat)
                 Op%time_inv = G%Op(i)%time_inv
                 call Get_Symb_Op_from_Mat(Op%Mat,gener(i),"xyz",Op%time_inv)
-                write(*,"(a)") trim(gener(i))
             end do
             call Group_Constructor(gener,G_aux(n),"xyz")
+            !if(err_group) then
+            !    err_std = .true.
+            !    err_std_mess = "Error in Magnetic_Space_Group_Matching. Problem with generators in Group_Constructor!"
+            !    return
+            !end if
             G_aux(n)%laue = G%laue
             G_aux(n)%pg   = G%pg
         end do
-        ! Put G in every setting we will test ---> [G_aux] = [Cinv][G_aux][C]
-        !call Rational_Identity_Matrix(3,identity)
-        !do n = 1 , nA
-        !    G_aux(n)          = G
-        !    G_aux(n)%num_lat  = 0
-        !    G_aux(n)%num_alat = 0
-        !    do i = 1 , G_aux(n)%multip
-        !        G_aux(n)%Op(i)%Mat = matmul(G_aux(n)%Op(i)%Mat,C(:,:,n))
-        !        G_aux(n)%Op(i)%Mat = matmul(Cinv(:,:,n),G_aux(n)%Op(i)%Mat)
-        !        ! if the matrix is not integral, the setting is discarded
-        !        if (.not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,1:3))) then
-        !            doTest(n) = .false.
-        !            exit
-        !        end if
-        !        call reduced_translation(G_aux(n)%Op(i)%Mat)
-        !        if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),identity) .and. &
-        !            .not. IsInteger(G_aux(n)%Op(i)%Mat(1:3,4))) then
-        !            if (G_aux(n)%Op(i)%time_inv == 1) then
-        !                newt = .true.
-        !                do j = 1 , G_aux(n)%num_lat
-        !                    if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
-        !                                              G_aux(n)%Lat_tr(1:3,j))) then
-        !                        newt = .false.
-        !                        exit
-        !                    end if
-        !                end do
-        !                if (newt) then
-        !                    G_aux(n)%num_lat = G_aux(n)%num_lat + 1
-        !                    G_aux(n)%Lat_tr(1:3,G_aux(n)%num_lat) = G_aux(n)%Op(i)%Mat(1:3,4)
-        !                end if
-        !            else
-        !                newt = .true.
-        !                do j = 1 , G_aux(n)%num_alat
-        !                    if (Equal_Rational_Vector(G_aux(n)%Op(i)%Mat(1:3,4),&
-        !                                              G_aux(n)%aLat_tr(1:3,j))) then
-        !                        newt = .false.
-        !                        exit
-        !                    end if
-        !                end do
-        !                if (newt) then
-        !                    G_aux(n)%num_alat = G_aux(n)%num_alat + 1
-        !                    G_aux(n)%aLat_tr(1:3,G_aux(n)%num_alat) = G_aux(n)%Op(i)%Mat(1:3,4)
-        !                end if
-        !            end if
-        !        end if
-        !    end do
-        !    ! If there are integer anti-translations, the setting is discarded
-        !    do i = 1 , G_aux(n)%num_alat
-        !        if (.not. isNullVector(G_aux(n)%aLat_Tr(1:3,i)) .and. isInteger(G_aux(n)%aLat_Tr(1:3,i))) then
-        !            doTest(n) = .false.
-        !            exit
-        !        end if
-        !    end do
-        !    !if (doTest(n)) then
-        !    !    write(*,'(a,i2)')  "Setting: ",n
-        !    !    write(*,'(a)')     "    Translations: "
-        !    !    do i = 1 , G_aux(n)%num_lat
-        !    !        write(*,'(10x,6i2)') G_aux(n)%lat_tr(:,i)
-        !    !    end do
-        !    !    write(*,'(a)')     "    Anti-Translations: "
-        !    !    do i = 1 , G_aux(n)%num_alat
-        !    !        write(*,'(10x,6i2)') G_aux(n)%alat_tr(:,i)
-        !    !    end do
-        !    !end if
-        !end do!;stop
 
         ! Map each symmetry operation in pointerToOper for every possible setting
         do n = 1 , nA
@@ -3047,7 +2999,7 @@ contains
                 do i = 1 , G_aux(n)%multip
                     j = 1
                     do
-                        if (Equal_Rational_Matrix(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
+                        if (Rational_Equal(G_aux(n)%Op(i)%Mat(1:3,1:3),pointOper(:,:,j))) then
                             pointerToOper(i,n) = j
                             exit
                         end if
@@ -3192,9 +3144,9 @@ contains
 
         do i = 1 , size(vector)
             if (vector(i) > (1//1)) then
-                vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_ik)
+                vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_LI)
             else if (vector(i) < (0//1)) then
-                vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_ik) + (1//1)
+                vector(i) = vector(i) - ((vector(i)%Numerator/vector(i)%Denominator)//1_LI) + (1_LI//1_LI)
             end if
         end do
 
@@ -3215,7 +3167,7 @@ contains
         type(rational)               :: det
         type(rational), dimension(3) :: row
 
-        det = rational_determinant(A)
+        det = rational_determ(A)
 
         if (det < (0//1)) then
             row(:) = A(:,1)
@@ -3251,7 +3203,7 @@ contains
         do i = 1 , 25
             vAux = v / (primos(i)//1)
             do
-                if (.not. IsInteger(vAux)) exit
+                if (.not. Rational_Is_Integer(vAux)) exit
                 v    = vAux
                 vAux = v / (primos(i)//1)
             end do
