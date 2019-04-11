@@ -936,12 +936,12 @@
           complex(kind=cp), dimension(n,n)             :: Ainv
        End Function MatInvN_C
 
-       Module Function MatInvN_R(A,n) Result(Ainv)
-          !---- Arguments ----!
-          real(kind=cp), dimension(:,:), intent(in) :: a
-          integer,                       intent(in) :: n
-          real(kind=cp), dimension(n,n)             :: Ainv
-       End Function MatInvN_R
+       !Module Function MatInvN_R(A,n) Result(Ainv)
+       !   !---- Arguments ----!
+       !   real(kind=cp), dimension(:,:), intent(in) :: a
+       !   integer,                       intent(in) :: n
+       !   real(kind=cp), dimension(n,n)             :: Ainv
+       !End Function MatInvN_R
 
        Module Pure Function Modulo_Lat(v) result(u)
           !---- Argument ----!
