@@ -1114,7 +1114,7 @@ Submodule (CFML_Metrics) GenMetrics
        ab=0; mv=0.0; ang=0.0; row=0; inp=0
        
        tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
-       Call Set_Crystal_Cell([1.0,1.0,1.0],[90.0,90.0,90.0],Cell)
+       Call Set_Crystal_Cell([1.0_cp,1.0_cp,1.0_cp],[90.0_cp,90.0_cp,90.0_cp],Cell)
        message=" "
 
        ok=.true.
