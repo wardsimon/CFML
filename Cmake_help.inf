@@ -54,10 +54,10 @@
    Concrete examples (by default the compiler is ifort):
 
 
-----------------------Good one for release
+----------------------Good one for release intel 32 bits  ---- OK for release
 cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
---------------------------------------------
 cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D CMAKE_BUILD_TYPE=Debug   -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort_debug   -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+--------------------------------------------------------- OK for debug
 
 To be run in an environment with intel 64bits:
 -----------------------------------------------------------------------OK for release
