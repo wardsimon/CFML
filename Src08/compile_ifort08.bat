@@ -60,6 +60,7 @@ rem
    echo .... Mathematical Procedures
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
    ifort /c CFML_FFT.f90                             /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_Random.f90                          /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Maths
       cd .\CFML_Maths
@@ -111,7 +112,21 @@ rem   Submodules CFML_FFT
       ifort /c FFT_Convol.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c FFT_Gen.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..           
+      cd ..    
+rem
+rem   Submodules CFML_Random
+      cd .\CFML_Random  
+      ifort /c Random_Beta.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_Binomial.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_Cauchy.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_Gamma.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_InvGauss.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_Normal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_Poisson.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_T.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Random_VonMises.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      move /y *.obj .. > nul
+      cd ..              
 rem
    echo .... Strings Procedures
    ifort /c CFML_Strings.f90                     /nologo %OPT1% %OPT2% /module:.\mod
@@ -160,11 +175,11 @@ rem   Submodules CFML_Metrics
       ifort /c NiggliCell.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ThConver.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..   
+      cd ..  
+rem
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
    ) else (
