@@ -59,6 +59,7 @@ rem
 rem
    echo .... Mathematical Procedures
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_FFT.f90                             /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Maths
       cd .\CFML_Maths
@@ -105,6 +106,13 @@ rem   Submodules CFML_Maths
       move /y *.obj .. > nul
       cd ..
 rem
+rem   Submodules CFML_FFT
+      cd .\CFML_FFT        
+      ifort /c FFT_Convol.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c FFT_Gen.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..           
+rem
    echo .... Strings Procedures
    ifort /c CFML_Strings.f90                     /nologo %OPT1% %OPT2% /module:.\mod
 rem
@@ -145,20 +153,18 @@ rem
    echo .... Metrics Procedures 
    ifort /c CFML_Metrics.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
 rem
-rem   Submodules CFML_Rational
+rem   Submodules CFML_Metrics
       cd .\CFML_Metrics
       ifort /c GenMetrics.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c IORoutines.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c NiggliCell.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ThConver.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..     
+      cd ..   
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
-   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
      ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
    ) else (

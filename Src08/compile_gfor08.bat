@@ -61,6 +61,7 @@ rem
 rem
    echo .... Mathematics Procedures
    gfortran -c %OPTC%  -J.\mod CFML_Maths.f90                        %OPT1% 
+   gfortran -c %OPTC%  -J.\mod CFML_FFT.f90                          %OPT1% 
 rem 
 rem   Submodules CFML_Maths   
       cd .\CFML_Maths
@@ -106,6 +107,13 @@ rem   Submodules CFML_Maths
       gfortran -c %OPTC%  -J..\mod Zbelong.f90                       %OPT1% 
       move /y *.o .. > nul
       cd ..
+rem
+rem   Submodules CFML_FFT
+      cd .\CFML_FFT        
+      gfortran -c %OPTC%  -J..\mod FFT_Convol.f90                    %OPT1%
+      gfortran -c %OPTC%  -J..\mod FFT_Gen.f90                       %OPT1%
+      move /y *.o .. > nul
+      cd ..       
 rem      
    echo .... Strings Procedures
    gfortran -c %OPTC%  -J.\mod  CFML_Strings.f90                 %OPT1%
