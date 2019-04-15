@@ -180,14 +180,19 @@ rem   Submodules CFML_Rational
       move /y *.o .. > nul
       cd ..        
 rem
-   echo .... Scattering Tables
+   echo .... CFML Tables
    gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90                %OPT1%  
+   gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                  %OPT1%  
 rem 
 rem   Submodules CFML_ChemScatt   
       cd .\CFML_Tables        
       gfortran -c %OPTC% -J..\mod Del_ScatterT.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Get_ScatterT.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Set_ScatterT.f90                   %OPT0%
+rem      
+      gfortran -c %OPTC% -J..\mod Del_BondsT.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_BondsT.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Set_BondsT.f90                   %OPT0%
       move /y *.o .. > nul
       cd ..        
       goto END
