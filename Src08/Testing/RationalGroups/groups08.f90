@@ -36,11 +36,10 @@ Program test_groups
             cycle
         else
             call Identify_Group(Grp,.false.)
-            call print_Group(Grp)
-            if (err_std) then
-                write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_CFML%Msg)
+            if (Err_CFML%Ierr /= 0) then
+                write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
             end if
+            call print_Group(Grp)
         end if
         write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
         read(*,*) indexg
@@ -76,11 +75,10 @@ Program test_groups
             do L=1,nsg
                 write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
                 call Identify_Group(sGrp(L),.false.)
-                call print_Group(sGrp(L))
-                if (err_std) then
-                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)
-                    write(*,'(4x,  "=> Error in CFML_Rational_Groups: ",a)') trim(Err_CFML%Msg)
+                if (Err_CFML%Ierr /= 0) then
+                    write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
                 end if
+                call print_Group(sGrp(L))
             end do
         end if
         call CPU_TIME(fin)

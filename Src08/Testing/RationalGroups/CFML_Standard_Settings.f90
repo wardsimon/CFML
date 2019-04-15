@@ -14,9 +14,6 @@
 !!----    Use CFML_Symmetry_Tables,           only: Spgr_Info,Set_Spgr_Info
 !!----    Use CFML_Magnetic_Groups
 !!----
-!!---- VARIABLES
-!!----    err_std
-!!----    err_std_mess
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -64,9 +61,6 @@ module CFML_Standard_Settings
 
     private
 
-    !---- List of public variables and types ----!
-    public :: err_std, err_std_mess
-
     !---- List of public overloaded operators ----!
 
     !---- List of public functions ----!
@@ -74,25 +68,6 @@ module CFML_Standard_Settings
     !---- List of public subroutines ----!
     public  :: Identify_Group
 
-    !!----
-    !!---- err_std
-    !!----    logical, public :: err_std
-    !!----
-    !!----    Logical Variable to indicate an error on this module.
-    !!----
-    !!---- Update: January - 2019
-    !!
-    logical :: err_std
-
-    !!----
-    !!---- err_std_mess
-    !!----    character(len=:), public :: err_std_mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: January - 2019
-    !!
-    character(len=:), allocatable :: err_std_mess
 
 contains
 
@@ -1669,9 +1644,8 @@ contains
         else if (detW%Numerator == -detW%Denominator) then
             A = -W
         else
-            err_std = .true.
-            err_std_mess = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. &
-            Determinant is not +-1"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg  = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. Determinant is not +-1"
             return
         end if
 
