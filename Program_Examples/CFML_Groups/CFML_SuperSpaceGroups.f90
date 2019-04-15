@@ -1223,8 +1223,10 @@
                 if (sval > sintlmax) cycle
                 mp=0
                 if(present(SSG)) then
-                   if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                     cycle
+                   if(SSG%Num_Lat > 0 ) then
+                     if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+                       cycle
+                     end if
                    end if
                    if(H_Absent_SSG(hh,SSG)) then
                      if(SSG%Mag_type /= 2 .and. mag) then
