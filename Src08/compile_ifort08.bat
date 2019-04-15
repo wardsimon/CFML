@@ -178,13 +178,13 @@ rem   Submodules CFML_Metrics
       cd ..  
 rem
    echo .... Chemical Tables 
-   ifort /c CFML_ChemScatt.f90                       /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_ScatterT.f90                       /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_ChemScatt
-      cd .\CFML_ChemScatt
-      ifort /c Del_ChemData.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Get_ChemData.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Set_ChemData.f90                       /nologo %OPT0% %OPT2%  /module:..\mod   
+      cd .\CFML_Tables
+      ifort /c Del_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
+      ifort /c Get_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
+      ifort /c Set_ScatterT.f90                       /nologo %OPT0% %OPT2%  /module:..\mod   
       move /y *.obj .. > nul
       cd .. 
 rem      
