@@ -158,7 +158,7 @@
                                 Xray_Wavelength_type("NI",[1.65805,1.66199],1.50017)  /)
                                 
     Interface
-       Module Function Get_Abs_Xs(Symb,u)
+       Module Function Get_Abs_Xs(Symb) Result(u)
           !---- Arguments ----!
           character(len=*), intent(in) :: Symb
           real(kind=cp)                :: u

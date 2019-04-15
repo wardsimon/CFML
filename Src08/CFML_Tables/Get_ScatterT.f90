@@ -201,7 +201,7 @@ SubModule (CFML_Scatter_Tables) Get_Routines
    !!----
    !!---- 15/04/2019 
    !!
-   Module Function Get_Abs_Xs(Symb,u)
+   Module Function Get_Abs_Xs(Symb) Result(u)
       !---- Arguments ----!
       character(len=*), intent(in) :: Symb
       real(kind=cp)                :: u
