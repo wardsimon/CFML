@@ -1,6 +1,6 @@
 @echo off
 rem ****
-rem ****---- Compilation for Groups Program ----****
+rem ****---- Compilation for Test230_groups Program ----****
 rem ****
 rem **** Author: JRC + JGP
 rem **** Revision: Nov-2018
@@ -20,15 +20,15 @@ rem
       )
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_GROUPS: Testing CFML_Groups
-   echo    Syntax: make_groups [gfortran/ifort] [deb]
+   echo    MAKE_test230groups: Testing CFML_Groups
+   echo    Syntax: make_test230groups [gfortran/ifort] [deb]
    goto END
 rem
 :CONT
-   if x%1 == xgfortran   goto GFOR
-   if x%1 == xgfortrand  goto GFORD
-   if x%1 == xifort      goto IFORT
-   if x%1 == xifortd     goto IFORTD
+   if x%1 == xgfortran  goto GFOR
+   if x%1 == xgfortrand goto GFORD
+   if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTD
    goto END
 rem ****---- Intel Compiler ----****
 :IFORT
@@ -36,19 +36,19 @@ rem ****---- Intel Compiler ----****
    ifort /c CFML_Symmetry_Table.f90     /O3 /Qparallel /nologo %INC%  /warn
    ifort /c CFML_Symmetry08.f90         /O3 /Qparallel /nologo %INC%  /warn
    ifort /c CFML_Magnetic_Groups08.f90  /O3 /Qparallel /nologo %INC%  /warn
-   ifort /c CFML_Rational_Groups08.f90  /O3 /Qparallel /nologo %INC%  /warn
-   ifort /c CFML_Standard_Settings.f90  /O3 /Qparallel /nologo %INC%  /warn
-   ifort /c groups08.f90                /O3 /Qparallel /nologo %INC%
-   ifort /exe:groups08 *.obj %CRYSLIB% /link /stack:256000000
+   ifort /c CFML_Rational_Groups08.f90  /O2 /Qparallel /nologo %INC%  /warn
+   ifort /c CFML_Standard_Settings.f90  /O2 /Qparallel /nologo %INC%  /warn
+   ifort /c test230_groups.f90          /O2 /Qparallel /nologo %INC%  /warn
+   ifort /exe:test230_groups *.obj %CRYSLIB% /link /stack:256000000
    goto END
 :IFORTD
-   ifort /c CFML_Symmetry_Table.f90     /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c CFML_Symmetry08.f90         /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c CFML_Magnetic_Groups08.f90  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c CFML_Rational_Groups08.f90  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c CFML_Standard_Settings.f90  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%   /warn
-   ifort /c groups08.f90                /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /exe:groups08 *.obj %CRYSLIBD%
+   ifort /c CFML_Symmetry_Table.f90    /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /c CFML_Symmetry08.f90        /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /c CFML_Magnetic_Groups08.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /c CFML_Rational_Groups08.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /c CFML_Standard_Settings.f90 /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /c test230_groups.f90         /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD% /warn
+   ifort /exe:test230_groups *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
@@ -58,8 +58,8 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c -O3 CFML_Magnetic_Groups08.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC08
    gfortran -c -O3 CFML_Rational_Groups08.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC08
    gfortran -c -O3 CFML_Standard_Settings.f90 -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC08
-   gfortran -c -O3 groups08.f90               -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC08
-   gfortran *.o -o groups08_gf    -L../../GFortran/LibC08   -lcrysfml
+   gfortran -c -O3 test230_groups.f90         -fbounds-check -ffree-line-length-0  -I../../GFortran/LibC08
+   gfortran *.o -o test230_groups_gf    -L../../GFortran/LibC08   -lcrysfml
    goto END
 :GFORD
    gfortran -c CFML_Symmetry_Table.f90    -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
@@ -67,9 +67,9 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c CFML_Magnetic_Groups08.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
    gfortran -c CFML_Rational_Groups08.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
    gfortran -c CFML_Standard_Settings.f90 -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
-   gfortran -c groups08.f90               -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
-   gfortran *.o -o groups08_gf    -L../../GFortran/LibC08   -lcrysfml
+   gfortran -c test230_groups.f90         -g -fbounds-check -fbacktrace -ffree-line-length-0  -I../../GFortran/LibC08
+   gfortran *.o -o test230_groups_gf    -L../../GFortran/LibC08   -lcrysfml
    goto END
 rem
 :END
-rem  del *.obj *.mod *.o *.map *.bak *.pdb > nul
+rem   del *.obj *.mod *.o *.map *.bak *.pdb > nul

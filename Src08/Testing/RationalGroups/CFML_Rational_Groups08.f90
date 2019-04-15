@@ -510,7 +510,7 @@
       !G(1:nt)=G(ind(1:nt))
     End Subroutine Get_group_from_Table
 
-    Subroutine Get_subgroups_from_Table(Table,G,ord,ns)  !This is not currently working or it is too low
+    Subroutine Get_subgroups_from_Table(Table,G,ord,ns)  !To be tested ! ...This is not currently working or it is too low
       integer, dimension(:,:),intent(in):: Table
       integer, dimension(:,:),allocatable, intent(out) :: G   !Vector containing the different elements of the groups
       integer, dimension(:),  allocatable, intent(out) :: ord !order or each group
@@ -622,61 +622,6 @@
 
       include "CFML_get_group_template_inc08.f90"
 
-      !max_op=size(Op)
-      !n=size(Op(1)%Mat,dim=1)
-      !call Allocate_Operator(n,Opt)
-      !done=.false.
-      !done(1,:) = .true.
-      !done(:,1) = .true.
-      !tb(1,:) = [(i,i=1,max_op)]
-      !tb(:,1) = [(i,i=1,max_op)]
-      !nt=ngen
-      !Err_group=.false.
-      !Err_group_mess=" "
-      !!Ensure that determinant of generators are calculated
-      !do i=1,ngen
-      !  Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
-      !end do
-      !
-      !do_ext:do
-      !  n=nt
-      !  do i=1,n
-      !    do_j:do j=1,n
-      !      if(done(i,j)) cycle
-      !      Opt=Op(i)*Op(j)
-      !      do k=1,nt
-      !        if(Opt == Op(k)) then
-      !          tb(i,j)=k
-      !          done(i,j)=.true.
-      !          cycle do_j
-      !        end if
-      !      end do
-      !      done(i,j)=.true.
-      !      nt=nt+1
-      !      if(nt > max_op) then
-      !        nt=nt-1
-      !        exit do_ext
-      !      end if
-      !      tb(i,j)=nt
-      !      Op(nt)=Opt
-      !    end do do_j
-      !  end do
-      !  if ( n == nt) exit do_ext
-      !end do do_ext
-      !
-      !if(any(done(1:nt,1:nt) .eqv. .false. ) ) then
-      !	Err_group=.true.
-      !	Err_group_mess="Table of SSG operators not exhausted! Increase the expected order of the group!"
-      !end if
-      !if(nt == max_op) then
-      !  Err_group=.true.
-      !	write(Err_group_mess,"(a,i5,a)") "Max_Order (",max_op,") reached! The provided generators may not form a group!"
-      !end if
-      !multip=nt
-      !if(present(table)) then
-      !  allocate(Table(multip,multip))
-      !  Table=tb
-      !end if
     End Subroutine Get_Group_From_Generators
 
     Subroutine Get_Symb_Op_from_Mat(Mat,Symb,x1x2x3_type,invt)
@@ -1055,7 +1000,8 @@
         end do
     end subroutine sort_op
 
-    Subroutine Reorder_Operators(multip,Op,centred,centre_coord,anticentred,anticentre_coord,Numops,num_lat,num_alat,Lat_tr,aLat_tr,mag_type)
+    Subroutine Reorder_Operators(multip,Op,centred,centre_coord,anticentred,anticentre_coord, &
+                                 Numops,num_lat,num_alat,Lat_tr,aLat_tr,mag_type)
       use CFML_Rational, equal_matrix => Rational_Equal
       integer,                            intent(in)     :: multip
       type(Symm_Oper_Type), dimension(:), intent(in out) :: Op
@@ -1081,47 +1027,6 @@
       include "CFML_reorder_operators_template_inc08.f90"
 
     End Subroutine Reorder_Operators
-
-
-
-    !!----  Subroutine Group_Constructor_ext(n,Opx,Grp)
-    !!----     integer,                                    intent(in)      :: n
-    !!----     type(Symm_Oper_Type), dimension(:),intent(in)      :: Opx
-    !!----     type(rational_spg_Type),                    intent(in out)  :: Grp
-    !!----
-    !!----  This subroutine completes Grp win "n" additional generators
-    !!----
-    !!----
-    !Subroutine Group_Constructor_ext(n,Opx,Grp)
-    !   integer,                                    intent(in)      :: n
-    !   type(Symm_Oper_Type), dimension(:),intent(in)      :: Opx
-    !   type(Spg_Type),                    intent(in out)  :: Grp
-    !   !--- Local variables ---!
-    !   type(Symm_Oper_Type), dimension(:),allocatable :: Op
-    !   integer :: d,i,j,ngen,invt,multip,centred,Numops,num_lat,num_alat,mag_type,n
-    !   type(rational), dimension(:)  ,allocatable  :: centre_coord
-    !   type(rational), dimension(:,:),allocatable  :: Lat_tr, aLat_tr
-    !   type(rational), dimension(:,:),allocatable  :: Mat
-    !   character(len=80) :: Symb_Op
-    !
-    !   ngen=Grp%Numops-1
-    !   ! Get dimension of the generator matrices
-    !   d=Grp%d
-    !   allocate(Op(maxnum_op))
-    !   do i=1,maxnum_op
-    !     call Allocate_Operator(d,Op(i))
-    !   end do
-    !   allocate(Mat(d,d))
-    !
-    !   !Construct the list of the generators on top of Op. The identity is always the first operator
-    !   do i=1,n
-    !     Op(i+1)%Mat=Opx(i)%Mat
-    !     Op(i+1)%time_inv=Opx(i)%time_inv
-    !   end do
-    !   ngen=ngen+1
-    !
-    !   include "CFML_group_constructor_template_inc.f90"
-    !End Subroutine Group_Constructor_ext
 
 
     Subroutine Group_Constructor_gen(gen_,Grp,x1x2x3_type)
@@ -1277,21 +1182,23 @@
 
     !end subroutine Extract_Minimum_Set_of_Generators
 
-    Subroutine Get_Operators_From_String(generatorList,d,ngen,gen)
-       character(len=*),              intent(in)  :: generatorList
+    Subroutine Get_Operators_From_String(generatorString,d,ngen,gen)
+       character(len=*),              intent(in)  :: generatorString
        integer,                       intent(out) :: d,ngen
        character(len=*),dimension(:), allocatable, intent(out) :: gen
        !--- Local variables ---!
-       character(len=:), allocatable   :: symbol
+       character(len=:), allocatable   :: symbol, generatorList
        integer,dimension(10) :: Pos
        integer :: i,j,k,np
        logical :: timerev_provided
 
        !Determine the dimension from the generatorList (first operator)
-
+       generatorList=trim(generatorString)//"  "
+       ngen=0
        i=index(generatorList,";")
        if(i == 0) then !there is only one generator and ";" is not given
          Symbol=generatorList
+         ngen=1
        else
          Symbol=generatorList(1:i-1)
        end if
@@ -1347,10 +1254,11 @@
       integer :: i,j,k,n,m
       character(len=80) :: OpSymb
       type(Symm_Oper_Type) :: Op
-      integer, dimension(G%multip) :: ind
+      !integer, dimension(G%multip) :: ind
       logical, dimension(G%multip) :: done
       logical :: ncent_assigned !nlat_assigned,
-      n=0; ind=0; done=.false.
+
+      n=0; done=.false. !; ind=0
       call Allocate_Operator(G%d,Op)
       !nlat_assigned=.false. ;
       do_G: do i=2, G%multip
