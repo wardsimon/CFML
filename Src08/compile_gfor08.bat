@@ -179,6 +179,17 @@ rem   Submodules CFML_Rational
       gfortran -c %OPTC% -J..\mod ThConver.f90                       %OPT1% 
       move /y *.o .. > nul
       cd ..        
+rem
+   echo .... Scattering Tables
+   gfortran -c %OPTC%  -J.\mod CFML_ChemScatt.f90                %OPT1%  
+rem 
+rem   Submodules CFML_ChemScatt   
+      cd .\CFML_ChemScatt        
+      gfortran -c %OPTC% -J..\mod Del_ChemData.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_ChemData.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod Set_ChemData.f90                   %OPT0%
+      move /y *.o .. > nul
+      cd ..        
       goto END
       
 :END
