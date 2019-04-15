@@ -1254,7 +1254,7 @@
       integer :: i,j,k,n,m
       character(len=80) :: OpSymb
       type(Symm_Oper_Type) :: Op
-      !integer, dimension(G%multip) :: ind
+      integer, dimension(G%multip) :: ind
       logical, dimension(G%multip) :: done
       logical :: ncent_assigned !nlat_assigned,
 

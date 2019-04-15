@@ -327,7 +327,7 @@ contains
         type(rational), dimension(3,3)       :: identity
         integer, dimension(:,:), allocatable :: idd
 
-        err_std = .false.
+        Call Clear_Error()
 
         ! Initialization
         nGen          = 0
@@ -496,8 +496,8 @@ contains
                 end do
 
             case default
-                err_std = .true.
-                err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg = "Error in Match_Shubnikov_Group. Unknown Laue class"
                 return
 
         end select
@@ -607,8 +607,8 @@ contains
         end if
         if (nlat > 3) then  !non conventional centring
             lattyp="Z"
-            err_std = .true.
-            err_std_mess = "Error in Get_Lattice_Type. Number of centring vectors > 3."
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Lattice_Type. Number of centring vectors > 3."
             return
         end if
 
@@ -655,8 +655,8 @@ contains
         !---- Lattice Type ----!
         if (latt_z) then
             lattyp  = "Z"
-            err_std = .true.
-            err_std_mess = "Error in Get_Lattice_Type. Unable to identify lattice type."
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Lattice_Type. Unable to identify lattice type."
             return
         end if
         if ( (latt_a .and. latt_b .and. latt_c) .or. (latt_a .and. latt_b) .or. &
@@ -711,14 +711,14 @@ contains
         logical :: pout
         pout = .false.
         if(present(output)) pout=output
-        err_std = .false.
+        Call Clear_Error()
         Minv=Rational_Inverse_Matrix(M)
         det = rational_determ(Minv)
         det = (1//1) / det
 
         if (mod(det%Numerator,det%Denominator) /= 0) then
-            err_std = .true.
-            err_std_mess = "Error in Get_Lattice_Type_from_M. Inverse of the determinant is not integer"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Lattice_Type_from_M. Inverse of the determinant is not integer"
             return
         end if
 
@@ -760,7 +760,7 @@ contains
             else
                 lattyp = "P"
             end if
-            if (err_std) return
+            if (Err_CFML%Ierr /= 0) return
             if (pout) write(*,'(12x,2a)') "Lattice type: ",lattyp
         else
             if (pout) write(*,'(8x,a)') " => Standard lattice is primitive "
@@ -797,14 +797,14 @@ contains
         integer,          dimension(9)   :: latt_given
         type(rational),   dimension(3,9) :: lattice
 
-        err_std = .false.
+        Call Clear_Error()
         G%shu_lat(:)=" "
         if (G%num_lat > 0) then
             call Get_Lattice_Type(G%num_Lat,G%Lat_tr,G%shu_lat(1))
         else
             G%shu_lat(1) = "P"
         end if
-        if (err_std)    return
+        if (Err_CFML%Ierr /= 0)    return
         if (G%num_aLat == 0) return
 
         lattice(:,1)  = [ 1//2,0//1,0//1 ]
@@ -864,8 +864,8 @@ contains
             select case (G%shu_lat(1))
                 case ("P")
                     if (sum(latt_given) > 1) then
-                        err_std      = .true.
-                        err_std_mess = "Error in Get_Magnetic_Lattice_Type. Primitive lattice with more than one anti-translation."
+                        Err_CFML%Ierr = 1
+                        Err_CFML%Msg = "Error in Get_Magnetic_Lattice_Type. Primitive lattice with more than one anti-translation."
                         return
                     end if
                     if (latt__a) then
@@ -920,8 +920,8 @@ contains
         end if
 
         if (G%shu_lat(2) == "Z") then
-            err_std = .true.
-            err_std_mess = "Error in Get_Magnetic_Lattice_Type. Unable to identify lattice type."
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Magnetic_Lattice_Type. Unable to identify lattice type."
         end if
 
     end subroutine Get_Magnetic_Lattice_Type
@@ -975,7 +975,7 @@ contains
             case ("4/m","4/mmm")
 
                 call Get_Lattice_Type_from_M(Mp,lattyp)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (lattyp == "C") then  ! C -> P
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [ 1//1,-1//1, 0//1 ]
@@ -995,7 +995,7 @@ contains
             case ("-3","-3 R")
 
                 call Get_Lattice_Type_from_M(Mp,lattyp)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (lattyp == "S") then ! reverse -> obverse setting
                     Mc(1,:) = [-1//1, 0//1, 0//1 ]
                     Mc(2,:) = [ 0//1,-1//1, 0//1 ]
@@ -1008,7 +1008,7 @@ contains
 
             case ("-3m","-3m R","-3m1","-31m")
                 call Get_Lattice_Type_from_M(Mp,lattyp)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (lattyp == "S") then ! reverse -> obverse setting
                     Mc(1,:) = [-1//1, 0//1, 0//1 ]
                     Mc(2,:) = [ 0//1,-1//1, 0//1 ]
@@ -1027,7 +1027,7 @@ contains
             case ("6/mmm")
 
                 call Get_Lattice_Type_from_M(Mp,lattyp)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (lattyp == "H") then ! H -> P
                     Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                     Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
@@ -1132,19 +1132,19 @@ contains
                 if (pout) write(*,'(12x,3a)') "Searching for the ",trim(axisName(order(1)))," axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,order(1),n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 ! Put the symmetry operation in the primitive setting
                 W = MatMul(G%op(idd(1,1))%Mat(1:3,1:3),P)
                 W = MatMul(Pinv,W)
                 call Get_Rotation_Axis(W,bz)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(1:3)%Numerator
                     write(*,'(12x,a)') "Searching for lattice vectors perpendicular to the rotation axis. &
                     Building the complete basis..."
                 end if
                 call Get_Vectors_Perpendicular_To_Rotation_Axis(W,vPerp)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 call Get_Pseudo_Standard_Base(W,vPerp,bz,bx,by)
                 Mp(:,1) = bx
                 Mp(:,2) = by
@@ -1154,33 +1154,33 @@ contains
                 if (pout) write(*,'(12x,a)') "Searching for the fourfold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,4,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 ! Put the symmetry operation in the primitive setting
                 W = MatMul(G%op(idd(1,1))%Mat(1:3,1:3),P)
                 W = MatMul(Pinv,W)
                 call Get_Rotation_Axis(W,bz)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                     write(*,'(12x,a)') "Searching for the twofold axis..."
                 end if
                 call Get_Rotations(G%op(:),G%Multip,2,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 colinear = .true.
                 do i = 1 , n
                     ! Put the symmetry operation in the primitive setting
                     U = MatMul(G%op(idd(i,1))%Mat(1:3,1:3),P)
                     U = MatMul(Pinv,U)
                     call Get_Rotation_Axis(U,bx)
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     if (.not. Rational_Co_Linear(bz,bx)) then
                         colinear = .false.
                         exit
                     end if
                 end do
                 if (colinear) then
-                    err_std = .true.
-                    err_std_mess = "Error in Get_Mprime_Matrix. Unable to find a second rotation &
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg  = "Error in Get_Mprime_Matrix. Unable to find a second rotation &
                     axis linearly independent from the first"
                     return
                 end if
@@ -1194,34 +1194,34 @@ contains
                 if (pout) write(*,'(12x,a)') "Searching for the threefold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,3,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 ! Put the symmetry operation in the primitive setting
                 W = MatMul(G%op(idd(1,1))%Mat(1:3,1:3),P)
                 W = MatMul(Pinv,W)
                 if (idd(1,2) == -1)  W = -W
                 call Get_Rotation_Axis(W,bz)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 if (pout) then
                     write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                     write(*,'(12x,a)') "Searching for the twofold axis..."
                 end if
                 call Get_Rotations(G%op(:),G%Multip,2,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 colinear = .true.
                 do i = 1 , n
                     ! Put the symmetry operation in the primitive setting
                     U = MatMul(G%op(idd(i,1))%Mat(1:3,1:3),P)
                     U = MatMul(Pinv,U)
                     call Get_Rotation_Axis(U,bx)
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     if (.not. Rational_Co_Linear(bz,bx)) then
                         colinear = .false.
                         exit
                     end if
                 end do
                 if (colinear) then
-                    err_std = .true.
-                    err_std_mess = "Error in Get_Mprime_Matrix. Unable to find a second rotation &
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg  = "Error in Get_Mprime_Matrix. Unable to find a second rotation &
                     axis linearly independent from the first"
                     return
                 end if
@@ -1235,14 +1235,14 @@ contains
                 if (pout) write(*,'(12x,a)') "Searching for the three twofold axis..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,2,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 n_ = 0
                 do i = 1 , n
                     ! Put the symmetry operation in the primitive setting
                     W = MatMul(G%op(idd(i,1))%Mat(1:3,1:3),P)
                     W = MatMul(Pinv,W)
                     call Get_Rotation_Axis(W,bz)
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     colinear = .false.
                     do j = 1 , n_
                         if (Rational_Co_Linear(bz,Mp(:,j))) colinear = .true.
@@ -1259,14 +1259,14 @@ contains
                 if (pout) write(*,'(12x,a)') "Searching for the four threefold axes..."
                 allocate(idd(G%Multip,2))
                 call Get_Rotations(G%op(:),G%Multip,3,n,idd)
-                if (err_std) return
+                if (Err_CFML%Ierr /= 0) return
                 nCubicAxes = 0
                 standard   = .true. ! Initially we assume P is a standard basis
                 do i = 1 , n
                     W = MatMul(G%op(idd(i,1))%Mat(1:3,1:3),P)
                     W = MatMul(Pinv,W)
                     call Get_Rotation_Axis(W,bz)
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     colinear = .false.
                     do j = 1 , nCubicAxes
                         if (Rational_Co_Linear(bz,cubicAxes(:,j))) colinear = .true.
@@ -1326,8 +1326,8 @@ contains
                     end do
                 end if
                 if (.not. standard) then
-                    err_std = .true.
-                    err_std_mess = "Error in Get_Mp_Matrix: &
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg  = "Error in Get_Mp_Matrix: &
                     Unable to build a standard setting for the cubic crystal system..."
                     return
                 end if
@@ -1476,7 +1476,7 @@ contains
         type(rational), dimension(:,:), allocatable :: auxVec,centringVec
         logical :: pout
 
-        err_std     = .false.
+        call Clear_Error()
         primitive   = .false.
         nullVec(:)  = 0//1
         pout        = .false.
@@ -1616,8 +1616,8 @@ contains
         end do
 
         if (.not. primitive) then
-            err_std = .true.
-            err_std_mess = "Error in Get_P_Matrix subroutine. A primitive basis cannot be found"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg  = "Error in Get_P_Matrix subroutine. A primitive basis cannot be found"
             return
         else if (pout) then
             write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
@@ -1661,7 +1661,7 @@ contains
         integer,        dimension(:,:), allocatable :: test_
         type(rational), dimension(:,:), allocatable :: byAux
 
-        err_std  = .false.
+        call Clear_Error()
         detW     = rational_determ(W)
 
         if (detW%Numerator == detW%Denominator) then
@@ -1766,9 +1766,8 @@ contains
         else if (det%Numerator == -det%Denominator) then
             A = -W
         else
-            err_std = .true.
-            err_std_mess = "Error in Get_Rotation_Axis subroutine. &
-            Determinant is not +-1"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Rotation_Axis subroutine. Determinant is not +-1"
             return
         end if
 
@@ -1780,9 +1779,8 @@ contains
         call Rational_RowEchelonForm(U)
         rnk=Rational_Rank(U)
         if ( rnk /= 2 ) then
-            err_std = .true.
-            err_std_mess = "Error in Get_Rotation_Axis subroutine. &
-            Rank of matrix U is not two"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Rotation_Axis subroutine. Rank of matrix U is not two"
             return
         end if
 
@@ -1876,7 +1874,7 @@ contains
         !---- Local variables ----!
         type(rational) :: tr
 
-        err_std = .false.
+        call Clear_Error()
         tr = rational_trace(W)
         if (mod(tr%Numerator,tr%Denominator) == 0) then
             select case (tr%Numerator / tr%Denominator)
@@ -1891,12 +1889,12 @@ contains
                 case (2)
                     order = 6
                 case default
-                    err_std = .True.
-                    err_std_mess = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
             end select
         else
-            err_std = .True.
-            err_std_mess = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Rotation_Order. Rotation matrix is not an allowed crystallographic rotation"
         end if
 
     end subroutine Get_Rotation_Order
@@ -1930,7 +1928,7 @@ contains
         integer,           dimension(6)   :: traces
         character(len=20), dimension(6)   :: axisName
 
-        err_std = .false.
+        call Clear_Error()
         axisName(1) = "onefold"
         axisName(2) = "twofold"
         axisName(3) = "threefold"
@@ -1947,15 +1945,15 @@ contains
         do i = 1 , nSymOP
             det = rational_determ(symOp(i)%Mat(1:3,1:3))
             if (mod(det%Numerator,det%Denominator) /= 0) then
-                err_std      = .true.
-                err_std_mess = "Error in Get_Rotations. Determinant is not an integer."
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg = "Error in Get_Rotations. Determinant is not an integer."
                 return
             end if
             d = det%Numerator / det%Denominator
             tr  = rational_trace(symOp(i)%Mat(1:3,1:3))
             if (mod(tr%Numerator,tr%Denominator) /= 0) then
-                err_std      = .true.
-                err_std_mess = "Error in Get_Rotations. Trace is not an integer."
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg = "Error in Get_Rotations. Trace is not an integer."
                 return
             end if
             t = tr%Numerator / tr%Denominator
@@ -2044,9 +2042,8 @@ contains
         else if (det%Numerator == -det%Denominator) then
             A = -W
         else
-            err_std = .true.
-            err_std_mess = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. &
-            Determinant is not +-1"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. Determinant is not +-1"
             return
         end if
 
@@ -2059,9 +2056,8 @@ contains
         rnk=Rational_Rank(U)
 
         if ( rnk /= 1 ) then
-            err_std = .true.
-            err_std_mess = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. &
-            Rank of matrix U is not one"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Get_Vectors_Perpendicular_To_Rotation_Axis subroutine. Rank of matrix U is not one"
             return
         end if
 
@@ -2207,7 +2203,7 @@ contains
 
         ! Initialization
         nRot(:)  = 0  ! number of selected rotations of order 1,2,...,6
-        err_std  = .false.
+        call Clear_Error()
         G%pg     = ""
         numops = G%multip / (G%num_lat+G%num_alat+1)
         if (G%centred /= 1 .or. G%anticentred /= 1) numops = numops / 2
@@ -2218,8 +2214,8 @@ contains
             !if (Rational_Equal(G%op(i)%Mat(1:3,1:3),identity)) cycle
             det = rational_determ(G%op(i)%Mat(1:3,1:3))
             if (mod(det%numerator,det%denominator) /= 0) then
-                err_std      = .true.
-                err_std_mess = "Error in Identify_Crystallographic_Point_Group. Determinant is not an integer."
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg = "Error in Identify_Crystallographic_Point_Group. Determinant is not an integer."
                 return
             end if
             d = det%numerator / det%denominator
@@ -2234,16 +2230,15 @@ contains
             if (.not. selected) then
                 nRepSymOp = nRepSymOp + 1
                 if (nRepSymOp > numops) then
-                    err_std      = .True.
-                    err_std_mess = "Error in Get_Crystallographic_Point_Group. &
-                    nRepSymOp > numops"
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg = "Error in Get_Crystallographic_Point_Group. nRepSymOp > numops"
                     return
                 end if
                 repSymOp(nRepSymOp) = G%op(i)
                 tr  = rational_trace(G%op(i)%Mat(1:3,1:3))
                 if (mod(tr%numerator,tr%denominator) /= 0) then
-                    err_std      = .true.
-                    err_std_mess = "Error in Get_Point_Group. Trace is not an integer."
+                    Err_CFML%Ierr = 1
+                    Err_CFML%Msg = "Error in Get_Point_Group. Trace is not an integer."
                     return
                 end if
                 t = tr%numerator / tr%denominator
@@ -2392,8 +2387,8 @@ contains
         end if
 
         if (G%PG == "") then
-            err_std = .true.
-            err_std_mess = "Error in Identify_Crystallographic_Point_Group_Basic. Unable to identify point group"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Identify_Crystallographic_Point_Group_Basic. Unable to identify point group"
         end if
 
     end subroutine Identify_Crystallographic_Point_Group
@@ -2430,19 +2425,19 @@ contains
 
         call Get_P_Matrix(G,P,nospin=.true.,output=pout)
         !call Get_P_Matrix(G,P,nospin=.true.)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Get_Mp_Matrix(G,P,Mp,output=pout)
         !call Get_Mp_Matrix(G,P,Mp)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Get_Mc_Matrix(G%laue,Mp,Mc,output=pout)
         !call Get_Mc_Matrix(G%laue,Mp,Mc)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         M = matmul(Mp,Mc)
         call Get_Lattice_Type_from_M(M,lattyp)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
         call Get_A_Matrices_Crys(G%laue,A,n)
         call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n,output=pout)
         !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
@@ -2470,11 +2465,11 @@ contains
         pout=.false.
         if(present(output)) pout=output
 
-        err_std = .false.
+        call Clear_Error()
 
         if (G%d < 4) then
-            err_std = .true.
-            err_std_mess = "Error in Identify_Group. Group dimension < 4."
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Identify_Group. Group dimension < 4."
             return
 
         else if (G%d == 4) then ! Shubnikov groups
@@ -2482,8 +2477,8 @@ contains
             call Identify_Shubnikov_Group(G,pout)
 
         else ! Superspace groups
-            err_std      = .true.
-            err_std_mess = "Error in Identify_Group. Superspace groups not implemented yet"
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg = "Error in Identify_Group. Superspace groups not implemented yet"
             return
         end if
 
@@ -2527,8 +2522,8 @@ contains
             case ("432","-43m","m-3m")
                 G%laue = "m-3m"
             case default
-                err_std = .true.
-                err_std_mess = "Error in Identify_Laue_Class. Inconsistent crystallographic point group."
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg ="Error in Identify_Laue_Class. Inconsistent crystallographic point group."
         end select
 
     end subroutine Identify_Laue_Class
@@ -2568,26 +2563,26 @@ contains
         end if
 
         call Identify_Crystallographic_Point_Group(G)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Identify_Laue_Class(G)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Get_P_Matrix(G,P,output=pout)
         !call Get_P_Matrix(G,P)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Get_Mp_Matrix(G,P,Mp,output=pout)
         !call Get_Mp_Matrix(G,P,Mp)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Get_Mc_Matrix(G%laue,Mp,Mc,output=pout)
         !call Get_Mc_Matrix(G%laue,Mp,Mc)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         M = matmul(Mp,Mc)
         call Get_Lattice_Type_from_M(M,lattyp)
-        if (err_std) return
+        if (Err_CFML%Ierr /= 0) return
 
         call Match_Shubnikov_Group(G,P,M,output=pout)
         !call Match_Shubnikov_Group(G,P,M)
@@ -2752,7 +2747,7 @@ contains
                     end do
                     ! Get generators from the standard space group
                     call Get_Generators(G_std%laue,op,G_std%Multip,gen_std,ng)
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     ! Try to get these generators from SGaux(s)
                     ng_ = 0
                     do i = 1 , ng
@@ -2786,7 +2781,7 @@ contains
                         G_target%op(i)%Mat = G_std%symop(i)%Rot
                     end do
                     call Get_P_Matrix(G_target,P_target(1:3,1:3))
-                    if (err_std) return
+                    if (Err_CFML%Ierr /= 0) return
                     ! Try to match the standard by an origin shift
                     call Get_Origin_Shift(gen_x(1:ng),gen_std(1:ng),ng,P_target,origShift,shift)
                     if (shift) then
@@ -2812,8 +2807,8 @@ contains
             end do
         end do
 
-        err_std = .true.
-        err_std_mess = "Unable to indentify the space group"
+        Err_CFML%Ierr = 1
+        Err_CFML%Msg ="Error in Match_Crystallographic_Space_Group. Unable to indentify the space group."
 
     end subroutine Match_Crystallographic_Space_Group
 
@@ -2869,8 +2864,8 @@ contains
 
         ! Check dimension of the group is four
         if (G%d /= 4) then
-            err_std = .true.
-            err_std_mess = "Error in Match_Shubnikov_Group. Group dimension different from 4."
+            Err_CFML%Ierr = 1
+            Err_CFML%Msg  = "Error in Match_Shubnikov_Group. Group dimension different from 4."
             return
         end if
 
@@ -2915,8 +2910,8 @@ contains
                 endG  = 1651
                 if (pout) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
             case default
-                err_std = .true.
-                err_std_mess = "Error in Match_Shubnikov_Group. Unknown Laue class"
+                Err_CFML%Ierr = 1
+                Err_CFML%Msg  = "Error in Match_Shubnikov_Group. Unknown Laue class"
                 return
         end select
 
@@ -3005,8 +3000,8 @@ contains
                         end if
                         j = j + 1
                         if (j > nPointOper) then
-                            err_std = .true.
-                            err_std_mess = "Error in Magnetic_Space_Group_Matching. &
+                            Err_CFML%Ierr = 1
+                            Err_CFML%Msg  = "Error in Magnetic_Space_Group_Matching. &
                             A symmetry operation of the group cannot be matched against tabulated symmetry operations"
                             return
                         end if
@@ -3037,8 +3032,8 @@ contains
                         if (G_aux(n)%Op(j) == Gx(i,n)) idx(i,n) = j
                     end do
                     if (idx(i,n) == 0) then
-                        err_std = .true.
-                        err_std_mess = "Error in Match_Shubnikov_Group. Generator cannot be mapped."
+                        Err_CFML%Ierr = 1
+                        Err_CFML%Msg  = "Error in Match_Shubnikov_Group. Generator cannot be mapped."
                         return
                     end if
                 end do
@@ -3065,7 +3060,7 @@ contains
         do n = 1 , nA
             if (doTest(n)) then
                 call Get_P_Matrix(G_aux(n),Paux(:,:,n))
-                if (err_std) doTest(n) = .false.
+                if (Err_CFML%Ierr /= 0) doTest(n) = .false.
             end if
         end do
 
@@ -3120,8 +3115,8 @@ contains
             end if
         end do
 
-        err_std = .true.
-        err_std_mess = "Unable to indentify the magnetic group"
+        Err_CFML%Ierr = 1
+        Err_CFML%Msg  = "Error in Match_Shubnikov_Group. Unable to indentify the magnetic group"
 
     end subroutine Match_Shubnikov_Group
 

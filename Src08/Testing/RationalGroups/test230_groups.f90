@@ -10,7 +10,7 @@ Program test230_groups
     character(len=15)                   :: forma
     type(Spg_Type)                      :: Grp
     type(Spg_Type), dimension(4096)     :: sGrp
-    integer :: i,j,L,nsg,ind,indexg,lun,nc
+    integer :: i,j,L,nsg,lun,nc !,ind,indexg
     real :: start, fin,par
     integer, dimension(:), allocatable  :: cosets
 
@@ -28,8 +28,8 @@ Program test230_groups
             cycle
         else
             call Identify_Group(Grp)
-            if (err_std) then
-                write(lun,'(/,a,i4,a)') "  Group number: ",i, " => Error in the identification of the group: "//trim(err_std_mess)
+            if (Err_CFML%Ierr /= 0) then
+                write(lun,'(/,a,i4,a)') "  Group number: ",i, " => Error in the identification of the group: "//trim(Err_CFML%Msg)
             end if
             write(lun,"(/,a)") "  ------------------------------------------------------------------------------"
             write(lun,"(a,i4, a20,a)") "  Group number: ",i,"  Symb: "//trim(Grp%shu_symb),"  Transf. to standard: "//trim(Grp%mat2std_shu)
@@ -42,8 +42,8 @@ Program test230_groups
             write(lun,"(a,i4)") "  Total number of subgroups: ",nsg
             do L=1,nsg
               call Identify_Group(sGrp(L))
-              if (err_std) then
-                write(lun,'(a,i4,a)') " => Error in the identification of the sub-group: ",L,trim(err_std_mess)
+              if (Err_CFML%Ierr /= 0) then
+                write(lun,'(a,i4,a)') " => Error in the identification of the sub-group: ",L,trim(Err_CFML%Msg)
               else
                 write(lun,"(2(a,i4),a20,a)") "  Sub-Group Number #",L, " of index: ",Grp%multip/sGrp(L)%multip, &
                 "  Symb: "//trim(sGrp(L)%shu_symb),"  Transf. to standard: "//trim(sGrp(L)%mat2std_shu)
