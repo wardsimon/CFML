@@ -135,7 +135,7 @@
     private
     
     !---- Public Functions ----!
-    public :: Cart_U_Vector, Cart_Vector, &
+    public :: Cart_U_Vector, Cart_Vector, Cell_Strain, &
               Get_B_from_Betas, Get_B_from_U, Get_Betas_from_B, Get_Betas_from_Biso, &
               Get_Betas_from_U, Get_U_from_B, Get_U_from_Betas, &
               Get_Basis_From_UVW, Get_Deriv_Orth_Cell, Get_Transfm_Matrix , &
@@ -181,7 +181,7 @@
        real(kind=cp),dimension(3,3) :: Orth_Cr_cel=0.0_cp  ! Cartesian to Fractional
        real(kind=cp),dimension(3,3) :: BL_M       =0.0_cp  ! Busing-Levy B-matrix 
        real(kind=cp),dimension(3,3) :: Inv_BL_M   =0.0_cp  ! Inverse of Busing-Levy B-matrix
-       character(len=1)             :: CartType   =" "     ! if "A" x// a
+       character(len=2)             :: CartType   =" "     ! if "A" x// a
     End Type Cell_G_Type
     
     !!----
@@ -326,6 +326,14 @@
           type (Zone_Axis_Type)                  :: ZoneB     ! !Object containing u and basis vector in the plane
        End Function Get_Basis_From_UVW
        
+       Module Function Cell_Strain(Itype,T0,T1) Result(strain)
+          !---- Arguments ----!
+          integer,                       intent(in) :: itype  ! Strain type
+          real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 
+          real(kind=cp), dimension(3,3), intent(in) :: T1     ! CR_Orth_Cel for chosen axial system for the final state 
+          real(kind=cp), dimension(3,3)             :: Strain ! calculated cell strain
+       End Function Cell_Strain 
+       
        Module Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,told)
           !---- Arguments ----!
           Type(Twofold_Axes_Type), intent(in)  :: Twofold
@@ -343,18 +351,18 @@
           character(len=*),       intent(out) :: System
        End Subroutine Get_Cryst_Family
        
-       Module Pure Function Get_Cryst_Orthog_Matrix(Cell, Ang, CarType) Result(Mat)
+       Module Function Get_Cryst_Orthog_Matrix(Cell, Ang, CarType) Result(Mat)
           !---- Arguments ----!
           real(kind=cp), dimension(3  ), intent (in ) :: cell,ang   ! Cell Parameters
           character(len=*), optional,    intent (in ) :: CarType    ! Type of Cartesian axes
           real(kind=cp), dimension(3,3)               :: Mat        ! Convsersion matrix
        End Function Get_Cryst_Orthog_Matrix
        
-       Module Pure Function Get_Deriv_Orth_Cell(Cell,Cartype) Result(Deriv_Orthcell)
+       Module Function Get_Deriv_Orth_Cell(Cell,Cartype) Result(De_Orthcell)
           !---- Arguments ----!
           class(Cell_Type),                intent(in ) :: cell
-          character (len=1), optional,     intent(in ) :: CarType
-          real(kind=cp), dimension(3,3,6)              :: Deriv_Orthcell
+          character (len=2), optional,     intent(in ) :: CarType
+          real(kind=cp), dimension(3,3,6)              :: De_Orthcell
        End Function Get_Deriv_Orth_Cell
        
        Module Pure Function Get_Metrics(cell,ang) Result(G)

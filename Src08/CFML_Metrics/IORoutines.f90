@@ -41,12 +41,20 @@ Submodule (CFML_Metrics) IORoutines
              do i=1,3
                 Write(unit=lun,fmt="(3f12.4,a,3f12.6)") (Cell%GD(i,j),j=1,3),"      ", (Cell%GR(i,j),j=1,3)
              end do
-
-             if (Cell%CartType == "A") then
-                Write(unit=lun,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
-             else
-                Write(unit=lun,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
-             end if
+             
+             select case(Cell%CartType)
+                case('BA')     ! Angel & Brown setting
+                   write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: y // b; z is in the bc-plane; x is y ^ z = a*   "
+           
+                case('BC')     ! Carpenter setting
+                   write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: y // b; x is in the ab-plane; z is x ^ y = c*   "
+       
+                case('AB')     ! previous alternate setting
+                   write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; z is in the ac-plane; y is x ^ z = b*   "
+       
+                case default   ! 'CA'    
+                   write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z = a*  "           
+             end select
 
              Write(unit=lun,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
              Write(unit=lun,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "

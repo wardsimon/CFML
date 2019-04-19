@@ -153,56 +153,112 @@ Submodule (CFML_Metrics) GenMetrics
     !!--++
     !!--++ 10/04/2019 
     !!
-    Module Pure Function Get_Cryst_Orthog_Matrix(Cell, Ang, CarType) Result(Mat)
+    Module Function Get_Cryst_Orthog_Matrix(Cell, Ang, CarType) Result(Mat)
        !---- Arguments ----!
        real(kind=cp), dimension(3  ), intent (in ) :: cell,ang   ! Cell Parameters
        character(len=*), optional,    intent (in ) :: CarType    ! Type of Cartesian axes
        real(kind=cp), dimension(3,3)               :: Mat        ! Convsersion matrix
 
        !---- Local Variables ----!
-       character(len=1) :: car
+       character(len=2) :: car
        real(kind=cp)    :: cosgas, singas
 
-       car='C'
-       if (present(CarType)) car=adjustl(u_case(cartype))
-
-       select case (car)
-          case ('A')   ! x//a
-             !  Transponse of the following matrix:
-             !    a = (       a   ,         0           ,       0             )
-             !    b = ( b cosgamma,    b singamma       ,       0             )
-             !    c = (  c cosbeta, -c sinbeta cosalpha*, c sinbeta sinalpha* )
-             cosgas =(cosd(ang(3))*cosd(ang(2))-cosd(ang(1)))/(sind(ang(3))*sind(ang(2)))
-             singas = sqrt(1.0-cosgas**2)
-             Mat(1,1) = cell(1)
-             Mat(1,2) = cell(2)*cosd(ang(3))
-             Mat(1,3) = cell(3)*cosd(ang(2))
-             Mat(2,1) = 0.0
-             Mat(2,2) = cell(2)*sind(ang(3))
-             Mat(2,3) =-cell(3)*sind(ang(2))*cosgas
-             Mat(3,1) = 0.0
-             Mat(3,2) = 0.0
-             Mat(3,3) = cell(3)*sind(ang(2))*singas
-
-          case default
-             !  By default, the cartesian frame is such as z//c
+       
+       !> Init and checks
+       Car=" "     
+       if (present(CarType)) then
+          Car=U_case(adjustl(CarType))
+            
+          !> Check for valid input
+          if (len_trim(Car) == 2) then  !> two symbols input
+             if (Car /= 'CA' .and. Car /= 'AB' .and. Car /= 'BC' .and. Car /= 'BA') then
+                Err_CFML%IErr=-1  ! Warning
+                Err_CFML%Msg="GET_CRYST_ORTHOG_MATRIX@METRICS: Invalid CarType. Reset to default! "
+                Car='CA'     !default: c//Z, a*//X
+             end if
+             
+          else !> one symbol input
+             select case(Car(1:1))
+                case('C')
+                    Car(2:2)='A'
+                    
+                case('A')
+                   Car(2:2)='B'
+                   
+                case('B')
+                   Car(2:2)='C'   !> defaults to c* // Z for this case
+                   
+                case default
+                   Car='CA'       !> default because invalid first character   
+                end select
+          end if            
+       end if
+       if (len_trim(Car) == 0) Car='CA' !> default: c//Z, a*//X
+        
+       !> Setting of matrix 
+       Select Case(Car)
+          case('CA')           ! This is the default c//Z, a*//X
              !  Transponse of the following matrix:
              !    a = (a sinbeta singamma*, -a sinbeta cosgamma*, a cosbeta )
              !    b = (         0         ,     b sinalpha      , b cosalpha)
              !    c = (         0         ,         0           , c         )
              cosgas =(cosd(ang(1))*cosd(ang(2))-cosd(ang(3)))/(sind(ang(1))*sind(ang(2)))
-             singas = sqrt(1.0-cosgas**2)
+             singas = sqrt(1.0_cp-cosgas**2)
              Mat(1,1) = cell(1)*sind(ang(2))*singas
-             Mat(1,2) = 0.0
-             Mat(1,3) = 0.0
+             Mat(1,2) = 0.0_cp
+             Mat(1,3) = 0.0_cp
              Mat(2,1) =-cell(1)*sind(ang(2))*cosgas
              Mat(2,2) = cell(2)*sind(ang(1))
-             Mat(2,3) = 0.0
+             Mat(2,3) = 0.0_cp
              Mat(3,1) = cell(1)*cosd(ang(2))
              Mat(3,2) = cell(2)*cosd(ang(1))
              Mat(3,3) = cell(3)
-
-       end select
+               
+          case('AB')  !This is the alternate case in the version prior to  2019
+             ! x//a and Y // b*
+             !  Transponse of the following matrix:
+             !    a = (       a   ,         0           ,       0             )
+             !    b = ( b cosgamma,    b singamma       ,       0             )
+             !    c = (  c cosbeta, -c sinbeta cosalpha*, c sinbeta sinalpha* )
+             cosgas =(cosd(ang(3))*cosd(ang(2))-cosd(ang(1)))/(sind(ang(3))*sind(ang(2)))
+             singas = sqrt(1.0_cp-cosgas**2)
+             Mat(1,1) = cell(1)
+             Mat(1,2) = cell(2)*cosd(ang(3))
+             Mat(1,3) = cell(3)*cosd(ang(2))
+             Mat(2,1) = 0.0_cp
+             Mat(2,2) = cell(2)*sind(ang(3))
+             Mat(2,3) =-cell(3)*sind(ang(2))*cosgas
+             Mat(3,1) = 0.0_cp
+             Mat(3,2) = 0.0_cp
+             Mat(3,3) = cell(3)*sind(ang(2))*singas
+                 
+          case('BC')  ! This is Carpenter orientation with b // Y, c* // Z, coded by RJA
+		       cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+             sinbes=sqrt(1.0_cp-cosbes**2)               
+             Mat(1,1)=cell(1)*sind(ang(3))	
+		       Mat(2,1)=cell(1)*cosd(ang(3))
+		       Mat(3,1)=0.0_cp
+		       Mat(1,2)=0.0_cp
+		       Mat(2,2)=cell(2)
+		       Mat(3,2)=0.0_cp
+		       Mat(1,3)=-1.0_cp*cell(3)*sind(ang(1))*cosbes
+		       Mat(2,3)=cell(3)*cosd(ang(1))
+		       Mat(3,3)=cell(3)*sind(ang(1))*sinbes
+                
+          case('BA') ! Angel and Brown with Y // b and  X // a*
+		       cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+             sinbes=sqrt(1.0_cp-cosbes**2)                       		
+		       Mat(1,1)=cell(1)*sind(ang(3))*sinbes
+		       Mat(2,1)=cell(1)*cosd(ang(3))
+		       Mat(3,1)= -1.0_cp*cell(1)*sind(ang(3))*cosbes
+		       Mat(1,2)=0.0_cp
+		       Mat(2,2)=cell(2)
+		       Mat(3,2)=0.0_cp
+		       Mat(1,3)=0.0_cp
+		       Mat(2,3)=cell(3)*cosd(ang(1))									 
+		       Mat(3,3)=cell(3)*sind(ang(1))
+               
+       End Select 
 
        return
     End Function Get_Cryst_Orthog_Matrix
@@ -263,20 +319,18 @@ Submodule (CFML_Metrics) GenMetrics
 
        !> a,b,c
        cell%cell=vcell
+       cell%scell=0.0_cp
        if (present(Vscell)) cell%scell=Vscell
 
        !> angles
        cell%ang=vang
-       if (present(Vsang)) cell%scell=Vsang
        where(cell%ang < EPS) cell%ang =90.0_cp
-
-       select type (cell)
-          class is (cell_G_Type)
-             if (present(Cartype)) cell%cartType=adjustl(u_case(cartype))
-       end select
-
+       cell%sang=0.0_cp
+       if (present(Vsang)) cell%sang=Vsang
+       
        !> Volume
        cell%vol=Volume_from_Cell(Vcell, Vang)
+       cell%svol=0.0_cp
        if (cell%vol <= EPS) then
           Err_CFML%IErr=1
           Err_CFML%Msg="SET_CRYSTAL_CELL@METRICS: Negligible volume for the current cell parameters!"
@@ -294,12 +348,21 @@ Submodule (CFML_Metrics) GenMetrics
              cell%GR=Get_metrics(cell%rcell,cell%rang)
 
              !> Cartesian conversion
-             if (cell%cartType /= 'A') cell%cartType='C'
+             if (present(Cartype)) then
+                cell%cartType=adjustl(u_case(cartype))
+             else
+                cell%CartType="CA"
+             end if     
              Cell%Cr_Orth_cel=Get_Cryst_Orthog_matrix(Vcell,Vang,cell%CartType)
              Cell%Orth_Cr_cel=inverse_matrix(Cell%Cr_Orth_cel)
+             if (Err_CFML%IErr ==1) then
+                Err_CFML%Msg="SET_CRYSTAL_CELL@METRICS: Probably wrong cell parameters. Please, check it!"
+                return
+             end if  
 
              !> Busing-Levy matrix component
-             if (cell%CartType == "C") then
+             !(it corresponds to the transpose of Orth_Cr_cel when Celda%CartType="CA")
+             if (cell%CartType == "CA") then
                 cell%bl_m=Transpose(Cell%Orth_Cr_cel)
                 cell%inv_bl_m=Transpose(Cell%Cr_Orth_cel)
 
@@ -314,10 +377,14 @@ Submodule (CFML_Metrics) GenMetrics
                 Cell%bl_m(3,1)=0.0_cp
                 Cell%bl_m(3,2)=0.0_cp
                 Cell%Inv_bl_M=inverse_matrix(Cell%bl_M)
+                if (Err_CFML%IErr ==1) then
+                   Err_CFML%Msg="SET_CRYSTAL_CELL@METRICS: Wrong cell parameters. Please, check it!"
+                   return
+                end if 
              end if
 
        end select
-
+       
        return
     End Subroutine Set_Crystal_Cell
 
@@ -470,21 +537,18 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Get_Deriv_Orth_Cell(Cell,Cartype) Result(Deriv_Orthcell)
+    Module Function Get_Deriv_Orth_Cell(Cell,Cartype) Result(De_Orthcell)
        !---- Arguments ----!
        class(Cell_Type),                intent(in ) :: cell
-       character (len=1), optional,     intent(in ) :: CarType
-       real(kind=cp), dimension(3,3,6)              :: Deriv_Orthcell
+       character (len=2), optional,     intent(in ) :: CarType
+       real(kind=cp), dimension(3,3,6)              :: De_Orthcell
 
        !---- Local Variables ----!
        real(kind=cp)    ::  ca,cb,cg,sa,sb,sg,f,g, fa,fb,fc,ga,gb,gc
-       character(len=1) :: car
+       character(len=2) :: car
 
        !> Init
-       Deriv_Orthcell=0.0_cp
-
-       car=" "
-       if (present(CarType)) car=adjustl(u_case(Cartype))
+       De_Orthcell=0.0_cp
 
        ca=cosd(cell%ang(1))
        cb=cosd(cell%ang(2))
@@ -492,9 +556,48 @@ Submodule (CFML_Metrics) GenMetrics
        sa=sind(cell%ang(1))
        sb=sind(cell%ang(2))
        sg=sind(cell%ang(3))
+       
+       !> Init and checks
+       car=" "
+       if (present(CarType)) then
+          Car=U_case(adjustl(CarType))
+          
+          !> Check for valid input
+          if (len_trim(Car) == 2) then  ! two symbols input
+             if (Car /= 'CA' .and. Car /= 'AB' .and. Car /= 'BC' .and. Car /= 'BA') then
+                Err_CFML%Ierr=1
+                Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: Invalid CarType! "
+                return
+             end if   
+             if (Car == 'BC' .or. Car == 'BA') then
+                Err_CFML%Ierr=1 
+                Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: CarType not supported! "
+                return
+             end if
+            
+          else ! one symbol input
+             select case(Car(1:1))
+                case('C')
+                   Car(2:2)='A'
+                
+                case('A')
+                   Car(2:2)='B'
+                
+                case('B')
+                   Err_CFML%Ierr=1 
+                   Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: CarType not supported! "
+                   return
 
+                case default
+                   Car='CA'            !> default because invalid first character   
+             end select
+          end if            
+       end if
+       
+       if (len_trim(Car) == 0) Car='CA' !> default: c//Z, a*//X
+       
        select case (car)
-          case ('A')
+          case ('AB') ! x//a was original alternate setting
              f=(ca-cb*cg)/sg    !-cosgas*sinbeta
              g=SQRT(sb*sb-f*f)  ! singas*sinbeta
              fa=-sa/sg          ! df/dalpha
@@ -517,60 +620,61 @@ Submodule (CFML_Metrics) GenMetrics
              !           (   1      0      0 )
              !  dM_da =  (   0      0      0 )
              !           (   0      0      0 )
-             deriv_Orthcell(1,1,1) = 1.0
+             de_Orthcell(1,1,1) = 1.0
 
              !           (   0      cg     0 )
              !  dM_db =  (   0      sg     0 )
              !           (   0      0      0 )
-             deriv_Orthcell(1,2,2) = cg
-             deriv_Orthcell(2,2,2) = sg
+             de_Orthcell(1,2,2) = cg
+             de_Orthcell(2,2,2) = sg
 
              !
              !            (   0          0          cb )
              !  dM_dc =   (   0          0          f  )
              !            (   0          0          g  )
-             deriv_Orthcell(1,3,3) = cb
-             deriv_Orthcell(2,3,3) = f
-             deriv_Orthcell(3,3,3) = g
+             de_Orthcell(1,3,3) = cb
+             de_Orthcell(2,3,3) = f
+             de_Orthcell(3,3,3) = g
 
              !
              !             (   0          0           0   )
              ! dM_dalpha=  (   0          0          c*fa )
              !             (   0          0          c*ga )
              !
-             deriv_Orthcell(2,3,4) = cell%cell(3)*fa
-             deriv_Orthcell(3,3,4) = cell%cell(3)*ga
+             de_Orthcell(2,3,4) = cell%cell(3)*fa
+             de_Orthcell(3,3,4) = cell%cell(3)*ga
 
              !
              !             (   0          0         -c*sb )
              ! dM_dbeta =  (   0          0          c*fb )
              !             (   0          0          c*gb )
              !
-             deriv_Orthcell(1,3,5) = -cell%cell(3)*sb
-             deriv_Orthcell(2,3,5) =  cell%cell(3)*fb
-             deriv_Orthcell(3,3,5) =  cell%cell(3)*gb
+             de_Orthcell(1,3,5) = -cell%cell(3)*sb
+             de_Orthcell(2,3,5) =  cell%cell(3)*fb
+             de_Orthcell(3,3,5) =  cell%cell(3)*gb
 
              !
              !              (   0        -b*sg         0   )
              ! dM_dgamma =  (   0         b*cg        c*fc )
              !              (   0          0          c*gc )
              !
-             deriv_Orthcell(1,2,6) = -cell%cell(2)*sg
-             deriv_Orthcell(2,2,6) =  cell%cell(2)*cg
-             deriv_Orthcell(2,3,6) =  cell%cell(3)*fc
-             deriv_Orthcell(3,3,6) =  cell%cell(3)*gc
-
-          case default
+             de_Orthcell(1,2,6) = -cell%cell(2)*sg
+             de_Orthcell(2,2,6) =  cell%cell(2)*cg
+             de_Orthcell(2,3,6) =  cell%cell(3)*fc
+             de_Orthcell(3,3,6) =  cell%cell(3)*gc
+             
+          case ('CA')
+             !
              !  By default, the cartesian frame is such as z//c
              !  Transponse of the following matrix:
              !    a = (a sinbeta singamma*, -a sinbeta cosgamma*, a cosbeta )
              !    b = (         0         ,     b sinalpha      , b cosalpha)
              !    c = (         0         ,         0           , c         )
-
+             
              !         ( a sinbeta singamma*          0             0 )
              !    M =  (-a sinbeta cosgamma*      b sinalpha        0 )
              !         ( a cosbeta                b cosalpha        c )
-
+             
              f=(cg-ca*cb)/sa    !-sinbeta . cosgamma*
              g=SQRT(sb*sb-f*f)  ! sinbeta . singamma*
              fa= cb/sa**2       ! df/dalpha
@@ -579,57 +683,58 @@ Submodule (CFML_Metrics) GenMetrics
              ga=-f*fa/g         ! dg/dalpha
              gb=(sb*cb-f*fb)/g  ! dg/dbeta
              gc=f/g*fc          ! dg/dgamma
-
+             
              !         ( a*g        0         0 )
              !    M =  ( a*f      b*sa        0 )
              !         ( a*cb     b*ca        c )
-
+             
              !
              !           (   g       0      0 )
              !  dM_da =  (   f       0      0 )
              !           (   cb      0      0 )
-             deriv_Orthcell(1,1,1) = g
-             deriv_Orthcell(1,2,1) = f
-             deriv_Orthcell(1,3,1) = cb
-
+             de_Orthcell(1,1,1) = g
+             de_Orthcell(1,2,1) = f
+             de_Orthcell(1,3,1) = cb
+             
              !           (   0      0      0 )
              !  dM_db =  (   0      sa     0 )
              !           (   0      ca     0 )
-             deriv_Orthcell(1,2,2) = sa
-             deriv_Orthcell(3,2,2) = ca
-
+             de_Orthcell(1,2,2) = sa
+             de_Orthcell(3,2,2) = ca
+             
              !
              !            (   0      0      0  )
              !  dM_dc =   (   0      0      0  )
              !            (   0      0      1  )
-             deriv_Orthcell(3,3,3) = 1
-
+             de_Orthcell(3,3,3) = 1
+             
              !
              !             ( a*ga         0          0 )
              ! dM_dalpha=  ( a*fa       -b*ca        0 )
              !             (   0         b*sa        0 )
              !
-             deriv_Orthcell(1,1,4) = cell%cell(1)*ga
-             deriv_Orthcell(2,1,4) = cell%cell(1)*fa
-             deriv_Orthcell(2,2,4) =-cell%cell(2)*ca
-             deriv_Orthcell(3,2,4) = cell%cell(2)*sa
-
+             de_Orthcell(1,1,4) = cell%cell(1)*ga
+             de_Orthcell(2,1,4) = cell%cell(1)*fa
+             de_Orthcell(2,2,4) =-cell%cell(2)*ca
+             de_Orthcell(3,2,4) = cell%cell(2)*sa
+             
              !
              !             (  a*gb        0         0 )
              ! dM_dbeta =  (  a*fb        0         0 )
              !             ( -a*sb        0         0 )
              !
-             deriv_Orthcell(1,1,5) = cell%cell(1)*gb
-             deriv_Orthcell(2,1,5) = cell%cell(1)*fb
-             deriv_Orthcell(3,1,5) =-cell%cell(1)*sb
-
+             de_Orthcell(1,1,5) = cell%cell(1)*gb
+             de_Orthcell(2,1,5) = cell%cell(1)*fb
+             de_Orthcell(3,1,5) =-cell%cell(1)*sb
+             
              !
              !              (  a*gc     0      0   )
              ! dM_dgamma =  (  a*fc     0      0   )
              !              (   0       0      0   )
              !
-             deriv_Orthcell(1,1,6) = cell%cell(1)*gc
-             deriv_Orthcell(2,1,6) = cell%cell(1)*fc
+             de_Orthcell(1,1,6) = cell%cell(1)*gc
+             de_Orthcell(2,1,6) = cell%cell(1)*fc   
+          
        end select
 
        return
@@ -1773,6 +1878,103 @@ Submodule (CFML_Metrics) GenMetrics
 
        return
     End Function Rot_MetricalMatrix
+    
+    !!----
+    !!---- CELL_STRAIN
+    !!----    Calculates the strain from cell described by T0 to cell described by T1 
+    !!----    Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
+    !!----
+    !!----    Ported from WinStrain (RJA): February - 2019
+    !!----
+    !!---- 19/04/2019 
+    !!
+    Module Function Cell_Strain(Itype,T0,T1) Result(strain)
+       !---- Arguments ----!
+       integer,                       intent(in) :: itype  ! Strain type
+       real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 
+       real(kind=cp), dimension(3,3), intent(in) :: T1     ! CR_Orth_Cel for chosen axial system for the final state 
+       real(kind=cp), dimension(3,3)             :: Strain ! calculated cell strain
+    
+       !--- Local variables ---!
+       integer                       :: i, j
+       real(kind=cp), dimension(3,3) :: s0, s1, sinv, w1, w2
 
+       !> Init
+       strain=0.0_cp
+       do i=1,3
+          strain(i,i)=0.1        ! safety
+       end do
+    
+       !> Original literature is written in terms of S matrices: 
+       !> Zotov, Acta Cryst. (1990). A46, 627-628
+       !> These are the transpose of CR_Orth_Cel
+       s0=transpose(t0)
+       s1=transpose(t1)
+
+       select case (itype)
+          case (1) ! Eulerian finite
+             Sinv=Inverse_Matrix(S1)
+             if (Err_CFML%IErr /=0) return
+              
+             w1=matmul(sinv,s0)        
+             w2=transpose(w1)        
+             strain=matmul(w1,w2)
+             do i=1,3
+                do j=1,3
+                   strain(i,j)= 0.5_cp*(strain(i,j)-2.0_cp*w1(i,j)-2.0_cp*w1(j,i))
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)+1.5_cp
+             end do
+             
+          case (2) ! Eulerian infinitesimal
+             Sinv=Inverse_Matrix(S1)
+             if (Err_CFML%IErr /=0) return
+
+             w1=matmul(sinv,s0)        ! 
+             do i=1,3
+                do j=1,3
+                   strain(i,j)= -0.5_cp*(w1(i,j)+w1(j,i))
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)+1.0_cp
+             end do
+             
+          case (3) ! Lagrangian finite 
+             Sinv=Inverse_Matrix(S0)
+             if (Err_CFML%IErr /=0) return
+
+             w1=matmul(sinv,s1)
+             w2=transpose(w1)        ! 
+             strain=matmul(w1,w2)
+             do i=1,3
+                do j=1,3
+                   strain(i,j)=0.5_cp*strain(i,j)
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)-0.5_cp
+             end do
+             
+          case (4) ! Lagrangian infinitesimal  
+             Sinv=Inverse_Matrix(S0)
+             if (Err_CFML%IErr /=0) return
+             
+             w1=matmul(sinv,s1)         ! 
+             do i=1,3
+                do j=1,3
+                   strain(i,j)=0.5_cp*(w1(i,j)+w1(j,i))
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)-1.0_cp
+             end do
+             
+       end select  
+       
+       return
+    End Function Cell_Strain
 
 End Submodule GenMetrics

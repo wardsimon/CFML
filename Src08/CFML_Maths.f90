@@ -74,6 +74,7 @@
     public :: Co_Prime_Vector,               &
               Diagonalize_SH,                &
               Invert_Matrix_R,               &
+              Orient_Eigenvectors,           &
               Points_In_Line2D, Pikout_Lj_Cubic, &
               RowEchelonForm,                &
               Set_EPS_Math, SmithNormalForm, Svdcmp, Swap, Resolv_Sist_1x2,      &
@@ -974,6 +975,12 @@
           real(kind=cp), dimension(:,:), intent(in) :: g   ! Metrics
           real(kind=cp)                             :: r   ! Norm of the vector
        End Function Norm_R
+       
+       Module Pure Subroutine Orient_Eigenvectors(eval,evec)
+          !---- Arguments ----!
+          real(kind=cp), dimension(3),   intent(in out) :: eval
+          real(kind=cp), dimension(3,3), intent(in out) :: evec
+       End Subroutine Orient_Eigenvectors
 
        Module Pure Function Outerprod(a,b)  Result(c)
           !---- Arguments ----!

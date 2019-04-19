@@ -529,5 +529,40 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_EigenvSort
+    
+    !!----
+    !!---- ORIENT_EIGENVECTORS
+    !!----    re-orders eigenvectors and their eigenvalues so that #1 is close to +X of 
+    !!----    Cartesian, etc
+    !!----
+    !!----    Written 2/2019 RJA
+    !!----
+    !!---- 19/04/2019 
+    !!
+    Module Pure Subroutine Orient_Eigenvectors(eval,evec)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),   intent(in out) :: eval
+       real(kind=cp), dimension(3,3), intent(in out) :: evec
+
+       !---- Local Variables ----!
+       integer :: i,j,s
+       real(kind=cp),dimension(3)     :: val,t
+       real(kind=cp),dimension(3,3)   :: vec    
+
+       !> working copy
+       val=eval
+       vec=evec
+    
+       !> do sort by copy from vec back to evec
+       do j=1,3
+          t(1:3)=abs(vec(j,1:3))          ! find evector with largest component along Cart axis j, allow for evec parallel to -ve cart axis
+          i=maxloc(t,dim=1)
+          s=sign(1.0_cp,vec(j,i))
+          eval(j)=val(i)
+          evec(1:3,j)=s*vec(1:3,i)
+       end do
+    
+       return
+    End Subroutine Orient_Eigenvectors
  
 End Submodule Diagonalize_SH
