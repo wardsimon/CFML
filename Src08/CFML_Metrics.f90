@@ -135,13 +135,13 @@
     private
     
     !---- Public Functions ----!
-    public :: Cart_U_Vector, Cart_Vector, Cell_Strain, &
+    public :: Cart_U_Vector, Cart_Vector,  &
               Get_B_from_Betas, Get_B_from_U, Get_Betas_from_B, Get_Betas_from_Biso, &
               Get_Betas_from_U, Get_U_from_B, Get_U_from_Betas, &
               Get_Basis_From_UVW, Get_Deriv_Orth_Cell, Get_Transfm_Matrix , &
               Get_TwoFold_Axes, &
               Rot_MetricalMatrix, &
-              SigmaV_From_Cell, &
+              SigmaV_From_Cell, Strain_from_Cell&
               U_Equiv, &
               Volume_from_Cell
               
@@ -326,7 +326,7 @@
           type (Zone_Axis_Type)                  :: ZoneB     ! !Object containing u and basis vector in the plane
        End Function Get_Basis_From_UVW
        
-       Module Function Cell_Strain(Itype,T0,T1) Result(strain)
+       Module Function Strain_from_Cell(Itype,T0,T1) Result(strain)
           !---- Arguments ----!
           integer,                       intent(in) :: itype  ! Strain type
           real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 

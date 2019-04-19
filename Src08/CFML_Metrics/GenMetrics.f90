@@ -1880,7 +1880,7 @@ Submodule (CFML_Metrics) GenMetrics
     End Function Rot_MetricalMatrix
     
     !!----
-    !!---- CELL_STRAIN
+    !!---- STRAIN_FROM_CELL
     !!----    Calculates the strain from cell described by T0 to cell described by T1 
     !!----    Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
     !!----
@@ -1888,7 +1888,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 19/04/2019 
     !!
-    Module Function Cell_Strain(Itype,T0,T1) Result(strain)
+    Module Function Strain_from_Cell(Itype,T0,T1) Result(strain)
        !---- Arguments ----!
        integer,                       intent(in) :: itype  ! Strain type
        real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 
