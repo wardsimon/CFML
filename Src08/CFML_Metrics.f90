@@ -141,7 +141,7 @@
               Get_Basis_From_UVW, Get_Deriv_Orth_Cell, Get_Transfm_Matrix , &
               Get_TwoFold_Axes, &
               Rot_MetricalMatrix, &
-              SigmaV_From_Cell, Strain_from_Cell&
+              SigmaV_From_Cell, Strain_from_Cell, &
               U_Equiv, &
               Volume_from_Cell
               
@@ -332,7 +332,7 @@
           real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 
           real(kind=cp), dimension(3,3), intent(in) :: T1     ! CR_Orth_Cel for chosen axial system for the final state 
           real(kind=cp), dimension(3,3)             :: Strain ! calculated cell strain
-       End Function Cell_Strain 
+       End Function Strain_from_Cell 
        
        Module Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,told)
           !---- Arguments ----!

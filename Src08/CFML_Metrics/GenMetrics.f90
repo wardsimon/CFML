@@ -1975,6 +1975,6 @@ Submodule (CFML_Metrics) GenMetrics
        end select  
        
        return
-    End Function Cell_Strain
+    End Function Strain_from_Cell
 
 End Submodule GenMetrics
