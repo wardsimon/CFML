@@ -42,7 +42,7 @@ SubModule (CFML_Groups) CFML_GRP_012
                abc_type=.true.
           
             case Default
-          	   x_typ=xyz
+               x_typ=xyz
          End Select
       end if
       

@@ -21,11 +21,11 @@ SubModule (CFML_Groups) Oper_Mult
       Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_LI)
       do i=1,d
-       	do
+         do
             if (Op3%Mat(i,n) < 0_LI//1_LI) then
-            	Op3%Mat(i,n) = Op3%Mat(i,n) + 1_LI
+               Op3%Mat(i,n) = Op3%Mat(i,n) + 1_LI
             else
-            	exit
+               exit
             end if
          end do
       end do

@@ -233,30 +233,30 @@ Submodule (CFML_Metrics) GenMetrics
              Mat(3,3) = cell(3)*sind(ang(2))*singas
                  
           case('BC')  ! This is Carpenter orientation with b // Y, c* // Z, coded by RJA
-		       cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+             cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
              sinbes=sqrt(1.0_cp-cosbes**2)               
-             Mat(1,1)=cell(1)*sind(ang(3))	
-		       Mat(2,1)=cell(1)*cosd(ang(3))
-		       Mat(3,1)=0.0_cp
-		       Mat(1,2)=0.0_cp
-		       Mat(2,2)=cell(2)
-		       Mat(3,2)=0.0_cp
-		       Mat(1,3)=-1.0_cp*cell(3)*sind(ang(1))*cosbes
-		       Mat(2,3)=cell(3)*cosd(ang(1))
-		       Mat(3,3)=cell(3)*sind(ang(1))*sinbes
+             Mat(1,1)=cell(1)*sind(ang(3))   
+             Mat(2,1)=cell(1)*cosd(ang(3))
+             Mat(3,1)=0.0_cp
+             Mat(1,2)=0.0_cp
+             Mat(2,2)=cell(2)
+             Mat(3,2)=0.0_cp
+             Mat(1,3)=-1.0_cp*cell(3)*sind(ang(1))*cosbes
+             Mat(2,3)=cell(3)*cosd(ang(1))
+             Mat(3,3)=cell(3)*sind(ang(1))*sinbes
                 
           case('BA') ! Angel and Brown with Y // b and  X // a*
-		       cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
-             sinbes=sqrt(1.0_cp-cosbes**2)                       		
-		       Mat(1,1)=cell(1)*sind(ang(3))*sinbes
-		       Mat(2,1)=cell(1)*cosd(ang(3))
-		       Mat(3,1)= -1.0_cp*cell(1)*sind(ang(3))*cosbes
-		       Mat(1,2)=0.0_cp
-		       Mat(2,2)=cell(2)
-		       Mat(3,2)=0.0_cp
-		       Mat(1,3)=0.0_cp
-		       Mat(2,3)=cell(3)*cosd(ang(1))									 
-		       Mat(3,3)=cell(3)*sind(ang(1))
+             cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+             sinbes=sqrt(1.0_cp-cosbes**2)                           
+             Mat(1,1)=cell(1)*sind(ang(3))*sinbes
+             Mat(2,1)=cell(1)*cosd(ang(3))
+             Mat(3,1)= -1.0_cp*cell(1)*sind(ang(3))*cosbes
+             Mat(1,2)=0.0_cp
+             Mat(2,2)=cell(2)
+             Mat(3,2)=0.0_cp
+             Mat(1,3)=0.0_cp
+             Mat(2,3)=cell(3)*cosd(ang(1))                            
+             Mat(3,3)=cell(3)*sind(ang(1))
                
        End Select 
 

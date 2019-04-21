@@ -76,9 +76,9 @@ SubModule (CFML_Groups) CFML_GRP_020
       end if
       if (nt == max_op) then
          Err_CFML%Ierr = 1
-      	write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "GET_GROUP_FROM_GENER@GROUPS: Max_Order (", &
-      	                                        max_op,&
-      	                                        ") reached! The provided generators may not form a group!"
+         write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "GET_GROUP_FROM_GENER@GROUPS: Max_Order (", &
+                                                 max_op,&
+                                                 ") reached! The provided generators may not form a group!"
       end if
 
       multip=nt

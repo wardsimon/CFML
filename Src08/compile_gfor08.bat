@@ -61,7 +61,7 @@ rem
 rem
    echo .... Mathematics Procedures
    gfortran -c %OPTC%  -J.\mod CFML_Maths.f90                        %OPT1% 
-   gfortran -c %OPTC%  -J.\mod CFML_FFT.f90                          %OPT1% 
+rem   gfortran -c %OPTC%  -J.\mod CFML_FFT.f90                          %OPT1% 
    gfortran -c %OPTC%  -J.\mod CFML_Random.f90                       %OPT1% 
 rem 
 rem   Submodules CFML_Maths   
@@ -111,9 +111,9 @@ rem   Submodules CFML_Maths
 rem
 rem   Submodules CFML_FFT
       cd .\CFML_FFT        
-      gfortran -c %OPTC%  -J..\mod FFT_Convol.f90                    %OPT1%
-      gfortran -c %OPTC%  -J..\mod FFT_Gen.f90                       %OPT1%
-      move /y *.o .. > nul
+rem      gfortran -c %OPTC%  -J..\mod FFT_Convol.f90                    %OPT1%
+rem      gfortran -c %OPTC%  -J..\mod FFT_Gen.f90                       %OPT1%
+rem      move /y *.o .. > nul
       cd .. 
 rem   Submodules CFML_Random   
       cd .\CFML_Random
@@ -181,8 +181,8 @@ rem   Submodules CFML_Rational
       cd ..        
 rem
    echo .... CFML Tables
-   gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90                %OPT1%  
-   gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                  %OPT1%  
+   gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90               %OPT1%  
+   gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                 %OPT1%  
 rem 
 rem   Submodules CFML_ChemScatt   
       cd .\CFML_Tables        
@@ -190,11 +190,68 @@ rem   Submodules CFML_ChemScatt
       gfortran -c %OPTC% -J..\mod Get_ScatterT.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Set_ScatterT.f90                   %OPT0%
 rem      
-      gfortran -c %OPTC% -J..\mod Del_BondsT.f90                   %OPT1%
-      gfortran -c %OPTC% -J..\mod Get_BondsT.f90                   %OPT1%
-      gfortran -c %OPTC% -J..\mod Set_BondsT.f90                   %OPT0%
+      gfortran -c %OPTC% -J..\mod Del_BondsT.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_BondsT.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Set_BondsT.f90                     %OPT0%
       move /y *.o .. > nul
-      cd ..        
+      cd ..   
+rem   
+   echo .... Groups Procedures 
+   gfortran -c %OPTC%  -J.\mod CFML_Groups.f90                 %OPT1% 
+rem
+rem   Submodules CFML_Groups
+      cd .\CFML_Groups 
+      gfortran -c %OPTC% -J..\mod Rational_IsLattVec.f90             %OPT1%  
+      gfortran -c %OPTC% -J..\mod Rational_RedTraslation.f90         %OPT1%  
+      gfortran -c %OPTC% -J..\mod Init_Procedures.f90                %OPT1%  
+      gfortran -c %OPTC% -J..\mod Operator_Mult.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Operator_Equal.f90                 %OPT1%  
+      gfortran -c %OPTC% -J..\mod Allocate_Opers.f90                 %OPT1%  
+      gfortran -c %OPTC% -J..\mod Allocate_Grp.f90                   %OPT1%  
+      gfortran -c %OPTC% -J..\mod Is_InversionCentre.f90             %OPT1%  
+      gfortran -c %OPTC% -J..\mod Is_LattCentring.f90                %OPT1%  
+      gfortran -c %OPTC% -J..\mod IT_Generators.f90                  %OPT0%  
+      gfortran -c %OPTC% -J..\mod Write_Grp.f90                      %OPT1%  
+      gfortran -c %OPTC% -J..\mod Sort_Operator.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Dimension.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Symb_Mat.f90                   %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Symb_Oper.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Mat_Symb.f90                   %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Mult_Table.f90                 %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Oper_Symb.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_GenerStr.f90                   %OPT1%  
+      gfortran -c %OPTC% -J..\mod CheckGener.f90                     %OPT1%  
+      gfortran -c %OPTC% -J..\mod Reorder_Oper.f90                   %OPT1%  
+      gfortran -c %OPTC% -J..\mod Get_Cosets.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Grp_Table.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Grp_Gener.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Grp_Const_Str.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Grp_Const_VGen.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_SubGrp.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_SubGrp_SubGen.f90              %OPT1% 
+      move /y *.o .. > nul
+      cd ..  
+ rem   
+   echo .... Profiles definitions 
+   gfortran -c %OPTC%  -J.\mod CFML_Profiles.f90               %OPT1% 
+rem
+rem   Submodules CFML_Profiles
+      cd .\CFML_Profiles   
+      gfortran -c %OPTC% -J..\mod Init_ProfVal.f90                   %OPT0%    
+      gfortran -c %OPTC% -J..\mod Profile_Hester.f90                 %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_Gaussian.f90               %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_Lorentzian.f90             %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_PseudoVoigt.f90            %OPT1%    
+      gfortran -c %OPTC% -J..\mod TOF_Carpenter.f90                  %OPT1%    
+      gfortran -c %OPTC% -J..\mod TOF_Jorgensen.f90                  %OPT1%    
+      gfortran -c %OPTC% -J..\mod TOF_Jorg_Vondreele.f90             %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_BacktoBack.f90             %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_Exponential.f90            %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_Hat.f90                    %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_IkedaCarpenter.f90         %OPT1%    
+      gfortran -c %OPTC% -J..\mod Profile_TCHpVoigt.f90              %OPT1%    
+      move /y *.o .. > nul
+      cd .. 
       goto END
       
 :END

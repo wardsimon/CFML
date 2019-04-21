@@ -112,20 +112,20 @@ SubModule (CFML_Groups) CFML_Grp_013
       call Get_Separator_Pos(pSymb,",",pos,np)
 
       if (np /= d) then
-      	if (np == d-1) then
-      		do i=1,d
-      			j=index(pSymb,trim(x_typ(i)))
-      			if (j == 0) then !error in the symbol
+         if (np == d-1) then
+            do i=1,d
+               j=index(pSymb,trim(x_typ(i)))
+               if (j == 0) then !error in the symbol
                   Err_CFML%Ierr=1
                   Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: "// &
                                "Error in the symbol of the operator: Missing ( " // &
                                trim(x_typ(i))//" ) => Symbol:"//trim(pSymb)
                   return
-      			end if
-      		end do
-      		pSymb=trim(pSymb)//",1"
-      		np=np+1
-      		pos(np)=len_trim(pSymb)-1
+               end if
+            end do
+            pSymb=trim(pSymb)//",1"
+            np=np+1
+            pos(np)=len_trim(pSymb)-1
          else
             Err_CFML%Ierr=1
             write(unit=Err_CFML%Msg, fmt="(a,2i3,a)") "GET_MAT_FROM_SYMB@GROUPS: "// &
@@ -135,16 +135,16 @@ SubModule (CFML_Groups) CFML_Grp_013
          end if
          
       else !Check the presence of all symbols
-      	do i=1,d
-      		j=index(pSymb(1:pos(np)),trim(x_typ(i)))
-      		if (j == 0) then !error in the symbol
+         do i=1,d
+            j=index(pSymb(1:pos(np)),trim(x_typ(i)))
+            if (j == 0) then !error in the symbol
                Err_CFML%Ierr=1
                Err_CFML%Msg="GET_MAT_FROM_SYMB_OP@GROUPS: "// &
                             "Error in the symbol of the operator: Missing ( "//trim(x_typ(i))// &
                             " ) => Symbol:"//trim(pSymb)
                return
-      		end if
-      	end do
+            end if
+         end do
       end if
 
       read(unit=pSymb(pos(np)+1:),fmt=*,iostat=ier) inv

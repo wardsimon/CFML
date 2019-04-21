@@ -11,15 +11,15 @@ SubModule (CFML_Groups) CFML_GRP_002
    !!
    Module Subroutine Reduced_Translation(Mat)
       !---- Arguments ----!
-   	type(rational), dimension(:,:), intent(inout) :: Mat
-   	
-   	!---- Local Variables ----!
-   	integer :: d,i,n,m
-   	
-   	!> Init
-   	n=size(Mat,dim=1)
-   	
-   	d=n-1
+      type(rational), dimension(:,:), intent(inout) :: Mat
+      
+      !---- Local Variables ----!
+      integer :: d,i,n,m
+      
+      !> Init
+      n=size(Mat,dim=1)
+      
+      d=n-1
       do i=1,d
          if (Rational_Is_Integer(Mat(i,n))) then
             Mat(i,n) = (0//1)
