@@ -792,14 +792,14 @@ Module CFML_Rational
        integer :: j, n1, n2
 
        !> Init
-       R= 0 // 1
+       R= 0_LI//1_LI
 
        n1=size(R,1)
        n2=size(R,2)
        if (n1 /= n2) return
 
        do j =1, n1
-          R(j,j)= 1 // 1
+          R(j,j)= 1_LI//1_LI
        end do
 
        return
