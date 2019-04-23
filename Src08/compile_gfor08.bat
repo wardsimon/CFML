@@ -196,6 +196,7 @@ rem
    gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90               %OPT1%  
    gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                 %OPT1%  
    gfortran -c %OPTC%  -J.\mod CFML_SymmT.f90                  %OPT0%  
+   gfortran -c %OPTC%  -J.\mod CFML_BVST.f90                   %OPT1%  
 rem 
 rem   Submodules CFML_ChemScatt   
       cd .\CFML_Tables        
@@ -210,6 +211,9 @@ rem
       gfortran -c %OPTC% -J..\mod Del_SpgT.f90                       %OPT1%
       gfortran -c %OPTC% -J..\mod Get_SpgT.f90                       %OPT1%
       gfortran -c %OPTC% -J..\mod Set_SpgT.f90                       %OPT0%
+rem      
+      gfortran -c %OPTC% -J..\mod Del_BVST.f90                       %OPT1%
+      gfortran -c %OPTC% -J..\mod Set_BVST.f90                       %OPT0%
 rem      
       move /y *.o .. > nul
       cd ..   

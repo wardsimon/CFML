@@ -194,6 +194,7 @@ rem
    ifort /c CFML_ScatterT.f90                       /nologo %OPT1% %OPT2% /module:.\mod 
    ifort /c CFML_BondsT.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
    ifort /c CFML_SymmT.f90                          /nologo %OPT0% %OPT2% /module:.\mod 
+   ifort /c CFML_BVST.f90                           /nologo %OPT0% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -208,7 +209,10 @@ rem
       ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
-rem       
+rem
+      ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Set_BVST.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
+rem
       move /y *.obj .. > nul
       cd .. 
 rem   
