@@ -273,6 +273,17 @@ rem   Submodules CFML_Profiles
       gfortran -c %OPTC% -J..\mod Profile_TCHpVoigt.f90              %OPT1%    
       move /y *.o .. > nul
       cd .. 
+rem
+   echo .... Extintion corrections
+   gfortran -c %OPTC%  -J.\mod CFML_ExtinCorr.f90               %OPT1%
+rem      
+rem   Submodules CFML_ExtinCorr
+      cd .\CFML_ExtinCorr
+      gfortran -c %OPTC% -J..\mod BeckerCoppens.f90                  %OPT1%
+      gfortran -c %OPTC% -J..\mod FlippingRatios.f90                 %OPT1%
+      gfortran -c %OPTC% -J..\mod ShelxCorr.f90                      %OPT1%
+      move /y *.o .. > nul
+      cd ..       
       goto END
       
 :END

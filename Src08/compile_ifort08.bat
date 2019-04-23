@@ -251,8 +251,8 @@ rem   Submodules CFML_Groups
       move /y *.obj .. > nul
       cd ..  
  rem   
-   echo .... Profiles definitions 
-   ifort /c CFML_Profiles.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
+    echo .... Profiles definitions 
+    ifort /c CFML_Profiles.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Profiles
       cd .\CFML_Profiles   
@@ -271,6 +271,17 @@ rem   Submodules CFML_Profiles
       ifort /c Profile_TCHpVoigt.f90                  /nologo %OPT1% %OPT2%  /module:..\mod    
       move /y *.obj .. > nul
       cd .. 
+rem
+   echo .... Extintion corrections
+   ifort /c CFML_ExtinCorr.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
+rem      
+rem   Submodules CFML_ExtinCorr
+      cd .\CFML_ExtinCorr
+      ifort /c BeckerCoppens.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c FlippingRatios.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ShelxCorr.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      move /y *.obj .. > nul
+      cd .. 
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
@@ -279,23 +290,15 @@ rem   Submodules CFML_Profiles
    ) else (
      ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
    )
-   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
 rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
-   ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
-   ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
    ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
-   ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
-   ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
 rem
