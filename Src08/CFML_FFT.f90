@@ -991,7 +991,7 @@ Module CFML_FFT
     !!----
     !!---- 14/04/2019 
     !!
-    Module Pure Function Convol(F, Pf, G, Pg, Interval) Result(Conv)
+    Pure Function Convol(F, Pf, G, Pg, Interval) Result(Conv)
        !---- Arguments ----!
        real(kind=cp),dimension(:),          intent(in) :: pf
        real(kind=cp),dimension(:),          intent(in) :: pg
@@ -1086,7 +1086,7 @@ Module CFML_FFT
     !!----
     !!---- 14/04/2019 
     !!
-    Module Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np) Result(Conv)
+    Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np) Result(Conv)
        !---- Arguments ----!
        real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
        real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)

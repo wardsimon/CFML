@@ -183,6 +183,7 @@ rem
    echo .... CFML Tables
    gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90               %OPT1%  
    gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                 %OPT1%  
+   gfortran -c %OPTC%  -J.\mod CFML_SymmT.f90                  %OPT0%  
 rem 
 rem   Submodules CFML_ChemScatt   
       cd .\CFML_Tables        
@@ -193,6 +194,11 @@ rem
       gfortran -c %OPTC% -J..\mod Del_BondsT.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod Get_BondsT.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod Set_BondsT.f90                     %OPT0%
+rem
+      gfortran -c %OPTC% -J..\mod Del_SpgT.f90                       %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_SpgT.f90                       %OPT1%
+      gfortran -c %OPTC% -J..\mod Set_SpgT.f90                       %OPT0%
+rem      
       move /y *.o .. > nul
       cd ..   
 rem   
@@ -210,7 +216,6 @@ rem   Submodules CFML_Groups
       gfortran -c %OPTC% -J..\mod Allocate_Grp.f90                   %OPT1%  
       gfortran -c %OPTC% -J..\mod Is_InversionCentre.f90             %OPT1%  
       gfortran -c %OPTC% -J..\mod Is_LattCentring.f90                %OPT1%  
-      gfortran -c %OPTC% -J..\mod IT_Generators.f90                  %OPT0%  
       gfortran -c %OPTC% -J..\mod Write_Grp.f90                      %OPT1%  
       gfortran -c %OPTC% -J..\mod Sort_Operator.f90                  %OPT1%  
       gfortran -c %OPTC% -J..\mod Get_Dimension.f90                  %OPT1%  

@@ -63,7 +63,7 @@ Module CFML_GlobalDeps
    integer, parameter :: SP = selected_real_kind(6,30)           ! Simple precision
    integer, parameter :: LI = selected_int_kind(16)              ! Long Integer
 
-   integer, parameter :: CP = DP                                 ! Current precision
+   integer, parameter :: CP = SP                                 ! Current precision
 
    !---- Trigonometric ----!
    real(kind=DP), parameter :: PI = 3.141592653589793238463_DP   ! PI value

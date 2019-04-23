@@ -180,6 +180,7 @@ rem
    echo .... Defining Tables 
    ifort /c CFML_ScatterT.f90                       /nologo %OPT1% %OPT2% /module:.\mod 
    ifort /c CFML_BondsT.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_SymmT.f90                          /nologo %OPT0% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -189,7 +190,12 @@ rem   Submodules CFML_Tables
 rem        
       ifort /c Del_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod   
       ifort /c Get_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Set_BondsT.f90                         /nologo %OPT0% %OPT2%  /module:..\mod 
+      ifort /c Set_BondsT.f90                         /nologo %OPT0% %OPT2%  /module:..\mod
+rem
+      ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
+rem       
       move /y *.obj .. > nul
       cd .. 
 rem   
@@ -207,7 +213,6 @@ rem   Submodules CFML_Groups
       ifort /c Allocate_Grp.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c IT_Generators.f90                      /nologo %OPT0% %OPT2%  /module:..\mod 
       ifort /c Write_Grp.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Sort_Operator.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Dimension.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 

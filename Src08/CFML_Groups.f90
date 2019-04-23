@@ -59,9 +59,6 @@ Module CFML_Groups
     public :: operator (*) 
     public :: operator (==) 
     
-    !---- List of public functions ----!
-    public :: Get_IT_Generators
-
     !---- List of public subroutines ----!
     public :: Initialize_Conditions_Group, Initialize_Group, &
               Get_Subgroups_Subgen, Group_Constructor
@@ -219,12 +216,6 @@ Module CFML_Groups
           integer,                 intent(out)    :: ord !order or the final group
        End Subroutine Get_Group_From_Table
        
-       Module Function Get_IT_Generators(Spg) Result(StrGen)
-          !---- Arguments ----!
-          character(len=*), intent(in)  :: spg      ! Hermann_Mauguin symbol or number of S.Group
-          character(len=255)            :: Strgen   ! String with all generators 
-       End Function Get_IT_Generators
-       
        Module Subroutine Get_Mat_From_Symb(Symb,Mat,Invt)
           !---- Arguments ----!
           character(len=*),                intent(in)  :: Symb
@@ -354,10 +345,6 @@ Module CFML_Groups
           !---- Arguments ----! 
           integer, intent(in) :: D    
        End Subroutine Set_Identity_Matrix  
-       !
-       Module Subroutine Set_It_Gen()
-          !---- Arguments ----!
-       End Subroutine Set_It_Gen 
        
        Module Subroutine Sort_Oper(N, Op,Cod)
           !---- Arguments ----! 
