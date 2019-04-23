@@ -56,8 +56,20 @@ rem
    echo.
 rem
    echo .... Global Dependencies for CFML
-rem
    gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90       %OPT1% 
+rem
+   echo .... Messages on CFML
+   gfortran -c %OPTC% -J.\mod CFML_Mess.f90                          %OPT1%  
+rem
+rem   Submodules CFML_Mess
+      cd .\CFML_Mess
+      gfortran -c %OPTC%  -J..\mod Err_Message.f90                   %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Info_Message.f90                  %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Print_Message.f90                 %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Wait_Message.f90                  %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Write_ScrollMsg.f90               %OPT1% 
+      move /y *.o .. > nul
+      cd ..   
 rem
    echo .... Mathematics Procedures
    gfortran -c %OPTC%  -J.\mod CFML_Maths.f90                        %OPT1% 

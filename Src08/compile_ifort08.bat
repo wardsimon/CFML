@@ -54,8 +54,21 @@ rem
    echo.
 rem
    echo .... Global Dependencies for CFML
-rem
    ifort /c CFML_GlobalDeps_Windows_IFOR.f90         /nologo %OPT1% %OPT2% /module:.\mod
+rem
+   echo .... Messages on CFML
+   ifort /c CFML_Mess.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
+rem
+rem   Submodules CFML_Mess
+      cd .\CFML_Mess
+      ifort /c Err_Message.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Info_Message.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Print_Message.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Wait_Message.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_ScrollMsg.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..   
+rem
 rem
    echo .... Mathematical Procedures
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
