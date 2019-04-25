@@ -2,11 +2,11 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_005
+SubModule (CFML_SpaceG) SPG_016
    Contains
    
    !!----
-   !!---- GET_GENERATORS_FROM_STR
+   !!---- GET_GENER_FROM_STR
    !!----
    !!---- 20/04/19
    !!
@@ -37,7 +37,7 @@ SubModule (CFML_Groups) CFML_GRP_005
       else
          Symbol=ListGen(1:i-1)
       end if
-      d=Get_dimension_Gener(Symbol)
+      d=Get_Dimension_Gener(Symbol)
 
       !> List of Generators
       call Get_Separator_Pos(ListGen,";",pos,np)
@@ -82,9 +82,7 @@ SubModule (CFML_Groups) CFML_GRP_005
             if (np < d-1) gen(i)=trim(gen(i))//",1"
          end do
       end if
-
-      return
    End Subroutine Get_Gener_From_Str
 
-End SubModule CFML_GRP_005   
+End SubModule SPG_016   
    

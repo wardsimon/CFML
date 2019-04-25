@@ -1,4 +1,4 @@
-SubModule (CFML_Groups) CFML_GRP_025
+SubModule (CFML_SpaceG) SPG_022
    Contains
    
    !!----
@@ -18,7 +18,7 @@ SubModule (CFML_Groups) CFML_GRP_025
    !!----
    !!---- 20/04/2019
    !!
-   Module Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
+   Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
       !---- Arguments ----!
       type(Spg_Type),                   intent( in) :: SpG
       type(Spg_Type),dimension(:),      intent(out) :: SubG
@@ -27,8 +27,8 @@ SubModule (CFML_Groups) CFML_GRP_025
       logical, dimension(:,:), optional,intent(out) :: point
       
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc,maxg,ng,kb, nla, nop,ns_1,ns_2,n_nc_group !i1,i2,,ns_3
-      logical  :: newg !, cen_added
+      integer  :: i,L,j,k,d, nc,maxg,ng,kb, nla, nop,ns_1,ns_2,n_nc_group 
+      logical  :: newg 
       character (len=40), dimension(:),allocatable :: gen
       character (len=40), dimension(30)            :: gen_lat
       character (len=40)                           :: gen_cent
@@ -38,6 +38,7 @@ SubModule (CFML_Groups) CFML_GRP_025
       type(Spg_Type),dimension(:), allocatable     :: sG
       integer, dimension(size(SubG))               :: index_sg, ind
 
+      !> Init
       maxg=size(SubG)
       allocate(gen(SpG%multip))
       d=SpG%d
@@ -49,7 +50,7 @@ SubModule (CFML_Groups) CFML_GRP_025
          nop=nop*2 !!number of symmetry operators excluding lattice centrings
          nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
          gen_cent=SpG%Symb_Op(nc)
-         call Allocate_Operator(SpG%d,Op_cent)
+         call Allocate_Symm_Op(SpG%d,Op_cent)
          Op_cent=SpG%Op(nc)
       end if
       nla=0
@@ -214,8 +215,6 @@ SubModule (CFML_Groups) CFML_GRP_025
             end do
          end if
       end if
-
-      return
    End Subroutine Get_SubGroups
    
-End SubModule  CFML_GRP_025  
+End SubModule SPG_022  

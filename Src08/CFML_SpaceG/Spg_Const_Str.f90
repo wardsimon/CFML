@@ -2,18 +2,18 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_008
+SubModule (CFML_SpaceG) SPG_019
    Contains
    
    !!----
-   !!---- GROUP_CONSTRUCTOR_STR
+   !!---- SPACEG_CONSTRUCTOR_STR
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Group_Constructor_Str(ListGen, Grp, Strcode)
+   Module Subroutine SpaceG_Constructor_Str(ListGen, Spg, Strcode)
       !---- Arguments ----!
       character(len=*),           intent(in)     :: ListGen
-      class(Spg_Type),            intent(in out) :: Grp
+      class(Spg_Type),            intent(in out) :: Spg
       character(len=*), optional, intent(in)     :: Strcode
        
       !--- Local variables ---!
@@ -27,8 +27,7 @@ SubModule (CFML_Groups) CFML_GRP_008
       !> Init 
       call Clear_Error()
 
-      call Initialize_Group(Grp)
-      
+      call Init_SpaceG(Spg)
       allocate(gen1(maxnum_op))
       call Get_Gener_From_Str(ListGen, d, ngen1, gen1)
       call Check_Generators(gen1, gen)
@@ -36,28 +35,29 @@ SubModule (CFML_Groups) CFML_GRP_008
       
       ngen=size(gen)
       do i=1,ngen
-         Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
+         Spg%generators_list=trim(Spg%generators_list)//trim(gen(i))//";"
       end do
-      Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
+      Spg%generators_list=Spg%generators_list(1:len_trim(Spg%generators_list)-1)
 
       allocate(Op(maxnum_op))       
       do i=1,maxnum_op
-         call Allocate_Operator(d,Op(i))
+         call Allocate_Symm_Op(d,Op(i))
       end do
+      
       allocate(Mat(d,d))
-
       !> Construct the list of the generators on top of Op. 
       !> The identity is always the first operator
       do i=1,ngen
-         call Get_Mat_From_Symb(gen(i),Mat,invt)
+         call Get_Mat_From_Symb(gen(i), Mat, invt)
          if(Err_CFML%Ierr /= 0) return
+         
          Op(i+1)%Mat=Mat
          Op(i+1)%time_inv=invt
       end do
       ngen=ngen+1
       
       !> Construct the raw Group
-      call Get_Group_From_Gener(ngen,Op,multip)
+      call Get_OPS_From_Gener(ngen,Op,multip)
       if(Err_CFML%Ierr /= 0) return
 
       !> Allocate provisionally to Multip the lattice translations 
@@ -69,53 +69,51 @@ SubModule (CFML_Groups) CFML_GRP_008
                              Numops, num_lat, num_alat, Lat_tr, aLat_tr, mag_type)
       if(Err_CFML%Ierr /= 0) return
 
-      Grp%multip=multip
-      Grp%d=d
-      if(allocated(Grp%Op)) deallocate(Grp%Op)
-      call Allocate_Operators(d,multip,Grp%Op)
-      Grp%Op(1:multip)=Op(1:multip)
+      Spg%multip=multip
+      Spg%d=d
+      if(allocated(Spg%Op)) deallocate(Spg%Op)
+      call Allocate_Operators(d,multip,Spg%Op)
+      Spg%Op(1:multip)=Op(1:multip)
 
-      if (allocated(Grp%Symb_Op)) Deallocate(Grp%Symb_Op)
-      allocate(Grp%Symb_Op(multip))
+      if (allocated(Spg%Symb_Op)) Deallocate(Spg%Symb_Op)
+      allocate(Spg%Symb_Op(multip))
       do i=1,multip
-         Grp%Symb_Op(i)=trim(Get_Symb_from_Oper(Op(i)))
+         Spg%Symb_Op(i)=trim(Get_Symb_from_Op(Op(i)))
       end do
 
       if (num_lat > 0) then
-         if (allocated(Grp%Lat_tr)) Deallocate(Grp%Lat_tr)
-         allocate(Grp%Lat_tr(1:d-1,1:Num_Lat))
+         if (allocated(Spg%Lat_tr)) Deallocate(Spg%Lat_tr)
+         allocate(Spg%Lat_tr(1:d-1,1:Num_Lat))
       end if
       
       if (num_alat > 0) then
-         if (allocated(Grp%aLat_tr)) Deallocate(Grp%aLat_tr)
-         allocate(Grp%aLat_tr(1:d-1,1:Num_aLat))
+         if (allocated(Spg%aLat_tr)) Deallocate(Spg%aLat_tr)
+         allocate(Spg%aLat_tr(1:d-1,1:Num_aLat))
       end if
       
-      if (allocated(Grp%centre_coord)) Deallocate(Grp%centre_coord)
-      if (allocated(Grp%anticentre_coord)) Deallocate(Grp%anticentre_coord)
-      allocate(Grp%centre_coord(1:d-1))
-      allocate(Grp%anticentre_coord(1:d-1))
-      Grp%Numops           = Numops
-      Grp%centred          = centred
-      Grp%anticentred      = anticentred
-      Grp%mag_type         = mag_type
-      Grp%num_lat          = num_lat
-      Grp%num_alat         = num_alat
-      Grp%centre_coord     = centre_coord
-      Grp%anticentre_coord = anticentre_coord
-      if (num_lat  > 0) Grp%Lat_tr = Lat_tr(1:d-1,1:Num_Lat)
-      if (num_alat > 0) Grp%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
+      if (allocated(Spg%centre_coord)) Deallocate(Spg%centre_coord)
+      if (allocated(Spg%anticentre_coord)) Deallocate(Spg%anticentre_coord)
+      allocate(Spg%centre_coord(1:d-1))
+      allocate(Spg%anticentre_coord(1:d-1))
+      Spg%Numops           = Numops
+      Spg%centred          = centred
+      Spg%anticentred      = anticentred
+      Spg%mag_type         = mag_type
+      Spg%num_lat          = num_lat
+      Spg%num_alat         = num_alat
+      Spg%centre_coord     = centre_coord
+      Spg%anticentre_coord = anticentre_coord
+      if (num_lat  > 0) Spg%Lat_tr = Lat_tr(1:d-1,1:Num_Lat)
+      if (num_alat > 0) Spg%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
       
       if (present(Strcode)) then
          if (trim(Strcode) /= 'xyz') then
-            do i=1,Grp%Multip
-               Grp%Symb_Op(i)=Get_Symb_from_Oper(Grp%Op(i),Strcode)
+            do i=1,Spg%Multip
+               Spg%Symb_Op(i)=Get_Symb_from_Op(Spg%Op(i),Strcode)
             end do
          end if
       end if
-   
-      return
-   End Subroutine Group_Constructor_Str
+   End Subroutine SpaceG_Constructor_Str
 
-End SubModule CFML_GRP_008   
+End SubModule SPG_019   
    

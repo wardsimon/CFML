@@ -2,15 +2,15 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_004
+SubModule (CFML_SpaceG) SPG_017
    Contains
    
    !!----
-   !!---- CHECK_GENERATORS
+   !!---- CHECK_GENER
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Check_Generators(Gen_in, Gen_out)
+   Module Subroutine Check_Gener(Gen_in, Gen_out)
       !---- Arguments ----!
       character(len=*), dimension(:),              intent(in)  :: gen_in
       character(len=*), dimension(:), allocatable, intent(out) :: gen_out
@@ -34,24 +34,24 @@ SubModule (CFML_Groups) CFML_GRP_004
          if (len_trim(gen_in(i)) == 0) cycle
             
          if (.not. init) then
-            d=get_dimension_gener(gen_in(i))
+            d=Get_Dimension_Gener(gen_in(i))
             allocate(Mat(d,d))
             do j=0, size(Op)-1
-               call Allocate_Operator(d, Op(j))
+               call allocate_symm_OP(d, Op(j))
             end do
             init = .true.
          else
-            d_in=get_dimension_gener(gen_in(i))
+            d_in=Get_Dimension_Gener(gen_in(i))
             if (d /= d_in) then
                Err_CFML%Ierr = 1
-               Err_CFML%Msg  = "CHECK_GENERATORS@GROUPS: Generators with different dimensions."
+               Err_CFML%Msg  = "Check_Gener@SPACEG: Generators with different dimensions."
                return
             end if
          end if
          
          if (d < 4) then
             Err_CFML%Ierr = 1
-            Err_CFML%Msg  = "CHECK_GENERATORS@GROUPS: Dimension must be at least 4 (3+1)"
+            Err_CFML%Msg  = "Check_Gener@SPACEG: Dimension must be at least 4 (3+1)"
             return
          end if
 
@@ -87,7 +87,7 @@ SubModule (CFML_Groups) CFML_GRP_004
       end if
 
       return
-   End Subroutine Check_Generators
+   End Subroutine Check_Gener
 
-End SubModule CFML_GRP_004   
+End SubModule SPG_017   
    

@@ -2,11 +2,11 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_Grp_018
+SubModule (CFML_SpaceG) SPG_015
    Contains
    
    !!----
-   !!---- GET_MULTIPLICATION_TABLE
+   !!---- GET_MULTIP_OP_TABLE
    !!----
    !!----   This subroutine construct the Cayley table of a Group
    !!----   defined by the rational operators Op. It is assumed that
@@ -14,10 +14,10 @@ SubModule (CFML_Groups) CFML_Grp_018
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_Multiplication_Table(Op,Table)
+   Module Subroutine Get_Multip_OP_Table(Op,Table)
       !---- Arguments ----!
-      type(Symm_Oper_Type), dimension(:), intent(in) :: Op
-      integer, dimension(:,:),allocatable,intent(out):: Table
+      type(Symm_Oper_Type), dimension(:),   intent(in) :: Op
+      integer, dimension(:,:), allocatable, intent(out):: Table
       
       !---- Local Variables ----!
       integer:: i,j,m,Multip
@@ -25,6 +25,7 @@ SubModule (CFML_Groups) CFML_Grp_018
       
       multip=size(Op)
       allocate(Table(multip,multip))
+
       Table=0
       Table(1,:) = [(i,i=1,multip)] !It is supposed that the first operator is the identity
       Table(:,1) = [(i,i=1,multip)]
@@ -39,9 +40,7 @@ SubModule (CFML_Groups) CFML_Grp_018
             end do
          end do
       end do
-      
-      return
-   End Subroutine Get_Multiplication_Table
+   End Subroutine Get_Multip_OP_Table
 
-End SubModule CFML_Grp_018   
+End SubModule SPG_015   
    

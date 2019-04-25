@@ -83,6 +83,8 @@ Module CFML_GlobalDeps
    character(len=1), parameter   :: TAB     = char(9)            ! TAB character
    
    !---- Error Flags ----!
+   logical, private, parameter        :: CFML_DEBUG=.false.       ! For checking test
+   
    Type :: Err_Type
       integer                         :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
       character(len=180)              :: Msg=" "                  ! Text for Message

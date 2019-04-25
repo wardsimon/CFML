@@ -2,30 +2,30 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) Cosets
+SubModule (CFML_SpaceG) SPG_021
    Contains
-   
    !!----
    !!---- GET_COSETS
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_Cosets(G,H, cosets)
+   Module Subroutine Get_Cosets(G, H, cosets)
       !---- Arguments ----!
       type(Spg_Type),                     intent(in)  :: G  ! Group G > H
       type(Spg_Type),                     intent(in)  :: H  ! Subgroup of G
       integer, dimension(:), allocatable, intent(out) :: cosets
       
       !---- Local Variables ----!
-      integer              :: i,j,k,n,m
-      character(len=80)    :: OpSymb
-      type(Symm_Oper_Type) :: Op
+      integer                      :: i,j,k,n,m
+      character(len=80)            :: OpSymb
+      type(Symm_Oper_Type)         :: Op
       integer, dimension(G%multip) :: ind
       logical, dimension(G%multip) :: done
-      logical :: ncent_assigned !nlat_assigned,
+      logical                      :: ncent_assigned 
 
+      !> Init
       n=0; done=.false. 
-      call Allocate_Operator(G%d,Op)
+      call Allocate_Symm_Op(G%d,Op)
       
       do_G: do i=2, G%multip
          if (done(i)) cycle
@@ -60,9 +60,7 @@ SubModule (CFML_Groups) Cosets
       if(allocated(cosets)) deallocate(cosets)
       allocate(cosets(n))
       cosets=ind(1:n)
-      
-      return
    End Subroutine Get_Cosets
 
-End SubModule Cosets   
+End SubModule SPG_021   
    

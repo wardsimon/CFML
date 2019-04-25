@@ -461,6 +461,30 @@ Submodule (CFML_Maths) Inverse_Matrix
 
        return
     End Subroutine LU_Decomp
+    
+    !!----
+    !!---- LU_DESCOMPOSITION
+    !!----
+    !!---- 19/04/2019
+    !!
+    Module Pure Subroutine LU_Descomposition(a,p)
+       !---- Arguments ----!
+       real(kind=cp), intent(in out) :: a(:,:)
+       integer,       intent(   out) :: p(:)
+      
+       !---- Local Variables ----!
+       integer :: n,i,j,k,kmax
+      
+       n=size(a,1)
+       p=[ ( i, i=1,n ) ]
+       do k = 1,n-1
+          kmax = maxloc(abs(a(p(k:),k)),1) + k-1
+          if (kmax /= k ) p([k, kmax]) = p([kmax, k])
+          a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
+          forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
+       end do
+      
+    End Subroutine LU_Descomposition
 
     !!----
     !!---- MATINV2_C

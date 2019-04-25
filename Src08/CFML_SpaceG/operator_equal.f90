@@ -1,4 +1,4 @@
-SubModule (CFML_Groups) Oper_Equal
+SubModule (CFML_SpaceG) Oper_Equal
    Contains
    
    !!----
@@ -17,8 +17,6 @@ SubModule (CFML_Groups) Oper_Equal
       if (Op1%time_inv == Op2%time_inv) then
          if (Rational_Equal(Op1%Mat,Op2%Mat)) info=.true.
       end if
-      
-      return
    End Function Equal_Symm_Oper
    
    !!----
@@ -50,8 +48,6 @@ SubModule (CFML_Groups) Oper_Equal
          if (.not. esta) return
       end do
       info=.true.
-      
-      return
    End Function Equal_Group
     
 End SubModule Oper_Equal

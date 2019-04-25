@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_003
+SubModule (CFML_SpaceG) SPG_014
    Contains
    !!----
    !!---- GET_DIMENSION_GENER
@@ -33,9 +33,7 @@ SubModule (CFML_Groups) CFML_GRP_003
       else
          d=np+2     !>time_inv not-provided
       end if
-      
-      return
    End Function Get_Dimension_Gener
 
-End SubModule CFML_GRP_003   
+End SubModule SPG_014
    

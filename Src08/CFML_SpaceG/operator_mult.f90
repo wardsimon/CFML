@@ -1,4 +1,4 @@
-SubModule (CFML_Groups) Oper_Mult
+SubModule (CFML_SpaceG) Oper_Mult
    Contains
    
    !!----
@@ -18,7 +18,7 @@ SubModule (CFML_Groups) Oper_Mult
       allocate(Op3%Mat(n,n))
       
       d=n-1
-      Op3%Mat=matmul(Op1%Mat,Op2%Mat) !automatic allocation in f2003
+      Op3%Mat=matmul(Op1%Mat,Op2%Mat) 
       Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_LI)
       do i=1,d
          do
@@ -31,8 +31,6 @@ SubModule (CFML_Groups) Oper_Mult
       end do
       Op3%time_inv=Op1%time_inv*Op2%time_inv
       Op3%dt=Op1%dt*Op2%dt
-      
-      return
     End Function Multiply_Symm_Oper
     
 End SubModule Oper_Mult

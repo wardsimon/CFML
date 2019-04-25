@@ -73,6 +73,7 @@
     !---- List of public subroutines ----!
     public :: Co_Prime_Vector,               &
               Diagonalize_SH,                &
+              LU_Descomposition,             &
               Invert_Matrix_R,               &
               Orient_Eigenvectors,           &
               Points_In_Line2D, Pikout_Lj_Cubic, &
@@ -875,6 +876,12 @@
           logical,                         intent(out)    :: singular
           integer, dimension(:), optional, intent(out)    :: indx
        End Subroutine LU_Decomp
+       
+       Module Pure Subroutine LU_Descomposition(a,p)
+          !---- Arguments ----!
+          real(kind=cp), intent(in out) :: a(:,:)
+          integer,       intent(   out) :: p(:)
+       End Subroutine LU_Descomposition
 
        Module Pure Function Mat_Cross_C(Vec) Result(M)
           !---- Argument ----!

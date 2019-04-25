@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Groups) CFML_GRP_001
+SubModule (CFML_SpaceG) SPG_003
    Contains
    
    !!----
@@ -28,7 +28,6 @@ SubModule (CFML_Groups) CFML_GRP_001
          Lattice=.true.
          return
       end if
-
          
       do i=1, nlat
          vec=Ltr(:,i)-v
@@ -37,8 +36,6 @@ SubModule (CFML_Groups) CFML_GRP_001
             return
          end if
       end do
-      
-      return
    End Function Is_Lattice_Vec
     
-End SubModule CFML_GRP_001  
+End SubModule SPG_003  

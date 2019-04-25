@@ -2,15 +2,15 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_021
+SubModule (CFML_SpaceG) SPG_008
    Contains
    
    !!----
-   !!---- ALLOCATE_GROUP
+   !!---- ALLOCATE_SPACEG
    !!----
    !!---- 19/04/19
    !!
-   Module Subroutine Allocate_Group(D, Multip, Grp)
+   Module Subroutine Allocate_SpaceG(D, Multip, Grp)
       !---- Arguments ----!
       integer,         intent(in)     :: d,multip
       class(Spg_Type), intent(in out) :: Grp
@@ -25,14 +25,12 @@ SubModule (CFML_Groups) CFML_GRP_021
       Grp%d=d
       Grp%multip=multip
       do i=1,multip
-         call Allocate_Operator(d,Grp%Op(i))
+         call Allocate_Symm_Op(d,Grp%Op(i))
       end do
       
       if(allocated(Grp%Symb_Op)) deallocate(Grp%Symb_Op)
       allocate(Grp%Symb_Op(multip))
-      
-      return
-   End Subroutine Allocate_Group
+   End Subroutine Allocate_SpaceG
 
-End SubModule CFML_GRP_021   
+End SubModule SPG_008
    

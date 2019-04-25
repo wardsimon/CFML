@@ -1,12 +1,12 @@
-SubModule (CFML_Groups) CFML_Grp_019
+SubModule (CFML_SpaceG) SPG_007
    Contains
    
    !!----
-   !!---- ALLOCATE_OPERATOR
+   !!---- ALLOCATE_SYMM_OP
    !!----
    !!---- 19/04/19
    !!
-   Module Subroutine Allocate_Operator(d, Op)
+   Module Subroutine Allocate_Symm_Op(d, Op)
       !---- Arguments ----!
       integer,              intent(in)     :: d
       type(Symm_Oper_Type), intent(in out) :: Op
@@ -21,21 +21,19 @@ SubModule (CFML_Groups) CFML_Grp_019
       Op%Mat=Identity_Matrix
       Op%time_inv=1
       Op%dt=1
-      
-      return
-   End Subroutine Allocate_Operator
+   End Subroutine Allocate_Symm_Op
    
    !!----
    !!---- ALLOCATE_OPERATORS
-   !!----    integer,              intent(in)     :: d,multip
-   !!----    type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
    !!----
    !!----  Multip is the expected maximum number of operators
    !!----
-   Module Subroutine Allocate_Operators(D,Multip,Op)
+   !!---- 25/04/2019
+   !!
+   Module Subroutine Allocate_Operators(D, Nmax, Op)
       !---- Arguments ----!
-      integer,                                         intent(in)     :: d       ! Dimension
-      integer,                                         intent(in)     :: multip  ! is the expected maximum number of operators
+      integer,                                         intent(in)     :: d     ! Dimension
+      integer,                                         intent(in)     :: Nmax  ! is the expected maximum number of operators
       type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
       
       !---- Local Variables ----!
@@ -43,13 +41,11 @@ SubModule (CFML_Groups) CFML_Grp_019
       
       !> Init
       if(allocated(Op)) deallocate(Op)
-      allocate(Op(multip))
+      allocate(Op(NMax))
       
-      do i=1,multip
-         call Allocate_Operator(d,Op(i))
+      do i=1, NMax
+         call Allocate_Symm_Op(d,Op(i))
       end do
-      
-      return
    End Subroutine Allocate_Operators
    
-End SubModule CFML_Grp_019 
+End SubModule SPG_007

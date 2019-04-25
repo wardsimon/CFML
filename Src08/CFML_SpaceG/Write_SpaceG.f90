@@ -2,15 +2,15 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_022
+SubModule (CFML_SpaceG) SPG_006
    Contains
    
    !!----
-   !!---- WRITE_GROUP
+   !!---- WRITE_SPACEG_INFO
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Write_Group_Info(Grp,Lun)
+   Module Subroutine Write_SpaceG_Info(Grp,Lun)
       !---- Arguments ----!
       class(Spg_Type),    intent(in)   :: Grp
       integer, optional,  intent(in)   :: lun
@@ -18,6 +18,7 @@ SubModule (CFML_Groups) CFML_GRP_022
       !---- Local Variables ----!
       integer :: iout,i,j
 
+      !> Init
       iout=6 !To be replaced by Fortran environment value
       if(present(lun)) iout=lun
       
@@ -47,21 +48,18 @@ SubModule (CFML_Groups) CFML_GRP_022
       if (Grp%centred == 1) then
          write(unit=iout,fmt="(a)")     "                  Centre_coord: none!"
       else
-         !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
          write(unit=iout,fmt="(a,10a)") "                  Centre_coord: [ ",(trim(Rational_String(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
       
       if (Grp%anticentred == 1) then
          write(unit=iout,fmt="(a)")     "             Anti-Centre_coord: none!"
       else
-         !write(unit=iout,fmt="(a,10f8.3)") "     Centre_coord: ",Grp%centre_coord
          write(unit=iout,fmt="(a,10a)") "             Anti-Centre_coord: [ ",(trim(Rational_String(Grp%anticentre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
       
       if (Grp%num_lat > 0) then
          write(unit=iout,fmt="(/a)")      "        Centring translations:"
          do i=1,Grp%num_lat
-            !write(unit=iout,fmt="(i3,tr4,10f8.3)") i,Grp%Lat_tr(:,i)
             write(unit=iout,fmt="(a,10a)") "             [ ",(trim(Rational_String(Grp%Lat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
          end do
       end if
@@ -69,7 +67,6 @@ SubModule (CFML_Groups) CFML_GRP_022
       if (Grp%num_alat > 0) then
          write(unit=iout,fmt="(/a)")      "            Anti-translations:"
          do i=1,Grp%num_alat
-            ! write(*,"(i3,tr4,10f8.3)") i,Grp%aLat_tr(:,i)
             write(unit=iout,fmt="(a,10a)") "             [ ",(trim(Rational_String(Grp%aLat_tr(j,i)))//" ",j=1,Grp%d-1),"]"
          end do
       end if
@@ -78,9 +75,7 @@ SubModule (CFML_Groups) CFML_GRP_022
       do i=1,Grp%Multip
          write(unit=iout,fmt="(i5,a)") i,"  ->  "//trim(Grp%Symb_Op(i))
       end do
-      
-      return
-   End Subroutine Write_Group_Info
+   End Subroutine Write_SpaceG_Info
 
-End SubModule CFML_GRP_022   
+End SubModule SPG_006   
    

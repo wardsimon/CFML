@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Groups) CFML_GRP_002
+SubModule (CFML_SpaceG) SPG_004
    Contains
    
    !!----
@@ -11,7 +11,7 @@ SubModule (CFML_Groups) CFML_GRP_002
    !!
    Module Subroutine Reduced_Translation(Mat)
       !---- Arguments ----!
-      type(rational), dimension(:,:), intent(inout) :: Mat
+      type(rational), dimension(:,:), intent(in out) :: Mat
       
       !---- Local Variables ----!
       integer :: d,i,n,m
@@ -32,8 +32,6 @@ SubModule (CFML_Groups) CFML_GRP_002
             end if
          end if
       end do
-     
-      return
    End Subroutine Reduced_Translation
    
-End SubModule CFML_GRP_002   
+End SubModule SPG_004  

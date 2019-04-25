@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08
+   cd %CRYSFML%\Src08N
 rem
    echo.
    echo **-------------------------------------**
@@ -216,40 +216,40 @@ rem
       move /y *.obj .. > nul
       cd .. 
 rem   
-   echo .... Groups Procedures 
-   ifort /c CFML_Groups.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+   echo .... Symmetry / SpaceGroups Procedures 
+   ifort /c CFML_SpaceG.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
 rem
-rem   Submodules CFML_Groups
-      cd .\CFML_Groups 
-      ifort /c Rational_IsLattVec.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Rational_RedTraslation.f90             /nologo %OPT1% %OPT2%  /module:..\mod 
+rem   Submodules CFML_SpaceG
+      cd .\CFML_SpaceG
       ifort /c Init_Procedures.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Operator_Mult.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Operator_Equal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Allocate_Opers.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Allocate_Grp.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Write_Grp.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Rational_IsLattVec.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Rational_RedTraslation.f90             /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Operator_Equal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Operator_Mult.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Sort_Operator.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Dimension.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Write_SpaceG.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Allocate_Opers.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Allocate_SpaceG.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Reorder_Oper.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Symb_Mat.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Symb_Oper.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Mat_Symb.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Mult_Table.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Oper_Symb.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_GenerStr.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Dimension.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Mult_OPTable.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_GenerStr.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c CheckGener.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Reorder_Oper.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Ops_Gener.f90                      /nologo %OPT1% %OPT2%  /module:..\mod  
+      ifort /c Spg_Const_Str.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Spg_Const_VGen.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Grp_Table.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Grp_Gener.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Grp_Const_Str.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Grp_Const_VGen.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
-      cd ..  
+      cd .. 
+      goto END 
  rem   
     echo .... Profiles definitions 
     ifort /c CFML_Profiles.f90                         /nologo %OPT1% %OPT2% /module:.\mod 

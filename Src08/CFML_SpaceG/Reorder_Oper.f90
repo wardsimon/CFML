@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_Grp_017
+SubModule (CFML_SpaceG) SPG_009
    Contains
    
    !!----
@@ -10,8 +10,9 @@ SubModule (CFML_Groups) CFML_Grp_017
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Reorder_Operators(Multip, Op, Centred, Centre_Coord, Anticentred, Anticentre_Coord, &
-                                       Numops, Num_Lat, Num_Alat, Lat_Tr, Alat_Tr, Mag_Type)
+   Module Subroutine Reorder_Operators(Multip, Op, Centred, Centre_Coord, Anticentred, &
+                                       Anticentre_Coord, Numops, Num_Lat, Num_Alat,    &
+                                       Lat_Tr, Alat_Tr, Mag_Type)
       !---- Arguments ----!
       integer,                            intent(in)     :: multip
       type(Symm_Oper_Type), dimension(:), intent(in out) :: Op
@@ -22,7 +23,7 @@ SubModule (CFML_Groups) CFML_Grp_017
       type(rational),dimension(:),        intent(out)    :: anticentre_coord
       
       !--- Local variables ---!
-      integer :: i,j,L,n,m,Ng,invt,i_centre,d
+      integer                          :: i,j,L,n,m,Ng,invt,i_centre,d
       real(kind=cp), dimension(multip) :: tr   !Sum of absolute values of Translations components associated to the array of operators
       logical,       dimension(multip) :: nul  !Logical to control the exclusion of an operator from the independet list
       type(rational), dimension(:,:),allocatable:: identity,invers,imat !(d,d)
@@ -33,28 +34,33 @@ SubModule (CFML_Groups) CFML_Grp_017
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
 
+      !> Init
+      call clear_error()
       ZERO=0//1;  ONE=1//1; ONE_HALF=1//2
 
-      !> Initializing
-      n=size(Op(1)%Mat,1) !dimension of the full square matrices
-      d=n-1               !here d is the dimension of the square matrix containing rotational operator
+      !> dimension of the full square matrices
+      n=size(Op(1)%Mat,1)  
+      
+      !> dimension of the square matrix containing rotational operator
+      d=n-1
       allocate(identity(d,d),invers(d,d),imat(d,d))
-      call Allocate_Operator(n,Op_identp)   ! {1|0}'
+      call Allocate_Symm_Op(n,Op_identp)   ! {1|0}'
+      
       identity=ZERO; nul=.false.; mag_type=1
       do i=1,d
          Op_identp%Mat(i,i)=ONE
          identity(i,i)=ONE
       end do
       Op_identp%time_inv=-1
-      invers=-identity !Inversion
-      centred=1 !Default value for non-centrosymmetric groups
+      invers=-identity 
+      centred=1 
       anticentred=1
 
       !> Insertion sort putting the negative determinants at the bottom
-      call sort_Oper(multip,Op(1:multip),"det")
+      call Sort_Oper(multip,Op(1:multip),"det")
       do i=1,Multip
          tr(i)=sum(abs(Op(i)%Mat(1:d,n)))
-         call Allocate_Operator(n,Opr(i))
+         call Allocate_Symm_Op(n,Opr(i))
       end do
 
       !> Check if the group is paramagnetic
@@ -107,7 +113,8 @@ SubModule (CFML_Groups) CFML_Grp_017
          end if
       end if
 
-      do j=2,Multip-1   !Nullify operators deduced by lattice translations and centre of symmetry
+      !> Nullify operators deduced by lattice translations and centre of symmetry
+      do j=2,Multip-1   
          if (nul(j)) cycle
 
          if (mag_type ==2) then
@@ -180,7 +187,7 @@ SubModule (CFML_Groups) CFML_Grp_017
          end if
       end if
 
-      ! => Determine the reduced set of symmetry operators"
+      !> Determine the reduced set of symmetry operators"
       j=0
       do i=1,Multip
          if (nul(i)) cycle
@@ -193,13 +200,13 @@ SubModule (CFML_Groups) CFML_Grp_017
       Op(1:j)=Opr(1:j)
 
       !> Reorder the reduced set putting primed elements at the bottom
-      call sort_oper(Numops,Op(1:Numops),"tim")
+      call Sort_oper(Numops,Op(1:Numops),"tim")
 
       m=Numops*(num_lat+1)*cent(centred)
       if (mag_type == 2) m=m*2
       if ( m /= Multip) then !Check that it is OK
          Err_CFML%Ierr = 1
-         write(unit=Err_CFML%Msg,fmt="(2(a,i4))") "REORDER_OPERATORS@GROUPS: Warning in Multip=",Multip, " Calculated Multip: ",m
+         write(unit=Err_CFML%Msg,fmt="(2(a,i4))") "Reorder_Operators@SPACEG: Warning in Multip=",Multip, " Calculated Multip: ",m
          return
       end if
 
@@ -237,7 +244,7 @@ SubModule (CFML_Groups) CFML_Grp_017
       ng=m
       if (ng /= Multip) then
          Err_CFML%Ierr = 1
-         write(unit=Err_CFML%Msg,fmt="(2(a,i3))") " REORDER_OPERATORS@GROUPS: Error in the multiplicity ",&
+         write(unit=Err_CFML%Msg,fmt="(2(a,i3))") "Reorder_Operators@SPACEG: Error in the multiplicity ",&
                                                   Multip," has not been recovered, value of ng=",ng
          return
       end if
@@ -254,9 +261,7 @@ SubModule (CFML_Groups) CFML_Grp_017
             exit
          end if
       end do
-   
-      return    
    End Subroutine Reorder_Operators
 
-End SubModule CFML_Grp_017   
+End SubModule SPG_009
    

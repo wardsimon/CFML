@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_Grp_013
+SubModule (CFML_SpaceG) SPG_012
    Contains
    
    !!----
@@ -17,10 +17,10 @@ SubModule (CFML_Groups) CFML_Grp_013
    !!----
    !!---- 20/04/2019
    !!
-   Module Subroutine Get_Mat_From_Symb(Symb,Mat,Invt)
+   Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
       !---- Arguments ----!
       character(len=*),                intent(in)  :: Symb
-      type(rational), dimension(:,:),  intent(out) :: Mat
+      type(rational), dimension(:,:), intent(out)  :: Mat
       integer, optional,               intent(out) :: invt
       
       !---- local variables ----!
@@ -62,7 +62,7 @@ SubModule (CFML_Groups) CFML_Grp_013
          call Get_Separator_Pos(translation,",",pos,np)
          if (np /= d) then
             Err_CFML%Ierr=1
-            Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: Error in Jone's faithful notation"
+            Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error in Jone's faithful notation"
             return
          end if
         
@@ -91,19 +91,19 @@ SubModule (CFML_Groups) CFML_Grp_013
 
       if (index(pSymb,"=") /= 0) then
          Err_CFML%Ierr=1
-         Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: Error in the symbol of the operator: symbol '=' is forbidden!"
+         Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error in the symbol of the operator: symbol '=' is forbidden!"
          return
       end if
 
       if (index(pSymb,";") /= 0) then
          Err_CFML%Ierr=1
-         Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: Error in the symbol of the operator: symbol ';' is forbidden!"
+         Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error in the symbol of the operator: symbol ';' is forbidden!"
          return
       end if
 
       if (index(pSymb,".") /= 0) then
          Err_CFML%Ierr=1
-         Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: "// &
+         Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: "// &
                       "Error in the symbol of the operator: symbol '.' is forbidden!"
          return
       end if
@@ -117,7 +117,7 @@ SubModule (CFML_Groups) CFML_Grp_013
                j=index(pSymb,trim(x_typ(i)))
                if (j == 0) then !error in the symbol
                   Err_CFML%Ierr=1
-                  Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: "// &
+                  Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: "// &
                                "Error in the symbol of the operator: Missing ( " // &
                                trim(x_typ(i))//" ) => Symbol:"//trim(pSymb)
                   return
@@ -128,7 +128,7 @@ SubModule (CFML_Groups) CFML_Grp_013
             pos(np)=len_trim(pSymb)-1
          else
             Err_CFML%Ierr=1
-            write(unit=Err_CFML%Msg, fmt="(a,2i3,a)") "GET_MAT_FROM_SYMB@GROUPS: "// &
+            write(unit=Err_CFML%Msg, fmt="(a,2i3,a)") "Get_Mat_From_Symb@SPACEG: "// &
                  "Error in the dimension of the symbol operator: "//trim(pSymb), np, d, &
                  " for n_commas and dimension"
             return
@@ -139,7 +139,7 @@ SubModule (CFML_Groups) CFML_Grp_013
             j=index(pSymb(1:pos(np)),trim(x_typ(i)))
             if (j == 0) then !error in the symbol
                Err_CFML%Ierr=1
-               Err_CFML%Msg="GET_MAT_FROM_SYMB_OP@GROUPS: "// &
+               Err_CFML%Msg="Get_Mat_From_Symb_Op@SPACEG: "// &
                             "Error in the symbol of the operator: Missing ( "//trim(x_typ(i))// &
                             " ) => Symbol:"//trim(pSymb)
                return
@@ -248,12 +248,12 @@ SubModule (CFML_Groups) CFML_Grp_013
       call reduced_translation(Mat)
 
       !> Final check that the determinant of the rotational matrix is integer
+      !det=rdet(Mat)
       det=Rational_Determ(Mat)
-      det=rdet(Mat)
       
       if (det%numerator == 0) then
          Err_CFML%Ierr=1
-         Err_CFML%Msg="GET_MAT_FROM_SYMB@GROUPS: "// &
+         Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: "// &
                       "The matrix of the operator is singular! -> det="//Rational_String(det)
          matrix=Rational_String(Mat)
          
@@ -263,9 +263,7 @@ SubModule (CFML_Groups) CFML_Grp_013
             write(unit=*,fmt=forma) (trim( Matrix(j,k))//" ",k=1,Dd)
          end do
       end if
-      
-      return
    End Subroutine Get_Mat_From_Symb
 
-End SubModule CFML_Grp_013   
+End SubModule SPG_012
    

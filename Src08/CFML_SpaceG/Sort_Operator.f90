@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_Grp_016
+SubModule (CFML_SpaceG) SPG_005
    Contains
    
    !!----
@@ -12,9 +12,9 @@ SubModule (CFML_Groups) CFML_Grp_016
    !!
    Module Subroutine Sort_Oper(N, Op, Cod)
       !---- Arguments ----! 
-      integer,                            intent(in)    :: n
-      type(Symm_Oper_Type) ,dimension(n), intent(inout) :: Op
-      character(len=*),                   intent(in)    :: cod
+      integer,                            intent(in)     :: n
+      type(Symm_Oper_Type) ,dimension(n), intent(in out) :: Op
+      character(len=*),                   intent(in)     :: cod
       
       !---- Local Variables ----!
       type(Symm_Oper_Type)  :: Ops
@@ -42,9 +42,7 @@ SubModule (CFML_Groups) CFML_Grp_016
          Op(j + 1) = Ops
          option(j+1) = opso
       end do
-      
-      return
    End Subroutine Sort_Oper
 
-End SubModule CFML_Grp_016   
+End SubModule SPG_005
    

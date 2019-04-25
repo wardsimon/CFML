@@ -2,11 +2,11 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_020
+SubModule (CFML_SpaceG) SPG_018
    Contains
    
    !!----
-   !!---- GET_GROUP_FROM_GENER
+   !!---- GET_OPS_FROM_GENER
    !!----
    !!----    This subroutine assumes that Op contains the identity as the first operator, 
    !!----    followed by few non-equal generators.
@@ -14,24 +14,25 @@ SubModule (CFML_Groups) CFML_GRP_020
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_Group_From_Gener(Ngen, Op, Multip, Table)
+   Module Subroutine Get_OPS_From_Gener(Ngen, Ops, Multip, Table)
       !---- Arguments ----!
       integer,                                        intent(in)     :: ngen
-      type(Symm_Oper_Type), dimension(:),             intent(in out) :: Op
+      type(Symm_Oper_Type), dimension(:),             intent(in out) :: Ops
       integer,                                        intent(out)    :: multip
       integer, dimension(:,:), allocatable, optional, intent(out)    :: table
       
       !--- Local variables ---!
-      integer                               :: i,j,k,n,nt,max_op
-      type(Symm_Oper_Type)                  :: Opt
-      logical, dimension(size(Op),size(Op)) :: done
-      integer, dimension(size(Op),size(Op)) :: tb
+      integer                                 :: i,j,k,n,nt,max_op
+      type(Symm_Oper_Type)                    :: Opt
+      logical, dimension(size(Ops),size(Ops)) :: done
+      integer, dimension(size(Ops),size(Ops)) :: tb
 
+      !> Init
       call Clear_Error()
       
-      max_op=size(Op)
-      n=size(Op(1)%Mat,dim=1)
-      call Allocate_Operator(n,Opt)
+      max_op=size(Ops)
+      n=size(Ops(1)%Mat,dim=1)
+      call Allocate_Symm_Op(n,Opt)
       done=.false.
       done(1,:) = .true.
       done(:,1) = .true.
@@ -41,7 +42,7 @@ SubModule (CFML_Groups) CFML_GRP_020
       
       !> Ensure that determinants of generators are calculated
       do i=1,ngen
-         Op(i)%dt=rdet(Op(i)%Mat(1:3,1:3))
+         Ops(i)%dt=rational_determ(Ops(i)%Mat(1:3,1:3))
       end do
 
       do_ext:do
@@ -49,9 +50,9 @@ SubModule (CFML_Groups) CFML_GRP_020
          do i=1,n
             do_j:do j=1,n
                if (done(i,j)) cycle
-               Opt=Op(i)*Op(j)
+               Opt=Ops(i)*Ops(j)
                do k=1,nt
-                  if (Opt == Op(k)) then
+                  if (Opt == Ops(k)) then
                      tb(i,j)=k
                      done(i,j)=.true.
                      cycle do_j
@@ -64,7 +65,7 @@ SubModule (CFML_Groups) CFML_GRP_020
                   exit do_ext
                end if
                tb(i,j)=nt
-               Op(nt)=Opt
+               Ops(nt)=Opt
             end do do_j
          end do
          if (n == nt) exit do_ext
@@ -72,11 +73,12 @@ SubModule (CFML_Groups) CFML_GRP_020
 
       if (any(done(1:nt,1:nt) .eqv. .false. ) ) then
          Err_CFML%Ierr = 1
-         Err_CFML%Msg  = "GET_GROUP_FROM_GENER@GROUPS: Error in Table of SSG operators not exhausted! Increase the expected order of the group!"
+         Err_CFML%Msg  = "Get_Ops_From_Gener@SPACEG: " // &
+                         "Error in Table of SSG operators not exhausted! Increase the expected order of the group!"
       end if
       if (nt == max_op) then
          Err_CFML%Ierr = 1
-         write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "GET_GROUP_FROM_GENER@GROUPS: Max_Order (", &
+         write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "Get_Ops_From_Gener@SPACEG: Max_Order (", &
                                                  max_op,&
                                                  ") reached! The provided generators may not form a group!"
       end if
@@ -86,9 +88,7 @@ SubModule (CFML_Groups) CFML_GRP_020
          allocate(Table(multip,multip))
          Table=tb
       end if
-      
-      return
-   End Subroutine Get_Group_From_Gener
+   End Subroutine Get_OPS_From_Gener
 
-End SubModule CFML_GRP_020  
+End SubModule SPG_018  
    

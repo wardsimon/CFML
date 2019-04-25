@@ -1,14 +1,14 @@
 !!----
 !!----
 !!----
-Submodule (CFML_Groups) CFML_Grp_006
+Submodule (CFML_SpaceG) SPG_023
    Contains
    !!----
    !!---- GET_SUBGROUPS_SUBGEN
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_SubGroups_Subgen(SpG,SubG,nsg,indexg)
+   Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg)
       !---- Arguments ----!
       type(Spg_Type),                   intent( in) :: SpG
       type(Spg_Type),dimension(:),      intent(out) :: SubG
@@ -27,9 +27,10 @@ Submodule (CFML_Groups) CFML_Grp_006
 
 
       !> Test if generators are available
-      if (len_trim(SpG%generators_list) ==  0) then !construct a procedure for selecting the minimal set of generators
+      !> construct a procedure for selecting the minimal set of generators
+      if (len_trim(SpG%generators_list) ==  0) then 
          Err_CFML%Ierr = 1
-         Err_CFML%Msg  = "GET_SUBGROUPS_SUBGEN@GROUPS: A list of generators of the parent group is needed!"
+         Err_CFML%Msg  = "Get_Subgroups_Subgen@SPACEG: A list of generators of the parent group is needed!"
          return
       end if
        
@@ -39,10 +40,10 @@ Submodule (CFML_Groups) CFML_Grp_006
       ng=0; nc=0
       nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
       if (SpG%centred /= 1) then
-         nop=nop*2        !!number of symmetry operators excluding lattice centrings
-         nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
+         nop=nop*2        ! number of symmetry operators excluding lattice centrings
+         nc=SpG%Numops+1  ! Position of the centre of symmetry if it exist
          gen_cent=SpG%Symb_Op(nc)
-         call Allocate_Operator(SpG%d,Op_cent)
+         call Allocate_Symm_Op(SpG%d,Op_cent)
          Op_cent=SpG%Op(nc)  !Operator corresponding to the centre of symmetry
       end if
       
@@ -69,7 +70,7 @@ Submodule (CFML_Groups) CFML_Grp_006
       gen=" "
       do i=1,ngen
          gen_aux=gen_min(i)
-         Op_aux=Get_Oper_from_Symb(gen_aux)
+         Op_aux=Get_Op_from_Symb(gen_aux)
          if (is_inversion_centre(Op_aux)) cycle
          if (is_lattice_centring(Op_aux)) cycle
          n=n+1
@@ -77,7 +78,7 @@ Submodule (CFML_Groups) CFML_Grp_006
          if (SpG%centred /= 1) then
             n=n+1
             Op_aux=Op_aux*Op_cent
-            gen(n)=Get_Symb_from_Oper(Op_aux)
+            gen(n)=Get_Symb_from_Op(Op_aux)
          end if
       end do
       ngen=n
@@ -144,8 +145,6 @@ Submodule (CFML_Groups) CFML_Grp_006
          end do
       end do
       nsg=n
-      
-      return
    End Subroutine Get_SubGroups_Subgen
     
-End Submodule CFML_Grp_006   
+End Submodule SPG_023   

@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Groups) CFML_GRP_012
+SubModule (CFML_SpaceG) SPG_010
    Contains
    
    !!----
@@ -25,6 +25,7 @@ SubModule (CFML_Groups) CFML_GRP_012
       integer                           :: i,j,Dd,d,k
       logical                           :: abc_type
 
+      !> Init
       Dd=size(Mat,dim=1)
       d=Dd-1
       x_typ=xyz
@@ -121,9 +122,7 @@ SubModule (CFML_Groups) CFML_GRP_012
             symb=trim(symb)//","//trim(car)
          end if
       end if
-      
-      return
    End Function Get_Symb_from_Mat
 
-End SubModule CFML_GRP_012   
+End SubModule SPG_010
    

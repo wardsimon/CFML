@@ -44,7 +44,7 @@
 !!--.. modulo-1 is applied in the multiplication of two operators.
 !!----
 !!
-Module CFML_Groups
+Module CFML_SpaceG
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Rational
@@ -60,15 +60,17 @@ Module CFML_Groups
     public :: operator (==) 
     
     !---- List of public subroutines ----!
-    public :: Initialize_Conditions_Group, Initialize_Group, &
-              Get_Subgroups_Subgen, Group_Constructor
-
+    public :: Init_SpaceG, &
+              Set_Conditions_NumOP_EPS, &
+              Write_SpaceG_Info
+              
     !---- Parameters ----!
     integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity
     character(len=1), dimension(10),  parameter :: XYZ=["x","y","z","t","u","v","w","p","q","r"]
     character(len=1), dimension(10),  parameter :: ABC=["a","b","c","d","e","f","g","h","i","j"]
     character(len=3), dimension(10),  parameter :: X1X2X3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
 
+    integer,                          parameter :: MAGCOUNT=1651      ! Magnetic Groups
     !---- Types ----!
     
     Type, public :: Symm_Oper_Type
@@ -113,6 +115,72 @@ Module CFML_Groups
     character(len=120), dimension(230)          :: it_spg_gen=" "     ! Generator of space groups in the standard setting
     type(rational), dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
     
+    logical                                     :: database_allocated=.false.
+    logical                                     :: mcif=.false.
+    
+    !> For the ith nonhexagonal point operator:
+    Character(Len=8),  dimension(:), public, allocatable :: point_op_label   ! point_op_label(i): point operator symbol (from Litvin)
+    Character(Len=10), dimension(:), public, allocatable :: point_op_xyz
+    Integer,       dimension(:,:,:), public, allocatable :: point_op_matrix  ! point_op_matrix(i): point operator matrix
+   
+    !> For the ith hexagonal point operator:
+    Character(Len=8),  dimension(:), public, allocatable :: point_op_hex_label  ! point_op_hex_label(i): point operator symbol (from Litvin)
+    Character(Len=10), dimension(:), public, allocatable :: point_op_hex_xyz    ! point_op_hex_xyz(i): point operator in x,y,z notation
+    Integer,       dimension(:,:,:), public, allocatable :: point_op_hex_matrix ! point_op_hex_matrix(i): point operator matrix
+
+    !> For the ith magnetic space group
+    Character(Len=12), dimension(  :), public, allocatable :: nlabel_bns           ! nlabel_bns(i): numerical label in BNS setting
+    Integer,           dimension(:,:), public, allocatable :: nlabelparts_bns      ! nlabel_parts_bns(j,i): jth part of nlabel_bns
+    Character(Len=14), dimension(  :), public, allocatable :: spacegroup_label_bns ! label_bns(i): group symbol
+    Character(Len=12), dimension(  :), public, allocatable :: nlabel_og            ! nlabel_og(i): numerical label in OG setting
+    Integer,           dimension(:,:), public, allocatable :: nlabelparts_og       ! nlabel_parts_og(j,i): jth part of nlabel_og
+    Character(Len=14), dimension(  :), public, allocatable :: spacegroup_label_og  ! label_og(i): group symbol
+    Integer,           dimension(  :), public, allocatable :: magtype              ! magtype(i): type of magnetic space group (1-4)
+   
+    !> BNS-OG transformation (if type-4)
+    Integer,         dimension(:,:,:), public, allocatable :: bnsog_point_op     ! bnsog_point_op(j,k,i): 3x3 point operator part of transformation
+    Integer,         dimension(:,  :), public, allocatable :: bnsog_origin       ! bnsog_origin(j,i): translation part of transformation
+    Integer,         dimension(    :), public, allocatable :: bnsog_origin_denom ! bnsog_point_origin(i): common denominator
+    Integer,         dimension(    :), public, allocatable :: ops_count          ! iops_count(i): number of point operators
+    Integer,         dimension(    :), public, allocatable :: wyckoff_site_count ! wyckoff_count(i): number of wyckoff sites
+    Integer,         dimension(: , :), public, allocatable :: wyckoff_pos_count  ! wyckoff_pos_count(j,i): number of positions in jth wyckoff site
+    Integer,         dimension(: , :), public, allocatable :: wyckoff_mult       ! wyckoff_mult(j,i): multiplicity for jth wyckoff site
+    Character(Len=1),dimension(: , :), public, allocatable :: wyckoff_label      ! wyckoff_label(j,i): symbol (a,b,c,...,z,alpha) for jth wyckoff site
+
+    !> For BNS setting
+    Integer, dimension(    :), public, allocatable :: lattice_bns_vectors_count  ! number of lattice vectors defining the lattice
+    Integer, dimension(:,:,:), public, allocatable :: lattice_bns_vectors        ! (k,j,i): kth component of the jth lattice vector
+    Integer, dimension(:,  :), public, allocatable :: lattice_bns_vectors_denom  !(j,i): common denominator
+   
+    !> For jth operator
+    Integer, dimension(  :,:), public, allocatable :: ops_bns_point_op    ! ops_bns_point_op(j,i): point operator part
+    Integer, dimension(:,:,:), public, allocatable :: ops_bns_trans       ! ops_bns_trans(k,j,i): kth component of translation part
+    Integer, dimension(  :,:), public, allocatable :: ops_bns_trans_denom ! ops_bns_trans_denom(j,i): common denominator
+    Integer, dimension(  :,:), public, allocatable :: ops_bns_timeinv     ! ops_bns_timeinv(j,i): 1=no time inversion, -1=time inversion
+   
+    !> For jth wyckoff site
+    Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_bns_fract       ! wyckoff_bns_fract(k,j,i): kth component of fractional part of wyckoff position
+    Integer, dimension(    :,:,:), public, allocatable :: wyckoff_bns_fract_denom ! wyckoff_bns_fract_denom(j,i): common denominator
+    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_xyz         ! wyckoff_bns_xyz(m,k,j,i): mth component to coeffcient of kth parameter (x,y,z)
+    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_mag  ! wyckoff_bns_mag(m,k,j,i): mth component to coeffcient of kth magnetic parameter (mx,my,mz)
+   
+    !> For OG setting (for type-4 groups)
+    Integer, dimension(    :), public, allocatable :: lattice_og_vectors_count  ! lattice_og_vectors_count(i): number of lattice vectors defining the lattice
+    Integer, dimension(:,:,:), public, allocatable :: lattice_og_vectors   ! lattice_og_vectors(k,j,i): kth component of the jth lattice vector
+    Integer, dimension(:,  :), public, allocatable :: lattice_og_vectors_denom  ! lattice_og_vectors_denom(j,i): common denominator
+   
+    !> For jth operator
+    Integer, dimension(  :,:), public, allocatable :: ops_og_point_op    ! ops_og_point_op(j,i): point operator part
+    Integer, dimension(:,:,:), public, allocatable :: ops_og_trans       ! ops_og_trans(k,j,i): kth component of translation part
+    Integer, dimension(  :,:), public, allocatable :: ops_og_trans_denom ! ops_og_trans_denom(j,i): common denominator
+    Integer, dimension(  :,:), public, allocatable :: ops_og_timeinv     ! ops_og_timeinv(j,i): 1=no time inversion, -1=time inversion
+   
+    !> For jth wyckoff site
+    Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_og_fract        ! wyckoff_og_fract(k,j,i): kth component of fractional part of wyckoff position
+    Integer, dimension(    :,:,:), public, allocatable :: wyckoff_og_fract_denom  ! wyckoff_og_fract_denom(j,i): common denominator
+    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_og_xyz          ! wyckoff_og_xyz(m,k,j,i): mth component to coefficient of kth parameter (x,y,z)
+    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_og_mag          ! wyckoff_og_mag(m,k,j,i): mth component to coefficient of kth magnetic parameter (mx,my,mz)
+
     
     !-------------------!
     !---- Operators ----!
@@ -132,8 +200,8 @@ Module CFML_Groups
     !------------------!
     
     Interface Group_Constructor
-       module procedure Group_Constructor_GenV
-       module procedure Group_Constructor_Str
+       module procedure SpaceG_Constructor_GenV
+       module procedure SpaceG_Constructor_Str
     End Interface Group_Constructor
 
 
@@ -141,31 +209,31 @@ Module CFML_Groups
     !---- Interface Zone ----!
     !------------------------!
     Interface
-       Module Subroutine Allocate_Group(D, Multip, Grp)
+       Module Subroutine Allocate_Operators(D, NMax, Op)
+          !---- Arguments ----!
+          integer,                                         intent(in)     :: d       ! Dimension
+          integer,                                         intent(in)     :: NMax    ! is the expected maximum number of operators
+          type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
+       End Subroutine Allocate_Operators
+       
+       Module Subroutine Allocate_SpaceG(D, Multip, Grp)
           !---- Arguments ----!
           integer,         intent(in)     :: d
           integer,         intent(in)     :: multip
           class(Spg_Type), intent(in out) :: Grp
-       End Subroutine Allocate_Group
+       End Subroutine Allocate_SpaceG
        
-       Module Subroutine Allocate_Operator(d, Op)
+       Module Subroutine Allocate_Symm_Op(d, Op)
           !---- Arguments ----!
           integer,              intent(in)    :: d
           type(Symm_Oper_Type), intent(inout) :: Op
-       End Subroutine Allocate_Operator
+       End Subroutine Allocate_Symm_Op
        
-       Module Subroutine Allocate_Operators(D, Multip, Op)
-          !---- Arguments ----!
-          integer,                                         intent(in)     :: d       ! Dimension
-          integer,                                         intent(in)     :: multip  ! is the expected maximum number of operators
-          type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
-       End Subroutine Allocate_Operators
-       
-       Module Subroutine Check_Generators(Gen_in, Gen_out)
+       Module Subroutine Check_Gener(Gen_in, Gen_out)
           !---- Arguments ----!
           character(len=*), dimension(:),              intent(in)  :: gen_in
           character(len=*), dimension(:), allocatable, intent(out) :: gen_out
-       End Subroutine Check_Generators 
+       End Subroutine Check_Gener 
        
        Module Function Equal_Group(Gr1, Gr2) Result(info)
           !---- Arguments ----!
@@ -181,8 +249,8 @@ Module CFML_Groups
        
        Module Subroutine Get_Cosets(G,H, cosets)
           !---- Arguments ----!
-          type(Spg_Type),                     intent(in)  :: G  ! Group G > H
-          type(Spg_Type),                     intent(in)  :: H  ! Subgroup of G
+          type(Spg_Type),                     intent(in)  :: G  
+          type(Spg_Type),                     intent(in)  :: H  
           integer, dimension(:), allocatable, intent(out) :: cosets
        End Subroutine Get_Cosets
        
@@ -200,40 +268,49 @@ Module CFML_Groups
           character(len=*), dimension(:), allocatable, intent(out) :: gen
        End Subroutine Get_Gener_From_Str  
        
-       Module Subroutine Get_Group_From_Gener(Ngen, Op, Multip, Table)
-          !---- Arguments ----!
-          integer,                                        intent(in)     :: ngen
-          type(Symm_Oper_Type), dimension(:),             intent(in out) :: Op
-          integer,                                        intent(out)    :: multip
-          integer, dimension(:,:), allocatable, optional, intent(out)    :: table
-       End Subroutine Get_Group_From_Gener 
-       
-       Module Subroutine Get_Group_From_Table(N, G, Table, Ord)  
-          !---- Arguments ----! 
-          integer,                 intent(in)     :: n   !Number of initial elements in G
-          integer, dimension(:),   intent(in out) :: G   !Vector containing the different elements of the groups
-          integer, dimension(:,:), intent(in)     :: Table
-          integer,                 intent(out)    :: ord !order or the final group
-       End Subroutine Get_Group_From_Table
-       
-       Module Subroutine Get_Mat_From_Symb(Symb,Mat,Invt)
+       Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
           !---- Arguments ----!
           character(len=*),                intent(in)  :: Symb
           type(rational), dimension(:,:),  intent(out) :: Mat
           integer, optional,               intent(out) :: invt
        End Subroutine Get_Mat_From_Symb
        
-       Module Subroutine Get_Multiplication_Table(Op,Table)
+       Module Subroutine Get_Multip_OP_Table(Op,Table)
           !---- Arguments ----!
           type(Symm_Oper_Type), dimension(:), intent(in) :: Op
           integer, dimension(:,:),allocatable,intent(out):: Table
-       End Subroutine Get_Multiplication_Table
+       End Subroutine Get_Multip_OP_Table
        
-       Module Function Get_Oper_from_Symb(Symb) Result(Op)
+       Module Function Get_Op_from_Symb(Symb) Result(Op)
           !---- Arguments ----!
           character(len=*),     intent(in) :: symb
           type(Symm_Oper_Type)             :: Op
-       End Function Get_Oper_from_Symb
+       End Function Get_Op_from_Symb
+       
+       Module Subroutine Get_OPS_From_Gener(Ngen, Ops, Multip, Table)
+          !---- Arguments ----!
+          integer,                                        intent(in)     :: ngen
+          type(Symm_Oper_Type), dimension(:),             intent(in out) :: Ops
+          integer,                                        intent(out)    :: multip
+          integer, dimension(:,:), allocatable, optional, intent(out)    :: table
+       End Subroutine Get_OPS_From_Gener 
+       
+       Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
+          !---- Arguments ----!
+          type(Spg_Type),                   intent( in) :: SpG
+          type(Spg_Type),dimension(:),      intent(out) :: SubG
+          integer,                          intent(out) :: nsg
+          integer,                 optional,intent(in)  :: indexg
+          logical, dimension(:,:), optional,intent(out) :: point
+       End Subroutine Get_SubGroups
+       
+       Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg)
+          !---- Arguments ----!
+          type(Spg_Type),                   intent( in) :: SpG
+          type(Spg_Type),dimension(:),      intent(out) :: SubG
+          integer,                          intent(out) :: nsg
+          integer,                 optional,intent(in)  :: indexg
+       End Subroutine Get_SubGroups_Subgen
        
        Module Function Get_Symb_from_Mat(Mat, Strcode, Invt) Result(Symb)
           !---- Arguments ----!
@@ -243,43 +320,31 @@ Module CFML_Groups
           character(len=80)                          :: symb
        End Function Get_Symb_from_Mat
        
-       Module Function Get_Symb_from_Oper(Op, Strcode) Result(symb)
+       Module Function Get_Symb_from_Op(Op, Strcode) Result(symb)
           !---- Arguments ----!
           type(Symm_Oper_Type),       intent(in) :: Op
           character(len=*), optional, intent(in) :: Strcode
           character(len=80)                      :: symb
-       End Function Get_Symb_from_Oper
+       End Function Get_Symb_from_Op
        
-       Module Subroutine Get_SubGroups(SpG,SubG,nsg,indexg,point)
-          !---- Arguments ----!
-          type(Spg_Type),                   intent( in) :: SpG
-          type(Spg_Type),dimension(:),      intent(out) :: SubG
-          integer,                          intent(out) :: nsg
-          integer,                 optional,intent(in)  :: indexg
-          logical, dimension(:,:), optional,intent(out) :: point
-       End Subroutine Get_SubGroups
-       
-       Module Subroutine Get_SubGroups_Subgen(SpG,SubG,nsg,indexg)
-          !---- Arguments ----!
-          type(Spg_Type),                   intent( in) :: SpG
-          type(Spg_Type),dimension(:),      intent(out) :: SubG
-          integer,                          intent(out) :: nsg
-          integer,                 optional,intent(in)  :: indexg
-       End Subroutine Get_SubGroups_Subgen
-       
-       Module Subroutine Group_Constructor_GenV(GenV, Grp, StrCode)
+       Module Subroutine SpaceG_Constructor_GenV(GenV, Spg, StrCode)
           !---- Arguments ----!
           character(len=*),dimension(:),intent(in)     :: GenV
-          class(Spg_Type),              intent(in out) :: Grp
+          class(Spg_Type),              intent(in out) :: Spg
           character(len=*),optional,    intent(in)     :: StrCode
-       End Subroutine Group_Constructor_GenV 
+       End Subroutine SpaceG_Constructor_GenV 
        
-       Module Subroutine Group_Constructor_Str(ListGen, Grp, Strcode)
+       Module Subroutine SpaceG_Constructor_Str(ListGen, Spg, Strcode)
           !---- Arguments ----!
           character(len=*),           intent(in)     :: ListGen
-          class(Spg_Type),            intent(in out) :: Grp
+          class(Spg_Type),            intent(in out) :: Spg
           character(len=*), optional, intent(in)     :: Strcode  
-       End Subroutine Group_Constructor_Str 
+       End Subroutine SpaceG_Constructor_Str 
+       
+       Module Subroutine Init_SpaceG(Grp)
+          !---- Arguments ----!
+          class(Group_type),  intent(in out) :: Grp 
+       End Subroutine Init_SpaceG  
        
        Module Function Is_Inversion_Centre(Op) Result(Info)
           !---- Arguments ----!
@@ -291,8 +356,8 @@ Module CFML_Groups
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op
           logical                          :: info
-       End Function Is_Lattice_Centring 
-      
+       End Function Is_Lattice_Centring
+       
        Module Function Is_Lattice_Vec(V,Ltr,Nlat) Result(Lattice)
           !---- Argument ----!
           type(rational), dimension(:),   intent( in) :: v
@@ -300,18 +365,7 @@ Module CFML_Groups
           integer,                        intent( in) :: nlat
           logical                                     :: Lattice
        End Function Is_Lattice_Vec
-       
-       Module Subroutine Initialize_Conditions_Group(maxop,epsg)
-          !---- Arguments ----!
-          integer,       optional, intent(in) :: maxop
-          real(kind=cp), optional, intent(in) :: epsg
-       End Subroutine Initialize_Conditions_Group  
-       
-       Module Subroutine Initialize_Group(Grp)
-          !---- Arguments ----!
-          class(Group_type),  intent(inout) :: Grp 
-       End Subroutine Initialize_Group  
-       
+       !
        Module Pure Function Multiply_Symm_Oper(Op1, Op2) Result (Op3)
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op1,Op2
@@ -320,7 +374,7 @@ Module CFML_Groups
        
        Module Subroutine Reduced_Translation(Mat)
           !---- Arguments ----!
-          type(rational), dimension(:,:), intent(inout) :: Mat
+          type(rational), dimension(:,:), intent(in out) :: Mat
        End Subroutine Reduced_Translation  
        
        Module Subroutine Reorder_Operators(Multip, Op, Centred, Centre_Coord, Anticentred, &
@@ -341,83 +395,30 @@ Module CFML_Groups
           type(rational),dimension(:),        intent(out)    :: anticentre_coord
        End Subroutine Reorder_Operators
        
-       Module Subroutine Set_Identity_Matrix(d)
+       Module Subroutine Set_Conditions_NumOP_EPS(maxop,epsg)
+          !---- Arguments ----!
+          integer,       optional, intent(in) :: maxop
+          real(kind=cp), optional, intent(in) :: epsg
+       End Subroutine Set_Conditions_NumOP_EPS 
+       
+       Module Subroutine Set_Identity_Matrix(D)
           !---- Arguments ----! 
           integer, intent(in) :: D    
        End Subroutine Set_Identity_Matrix  
        
-       Module Subroutine Sort_Oper(N, Op,Cod)
+       Module Subroutine Sort_Oper(N, Op, Cod)
           !---- Arguments ----! 
           integer,                            intent(in)    :: n
           type(Symm_Oper_Type) ,dimension(n), intent(inout) :: Op
           character(len=*),                   intent(in)    :: cod   
        End Subroutine Sort_Oper  
        
-       Module Subroutine Write_Group_Info(Grp,Lun)
+       Module Subroutine Write_SpaceG_Info(Grp,Lun)
           !---- Arguments ----!
           class(Spg_Type),    intent(in)   :: Grp
           integer, optional,  intent(in)   :: lun 
-       End Subroutine Write_Group_Info   
+       End Subroutine Write_SpaceG_Info   
       
     End Interface
 
- Contains
-   
-   !!----
-   !!---- RDET
-   !!----
-   !!---- 20/04/19
-   !!
-   Pure Recursive Function Rdet(A) Result(Acc)
-      !---- Arguments ----!
-      type(rational), dimension(:,:), intent(in) :: a
-      type(rational)                             :: acc
-      
-      !---- Local variables ----!
-      type(rational), dimension(size(a,dim=1)-1, size(a,dim=1)-1) :: b
-      type(rational) :: sgn
-      integer        :: i, n
-      
-      n=size(a,dim=1)
-      if (n == 1) then
-         acc = a(1,1)
-      else
-         acc = 0_LI//1_LI
-         sgn = 1_LI/1_LI
-         do i=1,n
-            b(:, :(i-1)) = a(2:, :i-1)
-            b(:, i:) = a(2:, i+1:)
-            acc = acc + sgn * a(1, i) * rdet(b)
-            sgn = sgn * (-1_LI/1_LI)
-         end do
-      end if
-      
-      return
-   End Function rdet
-   
-   !!----
-   !!---- LU_DESCOMPOSITION
-   !!----
-   !!---- 19/04/2019
-   !!
-   Pure Subroutine LU_Descomposition(a,p)
-      !---- Arguments ----!
-      real(kind=dp), intent(in out) :: a(:,:)
-      integer,       intent(   out) :: p(:)
-      
-      !---- Local Variables ----!
-      integer :: n,i,j,k,kmax
-      
-      n=size(a,1)
-      p=[ ( i, i=1,n ) ]
-      do k = 1,n-1
-         kmax = maxloc(abs(a(p(k:),k)),1) + k-1
-         if (kmax /= k ) p([k, kmax]) = p([kmax, k])
-         a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
-         forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
-      end do
-      
-      return
-   End Subroutine LU_Descomposition
-    
-End Module CFML_Groups
+End Module CFML_SpaceG

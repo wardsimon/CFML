@@ -1,4 +1,4 @@
-SubModule (CFML_Groups) Init_Proc
+SubModule (CFML_SpaceG) Init_Proc
    Contains
    
    !!----
@@ -6,7 +6,7 @@ SubModule (CFML_Groups) Init_Proc
    !!----
    !!---- 19/04/2019 
    !!
-   Module Subroutine Set_Identity_Matrix(d)
+   Module Subroutine Set_Identity_Matrix(D)
       !---- Arguments ----! 
       integer, intent(in) :: D    ! Dimension of the Matrix
       
@@ -19,15 +19,16 @@ SubModule (CFML_Groups) Init_Proc
       
       call Rational_Identity_Matrix(identity_matrix)
       
-      return
    End Subroutine Set_Identity_Matrix
    
    !!----
-   !!---- INITIALIZE_GROUP
+   !!---- INIT_SPACEG
+   !!----
    !!----    Initializes the components that are not allocatable arrays
+   !!----
    !!---- 19/04/2019
    !!
-   Module Subroutine Initialize_Group(Grp)
+   Module Subroutine Init_SpaceG(Grp)
       !---- Arguments ----!
       class(Group_type),  intent(in out) :: Grp
       
@@ -57,15 +58,14 @@ SubModule (CFML_Groups) Init_Proc
             Grp%generators_list = "    "
       End Select
       
-      return
-   End Subroutine Initialize_Group
+   End Subroutine Init_SpaceG
    
    !!----
-   !!---- INITIALIZE_CONDITIONS_GROUP
+   !!---- SET_CONDITIONS_GROUP
    !!----
    !!---- 19/04/2019
    !!
-   Module Subroutine Initialize_Conditions_Group(maxop,epsg)
+   Module Subroutine Set_Conditions_NumOP_EPS(maxop,epsg)
       !---- Arguments ----!
       integer,       optional, intent(in) :: maxop
       real(kind=cp), optional, intent(in) :: epsg
@@ -80,7 +80,6 @@ SubModule (CFML_Groups) Init_Proc
          call Set_Eps_Math(0.001_cp)
       end if
       
-      return
-   End Subroutine Initialize_Conditions_Group
+   End Subroutine Set_Conditions_NumOp_EPS
    
 End SubModule Init_Proc 
