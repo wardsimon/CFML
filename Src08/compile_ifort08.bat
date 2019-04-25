@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08N
+   cd %CRYSFML%\Src08
 rem
    echo.
    echo **-------------------------------------**
@@ -247,6 +247,10 @@ rem   Submodules CFML_SpaceG
       ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Allocate_MagneticDBase.f90             /nologo %OPT0% %OPT2%  /module:..\mod 
+      ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
       goto END 

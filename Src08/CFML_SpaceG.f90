@@ -61,6 +61,7 @@ Module CFML_SpaceG
     
     !---- List of public subroutines ----!
     public :: Init_SpaceG, &
+              Read_Magnetic_Data, Read_Magnetic_Binary, &
               Set_Conditions_NumOP_EPS, &
               Write_SpaceG_Info
               
@@ -115,7 +116,7 @@ Module CFML_SpaceG
     character(len=120), dimension(230)          :: it_spg_gen=" "     ! Generator of space groups in the standard setting
     type(rational), dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
     
-    logical                                     :: database_allocated=.false.
+    logical                                     :: Magnetic_DBase_allocated=.false.
     logical                                     :: mcif=.false.
     
     !> For the ith nonhexagonal point operator:
@@ -203,12 +204,21 @@ Module CFML_SpaceG
        module procedure SpaceG_Constructor_GenV
        module procedure SpaceG_Constructor_Str
     End Interface Group_Constructor
+    
+    Interface Get_Lattice_Type
+       module procedure Get_Lattice_Type_L
+       module procedure Get_Lattice_Type_from_Mat
+    End Interface Get_Lattice_Type
 
 
     !------------------------!
     !---- Interface Zone ----!
     !------------------------!
     Interface
+       Module Subroutine Allocate_Magnetic_DBase()
+          !---- Arguments ----!
+       End Subroutine Allocate_Magnetic_DBase
+          
        Module Subroutine Allocate_Operators(D, NMax, Op)
           !---- Arguments ----!
           integer,                                         intent(in)     :: d       ! Dimension
@@ -234,6 +244,10 @@ Module CFML_SpaceG
           character(len=*), dimension(:),              intent(in)  :: gen_in
           character(len=*), dimension(:), allocatable, intent(out) :: gen_out
        End Subroutine Check_Gener 
+       
+       Module Subroutine Deallocate_Magnetic_DBase()
+          !---- Arguments ----!
+       End Subroutine Deallocate_Magnetic_DBase
        
        Module Function Equal_Group(Gr1, Gr2) Result(info)
           !---- Arguments ----!
@@ -267,6 +281,24 @@ Module CFML_SpaceG
           integer,                                     intent(out) :: ngen
           character(len=*), dimension(:), allocatable, intent(out) :: gen
        End Subroutine Get_Gener_From_Str  
+       
+       Module Function Get_Lattice_Type_from_MAT(M) Result(lattyp)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: M
+          character(len=1)                            :: lattyp
+       End Function Get_Lattice_Type_from_MAT
+       
+       Module Function Get_Lattice_Type_L(L, Latc) Result(lattyp)
+          !---- Arguments ----!
+          integer,                        intent( in) :: L
+          type(rational), dimension(:,:), intent( in) :: Latc
+          character(len=1)                            :: lattyp
+       End Function Get_Lattice_Type_L
+       
+       Module Subroutine Get_Magnetic_Lattice_Type(G)
+          !---- Arguments ----!
+          type(spg_type), intent(in out) :: G
+       End Subroutine Get_Magnetic_Lattice_Type
        
        Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
           !---- Arguments ----!
@@ -372,6 +404,14 @@ Module CFML_SpaceG
           type(Symm_Oper_Type)             :: Op3  
        End Function Multiply_Symm_Oper  
        
+       Module Subroutine Read_Magnetic_Binary()
+          !---- Arguments ----!
+       End Subroutine Read_Magnetic_Binary 
+       
+       Module Subroutine Read_Magnetic_Data()
+          !---- Arguments ----!
+       End Subroutine Read_Magnetic_Data   
+       
        Module Subroutine Reduced_Translation(Mat)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in out) :: Mat
@@ -405,6 +445,11 @@ Module CFML_SpaceG
           !---- Arguments ----! 
           integer, intent(in) :: D    
        End Subroutine Set_Identity_Matrix  
+       
+       Module Subroutine Smallest_Integral_Vector(v)
+          !---- Arguments ----!
+          type(rational), dimension(:), intent(inout) :: v
+       End Subroutine Smallest_Integral_Vector
        
        Module Subroutine Sort_Oper(N, Op, Cod)
           !---- Arguments ----! 
