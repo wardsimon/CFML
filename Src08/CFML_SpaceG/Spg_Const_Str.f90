@@ -30,7 +30,7 @@ SubModule (CFML_SpaceG) SPG_019
       call Init_SpaceG(Spg)
       allocate(gen1(maxnum_op))
       call Get_Gener_From_Str(ListGen, d, ngen1, gen1)
-      call Check_Generators(gen1, gen)
+      call Check_Gener(gen1, gen)
       if (Err_CFML%Ierr /= 0) return
       
       ngen=size(gen)

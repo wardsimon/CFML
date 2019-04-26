@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08
+   cd %CRYSFML%\Src08N
 rem
    echo.
    echo **-------------------------------------**
@@ -251,6 +251,15 @@ rem   Submodules CFML_SpaceG
       ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_OriginShift.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_HM_Standard.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Rotations.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_PseudoStdBase.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_X_Matrix.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Generators.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Identify_Crystallog_PG.f90             /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Match_Shubnikov_Grp.f90                /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Identify_Groups.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
       goto END 

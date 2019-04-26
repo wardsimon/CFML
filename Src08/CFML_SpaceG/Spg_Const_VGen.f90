@@ -29,7 +29,7 @@ SubModule (CFML_SpaceG) SPG_020
       
       !> Initializes Grp
       call Init_SpaceG(Spg)
-      call Check_Generators(GenV,gen)
+      call Check_Gener(GenV,gen)
       if (Err_CFML%Ierr /= 0) return
       
       d=Get_Dimension_Gener(gen(1))

@@ -48,7 +48,9 @@ Module CFML_SpaceG
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Rational
-    Use CFML_Strings,    only: u_case, pack_string
+    Use CFML_Maths,      only: Set_eps_math 
+    Use CFML_Strings,    only: u_case, pack_string, get_separator_pos
+    Use CFML_Symm_Tables
 
     !---- Variables ----!
     implicit none
@@ -60,7 +62,8 @@ Module CFML_SpaceG
     public :: operator (==) 
     
     !---- List of public subroutines ----!
-    public :: Init_SpaceG, &
+    public :: Group_Constructor, Get_Cosets, Get_SubGroups_Subgen, &
+              Init_SpaceG, Identify_Group, &
               Read_Magnetic_Data, Read_Magnetic_Binary, &
               Set_Conditions_NumOP_EPS, &
               Write_SpaceG_Info
@@ -261,6 +264,20 @@ Module CFML_SpaceG
           logical                          :: info  
        End Function Equal_Symm_Oper
        
+       Module Subroutine Get_A_Matrix_Crys(Laueclass,A,N)
+          !---- Arguments ----!
+          character(len=*),                 intent(in)  :: LaueClass
+          type(rational), dimension(3,3,6), intent(out) :: A
+          integer,                          intent(out) :: n
+       End Subroutine Get_A_Matrix_Crys
+       
+       Module Subroutine Get_A_Matrix_Shub(Laueclass,A,N)
+          !---- Arguments ----!
+          character(len=*),                 intent(in)  :: laueClass
+          type(rational), dimension(3,3,6), intent(out) :: A
+          integer,                          intent(out) :: n
+       End Subroutine Get_A_Matrix_Shub
+       
        Module Subroutine Get_Cosets(G,H, cosets)
           !---- Arguments ----!
           type(Spg_Type),                     intent(in)  :: G  
@@ -281,6 +298,21 @@ Module CFML_SpaceG
           integer,                                     intent(out) :: ngen
           character(len=*), dimension(:), allocatable, intent(out) :: gen
        End Subroutine Get_Gener_From_Str  
+       
+       Module Subroutine Get_Generators(laueClass,symOp,nSymOp,G,nGen)
+          !---- Arguments ----!
+          character(len=*),                        intent(in)  :: laueClass ! Laue class
+          type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
+          integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
+          type(Symm_Oper_Type), dimension(3),      intent(out) :: G         ! generators
+          integer,                                 intent(out) :: nGen      ! number of generators
+       End Subroutine Get_Generators
+       
+       Module Function Get_HM_Standard(NumSpg) Result(SymbolHM)
+          !---- Arguments ----!
+          integer, intent(in) :: numSpg
+          character(len=12)   :: symbolHM
+       End Function Get_HM_Standard 
        
        Module Function Get_Lattice_Type_from_MAT(M) Result(lattyp)
           !---- Arguments ----!
@@ -307,6 +339,20 @@ Module CFML_SpaceG
           integer, optional,               intent(out) :: invt
        End Subroutine Get_Mat_From_Symb
        
+       Module Function Get_Mc_Matrix(LaueClass, Mp) Result(Mc)
+          !---- Arguments ----!
+          character(len=*),               intent(in)  :: LaueClass
+          type(rational), dimension(3,3), intent(in)  :: Mp
+          type(rational), dimension(3,3)              :: Mc
+       End Function Get_Mc_Matrix
+       
+       Module Function Get_Mp_Matrix(G,P) Result(Mp)
+          !---- Arguments ----!
+          type(spg_type),                 intent(in)  :: G
+          type(rational), dimension(3,3), intent(in)  :: P
+          type(rational), dimension(3,3)              :: Mp
+       End Function Get_Mp_Matrix 
+       
        Module Subroutine Get_Multip_OP_Table(Op,Table)
           !---- Arguments ----!
           type(Symm_Oper_Type), dimension(:), intent(in) :: Op
@@ -326,6 +372,59 @@ Module CFML_SpaceG
           integer,                                        intent(out)    :: multip
           integer, dimension(:,:), allocatable, optional, intent(out)    :: table
        End Subroutine Get_OPS_From_Gener 
+       
+       Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
+          !---- Arguments ----!
+          type(symm_oper_type), dimension(ng), intent(in)  :: G
+          type(symm_oper_type), dimension(ng), intent(in)  :: G_
+          integer,                             intent(in)  :: ng
+          type(rational), dimension(3,3),      intent(in)  :: P_
+          type(rational), dimension(3),        intent(out) :: origShift
+          logical,                             intent(out) :: shift
+       End Subroutine Get_Origin_Shift
+       
+       Module Function Get_P_Matrix(G,Nospin) Result(P)
+          !---- Arguments ----!
+          type(spg_type),                 intent(in)  :: G
+          logical, optional,              intent(in)  :: nospin
+          type(rational), dimension(3,3)              :: P
+       End Function Get_P_Matrix
+       
+       Module Subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W
+          type(rational), dimension(3,4), intent(in)  :: perpAxis
+          type(rational), dimension(3),   intent(in)  :: bz
+          type(rational), dimension(3),   intent(out) :: bx
+          type(rational), dimension(3),   intent(out) :: by
+       End Subroutine Get_Pseudo_Standard_Base 
+       
+       Module Function Get_Rotation_Axis(W) Result(axis)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W       !rotation matrix
+          type(rational), dimension(3)                :: axis    !shortest vector along the rotation axisP 
+       End Function Get_Rotation_Axis
+       
+       Module Function Get_Rotation_Order(W) Result(order)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W
+          integer                                     :: order
+       End Function Get_Rotation_Order
+       
+       Module Subroutine Get_Rotations(symOP, nSymOP, n, nso, idd)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
+          integer,                                 intent(in)  :: nSymOP
+          integer,                                 intent(in)  :: n
+          integer,                                 intent(out) :: nso
+          integer, dimension(nSymOP,2),            intent(out) :: idd
+       End Subroutine Get_Rotations
+       
+       Module Function Get_S_Matrix(W) Result(S)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W
+          type(rational), dimension(3,3)               :: S
+       End Function Get_S_Matrix
        
        Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
           !---- Arguments ----!
@@ -358,6 +457,44 @@ Module CFML_SpaceG
           character(len=*), optional, intent(in) :: Strcode
           character(len=80)                      :: symb
        End Function Get_Symb_from_Op
+       
+       Module Function Get_VecPerp_To_RotAxis(W) Result(vPerp)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W
+          type(rational), dimension(3,4)              :: vPerp
+       End Function Get_VecPerp_To_RotAxis 
+       
+       Module Subroutine Identify_Crystallographic_PG(G)
+          !---- Arguments ----!
+          type(spg_type), intent(in out) :: G
+       End Subroutine Identify_Crystallographic_PG 
+       
+       Module Subroutine Identify_Cryst_SpG(G)
+          !---- Arguments ----!
+          type(spg_type),    intent(in out) :: G
+       End Subroutine Identify_Cryst_SpG
+       
+       Module Subroutine Identify_Group(G)
+          !---- Arguments ----!
+          type(spg_type),    intent(in out) :: G
+       End Subroutine Identify_Group
+       
+       Module Subroutine Identify_Laue_Class(G)
+          !---- Arguments ----!
+          type(spg_type), intent(inout) :: G
+       End Subroutine Identify_Laue_Class
+       
+       Module Subroutine Identify_Shubnikov_Group(G)
+          !---- Arguments ----!
+          type(spg_type),    intent(in out) :: G
+       End Subroutine Identify_Shubnikov_Group
+       
+       Module Subroutine Match_Shubnikov_Group(G,P,M)
+          !---- Arguments ----!
+          type(spg_type),                   intent(in out):: G
+          type(rational), dimension(3,3),   intent(in)    :: P      
+          type(rational), dimension(3,3),   intent(in)    :: M     
+       End Subroutine Match_Shubnikov_Group
        
        Module Subroutine SpaceG_Constructor_GenV(GenV, Spg, StrCode)
           !---- Arguments ----!
@@ -404,6 +541,13 @@ Module CFML_SpaceG
           type(Symm_Oper_Type)             :: Op3  
        End Function Multiply_Symm_Oper  
        
+       Module Function Positive_SenseRot(W, Axis) Result(Positive)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(in)  :: W
+          type(rational), dimension(3),   intent(in)  :: axis
+          logical                                     :: positive
+       End Function Positive_SenseRot
+       
        Module Subroutine Read_Magnetic_Binary()
           !---- Arguments ----!
        End Subroutine Read_Magnetic_Binary 
@@ -444,7 +588,12 @@ Module CFML_SpaceG
        Module Subroutine Set_Identity_Matrix(D)
           !---- Arguments ----! 
           integer, intent(in) :: D    
-       End Subroutine Set_Identity_Matrix  
+       End Subroutine Set_Identity_Matrix 
+       
+       Module Subroutine Set_Right_Handedness(A)
+          !---- Arguments ----!
+          type(rational), dimension(3,3), intent(inout) :: A
+       End Subroutine Set_Right_Handedness 
        
        Module Subroutine Smallest_Integral_Vector(v)
           !---- Arguments ----!

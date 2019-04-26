@@ -22,7 +22,7 @@ SubModule (CFML_SpaceG) SPG_013
       
       allocate(Op%Mat(d,d))
       call Get_Mat_From_Symb(Symb, Op%Mat, Op%time_inv)
-      Op%dt=rotational_determ(Op%Mat(1:3,1:3))
+      Op%dt=rational_determ(Op%Mat(1:3,1:3))
       
    End Function Get_Op_from_Symb
 

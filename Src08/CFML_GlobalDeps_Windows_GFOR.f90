@@ -82,9 +82,6 @@ Module CFML_GlobalDeps
    character(len=2), parameter   :: NEWLINE = char(13)//char(10) ! Newline character
    character(len=1), parameter   :: TAB     = char(9)            ! TAB character
    
-   !---- Error Flags ----!
-   logical,  parameter        :: CFML_DEBUG=.false.       ! For checking test
-   
    Type :: Err_Type
       integer                         :: IErr =0                  ! =0: No error, < 0: Warning, > 0: Error
       character(len=180)              :: Msg=" "                  ! Text for Message
@@ -93,6 +90,9 @@ Module CFML_GlobalDeps
    End Type Err_Type
    Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
   
+   !---- Error Flags ----!
+   logical :: CFML_DEBUG=.false. ! For checking test 
+   
  Contains
 
    !!----
@@ -150,5 +150,20 @@ Module CFML_GlobalDeps
       
       return
    End Subroutine Clear_Error 
+   
+   !!----
+   !!---- SET_CFML_DEBUG
+   !!----    Set .true. or .false. for CFML_DEBUG global variable
+   !!----
+   !!---- 26/04/2019
+   !!
+   Subroutine Set_CFML_DEBUG(state)
+      !---- Arguments ----!
+      logical, intent(in) :: state
+
+      CFML_DEBUG=state
+      
+      return
+   End Subroutine Set_CFML_DEBUG
 
 End Module CFML_GlobalDeps
