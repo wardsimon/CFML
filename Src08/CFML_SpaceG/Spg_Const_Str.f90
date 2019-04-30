@@ -26,7 +26,6 @@ SubModule (CFML_SpaceG) SPG_019
 
       !> Init 
       call Clear_Error()
-
       call Init_SpaceG(Spg)
       allocate(gen1(maxnum_op))
       call Get_Gener_From_Str(ListGen, d, ngen1, gen1)

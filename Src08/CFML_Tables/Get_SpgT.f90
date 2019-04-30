@@ -23,7 +23,7 @@ SubModule (CFML_Symm_Tables) SpgGener
    Module Function Get_IT_Generators(Spg) Result(StrGen)
       !---- Arguments ----!
       character(len=*), intent(in)  :: spg      ! Hermann_Mauguin symbol or number of S.Group
-      character(len=255)            :: Strgen   ! String with all generators 
+      character(len=:), allocatable :: StrGen
 
       !----  Local variables ----!
       integer                 :: i, ier, numg

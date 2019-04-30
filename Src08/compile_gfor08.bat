@@ -176,7 +176,7 @@ rem   Submodules CFML_Rational
       gfortran -c %OPTC% -J..\mod Operator_multiply.f90              %OPT1%
       gfortran -c %OPTC% -J..\mod Operator_neq.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Overloads.f90                      %OPT1%
-      gfortran -c %OPTC% -J..\mod RowEchelon.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Rat_RowEchelon.f90                 %OPT1%
       move /y *.o .. > nul
       cd ..    
 rem
@@ -218,41 +218,53 @@ rem
       move /y *.o .. > nul
       cd ..   
 rem   
-   echo .... Groups Procedures 
-   gfortran -c %OPTC%  -J.\mod CFML_Groups.f90                 %OPT1% 
+   echo .... Symmetry / SpaceGroups Procedures
+   gfortran -c %OPTC%  -J.\mod CFML_SpaceG.f90                       %OPT1% 
 rem
-rem   Submodules CFML_Groups
-      cd .\CFML_Groups 
-      gfortran -c %OPTC% -J..\mod Rational_IsLattVec.f90             %OPT1%  
-      gfortran -c %OPTC% -J..\mod Rational_RedTraslation.f90         %OPT1%  
-      gfortran -c %OPTC% -J..\mod Init_Procedures.f90                %OPT1%  
-      gfortran -c %OPTC% -J..\mod Operator_Mult.f90                  %OPT1%  
-      gfortran -c %OPTC% -J..\mod Operator_Equal.f90                 %OPT1%  
-      gfortran -c %OPTC% -J..\mod Allocate_Opers.f90                 %OPT1%  
-      gfortran -c %OPTC% -J..\mod Allocate_Grp.f90                   %OPT1%  
-      gfortran -c %OPTC% -J..\mod Is_InversionCentre.f90             %OPT1%  
-      gfortran -c %OPTC% -J..\mod Is_LattCentring.f90                %OPT1%  
-      gfortran -c %OPTC% -J..\mod Write_Grp.f90                      %OPT1%  
-      gfortran -c %OPTC% -J..\mod Sort_Operator.f90                  %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Dimension.f90                  %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Symb_Mat.f90                   %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Symb_Oper.f90                  %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Mat_Symb.f90                   %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Mult_Table.f90                 %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_Oper_Symb.f90                  %OPT1%  
-      gfortran -c %OPTC% -J..\mod Get_GenerStr.f90                   %OPT1%  
-      gfortran -c %OPTC% -J..\mod CheckGener.f90                     %OPT1%  
-      gfortran -c %OPTC% -J..\mod Reorder_Oper.f90                   %OPT1%  
+rem   Submodules CFML_SpaceG
+      cd .\CFML_SpaceG
+      gfortran -c %OPTC% -J..\mod Init_Procedures.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Is_InversionCentre.f90             %OPT1% 
+      gfortran -c %OPTC% -J..\mod Is_LattCentring.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Rational_IsLattVec.f90             %OPT1% 
+      gfortran -c %OPTC% -J..\mod Rational_RedTraslation.f90         %OPT1% 
+      gfortran -c %OPTC% -J..\mod Operator_Equal.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod Operator_Mult.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Sort_Operator.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Write_SpaceG.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Allocate_Opers.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod Allocate_SpaceG.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Reorder_Oper.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Symb_Mat.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Symb_Oper.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Mat_Symb.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Oper_Symb.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Dimension.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Mult_OPTable.f90               %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_GenerStr.f90                   %OPT1%
+      gfortran -c %OPTC% -J..\mod CheckGener.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Ops_Gener.f90                  %OPT1%  
+      gfortran -c %OPTC% -J..\mod Spg_Const_Str.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Spg_Const_VGen.f90                 %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_Cosets.f90                     %OPT1% 
-      gfortran -c %OPTC% -J..\mod Get_Grp_Table.f90                  %OPT1% 
-      gfortran -c %OPTC% -J..\mod Get_Grp_Gener.f90                  %OPT1% 
-      gfortran -c %OPTC% -J..\mod Grp_Const_Str.f90                  %OPT1% 
-      gfortran -c %OPTC% -J..\mod Grp_Const_VGen.f90                 %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_SubGrp.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_SubGrp_SubGen.f90              %OPT1% 
+      gfortran -c %OPTC% -J..\mod Allocate_MagneticDBase.f90         %OPT0% 
+      gfortran -c %OPTC% -J..\mod Read_MagneticDBase.f90             %OPT1% 
+      gfortran -c %OPTC% -J..\mod Smallest_IntegralVec.f90           %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_LattType.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_OriginShift.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_HM_Standard.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Rotations.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_PseudoStdBase.f90              %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_X_Matrix.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Generators.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod Identify_Crystallog_PG.f90         %OPT1% 
+      gfortran -c %OPTC% -J..\mod Match_Shubnikov_Grp.f90            %OPT1% 
+      gfortran -c %OPTC% -J..\mod Identify_Groups.f90                %OPT1% 
       move /y *.o .. > nul
       cd ..  
- rem   
+rem   
    echo .... Profiles definitions 
    gfortran -c %OPTC%  -J.\mod CFML_Profiles.f90               %OPT1% 
 rem
@@ -279,11 +291,11 @@ rem
 rem      
 rem   Submodules CFML_ExtinCorr
       cd .\CFML_ExtinCorr
-      gfortran -c %OPTC% -J..\mod BeckerCoppens.f90                  %OPT1%
-      gfortran -c %OPTC% -J..\mod FlippingRatios.f90                 %OPT1%
-      gfortran -c %OPTC% -J..\mod ShelxCorr.f90                      %OPT1%
+      gfortran -c %OPTC% -J..\mod BeckerCoppens.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod FlippingRatios.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod ShelxCorr.f90                      %OPT1% 
       move /y *.o .. > nul
-      cd ..       
+      cd .. 
       goto END
       
 :END

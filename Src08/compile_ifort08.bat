@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08N
+   cd %CRYSFML%\Src08
 rem
    echo.
    echo **-------------------------------------**
@@ -174,7 +174,7 @@ rem   Submodules CFML_Rational
       ifort /c Operator_multiply.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Operator_neq.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Overloads.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c RowEchelon.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Rat_RowEchelon.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
 rem
@@ -262,7 +262,6 @@ rem   Submodules CFML_SpaceG
       ifort /c Identify_Groups.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
-      goto END 
  rem   
     echo .... Profiles definitions 
     ifort /c CFML_Profiles.f90                         /nologo %OPT1% %OPT2% /module:.\mod 

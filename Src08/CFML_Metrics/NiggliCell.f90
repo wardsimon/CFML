@@ -98,7 +98,7 @@ Submodule (CFML_Metrics) Niggli_Cell
           if (present(trans)) then
              call Niggli_Cell_Mat(n_mat,Niggli_Point,celda,trans)
           else
-             call Niggli_Cell_Mnat(n_mat,Niggli_Point,celda)
+             call Niggli_Cell_Mat(n_mat,Niggli_Point,celda)
           end if
           
        else if(present(trans)) then

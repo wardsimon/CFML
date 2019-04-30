@@ -78,7 +78,7 @@ SubModule (CFML_SpaceG) SPG_012
                read(unit=split(i)(1:k-1),fmt=*) num
                read(unit=split(i)(k+1:),fmt=*) den
             else
-               den=1
+               den=1   
                read(unit=split(i),fmt=*) num
             end if
             Mat(i,Dd)= num//den

@@ -46,12 +46,12 @@ Submodule (CFML_Maths) Diagonalize_SH
        if (present(E_vect)) then
           call Diagonalize_PR_Tred2(aux,nn,d,e)
           call Diagonalize_PR_Tqli2(d,e,nn,aux)
-          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(d,aux,nn,1)
+          if(.not. present(norder)) call Diagonalize_EigenvSort(d,aux,nn,1)
           e_vect(1:n,1:n)=cmplx(aux(1:n,1:nn:2),aux(n+1:nn,1:nn:2))
        else
           call Diagonalize_PR_Tred1(aux,nn,d,e)
           call Diagonalize_PR_Tqli1(d,e,nn)
-          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(d,aux,nn,0)
+          if(.not. present(norder)) call Diagonalize_EigenvSort(d,aux,nn,0)
        end if
        e_val(1:n)=d(1:nn:2)
 
@@ -93,12 +93,12 @@ Submodule (CFML_Maths) Diagonalize_SH
        if (present(E_vect)) then
           call Diagonalize_PR_Tred2(aux,n,E_val,e)
           call Diagonalize_PR_Tqli2(E_val,e,n,aux)
-          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(E_val,aux,n,1)
+          if(.not. present(norder)) call Diagonalize_EigenvSort(E_val,aux,n,1)
           e_vect(1:n,1:n)=aux
        else
           call Diagonalize_PR_Tred1(aux,n,E_val,e)
           call Diagonalize_PR_Tqli1(E_val,e,n)
-          if(.not. present(norder)) call Diagonalize_PR_EigenvSort(E_val,aux,n,0)
+          if(.not. present(norder)) call Diagonalize_EigenvSort(E_val,aux,n,0)
        end if
 
        return

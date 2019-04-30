@@ -722,7 +722,7 @@ Submodule (CFML_Maths) Sbm_Debye
        t2=0.0_dp
        do k=1,kmax
           i=2*k
-          den=dble(2*k+n)*factorial_dp(i)
+          den=dble(2*k+n)*factorial_R(i)
           t2 = t2 + (B2K(k)/den)*(x**(2*k))
        end do
        fval = 1.0_dp - (t1*x) + (n*t2)

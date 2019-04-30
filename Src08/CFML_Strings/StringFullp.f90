@@ -262,8 +262,7 @@ Submodule (CFML_Strings) FullPString
                " => Please check your input file at line: ",Line_Nb," !"
                return
        end if
-       UFMTfields=FMTfields
-       Call UCase(UFMTfields)
+       UFMTfields=u_case(FMTfields)
 
        !---- (Get and) verify data line ----!
        if (iunit > 0) then

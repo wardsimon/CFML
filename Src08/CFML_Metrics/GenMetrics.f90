@@ -1555,7 +1555,7 @@ Submodule (CFML_Metrics) GenMetrics
                 mv(1)=twofold%maxes(namina)
                 mv(2)=twofold%maxes(naminb)
                 mv(3)=twofold%maxes(naminc)
-                namina=determ_3x3(tr)
+                namina=determ(tr,3)
                 if (namina < 0) then
                    tr(3,:)=-tr(3,:)
                    v3=-v3
@@ -1632,7 +1632,7 @@ Submodule (CFML_Metrics) GenMetrics
                    mv(i)=u(i)
                 end do
                 v3 = twofold%caxes(:,rw(3))
-                namina=determ_3x3(tr)
+                namina=determ(tr,3)
                 if (namina < 0) then
                    tr(3,:)=-tr(3,:)
                    v3=-v3
@@ -1686,7 +1686,7 @@ Submodule (CFML_Metrics) GenMetrics
              v1 = twofold%caxes(:,rw(1))
              v2 = twofold%caxes(:,rw(2))
              v3 = twofold%caxes(:,rw(3))
-             namina=determ_3x3(tr)
+             namina=determ(tr,3)
              if (namina < 0) then
                 tr(3,:)=-tr(3,:)
                 v3=-v3

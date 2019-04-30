@@ -96,7 +96,7 @@
     End Type Wyck_Info_Type
 
     !---- Private Variables ----!
-    character(len=120), private, dimension(230) :: it_spg_gen          ! Vector containing Generators of the Space group
+    character(len=120), private, dimension(230) :: it_spg_gen=" "          ! Vector containing Generators of the Space group
 
     !---- Public variables ----!
     Type(Spgr_Info_Type),   allocatable, dimension(:), public :: Spgr_Info     ! General Info about Space Groups
@@ -358,7 +358,7 @@
        Module Function Get_IT_Generators(Spg) Result(StrGen)
           !---- Arguments ----!
           character(len=*), intent(in)  :: spg      
-          character(len=255)            :: Strgen   
+          character(len=:), allocatable :: Strgen  
        End Function Get_IT_Generators
        
        Module Subroutine Set_It_Gen()
