@@ -241,8 +241,8 @@
 
        Module Pure Function Pack_String(Str) Result (Strp)
           !---- Argument ----!
-          character(len=*), intent(in) :: str    ! Input String
-          character(len=len_trim(str)) :: strp   ! Output string
+          character(len=*), intent(in)  :: str    ! Input String
+          character(len=len_trim(str))  :: strp   ! Output string
        End Function Pack_String
 
        Module Function Read_Fract(str) Result(value)

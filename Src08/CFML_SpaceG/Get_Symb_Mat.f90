@@ -15,7 +15,7 @@ SubModule (CFML_SpaceG) SPG_010
       type(rational), dimension(:,:), intent(in) :: Mat
       character(len=*), optional,     intent(in) :: strcode
       integer,          optional,     intent(in) :: invt
-      character(len=80)                          :: symb
+      character(len=:), allocatable              :: symb
 
       !---- Local Variables ----!
       character(len=3),dimension(10)    :: x_typ

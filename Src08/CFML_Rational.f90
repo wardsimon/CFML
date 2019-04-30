@@ -870,10 +870,10 @@ Module CFML_Rational
     Elemental Function Rational_String(R) Result (Str)
        !---- Arguments ----!
        type(rational),   intent(in)   :: r
-       character(len=81)              :: str
+       character(len=80)              :: Str
 
        !---- Local Variables ----!
-       character(len=132) :: line
+       character(len=100) :: line
        type(rational)     :: sr
 
        if (r%denominator /= 0_LI) then

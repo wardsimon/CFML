@@ -14,7 +14,7 @@ SubModule (CFML_SpaceG) SPG_011
       !---- Arguments ----!
       type(Symm_Oper_Type),       intent(in) :: Op
       character(len=*), optional, intent(in) :: Strcode
-      character(len=80)                      :: symb
+      character(len=:), allocatable          :: symb
       
       !> Init
       symb=" "

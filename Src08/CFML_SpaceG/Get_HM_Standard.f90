@@ -11,8 +11,8 @@ SubModule (CFML_SpaceG) SPG_034
    !!
    Module Function Get_HM_Standard(NumSpg) Result(SymbolHM)
        !---- Arguments ----!
-       integer, intent(in) :: numSpg
-       character(len=12)   :: symbolHM
+       integer,           intent(in) :: numSpg
+       character(len=:), allocatable :: symbolHM
 
        !---- Local variables ----!
        integer :: i, n

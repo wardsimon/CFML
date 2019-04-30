@@ -311,7 +311,7 @@ Module CFML_SpaceG
        Module Function Get_HM_Standard(NumSpg) Result(SymbolHM)
           !---- Arguments ----!
           integer, intent(in) :: numSpg
-          character(len=12)   :: symbolHM
+          character(len=:), allocatable :: symbolHM
        End Function Get_HM_Standard 
        
        Module Function Get_Lattice_Type_from_MAT(M) Result(lattyp)
@@ -448,14 +448,14 @@ Module CFML_SpaceG
           type(rational), dimension(:,:), intent(in) :: Mat
           character(len=*), optional,     intent(in) :: strcode
           integer,          optional,     intent(in) :: invt
-          character(len=80)                          :: symb
+          character(len=:), allocatable              :: symb
        End Function Get_Symb_from_Mat
        
        Module Function Get_Symb_from_Op(Op, Strcode) Result(symb)
           !---- Arguments ----!
           type(Symm_Oper_Type),       intent(in) :: Op
           character(len=*), optional, intent(in) :: Strcode
-          character(len=80)                      :: symb
+          character(len=:), allocatable          :: symb
        End Function Get_Symb_from_Op
        
        Module Function Get_VecPerp_To_RotAxis(W) Result(vPerp)
