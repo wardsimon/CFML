@@ -264,7 +264,7 @@ rem   Submodules CFML_SpaceG
       cd .. 
  rem   
     echo .... Profiles definitions 
-    ifort /c CFML_Profiles.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
+    ifort /c CFML_Profiles.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Profiles
       cd .\CFML_Profiles   
@@ -283,6 +283,32 @@ rem   Submodules CFML_Profiles
       ifort /c Profile_TCHpVoigt.f90                  /nologo %OPT1% %OPT2%  /module:..\mod    
       move /y *.obj .. > nul
       cd .. 
+rem
+   echo .... Diffraction Patterns 
+   ifort /c CFML_DiffPatt.f90                         /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem   Submodules CFML_DiffPatt
+      cd .\CFML_DiffPatt
+      ifort /c FWHM_Peak.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c NoisyPoints.f90                        /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c BackgPatt.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_CIF.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_FREE.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_XYSIG.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_TimeVar.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_GSAS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_ILL.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_LLB.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_ISIS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_NLS.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_PSI.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_PAN.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatt_Socabim.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Add_Patterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ReadPatterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c WritePatterns.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      move /y *.obj .. > nul
+      cd ..                           
 rem
    echo .... Extintion corrections
    ifort /c CFML_ExtinCorr.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
@@ -307,11 +333,9 @@ rem
 rem
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
 rem
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
-   ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
 rem
    echo .... EoS, Reflections, Atoms
