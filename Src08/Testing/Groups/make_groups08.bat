@@ -36,8 +36,8 @@ rem ****---- Intel Compiler ----****
    ifort /exe:groups *.obj %CRYSLIB% /link /stack:256000000
    goto END
 :IFORTD
-   ifort /c groups08.f90          /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
-   ifort /exe:groups08 *.obj %CRYSLIBD%
+   ifort /c groups08.f90  /check:all /debug:full /check:noarg_temp_created /traceback  /nologo  /heap-arrays:100 %INCD%
+   ifort /exe:groups08 *.obj %CRYSLIBD% /link /stack:256000000
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
