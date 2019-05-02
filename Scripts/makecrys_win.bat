@@ -3,34 +3,46 @@ rem --------------------------------------------------
 rem ---- Crystallographic Fortran Modules Library ----
 rem ---- JGP/JRC                             2019 ----
 rem --------------------------------------------------
-   if not [%1]==[] (goto CONT)
+    if not [%1]==[] (goto CONT)
 rem ---- Default Message ----
 :INIT
-   cls
-   echo MAKECRYS: Making the CrysFML Library
-   echo Syntax: "makecrys [gfortran[32|64]|ifort] [all, winter] [debug]"
-   goto FINAL
+    cls
+    echo MAKECRYS: Making the CrysFML Library
+    echo Syntax: "makecrys [gfortran|ifort[32|64]] [all, winter] [debug]"
+    goto FINAL
 rem ---- Variables ----
 :CONT
-   (set _COMPILER=)
-   (set _DEBUG=N)
-   (set _WINTER=N)
-   (set _CONSOLE=Y)
-   (set _GFMODE=32)
+    (set _COMPILER=)
+    (set _DEBUG=N)
+    (set _WINTER=N)
+    (set _CONSOLE=Y)
+    (set _MODE=32)
 rem
-rem ---- Arguments ----
 :LOOP
+rem ---- Compiler ----
     if [%1]==[gfortran] (set _COMPILER=gfortran)
     if [%1]==[gfortran32] (
-       (set _GFMODE=32)
+       (set _MODE=32)
        (set _COMPILER=gfortran)
     )
     if [%1]==[gfortran64] (
-       (set _GFMODE=64)
+       (set _MODE=64)
        (set _COMPILER=gfortran)
     )
     if [%1]==[ifort]    (set _COMPILER=ifort)
+    if [%1]==[ifort32] (
+       (set _MODE=32)
+       (set _COMPILER=ifort)
+    )
+    if [%1]==[ifort64] (
+       (set _MODE=64)
+       (set _COMPILER=ifort)
+    )
+rem    
+rem ---- Debug ----    
     if [%1]==[debug]    (set _DEBUG=Y)
+rem
+rem ---- Console / GUI ----    
     if [%1]==[winter] (
        (set _WINTER=Y)
        (set _CONSOLE=N)
@@ -42,22 +54,28 @@ rem ---- Arguments ----
     shift
     if not [%1]==[] goto LOOP
 rem
-rem ---- Windows Subdirectory
-   cd .\windows
 rem
-rem -------------------
-rem ---- Compilers ----
-rem -------------------
+    echo.
+    echo **---------------------------------------------**
+    echo **---- CrysFML: Final compilation options  ----**
+    echo **---------------------------------------------**
+    echo COMPILER:%_COMPILER%
+    echo    DEBUG:%_DEBUG%
+    echo  CONSOLE:%_CONSOLE%
+    echo   WINTER:%_WINTER%
+    echo.
+rem ---- Windows Subdirectory
+    cd .\windows
 rem
 rem ----
 rem ---- GFortran
 rem ----
    if [%_COMPILER%]==[gfortran] (
       if [%_CONSOLE%]==[Y] (
-         if [%_DEBUG%]==[N] (call compile_gfortran %_GFMODE% ) else (call compile_gfortran %_GFMODE% debug)
+         if [%_DEBUG%]==[N] (call compile_gfortran %_MODE% ) else (call compile_gfortran %_MODE% debug)
       )
       if [%_WINTER%]==[Y] (
-         if [%_DEBUG%]==[N] (call compile_gfortran %_GFMODE% winter) else (call compile_gfortran %_GFMODE% winter debug)
+         if [%_DEBUG%]==[N] (call compile_gfortran %_MODE% winter) else (call compile_gfortran %_MODE% winter debug)
       )
       goto END
    )
@@ -71,10 +89,6 @@ rem ----
       )
       if [%_WINTER%]==[Y] (
          if [%_DEBUG%]==[N] (call compile_ifort winter) else (call compile_ifort winter debug)
-      )
-      if [%_REALWIN%]==[Y] (
-         echo Sorry, option not compatible!!!
-         goto END
       )
       goto END
    )

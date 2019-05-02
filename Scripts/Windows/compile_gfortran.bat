@@ -6,6 +6,7 @@ rem ---------------------------------------
 rem
 rem ---- INIT ----
    (set _DEBUG=N)
+   (set _WINTER=N)
    (set _VER=8.1)
 rem
 rem GFortran for 32bits   
@@ -145,6 +146,7 @@ rem
      ar cr libcrysfml.a *.o
    )
 rem
+   echo.
    echo Creating GFORTRAN directory 
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%

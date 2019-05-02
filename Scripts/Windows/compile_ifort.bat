@@ -22,8 +22,8 @@ rem ---- Options
 rem
    if [%_DEBUG%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
-      (set OPT0=/debug:full /check /traceback /CB)
-      (set OPT1=/debug:full /check /traceback /CB)
+      (set OPT0=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
+      (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
    ) else (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
       (set OPT0=/Od)
@@ -137,9 +137,11 @@ rem
      lib /out:crysfml.lib *.obj
    )
 rem
+   echo.
    echo Creating IFORT directory 
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
+rem   
    if [%_WINTER%]==[Y] (
      if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
      mkdir ..\%DIRECTORY%\LibW
