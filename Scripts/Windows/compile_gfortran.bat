@@ -153,13 +153,13 @@ rem
    if [%_WINTER%]==[Y] (
      if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
      mkdir ..\%DIRECTORY%\LibW
-     copy *.mod ..\%DIRECTORY%\LibW > nul
-     move *.a ..\%DIRECTORY%\LibW > nul
+     copy *.mod ..\%DIRECTORY%\LibW\. > nul
+     move *.a ..\%DIRECTORY%\LibW\. > nul
    ) else (
      if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
      mkdir ..\%DIRECTORY%\LibC
-     copy *.mod ..\%DIRECTORY%\LibC > nul
-     move *.a ..\%DIRECTORY%\LibC > nul
+     copy *.mod ..\%DIRECTORY%\LibC\. > nul
+     move *.a ..\%DIRECTORY%\LibC\. > nul
    )
    del *.o *.mod *.lst *.bak > nul
 rem
