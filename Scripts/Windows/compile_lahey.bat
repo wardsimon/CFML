@@ -106,13 +106,16 @@ rem
    echo **---- Level 6 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
 rem
-   lf95 -c CFML_Export_Vtk.f90         %OPT1%
+   lf95 -c CFML_Export_Vtk_LF95.f90    %OPT1%
    lf95 -c CFML_maps.f90               %OPT1%
+   lf95 -c CFML_BVSpar.f90             %OPT1%
    lf95 -c CFML_conf_calc.f90          %OPT1%
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem
+ 
+   lf95 -c CFML_Magnetic_Groups.f90    %OPT1%
    lf95 -c CFML_magsymm.f90            %OPT1%
    lf95 -c CFML_optimization_san.f90   %OPT1%  %OPT3%
    lf95 -c CFML_refcodes.f90           %OPT1%
@@ -127,16 +130,16 @@ rem
    echo **---- Crysfml Library ----**
 rem
    if [%_REALWIN%]==[Y] (
-     lm @..\Scripts\WindowsN\lib_modrw.lnk
+     lm @..\Scripts\Windows\lib_modrw.lnk
    ) else (
         if [%_WINTER%]==[Y] (
-           lm @..\Scripts\WindowsN\lib_modwin.lnk
+           lm @..\Scripts\Windows\lib_modwin.lnk
         ) else (
-           lm @..\Scripts\WindowsN\lib_mod.lnk
+           lm @..\Scripts\Windows\lib_mod.lnk
         )
    )
 rem
-   echo **---- ifort Directory ----**
+   echo **---- Lahey Directory ----**
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_REALWIN%]==[Y] (
@@ -153,8 +156,8 @@ rem
    ) else (
         if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
         mkdir ..\%DIRECTORY%\LibC
-        copy *.mod ..\%DIRECTORY%\LibC > nul
-        move *.lib ..\%DIRECTORY%\LibC > nul
+        copy *.mod ..\%DIRECTORY%\LibC\. > nul
+        move *.lib ..\%DIRECTORY%\LibC\. > nul
      )
    )
    del *.obj *.mod *.lst *.bak > nul

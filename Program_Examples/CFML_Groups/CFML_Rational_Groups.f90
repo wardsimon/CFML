@@ -310,13 +310,13 @@
            Grp%spg_lat     = " "
            Grp%shu_lat(1)  = " "
            Grp%shu_lat(2)  = " "
-           Grp%spg_symb    = "    "
-           Grp%shu_symb    = "    "
-           Grp%pg          = "    "
-           Grp%laue        = "    "
-           Grp%mat2std     = "    "
-           Grp%mat2std_shu = "    "
-           Grp%generators_list = "    "
+           Grp%spg_symb    = "                               "
+           Grp%shu_symb    = "                               "
+           Grp%pg          = "                               "
+           Grp%laue        = "                               "
+           Grp%mat2std     = "                               "
+           Grp%mat2std_shu = "                               "
+           Grp%generators_list = "                                                     "
         End Select
     End Subroutine Initialize_Group
 
@@ -1142,6 +1142,7 @@
        call Check_Generators(gen_,gen)
        d    = get_dimension(gen(1))
        ngen = size(gen)
+       Grp%generators_list="                                  "
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
@@ -1176,6 +1177,7 @@
        call Check_Generators(gen_,gen)
        if (err_group) return
        ngen = size(gen)
+       Grp%generators_list="                                  "
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do

@@ -527,7 +527,7 @@
     End Subroutine k_SSG_compatible
 
     Subroutine Write_SSG(SpaceGroup,iunit,full,x1x2x3_typ,kinfo)
-      type(SuperSpaceGroup_Type),     intent(in) :: SpaceGroup
+      class(SuperSpaceGroup_Type),     intent(in) :: SpaceGroup
       integer,              optional, intent(in) :: iunit
       logical,              optional, intent(in) :: full
       logical,              optional, intent(in) :: x1x2x3_typ
@@ -1349,13 +1349,13 @@
        return
     End Subroutine Gen_SXtal_SReflections
 
-    Subroutine Readn_Set_SuperSpace_Group(database_path,file_line,cell,SSG,kinfo,x1x2x3_type)
-       character(len=*), intent(in)                :: database_path
-       character(len=*),dimension(:),  intent(in)  :: file_line
-       type(Crystal_Cell_Type),        intent(out) :: cell
-       class(SuperSpaceGroup_Type),    intent(out) :: SSG
-       type(kvect_info_type), optional,intent(out) :: kinfo
-       character(len=*),optional,      intent(in)  :: x1x2x3_type
+    Subroutine Readn_Set_SuperSpace_Group(database_path,file_line,SSG,cell,kinfo,x1x2x3_type)
+       character(len=*), intent(in)                 :: database_path
+       character(len=*),dimension(:),   intent(in)  :: file_line
+       class(SuperSpaceGroup_Type),     intent(out) :: SSG
+       type(Crystal_Cell_Type),optional,intent(out) :: cell
+       type(kvect_info_type),  optional,intent(out) :: kinfo
+       character(len=*),       optional,intent(in)  :: x1x2x3_type
        !
        ! --- Local variables ---!
        integer                             :: i,ind, num_gen,n,ier,n_end, num_group
@@ -1418,6 +1418,7 @@
               end if
 
            Case("CELL")
+              if(.not. present(cell)) cycle
               read(unit=line(ind+1:),fmt=*,iostat=ier) cell_par,cell_ang
               call Set_Crystal_Cell(cell_par,cell_ang,Cell)
               if(ERR_Crys) then
@@ -1512,6 +1513,19 @@
          Err_ssg_Mess= " Error in some of the keywords for generating the group "
          return
        end if
+
+       Select Type(SSG)
+         Type is (eSSGroup_Type)
+          n=SSG%d
+          allocate(SSG%Om(n,n,SSG%Multip))
+          do i=1,SSG%Multip
+           SSG%Om(:,:,i)=SSG%Op(i)%Mat
+          end do
+         Class default
+           return
+           !write(*,*) "Unknow type of group!"
+       End Select
+
     End Subroutine Readn_Set_SuperSpace_Group
 
     Subroutine copy_SpG_to_SSG(SpG,SSG)

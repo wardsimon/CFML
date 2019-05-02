@@ -135,7 +135,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String, String_Count
+    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String, String_Count, RFormat
 
     !---- List of public subroutines ----!
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
@@ -571,6 +571,110 @@
        return
     End Function Pack_String
 
+    !!----
+    !!---- Function Rformat(Val, W) Result(String)
+    !!----    real,    intent(in) :: Val
+    !!----    integer, intent(in) :: W
+    !!----    character(len=*)    :: String
+    !!----
+    !!---- Return a string containing the format for write a real value VAL
+    !!---- with w number of characters
+    !!----
+    Function RFormat(Val,W) Result(String)
+       !---- Use ----!
+       !use ieee_arithmetic, only : ieee_is_nan,ieee_is_finite
+
+       !---- Arguments ----!
+       real,    intent(in) :: val        ! value to be output
+       integer, intent(in) :: w
+       character(len=40)   :: string
+
+       !---- Local Variables ----!
+       character(len=4) :: carw,card
+       character(len=20):: forms
+       integer          :: d, ineg, j
+       real             :: x, xlim
+
+       !> Initialise
+       string=''
+
+       !> error indicated if string returns blank
+
+       !> Test for NaN
+
+       !> Alternative: if (val /= val) then
+       !> if (isnan(val))then
+       write(unit=string,fmt=*) val
+       if(index(string,"NaN") /= 0) then
+       !if (ieee_is_nan(val)) then
+          string(1:w-3)=' '
+          string(w-2:w)='NaN'
+          return
+       end if
+
+       !> Test for INF
+       if(index(string,"in")/=0 .or. index(string,"In")/=0) then
+       !if (.not. ieee_is_finite(val)) then
+          string(1:w-3)=' '
+          string(w-2:w)='INF'
+          return
+       end if
+
+       x=val+0.001    ! EXTRA FOR SAFETY
+
+       !> CHECK ON SIZE
+       if (x > 0.0)then
+          xlim=10**(w-1)-1.0    ! means that 99. can be written into f3.0
+          ineg=0
+       else
+          ineg=1
+          xlim=10**(w-2)-1.0    !negative, so need space for sign
+          x=abs(x)
+       end if
+
+       if (x > xlim)then         ! need to write in e format
+          d=w-6-ineg
+          if (d < 0) d=1
+
+          write(unit=carw,fmt='(i4)') w
+          carw=adjustl(carw)
+          write(unit=card,fmt='(i4)') d
+          card=adjustl(card)
+          forms='(E'//trim(carw)//'.'//trim(card)//')'
+          write(unit=string,fmt=trim(forms)) val
+
+          !Only valid for intel, not for gfortran
+          !write(string,'(E<w>.<d>)')val
+          return
+       end if
+
+       !> LOOP TO FIND SIZE OF VALUE
+       ! J=1           !START WITH "0" FOR DECIMAL POINT
+       j=2             ! this allows for place for sign always
+       do
+          x=x/10.
+          j=j+1
+          if (x <= 1.0) exit
+       end do
+
+       !
+       ! IF(INEG .EQ. 1)J=J+1        ! reinstate if we want to only allow for neg sign, and start with J=1
+       !
+       d=w-j-ineg
+       if (d < 0) d=0     ! safety: should never happen
+
+       write(unit=carw,fmt='(i4)') w
+       carw=adjustl(carw)
+       write(unit=card,fmt='(i4)') d
+       card=adjustl(card)
+       forms='(F'//trim(carw)//'.'//trim(card)//')'
+       write(unit=string,fmt=trim(forms)) val
+
+       !Only valid for intel, not for gfortran
+       !write(string,'(F<w>.<d>)')val
+
+       return
+    End Function Rformat
     !!----
     !!---- Function String_Count(string,substr) result(coun)
     !!----    character(len=*), intent(in) :: string

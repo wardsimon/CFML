@@ -46,7 +46,7 @@ Module CFML_Export_VTK
   use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
   use CFML_Atom_TypeDef,              only: Atom_List_Type
   use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo
-  use CFML_String_Utilities,          only: Pack_String
+  use CFML_String_Utilities,          only: Pack_String, Get_LogUnit
   use CFML_Math_General,              only: modulo_lat
 
   implicit none
@@ -103,7 +103,8 @@ Module CFML_Export_VTK
 
 
     ! Open the file and check that the file is valid
-    open(newunit=vtk_id,file=trim(filename)//'.vts', &
+    call Get_LogUnit(vtk_id)
+    open(unit=vtk_id,file=trim(filename)//'.vts', &
            form       = 'UNFORMATTED',  &
            access     = 'STREAM',       &
            action     = 'WRITE',        &
@@ -210,7 +211,8 @@ Module CFML_Export_VTK
     real(kind=cp), dimension(3)   :: xx, v
     real(kind=cp), dimension(:,:), allocatable :: xtemp
 
-    open(newunit=pdb_id,file=trim(filename)//'.pdb', status='REPLACE',  iostat=ier)
+    Call Get_LogUnit(pdb_id)
+    open(unit=pdb_id,file=trim(filename)//'.pdb', status='REPLACE',  iostat=ier)
     if(ier /= 0) then
       vtk_error=.true.
       vtk_message="Error opening the file: "//trim(filename)//'.pdb'
@@ -298,7 +300,8 @@ Module CFML_Export_VTK
       gtype=0
     end if
     ! Open the file and check that the file is valid
-    open(newunit=vesta_id,file=trim(filegrid), &
+    Call Get_LogUnit(vesta_id)
+    open(unit=vesta_id,file=trim(filegrid), &
            form       = 'UNFORMATTED',  &
            access     = 'STREAM',       &
            action     = 'WRITE',        &
@@ -354,7 +357,8 @@ Module CFML_Export_VTK
       gtype=0
     end if
     ! Open the file and check that the file is valid
-    open(newunit=vesta_id,file=trim(filegrid), &
+    call Get_LogUnit(vesta_id)
+    open(unit=vesta_id,file=trim(filegrid), &
            form       = 'UNFORMATTED',  &
            access     = 'STREAM',       &
            action     = 'WRITE',        &

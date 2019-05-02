@@ -154,7 +154,7 @@
 !!----       Volume_from_cell
 !!----
 !!----    Subroutines:
-!!----       CALC_CELL_STRAIN    
+!!----       CALC_CELL_STRAIN
 !!----       CHANGE_SETTING_CELL
 !!----       GET_BASIS_FROM_UVW
 !!----       GET_CONVENTIONAL_CELL
@@ -857,120 +857,120 @@
 
        return
     End Function U_Equiv
-    
-    
+
+
     Function Volume_from_cell(a,ang) Result(V)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in ) :: a,ang
        real(kind=cp)                            :: V
-       
+
        !---- Local variables ----!
        real(kind=cp)                            :: ca,cb,cg
-       
+
        ca=cosd(ang(1))
        cb=cosd(ang(2))
        cg=cosd(ang(3))
-     
+
 
 
        v=product(a)*sqrt(1.0 - ca**2 - cb**2 - cg**2 + 2.0*ca*cb*cg)
-       
-    
+
+
     End Function Volume_from_cell
-    
-    
+
+
     !---------------------!
     !---- Subroutines ----!
     !---------------------!
 
-    
+
     !!----
     !!---- Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
-    !!----    	integer, intent(in)                 :: itype !strain type
-    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state 
-    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state 
+    !!----      integer, intent(in)                 :: itype !strain type
+    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state
+    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state
     !!----      real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain tensor
     !!----
-    !!---- Calculates the strain from cell described by T0 to cell described by T1 
+    !!---- Calculates the strain from cell described by T0 to cell described by T1
     !!---- Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
     !!
     !!---- Ported from WinStrain (RJA): February - 2019
     !!
-    
-	subroutine Calc_Cell_Strain(itype,T0,T1,strain)
+
+  subroutine Calc_Cell_Strain(itype,T0,T1,strain)
 
     !---- Arguments ----!
-	integer, intent(in)                 :: itype !strain type
-    real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state 
-    real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state 
+  integer, intent(in)                 :: itype !strain type
+    real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state
+    real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state
     real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain
-    
+
     !--- Local variables ---!
     integer                             :: i,j
-	real(kind=cp),dimension(3,3)        ::  s0,s1, sinv(3,3),w1(3,3),w2(3,3)			! work arrays
+  real(kind=cp),dimension(3,3)        ::  s0,s1, sinv(3,3),w1(3,3),w2(3,3)      ! work arrays
     logical                             :: singular
 
     singular=.false.
-	strain=0.
-	do i=1,3
-		strain(i,i)=0.1			! safety
+  strain=0.
+  do i=1,3
+    strain(i,i)=0.1     ! safety
     enddo
-    
+
     !> Original literature is written in terms of S matrices: Zotov, Acta Cryst. (1990). A46, 627-628
     !> These are the transpose of CR_Orth_Cel
     s0=transpose(t0)
     s1=transpose(t1)
 
-	if(itype .eq. 1)then				! eulerian finite
+  if(itype .eq. 1)then        ! eulerian finite
         call Invert_Matrix (S1, Sinv, Singular)
-		w1=matmul(sinv,s0)			
-		w2=transpose(w1)			 
-		strain=matmul(w1,w2)
-		do i=1,3
-			do j=1,3
-				strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
-			enddo
-		enddo
-		do i=1,3
-			strain(i,i)=strain(i,i)+1.5
-		enddo
-	elseif(itype .eq. 2)then				! eulerian infinitesimal
+    w1=matmul(sinv,s0)
+    w2=transpose(w1)
+    strain=matmul(w1,w2)
+    do i=1,3
+      do j=1,3
+        strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
+      enddo
+    enddo
+    do i=1,3
+      strain(i,i)=strain(i,i)+1.5
+    enddo
+  elseif(itype .eq. 2)then        ! eulerian infinitesimal
         call Invert_Matrix (S1, Sinv, Singular)
-		w1=matmul(sinv,s0)			! 
-		do i=1,3
-			do j=1,3
-				strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
-			enddo
-		enddo
-		do i=1,3
-			strain(i,i)=strain(i,i)+1.0
-		enddo
-    elseif(itype .eq. 3)then				! lagrangian finite
+    w1=matmul(sinv,s0)      !
+    do i=1,3
+      do j=1,3
+        strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
+      enddo
+    enddo
+    do i=1,3
+      strain(i,i)=strain(i,i)+1.0
+    enddo
+    elseif(itype .eq. 3)then        ! lagrangian finite
         call Invert_Matrix (S0, Sinv, Singular)
-		w1=matmul(sinv,s1)
-		w2=transpose(w1)			! 
-		strain=matmul(w1,w2)
-		do i=1,3
-			do j=1,3
-				strain(i,j)=0.5*strain(i,j)
-			enddo
-		enddo
-		do i=1,3
-			strain(i,i)=strain(i,i)-0.5
-		enddo
-    elseif(itype .eq. 4)then				! lagrangian infinitesimal
+    w1=matmul(sinv,s1)
+    w2=transpose(w1)      !
+    strain=matmul(w1,w2)
+    do i=1,3
+      do j=1,3
+        strain(i,j)=0.5*strain(i,j)
+      enddo
+    enddo
+    do i=1,3
+      strain(i,i)=strain(i,i)-0.5
+    enddo
+    elseif(itype .eq. 4)then        ! lagrangian infinitesimal
         call Invert_Matrix (S0, Sinv, Singular)
-		w1=matmul(sinv,s1)			! 
-		do i=1,3
-			do j=1,3
-				strain(i,j)=0.5*(w1(i,j)+w1(j,i))
-			enddo
-		enddo
-		do i=1,3
-			strain(i,i)=strain(i,i)-1.0
-		enddo
-	endif
-	return
+    w1=matmul(sinv,s1)      !
+    do i=1,3
+      do j=1,3
+        strain(i,j)=0.5*(w1(i,j)+w1(j,i))
+      enddo
+    enddo
+    do i=1,3
+      strain(i,i)=strain(i,i)-1.0
+    enddo
+  endif
+  return
     end subroutine Calc_Cell_Strain
 
     !!----
@@ -1876,7 +1876,7 @@
     !!--++    real(kind=cp), dimension(3,3), intent (out) :: CrystOrt        ! Out ->  Conversion matrix (a) = (e) CrystOrt
     !!--++    character (len=1), optional,   intent (in)  :: CarType         !  In ->  Type of Cartesian axes
     !!--++
-    !!--++    
+    !!--++
     !!--++    Obtains the matrix giving the crystallographic basis in
     !!--++    direct space in terms of a Cartesian basis. The output matrix
     !!--++    can be directly used for transforming crystallographic components
@@ -1917,15 +1917,15 @@
        !---- Arguments ----!
        real(kind=cp), dimension(3  ), intent (in ) :: cellv,ang
        real(kind=cp), dimension(3,3), intent (out) :: CrystOrt
-       character (len=2), optional,   intent (in ) :: CarTypeIn ! new two character code. First specifies which crystal axis is // Cart axis, second the recip axis parallel to Cart axis 
+       character (len=*), optional,   intent (in ) :: CarTypeIn ! new two character code. First specifies which crystal axis is // Cart axis, second the recip axis parallel to Cart axis
                                                                 ! In all cases, X is close to a, Y is close to b, Z is close to c
        !---- Local Variables ----!
        real(kind=cp) :: cosgas, singas,cosbes,sinbes
        character(len=2)  :: CarType
-       
-       
+
+
        !> Init and checks
-       CarType=''     
+       CarType=''
        if(present(CarTypein))then
             CarType=U_case(adjustl(CarTypeIn))
             !> Check for valid input
@@ -1944,14 +1944,14 @@
                 case('B')
                     CarType(2:2)='C'        !defaults to c* // Z for this case
                 case default
-                    CarType='CA'            !default because invalid first character   
+                    CarType='CA'            !default because invalid first character
                 end select
-            endif            
+            endif
         endif
         if(len_trim(CarType) == 0)CarType='CA'     !default: c//Z, a*//X
-        
-        
-       !> Setting of matrix 
+
+
+       !> Setting of matrix
        Select Case(CarType)
            case('CA')           ! This is the default c//Z, a*//X
                !  Transponse of the following matrix:
@@ -1969,7 +1969,7 @@
                CrystOrt(3,1) = cellv(1)*cosd(ang(2))
                CrystOrt(3,2) = cellv(2)*cosd(ang(1))
                CrystOrt(3,3) = cellv(3)
-               
+
            case('AB')  !This is the alternate case in the version prior to  2019
                  ! x//a and Y // b*
                  !  Transponse of the following matrix:
@@ -1987,40 +1987,34 @@
                  CrystOrt(3,1) = 0.0
                  CrystOrt(3,2) = 0.0
                  CrystOrt(3,3) = cellv(3)*sind(ang(2))*singas
-                 
-           case('BC')  ! This is Carpenter orientation with b // Y, c* // Z, coded by RJA
-		        cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
-                sinbes=sqrt(1.0-cosbes**2)               
-                CrystOrt(1,1)=cellv(1)*sind(ang(3))	
-		        CrystOrt(2,1)=cellv(1)*cosd(ang(3))
-		        CrystOrt(3,1)=0.0
-		        CrystOrt(1,2)=0.
-		        CrystOrt(2,2)=cellv(2)
-		        CrystOrt(3,2)=0.
-		        CrystOrt(1,3)=-1.0*cellv(3)*sind(ang(1))*cosbes
-		        CrystOrt(2,3)=cellv(3)*cosd(ang(1))
-		        CrystOrt(3,3)=cellv(3)*sind(ang(1))*sinbes
-                
-           case('BA') ! Angel and Brown with Y // b and  X // a*
-		        cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
-                sinbes=sqrt(1.0-cosbes**2)                       		
-		        CrystOrt(1,1)=cellv(1)*sind(ang(3))*sinbes
-		        CrystOrt(2,1)=cellv(1)*cosd(ang(3))
-		        CrystOrt(3,1)= -1.0*cellv(1)*sind(ang(3))*cosbes
-		        CrystOrt(1,2)=0.0
-		        CrystOrt(2,2)=cellv(2)
-		        CrystOrt(3,2)=0.0
-		        CrystOrt(1,3)=0.0
-		        CrystOrt(2,3)=cellv(3)*cosd(ang(1))									 
-		        CrystOrt(3,3)=cellv(3)*sind(ang(1))
-               
-           
-           
-           
-       End Select
-       
-           
 
+           case('BC')  ! This is Carpenter orientation with b // Y, c* // Z, coded by RJA
+                 cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+                 sinbes=sqrt(1.0-cosbes**2)
+                 CrystOrt(1,1)=cellv(1)*sind(ang(3))
+                 CrystOrt(2,1)=cellv(1)*cosd(ang(3))
+                 CrystOrt(3,1)=0.0
+                 CrystOrt(1,2)=0.
+                 CrystOrt(2,2)=cellv(2)
+                 CrystOrt(3,2)=0.
+                 CrystOrt(1,3)=-1.0*cellv(3)*sind(ang(1))*cosbes
+                 CrystOrt(2,3)=cellv(3)*cosd(ang(1))
+                 CrystOrt(3,3)=cellv(3)*sind(ang(1))*sinbes
+
+           case('BA') ! Angel and Brown with Y // b and  X // a*
+                cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
+                sinbes=sqrt(1.0-cosbes**2)
+                CrystOrt(1,1)=cellv(1)*sind(ang(3))*sinbes
+                CrystOrt(2,1)=cellv(1)*cosd(ang(3))
+                CrystOrt(3,1)= -1.0*cellv(1)*sind(ang(3))*cosbes
+                CrystOrt(1,2)=0.0
+                CrystOrt(2,2)=cellv(2)
+                CrystOrt(3,2)=0.0
+                CrystOrt(1,3)=0.0
+                CrystOrt(2,3)=cellv(3)*cosd(ang(1))
+                CrystOrt(3,3)=cellv(3)*sind(ang(1))
+
+       End Select
 
        return
     End Subroutine Get_Cryst_Orthog_Matrix
@@ -2059,10 +2053,10 @@
        sa=sind(cellp%ang(1))
        sb=sind(cellp%ang(2))
        sg=sind(cellp%ang(3))
-       
-       
+
+
  !> Init and checks
-       CarType=''     
+       CarType=''
        if(present(CarTypein))then
             CarType=U_case(adjustl(CarTypeIn))
             !> Check for valid input
@@ -2087,12 +2081,12 @@
                     err_crys_mess='CarType not supported in  Get_Deriv_Orth_Cell'
                     return
                 case default
-                    CarType='CA'            !default because invalid first character   
+                    CarType='CA'            !default because invalid first character
                 end select
-            endif            
+            endif
         endif
         if(len_trim(CarType) == 0)CarType='CA'     !default: c//Z, a*//X
-        
+
 
         !> Now calculate the derivs for the two supported Cartesian sets
         if (CarType == "AB") then  ! x//a was original alternate setting
@@ -2163,7 +2157,7 @@
              de_Orthcell(3,3,6) =  cellp%cell(3)*gc
 
 
-       elseif(CarType == "CA") then     ! the default setting 
+       elseif(CarType == "CA") then     ! the default setting
 
        !
        !  By default, the cartesian frame is such as z//c
@@ -2235,7 +2229,7 @@
        !
        de_Orthcell(1,1,6) = cellp%cell(1)*gc
        de_Orthcell(2,1,6) = cellp%cell(1)*fc
-       
+
        endif
 
        return
@@ -2924,7 +2918,7 @@
     !!----
     !!----  re-orders eigenvectors and their eigenvalues so that #1 is close to +X of Cartesian, etc
     !!----  written 2/2019 RJA
-    
+
     Subroutine Orient_Eigenvectors(eval,evec)
     !---- Arguments ----!
     real(kind=cp),dimension(3),intent(inout)     :: eval
@@ -2935,12 +2929,12 @@
     integer,dimension(1)            :: i
 
     real(kind=cp),dimension(3)     :: val,t
-    real(kind=cp),dimension(3,3)   :: vec    
+    real(kind=cp),dimension(3,3)   :: vec
 
     !>working copy
     val=eval
     vec=evec
-    
+
     !> do sort by copy from vec back to evec
     do j=1,3
         t(1:3)=abs(vec(j,1:3))          ! find evector with largest component along Cart axis j, allow for evec parallel to -ve cart axis
@@ -2949,7 +2943,7 @@
         eval(j)=val(i(1))
         evec(1:3,j)=s*vec(1:3,i(1))
     enddo
-    
+
     return
     end subroutine Orient_Eigenvectors
 
@@ -3060,7 +3054,7 @@
        !---- Arguments ----!
        real(kind=cp), dimension (3),        intent(in ) :: cellv, angl
        Type (Crystal_Cell_Type),            intent(out) :: Celda
-       character (len=2),          optional,intent(in ) :: CarType
+       character (len=*),          optional,intent(in ) :: CarType
        real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl
 
        !---- Local Variables ----!
@@ -3273,14 +3267,14 @@
 
        case('BA')     ! Angel & Brown setting
            Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: y // b; z is in the bc-plane; x is y ^ z = a*   "
-           
+
        case('BC')     ! Carpenter setting
            Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: y // b; x is in the ab-plane; z is x ^ y = c*   "
-       
+
        case('AB')     ! previous alternate setting
            Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; z is in the ac-plane; y is x ^ z = b*   "
-       case default   ! 'CA'    
-           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z = a*  "           
+       case default   ! 'CA'
+           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z = a*  "
        end select
 
 
