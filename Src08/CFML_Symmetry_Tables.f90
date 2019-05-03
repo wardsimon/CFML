@@ -106,14 +106,14 @@
     !---- Parameters ----!
 
     !> Lattice Traslations
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_a =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_b =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_c =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
-    real(kind=cp), dimension(3,2), parameter, public :: Ltr_i =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: LTR_A =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: LTR_B =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: LTR_C =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: LTR_I =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
     real(kind=cp), dimension(3,4), parameter, public :: &
-                   Ltr_f =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5, 0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) )
+                   LTR_F =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5, 0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) )
     real(kind=cp), dimension(3,3), parameter, public :: &
-                   Ltr_r =reshape( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0,  1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) )
+                   LTR_R =reshape( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0,  1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) )
 
     
     !> Bradley & Cracknell Notation
@@ -131,7 +131,7 @@
        " s_dc","S+_4y"," s_de"]
 
     !> Magnetic Array
-    character(len=*), dimension(72), parameter, public :: Depmat = [        &    
+    character(len=*), dimension(72), parameter, public :: DEPMAT = [        &    
        "( Dx, Dy, Dz)      ","(-Dx,-Dy, Dz)      ","(-Dx, Dy,-Dz)      ",   &
        "( Dx,-Dy,-Dz)      ","( Dz, Dx, Dy)      ","( Dz,-Dx,-Dy)      ",   &
        "(-Dz,-Dx, Dy)      ","(-Dz, Dx,-Dy)      ","( Dy, Dz, Dx)      ",   &
@@ -157,7 +157,7 @@
        "(   -Dy,-Dx   , Dz)","(-Dx+Dy,    Dy, Dz)","( Dx   , Dx-Dy, Dz)",   &
        "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"]
        
-    character(len=*), dimension(72), parameter, public :: Magmat = [        &
+    character(len=*), dimension(72), parameter, public :: MAGMAT = [        &
        "( Mx, My, Mz)      ","(-Mx,-My, Mz)      ","(-Mx, My,-Mz)      ",   &
        "( Mx,-My,-Mz)      ","( Mz, Mx, My)      ","( Mz,-Mx,-My)      ",   &
        "(-Mz,-Mx, My)      ","(-Mz, Mx,-My)      ","( My, Mz, Mx)      ",   &
@@ -209,12 +209,12 @@
        "-4+ ( 0, y, 0)","  m (-x, y, x)","-4- ( 0, y, 0)","  m ( x, y, x)"]
 
     !> Kovalev Notation
-    character(len=*), dimension(24), parameter, public :: Kov_d6h=[        &
+    character(len=*), dimension(24), parameter, public :: KOV_D6H=[        &
        " h1"," h3"," h5"," h4"," h6"," h2","h11"," h9"," h7"," h8","h12",  &
        "h10","h13","h15","h17","h16","h18","h14","h23",                    &
        "h21","h19","h20","h24","h22"]
 
-    character(len=*), dimension(48), parameter, public :: Kov_Oh=[                &
+    character(len=*), dimension(48), parameter, public :: KOV_OH=[                &
        " h1"," h4"," h3"," h2"," h9","h10","h12","h11"," h5"," h7"," h6"," h8",   &
        "h16","h13","h15","h14","h20","h18","h17","h19","h24","h23",               &
        "h22","h21","h25","h28","h27","h26","h33","h34","h36","h35",               &
@@ -222,7 +222,7 @@
        "h41","h43","h48","h47","h46","h45"]
 
     !> Lattice Traslations
-    character(len=*), dimension(8) , parameter, public  :: Latt =[     &
+    character(len=*), dimension(8) , parameter, public  :: LATT =[     &
        "  P: { 000 }                                       ",          &
        "  A: { 000;  0  1/2 1/2 }+                         ",          &
        "  B: { 000; 1/2  0  1/2 }+                         ",          &

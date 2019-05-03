@@ -50,8 +50,8 @@
 
     !---- List of public subroutines ----!
 
-    public :: Remove_Bvs_Table, Remove_BVEL_Table, Remove_Ap_Table, Remove_sBVS_Table,&
-              Set_Atomic_Properties, Set_Bvel_Table, Set_Bvs_Table, Set_Sbvs_Table, Set_Pauling_Electronegativity, &
+    public :: Remove_Bvs_Table, Remove_BVEL_Table, Remove_Atomic_Properties_Table, Remove_sBVS_Table,&
+              Set_Atomic_Properties_Table, Set_Bvel_Table, Set_Bvs_Table, Set_Sbvs_Table, Set_Pauling_Electronegativity, &
               Set_Common_Oxidation_States_Table, Set_Oxidation_States_Table
 
     !---- Parameters ----!
