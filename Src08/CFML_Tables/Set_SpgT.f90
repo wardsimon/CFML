@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Symm_Tables) Set_Routines
+SubModule (CFML_Symmetry_Tables) Set_Routines
   
    Contains
    !!----

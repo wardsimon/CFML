@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Symm_Tables) Del_Routines
+SubModule (CFML_Symmetry_Tables) Del_Routines
   
    Contains
    !!----

@@ -39,7 +39,7 @@
 !!----    Update: 04/03/2011
 !!----
 !!
- Module CFML_Symm_Tables
+ Module CFML_Symmetry_Tables
     !---- Use modules ----!
     Use CFML_GlobalDeps
     Use CFML_Strings,    only: u_case
@@ -391,4 +391,4 @@
            
     End Interface
  
- End Module CFML_Symm_Tables
+ End Module CFML_Symmetry_Tables

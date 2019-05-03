@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Symm_Tables) SpgGener
+SubModule (CFML_Symmetry_Tables) SpgGener
    Contains
    !!----
    !!---- GET_IT_GENERATORS
