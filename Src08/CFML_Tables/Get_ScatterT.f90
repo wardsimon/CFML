@@ -1,7 +1,7 @@
 !----
 !!----
 !!----
-SubModule (CFML_Scatter_Tables) Get_Routines
+SubModule (CFML_Scattering_Tables) Get_Routines
   Contains
   
    !!----
@@ -72,7 +72,7 @@ SubModule (CFML_Scatter_Tables) Get_Routines
    !!----
    !!---- 15/04/2019 
    !!
-   Module Function Get_ChemSymb(Label) Result(Symb)
+   Module Function Get_Chem_Symb(Label) Result(Symb)
       !---- Argument ----!
       character(len=*),  intent(in) :: Label    ! Label
       character(len=2)              :: Symb     ! Chemical Symbol
@@ -93,7 +93,7 @@ SubModule (CFML_Scatter_Tables) Get_Routines
       Symb=car
 
       return
-   End Function Get_ChemSymb
+   End Function Get_Chem_Symb
    
    !!----
    !!---- GET_COVALENT_RADIUS
@@ -270,7 +270,7 @@ SubModule (CFML_Scatter_Tables) Get_Routines
    !!----
    !!---- 15/04/2019 
    !!
-   Module Function Get_ZSymb(Symb) Result(Z)
+   Module Function Get_Z_Symb(Symb) Result(Z)
       !---- Argument ----!
       character(len=*),  intent(in):: Symb     ! Chemical Symbol
       integer                      :: Z        ! Atomic number
@@ -293,6 +293,6 @@ SubModule (CFML_Scatter_Tables) Get_Routines
       end do
 
       return
-   End Function Get_ZSymb
+   End Function Get_Z_Symb
    
 End SubModule Get_Routines  

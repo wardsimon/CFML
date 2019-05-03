@@ -44,7 +44,7 @@
 !!----
 !!----
 !!
- Module CFML_Scatter_Tables
+ Module CFML_Scattering_Tables
     !---- Use Modules ----!
     Use CFML_GlobalDeps, only: CP
     Use CFML_Strings,    only: U_Case, L_Case
@@ -54,8 +54,8 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Ionic_radius
-    public :: Get_Fermi_Length, Get_Abs_Xs, Get_Inc_Xs, Get_ZSymb
+    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_Chem_Symb, Get_Covalent_radius, Get_Ionic_radius
+    public :: Get_Fermi_Length, Get_Abs_Xs, Get_Inc_Xs, Get_Z_Symb
     public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
     public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
 
@@ -176,11 +176,11 @@
           real(kind=cp)                 :: Vol
        End Function Get_Atomic_Vol
        
-       Module Function Get_ChemSymb(Label) Result(Symb)
+       Module Function Get_Chem_Symb(Label) Result(Symb)
           !---- Argument ----!
           character(len=*),  intent(in) :: Label    ! Label
           character(len=2)              :: Symb     ! Chemical Symbol   
-       End Function Get_ChemSymb
+       End Function Get_Chem_Symb
        
        Module Function Get_Covalent_Radius(Symb) Result(rad)
           !---- Arguments ----!
@@ -207,11 +207,11 @@
           real(kind=cp)                 :: rad   
        End Function Get_Ionic_Radius
        
-       Module Function Get_ZSymb(Symb) Result(Z)
+       Module Function Get_Z_Symb(Symb) Result(Z)
           !---- Argument ----!
           character(len=*),  intent(in):: Symb     ! Chemical Symbol
           integer                      :: Z        ! Atomic number 
-       End Function Get_ZSymb     
+       End Function Get_Z_Symb     
        
        Module Subroutine Remove_Chem_Info()
        End Subroutine Remove_Chem_Info
@@ -240,5 +240,5 @@
     
    Contains                             
 
- End Module CFML_Scatter_Tables
+ End Module CFML_Scattering_Tables
 
