@@ -92,7 +92,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end if
 
        !> Allocating Pattern Object
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        if(allocated(iww) ) deallocate(iww)
        allocate(iww(pat%npts))
@@ -180,7 +180,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end if
 
        !> Allocating
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        if(allocated(iww) ) deallocate(iww)
        allocate(iww(pat%npts))
@@ -279,7 +279,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end if
   
        !> Allocating memory
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        if(allocated(iww)) deallocate(iww)
        allocate(iww(pat%npts))

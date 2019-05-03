@@ -90,7 +90,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
        end if
 
        !> Allocating variables for Pattern object
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        i=0
        do
@@ -238,7 +238,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
           else if(line(1:20) =="## XYDATA= X++<Y..Y>") then
 
-             call Allocate_Diffraction_Pattern(pat)
+             call Allocate_Pattern(pat)
 
              i=1
              do
@@ -354,7 +354,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
           else if(line(1:7) =="RawScan") then
 
-             call Allocate_Diffraction_Pattern(pat)
+             call Allocate_Pattern(pat)
 
              nb_lignes = int(pat%npts/8)
              n = 0
@@ -567,7 +567,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           return
        end if
 
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        if (allocated(counts)) deallocate(counts)
        allocate(counts(pat%npts))

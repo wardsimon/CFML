@@ -51,7 +51,7 @@
     public ::  Add_Patterns, FWHM_peak
 
     !---- List of public subroutines ----!
-    public ::  Allocate_Diffraction_Pattern, Deallocate_Diffraction_Pattern, &
+    public ::  Allocate_Pattern, Deallocate_Pattern, &
                Calc_Background, Del_NoisyPoints, &
                Read_Background_File, Read_Pattern,      &
                Write_Pattern_FreeFormat, Write_Pattern_INSTRM5, Write_Pattern_XYSig
@@ -337,13 +337,13 @@
  Contains
  
     !!----
-    !!---- ALLOCATE_DIFFRACTION_PATTERN
+    !!---- ALLOCATE_PATTERN
     !!----
     !!----    Allocate the Part of Diffractions Patterns
     !!----
     !!---- 30/04/2019 
     !!
-    Subroutine Allocate_Diffraction_Pattern(Pat,Npts)
+    Subroutine Allocate_Pattern(Pat,Npts)
        !---- Arguments ----!
        class(DiffPat_Type), intent (in out) :: Pat      ! Pattern object
        integer, optional,   intent (in)     :: npts     ! Number of points
@@ -359,7 +359,7 @@
        
        if (n <= 0) then
           err_CFML%IErr=1
-          err_CFML%Msg="Allocate_Diffraction_Pattern@DIFFPATT: Failed the attempt to allocate a DiffPat_Type!"
+          err_CFML%Msg="Allocate_Pattern@DIFFPATT: Failed the attempt to allocate a DiffPat_Type!"
           return
        end if
        
@@ -416,10 +416,10 @@
        end select
 
        return
-    End Subroutine Allocate_Diffraction_Pattern
+    End Subroutine Allocate_Pattern
     
     !!----
-    !!---- DEALLOCATE_DIFFRACTION_PATTERN
+    !!---- DEALLOCATE_PATTERN
     !!----
     !!----    De-Allocate components of the object "pat", of type Diffraction_Pattern_Type
     !!----    depending on the value of the MODE string. At present the following MODE
@@ -433,7 +433,7 @@
     !!----
     !!---- 30/04/2019 
     !!
-    Subroutine Deallocate_Diffraction_Pattern(Pat,Mode)
+    Subroutine Deallocate_Pattern(Pat,Mode)
        !---- Arguments ----!
        class(DiffPat_Type), intent (in out) :: Pat       ! Pattern object
        character(len=*),    intent (in)     :: Mode      ! Type of the Deallocation
@@ -505,6 +505,6 @@
           case ("PRF")
              ! Nothing to do
        end select 
-    End Subroutine Deallocate_Diffraction_Pattern
+    End Subroutine Deallocate_Pattern
 
  End Module CFML_DiffPatt

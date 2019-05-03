@@ -93,7 +93,7 @@ SubModule (CFML_DiffPatt) RPatt_TimeVar
       end if
 
       !> Allocating
-      call Allocate_Diffraction_Pattern(pat)
+      call Allocate_Pattern(pat)
 
       if(allocated(bk) ) deallocate(bk)
       allocate(bk(pat%npts))

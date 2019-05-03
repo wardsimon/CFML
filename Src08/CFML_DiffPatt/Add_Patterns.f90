@@ -60,7 +60,7 @@ Submodule (CFML_DiffPatt) AddPatt
         np=nint((xmax-xmin)/step)+1
 
         !> Allocating New Pat
-        call Allocate_Diffraction_Pattern (Pat, np)
+        call Allocate_Pattern (Pat, np)
 
         if (present(vnorm)) then
            cnorm=vnorm

@@ -208,7 +208,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
            end if
         end if
 
-        call Allocate_Diffraction_Pattern(pat)
+        call Allocate_Pattern(pat)
 
         !> lecture de la premiere ligne de donnees pour determiner le
         !> format: format libre, type de separateur

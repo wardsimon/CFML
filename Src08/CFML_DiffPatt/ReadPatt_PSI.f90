@@ -71,7 +71,7 @@ SubModule (CFML_DiffPatt) RPatt_PSI
        end if
 
        !> Allocating
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
        read(unit=i_dat,fmt="(10f8.0)",iostat=ier)(pat%y(i),i=1,pat%npts)
        if (ier > 0) then

@@ -86,7 +86,7 @@ SubModule (CFML_DiffPatt) RPatt_ISIS
        npat=n_pat                  ! Update the number of patterns
 
        do n_pat=1,npat
-          call Allocate_Diffraction_Pattern(Vpat(n_pat),npp(n_pat))
+          call Allocate_Pattern(Vpat(n_pat),npp(n_pat))
        end do
 
        rewind(unit=i_dat)

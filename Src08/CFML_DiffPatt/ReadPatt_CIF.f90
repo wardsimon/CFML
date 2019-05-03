@@ -92,7 +92,7 @@ SubModule (CFML_DiffPatt) RPatt_CIF
       end if
 
       !> Allocating
-      call Allocate_Diffraction_Pattern(pat)
+      call Allocate_Pattern(pat)
 
       if (line_block_id > 0) pat%title=file_lines(line_block_id)(13:)
       if (line_probe > 0)    pat%kindRad = adjustl(file_lines(line_probe)(24:))

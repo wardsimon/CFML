@@ -142,7 +142,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
          end if
 
          !> Allocating
-         call Allocate_Diffraction_Pattern(pat)
+         call Allocate_Pattern(pat)
 
          if(allocated(iww) ) deallocate(iww)
          allocate(iww(pat%npts))

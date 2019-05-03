@@ -86,7 +86,7 @@ SubModule (CFML_DiffPatt) RPatt_LLB
        end if
 
        !> Allocating
-       call Allocate_Diffraction_Pattern(pat)
+       call Allocate_Pattern(pat)
 
 
        read(unit=i_dat,fmt=*,iostat=ier)pat%xmin,step,pat%xmax              !5

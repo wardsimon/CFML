@@ -70,7 +70,7 @@ SubModule (CFML_DiffPatt) RPatt_NLS
       nlines = pat%npts/10-1
 
       !> Allocating
-      call Allocate_Diffraction_Pattern(pat)
+      call Allocate_Pattern(pat)
 
       j = 0
       do i=1,nlines

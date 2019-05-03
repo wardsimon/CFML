@@ -222,7 +222,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
       end if
 
       !> Allocating
-      call Allocate_Diffraction_Pattern(pat)
+      call Allocate_Pattern(pat)
 
       fmtfields = "ffff"  !Now four columns are read in order to incorporate the calcualted pattern
       sumavar=0.0

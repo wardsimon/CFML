@@ -194,7 +194,7 @@ SubModule (CFML_DiffPatt) RPatt_FREE
       end if
 
       ! Allocating memory
-      call Allocate_Diffraction_Pattern(pat)
+      call Allocate_Pattern(pat)
 
       ! Reading intensities values
       read(unit=i_dat,fmt=*,iostat=ier)(pat%y(i),i=1,pat%npts)
