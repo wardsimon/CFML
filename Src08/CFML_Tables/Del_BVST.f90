@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_BVS_Table) Del_Routines
+SubModule (CFML_BVS_Tables) Del_Routines
   
   Contains
    
@@ -12,12 +12,12 @@ SubModule (CFML_BVS_Table) Del_Routines
    !!----
    !!---- 23/04/2019 
    !!
-   Module Subroutine Remove_Ap_Table()
+   Module Subroutine Remove_Atomic_Properties_Table()
 
       if (allocated(Ap_Table)) deallocate(Ap_Table)
 
       return
-   End Subroutine Remove_Ap_Table
+   End Subroutine Remove_Atomic_Properties_Table
 
    !!----
    !!---- REMOVE_BVEL_TABLE

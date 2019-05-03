@@ -39,7 +39,7 @@
 !!----
 !!----
 !!
- Module CFML_BVS_Table
+ Module CFML_BVS_Tables
     !---- Use Files ----!
     Use CFML_GlobalDeps
 
@@ -196,8 +196,8 @@
     Type(sBvs_Par_Type),          public, allocatable, dimension(:) :: sBVS_Table ! SBVS Parameters for calculations (only alkali chalcogenides are available)
 
     Interface
-       Module Subroutine Set_Atomic_Properties()
-       End Subroutine Set_Atomic_Properties
+       Module Subroutine Set_Atomic_Properties_Table()
+       End Subroutine Set_Atomic_Properties_Table
        
        Module Subroutine Set_BVEL_Table()
        End Subroutine Set_BVEL_Table
@@ -217,8 +217,8 @@
        Module Subroutine Set_SBVS_Table()
        End Subroutine Set_SBVS_Table
     
-       Module Subroutine Remove_Ap_Table()
-       End Subroutine Remove_Ap_Table
+       Module Subroutine Remove_Atomic_Properties_Table()
+       End Subroutine Remove_Atomic_Properties_Table
        
        Module Subroutine Remove_BVEL_Table()
        End Subroutine Remove_BVEL_Table
@@ -231,4 +231,4 @@
        
     End Interface
     
- End Module CFML_BVS_Table
+ End Module CFML_BVS_Tables

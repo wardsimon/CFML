@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_BVS_Table) Set_Routines
+SubModule (CFML_BVS_Tables) Set_Routines
   
   Contains
    
@@ -17,7 +17,7 @@ SubModule (CFML_BVS_Table) Set_Routines
    !!----
    !!---- 23/04/2019 
    !!
-   Module Subroutine Set_Atomic_Properties()
+   Module Subroutine Set_Atomic_Properties_Table()
 
       if (.not. allocated(Ap_Table)) allocate(Ap_Table(AP_SPECIES_N))
 
@@ -205,8 +205,7 @@ SubModule (CFML_BVS_Table) Set_Routines
       Ap_Table(182)=Atomic_Properties_Type(-1,"NH+1", 1, 1, 18.0400, 4, 1, 0, 2.100, 0.06993)
       Ap_Table(183)=Atomic_Properties_Type(-1,"DU-1",-1,-1,  1.0079, 1, 1, 0, 0.000, 0.00000)
       
-      return
-   End Subroutine Set_Atomic_Properties
+   End Subroutine Set_Atomic_Properties_Table
 
    !!----
    !!---- SET_BVEL_TABLE
@@ -357,7 +356,6 @@ SubModule (CFML_BVS_Table) Set_Routines
       BVEL_Table(131)=BVEL_Par_Type("TA+5", (/  6.090000/),(/  1.868160/),(/  5.500000/),(/  2.366690/),(/  1.855320/),(/  2.057613/),(/33/))
       BVEL_Table(132)=BVEL_Par_Type("W+6",  (/  5.688000/),(/  1.906410/),(/  5.000000/),(/  1.842670/),(/  1.777130/),(/  2.493766/),(/33/))
 
-      return 
    End Subroutine Set_BVEL_Table
 
    !!----
@@ -1360,7 +1358,6 @@ SubModule (CFML_BVS_Table) Set_Routines
                   (/ 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370 /), &
                   (/     1,     1,     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,     0,     0 /) )
    
-      return
    End Subroutine Set_BVS_Table
 
    !!----
@@ -2386,7 +2383,6 @@ SubModule (CFML_BVS_Table) Set_Routines
                    (/   5.500,   5.500,   6.500,   7.000,   0.000,   7.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000/), &
                    (/      33,      34,      34,      34,       0,      34,       0,       0,       0,       0,       0,       0,       0,       0/) )
    
-      return
    End Subroutine Set_SBVS_Table
    
    !!----
@@ -2628,7 +2624,6 @@ SubModule (CFML_BVS_Table) Set_Routines
       OxStates_Table(:,107) = [  7 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       OxStates_Table(:,108) = [  8 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       
-      return
    End Subroutine Set_Oxidation_States_Table
 
    !!----
@@ -2748,8 +2743,6 @@ SubModule (CFML_BVS_Table) Set_Routines
       PaulingX(106) = 0.00
       PaulingX(107) = 0.00
       PaulingX(108) = 0.00
-      
-      return
    End Subroutine Set_Pauling_Electronegativity
    
 End SubModule Set_Routines 
