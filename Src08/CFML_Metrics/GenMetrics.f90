@@ -540,7 +540,7 @@ Submodule (CFML_Metrics) GenMetrics
     Module Function Get_Deriv_Orth_Cell(Cell,Cartype) Result(De_Orthcell)
        !---- Arguments ----!
        class(Cell_Type),                intent(in ) :: cell
-       character (len=2), optional,     intent(in ) :: CarType
+       character(len=*), optional,      intent(in ) :: CarType
        real(kind=cp), dimension(3,3,6)              :: De_Orthcell
 
        !---- Local Variables ----!

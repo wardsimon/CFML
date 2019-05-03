@@ -1,5 +1,5 @@
 !!----
-SubModule (CFML_Mess) ScrollMsg
+SubModule (CFML_Messages) ScrollMsg
    Contains
    
    !!----

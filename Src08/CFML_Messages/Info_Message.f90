@@ -1,5 +1,5 @@
 !!----
-SubModule (CFML_Mess) Infos
+SubModule (CFML_Messages) Infos
    Contains
    
    !!----

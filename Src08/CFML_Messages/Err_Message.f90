@@ -1,5 +1,5 @@
 !!----
-SubModule (CFML_Mess) Errors
+SubModule (CFML_Messages) Errors
    Contains
    
    !!----

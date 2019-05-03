@@ -1,5 +1,5 @@
 !!----
-SubModule (CFML_Mess) Wait
+SubModule (CFML_Messages) Wait
    Contains
    
    !!----
