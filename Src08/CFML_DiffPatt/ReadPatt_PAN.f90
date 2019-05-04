@@ -135,6 +135,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
        character (len=132)                          :: line
        integer                                      :: i, j, long , k, ier
        real(kind=cp)                                :: alpha1, alpha2, ratio_I, step
+       logical :: info
 
        !> Init
        call clear_error()

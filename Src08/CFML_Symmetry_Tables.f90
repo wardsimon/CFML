@@ -233,12 +233,12 @@
        "  Z: { 000;  Unconventional Z-centering vectors  }+"]
 
     !> Laue symbols
-    character(len=*), dimension(16), parameter, public :: laue_class=[  &
+    character(len=*), dimension(16), parameter, public :: LAUE_CLASS=[  &
        "-1   ","2/m  ","mmm  ","4/m  ","4/mmm","-3 R ","-3m R","-3   ", &
        "-3m1 ","-31m ","6/m  ","6/mmm","m-3  ","m-3m ","m3   ","m3m  "]
 
     !> Litvin points Operators
-    character(len=*), dimension(48), parameter, public :: Litvin_point_op_label=[               &
+    character(len=*), dimension(48), parameter, public :: LITVIN_POINT_OP_LABEL=[               &
        "1       ","2x      ","2y      ","2z      ","3xyz-1  ","3xy-z   ","3-xyz   ","3x-yz   ", &
        "3xyz    ","3x-yz-1 ","3xy-z-1 ","3-xyz-1 ","2-xy    ","4z      ","4z-1    ","2xy     ", &
        "2-yz    ","2yz     ","4x      ","4x-1    ","2-xz    ","4y-1    ","2xz     ","4y      ", &
@@ -246,7 +246,7 @@
        "-3xyz   ","-3x-yz-1","-3xy-z-1","-3-xyz-1","m-xy    ","-4z     ","-4z-1   ","mxy     ", &
        "m-yz    ","myz     ","-4x     ","-4x-1   ","m-xz    ","-4y-1   ","mxz     ","-4y     "]
 
-    character(len=*), dimension(48), parameter, public :: Litvin_point_op=[  &
+    character(len=*), dimension(48), parameter, public :: LITVIN_POINT_OP=[  &
        "x,y,z   ", "x,-y,-z ", "-x,y,-z ", "-x,-y,z ", "y,z,x   ",           &
        "y,-z,-x ", "-y,z,-x ", "-y,-z,x ", "z,x,y   ", "z,-x,-y ",           &
        "-z,x,-y ", "-z,-x,y ", "-y,-x,-z", "-y,x,z  ", "y,-x,z  ",           &
@@ -258,30 +258,30 @@
        "x,z,y   ", "x,-z,-y ", "-x,z,-y ", "-x,-z,y ", "z,y,x   ",           &
        "z,-y,-x ", "-z,y,-x ", "-z,-y,x "]
 
-    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex_label=[  &
+    character(len=*), dimension(24), parameter, public :: LITVIN_POINT_OP_HEX_LABEL=[  &
        "1    ","6z   ","3z   ","2z   ","3z-1 ","6z-1 ","2x   ","21   ",                &
        "2xy  ","22   ","2y   ","23   ","-1   ","-6z  ","-3z  ","mz   ",                &
        "-3z-1","-6z-1","mx   ","m1   ","mxy  ","m2   ","my   ","m3   "]
 
-    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex=[       &
+    character(len=*), dimension(24), parameter, public :: LITVIN_POINT_OP_HEX=[       &
        "x,y,z     ","x-y,x,z   ","-y,x-y,z  ","-x,-y,z   ","-x+y,-x,z ","y,-x+y,z  ", &
        "x-y,-y,-z ","x,x-y,-z  ","y,x,-z    ","-x+y,y,-z ","-x,-x+y,-z","-y,-x,-z  ", &
        "-x,-y,-z  ","-x+y,-x,-z","y,-x+y,-z ","x,y,-z    ","x-y,x,-z  ","-y,x-y,-z ", &
        "-x+y,y,z  ","-x,-x+y,z ","-y,-x,z   ","x-y,-y,z  ","x,x-y,z   ","y,x,z     "]
 
     !> Miller & Love Notation
-    character(len=*), dimension(24), parameter, public :: ML_d6h=[                &
+    character(len=*), dimension(24), parameter, public :: ML_D6H=[                &
        " 1"," 3"," 5"," 4"," 6"," 2"," 9"," 7","11","12","10"," 8","13","15","17",&
        "16","18","14","21","19","23","24","22","20"]
 
-    character(len=*), dimension(48), parameter, public :: ML_Oh=[                 &
+    character(len=*), dimension(48), parameter, public :: ML_OH=[                 &
        " 1"," 4"," 3"," 2"," 9","10","12","11"," 5"," 7"," 6"," 8","16","13","15",&
        "14","20","18","17","19","24","23","22","21","25","28","27","26","33","34",&
        "36","35","29","31","30","32","40","37","39","38","44","42","41","43","48",&
        "47","46","45"]
 
     !> Matrix Types For Rotational Operators In Conventional Basis: 1->24 Oh, 25->36 D6h
-    Integer,  dimension(36,3,3), parameter, public :: Mod6 = reshape ( [     &
+    Integer,  dimension(36,3,3), parameter, public :: MOD6 = reshape ( [     &
        1,-1,-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1,                   &
       -1, 1, 0, 0, 0, 0, 1, 0,-1,-1, 0, 1, 0, 1,-1, 0,-1, 1,                   &
        0, 0, 0, 0, 1,-1,-1, 1, 0, 0, 0, 0, 1,-1,-1, 1, 0, 0,                   &
@@ -302,7 +302,7 @@
        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1], [36,3,3] )
 
     !> Point Group Symbols
-    character(len=*), dimension(42), parameter, public :: point_group=[   &
+    character(len=*), dimension(42), parameter, public :: POINT_GROUP=[   &
        "1    ","-1   ","2    ","m    ","2/m  ","222  ","mm2  ","m2m  ",   &
        "2mm  ","mmm  ","4    ","-4   ","4/m  ","422  ","4mm  ","-42m ",   &
        "-4m2 ","4/mmm","3    ","-3   ","32   ","3m   ","-3m  ","312  ",   &
@@ -311,12 +311,12 @@
        "m3m  ","-3m1 "]
        
     !> System type
-    character(len=*), dimension(7) , parameter, public:: sys_cry =[    &
+    character(len=*), dimension(7) , parameter, public:: SYS_CRY =[    &
        "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
        "Trigonal    ","Hexagonal   ","Cubic       "]   
 
     !> X_D6H
-    character(len=*), dimension(24), parameter, public   :: X_d6h = [        &
+    character(len=*), dimension(24), parameter, public   :: X_D6H = [        &
        "( x  ,   y, z)","(  -y, x-y, z)","(-x+y,-x  , z)","(-x  ,  -y, z)",  &
        "(   y,-x+y, z)","( x-y, x  , z)","(   y, x  ,-z)","( x-y,  -y,-z)",  &
        "(-x  ,-x+y,-z)","(  -y,-x  ,-z)","(-x+y,   y,-z)","( x  , x-y,-z)",  &
@@ -324,7 +324,7 @@
        "(  -y, x-y,-z)","(-x+y,-x  ,-z)","(  -y,-x  , z)","(-x+y,   y, z)",  &
        "( x  , x-y, z)","(   y, x  , z)","( x-y,  -y, z)","(-x  ,-x+y, z)"]
 
-    character(len=*), dimension(48), parameter, public  :: X_oh = [                   &
+    character(len=*), dimension(48), parameter, public  :: X_OH = [                   &
        "( x, y, z)","(-x,-y, z)","(-x, y,-z)","( x,-y,-z)","( z, x, y)","( z,-x,-y)", &
        "(-z,-x, y)","(-z, x,-y)","( y, z, x)","(-y, z,-x)","( y,-z,-x)","(-y,-z, x)", &
        "( y, x,-z)","(-y,-x,-z)","( y,-x, z)","(-y, x, z)","( x, z,-y)","(-x, z, y)", &
@@ -335,13 +335,13 @@
        "( x, z, y)","(-x, z,-y)","(-z,-y, x)","(-z, y,-x)","( z,-y,-x)","( z, y, x)"]
 
     !> Zak Notation
-    character(len=*), dimension(24), parameter, public :: Zak_D6h =[            &
+    character(len=*), dimension(24), parameter, public :: ZAK_D6H =[            &
        "   E   "," C(z)_3","C(2z)_3","  C_2  ","C(5z)_6"," C(z)_6","  U(xy)",   &
        "  U(x) ","  U(y) ","  U(3) ","  U(2) ","  U(1) ","   I   ","S(5z)_6",   &
        " S(z)_6","  s(z) "," S(z)_3","S(2z)_3"," s(xy) ","  s(x) ","  s(y) ",   &
        "  s(3) ","  s(2) ","  s(1) "]
 
-    character(len=*), dimension(48), parameter, public :: Zak_Oh =[             &
+    character(len=*), dimension(48), parameter, public :: ZAK_OH =[             &
        "     E     ","    U(z)   ","    U(y)   ","    U(x)   ","  C(xyz)_3 ",   &
        " C(-xy-z)_3"," C(x-y-z)_3"," C(-x-yz)_3"," C(2xyz)_3 ","C(2x-y-z)_3",   &
        " C(2x-yz)_3","C(-2xy-z)_3","    U(xy)  ","   U(-xy)  ","   C(3z)_4 ",   &

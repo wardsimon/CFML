@@ -53,24 +53,38 @@ rem
    echo OPT3:%OPT3%
    echo.
 rem
-   echo .... Global Dependencies for CFML
+   echo .... Global Dependencies 
    ifort /c CFML_GlobalDeps_Windows_IFOR.f90         /nologo %OPT1% %OPT2% /module:.\mod
 rem
-   echo .... Messages on CFML
-   ifort /c CFML_Mess.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
+   echo .... Input / Output Messages 
+   if [%_WINTER%]==[Y] (
+     ifort /c CFML_Messages_Win.f90                  /nologo %OPT1% %OPT2% %OPT3% /module:.\mod
+   ) else (
+     ifort /c CFML_Messages.f90                      /nologo %OPT1% %OPT2% /module:.\mod
+   )
 rem
 rem   Submodules CFML_Mess
-      cd .\CFML_Mess
-      ifort /c Err_Message.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Info_Message.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Print_Message.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Wait_Message.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Write_ScrollMsg.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      cd .\CFML_Messages
+      if [%_WINTER%]==[Y] (
+        ifort /c Win_Err_Message.f90                 /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        ifort /c Win_Info_Message.f90                /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        ifort /c Win_Question_Message.f90            /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        ifort /c Win_Stop_Message.f90                /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        ifort /c Win_Warning_Message.f90             /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        ifort /c Win_Write_ScrollMsg.f90             /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
+        
+      ) else (
+        ifort /c Err_Message.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Info_Message.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Print_Message.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Wait_Message.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Write_ScrollMsg.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      )
       move /y *.obj .. > nul
       cd ..   
 rem
 rem
-   echo .... Mathematical Procedures
+   echo .... Mathematics
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
    ifort /c CFML_FFT.f90                             /nologo %OPT1% %OPT2% /module:.\mod 
    ifort /c CFML_Random.f90                          /nologo %OPT1% %OPT2% /module:.\mod 
@@ -141,8 +155,8 @@ rem   Submodules CFML_Random
       move /y *.obj .. > nul
       cd ..              
 rem
-   echo .... Strings Procedures
-   ifort /c CFML_Strings.f90                     /nologo %OPT1% %OPT2% /module:.\mod
+   echo .... Strings 
+   ifort /c CFML_Strings.f90                         /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Strings
       cd .\CFML_Strings
@@ -153,7 +167,7 @@ rem   Submodules CFML_Strings
       move /y *.obj .. > nul
       cd ..
 rem
-   echo .... Rational arithmetics Procedures
+   echo .... Rational arithmetics 
    ifort /c CFML_Rational.f90                        /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Rational
@@ -178,7 +192,7 @@ rem   Submodules CFML_Rational
       move /y *.obj .. > nul
       cd ..
 rem
-   echo .... Metrics Procedures 
+   echo .... Metrics  
    ifort /c CFML_Metrics.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Metrics
@@ -191,10 +205,10 @@ rem   Submodules CFML_Metrics
       cd ..  
 rem
    echo .... Defining Tables 
-   ifort /c CFML_ScatterT.f90                       /nologo %OPT1% %OPT2% /module:.\mod 
-   ifort /c CFML_BondsT.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
-   ifort /c CFML_SymmT.f90                          /nologo %OPT0% %OPT2% /module:.\mod 
-   ifort /c CFML_BVST.f90                           /nologo %OPT0% %OPT2% /module:.\mod 
+   ifort /c CFML_Scattering_Tables.f90               /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_Bonds_Tables.f90                    /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_Symmetry_Tables.f90                 /nologo %OPT0% %OPT2% /module:.\mod 
+   ifort /c CFML_BVS_Tables.f90                      /nologo %OPT0% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -216,11 +230,11 @@ rem
       move /y *.obj .. > nul
       cd .. 
 rem   
-   echo .... Symmetry / SpaceGroups Procedures 
-   ifort /c CFML_SpaceG.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+   echo .... Symmetry / SpaceGroups  
+   ifort /c CFML_gSpaceGroups.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
 rem
-rem   Submodules CFML_SpaceG
-      cd .\CFML_SpaceG
+rem   Submodules CFML_gSpaceGroups
+      cd .\CFML_gSpaceGroups
       ifort /c Init_Procedures.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
@@ -263,7 +277,7 @@ rem   Submodules CFML_SpaceG
       move /y *.obj .. > nul
       cd .. 
  rem   
-    echo .... Profiles definitions 
+    echo .... Profiles  
     ifort /c CFML_Profiles.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Profiles
@@ -392,15 +406,15 @@ rem
    if [%_WINTER%]==[Y] (
      if exist ..\%DIRECTORY%\LibW08 rmdir ..\%DIRECTORY%\LibW08 /S /Q
      mkdir ..\%DIRECTORY%\LibW08
-     copy .\mod\*.mod ..\%DIRECTORY%\LibW08 > nul
-     copy .\mod\*.smod ..\%DIRECTORY%\LibW08 > nul
-     move *.lib ..\%DIRECTORY%\LibW08 > nul
+     copy .\mod\*.mod ..\%DIRECTORY%\LibW08\. > nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibW08\. > nul
+     move *.lib ..\%DIRECTORY%\LibW08\. > nul
    ) else (
      if exist ..\%DIRECTORY%\LibC08 rmdir ..\%DIRECTORY%\LibC08 /S /Q
      mkdir ..\%DIRECTORY%\LibC08
-     copy .\mod\*.mod ..\%DIRECTORY%\LibC08 > nul
-     copy .\mod\*.smod ..\%DIRECTORY%\LibC08 > nul
-     move *.lib ..\%DIRECTORY%\LibC08 > nul
+     copy .\mod\*.mod ..\%DIRECTORY%\LibC08\. > nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
+     move *.lib ..\%DIRECTORY%\LibC08\. > nul
    )
    del *.obj  *.lst *.bak > nul
 rem

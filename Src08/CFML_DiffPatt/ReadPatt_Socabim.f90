@@ -15,7 +15,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
 
        !---- Local Variables ----!
        logical                                      :: string_counts, string_CPS, string_2thetacounts, string_2thetacps ,free_format
-       character (len=132)                          :: line
+       character(len=132)                          :: line
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
        integer                                      :: i, j, i1, long, nb_sep, nb_col, n, ier,i_dat
@@ -253,7 +253,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
            do
               nb_sep = nb_sep + 1
               long=LEN_TRIM(line)
-              line = line(i1+1:long)
+              line = adjustl(line(i1+1:long))
               i1=INDEX(line,separateur)
               if (i1 == 0) exit
            end do
@@ -322,7 +322,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
                        exit
                     end if
                     j=j+1
-                    line= line(i1+1:long)
+                    line=adjustl(line(i1+1:long))
                  end do
               end if
 

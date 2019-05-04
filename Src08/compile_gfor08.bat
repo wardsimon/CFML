@@ -55,23 +55,37 @@ rem
    echo OPT3:%OPT3%
    echo.
 rem
-   echo .... Global Dependencies for CFML
-   gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90       %OPT1% 
+   echo .... Global Dependencies 
+   gfortran -c %OPTC% -J.\mod CFML_GlobalDeps_Windows_GFOR.f90         %OPT1% 
 rem
-   echo .... Messages on CFML
-   gfortran -c %OPTC% -J.\mod CFML_Mess.f90                          %OPT1%  
+   echo .... Input / Output Messages
+   if [%_WINTER%]==[Y] (
+     gfortran -c %OPTC% -J.\mod CFML_Messages_Win.f90                  %OPT1% %OPT3% 
+   ) else (
+     gfortran -c %OPTC% -J.\mod CFML_Messages.f90                      %OPT1%
+   ) 
 rem
 rem   Submodules CFML_Mess
-      cd .\CFML_Mess
-      gfortran -c %OPTC%  -J..\mod Err_Message.f90                   %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Info_Message.f90                  %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Print_Message.f90                 %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Wait_Message.f90                  %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Write_ScrollMsg.f90               %OPT1% 
+      cd .\CFML_Messages
+      if [%_WINTER%]==[Y] (
+        gfortran -c %OPTC%  -J..\mod Win_Err_Message.f90               %OPT1% %OPT3%
+        gfortran -c %OPTC%  -J..\mod Win_Info_Message.f90              %OPT1% %OPT3%
+        gfortran -c %OPTC%  -J..\mod Win_Question_Message.f90          %OPT1% %OPT3%
+        gfortran -c %OPTC%  -J..\mod Win_Stop_Message.f90              %OPT1% %OPT3%
+        gfortran -c %OPTC%  -J..\mod Win_Warning_Message.f90           %OPT1% %OPT3%
+        gfortran -c %OPTC%  -J..\mod Win_Write_ScrollMsg.f90           %OPT1% %OPT3%
+        
+      ) else (
+        gfortran -c %OPTC%  -J..\mod Err_Message.f90                   %OPT1% 
+        gfortran -c %OPTC%  -J..\mod Info_Message.f90                  %OPT1% 
+        gfortran -c %OPTC%  -J..\mod Print_Message.f90                 %OPT1% 
+        gfortran -c %OPTC%  -J..\mod Wait_Message.f90                  %OPT1% 
+        gfortran -c %OPTC%  -J..\mod Write_ScrollMsg.f90               %OPT1%  
+      )
       move /y *.o .. > nul
       cd ..   
 rem
-   echo .... Mathematics Procedures
+   echo .... Mathematics 
    gfortran -c %OPTC%  -J.\mod CFML_Maths.f90                        %OPT1% 
    gfortran -c %OPTC%  -J.\mod CFML_FFT.f90                          %OPT1% 
    gfortran -c %OPTC%  -J.\mod CFML_Random.f90                       %OPT1% 
@@ -88,7 +102,7 @@ rem   Submodules CFML_Maths
       gfortran -c %OPTC%  -J..\mod Equal_Vector.f90                  %OPT1% 
       gfortran -c %OPTC%  -J..\mod Erfc_Der.f90                      %OPT1% 
       gfortran -c %OPTC%  -J..\mod Factorial.f90                     %OPT1% 
-      gfortran -c %OPTC%  -J..\mod Inverse_Matrix.f90                 %OPT1% 
+      gfortran -c %OPTC%  -J..\mod Inverse_Matrix.f90                %OPT1% 
       gfortran -c %OPTC%  -J..\mod In_Limits.f90                     %OPT1% 
       gfortran -c %OPTC%  -J..\mod Is_Diagonal_Matrix.f90            %OPT1% 
       gfortran -c %OPTC%  -J..\mod Is_Null_Vector.f90                %OPT1% 
@@ -142,7 +156,7 @@ rem   Submodules CFML_Random
       cd ..
                   
 rem      
-   echo .... Strings Procedures
+   echo .... Strings
    gfortran -c %OPTC%  -J.\mod  CFML_Strings.f90                 %OPT1%
 rem 
 rem   Submodules CFML_Strings   
@@ -180,7 +194,7 @@ rem   Submodules CFML_Rational
       move /y *.o .. > nul
       cd ..    
 rem
-   echo .... Metrics Procedures
+   echo .... Metrics 
    gfortran -c %OPTC%  -J.\mod CFML_Metrics.f90                %OPT1% 
 rem 
 rem   Submodules CFML_Rational   
@@ -192,13 +206,13 @@ rem   Submodules CFML_Rational
       move /y *.o .. > nul
       cd ..        
 rem
-   echo .... CFML Tables
-   gfortran -c %OPTC%  -J.\mod CFML_ScatterT.f90               %OPT1%  
-   gfortran -c %OPTC%  -J.\mod CFML_BondsT.f90                 %OPT1%  
-   gfortran -c %OPTC%  -J.\mod CFML_SymmT.f90                  %OPT0%  
-   gfortran -c %OPTC%  -J.\mod CFML_BVST.f90                   %OPT1%  
+   echo .... Defining Tables
+   gfortran -c %OPTC% -J.\mod CFML_Scattering_Tables.f90             %OPT1%  
+   gfortran -c %OPTC% -J.\mod CFML_Bonds_Tables.f90                  %OPT1%  
+   gfortran -c %OPTC% -J.\mod CFML_Symmetry_Tables.f90               %OPT0%  
+   gfortran -c %OPTC% -J.\mod CFML_BVS_Tables.f90                    %OPT1%  
 rem 
-rem   Submodules CFML_ChemScatt   
+rem   Submodules CFML_Tables
       cd .\CFML_Tables        
       gfortran -c %OPTC% -J..\mod Del_ScatterT.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Get_ScatterT.f90                   %OPT1%
@@ -218,11 +232,11 @@ rem
       move /y *.o .. > nul
       cd ..   
 rem   
-   echo .... Symmetry / SpaceGroups Procedures
-   gfortran -c %OPTC%  -J.\mod CFML_SpaceG.f90                       %OPT1% 
+   echo .... Symmetry / SpaceGroups 
+   gfortran -c %OPTC%  -J.\mod CFML_gSpaceGroups.f90                 %OPT1% 
 rem
 rem   Submodules CFML_SpaceG
-      cd .\CFML_SpaceG
+      cd .\CFML_gSpaceGroups
       gfortran -c %OPTC% -J..\mod Init_Procedures.f90                %OPT1% 
       gfortran -c %OPTC% -J..\mod Is_InversionCentre.f90             %OPT1% 
       gfortran -c %OPTC% -J..\mod Is_LattCentring.f90                %OPT1% 
@@ -265,7 +279,7 @@ rem   Submodules CFML_SpaceG
       move /y *.o .. > nul
       cd ..  
 rem   
-   echo .... Profiles definitions 
+   echo .... Profiles 
    gfortran -c %OPTC%  -J.\mod CFML_Profiles.f90               %OPT1% 
 rem
 rem   Submodules CFML_Profiles
@@ -285,6 +299,32 @@ rem   Submodules CFML_Profiles
       gfortran -c %OPTC% -J..\mod Profile_TCHpVoigt.f90              %OPT1%    
       move /y *.o .. > nul
       cd .. 
+rem
+   echo .... Diffraction Patterns 
+   gfortran -c %OPTC%  -J.\mod CFML_DiffPatt.f90                %OPT1% 
+rem
+rem   Submodules CFML_DiffPatt
+      cd .\CFML_DiffPatt
+      gfortran -c %OPTC% -J..\mod FWHM_Peak.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod NoisyPoints.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod BackgPatt.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_CIF.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_FREE.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_XYSIG.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_TimeVar.f90              %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_GSAS.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_ILL.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_LLB.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_ISIS.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_NLS.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_PSI.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_PAN.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatt_Socabim.f90              %OPT1% 
+      gfortran -c %OPTC% -J..\mod Add_Patterns.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod ReadPatterns.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod WritePatterns.f90                 %OPT1% 
+      move /y *.o .. > nul
+      cd ..          
 rem
    echo .... Extintion corrections
    gfortran -c %OPTC%  -J.\mod CFML_ExtinCorr.f90               %OPT1%
@@ -315,15 +355,15 @@ rem
    if [%_WINTER%]==[Y] (
      if exist ..\%DIRECTORY%\LibW08 rmdir ..\%DIRECTORY%\LibW08 /S /Q
      mkdir ..\%DIRECTORY%\LibW08
-     copy .\mod\*.mod ..\%DIRECTORY%\LibW08 > nul
-     copy .\mod\*.smod ..\%DIRECTORY%\LibW08 > nul
-     move *.a ..\%DIRECTORY%\LibW08 > nul
+     copy .\mod\*.mod ..\%DIRECTORY%\LibW08\. > nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibW08\. > nul
+     move *.a ..\%DIRECTORY%\LibW08\. > nul
    ) else (
      if exist ..\%DIRECTORY%\LibC08 rmdir ..\%DIRECTORY%\LibC08 /S /Q
      mkdir ..\%DIRECTORY%\LibC08
-     copy .\mod\*.mod ..\%DIRECTORY%\LibC08 > nul
-     copy .\mod\*.smod ..\%DIRECTORY%\LibC08 > nul
-     move *.a ..\%DIRECTORY%\LibC08 > nul
+     copy .\mod\*.mod ..\%DIRECTORY%\LibC08\.> nul
+     copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
+     move *.a ..\%DIRECTORY%\LibC08\. > nul
    )
    del *.o  *.lst *.bak > nul
 rem

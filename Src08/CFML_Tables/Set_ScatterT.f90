@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Scatter_Tables) Set_Routines
+SubModule (CFML_Scattering_Tables) Set_Routines
   Contains
   
    !!----

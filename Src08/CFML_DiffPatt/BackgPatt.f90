@@ -269,7 +269,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
        if (allocated(pat%bgr)) deallocate(pat%bgr)
        allocate(pat%bgr(pat%npts))
        pat%bgr=0.0_cp
-       al_bgr=.true.
+       pat%al_bgr=.true.
 
        do i=1, pat%npts
           do j=1,n

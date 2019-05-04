@@ -54,7 +54,7 @@
     public ::  Allocate_Pattern, Deallocate_Pattern, &
                Calc_Background, Del_NoisyPoints, &
                Read_Background_File, Read_Pattern,      &
-               Write_Pattern_FreeFormat, Write_Pattern_INSTRM5, Write_Pattern_XYSig
+               Write_Pattern
 
     !---- Definitions ----!
     
@@ -304,6 +304,16 @@
           integer,                       intent(in    ) :: n
        End Subroutine Set_Background_Poly
        
+       Module Subroutine Write_Pattern(Filename, Pat, Mode, excl, xmin, xmax)
+          !---- Arguments ----!
+          character(len=*),               intent(in)    :: filename     
+          class(DiffPat_Type),            intent(inout) :: Pat          
+          character(len=*),               intent(in)    :: Mode         
+          logical, dimension(:),optional, intent(in)    :: excl         
+          real(kind=cp),        optional, intent(in)    :: xmin         
+          real(kind=cp),        optional, intent(in)    :: xmax 
+       End Subroutine Write_Pattern
+       
        Module Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
           !---- Arguments ----!
           character (len=*),               intent(in)     :: Filename      
@@ -315,12 +325,12 @@
        
        Module Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
           !---- Arguments ----!
-          character (len=*),               intent(in)     :: Filename
-          class(DiffPat_E_Type),           intent(in out) :: Pat
-          logical, dimension(:),optional,  intent(in)     :: excl
-          real(kind=cp),        optional,  intent(in)     :: xmin
-          real(kind=cp),        optional,  intent(in)     :: xmax
-          character (len=*),    optional,  intent(in)     :: var
+          character(len=*),               intent(in)     :: Filename
+          class(DiffPat_Type),            intent(in out) :: Pat
+          logical, dimension(:),optional, intent(in)     :: excl
+          real(kind=cp),        optional, intent(in)     :: xmin
+          real(kind=cp),        optional, intent(in)     :: xmax
+          character(len=*),    optional,  intent(in)     :: var
        End Subroutine Write_Pattern_INSTRM5     
        
        Module Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)

@@ -48,9 +48,9 @@ Module CFML_SpaceG
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Rational
+    Use CFML_Symmetry_Tables
     Use CFML_Maths,      only: Set_eps_math 
     Use CFML_Strings,    only: u_case, pack_string, get_separator_pos
-    Use CFML_Symm_Tables
 
     !---- Variables ----!
     implicit none

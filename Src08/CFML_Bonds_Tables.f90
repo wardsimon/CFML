@@ -45,8 +45,8 @@
 !!
  Module CFML_Bonds_Tables
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,     only: Cp
-    Use CFML_Scatter_Tables, only: Get_ChemSymb, Get_ZSymb
+    Use CFML_GlobalDeps,        only: Cp
+    Use CFML_Scattering_Tables, only: Get_Chem_Symb, Get_Z_Symb
 
     !---- Variables ----!
     implicit none

@@ -8,6 +8,106 @@ Submodule (CFML_DiffPatt) WPatt
     !!----
     !!---- 01/05/2019 
     !!
+    Module Subroutine Write_Pattern(Filename, Pat, Mode, excl, xmin, xmax)
+       !---- Arguments ----!
+       character(len=*),               intent(in)    :: filename     ! Path+Filename
+       class(DiffPat_Type),            intent(inout) :: Pat          ! Pattern object
+       character(len=*),               intent(in)    :: Mode         ! Format file
+       logical, dimension(:),optional, intent(in)    :: excl         ! Exclusion zones
+       real(kind=cp),        optional, intent(in)    :: xmin         ! Limits
+       real(kind=cp),        optional, intent(in)    :: xmax 
+       
+       !---- Local Variables ----!
+       integer          :: i2,i1,i0,ic
+       character(len=3) :: car
+       
+       !> Init
+       call clear_error()
+       
+       !> Check options
+       i2=0; i1=0; i0=0
+       if (present(excl)) i2=1
+       if (present(xmin)) i1=1
+       if (present(xmax)) i0=1
+       ic=4*i2+2*i1+i0
+       
+        
+       car=u_case(adjustl(mode))
+       select case (car)
+          case ('FRE')
+             select case (ic)
+                case (0)
+                   call Write_Pattern_FreeFormat(Filename,Pat)
+                case (1)
+                   call Write_Pattern_FreeFormat(Filename,Pat,xmax=xmax)
+                case (2)
+                   call Write_Pattern_FreeFormat(Filename,Pat,xmin=xmin)
+                case (3)
+                   call Write_Pattern_FreeFormat(Filename,Pat,xmin=xmin,xmax=xmax)
+                case (4)
+                   call Write_Pattern_FreeFormat(Filename,Pat,excl)
+                case (5)
+                   call Write_Pattern_FreeFormat(Filename,Pat,excl,xmax=xmax)
+                case (6)
+                   call Write_Pattern_FreeFormat(Filename,Pat,excl,xmin=xmin)
+                case (7)
+                   call Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
+             end select  
+            
+          case ('XYS')
+             select case (ic)
+                case (0)
+                   call Write_Pattern_XYSig(Filename,Pat)
+                case (1)
+                   call Write_Pattern_XYSig(Filename,Pat,xmax=xmax)
+                case (2)
+                   call Write_Pattern_XYSig(Filename,Pat,xmin=xmin)
+                case (3)
+                   call Write_Pattern_XYSig(Filename,Pat,xmin=xmin,xmax=xmax)
+                case (4)
+                   call Write_Pattern_XYSig(Filename,Pat,excl)
+                case (5)
+                   call Write_Pattern_XYSig(Filename,Pat,excl,xmax=xmax)
+                case (6)
+                   call Write_Pattern_XYSig(Filename,Pat,excl,xmin=xmin)
+                case (7)
+                   call Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
+             end select 
+             
+          case ('INS')
+             select case (ic)
+                case (0)
+                   call Write_Pattern_INSTRM5(Filename,Pat)
+                case (1)
+                   call Write_Pattern_INSTRM5(Filename,Pat,xmax=xmax)
+                case (2)
+                   call Write_Pattern_INSTRM5(Filename,Pat,xmin=xmin)
+                case (3)
+                   call Write_Pattern_INSTRM5(Filename,Pat,xmin=xmin,xmax=xmax)
+                case (4)
+                   call Write_Pattern_INSTRM5(Filename,Pat,excl)
+                case (5)
+                   call Write_Pattern_INSTRM5(Filename,Pat,excl,xmax=xmax)
+                case (6)
+                   call Write_Pattern_INSTRM5(Filename,Pat,excl,xmin=xmin)
+                case (7)
+                   call Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax)
+             end select 
+             
+          case default
+             Err_CFML%IErr=1
+             Err_CFML%Msg="Write_Pattern@DIFFPATT: Type of format not available at this moment!"
+       end select  
+       
+    End Subroutine Write_Pattern
+    
+    !!----
+    !!---- WRITE_PATTERN_XYSIG
+    !!----
+    !!----    Write a pattern in X,Y,Sigma format
+    !!----
+    !!---- 01/05/2019 
+    !!
     Module Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
        !---- Arguments ----!
        character(len=*),               intent(in) :: filename     ! Path+Filename
@@ -228,17 +328,25 @@ Submodule (CFML_DiffPatt) WPatt
     !!
     Module Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
        !---- Arguments ----!
-       character (len=*),               intent(in)     :: Filename
-       class(DiffPat_E_Type),           intent(in out) :: Pat
+       character(len=*),                intent(in)     :: Filename
+       class(DiffPat_Type),             intent(in out) :: Pat
        logical, dimension(:),optional,  intent(in)     :: excl
-       real(kind=cp),        optional,  intent(in)     :: xmin,xmax
-       character (len=*),    optional,  intent(in)     :: var
+       real(kind=cp),        optional,  intent(in)     :: xmin
+       real(kind=cp),        optional,  intent(in)     :: xmax
+       character(len=*),     optional,  intent(in)     :: var
 
        !---- Local Variables ----!
        integer   :: i,j,ier,i_dat,ini,ifin, npoi,jmin,jmax
   
        !> Init
        call clear_error()
+       
+       select type (Pat)
+          type is (DiffPat_Type)
+             Err_CFML%IErr=1
+             ERR_CFML%Msg="Write_Pattern_INSTRM5@DIFFPATT: Pattern class is not compatible!"
+             return
+       end select
        
        open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
@@ -295,16 +403,21 @@ Submodule (CFML_DiffPatt) WPatt
           write(unit=i_dat,fmt="(a,f16.1)") "!  Warning! Maximum number of counts above the allowed format ",Pat%ymax
           Err_CFML%IErr=1
           Err_CFML%Msg="Write_Pattern_INSTRM5@DIFFPATT: Too high counts ... format error in the file: "//trim(filename)
+          return
        end if
-       if (present(var)) then
-          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 1,&
-                                                             Pat%Norm_Mon, Pat%Monitor
-       else
-          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 0,&
-                                                             Pat%Norm_Mon, Pat%Monitor
-       end if
+       select type (Pat)
+          class is (DiffPat_E_Type)
+              if (present(var)) then
+                 Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 1,&
+                                                                    Pat%Norm_Mon, Pat%Monitor
+              else
+                 Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  npoi, Pat%tsample,Pat%tset, 0,&
+                                                                    Pat%Norm_Mon, Pat%Monitor
+              end if
+       end select
        Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%x(ini+1)-Pat%x(ini),Pat%x(ifin)
        Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(ini:ifin)
+       
        if (present(var)) then
           if (pat%sigvar) then
              Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:ifin))
