@@ -29,7 +29,7 @@ rem
       (set OPT0=/Od)
       (set OPT1=/O2)
    )
-rem   
+rem
    (set OPT2=/fpp /Qopt-report:0)
    (set OPT3=)
    if [%_WINTER%]==[Y] (
@@ -46,7 +46,7 @@ rem
    echo **-------------------------------------**
    echo **---- CrysFML: Start Compilation  ----**
    echo **-------------------------------------**
-   echo Compiler Options 
+   echo Compiler Options
    echo OPT0:%OPT0%
    echo OPT1:%OPT1%
    echo OPT2:%OPT2%
@@ -114,6 +114,7 @@ rem
    ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
    ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
+   ifort /c CFML_Percolation.f90                     /nologo %OPT1% %OPT2%
 rem
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
@@ -129,7 +130,7 @@ rem
 rem
 rem
    echo.
-   echo Creating CrysFML Library 
+   echo Creating CrysFML Library
 rem
    if [%_WINTER%]==[Y] (
      lib /out:wcrysfml.lib *.obj
@@ -138,13 +139,13 @@ rem
    )
 rem
    echo.
-   echo Creating IFORT directory 
+   echo Creating IFORT directory
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
-rem   
+rem
    if [%_WINTER%]==[Y] (
-     if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
-     mkdir ..\%DIRECTORY%\LibW
+rem     if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
+rem     mkdir ..\%DIRECTORY%\LibW
      copy *.mod ..\%DIRECTORY%\LibW\. > nul
      move *.lib ..\%DIRECTORY%\LibW\. > nul
    ) else (

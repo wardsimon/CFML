@@ -255,6 +255,7 @@ echo ".... Maps, BVS, Energy Configurations"
 $COMP $OPT1  CFML_Export_Vtk.f90
 $COMP $OPT1  CFML_Maps.f90
 $COMP $OPT1  CFML_Conf_Calc.f90
+$COMP $OPT1  CFML_Percolation.f90
 
 echo "**---- Level 7 ----**"
 echo ".... Magnetic Symmetry, Simulated Annealing, Keywords Parser"
