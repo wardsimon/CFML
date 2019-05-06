@@ -45,7 +45,7 @@ program test_reflections
       end if
       fileout=trim(filcod)//"_ref.out"
       call File_To_FileList(cfl_file,File_list)
-      call Readn_Set_SuperSpace_Group(database_path,File_list%line,cell,SSG,kinfo)
+      call Readn_Set_SuperSpace_Group(database_path,File_list%line,SSG,cell,kinfo)
 
       if(Err_ssg) then
         write(unit=*,fmt="(a)") trim(Err_ssg_mess)

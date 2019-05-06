@@ -553,8 +553,7 @@
       D=3+SpaceGroup%nk
       Dd=D+1
       allocate(vector(D),matrix(Dd,Dd))
-      write(unit=lun,fmt="(/,a,/)")  " "
-      write(unit=lun,fmt="(/,/,a)")          "        Information on SuperSpace Group: "
+      write(unit=lun,fmt="(/,a)")          "        Information on SuperSpace Group: "
       write(unit=lun,fmt="(a,/ )")           "        ------------------------------- "
       write(unit=lun,fmt="(a,a)")           " =>   Number of Space group: ", trim(SpaceGroup%SSG_nlabel)
       write(unit=lun,fmt="(a,a)")           " => SuperSpace Group Symbol: ", trim(SpaceGroup%SSG_symbol)
@@ -899,7 +898,7 @@
        type (Crystal_Cell_Type),                        intent(in)     :: Cell
        real(kind=cp),                                   intent(in)     :: sintlmax
        integer,                                         intent(out)    :: num_ref
-       class (sReflect_Type), dimension(:), allocatable,intent(out)    :: reflex
+       class(sReflect_Type), dimension(:), allocatable, intent(out)    :: reflex
        logical,                                         intent(in)     :: mag
        type(kvect_info_type),         optional,         intent(in)     :: kinfo
        class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
@@ -908,7 +907,7 @@
 
        !---- Local variables ----!
        real(kind=cp)         :: sval !,vmin,vmax
-       real(kind=cp)         :: epsr=0.00000001, delt=0.000001
+       real(kind=cp)         :: epsr=0.00001, delt=0.0001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
                                 maxpos, mp, iprev,Dd, nf, ia, i0, nk
        integer,      dimension(:),   allocatable :: hh,kk,nulo
@@ -1102,8 +1101,8 @@
                 do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
                     if(abs(sm(i)-sm(j)) > delt) exit
                     kk=hklm(:,j)
-                    if(h_equiv(hh,kk,SSG)) then     ! if  hh eqv kk
-                      itreat(j) = i                 ! add kk to the list equivalent to i
+                    if(h_equiv(hh,kk,SSG,.true.)) then ! if  hh eqv kk Friedel law assumed
+                      itreat(j) = i                    ! add kk to the list equivalent to i
                       fin(indp) = j
                     end if
                 end do
@@ -1473,6 +1472,7 @@
             return
           end if
           if(SSG%centred /= 1) SSG%Centre="Centrosymmetric"
+          SSG%nk=SSG%d-4
           if(SSG%Num_Lat > 0) then
              SSG%SPG_Lat="Z"
           end if
@@ -1485,6 +1485,7 @@
             return
           end if
           if(SSG%centred /= 1) SSG%Centre="Centrosymmetric"
+          SSG%nk=SSG%d-4
           if(SSG%Num_Lat > 0) then
              SSG%SPG_Lat="Z"
           end if
@@ -1522,8 +1523,9 @@
            SSG%Om(:,:,i)=SSG%Op(i)%Mat
           end do
          Class default
+           Err_ssg=.true.
+           Err_ssg_Mess= " Error in Readn_set_SuperSpace_Group: Unknown type of group "
            return
-           !write(*,*) "Unknow type of group!"
        End Select
 
     End Subroutine Readn_Set_SuperSpace_Group
