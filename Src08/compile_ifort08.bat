@@ -222,6 +222,7 @@ rem
 rem
       ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_SpgSymbols.f90                     /nologo %OPT0% %OPT2%  /module:..\mod 
       ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
 rem
       ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 

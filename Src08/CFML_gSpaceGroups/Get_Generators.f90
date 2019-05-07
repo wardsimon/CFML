@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) SPG_038
+SubModule (CFML_gSpaceGroups) SPG_038
    Contains
     !!----
     !!---- Get_Generators

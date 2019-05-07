@@ -47,20 +47,21 @@ Submodule (CFML_Strings) StrTools
       integer                      :: N         ! Number
 
       !---- Local variables ---!
-      character(len=len_trim(str)) :: cut_string
+      character(len=len_trim(str)) :: string
       integer                      :: i,lstr
 
       !> Init
       N=0
 
-      lstr=len_trim(substr)-1
-      cut_string=str
+      !lstr=len_trim(substr)-1
+      lstr=len_trim(substr)        ! Changed by JGP 07/05/2019
+      string=str
       do
-         i=index(cut_string,trim(substr))
+         i=index(string,trim(substr))
          if (i == 0) exit
 
          n=n+1
-         cut_string=cut_string(i+lstr:)
+         string=string(i+lstr:)
       end do
 
       return
@@ -381,7 +382,7 @@ Submodule (CFML_Strings) StrTools
               exit
             end if
          else
-            call cutst(line1,str2=line2,nlong2=nlong2)
+            call cut_string(line1,str2=line2,nlong2=nlong2)
          end if
          if (nlong2 == 0) exit
          ic=ic+1
@@ -403,7 +404,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019 
    !!
-   Module Pure Subroutine CutSt(Str1,nlong1,Str2,nlong2)
+   Module Pure Subroutine Cut_String(Str1,nlong1,Str2,nlong2)
       !---- Argument ----!
       character(len=*),           intent(in out) :: Str1     ! Input string / Out: string without the first word
       character(len=*), optional, intent(   out) :: Str2     ! The first word of String on Input
@@ -447,7 +448,7 @@ Submodule (CFML_Strings) StrTools
       if(present(nlong1)) nlong1=len_trim(str1)
 
       return
-   End Subroutine CutSt
+   End Subroutine Cut_String
    
    !!----
    !!---- GET_SUBSTRING_POSITIONS

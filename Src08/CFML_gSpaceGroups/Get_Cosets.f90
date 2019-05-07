@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_SpaceG) SPG_021
+SubModule (CFML_gSpaceGroups) SPG_021
    Contains
    !!----
    !!---- GET_COSETS

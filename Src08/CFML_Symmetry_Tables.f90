@@ -42,7 +42,7 @@
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
     Use CFML_GlobalDeps
-    Use CFML_Strings,    only: u_case
+    Use CFML_Strings,    only: u_case, pack_string, string_count
 
     !---- Variables ----!
     implicit none
@@ -50,7 +50,8 @@
     private
 
     !---- List of public subroutines ----!
-    public :: get_it_generators
+    public :: get_compact_hm_symbol, Get_HM_Symbol_from_Compact_HM, get_it_generators, &
+              get_spaceG_Symbols 
     public :: set_spgr_info, set_system_equiv, set_wyckoff_info
     public :: remove_spgr_info, remove_system_equiv, remove_wyckoff_info
 
@@ -104,6 +105,14 @@
     Type(Wyck_Info_Type),   allocatable, dimension(:), public :: Wyckoff_Info
     
     !---- Parameters ----!
+    integer,       parameter, public  :: CUBIC = 554            ! Cubic parameter index
+    integer,       parameter, public  :: HEXAG = 527            ! Index parameter for hexagonal Groups
+    integer,       parameter, public  :: MONOC =  15            ! Index parameter for Monoclinic Groups
+    integer,       parameter, public  :: NUM_SPGR_INFO = 612    ! Total dimension of SPGR_INFO
+    integer,       parameter, public  :: ORTHOR  = 163          ! Index parameter for Orthorhombic Groups
+    integer,       parameter, public  :: TETRA = 410            ! Index parameter for Tetragonal Groups
+    integer,       parameter, public  :: TRIGO = 495            ! Index parameter for Trigonal Groups
+
 
     !> Lattice Traslations
     real(kind=cp), dimension(3,2), parameter, public :: LTR_A =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
@@ -355,11 +364,32 @@
 
  
     Interface
+       Module Function Get_Compact_HM_Symbol(HM) Result(C_HM)
+          !---- Arguments ----!
+          character(len=*), intent(in) :: HM
+          character(len=:), allocatable :: C_HM
+       End Function Get_Compact_HM_Symbol
+       
+       Module Function Get_HM_Symbol_from_Compact_HM(C_HM) Result(HM)
+          !---- Arguments ----!
+          character(len=*), intent(in) :: C_HM
+          character(len=:), allocatable :: HM
+       End Function Get_HM_Symbol_from_Compact_HM
+       
        Module Function Get_IT_Generators(Spg) Result(StrGen)
           !---- Arguments ----!
           character(len=*), intent(in)  :: spg      
           character(len=:), allocatable :: Strgen  
        End Function Get_IT_Generators
+       
+       Module Subroutine Get_SpaceG_Symbols(Str, HM, Hall, IT, C_HM)
+          !---- Arguments ----!
+          character(len=*),           intent(in)  :: Str   
+          character(len=*), optional, intent(out) :: HM    
+          character(len=*), optional, intent(out) :: Hall  
+          integer,          optional, intent(out) :: IT    
+          character(len=*), optional, Intent(out) :: C_HM
+       End Subroutine Get_SpaceG_Symbols
        
        Module Subroutine Set_It_Gen()
           !---- Arguments ----!

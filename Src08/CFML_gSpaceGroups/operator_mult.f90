@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) Oper_Mult
+SubModule (CFML_gSpaceGroups) Oper_Mult
    Contains
    
    !!----

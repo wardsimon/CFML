@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) SPG_032
+SubModule (CFML_gSpaceGroups) SPG_032
    Contains
    !!----
    !!----  GET_ORIGIN_SHIFT

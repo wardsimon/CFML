@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) Init_Proc
+SubModule (CFML_gSpaceGroups) Init_Proc
    Contains
    
    !!----

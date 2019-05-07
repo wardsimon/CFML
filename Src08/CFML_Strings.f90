@@ -62,7 +62,7 @@
                U_Case
 
     !---- List of public subroutines ----!
-    public :: Cutst, &
+    public :: Cut_string, &
               FindFMT, &
               Get_Separator_Pos, Get_Substring_Positions, Get_Words, &
               Get_Num, Get_NumStd, Get_Transf, &
@@ -88,13 +88,13 @@
           Character (len=*) ,intent(in out) ::   FMTstring  ! FORTRAN format string
        End Subroutine BuildFMT
 
-       Module Pure Subroutine Cutst(Str1,nlong1,Str2,nlong2)
+       Module Pure Subroutine Cut_String(Str1,nlong1,Str2,nlong2)
           !---- Argument ----!
           character(len=*),           intent(in out) :: Str1     ! Input string / Out: string without the first word
           character(len=*), optional, intent(   out) :: Str2     ! The first word of String on Input
           integer,          optional, intent(   out) :: nlong1   ! Give the length of Str1 on Output
           integer,          optional, intent(   out) :: nlong2   ! Give the length of Str2 on Output
-       End Subroutine Cutst
+       End Subroutine Cut_String
 
        Module Pure Function Equal_Sets_Text(str1,n1,str2,n2) result(Equal)
           !---- Arguments ----!

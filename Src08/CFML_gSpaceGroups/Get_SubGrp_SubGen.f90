@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-Submodule (CFML_SpaceG) SPG_023
+Submodule (CFML_gSpaceGroups) SPG_023
    Contains
    !!----
    !!---- GET_SUBGROUPS_SUBGEN

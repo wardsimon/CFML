@@ -2,7 +2,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SpaceG) SPG_033
+SubModule (CFML_gSpaceGroups) SPG_033
    Contains
    !!----
    !!---- READ_MAGNETIC_DATA

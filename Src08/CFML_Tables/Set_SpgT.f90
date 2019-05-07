@@ -34,7 +34,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
    !!
    Module Subroutine Set_Spgr_Info()
 
-      if (.not. allocated(spgr_info) ) allocate(spgr_info(612) )
+      if (.not. allocated(spgr_info) ) allocate(spgr_info(NUM_SPGR_INFO) )
 
       !---- Triclinic ----!
       spgr_info(1:14)= (/                                           &

@@ -2,7 +2,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SpaceG) SPG_036
+SubModule (CFML_gSpaceGroups) SPG_036
    Contains
    !!----
    !!---- GET_PSEUDO_STANDARD_BASE

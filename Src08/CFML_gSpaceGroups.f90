@@ -44,7 +44,7 @@
 !!--.. modulo-1 is applied in the multiplication of two operators.
 !!----
 !!
-Module CFML_SpaceG
+Module CFML_gSpaceGroups
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Rational
@@ -615,4 +615,4 @@ Module CFML_SpaceG
       
     End Interface
 
-End Module CFML_SpaceG
+End Module CFML_gSpaceGroups

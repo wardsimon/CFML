@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) SPG_040
+SubModule (CFML_gSpaceGroups) SPG_040
    Contains
 
     !!----

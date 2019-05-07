@@ -9,9 +9,10 @@ SubModule (CFML_Symmetry_Tables) SpgGener
    !!----
    !!----    Provides the string "gener" containing the list of the generators
    !!----    (as given in the IT Crystallography) corresponding to the space group
-   !!----    of symbol "spg". In "spg" the Hermann-Mauguin symbol or the number of the
-   !!----    space group should be given. The calling program is responsible of decoding
-   !!----    the string "gener". Generator are given in the Jone's Faithful notation and
+   !!----    of symbol "spg". In "spg" the Hermann-Mauguin symbol, Hall, comapct
+   !!----    H-M or the number of the space group should be given.
+   !!----    The calling program is responsible of decoding the string "gener".
+   !!----    Generator are given in the Jone's Faithful notation and
    !!----    the separator is the symbol ";". 
    !!----
    !!----    An example: R-3 c
@@ -22,7 +23,7 @@ SubModule (CFML_Symmetry_Tables) SpgGener
    !!
    Module Function Get_IT_Generators(Spg) Result(StrGen)
       !---- Arguments ----!
-      character(len=*), intent(in)  :: spg      ! Hermann_Mauguin symbol or number of S.Group
+      character(len=*), intent(in)  :: spg      ! H-M, Hall, IT number and compact HM
       character(len=:), allocatable :: StrGen
 
       !----  Local variables ----!
@@ -43,17 +44,11 @@ SubModule (CFML_Symmetry_Tables) SpgGener
          return
       end if   
       
-      !> H-M Symbol?
-      symb=u_case(spg)
-      do i=1,230
-         sp=u_case(it_spg_gen(i)(1:10))
-         if (trim(symb) == trim(sp)) then
-            strgen=it_spg_gen(i)(12:)
-            return
-         end if
-      end do
-
-      return
+      !> Other symbol?
+      call Get_SpaceG_Symbols(Spg, IT=numg)
+      if (numg > 0 .and. numg <= 230) then
+            Strgen=it_spg_gen(numg)(12:)
+      end if
    End Function Get_IT_Generators
    
    !!--++

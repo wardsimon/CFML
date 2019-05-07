@@ -1,4 +1,4 @@
-SubModule (CFML_SpaceG) Oper_Equal
+SubModule (CFML_gSpaceGroups) Oper_Equal
    Contains
    
    !!----

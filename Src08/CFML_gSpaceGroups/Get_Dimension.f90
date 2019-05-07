@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_SpaceG) SPG_014
+SubModule (CFML_gSpaceGroups) SPG_014
    Contains
    !!----
    !!---- GET_DIMENSION_GENER

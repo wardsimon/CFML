@@ -2,7 +2,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SpaceG) SPG_030
+SubModule (CFML_gSpaceGroups) SPG_030
    Contains 
    !!----
    !!---- ALLOCATE MAG_DBASE

@@ -2,7 +2,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SpaceG) SPG_042
+SubModule (CFML_gSpaceGroups) SPG_042
    Contains 
     !!---- 
     !!---- MATCH_SHUBNIKOV_GROUP
