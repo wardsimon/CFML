@@ -91,27 +91,30 @@ Module CFML_gSpaceGroups
     End Type Group_Type
     
     Type, public, extends(Group_Type) :: SPG_Type
-       integer                                    :: numspg = 0
-       integer                                    :: numshu = 0
-       integer                                    :: numops = 0
-       integer                                    :: centred= 0           !0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1 at origin)
-       integer                                    :: anticentred=0        !=0 Centric(-1 no at origin), =1 Acentric, =2 Centric(-1' at origin)
+       integer                                    :: numspg = 0           ! Spacegroup number (IT if standard)
+       integer                                    :: numshu = 0           ! Shubnikov group number
+       integer                                    :: numops = 0           ! Number of total symmetry operators
+       integer                                    :: centred= 0           ! 0: Centric(-1 no at origin),  1: Acentric, 2: Centric(-1 at origin)
+       integer                                    :: anticentred=0        ! 0: Centric(-1' no at origin), 1: Acentric, 2: Centric(-1' at origin)
        integer                                    :: mag_type = 0
-       integer                                    :: num_lat  = 0
+       integer                                    :: num_lat  = 0         ! Number of lattice points in cell
        integer                                    :: num_alat = 0
-       character(len=1)                           :: spg_lat  =" "
-       character(len=1), dimension(2)             :: shu_lat  =" "
-       character(len=:),              allocatable :: spg_symb
-       character(len=:),              allocatable :: shu_symb
-       character(len=:),              allocatable :: pg
-       character(len=:),              allocatable :: laue
-       character(len=:),              allocatable :: mat2std
-       character(len=:),              allocatable :: mat2std_shu
-       character(len=:),              allocatable :: generators_list
-       type(rational),dimension(:),   allocatable :: centre_coord
-       type(rational),dimension(:),   allocatable :: anticentre_coord
-       type(rational),dimension(:,:), allocatable :: Lat_tr
-       type(rational),dimension(:,:), allocatable :: aLat_tr
+       character(len=1)                           :: spg_lat  =" "        ! Lattice type
+       character(len=1), dimension(2)             :: shu_lat  =" "        ! Shubnikov lattice type
+       character(len=:),              allocatable :: spg_symb             ! Space group symbol
+       character(len=:),              allocatable :: shu_symb             ! Shubnikov group symbol
+       !---
+       character(len=:),              allocatable :: crystalsys           ! Crystal system
+       !---
+       character(len=:),              allocatable :: pg                   ! Point group 
+       character(len=:),              allocatable :: laue                 ! Laue group
+       character(len=:),              allocatable :: mat2std              ! To standard to space group 
+       character(len=:),              allocatable :: mat2std_shu          ! To standard to shubnikoc space group
+       character(len=:),              allocatable :: generators_list      ! List of generators
+       type(rational),dimension(:),   allocatable :: centre_coord         ! Fractional coordinates for inversion
+       type(rational),dimension(:),   allocatable :: anticentre_coord     ! Fractional coordinates for time invesion
+       type(rational),dimension(:,:), allocatable :: Lat_tr               ! Lattice traslations (3,12)
+       type(rational),dimension(:,:), allocatable :: aLat_tr              ! 
     End Type SPG_Type
     
     !---- Private Variables ----!

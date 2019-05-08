@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08
+   cd %CRYSFML%\Src08N
 rem
    echo.
    echo **-------------------------------------**

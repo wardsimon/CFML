@@ -699,7 +699,6 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
            spgr_info_type(230,"I A -3 D    ","-I 4bd 2c 3     ",14,39, (/-3,-3, 0,  3,  3,  6/),"     ") , &
            spgr_info_type(230,"I A 3 D     ","-I 4bd 2c 3     ",14,39, (/-3,-3, 0,  3,  3,  6/),"     ") /)
 
-      return
    End Subroutine Set_Spgr_Info
 
    !!----

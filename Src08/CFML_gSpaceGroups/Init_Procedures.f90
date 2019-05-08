@@ -51,6 +51,7 @@ SubModule (CFML_gSpaceGroups) Init_Proc
             Grp%shu_lat(2)  = " "
             Grp%spg_symb    = "    "
             Grp%shu_symb    = "    "
+            Grp%crystalsys  = "    "
             Grp%pg          = "    "
             Grp%laue        = "    "
             Grp%mat2std     = "    "
