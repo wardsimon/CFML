@@ -1,8 +1,5 @@
-!! Test Branch
 !!-------------------------------------------------------
-!!
 !!---- Crystallographic Fortran Modules Library (CrysFML)
-!!
 !!-------------------------------------------------------
 !!---- The CrysFML project is distributed under LGPL. In agreement with the
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
