@@ -9,7 +9,9 @@ include(crysfml_common.cmake)
 # Build crysfml library.
 include(crysfml.cmake)
 
-#add_compile_options(-D USE_HDF -cpp)
+if(USE_HDF)
+  add_compile_options(-D USE_HDF)
+endif()
 
 # If GUI option is True, build also wcrysfml library.
 if(GUI)
