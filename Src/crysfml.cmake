@@ -10,9 +10,17 @@ set(SOURCES CFML_IO_Mess.f90
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
 # Those file are generated during the build.
-set(CRYSFML_COMMON_OBJECTS_DIR ${PROJECT_BINARY_DIR}/Src/CMakeFiles/crysfml_common.dir)
+if(WIN32)
+  if(${COMPILER_NAME} STREQUAL ifort)
+    set(CRYSFML_COMMON_OBJECTS_DIR ${PROJECT_BINARY_DIR}/Src/crysfml_common.dir/Debug)
+  else()
+    set(CRYSFML_COMMON_OBJECTS_DIR ${PROJECT_BINARY_DIR}/Src/CMakeFiles/crysfml_common.dir)
+  endif()  
+else()
+  set(CRYSFML_COMMON_OBJECTS_DIR ${PROJECT_BINARY_DIR}/Src/CMakeFiles/crysfml_common.dir)
+endif()
 
-set(CRYSFML_COMMON_OBJECTS ${CRYSFML_COMMON_SOURCES})
+set(CRYSFML_COMMON_OBJECTS ${CRYSFML_COMMON_SOURCES_NOEXT})
 add_suffix(CRYSFML_COMMON_OBJECTS ${CMAKE_Fortran_OUTPUT_EXTENSION})
 add_prefix(${CRYSFML_COMMON_OBJECTS_DIR}/ CRYSFML_COMMON_OBJECTS)
 set_source_files_properties(${CRYSFML_COMMON_OBJECTS} PROPERTIES GENERATED true)

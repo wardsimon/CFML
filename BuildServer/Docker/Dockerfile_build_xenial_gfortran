@@ -1,0 +1,6 @@
+FROM ci_crysfml_xenial_gfortran
+
+COPY ./ /app/
+WORKDIR /app
+
+CMD BuildServer/Unix/build.sh gfortran
