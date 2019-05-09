@@ -291,6 +291,7 @@ int FloatBloc::save() {
 	temp1.str( std::string() );temp1.clear();
 
 	dataFile.close();
+	return 0;
 }
 
 
