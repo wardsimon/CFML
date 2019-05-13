@@ -324,7 +324,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
       type(rational), dimension(3,3) :: Waux
 
       !> Init
-      order=Get_Rotation_Order(W)
+      order=abs(Get_Rotation_Order(W))
 
       S    = W
       Waux = W
