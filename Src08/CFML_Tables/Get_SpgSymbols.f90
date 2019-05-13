@@ -210,6 +210,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       !> Init
       l_it=0
       l_hm=" "; l_hall=" "; l_chm=" "
+      llchm=.false.
       
       !> Load Symmetry information
       call Set_Spgr_Info()
@@ -228,12 +229,19 @@ SubModule(CFML_Symmetry_Tables) Spg_names
          if (l_it > 0) then
             do i=1, NUM_SPGR_INFO
                if (spgr_info(i)%n == l_it) then
-                  ii=i
+                  
                   !> Selecting standard
-                  if (spgr_info(i+1)%n == l_it .and. i >= MONOC) then
-                     ii=i+1 
-                     if (i >= TRIGO .and. i < HEXAG) ii=ii-1  
-                  end if    
+                  ii=i
+                  select case (i)
+                     case (MONOC:ORTHOR-1)  ! Monoclinic
+                        ii=i+1
+                        
+                     case (ORTHOR:TRIGO-1)
+                        if (index(spgr_info(i)%hm,':') > 0) ii=i+1  
+                        
+                     case (CUBIC:)  
+                        if (index(spgr_info(i)%hm,':') > 0) ii=i+1  
+                  end select   
                   
                   l_hm=spgr_info(ii)%hm
                   l_hall=spgr_info(ii)%hall

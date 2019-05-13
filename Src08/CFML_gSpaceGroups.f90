@@ -50,12 +50,12 @@ Module CFML_gSpaceGroups
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Maths,      only: Set_eps_math 
-    Use CFML_Strings,    only: u_case, pack_string, get_separator_pos
+    Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, get_words
 
     !---- Variables ----!
     implicit none
 
-    private
+    !private
     
     !---- List of public operators ----!
     public :: operator (*) 
@@ -294,6 +294,14 @@ Module CFML_gSpaceGroups
           integer                      :: d
        End Function Get_Dimension_Gener 
        
+       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Shift)
+          !---- Arguments ----!
+          character(len=*),                            intent(in)  :: Hall
+          integer,                                     intent(out) :: Ngen
+          character(len=*), dimension(:), allocatable, intent(out) :: Gen  
+          real(kind=cp), dimension(3),                 intent(out) :: Shift  
+       End Subroutine Get_Generators_from_Hall
+       
        Module Subroutine Get_Gener_From_Str(StrGen, d, ngen, gen)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: StrGen
@@ -329,6 +337,18 @@ Module CFML_gSpaceGroups
           type(rational), dimension(:,:), intent( in) :: Latc
           character(len=1)                            :: lattyp
        End Function Get_Lattice_Type_L
+       
+       Module Function Get_Laue_Num(Str_Laue) Result(N)
+          !---- Arguments ----!
+          character(len=*), intent (in) :: Str_Laue
+          integer                       :: N
+       End Function Get_Laue_Num
+       
+       Module Function Get_Laue_Str(N) Result(Str_Laue)
+          !---- Arguments ----!
+          integer,          intent( in) :: N
+          character(len=:), allocatable :: Str_Laue
+       End Function Get_Laue_Str
        
        Module Subroutine Get_Magnetic_Lattice_Type(G)
           !---- Arguments ----!
@@ -392,6 +412,18 @@ Module CFML_gSpaceGroups
           logical, optional,              intent(in)  :: nospin
           type(rational), dimension(3,3)              :: P
        End Function Get_P_Matrix
+      
+       Module Function Get_PointGroup_Num(Str_PG) Result(N)
+          !---- Arguments ----!
+          character(len=*), intent (in) :: Str_PG
+          integer                       :: N
+       End Function Get_PointGroup_Num 
+       
+       Module Function Get_PointGroup_Str(N) Result(Str_PG)
+          !---- Arguments ----!
+          integer,          intent( in) :: N
+          character(len=:), allocatable :: Str_PG
+       End Function Get_PointGroup_Str
        
        Module Subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
           !---- Arguments ----!
@@ -537,7 +569,13 @@ Module CFML_gSpaceGroups
           integer,                        intent( in) :: nlat
           logical                                     :: Lattice
        End Function Is_Lattice_Vec
-       !
+       
+       Module Function Inverse_OP_Symm(Op) Result(i_OP)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), intent(in) :: Op
+          type(Symm_Oper_Type)             :: i_Op
+       End Function Inverse_OP_Symm 
+       
        Module Pure Function Multiply_Symm_Oper(Op1, Op2) Result (Op3)
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op1,Op2

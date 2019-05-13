@@ -43,6 +43,7 @@ rem
    )
 rem
    cd %CRYSFML%\Src08
+   if not exist .\mod mkdir .\mod
 rem
    echo.
    echo **-------------------------------------**
@@ -224,6 +225,7 @@ rem
 rem
       gfortran -c %OPTC% -J..\mod Del_SpgT.f90                       %OPT1%
       gfortran -c %OPTC% -J..\mod Get_SpgT.f90                       %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_SpgSymbols.f90                 %OPT0% 
       gfortran -c %OPTC% -J..\mod Set_SpgT.f90                       %OPT0%
 rem      
       gfortran -c %OPTC% -J..\mod Del_BVST.f90                       %OPT1%
@@ -276,6 +278,10 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Identify_Crystallog_PG.f90         %OPT1% 
       gfortran -c %OPTC% -J..\mod Match_Shubnikov_Grp.f90            %OPT1% 
       gfortran -c %OPTC% -J..\mod Identify_Groups.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_PGNum.f90                      %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_LaueNum.f90                    %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_Gener_Hall.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod Inverse_OP.f90                     %OPT1%
       move /y *.o .. > nul
       cd ..  
 rem   

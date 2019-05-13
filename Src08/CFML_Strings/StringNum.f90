@@ -758,7 +758,7 @@
           sum_m=0.0
           suma=0.0
           isum=0
-          call cutst(resto,ncharl,cifre,nchard)
+          call cut_string(resto,ncharl,cifre,nchard)
           if (nchard <= 0) exit
 
           !> Is a number ?
@@ -907,7 +907,7 @@
 
        do
           if (len_trim(resto) == 0) exit
-          call cutst(resto,nlong,dire)
+          call cut_string(resto,nlong,dire)
           np1=index(dire,"(")
           np2=index(dire,")")
 

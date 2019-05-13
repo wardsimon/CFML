@@ -15,6 +15,10 @@ SubModule (CFML_gSpaceGroups) SPG_012
    !!----  The symbol is not modified but the matrix contain reduced translation.
    !!----  Some checking on the correctness of the symbol is performed
    !!----
+   !!----  If symb represent orientation changes (ba-c for example) the symb argument
+   !!----  have to be written as: b,a,-c;0,0,0. Following IT format, the result is the
+   !!----  transpose matrix.
+   !!----
    !!---- 20/04/2019
    !!
    Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
