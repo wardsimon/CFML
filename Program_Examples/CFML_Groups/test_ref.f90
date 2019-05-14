@@ -19,7 +19,7 @@ program test_reflections
   !real(kind=cp), dimension(3,6) :: kv
   real(kind=cp), dimension(3,6) :: kcomp
   real(kind=cp)                 :: sintlmax=0.5,tini,tfin
-  integer                       :: nk,i,Dd,i_out,m,j,narg
+  integer                       :: nk,i,Dd,i_out,m,j,narg,nq
   !integer,       dimension(6)   :: nharm=1
   !real(kind=cp), dimension(6)   :: sintl
   logical :: ok,arggiven,powder,mag=.true.
@@ -97,13 +97,18 @@ program test_reflections
        call Write_SSG(SSG,full=.true.,kinfo=kinfo)
        Dd=size(SSG%Op(1)%Mat,dim=1)-1
        nk=Dd-3
-       write(*,"(/,a,i3,/)") " => Number of Propagation Vectors: ",nk
+       write(*,"(/,a,i3,/)") " => Number of Propagation Vectors ",nk
        if(nk /= 0) then
-        call Allocate_kvect_info(nk,kinfo)
+        write(*,"(a,i2,a)",advance="no") " => Enter the number of Q_coeffs ",nq
+        call Allocate_kvect_info(nk,nq,kinfo)
         !Dd=Dd+nk
         do i=1,nk
           write(*,"(a,i2,a)",advance="no") " => Enter propagation vector # ",i," number of harmonics and maximum SinTheta/Lambda: "
           read(*,*) kinfo%kv(:,i), kinfo%nharm(i),kinfo%sintlim(i)
+        end do
+        do i=1,nq
+          write(*,"(2(a,i2),a)",advance="no") " => Enter q_coeff vector # ",i," -> ",nk," integers:"
+          read(*,*) kinfo%q_coeff(:,i)
         end do
        end if
     end if

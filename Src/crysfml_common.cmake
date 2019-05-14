@@ -6,15 +6,16 @@
 # WINDOWS
 if(WIN32)
     # Intel Fortran compiler
-    set(STRING_UTILS CFML_String_Util.f90)
     if(${COMPILER_NAME} STREQUAL ifort)
        if(ARCH32)
            set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel.f90)
        else()
            set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel64.f90)
        endif()
+       set(STRING_UTILS CFML_String_Util.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Windows.f90)
+        set(STRING_UTILS CFML_String_Util.f90)
     endif()
 # MacOS
 elseif(APPLE)
@@ -83,16 +84,6 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Rational_Arithmetic.f90
     CFML_Symmetry.f90
     CFML_Sym_Table.f90)
-
-if(WIN32)
-  if(${COMPILER_NAME} STREQUAL ifort)
-    get_filename_component(CRYSFML_COMMON_SOURCES_NOEXT "${CRYSFML_COMMON_SOURCES}" NAME_WE)
-  else()
-    set(CRYSFML_COMMON_SOURCES_NOEXT ${CRYSFML_COMMON_SOURCES})
-  endif()
-else()
-  set(CRYSFML_COMMON_SOURCES_NOEXT ${CRYSFML_COMMON_SOURCES})
-endif()
 
 # Set the optimization flags.
 set_source_files_properties(${CRYSFML_COMMON_SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})

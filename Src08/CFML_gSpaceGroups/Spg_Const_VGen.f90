@@ -44,8 +44,9 @@ SubModule (CFML_gSpaceGroups) SPG_020
          call Allocate_Symm_Op(d,Op(i))
       end do
       
+      !> Construct the list of the generators on top of Op. 
+      !> The identity is always the first operator
       allocate(Mat(d,d))
-      !>Construct the list of the generators on top of Op. The identity is always the first operator
       do i=1,ngen
          call Get_Mat_From_Symb(gen(i),Mat,invt)
          if (Err_CFML%Ierr /= 0) return

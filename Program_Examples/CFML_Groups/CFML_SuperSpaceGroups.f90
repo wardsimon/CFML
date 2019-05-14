@@ -1,7 +1,7 @@
   Module CFML_SuperSpaceGroups
     use CFML_GlobalDeps,       only: sp,dp,cp,tpi
     use CFML_String_Utilities, only: u_case,l_case,pack_string,get_separator_pos
-    use CFML_Math_General,     only: sort, trace, iminloc
+    use CFML_Math_General,     only: sort, trace, iminloc, equal_vector
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, ERR_Crys, ERR_Crys_mess, set_Crystal_Cell
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup,Get_Generators_From_SpGSymbol, &
                                               set_Intersection_SPG, Write_SpaceGroup, Magnetic_Space_Group_Type
@@ -53,6 +53,7 @@
        integer                          :: Mult=0  ! mutiplicity
        real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
        integer                          :: imag=0  ! =0 nuclear reflection, 1=magnetic, 2=both
+       integer                          :: p_coeff ! Pointer to the harmonic q_coeff
     End Type sReflect_Type
 
     Type, Public, extends(sReflect_Type) :: sReflection_Type
@@ -90,10 +91,12 @@
     !!---- TYPE :: KVECT_INFO_TYPE
     !!--..
     !!---- Type, public :: KVECT_INFO_TYPE
-    !!----    integer                                      :: nk        ! Number of k-vectors
-    !!----    real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
-    !!----    real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
-    !!----    integer,allocatable,dimension(:)             :: nharm     ! number of harmonics (nk)
+    !!----   integer                                      :: nk        ! Number of independent k-vectors
+    !!----   real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
+    !!----   real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
+    !!----   integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
+    !!----   integer                                      :: nq        ! number of effective k-vectors > nk
+    !!----   integer,allocatable,dimension(:,:)           :: q_coeff   ! number of q_coeff(nk,nq)
     !!---- End Type kvect_info_type
     !!----
     !!---- This type encapsulates information about modulation
@@ -102,10 +105,12 @@
     !!---- Created: January - 2019
     !!
     Type, public :: kvect_info_type
-       integer                                      :: nk        ! Number of k-vectors
+       integer                                      :: nk        ! Number of independent k-vectors
        real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
        real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
-       integer,allocatable,dimension(:)             :: nharm     ! number of harmonics (nk)
+       integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
+       integer                                      :: nq        ! number of effective k-vectors > nk
+       integer,allocatable,dimension(:,:)           :: q_coeff   ! number of q_coeff(nk,nq)
     End Type kvect_info_type
 
     logical,            public :: Err_ssg
@@ -123,10 +128,11 @@
 
   Contains
 
-    Subroutine Allocate_kvect_info(nk,kvect_info)
-      integer,               intent(in)  :: nk
+    Subroutine Allocate_kvect_info(nk,nq,kvect_info)
+      integer,               intent(in)  :: nk,nq
       type(kvect_info_type), intent(out) :: kvect_info
       kvect_info%nk=nk
+      kvect_info%nq=nq
       if(allocated(kvect_info%kv)) deallocate(kvect_info%kv)
       allocate(kvect_info%kv(3,nk))
       kvect_info%kv=0.0
@@ -136,6 +142,9 @@
       if(allocated(kvect_info%nharm)) deallocate(kvect_info%nharm)
       allocate(kvect_info%nharm(nk))
       kvect_info%nharm=1
+      if(allocated(kvect_info%q_coeff)) deallocate(kvect_info%q_coeff)
+      allocate(kvect_info%q_coeff(nk,nq))
+      kvect_info%q_coeff=1
     End Subroutine Allocate_kvect_info
 
     Subroutine Gen_SSGroup(ngen,gen,SSG,x1x2x3_type,table)
@@ -533,10 +542,10 @@
       logical,              optional, intent(in) :: x1x2x3_typ
       type(kvect_info_type),optional, intent(in) :: kinfo
       !---- Local variables ----!
-      integer :: lun,i,j,D,Dd,nlines
+      integer :: lun,i,j,D,Dd,nlines,nk
       character(len=40),dimension(:),  allocatable :: vector
       character(len=40),dimension(:,:),allocatable :: matrix
-      character(len=15)                            :: forma,xyz_typ
+      character(len=20)                            :: forma,xyz_typ
       integer,  parameter                          :: max_lines=192
       character (len=100), dimension(max_lines)    :: texto
       logical                                      :: print_latt
@@ -549,8 +558,8 @@
       if(present(x1x2x3_typ)) then
         xyz_typ="x1x2x3"
       end if
-
-      D=3+SpaceGroup%nk
+      nk=SpaceGroup%nk
+      D=3+nk
       Dd=D+1
       allocate(vector(D),matrix(Dd,Dd))
       write(unit=lun,fmt="(/,a)")          "        Information on SuperSpace Group: "
@@ -590,14 +599,22 @@
          do i=1,kinfo%nk
            write(unit=lun,fmt="(i5,3f10.5,i8,f12.5)")  i, kinfo%kv(:,i),kinfo%nharm(i),kinfo%sintlim(i)
          end do
+         if(kinfo%nq > 0) then
+         forma="(a,i2.2,a,  i2,a)"
+         write(unit=forma(11:12),fmt="(i2)") nk
+          write(unit=lun,fmt="(a,i3)")       " => List of q_coefficients (Harmonics): ",kinfo%nq
+          do i=1,kinfo%nq
+            write(unit=lun,fmt=forma)  "    q_",i,"  [", kinfo%q_coeff(1:nk,i)," ]"
+          end do
+         end if
          write(unit=lun,fmt="(a)") " "
       end if
       if (print_latt .and. max(SpaceGroup%Num_lat,0) > 0) then
          texto(:) (1:100) = " "
-         write(unit=lun,fmt="(a,i3)")       " =>        Centring vectors: ",SpaceGroup%Num_lat
-         nlines=1
          forma="(a,i2,a,   a)"
          write(unit=forma(9:11),fmt="(i3)") D
+         write(unit=lun,fmt="(a,i3)")       " =>        Centring vectors: ",SpaceGroup%Num_lat
+         nlines=1
          do i=1,SpaceGroup%Num_lat
             vector=print_rational(SpaceGroup%Lat_tr(:,i))
             if (mod(i,2) == 0) then
@@ -906,18 +923,15 @@
        logical,                       optional,         intent(in)     :: powder
 
        !---- Local variables ----!
-       real(kind=cp)         :: sval !,vmin,vmax
+       real(kind=cp)         :: sval,max_s !,vmin,vmax
        real(kind=cp)         :: epsr=0.00001, delt=0.0001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
-                                maxpos, mp, iprev,Dd, nf, ia, i0, nk
+                                maxpos, mp, iprev,Dd, nf, ia, i0, nk, nharm,n
        integer,      dimension(:),   allocatable :: hh,kk,nulo
        integer,      dimension(:,:), allocatable :: hkl,hklm
        integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
-       real(kind=cp),dimension(:),   allocatable :: max_s
+       !real(kind=cp),dimension(:),   allocatable :: max_s
        real(kind=cp),dimension(:),   allocatable :: sv,sm
-       integer,       dimension(:),  allocatable :: nharm
-       real(kind=cp), dimension(:,:),allocatable :: kv
-       real(kind=cp), dimension(:),  allocatable :: maxsinl
        logical :: kvect,ordering
 
        Dd=3
@@ -926,10 +940,7 @@
        if(present(order) .or. present(powder)) ordering=.true.
        if(present(kinfo)) then
          nk=kinfo%nk
-         allocate(kv(3,nk),nharm(nk),maxsinl(nk))
-         kv=kinfo%kv
-         nharm=kinfo%nharm
-         maxsinl=kinfo%sintlim
+         nharm=kinfo%nq
          kvect=.true.
        end if
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
@@ -941,11 +952,11 @@
        maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
        if(kvect) then
           do k=1,nk
-            	 maxref=maxref*2*nharm(k)
+            	 maxref=maxref*2*nharm
           end do
-          allocate(max_s(nk))
+          !allocate(max_s(nk))
           if(present(kinfo)) then
-            max_s=maxsinl
+            max_s=maxval(kinfo%sintlim)
           else
             max_s=sintlmax
           end if
@@ -955,6 +966,7 @@
        indtyp=0
        num_ref=0
        !Generation of fundamental reflections
+       i0=0
        ext_do: do h=hmin,hmax
           do k=kmin,kmax
              do l=lmin,lmax
@@ -963,7 +975,7 @@
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
                 mp=0
-                if(present(SSG)) then
+                if(present(SSG) .and. sval > epsr) then
                    if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
                      !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
                      cycle
@@ -972,7 +984,7 @@
                      !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
                      if(SSG%Mag_type /= 2 .and. mag) then
                        if(mH_Absent_SSG(hh,SSG)) then
-                         !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
+                        ! write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                          cycle
                        else
                          mp=1   !pure magnetic
@@ -995,76 +1007,79 @@
                    num_ref=maxref
                    exit ext_do
                 end if
+                if(sval < epsr) i0=num_ref
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
                 indtyp(num_ref)=mp
+                !write(*,*) num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
              end do
           end do
        end do ext_do
 
        !Generation of satellites
+       !The generated satellites corresponds to those obtained from the list
+       ! of +/-kinfo%q_qcoeff
+       nf=num_ref
        if(kvect) then
-       	 k=0
-       	 do_ex: do
-           k = k + 1
-           if(k > nk) exit do_ex
-            	nf=num_ref
+
+       	 do_ex: do n=1,kinfo%nq
       	      do i=1,nf
        	      	 hh=hkl(:,i)
        	      	 do ia=-1,1,2
-       	   	 	     do j=1,nharm(k)
-       	   	 	     	 hh(3+k)=ia*j
-                     sval=H_s(hh,Cell,nk,kv)
-                     if (sval > max_s(k)) cycle
-                     mp=0
-                     if(present(SSG)) then
-                        if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                           !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-                           cycle
-                        end if
-                        if(H_Absent_SSG(hh,SSG)) then
-                            !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-                          if(SSG%Mag_type /= 2 .and. mag) then
-                            if(mH_Absent_SSG(hh,SSG)) then
-                              !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
-                              cycle
-                            else
-                              mp=1   !pure magnetic
-                            end if
-                          else
+       	      	   hh(4:3+nk)=ia*kinfo%q_coeff(1:nk,n)
+                   sval=H_s(hh,Cell,nk,kinfo%kv)
+       	      	   !write(*,*) hh(1:3+nk),sval
+                   if (sval > max_s) cycle
+                   mp=0
+                   if(present(SSG)) then
+                      if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+                         !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                         cycle
+                      end if
+                      if(H_Absent_SSG(hh,SSG)) then
+                          !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
+                        if(SSG%Mag_type /= 2 .and. mag) then
+                          if(mH_Absent_SSG(hh,SSG)) then
+                            !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
                             cycle
+                          else
+                            mp=1   !pure magnetic
                           end if
                         else
-                          if(SSG%Mag_type /= 2 .and. mag) then
-                            if(mH_Absent_SSG(hh,SSG)) then
-                              mp=0  !pure nuclear
-                            else
-                              mp=2
-                            end if
+                          cycle
+                        end if
+                      else
+                        if(SSG%Mag_type /= 2 .and. mag) then
+                          if(mH_Absent_SSG(hh,SSG)) then
+                            mp=0  !pure nuclear
+                          else
+                            mp=2
                           end if
                         end if
-                     end if
-                     num_ref=num_ref+1
-                     if(num_ref > maxref) then
-                        num_ref=maxref
-                        exit do_ex
-                     end if
-                     sv(num_ref)=sval
-                     hkl(:,num_ref)=hh
-                     indtyp(num_ref)=mp
-                   end do  !j
+                      end if
+                   end if
+                   num_ref=num_ref+1
+                   if(num_ref > maxref) then
+                      num_ref=maxref
+                      exit do_ex
+                   end if
+                   sv(num_ref)=sval
+                   hkl(:,num_ref)=hh
+                   indtyp(num_ref)=mp
+                   !write(*,*) num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
        	   	 	   end do !ia
        	      end do  !i
          end do do_ex
        end if
 
+
        !Suppress the reflection 0 0 0 0 0 ...
-       do i=1,num_ref
-         if(sv(i) < epsr) then
-          i0=i
-          exit
-         end if
-       end do
+       !do i=1,num_ref
+       !  if(sv(i) < epsr) then
+       !   i0=i
+       !   exit
+       !  end if
+       !end do
        !write(*,*) "  i0=",i0
        do i=i0+1,num_ref
          sv(i-1)=sv(i)
@@ -1139,8 +1154,17 @@
        allocate(reflex(num_ref))
        do i=1,num_ref
          allocate(reflex(i)%h(Dd)) !needed in f95
-         reflex(i)%h    = hkl(:,i)
-         reflex(i)%s    = sv(i)
+         reflex(i)%h      = hkl(:,i)
+         kk               = abs(hkl(4:3+nk,i))
+         do_n: do n=1,kinfo%nq
+           do k=1,nk
+             if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
+               reflex(i)%p_coeff=n
+               exit do_n
+             end if
+           end do
+         end do do_n
+         reflex(i)%s      = sv(i)
          if(present(SSG)) then
            reflex(i)%mult = h_mult(reflex(i)%h,SSG,.true.)
          else
@@ -1260,7 +1284,7 @@
        end do ext_do
 
        !Generation of satellites
-       if(kvect) then
+       if(kvect) then   !Here all possible satellites are generated
        	 k=0
        	 do_ex: do
            k = k + 1
@@ -1357,7 +1381,7 @@
        character(len=*),       optional,intent(in)  :: x1x2x3_type
        !
        ! --- Local variables ---!
-       integer                             :: i,ind, num_gen,n,ier,n_end, num_group
+       integer                             :: i,j,k,ind, num_gen,n,ier,n_end, num_group, nq
        character(len=132)                  :: line,generators_string
        character(len=20)                   :: spg_symb,shub_symb
        integer, parameter                  :: max_gen=10
@@ -1371,6 +1395,7 @@
        num_gen=0
        num_group=0
        SSG%nk=0
+       nq=0
        generators_string=" "
        gen=" "
        spg_symb=" "
@@ -1411,8 +1436,23 @@
                 allocate(SSG%kv(3,SSG%nk))
                 SSG%kv=0.0
                 n=0
+                if(present(kinfo) .and. nq /= 0) then
+                   call Allocate_kvect_info(SSG%nk,nq,kinfo)
+                end if
+              end if
+
+           Case("N_QC")
+              read(unit=line(ind+1:),fmt=*,iostat=ier) nq
+              write(*,*) " N_QC =",nq
+              if(ier /= 0) then
+                Err_ssg=.true.
+                Err_ssg_Mess=" The number of Q_coeff was not properly read in the instruction 'DIM  d' !"
+                return
+              else
                 if(present(kinfo)) then
-                   call Allocate_kvect_info(SSG%nk,kinfo)
+                   if (SSG%nk /= 0) then
+                     call Allocate_kvect_info(SSG%nk,nq,kinfo)
+                   end if
                 end if
               end if
 
@@ -1450,6 +1490,22 @@
                    write(unit=Err_ssg_Mess,fmt="(a,i2,a)") " The k-vector #",n,"  was not properly read in the instruction 'KVEC  kx ky kz' !"
                    return
                  end if
+              end if
+
+           Case("Q_COEFF") !Must be provided once all propagation vectors are read
+              if(present(kinfo)) then
+                k=0
+                do j=i+1,i+nq
+                  k=k+1
+                  read(unit=file_line(j),fmt=*,iostat=ier) kinfo%q_coeff(1:SSG%nk,k)
+                  if(ier /= 0) then
+                    Err_ssg=.true.
+                    write(unit=Err_ssg_Mess,fmt="(a,i2,a)") " The q_coeff #",k,"  was not properly read after the instruction 'Q_COEFF' !"
+                    return
+                  Else
+                    write(*,*) kinfo%q_coeff(1:SSG%nk,k)
+                  end if
+                end do
               end if
 
            Case("GENR")
@@ -1522,6 +1578,8 @@
           do i=1,SSG%Multip
            SSG%Om(:,:,i)=SSG%Op(i)%Mat
           end do
+         Type is (SuperSpaceGroup_Type)
+           return
          Class default
            Err_ssg=.true.
            Err_ssg_Mess= " Error in Readn_set_SuperSpace_Group: Unknown type of group "
