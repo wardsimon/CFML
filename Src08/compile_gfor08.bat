@@ -42,7 +42,7 @@ rem
       (set OPT3=-I%WINTER%\%LIBFOR%)
    )
 rem
-   cd %CRYSFML%\Src08
+   cd %CRYSFML%\Src08N
    if not exist .\mod mkdir .\mod
 rem
    echo.

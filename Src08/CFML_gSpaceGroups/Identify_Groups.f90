@@ -14,7 +14,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!----
    !!---- 22/04/2019 
    !!
-   Module Subroutine Identify_Cryst_SpG(G)
+   Module Subroutine Identify_SpaceGroup_3D(G)
       !---- Arguments ----!
       type(spg_type),    intent(in out) :: G
 
@@ -46,7 +46,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
       call Get_A_Matrix_Crys(G%laue,A,n)
       !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
 
-   end subroutine Identify_Cryst_SpG
+   end subroutine Identify_SpaceGroup_3D
    
    !!---- 
    !!---- Identify_Group
@@ -87,57 +87,6 @@ SubModule (CFML_gSpaceGroups) SPG_045
       end if
       
    End Subroutine Identify_Group
-     
-   !!---- 
-   !!---- Identify_Laue_Class
-   !!----
-   !!---- Sets the Laue class from the crystallographic point group
-   !!----
-   !!---- 22/04/2019 
-   !!
-   Module Subroutine Identify_Laue_Class(G)
-      !---- Arguments ----!
-      type(spg_type), intent(inout) :: G
-
-      select case (trim(G%pg))
-         case ("1","-1")
-            G%laue = "-1"
-         
-         case ("2","m","2/m")
-            G%laue = "2/m"
-         
-         case ("222","mm2","mmm")
-            G%laue = "mmm"
-         
-         case ("4","-4","4/m")
-            G%laue = "4/m"
-         
-         case ("422","4mm","-4m2","4/mmm")
-            G%laue = "4/mmm"
-         
-         case ("3","-3")
-            G%laue = "-3"
-         
-         case ("32","3m","-3m")
-            G%laue = "-3m"
-         
-         case ("6","-6","6/m")
-            G%laue = "6/m"
-         
-         case ("622","6mm","-6m2","6/mmm")
-            G%laue = "6/mmm"
-         
-         case ("23","m-3")
-            G%laue = "m-3"
-         
-         case ("432","-43m","m-3m")
-            G%laue = "m-3m"
-         
-         case default
-            Err_CFML%Ierr = 1
-            Err_CFML%Msg ="Identify_Laue_Class@SPACEG: Inconsistent crystallographic point group."
-      end select
-   End Subroutine Identify_Laue_Class
      
    !!----
    !!---- IDENTIFY_MAGNETIC_SPACE_GROUP

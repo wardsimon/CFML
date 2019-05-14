@@ -288,6 +288,20 @@ Module CFML_gSpaceGroups
           integer, dimension(:), allocatable, intent(out) :: cosets
        End Subroutine Get_Cosets
        
+       Module Function Get_Crystal_System_Num(Ops, nops) Result(N)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
+          integer,                            intent(in) :: NOps   
+          integer                                        :: N
+       End Function Get_Crystal_System_Num
+       
+       Module Function Get_Crystal_System_Str(Ops, nops) Result(Str)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
+          integer,                            intent(in) :: NOps   
+          character(len=:), allocatable                  :: Str
+       End Function Get_Crystal_System_Str
+       
        Module Function Get_Dimension_Gener(Symb) Result(d)
           !---- Arguments ----! 
           character(len=*), intent(in) :: Symb
@@ -513,10 +527,15 @@ Module CFML_gSpaceGroups
           type(spg_type), intent(in out) :: G
        End Subroutine Identify_Crystallographic_PG 
        
-       Module Subroutine Identify_Cryst_SpG(G)
+       Module Subroutine Identify_Crystal_System(G)
+          !---- Arguments ----!
+          type(spg_type), intent(in out) :: G
+       End Subroutine Identify_Crystal_System   
+       
+       Module Subroutine Identify_SpaceGroup_3D(G)
           !---- Arguments ----!
           type(spg_type),    intent(in out) :: G
-       End Subroutine Identify_Cryst_SpG
+       End Subroutine Identify_SpaceGroup_3D
        
        Module Subroutine Identify_Group(G)
           !---- Arguments ----!

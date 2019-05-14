@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-   cd %CRYSFML%\Src08
+rem   cd %CRYSFML%\Src08N
    if not exist .\mod mkdir .\mod
 rem
    echo.
@@ -273,12 +273,12 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Get_PseudoStdBase.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_X_Matrix.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Generators.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Identify_Crystallog_PG.f90             /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Match_Shubnikov_Grp.f90                /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Identify_Groups.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_LauePG.f90                        /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_LauePG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_Gener_Hall.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Inverse_OP.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_CrystalSys.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
  rem   
