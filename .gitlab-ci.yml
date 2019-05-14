@@ -54,6 +54,8 @@ make:windows_gfortran:
 make:windows_ifort:
   stage: make
   script:
+    - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
     - call "%BuildServer\\Windows\\build.bat" ifort
   tags:
     - sci

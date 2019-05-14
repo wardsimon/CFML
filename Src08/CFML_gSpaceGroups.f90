@@ -344,6 +344,15 @@ Module CFML_gSpaceGroups
           integer                       :: N
        End Function Get_Laue_Num
        
+       Module Subroutine Get_Laue_PG(Ops, nops, Centro, Laue, Pg)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
+          integer,                            intent(in) :: NOps   
+          logical,                            intent(in) :: Centro 
+          character(len=*),                   intent(out):: Laue   
+          character(len=*),                   intent(out):: Pg     
+       End Subroutine Get_Laue_PG
+       
        Module Function Get_Laue_Str(N) Result(Str_Laue)
           !---- Arguments ----!
           integer,          intent( in) :: N
@@ -440,10 +449,10 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3)                :: axis    !shortest vector along the rotation axisP 
        End Function Get_Rotation_Axis
        
-       Module Function Get_Rotation_Order(W) Result(order)
+       Module Function Get_Rotation_Order(W) Result(N)
           !---- Arguments ----!
           type(rational), dimension(3,3), intent(in)  :: W
-          integer                                     :: order
+          integer                                     :: N
        End Function Get_Rotation_Order
        
        Module Subroutine Get_Rotations(symOP, nSymOP, n, nso, idd)

@@ -44,7 +44,7 @@ SubModule (CFML_gSpaceGroups) SPG_036
        end if
 
        B(:,3)   = bz(:)
-       order=Get_Rotation_Order(A)
+       order=abs(Get_Rotation_Order(A))
        select case (order)
           case (2)
              Allocate(det(6),test_(6,2))
