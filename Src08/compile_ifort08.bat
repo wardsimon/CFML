@@ -40,7 +40,7 @@ rem
       )
    )
 rem
-rem   cd %CRYSFML%\Src08N
+   cd F:\Git_ILL\CrysFML\Src08N
    if not exist .\mod mkdir .\mod
 rem
    echo.
@@ -279,6 +279,7 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Get_Gener_Hall.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Inverse_OP.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_CrystalSys.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Match_Spg3D.f90                        /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
  rem   

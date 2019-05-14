@@ -20,7 +20,6 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       !---- Local variables ---!
       integer                          :: n
-      character                        :: lattyp
       type(rational), dimension(3,3)   :: P,Mp,Mc,M
       type(rational), dimension(3,3,6) :: A
       logical :: pout
@@ -40,11 +39,10 @@ SubModule (CFML_gSpaceGroups) SPG_045
       if (Err_CFML%Ierr /= 0) return
 
       M = matmul(Mp,Mc)
-      lattyp=Get_Lattice_Type(M)
       if (Err_CFML%Ierr /= 0) return
       
       call Get_A_Matrix_Crys(G%laue,A,n)
-      !call Match_Crystallographic_Space_Group(G,P,M,A(:,:,1:n),n)
+      call Match_SpaceGroup_3D(G,P,M,A(:,:,1:n),n)
 
    end subroutine Identify_SpaceGroup_3D
    
@@ -79,6 +77,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       else if (G%d == 4) then ! Shubnikov groups
          call Identify_Shubnikov_Group(G)
+         call Identify_SpaceGroup_3D(G)
 
       else ! Superspace groups
          Err_CFML%Ierr = 1
@@ -102,7 +101,6 @@ SubModule (CFML_gSpaceGroups) SPG_045
       type(spg_type),    intent(in out) :: G
 
       !---- Local variables ---!
-      character                        :: lattyp
       type(rational), dimension(3,3)   :: P,Mp,Mc,M
       logical :: pout
 
@@ -121,6 +119,9 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       call Identify_Laue_Class(G)
       if (Err_CFML%Ierr /= 0) return
+      
+      call Identify_Crystal_System(G)
+      if (Err_CFML%Ierr /= 0) return
 
       P=Get_P_Matrix(G)
       if (Err_CFML%Ierr /= 0) return
@@ -132,7 +133,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
       if (Err_CFML%Ierr /= 0) return
 
       M = matmul(Mp,Mc)
-      lattyp=Get_Lattice_Type(M)
+      G%spg_lat=Get_Lattice_Type(M)
       if (Err_CFML%Ierr /= 0) return
 
       call Match_Shubnikov_Group(G,P,M)

@@ -192,16 +192,16 @@ SubModule (CFML_gSpaceGroups) Spg_052
                   
                case (2) !> Second operator
                   if (Ni(i) == 2) then
-                     if (Ni(i-1)==2 .or. Ni(i-1)==4) then
+                     if (abs(Ni(i-1))==2 .or. abs(Ni(i-1))==4) then
                         axis=1 ! a axis
                      
-                     elseif (Ni(i-1)==3 .or. Ni(i-1)==6) then
+                     elseif (abs(Ni(i-1))==3 .or. abs(Ni(i-1))==6) then
                         axis=7 ! a-b   
                      end if
                   end if   
                   
                case (3) !> Third operator
-                  if (Ni(i) == 3) then
+                  if (abs(Ni(i)) == 3) then
                      axis=10 ! a+b+c
                   end if
             end select

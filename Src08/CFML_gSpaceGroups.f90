@@ -552,6 +552,15 @@ Module CFML_gSpaceGroups
           type(spg_type),    intent(in out) :: G
        End Subroutine Identify_Shubnikov_Group
        
+       Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
+          !---- Arguments ----!
+          type(spg_type),                   intent(inout) :: G   
+          type(rational), dimension(3,3),   intent(in)    :: P   
+          type(rational), dimension(3,3),   intent(in)    :: M  
+          type(rational), dimension(3,3,n), intent(in)    :: A  
+          integer,                          intent(in)    :: N  
+       End Subroutine Match_SpaceGroup_3D
+       
        Module Subroutine Match_Shubnikov_Group(G,P,M)
           !---- Arguments ----!
           type(spg_type),                   intent(in out):: G
