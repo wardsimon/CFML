@@ -50,7 +50,8 @@ Module CFML_gSpaceGroups
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Maths,      only: Set_eps_math 
-    Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, get_words
+    Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, &
+                               get_words, String_Fraction_2Dig
 
     !---- Variables ----!
     implicit none
@@ -123,6 +124,7 @@ Module CFML_gSpaceGroups
     type(rational), dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
     
     logical                                     :: Magnetic_DBase_allocated=.false.
+    logical, public                             :: Hexa=.false. 
     logical                                     :: mcif=.false.
     
     !> For the ith nonhexagonal point operator:
@@ -216,6 +218,16 @@ Module CFML_gSpaceGroups
        module procedure Get_Lattice_Type_from_Mat
     End Interface Get_Lattice_Type
 
+    Interface Get_Symb_from_OP
+       module procedure String_from_MAT_TR_R
+       module procedure String_from_MAT_TR_I
+       module procedure String_from_Op
+    End Interface Get_Symb_from_OP
+    
+    Interface Get_Symb_from_Mat
+       module procedure Get_Symb_from_Mat_Tr
+       module procedure Get_Symb_from_Rational_Mat
+    end Interface Get_Symb_from_Mat
 
     !------------------------!
     !---- Interface Zone ----!
@@ -501,20 +513,42 @@ Module CFML_gSpaceGroups
           integer,                 optional,intent(in)  :: indexg
        End Subroutine Get_SubGroups_Subgen
        
-       Module Function Get_Symb_from_Mat(Mat, Strcode, Invt) Result(Symb)
+       Module Function Get_Symb_from_Mat_Tr(Mat, tr, oposite) Result(Str)
+          !---- Arguments ----!
+          integer,       dimension(3,3), intent(in) :: Mat
+          real(kind=cp), dimension(3),   intent(in) :: tr
+          logical, optional,             intent(in) :: oposite
+          character(len=:), allocatable             :: Str
+       End Function Get_Symb_from_Mat_Tr
+       
+       Module Function Get_Symb_from_Rational_Mat(Mat, Strcode, Invt) Result(Symb)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: Mat
           character(len=*), optional,     intent(in) :: strcode
           integer,          optional,     intent(in) :: invt
           character(len=:), allocatable              :: symb
-       End Function Get_Symb_from_Mat
+       End Function Get_Symb_from_Rational_Mat
        
-       Module Function Get_Symb_from_Op(Op, Strcode) Result(symb)
+       Module Function String_from_Op(Op, Strcode) Result(symb)
           !---- Arguments ----!
           type(Symm_Oper_Type),       intent(in) :: Op
           character(len=*), optional, intent(in) :: Strcode
           character(len=:), allocatable          :: symb
-       End Function Get_Symb_from_Op
+       End Function String_from_Op
+       
+       Module Function String_from_MAT_TR_I(MAT,T) Result(Symb)
+          !---- Arguments ----!
+          integer,       dimension(3,3), intent( in) :: Mat
+          real(kind=cp), dimension(3),   intent( in) :: T
+          character(len=:), allocatable              :: Symb
+       End Function String_from_MAT_TR_I
+       
+       Module Function String_from_MAT_TR_R(Mat,T) Result(Symb)
+          !---- Arguments ----!
+          real(kind=cp),    dimension(3,3), intent( in) :: Mat
+          real(kind=cp),    dimension(3),   intent( in) :: t
+          character(len=:), allocatable                 :: symb
+       End Function String_from_MAT_TR_R
        
        Module Function Get_VecPerp_To_RotAxis(W) Result(vPerp)
           !---- Arguments ----!
