@@ -19,8 +19,8 @@ SubModule (CFML_Bonds_Tables) Get_Routines
       !---- Local Variables ----!
       integer :: Z1,Z2
 
-      z1=Get_ZSymb(Symb1)
-      z2=Get_ZSymb(Symb2)
+      z1=Get_Z_Symb(Symb1)
+      z2=Get_Z_Symb(Symb2)
 
       if (.not. Set_BT_Variable) call Set_Bonds_Table()
       Bonds=Get_Bonds_Table_Z(Z1,Z2)

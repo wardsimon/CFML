@@ -52,7 +52,7 @@
           if (np == 0) cycle
           
           linec=linec(np:)
-          call cutst(linec)
+          call cut_string(linec)
           string=linec
           nline_ini=i
           exit
@@ -118,7 +118,7 @@
           if (np == 0) cycle
           
           linec=linec(np:)
-          call cutst(linec)
+          call cut_string(linec)
           string=linec
           nline_ini=i
           exit
@@ -186,7 +186,7 @@
           if (np == 0) cycle
           
           line=line(np:)
-          call cutst(line)
+          call cut_string(line)
           call get_num(line,vet,ivet,iv)
           if (present(line_key)) line_key=line
           if (Err_CFML%ierr /=0) exit
@@ -241,7 +241,7 @@
           np=index(line,key)
           if (np == 0) cycle
           line=line(np:)
-          call cutst(line)
+          call cut_string(line)
           call get_numstd(line,vet1,vet2,iv)
           if (Err_CFML%ierr /=0) exit
           nline_ini=i

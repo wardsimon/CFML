@@ -673,6 +673,14 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3,3), intent(inout) :: A
        End Subroutine Set_Right_Handedness 
        
+       Module Subroutine Set_SpaceGroup(Str, SpaceG, NGen, Gen)
+          !---- Arguments ----!
+          character(len=*),                          intent(in ) :: Str  
+          type(spg_type),                            intent(out) :: SpaceG
+          integer,                         optional, intent(in ) :: NGen
+          character(len=*),  dimension(:), optional, intent(in ) :: Gen
+       End Subroutine Set_SpaceGroup
+       
        Module Subroutine Smallest_Integral_Vector(v)
           !---- Arguments ----!
           type(rational), dimension(:), intent(inout) :: v
