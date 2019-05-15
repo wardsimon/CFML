@@ -44,6 +44,7 @@
     !!----    integer                          :: Mult=0  ! mutiplicity
     !!----    real(kind=cp)                    :: S=0.0   ! Sin(Theta)/lambda=1/2d
     !!----    integer                          :: imag=0  !=0 nuclear reflection, 1=magnetic, 2=both
+    !!----    integer                          :: p_coeff ! Pointer to the harmonic q_coeff
     !!---- End Type sReflect_Type
     !!----
     !!----
@@ -892,7 +893,7 @@
     End Function H_Mult
 
     !!----
-    !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder)
+    !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder,mag_only)
     !!----   type (Crystal_Cell_Type),                        intent(in)     :: Cell
     !!----   real(kind=cp),                                   intent(in)     :: sintlmax
     !!----   integer,                                         intent(out)    :: num_ref
@@ -902,7 +903,7 @@
     !!----   real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
     !!----   real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
     !!----   class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
-    !!----   logical,                       optional,         intent(in)     :: powder
+    !!----   logical,                       optional,         intent(in)     :: powder,mag_only
     !!----
     !!----    Calculate unique reflections between two values of
     !!----    sin_theta/lambda.  The output is not ordered.
@@ -910,7 +911,7 @@
     !!---- Created: June 2017
     !!
 
-    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,mag,kinfo,order,SSG,powder)
+    Subroutine Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,mag,kinfo,order,SSG,powder,mag_only)
        !---- Arguments ----!
        type (Crystal_Cell_Type),                        intent(in)     :: Cell
        real(kind=cp),                                   intent(in)     :: sintlmax
@@ -920,7 +921,7 @@
        type(kvect_info_type),         optional,         intent(in)     :: kinfo
        class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: order
-       logical,                       optional,         intent(in)     :: powder
+       logical,                       optional,         intent(in)     :: powder,mag_only
 
        !---- Local variables ----!
        real(kind=cp)         :: sval,max_s !,vmin,vmax
@@ -932,11 +933,13 @@
        integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
        !real(kind=cp),dimension(:),   allocatable :: max_s
        real(kind=cp),dimension(:),   allocatable :: sv,sm
-       logical :: kvect,ordering
+       logical :: kvect,ordering,magg
 
        Dd=3
        ordering=.false.
        kvect=.false.
+       magg=.false.
+       if(present(mag_only)) magg=mag_only
        if(present(order) .or. present(powder)) ordering=.true.
        if(present(kinfo)) then
          nk=kinfo%nk
@@ -976,9 +979,11 @@
                 if (sval > sintlmax) cycle
                 mp=0
                 if(present(SSG) .and. sval > epsr) then
-                   if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                     !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-                     cycle
+                   if(SSG%Num_Lat /= 0) then
+                     if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+                       !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                       cycle
+                     end if
                    end if
                    if(H_Absent_SSG(hh,SSG)) then
                      !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
@@ -1008,6 +1013,12 @@
                    exit ext_do
                 end if
                 if(sval < epsr) i0=num_ref
+                if(magg) then  !Select only magnetic reflections if mag_only is true
+                  if(mp == 0) then
+                     num_ref=num_ref-1
+                     cycle
+                  end if
+                end if
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
                 indtyp(num_ref)=mp
@@ -1032,9 +1043,8 @@
                    if (sval > max_s) cycle
                    mp=0
                    if(present(SSG)) then
-                      if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                         !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-                         cycle
+                      if(SSG%Num_Lat /= 0) then
+                        if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
                       end if
                       if(H_Absent_SSG(hh,SSG)) then
                           !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
@@ -1063,6 +1073,12 @@
                       num_ref=maxref
                       exit do_ex
                    end if
+                   if(magg) then  !Select only magnetic reflections if mag_only is true
+                     if(mp == 0) then
+                        num_ref=num_ref-1
+                        cycle
+                     end if
+                   end if
                    sv(num_ref)=sval
                    hkl(:,num_ref)=hh
                    indtyp(num_ref)=mp
@@ -1072,15 +1088,6 @@
          end do do_ex
        end if
 
-
-       !Suppress the reflection 0 0 0 0 0 ...
-       !do i=1,num_ref
-       !  if(sv(i) < epsr) then
-       !   i0=i
-       !   exit
-       !  end if
-       !end do
-       !write(*,*) "  i0=",i0
        do i=i0+1,num_ref
          sv(i-1)=sv(i)
          hkl(:,i-1)=hkl(:,i)
@@ -1156,6 +1163,7 @@
          allocate(reflex(i)%h(Dd)) !needed in f95
          reflex(i)%h      = hkl(:,i)
          kk               = abs(hkl(4:3+nk,i))
+         reflex(i)%p_coeff= 0 !Fundamental reflections point to the Fourier coefficient [00...]
          do_n: do n=1,kinfo%nq
            do k=1,nk
              if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
@@ -1189,7 +1197,7 @@
        real(kind=cp)         :: sval !,vmin,vmax
        real(kind=cp)         :: epsr=0.00000001 !, delt=0.000001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j, & !,maxpos,iprev,indp,indj
-                                 mp, Dd, nf, ia, i0, nk, num_ref
+                                 mp, Dd, nf, ia, i0, nk, num_ref, n
        integer,       dimension(:),   allocatable :: hh,kk,nulo
        integer,       dimension(:,:), allocatable :: hkl
        integer,       dimension(:),   allocatable :: indx,indtyp
@@ -1299,7 +1307,9 @@
                      if (sval > max_s(k)) cycle
                      mp=0
                      if(present(SSG)) then
-                        if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
+                        if(SSG%Num_Lat /= 0) then
+                          if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
+                        end if
                         if(H_Absent_SSG(hh,SSG)) then
                           if(SSG%Mag_type /= 2 .and. mag) then
                             if(mH_Absent_SSG(hh,SSG)) then
@@ -1360,8 +1370,18 @@
        do i=1,num_ref
          j=indx(i)
          allocate(Reflex%Ref(i)%h(Dd)) !needed in f95
-         Reflex%Ref(i)%h    = hkl(:,j)
-         Reflex%Ref(i)%s    = sv(j)
+         Reflex%Ref(i)%h      = hkl(:,j)
+         Reflex%Ref(i)%s      = sv(j)
+         Reflex%Ref(i)%p_coeff= 0 !Fundamental reflections point to the Fourier coefficient [00...]
+         kk               = abs(hkl(4:3+nk,j))
+         do_n: do n=1,kinfo%nq
+           do k=1,nk
+             if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
+               Reflex%Ref(i)%p_coeff=n
+               exit do_n
+             end if
+           end do
+         end do do_n
          if(present(SSG)) then
            Reflex%Ref(i)%mult = h_mult(Reflex%Ref(i)%h,SSG,.true.)
          else
@@ -1443,7 +1463,7 @@
 
            Case("N_QC")
               read(unit=line(ind+1:),fmt=*,iostat=ier) nq
-              write(*,*) " N_QC =",nq
+              !write(*,*) " N_QC =",nq
               if(ier /= 0) then
                 Err_ssg=.true.
                 Err_ssg_Mess=" The number of Q_coeff was not properly read in the instruction 'DIM  d' !"
@@ -1503,7 +1523,7 @@
                     write(unit=Err_ssg_Mess,fmt="(a,i2,a)") " The q_coeff #",k,"  was not properly read after the instruction 'Q_COEFF' !"
                     return
                   Else
-                    write(*,*) kinfo%q_coeff(1:SSG%nk,k)
+                    !write(*,*) kinfo%q_coeff(1:SSG%nk,k)
                   end if
                 end do
               end if
