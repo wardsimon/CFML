@@ -464,11 +464,11 @@
     !!----
     !!---- 05/04/2019
     !!
-    Subroutine Number_Lines(filename,n, input_string)
+    Function Number_Lines(filename, cond_string) Result(N)
        !---- Arguments ----!
        character(len=*),           intent(in)  :: filename       ! Filename
-       integer,                    intent(out) :: n              ! Number of lines in the file
-       character(len=*), optional, intent(in)  :: input_string   ! String to exit
+       character(len=*), optional, intent(in)  :: cond_string    ! String to exit
+       integer                                 :: n              ! Number of lines in the file
 
        !---- Local Variables ----!
        logical            :: info,opn
@@ -481,13 +481,13 @@
 
        info=.false.
        cond=0
-       if (present(input_string)) long=len_trim(input_string)    ! TR may 2013
+       if (present(cond_string)) long=len_trim(cond_string)    ! TR may 2013
 
        !> Exist filename ?
        inquire (file=trim(filename),exist=info)
        if (.not. info) then
           err_cfml%ierr=1
-          err_cfml%msg="The file"//trim(filename)//" does not exist "
+          err_cfml%msg="Number_lines@STRINGS: The file"//trim(filename)//" does not exist "
           return
        end if
 
@@ -505,8 +505,8 @@
           read(unit=lun,fmt="(a)",iostat=cond) read_line
           if (cond /= 0) exit
           read_line=adjustl(read_line)
-          if (present(input_string)) then                                         ! TR may 2013
-             if (u_case(read_line(1:long)) == u_case(input_string(1:long))) exit
+          if (present(cond_string)) then                                         ! TR may 2013
+             if (u_case(read_line(1:long)) == u_case(cond_string(1:long))) exit
           end if
           n=n+1
        end do
@@ -517,8 +517,7 @@
           rewind(unit=lun)
        end if
 
-       return
-    End Subroutine Number_Lines
+    End Function Number_Lines
 
 
 
