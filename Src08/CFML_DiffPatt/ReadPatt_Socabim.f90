@@ -15,7 +15,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
 
        !---- Local Variables ----!
        logical                                      :: string_counts, string_CPS, string_2thetacounts, string_2thetacps ,free_format
-       character(len=132)                          :: line
+       character(len=132)                           :: line
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
        integer                                      :: i, j, i1, long, nb_sep, nb_col, n, ier,i_dat
@@ -239,7 +239,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
         end if
 
         if (i1 == 0) then   ! format libre  (separateur= caractere blanc)
-           call get_word(line,dire,nb_col)
+           call get_words(line,dire,nb_col)
            if (nb_col ==0) then
               Err_CFML%IErr=1
               Err_CFML%Msg="Read_Pattern_Socabim@DIFFPATT: Problems on Socabim UXD Intensity file!"
@@ -273,7 +273,7 @@ SubModule (CFML_DiffPatt) RPatt_Socabim
            if (ier /= 0) exit
            if (len_trim(line) == 0) cycle    ! TR : 29.03.12
            IF (free_format) then
-              call get_word(line,dire,nb_col)
+              call get_words(line,dire,nb_col)
               if (nb_col==0) then
                  Err_CFML%IErr=1
                  Err_CFML%Msg="Read_Pattern_Socabim@DIFFPATT: Problems on Socabim UXD Intensity file!"

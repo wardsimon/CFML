@@ -288,6 +288,20 @@ Module CFML_gSpaceGroups
           integer, dimension(:), allocatable, intent(out) :: cosets
        End Subroutine Get_Cosets
        
+       Module Function Get_Crystal_System_Num(Ops, nops) Result(N)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
+          integer,                            intent(in) :: NOps   
+          integer                                        :: N
+       End Function Get_Crystal_System_Num
+       
+       Module Function Get_Crystal_System_Str(Ops, nops) Result(Str)
+          !---- Arguments ----!
+          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
+          integer,                            intent(in) :: NOps   
+          character(len=:), allocatable                  :: Str
+       End Function Get_Crystal_System_Str
+       
        Module Function Get_Dimension_Gener(Symb) Result(d)
           !---- Arguments ----! 
           character(len=*), intent(in) :: Symb
@@ -513,10 +527,15 @@ Module CFML_gSpaceGroups
           type(spg_type), intent(in out) :: G
        End Subroutine Identify_Crystallographic_PG 
        
-       Module Subroutine Identify_Cryst_SpG(G)
+       Module Subroutine Identify_Crystal_System(G)
+          !---- Arguments ----!
+          type(spg_type), intent(in out) :: G
+       End Subroutine Identify_Crystal_System   
+       
+       Module Subroutine Identify_SpaceGroup_3D(G)
           !---- Arguments ----!
           type(spg_type),    intent(in out) :: G
-       End Subroutine Identify_Cryst_SpG
+       End Subroutine Identify_SpaceGroup_3D
        
        Module Subroutine Identify_Group(G)
           !---- Arguments ----!
@@ -532,6 +551,15 @@ Module CFML_gSpaceGroups
           !---- Arguments ----!
           type(spg_type),    intent(in out) :: G
        End Subroutine Identify_Shubnikov_Group
+       
+       Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
+          !---- Arguments ----!
+          type(spg_type),                   intent(inout) :: G   
+          type(rational), dimension(3,3),   intent(in)    :: P   
+          type(rational), dimension(3,3),   intent(in)    :: M  
+          type(rational), dimension(3,3,n), intent(in)    :: A  
+          integer,                          intent(in)    :: N  
+       End Subroutine Match_SpaceGroup_3D
        
        Module Subroutine Match_Shubnikov_Group(G,P,M)
           !---- Arguments ----!
@@ -644,6 +672,14 @@ Module CFML_gSpaceGroups
           !---- Arguments ----!
           type(rational), dimension(3,3), intent(inout) :: A
        End Subroutine Set_Right_Handedness 
+       
+       Module Subroutine Set_SpaceGroup(Str, SpaceG, NGen, Gen)
+          !---- Arguments ----!
+          character(len=*),                          intent(in ) :: Str  
+          type(spg_type),                            intent(out) :: SpaceG
+          integer,                         optional, intent(in ) :: NGen
+          character(len=*),  dimension(:), optional, intent(in ) :: Gen
+       End Subroutine Set_SpaceGroup
        
        Module Subroutine Smallest_Integral_Vector(v)
           !---- Arguments ----!

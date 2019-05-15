@@ -27,7 +27,7 @@ SubModule (CFML_DiffPatt) RPatt
       if (present(mode)) then
          select case (u_case(mode))
              case ("XYSIGMA")
-                call  Read_Pattern_xysigma_m(dif_pat,npat)
+                !call  Read_Pattern_xysigma(trim(filename),Patts,npat)
 
              case ("ISIS")
                 call Read_Pattern_isis_m(trim(filename),Patts,NPats)
@@ -351,7 +351,7 @@ SubModule (CFML_DiffPatt) RPatt
             
            
          case ("TIMEVARIABLE") 
-            call Read_Pattern_Time_Variable(trim(filename), Pat)
+            call Read_Pattern_TimeVar(trim(filename), Pat)
             if (err_CFML%IErr /= 0) return
             
             pat%kindrad = "XRays_CW"

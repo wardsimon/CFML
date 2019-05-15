@@ -275,13 +275,15 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Get_PseudoStdBase.f90              %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_X_Matrix.f90                   %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_Generators.f90                 %OPT1% 
-      gfortran -c %OPTC% -J..\mod Identify_Crystallog_PG.f90         %OPT1% 
       gfortran -c %OPTC% -J..\mod Match_Shubnikov_Grp.f90            %OPT1% 
       gfortran -c %OPTC% -J..\mod Identify_Groups.f90                %OPT1% 
-      gfortran -c %OPTC% -J..\mod Get_PGNum.f90                      %OPT1% 
-      gfortran -c %OPTC% -J..\mod Get_LaueNum.f90                    %OPT1% 
+      gfortran -c %OPTC% -J..\mod Get_LauePg.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_Gener_Hall.f90                 %OPT1% 
       gfortran -c %OPTC% -J..\mod Inverse_OP.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_CrystalSys.f90                 %OPT1%  
+      gfortran -c %OPTC% -J..\mod Match_Spg3D.f90                    %OPT1%  
+      gfortran -c %OPTC% -J..\mod Set_SpaceG.f90                     %OPT1%
+      
       move /y *.o .. > nul
       cd ..  
 rem   
