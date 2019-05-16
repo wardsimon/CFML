@@ -4,14 +4,7 @@
 !!----
  Program Test_Groups
     !---- Use Modules ----!   
-<<<<<<< HEAD
     use CFML_gSpaceGroups
-=======
-    use CFML_GlobalDeps
-    use CFML_Symmetry_Tables, only: Get_IT_Generators
-    use CFML_Rational
-    use CFML_GSpaceGroups
->>>>>>> 6fc47f82b9c870f5286ffe0ad94dc5703bcf433e
 
     character(len=256)                  :: generatorList
                                               !123456789012345678
