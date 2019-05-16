@@ -228,6 +228,11 @@ Module CFML_gSpaceGroups
        module procedure Get_Symb_from_Mat_Tr
        module procedure Get_Symb_from_Rational_Mat
     end Interface Get_Symb_from_Mat
+    
+    Interface Get_Crystal_System
+       module procedure Get_Crystal_System_Str
+       module procedure Get_Crystal_System_from_Laue
+    End Interface Get_Crystal_System
 
     !------------------------!
     !---- Interface Zone ----!
@@ -300,12 +305,11 @@ Module CFML_gSpaceGroups
           integer, dimension(:), allocatable, intent(out) :: cosets
        End Subroutine Get_Cosets
        
-       Module Function Get_Crystal_System_Num(Ops, nops) Result(N)
+       Module Function Get_Crystal_System_from_Laue(Laue) Result(Str)
           !---- Arguments ----!
-          type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    
-          integer,                            intent(in) :: NOps   
-          integer                                        :: N
-       End Function Get_Crystal_System_Num
+          character(len=*), intent(in)  :: Laue
+          character(len=:), allocatable :: Str
+       End Function Get_Crystal_System_from_Laue 
        
        Module Function Get_Crystal_System_Str(Ops, nops) Result(Str)
           !---- Arguments ----!

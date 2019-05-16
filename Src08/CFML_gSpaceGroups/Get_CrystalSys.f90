@@ -15,35 +15,17 @@ SubModule (CFML_gSpaceGroups) Spg_056
       integer,                            intent(in) :: NOps   ! Numops
       character(len=:), allocatable                  :: Str
       
-      !---- Local Variables ----!
-      integer :: n
-      
-      n=Get_Crystal_System_Num(Ops, nops)
-      str=SYS_CRY(n)
-            
-   End Function Get_Crystal_System_Str
-   
-   !!----
-   !!---- GET_CRYSTAL_SYSTEM_NUM
-   !!----
-   !!---- 13/05/2019
-   !!
-   Module Function Get_Crystal_System_Num(Ops, nops) Result(N)
-      !---- Arguments ----!
-      type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    ! Reduced operators (Numops)
-      integer,                            intent(in) :: NOps   ! Numops
-      integer                                        :: N
-
       !---- Local variables ----!
       integer :: nrot_1, nrot_1b
       integer :: nrot_2, nrot_2b
       integer :: nrot_3, nrot_3b
       integer :: nrot_4, nrot_4b
       integer :: nrot_6, nrot_6b
-      integer :: i,ndet
+      integer :: i,n,ndet
 
       !> Init
       N=0
+      Str=" "
       if (Nops ==0) then
          err_CFML%Ierr=1
          err_CFML%Msg="Get_Crystal_System_Num@GSPACEGROUPS: The symmetry operators is zero!"
@@ -131,6 +113,41 @@ SubModule (CFML_gSpaceGroups) Spg_056
       if (n_m == 1) then
          n=1
       end if  
-   End Function Get_Crystal_System_Num
+      str=SYS_CRY(n)
+   End Function Get_Crystal_System_Str
+   
+   !!----
+   !!---- GET_CRYSTAL_SYSTEM_FROM_LAUE
+   !!----
+   !!----
+   !!
+   Module Function Get_Crystal_System_from_Laue(Laue) Result(Str)
+      !---- Arguments ----!
+      character(len=*), intent(in)  :: Laue
+      character(len=:), allocatable :: Str
+      
+      !---- Local Variables ----!
+      character(len=:), allocatable :: car
+      integer                       :: n
+      
+      car=pack_string(l_case(Laue))
+      select case (trim(car))
+         case ("m-3m","m-3","m3","m3m")
+            n=7
+         case ("6/mmm","6/m")
+            n=6
+         case ("-3m","-3","-3r","-3mr","-3m1","-31m")
+            n=5
+         case ("4/mmm","4/m")
+            n=4
+         case ("mmm")
+            n=3
+         case ("2/m")
+            n=2
+         case default
+            n=1                 
+      end select
+      str=SYS_CRY(n) 
+   End Function Get_Crystal_System_from_Laue
    
 End SubModule Spg_056   
