@@ -5,9 +5,9 @@
  Program Test_Groups
     !---- Use Modules ----!   
     use CFML_GlobalDeps
-    use CFML_Symm_Tables, only: Get_IT_Generators
+    use CFML_Symmetry_Tables, only: Get_IT_Generators
     use CFML_Rational
-    use CFML_SpaceG
+    use CFML_GSpaceGroups
 
     character(len=256)                  :: generatorList
                                               !123456789012345678
