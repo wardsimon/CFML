@@ -60,7 +60,9 @@ SubModule (CFML_gSpaceGroups) SPG_045
       type(spg_type),    intent(in out) :: G
 
       !---- Local Variables ----!
-      logical :: pout
+      character(len=5) :: car
+      integer          :: n 
+      logical          :: pout
 
       !>===== DEBUG =====
       pout=.false.
@@ -77,6 +79,14 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       else if (G%d == 4) then ! Shubnikov groups
          call Identify_Shubnikov_Group(G)
+         if (G%Numspg == 0) then
+            if (G%Numshu > 0) then
+               car=adjustl(nlabel_bns(G%numshu))
+               n=index(car,'.')
+               car=car(:n-1)
+               read(unit=car,fmt='(i3)') G%numspg
+            end if   
+         end if   
          call Identify_SpaceGroup_3D(G)
 
       else ! Superspace groups

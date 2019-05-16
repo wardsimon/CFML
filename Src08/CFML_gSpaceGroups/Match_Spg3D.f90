@@ -90,6 +90,12 @@ SubModule (CFML_gSpaceGroups) Spg_058
           G_(s)%spg_lat=Get_Lattice_Type(MA)
        end do
 
+       if (G%Numspg <=0) then
+          Err_CFML%Ierr = 1
+          Err_CFML%Msg ="Match_SpaceGroup_3D@GSPACEGROUPS: Zero standard Space group!"
+          return
+       end if  
+       
        write(unit=str, fmt='(i3)', iostat=ier) G%numspg
        if (ier /= 0) then
           Err_CFML%Ierr = 1
@@ -105,6 +111,9 @@ SubModule (CFML_gSpaceGroups) Spg_058
        call Get_SpaceG_Symbols(Str, str_HM)
        str_HM=adjustl(str_HM)
        G_std%spg_lat=str_HM(1:1)
+       G_std%spg_symb=str_HM(1:1)//l_case(str_HM(2:))
+       G%spg_lat=G_std%spg_lat
+       G%spg_symb=G_std%spg_symb
        if (Err_CFML%Ierr /= 0) return
        
        do s=1, n

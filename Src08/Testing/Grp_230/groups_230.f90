@@ -6,8 +6,8 @@
 Program test230_groups
    !> Use Modules 
    use CFML_GlobalDeps
-   use CFML_Symm_Tables
-   use CFML_SpaceG
+   use CFML_Symmetry_Tables
+   use CFML_gSpaceGroups
 
    !> Variables
    character(len=256)                  :: generatorList
@@ -39,6 +39,8 @@ Program test230_groups
       if (len_trim(generatorList) == 0) exit
       
       call Group_Constructor(generatorList,Grp)
+      Grp%numspg=i
+      
       if (Err_CFML%Ierr /= 0) then
           write(lun,'(i4,a)') i," "//trim(Err_CFML%Msg)
           cycle

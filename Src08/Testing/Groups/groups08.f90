@@ -4,10 +4,7 @@
 !!----
  Program Test_Groups
     !---- Use Modules ----!   
-    use CFML_GlobalDeps
-    use CFML_Symm_Tables, only: Get_IT_Generators
-    use CFML_Rational
-    use CFML_SpaceG
+    use CFML_gSpaceGroups
 
     character(len=256)                  :: generatorList
                                               !123456789012345678
@@ -30,6 +27,7 @@
        if (len_trim(generatorList) == 0) exit
         
        !> Determine if it is a number
+       aux=" "
        read(unit=generatorList,fmt=*,iostat=ier) num_group
        if (ier == 0) then
           write(aux,"(i3)") num_group

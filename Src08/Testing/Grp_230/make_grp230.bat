@@ -34,7 +34,7 @@ rem ****---- Intel Compiler ----****
 :IFORT
 
    ifort /c groups_230.f90          /O3  /nologo %INC%  /warn
-   ifort /exe:grp_230 *.obj %CRYSLIB% /link /stack:256000000
+   ifort /exe:grp_230 *.obj %CRYSLIB% /link /stack:300000000
 rem   ifort /exe:grp_230 *.obj %CRYSLIB% 
    goto END
 :IFORTD
