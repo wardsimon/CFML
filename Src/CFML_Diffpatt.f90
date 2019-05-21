@@ -15,7 +15,7 @@
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
-!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Thierry Roisnel    (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
 !!----
 !!---- This library is free software; you can redistribute it and/or
@@ -2971,6 +2971,12 @@
        character (len=256000), allocatable, dimension(:)  :: XRDML_line, XRDML_intensities_line
        integer                                            :: i, i1, i2, nl, ier, np,nr
        integer, dimension(:), allocatable   :: counts
+       ! -- TR (april 2019) : for compatibilituy with new version of DataCollector V6.1---
+        logical                            :: kw_int, kw_counts
+        kw_int    = .false.
+        kw_counts = .false.
+       ! ------------------------------------------------------------------------------- TR !
+
 
        call init_err_diffpatt()
        pat%tsamp=0.0
@@ -2991,6 +2997,15 @@
          if (ier /= 0) exit
          if(index(XRDML_line(1),"</xrdMeasurement>") /= 0) exit
          i1= index(XRDML_line(1), "<intensities unit=""counts"">")
+         ! -- TR (april 2019) : for compatibility with new version of DataCollector V6.1---
+         if(i1 == 0) then
+          i1= index(XRDML_line(1), "<counts unit=""counts"">")
+          kw_counts = .true.
+         else
+          kw_int = .true.
+         end if
+         ! ------------------------------------------------------------------------- TR -- !
+
          if(i1 /= 0) np=np+1
        end do
        rewind(unit=i_dat)
@@ -3084,11 +3099,21 @@
              ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file while trying to read <intensities unit=""counts"">"
              return
           end if
-          i1= index(XRDML_line(1), "<intensities unit=""counts"">")
-          if (i1==0) cycle
-          i2= index(XRDML_line(1), "</intensities>")
-          nr=nr+1
-          XRDML_intensities_line(nr) = XRDML_line(1)(i1+27:i2-1)
+          ! -- TR (avril 2019) : for comptability with DataCollectror V6.1
+          if(kw_int) then
+           i1= index(XRDML_line(1), "<intensities unit=""counts"">")
+           if (i1==0) cycle
+           i2= index(XRDML_line(1), "</intensities>")
+           nr=nr+1
+           XRDML_intensities_line(nr) = XRDML_line(1)(i1+27:i2-1)
+          elseif(kw_counts) then
+           i1= index(XRDML_line(1), "<counts unit=""counts"">")
+           if (i1==0) cycle
+           i2= index(XRDML_line(1), "</counts>")
+           nr=nr+1
+           XRDML_intensities_line(nr) = XRDML_line(1)(i1+22:i2-1)
+          end if
+          ! -- ---------------------------------------------------- TR --!
           if(nr == np) exit
        end do
 
