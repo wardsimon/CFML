@@ -49,6 +49,7 @@ Module CFML_gSpaceGroups
     Use CFML_GlobalDeps
     Use CFML_Rational
     Use CFML_Symmetry_Tables
+    Use CFML_Magnetic_Database
     Use CFML_Maths,      only: Set_eps_math 
     Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                get_words, String_Fraction_2Dig
@@ -65,7 +66,6 @@ Module CFML_gSpaceGroups
     !---- List of public subroutines ----!
     public :: Group_Constructor, Get_Cosets, Get_SubGroups_Subgen, &
               Init_SpaceG, Identify_Group, &
-              Read_Magnetic_Data, Read_Magnetic_Binary, &
               Set_Conditions_NumOP_EPS, &
               Write_SpaceG_Info
               
@@ -75,7 +75,6 @@ Module CFML_gSpaceGroups
     character(len=1), dimension(10),  parameter :: ABC=["a","b","c","d","e","f","g","h","i","j"]
     character(len=3), dimension(10),  parameter :: X1X2X3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
 
-    integer,                          parameter :: MAGCOUNT=1651      ! Magnetic Groups
     !---- Types ----!
     
     Type, public :: Symm_Oper_Type
@@ -123,73 +122,8 @@ Module CFML_gSpaceGroups
     character(len=120), dimension(230)          :: it_spg_gen=" "     ! Generator of space groups in the standard setting
     type(rational), dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
     
-    logical                                     :: Magnetic_DBase_allocated=.false.
     logical, public                             :: Hexa=.false. 
-    logical                                     :: mcif=.false.
     
-    !> For the ith nonhexagonal point operator:
-    Character(Len=8),  dimension(:), public, allocatable :: point_op_label   ! point_op_label(i): point operator symbol (from Litvin)
-    Character(Len=10), dimension(:), public, allocatable :: point_op_xyz
-    Integer,       dimension(:,:,:), public, allocatable :: point_op_matrix  ! point_op_matrix(i): point operator matrix
-   
-    !> For the ith hexagonal point operator:
-    Character(Len=8),  dimension(:), public, allocatable :: point_op_hex_label  ! point_op_hex_label(i): point operator symbol (from Litvin)
-    Character(Len=10), dimension(:), public, allocatable :: point_op_hex_xyz    ! point_op_hex_xyz(i): point operator in x,y,z notation
-    Integer,       dimension(:,:,:), public, allocatable :: point_op_hex_matrix ! point_op_hex_matrix(i): point operator matrix
-
-    !> For the ith magnetic space group
-    Character(Len=12), dimension(  :), public, allocatable :: nlabel_bns           ! nlabel_bns(i): numerical label in BNS setting
-    Integer,           dimension(:,:), public, allocatable :: nlabelparts_bns      ! nlabel_parts_bns(j,i): jth part of nlabel_bns
-    Character(Len=14), dimension(  :), public, allocatable :: spacegroup_label_bns ! label_bns(i): group symbol
-    Character(Len=12), dimension(  :), public, allocatable :: nlabel_og            ! nlabel_og(i): numerical label in OG setting
-    Integer,           dimension(:,:), public, allocatable :: nlabelparts_og       ! nlabel_parts_og(j,i): jth part of nlabel_og
-    Character(Len=14), dimension(  :), public, allocatable :: spacegroup_label_og  ! label_og(i): group symbol
-    Integer,           dimension(  :), public, allocatable :: magtype              ! magtype(i): type of magnetic space group (1-4)
-   
-    !> BNS-OG transformation (if type-4)
-    Integer,         dimension(:,:,:), public, allocatable :: bnsog_point_op     ! bnsog_point_op(j,k,i): 3x3 point operator part of transformation
-    Integer,         dimension(:,  :), public, allocatable :: bnsog_origin       ! bnsog_origin(j,i): translation part of transformation
-    Integer,         dimension(    :), public, allocatable :: bnsog_origin_denom ! bnsog_point_origin(i): common denominator
-    Integer,         dimension(    :), public, allocatable :: ops_count          ! iops_count(i): number of point operators
-    Integer,         dimension(    :), public, allocatable :: wyckoff_site_count ! wyckoff_count(i): number of wyckoff sites
-    Integer,         dimension(: , :), public, allocatable :: wyckoff_pos_count  ! wyckoff_pos_count(j,i): number of positions in jth wyckoff site
-    Integer,         dimension(: , :), public, allocatable :: wyckoff_mult       ! wyckoff_mult(j,i): multiplicity for jth wyckoff site
-    Character(Len=1),dimension(: , :), public, allocatable :: wyckoff_label      ! wyckoff_label(j,i): symbol (a,b,c,...,z,alpha) for jth wyckoff site
-
-    !> For BNS setting
-    Integer, dimension(    :), public, allocatable :: lattice_bns_vectors_count  ! number of lattice vectors defining the lattice
-    Integer, dimension(:,:,:), public, allocatable :: lattice_bns_vectors        ! (k,j,i): kth component of the jth lattice vector
-    Integer, dimension(:,  :), public, allocatable :: lattice_bns_vectors_denom  !(j,i): common denominator
-   
-    !> For jth operator
-    Integer, dimension(  :,:), public, allocatable :: ops_bns_point_op    ! ops_bns_point_op(j,i): point operator part
-    Integer, dimension(:,:,:), public, allocatable :: ops_bns_trans       ! ops_bns_trans(k,j,i): kth component of translation part
-    Integer, dimension(  :,:), public, allocatable :: ops_bns_trans_denom ! ops_bns_trans_denom(j,i): common denominator
-    Integer, dimension(  :,:), public, allocatable :: ops_bns_timeinv     ! ops_bns_timeinv(j,i): 1=no time inversion, -1=time inversion
-   
-    !> For jth wyckoff site
-    Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_bns_fract       ! wyckoff_bns_fract(k,j,i): kth component of fractional part of wyckoff position
-    Integer, dimension(    :,:,:), public, allocatable :: wyckoff_bns_fract_denom ! wyckoff_bns_fract_denom(j,i): common denominator
-    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_xyz         ! wyckoff_bns_xyz(m,k,j,i): mth component to coeffcient of kth parameter (x,y,z)
-    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_mag  ! wyckoff_bns_mag(m,k,j,i): mth component to coeffcient of kth magnetic parameter (mx,my,mz)
-   
-    !> For OG setting (for type-4 groups)
-    Integer, dimension(    :), public, allocatable :: lattice_og_vectors_count  ! lattice_og_vectors_count(i): number of lattice vectors defining the lattice
-    Integer, dimension(:,:,:), public, allocatable :: lattice_og_vectors   ! lattice_og_vectors(k,j,i): kth component of the jth lattice vector
-    Integer, dimension(:,  :), public, allocatable :: lattice_og_vectors_denom  ! lattice_og_vectors_denom(j,i): common denominator
-   
-    !> For jth operator
-    Integer, dimension(  :,:), public, allocatable :: ops_og_point_op    ! ops_og_point_op(j,i): point operator part
-    Integer, dimension(:,:,:), public, allocatable :: ops_og_trans       ! ops_og_trans(k,j,i): kth component of translation part
-    Integer, dimension(  :,:), public, allocatable :: ops_og_trans_denom ! ops_og_trans_denom(j,i): common denominator
-    Integer, dimension(  :,:), public, allocatable :: ops_og_timeinv     ! ops_og_timeinv(j,i): 1=no time inversion, -1=time inversion
-   
-    !> For jth wyckoff site
-    Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_og_fract        ! wyckoff_og_fract(k,j,i): kth component of fractional part of wyckoff position
-    Integer, dimension(    :,:,:), public, allocatable :: wyckoff_og_fract_denom  ! wyckoff_og_fract_denom(j,i): common denominator
-    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_og_xyz          ! wyckoff_og_xyz(m,k,j,i): mth component to coefficient of kth parameter (x,y,z)
-    Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_og_mag          ! wyckoff_og_mag(m,k,j,i): mth component to coefficient of kth magnetic parameter (mx,my,mz)
-
     
     !-------------------!
     !---- Operators ----!
@@ -238,10 +172,6 @@ Module CFML_gSpaceGroups
     !---- Interface Zone ----!
     !------------------------!
     Interface
-       Module Subroutine Allocate_Magnetic_DBase()
-          !---- Arguments ----!
-       End Subroutine Allocate_Magnetic_DBase
-          
        Module Subroutine Allocate_Operators(D, NMax, Op)
           !---- Arguments ----!
           integer,                                         intent(in)     :: d       ! Dimension
@@ -267,10 +197,6 @@ Module CFML_gSpaceGroups
           character(len=*), dimension(:),              intent(in)  :: gen_in
           character(len=*), dimension(:), allocatable, intent(out) :: gen_out
        End Subroutine Check_Gener 
-       
-       Module Subroutine Deallocate_Magnetic_DBase()
-          !---- Arguments ----!
-       End Subroutine Deallocate_Magnetic_DBase
        
        Module Function Equal_Group(Gr1, Gr2) Result(info)
           !---- Arguments ----!
@@ -663,14 +589,6 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3),   intent(in)  :: axis
           logical                                     :: positive
        End Function Positive_SenseRot
-       
-       Module Subroutine Read_Magnetic_Binary()
-          !---- Arguments ----!
-       End Subroutine Read_Magnetic_Binary 
-       
-       Module Subroutine Read_Magnetic_Data()
-          !---- Arguments ----!
-       End Subroutine Read_Magnetic_Data   
        
        Module Subroutine Reduced_Translation(Mat)
           !---- Arguments ----!

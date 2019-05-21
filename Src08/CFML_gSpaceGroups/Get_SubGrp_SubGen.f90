@@ -25,7 +25,13 @@ Submodule (CFML_gSpaceGroups) SPG_023
       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
       type(Symm_Oper_Type), dimension(30)          :: Op_lat
 
-
+      !> Trivial P1: x,y,z
+      if (Spg%Multip == 1) then
+         SubG(1)=SpG
+         nsg=0
+         return
+      end if   
+      
       !> Test if generators are available
       !> construct a procedure for selecting the minimal set of generators
       if (len_trim(SpG%generators_list) ==  0) then 

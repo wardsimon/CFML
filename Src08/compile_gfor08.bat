@@ -212,6 +212,7 @@ rem
    gfortran -c %OPTC% -J.\mod CFML_Bonds_Tables.f90                  %OPT1%  
    gfortran -c %OPTC% -J.\mod CFML_Symmetry_Tables.f90               %OPT0%  
    gfortran -c %OPTC% -J.\mod CFML_BVS_Tables.f90                    %OPT1%  
+   gfortran -c %OPTC% -J.\mod CFML_Magnetic_Database.f90             %OPT1%  
 rem 
 rem   Submodules CFML_Tables
       cd .\CFML_Tables        
@@ -230,6 +231,9 @@ rem
 rem      
       gfortran -c %OPTC% -J..\mod Del_BVST.f90                       %OPT1%
       gfortran -c %OPTC% -J..\mod Set_BVST.f90                       %OPT0%
+rem
+      gfortran -c %OPTC% -J..\mod Allocating_MagneticDBase.f90       %OPT0% 
+      gfortran -c %OPTC% -J..\mod Read_MagneticDBase.f90             %OPT1%
 rem      
       move /y *.o .. > nul
       cd ..   
@@ -265,8 +269,6 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Get_Cosets.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_SubGrp.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_SubGrp_SubGen.f90              %OPT1% 
-      gfortran -c %OPTC% -J..\mod Allocate_MagneticDBase.f90         %OPT0% 
-      gfortran -c %OPTC% -J..\mod Read_MagneticDBase.f90             %OPT1% 
       gfortran -c %OPTC% -J..\mod Smallest_IntegralVec.f90           %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_LattType.f90                   %OPT1% 
       gfortran -c %OPTC% -J..\mod Get_OriginShift.f90                %OPT1% 

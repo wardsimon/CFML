@@ -210,6 +210,7 @@ rem
    ifort /c CFML_Bonds_Tables.f90                    /nologo %OPT1% %OPT2% /module:.\mod 
    ifort /c CFML_Symmetry_Tables.f90                 /nologo %OPT0% %OPT2% /module:.\mod 
    ifort /c CFML_BVS_Tables.f90                      /nologo %OPT0% %OPT2% /module:.\mod 
+   ifort /c CFML_Magnetic_Database.f90               /nologo %OPT0% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -228,6 +229,9 @@ rem
 rem
       ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Set_BVST.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
+rem
+      ifort /c Allocating_MagneticDBase.f90           /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
 rem
       move /y *.obj .. > nul
       cd .. 
@@ -263,8 +267,6 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Allocate_MagneticDBase.f90             /nologo %OPT0% %OPT2%  /module:..\mod 
-      ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Get_OriginShift.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
