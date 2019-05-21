@@ -692,7 +692,7 @@
       character(len=len_trim(string)) :: cut_string
       integer :: i,lstr
       coun=0
-      lstr=len_trim(substr)-1
+      lstr=len_trim(substr)
       cut_string=string
       do
         i=index(cut_string,trim(substr))
