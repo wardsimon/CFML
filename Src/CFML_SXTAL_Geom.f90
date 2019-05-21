@@ -885,14 +885,12 @@
              anod=amid + zobs/psd%agap
              cath=cmid - xobs/psd%cgap
 
-            Case(3)                         ! Now checked!
-             !xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19-like Horizontal banana
-             !zobs=tn*(psd%radius + psd%yoff) - psd%zoff
+            Case(3)            ! D19-like Horizontal banana
              e=sqrt(1 + tn*tn)
              f=psd%yoff*td*e - psd%xoff
              g=psd%radius*sqrt(1.0 + td*td + td*td*tn*tn)
              xobs=psd%radius*( atan(td*e) + asin(f/g) )
-             zobs=tn*( psd%radius*cos(xobs/psd%radius) + psd%yoff ) - psd%zoff
+             zobs=tn*( psd%radius + psd%yoff ) - psd%zoff
              anod=amid - zobs/psd%agap
              cath=cmid - xobs/psd%cgap
 
