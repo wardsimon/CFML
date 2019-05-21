@@ -29,11 +29,19 @@ SubModule (CFML_gSpaceGroups) SPG_020
       
       !> Initializes Grp
       call Init_SpaceG(Spg)
+      d=Get_Dimension_Gener(genV(1))
+      
+      !> This routine delete the generator: x,y,z
       call Check_Gener(GenV,gen)
       if (Err_CFML%Ierr /= 0) return
       
-      d=Get_Dimension_Gener(gen(1))
-      ngen = size(gen)
+      !> check 
+      ngen=0
+      if (allocated(gen)) then
+         d=Get_Dimension_Gener(gen(1))
+         ngen = size(gen)
+      end if 
+           
       do i=1,ngen
          Spg%generators_list=trim(Spg%generators_list)//trim(gen(i))//";"
       end do
