@@ -5,6 +5,20 @@ SubModule (CFML_Symmetry_Tables) Del_Routines
   
    Contains
    !!----
+   !!---- Remove_Shubnikov_Info()
+   !!----
+   !!----    Deallocating SPGR_INFO Data
+   !!----
+   !!---- 23/04/2019 
+   !!
+   Module Subroutine Remove_Shubnikov_Info()
+
+      if (allocated(shubnikov_info)) deallocate(shubnikov_info)
+
+      return
+   End Subroutine Remove_Shubnikov_Info
+   
+   !!----
    !!---- Remove_Spgr_Info()
    !!----
    !!----    Deallocating SPGR_INFO Data

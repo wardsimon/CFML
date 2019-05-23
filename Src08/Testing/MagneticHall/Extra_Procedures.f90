@@ -4,6 +4,8 @@
 Module CFML_Extra
    !---- Use Modules ----!
    Use CFML_Maths, only: determ
+   Use CFML_Rational
+   Use CFML_Symmetry_Tables
    Use CFML_gSpaceGroups
    Use CFML_Strings
        

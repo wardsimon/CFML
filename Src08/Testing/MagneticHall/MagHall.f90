@@ -20,8 +20,10 @@ Program Magnetic_Hall
     
    integer                                      :: i,j,nt
 
-   !> Read Magnetic Symmetry Symbols (Proposed)
-   call read_magnetic_symbols()
+   !> Magnetic Symmetry Symbols (Proposed)
+   call set_shubnikov_info()
+   Mag_symb(:)%BNS=shubnikov_info(:)%bns
+   Mag_symb(:)%HallM=shubnikov_info(:)%MHall
    
    !> Magnetic database from FullProf
    call Read_Magnetic_Data()
@@ -60,7 +62,7 @@ Program Magnetic_Hall
       str_Hall=trim(Mag_symb(ik)%HallM)
       ngen=0
       gen=" "
-      call Get_Generators_from_Hall(str_Hall, ngen, Gen, Shift)
+      call Get_Generators_from_Hall(str_Hall, ngen, Gen)
       
       !> Constructor
       call Init_SpaceG(SpG)

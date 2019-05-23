@@ -1,4 +1,5 @@
 @echo off
+rem Setlocal EnableDelayedExpansion
 rem ------------------------------------
 rem ---- CrysFML for Intel Compiler ----
 rem ---- JGP                   2019 ----
@@ -413,14 +414,14 @@ rem
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
    if [%_WINTER%]==[Y] (
-     if exist ..\%DIRECTORY%\LibW08 rmdir ..\%DIRECTORY%\LibW08 /S /Q
-     mkdir ..\%DIRECTORY%\LibW08
+     if exist ..\%DIRECTORY%\LibW08\ rmdir ..\%DIRECTORY%\LibW08\ /S /Q
+     mkdir ..\%DIRECTORY%\LibW08\
      copy .\mod\*.mod ..\%DIRECTORY%\LibW08\. > nul
      copy .\mod\*.smod ..\%DIRECTORY%\LibW08\. > nul
      move *.lib ..\%DIRECTORY%\LibW08\. > nul
    ) else (
-     if exist ..\%DIRECTORY%\LibC08 rmdir ..\%DIRECTORY%\LibC08 /S /Q
-     mkdir ..\%DIRECTORY%\LibC08
+     if exist ..\%DIRECTORY%\LibC08\ rmdir ..\%DIRECTORY%\LibC08\ /S /Q
+     mkdir ..\%DIRECTORY%\LibC08\
      copy .\mod\*.mod ..\%DIRECTORY%\LibC08\. > nul
      copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
      move *.lib ..\%DIRECTORY%\LibC08\. > nul

@@ -250,12 +250,13 @@ Module CFML_gSpaceGroups
           integer                      :: d
        End Function Get_Dimension_Gener 
        
-       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Shift)
+       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Rshift, VShift)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: Hall
           integer,                                     intent(out) :: Ngen
-          character(len=*), dimension(:), allocatable, intent(out) :: Gen  
-          real(kind=cp), dimension(3),                 intent(out) :: Shift  
+          character(len=*), dimension(:), allocatable, intent(out) :: Gen 
+          logical, optional,                           intent(in)  :: RShift
+          real(kind=cp), dimension(3), optional,       intent(out) :: VShift  
        End Subroutine Get_Generators_from_Hall
        
        Module Subroutine Get_Gener_From_Str(StrGen, d, ngen, gen)

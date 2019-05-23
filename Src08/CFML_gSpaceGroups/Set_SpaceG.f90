@@ -5,6 +5,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
    Contains
    !!----
    !!---- SET_SPACEGROUP
+   !!----    For non magnetic Space group 
    !!----
    !!---- 07/05/19
    !!
@@ -140,7 +141,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
          
          if (len_trim(gList) == 0) then
-            call Get_Generators_from_Hall(str_hall,n_gen, l_gen, co)
+            call Get_Generators_from_Hall(str_hall,n_gen, l_gen, VShift=co)
             if (Err_CFML%Ierr /= 0) return
          else
             call Get_Gener_From_Str(gList, d, n_gen, l_gen)   

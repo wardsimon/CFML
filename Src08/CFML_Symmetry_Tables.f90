@@ -52,13 +52,26 @@
     !---- List of public subroutines ----!
     public :: get_compact_hm_symbol, Get_HM_Symbol_from_Compact_HM, get_it_generators, &
               get_spaceG_Symbols 
-    public :: set_spgr_info, set_system_equiv, set_wyckoff_info
-    public :: remove_spgr_info, remove_system_equiv, remove_wyckoff_info
+    public :: set_shubnikov_info,set_spgr_info, set_system_equiv, set_wyckoff_info
+    public :: remove_shubnikov_info, remove_spgr_info, remove_system_equiv, remove_wyckoff_info
 
     !---- List of private subroutines ----!
     private :: set_IT_gen
     
     !---- Types Definitions ----!
+    
+    !!----
+    !!---- TYPE :: SHUB_SPGR_INFO_TYPE
+    !!----
+    !!
+    Type, public :: Shub_Spgr_Info_Type
+       character(len=8) :: ID_BNS =" "   !  ID Number of BNS     
+       character(len=15) :: BNS    =" "   !  BNS symbol
+       character(len=12) :: ID_OG  =" "   !  ID number of OG
+       character(len=15) :: OG     =" "   !  OG symbol
+       character(len=25) :: STD    =" "   !  Proposed standard symbol
+       character(len=25) :: MHall  =" "   !  Magnetic Hall symbol
+   End Type Shub_Spgr_Info_Type
     
     !!----
     !!---- TYPE :: SPGR_INFO_TYPE
@@ -95,23 +108,25 @@
        integer                          :: Norbit  =0
        character (len=15),dimension(26) :: Corbit  =" "
     End Type Wyck_Info_Type
-
+    
     !---- Private Variables ----!
     character(len=120), private, dimension(230) :: it_spg_gen=" "          ! Vector containing Generators of the Space group
 
     !---- Public variables ----!
-    Type(Spgr_Info_Type),   allocatable, dimension(:), public :: Spgr_Info     ! General Info about Space Groups
-    Type(Table_Equiv_Type), allocatable, dimension(:), public :: System_Equiv
-    Type(Wyck_Info_Type),   allocatable, dimension(:), public :: Wyckoff_Info
+    Type(Shub_Spgr_Info_Type), allocatable, dimension(:), public :: Shubnikov_Info ! General Info about Shubnikov Magnetic grousp
+    Type(Spgr_Info_Type),      allocatable, dimension(:), public :: Spgr_Info      ! General Info about Space Groups
+    Type(Table_Equiv_Type),    allocatable, dimension(:), public :: System_Equiv
+    Type(Wyck_Info_Type),      allocatable, dimension(:), public :: Wyckoff_Info
     
     !---- Parameters ----!
     integer,       parameter, public  :: CUBIC = 554            ! Cubic parameter index
     integer,       parameter, public  :: HEXAG = 527            ! Index parameter for hexagonal Groups
     integer,       parameter, public  :: MONOC =  15            ! Index parameter for Monoclinic Groups
-    integer,       parameter, public  :: NUM_SPGR_INFO = 612    ! Total dimension of SPGR_INFO
     integer,       parameter, public  :: ORTHOR  = 163          ! Index parameter for Orthorhombic Groups
     integer,       parameter, public  :: TETRA = 410            ! Index parameter for Tetragonal Groups
     integer,       parameter, public  :: TRIGO = 495            ! Index parameter for Trigonal Groups
+    integer,       parameter, public  :: NUM_SPGR_INFO = 612    ! Total dimension of SPGR_INFO
+    integer,       parameter, public  :: NUM_SHUBNIKOV = 1651   ! Total dimension of SHUBNIKOV_INFO
 
 
     !> Lattice Traslations
@@ -395,6 +410,10 @@
           !---- Arguments ----!
        End Subroutine Set_It_Gen
        
+       Module Subroutine Set_Shubnikov_Info()
+          !---- Arguments ----!
+       End Subroutine Set_Shubnikov_Info
+       
        Module Subroutine Set_Spgr_Info()
           !---- Arguments ----!
        End Subroutine Set_Spgr_Info
@@ -406,6 +425,10 @@
        Module Subroutine Set_Wyckoff_Info()
           !---- Arguments ----!
        End Subroutine Set_Wyckoff_Info
+       
+       Module Subroutine Remove_Shubnikov_Info()
+          !---- Arguments ----!
+       End Subroutine Remove_Shubnikov_Info 
        
        Module Subroutine Remove_Spgr_Info()
           !---- Arguments ----!
