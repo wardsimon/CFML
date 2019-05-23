@@ -171,7 +171,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
                 C(1:3,1:3) = C_(1:3,1:3,s)
                 C(4,:)     = C_(4,:,s)
                 origShift  = matmul(C(1:3,1:3),origShift)
-                C(4,1:3)   = origShift(1:3)
+                C(4,1:3)   = rational_modulo_lat(origShift(1:3))
                 symb=Get_Symb_from_Mat(transpose(C),"abc")
                 G%mat2std  = trim(symb)
                 return

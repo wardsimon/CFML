@@ -119,10 +119,8 @@ SubModule (CFML_gSpaceGroups) SPG_045
       pout=(pout .or. CFML_DEBUG)
       !>=================
 
-      if (.not. Magnetic_DBase_allocated) then
-         call Read_Magnetic_Data()
-         if (Err_CFML%IErr /=0) return
-      end if
+      call Read_Magnetic_Data()
+      if (Err_CFML%IErr /=0) return
 
       call Identify_Crystallographic_PG(G)
       if (Err_CFML%Ierr /= 0) return
@@ -147,6 +145,9 @@ SubModule (CFML_gSpaceGroups) SPG_045
       if (Err_CFML%Ierr /= 0) return
 
       call Match_Shubnikov_Group(G,P,M)
+      if (Err_CFML%Ierr /= 0) then
+         print*, err_CFML%msg
+      end if   
 
       return
    End Subroutine Identify_Shubnikov_Group

@@ -413,7 +413,10 @@ SubModule (CFML_gSpaceGroups) Spg_055
        end do
        
        !> Get the point group
-       allocate(idd(numops,2))
+       !allocate(idd(numops,2))
+       allocate(idd(nRepSymOp,2))
+       idd=0
+       
        if (nRot(3) == 8) then ! Cubic
           if (nRepSymOp == 12) then
              if (G%Centred == 1 .and. G%anticentred == 1) then

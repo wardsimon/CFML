@@ -56,10 +56,8 @@ SubModule (CFML_gSpaceGroups) SPG_042
         end if
 
         !> Load table for standard magnetic groups
-        if (.not. Magnetic_DBase_allocated) then
-           call Read_Magnetic_Data()
-           if (Err_CFML%Ierr /=0) return
-        end if
+        call Read_Magnetic_Data()
+        if (Err_CFML%Ierr /=0) return
 
         !> Set the range of possible magnetic groups from the laue class
         select case (trim(G%laue))
@@ -122,7 +120,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
 
         !> Get matrices needed for test different settings
         call Get_A_Matrix_Shub(G%laue,A,nA)
-
+        
         !> Allocate memory
         allocate(G_aux(nA))
         allocate(doTest(nA))
