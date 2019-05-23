@@ -26,7 +26,8 @@ SubModule (CFML_gSpaceGroups) Oper_Equal
    !!
    Module Function Equal_Group(Gr1, Gr2) Result(info)
       !---- Arguments ----!
-      type(Spg_Type), intent(in) :: Gr1,Gr2
+      class(Spg_Type), intent(in) :: Gr1
+      class(Spg_Type), intent(in) :: Gr2
       logical                    :: info
       
       !---- Local Vatiables ----!

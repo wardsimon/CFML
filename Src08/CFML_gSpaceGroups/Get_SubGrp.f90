@@ -20,8 +20,8 @@ SubModule (CFML_gSpaceGroups) SPG_022
    !!
    Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
       !---- Arguments ----!
-      type(Spg_Type),                   intent( in) :: SpG
-      type(Spg_Type),dimension(:),      intent(out) :: SubG
+      type(Spg_Type),                  intent( in) :: SpG
+      type(Spg_Type),dimension(:),     intent(out) :: SubG
       integer,                          intent(out) :: nsg
       integer,                 optional,intent(in)  :: indexg
       logical, dimension(:,:), optional,intent(out) :: point
@@ -35,7 +35,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
 
       type(Symm_Oper_Type)                         :: Op_cent
       type(Symm_Oper_Type), dimension(30)          :: Op_lat
-      type(Spg_Type),dimension(:), allocatable     :: sG
+      type(Spg_Type), dimension(:), allocatable   :: sG
       integer, dimension(size(SubG))               :: index_sg, ind
 
       !> Init

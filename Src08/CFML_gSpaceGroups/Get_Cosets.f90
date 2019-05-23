@@ -11,9 +11,9 @@ SubModule (CFML_gSpaceGroups) SPG_021
    !!
    Module Subroutine Get_Cosets(G, H, cosets)
       !---- Arguments ----!
-      type(Spg_Type),                     intent(in)  :: G  ! Group G > H
-      type(Spg_Type),                     intent(in)  :: H  ! Subgroup of G
-      integer, dimension(:), allocatable, intent(out) :: cosets
+      class(Spg_Type),                     intent(in)  :: G  ! Group G > H
+      class(Spg_Type),                     intent(in)  :: H  ! Subgroup of G
+      integer, dimension(:), allocatable,  intent(out) :: cosets
       
       !---- Local Variables ----!
       integer                      :: i,j,k,n,m

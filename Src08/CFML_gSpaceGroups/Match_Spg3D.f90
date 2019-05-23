@@ -15,7 +15,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
    !!
    Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
        !---- Arguments ----!
-       type(spg_type),                   intent(inout) :: G        ! space group in the original setting
+       type(spg_type),                  intent(inout) :: G        ! space group in the original setting
        type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
        type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
        type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices_Crys-

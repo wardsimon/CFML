@@ -10,10 +10,10 @@ Submodule (CFML_gSpaceGroups) SPG_023
    !!
    Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg)
       !---- Arguments ----!
-      type(Spg_Type),                   intent( in) :: SpG
-      type(Spg_Type),dimension(:),      intent(out) :: SubG
-      integer,                          intent(out) :: nsg
-      integer,                 optional,intent(in)  :: indexg
+      type(Spg_Type),                    intent( in) :: SpG
+      type(Spg_Type),dimension(:),       intent(out) :: SubG
+      integer,                           intent(out) :: nsg
+      integer,                  optional,intent(in)  :: indexg
       
       !--- Local variables ---!
       integer  :: i,L,j,k,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng       

@@ -38,6 +38,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
         type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,pointOper,Paux
+        
         logical :: pout
 
         !>===== DEBUG =====

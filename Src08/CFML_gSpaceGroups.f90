@@ -200,7 +200,8 @@ Module CFML_gSpaceGroups
        
        Module Function Equal_Group(Gr1, Gr2) Result(info)
           !---- Arguments ----!
-          type(Spg_Type), intent(in) :: Gr1,Gr2
+          class(Spg_Type), intent(in) :: Gr1
+          class(Spg_Type), intent(in) :: Gr2
           logical                    :: info
        End Function Equal_Group
        
@@ -226,8 +227,8 @@ Module CFML_gSpaceGroups
        
        Module Subroutine Get_Cosets(G,H, cosets)
           !---- Arguments ----!
-          type(Spg_Type),                     intent(in)  :: G  
-          type(Spg_Type),                     intent(in)  :: H  
+          class(Spg_Type),                     intent(in)  :: G  
+          class(Spg_Type),                     intent(in)  :: H  
           integer, dimension(:), allocatable, intent(out) :: cosets
        End Subroutine Get_Cosets
        
@@ -337,7 +338,7 @@ Module CFML_gSpaceGroups
        
        Module Function Get_Mp_Matrix(G,P) Result(Mp)
           !---- Arguments ----!
-          type(spg_type),                 intent(in)  :: G
+          class(spg_type),                 intent(in)  :: G
           type(rational), dimension(3,3), intent(in)  :: P
           type(rational), dimension(3,3)              :: Mp
        End Function Get_Mp_Matrix 
@@ -374,7 +375,7 @@ Module CFML_gSpaceGroups
        
        Module Function Get_P_Matrix(G,Nospin) Result(P)
           !---- Arguments ----!
-          type(spg_type),                 intent(in)  :: G
+          class(spg_type),                 intent(in)  :: G
           logical, optional,              intent(in)  :: nospin
           type(rational), dimension(3,3)              :: P
        End Function Get_P_Matrix
@@ -499,12 +500,12 @@ Module CFML_gSpaceGroups
        
        Module Subroutine Identify_SpaceGroup_3D(G)
           !---- Arguments ----!
-          type(spg_type),    intent(in out) :: G
+          class(spg_type),    intent(in out) :: G
        End Subroutine Identify_SpaceGroup_3D
        
        Module Subroutine Identify_Group(G)
           !---- Arguments ----!
-          type(spg_type),    intent(in out) :: G
+          class(spg_type),    intent(in out) :: G
        End Subroutine Identify_Group
        
        Module Subroutine Identify_Laue_Class(G)
@@ -514,7 +515,7 @@ Module CFML_gSpaceGroups
        
        Module Subroutine Identify_Shubnikov_Group(G)
           !---- Arguments ----!
-          type(spg_type),    intent(in out) :: G
+          class(spg_type),    intent(in out) :: G
        End Subroutine Identify_Shubnikov_Group
        
        Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
@@ -633,7 +634,7 @@ Module CFML_gSpaceGroups
        Module Subroutine Set_SpaceGroup(Str, SpaceG, NGen, Gen)
           !---- Arguments ----!
           character(len=*),                          intent(in ) :: Str  
-          type(spg_type),                            intent(out) :: SpaceG
+          class(spg_type),                           intent(out) :: SpaceG
           integer,                         optional, intent(in ) :: NGen
           character(len=*),  dimension(:), optional, intent(in ) :: Gen
        End Subroutine Set_SpaceGroup

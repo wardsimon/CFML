@@ -16,7 +16,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!
    Module Subroutine Identify_SpaceGroup_3D(G)
       !---- Arguments ----!
-      type(spg_type),    intent(in out) :: G
+      class(spg_type),    intent(in out) :: G
 
       !---- Local variables ---!
       integer                          :: n
@@ -57,7 +57,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!
    Module Subroutine Identify_Group(G)
       !---- Arguments ----!
-      type(spg_type),    intent(in out) :: G
+      class(spg_type),    intent(in out) :: G
 
       !---- Local Variables ----!
       character(len=5) :: car
@@ -108,7 +108,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!----
    Module Subroutine Identify_Shubnikov_Group(G)
       !---- Arguments ----!
-      type(spg_type),    intent(in out) :: G
+      class(spg_type),    intent(in out) :: G
 
       !---- Local variables ---!
       type(rational), dimension(3,3)   :: P,Mp,Mc,M

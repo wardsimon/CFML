@@ -12,7 +12,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
    Module Subroutine Set_SpaceGroup(Str, SpaceG, NGen, Gen)
       !---- Arguments ----!
       character(len=*),                          intent(in ) :: Str  
-      type(spg_type),                            intent(out) :: SpaceG
+      class(spg_type),                           intent(out) :: SpaceG
       integer,                         optional, intent(in ) :: NGen
       character(len=*),  dimension(:), optional, intent(in ) :: Gen
       
