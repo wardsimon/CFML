@@ -1010,7 +1010,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 497)= Shub_Spgr_Info_Type("61.433  ","Pbca           ","61.1.497    ","Pbca           ",&
                                                 "Pbca                     ","-P 2ac  2ab              ")
       Shubnikov_info( 498)= Shub_Spgr_Info_Type("61.434  ","Pbca1'         ","61.2.498    ","Pbca1'         ",&
-                                                "Pbca1'                   ","-P 2ac  2ab -1'          ")
+                                                "Pbca1'                   ","-P 2ac  2ab 1'           ")
       Shubnikov_info( 499)= Shub_Spgr_Info_Type("61.435  ","Pb'ca          ","61.3.499    ","Pb'ca          ",&
                                                 "Pb'ca                    ","P 2ac' 2ab -1'           ")
       Shubnikov_info( 500)= Shub_Spgr_Info_Type("61.436  ","Pb'c'a         ","61.4.500    ","Pb'c'a         ",&

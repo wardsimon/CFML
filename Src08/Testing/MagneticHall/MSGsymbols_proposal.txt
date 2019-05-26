@@ -496,7 +496,7 @@ BNS_number     BNS_symbol     OG_number      OG_symbol      INT_number     INT_s
 60.424         Pb'cn'         60.8.495       Pb'cn'         495            Pb'cn'                        -P 2n' 2ab'
 60.425         Pb'c'n'        60.9.496       Pb'c'n'        496            Pb'c'n'                        P 2n  2ab  -1'
 61.433         Pbca           61.1.497       Pbca           497            Pbca                          -P 2ac  2ab
-61.434         Pbca1'         61.2.498       Pbca1'         498            Pbca1'                        -P 2ac  2ab -1'
+61.434         Pbca1'         61.2.498       Pbca1'         498            Pbca1'                        -P 2ac  2ab  1'
 61.435         Pb'ca          61.3.499       Pb'ca          499            Pb'ca                          P 2ac' 2ab -1'
 61.436         Pb'c'a         61.4.500       Pb'c'a         500            Pb'c'a                        -P 2ac  2ab'
 61.437         Pb'c'a'        61.5.501       Pb'c'a'        501            Pb'c'a'                        P 2ac  2ab -1'
