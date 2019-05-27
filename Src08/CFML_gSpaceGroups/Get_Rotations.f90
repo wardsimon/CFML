@@ -214,6 +214,7 @@ SubModule (CFML_gSpaceGroups) SPG_035
       traces(6) =  2
 
       nso = 0
+      idd=0
       do i = 1 , nSymOP
          det = rational_determ(symOp(i)%Mat(1:3,1:3))
          if (mod(det%Numerator,det%Denominator) /= 0) then

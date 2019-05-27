@@ -32,6 +32,7 @@ SubModule (CFML_gSpaceGroups) SPG_006
       write(unit=iout,fmt="(a,i4)")     "                       Centred: ",Grp%centred
       write(unit=iout,fmt="(a,i4)")     "                       Num_Lat: ",Grp%num_lat
       write(unit=iout,fmt="(a,i4)")     "                      Num_aLat: ",Grp%num_alat
+      write(unit=iout,fmt="(a, a)")     "                Crystal system: ",Grp%Crystalsys
       write(unit=iout,fmt="(a, a)")     "  Crystallographic Point group: ",Grp%pg
       write(unit=iout,fmt="(a, a)")     "                    Laue class: ",Grp%laue
       write(unit=iout,fmt="(a,i4)")     "            Space Group number: ",Grp%numspg

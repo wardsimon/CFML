@@ -33,6 +33,8 @@ SubModule (CFML_gSpaceGroups) SPG_009
       real(kind=cp), parameter :: loc_eps=0.001_cp
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
+      
+      type(rational), dimension(:), allocatable :: atr,nulo 
 
       !> Init
       call clear_error()
@@ -166,13 +168,21 @@ SubModule (CFML_gSpaceGroups) SPG_009
       end do
 
       !> Determine the lattice anti-translations
+      if (allocated(atr)) deallocate(atr, nulo)
+      allocate(atr(d), nulo(d))
+      nulo=zero
+      
       do_ext: do j=2,Multip
          !if(nul(j)) cycle
          invt= Op(j)%time_inv
          imat=Op(j)%Mat(1:d,1:d)
-         if (rational_equal(identity,imat) .and. invt == -1) then
+         atr=Op(j)%Mat(1:d,n)
+         !> Modification JGP
+         !if (rational_equal(identity,imat) .and. invt == -1) then 
+             !if (rational_equal(atr,nulo)) cycle
+         if (rational_equal(identity,imat) .and. invt == -1 .and. mag_type /= 2) then
             num_alat=num_alat+1
-            aLat_tr(:,num_alat)=Op(j)%Mat(1:d,n)
+            aLat_tr(:,num_alat)=atr
             Op_aLat(num_alat)=Op(j)
          end if
       end do  do_ext !j=2,Multip

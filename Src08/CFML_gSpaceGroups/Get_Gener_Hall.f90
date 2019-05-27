@@ -4,26 +4,29 @@
 !!----
 SubModule (CFML_gSpaceGroups) Spg_052
    Contains
+   
    !!----
    !!---- GET_GENERATORS_FROM_HALL
    !!---- 
-   !!----    Hall symbols interpretation according to 
+   !!----    Magnetic Hall symbols interpretation based on descriptions on 
    !!----    http://cci.lbl.gov/sginfo/hall_symbols.html
    !!----
    !!---- 09/05/2019
    !!
-   Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Shift)
+   Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, RShift, VShift)
       !---- Arguments ----!
-      character(len=*),                            intent(in)  :: Hall
-      integer,                                     intent(out) :: Ngen
-      character(len=*), dimension(:), allocatable, intent(out) :: Gen  
-      real(kind=cp), dimension(3),                 intent(out) :: Shift  
+      character(len=*),                            intent(in)  :: Hall      ! Hall symbol
+      integer,                                     intent(out) :: Ngen      ! Number of genertaors
+      character(len=*), dimension(:), allocatable, intent(out) :: Gen       ! String generators
+      logical, optional,                           intent(in)  :: RShift    ! .True. to give the shift vector in free format
+      real(kind=cp), dimension(3), optional,       intent(out) :: VShift     ! Shift vector from Hall symbol
       
       !---- Local Variables ----!
       character(len=9),  parameter :: L ="PABCIRSTF"
       character(len=13), parameter :: T ="ABCNUVWD12345"
-      character(len=6),  parameter :: A ="XYZ'"//'"*'
+      character(len=6),  parameter :: A ="XYZ^"//'"*'
       character(len=6),  parameter :: N ="123406"
+      character(len=8),  parameter :: AT='abcABCIS'
                           
       integer, dimension(3,3), parameter  :: X_1   = reshape([ 1, 0, 0,  0, 1, 0,  0, 0, 1],[3,3])
       integer, dimension(3,3), parameter  :: Y_1   = reshape([ 1, 0, 0,  0, 1, 0,  0, 0, 1],[3,3])
@@ -60,41 +63,48 @@ SubModule (CFML_gSpaceGroups) Spg_052
                                                                  0, 0, 1, 0, &
                                                                  0, 0, 0, 1],[4,4])                                                                         
        
-      integer,             parameter :: PMAX= 4  ! Maximum number of Operators
+      integer,             parameter :: PMAX= 5  ! Maximum number of Operators
                                
       integer, dimension(PMAX)       :: Ni       ! rotation symbol for each operator
       integer, dimension(PMAX)       :: Ai       ! axis symbol for each operator
       integer, dimension(3,PMAX)     :: Ti       ! traslation for each symbol
+      logical, dimension(PMAX)       :: Tr       ! time reversal
                                
       character(len=20)              :: str
+      character(len=1)               :: car
       character(len=10),dimension(5) :: dire
       integer                        :: i,j,n1,n2,nt,iv,signo
       integer                        :: ilat, axis
-      integer, dimension(3)          :: ishift, v_trans
+      integer, dimension(3)          :: ishift, v_trans, a_latt
       integer, dimension(3)          :: ivet
       real(kind=cp), dimension(3)    :: vet, Co
-      logical                        :: centro
+      logical                        :: centro,free,shift
       
-      integer, dimension(4,4)        :: sn, snp
+      type(rational), dimension(4,4) :: sn, snp
+      type(rational), dimension(3)   :: sh
       type(symm_oper_type)           :: op
       
       logical, parameter             :: pout=.false.
       
       !> Init
       ngen=0
+      free=.false.
+      shift=.false.
+      if (present(RShift)) free=RShift
       
       !> Copy
       str=u_case(adjustl(Hall))
-      if (pout) print*,'  ---> Hall Symbol: '//trim(str)
+      if (pout) print*,'  ---> Magnetic Hall Symbol: '//trim(str)
       
       !> 
       !> Shift origin?
       !>
       ishift=0
-      shift=0.0_cp
+      sh=0//1
       
       n1=index(str,'(')
       n2=index(str,')')
+      nt=len_trim(str)
       if ((n1 ==0 .and. n2 > 0) .or. (n1 > 0 .and. n2==0) .or. (n1 > n2)) then
          Err_CFML%IErr=1
          Err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Error with shift origin format!" 
@@ -108,11 +118,21 @@ SubModule (CFML_gSpaceGroups) Spg_052
             err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Error with shift origin format!" 
             return
          end if
-         ishift=ivet
-         ishift=mod(ishift +24, 12)
-         shift=real(ishift)/12.0_cp
+         shift=.true.
          
-         str=str(:n1-1)
+         if (.not. free) then
+            ishift=ivet
+            ishift=mod(ishift +24, 12)
+            sh=real(ishift)/12.0_cp
+         else
+            sh=vet
+         end if      
+         
+         if (n2+1 > nt) then
+            str=str(:n1-1)
+         else   
+            str=str(:n1-1)//' '//str(n2+1:)
+         end if   
       end if 
       
       !>
@@ -141,7 +161,53 @@ SubModule (CFML_gSpaceGroups) Spg_052
             print*,'  ---> NON-Centrosymmetric structure'
          end if   
          print*,'  ---> Bravais Cell type: '//L(ilat:ilat)
-      end if     
+      end if    
+      
+      !> 
+      !> Anti-traslational
+      !>
+      car=" "
+      a_latt=0
+      n1=index(AT,str(1:1)) 
+      if (n1 > 0) then
+         call get_words(Hall,dire,iv)
+         car=adjustl(dire(2))
+         n2=index(AT,car)
+         if (n2 == 0) then
+            err_CFML%IErr=1
+            err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown anti-lattice traslational symmetry!"
+            return
+         end if 
+         select case (car)
+            case ("a")
+               a_latt=[6,0,0]
+            case ("b")
+               a_latt=[0,6,0]
+            case ("c")
+               a_latt=[0,0,6]
+            case ("A")
+               a_latt=[0,6,6]
+            case ("B")
+               a_latt=[6,0,6]
+            case ("C")
+               a_latt=[6,6,0]
+            case ("I")
+               if (ilat ==6) then  ! R Lattice
+                  a_latt=[0,0,6]
+               else
+                  a_latt=[6,6,6]
+               end if   
+            case ("S") 
+               if (ilat ==9) then ! F Lattice
+                  a_latt=[6,6,6]
+               else
+                  a_latt=[0,0,6]
+               end if                       
+         end select 
+         
+         !> 
+         str=adjustl(str(2:)) 
+      end if   
       
       !>        
       !> Operators
@@ -156,7 +222,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
          err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Hall symbol format is wrong, please check it!"
          return
       end if   
-
+      
       do i=1, iv
          if (pout) then
             print*,' '
@@ -262,11 +328,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
             if (len_trim(dire(i))==0) exit
             
             j=index(T,dire(i)(1:1))
-            if (j==0) then
-               err_CFML%IErr=1
-               err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: The traslation component (T) in Hall symbol is wrong!"
-               return
-            end if   
+            if (j==0) exit
             select case (j)
                case (1) ! a
                   v_trans=v_trans+[6,0,0]
@@ -386,6 +448,23 @@ SubModule (CFML_gSpaceGroups) Spg_052
          
          if (pout) print*,'  --->Traslation: ',Ti(:,i)
          
+         !> Time reversal
+         Tr(i)=.false.
+         if (len_trim(dire(i)) > 0) then
+            if (dire(i)(1:1) /="'") then
+               err_CFML%IErr=1
+               err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Check the MHall symbol!"
+               return
+            end if   
+            Tr(i)=.true.
+         
+            if (pout) then
+               if (tr(i)) then
+                  print*,'  ---> Primed operator'
+               end if   
+            end if
+         end if      
+         
          !> Save the signo in rotation
          Ni(i)=Ni(i)*signo
       end do  
@@ -393,17 +472,19 @@ SubModule (CFML_gSpaceGroups) Spg_052
       !> In the original paper was not commented but is possible to
       !> define a shift using the last operator with rotation order -1 
       !> and given additional traslation
-      if (Ni(iv)== -1) then
+      if (Ni(iv)== -1 .and. (.not. tr(iv))) then
+         shift=.true.
          ishift=mod(-Ti(:,iv) + 24, 12)
-         shift=real(ishift)/12.0_cp
+         sh=real(ishift)/12.0_cp
          
          iv=iv-1
       end if
-      if (pout) print*,'  ---> Shift: ', ishift
+      if (pout) print*,'  ---> Shift: ', rational_string(sh)
       
       !> Allocate Gen
       nt=iv
       if (centro) nt=nt+1
+      if (any(a_latt > 0)) nt=nt+1
       select case (ilat)
          case (2:5)
             nt=nt+1
@@ -431,6 +512,13 @@ SubModule (CFML_gSpaceGroups) Spg_052
          select case (abs(Ni(i)))
             case (1)
                select case (Ai(i))
+                  case (0)
+                     if (.not. tr(i)) then
+                        err_CFML%IErr=1
+                        err_CFML%Msg="Get_Generators_from_MHall@GSPACEGROUPS: Check symbol!"
+                        return
+                     end if
+                     sn=sign(1,Ni(i))*identidad
                   case (1)
                      sn(1:3,1:3)=signo*X_1
                   case (2)
@@ -513,132 +601,136 @@ SubModule (CFML_gSpaceGroups) Spg_052
                      return           
                end select
          end select
-         sn(1:3,4)=Ti(:,i)
+         sn(1:3,4)=Ti(:,i)/12.0_cp
          
-         if (any(ishift > 0)) then
+         if (shift) then
             snp=identidad
-            snp(1:3,4)=ishift
+            snp(1:3,4)=sh
             sn=matmul(snp,sn)
             
-            snp(1:3,4)=-ishift
+            snp(1:3,4)=-sh
             sn=matmul(sn,snp)
-            sn(1:3,4)=mod(sn(1:3,4)+24, 12)
+            sn(1:3,4)=rational_modulo_lat(sn(1:3,4))
          end if   
          
          op%mat=sn
-         do j=1,3
-            n1=op%mat(j,4)
-            op%mat(j,4)=real(n1)/12.0_cp
-         end do   
-         
+         op%Time_Inv=1
+         if (tr(i)) op%Time_Inv=-1
+            
          ngen=ngen+1
          gen(ngen)=Get_Symb_from_Op(op)
       end do  
 
+      !> Centro symmetric
       if (centro) then
          sn=-identidad
-         sn(4,4)=1
          
-         if (any(ishift > 0)) then
+         if (shift) then
             snp=identidad
-            snp(1:3,4)=ishift
+            snp(1:3,4)=sh
             sn=matmul(snp,sn)
             
-            snp(1:3,4)=-ishift
+            snp(1:3,4)=-sh
             sn=matmul(sn,snp)
-            sn(1:3,4)=mod(sn(1:3,4)+24, 12)
+            sn(1:3,4)=rational_modulo_lat(sn(1:3,4))
          end if   
          
          op%mat=sn
-         do j=1,3
-            n1=op%mat(j,4)
-            op%mat(j,4)=real(n1)/12.0_cp
-         end do 
+         op%Time_Inv=1
          
          ngen=ngen+1
          gen(ngen)=Get_Symb_from_Op(op)
       end if   
       
-      if (ilat > 1) then
+      !> Anti-traslation
+      if (any(a_latt > 0)) then
+         sn=identidad
+         sn(4,4)=1
+         sn(1:3,4)=a_latt/12.0_cp
          
+         op%mat=sn
+         op%Time_Inv=-1
+         
+         ngen=ngen+1
+         gen(ngen)=Get_Symb_from_Op(op)
+      end if 
+      
+      if (ilat > 1) then
          do i=1,3 ! Loops
             select case (i)
                case (1) ! First loop
                   select case (ilat)
                      case (2)
                         sn=identidad
-                        sn(1:3,4)=[0,6,6]
+                        sn(1:3,4)=[0//1, 1//2, 1//2]
                         
                      case (3)
                         sn=identidad
-                        sn(1:3,4)=[6,0,6]
+                        sn(1:3,4)=[1//2, 0//1, 1//2]
                         
                      case (4)
                         sn=identidad
-                        sn(1:3,4)=[6,6,0]
+                        sn(1:3,4)=[1//2, 1//2, 0//1]
                         
                      case (5)
                         sn=identidad
-                        sn(1:3,4)=[6,6,6]
+                        sn(1:3,4)=[1//2, 1//2, 1//2]
                         
                      case (6)
                         sn=identidad
-                        sn(1:3,4)=[8,4,4]
+                        sn(1:3,4)=[2//3, 1//3, 1//3]
                         
                      case (7)
                         sn=identidad
-                        sn(1:3,4)=[4,4,8]
+                        sn(1:3,4)=[1//3, 1//3, 2//3]
                         
                      case (8)
                         sn=identidad
-                        sn(1:3,4)=[4,8,4]
+                        sn(1:3,4)=[1//3, 2//3, 1//3]
                         
                      case (9)
                         sn=identidad
-                        sn(1:3,4)=[0,6,6]
+                        sn(1:3,4)=[0//1, 1//2, 1//2]
                   end select
                   
                case (2) ! Second loop  
                   select case (ilat)
                      case (6)
                         sn=identidad
-                        sn(1:3,4)=[4,8,8]
+                        sn(1:3,4)=[1//3, 2//3, 2//3]
                         
                      case (7)
                         sn=identidad
-                        sn(1:3,4)=[8,8,4]
+                        sn(1:3,4)=[2//3, 2//3, 1//3]
                         
                      case (8)
                         sn=identidad
-                        sn(1:3,4)=[8,4,8]
+                        sn(1:3,4)=[2//3, 1//3, 2//3]
                         
                      case (9)
                         sn=identidad
-                        sn(1:3,4)=[6,0,6]         
+                        sn(1:3,4)=[1//2, 0//1, 1//2]         
                   end select 
                   
                case (3) ! Third loop
                   if (ilat ==9) then
                      sn=identidad
-                     sn(1:3,4)=[6,6,0] 
+                     sn(1:3,4)=[1//2, 1//2, 0//1] 
                   end if      
             end select
             
-            if (any(ishift > 0)) then
+            if (shift ) then
                snp=identidad
-               snp(1:3,4)=ishift
+               snp(1:3,4)=sh
                sn=matmul(snp,sn)
             
-               snp(1:3,4)=-ishift
+               snp(1:3,4)=-sh
                sn=matmul(sn,snp)
-               sn(1:3,4)=mod(sn(1:3,4)+24, 12)
+               sn(1:3,4)=rational_modulo_lat(sn(1:3,4))
             end if   
          
             op%mat=sn
-            do j=1,3
-               n1=op%mat(j,4)
-               op%mat(j,4)=real(n1)/12.0_cp
-            end do 
+            op%Time_Inv=1
          
             ngen=ngen+1
             gen(ngen)=Get_Symb_from_Op(op)
@@ -649,12 +741,21 @@ SubModule (CFML_gSpaceGroups) Spg_052
          end do   
       end if
       
+      !> End
+      if (present (Vshift)) Vshift=sh
+      
       if (pout) then
+         print*,' '
+         print*,'  ---> List of Possible Generators <---'
+         print*,'---------------------------------------'
          do i=1,ngen
             print*,'  ---> Generator: '//trim(gen(i))
          end do   
          print*,' '
-      end if   
+      end if
+         
    End Subroutine Get_Generators_from_Hall
+   
+   
    
 End SubModule Spg_052   
