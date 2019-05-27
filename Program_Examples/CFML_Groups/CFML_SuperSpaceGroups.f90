@@ -5,11 +5,13 @@
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, ERR_Crys, ERR_Crys_mess, set_Crystal_Cell
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup,Get_Generators_From_SpGSymbol, &
                                               set_Intersection_SPG, Write_SpaceGroup, Magnetic_Space_Group_Type
+
     use CFML_Propagation_Vectors, only: K_Star, Set_Gk, Group_k_Type
     use CFML_Magnetic_Symmetry,   only: Readn_Set_Magnetic_Space_Group
     use CFML_Rational_Arithmetic
     use CFML_Rational_Groups
     use CFML_ssg_datafile
+    use CFML_Standard_Settings
 
     Implicit None
     private
@@ -563,12 +565,14 @@
       D=3+nk
       Dd=D+1
       allocate(vector(D),matrix(Dd,Dd))
-      write(unit=lun,fmt="(/,a)")          "        Information on SuperSpace Group: "
-      write(unit=lun,fmt="(a,/ )")           "        ------------------------------- "
+      write(unit=lun,fmt="(/,a)")           "        Information on SuperSpace Group: "
+      write(unit=lun,fmt="(a,/ )")          "        ------------------------------- "
       write(unit=lun,fmt="(a,a)")           " =>   Number of Space group: ", trim(SpaceGroup%SSG_nlabel)
       write(unit=lun,fmt="(a,a)")           " => SuperSpace Group Symbol: ", trim(SpaceGroup%SSG_symbol)
       write(unit=lun,fmt="(a,a)")           " =>    Bravais Class Symbol: ", trim(SpaceGroup%SSG_Bravais)
       write(unit=lun,fmt="(a,a)")           " =>      Parent Space Group: ", trim(SpaceGroup%Parent_spg)
+      write(unit=lun,fmt="(a, a)")          " =>             Point group: ", trim(SpaceGroup%pg)
+      write(unit=lun,fmt="(a, a)")          "                 Laue class: ", trim(SpaceGroup%laue)
       if(.not. SpaceGroup%standard_setting) then
         write(unit=lun,fmt="(a,a)")         " =>     Transf. from Parent: ", trim(SpaceGroup%trn_from_parent)
         write(unit=lun,fmt="(a,a)")         " =>     Transf. to Standard: ", trim(SpaceGroup%trn_to_standard)
@@ -1589,6 +1593,14 @@
          Err_ssg=.true.
          Err_ssg_Mess= " Error in some of the keywords for generating the group "
          return
+       end if
+
+       !Complete the type with the point group,Laue class and Lattice type
+       call Identify_Crystallographic_Point_Group(ssg)
+       call Identify_Laue_Class(ssg)
+       ssg%SPG_Lat="P"
+       if(ssg%Num_Lat > 1) then
+         call Get_Lattice_Type(ssg%Num_Lat, ssg%Lat_tr(1:3,:),ssg%SPG_Lat)
        end if
 
        Select Type(SSG)

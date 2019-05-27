@@ -3644,7 +3644,7 @@
              Rsym=matmul(Rs,mom)
              mome=mome+ Rsym
              if(present(ipr)) then
-               write(unit=ipr,fmt='(a,i2,a,t20,a,t55,a,3f8.1)') '     Operator ',j,": ",trim(Spgr%SymopSymb(ss_ptr(j))), &
+               write(unit=ipr,fmt='(a,i2,a,t20,a,t55,a,t75,3f8.1)') '     Operator ',j,": ",trim(Spgr%SymopSymb(ss_ptr(j))), &
                 trim(Spgr%MSymopSymb(ss_ptr(j))), Rsym
              end if
           end do
@@ -3866,6 +3866,7 @@
            codes(j) = sign(1.0_cp, multip(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
          end if
        end do
+
        if(present(Ipr)) then
          write(Ipr,'(a,3f10.4)')        '     Codes on Moments     : ',codes
          Write(Ipr,'(a,3(a,1x),6f7.3)') '     Codes and multipliers: ',cdd,multip
