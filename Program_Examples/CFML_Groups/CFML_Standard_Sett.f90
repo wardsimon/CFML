@@ -72,7 +72,7 @@ module CFML_Standard_Settings
     !---- List of public functions ----!
 
     !---- List of public subroutines ----!
-    public  :: Identify_Group
+    public  :: Identify_Group, Identify_Laue_Class, Identify_Crystallographic_Point_Group, Get_Lattice_Type
 
     !!----
     !!---- err_std
@@ -790,7 +790,7 @@ contains
         !integer,                              intent(in)  :: naLat
         !type(rational),   dimension(3,naLat), intent(in)  :: alatV
         !character(len=1), dimension(2),       intent(out) :: lattyp
-        type(spg_type), intent(in out) :: G
+        class(spg_type), intent(in out) :: G
 
         !---- Local variables ----!
         integer :: i,j
@@ -1060,7 +1060,7 @@ contains
     end subroutine Get_Mc_Matrix
 
     !!---- Subroutine Get_Mp_Matrix(G,P,Mp,output)
-    !!----     type(spg_type),                 intent(in)  :: G
+    !!----     class(spg_type),                 intent(in)  :: G
     !!----     type(rational), dimension(3,3), intent(in)  :: P
     !!----     type(rational), dimension(3,3), intent(out) :: Mp
     !!----     logical, optional,              intent(in)  :: output
@@ -1079,7 +1079,7 @@ contains
     subroutine Get_Mp_Matrix(G,P,Mp,output)
 
         !---- Arguments ----!
-        type(spg_type),                 intent(in)  :: G
+        class(spg_type),                 intent(in)  :: G
         type(rational), dimension(3,3), intent(in)  :: P
         type(rational), dimension(3,3), intent(out) :: Mp
         logical, optional,              intent(in)  :: output
@@ -1446,7 +1446,7 @@ contains
     end subroutine Get_Origin_Shift
 
     !!---- Subroutine Get_P_Matrix(G,P,nospin,output)
-    !!----     type(spg_type),                 intent(in)  :: G
+    !!----     class(spg_type),                 intent(in)  :: G
     !!----     type(rational), dimension(3,3), intent(out) :: P
     !!----     logical, optional,              intent(in)  :: nospin
     !!----     logical,        optional,       intent(in)  :: output
@@ -1460,7 +1460,7 @@ contains
     subroutine Get_P_Matrix(G,P,nospin,output)
 
         !---- Arguments ----!
-        type(spg_type),                 intent(in)  :: G
+        class(spg_type),                 intent(in)  :: G
         type(rational), dimension(3,3), intent(out) :: P
         logical, optional,              intent(in)  :: nospin
         logical, optional,              intent(in)  :: output
@@ -2195,7 +2195,7 @@ contains
     subroutine Identify_Crystallographic_Point_Group(G)
 
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G
+        class(spg_type), intent(in out) :: G
 
         !---- Local variables ----!
         integer                                            :: i,j,n,d,t
@@ -2265,7 +2265,7 @@ contains
             end if
         end do
         ! Get the point group
-        allocate(idd(numops,2))
+        allocate(idd(nRepSymOp,2))
         if (nRot(3) == 8) then ! Cubic
             if (nRepSymOp == 12) then
                 if (G%Centred == 1 .and. G%anticentred == 1) then
@@ -2400,7 +2400,7 @@ contains
     end subroutine Identify_Crystallographic_Point_Group
 
     !!---- Subroutine Identify_Crystallographic_Space_Group(G)
-    !!----     type(spg_type), intent(inout)  :: G
+    !!----     class(spg_type), intent(inout)  :: G
     !!----
     !!---- For a given crystallographic group G in an arbitrary
     !!---- setting, identifies the space group and computes the
@@ -2416,7 +2416,7 @@ contains
     subroutine Identify_Crystallographic_Space_Group(G,output)
 
         !---- Arguments ----!
-        type(spg_type),    intent(in out) :: G
+        class(spg_type),    intent(in out) :: G
         logical, optional, intent(in)     :: output
 
         !---- Local variables ---!
@@ -2451,7 +2451,7 @@ contains
     end subroutine Identify_Crystallographic_Space_Group
 
     !!---- Subroutine Identify_Group(G)
-    !!----     type(spg_type), intent(inout)  :: G
+    !!----     class(spg_type), intent(inout)  :: G
     !!----
     !!---- Initialize the identification of the group by calling
     !!---- the appropiate subroutine according to the nature  of
@@ -2463,7 +2463,7 @@ contains
     subroutine Identify_Group(G,output)
 
         !---- Arguments ----!
-        type(spg_type),    intent(in out) :: G
+        class(spg_type),    intent(in out) :: G
         logical, optional, intent(in)     :: output
 
         logical :: pout
@@ -2501,7 +2501,7 @@ contains
     subroutine Identify_Laue_Class(G)
 
         !---- Arguments ----!
-        type(spg_type), intent(inout) :: G
+        class(spg_type), intent(in out) :: G
 
         select case (trim(G%pg))
 
@@ -2547,7 +2547,7 @@ contains
     subroutine Identify_Shubnikov_Group(G,output)
 
         !---- Arguments ----!
-        type(spg_type),    intent(in out) :: G
+        class(spg_type),    intent(in out) :: G
         logical, optional, intent(in)     :: output
 
         !---- Local variables ---!
@@ -2596,7 +2596,7 @@ contains
     end subroutine Identify_Shubnikov_Group
 
     !!---- Subroutine Match_Crystallographic_Space_Group(G,P,M,A,n,output)
-    !!----      type(spg_type),                   intent(inout) :: G
+    !!----      class(spg_type),                   intent(inout) :: G
     !!----      type(rational), dimension(3,3),   intent(in)    :: P
     !!----      type(rational), dimension(3,3),   intent(in)    :: M
     !!----      type(rational), dimension(3,3,n), intent(in)    :: A
@@ -2614,7 +2614,7 @@ contains
     subroutine Match_Crystallographic_Space_Group(G,P,M,A,n,output)
 
         !---- Arguments ----!
-        type(spg_type),                   intent(inout) :: G        ! space group in the original setting
+        class(spg_type),                  intent(inout) :: G        ! space group in the original setting
         type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
         type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices_Crys-
@@ -2807,7 +2807,7 @@ contains
     end subroutine Match_Crystallographic_Space_Group
 
     !!---- Subroutine Match_Shubnikov_Group(G,P,M,output)
-    !!----      type(spg_type),                   intent(inout) :: G
+    !!----      class(spg_type),                   intent(inout) :: G
     !!----      type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
     !!----      type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
     !!----      logical,        optional,         intent(in)    :: output
@@ -2823,7 +2823,7 @@ contains
     subroutine Match_Shubnikov_Group(G,P,M,output)
 
         !---- Arguments ----!
-        type(spg_type),                   intent(inout) :: G
+        class(spg_type),                  intent(in out):: G
         type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
         logical,        optional,         intent(in)    :: output
