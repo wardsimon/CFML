@@ -1,0 +1,7 @@
+if(WIN32)
+set(BLOSC_INCLUDE_DIR "C:\\Projects\\fullprof\\blosc")
+elseif(APPLE)
+set(BLOSC_INCLUDE_DIR /usr/local/include)
+else()
+set(BLOSC_INCLUDE_DIR /usr/local/include)
+endif()

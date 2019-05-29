@@ -31,7 +31,14 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#ifdef __APPLE__
+#include "hdf5.h"
+#elif _WIN32
+#include "hdf5.h"
+#else
 #include "hdf5/serial/hdf5.h"
+#endif
+#include "blosc_filter.h"
 #include "blosc.h"
 
 

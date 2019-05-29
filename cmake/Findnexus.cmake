@@ -1,0 +1,7 @@
+if(WIN32)
+set(NEXUS_INCLUDE_DIR "C:\\Projects\\fullprof\\NeXuS\\include\\")
+elseif(APPLE)
+set(NEXUS_INCLUDE_DIR /usr/local/include/nexus)
+else()
+set(NEXUS_INCLUDE_DIR /usr/local/include/nexus)
+endif()

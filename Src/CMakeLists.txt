@@ -2,6 +2,7 @@
 # Include section
 #################################
 
+add_definitions(-DUSE_HDF=ON)
 
 # Build crysfml_common library.
 include(crysfml_common.cmake)
