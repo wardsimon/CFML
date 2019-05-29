@@ -50,7 +50,7 @@ Module CFML_gSpaceGroups
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Magnetic_Database
-    Use CFML_Maths,      only: Set_eps_math 
+    Use CFML_Maths,      only: Set_eps_math, modulo_lat, determ 
     Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                get_words, String_Fraction_2Dig
 
@@ -150,6 +150,7 @@ Module CFML_gSpaceGroups
     Interface Get_Lattice_Type
        module procedure Get_Lattice_Type_L
        module procedure Get_Lattice_Type_from_Mat
+       module procedure Get_Lattice_Type_from_Gener
     End Interface Get_Lattice_Type
 
     Interface Get_Symb_from_OP
@@ -251,13 +252,12 @@ Module CFML_gSpaceGroups
           integer                      :: d
        End Function Get_Dimension_Gener 
        
-       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Rshift, VShift)
+       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Rshift)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: Hall
           integer,                                     intent(out) :: Ngen
           character(len=*), dimension(:), allocatable, intent(out) :: Gen 
           logical, optional,                           intent(in)  :: RShift
-          real(kind=cp), dimension(3), optional,       intent(out) :: VShift  
        End Subroutine Get_Generators_from_Hall
        
        Module Subroutine Get_Gener_From_Str(StrGen, d, ngen, gen)
@@ -277,11 +277,26 @@ Module CFML_gSpaceGroups
           integer,                                 intent(out) :: nGen      ! number of generators
        End Subroutine Get_Generators
        
+       Module Function Get_Hall_from_Generators(Ngen, Gen, Ishift) Result(Hall)
+          !---- Arguments ----!
+          integer,                         intent(in) :: NGen
+          character(len=*), dimension(:),  intent(in) :: Gen 
+          integer, dimension(3), optional, intent(in) :: ishift 
+          character(len=:), allocatable               :: Hall
+       End Function Get_Hall_from_Generators
+       
        Module Function Get_HM_Standard(NumSpg) Result(SymbolHM)
           !---- Arguments ----!
           integer, intent(in) :: numSpg
           character(len=:), allocatable :: symbolHM
        End Function Get_HM_Standard 
+       
+       Module Function Get_Lattice_Type_from_Gener(Ngen,Gen) Result(Latt)
+          !---- Arguments ----!
+          integer,                        intent(in) :: Ngen
+          character(len=*), dimension(:), intent(in) :: Gen
+          character(len=:), allocatable              :: Latt
+       End Function Get_Lattice_Type_from_Gener
        
        Module Function Get_Lattice_Type_from_MAT(M) Result(lattyp)
           !---- Arguments ----!
@@ -461,6 +476,19 @@ Module CFML_gSpaceGroups
           character(len=:), allocatable              :: symb
        End Function Get_Symb_from_Rational_Mat
        
+       Module Function Search_Hall_Operators(G, Ishift) Result(Str)
+          !---- Arguments ----!
+          class(spg_type),                 intent(in)  :: G
+          integer, dimension(3), optional, intent(in)  :: Ishift
+          character(len=:), allocatable                :: Str 
+       End Function Search_Hall_Operators
+       
+       Module Function Search_OnePrime_Operator(G) Result(Prime)
+          !---- Arguments ----!
+          class(spg_type), intent(in) :: G
+          integer                     :: Prime
+       End Function Search_OnePrime_Operator
+       
        Module Function String_from_Op(Op, Strcode) Result(symb)
           !---- Arguments ----!
           type(Symm_Oper_Type),       intent(in) :: Op
@@ -553,6 +581,12 @@ Module CFML_gSpaceGroups
           class(Group_type),  intent(in out) :: Grp 
        End Subroutine Init_SpaceG  
        
+       Module Function Is_AntiLattice(Op) Result(Info)
+          !---- Arguments ----!
+          type(Symm_Oper_Type),intent(in) :: Op
+          logical                         :: info
+       End Function Is_AntiLattice
+       
        Module Function Is_Inversion_Centre(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
@@ -572,6 +606,18 @@ Module CFML_gSpaceGroups
           integer,                        intent( in) :: nlat
           logical                                     :: Lattice
        End Function Is_Lattice_Vec
+       
+       Module Function Is_Minus_OnePrime(Op) Result(Info)
+          !---- Arguments ----!
+          type(Symm_Oper_Type),intent(in) :: Op
+          logical                         :: info
+       End Function Is_Minus_OnePrime
+       
+       Module Function Is_OnePrime(Op) Result(Info)
+          !---- Arguments ----!
+          type(Symm_Oper_Type),intent(in) :: Op
+          logical                         :: info
+       End Function Is_OnePrime
        
        Module Function Inverse_OP_Symm(Op) Result(i_OP)
           !---- Arguments ----!

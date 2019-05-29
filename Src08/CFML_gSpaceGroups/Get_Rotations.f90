@@ -298,6 +298,7 @@ SubModule (CFML_gSpaceGroups) SPG_035
       !> Init
       n=0
 
+      call clear_error()
       det=rational_determ(W)
       if (err_cfml%ierr /=0) return
       itr=rational_trace(W)

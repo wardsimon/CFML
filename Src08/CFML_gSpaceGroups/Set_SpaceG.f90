@@ -141,7 +141,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
          
          if (len_trim(gList) == 0) then
-            call Get_Generators_from_Hall(str_hall,n_gen, l_gen, VShift=co)
+            call Get_Generators_from_Hall(str_hall,n_gen, l_gen)
             if (Err_CFML%Ierr /= 0) return
          else
             call Get_Gener_From_Str(gList, d, n_gen, l_gen)   
