@@ -52,14 +52,12 @@ rem
 rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
-      ifort /c Extra_Procedures.f90 /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c MagHall.f90          /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c Magnetic_Hall.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /exe:MHall *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:256000000 
    )
 rem   
    if [%_COMP%]==[gfortran] (
-      gfortran -c Extra_Procedures.f90  %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c MagHall.f90           %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c Magnetic_Hall.f90           %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -o MHall.exe *.o -LCRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   

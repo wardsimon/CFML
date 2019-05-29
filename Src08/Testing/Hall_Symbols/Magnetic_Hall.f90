@@ -5,10 +5,21 @@
 !!
 Program Magnetic_Hall
    !---- Use Modules ----!
-   Use CFML_Extra
+   Use CFML_gSpaceGroups
 
    !---- Variables ----!
    implicit none
+   
+   Type :: MAG_SYMB_TYPE
+      character(len=40) :: BNS
+      character(len=40) :: OG
+      character(len=40) :: STD
+      character(len=40) :: HallM
+      character(len=15) :: ID_BNS
+      character(len=15) :: ID_OG
+   End Type MAG_SYMB_TYPE
+   
+   type(Mag_Symb_Type), dimension(1651) :: Mag_Symb
    
    character(len=50)                            :: str_BNS, str_Hall
    character(len=60), dimension(:), allocatable :: gen
