@@ -58,7 +58,7 @@ rem > Compilation
 rem   
    if [%_COMP%]==[gfortran] (
       gfortran -c GetHall_from_Gener.f90           %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o GetHall.exe *.o -LCRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -o GetHall.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   
    del *.obj *.mod *.o *.map *.bak > nul

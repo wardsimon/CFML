@@ -58,7 +58,7 @@ rem > Compilation
 rem   
    if [%_COMP%]==[gfortran] (
       gfortran -c Magnetic_Hall.f90           %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o MHall.exe *.o -LCRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -o MHall.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   
    del *.obj *.mod *.o *.map *.bak > nul

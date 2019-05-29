@@ -1373,7 +1373,6 @@ SubModule (CFML_gSpaceGroups) Spg_052
          do n=1,ngen
             print*,'Gen:',n,trim(gen(n))
          end do   
-         pause
       end if
    
       !> Init  
