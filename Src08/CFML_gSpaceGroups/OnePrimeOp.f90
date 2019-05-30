@@ -10,7 +10,7 @@ SubModule (CFML_gSpaceGroups) OnePrime
    !!----
    !!---- 19/04/19
    !!
-   Module Function Is_OnePrime(Op) Result(Info)
+   Module Function Is_OP_1_Prime(Op) Result(Info)
       !---- Arguments ----!
       type(Symm_Oper_Type),intent(in) :: Op
       logical                         :: info
@@ -32,7 +32,7 @@ SubModule (CFML_gSpaceGroups) OnePrime
       call Rational_Identity_Matrix(Mat)
       
       if (Rational_Equal(Op%Mat(1:d,1:d),Mat) .and. Op%time_inv == -1) info=.true.
-   End Function Is_OnePrime
+   End Function Is_OP_1_Prime
    
    !!----
    !!---- IS_MINUS_ONEPRIME
@@ -40,7 +40,7 @@ SubModule (CFML_gSpaceGroups) OnePrime
    !!----
    !!---- 19/04/19
    !!
-   Module Function Is_Minus_OnePrime(Op) Result(Info)
+   Module Function Is_OP_Minus_1_Prime(Op) Result(Info)
       !---- Arguments ----!
       type(Symm_Oper_Type),intent(in) :: Op
       logical                         :: info
@@ -62,7 +62,7 @@ SubModule (CFML_gSpaceGroups) OnePrime
       call Rational_Identity_Matrix(Mat)
       
       if (Rational_Equal(Op%Mat(1:d,1:d),-Mat) .and. Op%time_inv == -1) info=.true.
-   End Function Is_Minus_OnePrime
+   End Function Is_OP_Minus_1_Prime
    
    !!----
    !!---- SEARCH_ONEPRIME_OPERATOR

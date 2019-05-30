@@ -5,11 +5,11 @@
 SubModule (CFML_gSpaceGroups) SPG_014
    Contains
    !!----
-   !!---- GET_DIMENSION_GENER
+   !!---- Get_Dimension_SymmOp
    !!----
    !!---- 19/04/2019
    !!
-   Module Function Get_Dimension_Gener(Symb) Result(d)
+   Module Function Get_Dimension_SymmOp(Symb) Result(d)
       !---- Arguments ----! 
       character(len=*), intent(in) :: Symb
       integer                      :: d
@@ -33,7 +33,7 @@ SubModule (CFML_gSpaceGroups) SPG_014
       else
          d=np+2     !>time_inv not-provided
       end if
-   End Function Get_Dimension_Gener
+   End Function Get_Dimension_SymmOp
 
 End SubModule SPG_014
    

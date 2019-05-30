@@ -22,13 +22,13 @@ SubModule (CFML_gSpaceGroups) Init_Proc
    End Subroutine Set_Identity_Matrix
    
    !!----
-   !!---- INIT_SPACEG
+   !!---- Init_SpaceGroup
    !!----
    !!----    Initializes the components that are not allocatable arrays
    !!----
    !!---- 19/04/2019
    !!
-   Module Subroutine Init_SpaceG(Grp)
+   Module Subroutine Init_SpaceGroup(Grp)
       !---- Arguments ----!
       class(Group_type),  intent(in out) :: Grp
       
@@ -59,7 +59,7 @@ SubModule (CFML_gSpaceGroups) Init_Proc
             Grp%generators_list = "    "
       End Select
       
-   End Subroutine Init_SpaceG
+   End Subroutine Init_SpaceGroup
    
    !!----
    !!---- SET_CONDITIONS_GROUP

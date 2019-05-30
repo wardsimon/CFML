@@ -6,11 +6,11 @@ SubModule (CFML_gSpaceGroups) SPG_016
    Contains
    
    !!----
-   !!---- GET_GENER_FROM_STR
+   !!---- Get_Generators_from_Str
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_Gener_From_Str(StrGen, d, ngen, gen)
+   Module Subroutine Get_Generators_from_Str(StrGen, d, ngen, gen)
       !---- Arguments ----!
       character(len=*),                            intent(in)  :: StrGen
       integer,                                     intent(out) :: d
@@ -37,7 +37,7 @@ SubModule (CFML_gSpaceGroups) SPG_016
       else
          Symbol=ListGen(1:i-1)
       end if
-      d=Get_Dimension_Gener(Symbol)
+      d=Get_Dimension_SymmOp(Symbol)
 
       !> List of Generators
       call Get_Separator_Pos(ListGen,";",pos,np)
@@ -82,7 +82,7 @@ SubModule (CFML_gSpaceGroups) SPG_016
             if (np < d-1) gen(i)=trim(gen(i))//",1"
          end do
       end if
-   End Subroutine Get_Gener_From_Str
+   End Subroutine Get_Generators_from_Str
 
 End SubModule SPG_016   
    

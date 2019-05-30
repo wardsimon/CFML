@@ -65,9 +65,9 @@ Module CFML_gSpaceGroups
     
     !---- List of public subroutines ----!
     public :: Group_Constructor, Get_Cosets, Get_SubGroups_Subgen, &
-              Init_SpaceG, Identify_Group, &
+              Init_SpaceGroup, Identify_Group, &
               Set_Conditions_NumOP_EPS, &
-              Write_SpaceG_Info
+              Write_SpaceGroup_Info
               
     !---- Parameters ----!
     integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity
@@ -103,9 +103,8 @@ Module CFML_gSpaceGroups
        character(len=1), dimension(2)             :: shu_lat  =" "        ! Shubnikov lattice type
        character(len=:),              allocatable :: spg_symb             ! Space group symbol
        character(len=:),              allocatable :: shu_symb             ! Shubnikov group symbol
-       !---
+       character(len=:),              allocatable :: Hall                 ! Hall symbol
        character(len=:),              allocatable :: crystalsys           ! Crystal system
-       !---
        character(len=:),              allocatable :: pg                   ! Point group 
        character(len=:),              allocatable :: laue                 ! Laue group
        character(len=:),              allocatable :: mat2std              ! To standard to space group 
@@ -180,12 +179,12 @@ Module CFML_gSpaceGroups
           type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
        End Subroutine Allocate_Operators
        
-       Module Subroutine Allocate_SpaceG(D, Multip, Grp)
+       Module Subroutine Allocate_SpaceGroup(D, Multip, Grp)
           !---- Arguments ----!
           integer,         intent(in)     :: d
           integer,         intent(in)     :: multip
           class(Spg_Type), intent(in out) :: Grp
-       End Subroutine Allocate_SpaceG
+       End Subroutine Allocate_SpaceGroup
        
        Module Subroutine Allocate_Symm_Op(d, Op)
           !---- Arguments ----!
@@ -246,11 +245,11 @@ Module CFML_gSpaceGroups
           character(len=:), allocatable                  :: Str
        End Function Get_Crystal_System_Str
        
-       Module Function Get_Dimension_Gener(Symb) Result(d)
+       Module Function Get_Dimension_SymmOp(Symb) Result(d)
           !---- Arguments ----! 
           character(len=*), intent(in) :: Symb
           integer                      :: d
-       End Function Get_Dimension_Gener 
+       End Function Get_Dimension_SymmOp 
        
        Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Rshift)
           !---- Arguments ----!
@@ -260,13 +259,13 @@ Module CFML_gSpaceGroups
           logical, optional,                           intent(in)  :: RShift
        End Subroutine Get_Generators_from_Hall
        
-       Module Subroutine Get_Gener_From_Str(StrGen, d, ngen, gen)
+       Module Subroutine Get_Generators_from_Str(StrGen, d, ngen, gen)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: StrGen
           integer,                                     intent(out) :: d
           integer,                                     intent(out) :: ngen
           character(len=*), dimension(:), allocatable, intent(out) :: gen
-       End Subroutine Get_Gener_From_Str  
+       End Subroutine Get_Generators_from_Str  
        
        Module Subroutine Get_Generators(laueClass,symOp,nSymOp,G,nGen)
           !---- Arguments ----!
@@ -370,13 +369,13 @@ Module CFML_gSpaceGroups
           type(Symm_Oper_Type)             :: Op
        End Function Get_Op_from_Symb
        
-       Module Subroutine Get_OPS_From_Gener(Ngen, Ops, Multip, Table)
+       Module Subroutine Get_OPS_from_Generators(Ngen, Ops, Multip, Table)
           !---- Arguments ----!
           integer,                                        intent(in)     :: ngen
           type(Symm_Oper_Type), dimension(:),             intent(in out) :: Ops
           integer,                                        intent(out)    :: multip
           integer, dimension(:,:), allocatable, optional, intent(out)    :: table
-       End Subroutine Get_OPS_From_Gener 
+       End Subroutine Get_OPS_from_Generators 
        
        Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
           !---- Arguments ----!
@@ -576,28 +575,28 @@ Module CFML_gSpaceGroups
           character(len=*), optional, intent(in)     :: Strcode  
        End Subroutine SpaceG_Constructor_Str 
        
-       Module Subroutine Init_SpaceG(Grp)
+       Module Subroutine Init_SpaceGroup(Grp)
           !---- Arguments ----!
           class(Group_type),  intent(in out) :: Grp 
-       End Subroutine Init_SpaceG  
+       End Subroutine Init_SpaceGroup  
        
-       Module Function Is_AntiLattice(Op) Result(Info)
+       Module Function Is_OP_Anti_Lattice(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
           logical                         :: info
-       End Function Is_AntiLattice
+       End Function Is_OP_Anti_Lattice
        
-       Module Function Is_Inversion_Centre(Op) Result(Info)
+       Module Function Is_OP_Inversion_Centre(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
           logical                         :: info
-       End Function Is_Inversion_Centre
+       End Function Is_OP_Inversion_Centre
        
-       Module Function Is_Lattice_Centring(Op) Result(Info)
+       Module Function Is_OP_Lattice_Centring(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op
           logical                          :: info
-       End Function Is_Lattice_Centring
+       End Function Is_OP_Lattice_Centring
        
        Module Function Is_Lattice_Vec(V,Ltr,Nlat) Result(Lattice)
           !---- Argument ----!
@@ -607,17 +606,17 @@ Module CFML_gSpaceGroups
           logical                                     :: Lattice
        End Function Is_Lattice_Vec
        
-       Module Function Is_Minus_OnePrime(Op) Result(Info)
+       Module Function Is_OP_Minus_1_Prime(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
           logical                         :: info
-       End Function Is_Minus_OnePrime
+       End Function Is_OP_Minus_1_Prime
        
-       Module Function Is_OnePrime(Op) Result(Info)
+       Module Function Is_OP_1_Prime(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
           logical                         :: info
-       End Function Is_OnePrime
+       End Function Is_OP_1_Prime
        
        Module Function Inverse_OP_Symm(Op) Result(i_OP)
           !---- Arguments ----!
@@ -697,11 +696,11 @@ Module CFML_gSpaceGroups
           character(len=*),                   intent(in)    :: cod   
        End Subroutine Sort_Oper  
        
-       Module Subroutine Write_SpaceG_Info(Grp,Lun)
+       Module Subroutine Write_SpaceGroup_Info(Grp,Lun)
           !---- Arguments ----!
           class(Spg_Type),    intent(in)   :: Grp
           integer, optional,  intent(in)   :: lun 
-       End Subroutine Write_SpaceG_Info   
+       End Subroutine Write_SpaceGroup_Info   
       
     End Interface
 

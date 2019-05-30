@@ -18,7 +18,7 @@ SubModule (CFML_gSpaceGroups) SPG_013
       !---- Local variables ----!
       integer :: d
       
-      d=Get_Dimension_Gener(Symb)
+      d=Get_Dimension_SymmOp(Symb)
       
       allocate(Op%Mat(d,d))
       call Get_Mat_From_Symb(Symb, Op%Mat, Op%time_inv)

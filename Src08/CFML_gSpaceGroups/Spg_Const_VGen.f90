@@ -28,8 +28,8 @@ SubModule (CFML_gSpaceGroups) SPG_020
       call Clear_Error()
       
       !> Initializes Grp
-      call Init_SpaceG(Spg)
-      d=Get_Dimension_Gener(genV(1))
+      call Init_SpaceGroup(Spg)
+      d=Get_Dimension_SymmOp(genV(1))
       
       !> This routine delete the generator: x,y,z
       call Check_Gener(GenV,gen)
@@ -38,7 +38,7 @@ SubModule (CFML_gSpaceGroups) SPG_020
       !> check 
       ngen=0
       if (allocated(gen)) then
-         d=Get_Dimension_Gener(gen(1))
+         d=Get_Dimension_SymmOp(gen(1))
          ngen = size(gen)
       end if 
            
@@ -65,7 +65,7 @@ SubModule (CFML_gSpaceGroups) SPG_020
       ngen=ngen+1
       
       !> Construct the raw Group
-      call Get_OPS_From_Gener(ngen,Op,multip)
+      call Get_OPS_from_Generators(ngen,Op,multip)
       if (Err_CFML%Ierr /= 0) return
 
       ! Allocate provisionally to Multip the lattice translations and anti-Translations

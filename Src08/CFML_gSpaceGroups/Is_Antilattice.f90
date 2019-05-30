@@ -10,7 +10,7 @@ SubModule (CFML_gSpaceGroups) SPG_100
    !!----
    !!---- 19/04/19
    !!
-   Module Function Is_AntiLattice(Op) Result(Info)
+   Module Function Is_OP_Anti_Lattice(Op) Result(Info)
       !---- Arguments ----!
       type(Symm_Oper_Type),intent(in) :: Op
       logical                         :: info
@@ -32,5 +32,5 @@ SubModule (CFML_gSpaceGroups) SPG_100
          if (.not. Rational_Is_NullVector(Op%Mat(1:d, d+1))) info=.true.
       end if   
 
-   End Function Is_AntiLattice
+   End Function Is_OP_Anti_Lattice
 End SubModule SPG_100   

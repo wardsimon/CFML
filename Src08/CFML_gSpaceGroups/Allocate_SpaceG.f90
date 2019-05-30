@@ -6,11 +6,11 @@ SubModule (CFML_gSpaceGroups) SPG_008
    Contains
    
    !!----
-   !!---- ALLOCATE_SPACEG
+   !!---- Allocate_SpaceGroup
    !!----
    !!---- 19/04/19
    !!
-   Module Subroutine Allocate_SpaceG(D, Multip, Grp)
+   Module Subroutine Allocate_SpaceGroup(D, Multip, Grp)
       !---- Arguments ----!
       integer,         intent(in)     :: d,multip
       class(Spg_Type), intent(in out) :: Grp
@@ -30,7 +30,7 @@ SubModule (CFML_gSpaceGroups) SPG_008
       
       if(allocated(Grp%Symb_Op)) deallocate(Grp%Symb_Op)
       allocate(Grp%Symb_Op(multip))
-   End Subroutine Allocate_SpaceG
+   End Subroutine Allocate_SpaceGroup
 
 End SubModule SPG_008
    

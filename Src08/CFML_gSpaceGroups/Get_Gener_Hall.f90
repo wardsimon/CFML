@@ -831,11 +831,11 @@ SubModule (CFML_gSpaceGroups) Spg_052
          tr=Op%Mat(1:3,4)
          
          !> Purge
-         if (Is_Inversion_Centre(Op) .and. rational_is_nullvector(tr)) cycle
-         if (Is_Lattice_Centring(Op)) cycle
-         if (Is_onePrime(Op)) cycle
-         if (Is_Minus_OnePrime(Op)) cycle
-         if (Is_Antilattice(Op)) cycle
+         if (Is_OP_Inversion_Centre(Op) .and. rational_is_nullvector(tr)) cycle
+         if (Is_OP_Lattice_Centring(Op)) cycle
+         if (Is_OP_1_Prime(Op)) cycle
+         if (Is_OP_Minus_1_Prime(Op)) cycle
+         if (Is_OP_Anti_Lattice(Op)) cycle
       
          !> Rotation       
          n=get_rotation_order(Op%Mat(1:3,1:3))
@@ -1383,7 +1383,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
          Err_CFML%Msg="Get_Hall_from_SpG@GSPACEGROUPS: Number of generators is zero!"
       end if   
       
-      call Init_SpaceG(Grp)
+      call Init_SpaceGroup(Grp)
       call Rational_Identity_Matrix(identidad)
       
       !> Constructor
@@ -1418,7 +1418,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       c_alatt=" "
       do n=1,Grp%multip
          !> Conditions
-         if (.not. Is_antilattice(Grp%op(n))) cycle
+         if (.not. Is_OP_Anti_Lattice(Grp%op(n))) cycle
          
          !> Traslation
          tr=Grp%op(n)%Mat(1:3,4)
