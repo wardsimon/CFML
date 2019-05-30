@@ -112,12 +112,35 @@
        real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
        real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
        integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
-       integer                                      :: nq        ! number of effective k-vectors > nk
+       integer                                      :: nq        ! number of effective set of Q_coeff > nk
        integer,allocatable,dimension(:,:)           :: q_coeff   ! number of q_coeff(nk,nq)
     End Type kvect_info_type
 
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
+
+    Type, public :: sAtom_Type
+       character(len=20)                        :: Lab
+       character(len=2)                         :: ChemSymb
+       character(len=4)                         :: SfacSymb
+       integer                                  :: Mult
+       real(kind=cp),dimension(3)               :: X
+       real(kind=cp)                            :: Occ
+       real(kind=cp)                            :: Biso
+       character(len=4)                         :: Utype
+       character(len=5)                         :: ThType
+       real(kind=cp),dimension(6)               :: U
+       integer                                  :: n_mc  !up to 8
+       integer                                  :: n_uc
+       real(kind=cp),dimension(3)               :: Moment
+       real(kind=cp),dimension(6,8)             :: Mcs !Mcos,Msin up to 8
+       real(kind=cp),dimension(6,8)             :: Ucs
+    End Type sAtom_Type
+
+    Type, public :: sAtom_List_Type
+       integer                                   :: natoms
+       type(sAtom_Type),dimension(:),allocatable :: atom
+    End Type sAtom_List_Type
 
     real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
     integer,       parameter, private :: max_mult=4096
