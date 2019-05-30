@@ -6,7 +6,7 @@ SubModule (CFML_gSpaceGroups) SPG_018
    Contains
    
    !!----
-   !!---- GET_OPS_FROM_GENER
+   !!---- Get_OPS_from_Generators
    !!----
    !!----    This subroutine assumes that Op contains the identity as the first operator, 
    !!----    followed by few non-equal generators.
@@ -14,7 +14,7 @@ SubModule (CFML_gSpaceGroups) SPG_018
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_OPS_From_Gener(Ngen, Ops, Multip, Table)
+   Module Subroutine Get_OPS_from_Generators(Ngen, Ops, Multip, Table)
       !---- Arguments ----!
       integer,                                        intent(in)     :: ngen
       type(Symm_Oper_Type), dimension(:),             intent(in out) :: Ops
@@ -74,12 +74,12 @@ SubModule (CFML_gSpaceGroups) SPG_018
 
       if (any(done(1:nt,1:nt) .eqv. .false. ) ) then
          Err_CFML%Ierr = 1
-         Err_CFML%Msg  = "Get_Ops_From_Gener@SPACEG: " // &
+         Err_CFML%Msg  = "Get_OPS_from_Generators@SPACEG: " // &
                          "Error in Table of SSG operators not exhausted! Increase the expected order of the group!"
       end if
       if (nt == max_op) then
          Err_CFML%Ierr = 1
-         write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "Get_Ops_From_Gener@SPACEG: Max_Order (", &
+         write(unit=Err_CFML%Msg,fmt="(a,i5,a)") "Get_OPS_from_Generators@SPACEG: Max_Order (", &
                                                  max_op,&
                                                  ") reached! The provided generators may not form a group!"
       end if
@@ -89,7 +89,7 @@ SubModule (CFML_gSpaceGroups) SPG_018
          allocate(Table(multip,multip))
          Table=tb
       end if
-   End Subroutine Get_OPS_From_Gener
+   End Subroutine Get_OPS_from_Generators
 
 End SubModule SPG_018  
    

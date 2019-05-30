@@ -104,7 +104,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
        end if   
        
        gList=get_IT_Generators(str)  ! IT take our default choice for SpaceGroup
-       call Get_Gener_From_Str(gList, d, n_gen, l_gen) 
+       call Get_Generators_from_Str(gList, d, n_gen, l_gen) 
        call Group_Constructor(l_gen,G_std)
        call Identify_Crystallographic_PG(G_std)
        call Identify_Laue_Class(G_std)

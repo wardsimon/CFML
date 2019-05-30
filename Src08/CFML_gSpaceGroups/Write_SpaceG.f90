@@ -6,11 +6,11 @@ SubModule (CFML_gSpaceGroups) SPG_006
    Contains
    
    !!----
-   !!---- WRITE_SPACEG_INFO
+   !!---- Write_SpaceGroup_Info
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Write_SpaceG_Info(Grp,Lun)
+   Module Subroutine Write_SpaceGroup_Info(Grp,Lun)
       !---- Arguments ----!
       class(Spg_Type),    intent(in)   :: Grp
       integer, optional,  intent(in)   :: lun
@@ -76,7 +76,7 @@ SubModule (CFML_gSpaceGroups) SPG_006
       do i=1,Grp%Multip
          write(unit=iout,fmt="(i5,a)") i,"  ->  "//trim(Grp%Symb_Op(i))
       end do
-   End Subroutine Write_SpaceG_Info
+   End Subroutine Write_SpaceGroup_Info
 
 End SubModule SPG_006   
    

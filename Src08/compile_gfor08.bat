@@ -286,7 +286,8 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Get_CrystalSys.f90                 %OPT1%  
       gfortran -c %OPTC% -J..\mod Match_Spg3D.f90                    %OPT1%  
       gfortran -c %OPTC% -J..\mod Set_SpaceG.f90                     %OPT1%
-      
+      gfortran -c %OPTC% -J..\mod OnePrimeOp.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Is_Antilattice.f90                 %OPT1% 
       move /y *.o .. > nul
       cd ..  
 rem   

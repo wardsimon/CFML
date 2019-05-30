@@ -26,9 +26,9 @@ SubModule (CFML_gSpaceGroups) SPG_019
 
       !> Init 
       call Clear_Error()
-      call Init_SpaceG(Spg)
+      call Init_SpaceGroup(Spg)
       allocate(gen1(maxnum_op))
-      call Get_Gener_From_Str(ListGen, d, ngen1, gen1)
+      call Get_Generators_from_Str(ListGen, d, ngen1, gen1)
       call Check_Gener(gen1, gen)
       if (Err_CFML%Ierr /= 0) return
       
@@ -56,7 +56,7 @@ SubModule (CFML_gSpaceGroups) SPG_019
       ngen=ngen+1
       
       !> Construct the raw Group
-      call Get_OPS_From_Gener(ngen,Op,multip)
+      call Get_OPS_from_Generators(ngen,Op,multip)
       if(Err_CFML%Ierr /= 0) return
 
       !> Allocate provisionally to Multip the lattice translations 

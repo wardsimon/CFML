@@ -6,7 +6,7 @@ SubModule (CFML_GSPACEGROUPS) Spg_053
    Contains
    !!----
    !!---- INVERSE_OP_SYMM
-   !!----    Return the inverse symmetry pperator
+   !!----    Return the inverse symmetry operator
    !!----
    !!---- 12/05/2019 10:52:02
    !!

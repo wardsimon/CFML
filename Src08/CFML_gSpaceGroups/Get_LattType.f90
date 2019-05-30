@@ -393,5 +393,58 @@ SubModule (CFML_gSpaceGroups) SPG_041
          Err_CFML%Msg = "Get_Magnetic_Lattice_Type@SPACEG: Unable to identify lattice type."
       end if
    End Subroutine Get_Magnetic_Lattice_Type
+   
+   !!----
+   !!---- GET_LATTICE_TYPE_FROM_GENER
+   !!----    Return the Lattice type symbol from  a list of generators
+   !!----
+   !!---- 26/05/2019
+   !!
+   Module Function Get_Lattice_Type_from_Gener(Ngen,Gen) Result(Latt)
+      !---- Arguments ----!
+      integer,                        intent(in) :: Ngen
+      character(len=*), dimension(:), intent(in) :: Gen
+      character(len=:), allocatable              :: Latt
+      
+      !---- Local Variables ----!
+      integer                                     :: n, nt
+      type(Symm_Oper_Type)                        :: Op
+      type(rational), dimension(3,3)              :: Identidad
+      type(rational), dimension(:,:), allocatable :: Tr
+       
+      
+      !> Init
+      Latt=" "
+      if (ngen <=0 ) return
+      
+      call Rational_Identity_Matrix(identidad)
+      
+      nt=0
+      do n=1,ngen
+         Op=Get_Op_from_Symb(gen(n)) 
+         if (Op%Time_Inv /= 1) cycle
+         if (.not. Rational_Equal(Op%Mat(1:3,1:3),identidad)) cycle
+         if (.not. Rational_Is_NullVector(Op%Mat(1:3,4))) nt=nt+1
+      end do   
+      
+      if (nt ==0) then
+         Latt="P"
+         return
+      end if
+      
+      if (allocated(Tr)) deallocate(Tr)
+      allocate(Tr(3,nt))
+      nt=0
+      do n=1,ngen
+         Op=Get_Op_from_Symb(gen(n)) 
+         if (Op%Time_Inv /= 1) cycle
+         if (.not. Rational_Equal(Op%Mat(1:3,1:3),identidad)) cycle
+         if (rational_Is_NullVector(Op%Mat(1:3,4))) cycle
+         nt=nt+1
+         Tr(:,nt)=Op%Mat(1:3,4)
+      end do 
+      Latt=Get_Lattice_Type_L(Nt, Tr)
+      
+   End Function Get_Lattice_Type_from_Gener
     
 End SubModule SPG_041    

@@ -65,7 +65,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
        
       !> Formation of the list of possible generators extracted from list of generators of 
       !> the input Group
-      call Get_Gener_From_Str(SpG%generators_list,d,ngen,gen_min)
+      call Get_Generators_from_Str(SpG%generators_list,d,ngen,gen_min)
       
       !>Purge the list of operators eliminating centre of symmetry and Lattice Translations
       n=0
@@ -77,8 +77,8 @@ Submodule (CFML_gSpaceGroups) SPG_023
       do i=1,ngen
          gen_aux=gen_min(i)
          Op_aux=Get_Op_from_Symb(gen_aux)
-         if (is_inversion_centre(Op_aux)) cycle
-         if (is_lattice_centring(Op_aux)) cycle
+         if (Is_OP_Inversion_Centre(Op_aux)) cycle
+         if (Is_OP_Lattice_Centring(Op_aux)) cycle
          n=n+1
          gen(n) = gen_aux
          if (SpG%centred /= 1) then

@@ -45,7 +45,7 @@ SubModule (CFML_gSpaceGroups) SPG_021
                   done(m)=.true.
               
                   if (.not. ncent_assigned) then
-                     if (is_inversion_centre(G%Op(m))) then
+                     if (Is_OP_Inversion_Centre(G%Op(m))) then
                         ind(n)=m
                         ncent_assigned=.true.
                         exit

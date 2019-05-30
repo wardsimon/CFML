@@ -42,7 +42,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
       n_laue=0
       n_pg=0
       
-      call Init_SpaceG(SpaceG)
+      call Init_SpaceGroup(SpaceG)
       if (present(ngen) .and. present(gen)) n_gen=ngen
       
       !> Check
@@ -141,10 +141,10 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
          
          if (len_trim(gList) == 0) then
-            call Get_Generators_from_Hall(str_hall,n_gen, l_gen, VShift=co)
+            call Get_Generators_from_Hall(str_hall,n_gen, l_gen)
             if (Err_CFML%Ierr /= 0) return
          else
-            call Get_Gener_From_Str(gList, d, n_gen, l_gen)   
+            call Get_Generators_from_Str(gList, d, n_gen, l_gen)   
          end if   
          
       else

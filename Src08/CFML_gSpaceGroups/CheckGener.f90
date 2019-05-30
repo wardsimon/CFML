@@ -34,14 +34,14 @@ SubModule (CFML_gSpaceGroups) SPG_017
          if (len_trim(gen_in(i)) == 0) cycle
             
          if (.not. init) then
-            d=Get_Dimension_Gener(gen_in(i))
+            d=Get_Dimension_SymmOp(gen_in(i))
             allocate(Mat(d,d))
             do j=0, size(Op)-1
                call allocate_symm_OP(d, Op(j))
             end do
             init = .true.
          else
-            d_in=Get_Dimension_Gener(gen_in(i))
+            d_in=Get_Dimension_SymmOp(gen_in(i))
             if (d /= d_in) then
                Err_CFML%Ierr = 1
                Err_CFML%Msg  = "Check_Gener@SPACEG: Generators with different dimensions."
