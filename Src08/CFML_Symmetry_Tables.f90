@@ -51,7 +51,7 @@
 
     !---- List of public subroutines ----!
     public :: get_compact_hm_symbol, Get_HM_Symbol_from_Compact_HM, get_it_generators, &
-              get_spaceG_Symbols 
+              get_spacegroup_Symbols 
     public :: set_shubnikov_info,set_spgr_info, set_system_equiv, set_wyckoff_info
     public :: remove_shubnikov_info, remove_spgr_info, remove_system_equiv, remove_wyckoff_info
 
@@ -397,18 +397,18 @@
           character(len=:), allocatable :: Strgen  
        End Function Get_IT_Generators
        
-       Module Subroutine Get_SpaceG_Symbols(Str, HM, Hall, IT, C_HM)
+       Module Subroutine Get_SpaceGroup_Symbols(Str, HM, Hall, IT, C_HM)
           !---- Arguments ----!
           character(len=*),           intent(in)  :: Str   
           character(len=*), optional, intent(out) :: HM    
           character(len=*), optional, intent(out) :: Hall  
           integer,          optional, intent(out) :: IT    
           character(len=*), optional, Intent(out) :: C_HM
-       End Subroutine Get_SpaceG_Symbols
+       End Subroutine Get_SpaceGroup_Symbols
        
-       Module Subroutine Set_It_Gen()
+       Module Subroutine Set_IT_Gen()
           !---- Arguments ----!
-       End Subroutine Set_It_Gen
+       End Subroutine Set_IT_Gen
        
        Module Subroutine Set_Shubnikov_Info()
           !---- Arguments ----!

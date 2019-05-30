@@ -47,22 +47,12 @@
           if (Err_CFML%Ierr /= 0) then
              write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
           end if
-          call Write_SpaceG_Info(Grp)
+          call Write_SpaceGroup_Info(Grp)
        end if
         
        write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
        read(*,*) indexg
        
-        !call Get_Multiplication_Table(Grp%Op,table)
-        !!do i=1,Grp%multip
-        !!   write(*,"(128i4)") (Table(i,j),j=1,Grp%multip)
-        !!end do
-        !Call Get_subgroups_from_Table(Table(1:Grp%Numops,1:Grp%Numops),G,ord,nsg)
-        !do i=1,nsg
-        !   write(forma(11:13),"(i3)") ord(i)
-        !   write(*,forma) i," {",G(1:ord(i),i),"   }",ord(i)
-        !end do
-
        !> Testing Get_subgroups_cosets
        if (indexg == 0) then
           call get_subgroups_subgen(Grp,sGrp,nsg)
@@ -74,15 +64,6 @@
           cycle
        end if
        
-        !cycle
-        !if(indexg == 0) then
-        !    call get_subgroups(Grp,sGrp,nsg)
-        !else if(indexg > 0) then
-        !    call get_subgroups(Grp,sGrp,nsg,indexg)
-        !else
-        !    cycle
-        !end if
-
        if (nsg > 0) Then
           do L=1,nsg
              write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
@@ -90,8 +71,8 @@
              if (Err_CFML%Ierr /= 0) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
              end if
-             call Write_SpaceG_Info(sGrp(L))
-            end do
+             call Write_SpaceGroup_Info(sGrp(L))
+          end do
        end if
         
        call CPU_TIME(fin)

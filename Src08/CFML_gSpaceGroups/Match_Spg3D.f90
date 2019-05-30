@@ -108,7 +108,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
        call Group_Constructor(l_gen,G_std)
        call Identify_Crystallographic_PG(G_std)
        call Identify_Laue_Class(G_std)
-       call Get_SpaceG_Symbols(Str, str_HM)
+       call Get_SpaceGroup_Symbols(Str, str_HM)
        str_HM=adjustl(str_HM)
        G_std%spg_lat=str_HM(1:1)
        G_std%spg_symb=str_HM(1:1)//l_case(str_HM(2:))

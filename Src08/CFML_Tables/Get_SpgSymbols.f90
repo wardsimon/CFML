@@ -193,7 +193,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
    !!----
    !!---- 07/05/2019 
    !!
-   Module Subroutine Get_SpaceG_Symbols(Str, HM, Hall, IT, C_HM)
+   Module Subroutine Get_SpaceGroup_Symbols(Str, HM, Hall, IT, C_HM)
       !---- Arguments ----!
       character(len=*),           intent(in)  :: Str   ! Input string with any format for SpaceGroup name
       character(len=*), optional, intent(out) :: HM    ! Hermman-Mauguin
@@ -300,6 +300,6 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       if (present(hall)) hall=l_hall
       if (present(it))   it=l_it
       if (present(c_hm)) c_hm=l_chm
-   End Subroutine Get_SpaceG_Symbols 
+   End Subroutine Get_SpaceGroup_Symbols 
    
 End SubModule Spg_Names 

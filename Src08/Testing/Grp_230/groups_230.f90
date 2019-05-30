@@ -4,12 +4,12 @@
 !!---- 20/04/19
 !!
 Program test230_groups
-   !> Use Modules 
+   !---- Use Modules ----! 
    use CFML_GlobalDeps
    use CFML_Symmetry_Tables
    use CFML_gSpaceGroups
 
-   !> Variables
+   !---- Local Variables ----!
    character(len=256)                  :: generatorList
    character(len=5)                    :: aux
    character(len=15)                   :: forma
@@ -31,7 +31,7 @@ Program test230_groups
    !> Output results
    open(newunit=lun,file="test_230groups.out",status="replace",action="write")
     
-   do i=2,230
+   do i=1,230
       call CPU_TIME(par)
       write(unit=aux,fmt="(i3)") i
       generatorList=" "
@@ -54,7 +54,7 @@ Program test230_groups
           write(lun,"(a)")   "  ------------------------------------------------------------------------------"
       end if
 
-      call get_subgroups_subgen(Grp,sGrp,nsg)
+      call get_subgroups_subgen(Grp, sGrp, nsg)
 
       if (nsg > 0) Then
          write(lun,"(a,i4)") "  Total number of subgroups: ",nsg
@@ -82,8 +82,9 @@ Program test230_groups
          end do
       end if
       call CPU_TIME(fin)
-      write(*,"(a,i4, a20,a,i4,a,f12.3,a)") "  Group number: ",i,"  Symb: "//trim(Grp%shu_symb),"  Transf. to standard: "//trim(Grp%mat2std_shu)//" with ",&
-                               nsg," subgroups CPU-time: ",fin-par," seconds"
+      write(*,"(a,i4,t25,a,t50,a,i4,a,t105,a,f8.3,a)") " Group number: ",i,"Symb: "//trim(Grp%shu_symb),        &
+                                                       "Transf. to standard: "//trim(Grp%mat2std_shu)//" with ",&
+                                                       nsg," subgroups","CPU-time: ",fin-par," seconds"
     end do
     call CPU_TIME(fin)
     write(*,"(a,f12.5,a)") "  CPU_Time for all calculations: ",fin-start," seconds"

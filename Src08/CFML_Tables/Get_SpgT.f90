@@ -45,7 +45,7 @@ SubModule (CFML_Symmetry_Tables) SpgGener
       end if   
       
       !> Other symbol?
-      call Get_SpaceG_Symbols(Spg, IT=numg)
+      call Get_SpaceGroup_Symbols(Spg, IT=numg)
       if (numg > 0 .and. numg <= 230) then
             Strgen=it_spg_gen(numg)(12:)
       end if
@@ -59,7 +59,7 @@ SubModule (CFML_Symmetry_Tables) SpgGener
    !!--++
    !!--++ 20/04/2019 
    !!
-   Module Subroutine Set_It_Gen()
+   Module Subroutine Set_IT_Gen()
 
       it_spg_gen(  1) =  "P 1       : x,y,z "
       it_spg_gen(  2) =  "P -1      : -x,-y,-z "
@@ -298,6 +298,6 @@ SubModule (CFML_Symmetry_Tables) SpgGener
       it_spg_gen(230) =  "I a -3 d  : x+1/2,y+1/2,z+1/2; -x+1/2,-y,z+1/2; -x,y+1/2,-z+1/2; z,x,y; y+3/4,x+1/4,-z+1/4; -x,-y,-z "
 
       return
-   End Subroutine Set_It_Gen
+   End Subroutine Set_IT_Gen
    
 End SubModule SpgGener   
