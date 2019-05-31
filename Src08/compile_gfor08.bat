@@ -348,6 +348,39 @@ rem   Submodules CFML_ExtinCorr
       gfortran -c %OPTC% -J..\mod ShelxCorr.f90                      %OPT1% 
       move /y *.o .. > nul
       cd .. 
+rem
+   echo .... EoS Calculations
+   gfortran -c %OPTC%  -J.\mod CFML_EoS.f90                     %OPT1%
+rem
+rem   Submodules CFML_EoS
+      cd .\CFML_EoS   
+      gfortran -c %OPTC%  -J..\mod AllocateEos.f90                   %OPT1%
+      gfortran -c %OPTC%  -J..\mod AlphaCalc.f90                     %OPT1%
+      gfortran -c %OPTC%  -J..\mod Checks.f90                        %OPT1%
+      gfortran -c %OPTC%  -J..\mod Conlev.f90                        %OPT1%
+      gfortran -c %OPTC%  -J..\mod DerivPartial.f90                  %OPT1%
+      gfortran -c %OPTC%  -J..\mod dKdTCalc.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod EoSCalc.f90                       %OPT1%
+      gfortran -c %OPTC%  -J..\mod FfCalc.f90                        %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Bulk.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Pressure.f90                  %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Properties.f90                %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Tait.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Temperature.f90               %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Transition.f90                %OPT1%
+      gfortran -c %OPTC%  -J..\mod Get_Volume.f90                    %OPT1%
+      gfortran -c %OPTC%  -J..\mod Gruneisen.f90                     %OPT1%
+      gfortran -c %OPTC%  -J..\mod Init_EoS.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod K_Cal.f90                         %OPT1%
+      gfortran -c %OPTC%  -J..\mod NormPressure.f90                  %OPT1%
+      gfortran -c %OPTC%  -J..\mod Pthermal.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod PVT_Table.f90                     %OPT1%
+      gfortran -c %OPTC%  -J..\mod Read_EoS.f90                      %OPT1%
+      gfortran -c %OPTC%  -J..\mod Set_EoS.f90                       %OPT1%
+      gfortran -c %OPTC%  -J..\mod Strain.f90                        %OPT1%
+      gfortran -c %OPTC%  -J..\mod Write_EoS.f90                     %OPT1%
+      move /y *.o .. > nul
+      cd ..         
       goto END
       
 :END
