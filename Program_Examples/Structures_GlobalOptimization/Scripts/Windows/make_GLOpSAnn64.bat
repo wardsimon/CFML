@@ -34,17 +34,17 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c observ.f90            /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
-   ifort /c cost_functions.f90    /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
-   ifort /c GLOpSAnn.f90          /O2 /nologo /heap-arrays /IC:\CrysFML\ifort64\LibC
-   ifort /exe:GLOpSAnn *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib /link /stack:64000000
+   ifort /c observ.f90            /O2 /nologo /heap-arrays /I%CRYSFML%\ifort64\LibC
+   ifort /c cost_functions.f90    /O2 /nologo /heap-arrays /I%CRYSFML%\ifort64\LibC
+   ifort /c GLOpSAnn.f90          /O2 /nologo /heap-arrays /I%CRYSFML%\ifort64\LibC
+   ifort /exe:GLOpSAnn *.obj  %CRYSFML%\ifort64\LibC\CrysFML.lib /link /stack:64000000
 rem   ifort  /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64\LibC\CrysFML.lib
    goto END
 :IFORTD
-   ifort /c observ.f90           /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c cost_functions.f90   /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
-   ifort /c GLOpSAnn.f90         /heap-arrays   /debug=full /traceback /nologo /IC:\CrysFML\ifort64_debug\LibC
-   ifort   /exe:GLOpSAnn.exe *.obj  C:\CrysFML\ifort64_debug\LibC\CrysFML.lib
+   ifort /c observ.f90           /heap-arrays   /debug=full /traceback /nologo /I%CRYSFML%\ifort64_debug\LibC
+   ifort /c cost_functions.f90   /heap-arrays   /debug=full /traceback /nologo /I%CRYSFML%\ifort64_debug\LibC
+   ifort /c GLOpSAnn.f90         /heap-arrays   /debug=full /traceback /nologo /I%CRYSFML%\ifort64_debug\LibC
+   ifort /exe:GLOpSAnn.exe *.obj  %CRYSFML%\ifort64_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
@@ -54,10 +54,10 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran64\LibC
-   gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran64\LibC
-   gfortran -c GLOpSAnn.f90        -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran64\LibC
-   gfortran  *.o -o  GLOpSAnn_gf  -LC:\CrysFML\GFortran64\LibC -lcrysfml  -Wl,--heap=0x01000000
+   gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
+   gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
+   gfortran -c GLOpSAnn.f90        -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
+   gfortran  *.o -o  GLOpSAnn_gf  -L%CRYSFML%\GFortran64\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
 rem
 :END

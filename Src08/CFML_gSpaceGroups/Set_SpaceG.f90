@@ -62,7 +62,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
          read(unit=str, fmt=*, iostat=ier) n_it
          if (ier == 0) then
             gList=get_IT_Generators(str)  ! IT take our default choice for SpaceGroup
-            call Get_SpaceG_Symbols(Str, str_HM, str_Hall)
+            call Get_SpaceGroup_Symbols(Str, str_HM, str_Hall)
             do i=1,NUM_SPGR_INFO
                if (trim(str_HM) /= trim(spgr_info(i)%hm)) cycle
                n_laue=spgr_info(i)%laue
@@ -84,7 +84,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
                
                !> Get generators list from standard
                write(unit=car, fmt='(i3)') n_it
-               call Get_SpaceG_Symbols(car, str_HM_std)
+               call Get_SpaceGroup_Symbols(car, str_HM_std)
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
                end if    
@@ -110,7 +110,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
                
                !> Get generators list from standard
                write(unit=car,fmt=*) n_it
-               call Get_SpaceG_Symbols(car, str_HM_std)
+               call Get_SpaceGroup_Symbols(car, str_HM_std)
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
                end if
@@ -121,7 +121,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
          !> Is compact HM symbol?
          if (n_it ==0) then
             Str_CHM=u_case(trim(Str))
-            call Get_SpaceG_Symbols(str_CHM, str_HM)
+            call Get_SpaceGroup_Symbols(str_CHM, str_HM)
             do i=1,NUM_SPGR_INFO
                if (trim(str_HM) /= trim(spgr_info(i)%hm)) cycle
                n_it=spgr_info(i)%n
@@ -131,7 +131,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
                
                !> Get generators list from standard
                write(unit=car,fmt=*) n_it
-               call Get_SpaceG_Symbols(car, str_HM_std)
+               call Get_SpaceGroup_Symbols(car, str_HM_std)
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
                end if

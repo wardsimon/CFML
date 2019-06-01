@@ -346,6 +346,40 @@ rem   Submodules CFML_ExtinCorr
       ifort /c ShelxCorr.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
+rem
+   echo .... EoS Calculations
+   ifort /c CFML_EoS.f90                              /nologo %OPT1% %OPT2% /module:.\mod 
+   goto END
+rem
+rem   Submodules CFML_EoS
+      cd .\CFML_EoS   
+      ifort /c AllocateEos.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c AlphaCalc.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Checks.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Conlev.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c DerivPartial.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c dKdTCalc.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c EoSCalc.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c FfCalc.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Bulk.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Pressure.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Properties.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Tait.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Temperature.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Transition.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Volume.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Gruneisen.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Init_EoS.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c K_Cal.f90                              /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c NormPressure.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Pthermal.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c PVT_Table.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Read_EoS.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Set_EoS.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Strain.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_EoS.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..   
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
@@ -366,7 +400,6 @@ rem
 rem
    echo .... EoS, Reflections, Atoms
 rem
-   ifort /c CFML_Eos_Mod.f90                          /nologo %OPT1% %OPT2%
    ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
 rem

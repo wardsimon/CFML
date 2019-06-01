@@ -76,7 +76,7 @@ Program Magnetic_Hall
       call Get_Generators_from_Hall(str_Hall, ngen, Gen)
       
       !> Constructor
-      call Init_SpaceG(SpG)
+      call Init_SpaceGroup(SpG)
       call Group_Constructor(gen,SpG)
       if (Err_CFML%Ierr /= 0) then
          print*,'    --->'//trim(Err_CFML%Msg)
