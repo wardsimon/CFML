@@ -15,15 +15,16 @@
 
     Implicit None
     private
-    public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,   &
-              Generate_Reflections, Set_SSGs_from_Gkk, k_SSG_compatible, &
-              Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group
+    public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,    &
+              Generate_Reflections, Set_SSGs_from_Gkk, k_SSG_compatible,  &
+              Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group,&
+              Get_Average_SPG,Allocate_sAtom_list
 
     Type, extends(Spg_Type), public :: SuperSpaceGroup_Type
       logical                             :: standard_setting=.true.  !true or false
       Character(len=60)                   :: SSG_symbol=" "
       Character(len=60)                   :: SSG_Bravais=" "
-      Character(len=13)                   :: SSG_nlabel=" "
+      Character(len=40)                   :: SSG_nlabel=" "
       Character(len=20)                   :: Parent_spg=" "
       Character(len=80)                   :: trn_from_parent=" "
       Character(len=80)                   :: trn_to_standard=" "
@@ -34,9 +35,9 @@
       real,   allocatable,dimension(:,:)  :: kv            ! k-vectors (3,d)
     End Type SuperSpaceGroup_Type
 
-   type,public, extends(SuperSpaceGroup_Type)   :: eSSGroup_Type
-     real(kind=cp), allocatable,dimension(:,:,:):: Om     !Operator matrices (3+d+1,3+d+1,Multip)
-   end type eSSGroup_Type
+    type,public, extends(SuperSpaceGroup_Type)   :: eSSGroup_Type
+       real(kind=cp), allocatable,dimension(:,:,:):: Om     !Operator matrices (3+d+1,3+d+1,Multip)
+    end type eSSGroup_Type
 
     !!----
     !!---- TYPE: sReflect_Type
@@ -119,23 +120,42 @@
     logical,            public :: Err_ssg
     character(len=180), public :: Err_ssg_mess
 
-    Type, public :: sAtom_Type
-       character(len=20)                        :: Lab
-       character(len=2)                         :: ChemSymb
-       character(len=4)                         :: SfacSymb
-       integer                                  :: Mult
-       real(kind=cp),dimension(3)               :: X
-       real(kind=cp)                            :: Occ
-       real(kind=cp)                            :: Biso
-       character(len=4)                         :: Utype
-       character(len=5)                         :: ThType
-       real(kind=cp),dimension(6)               :: U
-       integer                                  :: n_mc  !up to 8
-       integer                                  :: n_uc
-       real(kind=cp),dimension(3)               :: Moment
-       real(kind=cp),dimension(6,8)             :: Mcs !Mcos,Msin up to 8
-       real(kind=cp),dimension(6,8)             :: Ucs
-    End Type sAtom_Type
+    Type, public :: Atom_Type
+       character(len=20)                        :: Lab=" "
+       character(len=2)                         :: ChemSymb=" "
+       character(len=4)                         :: SfacSymb=" "
+       integer                                  :: Mult=0
+       logical                                  :: mag=.false.
+       real(kind=cp),dimension(3)               :: X=0.0_cp
+       real(kind=cp)                            :: Occ=0.0_cp
+       real(kind=cp)                            :: Biso=0.0_cp
+       character(len=4)                         :: Utype="beta"
+       character(len=5)                         :: ThType="isotr"
+       real(kind=cp)                            :: Ueq=0.0_cp
+       real(kind=cp),dimension(6)               :: U=0.0_cp
+       real(kind=cp),dimension(3)               :: Moment=0.0_cp
+       integer, dimension(3)                    :: num_ff=0 !Number of form factor (Xray,b,Magff)
+    End Type Atom_Type
+
+    Type, public, extends(Atom_Type) :: Atom_std_type
+       real(kind=cp),dimension(3)               :: X_std=0.0_cp
+       real(kind=cp)                            :: Occ_std=0.0_cp
+       real(kind=cp)                            :: Biso_std=0.0_cp
+       real(kind=cp),dimension(6)               :: U_std=0.0_cp
+       real(kind=cp),dimension(3)               :: Moment_std=0.0_cp
+    End Type Atom_std_type
+
+    Type, public, extends(Atom_std_type) :: sAtom_type
+       character(len=3)                         :: wyck=" "
+       integer                                  :: n_mc=0  !up to 8
+       integer                                  :: n_dc=0
+       real(kind=cp),dimension(6,8)             :: Mcs=0.0_cp !Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
+       real(kind=cp),dimension(6,8)             :: Mcs_std=0.0_cp !Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
+       real(kind=cp),dimension(6,8)             :: Dcs=0.0_cp !Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(6,8)             :: Dcs_std=0.0_cp !Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+    End Type sAtom_type
+
+
 
     Type, public :: sAtom_List_Type
        integer                                   :: natoms
@@ -153,6 +173,14 @@
     Private :: Gen_SXtal_SReflections,Gen_SReflections
 
   Contains
+
+    Subroutine Allocate_sAtom_list(natoms, As)
+      integer,               intent(in)     :: natoms
+      class(sAtom_List_Type),intent(in out) :: As
+      As%natoms=natoms
+      if(allocated(As%atom)) deallocate(As%atom)
+      allocate(As%atom(natoms))
+    End Subroutine Allocate_sAtom_list
 
     Subroutine Allocate_kvect_info(nk,nq,kvect_info)
       integer,               intent(in)  :: nk,nq
@@ -918,6 +946,64 @@
 
        return
     End Function H_Mult
+
+   Subroutine Get_Average_SPG(ssg, SpG)
+      class(SuperSpaceGroup_Type),     intent (in) :: ssg
+      type (Space_Group_Type),         intent(out) :: SpG
+      !Local variables
+      integer :: i, j, k, ngen,tim, d
+      type(SuperSpaceGroup_Type)   :: group
+      character(len=:),allocatable :: gengroup
+      character(len=2)  :: ty
+      character(len=40) :: aux
+      character(len=40), dimension(:),allocatable :: gen
+      character(len=6) :: x1x2x3_type
+      gengroup=ssg%generators_list
+      !Modify the operators to eliminate internal space parts and type inversion
+      call Get_Operators_From_String(ssg%generators_list,d,ngen,gen)
+      gengroup="                                                   "
+      ty="x4"
+      x1x2x3_type="x1x2x3"
+      j=index(gen(1),"x4")
+      if(j == 0) then
+        ty="t"
+        x1x2x3_type="xyz"
+      end if
+      do i=1,ngen
+        aux=gen(i)
+        j=index(aux,trim(ty))
+        k=index(aux,",",back=.true.)
+        read(unit=aux(k+1:),fmt=*) tim
+        aux=aux(1:j-1)
+        k=index(aux,",",back=.true.)
+        write(unit=aux(k+1:),fmt="(i1)") abs(tim)
+        gengroup=trim(gengroup)//trim(aux)//";"
+      end do
+
+      call Group_Constructor(gengroup,group)
+       !Copy the elements of group into SpG
+       SpG%Num_gen=ngen
+       SpG%NumLat = group%num_lat+1
+       allocate(SpG%Latt_trans(3,SpG%NumLat))
+       SpG%Latt_trans=0.0
+       do i=1,group%num_lat
+         SpG%Latt_trans(:,i+1)=group%Lat_tr(:,i)
+       end do
+       SpG%Numops = group%Numops
+       SpG%Centred= group%centred
+       SpG%Centre= group%Centre
+       SpG%Centre_coord= group%Centre_coord
+       SpG%Multip = group%multip
+       allocate(SpG%SymopSymb(SpG%Multip),SpG%Symop(SpG%Multip))
+       do i=1,SpG%Multip
+         j=index(group%Symb_Op(i),",",back=.true.)
+         SpG%SymopSymb(i)  = group%Symb_Op(i)(1:j-1)
+         SpG%Symop(i)%Rot  = group%Op(i)%Mat(1:3,1:3)
+         SpG%Symop(i)%tr   = group%Op(i)%Mat(1:3,4)
+       end do
+
+   End Subroutine Get_Average_SPG
+
 
     !!----
     !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder,mag_only)

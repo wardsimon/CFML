@@ -263,8 +263,8 @@
     Function Get_dimension(Symbol) result(d)
        character(len=*), intent (in) :: Symbol
        integer                       :: d
-       integer, dimension(10) :: Pos
-       integer                :: np,i,j
+       integer, dimension(192) :: Pos
+       integer                 :: np,i,j
        call Get_Separator_Pos(symbol,",",Pos,np)
        !Verify if time reversal symbol is provided
        read(unit=symbol(Pos(np)+1:),fmt=*,iostat=i) j !reading an integer supposed to be invt
@@ -1313,7 +1313,7 @@
        character(len=*),dimension(:), allocatable, intent(out) :: gen
        !--- Local variables ---!
        character(len=:), allocatable   :: symbol
-       integer,dimension(10) :: Pos
+       integer,dimension(192) :: Pos
        integer :: i,j,k,np
        logical :: timerev_provided
 
