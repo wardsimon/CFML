@@ -17,12 +17,16 @@ install(TARGETS crysfml_cpp
    DESTINATION ${PROJECT_SOURCE_DIR}/../ifort64HDF/LibC)   
 
 
-	
 #################################
-# Commad line arguments section
+# Command line arguments section
 #################################
+
 #cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
+
+if(MINGW_HDF_TRICK)
+  add_compile_options(-D MINGW_HDF_TRICK)
+endif()
 
 # Boost
 #set(Boost_USE_STATIC_LIBS OFF) 
@@ -30,18 +34,16 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 #set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost 1.45.0)
 if(WIN32)
-include_directories("C:\\Projects\\fullprof\\boost\\include\\boost-1_69")
-else()
-include_directories(${Boost_INCLUDE_DIRS}) 
+set(Boost_INCLUDE_DIRS "C:\\Projects\\fullprof\\boost\\include\\boost-1_69")
 endif()
+include_directories(${Boost_INCLUDE_DIRS}) 
 
 # HDF5
 find_package(HDF5)
 if(WIN32)
-include_directories("C:\\Projects\\fullprof\\hdf5\\include\\")
-else()
-include_directories(${HDF5_INCLUDE_DIRS})
+set(HDF5_INCLUDE_DIRS "C:\\Projects\\fullprof\\hdf5\\include\\")
 endif()
+include_directories(${HDF5_INCLUDE_DIRS})
 
 # Nexus and blosc
 find_package(nexus)

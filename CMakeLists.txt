@@ -5,6 +5,7 @@
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
 # By default the built is in CONSOLE mode and 32 bits. If 64 bits have to be used one should do -D ARCH32=OFF
+option(MINGW_HDF_TRICK "Help building with MinGW" OFF)
 option(USE_HDF "Build crysfml and wcrysfml library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
