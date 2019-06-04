@@ -2969,7 +2969,7 @@ contains
                 Op%Mat      = matmul(Cinv(:,:,n),Op%Mat)
                 Op%time_inv = G%Op(i)%time_inv
                 call Get_Symb_Op_from_Mat(Op%Mat,gener(i),"xyz",Op%time_inv)
-                write(*,"(a)") trim(gener(i))
+                !write(*,"(a)") trim(gener(i))
             end do
             call Group_Constructor(gener,G_aux(n),"xyz")
             G_aux(n)%laue = G%laue

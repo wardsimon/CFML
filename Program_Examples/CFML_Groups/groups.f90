@@ -74,7 +74,7 @@ Program test_groups
         if(nsg > 0) Then
             do L=1,nsg
                 write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
-                call Identify_Group(sGrp(L),.false.)
+                call Identify_Group(sGrp(L)) !,.false.)
                 call print_Group(sGrp(L))
                 if (err_std) then
                     write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(err_std_mess)

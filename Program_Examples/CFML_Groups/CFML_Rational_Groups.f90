@@ -541,7 +541,7 @@
                 exit
              end if
            end do
-             write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
+             !write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
          end do
       else
         ns=1
@@ -569,7 +569,7 @@
                   exit
                end if
              end do
-             write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
+             !write(*,"(2(a,i4),a,192i4)") "Group:",L," Order:",Ord(L), " Elements:",G(1:Ord(L),L)
           end do
         end do do_ext
       else

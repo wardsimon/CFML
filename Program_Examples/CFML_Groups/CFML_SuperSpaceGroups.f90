@@ -1093,10 +1093,10 @@
                 mp=0
                 if(present(SSG) .and. sval > epsr) then
                    if(SSG%Num_Lat /= 0) then
-                     if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                       !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-                       cycle
-                     end if
+                     !if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+                     !  !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+                     !  cycle
+                     !end if
                    end if
                    if(H_Absent_SSG(hh,SSG)) then
                      !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
@@ -1135,7 +1135,7 @@
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
                 indtyp(num_ref)=mp
-                !write(*,*) num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
+                !write(*,"(i8,") num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
              end do
           end do
        end do ext_do
@@ -1152,13 +1152,10 @@
        	      	 do ia=-1,1,2
        	      	   hh(4:3+nk)=ia*kinfo%q_coeff(1:nk,n)
                    sval=H_s(hh,Cell,nk,kinfo%kv)
-       	      	   !write(*,*) hh(1:3+nk),sval
+       	      	   !write(*,*) hh(1:3+nk),sval,max_s
                    if (sval > max_s) cycle
                    mp=0
                    if(present(SSG)) then
-                      if(SSG%Num_Lat /= 0) then
-                        if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
-                      end if
                       if(H_Absent_SSG(hh,SSG)) then
                           !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
                         if(SSG%Mag_type /= 2 .and. mag) then
@@ -1207,6 +1204,24 @@
          indtyp(i-1)=indtyp(i)
        end do
        num_ref=num_ref-1
+
+       if(ssg%Num_Lat /= 0) then
+                      if(SSG%Num_Lat /= 0) then
+                      end if
+         n=0
+         do i=1,num_ref
+           hh=hkl(:,i)
+           if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
+             !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
+             cycle
+           end if
+           n=n+1
+           hkl(:,n)=hh
+           sv(n)=sv(i)
+           indtyp(n)=indtyp(i)
+         end do
+         num_ref=n
+       end if
 
        if(ordering) then
           call sort(sv,num_ref,indx)
