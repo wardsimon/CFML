@@ -131,7 +131,9 @@ SubModule (CFML_EoS) EoS_025
       if (present(iout)) lun=iout
 
       do i=1,n
-         write(lun,'(3x,a,3x,a,3x,a)')trim(rformat(xyy(1,i),10)),trim(rformat(xyy(2,i),10)),trim(rformat(xyy(3,i),10))
+         write(lun,'(3x,a,3x,a,3x,a)') trim(string_real(xyy(1,i),10)), &
+                                       trim(string_real(xyy(2,i),10)), &
+                                       trim(string_real(xyy(3,i),10))
       end do
    End Subroutine Write_Data_Conlev
    
@@ -157,9 +159,11 @@ SubModule (CFML_EoS) EoS_025
       !> Info
       write(lun,'(//a,f6.2,a)') "Coordinates for confidence ellipse at confidence level of ",delchi_levels(isig),"%"
 
-      write(lun,'(3x,"X axis as ",a," with variance = ",a)')trim(eos%parname(ix)),trim(rformat(eos%vcv(ix,ix),10))
-      write(lun,'(3x,"Y axis as ",a," with variance = ",a)')trim(eos%parname(iy)),trim(rformat(eos%vcv(iy,iy),10))
-      write(lun,'(3x,"The covariance of the two variables = ",a)')trim(rformat(eos%vcv(ix,iy),10))
+      write(lun,'(3x,"X axis as ",a," with variance = ",a)') trim(eos%parname(ix)), &
+                                                             trim(string_real(eos%vcv(ix,ix),10))
+      write(lun,'(3x,"Y axis as ",a," with variance = ",a)') trim(eos%parname(iy)), &
+                                                             trim(string_real(eos%vcv(iy,iy),10))
+      write(lun,'(3x,"The covariance of the two variables = ",a)') trim(string_real(eos%vcv(ix,iy),10))
 
       write(lun,'(//,a,//)') &
                 "Data points for plotting: first column is X with two columns with the two Y values at that X"

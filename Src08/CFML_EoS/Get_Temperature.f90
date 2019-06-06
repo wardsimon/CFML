@@ -14,10 +14,10 @@ SubModule (CFML_EoS) EoS_004
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: V       ! Volume
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: t
 
       !---- Local Variables ----!
       integer                           :: nstep
-      real(kind=cp)                     :: t
       real(kind=cp)                     :: pa,va,ta
       real(kind=cp)                     :: step,dp1,dp2
 
@@ -86,9 +86,10 @@ SubModule (CFML_EoS) EoS_004
       type(Eos_Type),          intent(in) :: EoSPar    ! Eos Parameter
       real(kind=cp), optional, intent(in) :: Tmin      ! Range for solution in T
       real(kind=cp), optional, intent(in) :: Tmax
+      real(kind=cp)                       :: tk
 
       !---- Local Variables ----!
-      real(kind=cp)                      :: tk,tref
+      real(kind=cp)                      :: tref
       real(kind=cp)                      :: v00,v0T
       real(kind=cp)                      :: a,b,c,d,t1,t2,t3,x1,x2,x3
       real(kind=cp)                      :: a1,a2,a3,q,r,s1,s2,dd,th

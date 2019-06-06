@@ -14,10 +14,11 @@ SubModule (CFML_EoS) EoS_008
       real(kind=cp),  intent(in) :: P      ! Pressure
       real(kind=cp),  intent(in) :: T      ! Temperature
       type(Eos_Type), intent(in) :: EosPar ! EoS Variable
+      real(kind=cp)              :: GPT
 
       !---- Local Variables ----!
       integer         :: i
-      real(kind=cp)   :: gpt, delp
+      real(kind=cp)   :: delp
 
       !> default
       gpt=eospar%params(30)          ! default is g(Pref,Tref)
@@ -45,9 +46,10 @@ SubModule (CFML_EoS) EoS_008
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperarture
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: G
 
       !---- Local Variables ----!
-      real(kind=cp) :: v,g
+      real(kind=cp) :: v
 
       v=get_volume(P,T,eospar)
       G=Get_Grun_V(v,Eospar)
@@ -64,9 +66,9 @@ SubModule (CFML_EoS) EoS_008
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: V       ! Volume or length if linear
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: GRun    ! The resulting gruneisen gamma
 
       !---- Local Variables ----!
-      real(kind=cp) :: Grun                 !The resulting gruneisen gamma
       real(kind=cp) :: VV0
 
       !> Must be careful with transitions because eospar%params(1) is the high phase V0

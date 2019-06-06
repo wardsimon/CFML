@@ -17,11 +17,12 @@ SubModule (CFML_EoS) EoS_013
       real(kind=cp),            intent(in) :: T       ! Temperature
       type(Eos_Type),           intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp),  optional, intent(in) :: DeltaT  ! Delta T value
+      real(kind=cp)                        :: Alpha
 
       !---- Local Variables ----!
       integer                        :: j
       real(kind=cp), dimension(-2:2) :: v  ! array for calc v values
-      real(kind=cp)                  :: alpha, del, tt, delmin, tlimit, tr, alphaest, vlimit
+      real(kind=cp)                  :: del, tt, delmin, tlimit, tr, alphaest, vlimit
 
       !> Init
       alpha=0.0_cp

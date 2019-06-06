@@ -18,9 +18,9 @@ SubModule (CFML_EoS) EoS_006
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: VV0     ! Volume divided by V0 at this temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: S
 
       !---- Local Variables ----!
-      real(kind=cp) :: s
       real(kind=cp) :: cvv0
 
       !> Init
@@ -61,9 +61,10 @@ SubModule (CFML_EoS) EoS_006
       real(kind=cp),  intent(in) :: V       ! Volume
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameters
+      real(kind=cp)              :: S
 
       !---- Local Variables ----!
-      real(kind=cp) :: vvo,s
+      real(kind=cp) :: vvo
       type(Eos_Type):: E  ! Eos Parameters copy
 
       !> Init

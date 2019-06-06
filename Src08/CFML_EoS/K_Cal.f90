@@ -19,10 +19,10 @@ SubModule (CFML_EoS) EoS_009
       real(kind=cp),            intent(in) :: T       ! Temperature
       type(Eos_Type),           intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp),  optional, intent(in) :: P       ! Pressure if known
+      real(kind=cp)                        :: kc
 
       !---- Local Variables ----!
       integer                            :: j
-      real(kind=cp)                      :: kc
       real(kind=cp)                      :: vv0,k0,kp,kpp,f,vol
       real(kind=cp)                      :: a,b,c,nu,vt,dPdV,delv
       real(kind=cp)                      :: x,pFG0,c0,c2,da,db,dc              ! For APL
@@ -136,7 +136,7 @@ SubModule (CFML_EoS) EoS_009
             kc= 3.0_cp*k0/vv0*( 1.0_cp/3.0_cp + a*f + b*f*f + c*f*f*f)
 
          case(5) ! Tait
-            call get_tait(eospar,t,abc)              ! get_tait returns volume-like parameters even for linear
+            abc=get_tait(eospar,t)              ! get_tait returns volume-like parameters even for linear
             Pcorr=Ptrue
             if (eospar%pthermaleos) Pcorr=Ptrue - pthermal(Vol,T,eospar)
             if (abc(2)*Pcorr < -0.999999_cp) then
@@ -253,11 +253,11 @@ SubModule (CFML_EoS) EoS_009
       real(kind=cp),           intent(in) :: T       ! Temperature
       type(Eos_Type),          intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp), optional, intent(in) :: P       ! Pressure if known
+      real(kind=cp)                       :: kpc
 
       !---- Local Variables ----!
       integer                            :: j
       type(Eos_Type)                     :: eosbare
-      real(kind=cp)                      :: kpc
       real(kind=cp)                      :: vv0,k0,kp,kpp,ptr,vol,vs,ttr,betap_tran,betap_bare,k
       real(kind=cp)                      :: a,b,f,rkp_top, rkp_bot,nu,dkdv,vt
       real(kind=cp)                      :: c,c0,c2,da,db,dc,d2a,d2b,d2c,group,dgroup,x,PFG0,kc   ! APL
@@ -310,7 +310,7 @@ SubModule (CFML_EoS) EoS_009
          case (1:5)
             vv0=vol/get_V0_T(t,eospar)          ! vv0 is  v(p,t)/v(p=0,t): in transition, highphase
             k0=Get_K0_T(T,eospar)               ! returns M(T) for linear,
-            if (err_eos) return                 ! exit with value eosparms(2) if k0 at P=0 calculated as negative
+            if (err_CFML%IErr == 1) return                 ! exit with value eosparms(2) if k0 at P=0 calculated as negative
 
             kp=Get_Kp0_T(T,eospar)
             kpp=Get_Kpp0_T(T,eospar)
@@ -363,7 +363,7 @@ SubModule (CFML_EoS) EoS_009
             kpc=1.0_cp+rkp_top/rkp_bot
 
           case(5) ! Tait
-            call get_tait(eospar,t,abc)              ! get_tait returns volume-like parameters even for linear
+            abc=get_tait(eospar,t)              ! get_tait returns volume-like parameters even for linear
             Pcorr=Ptrue
             if (eospar%pthermaleos) pcorr=ptrue - pthermal(Vol,T,eospar)   ! correct P for pthermal, needed only for Tait
             if (abc(2)*Pcorr < -0.999999_cp) then
@@ -508,10 +508,11 @@ SubModule (CFML_EoS) EoS_009
       real(kind=cp),  intent(in) :: V       ! Volume
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: kppc
 
       !---- Local Variables ----!
       integer                      :: j
-      real(kind=cp)                :: kppc,ptr,vlimit,plimit,vlimitk
+      real(kind=cp)                :: ptr,vlimit,plimit,vlimitk
       real(kind=cp)                :: delp,p0,p,vt
       real(kind=cp),dimension(-2:2):: kpt
 

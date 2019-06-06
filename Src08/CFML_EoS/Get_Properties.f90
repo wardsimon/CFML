@@ -15,10 +15,11 @@ SubModule (CFML_EoS) EoS_012
       real(kind=cp),     intent(in) :: T       ! Temperature
       type(Eos_Type),    intent(in) :: EoS     ! Eos Parameter
       integer, optional, intent(in) :: xtype   ! =0 when X=V, =1 for X=K (isothermal)
+      real(kind=cp)                 :: val
 
       !---- Local Variables ----!
       integer       :: itype
-      real(kind=cp) :: vol, val, agt
+      real(kind=cp) :: vol, agt
 
       !> Init
       itype=0               ! default

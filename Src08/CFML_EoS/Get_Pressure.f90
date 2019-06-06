@@ -22,11 +22,11 @@ SubModule (CFML_EoS) EoS_001
       real(kind=cp),  intent(in) :: V       ! Volume
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: p
 
       !---- Local Variables ----!
       logical                           :: first
       integer                           :: i
-      real(kind=cp)                     :: p
       real(kind=cp)                     :: K0,Kp,kpp,vv0,x,u,vol,plast,vs,ptr,vtr,difp,volp
       real(kind=cp)                     :: a,b,c,f,c0,c2,pFG0
       real(kind=cp),dimension(N_EOSPAR) :: ev
@@ -103,7 +103,7 @@ SubModule (CFML_EoS) EoS_001
                p=3.0_cp*vv0*K0*f*(1.0_cp + b*f + c*f*f)
 
             case (5) ! Tait
-               call get_tait(eospar,t,abc)
+               abc=get_tait(eospar,t)
                vv0=1.0_cp/vv0     ! back to vv0=v/v0
                p=(((vv0 +abc(1) -1.0_cp)/abc(1))**(-1.0_cp/abc(3)) - 1.0_cp)/abc(2)
 
@@ -179,10 +179,10 @@ SubModule (CFML_EoS) EoS_001
       real(kind=cp),  intent(in) :: V       ! Volume
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: esd
 
       !---- Local Variables ----!
       integer                           :: i,j
-      real(kind=cp)                     :: esd
       real(kind=cp),dimension(n_eospar) :: td
       real(kind=cp)                     :: vol,temp
       type(Eos_Type)                    :: E  ! Eos Parameter local copy
@@ -222,10 +222,11 @@ SubModule (CFML_EoS) EoS_001
       type(Eos_Type),          intent(in) :: EoS     ! Eos Parameter
       integer,                 intent(in) :: itype
       real(kind=cp), optional, intent(in) :: Pest    ! approx pressure: needed if transitions
+      real(kind=cp)                       :: p
 
       !---- Local Variables ----!
       integer            :: ic,irev
-      real(kind=cp)      :: p,temp,ktarget,kcalc,ktol,step,del,delprev,pprev,v0,step_prev
+      real(kind=cp)      :: temp,ktarget,kcalc,ktol,step,del,delprev,pprev,v0,step_prev
       real(kind=cp)      :: pmindiff
       real(kind=cp)      :: k0,steptest
       !character(len=:), allocatable :: ltext
@@ -321,10 +322,10 @@ SubModule (CFML_EoS) EoS_001
       type(Eos_Type),          intent(in) :: EoS     ! Eos Parameter
       integer,                 intent(in) :: Xtype   ! =0 when X=V, =1 for X=K (isothermal)  =2 for adiabatic
       real(kind=cp), optional, intent(in) :: Pest    ! Approx pressure: needed if transitions
-
+      real(kind=cp)                       :: p
+      
       !---- Local Variables ----!
       integer       :: itype
-      real(kind=cp) :: p
 
       !> Init
       p=0.0_cp

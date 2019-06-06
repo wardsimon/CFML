@@ -19,9 +19,10 @@ SubModule (CFML_EoS) EoS_002
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T        ! Temperature
       type(Eos_Type), intent(in) :: EoSPar   ! Eos Parameter
+      real(kind=cp)              :: V   
 
       !---- Local Variables ----!
-      real(kind=cp)                      :: V,kp,AK
+      real(kind=cp)                      :: kp,AK
       real(kind=cp)                      :: Tref,A,B,C,Tn,tt
       real(kind=cp)                      :: delt,delt2
       real(kind=cp), dimension(n_eospar) :: ev
@@ -115,13 +116,13 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
       real(kind=cp), parameter          :: PREC=0.000001_cp  !precision to find V.
 
       integer                           :: nstep
       type(Eos_Type)                    :: EoS  ! Eos copy
-      real(kind=cp)                     :: V
       real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
       real(kind=cp)                     :: Vol, step,dp1,dp2
       real(kind=cp),dimension(N_EOSPAR) :: ev
@@ -205,7 +206,7 @@ SubModule (CFML_EoS) EoS_002
 
          !> Analytic solution for Tait
          if (eospar%imodel ==5) then
-            call get_tait(eospar,t,abc)                     ! get_tait returns volume-like parameters even for linear
+            abc=get_tait(eospar,t)                     ! get_tait returns volume-like parameters even for linear
             if (abc(2)*pa < -0.999999_cp) then
                err_CFML%Ierr=1
                err_CFML%Msg='Pressure yields infinite volume for Tait Eos'
@@ -304,6 +305,7 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
       real(kind=cp), parameter          :: PREC=0.000001_cp  !precision to find V.
@@ -314,7 +316,6 @@ SubModule (CFML_EoS) EoS_002
 
       
       type(Eos_Type)                    :: EoS  ! Eos copy
-      real(kind=cp)                     :: V
       real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
       real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev
       real(kind=cp),dimension(N_EOSPAR) :: ev
@@ -398,7 +399,7 @@ SubModule (CFML_EoS) EoS_002
 
          !> Analytic solution for Tait
          if (eospar%imodel ==5) then
-            call get_tait(eospar,t,abc)                     ! get_tait returns volume-like parameters even for linear
+            abc=get_tait(eospar,t)                     ! get_tait returns volume-like parameters even for linear
             if (abc(2)*pa < -0.999999_cp) then
                err_CFML%IErr=1
                err_CFML%Msg='Pressure yields infinite volume for Tait Eos'
@@ -488,9 +489,10 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp),  intent(in) :: K       ! Bulk modulus
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: E      ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
-      real(kind=cp)                      :: V,vprev,Kprev,kc,vnew,delv,delvprev,Vstep
+      real(kind=cp)                      :: vprev,Kprev,kc,vnew,delv,delvprev,Vstep
 
       !> Init
       v=0.0_cp
@@ -552,9 +554,10 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp),  intent(in) :: K       ! Bulk modulus
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: E       ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
-      real(kind=cp) :: V,vprev,Kprev,kc,vnew,delv,delvprev
+      real(kind=cp) :: vprev,Kprev,kc,vnew,delv,delvprev
 
       !> Init
       v=0.0_cp
@@ -593,9 +596,10 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp),  intent(in) :: S       ! Strain
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
-      real(kind=cp)                      :: V,v0
+      real(kind=cp)                      :: v0
       real(kind=cp), dimension(n_eospar) :: ev
 
       !> Init
@@ -632,4 +636,4 @@ SubModule (CFML_EoS) EoS_002
       if (eospar%linear) v=v**(1.0_cp/3.0_cp)
    End Function Get_Volume_S
    
-End SubModule (CFML_EoS) EoS_002
+End SubModule EoS_002
