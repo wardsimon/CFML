@@ -1,4 +1,15 @@
 #################################
+# Command line arguments section
+#################################
+
+#cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
+cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
+
+if(MINGW_HDF_TRICK)
+  add_compile_options(-DMINGW_HDF_TRICK)
+endif()
+
+#################################
 # Sources section
 #################################
 
@@ -6,7 +17,6 @@ project(crysfml_cpp)
 
 set(crysfml_cpp_sources ./NexusToCFML.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/")
-message(${CMAKE_MODULE_PATH})
 
 add_library(crysfml_cpp STATIC ./NexusToCFML.cpp ./DataNexusLib.cpp ./blosc_filter.c ./HeaderBloc.cpp  ./IntegerBloc.cpp  ./FloatBloc.cpp ./DataBloc.cpp ./ArgumentHandler.cpp )
 
@@ -16,17 +26,9 @@ install(TARGETS crysfml_cpp
 install(TARGETS crysfml_cpp 
    DESTINATION ${PROJECT_SOURCE_DIR}/../ifort64HDF/LibC)   
 
-
 #################################
-# Command line arguments section
+# Dependencies section
 #################################
-
-#cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
-cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
-
-if(MINGW_HDF_TRICK)
-  add_compile_options(-D MINGW_HDF_TRICK)
-endif()
 
 # Boost
 #set(Boost_USE_STATIC_LIBS OFF) 
@@ -48,7 +50,7 @@ include_directories(${HDF5_INCLUDE_DIRS})
 # Nexus and blosc
 find_package(nexus)
 include_directories(${NEXUS_INCLUDE_DIR})
-message(${NEXUS_INCLUDE_DIR})
+
 # Including blosc, useless on macOS and Linux
 find_package(blosc)
 include_directories(${BLOSC_INCLUDE_DIR})
