@@ -5,6 +5,8 @@
 #cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
+# A "trick" has been set on the build server to build with MinGW
+# See See http://hdf-forum.184993.n3.nabble.com/HDF5-and-MinGW-td3393676.html for more details about this "trick"
 if(MINGW_HDF_TRICK)
   add_compile_options(-DMINGW_HDF_TRICK)
 endif()
@@ -31,10 +33,12 @@ install(TARGETS crysfml_cpp
 #################################
 
 # Boost
+# Use proper "Findboost_cryfml.cmake"
 find_package(boost_crysfml)
 include_directories(${Boost_INCLUDE_DIR})
 
 # HDF5
+# Use proper "Findhdf5_cryfml.cmake"
 find_package(hdf5_crysfml)
 include_directories(${HDF5_INCLUDE_DIR})
 
