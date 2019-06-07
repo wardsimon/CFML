@@ -1,0 +1,6 @@
+if(DEFINED ENV{CRYSFML_HDF5_DIR})
+ set(HDF5_HINTS_DIR "$ENV{CRYSFML_HDF5_DIR}" "$ENV{CRYSFML_HDF5_DIR}/include")
+ find_path(HDF5_INCLUDE_DIR hdf5.h HINTS ${HDF5_HINTS_DIR})
+else()
+ find_package(HDF5)
+endif()
