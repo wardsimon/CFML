@@ -13,12 +13,13 @@ SubModule (CFML_EoS) EoS_007
    !!
    Module Function Get_K(P,T,EosPar) Result(K)
       !---- Arguments ----!
-      real(kind=cp),intent(in)        :: p       ! Pressure
-      real(kind=cp),intent(in)        :: t       ! Tenperature
-      type(Eos_Type),intent(in)       :: Eospar  ! Eos Parameters
+      real(kind=cp), intent(in)        :: p       ! Pressure
+      real(kind=cp), intent(in)        :: t       ! Tenperature
+      type(Eos_Type),intent(in)        :: Eospar  ! Eos Parameters
+      real(kind=cp)                    :: k
 
       !---- Local Variables ----!
-      real(kind=cp)                   :: k, v
+      real(kind=cp)                   :: v
 
       v=get_volume(p,t,eospar)
       k=k_cal(v,t,eospar,p=p)
@@ -36,9 +37,10 @@ SubModule (CFML_EoS) EoS_007
       real(kind=cp),intent(in)        :: p       ! Pressure
       real(kind=cp),intent(in)        :: t       ! Tenperature
       type(Eos_Type),intent(in)       :: Eospar  ! Eos Parameters
-
+      real(kind=cp)                   :: kp
+      
       !---- Local Variables ----!
-      real(kind=cp)                   :: kp, v
+      real(kind=cp)                   :: v
 
       v=get_volume(p,t,eospar)
       kp=kp_cal(v,t,eospar,p=p)
@@ -60,10 +62,11 @@ SubModule (CFML_EoS) EoS_007
    Module Function Get_K0_T(T,Eospar) Result(k0)
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T       ! Temperature
-      type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      type(Eos_Type),intent(in)  :: Eospar  ! Eos Parameters
+      real(kind=cp)              :: k0
 
       !---- Local Variables ----!
-      real(kind=cp) :: k0,vr
+      real(kind=cp) :: vr
 
       !> Init
       k0=eospar%params(2) !default (and correct if no thermal model)
@@ -99,9 +102,10 @@ SubModule (CFML_EoS) EoS_007
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: kp0
 
       !---- Local Variables ----!
-      real(kind=cp) :: kp0,vr
+      real(kind=cp) :: vr
 
       !> Init
       kp0=eospar%params(3) !default (and correct if no thermal model)
@@ -136,9 +140,9 @@ SubModule (CFML_EoS) EoS_007
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: kpp0
 
       !---- Local Variables ----!
-      real(kind=cp)  :: kpp0
       type(Eos_Type) :: eost     ! workspace
 
       !> Init

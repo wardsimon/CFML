@@ -56,7 +56,7 @@ Module CFML_EoS
    Use CFML_GlobalDeps
    Use CFML_Maths,     only: Debye,Second_Derivative,spline_interpol
    Use CFML_Metrics,   only: Cell_Type, Get_Cryst_Family, Set_Crystal_Cell
-   Use CFML_Strings,   only: u_case, string_real
+   Use CFML_Strings,   only: u_case, string_real, string_numstd
 
    !---- Definitions ----!
    implicit none
@@ -257,13 +257,15 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: V       
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: P
       End Function Get_Pressure
       
       Module Function Get_Pressure_Esd(V,T,EosPar) Result(esd)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: V       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: EsD 
       End Function Get_Pressure_Esd
       
       Module Function Get_Pressure_K(K,T,Eos,Itype,Pest) Result(P)
@@ -272,7 +274,8 @@ Module CFML_EoS
          real(kind=cp),           intent(in) :: T       
          type(Eos_Type),          intent(in) :: EoS     
          integer,                 intent(in) :: itype
-         real(kind=cp), optional, intent(in) :: Pest    
+         real(kind=cp), optional, intent(in) :: Pest   
+         real(kind=cp)                       :: P 
       End Function Get_Pressure_K
       
       Module Function Get_Pressure_X(X,T,Eos,Xtype,Pest) Result(P)
@@ -281,20 +284,23 @@ Module CFML_EoS
          real(kind=cp),           intent(in) :: T       
          type(Eos_Type),          intent(in) :: EoS     
          integer,                 intent(in) :: Xtype   
-         real(kind=cp), optional, intent(in) :: Pest    
+         real(kind=cp), optional, intent(in) :: Pest 
+         real(kind=cp)                       :: P   
       End Function Get_Pressure_X
       
       Module Function Get_V0_T(T,EosPar) Result(V)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: T        
          type(Eos_Type), intent(in) :: EoSPar   
+         real(kind=cp)              :: V   
       End Function Get_V0_T
       
       Module Function Get_Volume(P,T,EosPar) Result(v)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: P       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: V 
       End Function Get_Volume
       
       Module Function Get_Volume_New(P,T,EosPar) Result(v)
@@ -302,20 +308,23 @@ Module CFML_EoS
         real(kind=cp),  intent(in) :: P       
         real(kind=cp),  intent(in) :: T       
         type(Eos_Type), intent(in) :: EoSPar  
+        real(kind=cp)              :: V
       End Function Get_Volume_New
       
       Module Function Get_Volume_K(K,T,E) Result(V)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: K      
          real(kind=cp),  intent(in) :: T      
-         type(Eos_Type), intent(in) :: E      
+         type(Eos_Type), intent(in) :: E    
+         real(kind=cp)              :: V  
       End Function Get_Volume_K
       
       Module Function Get_Volume_K_old(K,T,E) Result(V)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: K      
          real(kind=cp),  intent(in) :: T      
-         type(Eos_Type), intent(in) :: E      
+         type(Eos_Type), intent(in) :: E 
+         real(kind=cp)              :: V     
       End Function Get_Volume_K_old
       
       Module Function Get_Volume_S(S,T,Eospar) Result(V)
@@ -323,32 +332,37 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: S       
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: V
       End Function Get_Volume_S
       
       Module Function Get_Transition_Pressure(T,EosPar) Result(Ptr)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: Ptr
       End Function Get_Transition_Pressure
       
       Module Function Get_Transition_Strain(P,T,EosPar) Result(vs)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: P       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: Vs 
       End Function Get_Transition_Strain
       
       Module Function Get_Transition_Temperature(P,EosPar) Result(Tr)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: P       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: Tr       
       End Function Get_Transition_Temperature
       
       Module Function Transition_Phase(P,T,Eospar) Result(Ip)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: P       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         logical                    :: Ip 
       End Function Transition_Phase
       
       Module Function Get_Temperature(P,V,EosPar) Result(T)
@@ -356,6 +370,7 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: P       
          real(kind=cp),  intent(in) :: V       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: T
       End Function Get_Temperature
       
       Module Function Get_Temperature_P0(Vin,EosPar,Tmin,Tmax) Result(Tk)
@@ -364,6 +379,7 @@ Module CFML_EoS
          type(Eos_Type),          intent(in) :: EoSPar    
          real(kind=cp), optional, intent(in) :: Tmin      
          real(kind=cp), optional, intent(in) :: Tmax
+         real(kind=cp)                       :: Tk
       End Function Get_Temperature_P0
       
       Module Function NormPressure_Eos(S,T,EosPar) Result(F)
@@ -371,6 +387,7 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: S       
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: F
       End Function NormPressure_Eos
       
       Module Function NormPressure_P(S,P,imodel) Result(F)
@@ -378,6 +395,7 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: S      
          real(kind=cp),  intent(in) :: P      
          integer      ,  intent(in) :: imodel 
+         real(kind=cp)              :: F
       End Function NormPressure_P
       
       Module Function Pressure_F(F,S,EosPar) Result(P)
@@ -385,19 +403,22 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: F       
          real(kind=cp),  intent(in) :: S       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: P
       End Function Pressure_F
       
       Module Function Strain(VV0,EosPar) Result(S)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: VV0     
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: S
       End Function Strain
       
       Module Function Strain_EOS(V,T,EosPar) Result(S)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: V       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: S 
       End Function Strain_EOS
       
       Module Function Get_K(P,T,EosPar) Result(K)
@@ -405,31 +426,36 @@ Module CFML_EoS
          real(kind=cp),intent(in)        :: p       
          real(kind=cp),intent(in)        :: t       
          type(Eos_Type),intent(in)       :: Eospar  
+         real(kind=cp)                   :: K
       End Function Get_K
       
       Module Function Get_K0_T(T,Eospar) Result(k0)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: k0
       End Function Get_K0_T
       
       Module Function Get_Kp(P,T,EosPar) Result(Kp)
          !---- Arguments ----!
          real(kind=cp),intent(in)        :: p       
          real(kind=cp),intent(in)        :: t       
-         type(Eos_Type),intent(in)       :: Eospar  
+         type(Eos_Type),intent(in)       :: Eospar 
+         real(kind=cp)                   :: kp 
       End  Function Get_Kp
       
       Module Function Get_Kp0_T(T,Eospar) Result(kp0)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: kp0  
       End Function Get_Kp0_T
       
       Module Function Get_Kpp0_T(T,Eospar) Result(kpp0)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: kpp0  
       End Function Get_Kpp0_T
       
       Module Function Get_GPT(P,T,EoSPar) Result(gpt)
@@ -437,19 +463,22 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: P      
          real(kind=cp),  intent(in) :: T      
          type(Eos_Type), intent(in) :: EosPar 
+         real(kind=cp)              :: Gpt
       End Function Get_GPT
       
       Module Function Get_Grun_PT(P,T,Eospar) Result(G)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: P       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar 
+         real(kind=cp)              :: G 
       End Function Get_Grun_PT
       
       Module Function Get_Grun_V(V,Eospar)  Result(Grun)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: V       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: Grun
       End Function Get_Grun_V
       
       Module Function K_Cal(V,T,Eospar,P) Result(kc)
@@ -457,7 +486,8 @@ Module CFML_EoS
          real(kind=cp),            intent(in) :: V       
          real(kind=cp),            intent(in) :: T       
          type(Eos_Type),           intent(in) :: EoSPar  
-         real(kind=cp),  optional, intent(in) :: P       
+         real(kind=cp),  optional, intent(in) :: P  
+         real(kind=cp)                        :: kc     
       End Function K_Cal
       
       Module Function Kp_Cal(V,T,EoSpar,P) Result (kpc)
@@ -465,14 +495,16 @@ Module CFML_EoS
          real(kind=cp),           intent(in) :: V       
          real(kind=cp),           intent(in) :: T       
          type(Eos_Type),          intent(in) :: EoSPar  
-         real(kind=cp), optional, intent(in) :: P       
+         real(kind=cp), optional, intent(in) :: P 
+         real(kind=cp)                       :: kpc       
       End Function Kp_Cal
       
       Module Function Kpp_Cal(V,T,EoSpar) Result (kppc)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: V       
          real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: kppc    
       End Function Kpp_Cal
       
       Module Function Get_Props_PTVTable(P,T,V,EosPar,Res) Result(Val)
@@ -481,7 +513,8 @@ Module CFML_EoS
          real(kind=cp),    intent(in) :: T       
          real(kind=cp),    intent(in) :: V       
          type(Eos_Type),   intent(in) :: EoSPar  
-         character(len=*), intent(in) :: Res     
+         character(len=*), intent(in) :: Res 
+         real(kind=cp)                :: Val    
       End Function Get_Props_PTVTable
       
       Module Function Murn_Interpolate_PTVTable(I,J,P,Eos) Result(V)
@@ -490,6 +523,7 @@ Module CFML_EoS
          integer,        intent(in) :: J      
          real(kind=cp),  intent(in) :: P      
          type(Eos_Type), intent(in) :: EoS  
+         real(kind=cp)              :: V
       End Function Murn_Interpolate_PTVTable
       
       Module Function EthDebye(T,Theta,Eospar) Result(Eth)
@@ -497,12 +531,14 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: T       
          real(kind=cp),  intent(in) :: Theta   
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: Eth
       End Function EthDebye
       
       Module Function Get_DebyeT(V, Eos) result(DebyeT)
          !---- Arguments ----!
          real(kind=cp),  intent(in) :: V       
-         type(Eos_Type), intent(in) :: EoS     
+         type(Eos_Type), intent(in) :: EoS 
+         real(kind=cp)              :: DebyeT    
       End Function Get_DebyeT
       
       Module Function Pthermal(V,T,EosPar) Result(Pth)
@@ -510,6 +546,7 @@ Module CFML_EoS
          real(kind=cp),  intent(in) :: V       
          real(kind=cp),  intent(in) :: T       
          type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp)              :: PTh
       End Function Pthermal
       
       Module Function VscaleMGD(E) Result(MGD)
@@ -524,6 +561,7 @@ Module CFML_EoS
          real(kind=cp),     intent(in) :: T       
          type(Eos_Type),    intent(in) :: EoS     
          integer, optional, intent(in) :: xtype   
+         real(kind=cp)                 :: Val
       End Function Get_Property_X
       
       Module Function Alpha_Cal(P,T,Eospar, DeltaT) Result(Alpha)
@@ -540,6 +578,7 @@ Module CFML_EoS
          real(kind=cp),            intent(in) :: T       
          type(Eos_Type),           intent(in) :: EoSPar  
          real(kind=cp),  optional, intent(in) :: DeltaT  
+         real(kind=cp)                        :: dKdT
       End Function dKdT_Cal
       
       Module Subroutine Allocate_EoS_Data_List(N, E)

@@ -17,9 +17,10 @@ SubModule (CFML_EoS) EoS_011
       real(kind=cp),  intent(in) :: V       ! Volume: not needed for HP2011, needed for MGD, is 'a' if linear
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: Pth
 
       !---- Local Variables ----!
-      real(kind=cp) :: pth,thtref,exp0,eta0,vlocal
+      real(kind=cp) :: thtref,exp0,eta0,vlocal
       real(kind=cp) :: gammaV, thetaD,factor
       real(kind=cp),dimension(n_eospar) :: ev
 
@@ -92,10 +93,10 @@ SubModule (CFML_EoS) EoS_011
       real(kind=cp),  intent(in) :: T       ! Temperature
       real(kind=cp),  intent(in) :: Theta   ! Debye T
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: Eth
 
       !---- Local Variables ----!
-      real(kind=cp) :: Eth
-      real(kind=8)  :: x
+      real(kind=cp)  :: x
 
       if (T < 0.1) then
          Eth=0.0_cp
@@ -116,9 +117,10 @@ SubModule (CFML_EoS) EoS_011
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: V       ! Volume or length
       type(Eos_Type), intent(in) :: EoS     ! Eos Parameters
+      real(kind=cp)              :: DebyeT
 
       !---- Local Variables ----!
-      real(kind=cp) :: DebyeT,gammaV
+      real(kind=cp) :: gammaV
 
       !> Default
       DebyeT=eos%tref

@@ -16,10 +16,11 @@ SubModule (CFML_EoS) EoS_014
       real(kind=cp),            intent(in) :: T       ! Temperature
       type(Eos_Type),           intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp),  optional, intent(in) :: DeltaT  ! Delta T
+      real(kind=cp)                        :: dKdT
            
       !---- Local Variables ----!
       integer       :: j
-      real(kind=cp) :: dKdT, del,vlimit,tlimit,tcal,Ttr
+      real(kind=cp) :: del,vlimit,tlimit,tcal,Ttr
       real(kind=cp),dimension(-2:2):: kpt
       
       !> Init: set step size for numerical differentiation

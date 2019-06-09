@@ -13,9 +13,9 @@ SubModule (CFML_EoS) EoS_003
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: Ptr     ! The transition T at this P
 
       !---- Local Variables ----!
-      real(kind=cp)              :: Ptr       ! The transition T at this P
       real(kind=cp)              :: sqroot
 
       !> Init
@@ -62,9 +62,9 @@ SubModule (CFML_EoS) EoS_003
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: Vs      ! The volume strain
 
       !----Local Variables ----!
-      real(kind=cp)              :: Vs      ! The volume strain
       real(kind=cp)              :: Ttr , a ! transition temperature at this pressure
 
       !> init
@@ -115,9 +115,9 @@ SubModule (CFML_EoS) EoS_003
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: P       ! Pressure
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
-
-      !---- Local Variables ----!
       real(kind=cp)              :: Tr       ! The transition T at this P
+      
+      !---- Local Variables ----!
 
       !>init
       tr=0._cp
@@ -148,9 +148,9 @@ SubModule (CFML_EoS) EoS_003
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
-
-      !---- Local Variables ----!
       logical                    :: Ip
+      
+      !---- Local Variables ----!
       real(kind=cp)              :: Ttr      ! transition temperature at this pressure
 
       !> default to 'high' phase for safety

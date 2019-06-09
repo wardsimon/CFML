@@ -513,55 +513,55 @@ SubModule (CFML_EoS) EoS_023
 
          else if(index(text,'MODEL') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%imodel
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Model number"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Model number"
 
          else if(index(text,'ORDER') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%iorder
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Order number"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Order number"
 
          else if(index(text,'THERMAL') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%itherm
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Thermal model"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Thermal model"
 
          else if(index(text,'CROSS') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%icross
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Cross-terms model"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Cross-terms model"
 
          else if(index(text,'TRANS') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%itran
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Transition model"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Transition model"
 
          else if(index(text,'SHEAR') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%ishear
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Shear model"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Shear model"
 
 
          else if(index(text,'PSCALE') /= 0)then
             read(text(c:),'(a)',iostat=ierr)eos%pscale_name
-            if (ierr /=0) Err_EoS_Mess="Error reading the Pressure Scale info"
+            if (ierr /=0) Err_CFML%Msg="Error reading the Pressure Scale info"
 
          else if(index(text,'VSCALE') /= 0)then
             read(text(c:),'(a)',iostat=ierr)eos%vscale_name
-            if (ierr /=0) Err_EoS_Mess="Error reading the Volume Scale info"
+            if (ierr /=0) Err_CFML%Msg="Error reading the Volume Scale info"
 
          else if(index(text,'TYPE') /= 0)then
             if(index(U_case(text),'LINEAR') /= 0) eos%linear=.true.
 
          else if(index(text,'PREF') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%pref
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Pressure reference"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Pressure reference"
 
          else if(index(text,'TREF') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%tref
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Temperature reference"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Temperature reference"
 
          else if(index(text,'STOICH') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%stoich
-            if (ierr /=0) Err_EoS_Mess="Error reading the Stochiometry"
+            if (ierr /=0) Err_CFML%Msg="Error reading the Stochiometry"
 
          else if(index(text,'DENSITY0') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%density0
-            if (ierr /=0) Err_EoS_Mess="Error reading the reference density"
+            if (ierr /=0) Err_CFML%Msg="Error reading the reference density"
             if(eos%density0 < 0.00005)eos%density0=0.0_cp                   ! test against min value allowed by format
 
          else if(index(text,'PARAM') /= 0)then
@@ -571,7 +571,7 @@ SubModule (CFML_EoS) EoS_023
             else
                read(text(c:),'(i2,f12.6)',iostat=ierr)i,val
             end if
-            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Parameters"
+            if (ierr /=0) Err_CFML%Msg="Error reading the EoS Parameters"
 
             if (i > 0 .and. i <= N_EOSPAR) then
                eos%params(i)=val

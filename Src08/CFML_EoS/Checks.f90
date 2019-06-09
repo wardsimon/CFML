@@ -288,7 +288,7 @@ SubModule (CFML_EoS) EoS_028
          !> Now check the validity of Eos params at T
          call pveos_check(P,V,T,e,vpresent)
          if (err_CFML%IErr==1)then
-            err_CFML%Msg='Compressional EoS not valid at this PV: '//trim(err_eos_mess)
+            err_CFML%Msg='Compressional EoS not valid at this PV: '//trim(err_CFML%Msg)
             return
          end if
       end if

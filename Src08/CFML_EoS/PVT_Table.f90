@@ -21,10 +21,11 @@ SubModule (CFML_EoS) EoS_010
       real(kind=cp),    intent(in) :: V       ! Volume
       type(Eos_Type),   intent(in) :: EoSPar  ! Eos Parameter
       character(len=*), intent(in) :: Res     ! Parameter requested for calculation (P,T, or V)
+      real(kind=cp)                :: Val
 
       !---- Local Variables ----!
       integer                   :: i,j
-      real(kind=cp)             :: VV0,Val,tt,vm,vp,km,kp,va,vb,dvdp
+      real(kind=cp)             :: VV0,tt,vm,vp,km,kp,va,vb,dvdp
       type(Eos_Type)            :: eosm,eosp,eosv     ! Eos for local Murn at Tminus and Tplus
       character(len=10)         :: Var
       !character(len=60)         :: text
@@ -182,10 +183,11 @@ SubModule (CFML_EoS) EoS_010
       integer,        intent(in) :: J      ! pointers to table point just beyond P,T required
       real(kind=cp),  intent(in) :: P      ! pressure required
       type(Eos_Type), intent(in) :: EoS    ! Eos Parameter
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
       integer         :: is
-      real(kind=cp)   :: k12,K23,KP,V0,K0,V
+      real(kind=cp)   :: k12,K23,KP,V0,K0
 
       !> Set up pointer
       is=i-2

@@ -20,9 +20,9 @@ SubModule (CFML_EoS) EoS_005
       real(kind=cp),  intent(in) :: S       ! Strain
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)                     :: F
 
       !---- Local Variables ----!
-      real(kind=cp)                     :: F
       real(kind=cp)                     :: k0,kp,kpp, b,c,v0
       real(kind=cp),dimension(n_eospar) :: ev
 
@@ -108,9 +108,9 @@ SubModule (CFML_EoS) EoS_005
       real(kind=cp),  intent(in) :: S      ! Strain
       real(kind=cp),  intent(in) :: P      ! Presure
       integer      ,  intent(in) :: imodel ! type of eos
+      real(kind=cp)              :: F
 
       !---- Local Variables ----!
-      real(kind=cp) :: f
 
       !> Init: a zero value is returned for undefined values
       f=0.0_cp
@@ -149,9 +149,10 @@ SubModule (CFML_EoS) EoS_005
       real(kind=cp),  intent(in) :: F       ! Normalized Pressure
       real(kind=cp),  intent(in) :: S       ! Strain
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
+      real(kind=cp)              :: P
 
       !---- Local Variables ----!
-      real(kind=cp) :: p, cF
+      real(kind=cp) :: cF
 
       !> Init
       p=0.0_cp
@@ -171,5 +172,5 @@ SubModule (CFML_EoS) EoS_005
       end select
    End Function Pressure_F
    
-End SubModule WoS_005   
+End SubModule EoS_005   
    

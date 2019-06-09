@@ -349,7 +349,6 @@ rem   Submodules CFML_ExtinCorr
 rem
    echo .... EoS Calculations
    ifort /c CFML_EoS.f90                              /nologo %OPT1% %OPT2% /module:.\mod 
-   goto END
 rem
 rem   Submodules CFML_EoS
       cd .\CFML_EoS   
