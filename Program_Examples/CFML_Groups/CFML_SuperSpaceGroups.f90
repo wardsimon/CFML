@@ -1090,52 +1090,14 @@
                 hh(1:3)=[h,k,l]
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
-                mp=0
-                if(present(SSG) .and. sval > epsr) then
-                   if(SSG%Num_Lat /= 0) then
-                     !if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                     !  !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-                     !  cycle
-                     !end if
-                   end if
-                   if(H_Absent_SSG(hh,SSG)) then
-                     !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-                     if(SSG%Mag_type /= 2 .and. mag) then
-                       if(mH_Absent_SSG(hh,SSG)) then
-                        ! write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
-                         cycle
-                       else
-                         mp=1   !pure magnetic
-                       end if
-                     else
-                       cycle
-                     end if
-                   else
-                     if(SSG%Mag_type /= 2 .and. mag) then
-                       if(mH_Absent_SSG(hh,SSG))  then
-                         mp=0  !pure nuclear
-                       else
-                         mp=2  !nuclear and magnetic
-                       end if
-                     end if
-                   end if
-                end if
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
                    exit ext_do
                 end if
-                if(sval < epsr) i0=num_ref
-                if(magg) then  !Select only magnetic reflections if mag_only is true
-                  if(mp == 0) then
-                     num_ref=num_ref-1
-                     cycle
-                  end if
-                end if
+                if(sval < epsr) i0=num_ref !localization of 0 0 0  reflection
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
-                indtyp(num_ref)=mp
-                !write(*,"(i8,") num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
              end do
           end do
        end do ext_do
@@ -1145,7 +1107,6 @@
        ! of +/-kinfo%q_qcoeff
        nf=num_ref
        if(kvect) then
-
        	 do_ex: do n=1,kinfo%nq
       	      do i=1,nf
        	      	 hh=hkl(:,i)
@@ -1154,74 +1115,60 @@
                    sval=H_s(hh,Cell,nk,kinfo%kv)
        	      	   !write(*,*) hh(1:3+nk),sval,max_s
                    if (sval > max_s) cycle
-                   mp=0
-                   if(present(SSG)) then
-                      if(H_Absent_SSG(hh,SSG)) then
-                          !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-                        if(SSG%Mag_type /= 2 .and. mag) then
-                          if(mH_Absent_SSG(hh,SSG)) then
-                            !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
-                            cycle
-                          else
-                            mp=1   !pure magnetic
-                          end if
-                        else
-                          cycle
-                        end if
-                      else
-                        if(SSG%Mag_type /= 2 .and. mag) then
-                          if(mH_Absent_SSG(hh,SSG)) then
-                            mp=0  !pure nuclear
-                          else
-                            mp=2
-                          end if
-                        end if
-                      end if
-                   end if
                    num_ref=num_ref+1
                    if(num_ref > maxref) then
                       num_ref=maxref
                       exit do_ex
                    end if
-                   if(magg) then  !Select only magnetic reflections if mag_only is true
-                     if(mp == 0) then
-                        num_ref=num_ref-1
-                        cycle
-                     end if
-                   end if
                    sv(num_ref)=sval
                    hkl(:,num_ref)=hh
-                   indtyp(num_ref)=mp
-                   !write(*,*) num_ref, hkl(:,num_ref), sv(num_ref),indtyp(num_ref)
        	   	 	   end do !ia
        	      end do  !i
          end do do_ex
        end if
-
-       do i=i0+1,num_ref
+       do i=i0+1,num_ref  !elimination of the reflection (0000..)
          sv(i-1)=sv(i)
          hkl(:,i-1)=hkl(:,i)
-         indtyp(i-1)=indtyp(i)
        end do
        num_ref=num_ref-1
-
-       if(ssg%Num_Lat /= 0) then
-                      if(SSG%Num_Lat /= 0) then
-                      end if
-         n=0
-         do i=1,num_ref
-           hh=hkl(:,i)
-           if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-             !write(*,"(a,10i4)") " Lattice Absent reflection: ",hh
-             cycle
-           end if
-           n=n+1
-           hkl(:,n)=hh
-           sv(n)=sv(i)
-           indtyp(n)=indtyp(i)
-         end do
-         num_ref=n
-       end if
+       !Determination of reflection character and extinctions (Lattice + others)
+       n=0
+       do i=1,num_ref
+          hh=hkl(:,i)
+          mp=0
+          if(present(SSG)) then
+             if(ssg%Num_Lat /= 0) then
+               if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
+             end if
+             if(H_Absent_SSG(hh,SSG)) then
+              !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
+               if(SSG%Mag_type /= 2 .and. mag) then
+                 if(mH_Absent_SSG(hh,SSG)) then
+                   !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
+                   cycle
+                 else
+                   mp=1   !pure magnetic
+                   indtyp(i)=mp
+                 end if
+               else
+                 cycle
+               end if
+             else
+               if(SSG%Mag_type /= 2 .and. mag) then
+                 if(mH_Absent_SSG(hh,SSG)) then
+                   mp=0  !pure nuclear
+                 else
+                   mp=2
+                 end if
+               end if
+             end if
+          end if
+          n=n+1
+          hkl(:,n)=hkl(:,i)
+          sv(n)=sv(i)
+          indtyp(n)=mp
+       end do
+       num_ref=n
 
        if(ordering) then
           call sort(sv,num_ref,indx)
@@ -1373,6 +1320,7 @@
        indtyp=0
        num_ref=0
        !Generation of fundamental reflections
+       i0=0
        ext_do: do h=hmin,hmax
           do k=kmin,kmax
              do l=lmin,lmax
@@ -1380,112 +1328,85 @@
                 hh(1:3)=[h,k,l]
                 sval=H_s(hh,Cell)
                 if (sval > sintlmax) cycle
-                mp=0
-                if(present(SSG)) then
-                   if(SSG%Num_Lat > 0 ) then
-                     if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) then
-                       cycle
-                     end if
-                   end if
-                   if(H_Absent_SSG(hh,SSG)) then
-                     if(SSG%Mag_type /= 2 .and. mag) then
-                       if(mH_Absent_SSG(hh,SSG)) then
-                          cycle
-                       else
-                         mp=1   !pure magnetic
-                       end if
-                     else
-                       cycle
-                     end if
-                   else
-                     if(SSG%Mag_type /= 2 .and. mag) then
-                       if(mH_Absent_SSG(hh,SSG))  then
-                         mp=0  !pure nuclear
-                       else
-                         mp=2  !nuclear and magnetic
-                       end if
-                     end if
-                   end if
-                end if
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
                    num_ref=maxref
                    exit ext_do
                 end if
+                if(sval < epsr) i0=num_ref !localization of 0 0 0  reflection
                 sv(num_ref)=sval
                 hkl(:,num_ref)=hh
-                indtyp(num_ref)=mp
              end do
           end do
        end do ext_do
 
        !Generation of satellites
-       if(kvect) then   !Here all possible satellites are generated
-       	 k=0
-       	 do_ex: do
-           k = k + 1
-           if(k > nk) exit do_ex
-            	nf=num_ref
+       !The generated satellites corresponds to those obtained from the list
+       ! of +/-kinfo%q_qcoeff
+       nf=num_ref
+       if(kvect) then
+       	 do_ex: do n=1,kinfo%nq
       	      do i=1,nf
        	      	 hh=hkl(:,i)
        	      	 do ia=-1,1,2
-       	   	 	     do j=1,nharm(k)
-       	   	 	     	 hh(3+k)=ia*j
-                     sval=H_s(hh,Cell,nk,kv)
-                     if (sval > max_s(k)) cycle
-                     mp=0
-                     if(present(SSG)) then
-                        if(SSG%Num_Lat /= 0) then
-                          if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
-                        end if
-                        if(H_Absent_SSG(hh,SSG)) then
-                          if(SSG%Mag_type /= 2 .and. mag) then
-                            if(mH_Absent_SSG(hh,SSG)) then
-                              cycle
-                            else
-                              mp=1   !pure magnetic
-                            end if
-                          else
-                            cycle
-                          end if
-                        else
-                          if(SSG%Mag_type /= 2 .and. mag) then
-                            if(mH_Absent_SSG(hh,SSG)) then
-                              mp=0  !pure nuclear
-                            else
-                              mp=2
-                            end if
-                          end if
-                        end if
-                     end if
-                     num_ref=num_ref+1
-                     if(num_ref > maxref) then
-                        num_ref=maxref
-                        exit do_ex
-                     end if
-                     sv(num_ref)=sval
-                     hkl(:,num_ref)=hh
-                     indtyp(num_ref)=mp
-                   end do  !j
+       	      	   hh(4:3+nk)=ia*kinfo%q_coeff(1:nk,n)
+                   sval=H_s(hh,Cell,nk,kinfo%kv)
+       	      	   !write(*,*) hh(1:3+nk),sval,max_s
+                   if (sval > max_s) cycle
+                   num_ref=num_ref+1
+                   if(num_ref > maxref) then
+                      num_ref=maxref
+                      exit do_ex
+                   end if
+                   sv(num_ref)=sval
+                   hkl(:,num_ref)=hh
        	   	 	   end do !ia
        	      end do  !i
          end do do_ex
        end if
-
-       !Suppress the reflection 0 0 0 0 0 ...
-       do i=1,num_ref
-         if(sv(i) < epsr) then
-          i0=i
-          exit
-         end if
-       end do
-       !write(*,*) "  i0=",i0
-       do i=i0+1,num_ref
+       do i=i0+1,num_ref  !elimination of the reflection (0000..)
          sv(i-1)=sv(i)
          hkl(:,i-1)=hkl(:,i)
-         indtyp(i-1)=indtyp(i)
        end do
        num_ref=num_ref-1
+       !Determination of reflection character and extinctions (Lattice + others)
+       n=0
+       do i=1,num_ref
+          hh=hkl(:,i)
+          mp=0
+          if(present(SSG)) then
+             if(ssg%Num_Lat /= 0) then
+               if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
+             end if
+             if(H_Absent_SSG(hh,SSG)) then
+              !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
+               if(SSG%Mag_type /= 2 .and. mag) then
+                 if(mH_Absent_SSG(hh,SSG)) then
+                   !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
+                   cycle
+                 else
+                   mp=1   !pure magnetic
+                   indtyp(i)=mp
+                 end if
+               else
+                 cycle
+               end if
+             else
+               if(SSG%Mag_type /= 2 .and. mag) then
+                 if(mH_Absent_SSG(hh,SSG)) then
+                   mp=0  !pure nuclear
+                 else
+                   mp=2
+                 end if
+               end if
+             end if
+          end if
+          n=n+1
+          hkl(:,n)=hkl(:,i)
+          sv(n)=sv(i)
+          indtyp(n)=mp
+       end do
+       num_ref=n
 
        allocate(indx(num_ref))
        indx=[(i,i=1,num_ref)]
