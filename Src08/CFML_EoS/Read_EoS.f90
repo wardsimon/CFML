@@ -665,7 +665,7 @@ SubModule (CFML_EoS) EoS_023
       istart=0
 
       !> Number of lines
-      call number_lines (trim(filedat),nlines)
+      nlines=number_lines (trim(filedat))
       if (nlines <= 0) then
          err_CFML%IErr=1
          Err_CFML%Msg="Impossible to read the EoS file "

@@ -47,10 +47,12 @@ Program test230_groups
       else
           call Identify_Group(Grp)
           if (Err_CFML%Ierr /= 0) then
-              write(lun,'(/,a,i4,a)') "  Group number: ",i, " => Error in the identification of the group: "//trim(Err_CFML%Msg)
+              write(lun,'(/,a,i4,a)') "  Group number: ",i, &
+                                      " => Error in the identification of the group: "//trim(Err_CFML%Msg)
           end if
           write(lun,"(/,a)") "  ------------------------------------------------------------------------------"
-          write(lun,"(a,i4, a20,a)") "  Group number: ",i,"  Symb: "//trim(Grp%shu_symb),"  Transf. to standard: "//trim(Grp%mat2std_shu)
+          write(lun,"(a,i4, a20,a)") "  Group number: ",i,"  Symb: "//trim(Grp%shu_symb),&
+                                     "  Transf. to standard: "//trim(Grp%mat2std_shu)
           write(lun,"(a)")   "  ------------------------------------------------------------------------------"
       end if
 
