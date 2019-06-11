@@ -86,9 +86,9 @@
     Private :: Group_Constructor_gen,Group_Constructor_string
 
     !Private symbols for parsing operators in both senses: Symbol <-> Operator
-    character(len=*),dimension(10),parameter :: xyz=(/"x","y","z","t","u","v","w","p","q","r"/)
-    character(len=*),dimension(10),parameter :: x1x2x3=(/"x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"/)
-    character(len=*),dimension(10),parameter :: abc=(/"a","b","c","d","e","f","g","h","i","j"/)
+    character(len=*),dimension(10),parameter :: xyz=["x","y","z","t","u","v","w","p","q","r"]
+    character(len=*),dimension(10),parameter :: x1x2x3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
+    character(len=*),dimension(10),parameter :: abc=["a","b","c","d","e","f","g","h","i","j"]
     integer,parameter, dimension(0:2) :: cent=[2,1,2]  !Multiplier for calculating the total multiplicity
 
     type(rational), dimension(:,:),allocatable, public :: identity_matrix
@@ -205,7 +205,7 @@
 
     Function is_inversion_centre(Op) result (info)
       type(Symm_Oper_Type),intent(in) :: Op
-      logical                        :: info
+      logical                         :: info
       integer :: dr
       dr=size(Op%Mat(:,1))-1
       info=.false.
