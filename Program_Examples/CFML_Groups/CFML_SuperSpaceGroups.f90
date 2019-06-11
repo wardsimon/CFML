@@ -1044,7 +1044,6 @@
        integer,      dimension(:),   allocatable :: hh,kk,nulo
        integer,      dimension(:,:), allocatable :: hkl,hklm
        integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
-       !real(kind=cp),dimension(:),   allocatable :: max_s
        real(kind=cp),dimension(:),   allocatable :: sv,sm
        logical :: kvect,ordering,magg
 
@@ -1269,16 +1268,14 @@
        character(len=*),              optional,         intent(in)     :: order
 
        !---- Local variables ----!
-       real(kind=cp)         :: sval !,vmin,vmax
+       real(kind=cp)         :: sval,max_s !,vmin,vmax
        real(kind=cp)         :: epsr=0.00000001 !, delt=0.000001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j, & !,maxpos,iprev,indp,indj
-                                 mp, Dd, nf, ia, i0, nk, num_ref, n
+                                 mp, Dd, nf, ia, i0, nk, num_ref, n, nharm
        integer,       dimension(:),   allocatable :: hh,kk,nulo
        integer,       dimension(:,:), allocatable :: hkl
        integer,       dimension(:),   allocatable :: indx,indtyp
-       real(kind=cp), dimension(:),   allocatable :: max_s
        real(kind=cp), dimension(:),   allocatable :: sv
-       integer,       dimension(:),   allocatable :: nharm
        real(kind=cp), dimension(:,:), allocatable :: kv
        real(kind=cp), dimension(:),   allocatable :: maxsinl
        logical :: kvect,ordering
@@ -1289,13 +1286,8 @@
        if(present(order)) ordering=.true.
        if(present(kinfo)) then
          nk=kinfo%nk
-         if(nk /= 0) then
-           allocate(kv(3,nk),nharm(nk),maxsinl(nk))
-           kv=kinfo%kv
-           nharm=kinfo%nharm
-           maxsinl=kinfo%sintlim
-           kvect=.true.
-         end if
+         nharm=kinfo%nq
+         kvect=.true.
        end if
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
 
@@ -1306,11 +1298,10 @@
        maxref= (2*hmax+1)*(2*kmax+1)*(2*lmax+1)
        if(kvect) then
           do k=1,nk
-            	 maxref=maxref*2*nharm(k)
+            	 maxref=maxref*2*nharm
           end do
-          allocate(max_s(nk))
           if(present(kinfo)) then
-            max_s=maxsinl
+            max_s=maxval(kinfo%sintlim)
           else
             max_s=sintlmax
           end if
