@@ -1006,15 +1006,14 @@
 
 
     !!----
-    !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,nk,nharm,kv,maxsinl,SSG,powder,mag_only)
+    !!---- Subroutine  Gen_SReflections(Cell,sintlmax,Num_Ref,Reflex,mag,kinfo,order,SSG,powder,mag_only)
     !!----   type (Crystal_Cell_Type),                        intent(in)     :: Cell
     !!----   real(kind=cp),                                   intent(in)     :: sintlmax
     !!----   integer,                                         intent(out)    :: num_ref
     !!----   class (sReflect_Type), dimension(:), allocatable,intent(out)    :: reflex
-    !!----   integer,                       optional,         intent(in)     :: nk
-    !!----   integer,       dimension(:),   optional,         intent(in)     :: nharm
-    !!----   real(kind=cp), dimension(:,:), optional,         intent(in)     :: kv
-    !!----   real(kind=cp), dimension(:),   optional,         intent(in)     :: maxsinl
+    !!----   logical,                                         intent(in)     :: mag
+    !!----   type(kvect_info_type),         optional,         intent(in)     :: kinfo
+    !!----   character(len=*),              optional,         intent(in)     :: order
     !!----   class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
     !!----   logical,                       optional,         intent(in)     :: powder,mag_only
     !!----
@@ -1032,8 +1031,8 @@
        class(sReflect_Type), dimension(:), allocatable, intent(out)    :: reflex
        logical,                                         intent(in)     :: mag
        type(kvect_info_type),         optional,         intent(in)     :: kinfo
-       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: order
+       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        logical,                       optional,         intent(in)     :: powder,mag_only
 
        !---- Local variables ----!
@@ -1264,8 +1263,8 @@
        class (sReflection_List_Type),                   intent(out)    :: reflex
        logical,                                         intent(in)     :: mag
        type(kvect_info_type),         optional,         intent(in)     :: kinfo
-       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
        character(len=*),              optional,         intent(in)     :: order
+       class(SuperSpaceGroup_Type) ,  optional,         intent(in)     :: SSG
 
        !---- Local variables ----!
        real(kind=cp)         :: sval,max_s !,vmin,vmax
@@ -1276,8 +1275,6 @@
        integer,       dimension(:,:), allocatable :: hkl
        integer,       dimension(:),   allocatable :: indx,indtyp
        real(kind=cp), dimension(:),   allocatable :: sv
-       real(kind=cp), dimension(:,:), allocatable :: kv
-       real(kind=cp), dimension(:),   allocatable :: maxsinl
        logical :: kvect,ordering
 
        Dd=3
