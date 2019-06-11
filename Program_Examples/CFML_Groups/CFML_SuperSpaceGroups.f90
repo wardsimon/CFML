@@ -1422,7 +1422,7 @@
          Reflex%Ref(i)%h      = hkl(:,j)
          Reflex%Ref(i)%s      = sv(j)
          Reflex%Ref(i)%p_coeff= 0 !Fundamental reflections point to the Fourier coefficient [00...]
-         kk               = abs(hkl(4:3+nk,j))
+         kk                   = abs(hkl(4:3+nk,j))
          do_n: do n=1,kinfo%nq
            do k=1,nk
              if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
