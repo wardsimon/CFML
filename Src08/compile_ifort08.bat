@@ -379,6 +379,14 @@ rem   Submodules CFML_EoS
       ifort /c Write_EoS.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..   
+rem
+   echo .... Atoms procedure
+   ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
+rem  
+rem   Submodules CFML_Atoms    
+      cd .\CFML_Atoms   
+      move /y *.obj .. > nul
+      cd .. 
       goto END
 
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
@@ -400,7 +408,6 @@ rem
    echo .... EoS, Reflections, Atoms
 rem
    ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
 rem
    echo .... Formats, Geometry, Molecules
 rem

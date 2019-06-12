@@ -65,7 +65,7 @@
     !!----
     !!
     Type, public :: Shub_Spgr_Info_Type
-       character(len=8) :: ID_BNS =" "   !  ID Number of BNS     
+       character(len=8) :: ID_BNS  =" "   !  ID Number of BNS     
        character(len=15) :: BNS    =" "   !  BNS symbol
        character(len=12) :: ID_OG  =" "   !  ID number of OG
        character(len=15) :: OG     =" "   !  OG symbol

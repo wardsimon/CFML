@@ -4,7 +4,6 @@
 !!----
 SubModule (CFML_gSpaceGroups) Spg_052
    Contains
-   
    !!----
    !!---- GET_GENERATORS_FROM_HALL
    !!---- 
@@ -92,8 +91,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       if (present(RShift)) free=RShift
       
       !> Copy
-      str=u_case(adjustl(Hall))
-      if (pout) print*,'  ---> Magnetic Hall Symbol: '//trim(str)
+      str=adjustl(Hall)
       
       !> 
       !> Shift origin (N1 N2 N3)
@@ -145,7 +143,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
          str=adjustl(str(2:))
       end if
       
-      ilat=index(L,str(1:1))
+      ilat=index(L,u_case(str(1:1)))
       if (ilat == 0) then
          err_CFML%IErr=1
          err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown lattice traslational symmetry!"
@@ -153,60 +151,51 @@ SubModule (CFML_gSpaceGroups) Spg_052
       end if 
       str=adjustl(str(2:))
       
-      if (pout) then
-         if (centro) then
-            print*,'  ---> Centrosymmetric structure'
-         else
-            print*,'  ---> NON-Centrosymmetric structure'
-         end if   
-         print*,'  ---> Bravais Cell type: '//L(ilat:ilat)
-      end if    
-      
       !> 
       !> Anti-traslational
       !>
-      car=" "
       a_latt=0
-      n1=index(AT,str(1:1)) 
-      if (n1 > 0) then
-         call get_words(Hall,dire,iv)
-         car=adjustl(dire(2))
-         n2=index(AT,car)
-         if (n2 == 0) then
-            err_CFML%IErr=1
-            err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown anti-lattice traslational symmetry!"
-            return
-         end if 
-         select case (car)
-            case ("a")
-               a_latt=[6,0,0]
-            case ("b")
-               a_latt=[0,6,0]
-            case ("c")
-               a_latt=[0,0,6]
-            case ("A")
-               a_latt=[0,6,6]
-            case ("B")
-               a_latt=[6,0,6]
-            case ("C")
-               a_latt=[6,6,0]
-            case ("I")
-               if (ilat ==6) then  ! R Lattice
+      car=" "
+      n1=index(str,"1'")
+      if (n1 > 0 .and. str(n1-1:n1-1)==' ') then
+         if (len_trim(str) > n1+1) then
+            car=str(n1+2:)
+            n2=index(AT,car)
+            if (n2 == 0) then
+               err_CFML%IErr=1
+               err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown anti-lattice traslational symmetry!"
+               return
+            end if 
+            select case (car)
+               case ("a")
+                  a_latt=[6,0,0]
+               case ("b")
+                  a_latt=[0,6,0]
+               case ("c")
                   a_latt=[0,0,6]
-               else
-                  a_latt=[6,6,6]
-               end if   
-            case ("S") 
-               if (ilat ==9) then ! F Lattice
-                  a_latt=[6,6,6]
-               else
-                  a_latt=[0,0,6]
-               end if                       
-         end select 
-         
-         !> 
-         str=adjustl(str(2:)) 
+               case ("A")
+                  a_latt=[0,6,6]
+               case ("B")
+                  a_latt=[6,0,6]
+               case ("C")
+                  a_latt=[6,6,0]
+               case ("I")
+                  if (ilat ==6) then  ! R Lattice
+                     a_latt=[0,0,6]
+                  else
+                     a_latt=[6,6,6]
+                  end if   
+               case ("S") 
+                  if (ilat ==9) then ! F Lattice
+                     a_latt=[6,6,6]
+                  else
+                     a_latt=[0,0,6]
+                  end if                       
+            end select 
+            str=adjustl(str(:n1-1)) 
+         end if   
       end if   
+      str=u_case(str)
       
       !>        
       !> Operators
@@ -1703,10 +1692,10 @@ SubModule (CFML_gSpaceGroups) Spg_052
       !> ----
       
       !> Lattice + anti-lattice
-      Hall=trim(c_latt)//' '//c_alatt
-      
+      Hall=trim(c_latt)
       Hall=trim(Hall)//' '//trim(car_op(1))//' '//trim(car_op(2))//' '//trim(car_op(3))
       Hall=trim(Hall)//' '//trim(car_prime)
+      if (c_alatt /=" ") Hall=trim(Hall)//" 1'"//c_alatt
       
       if (present(ishift)) then
          if (any(ishift /= 0)) then
@@ -1718,7 +1707,5 @@ SubModule (CFML_gSpaceGroups) Spg_052
       end if      
          
    End Function Get_Hall_from_Generators
-   
-   
    
 End SubModule Spg_052   

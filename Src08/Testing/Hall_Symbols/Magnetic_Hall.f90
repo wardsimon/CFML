@@ -63,7 +63,7 @@ Program Magnetic_Hall
       if (ik == 0) then
          print*,'    ---> Problem with this BNS Symbol: '//trim(str_BNS)
          stop
-      end if     
+      end if 
       
       hexa=.false.
       k=index(str_BNS,'6')

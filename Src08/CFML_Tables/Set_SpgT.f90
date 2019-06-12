@@ -20,7 +20,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(   2)= Shub_Spgr_Info_Type("1.2     ","P11'           ","1.2.2       ","P11'           ",&
                                                 "P11'                     ","P 1'                     ")
       Shubnikov_info(   3)= Shub_Spgr_Info_Type("1.3     ","P_S1           ","1.3.3       ","P_2s1          ",&
-                                                "P11'_c[P1]               ","P S 1                    ")
+                                                "P11'_c[P1]               ","P 1 1'S                  ")
       Shubnikov_info(   4)= Shub_Spgr_Info_Type("2.4     ","P-1            ","2.1.4       ","P-1            ",&
                                                 "P-1                      ","-P 1                     ")
       Shubnikov_info(   5)= Shub_Spgr_Info_Type("2.5     ","P-11'          ","2.2.5       ","P-11'          ",&
@@ -28,7 +28,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(   6)= Shub_Spgr_Info_Type("2.6     ","P-1'           ","2.3.6       ","P-1'           ",&
                                                 "P-1'                     ","P -1'                    ")
       Shubnikov_info(   7)= Shub_Spgr_Info_Type("2.7     ","P_S-1          ","2.4.7       ","P_2s-1         ",&
-                                                "P-11'_c[P-1]             ","-P S 1                   ")
+                                                "P-11'_c[P-1]             ","-P 1 1'S                 ")
       Shubnikov_info(   8)= Shub_Spgr_Info_Type("3.1     ","P2             ","3.1.8       ","P2             ",&
                                                 "P2                       ","P 2y                     ")
       Shubnikov_info(   9)= Shub_Spgr_Info_Type("3.2     ","P21'           ","3.2.9       ","P21'           ",&
@@ -36,13 +36,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  10)= Shub_Spgr_Info_Type("3.3     ","P2'            ","3.3.10      ","P2'            ",&
                                                 "P2'                      ","P 2y'                    ")
       Shubnikov_info(  11)= Shub_Spgr_Info_Type("3.4     ","P_a2           ","3.4.11      ","P_2a2          ",&
-                                                "P21'_a[P2]               ","P a 2y                   ")
+                                                "P21'_a[P2]               ","P 2y 1'a                 ")
       Shubnikov_info(  12)= Shub_Spgr_Info_Type("3.5     ","P_b2           ","3.5.12      ","P_2b2          ",&
-                                                "P21'_b[P2]               ","P b 2y                   ")
+                                                "P21'_b[P2]               ","P 2y 1'b                 ")
       Shubnikov_info(  13)= Shub_Spgr_Info_Type("5.17    ","C_a2           ","3.6.13      ","P_C2           ",&
-                                                "C21'_a[P2]               ","C a 2y                   ")
+                                                "C21'_a[P2]               ","C 2y 1'a                 ")
       Shubnikov_info(  14)= Shub_Spgr_Info_Type("4.11    ","P_b2_1         ","3.7.14      ","P_2b2'         ",&
-                                                "P2_11'_b[P2]             ","P b 2yb                  ")
+                                                "P2_11'_b[P2]             ","P 2yb 1'b                ")
       Shubnikov_info(  15)= Shub_Spgr_Info_Type("4.7     ","P2_1           ","4.1.15      ","P2_1           ",&
                                                 "P2_1                     ","P 2yb                    ")
       Shubnikov_info(  16)= Shub_Spgr_Info_Type("4.8     ","P2_11'         ","4.2.16      ","P2_11'         ",&
@@ -50,7 +50,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  17)= Shub_Spgr_Info_Type("4.9     ","P2_1'          ","4.3.17      ","P2_1'          ",&
                                                 "P2_1'                    ","P 2yb'                   ")
       Shubnikov_info(  18)= Shub_Spgr_Info_Type("4.10    ","P_a2_1         ","4.4.18      ","P_2a2_1        ",&
-                                                "P2_11'_a[P2_1]           ","P a 2yb                  ")
+                                                "P2_11'_a[P2_1]           ","P 2yb 1'a                ")
       Shubnikov_info(  19)= Shub_Spgr_Info_Type("5.13    ","C2             ","5.1.19      ","C2             ",&
                                                 "C2                       ","C 2y                     ")
       Shubnikov_info(  20)= Shub_Spgr_Info_Type("5.14    ","C21'           ","5.2.20      ","C21'           ",&
@@ -58,11 +58,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  21)= Shub_Spgr_Info_Type("5.15    ","C2'            ","5.3.21      ","C2'            ",&
                                                 "C2'                      ","C 2y'                    ")
       Shubnikov_info(  22)= Shub_Spgr_Info_Type("5.16    ","C_c2           ","5.4.22      ","C_2c2          ",&
-                                                "C21'_c[C2]               ","C c 2y                   ")
+                                                "C21'_c[C2]               ","C 2y 1'c                 ")
       Shubnikov_info(  23)= Shub_Spgr_Info_Type("3.6     ","P_C2           ","5.5.23      ","C_P2           ",&
-                                                "P21'_C[C2]               ","P C 2y                   ")
+                                                "P21'_C[C2]               ","P 2y 1'C                 ")
       Shubnikov_info(  24)= Shub_Spgr_Info_Type("4.12    ","P_C2_1         ","5.6.24      ","C_P2'          ",&
-                                                "P2_11'_C[C2]             ","P C 2yb                  ")
+                                                "P2_11'_C[C2]             ","P 2yb 1'C                ")
       Shubnikov_info(  25)= Shub_Spgr_Info_Type("6.18    ","Pm             ","6.1.25      ","Pm             ",&
                                                 "Pm                       ","P -2y                    ")
       Shubnikov_info(  26)= Shub_Spgr_Info_Type("6.19    ","Pm1'           ","6.2.26      ","Pm1'           ",&
@@ -70,13 +70,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  27)= Shub_Spgr_Info_Type("6.20    ","Pm'            ","6.3.27      ","Pm'            ",&
                                                 "Pm'                      ","P -2y'                   ")
       Shubnikov_info(  28)= Shub_Spgr_Info_Type("6.21    ","P_am           ","6.4.28      ","P_2am          ",&
-                                                "Pm1'_a[Pm]               ","P a -2y                  ")
+                                                "Pm1'_a[Pm]               ","P -2y 1'a                ")
       Shubnikov_info(  29)= Shub_Spgr_Info_Type("6.22    ","P_bm           ","6.5.29      ","P_2bm          ",&
-                                                "Pm1'_b[Pm]               ","P b -2y                  ")
+                                                "Pm1'_b[Pm]               ","P -2y 1'b                ")
       Shubnikov_info(  30)= Shub_Spgr_Info_Type("8.36    ","C_am           ","6.6.30      ","P_Cm           ",&
-                                                "Cm1'_a[Pm]               ","C a -2y                  ")
+                                                "Cm1'_a[Pm]               ","C -2y 1'a                ")
       Shubnikov_info(  31)= Shub_Spgr_Info_Type("7.28    ","P_cc           ","6.7.31      ","P_2cm'         ",&
-                                                "Pc1'_c[Pm]               ","P c -2yc                 ")
+                                                "Pc1'_c[Pm]               ","P -2yc 1'c               ")
       Shubnikov_info(  32)= Shub_Spgr_Info_Type("7.24    ","Pc             ","7.1.32      ","Pc             ",&
                                                 "Pc                       ","P -2yc                   ")
       Shubnikov_info(  33)= Shub_Spgr_Info_Type("7.25    ","Pc1'           ","7.2.33      ","Pc1'           ",&
@@ -84,11 +84,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  34)= Shub_Spgr_Info_Type("7.26    ","Pc'            ","7.3.34      ","Pc'            ",&
                                                 "Pc'                      ","P -2yc'                  ")
       Shubnikov_info(  35)= Shub_Spgr_Info_Type("7.27    ","P_ac           ","7.4.35      ","P_2ac          ",&
-                                                "Pc1'_a[Pc]               ","P a -2yc                 ")
+                                                "Pc1'_a[Pc]               ","P -2yc 1'a               ")
       Shubnikov_info(  36)= Shub_Spgr_Info_Type("7.29    ","P_bc           ","7.5.36      ","P_2bc          ",&
-                                                "Pc1'_b[Pc]               ","P b -2yc                 ")
+                                                "Pc1'_b[Pc]               ","P -2yc 1'b               ")
       Shubnikov_info(  37)= Shub_Spgr_Info_Type("9.41    ","C_ac           ","7.6.37      ","P_Cc           ",&
-                                                "Cc1'_a[Pc]               ","C a -2yc                 ")
+                                                "Cc1'_a[Pc]               ","C -2yc 1'a               ")
       Shubnikov_info(  38)= Shub_Spgr_Info_Type("8.32    ","Cm             ","8.1.38      ","Cm             ",&
                                                 "Cm                       ","C -2y                    ")
       Shubnikov_info(  39)= Shub_Spgr_Info_Type("8.33    ","Cm1'           ","8.2.39      ","Cm1'           ",&
@@ -96,13 +96,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  40)= Shub_Spgr_Info_Type("8.34    ","Cm'            ","8.3.40      ","Cm'            ",&
                                                 "Cm'                      ","C -2y'                   ")
       Shubnikov_info(  41)= Shub_Spgr_Info_Type("8.35    ","C_cm           ","8.4.41      ","C_2cm          ",&
-                                                "Cm1'_c[Cm]               ","C c -2y                  ")
+                                                "Cm1'_c[Cm]               ","C -2y 1'c                ")
       Shubnikov_info(  42)= Shub_Spgr_Info_Type("6.23    ","P_Cm           ","8.5.42      ","C_Pm           ",&
-                                                "Pm1'_C[Cm]               ","P C -2y                  ")
+                                                "Pm1'_C[Cm]               ","P -2y 1'C                ")
       Shubnikov_info(  43)= Shub_Spgr_Info_Type("9.40    ","C_cc           ","8.6.43      ","C_2cm'         ",&
-                                                "Cc1'_c[Cm]               ","C c -2yc                 ")
+                                                "Cc1'_c[Cm]               ","C -2yc 1'c               ")
       Shubnikov_info(  44)= Shub_Spgr_Info_Type("7.31    ","P_Ac           ","8.7.44      ","C_Pm'          ",&
-                                                "Pc1'_A[Am]               ","P A -2yc                 ")
+                                                "Pc1'_A[Am]               ","P -2yc 1'A               ")
       Shubnikov_info(  45)= Shub_Spgr_Info_Type("9.37    ","Cc             ","9.1.45      ","Cc             ",&
                                                 "Cc                       ","C -2yc                   ")
       Shubnikov_info(  46)= Shub_Spgr_Info_Type("9.38    ","Cc1'           ","9.2.46      ","Cc1'           ",&
@@ -110,7 +110,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  47)= Shub_Spgr_Info_Type("9.39    ","Cc'            ","9.3.47      ","Cc'            ",&
                                                 "Cc'                      ","C -2yc'                  ")
       Shubnikov_info(  48)= Shub_Spgr_Info_Type("7.30    ","P_Cc           ","9.4.48      ","C_Pc           ",&
-                                                "Pc1'_C[Cc]               ","P C -2yc                 ")
+                                                "Pc1'_C[Cc]               ","P -2yc 1'C               ")
       Shubnikov_info(  49)= Shub_Spgr_Info_Type("10.42   ","P2/m           ","10.1.49     ","P2/m           ",&
                                                 "P2/m                     ","-P 2y                    ")
       Shubnikov_info(  50)= Shub_Spgr_Info_Type("10.43   ","P2/m1'         ","10.2.50     ","P2/m1'         ",&
@@ -122,15 +122,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  53)= Shub_Spgr_Info_Type("10.46   ","P2'/m'         ","10.5.53     ","P2'/m'         ",&
                                                 "P2'/m'                   ","-P 2y'                   ")
       Shubnikov_info(  54)= Shub_Spgr_Info_Type("10.47   ","P_a2/m         ","10.6.54     ","P_2a2/m        ",&
-                                                "P2/m1'_a[P2/m]           ","-P a 2y                  ")
+                                                "P2/m1'_a[P2/m]           ","-P 2y 1'a                ")
       Shubnikov_info(  55)= Shub_Spgr_Info_Type("10.48   ","P_b2/m         ","10.7.55     ","P_2b2/m        ",&
-                                                "P2/m1'_b[P2/m]           ","-P b 2y                  ")
+                                                "P2/m1'_b[P2/m]           ","-P 2y 1'b                ")
       Shubnikov_info(  56)= Shub_Spgr_Info_Type("12.64   ","C_a2/m         ","10.8.56     ","P_C2/m         ",&
-                                                "C2/m1'_a[P2/m]           ","-C a 2y                  ")
+                                                "C2/m1'_a[P2/m]           ","-C 2y 1'a                ")
       Shubnikov_info(  57)= Shub_Spgr_Info_Type("11.56   ","P_b2_1/m       ","10.9.57     ","P_2b2'/m       ",&
-                                                "P2_1/m1'_b[P2/m]         ","-P b 2yb                 ")
+                                                "P2_1/m1'_b[P2/m]         ","-P 2yb 1'b               ")
       Shubnikov_info(  58)= Shub_Spgr_Info_Type("13.72   ","P_c2/c         ","10.10.58    ","P_2c2/m'       ",&
-                                                "P2/c1'_c[P2/m]           ","-P c 2yc                 ")
+                                                "P2/c1'_c[P2/m]           ","-P 2yc 1'c               ")
       Shubnikov_info(  59)= Shub_Spgr_Info_Type("11.50   ","P2_1/m         ","11.1.59     ","P2_1/m         ",&
                                                 "P2_1/m                   ","-P 2yb                   ")
       Shubnikov_info(  60)= Shub_Spgr_Info_Type("11.51   ","P2_1/m1'       ","11.2.60     ","P2_1/m1'       ",&
@@ -142,9 +142,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  63)= Shub_Spgr_Info_Type("11.54   ","P2_1'/m'       ","11.5.63     ","P2_1'/m'       ",&
                                                 "P2_1'/m'                 ","-P 2yb'                  ")
       Shubnikov_info(  64)= Shub_Spgr_Info_Type("11.55   ","P_a2_1/m       ","11.6.64     ","P_2a2_1/m      ",&
-                                                "P2_1/m1'_a[P2_1/m]       ","-P a 2yb                 ")
+                                                "P2_1/m1'_a[P2_1/m]       ","-P 2yb 1'a               ")
       Shubnikov_info(  65)= Shub_Spgr_Info_Type("14.82   ","P_c2_1/c       ","11.7.65     ","P_2c2_1/m'     ",&
-                                                "P2_1/c1'_c[P2_1/m]       ","-P c 2ybc                ")
+                                                "P2_1/c1'_c[P2_1/m]       ","-P 2ybc 1'c              ")
       Shubnikov_info(  66)= Shub_Spgr_Info_Type("12.58   ","C2/m           ","12.1.66     ","C2/m           ",&
                                                 "C2/m                     ","-C 2y                    ")
       Shubnikov_info(  67)= Shub_Spgr_Info_Type("12.59   ","C2/m1'         ","12.2.67     ","C2/m1'         ",&
@@ -156,17 +156,17 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  70)= Shub_Spgr_Info_Type("12.62   ","C2'/m'         ","12.5.70     ","C2'/m'         ",&
                                                 "C2'/m'                   ","-C 2y'                   ")
       Shubnikov_info(  71)= Shub_Spgr_Info_Type("12.63   ","C_c2/m         ","12.6.71     ","C_2c2/m        ",&
-                                                "C2/m1'_c[C2/m]           ","-C c 2y                  ")
+                                                "C2/m1'_c[C2/m]           ","-C 2y 1'c                ")
       Shubnikov_info(  72)= Shub_Spgr_Info_Type("10.49   ","P_C2/m         ","12.7.72     ","C_P2/m         ",&
-                                                "P2/m1'_C[C2/m]           ","-P C 2y                  ")
+                                                "P2/m1'_C[C2/m]           ","-P 2y 1'C                ")
       Shubnikov_info(  73)= Shub_Spgr_Info_Type("15.90   ","C_c2/c         ","12.8.73     ","C_2c2/m'       ",&
-                                                "C2/c1'_c[C2/m]           ","-C c 2yc                 ")
+                                                "C2/c1'_c[C2/m]           ","-C 2yc 1'c               ")
       Shubnikov_info(  74)= Shub_Spgr_Info_Type("11.57   ","P_C2_1/m       ","12.9.74     ","C_P2'/m        ",&
-                                                "P2_1/m1'_C[C2/m]         ","-P C 2yb                 ")
+                                                "P2_1/m1'_C[C2/m]         ","-P 2yb 1'C               ")
       Shubnikov_info(  75)= Shub_Spgr_Info_Type("13.73   ","P_A2/c         ","12.10.75    ","C_P2/m'        ",&
-                                                "P2/c1'_A[A2/m]           ","-P A 2yc                 ")
+                                                "P2/c1'_A[A2/m]           ","-P 2yc 1'A               ")
       Shubnikov_info(  76)= Shub_Spgr_Info_Type("14.83   ","P_A2_1/c       ","12.11.76    ","C_P2'/m'       ",&
-                                                "P2_1/c1'_A[A2/m]         ","-P A 2ybc                ")
+                                                "P2_1/c1'_A[A2/m]         ","-P 2ybc 1'A              ")
       Shubnikov_info(  77)= Shub_Spgr_Info_Type("13.65   ","P2/c           ","13.1.77     ","P2/c           ",&
                                                 "P2/c                     ","-P 2yc                   ")
       Shubnikov_info(  78)= Shub_Spgr_Info_Type("13.66   ","P2/c1'         ","13.2.78     ","P2/c1'         ",&
@@ -178,13 +178,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  81)= Shub_Spgr_Info_Type("13.69   ","P2'/c'         ","13.5.81     ","P2'/c'         ",&
                                                 "P2'/c'                   ","-P 2yc'                  ")
       Shubnikov_info(  82)= Shub_Spgr_Info_Type("13.70   ","P_a2/c         ","13.6.82     ","P_2a2/c        ",&
-                                                "P2/c1'_a[P2/c]           ","-P a 2yc                 ")
+                                                "P2/c1'_a[P2/c]           ","-P 2yc 1'a               ")
       Shubnikov_info(  83)= Shub_Spgr_Info_Type("13.71   ","P_b2/c         ","13.7.83     ","P_2b2/c        ",&
-                                                "P2/c1'_b[P2/c]           ","-P b 2yc                 ")
+                                                "P2/c1'_b[P2/c]           ","-P 2yc 1'b               ")
       Shubnikov_info(  84)= Shub_Spgr_Info_Type("15.91   ","C_a2/c         ","13.8.84     ","P_C2/c         ",&
-                                                "C2/c1'_a[P2/c]           ","-C a 2yc                 ")
+                                                "C2/c1'_a[P2/c]           ","-C 2yc 1'a               ")
       Shubnikov_info(  85)= Shub_Spgr_Info_Type("14.81   ","P_b2_1/c       ","13.9.85     ","P_2b2'/c       ",&
-                                                "P2_1/c1'_b[P2/c]         ","-P b 2ybc                ")
+                                                "P2_1/c1'_b[P2/c]         ","-P 2ybc 1'b              ")
       Shubnikov_info(  86)= Shub_Spgr_Info_Type("14.75   ","P2_1/c         ","14.1.86     ","P2_1/c         ",&
                                                 "P2_1/c                   ","-P 2ybc                  ")
       Shubnikov_info(  87)= Shub_Spgr_Info_Type("14.76   ","P2_1/c1'       ","14.2.87     ","P2_1/c1'       ",&
@@ -196,7 +196,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  90)= Shub_Spgr_Info_Type("14.79   ","P2_1'/c'       ","14.5.90     ","P2_1'/c'       ",&
                                                 "P2_1'/c'                 ","-P 2ybc'                 ")
       Shubnikov_info(  91)= Shub_Spgr_Info_Type("14.80   ","P_a2_1/c       ","14.6.91     ","P_2a2_1/c      ",&
-                                                "P2_1/c1'_a[P2_1/c]       ","-P a 2ybc                ")
+                                                "P2_1/c1'_a[P2_1/c]       ","-P 2ybc 1'a              ")
       Shubnikov_info(  92)= Shub_Spgr_Info_Type("15.85   ","C2/c           ","15.1.92     ","C2/c           ",&
                                                 "C2/c                     ","-C 2yc                   ")
       Shubnikov_info(  93)= Shub_Spgr_Info_Type("15.86   ","C2/c1'         ","15.2.93     ","C2/c1'         ",&
@@ -208,23 +208,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(  96)= Shub_Spgr_Info_Type("15.89   ","C2'/c'         ","15.5.96     ","C2'/c'         ",&
                                                 "C2'/c'                   ","-C 2yc'                  ")
       Shubnikov_info(  97)= Shub_Spgr_Info_Type("13.74   ","P_C2/c         ","15.6.97     ","C_P2/c         ",&
-                                                "P2/c1'_C[C2/c]           ","-P C 2yc                 ")
+                                                "P2/c1'_C[C2/c]           ","-P 2yc 1'C               ")
       Shubnikov_info(  98)= Shub_Spgr_Info_Type("14.84   ","P_C2_1/c       ","15.7.98     ","C_P2'/c        ",&
-                                                "P2_1/c1'_C[C2/c]         ","-P C 2ybc                ")
+                                                "P2_1/c1'_C[C2/c]         ","-P 2ybc 1'C              ")
       Shubnikov_info(  99)= Shub_Spgr_Info_Type("16.1    ","P222           ","16.1.99     ","P222           ",&
-                                                "P222                     ","P 2  2                   ")
+                                                "P222                     ","P 2 2                    ")
       Shubnikov_info( 100)= Shub_Spgr_Info_Type("16.2    ","P2221'         ","16.2.100    ","P2221'         ",&
-                                                "P2221'                   ","P 2  2  1'               ")
+                                                "P2221'                   ","P 2 2 1'                 ")
       Shubnikov_info( 101)= Shub_Spgr_Info_Type("16.3    ","P2'2'2         ","16.3.101    ","P2'2'2         ",&
                                                 "P2'2'2                   ","P 2' 2'                  ")
       Shubnikov_info( 102)= Shub_Spgr_Info_Type("16.4    ","P_a222         ","16.4.102    ","P_2a222        ",&
-                                                "P2221'_a[P222]           ","P a 2 2                  ")
+                                                "P2221'_a[P222]           ","P 2 2 1'a                ")
       Shubnikov_info( 103)= Shub_Spgr_Info_Type("21.43   ","C_a222         ","16.5.103    ","P_C222         ",&
-                                                "C2221'_a[P222]           ","C a 2 2                  ")
+                                                "C2221'_a[P222]           ","C 2 2 1'a                ")
       Shubnikov_info( 104)= Shub_Spgr_Info_Type("22.48   ","F_S222         ","16.6.104    ","P_I222         ",&
-                                                "F2221'_I[P222]           ","F S 2 2                  ")
+                                                "F2221'_I[P222]           ","F 2 2 1'S                ")
       Shubnikov_info( 105)= Shub_Spgr_Info_Type("17.12   ","P_c222_1       ","16.7.105    ","P_2c22'2'      ",&
-                                                "P222_11'_c[P222]         ","P c 2c 2                 ")
+                                                "P222_11'_c[P222]         ","P 2c 2 1'c               ")
       Shubnikov_info( 106)= Shub_Spgr_Info_Type("17.7    ","P222_1         ","17.1.106    ","P222_1         ",&
                                                 "P222_1                   ","P 2c  2                  ")
       Shubnikov_info( 107)= Shub_Spgr_Info_Type("17.8    ","P222_11'       ","17.2.107    ","P222_11'       ",&
@@ -234,23 +234,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 109)= Shub_Spgr_Info_Type("17.10   ","P22'2_1'       ","17.4.109    ","P22'2_1'       ",&
                                                 "P22'2_1'                 ","P 2c' 2                  ")
       Shubnikov_info( 110)= Shub_Spgr_Info_Type("17.11   ","P_a222_1       ","17.5.110    ","P_2a222_1      ",&
-                                                "P222_11'_a[P222_1]       ","P a 2c 2                 ")
+                                                "P222_11'_a[P222_1]       ","P 2c 2 1'a               ")
       Shubnikov_info( 111)= Shub_Spgr_Info_Type("20.36   ","C_a222_1       ","17.6.111    ","P_C222_1       ",&
-                                                "C222_11'_a[P222_1]       ","C a 2c 2                 ")
+                                                "C222_11'_a[P222_1]       ","C 2c 2 1'a               ")
       Shubnikov_info( 112)= Shub_Spgr_Info_Type("18.20   ","P_b2_12_12     ","17.7.112    ","P_2a2'2'2_1    ",&
-                                                "P2_12_121'_b[P2_122]     ","P b 2 2ab                ")
+                                                "P2_12_121'_b[P2_122]     ","P 2 2ab 1'b              ")
       Shubnikov_info( 113)= Shub_Spgr_Info_Type("18.16   ","P2_12_12       ","18.1.113    ","P2_12_12       ",&
-                                                "P2_12_12                 ","P 2  2ab                 ")
+                                                "P2_12_12                 ","P 2 2ab                  ")
       Shubnikov_info( 114)= Shub_Spgr_Info_Type("18.17   ","P2_12_121'     ","18.2.114    ","P2_12_121'     ",&
-                                                "P2_12_121'               ","P 2  2ab  1'             ")
+                                                "P2_12_121'               ","P 2 2ab 1'               ")
       Shubnikov_info( 115)= Shub_Spgr_Info_Type("18.18   ","P2_1'2_1'2     ","18.3.115    ","P2_1'2_1'2     ",&
-                                                "P2_1'2_1'2               ","P 2  2ab'                ")
+                                                "P2_1'2_1'2               ","P 2 2ab'                 ")
       Shubnikov_info( 116)= Shub_Spgr_Info_Type("18.19   ","P2_12_1'2'     ","18.4.116    ","P2_12_1'2'     ",&
                                                 "P2_12_1'2'               ","P 2' 2ab                 ")
       Shubnikov_info( 117)= Shub_Spgr_Info_Type("18.21   ","P_c2_12_12     ","18.5.117    ","P_2c2_12_12    ",&
-                                                "P2_12_121'_c[P2_12_12]   ","P c 2 2ab                ")
+                                                "P2_12_121'_c[P2_12_12]   ","P 2 2ab 1'c              ")
       Shubnikov_info( 118)= Shub_Spgr_Info_Type("19.28   ","P_c2_12_12_1   ","18.6.118    ","P_2c2_12_1'2'  ",&
-                                                "P2_12_12_11'_c[P2_12_12] ","P c 2ac 2ab              ")
+                                                "P2_12_12_11'_c[P2_12_12] ","P 2ac 2ab 1'c            ")
       Shubnikov_info( 119)= Shub_Spgr_Info_Type("19.25   ","P2_12_12_1     ","19.1.119    ","P2_12_12_1     ",&
                                                 "P2_12_12_1               ","P 2ac 2ab                ")
       Shubnikov_info( 120)= Shub_Spgr_Info_Type("19.26   ","P2_12_12_11'   ","19.2.120    ","P2_12_12_11'   ",&
@@ -266,53 +266,53 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 125)= Shub_Spgr_Info_Type("20.34   ","C22'2_1'       ","20.4.125    ","C22'2_1'       ",&
                                                 "C22'2_1'                 ","C 2c' 2                  ")
       Shubnikov_info( 126)= Shub_Spgr_Info_Type("17.14   ","P_C222_1       ","20.5.126    ","C_P222_1       ",&
-                                                "P222_11'_C[C222_1]       ","P C 2c 2                 ")
+                                                "P222_11'_C[C222_1]       ","P 2c 2 1'C               ")
       Shubnikov_info( 127)= Shub_Spgr_Info_Type("19.29   ","P_C2_12_12_1   ","20.6.127    ","C_P2'2'2_1     ",&
-                                                "P2_12_12_11'_C[C222_1]   ","P C 2ac 2ab              ")
+                                                "P2_12_12_11'_C[C222_1]   ","P 2ac 2ab 1'C            ")
       Shubnikov_info( 128)= Shub_Spgr_Info_Type("18.22   ","P_B2_12_12     ","20.7.128    ","C_P22'2_1'     ",&
-                                                "P2_12_121'_B[B22_12]     ","P B 2 2ab                ")
+                                                "P2_12_121'_B[B22_12]     ","P 2 2ab 1'B              ")
       Shubnikov_info( 129)= Shub_Spgr_Info_Type("21.38   ","C222           ","21.1.129    ","C222           ",&
-                                                "C222                     ","C 2  2                   ")
+                                                "C222                     ","C 2 2                    ")
       Shubnikov_info( 130)= Shub_Spgr_Info_Type("21.39   ","C2221'         ","21.2.130    ","C2221'         ",&
-                                                "C2221'                   ","C 2  2  1'               ")
+                                                "C2221'                   ","C 2 2 1'                 ")
       Shubnikov_info( 131)= Shub_Spgr_Info_Type("21.40   ","C2'2'2         ","21.3.131    ","C2'2'2         ",&
-                                                "C2'2'2                   ","C 2  2'                  ")
+                                                "C2'2'2                   ","C 2 2'                   ")
       Shubnikov_info( 132)= Shub_Spgr_Info_Type("21.41   ","C22'2'         ","21.4.132    ","C22'2'         ",&
                                                 "C22'2'                   ","C 2' 2                   ")
       Shubnikov_info( 133)= Shub_Spgr_Info_Type("21.42   ","C_c222         ","21.5.133    ","C_2c222        ",&
-                                                "C2221'_c[C222]           ","C c 2 2                  ")
+                                                "C2221'_c[C222]           ","C 2 2 1'c                ")
       Shubnikov_info( 134)= Shub_Spgr_Info_Type("16.5    ","P_C222         ","21.6.134    ","C_P222         ",&
-                                                "P2221'_C[C222]           ","P C 2 2                  ")
+                                                "P2221'_C[C222]           ","P 2 2 1'C                ")
       Shubnikov_info( 135)= Shub_Spgr_Info_Type("23.52   ","I_c222         ","21.7.135    ","C_I222         ",&
-                                                "I2221'_c[C222]           ","I c 2 2                  ")
+                                                "I2221'_c[C222]           ","I 2 2 1'c                ")
       Shubnikov_info( 136)= Shub_Spgr_Info_Type("20.35   ","C_c222_1       ","21.8.136    ","C_2c22'2'      ",&
-                                                "C222_11'_c[C222]         ","C c 2c 2                 ")
+                                                "C222_11'_c[C222]         ","C 2c 2 1'c               ")
       Shubnikov_info( 137)= Shub_Spgr_Info_Type("18.23   ","P_C2_12_12     ","21.9.137    ","C_P2'2'2       ",&
-                                                "P2_12_121'_C[C222]       ","P C 2 2ab                ")
+                                                "P2_12_121'_C[C222]       ","P 2 2ab 1'C              ")
       Shubnikov_info( 138)= Shub_Spgr_Info_Type("17.13   ","P_B222_1       ","21.10.138   ","C_P22'2'       ",&
-                                                "P222_11'_B[B222]         ","P B 2c 2                 ")
+                                                "P222_11'_B[B222]         ","P 2c 2 1'B               ")
       Shubnikov_info( 139)= Shub_Spgr_Info_Type("24.56   ","I_c2_12_12_1   ","21.11.139   ","C_I2'22'       ",&
-                                                "I2_12_12_11'_c[C222]     ","I c 2ac 2ab              ")
+                                                "I2_12_12_11'_c[C222]     ","I 2ac 2ab 1'c            ")
       Shubnikov_info( 140)= Shub_Spgr_Info_Type("22.45   ","F222           ","22.1.140    ","F222           ",&
                                                 "F222                     ","F 2 2                    ")
       Shubnikov_info( 141)= Shub_Spgr_Info_Type("22.46   ","F2221'         ","22.2.141    ","F2221'         ",&
-                                                "F2221'                   ","F 2 2  1'                ")
+                                                "F2221'                   ","F 2 2 1'                 ")
       Shubnikov_info( 142)= Shub_Spgr_Info_Type("22.47   ","F2'2'2         ","22.3.142    ","F2'2'2         ",&
                                                 "F2'2'2                   ","F 2 2'                   ")
       Shubnikov_info( 143)= Shub_Spgr_Info_Type("21.44   ","C_A222         ","22.4.143    ","F_C222         ",&
-                                                "C2221'_A[F222]           ","C A 2 2                  ")
+                                                "C2221'_A[F222]           ","C 2 2 1'A                ")
       Shubnikov_info( 144)= Shub_Spgr_Info_Type("20.37   ","C_A222_1       ","22.5.144    ","F_C22'2'       ",&
-                                                "C222_11'_A[F222]         ","C A 2c 2                 ")
+                                                "C222_11'_A[F222]         ","C 2c 2 1'A               ")
       Shubnikov_info( 145)= Shub_Spgr_Info_Type("23.49   ","I222           ","23.1.145    ","I222           ",&
                                                 "I222                     ","I 2 2                    ")
       Shubnikov_info( 146)= Shub_Spgr_Info_Type("23.50   ","I2221'         ","23.2.146    ","I2221'         ",&
-                                                "I2221'                   ","I 2 2  1'                ")
+                                                "I2221'                   ","I 2 2 1'                 ")
       Shubnikov_info( 147)= Shub_Spgr_Info_Type("23.51   ","I2'2'2         ","23.3.147    ","I2'2'2         ",&
                                                 "I2'2'2                   ","I 2 2'                   ")
       Shubnikov_info( 148)= Shub_Spgr_Info_Type("16.6    ","P_I222         ","23.4.148    ","I_P222         ",&
-                                                "P2221'_I[I222]           ","P I 2 2                  ")
+                                                "P2221'_I[I222]           ","P 2 2 1'I                ")
       Shubnikov_info( 149)= Shub_Spgr_Info_Type("18.24   ","P_I2_12_12     ","23.5.149    ","I_P2'2'2       ",&
-                                                "P2_12_121'_I[I222]       ","P I 2 2ab                ")
+                                                "P2_12_121'_I[I222]       ","P 2 2ab 1'I              ")
       Shubnikov_info( 150)= Shub_Spgr_Info_Type("24.53   ","I2_12_12_1     ","24.1.150    ","I2_12_12_1     ",&
                                                 "I2_12_12_1               ","I 2b 2c                  ")
       Shubnikov_info( 151)= Shub_Spgr_Info_Type("24.54   ","I2_12_12_11'   ","24.2.151    ","I2_12_12_11'   ",&
@@ -320,35 +320,35 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 152)= Shub_Spgr_Info_Type("24.55   ","I2_1'2_1'2_1   ","24.3.152    ","I2_1'2_1'2_1   ",&
                                                 "I2_1'2_1'2_1             ","I 2b 2c'                 ")
       Shubnikov_info( 153)= Shub_Spgr_Info_Type("19.30   ","P_I2_12_12_1   ","24.4.153    ","I_P2_12_12_1   ",&
-                                                "P2_12_12_11'_I[I2_12_12_1","P I 2ac 2ab              ")
+                                                "P2_12_12_11'_I[I2_12_12_1","P 2ac 2ab 1'I            ")
       Shubnikov_info( 154)= Shub_Spgr_Info_Type("17.15   ","P_I222_1       ","24.5.154    ","I_P2_1'2_1'2_1 ",&
-                                                "P222_11'_I[I2_12_12_1]   ","P I 2c 2                 ")
+                                                "P222_11'_I[I2_12_12_1]   ","P 2c 2 1'I               ")
       Shubnikov_info( 155)= Shub_Spgr_Info_Type("25.57   ","Pmm2           ","25.1.155    ","Pmm2           ",&
                                                 "Pmm2                     ","P 2 -2                   ")
       Shubnikov_info( 156)= Shub_Spgr_Info_Type("25.58   ","Pmm21'         ","25.2.156    ","Pmm21'         ",&
-                                                "Pmm21'                   ","P 2 -2  1'               ")
+                                                "Pmm21'                   ","P 2 -2 1'                ")
       Shubnikov_info( 157)= Shub_Spgr_Info_Type("25.59   ","Pm'm2'         ","25.3.157    ","Pm'm2'         ",&
                                                 "Pm'm2'                   ","P 2' -2'                 ")
       Shubnikov_info( 158)= Shub_Spgr_Info_Type("25.60   ","Pm'm'2         ","25.4.158    ","Pm'm'2         ",&
-                                                "Pm'm'2                   ","P 2  -2'                 ")
+                                                "Pm'm'2                   ","P 2 -2'                  ")
       Shubnikov_info( 159)= Shub_Spgr_Info_Type("25.61   ","P_cmm2         ","25.5.159    ","P_2cmm2        ",&
-                                                "Pmm21'_c[Pmm2]           ","P c 2 -2                 ")
+                                                "Pmm21'_c[Pmm2]           ","P 2 -2 1'c               ")
       Shubnikov_info( 160)= Shub_Spgr_Info_Type("25.62   ","P_amm2         ","25.6.160    ","P_2amm2        ",&
-                                                "Pmm21'_a[Pmm2]           ","P a 2 -2                 ")
+                                                "Pmm21'_a[Pmm2]           ","P 2 -2 1'a               ")
       Shubnikov_info( 161)= Shub_Spgr_Info_Type("35.170  ","C_amm2         ","25.7.161    ","P_Cmm2         ",&
-                                                "Cmm21'_a[Pmm2]           ","C a 2 -2                 ")
+                                                "Cmm21'_a[Pmm2]           ","C 2 -2 1'a               ")
       Shubnikov_info( 162)= Shub_Spgr_Info_Type("38.193  ","A_bmm2         ","25.8.162    ","P_Amm2         ",&
-                                                "Amm21'_b[Pmm2]           ","A b 2 -2                 ")
+                                                "Amm21'_b[Pmm2]           ","A 2 -2 1'b               ")
       Shubnikov_info( 163)= Shub_Spgr_Info_Type("42.223  ","F_Smm2         ","25.9.163    ","P_Imm2         ",&
-                                                "Fmm21'_I[Pmm2]           ","F S 2 -2                 ")
+                                                "Fmm21'_I[Pmm2]           ","F 2 -2 1'S               ")
       Shubnikov_info( 164)= Shub_Spgr_Info_Type("26.73   ","P_cmc2_1       ","25.10.164   ","P_2cmm'2'      ",&
-                                                "Pmc2_11'_c[Pmm2]         ","P c 2c -2                ")
+                                                "Pmc2_11'_c[Pmm2]         ","P 2c -2 1'c              ")
       Shubnikov_info( 165)= Shub_Spgr_Info_Type("27.82   ","P_ccc2         ","25.11.165   ","P_2cm'm'2      ",&
-                                                "Pcc21'_c[Pmm2]           ","P c 2 -2c                ")
+                                                "Pcc21'_c[Pmm2]           ","P 2 -2c 1'c              ")
       Shubnikov_info( 166)= Shub_Spgr_Info_Type("28.92   ","P_ama2         ","25.12.166   ","P_2am'm'2      ",&
-                                                "Pma21'_a[Pmm2]           ","P a 2 -2a                ")
+                                                "Pma21'_a[Pmm2]           ","P 2 -2a 1'a              ")
       Shubnikov_info( 167)= Shub_Spgr_Info_Type("39.201  ","A_bbm2         ","25.13.167   ","P_Am'm'2       ",&
-                                                "Abm21'_b[Pmm2]           ","A b 2 -2c                ")
+                                                "Abm21'_b[Pmm2]           ","A 2 -2c 1'b              ")
       Shubnikov_info( 168)= Shub_Spgr_Info_Type("26.66   ","Pmc2_1         ","26.1.168    ","Pmc2_1         ",&
                                                 "Pmc2_1                   ","P 2c  -2                 ")
       Shubnikov_info( 169)= Shub_Spgr_Info_Type("26.67   ","Pmc2_11'       ","26.2.169    ","Pmc2_11'       ",&
@@ -360,55 +360,55 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 172)= Shub_Spgr_Info_Type("26.70   ","Pm'c'2_1       ","26.5.172    ","Pm'c'2_1       ",&
                                                 "Pm'c'2_1                 ","P 2c  -2'                ")
       Shubnikov_info( 173)= Shub_Spgr_Info_Type("26.71   ","P_amc2_1       ","26.6.173    ","P_2amc2_1      ",&
-                                                "Pmc2_11'_a[Pmc2_1]       ","P a 2c -2                ")
+                                                "Pmc2_11'_a[Pmc2_1]       ","P 2c -2 1'a              ")
       Shubnikov_info( 174)= Shub_Spgr_Info_Type("26.72   ","P_bmc2_1       ","26.7.174    ","P_2bmc2_1      ",&
-                                                "Pmc2_11'_b[Pmc2_1]       ","P b 2c -2                ")
+                                                "Pmc2_11'_b[Pmc2_1]       ","P 2c -2 1'b              ")
       Shubnikov_info( 175)= Shub_Spgr_Info_Type("36.178  ","C_amc2_1       ","26.8.175    ","P_Cmc2_1       ",&
-                                                "Cmc2_11'_a[Pmc2_1]       ","C a 2c -2                ")
+                                                "Cmc2_11'_a[Pmc2_1]       ","C 2c -2 1'a              ")
       Shubnikov_info( 176)= Shub_Spgr_Info_Type("31.128  ","P_amn2_1       ","26.9.176    ","P_2amc'2_1'    ",&
-                                                "Pmn2_11'_a[Pmc2_1]       ","P a 2ac -2               ")
+                                                "Pmn2_11'_a[Pmc2_1]       ","P 2ac -2 1'a             ")
       Shubnikov_info( 177)= Shub_Spgr_Info_Type("29.104  ","P_aca2_1       ","26.10.177   ","P_2bm'c'2_1    ",&
-                                                "Pca2_11'_a[Pcm2_1]       ","P a 2c -2ac              ")
+                                                "Pca2_11'_a[Pcm2_1]       ","P 2c -2ac 1'a            ")
       Shubnikov_info( 178)= Shub_Spgr_Info_Type("27.78   ","Pcc2           ","27.1.178    ","Pcc2           ",&
-                                                "Pcc2                     ","P 2  -2c                 ")
+                                                "Pcc2                     ","P 2 -2c                  ")
       Shubnikov_info( 179)= Shub_Spgr_Info_Type("27.79   ","Pcc21'         ","27.2.179    ","Pcc21'         ",&
-                                                "Pcc21'                   ","P 2  -2c  1'             ")
+                                                "Pcc21'                   ","P 2 -2c 1'               ")
       Shubnikov_info( 180)= Shub_Spgr_Info_Type("27.80   ","Pc'c2'         ","27.3.180    ","Pc'c2'         ",&
                                                 "Pc'c2'                   ","P 2' -2c                 ")
       Shubnikov_info( 181)= Shub_Spgr_Info_Type("27.81   ","Pc'c'2         ","27.4.181    ","Pc'c'2         ",&
-                                                "Pc'c'2                   ","P 2  -2c'                ")
+                                                "Pc'c'2                   ","P 2 -2c'                 ")
       Shubnikov_info( 182)= Shub_Spgr_Info_Type("27.83   ","P_acc2         ","27.5.182    ","P_2acc2        ",&
-                                                "Pcc21'_a[Pcc2]           ","P a 2 -2c                ")
+                                                "Pcc21'_a[Pcc2]           ","P 2 -2c 1'a              ")
       Shubnikov_info( 183)= Shub_Spgr_Info_Type("37.185  ","C_acc2         ","27.6.183    ","P_Ccc2         ",&
-                                                "Ccc21'_a[Pcc2]           ","C a 2 -2c                ")
+                                                "Ccc21'_a[Pcc2]           ","C 2 -2c 1'a              ")
       Shubnikov_info( 184)= Shub_Spgr_Info_Type("30.117  ","P_bnc2         ","27.7.184    ","P_2bc'c2'      ",&
-                                                "Pnc21'_b[Pcc2]           ","P b 2 -2bc               ")
+                                                "Pnc21'_b[Pcc2]           ","P 2 -2bc 1'b             ")
       Shubnikov_info( 185)= Shub_Spgr_Info_Type("28.87   ","Pma2           ","28.1.185    ","Pma2           ",&
-                                                "Pma2                     ","P 2  -2a                 ")
+                                                "Pma2                     ","P 2 -2a                  ")
       Shubnikov_info( 186)= Shub_Spgr_Info_Type("28.88   ","Pma21'         ","28.2.186    ","Pma21'         ",&
-                                                "Pma21'                   ","P 2  -2a  1'             ")
+                                                "Pma21'                   ","P 2 -2a 1'               ")
       Shubnikov_info( 187)= Shub_Spgr_Info_Type("28.89   ","Pm'a2'         ","28.3.187    ","Pm'a2'         ",&
                                                 "Pm'a2'                   ","P 2' -2a'                ")
       Shubnikov_info( 188)= Shub_Spgr_Info_Type("28.90   ","Pma'2'         ","28.4.188    ","Pma'2'         ",&
                                                 "Pma'2'                   ","P 2' -2a                 ")
       Shubnikov_info( 189)= Shub_Spgr_Info_Type("28.91   ","Pm'a'2         ","28.5.189    ","Pm'a'2         ",&
-                                                "Pm'a'2                   ","P 2  -2a'                ")
+                                                "Pm'a'2                   ","P 2 -2a'                 ")
       Shubnikov_info( 190)= Shub_Spgr_Info_Type("28.93   ","P_bma2         ","28.6.190    ","P_2bma2        ",&
-                                                "Pma21'_b[Pma2]           ","P b 2 -2a                ")
+                                                "Pma21'_b[Pma2]           ","P 2 -2a 1'b              ")
       Shubnikov_info( 191)= Shub_Spgr_Info_Type("28.94   ","P_cma2         ","28.7.191    ","P_2cma2        ",&
-                                                "Pma21'_c[Pma2]           ","P c 2 -2a                ")
+                                                "Pma21'_c[Pma2]           ","P 2 -2a 1'c              ")
       Shubnikov_info( 192)= Shub_Spgr_Info_Type("40.209  ","A_bma2         ","28.8.192    ","P_Ama2         ",&
-                                                "Ama21'_b[Pma2]           ","A b 2 -2a                ")
+                                                "Ama21'_b[Pma2]           ","A 2 -2a 1'b              ")
       Shubnikov_info( 193)= Shub_Spgr_Info_Type("32.140  ","P_bba2         ","28.9.193    ","P_2bm'a2'      ",&
-                                                "Pba21'_b[Pma2]           ","P b 2 -2ab               ")
+                                                "Pba21'_b[Pma2]           ","P 2 -2ab 1'b             ")
       Shubnikov_info( 194)= Shub_Spgr_Info_Type("29.106  ","P_cca2_1       ","28.10.194   ","P_2cm'a2'      ",&
-                                                "Pca2_11'_c[Pma2]         ","P c 2c -2ac              ")
+                                                "Pca2_11'_c[Pma2]         ","P 2c -2ac 1'c            ")
       Shubnikov_info( 195)= Shub_Spgr_Info_Type("31.130  ","P_cmn2_1       ","28.11.195   ","P_2cma'2'      ",&
-                                                "Pmn2_11'_c[Pma2]         ","P c 2ac -2               ")
+                                                "Pmn2_11'_c[Pma2]         ","P 2ac -2 1'c             ")
       Shubnikov_info( 196)= Shub_Spgr_Info_Type("30.118  ","P_cnc2         ","28.12.196   ","P_2cm'a'2      ",&
-                                                "Pnc21'_c[Pbm2]           ","P c 2 -2bc               ")
+                                                "Pnc21'_c[Pbm2]           ","P 2 -2bc 1'c             ")
       Shubnikov_info( 197)= Shub_Spgr_Info_Type("41.217  ","A_bba2         ","28.13.197   ","P_Am'a'2       ",&
-                                                "Aba21'_b[Pma2]           ","A b 2 -2ac               ")
+                                                "Aba21'_b[Pma2]           ","A 2 -2ac 1'b             ")
       Shubnikov_info( 198)= Shub_Spgr_Info_Type("29.99   ","Pca2_1         ","29.1.198    ","Pca2_1         ",&
                                                 "Pca2_1                   ","P 2c  -2ac               ")
       Shubnikov_info( 199)= Shub_Spgr_Info_Type("29.100  ","Pca2_11'       ","29.2.199    ","Pca2_11'       ",&
@@ -420,23 +420,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 202)= Shub_Spgr_Info_Type("29.103  ","Pc'a'2_1       ","29.5.202    ","Pc'a'2_1       ",&
                                                 "Pc'a'2_1                 ","P 2c  -2ac'              ")
       Shubnikov_info( 203)= Shub_Spgr_Info_Type("29.105  ","P_bca2_1       ","29.6.203    ","P_2bca2_1      ",&
-                                                "Pca2_11'_b[Pca2_1]       ","P b 2c -2ac              ")
+                                                "Pca2_11'_b[Pca2_1]       ","P 2c -2ac 1'b            ")
       Shubnikov_info( 204)= Shub_Spgr_Info_Type("33.150  ","P_bna2_1       ","29.7.204    ","P_2bc'a'2_1    ",&
-                                                "Pna2_11'_b[Pca2_1]       ","P b 2c -2n               ")
+                                                "Pna2_11'_b[Pca2_1]       ","P 2c -2n 1'b             ")
       Shubnikov_info( 205)= Shub_Spgr_Info_Type("30.111  ","Pnc2           ","30.1.205    ","Pnc2           ",&
-                                                "Pnc2                     ","P 2  -2bc                ")
+                                                "Pnc2                     ","P 2 -2bc                 ")
       Shubnikov_info( 206)= Shub_Spgr_Info_Type("30.112  ","Pnc21'         ","30.2.206    ","Pnc21'         ",&
-                                                "Pnc21'                   ","P 2  -2bc  1'            ")
+                                                "Pnc21'                   ","P 2 -2bc 1'              ")
       Shubnikov_info( 207)= Shub_Spgr_Info_Type("30.113  ","Pn'c2'         ","30.3.207    ","Pn'c2'         ",&
                                                 "Pn'c2'                   ","P 2' -2bc'               ")
       Shubnikov_info( 208)= Shub_Spgr_Info_Type("30.114  ","Pnc'2'         ","30.4.208    ","Pnc'2'         ",&
                                                 "Pnc'2'                   ","P 2' -2bc                ")
       Shubnikov_info( 209)= Shub_Spgr_Info_Type("30.115  ","Pn'c'2         ","30.5.209    ","Pn'c'2         ",&
-                                                "Pn'c'2                   ","P 2  -2bc'               ")
+                                                "Pn'c'2                   ","P 2 -2bc'                ")
       Shubnikov_info( 210)= Shub_Spgr_Info_Type("30.116  ","P_anc2         ","30.6.210    ","P_2anc2        ",&
-                                                "Pnc21'_a[Pnc2]           ","P a 2 -2bc               ")
+                                                "Pnc21'_a[Pnc2]           ","P 2 -2bc 1'a             ")
       Shubnikov_info( 211)= Shub_Spgr_Info_Type("34.160  ","P_ann2         ","30.7.211    ","P_2anc'2'      ",&
-                                                "Pnn21'_a[Pnc2]           ","P a 2 -2n                ")
+                                                "Pnn21'_a[Pnc2]           ","P 2 -2n 1'a              ")
       Shubnikov_info( 212)= Shub_Spgr_Info_Type("31.123  ","Pmn2_1         ","31.1.212    ","Pmn2_1         ",&
                                                 "Pmn2_1                   ","P 2ac  -2                ")
       Shubnikov_info( 213)= Shub_Spgr_Info_Type("31.124  ","Pmn2_11'       ","31.2.213    ","Pmn2_11'       ",&
@@ -448,23 +448,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 216)= Shub_Spgr_Info_Type("31.127  ","Pm'n'2_1       ","31.5.216    ","Pm'n'2_1       ",&
                                                 "Pm'n'2_1                 ","P 2ac  -2'               ")
       Shubnikov_info( 217)= Shub_Spgr_Info_Type("31.129  ","P_bmn2_1       ","31.6.217    ","P_2bmn2_1      ",&
-                                                "Pmn2_11'_b[Pmn2_1]       ","P b 2ac -2               ")
+                                                "Pmn2_11'_b[Pmn2_1]       ","P 2ac -2 1'b             ")
       Shubnikov_info( 218)= Shub_Spgr_Info_Type("33.149  ","P_ana2_1       ","31.7.218    ","P_2bm'n2_1'    ",&
-                                                "Pna2_11'_a[Pnm2_1]       ","P a 2c -2n               ")
+                                                "Pna2_11'_a[Pnm2_1]       ","P 2c -2n 1'a             ")
       Shubnikov_info( 219)= Shub_Spgr_Info_Type("32.135  ","Pba2           ","32.1.219    ","Pba2           ",&
-                                                "Pba2                     ","P 2  -2ab                ")
+                                                "Pba2                     ","P 2 -2ab                 ")
       Shubnikov_info( 220)= Shub_Spgr_Info_Type("32.136  ","Pba21'         ","32.2.220    ","Pba21'         ",&
-                                                "Pba21'                   ","P 2  -2ab  1'            ")
+                                                "Pba21'                   ","P 2 -2ab 1'              ")
       Shubnikov_info( 221)= Shub_Spgr_Info_Type("32.137  ","Pb'a2'         ","32.3.221    ","Pb'a2'         ",&
                                                 "Pb'a2'                   ","P 2' -2ab                ")
       Shubnikov_info( 222)= Shub_Spgr_Info_Type("32.138  ","Pb'a'2         ","32.4.222    ","Pb'a'2         ",&
-                                                "Pb'a'2                   ","P 2  -2ab'               ")
+                                                "Pb'a'2                   ","P 2 -2ab'                ")
       Shubnikov_info( 223)= Shub_Spgr_Info_Type("32.139  ","P_cba2         ","32.5.223    ","P_2cba2        ",&
-                                                "Pba21'_c[Pba2]           ","P c 2 -2ab               ")
+                                                "Pba21'_c[Pba2]           ","P 2 -2ab 1'c             ")
       Shubnikov_info( 224)= Shub_Spgr_Info_Type("33.151  ","P_cna2_1       ","32.6.224    ","P_2cb'a2'      ",&
-                                                "Pna2_11'_c[Pba2]         ","P c 2c -2n               ")
+                                                "Pna2_11'_c[Pba2]         ","P 2c -2n 1'c             ")
       Shubnikov_info( 225)= Shub_Spgr_Info_Type("34.161  ","P_cnn2         ","32.7.225    ","P_2cb'a'2      ",&
-                                                "Pnn21'_c[Pba2]           ","P c 2 -2n                ")
+                                                "Pnn21'_c[Pba2]           ","P 2 -2n 1'c              ")
       Shubnikov_info( 226)= Shub_Spgr_Info_Type("33.144  ","Pna2_1         ","33.1.226    ","Pna2_1         ",&
                                                 "Pna2_1                   ","P 2c  -2n                ")
       Shubnikov_info( 227)= Shub_Spgr_Info_Type("33.145  ","Pna2_11'       ","33.2.227    ","Pna2_11'       ",&
@@ -476,41 +476,41 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 230)= Shub_Spgr_Info_Type("33.148  ","Pn'a'2_1       ","33.5.230    ","Pn'a'2_1       ",&
                                                 "Pn'a'2_1                 ","P 2c  -2n'               ")
       Shubnikov_info( 231)= Shub_Spgr_Info_Type("34.156  ","Pnn2           ","34.1.231    ","Pnn2           ",&
-                                                "Pnn2                     ","P 2  -2n                 ")
+                                                "Pnn2                     ","P 2 -2n                  ")
       Shubnikov_info( 232)= Shub_Spgr_Info_Type("34.157  ","Pnn21'         ","34.2.232    ","Pnn21'         ",&
-                                                "Pnn21'                   ","P 2  -2n  1'             ")
+                                                "Pnn21'                   ","P 2 -2n 1'               ")
       Shubnikov_info( 233)= Shub_Spgr_Info_Type("34.158  ","Pn'n2'         ","34.3.233    ","Pn'n2'         ",&
                                                 "Pn'n2'                   ","P 2' -2n                 ")
       Shubnikov_info( 234)= Shub_Spgr_Info_Type("34.159  ","Pn'n'2         ","34.4.234    ","Pn'n'2         ",&
-                                                "Pn'n'2                   ","P 2  -2n'                ")
+                                                "Pn'n'2                   ","P 2 -2n'                 ")
       Shubnikov_info( 235)= Shub_Spgr_Info_Type("43.228  ","F_Sdd2         ","34.5.235    ","P_Inn2         ",&
-                                                "Fdd21'_I[Pnn2]           ","F S 2 -2d                ")
+                                                "Fdd21'_I[Pnn2]           ","F 2 -2d 1'S              ")
       Shubnikov_info( 236)= Shub_Spgr_Info_Type("35.165  ","Cmm2           ","35.1.236    ","Cmm2           ",&
-                                                "Cmm2                     ","C 2  -2                  ")
+                                                "Cmm2                     ","C 2 -2                   ")
       Shubnikov_info( 237)= Shub_Spgr_Info_Type("35.166  ","Cmm21'         ","35.2.237    ","Cmm21'         ",&
-                                                "Cmm21'                   ","C 2  -2  1'              ")
+                                                "Cmm21'                   ","C 2 -2 1'                ")
       Shubnikov_info( 238)= Shub_Spgr_Info_Type("35.167  ","Cm'm2'         ","35.3.238    ","Cm'm2'         ",&
                                                 "Cm'm2'                   ","C 2' -2                  ")
       Shubnikov_info( 239)= Shub_Spgr_Info_Type("35.168  ","Cm'm'2         ","35.4.239    ","Cm'm'2         ",&
-                                                "Cm'm'2                   ","C 2  -2'                 ")
+                                                "Cm'm'2                   ","C 2 -2'                  ")
       Shubnikov_info( 240)= Shub_Spgr_Info_Type("35.169  ","C_cmm2         ","35.5.240    ","C_2cmm2        ",&
-                                                "Cmm21'_c[Cmm2]           ","C c 2 -2                 ")
+                                                "Cmm21'_c[Cmm2]           ","C 2 -2 1'c               ")
       Shubnikov_info( 241)= Shub_Spgr_Info_Type("25.63   ","P_Cmm2         ","35.6.241    ","C_Pmm2         ",&
-                                                "Pmm21'_C[Cmm2]           ","P C 2 -2                 ")
+                                                "Pmm21'_C[Cmm2]           ","P 2 -2 1'C               ")
       Shubnikov_info( 242)= Shub_Spgr_Info_Type("44.233  ","I_cmm2         ","35.7.242    ","C_Imm2         ",&
-                                                "Imm21'_c[Cmm2]           ","I c 2 -2                 ")
+                                                "Imm21'_c[Cmm2]           ","I 2 -2 1'c               ")
       Shubnikov_info( 243)= Shub_Spgr_Info_Type("36.177  ","C_cmc2_1       ","35.8.243    ","C_2cm'm2'      ",&
-                                                "Cmc2_11'_c[Cmm2]         ","C c 2c -2                ")
+                                                "Cmc2_11'_c[Cmm2]         ","C 2c -2 1'c              ")
       Shubnikov_info( 244)= Shub_Spgr_Info_Type("37.184  ","C_ccc2         ","35.9.244    ","C_2cm'm'2      ",&
-                                                "Ccc21'_c[Cmm2]           ","C c 2 -2c                ")
+                                                "Ccc21'_c[Cmm2]           ","C 2 -2c 1'c              ")
       Shubnikov_info( 245)= Shub_Spgr_Info_Type("28.97   ","P_Cma2         ","35.10.245   ","C_Pm'm2'       ",&
-                                                "Pma21'_C[Cmm2]           ","P C 2 -2a                ")
+                                                "Pma21'_C[Cmm2]           ","P 2 -2a 1'C              ")
       Shubnikov_info( 246)= Shub_Spgr_Info_Type("32.141  ","P_Cba2         ","35.11.246   ","C_Pm'm'2       ",&
-                                                "Pba21'_C[Cmm2]           ","P C 2 -2ab               ")
+                                                "Pba21'_C[Cmm2]           ","P 2 -2ab 1'C             ")
       Shubnikov_info( 247)= Shub_Spgr_Info_Type("46.246  ","I_cma2         ","35.12.247   ","C_Im'm2'       ",&
-                                                "Ima21'_c[Cmm2]           ","I c 2 -2a                ")
+                                                "Ima21'_c[Cmm2]           ","I 2 -2a 1'c              ")
       Shubnikov_info( 248)= Shub_Spgr_Info_Type("45.239  ","I_cba2         ","35.13.248   ","C_Im'm'2       ",&
-                                                "Iba21'_c[Cmm2]           ","I c 2 -2c                ")
+                                                "Iba21'_c[Cmm2]           ","I 2 -2c 1'c              ")
       Shubnikov_info( 249)= Shub_Spgr_Info_Type("36.172  ","Cmc2_1         ","36.1.249    ","Cmc2_1         ",&
                                                 "Cmc2_1                   ","C 2c  -2                 ")
       Shubnikov_info( 250)= Shub_Spgr_Info_Type("36.173  ","Cmc2_11'       ","36.2.250    ","Cmc2_11'       ",&
@@ -522,159 +522,159 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 253)= Shub_Spgr_Info_Type("36.176  ","Cm'c'2_1       ","36.5.253    ","Cm'c'2_1       ",&
                                                 "Cm'c'2_1                 ","C 2c  -2'                ")
       Shubnikov_info( 254)= Shub_Spgr_Info_Type("26.76   ","P_Cmc2_1       ","36.6.254    ","C_Pmc2_1       ",&
-                                                "Pmc2_11'_C[Cmc2_1]       ","P C 2c -2                ")
+                                                "Pmc2_11'_C[Cmc2_1]       ","P 2c -2 1'C              ")
       Shubnikov_info( 255)= Shub_Spgr_Info_Type("29.109  ","P_Cca2_1       ","36.7.255    ","C_Pm'c2_1'     ",&
-                                                "Pca2_11'_C[Ccm2_1]       ","P C 2c -2ac              ")
+                                                "Pca2_11'_C[Ccm2_1]       ","P 2c -2ac 1'C            ")
       Shubnikov_info( 256)= Shub_Spgr_Info_Type("31.133  ","P_Cmn2_1       ","36.8.256    ","C_Pmc'2_1'     ",&
-                                                "Pmn2_11'_C[Cmc2_1]       ","P C 2ac -2               ")
+                                                "Pmn2_11'_C[Cmc2_1]       ","P 2ac -2 1'C             ")
       Shubnikov_info( 257)= Shub_Spgr_Info_Type("33.154  ","P_Cna2_1       ","36.9.257    ","C_Pm'c'2_1     ",&
-                                                "Pna2_11'_C[Ccm2_1]       ","P C 2c -2n               ")
+                                                "Pna2_11'_C[Ccm2_1]       ","P 2c -2n 1'C             ")
       Shubnikov_info( 258)= Shub_Spgr_Info_Type("37.180  ","Ccc2           ","37.1.258    ","Ccc2           ",&
-                                                "Ccc2                     ","C 2  -2c                 ")
+                                                "Ccc2                     ","C 2 -2c                  ")
       Shubnikov_info( 259)= Shub_Spgr_Info_Type("37.181  ","Ccc21'         ","37.2.259    ","Ccc21'         ",&
-                                                "Ccc21'                   ","C 2  -2c  1'             ")
+                                                "Ccc21'                   ","C 2 -2c 1'               ")
       Shubnikov_info( 260)= Shub_Spgr_Info_Type("37.182  ","Cc'c2'         ","37.3.260    ","Cc'c2'         ",&
                                                 "Cc'c2'                   ","C 2' -2c                 ")
       Shubnikov_info( 261)= Shub_Spgr_Info_Type("37.183  ","Cc'c'2         ","37.4.261    ","Cc'c'2         ",&
-                                                "Cc'c'2                   ","C 2  -2c'                ")
+                                                "Cc'c'2                   ","C 2 -2c'                 ")
       Shubnikov_info( 262)= Shub_Spgr_Info_Type("27.84   ","P_Ccc2         ","37.5.262    ","C_Pcc2         ",&
-                                                "Pcc21'_C[Ccc2]           ","P C 2 -2c                ")
+                                                "Pcc21'_C[Ccc2]           ","P 2 -2c 1'C              ")
       Shubnikov_info( 263)= Shub_Spgr_Info_Type("30.121  ","P_Cnc2         ","37.6.263    ","C_Pc'c2'       ",&
-                                                "Pnc21'_C[Ccc2]           ","P C 2 -2bc               ")
+                                                "Pnc21'_C[Ccc2]           ","P 2 -2bc 1'C             ")
       Shubnikov_info( 264)= Shub_Spgr_Info_Type("34.163  ","P_Cnn2         ","37.7.264    ","C_Pc'c'2       ",&
-                                                "Pnn21'_C[Ccc2]           ","P C 2 -2n                ")
+                                                "Pnn21'_C[Ccc2]           ","P 2 -2n 1'C              ")
       Shubnikov_info( 265)= Shub_Spgr_Info_Type("38.187  ","Amm2           ","38.1.265    ","Amm2           ",&
-                                                "Amm2                     ","A 2  -2                  ")
+                                                "Amm2                     ","A 2 -2                   ")
       Shubnikov_info( 266)= Shub_Spgr_Info_Type("38.188  ","Amm21'         ","38.2.266    ","Amm21'         ",&
-                                                "Amm21'                   ","A 2  -2  1'              ")
+                                                "Amm21'                   ","A 2 -2 1'                ")
       Shubnikov_info( 267)= Shub_Spgr_Info_Type("38.189  ","Am'm2'         ","38.3.267    ","Am'm2'         ",&
                                                 "Am'm2'                   ","A 2' -2'                 ")
       Shubnikov_info( 268)= Shub_Spgr_Info_Type("38.190  ","Amm'2'         ","38.4.268    ","Amm'2'         ",&
                                                 "Amm'2'                   ","A 2' -2                  ")
       Shubnikov_info( 269)= Shub_Spgr_Info_Type("38.191  ","Am'm'2         ","38.5.269    ","Am'm'2         ",&
-                                                "Am'm'2                   ","A 2  -2'                 ")
+                                                "Am'm'2                   ","A 2 -2'                  ")
       Shubnikov_info( 270)= Shub_Spgr_Info_Type("38.192  ","A_amm2         ","38.6.270    ","A_2amm2        ",&
-                                                "Amm21'_a[Amm2]           ","A a 2 -2                 ")
+                                                "Amm21'_a[Amm2]           ","A 2 -2 1'a               ")
       Shubnikov_info( 271)= Shub_Spgr_Info_Type("25.64   ","P_Amm2         ","38.7.271    ","A_Pmm2         ",&
-                                                "Pmm21'_A[Amm2]           ","P A 2 -2                 ")
+                                                "Pmm21'_A[Amm2]           ","P 2 -2 1'A               ")
       Shubnikov_info( 272)= Shub_Spgr_Info_Type("44.234  ","I_amm2         ","38.8.272    ","A_Imm2         ",&
-                                                "Imm21'_a[Amm2]           ","I a 2 -2                 ")
+                                                "Imm21'_a[Amm2]           ","I 2 -2 1'a               ")
       Shubnikov_info( 273)= Shub_Spgr_Info_Type("40.208  ","A_ama2         ","38.9.273    ","A_2amm'2'      ",&
-                                                "Ama21'_a[Amm2]           ","A a 2 -2a                ")
+                                                "Ama21'_a[Amm2]           ","A 2 -2a 1'a              ")
       Shubnikov_info( 274)= Shub_Spgr_Info_Type("31.132  ","P_Bmn2_1       ","38.10.274   ","A_Pm'm2'       ",&
-                                                "Pmn2_11'_B[Bmm2]         ","P B 2ac -2               ")
+                                                "Pmn2_11'_B[Bmm2]         ","P 2ac -2 1'B             ")
       Shubnikov_info( 275)= Shub_Spgr_Info_Type("26.74   ","P_Amc2_1       ","38.11.275   ","A_Pmm'2'       ",&
-                                                "Pmc2_11'_A[Amm2]         ","P A 2c -2                ")
+                                                "Pmc2_11'_A[Amm2]         ","P 2c -2 1'A              ")
       Shubnikov_info( 276)= Shub_Spgr_Info_Type("30.119  ","P_Anc2         ","38.12.276   ","A_Pm'm'2       ",&
-                                                "Pnc21'_A[Amm2]           ","P A 2 -2bc               ")
+                                                "Pnc21'_A[Amm2]           ","P 2 -2bc 1'A             ")
       Shubnikov_info( 277)= Shub_Spgr_Info_Type("46.247  ","I_ama2         ","38.13.277   ","A_Im'm'2       ",&
-                                                "Ima21'_a[Amm2]           ","I a 2 -2a                ")
+                                                "Ima21'_a[Amm2]           ","I 2 -2a 1'a              ")
       Shubnikov_info( 278)= Shub_Spgr_Info_Type("39.195  ","Abm2           ","39.1.278    ","Abm2           ",&
-                                                "Abm2                     ","A 2  -2c                 ")
+                                                "Abm2                     ","A 2 -2c                  ")
       Shubnikov_info( 279)= Shub_Spgr_Info_Type("39.196  ","Abm21'         ","39.2.279    ","Abm21'         ",&
-                                                "Abm21'                   ","A 2  -2c  1'             ")
+                                                "Abm21'                   ","A 2 -2c 1'               ")
       Shubnikov_info( 280)= Shub_Spgr_Info_Type("39.197  ","Ab'm2'         ","39.3.280    ","Ab'm2'         ",&
                                                 "Ab'm2'                   ","A 2' -2c'                ")
       Shubnikov_info( 281)= Shub_Spgr_Info_Type("39.198  ","Abm'2'         ","39.4.281    ","Abm'2'         ",&
                                                 "Abm'2'                   ","A 2' -2c                 ")
       Shubnikov_info( 282)= Shub_Spgr_Info_Type("39.199  ","Ab'm'2         ","39.5.282    ","Ab'm'2         ",&
-                                                "Ab'm'2                   ","A 2  -2c'                ")
+                                                "Ab'm'2                   ","A 2 -2c'                 ")
       Shubnikov_info( 283)= Shub_Spgr_Info_Type("39.200  ","A_abm2         ","39.6.283    ","A_2abm2        ",&
-                                                "Abm21'_a[Abm2]           ","A a 2 -2c                ")
+                                                "Abm21'_a[Abm2]           ","A 2 -2c 1'a              ")
       Shubnikov_info( 284)= Shub_Spgr_Info_Type("28.96   ","P_Bma2         ","39.7.284    ","A_Pbm2         ",&
-                                                "Pma21'_B[Bma2]           ","P B 2 -2a                ")
+                                                "Pma21'_B[Bma2]           ","P 2 -2a 1'B              ")
       Shubnikov_info( 285)= Shub_Spgr_Info_Type("46.248  ","I_bma2         ","39.8.285    ","A_Ibm2         ",&
-                                                "Ima21'_b[Bma2]           ","I b 2 -2a                ")
+                                                "Ima21'_b[Bma2]           ","I 2 -2a 1'b              ")
       Shubnikov_info( 286)= Shub_Spgr_Info_Type("41.216  ","A_aba2         ","39.9.286    ","A_2ab'm'2      ",&
-                                                "Aba21'_a[Abm2]           ","A a 2 -2ac               ")
+                                                "Aba21'_a[Abm2]           ","A 2 -2ac 1'a             ")
       Shubnikov_info( 287)= Shub_Spgr_Info_Type("26.75   ","P_Bmc2_1       ","39.10.287   ","A_Pb'm2'       ",&
-                                                "Pmc2_11'_B[Bma2]         ","P B 2c -2                ")
+                                                "Pmc2_11'_B[Bma2]         ","P 2c -2 1'B              ")
       Shubnikov_info( 288)= Shub_Spgr_Info_Type("29.108  ","P_Bca2_1       ","39.11.288   ","A_Pbm'2'       ",&
-                                                "Pca2_11'_B[Bma2]         ","P B 2c -2ac              ")
+                                                "Pca2_11'_B[Bma2]         ","P 2c -2ac 1'B            ")
       Shubnikov_info( 289)= Shub_Spgr_Info_Type("27.85   ","P_Acc2         ","39.12.289   ","A_Pb'm'2       ",&
-                                                "Pcc21'_A[Abm2]           ","P A 2 -2c                ")
+                                                "Pcc21'_A[Abm2]           ","P 2 -2c 1'A              ")
       Shubnikov_info( 290)= Shub_Spgr_Info_Type("45.240  ","I_aba2         ","39.13.290   ","A_Ib'm'2       ",&
-                                                "Iba21'_a[Abm2]           ","I a 2 -2c                ")
+                                                "Iba21'_a[Abm2]           ","I 2 -2c 1'a              ")
       Shubnikov_info( 291)= Shub_Spgr_Info_Type("40.203  ","Ama2           ","40.1.291    ","Ama2           ",&
-                                                "Ama2                     ","A 2  -2a                 ")
+                                                "Ama2                     ","A 2 -2a                  ")
       Shubnikov_info( 292)= Shub_Spgr_Info_Type("40.204  ","Ama21'         ","40.2.292    ","Ama21'         ",&
-                                                "Ama21'                   ","A 2  -2a  1'             ")
+                                                "Ama21'                   ","A 2 -2a 1'               ")
       Shubnikov_info( 293)= Shub_Spgr_Info_Type("40.205  ","Am'a2'         ","40.3.293    ","Am'a2'         ",&
                                                 "Am'a2'                   ","A 2' -2a'                ")
       Shubnikov_info( 294)= Shub_Spgr_Info_Type("40.206  ","Ama'2'         ","40.4.294    ","Ama'2'         ",&
                                                 "Ama'2'                   ","A 2' -2a                 ")
       Shubnikov_info( 295)= Shub_Spgr_Info_Type("40.207  ","Am'a'2         ","40.5.295    ","Am'a'2         ",&
-                                                "Am'a'2                   ","A 2  -2a'                ")
+                                                "Am'a'2                   ","A 2 -2a'                 ")
       Shubnikov_info( 296)= Shub_Spgr_Info_Type("28.95   ","P_Ama2         ","40.6.296    ","A_Pma2         ",&
-                                                "Pma21'_A[Ama2]           ","P A 2 -2a                ")
+                                                "Pma21'_A[Ama2]           ","P 2 -2a 1'A              ")
       Shubnikov_info( 297)= Shub_Spgr_Info_Type("33.152  ","P_Ana2_1       ","40.7.297    ","A_Pm'a2'       ",&
-                                                "Pna2_11'_A[Ama2]         ","P A 2c -2n               ")
+                                                "Pna2_11'_A[Ama2]         ","P 2c -2n 1'A             ")
       Shubnikov_info( 298)= Shub_Spgr_Info_Type("31.131  ","P_Amn2_1       ","40.8.298    ","A_Pma'2'       ",&
-                                                "Pmn2_11'_A[Ama2]         ","P A 2ac -2               ")
+                                                "Pmn2_11'_A[Ama2]         ","P 2ac -2 1'A             ")
       Shubnikov_info( 299)= Shub_Spgr_Info_Type("34.162  ","P_Ann2         ","40.9.299    ","A_Pm'a'2       ",&
-                                                "Pnn21'_A[Ama2]           ","P A 2 -2n                ")
+                                                "Pnn21'_A[Ama2]           ","P 2 -2n 1'A              ")
       Shubnikov_info( 300)= Shub_Spgr_Info_Type("41.211  ","Aba2           ","41.1.300    ","Aba2           ",&
-                                                "Aba2                     ","A 2  -2ac                ")
+                                                "Aba2                     ","A 2 -2ac                 ")
       Shubnikov_info( 301)= Shub_Spgr_Info_Type("41.212  ","Aba21'         ","41.2.301    ","Aba21'         ",&
-                                                "Aba21'                   ","A 2  -2ac  1'            ")
+                                                "Aba21'                   ","A 2 -2ac 1'              ")
       Shubnikov_info( 302)= Shub_Spgr_Info_Type("41.213  ","Ab'a2'         ","41.3.302    ","Ab'a2'         ",&
                                                 "Ab'a2'                   ","A 2' -2ac'               ")
       Shubnikov_info( 303)= Shub_Spgr_Info_Type("41.214  ","Aba'2'         ","41.4.303    ","Aba'2'         ",&
                                                 "Aba'2'                   ","A 2' -2ac                ")
       Shubnikov_info( 304)= Shub_Spgr_Info_Type("41.215  ","Ab'a'2         ","41.5.304    ","Ab'a'2         ",&
-                                                "Ab'a'2                   ","A 2  -2ac'               ")
+                                                "Ab'a'2                   ","A 2 -2ac'                ")
       Shubnikov_info( 305)= Shub_Spgr_Info_Type("32.142  ","P_Aba2         ","41.6.305    ","A_Pba2         ",&
-                                                "Pba21'_A[Aba2]           ","P A 2 -2ab               ")
+                                                "Pba21'_A[Aba2]           ","P 2 -2ab 1'A             ")
       Shubnikov_info( 306)= Shub_Spgr_Info_Type("29.107  ","P_Aca2_1       ","41.7.306    ","A_Pb'a2'       ",&
-                                                "Pca2_11'_A[Aba2]         ","P A 2c -2ac              ")
+                                                "Pca2_11'_A[Aba2]         ","P 2c -2ac 1'A            ")
       Shubnikov_info( 307)= Shub_Spgr_Info_Type("33.153  ","P_Bna2_1       ","41.8.307    ","A_Pba'2'       ",&
-                                                "Pna2_11'_B[Bba2]         ","P B 2c -2n               ")
+                                                "Pna2_11'_B[Bba2]         ","P 2c -2n 1'B             ")
       Shubnikov_info( 308)= Shub_Spgr_Info_Type("30.120  ","P_Bnc2         ","41.9.308    ","A_Pb'a'2       ",&
-                                                "Pnc21'_B[Bba2]           ","P B 2 -2bc               ")
+                                                "Pnc21'_B[Bba2]           ","P 2 -2bc 1'B             ")
       Shubnikov_info( 309)= Shub_Spgr_Info_Type("42.219  ","Fmm2           ","42.1.309    ","Fmm2           ",&
-                                                "Fmm2                     ","F 2  -2                  ")
+                                                "Fmm2                     ","F 2 -2                   ")
       Shubnikov_info( 310)= Shub_Spgr_Info_Type("42.220  ","Fmm21'         ","42.2.310    ","Fmm21'         ",&
-                                                "Fmm21'                   ","F 2  -2  1'              ")
+                                                "Fmm21'                   ","F 2 -2 1'                ")
       Shubnikov_info( 311)= Shub_Spgr_Info_Type("42.221  ","Fm'm2'         ","42.3.311    ","Fm'm2'         ",&
                                                 "Fm'm2'                   ","F 2' -2                  ")
       Shubnikov_info( 312)= Shub_Spgr_Info_Type("42.222  ","Fm'm'2         ","42.4.312    ","Fm'm'2         ",&
-                                                "Fm'm'2                   ","F 2  -2'                 ")
+                                                "Fm'm'2                   ","F 2 -2'                  ")
       Shubnikov_info( 313)= Shub_Spgr_Info_Type("35.171  ","C_Amm2         ","42.5.313    ","F_Cmm2         ",&
-                                                "Cmm21'_A[Fmm2]           ","C A 2 -2                 ")
+                                                "Cmm21'_A[Fmm2]           ","C 2 -2 1'A               ")
       Shubnikov_info( 314)= Shub_Spgr_Info_Type("38.194  ","A_Bmm2         ","42.6.314    ","F_Amm2         ",&
-                                                "Amm21'_B[Fmm2]           ","A B 2 -2                 ")
+                                                "Amm21'_B[Fmm2]           ","A 2 -2 1'B               ")
       Shubnikov_info( 315)= Shub_Spgr_Info_Type("36.179  ","C_Amc2_1       ","42.7.315    ","F_Cmm'2'       ",&
-                                                "Cmc2_11'_A[Fmm2]         ","C A 2c -2                ")
+                                                "Cmc2_11'_A[Fmm2]         ","C 2c -2 1'A              ")
       Shubnikov_info( 316)= Shub_Spgr_Info_Type("37.186  ","C_Acc2         ","42.8.316    ","F_Cm'm'2       ",&
-                                                "Ccc21'_A[Fmm2]           ","C A 2 -2c                ")
+                                                "Ccc21'_A[Fmm2]           ","C 2 -2c 1'A              ")
       Shubnikov_info( 317)= Shub_Spgr_Info_Type("39.202  ","A_Bbm2         ","42.9.317    ","F_Am'm2'       ",&
-                                                "Abm21'_B[Fmm2]           ","A B 2 -2c                ")
+                                                "Abm21'_B[Fmm2]           ","A 2 -2c 1'B              ")
       Shubnikov_info( 318)= Shub_Spgr_Info_Type("40.210  ","A_Bma2         ","42.10.318   ","F_Amm'2'       ",&
-                                                "Ama21'_B[Fmm2]           ","A B 2 -2a                ")
+                                                "Ama21'_B[Fmm2]           ","A 2 -2a 1'B              ")
       Shubnikov_info( 319)= Shub_Spgr_Info_Type("41.218  ","A_Bba2         ","42.11.319   ","F_Am'm'2       ",&
-                                                "Aba21'_B[Fmm2]           ","A B 2 -2ac               ")
+                                                "Aba21'_B[Fmm2]           ","A 2 -2ac 1'B             ")
       Shubnikov_info( 320)= Shub_Spgr_Info_Type("43.224  ","Fdd2           ","43.1.320    ","Fdd2           ",&
-                                                "Fdd2                     ","F 2  -2d                 ")
+                                                "Fdd2                     ","F 2 -2d                  ")
       Shubnikov_info( 321)= Shub_Spgr_Info_Type("43.225  ","Fdd21'         ","43.2.321    ","Fdd21'         ",&
-                                                "Fdd21'                   ","F 2  -2d 1'              ")
+                                                "Fdd21'                   ","F 2 -2d 1'               ")
       Shubnikov_info( 322)= Shub_Spgr_Info_Type("43.226  ","Fd'd2'         ","43.3.322    ","Fd'd2'         ",&
                                                 "Fd'd2'                   ","F 2' -2d                 ")
       Shubnikov_info( 323)= Shub_Spgr_Info_Type("43.227  ","Fd'd'2         ","43.4.323    ","Fd'd'2         ",&
-                                                "Fd'd'2                   ","F 2  -2d'                ")
+                                                "Fd'd'2                   ","F 2 -2d'                 ")
       Shubnikov_info( 324)= Shub_Spgr_Info_Type("44.229  ","Imm2           ","44.1.324    ","Imm2           ",&
-                                                "Imm2                     ","I 2  -2                  ")
+                                                "Imm2                     ","I 2 -2                   ")
       Shubnikov_info( 325)= Shub_Spgr_Info_Type("44.230  ","Imm21'         ","44.2.325    ","Imm21'         ",&
-                                                "Imm21'                   ","I 2  -2  1'              ")
+                                                "Imm21'                   ","I 2 -2 1'                ")
       Shubnikov_info( 326)= Shub_Spgr_Info_Type("44.231  ","Im'm2'         ","44.3.326    ","Im'm2'         ",&
                                                 "Im'm2'                   ","I 2' -2                  ")
       Shubnikov_info( 327)= Shub_Spgr_Info_Type("44.232  ","Im'm'2         ","44.4.327    ","Im'm'2         ",&
-                                                "Im'm'2                   ","I 2  -2'                 ")
+                                                "Im'm'2                   ","I 2 -2'                  ")
       Shubnikov_info( 328)= Shub_Spgr_Info_Type("25.65   ","P_Imm2         ","44.5.328    ","I_Pmm2         ",&
-                                                "Pmm21'_I[Imm2]           ","P I 2 -2                 ")
+                                                "Pmm21'_I[Imm2]           ","P 2 -2 1'I               ")
       Shubnikov_info( 329)= Shub_Spgr_Info_Type("31.134  ","P_Imn2_1       ","44.6.329    ","I_Pmm'2'       ",&
-                                                "Pmn2_11'_I[Imm2]         ","P I 2ac -2               ")
+                                                "Pmn2_11'_I[Imm2]         ","P 2ac -2 1'I             ")
       Shubnikov_info( 330)= Shub_Spgr_Info_Type("34.164  ","P_Inn2         ","44.7.330    ","I_Pm'm'2       ",&
-                                                "Pnn21'_I[Imm2]           ","P I 2 -2n                ")
+                                                "Pnn21'_I[Imm2]           ","P 2 -2n 1'I              ")
       Shubnikov_info( 331)= Shub_Spgr_Info_Type("45.235  ","Iba2           ","45.1.331    ","Iba2           ",&
                                                 "Iba2                     ","I 2 -2c                  ")
       Shubnikov_info( 332)= Shub_Spgr_Info_Type("45.236  ","Iba21'         ","45.2.332    ","Iba21'         ",&
@@ -684,51 +684,51 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 334)= Shub_Spgr_Info_Type("45.238  ","Ib'a'2         ","45.4.334    ","Ib'a'2         ",&
                                                 "Ib'a'2                   ","I 2 -2c'                 ")
       Shubnikov_info( 335)= Shub_Spgr_Info_Type("27.86   ","P_Icc2         ","45.5.335    ","I_Pba2         ",&
-                                                "Pcc21'_I[Iba2]           ","P I 2 -2c                ")
+                                                "Pcc21'_I[Iba2]           ","P 2 -2c 1'I              ")
       Shubnikov_info( 336)= Shub_Spgr_Info_Type("29.110  ","P_Ica2_1       ","45.6.336    ","I_Pba'2'       ",&
-                                                "Pca2_11'_I[Iba2]         ","P I 2c -2ac              ")
+                                                "Pca2_11'_I[Iba2]         ","P 2c -2ac 1'I            ")
       Shubnikov_info( 337)= Shub_Spgr_Info_Type("32.143  ","P_Iba2         ","45.7.337    ","I_Pb'a'2       ",&
-                                                "Pba21'_I[Iba2]           ","P I 2 -2ab               ")
+                                                "Pba21'_I[Iba2]           ","P 2 -2ab 1'I             ")
       Shubnikov_info( 338)= Shub_Spgr_Info_Type("46.241  ","Ima2           ","46.1.338    ","Ima2           ",&
-                                                "Ima2                     ","I 2  -2a                 ")
+                                                "Ima2                     ","I 2 -2a                  ")
       Shubnikov_info( 339)= Shub_Spgr_Info_Type("46.242  ","Ima21'         ","46.2.339    ","Ima21'         ",&
-                                                "Ima21'                   ","I 2  -2a 1'              ")
+                                                "Ima21'                   ","I 2 -2a 1'               ")
       Shubnikov_info( 340)= Shub_Spgr_Info_Type("46.243  ","Im'a2'         ","46.3.340    ","Im'a2'         ",&
                                                 "Im'a2'                   ","I 2' -2a'                ")
       Shubnikov_info( 341)= Shub_Spgr_Info_Type("46.244  ","Ima'2'         ","46.4.341    ","Ima'2'         ",&
                                                 "Ima'2'                   ","I 2' -2a                 ")
       Shubnikov_info( 342)= Shub_Spgr_Info_Type("46.245  ","Im'a'2         ","46.5.342    ","Im'a'2         ",&
-                                                "Im'a'2                   ","I 2  -2a'                ")
+                                                "Im'a'2                   ","I 2 -2a'                 ")
       Shubnikov_info( 343)= Shub_Spgr_Info_Type("28.98   ","P_Ima2         ","46.6.343    ","I_Pma2         ",&
-                                                "Pma21'_I[Ima2]           ","P I 2 -2a                ")
+                                                "Pma21'_I[Ima2]           ","P 2 -2a 1'I              ")
       Shubnikov_info( 344)= Shub_Spgr_Info_Type("33.155  ","P_Ina2_1       ","46.7.344    ","I_Pm'a2'       ",&
-                                                "Pna2_11'_I[Ima2]         ","P I 2c -2n               ")
+                                                "Pna2_11'_I[Ima2]         ","P 2c -2n 1'I             ")
       Shubnikov_info( 345)= Shub_Spgr_Info_Type("26.77   ","P_Imc2_1       ","46.8.345    ","I_Pma'2'       ",&
-                                                "Pmc2_11'_I[Ima2]         ","P I 2c -2                ")
+                                                "Pmc2_11'_I[Ima2]         ","P 2c -2 1'I              ")
       Shubnikov_info( 346)= Shub_Spgr_Info_Type("30.122  ","P_Inc2         ","46.9.346    ","I_Pm'a'2       ",&
-                                                "Pnc21'_I[Ima2]           ","P I 2 -2bc               ")
+                                                "Pnc21'_I[Ima2]           ","P 2 -2bc 1'I             ")
       Shubnikov_info( 347)= Shub_Spgr_Info_Type("47.249  ","Pmmm           ","47.1.347    ","Pmmm           ",&
-                                                "Pmmm                     ","-P 2  2                  ")
+                                                "Pmmm                     ","-P 2 2                   ")
       Shubnikov_info( 348)= Shub_Spgr_Info_Type("47.250  ","Pmmm1'         ","47.2.348    ","Pmmm1'         ",&
-                                                "Pmmm1'                   ","-P 2  2   1'             ")
+                                                "Pmmm1'                   ","-P 2 2 1'                ")
       Shubnikov_info( 349)= Shub_Spgr_Info_Type("47.251  ","Pm'mm          ","47.3.349    ","Pm'mm          ",&
                                                 "Pm'mm                    ","P 2' 2  -1'              ")
       Shubnikov_info( 350)= Shub_Spgr_Info_Type("47.252  ","Pm'm'm         ","47.4.350    ","Pm'm'm         ",&
-                                                "Pm'm'm                   ","-P 2  2'                 ")
+                                                "Pm'm'm                   ","-P 2 2'                  ")
       Shubnikov_info( 351)= Shub_Spgr_Info_Type("47.253  ","Pm'm'm'        ","47.5.351    ","Pm'm'm'        ",&
-                                                "Pm'm'm'                  ","P 2  2  -1'              ")
+                                                "Pm'm'm'                  ","P 2 2 -1'                ")
       Shubnikov_info( 352)= Shub_Spgr_Info_Type("47.254  ","P_ammm         ","47.6.352    ","P_2ammm        ",&
-                                                "Pmmm1'_a[Pmmm]           ","-P a 2 2                 ")
+                                                "Pmmm1'_a[Pmmm]           ","-P 2 2 1'a               ")
       Shubnikov_info( 353)= Shub_Spgr_Info_Type("65.489  ","C_ammm         ","47.7.353    ","P_Cmmm         ",&
-                                                "Cmmm1'_a[Pmmm]           ","-C a 2 2                 ")
+                                                "Cmmm1'_a[Pmmm]           ","-C 2 2 1'a               ")
       Shubnikov_info( 354)= Shub_Spgr_Info_Type("69.526  ","F_Smmm         ","47.8.354    ","P_Immm         ",&
-                                                "Fmmm1'_I[Pmmm]           ","-F S 2 2                 ")
+                                                "Fmmm1'_I[Pmmm]           ","-F 2 2 1'S               ")
       Shubnikov_info( 355)= Shub_Spgr_Info_Type("51.298  ","P_amma         ","47.9.355    ","P_2ammm'       ",&
-                                                "Pmma1'_a[Pmmm]           ","-P a 2a 2a               ")
+                                                "Pmma1'_a[Pmmm]           ","-P 2a 2a 1'a             ")
       Shubnikov_info( 356)= Shub_Spgr_Info_Type("49.273  ","P_cccm         ","47.10.356   ","P_2cm'm'm      ",&
-                                                "Pccm1'_c[Pmmm]           ","-P c 2 2c                ")
+                                                "Pccm1'_c[Pmmm]           ","-P 2 2c 1'c              ")
       Shubnikov_info( 357)= Shub_Spgr_Info_Type("67.509  ","C_amma         ","47.11.357   ","P_Cmmm'        ",&
-                                                "Cmma1'_a[Pmmm]           ","-C a 2b 2                ")
+                                                "Cmma1'_a[Pmmm]           ","-C 2b 2 1'a              ")
       Shubnikov_info( 358)= Shub_Spgr_Info_Type("48.257  ","Pnnn           ","48.1.358    ","Pnnn           ",&
                                                 "Pnnn                     ","-P 2ab  2bc              ")
       Shubnikov_info( 359)= Shub_Spgr_Info_Type("48.258  ","Pnnn1'         ","48.2.359    ","Pnnn1'         ",&
@@ -740,33 +740,33 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 362)= Shub_Spgr_Info_Type("48.261  ","Pn'n'n'        ","48.5.362    ","Pn'n'n'        ",&
                                                 "Pn'n'n'                  ","P 2ab  2bc  -1'          ")
       Shubnikov_info( 363)= Shub_Spgr_Info_Type("70.532  ","F_Sddd         ","48.6.363    ","P_Innn         ",&
-                                                "Fddd1'_I[Pnnn]           ","-F S 2uv 2vw             ")
+                                                "Fddd1'_I[Pnnn]           ","-F 2uv 2vw 1'S           ")
       Shubnikov_info( 364)= Shub_Spgr_Info_Type("49.265  ","Pccm           ","49.1.364    ","Pccm           ",&
-                                                "Pccm                     ","-P 2  2c                 ")
+                                                "Pccm                     ","-P 2 2c                  ")
       Shubnikov_info( 365)= Shub_Spgr_Info_Type("49.266  ","Pccm1'         ","49.2.365    ","Pccm1'         ",&
-                                                "Pccm1'                   ","-P 2  2c   1'            ")
+                                                "Pccm1'                   ","-P 2 2c 1'               ")
       Shubnikov_info( 366)= Shub_Spgr_Info_Type("49.267  ","Pc'cm          ","49.3.366    ","Pc'cm          ",&
                                                 "Pc'cm                    ","P 2' 2c  -1'             ")
       Shubnikov_info( 367)= Shub_Spgr_Info_Type("49.268  ","Pccm'          ","49.4.367    ","Pccm'          ",&
-                                                "Pccm'                    ","P 2  2c' -1'             ")
+                                                "Pccm'                    ","P 2 2c' -1'              ")
       Shubnikov_info( 368)= Shub_Spgr_Info_Type("49.269  ","Pc'c'm         ","49.5.368    ","Pc'c'm         ",&
-                                                "Pc'c'm                   ","-P 2  2c'                ")
+                                                "Pc'c'm                   ","-P 2 2c'                 ")
       Shubnikov_info( 369)= Shub_Spgr_Info_Type("49.270  ","Pc'cm'         ","49.6.369    ","Pc'cm'         ",&
                                                 "Pc'cm'                   ","-P 2' 2c'                ")
       Shubnikov_info( 370)= Shub_Spgr_Info_Type("49.271  ","Pc'c'm'        ","49.7.370    ","Pc'c'm'        ",&
-                                                "Pc'c'm'                  ","P 2  2c  -1'             ")
+                                                "Pc'c'm'                  ","P 2 2c -1'               ")
       Shubnikov_info( 371)= Shub_Spgr_Info_Type("49.272  ","P_accm         ","49.8.371    ","P_2accm        ",&
-                                                "Pccm1'_a[Pccm]           ","-P a 2 2c                ")
+                                                "Pccm1'_a[Pccm]           ","-P 2 2c 1'a              ")
       Shubnikov_info( 372)= Shub_Spgr_Info_Type("66.499  ","C_accm         ","49.9.372    ","P_Cccm         ",&
-                                                "Cccm1'_a[Pccm]           ","-C a 2 2c                ")
+                                                "Cccm1'_a[Pccm]           ","-C 2 2c 1'a              ")
       Shubnikov_info( 373)= Shub_Spgr_Info_Type("54.346  ","P_acca         ","49.10.373   ","P_2accm'       ",&
-                                                "Pcca1'_a[Pccm]           ","-P a 2a 2ac              ")
+                                                "Pcca1'_a[Pccm]           ","-P 2a 2ac 1'a            ")
       Shubnikov_info( 374)= Shub_Spgr_Info_Type("53.332  ","P_cmna         ","49.11.374   ","P_2ac'c'm      ",&
-                                                "Pmna1'_c[Pmaa]           ","-P c 2ac 2               ")
+                                                "Pmna1'_c[Pmaa]           ","-P 2ac 2 1'c             ")
       Shubnikov_info( 375)= Shub_Spgr_Info_Type("50.284  ","P_aban         ","49.12.375   ","P_2ac'c'm'     ",&
-                                                "Pban1'_a[Pbmb]           ","-P a 2ab 2b              ")
+                                                "Pban1'_a[Pbmb]           ","-P 2ab 2b 1'a            ")
       Shubnikov_info( 376)= Shub_Spgr_Info_Type("68.519  ","C_acca         ","49.13.376   ","P_Cccm'        ",&
-                                                "Ccca1'_a[Pccm]           ","-C a 2b 2bc              ")
+                                                "Ccca1'_a[Pccm]           ","-C 2b 2bc 1'a            ")
       Shubnikov_info( 377)= Shub_Spgr_Info_Type("50.277  ","Pban           ","50.1.377    ","Pban           ",&
                                                 "Pban                     ","-P 2ab  2b               ")
       Shubnikov_info( 378)= Shub_Spgr_Info_Type("50.278  ","Pban1'         ","50.2.378    ","Pban1'         ",&
@@ -782,11 +782,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 383)= Shub_Spgr_Info_Type("50.283  ","Pb'a'n'        ","50.7.383    ","Pb'a'n'        ",&
                                                 "Pb'a'n'                  ","P 2ab  2b  -1'           ")
       Shubnikov_info( 384)= Shub_Spgr_Info_Type("50.285  ","P_cban         ","50.8.384    ","P_2cban        ",&
-                                                "Pban1'_c[Pban]           ","-P c 2ab 2b              ")
+                                                "Pban1'_c[Pban]           ","-P 2ab 2b 1'c            ")
       Shubnikov_info( 385)= Shub_Spgr_Info_Type("52.315  ","P_bnna         ","50.9.385    ","P_2cb'an       ",&
-                                                "Pnna1'_b[Pcna]           ","-P b 2a 2bc              ")
+                                                "Pnna1'_b[Pcna]           ","-P 2a 2bc 1'b            ")
       Shubnikov_info( 386)= Shub_Spgr_Info_Type("48.262  ","P_cnnn         ","50.10.386   ","P_2cb'a'n      ",&
-                                                "Pnnn1'_c[Pban]           ","-P c 2ab 2bc             ")
+                                                "Pnnn1'_c[Pban]           ","-P 2ab 2bc 1'c           ")
       Shubnikov_info( 387)= Shub_Spgr_Info_Type("51.289  ","Pmma           ","51.1.387    ","Pmma           ",&
                                                 "Pmma                     ","-P 2a  2a                ")
       Shubnikov_info( 388)= Shub_Spgr_Info_Type("51.290  ","Pmma1'         ","51.2.388    ","Pmma1'         ",&
@@ -806,25 +806,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 395)= Shub_Spgr_Info_Type("51.297  ","Pm'm'a'        ","51.9.395    ","Pm'm'a'        ",&
                                                 "Pm'm'a'                  ","P 2a  2a  -1'            ")
       Shubnikov_info( 396)= Shub_Spgr_Info_Type("51.299  ","P_bmma         ","51.10.396   ","P_2bmma        ",&
-                                                "Pmma1'_b[Pmma]           ","-P b 2a 2a               ")
+                                                "Pmma1'_b[Pmma]           ","-P 2a 2a 1'b             ")
       Shubnikov_info( 397)= Shub_Spgr_Info_Type("51.300  ","P_cmma         ","51.11.397   ","P_2cmma        ",&
-                                                "Pmma1'_c[Pmma]           ","-P c 2a 2a               ")
+                                                "Pmma1'_c[Pmma]           ","-P 2a 2a 1'c             ")
       Shubnikov_info( 398)= Shub_Spgr_Info_Type("63.467  ","C_amcm         ","51.12.398   ","P_Amma         ",&
-                                                "Cmcm1'_a[Pmcm]           ","-C a 2c 2                ")
+                                                "Cmcm1'_a[Pmcm]           ","-C 2c 2 1'a              ")
       Shubnikov_info( 399)= Shub_Spgr_Info_Type("57.388  ","P_cbcm         ","51.13.399   ","P_2bm'ma       ",&
-                                                "Pbcm1'_c[Pbmm]           ","-P c 2c 2b               ")
+                                                "Pbcm1'_c[Pbmm]           ","-P 2c 2b 1'c             ")
       Shubnikov_info( 400)= Shub_Spgr_Info_Type("59.412  ","P_bmmn         ","51.14.400   ","P_2bmma'       ",&
-                                                "Pmmn1'_b[Pmma]           ","-P b 2ab 2a              ")
+                                                "Pmmn1'_b[Pmma]           ","-P 2ab 2a 1'b            ")
       Shubnikov_info( 401)= Shub_Spgr_Info_Type("53.330  ","P_amna         ","51.15.401   ","P_2bm'ma'      ",&
-                                                "Pmna1'_a[Pmcm]           ","-P a 2ac 2               ")
+                                                "Pmna1'_a[Pmcm]           ","-P 2ac 2 1'a             ")
       Shubnikov_info( 402)= Shub_Spgr_Info_Type("55.360  ","P_abam         ","51.16.402   ","P_2cm'ma       ",&
-                                                "Pbam1'_a[Pbmm]           ","-P a 2 2ab               ")
+                                                "Pbam1'_a[Pbmm]           ","-P 2 2ab 1'a             ")
       Shubnikov_info( 403)= Shub_Spgr_Info_Type("57.387  ","P_bbcm         ","51.17.403   ","P_2cmm'a       ",&
-                                                "Pbcm1'_b[Pmcm]           ","-P b 2c 2b               ")
+                                                "Pbcm1'_b[Pmcm]           ","-P 2c 2b 1'b             ")
       Shubnikov_info( 404)= Shub_Spgr_Info_Type("54.348  ","P_ccca         ","51.18.404   ","P_2cm'm'a      ",&
-                                                "Pcca1'_c[Pmma]           ","-P c 2a 2ac              ")
+                                                "Pcca1'_c[Pmma]           ","-P 2a 2ac 1'c            ")
       Shubnikov_info( 405)= Shub_Spgr_Info_Type("64.479  ","C_amca         ","51.19.405   ","P_Am'ma        ",&
-                                                "Cmca1'_a[Pmcm]           ","-C a 2bc 2               ")
+                                                "Cmca1'_a[Pmcm]           ","-C 2bc 2 1'a             ")
       Shubnikov_info( 406)= Shub_Spgr_Info_Type("52.305  ","Pnna           ","52.1.406    ","Pnna           ",&
                                                 "Pnna                     ","-P 2a  2bc               ")
       Shubnikov_info( 407)= Shub_Spgr_Info_Type("52.306  ","Pnna1'         ","52.2.407    ","Pnna1'         ",&
@@ -862,13 +862,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 423)= Shub_Spgr_Info_Type("53.329  ","Pm'n'a'        ","53.9.423    ","Pm'n'a'        ",&
                                                 "Pm'n'a'                  ","P 2ac  2  -1'            ")
       Shubnikov_info( 424)= Shub_Spgr_Info_Type("53.331  ","P_bmna         ","53.10.424   ","P_2bmna        ",&
-                                                "Pmna1'_b[Pmna]           ","-P b 2ac 2               ")
+                                                "Pmna1'_b[Pmna]           ","-P 2ac 2 1'b             ")
       Shubnikov_info( 425)= Shub_Spgr_Info_Type("60.428  ","P_cbcn         ","53.11.425   ","P_2bm'na       ",&
-                                                "Pbcn1'_c[Pbmn]           ","-P c 2n 2ab              ")
+                                                "Pbcn1'_c[Pbmn]           ","-P 2n 2ab 1'c            ")
       Shubnikov_info( 426)= Shub_Spgr_Info_Type("58.400  ","P_annm         ","53.12.426   ","P_2bmna'       ",&
-                                                "Pnnm1'_a[Pncm]           ","-P a 2 2n                ")
+                                                "Pnnm1'_a[Pncm]           ","-P 2 2n 1'a              ")
       Shubnikov_info( 427)= Shub_Spgr_Info_Type("52.314  ","P_anna         ","53.13.427   ","P_2bm'na'      ",&
-                                                "Pnna1'_a[Pncm]           ","-P a 2a 2bc              ")
+                                                "Pnna1'_a[Pncm]           ","-P 2a 2bc 1'a            ")
       Shubnikov_info( 428)= Shub_Spgr_Info_Type("54.337  ","Pcca           ","54.1.428    ","Pcca           ",&
                                                 "Pcca                     ","-P 2a  2ac               ")
       Shubnikov_info( 429)= Shub_Spgr_Info_Type("54.338  ","Pcca1'         ","54.2.429    ","Pcca1'         ",&
@@ -888,33 +888,33 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 436)= Shub_Spgr_Info_Type("54.345  ","Pc'c'a'        ","54.9.436    ","Pc'c'a'        ",&
                                                 "Pc'c'a'                  ","P 2a  2ac  -1'           ")
       Shubnikov_info( 437)= Shub_Spgr_Info_Type("54.347  ","P_bcca         ","54.10.437   ","P_2bcca        ",&
-                                                "Pcca1'_b[Pcca]           ","-P b 2a 2ac              ")
+                                                "Pcca1'_b[Pcca]           ","-P 2a 2ac 1'b            ")
       Shubnikov_info( 438)= Shub_Spgr_Info_Type("60.426  ","P_abcn         ","54.11.438   ","P_2bc'ca       ",&
-                                                "Pbcn1'_a[Pbcb]           ","-P a 2n 2ab              ")
+                                                "Pbcn1'_a[Pbcb]           ","-P 2n 2ab 1'a            ")
       Shubnikov_info( 439)= Shub_Spgr_Info_Type("56.372  ","P_bccn         ","54.12.439   ","P_2bcca'       ",&
-                                                "Pccn1'_b[Pcca]           ","-P b 2ab 2ac             ")
+                                                "Pccn1'_b[Pcca]           ","-P 2ab 2ac 1'b           ")
       Shubnikov_info( 440)= Shub_Spgr_Info_Type("52.316  ","P_cnna         ","54.13.440   ","P_2bc'ca'      ",&
-                                                "Pnna1'_c[Pbaa]           ","-P c 2a 2bc              ")
+                                                "Pnna1'_c[Pbaa]           ","-P 2a 2bc 1'c            ")
       Shubnikov_info( 441)= Shub_Spgr_Info_Type("55.353  ","Pbam           ","55.1.441    ","Pbam           ",&
-                                                "Pbam                     ","-P 2  2ab                ")
+                                                "Pbam                     ","-P 2 2ab                 ")
       Shubnikov_info( 442)= Shub_Spgr_Info_Type("55.354  ","Pbam1'         ","55.2.442    ","Pbam1'         ",&
-                                                "Pbam1'                   ","-P 2  2ab   1'           ")
+                                                "Pbam1'                   ","-P 2 2ab 1'              ")
       Shubnikov_info( 443)= Shub_Spgr_Info_Type("55.355  ","Pb'am          ","55.3.443    ","Pb'am          ",&
                                                 "Pb'am                    ","P 2' 2ab  -1'            ")
       Shubnikov_info( 444)= Shub_Spgr_Info_Type("55.356  ","Pbam'          ","55.4.444    ","Pbam'          ",&
-                                                "Pbam'                    ","P 2  2ab' -1'            ")
+                                                "Pbam'                    ","P 2 2ab' -1'             ")
       Shubnikov_info( 445)= Shub_Spgr_Info_Type("55.357  ","Pb'a'm         ","55.5.445    ","Pb'a'm         ",&
-                                                "Pb'a'm                   ","-P 2  2ab'               ")
+                                                "Pb'a'm                   ","-P 2 2ab'                ")
       Shubnikov_info( 446)= Shub_Spgr_Info_Type("55.358  ","Pb'am'         ","55.6.446    ","Pb'am'         ",&
                                                 "Pb'am'                   ","-P 2' 2ab'               ")
       Shubnikov_info( 447)= Shub_Spgr_Info_Type("55.359  ","Pb'a'm'        ","55.7.447    ","Pb'a'm'        ",&
-                                                "Pb'a'm'                  ","P 2  2ab  -1'            ")
+                                                "Pb'a'm'                  ","P 2 2ab -1'              ")
       Shubnikov_info( 448)= Shub_Spgr_Info_Type("55.361  ","P_cbam         ","55.8.448    ","P_2cbam        ",&
-                                                "Pbam1'_c[Pbam]           ","-P c 2 2ab               ")
+                                                "Pbam1'_c[Pbam]           ","-P 2 2ab 1'c             ")
       Shubnikov_info( 449)= Shub_Spgr_Info_Type("62.451  ","P_bnma         ","55.9.449    ","P_2cb'am       ",&
-                                                "Pnma1'_b[Pcma]           ","-P b 2ac 2n              ")
+                                                "Pnma1'_b[Pcma]           ","-P 2ac 2n 1'b            ")
       Shubnikov_info( 450)= Shub_Spgr_Info_Type("58.401  ","P_cnnm         ","55.10.450   ","P_2cb'a'm      ",&
-                                                "Pnnm1'_c[Pbam]           ","-P c 2 2n                ")
+                                                "Pnnm1'_c[Pbam]           ","-P 2 2n 1'c              ")
       Shubnikov_info( 451)= Shub_Spgr_Info_Type("56.365  ","Pccn           ","56.1.451    ","Pccn           ",&
                                                 "Pccn                     ","-P 2ab  2ac              ")
       Shubnikov_info( 452)= Shub_Spgr_Info_Type("56.366  ","Pccn1'         ","56.2.452    ","Pccn1'         ",&
@@ -948,27 +948,27 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 466)= Shub_Spgr_Info_Type("57.385  ","Pb'c'm'        ","57.9.466    ","Pb'c'm'        ",&
                                                 "Pb'c'm'                  ","P 2c  2b  -1'            ")
       Shubnikov_info( 467)= Shub_Spgr_Info_Type("57.386  ","P_abcm         ","57.10.467   ","P_2abcm        ",&
-                                                "Pbcm1'_a[Pbcm]           ","-P a 2c 2b               ")
+                                                "Pbcm1'_a[Pbcm]           ","-P 2c 2b 1'a             ")
       Shubnikov_info( 468)= Shub_Spgr_Info_Type("62.452  ","P_cnma         ","57.11.468   ","P_2abc'm       ",&
-                                                "Pnma1'_c[Pbma]           ","-P c 2ac 2n              ")
+                                                "Pnma1'_c[Pbma]           ","-P 2ac 2n 1'c            ")
       Shubnikov_info( 469)= Shub_Spgr_Info_Type("61.438  ","P_abca         ","57.12.469   ","P_2abcm'       ",&
-                                                "Pbca1'_a[Pbcm]           ","-P a 2ac 2ab             ")
+                                                "Pbca1'_a[Pbcm]           ","-P 2ac 2ab 1'a           ")
       Shubnikov_info( 470)= Shub_Spgr_Info_Type("60.427  ","P_bbcn         ","57.13.470   ","P_2abc'm'      ",&
-                                                "Pbcn1'_b[Pmca]           ","-P b 2n 2ab              ")
+                                                "Pbcn1'_b[Pmca]           ","-P 2n 2ab 1'b            ")
       Shubnikov_info( 471)= Shub_Spgr_Info_Type("58.393  ","Pnnm           ","58.1.471    ","Pnnm           ",&
-                                                "Pnnm                     ","-P 2  2n                 ")
+                                                "Pnnm                     ","-P 2 2n                  ")
       Shubnikov_info( 472)= Shub_Spgr_Info_Type("58.394  ","Pnnm1'         ","58.2.472    ","Pnnm1'         ",&
-                                                "Pnnm1'                   ","-P 2  2n   1'            ")
+                                                "Pnnm1'                   ","-P 2 2n 1'               ")
       Shubnikov_info( 473)= Shub_Spgr_Info_Type("58.395  ","Pn'nm          ","58.3.473    ","Pn'nm          ",&
                                                 "Pn'nm                    ","P 2' 2n  -1'             ")
       Shubnikov_info( 474)= Shub_Spgr_Info_Type("58.396  ","Pnnm'          ","58.4.474    ","Pnnm'          ",&
-                                                "Pnnm'                    ","P 2  2n' -1'             ")
+                                                "Pnnm'                    ","P 2 2n' -1'              ")
       Shubnikov_info( 475)= Shub_Spgr_Info_Type("58.397  ","Pn'n'm         ","58.5.475    ","Pn'n'm         ",&
-                                                "Pn'n'm                   ","-P 2  2n'                ")
+                                                "Pn'n'm                   ","-P 2 2n'                 ")
       Shubnikov_info( 476)= Shub_Spgr_Info_Type("58.398  ","Pnn'm'         ","58.6.476    ","Pnn'm'         ",&
                                                 "Pnn'm'                   ","-P 2' 2n                 ")
       Shubnikov_info( 477)= Shub_Spgr_Info_Type("58.399  ","Pn'n'm'        ","58.7.477    ","Pn'n'm'        ",&
-                                                "Pn'n'm'                  ","P 2  2n  -1'             ")
+                                                "Pn'n'm'                  ","P 2 2n -1'               ")
       Shubnikov_info( 478)= Shub_Spgr_Info_Type("59.405  ","Pmmn           ","59.1.478    ","Pmmn           ",&
                                                 "Pmmn                     ","-P 2ab  2a               ")
       Shubnikov_info( 479)= Shub_Spgr_Info_Type("59.406  ","Pmmn1'         ","59.2.479    ","Pmmn1'         ",&
@@ -984,11 +984,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 484)= Shub_Spgr_Info_Type("59.411  ","Pm'm'n'        ","59.7.484    ","Pm'm'n'        ",&
                                                 "Pm'm'n'                  ","P 2ab  2a  -1'           ")
       Shubnikov_info( 485)= Shub_Spgr_Info_Type("59.413  ","P_cmmn         ","59.8.485    ","P_2cmmn        ",&
-                                                "Pmmn1'_c[Pmmn]           ","-P c 2ab 2a              ")
+                                                "Pmmn1'_c[Pmmn]           ","-P 2ab 2a 1'c            ")
       Shubnikov_info( 486)= Shub_Spgr_Info_Type("62.450  ","P_anma         ","59.9.486    ","P_2cm'mn       ",&
-                                                "Pnma1'_a[Pnmm]           ","-P a 2ac 2n              ")
+                                                "Pnma1'_a[Pnmm]           ","-P 2ac 2n 1'a            ")
       Shubnikov_info( 487)= Shub_Spgr_Info_Type("56.373  ","P_cccn         ","59.10.487   ","P_2cm'm'n      ",&
-                                                "Pccn1'_c[Pmmn]           ","-P c 2ab 2ac             ")
+                                                "Pccn1'_c[Pmmn]           ","-P 2ab 2ac 1'c           ")
       Shubnikov_info( 488)= Shub_Spgr_Info_Type("60.417  ","Pbcn           ","60.1.488    ","Pbcn           ",&
                                                 "Pbcn                     ","-P 2n  2ab               ")
       Shubnikov_info( 489)= Shub_Spgr_Info_Type("60.418  ","Pbcn1'         ","60.2.489    ","Pbcn1'         ",&
@@ -1010,7 +1010,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 497)= Shub_Spgr_Info_Type("61.433  ","Pbca           ","61.1.497    ","Pbca           ",&
                                                 "Pbca                     ","-P 2ac  2ab              ")
       Shubnikov_info( 498)= Shub_Spgr_Info_Type("61.434  ","Pbca1'         ","61.2.498    ","Pbca1'         ",&
-                                                "Pbca1'                   ","-P 2ac  2ab 1'           ")
+                                                "Pbca1'                   ","-P 2ac  2ab  1'          ")
       Shubnikov_info( 499)= Shub_Spgr_Info_Type("61.435  ","Pb'ca          ","61.3.499    ","Pb'ca          ",&
                                                 "Pb'ca                    ","P 2ac' 2ab -1'           ")
       Shubnikov_info( 500)= Shub_Spgr_Info_Type("61.436  ","Pb'c'a         ","61.4.500    ","Pb'c'a         ",&
@@ -1054,21 +1054,21 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 519)= Shub_Spgr_Info_Type("63.465  ","Cm'c'm'        ","63.9.519    ","Cm'c'm'        ",&
                                                 "Cm'c'm'                  ","C 2c  2  -1'             ")
       Shubnikov_info( 520)= Shub_Spgr_Info_Type("51.301  ","P_Amma         ","63.10.520   ","C_Pmcm         ",&
-                                                "Pmma1'_A[Amma]           ","-P A 2a 2a               ")
+                                                "Pmma1'_A[Amma]           ","-P 2a 2a 1'A             ")
       Shubnikov_info( 521)= Shub_Spgr_Info_Type("57.391  ","P_Cbcm         ","63.11.521   ","C_Pm'cm        ",&
-                                                "Pbcm1'_C[Cmcm]           ","-P C 2c 2b               ")
+                                                "Pbcm1'_C[Cmcm]           ","-P 2c 2b 1'C             ")
       Shubnikov_info( 522)= Shub_Spgr_Info_Type("59.414  ","P_Bmmn         ","63.12.522   ","C_Pmc'm        ",&
-                                                "Pmmn1'_B[Bmmb]           ","-P B 2ab 2a              ")
+                                                "Pmmn1'_B[Bmmb]           ","-P 2ab 2a 1'B            ")
       Shubnikov_info( 523)= Shub_Spgr_Info_Type("62.453  ","P_Anma         ","63.13.523   ","C_Pmcm'        ",&
-                                                "Pnma1'_A[Amma]           ","-P A 2ac 2n              ")
+                                                "Pnma1'_A[Amma]           ","-P 2ac 2n 1'A            ")
       Shubnikov_info( 524)= Shub_Spgr_Info_Type("62.454  ","P_Bnma         ","63.14.524   ","C_Pm'c'm       ",&
-                                                "Pnma1'_B[Bbmm]           ","-P B 2ac 2n              ")
+                                                "Pnma1'_B[Bbmm]           ","-P 2ac 2n 1'B            ")
       Shubnikov_info( 525)= Shub_Spgr_Info_Type("58.402  ","P_Bnnm         ","63.15.525   ","C_Pmc'm'       ",&
-                                                "Pnnm1'_B[Bbmm]           ","-P B 2 2n                ")
+                                                "Pnnm1'_B[Bbmm]           ","-P 2 2n 1'B              ")
       Shubnikov_info( 526)= Shub_Spgr_Info_Type("60.431  ","P_Cbcn         ","63.16.526   ","C_Pm'cm'       ",&
-                                                "Pbcn1'_C[Cmcm]           ","-P C 2n 2ab              ")
+                                                "Pbcn1'_C[Cmcm]           ","-P 2n 2ab 1'C            ")
       Shubnikov_info( 527)= Shub_Spgr_Info_Type("52.318  ","P_Bnna         ","63.17.527   ","C_Pm'c'm'      ",&
-                                                "Pnna1'_B[Bbmm]           ","-P B 2a 2bc              ")
+                                                "Pnna1'_B[Bbmm]           ","-P 2a 2bc 1'B            ")
       Shubnikov_info( 528)= Shub_Spgr_Info_Type("64.469  ","Cmca           ","64.1.528    ","Cmca           ",&
                                                 "Cmca                     ","-C 2bc  2                ")
       Shubnikov_info( 529)= Shub_Spgr_Info_Type("64.470  ","Cmca1'         ","64.2.529    ","Cmca1'         ",&
@@ -1088,85 +1088,85 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 536)= Shub_Spgr_Info_Type("64.477  ","Cm'c'a'        ","64.9.536    ","Cm'c'a'        ",&
                                                 "Cm'c'a'                  ","C 2bc  2  -1'            ")
       Shubnikov_info( 537)= Shub_Spgr_Info_Type("55.362  ","P_Abam         ","64.10.537   ","C_Pmca         ",&
-                                                "Pbam1'_A[Acam]           ","-P A 2 2ab               ")
+                                                "Pbam1'_A[Acam]           ","-P 2 2ab 1'A             ")
       Shubnikov_info( 538)= Shub_Spgr_Info_Type("54.349  ","P_Acca         ","64.11.538   ","C_Pm'ca        ",&
-                                                "Pcca1'_A[Abma]           ","-P A 2a 2ac              ")
+                                                "Pcca1'_A[Abma]           ","-P 2a 2ac 1'A            ")
       Shubnikov_info( 539)= Shub_Spgr_Info_Type("62.455  ","P_Cnma         ","64.12.539   ","C_Pmc'a        ",&
-                                                "Pnma1'_C[Ccmb]           ","-P C 2ac 2n              ")
+                                                "Pnma1'_C[Ccmb]           ","-P 2ac 2n 1'C            ")
       Shubnikov_info( 540)= Shub_Spgr_Info_Type("57.390  ","P_Bbcm         ","64.13.540   ","C_Pmca'        ",&
-                                                "Pbcm1'_B[Bbcm]           ","-P B 2c 2b               ")
+                                                "Pbcm1'_B[Bbcm]           ","-P 2c 2b 1'B             ")
       Shubnikov_info( 541)= Shub_Spgr_Info_Type("56.374  ","P_Accn         ","64.14.541   ","C_Pm'c'a       ",&
-                                                "Pccn1'_A[Abma]           ","-P A 2ab 2ac             ")
+                                                "Pccn1'_A[Abma]           ","-P 2ab 2ac 1'A           ")
       Shubnikov_info( 542)= Shub_Spgr_Info_Type("53.335  ","P_Cmna         ","64.15.542   ","C_Pmc'a'       ",&
-                                                "Pmna1'_C[Cmca]           ","-P C 2ac 2               ")
+                                                "Pmna1'_C[Cmca]           ","-P 2ac 2 1'C             ")
       Shubnikov_info( 543)= Shub_Spgr_Info_Type("61.439  ","P_Cbca         ","64.16.543   ","C_Pm'ca'       ",&
-                                                "Pbca1'_C[Cmca]           ","-P C 2ac 2ab             ")
+                                                "Pbca1'_C[Cmca]           ","-P 2ac 2ab 1'C           ")
       Shubnikov_info( 544)= Shub_Spgr_Info_Type("60.429  ","P_Abcn         ","64.17.544   ","C_Pm'c'a'      ",&
-                                                "Pbcn1'_A[Abma]           ","-P A 2n 2ab              ")
+                                                "Pbcn1'_A[Abma]           ","-P 2n 2ab 1'A            ")
       Shubnikov_info( 545)= Shub_Spgr_Info_Type("65.481  ","Cmmm           ","65.1.545    ","Cmmm           ",&
-                                                "Cmmm                     ","-C 2  2                  ")
+                                                "Cmmm                     ","-C 2 2                   ")
       Shubnikov_info( 546)= Shub_Spgr_Info_Type("65.482  ","Cmmm1'         ","65.2.546    ","Cmmm1'         ",&
-                                                "Cmmm1'                   ","-C 2  2   1'             ")
+                                                "Cmmm1'                   ","-C 2 2 1'                ")
       Shubnikov_info( 547)= Shub_Spgr_Info_Type("65.483  ","Cm'mm          ","65.3.547    ","Cm'mm          ",&
                                                 "Cm'mm                    ","C 2' 2  -1'              ")
       Shubnikov_info( 548)= Shub_Spgr_Info_Type("65.484  ","Cmmm'          ","65.4.548    ","Cmmm'          ",&
-                                                "Cmmm'                    ","C 2  2' -1'              ")
+                                                "Cmmm'                    ","C 2 2' -1'               ")
       Shubnikov_info( 549)= Shub_Spgr_Info_Type("65.485  ","Cm'm'm         ","65.5.549    ","Cm'm'm         ",&
-                                                "Cm'm'm                   ","-C 2  2'                 ")
+                                                "Cm'm'm                   ","-C 2 2'                  ")
       Shubnikov_info( 550)= Shub_Spgr_Info_Type("65.486  ","Cmm'm'         ","65.6.550    ","Cmm'm'         ",&
                                                 "Cmm'm'                   ","-C 2' 2                  ")
       Shubnikov_info( 551)= Shub_Spgr_Info_Type("65.487  ","Cm'm'm'        ","65.7.551    ","Cm'm'm'        ",&
-                                                "Cm'm'm'                  ","C 2  2  -1'              ")
+                                                "Cm'm'm'                  ","C 2 2 -1'                ")
       Shubnikov_info( 552)= Shub_Spgr_Info_Type("65.488  ","C_cmmm         ","65.8.552    ","C_2cmmm        ",&
-                                                "Cmmm1'_c[Cmmm]           ","-C c 2 2                 ")
+                                                "Cmmm1'_c[Cmmm]           ","-C 2 2 1'c               ")
       Shubnikov_info( 553)= Shub_Spgr_Info_Type("47.255  ","P_Cmmm         ","65.9.553    ","C_Pmmm         ",&
-                                                "Pmmm1'_C[Cmmm]           ","-P C 2 2                 ")
+                                                "Pmmm1'_C[Cmmm]           ","-P 2 2 1'C               ")
       Shubnikov_info( 554)= Shub_Spgr_Info_Type("71.538  ","I_cmmm         ","65.10.554   ","C_Immm         ",&
-                                                "Immm1'_c[Cmmm]           ","-I c 2 2                 ")
+                                                "Immm1'_c[Cmmm]           ","-I 2 2 1'c               ")
       Shubnikov_info( 555)= Shub_Spgr_Info_Type("66.498  ","C_cccm         ","65.11.555   ","C_2cm'm'm      ",&
-                                                "Cccm1'_c[Cmmm]           ","-C c 2 2c                ")
+                                                "Cccm1'_c[Cmmm]           ","-C 2 2c 1'c              ")
       Shubnikov_info( 556)= Shub_Spgr_Info_Type("63.466  ","C_cmcm         ","65.12.556   ","C_2cmm'm'      ",&
-                                                "Cmcm1'_c[Cmmm]           ","-C c 2c 2                ")
+                                                "Cmcm1'_c[Cmmm]           ","-C 2c 2 1'c              ")
       Shubnikov_info( 557)= Shub_Spgr_Info_Type("51.302  ","P_Bmma         ","65.13.557   ","C_Pm'mm        ",&
-                                                "Pmma1'_B[Bmmm]           ","-P B 2a 2a               ")
+                                                "Pmma1'_B[Bmmm]           ","-P 2a 2a 1'B             ")
       Shubnikov_info( 558)= Shub_Spgr_Info_Type("59.415  ","P_Cmmn         ","65.14.558   ","C_Pmmm'        ",&
-                                                "Pmmn1'_C[Cmmm]           ","-P C 2ab 2a              ")
+                                                "Pmmn1'_C[Cmmm]           ","-P 2ab 2a 1'C            ")
       Shubnikov_info( 559)= Shub_Spgr_Info_Type("55.363  ","P_Cbam         ","65.15.559   ","C_Pm'm'm       ",&
-                                                "Pbam1'_C[Cmmm]           ","-P C 2 2ab               ")
+                                                "Pbam1'_C[Cmmm]           ","-P 2 2ab 1'C             ")
       Shubnikov_info( 560)= Shub_Spgr_Info_Type("53.334  ","P_Bmna         ","65.16.560   ","C_Pmm'm'       ",&
-                                                "Pmna1'_B[Bmmm]           ","-P B 2ac 2               ")
+                                                "Pmna1'_B[Bmmm]           ","-P 2ac 2 1'B             ")
       Shubnikov_info( 561)= Shub_Spgr_Info_Type("50.287  ","P_Cban         ","65.17.561   ","C_Pm'm'm'      ",&
-                                                "Pban1'_C[Cmmm]           ","-P C 2ab 2b              ")
+                                                "Pban1'_C[Cmmm]           ","-P 2ab 2b 1'C            ")
       Shubnikov_info( 562)= Shub_Spgr_Info_Type("74.562  ","I_bmma         ","65.18.562   ","C_Im'mm        ",&
-                                                "Imma1'_b[Bmmm]           ","-I b 2b 2                ")
+                                                "Imma1'_b[Bmmm]           ","-I 2b 2 1'b              ")
       Shubnikov_info( 563)= Shub_Spgr_Info_Type("72.546  ","I_cbam         ","65.19.563   ","C_Im'm'm       ",&
-                                                "Ibam1'_c[Cmmm]           ","-I c 2 2c                ")
+                                                "Ibam1'_c[Cmmm]           ","-I 2 2c 1'c              ")
       Shubnikov_info( 564)= Shub_Spgr_Info_Type("66.491  ","Cccm           ","66.1.564    ","Cccm           ",&
-                                                "Cccm                     ","-C 2  2c                 ")
+                                                "Cccm                     ","-C 2 2c                  ")
       Shubnikov_info( 565)= Shub_Spgr_Info_Type("66.492  ","Cccm1'         ","66.2.565    ","Cccm1'         ",&
-                                                "Cccm1'                   ","-C 2  2c   1'            ")
+                                                "Cccm1'                   ","-C 2 2c 1'               ")
       Shubnikov_info( 566)= Shub_Spgr_Info_Type("66.493  ","Cc'cm          ","66.3.566    ","Cc'cm          ",&
                                                 "Cc'cm                    ","C 2' 2c  -1'             ")
       Shubnikov_info( 567)= Shub_Spgr_Info_Type("66.494  ","Cccm'          ","66.4.567    ","Cccm'          ",&
-                                                "Cccm'                    ","C 2  2c' -1'             ")
+                                                "Cccm'                    ","C 2 2c' -1'              ")
       Shubnikov_info( 568)= Shub_Spgr_Info_Type("66.495  ","Cc'c'm         ","66.5.568    ","Cc'c'm         ",&
-                                                "Cc'c'm                   ","-C 2  2c'                ")
+                                                "Cc'c'm                   ","-C 2 2c'                 ")
       Shubnikov_info( 569)= Shub_Spgr_Info_Type("66.496  ","Ccc'm'         ","66.6.569    ","Ccc'm'         ",&
                                                 "Ccc'm'                   ","-C 2' 2c                 ")
       Shubnikov_info( 570)= Shub_Spgr_Info_Type("66.497  ","Cc'c'm'        ","66.7.570    ","Cc'c'm'        ",&
-                                                "Cc'c'm'                  ","C 2  2c  -1'             ")
+                                                "Cc'c'm'                  ","C 2 2c -1'               ")
       Shubnikov_info( 571)= Shub_Spgr_Info_Type("49.275  ","P_Cccm         ","66.8.571    ","C_Pccm         ",&
-                                                "Pccm1'_C[Cccm]           ","-P C 2 2c                ")
+                                                "Pccm1'_C[Cccm]           ","-P 2 2c 1'C              ")
       Shubnikov_info( 572)= Shub_Spgr_Info_Type("53.333  ","P_Amna         ","66.9.572    ","C_Pc'cm        ",&
-                                                "Pmna1'_A[Amaa]           ","-P A 2ac 2               ")
+                                                "Pmna1'_A[Amaa]           ","-P 2ac 2 1'A             ")
       Shubnikov_info( 573)= Shub_Spgr_Info_Type("56.375  ","P_Cccn         ","66.10.573   ","C_Pccm'        ",&
-                                                "Pccn1'_C[Cccm]           ","-P C 2ab 2ac             ")
+                                                "Pccn1'_C[Cccm]           ","-P 2ab 2ac 1'C           ")
       Shubnikov_info( 574)= Shub_Spgr_Info_Type("58.403  ","P_Cnnm         ","66.11.574   ","C_Pc'c'm       ",&
-                                                "Pnnm1'_C[Cccm]           ","-P C 2 2n                ")
+                                                "Pnnm1'_C[Cccm]           ","-P 2 2n 1'C              ")
       Shubnikov_info( 575)= Shub_Spgr_Info_Type("52.317  ","P_Anna         ","66.12.575   ","C_Pcc'm'       ",&
-                                                "Pnna1'_A[Amaa]           ","-P A 2a 2bc              ")
+                                                "Pnna1'_A[Amaa]           ","-P 2a 2bc 1'A            ")
       Shubnikov_info( 576)= Shub_Spgr_Info_Type("48.263  ","P_Cnnn         ","66.13.576   ","C_Pc'c'm'      ",&
-                                                "Pnnn1'_C[Cccm]           ","-P C 2ab 2bc             ")
+                                                "Pnnn1'_C[Cccm]           ","-P 2ab 2bc 1'C           ")
       Shubnikov_info( 577)= Shub_Spgr_Info_Type("67.501  ","Cmma           ","67.1.577    ","Cmma           ",&
                                                 "Cmma                     ","-C 2b  2                 ")
       Shubnikov_info( 578)= Shub_Spgr_Info_Type("67.502  ","Cmma1'         ","67.2.578    ","Cmma1'         ",&
@@ -1182,25 +1182,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 583)= Shub_Spgr_Info_Type("67.507  ","Cm'm'a'        ","67.7.583    ","Cm'm'a'        ",&
                                                 "Cm'm'a'                  ","C 2b  2  -1'             ")
       Shubnikov_info( 584)= Shub_Spgr_Info_Type("67.508  ","C_cmma         ","67.8.584    ","C_2cmma        ",&
-                                                "Cmma1'_c[Cmma]           ","-C c 2b 2                ")
+                                                "Cmma1'_c[Cmma]           ","-C 2b 2 1'c              ")
       Shubnikov_info( 585)= Shub_Spgr_Info_Type("49.274  ","P_Bccm         ","67.9.585    ","C_Pmma         ",&
-                                                "Pccm1'_B[Bmcm]           ","-P B 2 2c                ")
+                                                "Pccm1'_B[Bmcm]           ","-P 2 2c 1'B              ")
       Shubnikov_info( 586)= Shub_Spgr_Info_Type("72.547  ","I_bbam         ","67.10.586   ","C_Imma         ",&
-                                                "Ibam1'_b[Bmcm]           ","-I b 2 2c                ")
+                                                "Ibam1'_b[Bmcm]           ","-I 2 2c 1'b              ")
       Shubnikov_info( 587)= Shub_Spgr_Info_Type("64.478  ","C_cmca         ","67.11.587   ","C_2cm'ma       ",&
-                                                "Cmca1'_c[Cmmb]           ","-C c 2bc 2               ")
+                                                "Cmca1'_c[Cmmb]           ","-C 2bc 2 1'c             ")
       Shubnikov_info( 588)= Shub_Spgr_Info_Type("68.518  ","C_ccca         ","67.12.588   ","C_2cm'm'a      ",&
-                                                "Ccca1'_c[Cmmb]           ","-C c 2b 2bc              ")
+                                                "Ccca1'_c[Cmmb]           ","-C 2b 2bc 1'c            ")
       Shubnikov_info( 589)= Shub_Spgr_Info_Type("54.350  ","P_Bcca         ","67.13.589   ","C_Pm'ma        ",&
-                                                "Pcca1'_B[Bmcm]           ","-P B 2a 2ac              ")
+                                                "Pcca1'_B[Bmcm]           ","-P 2a 2ac 1'B            ")
       Shubnikov_info( 590)= Shub_Spgr_Info_Type("51.303  ","P_Cmma         ","67.14.590   ","C_Pmm'a        ",&
-                                                "Pmma1'_C[Cmma]           ","-P C 2a 2a               ")
+                                                "Pmma1'_C[Cmma]           ","-P 2a 2a 1'C             ")
       Shubnikov_info( 591)= Shub_Spgr_Info_Type("57.389  ","P_Abcm         ","67.15.591   ","C_Pmma'        ",&
-                                                "Pbcm1'_A[Acmm]           ","-P A 2c 2b               ")
+                                                "Pbcm1'_A[Acmm]           ","-P 2c 2b 1'A             ")
       Shubnikov_info( 592)= Shub_Spgr_Info_Type("74.561  ","I_cmma         ","67.16.592   ","C_Imm'a        ",&
-                                                "Imma1'_c[Cmma]           ","-I c 2b 2                ")
+                                                "Imma1'_c[Cmma]           ","-I 2b 2 1'c              ")
       Shubnikov_info( 593)= Shub_Spgr_Info_Type("73.553  ","I_cbca         ","67.17.593   ","C_Im'ma'       ",&
-                                                "Ibca1'_c[Cmma]           ","-I c 2b 2c               ")
+                                                "Ibca1'_c[Cmma]           ","-I 2b 2c 1'c             ")
       Shubnikov_info( 594)= Shub_Spgr_Info_Type("68.511  ","Ccca           ","68.1.594    ","Ccca           ",&
                                                 "Ccca                     ","-C 2b  2bc               ")
       Shubnikov_info( 595)= Shub_Spgr_Info_Type("68.512  ","Ccca1'         ","68.2.595    ","Ccca1'         ",&
@@ -1216,35 +1216,35 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 600)= Shub_Spgr_Info_Type("68.517  ","Cc'c'a'        ","68.7.600    ","Cc'c'a'        ",&
                                                 "Cc'c'a'                  ","C 2b  2bc  -1'           ")
       Shubnikov_info( 601)= Shub_Spgr_Info_Type("50.286  ","P_Aban         ","68.8.601    ","C_Pcca         ",&
-                                                "Pban1'_A[Acaa]           ","-P A 2ab 2b              ")
+                                                "Pban1'_A[Acaa]           ","-P 2ab 2b 1'A            ")
       Shubnikov_info( 602)= Shub_Spgr_Info_Type("54.351  ","P_Ccca         ","68.9.602    ","C_Pc'ca        ",&
-                                                "Pcca1'_C[Cccb]           ","-P C 2a 2ac              ")
+                                                "Pcca1'_C[Cccb]           ","-P 2a 2ac 1'C            ")
       Shubnikov_info( 603)= Shub_Spgr_Info_Type("60.430  ","P_Bbcn         ","68.10.603   ","C_Pcca'        ",&
-                                                "Pbcn1'_B[Bbcb]           ","-P B 2n 2ab              ")
+                                                "Pbcn1'_B[Bbcb]           ","-P 2n 2ab 1'B            ")
       Shubnikov_info( 604)= Shub_Spgr_Info_Type("52.319  ","P_Cnna         ","68.11.604   ","C_Pcc'a'       ",&
-                                                "Pnna1'_C[Ccca]           ","-P C 2a 2bc              ")
+                                                "Pnna1'_C[Ccca]           ","-P 2a 2bc 1'C            ")
       Shubnikov_info( 605)= Shub_Spgr_Info_Type("69.521  ","Fmmm           ","69.1.605    ","Fmmm           ",&
-                                                "Fmmm                     ","-F 2  2                  ")
+                                                "Fmmm                     ","-F 2 2                   ")
       Shubnikov_info( 606)= Shub_Spgr_Info_Type("69.522  ","Fmmm1'         ","69.2.606    ","Fmmm1'         ",&
-                                                "Fmmm1'                   ","-F 2  2   1'             ")
+                                                "Fmmm1'                   ","-F 2 2 1'                ")
       Shubnikov_info( 607)= Shub_Spgr_Info_Type("69.523  ","Fm'mm          ","69.3.607    ","Fm'mm          ",&
                                                 "Fm'mm                    ","F 2' 2  -1'              ")
       Shubnikov_info( 608)= Shub_Spgr_Info_Type("69.524  ","Fm'm'm         ","69.4.608    ","Fm'm'm         ",&
-                                                "Fm'm'm                   ","-F 2  2'                 ")
+                                                "Fm'm'm                   ","-F 2 2'                  ")
       Shubnikov_info( 609)= Shub_Spgr_Info_Type("69.525  ","Fm'm'm'        ","69.5.609    ","Fm'm'm'        ",&
-                                                "Fm'm'm'                  ","F 2  2  -1'              ")
+                                                "Fm'm'm'                  ","F 2 2 -1'                ")
       Shubnikov_info( 610)= Shub_Spgr_Info_Type("65.490  ","C_Ammm         ","69.6.610    ","F_Cmmm         ",&
-                                                "Cmmm1'_A[Fmmm]           ","-C A 2 2                 ")
+                                                "Cmmm1'_A[Fmmm]           ","-C 2 2 1'A               ")
       Shubnikov_info( 611)= Shub_Spgr_Info_Type("63.468  ","C_Amcm         ","69.7.611    ","F_Cm'mm        ",&
-                                                "Cmcm1'_A[Fmmm]           ","-C A 2c 2                ")
+                                                "Cmcm1'_A[Fmmm]           ","-C 2c 2 1'A              ")
       Shubnikov_info( 612)= Shub_Spgr_Info_Type("67.510  ","C_Amma         ","69.8.612    ","F_Cmmm'        ",&
-                                                "Cmma1'_A[Fmmm]           ","-C A 2b 2                ")
+                                                "Cmma1'_A[Fmmm]           ","-C 2b 2 1'A              ")
       Shubnikov_info( 613)= Shub_Spgr_Info_Type("66.500  ","C_Accm         ","69.9.613    ","F_Cm'm'm       ",&
-                                                "Cccm1'_A[Fmmm]           ","-C A 2 2c                ")
+                                                "Cccm1'_A[Fmmm]           ","-C 2 2c 1'A              ")
       Shubnikov_info( 614)= Shub_Spgr_Info_Type("64.480  ","C_Amca         ","69.10.614   ","F_Cmm'm'       ",&
-                                                "Cmca1'_A[Fmmm]           ","-C A 2bc 2               ")
+                                                "Cmca1'_A[Fmmm]           ","-C 2bc 2 1'A             ")
       Shubnikov_info( 615)= Shub_Spgr_Info_Type("68.520  ","C_Acca         ","69.11.615   ","F_Cm'm'm'      ",&
-                                                "Ccca1'_A[Fmmm]           ","-C A 2b 2bc              ")
+                                                "Ccca1'_A[Fmmm]           ","-C 2b 2bc 1'A            ")
       Shubnikov_info( 616)= Shub_Spgr_Info_Type("70.527  ","Fddd           ","70.1.616    ","Fddd           ",&
                                                 "Fddd                     ","-F 2uv  2vw              ")
       Shubnikov_info( 617)= Shub_Spgr_Info_Type("70.528  ","Fddd1'         ","70.2.617    ","Fddd1'         ",&
@@ -1256,49 +1256,49 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 620)= Shub_Spgr_Info_Type("70.531  ","Fd'd'd'        ","70.5.620    ","Fd'd'd'        ",&
                                                 "Fd'd'd'                  ","F 2uv  2vw -1'           ")
       Shubnikov_info( 621)= Shub_Spgr_Info_Type("71.533  ","Immm           ","71.1.621    ","Immm           ",&
-                                                "Immm                     ","-I 2  2                  ")
+                                                "Immm                     ","-I 2 2                   ")
       Shubnikov_info( 622)= Shub_Spgr_Info_Type("71.534  ","Immm1'         ","71.2.622    ","Immm1'         ",&
-                                                "Immm1'                   ","-I 2  2  1'              ")
+                                                "Immm1'                   ","-I 2 2 1'                ")
       Shubnikov_info( 623)= Shub_Spgr_Info_Type("71.535  ","Im'mm          ","71.3.623    ","Im'mm          ",&
                                                 "Im'mm                    ","I 2' 2 -1'               ")
       Shubnikov_info( 624)= Shub_Spgr_Info_Type("71.536  ","Im'm'm         ","71.4.624    ","Im'm'm         ",&
-                                                "Im'm'm                   ","-I 2  2'                 ")
+                                                "Im'm'm                   ","-I 2 2'                  ")
       Shubnikov_info( 625)= Shub_Spgr_Info_Type("71.537  ","Im'm'm'        ","71.5.625    ","Im'm'm'        ",&
-                                                "Im'm'm'                  ","I 2  2 -1'               ")
+                                                "Im'm'm'                  ","I 2 2 -1'                ")
       Shubnikov_info( 626)= Shub_Spgr_Info_Type("47.256  ","P_Immm         ","71.6.626    ","I_Pmmm         ",&
-                                                "Pmmm1'_I[Immm]           ","-P I 2 2                 ")
+                                                "Pmmm1'_I[Immm]           ","-P 2 2 1'I               ")
       Shubnikov_info( 627)= Shub_Spgr_Info_Type("59.416  ","P_Immn         ","71.7.627    ","I_Pm'mm        ",&
-                                                "Pmmn1'_I[Immm]           ","-P I 2ab 2a              ")
+                                                "Pmmn1'_I[Immm]           ","-P 2ab 2a 1'I            ")
       Shubnikov_info( 628)= Shub_Spgr_Info_Type("58.404  ","P_Innm         ","71.8.628    ","I_Pm'm'm       ",&
-                                                "Pnnm1'_I[Immm]           ","-P I 2 2n                ")
+                                                "Pnnm1'_I[Immm]           ","-P 2 2n 1'I              ")
       Shubnikov_info( 629)= Shub_Spgr_Info_Type("48.264  ","P_Innn         ","71.9.629    ","I_Pm'm'm'      ",&
-                                                "Pnnn1'_I[Immm]           ","-P I 2ab 2bc             ")
+                                                "Pnnn1'_I[Immm]           ","-P 2ab 2bc 1'I           ")
       Shubnikov_info( 630)= Shub_Spgr_Info_Type("72.539  ","Ibam           ","72.1.630    ","Ibam           ",&
-                                                "Ibam                     ","-I 2  2c                 ")
+                                                "Ibam                     ","-I 2 2c                  ")
       Shubnikov_info( 631)= Shub_Spgr_Info_Type("72.540  ","Ibam1'         ","72.2.631    ","Ibam1'         ",&
-                                                "Ibam1'                   ","-I 2  2c   1'            ")
+                                                "Ibam1'                   ","-I 2 2c 1'               ")
       Shubnikov_info( 632)= Shub_Spgr_Info_Type("72.541  ","Ib'am          ","72.3.632    ","Ib'am          ",&
                                                 "Ib'am                    ","I 2' 2c  -1'             ")
       Shubnikov_info( 633)= Shub_Spgr_Info_Type("72.542  ","Ibam'          ","72.4.633    ","Ibam'          ",&
-                                                "Ibam'                    ","I 2  2c' -1'             ")
+                                                "Ibam'                    ","I 2 2c' -1'              ")
       Shubnikov_info( 634)= Shub_Spgr_Info_Type("72.543  ","Ib'a'm         ","72.5.634    ","Ib'a'm         ",&
-                                                "Ib'a'm                   ","-I 2  2c'                ")
+                                                "Ib'a'm                   ","-I 2 2c'                 ")
       Shubnikov_info( 635)= Shub_Spgr_Info_Type("72.544  ","Iba'm'         ","72.6.635    ","Iba'm'         ",&
                                                 "Iba'm'                   ","-I 2' 2c                 ")
       Shubnikov_info( 636)= Shub_Spgr_Info_Type("72.545  ","Ib'a'm'        ","72.7.636    ","Ib'a'm'        ",&
-                                                "Ib'a'm'                  ","I 2  2c  -1'             ")
+                                                "Ib'a'm'                  ","I 2 2c -1'               ")
       Shubnikov_info( 637)= Shub_Spgr_Info_Type("49.276  ","P_Iccm         ","72.8.637    ","I_Pbam         ",&
-                                                "Pccm1'_I[Ibam]           ","-P I 2 2c                ")
+                                                "Pccm1'_I[Ibam]           ","-P 2 2c 1'I              ")
       Shubnikov_info( 638)= Shub_Spgr_Info_Type("57.392  ","P_Ibcm         ","72.9.638    ","I_Pb'am        ",&
-                                                "Pbcm1'_I[Ibam]           ","-P I 2c 2b               ")
+                                                "Pbcm1'_I[Ibam]           ","-P 2c 2b 1'I             ")
       Shubnikov_info( 639)= Shub_Spgr_Info_Type("56.376  ","P_Iccn         ","72.10.639   ","I_Pbam'        ",&
-                                                "Pccn1'_I[Ibam]           ","-P I 2ab 2ac             ")
+                                                "Pccn1'_I[Ibam]           ","-P 2ab 2ac 1'I           ")
       Shubnikov_info( 640)= Shub_Spgr_Info_Type("55.364  ","P_Ibam         ","72.11.640   ","I_Pb'a'm       ",&
-                                                "Pbam1'_I[Ibam]           ","-P I 2 2ab               ")
+                                                "Pbam1'_I[Ibam]           ","-P 2 2ab 1'I             ")
       Shubnikov_info( 641)= Shub_Spgr_Info_Type("60.432  ","P_Ibcn         ","72.12.641   ","I_Pb'am'       ",&
-                                                "Pbcn1'_I[Ibam]           ","-P I 2n 2ab              ")
+                                                "Pbcn1'_I[Ibam]           ","-P 2n 2ab 1'I            ")
       Shubnikov_info( 642)= Shub_Spgr_Info_Type("50.288  ","P_Iban         ","72.13.642   ","I_Pb'a'm'      ",&
-                                                "Pban1'_I[Ibam]           ","-P I 2ab 2b              ")
+                                                "Pban1'_I[Ibam]           ","-P 2ab 2b 1'I            ")
       Shubnikov_info( 643)= Shub_Spgr_Info_Type("73.548  ","Ibca           ","73.1.643    ","Ibca           ",&
                                                 "Ibca                     ","-I 2b  2c                ")
       Shubnikov_info( 644)= Shub_Spgr_Info_Type("73.549  ","Ibca1'         ","73.2.644    ","Ibca1'         ",&
@@ -1310,9 +1310,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 647)= Shub_Spgr_Info_Type("73.552  ","Ib'c'a'        ","73.5.647    ","Ib'c'a'        ",&
                                                 "Ib'c'a'                  ","I 2b  2c -1'             ")
       Shubnikov_info( 648)= Shub_Spgr_Info_Type("61.440  ","P_Ibca         ","73.6.648    ","I_Pbca         ",&
-                                                "Pbca1'_I[Icab]           ","-P I 2ac 2ab             ")
+                                                "Pbca1'_I[Icab]           ","-P 2ac 2ab 1'I           ")
       Shubnikov_info( 649)= Shub_Spgr_Info_Type("54.352  ","P_Icca         ","73.7.649    ","I_Pb'ca        ",&
-                                                "Pcca1'_I[Icab]           ","-P I 2a 2ac              ")
+                                                "Pcca1'_I[Icab]           ","-P 2a 2ac 1'I            ")
       Shubnikov_info( 650)= Shub_Spgr_Info_Type("74.554  ","Imma           ","74.1.650    ","Imma           ",&
                                                 "Imma                     ","-I 2b  2                 ")
       Shubnikov_info( 651)= Shub_Spgr_Info_Type("74.555  ","Imma1'         ","74.2.651    ","Imma1'         ",&
@@ -1328,13 +1328,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 656)= Shub_Spgr_Info_Type("74.560  ","Im'm'a'        ","74.7.656    ","Im'm'a'        ",&
                                                 "Im'm'a'                  ","I 2b  2  -1'             ")
       Shubnikov_info( 657)= Shub_Spgr_Info_Type("51.304  ","P_Imma         ","74.8.657    ","I_Pmma         ",&
-                                                "Pmma1'_I[Immb]           ","-P I 2a 2a               ")
+                                                "Pmma1'_I[Immb]           ","-P 2a 2a 1'I             ")
       Shubnikov_info( 658)= Shub_Spgr_Info_Type("52.320  ","P_Inna         ","74.9.658    ","I_Pm'm'a       ",&
-                                                "Pnna1'_I[Immb]           ","-P I 2a 2bc              ")
+                                                "Pnna1'_I[Immb]           ","-P 2a 2bc 1'I            ")
       Shubnikov_info( 659)= Shub_Spgr_Info_Type("53.336  ","P_Imna         ","74.10.659   ","I_Pmm'a'       ",&
-                                                "Pmna1'_I[Imma]           ","-P I 2ac 2               ")
+                                                "Pmna1'_I[Imma]           ","-P 2ac 2 1'I             ")
       Shubnikov_info( 660)= Shub_Spgr_Info_Type("62.456  ","P_Inma         ","74.11.660   ","I_Pm'ma'       ",&
-                                                "Pnma1'_I[Imma]           ","-P I 2ac 2n              ")
+                                                "Pnma1'_I[Imma]           ","-P 2ac 2n 1'I            ")
       Shubnikov_info( 661)= Shub_Spgr_Info_Type("75.1    ","P4             ","75.1.661    ","P4             ",&
                                                 "P4                       ","P 4                      ")
       Shubnikov_info( 662)= Shub_Spgr_Info_Type("75.2    ","P41'           ","75.2.662    ","P41'           ",&
@@ -1342,13 +1342,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 663)= Shub_Spgr_Info_Type("75.3    ","P4'            ","75.3.663    ","P4'            ",&
                                                 "P4'                      ","P 4'                     ")
       Shubnikov_info( 664)= Shub_Spgr_Info_Type("75.4    ","P_c4           ","75.4.664    ","P_2c4          ",&
-                                                "P41'_c[P4]               ","P c 4                    ")
+                                                "P41'_c[P4]               ","P 4 1'c                  ")
       Shubnikov_info( 665)= Shub_Spgr_Info_Type("75.5    ","P_C4           ","75.5.665    ","P_P4           ",&
-                                                "P41'_C[rP4]              ","P C 4                    ")
+                                                "P41'_C[rP4]              ","P 4 1'C                  ")
       Shubnikov_info( 666)= Shub_Spgr_Info_Type("79.28   ","I_c4           ","75.6.666    ","P_I4           ",&
-                                                "I41'_c[rP4]              ","I c 4                    ")
+                                                "I41'_c[rP4]              ","I 4 1'c                  ")
       Shubnikov_info( 667)= Shub_Spgr_Info_Type("77.16   ","P_c4_2         ","75.7.667    ","P_2c4'         ",&
-                                                "P4_21'_c[P4]             ","P c 4c                   ")
+                                                "P4_21'_c[P4]             ","P 4c 1'c                 ")
       Shubnikov_info( 668)= Shub_Spgr_Info_Type("76.7    ","P4_1           ","76.1.668    ","P4_1           ",&
                                                 "P4_1                     ","P 4w                     ")
       Shubnikov_info( 669)= Shub_Spgr_Info_Type("76.8    ","P4_11'         ","76.2.669    ","P4_11'         ",&
@@ -1356,7 +1356,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 670)= Shub_Spgr_Info_Type("76.9    ","P4_1'          ","76.3.670    ","P4_1'          ",&
                                                 "P4_1'                    ","P 4w'                    ")
       Shubnikov_info( 671)= Shub_Spgr_Info_Type("76.11   ","P_C4_1         ","76.4.671    ","P_P4_1         ",&
-                                                "P4_11'_C[rP4_1]          ","P C 4w                   ")
+                                                "P4_11'_C[rP4_1]          ","P 4w 1'C                 ")
       Shubnikov_info( 672)= Shub_Spgr_Info_Type("77.13   ","P4_2           ","77.1.672    ","P4_2           ",&
                                                 "P4_2                     ","P 4c                     ")
       Shubnikov_info( 673)= Shub_Spgr_Info_Type("77.14   ","P4_21'         ","77.2.673    ","P4_21'         ",&
@@ -1364,13 +1364,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 674)= Shub_Spgr_Info_Type("77.15   ","P4_2'          ","77.3.674    ","P4_2'          ",&
                                                 "P4_2'                    ","P 4c'                    ")
       Shubnikov_info( 675)= Shub_Spgr_Info_Type("76.10   ","P_c4_1         ","77.4.675    ","P_2c4_2        ",&
-                                                "P4_11'_c[P4_2]           ","P c 4w                   ")
+                                                "P4_11'_c[P4_2]           ","P 4w 1'c                 ")
       Shubnikov_info( 676)= Shub_Spgr_Info_Type("77.17   ","P_C4_2         ","77.5.676    ","P_P4_2         ",&
-                                                "P4_21'_C[rP4_2]          ","P C 4c                   ")
+                                                "P4_21'_C[rP4_2]          ","P 4c 1'C                 ")
       Shubnikov_info( 677)= Shub_Spgr_Info_Type("80.32   ","I_c4_1         ","77.6.677    ","P_I4_2         ",&
-                                                "I4_11'_c[rP4_2]          ","I c 4bw                  ")
+                                                "I4_11'_c[rP4_2]          ","I 4bw 1'c                ")
       Shubnikov_info( 678)= Shub_Spgr_Info_Type("78.22   ","P_c4_3         ","77.7.678    ","P_2c4_2'       ",&
-                                                "P4_31'_c[P4_2]           ","P c 4cw                  ")
+                                                "P4_31'_c[P4_2]           ","P 4cw 1'c                ")
       Shubnikov_info( 679)= Shub_Spgr_Info_Type("78.19   ","P4_3           ","78.1.679    ","P4_3           ",&
                                                 "P4_3                     ","P 4cw                    ")
       Shubnikov_info( 680)= Shub_Spgr_Info_Type("78.20   ","P4_31'         ","78.2.680    ","P4_31'         ",&
@@ -1378,17 +1378,17 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 681)= Shub_Spgr_Info_Type("78.21   ","P4_3'          ","78.3.681    ","P4_3'          ",&
                                                 "P4_3'                    ","P 4cw'                   ")
       Shubnikov_info( 682)= Shub_Spgr_Info_Type("78.23   ","P_C4_3         ","78.4.682    ","P_P4_3         ",&
-                                                "P4_31'_C[rP4_3]          ","P C 4cw                  ")
+                                                "P4_31'_C[rP4_3]          ","P 4cw 1'C                ")
       Shubnikov_info( 683)= Shub_Spgr_Info_Type("79.25   ","I4             ","79.1.683    ","I4             ",&
                                                 "I4                       ","I 4                      ")
       Shubnikov_info( 684)= Shub_Spgr_Info_Type("79.26   ","I41'           ","79.2.684    ","I41'           ",&
-                                                "I41'                     ","I 4  1'                  ")
+                                                "I41'                     ","I 4 1'                   ")
       Shubnikov_info( 685)= Shub_Spgr_Info_Type("79.27   ","I4'            ","79.3.685    ","I4'            ",&
                                                 "I4'                      ","I 4'                     ")
       Shubnikov_info( 686)= Shub_Spgr_Info_Type("75.6    ","P_I4           ","79.4.686    ","I_P4           ",&
-                                                "P41'_I[I4]               ","P I 4                    ")
+                                                "P41'_I[I4]               ","P 4 1'I                  ")
       Shubnikov_info( 687)= Shub_Spgr_Info_Type("77.18   ","P_I4_2         ","79.5.687    ","I_P4'          ",&
-                                                "P4_21'_I[I4]             ","P I 4c                   ")
+                                                "P4_21'_I[I4]             ","P 4c 1'I                 ")
       Shubnikov_info( 688)= Shub_Spgr_Info_Type("80.29   ","I4_1           ","80.1.688    ","I4_1           ",&
                                                 "I4_1                     ","I 4bw                    ")
       Shubnikov_info( 689)= Shub_Spgr_Info_Type("80.30   ","I4_11'         ","80.2.689    ","I4_11'         ",&
@@ -1396,9 +1396,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 690)= Shub_Spgr_Info_Type("80.31   ","I4_1'          ","80.3.690    ","I4_1'          ",&
                                                 "I4_1'                    ","I 4bw'                   ")
       Shubnikov_info( 691)= Shub_Spgr_Info_Type("76.12   ","P_I4_1         ","80.4.691    ","I_P4_1         ",&
-                                                "P4_11'_I[I4_1]           ","P I 4w                   ")
+                                                "P4_11'_I[I4_1]           ","P 4w 1'I                 ")
       Shubnikov_info( 692)= Shub_Spgr_Info_Type("78.24   ","P_I4_3         ","80.5.692    ","I_P4_1'        ",&
-                                                "P4_31'_I[I4_1]           ","P I 4cw                  ")
+                                                "P4_31'_I[I4_1]           ","P 4cw 1'I                ")
       Shubnikov_info( 693)= Shub_Spgr_Info_Type("81.33   ","P-4            ","81.1.693    ","P-4            ",&
                                                 "P-4                      ","P -4                     ")
       Shubnikov_info( 694)= Shub_Spgr_Info_Type("81.34   ","P-41'          ","81.2.694    ","P-41'          ",&
@@ -1406,11 +1406,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 695)= Shub_Spgr_Info_Type("81.35   ","P-4'           ","81.3.695    ","P-4'           ",&
                                                 "P-4'                     ","P -4'                    ")
       Shubnikov_info( 696)= Shub_Spgr_Info_Type("81.36   ","P_c-4          ","81.4.696    ","P_2c-4         ",&
-                                                "P-41'_c[P-4]             ","P c -4                   ")
+                                                "P-41'_c[P-4]             ","P -4 1'c                 ")
       Shubnikov_info( 697)= Shub_Spgr_Info_Type("81.37   ","P_C-4          ","81.5.697    ","P_P-4          ",&
-                                                "P-41'_C[rP-4]            ","P C -4                   ")
+                                                "P-41'_C[rP-4]            ","P -4 1'C                 ")
       Shubnikov_info( 698)= Shub_Spgr_Info_Type("82.42   ","I_c-4          ","81.6.698    ","P_I-4          ",&
-                                                "I-41'_c[rP-4]            ","I c -4                   ")
+                                                "I-41'_c[rP-4]            ","I -4 1'c                 ")
       Shubnikov_info( 699)= Shub_Spgr_Info_Type("82.39   ","I-4            ","82.1.699    ","I-4            ",&
                                                 "I-4                      ","I -4                     ")
       Shubnikov_info( 700)= Shub_Spgr_Info_Type("82.40   ","I-41'          ","82.2.700    ","I-41'          ",&
@@ -1418,27 +1418,27 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 701)= Shub_Spgr_Info_Type("82.41   ","I-4'           ","82.3.701    ","I-4'           ",&
                                                 "I-4'                     ","I -4'                    ")
       Shubnikov_info( 702)= Shub_Spgr_Info_Type("81.38   ","P_I-4          ","82.4.702    ","I_P-4          ",&
-                                                "P-41'_I[I-4]             ","P I -4                   ")
+                                                "P-41'_I[I-4]             ","P -4 1'I                 ")
       Shubnikov_info( 703)= Shub_Spgr_Info_Type("83.43   ","P4/m           ","83.1.703    ","P4/m           ",&
                                                 "P4/m                     ","-P 4                     ")
       Shubnikov_info( 704)= Shub_Spgr_Info_Type("83.44   ","P4/m1'         ","83.2.704    ","P4/m1'         ",&
-                                                "P4/m1'                   ","-P 4  1'                 ")
+                                                "P4/m1'                   ","-P 4 1'                  ")
       Shubnikov_info( 705)= Shub_Spgr_Info_Type("83.45   ","P4'/m          ","83.3.705    ","P4'/m          ",&
                                                 "P4'/m                    ","-P 4'                    ")
       Shubnikov_info( 706)= Shub_Spgr_Info_Type("83.46   ","P4/m'          ","83.4.706    ","P4/m'          ",&
-                                                "P4/m'                    ","P 4  -1'                 ")
+                                                "P4/m'                    ","P 4 -1'                  ")
       Shubnikov_info( 707)= Shub_Spgr_Info_Type("83.47   ","P4'/m'         ","83.5.707    ","P4'/m'         ",&
                                                 "P4'/m'                   ","P 4' -1'                 ")
       Shubnikov_info( 708)= Shub_Spgr_Info_Type("83.48   ","P_c4/m         ","83.6.708    ","P_2c4/m        ",&
-                                                "P4/m1'_c[P4/m]           ","-P c 4                   ")
+                                                "P4/m1'_c[P4/m]           ","-P 4 1'c                 ")
       Shubnikov_info( 709)= Shub_Spgr_Info_Type("83.49   ","P_C4/m         ","83.7.709    ","P_P4/m         ",&
-                                                "P4/m1'_C[rP4/m]          ","-P C 4                   ")
+                                                "P4/m1'_C[rP4/m]          ","-P 4 1'C                 ")
       Shubnikov_info( 710)= Shub_Spgr_Info_Type("87.80   ","I_c4/m         ","83.8.710    ","P_I4/m         ",&
-                                                "I4/m1'_c[rP4/m]          ","-I c 4                   ")
+                                                "I4/m1'_c[rP4/m]          ","-I 4 1'c                 ")
       Shubnikov_info( 711)= Shub_Spgr_Info_Type("84.56   ","P_c4_2/m       ","83.9.711    ","P_2c4'/m       ",&
-                                                "P4_2/m1'_c[P4/m]         ","-P c 4c                  ")
+                                                "P4_2/m1'_c[P4/m]         ","-P 4c 1'c                ")
       Shubnikov_info( 712)= Shub_Spgr_Info_Type("85.65   ","P_C4/n         ","83.10.712   ","P_P4/m'        ",&
-                                                "P4/n1'_C[rP4/m]          ","-P C 4a                  ")
+                                                "P4/n1'_C[rP4/m]          ","-P 4a 1'C                ")
       Shubnikov_info( 713)= Shub_Spgr_Info_Type("84.51   ","P4_2/m         ","84.1.713    ","P4_2/m         ",&
                                                 "P4_2/m                   ","-P 4c                    ")
       Shubnikov_info( 714)= Shub_Spgr_Info_Type("84.52   ","P4_2/m1'       ","84.2.714    ","P4_2/m1'       ",&
@@ -1450,9 +1450,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 717)= Shub_Spgr_Info_Type("84.55   ","P4_2'/m'       ","84.5.717    ","P4_2'/m'       ",&
                                                 "P4_2'/m'                 ","P 4c' -1'                ")
       Shubnikov_info( 718)= Shub_Spgr_Info_Type("84.57   ","P_C4_2/m       ","84.6.718    ","P_P4_2/m       ",&
-                                                "P4_2/m1'_C[rP4_2/m]      ","-P C 4c                  ")
+                                                "P4_2/m1'_C[rP4_2/m]      ","-P 4c 1'C                ")
       Shubnikov_info( 719)= Shub_Spgr_Info_Type("86.73   ","P_C4_2/n       ","84.7.719    ","P_P4_2/m'      ",&
-                                                "P4_2/n1'_C[rP4_2/m]      ","-P C 4bc                 ")
+                                                "P4_2/n1'_C[rP4_2/m]      ","-P 4bc 1'C               ")
       Shubnikov_info( 720)= Shub_Spgr_Info_Type("85.59   ","P4/n           ","85.1.720    ","P4/n           ",&
                                                 "P4/n                     ","-P 4a                    ")
       Shubnikov_info( 721)= Shub_Spgr_Info_Type("85.60   ","P4/n1'         ","85.2.721    ","P4/n1'         ",&
@@ -1464,9 +1464,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 724)= Shub_Spgr_Info_Type("85.63   ","P4'/n'         ","85.5.724    ","P4'/n'         ",&
                                                 "P4'/n'                   ","P 4a' -1'                ")
       Shubnikov_info( 725)= Shub_Spgr_Info_Type("85.64   ","P_c4/n         ","85.6.725    ","P_2c4/n        ",&
-                                                "P4/n1'_c[P4/n]           ","-P c 4a                  ")
+                                                "P4/n1'_c[P4/n]           ","-P 4a 1'c                ")
       Shubnikov_info( 726)= Shub_Spgr_Info_Type("86.72   ","P_c4_2/n       ","85.7.726    ","P_2c4'/n       ",&
-                                                "P4_2/n1'_c[P4/n]         ","-P c 4bc                 ")
+                                                "P4_2/n1'_c[P4/n]         ","-P 4bc 1'c               ")
       Shubnikov_info( 727)= Shub_Spgr_Info_Type("86.67   ","P4_2/n         ","86.1.727    ","P4_2/n         ",&
                                                 "P4_2/n                   ","-P 4bc                   ")
       Shubnikov_info( 728)= Shub_Spgr_Info_Type("86.68   ","P4_2/n1'       ","86.2.728    ","P4_2/n1'       ",&
@@ -1478,25 +1478,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 731)= Shub_Spgr_Info_Type("86.71   ","P4_2'/n'       ","86.5.731    ","P4_2'/n'       ",&
                                                 "P4_2'/n'                 ","P 4bc' -1'               ")
       Shubnikov_info( 732)= Shub_Spgr_Info_Type("88.86   ","I_c4_1/a       ","86.6.732    ","P_I4_2/n       ",&
-                                                "I4_1/a1'_c[rP4_2/n]      ","-I c 4ad                 ")
+                                                "I4_1/a1'_c[rP4_2/n]      ","-I 4ad 1'c               ")
       Shubnikov_info( 733)= Shub_Spgr_Info_Type("87.75   ","I4/m           ","87.1.733    ","I4/m           ",&
                                                 "I4/m                     ","-I 4                     ")
       Shubnikov_info( 734)= Shub_Spgr_Info_Type("87.76   ","I4/m1'         ","87.2.734    ","I4/m1'         ",&
-                                                "I4/m1'                   ","-I 4   1'                ")
+                                                "I4/m1'                   ","-I 4 1'                  ")
       Shubnikov_info( 735)= Shub_Spgr_Info_Type("87.77   ","I4'/m          ","87.3.735    ","I4'/m          ",&
                                                 "I4'/m                    ","-I 4'                    ")
       Shubnikov_info( 736)= Shub_Spgr_Info_Type("87.78   ","I4/m'          ","87.4.736    ","I4/m'          ",&
-                                                "I4/m'                    ","I 4  -1'                 ")
+                                                "I4/m'                    ","I 4 -1'                  ")
       Shubnikov_info( 737)= Shub_Spgr_Info_Type("87.79   ","I4'/m'         ","87.5.737    ","I4'/m'         ",&
                                                 "I4'/m'                   ","I 4' -1'                 ")
       Shubnikov_info( 738)= Shub_Spgr_Info_Type("83.50   ","P_I4/m         ","87.6.738    ","I_P4/m         ",&
-                                                "P4/m1'_I[I4/m]           ","-P I 4                   ")
+                                                "P4/m1'_I[I4/m]           ","-P 4 1'I                 ")
       Shubnikov_info( 739)= Shub_Spgr_Info_Type("84.58   ","P_I4_2/m       ","87.7.739    ","I_P4'/m        ",&
-                                                "P4_2/m1'_I[I4/m]         ","-P I 4c                  ")
+                                                "P4_2/m1'_I[I4/m]         ","-P 4c 1'I                ")
       Shubnikov_info( 740)= Shub_Spgr_Info_Type("85.66   ","P_I4/n         ","87.8.740    ","I_P4/m'        ",&
-                                                "P4/n1'_I[I4/m]           ","-P I 4a                  ")
+                                                "P4/n1'_I[I4/m]           ","-P 4a 1'I                ")
       Shubnikov_info( 741)= Shub_Spgr_Info_Type("86.74   ","P_I4_2/n       ","87.9.741    ","I_P4'/m'       ",&
-                                                "P4_2/n1'_I[I4/m]         ","-P I 4bc                 ")
+                                                "P4_2/n1'_I[I4/m]         ","-P 4bc 1'I               ")
       Shubnikov_info( 742)= Shub_Spgr_Info_Type("88.81   ","I4_1/a         ","88.1.742    ","I4_1/a         ",&
                                                 "I4_1/a                   ","-I 4ad                   ")
       Shubnikov_info( 743)= Shub_Spgr_Info_Type("88.82   ","I4_1/a1'       ","88.2.743    ","I4_1/a1'       ",&
@@ -1508,25 +1508,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 746)= Shub_Spgr_Info_Type("88.85   ","I4_1'/a'       ","88.5.746    ","I4_1'/a'       ",&
                                                 "I4_1'/a'                 ","I 4ad' -1'               ")
       Shubnikov_info( 747)= Shub_Spgr_Info_Type("89.87   ","P422           ","89.1.747    ","P422           ",&
-                                                "P422                     ","P 4  2                   ")
+                                                "P422                     ","P 4 2                    ")
       Shubnikov_info( 748)= Shub_Spgr_Info_Type("89.88   ","P4221'         ","89.2.748    ","P4221'         ",&
-                                                "P4221'                   ","P 4  2  1'               ")
+                                                "P4221'                   ","P 4 2 1'                 ")
       Shubnikov_info( 749)= Shub_Spgr_Info_Type("89.89   ","P4'22'         ","89.3.749    ","P4'22'         ",&
                                                 "P4'22'                   ","P 4' 2                   ")
       Shubnikov_info( 750)= Shub_Spgr_Info_Type("89.90   ","P42'2'         ","89.4.750    ","P42'2'         ",&
-                                                "P42'2'                   ","P 4  2'                  ")
+                                                "P42'2'                   ","P 4 2'                   ")
       Shubnikov_info( 751)= Shub_Spgr_Info_Type("89.91   ","P4'2'2         ","89.5.751    ","P4'2'2         ",&
                                                 "P4'2'2                   ","P 4' 2'                  ")
       Shubnikov_info( 752)= Shub_Spgr_Info_Type("89.92   ","P_c422         ","89.6.752    ","P_2c422        ",&
-                                                "P4221'_c[P422]           ","P c 4 2                  ")
+                                                "P4221'_c[P422]           ","P 4 2 1'c                ")
       Shubnikov_info( 753)= Shub_Spgr_Info_Type("89.93   ","P_C422         ","89.7.753    ","P_P422         ",&
-                                                "P4221'_C[rP422]          ","P C 4 2                  ")
+                                                "P4221'_C[rP422]          ","P 4 2 1'C                ")
       Shubnikov_info( 754)= Shub_Spgr_Info_Type("97.156  ","I_c422         ","89.8.754    ","P_I422         ",&
-                                                "I4221'_c[rP422]          ","I c 4 2                  ")
+                                                "I4221'_c[rP422]          ","I 4 2 1'c                ")
       Shubnikov_info( 755)= Shub_Spgr_Info_Type("93.124  ","P_c4_222       ","89.9.755    ","P_2c4'22'      ",&
-                                                "P4_2221'_c[P422]         ","P c 4c 2                 ")
+                                                "P4_2221'_c[P422]         ","P 4c 2 1'c               ")
       Shubnikov_info( 756)= Shub_Spgr_Info_Type("90.101  ","P_C42_12       ","89.10.756   ","P_P4'22'       ",&
-                                                "P42_121'_C[rP422]        ","P C 4ab 2ab              ")
+                                                "P42_121'_C[rP422]        ","P 4ab 2ab 1'C            ")
       Shubnikov_info( 757)= Shub_Spgr_Info_Type("90.95   ","P42_12         ","90.1.757    ","P42_12         ",&
                                                 "P42_12                   ","P 4ab  2ab               ")
       Shubnikov_info( 758)= Shub_Spgr_Info_Type("90.96   ","P42_121'       ","90.2.758    ","P42_121'       ",&
@@ -1538,9 +1538,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 761)= Shub_Spgr_Info_Type("90.99   ","P4'2_1'2       ","90.5.761    ","P4'2_1'2       ",&
                                                 "P4'2_1'2                 ","P 4ab' 2ab'              ")
       Shubnikov_info( 762)= Shub_Spgr_Info_Type("90.100  ","P_c42_12       ","90.6.762    ","P_2c42_12      ",&
-                                                "P42_121'_c[P42_12]       ","P c 4ab 2ab              ")
+                                                "P42_121'_c[P42_12]       ","P 4ab 2ab 1'c            ")
       Shubnikov_info( 763)= Shub_Spgr_Info_Type("94.132  ","P_c4_22_12     ","90.7.763    ","P_2c4'2_1'2    ",&
-                                                "P4_22_121'_c[P42_12]     ","P c 4n 2n                ")
+                                                "P4_22_121'_c[P42_12]     ","P 4n 2n 1'c              ")
       Shubnikov_info( 764)= Shub_Spgr_Info_Type("91.103  ","P4_122         ","91.1.764    ","P4_122         ",&
                                                 "P4_122                   ","P 4w  2c                 ")
       Shubnikov_info( 765)= Shub_Spgr_Info_Type("91.104  ","P4_1221'       ","91.2.765    ","P4_1221'       ",&
@@ -1552,9 +1552,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 768)= Shub_Spgr_Info_Type("91.107  ","P4_1'2'2       ","91.5.768    ","P4_1'2'2       ",&
                                                 "P4_1'2'2                 ","P 4w' 2c'                ")
       Shubnikov_info( 769)= Shub_Spgr_Info_Type("91.109  ","P_C4_122       ","91.6.769    ","P_P4_122       ",&
-                                                "P4_1221'_C[rP4_122]      ","P C 4w 2c                ")
+                                                "P4_1221'_C[rP4_122]      ","P 4w 2c 1'C              ")
       Shubnikov_info( 770)= Shub_Spgr_Info_Type("92.117  ","P_C4_12_12     ","91.7.770    ","P_P4_1'22'     ",&
-                                                "P4_12_121'_C[rP4_122]    ","P C 4abw 2nw             ")
+                                                "P4_12_121'_C[rP4_122]    ","P 4abw 2nw 1'C           ")
       Shubnikov_info( 771)= Shub_Spgr_Info_Type("92.111  ","P4_12_12       ","92.1.771    ","P4_12_12       ",&
                                                 "P4_12_12                 ","P 4abw  2nw              ")
       Shubnikov_info( 772)= Shub_Spgr_Info_Type("92.112  ","P4_12_121'     ","92.2.772    ","P4_12_121'     ",&
@@ -1576,15 +1576,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 780)= Shub_Spgr_Info_Type("93.123  ","P4_2'2'2       ","93.5.780    ","P4_2'2'2       ",&
                                                 "P4_2'2'2                 ","P 4c' 2'                 ")
       Shubnikov_info( 781)= Shub_Spgr_Info_Type("91.108  ","P_c4_122       ","93.6.781    ","P_2c4_222      ",&
-                                                "P4_1221'_c[P4_222]       ","P c 4w 2c                ")
+                                                "P4_1221'_c[P4_222]       ","P 4w 2c 1'c              ")
       Shubnikov_info( 782)= Shub_Spgr_Info_Type("93.125  ","P_C4_222       ","93.7.782    ","P_P4_222       ",&
-                                                "P4_2221'_C[rP4_222]      ","P C 4c 2                 ")
+                                                "P4_2221'_C[rP4_222]      ","P 4c 2 1'C               ")
       Shubnikov_info( 783)= Shub_Spgr_Info_Type("98.162  ","I_c4_122       ","93.8.783    ","P_I4_222       ",&
-                                                "I4_1221'_c[rP4_222]      ","I c 4bw 2bw              ")
+                                                "I4_1221'_c[rP4_222]      ","I 4bw 2bw 1'c            ")
       Shubnikov_info( 784)= Shub_Spgr_Info_Type("95.140  ","P_c4_322       ","93.9.784    ","P_2c4_2'22'    ",&
-                                                "P4_3221'_c[P4_222]       ","P c 4cw 2c               ")
+                                                "P4_3221'_c[P4_222]       ","P 4cw 2c 1'c             ")
       Shubnikov_info( 785)= Shub_Spgr_Info_Type("94.133  ","P_C4_22_12     ","93.10.785   ","P_P4_2'22'     ",&
-                                                "P4_22_121'_C[rP4_222]    ","P C 4n 2n                ")
+                                                "P4_22_121'_C[rP4_222]    ","P 4n 2n 1'C              ")
       Shubnikov_info( 786)= Shub_Spgr_Info_Type("94.127  ","P4_22_12       ","94.1.786    ","P4_22_12       ",&
                                                 "P4_22_12                 ","P 4n  2n                 ")
       Shubnikov_info( 787)= Shub_Spgr_Info_Type("94.128  ","P4_22_121'     ","94.2.787    ","P4_22_121'     ",&
@@ -1596,9 +1596,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 790)= Shub_Spgr_Info_Type("94.131  ","P4_2'2_1'2     ","94.5.790    ","P4_2'2_1'2     ",&
                                                 "P4_2'2_1'2               ","P 4n' 2n'                ")
       Shubnikov_info( 791)= Shub_Spgr_Info_Type("92.116  ","P_c4_12_12     ","94.6.791    ","P_2c4_22_12    ",&
-                                                "P4_12_121'_c[P4_22_12]   ","P c 4abw 2nw             ")
+                                                "P4_12_121'_c[P4_22_12]   ","P 4abw 2nw 1'c           ")
       Shubnikov_info( 792)= Shub_Spgr_Info_Type("96.148  ","P_c4_32_12     ","94.7.792    ","P_2c4_2'2_1'2  ",&
-                                                "P4_32_121'_c[P4_22_12]   ","P c 4nw 2abw             ")
+                                                "P4_32_121'_c[P4_22_12]   ","P 4nw 2abw 1'c           ")
       Shubnikov_info( 793)= Shub_Spgr_Info_Type("95.135  ","P4_322         ","95.1.793    ","P4_322         ",&
                                                 "P4_322                   ","P 4cw  2c                ")
       Shubnikov_info( 794)= Shub_Spgr_Info_Type("95.136  ","P4_3221'       ","95.2.794    ","P4_3221'       ",&
@@ -1610,9 +1610,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 797)= Shub_Spgr_Info_Type("95.139  ","P4_3'2'2       ","95.5.797    ","P4_3'2'2       ",&
                                                 "P4_3'2'2                 ","P 4cw' 2c'               ")
       Shubnikov_info( 798)= Shub_Spgr_Info_Type("95.141  ","P_C4_322       ","95.6.798    ","P_P4_322       ",&
-                                                "P4_3221'_C[rP4_322]      ","P C 4cw 2c               ")
+                                                "P4_3221'_C[rP4_322]      ","P 4cw 2c 1'C             ")
       Shubnikov_info( 799)= Shub_Spgr_Info_Type("96.149  ","P_C4_32_12     ","95.7.799    ","P_P4_3'22'     ",&
-                                                "P4_32_121'_C[rP4_322]    ","P C 4nw 2abw             ")
+                                                "P4_32_121'_C[rP4_322]    ","P 4nw 2abw 1'C           ")
       Shubnikov_info( 800)= Shub_Spgr_Info_Type("96.143  ","P4_32_12       ","96.1.800    ","P4_32_12       ",&
                                                 "P4_32_12                 ","P 4nw  2abw              ")
       Shubnikov_info( 801)= Shub_Spgr_Info_Type("96.144  ","P4_32_121'     ","96.2.801    ","P4_32_121'     ",&
@@ -1624,23 +1624,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 804)= Shub_Spgr_Info_Type("96.147  ","P4_3'2_1'2     ","96.5.804    ","P4_3'2_1'2     ",&
                                                 "P4_3'2_1'2               ","P 4nw' 2abw'             ")
       Shubnikov_info( 805)= Shub_Spgr_Info_Type("97.151  ","I422           ","97.1.805    ","I422           ",&
-                                                "I422                     ","I 4  2                   ")
+                                                "I422                     ","I 4 2                    ")
       Shubnikov_info( 806)= Shub_Spgr_Info_Type("97.152  ","I4221'         ","97.2.806    ","I4221'         ",&
-                                                "I4221'                   ","I 4  2  1'               ")
+                                                "I4221'                   ","I 4 2 1'                 ")
       Shubnikov_info( 807)= Shub_Spgr_Info_Type("97.153  ","I4'22'         ","97.3.807    ","I4'22'         ",&
                                                 "I4'22'                   ","I 4' 2                   ")
       Shubnikov_info( 808)= Shub_Spgr_Info_Type("97.154  ","I42'2'         ","97.4.808    ","I42'2'         ",&
-                                                "I42'2'                   ","I 4  2'                  ")
+                                                "I42'2'                   ","I 4 2'                   ")
       Shubnikov_info( 809)= Shub_Spgr_Info_Type("97.155  ","I4'2'2         ","97.5.809    ","I4'2'2         ",&
                                                 "I4'2'2                   ","I 4' 2'                  ")
       Shubnikov_info( 810)= Shub_Spgr_Info_Type("89.94   ","P_I422         ","97.6.810    ","I_P422         ",&
-                                                "P4221'_I[I422]           ","P I 4 2                  ")
+                                                "P4221'_I[I422]           ","P 4 2 1'I                ")
       Shubnikov_info( 811)= Shub_Spgr_Info_Type("93.126  ","P_I4_222       ","97.7.811    ","I_P4'22'       ",&
-                                                "P4_2221'_I[I422]         ","P I 4c 2                 ")
+                                                "P4_2221'_I[I422]         ","P 4c 2 1'I               ")
       Shubnikov_info( 812)= Shub_Spgr_Info_Type("90.102  ","P_I42_12       ","97.8.812    ","I_P42'2'       ",&
-                                                "P42_121'_I[I422]         ","P I 4ab 2ab              ")
+                                                "P42_121'_I[I422]         ","P 4ab 2ab 1'I            ")
       Shubnikov_info( 813)= Shub_Spgr_Info_Type("94.134  ","P_I4_22_12     ","97.9.813    ","I_P4'2'2       ",&
-                                                "P4_22_121'_I[I422]       ","P I 4n 2n                ")
+                                                "P4_22_121'_I[I422]       ","P 4n 2n 1'I              ")
       Shubnikov_info( 814)= Shub_Spgr_Info_Type("98.157  ","I4_122         ","98.1.814    ","I4_122         ",&
                                                 "I4_122                   ","I 4bw  2bw               ")
       Shubnikov_info( 815)= Shub_Spgr_Info_Type("98.158  ","I4_1221'       ","98.2.815    ","I4_1221'       ",&
@@ -1652,57 +1652,57 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 818)= Shub_Spgr_Info_Type("98.161  ","I4_1'2'2       ","98.5.818    ","I4_1'2'2       ",&
                                                 "I4_1'2'2                 ","I 4bw' 2bw'              ")
       Shubnikov_info( 819)= Shub_Spgr_Info_Type("91.110  ","P_I4_122       ","98.6.819    ","I_P4_122       ",&
-                                                "P4_1221'_I[I4_122]       ","P I 4w 2c                ")
+                                                "P4_1221'_I[I4_122]       ","P 4w 2c 1'I              ")
       Shubnikov_info( 820)= Shub_Spgr_Info_Type("95.142  ","P_I4_322       ","98.7.820    ","I_P4_1'22'     ",&
-                                                "P4_3221'_I[I4_122]       ","P I 4cw 2c               ")
+                                                "P4_3221'_I[I4_122]       ","P 4cw 2c 1'I             ")
       Shubnikov_info( 821)= Shub_Spgr_Info_Type("92.118  ","P_I4_12_12     ","98.8.821    ","I_P4_12'2'     ",&
-                                                "P4_12_121'_I[I4_122]     ","P I 4abw 2nw             ")
+                                                "P4_12_121'_I[I4_122]     ","P 4abw 2nw 1'I           ")
       Shubnikov_info( 822)= Shub_Spgr_Info_Type("96.150  ","P_I4_32_12     ","98.9.822    ","I_P4_1'2'2     ",&
-                                                "P4_32_121'_I[I4_122]     ","P I 4nw 2abw             ")
+                                                "P4_32_121'_I[I4_122]     ","P 4nw 2abw 1'I           ")
       Shubnikov_info( 823)= Shub_Spgr_Info_Type("99.163  ","P4mm           ","99.1.823    ","P4mm           ",&
-                                                "P4mm                     ","P 4  -2                  ")
+                                                "P4mm                     ","P 4 -2                   ")
       Shubnikov_info( 824)= Shub_Spgr_Info_Type("99.164  ","P4mm1'         ","99.2.824    ","P4mm1'         ",&
-                                                "P4mm1'                   ","P 4  -2  1'              ")
+                                                "P4mm1'                   ","P 4 -2 1'                ")
       Shubnikov_info( 825)= Shub_Spgr_Info_Type("99.165  ","P4'm'm         ","99.3.825    ","P4'm'm         ",&
                                                 "P4'm'm                   ","P 4' -2'                 ")
       Shubnikov_info( 826)= Shub_Spgr_Info_Type("99.166  ","P4'mm'         ","99.4.826    ","P4'mm'         ",&
                                                 "P4'mm'                   ","P 4' -2                  ")
       Shubnikov_info( 827)= Shub_Spgr_Info_Type("99.167  ","P4m'm'         ","99.5.827    ","P4m'm'         ",&
-                                                "P4m'm'                   ","P 4  -2'                 ")
+                                                "P4m'm'                   ","P 4 -2'                  ")
       Shubnikov_info( 828)= Shub_Spgr_Info_Type("99.168  ","P_c4mm         ","99.6.828    ","P_2c4mm        ",&
-                                                "P4mm1'_c[P4mm]           ","P c 4 -2                 ")
+                                                "P4mm1'_c[P4mm]           ","P 4 -2 1'c               ")
       Shubnikov_info( 829)= Shub_Spgr_Info_Type("99.169  ","P_C4mm         ","99.7.829    ","P_P4mm         ",&
-                                                "P4mm1'_C[rP4mm]          ","P C 4 -2                 ")
+                                                "P4mm1'_C[rP4mm]          ","P 4 -2 1'C               ")
       Shubnikov_info( 830)= Shub_Spgr_Info_Type("107.232 ","I_c4mm         ","99.8.830    ","P_I4mm         ",&
-                                                "I4mm1'_c[rP4mm]          ","I c 4 -2                 ")
+                                                "I4mm1'_c[rP4mm]          ","I 4 -2 1'c               ")
       Shubnikov_info( 831)= Shub_Spgr_Info_Type("101.184 ","P_c4_2cm       ","99.9.831    ","P_2c4'm'm      ",&
-                                                "P4_2cm1'_c[P4mm]         ","P c 4c -2c               ")
+                                                "P4_2cm1'_c[P4mm]         ","P 4c -2c 1'c             ")
       Shubnikov_info( 832)= Shub_Spgr_Info_Type("105.216 ","P_c4_2mc       ","99.10.832   ","P_2c4'mm'      ",&
-                                                "P4_2mc1'_c[P4mm]         ","P c 4c -2                ")
+                                                "P4_2mc1'_c[P4mm]         ","P 4c -2 1'c              ")
       Shubnikov_info( 833)= Shub_Spgr_Info_Type("103.200 ","P_c4cc         ","99.11.833   ","P_2c4m'm'      ",&
-                                                "P4cc1'_c[P4mm]           ","P c 4 -2c                ")
+                                                "P4cc1'_c[P4mm]           ","P 4 -2c 1'c              ")
       Shubnikov_info( 834)= Shub_Spgr_Info_Type("100.177 ","P_C4bm         ","99.12.834   ","P_P4'mm'       ",&
-                                                "P4bm1'_C[rP4mm]          ","P C 4 -2ab               ")
+                                                "P4bm1'_C[rP4mm]          ","P 4 -2ab 1'C             ")
       Shubnikov_info( 835)= Shub_Spgr_Info_Type("108.238 ","I_c4cm         ","99.13.835   ","P_I4m'm'       ",&
-                                                "I4cm1'_c[rP4mm]          ","I c 4 -2c                ")
+                                                "I4cm1'_c[rP4mm]          ","I 4 -2c 1'c              ")
       Shubnikov_info( 836)= Shub_Spgr_Info_Type("100.171 ","P4bm           ","100.1.836   ","P4bm           ",&
-                                                "P4bm                     ","P 4  -2ab                ")
+                                                "P4bm                     ","P 4 -2ab                 ")
       Shubnikov_info( 837)= Shub_Spgr_Info_Type("100.172 ","P4bm1'         ","100.2.837   ","P4bm1'         ",&
-                                                "P4bm1'                   ","P 4  -2ab  1'            ")
+                                                "P4bm1'                   ","P 4 -2ab 1'              ")
       Shubnikov_info( 838)= Shub_Spgr_Info_Type("100.173 ","P4'b'm         ","100.3.838   ","P4'b'm         ",&
                                                 "P4'b'm                   ","P 4' -2ab'               ")
       Shubnikov_info( 839)= Shub_Spgr_Info_Type("100.174 ","P4'bm'         ","100.4.839   ","P4'bm'         ",&
                                                 "P4'bm'                   ","P 4' -2ab                ")
       Shubnikov_info( 840)= Shub_Spgr_Info_Type("100.175 ","P4b'm'         ","100.5.840   ","P4b'm'         ",&
-                                                "P4b'm'                   ","P 4  -2ab'               ")
+                                                "P4b'm'                   ","P 4 -2ab'                ")
       Shubnikov_info( 841)= Shub_Spgr_Info_Type("100.176 ","P_c4bm         ","100.6.841   ","P_2c4bm        ",&
-                                                "P4bm1'_c[P4bm]           ","P c 4 -2ab               ")
+                                                "P4bm1'_c[P4bm]           ","P 4 -2ab 1'c             ")
       Shubnikov_info( 842)= Shub_Spgr_Info_Type("102.192 ","P_c4_2nm       ","100.7.842   ","P_2c4'b'm      ",&
-                                                "P4_2nm1'_c[P4bm]         ","P c 4n -2n               ")
+                                                "P4_2nm1'_c[P4bm]         ","P 4n -2n 1'c             ")
       Shubnikov_info( 843)= Shub_Spgr_Info_Type("106.224 ","P_c4_2bc       ","100.8.843   ","P_2c4'bm'      ",&
-                                                "P4_2bc1'_c[P4bm]         ","P c 4c -2ab              ")
+                                                "P4_2bc1'_c[P4bm]         ","P 4c -2ab 1'c            ")
       Shubnikov_info( 844)= Shub_Spgr_Info_Type("104.208 ","P_c4nc         ","100.9.844   ","P_2c4b'm'      ",&
-                                                "P4nc1'_c[P4bm]           ","P c 4 -2n                ")
+                                                "P4nc1'_c[P4bm]           ","P 4 -2n 1'c              ")
       Shubnikov_info( 845)= Shub_Spgr_Info_Type("101.179 ","P4_2cm         ","101.1.845   ","P4_2cm         ",&
                                                 "P4_2cm                   ","P 4c  -2c                ")
       Shubnikov_info( 846)= Shub_Spgr_Info_Type("101.180 ","P4_2cm1'       ","101.2.846   ","P4_2cm1'       ",&
@@ -1714,9 +1714,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 849)= Shub_Spgr_Info_Type("101.183 ","P4_2c'm'       ","101.5.849   ","P4_2c'm'       ",&
                                                 "P4_2c'm'                 ","P 4c  -2c'               ")
       Shubnikov_info( 850)= Shub_Spgr_Info_Type("105.217 ","P_C4_2mc       ","101.6.850   ","P_P4_2cm       ",&
-                                                "P4_2mc1'_C[rP4_2cm]      ","P C 4c -2                ")
+                                                "P4_2mc1'_C[rP4_2cm]      ","P 4c -2 1'C              ")
       Shubnikov_info( 851)= Shub_Spgr_Info_Type("106.225 ","P_C4_2bc       ","101.7.851   ","P_P4_2'cm'     ",&
-                                                "P4_2bc1'_C[rP4_2cm]      ","P C 4c -2ab              ")
+                                                "P4_2bc1'_C[rP4_2cm]      ","P 4c -2ab 1'C            ")
       Shubnikov_info( 852)= Shub_Spgr_Info_Type("102.187 ","P4_2nm         ","102.1.852   ","P4_2nm         ",&
                                                 "P4_2nm                   ","P 4n  -2n                ")
       Shubnikov_info( 853)= Shub_Spgr_Info_Type("102.188 ","P4_2nm1'       ","102.2.853   ","P4_2nm1'       ",&
@@ -1728,33 +1728,33 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 856)= Shub_Spgr_Info_Type("102.191 ","P4_2n'm'       ","102.5.856   ","P4_2n'm'       ",&
                                                 "P4_2n'm'                 ","P 4n  -2n'               ")
       Shubnikov_info( 857)= Shub_Spgr_Info_Type("109.244 ","I_c4_1md       ","102.6.857   ","P_I4_2nm       ",&
-                                                "I4_1md1'_c[rP4_2nm]      ","I c 4bw -2               ")
+                                                "I4_1md1'_c[rP4_2nm]      ","I 4bw -2 1'c             ")
       Shubnikov_info( 858)= Shub_Spgr_Info_Type("110.250 ","I_c4_1cd       ","102.7.858   ","P_I4_2n'm'     ",&
-                                                "I4_1cd1'_c[rP4_2nm]      ","I c 4bw -2c              ")
+                                                "I4_1cd1'_c[rP4_2nm]      ","I 4bw -2c 1'c            ")
       Shubnikov_info( 859)= Shub_Spgr_Info_Type("103.195 ","P4cc           ","103.1.859   ","P4cc           ",&
-                                                "P4cc                     ","P 4  -2c                 ")
+                                                "P4cc                     ","P 4 -2c                  ")
       Shubnikov_info( 860)= Shub_Spgr_Info_Type("103.196 ","P4cc1'         ","103.2.860   ","P4cc1'         ",&
-                                                "P4cc1'                   ","P 4  -2c  1'             ")
+                                                "P4cc1'                   ","P 4 -2c 1'               ")
       Shubnikov_info( 861)= Shub_Spgr_Info_Type("103.197 ","P4'c'c         ","103.3.861   ","P4'c'c         ",&
                                                 "P4'c'c                   ","P 4' -2c'                ")
       Shubnikov_info( 862)= Shub_Spgr_Info_Type("103.198 ","P4'cc'         ","103.4.862   ","P4'cc'         ",&
                                                 "P4'cc'                   ","P 4' -2c                 ")
       Shubnikov_info( 863)= Shub_Spgr_Info_Type("103.199 ","P4c'c'         ","103.5.863   ","P4c'c'         ",&
-                                                "P4c'c'                   ","P 4  -2c'                ")
+                                                "P4c'c'                   ","P 4 -2c'                 ")
       Shubnikov_info( 864)= Shub_Spgr_Info_Type("103.201 ","P_C4cc         ","103.6.864   ","P_P4cc         ",&
-                                                "P4cc1'_C[rP4cc]          ","P C 4 -2c                ")
+                                                "P4cc1'_C[rP4cc]          ","P 4 -2c 1'C              ")
       Shubnikov_info( 865)= Shub_Spgr_Info_Type("104.209 ","P_C4nc         ","103.7.865   ","P_P4'cc'       ",&
-                                                "P4nc1'_C[rP4cc]          ","P C 4 -2n                ")
+                                                "P4nc1'_C[rP4cc]          ","P 4 -2n 1'C              ")
       Shubnikov_info( 866)= Shub_Spgr_Info_Type("104.203 ","P4nc           ","104.1.866   ","P4nc           ",&
-                                                "P4nc                     ","P 4  -2n                 ")
+                                                "P4nc                     ","P 4 -2n                  ")
       Shubnikov_info( 867)= Shub_Spgr_Info_Type("104.204 ","P4nc1'         ","104.2.867   ","P4nc1'         ",&
-                                                "P4nc1'                   ","P 4  -2n  1'             ")
+                                                "P4nc1'                   ","P 4 -2n 1'               ")
       Shubnikov_info( 868)= Shub_Spgr_Info_Type("104.205 ","P4'n'c         ","104.3.868   ","P4'n'c         ",&
                                                 "P4'n'c                   ","P 4' -2n'                ")
       Shubnikov_info( 869)= Shub_Spgr_Info_Type("104.206 ","P4'nc'         ","104.4.869   ","P4'nc'         ",&
                                                 "P4'nc'                   ","P 4' -2n                 ")
       Shubnikov_info( 870)= Shub_Spgr_Info_Type("104.207 ","P4n'c'         ","104.5.870   ","P4n'c'         ",&
-                                                "P4n'c'                   ","P 4  -2n'                ")
+                                                "P4n'c'                   ","P 4 -2n'                 ")
       Shubnikov_info( 871)= Shub_Spgr_Info_Type("105.211 ","P4_2mc         ","105.1.871   ","P4_2mc         ",&
                                                 "P4_2mc                   ","P 4c  -2                 ")
       Shubnikov_info( 872)= Shub_Spgr_Info_Type("105.212 ","P4_2mc1'       ","105.2.872   ","P4_2mc1'       ",&
@@ -1766,9 +1766,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 875)= Shub_Spgr_Info_Type("105.215 ","P4_2m'c'       ","105.5.875   ","P4_2m'c'       ",&
                                                 "P4_2m'c'                 ","P 4c  -2'                ")
       Shubnikov_info( 876)= Shub_Spgr_Info_Type("101.185 ","P_C4_2cm       ","105.6.876   ","P_P4_2mc       ",&
-                                                "P4_2cm1'_C[rP4_2mc]      ","P C 4c -2c               ")
+                                                "P4_2cm1'_C[rP4_2mc]      ","P 4c -2c 1'C             ")
       Shubnikov_info( 877)= Shub_Spgr_Info_Type("102.193 ","P_C4_2nm       ","105.7.877   ","P_P4_2'mc'     ",&
-                                                "P4_2nm1'_C[rP4_2mc]      ","P C 4n -2n               ")
+                                                "P4_2nm1'_C[rP4_2mc]      ","P 4n -2n 1'C             ")
       Shubnikov_info( 878)= Shub_Spgr_Info_Type("106.219 ","P4_2bc         ","106.1.878   ","P4_2bc         ",&
                                                 "P4_2bc                   ","P 4c  -2ab               ")
       Shubnikov_info( 879)= Shub_Spgr_Info_Type("106.220 ","P4_2bc1'       ","106.2.879   ","P4_2bc1'       ",&
@@ -1780,41 +1780,41 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 882)= Shub_Spgr_Info_Type("106.223 ","P4_2b'c'       ","106.5.882   ","P4_2b'c'       ",&
                                                 "P4_2b'c'                 ","P 4c  -2ab'              ")
       Shubnikov_info( 883)= Shub_Spgr_Info_Type("107.227 ","I4mm           ","107.1.883   ","I4mm           ",&
-                                                "I4mm                     ","I 4  -2                  ")
+                                                "I4mm                     ","I 4 -2                   ")
       Shubnikov_info( 884)= Shub_Spgr_Info_Type("107.228 ","I4mm1'         ","107.2.884   ","I4mm1'         ",&
-                                                "I4mm1'                   ","I 4  -2  1'              ")
+                                                "I4mm1'                   ","I 4 -2 1'                ")
       Shubnikov_info( 885)= Shub_Spgr_Info_Type("107.229 ","I4'm'm         ","107.3.885   ","I4'm'm         ",&
                                                 "I4'm'm                   ","I 4' -2'                 ")
       Shubnikov_info( 886)= Shub_Spgr_Info_Type("107.230 ","I4'mm'         ","107.4.886   ","I4'mm'         ",&
                                                 "I4'mm'                   ","I 4' -2                  ")
       Shubnikov_info( 887)= Shub_Spgr_Info_Type("107.231 ","I4m'm'         ","107.5.887   ","I4m'm'         ",&
-                                                "I4m'm'                   ","I 4  -2'                 ")
+                                                "I4m'm'                   ","I 4 -2'                  ")
       Shubnikov_info( 888)= Shub_Spgr_Info_Type("99.170  ","P_I4mm         ","107.6.888   ","I_P4mm         ",&
-                                                "P4mm1'_I[I4mm]           ","P I 4 -2                 ")
+                                                "P4mm1'_I[I4mm]           ","P 4 -2 1'I               ")
       Shubnikov_info( 889)= Shub_Spgr_Info_Type("102.194 ","P_I4_2nm       ","107.7.889   ","I_P4'm'm       ",&
-                                                "P4_2nm1'_I[I4mm]         ","P I 4n -2n               ")
+                                                "P4_2nm1'_I[I4mm]         ","P 4n -2n 1'I             ")
       Shubnikov_info( 890)= Shub_Spgr_Info_Type("105.218 ","P_I4_2mc       ","107.8.890   ","I_P4'mm'       ",&
-                                                "P4_2mc1'_I[I4mm]         ","P I 4c -2                ")
+                                                "P4_2mc1'_I[I4mm]         ","P 4c -2 1'I              ")
       Shubnikov_info( 891)= Shub_Spgr_Info_Type("104.210 ","P_I4nc         ","107.9.891   ","I_P4m'm'       ",&
-                                                "P4nc1'_I[I4mm]           ","P I 4 -2n                ")
+                                                "P4nc1'_I[I4mm]           ","P 4 -2n 1'I              ")
       Shubnikov_info( 892)= Shub_Spgr_Info_Type("108.233 ","I4cm           ","108.1.892   ","I4cm           ",&
-                                                "I4cm                     ","I 4  -2c                 ")
+                                                "I4cm                     ","I 4 -2c                  ")
       Shubnikov_info( 893)= Shub_Spgr_Info_Type("108.234 ","I4cm1'         ","108.2.893   ","I4cm1'         ",&
-                                                "I4cm1'                   ","I 4  -2c  1'             ")
+                                                "I4cm1'                   ","I 4 -2c 1'               ")
       Shubnikov_info( 894)= Shub_Spgr_Info_Type("108.235 ","I4'c'm         ","108.3.894   ","I4'c'm         ",&
                                                 "I4'c'm                   ","I 4' -2c'                ")
       Shubnikov_info( 895)= Shub_Spgr_Info_Type("108.236 ","I4'cm'         ","108.4.895   ","I4'cm'         ",&
                                                 "I4'cm'                   ","I 4' -2c                 ")
       Shubnikov_info( 896)= Shub_Spgr_Info_Type("108.237 ","I4c'm'         ","108.5.896   ","I4c'm'         ",&
-                                                "I4c'm'                   ","I 4  -2c'                ")
+                                                "I4c'm'                   ","I 4 -2c'                 ")
       Shubnikov_info( 897)= Shub_Spgr_Info_Type("100.178 ","P_I4bm         ","108.6.897   ","I_P4cm         ",&
-                                                "P4bm1'_I[I4cm]           ","P I 4 -2ab               ")
+                                                "P4bm1'_I[I4cm]           ","P 4 -2ab 1'I             ")
       Shubnikov_info( 898)= Shub_Spgr_Info_Type("101.186 ","P_I4_2cm       ","108.7.898   ","I_P4'c'm       ",&
-                                                "P4_2cm1'_I[I4cm]         ","P I 4c -2c               ")
+                                                "P4_2cm1'_I[I4cm]         ","P 4c -2c 1'I             ")
       Shubnikov_info( 899)= Shub_Spgr_Info_Type("106.226 ","P_I4_2bc       ","108.8.899   ","I_P4'cm'       ",&
-                                                "P4_2bc1'_I[I4cm]         ","P I 4c -2ab              ")
+                                                "P4_2bc1'_I[I4cm]         ","P 4c -2ab 1'I            ")
       Shubnikov_info( 900)= Shub_Spgr_Info_Type("103.202 ","P_I4cc         ","108.9.900   ","I_P4c'm'       ",&
-                                                "P4cc1'_I[I4cm]           ","P I 4 -2c                ")
+                                                "P4cc1'_I[I4cm]           ","P 4 -2c 1'I              ")
       Shubnikov_info( 901)= Shub_Spgr_Info_Type("109.239 ","I4_1md         ","109.1.901   ","I4_1md         ",&
                                                 "I4_1md                   ","I 4bw  -2                ")
       Shubnikov_info( 902)= Shub_Spgr_Info_Type("109.240 ","I4_1md1'       ","109.2.902   ","I4_1md1'       ",&
@@ -1846,17 +1846,17 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 915)= Shub_Spgr_Info_Type("111.255 ","P-42'm'        ","111.5.915   ","P-42'm'        ",&
                                                 "P-42'm'                  ","P -4  2'                 ")
       Shubnikov_info( 916)= Shub_Spgr_Info_Type("111.256 ","P_c-42m        ","111.6.916   ","P_2c-42m       ",&
-                                                "P-42m1'_c[P-42m]         ","P c -4 2                 ")
+                                                "P-42m1'_c[P-42m]         ","P -4 2 1'c               ")
       Shubnikov_info( 917)= Shub_Spgr_Info_Type("115.289 ","P_C-4m2        ","111.7.917   ","P_P-42m        ",&
-                                                "P-4m21'_C[rP-42m]        ","P C -4 -2                ")
+                                                "P-4m21'_C[rP-42m]        ","P -4 -2 1'C              ")
       Shubnikov_info( 918)= Shub_Spgr_Info_Type("119.320 ","I_c-4m2        ","111.8.918   ","P_I-42m        ",&
-                                                "I-4m21'_c[rP-42m]        ","I c -4 -2                ")
+                                                "I-4m21'_c[rP-42m]        ","I -4 -2 1'c              ")
       Shubnikov_info( 919)= Shub_Spgr_Info_Type("112.264 ","P_c-42c        ","111.9.919   ","P_2c-42'm'     ",&
-                                                "P-42c1'_c[P-42m]         ","P c -4 2c                ")
+                                                "P-42c1'_c[P-42m]         ","P -4 2c 1'c              ")
       Shubnikov_info( 920)= Shub_Spgr_Info_Type("117.305 ","P_C-4b2        ","111.10.920  ","P_P-4'2m'      ",&
-                                                "P-4b21'_C[rP-42m]        ","P C -4 -2ab              ")
+                                                "P-4b21'_C[rP-42m]        ","P -4 -2ab 1'C            ")
       Shubnikov_info( 921)= Shub_Spgr_Info_Type("120.326 ","I_c-4c2        ","111.11.921  ","P_I-4'2m'      ",&
-                                                "I-4c21'_c[rP-42m]        ","I c -4 -2c               ")
+                                                "I-4c21'_c[rP-42m]        ","I -4 -2c 1'c             ")
       Shubnikov_info( 922)= Shub_Spgr_Info_Type("112.259 ","P-42c          ","112.1.922   ","P-42c          ",&
                                                 "P-42c                    ","P -4  2c                 ")
       Shubnikov_info( 923)= Shub_Spgr_Info_Type("112.260 ","P-42c1'        ","112.2.923   ","P-42c1'        ",&
@@ -1868,9 +1868,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 926)= Shub_Spgr_Info_Type("112.263 ","P-42'c'        ","112.5.926   ","P-42'c'        ",&
                                                 "P-42'c'                  ","P -4  2c'                ")
       Shubnikov_info( 927)= Shub_Spgr_Info_Type("116.297 ","P_C-4c2        ","112.6.927   ","P_P-42c        ",&
-                                                "P-4c21'_C[rP-42c]        ","P C -4 -2c               ")
+                                                "P-4c21'_C[rP-42c]        ","P -4 -2c 1'C             ")
       Shubnikov_info( 928)= Shub_Spgr_Info_Type("118.313 ","P_C-4n2        ","112.7.928   ","P_P-4'2c'      ",&
-                                                "P-4n21'_C[rP-42c]        ","P C -4 -2n               ")
+                                                "P-4n21'_C[rP-42c]        ","P -4 -2n 1'C             ")
       Shubnikov_info( 929)= Shub_Spgr_Info_Type("113.267 ","P-42_1m        ","113.1.929   ","P-42_1m        ",&
                                                 "P-42_1m                  ","P -4  2ab                ")
       Shubnikov_info( 930)= Shub_Spgr_Info_Type("113.268 ","P-42_1m1'      ","113.2.930   ","P-42_1m1'      ",&
@@ -1882,9 +1882,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 933)= Shub_Spgr_Info_Type("113.271 ","P-42_1'm'      ","113.5.933   ","P-42_1'm'      ",&
                                                 "P-42_1'm'                ","P -4  2ab'               ")
       Shubnikov_info( 934)= Shub_Spgr_Info_Type("113.272 ","P_c-42_1m      ","113.6.934   ","P_2c-42_1m     ",&
-                                                "P-42_1m1'_c[P-42_1m]     ","P c -4 2ab               ")
+                                                "P-42_1m1'_c[P-42_1m]     ","P -4 2ab 1'c             ")
       Shubnikov_info( 935)= Shub_Spgr_Info_Type("114.280 ","P_c-42_1c      ","113.7.935   ","P_2c-4'2_1m'   ",&
-                                                "P-42_1c1'_c[P-42_1m]     ","P c -4 2n                ")
+                                                "P-42_1c1'_c[P-42_1m]     ","P -4 2n 1'c              ")
       Shubnikov_info( 936)= Shub_Spgr_Info_Type("114.275 ","P-42_1c        ","114.1.936   ","P-42_1c        ",&
                                                 "P-42_1c                  ","P -4  2n                 ")
       Shubnikov_info( 937)= Shub_Spgr_Info_Type("114.276 ","P-42_1c1'      ","114.2.937   ","P-42_1c1'      ",&
@@ -1906,15 +1906,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 945)= Shub_Spgr_Info_Type("115.287 ","P-4m'2'        ","115.5.945   ","P-4m'2'        ",&
                                                 "P-4m'2'                  ","P -4  -2'                ")
       Shubnikov_info( 946)= Shub_Spgr_Info_Type("115.288 ","P_c-4m2        ","115.6.946   ","P_2c-4m2       ",&
-                                                "P-4m21'_c[P-4m2]         ","P c -4 -2                ")
+                                                "P-4m21'_c[P-4m2]         ","P -4 -2 1'c              ")
       Shubnikov_info( 947)= Shub_Spgr_Info_Type("111.257 ","P_C-42m        ","115.7.947   ","P_P-4m2        ",&
-                                                "P-42m1'_C[rP-4m2]        ","P C -4 2                 ")
+                                                "P-42m1'_C[rP-4m2]        ","P -4 2 1'C               ")
       Shubnikov_info( 948)= Shub_Spgr_Info_Type("121.332 ","I_c-42m        ","115.8.948   ","P_I-4m2        ",&
-                                                "I-42m1'_c[rP-4m2]        ","I c -4 2                 ")
+                                                "I-42m1'_c[rP-4m2]        ","I -4 2 1'c               ")
       Shubnikov_info( 949)= Shub_Spgr_Info_Type("116.296 ","P_c-4c2        ","115.9.949   ","P_2c-4'm'2     ",&
-                                                "P-4c21'_c[P-4m2]         ","P c -4 -2c               ")
+                                                "P-4c21'_c[P-4m2]         ","P -4 -2c 1'c             ")
       Shubnikov_info( 950)= Shub_Spgr_Info_Type("113.273 ","P_C-42_1m      ","115.10.950  ","P_P-4'm2'      ",&
-                                                "P-42_1m1'_C[rP-4m2]      ","P C -4 2ab               ")
+                                                "P-42_1m1'_C[rP-4m2]      ","P -4 2ab 1'C             ")
       Shubnikov_info( 951)= Shub_Spgr_Info_Type("116.291 ","P-4c2          ","116.1.951   ","P-4c2          ",&
                                                 "P-4c2                    ","P -4  -2c                ")
       Shubnikov_info( 952)= Shub_Spgr_Info_Type("116.292 ","P-4c21'        ","116.2.952   ","P-4c21'        ",&
@@ -1926,9 +1926,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 955)= Shub_Spgr_Info_Type("116.295 ","P-4c'2'        ","116.5.955   ","P-4c'2'        ",&
                                                 "P-4c'2'                  ","P -4  -2c'               ")
       Shubnikov_info( 956)= Shub_Spgr_Info_Type("112.265 ","P_C-42c        ","116.6.956   ","P_P-4c2        ",&
-                                                "P-42c1'_C[rP-4c2]        ","P C -4 2c                ")
+                                                "P-42c1'_C[rP-4c2]        ","P -4 2c 1'C              ")
       Shubnikov_info( 957)= Shub_Spgr_Info_Type("114.281 ","P_C-42_1c      ","116.7.957   ","P_P-4'c2'      ",&
-                                                "P-42_1c1'_C[rP-4c2]      ","P C -4 2n                ")
+                                                "P-42_1c1'_C[rP-4c2]      ","P -4 2n 1'C              ")
       Shubnikov_info( 958)= Shub_Spgr_Info_Type("117.299 ","P-4b2          ","117.1.958   ","P-4b2          ",&
                                                 "P-4b2                    ","P -4  -2ab               ")
       Shubnikov_info( 959)= Shub_Spgr_Info_Type("117.300 ","P-4b21'        ","117.2.959   ","P-4b21'        ",&
@@ -1940,9 +1940,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 962)= Shub_Spgr_Info_Type("117.303 ","P-4b'2'        ","117.5.962   ","P-4b'2'        ",&
                                                 "P-4b'2'                  ","P -4  -2ab'              ")
       Shubnikov_info( 963)= Shub_Spgr_Info_Type("117.304 ","P_c-4b2        ","117.6.963   ","P_2c-4b2       ",&
-                                                "P-4b21'_c[P-4b2]         ","P c -4 -2ab              ")
+                                                "P-4b21'_c[P-4b2]         ","P -4 -2ab 1'c            ")
       Shubnikov_info( 964)= Shub_Spgr_Info_Type("118.312 ","P_c-4n2        ","117.7.964   ","P_2c-4'b'2     ",&
-                                                "P-4n21'_c[P-4b2]         ","P c -4 -2n               ")
+                                                "P-4n21'_c[P-4b2]         ","P -4 -2n 1'c             ")
       Shubnikov_info( 965)= Shub_Spgr_Info_Type("118.307 ","P-4n2          ","118.1.965   ","P-4n2          ",&
                                                 "P-4n2                    ","P -4  -2n                ")
       Shubnikov_info( 966)= Shub_Spgr_Info_Type("118.308 ","P-4n21'        ","118.2.966   ","P-4n21'        ",&
@@ -1954,7 +1954,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 969)= Shub_Spgr_Info_Type("118.311 ","P-4n'2'        ","118.5.969   ","P-4n'2'        ",&
                                                 "P-4n'2'                  ","P -4  -2n'               ")
       Shubnikov_info( 970)= Shub_Spgr_Info_Type("122.338 ","I_c-42d        ","118.6.970   ","P_I-4n2        ",&
-                                                "I-42d1'_c[rP-4n2]        ","I c -4 2bw               ")
+                                                "I-42d1'_c[rP-4n2]        ","I -4 2bw 1'c             ")
       Shubnikov_info( 971)= Shub_Spgr_Info_Type("119.315 ","I-4m2          ","119.1.971   ","I-4m2          ",&
                                                 "I-4m2                    ","I -4  -2                 ")
       Shubnikov_info( 972)= Shub_Spgr_Info_Type("119.316 ","I-4m21'        ","119.2.972   ","I-4m21'        ",&
@@ -1966,9 +1966,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 975)= Shub_Spgr_Info_Type("119.319 ","I-4m'2'        ","119.5.975   ","I-4m'2'        ",&
                                                 "I-4m'2'                  ","I -4  -2'                ")
       Shubnikov_info( 976)= Shub_Spgr_Info_Type("115.290 ","P_I-4m2        ","119.6.976   ","I_P-4m2        ",&
-                                                "P-4m21'_I[I-4m2]         ","P I -4 -2                ")
+                                                "P-4m21'_I[I-4m2]         ","P -4 -2 1'I              ")
       Shubnikov_info( 977)= Shub_Spgr_Info_Type("118.314 ","P_I-4n2        ","119.7.977   ","I_P-4'm'2      ",&
-                                                "P-4n21'_I[I-4m2]         ","P I -4 -2n               ")
+                                                "P-4n21'_I[I-4m2]         ","P -4 -2n 1'I             ")
       Shubnikov_info( 978)= Shub_Spgr_Info_Type("120.321 ","I-4c2          ","120.1.978   ","I-4c2          ",&
                                                 "I-4c2                    ","I -4  -2c                ")
       Shubnikov_info( 979)= Shub_Spgr_Info_Type("120.322 ","I-4c21'        ","120.2.979   ","I-4c21'        ",&
@@ -1980,9 +1980,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 982)= Shub_Spgr_Info_Type("120.325 ","I-4c'2'        ","120.5.982   ","I-4c'2'        ",&
                                                 "I-4c'2'                  ","I -4  -2c'               ")
       Shubnikov_info( 983)= Shub_Spgr_Info_Type("116.298 ","P_I-4c2        ","120.6.983   ","I_P-4c2        ",&
-                                                "P-4c21'_I[I-4c2]         ","P I -4 -2c               ")
+                                                "P-4c21'_I[I-4c2]         ","P -4 -2c 1'I             ")
       Shubnikov_info( 984)= Shub_Spgr_Info_Type("117.306 ","P_I-4b2        ","120.7.984   ","I_P-4c'2'      ",&
-                                                "P-4b21'_I[I-4c2]         ","P I -4 -2ab              ")
+                                                "P-4b21'_I[I-4c2]         ","P -4 -2ab 1'I            ")
       Shubnikov_info( 985)= Shub_Spgr_Info_Type("121.327 ","I-42m          ","121.1.985   ","I-42m          ",&
                                                 "I-42m                    ","I -4  2                  ")
       Shubnikov_info( 986)= Shub_Spgr_Info_Type("121.328 ","I-42m1'        ","121.2.986   ","I-42m1'        ",&
@@ -1994,13 +1994,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 989)= Shub_Spgr_Info_Type("121.331 ","I-42'm'        ","121.5.989   ","I-42'm'        ",&
                                                 "I-42'm'                  ","I -4  2'                 ")
       Shubnikov_info( 990)= Shub_Spgr_Info_Type("111.258 ","P_I-42m        ","121.6.990   ","I_P-42m        ",&
-                                                "P-42m1'_I[I-42m]         ","P I -4 2                 ")
+                                                "P-42m1'_I[I-42m]         ","P -4 2 1'I               ")
       Shubnikov_info( 991)= Shub_Spgr_Info_Type("113.274 ","P_I-42_1m      ","121.7.991   ","I_P-4'2'm      ",&
-                                                "P-42_1m1'_I[I-42m]       ","P I -4 2ab               ")
+                                                "P-42_1m1'_I[I-42m]       ","P -4 2ab 1'I             ")
       Shubnikov_info( 992)= Shub_Spgr_Info_Type("112.266 ","P_I-42c        ","121.8.992   ","I_P-4'2m'      ",&
-                                                "P-42c1'_I[I-42m]         ","P I -4 2c                ")
+                                                "P-42c1'_I[I-42m]         ","P -4 2c 1'I              ")
       Shubnikov_info( 993)= Shub_Spgr_Info_Type("114.282 ","P_I-42_1c      ","121.9.993   ","I_P-42'm'      ",&
-                                                "P-42_1c1'_I[I-42m]       ","P I -4 2n                ")
+                                                "P-42_1c1'_I[I-42m]       ","P -4 2n 1'I              ")
       Shubnikov_info( 994)= Shub_Spgr_Info_Type("122.333 ","I-42d          ","122.1.994   ","I-42d          ",&
                                                 "I-42d                    ","I -4  2bw                ")
       Shubnikov_info( 995)= Shub_Spgr_Info_Type("122.334 ","I-42d1'        ","122.2.995   ","I-42d1'        ",&
@@ -2012,11 +2012,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info( 998)= Shub_Spgr_Info_Type("122.337 ","I-42'd'        ","122.5.998   ","I-42'd'        ",&
                                                 "I-42'd'                  ","I -4  2bw'               ")
       Shubnikov_info( 999)= Shub_Spgr_Info_Type("123.339 ","P4/mmm         ","123.1.999   ","P4/mmm         ",&
-                                                "P4/mmm                   ","-P 4  2                  ")
+                                                "P4/mmm                   ","-P 4 2                   ")
       Shubnikov_info(1000)= Shub_Spgr_Info_Type("123.340 ","P4/mmm1'       ","123.2.1000  ","P4/mmm1'       ",&
-                                                "P4/mmm1'                 ","-P 4  2   1'             ")
+                                                "P4/mmm1'                 ","-P 4 2 1'                ")
       Shubnikov_info(1001)= Shub_Spgr_Info_Type("123.341 ","P4/m'mm        ","123.3.1001  ","P4/m'mm        ",&
-                                                "P4/m'mm                  ","P 4  2' -1'              ")
+                                                "P4/m'mm                  ","P 4 2' -1'               ")
       Shubnikov_info(1002)= Shub_Spgr_Info_Type("123.342 ","P4'/mm'm       ","123.4.1002  ","P4'/mm'm       ",&
                                                 "P4'/mm'm                 ","-P 4' 2'                 ")
       Shubnikov_info(1003)= Shub_Spgr_Info_Type("123.343 ","P4'/mmm'       ","123.5.1003  ","P4'/mmm'       ",&
@@ -2024,37 +2024,37 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1004)= Shub_Spgr_Info_Type("123.344 ","P4'/m'm'm      ","123.6.1004  ","P4'/m'm'm      ",&
                                                 "P4'/m'm'm                ","P 4' 2  -1'              ")
       Shubnikov_info(1005)= Shub_Spgr_Info_Type("123.345 ","P4/mm'm'       ","123.7.1005  ","P4/mm'm'       ",&
-                                                "P4/mm'm'                 ","-P 4  2'                 ")
+                                                "P4/mm'm'                 ","-P 4 2'                  ")
       Shubnikov_info(1006)= Shub_Spgr_Info_Type("123.346 ","P4'/m'mm'      ","123.8.1006  ","P4'/m'mm'      ",&
                                                 "P4'/m'mm'                ","P 4' 2' -1'              ")
       Shubnikov_info(1007)= Shub_Spgr_Info_Type("123.347 ","P4/m'm'm'      ","123.9.1007  ","P4/m'm'm'      ",&
-                                                "P4/m'm'm'                ","P 4  2  -1'              ")
+                                                "P4/m'm'm'                ","P 4 2 -1'                ")
       Shubnikov_info(1008)= Shub_Spgr_Info_Type("123.348 ","P_c4/mmm       ","123.10.1008 ","P_2c4/mmm      ",&
-                                                "P4/mmm1'_c[P4/mmm]       ","-P c 4 2                 ")
+                                                "P4/mmm1'_c[P4/mmm]       ","-P 4 2 1'c               ")
       Shubnikov_info(1009)= Shub_Spgr_Info_Type("123.349 ","P_C4/mmm       ","123.11.1009 ","P_P4/mmm       ",&
-                                                "P4/mmm1'_C[rP4/mmm]      ","-P C 4 2                 ")
+                                                "P4/mmm1'_C[rP4/mmm]      ","-P 4 2 1'C               ")
       Shubnikov_info(1010)= Shub_Spgr_Info_Type("139.540 ","I_c4/mmm       ","123.12.1010 ","P_I4/mmm       ",&
-                                                "I4/mmm1'_c[rP4/mmm]      ","-I c 4 2                 ")
+                                                "I4/mmm1'_c[rP4/mmm]      ","-I 4 2 1'c               ")
       Shubnikov_info(1011)= Shub_Spgr_Info_Type("132.456 ","P_c4_2/mcm     ","123.13.1011 ","P_2c4'/mm'm    ",&
-                                                "P4_2/mcm1'_c[P4/mmm]     ","-P c 4c 2c               ")
+                                                "P4_2/mcm1'_c[P4/mmm]     ","-P 4c 2c 1'c             ")
       Shubnikov_info(1012)= Shub_Spgr_Info_Type("131.444 ","P_c4_2/mmc     ","123.14.1012 ","P_2c4'/mmm'    ",&
-                                                "P4_2/mmc1'_c[P4/mmm]     ","-P c 4c 2                ")
+                                                "P4_2/mmc1'_c[P4/mmm]     ","-P 4c 2 1'c              ")
       Shubnikov_info(1013)= Shub_Spgr_Info_Type("124.360 ","P_c4/mcc       ","123.15.1013 ","P_2c4/mm'm'    ",&
-                                                "P4/mcc1'_c[P4/mmm]       ","-P c 4 2c                ")
+                                                "P4/mcc1'_c[P4/mmm]       ","-P 4 2c 1'c              ")
       Shubnikov_info(1014)= Shub_Spgr_Info_Type("129.421 ","P_C4/nmm       ","123.16.1014 ","P_P4/m'mm      ",&
-                                                "P4/nmm1'_C[rP4/mmm]      ","-P C 4a 2a               ")
+                                                "P4/nmm1'_C[rP4/mmm]      ","-P 4a 2a 1'C             ")
       Shubnikov_info(1015)= Shub_Spgr_Info_Type("127.397 ","P_C4/mbm       ","123.17.1015 ","P_P4'/mmm'     ",&
-                                                "P4/mbm1'_C[rP4/mmm]      ","-P C 4 2ab               ")
+                                                "P4/mbm1'_C[rP4/mmm]      ","-P 4 2ab 1'C             ")
       Shubnikov_info(1016)= Shub_Spgr_Info_Type("125.373 ","P_C4/nbm       ","123.18.1016 ","P_P4'/m'mm'    ",&
-                                                "P4/nbm1'_C[rP4/mmm]      ","-P C 4a 2b               ")
+                                                "P4/nbm1'_C[rP4/mmm]      ","-P 4a 2b 1'C             ")
       Shubnikov_info(1017)= Shub_Spgr_Info_Type("140.550 ","I_c4/mcm       ","123.19.1017 ","P_I4/mm'm'     ",&
-                                                "I4/mcm1'_c[rP4/mmm]      ","-I c 4 2c                ")
+                                                "I4/mcm1'_c[rP4/mmm]      ","-I 4 2c 1'c              ")
       Shubnikov_info(1018)= Shub_Spgr_Info_Type("124.351 ","P4/mcc         ","124.1.1018  ","P4/mcc         ",&
-                                                "P4/mcc                   ","-P 4  2c                 ")
+                                                "P4/mcc                   ","-P 4 2c                  ")
       Shubnikov_info(1019)= Shub_Spgr_Info_Type("124.352 ","P4/mcc1'       ","124.2.1019  ","P4/mcc1'       ",&
-                                                "P4/mcc1'                 ","-P 4  2c   1'            ")
+                                                "P4/mcc1'                 ","-P 4 2c 1'               ")
       Shubnikov_info(1020)= Shub_Spgr_Info_Type("124.353 ","P4/m'cc        ","124.3.1020  ","P4/m'cc        ",&
-                                                "P4/m'cc                  ","P 4  2c' -1'             ")
+                                                "P4/m'cc                  ","P 4 2c' -1'              ")
       Shubnikov_info(1021)= Shub_Spgr_Info_Type("124.354 ","P4'/mc'c       ","124.4.1021  ","P4'/mc'c       ",&
                                                 "P4'/mc'c                 ","-P 4' 2c'                ")
       Shubnikov_info(1022)= Shub_Spgr_Info_Type("124.355 ","P4'/mcc'       ","124.5.1022  ","P4'/mcc'       ",&
@@ -2062,19 +2062,19 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1023)= Shub_Spgr_Info_Type("124.356 ","P4'/m'c'c      ","124.6.1023  ","P4'/m'c'c      ",&
                                                 "P4'/m'c'c                ","P 4' 2c  -1'             ")
       Shubnikov_info(1024)= Shub_Spgr_Info_Type("124.357 ","P4/mc'c'       ","124.7.1024  ","P4/mc'c'       ",&
-                                                "P4/mc'c'                 ","-P 4  2c'                ")
+                                                "P4/mc'c'                 ","-P 4 2c'                 ")
       Shubnikov_info(1025)= Shub_Spgr_Info_Type("124.358 ","P4'/m'cc'      ","124.8.1025  ","P4'/m'cc'      ",&
                                                 "P4'/m'cc'                ","P 4' 2c' -1'             ")
       Shubnikov_info(1026)= Shub_Spgr_Info_Type("124.359 ","P4/m'c'c'      ","124.9.1026  ","P4/m'c'c'      ",&
-                                                "P4/m'c'c'                ","P 4  2c  -1'             ")
+                                                "P4/m'c'c'                ","P 4 2c -1'               ")
       Shubnikov_info(1027)= Shub_Spgr_Info_Type("124.361 ","P_C4/mcc       ","124.10.1027 ","P_P4/mcc       ",&
-                                                "P4/mcc1'_C[rP4/mcc]      ","-P C 4 2c                ")
+                                                "P4/mcc1'_C[rP4/mcc]      ","-P 4 2c 1'C              ")
       Shubnikov_info(1028)= Shub_Spgr_Info_Type("130.433 ","P_C4/ncc       ","124.11.1028 ","P_P4/m'cc      ",&
-                                                "P4/ncc1'_C[rP4/mcc]      ","-P C 4a 2ac              ")
+                                                "P4/ncc1'_C[rP4/mcc]      ","-P 4a 2ac 1'C            ")
       Shubnikov_info(1029)= Shub_Spgr_Info_Type("128.409 ","P_C4/mnc       ","124.12.1029 ","P_P4'/mcc'     ",&
-                                                "P4/mnc1'_C[rP4/mcc]      ","-P C 4 2n                ")
+                                                "P4/mnc1'_C[rP4/mcc]      ","-P 4 2n 1'C              ")
       Shubnikov_info(1030)= Shub_Spgr_Info_Type("126.385 ","P_C4/nnc       ","124.13.1030 ","P_P4'/m'cc'    ",&
-                                                "P4/nnc1'_C[rP4/mcc]      ","-P C 4a 2bc              ")
+                                                "P4/nnc1'_C[rP4/mcc]      ","-P 4a 2bc 1'C            ")
       Shubnikov_info(1031)= Shub_Spgr_Info_Type("125.363 ","P4/nbm         ","125.1.1031  ","P4/nbm         ",&
                                                 "P4/nbm                   ","-P 4a  2b                ")
       Shubnikov_info(1032)= Shub_Spgr_Info_Type("125.364 ","P4/nbm1'       ","125.2.1032  ","P4/nbm1'       ",&
@@ -2094,13 +2094,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1039)= Shub_Spgr_Info_Type("125.371 ","P4/n'b'm'      ","125.9.1039  ","P4/n'b'm'      ",&
                                                 "P4/n'b'm'                ","P 4a  2b  -1'            ")
       Shubnikov_info(1040)= Shub_Spgr_Info_Type("125.372 ","P_c4/nbm       ","125.10.1040 ","P_2c4/nbm      ",&
-                                                "P4/nbm1'_c[P4/nbm]       ","-P c 4a 2b               ")
+                                                "P4/nbm1'_c[P4/nbm]       ","-P 4a 2b 1'c             ")
       Shubnikov_info(1041)= Shub_Spgr_Info_Type("134.480 ","P_c4_2/nnm     ","125.11.1041 ","P_2c4'/nb'm    ",&
-                                                "P4_2/nnm1'_c[P4/nbm]     ","-P c 4ac 2bc             ")
+                                                "P4_2/nnm1'_c[P4/nbm]     ","-P 4ac 2bc 1'c           ")
       Shubnikov_info(1042)= Shub_Spgr_Info_Type("133.468 ","P_c4_2/nbc     ","125.12.1042 ","P_2c4'/nbm'    ",&
-                                                "P4_2/nbc1'_c[P4/nbm]     ","-P c 4ac 2b              ")
+                                                "P4_2/nbc1'_c[P4/nbm]     ","-P 4ac 2b 1'c            ")
       Shubnikov_info(1043)= Shub_Spgr_Info_Type("126.384 ","P_c4/nnc       ","125.13.1043 ","P_2c4/nb'm'    ",&
-                                                "P4/nnc1'_c[P4/nbm]       ","-P c 4a 2bc              ")
+                                                "P4/nnc1'_c[P4/nbm]       ","-P 4a 2bc 1'c            ")
       Shubnikov_info(1044)= Shub_Spgr_Info_Type("126.375 ","P4/nnc         ","126.1.1044  ","P4/nnc         ",&
                                                 "P4/nnc                   ","-P 4a  2bc               ")
       Shubnikov_info(1045)= Shub_Spgr_Info_Type("126.376 ","P4/nnc1'       ","126.2.1045  ","P4/nnc1'       ",&
@@ -2120,11 +2120,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1052)= Shub_Spgr_Info_Type("126.383 ","P4/n'n'c'      ","126.9.1052  ","P4/n'n'c'      ",&
                                                 "P4/n'n'c'                ","P 4a  2bc   -1'          ")
       Shubnikov_info(1053)= Shub_Spgr_Info_Type("127.387 ","P4/mbm         ","127.1.1053  ","P4/mbm         ",&
-                                                "P4/mbm                   ","-P 4  2ab                ")
+                                                "P4/mbm                   ","-P 4 2ab                 ")
       Shubnikov_info(1054)= Shub_Spgr_Info_Type("127.388 ","P4/mbm1'       ","127.2.1054  ","P4/mbm1'       ",&
-                                                "P4/mbm1'                 ","-P 4  2ab   1'           ")
+                                                "P4/mbm1'                 ","-P 4 2ab 1'              ")
       Shubnikov_info(1055)= Shub_Spgr_Info_Type("127.389 ","P4/m'bm        ","127.3.1055  ","P4/m'bm        ",&
-                                                "P4/m'bm                  ","P 4  2ab' -1'            ")
+                                                "P4/m'bm                  ","P 4 2ab' -1'             ")
       Shubnikov_info(1056)= Shub_Spgr_Info_Type("127.390 ","P4'/mb'm       ","127.4.1056  ","P4'/mb'm       ",&
                                                 "P4'/mb'm                 ","-P 4' 2ab'               ")
       Shubnikov_info(1057)= Shub_Spgr_Info_Type("127.391 ","P4'/mbm'       ","127.5.1057  ","P4'/mbm'       ",&
@@ -2132,25 +2132,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1058)= Shub_Spgr_Info_Type("127.392 ","P4'/m'b'm      ","127.6.1058  ","P4'/m'b'm      ",&
                                                 "P4'/m'b'm                ","P 4' 2ab  -1'            ")
       Shubnikov_info(1059)= Shub_Spgr_Info_Type("127.393 ","P4/mb'm'       ","127.7.1059  ","P4/mb'm'       ",&
-                                                "P4/mb'm'                 ","-P 4  2ab'               ")
+                                                "P4/mb'm'                 ","-P 4 2ab'                ")
       Shubnikov_info(1060)= Shub_Spgr_Info_Type("127.394 ","P4'/m'bm'      ","127.8.1060  ","P4'/m'bm'      ",&
                                                 "P4'/m'bm'                ","P 4' 2ab' -1'            ")
       Shubnikov_info(1061)= Shub_Spgr_Info_Type("127.395 ","P4/m'b'm'      ","127.9.1061  ","P4/m'b'm'      ",&
-                                                "P4/m'b'm'                ","P 4  2ab  -1'            ")
+                                                "P4/m'b'm'                ","P 4 2ab -1'              ")
       Shubnikov_info(1062)= Shub_Spgr_Info_Type("127.396 ","P_c4/mbm       ","127.10.1062 ","P_2c4/mbm      ",&
-                                                "P4/mbm1'_c[P4/mbm]       ","-P c 4 2ab               ")
+                                                "P4/mbm1'_c[P4/mbm]       ","-P 4 2ab 1'c             ")
       Shubnikov_info(1063)= Shub_Spgr_Info_Type("136.504 ","P_c4_2/mnm     ","127.11.1063 ","P_2c4'/mb'm    ",&
-                                                "P4_2/mnm1'_c[P4/mbm]     ","-P c 4n 2n               ")
+                                                "P4_2/mnm1'_c[P4/mbm]     ","-P 4n 2n 1'c             ")
       Shubnikov_info(1064)= Shub_Spgr_Info_Type("135.492 ","P_c4_2/mbc     ","127.12.1064 ","P_2c4'/mbm'    ",&
-                                                "P4_2/mbc1'_c[P4/mbm]     ","-P c 4c 2ab              ")
+                                                "P4_2/mbc1'_c[P4/mbm]     ","-P 4c 2ab 1'c            ")
       Shubnikov_info(1065)= Shub_Spgr_Info_Type("128.408 ","P_c4/mnc       ","127.13.1065 ","P_2c4/mb'm'    ",&
-                                                "P4/mnc1'_c[P4/mbm]       ","-P c 4 2n                ")
+                                                "P4/mnc1'_c[P4/mbm]       ","-P 4 2n 1'c              ")
       Shubnikov_info(1066)= Shub_Spgr_Info_Type("128.399 ","P4/mnc         ","128.1.1066  ","P4/mnc         ",&
-                                                "P4/mnc                   ","-P 4  2n                 ")
+                                                "P4/mnc                   ","-P 4 2n                  ")
       Shubnikov_info(1067)= Shub_Spgr_Info_Type("128.400 ","P4/mnc1'       ","128.2.1067  ","P4/mnc1'       ",&
-                                                "P4/mnc1'                 ","-P 4  2n   1'            ")
+                                                "P4/mnc1'                 ","-P 4 2n 1'               ")
       Shubnikov_info(1068)= Shub_Spgr_Info_Type("128.401 ","P4/m'nc        ","128.3.1068  ","P4/m'nc        ",&
-                                                "P4/m'nc                  ","P 4  2n' -1'             ")
+                                                "P4/m'nc                  ","P 4 2n' -1'              ")
       Shubnikov_info(1069)= Shub_Spgr_Info_Type("128.402 ","P4'/mn'c       ","128.4.1069  ","P4'/mn'c       ",&
                                                 "P4'/mn'c                 ","-P 4' 2n'                ")
       Shubnikov_info(1070)= Shub_Spgr_Info_Type("128.403 ","P4'/mnc'       ","128.5.1070  ","P4'/mnc'       ",&
@@ -2158,11 +2158,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1071)= Shub_Spgr_Info_Type("128.404 ","P4'/m'n'c      ","128.6.1071  ","P4'/m'n'c      ",&
                                                 "P4'/m'n'c                ","P 4' 2n  -1'             ")
       Shubnikov_info(1072)= Shub_Spgr_Info_Type("128.405 ","P4/mn'c'       ","128.7.1072  ","P4/mn'c'       ",&
-                                                "P4/mn'c'                 ","-P 4  2n'                ")
+                                                "P4/mn'c'                 ","-P 4 2n'                 ")
       Shubnikov_info(1073)= Shub_Spgr_Info_Type("128.406 ","P4'/m'nc'      ","128.8.1073  ","P4'/m'nc'      ",&
                                                 "P4'/m'nc'                ","P 4' 2n' -1'             ")
       Shubnikov_info(1074)= Shub_Spgr_Info_Type("128.407 ","P4/m'n'c'      ","128.9.1074  ","P4/m'n'c'      ",&
-                                                "P4/m'n'c'                ","P 4  2n  -1'             ")
+                                                "P4/m'n'c'                ","P 4 2n -1'               ")
       Shubnikov_info(1075)= Shub_Spgr_Info_Type("129.411 ","P4/nmm         ","129.1.1075  ","P4/nmm         ",&
                                                 "P4/nmm                   ","-P 4a  2a                ")
       Shubnikov_info(1076)= Shub_Spgr_Info_Type("129.412 ","P4/nmm1'       ","129.2.1076  ","P4/nmm1'       ",&
@@ -2182,13 +2182,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1083)= Shub_Spgr_Info_Type("129.419 ","P4/n'm'm'      ","129.9.1083  ","P4/n'm'm'      ",&
                                                 "P4/n'm'm'                ","P 4a  2a  -1'            ")
       Shubnikov_info(1084)= Shub_Spgr_Info_Type("129.420 ","P_c4/nmm       ","129.10.1084 ","P_2c4/nmm      ",&
-                                                "P4/nmm1'_c[P4/nmm]       ","-P c 4a 2a               ")
+                                                "P4/nmm1'_c[P4/nmm]       ","-P 4a 2a 1'c             ")
       Shubnikov_info(1085)= Shub_Spgr_Info_Type("138.528 ","P_c4_2/ncm     ","129.11.1085 ","P_2c4'/nm'm    ",&
-                                                "P4_2/ncm1'_c[P4/nmm]     ","-P c 4ac 2ac             ")
+                                                "P4_2/ncm1'_c[P4/nmm]     ","-P 4ac 2ac 1'c           ")
       Shubnikov_info(1086)= Shub_Spgr_Info_Type("137.516 ","P_c4_2/nmc     ","129.12.1086 ","P_2c4'/nmm'    ",&
-                                                "P4_2/nmc1'_c[P4/nmm]     ","-P c 4ac 2a              ")
+                                                "P4_2/nmc1'_c[P4/nmm]     ","-P 4ac 2a 1'c            ")
       Shubnikov_info(1087)= Shub_Spgr_Info_Type("130.432 ","P_c4/ncc       ","129.13.1087 ","P_2c4/nm'm'    ",&
-                                                "P4/ncc1'_c[P4/nmm]       ","-P c 4a 2ac              ")
+                                                "P4/ncc1'_c[P4/nmm]       ","-P 4a 2ac 1'c            ")
       Shubnikov_info(1088)= Shub_Spgr_Info_Type("130.423 ","P4/ncc         ","130.1.1088  ","P4/ncc         ",&
                                                 "P4/ncc                   ","-P 4a  2ac               ")
       Shubnikov_info(1089)= Shub_Spgr_Info_Type("130.424 ","P4/ncc1'       ","130.2.1089  ","P4/ncc1'       ",&
@@ -2226,13 +2226,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1105)= Shub_Spgr_Info_Type("131.443 ","P4_2/m'm'c'    ","131.9.1105  ","P4_2/m'm'c'    ",&
                                                 "P4_2/m'm'c'              ","P 4c  2  -1'             ")
       Shubnikov_info(1106)= Shub_Spgr_Info_Type("132.457 ","P_C4_2/mcm     ","131.10.1106 ","P_P4_2/mmc     ",&
-                                                "P4_2/mcm1'_C[rP4_2/mmc]  ","-P C 4c 2c               ")
+                                                "P4_2/mcm1'_C[rP4_2/mmc]  ","-P 4c 2c 1'C             ")
       Shubnikov_info(1107)= Shub_Spgr_Info_Type("138.529 ","P_C4_2/ncm     ","131.11.1107 ","P_P4_2/m'mc    ",&
-                                                "P4_2/ncm1'_C[rP4_2/mmc]  ","-P C 4ac 2ac             ")
+                                                "P4_2/ncm1'_C[rP4_2/mmc]  ","-P 4ac 2ac 1'C           ")
       Shubnikov_info(1108)= Shub_Spgr_Info_Type("136.505 ","P_C4_2/mnm     ","131.12.1108 ","P_P4_2/mm'c'   ",&
-                                                "P4_2/mnm1'_C[rP4_2/mmc]  ","-P C 4n 2n               ")
+                                                "P4_2/mnm1'_C[rP4_2/mmc]  ","-P 4n 2n 1'C             ")
       Shubnikov_info(1109)= Shub_Spgr_Info_Type("134.481 ","P_C4_2/nnm     ","131.13.1109 ","P_P4_2'/m'mc'  ",&
-                                                "P4_2/nnm1'_C[rP4_2/mmc]  ","-P C 4ac 2bc             ")
+                                                "P4_2/nnm1'_C[rP4_2/mmc]  ","-P 4ac 2bc 1'C           ")
       Shubnikov_info(1110)= Shub_Spgr_Info_Type("132.447 ","P4_2/mcm       ","132.1.1110  ","P4_2/mcm       ",&
                                                 "P4_2/mcm                 ","-P 4c  2c                ")
       Shubnikov_info(1111)= Shub_Spgr_Info_Type("132.448 ","P4_2/mcm1'     ","132.2.1111  ","P4_2/mcm1'     ",&
@@ -2252,13 +2252,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1118)= Shub_Spgr_Info_Type("132.455 ","P4_2/m'c'm'    ","132.9.1118  ","P4_2/m'c'm'    ",&
                                                 "P4_2/m'c'm'              ","P 4c  2c  -1'            ")
       Shubnikov_info(1119)= Shub_Spgr_Info_Type("131.445 ","P_C4_2/mmc     ","132.10.1119 ","P_P4_2/mcm     ",&
-                                                "P4_2/mmc1'_C[rP4_2/mcm]  ","-P C 4c 2                ")
+                                                "P4_2/mmc1'_C[rP4_2/mcm]  ","-P 4c 2 1'C              ")
       Shubnikov_info(1120)= Shub_Spgr_Info_Type("137.517 ","P_C4_2/nmc     ","132.11.1120 ","P_P4_2/m'cm    ",&
-                                                "P4_2/nmc1'_C[rP4_2/mcm]  ","-P C 4ac 2a              ")
+                                                "P4_2/nmc1'_C[rP4_2/mcm]  ","-P 4ac 2a 1'C            ")
       Shubnikov_info(1121)= Shub_Spgr_Info_Type("135.493 ","P_C4_2/mbc     ","132.12.1121 ","P_P4_2'/mcm'   ",&
-                                                "P4_2/mbc1'_C[rP4_2/mcm]  ","-P C 4c 2ab              ")
+                                                "P4_2/mbc1'_C[rP4_2/mcm]  ","-P 4c 2ab 1'C            ")
       Shubnikov_info(1122)= Shub_Spgr_Info_Type("133.469 ","P_C4_2/nbc     ","132.13.1122 ","P_P4_2'/m'cm'  ",&
-                                                "P4_2/nbc1'_C[rP4_2/mcm]  ","-P C 4ac 2b              ")
+                                                "P4_2/nbc1'_C[rP4_2/mcm]  ","-P 4ac 2b 1'C            ")
       Shubnikov_info(1123)= Shub_Spgr_Info_Type("133.459 ","P4_2/nbc       ","133.1.1123  ","P4_2/nbc       ",&
                                                 "P4_2/nbc                 ","-P 4ac  2b               ")
       Shubnikov_info(1124)= Shub_Spgr_Info_Type("133.460 ","P4_2/nbc1'     ","133.2.1124  ","P4_2/nbc1'     ",&
@@ -2296,9 +2296,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1140)= Shub_Spgr_Info_Type("134.479 ","P4_2/n'n'm'    ","134.9.1140  ","P4_2/n'n'm'    ",&
                                                 "P4_2/n'n'm'              ","P 4ac  2bc  -1'          ")
       Shubnikov_info(1141)= Shub_Spgr_Info_Type("141.560 ","I_c4_1/amd     ","134.10.1141 ","P_I4_2/nnm     ",&
-                                                "I4_1/amd1'_c[rP4_2/nnm]  ","-I c 4bd 2               ")
+                                                "I4_1/amd1'_c[rP4_2/nnm]  ","-I 4bd 2 1'c             ")
       Shubnikov_info(1142)= Shub_Spgr_Info_Type("142.570 ","I_c4_1/acd     ","134.11.1142 ","P_I4_2/nn'm'   ",&
-                                                "I4_1/acd1'_c[rP4_2/nnm]  ","-I c 4bd 2c              ")
+                                                "I4_1/acd1'_c[rP4_2/nnm]  ","-I 4bd 2c 1'c            ")
       Shubnikov_info(1143)= Shub_Spgr_Info_Type("135.483 ","P4_2/mbc       ","135.1.1143  ","P4_2/mbc       ",&
                                                 "P4_2/mbc                 ","-P 4c  2ab               ")
       Shubnikov_info(1144)= Shub_Spgr_Info_Type("135.484 ","P4_2/mbc1'     ","135.2.1144  ","P4_2/mbc1'     ",&
@@ -2372,11 +2372,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1178)= Shub_Spgr_Info_Type("138.527 ","P4_2/n'c'm'    ","138.9.1178  ","P4_2/n'c'm'    ",&
                                                 "P4_2/n'c'm'              ","P 4ac  2ac  -1'          ")
       Shubnikov_info(1179)= Shub_Spgr_Info_Type("139.531 ","I4/mmm         ","139.1.1179  ","I4/mmm         ",&
-                                                "I4/mmm                   ","-I 4  2                  ")
+                                                "I4/mmm                   ","-I 4 2                   ")
       Shubnikov_info(1180)= Shub_Spgr_Info_Type("139.532 ","I4/mmm1'       ","139.2.1180  ","I4/mmm1'       ",&
-                                                "I4/mmm1'                 ","-I 4  2   1'             ")
+                                                "I4/mmm1'                 ","-I 4 2 1'                ")
       Shubnikov_info(1181)= Shub_Spgr_Info_Type("139.533 ","I4/m'mm        ","139.3.1181  ","I4/m'mm        ",&
-                                                "I4/m'mm                  ","I 4  2' -1'              ")
+                                                "I4/m'mm                  ","I 4 2' -1'               ")
       Shubnikov_info(1182)= Shub_Spgr_Info_Type("139.534 ","I4'/mm'm       ","139.4.1182  ","I4'/mm'm       ",&
                                                 "I4'/mm'm                 ","-I 4' 2'                 ")
       Shubnikov_info(1183)= Shub_Spgr_Info_Type("139.535 ","I4'/mmm'       ","139.5.1183  ","I4'/mmm'       ",&
@@ -2384,33 +2384,33 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1184)= Shub_Spgr_Info_Type("139.536 ","I4'/m'm'm      ","139.6.1184  ","I4'/m'm'm      ",&
                                                 "I4'/m'm'm                ","I 4' 2  -1'              ")
       Shubnikov_info(1185)= Shub_Spgr_Info_Type("139.537 ","I4/mm'm'       ","139.7.1185  ","I4/mm'm'       ",&
-                                                "I4/mm'm'                 ","-I 4  2'                 ")
+                                                "I4/mm'm'                 ","-I 4 2'                  ")
       Shubnikov_info(1186)= Shub_Spgr_Info_Type("139.538 ","I4'/m'mm'      ","139.8.1186  ","I4'/m'mm'      ",&
                                                 "I4'/m'mm'                ","I 4' 2' -1'              ")
       Shubnikov_info(1187)= Shub_Spgr_Info_Type("139.539 ","I4/m'm'm'      ","139.9.1187  ","I4/m'm'm'      ",&
-                                                "I4/m'm'm'                ","I 4  2  -1'              ")
+                                                "I4/m'm'm'                ","I 4 2 -1'                ")
       Shubnikov_info(1188)= Shub_Spgr_Info_Type("123.350 ","P_I4/mmm       ","139.10.1188 ","I_P4/mmm       ",&
-                                                "P4/mmm1'_I[I4/mmm]       ","-P I 4 2                 ")
+                                                "P4/mmm1'_I[I4/mmm]       ","-P 4 2 1'I               ")
       Shubnikov_info(1189)= Shub_Spgr_Info_Type("129.422 ","P_I4/nmm       ","139.11.1189 ","I_P4/m'mm      ",&
-                                                "P4/nmm1'_I[I4/mmm]       ","-P I 4a 2a               ")
+                                                "P4/nmm1'_I[I4/mmm]       ","-P 4a 2a 1'I             ")
       Shubnikov_info(1190)= Shub_Spgr_Info_Type("136.506 ","P_I4_2/mnm     ","139.12.1190 ","I_P4'/mm'm     ",&
-                                                "P4_2/mnm1'_I[I4/mmm]     ","-P I 4n 2n               ")
+                                                "P4_2/mnm1'_I[I4/mmm]     ","-P 4n 2n 1'I             ")
       Shubnikov_info(1191)= Shub_Spgr_Info_Type("131.446 ","P_I4_2/mmc     ","139.13.1191 ","I_P4'/mmm'     ",&
-                                                "P4_2/mmc1'_I[I4/mmm]     ","-P I 4c 2                ")
+                                                "P4_2/mmc1'_I[I4/mmm]     ","-P 4c 2 1'I              ")
       Shubnikov_info(1192)= Shub_Spgr_Info_Type("134.482 ","P_I4_2/nnm     ","139.14.1192 ","I_P4'/m'm'm    ",&
-                                                "P4_2/nnm1'_I[I4/mmm]     ","-P I 4ac 2bc             ")
+                                                "P4_2/nnm1'_I[I4/mmm]     ","-P 4ac 2bc 1'I           ")
       Shubnikov_info(1193)= Shub_Spgr_Info_Type("128.410 ","P_I4/mnc       ","139.15.1193 ","I_P4/mm'm'     ",&
-                                                "P4/mnc1'_I[I4/mmm]       ","-P I 4 2n                ")
+                                                "P4/mnc1'_I[I4/mmm]       ","-P 4 2n 1'I              ")
       Shubnikov_info(1194)= Shub_Spgr_Info_Type("137.518 ","P_I4_2/nmc     ","139.16.1194 ","I_P4'/m'mm'    ",&
-                                                "P4_2/nmc1'_I[I4/mmm]     ","-P I 4ac 2a              ")
+                                                "P4_2/nmc1'_I[I4/mmm]     ","-P 4ac 2a 1'I            ")
       Shubnikov_info(1195)= Shub_Spgr_Info_Type("126.386 ","P_I4/nnc       ","139.17.1195 ","I_P4/m'm'm'    ",&
-                                                "P4/nnc1'_I[I4/mmm]       ","-P I 4a 2bc              ")
+                                                "P4/nnc1'_I[I4/mmm]       ","-P 4a 2bc 1'I            ")
       Shubnikov_info(1196)= Shub_Spgr_Info_Type("140.541 ","I4/mcm         ","140.1.1196  ","I4/mcm         ",&
-                                                "I4/mcm                   ","-I 4  2c                 ")
+                                                "I4/mcm                   ","-I 4 2c                  ")
       Shubnikov_info(1197)= Shub_Spgr_Info_Type("140.542 ","I4/mcm1'       ","140.2.1197  ","I4/mcm1'       ",&
-                                                "I4/mcm1'                 ","-I 4  2c   1'            ")
+                                                "I4/mcm1'                 ","-I 4 2c 1'               ")
       Shubnikov_info(1198)= Shub_Spgr_Info_Type("140.543 ","I4/m'cm        ","140.3.1198  ","I4/m'cm        ",&
-                                                "I4/m'cm                  ","I 4  2c' -1'             ")
+                                                "I4/m'cm                  ","I 4 2c' -1'              ")
       Shubnikov_info(1199)= Shub_Spgr_Info_Type("140.544 ","I4'/mc'm       ","140.4.1199  ","I4'/mc'm       ",&
                                                 "I4'/mc'm                 ","-I 4' 2c'                ")
       Shubnikov_info(1200)= Shub_Spgr_Info_Type("140.545 ","I4'/mcm'       ","140.5.1200  ","I4'/mcm'       ",&
@@ -2418,27 +2418,27 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1201)= Shub_Spgr_Info_Type("140.546 ","I4'/m'c'm      ","140.6.1201  ","I4'/m'c'm      ",&
                                                 "I4'/m'c'm                ","I 4' 2c  -1'             ")
       Shubnikov_info(1202)= Shub_Spgr_Info_Type("140.547 ","I4/mc'm'       ","140.7.1202  ","I4/mc'm'       ",&
-                                                "I4/mc'm'                 ","-I 4  2c'                ")
+                                                "I4/mc'm'                 ","-I 4 2c'                 ")
       Shubnikov_info(1203)= Shub_Spgr_Info_Type("140.548 ","I4'/m'cm'      ","140.8.1203  ","I4'/m'cm'      ",&
                                                 "I4'/m'cm'                ","I 4' 2c' -1'             ")
       Shubnikov_info(1204)= Shub_Spgr_Info_Type("140.549 ","I4/m'c'm'      ","140.9.1204  ","I4/m'c'm'      ",&
-                                                "I4/m'c'm'                ","I 4  2c  -1'             ")
+                                                "I4/m'c'm'                ","I 4 2c -1'               ")
       Shubnikov_info(1205)= Shub_Spgr_Info_Type("124.362 ","P_I4/mcc       ","140.10.1205 ","I_P4/mcm       ",&
-                                                "P4/mcc1'_I[I4/mcm]       ","-P I 4 2c                ")
+                                                "P4/mcc1'_I[I4/mcm]       ","-P 4 2c 1'I              ")
       Shubnikov_info(1206)= Shub_Spgr_Info_Type("130.434 ","P_I4/ncc       ","140.11.1206 ","I_P4/m'cm      ",&
-                                                "P4/ncc1'_I[I4/mcm]       ","-P I 4a 2ac              ")
+                                                "P4/ncc1'_I[I4/mcm]       ","-P 4a 2ac 1'I            ")
       Shubnikov_info(1207)= Shub_Spgr_Info_Type("135.494 ","P_I4_2/mbc     ","140.12.1207 ","I_P4'/mc'm     ",&
-                                                "P4_2/mbc1'_I[I4/mcm]     ","-P I 4c 2ab              ")
+                                                "P4_2/mbc1'_I[I4/mcm]     ","-P 4c 2ab 1'I            ")
       Shubnikov_info(1208)= Shub_Spgr_Info_Type("132.458 ","P_I4_2/mcm     ","140.13.1208 ","I_P4'/mcm'     ",&
-                                                "P4_2/mcm1'_I[I4/mcm]     ","-P I 4c 2c               ")
+                                                "P4_2/mcm1'_I[I4/mcm]     ","-P 4c 2c 1'I             ")
       Shubnikov_info(1209)= Shub_Spgr_Info_Type("133.470 ","P_I4_2/nbc     ","140.14.1209 ","I_P4'/m'c'm    ",&
-                                                "P4_2/nbc1'_I[I4/mcm]     ","-P I 4ac 2b              ")
+                                                "P4_2/nbc1'_I[I4/mcm]     ","-P 4ac 2b 1'I            ")
       Shubnikov_info(1210)= Shub_Spgr_Info_Type("127.398 ","P_I4/mbm       ","140.15.1210 ","I_P4/mc'm'     ",&
-                                                "P4/mbm1'_I[I4/mcm]       ","-P I 4 2ab               ")
+                                                "P4/mbm1'_I[I4/mcm]       ","-P 4 2ab 1'I             ")
       Shubnikov_info(1211)= Shub_Spgr_Info_Type("138.530 ","P_I4_2/ncm     ","140.16.1211 ","I_P4'/m'cm'    ",&
-                                                "P4_2/ncm1'_I[I4/mcm]     ","-P I 4ac 2ac             ")
+                                                "P4_2/ncm1'_I[I4/mcm]     ","-P 4ac 2ac 1'I           ")
       Shubnikov_info(1212)= Shub_Spgr_Info_Type("125.374 ","P_I4/nbm       ","140.17.1212 ","I_P4/m'c'm'    ",&
-                                                "P4/nbm1'_I[I4/mcm]       ","-P I 4a 2b               ")
+                                                "P4/nbm1'_I[I4/mcm]       ","-P 4a 2b 1'I             ")
       Shubnikov_info(1213)= Shub_Spgr_Info_Type("141.551 ","I4_1/amd       ","141.1.1213  ","I4_1/amd       ",&
                                                 "I4_1/amd                 ","-I 4bd  2                ")
       Shubnikov_info(1214)= Shub_Spgr_Info_Type("141.552 ","I4_1/amd1'     ","141.2.1214  ","I4_1/amd1'     ",&
@@ -2480,25 +2480,25 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1232)= Shub_Spgr_Info_Type("143.2   ","P31'           ","143.2.1232  ","P31'           ",&
                                                 "P31'                     ","P 3 1'                   ")
       Shubnikov_info(1233)= Shub_Spgr_Info_Type("143.3   ","P_c3           ","143.3.1233  ","P_2c3          ",&
-                                                "P31'_c[P3]               ","P c 3                    ")
+                                                "P31'_c[P3]               ","P 3 1'c                  ")
       Shubnikov_info(1234)= Shub_Spgr_Info_Type("144.4   ","P3_1           ","144.1.1234  ","P3_1           ",&
                                                 "P3_1                     ","P 31                     ")
       Shubnikov_info(1235)= Shub_Spgr_Info_Type("144.5   ","P3_11'         ","144.2.1235  ","P3_11'         ",&
                                                 "P3_11'                   ","P 31 1'                  ")
       Shubnikov_info(1236)= Shub_Spgr_Info_Type("145.9   ","P_c3_2         ","144.3.1236  ","P_2c3_2        ",&
-                                                "P3_21'_c[P3_1]           ","P c 32                   ")
+                                                "P3_21'_c[P3_1]           ","P 32 1'c                 ")
       Shubnikov_info(1237)= Shub_Spgr_Info_Type("145.7   ","P3_2           ","145.1.1237  ","P3_2           ",&
                                                 "P3_2                     ","P 32                     ")
       Shubnikov_info(1238)= Shub_Spgr_Info_Type("145.8   ","P3_21'         ","145.2.1238  ","P3_21'         ",&
                                                 "P3_21'                   ","P 32 1'                  ")
       Shubnikov_info(1239)= Shub_Spgr_Info_Type("144.6   ","P_c3_1         ","145.3.1239  ","P_2c3_1        ",&
-                                                "P3_11'_c[P3_2]           ","P c 31                   ")
+                                                "P3_11'_c[P3_2]           ","P 31 1'c                 ")
       Shubnikov_info(1240)= Shub_Spgr_Info_Type("146.10  ","R3             ","146.1.1240  ","R3             ",&
                                                 "R3                       ","R 3                      ")
       Shubnikov_info(1241)= Shub_Spgr_Info_Type("146.11  ","R31'           ","146.2.1241  ","R31'           ",&
                                                 "R31'                     ","R 3 1'                   ")
       Shubnikov_info(1242)= Shub_Spgr_Info_Type("146.12  ","R_I3           ","146.3.1242  ","R_R3           ",&
-                                                "R31'_c[R3]               ","R I 3                    ")
+                                                "R31'_c[R3]               ","R 3 1'I                  ")
       Shubnikov_info(1243)= Shub_Spgr_Info_Type("147.13  ","P-3            ","147.1.1243  ","P-3            ",&
                                                 "P-3                      ","-P 3                     ")
       Shubnikov_info(1244)= Shub_Spgr_Info_Type("147.14  ","P-31'          ","147.2.1244  ","P-31'          ",&
@@ -2506,7 +2506,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1245)= Shub_Spgr_Info_Type("147.15  ","P-3'           ","147.3.1245  ","P-3'           ",&
                                                 "P-3'                     ","P -3'                    ")
       Shubnikov_info(1246)= Shub_Spgr_Info_Type("147.16  ","P_c-3          ","147.4.1246  ","P_2c-3         ",&
-                                                "P-31'_c[P-3]             ","-P c 3                   ")
+                                                "P-31'_c[P-3]             ","-P 3 1'c                 ")
       Shubnikov_info(1247)= Shub_Spgr_Info_Type("148.17  ","R-3            ","148.1.1247  ","R-3            ",&
                                                 "R-3                      ","-R 3                     ")
       Shubnikov_info(1248)= Shub_Spgr_Info_Type("148.18  ","R-31'          ","148.2.1248  ","R-31'          ",&
@@ -2514,23 +2514,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1249)= Shub_Spgr_Info_Type("148.19  ","R-3'           ","148.3.1249  ","R-3'           ",&
                                                 "R-3'                     ","R -3'                    ")
       Shubnikov_info(1250)= Shub_Spgr_Info_Type("148.20  ","R_I-3          ","148.4.1250  ","R_R-3          ",&
-                                                "R-31'_c[R-3]             ","-R I 3                   ")
+                                                "R-31'_c[R-3]             ","-R 3 1'I                 ")
       Shubnikov_info(1251)= Shub_Spgr_Info_Type("149.21  ","P312           ","149.1.1251  ","P312           ",&
                                                 "P312                     ","P 3 2                    ")
       Shubnikov_info(1252)= Shub_Spgr_Info_Type("149.22  ","P3121'         ","149.2.1252  ","P3121'         ",&
-                                                "P3121'                   ","P 3 2  1'                ")
+                                                "P3121'                   ","P 3 2 1'                 ")
       Shubnikov_info(1253)= Shub_Spgr_Info_Type("149.23  ","P312'          ","149.3.1253  ","P312'          ",&
                                                 "P312'                    ","P 3 2'                   ")
       Shubnikov_info(1254)= Shub_Spgr_Info_Type("149.24  ","P_c312         ","149.4.1254  ","P_2c312        ",&
-                                                "P3121'_c[P312]           ","P c 3 2                  ")
+                                                "P3121'_c[P312]           ","P 3 2 1'c                ")
       Shubnikov_info(1255)= Shub_Spgr_Info_Type("150.25  ","P321           ","150.1.1255  ","P321           ",&
                                                 "P321                     ","P 3 2""                  ")
       Shubnikov_info(1256)= Shub_Spgr_Info_Type("150.26  ","P3211'         ","150.2.1256  ","P3211'         ",&
-                                                "P3211'                   ","P 3 2""  1'              ")
+                                                "P3211'                   ","P 3 2"" 1'               ")
       Shubnikov_info(1257)= Shub_Spgr_Info_Type("150.27  ","P32'1          ","150.3.1257  ","P32'1          ",&
                                                 "P32'1                    ","P 3 2""'                 ")
       Shubnikov_info(1258)= Shub_Spgr_Info_Type("150.28  ","P_c321         ","150.4.1258  ","P_2c321        ",&
-                                                "P3211'_c[P321]           ","P c 3 2""                ")
+                                                "P3211'_c[P321]           ","P 3 2"" 1'c              ")
       Shubnikov_info(1259)= Shub_Spgr_Info_Type("151.29  ","P3_112         ","151.1.1259  ","P3_112         ",&
                                                 "P3_112                   ","P 31 2c (0 0 1)          ")
       Shubnikov_info(1260)= Shub_Spgr_Info_Type("151.30  ","P3_1121'       ","151.2.1260  ","P3_1121'       ",&
@@ -2538,7 +2538,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1261)= Shub_Spgr_Info_Type("151.31  ","P3_112'        ","151.3.1261  ","P3_112'        ",&
                                                 "P3_112'                  ","P 31 2c' (0 0 1)         ")
       Shubnikov_info(1262)= Shub_Spgr_Info_Type("153.40  ","P_c3_212       ","151.4.1262  ","P_2c3_212      ",&
-                                                "P3_2121'_c[P3_112]       ","P c 32 2c (0 0 -1)       ")
+                                                "P3_2121'_c[P3_112]       ","P 32 2c 1'c (0 0 -1)     ")
       Shubnikov_info(1263)= Shub_Spgr_Info_Type("152.33  ","P3_121         ","152.1.1263  ","P3_121         ",&
                                                 "P3_121                   ","P 31 2""                 ")
       Shubnikov_info(1264)= Shub_Spgr_Info_Type("152.34  ","P3_1211'       ","152.2.1264  ","P3_1211'       ",&
@@ -2546,7 +2546,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1265)= Shub_Spgr_Info_Type("152.35  ","P3_12'1        ","152.3.1265  ","P3_12'1        ",&
                                                 "P3_12'1                  ","P 31 2""'                ")
       Shubnikov_info(1266)= Shub_Spgr_Info_Type("154.44  ","P_c3_221       ","152.4.1266  ","P_2c3_221      ",&
-                                                "P3_2211'_c[P3_121]       ","P c 32 2""               ")
+                                                "P3_2211'_c[P3_121]       ","P 32 2"" 1'c             ")
       Shubnikov_info(1267)= Shub_Spgr_Info_Type("153.37  ","P3_212         ","153.1.1267  ","P3_212         ",&
                                                 "P3_212                   ","P 32 2c (0 0 -1)         ")
       Shubnikov_info(1268)= Shub_Spgr_Info_Type("153.38  ","P3_2121'       ","153.2.1268  ","P3_2121'       ",&
@@ -2554,7 +2554,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1269)= Shub_Spgr_Info_Type("153.39  ","P3_212'        ","153.3.1269  ","P3_212'        ",&
                                                 "P3_212'                  ","P 32 2c' (0 0 -1)        ")
       Shubnikov_info(1270)= Shub_Spgr_Info_Type("151.32  ","P_c3_112       ","153.4.1270  ","P_2c3_112      ",&
-                                                "P3_1121'_c[P3_212]       ","P c 31 2c (0 0 1)        ")
+                                                "P3_1121'_c[P3_212]       ","P 31 2c 1'c (0 0 1)      ")
       Shubnikov_info(1271)= Shub_Spgr_Info_Type("154.41  ","P3_221         ","154.1.1271  ","P3_221         ",&
                                                 "P3_221                   ","P 32 2""                 ")
       Shubnikov_info(1272)= Shub_Spgr_Info_Type("154.42  ","P3_2211'       ","154.2.1272  ","P3_2211'       ",&
@@ -2562,7 +2562,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1273)= Shub_Spgr_Info_Type("154.43  ","P3_22'1        ","154.3.1273  ","P3_22'1        ",&
                                                 "P3_22'1                  ","P 32 2""'                ")
       Shubnikov_info(1274)= Shub_Spgr_Info_Type("152.36  ","P_c3_121       ","154.4.1274  ","P_2c3_121      ",&
-                                                "P3_1211'_c[P3_221]       ","P c 31 2""               ")
+                                                "P3_1211'_c[P3_221]       ","P 31 2"" 1'c             ")
       Shubnikov_info(1275)= Shub_Spgr_Info_Type("155.45  ","R32            ","155.1.1275  ","R32            ",&
                                                 "R32                      ","R 3 2""                  ")
       Shubnikov_info(1276)= Shub_Spgr_Info_Type("155.46  ","R321'          ","155.2.1276  ","R321'          ",&
@@ -2570,7 +2570,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1277)= Shub_Spgr_Info_Type("155.47  ","R32'           ","155.3.1277  ","R32'           ",&
                                                 "R32'                     ","R 3 2""'                 ")
       Shubnikov_info(1278)= Shub_Spgr_Info_Type("155.48  ","R_I32          ","155.4.1278  ","R_R32          ",&
-                                                "R321'_c[R32]             ","R I 3 2""                ")
+                                                "R321'_c[R32]             ","R 3 2"" 1'I              ")
       Shubnikov_info(1279)= Shub_Spgr_Info_Type("156.49  ","P3m1           ","156.1.1279  ","P3m1           ",&
                                                 "P3m1                     ","P 3 -2""                 ")
       Shubnikov_info(1280)= Shub_Spgr_Info_Type("156.50  ","P3m11'         ","156.2.1280  ","P3m11'         ",&
@@ -2578,9 +2578,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1281)= Shub_Spgr_Info_Type("156.51  ","P3m'1          ","156.3.1281  ","P3m'1          ",&
                                                 "P3m'1                    ","P 3 -2""'                ")
       Shubnikov_info(1282)= Shub_Spgr_Info_Type("156.52  ","P_c3m1         ","156.4.1282  ","P_2c3m1        ",&
-                                                "P3m11'_c[P3m1]           ","P c 3 -2""               ")
+                                                "P3m11'_c[P3m1]           ","P 3 -2"" 1'c             ")
       Shubnikov_info(1283)= Shub_Spgr_Info_Type("158.60  ","P_c3c1         ","156.5.1283  ","P_2c3m'1       ",&
-                                                "P3c11'_c[P3m1]           ","P c 3 -2""c              ")
+                                                "P3c11'_c[P3m1]           ","P 3 -2""c 1'c            ")
       Shubnikov_info(1284)= Shub_Spgr_Info_Type("157.53  ","P31m           ","157.1.1284  ","P31m           ",&
                                                 "P31m                     ","P 3 -2                   ")
       Shubnikov_info(1285)= Shub_Spgr_Info_Type("157.54  ","P31m1'         ","157.2.1285  ","P31m1'         ",&
@@ -2588,31 +2588,31 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1286)= Shub_Spgr_Info_Type("157.55  ","P31m'          ","157.3.1286  ","P31m'          ",&
                                                 "P31m'                    ","P 3 -2'                  ")
       Shubnikov_info(1287)= Shub_Spgr_Info_Type("157.56  ","P_c31m         ","157.4.1287  ","P_2c31m        ",&
-                                                "P31m1'_c[P31m]           ","P c 3 -2                 ")
+                                                "P31m1'_c[P31m]           ","P 3 -2 1'c               ")
       Shubnikov_info(1288)= Shub_Spgr_Info_Type("159.64  ","P_c31c         ","157.5.1288  ","P_2c31m'       ",&
-                                                "P31c1'_c[P31m]           ","P c 3 -2c                ")
+                                                "P31c1'_c[P31m]           ","P 3 -2c 1'c              ")
       Shubnikov_info(1289)= Shub_Spgr_Info_Type("158.57  ","P3c1           ","158.1.1289  ","P3c1           ",&
                                                 "P3c1                     ","P 3 -2""c                ")
       Shubnikov_info(1290)= Shub_Spgr_Info_Type("158.58  ","P3c11'         ","158.2.1290  ","P3c11'         ",&
-                                                "P3c11'                   ","P 3 -2""c  1'            ")
+                                                "P3c11'                   ","P 3 -2""c 1'             ")
       Shubnikov_info(1291)= Shub_Spgr_Info_Type("158.59  ","P3c'1          ","158.3.1291  ","P3c'1          ",&
                                                 "P3c'1                    ","P 3 -2""c'               ")
       Shubnikov_info(1292)= Shub_Spgr_Info_Type("159.61  ","P31c           ","159.1.1292  ","P31c           ",&
                                                 "P31c                     ","P 3 -2c                  ")
       Shubnikov_info(1293)= Shub_Spgr_Info_Type("159.62  ","P31c1'         ","159.2.1293  ","P31c1'         ",&
-                                                "P31c1'                   ","P 3 -2c   1'             ")
+                                                "P31c1'                   ","P 3 -2c 1'               ")
       Shubnikov_info(1294)= Shub_Spgr_Info_Type("159.63  ","P31c'          ","159.3.1294  ","P31c'          ",&
                                                 "P31c'                    ","P 3 -2c'                 ")
       Shubnikov_info(1295)= Shub_Spgr_Info_Type("160.65  ","R3m            ","160.1.1295  ","R3m            ",&
                                                 "R3m                      ","R 3 -2""                 ")
       Shubnikov_info(1296)= Shub_Spgr_Info_Type("160.66  ","R3m1'          ","160.2.1296  ","R3m1'          ",&
-                                                "R3m1'                    ","R 3 -2""   1'            ")
+                                                "R3m1'                    ","R 3 -2"" 1'              ")
       Shubnikov_info(1297)= Shub_Spgr_Info_Type("160.67  ","R3m'           ","160.3.1297  ","R3m'           ",&
                                                 "R3m'                     ","R 3 -2""'                ")
       Shubnikov_info(1298)= Shub_Spgr_Info_Type("160.68  ","R_I3m          ","160.4.1298  ","R_R3m          ",&
-                                                "R3m1'_c[R3m]             ","R I 3 -2""               ")
+                                                "R3m1'_c[R3m]             ","R 3 -2"" 1'I             ")
       Shubnikov_info(1299)= Shub_Spgr_Info_Type("161.72  ","R_I3c          ","160.5.1299  ","R_R3m'         ",&
-                                                "R3c1'_c[R3m]             ","R I 3 -2""c              ")
+                                                "R3c1'_c[R3m]             ","R 3 -2""c 1'I            ")
       Shubnikov_info(1300)= Shub_Spgr_Info_Type("161.69  ","R3c            ","161.1.1300  ","R3c            ",&
                                                 "R3c                      ","R 3 -2""c                ")
       Shubnikov_info(1301)= Shub_Spgr_Info_Type("161.70  ","R3c1'          ","161.2.1301  ","R3c1'          ",&
@@ -2622,85 +2622,85 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1303)= Shub_Spgr_Info_Type("162.73  ","P-31m          ","162.1.1303  ","P-31m          ",&
                                                 "P-31m                    ","-P 3 2                   ")
       Shubnikov_info(1304)= Shub_Spgr_Info_Type("162.74  ","P-31m1'        ","162.2.1304  ","P-31m1'        ",&
-                                                "P-31m1'                  ","-P 3 2   1'              ")
+                                                "P-31m1'                  ","-P 3 2 1'                ")
       Shubnikov_info(1305)= Shub_Spgr_Info_Type("162.75  ","P-3'1m         ","162.3.1305  ","P-3'1m         ",&
                                                 "P-3'1m                   ","P 3 2' -1'               ")
       Shubnikov_info(1306)= Shub_Spgr_Info_Type("162.76  ","P-3'1m'        ","162.4.1306  ","P-3'1m'        ",&
-                                                "P-3'1m'                  ","P 3 2  -1'               ")
+                                                "P-3'1m'                  ","P 3 2 -1'                ")
       Shubnikov_info(1307)= Shub_Spgr_Info_Type("162.77  ","P-31m'         ","162.5.1307  ","P-31m'         ",&
                                                 "P-31m'                   ","-P 3 2'                  ")
       Shubnikov_info(1308)= Shub_Spgr_Info_Type("162.78  ","P_c-31m        ","162.6.1308  ","P_2c-31m       ",&
-                                                "P-31m1'_c[P-31m]         ","-P c 3 2                 ")
+                                                "P-31m1'_c[P-31m]         ","-P 3 2 1'c               ")
       Shubnikov_info(1309)= Shub_Spgr_Info_Type("163.84  ","P_c-31c        ","162.7.1309  ","P_2c-31m'      ",&
-                                                "P-31c1'_c[P-31m]         ","-P c 3 2c                ")
+                                                "P-31c1'_c[P-31m]         ","-P 3 2c 1'c              ")
       Shubnikov_info(1310)= Shub_Spgr_Info_Type("163.79  ","P-31c          ","163.1.1310  ","P-31c          ",&
                                                 "P-31c                    ","-P 3 2c                  ")
       Shubnikov_info(1311)= Shub_Spgr_Info_Type("163.80  ","P-31c1'        ","163.2.1311  ","P-31c1'        ",&
-                                                "P-31c1'                  ","-P 3 2c   1'             ")
+                                                "P-31c1'                  ","-P 3 2c 1'               ")
       Shubnikov_info(1312)= Shub_Spgr_Info_Type("163.81  ","P-3'1c         ","163.3.1312  ","P-3'1c         ",&
                                                 "P-3'1c                   ","P 3 2c' -1'              ")
       Shubnikov_info(1313)= Shub_Spgr_Info_Type("163.82  ","P-3'1c'        ","163.4.1313  ","P-3'1c'        ",&
-                                                "P-3'1c'                  ","P 3 2c  -1'              ")
+                                                "P-3'1c'                  ","P 3 2c -1'               ")
       Shubnikov_info(1314)= Shub_Spgr_Info_Type("163.83  ","P-31c'         ","163.5.1314  ","P-31c'         ",&
                                                 "P-31c'                   ","-P 3 2c'                 ")
       Shubnikov_info(1315)= Shub_Spgr_Info_Type("164.85  ","P-3m1          ","164.1.1315  ","P-3m1          ",&
                                                 "P-3m1                    ","-P 3 2""                 ")
       Shubnikov_info(1316)= Shub_Spgr_Info_Type("164.86  ","P-3m11'        ","164.2.1316  ","P-3m11'        ",&
-                                                "P-3m11'                  ","-P 3 2""   1'            ")
+                                                "P-3m11'                  ","-P 3 2"" 1'              ")
       Shubnikov_info(1317)= Shub_Spgr_Info_Type("164.87  ","P-3'm1         ","164.3.1317  ","P-3'm1         ",&
                                                 "P-3'm1                   ","P 3 2""' -1'             ")
       Shubnikov_info(1318)= Shub_Spgr_Info_Type("164.88  ","P-3'm'1        ","164.4.1318  ","P-3'm'1        ",&
-                                                "P-3'm'1                  ","P 3 2""  -1'             ")
+                                                "P-3'm'1                  ","P 3 2"" -1'              ")
       Shubnikov_info(1319)= Shub_Spgr_Info_Type("164.89  ","P-3m'1         ","164.5.1319  ","P-3m'1         ",&
                                                 "P-3m'1                   ","-P 3 2""'                ")
       Shubnikov_info(1320)= Shub_Spgr_Info_Type("164.90  ","P_c-3m1        ","164.6.1320  ","P_2c-3m1       ",&
-                                                "P-3m11'_c[P-3m1]         ","-P c 3 2""               ")
+                                                "P-3m11'_c[P-3m1]         ","-P 3 2"" 1'c             ")
       Shubnikov_info(1321)= Shub_Spgr_Info_Type("165.96  ","P_c-3c1        ","164.7.1321  ","P_2c-3m'1      ",&
-                                                "P-3c11'_c[P-3m1]         ","-P c 3 2""c              ")
+                                                "P-3c11'_c[P-3m1]         ","-P 3 2""c 1'c            ")
       Shubnikov_info(1322)= Shub_Spgr_Info_Type("165.91  ","P-3c1          ","165.1.1322  ","P-3c1          ",&
                                                 "P-3c1                    ","-P 3 2""c                ")
       Shubnikov_info(1323)= Shub_Spgr_Info_Type("165.92  ","P-3c11'        ","165.2.1323  ","P-3c11'        ",&
-                                                "P-3c11'                  ","-P 3 2""c   1'           ")
+                                                "P-3c11'                  ","-P 3 2""c 1'             ")
       Shubnikov_info(1324)= Shub_Spgr_Info_Type("165.93  ","P-3'c1         ","165.3.1324  ","P-3'c1         ",&
                                                 "P-3'c1                   ","P 3 2""c' -1'            ")
       Shubnikov_info(1325)= Shub_Spgr_Info_Type("165.94  ","P-3'c'1        ","165.4.1325  ","P-3'c'1        ",&
-                                                "P-3'c'1                  ","P 3 2""c  -1'            ")
+                                                "P-3'c'1                  ","P 3 2""c -1'             ")
       Shubnikov_info(1326)= Shub_Spgr_Info_Type("165.95  ","P-3c'1         ","165.5.1326  ","P-3c'1         ",&
                                                 "P-3c'1                   ","-P 3 2""c'               ")
       Shubnikov_info(1327)= Shub_Spgr_Info_Type("166.97  ","R-3m           ","166.1.1327  ","R-3m           ",&
                                                 "R-3m                     ","-R 3 2""                 ")
       Shubnikov_info(1328)= Shub_Spgr_Info_Type("166.98  ","R-3m1'         ","166.2.1328  ","R-3m1'         ",&
-                                                "R-3m1'                   ","-R 3 2""    1'           ")
+                                                "R-3m1'                   ","-R 3 2"" 1'              ")
       Shubnikov_info(1329)= Shub_Spgr_Info_Type("166.99  ","R-3'm          ","166.3.1329  ","R-3'm          ",&
-                                                "R-3'm                    ","R 3 2""'  -1'            ")
+                                                "R-3'm                    ","R 3 2""' -1'             ")
       Shubnikov_info(1330)= Shub_Spgr_Info_Type("166.100 ","R-3'm'         ","166.4.1330  ","R-3'm'         ",&
-                                                "R-3'm'                   ","R 3 2""   -1'            ")
+                                                "R-3'm'                   ","R 3 2"" -1'              ")
       Shubnikov_info(1331)= Shub_Spgr_Info_Type("166.101 ","R-3m'          ","166.5.1331  ","R-3m'          ",&
                                                 "R-3m'                    ","-R 3 2""'                ")
       Shubnikov_info(1332)= Shub_Spgr_Info_Type("166.102 ","R_I-3m         ","166.6.1332  ","R_R-3m         ",&
-                                                "R-3m1'_c[R-3m]           ","-R I 3 2""               ")
+                                                "R-3m1'_c[R-3m]           ","-R 3 2"" 1'I             ")
       Shubnikov_info(1333)= Shub_Spgr_Info_Type("167.108 ","R_I-3c         ","166.7.1333  ","R_R-3m'        ",&
-                                                "R-3c1'_c[R-3m]           ","-R I 3 2""c              ")
+                                                "R-3c1'_c[R-3m]           ","-R 3 2""c 1'I            ")
       Shubnikov_info(1334)= Shub_Spgr_Info_Type("167.103 ","R-3c           ","167.1.1334  ","R-3c           ",&
                                                 "R-3c                     ","-R 3 2""c                ")
       Shubnikov_info(1335)= Shub_Spgr_Info_Type("167.104 ","R-3c1'         ","167.2.1335  ","R-3c1'         ",&
-                                                "R-3c1'                   ","-R 3 2""c   1'           ")
+                                                "R-3c1'                   ","-R 3 2""c 1'             ")
       Shubnikov_info(1336)= Shub_Spgr_Info_Type("167.105 ","R-3'c          ","167.3.1336  ","R-3'c          ",&
                                                 "R-3'c                    ","R 3 2""c' -1'            ")
       Shubnikov_info(1337)= Shub_Spgr_Info_Type("167.106 ","R-3'c'         ","167.4.1337  ","R-3'c'         ",&
-                                                "R-3'c'                   ","R 3 2""c  -1'            ")
+                                                "R-3'c'                   ","R 3 2""c -1'             ")
       Shubnikov_info(1338)= Shub_Spgr_Info_Type("167.107 ","R-3c'          ","167.5.1338  ","R-3c'          ",&
                                                 "R-3c'                    ","-R 3 2""c'               ")
       Shubnikov_info(1339)= Shub_Spgr_Info_Type("168.109 ","P6             ","168.1.1339  ","P6             ",&
                                                 "P6                       ","P 6                      ")
       Shubnikov_info(1340)= Shub_Spgr_Info_Type("168.110 ","P61'           ","168.2.1340  ","P61'           ",&
-                                                "P61'                     ","P 6  1'                  ")
+                                                "P61'                     ","P 6 1'                   ")
       Shubnikov_info(1341)= Shub_Spgr_Info_Type("168.111 ","P6'            ","168.3.1341  ","P6'            ",&
                                                 "P6'                      ","P 6'                     ")
       Shubnikov_info(1342)= Shub_Spgr_Info_Type("168.112 ","P_c6           ","168.4.1342  ","P_2c6          ",&
-                                                "P61'_c[P6]               ","P c 6                    ")
+                                                "P61'_c[P6]               ","P 6 1'c                  ")
       Shubnikov_info(1343)= Shub_Spgr_Info_Type("173.132 ","P_c6_3         ","168.5.1343  ","P_2c6'         ",&
-                                                "P6_31'_c[P6]             ","P c 6c                   ")
+                                                "P6_31'_c[P6]             ","P 6c 1'c                 ")
       Shubnikov_info(1344)= Shub_Spgr_Info_Type("169.113 ","P6_1           ","169.1.1344  ","P6_1           ",&
                                                 "P6_1                     ","P 61                     ")
       Shubnikov_info(1345)= Shub_Spgr_Info_Type("169.114 ","P6_11'         ","169.2.1345  ","P6_11'         ",&
@@ -2720,9 +2720,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1352)= Shub_Spgr_Info_Type("171.123 ","P6_2'          ","171.3.1352  ","P6_2'          ",&
                                                 "P6_2'                    ","P 62'                    ")
       Shubnikov_info(1353)= Shub_Spgr_Info_Type("169.116 ","P_c6_1         ","171.4.1353  ","P_2c6_2        ",&
-                                                "P6_11'_c[P6_2]           ","P c 61                   ")
+                                                "P6_11'_c[P6_2]           ","P 61 1'c                 ")
       Shubnikov_info(1354)= Shub_Spgr_Info_Type("172.128 ","P_c6_4         ","171.5.1354  ","P_2c6_2'       ",&
-                                                "P6_41'_c[P6_2]           ","P c 64                   ")
+                                                "P6_41'_c[P6_2]           ","P 64 1'c                 ")
       Shubnikov_info(1355)= Shub_Spgr_Info_Type("172.125 ","P6_4           ","172.1.1355  ","P6_4           ",&
                                                 "P6_4                     ","P 64                     ")
       Shubnikov_info(1356)= Shub_Spgr_Info_Type("172.126 ","P6_41'         ","172.2.1356  ","P6_41'         ",&
@@ -2730,9 +2730,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1357)= Shub_Spgr_Info_Type("172.127 ","P6_4'          ","172.3.1357  ","P6_4'          ",&
                                                 "P6_4'                    ","P 64'                    ")
       Shubnikov_info(1358)= Shub_Spgr_Info_Type("171.124 ","P_c6_2         ","172.4.1358  ","P_2c6_4        ",&
-                                                "P6_21'_c[P6_4]           ","P c 62                   ")
+                                                "P6_21'_c[P6_4]           ","P 62 1'c                 ")
       Shubnikov_info(1359)= Shub_Spgr_Info_Type("170.120 ","P_c6_5         ","172.5.1359  ","P_2c6_4'       ",&
-                                                "P6_51'_c[P6_4]           ","P c 65                   ")
+                                                "P6_51'_c[P6_4]           ","P 65 1'c                 ")
       Shubnikov_info(1360)= Shub_Spgr_Info_Type("173.129 ","P6_3           ","173.1.1360  ","P6_3           ",&
                                                 "P6_3                     ","P 6c                     ")
       Shubnikov_info(1361)= Shub_Spgr_Info_Type("173.130 ","P6_31'         ","173.2.1361  ","P6_31'         ",&
@@ -2746,21 +2746,21 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1365)= Shub_Spgr_Info_Type("174.135 ","P-6'           ","174.3.1365  ","P-6'           ",&
                                                 "P-6'                     ","P -6'                    ")
       Shubnikov_info(1366)= Shub_Spgr_Info_Type("174.136 ","P_c-6          ","174.4.1366  ","P_2c-6         ",&
-                                                "P-61'_c[P-6]             ","P c -6                   ")
+                                                "P-61'_c[P-6]             ","P -6 1'c                 ")
       Shubnikov_info(1367)= Shub_Spgr_Info_Type("175.137 ","P6/m           ","175.1.1367  ","P6/m           ",&
                                                 "P6/m                     ","-P 6                     ")
       Shubnikov_info(1368)= Shub_Spgr_Info_Type("175.138 ","P6/m1'         ","175.2.1368  ","P6/m1'         ",&
-                                                "P6/m1'                   ","-P 6   1'                ")
+                                                "P6/m1'                   ","-P 6 1'                  ")
       Shubnikov_info(1369)= Shub_Spgr_Info_Type("175.139 ","P6'/m          ","175.3.1369  ","P6'/m          ",&
                                                 "P6'/m                    ","P 6' -1'                 ")
       Shubnikov_info(1370)= Shub_Spgr_Info_Type("175.140 ","P6/m'          ","175.4.1370  ","P6/m'          ",&
-                                                "P6/m'                    ","P 6  -1'                 ")
+                                                "P6/m'                    ","P 6 -1'                  ")
       Shubnikov_info(1371)= Shub_Spgr_Info_Type("175.141 ","P6'/m'         ","175.5.1371  ","P6'/m'         ",&
                                                 "P6'/m'                   ","-P 6'                    ")
       Shubnikov_info(1372)= Shub_Spgr_Info_Type("175.142 ","P_c6/m         ","175.6.1372  ","P_2c6/m        ",&
-                                                "P6/m1'_c[P6/m]           ","-P c 6                   ")
+                                                "P6/m1'_c[P6/m]           ","-P 6 1'c                 ")
       Shubnikov_info(1373)= Shub_Spgr_Info_Type("176.148 ","P_c6_3/m       ","175.7.1373  ","P_2c6'/m       ",&
-                                                "P6_3/m1'_c[P6/m]         ","-P c 6c                  ")
+                                                "P6_3/m1'_c[P6/m]         ","-P 6c 1'c                ")
       Shubnikov_info(1374)= Shub_Spgr_Info_Type("176.143 ","P6_3/m         ","176.1.1374  ","P6_3/m         ",&
                                                 "P6_3/m                   ","-P 6c                    ")
       Shubnikov_info(1375)= Shub_Spgr_Info_Type("176.144 ","P6_3/m1'       ","176.2.1375  ","P6_3/m1'       ",&
@@ -2772,31 +2772,31 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1378)= Shub_Spgr_Info_Type("176.147 ","P6_3'/m'       ","176.5.1378  ","P6_3'/m'       ",&
                                                 "P6_3'/m'                 ","-P 6c'                   ")
       Shubnikov_info(1379)= Shub_Spgr_Info_Type("177.149 ","P622           ","177.1.1379  ","P622           ",&
-                                                "P622                     ","P 6  2                   ")
+                                                "P622                     ","P 6 2                    ")
       Shubnikov_info(1380)= Shub_Spgr_Info_Type("177.150 ","P6221'         ","177.2.1380  ","P6221'         ",&
-                                                "P6221'                   ","P 6  2  1'               ")
+                                                "P6221'                   ","P 6 2 1'                 ")
       Shubnikov_info(1381)= Shub_Spgr_Info_Type("177.151 ","P6'2'2         ","177.3.1381  ","P6'2'2         ",&
                                                 "P6'2'2                   ","P 6' 2                   ")
       Shubnikov_info(1382)= Shub_Spgr_Info_Type("177.152 ","P6'22'         ","177.4.1382  ","P6'22'         ",&
                                                 "P6'22'                   ","P 6' 2'                  ")
       Shubnikov_info(1383)= Shub_Spgr_Info_Type("177.153 ","P62'2'         ","177.5.1383  ","P62'2'         ",&
-                                                "P62'2'                   ","P 6  2'                  ")
+                                                "P62'2'                   ","P 6 2'                   ")
       Shubnikov_info(1384)= Shub_Spgr_Info_Type("177.154 ","P_c622         ","177.6.1384  ","P_2c622        ",&
-                                                "P6221'_c[P622]           ","P c 6 2                  ")
+                                                "P6221'_c[P622]           ","P 6 2 1'c                ")
       Shubnikov_info(1385)= Shub_Spgr_Info_Type("182.184 ","P_c6_322       ","177.7.1385  ","P_2c6'22'      ",&
-                                                "P6_3221'_c[P622]         ","P c 6c 2c                ")
+                                                "P6_3221'_c[P622]         ","P 6c 2c 1'c              ")
       Shubnikov_info(1386)= Shub_Spgr_Info_Type("178.155 ","P6_122         ","178.1.1386  ","P6_122         ",&
-                                                "P6_122                   ","P 61  2  (0 0 -1)        ")
+                                                "P6_122                   ","P 61  2 (0 0 -1)         ")
       Shubnikov_info(1387)= Shub_Spgr_Info_Type("178.156 ","P6_1221'       ","178.2.1387  ","P6_1221'       ",&
                                                 "P6_1221'                 ","P 61  2  1' (0 0 -1)     ")
       Shubnikov_info(1388)= Shub_Spgr_Info_Type("178.157 ","P6_1'2'2       ","178.3.1388  ","P6_1'2'2       ",&
                                                 "P6_1'2'2                 ","P 61' 2 (0 0 -1)         ")
       Shubnikov_info(1389)= Shub_Spgr_Info_Type("178.158 ","P6_1'22'       ","178.4.1389  ","P6_1'22'       ",&
-                                                "P6_1'22'                 ","P 61' 2'  (0 0 -1)       ")
+                                                "P6_1'22'                 ","P 61' 2' (0 0 -1)        ")
       Shubnikov_info(1390)= Shub_Spgr_Info_Type("178.159 ","P6_12'2'       ","178.5.1390  ","P6_12'2'       ",&
                                                 "P6_12'2'                 ","P 61  2' (0 0  -1)       ")
       Shubnikov_info(1391)= Shub_Spgr_Info_Type("179.161 ","P6_522         ","179.1.1391  ","P6_522         ",&
-                                                "P6_522                   ","P 65  2  (0 0 1)         ")
+                                                "P6_522                   ","P 65  2 (0 0 1)          ")
       Shubnikov_info(1392)= Shub_Spgr_Info_Type("179.162 ","P6_5221'       ","179.2.1392  ","P6_5221'       ",&
                                                 "P6_5221'                 ","P 65  2 1' (0 0 1)       ")
       Shubnikov_info(1393)= Shub_Spgr_Info_Type("179.163 ","P6_5'2'2       ","179.3.1393  ","P6_5'2'2       ",&
@@ -2816,11 +2816,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1400)= Shub_Spgr_Info_Type("180.171 ","P6_22'2'       ","180.5.1400  ","P6_22'2'       ",&
                                                 "P6_22'2'                 ","P 62  2c' (0 0 1)        ")
       Shubnikov_info(1401)= Shub_Spgr_Info_Type("178.160 ","P_c6_122       ","180.6.1401  ","P_2c6_222      ",&
-                                                "P6_1221'_c[P6_222]       ","P c 61 2 (0 0 -1)        ")
+                                                "P6_1221'_c[P6_222]       ","P 61 2 1'c (0 0 -1)      ")
       Shubnikov_info(1402)= Shub_Spgr_Info_Type("181.178 ","P_c6_422       ","180.7.1402  ","P_2c6_2'22'    ",&
-                                                "P6_4221'_c[P6_222]       ","P c 64 2c (0 0 -1)       ")
+                                                "P6_4221'_c[P6_222]       ","P 64 2c 1'c (0 0 -1)     ")
       Shubnikov_info(1403)= Shub_Spgr_Info_Type("181.173 ","P6_422         ","181.1.1403  ","P6_422         ",&
-                                                "P6_422                   ","P 64  2c  (0 0 -1)       ")
+                                                "P6_422                   ","P 64  2c (0 0 -1)        ")
       Shubnikov_info(1404)= Shub_Spgr_Info_Type("181.174 ","P6_4221'       ","181.2.1404  ","P6_4221'       ",&
                                                 "P6_4221'                 ","P 64  2c 1' (0 0 -1)     ")
       Shubnikov_info(1405)= Shub_Spgr_Info_Type("181.175 ","P6_4'2'2       ","181.3.1405  ","P6_4'2'2       ",&
@@ -2830,9 +2830,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1407)= Shub_Spgr_Info_Type("181.177 ","P6_42'2'       ","181.5.1407  ","P6_42'2'       ",&
                                                 "P6_42'2'                 ","P 64  2c' (0 0 -1)       ")
       Shubnikov_info(1408)= Shub_Spgr_Info_Type("180.172 ","P_c6_222       ","181.6.1408  ","P_2c6_422      ",&
-                                                "P6_2221'_c[P6_422]       ","P c 62 2c (0 0 1)        ")
+                                                "P6_2221'_c[P6_422]       ","P 62 2c 1'c (0 0 1)      ")
       Shubnikov_info(1409)= Shub_Spgr_Info_Type("179.166 ","P_c6_522       ","181.7.1409  ","P_2c6_4'2'2    ",&
-                                                "P6_5221'_c[P6_422]       ","P c 65 2 (0 0 1)         ")
+                                                "P6_5221'_c[P6_422]       ","P 65 2 1'c (0 0 1)       ")
       Shubnikov_info(1410)= Shub_Spgr_Info_Type("182.179 ","P6_322         ","182.1.1410  ","P6_322         ",&
                                                 "P6_322                   ","P 6c  2c                 ")
       Shubnikov_info(1411)= Shub_Spgr_Info_Type("182.180 ","P6_3221'       ","182.2.1411  ","P6_3221'       ",&
@@ -2844,33 +2844,33 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1414)= Shub_Spgr_Info_Type("182.183 ","P6_32'2'       ","182.5.1414  ","P6_32'2'       ",&
                                                 "P6_32'2'                 ","P 6c  2c'                ")
       Shubnikov_info(1415)= Shub_Spgr_Info_Type("183.185 ","P6mm           ","183.1.1415  ","P6mm           ",&
-                                                "P6mm                     ","P 6  -2                  ")
+                                                "P6mm                     ","P 6 -2                   ")
       Shubnikov_info(1416)= Shub_Spgr_Info_Type("183.186 ","P6mm1'         ","183.2.1416  ","P6mm1'         ",&
-                                                "P6mm1'                   ","P 6  -2  1'              ")
+                                                "P6mm1'                   ","P 6 -2 1'                ")
       Shubnikov_info(1417)= Shub_Spgr_Info_Type("183.187 ","P6'm'm         ","183.3.1417  ","P6'm'm         ",&
                                                 "P6'm'm                   ","P 6' -2                  ")
       Shubnikov_info(1418)= Shub_Spgr_Info_Type("183.188 ","P6'mm'         ","183.4.1418  ","P6'mm'         ",&
                                                 "P6'mm'                   ","P 6' -2'                 ")
       Shubnikov_info(1419)= Shub_Spgr_Info_Type("183.189 ","P6m'm'         ","183.5.1419  ","P6m'm'         ",&
-                                                "P6m'm'                   ","P 6  -2'                 ")
+                                                "P6m'm'                   ","P 6 -2'                  ")
       Shubnikov_info(1420)= Shub_Spgr_Info_Type("183.190 ","P_c6mm         ","183.6.1420  ","P_2c6mm        ",&
-                                                "P6mm1'_c[P6mm]           ","P c 6 -2                 ")
+                                                "P6mm1'_c[P6mm]           ","P 6 -2 1'c               ")
       Shubnikov_info(1421)= Shub_Spgr_Info_Type("185.202 ","P_c6_3cm       ","183.7.1421  ","P_2c6'm'm      ",&
-                                                "P6_3cm1'_c[P6mm]         ","P c 6c -2                ")
+                                                "P6_3cm1'_c[P6mm]         ","P 6c -2 1'c              ")
       Shubnikov_info(1422)= Shub_Spgr_Info_Type("186.208 ","P_c6_3mc       ","183.8.1422  ","P_2c6'mm'      ",&
-                                                "P6_3mc1'_c[P6mm]         ","P c 6c -2c               ")
+                                                "P6_3mc1'_c[P6mm]         ","P 6c -2c 1'c             ")
       Shubnikov_info(1423)= Shub_Spgr_Info_Type("184.196 ","P_c6cc         ","183.9.1423  ","P_2c6m'm'      ",&
-                                                "P6cc1'_c[P6mm]           ","P c 6 -2c                ")
+                                                "P6cc1'_c[P6mm]           ","P 6 -2c 1'c              ")
       Shubnikov_info(1424)= Shub_Spgr_Info_Type("184.191 ","P6cc           ","184.1.1424  ","P6cc           ",&
-                                                "P6cc                     ","P 6  -2c                 ")
+                                                "P6cc                     ","P 6 -2c                  ")
       Shubnikov_info(1425)= Shub_Spgr_Info_Type("184.192 ","P6cc1'         ","184.2.1425  ","P6cc1'         ",&
-                                                "P6cc1'                   ","P 6  -2c  1'             ")
+                                                "P6cc1'                   ","P 6 -2c 1'               ")
       Shubnikov_info(1426)= Shub_Spgr_Info_Type("184.193 ","P6'c'c         ","184.3.1426  ","P6'c'c         ",&
                                                 "P6'c'c                   ","P 6' -2c                 ")
       Shubnikov_info(1427)= Shub_Spgr_Info_Type("184.194 ","P6'cc'         ","184.4.1427  ","P6'cc'         ",&
                                                 "P6'cc'                   ","P 6' -2c'                ")
       Shubnikov_info(1428)= Shub_Spgr_Info_Type("184.195 ","P6c'c'         ","184.5.1428  ","P6c'c'         ",&
-                                                "P6c'c'                   ","P 6  -2c'                ")
+                                                "P6c'c'                   ","P 6 -2c'                 ")
       Shubnikov_info(1429)= Shub_Spgr_Info_Type("185.197 ","P6_3cm         ","185.1.1429  ","P6_3cm         ",&
                                                 "P6_3cm                   ","P 6c  -2                 ")
       Shubnikov_info(1430)= Shub_Spgr_Info_Type("185.198 ","P6_3cm1'       ","185.2.1430  ","P6_3cm1'       ",&
@@ -2902,9 +2902,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1443)= Shub_Spgr_Info_Type("187.213 ","P-6m'2'        ","187.5.1443  ","P-6m'2'        ",&
                                                 "P-6m'2'                  ","P -6  2'                 ")
       Shubnikov_info(1444)= Shub_Spgr_Info_Type("187.214 ","P_c-6m2        ","187.6.1444  ","P_2c-6m2       ",&
-                                                "P-6m21'_c[P-6m2]         ","P c -6 2                 ")
+                                                "P-6m21'_c[P-6m2]         ","P -6 2 1'c               ")
       Shubnikov_info(1445)= Shub_Spgr_Info_Type("188.220 ","P_c-6c2        ","187.7.1445  ","P_2c-6'm'2     ",&
-                                                "P-6c21'_c[P-6m2]         ","P c -6c 2                ")
+                                                "P-6c21'_c[P-6m2]         ","P -6c 2 1'c              ")
       Shubnikov_info(1446)= Shub_Spgr_Info_Type("188.215 ","P-6c2          ","188.1.1446  ","P-6c2          ",&
                                                 "P-6c2                    ","P -6c  2                 ")
       Shubnikov_info(1447)= Shub_Spgr_Info_Type("188.216 ","P-6c21'        ","188.2.1447  ","P-6c21'        ",&
@@ -2926,9 +2926,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1455)= Shub_Spgr_Info_Type("189.225 ","P-62'm'        ","189.5.1455  ","P-62'm'        ",&
                                                 "P-62'm'                  ","P -6  -2'                ")
       Shubnikov_info(1456)= Shub_Spgr_Info_Type("189.226 ","P_c-62m        ","189.6.1456  ","P_2c-62m       ",&
-                                                "P-62m1'_c[P-62m]         ","P c -6 -2                ")
+                                                "P-62m1'_c[P-62m]         ","P -6 -2 1'c              ")
       Shubnikov_info(1457)= Shub_Spgr_Info_Type("190.232 ","P_c-62c        ","189.7.1457  ","P_2c-6'2m'     ",&
-                                                "P-62c1'_c[P-62m]         ","P c -6c -2c              ")
+                                                "P-62c1'_c[P-62m]         ","P -6c -2c 1'c            ")
       Shubnikov_info(1458)= Shub_Spgr_Info_Type("190.227 ","P-62c          ","190.1.1458  ","P-62c          ",&
                                                 "P-62c                    ","P -6c  -2c               ")
       Shubnikov_info(1459)= Shub_Spgr_Info_Type("190.228 ","P-62c1'        ","190.2.1459  ","P-62c1'        ",&
@@ -2940,11 +2940,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1462)= Shub_Spgr_Info_Type("190.231 ","P-62'c'        ","190.5.1462  ","P-62'c'        ",&
                                                 "P-62'c'                  ","P -6c  -2c'              ")
       Shubnikov_info(1463)= Shub_Spgr_Info_Type("191.233 ","P6/mmm         ","191.1.1463  ","P6/mmm         ",&
-                                                "P6/mmm                   ","-P 6  2                  ")
+                                                "P6/mmm                   ","-P 6 2                   ")
       Shubnikov_info(1464)= Shub_Spgr_Info_Type("191.234 ","P6/mmm1'       ","191.2.1464  ","P6/mmm1'       ",&
-                                                "P6/mmm1'                 ","-P 6  2   1'             ")
+                                                "P6/mmm1'                 ","-P 6 2 1'                ")
       Shubnikov_info(1465)= Shub_Spgr_Info_Type("191.235 ","P6/m'mm        ","191.3.1465  ","P6/m'mm        ",&
-                                                "P6/m'mm                  ","P 6  2' -1'              ")
+                                                "P6/m'mm                  ","P 6 2' -1'               ")
       Shubnikov_info(1466)= Shub_Spgr_Info_Type("191.236 ","P6'/mm'm       ","191.4.1466  ","P6'/mm'm       ",&
                                                 "P6'/mm'm                 ","P 6' 2' -1'              ")
       Shubnikov_info(1467)= Shub_Spgr_Info_Type("191.237 ","P6'/mmm'       ","191.5.1467  ","P6'/mmm'       ",&
@@ -2956,21 +2956,21 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1470)= Shub_Spgr_Info_Type("191.240 ","P6/mm'm'       ","191.8.1470  ","P6/mm'm'       ",&
                                                 "P6/mm'm'                 ","-P 6 2'                  ")
       Shubnikov_info(1471)= Shub_Spgr_Info_Type("191.241 ","P6/m'm'm'      ","191.9.1471  ","P6/m'm'm'      ",&
-                                                "P6/m'm'm'                ","P 6  2  -1'              ")
+                                                "P6/m'm'm'                ","P 6 2 -1'                ")
       Shubnikov_info(1472)= Shub_Spgr_Info_Type("191.242 ","P_c6/mmm       ","191.10.1472 ","P_2c6/mmm      ",&
-                                                "P6/mmm1'_c[P6/mmm]       ","-P c 6 2                 ")
+                                                "P6/mmm1'_c[P6/mmm]       ","-P 6 2 1'c               ")
       Shubnikov_info(1473)= Shub_Spgr_Info_Type("193.262 ","P_c6_3/mcm     ","191.11.1473 ","P_2c6'/mm'm    ",&
-                                                "P6_3/mcm1'_c[P6/mmm]     ","-P c 6c 2                ")
+                                                "P6_3/mcm1'_c[P6/mmm]     ","-P 6c 2 1'c              ")
       Shubnikov_info(1474)= Shub_Spgr_Info_Type("194.272 ","P_c6_3/mmc     ","191.12.1474 ","P_2c6'/mmm'    ",&
-                                                "P6_3/mmc1'_c[P6/mmm]     ","-P c 6c 2c               ")
+                                                "P6_3/mmc1'_c[P6/mmm]     ","-P 6c 2c 1'c             ")
       Shubnikov_info(1475)= Shub_Spgr_Info_Type("192.252 ","P_c6/mcc       ","191.13.1475 ","P_2c6/mm'm'    ",&
-                                                "P6/mcc1'_c[P6/mmm]       ","-P c 6 2c                ")
+                                                "P6/mcc1'_c[P6/mmm]       ","-P 6 2c 1'c              ")
       Shubnikov_info(1476)= Shub_Spgr_Info_Type("192.243 ","P6/mcc         ","192.1.1476  ","P6/mcc         ",&
-                                                "P6/mcc                   ","-P 6  2c                 ")
+                                                "P6/mcc                   ","-P 6 2c                  ")
       Shubnikov_info(1477)= Shub_Spgr_Info_Type("192.244 ","P6/mcc1'       ","192.2.1477  ","P6/mcc1'       ",&
-                                                "P6/mcc1'                 ","-P 6  2c   1'            ")
+                                                "P6/mcc1'                 ","-P 6 2c 1'               ")
       Shubnikov_info(1478)= Shub_Spgr_Info_Type("192.245 ","P6/m'cc        ","192.3.1478  ","P6/m'cc        ",&
-                                                "P6/m'cc                  ","P 6  2c' -1'             ")
+                                                "P6/m'cc                  ","P 6 2c' -1'              ")
       Shubnikov_info(1479)= Shub_Spgr_Info_Type("192.246 ","P6'/mc'c       ","192.4.1479  ","P6'/mc'c       ",&
                                                 "P6'/mc'c                 ","P 6' 2c' -1'             ")
       Shubnikov_info(1480)= Shub_Spgr_Info_Type("192.247 ","P6'/mcc'       ","192.5.1480  ","P6'/mcc'       ",&
@@ -2982,7 +2982,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1483)= Shub_Spgr_Info_Type("192.250 ","P6/mc'c'       ","192.8.1483  ","P6/mc'c'       ",&
                                                 "P6/mc'c'                 ","-P 6 2c'                 ")
       Shubnikov_info(1484)= Shub_Spgr_Info_Type("192.251 ","P6/m'c'c'      ","192.9.1484  ","P6/m'c'c'      ",&
-                                                "P6/m'c'c'                ","P 6  2c  -1'             ")
+                                                "P6/m'c'c'                ","P 6 2c -1'               ")
       Shubnikov_info(1485)= Shub_Spgr_Info_Type("193.253 ","P6_3/mcm       ","193.1.1485  ","P6_3/mcm       ",&
                                                 "P6_3/mcm                 ","-P 6c  2                 ")
       Shubnikov_info(1486)= Shub_Spgr_Info_Type("193.254 ","P6_3/mcm1'     ","193.2.1486  ","P6_3/mcm1'     ",&
@@ -3024,7 +3024,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1504)= Shub_Spgr_Info_Type("195.2   ","P231'          ","195.2.1504  ","P231'          ",&
                                                 "P231'                    ","P 2 2 3 1'               ")
       Shubnikov_info(1505)= Shub_Spgr_Info_Type("196.6   ","F_S23          ","195.3.1505  ","P_F23          ",&
-                                                "F231'_I[P23]             ","F S 2 2 3                ")
+                                                "F231'_I[P23]             ","F 2 2 3 1'S              ")
       Shubnikov_info(1506)= Shub_Spgr_Info_Type("196.4   ","F23            ","196.1.1506  ","F23            ",&
                                                 "F23                      ","F 2 2 3                  ")
       Shubnikov_info(1507)= Shub_Spgr_Info_Type("196.5   ","F231'          ","196.2.1507  ","F231'          ",&
@@ -3034,7 +3034,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1509)= Shub_Spgr_Info_Type("197.8   ","I231'          ","197.2.1509  ","I231'          ",&
                                                 "I231'                    ","I 2 2 3 1'               ")
       Shubnikov_info(1510)= Shub_Spgr_Info_Type("195.3   ","P_I23          ","197.3.1510  ","I_P23          ",&
-                                                "P231'_I[I23]             ","P I 2 2 3                ")
+                                                "P231'_I[I23]             ","P 2 2 3 1'I              ")
       Shubnikov_info(1511)= Shub_Spgr_Info_Type("198.9   ","P2_13          ","198.1.1511  ","P2_13          ",&
                                                 "P2_13                    ","P 2ac 2ab 3              ")
       Shubnikov_info(1512)= Shub_Spgr_Info_Type("198.10  ","P2_131'        ","198.2.1512  ","P2_131'        ",&
@@ -3044,15 +3044,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1514)= Shub_Spgr_Info_Type("199.13  ","I2_131'        ","199.2.1514  ","I2_131'        ",&
                                                 "I2_131'                  ","I 2b 2c 3 1'             ")
       Shubnikov_info(1515)= Shub_Spgr_Info_Type("198.11  ","P_I2_13        ","199.3.1515  ","I_P2_13        ",&
-                                                "P2_131'_I[I2_13]         ","P I 2ac 2ab 3            ")
+                                                "P2_131'_I[I2_13]         ","P 2ac 2ab 3 1'I          ")
       Shubnikov_info(1516)= Shub_Spgr_Info_Type("200.14  ","Pm-3           ","200.1.1516  ","Pm-3           ",&
                                                 "Pm-3                     ","-P 2 2 3                 ")
       Shubnikov_info(1517)= Shub_Spgr_Info_Type("200.15  ","Pm-31'         ","200.2.1517  ","Pm-31'         ",&
-                                                "Pm-31'                   ","-P 2 2 3  1'             ")
+                                                "Pm-31'                   ","-P 2 2 3 1'              ")
       Shubnikov_info(1518)= Shub_Spgr_Info_Type("200.16  ","Pm'-3'         ","200.3.1518  ","Pm'-3'         ",&
                                                 "Pm'-3'                   ","P 2 2 3 -1'              ")
       Shubnikov_info(1519)= Shub_Spgr_Info_Type("202.25  ","F_Sm-3         ","200.4.1519  ","P_Fm-3         ",&
-                                                "Fm-31'_I[Pm-3]           ","-F S 2 2 3               ")
+                                                "Fm-31'_I[Pm-3]           ","-F 2 2 3 1'S             ")
       Shubnikov_info(1520)= Shub_Spgr_Info_Type("201.18  ","Pn-3           ","201.1.1520  ","Pn-3           ",&
                                                 "Pn-3                     ","-P 2ab 2bc 3             ")
       Shubnikov_info(1521)= Shub_Spgr_Info_Type("201.19  ","Pn-31'         ","201.2.1521  ","Pn-31'         ",&
@@ -3060,11 +3060,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1522)= Shub_Spgr_Info_Type("201.20  ","Pn'-3'         ","201.3.1522  ","Pn'-3'         ",&
                                                 "Pn'-3'                   ","P 2ab 2bc 3 -1'          ")
       Shubnikov_info(1523)= Shub_Spgr_Info_Type("203.29  ","F_Sd-3         ","201.4.1523  ","P_Fn-3         ",&
-                                                "Fd-31'_I[Pn-3]           ","-F S 2uv 2vw 3           ")
+                                                "Fd-31'_I[Pn-3]           ","-F 2uv 2vw 3 1'S         ")
       Shubnikov_info(1524)= Shub_Spgr_Info_Type("202.22  ","Fm-3           ","202.1.1524  ","Fm-3           ",&
                                                 "Fm-3                     ","-F 2 2 3                 ")
       Shubnikov_info(1525)= Shub_Spgr_Info_Type("202.23  ","Fm-31'         ","202.2.1525  ","Fm-31'         ",&
-                                                "Fm-31'                   ","-F 2 2 3  1'             ")
+                                                "Fm-31'                   ","-F 2 2 3 1'              ")
       Shubnikov_info(1526)= Shub_Spgr_Info_Type("202.24  ","Fm'-3'         ","202.3.1526  ","Fm'-3'         ",&
                                                 "Fm'-3'                   ","F 2 2 3 -1'              ")
       Shubnikov_info(1527)= Shub_Spgr_Info_Type("203.26  ","Fd-3           ","203.1.1527  ","Fd-3           ",&
@@ -3076,13 +3076,13 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1530)= Shub_Spgr_Info_Type("204.30  ","Im-3           ","204.1.1530  ","Im-3           ",&
                                                 "Im-3                     ","-I 2 2 3                 ")
       Shubnikov_info(1531)= Shub_Spgr_Info_Type("204.31  ","Im-31'         ","204.2.1531  ","Im-31'         ",&
-                                                "Im-31'                   ","-I 2 2 3  1'             ")
+                                                "Im-31'                   ","-I 2 2 3 1'              ")
       Shubnikov_info(1532)= Shub_Spgr_Info_Type("204.32  ","Im'-3'         ","204.3.1532  ","Im'-3'         ",&
                                                 "Im'-3'                   ","I 2 2 3 -1'              ")
       Shubnikov_info(1533)= Shub_Spgr_Info_Type("200.17  ","P_Im-3         ","204.4.1533  ","I_Pm-3         ",&
-                                                "Pm-31'_I[Im-3]           ","-P I 2 2 3               ")
+                                                "Pm-31'_I[Im-3]           ","-P 2 2 3 1'I             ")
       Shubnikov_info(1534)= Shub_Spgr_Info_Type("201.21  ","P_In-3         ","204.5.1534  ","I_Pm'-3'       ",&
-                                                "Pn-31'_I[Im-3]           ","-P I 2ab 2bc 3           ")
+                                                "Pn-31'_I[Im-3]           ","-P 2ab 2bc 3 1'I         ")
       Shubnikov_info(1535)= Shub_Spgr_Info_Type("205.33  ","Pa-3           ","205.1.1535  ","Pa-3           ",&
                                                 "Pa-3                     ","-P 2ac 2ab 3             ")
       Shubnikov_info(1536)= Shub_Spgr_Info_Type("205.34  ","Pa-31'         ","205.2.1536  ","Pa-31'         ",&
@@ -3096,15 +3096,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1540)= Shub_Spgr_Info_Type("206.39  ","Ia'-3'         ","206.3.1540  ","Ia'-3'         ",&
                                                 "Ia'-3'                   ","I 2b 2c 3 -1'            ")
       Shubnikov_info(1541)= Shub_Spgr_Info_Type("205.36  ","P_Ia-3         ","206.4.1541  ","I_Pa-3'        ",&
-                                                "Pa-31'_I[Ia-3]           ","-P I 2ac 2ab 3           ")
+                                                "Pa-31'_I[Ia-3]           ","-P 2ac 2ab 3 1'I         ")
       Shubnikov_info(1542)= Shub_Spgr_Info_Type("207.40  ","P432           ","207.1.1542  ","P432           ",&
-                                                "P432                     ","P 4  2 3                 ")
+                                                "P432                     ","P 4 2 3                  ")
       Shubnikov_info(1543)= Shub_Spgr_Info_Type("207.41  ","P4321'         ","207.2.1543  ","P4321'         ",&
-                                                "P4321'                   ","P 4  2 3 1'              ")
+                                                "P4321'                   ","P 4 2 3 1'               ")
       Shubnikov_info(1544)= Shub_Spgr_Info_Type("207.42  ","P4'32'         ","207.3.1544  ","P4'32'         ",&
                                                 "P4'32'                   ","P 4' 2 3                 ")
       Shubnikov_info(1545)= Shub_Spgr_Info_Type("209.51  ","F_S432         ","207.4.1545  ","P_F432         ",&
-                                                "F4321'_I[P432]           ","F S 4 2 3                ")
+                                                "F4321'_I[P432]           ","F 4 2 3 1'S              ")
       Shubnikov_info(1546)= Shub_Spgr_Info_Type("208.44  ","P4_232         ","208.1.1546  ","P4_232         ",&
                                                 "P4_232                   ","P 4n  2 3                ")
       Shubnikov_info(1547)= Shub_Spgr_Info_Type("208.45  ","P4_2321'       ","208.2.1547  ","P4_2321'       ",&
@@ -3112,11 +3112,11 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1548)= Shub_Spgr_Info_Type("208.46  ","P4_2'32'       ","208.3.1548  ","P4_2'32'       ",&
                                                 "P4_2'32'                 ","P 4n' 2 3                ")
       Shubnikov_info(1549)= Shub_Spgr_Info_Type("210.55  ","F_S4_132       ","208.4.1549  ","P_F4_232       ",&
-                                                "F4_1321'_I[P4_232]       ","F S 4d  2 3              ")
+                                                "F4_1321'_I[P4_232]       ","F 4d 2 3 1'S             ")
       Shubnikov_info(1550)= Shub_Spgr_Info_Type("209.48  ","F432           ","209.1.1550  ","F432           ",&
-                                                "F432                     ","F 4  2 3                 ")
+                                                "F432                     ","F 4 2 3                  ")
       Shubnikov_info(1551)= Shub_Spgr_Info_Type("209.49  ","F4321'         ","209.2.1551  ","F4321'         ",&
-                                                "F4321'                   ","F 4  2 3 1'              ")
+                                                "F4321'                   ","F 4 2 3 1'               ")
       Shubnikov_info(1552)= Shub_Spgr_Info_Type("209.50  ","F4'32'         ","209.3.1552  ","F4'32'         ",&
                                                 "F4'32'                   ","F 4' 2 3                 ")
       Shubnikov_info(1553)= Shub_Spgr_Info_Type("210.52  ","F4_132         ","210.1.1553  ","F4_132         ",&
@@ -3126,15 +3126,15 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1555)= Shub_Spgr_Info_Type("210.54  ","F4_1'32'       ","210.3.1555  ","F4_1'32'       ",&
                                                 "F4_1'32'                 ","F 4d' 2 3                ")
       Shubnikov_info(1556)= Shub_Spgr_Info_Type("211.56  ","I432           ","211.1.1556  ","I432           ",&
-                                                "I432                     ","I 4  2 3                 ")
+                                                "I432                     ","I 4 2 3                  ")
       Shubnikov_info(1557)= Shub_Spgr_Info_Type("211.57  ","I4321'         ","211.2.1557  ","I4321'         ",&
-                                                "I4321'                   ","I 4  2 3 1'              ")
+                                                "I4321'                   ","I 4 2 3 1'               ")
       Shubnikov_info(1558)= Shub_Spgr_Info_Type("211.58  ","I4'32'         ","211.3.1558  ","I4'32'         ",&
                                                 "I4'32'                   ","I 4' 2 3                 ")
       Shubnikov_info(1559)= Shub_Spgr_Info_Type("207.43  ","P_I432         ","211.4.1559  ","I_P432         ",&
-                                                "P4321'_I[I432]           ","P I 4 2 3                ")
+                                                "P4321'_I[I432]           ","P 4 2 3 1'I              ")
       Shubnikov_info(1560)= Shub_Spgr_Info_Type("208.47  ","P_I4_232       ","211.5.1560  ","I_P4'32'       ",&
-                                                "P4_2321'_I[I432]         ","P I 4n 2 3               ")
+                                                "P4_2321'_I[I432]         ","P 4n 2 3 1'I             ")
       Shubnikov_info(1561)= Shub_Spgr_Info_Type("212.59  ","P4_332         ","212.1.1561  ","P4_332         ",&
                                                 "P4_332                   ","P 4acd  2ab 3            ")
       Shubnikov_info(1562)= Shub_Spgr_Info_Type("212.60  ","P4_3321'       ","212.2.1562  ","P4_3321'       ",&
@@ -3154,9 +3154,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1569)= Shub_Spgr_Info_Type("214.69  ","I4_1'32'       ","214.3.1569  ","I4_1'32'       ",&
                                                 "I4_1'32'                 ","I 4bd' 2c 3              ")
       Shubnikov_info(1570)= Shub_Spgr_Info_Type("212.62  ","P_I4_332       ","214.4.1570  ","I_P4_132       ",&
-                                                "P4_3321'_I[I4_132]       ","P I 4acd 2ab 3           ")
+                                                "P4_3321'_I[I4_132]       ","P 4acd 2ab 3 1'I         ")
       Shubnikov_info(1571)= Shub_Spgr_Info_Type("213.66  ","P_I4_132       ","214.5.1571  ","I_P4_1'32'     ",&
-                                                "P4_1321'_I[I4_132]       ","P I 4bd 2ab 3            ")
+                                                "P4_1321'_I[I4_132]       ","P 4bd 2ab 3 1'I          ")
       Shubnikov_info(1572)= Shub_Spgr_Info_Type("215.70  ","P-43m          ","215.1.1572  ","P-43m          ",&
                                                 "P-43m                    ","P -4  2 3                ")
       Shubnikov_info(1573)= Shub_Spgr_Info_Type("215.71  ","P-43m1'        ","215.2.1573  ","P-43m1'        ",&
@@ -3164,9 +3164,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1574)= Shub_Spgr_Info_Type("215.72  ","P-4'3m'        ","215.3.1574  ","P-4'3m'        ",&
                                                 "P-4'3m'                  ","P -4' 2 3                ")
       Shubnikov_info(1575)= Shub_Spgr_Info_Type("216.77  ","F_S-43m        ","215.4.1575  ","P_F-43m        ",&
-                                                "F-43m1'_I[P-43m]         ","F S -4 2 3               ")
+                                                "F-43m1'_I[P-43m]         ","F -4 2 3 1'S             ")
       Shubnikov_info(1576)= Shub_Spgr_Info_Type("219.88  ","F_S-43c        ","215.5.1576  ","P_F-4'3m'      ",&
-                                                "F-43c1'_I[P-43m]         ","F S -4c 2 3              ")
+                                                "F-43c1'_I[P-43m]         ","F -4c 2 3 1'S            ")
       Shubnikov_info(1577)= Shub_Spgr_Info_Type("216.74  ","F-43m          ","216.1.1577  ","F-43m          ",&
                                                 "F-43m                    ","F -4  2 3                ")
       Shubnikov_info(1578)= Shub_Spgr_Info_Type("216.75  ","F-43m1'        ","216.2.1578  ","F-43m1'        ",&
@@ -3180,9 +3180,9 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1582)= Shub_Spgr_Info_Type("217.80  ","I-4'3m'        ","217.3.1582  ","I-4'3m'        ",&
                                                 "I-4'3m'                  ","I -4' 2 3                ")
       Shubnikov_info(1583)= Shub_Spgr_Info_Type("215.73  ","P_I-43m        ","217.4.1583  ","I_P-43m        ",&
-                                                "P-43m1'_I[I-43m]         ","P I -4 2 3               ")
+                                                "P-43m1'_I[I-43m]         ","P -4 2 3 1'I             ")
       Shubnikov_info(1584)= Shub_Spgr_Info_Type("218.84  ","P_I-43n        ","217.5.1584  ","I_P-4'3m'      ",&
-                                                "P-43n1'_I[I-43m]         ","P I -4n 2 3              ")
+                                                "P-43n1'_I[I-43m]         ","P -4n 2 3 1'I            ")
       Shubnikov_info(1585)= Shub_Spgr_Info_Type("218.81  ","P-43n          ","218.1.1585  ","P-43n          ",&
                                                 "P-43n                    ","P -4n  2 3               ")
       Shubnikov_info(1586)= Shub_Spgr_Info_Type("218.82  ","P-43n1'        ","218.2.1586  ","P-43n1'        ",&
@@ -3202,19 +3202,19 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1593)= Shub_Spgr_Info_Type("220.91  ","I-4'3d'        ","220.3.1593  ","I-4'3d'        ",&
                                                 "I-4'3d'                  ","I -4bd' 2c 3             ")
       Shubnikov_info(1594)= Shub_Spgr_Info_Type("221.92  ","Pm-3m          ","221.1.1594  ","Pm-3m          ",&
-                                                "Pm-3m                    ","-P 4  2 3                ")
+                                                "Pm-3m                    ","-P 4 2 3                 ")
       Shubnikov_info(1595)= Shub_Spgr_Info_Type("221.93  ","Pm-3m1'        ","221.2.1595  ","Pm-3m1'        ",&
-                                                "Pm-3m1'                  ","-P 4  2 3  1'            ")
+                                                "Pm-3m1'                  ","-P 4 2 3 1'              ")
       Shubnikov_info(1596)= Shub_Spgr_Info_Type("221.94  ","Pm'-3'm        ","221.3.1596  ","Pm'-3'm        ",&
                                                 "Pm'-3'm                  ","P 4' 2 3 -1'             ")
       Shubnikov_info(1597)= Shub_Spgr_Info_Type("221.95  ","Pm-3m'         ","221.4.1597  ","Pm-3m'         ",&
                                                 "Pm-3m'                   ","-P 4' 2 3                ")
       Shubnikov_info(1598)= Shub_Spgr_Info_Type("221.96  ","Pm'-3'm'       ","221.5.1598  ","Pm'-3'm'       ",&
-                                                "Pm'-3'm'                 ","P 4  2 3 -1'             ")
+                                                "Pm'-3'm'                 ","P 4 2 3 -1'              ")
       Shubnikov_info(1599)= Shub_Spgr_Info_Type("225.121 ","F_Sm-3m        ","221.6.1599  ","P_Fm-3m        ",&
-                                                "Fm-3m1'_I[Pm-3m]         ","-F S 4 2 3               ")
+                                                "Fm-3m1'_I[Pm-3m]         ","-F 4 2 3 1'S             ")
       Shubnikov_info(1600)= Shub_Spgr_Info_Type("226.127 ","F_Sm-3c        ","221.7.1600  ","P_Fm-3m'       ",&
-                                                "Fm-3c1'_I[Pm-3m]         ","-F S 4c 2 3              ")
+                                                "Fm-3c1'_I[Pm-3m]         ","-F 4c 2 3 1'S            ")
       Shubnikov_info(1601)= Shub_Spgr_Info_Type("222.98  ","Pn-3n          ","222.1.1601  ","Pn-3n          ",&
                                                 "Pn-3n                    ","-P 4a  2bc 3             ")
       Shubnikov_info(1602)= Shub_Spgr_Info_Type("222.99  ","Pn-3n1'        ","222.2.1602  ","Pn-3n1'        ",&
@@ -3246,19 +3246,19 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1615)= Shub_Spgr_Info_Type("224.114 ","Pn'-3'm'       ","224.5.1615  ","Pn'-3'm'       ",&
                                                 "Pn'-3'm'                 ","P 4bc  2bc 3 -1'         ")
       Shubnikov_info(1616)= Shub_Spgr_Info_Type("227.133 ","F_Sd-3m        ","224.6.1616  ","P_Fn-3m        ",&
-                                                "Fd-3m1'_I[Pn-3m]         ","-F S 4vw 2vw 3           ")
+                                                "Fd-3m1'_I[Pn-3m]         ","-F 4vw 2vw 3 1'S         ")
       Shubnikov_info(1617)= Shub_Spgr_Info_Type("228.139 ","F_Sd-3c        ","224.7.1617  ","P_Fn-3m'       ",&
-                                                "Fd-3c1'_I[Pn-3m]         ","-F S 4cvw 2vw 3          ")
+                                                "Fd-3c1'_I[Pn-3m]         ","-F 4cvw 2vw 3 1'S        ")
       Shubnikov_info(1618)= Shub_Spgr_Info_Type("225.116 ","Fm-3m          ","225.1.1618  ","Fm-3m          ",&
-                                                "Fm-3m                    ","-F 4  2 3                ")
+                                                "Fm-3m                    ","-F 4 2 3                 ")
       Shubnikov_info(1619)= Shub_Spgr_Info_Type("225.117 ","Fm-3m1'        ","225.2.1619  ","Fm-3m1'        ",&
-                                                "Fm-3m1'                  ","-F 4  2 3  1'            ")
+                                                "Fm-3m1'                  ","-F 4 2 3 1'              ")
       Shubnikov_info(1620)= Shub_Spgr_Info_Type("225.118 ","Fm'-3'm        ","225.3.1620  ","Fm'-3'm        ",&
                                                 "Fm'-3'm                  ","F 4' 2 3 -1'             ")
       Shubnikov_info(1621)= Shub_Spgr_Info_Type("225.119 ","Fm-3m'         ","225.4.1621  ","Fm-3m'         ",&
                                                 "Fm-3m'                   ","-F 4' 2 3                ")
       Shubnikov_info(1622)= Shub_Spgr_Info_Type("225.120 ","Fm'-3'm'       ","225.5.1622  ","Fm'-3'm'       ",&
-                                                "Fm'-3'm'                 ","F 4  2 3 -1'             ")
+                                                "Fm'-3'm'                 ","F 4 2 3 -1'              ")
       Shubnikov_info(1623)= Shub_Spgr_Info_Type("226.122 ","Fm-3c          ","226.1.1623  ","Fm-3c          ",&
                                                 "Fm-3c                    ","-F 4c  2 3               ")
       Shubnikov_info(1624)= Shub_Spgr_Info_Type("226.123 ","Fm-3c1'        ","226.2.1624  ","Fm-3c1'        ",&
@@ -3290,23 +3290,23 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       Shubnikov_info(1637)= Shub_Spgr_Info_Type("228.138 ","Fd'-3'c'       ","228.5.1637  ","Fd'-3'c'       ",&
                                                 "Fd'-3c'                  ","F 4cvw  2vw 3 -1'        ")
       Shubnikov_info(1638)= Shub_Spgr_Info_Type("229.140 ","Im-3m          ","229.1.1638  ","Im-3m          ",&
-                                                "Im-3m                    ","-I 4  2 3                ")
+                                                "Im-3m                    ","-I 4 2 3                 ")
       Shubnikov_info(1639)= Shub_Spgr_Info_Type("229.141 ","Im-3m1'        ","229.2.1639  ","Im-3m1'        ",&
-                                                "Im-3m1'                  ","-I 4  2 3  1'            ")
+                                                "Im-3m1'                  ","-I 4 2 3 1'              ")
       Shubnikov_info(1640)= Shub_Spgr_Info_Type("229.142 ","Im'-3'm        ","229.3.1640  ","Im'-3'm        ",&
                                                 "Im'-3m                   ","I 4' 2 3 -1'             ")
       Shubnikov_info(1641)= Shub_Spgr_Info_Type("229.143 ","Im-3m'         ","229.4.1641  ","Im-3m'         ",&
                                                 "Im-3m'                   ","-I 4' 2 3                ")
       Shubnikov_info(1642)= Shub_Spgr_Info_Type("229.144 ","Im'-3'm'       ","229.5.1642  ","Im'-3'm'       ",&
-                                                "Im'-3m'                  ","I 4  2 3 -1'             ")
+                                                "Im'-3m'                  ","I 4 2 3 -1'              ")
       Shubnikov_info(1643)= Shub_Spgr_Info_Type("221.97  ","P_Im-3m        ","229.6.1643  ","I_Pm-3m        ",&
-                                                "Pm-3m1'_I[Im-3m]         ","-P I 4 2 3               ")
+                                                "Pm-3m1'_I[Im-3m]         ","-P 4 2 3 1'I             ")
       Shubnikov_info(1644)= Shub_Spgr_Info_Type("224.115 ","P_In-3m        ","229.7.1644  ","I_Pm'-3'm      ",&
-                                                "Pn-3m1'_I[Im-3m]         ","-P I 4bc 2bc 3           ")
+                                                "Pn-3m1'_I[Im-3m]         ","-P 4bc 2bc 3 1'I         ")
       Shubnikov_info(1645)= Shub_Spgr_Info_Type("223.109 ","P_Im-3n        ","229.8.1645  ","I_Pm-3m'       ",&
-                                                "Pm-3n1'_I[Im-3m]         ","-P I 4n 2 3              ")
+                                                "Pm-3n1'_I[Im-3m]         ","-P 4n 2 3 1'I            ")
       Shubnikov_info(1646)= Shub_Spgr_Info_Type("222.103 ","P_In-3n        ","229.9.1646  ","I_Pm'-3'm'     ",&
-                                                "Pn-3n1'_I[Im-3m]         ","-P I 4a 2bc 3            ")
+                                                "Pn-3n1'_I[Im-3m]         ","-P 4a 2bc 3 1'I          ")
       Shubnikov_info(1647)= Shub_Spgr_Info_Type("230.145 ","Ia-3d          ","230.1.1647  ","Ia-3d          ",&
                                                 "Ia-3d                    ","-I 4bd  2c 3             ")
       Shubnikov_info(1648)= Shub_Spgr_Info_Type("230.146 ","Ia-3d1'        ","230.2.1648  ","Ia-3d1'        ",&
@@ -3317,7 +3317,6 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
                                                 "Ia-3d'                   ","-I 4bd' 2c 3             ")
       Shubnikov_info(1651)= Shub_Spgr_Info_Type("230.149 ","Ia'-3'd'       ","230.5.1651  ","Ia'-3'd'       ",&
                                                 "Ia'-3d'                  ","I 4bd  2c 3 -1'          ")
-      
    End Subroutine Set_Shubnikov_Info
    
    
