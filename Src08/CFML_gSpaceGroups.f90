@@ -172,6 +172,13 @@ Module CFML_gSpaceGroups
     !---- Interface Zone ----!
     !------------------------!
     Interface
+       Module Function Apply_OP(Op, V) Result(S)
+          !---- Arguments ----!
+          Type(Symm_Oper_Type),         intent(in) :: Op    ! Symmetry Operator
+          real(kind=cp), dimension(3),  intent(in) :: v     ! Vector
+          real(kind=cp), dimension(3)              :: S     ! Output vector
+       End Function Apply_OP
+       
        Module Subroutine Allocate_Operators(D, NMax, Op)
           !---- Arguments ----!
           integer,                                         intent(in)     :: d       ! Dimension
@@ -441,6 +448,15 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3,3), intent(in)  :: W
           type(rational), dimension(3,3)               :: S
        End Function Get_S_Matrix
+       
+       Module Subroutine Get_Stabilizer(X, Spg,Order,Ptr,Atr)
+          !---- Arguments ----!
+          real(kind=cp), dimension(3),  intent (in)  :: x     
+          class(Spg_Type),              intent (in)  :: Spg   
+          integer,                      intent(out)  :: order 
+          integer, dimension(:),        intent(out)  :: ptr   
+          real(kind=cp), dimension(:,:),intent(out)  :: atr 
+       End Subroutine Get_Stabilizer
        
        Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
           !---- Arguments ----!

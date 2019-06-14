@@ -286,6 +286,8 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Set_SpaceG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c OnePrimeOp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Stabilizer.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
  rem   
@@ -385,6 +387,11 @@ rem
 rem  
 rem   Submodules CFML_Atoms    
       cd .\CFML_Atoms   
+      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd .. 
       goto END
