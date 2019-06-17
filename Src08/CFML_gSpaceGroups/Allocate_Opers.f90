@@ -2,7 +2,7 @@ SubModule (CFML_gSpaceGroups) SPG_007
    Contains
    
    !!----
-   !!---- ALLOCATE_SYMM_OP
+   !!---- ALLOCATE_OP
    !!----
    !!---- 19/04/19
    !!

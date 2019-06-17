@@ -148,7 +148,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         allocate(gener(G%multip))
         
         !> Build groups from generators
-        call Allocate_Symm_Op(G%d,Op)
+        call allocate_op(G%d,Op)
         do n = 1 , nA
            do i = 1 , G%multip
               Op%Mat      = matmul(G%Op(i)%Mat,C(:,:,n))

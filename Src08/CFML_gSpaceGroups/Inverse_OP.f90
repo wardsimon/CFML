@@ -23,7 +23,7 @@ SubModule (CFML_GSPACEGROUPS) Spg_053
       
       !> Init
       d=size(Op%Mat,dim=1)
-      call allocate_Symm_Op(d, i_Op)
+      call allocate_op(d, i_Op)
       
       call Rational_Identity_Matrix(r)
       r=-rational_inverse_matrix(Op%Mat(1:3,1:3))

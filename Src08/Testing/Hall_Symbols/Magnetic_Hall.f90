@@ -5,6 +5,10 @@
 !!
 Program Magnetic_Hall
    !---- Use Modules ----!
+   Use CFML_Globaldeps, only: cp, err_CFML
+   Use CFML_Strings,    only: pack_string
+   Use CFML_Symmetry_Tables
+   Use CFML_Magnetic_Database
    Use CFML_gSpaceGroups
 
    !---- Variables ----!
@@ -65,15 +69,15 @@ Program Magnetic_Hall
          stop
       end if 
       
-      hexa=.false.
-      k=index(str_BNS,'6')
-      if (k > 0) hexa=.true.
+      !hexa=.false.
+      !k=index(str_BNS,'6')
+      !if (k > 0) hexa=.true.
       
       !> Magnetic Hall symbol
       str_Hall=trim(Mag_symb(ik)%HallM)
       ngen=0
       gen=" "
-      call Get_Generators_from_Hall(str_Hall, ngen, Gen)
+      call Get_Generators(str_Hall, Gen, ngen)
       
       !> Constructor
       call Init_SpaceGroup(SpG)

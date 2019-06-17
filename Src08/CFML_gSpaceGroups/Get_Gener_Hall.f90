@@ -1379,10 +1379,10 @@ SubModule (CFML_gSpaceGroups) Spg_052
       call Group_Constructor(gen,Grp)
       if (Err_CFML%Ierr /= 0) return
       
-      call Identify_Crystallographic_PG(Grp)
+      call Identify_PointGroup(Grp)
       if (Err_CFML%Ierr /= 0) return
 
-      call Identify_Laue_Class(Grp)
+      call Identify_LaueClass(Grp)
       if (Err_CFML%Ierr /= 0) return
       
       call Identify_Crystal_System(Grp)

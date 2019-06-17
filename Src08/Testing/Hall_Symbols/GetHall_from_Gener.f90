@@ -5,8 +5,9 @@
 !!
 Program Magnetic_Hall
    !---- Use Modules ----!
-   Use CFML_Globaldeps
+   Use CFML_Symmetry_Tables
    Use CFML_gSpaceGroups
+   Use CFML_Strings, only: pack_string
 
    !---- Variables ----!
    implicit none
@@ -57,7 +58,7 @@ Program Magnetic_Hall
       !> Magnetic Hall symbol
       ngen=0
       gen=" "
-      call Get_Generators_from_Hall(str_Hall, ngen, Gen)
+      call Get_Generators(str_Hall, gen, ngen)
       
       !> Test routine
       select case (n)

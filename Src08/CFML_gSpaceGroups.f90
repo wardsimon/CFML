@@ -73,7 +73,8 @@ Module CFML_gSpaceGroups
     
     public :: Allocate_OP, Allocate_SpaceGroup,                                   &
               Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
-              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups, Group_Constructor,&
+              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups,                   &
+              Get_SubGroups_SubGen, Group_Constructor,                            &
               Identify_Group, Init_SpaceGroup,                                    &
               Set_Conditions_NumOP_EPS, Set_SpaceGroup,                           &
               Write_SpaceGroup_Info

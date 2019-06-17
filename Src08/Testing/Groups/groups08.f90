@@ -3,11 +3,12 @@
 !!----
 !!----
  Program Test_Groups
-    !---- Use Modules ----!   
+    !---- Use Modules ----!
+    use CFML_Globaldeps, only: cp, err_cfml
+    use CFML_Symmetry_Tables   
     use CFML_gSpaceGroups
 
     character(len=256)                  :: generatorList
-                                              !123456789012345678
     character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)"
     character(len=5)                    :: aux
     type(Spg_Type)                      :: Grp

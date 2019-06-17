@@ -1,7 +1,7 @@
 !!----
 !!---- Test 230 Standard Groups
 !!----
-!!---- 20/04/19
+!!---- 
 !!
 Program test230_groups
    !---- Use Modules ----! 
@@ -13,14 +13,12 @@ Program test230_groups
    character(len=256)                  :: generatorList
    character(len=5)                    :: aux
    character(len=15)                   :: forma
+   integer                             :: i,j,L,nsg,lun,nc 
+   integer, dimension(:), allocatable  :: cosets
+   real(kind=cp)                       :: start, fin,par
    
    type(Spg_Type)                      :: Grp
    type(Spg_Type), dimension(4096)     :: sGrp
-   
-   integer                             :: i,j,L,nsg,lun,nc 
-   integer, dimension(:), allocatable  :: cosets
-   
-   real(kind=cp)                       :: start, fin,par
 
    !> Init
    call Set_Conditions_NumOp_EPS(2048) ! Maximum admissible multiplicity

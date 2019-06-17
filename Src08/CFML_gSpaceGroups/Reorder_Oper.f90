@@ -46,7 +46,7 @@ SubModule (CFML_gSpaceGroups) SPG_009
       !> dimension of the square matrix containing rotational operator
       d=n-1
       allocate(identity(d,d),invers(d,d),imat(d,d))
-      call Allocate_Symm_Op(n,Op_identp)   ! {1|0}'
+      call allocate_op(n,Op_identp)   ! {1|0}'
       
       identity=ZERO; nul=.false.; mag_type=1
       do i=1,d
@@ -62,7 +62,7 @@ SubModule (CFML_gSpaceGroups) SPG_009
       call Sort_Oper(multip,Op(1:multip),"det")
       do i=1,Multip
          tr(i)=sum(abs(Op(i)%Mat(1:d,n)))
-         call Allocate_Symm_Op(n,Opr(i))
+         call allocate_op(n,Opr(i))
       end do
 
       !> Check if the group is paramagnetic

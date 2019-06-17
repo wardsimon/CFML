@@ -37,7 +37,7 @@ SubModule (CFML_gSpaceGroups) SPG_017
             d=Get_Dimension_SymmOp(gen_in(i))
             allocate(Mat(d,d))
             do j=0, size(Op)-1
-               call allocate_symm_OP(d, Op(j))
+               call allocate_OP(d, Op(j))
             end do
             init = .true.
          else

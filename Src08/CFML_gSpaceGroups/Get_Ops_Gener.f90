@@ -32,7 +32,7 @@ SubModule (CFML_gSpaceGroups) SPG_018
       
       max_op=size(Ops)
       n=size(Ops(1)%Mat,dim=1)
-      call Allocate_Symm_Op(n,Opt)
+      call allocate_op(n,Opt)
       
       done=.false.
       done(1,:) = .true.
