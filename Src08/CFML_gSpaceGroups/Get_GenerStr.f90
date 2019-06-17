@@ -10,12 +10,12 @@ SubModule (CFML_gSpaceGroups) SPG_016
    !!----
    !!---- 20/04/19
    !!
-   Module Subroutine Get_Generators_from_Str(StrGen, d, ngen, gen)
+   Module Subroutine Get_Generators_from_Str(StrGen, d, gen, ngen)
       !---- Arguments ----!
       character(len=*),                            intent(in)  :: StrGen
       integer,                                     intent(out) :: d
-      integer,                                     intent(out) :: ngen
       character(len=*), dimension(:), allocatable, intent(out) :: gen
+      integer,                                     intent(out) :: ngen
        
       !--- Local variables ---!
       character(len=:), allocatable :: symbol, ListGen

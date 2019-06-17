@@ -46,7 +46,7 @@ Submodule (CFML_Maths) Is_Null_Vector
 
        info= .true.
        do i=1, size(v)
-          if (abs(v(i)) > epsilon(1.0_sp)) then
+          if (abs(v(i)) > epsilon(1.0_cp)) then
              info= .false.
              exit
           end if

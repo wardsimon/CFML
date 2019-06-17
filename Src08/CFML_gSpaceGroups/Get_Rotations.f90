@@ -239,48 +239,6 @@ SubModule (CFML_gSpaceGroups) SPG_035
    End Subroutine Get_Rotations
    
    !!----
-   !!---- Get_Rotation_Order
-   !!----
-   !!---- Returns the rotation order of a symmetry operation
-   !!----
-   !!---- 22/04/2019 
-   !!
-   !Module Function Get_Rotation_Order(W) Result(order)
-   !   !---- Arguments ----!
-   !   type(rational), dimension(3,3), intent(in)  :: W
-   !   integer                                     :: order
-   !
-   !   !---- Local variables ----!
-   !   type(rational) :: tr
-   !
-   !   !> Init
-   !   call Clear_Error()
-   !   
-   !   tr = rational_trace(W)
-   !   if (mod(tr%Numerator,tr%Denominator) == 0) then
-   !      select case (tr%Numerator / tr%Denominator)
-   !         case (3)
-   !            order = 1
-   !         case (-1)
-   !            order = 2
-   !         case (0)
-   !            order = 3
-   !         case (1)
-   !            order = 4
-   !         case (2)
-   !            order = 6
-   !         case default
-   !            Err_CFML%Ierr = 1
-   !            Err_CFML%Msg = "Get_Rotation_Order@SPACEG: Rotation matrix is not an allowed crystallographic rotation"
-   !      end select
-   !   
-   !   else
-   !      Err_CFML%Ierr = 1
-   !      Err_CFML%Msg = "Get_Rotation_Order@SPACEG: Rotation matrix is not an allowed crystallographic rotation"
-   !   end if
-   !End Function Get_Rotation_Order
-   
-   !!----
    !!---- GET_ROTATION_ORDER
    !!----    Determine the orden of rotation (valid for all bases). 
    !!----    Return a zero if any error occurs.

@@ -95,13 +95,13 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019 
     !!
-    Module Pure Function Spline_Interpol(x,y,d2y,n,xi) Result(yi)
+    Module Pure Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
        !---- Arguments ----!
+       real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
        real(kind=cp), dimension(:), intent(in)  :: x    ! Vector Xi points
        real(kind=cp), dimension(:), intent(in)  :: y    ! Vector Yi points
        real(kind=cp), dimension(:), intent(in)  :: d2y  ! Vector Second derivate of Yi points
        integer ,                    intent(in)  :: n    ! Dimension of vectors
-       real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
        real(kind=cp)                            :: yi
 
        !---- Local Variables ----!
@@ -141,11 +141,11 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019 
     !!
-    Module Pure Function Linear_Interpol(x,y,xi) Result(yi)
+    Module Pure Function Linear_Interpol(xi,x,y) Result(yi)
        !---- Arguments ----!
+       real(kind=cp),              intent(in)   :: xi ! X point to evaluate
        real(kind=cp), dimension(:),intent(in)   :: x  ! Vector containing Xi points
        real(kind=cp), dimension(:),intent(in)   :: y  ! Vector Yi=F(xi)
-       real(kind=cp),              intent(in)   :: xi ! X point to evaluate
        real(kind=cp)                            :: yi ! Output
        
        !--- Local variables ---!
@@ -190,11 +190,11 @@ Submodule (CFML_Maths) CFML_Math_007
            step = x(i+1)-x(i)
          end if
          x0 = x(i) - step/2.0_cp
-         y0 = spline_interpol(x,y, d2y, n, x0)
+         y0 = spline_interpol(x0,x,y, d2y, n)
          
          y1 = y0
          x0 = x(i) + step/2.0_cp
-         y0 = spline_interpol(x,y, d2y, n, x0)
+         y0 = spline_interpol(x0,x,y, d2y, n)
          y2 = y0
          d1y(i) = (y2 - y1) / step
        end do

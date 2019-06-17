@@ -25,7 +25,7 @@ SubModule (CFML_gSpaceGroups) SPG_008
       Grp%d=d
       Grp%multip=multip
       do i=1,multip
-         call Allocate_Symm_Op(d,Grp%Op(i))
+         call Allocate_Op(d,Grp%Op(i))
       end do
       
       if(allocated(Grp%Symb_Op)) deallocate(Grp%Symb_Op)

@@ -25,7 +25,7 @@ SubModule (CFML_gSpaceGroups) SPG_021
 
       !> Init
       n=0; done=.false. 
-      call Allocate_Symm_Op(G%d,Op)
+      call Allocate_Op(G%d,Op)
       
       do_G: do i=2, G%multip
          if (done(i)) cycle

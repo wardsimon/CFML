@@ -24,7 +24,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
    Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
       !---- Arguments ----!
       character(len=*),                intent(in)  :: Symb
-      type(rational), dimension(:,:), intent(out)  :: Mat
+      type(rational), dimension(:,:),  intent(out)  :: Mat
       integer, optional,               intent(out) :: invt
       
       !---- local variables ----!

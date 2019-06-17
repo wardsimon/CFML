@@ -37,7 +37,7 @@
 !!
 Module CFML_Profiles
     !---- Use Modules ----!
-    Use CFML_GlobalDeps   
+    Use CFML_GlobalDeps, only: CP, DP, PI   
     Use CFML_Maths, only: erfc_deriv
 
     !---- Variables ----!

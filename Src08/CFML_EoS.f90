@@ -53,7 +53,7 @@
 !!
 Module CFML_EoS
    !---- Use Modules ----!
-   Use CFML_GlobalDeps
+   Use CFML_GlobalDeps,only: CP, err_cfml, clear_error
    Use CFML_Maths,     only: Debye,Second_Derivative,spline_interpol
    Use CFML_Metrics,   only: Cell_Type, Get_Cryst_Family, Set_Crystal_Cell
    Use CFML_Strings,   only: u_case, string_real, string_numstd

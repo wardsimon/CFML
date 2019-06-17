@@ -335,7 +335,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
    !!----
    !!---- 24/04/2019 
    !!
-   Module Subroutine Identify_Crystallographic_PG(G)
+   Module Subroutine Identify_PointGroup(G)
        !---- Arguments ----!
        type(spg_type), intent(in out) :: G
 
@@ -564,7 +564,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
           Err_CFML%Msg = "Identify_Crystallographic_PG@SPACEG: Unable to identify point group"
        end if
 
-   End Subroutine Identify_Crystallographic_PG
+   End Subroutine Identify_PointGroup
    
    !!---- 
    !!---- Identify_Laue_Class
@@ -573,7 +573,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
    !!----
    !!---- 22/04/2019 
    !!
-   Module Subroutine Identify_Laue_Class(G)
+   Module Subroutine Identify_LaueClass(G)
       !---- Arguments ----!
       type(spg_type), intent(inout) :: G
 
@@ -615,7 +615,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
             Err_CFML%Ierr = 1
             Err_CFML%Msg ="Identify_Laue_Class@SPACEG: Inconsistent crystallographic point group."
       end select
-   End Subroutine Identify_Laue_Class
+   End Subroutine Identify_LaueClass
    
    !!----
    !!---- IDENTIFY_CRYSTAL_SYSTEM

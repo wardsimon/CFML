@@ -41,7 +41,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_GlobalDeps
+    Use CFML_GlobalDeps, only: CP 
     Use CFML_Strings,    only: u_case, pack_string, string_count
 
     !---- Variables ----!
@@ -50,7 +50,7 @@
     private
 
     !---- List of public subroutines ----!
-    public :: get_compact_hm_symbol, Get_HM_Symbol_from_Compact_HM, get_it_generators, &
+    public :: get_compact_hm, Get_HM_Compact_HM, get_it_generators, &
               get_spacegroup_Symbols 
     public :: set_shubnikov_info,set_spgr_info, set_system_equiv, set_wyckoff_info
     public :: remove_shubnikov_info, remove_spgr_info, remove_system_equiv, remove_wyckoff_info
@@ -71,7 +71,7 @@
        character(len=15) :: OG     =" "   !  OG symbol
        character(len=25) :: STD    =" "   !  Proposed standard symbol
        character(len=25) :: MHall  =" "   !  Magnetic Hall symbol
-   End Type Shub_Spgr_Info_Type
+    End Type Shub_Spgr_Info_Type
     
     !!----
     !!---- TYPE :: SPGR_INFO_TYPE
@@ -119,14 +119,14 @@
     Type(Wyck_Info_Type),      allocatable, dimension(:), public :: Wyckoff_Info
     
     !---- Parameters ----!
-    integer,       parameter, public  :: CUBIC = 554            ! Cubic parameter index
-    integer,       parameter, public  :: HEXAG = 527            ! Index parameter for hexagonal Groups
-    integer,       parameter, public  :: MONOC =  15            ! Index parameter for Monoclinic Groups
-    integer,       parameter, public  :: ORTHOR  = 163          ! Index parameter for Orthorhombic Groups
-    integer,       parameter, public  :: TETRA = 410            ! Index parameter for Tetragonal Groups
-    integer,       parameter, public  :: TRIGO = 495            ! Index parameter for Trigonal Groups
-    integer,       parameter, public  :: NUM_SPGR_INFO = 612    ! Total dimension of SPGR_INFO
-    integer,       parameter, public  :: NUM_SHUBNIKOV = 1651   ! Total dimension of SHUBNIKOV_INFO
+    integer,       parameter, public  :: IND_GRP_CUBIC  = 554    ! Cubic parameter index
+    integer,       parameter, public  :: IND_GRP_HEXAG  = 527    ! Index parameter for hexagonal Groups
+    integer,       parameter, public  :: IND_GRP_MONOC  =  15    ! Index parameter for Monoclinic Groups
+    integer,       parameter, public  :: IND_GRP_ORTHO  = 163    ! Index parameter for Orthorhombic Groups
+    integer,       parameter, public  :: IND_GRP_TETRA  = 410    ! Index parameter for Tetragonal Groups
+    integer,       parameter, public  :: IND_GRP_TRIGO  = 495    ! Index parameter for Trigonal Groups
+    integer,       parameter, public  :: NUM_SPGR_INFO  = 612    ! Total dimension of SPGR_INFO
+    integer,       parameter, public  :: NUM_SHUBNIKOV  = 1651   ! Total dimension of SHUBNIKOV_INFO
 
 
     !> Lattice Traslations
@@ -379,17 +379,17 @@
 
  
     Interface
-       Module Function Get_Compact_HM_Symbol(HM) Result(C_HM)
+       Module Function Get_Compact_HM(HM) Result(C_HM)
           !---- Arguments ----!
           character(len=*), intent(in) :: HM
           character(len=:), allocatable :: C_HM
-       End Function Get_Compact_HM_Symbol
+       End Function Get_Compact_HM
        
-       Module Function Get_HM_Symbol_from_Compact_HM(C_HM) Result(HM)
+       Module Function Get_HM_Compact_HM(C_HM) Result(HM)
           !---- Arguments ----!
           character(len=*), intent(in) :: C_HM
           character(len=:), allocatable :: HM
-       End Function Get_HM_Symbol_from_Compact_HM
+       End Function Get_HM_Compact_HM
        
        Module Function Get_IT_Generators(Spg) Result(StrGen)
           !---- Arguments ----!

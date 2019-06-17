@@ -12,11 +12,11 @@ SubModule (CFML_gSpaceGroups) Spg_052
    !!----
    !!---- 09/05/2019
    !!
-   Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, RShift)
+   Module Subroutine Get_Generators_from_Hall(Hall, Gen, Ngen, RShift)
       !---- Arguments ----!
       character(len=*),                            intent(in)  :: Hall      ! Hall symbol
-      integer,                                     intent(out) :: Ngen      ! Number of genertaors
       character(len=*), dimension(:), allocatable, intent(out) :: Gen       ! String generators
+      integer,                                     intent(out) :: Ngen      ! Number of genertaors
       logical, optional,                           intent(in)  :: RShift    ! .True. to give the shift vector in free format
       
       !---- Local Variables ----!
@@ -202,7 +202,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       !>
       dire=" "
       Ni=0; Ai=0; Ti=0
-      call Allocate_Symm_Op(4, Op)  ! 4 is Dimension
+      call Allocate_Op(4, Op)  ! 4 is Dimension
       
       call get_words(str, dire, iv)
       if (iv ==0 ) then
@@ -800,7 +800,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       Str="  "
       
       nt=0
-      call Allocate_Symm_Op(4, Op)
+      call Allocate_Op(4, Op)
       
       if (present(IShift)) then
          call Rational_Identity_Matrix(p1)

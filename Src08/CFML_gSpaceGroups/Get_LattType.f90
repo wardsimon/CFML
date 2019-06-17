@@ -8,9 +8,9 @@ SubModule (CFML_gSpaceGroups) SPG_041
    !!----
    !!---- 22/04/2019 
    !!
-   Module Function Get_Lattice_Type_L(L, Latc) Result(lattyp)
+   Module Function Get_Lattice_Type_L(N, Latc) Result(lattyp)
       !---- Arguments ----!
-      integer,                        intent( in) :: L
+      integer,                        intent( in) :: N
       type(rational), dimension(:,:), intent( in) :: Latc
       character(len=1)                            :: lattyp
 
@@ -37,7 +37,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
       !> Check for primitive and non conventional centrings
       nlat   = 0
       latt_p = .true.
-      do i = 1 , L
+      do i = 1 , N
           if (.not. Rational_Is_Integer(latc(1:3,i))) then
              latt_p = .false.
              nlat   = nlat + 1
@@ -65,7 +65,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
       latt_f=.false.
       latt_z=.false.
 
-      do i = 1 , L
+      do i = 1 , N
          latt_given(:) = 0
          do j = 1 , 10
             if (Rational_Equal(latc(1:3,i),lattice(1:3,j))) then
@@ -234,7 +234,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
    !!----
    !!---- 22/04/2019
    !!
-   Module Subroutine Get_Magnetic_Lattice_Type(G)
+   Module Subroutine Get_Magnetic_Lattice(G)
       !---- Arguments ----!
       type(spg_type), intent(in out) :: G
 
@@ -392,7 +392,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
          Err_CFML%Ierr = 1
          Err_CFML%Msg = "Get_Magnetic_Lattice_Type@SPACEG: Unable to identify lattice type."
       end if
-   End Subroutine Get_Magnetic_Lattice_Type
+   End Subroutine Get_Magnetic_Lattice
    
    !!----
    !!---- GET_LATTICE_TYPE_FROM_GENER

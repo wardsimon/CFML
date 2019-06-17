@@ -396,15 +396,10 @@ rem   Submodules CFML_Atoms
       cd .. 
       goto END
 
-   ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   if [%_WINTER%]==[Y] (
-     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
-   ) else (
-     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
-   )
 rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
+   ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
 rem

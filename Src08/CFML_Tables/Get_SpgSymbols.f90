@@ -8,7 +8,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
    !!----
    !!---- 07/05/2019
    !!
-   Module Function Get_Compact_HM_Symbol(HM) Result(C_HM)
+   Module Function Get_Compact_HM(HM) Result(C_HM)
       !---- Arguments ----!
       character(len=*), intent(in) :: HM
       character(len=:), allocatable :: C_HM
@@ -108,14 +108,14 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       end if
       
       c_hm=pack_string(l_chm)
-   End Function Get_Compact_HM_Symbol 
+   End Function Get_Compact_HM
    
    !!----
    !!---- GET_HM_FROM_COMPACT_HM
    !!----
    !!---- 07/05/2019
    !!
-   Module Function Get_HM_Symbol_from_Compact_HM(C_HM) Result(HM)
+   Module Function Get_HM_Compact_HM(C_HM) Result(HM)
       !---- Arguments ----!
       character(len=*), intent(in) :: C_HM
       character(len=:), allocatable :: HM
@@ -184,7 +184,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       end do 
       
       hm=car0//' '//trim(l_chm)
-   End Function Get_HM_Symbol_from_Compact_HM 
+   End Function Get_HM_Compact_HM 
    
    !!----
    !!---- GET_SPACEG_SYMBOLS
@@ -233,13 +233,13 @@ SubModule(CFML_Symmetry_Tables) Spg_names
                   !> Selecting standard
                   ii=i
                   select case (i)
-                     case (MONOC:ORTHOR-1)  ! Monoclinic
+                     case (IND_GRP_MONOC:IND_GRP_ORTHO-1)  ! Monoclinic
                         ii=i+1
                         
-                     case (ORTHOR:TRIGO-1)
+                     case (IND_GRP_ORTHO:IND_GRP_TRIGO-1)
                         if (index(spgr_info(i)%hm,':') > 0) ii=i+1  
                         
-                     case (CUBIC:)  
+                     case (IND_GRP_CUBIC:)  
                         if (index(spgr_info(i)%hm,':') > 0) ii=i+1  
                   end select   
                   
@@ -278,7 +278,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       !> Is str a compacy HM
       if (l_it <=0) then
          llchm=.false.
-         l_hm=get_hm_symbol_from_compact_HM(u_case(str))
+         l_hm=get_hm_compact_HM(u_case(str))
          do i=1, NUM_SPGR_INFO
             if (trim(spgr_info(i)%hm) == trim(l_hm)) then
                l_it=spgr_info(i)%n
@@ -292,7 +292,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       
       !> Compact HM
       if (l_it > 0 .and. (.not. llchm)) then
-         l_chm=get_compact_hm_symbol(l_hm)
+         l_chm=get_compact_hm(l_hm)
       end if   
       
       !> Final

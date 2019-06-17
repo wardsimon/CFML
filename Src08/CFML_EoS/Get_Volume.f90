@@ -470,7 +470,7 @@ SubModule (CFML_EoS) EoS_002
          vol=vol+vstep
       end do
       d2y=Second_Derivative(x, y, nstep)
-      vol=spline_interpol(x,y,d2y,nstep,p)
+      vol=spline_interpol(p,x,y,d2y,nstep)
       
       v=vol
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)

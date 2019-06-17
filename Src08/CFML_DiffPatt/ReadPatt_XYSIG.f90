@@ -302,7 +302,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
          bk=spline_d2y(pat%x(:),pat%y(:),ntt,yp1,ypn)
          do i=1,pat%npts
             xt=pat%x(1)+(i-1)*step
-            ycor=spline_interpol(pat%x(:),pat%y(:),bk(:),ntt,xt)
+            ycor=spline_interpol(xt,pat%x(:),pat%y(:),bk(:),ntt)
             yc(i)=ycor !max(1.0_cp,ycor)
          end do
          do i=1,pat%npts
@@ -315,7 +315,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
          bk=spline_d2y(pat%x(:),pat%sigma(:),ntt,yp1,ypn)
          do i=1,pat%npts
             xt=pat%x(1)+(i-1)*step
-            ycor=spline_interpol(pat%x(:),pat%sigma(:),bk(:),ntt,xt)
+            ycor=spline_interpol(xt,pat%x(:),pat%sigma(:),bk(:),ntt)
             yc(i)=ycor !max(1.0_cp,ycor)
          end do
          do i=1,pat%npts

@@ -46,35 +46,38 @@
 !!
 Module CFML_gSpaceGroups
     !---- Use Modules ----!
-    Use CFML_GlobalDeps
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Magnetic_Database
-    Use CFML_Maths,      only: Set_eps_math, modulo_lat, determ 
-    Use CFML_Strings,    only: u_case, l_case, pack_string, get_separator_pos, get_num, &
-                               get_words, String_Fraction_2Dig
+    Use CFML_GlobalDeps,        only: CP, LI, err_cfml, clear_error, CFML_Debug
+    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ 
+    Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
+                                      get_words, String_Fraction_2Dig
 
     !---- Variables ----!
     implicit none
 
-    !private
+    private
     
     !---- List of public operators ----!
     public :: operator (*) 
     public :: operator (==) 
     
     !---- List of public subroutines ----!
-    public :: Group_Constructor, Get_Cosets, Get_SubGroups_Subgen, &
-              Init_SpaceGroup, Identify_Group, &
-              Set_Conditions_NumOP_EPS, &
+    public :: Apply_OP,                                                           &
+              Get_Crystal_System, Get_Dimension_SymmOP, Get_Hall_from_Generators, &
+              Get_HM_Standard, Get_Lattice_Type, Get_Laue_Num, Get_Laue_Str,      &
+              Get_OP_from_Symb, Get_PointGroup_Num, Get_PointGroup_Str,           &
+              Get_Rotation_Order, get_Symb_from_Mat, Get_Symb_from_OP,            &
+              Inverse_OP
+    
+    public :: Allocate_OP, Allocate_SpaceGroup,                                   &
+              Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
+              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups, Group_Constructor,&
+              Identify_Group, Init_SpaceGroup,                                    &
+              Set_Conditions_NumOP_EPS, Set_SpaceGroup,                           &
               Write_SpaceGroup_Info
               
-    !---- Parameters ----!
-    integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity
-    character(len=1), dimension(10),  parameter :: XYZ=["x","y","z","t","u","v","w","p","q","r"]
-    character(len=1), dimension(10),  parameter :: ABC=["a","b","c","d","e","f","g","h","i","j"]
-    character(len=3), dimension(10),  parameter :: X1X2X3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
-
     !---- Types ----!
     
     Type, public :: Symm_Oper_Type
@@ -117,11 +120,15 @@ Module CFML_gSpaceGroups
     End Type SPG_Type
     
     !---- Private Variables ----!
-    integer                                     :: MaxNum_OP=2048     ! Maximum number of Operators
-    character(len=120), dimension(230)          :: it_spg_gen=" "     ! Generator of space groups in the standard setting
-    type(rational), dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
-    
-    logical, public                             :: Hexa=.false. 
+    integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity
+    character(len=1), dimension(10),  parameter :: XYZ=["x","y","z","t","u","v","w","p","q","r"]
+    character(len=1), dimension(10),  parameter :: ABC=["a","b","c","d","e","f","g","h","i","j"]
+    character(len=3), dimension(10),  parameter :: X1X2X3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
+
+    integer                                         :: MaxNum_OP=2048     ! Maximum number of Operators
+    character(len=120), dimension(230)              :: it_spg_gen=" "     ! Generator of space groups in the standard setting
+    type(rational),     dimension(:,:), allocatable :: Identity_Matrix    ! Identity matrix
+    logical                                         :: Hexa=.false.       ! Identify hexagonal groups 
     
     
     !-------------------!
@@ -145,6 +152,11 @@ Module CFML_gSpaceGroups
        module procedure SpaceG_Constructor_GenV
        module procedure SpaceG_Constructor_Str
     End Interface Group_Constructor
+    
+    Interface Get_Generators
+       module procedure Get_Generators_from_Hall
+       module procedure Get_Generators_from_Str
+    End Interface Get_Generators
     
     Interface Get_Lattice_Type
        module procedure Get_Lattice_Type_L
@@ -193,11 +205,11 @@ Module CFML_gSpaceGroups
           class(Spg_Type), intent(in out) :: Grp
        End Subroutine Allocate_SpaceGroup
        
-       Module Subroutine Allocate_Symm_Op(d, Op)
+       Module Subroutine Allocate_Op(d, Op)
           !---- Arguments ----!
           integer,              intent(in)    :: d
           type(Symm_Oper_Type), intent(inout) :: Op
-       End Subroutine Allocate_Symm_Op
+       End Subroutine Allocate_Op
        
        Module Subroutine Check_Gener(Gen_in, Gen_out)
           !---- Arguments ----!
@@ -258,30 +270,30 @@ Module CFML_gSpaceGroups
           integer                      :: d
        End Function Get_Dimension_SymmOp 
        
-       Module Subroutine Get_Generators_from_Hall(Hall, ngen, Gen, Rshift)
+       Module Subroutine Get_Generators_from_Hall(Hall, Gen, Ngen, Rshift)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: Hall
-          integer,                                     intent(out) :: Ngen
           character(len=*), dimension(:), allocatable, intent(out) :: Gen 
+          integer,                                     intent(out) :: Ngen
           logical, optional,                           intent(in)  :: RShift
        End Subroutine Get_Generators_from_Hall
        
-       Module Subroutine Get_Generators_from_Str(StrGen, d, ngen, gen)
+       Module Subroutine Get_Generators_from_Str(StrGen, d, gen, ngen)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: StrGen
           integer,                                     intent(out) :: d
-          integer,                                     intent(out) :: ngen
           character(len=*), dimension(:), allocatable, intent(out) :: gen
+          integer,                                     intent(out) :: ngen
        End Subroutine Get_Generators_from_Str  
        
-       Module Subroutine Get_Generators(laueClass,symOp,nSymOp,G,nGen)
+       Module Subroutine Get_Generators_L(laueClass,symOp,nSymOp,Gen,nGen)
           !---- Arguments ----!
           character(len=*),                        intent(in)  :: laueClass ! Laue class
           type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
           integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
-          type(Symm_Oper_Type), dimension(3),      intent(out) :: G         ! generators
+          type(Symm_Oper_Type), dimension(3),      intent(out) :: Gen       ! generators
           integer,                                 intent(out) :: nGen      ! number of generators
-       End Subroutine Get_Generators
+       End Subroutine Get_Generators_L
        
        Module Function Get_Hall_from_Generators(Ngen, Gen, Ishift) Result(Hall)
           !---- Arguments ----!
@@ -310,9 +322,9 @@ Module CFML_gSpaceGroups
           character(len=1)                            :: lattyp
        End Function Get_Lattice_Type_from_MAT
        
-       Module Function Get_Lattice_Type_L(L, Latc) Result(lattyp)
+       Module Function Get_Lattice_Type_L(N, Latc) Result(lattyp)
           !---- Arguments ----!
-          integer,                        intent( in) :: L
+          integer,                        intent( in) :: N
           type(rational), dimension(:,:), intent( in) :: Latc
           character(len=1)                            :: lattyp
        End Function Get_Lattice_Type_L
@@ -338,10 +350,10 @@ Module CFML_gSpaceGroups
           character(len=:), allocatable :: Str_Laue
        End Function Get_Laue_Str
        
-       Module Subroutine Get_Magnetic_Lattice_Type(G)
+       Module Subroutine Get_Magnetic_Lattice(G)
           !---- Arguments ----!
           type(spg_type), intent(in out) :: G
-       End Subroutine Get_Magnetic_Lattice_Type
+       End Subroutine Get_Magnetic_Lattice
        
        Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
           !---- Arguments ----!
@@ -531,10 +543,10 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3,4)              :: vPerp
        End Function Get_VecPerp_To_RotAxis 
        
-       Module Subroutine Identify_Crystallographic_PG(G)
+       Module Subroutine Identify_PointGroup(G)
           !---- Arguments ----!
           type(spg_type), intent(in out) :: G
-       End Subroutine Identify_Crystallographic_PG 
+       End Subroutine Identify_PointGroup 
        
        Module Subroutine Identify_Crystal_System(G)
           !---- Arguments ----!
@@ -551,10 +563,10 @@ Module CFML_gSpaceGroups
           class(spg_type),    intent(in out) :: G
        End Subroutine Identify_Group
        
-       Module Subroutine Identify_Laue_Class(G)
+       Module Subroutine Identify_LaueClass(G)
           !---- Arguments ----!
           type(spg_type), intent(inout) :: G
-       End Subroutine Identify_Laue_Class
+       End Subroutine Identify_LaueClass
        
        Module Subroutine Identify_Shubnikov_Group(G)
           !---- Arguments ----!
@@ -634,11 +646,11 @@ Module CFML_gSpaceGroups
           logical                         :: info
        End Function Is_OP_1_Prime
        
-       Module Function Inverse_OP_Symm(Op) Result(i_OP)
+       Module Function Inverse_OP(Op) Result(i_OP)
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op
           type(Symm_Oper_Type)             :: i_Op
-       End Function Inverse_OP_Symm 
+       End Function Inverse_OP 
        
        Module Pure Function Multiply_Symm_Oper(Op1, Op2) Result (Op3)
           !---- Arguments ----!
