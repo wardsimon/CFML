@@ -338,8 +338,8 @@ if [ "$WINT" == "Y" ]; then
    LIBNAME="libwcrysfml.a"
 fi
 #echo "DIRLIB: $DIRLIB  LIBNAME: $LIBNAME WINT: $WINT"
-#ar -c -r $LIBNAME *.o
-ar -c -r -v $LIBNAME *.o
+ar -c -r $LIBNAME *.o
+#ar -c -r -v $LIBNAME *.o
 #
 # -------- Move files and clean up --------
 mv *.mod $CRYSFML/$IDIR/$DIRLIB
