@@ -216,6 +216,7 @@ int IntegerBloc::save() {
 
 
 	dataFile.close();
+	return 0;
 
 }
 

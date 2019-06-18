@@ -172,6 +172,7 @@ int HeaderBloc::save() {
 			<< "\n";
 
 	dataFile.close();
+	return 0;
 
 }
 

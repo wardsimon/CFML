@@ -61,6 +61,10 @@ Here are the instructions to run cmake in order to build the CrysFML library.
        
       Useful CMake variables (case sensitive):
        
+         * USE_HDF: ON|OFF.
+           Default OFF
+           If ON, CrysFML will be able to read NeXuS input data files.
+           
          * GUI: ON|OFF.
            Default OFF
            If OFF, only CrysFML will be built.

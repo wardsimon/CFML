@@ -77,8 +77,17 @@ cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_Fortran_COMPILER_FO
 Building CrysFML for use with HDF5
 ==================================
 We should use the alternative CFML_ILL_Instrm_Data_Nexus.f90 instead of CFML_ILL_Instrm_Data.f90. This is done via pre-processor.
+To help cmake finding dependencies (i.e HDF5, Boost, NeXuS and blosc), environment variables must be set
+    - CRYSFML_HDF5_DIR
+    - CRYSFML_BOOST_DIR
+    - CRYSFML_NEXUS_DIR
+    - CRYSFML_BLOSC_DIR
+    
 cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D USE_HDF=ON -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64HDF -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
 cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows\debug ..\..\.
+
+Be aware hdf5 cannot be built with MinGW without a subtle trick.
+See http://hdf-forum.184993.n3.nabble.com/HDF5-and-MinGW-td3393676.html
 
 Example for SXTALSOFT on Windows
 ================================
