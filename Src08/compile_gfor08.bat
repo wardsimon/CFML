@@ -288,6 +288,8 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Set_SpaceG.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod OnePrimeOp.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod Is_Antilattice.f90                 %OPT1% 
+      gfortran -c %OPTC% -J..\mod ApplySO.f90                        %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_Stabilizer.f90                 %OPT1%
       move /y *.o .. > nul
       cd ..  
 rem   
@@ -380,7 +382,20 @@ rem   Submodules CFML_EoS
       gfortran -c %OPTC%  -J..\mod Strain.f90                        %OPT1%
       gfortran -c %OPTC%  -J..\mod Write_EoS.f90                     %OPT1%
       move /y *.o .. > nul
-      cd ..         
+      cd ..     
+rem
+   echo .... Atoms procedures
+   gfortran -c %OPTC%  -J.\mod CFML_Atoms.f90                     %OPT1%
+rem  
+rem   Submodules CFML_Atoms    
+      cd .\CFML_Atoms   
+      gfortran -c %OPTC% -J..\mod Init_atoms.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Allocating_Atoms.f90               %OPT1%
+      gfortran -c %OPTC% -J..\mod RW_Bin_Atmlist.f90                 %OPT1%
+      gfortran -c %OPTC% -J..\mod Write_AtmList.f90                  %OPT1%
+      gfortran -c %OPTC% -J..\mod ExtendList.f90                     %OPT1%
+      move /y *.o .. > nul
+      cd ..           
       goto END
       
 :END

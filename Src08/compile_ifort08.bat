@@ -286,6 +286,8 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Set_SpaceG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c OnePrimeOp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Get_Stabilizer.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
       move /y *.obj .. > nul
       cd .. 
  rem   
@@ -379,17 +381,25 @@ rem   Submodules CFML_EoS
       ifort /c Write_EoS.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..   
+rem
+   echo .... Atoms procedure
+   ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
+rem  
+rem   Submodules CFML_Atoms    
+      cd .\CFML_Atoms   
+      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd .. 
       goto END
 
-   ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   if [%_WINTER%]==[Y] (
-     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
-   ) else (
-     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
-   )
 rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
+   ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
 rem
@@ -400,7 +410,6 @@ rem
    echo .... EoS, Reflections, Atoms
 rem
    ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
 rem
    echo .... Formats, Geometry, Molecules
 rem

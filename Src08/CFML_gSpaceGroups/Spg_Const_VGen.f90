@@ -49,7 +49,7 @@ SubModule (CFML_gSpaceGroups) SPG_020
       
       allocate(Op(maxnum_op))
       do i=1,maxnum_op
-         call Allocate_Symm_Op(d,Op(i))
+         call allocate_op(d,Op(i))
       end do
       
       !> Construct the list of the generators on top of Op. 

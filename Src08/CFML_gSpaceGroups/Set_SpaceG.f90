@@ -141,10 +141,10 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
          
          if (len_trim(gList) == 0) then
-            call Get_Generators_from_Hall(str_hall,n_gen, l_gen)
+            call Get_Generators(str_hall,l_gen,n_gen)
             if (Err_CFML%Ierr /= 0) return
          else
-            call Get_Generators_from_Str(gList, d, n_gen, l_gen)   
+            call Get_Generators(gList, d, l_gen, n_gen)   
          end if   
          
       else

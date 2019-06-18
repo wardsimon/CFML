@@ -49,7 +49,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
          nop=nop*2        ! number of symmetry operators excluding lattice centrings
          nc=SpG%Numops+1  ! Position of the centre of symmetry if it exist
          gen_cent=SpG%Symb_Op(nc)
-         call Allocate_Symm_Op(SpG%d,Op_cent)
+         call Allocate_Op(SpG%d,Op_cent)
          Op_cent=SpG%Op(nc)  !Operator corresponding to the centre of symmetry
       end if
       
@@ -65,7 +65,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
        
       !> Formation of the list of possible generators extracted from list of generators of 
       !> the input Group
-      call Get_Generators_from_Str(SpG%generators_list,d,ngen,gen_min)
+      call Get_Generators(SpG%generators_list,d,gen_min, ngen)
       
       !>Purge the list of operators eliminating centre of symmetry and Lattice Translations
       n=0

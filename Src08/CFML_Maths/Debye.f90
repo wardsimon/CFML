@@ -22,6 +22,7 @@ Submodule (CFML_Maths) Sbm_Debye
 
        !> Init
        fval=0.0_cp
+       call clear_error()
        
        !> Check
        if (n <= 0) then

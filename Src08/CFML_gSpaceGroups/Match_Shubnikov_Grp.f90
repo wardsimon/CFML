@@ -148,7 +148,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         allocate(gener(G%multip))
         
         !> Build groups from generators
-        call Allocate_Symm_Op(G%d,Op)
+        call allocate_op(G%d,Op)
         do n = 1 , nA
            do i = 1 , G%multip
               Op%Mat      = matmul(G%Op(i)%Mat,C(:,:,n))
@@ -184,7 +184,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         !> Get the magnetic lattice type for every setting
         do n = 1 , nA
            if (doTest(n)) then
-              call Get_Magnetic_Lattice_Type(G_aux(n))
+              call Get_Magnetic_Lattice(G_aux(n))
               
               !> Correct symbol for triclinic systems with anti-translations
               if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
@@ -194,7 +194,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         !> Get generators for every setting
         do n = 1 , nA
            if (doTest(n)) then
-              call Get_Generators(G_aux(n)%laue,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
+              call Get_Generators_L(G_aux(n)%laue,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
               
               !> Map generators to G_aux(n)%Op
               do i = 1 , ngen

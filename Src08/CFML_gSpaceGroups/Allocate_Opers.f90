@@ -2,11 +2,11 @@ SubModule (CFML_gSpaceGroups) SPG_007
    Contains
    
    !!----
-   !!---- ALLOCATE_SYMM_OP
+   !!---- ALLOCATE_OP
    !!----
    !!---- 19/04/19
    !!
-   Module Subroutine Allocate_Symm_Op(d, Op)
+   Module Subroutine Allocate_OP(d, Op)
       !---- Arguments ----!
       integer,              intent(in)     :: d
       type(Symm_Oper_Type), intent(in out) :: Op
@@ -21,7 +21,7 @@ SubModule (CFML_gSpaceGroups) SPG_007
       Op%Mat=Identity_Matrix
       Op%time_inv=1
       Op%dt=1
-   End Subroutine Allocate_Symm_Op
+   End Subroutine Allocate_OP
    
    !!----
    !!---- ALLOCATE_OPERATORS
@@ -44,7 +44,7 @@ SubModule (CFML_gSpaceGroups) SPG_007
       allocate(Op(NMax))
       
       do i=1, NMax
-         call Allocate_Symm_Op(d,Op(i))
+         call Allocate_Op(d,Op(i))
       end do
    End Subroutine Allocate_Operators
    

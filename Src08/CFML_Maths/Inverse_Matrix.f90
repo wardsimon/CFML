@@ -440,7 +440,7 @@ Submodule (CFML_Maths) Inverse_Matrix
           singular=.true.
           return
        end if
-       vv=1.0_sp/vv     !Save the scaling.
+       vv=1.0_cp/vv     !Save the scaling.
 
        do j=1,n
           jj=maxloc(vv(j:n)*abs(a(j:n,j)),dim=1)

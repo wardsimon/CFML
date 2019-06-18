@@ -53,7 +53,7 @@ Submodule (CFML_Maths) Is_Diagonal_Matrix
         
        do j=1, size(A,2)
           do i=1 , size(A,1)
-             if (j /= i .and. abs(A(i,j)) > epsilon(1.0_sp)) then
+             if (j /= i .and. abs(A(i,j)) > epsilon(1.0_cp)) then
                 info = .false.
                 return
              end if

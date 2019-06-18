@@ -50,7 +50,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
          nop=nop*2 !!number of symmetry operators excluding lattice centrings
          nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
          gen_cent=SpG%Symb_Op(nc)
-         call Allocate_Symm_Op(SpG%d,Op_cent)
+         call allocate_op(SpG%d,Op_cent)
          Op_cent=SpG%Op(nc)
       end if
       nla=0

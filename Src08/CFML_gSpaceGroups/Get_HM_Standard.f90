@@ -15,7 +15,7 @@ SubModule (CFML_gSpaceGroups) SPG_034
        character(len=:), allocatable :: symbolHM
 
        !---- Local variables ----!
-       integer :: i, n
+       integer               :: i, n
        integer, dimension(1) :: posSep
 
        !> Init

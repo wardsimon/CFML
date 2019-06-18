@@ -79,7 +79,7 @@ Submodule (CFML_DiffPatt) AddPatt
               k=locate(Patterns(i)%x,Pat%x(j))
               if (k == 0) cycle
               nc=nc+1
-              y=spline_interpol(Patterns(i)%x,Patterns(i)%y,d2y(:,i),Patterns(i)%npts,Pat%x(j))
+              y=spline_interpol(Pat%x(j),Patterns(i)%x,Patterns(i)%y,d2y(:,i),Patterns(i)%npts)
               fac=cnorm/Patterns(i)%ymax
               Pat%y(j)=Pat%y(j)+ y*fac
               Pat%sigma(j)=Pat%sigma(j)+ Patterns(i)%sigma(k)

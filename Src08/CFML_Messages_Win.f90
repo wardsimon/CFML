@@ -52,7 +52,7 @@
                            WEditFile, WEditPutTextPart, WindowSelect, WInfoEditor,       &
                            CommandLine,WInfoScreen,CourierNew,win_message
 
-    use CFML_GlobalDeps, only: OPS, Newline
+    use CFML_GlobalDeps, only: OPS, NEWLINE
 
     !---- Definitions ----!
     implicit none

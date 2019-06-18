@@ -40,7 +40,7 @@
 !!
 Module CFML_ExtinCorr
    !---- Use Modules ----!
-   Use CFML_GlobalDeps
+   Use CFML_GlobalDeps, only: CP, Err_CFML, Clear_Error
    
    !---- Variables ----!
    Implicit none

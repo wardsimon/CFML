@@ -162,7 +162,7 @@
 !!
 Module CFML_FFT
    !---- Use Modules ----!
-   use CFML_GlobalDeps, only : CP, SP, DP, ERR_CFML
+   use CFML_GlobalDeps, only : CP, DP, ERR_CFML
 
    !---- Local Variables ----!
    implicit none

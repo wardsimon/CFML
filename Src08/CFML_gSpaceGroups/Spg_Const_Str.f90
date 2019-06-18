@@ -28,7 +28,7 @@ SubModule (CFML_gSpaceGroups) SPG_019
       call Clear_Error()
       call Init_SpaceGroup(Spg)
       allocate(gen1(maxnum_op))
-      call Get_Generators_from_Str(ListGen, d, ngen1, gen1)
+      call Get_Generators(ListGen, d, gen1, ngen1)
       call Check_Gener(gen1, gen)
       if (Err_CFML%Ierr /= 0) return
       
@@ -40,7 +40,7 @@ SubModule (CFML_gSpaceGroups) SPG_019
 
       allocate(Op(maxnum_op))       
       do i=1,maxnum_op
-         call Allocate_Symm_Op(d,Op(i))
+         call Allocate_Op(d,Op(i))
       end do
       
       allocate(Mat(d,d))

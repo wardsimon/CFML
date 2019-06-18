@@ -31,8 +31,8 @@ rem
          (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
       ) else (
          if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
-         (set OPT0=/Od)
-         (set OPT1=/O2)
+         (set OPT0=/Od )
+         (set OPT1=/O2 )
       )
       (set OPT2=/fpp /Qopt-report:0)
    )

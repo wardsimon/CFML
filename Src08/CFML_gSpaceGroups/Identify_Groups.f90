@@ -122,10 +122,10 @@ SubModule (CFML_gSpaceGroups) SPG_045
       call Read_Magnetic_Data()
       if (Err_CFML%IErr /=0) return
 
-      call Identify_Crystallographic_PG(G)
+      call Identify_PointGroup(G)
       if (Err_CFML%Ierr /= 0) return
 
-      call Identify_Laue_Class(G)
+      call Identify_LaueClass(G)
       if (Err_CFML%Ierr /= 0) return
       
       call Identify_Crystal_System(G)

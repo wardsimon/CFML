@@ -40,7 +40,7 @@
 !!
  Module CFML_Maths
     !---- Use Modules ----!
-    Use CFML_GlobalDeps
+    Use CFML_GlobalDeps, only: CP, DP, Err_CFML, Clear_Error
 
     !---- Variables ----!
     implicit none
@@ -824,11 +824,11 @@
           logical                                    :: info
        End Function Linear_Dependent_R
 
-       Module Pure Function Linear_Interpol(x,y,xi) Result(yi)
+       Module Pure Function Linear_Interpol(xi,x,y) Result(yi)
           !---- Arguments ----!
+          real(kind=cp),              intent(in)   :: xi ! X point to evaluate
           real(kind=cp), dimension(:),intent(in)   :: x  ! Vector containing Xi points
           real(kind=cp), dimension(:),intent(in)   :: y  ! Vector Yi=F(xi)
-          real(kind=cp),              intent(in)   :: xi ! X point to evaluate
           real(kind=cp)                            :: yi ! Output
        End Function Linear_Interpol
 
@@ -1164,13 +1164,13 @@
           real(kind=cp), dimension(n)            :: ys              ! Out -> array containing second derivatives
        End Function Spline_D2Y
 
-       Module Pure Function Spline_Interpol(x,y,d2y,n,xi) Result(yi)
+       Module Pure Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
           !---- Arguments ----!
+          real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
           real(kind=cp), dimension(:), intent(in)  :: x    ! Vector Xi points
           real(kind=cp), dimension(:), intent(in)  :: y    ! Vector Yi points
           real(kind=cp), dimension(:), intent(in)  :: d2y  ! Vector Second derivate of Yi points
           integer ,                    intent(in)  :: n    ! Dimension of vectors
-          real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
           real(kind=cp)                            :: yi
        End Function Spline_Interpol
 

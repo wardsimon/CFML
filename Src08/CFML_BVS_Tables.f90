@@ -41,7 +41,7 @@
 !!
  Module CFML_BVS_Tables
     !---- Use Files ----!
-    Use CFML_GlobalDeps
+    Use CFML_GlobalDeps, only: CP, DP
 
     !---- Variables ----!
     implicit none
@@ -127,12 +127,12 @@
         character(len=4) :: Symb =" "    ! Element with charge
         integer          :: oxs  =0      ! Nominal oxidation state
         integer          :: dox  =0      ! Default oxidation state
-        real             :: Mass =0.0    ! Atomic mass in atomic units
+        real(kind=cp)    :: Mass =0.0_cp ! Atomic mass in atomic units
         integer          :: n    =0      ! Principal Quantum number (period)
         integer          :: g    =0      ! Group in the periodic table
         integer          :: b    =0      ! Block (s:0, p:1, d:2, f:3)
-        real             :: Rc   =0.0    ! Covalent radius
-        real             :: sigma=0.0    ! Softness
+        real(kind=cp)    :: Rc   =0.0_cp ! Covalent radius
+        real(kind=cp)    :: sigma=0.0_cp ! Softness
     End Type Atomic_Properties_Type
     
     !!----

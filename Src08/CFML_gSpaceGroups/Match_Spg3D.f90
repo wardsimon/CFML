@@ -104,10 +104,10 @@ SubModule (CFML_gSpaceGroups) Spg_058
        end if   
        
        gList=get_IT_Generators(str)  ! IT take our default choice for SpaceGroup
-       call Get_Generators_from_Str(gList, d, n_gen, l_gen) 
+       call Get_Generators(gList, d, l_gen, n_gen) 
        call Group_Constructor(l_gen,G_std)
-       call Identify_Crystallographic_PG(G_std)
-       call Identify_Laue_Class(G_std)
+       call Identify_PointGroup(G_std)
+       call Identify_LaueClass(G_std)
        call Get_SpaceGroup_Symbols(Str, str_HM)
        str_HM=adjustl(str_HM)
        G_std%spg_lat=str_HM(1:1)
@@ -130,7 +130,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
               G_std%Centred /= 1 .and. G_(s)%Centred /= 1)) then
                
              !> Get generators from the standard space group
-             call Get_Generators(G_std%laue,G_std%op,G_std%Multip,gen_std,ng)
+             call Get_Generators_L(G_std%laue,G_std%op,G_std%Multip,gen_std,ng)
              if (Err_CFML%Ierr /= 0) return
              
              !> Try to get these generators from SGaux(s)

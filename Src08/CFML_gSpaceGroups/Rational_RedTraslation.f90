@@ -25,7 +25,7 @@ SubModule (CFML_gSpaceGroups) SPG_004
             Mat(i,n) = (0//1)
          else
             m=Mat(i,n)%numerator / Mat(i,n)%denominator
-            if (Mat(i,n) > 0_LI) then
+            if (Mat(i,n) > 0//1) then
                Mat(i,n) = Mat(i,n) - (m//1)
             else
                Mat(i,n) = Mat(i,n) - (m//1) + (1//1)

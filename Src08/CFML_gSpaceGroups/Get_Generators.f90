@@ -7,12 +7,12 @@ SubModule (CFML_gSpaceGroups) SPG_038
     !!----
     !!---- 24/04/2019 
     !!
-    Module Subroutine Get_Generators(laueClass,symOp,nSymOp,G,nGen)
+    Module Subroutine Get_Generators_L(laueClass,symOp,nSymOp,Gen,nGen)
         !---- Arguments ----!
         character(len=*),                        intent(in)  :: laueClass ! Laue class
         type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
         integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
-        type(Symm_Oper_Type), dimension(3),      intent(out) :: G         ! generators
+        type(Symm_Oper_Type), dimension(3),      intent(out) :: Gen       ! generators
         integer,                                 intent(out) :: nGen      ! number of generators
 
         integer                              :: i,n,ngaux,inversion
@@ -29,7 +29,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
         call Rational_Identity_Matrix(identity)
         allocate(idd(nSymOp,2))
         do i = 1 , 3
-           allocate(G(i)%Mat(4,4))
+           allocate(Gen(i)%Mat(4,4))
         end do
 
         !> Look for an inversion center
@@ -46,14 +46,14 @@ SubModule (CFML_gSpaceGroups) SPG_038
                   nGen = 1
                   ! Search for the onefold axis
                   call Get_Rotations(symOp(:),nSymOp,1,n,idd)
-                  G(1) = symOp(idd(1,1))
+                  Gen(1) = symOp(idd(1,1))
               end if
 
            case ("2/m") ! Monoclinic
               nGen = 1
               ! Search for a twofold axis
               call Get_Rotations(symOp(:),nSymOp,2,n,idd)
-              G(1) = symOp(idd(1,1))
+              Gen(1) = symOp(idd(1,1))
 
            case ("mmm")! Orthorhombic
               nGen = 2
@@ -65,7 +65,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                  if ((axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) .or. &
                     (axis(1) == (0//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
                     ngaux = ngaux + 1
-                    G(ngaux) = symOp(idd(i,1))
+                    Gen(ngaux) = symOp(idd(i,1))
                     if (ngaux == 2) exit
                  end if
               end do
@@ -77,7 +77,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
                     if (Positive_SenseRot(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                       G(1) = symOp(idd(i,1))
+                       Gen(1) = symOp(idd(i,1))
                        nGen = 1
                        exit
                     end if
@@ -89,7 +89,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (1//1) .and. axis(2) == (0//1) .and. axis(3) == (0//1)) then
-                    G(2) = symOp(idd(i,1))
+                    Gen(2) = symOp(idd(i,1))
                     nGen = 2
                     exit
                  end if
@@ -102,7 +102,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
                     if (Positive_SenseRot(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                       G(1) = symOp(idd(i,1))
+                       Gen(1) = symOp(idd(i,1))
                        nGen     = 1
                        exit
                     end if
@@ -115,7 +115,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if ((axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) .or. &
                     (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1))) then
-                    G(2) = symOp(idd(i,1))
+                    Gen(2) = symOp(idd(i,1))
                     nGen     = 2
                     exit
                  end if
@@ -128,7 +128,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
                      if (Positive_SenseRot(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                        G(1) = symOp(idd(i,1))
+                        Gen(1) = symOp(idd(i,1))
                         nGen     = 1
                         exit
                      end if
@@ -140,7 +140,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                do i = 1 , n
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) then
-                     G(2) = symOp(idd(i,1))
+                     Gen(2) = symOp(idd(i,1))
                      nGen         = 2
                      exit
                   end if
@@ -153,7 +153,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
                      if (Positive_SenseRot(symOp(idd(i,1))%Mat,axis)) then
-                        G(1) = symOp(idd(i,1))
+                        Gen(1) = symOp(idd(i,1))
                         nGen = 1
                         exit
                      end if
@@ -166,7 +166,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                   do i = 1 , n
                      axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                      if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
-                        G(1) = symOp(idd(i,1))
+                        Gen(1) = symOp(idd(i,1))
                         nGen = 1
                         exit
                      end if
@@ -179,7 +179,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (1//1)) then
                      if (Positive_SenseRot(symOp(idd(i,1))%Mat(1:3,1:3),axis)) then
-                        G(2) = symOp(idd(i,1))
+                        Gen(2) = symOp(idd(i,1))
                         nGen = 2
                         exit
                      end if
@@ -194,16 +194,9 @@ SubModule (CFML_gSpaceGroups) SPG_038
         end select
 
         if (inversion > 0) then
-           ! Choose proper rotations if the spacegroup is centrosymmetric
-           !do i = 1 , nGen
-           !    det = rational_determ(G(i)%Mat(1:3,1:3))
-           !    G(i)%Mat(1:3,1:3) = det * G(i)%Mat(1:3,1:3)
-           !    !G(i)%time_inv     = symOp(inversion)%time_inv * G(i)%time_inv
-           !    write(*,*) "Hola ",symOp(inversion)%time_inv,G(i)%time_inv,G(i)%time_inv*symOp(inversion)%time_inv
-           !end do
            nGen = nGen + 1
-           G(nGen) = symOp(inversion)
+           Gen(nGen) = symOp(inversion)
         end if
-    End Subroutine Get_Generators
+    End Subroutine Get_Generators_L
     
 End SubModule SPG_038    
