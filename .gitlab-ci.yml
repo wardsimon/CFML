@@ -46,6 +46,10 @@ make:macos_ifort:
 make:windows_gfortran:
   stage: make
   script:
+    - set CRYSFML_HDF5_DIR=C:\\Projects\\fullprof\\hdf5
+    - set CRYSFML_BOOST_DIR=C:\\Projects\\fullprof\\boost\\include\\boost-1_69\\boost
+    - set CRYSFML_NEXUS_DIR=C:\\Projects\\fullprof\\NeXuS
+    - set CRYSFML_BLOSC_DIR=C:\\Projects\\fullprof\\blosc
     - call "%BuildServer\\Windows\\build.bat" gfortran
   tags:
     - sci
@@ -56,6 +60,10 @@ make:windows_ifort:
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
+    - set CRYSFML_HDF5_DIR=C:\\Projects\\fullprof\\hdf5
+    - set CRYSFML_BOOST_DIR=C:\\Projects\\fullprof\\boost\\include\\boost-1_69\\boost
+    - set CRYSFML_NEXUS_DIR=C:\\Projects\\fullprof\\NeXuS
+    - set CRYSFML_BLOSC_DIR=C:\\Projects\\fullprof\\blosc
     - call "%BuildServer\\Windows\\build.bat" ifort
   tags:
     - sci

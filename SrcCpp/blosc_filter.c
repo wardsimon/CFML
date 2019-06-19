@@ -12,7 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#ifdef __APPLE__
+#include "hdf5.h"
+#elif _WIN32
+#include "hdf5.h"
+#else
 #include "hdf5/serial/hdf5.h"
+#endif
 #include "blosc_filter.h"
 
 #if H5Epush_vers == 2
