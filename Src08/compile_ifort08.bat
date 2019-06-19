@@ -390,8 +390,8 @@ rem   Submodules CFML_Atoms
       ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+rem      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+rem      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd .. 
       goto END
