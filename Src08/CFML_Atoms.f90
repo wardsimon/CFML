@@ -126,6 +126,23 @@ Module CFML_Atoms
     End Type Atm_Ref_Type 
     
     !!----
+    !!---- TYPE :: MATM_REF_TYPE
+    !!----
+    !!----      Refinement Atom type
+    !!----
+    Type, Public, Extends(MAtm_Std_Type) :: MAtm_Ref_Type
+       integer,      dimension(3)               :: LX       =0      ! Code for parameters
+       integer                                  :: LOcc     =0
+       integer                                  :: LU_iso   =0 
+       integer,      dimension(6)               :: LU       =0
+       real(kind=cp),dimension(3)               :: MX       =0.0_cp ! Factor of refinement
+       real(kind=cp)                            :: MOcc     =0.0_cp
+       real(kind=cp)                            :: MU_iso   =0.0_cp
+       real(kind=cp),dimension(6)               :: MU       =0.0_cp
+    End Type MAtm_Ref_Type 
+    
+    
+    !!----
     !!---- TYPE ::ATM_CELL_TYPE
     !!--..
     !!---- This type is mostly used for distance-angle and Bond-valence calculations.
@@ -154,42 +171,11 @@ Module CFML_Atoms
     !!---- TYPE :: ALIST_TYPE
     !!--..
     !!
-    Type, Public :: AList_Type
+    Type, Public :: AtList_Type
        integer                                    :: natoms=0   ! Number of atoms in the list
        logical,         dimension(:), allocatable :: Active     ! Flag for active or not
-    End type AList_Type
-    
-    !!----
-    !!---- TYPE :: ATOM_LIST_TYPE
-    !!--..
-    !!
-    Type, Public, Extends(AList_Type) :: Atm_List_Type
-       type(Atm_Type),  dimension(:), allocatable :: Atom       ! Atoms
-    End type Atm_List_Type
-    
-    !!----
-    !!---- TYPE :: ATOM_STD_LIST_TYPE
-    !!--..
-    !!
-    Type, Public, Extends(AList_Type) :: Atm_std_List_Type
-       type(Atm_std_Type),  dimension(:), allocatable :: Atom       ! Atoms
-    End type Atm_std_List_Type
-    
-    !!----
-    !!---- TYPE :: MATOM_STD_LIST_TYPE
-    !!--..
-    !!
-    Type, Public, Extends(AList_Type) :: MAtm_std_List_Type
-       type(MAtm_std_Type),  dimension(:), allocatable :: Atom       ! Atoms
-    End type MAtm_std_List_Type
-
-    !!----
-    !!---- TYPE :: ATOM_REF_LIST_TYPE
-    !!--..
-    !!
-    Type, Public, Extends(AList_Type) :: Atm_Ref_List_Type
-       type(Atm_ref_Type),  dimension(:), allocatable :: Atom       ! Atoms
-    End type Atm_Ref_List_Type
+       class(Atm_Type), dimension(:), allocatable :: Atom       ! Atoms
+    End type AtList_Type
     
     !---- Interface Zone ----!
     Interface
@@ -200,32 +186,32 @@ Module CFML_Atoms
        
        Module Subroutine Allocate_Atom_List(N, A)
           !---- Arguments ----!
-          integer,            intent(in)       :: n    
-          class(alist_type),  intent(in out)   :: A    
+          integer,             intent(in)       :: n    
+          class(atlist_type),  intent(in out)   :: A    
        End Subroutine Allocate_Atom_List
        
        Module Subroutine Read_Bin_Atom_List(filename, A)
           !---- Arguments ----!
-          character(len=*),  intent(in)  :: filename
-          class(alist_type), intent(out) :: A
+          character(len=*),   intent(in)    :: filename
+          class(atlist_type), intent(in out) :: A
        End Subroutine Read_Bin_Atom_List  
        
        Module Subroutine Write_Bin_Atom_List(filename, A)
           !---- Arguments ----!
-          character(len=*),  intent(in) :: filename
-          class(alist_type), intent(in) :: A 
+          character(len=*),   intent(in) :: filename
+          class(atlist_type), intent(in) :: A 
        End Subroutine Write_Bin_Atom_List   
        
        Module Subroutine Write_Info_Atom_List(A, Iunit)
           !---- Arguments ----!
-          class(alist_type),              intent(in) :: A        
+          class(atlist_type),              intent(in) :: A        
           integer,              optional, intent(in) :: IUnit    
        End Subroutine Write_Info_Atom_List
        
        Module Subroutine Extend_List(A, B, Spg, Conven)
           !---- Arguments ----!
-          class(alist_type),   intent(in)     :: A         
-          class(alist_type),   intent(in out) :: B         
+          class(atlist_type),   intent(in)     :: A         
+          class(atlist_type),   intent(in out) :: B         
           type(SpG_Type),      intent(in)     :: SpG       
           logical, optional,   intent(in)     :: Conven    
        End Subroutine Extend_List

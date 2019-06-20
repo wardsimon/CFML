@@ -481,7 +481,7 @@ SubModule (CFML_EoS) EoS_024
 
             do i=1,4
                if (eospar%iuse(i) /= 0) then
-                  call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
+                  line=string_numstd(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i))
                   string=' '
                   select case(eospar%iuse(i))
                      case (2)

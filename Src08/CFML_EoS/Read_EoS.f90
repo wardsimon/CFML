@@ -309,7 +309,7 @@ SubModule (CFML_EoS) EoS_023
 
          !> Read the numbers on this line
          nlines_datum=nlines_datum+1
-         call getnum_std(line,vet,vetsd,iv)
+         call get_numstd(line,vet,vetsd,iv)
          if (iv == 0) then
             err_CFML%IErr=1
             Err_CFML%Msg='No values found on line '//trim(car)//' of data file!'
@@ -427,7 +427,7 @@ SubModule (CFML_EoS) EoS_023
       dat%ic_dat=ic_dat         ! flags for original input
 
       !> Default values in function of system
-      call Def_Crystal_System(dat)
+      call Define_Crystal_System(dat)
       ! Do not test for error here because we can still set the volume
 
       !> Volume calculation if have cell parameters
