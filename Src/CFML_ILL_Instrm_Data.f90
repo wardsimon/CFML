@@ -4823,7 +4823,7 @@ Module CFML_ILL_Instrm_Data
           call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
 
           ! If the numor is not a D19 numor, stop here.
-          if (index(line(1:4),'D19') <= 0) then
+          if (index(u_case(line(1:4)),'D19') <= 0) then
              err_illdata=.true.
              err_illdata_mess='This numor does not match with D19 Format'
              return
