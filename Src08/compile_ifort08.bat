@@ -382,7 +382,7 @@ rem   Submodules CFML_EoS
       move /y *.obj .. > nul
       cd ..   
 rem
-   echo .... Atoms procedure
+   echo .... Atoms procedures
    ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
 rem  
 rem   Submodules CFML_Atoms    
@@ -390,8 +390,25 @@ rem   Submodules CFML_Atoms
       ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-rem      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
-rem      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd .. 
+rem
+   echo .... Reflections procedures
+   ifort /c CFML_Reflections.f90                      /nologo %OPT1% %OPT2% /module:.\mod 
+rem  
+rem   Submodules CFML_Reflections    
+      cd .\CFML_Reflections      
+      ifort /c H_Absent.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c H_Equal.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c H_Equiv.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c H_Mult.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c H_S.f90                                /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c MaxNum_Refl.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c UnitaryVec.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c AsymUnit_Refl.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Generate_Refl.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd .. 
       goto END
@@ -406,10 +423,6 @@ rem
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
-rem
-   echo .... EoS, Reflections, Atoms
-rem
-   ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
 rem
    echo .... Formats, Geometry, Molecules
 rem

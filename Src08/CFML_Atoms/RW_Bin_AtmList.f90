@@ -21,7 +21,7 @@ SubModule (CFML_Atoms) Atm_004
    Module Subroutine Read_Bin_Atom_List(filename, A)
       !---- Arguments ----!
       character(len=*),   intent(in)     :: filename
-      class(atlist_type), intent(in out) :: A
+      type(atlist_type), intent(in out) :: A
       
       !---- Local Variables ----!
       integer                            :: i,n,ierr,lun
@@ -67,16 +67,6 @@ SubModule (CFML_Atoms) Atm_004
       end if
 
       !> Load information 
-      !associate (atm => A%Atom)
-      !   do i=1,n
-      !      read(unit=lun,iostat=ierr) atm(i)
-      !      if (ierr /=0) then
-      !         err_CFML%IErr=1
-      !         err_CFML%Msg="Read_Bin_Atom_List@CFML_ATOMS: Error reading atoms information!"
-      !         exit
-      !      end if
-      !   end do  
-      !end associate
       select type (aat => A%Atom)
          type is (atm_type)
             do i=1,n
@@ -137,7 +127,7 @@ SubModule (CFML_Atoms) Atm_004
    Module Subroutine Write_Bin_Atom_List(filename, A)
       !---- Arguments ----!
       character(len=*),   intent(in) :: filename
-      class(atlist_type), intent(in) :: A
+      type(atlist_type), intent(in) :: A
 
       !---- Local Variables ----!
       integer                        :: i,n,lun

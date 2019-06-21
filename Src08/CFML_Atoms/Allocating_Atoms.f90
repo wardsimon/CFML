@@ -14,7 +14,7 @@ SubModule (CFML_Atoms) Atm_001
    Module Subroutine Allocate_Atom_List(N, A)
       !---- Arguments ----!
       integer,             intent(in)       :: n    ! Atoms in the List
-      class(Atlist_type),  intent(in out)   :: A    ! Objet to be allocated
+      type(Atlist_type),   intent(in out)   :: A    ! Objet to be allocated
 
       !---- Local Variables ----!
       integer :: i
