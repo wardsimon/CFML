@@ -409,6 +409,10 @@ rem   Submodules CFML_Reflections
       ifort /c UnitaryVec.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c AsymUnit_Refl.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Generate_Refl.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Refl_Conditions.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Init_RefList.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c H_EquivList.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_RefList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd .. 
       goto END

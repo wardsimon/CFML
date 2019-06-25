@@ -39,7 +39,6 @@
 !!----
 !!
 Module CFML_Reflections
-
    !---- Use Modules ----!
    Use CFML_GlobalDeps,                only: CP, PI, TPI, Err_CFML, Clear_Error
    Use CFML_gSpaceGroups,              only: Spg_Type
@@ -54,11 +53,12 @@ Module CFML_Reflections
    private
 
    !---- List of public functions ----!
-   public :: H_Absent, mH_Absent , H_Equal, H_Lat_Absent , H_Equiv, H_Mult, H_S, &
+   public :: H_Absent, mH_Absent , H_Equal, H_Latt_Absent , H_Equiv, H_Mult, H_S, &
              Get_MaxNumRef, Get_Asymm_Unit_H
 
    !---- List of public subroutines ----!
-   public :: Gener_Reflections
+   public :: H_Equiv_List, Initialize_RefList, Gener_Reflections, Search_Extinctions, &
+             Write_Info_RefList
 
    !---- Parameters ----!
    real(kind=cp), parameter :: EPS_REF  = 0.0002_cp   ! Epsilon for comparisons within this module
@@ -134,7 +134,10 @@ Module CFML_Reflections
    
 
    !---- Overload  Zone ----!
-
+   Interface Search_Extinctions
+       Module Procedure Search_Extinctions_Iunit
+       Module Procedure Search_Extinctions_File
+   End Interface Search_Extinctions
    
 
    !---- Interface Zone ----!
@@ -160,13 +163,13 @@ Module CFML_Reflections
          logical                            :: info
       End Function mH_Absent
       
-      Module Function H_Lat_Absent(H, Latt, n) Result(info)
+      Module Function H_Latt_Absent(H, Latt, n) Result(info)
          !---- Arguments ----!
          integer,        dimension(:),  intent (in) :: h
          type(rational), dimension(:,:),intent (in) :: Latt
          integer,                       intent (in) :: n
          logical                                    :: info
-      End Function H_Lat_Absent
+      End Function H_Latt_Absent
       
       Module Function H_Equiv(H, K, SpG, Friedel) Result (Info)
          !---- Arguments ----!
@@ -176,6 +179,15 @@ Module CFML_Reflections
          logical, optional,            intent(in)  :: Friedel
          logical                                   :: info
       End Function H_Equiv
+      
+      Module Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List)
+         !---- Arguments ----!
+         integer, dimension(:),    intent (in) :: H
+         class(SpG_Type),          intent (in) :: SpG
+         Logical,                  intent (in) :: Friedel
+         integer,                  intent(out) :: mult
+         integer, dimension(:,:),  intent(out) :: h_list
+      End Subroutine H_Equiv_List
       
       Module Function H_Mult(H, SpG, Friedel) Result(N)
          !---- Arguments ----!
@@ -284,6 +296,54 @@ Module CFML_Reflections
          logical,                       optional,     intent(in)     :: Powder
          logical,                       optional,     intent(in)     :: Mag_only
       End Subroutine Gener_Reflections
+      
+      Module Subroutine Init_Refl_Conditions()
+         !---- Arguments ----!
+      End Subroutine Init_Refl_Conditions   
+      
+      Module Subroutine Write_Integral_Conditions(SpG,iunit)
+         !---- Arguments ----!
+         class(SpG_Type),    intent(in)  :: SpG
+         integer, optional,  intent(in)  :: iunit
+      End Subroutine Write_Integral_Conditions
+      
+      Module Subroutine Write_Glide_Planes_Conditions(SpG,Iunit)
+         !---- Arguments ----!
+         class(SpG_Type),    intent(in) :: SpG
+         integer, optional,  intent(in) :: Iunit
+      End Subroutine Write_Glide_Planes_Conditions
+      
+      Module Subroutine Write_Screw_Axis_Conditions(SpG ,Iunit)
+         !---- Arguments ----!
+         class(SpG_Type),    intent(in) :: SpG
+         integer, optional,  intent(in) :: Iunit
+      End Subroutine Write_Screw_Axis_Conditions
+      
+      Module Subroutine Search_Extinctions_Iunit(SpG, Iunit)
+         !---- Arguments ----!
+         class(SpG_Type),   intent(in) :: SpG
+         integer, optional, intent(in) :: Iunit
+      End Subroutine Search_Extinctions_Iunit
+      
+      Module Subroutine Search_Extinctions_File(SpG, nlines, filevar)
+         !---- Arguments ----!
+         class(SpG_Type),                intent(in)   :: SpG
+         integer,                        intent(out)  :: nlines
+         character(len=*), dimension(:), intent(out)  :: filevar
+      End Subroutine Search_Extinctions_File
+      
+      Module Subroutine Initialize_RefList(N, Reflex)
+         !---- Arguments ----!
+         integer,             intent(in)    :: N
+         type(RefList_Type),  intent(in out) :: Reflex
+      End Subroutine Initialize_RefList
+      
+      Module Subroutine Write_Info_RefList(Reflex, Iunit, Mode)
+         !---- Arguments ----!
+         type(RefList_Type),         intent(in) :: Reflex
+         integer,          optional, intent(in) :: Iunit
+         character(len=*), optional, intent(in) :: Mode
+      End Subroutine Write_Info_RefList
       
    End Interface
    

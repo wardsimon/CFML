@@ -618,7 +618,7 @@ Module CFML_Rational
           type(rational), dimension(:),   intent (in) :: vec
           type(rational), dimension(size(vec))        :: vec_out
        End Function Rational_Matmul_Matvec
-
+       
        Module Pure Function Rational_Maxloc_Matrix(Mat) Result(Pos_Max)
           !---- Arguments ----!
           type(rational),  dimension(:,:), intent(in) :: Mat

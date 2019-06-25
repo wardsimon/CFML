@@ -98,7 +98,7 @@ SubModule (CFML_Reflections) RFL_002
    !!----
    !!---- 20/06/2019
    !!
-   Module Function H_Lat_Absent(H, Latt, n) Result(info)
+   Module Function H_Latt_Absent(H, Latt, n) Result(info)
       !---- Arguments ----!
       integer,        dimension(:),  intent (in) :: h
       type(rational), dimension(:,:),intent (in) :: Latt
@@ -121,6 +121,6 @@ SubModule (CFML_Reflections) RFL_002
          if (mod(k,2) /= 0) info=.true.
          exit
       end do
-   End Function H_Lat_Absent
+   End Function H_Latt_Absent
     
 End SubModule RFL_002   

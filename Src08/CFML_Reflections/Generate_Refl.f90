@@ -134,7 +134,7 @@ SubModule (CFML_Reflections) RFL_009
          mp=0
          if (present(SpG)) then
             if (SpG%Num_Lat /= 0) then
-               if (H_Lat_Absent(hh,SpG%Lat_tr,SpG%Num_Lat)) cycle
+               if (H_Latt_Absent(hh,SpG%Lat_tr,SpG%Num_Lat)) cycle
             end if
             if (H_Absent(hh,SpG)) then
                if (SpG%Mag_type /= 2 .and. Mag) then

@@ -411,6 +411,10 @@ rem   Submodules CFML_Reflections
       gfortran -c %OPTC% -J..\mod UnitaryVec.f90                     %OPT1% 
       gfortran -c %OPTC% -J..\mod AsymUnit_Refl.f90                  %OPT1% 
       gfortran -c %OPTC% -J..\mod Generate_Refl.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Refl_Conditions.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Init_RefList.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_EquivList.f90                    %OPT1% 
+      gfortran -c %OPTC% -J..\mod Write_RefList.f90                  %OPT1% 
       move /y *.o .. > nul
       cd .. 
       goto END
