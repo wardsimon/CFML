@@ -18,6 +18,7 @@ SubModule (CFML_Atoms) Atm_002
       Atm%ChemSymb =" "
       Atm%Z        =0
       Atm%Mult     =0
+      Atm%Charge   =0
       Atm%X        =0.0_cp
       Atm%Occ      =1.0_cp
       

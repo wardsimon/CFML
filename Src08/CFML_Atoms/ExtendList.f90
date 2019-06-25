@@ -81,6 +81,7 @@ SubModule (CFML_Atoms) Atm_005
             c_atm%Atom(n)%Chemsymb=A%atom(k)%Chemsymb
             c_atm%Atom(n)%Z       =A%atom(k)%Z
             c_atm%Atom(n)%Mult    = real(l)/SpG%multip
+            c_atm%Atom(n)%Charge  =A%atom(k)%Charge
             c_atm%Atom(n)%x       = xx
             c_atm%Atom(n)%UType   =A%atom(k)%UType
             c_atm%Atom(n)%ThType  =A%atom(k)%ThType

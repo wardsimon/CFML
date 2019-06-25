@@ -69,6 +69,7 @@ Module CFML_Atoms
        character(len=2)              :: ChemSymb=" "     ! Chemical symbol
        integer                       :: Z       = 0      ! Atomic number
        integer                       :: Mult    = 0      ! Multiplicity
+       integer                       :: Charge  = 0      ! Charge  
        real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Coordinates
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
        character(len=4)              :: UType   ="beta"  ! Options: U, B, beta
