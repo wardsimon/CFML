@@ -395,7 +395,28 @@ rem   Submodules CFML_Atoms
       gfortran -c %OPTC% -J..\mod Write_AtmList.f90                  %OPT1%
       gfortran -c %OPTC% -J..\mod ExtendList.f90                     %OPT1%
       move /y *.o .. > nul
-      cd ..           
+      cd ..  
+rem
+   echo .... Reflections procedures
+   gfortran -c %OPTC%  -J.\mod CFML_Reflections.f90              %OPT1%
+rem  
+rem   Submodules CFML_Reflections    
+      cd .\CFML_Reflections      
+      gfortran -c %OPTC% -J..\mod H_Absent.f90                       %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_Equal.f90                        %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_Equiv.f90                        %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_Mult.f90                         %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_S.f90                            %OPT1% 
+      gfortran -c %OPTC% -J..\mod MaxNum_Refl.f90                    %OPT1% 
+      gfortran -c %OPTC% -J..\mod UnitaryVec.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod AsymUnit_Refl.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Generate_Refl.f90                  %OPT1% 
+      gfortran -c %OPTC% -J..\mod Refl_Conditions.f90                %OPT1% 
+      gfortran -c %OPTC% -J..\mod Init_RefList.f90                   %OPT1% 
+      gfortran -c %OPTC% -J..\mod H_EquivList.f90                    %OPT1% 
+      gfortran -c %OPTC% -J..\mod Write_RefList.f90                  %OPT1% 
+      move /y *.o .. > nul
+      cd .. 
       goto END
       
 :END

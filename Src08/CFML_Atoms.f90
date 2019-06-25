@@ -187,37 +187,35 @@ Module CFML_Atoms
        Module Subroutine Allocate_Atom_List(N, A)
           !---- Arguments ----!
           integer,             intent(in)       :: n    
-          class(atlist_type),  intent(in out)   :: A    
+          type(atlist_type),  intent(in out)   :: A    
        End Subroutine Allocate_Atom_List
        
        Module Subroutine Read_Bin_Atom_List(filename, A)
           !---- Arguments ----!
           character(len=*),   intent(in)    :: filename
-          class(atlist_type), intent(in out) :: A
+          type(atlist_type), intent(in out) :: A
        End Subroutine Read_Bin_Atom_List  
        
        Module Subroutine Write_Bin_Atom_List(filename, A)
           !---- Arguments ----!
           character(len=*),   intent(in) :: filename
-          class(atlist_type), intent(in) :: A 
+          type(atlist_type), intent(in) :: A 
        End Subroutine Write_Bin_Atom_List   
        
        Module Subroutine Write_Info_Atom_List(A, Iunit)
           !---- Arguments ----!
-          class(atlist_type),              intent(in) :: A        
+          type(atlist_type),              intent(in) :: A        
           integer,              optional, intent(in) :: IUnit    
        End Subroutine Write_Info_Atom_List
        
        Module Subroutine Extend_List(A, B, Spg, Conven)
           !---- Arguments ----!
-          class(atlist_type),   intent(in)     :: A         
-          class(atlist_type),   intent(in out) :: B         
+          type(atlist_type),   intent(in)     :: A         
+          type(atlist_type),   intent(in out) :: B         
           type(SpG_Type),      intent(in)     :: SpG       
           logical, optional,   intent(in)     :: Conven    
        End Subroutine Extend_List
           
     End Interface
     
- Contains
- 
 End Module CFML_Atoms

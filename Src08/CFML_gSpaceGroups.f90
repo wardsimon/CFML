@@ -110,6 +110,7 @@ Module CFML_gSpaceGroups
        character(len=:),              allocatable :: Hall                 ! Hall symbol
        character(len=:),              allocatable :: crystalsys           ! Crystal system
        character(len=:),              allocatable :: pg                   ! Point group 
+       character(len=:),              allocatable :: mag_pg               ! Magnetic PG
        character(len=:),              allocatable :: laue                 ! Laue group
        character(len=:),              allocatable :: mat2std              ! To standard to space group 
        character(len=:),              allocatable :: mat2std_shu          ! To standard to shubnikoc space group

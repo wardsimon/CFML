@@ -11,8 +11,8 @@ SubModule (CFML_Atoms) Atm_003
    !!
    Module Subroutine Write_Info_Atom_List(A, Iunit)
       !---- Arguments ----!
-      class(alist_type),              intent(in) :: A        ! Atom list object
-      integer,              optional, intent(in) :: IUnit    ! Logical unit
+      type(atlist_type), intent(in) :: A        ! Atom list object
+      integer, optional, intent(in) :: IUnit    ! Logical unit
 
       !---- Local Variables ----!
       character(len=1)   :: car
@@ -21,6 +21,12 @@ SubModule (CFML_Atoms) Atm_003
       character(len=132) :: line
       integer            :: n, lun
 
+      !> Local Types
+      type (atm_type)      :: atm
+      type (atm_std_type)  :: atms
+      type (matm_std_type) :: matm
+      type (atm_ref_type)  :: atr
+      
       !> Init
       lun=6
       if (present(iunit)) lun=iunit
@@ -35,25 +41,10 @@ SubModule (CFML_Atoms) Atm_003
          write(unit=lun,fmt="(/,a,/)") "  => No atoms provided!"
          return
       end if
-      
-      select type(A)
-         type is (alist_type)
-            err_CFML%Ierr=1
-            err_CFML%Msg=" Write_Info_Atom_List@CFML_ATOMS: Incompatible argument for this peocedure!"
-            return
-            
-         type is (atm_list_type)
-            car2=u_case(A%Atom(1)%Utype)
-            
-         type is (atm_std_list_type)
-            car2=u_case(A%Atom(1)%Utype)  
-            
-         type is (MAtm_std_List_Type)
-            car2=u_case(A%Atom(1)%Utype)  
-            
-         type is (Atm_ref_List_Type)
-            car2=u_case(A%Atom(1)%Utype)         
-      end select
+
+      associate (Aat => A%Atom)      
+         car2=aat(1)%UType
+      end associate   
       
       line=" "
       select case (trim(car2))
@@ -74,68 +65,76 @@ SubModule (CFML_Atoms) Atm_003
       fmt1="(T3,a,T11,a,T20,a,T28,i3,5f10.4)"     ! Iso
       fmt2="(T3,a,T11,a,T20,a,T28,i3,11f10.4)"    ! Aniso 
       
-      select type (A)
-         type is (atm_list_type)
+      select type (aat => A%atom)
+         type is (atm_type)
             do n=1,A%natoms
                car=" "
                if (.not. A%active(n)) car='-'
-               car2=A%Atom(n)%ThType
+               
+               atm=aat(n)
+               car2=Atm%ThType
                car2=u_case(car2)      
                select case (trim(car2))
                   case ('ISO')
-                     write(unit=lun,fmt=fmt1)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso
+                     write(unit=lun,fmt=fmt1)  car, trim(Atm%Lab), trim(Atm%chemSymb), &
+                          Atm%mult,  Atm%X, Atm%Occ, Atm%U_iso
                   case ('ANI')    
-                     write(unit=lun,fmt=fmt2)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso, A%Atom(n)%U
+                     write(unit=lun,fmt=fmt2)  car, trim(Atm%Lab), trim(Atm%chemSymb), &
+                          Atm%mult,  Atm%X, Atm%Occ, Atm%U_iso, Atm%U
                end select
             end do   
                
-         type is (atm_std_list_type)
+         type is (atm_std_type)
             do n=1,A%natoms
                car=" "
                if (.not. A%active(n)) car='-'
-               car2=A%Atom(n)%ThType
+               
+               atms=aat(n)
+               car2=Atms%ThType
                car2=u_case(car2)      
                select case (trim(car2))
                   case ('ISO')
-                     write(unit=lun,fmt=fmt1)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso
+                     write(unit=lun,fmt=fmt1)  car, trim(Atms%Lab), trim(Atms%chemSymb), &
+                          Atms%mult,  Atms%X, Atms%Occ, Atms%U_iso
                   case ('ANI')    
-                     write(unit=lun,fmt=fmt2)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso, A%Atom(n)%U
+                     write(unit=lun,fmt=fmt2)  car, trim(Atms%Lab), trim(Atms%chemSymb), &
+                          Atms%mult,  Atms%X, Atms%Occ, Atms%U_iso, Atms%U
                end select
             end do 
             
-         type is (MAtm_std_List_Type)
+         type is (MAtm_std_Type)
             do n=1,A%natoms
                car=" "
                if (.not. A%active(n)) car='-'
-               car2=A%Atom(n)%ThType
+               
+               matm=aat(n)
+               car2=matm%ThType
                car2=u_case(car2)      
                select case (trim(car2))
                   case ('ISO')
-                     write(unit=lun,fmt=fmt1)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso
+                     write(unit=lun,fmt=fmt1)  car, trim(matm%Lab), trim(matm%chemSymb), &
+                          matm%mult,  matm%X, matm%Occ, matm%U_iso
                   case ('ANI')    
-                     write(unit=lun,fmt=fmt2)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso, A%Atom(n)%U
+                     write(unit=lun,fmt=fmt2)  car, trim(matm%Lab), trim(matm%chemSymb), &
+                          matm%mult,  matm%X, matm%Occ, matm%U_iso, matm%U
                end select
             end do 
             
-         type is (Atm_ref_List_Type)
+         type is (Atm_ref_Type)
             do n=1,A%natoms
                car=" "
                if (.not. A%active(n)) car='-'
-               car2=A%Atom(n)%ThType
+               
+               atr=aat(n)
+               car2=atr%ThType
                car2=u_case(car2)      
                select case (trim(car2))
                   case ('ISO')
-                     write(unit=lun,fmt=fmt1)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso
+                     write(unit=lun,fmt=fmt1)  car, trim(atr%Lab), trim(atr%chemSymb), &
+                          atr%mult,  atr%X, atr%Occ, atr%U_iso
                   case ('ANI')    
-                     write(unit=lun,fmt=fmt2)  car, trim(A%Atom(n)%Lab), trim(A%Atom(n)%chemSymb), &
-                          A%Atom(n)%mult,  A%Atom(n)%X, A%Atom(n)%Occ, A%Atom(n)%U_iso, A%Atom(n)%U
+                     write(unit=lun,fmt=fmt2)  car, trim(atr%Lab), trim(atr%chemSymb), &
+                          atr%mult,  atr%X, atr%Occ, atr%U_iso, atr%U
                end select
             end do 
       end select          
