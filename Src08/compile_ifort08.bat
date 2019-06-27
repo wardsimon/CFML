@@ -415,6 +415,17 @@ rem   Submodules CFML_Reflections
       ifort /c Write_RefList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd .. 
+rem
+   echo .... I/O Formats procedures
+   ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+rem  
+rem   Submodules CFML_IOForm    
+      cd .\CFML_IOForm
+      ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul       
+      cd ..
       goto END
 
 rem
@@ -432,11 +443,9 @@ rem
 rem
    ifort /c CFML_geom_calc.f90                        /nologo %OPT1% %OPT2%
    ifort /c CFML_molecules.f90                        /nologo %OPT1% %OPT2%
-   ifort /c CFML_form_cif.f90                        /nologo %OPT1% %OPT2%
 rem
    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
-   ifort /c CFML_Extinction_Correction.f90           /nologo %OPT1% %OPT2%
    ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
    ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%

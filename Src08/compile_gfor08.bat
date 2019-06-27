@@ -417,7 +417,18 @@ rem   Submodules CFML_Reflections
       gfortran -c %OPTC% -J..\mod Write_RefList.f90                  %OPT1% 
       move /y *.o .. > nul
       cd .. 
-      goto END
+rem
+   echo .... I/O Formats procedures
+   gfortran -c %OPTC%  -J.\mod CFML_IOForm.f90                  %OPT1% 
+rem  
+rem   Submodules CFML_IOForm    
+      cd .\CFML_IOForm
+      gfortran -c %OPTC% -J..\mod Format_SHX.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Format_CFL.f90                     %OPT1% 
+      gfortran -c %OPTC% -J..\mod Format_CIF.f90                     %OPT1% 
+      move /y *.o .. > nul       
+      cd ..
+      goto END      
       
 :END
 rem
