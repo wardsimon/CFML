@@ -1425,6 +1425,30 @@
            Reflex%Ref(i)%mult = 1
          end if
          Reflex%Ref(i)%imag = indtyp(j)
+         Select Type(myRef => reflex%Ref)
+           type is(sReflect_Type)
+
+           type is(sReflection_Type)
+             myRef(i)%Fo=0.0
+             myRef(i)%Fc=0.0
+             myRef(i)%SFo=0.0
+             myRef(i)%Phase=0.0
+             myRef(i)%A=0.0
+             myRef(i)%B=0.0
+
+           class is(gReflection_Type)
+             myRef(i)%Fo=0.0
+             myRef(i)%Fc=0.0
+             myRef(i)%SFo=0.0
+             myRef(i)%Phase=0.0
+             myRef(i)%A=0.0
+             myRef(i)%B=0.0
+
+             myRef(i)%mIvo=0.0         ! Observed modulus of the Magnetic Interaction vector
+             myRef(i)%sigma_mIvo=0.0   ! Sigma of observed modulus of the Magnetic Interaction vector
+             myRef(i)%msF=0.0          ! Magnetic Structure Factor
+             myRef(i)%mIv=0.0          ! Magnetic Interaction vector
+         End Select
        end do
        return
     End Subroutine Gen_SXtal_SReflections
