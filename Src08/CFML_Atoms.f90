@@ -53,6 +53,8 @@ Module CFML_Atoms
     private
 
     !---- List of public procedures ----!
+    public :: Allocate_Atom_List, Extend_List, Init_Atom_Type, Read_Bin_Atom_List, &
+              Write_Bin_atom_List, Write_Info_Atom_List
 
     !---- Parameters ----!
     real(kind=cp), parameter :: R_ATOM=1.1           ! Average atomic radius
@@ -69,6 +71,7 @@ Module CFML_Atoms
        character(len=2)              :: ChemSymb=" "     ! Chemical symbol
        integer                       :: Z       = 0      ! Atomic number
        integer                       :: Mult    = 0      ! Multiplicity
+       integer                       :: Charge  = 0      ! Charge  
        real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Coordinates
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
        character(len=4)              :: UType   ="beta"  ! Options: U, B, beta
@@ -90,7 +93,7 @@ Module CFML_Atoms
        real(kind=cp), dimension(3)  :: X_Std      = 0.0_cp     ! standard deviations
        real(kind=cp)                :: Occ_Std    = 0.0_cp     
        real(kind=cp)                :: U_iso_Std  = 0.0_cp     
-       real(kind=cp)                :: U_Std      = 0.0_cp   
+       real(kind=cp), dimension(6)  :: U_Std      = 0.0_cp   
        real(kind=cp), dimension(3)  :: Moment_std = 0.0_cp  
     End Type Atm_Std_Type 
     
@@ -175,6 +178,7 @@ Module CFML_Atoms
        integer                                    :: natoms=0   ! Number of atoms in the list
        logical,         dimension(:), allocatable :: Active     ! Flag for active or not
        class(Atm_Type), dimension(:), allocatable :: Atom       ! Atoms
+       
     End type AtList_Type
     
     !---- Interface Zone ----!
@@ -217,5 +221,6 @@ Module CFML_Atoms
        End Subroutine Extend_List
           
     End Interface
+    
     
 End Module CFML_Atoms
