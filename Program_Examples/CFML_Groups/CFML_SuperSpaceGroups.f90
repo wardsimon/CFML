@@ -29,7 +29,7 @@
       Character(len=80)                   :: trn_from_parent=" "
       Character(len=80)                   :: trn_to_standard=" "
       character(len=80)                   :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
-      integer                             :: nk=1              !(nk=1,2,3, ...) number of q-vectors
+      integer                             :: nk=0              !(nk=1,2,3, ...) number of q-vectors
       integer                             :: Parent_num=0  ! Number of the parent Group
       integer                             :: Bravais_num=0 ! Number of the Bravais class
       real,   allocatable,dimension(:,:)  :: kv            ! k-vectors (3,d)
@@ -109,7 +109,7 @@
     !!---- Created: January - 2019
     !!
     Type, public :: kvect_info_type
-       integer                                      :: nk        ! Number of independent k-vectors
+       integer                                      :: nk=0      ! Number of independent k-vectors
        real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
        real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
        integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
@@ -1284,7 +1284,7 @@
        if(present(kinfo)) then
          nk=kinfo%nk
          nharm=kinfo%nq
-         kvect=.true.
+         if(nk > 0) kvect=.true.
        end if
        if(kvect) Dd=3+nk             !total dimension of the reciprocal space
 
