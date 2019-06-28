@@ -992,6 +992,62 @@ SubModule (CFML_IOForm) IOF_003
       end do
 
    End Subroutine Read_Cif_Symm
+   
+   !!----
+   !!---- WRITE_CIF_POWDER_PROFILE
+   !!----    Write a Cif Powder Profile file
+   !!----
+   !!---- 28/06/2019 
+   !!
+   Module Subroutine Write_Cif_Powder_Profile(filename)
+      !---- Arguments ----!
+      character(len=*), intent(in) :: filename
+
+      !---- Local Variables ----!
+      logical :: info
+      integer :: iunit
+
+      !> Init
+      info=.false.
+      iunit=0
+
+      !> Is open the file?
+      inquire(file=trim(filename),opened=info)
+      if (info) then
+         inquire(file=trim(filename),number=iunit)
+         close(unit=iunit)
+      end if
+
+      !> Writting
+      open(newunit=iunit,file=trim(filename),status="unknown",action="write")
+      rewind(unit=iunit)
+
+      !> Head
+      write(unit=iunit,fmt="(a)") "data_profile"
+      write(unit=iunit,fmt="(a)") " "
+      write(unit=iunit,fmt="(a)")     "_pd_block_id      ?"
+
+      !> Profile
+      write(unit=iunit,fmt="(a)") " "
+
+      write(unit=iunit,fmt="(a)") "loop_"
+      write(unit=iunit,fmt="(a)") "_pd_proc_point_id"
+      write(unit=iunit,fmt="(a)") "_pd_proc_2theta_corrected             # one of "
+      write(unit=iunit,fmt="(a)") "_pd_proc_energy_incident              # these "
+      write(unit=iunit,fmt="(a)") "_pd_proc_d_spacing                    # three"
+      write(unit=iunit,fmt="(a)") "_pd_proc_intensity_net"
+      write(unit=iunit,fmt="(a)") "_pd_calc_intensity_net "
+      write(unit=iunit,fmt="(a)") "_pd_proc_ls_weight      "
+      write(unit=iunit,fmt="(a)") "?     ?     ?     ?     ?     ?     ?"
+
+      write(unit=iunit,fmt="(a)") " "
+      write(unit=iunit,fmt="(a)") "# The following lines are used to test the character set of files sent by     "
+      write(unit=iunit,fmt="(a)") "# network email or other means. They are not part of the CIF data set.        "
+      write(unit=iunit,fmt="(a)") "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
+      write(unit=iunit,fmt="(a)") "# !@#$%^&*()_+{}:"//""""//"~<>?|\-=[];'`,./ "
+
+      close (unit=iunit)
+   End Subroutine Write_Cif_Powder_Profile
     
    
    

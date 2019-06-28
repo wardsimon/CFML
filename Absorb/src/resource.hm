@@ -1,0 +1,4 @@
+// Microsoft Developer Studio generated Help ID include file.
+// Used by dialog.rc
+//
+#define HIDCANCEL                       0x80650002    // IDD_main_DIALOG

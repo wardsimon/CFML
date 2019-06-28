@@ -1,0 +1,124 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Developer Studio generated include file.
+// Used by Absorb7.rc
+//
+#define IDexit                          3
+#define IDD_DIALOG1                     101
+#define IDD_powf_DIALOG                 101
+#define IDD_main_DIALOG                 101
+#define IDD_FILEINFO                    102
+#define IDD_ERROR                       103
+#define IDD_COMPLETE                    104
+#define IDD_WARNING                     104
+#define IDD_WAVEINFO                    105
+#define IDD_Format                      105
+#define IDD_XYINFO                      106
+#define IDD_slit                        107
+#define IDD_XYOUT                       108
+#define IDd_absorb                      110
+#define IDI_exclaim                     111
+#define idd_exclaim                     111
+#define IDI_write                       113
+#define IDI_vhappy                      114
+#define IDI_HAPPY                       115
+#define IDI_sadface                     116
+#define IDI_vtx                         133
+#define IDI_questionmark                139
+#define IDI_rja                         148
+#define IDD_MESSAGE                     149
+#define IDC_Static_inputgroup           1000
+#define IDC_select_input                1001
+#define IDC_select_exp                  1001
+#define IDC_COMBO_input                 1002
+#define IDC_reset                       1004
+#define IDC_Static_OUTPUTgroup          1005
+#define IDC_select_output               1006
+#define IDC_select_print                1006
+#define IDC_COMBO_output                1007
+#define IDC_Static_OUTPUTgroup2         1007
+#define IDC_Static_output               1008
+#define IDC_Static_print                1008
+#define IDC_CONVERT                     1009
+#define IDC_RUN                         1009
+#define IDC_STATIC_ifile                1010
+#define IDC_STATIC_exp                  1010
+#define IDC_info_label1                 1011
+#define IDC_Static_inputdata            1011
+#define IDC_info_val1                   1012
+#define IDC_select_inputdata            1012
+#define IDC_info_label2                 1013
+#define IDC_Static_OUTPUTgroup3         1013
+#define IDC_info_label3                 1014
+#define idc_static_outputdata           1014
+#define IDC_info_label4                 1015
+#define idc_select_outputdata           1015
+#define IDC_info_val2                   1016
+#define IDC_Build                       1016
+#define IDC_info_val3                   1017
+#define IDC_VIEWPRT                     1017
+#define IDC_info_val4                   1018
+#define IDC_VIEWOUT                     1018
+#define IDC_info_label5                 1019
+#define IDC_VIEWCIF                     1019
+#define IDC_info_val5                   1020
+#define IDC_error1                      1020
+#define IDC_errortext                   1020
+#define IDC_complete1                   1021
+#define IDC_info_label6                 1021
+#define IDC_errortext2                  1021
+#define IDC_complete2                   1022
+#define IDC_info_val6                   1022
+#define IDC_errortext3                  1022
+#define IDC_complete3                   1023
+#define IDC_info_val7                   1023
+#define IDC_complete4                   1024
+#define IDC_info_val8                   1024
+#define IDC_complete5                   1025
+#define IDC_info_label7                 1025
+#define IDC_wave1                       1026
+#define idc_wave2                       1027
+#define idc_wave3                       1028
+#define IDC_label_author                1029
+#define IDC_wave4                       1029
+#define IDC_message                     1029
+#define IDC_wave5                       1030
+#define IDC_xy1                         1030
+#define IDC_label_authorx               1030
+#define idc_wave6                       1031
+#define IDC_xy2                         1031
+#define IDC_wave7                       1032
+#define IDC_xy4                         1033
+#define IDC_xy3                         1034
+#define IDC_xy5                         1035
+#define IDC_xy6                         1036
+#define IDC_xy7                         1037
+#define IDC_xy8                         1038
+#define IDC_xy9                         1039
+#define IDC_Slit2                       1039
+#define IDC_slit1                       1040
+#define IDC_Slit3                       1041
+#define IDC_xyout2                      1042
+#define IDC_xyout1                      1043
+#define idc_xyout3                      1044
+#define IDC_xyout4                      1045
+#define IDC_EXCLaim                     1047
+#define IDC_warntext                    1048
+#define IDC_warntext1                   1049
+#define IDC_warnfilename                1050
+#define IDC_formatRADIO1                1051
+#define IDC_formatradio2                1052
+#define IDC_formatradio3                1053
+#define IDC_Incomm1                     1054
+#define IDC_Incomm2                     1055
+#define IDC_Static_input                -1
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        152
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         1056
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif

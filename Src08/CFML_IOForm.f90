@@ -67,7 +67,7 @@ Module CFML_IOForm
     !!
     Type, public :: Fil_Type
        character(len=:),               allocatable :: Fname      ! Name of file
-       integer,                                    :: Iunit =0   ! Logical unit
+       integer                                     :: Iunit =0   ! Logical unit
        integer                                     :: nlines=0   ! Number of lines
        character(len=:), dimension(:), allocatable :: line       ! String contains
     End Type Fil_Type
@@ -194,6 +194,11 @@ Module CFML_IOForm
           integer,                        intent(out)    :: n_oper
           character(len=*), dimension(:), intent(out)    :: oper_symm
        End Subroutine Read_Cif_Symm
+       
+       Module Subroutine Write_Cif_Powder_Profile(filename)
+          !---- Arguments ----!
+          character(len=*), intent(in) :: filename
+       End Subroutine Write_Cif_Powder_Profile
        
        Module Subroutine Read_Shx_Atom(lines, n_ini, n_end, n_fvar, fvar, elem_type, cell, At_List)
           !---- Arguments ----!

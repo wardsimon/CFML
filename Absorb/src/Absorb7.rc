@@ -1,0 +1,293 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+// Generated Help ID header file
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.hm"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_main_DIALOG DIALOGEX 0, 0, 268, 259
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Absorb7"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Exit",IDexit,180,179,50,14
+    GROUPBOX        "Experiment File",IDC_Static_inputgroup,12,5,242,30
+    PUSHBUTTON      "Browse",IDC_select_exp,175,15,40,14
+    PUSHBUTTON      "Reset",IDC_reset,105,179,50,14
+    GROUPBOX        "Print File",IDC_Static_OUTPUTgroup,12,39,242,30
+    LTEXT           "No file selected",IDC_Static_print,22,48,142,14,
+                    SS_SUNKEN | WS_BORDER
+    PUSHBUTTON      "Browse",IDC_select_print,175,48,40,14
+    PUSHBUTTON      "Run",IDC_RUN,34,179,50,14,WS_DISABLED
+    CTEXT           "",IDC_message,12,158,242,13,SS_CENTERIMAGE | SS_SUNKEN,
+                    WS_EX_TRANSPARENT
+    LTEXT           "No file selected",IDC_STATIC_exp,22,15,139,14,SS_SUNKEN | 
+                    WS_BORDER
+    ICON            IDd_absorb,IDC_STATIC,238,233,20,20
+    GROUPBOX        "Input data file",IDC_Static_OUTPUTgroup2,12,75,242,30
+    LTEXT           "No file selected",IDC_Static_inputdata,22,84,142,14,
+                    SS_SUNKEN | WS_BORDER
+    PUSHBUTTON      "Browse",IDC_select_inputdata,175,85,40,14
+    GROUPBOX        "Output data file",IDC_Static_OUTPUTgroup3,12,108,242,30
+    LTEXT           "No file selected",idc_static_outputdata,22,117,142,14,
+                    SS_SUNKEN | WS_BORDER
+    PUSHBUTTON      "Browse",idc_select_outputdata,175,117,40,14
+    CTEXT           "(c) RJ Angel, 2012-2018",IDC_label_authorx,60,228,141,13,
+                    SS_CENTERIMAGE | SS_SUNKEN,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Button1",IDCANCEL,22,226,23,7,NOT WS_VISIBLE,0,
+                    HIDCANCEL
+    PUSHBUTTON      "Print File",IDC_VIEWPRT,34,204,50,14,WS_DISABLED
+    PUSHBUTTON      "Output data",IDC_VIEWOUT,101,204,57,14,WS_DISABLED
+    PUSHBUTTON      "Cif",IDC_VIEWCIF,180,204,50,14,WS_DISABLED
+    GROUPBOX        "View output files",IDC_STATIC,12,195,242,29
+    ICON            IDI_rja,IDC_STATIC,12,233,20,20
+    CONTROL         "Select for incommensurate data",IDC_Incomm2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,22,143,151,12
+END
+
+IDD_ERROR DIALOGEX 0, 0, 222, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Absorb 7"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,96,84,50,14
+    CTEXT           "",IDC_errortext,34,30,174,33,NOT WS_GROUP,
+                    WS_EX_STATICEDGE
+    ICON            IDd_absorb,IDC_STATIC,198,98,20,20
+    ICON            IDI_sadface,IDC_STATIC,8,14,20,20
+    CTEXT           "FATAL ERROR",IDC_errortext2,34,14,174,9,NOT WS_GROUP
+    CTEXT           "ABSORB WILL BE HALTED",IDC_errortext3,34,68,174,10,NOT 
+                    WS_GROUP
+    ICON            IDI_rja,IDC_STATIC,7,98,20,20
+END
+
+IDD_WARNING DIALOGEX 0, 0, 222, 141
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Absorb 7"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,85,107,50,14
+    CTEXT           "WARNING !!!!!",IDC_errortext,75,19,77,13
+    ICON            IDd_absorb,IDC_STATIC,198,118,20,20
+    ICON            idd_exclaim,IDC_EXCLaim,38,14,20,20
+    CTEXT           "",IDC_warntext,16,36,185,48,0,WS_EX_STATICEDGE
+    CTEXT           "PROGRAM EXECUTION WILL CONTINUE",IDC_errortext3,18,87,
+                    185,13
+    ICON            IDI_rja,IDC_STATIC,7,118,20,20
+END
+
+IDD_Format DIALOG DISCARDABLE  0, 0, 297, 141
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Absorb 7"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,80,110,50,14
+    LTEXT           "File extension not recognised for file",IDC_warntext1,
+                    45,23,156,11
+    ICON            IDd_absorb,IDC_STATIC,273,118,20,20
+    ICON            IDI_questionmark,IDC_EXCLaim,13,14,20,20
+    LTEXT           "filename",IDC_warnfilename,46,34,161,14
+    GROUPBOX        "Select File Format",IDC_STATIC,28,48,250,57
+    CONTROL         "WinIntegrStp",IDC_formatRADIO1,"Button",
+                    BS_AUTORADIOBUTTON,41,58,73,14
+    CONTROL         "Shelx hkl",IDC_formatradio2,"Button",BS_AUTORADIOBUTTON,
+                    126,58,54,15
+    CONTROL         "raw",IDC_formatradio3,"Button",BS_AUTORADIOBUTTON,205,
+                    57,54,15
+    ICON            IDI_rja,IDC_STATIC,7,118,20,20
+    CONTROL         "Select for incommensurate data",IDC_Incomm1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,41,79,110,13
+END
+
+IDD_MESSAGE DIALOGEX 0, 0, 216, 142
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Absorb7"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "",IDC_message,16,36,185,48,0,WS_EX_STATICEDGE
+    CTEXT           "ABSORB IS RUNNING",IDC_errortext3,18,87,185,13
+    ICON            IDd_absorb,IDC_STATIC,191,118,20,20
+    ICON            IDI_rja,IDC_STATIC,7,119,20,20
+    ICON            IDd_absorb,IDC_STATIC,193,119,20,20
+    ICON            IDI_HAPPY,IDC_EXCLaim,38,14,20,20
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_main_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 12
+        RIGHTMARGIN, 254
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 249
+    END
+
+    IDD_ERROR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_WARNING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_Format, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 289
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_MESSAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 209
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 135
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDd_absorb              ICON    DISCARDABLE     "absorb.ico"
+idd_exclaim             ICON    DISCARDABLE     "Exclame.ico"
+IDI_vhappy              ICON    DISCARDABLE     "Happy2.ico"
+IDI_questionmark        ICON    DISCARDABLE     "Question.ico"
+IDI_sadface             ICON    DISCARDABLE     "Sad.ico"
+IDI_rja                 ICON    DISCARDABLE     "rja.ico"
+IDI_HAPPY               ICON    DISCARDABLE     "Happy.ico"
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 7,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Ross Angel Software\0"
+            VALUE "FileDescription", "Absorb\0"
+            VALUE "FileVersion", "7, 1, 0, 1\0"
+            VALUE "InternalName", "Absorb\0"
+            VALUE "LegalCopyright", "Copyright © 2012\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Absorb.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "  Absorb\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
