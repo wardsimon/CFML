@@ -65,10 +65,12 @@ Module CFML_IOForm
     !!---- TYPE :: FLIST_TYPE
     !!--..
     !!
-    Type, public :: FList_Type
-       integer                                       :: nlines
-       character(len=:), dimension(:), allocatable   :: line
-    End Type FList_Type
+    Type, public :: Fil_Type
+       character(len=:),               allocatable :: Fname      ! Name of file
+       integer,                                    :: Iunit =0   ! Logical unit
+       integer                                     :: nlines=0   ! Number of lines
+       character(len=:), dimension(:), allocatable :: line       ! String contains
+    End Type Fil_Type
 
 
     !---- Overloaded Zone ----!
@@ -108,13 +110,13 @@ Module CFML_IOForm
           class(Cell_Type),                intent(out)    :: Cell    
        End Subroutine Read_Cif_Cell
        
-       Module Subroutine Read_Cif_ChemicalName(lines,N_ini,N_End,ChemName)
+       Module Subroutine Read_Cif_ChemName(lines,N_ini,N_End,ChemName)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
           integer,           intent(in out)           :: n_ini
           integer,           intent(in)               :: n_end
           character(len=*),  intent(out)              :: ChemName
-       End Subroutine Read_Cif_ChemicalName
+       End Subroutine Read_Cif_ChemName
        
        Module Subroutine Read_Cif_Z(lines, n_ini, n_end, Z)
           !---- Arguments ----!

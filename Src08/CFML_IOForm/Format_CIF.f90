@@ -564,7 +564,7 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_ChemicalName(lines,N_ini,N_End,ChemName)
+   Module Subroutine Read_Cif_ChemName(lines,N_ini,N_End,ChemName)
       !---- Arguments ----!
       character(len=*),  dimension(:), intent(in) :: lines
       integer,           intent(in out)           :: n_ini
@@ -598,7 +598,7 @@ SubModule (CFML_IOForm) IOF_003
          end if
       end if
 
-   End Subroutine Read_Cif_ChemicalName
+   End Subroutine Read_Cif_ChemName
    
    !!----
    !!---- READ_CIF_CONT
