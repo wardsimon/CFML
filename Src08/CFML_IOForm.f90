@@ -42,10 +42,12 @@ Module CFML_IOForm
     !---- Use modules ----!
     Use CFML_GlobalDeps,                only: CP, PI, EPS, TAB, Err_CFML, Clear_Error
     Use CFML_Strings,                   only: l_case, u_case, get_num, cut_string, get_words, &
-                                              get_numstd, Read_Key_Value, Read_Key_ValueSTD
+                                              get_numstd, Read_Key_Value, Read_Key_ValueSTD,  &
+                                              string_numstd
     Use CFML_Atoms,                     only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                               AtList_Type, Allocate_Atom_List
-    Use CFML_Metrics,                   only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv
+    Use CFML_Metrics,                   only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
+                                              get_U_from_Betas
     Use CFML_gSpaceGroups,              only: SpG_Type
 
     !---- Variables ----!
