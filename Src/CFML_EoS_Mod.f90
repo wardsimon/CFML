@@ -3659,6 +3659,40 @@ Contains
       Call Init_Err_EoS()
       
       !>Checks of EoS only
+      
+      !> APL
+      if(e%imodel == 6)then
+        if(len_trim(E%pscale_name) == 0)then
+             Warn_EoS=.true.
+             if(e%linear)then
+                Warn_Eos_Mess='APL EoS must have a Pscale (and M0) in GPa'
+             else
+                Warn_Eos_Mess='APL EoS must have a Pscale (and K0) in GPa'
+             endif
+        endif
+        
+        if(len_trim(E%vscale_name) == 0 .or. index(U_case(E%Vscale_name),'A') == 0)then 
+            Warn_EoS=.true.
+            if(len_trim(Warn_EoS_Mess) == 0)then
+                if(e%linear)then
+                    Warn_Eos_Mess='APL EoS must have a Vscale and L0 in A'
+                else
+                    Warn_Eos_Mess='APL EoS must have a Vscale and V0 in A^3'
+                endif
+            else
+                if(e%linear)then
+                    Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale and L0 in A'
+                else
+                    Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale and V0 in A^3'
+                endif
+            endif
+        endif
+      endif
+      
+        
+
+      
+      
       !>If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
       if(e%itherm == 7)then
         if(len_trim(E%pscale_name) == 0)then
