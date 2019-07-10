@@ -456,7 +456,8 @@ Contains
       else
          x=theta/t
          !Eth=3.0_cp*eospar%params(13)*8.314*T*debye3(x)
-         Eth=3.0_cp*eospar%params(13)*8.314*T*debye(3,x)
+         Eth=debye(3,x)
+         Eth=3.0_cp*eospar%params(13)*8.314*T*Eth
       end if
 
       if(err_Mathgen)then
@@ -2331,12 +2332,12 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp)                      :: V,vprev,Kprev,kc,vnew,delv,delvprev,Vstep
-
+      integer                            :: ic
 
       !> Init
       v=0.0_cp
 
-
+ 
       
       Vprev=e%params(1)             !This is Vo
       Kprev=K_cal(Vprev,T,E)        !This is Ko
@@ -2346,7 +2347,7 @@ Contains
       if(K > Kprev)Vstep=-1.0_cp*Vstep
 
       do 
-        Vprev=Vprev+Vstep
+        Vprev=Vprev+Vstep 
         kc=K_cal(Vprev,T,E)
         if(K < Kprev)then                   !going to volumes > 1.0
             if(Kc < K)exit
@@ -2366,17 +2367,28 @@ Contains
       
         
       !set-up for Newton-raphson
+      ic=0
       Kprev=Kc
       V=Vprev-Vstep
-
-       
-       
+    !     write(unit=6,fmt='(a,f10.3,a,f10.3)') 'Got to NR, Kprev = ',Kprev,'      V = ',V
+    !     write(unit=6,fmt='(a,f10.3,a,f10.3)') 'Got to NR, Vprev = ',Vprev,'  Vstep = ',Vstep
         do     ! does a newton-raphson search
+            ic=ic+1
+            if(ic > 10)exit
             err_eos=.false.
+          !  write(unit=6,fmt='(a,f10.3,a,f10.3)') 'In NR, T =  ',T,'      V = ',V
             kc=K_cal(V,T,E)
-            if(abs(kc-k) < 0.001)exit
-            delV= (k-kc)*(V-Vprev)/(kc-Kprev)
-            if(abs(delV) > abs(delVprev))delV=sign(delVprev,delV)       !prevents step getting bigger
+
+         !   write(unit=6,fmt='(a,f10.3)') 'In  NR, Kc = ',Kc         
+            if(abs(kc-k) < 0.001*k)exit                                 !new limit May 2019: was 0.001 now 0.001*K
+            if(ic > 1)then                                              !introduced if(ic > 1) May 2019: otherwise delVprev is not initialised and delV becomes nan
+                delV= (k-kc)*(V-Vprev)/(kc-Kprev)
+             !   write(unit=6,fmt='(a,f10.3)') 'In  NR, delv= ',delv
+                if(abs(delV) > abs(delVprev))delV=sign(delVprev,delV)       !prevents step getting bigger
+            else
+                delV=Vstep
+            endif
+            
             Vnew= V + delV
             if(Vnew < 0._cp)Vnew=0.99*V          ! stops V going negative
             Kprev=Kc
@@ -3647,6 +3659,40 @@ Contains
       Call Init_Err_EoS()
       
       !>Checks of EoS only
+      
+      !> APL
+      if(e%imodel == 6)then
+        if(len_trim(E%pscale_name) == 0)then
+             Warn_EoS=.true.
+             if(e%linear)then
+                Warn_Eos_Mess='APL EoS must have a Pscale (and M0) in GPa'
+             else
+                Warn_Eos_Mess='APL EoS must have a Pscale (and K0) in GPa'
+             endif
+        endif
+        
+        if(len_trim(E%vscale_name) == 0 .or. index(U_case(E%Vscale_name),'A') == 0)then 
+            Warn_EoS=.true.
+            if(len_trim(Warn_EoS_Mess) == 0)then
+                if(e%linear)then
+                    Warn_Eos_Mess='APL EoS must have a Vscale and L0 in A'
+                else
+                    Warn_Eos_Mess='APL EoS must have a Vscale and V0 in A^3'
+                endif
+            else
+                if(e%linear)then
+                    Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale and L0 in A'
+                else
+                    Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale and V0 in A^3'
+                endif
+            endif
+        endif
+      endif
+      
+        
+
+      
+      
       !>If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
       if(e%itherm == 7)then
         if(len_trim(E%pscale_name) == 0)then
@@ -5344,6 +5390,7 @@ Contains
 
       !Now check pthermal and isothermal seperately: Pthermal is first
       if(e%pthermaleos)then
+        
           if(e%params(3) > 0._cp)then  ! K limit does not occur if Kp or Mp negative
           ! FIRST find the V at which K=K0/2 at Tref, WITHOUT using pressure
             eiso=e
@@ -5356,11 +5403,11 @@ Contains
                     err_eos_mess='Thermal pressure EoS not valid at this V and T: the V is too big so the compressional part of the EoS at Tref is not valid'
                     return
                 endif
-                if(k_cal(v,t,e) < tiny(0._cp))then
-                     err_eos=.true.
-                     err_eos_mess='Thermal pressure EoS not valid at this V and T: the K is negative (maybe because of q large?)'
+                if(k_cal(v,t,e) < tiny(0._cp))then         !temp removal May 20
+                    err_eos=.true.
+                    err_eos_mess='Thermal pressure EoS not valid at this V and T: the K is negative (maybe because of q large?)'
                     return
-                endif    
+              endif    
             else
                 ! No volume input. So calculate the isochor Pressure of Vmin at the input T, and compare to input P
                 if(get_k(p,t,e) < tiny(0._cp))then
