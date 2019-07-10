@@ -1402,11 +1402,11 @@
           sindelta = Sin(delta*to_rad)
           cosdelta = Cos(delta*to_rad)
           If (Abs(cosdelta) < 1.0E-15) cosdelta = 1.0E-15
-          rcosdelta = Abs(1.0 / cosdelta)
+          rcosdelta = 1.0 / cosdelta   !  abs(1.0 / cosdelta) eliminate abs
           tmp = cosdelta*cosdelta - cstwoth*cstwoth
           If (tmp > eps_close) Then
             tmp1 = Sqrt(tmp)
-            f = Abs(cstwoth) / tmp1           !h-function in FCJ
+            f = Abs(cstwoth) / tmp1
           Else
             f = 0.0
           End If
@@ -1418,7 +1418,7 @@
               g = 2.0 * s_l * f * rcosdelta
             End If
           Else
-            g = (-1.0 + apb * f) * rcosdelta
+            g = abs((-1.0 + apb * f) * rcosdelta) !Avoid negative g in some circumstances
           End If
           call Psvoigtian(twoth-delta+twoth0,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
           sumwg = sumwg + wp(k+it) * g
