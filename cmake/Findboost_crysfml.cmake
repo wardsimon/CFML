@@ -1,5 +1,5 @@
 if(DEFINED ENV{CRYSFML_BOOST_DIR})
- set(Boost_HINTS_DIR "$ENV{CRYSFML_BOOST_DIR}" "$ENV{CRYSFML_BOOST_DIR}/include")
+ set(Boost_HINTS_DIR "$ENV{CRYSFML_BOOST_DIR}" "$ENV{CRYSFML_BOOST_DIR}/include" "$ENV{CRYSFML_BOOST_DIR}/include/boost")
  find_path(Boost_INCLUDE_DIR format.hpp HINTS ${Boost_HINTS_DIR})
  get_filename_component(Boost_INCLUDE_DIR ${Boost_INCLUDE_DIR} DIRECTORY)
 else()
