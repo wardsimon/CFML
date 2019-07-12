@@ -1660,12 +1660,12 @@
          call Get_Lattice_Type(ssg%Num_Lat, ssg%Lat_tr(1:3,:),ssg%SPG_Lat)
        end if
 
-       Select Type(SSG)
+       Select Type(myssg => SSG)
          Type is (eSSGroup_Type)
-          n=SSG%d
-          allocate(SSG%Om(n,n,SSG%Multip))
-          do i=1,SSG%Multip
-           SSG%Om(:,:,i)=SSG%Op(i)%Mat
+          n=myssg%d
+          allocate(myssg%Om(n,n,myssg%Multip))
+          do i=1,myssg%Multip
+           myssg%Om(:,:,i)=myssg%Op(i)%Mat
           end do
          Type is (SuperSpaceGroup_Type)
            return
