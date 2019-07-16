@@ -9,14 +9,20 @@ Program test230_groups
     character(len=15)                   :: forma
     type(Spg_Type)                      :: Grp
     type(Spg_Type), dimension(4096)     :: sGrp
-    integer :: i,j,L,nsg,ind,indexg,lun,nc
+    integer :: i,j,L,nsg,ind,indexg,lun,nc, inig,fing, ier
     real :: start, fin,par
     integer, dimension(:), allocatable  :: cosets
 
     call Init_Group(2048) !Maximum admissible multiplicity
     call CPU_TIME(start)
     open(newunit=lun,file="test_230groups.out",status="replace",action="write")
-    do i=2,230
+    write(*,"(a)",advance="no") " => Enter the numbers of the space groups to be analysed (two integers <=230)" 
+    read(*,*,iostat=ier) inig,fing
+    if(ier /= 0) then 
+      inig=2
+      fing=230
+    end if
+    do i=inig,fing
         call CPU_TIME(par)
         write(aux,"(i3)") i
         call Get_Generators(aux,generatorList)

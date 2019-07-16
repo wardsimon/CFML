@@ -13,7 +13,7 @@ Program test230_groups
    character(len=256)                  :: generatorList
    character(len=5)                    :: aux
    character(len=15)                   :: forma
-   integer                             :: i,j,L,nsg,lun,nc 
+   integer                             :: i,j,L,nsg,lun,nc,inig,fing,ier 
    integer, dimension(:), allocatable  :: cosets
    real(kind=cp)                       :: start, fin,par
    
@@ -22,6 +22,12 @@ Program test230_groups
 
    !> Init
    call Set_Conditions_NumOp_EPS(2048) ! Maximum admissible multiplicity
+   write(*,"(a)",advance="no") " => Enter the numbers of the space groups to be analysed (two integers <=230): " 
+   read(*,*,iostat=ier) inig,fing
+   if(ier /= 0) then 
+     inig=1
+     fing=230
+   end if
    
    !> Start Time
    call CPU_TIME(start)
@@ -29,7 +35,7 @@ Program test230_groups
    !> Output results
    open(newunit=lun,file="test_230groups.out",status="replace",action="write")
     
-   do i=1,230
+   do i=inig,fing
       call CPU_TIME(par)
       write(unit=aux,fmt="(i3)") i
       generatorList=" "

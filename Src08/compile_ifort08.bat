@@ -416,57 +416,57 @@ rem   Submodules CFML_Reflections
       move /y *.obj .. > nul
       cd .. 
 rem
-   echo .... I/O Formats procedures
-   ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
-rem  
-rem   Submodules CFML_IOForm    
-      cd .\CFML_IOForm
-      ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      move /y *.obj .. > nul       
-      cd ..
-      goto END
-
-rem
-   echo .... Mathematical(II), Optimization, Tables, Patterns
-rem
-   ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
-rem
-   echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
-rem
-   ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
-rem
-   echo .... Formats, Geometry, Molecules
-rem
-   ifort /c CFML_geom_calc.f90                        /nologo %OPT1% %OPT2%
-   ifort /c CFML_molecules.f90                        /nologo %OPT1% %OPT2%
-rem
-   echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
-rem
-   ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
-   ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
-rem
-   echo .... Maps, BVS, Energy Configurations
-rem
-   ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
-   ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
-rem
-   echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
-rem
-   ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_magsymm.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
-   ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
-rem
-   echo .... Magnetic Structure Factors, Polarimetry
-rem
-   ifort /c CFML_msfac.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_polar.f90                           /nologo %OPT1% %OPT2%
+rem    echo .... I/O Formats procedures
+rem    ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+rem rem  
+rem rem   Submodules CFML_IOForm    
+rem       cd .\CFML_IOForm
+rem       ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+rem       ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+rem       ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+rem       move /y *.obj .. > nul       
+rem       cd ..
+rem       goto END
+rem 
+rem rem
+rem    echo .... Mathematical(II), Optimization, Tables, Patterns
+rem rem
+rem    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
+rem rem
+rem    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Formats, Geometry, Molecules
+rem rem
+rem    ifort /c CFML_geom_calc.f90                        /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_molecules.f90                        /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
+rem rem
+rem    ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Maps, BVS, Energy Configurations
+rem rem
+rem    ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
+rem rem
+rem    ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_magsymm.f90                         /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
+rem    ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
+rem rem
+rem    echo .... Magnetic Structure Factors, Polarimetry
+rem rem
+rem    ifort /c CFML_msfac.f90                           /nologo %OPT1% %OPT2%
+rem    ifort /c CFML_polar.f90                           /nologo %OPT1% %OPT2%
 rem
 :END
 rem
