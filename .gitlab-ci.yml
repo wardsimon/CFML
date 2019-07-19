@@ -46,6 +46,7 @@ make:macos_ifort:
 make:windows_gfortran:
   stage: make
   script:
+    - set PATH=%PATH:C:\Program Files\Git\bin;=%
     - set CRYSFML_HDF5_DIR=C:\\Projects\\fullprof\\hdf5
     - set CRYSFML_BOOST_DIR=C:\\Projects\\fullprof\\boost
     - set CRYSFML_NEXUS_DIR=C:\\Projects\\fullprof\\NeXuS
