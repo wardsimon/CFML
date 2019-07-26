@@ -18,7 +18,7 @@
     public :: Allocate_kvect_info,Set_SSG_Reading_Database, Write_SSG,    &
               Generate_Reflections, Set_SSGs_from_Gkk, k_SSG_compatible,  &
               Gen_SSGroup, Print_Matrix_SSGop, Readn_Set_SuperSpace_Group,&
-              Get_Average_SPG,Allocate_sAtom_list
+              Get_Average_SPG,Allocate_sAtom_list, Get_h_info
 
     Type, extends(Spg_Type), public :: SuperSpaceGroup_Type
       logical                             :: standard_setting=.true.  !true or false
@@ -947,7 +947,44 @@
        return
     End Function H_Mult
 
-   Subroutine Get_Average_SPG(ssg, SpG)
+    Subroutine Get_h_info(h,SSG,mag,info)
+       integer, dimension(:),      intent (in) :: h
+       class(SuperSpaceGroup_Type),intent (in) :: SSG
+       logical,                    intent (in) :: mag
+       integer, dimension(4),      intent(out) :: info
+
+       info=0  !Reflection allowed (lattice, Nuclear, Magnetic, Ref-character)
+               ! For the three initial componentes 0:allowed, 1:absent
+               ! Ref-character: 0:pure nuclear, 1:pure magnetic, 2:nuclear+magnetic
+
+       if(SSG%Num_Lat > 0) then
+         if (H_Lat_Absent(h,SSG%Lat_tr,SSG%Num_Lat)) then
+           info(1:3)=1  !lattice absence and, as a consequence, nuclear and magnetic absence
+           return
+         end if
+       end if
+       if(H_Absent_SSG(h,SSG)) then
+         info(2)=1  !Nuclear absence
+         if(SSG%Mag_type /= 2 .and. mag) then
+           if(mH_Absent_SSG(h,SSG)) then
+             info(3)=1 !Magnetic absence
+           else
+             info(4)=1   !Pure magnetic
+           end if
+         end if
+       else
+         info(2)=0
+         if(SSG%Mag_type /= 2) then
+           if(mH_Absent_SSG(h,SSG)) then
+             info(4)=0  !pure nuclear
+           else
+             info(4)=2
+           end if
+         end if
+       end if
+    End Subroutine Get_h_info
+
+    Subroutine Get_Average_SPG(ssg, SpG)
       class(SuperSpaceGroup_Type),     intent (in) :: ssg
       type (Space_Group_Type),         intent(out) :: SpG
       !Local variables
@@ -1002,7 +1039,7 @@
          SpG%Symop(i)%tr   = group%Op(i)%Mat(1:3,4)
        end do
 
-   End Subroutine Get_Average_SPG
+    End Subroutine Get_Average_SPG
 
 
     !!----
@@ -1040,6 +1077,7 @@
        real(kind=cp)         :: epsr=0.00001, delt=0.0001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j,indp,indj, &
                                 maxpos, mp, iprev,Dd, nf, ia, i0, nk, nharm,n
+       integer,      dimension(4)                :: info
        integer,      dimension(:),   allocatable :: hh,kk,nulo
        integer,      dimension(:,:), allocatable :: hkl,hklm
        integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
@@ -1135,31 +1173,10 @@
           hh=hkl(:,i)
           mp=0
           if(present(SSG)) then
-             if(ssg%Num_Lat /= 0) then
-               if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
-             end if
-             if(H_Absent_SSG(hh,SSG)) then
-              !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-               if(SSG%Mag_type /= 2 .and. mag) then
-                 if(mH_Absent_SSG(hh,SSG)) then
-                   !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
-                   cycle
-                 else
-                   mp=1   !pure magnetic
-                   indtyp(i)=mp
-                 end if
-               else
-                 cycle
-               end if
-             else
-               if(SSG%Mag_type /= 2 .and. mag) then
-                 if(mH_Absent_SSG(hh,SSG)) then
-                   mp=0  !pure nuclear
-                 else
-                   mp=2
-                 end if
-               end if
-             end if
+             call Get_h_info(hh,SSG,mag,info)
+             if(info(1) == 1) cycle
+             if(info(2) == 1 .and. info(3) == 1) Cycle
+             mp=info(4)
           end if
           n=n+1
           hkl(:,n)=hkl(:,i)
@@ -1237,14 +1254,12 @@
          reflex(i)%h      = hkl(:,i)
          kk               = abs(hkl(4:3+nk,i))
          reflex(i)%p_coeff= 0 !Fundamental reflections point to the Fourier coefficient [00...]
-         do_n: do n=1,kinfo%nq
-           do k=1,nk
+         do n=1,kinfo%nq
              if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
                reflex(i)%p_coeff=n
-               exit do_n
+               exit
              end if
-           end do
-         end do do_n
+         end do
          reflex(i)%s      = sv(i)
          if(present(SSG)) then
            reflex(i)%mult = h_mult(reflex(i)%h,SSG,.true.)
@@ -1271,6 +1286,7 @@
        real(kind=cp)         :: epsr=0.00000001 !, delt=0.000001
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i,j, & !,maxpos,iprev,indp,indj
                                  mp, Dd, nf, ia, i0, nk, num_ref, n, nharm
+       integer,       dimension(4)                :: info
        integer,       dimension(:),   allocatable :: hh,kk,nulo
        integer,       dimension(:,:), allocatable :: hkl
        integer,       dimension(:),   allocatable :: indx,indtyp
@@ -1363,31 +1379,10 @@
           hh=hkl(:,i)
           mp=0
           if(present(SSG)) then
-             if(ssg%Num_Lat /= 0) then
-               if (H_Lat_Absent(hh,SSG%Lat_tr,SSG%Num_Lat)) cycle
-             end if
-             if(H_Absent_SSG(hh,SSG)) then
-              !write(*,"(a,10i4)") " Absent nuclear reflection: ",hh
-               if(SSG%Mag_type /= 2 .and. mag) then
-                 if(mH_Absent_SSG(hh,SSG)) then
-                   !write(*,"(a,10i4)") " Absent magnetic reflection: ",hh
-                   cycle
-                 else
-                   mp=1   !pure magnetic
-                   indtyp(i)=mp
-                 end if
-               else
-                 cycle
-               end if
-             else
-               if(SSG%Mag_type /= 2 .and. mag) then
-                 if(mH_Absent_SSG(hh,SSG)) then
-                   mp=0  !pure nuclear
-                 else
-                   mp=2
-                 end if
-               end if
-             end if
+             call Get_h_info(hh,SSG,mag,info)
+             if(info(1) == 1) cycle
+             if(info(2) == 1 .and. info(3) == 1) Cycle
+             mp=info(4)
           end if
           n=n+1
           hkl(:,n)=hkl(:,i)
@@ -1411,14 +1406,12 @@
          Reflex%Ref(i)%s      = sv(j)
          Reflex%Ref(i)%p_coeff= 0 !Fundamental reflections point to the Fourier coefficient [00...]
          kk                   = abs(hkl(4:3+nk,j))
-         do_n: do n=1,kinfo%nq
-           do k=1,nk
-             if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
-               Reflex%Ref(i)%p_coeff=n
-               exit do_n
-             end if
-           end do
-         end do do_n
+         do n=1,kinfo%nq
+           if(equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
+             Reflex%Ref(i)%p_coeff=n
+             exit
+           end if
+         end do
          if(present(SSG)) then
            Reflex%Ref(i)%mult = h_mult(Reflex%Ref(i)%h,SSG,.true.)
          else
