@@ -1038,6 +1038,7 @@
        Integer  :: iFld     ! field type -1:integer;-2:real;>0:A1 to A14
        Integer  :: GetFTMfield     ! old function now argument of a subroutine
        Logical  :: ifSearchEnd
+       Integer  :: i
 
        !---- Initialize ----!
        nC_L = 0
@@ -1078,7 +1079,14 @@
                 return
              end if
              aLine=adjustl(aLine)
-             l_line = len_trim(aLine)    ! true length without trailing spaces
+             i=len_trim(UFMTfields)
+             if(UFMTfields(i:i) == "F" .or. UFMTfields(i:i) == "I") then
+               i=index(aLine,"#")
+               if( i > 1 ) aLine=aLine(1:i-1)
+               i=index(aLine,"!")
+               if( i > 1 ) aLine=aLine(1:i-1)
+             end if
+             l_line = len_trim(aLine)    ! true length without trailing spaces and final comments
              if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") trim(aLine)
              if (aLine(1:1) == "!" .or. aLine(1:1) == "#" .or. L_line == 0) then
                 Line_Nb=Line_Nb+1

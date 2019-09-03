@@ -1176,7 +1176,8 @@
              call Get_h_info(hh,SSG,mag,info)
              if(info(1) == 1) cycle
              if(info(2) == 1 .and. info(3) == 1) Cycle
-             mp=info(4)
+             if(magg .and. info(4) == 0) cycle
+             mp=info(4) !Reflection character (0:nuclear,1:magnetic,2:nuclear+magnetic)
           end if
           n=n+1
           hkl(:,n)=hkl(:,i)
