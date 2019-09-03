@@ -668,7 +668,7 @@
        end if
 
        do i=1,nv
-          Atm_cart(:,i)=Vert(:,i)- Cent
+          Atm_cart(:,i)=Vert(i,:)- Cent
        end do
 
        do i=1,nv-2
