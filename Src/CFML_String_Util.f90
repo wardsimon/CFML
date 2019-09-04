@@ -1018,13 +1018,14 @@
     !!--..
     !!---- Update: January - 2009
     !!
-    Subroutine FindFmt(Lun,aLine,FMTfields,FMTstring,idebug)
+    Subroutine FindFmt(Lun,aLine,FMTfields,FMTstring,idebug,trimming)
        !---- Arguments ----!
        Character (len=*) , intent(in out) ::  aLine
        Character (len=*) , intent(in    ) ::  FMTfields
        Character (len=*) , intent(   out) ::  FMTstring
        Integer ,           intent(in    ) ::  Lun      ! Logical unit number
        Integer ,optional,  intent(in    ) ::  idebug   ! Logical unit number
+       logical ,optional,  intent(in    ) ::  trimming
 
        !---- Local variables ----!
        Character (len=len(FMTfields)) ::  UFMTfields
@@ -1079,13 +1080,15 @@
                 return
              end if
              aLine=adjustl(aLine)
-             !i=len_trim(UFMTfields)    ! This HAS BEEN reverted because side effects in programs like FullProf
-             !if(UFMTfields(i:i) == "F" .or. UFMTfields(i:i) == "I") then
-             !  i=index(aLine,"#")
-             !  if( i > 1 ) aLine=aLine(1:i-1) ! This gives the line without trailing spaces and final comments
-             !  i=index(aLine,"!")
-             !  if( i > 1 ) aLine=aLine(1:i-1)
-             !end if
+             if(present(trimming)) then  ! This HAS BEEN added because side effects in programs like FullProf
+                i=len_trim(UFMTfields)
+                if(UFMTfields(i:i) == "F" .or. UFMTfields(i:i) == "I") then
+                  i=index(aLine,"#")
+                  if( i > 1 ) aLine=aLine(1:i-1) ! This gives the line without trailing spaces and final comments
+                  i=index(aLine,"!")
+                  if( i > 1 ) aLine=aLine(1:i-1)
+                end if
+             end if
              l_line = len_trim(aLine)
              if(present(idebug) .and. idebug > 0) write(unit=idebug,fmt="(a)") trim(aLine)
              if (aLine(1:1) == "!" .or. aLine(1:1) == "#" .or. L_line == 0) then
