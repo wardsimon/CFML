@@ -2266,7 +2266,7 @@
                 if (iv /= 1) cycle
 
                 n_atom=n_atom+1
-                atm%atom(n_atom)%lab=label(1)(1:4)
+                atm%atom(n_atom)%lab=trim(label(1))
                 call getnum(label(2),vet,ivet,iv)
                 el=elem_type(ivet(1))
                 atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
@@ -2295,7 +2295,7 @@
                 if (iv /= 1) cycle
 
                 n_atom=n_atom+1
-                atm%atom(n_atom)%lab=label(1)(1:4)
+                atm%atom(n_atom)%lab=trim(label(1))
                 call getnum(label(2),vet,ivet,iv)
                 el=elem_type(ivet(1))
                 atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
@@ -2331,7 +2331,7 @@
                 if (iv /= 4) cycle
 
                 n_atom=n_atom+1
-                atm%atom(n_atom)%lab=label(1)(1:4)
+                atm%atom(n_atom)%lab=trim(label(1))
                 call getnum(label(2),vet,ivet,iv)
                 el=elem_type(ivet(1))
                 atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
