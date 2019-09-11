@@ -93,7 +93,7 @@ Module CFML_EoS
    integer, public, parameter :: N_DATA_TYPES=2     ! Number of possible data types in addition to V (Kt,Ks etc)
 
 
-   character(len=*), public, parameter, dimension(-1:N_PRESS_MODELS) :: PMODEL_NAMES=(/    &      ! Name of the Pressure Models
+   character(len=*), public, parameter, dimension(-1:N_PRESS_MODELS) :: PMODEL_NAMES=[    &      ! Name of the Pressure Models
                                                                         'PTV Table      ', &
                                                                         'None           ', &
                                                                         'Murnaghan      ', &
@@ -101,9 +101,9 @@ Module CFML_EoS
                                                                         'Vinet          ', &
                                                                         'Natural Strain ', &
                                                                         'Tait           ', &
-                                                                        'APL2           '/)
+                                                                        'APL2           ']
 
-   character(len=*), public, parameter, dimension(-1:N_THERM_MODELS) :: TMODEL_NAMES=(/        &  ! Name of the Thermal Models
+   character(len=*), public, parameter, dimension(-1:N_THERM_MODELS) :: TMODEL_NAMES=[        &  ! Name of the Thermal Models
                                                                         'PTV Table          ', &
                                                                         'None               ', &
                                                                         'Berman 1988        ', &
@@ -112,32 +112,32 @@ Module CFML_EoS
                                                                         'Kroll              ', &
                                                                         'Salje low-T        ', &
                                                                         'HP Thermal Pressure', &
-                                                                        'Mie-Gruneisen-Debye'/)
+                                                                        'Mie-Gruneisen-Debye']
 
-   character(len=*), public, parameter, dimension(-1:N_TRANS_MODELS) :: TRANMODEL_NAMES=(/ &      ! Name of Transition models
+   character(len=*), public, parameter, dimension(-1:N_TRANS_MODELS) :: TRANMODEL_NAMES=[ &      ! Name of Transition models
                                                                         'PTV Table      ', &
                                                                         'None           ', &
                                                                         'Landau P only  ', &
                                                                         'Landau T only  ', &
-                                                                        'Landau PVT     '/)
+                                                                        'Landau PVT     ']
 
-   character(len=*), public, parameter, dimension(0:N_SHEAR_MODELS) :: SHEARMODEL_NAMES=(/ &      ! Name of Shear models
+   character(len=*), public, parameter, dimension(0:N_SHEAR_MODELS) :: SHEARMODEL_NAMES=[ &      ! Name of Shear models
                                                                        'None           ',  &
-                                                                       'Polynomial     '/)
+                                                                       'Polynomial     ']
 
-   character(len=*), public, parameter, dimension(0:N_CROSS_MODELS) :: CROSSMODEL_NAMES=(/ &      ! Name of Cross-term models
+   character(len=*), public, parameter, dimension(0:N_CROSS_MODELS) :: CROSSMODEL_NAMES=[ &      ! Name of Cross-term models
                                                                        'None           ',  &
                                                                        'Linear dK/dT   ',  &
-                                                                       'Hellfrich-Conn '/)
+                                                                       'Hellfrich-Conn ']
 
-   character(len=*), public, parameter, dimension(0:N_DATA_TYPES) :: DATATYPE_NAMES=(/      &     ! Name of Data types
+   character(len=*), public, parameter, dimension(0:N_DATA_TYPES) :: DATATYPE_NAMES=[      &     ! Name of Data types
                                                                      'Cell parameters    ', &
                                                                      'Isothermal moduli  ', &
-                                                                     'Adiabatic moduli   '/)
+                                                                     'Adiabatic moduli   ']
 
    real(kind=cp), public, parameter               :: AFERMIGAS    = 2337.0                                 ! Fermi Gas constant in GPa/A^5
-   real(kind=cp), public, parameter, dimension(6) :: DELCHI       =(/ 2.30, 4.61, 6.17, 9.21,11.80,18.40/) ! Delta Chi2 values
-   real(kind=cp), public, parameter, dimension(6) :: DELCHI_LEVELS=(/68.30,90.00,95.40,99.00,99.73,99.99/) ! Confidence Levels
+   real(kind=cp), public, parameter, dimension(6) :: DELCHI       =[ 2.30, 4.61, 6.17, 9.21,11.80,18.40] ! Delta Chi2 values
+   real(kind=cp), public, parameter, dimension(6) :: DELCHI_LEVELS=[68.30,90.00,95.40,99.00,99.73,99.99] ! Confidence Levels
 
    !---------------!
    !---- TYPES ----!
@@ -149,13 +149,13 @@ Module CFML_EoS
    !!---- Update: 23/09/2016
    !!
    Type, public :: PVT_Table
-      integer                                      :: np       ! number of pressure lines
-      integer                                      :: nt       ! number of temperature columns
-      real(kind=cp)                                :: pmin     ! smallest pressure
-      real(kind=cp)                                :: pmax     ! biggest pressure
-      real(kind=cp)                                :: tmin     ! smallest temperature
-      real(kind=cp)                                :: tmax     ! biggest temperature
-      real(kind=cp), allocatable, dimension(:,:,:) :: ptv      ! The table, last index is 1=p, 2=t, 3=v
+      integer                                      :: NP       ! number of pressure lines
+      integer                                      :: NT       ! number of temperature columns
+      real(kind=cp)                                :: Pmin     ! smallest pressure
+      real(kind=cp)                                :: Pmax     ! biggest pressure
+      real(kind=cp)                                :: Tmin     ! smallest temperature
+      real(kind=cp)                                :: Tmax     ! biggest temperature
+      real(kind=cp), allocatable, dimension(:,:,:) :: PTV      ! The table, last index is 1=p, 2=t, 3=v
    End Type PVT_Table
 
    !!----
@@ -211,7 +211,7 @@ Module CFML_EoS
    !!
    Type, public :: EoS_List_Type
       integer                                   :: N=0    ! Number of EoS List
-      character(len=30)                         :: system ! Crystal system name, including setting info (e.g. b-unique for mono)
+      character(len=30)                         :: System ! Crystal system name, including setting info (e.g. b-unique for mono)
       type(EoS_Type), allocatable, dimension(:) :: EoS    ! EoS Parameters
    End Type EoS_List_Type
 
@@ -242,14 +242,14 @@ Module CFML_EoS
    !!---- Update: January - 2013
    !!
    Type, public :: EoS_Data_List_Type
-      character(len=80)                              :: Title=" "     ! Title of dataset (normally from input datafile)
-      character(len=40)                              :: System=" "    ! Crystal System  (normally set by Def_Crystal_System)
-      integer                                        :: N=0           ! Number of EoS Data List
-      integer, dimension(NCOL_DATA_MAX)              :: IC_Dat=0      ! Which values are input
-      character(len=15)                              :: Pscale_name=" "       ! Description of the Pressure scale of data (e.g. GPa)
-      character(len=15)                              :: Vscale_name=" "       ! Description of the units of volume data (e.g. A3/cell)
-      character(len=15)                              :: Lscale_name=" "       ! Description of the units of linear data  (e.g. A)
-      type(EoS_Data_Type), allocatable, dimension(:) :: EoSD          ! EoS Data Parameters
+      character(len=80)                              :: Title=" "        ! Title of dataset (normally from input datafile)
+      character(len=40)                              :: System=" "       ! Crystal System  (normally set by Def_Crystal_System)
+      integer                                        :: N=0              ! Number of EoS Data List
+      integer, dimension(NCOL_DATA_MAX)              :: IC_Dat=0         ! Which values are input
+      character(len=15)                              :: Pscale_name=" "  ! Description of the Pressure scale of data (e.g. GPa)
+      character(len=15)                              :: Vscale_name=" "  ! Description of the units of volume data (e.g. A3/cell)
+      character(len=15)                              :: Lscale_name=" "  ! Description of the units of linear data  (e.g. A)
+      type(EoS_Data_Type), allocatable, dimension(:) :: EoSD             ! EoS Data Parameters
    End Type EoS_Data_List_Type
 
    Interface
@@ -938,8 +938,6 @@ Module CFML_EoS
 Contains
    !!--++
    !!--++ EOS_TO_VEC
-   !!--++
-   !!--++ PRIVATE
    !!--++ Copy parameters from EoS type to a vector
    !!--++
    !!--++ 28/02/2013
@@ -989,8 +987,6 @@ Contains
    
    !!--++
    !!--++ VEC_TO_EOS
-   !!--++
-   !!--++ PRIVATE
    !!--++ Pass values fron a vector to respective EoS parameter
    !!--++
    !!--++ 28/02/2013
@@ -1026,11 +1022,9 @@ Contains
 
    !!--++
    !!--++ DEFINE_CRYSTAL_SYSTEM
-   !!--++
-   !!--++ PRIVATE
-   !!--++ Either sets cell parameters to conform to specifed system Or,
-   !!--++ if no system specified, tries to determine system if all cell parameters
-   !!--++ provided
+   !!--++   Either sets cell parameters to conform to specifed system Or,
+   !!--++   if no system specified, tries to determine system if all cell parameters
+   !!--++   provided
    !!--++
    !!--++ 17/07/2015
    !!
@@ -1056,13 +1050,13 @@ Contains
          select case (u_case(system(1:4)))
             case ('MONO')
                if (index(u_case(system),' C ') /= 0) then
-                  !> alpha = beta = 90º
+                  !> alpha = beta = 90?
                   dat%eosd(1:ndat)%ang(1)=90.0
                   dat%eosd(1:ndat)%ang(2)=90.0
                   dat%eosd(1:ndat)%siga(1)=0.0
                   dat%eosd(1:ndat)%siga(2)=0.0
                else
-                  !> alpha = gamma = 90º
+                  !> alpha = gamma = 90?
                   dat%eosd(1:ndat)%ang(1)=90.0
                   dat%eosd(1:ndat)%ang(3)=90.0
                   dat%eosd(1:ndat)%siga(1)=0.0
@@ -1070,7 +1064,7 @@ Contains
                end if
 
             case ('ORTH')
-               !> Angles =90º
+               !> Angles =90?
                dat%eosd(1:ndat)%ang(1)=90.0
                dat%eosd(1:ndat)%ang(2)=90.0
                dat%eosd(1:ndat)%ang(3)=90.0
@@ -1079,7 +1073,7 @@ Contains
                dat%eosd(1:ndat)%siga(3)=0.0
 
             case ('TETR')
-               !> Angles =90º
+               !> Angles =90?
                dat%eosd(1:ndat)%ang(1)=90.0
                dat%eosd(1:ndat)%ang(2)=90.0
                dat%eosd(1:ndat)%ang(3)=90.0
@@ -1092,7 +1086,7 @@ Contains
                dat%eosd(1:ndat)%sigc(2)=dat%eosd(1:ndat)%sigc(1)
 
             case ('TRIG','HEXA')
-               !> Angles alpha=beta=90º, gamma=120º
+               !> Angles alpha=beta=90?, gamma=120?
                dat%eosd(1:ndat)%ang(1)= 90.0
                dat%eosd(1:ndat)%ang(2)= 90.0
                dat%eosd(1:ndat)%ang(3)  =120.0
@@ -1118,7 +1112,7 @@ Contains
                dat%eosd(1:ndat)%sigc(3)=dat%eosd(1:ndat)%sigc(1)
 
             case ('CUBI')
-               !> Angles =90º
+               !> Angles =90?
                dat%eosd(1:ndat)%ang(1)=90.0
                dat%eosd(1:ndat)%ang(2)=90.0
                dat%eosd(1:ndat)%ang(3)=90.0
@@ -1128,7 +1122,7 @@ Contains
 
                !> a=b=c: Modified RJA 14 Jan to handle case if V is supplied, but 'a' is not
                do i=1,ndat
-                  if (dat%eosd(i)%cell(1) < tiny(0.0) ) then
+                  if (dat%eosd(i)%cell(1) < tiny(0.0_cp) ) then
                      dat%eosd(i)%cell(1)=dat%eosd(i)%v**(1.0_cp/3.0_cp)
                      dat%eosd(i)%sigc(1)=dat%eosd(i)%sigv/3.0_cp/(dat%eosd(i)%cell(1)**2.0_cp)
                   end if
@@ -1174,10 +1168,8 @@ Contains
 
    !!--++
    !!--++ SET_VOLUME_FROM_CELL
-   !!--++
-   !!--++ PRIVATE
-   !!--++ Sets V and esd(V) from cell parameter data for all data items in dat
-   !!--++ If V is present in first data item, no esd is calculated
+   !!--++   Sets V and esd(V) from cell parameter data for all data items in dat
+   !!--++   If V is present in first data item, no esd is calculated
    !!--++
    !!--++ 17/07/2015
    !!

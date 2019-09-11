@@ -39,7 +39,7 @@ SubModule (CFML_EoS) EoS_013
          case(0) ! no thermal parameters
             return
 
-         case(4,5,6,7) ! Kroll and Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
+         case(4:7) ! Kroll and Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
             if (t < 0.05_cp*eospar%params(11) ) return
       end select
 
@@ -70,11 +70,11 @@ SubModule (CFML_EoS) EoS_013
             ! now stop the del taking us into illegal area
             tlimit=t+2.0*del
             do                                        ! search for positive K at this P
-              if (get_K(p,tlimit,eospar) > 0._cp .and. err_CFML%IErr==0)exit
-              call clear_error()
-              tlimit=tlimit-0.1_cp*(tlimit-t)
-              if(tlimit < t)exit                    ! should never happen because P,T is valid    
-            enddo
+               if (get_K(p,tlimit,eospar) > 0.0_cp .and. err_CFML%IErr==0)exit
+               call clear_error()
+               tlimit=tlimit-0.1_cp*(tlimit-t)
+               if (tlimit < t) exit                    ! should never happen because P,T is valid    
+            end do
             del=0.4*abs(tlimit-t)
       end select
 
@@ -83,7 +83,7 @@ SubModule (CFML_EoS) EoS_013
          Tr=get_transition_temperature(p,eospar)
          if (transition_phase(P,T,eospar) .neqv. transition_phase(P,T+2.0*del,eospar)) del=abs(T-Tr)/2.1_cp
          if (transition_phase(P,T,eospar) .neqv. transition_phase(P,T-2.0*del,eospar)) del=abs(T-Tr)/2.1_cp
-         if (del < 1.0) del=1.0
+         if (del < 1.0_cp) del=1.0_cp
       end if
 
       !> Do the numerical solution
@@ -97,10 +97,10 @@ SubModule (CFML_EoS) EoS_013
       !> Trap non-physical results that arise due to rounding errors
       !> But negative thermal expansion is allowed, so original test alpha < 0 not valid
       !> Removed 1-Feb-2019 because small T is tested for these itherm eos at start
-!      select case(eospar%itherm)
-!         case(4,5,6,7)
-!           if (alpha < tiny(0.0)) alpha=0.0_cp
-!     end select
+      !select case(eospar%itherm)
+      !    case(4,5,6,7)
+      !      if (alpha < tiny(0.0)) alpha=0.0_cp
+      !end select
 
       !> get_volume returns 'a' for linear, so alpha is correct as 1/a da/dT for linear
 

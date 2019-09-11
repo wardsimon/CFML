@@ -149,19 +149,20 @@ SubModule (CFML_EoS) EoS_009
 
          case(6) ! APL
             x=vv0**0.333333_cp
-            pFG0=aFermiGas*(eospar%params(4)*vv0/vol)**1.66666667_cp
+            pFG0=AFERMIGAS*(eospar%params(4)*vv0/vol)**1.66666667_cp
             c0=-1.0_cp*log(3.0_cp*K0/pFG0)           ! assumes V in A^3
             c2=1.5_cp*(Kp-3.0_cp)-c0
+            
             !> terms in pressure expression
             a=1.0_cp/x**5.0_cp*(1.0_cp-x)
             b=exp(c0*(1.0_cp-x))
             c=1.0_cp+c2*x*(1.0_cp-x)
+            
             !> derivatives
             da= -5.0_cp/x**6.0_cp +4.0_cp/x**5.0_cp
             db= -1.0_cp*c0*b
             dc= c2*(1.0_cp-2.0_cp*x)
             kc= -1.0_cp*k0*x*(da*b*c+a*db*c+a*b*dc)
-
       end select
 
       !> To this point Kc is the bulk modulus of the 'bare' eos of the high phase if it was an isothermal eos

@@ -21,9 +21,9 @@ SubModule (CFML_EoS) EoS_024
 
       !> set up the labels in order
       integer, parameter           :: INI=4, IEND=21
-      character(len=5),dimension(INI:IEND) :: lab=(/'T    ','sigT ','P    ','sigP ','V    ','sigV ',  &
-                                                    'A    ','sigA ','B    ','sigB ','C    ','sigC ',  &
-                                                    'ALPHA','sigAL','BETA ','sigBE','GAMMA','sigGA'/)
+      character(len=5),dimension(INI:IEND) :: lab=['T    ','sigT ','P    ','sigP ','V    ','sigV ',  &
+                                                   'A    ','sigA ','B    ','sigB ','C    ','sigC ',  &
+                                                   'ALPHA','sigAL','BETA ','sigBE','GAMMA','sigGA']
 
       !>
       !> assume that unit is connected and open.
@@ -255,7 +255,7 @@ SubModule (CFML_EoS) EoS_024
       character(len=255)      :: text     ! local text variable
       character(len=1)        :: tscale   ! local name of tscale
       logical                 :: loop_p   ! loop indicator .true. for inner loop of calcs over P
-      integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
+      integer,dimension(19)   :: ip=[6,6,9,8,6,5,5,9,7,7,5,9,7,7,6,6,6,6,6] ! format for output
       integer                 :: i
 
       real(kind=cp),dimension(6) :: parvals(7)
@@ -728,8 +728,8 @@ SubModule (CFML_EoS) EoS_024
       character(len=:), allocatable :: text                ! character string with results
 
       !---- Local variable ----!
-      character(len=1)        :: tscale   ! local name of tscale
-      integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
+      character(len=1)        :: tscale                                     ! local name of tscale
+      integer,dimension(19)   :: ip=[6,6,9,8,6,5,5,9,7,7,5,9,7,7,6,6,6,6,6] ! format for output
       integer                 :: i
 
       real(kind=cp),dimension(6) :: parvals(7)
@@ -806,8 +806,8 @@ SubModule (CFML_EoS) EoS_024
 
       !>MGD EoS parameters
       if (eos%itherm == 7) then
-      !    parout(16)=eos%params(10)*(parvals(1)/eos%params(1))**eos%params(12)     !MGD gamma
-      !    parout(17)=eos%params(11)*exp((eos%params(10)-parout(16))/eos%params(12))       !Debye T
+         !parout(16)=eos%params(10)*(parvals(1)/eos%params(1))**eos%params(12)     !MGD gamma
+         !parout(17)=eos%params(11)*exp((eos%params(10)-parout(16))/eos%params(12))       !Debye T
           parout(16)=get_grun_v(parvals(1),eos)      ! Gruneisen gamma
           parout(17)=get_DebyeT(parvals(1),eos)      !Debye T
       end if

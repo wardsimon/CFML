@@ -6,8 +6,6 @@ SubModule (CFML_EoS) EoS_011
    
    !!--++
    !!--++ PTHERMAL
-   !!--++
-   !!--++ PRIVATE
    !!--++  Calculate Pthermal from eosparameters at temperature T
    !!--++
    !!--++ 10/09/2013
@@ -20,9 +18,9 @@ SubModule (CFML_EoS) EoS_011
       real(kind=cp)              :: Pth
 
       !---- Local Variables ----!
-      real(kind=cp) :: thtref,exp0,eta0,vlocal
-      real(kind=cp) :: gammaV, thetaD,factor
-      real(kind=cp),dimension(n_eospar) :: ev
+      real(kind=cp)                      :: thtref,exp0,eta0,vlocal
+      real(kind=cp)                      :: gammaV, thetaD,factor
+      real(kind=cp), dimension(N_EOSPAR) :: ev
 
       !> Local copy
       call eos_to_vec(eospar,ev)    !handle linear case
@@ -64,8 +62,8 @@ SubModule (CFML_EoS) EoS_011
    !!
    Module Function VscaleMGD(E) Result(MGD)
       !---- Arguments ----!
-      type(Eos_Type),intent(in)  :: E          ! EoS    
-      logical                    :: MGD        ! .true. if e%vscale_name is cm3/mol           
+      type(Eos_Type), intent(in)  :: E          ! EoS    
+      logical                     :: MGD        ! .true. if e%vscale_name is cm3/mol           
    
       !---- Local Variables ----!
       character(len=len(e%vscale_name)) :: vname
@@ -74,17 +72,15 @@ SubModule (CFML_EoS) EoS_011
       MGD=.false.  
       
       vname=adjustl(U_case(e%vscale_name))
-      if(len_trim(vname) == 0)return
+      if(len_trim(vname) == 0) return
 
       if (index(vname,'CM') > 0 .and. index(vname,'3') > 0 .and. index(vname,'MOL') > 0) MGD=.true.
    End Function VscaleMGD
    
    !!--++
    !!--++ ETHDEBYE
-   !!--++
-   !!--++ PRIVATE
-   !!--++  Calculates the Debye thermal Energy in Jmol(-1)
-   !!--++  because R is given in Jmol(-1)K(-1)
+   !!--++   Calculates the Debye thermal Energy in Jmol(-1)
+   !!--++   because R is given in Jmol(-1)K(-1)
    !!--++
    !!--++ 18/11/2015
    !!
@@ -98,12 +94,12 @@ SubModule (CFML_EoS) EoS_011
       !---- Local Variables ----!
       real(kind=cp)  :: x
 
-      if (T < 0.1) then
+      if (T < 0.1_cp) then
          Eth=0.0_cp
 
       else
          x=theta/t
-         Eth=3.0_cp*eospar%params(13)*8.314*T*debye(3,x)
+         Eth=3.0_cp*eospar%params(13)*8.314_cp*T*debye(3,x)
       end if
    End Function EthDebye
 

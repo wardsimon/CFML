@@ -120,7 +120,7 @@ SubModule (CFML_EoS) EoS_003
       !---- Local Variables ----!
 
       !>init
-      tr=0._cp
+      tr=0.0_cp
 
       !> Check for valid model number. If not valid, return with zero Tr
       if (eospar%itran < 1 .or. eospar%itran > N_TRANS_MODELS) return

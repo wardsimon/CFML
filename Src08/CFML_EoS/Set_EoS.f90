@@ -324,7 +324,7 @@ SubModule (CFML_Eos) EoS_022
       if (eospar%pthermaleos) then
          eospar%icross=0                ! Kill the cross-terms
          eospar%iuse(5:6)=0
-         eospar%params(5:6)=0.
+         eospar%params(5:6)=0.0_cp
 
       else
          select case(eospar%icross)
@@ -538,9 +538,9 @@ SubModule (CFML_Eos) EoS_022
 
          case (7)
             eospar%parname(10:12) = (/'Gamm0','ThMGD','qMGD '/)
-       !     eospar%comment(10) = 'MGD Gamma0, dimensionless'  ! no longer used - uses 18 and 19
+            !eospar%comment(10) = 'MGD Gamma0, dimensionless'  ! no longer used - uses 18 and 19
             eospar%comment(11) = 'Debye temperature in K'
-       !     eospar%comment(12) = 'Volume scaling of MGD gamma, dimensionless'
+            !eospar%comment(12) = 'Volume scaling of MGD gamma, dimensionless'
             eospar%parname(13) = 'Natom'
             eospar%comment(13) = 'Number of atoms per formula unit'
       end select
@@ -554,9 +554,7 @@ SubModule (CFML_Eos) EoS_022
 
    !!--++
    !!--++ SET_TRANSITION_NAMES
-   !!--++
-   !!--++ PRIVATE
-   !!--++ Set the character variables in eos_type data structures for Transition EoS
+   !!--++    Set the character variables in eos_type data structures for Transition EoS
    !!--++
    !!--++ 17/07/2015
    !!

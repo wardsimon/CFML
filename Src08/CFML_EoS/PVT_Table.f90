@@ -6,11 +6,9 @@ SubModule (CFML_EoS) EoS_010
    
    !!--++
    !!--++ GET_PROPS_PTVTABLE
-   !!--++
-   !!--++ PRIVATE
-   !!--++ Returns the requested property at two of P,T,V from an eos loaded as a table of values
-   !!--++ The volume values in the table are expected to be scaled to V=1.0 at Pref, Tref
-   !!--++ and the true V0 is in eospar%params(1)
+   !!--++   Returns the requested property at two of P,T,V from an eos loaded as a table of values
+   !!--++   The volume values in the table are expected to be scaled to V=1.0 at Pref, Tref
+   !!--++   and the true V0 is in eospar%params(1)
    !!--++
    !!--++ 14/10/16  
    !!
@@ -28,7 +26,6 @@ SubModule (CFML_EoS) EoS_010
       real(kind=cp)             :: VV0,tt,vm,vp,km,kp,va,vb,dvdp
       type(Eos_Type)            :: eosm,eosp,eosv     ! Eos for local Murn at Tminus and Tplus
       character(len=10)         :: Var
-      !character(len=60)         :: text
 
       !>Init
       Val=0.0_cp
@@ -199,7 +196,7 @@ SubModule (CFML_EoS) EoS_010
       k23=-0.5_cp*(eos%table%ptv(is+2,j,3) + eos%table%ptv(is+1,j,3))*(eos%table%ptv(is+2,j,1) - &
            eos%table%ptv(is+1,j,1))/(eos%table%ptv(is+2,j,3)-eos%table%ptv(is+1,j,3))
 
-      kp=2.0_cp*(k23-k12)/(eos%table%ptv(is+2,j,1)-eos%table%ptv(is,j,1))       ! Kp at point is+1
+      kp=2.0_cp*(k23-k12)/(eos%table%ptv(is+2,j,1)-eos%table%ptv(is,j,1))         ! Kp at point is+1
       if (abs(kp) < 0.0001) kp=4.0_cp
       k0=k12+kp*(eos%table%ptv(is+1,j,1)-eos%table%ptv(is+1,j,1))/2.0_cp          ! K at point is+1
       v0=eos%table%ptv(is+1,j,3)                                                  ! V0 at point is+1
@@ -209,9 +206,7 @@ SubModule (CFML_EoS) EoS_010
    
    !!--++
    !!--++ MURN_PTVTABLE
-   !!--++
-   !!--++ PRIVATE
-   !!--++ Calculate ....
+   !!--++   Calculate ....
    !!--++
    !!--++ 17/03/2017
    !!

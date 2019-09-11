@@ -43,16 +43,16 @@ SubModule (CFML_EoS) EoS_021
       E%IUse = 0
       E%IGrp = 0
       E%T    = 298.0
-      E%P    = 0.0
-      E%V    = 0.0
-      E%cell = 0.0
-      E%ang  = 0.0
+      E%P    = 0.0_cp
+      E%V    = 0.0_cp
+      E%cell = 0.0_cp
+      E%ang  = 0.0_cp
 
-      E%SigT = 0.0
-      E%SigP = 0.0
-      E%SigV = 0.0
-      E%sigc = 0.0
-      E%siga = 0.0
+      E%SigT = 0.0_cp
+      E%SigP = 0.0_cp
+      E%SigV = 0.0_cp
+      E%sigc = 0.0_cp
+      E%siga = 0.0_cp
    End Subroutine Init_EoS_Data_Type
 
    !!----
@@ -307,7 +307,7 @@ SubModule (CFML_EoS) EoS_021
       Eospar%Density0 = 0.0_cp
 
       Eospar%Iuse     =0
-      Eospar%Iuse(1:4)=1                 ! Vo, Ko, Kpp
+      Eospar%Iuse(1:4)=1                 ! Vo, Ko, Kp, Kpp
 
       Eospar%params   = 0.0_cp
       Eospar%esd      = 0.0_cp

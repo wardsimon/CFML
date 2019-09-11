@@ -22,7 +22,37 @@ SubModule (CFML_EoS) EoS_028
       call clear_error()
       
       !>Checks of EoS only
-      !>If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
+      
+      !> APL
+      if (e%imodel == 6)then
+         if (len_trim(E%pscale_name) == 0) then
+            err_CFML%IErr=2
+            if (e%linear) then
+               err_CFML%Msg='APL EoS must have a Pscale (and M0) in GPa'
+            else
+               err_CFML%Msg='APL EoS must have a Pscale (and K0) in GPa'
+            end if
+         end if
+        
+         if (len_trim(E%vscale_name) == 0 .or. index(U_case(E%Vscale_name),'A') == 0)then 
+            err_CFML%IErr=2
+            if (len_trim(err_CFML%Msg) == 0)then
+               if (e%linear)then
+                  err_CFML%Msg='APL EoS must have a Vscale and L0 in A'
+               else
+                  err_CFML%Msg='APL EoS must have a Vscale and V0 in A^3'
+               end if
+            else
+               if (e%linear)then
+                  err_CFML%Msg=trim(err_CFML%Msg)//' and a Vscale and L0 in A'
+               else
+                  err_CFML%Msg=trim(err_CFML%Msg)//' and a Vscale and V0 in A^3'
+               end if
+            end if
+         end if
+      end if
+      
+      !> If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
       if (e%itherm == 7) then
          if (len_trim(E%pscale_name) == 0)then
             err_CFML%IErr=2
@@ -250,6 +280,7 @@ SubModule (CFML_EoS) EoS_028
                end if 
             end if
          end if  
+         
       else  !isothermal or no thermal: check thermal part first for T being valid
          !> Check validity of normal-type thermal model: only needs T
          select case(e%itherm)
@@ -392,12 +423,12 @@ SubModule (CFML_EoS) EoS_028
          end if
 
       else      ! V was not given, but p was
-         if (p < 0._cp)then
+         if (p < 0.0_cp)then
             select case(e%imodel)
                case(1) ! Murngahan
-                  if (p + 1.0_cp*e%params(2)/e%params(3) < tiny(0.)) err_CFML%IErr=1
+                  if (p + 1.0_cp*e%params(2)/e%params(3) < tiny(0.0)) err_CFML%IErr=1
 
-               case(2,3,4,5,6) ! find V that gives K = K(P=0,T)/2, by iteration
+               case(2:6) ! find V that gives K = K(P=0,T)/2, by iteration
                   Klim=get_K0_T(T,E)/2.0_cp
                   V=get_volume_K(Klim,e%tref,e)
                   plim=get_pressure(V,T,e) 

@@ -20,7 +20,7 @@ SubModule (CFML_EoS) EoS_030
       parvals=0.0_cp
 
       call physical_check(eospar,Pin=p,Tin=t)           ! produce warnings based on P,T
-      if(err_CFML%IErr==1)return
+      if (err_CFML%IErr==1)return
 
       parvals(1)=get_volume(p,t,eospar)
       parvals(2)=k_cal(parvals(1),t,eospar,P=p)
@@ -65,9 +65,7 @@ SubModule (CFML_EoS) EoS_030
    
    !!--++
    !!--++ TRANSFORM_ESD
-   !!--++
-   !!--++ PRIVATE
-   !!--++ New generalised version for V,K,Kp,Kpp,dK/dT and alpha
+   !!--++   New generalised version for V,K,Kp,Kpp,dK/dT and alpha
    !!--++
    !!--..  NOTE:
    !!--..       the value of 0.001 was chosen to balance non-linearity of
@@ -87,7 +85,7 @@ SubModule (CFML_EoS) EoS_030
       !---- Local Variables ----!
       real(kind=cp),dimension(N_EOSPar,N_EOSPar)  :: d                  ! cross derivatives of parameters
       real(kind=cp),dimension(-2:2,6)             :: par
-      real(kind=cp), parameter                    :: factor=0.01        ! shift factor for calculating derivatives
+      real(kind=cp), parameter                    :: factor=0.01_cp     ! shift factor for calculating derivatives
       real(kind=cp)                               :: shift              ! shift applied to parameter
       type (eos_type)                             :: eost               ! local copy of input eos
       integer                                     :: i,j,k
@@ -102,7 +100,7 @@ SubModule (CFML_EoS) EoS_030
             do k=-2,2,1
                eost=eospar                                                     !reset eos params
                if (abs(eospar%params(j)) > tiny(0.0_cp)) then
-                  shift=factor*eospar%params(j)
+                  shift=FACTOR*eospar%params(j)
                   if (j == 10) shift=10.0*shift                    ! alpha0
                else
                   shift=1.0_cp/eospar%factor(j)                    ! shift to a parameter with zero value

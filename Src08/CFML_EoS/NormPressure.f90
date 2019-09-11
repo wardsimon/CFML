@@ -36,7 +36,7 @@ SubModule (CFML_EoS) EoS_005
       !> 17/11/2014: Before transitions, this used eosparams for normal thermal expansion
       !> but with transitions safer to do following:
       if (eospar%itherm == 0 .and. eospar%itran == 0) then
-         ! simple PV eos
+         !> simple PV eos
          k0=ev(2)
          kp=ev(3)
          kpp=ev(4)

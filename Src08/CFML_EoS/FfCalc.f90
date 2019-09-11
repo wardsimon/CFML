@@ -70,9 +70,9 @@ SubModule (CFML_EoS) EoS_027
       real(kind=cp) :: vv0,vv0_esd, sigmap,e
 
       !> Init
-      f=0.0_cp
+         f=0.0_cp
       sigf=0.0_cp
-      s=0.0_cp
+         s=0.0_cp
       sigs=0.0_cp
 
       if (abs(v0) <= 0.00001) then

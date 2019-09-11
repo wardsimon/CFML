@@ -64,7 +64,7 @@ SubModule (CFML_EoS) EoS_004
             step=-0.5_cp*step
          else
             if (abs(dp2) > abs(dp1))then
-               step=-1.0*step      ! wrong direction: reverse
+               step=-1.0_cp*step      ! wrong direction: reverse
             end if                 !(correct direction uses same step again)
          end if
 

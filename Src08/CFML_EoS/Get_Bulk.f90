@@ -90,8 +90,6 @@ SubModule (CFML_EoS) EoS_007
 
    !!--++
    !!--++ GET_KP0_T
-   !!--++
-   !!--++ PRIVATE
    !!--++ Returns kp0 needed for Eos calculations at T this means for Pthermal,
    !!--++ kp at Tref is returned.
    !!--++ In the linear case then  Mp(T, P=0) from params is returned
@@ -128,8 +126,6 @@ SubModule (CFML_EoS) EoS_007
 
    !!--++
    !!--++ GET_KPP0_T
-   !!--++
-   !!--++ PRIVATE
    !!--++  Returns kpp0 needed for Eos calculations at T this means for pthermal,
    !!--++  kpp at Tref is returned.
    !!--++  In the linear case then  Mp(T, P=0) from params is returned

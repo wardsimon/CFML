@@ -29,7 +29,7 @@ SubModule (CFML_EoS) EoS_008
             gpt=gpt+(t-eospar%tref)*eospar%params(34)
             delp=p-eospar%pref
             do i=1,3
-               if (eospar%params(i+30) < tiny(0.0)) exit
+               if (eospar%params(i+30) < tiny(0.0_cp)) exit
                gpt=gpt+eospar%params(i+30)*delp**i      ! eg linear term is (P-Pref)*dG/dP with params(31)
             end do
       end select

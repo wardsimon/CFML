@@ -229,18 +229,18 @@ SubModule (CFML_EoS) EoS_002
       
       dp1=p-get_pressure(vol,t,eos)
       if (err_CFML%Ierr==1)then
-         if(eospar%linear)v=v**(1.0_cp/3.0_cp)           ! to ensure reasonable return value if linear
+         if (eospar%linear)v=v**(1.0_cp/3.0_cp)           ! to ensure reasonable return value if linear
          return
       end if
 
       !> estimate the step to make in vol to get closer
       k=k0+p*kp                          ! Murn-like guess estimate to avoid recursive call back here when pthermal used
       if (eospar%linear)k=k*3.0_cp       ! The iteration is working with linear quantities
-      if(abs(k) > abs(dp1/1000.))then
-          step= -1.0_cp*vol*dp1/k            ! by definition of bulk modulus
+      if (abs(k) > abs(dp1/1000.))then
+         step= -1.0_cp*vol*dp1/k            ! by definition of bulk modulus
       else
-          step = -1.0_cp*vol*dp1/10.        ! trap for k being close to zero, to prevent step becoming NaN
-      endif
+         step = -1.0_cp*vol*dp1/10.        ! trap for k being close to zero, to prevent step becoming NaN
+      end if
       if(abs(step) < eos%params(1)/1000.)step=eos%params(1)/1000.
 
       nstep=0
@@ -277,8 +277,8 @@ SubModule (CFML_EoS) EoS_002
             if (abs(dp2) > abs(dp1)) then
                step=-1.0*step      ! wrong direction: reverse
             else
-        !       step=0.9_cp*dp2/dp1*step   ! correct direction, should get a smaller step size  
-        !    end if                        ! the factor of 0.9 is a safety factor to ensure step gets smaller
+        !       step=0.9_cp*dp2/dp1*step         ! correct direction, should get a smaller step size  
+        !    end if                              ! the factor of 0.9 is a safety factor to ensure step gets smaller
                 step= -1.0*dp2*step/(dp2-dp1)    ! new version Dec 2018: adjust step size in Newton-Raphson manner
             end if
          end if
@@ -492,6 +492,7 @@ SubModule (CFML_EoS) EoS_002
       real(kind=cp)              :: V
 
       !---- Local Variables ----!
+      integer                            :: ic
       real(kind=cp)                      :: vprev,Kprev,kc,vnew,delv,delvprev,Vstep
 
       !> Init
@@ -523,17 +524,27 @@ SubModule (CFML_EoS) EoS_002
       end do
       
       !> set-up for Newton-raphson
+      ic=0
       Kprev=Kc
       V=Vprev-Vstep
 
       do     ! does a newton-raphson search
+         ic=ic+1
+         if (ic > 10) exit
+         
          call clear_error()
          kc=K_cal(V,T,E)
-         if (abs(kc-k) < 0.001)exit
-         delV= (k-kc)*(V-Vprev)/(kc-Kprev)
-         if (abs(delV) > abs(delVprev))delV=sign(delVprev,delV)       !prevents step getting bigger
+
+         if (abs(kc-k) < 0.001*k)exit                   !new limit May 2019: was 0.001 now 0.001*K
+         if (ic > 1)then                                !introduced if(ic > 1) May 2019: otherwise delVprev is not initialised and delV becomes nan
+            delV= (k-kc)*(V-Vprev)/(kc-Kprev)
+            if (abs(delV) > abs(delVprev))delV=sign(delVprev,delV)       !prevents step getting bigger
+         else
+            delV=Vstep
+         end if
+            
          Vnew= V + delV
-         if (Vnew < 0._cp)Vnew=0.99*V          ! stops V going negative
+         if (Vnew < 0.0_cp) Vnew=0.99*V          ! stops V going negative
          Kprev=Kc
          Vprev=V
          delVprev=delV
