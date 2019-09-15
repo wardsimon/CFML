@@ -89,8 +89,8 @@ int register_blosc(char **version, char **date){
     if(retval<0){
         PUSH_ERR("register_blosc", H5E_CANTREGISTER, "Can't register Blosc filter");
     }
-    *version = strdup(BLOSC_VERSION_STRING);
-    *date = strdup(BLOSC_VERSION_DATE);
+    *version = _strdup(BLOSC_VERSION_STRING);
+    *date = _strdup(BLOSC_VERSION_DATE);
     return 1; /* lib is available */
 }
 
