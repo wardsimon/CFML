@@ -18,7 +18,7 @@
       invers=-identity !Inversion
       centred=1 !Default value for non-centrosymmetric groups
       anticentred=1
-      
+
       !Insertion sort putting the negative determinants at the bottom
       call sort_Op(multip,Op(1:multip),"det")
       do i=1,Multip
@@ -236,7 +236,7 @@
         Err_group=.true.
         write(unit=Err_group_mess,fmt="(2(a,i3))") " => Problem! the multiplicity ",Multip," has not been recovered, value of ng=",ng
       end if
-      
+
       !Determine if the group contain the primed inversion
       do i = 1 , ng
         if(equal_matrix(Op(i)%Mat(1:d,1:d),invers) .and. Op(i)%time_inv == -1 ) then

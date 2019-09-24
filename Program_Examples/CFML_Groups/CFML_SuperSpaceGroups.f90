@@ -647,7 +647,7 @@
       write(unit=lun,fmt="(a,i3)")          " =>    General multiplicity: ", SpaceGroup%Multip
       !write(unit=lun,fmt="(a,i4)")          " =>  Generators (exc. -1&L): ", SpaceGroup%num_gen
       if (SpaceGroup%centred == 0) then
-         write(unit=lun,fmt="(a,a)")        " =>               Centre at: ", print_rational(SpaceGroup%Centre_coord)
+         write(unit=lun,fmt="(a,10a)")      " =>               Centre at: ", print_rational(SpaceGroup%Centre_coord)
       end if
       if(present(kinfo) .and. SpaceGroup%nk > 0) then
          write(unit=lun,fmt="(a,i3)")       " => List Modulation vectors: ",kinfo%nk
@@ -1483,7 +1483,6 @@
          if(line(1:1) =="!" .or. line(1:1) =="#" .or. len_trim(line) == 0) cycle
          ind=index(line," ")-1
          line(1:ind)=u_case(line(1:ind))
-
          Select Case(line(1:ind))
 
            Case("SSG_NUM") !Generate the group from the database
@@ -1653,14 +1652,25 @@
        if(ssg%Num_Lat > 1) then
          call Get_Lattice_Type(ssg%Num_Lat, ssg%Lat_tr(1:3,:),ssg%SPG_Lat)
        end if
+       do i=1,n_end
+        line=adjustl(file_line(i))
+        if(line(1:1) =="!" .or. line(1:1) =="#" .or. len_trim(line) == 0) cycle
+        k=index(line,"<--")
+        if(k /= 0) then
+          j=index(line," ")
+          ssg%SSG_symbol=line(1:j)
+          ssg%SSG_nlabel=adjustl(line(j:k-1))
+          exit
+        end if
+       end do
 
        Select Type(myssg => SSG)
          Type is (eSSGroup_Type)
-          n=myssg%d
-          allocate(myssg%Om(n,n,myssg%Multip))
-          do i=1,myssg%Multip
-           myssg%Om(:,:,i)=myssg%Op(i)%Mat
-          end do
+           n=myssg%d
+           allocate(myssg%Om(n,n,myssg%Multip))
+           do i=1,myssg%Multip
+            myssg%Om(:,:,i)=myssg%Op(i)%Mat
+           end do
          Type is (SuperSpaceGroup_Type)
            return
          Class default

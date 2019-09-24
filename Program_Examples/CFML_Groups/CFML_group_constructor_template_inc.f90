@@ -63,6 +63,7 @@
        if(num_alat > 0)  Grp%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
        if(present(x1x2x3_type)) then
          if(trim(x1x2x3_type) /= 'xyz') then
+           Grp%op_typ=trim(x1x2x3_type)
            do i=1,Grp%Multip
              Grp%Symb_Op(i)=Symbol_Operator(Grp%Op(i),x1x2x3_type)
            end do

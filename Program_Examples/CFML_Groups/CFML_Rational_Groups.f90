@@ -6,7 +6,8 @@
 
     implicit none
     Private
-    Public  :: Allocate_Operator, Allocate_Operators, Init_Group, Get_Operators_From_String
+    Public  :: Allocate_Operator, Allocate_Operators, Init_Group, Get_Operators_From_String, &
+               Symbol_Operator
     Public  :: Group_Constructor, Get_Group_From_Generators, is_Lattice_vec, Get_dimension, &
                Get_Mat_From_Symb_Op, Get_Symb_Op_from_Mat, Reorder_Operators,  &
                print_group,Get_SubGroups,Allocate_Group,Get_Multiplication_Table, &
@@ -37,6 +38,7 @@
     Type, public :: Group_type
       integer :: Multip
       integer :: d  !Dimension of operator matrices (for 2D, d=3, for 3D, d=4, etc.)
+      character(len=6) :: op_typ="xyz" !Type of string "xyz" or "x1x2x3"
       type(Symm_Oper_Type),dimension(:),allocatable:: Op
       Character(len=80),   dimension(:),allocatable:: Symb_Op !":" doesn't work properly in gfortran
     End Type Group_type
