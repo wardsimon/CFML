@@ -19,7 +19,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross John Angel    (Universita di Pavia, Italy)
+!!----               Ross John Angel    (IGG-CNR, Italy)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -73,7 +73,7 @@ Module CFML_EoS
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
              Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
-             Set_Eos_Names, Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
+             Set_Eos_Names, Set_Eos_Use, set_eos_implied_values, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
              Write_Eoscal, Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS,  Def_Crystal_System
 
 
@@ -298,11 +298,12 @@ Contains
          case(0) ! no thermal parameters
             return
 
-         case(4,5,6,7) ! Kroll and Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
+         case(4,5,6,7) ! Kroll, Salje, and HP Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
             if (t < 0.05_cp*eospar%params(11) ) return
+            
       end select
 
-      !> Numerical solutions: set step size
+      !> Numerical solutions: set step size (not used in MGD)
       del =abs(0.001_cp/eospar%params(10))      ! Set step in T to get about 0.1% shift in V
       if (del > 80.0) del=80.0_cp               ! otherwise for small alpha, del is too big and alpha is inaccurate
       if (present(deltaT)) del=deltaT
@@ -455,7 +456,6 @@ Contains
 
       else
          x=theta/t
-         !Eth=3.0_cp*eospar%params(13)*8.314*T*debye3(x)
          Eth=debye(3,x)
          Eth=3.0_cp*eospar%params(13)*8.314*T*Eth
       end if
@@ -756,7 +756,7 @@ Contains
 
             eost%params(2)=Get_K0_T(T,Eospar)
             eost%params(3)=Get_Kp0_T(T,Eospar)
-            call Set_Kp_Kpp_Cond(Eost)
+            call set_eos_implied_values(Eost)
 
             kpp0=eost%params(4)
       end select
@@ -4518,7 +4518,7 @@ Contains
 
       !> Thermal cases
       select case(eospar%itherm)  ! for specific thermal parameters
-         case (4,6,7)    !>Kroll or Pthermal must have T_einstein, T_Debye > 0
+         case (4,6,7)    !>Kroll orPthermal must have characteristic T > 0. 
             if (eospar%params(11) < 0.1) then
                eospar%params(11)=eospar%Tref
                if (eospar%Tref < 0.1) eospar%params=0.1
@@ -4955,21 +4955,21 @@ Contains
             eospar%params(11)  = 298.0_cp             ! Einstein temperature default
             eospar%pthermaleos  =.true.
 
-         case(7)                                      ! MGD Pthermal
-            eospar%factor(10:14)  = 1.0_cp
+         case(7)                                      ! MGD Pthermal: only uses params(11) and (13)
+            eospar%factor(10:14)  = 1.0_cp            ! plus gamma0 and q as (18),(19)
             eospar%TRef           = 298.0_cp
             eospar%TRef_fixed     = .false.
-            !eospar%params(10)    = 1.0               ! MGD gamma, now use params(18)
+
             eospar%params(11)     = 298.0_cp          ! Debye temperature default
-            !eospar%params(12)    = 1.0               ! qMGD
+
             eospar%params(13)     = 1.0               ! Natoms/molecule for MGD
             eospar%pthermaleos  =.true.
 
       end select
 
-      !> Set the common terms for the Gruneisen model/Debye model
+      !> Set the common terms for Ks to Kt conversion: also used in MGD thermal pressure harmonic term
       eospar%params(18)=1.0_cp      ! gamma0
-      eospar%params(19)=0.0_cp      ! q
+      eospar%params(19)=1.0_cp      ! q
 
       call Init_EoS_Cross(Eospar)                     ! init the cross-terms
       call Set_Thermal_Names(Eospar)                  ! Set the variable names
@@ -6228,7 +6228,7 @@ Contains
          eos%esd(i)=sqrt(eos%vcv(i,i))   ! set the esd's from the vcv
       end do
 
-      call Set_Kp_Kpp_Cond(eos)           ! set default values
+      call set_eos_implied_values(eos)           ! set implied values
 
       !> we have to also set the refinement flags to match vcv
       do i=1,n_eospar
@@ -6593,15 +6593,15 @@ Contains
             eospar%iuse(10)=1    ! alpha at Tref
             eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
             eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref
-            eospar%iuse(19)=2    ! Grunesien q power law parameter
+            eospar%iuse(19)=3    ! Grunesien q power law parameter
             eospar%TRef_fixed   = .false.
             eospar%pthermaleos  =.true.
 
          case (7)             ! Thermal pressure in MGD form
             eospar%iuse(5:6)=0     ! No dK/dT parameter:
-            !eospar%iuse(10)=1    ! MGD Gamma0
+
             eospar%iuse(11)=1    ! Debye T
-            !eospar%iuse(12)=1    ! MGD q at Pref,Tref
+
             eospar%iuse(13)=2    ! Natoms per formula unit
             eospar%iuse(18)=1    ! Grunesien parameter at Pref,Tref for Ks to Kt
             eospar%iuse(19)=1    ! Grunesien q power law parameter for Ks to Kt
@@ -6664,13 +6664,13 @@ Contains
    End Subroutine Set_Eos_Use
 
    !!----
-   !!---- SUBROUTINE SET_KP_KPP_COND
+   !!---- SUBROUTINE set_eos_implied_values
    !!----
    !!---- Fix Kp and Kpp values from Model and Order of EoSpar
    !!----
    !!---- Date: 17/07/2015
    !!
-   Subroutine Set_Kp_Kpp_Cond(Eospar)
+   Subroutine set_eos_implied_values(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar  ! EoS object
 
@@ -6725,7 +6725,7 @@ Contains
       end if
 
       return
-   End Subroutine Set_Kp_Kpp_Cond
+   End Subroutine set_eos_implied_values
 
    !!--++
    !!--++ SUBROUTINE SET_SHEAR_NAMES
@@ -6862,10 +6862,8 @@ Contains
             eospar%comment(11) = 'Einstein temperature in K'
 
          case (7)
-            eospar%parname(10:12) = (/'Gamm0','ThMGD','qMGD '/)
-       !     eospar%comment(10) = 'MGD Gamma0, dimensionless'  ! no longer used - uses 18 and 19
+            eospar%parname(11) = 'ThMGD'
             eospar%comment(11) = 'Debye temperature in K'
-       !     eospar%comment(12) = 'Volume scaling of MGD gamma, dimensionless'
             eospar%parname(13) = 'Natom'
             eospar%comment(13) = 'Number of atoms per formula unit'
       end select
@@ -7577,8 +7575,6 @@ Contains
 
             !>MGD EoS parameters
             if (eos%itherm == 7) then
-            !    parout(16)=eos%params(10)*(parvals(1)/eos%params(1))**eos%params(12)     !MGD gamma
-            !    parout(17)=eos%params(11)*exp((eos%params(10)-parout(16))/eos%params(12))       !Debye T
                 parout(16)=get_grun_v(parvals(1),eos)      ! Gruneisen gamma
                 parout(17)=get_DebyeT(parvals(1),eos)      !Debye T
             end if
