@@ -19,7 +19,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross John Angel    (Universita di Pavia, Italy)
+!!----               Ross John Angel    (IGG-CNR, Italy)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,7 @@ Module CFML_EoS
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
              Init_EoS_Type, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
-             Set_Eos_Names, Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
+             Set_Eos_Names, Set_Eos_Use, Set_EoS_Implied_Values, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
              Write_Eoscal, Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS, Define_Crystal_System
 
 
@@ -659,10 +659,10 @@ Module CFML_EoS
       type (EoS_Type), intent(in out) :: Eospar  
       End Subroutine Set_EoS_Use
       
-      Module Subroutine Set_Kp_Kpp_Cond(Eospar)
+      Module Subroutine Set_EoS_Implied_Values(Eospar)
          !---- Arguments ----!
          type (EoS_Type), intent(in out) :: Eospar  
-      End Subroutine Set_Kp_Kpp_Cond
+      End Subroutine Set_EoS_Implied_Values
       
       Module Subroutine Set_Shear_Names(Eospar)
          !---- Arguments ----!

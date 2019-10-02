@@ -500,7 +500,7 @@ SubModule (CFML_EoS) EoS_028
 
       !> Thermal cases
       select case(eospar%itherm)  ! for specific thermal parameters
-         case (4,6,7)    !>Kroll or Pthermal must have T_einstein, T_Debye > 0
+         case (4,6,7)    !>Kroll or Pthermal must have characteristic T > o
             if (eospar%params(11) < 0.1) then
                eospar%params(11)=eospar%Tref
                if (eospar%Tref < 0.1) eospar%params=0.1
