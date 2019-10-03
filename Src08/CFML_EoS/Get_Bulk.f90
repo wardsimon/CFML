@@ -156,7 +156,8 @@ SubModule (CFML_EoS) EoS_007
 
             eost%params(2)=Get_K0_T(T,Eospar)
             eost%params(3)=Get_Kp0_T(T,Eospar)
-            call Set_Kp_Kpp_Cond(Eost)
+            !call Set_Kp_Kpp_Cond(Eost)
+            call Set_Eos_Implied_Values(Eost)
             kpp0=eost%params(4)
       end select
    End Function Get_Kpp0_T

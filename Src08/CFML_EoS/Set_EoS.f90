@@ -278,15 +278,13 @@ SubModule (CFML_Eos) EoS_022
             eospar%iuse(10)=1    ! alpha at Tref
             eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
             eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref
-            eospar%iuse(19)=2    ! Grunesien q power law parameter
+            eospar%iuse(19)=3    ! Grunesien q power law parameter
             eospar%TRef_fixed   = .false.
             eospar%pthermaleos  =.true.
 
          case (7)             ! Thermal pressure in MGD form
             eospar%iuse(5:6)=0     ! No dK/dT parameter:
-            !eospar%iuse(10)=1    ! MGD Gamma0
             eospar%iuse(11)=1    ! Debye T
-            !eospar%iuse(12)=1    ! MGD q at Pref,Tref
             eospar%iuse(13)=2    ! Natoms per formula unit
             eospar%iuse(18)=1    ! Grunesien parameter at Pref,Tref for Ks to Kt
             eospar%iuse(19)=1    ! Grunesien q power law parameter for Ks to Kt
@@ -347,12 +345,12 @@ SubModule (CFML_Eos) EoS_022
    End Subroutine Set_Eos_Use
 
    !!----
-   !!---- SET_KP_KPP_COND
+   !!---- Set_EoS_Implied_Values
    !!----    Fix Kp and Kpp values from Model and Order of EoSpar
    !!----
    !!---- 17/07/2015
    !!
-   Module Subroutine Set_Kp_Kpp_Cond(Eospar)
+   Module Subroutine Set_EoS_Implied_Values(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar  ! EoS object
 
@@ -404,7 +402,7 @@ SubModule (CFML_Eos) EoS_022
          if (eospar%iorder == 2) eospar%params(3)=ev(3)*3.0_cp
          if (eospar%iorder == 2 .or. eospar%iorder == 3) eospar%params(4)=ev(4)*3.0_cp
       end if
-   End Subroutine Set_Kp_Kpp_Cond
+   End Subroutine Set_EoS_Implied_Values
 
    !!--++
    !!--++ SET_SHEAR_NAMES
@@ -537,10 +535,8 @@ SubModule (CFML_Eos) EoS_022
             eospar%comment(11) = 'Einstein temperature in K'
 
          case (7)
-            eospar%parname(10:12) = (/'Gamm0','ThMGD','qMGD '/)
-            !eospar%comment(10) = 'MGD Gamma0, dimensionless'  ! no longer used - uses 18 and 19
+            eospar%parname(11) = 'ThMGD'
             eospar%comment(11) = 'Debye temperature in K'
-            !eospar%comment(12) = 'Volume scaling of MGD gamma, dimensionless'
             eospar%parname(13) = 'Natom'
             eospar%comment(13) = 'Number of atoms per formula unit'
       end select

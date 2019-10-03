@@ -39,11 +39,11 @@ SubModule (CFML_EoS) EoS_013
          case(0) ! no thermal parameters
             return
 
-         case(4:7) ! Kroll and Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
+         case(4:7) ! Kroll, Salje, HP Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
             if (t < 0.05_cp*eospar%params(11) ) return
       end select
 
-      !> Numerical solutions: set step size
+      !> Numerical solutions: set step size (not used in MGD)
       del =abs(0.001_cp/eospar%params(10))      ! Set step in T to get about 0.1% shift in V
       if (del > 80.0) del=80.0_cp               ! otherwise for small alpha, del is too big and alpha is inaccurate
       if (present(deltaT)) del=deltaT

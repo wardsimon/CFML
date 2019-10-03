@@ -173,20 +173,18 @@ SubModule (CFML_EoS) EoS_021
             eospar%params(11)  = 298.0_cp             ! Einstein temperature default
             eospar%pthermaleos  =.true.
 
-         case(7)                                      ! MGD Pthermal
+         case(7)                                      ! MGD Pthermal (only uses params (11) and (13)
             eospar%factor(10:14)  = 1.0_cp
             eospar%TRef           = 298.0_cp
             eospar%TRef_fixed     = .false.
-            !eospar%params(10)    = 1.0               ! MGD gamma, now use params(18)
             eospar%params(11)     = 298.0_cp          ! Debye temperature default
-            !eospar%params(12)    = 1.0               ! qMGD
             eospar%params(13)     = 1.0               ! Natoms/molecule for MGD
             eospar%pthermaleos  =.true.
       end select
 
       !> Set the common terms for the Gruneisen model/Debye model
       eospar%params(18)=1.0_cp      ! gamma0
-      eospar%params(19)=0.0_cp      ! q
+      eospar%params(19)=1.0_cp      ! q
 
       call Init_EoS_Cross(Eospar)                     ! init the cross-terms
       call Set_Thermal_Names(Eospar)                  ! Set the variable names
