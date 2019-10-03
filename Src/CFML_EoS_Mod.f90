@@ -65,9 +65,9 @@ Module CFML_EoS
 
    !---- Public procedures ----!
    public :: Alpha_Cal, Dkdt_Cal, Get_DebyeT, Get_GPT, Get_Grun_PT, Get_K, Get_Kp, Get_Pressure, Get_Pressure_Esd, &
-             Get_Pressure_X, Get_Property_X, Get_Temperature, Get_Temperature_P0, Get_Transition_Pressure, &
+             Get_Pressure_X, Get_Property_X, Get_Temperature,  Get_Transition_Pressure, &
              Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_Volume_S, K_Cal, Kp_Cal,   &
-             Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase, Get_volume_New
+             Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase
 
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Check_scales, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
@@ -84,8 +84,8 @@ Module CFML_EoS
 
    integer, public, parameter :: N_EOSPAR=40        ! Specify the maximum number of Eos parameters allowed in Eos_type data type
 
-   integer, public, parameter :: N_PRESS_MODELS=6   ! Number of possible pressure models
-   integer, public, parameter :: N_THERM_MODELS=7   ! Number of possible Thermal models
+   integer, public, parameter :: N_PRESS_MODELS=7   ! Number of possible pressure models
+   integer, public, parameter :: N_THERM_MODELS=8   ! Number of possible Thermal models
    integer, public, parameter :: N_TRANS_MODELS=3   ! Number of possible Transition models
    integer, public, parameter :: N_SHEAR_MODELS=1   ! Number of possible Shear models
    integer, public, parameter :: N_CROSS_MODELS=2   ! Number of possible Cross-term models
@@ -100,7 +100,8 @@ Module CFML_EoS
                                                                         'Vinet          ', &
                                                                         'Natural Strain ', &
                                                                         'Tait           ', &
-                                                                        'APL2           '/)
+                                                                        'APL2           ', &
+                                                                        'Kumar          '/)
 
    character(len=*), public, parameter, dimension(-1:N_THERM_MODELS) :: TMODEL_NAMES=(/        &  ! Name of the Thermal Models
                                                                         'PTV Table          ', &
@@ -111,7 +112,8 @@ Module CFML_EoS
                                                                         'Kroll              ', &
                                                                         'Salje low-T        ', &
                                                                         'HP Thermal Pressure', &
-                                                                        'Mie-Gruneisen-Debye'/)
+                                                                        'Mie-Gruneisen-Debye', &
+                                                                        'Linear thermal P   '/)
 
    character(len=*), public, parameter, dimension(-1:N_TRANS_MODELS) :: TRANMODEL_NAMES=(/ &      ! Name of Transition models
                                                                         'PTV Table      ', &
@@ -165,7 +167,7 @@ Module CFML_EoS
    Type, public :: EoS_Type
       character(len=80)                         :: Title=" "             ! Descriptive title of EoS, set by user
       character(len=15)                         :: Model=" "             ! Murnaghan, Birch-Murnaghan, Vinet, Natural-Strain
-      character(len=15)                         :: TModel=" "            ! Name for thermal model
+      character(len=20)                         :: TModel=" "            ! Name for thermal model
       character(len=15)                         :: TranModel=" "         ! Name for phase transition model
       character(len=15)                         :: SModel=" "            ! Name for shear model
       character(len=15)                         :: CModel=" "            ! Name for cross-terms model
@@ -316,8 +318,8 @@ Contains
                if (del > delmin) del=delmin
             end if
 
-         !> Kroll, Salje, Thermal pressure
-         case(4,5,6)
+         !> Kroll, Salje, HP and linear Thermal pressure
+         case(4,5,6,8)
             delmin=(t-0.025_cp*eospar%params(11))/2.0_cp     ! do not allow step in to area where alpha=0
             if (del > delmin) del=delmin                     ! ensures T at all steps is positive
 
@@ -676,7 +678,7 @@ Contains
                   if (vr > 0.001 .and. vr < huge(0.0_cp)) k0=eospar%params(2)*vr**eospar%params(5)   !Anderson Gruneisen approach using params(5) as delta
             end select
 
-         case(6,7) !> Thermal pressure model
+         case(6,7,8) !> Thermal pressure model
             !k0=eospar%params(2)   ! Is set in the beginning of procedure
       end select
 
@@ -715,7 +717,7 @@ Contains
                 if (vr > 0.001 .and. vr < huge(0._cp) ) kp0=eospar%params(3)*vr**eospar%params(6)   ! params(6) is delta-prime
           end select
 
-       case(6,7)        ! Thermal pressure model: value at Tref
+       case(6,7,8)        ! Thermal pressure model: value at Tref
 
       end select
 
@@ -743,7 +745,7 @@ Contains
 
       !> Init
       select case(eospar%imodel)
-         case(6)
+         case(6,7)            !APL
             kpp0=0.0_cp
 
          case default
@@ -823,7 +825,7 @@ Contains
       do
          !> Thermal case
          select case (eospar%itherm)
-            case (0,6,7) ! No thermal case, or  thermal pressure which uses params at Tref
+            case (0,6,7,8) ! No thermal case, or  thermal pressure which uses params at Tref
                vv0=vol/eospar%params(1)      !vv0 is now V/V0 or a/a0
 
             case (1:5)
@@ -880,6 +882,11 @@ Contains
                b=exp(c0*(1.0_cp-x))
                c=1.0_cp+c2*x*(1.0_cp-x)
                p=a*b*c
+               
+            case(7) !Kumar
+               a=kp+1.0_cp
+               vv0=1.0_cp/vv0     ! back to vv0=v/v0
+               p=k0/a * (exp(a*(1.0_cp-vv0))-1)
 
          end select
 
@@ -1676,6 +1683,11 @@ Contains
 
          case(7)  !For MGD Pthermal, no real meaningful value of T to return, so set as Tref
             tk=eospar%tref
+            
+            
+         case(8) !linear Pthermal
+             a=ev(3)+1.0_cp
+             tk=eospar%tref+(1-exp(a*(1.0_cp -v0T/v00)))/a/ev(10)
 
       end select
 
@@ -1914,7 +1926,7 @@ Contains
                V=(ev(1)**(1.0_cp/3.0_cp) + ev(10)*ev(11)*(A-1.0_cp))**3.0_cp
             end if
 
-         case(6,7)
+         case(6,7,8)
             v=ev(1)         ! Pthermal needs V0 at Tref
       end select
 
@@ -1933,7 +1945,7 @@ Contains
    !!----
    !!---- Date: 16/02/13
    !!
-   Function Get_Volume(P,T,EosPar) Result(v)
+   Function Get_Volume_old(P,T,EosPar) Result(v)
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
@@ -1945,7 +1957,7 @@ Contains
       integer                           :: nstep
       type(Eos_Type)                    :: EoS  ! Eos copy
       real(kind=cp)                     :: V
-      real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
+      real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor,a,logterm
       real(kind=cp)                     :: Vol, step,dp1,dp2
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
@@ -1964,6 +1976,10 @@ Contains
          return
       end if
 
+      !> Check for validity
+      ! Cannot call Physical_Check from here as it uses get_volume
+      ! Usually physical_check is called before coming here, but leave in traps to prevent crashes
+      
       !> Local copy Eospar
       call EoS_to_Vec(eospar,ev) ! Volume or linear case is covered
 
@@ -2040,9 +2056,24 @@ Contains
                if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
             end if
             return
-
          end if
-      end if
+         
+          !> Analytic solution for Kumar
+         if (eospar%imodel ==7) then
+             a=kp+1.0_cp
+             logterm=a*pa/k0 +1.0_cp    !This is for safety: we should have checked with physical check
+             if(logterm < tiny(0._cp))then
+                err_eos=.true.
+                return
+            else
+                v=v0*(1.0_cp - log(logterm)/a)
+                if (eospar%linear) v=v**(1.0_cp/3.0_cp)
+                if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
+            endif
+            return
+         end if
+      endif
+      
 
       !> Find iterative solution for the rest of functions: get_pressure includes the thermal pressure term
       !> But if there is a transition, we only want the P/V for the bare high-symm phase without softening
@@ -2123,18 +2154,18 @@ Contains
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
 
       return
-   End Function Get_Volume
+   End Function Get_Volume_old
    
    !!----
    !!---- FUNCTION GET_VOLUME
    !!----
    !!---- Find volume from EoS at given P and T
    !!----
-   !!--.. Validated code against Eosfit v5.2 for non-thermal EoS: RJA 25/02/2013
-   !!----
-   !!---- Date: 16/02/13
+   !!---- Uses a spline to solve for volume if no analytical approach available 
+   !!---- Written 3/2019 RJA
+   !!---- Under test
    !!
-   Function Get_Volume_New(P,T,EosPar) Result(v)
+   Function Get_Volume(P,T,EosPar) Result(v)
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: P       ! Pressure
       real(kind=cp),  intent(in) :: T       ! Temperature
@@ -2151,7 +2182,7 @@ Contains
       type(Eos_Type)                    :: EoS  ! Eos copy
       real(kind=cp)                     :: V
       real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
-      real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev
+      real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev,a,logterm
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
       real(kind=cp)                     :: pa           ! pa=p-pth
@@ -2182,7 +2213,7 @@ Contains
             v0=get_v0_t(t,eospar)                     ! returns a0 for linear
             if (eospar%linear) v0=v0**3.0_cp
 
-         case (6)                                     ! HP thermal pressure
+         case (6,8)                                     ! HP or linear thermal pressure
             v0=ev(1)
             pa=p-pthermal(0.0,t,eospar)               ! adjust pressure to isothermal pressure for murn and tait estimates
             
@@ -2245,7 +2276,21 @@ Contains
                if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
             end if
             return
-
+         end if
+         
+         !> Analytic solution for Kumar
+         if (eospar%imodel ==7) then
+             a=kp+1.0_cp
+             logterm=a*pa/k0 +1.0_cp    !This is for safety: we should have checked with physical check
+             if(logterm < tiny(0._cp))then
+                err_eos=.true.
+                return
+            else
+                v=v0*(1.0_cp - log(logterm)/a)
+                if (eospar%linear) v=v**(1.0_cp/3.0_cp)
+                if (eospar%itran > 0) v=v*(1.0_cp + strain)     ! apply transition strain (already converted if linear)
+            endif
+            return
          end if
       end if
 
@@ -2273,6 +2318,12 @@ Contains
         
           call init_err_eos()                   ! have to clear the previous errors, otherwise get_pressure will return 0   
           delp=p-get_pressure(Vol,T,eos) 
+          if(abs(delp) < 0.000001_cp)then  ! hit correct vol by accident. Happens if P=0 at Tref for MGD
+                v=vol
+                if (eospar%itran > 0) v=vol*(1.0_cp + strain)
+                return
+          endif
+          
           
           if (delp*delp_prev < 0._cp .and. ic > 1)then     ! over-stepped solution: solution between v_prev and v 
                 vol=vol-delp*Vstep/(delp-delp_prev)                               ! best guess
@@ -2315,7 +2366,7 @@ Contains
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
 
       return
-   End Function Get_Volume_New
+   End Function Get_Volume
    !!----
    !!---- FUNCTION GET_VOLUME_K
    !!----
@@ -2475,13 +2526,13 @@ Contains
          case (0)
             v0=ev(1)
 
-         case (1:7)
+         case (1:n_therm_models)
             v0=get_volume(0.0_cp,t,eospar)
             if (eospar%linear) v0=v0**3.0_cp
       end select
 
       select case (eospar%imodel)
-         case (1,5) ! Murnaghan and Tait, no strain defined
+         case (1,5,7) ! Murnaghan and Tait, no strain defined
             v=0.0_cp
 
          case (2) ! Birch-Murnaghan
@@ -2564,7 +2615,7 @@ Contains
       end if
 
       select case (eospar%itherm)
-         case (0,6,7)                          ! No thermal model, or we have pthermal, so need params at Tref
+         case (0,6,7,8)                          ! No thermal model, or we have pthermal, so need params at Tref
             vv0=vol/eospar%params(1)           ! vv0 or aa0
             k0=eospar%params(2)
             kp=eospar%params(3)
@@ -2659,7 +2710,14 @@ Contains
             db= -1.0_cp*c0*b
             dc= c2*(1.0_cp-2.0_cp*x)
             kc= -1.0_cp*k0*x*(da*b*c+a*db*c+a*b*dc)
-
+            
+         case(7) ! Kumar
+            kc=k0*vv0*exp((kp+1.0_cp)*(1.0_cp-vv0))
+             
+         case default
+            err_eos=.true.
+            err_eos_mess='Invalid number for eos%imodel in K_cal'    
+            return
       end select
 
       !> To this point Kc is the bulk modulus of the 'bare' eos of the high phase if it was an isothermal eos
@@ -2668,7 +2726,7 @@ Contains
       !> Now correct thermal-pressure EoS for d(Pth)/dV contribution to bulk modulus
       if (eospar%Pthermaleos) then
          select case(eospar%itherm)
-            case(7)           !MGD EoS: Do this numerically
+            case(7,8)           !MGD EoS: Do this numerically, also linear thermal
                eost=eospar
                eost%itran=0    ! clear any transition terms
                delv=0.01_cp*vol
@@ -2803,7 +2861,7 @@ Contains
       end if
 
       select case (eospar%itherm)
-         case (0,6,7)                           ! No thermal model, or we have pthermal, so need params at Tref
+         case (0,6,7,8)                           ! No thermal model, or we have pthermal, so need params at Tref
             vv0=vol/eospar%params(1)            ! vv0 or aa0
             k0=eospar%params(2)
             kp=eospar%params(3)
@@ -2896,6 +2954,15 @@ Contains
             group=(da*b*c+a*db*c+a*b*dc)
             dgroup=a*b*d2c + a*d2b*c + d2a*b*c + 2.0_cp*(a*db*dc + b*da*dc + c*da*db)
             kpc= -1.0_cp/3.0_cp - x*dgroup/3.0_cp/group
+            
+         case(7) ! Kumar
+            kpc=(kp+1.0_cp)*vv0 -1 
+             
+         case default
+            err_eos=.true.
+            err_eos_mess='Invalid number for eos%imodel in K_cal'    
+            return
+            
       end select
 
       !> To this point Kpc is the bulk modulus of the 'bare' eos of the high phase if it was an isothermal eos
@@ -2904,7 +2971,7 @@ Contains
       !> Now correct thermal-pressure EoS for d(Pth)/dV contribution to bulk modulus, when possible
       if (eospar%Pthermaleos) then
          select case(eospar%itherm)
-            case(7)           !MGD EoS: Do this numerically on complete EoS without transition
+            case(7,8)           !MGD EoS: Do this numerically on complete EoS without transition
                eosbare=eospar
                eosbare%itran=0    ! clear any transition terms
                delv=0.01_cp*vol
@@ -3141,7 +3208,7 @@ Contains
          kp=ev(3)
          kpp=ev(4)
 
-      else if(eospar%itran == 0 .and. eospar%itherm /= 6) then
+      else if(eospar%itran == 0 .and. .not. eospar%pthermaleos) then
          ! normal thermal expansion models with dK/dT and no transition
          k0=Get_K0_T(T,eospar)                     ! returns M(T) for linear,
          if (eospar%linear) k0=k0/3.0_cp
@@ -3162,7 +3229,7 @@ Contains
       end if
 
       select case(eospar%imodel)
-         case (1,5) ! Murnaghan, Tait
+         case (1,5,7) ! Murnaghan, Tait, Kumar
             f=0.0_cp
 
          case (2) ! Birch-Murnaghan
@@ -3220,7 +3287,7 @@ Contains
       !> If the finite strain is zero, the normalised pressure is not defined
       if (s > tiny(0.0) ) then
          select case (imodel)
-            case (1,5,6) ! Murnaghan, Tait, APL
+            case (1,5,6,7) ! Murnaghan, Tait, APL, Kumar
                f=0.0_cp
 
             case (2) ! Birch-Murnaghan
@@ -3263,7 +3330,7 @@ Contains
       cf=f
 
       select case (eospar%imodel)
-         case (1,5) ! Murnaghan, Tait
+         case (1,5,6,7) ! Murnaghan, Tait, APL, Kumar
 
          case (2) ! Birch-Murnaghan
             p=3.0_cp*f*s*(1.0_cp +2.0_cp*s)**2.5_cp
@@ -3326,6 +3393,9 @@ Contains
 
             pth=pth*factor
 
+         case(8)   ! Linear thermal pressure
+             pth=ev(10)*ev(2)*(T-eospar%tref)
+             
          case default
             pth=0.0_cp
       end select
@@ -3367,7 +3437,7 @@ Contains
       if (eospar%linear) cvv0=vv0**3.0_cp
 
       select case (eospar%imodel)
-         case (1,5,6) ! Murnaghan, Tait, APL
+         case (1,5,6,7) ! Murnaghan, Tait, APL, Kumar
             s=0.0_cp
 
          case (2) ! Birch-Murnaghan
@@ -4445,7 +4515,7 @@ Contains
             case(1:3)
                vec(10:12)=eospar%params(10:12)*3.0_cp
 
-            case(4,5,6)
+            case(4,5,6,8)
                vec(10)=eospar%params(10)*3.0_cp
                vec(11)=eospar%params(11)
          end select
@@ -4480,15 +4550,39 @@ Contains
 
       !> Init
       call init_err_eos()
+      
+      !Check for valid model numbers
+      if(eospar%imodel < -1 .and. eospar%imodel > N_PRESS_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of compressional eos'
+      endif
+      if(eospar%itherm < -1 .and. eospar%itherm > N_THERM_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of thermal model'
+      endif      
+      if(eospar%itran < -1 .and. eospar%itran > N_TRANS_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of phase transition model'
+      endif 
+      if(eospar%ishear < 0 .and. eospar%ishear > N_SHEAR_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of shear modulus model'
+      endif 
+      if(eospar%icross < 0 .and. eospar%icross > N_CROSS_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of PT cross-terms model'
+      endif 
+
+      
 
       !> Check that v0 is positive
       if (eospar%params(1) < tiny(0.0)) then
          eospar%params(1)=1.0_cp
          err_eos=.true.
          if (eospar%linear) then
-            err_eos_mess='*****WARNING: a0 was < 0. Not allowed! Reset to 1.00'
+            err_eos_mess=' a0 was < 0. Not allowed! Reset to 1.00'
          else
-            err_eos_mess='*****WARNING: V0 was < 0. Not allowed! Reset to 1.00'
+            err_eos_mess=' V0 was < 0. Not allowed! Reset to 1.00'
          end if
       end if
 
@@ -4498,7 +4592,7 @@ Contains
             eospar%params(2)=10.0_cp
             err_eos=.true.
             if (len_trim(err_eos_mess) == 0) then
-               err_eos_mess=' *****WARNING: K0 was < 0. Not allowed! Reset to 10.0'
+               err_eos_mess=' K0 was < 0. Not allowed! Reset to 10.0'
             else
                err_eos_mess=trim(err_eos_mess)//' And K0 was < 0. Not allowed! Reset to 10.0'
             end if
@@ -4510,7 +4604,7 @@ Contains
          eospar%tref=0.0_cp
          err_eos=.true.
          if (len_trim(err_eos_mess) == 0) then
-            err_eos_mess=' *****WARNING: Tref was < 0. Not allowed! Reset to 0 K'
+            err_eos_mess=' Tref was < 0. Not allowed! Reset to 0 K'
          else
             err_eos_mess=trim(err_eos_mess)//' And Tref was < 0. Not allowed! Reset to 0 K'
          end if
@@ -4524,7 +4618,7 @@ Contains
                if (eospar%Tref < 0.1) eospar%params=0.1
                err_eos=.true.
                if (len_trim(err_eos_mess) == 0) then
-                  err_eos_mess=' *****WARNING: '//trim(eospar%comment(11))//' was =< 0. Not allowed! Reset to Tref'
+                  err_eos_mess=trim(eospar%comment(11))//' was =< 0. Not allowed! Reset to Tref'
                else
                   err_eos_mess=trim(err_eos_mess)//' And '//trim(eospar%comment(11))//' was =< 0. Not allowed! Reset to Tref'
                end if
@@ -4538,7 +4632,7 @@ Contains
             err_eos=.true.
             write(text,'(a,f4.1,1x,a)')'Phase boundary inflects at P ~ ',pinf,trim(eospar%pscale_name)
             if (len_trim(err_eos_mess) == 0) then
-               err_eos_mess=' *****WARNING: '//trim(text)
+               err_eos_mess=trim(text)
             else
                err_eos_mess=trim(err_eos_mess)//' And '//trim(text)
             end if
@@ -4667,7 +4761,7 @@ Contains
       end if
 
       select case (eospar%imodel)
-         case (1,5) ! Murnaghan, Tait
+         case (1,5,6,7) ! Murnaghan, Tait, APL, Kumar
             ! Nothing to do
 
          case (2) ! Birch-Murnaghan
@@ -4965,6 +5059,13 @@ Contains
             eospar%params(13)     = 1.0               ! Natoms/molecule for MGD
             eospar%pthermaleos  =.true.
 
+
+         case(8)                                      ! Linear Pthermal. No extra parameters, uses alpha0 and K0
+            eospar%factor(10:14)  = 1.0E5_cp          !alpha0
+            eospar%TRef           = 298.0_cp
+            eospar%TRef_fixed     = .false.
+            eospar%pthermaleos  =.true.
+            
       end select
 
       !> Set the common terms for Ks to Kt conversion: also used in MGD thermal pressure harmonic term
@@ -5222,99 +5323,8 @@ Contains
       return
    End Subroutine Murn_PTVTable
 
+
    !!--++
-   !!--++ SUBROUTINE PHYSICAL_CHECK
-   !!--++
-   !!--++
-   !!--++ Check if the parameters have physical sense
-   !!--++
-   !!--++ Date: 17/07/2015 modified 22/05/2017
-   !!
-   Subroutine Physical_Check_old(P,T,E)
-      !---- Arguments ----!
-      real(kind=cp),    intent(in) :: p  ! Pressure
-      real(kind=cp),    intent(in) :: t  ! Temperature
-      type(Eos_Type),   intent(in) :: E  ! EoS object
-
-      !---- Local variables ----!
-      character(len=20)   :: car
-      real(kind=cp)       :: tlimit,v,pinf
-
-      !> Basic checks
-      v=get_volume(p,t,e)
-      if(err_eos)then         ! added 22/05/2017
-           write(unit=car, fmt='(2f10.1)') p, t
-           car=adjustl(car)
-           err_eos_mess='Volume cannot be calculated at P,T = '//trim(car)
-           return             ! have to return if error, because other tests cannot be done
-      end if
-
-      if (v < tiny(0.0) ) then
-         err_eos=.true.
-         write(unit=car, fmt='(2f10.1)') p, t
-         car=adjustl(car)
-         err_eos_mess='Volume calculated as zero or negative at P,T = '//trim(car)
-      end if
-
-      if (e%imodel > 0) then
-         if (.not. e%linear .and. k_cal(v,t,e) < tiny(0.0_cp)) then
-            err_eos=.true.
-            write(unit=car, fmt='(2f10.1)') p, t
-            car=adjustl(car)
-            err_eos_mess='Bulk modulus calculated as zero or negative at P,T = '//trim(car)
-         end if
-      end if
-
-      !> Check validity of thermal model
-      select case(e%itherm)
-         case (2)                ! Fei:
-            if (e%params(12) > tiny(0.0_cp)) then  ! non-physical V and divergent alpha at low T when alpha2 .ne. 0
-               tlimit=(2.0_cp*e%params(12)/e%params(11))**(1.0_cp/3.0_cp)
-               if (t < tlimit) then
-                  err_eos=.true.
-                  write(unit=car,fmt='(f5.1)')tlimit
-                  car=adjustl(car)
-                  err_eos_mess='Fei equation yields non-physical behaviour below T = '//trim(car)//'K'
-               end if
-            else if(e%params(12) < tiny(0.0_cp)) then  ! alpha2 < 0
-               tlimit=sqrt(-1.0_cp*e%params(12)/e%params(10))
-               if (t < tlimit) then
-                  err_eos=.true.
-                  write(unit=car,fmt='(f5.1)')tlimit
-                  car=adjustl(car)
-                  err_eos_mess='Fei equation yields non-physical behaviour below T = '//trim(car)//'K'
-               end if
-            end if
-
-         case(3)               ! HP 1998: trap non-physical behaviour at low T
-            tlimit=((10.0_cp*e%params(10)+e%params(11))/e%params(10))**2.0_cp
-            if (t < tlimit) then
-               err_eos=.true.
-               write(unit=car,fmt='(f5.1)')tlimit
-               car=adjustl(car)
-               err_eos_mess='HP1998 equation yields non-physical behaviour below T = '//trim(car)//'K'
-            end if
-
-         case(1,4,5,6,7)
-            if (t < 0.0_cp) then
-               err_eos=.true.
-               err_eos_mess='T  less than zero K'
-            end if
-      end select
-
-      !> Produce warning for curved phase boundaries: Pinflection = a/-2b when Ttr=Tr0+aP+bP^2
-      if (e%itran>0 .and. abs(e%params(23)) > tiny(0.0) )then
-         pinf=abs(e%params(22)/2.0/e%params(23))
-         if (abs(p/pinf -1.0) < 0.1) then
-            err_eos=.true.
-            err_eos_mess='P in region of boundary inflection P: PVT calculations may be inaccurate or wrong'
-         end if
-      end if
-
-      return
-   End Subroutine Physical_Check_old
-
-      !!--++
    !!--++ SUBROUTINE PHYSICAL_CHECK
    !!--++
    !!--++
@@ -5403,7 +5413,7 @@ Contains
                     err_eos_mess='Thermal pressure EoS not valid at this V and T: the V is too big so the compressional part of the EoS at Tref is not valid'
                     return
                 endif
-                if(k_cal(v,t,e) < tiny(0._cp))then         !temp removal May 20
+                if(k_cal(v,t,e) < tiny(0._cp))then        
                     err_eos=.true.
                     err_eos_mess='Thermal pressure EoS not valid at this V and T: the K is negative (maybe because of q large?)'
                     return
@@ -5530,7 +5540,7 @@ Contains
       !---- Local variables ----!
       real(kind=cp)       :: p,v,t
       real(kind=cp),dimension(3)       :: abc
-      real(kind=cp)       :: bp,kc,step,plim,kprev,Vnew,Vprev,klim
+      real(kind=cp)       :: bp,kc,step,plim,kprev,Vnew,Vprev,klim,logterm,vv0,k0,kp
       type(eos_type)      :: e
 
 
@@ -5551,22 +5561,32 @@ Contains
           e%itherm=0
       endif
 
-
-      !>prelim stuff for each type of eos, used if vpresent or not
+      k0=Get_K0_T(T,e)              ! Handles thermal pressure case, returns K0 or M0
+      if(k0 < 0._cp)then
+           err_eos_mess='K is negative at P=0 and this T'
+           err_eos=.true.
+           return
+      endif
+      kp=Get_Kp0_T(T,e)
 
 
 
       ! now do further tests dependening on Vpresent
       ! When V is present, calculate K from V,T
-      ! And error state when K < K = K(P=0,T)/2, except for Murnaghan which is stable to K=0
+      ! And error state when K <  K(P=0,T)/2, except for Murnaghan which is stable to K=0
       if(vpresent)then
           if(v > Get_V0_T(T,E))then
               select case(e%imodel)
               case(1) ! Murngahan: limit is when K=0
-                  if(p < -1.0_cp*e%params(2)/e%params(3))err_eos=.true.
+                  if(p < -1.0_cp*k0/kp)err_eos=.true.
 
               case(2,3,4,5,6)   ! BM, Vinet, NS, Tait, APL
                   if(K_cal(V,T,E) < get_K0_T(T,E)/2.0)err_eos=.true.
+                  
+              case(7)       !Kumar
+                  vv0=v/Get_V0_T(T,E)
+                  if(vv0*exp((kp+1)*(1-vv0)) < 0.5_cp)err_eos=.true.
+                  
               end select
           endif
 
@@ -5574,7 +5594,7 @@ Contains
           if(p < 0._cp)then
               select case(e%imodel)
               case(1) ! Murngahan
-                  if(p + 1.0_cp*e%params(2)/e%params(3) < tiny(0.))err_eos=.true.
+                  if(p + 1.0_cp*k0/kp < tiny(0.))err_eos=.true.
 
 
 
@@ -5584,16 +5604,23 @@ Contains
                      plim=get_pressure(V,T,e) 
                      if(p < plim)then
                         err_eos=.true.
-                        return
                      endif
 
-
+              case(7)       !Kumar
+                    logterm=(kp+1)*p/k0 +1
+                    if(logterm < tiny(0._cp))then
+                        err_eos=.true.
+                        return
+                    else
+                        if((1-log(logterm)/(kp+1))*logterm < 0.5_cp)err_eos=.true.
+                    endif
               end select
+              
           endif
 
 
       endif
-
+      if(err_eos)err_eos_mess='K < K0/2'
 
 
 
@@ -6405,7 +6432,8 @@ Contains
          case (6)
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
-
+         case (8)
+            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
       end select
 
       select case(eospar%itran)
@@ -6534,17 +6562,18 @@ Contains
       !> EoS Model
       select case(eospar%imodel)
          case (0)
-            eospar%iuse(1)=1                                      ! None eg thermal only
+            eospar%iuse(1)=1                                    ! None eg thermal only
 
-         case (1)
-            eospar%iuse(1:3)=1                                     ! Murnaghan
+         case (1,7)
+            eospar%iuse(1:3)=1                                  ! Murnaghan, Kumar
 
-         case (6)
+         case (6)                                               !APL
             eospar%iuse(1:3)=1
             eospar%iuse(4)=2
+         
 
-         case default
-            eospar%iuse(1:eospar%iorder)=1                          ! other isothermal EoS
+         case default                                           ! other isothermal EoS
+            eospar%iuse(1:eospar%iorder)=1                          
             if (eospar%iorder < 4) eospar%iuse(eospar%iorder+1:4)=3  !implied values
       end select
 
@@ -6607,6 +6636,15 @@ Contains
             eospar%iuse(19)=1    ! Grunesien q power law parameter for Ks to Kt
             eospar%TRef_fixed   = .false.
             eospar%pthermaleos  = .true.
+            
+         case(8)            !Linear Thermal pressure
+            eospar%iuse(5:6)=0     ! No dK/dT parameter:
+            eospar%iuse(10)=1    ! alpha at Tref
+            eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref for Ks to Kt
+            eospar%iuse(19)=3    ! Grunesien q power law parameter for Ks to Kt
+            eospar%TRef_fixed   = .false.
+            eospar%pthermaleos  =.true.            
+            
       end select
 
       !> Phase transition model
@@ -6710,7 +6748,9 @@ Contains
 
          case (6) !No defaults
             return      ! no defaults
-
+            
+         case(7) !Kumar
+            if (eospar%iorder == 2)ev(3)=4.0_cp 
       end select
 
 
@@ -6866,6 +6906,11 @@ Contains
             eospar%comment(11) = 'Debye temperature in K'
             eospar%parname(13) = 'Natom'
             eospar%comment(13) = 'Number of atoms per formula unit'
+            
+         case(8)
+            eospar%parname(10) = 'alph0'
+            eospar%comment(10) = 'Constant of thermal expansion x10^5 K^-1'
+            
       end select
 
       !> Common terms for all thermal
@@ -7085,7 +7130,7 @@ Contains
             case (1,2,3)
                eospar%params(10:12)=vec(10:12)/3.0_cp
 
-            case (4,5,6)
+            case (4,5,6,8)
                eospar%params(10)=vec(10)/3.0_cp
                eospar%params(11)=vec(11)
          end select
