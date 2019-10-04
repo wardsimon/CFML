@@ -626,7 +626,7 @@ SubModule (CFML_EoS) EoS_023
          eos%esd(i)=sqrt(eos%vcv(i,i))   ! set the esd's from the vcv
       end do
 
-      call Set_Kp_Kpp_Cond(eos)           ! set default values
+      call Set_EoS_Implied_Values(eos)           ! set implied values
 
       !> we have to also set the refinement flags to match vcv
       do i=1,n_eospar

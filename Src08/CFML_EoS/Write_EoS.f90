@@ -806,8 +806,6 @@ SubModule (CFML_EoS) EoS_024
 
       !>MGD EoS parameters
       if (eos%itherm == 7) then
-         !parout(16)=eos%params(10)*(parvals(1)/eos%params(1))**eos%params(12)     !MGD gamma
-         !parout(17)=eos%params(11)*exp((eos%params(10)-parout(16))/eos%params(12))       !Debye T
           parout(16)=get_grun_v(parvals(1),eos)      ! Gruneisen gamma
           parout(17)=get_DebyeT(parvals(1),eos)      !Debye T
       end if
