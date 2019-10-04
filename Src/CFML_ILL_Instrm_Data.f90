@@ -5205,21 +5205,24 @@ Module CFML_ILL_Instrm_Data
         !      allocate(tabAngle1(size1))
         !      call cpu_time(tfin)
         call Read_DataBlocParam_NXS()
-        call get_DataBlocTime_NXS(n%tmc_ang(1,:) ,size1)
+        !call get_DataBlocTime_NXS(n%tmc_ang(1,:) ,size1)
+        call get_DataBlocTime_NXS(n%tmc_ang(1,:),n_selected_frames)
         ! debug
         !     do i = 1, size1
         !           n%tmc_ang(1,i) = tabTime(i)
         !            write(*,*) 'For Time[',i,']= ',n%tmc_ang(1,i)
         !     end do
 
-        call get_DataBlocMoni_NXS(n%tmc_ang(2,:) ,size1)
+        !call get_DataBlocMoni_NXS(n%tmc_ang(2,:) ,size1)
+        call get_DataBlocMoni_NXS(n%tmc_ang(2,:),n_selected_frames)
         ! debug
         !     do i = 1, size1
         !        n%tmc_ang(2,i) = tabMoni(i)
         !         write(*,*) 'For Moni[',i,']= ',n%tmc_ang(2,i)
         !     end do
 
-        call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:) ,size1)
+        !call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:) ,size1)
+        call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:),n_selected_frames)
         ! debug
         !     do i = 1, size1
         !        n%tmc_ang(3,i) = tabSumDet(i)
@@ -5227,7 +5230,8 @@ Module CFML_ILL_Instrm_Data
         !     end do
 
         !      call get_DataBlocAngle1_NXS(tabAngle1 ,size1)
-        call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),size1)
+        !call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),size1)
+        call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),n_selected_frames)
         ! debug
         !      do i = 1, size1
         !         write(*,*) 'For Angle1[',i,']= ',n%tmc_ang(4,i)
