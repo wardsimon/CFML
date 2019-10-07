@@ -427,6 +427,7 @@
     Interface Levenberg_Marquardt_Fit
       Module Procedure LM_Dif
       Module Procedure lmdif1
+      Module Procedure LM_DifV
       Module Procedure LM_Der
       Module Procedure LM_DerV
       Module Procedure lmder1
@@ -2069,6 +2070,243 @@
        Return
     End Subroutine LM_Dif
 
+    !!--++
+    !!--++   Subroutine LM_DifV(Model_Functn, m, c, V, Vstd, chi2, infout,residuals)
+    !!--++     Integer,                     Intent(In)      :: m        !Number of observations
+    !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
+    !!--++     Real (Kind=cp),dimension(:), Intent(In Out)  :: V        !State vector
+    !!--++     Real (Kind=cp),dimension(:), Intent(In Out)  :: Vstd     !Standard deviations vector
+    !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
+    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
+    !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+    !!--++
+    !!--++     !--- Local Variables ---!
+    !!--++     Interface
+    !!--++       Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
+    !!--++         Use CFML_GlobalDeps, Only: cp
+    !!--++         Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
+    !!--++         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+    !!--++         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+    !!--++         Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
+    !!--++         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+    !!--++       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+    !!--++     End Interface
+    !!--++
+    !!--++
+    !!--++     This interface to lmdif has been modified with respect to the original
+    !!--++     lmdif1 (also available in the overloaded procedure) in order to use the
+    !!--++     LSQ types of this module. This is similar to LM_DERV
+    !!--++     In this case we use only the LSQ_conditions_type 'c' derived type.
+    !!--++     The state vector is similar to V_vec in CFML_Refcodes.
+    !!--++
+    !!--++
+    !!--++ Update: November 1 - 2013
+    !!
+    Subroutine LM_DifV(Model_Functn, m, c, V, Vstd, chi2, infout,residuals)
+       !---- Arguments ----!
+       Integer,                               Intent(In)      :: m
+       type(LSQ_conditions_type),             Intent(In Out)  :: c
+       Real (Kind=cp), dimension(:),          Intent(In Out)  :: V,Vstd
+       Real (Kind=cp),                        Intent(out)     :: chi2
+       character(len=*),                      Intent(out)     :: infout
+       real (Kind=cp), dimension(:),optional, Intent(out)     :: residuals
+
+       Interface
+         Subroutine Model_Functn(m, n, x, fvec, iflag)
+            Use CFML_GlobalDeps, Only: cp
+            Integer,                     Intent(In)      :: m, n
+            Real (Kind=cp),Dimension(:), Intent(In)      :: x
+            Real (Kind=cp),Dimension(:), Intent(In Out)  :: fvec
+            Integer,                     Intent(In Out)  :: iflag
+         End Subroutine Model_Functn
+       End Interface
+
+       !--- Local Variables ---!
+       Integer                                    :: i,j, maxfev, mode, nfev, njev, nprint, n, &
+                                                     iflag,info
+       Integer,        dimension(c%npvar)         :: ipvt
+       Integer,        dimension(c%npvar,c%npvar) :: p,id
+       Real (Kind=cp), dimension(c%npvar,c%npvar) :: U,VS,Sigm
+       Real (Kind=cp), dimension(c%npvar)         :: Sig
+       Real (Kind=cp), dimension(m)               :: fvec  !Residuals
+       Real (Kind=cp), dimension(m,c%npvar)       :: fjac
+       Real (Kind=cp)                             :: epsfcn, epftol, gtol, xtol,iChi2,deni,denj, &
+                                                     Tikhonov
+       Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
+       Logical                                    :: singular
+       Integer,        dimension(c%npvar)         :: iwa
+
+       info = 0
+       n=c%npvar
+       c%reached=.false.
+       id=0
+       do i=1,n
+          id(i,i) = 1
+       end do
+       Chi2=1.0e35
+       infout=" "
+
+       !     check the input parameters for errors.
+       If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
+         write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
+                        " nb of free (refined) parameters: ", n, &
+                        ", number of observations: ", m, &
+                        ", tolerance: ", c%tol
+          return
+       end if
+
+       ! Initial calculation of Chi2
+       iflag=1
+       Call Model_Functn(m, n, v, fvec, iflag)
+       ichi2=enorm(m,fvec)
+       if (ichi2 < 1.0e15) then
+          ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
+       end if
+       If ( c%icyc < 5*n) then
+          maxfev = 200*(n + 1)
+          c%icyc= maxfev
+       Else
+          maxfev = c%icyc
+       End if
+       gtol = zero
+       mode = 1
+       nprint = c%nprint
+
+       ! Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
+       Call lmdif(Model_Functn, m, n, V, fvec, c%tol, c%tol, gtol, maxfev, epsfcn,   &
+           mode, factor, nprint, info, nfev, fjac, iwa)
+
+
+       !Calculate final Chi2 or norm
+       chi2=enorm(m,fvec)
+       if (chi2 < 1.0e15) then
+          chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
+       end if
+       Vstd=zero
+
+       !Extract the curvature matrix side of equation below from fjac
+       !        t     t           t
+       !       p *(jac *jac)*p = r *r
+       !           t            t     t
+       ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
+       ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
+       !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
+
+        curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
+        do j=1,n
+           p(1:n,j) = id(1:n,ipvt(j))
+        end do
+        curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
+        Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+        !If the final curvature matrix is singular perform a Tikhonov
+        !regularization (This increases the error bars!)
+        Tikhonov=0.0
+        if(singular) then
+          Err_lsq =.true.
+          Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
+          j=0
+          do
+            !first do a SVD decomposition
+            U=curv_mat(1:n,1:n)
+            call SVDcmp(U,Sig,VS)
+            Tikhonov=maxval(Sig)*1.0e-6
+            Sig=Sig+Tikhonov
+            Sigm=0.0
+            do i=1,n
+               Sigm(i,i)=Sig(i)
+            end do
+            curv_mat(1:n,1:n)=matmul(U,matmul(Sigm,transpose(VS)))
+            Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+            if(.not. singular) exit
+            j=j+1
+            if(j > 3) exit
+          end do
+          if(j <= 3) then
+            Err_Lsq_Mess="Regularization (SVD,Tikhonov) of the final Curvature Matrix OK! ... bigger Standard Deviations"
+          end if
+        end if
+       !
+       !Alternatively, make an additional direct final call to the model function in order to calculate the Jacobian J,
+       !curvature matrix A=Jt.J, invert it and take the diagonal elements for calculating the standard
+       !deviations at the final point.
+       !iflag=2
+       !Call Model_Functn(m, n, v, fvec, fjac, iflag)
+       !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac) !Least squares matrix
+
+       If (.not. singular) then
+          !Here correl is the inverse of the curvature matrix (Variance-co-variance matrix)
+          deni=max(chi2,1.0)
+          Do i=1,n
+             Vstd(i) = sqrt(deni*abs(correl(i,i)))
+          End Do
+          !Now correl is the true correlation matrix
+          forall (i=1:n,j=1:n)
+              correl(i,j)=correl(i,j)/sqrt(correl(i,i)*correl(j,j))
+          end forall
+       Else
+          !Here correl is the "pseudo"-inverse of the curvature-matrix
+          Do i=1,n
+             if( deni <= zero) then
+               Vstd(i) = 99999.9
+             else
+               Vstd(i) = sqrt(chi2*abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
+             end if
+          End Do
+          !Pseudo-correlation matrix
+          do j=1,n
+             denj=correl(j,j)
+             if( denj <= zero) denj=1.0
+             do i=1,n
+                deni=correl(i,i)
+                if( deni <= zero) deni=1.0
+                correl(j,i)=correl(j,i)/sqrt(denj*deni)
+             end do
+          end do
+       End if
+
+
+       Select Case (info)
+          Case(0)
+             c%reached=.false.
+          Case(1)
+             c%reached=.true.
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov, &
+               "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
+
+          Case(2)
+             c%reached=.true.
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
+                "     Convergence reached: The relative error between x and the solution is at most ",c%tol
+
+          Case(3)
+            c%reached=.true.
+             write(unit=infout,fmt="(a,g12.5,a,e12.5)") "Tikhonov regularization:", Tikhonov,&
+             "     Convergence reached: The relative error "// &
+             "in the sum of squares and the difference between x and the solution are both at most ",c%tol
+
+          Case(4,8)
+             c%reached=.true.
+             write(unit=infout,fmt="(a,g12.5,a)") "Tikhonov regularization:", Tikhonov, &
+              "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+
+          Case(5)
+             c%reached=.false.
+             write(unit=infout,fmt="(a,i6)") &
+             "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+
+          Case(6)
+             c%reached=.false.
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+                                            " is too small! No further reduction in the sum of squares is possible"
+          Case(7)
+             c%reached=.false.
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+                                            " is too small! No further improvement in the approximate solution x seems to be possible"
+       End Select
+       if (present(residuals)) residuals(1:m)=fvec(1:m)
+
+       Return
+    End Subroutine LM_DifV
     !!--++
     !!--++  Subroutine lmder(fcn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev, &
     !!--++                   mode, factor, nprint, info, nfev, njev, ipvt)

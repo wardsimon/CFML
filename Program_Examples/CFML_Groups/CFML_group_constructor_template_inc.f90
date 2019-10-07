@@ -1,5 +1,6 @@
 ! Template algorithm for constructing an arbitrary group characterized by matrices of
 ! whatever kind and dimensions.
+       call Set_Identity_Matrix(d)
        allocate(Op(maxnum_op))
        do i=1,maxnum_op
          call Allocate_Operator(d,Op(i))
@@ -10,8 +11,14 @@
        do i=1,ngen
          call Get_Mat_From_Symb_Op(gen(i),Mat,invt)
          if(Err_group) return
-         Op(i+1)%Mat=Mat
-         Op(i+1)%time_inv=invt
+         if(equal_Rational_Matrix(Mat,identity_matrix) .and. invt == 1 .and. ngen == 1) then
+          ngen=0
+          Op(i)%Mat=Mat
+          Op(i)%time_inv=invt
+         else
+          Op(i+1)%Mat=Mat
+          Op(i+1)%time_inv=invt
+         end if
        end do
        ngen=ngen+1
        !

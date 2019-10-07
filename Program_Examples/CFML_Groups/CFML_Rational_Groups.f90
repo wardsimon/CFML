@@ -53,14 +53,14 @@
       integer :: num_lat  = 0
       integer :: num_alat = 0
       character(len=1) :: spg_lat
-      character(len=1), dimension(2) :: shu_lat
-      character(len=:), allocatable  :: spg_symb
-      character(len=:), allocatable  :: shu_symb
-      character(len=:), allocatable  :: pg
-      character(len=:), allocatable  :: laue
-      character(len=:), allocatable  :: mat2std
-      character(len=:), allocatable  :: mat2std_shu
-      character(len=:), allocatable  :: generators_list
+      character(len=1),   dimension(2) :: shu_lat
+      character(len=:),   allocatable  :: spg_symb
+      character(len=:),   allocatable  :: shu_symb
+      character(len=:),   allocatable  :: pg
+      character(len=:),   allocatable  :: laue
+      character(len=:),   allocatable  :: mat2std
+      character(len=:),   allocatable  :: mat2std_shu
+      character(len=256), allocatable  :: generators_list
       type(rational),dimension(:),   allocatable :: centre_coord
       type(rational),dimension(:),   allocatable :: anticentre_coord
       type(rational),dimension(:,:), allocatable :: Lat_tr
@@ -312,13 +312,13 @@
            Grp%spg_lat     = " "
            Grp%shu_lat(1)  = " "
            Grp%shu_lat(2)  = " "
-           Grp%spg_symb    = "                               "
-           Grp%shu_symb    = "                               "
-           Grp%pg          = "                               "
-           Grp%laue        = "                               "
-           Grp%mat2std     = "                               "
-           Grp%mat2std_shu = "                               "
-           Grp%generators_list = "                                                     "
+           Grp%spg_symb    = "                                          "
+           Grp%shu_symb    = "                                          "
+           Grp%pg          = "                                          "
+           Grp%laue        = "                                          "
+           Grp%mat2std     = "                                          "
+           Grp%mat2std_shu = "                                          "
+           Grp%generators_list = " "
         End Select
     End Subroutine Initialize_Group
 
@@ -1144,11 +1144,12 @@
        call Check_Generators(gen_,gen)
        d    = get_dimension(gen(1))
        ngen = size(gen)
-       Grp%generators_list="                                  "
+       Grp%generators_list=" "
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
        Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
+
        include "CFML_group_constructor_template_inc.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
@@ -1179,7 +1180,7 @@
        call Check_Generators(gen_,gen)
        if (err_group) return
        ngen = size(gen)
-       Grp%generators_list="                                  "
+       Grp%generators_list=" "
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
@@ -1291,6 +1292,9 @@
         if (ngen > 0) then
             allocate(gen(ngen))
             gen(:) = genAux(1:ngen)
+        else
+            allocate(gen(1))
+            gen(1)=gen_(1)
         end if
 
     end subroutine Check_Generators
