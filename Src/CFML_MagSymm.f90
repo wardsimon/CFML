@@ -4141,7 +4141,7 @@
       allocate(MGp%MSymopSymb(MGp%Multip))
 
       m=0
-      !write(*,"(2(a,i5))") "Shubnikov number: ",num,"Wyckoff position count: ",wyckoff_pos_count(j,num)
+      !write(*,"(3(a,i5))") "Shubnikov number: ",num,"Wyckoff position count: ",wyckoff_pos_count(j,num)," Multiplicity: ",MGp%Multip
       Do k=1,wyckoff_pos_count(j,num)
         idem=wyckoff_bns_fract_denom(k,j,num)
         MGp%SymOp(k)%tr=real(wyckoff_bns_fract(:,k,j,num))/real(idem)
@@ -4209,7 +4209,7 @@
       end if
       MGp%Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
       MGp%Centre_coord=0.0 ! Fractional coordinates of the inversion centre
-      do k=1,wyckoff_pos_count(j,num)
+      do k=1,wyckoff_pos_count(j,num) !j=1 multiplicity of the general position
         if(equal_matrix(MGp%SymOp(k)%Rot,-identity,3) .and. MGp%MSymOp(k)%Phas > 0) then
           m=k
           MGp%Centred=max(MGp%Centred,1)
@@ -4220,7 +4220,7 @@
         end if
       end do
       MGp%NumOps=wyckoff_pos_count(j,num)
-      MGp%Centre="Non-Centrosymmetric"       ! Alphanumeric information about the center of symmetry
+      MGp%Centre="Non-Centrosymmetric"    ! Alphanumeric information about the center of symmetry
       if(MGp%Centred == 1) then
         MGp%Centre="Centrosymmetric, -1 not @the origin "       ! Alphanumeric information about the center of symmetry
         MGp%Centre_coord=0.5*MGp%SymOp(m)%tr
@@ -4228,6 +4228,8 @@
         MGp%Centre="Centrosymmetric, -1@the origin "       ! Alphanumeric information about the center of symmetry
         MGp%NumOps=MGp%NumOps/2
       end if
+      !write(*,"(a)")    "  "//trim(MGp%Centre)
+      !write(*,"(a,i4)") " Number of minimal S.O. (Numops): ",MGp%NumOps
       if(change_setting) then
         if(present(trn_to)) then
           call Setting_Change_MagGroup(setting,MGp,MSpg,trn_to)
