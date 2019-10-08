@@ -4115,7 +4115,7 @@
       else
         MGp%SPG_lat=spacegroup_label_bns(num)(1:1)
       end if
-      MGp%SPG_latsy=MGp%SPG_lat !provisional before knowing s crystal system
+      MGp%SPG_latsy=MGp%SPG_lat !provisional before knowing the crystal system
 
       MGp%Num_Lat=lattice_bns_vectors_count(num)-2         ! Number of lattice points in a cell
       if(allocated(MGp%Latt_trans)) deallocate(MGp%Latt_trans)
@@ -4998,7 +4998,7 @@
          MSpGn%Centre_coord=0.5*MSpGn%SymOp(m)%tr
        else if(MSpGn%Centred == 2) then
          MSpGn%Centre="Centrosymmetric, -1@the origin "
-         MSpGn%NumOps=MSpGn%NumOps/2
+         !MSpGn%NumOps=MSpGn%NumOps/2 !This was already applied in MSpG%NumOps
        end if
 
        if(MSpG%mcif) then
