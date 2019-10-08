@@ -647,7 +647,10 @@
       write(unit=lun,fmt="(a,i3)")          " =>    General multiplicity: ", SpaceGroup%Multip
       !write(unit=lun,fmt="(a,i4)")          " =>  Generators (exc. -1&L): ", SpaceGroup%num_gen
       if (SpaceGroup%centred == 0) then
-         write(unit=lun,fmt="(a,10a)")      " =>               Centre at: ", print_rational(SpaceGroup%Centre_coord)
+         do i=1,d
+           texto(i)=print_rational(SpaceGroup%Centre_coord(i))
+         end do
+         write(unit=lun,fmt="(a,10a5)")      " =>               Centre at: ", (trim(texto(j))//"  ",j=1,d)
       end if
       if(present(kinfo) .and. SpaceGroup%nk > 0) then
          write(unit=lun,fmt="(a,i3)")       " => List Modulation vectors: ",kinfo%nk
