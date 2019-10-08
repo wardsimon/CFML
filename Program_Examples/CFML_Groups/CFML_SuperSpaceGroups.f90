@@ -113,7 +113,7 @@
        real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
        real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
        integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
-       integer                                      :: nq        ! number of effective set of Q_coeff > nk
+       integer                                      :: nq        ! number of effective set of Q_coeff >= nk
        integer,allocatable,dimension(:,:)           :: q_coeff   ! number of q_coeff(nk,nq)
     End Type kvect_info_type
 

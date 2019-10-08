@@ -1149,6 +1149,7 @@
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
        Grp%generators_list=Grp%generators_list(1:len_trim(Grp%generators_list)-1)
+
        include "CFML_group_constructor_template_inc.f90"
        !do n=1,Multip
        !   write(*,"(2(a,i3))") "  Operator #",n," Time inversion: ",Grp%Op(n)%time_inv
@@ -1179,7 +1180,7 @@
        call Check_Generators(gen_,gen)
        if (err_group) return
        ngen = size(gen)
-       Grp%generators_list="                                  "
+       Grp%generators_list=" "
        do i=1,ngen
          Grp%generators_list=trim(Grp%generators_list)//trim(gen(i))//";"
        end do
