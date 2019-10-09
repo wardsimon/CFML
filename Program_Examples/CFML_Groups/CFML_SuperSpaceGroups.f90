@@ -650,7 +650,9 @@
          do i=1,d
            texto(i)=print_rational(SpaceGroup%Centre_coord(i))
          end do
-         write(unit=lun,fmt="(a,10a5)")      " =>               Centre at: ", (trim(texto(j))//"  ",j=1,d)
+         write(texto(d+1),"(15a5)") "(",(trim(texto(i))//",",i=1,d-1),trim(texto(d))//")"
+         texto(1)=pack_string(texto(d+1))
+         write(unit=lun,fmt="(a)")      " =>               Centre at: "//trim(texto(1))
       end if
       if(present(kinfo) .and. SpaceGroup%nk > 0) then
          write(unit=lun,fmt="(a,i3)")       " => List Modulation vectors: ",kinfo%nk
