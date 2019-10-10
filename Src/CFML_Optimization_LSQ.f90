@@ -2122,7 +2122,7 @@
        End Interface
 
        !--- Local Variables ---!
-       Integer                                    :: i,j, maxfev, mode, nfev, njev, nprint, n, &
+       Integer                                    :: i,j, maxfev, mode, nfev, nprint, n, &
                                                      iflag,info
        Integer,        dimension(c%npvar)         :: ipvt
        Integer,        dimension(c%npvar,c%npvar) :: p,id
@@ -2130,7 +2130,7 @@
        Real (Kind=cp), dimension(c%npvar)         :: Sig
        Real (Kind=cp), dimension(m)               :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar)       :: fjac
-       Real (Kind=cp)                             :: epsfcn, epftol, gtol, xtol,iChi2,deni,denj, &
+       Real (Kind=cp)                             :: epsfcn, gtol,iChi2,deni,denj, &
                                                      Tikhonov
        Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
        Logical                                    :: singular
