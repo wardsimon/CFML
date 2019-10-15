@@ -1848,7 +1848,7 @@
             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
             Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-         End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+         End Subroutine Model_Functn                                !If iflag=2 calculate only fjac keeping fvec fixed
        End Interface
 
        !--- Local Variables ---!
@@ -2134,7 +2134,6 @@
                                                      Tikhonov
        Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
        Logical                                    :: singular
-       Integer,        dimension(c%npvar)         :: iwa
 
        info = 0
        n=c%npvar
@@ -2174,8 +2173,7 @@
 
        ! Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
        Call lmdif(Model_Functn, m, n, V, fvec, c%tol, c%tol, gtol, maxfev, epsfcn,   &
-           mode, factor, nprint, info, nfev, fjac, iwa)
-
+           mode, factor, nprint, info, nfev, fjac, ipvt)
 
        !Calculate final Chi2 or norm
        chi2=enorm(m,fvec)
