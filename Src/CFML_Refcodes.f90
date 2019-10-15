@@ -597,7 +597,7 @@
     !!---- V_NAME
     !!----    character(len=20), public, dimension(:), allocatable :: V_Name
     !!----
-    !!----    Vector of  Name of Refinable Parameters
+    !!----    Vector of names for all refinable parameters (all parameters of the model)
     !!----
     !!---- Update: March - 2005
     !!
@@ -607,7 +607,7 @@
     !!---- V_VEC
     !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec
     !!----
-    !!----    Vector of Parameters
+    !!----    Vector of refined parameters
     !!----
     !!---- Update: March - 2005
     !!
