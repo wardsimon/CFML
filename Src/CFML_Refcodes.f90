@@ -8935,21 +8935,21 @@
     End Subroutine VState_to_AtomsPar_FAtom
 
     !!--++
-    !!--++ Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp,Mag_dom)
+    !!--++ Subroutine VState_to_AtomsPar_FmAtom(FmAtom,MGp,Mode,Mag_dom)
     !!--++    type(mAtom_List_Type),      intent(in out)           :: FmAtom
-    !!--++    character(len=*), optional, intent(in)               :: Mode
-    !!--++    type(MagSymm_k_Type), optional, intent(in)           :: MGp
+    !!--++    type(MagSymm_k_Type),       intent(in)               :: MGp
+    !!--++    character(len=*),           optional, intent(in)     :: Mode
     !!--++    type(Magnetic_Domain_type), optional, intent(in out) :: Mag_dom
     !!--++
     !!--++ magnetic clone of VState_to_AtomsPar_FAtom
     !!--++ Created: December - 2011
     !!--++ Updated: February - 2012, November 3, 2013 (standard deviations,JRC)
     !!
-    Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp,Mag_dom)
+    Subroutine VState_to_AtomsPar_FmAtom(FmAtom,MGp,Mode,Mag_dom)
        !---- Arguments ----!
        type(mAtom_List_Type),                intent(in out) :: FmAtom
+       type(MagSymm_k_Type),                 intent(in)     :: MGp
        character(len=*),           optional, intent(in)     :: Mode
-       type(MagSymm_k_Type),       optional, intent(in)     :: MGp
        type(Magnetic_Domain_type), optional, intent(in out) :: Mag_dom
        !---- Local Variables ----!
        integer          :: i,j,l,ik,ich
@@ -8985,7 +8985,7 @@
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
-                   FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                   FmAtom%atom(i)%Spher_SkR(j,ik)=FmAtom%atom(i)%Spher_SkR(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
                    FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
                  else
                    FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
@@ -9016,72 +9016,13 @@
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
-                   FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                   FmAtom%atom(i)%Spher_SkI(j,ik)=FmAtom%atom(i)%Spher_SkI(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkI(j,ik)
                    FmAtom%atom(i)%Spher_SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  else
                    FmAtom%atom(i)%SkI(j,ik)=FmAtom%atom(i)%SkI(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkI(j,ik)
                    FmAtom%atom(i)%SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  end if
 
-             end select
-          end do
-
-          !---- Mxyz ----!
-          do j=1,6
-            if(1 <= j .and. j <= 3) l=FmAtom%atom(i)%lSkR(j,ik)
-            if(4 <= j .and. j <= 6) l=FmAtom%atom(i)%lSkI(j-3,ik)
-             if (l == 0) cycle
-             if (l > np_refi) then
-                err_refcodes=.true.
-                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-                return
-             end if
-             select case (car)
-                case ("v","V") ! Passing Value
-                 if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1 <= j .and. j <= 3) then
-                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
-                    FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  end if
-                  if(4 <= j .and. j <= 6) then
-                    FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                    FmAtom%atom(i)%Spher_SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                  end if
-                 else
-                  if(1 <= j .and. j <= 3) then
-                    FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
-                    FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  end if
-                  if(4 <= j .and. j <= 6) then
-                    FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                    FmAtom%atom(i)%SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                  end if
-                 end if
-
-                case ("s","S") ! Passing Shift
-                 if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1 <= j .and. j <= 3) then
-                    FmAtom%atom(i)%Spher_SkR(j,ik)=FmAtom%atom(i)%Spher_SkR(j,ik)+ &
-                                               v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
-                    FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  end if
-                  if(4 <= j .and. j <= 6) then
-                    FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
-                                                v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                    FmAtom%atom(i)%Spher_SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                  end if
-                 else
-                  if(1 <= j .and. j <= 3) then
-                    FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+ &
-                                             v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
-                    FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  end if
-                  if(4 <= j .and. j <= 6) then
-                    FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
-                                               v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                    FmAtom%atom(i)%SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                  end if
-                 end if
              end select
           end do
 
@@ -9123,32 +9064,33 @@
        end do !on atoms
 
        !---- Check is chirality is present ----!
-       if (Mag_Dom%chir) then
-        ich=2
-       else
-        ich=1
-       end if
+       if(present(Mag_Dom)) then
+         if (Mag_Dom%chir) then
+          ich=2
+         else
+          ich=1
+         end if
 
-       do i=1,Mag_Dom%nd
-         do j=1,ich
-             l=Mag_Dom%Lpop(j,i)
-             if (l == 0) cycle
-             if (l > np_refi) then
-                err_refcodes=.true.
-                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-                return
-             end if
-             select case (car)
-                case ("v","V") ! Passing Value
-                   Mag_Dom%pop(j,i)=v_vec(l)*Mag_Dom%Mpop(j,i)
+         do i=1,Mag_Dom%nd
+           do j=1,ich
+               l=Mag_Dom%Lpop(j,i)
+               if (l == 0) cycle
+               if (l > np_refi) then
+                  err_refcodes=.true.
+                  ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                  return
+               end if
+               select case (car)
+                  case ("v","V") ! Passing Value
+                     Mag_Dom%pop(j,i)=v_vec(l)*Mag_Dom%Mpop(j,i)
 
-                case ("s","S") ! Passing Shift
-                   Mag_Dom%pop(j,i)=Mag_Dom%pop(j,i)+v_shift(l)*Mag_Dom%Mpop(j,i)
-             end select
-             Mag_Dom%pop_std(j,i)=v_vec_std(l)*Mag_Dom%Mpop(j,i)
+                  case ("s","S") ! Passing Shift
+                     Mag_Dom%pop(j,i)=Mag_Dom%pop(j,i)+v_shift(l)*Mag_Dom%Mpop(j,i)
+               end select
+               Mag_Dom%pop_std(j,i)=v_vec_std(l)*Mag_Dom%Mpop(j,i)
+           end do
          end do
-        end do
-
+       end if
        return
     End Subroutine VState_to_AtomsPar_FmAtom
 
@@ -10465,25 +10407,26 @@
              end do
           end do
 
-       !---- Check is chirality is present ----!
-        if (Mag_Dom%chir) then
-         ich=2
-        else
-         ich=1
-        end if
+          !---- Check is chirality is present ----!
+          if(present(mag_Dom)) then
+            if (Mag_Dom%chir) then
+             ich=2
+            else
+             ich=1
+            end if
 
-          do i=1,Mag_Dom%nd
-             do j=1,ich
-                if (Mag_Dom%Lpop(j,i) /= 0) then
-                   na=Mag_Dom%Lpop(j,i)
-                   mu=Mag_Dom%Mpop(j,i)
-                   car=trim(Mag_Dom%Lab(j,i))
-                   write(unit=lun,fmt=fmt1)  &
-                        trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
-                end if
-             end do
-          end do
-
+            do i=1,Mag_Dom%nd
+               do j=1,ich
+                  if (Mag_Dom%Lpop(j,i) /= 0) then
+                     na=Mag_Dom%Lpop(j,i)
+                     mu=Mag_Dom%Mpop(j,i)
+                     car=trim(Mag_Dom%Lab(j,i))
+                     write(unit=lun,fmt=fmt1)  &
+                          trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+                  end if
+               end do
+            end do
+          end if
        end if
        return
 
