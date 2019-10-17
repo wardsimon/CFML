@@ -1,0 +1,984 @@
+\documentclass[10pt]{article}
+\textwidth 170mm
+\textheight 220mm
+\evensidemargin 0mm
+\oddsidemargin 0mm
+\topmargin 0mm
+\usepackage{graphicx}
+\newcommand{\ket}[1]{ \left| \: #1 \right>}
+\newcommand{\bra}[1]{ \left< #1 \: \right|}
+\def\sl#1{$\underline{\smash{\hbox{#1}}}$}
+\newcommand{\bftau}{\mbox{\boldmath$\tau$}}
+\newcommand{\bfpsi}{\mbox{\boldmath$\psi$}}
+\newcommand{\bfsigma}{\mbox{\boldmath$\sigma$}}
+\newcommand{\bma}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\bfom}{\mbox{\boldmath$\omega$}}
+\newcommand{\bfsig}{\mbox{\boldmath$\sigma$}}
+%mathematical bold
+\newcommand{\bmr}[1]{\mbox{{\bf #1}}}  %mathematical bold roman characters
+\newcommand{\bmm}[1]{\mbox{{\scriptsize{\bf #1}}}}  %math. small bold
+
+\begin{document}
+	
+	\begin{center}
+		
+		{\huge {\bf Computational aspects in calculating structure factors for incommensurate structures }}
+		
+		
+		\vskip5mm
+		
+		{\large J. Rodr\'{\i}guez-Carvajal}
+		
+		
+		{Diffraction Group, Institut Laue-Langevin, Avenue des Martyrs F-38054 Grenoble Cedex 9}
+		
+ \end{center}
+		
+\begin{abstract}	
+	This document contents a series of mathematical expressions for working with symmetry and structure factors in superspace. It has been written with the purpose of having at hand the adequate formulae for implementing all the calculations within the program {\it FullProf} and the library {\it CrysFML} 
+\end{abstract}
+
+
+\section{Description of magnetic structures using the concept of propagation vector}
+\label{sec4}
+
+In a crystal structure the vector position of the atom $j$ in the unit cell $l$ is given by:
+\begin{equation}
+\label{eq_apos}
+ {\bf R}_{jl}={\bf R}_{l}+ {\bf r}_{j}
+\end{equation}
+where ${\bf r}_{j}$ is the vector position of atom $j$ within the unit cell and ${\bf R}_{l}$ is the vector position of unit cell labelled $l$ with respect to the cell at the origin. The vectors are usually given in the basis of the unit cell vectors $\{ {\bf a},{\bf b},{\bf c}\}$. For instance: $ {\bf r}_{j}=x_j{\bf a}+y_j{\bf b}+z_j{\bf c}$. The components $(x_j,y_j,z_j)$ are called fractional coordinates of the atom $j$ because can be described by number between $0$ and $1$: $0 \leq x_{\alpha j} < 1 (\alpha = x,y,z)$.
+
+A magnetic structure is defined by the average magnetization (in units of Bohr magnetons: $\mu_B$) ${\bf m}_{jl}$ of the  magnetic ion $j$ of the $l$th unit cell. The average is over thermal and quantum fluctuations.
+When there are several magnetic atoms per unit cell the magnetic structure of any crystal is given by the following equation \cite{JRC_Bouree}:
+\begin{equation}
+\label{eq_fourier_a}
+{\bf m}_{jl} = \sum\limits_{\bf k} {\bf S}_{{\bf k}j} \exp(- 2\pi i {\bf k}. {\bf R}_l)
+\end{equation}
+
+In order to get real moments the only condition to be satisfied by the Fourier coefficients ${\bf S}_{{\bf k}j}$ is that: ${\bf S}_{-{\bf k}j} = {\bf S}_{{\bf k}j}^*$.
+When there are several propagation vectors, they are frequently members of the same {\it star} i.e. set of ${\bf k}$-vectors deduced from one of them by the symmetry operations of the underlying point group. However, this summation is often limited to a single term corresponding to a single propagation vector, which may be 0 or half a reciprocal lattice vectors. In other cases, the anisotropy generally introduces harmonics, e.g. multiples 2{\bf k}, 3{\bf k}, etc. of a `primary' propagation vector  {\bf k}. Very often there is a single primary propagation vector but there may be two or three primary propagation vectors. For a single pair $({\bf k}, -{\bf k})$, containing also $ {\bf k}=0 $ and few harmonics ${(n_h)}$ the above expression can be re-written as:
+
+\begin{equation}
+\label{eq_fourier_b}
+{\bf m}_{jl} = {\bf S}_{0j} +  \sum\limits_{n=1}^{n_h} {\bf S}_{{\bf k}j}^{(n)} \exp(- 2\pi i n{\bf k}. {\bf R}_l)+ {\bf S}_{-{\bf k}j}^{(n)} \exp(2\pi i n{\bf k}. {\bf R}_l)
+\end{equation}
+If we write the expression of the Fourier coefficients in the following form:
+\begin{equation}
+\label{eq_fourier_c}
+{\bf S}_{{\bf k}j}^{(n)} = \frac{1}{2}({\bf R}_{{\bf k}j}^{(n)}+ i {\bf I}_{{\bf k}j}^{(n)})
+\end{equation}
+The expression of the Fourier series in terms of real vectors is:
+
+\begin{equation}
+{\bf m}_{jl} = {\bf S}_{0j} +  \sum\limits_{n=1}^{n_h} {\bf R}_{{\bf k}j}^{(n)} \cos( 2\pi n{\bf k}. {\bf R}_l) + {\bf I}_{{\bf k}j}^{(n)} \sin(2\pi n {\bf k}. {\bf R}_l)
+\end{equation}
+
+
+\section{Superspace approach to invariance symmetry of crystal structures and spin configurations}
+\label{sec08}
+
+\subsection{Concept of superspace}
+\label{concepts}
+The basic concepts related with incommensurate crystal structures and their symmetry description using superspace groups can be found in references \cite {deWolff1, deWolff2, deWolff3, Janner,Janssen-Acta, JCB,van Smaalen}. The case of magnetic superspace groups has been treated exhaustively in reference \cite{Mag_SuperSpace} and here we will follow some of their explanations and generalize some expressions for multiple propagation vectors.\\ 
+The concept of superspace comes from the consideration that all Bragg spots observed in a modulated structure can be indexed using a series of modulation (propagation) vectors ${\bf q}_p$ with $p=1,2,.., d$. The scattering vector for a Bragg spot (diffraction vector) can be written as:
+\begin{equation} \label{ssp_index}
+{\bf h}=h_1{\bf a}_1^*+h_2{\bf a}_2^*+h_3{\bf a}_3^*+\sum \limits_{p=1}^{d} m_p {\bf q}_p
+\end{equation}
+The extra integer indices $m_p$ correspond to the harmonics of modulation vector ${\bf q}_p=\sigma_{1p}{\bf a}_1^*+\sigma_{2p}{\bf a}_2^*+\sigma_{3p}{\bf a}_3^*$ and there are generally small integers. Even if the modulation vectors are referred to the reciprocal lattice of the real $3D$ space one can consider the indices  $(h_1, h_2, h_3, m_1, ...m_d)$, or ${\bf H}_S=(h_1, h_2, h_3, h_4, ...h_{3+d})$, as the nodes of a $(3+d)D$ reciprocal lattice of a superspace that {\it intersects} the $3D$ physical space (called also {\it external} space, $V_E$). The spots in $3D$ reciprocal space, described by equation (\ref{ssp_index}), are obtained by orthogonal {\it projection} of the $(3+d)D$ reciprocal lattice onto the $3D$ reciprocal space. Vectors in superspace have $3+d$ components and can be written in the form ${\bf v}_S =({\bf v}_E,{\bf v}_I)$ in which the first vector refers to the $3D$ external space and the second to the so called {\it internal space},$V_I$, and has $d$ components. The superspace  $V_S$ is the direct sum of two orthogonal subspaces: the external and the internal spaces $V_S=V_E \oplus V_I$. \\
+The discussion about the basis of superspace and geometrical interpretation of the different terms can be consulted in reference \cite{van Smaalen}. Let us state only that the basis vectors generating the reciprocal and the direct $(3+d)D$ lattices are given by:
+
+\begin{equation} \label{ssp_rec}
+{\bf a}_{Si}^* = ({\bf a}_{i}^*,{\bf 0})={\bf a}_{i}^*  \qquad i=1,2,3 \qquad {\bf a}_{S(3+p)}^* = ({\bf q}_{p},{\bf e}_{p}^*)={\bf q}_{p}+{\bf e}_{p}^* \qquad p=1,2,...d 
+\end{equation}
+
+Where the ${\bf e}_{p}^*$ are orthogonal to the $V_E$ space. The reciprocal basis to (\ref{ssp_rec}), verifying ${\bf a}_{Sp} \cdot {\bf a}_{Sq}^* = \delta_{pq}$, is given by the equations:
+
+\begin{equation} \label{ssp_dir}
+{\bf a}_{Si} = ({\bf a}_{i},-\sum\limits_{p=1}^{d} ({\bf q}_p \cdot {\bf a}_i) {\bf e}_{p})={\bf a}_{i}-\sum\limits_{p=1}^{d} ({\bf q}_p \cdot {\bf a}_i) {\bf e}_{p}  \qquad i=1,2,3 \qquad {\bf a}_{S(3+p)} = ({\bf 0},{\bf e}_{p})={\bf e}_{p} \qquad p=1,2,...d 
+\end{equation}
+
+Where ${\bf e}_p$ are unitary vectors perpendicular to the physical space, ensuring that the embedding of $3D$ physical space in the $(3+d)D$ space takes place by an orthogonal projection of the reciprocal $(3+d)D$ lattice into the physical space or the intersection of the direct $3D$ space with the $(3+d)D$ superspace (see \cite{Janner,van Smaalen} for details).\\ 
+Notice that the scattering vector (\ref{ssp_rec}) referred to the reciprocal lattice of the superspace can be written as:
+\begin{equation} \label{sssp_index}
+{\bf H}_S=h_1{\bf a}_{S1}^*+h_2{\bf a}_{S2}^*+h_3{\bf a}_{S3}^*+... h_{3+d}{\bf a}_{S(3+d)}^*
+\end{equation}
+The integer indices $(h_1,h_2,, ...h_{3+d})$ in (\ref{sssp_index}) are identical to $(h_1,h_2, ... m_1,...m_d)$ in (\ref{ssp_rec}), but the vectors ${\bf h}$ and ${\bf H}_S$ are referred to different bases.
+
+%%%%%%%%%%%%%%%%%%%
+
+\subsection{Atomic positions, basic structure and modulation functions}
+\label{atom_pos}
+
+In an ordinary crystal structure the position of an atom in the crystal is given by (see equation \ref{eq_apos} ): ${\bf \bar{r}}_{jl}= {\bf R}_l + {\bf \bar r}_{j}$. All the atoms $j$ are translationally equivalent. We have changed the notation adding a bar on top of the vector position to indicate that, in a modulated structure, this represents an {\it average} or {\it basic} $3D$ periodic structure. In a real modulated incommensurate structure there is no translational symmetry in $3D$. The atom position of the atom $j$ in the crystal is given by  ${\bf r}_{jl} = {\bf \bar{r}}_{jl}+ {\bf u}_j({\bf q}_1{\bf \bar{r}}_{jl},...{\bf q}_d{\bf \bar{r}}_{jl})$. Where the modulation functions ${\bf u}_j({\bf q}_1{\bf \bar{r}}_{jl},...{\bf q}_d{\bf \bar{r}}_{jl})$ are defined for the atoms within a unit cell of the basic structure and they are periodic of period 1 in whatever of its arguments ${\bf q}_p{\bf \bar{r}}_{jl}$. Notice that we are considering only the ordinary $3D$ space in these definitions. 
+The modulation functions are displacement polar vectors, referred to the $3D$ basis of the average structure, depending only on a series of $d$ extra coordinates that can be considered as belonging to the internal space $V_I$ of the superspace. These coordinates are related to the modulation vectors and the atom positions of the basic structure according to the following definitions:
+\begin{eqnarray}
+\bar{x}_\alpha &=& ({\bf \bar{r}}_{jl})_\alpha  \qquad \alpha=1,2,3 \\
+\label{discr_var}
+\bar{x}_{3+p}&=&t_p+{\bf q}_p {\bf \bar{r}}_{jl} = t_p+{\bf q}_p ({\bf R}_l + {\bf \bar r}_{j})=t_p+\sigma_{1p}\bar{x}_1+\sigma_{2p}\bar{x}_2+\sigma_{3p}\bar{x}_3  \qquad p=1,2,...d
+\end{eqnarray}
+
+Where $t_p$ are initial phases of the different waves that concern only the internal space. As it is usual in the literature of superspace, we have dropped the indices $j,l$ from the coordinates so it is understood that for the coordinate numbered $p$ we have: $\bar{x}_p = \bar{x}_p(j,l)$. Sometimes we will explicit the dependency on the atom $j$ with a superscript on modulation functions or parenthesis in coordinates e.g. $\bar{x}_p(j)$, or  $\bar{x}_p^{j}$. In fact the variables $\bar{x}_p$ can be considered as continuous that, depending on the context, they are evaluated for particular points like $\bar{x}_p= t_p+{\bf q}_p{\bf \bar{r}}_{jl}$. 
+
+The most general expression of the modulation functions can be expressed as a general real Fourier series:
+\begin{equation} \label{umod_funct}
+{\bf u}_j(\bar{x}_4,\bar{x}_5,..\bar{x}_{3+d}) =\sum\limits_{n_1=0}^{\infty}..\sum\limits_{n_d=0}^{\infty} {\bf A}_j^{(n_1,..n_d)} \cos[2\pi(n_1\bar{x}_4+..+ n_d\bar{x}_{3+d})] + {\bf B}_j^{(n_1,..n_d)} \sin[2\pi(n_1\bar{x}_4+..+ n_d\bar{x}_{3+d})
+\end{equation}
+
+The $3D$ vectorial functions ${\bf u}_j$ are different for each atom $j=1,..n_a$ within the unit cell of the basic structure, and depend on $d$ continuous variables ${\bar x}_p$. If one wants to evaluate the displacement of atom $j$ in the unit cell $l$ in physical space the continuous arguments should be replaced by the expressions (\ref{discr_var}). 
+This series takes into account the possibility of having mixed terms that are more general that the superposition of individual waves, of the form ${\bf u}_j(\bar{x}_{3+p})$,  depending only on one modulation vector. The modulation functions, defined by equation (\ref{umod_funct}), verify that they are periodic of period 1 in each of the internal coordinates: ${\bf u}_j(..,\bar{x}_{3+p}+1,..)={\bf u}_j(..,\bar{x}_{3+p},..)$, so the argument of the modulation functions can be restricted to real numbers modulo 1. 
+The argument of a modulation function is then a vector of the internal part of the superspace, so we can write ${\bf u}(\bar{x}_4,\bar{x}_5,..\bar{x}_{3+d}) ={\bf u}({\bf \bar r}_I) $.
+For magnetic moments, ${\bf m}_j (\bar{x}_4,\bar{x}_5,..\bar{x}_{3+d})$, we can also use an expression similar to (\ref{umod_funct}), the only difference is that magnetic moments are axial vectors and behave differently than polar vectors under symmetry operations.
+
+The embedding of the $3D$ crystal structure in the superspace coordinates for the atom $j$ is done by assuming that the {\it average} structure is described by the fractional coordinates ${\bar x}_{S\alpha}^j = {\bar x}_{\alpha}(j)(\alpha=1,2,...3+d)$  with respect to the basis (\ref{ssp_dir}).  
+The positions of an atom $j$ in superspace is a continuous function \cite{deWolff1} (wavy line for $d=1$, a hyper-surface in general) within the unit cell of the superspace described by the coordinates:
+\begin{eqnarray} 
+x_{S\alpha}^j &=& \bar x_{S\alpha}(j) + u_{j\alpha}( \bar{x}_4,\bar{x}_5,..,\bar{x}_{3+d}) \qquad \qquad \alpha=1,2,3\\
+x_{S(3+p)}^j&=& \bar x_{S(3+p)}(j) + {\bf q}_p{\bf u}_{j}(\bar{x}_4,\bar{x}_5,..,\bar{x}_{3+d}) \qquad p=1,2,...d 
+\end{eqnarray}
+These coordinates constitute a vector in superspace that can be written as:
+\begin{equation} 
+{\bf r}_S^j = (x_{S1}^j, x_{S2}^j, ... x_{S(3+d)}^j) =({\bf r}_E^j, {\bf r}_I^j)\\
+\end{equation}
+
+With these definitions one can extend, by analogy with the $3D$ case, the nuclear scattering density and magnetization density to the superspace so that its intersection with physical space gives the $3D$ densities:
+
+\begin{eqnarray} 
+{\rho}_{S}({\bf r}_S) = \frac{1}{V} \sum_{{\bf H}_S} F({\bf H}_S) \exp[-2\pi i {\bf H}_S {\bf r}_S]\\
+{\bf m}_{S}({\bf r}_S) = \frac{1}{V} \sum_{{\bf H}_S} {\bf M}({\bf H}_S) \exp[-2\pi i {\bf H}_S {\bf r}_S]
+\end{eqnarray}
+
+Where the coordinates of ${\bf H}_S$ are referred to the reciprocal lattice of the superspace (equation (\ref{ssp_rec})) and the coordinates of  ${\bf r}_S$ are referred to the direct lattice of the superspace (equation (\ref{ssp_dir})). For the relations between the density in physical (external) space and that of superspace the reader is referred to reference \cite{van Smaalen}. For a short description of the extension to superspace of scalar, vector and tensor physical properties attached to atoms see reference \cite{Yamamoto}.\\
+
+
+For incommensurate magnetic structures the description of moment distribution has been discussed in section 4. Here we will use the adequate notation for treating invariance symmetry in the framework of superspace. We will concentrate in the simple case having a single propagation vector ($d=1$, pair {\bf k}, -{\bf k}), so a single additional coordinate $\bar{x}_4=\tau + {\bf k} {\bf \bar{r}}_{jl}  $. The Fourier series (\ref{eq_fourier_a}) is written here as:
+\begin{equation}
+{\bf m}_{jl} ={\bf m}_j(\bar{x}_4) = \sum\limits_{n = -m}^{m} {\bf T}_{{\bf k}j}^{(n)} \exp(- 2\pi i n {\bf k}. ({\bf R}_l + {\bf r}_j))=\sum\limits_{n = 0}^{m} [{\bf M}_{cj}^{(n)} \cos(2\pi n\bar{x}_4) + {\bf M}_{sj}^{(n)} \sin(2\pi n\bar{x}_4)]
+\end{equation}
+
+Where implicitly the term n=0 corresponds to a zero propagation vector and the other terms correspond to the incommensurate magnetic structure. The notation ${\bf m}_j(\bar{x}_4)$ indicates that the distribution of magnetic moments in the crystal can be considered directly as modulation functions. The cosine ${\bf M}_{cj}^{(n)}$ and sine ${\bf M}_{sj}^{(n)}$ amplitudes are related to the real and imaginary components of the Fourier component ${\bf S}_{{\bf k}j}^{(n)}$ (\ref{eq_fourier_a}) because ${\bf S}_{{\bf k}j}^{(n)}={\bf T}_{{\bf k}j}^{(n)}\exp[{- 2\pi i n{\bf k}. {\bf r}_j}]$.
+
+In order to take into account the invariance symmetry of a modulated, crystallographic or magnetic, incommensurate structure let us consider applying a Shubnikov operator to the actual $3D$ structure. This will transform it into another incommensurate structure that has the same average structure. So they differ only in the modulation functions, a common phase shift in the internal coordinates may recover the original structure. A symmetry operator $\hat g =\{g,\delta|{\bf t}\}$ of the average structure can be {\it extended} with a translation in the internal coordinate $\bar{x}_4$. One can then define an operator in $3D$ space as  $\hat g =\{g,\delta|{\bf t},\tau \}$ that is a symmetry operator if it leaves invariant the whole structure. In $3D$ a symmetry operator acts on the propagation vector as $ \hat g {\bf k} \to {\bf k}g = \epsilon_g {\bf k} + {\bf h}_g $, where $\epsilon_g$ is equal to 1 or -1 and ${\bf h}_g$ is a reciprocal lattice vector that depends on the operator $\hat g$. This is a compatibility condition that has to satisfy a symmetry operator of the basic structure for being promoted to a superspace symmetry operator.   
+
+\subsection{Form of operators in superspace}
+\label{oper_super}
+It is possible to work with {\it extended} operators, just considering phase factors in the internal space, however one can define a general operator in superspace of whatever dimension using an extension of the Seitz notation as $\hat g_S =\{g_S,\delta|{\bf t}_S \}$ in which $\delta$ is $-1$ if the operator is primed, $g_S$ is a $(3+d)\times(3+d)$ matrix and ${\bf t}_S$ is a translation vector referred to the direct superspace lattice. The invariance symmetry in $(3+d)D$ of a crystal or magnetic structure means the verification of the two density invariance equations:
+
+\begin{eqnarray} \label{super_density}
+{\rho}_{S}(\{g_S,\delta|{\bf t}_S\}{\bf r}_S) = {\rho}_{S}({\bf r}_S) \\
+{\bf m}_{S}(\{g_S,\delta|{\bf t}_S\}{\bf r}_S) = {\bf m}_{S}({\bf r}_S)
+\end{eqnarray}
+
+The $\delta$ part of the operator plays no role in the electron density equation, but it is important in the magnetization density to take into account the spin inversion when the symmetry operator is {\it primed} : $\delta = -1$.
+
+The construction of the $\hat g_S =\{g_S,\delta|{\bf t}_S \}$ operators from the extended operators for the $(3+1)D$ case is given by the transformation: 
+\begin{equation}
+\begin{array}{l}
+\{{ g},\delta |{\bf{t}},\tau \}\quad  \to \;\;\{g_S,\delta |{\bf t}_S\}\quad {\bf{t}} = ({t_1},{t_2},{t_3})\quad \;{t_4} = \tau  + {\bf {kt}}\\
+\end{array}
+\end{equation}
+
+This allows naturally the use of the rules of crystallography for the action of these operators in direct and reciprocal spaces. For the case of a $(3+1)D$ the $(3+d)\times(3+d)$ matrix and translation parts have the following form: 
+\begin{equation} \label{4d_op}
+\begin{array} {l}
+g_S = \left( {\begin{array}{*{20}{c}}
+	{{g_{11}}}&{{g_{12}}}&{{g_{13}}}&0\\
+	{{g_{21}}}&{{g_{22}}}&{{g_{23}}}&0\\
+	{{g_{31}}}&{{g_{32}}}&{{g_{33}}}&0\\
+	{{h_{g1}}}&{{h_{g2}}}&{{h_{g3}}}&{\epsilon_g}
+	\end{array}} \right)\quad
+\quad {{\bf t}_S} = ({t_1},{t_2},{t_3},{t_4})=({\bf t},{\bf t}_I)
+\end{array}
+\end{equation}
+Suppose two atoms $(j)$ and $(k)$ that are symmetry related through the operator $\hat g$ of the basic structure, such as $ \hat g \bar {\bf r}_{jl}= g \bar {\bf r}_j + g \bar {\bf R}_l+{\bf t} = \bar{\bf r}_{k} + \bar {\bf R}_{n}$. In superspace, where points are described by coordinates $(x_{S1},x_{S2},x_{S3},x_{S4})$, the action of the corresponding operator $\hat g_S$ on atom $(j)$ is similar to $\hat g$ for the first three coordinates, but the last component is given by:
+\begin{equation} \label{x4_transf}
+x_{S4}(k)={\bf h}_g \bar {\bf r} (j)+ {\epsilon_g} x_{S4}(j)+t_4={\bf h}_g \bar {\bf r} (j)+ {\epsilon_g} x_{S4}(j)+\tau + {\bf k} {\bf t} 
+\end{equation}
+We can see that this fourth coordinate depends on the three first coordinates of the atom $(j)$ in the basic structure through $\bar {\bf r}(j)$.\\
+In the general case we have to consider that the physical space part of the operators $\hat g_S =\{g_S,\delta|{\bf t}_S \}$ when act on modulation vectors (for a single modulation vector $ \hat g {\bf q} = {\bf q}g = \epsilon_g {\bf q} + {\bf h}_g $) but for a series of modulation vectors like in (\ref{ssp_index}) the following matrix condition should be satisfied:
+
+\begin{equation} \label{action_onq}
+\begin{array} {l}
+\left( {\begin{array}{*{15}{c}}
+	\sigma_{11}   &\sigma_{12}    &\sigma_{13}\\
+	\sigma_{21}   &\sigma_{22}    &\sigma_{23}\\
+	.          &.              &    .      \\
+	\sigma_{d1   }&\sigma_{d2}    &\sigma_{d3} 
+	\end{array}} \right)  
+\left( {\begin{array}{*{15}{c}}
+	g_{11}   &g_{12}    &g_{13}\\
+	g_{21}   &g_{22}    &g_{23}\\
+	g_{31}   &g_{32}    &g_{33} 
+	\end{array}} \right)=  
+\left( {\begin{array}{*{15}{c}}
+	\epsilon_{11}   &\epsilon_{12}  & ...   &\epsilon_{1d}\\
+	\epsilon_{21}   &\epsilon_{22}  & ...   &\epsilon_{2d}\\
+	.            &.              & ...   &    .      \\
+	\epsilon_{d1}   &\epsilon_{d2}  & ...   &\epsilon_{dd} 
+	\end{array}} \right)
+\left( {\begin{array}{*{15}{c}}
+	\sigma_{11}   &\sigma_{12}    &\sigma_{13}\\
+	\sigma_{21}   &\sigma_{22}    &\sigma_{23}\\
+	.          &.              &    .      \\
+	\sigma_{d1   }&\sigma_{d2}    &\sigma_{d3} 
+	\end{array}} \right)  +
+\left( {\begin{array}{*{20}{c}}
+	h_{11}    &h_{12}    &h_{13}\\
+	h_{21}     &h_{22}    &h_{23}\\
+	.          &.         &    . \\
+	h_{d1}     &h_{d2}    &h_{d3} 
+	\end{array}} \right) \\ \\
+\end{array}
+\end{equation} 
+
+Or in compact form:
+
+\begin{equation} \label{EH_cond}
+{\bfsigma} {\bf g}= {\bf E}_g {\bfsigma} + {\bf H}_g
+\end{equation}
+Where $	{\bf g}$ is the conventional $3\times3$ rotational matrix of the physical space, the matrix $\bfsigma$ of dimension $d \times 3$ is formed with the components of the modulation vectors referred to the reciprocal lattice of the physical space. The matrix ${\bf H}_g$ is formed by $d$ reciprocal lattice vectors and the $d \times d$  matrix ${\bf E}_g$ contains only zeros and $\pm 1$ describing how the modulation vectors are transformed by the operator $\hat g$. For modulations vectors pairs $({\bf q},-{\bf q})_p$ (with $p=1,2,..,d$) not belonging to the same star, the matrix ${\bf E}_g$ is diagonal with $E_g(i,i)=\pm1$. 
+We can extend the operators of $(3+1)D$ given in equation (\ref{4d_op}) for the general $(3+d)D$ operator  $\hat g_S =\{g_S,\delta|{\bf t}_S \}$, and write:
+\begin{equation}
+\begin{array} {l}
+\hat g_S=\{{g}_S,\delta|{\bf t}_S\} \quad \Rightarrow  \quad  {g}_S = \left( {\begin{array}{*{20}{c}}
+	{\bf g}&{\bf 0}\\
+	{{\bf H}_g}&{{\bf E}_g}
+	\end{array}} \right)\quad \quad {{\bf t}_S} = ({t_1},{t_2},...{t_{3+d}})=({\bf t},t_4,...,t_{3+d})=({\bf t},{\bf t}_I)
+\end{array}
+\end{equation}
+Where ${\bf 0}$ is a $3 \times d$ null matrix. Notice that $\delta$ must be taken into account for the action on magnetic moments that are inverted if the operator is primed ($\delta=-1$).
+In order to study the action of operators in superspace it is convenient to introduce {\it augmented} matrices by adding a column with components of the associated translation vector as:
+
+\begin{equation} \label{augmented_matrix}
+\begin{array} {l}
+{\hat g}_S = \left( {\begin{array}{*{20}{c}}
+	{\bf g}    &{\bf 0}    &{\bf t}\\
+	{{\bf H}_g}&{{\bf E}_g}&{\bf t}_I\\
+	{0}     &{0}        &{1}
+	\end{array}} \right)
+\end{array}
+\end{equation}
+Notice that when we know the 3D operator matrix ${\bf g}$ and modulation vectors the matrices ${\bf H}_g$ and ${\bf E}_g$ can be easily calculated applying the relations (\ref{EH_cond}).  Using usual matrix operations the action of the operator on a general vector position of superspace ${\bf r}_S =({\bf r}_E,{\bf r}_I)$ is given by
+
+\begin{equation} \label{action_aug}
+\begin{array} {l}
+{\hat g}_S {\bf r}_S= \left( {\begin{array}{*{20}{c}}
+	{\bf g}    &{\bf 0}    &{\bf t}\\
+	{{\bf H}_g}&{{\bf E}_g}&{\bf t}_I\\
+	{0}     &{0}        &{1}
+	\end{array}} \right)  \left( {\begin{array}{*{15}{c}} {\bf r}_E \\ {\bf r}_I \\ {1} \end{array}} \right)=
+\left( {\begin{array}{*{15}{c}} {\bf g} {\bf r}_E + {\bf t} \\ {\bf H}_g{\bf r}_E + {\bf E}_g{\bf r}_I + {\bf t}_I\\ {1} \end{array}} \right)
+\end{array}
+\end{equation}
+For the action of operators in the modulation functions we need the inverse of those operators. In Seitz notation $\hat g_S^{-1}=\{g_S^{-1},\delta| -g_S^{-1}{\bf t}_S  \}$ ($\delta^{-1}=\delta$ always). The general expression of the inverse superspace symmetry operator is given by:
+
+
+\begin{equation} \label{augmented_inversematrix}
+\begin{array} {l}
+{\hat g}_S^{-1} = \left( {\begin{array}{*{20}{c}}
+	{\bf g}^{-1}                            &{\bf 0}        &	-{\bf g}^{-1}{\bf t}\\
+	-{\bf E}_g^{-1}{\bf H}_g {\bf g}^{-1}   &{\bf E}_g^{-1}  & {\bf E}_g^{-1}{\bf H}_g	{\bf g}^{-1} {\bf t}- {\bf E}_g^{-1}{\bf t}_I\\
+	{0}                                     &{0}            &{1}
+	\end{array}} \right) = \left( {\begin{array}{*{20}{c}}
+	{\bf g}^{-1}                            &{\bf 0}        &	-{\bf g}^{-1}{\bf t}\\
+	{\bf N}_g  &{\bf E}_g^{-1}  & {-\bf N}_g {\bf t}- {\bf E}_g^{-1}{\bf t}_I\\
+	{0}                                     &{0}            &{1}
+	\end{array}} \right)
+\end{array}
+\end{equation}
+
+In general a modulation vector can be decomposed as ${\bf q}={\bf q}_r+{\bf q}_i$, where the subscripts $r$ and $i$ stand for {\it rational} and {\it irrational}, respectively. With an appropriate selection of the unit cell in the physical space one can redefine the modulation vectors as to contain only zeroes and {\it irrational} components. In such cases the matrix ${\bf H}_g$ is a null matrix and the calculations with operators simplify considerably. Selecting the appropriate centred cell for eliminating the rational components of the modulation vector the symmetry operators in superspace simplify to:
+
+\begin{equation} \label{simplified_op}
+\begin{array} {l}
+{\hat g}_S = \left( {\begin{array}{*{20}{c}}
+	{\bf g}    &{\bf 0}    &{\bf t}\\
+	{{\bf 0}}  &{{\bf E}_g}&{\bf t}_I\\
+	{0}     &{0}        &{1}
+	\end{array}} \right) \qquad {\hat g}_S^{-1} =\left( {\begin{array}{*{20}{c}}
+	{\bf g}^{-1}                &{\bf 0}        &	-{\bf g}^{-1}{\bf t}\\
+	{\bf 0}  &{\bf E}_g^{-1}  & - {\bf E}_g^{-1}{\bf t}_I\\
+	{0}                        &{0}            &{1}
+	\end{array}} \right)
+\end{array}
+\end{equation}
+
+
+The action of inverse operator in $(3+d)D$ superspace on a point corresponding to coordinates of the atom $(k)$ in the basic-structure gives another point corresponding to the atom $(j)$, and we have:
+\begin{equation} \label{action_inverse_op}
+\begin{array} {l}
+{\hat g}_S^{-1} (\bar {\bf r}_k,{\bf r}_{Ik}) = (\bar {\bf r}_j,{\bf r}_{Ij}) = \left( {\begin{array}{*{20}{c}}
+	{\bf g}^{-1}  (\bar {\bf r}_k - {\bf t}), \quad
+	{\bf N}_g( \bar {\bf r}_k-{\bf t}) +{\bf E}_g^{-1} ({\bf r}_{Ik} -{\bf t}_I)   
+	\end{array}} \right)
+\end{array}
+\end{equation}
+
+In practical applications we need to know how these operators act on the modulation (structural displacement or magnetic moment) functions in order to allow the calculation of structure factors for structural analysis.
+The modulation functions of two symmetry related atoms in the basic structure verifying $ \hat g \bar {\bf r}_j=\bar {\bf r}_{k} + \bar{\bf R}_n$ are not independent if the corresponding superspace operator belongs to the symmetry of the modulated structure. Taking into account the equation (\ref{action_inverse_op}),the displacement modulation functions are transformed as:\\
+\begin{equation} \label{tranf_displ}
+{\bf u}_k[{\bf r}_I (k)]=\hat g {\bf u}_j [{\bf r}_I (j) ]= g{\bf u}_j[\hat g^{-1}{\bf r}_I (j) ] = g {\bf u}_j[{\bf N}_g(\bar {\bf r}(j)-{\bf t})+{\bf E}^{-1}_g ({\bf r}_I (j)-{\bf t}_I)]
+\end{equation}
+For the case of magnetic moments the action is as:
+\begin{equation} \label{tranf_mom}
+{\bf m}_k[{\bf r}_I (k)]=\hat g {\bf m}_j [{\bf r}_I (j) ]= \delta det(g) g{\bf m}_j[\hat g^{-1}{\bf r}_I (j) ] = \delta det(g) g {\bf m}_j[{\bf N}_g(\bar {\bf r}(j)-{\bf t})+{\bf E}^{-1}_g ({\bf r}_I (j)-{\bf t}_I)]
+\end{equation}
+or in a more simple form, putting the argument of ${\bf m}_k$ in terms of that of ${\bf m}_j$ as:
+
+\begin{equation} \label{tranf_mom2} 
+{\bf m}_k[({\bf H}_g \bar{\bf r}_j + {\bf E}_g{\bf r}_{I}(j) + {\bf t}_I)]= \delta det(g) g{\bf m}_j({\bf r}_{I}(j)) 
+\end{equation}
+These equations are the basis for calculating the constraints on modulation functions imposed by symmetry in special positions of the basic structure.
+
+\subsection{Structure factors in superspace}
+The crystallographic $(3+d)D$ superspace groups, for dimensions d=1, 2, and 3, have been tabulated recently \cite{Stokes_genSuperSpace} in form of a database, the number of superspace groups is 775, 3338 and 12584 respectively. The magnetic superspace groups have not yet been tabulated and their number is still unknown{\footnote{Very recently H.Stokes and B. Campbell have made available a provisional list up to dimension d=3 containing a total of 347975 magnetic superspace groups. See https://stokes.byu.edu/iso/ssg.php}}. The symbols used for designing a superspace group is based in the Hermann-Mauguin notation of the parent crystallographic group followed by the modulation vector and a set of letters indicating the translation in the internal space. In principle one can used the same kind of notation for magnetic superspace groups using primed symbols. For instance the crystallographic space group noted $Pnma(00\gamma)0s0$ can be easily constructed by calculating the augmented matrices of the generators $n$, $m$, $a$ using the rules (\ref{EH_cond}) and putting the internal translation of the $\hat g_S(m)$ equal to $s=1/2, t_{S4}=1/2$ and zero for the other generators.
+
+The detailed calculation of structure factors for modulated crystal and magnetic structures is out of the scope of this paper, the reader can find detailed discussions, references and examples in the papers \cite{Janssen-Janner, Yamamoto, Perez-Mato-StrFac} for the case of crystal structures. There is no similar development for magnetic structure factors, however their inclusion in the appropriate formula is straightforward. The most general expression for calculating structure factors of modulated crystal structures has been provided for the first time by Akiji Yamamoto \cite{Yamamoto}. It is formulated directly in superspace so the application of symmetry is straightforward: formula (15) in \cite{Yamamoto}. The treatment in superspace implies that the summations for the whole crystal are transformed in integrations over internal space of modulation functions taking into account that they are periodic of period 1. Here we provide a simplified formula (considering only displacive modulations and neglecting temperature factor) for the case of pure nuclear reflections and an equivalent expression for magnetic structure factor.  
+
+\begin{eqnarray} \label{strfac_superspace}
+F({\bf H}_S)= \sum\limits_{j=1}^{m_a} O_j f_j(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|} \int_{0}^{1} d\bar x_4^j ... \int_{0}^{1} d\bar x_{3+d}^j \exp[2\pi i {\bf H}_S \hat g^s_S {\bf r}_S^{j}(\bar x_4^j, ...\bar x_{3+d}^j)]
+\end{eqnarray}
+
+The corresponding equation for the magnetic structure factor of a crystal having displacive and magnetic modulation is:
+
+\begin{eqnarray} \label{magstrfac_superspace}
+{\bf M}({\bf H}_S)= p \sum\limits_{j=1}^{m_a} O_j f_j(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|} \int_{0}^{1} d\bar x_4^j ... \int_{0}^{1} d\bar x_{3+d}^j \quad \hat g^s_S{\bf m}_S^j(\bar x_4^j, ...\bar x_{3+d}^j) \exp[2\pi i {\bf H}_S \hat g^s_S {\bf r}_S^{j}(\bar x_4^j, ...\bar x_{3+d}^j)]
+\end{eqnarray}
+
+Where $|\mathcal G_S|$ is the order of the point group of the superspace group $\mathcal G_S$
+and the superscript $s$ number the different symmetry operators of $\mathcal G_S$.
+We have made explicit only the dependence on the internal space of the modulation functions, of course the vectors in superspace contain also the external components. For practical applications the modulation functions should be written in terms of their development in Fourier series like (\ref{umod_funct}). The structural parameters become then the cosine and sine amplitudes that are constant vectors with components to be adjusted against experimental data.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Structure factor modulated structures without symmetry considerations in 3D}
+
+Here we use the 3D space for describing the structure factor of a modulated crystal structure. We change slightly the notation and use the most usual in the field. An atom is numbered with the index $\mu$ within the unit cell of basic structure and the index ${\bf L}$ for vector position of the  unit cell origin. The atom position in a modulated structure is given by:
+\begin{equation} \label{atom_modulated}
+{\bf x}_{\bf L}^{\mu}= \bar {\bf x}^{\mu} +  {\bf u}^{\mu}(\bar x_4) = {\bf L} + {\bf x}_0^{\mu} +  {\bf u}^{\mu}(\bar x_4) \qquad \bar x_4=t+{\bf q} ({\bf L} +  {\bf x}_0^{\mu})
+\end{equation}
+ where the subscript $0$ makes reference to the zero-cell average position of atom $\mu$, $\bar x_4$ can be considered a continuous argument that is now independent of $\mu$ and the dependency on atom $\mu$ is in the modulation function index ${\bf u}^{\mu}$,  that can be written as:
+
+\begin{equation} \label{modulation_u}
+{\bf u}^{\mu}(\bar x_4)= \sum_{n=0}^\infty {\bf A}_n^{\mu} \cos(2\pi n \bar x_4)+ {\bf B}_n^{\mu} \sin(2\pi n \bar x_4)
+\end{equation}
+
+The kinematic theory of diffraction tell us that the amplitude of the scattering radiation can be written as:
+
+\begin{equation} \label{scat_amplitude}
+A({\bf s})= \sum_{\bf L}^{N_{cell}} \sum_{\mu=1}^{N_{atom}}f_{\mu}({\bf s})\exp[2 \pi i {\bf s}({\bf L} + {\bf x}_0^{\mu} +  {\bf u}^{\mu}(\bar x_4))]
+\end{equation}
+The separation of the two sums is not trivial because the implicit dependency of ${\bf u}^{\mu}(\bar x_4)$ on ${\bf L}$. In order to accomplish this aim we can use a property of the Dirac $\delta$-function, namely:
+\begin{equation} \label{delta_1}
+\mathcal{F}(x)= \int_{-\infty}^{\infty} \delta(x-\tau) \mathcal{F}(\tau) d\tau = \int_{0}^{1} \sum_{m=-\infty}^{\infty} \delta(x-\tau - m) \mathcal{F}(\tau+m) d\tau 
+\end{equation}
+Using another property of the delta function: $\sum_{m=-\infty}^{\infty} exp(2\pi i s m)=\sum_{m=-\infty}^{\infty} \delta(s-m)$, and taking into account that, if $\mathcal{F}(x)$ is periodic of period 1 the index $m$ can be dropped from its argument, one can write equation (\ref{delta_1}) as:
+
+\begin{equation} \label{delta_2}
+\mathcal{F}(x)= \int_{0}^{1} \sum_{m=-\infty}^{\infty} \exp[-2\pi i m(x-\tau)]  \mathcal{F}(\tau) d\tau = \sum_{m=-\infty}^{\infty}\left ( \int_{0}^{1} \exp[2\pi i m \tau]  \mathcal{F}(\tau) d\tau \right ) \exp[2 \pi i m x]
+\end{equation}
+Now defining the function $\mathcal{F}(x)=\exp[2 \pi i {\bf s}.{\bf u}^{\mu}(\bar x_4)]$ and $x=\bar x_4 -t ={\bf q} ({\bf L} +  {\bf x}_0^{\mu}) $, the scattering amplitude becomes:
+
+\begin{equation} \label{scat_amplitude2}
+A({\bf s})= \sum_{\bf L}^{N_{cell}} \sum_{\mu=1}^{N_{atom}} \sum_{m=-\infty}^{\infty} \int_{0}^{1} f_{\mu}({\bf s}) \exp[2 \pi i {\bf s}({\bf L} + {\bf x}_0^{\mu})] \exp[2 \pi i m \tau]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(t+\tau)] \exp [-2 \pi i m{\bf q}({\bf L} + {\bf x}_0^{\mu})] d\tau
+\end{equation}
+The variable $t$ can be dropped from the argument of ${\bf u}^\mu$ because the integral is on a full period of the modulation function.
+\begin{equation} \label{scat_amplitude3}
+A({\bf s})=  \sum_{\mu=1}^{N_{atom}} \sum_{m=-\infty}^{\infty} \int_{0}^{1} f_{\mu}({\bf s}) \exp[2 \pi i {\bf s} {\bf x}_0^{\mu}] \exp[2 \pi i m \tau]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau)] \exp [-2 \pi i m{\bf q} {\bf x}_0^{\mu}] \sum_{\bf L}^{N_{cell}} \exp[2 \pi i ({\bf s}-m{\bf q}){\bf L}] d\tau
+\end{equation}
+\begin{equation} \label{scat_amplitude4}
+A({\bf s})=  \sum_{\mu=1}^{N_{atom}} \sum_{m=-\infty}^{\infty} \int_{0}^{1} f_{\mu}({\bf s}) \exp[2 \pi i( {\bf s}-m{\bf q}) {\bf x}_0^{\mu}] \exp[2 \pi i m \tau]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau)]  \sum_{\bf L}^{N_{cell}} \exp[2 \pi i ({\bf s}-m{\bf q}){\bf L}] d\tau
+\end{equation}
+\begin{equation} \label{scat_amplitude5}
+A({\bf s})=  \sum_{\mu=1}^{N_{atom}}\sum_{m=-\infty}^{\infty} f_{\mu}({\bf s}) \left (   \int_{0}^{1}   \exp[2 \pi i m \tau]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau)] d\tau \right )   \exp[2 \pi i( {\bf s}-m{\bf q}) {\bf x}_0^{\mu}] \sum_{\bf L}^{N_{cell}} \exp[2 \pi i ({\bf s}-m{\bf q}){\bf L}] 
+\end{equation}
+
+The last lattice sum indicates that diffraction occurs only for reciprocal vectors verifying: ${\bf H} = {\bf s} - m{\bf q}$ or scattering vectors ${\bf s} = {\bf H} + m{\bf q}$, being ${\bf H}$ a reciprocal lattice vector of the average structure. If we call $g_\mu({\bf s},m)$ the term within parenthesis we obtain the unit cell structure factor for satellite $m$ as:
+
+\begin{eqnarray} \label{scat_amplitude6}
+F({\bf s}={\bf H}+m{\bf q}) &=&  \sum_{\mu=1}^{N_{atom}} f_{\mu}({\bf H}+m{\bf q}) \left (   \int_{0}^{1}   \exp[2 \pi i m \tau]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau)] d\tau \right )   \exp[2 \pi i{\bf H} {\bf x}_0^{\mu}] \\
+F({\bf H}+m{\bf q})&=& \sum_{\mu=1}^{N_{atom}} f_{\mu}({\bf H}+m{\bf q}) g_\mu({\bf H}+m{\bf q})   \exp[2 \pi i{\bf H} {\bf x}_0^{\mu}]
+\end{eqnarray}
+
+The function  $g_\mu({\bf s},m)$ summarizes the effect the of modulation in the diffraction pattern. The structure factor is the same as that for a normal crystal structure but the effective scattering factor of atoms is diminished by  $g_\mu({\bf s},m)$ that varies between 0 and 1.
+
+\begin{equation} \label{modul_factor}
+g_\mu({\bf s},m)=     \int_{0}^{1}  \exp [2 \pi i({\bf s}{\bf u}^{\mu}(\tau)+m\tau)] d\tau 
+\end{equation}
+
+In the case of several modulation vectors the expression may be extended starting with a generalization of equation (\ref{scat_amplitude5}) as:
+
+\begin{eqnarray} \label{scat_amplitude_multiq}
+A({\bf s})=  \sum_{\mu=1}^{N_{atom}}f_{\mu}({\bf s}) G_\mu({\bf s},[{\bf n}])  \exp[2 \pi i( {\bf s}-(n_1{\bf q}_1+n_2{\bf q}_2+...n_d{\bf q}_d)) {\bf x}_0^{\mu}] \sum_{\bf L}^{N_{cell}} \exp[2 \pi i ({\bf s}-(n_1{\bf q}_1+n_2{\bf q}_2+...n_d{\bf q}_d)){\bf L}] \\
+G_\mu({\bf s},[{\bf n}])= \sum_{n_1=-\infty}^{\infty} ...\sum_{n_d=-\infty}^{\infty}  \left (   \int_{0}^{1} ...\int_{0}^{1}  \exp[2 \pi i n_1 \tau_1] ... \exp[2 \pi i n_d \tau_d]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau_1,\tau_2,...\tau_d)] d\tau_1 ... d\tau_d \right )
+\end{eqnarray}
+Where $[{\bf n}]$ is the whole set of indices $(n_1,n_2,...n_d)$ \footnote{Notice that the sums in $G_\mu({\bf s},[{\bf n}]) $ affect also the indices appearing in lattice sum and the external exponential} and,
+as in the case of a single modulation vector, the lattice sum is different from zero only if ${\bf s} = {\bf H} + n_1{\bf q}_1+n_2{\bf q}_2+...n_d{\bf q}_d$, so the final expression of the structure factor of a Bragg spot indexed by $ {\bf H}$ and a particular set of indices ${\bf n}$ is formally identical to that of a single modulation vector:
+\begin{eqnarray} \label{strf_multik}
+F({\bf s}={\bf H} + n_1{\bf q}_1+n_2{\bf q}_2+...n_d{\bf q}_d)&=& \sum_{\mu=1}^{N_{atom}} f_{\mu}({\bf s}) g_\mu({\bf s},{\bf n})   \exp[2 \pi i{\bf H} {\bf x}_0^{\mu}]
+\end{eqnarray}
+Where the sums over ${\bf n}$-indices disappear and they are particularized for a particular set of ${\bf n}$ as
+\begin{equation} \label{modul_factor_multi}
+g_\mu({\bf s},{\bf n})= \int_{0}^{1} ...\int_{0}^{1}  \exp[2 \pi i n_1 \tau_1] ... \exp[2 \pi i n_d \tau_d]  \exp [2 \pi i{\bf s}{\bf u}^{\mu}(\tau_1,\tau_2,...\tau_d)] d\tau_1 ... d\tau_d   
+\end{equation}
+The difficulty to evaluate the structure factor of a Bragg spot comes from the calculation of $g_\mu({\bf s},{\bf n})$ that requires in general a numerical quadrature for calculating the value for each reflection.
+
+Let us develop the integral (\ref{modul_factor}) by substituting the expression of (\ref{modulation_u}) into the exponential function:
+\begin{equation} \label{modul_factor2}
+g_\mu({\bf s},m)= \int_{0}^{1}  \exp [2 \pi i\{{\bf s}{\bf A}_m^{\mu} \cos(2\pi m \tau)+ {\bf s}{\bf B}_m^{\mu} \sin(2\pi m \tau)+m\tau\}] d\tau 
+\end{equation}
+Separating the real and imaginary part we have
+
+\begin{eqnarray} \label{modul_factor3}
+\Re[g_\mu({\bf s},m)]&=& \int_{0}^{1}  \cos [2 \pi \{{\bf s}{\bf A}_m^{\mu} \cos(2\pi m \tau)+ {\bf s}{\bf B}_m^{\mu} \sin(2\pi m \tau)+m\tau\}] d\tau \\
+\Im[g_\mu({\bf s},m)]&=& \int_{0}^{1}  \sin [2 \pi \{{\bf s}{\bf A}_m^{\mu} \cos(2\pi m \tau)+ {\bf s}{\bf B}_m^{\mu} \sin(2\pi m \tau)+m\tau\}] d\tau 
+\end{eqnarray}
+
+The generalization for $d$ modulation vectors is trivial but cumbersome.
+\begin{eqnarray} \label{modul_factor3}
+\Re[g_\mu({\bf s},[{\bf m}])]&=& \int_{0}^{1} ...\int_{0}^{1}  \cos [2 \pi \{{\bf s}{\bf A}_{[{\bf m}]}^{\mu} \cos(2\pi [{\bf m}].[\bftau] )+ {\bf s}{\bf B}_{[{\bf m}]}^{\mu} \sin(2\pi [{\bf m}].[\bftau])+[{\bf m}].[\bftau]\}] d\bftau \\
+\Im[g_\mu({\bf s},[{\bf m}])]&=& \int_{0}^{1} ...\int_{0}^{1} \sin [2 \pi \{{\bf s}{\bf A}_{[{\bf m}]}^{\mu} \cos(2\pi[{\bf m}].[\bftau] )+ {\bf s}{\bf B}_{[{\bf m}]}^{\mu} \sin(2\pi [{\bf m}].[\bftau] )+[{\bf m}].[\bftau] \}] d\bftau 
+\end{eqnarray}
+Where we have defined the following notations: $[{\bf m}] = (m_1,m_2,...m_d)$, $[\bftau] = (\tau_1,\tau_2,...\tau_d)$, $d\bftau = d\tau_1 d\tau_2...d\tau_d$  and the {\it scalar product}, $[{\bf m}].[\bftau]=m_1\tau_1+m_2\tau_2+...+m_d\tau_d$
+
+
+% Once the superspace group has been established the calculation of the magnetic structure factor (neglecting the displacement modulation functions) for a single-k magnetic structure can be easily written as a function of the sine and cosine amplitudes, ${\bf M}_{sinj}^{(m)}$, ${\bf M}_{cosj}^{(m)}$ of a representative atom $j$ in the asymmetric unit for each satellite:
+%\begin{eqnarray}  \label{eq:msf_superspace}
+%{\bmr M}({\bf H}_S)=\frac{1}{2} p \sum\limits_{j=1}^{m_a} O_j f_j(H_S) e^{-B_j |H_S/2|^2} \sum\limits_{s=1}^{|\mathcal M_S|} \delta^s det(g^s) g^s ({\bf M}_{cosj}^{(m)}+i {\bf M}_{sinj}^{(m)})\exp \{ 2\pi i  ({\bf H}_S {g_S}^s {\bf r}_{Sj} + {\bf H}_S {\bf t}^s_S)\}
+%\end{eqnarray}
+
+%\begin{eqnarray}  \label{eq:msf_superspace}
+%{\bmr M}(\bmr{h}={\bf H}\pm m{\bf k})=\frac{1}{2} p \sum\limits_{j=1}^{m_a} O_j f_j(h) e^{-B_j %|h/2|^2} \sum\limits_{s=1}^{|\mathcal M_S|} \delta^s det(g^s) g^s ({\bf M}_{cj}^{(m)}+i {\bf %M}_{sj}^{(m)})\exp \{ 2\pi i  (({\bf H} {g}^s-h_4) {\bf r}_{j} + {\bf H}_S {\bf t}^s_S)\}
+%\end{eqnarray}
+\section{Space-Superspace relations (Yamamoto-like notation)}
+
+The reciprocal lattice in the superspace is spanned by the vectors:
+\begin{eqnarray} \label{rec_lat}
+{\bf b}_1={\bf a}^* \qquad {\bf b}_2={\bf b}^* \qquad {\bf b}_3={\bf c}^* \\
+{\bf b}_4={\bf q}^1+{\bf e}_1 \qquad {\bf b}_5={\bf q}^2+{\bf e}_2 \qquad ...\qquad{\bf b}_{3+d}={\bf q}^d+{\bf e}_d
+\end{eqnarray}
+Where the vectors ${\bf e}_p (p=1,2,...d)$ are unitary vectors perpendicular to real space.
+The superspace reciprocal lattice point: ${\bf H}_S= \sum_{i=1}^{3+d} h_i {\bf b}_i$ is projected onto $3D$ physical space as: 
+\begin{eqnarray}
+{\bf H} &=& h {\bf a}^* +k {\bf b}^* + l {\bf c}^* + h_4{\bf q}^1+ h_5{\bf q}^2 + ... + h_{3+d}{\bf q}^d \\
+{\bf H} &=& h {\bf a}^* +k {\bf b}^* + l {\bf c}^*+\sum_{i=1}^{d} h_{3+i}{\bf q}^i
+\end{eqnarray}
+In which the modulation vectors ${\bf q}^i$ are referred to the reciprocal basis (${\bf a}^*,{\bf b}^*,{\bf c}^* $).
+The direct basis in $(3+d)D$ superspace is the reciprocal basis of (\ref{rec_lat}) :
+\begin{eqnarray}
+{\bf a}_1={\bf a}-\sum_{i=1}^d q_1^i {\bf e}_i \qquad {\bf a}_2={\bf b}-\sum_{i=1}^d q_2^i {\bf e}_i \qquad {\bf a}_3={\bf c}-\sum_{i=1}^d q_3^i {\bf e}_i\\
+{\bf a}_4= {\bf e}_1 \qquad {\bf a}_5={\bf e}_2 \qquad ...\qquad{\bf a}_{3+d}={\bf e}_d
+\end{eqnarray}
+The components of a physical property (distortions, thermal tensor or magnetic moment) attached to an atom in 3D space are extended to the superspace as follows.\\
+
+
+{\bf  Vector positions }
+
+In $3D$ we have: $ {\bf r}=x_1 {\bf a}+x_2 {\bf b} + x_3 {\bf c}$, in the $(3+d)D$ superspace, a vector position, denoted with a subscript $S$, is given by:
+   
+\begin{eqnarray} 
+{\bf r}_S=\sum_{i=1}^{3+d} x_{S,i} {\bf a}_i=x_{S,1} {\bf a}_1+x_{S,2} {\bf a}_2 + x_{S,3} {\bf a}_3 + \sum_{j=1}^{d} x_{S,3+j} {\bf a}_j=({\bf r}_E,{\bf r}_I)
+\end{eqnarray}
+
+Where $x_{S,j}=x_j (j=1,2,3)$ and $x_{S,3+j}= {\bf r} . {\bf q}^j = x_1 q_1^j + x_2 q_2^j + x_3 q_3^j $, so that  $ ({\bf r}_E)_j= ({\bf r})_j$ and $ ({\bf r}_I)_j= {\bf r} . {\bf q}^j$.\\
+
+If the vector in physical space describes the position of an atom $\mu$ in a crystal like: $ {\bf r}^\mu =  \bar{\bf r}^\mu + {\bf u}^\mu $, the coordinates in superspace are given by: 
+\begin{eqnarray} 
+ {\bf r}_S^\mu =  ({\bf r}^\mu, {\bf r}^\mu.[{\bf q}])= (\bar{\bf r}^\mu + {\bf u}^\mu, (\bar{\bf r}^\mu + {\bf u}^\mu).[{\bf q}])
+\end{eqnarray}
+Where $\bar{\bf r}^\mu={\bf r}_0^\mu + {\bf L}+ {\bf u}_0^\mu$, being ${\bf u}_0^\mu$ an homogeneous term not depending on ${\bf L}$, describing the {\it basic} structure. We have used the notation $[{\bf q}]=({\bf q}^1,{\bf q}^2, ...{\bf q}^d) $ as a formal vector of vectors, so the "dot product" ${\bf r}^\mu.[{\bf q}]$ is a $d$-dimensional vector:  ${\bf r}^\mu.[{\bf q}]= ({\bf r}^\mu{\bf q}^1,{\bf r}^\mu{\bf q}^2, ...{\bf r}^\mu{\bf q}^d) $ . The distortion amplitude is a modulation function of period 1 that depends on additional coordinates: ${\bf u}^\mu={\bf u}^\mu(\bar x_4,...,\bar x_{3+d})$, with $\bar x_{3+j}=\bar{\bf r}^\mu.{\bf q}^j$. These definitions make that the coordinates of an atom in superspace are given by:
+\begin{eqnarray} 
+{\bf r}_S^\mu = (x_{S1}, x_{S2},...,x_{S(3+d)})^\mu = ({\bar x}_1^\mu+u_1^\mu,{\bar x}_2^\mu+u_2^\mu,{\bar x}_3^\mu+u_3^\mu, ...,  {\bar x}_{3+j}^\mu+u_{3+j}^\mu, ...)
+\end{eqnarray}
+where we have defined the components of the modulation functions in superspace as: $u_{3+j}={\bf u}^\mu.{\bf q}^j$, so that the relations between coordinates in superspace and coordinates in real spacer are related as:
+\begin{eqnarray} 
+x_{Si} &=& {\bar x}_i^\mu+u_i^\mu = ({\bf r}_E)_i \qquad \qquad (i=1,2,3)\\ 
+x_{S(3+j)} &=&   {\bar x}_{3+j}^\mu+u_{3+j}^\mu =   ({\bf r}_I)_j 
+\qquad (j=1,2,...d)\end{eqnarray}
+
+
+{\bf  Magnetic moment }
+
+The components $m_{S,i}$ for $i \leq 3$ are the same as those, $m_{i}$, referred to the basis ${\bf a}, {\bf b}, {\bf c}$ while the components $m_{S,3+j}$   verify:
+\begin{eqnarray} 
+m_{S,3+j} = \sum_{n=1}^{3} m_{n} q_n^j = {\bf m}.{\bf q}^j   
+\end{eqnarray}
+So the representation of a magnetic moment in superspace is given by:
+\begin{eqnarray} 
+{\bf m}_{S} = ({\bf m}_{E}, {\bf m}_{I}) = (m_1,m_2,m_3,{\bf m}.{\bf q}^1, {\bf m}.{\bf q}^2, ... {\bf m}.{\bf q}^d ) = ({\bf m},{\bf m}.[{\bf q}])
+\end{eqnarray}
+If the vector in physical space describes the magnetic moment of an atom $\mu$ in a crystal like: $ {\bf m}^\mu =  \bar{\bf m}^\mu + {\bf M}^\mu $, the components in superspace are given by: $ {\bf m}_S^\mu =  (\bar{\bf m}^\mu+ {\bf M}^\mu , (\bar{\bf m}^\mu + {\bf M}^\mu).[{\bf q}]) $. Where $\bar{\bf m}^\mu={\bf m}_0^\mu $ is an homogeneous term not depending on ${\bf L}$ describing a {\it basic} magnetic structure before the appearance of the modulation. The modulation amplitude is a function of period 1 that depends on ${\bf r}_I$: ${\bf M}^\mu={\bf M}^\mu(\bar x_4,...,\bar x_{3+d})$, with $\bar x_{3+j}=\bar{\bf r}^\mu.{\bf q}^j$. In many cases the basic magnetic structure can be taken as that of the paramagnetic state so that $\bar{\bf m}^\mu=0$ or we can include in the modulation function the term having the zero-harmonic so that the magnetic moment of atom $\mu$ in superspace can be written as:
+\begin{eqnarray} 
+\label{super_mom}
+{\bf m}_{S}^\mu =  ({\bf m}_{E}^\mu, {\bf m}_{I}^\mu) = ({\bf M}^\mu, {\bf M}^\mu .[{\bf q}]) 
+\end{eqnarray}
+
+{\bf  Temperature factor tensor }
+
+The components $B_{S,ij}$ for $i,j \leq 3$ are the same as those, $B_{ij}$, referred to the basis ${\bf a}, {\bf b}, {\bf c}$ while the components $B_{S,i,3+j}$ and $B_{S,3+j,i}$ for $i \leq 3$  verify:
+\begin{eqnarray} 
+B_{S,i,3+j} = B_{S,3+j,i} =\sum_{m=1}^{3} B_{im} q_m^j  \qquad  i \leq 3  
+\end{eqnarray}
+
+The components $B_{S,3+i,3+j}$ are given by the expression:
+\begin{eqnarray} 
+B_{S,3+i,3+j} = \sum_{m,n=1}^{3} q_m^i B_{m,n} q_n^j  
+\end{eqnarray}
+ 
+\section{Magnetic Structure factor of modulated structures in SuperSpace}
+
+Starting with the general equation (\ref{magstrfac_superspace}), we will develop it as a function of the modulation functions.
+The components of the magnetic moments in $(3+d)$
+
+\begin{eqnarray} \label{magstrfac_superspace2}
+{\bf M}_S({\bf H}_S)= p \sum\limits_{\mu=1}^{m_a} O_\mu f_\mu(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|} \int_{0}^{1} d\bar x_4^\mu ... \int_{0}^{1} d\bar x_{3+d}^\mu \quad \hat g^s_S{\bf m}_S^\mu(\bar x_4^\mu, ...\bar x_{3+d}^\mu) \exp[2\pi i {\bf H}_S \hat g^s_S {\bf r}_S^{\mu}(\bar x_4^\mu, ...\bar x_{3+d}^\mu)]
+\end{eqnarray}
+
+Notice that for practical applications we only need the external components of this expression of the structure factor. Let us develop how the symmetry operators of superspace are applied to the superspace version of magnetic moments and atom positions. 
+\begin{equation}  
+\begin{array} {l}
+{\hat g}_S {\bf r}_S= \left( {\begin{array}{*{20}{c}}
+	{\bf g}    &{\bf 0}    &{\bf t}\\
+	{{\bf H}_g}&{{\bf E}_g}&{\bf t}_I\\
+	{0}     &{0}        &{1}
+	\end{array}} \right)  \left( {\begin{array}{*{15}{c}} {\bf r}_E \\ {\bf r}_I \\ {1} \end{array}} \right)=
+\left( {\begin{array}{*{15}{c}} {\bf g} {\bf r}_E + {\bf t} \\ {\bf H}_g{\bf r}_E + {\bf E}_g{\bf r}_I + {\bf t}_I\\ {1} \end{array}} \right)
+\end{array}
+\end{equation}
+\begin{eqnarray} \label{Opertor_action_rs}
+g^s_S {\bf r}_S^{\mu}=({\bf g}^s {\bf r}^\mu  + {\bf t}_s,{\bf H}_g^s(\bar{\bf r}^\mu + {\bf u}^\mu) + {\bf E}_g^s(\bar{\bf r}^\mu + {\bf u}^\mu).[{\bf q}]+ {\bf t}_{Is} )
+\end{eqnarray}
+Using the expression (\ref{super_mom}) of magnetic moment in superspace as a function of the modulation functions ${\bf M}^\mu)$ we can write: 
+\begin{eqnarray} \label{Opertor_action_ms}
+g^s_S {\bf m}_S^{\mu}=\delta det({\bf g}^s)({\bf g}^s ({\bf M}^\mu),{\bf H}_g^s  {\bf M}^\mu + {\bf E}_g^s  {\bf M}^\mu.[{\bf q}] )
+\end{eqnarray}
+
+%If the incommensurate magnetic structure develops in a fundamentally commensurate crystal structure (e.g. ${\bf u}^\mu=0$) we have:
+
+%\begin{eqnarray} \label{magstrfac_superspace3}
+%{\bf M}_S({\bf H}_S)= p \sum\limits_{\mu=1}^{m_a} O_\mu f_\mu(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|}  \quad \delta det({\bf g}^s)({\bf g}^s {\bf M}^\mu,{\bf H}_g^s  {\bf M}^\mu + {\bf E}_g^s  {\bf M}^\mu.[{\bf q}] ) \exp[2\pi i {\bf H}_S ({\bf g}^s {\bf r}^\mu  + {\bf t}_s,{\bf H}_g^s\bar{\bf r}^\mu + {\bf E}_g^s \bar{\bf r}^\mu.[{\bf q}]+ {\bf t}_{Is} )]
+%\end{eqnarray}
+
+%What happens if we take the 3D part of the vector:
+
+%\begin{eqnarray} \label{magstrfac_superspace4}
+%{\bf M}({\bf H}_S)= p \sum\limits_{\mu=1}^{m_a} O_\mu f_\mu(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|}  \quad \delta det({\bf g}^s) {\bf g}^s {\bf M}^\mu \exp[2\pi i {\bf H}_S ({\bf g}^s {\bf r}^\mu  + {\bf t}_s,{\bf H}_g^s\bar{\bf r}^\mu + {\bf E}_g^s \bar{\bf r}^\mu.[{\bf q}]+ {\bf t}_{Is} )]
+%\end{eqnarray}
+
+%\begin{eqnarray} \label{magstrfac_superspace5}
+%{\bf M}({\bf H}_S)= p \sum\limits_{\mu=1}^{m_a} O_\mu f_\mu(H_S)  \sum\limits_{s=1}^{|\mathcal G_S|}   \delta det({\bf g}^s) {\bf g}^s {\bf T}_{\mu}^{[{\bf n}]} \exp\{2\pi i[{\bf n}]( {\bf H}_g^s {\bf r}_E^\mu + {\bf E}_g^s{\bf r}_I^\mu + {\bf t}_{Is})\}  \exp\{-2\pi i[{\bf n}] {\bf r}_I^{\mu}\} \exp[2\pi i {\bf H}_S ({\bf g}^s {\bf r}^\mu  + {\bf t}_s,{\bf H}_g^s\bar{\bf r}^\mu + {\bf E}_g^s \bar{\bf r}^\mu.[{\bf q}]+ {\bf t}_{Is} )]
+%\end{eqnarray}
+
+
+ 
+\section{Magnetic Structure factor of magnetic modulated structures in 3D when the structural modulations can be neglected}
+
+In this section we consider from the beginning a commensurate crystal structure and a modulated magnetic structure. The magnetic moment can be written as a generalized Fourier series as 
+
+\begin{equation} \label{mmod_funct1}
+{\bf m}_\mu(\bar{x}_4,\bar{x}_5,..,\bar{x}_{3+d}) =\sum\limits_{n_1=0}^{\infty} ... \sum\limits_{n_d=0}^{\infty} {\bf M}_{\mu cos}^{(n_1,..,n_d)} \cos[2\pi(n_1\bar{x}_4+..+ n_d\bar{x}_{3+d})] + {\bf M}_{\mu sin}^{(n_1,..,n_d)} \sin[2\pi(n_1\bar{x}_4+..+ n_d\bar{x}_{3+d})
+\end{equation}
+
+Where we assume a set of propagation vectors $ {< \bf k}>=({\bf k}_1,{\bf k}_2, ... {\bf k}_d) $ and their harmonics, so that ${\bar x}_{3+j}= {\bf k}_j ({\bf L}+{\bf r}_0^\mu) $ and the arguments of the cosine and sine functions are $ 2\pi [{\bf n}] \cdot[<{\bf k}> ({\bf L}+{\bf r}_0^\mu)] = 2\pi [{\bf n}]{\bf r}_I^\mu$, being $ {\bf r}_I^\mu=(\bar{x}_4, \bar{x}_5, ... \bar{x}_{3+d})$, so that the above equation can be written in compact form as:
+\begin{equation} \label{mmod_funct2}
+{\bf m}_\mu({\bf r}_I^{\mu}) =\sum\limits_{[{\bf n}]}  {\bf M}_{\mu cos}^{[{\bf n}]} \cos[2\pi([{\bf n}] {\bf r}_I^{\mu})] + {\bf M}_{\mu sin}^{[{\bf n}]} \sin[2\pi([{\bf n}] {\bf r}_I^{\mu})
+\end{equation}
+
+Or even in complex form, defining $ {\bf T}_{\mu}^{[{\bf n}]}=1/2({{\bf M}_{\mu cos}^{[{\bf n}]}+i{\bf M}_{\mu sin}^{[{\bf n}]}})$, the equation can be written as:
+
+\begin{equation} \label{mmod_functa}
+{\bf m}_\mu({\bf r}_I^{\mu}) =\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}] {\bf r}_I^{\mu}\}=\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i \sum_{i=1}^d n_i{\bf k}_i ({\bf L}+{\bf r}_0^\mu) \}
+\end{equation}
+
+
+The real nature of magnetic moments implies the constraint:
+$ {\bf T}_{\mu}^{[-{\bf n}]}={\bf T}_{\mu}^{*[{\bf n}]}$.
+The expression of the magnetic amplitude (magnetic structure factor for the whole crystal) in the case of a commensurate crystal structure can be written as follows:
+
+
+\begin{equation} \label{amplitude_mag1}
+{\bf M}^c({\bf s})=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) {\bf m}_{{\bf L}\mu} \exp\{2\pi i {\bf s}({\bf L}+{\bf r}_0^\mu)\}=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) \sum\limits_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}] {\bf r}_I^{\mu}\} exp\{2\pi i {\bf s}({\bf L}+{\bf r}_0^\mu)\}
+\end{equation}
+
+\begin{equation} \label{amplitude_mag2}
+{\bf M}^c({\bf s})=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) \sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i \sum_{i=1}^d n_i{\bf k}_i ({\bf L}+{\bf r}_0^\mu) \} \exp\{2\pi i {\bf s}({\bf L}+{\bf r}_0^\mu)\}
+\end{equation}
+
+\begin{equation} \label{amplitude_mag3}
+{\bf M}^c({\bf s})=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) \exp\{2\pi i {\bf s}{\bf r}_0^\mu\}\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i \sum_{i=1}^d n_i{\bf k}_i ({\bf L}+{\bf r}_0^\mu) \}  \exp\{2\pi i {\bf s}{\bf L}\}
+\end{equation}
+\begin{equation} \label{amplitude_mag5}
+{\bf M}^c({\bf s})=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) \exp\{2\pi i {\bf s}{\bf r}_0^\mu\}\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i {\bf r}_0^\mu \sum_{i=1}^d n_i{\bf k}_i \} \exp\{ -2\pi i {\bf L} \sum_{i=1}^d n_i{\bf k}_i  \} \exp\{2\pi i {\bf s}{\bf L}\}
+\end{equation}
+\begin{equation} \label{amplitude_mag6}
+{\bf M}^c({\bf s})=p\sum_{\bf L} \sum_{{\mu}} f_{\mu}({\bf s}) \exp\{2\pi i {\bf s}{\bf r}_0^\mu\}\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i {\bf r}_0^\mu \sum_{i=1}^d n_i{\bf k}_i \}  \exp\{2\pi i ({\bf s}-\sum_{i=1}^d n_i{\bf k}_i){\bf L}\}
+\end{equation}
+\begin{equation} \label{amplitude_mag7}
+{\bf M}^c({\bf s})=p\sum_{{\mu}} f_{\mu}({\bf s}) \exp\{2\pi i {\bf s}{\bf r}_0^\mu\}\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i {\bf r}_0^\mu \sum_{i=1}^d n_i{\bf k}_i \}  \sum_{\bf L} \exp\{2\pi i ({\bf s}-\sum_{i=1}^d n_i{\bf k}_i){\bf L}\}
+\end{equation}
+
+The lattice sum is zero except for scattering vectors satisfying the equations:
+\begin{equation} \label{laue_cond1}
+{\bf s}-\sum_{i=1}^d n_i{\bf k}_i={\bf H} \qquad {\bf s}={\bf H}+\sum_{i=1}^d n_i{\bf k}_i={\bf H}+[{\bf n}]\cdot[{\bf k}]={\bf h}
+\end{equation} 
+
+For a particular set of harmonic indices we have the magnetic structure factor for a chemical unit cell of the reflection ${\bf h}$:
+\begin{equation} \label{amplitude_mag8}
+{\bf M}({\bf h})=p\sum_{{\mu}} f_{\mu}({\bf h}) \exp\{2\pi i ({\bf H}+\sum_{i=1}^d n_i{\bf k}_i){\bf r}_0^\mu\}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{ -2\pi i {\bf r}_0^\mu \sum_{i=1}^d n_i{\bf k}_i \}  
+\end{equation}
+So the final form of the magnetic structure factor, without taking into account the symmetry, is given by a very simple equation that is similar to the conventional X-ray structure factors except for its vectorial character and the presence of the complex amplitude ${\bf T}_{\mu}^{[{\bf n}]}$:
+\begin{equation} \label{amplitude_mag9}
+{\bf M}({\bf h})={\bf M}({\bf H}+[{\bf n}]\cdot[{\bf k}])=p\sum_{{\mu}} f_{\mu}({\bf h})  {\bf T}_{\mu}^{[{\bf n}]} \exp\{2\pi i {\bf H}{\bf r}_0^\mu\}    
+\end{equation}
+
+For splitting the above formula between atoms within the asymmetric unit and those generated by the set of symmetry operators of the superspace we have to determine how the Fourier coefficients ${\bf T}_{\mu}^{[{\bf n}]}$ are transformed under a superspace symmetry operator. The formal expression of the magnetic structure factor can be written as:
+
+\begin{equation} \label{magstrf_1}
+{\bf M}({\bf h})=p\sum_{{\mu}} O_{\mu} f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } \sum_g Transf_{\hat g}({\bf T}_{\mu}^{[{\bf n}]}) \exp\{2\pi i {\bf H}(g{\bf r}_0^\mu+{\bf t}_g) \}    
+\end{equation}
+ 
+Taking into account the action of a superspace symmetry operator in the internal components of the superspace we can write:
+
+\begin{equation} \label{symmod_a}
+{\bf m}_\nu({\bf r}_I^{\nu}) =  {\bf m}_\nu({\bf H}_g{\bf r}_0^\mu + {\bf E}_g{\bf r}_I^\mu + {\bf t}_I)= \delta det(g) g{\bf m}_{\mu}({\bf r}_I^{\mu}) 
+\end{equation}
+
+Writing the two terms of this equation in terms of Fourier series, we have:
+
+\begin{equation} 
+{\bf m}_\nu({\bf r}_I^{\nu})=\sum\limits_{[{\bf m},-{\bf m}]}  {\bf T}_{\nu}^{[{\bf m}]} \exp\{-2\pi i[{\bf m}] ({\bf H}_g{\bf r}_0^\mu + {\bf E}_g{\bf r}_I^\mu + {\bf t}_I)\} 
+\end{equation}
+
+\begin{equation} 
+\delta_g det(g) g{\bf m}_{\mu}({\bf r}_I^{\mu}) =\delta_g det(g) g\sum\limits_{[{\bf n},-{\bf n}]}  {\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}]{\bf r}_I^\mu \} 
+\end{equation}
+
+For making the identification of similar terms we have to transform the set of indices in the first equation
+
+\begin{equation}  
+{\bf m}_\nu({\bf r}_I^{\nu})=\sum\limits_{[{\bf m},-{\bf m}]}  {\bf T}_{\nu}^{[{\bf m}]} \exp\{-2\pi i[{\bf m}] ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\} \exp\{-2\pi i[{\bf m}] {\bf E}_g{\bf r}_I^\mu\}  
+\end{equation}
+
+Taking into account the associative property of matrix multiplication we can transform the harmonic indices as $[{\bf n}]=[{\bf m}] {\bf E}_g $, or $[{\bf m}]=[{\bf n}] {\bf E}_g^{-1} $, and taking into account that summing over all set of harmonic indices is immaterial we obtain:
+
+\begin{equation}  
+{\bf m}_\nu({\bf r}_I^{\nu})=\sum\limits_{[{\bf n},-{\bf n}]}  {\bf T}_{\nu}^{[{\bf n}]{\bf E}_g^{-1}} \exp\{-2\pi i[{\bf n}]{\bf E}_g^{-1} ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\} \exp\{-2\pi i[{\bf n}] {\bf r}_I^\mu\}  
+\end{equation}
+
+Now we can made the identification of equation (\ref{symmod_a}) term by term to obtain:
+
+\begin{equation}
+{\bf T}_{\nu}^{[{\bf n}]{\bf E}_g^{-1}} \exp\{-2\pi i[{\bf n}]{\bf E}_g^{-1} ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\}=\delta_g det(g) g {\bf T}_{\mu}^{[{\bf n}]}  
+\end{equation}
+or returning to the original set of indices:
+\begin{equation}
+Transf_{\hat g}({\bf T}_{\mu}^{[{\bf n}]}) ={\bf T}_{\nu}^{[{\bf m}]} =\delta_g det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}  \exp\{2\pi i[{\bf n}] ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\}
+\end{equation}
+So the final expression of the magnetic structure factor using superspace symmetry operators is:
+
+\begin{equation} \label{magstrf_final1}
+{\bf M}({\bf h})=p\sum_{{\mu}} f_{\mu}({\bf h}) \sum_g \delta_g det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}  \exp\{2\pi i[{\bf n}] ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\} \exp\{2\pi i {\bf H}(g{\bf r}_0^\mu+{\bf t}_g) \}    
+\end{equation}
+
+\begin{equation} \label{magstrf_final2}
+{\bf M}({\bf h})=p\sum_{{\mu}} f_{\mu}({\bf h}) \sum_g \delta det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}   \exp\{2\pi i ( {\bf H}(g{\bf r}_0^\mu+{\bf t}_g) + [{\bf n}] ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)) \}    
+\end{equation}
+
+The calculation of the magnetic moment of atom $\nu$ in the cell ${\bf L}$ related to the source atom $\mu$ in the zero cell by the operator $\hat g$ can be calculated using the following equation:
+
+\begin{equation} \label{momentL}
+{\bf m}_\nu({\bf r}_I^{\nu}) =\sum_{[{\bf n},-{\bf n}]}  {\bf T}_{\nu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}] {\bf r}_I^{\nu}\}=\sum_{[{\bf n},-{\bf n}]}  Transf_{\hat g}{\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}] {\bf r}_I^{\nu}\}
+\end{equation}
+
+\begin{equation} \label{momentL2}
+{\bf m}_\nu({\bf r}_I^{\nu}) =\sum_{[{\bf n},-{\bf n}]}  \delta det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}  \exp\{2\pi i[{\bf n}] ({\bf H}_g{\bf r}_0^\mu+ {\bf t}_I)\} \exp\{-2\pi i[{\bf n}] ({\bf H}_g{\bf r}_0^\mu + {\bf E}_g{\bf r}_I^\mu + {\bf t}_I)\}
+\end{equation}
+\begin{equation} \label{momentL3}
+{\bf m}_\nu({\bf r}_I^{\nu}) =\sum_{[{\bf n},-{\bf n}]}  \delta det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}   \exp\{-2\pi i[{\bf n}] {\bf E}_g{\bf r}_I^\mu\}
+\end{equation}
+\begin{equation} \label{momentL4}
+{\bf m}_\nu({\bf r}_I^{\nu}) =\sum_{[{\bf n}]}  \delta det(g) g {\bf M}_{c\mu}^{[{\bf n}]{\bf E}_g} \cos\{2\pi[{\bf n}] {\bf E}_g{\bf r}_I^\mu\} +  \delta det(g) g {\bf M}_{s\mu}^{[{\bf n}]{\bf E}_g} \sin\{2\pi[{\bf n}] {\bf E}_g{\bf r}_I^\mu\}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Derivatives of magnetic structure factor with respect to the free parameters}
+
+The most general final expression of the magnetic structure factor given previously (here we suppress the subscript $0$ of the vector position of atom $\mu$ in the average structure to simplify the writing: ${\bf r}_0^\mu \rightarrow {\bf r}_\mu$)  can be written as:
+
+\begin{equation} \label{magstrf_final3}
+{\bf M}({\bf h})=p\sum_{{\mu}}  O_{\mu} f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } \sum_g e^{-{\bf H}^{T} g^{-1}{\bf B}_\mu g {\bf H}}\delta_g det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}   \exp\{2\pi i [ {\bf H}(g{\bf r}_\mu+{\bf t}_g) + [{\bf n}] ({\bf H}_g{\bf r}_\mu+ {\bf t}_{gI})] \}    
+\end{equation}
+where ${\bf B}_\mu$ is the symmetric tensor (betas) of anisotropic temperature factor of atom $\mu$. When using pure isotropic temperature factor for atom $\mu$ then betas are zero (${\bf B}_\mu =0$).
+Let us use the following notations:
+
+\begin{equation} \label{f_mu}
+F_\mu= p O_{\mu} f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 }
+\end{equation}
+\begin{equation} \label{mag}
+M_g=\delta_g det(g) g
+\end{equation}
+\begin{equation} \label{anis}
+A(g,{\bf B}_\mu)=e^{-{\bf H}^{T} g^{-1}{\bf B}_\mu g {\bf H}}
+\end{equation}
+If pure isotropic temperature factor is used for the atom $\mu$, then $A(g,{\bf B}_\mu)=1$.
+\begin{equation} \label{expi}
+E_{xpi}(g,{\bf r}_\mu)= \exp\{2\pi i [ {\bf H}(g{\bf r}_\mu+{\bf t}_g) + [{\bf n}] ({\bf H}_g{\bf r}_\mu+ {\bf t}_{gI})] \} = \exp\{2\pi i P_{\mu,g}\}
+\end{equation}
+
+\begin{equation} \label{sumg}
+{\bf G}_\mu= \sum_g e^{-{\bf H}^{T} g^{-1}{\bf B}_\mu g {\bf H}}\delta_g det(g) g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}   \exp\{2\pi i [ {\bf H}(g{\bf r}_\mu+{\bf t}_g) + [{\bf n}] ({\bf H}_g{\bf r}_\mu+ {\bf t}_{gI}] \}  
+\end{equation}
+\begin{equation} \label{sumg2}
+{\bf G}_\mu= \sum_g A(g,{\bf B}_\mu) E_{xpi}(g,{\bf r}_\mu) M_g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g} =  \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu)  {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}   
+\end{equation}
+Where the $3\times 3$ complex matrix $ M(g,{\bf B}_\mu,{\bf r}_\mu)$ combines the scalar terms $A(g,{\bf B}_\mu)$ and $E_{xpi}(g,{\bf r}_\mu)$ with the magnetic matrix $M_g$ as:
+
+\begin{equation} \label{mat_compl}
+ M(g,{\bf B}_\mu,{\bf r}_\mu) = A(g,{\bf B}_\mu) E_{xpi}(g,{\bf r}_\mu) M_g 
+\end{equation}
+
+
+So the structure factor can be written as:
+
+\begin{equation} \label{magstrf_2}
+{\bf M}({\bf h})= \sum_{{\mu}}  F_\mu {\bf G}_\mu   
+\end{equation}
+
+\begin{equation} \label{magstrf_3}
+{\bf M}({\bf h})=\sum_{{\mu}}   F_\mu \sum_g A(g,{\bf B}_\mu) E_{xpi}(g,{\bf r}_\mu) M_g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}    
+\end{equation}
+or even as:
+
+\begin{equation} \label{magstrf_4}
+{\bf M}({\bf h})= \sum_{{\mu}}   F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}    
+\end{equation}
+
+The derivative of the magnetic structure factor with respect to the occupation of atom $\mu$ is given by the expression:
+
+\begin{equation} \label{der_occ}
+\frac{\partial{\bf M}({\bf h})}{\partial O_\mu}=p f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } \sum_g A(g,{\bf B}_\mu) E_{xpi}(g,{\bf r}_\mu) M_g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g} =  p f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } {\bf G}_\mu= F_\mu/O_\mu  {\bf G}_\mu
+\end{equation}
+
+The derivative of the magnetic structure factor with respect to the isotropic temperature factor of atom $\mu$ is given by the expression:
+
+
+\begin{equation} \label{der_biso}
+\frac{\partial{\bf M}({\bf h})}{\partial B_\mu}= -(h/2)^2 p O_\mu f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } {\bf G}_\mu = -(h/2)^2 F_\mu {\bf G}_\mu
+\end{equation}
+
+The derivative of the magnetic structure factor with respect to the coordinate $r_{\mu\alpha}$ atom $\mu$ is given by the expression:
+
+\begin{equation} \label{der_ralpha}
+\frac{\partial{\bf M}({\bf h})}{\partial r_{\mu\alpha}}=  p O_\mu f_{\mu}({\bf h}) e^{-B_\mu (h/2)^2 } \frac{\partial{\bf G}_\mu}{\partial  r_{\mu\alpha} }=  F_\mu \frac{\partial{\bf G}_\mu}{\partial  r_{\mu\alpha} }
+\end{equation}
+
+Where
+
+\begin{equation} \label{der_ralpha2}
+\frac{\partial{\bf G}_\mu}{\partial  r_{\mu\alpha} } = \sum_g A(g,{\bf B}_\mu) \frac{\partial E_{xpi}(g,{\bf r}_\mu)}{\partial  r_{\mu\alpha}} M_g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g} =  2 \pi i \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu)  {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g} \frac{\partial P_{\mu,g} }{\partial r_{\mu\alpha}}
+\end{equation}
+
+\begin{equation}
+\frac{\partial P_{\mu,g} }{\partial r_{\mu\alpha}}=  {\bf H}g \frac{\partial {\bf r}_\mu}{\partial r_{\mu\alpha}} + [{\bf n}] {\bf H}_g \frac{\partial {\bf r}_\mu}{\partial r_{\mu\alpha}} 
+\end{equation}
+
+The vector $\frac{\partial {\bf r}_\mu}{\partial r_{\mu\alpha}}$ is the column $\alpha$ of the identity matrix $I(:,\alpha)$, so the expression of the above term is:
+
+\begin{equation}
+\frac{\partial P_{\mu,g} }{\partial r_{\mu\alpha}}=  {\bf H}G(:,\alpha)  + [{\bf n}] {\bf H}_g I(:,\alpha)
+\end{equation}
+
+The symbol $G(:,\alpha)$ represents a vector corresponding to the column $\alpha$ of the matrix $g$.
+Remember that if the appropriate setting of the magnetic superspace group is chosen the rectangular matrix ${\bf H}_g$ is zero and the second term of the right part of the above equation is null. So the derivative of the magnetic structure factor with respect to the atom positions is given by:
+
+
+\begin{equation} \label{der_ralpha3}
+\frac{\partial{\bf M}({\bf h})}{\partial r_{\mu\alpha}} =   2 \pi i  F_\mu \sum_g \{{\bf H}G(:,\alpha)  + [{\bf n}] {\bf H}_g I(:,\alpha)\}M(g,{\bf B}_\mu,{\bf r}_\mu)  {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g} 
+\end{equation}
+
+The derivative of the magnetic structure factor with respect to the components $\beta_{\mu,\alpha \beta}$ of the anisotropic temperature tensor ${\bf B}_\mu$ of  atom $\mu$ is given by the expression:
+
+\begin{equation} \label{der_aniso}
+\frac{\partial{\bf M}({\bf h})}{\partial \beta_{\mu,\alpha \beta}}=  F_{\mu} \frac{\partial{\bf G}_\mu}{\partial  \beta_{\mu,\alpha \beta} }= F_{\mu} \sum_g \frac{\partial A(g,{\bf B}_\mu)}{\partial \beta_{\mu,\alpha \beta}} E_{xpi}(g,{\bf r}_\mu) M_g {\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}    
+\end{equation}
+
+Where:
+\begin{equation} \label{der_aniso2}
+ \frac{\partial A(g,{\bf B}_\mu)}{\partial \beta_{\mu,\alpha \beta}} = - A(g,{\bf B}_\mu) {\bf H}^{T} g^{-1} \frac{\partial{\bf B}_\mu}{\partial \beta_{\mu,\alpha \beta}} g {\bf H}=- A(g,{\bf B}_\mu) {\bf H}^{T} g^{-1} X_\mu(\alpha,\beta) g {\bf H}
+\end{equation}
+The $3 \times 3$ matrix $X_\mu(\alpha,\beta)$ has zero components everywhere except for the elements $\alpha\beta$ and $\beta\alpha$ for which their values are equal to $1$.
+
+
+The last set of free parameters corresponds to the components of complex amplitudes ${\bf T}_{\mu}^{[{\bf n}]{\bf E}_g}$. Remember that the symbol $[{\bf n}]{\bf E}_g = \{m_1,m_2,...m_d\}_g $ should corresponds to one of the list of harmonic indices $Q_i$ known a priori and related to the current reflection. To each harmonic index $Q_i$ there are cosine and sine amplitudes for each atom.  Starting from expression (\ref{magstrf_4}) we have:
+
+\begin{equation} \label{der_mcos}
+\frac{\partial{\bf M}({\bf h})}{\partial M_{c,\mu\alpha}^{i}}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \frac{\partial {\bf M}_{c,\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{c,\mu\alpha}^{i}}=F_\mu {\bf D}_{c,\mu\alpha}^i
+\end{equation}
+
+\begin{equation} \label{der_msin}
+\frac{\partial{\bf M}({\bf h})}{\partial M_{s,\mu\alpha}^{i}}= \frac{i}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \frac{\partial {\bf M}_{s,\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{s,\mu\alpha}^{i}}=F_\mu {\bf D}_{s,\mu\alpha}^i
+\end{equation}
+
+The derivatives on the right of te two above equations are formally identical and suppressing the subscripts $s$ or $c$ we have:
+
+\begin{equation} \label{der_msincos}
+ \frac{\partial {\bf M}_{\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{\mu\alpha}^{i}}=\delta_{i,{[{\bf n}]{\bf E}_g}} I(:,\alpha)
+\end{equation}
+
+The symbol $\delta_{i,{[{\bf n}]{\bf E}_g}} $ is equal to 1 if the $[{\bf n}]{\bf E}_g$ corresponds to the harmonic index $i$, otherwise is equal to zero. The derivatives of the structure factor with respect to the amplitudes can be written as:
+
+\begin{equation} \label{der_mcos2}
+\frac{\partial{\bf M}({\bf h})}{\partial M_{c,\mu\alpha}^{i}}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}} I(:,\alpha)
+\end{equation}
+
+\begin{equation} \label{der_msin2}
+\frac{\partial{\bf M}({\bf h})}{\partial M_{s,\mu\alpha}^{i}}= \frac{i}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}} I(:,\alpha)
+\end{equation}
+
+Suppose now that we have expressed the amplitudes in spherical coordinates with respect to a Cartesian frame attached to the crystallographic unit cell basis. In such a case we have to apply the chain rule for calculating the derivatives with respect to the module of amplitude ($m_{c,\mu}$ or $m_{s,\mu}$ ) and the polar angles ($\phi_{c,\mu}, \theta_{c,\mu}$ or $ \phi_{s,\mu}, \theta_{s,\mu} $). Let us call whatever of those parameters for harmonic $i$ as $\zeta_{c,\mu}^i$ or $\zeta_{c,\mu}^i$, supposing, for the moment, that the crystallographic frame is orthogonal, then we have:
+
+\begin{equation} \label{der_spher}
+\frac{\partial{\bf M}({\bf h})}{\partial \zeta_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \left\lbrace\frac{\partial {\bf M}_{c,\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{c,\mu x}^{i}} \frac{\partial M_{c,\mu x}^{i}}{\partial \zeta_{c,\mu}^i}+ \frac{\partial {\bf M}_{c,\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{c,\mu y}^{i}} \frac{\partial M_{c,\mu y}^{i}}{\partial \zeta_{c,\mu}^i}+ \frac{\partial {\bf M}_{c,\mu}^{[{\bf n}]{\bf E}_g}}{\partial M_{c,\mu z}^{i}}\frac{\partial M_{c,\mu z}^{i}}{\partial \zeta_{c,\mu}^i}\right\rbrace    
+\end{equation}
+\begin{equation} \label{der_spher2}
+\frac{\partial{\bf M}({\bf h})}{\partial \zeta_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  \left\lbrace  I(:,1) \frac{\partial M_{c,\mu x}^{i}}{\partial \zeta_{c,\mu}^i} + I(:,2) \frac{\partial M_{c,\mu y}^{i}}{\partial \zeta_{c,\mu}^i}+ I(:,3)\frac{\partial M_{c,\mu z}^{i}}{\partial \zeta_{c,\mu}^i}  \right\rbrace 
+\end{equation}
+
+\begin{equation} \label{der_spher3}
+\frac{\partial{\bf M}({\bf h})}{\partial \zeta_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  \left[ \frac{\partial M_{c,\mu x}^{i}}{\partial \zeta_{c,\mu}^i} , \frac{\partial M_{c,\mu y}^{i}}{\partial \zeta_{c,\mu}^i},\frac{\partial M_{c,\mu z}^{i}}{\partial \zeta_{c,\mu}^i}  \right] 
+\end{equation}
+
+Particularizing for the different kind of parameters we have:
+
+\begin{equation} \label{der_spher_mom}
+\frac{\partial{\bf M}({\bf h})}{\partial m_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  \left[ \frac{\partial M_{c,\mu x}^{i}}{\partial m_{c,\mu}^i} , \frac{\partial M_{c,\mu y}^{i}}{\partial m_{c,\mu}^i},\frac{\partial M_{c,\mu z}^{i}}{\partial m_{c,\mu}^i}  \right] 
+\end{equation}
+
+\begin{equation} \label{der_spher_mom2}
+\frac{\partial{\bf M}({\bf h})}{\partial m_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  \left[ cos\phi_{c,\mu}^i sin\theta_{c,\mu}^i , sin\phi_{c,\mu}^i sin\theta_{c,\mu}^i , cos\theta_{c,\mu}^i  \right]
+\end{equation}
+
+\begin{equation} \label{der_spher_phi}
+\frac{\partial{\bf M}({\bf h})}{\partial \phi_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}} m_{c,\mu}^i   \left[ -sin\phi_{c,\mu}^i sin\theta_{c,\mu}^i , cos\phi_{c,\mu}^i sin\theta_{c,\mu}^i , 0  \right] 
+\end{equation}
+
+\begin{equation} \label{der_spher_theta}
+\frac{\partial{\bf M}({\bf h})}{\partial \theta_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}} m_{c,\mu}^i   \left[ cos\phi_{c,\mu}^i cos\theta_{c,\mu}^i , sin\phi_{c,\mu}^i cos\theta_{c,\mu}^i , -sin\theta_{c,\mu}^i  \right] 
+\end{equation}
+Let us use the following notations for vectors appearing in derivatives that we will need later:
+
+\begin{equation} 
+ {\bf d}_{m,c,\mu}^i = \left[ cos\phi_{c,\mu}^i sin\theta_{c,\mu}^i , sin\phi_{c,\mu}^i sin\theta_{c,\mu}^i , cos\theta_{c,\mu}^i  \right]
+\end{equation}
+
+\begin{equation} 
+{\bf d}_{\phi,c,\mu}^i = m_{c,\mu}^i   \left[ -sin\phi_{c,\mu}^i sin\theta_{c,\mu}^i , cos\phi_{c,\mu}^i sin\theta_{c,\mu}^i , 0  \right] 
+\end{equation}
+
+\begin{equation} 
+{\bf d}_{\theta,c,\mu}^i =  m_{c,\mu}^i   \left[ cos\phi_{c,\mu}^i cos\theta_{c,\mu}^i , sin\phi_{c,\mu}^i cos\theta_{c,\mu}^i , -sin\theta_{c,\mu}^i  \right]
+\end{equation}
+For the case of sine components we can use the same equations just replacing the subscript $c$ by $s$ and multiplying the right side by the imaginary unit $i$.
+
+What happens now if the crystallographic frame is not orthogonal? The magnetic structure factor is normally calculated with components, in Bohr magnetons, along the unitary frame along the crystal axes $\{{\bf a}/a, {\bf b}/b, {\bf c}/c \}$. This is also the case of amplitude vectors. The components of these amplitudes in a Cartesian frame attached to the unit cell transform to the crystallographic frame by a matrix $C_{XC}$, so we can write:
+
+\begin{equation} \label{car_to_cryst}
+{\bf M}_{c,\mu}^{i} = \left[M_{c,\mu x}^{i},M_{c,\mu y}^{i},M_{c,\mu z}^{i}  \right] = C_{XC} \left[M_{c,\mu X}^{i},M_{c,\mu Y}^{i},M_{c,\mu Z}^{i}  \right]
+\end{equation}
+
+In the case considered above lower case indices $(x,y,z)$, refer to crystallographic frame, coincide with capital case indices $(X,Y,Z)$ which refer to Cartesian components. The derivatives with respect to spherical components were implicitly done for capital indices. In the most general case we have to introduce the matrix $C_{XC}$ in the above formulae. Taking into account that 
+
+\begin{equation} \label{car_to_crystm}
+\frac{\partial{\bf M}_{c,\mu}^{i}}{\partial m_{c,\mu}^i} =  C_{XC} \frac{\partial}{\partial m_{c,\mu}^i}\left[M_{c,\mu X}^{i},M_{c,\mu Y}^{i},M_{c,\mu Z}^{i}  \right]= C_{XC} {\bf d}_{m,c,\mu}^i
+\end{equation}
+\begin{equation} \label{car_to_crystphi}
+\frac{\partial{\bf M}_{c,\mu}^{i}}{\partial \theta_{c,\mu}^i} =  C_{XC} \frac{\partial}{\partial \theta_{c,\mu}^i}\left[M_{c,\mu X}^{i},M_{c,\mu Y}^{i},M_{c,\mu Z}^{i}  \right] = C_{XC} {\bf d}_{\phi,c,\mu}^i
+\end{equation}
+\begin{equation} \label{car_to_crysttheta}
+\frac{\partial{\bf M}_{c,\mu}^{i}}{\partial \theta_{c,\mu}^i} =  C_{XC} \frac{\partial}{\partial \theta_{c,\mu}^i}\left[M_{c,\mu X}^{i},M_{c,\mu Y}^{i},M_{c,\mu Z}^{i}  \right] =C_{XC} {\bf d}_{\theta,c,\mu}^i
+\end{equation}
+
+
+The final expressions of derivatives of magnetic structure factor with respect to the spherical components are then:
+
+\begin{equation} \label{der_spher_cmomg}
+\frac{\partial{\bf M}({\bf h})}{\partial m_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC} {\bf d}_{m,c,\mu}^i=F_\mu [{\bf D}_{c,\mu,x}^i,{\bf D}_{c,\mu,y}^i,{\bf D}_{c,\mu,z}^i] . C_{XC} {\bf d}_{m,c,\mu}^i
+\end{equation}
+
+\begin{equation} \label{der_spher_cphig}
+\frac{\partial{\bf M}({\bf h})}{\partial \phi_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC}  {\bf d}_{\phi,c,\mu}^i=F_\mu [{\bf D}_{c,\mu,x}^i,{\bf D}_{c,\mu,y}^i,{\bf D}_{c,\mu,z}^i] . C_{XC} {\bf d}_{\phi,c,\mu}^i 
+\end{equation}
+
+\begin{equation} \label{der_spher_cthetag}
+\frac{\partial{\bf M}({\bf h})}{\partial \theta_{c,\mu}^i}= \frac{1}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC}  {\bf d}_{\theta,c,\mu}^i=F_\mu [{\bf D}_{c,\mu,x}^i,{\bf D}_{c,\mu,y}^i,{\bf D}_{c,\mu,z}^i] . C_{XC} {\bf d}_{\theta,c,\mu}^i
+\end{equation}
+
+\begin{equation} \label{der_spher_smomg}
+\frac{\partial{\bf M}({\bf h})}{\partial m_{s,\mu}^i}= \frac{i}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC} {\bf d}_{m,s,\mu}^i=F_\mu [{\bf D}_{s,\mu,x}^i,{\bf D}_{s,\mu,y}^i,{\bf D}_{s,\mu,z}^i] . C_{XC} {\bf d}_{m,s,\mu}^i
+\end{equation}
+
+\begin{equation} \label{der_spher_sphig}
+\frac{\partial{\bf M}({\bf h})}{\partial \phi_{s,\mu}^i}= \frac{i}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC}  {\bf d}_{\phi,s,\mu}^i=F_\mu [{\bf D}_{s,\mu,x}^i,{\bf D}_{s,\mu,y}^i,{\bf D}_{s,\mu,z}^i] . C_{XC} {\bf d}_{\phi,s,\mu}^i  
+\end{equation}
+
+\begin{equation} \label{der_spher_sthetag}
+\frac{\partial{\bf M}({\bf h})}{\partial \theta_{s,\mu}^i}= \frac{i}{2} F_\mu \sum_g M(g,{\bf B}_\mu,{\bf r}_\mu) \delta_{i,{[{\bf n}]{\bf E}_g}}  C_{XC}  {\bf d}_{\theta,s,\mu}^i=F_\mu [{\bf D}_{s,\mu,x}^i,{\bf D}_{s,\mu,y}^i,{\bf D}_{s,\mu,z}^i] . C_{XC} {\bf d}_{\theta,s,\mu}^i
+\end{equation}
+
+
+\begin{thebibliography}{999}
+	\bibitem{JRC_Bouree} J. Rodr\'{\i}guez-Carvajal and F. Bour\'ee, {\it Symmetry and Magnetic Structures}, in {\it Contribution of Symmetries in Condensed Matter}, Ed. B. Grenier, V. Simonet and H. Schober, EPJ Web of Conferences {\bf 22}, 00010 (2012)%
+
+\bibitem{deWolff1} Wolff, P. M. de (1974). Acta Cryst. A30, 777-785.
+
+\bibitem{deWolff2} Wolff, P. M. de (1977). Acta Cryst. A33, 493-497.
+
+\bibitem{deWolff3} Wolff, P. M. de, Janssen, T. and Janner, A. (1981). Acta Cryst. A37, 625-636.
+
+\bibitem{Janner}   Janner, A. and Janssen, T. (1980). Acta Cryst. A36, 399-408 (and 408-415)
+
+
+\bibitem{Janssen-Acta}  Janssen T, Janner A, Looijenga-Vos A and de Wolf P 2006
+Incommensurate and commensurate modulated structures, International Tables for Crystallography vol C,
+(Amsterdam: Kluwer) chapter 9.8, pp 907–55
+
+\bibitem{Janssen-Janner} T. Janssen and A. Janner,  ActaCryst.  {\bf B70}, 617–651 (2014)
+
+\bibitem{JCB} T. Janssen, G. Chapuis, M. de Boissieu, {\it Aperiodic Crystals:  From Modulated Phases to Quasicrystals} Oxford University Press (2007)
+
+\bibitem{van Smaalen} van Smaalen S, {\it Incommensurate Crystallography}, Oxford: Oxford University Press (2007)
+
+\bibitem{Mag_SuperSpace} {\it Magnetic superspace groups and symmetry constraints in incommensurate magnetic phases}, J M Perez-Mato, J L Ribeiro, V Petricek and M I Aroyo,  J. Phys.: Condens. Matter 24
+163201 (2012)
+
+\bibitem{Stokes_genSuperSpace} {\it Generation of (3+d)-dimensional superspace groups for describing the symmetry of modulated crystalline structures}, Harold T. Stokes, Branton J. Campbell and Sander van Smaalen, Acta Cryst {\bf A67}, 45-55 (2011)
+	
+\bibitem{Smaalen_eqvSuperSpace} {\it Equivalence of superspace groups}, Sander van Smaalen, Branton J. Campbell, and Harold T. Stokes , Acta Cryst. {\bf A69}, 75-90 (2013)
+
+\bibitem{Yamamoto} {\it Structure Factor of Modulated Crystal Structures}, A. Yamamoto, Acta Cryst. {\bf A38}, 87-92 (1982)
+
+\bibitem{Perez-Mato-StrFac} {\it On the Structure and Symmetry of Incommensurate Phases. A Practical Formulation}, JM Perez-Mato, G. Madariaga, FJ Zuniga and A Garcia-Arribas, Acta Cryst. {\bf A43}, 216-226 (1987)
+
+\end{thebibliography}		
+		
+\end{document}
+
+%%The action of a superspace operator on the expression of the magnetic moment is:
+%\begin{equation} \label{symmod_1}
+%{\bf m}_\nu({\bf r}_I^{\nu}) = \hat g_S {\bf m}_\mu({\bf r}_I^{\mu})= \delta %det(g) g {\bf m}_\mu(\hat g_S^{-1}{\bf r}_I^{\mu})=\sum\limits_{[{\bf n}]}  %\delta det(g) g{\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i[{\bf n}] \hat %g_S^{-1}{\bf r}_I^{\mu}\}
+%\end{equation}
+
+%Writing the moment of the atom $\nu$ as similar Fourier series we obtain:
+
+%\begin{equation} \label{symmod_2}
+%\sum\limits_{[{\bf n}']}  {\bf T}_{\nu}^{[{\bf n}']} \exp\{-2\pi i[{\bf n}'] %{\bf r}_I^{\nu}\} =\sum\limits_{[{\bf n}]}  \delta det(g) g{\bf T}_{\mu}^{[{\bf %n}]} \exp\{-2\pi i[{\bf n}] \hat g_S^{-1}{\bf r}_I^{\mu}\}
+%\end{equation}
+
+%Developing the above expression to consider the action of inverse operator in the internal space we have:
+%\begin{equation} \label{symmod_3}
+%\sum\limits_{[{\bf n}']}  {\bf T}_{\nu}^{[{\bf n}']} \exp\{-2\pi i[{\bf n}'] {\bf r}_I^{\nu}\} =\sum\limits_{[{\bf n}]}  \delta det(g) g{\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i [{\bf n}] [ {\bf N}_g( \bar {\bf r}^\mu -{\bf t}) +{\bf E}_g^{-1} ({\bf r}_{I}^{\mu} -{\bf t}_I)]\}
+%\end{equation}
+
+%\begin{equation} \label{symmod_4}
+%\sum\limits_{[{\bf n}']}  {\bf T}_{\nu}^{[{\bf n}']} \exp\{-2\pi i[{\bf n}'] ({\bf H}_g{\bf r}_E^\mu + {\bf E}_g{\bf r}_I^\mu + {\bf t}_I)\} =\sum\limits_{[{\bf n}]}  \delta det(g) g{\bf T}_{\mu}^{[{\bf n}]} \exp\{-2\pi i [{\bf n}] [ {\bf N}_g( \bar {\bf r}^\mu -{\bf t}) +{\bf E}_g^{-1} ({\bf r}_{I}^{\mu} -{\bf t}_I)]\}
+%\end{equation}
