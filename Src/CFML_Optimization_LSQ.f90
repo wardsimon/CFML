@@ -2156,6 +2156,7 @@
 
        ! Initial calculation of Chi2
        iflag=1
+       epsfcn = zero
        Call Model_Functn(m, n, v, fvec, iflag)
        ichi2=enorm(m,fvec)
        if (ichi2 < 1.0e15) then
