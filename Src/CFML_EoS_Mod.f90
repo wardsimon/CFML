@@ -50,7 +50,8 @@
 !!----    ...   2016: Modifications to add PVT table to EoS structure as alternative to EoS parameters (RJA)
 !!----    ...   2017: Split write_eoscal to improve error handling, new thermalP eos (RJA) 
 !!----    ...   2018: New routines: physical_check, get_kp, added pscale,vscale,lscale to data_list_type (RJA)
-!!
+!!----    ...   2019: Bug fixes, addition of new thermal-pressure EoS types (RJA)
+!!----    
 Module CFML_EoS
    !---- Use Modules ----!
    Use CFML_GlobalDeps,       only: cp, pi
@@ -69,7 +70,7 @@ Module CFML_EoS
              Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_Volume_S, K_Cal, Kp_Cal,   &
              Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase
 
-   public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Check_scales, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
+   public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Check_scales, Copy_Eos_Data_List, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
              Deriv_Partial_P, Deriv_Partial_P_Numeric, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
              FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
              Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
@@ -85,7 +86,7 @@ Module CFML_EoS
    integer, public, parameter :: N_EOSPAR=40        ! Specify the maximum number of Eos parameters allowed in Eos_type data type
 
    integer, public, parameter :: N_PRESS_MODELS=7   ! Number of possible pressure models
-   integer, public, parameter :: N_THERM_MODELS=8   ! Number of possible Thermal models
+   integer, public, parameter :: N_THERM_MODELS=9   ! Number of possible Thermal models
    integer, public, parameter :: N_TRANS_MODELS=3   ! Number of possible Transition models
    integer, public, parameter :: N_SHEAR_MODELS=1   ! Number of possible Shear models
    integer, public, parameter :: N_CROSS_MODELS=2   ! Number of possible Cross-term models
@@ -113,7 +114,8 @@ Module CFML_EoS
                                                                         'Salje low-T        ', &
                                                                         'HP Thermal Pressure', &
                                                                         'Mie-Gruneisen-Debye', &
-                                                                        'Linear thermal P   '/)
+                                                                        'Linear thermal P   ', &
+                                                                        'q-compromise       '/)
 
    character(len=*), public, parameter, dimension(-1:N_TRANS_MODELS) :: TRANMODEL_NAMES=(/ &      ! Name of Transition models
                                                                         'PTV Table      ', &
@@ -139,7 +141,11 @@ Module CFML_EoS
    real(kind=cp), public, parameter               :: AFERMIGAS    = 2337.0                                 ! Fermi Gas constant in GPa/A^5
    real(kind=cp), public, parameter, dimension(6) :: DELCHI       =(/ 2.30, 4.61, 6.17, 9.21,11.80,18.40/) ! Delta Chi2 values
    real(kind=cp), public, parameter, dimension(6) :: DELCHI_LEVELS=(/68.30,90.00,95.40,99.00,99.73,99.99/) ! Confidence Levels
-
+   
+   
+   character(len=5), public, parameter, dimension(4:21) :: DATA_NAMES=(/     &    !Names of data variables in ic_dat in EoS_Data_List_Type
+                    'T    ','SIGT ','P     ','SIGP ','V     ','SIGV ','A     ','SIGA ','B     ','SIGB ','C     ','SIGC ', &
+                    'ALPHA','SIGAL','BETA  ','SIGBE','GAMMA','SIGGA'/)
    !---------------!
    !---- TYPES ----!
    !---------------!
@@ -300,7 +306,7 @@ Contains
          case(0) ! no thermal parameters
             return
 
-         case(4,5,6,7) ! Kroll, Salje, and HP Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
+         case(4,5,6,7,9) ! Kroll, Salje, and HP Pthermal: For T < 0.05T(Einstein) alpha=0. Same for Salje but test is 0.05Tsat
             if (t < 0.05_cp*eospar%params(11) ) return
             
       end select
@@ -323,8 +329,8 @@ Contains
             delmin=(t-0.025_cp*eospar%params(11))/2.0_cp     ! do not allow step in to area where alpha=0
             if (del > delmin) del=delmin                     ! ensures T at all steps is positive
 
-         !> MGD Pthermal
-         case(7)  ! so no alpha available for estimation: changed from T+100 to T-100 to avoid going into area where large V invalid
+         !> MGD Pthermal and q-compromise
+         case(7,9)  ! so no alpha available for estimation: changed from T+100 to T-100 to avoid going into area where large V invalid
             alphaest=(get_volume(p,t,eospar)-get_volume(p,t-100._cp,eospar))/get_volume(p,t-50._cp,eospar)/100._cp
             del=abs(0.001_cp/alphaest)
             delmin=(t-0.025_cp*eospar%params(11))/2.0_cp     ! do not allow step in to area where alpha=0
@@ -405,7 +411,7 @@ Contains
       
       
       !> Code to stop MGD EoS going into illegal large volume above T
-      if(eospar%itherm == 7)then    
+      if(eospar%itherm == 7 .or. eospar%itherm == 9)then    
           tlimit=t+2.0*del
           do                                        ! search for positive K at this P
               if(get_K(p,tlimit,eospar) > 0._cp .and. .not. err_eos)exit
@@ -497,6 +503,8 @@ Contains
                gammaV=get_Grun_v(v,eos)               ! Get_grun knows about linear/volume
                DebyeT=eos%params(11)*exp((eos%params(18)-gammaV)/eos%params(19))  ! if q=0 then this gives DebyeT=nan
             end if
+         case(9)  !q-compromise
+               DebyeT=eos%params(11)
       end select
 
       return
@@ -583,13 +591,20 @@ Contains
       VV0=V/eospar%params(1)
       if (eospar%linear) VV0=VV0**3.0_cp
 
-      if (abs(eospar%params(19)) > 0.00001_cp) then
-         VV0=VV0**eospar%params(19)
-      else
-         VV0=1.0_cp
-      end if
-
-      Grun=eospar%params(18)*VV0
+      select case(eospar%itherm)
+          
+      case(9) !q-compromise: gamma/V is constant
+          Grun=eospar%params(18)*VV0
+          
+      case default 
+          if (abs(eospar%params(19)) > 0.00001_cp) then
+             VV0=VV0**eospar%params(19)
+          else
+             VV0=1.0_cp
+          end if
+          Grun=eospar%params(18)*VV0
+      end select
+      
 
       return
    End Function Get_Grun_V
@@ -678,7 +693,7 @@ Contains
                   if (vr > 0.001 .and. vr < huge(0.0_cp)) k0=eospar%params(2)*vr**eospar%params(5)   !Anderson Gruneisen approach using params(5) as delta
             end select
 
-         case(6,7,8) !> Thermal pressure model
+         case(6,7,8,9) !> Thermal pressure model
             !k0=eospar%params(2)   ! Is set in the beginning of procedure
       end select
 
@@ -717,7 +732,7 @@ Contains
                 if (vr > 0.001 .and. vr < huge(0._cp) ) kp0=eospar%params(3)*vr**eospar%params(6)   ! params(6) is delta-prime
           end select
 
-       case(6,7,8)        ! Thermal pressure model: value at Tref
+       case(6,7,8,9)        ! Thermal pressure model: value at Tref
 
       end select
 
@@ -825,7 +840,7 @@ Contains
       do
          !> Thermal case
          select case (eospar%itherm)
-            case (0,6,7,8) ! No thermal case, or  thermal pressure which uses params at Tref
+            case (0,6,7,8,9) ! No thermal case, or  thermal pressure which uses params at Tref
                vv0=vol/eospar%params(1)      !vv0 is now V/V0 or a/a0
 
             case (1:5)
@@ -1681,7 +1696,7 @@ Contains
             t1=th_e/d
             if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
 
-         case(7)  !For MGD Pthermal, no real meaningful value of T to return, so set as Tref
+         case(7,9)  !For MGD Pthermal, no real meaningful value of T to return, so set as Tref
             tk=eospar%tref
             
             
@@ -1926,7 +1941,7 @@ Contains
                V=(ev(1)**(1.0_cp/3.0_cp) + ev(10)*ev(11)*(A-1.0_cp))**3.0_cp
             end if
 
-         case(6,7,8)
+         case(6,7,8,9)
             v=ev(1)         ! Pthermal needs V0 at Tref
       end select
 
@@ -2213,7 +2228,7 @@ Contains
             v0=get_v0_t(t,eospar)                     ! returns a0 for linear
             if (eospar%linear) v0=v0**3.0_cp
 
-         case (6,8)                                     ! HP or linear thermal pressure
+         case (6,8,9)                                     ! HP or linear thermal pressure
             v0=ev(1)
             pa=p-pthermal(0.0,t,eospar)               ! adjust pressure to isothermal pressure for murn and tait estimates
             
@@ -2250,7 +2265,7 @@ Contains
       end if
 
       !> Cannot do the following if MGD pthermal
-      if (eospar%itherm /=7) then
+      if (eospar%itherm /=7  .or. eospar%itherm /=9) then
          if (eospar%imodel ==1) then
          !> Exact solution for Murnaghan
             if (eospar%linear) v=v**(1.0_cp/3.0_cp)
@@ -2615,7 +2630,7 @@ Contains
       end if
 
       select case (eospar%itherm)
-         case (0,6,7,8)                          ! No thermal model, or we have pthermal, so need params at Tref
+         case (0,6,7,8,9)                      ! No thermal model, or we have pthermal, so need params at Tref
             vv0=vol/eospar%params(1)           ! vv0 or aa0
             k0=eospar%params(2)
             kp=eospar%params(3)
@@ -2726,7 +2741,7 @@ Contains
       !> Now correct thermal-pressure EoS for d(Pth)/dV contribution to bulk modulus
       if (eospar%Pthermaleos) then
          select case(eospar%itherm)
-            case(7,8)           !MGD EoS: Do this numerically, also linear thermal
+            case(7,8,9)           !MGD EoS: Do this numerically, also linear thermal
                eost=eospar
                eost%itran=0    ! clear any transition terms
                delv=0.01_cp*vol
@@ -2861,7 +2876,7 @@ Contains
       end if
 
       select case (eospar%itherm)
-         case (0,6,7,8)                           ! No thermal model, or we have pthermal, so need params at Tref
+         case (0,6,7,8,9)                           ! No thermal model, or we have pthermal, so need params at Tref
             vv0=vol/eospar%params(1)            ! vv0 or aa0
             k0=eospar%params(2)
             kp=eospar%params(3)
@@ -2971,7 +2986,7 @@ Contains
       !> Now correct thermal-pressure EoS for d(Pth)/dV contribution to bulk modulus, when possible
       if (eospar%Pthermaleos) then
          select case(eospar%itherm)
-            case(7,8)           !MGD EoS: Do this numerically on complete EoS without transition
+            case(7,8,9)           !MGD EoS: Do this numerically on complete EoS without transition
                eosbare=eospar
                eosbare%itran=0    ! clear any transition terms
                delv=0.01_cp*vol
@@ -3107,7 +3122,7 @@ Contains
          if (transition_phase(P0-2.0*delp,T,eospar) .neqv. transition_phase(P0,T,eospar)) delp=0.2*abs(ptr-p0)
       end if
       !> Code to stop MGD EoS going into illegal large volume at negative delp
-      if(eospar%itherm == 7)then
+      if(eospar%itherm == 7 .or. eospar%itherm == 9)then
           vlimitk=get_volume_K(0._cp,t,eospar)
           vlimit=get_volume_K(eospar%params(2)/2.0_cp,eospar%tref,eospar)
           if(vlimitk > tiny(0.0_cp) .and. vlimitk < vlimit)vlimit=vlimitk
@@ -3383,8 +3398,21 @@ Contains
             if (eospar%linear) vlocal=v**3.0_cp          ! cube length to get volume for Pthermal
             pth=gammaV/Vlocal*(EthDebye(T,thetaD,eospar)-EthDebye(eospar%tref,thetaD,eospar))
 
-            !>handle scaling: EthDebye returns energy in Jmol-1. Then if V in m3/mol  Eth/V is in J/m3=Pa
-            !>Try to convert volume to m3/mol
+         case(8)   ! Linear thermal pressure
+             pth=ev(10)*ev(2)*(T-eospar%tref)
+             
+         case(9)  ! q compromise: constant thetaD, constant (gamma/V), q not used
+             thetaD=ev(11)
+             pth=ev(18)/ev(1)*(EthDebye(T,thetaD,eospar)-EthDebye(eospar%tref,thetaD,eospar))
+   
+         case default
+            pth=0.0_cp
+         end select
+         
+         !if the thermal energy was from EthDebye, it is in J/mol pth 
+         !Then if V in m3/mol  Eth/V is in J/m3=Pa
+         select case(eospar%itherm)
+         case(7,9)
             factor=1.0
             if (index(U_case(eospar%pscale_name),'GPA') > 0)  factor=1.0E-9
             if (index(U_case(eospar%pscale_name),'KBAR') > 0) factor=1.0E-8
@@ -3392,13 +3420,10 @@ Contains
             if (VscaleMGD(eospar)) factor=factor*1.0E+6     !test for cm3/mol or equivalent in eos%vscale_name
 
             pth=pth*factor
+         end select
+         
 
-         case(8)   ! Linear thermal pressure
-             pth=ev(10)*ev(2)*(T-eospar%tref)
-             
-         case default
-            pth=0.0_cp
-      end select
+         
 
       return
    End Function Pthermal
@@ -3763,16 +3788,16 @@ Contains
 
       
       
-      !>If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
-      if(e%itherm == 7)then
+      !>If MGD or q-compromise type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
+      if(e%itherm == 7 .or. e%itherm == 9)then
         if(len_trim(E%pscale_name) == 0)then
             Warn_EoS=.true.
-            Warn_Eos_Mess='MGD EoS must have a Pscale in kbar or GPa'
+            Warn_Eos_Mess='EoS must have a Pscale in kbar or GPa'
         endif
         if(len_trim(E%Vscale_name) == 0 .or. .not. VscaleMGD(E))then
             Warn_EoS=.true.
             if(len_trim(Warn_EoS_Mess) == 0)then
-                Warn_Eos_Mess='MGD EoS must have a Vscale in cm3/mol'
+                Warn_Eos_Mess='EoS must have a Vscale in cm3/mol'
             else
                 Warn_Eos_Mess=trim(Warn_Eos_Mess)//' and a Vscale in cm3/mol'
             endif
@@ -3780,7 +3805,7 @@ Contains
         if(len_trim(Warn_EoS_Mess) /= 0)Warn_Eos_Mess=trim(Warn_Eos_Mess)//' set to get correct results. '       
       endif
       
-      
+      !> End checks here if only eos present
       if(.not. present(dat))return
       
       
@@ -3828,6 +3853,22 @@ Contains
    End Function VscaleMGD
    
 
+   Subroutine Copy_Eos_Data_List(Dat1,Dat2)
+    !---- Arguments ----!
+      type (eos_data_list_type), intent(in)   :: Dat1  ! Object to be copied
+      type (eos_data_list_type), intent(out)   :: Dat2  ! Output copy
+   
+   
+ 
+    if(allocated(dat2%eosd))then
+        call Deallocate_EoS_Data_List(dat2)
+    endif
+    
+    call Allocate_EoS_Data_List(dat1%N, dat2)
+    dat2=dat1
+    return
+  End Subroutine Copy_Eos_Data_List
+   
    !!----
    !!---- SUBROUTINE DEALLOCATE_EOS_DATA_LIST
    !!----
@@ -4515,7 +4556,7 @@ Contains
             case(1:3)
                vec(10:12)=eospar%params(10:12)*3.0_cp
 
-            case(4,5,6,8)
+            case(4,5,6,8,9)
                vec(10)=eospar%params(10)*3.0_cp
                vec(11)=eospar%params(11)
          end select
@@ -4612,7 +4653,7 @@ Contains
 
       !> Thermal cases
       select case(eospar%itherm)  ! for specific thermal parameters
-         case (4,6,7)    !>Kroll orPthermal must have characteristic T > 0. 
+         case (4,6,7,9)    !>Kroll orPthermal must have characteristic T > 0. 
             if (eospar%params(11) < 0.1) then
                eospar%params(11)=eospar%Tref
                if (eospar%Tref < 0.1) eospar%params=0.1
@@ -4640,7 +4681,7 @@ Contains
       end if
 
       !>If MGD and linear warn that this is not generally valid
-      if (eospar%itherm == 7 .and. eospar%linear) then
+      if ((eospar%itherm == 7 .or. eospar%itherm == 9) .and. eospar%linear) then
          err_eos=.true.
          text='Linear MGD EoS only has valid parameters if the material is cubic'
          if (len_trim(err_eos_mess) == 0) then
@@ -5049,7 +5090,7 @@ Contains
             eospar%params(11)  = 298.0_cp             ! Einstein temperature default
             eospar%pthermaleos  =.true.
 
-         case(7)                                      ! MGD Pthermal: only uses params(11) and (13)
+         case(7,9)                                    ! MGD Pthermal: only uses params(11) and (13)
             eospar%factor(10:14)  = 1.0_cp            ! plus gamma0 and q as (18),(19)
             eospar%TRef           = 298.0_cp
             eospar%TRef_fixed     = .false.
@@ -5480,7 +5521,7 @@ Contains
      ! because  checks  above are for the PV part and the TV part, without transitions.
      ! all must be valid for the Eos to be valid
 
-      if(.not. vpresent .and. e%itherm /=7)then        !only done if V not provided at start
+      if(e%itherm /=7 .and. e%itherm /=9 .and. .not. vpresent )then        !only done if V not provided at start
           v=get_volume(p,t,e)
           if(err_eos)then         ! added 22/05/2017
                write(unit=car, fmt='(2f10.1)') p, t
@@ -6432,8 +6473,7 @@ Contains
          case (6)
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
             eospar%factor(11)  = 1.0_cp
-         case (8)
-            eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
+
       end select
 
       select case(eospar%itran)
@@ -6632,8 +6672,8 @@ Contains
             eospar%iuse(11)=1    ! Debye T
 
             eospar%iuse(13)=2    ! Natoms per formula unit
-            eospar%iuse(18)=1    ! Grunesien parameter at Pref,Tref for Ks to Kt
-            eospar%iuse(19)=1    ! Grunesien q power law parameter for Ks to Kt
+            eospar%iuse(18)=1    ! Grunesien parameter at Pref,Tref
+            eospar%iuse(19)=1    ! Grunesien q power law parameter 
             eospar%TRef_fixed   = .false.
             eospar%pthermaleos  = .true.
             
@@ -6643,7 +6683,17 @@ Contains
             eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref for Ks to Kt
             eospar%iuse(19)=3    ! Grunesien q power law parameter for Ks to Kt
             eospar%TRef_fixed   = .false.
-            eospar%pthermaleos  =.true.            
+            eospar%pthermaleos  =.true.         
+
+         case (9)             ! q compromise thermal pressure
+            eospar%iuse(5:6)=0     ! No dK/dT parameter:
+
+            eospar%iuse(11)=1    ! Debye T
+            eospar%iuse(13)=2    ! Natoms per formula unit
+            eospar%iuse(18)=1    ! Grunesien parameter at Pref,Tref 
+            eospar%iuse(19)=0    ! No Grunesien q power law parameter: q undefined 
+            eospar%TRef_fixed   = .false.
+            eospar%pthermaleos  = .true.
             
       end select
 
@@ -6901,7 +6951,7 @@ Contains
             eospar%comment(10) = 'Constant of thermal expansion at Tref x10^5 K^-1'
             eospar%comment(11) = 'Einstein temperature in K'
 
-         case (7)
+         case (7,9)
             eospar%parname(11) = 'ThMGD'
             eospar%comment(11) = 'Debye temperature in K'
             eospar%parname(13) = 'Natom'
@@ -6910,6 +6960,7 @@ Contains
          case(8)
             eospar%parname(10) = 'alph0'
             eospar%comment(10) = 'Constant of thermal expansion x10^5 K^-1'
+
             
       end select
 
@@ -7132,7 +7183,6 @@ Contains
 
             case (4,5,6,8)
                eospar%params(10)=vec(10)/3.0_cp
-               eospar%params(11)=vec(11)
          end select
       end if
 
@@ -7618,7 +7668,7 @@ Contains
             !> Thermal pressure
             if (eos%pthermaleos .and. eos%itran ==0) parout(15)=p-get_pressure(parvals(1),eos%tref,eos)
 
-            !>MGD EoS parameters
+            !>MGD EoS parameters: not needed for itherm=9 (q-compromise) because thetaD fixed and gamma reported later
             if (eos%itherm == 7) then
                 parout(16)=get_grun_v(parvals(1),eos)      ! Gruneisen gamma
                 parout(17)=get_DebyeT(parvals(1),eos)      !Debye T

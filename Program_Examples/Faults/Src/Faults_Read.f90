@@ -1809,7 +1809,7 @@
           Case("BGRINTER")
             crys%bgrinter=.true.
             mode = "INTERPOLATION"
-            read(unit=txt,fmt=*,iostat=ier)  background_file
+            read(unit=tfile(i)(k+1:),fmt=*, iostat=ier) background_file
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background linear interpolation instruction"
