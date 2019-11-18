@@ -5033,6 +5033,9 @@ Contains
       if (n > N_EOSPAR)n=N_EOSPAR
 
       eospar%alphafactor=1.0E5_cp                      ! Normal scale factor for printing values of alpha
+      
+      
+      eospar%linear_allowed=.true.                            ! default values
 
       select case(eospar%itherm)
          case (-1)           ! PTV table
@@ -5100,7 +5103,8 @@ Contains
             eospar%params(11)     = 298.0_cp          ! Debye temperature default
 
             eospar%params(13)     = 1.0               ! Natoms/molecule for MGD
-            eospar%pthermaleos  =.true.
+            eospar%pthermaleos    =.true.
+            eospar%linear_allowed =.false.
 
 
          case(8)                                      ! Linear Pthermal. No extra parameters, uses alpha0 and K0
