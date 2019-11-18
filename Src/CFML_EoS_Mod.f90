@@ -144,7 +144,7 @@ Module CFML_EoS
    
    
    character(len=5), public, parameter, dimension(4:21) :: DATA_NAMES=(/     &    !Names of data variables in ic_dat in EoS_Data_List_Type
-                    'T    ','SIGT ','P     ','SIGP ','V     ','SIGV ','A     ','SIGA ','B     ','SIGB ','C     ','SIGC ', &
+                    'T    ','SIGT ','P     ','SIGP ','V    ','SIGV ','A    ','SIGA ','B    ','SIGB ','C    ','SIGC ', &
                     'ALPHA','SIGAL','BETA  ','SIGBE','GAMMA','SIGGA'/)
    !---------------!
    !---- TYPES ----!
@@ -197,6 +197,8 @@ Module CFML_EoS
       real(kind=cp)                             :: Density0=0.0          ! Density at reference conditions
       logical                                   :: TRef_fixed=.false.    ! If true, then Tref cannot be changed by user
       logical                                   :: Pthermaleos=.false.   ! Indicates a Pthermal model if .true.
+      logical, dimension(2:4)                   :: allowed_orders        ! Indicates which orders (.true.) are allowed for the PV Eos
+      logical                                   :: linear_allowed        ! Indicates if linear is allowed (.true.)
       real(kind=cp), dimension(N_EOSPAR)        :: Params=0.0            ! EoS Parameters
       real(kind=cp), dimension(N_EOSPAR)        :: Esd=0.0               ! Sigma EoS Parameters
       real(kind=cp)                             :: X=0.0                 ! Spare intensive variable, after P,T
@@ -6598,23 +6600,34 @@ Contains
 
       !> Init
       eospar%iuse=0
+      eospar%allowed_orders=.true.
 
       !> EoS Model
       select case(eospar%imodel)
          case (0)
             eospar%iuse(1)=1                                    ! None eg thermal only
+            eospar%allowed_orders=.false.
 
          case (1,7)
             eospar%iuse(1:3)=1                                  ! Murnaghan, Kumar
+            eospar%allowed_orders(2)=.false.
+            eospar%allowed_orders(4)=.false.
 
-         case (6)                                               !APL
-            eospar%iuse(1:3)=1
-            eospar%iuse(4)=2
-         
-
-         case default                                           ! other isothermal EoS
+         case (2,4,5)                                           ! other isothermal EoS
             eospar%iuse(1:eospar%iorder)=1                          
             if (eospar%iorder < 4) eospar%iuse(eospar%iorder+1:4)=3  !implied values
+            
+         case (3)                                           ! Vinet
+            eospar%iuse(1:eospar%iorder)=1                          
+            if (eospar%iorder < 4) eospar%iuse(eospar%iorder+1:4)=3  !implied values
+            eospar%allowed_orders(4)=.false.
+            
+         case (6)                                               !AP2 only 
+            eospar%iuse(1:eospar%iorder)=1
+            if (eospar%iorder == 3)eospar%iuse(4)=3
+            eospar%iuse(4)=2                                    
+            eospar%allowed_orders(2)=.false.
+
       end select
 
       !> Thermal Model
