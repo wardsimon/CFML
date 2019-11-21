@@ -144,8 +144,8 @@ Module CFML_EoS
    
    
    character(len=5), public, parameter, dimension(4:21) :: DATA_NAMES=(/     &    !Names of data variables in ic_dat in EoS_Data_List_Type
-                    'T    ','SIGT ','P     ','SIGP ','V    ','SIGV ','A    ','SIGA ','B    ','SIGB ','C    ','SIGC ', &
-                    'ALPHA','SIGAL','BETA  ','SIGBE','GAMMA','SIGGA'/)
+                    'T    ','SIGT ','P    ','SIGP ','V    ','SIGV ','A    ','SIGA ','B    ','SIGB ','C    ','SIGC ', &
+                    'ALPHA','SIGAL','BETA ','SIGBE','GAMMA','SIGGA'/)
    !---------------!
    !---- TYPES ----!
    !---------------!
