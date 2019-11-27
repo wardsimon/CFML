@@ -1,9 +1,9 @@
   !!---- Below the program using the FlatCone modules -------
-  !!---- Program written by JRC the 28 February 2013 (Just 45 years after an earthquake at Sevilla!)
+  !!---- Program written by JRC the 28 February 2013 (Just 45 years after an earthquake in Sevilla!)
   !!----
   !!---- The program is just to test the continuity of rotation angles
   !!---- when turning around a zone axis put perpendicular to the detector plane
-  !!---- It detects the integer reflections apearing in the detector during
+  !!---- It detects the integer reflections appearing in the detector during
   !!---- the rho-scan.
 
   Program D10_Flat_Cone
@@ -137,7 +137,7 @@
        step=span_ang/real(nfil-1)
        !write(unit=*,fmt="(/,a)") "     Pixel    Alpha    Gamma      Nu                z4(x)     Z4(y)     Z4(z)"
        do i=1,nfil
-        alpha= 90.0-step*real(i-1)  !Assume that the first pixed is at alpha=90
+        alpha= 90.0-step*real(i-1)  !Assume that the first pixel is at alpha=90
         nu=asind(-sind(alpha)*sind(mu))
         gamma=atan2d(cosd(alpha),cosd(mu)*sind(alpha))
         call z4frgn(lambda,gamma,nu,zfc(:,i))
