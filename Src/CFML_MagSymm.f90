@@ -3650,9 +3650,6 @@
           end do
           mome=mome/real(order)
        end if
-       do j=1,3
-         if(abs(mome(j)-mom(j)) > epss) mome(j)=0.0
-       end do
        msym=nint(1000.0*mome)
        codd=msym
        cdd=(/'a','b','c'/)
