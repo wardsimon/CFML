@@ -5162,9 +5162,9 @@ Module CFML_EisPack
       return
     End Subroutine figi2
 
-    Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
     !
     !! HQR computes all eigenvalues of a real upper Hessenberg matrix.
     !
@@ -5210,38 +5210,15 @@ Module CFML_EisPack
     !    J, the limit of 30*N iterations was reached while searching for
     !      the J-th eigenvalue.
     !
+    Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
+      integer,                      intent(in)     :: n, low, igh
+      real(kind=dp), dimension(n,n),intent(in out) :: h
+      real(kind=dp), dimension(n),  intent(out)    :: wr, wi
+      integer,                      intent(out)    :: ierr
 
-      integer ::n
-
-      integer ::en
-      integer ::enm2
-      real(kind=dp) h(n,n)
-      integer ::i
-      integer ::ierr
-      integer ::igh
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::low
-      integer ::m
-      integer ::na
-      real(kind=dp) norm
-      logical notlas
-      real(kind=dp) p
-      real(kind=dp) q
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) t
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) w
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) x
-      real(kind=dp) y
-      real(kind=dp) zz
+      integer :: en,enm2,i,itn,its,j,k,l,m,na
+      logical :: notlas
+      real(kind=dp) :: norm,p,q,r,s,t,tst1,tst2,w,x,y,zz
 
       ierr = 0
       norm = 0.0_dp
@@ -5269,9 +5246,7 @@ Module CFML_EisPack
     !
     !  Search for next eigenvalues.
     !
-      if ( igh < low ) then
-        return
-      end if
+      if ( igh < low ) return
 
       its = 0
       na = igh - 1
@@ -5282,18 +5257,14 @@ Module CFML_EisPack
       do
 
         do l = en, low, -1
-          if ( l == low ) then
-            exit
-          end if
+          if ( l == low ) exit
           s = abs ( h(l-1,l-1) ) + abs ( h(l,l) )
           if ( s == 0.0_dp ) then
             s = norm
           end if
           tst1 = s
           tst2 = tst1 + abs ( h(l,l-1) )
-          if ( tst2 == tst1 ) then
-            exit
-          end if
+          if ( tst2 == tst1 ) exit
         end do
     !
     !  Form shift.
@@ -5306,9 +5277,7 @@ Module CFML_EisPack
           wr(en) = x + t
           wi(en) = 0.0_dp
           en = na
-          if ( en < low ) then
-            return
-          end if
+          if ( en < low ) return
           its = 0
           na = en - 1
           enm2 = na - 1
@@ -5403,17 +5372,13 @@ Module CFML_EisPack
           q = q / s
           r = r / s
 
-          if ( m == l ) then
-            exit
-          end if
+          if ( m == l ) exit
 
           tst1 = abs ( p ) * ( abs ( h(m-1,m-1) ) + abs ( zz ) &
             + abs ( h(m+1,m+1) ) )
           tst2 = tst1 + abs ( h(m,m-1) ) * ( abs ( q ) + abs ( r ) )
 
-          if ( tst2 == tst1 ) then
-            exit
-          end if
+          if ( tst2 == tst1 ) exit
 
         end do
 
@@ -5443,9 +5408,7 @@ Module CFML_EisPack
 
             x = abs ( p ) + abs ( q ) + abs ( r )
 
-            if ( x == 0.0_dp ) then
-              cycle
-            end if
+            if ( x == 0.0_dp ) cycle
 
             p = p / x
             q = q / x
@@ -5519,9 +5482,9 @@ Module CFML_EisPack
       return
     End Subroutine hqr
 
-    Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
     !
     !! HQR2 computes eigenvalues and eigenvectors of a real upper Hessenberg matrix.
     !
@@ -5585,20 +5548,24 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
+    Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
+      integer,                      intent(in)     :: n, low, igh
+      real(kind=dp), dimension(n,n),intent(in out) :: h
+      real(kind=dp), dimension(n),  intent(out)    :: wr, wi
+      real(kind=dp), dimension(n,n),intent(in out) :: z
+      integer,                      intent(out)    :: ierr
 
-      integer, intent(in) :: n
-          integer :: i,j,k,l,m,en,ii,jj,ll,mm,na,nn
-          integer :: igh,itn,its,low,mp2,enm2,ierr
-          real(kind=dp) :: h(n,n),wr(n),wi(n),z(n,n)
-          real(kind=dp) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
-          logical :: notlas
+      integer :: i,j,k,l,m,en,ii,jj,ll,mm,na,nn
+      integer :: itn,its,mp2,enm2
+      real(kind=dp) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
+      logical :: notlas
 
-          ierr = 0
-          norm = 0.0d0
-          k = 1
-    !
-    !  store roots isolated by balanc and compute matrix norm
-    !
+      ierr = 0
+      norm = 0.0d0
+      k = 1
+      !
+      !  store roots isolated by balanc and compute matrix norm
+      !
           do i = 1, n
 
              do j = k, n
