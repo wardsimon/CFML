@@ -1504,48 +1504,16 @@ Module CFML_EisPack
     !
 
     Subroutine bqr ( nm, n, mb, a, t, r, ierr )
-      integer ::mb
-      integer ::n
-      integer ::nm
+      integer,                         intent(in)     :: nm, n, mb
+      real(kind=dp), dimension(nm,mb), intent(in out) :: a
+      real(kind=dp),                   intent(in out) :: t, r
+      integer, intent(out) :: ierr
 
-      real(kind=dp) a(nm,mb)
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i, ierr
-      integer ::ierr
-      integer ::ii
-      integer ::ik
-      integer ::imult
-      integer ::its
-      integer ::j
-      integer ::jk
-      integer ::jm
-      integer ::k
-      integer ::kj
-      integer ::kj1
-      integer ::kk
-      integer ::km
-      integer ::l
-      integer ::ll
-      integer ::m
-      integer ::m1
-      integer ::m2
-      integer ::m21
-      integer ::m3
-      integer ::m31
-      integer ::m4
-      integer ::mk
-      integer ::mn
-      integer ::mz
-      !real ( kind = 8 ) pythag
-      real(kind=dp) q
-      real(kind=dp) r
-      real(kind=dp) rv(2*mb*mb+4*mb-3)
-      real(kind=dp) s
-      real(kind=dp) scal
-      real(kind=dp) t
-      real(kind=dp) tst1
-      real(kind=dp) tst2
+
+      real(kind=dp) :: f,g,q,s, scal, tst1, tst2
+      integer       :: i ,ii,ik,imult,its,j,jk,jm,k,kj,kj1,kk,km,l,ll,m,m1,m2,&
+                       m21,m3,m31,m4,mk,mn,mz
+      real(kind=dp), dimension(2*mb*mb+4*mb-3) :: rv
 
       ierr = 0
       m1 = min ( mb, n )
@@ -1842,9 +1810,9 @@ Module CFML_EisPack
       return
     End Subroutine bqr
 
-    Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
 
-    !*****************************************************************************80
+
+    ! Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
     !
     !! CBABK2 finds eigenvectors by undoing the CBAL transformation.
     !
@@ -1875,24 +1843,17 @@ Module CFML_EisPack
     !    transformed in their first M columns.  On output, the transformed
     !    eigenvectors.
     !
-      integer ::m
-      integer ::n
+    Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
+      integer,                     intent(in)     :: n, low, igh
+      real(kind=dp), dimension(n), intent(in)     :: scal
+      integer,                     intent(in)     :: m
+      real(kind=dp),dimension(n,m),intent(in out) :: zi
+      real(kind=dp),dimension(n,m),intent(in out) :: zr
 
-      integer ::i
-      integer ::igh
-      integer ::ii
-      integer ::j
-      integer ::k
-      integer ::low
-      real(kind=dp) s
-      real(kind=dp) scal(n)
-      real(kind=dp) t
-      real(kind=dp) zi(n,m)
-      real(kind=dp) zr(n,m)
+      integer ::i,ii,j,k
+      real(kind=dp) :: s, t
 
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
 
       if ( igh /= low ) then
 
