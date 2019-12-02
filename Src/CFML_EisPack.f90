@@ -3,16 +3,19 @@
 !!---- The module CFML_EisPack is an adaption to CrysFML of the well-known
 !!---- Linear Algebra collection of subroutines originally written in Fortran 77
 !!---- and finally superseeded by LAPACK. Here we have adapted the translation to
-!!---- Fortran 90 by by John Burkardt, just transformed to a single module by J.Rodriguez-Carvajal
+!!---- Fortran 90 by John Burkardt, just transformed to a single module  and
+!!---- cosmetic changes by J.Rodriguez-Carvajal (JRC) @ ILL
 !!----
 !!---- Modifications by JRC:
 !!----    References and authors only at the beginning of the module
+!!----    Special references have been kept in particular subroutines
 !!----    Implicit none only at the beginning of the module
+!!----    "end"'s followed by the name of the subroutine or function
 !!----    Use CFML_GlobalDeps
 !!----
 !!-
 !!---- To do:  Modify to private and check which are the important subroutines to put as public
-!!----         Determine the intent of arguments
+!!----         Determine and make explicit the intent of arguments
 !!----         Avoid to pass the dimension in the arguments
 !!----         Make interfaces to simplify the calls
 !!----         Unify the style
@@ -462,9 +465,6 @@ Module CFML_EisPack
     !!----   to a symmetric tridiagonal matrix using and optionally
     !!----   accumulating orthogonal similarity transformations.
     !!----
-    !!---- Licensing:
-    !!----
-    !!----   This code is distributed under the GNU LGPL license.
     !!----
     !!---- Modified:
     !!----
@@ -1147,36 +1147,10 @@ Module CFML_EisPack
     !    copied, then modified, and then restored at the end.  But they
     !    should really be input only!
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    14 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -1463,9 +1437,8 @@ Module CFML_EisPack
     End Subroutine bisect
 
 
-    subroutine bqr ( nm, n, mb, a, t, r, ierr )
 
-    !*****************************************************************************80
+    ! Subroutine bqr ( nm, n, mb, a, t, r, ierr )
     !
     !! BQR finds the smallest eigenvalue of a real symmetric band matrix.
     !
@@ -1478,36 +1451,11 @@ Module CFML_EisPack
     !    Note that for a subsequent call, N should be replaced by N-1, but
     !    MB should not be altered even when it exceeds the current N.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    20 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -1555,6 +1503,7 @@ Module CFML_EisPack
     !    N, if the eigenvalue has not been determined after 30 iterations.
     !
 
+    Subroutine bqr ( nm, n, mb, a, t, r, ierr )
       integer ::mb
       integer ::n
       integer ::nm
@@ -1562,7 +1511,7 @@ Module CFML_EisPack
       real(kind=dp) a(nm,mb)
       real(kind=dp) f
       real(kind=dp) g
-      integer ::i
+      integer ::i, ierr
       integer ::ierr
       integer ::ii
       integer ::ik
@@ -1891,8 +1840,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
+    End Subroutine bqr
+
+    Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
 
     !*****************************************************************************80
     !
@@ -1904,36 +1854,9 @@ Module CFML_EisPack
     !    back transforming those of the corresponding balanced matrix determined
     !    by CBAL.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    11 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2014,8 +1937,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine cbal ( n, ar, ai, low, igh, scal )
+    End Subroutine cbabk2
+
+    Subroutine cbal ( n, ar, ai, low, igh, scal )
 
     !*****************************************************************************80
     !
@@ -2037,36 +1961,9 @@ Module CFML_EisPack
     !
     !    Note that 1 is returned for IGH if IGH is zero formally.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    24 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2313,8 +2210,9 @@ Module CFML_EisPack
       igh = l
 
       return
-    end
-    subroutine cbal_old ( n, ar, ai, low, igh, scal )
+    End Subroutine cbal
+
+    Subroutine cbal_old ( n, ar, ai, low, igh, scal )
 
     !*****************************************************************************80
     !
@@ -2336,36 +2234,9 @@ Module CFML_EisPack
     !
     !    Note that 1 is returned for IGH if IGH is zero formally.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    23 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2593,8 +2464,9 @@ Module CFML_EisPack
       igh = l
 
       return
-    end
-    subroutine cdiv ( ar, ai, br, bi, cr, ci )
+    End Subroutine cbal_old
+
+    Subroutine cdiv ( ar, ai, br, bi, cr, ci )
 
     !*****************************************************************************80
     !
@@ -2606,36 +2478,9 @@ Module CFML_EisPack
     !
     !      (CR,CI) = (AR,AI) / (BR,BI)
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    18 October 2009
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2673,8 +2518,9 @@ Module CFML_EisPack
       ci = ( ais * brs - ars * bis ) / s
 
       return
-    end
-    subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+    End Subroutine cdiv
+
+    Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -2685,36 +2531,9 @@ Module CFML_EisPack
     !    CG_LR calls EISPACK routines to find the eigenvalues and eigenvectors
     !    of a complex general matrix, using elementary transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2785,8 +2604,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+    End Subroutine cg_lr
+
+    Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -2797,36 +2617,9 @@ Module CFML_EisPack
     !    CG_QR calls EISPACK routines to find the eigenvalues and eigenvectors
     !    of a complex general matrix, using unitary transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -2897,8 +2690,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
+    End Subroutine cg_qr
+
+    Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -2908,36 +2702,11 @@ Module CFML_EisPack
     !
     !    CH finds the eigenvalues and eigenvectors of a complex hermitian matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    09 February 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -3003,8 +2772,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
+    end Subroutine ch
+
+    Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -3014,10 +2784,6 @@ Module CFML_EisPack
     !
     !    CH3 finds the eigenvalues and eigenvectors of a complex hermitian matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    05 February 2018
@@ -3025,23 +2791,6 @@ Module CFML_EisPack
     !  Author:
     !
     !    John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -3110,8 +2859,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
+    End Subroutine ch3
+
+    Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -3122,36 +2872,9 @@ Module CFML_EisPack
     !    CINVIT finds those eigenvectors of a complex upper Hessenberg matrix
     !    corresponding to specified eigenvalues, using inverse iteration.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    11 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -3459,8 +3182,9 @@ Module CFML_EisPack
       m = s - 1
 
       return
-    end
-    subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
+    End Subroutine cinvit
+
+    Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
 
     !*****************************************************************************80
     !
@@ -3472,36 +3196,9 @@ Module CFML_EisPack
     !    back transforming those of the corresponding upper Hessenberg matrix
     !    determined by COMHES.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -3583,8 +3280,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine comhes ( n, low, igh, ar, ai, inter )
+    End Subroutine combak
+
+    Subroutine comhes ( n, low, igh, ar, ai, inter )
 
     !*****************************************************************************80
     !
@@ -3596,36 +3294,9 @@ Module CFML_EisPack
     !    and columns LOW through IGH to upper Hessenberg form by
     !    stabilized elementary similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -3737,8 +3408,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
+    End Subroutine comhes
+
+    Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
 
     !*****************************************************************************80
     !
@@ -3749,36 +3421,9 @@ Module CFML_EisPack
     !    COMLR finds the eigenvalues of a complex upper Hessenberg matrix by the
     !    modified LR method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    03 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -4041,8 +3686,9 @@ Module CFML_EisPack
 
       end do
 
-    end
-    subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
+    End Subroutine comlr
+
+    Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -4056,36 +3702,9 @@ Module CFML_EisPack
     !    The eigenvectors of a complex general matrix can also be found if
     !    COMHES has been used to reduce this general matrix to Hessenberg form.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    10 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -4523,8 +4142,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
+    End Subroutine comlr2
+
+    Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
 
     !*****************************************************************************80
     !
@@ -4535,36 +4155,9 @@ Module CFML_EisPack
     !    COMQR finds the eigenvalues of a complex upper Hessenberg matrix by
     !    the QR method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    10 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -4834,8 +4427,8 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
+    End Subroutine comqr
+    Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
 
     !*****************************************************************************80
     !
@@ -4849,36 +4442,9 @@ Module CFML_EisPack
     !    can also be found if CORTH has been used to reduce
     !    this general matrix to Hessenberg form.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -5372,8 +4938,8 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
+    End Subroutine comqr2
+    Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
 
     !*****************************************************************************80
     !
@@ -5385,36 +4951,9 @@ Module CFML_EisPack
     !    transforming those of the corresponding upper Hessenberg matrix
     !    determined by CORTH.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    24 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -5495,8 +5034,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine corth ( n, low, igh, ar, ai, ortr, orti )
+    End Subroutine cortb
+
+    Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
 
     !*****************************************************************************80
     !
@@ -5508,36 +5048,9 @@ Module CFML_EisPack
     !    in rows and columns LOW through IGH to upper Hessenberg form by
     !    unitary similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -5659,8 +5172,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine csroot ( xr, xi, yr, yi )
+    End Subroutine corth
+
+    Subroutine csroot ( xr, xi, yr, yi )
 
     !*****************************************************************************80
     !
@@ -5673,36 +5187,10 @@ Module CFML_EisPack
     !    and
     !      sign ( YI ) == sign ( XI )
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    18 October 2009
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -5745,8 +5233,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine elmbak ( n, low, igh, a, ind, m, z )
+    End Subroutine csroot
+
+    Subroutine elmbak ( n, low, igh, a, ind, m, z )
 
     !*****************************************************************************80
     !
@@ -5758,36 +5247,9 @@ Module CFML_EisPack
     !    transforming those of the corresponding upper Hessenberg matrix
     !    determined by ELMHES.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -5862,8 +5324,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine elmhes ( n, low, igh, a, ind )
+    End Subroutine elmbak
+
+    Subroutine elmhes ( n, low, igh, a, ind )
 
     !*****************************************************************************80
     !
@@ -5875,19 +5338,11 @@ Module CFML_EisPack
     !    situated in rows and columns LOW through IGH to upper Hessenberg
     !    form by stabilized elementary similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    11 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -5896,20 +5351,6 @@ Module CFML_EisPack
     !    Numerische Mathematik,
     !    Volume 12, pages 349-368, 1968.
     !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -6000,8 +5441,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine eltran ( n, low, igh, a, ind, z )
+    End Subroutine elmhes
+
+    Subroutine eltran ( n, low, igh, a, ind, z )
 
     !*****************************************************************************80
     !
@@ -6013,19 +5455,10 @@ Module CFML_EisPack
     !    used in the reduction of a real general matrix to upper Hessenberg form
     !    by ELMHES.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -6033,21 +5466,6 @@ Module CFML_EisPack
     !    ELMTRANS,
     !    Numerische Mathematik,
     !    Volume 16, pages 181-204, 1970.
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -6108,8 +5526,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine figi ( n, t, d, e, e2, ierr )
+    End Subroutine eltran
+
+    Subroutine figi ( n, t, d, e, e2, ierr )
 
     !*****************************************************************************80
     !
@@ -6124,36 +5543,9 @@ Module CFML_EisPack
     !    a zero product only occurs when both factors are zero,
     !    the reduced matrix is similar to the original matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    08 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -6230,8 +5622,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine figi2 ( n, t, d, e, z, ierr )
+    End Subroutine figi
+
+    Subroutine figi2 ( n, t, d, e, z, ierr )
 
     !*****************************************************************************80
     !
@@ -6246,36 +5639,9 @@ Module CFML_EisPack
     !    It reduces the matrix to a symmetric tridiagonal matrix
     !    using and accumulating diagonal similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    08 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -6356,8 +5722,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine hqr ( n, low, igh, h, wr, wi, ierr )
+    End Subroutine figi2
+
+    Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
 
     !*****************************************************************************80
     !
@@ -6368,19 +5735,9 @@ Module CFML_EisPack
     !    HQR finds the eigenvalues of a real
     !    upper Hessenberg matrix by the QR method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    31 January 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -6389,20 +5746,6 @@ Module CFML_EisPack
     !    Numerische Mathematik,
     !    Volume 14, pages 219-231, 1970.
     !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -6736,8 +6079,9 @@ Module CFML_EisPack
       end do
 
       return
-    end subroutine hqr
-    subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
+    End Subroutine hqr
+
+    Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
 
     !*****************************************************************************80
     !
@@ -6759,36 +6103,9 @@ Module CFML_EisPack
     !    this function, and did a much lighter conversion of the F77 code
     !    for a second try.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    02 May 2019
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -7346,9 +6663,9 @@ Module CFML_EisPack
      1001 continue
 
           return
-    end subroutine hqr2
+    End Subroutine hqr2
 
-    subroutine htrib3 ( n, a, tau, m, zr, zi )
+    Subroutine htrib3 ( n, a, tau, m, zr, zi )
 
     !*****************************************************************************80
     !
@@ -7360,36 +6677,9 @@ Module CFML_EisPack
     !    matrix by back transforming those of the corresponding
     !    real symmetric tridiagonal matrix determined by HTRID3.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    05 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -7468,8 +6758,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine htribk ( n, ar, ai, tau, m, zr, zi )
+    End Subroutine htrib3
+
+    Subroutine htribk ( n, ar, ai, tau, m, zr, zi )
 
     !*****************************************************************************80
     !
@@ -7481,36 +6772,9 @@ Module CFML_EisPack
     !    transforming those of the corresponding real symmetric tridiagonal
     !    matrix determined by HTRIDI.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -7592,8 +6856,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine htrid3 ( n, a, d, e, e2, tau )
+    End Subroutine htribk
+
+    Subroutine htrid3 ( n, a, d, e, e2, tau )
 
     !*****************************************************************************80
     !
@@ -7605,36 +6870,9 @@ Module CFML_EisPack
     !    a single square array, to a real symmetric tridiagonal matrix
     !    using unitary similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    05 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -7817,8 +7055,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine htridi ( n, ar, ai, d, e, e2, tau )
+    End Subroutine htrid3
+
+    Subroutine htridi ( n, ar, ai, d, e, e2, tau )
 
     !*****************************************************************************80
     !
@@ -7829,36 +7068,10 @@ Module CFML_EisPack
     !    HTRIDI reduces a complex hermitian matrix to a real symmetric
     !    tridiagonal matrix using unitary similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -8051,8 +7264,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine i4vec_print ( n, a, title )
+    End Subroutine htridi
+
+    Subroutine i4vec_print ( n, a, title )
 
     !*****************************************************************************80
     !
@@ -8061,10 +7275,6 @@ Module CFML_EisPack
     !  Discussion:
     !
     !    An I4VEC is a vector of I4's.
-    !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -8100,8 +7310,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine imtql1 ( n, d, e, ierr )
+    End Subroutine i4vec_print
+
+    Subroutine Imtql1 ( N, D, E, Ierr )
 
     !*****************************************************************************80
     !
@@ -8112,36 +7323,10 @@ Module CFML_EisPack
     !    This routine finds the eigenvalues of a symmetric
     !    tridiagonal matrix by the implicit QL method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    08 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -8297,8 +7482,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine imtql2 ( n, d, e, z, ierr )
+    End Subroutine Imtql1
+
+    Subroutine imtql2 ( n, d, e, z, ierr )
 
     !*****************************************************************************80
     !
@@ -8312,36 +7498,10 @@ Module CFML_EisPack
     !    The eigenvectors of a full symmetric matrix can also be found if TRED2
     !    has been used to reduce this full matrix to tridiagonal form.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 February 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -8515,8 +7675,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine imtqlv ( n, d, e, e2, w, ind, ierr )
+    End Subroutine imtql2
+
+    Subroutine imtqlv ( n, d, e, e2, w, ind, ierr )
 
     !*****************************************************************************80
     !
@@ -8528,36 +7689,10 @@ Module CFML_EisPack
     !    the implicit QL method and associates with them their corresponding
     !    submatrix indices.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    03 February 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -8737,8 +7872,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine invit ( n, a, wr, wi, select, mm, m, z, ierr )
+    End Subroutine imtqlv
+
+    Subroutine invit ( n, a, wr, wi, select, mm, m, z, ierr )
 
     !*****************************************************************************80
     !
@@ -8749,36 +7885,9 @@ Module CFML_EisPack
     !    INVIT finds those eigenvectors of a real upper Hessenberg
     !    matrix corresponding to specified eigenvalues, using inverse iteration.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    02 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -9318,8 +8427,9 @@ Module CFML_EisPack
       m = s - 1 - abs ( ip )
 
       return
-    end
-    subroutine minfit ( nm, m, n, a, w, ip, b, ierr )
+    End Subroutine invit
+
+    Subroutine minfit ( nm, m, n, a, w, ip, b, ierr )
 
     !*****************************************************************************80
     !
@@ -9336,36 +8446,9 @@ Module CFML_EisPack
     !    rather than U.  Householder bidiagonalization and a variant of the
     !    QR algorithm are used.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    01 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -9699,8 +8782,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine ortbak ( n, low, igh, a, ort, m, z )
+    End Subroutine minfit
+
+    Subroutine ortbak ( n, low, igh, a, ort, m, z )
 
     !*****************************************************************************80
     !
@@ -9712,9 +8796,6 @@ Module CFML_EisPack
     !    transforming those of the corresponding upper Hessenberg matrix
     !    determined by ORTHES.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -9807,8 +8888,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine orthes ( n, low, igh, a, ort )
+    End Subroutine ortbak
+
+    Subroutine orthes ( n, low, igh, a, ort )
 
     !*****************************************************************************80
     !
@@ -9823,29 +8905,6 @@ Module CFML_EisPack
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -9937,7 +8996,7 @@ Module CFML_EisPack
       end do
 
       return
-    end
+    End Subroutine orthes
 
 
     !!----  Subroutine Ortran(n,low,igh,a,ort,z)
@@ -10019,36 +9078,9 @@ Module CFML_EisPack
     !    than the machine overflow.  The formula can lose most of its accuracy
     !    if the sum of the squares is very large or very small.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    18 October 2009
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -10091,8 +9123,9 @@ Module CFML_EisPack
       pythag = p
 
       return
-    end
-    subroutine qzhes ( n, a, b, matz, z )
+    end function pythag
+
+    Subroutine qzhes ( n, a, b, matz, z )
 
     !*****************************************************************************80
     !
@@ -10108,36 +9141,9 @@ Module CFML_EisPack
     !    to upper triangular form using orthogonal transformations.
     !    it is usually followed by QZIT, QZVAL and, possibly, QZVEC.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    10 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -10305,8 +9311,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine qzit ( n, a, b, eps1, matz, z, ierr )
+    End Subroutine qzhes
+
+    Subroutine qzit ( n, a, b, eps1, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -10324,36 +9331,10 @@ Module CFML_EisPack
     !    of the other matrix.  It is usually preceded by QZHES and
     !    followed by QZVAL and, possibly, QZVEC.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    27 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -10904,8 +9885,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine qzval ( n, a, b, alfr, alfi, beta, matz, z )
+    End Subroutine qzit
+
+    Subroutine qzval ( n, a, b, alfr, alfi, beta, matz, z )
 
     !*****************************************************************************80
     !
@@ -10923,36 +9905,9 @@ Module CFML_EisPack
     !    ratios give the generalized eigenvalues.  It is usually preceded by QZHES
     !    and QZIT and may be followed by QZVEC.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    26 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -11349,8 +10304,9 @@ Module CFML_EisPack
       b(n,1) = epsb
 
       return
-    end
-    subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
+    End Subroutine qzval
+
+    Subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
 
     !*****************************************************************************80
     !
@@ -11368,36 +10324,9 @@ Module CFML_EisPack
     !    transforms the results back to the original coordinate system.
     !    it is usually preceded by QZHES, QZIT, and QZVAL.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    25 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -11736,8 +10665,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine r8mat_identity ( n, a )
+    End Subroutine qzvec
+
+    Subroutine r8mat_identity ( n, a )
 
     !*****************************************************************************80
     !
@@ -11746,10 +10676,6 @@ Module CFML_EisPack
     !  Discussion:
     !
     !    An R8MAT is an MxN array of R8's, stored by (I,J) -> [I+J*M].
-    !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -11778,8 +10704,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine r8mat_print ( m, n, a, title )
+    End Subroutine r8mat_identity
+
+    Subroutine r8mat_print ( m, n, a, title )
 
     !*****************************************************************************80
     !
@@ -11788,10 +10715,6 @@ Module CFML_EisPack
     !  Discussion:
     !
     !    An R8MAT is an array of R8 values.
-    !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -11821,8 +10744,9 @@ Module CFML_EisPack
       call r8mat_print_some ( m, n, a, 1, 1, m, n, title )
 
       return
-    end
-    subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
+    End Subroutine r8mat_print
+
+    Subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
     !*****************************************************************************80
     !
@@ -11831,10 +10755,6 @@ Module CFML_EisPack
     !  Discussion:
     !
     !    An R8MAT is an array of R8 values.
-    !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -11923,8 +10843,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine r8mat_uniform_01 ( m, n, seed, r )
+    End Subroutine r8mat_print_some
+
+    Subroutine r8mat_uniform_01 ( m, n, seed, r )
 
     !*****************************************************************************80
     !
@@ -11933,10 +10854,6 @@ Module CFML_EisPack
     !  Discussion:
     !
     !    An R8MAT is an MxN array of R8's, stored by (I,J) -> [I+J*M].
-    !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -12003,8 +10920,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine r8vec_print ( n, a, title )
+    End Subroutine r8mat_uniform_01
+
+    Subroutine r8vec_print ( n, a, title )
 
     !*****************************************************************************80
     !
@@ -12045,8 +10963,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine r8vec2_print ( n, a1, a2, title )
+    End Subroutine r8vec_print
+
+    Subroutine r8vec2_print ( n, a1, a2, title )
 
     !*****************************************************************************80
     !
@@ -12102,8 +11021,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, type, idef, ierr )
+    End Subroutine r8vec2_print
+
+    Subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, type, idef, ierr )
 
     !*****************************************************************************80
     !
@@ -12115,36 +11035,9 @@ Module CFML_EisPack
     !    symmetric tridiagonal matrix by the rational QR method with Newton
     !    corrections.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    03 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -12421,8 +11314,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rebak ( n, b, dl, m, z )
+    End Subroutine ratqr
+
+    Subroutine rebak ( n, b, dl, m, z )
 
     !*****************************************************************************80
     !
@@ -12434,36 +11328,9 @@ Module CFML_EisPack
     !    symmetric eigensystem by back transforming those of the
     !    derived symmetric matrix determined by REDUC.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -12500,8 +11367,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine rebakb ( n, b, dl, m, z )
+    End Subroutine rebak
+
+    Subroutine rebakb ( n, b, dl, m, z )
 
     !*****************************************************************************80
     !
@@ -12513,36 +11381,9 @@ Module CFML_EisPack
     !    back transforming those of the derived symmetric matrix determined
     !    by REDUC2.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -12583,8 +11424,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine reduc ( n, a, b, dl, ierr )
+    End Subroutine rebakb
+
+    Subroutine reduc ( n, a, b, dl, ierr )
 
     !*****************************************************************************80
     !
@@ -12596,36 +11438,9 @@ Module CFML_EisPack
     !    a x=(lambda) b x, where B is positive definite, to the standard
     !    symmetric eigenproblem using the Cholesky factorization of B.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -12747,8 +11562,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine reduc2 ( n, a, b, dl, ierr )
+    End Subroutine reduc
+
+    Subroutine reduc2 ( n, a, b, dl, ierr )
 
     !*****************************************************************************80
     !
@@ -12883,7 +11699,7 @@ Module CFML_EisPack
       end do
 
       return
-    end
+    End Subroutine reduc2
 
     Subroutine rg_elm ( n, a, wr, wi, matz, z, ierr )
 
@@ -13057,7 +11873,7 @@ Module CFML_EisPack
       return
     End Subroutine rg_ort
 
-    subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
+    Subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13071,36 +11887,9 @@ Module CFML_EisPack
     !
     !      A * x = lambda * B * x.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13164,8 +11953,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rs ( n, a, w, matz, z, ierr )
+    End Subroutine rgg
+
+    Subroutine rs ( n, a, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13177,36 +11967,10 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    of a real symmetric matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13266,8 +12030,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsb ( n, mb, a, w, matz, z, ierr )
+    End Subroutine rs
+
+    Subroutine rsb ( n, mb, a, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13279,36 +12044,9 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    of a real symmetric band matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13393,8 +12131,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsg ( n, a, b, w, matz, z, ierr )
+    End Subroutine rsb
+
+    Subroutine rsg ( n, a, b, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13406,36 +12145,9 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    for the real symmetric generalized eigenproblem  ax = (lambda)bx.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13510,8 +12222,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsgab ( n, a, b, w, matz, z, ierr )
+    End Subroutine rsg
+
+    Subroutine rsgab ( n, a, b, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13524,36 +12237,9 @@ Module CFML_EisPack
     !    for the real symmetric generalized eigenproblem
     !      A * B * x = (lambda) *  x.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13628,8 +12314,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsgba ( n, a, b, w, matz, z, ierr )
+    End Subroutine rsgab
+
+    Subroutine rsgba ( n, a, b, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13643,36 +12330,9 @@ Module CFML_EisPack
     !
     !      B * A * x = lambda * x
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13746,8 +12406,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsm ( n, a, w, m, z, ierr )
+    End Subroutine rsgba
+
+    Subroutine rsm ( n, a, w, m, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13759,36 +12420,9 @@ Module CFML_EisPack
     !    to find all of the eigenvalues and some of the eigenvectors
     !    of a real symmetric matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    09 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13861,8 +12495,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rsp ( n, nv, a, w, matz, z, ierr )
+    End Subroutine rsm
+
+    Subroutine rsp ( n, nv, a, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -13874,36 +12509,9 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    of a real symmetric packed matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -13978,8 +12586,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rspp ( n, nv, a, w, matz, z, m, type, ierr )
+    End Subroutine rsp
+
+    Subroutine rspp ( n, nv, a, w, matz, z, m, type, ierr )
 
     !*****************************************************************************80
     !
@@ -13994,36 +12603,9 @@ Module CFML_EisPack
     !
     !    The routine RSP returns all eigenvalues and eigenvectors.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    10 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -14118,8 +12700,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rst ( n, w, e, matz, z, ierr )
+    End Subroutine rspp
+
+    Subroutine rst ( n, w, e, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -14131,36 +12714,9 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    of a real symmetric tridiagonal matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -14219,8 +12775,9 @@ Module CFML_EisPack
       end if
 
       return
-    end
-    subroutine rt ( n, a, w, matz, z, ierr )
+    End Subroutine rst
+
+    Subroutine rt ( n, a, w, matz, z, ierr )
 
     !*****************************************************************************80
     !
@@ -14232,36 +12789,9 @@ Module CFML_EisPack
     !    to find the eigenvalues and eigenvectors (if desired)
     !    of a special real tridiagonal matrix.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -14338,7 +12868,7 @@ Module CFML_EisPack
       end if
 
       return
-    end
+    End Subroutine rt
 
     integer function sturm_sequence ( d, e, e2, n, p, q, x1 )
 
@@ -14354,36 +12884,9 @@ Module CFML_EisPack
     !    STURM_SEQUENCE will determine the number of eigenvalues associated
     !    with this submatrix which are no larger than a given upper bound X1.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    19 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -14443,8 +12946,9 @@ Module CFML_EisPack
       sturm_sequence = s
 
       return
-    end
-    subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
+    End function sturm_sequence
+
+    Subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
 
     !*****************************************************************************80
     !
@@ -14459,40 +12963,15 @@ Module CFML_EisPack
     !    of a real M by N rectangular matrix.  Householder bidiagonalization
     !    and a variant of the QR algorithm are used.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    01 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
     !    Golub, Christian Reinsch,
     !    Numerische Mathematik,
     !    Volume 14, 1970, pages 403-420.
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -14882,8 +13361,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine timestamp ( )
+    End Subroutine svd
+
+    Subroutine timestamp ( )
 
     !*****************************************************************************80
     !
@@ -14893,9 +13373,6 @@ Module CFML_EisPack
     !
     !    31 May 2001   9:45:54.872 AM
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -14959,8 +13436,9 @@ Module CFML_EisPack
         d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
 
       return
-    end
-    subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
+    End Subroutine timestamp
+
+    Subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
 
     !*****************************************************************************80
     !
@@ -14971,34 +13449,9 @@ Module CFML_EisPack
     !    TINVIT finds eigenvectors of a tridiagonal symmetric matrix corresponding
     !    to specified eigenvalues using inverse iteration.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    03 February 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976.
     !
     !  Arguments:
     !
@@ -15321,8 +13774,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tql1 ( n, d, e, ierr )
+    End Subroutine tinvit
+
+    Subroutine tql1 ( n, d, e, ierr )
 
     !*****************************************************************************80
     !
@@ -15333,40 +13787,16 @@ Module CFML_EisPack
     !    TQL1 finds the eigenvalues of a symmetric tridiagonal
     !    matrix by the QL method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    31 January 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  References:
     !
     !    Bowdler, Martin, Reinsch, James Wilkinson,
     !    Numerische Mathematik,
     !    Volume 11, 1968, pages 293-306.
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -15526,8 +13956,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tql2 ( n, d, e, z, ierr )
+    End Subroutine tql1
+
+    Subroutine tql2 ( n, d, e, z, ierr )
 
     !*****************************************************************************80
     !
@@ -15540,19 +13971,10 @@ Module CFML_EisPack
     !    symmetric matrix can also be found if TRED2 has been used to reduce this
     !    full matrix to tridiagonal form.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -15560,21 +13982,6 @@ Module CFML_EisPack
     !    TQL2,
     !    Numerische Mathematik,
     !    Volume 11, pages 293-306, 1968.
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -15770,8 +14177,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tqlrat ( n, d, e2, ierr )
+    End Subroutine tql2
+
+    Subroutine tqlrat ( n, d, e2, ierr )
 
     !*****************************************************************************80
     !
@@ -15782,19 +14190,10 @@ Module CFML_EisPack
     !    TQLRAT finds the eigenvalues of a symmetric
     !    tridiagonal matrix by the rational QL method.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -15803,20 +14202,6 @@ Module CFML_EisPack
     !    Communications of the ACM,
     !    Volume 16, page 689, 1973.
     !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -15982,8 +14367,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine trbak1 ( n, a, e, m, z )
+    End Subroutine tqlrat
+
+    Subroutine trbak1 ( n, a, e, m, z )
 
     !*****************************************************************************80
     !
@@ -15995,36 +14381,10 @@ Module CFML_EisPack
     !    matrix by back transforming those of the corresponding
     !    symmetric tridiagonal matrix determined by TRED1.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -16077,8 +14437,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine trbak3 ( n, nv, a, m, z )
+    End Subroutine trbak1
+
+    Subroutine trbak3 ( n, nv, a, m, z )
 
     !*****************************************************************************80
     !
@@ -16090,36 +14451,10 @@ Module CFML_EisPack
     !    matrix by back transforming those of the corresponding
     !    symmetric tridiagonal matrix determined by TRED3.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    28 January 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -16189,8 +14524,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tred1 ( n, a, d, e, e2 )
+    End Subroutine trbak3
+
+    Subroutine tred1 ( n, a, d, e, e2 )
 
     !*****************************************************************************80
     !
@@ -16201,19 +14537,9 @@ Module CFML_EisPack
     !    TRED1 reduces a real symmetric matrix to a symmetric
     !    tridiagonal matrix using orthogonal similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -16222,20 +14548,6 @@ Module CFML_EisPack
     !    Numerische Mathematik,
     !    Volume 11, pages 181-195, 1968.
     !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -16372,8 +14684,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tred2 ( n, a, d, e, z )
+    End Subroutine tred1
+
+    Subroutine tred2 ( n, a, d, e, z )
 
     !*****************************************************************************80
     !
@@ -16388,19 +14701,11 @@ Module CFML_EisPack
     !    A and Z may coincide, in which case a single storage area is used
     !    for the input of A and the output of Z.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -16408,21 +14713,6 @@ Module CFML_EisPack
     !    TRED2,
     !    Numerische Mathematik,
     !    Volume 11, pages 181-195, 1968.
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -16584,8 +14874,9 @@ Module CFML_EisPack
       e(1) = 0.0_dp
 
       return
-    end
-    subroutine tred3 ( n, nv, a, d, e, e2 )
+    End  Subroutine tred2
+
+    Subroutine tred3 ( n, nv, a, d, e, e2 )
 
     !*****************************************************************************80
     !
@@ -16597,19 +14888,11 @@ Module CFML_EisPack
     !    a one-dimensional array, to a symmetric tridiagonal matrix
     !    using orthogonal similarity transformations.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    04 March 2018
     !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
     !
     !  Reference:
     !
@@ -16618,20 +14901,6 @@ Module CFML_EisPack
     !    Numerische Mathematik,
     !    Volume 11, pages 181-195, 1968.
     !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -16759,8 +15028,9 @@ Module CFML_EisPack
       end do
 
       return
-    end
-    subroutine tridib ( n, eps1, d, e, e2, lb, ub, m11, m, w, ind, ierr )
+    End  Subroutine tred3
+
+    Subroutine tridib ( n, eps1, d, e, e2, lb, ub, m11, m, w, ind, ierr )
 
     !*****************************************************************************80
     !
@@ -16771,36 +15041,10 @@ Module CFML_EisPack
     !    TRIDIB finds those eigenvalues of a tridiagonal symmetric matrix between
     !    specified boundary indices, using bisection.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
     !    12 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -17198,11 +15442,9 @@ Module CFML_EisPack
       ub = t2
 
       return
-    end
+    End Subroutine tridib
 
-    Subroutine Tsturm ( n, eps1, d, e, e2, t1, t2, mm, m, w, z, ierr )
-
-    !*****************************************************************************80
+    !  Subroutine Tsturm ( n, eps1, d, e, e2, t1, t2, mm, m, w, z, ierr )
     !
     !! TSTURM computes some eigenvalues/vectors, real symmetric tridiagonal matrix.
     !
@@ -17212,36 +15454,9 @@ Module CFML_EisPack
     !    lie in a specified interval and their associated eigenvectors, using
     !    bisection and inverse iteration.
     !
-    !  Licensing:
-    !
-    !    This code is distributed under the GNU LGPL license.
-    !
     !  Modified:
     !
     !    04 March 2018
-    !
-    !  Author:
-    !
-    !    Original FORTRAN77 version by Smith, Boyle, Dongarra, Garbow, Ikebe,
-    !    Klema, Moler.
-    !    FORTRAN90 version by John Burkardt
-    !
-    !  Reference:
-    !
-    !    James Wilkinson, Christian Reinsch,
-    !    Handbook for Automatic Computation,
-    !    Volume II, Linear Algebra, Part 2,
-    !    Springer, 1971,
-    !    ISBN: 0387054146,
-    !    LC: QA251.W67.
-    !
-    !    Brian Smith, James Boyle, Jack Dongarra, Burton Garbow,
-    !    Yasuhiko Ikebe, Virginia Klema, Cleve Moler,
-    !    Matrix Eigensystem Routines, EISPACK Guide,
-    !    Lecture Notes in Computer Science, Volume 6,
-    !    Springer Verlag, 1976,
-    !    ISBN13: 978-3540075462,
-    !    LC: QA193.M37.
     !
     !  Arguments:
     !
@@ -17291,7 +15506,7 @@ Module CFML_EisPack
     !    4*N+R, if the eigenvector corresponding to the R-th
     !      eigenvalue fails to converge in 5 iterations.
     !
-
+    Subroutine Tsturm ( n, eps1, d, e, e2, t1, t2, mm, m, w, z, ierr )
       integer ::mm
       integer ::n
 
@@ -17687,6 +15902,6 @@ Module CFML_EisPack
       end do
 
       return
-    end Subroutine Tsturm
+    End Subroutine Tsturm
 
 End Module CFML_EisPack

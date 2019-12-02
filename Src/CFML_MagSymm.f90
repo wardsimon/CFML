@@ -321,9 +321,9 @@
     !!
     character(len=150), public :: ERR_MagSym_Mess
 
-    character (len=*), dimension(26),parameter, private   :: &
-    cdd=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r', &
-        's','t','u','v','w','x','y','z']
+    character (len=1), dimension(26),parameter, private   :: &
+    cdd=(/'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r', &
+        's','t','u','v','w','x','y','z'/)
     real(kind=dp), parameter, private :: epps=0.000001_dp
 
     Interface  Readn_Set_Magnetic_Structure
