@@ -12639,7 +12639,7 @@ Module CFML_EisPack
     Subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
       integer,                      intent(in)  :: m, n
       real(kind=dp), dimension(m,n),intent(in)  :: a
-      real(kind=dp), dimension(m,n),intent(out) :: w
+      real(kind=dp), dimension(n),  intent(out) :: w
       logical,                      intent(in)  :: matu
       real(kind=dp), dimension(m,n),intent(out) :: u
       logical,                      intent(in)  :: matv
@@ -12647,7 +12647,7 @@ Module CFML_EisPack
       integer,                      intent(out) :: ierr
       !
       integer :: i,its,i1,j,k,l,ll,l1,mn
-      logical :: matv,skip
+      logical :: skip
       real(kind=dp), dimension(n) :: rv1
       real(kind=dp) :: s,scal,tst1,tst2,x,y,z,c,f,g,h
 
