@@ -219,6 +219,8 @@ else
    $COMP $OPT1  CFML_GlobalDeps_MacOs.f90
 fi
 progressionBar
+$COMP $OPT1  CFML_EisPack.f90
+progressionBar
 $COMP $OPT1  CFML_Math_Gen.f90
 progressionBar
 $COMP $OPT1  CFML_LSQ_TypeDef.f90
