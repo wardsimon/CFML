@@ -2569,41 +2569,20 @@ Module CFML_EisPack
     !    -(N+K), if both error situations occur.
     !
     Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
-      integer ::mm
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) eps3
-      real(kind=dp) growto
-      integer ::i
-      integer ::ierr
-      real(kind=dp) ilambd
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::m
-      integer ::mp
-      real(kind=dp) norm
-      real(kind=dp) normv
-      !real ( kind = 8 ) pythag
-      logical repeat
-      real(kind=dp) rlambd
-      real(kind=dp) rm1(n,n)
-      real(kind=dp) rm2(n,n)
-      real(kind=dp) rv1(n)
-      real(kind=dp) rv2(n)
-      integer ::s
-      logical select(n)
-      real(kind=dp) t
-      integer ::uk
-      real(kind=dp) ukroot
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) x
-      real(kind=dp) y
-      real(kind=dp) zi(n,mm)
-      real(kind=dp) zr(n,mm)
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: ar,ai
+      real(kind=dp), dimension(n),   intent(in out) :: wr,wi
+      logical,       dimension(n),   intent(in)     :: select
+      integer,                       intent(in)     :: mm
+      integer,                       intent(   out) :: m
+      real(kind=dp), dimension(n,mm),intent(   out) :: zr, zi
+      integer,                       intent(   out) :: ierr
+      !
+      real(kind=dp) :: eps3, growto,ilambd,norm,normv,rlambd,t,ukroot,x,y
+      integer       :: s,uk,i,its,j,k,mp
+      logical :: repeat
+      real(kind=dp), dimension(n,n) :: rm1,rm2
+      real(kind=dp), dimension(n)   :: rv1,rv2
 
       ierr = 0
       uk = 0
@@ -2842,9 +2821,9 @@ Module CFML_EisPack
       return
     End Subroutine cinvit
 
-    Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
 
-    !*****************************************************************************80
+
+    ! Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
     !
     !! COMBAK determines eigenvectors by undoing the COMHES transformation.
     !
@@ -2880,31 +2859,18 @@ Module CFML_EisPack
     !    and imaginary parts of the eigenvectors to be back transformed.  On
     !    output, the real and imaginary parts of the transformed eigenvectors.
     !
+    Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,igh), intent(in)     :: ar,ai
+      integer,       dimension(igh),   intent(in)     :: inter
+      integer,                         intent(in)     :: m
+      real(kind=dp), dimension(n,m),   intent(in out) :: zr, zi
 
-      integer ::igh
-      integer ::m
-      integer ::n
+      integer       :: i,j,mp
+      real(kind=dp) :: t,xi,xr
 
-      real(kind=dp) ai(n,igh)
-      real(kind=dp) ar(n,igh)
-      integer ::i
-      integer ::inter(igh)
-      integer ::j
-      integer ::low
-      integer ::mp
-      real(kind=dp) t
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) zi(n,m)
-      real(kind=dp) zr(n,m)
-
-      if ( m == 0 ) then
-        return
-      end if
-
-      if ( igh - 1 < low + 1 ) then
-        return
-      end if
+      if ( m == 0 ) return
+      if ( igh - 1 < low + 1 ) return
 
       do mp = igh - 1, low + 1, -1
 
@@ -2940,9 +2906,9 @@ Module CFML_EisPack
       return
     End Subroutine combak
 
-    Subroutine comhes ( n, low, igh, ar, ai, inter )
 
-    !*****************************************************************************80
+
+    ! Subroutine comhes ( n, low, igh, ar, ai, inter )
     !
     !! COMHES transforms a complex general matrix to upper Hessenberg form.
     !
@@ -2972,22 +2938,13 @@ Module CFML_EisPack
     !    Output, integer ::INTER(IGH), information on the rows and
     !    columns interchanged in the reduction.
     !
+    Subroutine comhes ( n, low, igh, ar, ai, inter )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
+      integer,       dimension(igh),   intent(out)    :: inter
 
-      integer ::igh
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      integer ::i
-      integer ::inter(igh)
-      integer ::j
-      integer ::low
-      integer ::m
-      real(kind=dp) t
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
+      integer :: i,j,m
+      real(kind=dp) :: t,xi,xr,yi,yr
 
       do m = low + 1, igh - 1
     !
@@ -3068,9 +3025,9 @@ Module CFML_EisPack
       return
     End Subroutine comhes
 
-    Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
     !
     !! COMLR gets all eigenvalues of a complex upper Hessenberg matrix.
     !
@@ -3107,38 +3064,14 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
-
-      integer ::n
-
-      real(kind=dp) ai
-      real(kind=dp) ar
-      integer ::en
-      real(kind=dp) hi(n,n)
-      real(kind=dp) hr(n,n)
-      integer ::i
-      integer ::ierr
-      integer ::igh
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::l
-      integer ::low
-      integer ::m
-      real(kind=dp) si
-      real(kind=dp) sr
-      real(kind=dp) t
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
-      real(kind=dp) zzi
-      real(kind=dp) zzr
+    Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+      integer,                         intent(out)    :: ierr
+      !
+      integer :: en,i,itn,its,j,l,m
+      real(kind=dp) :: ai,ar,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
     !
@@ -3253,9 +3186,7 @@ Module CFML_EisPack
 
         do m = en - 1, l, -1
 
-          if ( m == l ) then
-            exit
-          end if
+          if ( m == l ) exit
 
           yi = yr
           yr = abs ( hr(m,m-1) ) + abs ( hi(m,m-1) )
@@ -3264,9 +3195,7 @@ Module CFML_EisPack
           xr = abs ( hr(m-1,m-1) ) + abs ( hi(m-1,m-1) )
           tst1 = zzr / yi * ( zzr + xr + xi )
           tst2 = tst1 + yr
-          if ( tst2 == tst1 ) then
-            exit
-          end if
+          if ( tst2 == tst1 ) exit
         end do
     !
     !  Triangular decomposition H=L*R.
@@ -3346,9 +3275,9 @@ Module CFML_EisPack
 
     End Subroutine comlr
 
-    Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
     !
     !! COMLR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
     !
@@ -3397,42 +3326,16 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
+    Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
+      integer,                         intent(in)     :: n,low, igh
+      integer,       dimension(igh),   intent(in)     :: inter
+      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+      real(kind=dp), dimension(n,n),   intent(out)    :: zr,zi
+      integer,                         intent(out)    :: ierr
 
-      integer ::n
-
-      integer ::en
-      integer ::enm1
-      real(kind=dp) hi(n,n)
-      real(kind=dp) hr(n,n)
-      integer ::i
-      integer ::ierr
-      integer ::igh
-      integer ::inter(igh)
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::low
-      integer ::m
-      real(kind=dp) norm
-      real(kind=dp) si
-      real(kind=dp) sr
-      real(kind=dp) t
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
-      real(kind=dp) zzi
-      real(kind=dp) zzr
+      integer       :: en,enm1,i,itn,its,j,k,l,m
+      real(kind=dp) :: norm,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
     !
@@ -3802,9 +3705,9 @@ Module CFML_EisPack
       return
     End Subroutine comlr2
 
-    Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
     !
     !! COMQR gets eigenvalues of a complex upper Hessenberg matrix.
     !
@@ -3841,38 +3744,14 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !       eigenvalue is being sought.
     !
+    Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+      integer,                         intent(out)    :: ierr
 
-      integer ::n
-
-      integer ::en
-      integer ::enm1
-      real(kind=dp) hi(n,n)
-      real(kind=dp) hr(n,n)
-      integer ::i
-      integer ::ierr
-      integer ::igh
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::l
-      integer ::ll
-      integer ::low
-      real(kind=dp) norm
-      !real ( kind = 8 ) pythag
-      real(kind=dp) si
-      real(kind=dp) sr
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
-      real(kind=dp) zzi
-      real(kind=dp) zzr
+      integer :: en,enm1,i,itn,its,j,l,ll
+      real(kind=dp) :: norm,si,sr,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
     !
@@ -3924,9 +3803,7 @@ Module CFML_EisPack
     !
     !  Search for next eigenvalue.
     !
-      if ( en < low ) then
-        return
-      end if
+      if ( en < low ) return
 
       its = 0
       enm1 = en - 1
@@ -4086,9 +3963,10 @@ Module CFML_EisPack
 
       return
     End Subroutine comqr
-    Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+
+    !  Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
     !
     !! COMQR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
     !
@@ -4137,44 +4015,16 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
+    Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(igh),   intent(in out) :: ortr, orti
+      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+      real(kind=dp), dimension(n,n),   intent(out)    :: zr,zi
+      integer,                         intent(out)    :: ierr
 
-      integer ::igh
-      integer ::n
-
-      integer ::en
-      integer ::enm1
-      real(kind=dp) hi(n,n)
-      real(kind=dp) hr(n,n)
-      integer ::i
-      integer ::ierr
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::ll
-      integer ::low
-      integer ::m
-      real(kind=dp) norm
-      real(kind=dp) orti(igh)
-      real(kind=dp) ortr(igh)
-      !real ( kind = 8 ) pythag
-      real(kind=dp) si
-      real(kind=dp) sr
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
-      real(kind=dp) zzi
-      real(kind=dp) zzr
+      integer :: en,enm1,i,itn,its,j,k,l,ll,m
+      real(kind=dp) :: norm,si,sr,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
     !
@@ -4191,13 +4041,9 @@ Module CFML_EisPack
 
         do i = igh - 1, low + 1, -1
 
-          if ( ortr(i) == 0.0_dp .and. orti(i) == 0.0_dp ) then
-            cycle
-          end if
+          if ( ortr(i) == 0.0_dp .and. orti(i) == 0.0_dp ) cycle
 
-          if ( hr(i,i-1) == 0.0_dp .and. hi(i,i-1) == 0.0_dp ) then
-            cycle
-          end if
+          if ( hr(i,i-1) == 0.0_dp .and. hi(i,i-1) == 0.0_dp ) cycle
     !
     !  Norm below is negative of H formed in CORTH.
     !
@@ -4240,9 +4086,7 @@ Module CFML_EisPack
 
           ll = min ( i + 1, igh )
 
-          if ( hi(i,i-1) == 0.0_dp ) then
-            cycle
-          end if
+          if ( hi(i,i-1) == 0.0_dp ) cycle
 
           norm = pythag ( hr(i,i-1), hi(i,i-1) )
           yr = hr(i,i-1) / norm
@@ -4312,9 +4156,7 @@ Module CFML_EisPack
           hi(en,en) = hi(en,en) + ti
           wi(en) = hi(en,en)
           en = enm1
-          if ( en < low ) then
-            exit
-          end if
+          if ( en < low ) exit
           its = 0
           enm1 = en - 1
           cycle
@@ -4484,13 +4326,9 @@ Module CFML_EisPack
         end do
       end do
 
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 ) return
 
-      if ( norm == 0.0_dp ) then
-        return
-      end if
+      if ( norm == 0.0_dp ) return
 
       do en = n, 2, -1
 
@@ -4521,9 +4359,7 @@ Module CFML_EisPack
             do
               yr = 0.01_dp * yr
               tst2 = norm + yr
-              if ( tst2 <= tst1 ) then
-                exit
-              end if
+              if ( tst2 <= tst1 ) exit
             end do
 
           end if
@@ -4597,9 +4433,10 @@ Module CFML_EisPack
 
       return
     End Subroutine comqr2
-    Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
 
-    !*****************************************************************************80
+
+
+    !  Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
     !
     !! CORTB determines eigenvectors by undoing the CORTH transformation.
     !
@@ -4636,32 +4473,19 @@ Module CFML_EisPack
     !    imaginary parts of the eigenvectors to be back transformed.  On output,
     !    the real and imaginary parts of the transformed eigenvectors.
     !
+    Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in)     :: ar,ai
+      real(kind=dp), dimension(igh),   intent(in out) :: ortr, orti
+      integer,                         intent(in)     :: m
+      real(kind=dp), dimension(n,m),   intent(in out) :: zr,zi
 
-      integer ::igh
-      integer ::m
-      integer ::n
+      integer :: i,j,mp
+      real(kind=dp) :: gi, gr, h
 
-      real(kind=dp) ai(n,igh)
-      real(kind=dp) ar(n,igh)
-      real(kind=dp) gi
-      real(kind=dp) gr
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::low
-      integer ::mp
-      real(kind=dp) orti(igh)
-      real(kind=dp) ortr(igh)
-      real(kind=dp) zi(n,m)
-      real(kind=dp) zr(n,m)
+      if ( m == 0 ) return
 
-      if ( m == 0 ) then
-        return
-      end if
-
-      if ( igh - 1 < low + 1 ) then
-        return
-      end if
+      if ( igh - 1 < low + 1 ) return
 
       do mp = igh - 1, low + 1, -1
 
@@ -4694,9 +4518,9 @@ Module CFML_EisPack
       return
     End Subroutine cortb
 
-    Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
 
-    !*****************************************************************************80
+
+    !  Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
     !
     !! CORTH transforms a complex general matrix to upper Hessenberg form.
     !
@@ -4726,29 +4550,15 @@ Module CFML_EisPack
     !    Output, real(kind=dp) ORTR(IGH), ORTI(IGH), further information about
     !    the transformations.
     !
+    Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
+      real(kind=dp), dimension(igh),   intent(out)    :: ortr, orti
 
-      integer ::igh
-      integer ::n
+      real(kind=dp) :: f,fi,fr,g,h,scal
+      integer :: i,j,m
 
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) f
-      real(kind=dp) fi
-      real(kind=dp) fr
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::low
-      integer ::m
-      real(kind=dp) orti(igh)
-      real(kind=dp) ortr(igh)
-      !real ( kind = 8 ) pythag
-      real(kind=dp) scal
-
-      if ( igh - 1 < low + 1 ) then
-        return
-      end if
+      if ( igh - 1 < low + 1 ) return
 
       do m = low + 1, igh - 1
 
@@ -4763,9 +4573,7 @@ Module CFML_EisPack
           scal = scal + abs ( ar(i,m-1) ) + abs ( ai(i,m-1) )
         end do
 
-        if ( scal == 0.0_dp ) then
-          cycle
-        end if
+        if ( scal == 0.0_dp ) cycle
 
         do i = igh, m, -1
           ortr(i) = ar(i,m-1) / scal
@@ -4832,9 +4640,9 @@ Module CFML_EisPack
       return
     End Subroutine corth
 
-    Subroutine csroot ( xr, xi, yr, yi )
 
-    !*****************************************************************************80
+
+    !  Subroutine csroot ( xr, xi, yr, yi )
     !
     !! CSROOT computes the complex square root of a complex quantity.
     !
@@ -4858,15 +4666,11 @@ Module CFML_EisPack
     !    Output, real(kind=dp) YR, YI, the real and imaginary parts of the
     !    square root.
     !
+    Subroutine csroot ( xr, xi, yr, yi )
+      real(kind=dp), intent(in)  :: xr, xi
+      real(kind=dp), intent(out) :: yr, yi
 
-      !real ( kind = 8 ) pythag
-      real(kind=dp) s
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) xi
-      real(kind=dp) xr
-      real(kind=dp) yi
-      real(kind=dp) yr
+      real(kind=dp) :: s,ti,tr
 
       tr = xr
       ti = xi
@@ -4893,9 +4697,9 @@ Module CFML_EisPack
       return
     End Subroutine csroot
 
-    Subroutine elmbak ( n, low, igh, a, ind, m, z )
 
-    !*****************************************************************************80
+
+    !  Subroutine elmbak ( n, low, igh, a, ind, m, z )
     !
     !! ELMBAK determines eigenvectors by undoing the ELMHES transformation.
     !
@@ -4930,29 +4734,20 @@ Module CFML_EisPack
     !    parts of the eigenvectors to be back transformed.  On output, the real and
     !    imaginary parts of the transformed eigenvectors.
     !
+    Subroutine elmbak ( n, low, igh, a, ind, m, z )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,igh), intent(in)     :: a
+      integer,       dimension(igh),   intent(in)     :: ind
+      integer,                         intent(in)     :: m
+      real(kind=dp), dimension(n,m),   intent(in out) :: z
 
-      integer ::igh
-      integer ::m
-      integer ::n
+      integer :: i,j,mm,mp
+      real(kind=dp) :: t,x
 
-      real(kind=dp) a(n,igh)
-      integer ::i
-      integer ::ind(igh)
-      integer ::j
-      integer ::low
-      integer ::mm
-      integer ::mp
-      real(kind=dp) t
-      real(kind=dp) x
-      real(kind=dp) z(n,m)
 
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
 
-      if ( igh - 1 < low + 1 ) then
-        return
-      end if
+      if ( igh - 1 < low + 1 ) return
 
       do mm = low + 1, igh - 1
 
@@ -4984,9 +4779,9 @@ Module CFML_EisPack
       return
     End Subroutine elmbak
 
-    Subroutine elmhes ( n, low, igh, a, ind )
 
-    !*****************************************************************************80
+
+    !  Subroutine elmhes ( n, low, igh, a, ind )
     !
     !! ELMHES transforms a real general matrix to upper Hessenberg form.
     !
@@ -5026,19 +4821,13 @@ Module CFML_EisPack
     !    and columns interchanged in the reduction.  Only elements LOW through
     !    IGH are used.
     !
+    Subroutine elmhes ( n, low, igh, a, ind )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,n),   intent(in out) :: a
+      integer,       dimension(igh),   intent(out)    :: ind
 
-      integer ::igh
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      integer ::i
-      integer ::ind(igh)
-      integer ::j
-      integer ::low
-      integer ::m
-      real(kind=dp) t
-      real(kind=dp) x
-      real(kind=dp) y
+      integer :: i,j,m
+      real(kind=dp) :: t,x,y
 
       ind(1:igh) = 0
 
@@ -5101,9 +4890,9 @@ Module CFML_EisPack
       return
     End Subroutine elmhes
 
-    Subroutine eltran ( n, low, igh, a, ind, z )
 
-    !*****************************************************************************80
+
+    !  Subroutine eltran ( n, low, igh, a, ind, z )
     !
     !! ELTRAN accumulates similarity transformations used by ELMHES.
     !
@@ -5141,18 +4930,14 @@ Module CFML_EisPack
     !    Output, real(kind=dp) Z(N,N), the transformation matrix produced in the
     !    reduction by ELMHES.
     !
+    Subroutine eltran ( n, low, igh, a, ind, z )
+      integer,                         intent(in)     :: n,low, igh
+      real(kind=dp), dimension(n,igh), intent(in)     :: a
+      integer,       dimension(igh),   intent(in)     :: ind
+      real(kind=dp), dimension(n,n),   intent(out)    :: z
 
-      integer ::igh
-      integer ::n
 
-      real(kind=dp) a(n,igh)
-      integer ::i
-      integer ::ind(igh)
-      integer ::kl
-      integer ::low
-      integer ::mm
-      integer ::mp
-      real(kind=dp) z(n,n)
+      integer :: i,kl,mm,mp
     !
     !  Initialize Z to the identity matrix.
     !
@@ -5160,9 +4945,7 @@ Module CFML_EisPack
 
       kl = igh - low - 1
 
-      if ( igh - 1 < low + 1 ) then
-        return
-      end if
+      if ( igh - 1 < low + 1 )return
 
       do mm = 1, igh - low - 1
 
@@ -5186,9 +4969,9 @@ Module CFML_EisPack
       return
     End Subroutine eltran
 
-    Subroutine figi ( n, t, d, e, e2, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine figi ( n, t, d, e, e2, ierr )
     !
     !! FIGI transforms a real nonsymmetric tridiagonal matrix to symmetric form.
     !
@@ -5230,16 +5013,13 @@ Module CFML_EisPack
     !      this case, the eigenvectors of the symmetric matrix are not simply
     !      related to those of T and should not be sought.
     !
+    Subroutine figi ( n, t, d, e, e2, ierr )
+      integer,                      intent(in)  :: n
+      real(kind=dp), dimension(n,3),intent(in)  :: t
+      real(kind=dp), dimension(n),  intent(out) :: d,e,e2
+      integer,                      intent(out) :: ierr
 
-      integer ::n
-
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      integer ::i
-      integer ::ierr
-      real(kind=dp) t(n,3)
-
+      integer :: i
       ierr = 0
 
       do i = 1, n
@@ -5282,9 +5062,9 @@ Module CFML_EisPack
       return
     End Subroutine figi
 
-    Subroutine figi2 ( n, t, d, e, z, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine figi2 ( n, t, d, e, z, ierr )
     !
     !! FIGI2 transforms a real nonsymmetric tridiagonal matrix to symmetric form.
     !
@@ -5324,16 +5104,16 @@ Module CFML_EisPack
     !    N+I, if T(I,1) * T(I-1,3) is negative,
     !    2*N+I, if T(I,1) * T(I-1,3) is zero with one factor non-zero.
     !
+    Subroutine figi2 ( n, t, d, e, z, ierr )
+      integer,                      intent(in)  :: n
+      real(kind=dp), dimension(n,3),intent(in)  :: t
+      real(kind=dp), dimension(n),  intent(out) :: d,e
+      real(kind=dp), dimension(n,n),intent(out) :: z
+      integer,                      intent(out) :: ierr
 
-      integer ::n
 
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      real(kind=dp) t(n,3)
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: h
+      integer :: i
 
       ierr = 0
     !
@@ -5765,7 +5545,14 @@ Module CFML_EisPack
     !
     !    02 May 2019
     !
-    !  Arguments:
+    !    this function, and did a much lighter conversion of the F77 code
+    !    for a second try.
+    !
+    !  Modified:
+    !
+    !    02 May 2019
+    !
+     !  Arguments:
     !
     !    Input, integer ::N, the order of the matrix.
     !
@@ -5799,10 +5586,11 @@ Module CFML_EisPack
     !      eigenvalue is being sought.
     !
 
-          integer :: i,j,k,l,m,n,en,ii,jj,ll,mm,na,nn
+      integer, intent(in) :: n
+          integer :: i,j,k,l,m,en,ii,jj,ll,mm,na,nn
           integer :: igh,itn,its,low,mp2,enm2,ierr
-          real(kind=8) :: h(n,n),wr(n),wi(n),z(n,n)
-          real(kind=8) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
+          real(kind=dp) :: h(n,n),wr(n),wi(n),z(n,n)
+          real(kind=dp) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
           logical :: notlas
 
           ierr = 0
