@@ -12,6 +12,9 @@
 !!----    Implicit none only at the beginning of the module
 !!----    "end"'s followed by the name of the subroutine or function
 !!----    Use CFML_GlobalDeps
+!!----    Introduce two global variables ERR_EisPack and ERR_EisPack_Mess for fatal error control
+!!----    outside the subroutine by the calling program. The variable ierr is still in use with
+!!----    different meanings depending on the subroutine.
 !!----
 !!-
 !!---- To do:  Modify to private and check which are the important subroutines to put as public
@@ -189,12 +192,12 @@ Module CFML_EisPack
       integer,                      intent(out)    :: low, igh
       real(kind=dp), dimension(n),  intent(out)    :: scal
       !
-      real(kind=dp) :: b2,c,f,g,r,s,t,radix
+      real(kind=dp) :: b2,c,f,g,r,s,t,radixx
       logical :: done, noconv, swap
       integer :: i,j,k,l,m
 
-      radix = 16.0_dp
-      b2 = radix * radix
+      radixx = 16.0_dp
+      b2 = radixx * radixx
       j = 0
       m = 0
       k = 1
@@ -348,19 +351,19 @@ Module CFML_EisPack
           !
           if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
 
-            g = r / radix
+            g = r / radixx
             f = 1.0_dp
             s = c + r
 
             do while ( c < g )
-              f = f * radix
+              f = f * radixx
               c = c * b2
             end do
 
-            g = r * radix
+            g = r * radixx
 
             do while ( g <= c )
-              f = f / radix
+              f = f / radixx
               c = c / b2
             end do
             !
@@ -1900,9 +1903,9 @@ Module CFML_EisPack
       return
     End Subroutine cbabk2
 
-    Subroutine cbal ( n, ar, ai, low, igh, scal )
 
-    !*****************************************************************************80
+
+    !  Subroutine cbal ( n, ar, ai, low, igh, scal )
     !
     !! CBAL balances a complex matrix before eigenvalue calculations.
     !
@@ -1941,36 +1944,21 @@ Module CFML_EisPack
     !    Output, real(kind=dp) scal(N), information determining the
     !    permutations and scaling factors used.
     !
+    Subroutine cbal ( n, ar, ai, low, igh, scal )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: ar,ai
+      integer,                       intent(   out) :: low, igh
+      real(kind=dp), dimension(n),   intent(   out) :: scal
+      !
+      real(kind=dp) :: b2,c,f,g,r,radixx,s,t
+      integer :: i,j,k,l,m
+      logical  :: jump,jump2,noconv
 
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) b2
-      real(kind=dp) c
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i
-      integer ::igh
-      integer ::j
-      logical jump
-      logical jump2
-      integer ::k
-      integer ::l
-      integer ::low
-      integer ::m
-      logical noconv
-      real(kind=dp) r
-      real(kind=dp) radix
-      real(kind=dp) s
-      real(kind=dp) scal(n)
-      real(kind=dp) t
-
-      radix = 16.0_dp
+      radixx = 16.0_dp
       j = 0
       m = 0
 
-      b2 = radix * radix
+      b2 = radixx * radixx
       k = 1
       l = n
 
@@ -2033,9 +2021,7 @@ Module CFML_EisPack
 
         end do
 
-        if ( jump2 ) then
-          exit
-        end if
+        if ( jump2 ) exit
 
       end do
     !
@@ -2093,9 +2079,7 @@ Module CFML_EisPack
 
         end do
 
-        if ( jump2 ) then
-          exit
-        end if
+        if ( jump2 ) exit
 
       end do
     !
@@ -2125,19 +2109,19 @@ Module CFML_EisPack
     !
           if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
 
-            g = r / radix
+            g = r / radixx
             f = 1.0_dp
             s = c + r
 
             do while ( c < g )
-              f = f * radix
+              f = f * radixx
               c = c * b2
             end do
 
-            g = r * radix
+            g = r * radixx
 
             do while  ( g <= c )
-              f = f / radix
+              f = f / radixx
               c = c / b2
             end do
     !
@@ -2161,275 +2145,18 @@ Module CFML_EisPack
 
         end do
 
-        if ( .not. noconv ) then
-          exit
-        end if
+        if ( .not. noconv ) exit
 
       end do
 
       low = k
       igh = l
 
-      return
     End Subroutine cbal
 
-    Subroutine cbal_old ( n, ar, ai, low, igh, scal )
 
-    !*****************************************************************************80
-    !
-    !! CBAL balances a complex matrix before eigenvalue calculations.
-    !
-    !  Discussion:
-    !
-    !    CBAL balances a complex matrix and isolates eigenvalues whenever possible.
-    !
-    !    Suppose that the principal submatrix in rows low through igh
-    !    has been balanced, that P(J) denotes the index interchanged
-    !    with J during the permutation step, and that the elements
-    !    of the diagonal matrix used are denoted by D(I,J).  Then
-    !      scal(J) = P(J),    for J = 1,...,LOW-1
-    !               = D(J,J)       J = LOW,...,IGH
-    !               = P(J)         J = IGH+1,...,N.
-    !    The order in which the interchanges are made is N to IGH+1,
-    !    then 1 to LOW-1.
-    !
-    !    Note that 1 is returned for IGH if IGH is zero formally.
-    !
-    !  Modified:
-    !
-    !    23 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex matrix to be balanced.  On output,
-    !    the real and imaginary parts of the balanced matrix.
-    !
-    !    Output, integer ::LOW, IGH, are values such that AR(I,J)
-    !    and AI(I,J) are zero if I is greater than J and either J=1,...,LOW-1 or
-    !    I=IGH+1,...,N.
-    !
-    !    Output, real(kind=dp) scal(N), information determining the
-    !    permutations and scaling factors used.
-    !
 
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) b2
-      real(kind=dp) c
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i
-      integer ::igh
-      integer ::j
-      logical jump
-      integer ::k
-      integer ::l
-      integer ::low
-      integer ::m
-      logical noconv
-      real(kind=dp) r
-      real(kind=dp) radix
-      real(kind=dp) s
-      real(kind=dp) scal(n)
-      real(kind=dp) t
-
-      radix = 16.0_dp
-      j = 0
-      m = 0
-
-      b2 = radix * radix
-      k = 1
-      l = n
-
-    100 continue
-
-      do j = l, 1, -1
-
-        jump = .true.
-        do i = 1, l
-          if ( i /= j ) then
-            if ( ar(j,i) /= 0.0_dp .or. ai(j,i) /= 0.0_dp ) then
-              jump = .false.
-              exit
-            end if
-          end if
-        end do
-
-        if ( jump ) then
-
-          m = l
-
-          scal(m) = j
-
-          if ( j /= m ) then
-
-            do i = 1, l
-              t       = ar(i,j)
-              ar(i,j) = ar(i,m)
-              ar(i,m) = t
-              t       = ai(i,j)
-              ai(i,j) = ai(i,m)
-              ai(i,m) = t
-            end do
-
-            do i = k, n
-              t       = ar(j,i)
-              ar(j,i) = ar(m,i)
-              ar(m,i) = t
-              t       = ai(j,i)
-              ai(j,i) = ai(m,i)
-              ai(m,i) = t
-            end do
-
-          end if
-
-          if ( l == 1 ) then
-            low = k
-            igh = l
-            return
-          end if
-
-          l = l - 1
-
-          go to 100
-
-        end if
-
-      end do
-    !
-    !  Search for columns isolating an eigenvalue and push them left.
-    !
-    140 continue
-
-      do j = k, l
-
-        jump = .true.
-        do i = k, l
-          if ( i /= j ) then
-            if ( ar(i,j) /= 0.0_dp .or. ai(i,j) /= 0.0_dp ) then
-              jump = .false.
-              exit
-            end if
-          end if
-        end do
-
-        if ( jump ) then
-
-          m = k
-
-          scal(m) = j
-
-          if ( j /= m ) then
-
-            do i = 1, l
-              t       = ar(i,j)
-              ar(i,j) = ar(i,m)
-              ar(i,m) = t
-              t       = ai(i,j)
-              ai(i,j) = ai(i,m)
-              ai(i,m) = t
-            end do
-
-            do i = k, n
-              t       = ar(j,i)
-              ar(j,i) = ar(m,i)
-              ar(m,i) = t
-              t       = ai(j,i)
-              ai(j,i) = ai(m,i)
-              ai(m,i) = t
-            end do
-
-          end if
-
-          k = k + 1
-          go to 140
-
-        end if
-
-      end do
-    !
-    !  Now balance the submatrix in rows k to l.
-    !
-      scal(k:l) = 1.0_dp
-    !
-    !  Iterative loop for norm reduction.
-    !
-      do
-
-        noconv = .false.
-
-        do i = k, l
-
-          c = 0.0_dp
-          r = 0.0_dp
-
-          do j = k, l
-            if ( j /= i ) then
-              c = c + abs ( ar(j,i) ) + abs ( ai(j,i) )
-              r = r + abs ( ar(i,j) ) + abs ( ai(i,j) )
-            end if
-          end do
-    !
-    !  Guard against zero C or R due to underflow.
-    !
-          if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
-
-            g = r / radix
-            f = 1.0_dp
-            s = c + r
-
-            do while ( c < g )
-              f = f * radix
-              c = c * b2
-            end do
-
-            g = r * radix
-
-            do while  ( g <= c )
-              f = f / radix
-              c = c / b2
-            end do
-    !
-    !  Now balance.
-    !
-            if ( ( c + r ) / f < 0.95_dp * s ) then
-
-              g = 1.0_dp / f
-              scal(i) = scal(i) * f
-              noconv = .true.
-
-              ar(i,k:n) = ar(i,k:n) * g
-              ai(i,k:n) = ai(i,k:n) * g
-
-              ar(1:l,i) = ar(1:l,i) * f
-              ai(1:l,i) = ai(1:l,i) * f
-
-            end if
-
-          end if
-
-        end do
-
-        if ( .not. noconv ) then
-          exit
-        end if
-
-      end do
-
-      low = k
-      igh = l
-
-      return
-    End Subroutine cbal_old
-
-    Subroutine cdiv ( ar, ai, br, bi, cr, ci )
-
-    !*****************************************************************************80
+    ! Subroutine cdiv ( ar, ai, br, bi, cr, ci )
     !
     !! CDIV emulates complex division, using real arithmetic.
     !
@@ -2454,18 +2181,11 @@ Module CFML_EisPack
     !    Output, real(kind=dp) CR, CI, the real and imaginary parts of
     !    the result.
     !
+    Subroutine cdiv ( ar, ai, br, bi, cr, ci )
+      real(kind=dp), intent(in)  :: ar, ai, br, bi
+      real(kind=dp), intent(out) :: cr, ci
 
-      real(kind=dp) ai
-      real(kind=dp) ais
-      real(kind=dp) ar
-      real(kind=dp) ars
-      real(kind=dp) bi
-      real(kind=dp) bis
-      real(kind=dp) br
-      real(kind=dp) brs
-      real(kind=dp) ci
-      real(kind=dp) cr
-      real(kind=dp) s
+      real(kind=dp) :: ais,ars,bis,brs,s
 
       s = abs ( br ) + abs ( bi )
 
@@ -2481,9 +2201,9 @@ Module CFML_EisPack
       return
     End Subroutine cdiv
 
-    Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
     !
     !! CG_LR gets eigenvalues and eigenvectors of a complex general matrix.
     !
@@ -2517,21 +2237,17 @@ Module CFML_EisPack
     !    the documentation for COMLR and COMLR2.  The normal completion code
     !    is zero.
     !
-
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) fv1(n)
-      integer ::ierr
-      integer ::inter(n)
-      integer ::is1
-      integer ::is2
-      logical matz
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
+    Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+      real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+      integer,                       intent(   out) :: ierr
+      !
+      real(kind=dp), dimension(n) :: fv1
+      integer,       dimension(n) :: inter
+      integer ::is1,is2
 
       call cbal ( n, ar, ai, is1, is2, fv1 )
 
@@ -2543,10 +2259,9 @@ Module CFML_EisPack
         call comlr ( n, is1, is2, ar, ai, wr, wi, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CG_LR - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from COMLR.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR."
+            return
         end if
 
       else
@@ -2554,10 +2269,9 @@ Module CFML_EisPack
         call comlr2 ( n, is1, is2, inter, ar, ai, wr, wi, zr, zi, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CG_LR - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from COMLR2.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR2."
+            return
         end if
 
         call cbabk2 ( n, is1, is2, fv1, n, zr, zi )
@@ -2567,9 +2281,9 @@ Module CFML_EisPack
       return
     End Subroutine cg_lr
 
-    Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
     !
     !! CG_QR gets eigenvalues and eigenvectors of a complex general matrix.
     !
@@ -2603,22 +2317,16 @@ Module CFML_EisPack
     !    the documentation for COMQR and COMQR2.  The normal completion code
     !    is zero.
     !
+    Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+      real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+      integer,                       intent(   out) :: ierr
 
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      real(kind=dp) fv3(n)
-      integer ::ierr
-      integer ::is1
-      integer ::is2
-      logical matz
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2,fv3
+      integer :: is1, is2
 
       call cbal ( n, ar, ai, is1, is2, fv1 )
 
@@ -2629,10 +2337,9 @@ Module CFML_EisPack
         call comqr ( n, is1, is2, ar, ai, wr, wi, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CG_QR - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from COMQR.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR."
+            return
         end if
 
       else
@@ -2640,10 +2347,9 @@ Module CFML_EisPack
         call comqr2 ( n, is1, is2, fv2, fv3, ar, ai, wr, wi, zr, zi, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CG_QR - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from COMQR2.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR2."
+            return
         end if
 
         call cbabk2 ( n, is1, is2, fv1, n, zr, zi )
@@ -2653,9 +2359,9 @@ Module CFML_EisPack
       return
     End Subroutine cg_qr
 
-    Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    !  Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
     !
     !! CH gets eigenvalues and eigenvectors of a complex Hermitian matrix.
     !
@@ -2688,19 +2394,16 @@ Module CFML_EisPack
     !    Output, integer ::IERR, an error completion code described in
     !    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
     !
+    Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+      real(kind=dp), dimension(n,n), intent(   out) :: w
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+      integer,                       intent(   out) :: ierr
 
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) fm1(2,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
+      real(kind=dp), dimension(2,n) :: fm1
+      real(kind=dp), dimension(n)   :: fv1, fv2
 
       call htridi ( n, ar, ai, w, fv1, fv2, fm1 )
 
@@ -2709,10 +2412,9 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CH - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from TQLRAT.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQRAT"
+            return
         end if
 
       else
@@ -2722,10 +2424,9 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, zr, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CH - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from TQL2.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQ2"
+            return
         end if
 
         call htribk ( n, ar, ai, fm1, n, zr, zi )
@@ -2735,9 +2436,9 @@ Module CFML_EisPack
       return
     end Subroutine ch
 
-    Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
     !
     !! CH3 gets eigenvalues and eigenvectors of a complex Hermitian matrix.
     !
@@ -2776,18 +2477,16 @@ Module CFML_EisPack
     !    Output, integer ::IERR, an error completion code described in
     !    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
     !
+    Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a
+      real(kind=dp), dimension(n),   intent(   out) :: d
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+      integer,                       intent(   out) :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) tau(2,n)
-      real(kind=dp) zi(n,n)
-      real(kind=dp) zr(n,n)
+      real(kind=dp), dimension(n)   :: e, e2
+      real(kind=dp), dimension(2,n) :: tau
 
       call htrid3 ( n, a, d, e, e2, tau )
 
@@ -2796,10 +2495,9 @@ Module CFML_EisPack
         call tqlrat ( n, d, e2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CH3 - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from TQLRAT.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQLRAT."
+            return
         end if
 
       else
@@ -2809,10 +2507,9 @@ Module CFML_EisPack
         call tql2 ( n, d, e, zr, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'CH3 - Fatal error!'
-          write ( *, '(a)' ) '  Nonzero error return from TQL2.'
-          return
+            ERR_EisPack=.true.
+            ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQL2."
+            return
         end if
 
         call htrib3 ( n, a, tau, n, zr, zi )
@@ -2822,9 +2519,9 @@ Module CFML_EisPack
       return
     End Subroutine ch3
 
-    Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
     !
     !! CINVIT gets eigenvectors from eigenvalues for a complex Hessenberg matrix.
     !
@@ -2871,7 +2568,7 @@ Module CFML_EisPack
     !    -K, if the iteration corresponding to the K-th value fails,
     !    -(N+K), if both error situations occur.
     !
-
+    Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
       integer ::mm
       integer ::n
 
@@ -7261,13 +6958,13 @@ Module CFML_EisPack
       character ( len = * ) title
 
       if ( 0 < len_trim ( title ) ) then
-        write ( *, '(a)' ) ' '
-        write ( *, '(a)' ) trim ( title )
+        write(*, '(a)' ) ' '
+        write(*, '(a)' ) trim ( title )
       end if
 
-      write ( *, '(a)' ) ' '
+      write(*, '(a)' ) ' '
       do i = 1, n
-        write ( *, '(2x,i8,a,2x,i12)' ) i, ':', a(i)
+        write (*, '(2x,i8,a,2x,i12)' ) i, ':', a(i)
       end do
 
       return
@@ -10758,8 +10455,8 @@ Module CFML_EisPack
       integer ::jlo
       character ( len = * ) title
 
-      write ( *, '(a)' ) ''
-      write ( *, '(a)' ) trim ( title )
+      write(*, '(a)' ) ''
+      write(*, '(a)' ) trim ( title )
 
       do j2lo = max ( jlo, 1 ), min ( jhi, n ), incx
 
@@ -10769,16 +10466,16 @@ Module CFML_EisPack
 
         inc = j2hi + 1 - j2lo
 
-        write ( *, '(a)' ) ''
+        write(*, '(a)' ) ''
 
         do j = j2lo, j2hi
           j2 = j + 1 - j2lo
-          write ( ctemp(j2), '(i8,6x)' ) j
+          write(ctemp(j2), '(i8,6x)' ) j
         end do
 
-        write ( *, '(''  Col   '',5a14)' ) ctemp(1:inc)
-        write ( *, '(a)' ) '  Row'
-        write ( *, '(a)' ) ''
+        write(*, '(''  Col   '',5a14)' ) ctemp(1:inc)
+        write(*, '(a)' ) '  Row'
+        write(*, '(a)' ) ''
 
         i2lo = max ( ilo, 1 )
         i2hi = min ( ihi, m )
@@ -10790,14 +10487,14 @@ Module CFML_EisPack
             j = j2lo - 1 + j2
 
             if ( a(i,j) == real ( int ( a(i,j) ), kind = 8 ) ) then
-              write ( ctemp(j2), '(f8.0,6x)' ) a(i,j)
+              write(ctemp(j2), '(f8.0,6x)' ) a(i,j)
             else
-              write ( ctemp(j2), '(g14.6)' ) a(i,j)
+              write(ctemp(j2), '(g14.6)' ) a(i,j)
             end if
 
           end do
 
-          write ( *, '(i5,1x,5a14)' ) i, ( ctemp(j), j = 1, inc )
+          write(*, '(i5,1x,5a14)' ) i, ( ctemp(j), j = 1, inc )
 
         end do
 
@@ -10916,11 +10613,11 @@ Module CFML_EisPack
       integer ::i
       character ( len = * ) title
 
-      write ( *, '(a)' ) ''
-      write ( *, '(a)' ) trim ( title )
-      write ( *, '(a)' ) ''
+      write(*, '(a)' ) ''
+      write(*, '(a)' ) trim ( title )
+      write(*, '(a)' ) ''
       do i = 1, n
-        write ( *, '(2x,i8,2x,g16.8)' ) i, a(i)
+        write(*, '(2x,i8,2x,g16.8)' ) i, a(i)
       end do
 
       return
@@ -10961,23 +10658,23 @@ Module CFML_EisPack
       integer ::i
       character ( len = * )  title
 
-      write ( *, '(a)' ) ''
-      write ( *, '(a)' ) trim ( title )
-      write ( *, '(a)' ) ''
+      write(*, '(a)' ) ''
+      write(*, '(a)' ) trim ( title )
+      write(*, '(a)' ) ''
 
       if ( all ( a1(1:n) == aint ( a1(1:n) ) ) .and. &
            all ( a2(1:n) == aint ( a2(1:n) ) ) ) then
         do i = 1, n
-          write ( *, '(i8,2i8)' ) i, int ( a1(i) ), int ( a2(i) )
+          write(*, '(i8,2i8)' ) i, int ( a1(i) ), int ( a2(i) )
         end do
       else if ( all ( abs ( a1(1:n) ) < 1000000.0_dp ) .and. &
                 all ( abs ( a2(1:n) ) < 1000000.0_dp ) ) then
         do i = 1, n
-          write ( *, '(i8,2f14.6)' ) i, a1(i), a2(i)
+          write(*, '(i8,2f14.6)' ) i, a1(i), a2(i)
         end do
       else
         do i = 1, n
-          write ( *, '(i8,2g14.6)' ) i, a1(i), a2(i)
+          write(*, '(i8,2g14.6)' ) i, a1(i), a2(i)
         end do
       end if
 
@@ -11462,9 +11159,8 @@ Module CFML_EisPack
             if ( j == i ) then
 
               if ( x <= 0.0_dp ) then
-                write ( *, '(a)' ) ''
-                write ( *, '(a)' ) 'REDUC - Fatal error!'
-                write ( *, '(a)' ) '  The matrix is not positive definite.'
+                ERR_EisPack=.true.
+                ERR_EisPack_Mess=" REDUC - Fatal error!: The matrix is not positive definite.."
                 ierr = 7 * n + 1
                 return
               end if
@@ -11901,10 +11597,9 @@ Module CFML_EisPack
       call qzit ( n, a, b, eps1, matz, z, ierr )
 
       if ( ierr /= 0 ) then
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RGG - Fatal error!'
-        write ( *, '(a)' ) '  Error return from QZIT.'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RGG - Fatal error!: Error return from QZIT"
+          return
       end if
 
       call qzval ( n, a, b, alfr, alfi, beta, matz, z )
@@ -11969,9 +11664,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RS - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RS - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -11982,11 +11676,10 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RS - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RS - Fatal error!: Error return from TQL2"
           return
-        end if
+       end if
 
       end if
 
@@ -12051,18 +11744,16 @@ Module CFML_EisPack
 
       if ( mb <= 0 ) then
         ierr = 12 * n
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSB - Fatal error!'
-        write ( *, '(a)' ) '  MB <= 0.'
+        ERR_EisPack=.true.
+        ERR_EisPack_Mess=" RSB - Fatal error!: MB <= 0"
         return
       end if
 
       if ( n < mb ) then
         ierr = 12 * n
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSB - Fatal error!'
-        write ( *, '(a)' ) '  N < MB.'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSB - Fatal error!: N < MB"
+          return
       end if
 
       call bandr ( n, mb, a, w, fv1, fv2, matz, z )
@@ -12072,9 +11763,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSB - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSB - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -12083,9 +11773,8 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSB - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSB - Fatal error!: Error return from TQL2"
           return
         end if
 
@@ -12146,10 +11835,9 @@ Module CFML_EisPack
       call reduc ( n, a, b, fv2, ierr )
 
       if ( ierr /= 0 ) then
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSG - Fatal error!'
-        write ( *, '(a)' ) '  Error return from REDUC.'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSG - Fatal error!: Error return from REDUC: "//trim(ERR_EisPack_Mess)
+          return
       end if
 
       if ( .not. matz ) then
@@ -12159,9 +11847,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSG - Warning!'
-          write ( *, '(a)' ) '  Error return from TQLRAT!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSG - Warning!: Error return from TQLRAT"
           return
         end if
 
@@ -12172,9 +11859,8 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSG - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSG - Fatal error!: Error return from TQL2"
           return
         end if
 
@@ -12238,10 +11924,9 @@ Module CFML_EisPack
       call reduc2 ( n, a, b, fv2, ierr )
 
       if ( ierr /= 0 ) then
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSGAB - Fatal error!'
-        write ( *, '(a)' ) '  Error return from REDUC2.'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGAB - Fatal error!: Error return from REDUC2 -> "//trim(ERR_EisPack_Mess)
+          return
       end if
 
       if ( .not. matz ) then
@@ -12251,9 +11936,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSGAB - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGAB - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -12264,9 +11948,8 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSGAB - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGAB - Fatal error!: Error return from TQL2"
           return
         end if
 
@@ -12330,10 +12013,9 @@ Module CFML_EisPack
       call reduc2 ( n, a, b, fv2, ierr )
 
       if ( ierr /= 0 ) then
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSGBA - Fatal error!'
-        write ( *, '(a)' ) '  Error return from REDUC2!'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGBA - Fatal error!: Error return from REDUC2 -> "//trim(ERR_EisPack_Mess)
+          return
       end if
 
       if ( .not. matz ) then
@@ -12343,9 +12025,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSGBA - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGBA - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -12356,9 +12037,8 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSGBA - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSGBA - Fatal error!: Error return from TQL2"
           return
         end if
 
@@ -12423,9 +12103,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fwork2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSM - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RS - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -12436,18 +12115,16 @@ Module CFML_EisPack
         call imtqlv ( n, fwork1, fwork2, fwork3, w, iwork, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSM - Fatal error!'
-          write ( *, '(a)' ) '  Error return from IMTQLV!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSM - Fatal error!: Error return from IMTQLV"
           return
         end if
 
         call tinvit ( n, fwork1, fwork2, fwork3, m, w, iwork, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSM - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TINVIT!'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSM - Fatal error!: Error return from TINVIT"
           return
         end if
 
@@ -12510,9 +12187,8 @@ Module CFML_EisPack
 
       if ( nv < ( n * ( n + 1 ) ) / 2 ) then
         ierr = 20 * n
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSP - Fatal error!'
-        write ( *, '(a)' ) '  NV too small.'
+        ERR_EisPack=.true.
+        ERR_EisPack_Mess=" RSP - Fatal error!: NV too small"
         return
       end if
 
@@ -12523,9 +12199,8 @@ Module CFML_EisPack
         call tqlrat ( n, w, fv2, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSP - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQLRAT.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSP - Fatal error!: Error return from TQLRAT"
           return
         end if
 
@@ -12536,9 +12211,8 @@ Module CFML_EisPack
         call tql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSP - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSP - Fatal error!: Error return from TQL2"
           return
         end if
 
@@ -12635,10 +12309,9 @@ Module CFML_EisPack
         bd, type, idef, ierr )
 
       if ( ierr /= 0 ) then
-        write ( *, '(a)' ) ''
-        write ( *, '(a)' ) 'RSPP - Fatal error!'
-        write ( *, '(a)' ) '  Error return from RATQR.'
-        return
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSPP - Fatal error!: Error return from RATQR"
+          return
       end if
     !
     !  Find eigenvectors for the first M eigenvalues.
@@ -12648,9 +12321,8 @@ Module CFML_EisPack
         call tinvit ( n, work1, work2, work3, m, w, iwork, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RSPP - Fatal error!'
-          write ( *, '(a)' ) '  Error return from TINVIT.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RSPP - Fatal error!: Error return from TINVIT"
           return
         end if
     !
@@ -12714,9 +12386,8 @@ Module CFML_EisPack
         call imtql1 ( n, w, e, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RST - Fatal error!'
-          write ( *, '(a)' ) '  Error return from IMTQL1.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RST - Fatal error!: Error return from IMTQL1"
           return
         end if
 
@@ -12727,9 +12398,8 @@ Module CFML_EisPack
         call imtql2 ( n, w, e, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RST - Fatal error!'
-          write ( *, '(a)' ) '  Error return from IMTQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RST - Fatal error!: Error return from IMTQL2"
           return
         end if
 
@@ -12791,18 +12461,16 @@ Module CFML_EisPack
         call figi ( n, a, w, fv1, fv1, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RT - Fatal error!'
-          write ( *, '(a)' ) '  Error return from FIGI.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RT - Fatal error!: Error return from FIGI"
           return
         end if
 
         call imtql1 ( n, w, fv1, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RT - Fatal error!'
-          write ( *, '(a)' ) '  Error return from IMTQL1.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RT - Fatal error!: Error return from IMTQL1"
           return
         end if
 
@@ -12811,18 +12479,16 @@ Module CFML_EisPack
         call figi2 ( n, a, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RT - Fatal error!'
-          write ( *, '(a)' ) '  Error return from FIGI2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RT - Fatal error!: Error return from FIGI2"
           return
         end if
 
         call imtql2 ( n, w, fv1, z, ierr )
 
         if ( ierr /= 0 ) then
-          write ( *, '(a)' ) ''
-          write ( *, '(a)' ) 'RT - Fatal error!'
-          write ( *, '(a)' ) '  Error return from IMTQL2.'
+          ERR_EisPack=.true.
+          ERR_EisPack_Mess=" RT - Fatal error!: Error return from IMTQL2"
           return
         end if
 
@@ -12909,9 +12575,9 @@ Module CFML_EisPack
       return
     End function sturm_sequence
 
-    Subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
 
-    !*****************************************************************************80
+
+    ! Subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
     !
     !! SVD computes the singular value decomposition for a real matrix.
     !
@@ -12970,40 +12636,20 @@ Module CFML_EisPack
     !    0, for normal return,
     !    K, if the K-th singular value has not been determined after 30 iterations.
     !
-
-      integer ::m
-      integer ::n
-
-      real(kind=dp) a(m,n)
-      real(kind=dp) c
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::i1
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::ll
-      integer ::l1
-      logical matu
-      logical matv
-      integer ::mn
-      !real ( kind = 8 ) pythag
-      real(kind=dp) rv1(n)
-      real(kind=dp) s
-      real(kind=dp) scal
-      logical skip
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) u(m,n)
-      real(kind=dp) v(n,n)
-      real(kind=dp) w(n)
-      real(kind=dp) x
-      real(kind=dp) y
-      real(kind=dp) z
+    Subroutine svd ( m, n, a, w, matu, u, matv, v, ierr )
+      integer,                      intent(in)  :: m, n
+      real(kind=dp), dimension(m,n),intent(in)  :: a
+      real(kind=dp), dimension(m,n),intent(out) :: w
+      logical,                      intent(in)  :: matu
+      real(kind=dp), dimension(m,n),intent(out) :: u
+      logical,                      intent(in)  :: matv
+      real(kind=dp), dimension(n,n),intent(out) :: v
+      integer,                      intent(out) :: ierr
+      !
+      integer :: i,its,i1,j,k,l,ll,l1,mn
+      logical :: matv,skip
+      real(kind=dp), dimension(n) :: rv1
+      real(kind=dp) :: s,scal,tst1,tst2,x,y,z,c,f,g,h
 
       ierr = 0
       u(1:m,1:n) = a(1:m,1:n)
@@ -13393,7 +13039,7 @@ Module CFML_EisPack
         end if
       end if
 
-      write ( *, '(i2,1x,a,1x,i4,2x,i2,a1,i2.2,a1,i2.2,a1,i3.3,1x,a)' ) &
+      write(*, '(i2,1x,a,1x,i4,2x,i2,a1,i2.2,a1,i2.2,a1,i3.3,1x,a)' ) &
         d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
 
       return
