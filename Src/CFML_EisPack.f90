@@ -1814,7 +1814,6 @@ Module CFML_EisPack
     End Subroutine bqr
 
 
-
     ! Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
     !
     !! CBABK2 finds eigenvectors by undoing the CBAL transformation.
@@ -2153,8 +2152,6 @@ Module CFML_EisPack
       igh = l
 
     End Subroutine cbal
-
-
 
     ! Subroutine cdiv ( ar, ai, br, bi, cr, ci )
     !
@@ -2518,7 +2515,6 @@ Module CFML_EisPack
 
       return
     End Subroutine ch3
-
 
 
     ! Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
@@ -2905,7 +2901,6 @@ Module CFML_EisPack
 
       return
     End Subroutine combak
-
 
 
     ! Subroutine comhes ( n, low, igh, ar, ai, inter )
@@ -3964,8 +3959,6 @@ Module CFML_EisPack
       return
     End Subroutine comqr
 
-
-
     !  Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
     !
     !! COMQR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
@@ -4780,7 +4773,6 @@ Module CFML_EisPack
     End Subroutine elmbak
 
 
-
     !  Subroutine elmhes ( n, low, igh, a, ind )
     !
     !! ELMHES transforms a real general matrix to upper Hessenberg form.
@@ -5508,14 +5500,7 @@ Module CFML_EisPack
     !
     !    02 May 2019
     !
-    !    this function, and did a much lighter conversion of the F77 code
-    !    for a second try.
-    !
-    !  Modified:
-    !
-    !    02 May 2019
-    !
-     !  Arguments:
+    !  Arguments:
     !
     !    Input, integer ::N, the order of the matrix.
     !
@@ -5548,6 +5533,7 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
+
     Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
       integer,                      intent(in)     :: n, low, igh
       real(kind=dp), dimension(n,n),intent(in out) :: h
@@ -5560,12 +5546,12 @@ Module CFML_EisPack
       real(kind=dp) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
       logical :: notlas
 
-      ierr = 0
-      norm = 0.0d0
-      k = 1
-      !
-      !  store roots isolated by balanc and compute matrix norm
-      !
+          ierr = 0
+          norm = 0.0d0
+          k = 1
+    !
+    !  store roots isolated by balanc and compute matrix norm
+    !
           do i = 1, n
 
              do j = k, n
