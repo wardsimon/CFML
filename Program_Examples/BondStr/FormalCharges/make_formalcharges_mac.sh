@@ -1,6 +1,14 @@
 #!/bin/sh
-# Script to compile the Program: formal_charges
+# Compilation script for Program: formal_charges
+# Author: Javier Gonzalez-Platas
+# Date: August-2015
+# OS X version : A. Filhol Dec 2019
+#----------------------------------
+COMP=""
+ARCH="m64"
+DEBUG="N"
 #
+# Checking CrySFML Environment Variable
 if [ a$1 = a ]
 then
 cat << !
@@ -30,6 +38,7 @@ then
      fi
    fi
 fi
+
 DEBUG=nodeb
 if [ $# -eq 2 ]
 then
@@ -116,7 +125,16 @@ in
 esac
 #
 # Compilation Process
+echo " ########################################################"
+echo " #### Formal_Charges Program                   (1.0) ####"
+echo " #### JRC - MCC - MR -JR               CopyLeft-2015 ####"
+echo " ########################################################"
 VERS="MacOS"
+if [ $ARCH == "m64" ]; then
+   DIRN="64"
+   VERS="MacOS64"
+fi   
+
 $COMP $OPT1 -fbounds-check Formal_Charges.f90  $INC
 case $COMP
 in
