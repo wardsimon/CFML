@@ -6064,9 +6064,9 @@ Module CFML_EisPack
           return
     End Subroutine hqr2
 
-    Subroutine htrib3 ( n, a, tau, m, zr, zi )
 
-    !*****************************************************************************80
+
+    !  Subroutine htrib3 ( n, a, tau, m, zr, zi )
     !
     !! HTRIB3 determines eigenvectors by undoing the HTRID3 transformation.
     !
@@ -6097,24 +6097,17 @@ Module CFML_EisPack
     !    the eigenvectors to be back transformed.  On output, ZR and ZI contain
     !    the real and imaginary parts of the transformed eigenvectors.
     !
+    Subroutine htrib3 ( n, a, tau, m, zr, zi )
+      integer,                      intent(in)     :: n
+      real(kind=dp), dimension(n,n),intent(in)     :: a
+      real(kind=dp), dimension(2,n),intent(in)     :: tau
+      integer,                      intent(in)     :: m
+      real(kind=dp), dimension(n,m),intent(in out) :: zr,zi
 
-      integer ::m
-      integer ::n
+      integer :: i,j,k
+      real(kind=dp) :: h,s,si
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::k
-      real(kind=dp) s
-      real(kind=dp) si
-      real(kind=dp) tau(2,n)
-      real(kind=dp) zi(n,m)
-      real(kind=dp) zr(n,m)
-
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
     !
     !  Transform the eigenvectors of the real symmetric tridiagonal matrix
     !  to those of the hermitian tridiagonal matrix.
@@ -6159,9 +6152,9 @@ Module CFML_EisPack
       return
     End Subroutine htrib3
 
-    Subroutine htribk ( n, ar, ai, tau, m, zr, zi )
 
-    !*****************************************************************************80
+
+    !    Subroutine htribk ( n, ar, ai, tau, m, zr, zi )
     !
     !! HTRIBK determines eigenvectors by undoing the HTRIDI transformation.
     !
@@ -6193,26 +6186,17 @@ Module CFML_EisPack
     !    the eigenvectors to be back transformed.  On output, ZR and ZI contain
     !    the real and imaginary parts of the transformed eigenvectors.
     !
+    Subroutine htribk ( n, ar, ai, tau, m, zr, zi )
+      integer,                      intent(in)     :: n
+      real(kind=dp), dimension(n,n),intent(in)     :: ar,ai
+      real(kind=dp), dimension(2,n),intent(in)     :: tau
+      integer,                      intent(in)     :: m
+      real(kind=dp), dimension(n,m),intent(in out) :: zr,zi
 
-      integer ::m
-      integer ::n
+      integer :: i,j,k,l
+      real(kind=dp) :: h,s,si
 
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::k
-      integer ::l
-      real(kind=dp) s
-      real(kind=dp) si
-      real(kind=dp) tau(2,n)
-      real(kind=dp) zi(n,m)
-      real(kind=dp) zr(n,m)
-
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
     !
     !  Transform the eigenvectors of the real symmetric tridiagonal matrix to
     !  those of the hermitian tridiagonal matrix.
@@ -6257,9 +6241,9 @@ Module CFML_EisPack
       return
     End Subroutine htribk
 
-    Subroutine htrid3 ( n, a, d, e, e2, tau )
 
-    !*****************************************************************************80
+
+    !    Subroutine htrid3 ( n, a, d, e, e2, tau )
     !
     !! HTRID3 tridiagonalizes a complex hermitian packed matrix.
     !
@@ -6297,26 +6281,14 @@ Module CFML_EisPack
     !    Output, real(kind=dp) TAU(2,N), contains further information about the
     !    transformations.
     !
+    Subroutine htrid3 ( n, a, d, e, e2, tau )
+      integer,                      intent(in)     :: n
+      real(kind=dp), dimension(n,n),intent(in out) :: a
+      real(kind=dp), dimension(n),  intent(out)    :: d,e,e2
+      real(kind=dp), dimension(2,n),intent(out)    :: tau
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) fi
-      real(kind=dp) g
-      real(kind=dp) gi
-      real(kind=dp) h
-      real(kind=dp) hh
-      integer ::i
-      integer ::j
-      integer ::k
-      !real ( kind = 8 ) pythag
-      real(kind=dp) scal
-      real(kind=dp) si
-      real(kind=dp) tau(2,n)
+      real(kind=dp) :: f,fi,g,gi,h,hh,scal,si
+      integer :: i,j,k
 
       tau(1,n) = 1.0_dp
       tau(2,n) = 0.0_dp
@@ -6456,9 +6428,9 @@ Module CFML_EisPack
       return
     End Subroutine htrid3
 
-    Subroutine htridi ( n, ar, ai, d, e, e2, tau )
 
-    !*****************************************************************************80
+
+    !    Subroutine htridi ( n, ar, ai, d, e, e2, tau )
     !
     !! HTRIDI tridiagonalizes a complex hermitian matrix.
     !
@@ -6495,27 +6467,14 @@ Module CFML_EisPack
     !    Output, real(kind=dp) TAU(2,N), contains further information about the
     !    transformations.
     !
+    Subroutine htridi ( n, ar, ai, d, e, e2, tau )
+      integer,                      intent(in)     :: n
+      real(kind=dp), dimension(n,n),intent(in out) :: ar,ai
+      real(kind=dp), dimension(n),  intent(out)    :: d,e,e2
+      real(kind=dp), dimension(2,n),intent(out)    :: tau
 
-      integer ::n
-
-      real(kind=dp) ai(n,n)
-      real(kind=dp) ar(n,n)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) fi
-      real(kind=dp) g
-      real(kind=dp) gi
-      real(kind=dp) h
-      real(kind=dp) hh
-      integer ::i
-      integer ::j
-      integer ::k
-      !real ( kind = 8 ) pythag
-      real(kind=dp) scal
-      real(kind=dp) si
-      real(kind=dp) tau(2,n)
+      real(kind=dp) :: f,fi,g,gi,h,hh,scal,si
+      integer :: i,j,k
 
       tau(1,n) = 1.0_dp
       tau(2,n) = 0.0_dp
@@ -6665,9 +6624,9 @@ Module CFML_EisPack
       return
     End Subroutine htridi
 
-    Subroutine i4vec_print ( n, a, title )
 
-    !*****************************************************************************80
+
+    !    Subroutine i4vec_print ( n, a, title )
     !
     !! I4VEC_PRINT prints an I4VEC.
     !
@@ -6691,12 +6650,12 @@ Module CFML_EisPack
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
+    Subroutine i4vec_print ( n, a, title )
+      integer,               intent(in) :: n
+      integer, dimension(n), intent(in) :: a
+      character ( len = * ), intent(in) :: title
 
-      integer ::n
-
-      integer ::a(n)
       integer ::i
-      character ( len = * ) title
 
       if ( 0 < len_trim ( title ) ) then
         write(*, '(a)' ) ' '
@@ -6711,9 +6670,9 @@ Module CFML_EisPack
       return
     End Subroutine i4vec_print
 
-    Subroutine Imtql1 ( N, D, E, Ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine Imtql1 ( N, D, E, Ierr )
     !
     !! IMTQL1 computes all eigenvalues of a symmetric tridiagonal matrix.
     !
@@ -6744,33 +6703,19 @@ Module CFML_EisPack
     !    0, normal return,
     !    J, if the J-th eigenvalue has not been determined after 30 iterations.
     !
+    Subroutine Imtql1 ( n, d, e, Ierr )
+      integer,                     intent(in)     :: n
+      real(kind=dp), dimension(n), intent(in out) :: d
+      real(kind=dp), dimension(n), intent(in out) :: e
+      integer,                     intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) b
-      real(kind=dp) c
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::l
-      integer ::m
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) s
-      logical skip
-      real(kind=dp) tst1
-      real(kind=dp) tst2
+      real(kind=dp) :: b,c,f,g,p,r,s,tst1,tst2
+      integer :: i,its,l,m
+      logical :: skip
 
       ierr = 0
 
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 ) return
 
       do i = 2, n
         e(i-1) = e(i)
@@ -6883,9 +6828,9 @@ Module CFML_EisPack
       return
     End Subroutine Imtql1
 
-    Subroutine imtql2 ( n, d, e, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine imtql2 ( n, d, e, z, ierr )
     !
     !! IMTQL2 computes all eigenvalues/vectors of a symmetric tridiagonal matrix.
     !
@@ -6926,36 +6871,20 @@ Module CFML_EisPack
     !    0, for normal return,
     !    J, if the J-th eigenvalue has not been determined after 30 iterations.
     !
+    Subroutine imtql2 ( n, d, e, z, ierr )
+      integer,                     intent(in)     :: n
+      real(kind=dp), dimension(n), intent(in out) :: d
+      real(kind=dp), dimension(n), intent(in out) :: e
+      real(kind=dp),dimension(n,n),intent(in out) :: z
+      integer,                     intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) b
-      real(kind=dp) c
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::m
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) t(n)
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: b,c,f,g,p,r,s,tst1,tst2
+      integer       :: i,its,j,k,l,m
+      real(kind=dp), dimension(n) :: t
 
       ierr = 0
 
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 )  return
 
       do i = 2, n
         e(i-1) = e(i)
@@ -7076,9 +7005,9 @@ Module CFML_EisPack
       return
     End Subroutine imtql2
 
-    Subroutine imtqlv ( n, d, e, e2, w, ind, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine imtqlv ( n, d, e, e2, w, ind, ierr )
     !
     !! IMTQLV computes all eigenvalues of a real symmetric tridiagonal matrix.
     !
@@ -7121,33 +7050,19 @@ Module CFML_EisPack
     !    0, for normal return,
     !    J, if the J-th eigenvalue has not been determined after 30 iterations.
     !
+    Subroutine imtqlv ( n, d, e, e2, w, ind, ierr )
+      integer,                     intent(in)     :: n
+      real(kind=dp), dimension(n), intent(in)     :: d
+      real(kind=dp), dimension(n), intent(in)     :: e
+      real(kind=dp), dimension(n), intent(in out) :: e2
+      real(kind=dp), dimension(n), intent(out)    :: w
+      integer,       dimension(n), intent(out)    :: ind
+      integer,                     intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) b
-      real(kind=dp) c
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      integer ::i
-      integer ::ierr
-      integer ::ind(n)
-      integer ::its
-      integer ::k
-      integer ::l
-      integer ::m
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) rv1(n)
-      real(kind=dp) s
-      logical skip
-      integer ::tag
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) w(n)
+      real(kind=dp) :: b,c,f,g,p,r,s,tst1,tst2
+      integer       :: i,its,k,l,m, tag
+      real(kind=dp), dimension(n) :: rv1
+      logical :: skip
 
       ierr = 0
       k = 0
@@ -8461,7 +8376,7 @@ Module CFML_EisPack
       end do
     End Subroutine Ortran
 
-    real(kind=dp) function pythag ( a, b )
+    function pythag ( a, b ) result(pythag_val)
 
     !*****************************************************************************80
     !
@@ -8495,7 +8410,7 @@ Module CFML_EisPack
       real(kind=dp) s
       real(kind=dp) t
       real(kind=dp) u
-
+      real(kind=dp) pythag_val
       p = max ( abs ( a ), abs ( b ) )
 
       if ( p /= 0.0_dp ) then
@@ -8519,7 +8434,7 @@ Module CFML_EisPack
 
       end if
 
-      pythag = p
+      pythag_val = p
 
       return
     end function pythag
@@ -12238,7 +12153,7 @@ Module CFML_EisPack
       return
     End Subroutine rt
 
-    integer function sturm_sequence ( d, e, e2, n, p, q, x1 )
+    function sturm_sequence ( d, e, e2, n, p, q, x1 ) result(sturm_sequence_val)
 
     !*****************************************************************************80
     !
@@ -12289,7 +12204,7 @@ Module CFML_EisPack
       real(kind=dp) u
       real(kind=dp) v
       real(kind=dp) x1
-
+      integer sturm_sequence_val
       s = p - 1
       u = 1.0_dp
 
@@ -12311,7 +12226,7 @@ Module CFML_EisPack
 
       end do
 
-      sturm_sequence = s
+      sturm_sequence_val = s
 
       return
     End function sturm_sequence
