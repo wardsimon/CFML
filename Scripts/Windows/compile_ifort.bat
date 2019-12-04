@@ -58,6 +58,9 @@ rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /nologo %OPT1% %OPT2%
 rem
    ifort /c CFML_math_gen.f90                         /nologo %OPT1% %OPT2%
+rem NEW   
+   ifort /c CFML_EisPack.f90                          /nologo %OPT1% %OPT2%
+rem NEW
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
    ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
