@@ -8790,7 +8790,7 @@ Module CFML_EisPack
 
         else
     !
-    !  Determine type of shift.
+    !  Determine typ of shift.
     !
           b22 = b(l1,l1)
           if ( abs ( b22 ) < epsb ) then
@@ -9423,9 +9423,9 @@ Module CFML_EisPack
 
     End Subroutine qzval
 
-    Subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
     !
     !! QZVEC computes eigenvectors for a generalized eigenvalue problem.
     !
@@ -9475,49 +9475,17 @@ Module CFML_EisPack
     !    Each eigenvector is normalized so that the modulus of its largest
     !    component is 1.0_dp .
     !
+    Subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: a
+      real(kind=dp), dimension(n,n), intent(in out) :: b
+      real(kind=dp), dimension(n),   intent(in)     :: alfr, alfi, beta
+      real(kind=dp), dimension(n,n), intent(in out) :: z
 
-      integer ::n
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) alfi(n)
-      real(kind=dp) alfm
-      real(kind=dp) alfr(n)
-      real(kind=dp) almi
-      real(kind=dp) almr
-      real(kind=dp) b(n,n)
-      real(kind=dp) beta(n)
-      real(kind=dp) betm
-      real(kind=dp) d
-      real(kind=dp) di
-      real(kind=dp) dr
-      integer ::en
-      integer ::enm2
-      real(kind=dp) epsb
-      integer ::i
-      integer ::isw
-      integer ::j
-      integer ::k
-      integer ::m
-      integer ::na
-      real(kind=dp) q
-      real(kind=dp) r
-      real(kind=dp) ra
-      real(kind=dp) rr
-      real(kind=dp) s
-      real(kind=dp) sa
-      real(kind=dp) t
-      real(kind=dp) t1
-      real(kind=dp) t2
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) w
-      real(kind=dp) w1
-      real(kind=dp) x
-      real(kind=dp) x1
-      real(kind=dp) y
-      real(kind=dp) z(n,n)
-      real(kind=dp) z1
-      real(kind=dp) zz
+      real(kind=dp) :: alfm,almi,almr,betm,d,di,dr,epsb,q,r,ra,rr,s,sa,t,t1,t2, &
+                       ti,tr,w,w1,x,x1,y,z1,zz
+      integer       :: en,enm2,i,isw,j,k,m,na
 
       epsb = b(n,1)
       isw = 1
@@ -9783,9 +9751,9 @@ Module CFML_EisPack
 
     End Subroutine qzvec
 
-    Subroutine r8mat_identity ( n, a )
 
-    !*****************************************************************************80
+
+    !     Subroutine r8mat_identity ( n, a )
     !
     !! R8MAT_IDENTITY stores the identity matrix in an R8MAT.
     !
@@ -9807,23 +9775,20 @@ Module CFML_EisPack
     !
     !    Output, real(kind=dp) A(N,N), the N by N identity matrix.
     !
+    Subroutine r8mat_identity ( n, a )
+      integer, intent(in) :: n
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
+      real(kind=dp), dimension(n,n), intent(out) :: a
       integer ::i
 
       a(1:n,1:n) = 0.0_dp
-
       do i = 1, n
         a(i,i) = 1.0_dp
       end do
 
     End Subroutine r8mat_identity
 
-    Subroutine r8mat_print ( m, n, a, title )
-
-    !*****************************************************************************80
+    !    Subroutine r8mat_print ( m, n, a, title )
     !
     !! R8MAT_PRINT prints an R8MAT.
     !
@@ -9849,20 +9814,18 @@ Module CFML_EisPack
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
-
-      integer ::m
-      integer ::n
-
-      real(kind=dp) a(m,n)
-      character ( len = * ) title
+    Subroutine r8mat_print ( m, n, a, title )
+      integer,                       intent(in) :: m, n
+      real(kind=dp), dimension(m,n), intent(in) :: a
+      character ( len = * ),         intent(in) :: title
 
       call r8mat_print_some ( m, n, a, 1, 1, m, n, title )
 
     End Subroutine r8mat_print
 
-    Subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
-    !*****************************************************************************80
+
+    !    Subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
     !
     !! R8MAT_PRINT_SOME prints some of an R8MAT.
     !
@@ -9890,26 +9853,14 @@ Module CFML_EisPack
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
+    Subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
+      integer,                       intent(in) :: m, n, ilo, jlo, ihi, jhi
+      real(kind=dp), dimension(m,n), intent(in) :: a
+      character ( len = * ),         intent(in) :: title
 
-      integer ( kind = 4 ), parameter :: incx = 5
-      integer ::m
-      integer ::n
-
-      real(kind=dp) a(m,n)
-      character ( len = 14 ) ctemp(incx)
-      integer ::i
-      integer ::i2hi
-      integer ::i2lo
-      integer ::ihi
-      integer ::ilo
-      integer ::inc
-      integer ::j
-      integer ::j2
-      integer ::j2hi
-      integer ::j2lo
-      integer ::jhi
-      integer ::jlo
-      character ( len = * ) title
+      integer, parameter :: incx = 5
+      character ( len = 14 ), dimension(incx) :: ctemp
+      integer :: i,i2hi,i2lo,inc,j,j2,j2hi,j2lo
 
       write(*, '(a)' ) ''
       write(*, '(a)' ) trim ( title )
@@ -9958,9 +9909,9 @@ Module CFML_EisPack
 
     End Subroutine r8mat_print_some
 
-    Subroutine r8mat_uniform_01 ( m, n, seed, r )
 
-    !*****************************************************************************80
+
+    !    Subroutine r8mat_uniform_01 ( m, n, seed, r )
     !
     !! R8MAT_UNIFORM_01 fills an R8MAT with unit pseudorandom numbers.
     !
@@ -10004,16 +9955,14 @@ Module CFML_EisPack
     !
     !    Output, real(kind=dp) R(M,N), the array of pseudorandom values.
     !
+    Subroutine r8mat_uniform_01 ( m, n, seed, r )
+      integer,                       intent(in)     :: m, n
+      integer,                       intent(in out) :: seed
+      real(kind=dp), dimension(m,n), intent(out)    :: r
 
-      integer ::m
-      integer ::n
+      integer, parameter :: i4_huge = 2147483647
+      integer ::i,j,k
 
-      integer ::i
-      integer ( kind = 4 ), parameter :: i4_huge = 2147483647
-      integer ::j
-      integer ::k
-      integer ::seed
-      real(kind=dp) r(m,n)
 
       do j = 1, n
 
@@ -10034,9 +9983,9 @@ Module CFML_EisPack
 
     End Subroutine r8mat_uniform_01
 
-    Subroutine r8vec_print ( n, a, title )
 
-    !*****************************************************************************80
+
+    !    Subroutine r8vec_print ( n, a, title )
     !
     !! R8VEC_PRINT prints an R8VEC.
     !
@@ -10060,12 +10009,12 @@ Module CFML_EisPack
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
+    Subroutine r8vec_print ( n, a, title )
+      integer,                       intent(in) :: n
+      real(kind=dp), dimension(n),   intent(in) :: a
+      character ( len = * ),         intent(in) :: title
 
-      integer ::n
-
-      real(kind=dp) a(n)
       integer ::i
-      character ( len = * ) title
 
       write(*, '(a)' ) ''
       write(*, '(a)' ) trim ( title )
@@ -10076,9 +10025,9 @@ Module CFML_EisPack
 
     End Subroutine r8vec_print
 
-    Subroutine r8vec2_print ( n, a1, a2, title )
 
-    !*****************************************************************************80
+
+    !    Subroutine r8vec2_print ( n, a1, a2, title )
     !
     !! R8VEC2_PRINT prints an R8VEC2.
     !
@@ -10103,13 +10052,12 @@ Module CFML_EisPack
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
+    Subroutine r8vec2_print ( n, a1, a2, title )
+      integer,                       intent(in) :: n
+      real(kind=dp), dimension(n),   intent(in) :: a1,a2
+      character ( len = * ),         intent(in) :: title
 
-      integer ::n
-
-      real(kind=dp) a1(n)
-      real(kind=dp) a2(n)
       integer ::i
-      character ( len = * )  title
 
       write(*, '(a)' ) ''
       write(*, '(a)' ) trim ( title )
@@ -10133,9 +10081,9 @@ Module CFML_EisPack
 
     End Subroutine r8vec2_print
 
-    Subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, type, idef, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, typ, idef, ierr )
     !
     !! RATQR computes selected eigenvalues of a real symmetric tridiagonal matrix.
     !
@@ -10194,7 +10142,7 @@ Module CFML_EisPack
     !    are usually within the tolerance specified by EPS1.  BD may coincide
     !    with E2.
     !
-    !    Input, logical TYPE, should be set to TRUE if the smallest eigenvalues
+    !    Input, logical typ, should be set to TRUE if the smallest eigenvalues
     !    are to be found, and to FALSE if the largest eigenvalues are to be found.
     !
     !    Input, integer ::IDEF, should be set to 1 if the input matrix
@@ -10203,54 +10151,40 @@ Module CFML_EisPack
     !
     !    Output, integer ::IERR, error flag.
     !    0, for normal return,
-    !    6*N+1, if IDEF is set to 1 and TYPE to .true. when the matrix is not
-    !      positive definite, or if IDEF is set to -1 and TYPE to .false.
+    !    6*N+1, if IDEF is set to 1 and typ to .true. when the matrix is not
+    !      positive definite, or if IDEF is set to -1 and typ to .false.
     !      when the matrix is not negative definite,
     !    5*N+K, if successive iterates to the K-th eigenvalue are not monotone
     !      increasing, where K refers to the last such occurrence.
     !
+    Subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, typ, idef, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp),                 intent(in out) :: eps1
+      real(kind=dp), dimension(n),   intent(in)     :: d,e
+      real(kind=dp), dimension(n),   intent(in out) :: e2
+      integer,                       intent(in)     :: m
+      real(kind=dp), dimension(m),   intent(out)    :: w
+      integer,       dimension(n),   intent(out)    :: ind
+      real(kind=dp), dimension(n),   intent(out)    :: bd
+      logical,                       intent(in)     :: typ
+      integer,                       intent(in)     :: idef
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
+      real(kind=dp) :: delta ,ep,errv,f,p,q,qp,r,s,tot
 
-      real(kind=dp) bd(n)
-      real(kind=dp) d(n)
-      real(kind=dp) delta
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) ep
-      real(kind=dp) eps1
-      real(kind=dp) err
-      real(kind=dp) f
-      integer ::i
-      integer ::idef
-      integer ::ierr
-      integer ::ii
-      integer ::ind(n)
-      logical irreg
-      integer ::j
-      integer ::jdef
-      integer ::k
-      integer ::m
-      real(kind=dp) p
-      real(kind=dp) q
-      real(kind=dp) qp
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) tot
-      logical type
-      real(kind=dp) w(n)
+      integer :: i,ii,irreg,j,jdef,k
 
       ierr = 0
       jdef = idef
       w(1:n) = d(1:n)
 
-      if ( .not. type ) then
+      if ( .not. typ ) then
         j = 1
         w(1:n) = - w(1:n)
         jdef = - jdef
       end if
 
-      err = 0.0_dp
+      errv = 0.0_dp
       s = 0.0_dp
     !
     !  Look for small sub-diagonal entries and define initial shift
@@ -10409,13 +10343,13 @@ Module CFML_EisPack
         end do
 
         w(k) = tot
-        err = err + abs ( delta)
-        bd(k) = err
+        errv = errv + abs ( delta)
+        bd(k) = errv
         ind(k) = ii
 
       end do
 
-      if ( .not. type ) then
+      if ( .not. typ ) then
         f = bd(1)
         e2(1) = 2.0_dp
         bd(1) = f
@@ -10425,9 +10359,9 @@ Module CFML_EisPack
 
     End Subroutine ratqr
 
-    Subroutine rebak ( n, b, dl, m, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine rebak ( n, b, dl, m, z )
     !
     !! REBAK determines eigenvectors by undoing the REDUC transformation.
     !
@@ -10459,15 +10393,14 @@ Module CFML_EisPack
     !    back transformed in its first M columns.  On output, the transformed
     !    eigenvectors.
     !
+    Subroutine rebak ( n, b, dl, m, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: b
+      real(kind=dp), dimension(n),   intent(in)     :: dl
+      integer,                       intent(in)     :: m
+      real(kind=dp), dimension(n,m), intent(in out) :: z
 
-      integer ::m
-      integer ::n
-
-      real(kind=dp) b(n,n)
-      real(kind=dp) dl(n)
-      integer ::i
-      integer ::j
-      real(kind=dp) z(n,m)
+      integer ::i,j
 
       do j = 1, m
         do i = n, 1, -1
@@ -10477,9 +10410,9 @@ Module CFML_EisPack
 
     End Subroutine rebak
 
-    Subroutine rebakb ( n, b, dl, m, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine rebakb ( n, b, dl, m, z )
     !
     !! REBAKB determines eigenvectors by undoing the REDUC2 transformation.
     !
@@ -10511,31 +10444,26 @@ Module CFML_EisPack
     !    back transformed in its first M columns.  On output, the transformed
     !    eigenvectors.
     !
+    Subroutine rebakb ( n, b, dl, m, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: b
+      real(kind=dp), dimension(n),   intent(in)     :: dl
+      integer,                       intent(in)     :: m
+      real(kind=dp), dimension(n,m), intent(in out) :: z
 
-      integer ::m
-      integer ::n
-
-      real(kind=dp) b(n,n)
-      real(kind=dp) dl(n)
-      integer ::i
-      integer ::j
-      real(kind=dp) z(n,m)
+      integer ::i,j
 
       do j = 1, m
-
         do i = n, 1, -1
-
           z(i,j) = dl(i) * z(i,j) + dot_product ( b(i,1:i-1), z(1:i-1,j) )
-
         end do
-
       end do
 
     End Subroutine rebakb
 
-    Subroutine reduc ( n, a, b, dl, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine reduc ( n, a, b, dl, ierr )
     !
     !! REDUC reduces the eigenvalue problem A*x=lambda*B*x to A*x=lambda*x.
     !
@@ -10576,19 +10504,14 @@ Module CFML_EisPack
     !    0, for normal return,
     !    7*N+1, if B is not positive definite.
     !
+    Subroutine reduc ( n, a, b, dl, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a,b
+      real(kind=dp), dimension(n),   intent(in out) :: dl
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) dl(n)
-      integer ::i
-      integer ::ierr
-      integer ::j
-      integer ::k
-      integer ::nn
-      real(kind=dp) x
-      real(kind=dp) y
+      integer       :: i,j,k,nn
+      real(kind=dp) :: x,y
 
       ierr = 0
       nn = abs ( n )
@@ -10669,9 +10592,9 @@ Module CFML_EisPack
 
     End Subroutine reduc
 
-    Subroutine reduc2 ( n, a, b, dl, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine reduc2 ( n, a, b, dl, ierr )
     !
     !! REDUC2 reduces the eigenvalue problem A*B*x=lamdba*x to A*x=lambda*x.
     !
@@ -10714,19 +10637,14 @@ Module CFML_EisPack
     !    0, for normal return,
     !    7*N+1, if B is not positive definite.
     !
+    Subroutine reduc2 ( n, a, b, dl, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a,b
+      real(kind=dp), dimension(n),   intent(in out) :: dl
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) dl(n)
-      integer ::i
-      integer ::ierr
-      integer ::j
-      integer ::k
-      integer ::nn
-      real(kind=dp) x
-      real(kind=dp) y
+      integer       :: i,j,k,nn
+      real(kind=dp) :: x,y
 
       ierr = 0
       nn = abs ( n )
@@ -10805,9 +10723,9 @@ Module CFML_EisPack
 
     End Subroutine reduc2
 
-    Subroutine rg_elm ( n, a, wr, wi, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !     Subroutine rg_elm ( n, a, wr, wi, matz, z, ierr )
     !
     !! RG_ELM computes eigenvalues and eigenvectors of a real general matrix.
     !
@@ -10847,19 +10765,17 @@ Module CFML_EisPack
     !    Output, integer ::IERR, an error completion code described in
     !    the documentation for HQR and HQR2.  The normal completion code is zero.
     !
+    Subroutine rg_elm ( n, a, wr, wi, matz, z, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a
+      real(kind=dp), dimension(n),   intent(out)    :: wr,wi
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(out)    :: z
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) fv1(n)
-      integer ::ierr
-      integer ::is1
-      integer ::is2
-      integer ::iv1(n)
-      logical matz
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1
+      integer ::is1,is2
+      integer, dimension(n) ::iv1
 
       call balanc ( n, a, is1, is2, fv1 )
 
@@ -10977,9 +10893,9 @@ Module CFML_EisPack
 
     End Subroutine rg_ort
 
-    Subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
     !
     !! RGG: eigenvalues/vectors for the generalized problem A*x = lambda*B*x.
     !
@@ -11024,18 +10940,16 @@ Module CFML_EisPack
     !    described in the documentation for QZIT.  The normal completion
     !    code is zero.
     !
+    Subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,n), intent(in out):: a,b
+      real(kind = dp), dimension(n),   intent(out)   :: alfr, alfi
+      real(kind = dp), dimension(n),   intent(out)   :: beta
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) alfi(n)
-      real(kind=dp) alfr(n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) beta(n)
-      real(kind=dp) eps1
-      integer ::ierr
-      logical matz
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: eps1
 
       eps1 = 0.0_dp
 
@@ -11057,9 +10971,9 @@ Module CFML_EisPack
 
     End Subroutine rgg
 
-    Subroutine rs ( n, a, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rs ( n, a, w, matz, z, ierr )
     !
     !! RS computes eigenvalues and eigenvectors of real symmetric matrix.
     !
@@ -11092,16 +11006,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rs ( n, a, w, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,n), intent(in)    :: a
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2
 
       if ( .not. matz ) then
 
@@ -11131,9 +11044,9 @@ Module CFML_EisPack
 
     End Subroutine rs
 
-    Subroutine rsb ( n, mb, a, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsb ( n, mb, a, w, matz, z, ierr )
     !
     !! RSB computes eigenvalues and eigenvectors of a real symmetric band matrix.
     !
@@ -11156,8 +11069,8 @@ Module CFML_EisPack
     !    diagonal, required to specify the non-zero portion of the lower triangle
     !    of the matrix.
     !
-    !    Input, real(kind=dp) A(N,MB), contains the lower triangle of the real
-    !    symmetric band matrix.  Its lowest subdiagonal is stored in the last N+1-MB
+    !    Input/Output (bandr modifies A), real(kind=dp) A(N,MB), contains the lower triangle
+    !    of the real symmetric band matrix.  Its lowest subdiagonal is stored in the last N+1-MB
     !    positions of the first column, its next subdiagonal in the last
     !    N+2-MB positions of the second column, further subdiagonals similarly,
     !    and finally its principal diagonal in the N positions of the last
@@ -11175,17 +11088,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rsb ( n, mb, a, w, matz, z, ierr )
+      integer,                         intent(in)    :: n,mb
+      real(kind = dp), dimension(n,mb),intent(in out):: a
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::mb
-      integer ::n
-
-      real(kind=dp) a(n,mb)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2
 
       if ( mb <= 0 ) then
         ierr = 12 * n
@@ -11227,9 +11138,9 @@ Module CFML_EisPack
 
     End Subroutine rsb
 
-    Subroutine rsg ( n, a, b, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsg ( n, a, b, w, matz, z, ierr )
     !
     !! RSG computes eigenvalues/vectors, A*x=lambda*B*x, A symmetric, B pos-def.
     !
@@ -11264,17 +11175,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rsg ( n, a, b, w, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,n),intent(in out) :: a,b
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2
 
       call reduc ( n, a, b, fv2, ierr )
 
@@ -11314,9 +11223,9 @@ Module CFML_EisPack
 
     End Subroutine rsg
 
-    Subroutine rsgab ( n, a, b, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsgab ( n, a, b, w, matz, z, ierr )
     !
     !! RSGAB computes eigenvalues/vectors, A*B*x=lambda*x, A symmetric, B pos-def.
     !
@@ -11352,17 +11261,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rsgab ( n, a, b, w, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,n), intent(in out):: a,b
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2
 
       call reduc2 ( n, a, b, fv2, ierr )
 
@@ -11402,9 +11309,9 @@ Module CFML_EisPack
 
     End Subroutine rsgab
 
-    Subroutine rsgba ( n, a, b, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsgba ( n, a, b, w, matz, z, ierr )
     !
     !! RSGBA computes eigenvalues/vectors, B*A*x=lambda*x, A symmetric, B pos-def.
     !
@@ -11440,17 +11347,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rsgba ( n, a, b, w, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,n), intent(in out):: a,b
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1,fv2
 
       call reduc2 ( n, a, b, fv2, ierr )
 
@@ -11490,9 +11395,9 @@ Module CFML_EisPack
 
     End Subroutine rsgba
 
-    Subroutine rsm ( n, a, w, m, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsm ( n, a, w, m, z, ierr )
     !
     !! RSM computes eigenvalues, some eigenvectors, real symmetric matrix.
     !
@@ -11524,18 +11429,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT, IMTQLV and
     !    TINVIT.  The normal completion code is zero.
     !
+    Subroutine rsm ( n, a, w, m, z, ierr )
+      integer,                         intent(in)    :: n,m
+      real(kind = dp), dimension(n,n), intent(in)    :: a
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      real(kind = dp), dimension(n,m), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::m
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) fwork1(n)
-      real(kind=dp) fwork2(n)
-      real(kind=dp) fwork3(n)
-      integer ::ierr
-      integer ::iwork(n)
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,m)
+      real(kind=dp), dimension(n) :: fwork1,fwork2,fwork3
+      integer,       dimension(n) :: iwork
 
       if ( m <= 0 ) then
 
@@ -11575,9 +11477,9 @@ Module CFML_EisPack
 
     End Subroutine rsm
 
-    Subroutine rsp ( n, nv, a, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rsp ( n, nv, a, w, matz, z, ierr )
     !
     !! RSP computes eigenvalues and eigenvectors of real symmetric packed matrix.
     !
@@ -11613,17 +11515,16 @@ Module CFML_EisPack
     !    completion code described in the documentation for TQLRAT and TQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rsp ( n, nv, a, w, matz, z, ierr )
+      integer,                         intent(in)    :: n,nv
+      real(kind = dp), dimension(nv),  intent(in)    :: a
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-      integer ::nv
 
-      real(kind=dp) a(nv)
-      real(kind=dp) fv1(n)
-      real(kind=dp) fv2(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1, fv2
 
       if ( nv < ( n * ( n + 1 ) ) / 2 ) then
         ierr = 20 * n
@@ -11662,9 +11563,9 @@ Module CFML_EisPack
 
     End Subroutine rsp
 
-    Subroutine rspp ( n, nv, a, w, matz, z, m, type, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rspp ( n, nv, a, w, matz, z, m, typ, ierr )
     !
     !! RSPP computes some eigenvalues/vectors, real symmetric packed matrix.
     !
@@ -11703,31 +11604,26 @@ Module CFML_EisPack
     !
     !    Input, integer ::M, the number of eigenvalues to be found.
     !
-    !    Input, logical TYPE, set to .true. if the smallest eigenvalues
+    !    Input, logical typ, set to .true. if the smallest eigenvalues
     !    are to be found, or .false. if the largest ones are sought.
     !
     !    Output, integer ::IERR, error flag from RATQR.  IERR=0 on
     !    normal return.  IERR nonzero, in this case, means that the algorithm broke
     !    down while computing an eigenvalue.
     !
+    Subroutine rspp ( n, nv, a, w, matz, z, m, typ, ierr )
+      integer,                         intent(in)    :: n,nv,m
+      real(kind = dp), dimension(nv),  intent(in)    :: a
+      real(kind = dp), dimension(m),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,m), intent(out)   :: z
+      logical,                         intent(in)    :: typ
+      integer,                         intent(out)   :: ierr
 
-      integer ::m
-      integer ::n
-      integer ::nv
-
-      real(kind=dp) a(nv)
-      real(kind=dp) bd(n)
-      real(kind=dp) eps1
-      integer ::idef
-      integer ::ierr
-      integer ::iwork(n)
-      logical matz
-      logical type
-      real(kind=dp) w(m)
-      real(kind=dp) work1(n)
-      real(kind=dp) work2(n)
-      real(kind=dp) work3(n)
-      real(kind=dp) z(n,m)
+      real(kind=dp) :: eps1
+      integer       :: idef
+      integer,      dimension(n) :: iwork
+      real(kind=dp),dimension(n) :: work1,work2,work3,bd
     !
     !  IDEF =
     !    -1 if the matrix is known to be negative definite,
@@ -11745,7 +11641,7 @@ Module CFML_EisPack
       eps1 = 0.0_dp
 
       call ratqr ( n, eps1, work1, work2, work3, m, w, iwork, &
-        bd, type, idef, ierr )
+        bd, typ, idef, ierr )
 
       if ( ierr /= 0 ) then
           ERR_EisPack=.true.
@@ -11773,9 +11669,9 @@ Module CFML_EisPack
 
     End Subroutine rspp
 
-    Subroutine rst ( n, w, e, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rst ( n, w, e, matz, z, ierr )
     !
     !! RST computes eigenvalues/vectors, real symmetric tridiagonal matrix.
     !
@@ -11797,8 +11693,8 @@ Module CFML_EisPack
     !    of the real symmetric tridiagonal matrix.  On output, the eigenvalues in
     !    ascending order.
     !
-    !    Input, real(kind=dp) E(N), the subdiagonal elements of the matrix in
-    !    E(2:N).  E(1) is arbitrary.
+    !    Input/output (may be modified within imtql1,2), real(kind=dp) E(N), the subdiagonal
+    !    elements of the matrix in E(2:N).  E(1) is arbitrary.
     !
     !    Input, logical MATZ, is false if only eigenvalues are desired,
     !    and true if both eigenvalues and eigenvectors are desired.
@@ -11810,14 +11706,13 @@ Module CFML_EisPack
     !    completion code described in the documentation for IMTQL1 and IMTQL2.
     !    The normal completion code is zero.
     !
-
-      integer ::n
-
-      real(kind=dp) e(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+    Subroutine rst ( n, w, e, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n),   intent(in out):: w
+      real(kind = dp), dimension(n),   intent(in out):: e
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
       if ( .not. matz ) then
 
@@ -11845,9 +11740,9 @@ Module CFML_EisPack
 
     End Subroutine rst
 
-    Subroutine rt ( n, a, w, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine rt ( n, a, w, matz, z, ierr )
     !
     !! RT computes eigenvalues/vectors, real sign-symmetric tridiagonal matrix.
     !
@@ -11865,7 +11760,7 @@ Module CFML_EisPack
     !
     !    Input, integer ::N, the order of the matrix.
     !
-    !    Input, real(kind=dp) A(N,N), contains the special real tridiagonal
+    !    Input, real(kind=dp) A(N,3), contains the special real tridiagonal
     !    matrix in its first three columns.  The subdiagonal elements are stored
     !    in the last N-1 positions of the first column, the diagonal elements
     !    in the second column, and the superdiagonal elements in the first N-1
@@ -11883,15 +11778,15 @@ Module CFML_EisPack
     !    completion code described in the documentation for IMTQL1 and IMTQL2.
     !    The normal completion code is zero.
     !
+    Subroutine rt ( n, a, w, matz, z, ierr )
+      integer,                         intent(in)    :: n
+      real(kind = dp), dimension(n,3), intent(in)    :: a
+      real(kind = dp), dimension(n),   intent(out)   :: w
+      logical,                         intent(in)    :: matz
+      real(kind = dp), dimension(n,n), intent(out)   :: z
+      integer,                         intent(out)   :: ierr
 
-      integer ::n
-
-      real(kind=dp) fv1(n)
-      integer ::ierr
-      logical matz
-      real(kind=dp) a(n,3)
-      real(kind=dp) w(n)
-      real(kind=dp) z(n,n)
+      real(kind=dp), dimension(n) :: fv1
 
       if ( .not. matz ) then
 
@@ -11933,9 +11828,9 @@ Module CFML_EisPack
 
     End Subroutine rt
 
-    function sturm_sequence ( d, e, e2, n, p, q, x1 ) result(sturm_sequence_val)
 
-    !*****************************************************************************80
+
+    !    function sturm_sequence ( d, e, e2, n, p, q, x1 ) result(sturm_sequence_val)
     !
     !! STURM_SEQUENCE counts eigenvalues of a symmetric tridiagonal submatrix.
     !
@@ -11971,20 +11866,16 @@ Module CFML_EisPack
     !    Output, integer ::STURM_SEQUENCE, the number of eigenvalues
     !    less than or equal to X1.
     !
+    function sturm_sequence ( d, e, e2, n, p, q, x1 ) result(sturm_sequence_val)
+      real(kind = dp), dimension(n),   intent(in)    :: d,e,e2
+      integer,                         intent(in)    :: n,p,q
+      real(kind = dp),                 intent(in)    :: x1
+      integer                                        :: sturm_sequence_val
 
-      integer ::n
+      integer ::i,s
 
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      integer ::i
-      integer ::p
-      integer ::q
-      integer ::s
-      real(kind=dp) u
-      real(kind=dp) v
-      real(kind=dp) x1
-      integer sturm_sequence_val
+      real(kind=dp) :: u,v
+
       s = p - 1
       u = 1.0_dp
 
@@ -12405,9 +12296,9 @@ Module CFML_EisPack
 
     End Subroutine svd
 
-    Subroutine timestamp ( )
 
-    !*****************************************************************************80
+
+    !    Subroutine timestamp ( )
     !
     !! TIMESTAMP prints the current YMDHMS date as a time stamp.
     !
@@ -12428,7 +12319,7 @@ Module CFML_EisPack
     !
     !    None
     !
-
+    Subroutine timestamp ( )
       character ( len = 8 ) ampm
       integer ::d
       integer ::h
