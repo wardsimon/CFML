@@ -8790,7 +8790,7 @@ Module CFML_EisPack
 
         else
     !
-    !  Determine typ of shift.
+    !  Determine type of shift.
     !
           b22 = b(l1,l1)
           if ( abs ( b22 ) < epsb ) then
@@ -10992,7 +10992,7 @@ Module CFML_EisPack
     !
     !    Input, integer ::N, the order of the matrix.
     !
-    !    Input, real(kind=dp) A(N,N), the real symmetric matrix.
+    !    Input/output (?), real(kind=dp) A(N,N), the real symmetric matrix.
     !
     !    Input, logical MATZ, is false if only eigenvalues are desired,
     !    and true if both eigenvalues and eigenvectors are desired.
@@ -11008,7 +11008,7 @@ Module CFML_EisPack
     !
     Subroutine rs ( n, a, w, matz, z, ierr )
       integer,                         intent(in)    :: n
-      real(kind = dp), dimension(n,n), intent(in)    :: a
+      real(kind = dp), dimension(n,n), intent(in out):: a
       real(kind = dp), dimension(n),   intent(out)   :: w
       logical,                         intent(in)    :: matz
       real(kind = dp), dimension(n,n), intent(out)   :: z
@@ -11431,7 +11431,7 @@ Module CFML_EisPack
     !
     Subroutine rsm ( n, a, w, m, z, ierr )
       integer,                         intent(in)    :: n,m
-      real(kind = dp), dimension(n,n), intent(in)    :: a
+      real(kind = dp), dimension(n,n), intent(in out):: a
       real(kind = dp), dimension(n),   intent(out)   :: w
       real(kind = dp), dimension(n,m), intent(out)   :: z
       integer,                         intent(out)   :: ierr
@@ -11517,7 +11517,7 @@ Module CFML_EisPack
     !
     Subroutine rsp ( n, nv, a, w, matz, z, ierr )
       integer,                         intent(in)    :: n,nv
-      real(kind = dp), dimension(nv),  intent(in)    :: a
+      real(kind = dp), dimension(nv),  intent(in out):: a
       real(kind = dp), dimension(n),   intent(out)   :: w
       logical,                         intent(in)    :: matz
       real(kind = dp), dimension(n,n), intent(out)   :: z
@@ -11613,7 +11613,7 @@ Module CFML_EisPack
     !
     Subroutine rspp ( n, nv, a, w, matz, z, m, typ, ierr )
       integer,                         intent(in)    :: n,nv,m
-      real(kind = dp), dimension(nv),  intent(in)    :: a
+      real(kind = dp), dimension(nv),  intent(in out):: a
       real(kind = dp), dimension(m),   intent(out)   :: w
       logical,                         intent(in)    :: matz
       real(kind = dp), dimension(n,m), intent(out)   :: z
@@ -12370,9 +12370,8 @@ Module CFML_EisPack
 
     End Subroutine timestamp
 
-    Subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
 
-    !*****************************************************************************80
+    !    Subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
     !
     !! TINVIT computes eigenvectors from eigenvalues, real tridiagonal symmetric.
     !
@@ -12420,50 +12419,23 @@ Module CFML_EisPack
     !    -R, if the eigenvector corresponding to the R-th eigenvalue fails to
     !      converge in 5 iterations.
     !
+    Subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n),   intent(in)     :: d,e
+      real(kind=dp), dimension(n),   intent(in)     :: e2
+      integer,                       intent(in)     :: m
+      real(kind=dp), dimension(m),   intent(in)     :: w
+      integer,       dimension(m),   intent(in)     :: ind
+      real(kind=dp), dimension(n,m), intent(out)    :: z
+      integer,                       intent(out)    :: ierr
 
-      integer ::m
-      integer ::n
-
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) eps2
-      real(kind=dp) eps3
-      real(kind=dp) eps4
-      integer ::group
-      integer ::i
-      integer ::ierr
-      integer ::ind(m)
-      integer ::its
-      integer ::j
-      integer ::jj
-      real(kind=dp) norm
-      real(kind=dp) order
-      integer ::p
-      !real ( kind = 8 ) pythag
-      integer ::q
-      integer ::r
-      real(kind=dp) rv1(n)
-      real(kind=dp) rv2(n)
-      real(kind=dp) rv3(n)
-      real(kind=dp) rv4(n)
-      real(kind=dp) rv6(n)
-      integer ::s
-      integer ::tag
-      real(kind=dp) u
-      real(kind=dp) uk
-      real(kind=dp) v
-      real(kind=dp) w(m)
-      real(kind=dp) x0
-      real(kind=dp) x1
-      real(kind=dp) xu
-      real(kind=dp) z(n,m)
+      integer :: group,i,its,j,jj,p,q,r,s,tag
+      real(kind=dp) :: eps2,eps3,eps4,norm,order,u,uk,v,x0,x1,xu
+      real(kind=dp), dimension(n) :: rv1 ,rv2,rv3,rv4,rv6
 
       ierr = 0
 
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
 
       u = 0.0_dp
       x0 = 0.0_dp
@@ -12707,9 +12679,9 @@ Module CFML_EisPack
 
     End Subroutine tinvit
 
-    Subroutine tql1 ( n, d, e, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine tql1 ( n, d, e, ierr )
     !
     !! TQL1 computes all eigenvalues of a real symmetric tridiagonal matrix.
     !
@@ -12748,38 +12720,16 @@ Module CFML_EisPack
     !    0, normal return,
     !    J, if the J-th eigenvalue has not been determined after 30 iterations.
     !
+    Subroutine tql1 ( n, d, e, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n),   intent(in out) :: d,e
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) c
-      real(kind=dp) c2
-      real(kind=dp) c3
-      real(kind=dp) d(n)
-      real(kind=dp) dl1
-      real(kind=dp) e(n)
-      real(kind=dp) el1
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::l
-      integer ::l1
-      integer ::l2
-      integer ::m
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) s2
-      real(kind=dp) tst1
-      real(kind=dp) tst2
+      real(kind=dp) :: c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,tst1,tst2
+      integer :: i,its,l,l1,l2,m
 
       ierr = 0
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 ) return
 
       do i = 2, n
         e(i-1) = e(i)
@@ -12888,9 +12838,9 @@ Module CFML_EisPack
 
     End Subroutine tql1
 
-    Subroutine tql2 ( n, d, e, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine tql2 ( n, d, e, z, ierr )
     !
     !! TQL2 computes all eigenvalues/vectors, real symmetric tridiagonal matrix.
     !
@@ -12926,7 +12876,7 @@ Module CFML_EisPack
     !    subdiagonal elements of the input matrix, and E(1) is arbitrary.
     !    On output, E has been destroyed.
     !
-    !    Input, real(kind=dp) Z(N,N).  On input, the transformation matrix
+    !    Input/output, real(kind=dp) Z(N,N).  On input, the transformation matrix
     !    produced in the reduction by TRED2, if performed.  If the eigenvectors of
     !    the tridiagonal matrix are desired, Z must contain the identity matrix.
     !    On output, Z contains the orthonormal eigenvectors of the symmetric
@@ -12938,44 +12888,18 @@ Module CFML_EisPack
     !    J, if the J-th eigenvalue has not been determined after
     !    30 iterations.
     !
+    Subroutine tql2 ( n, d, e, z, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n),   intent(in out) :: d,e
+      real(kind=dp), dimension(n,n), intent(in out) :: z
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) c
-      real(kind=dp) c2
-      real(kind=dp) c3
-      real(kind=dp) d(n)
-      real(kind=dp) dl1
-      real(kind=dp) e(n)
-      real(kind=dp) el1
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::l1
-      integer ::l2
-      integer ::m
-      integer ::mml
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) s2
-      real(kind=dp) t
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) z(n,n)
+      integer :: i,its,j,k,l,l1,l2,m,mml
+      real(kind=dp) :: c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,t,tst1,tst2
 
       ierr = 0
 
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 ) return
 
       do i = 2, n
         e(i-1) = e(i)
@@ -13108,9 +13032,9 @@ Module CFML_EisPack
 
     End Subroutine tql2
 
-    Subroutine tqlrat ( n, d, e2, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine tqlrat ( n, d, e2, ierr )
     !
     !! TQLRAT computes all eigenvalues of a real symmetric tridiagonal matrix.
     !
@@ -13150,34 +13074,17 @@ Module CFML_EisPack
     !    0, for no error,
     !    J, if the J-th eigenvalue could not be determined after 30 iterations.
     !
+    Subroutine tqlrat ( n, d, e2, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n),   intent(in out) :: d,e2
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
-
-      real(kind=dp) b
-      real(kind=dp) c
-      real(kind=dp) d(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::l
-      integer ::l1
-      integer ::m
-      integer ::mml
-      real(kind=dp) p
-      !real ( kind = 8 ) pythag
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) t
+      real(kind=dp) :: b,c,f,g,h,p,r,s,t
+      integer :: i,its,l,l1,m,mml
 
       ierr = 0
 
-      if ( n == 1 ) then
-        return
-      end if
+      if ( n == 1 ) return
 
       do i = 2, n
         e2(i-1) = e2(i)
@@ -13297,9 +13204,9 @@ Module CFML_EisPack
 
     End Subroutine tqlrat
 
-    Subroutine trbak1 ( n, a, e, m, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine trbak1 ( n, a, e, m, z )
     !
     !! TRBAK1 determines eigenvectors by undoing the TRED1 transformation.
     !
@@ -13331,24 +13238,18 @@ Module CFML_EisPack
     !    Input/output, real(kind=dp) Z(N,M).  On input, the eigenvectors to be
     !    back transformed.  On output, the transformed eigenvectors.
     !
+    Subroutine trbak1 ( n, a, e, m, z )
+      integer,                       intent(in)     :: n,m
+      real(kind=dp), dimension(n,n), intent(in)     :: a
+      real(kind=dp), dimension(n),   intent(in)     :: e
+      real(kind=dp), dimension(n,m), intent(in out) :: z
 
-      integer ::m
-      integer ::n
+      integer :: i,j
+      real(kind=dp) :: s
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) e(n)
-      integer ::i
-      integer ::j
-      real(kind=dp) s
-      real(kind=dp) z(n,m)
+      if ( m <= 0 ) return
 
-      if ( m <= 0 ) then
-        return
-      end if
-
-      if ( n <= 1 ) then
-        return
-      end if
+      if ( n <= 1 )  return
 
       do i = 2, n
 
@@ -13366,9 +13267,9 @@ Module CFML_EisPack
 
     End Subroutine trbak1
 
-    Subroutine trbak3 ( n, nv, a, m, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine trbak3 ( n, nv, a, m, z )
     !
     !! TRBAK3 determines eigenvectors by undoing the TRED3 transformation.
     !
@@ -13399,24 +13300,15 @@ Module CFML_EisPack
     !    Input/output, real(kind=dp) Z(N,M).  On input, the eigenvectors to be
     !    back transformed.  On output, the transformed eigenvectors.
     !
+    Subroutine trbak3 ( n, nv, a, m, z )
+      integer,                       intent(in)     :: n,nv,m
+      real(kind=dp), dimension(nv),  intent(in)     :: a
+      real(kind=dp), dimension(n,m), intent(in out) :: z
 
-      integer ::m
-      integer ::nv
+      real(kind=dp) :: h,s
+      integer       :: i,ik,iz,j,k
 
-      real(kind=dp) a(nv)
-      real(kind=dp) h
-      integer ::i
-      integer ::ik
-      integer ::iz
-      integer ::j
-      integer ::k
-      integer ::n
-      real(kind=dp) s
-      real(kind=dp) z(n,m)
-
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
 
       do i = 2, n
 
@@ -13452,9 +13344,9 @@ Module CFML_EisPack
 
     End Subroutine trbak3
 
-    Subroutine tred1 ( n, a, d, e, e2 )
 
-    !*****************************************************************************80
+
+    !    Subroutine tred1 ( n, a, d, e, e2 )
     !
     !! TRED1 transforms a real symmetric matrix to symmetric tridiagonal form.
     !
@@ -13494,21 +13386,13 @@ Module CFML_EisPack
     !    Output, real(kind=dp) E2(N), contains the squares of the corresponding
     !    elements of E.  E2 may coincide with E if the squares are not needed.
     !
+    Subroutine tred1 ( n, a, d, e, e2 )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a
+      real(kind=dp), dimension(n),   intent(out)    :: d,e,e2
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::k
-      integer ::l
-      real(kind=dp) scal
+      real(kind=dp) :: f,g,h,scal
+      integer :: i,j,k,l
 
       d(1:n) = a(n,1:n)
 
@@ -13611,9 +13495,9 @@ Module CFML_EisPack
 
     End Subroutine tred1
 
-    Subroutine tred2 ( n, a, d, e, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine tred2 ( n, a, d, e, z )
     !
     !! TRED2 transforms a real symmetric matrix to symmetric tridiagonal form.
     !
@@ -13655,22 +13539,14 @@ Module CFML_EisPack
     !    Output, real(kind=dp) Z(N,N), the orthogonal transformation matrix
     !    produced in the reduction.
     !
+    Subroutine tred2 ( n, a, d, e, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: a
+      real(kind=dp), dimension(n),   intent(out)    :: d,e
+      real(kind=dp), dimension(n,n), intent(out)    :: z
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      real(kind=dp) hh
-      integer ::i
-      integer ::j
-      integer ::k
-      integer ::l
-      real(kind=dp) scal
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: f,g,h,hh,scal
+      integer :: i,j,k,l
 
       do i = 1, n
         z(i:n,i) = a(i:n,i)
@@ -13801,9 +13677,9 @@ Module CFML_EisPack
       return
     End  Subroutine tred2
 
-    Subroutine tred3 ( n, nv, a, d, e, e2 )
 
-    !*****************************************************************************80
+
+    !    Subroutine tred3 ( n, nv, a, d, e, e2 )
     !
     !! TRED3: transform real symmetric packed matrix to symmetric tridiagonal form.
     !
@@ -13847,24 +13723,13 @@ Module CFML_EisPack
     !    Output, real(kind=dp) E2(N),  the squares of the corresponding
     !    elements of E.  E2 may coincide with E if the squares are not needed.
     !
+    Subroutine tred3 ( n, nv, a, d, e, e2 )
+      integer,                       intent(in)     :: n,nv
+      real(kind=dp), dimension(nv),  intent(in out) :: a
+      real(kind=dp), dimension(n),   intent(out)    :: d,e,e2
 
-      integer ::n
-      integer ::nv
-
-      real(kind=dp) a(nv)
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      real(kind=dp) hh
-      integer ::i
-      integer ::iz
-      integer ::j
-      integer ::jk
-      integer ::k
-      real(kind=dp) scal
+      real(kind=dp) :: f,g,h,hh,scal
+      integer :: i,iz,j,jk,k
 
       do i = n, 1, -1
 
@@ -13955,9 +13820,9 @@ Module CFML_EisPack
       return
     End  Subroutine tred3
 
-    Subroutine tridib ( n, eps1, d, e, e2, lb, ub, m11, m, w, ind, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine tridib ( n, eps1, d, e, e2, lb, ub, m11, m, w, ind, ierr )
     !
     !! TRIDIB computes some eigenvalues of a real symmetric tridiagonal matrix.
     !
@@ -14017,45 +13882,19 @@ Module CFML_EisPack
     !    3*N+2, if multiple eigenvalues at index M22 make unique selection
     !      impossible.
     !
+    Subroutine tridib ( n, eps1, d, e, e2, lb, ub, m11, m, w, ind, ierr )
+      integer,                       intent(in)     :: n,m,m11
+      real(kind=dp),                 intent(in out) :: eps1
+      real(kind=dp), dimension(n),   intent(in)     :: d,e
+      real(kind=dp), dimension(n),   intent(in out) :: e2
+      real(kind=dp),                 intent(out)    :: lb,ub
+      real(kind=dp), dimension(m),   intent(out)    :: w
+      integer,                       intent(out)    :: ierr
 
-      integer ::m
-      integer ::n
-
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) eps1
-      integer ::i
-      integer ::ierr
-      integer ::ind(m)
-      integer ::isturm
-      integer ::j
-      integer ::k
-      integer ::l
-      real(kind=dp) lb
-      integer ::m1
-      integer ::m11
-      integer ::m2
-      integer ::m22
-      integer ::p
-      integer ::q
-      integer ::r
-      real(kind=dp) rv4(n)
-      real(kind=dp) rv5(n)
-      integer ::s
-      !integer ::sturm_sequence
-      real(kind=dp) t1
-      real(kind=dp) t2
-      integer ::tag
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) u
-      real(kind=dp) ub
-      real(kind=dp) v
-      real(kind=dp) w(m)
-      real(kind=dp) x0
-      real(kind=dp) x1
-      real(kind=dp) xu
+      integer       :: i,isturm,j,k,l,m1,m2,m22,p,q,r,s,tag
+      real(kind=dp) :: t1,t2,tst1,tst2,u,v,x0,x1,xu
+      integer,       dimension(m) :: ind
+      real(kind=dp), dimension(n) :: rv4,rv5
 
       ierr = 0
       tag = 0
@@ -14431,53 +14270,19 @@ Module CFML_EisPack
     !      eigenvalue fails to converge in 5 iterations.
     !
     Subroutine Tsturm ( n, eps1, d, e, e2, t1, t2, mm, m, w, z, ierr )
-      integer ::mm
-      integer ::n
+      integer,                       intent(in)     :: n,mm
+      real(kind=dp),                 intent(in out) :: eps1
+      real(kind=dp), dimension(n),   intent(in)     :: d,e
+      real(kind=dp), dimension(n),   intent(in out) :: e2
+      real(kind=dp),                 intent(in)     :: t1,t2
+      integer,                       intent(out)    :: m
+      real(kind=dp), dimension(mm),  intent(out)    :: w
+      real(kind=dp), dimension(n,mm),intent(out)    :: z
+      integer,                       intent(out)    :: ierr
 
-      real(kind=dp) d(n)
-      real(kind=dp) e(n)
-      real(kind=dp) e2(n)
-      real(kind=dp) eps1
-      real(kind=dp) eps2
-      real(kind=dp) eps3
-      real(kind=dp) eps4
-      integer ::group
-      integer ::i
-      integer ::ierr
-      integer ::ip
-      integer ::its
-      integer ::j
-      integer ::k
-      real(kind=dp) lb
-      integer ::m
-      integer ::m1
-      integer ::m2
-      real(kind=dp) norm
-      integer ::p
-      !real ( kind = 8 ) pythag
-      integer ::q
-      integer ::r
-      real(kind=dp) rv1(n)
-      real(kind=dp) rv2(n)
-      real(kind=dp) rv3(n)
-      real(kind=dp) rv4(n)
-      real(kind=dp) rv5(n)
-      real(kind=dp) rv6(n)
-      integer ::s
-      !integer ::sturm_sequence
-      real(kind=dp) t1
-      real(kind=dp) t2
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) u
-      real(kind=dp) ub
-      real(kind=dp) uk
-      real(kind=dp) v
-      real(kind=dp) w(mm)
-      real(kind=dp) x0
-      real(kind=dp) x1
-      real(kind=dp) xu
-      real(kind=dp) z(n,mm)
+      integer       :: group,i,ip,its,j,k,m1,m2,p,q,r,s
+      real(kind=dp) :: eps2,eps3,eps4,lb,norm,tst1,tst2,u,ub,uk,v,x0,x1,xu
+      real(kind=dp), dimension(n) :: rv1 ,rv2,rv3,rv4,rv5,rv6
 
       ierr = 0
       s = 0
