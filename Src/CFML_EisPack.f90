@@ -139,6 +139,7 @@ Module CFML_EisPack
       do j = 1, m
         z(2:n,j) = z(2:n,j) * e(2:n)
       end do
+
     End Subroutine bakvec
 
     !!---- Subroutine balanc ( n, a, low, igh, scal )
@@ -388,6 +389,7 @@ Module CFML_EisPack
 
       low = k
       igh = l
+
     End Subroutine balanc
 
     !!---- subroutine balbak ( n, low, igh, scal, m, z )
@@ -451,6 +453,7 @@ Module CFML_EisPack
           end if
         end if
       end do
+
     End Subroutine balbak
 
     !!---- subroutine bandr ( n, mb, a, d, e, e2, matz, z )
@@ -1810,7 +1813,6 @@ Module CFML_EisPack
         a(n,mk) = 0.0_dp
       end do
 
-      return
     End Subroutine bqr
 
 
@@ -1899,7 +1901,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine cbabk2
 
 
@@ -2195,7 +2196,6 @@ Module CFML_EisPack
       cr = ( ars * brs + ais * bis ) / s
       ci = ( ais * brs - ars * bis ) / s
 
-      return
     End Subroutine cdiv
 
 
@@ -2275,7 +2275,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine cg_lr
 
 
@@ -2353,7 +2352,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine cg_qr
 
 
@@ -2430,7 +2428,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     end Subroutine ch
 
 
@@ -2513,7 +2510,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine ch3
 
 
@@ -2814,7 +2810,6 @@ Module CFML_EisPack
 
       m = s - 1
 
-      return
     End Subroutine cinvit
 
 
@@ -2899,7 +2894,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine combak
 
 
@@ -3017,7 +3011,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine comhes
 
 
@@ -3697,7 +3690,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine comlr2
 
 
@@ -3956,7 +3948,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine comqr
 
     !  Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
@@ -4424,7 +4415,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine comqr2
 
 
@@ -4508,7 +4498,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine cortb
 
 
@@ -4630,7 +4619,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine corth
 
 
@@ -4687,7 +4675,6 @@ Module CFML_EisPack
         yi = 0.5_dp * ( ti / yr )
       end if
 
-      return
     End Subroutine csroot
 
 
@@ -4769,7 +4756,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine elmbak
 
 
@@ -4879,7 +4865,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine elmhes
 
 
@@ -4958,7 +4943,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine eltran
 
 
@@ -5051,7 +5035,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine figi
 
 
@@ -5151,7 +5134,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine figi2
 
 
@@ -5471,7 +5453,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine hqr
 
 
@@ -6061,7 +6042,6 @@ Module CFML_EisPack
 
      1001 continue
 
-          return
     End Subroutine hqr2
 
 
@@ -6149,7 +6129,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine htrib3
 
 
@@ -6238,7 +6217,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine htribk
 
 
@@ -6425,7 +6403,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine htrid3
 
 
@@ -6621,7 +6598,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine htridi
 
 
@@ -6667,7 +6643,6 @@ Module CFML_EisPack
         write (*, '(2x,i8,a,2x,i12)' ) i, ':', a(i)
       end do
 
-      return
     End Subroutine i4vec_print
 
 
@@ -6825,7 +6800,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine Imtql1
 
 
@@ -7002,7 +6976,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine imtql2
 
 
@@ -7185,12 +7158,11 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine imtqlv
 
-    Subroutine invit ( n, a, wr, wi, select, mm, m, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine invit ( n, a, wr, wi, select, mm, m, z, ierr )
     !
     !! INVIT computes eigenvectors of a real upper Hessenberg matrix.
     !
@@ -7227,7 +7199,7 @@ Module CFML_EisPack
     !    required to store the eigenvectors to be found.  Note that two columns are
     !    required to store the eigenvector corresponding to a complex eigenvalue.
     !
-    !    Input, integer ::M, the number of columns actually used to store
+    !    Output, integer ::M, the number of columns actually used to store
     !    the eigenvectors.
     !
     !    Output, real(kind=dp) Z(N,MM), the real and imaginary parts of the
@@ -7244,44 +7216,22 @@ Module CFML_EisPack
     !    -K, if the iteration corresponding to the K-th value fails,
     !    -(N+K), if both error situations occur.
     !
+    Subroutine invit ( n, a, wr, wi, select, mm, m, z, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in)     :: a
+      real(kind=dp), dimension(n),   intent(in out) :: wr,wi
+      logical,       dimension(n),   intent(in out) :: select
+      integer,                       intent(in)     :: mm
+      integer,                       intent(out)    :: m
+      real(kind=dp), dimension(n,mm),intent(out)    :: z
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
+      real(kind=dp) :: eps3,growto,ilambd,norm,normv,rlambd,ukroot,w,x,y,us,uk,t
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) eps3
-      real(kind=dp) growto
-      integer ::i
-      integer ::ierr
-      real(kind=dp) ilambd
-      integer ::ip
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::m
-      integer ::mm
-      integer ::mp
-      integer ::n1
-      real(kind=dp) norm
-      real(kind=dp) normv
-      integer ::ns
-      !real ( kind = 8 ) pythag
-      logical repeat
-      real(kind=dp) rlambd
-      real(kind=dp) rm1(n,n)
-      real(kind=dp) rv1(n)
-      real(kind=dp) rv2(n)
-      integer ::s
-      logical select(n)
-      real(kind=dp) t
-      integer ::uk
-      real(kind=dp) ukroot
-      real(kind=dp) w
-      real(kind=dp) wi(n)
-      real(kind=dp) wr(n)
-      real(kind=dp) x
-      real(kind=dp) y
-      real(kind=dp) z(n,mm)
+      integer :: i,ip,its,j,k,l,mp,n1,ns,s
+      logical :: repeat
+      real(kind=dp),dimension(n,n) :: rm1
+      real(kind=dp),dimension(n)   :: rv1,rv2
 
       ierr = 0
       uk = 0
@@ -7740,12 +7690,11 @@ Module CFML_EisPack
 
       m = s - 1 - abs ( ip )
 
-      return
     End Subroutine invit
 
-    Subroutine minfit ( nm, m, n, a, w, ip, b, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine minfit ( nm, m, n, a, w, ip, b, ierr )
     !
     !! MINFIT: least squares problem for a real overdetermined linear system.
     !
@@ -7797,36 +7746,18 @@ Module CFML_EisPack
     !    0, for normal return,
     !    K, if the K-th singular value has not been determined after 30 iterations.
     !
+    Subroutine minfit ( nm, m, n, a, w, ip, b, ierr )
+      integer,                        intent(in)     :: nm,m,n
+      real(kind=dp), dimension(nm,n), intent(in out) :: a
+      real(kind=dp), dimension(n),    intent(out)    :: w
+      integer,                        intent(in)     :: ip
+      real(kind=dp), dimension(nm,ip),intent(in out) :: b
+      integer,                        intent(out)    :: ierr
 
-      integer ::ip
-      integer ::n
-      integer ::nm
-
-      real(kind=dp) a(nm,n)
-      real(kind=dp) b(nm,ip)
-      real(kind=dp) c
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::ierr
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::l
-      integer ::m
-      integer ::m1
-      !real ( kind = 8 ) pythag
-      real(kind=dp) rv1(n)
-      real(kind=dp) s
-      real(kind=dp) scal
-      logical skip
-      real(kind=dp) tst1
-      real(kind=dp) tst2
-      real(kind=dp) w(n)
-      real(kind=dp) x
-      real(kind=dp) y
-      real(kind=dp) z
+      real(kind=dp) :: c,f,g,h,x,y,z,s,tst1,tst2,scal
+      integer       :: i,its,j,k,l,m1
+      logical       :: skip
+      real(kind=dp), dimension(n) :: rv1
 
       ierr = 0
     !
@@ -8095,12 +8026,11 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine minfit
 
-    Subroutine ortbak ( n, low, igh, a, ort, m, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine ortbak ( n, low, igh, a, ort, m, z )
     !
     !! ORTBAK determines eigenvectors by undoing the ORTHES transformation.
     !
@@ -8157,27 +8087,21 @@ Module CFML_EisPack
     !    Input, integer ::M, the number of columns of Z to be back
     !    transformed.
     !
-    !    Input/output, real(kind=dp) Z(N,N).  On input, the real and imaginary
+    !    Input/output, real(kind=dp) Z(N,M).  On input, the real and imaginary
     !    parts of the eigenvectors to be back transformed in the first M columns.
     !    On output, the real and imaginary parts of the transformed eigenvectors.
     !
+    Subroutine ortbak ( n, low, igh, a, ort, m, z )
+      integer,                        intent(in)     :: n, low, igh,m
+      real(kind=dp), dimension(n,igh),intent(in out) :: a
+      real(kind=dp), dimension(igh),  intent(in out) :: ort
+      real(kind=dp), dimension(n,m),  intent(in out) :: z
 
-      integer ::igh
-      integer ::m
-      integer ::n
 
-      real(kind=dp) a(n,igh)
-      real(kind=dp) g
-      integer ::i
-      integer ::j
-      integer ::low
-      integer ::mp
-      real(kind=dp) ort(igh)
-      real(kind=dp) z(n,m)
+      real(kind=dp) :: g
+      integer :: i,j,mp
 
-      if ( m == 0 ) then
-        return
-      end if
+      if ( m == 0 ) return
 
       do mp = igh - 1, low + 1, -1
 
@@ -8201,12 +8125,11 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine ortbak
 
-    Subroutine orthes ( n, low, igh, a, ort )
 
-    !*****************************************************************************80
+
+    !    Subroutine orthes ( n, low, igh, a, ort )
     !
     !! ORTHES transforms a real general matrix to upper Hessenberg form.
     !
@@ -8235,20 +8158,13 @@ Module CFML_EisPack
     !    Output, real(kind=dp) ORT(IGH), contains further information about the
     !    transformations.
     !
+    Subroutine orthes ( n, low, igh, a, ort )
+      integer,                        intent(in)     :: n, low, igh
+      real(kind=dp), dimension(n,n),  intent(in out) :: a
+      real(kind=dp), dimension(igh),  intent(out)    :: ort
 
-      integer ::igh
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) f
-      real(kind=dp) g
-      real(kind=dp) h
-      integer ::i
-      integer ::j
-      integer ::low
-      integer ::m
-      real(kind=dp) ort(igh)
-      real(kind=dp) scal
+      real(kind=dp) :: f,g,h,scal
+      integer :: i,j,m
 
       do m = low + 1, igh - 1
 
@@ -8309,7 +8225,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine orthes
 
 
@@ -8374,11 +8289,12 @@ Module CFML_EisPack
           end do
         end if
       end do
+
     End Subroutine Ortran
 
-    function pythag ( a, b ) result(pythag_val)
 
-    !*****************************************************************************80
+
+    !    function pythag ( a, b ) result(pythag_val)
     !
     !! PYTHAG computes SQRT ( A * A + B * B ) carefully.
     !
@@ -8402,15 +8318,12 @@ Module CFML_EisPack
     !
     !    Output, real(kind=dp) PYTHAG, the length of the hypotenuse.
     !
+    function pythag ( a, b ) result(pythag_val)
+      real(kind=dp), intent(in) :: a,b
+      real(kind=dp) :: pythag_val
 
-      real(kind=dp) a
-      real(kind=dp) b
-      real(kind=dp) p
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) t
-      real(kind=dp) u
-      real(kind=dp) pythag_val
+      real(kind=dp) :: p,q,r,s,t,u
+
       p = max ( abs ( a ), abs ( b ) )
 
       if ( p /= 0.0_dp ) then
@@ -8436,12 +8349,11 @@ Module CFML_EisPack
 
       pythag_val = p
 
-      return
-    end function pythag
+    End Function pythag
 
-    Subroutine qzhes ( n, a, b, matz, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine qzhes ( n, a, b, matz, z )
     !
     !! QZHES carries out transformations for a generalized eigenvalue problem.
     !
@@ -8477,25 +8389,14 @@ Module CFML_EisPack
     !    Output, real(kind=dp) Z(N,N), contains the product of the right hand
     !    transformations if MATZ is true.
     !
+    Subroutine qzhes ( n, a, b, matz, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a,b
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(out)    :: z
 
-      integer ::n
-
-      real(kind=dp) a(n,n)
-      real(kind=dp) b(n,n)
-      integer ::i
-      integer ::j
-      integer ::k
-      integer ::l
-      logical matz
-      real(kind=dp) r
-      real(kind=dp) rho
-      real(kind=dp) s
-      real(kind=dp) t
-      real(kind=dp) u1
-      real(kind=dp) u2
-      real(kind=dp) v1
-      real(kind=dp) v2
-      real(kind=dp) z(n,n)
+      integer       :: i,j,k,l
+      real(kind=dp) :: r,rho,s,t,u1,u2,v1,v2
     !
     !  Set Z to the identity matrix.
     !
@@ -8505,9 +8406,7 @@ Module CFML_EisPack
     !
     !  Reduce B to upper triangular form.
     !
-      if ( n <= 1 ) then
-        return
-      end if
+      if ( n <= 1 ) return
 
       do l = 1, n - 1
 
@@ -8624,12 +8523,11 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine qzhes
 
-    Subroutine qzit ( n, a, b, eps1, matz, z, ierr )
 
-    !*****************************************************************************80
+
+    !    Subroutine qzit ( n, a, b, eps1, matz, z, ierr )
     !
     !! QZIT carries out iterations to solve a generalized eigenvalue problem.
     !
@@ -8685,70 +8583,23 @@ Module CFML_EisPack
     !    J, if the limit of 30*N iterations is exhausted while the J-th
     !      eigenvalue is being sought.
     !
+    Subroutine qzit ( n, a, b, eps1, matz, z, ierr )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a,b
+      real(kind=dp),                 intent(in)     :: eps1
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(in out) :: z
+      integer,                       intent(out)    :: ierr
 
-      integer ::n
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) a1
-      real(kind=dp) a11
-      real(kind=dp) a12
-      real(kind=dp) a2
-      real(kind=dp) a21
-      real(kind=dp) a22
-      real(kind=dp) a3
-      real(kind=dp) a33
-      real(kind=dp) a34
-      real(kind=dp) a43
-      real(kind=dp) a44
-      real(kind=dp) ani
-      real(kind=dp) anorm
-      real(kind=dp) b(n,n)
-      real(kind=dp) b11
-      real(kind=dp) b12
-      real(kind=dp) b22
-      real(kind=dp) b33
-      real(kind=dp) b34
-      real(kind=dp) b44
-      real(kind=dp) bni
-      real(kind=dp) bnorm
-      integer ::en
-      integer ::enm2
-      integer ::enorn
-      real(kind=dp) ep
-      real(kind=dp) eps1
-      real(kind=dp) epsa
-      real(kind=dp) epsb
-      integer ::i
-      integer ::ierr
-      integer ::ish
-      integer ::itn
-      integer ::its
-      integer ::j
-      integer ::k
-      integer ::k1
-      integer ::k2
-      integer ::km1
-      integer ::l
-      integer ::l1
-      integer ::ld
-      integer ::ll
-      integer ::lm1
-      integer ::lor1
-      logical matz
-      integer ::na
-      logical notlas
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) sh
-      logical skip
-      real(kind=dp) t
-      real(kind=dp) u1
-      real(kind=dp) u2
-      real(kind=dp) u3
-      real(kind=dp) v1
-      real(kind=dp) v2
-      real(kind=dp) v3
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: a1,a11,a12,a2,a21,a22,a3,a33,a34,a43,a44,ani,     &
+                       anorm ,b11,b12,b22,b33,b34,b44,bni,bnorm,ep,epsa, &
+                       epsb,r,s,sh,t,u2,u3,v1,v2,v3,u1
+      integer :: i,ish,itn,its,en,enm2,j,k,k1,k2,km1,l,l1,ld,ll,lm1,lor1,na,enorn
+
+      logical :: notlas,skip
+
+
 
       ierr = 0
     !
@@ -9198,12 +9049,11 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine qzit
 
-    Subroutine qzval ( n, a, b, alfr, alfi, beta, matz, z )
 
-    !*****************************************************************************80
+
+    !    Subroutine qzval ( n, a, b, alfr, alfi, beta, matz, z )
     !
     !! QZVAL computes eigenvalues for a generalized eigenvalue problem.
     !
@@ -9256,64 +9106,18 @@ Module CFML_EisPack
     !    and QZIT, if performed, or else the identity matrix.  On output,
     !    the product of the right hand transformations for all three steps.
     !
+    Subroutine qzval ( n, a, b, alfr, alfi, beta, matz, z )
+      integer,                       intent(in)     :: n
+      real(kind=dp), dimension(n,n), intent(in out) :: a,b
+      real(kind=dp), dimension(n),   intent(out)    :: alfr, alfi, beta
+      logical,                       intent(in)     :: matz
+      real(kind=dp), dimension(n,n), intent(in out) :: z
 
-      integer ::n
 
-      real(kind=dp) a(n,n)
-      real(kind=dp) a1
-      real(kind=dp) a11
-      real(kind=dp) a11i
-      real(kind=dp) a11r
-      real(kind=dp) a12
-      real(kind=dp) a12i
-      real(kind=dp) a12r
-      real(kind=dp) a1i
-      real(kind=dp) a2
-      real(kind=dp) a21
-      real(kind=dp) a22
-      real(kind=dp) a22i
-      real(kind=dp) a22r
-      real(kind=dp) a2i
-      real(kind=dp) an
-      real(kind=dp) alfi(n)
-      real(kind=dp) alfr(n)
-      real(kind=dp) b(n,n)
-      real(kind=dp) b11
-      real(kind=dp) b12
-      real(kind=dp) b22
-      real(kind=dp) beta(n)
-      real(kind=dp) bn
-      real(kind=dp) c
-      real(kind=dp) cq
-      real(kind=dp) cz
-      real(kind=dp) d
-      real(kind=dp) di
-      real(kind=dp) dr
-      real(kind=dp) e
-      real(kind=dp) ei
-      integer ::en
-      real(kind=dp) epsb
-      integer ::i
-      integer ::isw
-      integer ::j
-      logical matz
-      integer ::na
-      real(kind=dp) r
-      real(kind=dp) s
-      real(kind=dp) sqi
-      real(kind=dp) sqr
-      real(kind=dp) ssi
-      real(kind=dp) ssr
-      real(kind=dp) szi
-      real(kind=dp) szr
-      real(kind=dp) t
-      real(kind=dp) ti
-      real(kind=dp) tr
-      real(kind=dp) u1
-      real(kind=dp) u2
-      real(kind=dp) v1
-      real(kind=dp) v2
-      real(kind=dp) z(n,n)
+      real(kind=dp) :: a1,a11,a11i,a11r,a12,a12i,a12r,a1i,a2,a21,a22,a22i,   &
+                       a22r,a2i,an,b11,b12,b22,bn,c,cq,cz,d,di,dr,e,ei,epsb, &
+                       r,s,sqi,sqr,ssi,ssr,szi,szr,t,ti,tr,u1,u2,v1,v2
+      integer :: en,i,isw,j,na
 
       epsb = b(n,1)
       isw = 1
@@ -9617,7 +9421,6 @@ Module CFML_EisPack
 
       b(n,1) = epsb
 
-      return
     End Subroutine qzval
 
     Subroutine qzvec ( n, a, b, alfr, alfi, beta, z )
@@ -9978,7 +9781,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine qzvec
 
     Subroutine r8mat_identity ( n, a )
@@ -10017,7 +9819,6 @@ Module CFML_EisPack
         a(i,i) = 1.0_dp
       end do
 
-      return
     End Subroutine r8mat_identity
 
     Subroutine r8mat_print ( m, n, a, title )
@@ -10057,7 +9858,6 @@ Module CFML_EisPack
 
       call r8mat_print_some ( m, n, a, 1, 1, m, n, title )
 
-      return
     End Subroutine r8mat_print
 
     Subroutine r8mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
@@ -10156,7 +9956,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine r8mat_print_some
 
     Subroutine r8mat_uniform_01 ( m, n, seed, r )
@@ -10233,7 +10032,6 @@ Module CFML_EisPack
         end do
       end do
 
-      return
     End Subroutine r8mat_uniform_01
 
     Subroutine r8vec_print ( n, a, title )
@@ -10276,7 +10074,6 @@ Module CFML_EisPack
         write(*, '(2x,i8,2x,g16.8)' ) i, a(i)
       end do
 
-      return
     End Subroutine r8vec_print
 
     Subroutine r8vec2_print ( n, a1, a2, title )
@@ -10334,7 +10131,6 @@ Module CFML_EisPack
         end do
       end if
 
-      return
     End Subroutine r8vec2_print
 
     Subroutine ratqr ( n, eps1, d, e, e2, m, w, ind, bd, type, idef, ierr )
@@ -10627,7 +10423,6 @@ Module CFML_EisPack
         jdef = - jdef
       end if
 
-      return
     End Subroutine ratqr
 
     Subroutine rebak ( n, b, dl, m, z )
@@ -10680,7 +10475,6 @@ Module CFML_EisPack
         end do
       end do
 
-      return
     End Subroutine rebak
 
     Subroutine rebakb ( n, b, dl, m, z )
@@ -10737,7 +10531,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine rebakb
 
     Subroutine reduc ( n, a, b, dl, ierr )
@@ -10874,7 +10667,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine reduc
 
     Subroutine reduc2 ( n, a, b, dl, ierr )
@@ -11011,7 +10803,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine reduc2
 
     Subroutine rg_elm ( n, a, wr, wi, matz, z, ierr )
@@ -11183,7 +10974,7 @@ Module CFML_EisPack
         end if
         call balbak ( n, is1, is2, fv1, n, z )
       end if
-      return
+
     End Subroutine rg_ort
 
     Subroutine rgg ( n, a, b, alfr, alfi, beta, matz, z, ierr )
@@ -11264,7 +11055,6 @@ Module CFML_EisPack
         call qzvec ( n, a, b, alfr, alfi, beta, z )
       end if
 
-      return
     End Subroutine rgg
 
     Subroutine rs ( n, a, w, matz, z, ierr )
@@ -11339,7 +11129,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rs
 
     Subroutine rsb ( n, mb, a, w, matz, z, ierr )
@@ -11436,7 +11225,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsb
 
     Subroutine rsg ( n, a, b, w, matz, z, ierr )
@@ -11524,7 +11312,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsg
 
     Subroutine rsgab ( n, a, b, w, matz, z, ierr )
@@ -11613,7 +11400,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsgab
 
     Subroutine rsgba ( n, a, b, w, matz, z, ierr )
@@ -11702,7 +11488,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsgba
 
     Subroutine rsm ( n, a, w, m, z, ierr )
@@ -11788,7 +11573,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsm
 
     Subroutine rsp ( n, nv, a, w, matz, z, ierr )
@@ -11876,7 +11660,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rsp
 
     Subroutine rspp ( n, nv, a, w, matz, z, m, type, ierr )
@@ -11988,7 +11771,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rspp
 
     Subroutine rst ( n, w, e, matz, z, ierr )
@@ -12061,7 +11843,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rst
 
     Subroutine rt ( n, a, w, matz, z, ierr )
@@ -12150,7 +11931,6 @@ Module CFML_EisPack
 
       end if
 
-      return
     End Subroutine rt
 
     function sturm_sequence ( d, e, e2, n, p, q, x1 ) result(sturm_sequence_val)
@@ -12623,7 +12403,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine svd
 
     Subroutine timestamp ( )
@@ -12698,7 +12477,6 @@ Module CFML_EisPack
       write(*, '(i2,1x,a,1x,i4,2x,i2,a1,i2.2,a1,i2.2,a1,i3.3,1x,a)' ) &
         d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
 
-      return
     End Subroutine timestamp
 
     Subroutine tinvit ( n, d, e, e2, m, w, ind, z, ierr )
@@ -13036,7 +12814,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine tinvit
 
     Subroutine tql1 ( n, d, e, ierr )
@@ -13218,7 +12995,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine tql1
 
     Subroutine tql2 ( n, d, e, z, ierr )
@@ -13439,7 +13215,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine tql2
 
     Subroutine tqlrat ( n, d, e2, ierr )
@@ -13629,7 +13404,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine tqlrat
 
     Subroutine trbak1 ( n, a, e, m, z )
@@ -13699,7 +13473,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine trbak1
 
     Subroutine trbak3 ( n, nv, a, m, z )
@@ -13786,7 +13559,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine trbak3
 
     Subroutine tred1 ( n, a, d, e, e2 )
@@ -13946,7 +13718,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine tred1
 
     Subroutine tred2 ( n, a, d, e, z )
@@ -14704,7 +14475,6 @@ Module CFML_EisPack
       lb = t1
       ub = t2
 
-      return
     End Subroutine tridib
 
     !  Subroutine Tsturm ( n, eps1, d, e, e2, t1, t2, mm, m, w, z, ierr )
@@ -15164,7 +14934,6 @@ Module CFML_EisPack
 
       end do
 
-      return
     End Subroutine Tsturm
 
 End Module CFML_EisPack
