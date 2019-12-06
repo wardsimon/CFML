@@ -11,14 +11,15 @@
 !!----    Special references have been kept in particular subroutines
 !!----    Implicit none only at the beginning of the module
 !!----    "end"'s followed by the name of the subroutine or function
+!!----    Make explicit the intent of arguments
 !!----    Use CFML_GlobalDeps
 !!----    Introduce two global variables ERR_EisPack and ERR_EisPack_Mess for fatal error control
 !!----    outside the subroutine by the calling program. The variable ierr is still in use with
 !!----    different meanings depending on the subroutine.
+!!----    Eliminate "go to"'s and numerical labels in HQR2
 !!----
 !!-
 !!---- To do:  Modify to private and check which are the important subroutines to put as public
-!!----         Determine and make explicit the intent of arguments
 !!----         Avoid to pass the dimension in the arguments
 !!----         Make interfaces to simplify the calls
 !!----         Unify the style
@@ -1141,65 +1142,65 @@ Module CFML_EisPack
 
 
 
-    !  subroutine bisect ( n, eps1, d, e, e2, t1, t2, mm, m, w, ind, ierr )
-    !! BISECT computes some eigenvalues of a real symmetric tridiagonal matrix.
-    !
-    !  Discussion:
-    !
-    !    BISECT finds those eigenvalues of a real symmetric tridiagonal matrix
-    !    which lie in a specified interval, using bisection.
-    !
-    !    In the original code, the lower and upper seach bounds were
-    !    copied, then modified, and then restored at the end.  But they
-    !    should really be input only!
-    !
-    !  Modified:
-    !
-    !    14 March 2018
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) EPS1, is an absolute error tolerance for
-    !    the computed eigenvalues.  If the input EPS1 is non-positive, it is reset
-    !    for each submatrix to a default value, namely, minus the product of the
-    !    relative machine precision and the 1-norm of the submatrix.
-    !
-    !    Input, real(kind=dp) D(N), the diagonal elements of the input matrix.
-    !
-    !    Input, real(kind=dp) E(N), contains in E(2:N) the subdiagonal elements
-    !    of the matrix.  E(1) is arbitrary.
-    !
-    !    Input/output, real(kind=dp) E2(N).  On input, the squares of the
-    !    corresponding elements of E.  E2(1) is arbitrary.  On output, elements of
-    !    E2, corresponding to elements of E regarded as negligible, have been
-    !    replaced by zero, causing the matrix to split into a direct sum of
-    !    submatrices.  E2(1) is also set to zero.
-    !
-    !    Input, real(kind=dp) T1, T2, define the interval to be searched for
-    !    eigenvalues.  If T1 is not less than T2, no eigenvalues will be found.
-    !
-    !    Input, integer ::MM, an upper bound for the number of
-    !    eigenvalues in the interval.  Warning: if more than MM eigenvalues are
-    !    determined to lie in the interval, an error return is made with no
-    !    eigenvalues found.
-    !
-    !    Output, integer ::M, the number of eigenvalues determined to lie
-    !    in (LB,UB).
-    !
-    !    Output, real(kind=dp) W(M), the eigenvalues in ascending order.
-    !
-    !    Output, integer ::IND(MM), contains in its first M positions
-    !    the submatrix indices associated with the corresponding eigenvalues in W:
-    !    1 for eigenvalues belonging to the first submatrix from the top, 2 for
-    !    those belonging to the second submatrix, and so on.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    3*N+1, if M exceeds MM.
-    !
+    !!---- subroutine bisect ( n, eps1, d, e, e2, t1, t2, mm, m, w, ind, ierr )
+    !!---- BISECT computes some eigenvalues of a real symmetric tridiagonal matrix.
+    !!----
+    !!---- Discussion:
+    !!----
+    !!----   BISECT finds those eigenvalues of a real symmetric tridiagonal matrix
+    !!----   which lie in a specified interval, using bisection.
+    !!----
+    !!----   In the original code, the lower and upper seach bounds were
+    !!----   copied, then modified, and then restored at the end.  But they
+    !!----   should really be input only!
+    !!----
+    !!---- Modified:
+    !!----
+    !!----   14 March 2018
+    !!----
+    !!----
+    !!---- Arguments:
+    !!----
+    !!----   Input, integer ::N, the order of the matrix.
+    !!----
+    !!----   Input/output, real(kind=dp) EPS1, is an absolute error tolerance for
+    !!----   the computed eigenvalues.  If the input EPS1 is non-positive, it is reset
+    !!----   for each submatrix to a default value, namely, minus the product of the
+    !!----   relative machine precision and the 1-norm of the submatrix.
+    !!----
+    !!----   Input, real(kind=dp) D(N), the diagonal elements of the input matrix.
+    !!----
+    !!----   Input, real(kind=dp) E(N), contains in E(2:N) the subdiagonal elements
+    !!----   of the matrix.  E(1) is arbitrary.
+    !!----
+    !!----   Input/output, real(kind=dp) E2(N).  On input, the squares of the
+    !!----   corresponding elements of E.  E2(1) is arbitrary.  On output, elements of
+    !!----   E2, corresponding to elements of E regarded as negligible, have been
+    !!----   replaced by zero, causing the matrix to split into a direct sum of
+    !!----   submatrices.  E2(1) is also set to zero.
+    !!----
+    !!----   Input, real(kind=dp) T1, T2, define the interval to be searched for
+    !!----   eigenvalues.  If T1 is not less than T2, no eigenvalues will be found.
+    !!----
+    !!----   Input, integer ::MM, an upper bound for the number of
+    !!----   eigenvalues in the interval.  Warning: if more than MM eigenvalues are
+    !!----   determined to lie in the interval, an error return is made with no
+    !!----   eigenvalues found.
+    !!----
+    !!----   Output, integer ::M, the number of eigenvalues determined to lie
+    !!----   in (LB,UB).
+    !!----
+    !!----   Output, real(kind=dp) W(M), the eigenvalues in ascending order.
+    !!----
+    !!----   Output, integer ::IND(MM), contains in its first M positions
+    !!----   the submatrix indices associated with the corresponding eigenvalues in W:
+    !!----   1 for eigenvalues belonging to the first submatrix from the top, 2 for
+    !!----   those belonging to the second submatrix, and so on.
+    !!----
+    !!----   Output, integer ::IERR, error flag.
+    !!----   0, for normal return,
+    !!----   3*N+1, if M exceeds MM.
+    !!----
     Subroutine bisect ( n, eps1, d, e, e2, t1, t2, mm, m, w, ind, ierr )
       integer,                     intent(in)     :: n
       real(kind=dp),               intent(in out) :: eps1
@@ -1444,70 +1445,70 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine bqr ( nm, n, mb, a, t, r, ierr )
-    !
-    !! BQR finds the smallest eigenvalue of a real symmetric band matrix.
-    !
-    !  Discussion:
-    !
-    !    BQR finds the eigenvalue of smallest magnitude of a real
-    !    symmetric band matrix using the QR algorithm with shifts of origin.
-    !    Consecutive calls can be made to find further eigenvalues.
-    !
-    !    Note that for a subsequent call, N should be replaced by N-1, but
-    !    MB should not be altered even when it exceeds the current N.
-    !
-    !
-    !  Modified:
-    !
-    !    20 March 2018
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::NM, the leading dimension of the array.
-    !    This should be the order of the full matrix.
-    !
-    !    Input, integer ::N, the current order of the reduced matrix.
-    !    On first call, N is the order of the full matrix.  On each subsequent
-    !    call, N should be reduced by 1.
-    !
-    !    Input, integer ::MB, the (half) band width of the matrix,
-    !    defined as the number of adjacent diagonals, including the principal
-    !    diagonal, required to specify the non-zero portion of the
-    !    lower triangle of the matrix.
-    !
-    !    Input/output, real(kind=dp) A(N,MB).  On input, A contains the lower
-    !    triangle of the symmetric band input matrix stored as an N by MB array.
-    !    Its lowest subdiagonal is stored in the last N+1-MB positions of the first
-    !    column, its next subdiagonal in the last N+2-MB positions of the
-    !    second column, further subdiagonals similarly, and finally its principal
-    !    diagonal in the N positions of the last column.  Contents of storages
-    !    not part of the matrix are arbitrary.  On a subsequent call, its output
-    !    contents from the previous call should be passed.  On output, A contains
-    !    the transformed band matrix.  The matrix A+T*I derived from the output
-    !    parameters is similar to the input A+T*I to within rounding errors.
-    !    Its last row and column are null as long as IERR is zero.
-    !
-    !    Input/output, real(kind=dp) T.  On input, T specifies the shift (of
-    !    eigenvalues) applied to the diagonal of A in forming the input matrix.
-    !    What is actually determined is the eigenvalue nearest to T of A+T*I, where
-    !    I is the identity matrix.  On a subsequent call, the output value of T
-    !    from the previous call should be passed if the next nearest eigenvalue
-    !    is sought.  On output, T contains the computed eigenvalue of A+T*I,
-    !    as long as IERR is zero.
-    !
-    !    Input/output, real(kind=dp) R.  On input for the first call, R should
-    !    be specified as zero, and as its output value from the previous call
-    !    on a subsequent call.  It is used to determine when the last row and
-    !    column of the transformed band matrix can be regarded as negligible.
-    !    On output, R contains the maximum of its input value and the norm of the
-    !    last column of the input matrix A.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, normal return.
-    !    N, if the eigenvalue has not been determined after 30 iterations.
-    !
+    !!---- Subroutine bqr ( nm, n, mb, a, t, r, ierr )
+    !!----
+    !!----  BQR finds the smallest eigenvalue of a real symmetric band matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    BQR finds the eigenvalue of smallest magnitude of a real
+    !!----    symmetric band matrix using the QR algorithm with shifts of origin.
+    !!----    Consecutive calls can be made to find further eigenvalues.
+    !!----
+    !!----    Note that for a subsequent call, N should be replaced by N-1, but
+    !!----    MB should not be altered even when it exceeds the current N.
+    !!----
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    20 March 2018
+    !!----
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::NM, the leading dimension of the array.
+    !!----    This should be the order of the full matrix.
+    !!----
+    !!----    Input, integer ::N, the current order of the reduced matrix.
+    !!----    On first call, N is the order of the full matrix.  On each subsequent
+    !!----    call, N should be reduced by 1.
+    !!----
+    !!----    Input, integer ::MB, the (half) band width of the matrix,
+    !!----    defined as the number of adjacent diagonals, including the principal
+    !!----    diagonal, required to specify the non-zero portion of the
+    !!----    lower triangle of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) A(N,MB).  On input, A contains the lower
+    !!----    triangle of the symmetric band input matrix stored as an N by MB array.
+    !!----    Its lowest subdiagonal is stored in the last N+1-MB positions of the first
+    !!----    column, its next subdiagonal in the last N+2-MB positions of the
+    !!----    second column, further subdiagonals similarly, and finally its principal
+    !!----    diagonal in the N positions of the last column.  Contents of storages
+    !!----    not part of the matrix are arbitrary.  On a subsequent call, its output
+    !!----    contents from the previous call should be passed.  On output, A contains
+    !!----    the transformed band matrix.  The matrix A+T*I derived from the output
+    !!----    parameters is similar to the input A+T*I to within rounding errors.
+    !!----    Its last row and column are null as long as IERR is zero.
+    !!----
+    !!----    Input/output, real(kind=dp) T.  On input, T specifies the shift (of
+    !!----    eigenvalues) applied to the diagonal of A in forming the input matrix.
+    !!----    What is actually determined is the eigenvalue nearest to T of A+T*I, where
+    !!----    I is the identity matrix.  On a subsequent call, the output value of T
+    !!----    from the previous call should be passed if the next nearest eigenvalue
+    !!----    is sought.  On output, T contains the computed eigenvalue of A+T*I,
+    !!----    as long as IERR is zero.
+    !!----
+    !!----    Input/output, real(kind=dp) R.  On input for the first call, R should
+    !!----    be specified as zero, and as its output value from the previous call
+    !!----    on a subsequent call.  It is used to determine when the last row and
+    !!----    column of the transformed band matrix can be regarded as negligible.
+    !!----    On output, R contains the maximum of its input value and the norm of the
+    !!----    last column of the input matrix A.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, normal return.
+    !!----    N, if the eigenvalue has not been determined after 30 iterations.
+    !!----
 
     Subroutine bqr ( nm, n, mb, a, t, r, ierr )
       integer,                         intent(in)     :: nm, n, mb
@@ -1566,9 +1567,9 @@ Module CFML_EisPack
         end if
 
         its = its + 1
-    !
-    !  Form shift from bottom 2 by 2 minor.
-    !
+        !
+        !  Form shift from bottom 2 by 2 minor.
+        !
         if ( f <= 0.25_dp * r .or. 5 <= its ) then
 
           f = a(n,mb-1)
@@ -1587,7 +1588,7 @@ Module CFML_EisPack
 
         rv(m31:m4) = 0.0_dp
 
-        do ii = 1, mn
+        do_ii: do ii = 1, mn
 
           i = ii - m
 
@@ -1600,14 +1601,14 @@ Module CFML_EisPack
             if ( n < ii ) then
 
               l = max ( 1, m1 + 1 - i )
-    !
-    !  Perform additional steps.
-    !
+            !
+            !  Perform additional steps.
+            !
               rv(1:m21) = 0.0_dp
               ll = min ( m1, n - ii + m1 )
-    !
-    !  Get row of triangular factor R.
-    !
+              !
+              !  Get row of triangular factor R.
+              !
               do kk = 1, ll
                 k = kk - 1
                 km = k + m1
@@ -1615,16 +1616,16 @@ Module CFML_EisPack
                 mk = mb - k
                 rv(km) = a(ik,mk)
               end do
-    !
-    !  Post-multiply with Householder reflections.
-    !
+              !
+              !  Post-multiply with Householder reflections.
+              !
               ll = m1
               imult = 1
 
             else
-    !
-    !  Form column of shifted matrix A-G*I.
-    !
+              !
+              !  Form column of shifted matrix A-G*I.
+              !
               l = max ( 1, 2 - i )
 
               rv(1:m3) = 0.0_dp
@@ -1643,146 +1644,149 @@ Module CFML_EisPack
                 mk = mb - k
                 rv(km) = a(ik,mk)
               end do
-    !
-    !  Pre-multiply with Householder reflections.
-    !
+              !
+              !  Pre-multiply with Householder reflections.
+              !
               ll = m2
               imult = 0
 
             end if
-    !
-    !  Multiplication procedure.
-    !
-    140     continue
+           !
+           !  Multiplication procedure.
+           !
 
-            kj = m4 - m1
+            do_140: do
+                kj = m4 - m1
 
-            do j = 1, ll
+                do j = 1, ll
 
-              kj = kj + m1
-              jm = j + m3
+                  kj = kj + m1
+                  jm = j + m3
 
-              if ( rv(jm) /= 0.0_dp ) then
+                  if ( rv(jm) /= 0.0_dp ) then
 
-                f = 0.0_dp
-                do k = 1, m1
-                  kj = kj + 1
-                  jk = j + k - 1
-                  f = f + rv(kj) * rv(jk)
-                end do
-                f = f / rv(jm)
+                    f = 0.0_dp
+                    do k = 1, m1
+                      kj = kj + 1
+                      jk = j + k - 1
+                      f = f + rv(kj) * rv(jk)
+                    end do
+                    f = f / rv(jm)
 
-                kj = kj - m1
+                    kj = kj - m1
 
-                do k = 1, m1
-                  kj = kj + 1
-                  jk = j + k - 1
-                  rv(jk) = rv(jk) - rv(kj) * f
-                end do
+                    do k = 1, m1
+                      kj = kj + 1
+                      jk = j + k - 1
+                      rv(jk) = rv(jk) - rv(kj) * f
+                    end do
 
-                kj = kj - m1
+                    kj = kj - m1
 
-              end if
+                  end if
 
-            end do
-
-            if ( imult /= 0 ) then
-
-              do k = l, m1
-                mk = k + mz
-                a(i,mk) = rv(k)
-              end do
-
-              if ( 1 < l ) then
-                l = l - 1
-              end if
-
-              kj1 = m4 + l * m1
-
-              do j = l, m2
-
-                jm = j + m3
-                rv(jm) = rv(jm+1)
-
-                do k = 1, m1
-                  kj1 = kj1 + 1
-                  kj = kj1 - m1
-                  rv(kj) = rv(kj1)
                 end do
 
-              end do
+                if ( imult /= 0 ) then
 
-              cycle
+                  do k = l, m1
+                    mk = k + mz
+                    a(i,mk) = rv(k)
+                  end do
 
-            end if
-    !
-    !  Householder reflection.
-    !
-            f = rv(m21)
-            s = 0.0_dp
-            rv(m4) = 0.0_dp
-            scal = sum ( abs ( rv(m21:m3) ) )
+                  if ( 1 < l ) then
+                    l = l - 1
+                  end if
 
-            if ( scal /= 0.0_dp ) then
+                  kj1 = m4 + l * m1
 
-              do k = m21, m3
-                s = s + ( rv(k) / scal )**2
-              end do
+                  do j = l, m2
 
-              s = scal * scal * s
-              g = - sign ( sqrt ( s ), f )
-              rv(m21) = g
-              rv(m4) = s - f * g
-              kj = m4 + m2 * m1 + 1
-              rv(kj) = f - g
+                    jm = j + m3
+                    rv(jm) = rv(jm+1)
 
-              do k = 2, m1
-                kj = kj + 1
-                km = k + m2
-                rv(kj) = rv(km)
-              end do
+                    do k = 1, m1
+                      kj1 = kj1 + 1
+                      kj = kj1 - m1
+                      rv(kj) = rv(kj1)
+                    end do
 
-            end if
-    !
-    !  Save column of triangular factor R.
-    !
-            do k = l, m1
-              km = k + m
-              mk = k + mz
-              a(ii,mk) = rv(km)
-            end do
+                  end do
 
-            l = max ( 1, m1 + 1 - i )
+                  cycle do_ii
 
-            if ( 0 < i ) then
-    !
-    !  Perform additional steps.
-    !
-              rv(1:m21) = 0.0_dp
-              ll = min ( m1, n - ii + m1 )
-    !
-    !  Get row of triangular factor R.
-    !
-              do kk = 1, ll
-                k = kk - 1
-                km = k + m1
-                ik = i + k
-                mk = mb - k
-                rv(km) = a(ik,mk)
-              end do
-    !
-    !  Post-multiply with Householder reflections.
-    !
-              ll = m1
-              imult = 1
-              go to 140
+                end if
+                !
+                !  Householder reflection.
+                !
+                f = rv(m21)
+                s = 0.0_dp
+                rv(m4) = 0.0_dp
+                scal = sum ( abs ( rv(m21:m3) ) )
 
-            end if
+                if ( scal /= 0.0_dp ) then
+
+                  do k = m21, m3
+                    s = s + ( rv(k) / scal )**2
+                  end do
+
+                  s = scal * scal * s
+                  g = - sign ( sqrt ( s ), f )
+                  rv(m21) = g
+                  rv(m4) = s - f * g
+                  kj = m4 + m2 * m1 + 1
+                  rv(kj) = f - g
+
+                  do k = 2, m1
+                    kj = kj + 1
+                    km = k + m2
+                    rv(kj) = rv(km)
+                  end do
+
+                end if
+                !
+                !  Save column of triangular factor R.
+                !
+                do k = l, m1
+                  km = k + m
+                  mk = k + mz
+                  a(ii,mk) = rv(km)
+                end do
+
+                l = max ( 1, m1 + 1 - i )
+
+                if ( 0 < i ) then
+                  !
+                  !  Perform additional steps.
+                  !
+                  rv(1:m21) = 0.0_dp
+                  ll = min ( m1, n - ii + m1 )
+                  !
+                  !  Get row of triangular factor R.
+                  !
+                  do kk = 1, ll
+                    k = kk - 1
+                    km = k + m1
+                    ik = i + k
+                    mk = mb - k
+                    rv(km) = a(ik,mk)
+                  end do
+                  !
+                  !  Post-multiply with Householder reflections.
+                  !
+                  ll = m1
+                  imult = 1
+                  cycle do_140
+                end if
+
+                exit
+
+            end do do_140
 
           end if
-    !
-    !  Update Householder reflections.
-    !
+          !
+          !  Update Householder reflections.
+          !
           if ( 1 < l ) then
             l = l - 1
           end if
@@ -1802,7 +1806,7 @@ Module CFML_EisPack
 
           end do
 
-        end do
+        end do do_ii
 
       end do
 
@@ -1816,37 +1820,37 @@ Module CFML_EisPack
     End Subroutine bqr
 
 
-    ! Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
-    !
-    !! CBABK2 finds eigenvectors by undoing the CBAL transformation.
-    !
-    !  Discussion:
-    !
-    !    CBABK2 forms the eigenvectors of a complex general matrix by
-    !    back transforming those of the corresponding balanced matrix determined
-    !    by CBAL.
-    !
-    !  Modified:
-    !
-    !    11 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, values determined by CBAL.
-    !
-    !    Input, real(kind=dp) scal(N), information determining the permutations
-    !    and scaling factors used by CBAL.
-    !
-    !    Input, integer ::M, the number of eigenvectors to be back
-    !    transformed.
-    !
-    !    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real
-    !    and imaginary parts, respectively, of the eigenvectors to be back
-    !    transformed in their first M columns.  On output, the transformed
-    !    eigenvectors.
-    !
+    !!---- Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
+    !!----
+    !!----  CBABK2 finds eigenvectors by undoing the CBAL transformation.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CBABK2 forms the eigenvectors of a complex general matrix by
+    !!----    back transforming those of the corresponding balanced matrix determined
+    !!----    by CBAL.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    11 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, values determined by CBAL.
+    !!----
+    !!----    Input, real(kind=dp) scal(N), information determining the permutations
+    !!----    and scaling factors used by CBAL.
+    !!----
+    !!----    Input, integer ::M, the number of eigenvectors to be back
+    !!----    transformed.
+    !!----
+    !!----    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real
+    !!----    and imaginary parts, respectively, of the eigenvectors to be back
+    !!----    transformed in their first M columns.  On output, the transformed
+    !!----    eigenvectors.
+    !!----
     Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
       integer,                     intent(in)     :: n, low, igh
       real(kind=dp), dimension(n), intent(in)     :: scal
@@ -1905,45 +1909,45 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine cbal ( n, ar, ai, low, igh, scal )
-    !
-    !! CBAL balances a complex matrix before eigenvalue calculations.
-    !
-    !  Discussion:
-    !
-    !    CBAL balances a complex matrix and isolates eigenvalues whenever possible.
-    !
-    !    Suppose that the principal submatrix in rows low through igh
-    !    has been balanced, that P(J) denotes the index interchanged
-    !    with J during the permutation step, and that the elements
-    !    of the diagonal matrix used are denoted by D(I,J).  Then
-    !      scal(J) = P(J),    for J = 1,...,LOW-1
-    !               = D(J,J)       J = LOW,...,IGH
-    !               = P(J)         J = IGH+1,...,N.
-    !    The order in which the interchanges are made is N to IGH+1,
-    !    then 1 to LOW-1.
-    !
-    !    Note that 1 is returned for IGH if IGH is zero formally.
-    !
-    !  Modified:
-    !
-    !    24 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex matrix to be balanced.  On output,
-    !    the real and imaginary parts of the balanced matrix.
-    !
-    !    Output, integer ::LOW, IGH, are values such that AR(I,J)
-    !    and AI(I,J) are zero if I is greater than J and either J=1,...,LOW-1 or
-    !    I=IGH+1,...,N.
-    !
-    !    Output, real(kind=dp) scal(N), information determining the
-    !    permutations and scaling factors used.
-    !
+    !!----  Subroutine cbal ( n, ar, ai, low, igh, scal )
+    !!----
+    !!----  CBAL balances a complex matrix before eigenvalue calculations.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CBAL balances a complex matrix and isolates eigenvalues whenever possible.
+    !!----
+    !!----    Suppose that the principal submatrix in rows low through igh
+    !!----    has been balanced, that P(J) denotes the index interchanged
+    !!----    with J during the permutation step, and that the elements
+    !!----    of the diagonal matrix used are denoted by D(I,J).  Then
+    !!----      scal(J) = P(J),    for J = 1,...,LOW-1
+    !!----               = D(J,J)       J = LOW,...,IGH
+    !!----               = P(J)         J = IGH+1,...,N.
+    !!----    The order in which the interchanges are made is N to IGH+1,
+    !!----    then 1 to LOW-1.
+    !!----
+    !!----    Note that 1 is returned for IGH if IGH is zero formally.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    24 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex matrix to be balanced.  On output,
+    !!----    the real and imaginary parts of the balanced matrix.
+    !!----
+    !!----    Output, integer ::LOW, IGH, are values such that AR(I,J)
+    !!----    and AI(I,J) are zero if I is greater than J and either J=1,...,LOW-1 or
+    !!----    I=IGH+1,...,N.
+    !!----
+    !!----    Output, real(kind=dp) scal(N), information determining the
+    !!----    permutations and scaling factors used.
+    !!----
     Subroutine cbal ( n, ar, ai, low, igh, scal )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in out) :: ar,ai
@@ -2024,9 +2028,9 @@ Module CFML_EisPack
         if ( jump2 ) exit
 
       end do
-    !
-    !  Search for columns isolating an eigenvalue and push them left.
-    !
+      !
+      !  Search for columns isolating an eigenvalue and push them left.
+      !
       do
 
         jump2 = .true.
@@ -2082,13 +2086,13 @@ Module CFML_EisPack
         if ( jump2 ) exit
 
       end do
-    !
-    !  Now balance the submatrix in rows k to l.
-    !
+      !
+      !  Now balance the submatrix in rows k to l.
+      !
       scal(k:l) = 1.0_dp
-    !
-    !  Iterative loop for norm reduction.
-    !
+      !
+      !  Iterative loop for norm reduction.
+      !
       do
 
         noconv = .false.
@@ -2104,9 +2108,9 @@ Module CFML_EisPack
               r = r + abs ( ar(i,j) ) + abs ( ai(i,j) )
             end if
           end do
-    !
-    !  Guard against zero C or R due to underflow.
-    !
+          !
+          !  Guard against zero C or R due to underflow.
+          !
           if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
 
             g = r / radixx
@@ -2124,9 +2128,9 @@ Module CFML_EisPack
               f = f / radixx
               c = c / b2
             end do
-    !
-    !  Now balance.
-    !
+            !
+            !  Now balance.
+            !
             if ( ( c + r ) / f < 0.95_dp * s ) then
 
               g = 1.0_dp / f
@@ -2154,31 +2158,31 @@ Module CFML_EisPack
 
     End Subroutine cbal
 
-    ! Subroutine cdiv ( ar, ai, br, bi, cr, ci )
-    !
-    !! CDIV emulates complex division, using real arithmetic.
-    !
-    !  Discussion:
-    !
-    !    CDIV performs complex division:
-    !
-    !      (CR,CI) = (AR,AI) / (BR,BI)
-    !
-    !  Modified:
-    !
-    !    18 October 2009
-    !
-    !  Arguments:
-    !
-    !    Input, real(kind=dp) AR, AI, the real and imaginary parts of
-    !    the numerator.
-    !
-    !    Input, real(kind=dp) BR, BI, the real and imaginary parts of
-    !    the denominator.
-    !
-    !    Output, real(kind=dp) CR, CI, the real and imaginary parts of
-    !    the result.
-    !
+    !!----  Subroutine cdiv ( ar, ai, br, bi, cr, ci )
+    !!----
+    !!----  CDIV emulates complex division, using real arithmetic.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CDIV performs complex division:
+    !!----
+    !!----      (CR,CI) = (AR,AI) / (BR,BI)
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    18 October 2009
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, real(kind=dp) AR, AI, the real and imaginary parts of
+    !!----    the numerator.
+    !!----
+    !!----    Input, real(kind=dp) BR, BI, the real and imaginary parts of
+    !!----    the denominator.
+    !!----
+    !!----    Output, real(kind=dp) CR, CI, the real and imaginary parts of
+    !!----    the result.
+    !!----
     Subroutine cdiv ( ar, ai, br, bi, cr, ci )
       real(kind=dp), intent(in)  :: ar, ai, br, bi
       real(kind=dp), intent(out) :: cr, ci
@@ -2200,40 +2204,40 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
-    !
-    !! CG_LR gets eigenvalues and eigenvectors of a complex general matrix.
-    !
-    !  Discussion:
-    !
-    !    CG_LR calls EISPACK routines to find the eigenvalues and eigenvectors
-    !    of a complex general matrix, using elementary transformations.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex matrix.  On output, AR and AI
-    !    have been overwritten by other information.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts
-    !    of the eigenvalues.
-    !
-    !    Input, logical MATZ, is false if only eigenvalues are desired,
-    !    and true if both eigenvalues and eigenvectors are desired.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
-    !    respectively, of the eigenvectors, if MATZ is not zero.
-    !
-    !    Output, integer ::IERR, an error completion code described in
-    !    the documentation for COMLR and COMLR2.  The normal completion code
-    !    is zero.
-    !
+    !!---- Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+    !!----
+    !!----  CG_LR gets eigenvalues and eigenvectors of a complex general matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CG_LR calls EISPACK routines to find the eigenvalues and eigenvectors
+    !!----    of a complex general matrix, using elementary transformations.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex matrix.  On output, AR and AI
+    !!----    have been overwritten by other information.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts
+    !!----    of the eigenvalues.
+    !!----
+    !!----    Input, logical MATZ, is false if only eigenvalues are desired,
+    !!----    and true if both eigenvalues and eigenvectors are desired.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
+    !!----    respectively, of the eigenvectors, if MATZ is not zero.
+    !!----
+    !!----    Output, integer ::IERR, an error completion code described in
+    !!----    the documentation for COMLR and COMLR2.  The normal completion code
+    !!----    is zero.
+    !!----
     Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
@@ -2279,40 +2283,40 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
-    !
-    !! CG_QR gets eigenvalues and eigenvectors of a complex general matrix.
-    !
-    !  Discussion:
-    !
-    !    CG_QR calls EISPACK routines to find the eigenvalues and eigenvectors
-    !    of a complex general matrix, using unitary transformations.
-    !
-    !  Modified:
-    !
-    !    09 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex matrix.  On output, AR and AI
-    !    have been overwritten by other information.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts
-    !    of the eigenvalues.
-    !
-    !    Input, logical MATZ, is false if only eigenvalues are desired,
-    !    and true if both eigenvalues and eigenvectors are desired.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
-    !    respectively, of the eigenvectors, if MATZ is not zero.
-    !
-    !    Output, integer ::IERR, an error completion code described in
-    !    the documentation for COMQR and COMQR2.  The normal completion code
-    !    is zero.
-    !
+    !!----  Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
+    !!----
+    !!----  CG_QR gets eigenvalues and eigenvectors of a complex general matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CG_QR calls EISPACK routines to find the eigenvalues and eigenvectors
+    !!----    of a complex general matrix, using unitary transformations.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    09 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex matrix.  On output, AR and AI
+    !!----    have been overwritten by other information.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts
+    !!----    of the eigenvalues.
+    !!----
+    !!----    Input, logical MATZ, is false if only eigenvalues are desired,
+    !!----    and true if both eigenvalues and eigenvectors are desired.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
+    !!----    respectively, of the eigenvectors, if MATZ is not zero.
+    !!----
+    !!----    Output, integer ::IERR, an error completion code described in
+    !!----    the documentation for COMQR and COMQR2.  The normal completion code
+    !!----    is zero.
+    !!----
     Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
@@ -2356,39 +2360,39 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
-    !
-    !! CH gets eigenvalues and eigenvectors of a complex Hermitian matrix.
-    !
-    !  Discussion:
-    !
-    !    CH finds the eigenvalues and eigenvectors of a complex hermitian matrix.
-    !
-    !
-    !  Modified:
-    !
-    !    09 February 2018
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex matrix.  On output, AR and AI
-    !    have been overwritten by other information.
-    !
-    !    Output, real(kind=dp) W(N), the eigenvalues in ascending order.
-    !
-    !    Input, logical MATZ, is false if only eigenvalues are desired,
-    !    and true if both eigenvalues and eigenvectors are desired.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
-    !    respectively, of the eigenvectors, if MATZ is true.
-    !
-    !    Output, integer ::IERR, an error completion code described in
-    !    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
-    !
+    !!----  Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
+    !!----
+    !!----  CH gets eigenvalues and eigenvectors of a complex Hermitian matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CH finds the eigenvalues and eigenvectors of a complex hermitian matrix.
+    !!----
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    09 February 2018
+    !!----
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex matrix.  On output, AR and AI
+    !!----    have been overwritten by other information.
+    !!----
+    !!----    Output, real(kind=dp) W(N), the eigenvalues in ascending order.
+    !!----
+    !!----    Input, logical MATZ, is false if only eigenvalues are desired,
+    !!----    and true if both eigenvalues and eigenvectors are desired.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
+    !!----    respectively, of the eigenvectors, if MATZ is true.
+    !!----
+    !!----    Output, integer ::IERR, an error completion code described in
+    !!----    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
+    !!----
     Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
@@ -2432,45 +2436,45 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
-    !
-    !! CH3 gets eigenvalues and eigenvectors of a complex Hermitian matrix.
-    !
-    !  Discussion:
-    !
-    !    CH3 finds the eigenvalues and eigenvectors of a complex hermitian matrix.
-    !
-    !  Modified:
-    !
-    !    05 February 2018
-    !
-    !  Author:
-    !
-    !    John Burkardt
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input/output, real(kind=dp) A(N,N).  On input, the lower triangle of
-    !    the complex hermitian input matrix.  The real parts of the matrix elements
-    !    are stored in the full lower triangle of A, and the imaginary parts are
-    !    stored in the transposed positions of the strict upper triangle of A.  No
-    !    storage is required for the zero imaginary parts of the diagonal elements.
-    !    On output, A contains information about the unitary transformations
-    !    used in the reduction.
-    !
-    !    Output, real(kind=dp) D(N), the eigenvalues in ascending order.
-    !
-    !    Input, logical MATZ, is false if only eigenvalues are desired,
-    !    and true if both eigenvalues and eigenvectors are desired.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
-    !    respectively, of the eigenvectors, if MATZ is true.
-    !
-    !    Output, integer ::IERR, an error completion code described in
-    !    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
-    !
+    !!----  Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
+    !!----
+    !!----  CH3 gets eigenvalues and eigenvectors of a complex Hermitian matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CH3 finds the eigenvalues and eigenvectors of a complex hermitian matrix.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    05 February 2018
+    !!----
+    !!----  Author:
+    !!----
+    !!----    John Burkardt
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) A(N,N).  On input, the lower triangle of
+    !!----    the complex hermitian input matrix.  The real parts of the matrix elements
+    !!----    are stored in the full lower triangle of A, and the imaginary parts are
+    !!----    stored in the transposed positions of the strict upper triangle of A.  No
+    !!----    storage is required for the zero imaginary parts of the diagonal elements.
+    !!----    On output, A contains information about the unitary transformations
+    !!----    used in the reduction.
+    !!----
+    !!----    Output, real(kind=dp) D(N), the eigenvalues in ascending order.
+    !!----
+    !!----    Input, logical MATZ, is false if only eigenvalues are desired,
+    !!----    and true if both eigenvalues and eigenvectors are desired.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts,
+    !!----    respectively, of the eigenvectors, if MATZ is true.
+    !!----
+    !!----    Output, integer ::IERR, an error completion code described in
+    !!----    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
+    !!----
     Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in out) :: a
@@ -2513,53 +2517,53 @@ Module CFML_EisPack
     End Subroutine ch3
 
 
-    ! Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
-    !
-    !! CINVIT gets eigenvectors from eigenvalues for a complex Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    CINVIT finds those eigenvectors of a complex upper Hessenberg matrix
-    !    corresponding to specified eigenvalues, using inverse iteration.
-    !
-    !  Modified:
-    !
-    !    11 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, real(kind=dp) AR(N,N), AI(N,N), the real and imaginary parts of
-    !    the complex Hessenberg matrix.
-    !
-    !    Input/output, real(kind=dp) WR(N), WI(N).  On input, the real and
-    !    imaginary parts of the eigenvalues of the matrix.  The eigenvalues must
-    !    be stored in a manner identical to that of COMLR, which
-    !    recognizes possible splitting of the matrix.  On output, WR may have been
-    !    altered since close eigenvalues are perturbed slightly in searching for
-    !    independent eigenvectors.
-    !
-    !    Input, logical SELECT(N), specifies the eigenvectors to be found.  The
-    !    eigenvector corresponding to the J-th eigenvalue is specified by
-    !    setting SELECT(J) to TRUE.
-    !
-    !    Input, integer ::MM, an upper bound for the number of
-    !    eigenvectors to be found.
-    !
-    !    Output, integer ::M, the number of eigenvectors actually found.
-    !
-    !    Output, real(kind=dp) ZR(N,MM), ZI(N,MM), the real and imaginary parts
-    !    of the eigenvectors.  The eigenvectors are normalized so that the
-    !    component of largest magnitude is 1.
-    !    Any vector which fails the acceptance test is set to zero.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    -(2*N+1), if more than MM eigenvectors have been specified,
-    !    -K, if the iteration corresponding to the K-th value fails,
-    !    -(N+K), if both error situations occur.
-    !
+    !!----  Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
+    !!----
+    !!----  CINVIT gets eigenvectors from eigenvalues for a complex Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CINVIT finds those eigenvectors of a complex upper Hessenberg matrix
+    !!----    corresponding to specified eigenvalues, using inverse iteration.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    11 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) AR(N,N), AI(N,N), the real and imaginary parts of
+    !!----    the complex Hessenberg matrix.
+    !!----
+    !!----    Input/output, real(kind=dp) WR(N), WI(N).  On input, the real and
+    !!----    imaginary parts of the eigenvalues of the matrix.  The eigenvalues must
+    !!----    be stored in a manner identical to that of COMLR, which
+    !!----    recognizes possible splitting of the matrix.  On output, WR may have been
+    !!----    altered since close eigenvalues are perturbed slightly in searching for
+    !!----    independent eigenvectors.
+    !!----
+    !!----    Input, logical SELECT(N), specifies the eigenvectors to be found.  The
+    !!----    eigenvector corresponding to the J-th eigenvalue is specified by
+    !!----    setting SELECT(J) to TRUE.
+    !!----
+    !!----    Input, integer ::MM, an upper bound for the number of
+    !!----    eigenvectors to be found.
+    !!----
+    !!----    Output, integer ::M, the number of eigenvectors actually found.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,MM), ZI(N,MM), the real and imaginary parts
+    !!----    of the eigenvectors.  The eigenvectors are normalized so that the
+    !!----    component of largest magnitude is 1.
+    !!----    Any vector which fails the acceptance test is set to zero.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    -(2*N+1), if more than MM eigenvectors have been specified,
+    !!----    -K, if the iteration corresponding to the K-th value fails,
+    !!----    -(N+K), if both error situations occur.
+    !!----
     Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
       integer,                       intent(in)     :: n
       real(kind=dp), dimension(n,n), intent(in)     :: ar,ai
@@ -2598,9 +2602,9 @@ Module CFML_EisPack
         end if
 
         if ( uk < k ) then
-    !
-    !  Check for possible splitting.
-    !
+          !
+          !  Check for possible splitting.
+          !
           do uk = k, n
             if ( uk == n ) then
               exit
@@ -2609,9 +2613,9 @@ Module CFML_EisPack
               exit
             end if
           end do
-    !
-    !  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
-    !
+          !
+          !  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
+          !
           norm = 0.0_dp
           do i = 1, uk
             x = 0.0_dp
@@ -2620,18 +2624,18 @@ Module CFML_EisPack
             end do
             norm = max ( norm, x )
           end do
-    !
-    !  EPS3 replaces zero pivot in decomposition
-    !  and close roots are modified by EPS3.
-    !
+          !
+          !  EPS3 replaces zero pivot in decomposition
+          !  and close roots are modified by EPS3.
+          !
           if ( norm == 0.0_dp ) then
             norm = 1.0_dp
           end if
 
           eps3 = abs ( norm ) * epsilon ( eps3 )
-    !
-    !  GROWTO is the criterion for growth.
-    !
+          !
+          !  GROWTO is the criterion for growth.
+          !
           ukroot = real ( uk, kind = 8 )
           ukroot = sqrt ( ukroot )
           growto = 0.1_dp / ukroot
@@ -2640,9 +2644,9 @@ Module CFML_EisPack
 
         rlambd = wr(k)
         ilambd = wi(k)
-    !
-    !  Perturb eigenvalue if it is close to any previous eigenvalue.
-    !
+        !
+        !  Perturb eigenvalue if it is close to any previous eigenvalue.
+        !
         if ( 1 < k ) then
 
           do
@@ -2681,9 +2685,9 @@ Module CFML_EisPack
           rm2(i,i) = rm2(i,i) - ilambd
           rv1(i) = eps3
         end do
-    !
-    !  Triangular decomposition with interchanges, replacing zero pivots by eps3.
-    !
+        !
+        !  Triangular decomposition with interchanges, replacing zero pivots by eps3.
+        !
         do i = 2, uk
 
           mp = i - 1
@@ -2724,9 +2728,9 @@ Module CFML_EisPack
         end if
 
         its = 0
-    !
-    !  Back substitution.
-    !
+        !
+        !  Back substitution.
+        !
         do
 
           do i = uk, 1, -1
@@ -2741,9 +2745,9 @@ Module CFML_EisPack
             call cdiv ( x, y, rm1(i,i), rm2(i,i), rv1(i), rv2(i) )
 
           end do
-    !
-    !  Acceptance test for eigenvector and normalization.
-    !
+          !
+          !  Acceptance test for eigenvector and normalization.
+          !
           its = its + 1
           norm = 0.0_dp
           normv = 0.0_dp
@@ -2756,9 +2760,9 @@ Module CFML_EisPack
             end if
             norm = norm + x
           end do
-    !
-    !  Accept vector.
-    !
+          !
+          !  Accept vector.
+          !
           if ( growto <= norm ) then
 
             x = rv1(j)
@@ -2775,9 +2779,9 @@ Module CFML_EisPack
             end if
             s = s + 1
             exit
-    !
-    !  Choose a new starting vector.
-    !
+           !
+           !  Choose a new starting vector.
+           !
           else if ( its < uk ) then
 
             x = ukroot
@@ -2788,16 +2792,16 @@ Module CFML_EisPack
 
             j = uk - its + 1
             rv1(j) = rv1(j) - eps3 * x
-    !
-    !  Error: unaccepted eigenvector.
-    !
+           !
+           !  Error: unaccepted eigenvector.
+           !
           else
 
             j = 1
             ierr = - k
-    !
-    !  Set remaining vector components to zero.
-    !
+           !
+           !  Set remaining vector components to zero.
+           !
             zr(j:n,s) = 0.0_dp
             zi(j:n,s) = 0.0_dp
             s = s + 1
@@ -2814,42 +2818,42 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
-    !
-    !! COMBAK determines eigenvectors by undoing the COMHES transformation.
-    !
-    !  Discussion:
-    !
-    !    COMBAK forms the eigenvectors of a complex general matrix by
-    !    back transforming those of the corresponding upper Hessenberg matrix
-    !    determined by COMHES.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = to the order
-    !    of the matrix.
-    !
-    !    Input, real(kind=dp) AR(N,IGH), AI(N,IGH), the multipliers which
-    !    were used in the reduction by COMHES in their lower triangles below
-    !    the subdiagonal.
-    !
-    !    Input, integer ::INTER(IGH), information on the rows and
-    !    columns interchanged in the reduction by COMHES.
-    !
-    !    Input, integer ::M, the number of eigenvectors to be back
-    !    transformed.
-    !
-    !    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real
-    !    and imaginary parts of the eigenvectors to be back transformed.  On
-    !    output, the real and imaginary parts of the transformed eigenvectors.
-    !
+    !!----  Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
+    !!----
+    !!----  COMBAK determines eigenvectors by undoing the COMHES transformation.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMBAK forms the eigenvectors of a complex general matrix by
+    !!----    back transforming those of the corresponding upper Hessenberg matrix
+    !!----    determined by COMHES.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = to the order
+    !!----    of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) AR(N,IGH), AI(N,IGH), the multipliers which
+    !!----    were used in the reduction by COMHES in their lower triangles below
+    !!----    the subdiagonal.
+    !!----
+    !!----    Input, integer ::INTER(IGH), information on the rows and
+    !!----    columns interchanged in the reduction by COMHES.
+    !!----
+    !!----    Input, integer ::M, the number of eigenvectors to be back
+    !!----    transformed.
+    !!----
+    !!----    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real
+    !!----    and imaginary parts of the eigenvectors to be back transformed.  On
+    !!----    output, the real and imaginary parts of the transformed eigenvectors.
+    !!----
     Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,igh), intent(in)     :: ar,ai
@@ -2897,36 +2901,36 @@ Module CFML_EisPack
     End Subroutine combak
 
 
-    ! Subroutine comhes ( n, low, igh, ar, ai, inter )
-    !
-    !! COMHES transforms a complex general matrix to upper Hessenberg form.
-    !
-    !  Discussion:
-    !
-    !    COMHES is given a complex general matrix and reduces a submatrix in rows
-    !    and columns LOW through IGH to upper Hessenberg form by
-    !    stabilized elementary similarity transformations.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex input matrix.  On output, the real and
-    !    imaginary parts of the Hessenberg matrix.  The multipliers which were
-    !    used in the reduction are stored in the remaining triangles under the
-    !    Hessenberg matrix.
-    !
-    !    Output, integer ::INTER(IGH), information on the rows and
-    !    columns interchanged in the reduction.
-    !
+    !!----  Subroutine comhes ( n, low, igh, ar, ai, inter )
+    !!----
+    !!----  COMHES transforms a complex general matrix to upper Hessenberg form.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMHES is given a complex general matrix and reduces a submatrix in rows
+    !!----    and columns LOW through IGH to upper Hessenberg form by
+    !!----    stabilized elementary similarity transformations.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex input matrix.  On output, the real and
+    !!----    imaginary parts of the Hessenberg matrix.  The multipliers which were
+    !!----    used in the reduction are stored in the remaining triangles under the
+    !!----    Hessenberg matrix.
+    !!----
+    !!----    Output, integer ::INTER(IGH), information on the rows and
+    !!----    columns interchanged in the reduction.
+    !!----
     Subroutine comhes ( n, low, igh, ar, ai, inter )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
@@ -2979,9 +2983,9 @@ Module CFML_EisPack
           end do
 
         end if
-    !
-    !  Carry out the transformation.
-    !
+        !
+        !  Carry out the transformation.
+        !
         if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
 
           do i = m + 1, igh
@@ -3015,43 +3019,43 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
-    !
-    !! COMLR gets all eigenvalues of a complex upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    COMLR finds the eigenvalues of a complex upper Hessenberg matrix by the
-    !    modified LR method.
-    !
-    !  Modified:
-    !
-    !    03 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real and
-    !    imaginary parts of the complex upper Hessenberg matrix.  Their lower
-    !    triangles below the subdiagonal contain the multipliers which were used
-    !    in the reduction by COMHES if performed.  On output, the upper Hessenberg
-    !    portions of HR and HI have been destroyed.  Therefore, they must be
-    !    saved before calling COMLR if subsequent calculation of eigenvectors
-    !    is to be performed.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  If an error exit is made, the eigenvalues should be correct
-    !    for indices IERR+1,...,N.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    J, if the limit of 30*N iterations is exhausted while the J-th
-    !      eigenvalue is being sought.
-    !
+    !!----  Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
+    !!----
+    !!----  COMLR gets all eigenvalues of a complex upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMLR finds the eigenvalues of a complex upper Hessenberg matrix by the
+    !!----    modified LR method.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    03 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex upper Hessenberg matrix.  Their lower
+    !!----    triangles below the subdiagonal contain the multipliers which were used
+    !!----    in the reduction by COMHES if performed.  On output, the upper Hessenberg
+    !!----    portions of HR and HI have been destroyed.  Therefore, they must be
+    !!----    saved before calling COMLR if subsequent calculation of eigenvectors
+    !!----    is to be performed.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  If an error exit is made, the eigenvalues should be correct
+    !!----    for indices IERR+1,...,N.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    J, if the limit of 30*N iterations is exhausted while the J-th
+    !!----      eigenvalue is being sought.
+    !!----
     Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
@@ -3062,9 +3066,9 @@ Module CFML_EisPack
       real(kind=dp) :: ai,ar,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
-    !
-    !  Store roots isolated by CBAL.
-    !
+      !
+      !  Store roots isolated by CBAL.
+      !
       do i = 1, n
         if ( i < low .or. igh < i ) then
           wr(i) = hr(i,i)
@@ -3076,17 +3080,17 @@ Module CFML_EisPack
       tr = 0.0_dp
       ti = 0.0_dp
       itn = 30 * n
-    !
-    !  Search for next eigenvalue.
-    !
+      !
+      !  Search for next eigenvalue.
+      !
       if ( en < low ) then
         return
       end if
 
       its = 0
-    !
-    !  Look for single small sub-diagonal element.
-    !
+      !
+      !  Look for single small sub-diagonal element.
+      !
       do
 
         do l = en, low, - 1
@@ -3104,9 +3108,9 @@ Module CFML_EisPack
           end if
 
         end do
-    !
-    !  A root found.
-    !
+        !
+        !  A root found.
+        !
         if ( l == en ) then
           wr(en) = hr(en,en) + tr
           wi(en) = hi(en,en) + ti
@@ -3165,9 +3169,9 @@ Module CFML_EisPack
         ti = ti + si
         its = its + 1
         itn = itn - 1
-    !
-    !  Look for two consecutive small sub-diagonal elements.
-    !
+        !
+        !  Look for two consecutive small sub-diagonal elements.
+        !
         xr = abs ( hr(en-1,en-1) ) + abs ( hi(en-1,en-1) )
         yr = abs ( hr(en,en-1) ) + abs ( hi(en,en-1) )
         zzr = abs ( hr(en,en) ) + abs ( hi(en,en) )
@@ -3185,9 +3189,9 @@ Module CFML_EisPack
           tst2 = tst1 + yr
           if ( tst2 == tst1 ) exit
         end do
-    !
-    !  Triangular decomposition H=L*R.
-    !
+        !
+        !  Triangular decomposition H=L*R.
+        !
         do i = m + 1, en
 
           xr = hr(i-1,i-1)
@@ -3201,9 +3205,9 @@ Module CFML_EisPack
             wr(i) = - 1.0_dp
 
           else
-    !
-    !  Interchange rows of HR and HI.
-    !
+            !
+            !  Interchange rows of HR and HI.
+            !
             do j = i - 1, en
               t         = hr(i-1,j)
               hr(i-1,j) = hr(i,j)
@@ -3227,18 +3231,18 @@ Module CFML_EisPack
           end do
 
         end do
-    !
-    !  Composition R*L=H.
-    !
+        !
+        !  Composition R*L=H.
+        !
         do j = m + 1, en
 
           xr = hr(j,j-1)
           xi = hi(j,j-1)
           hr(j,j-1) = 0.0_dp
           hi(j,j-1) = 0.0_dp
-    !
-    !  Interchange columns of HR and HI, if necessary.
-    !
+          !
+          !  Interchange columns of HR and HI, if necessary.
+          !
           if ( 0.0_dp < wr(j) ) then
 
             do i = l, j
@@ -3265,55 +3269,55 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
-    !
-    !! COMLR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    COMLR2 finds the eigenvalues and eigenvectors of a complex
-    !    upper Hessenberg matrix by the modified LR method.
-    !
-    !    The eigenvectors of a complex general matrix can also be found if
-    !    COMHES has been used to reduce this general matrix to Hessenberg form.
-    !
-    !  Modified:
-    !
-    !    10 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input, integer ::INTER(IGH), information on the rows and columns
-    !    interchanged in the reduction by COMHES, if performed.  If the
-    !    eigenvectors of the Hessenberg matrix are desired, set INTER(J)=J for these
-    !    elements.
-    !
-    !    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real
-    !    and imaginary parts of the complex upper Hessenberg matrix.  Their lower
-    !    triangles below the subdiagonal contain the multipliers which were used in
-    !    the reduction by COMHES, if performed.  If the eigenvectors of the
-    !    Hessenberg matrix are desired, these elements must be set to zero.  On
-    !    output, the upper Hessenberg portions of HR and HI have been destroyed,
-    !    but the location HR(1,1) contains the norm of the triangularized matrix.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  If an error exit is made, the eigenvalues should be
-    !    correct for indices IERR+1,...,N.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts
-    !    of the eigenvectors.  The eigenvectors are unnormalized.  If an error exit
-    !    is made, none of the eigenvectors has been found.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    J, if the limit of 30*N iterations is exhausted while the J-th
-    !      eigenvalue is being sought.
-    !
+    !!----  Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
+    !!----
+    !!----  COMLR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMLR2 finds the eigenvalues and eigenvectors of a complex
+    !!----    upper Hessenberg matrix by the modified LR method.
+    !!----
+    !!----    The eigenvectors of a complex general matrix can also be found if
+    !!----    COMHES has been used to reduce this general matrix to Hessenberg form.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    10 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input, integer ::INTER(IGH), information on the rows and columns
+    !!----    interchanged in the reduction by COMHES, if performed.  If the
+    !!----    eigenvectors of the Hessenberg matrix are desired, set INTER(J)=J for these
+    !!----    elements.
+    !!----
+    !!----    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real
+    !!----    and imaginary parts of the complex upper Hessenberg matrix.  Their lower
+    !!----    triangles below the subdiagonal contain the multipliers which were used in
+    !!----    the reduction by COMHES, if performed.  If the eigenvectors of the
+    !!----    Hessenberg matrix are desired, these elements must be set to zero.  On
+    !!----    output, the upper Hessenberg portions of HR and HI have been destroyed,
+    !!----    but the location HR(1,1) contains the norm of the triangularized matrix.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  If an error exit is made, the eigenvalues should be
+    !!----    correct for indices IERR+1,...,N.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts
+    !!----    of the eigenvectors.  The eigenvectors are unnormalized.  If an error exit
+    !!----    is made, none of the eigenvectors has been found.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    J, if the limit of 30*N iterations is exhausted while the J-th
+    !!----      eigenvalue is being sought.
+    !!----
     Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
       integer,                         intent(in)     :: n,low, igh
       integer,       dimension(igh),   intent(in)     :: inter
@@ -3326,16 +3330,16 @@ Module CFML_EisPack
       real(kind=dp) :: norm,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
-    !
-    !  Initialize the eigenvector matrix.
-    !
+      !
+      !  Initialize the eigenvector matrix.
+      !
       call r8mat_identity ( n, zr )
 
       zi(1:n,1:n) = 0.0_dp
-    !
-    !  Form the matrix of accumulated transformations from the information left
-    !  by COMHES.
-    !
+      !
+      !  Form the matrix of accumulated transformations from the information left
+      !  by COMHES.
+      !
       do i = igh - 1, low + 1, -1
 
         do k = i + 1, igh
@@ -3359,9 +3363,9 @@ Module CFML_EisPack
         end if
 
       end do
-    !
-    !  Store roots isolated by CBAL.
-    !
+      !
+      !  Store roots isolated by CBAL.
+      !
       do i = 1, n
         if ( i < low .or. igh < i ) then
           wr(i) = hr(i,i)
@@ -3373,14 +3377,14 @@ Module CFML_EisPack
       tr = 0.0_dp
       ti = 0.0_dp
       itn = 30 * n
-    !
-    !  Search for next eigenvalue.
-    !
+       !
+       !  Search for next eigenvalue.
+       !
       its = 0
       enm1 = en - 1
-    !
-    !  Look for single small sub-diagonal element.
-    !
+      !
+      !  Look for single small sub-diagonal element.
+      !
       do
 
         do l = en, low, -1
@@ -3398,9 +3402,9 @@ Module CFML_EisPack
           end if
 
         end do
-    !
-    !  A root found.
-    !
+        !
+        !  A root found.
+        !
         if ( l == en ) then
           hr(en,en) = hr(en,en) + tr
           wr(en) = hr(en,en)
@@ -3419,9 +3423,9 @@ Module CFML_EisPack
           ierr = en
           return
         end if
-    !
-    !  Form shift.
-    !
+        !
+        !  Form shift.
+        !
         if ( its == 10 .or. its == 20 ) then
 
           sr = abs ( hr(en,enm1) ) + abs ( hr(enm1,en-2) )
@@ -3462,9 +3466,9 @@ Module CFML_EisPack
         ti = ti + si
         its = its + 1
         itn = itn - 1
-    !
-    !  Look for two consecutive small sub-diagonal elements.
-    !
+        !
+        !  Look for two consecutive small sub-diagonal elements.
+        !
         xr = abs ( hr(enm1,enm1) ) + abs ( hi(enm1,enm1) )
         yr = abs ( hr(en,enm1) ) + abs ( hi(en,enm1) )
         zzr = abs ( hr(en,en) ) + abs ( hi(en,en) )
@@ -3484,18 +3488,18 @@ Module CFML_EisPack
             exit
           end if
         end do
-    !
-    !  Triangular decomposition H=L*R.
-    !
+        !
+        !  Triangular decomposition H=L*R.
+        !
         do i = m + 1, en
 
           xr = hr(i-1,i-1)
           xi = hi(i-1,i-1)
           yr = hr(i,i-1)
           yi = hi(i,i-1)
-    !
-    !  Interchange rows of HR and HI.
-    !
+          !
+          !  Interchange rows of HR and HI.
+          !
           if ( abs ( xr ) + abs ( xi) < abs ( yr ) + abs ( yi ) ) then
 
             do j = i - 1, n
@@ -3526,18 +3530,18 @@ Module CFML_EisPack
           end do
 
         end do
-    !
-    !  Composition R*L=H.
-    !
+        !
+        !  Composition R*L=H.
+        !
         do j = m + 1, en
 
           xr = hr(j,j-1)
           xi = hi(j,j-1)
           hr(j,j-1) = 0.0_dp
           hi(j,j-1) = 0.0_dp
-    !
-    !  Interchange columns of HR, HI, ZR, and ZI.
-    !
+          !
+          !  Interchange columns of HR, HI, ZR, and ZI.
+          !
           if ( 0.0_dp < wr(j) ) then
 
             do i = 1, j
@@ -3564,9 +3568,9 @@ Module CFML_EisPack
             hr(i,j-1) = hr(i,j-1) + xr * hr(i,j) - xi * hi(i,j)
             hi(i,j-1) = hi(i,j-1) + xr * hi(i,j) + xi * hr(i,j)
           end do
-    !
-    !  Accumulate transformations.
-    !
+          !
+          !  Accumulate transformations.
+          !
           do i = low, igh
             zr(i,j-1) = zr(i,j-1) + xr * zr(i,j) - xi * zi(i,j)
             zi(i,j-1) = zi(i,j-1) + xr * zi(i,j) + xi * zr(i,j)
@@ -3575,10 +3579,10 @@ Module CFML_EisPack
         end do
 
       end do
-    !
-    !  All roots found.
-    !  Backsubstitute to find vectors of upper triangular form.
-    !
+      !
+      !  All roots found.
+      !  Backsubstitute to find vectors of upper triangular form.
+      !
       norm = 0.0_dp
       do i = 1, n
         do j = i, n
@@ -3633,9 +3637,9 @@ Module CFML_EisPack
           end if
 
           call cdiv ( zzr, zzi, yr, yi, hr(i,en), hi(i,en) )
-    !
-    !  Overflow control.
-    !
+          !
+          !  Overflow control.
+          !
           tr = abs ( hr(i,en) ) + abs ( hi(i,en) )
 
           if ( tr /= 0.0_dp ) then
@@ -3653,13 +3657,13 @@ Module CFML_EisPack
         end do
 
       end do
-    !
-    !  End backsubstitution.
-    !
+      !
+      !  End backsubstitution.
+      !
       enm1 = n - 1
-    !
-    !  Vectors of isolated roots.
-    !
+      !
+      !  Vectors of isolated roots.
+      !
       do i = 1, n - 1
 
         if ( i < low .or. igh < i ) then
@@ -3670,9 +3674,9 @@ Module CFML_EisPack
         end if
 
       end do
-    !
-    !  Multiply by transformation matrix to give vectors of original full matrix.
-    !
+      !
+      !  Multiply by transformation matrix to give vectors of original full matrix.
+      !
       do j = n, low + 1, -1
 
         m = min ( j, igh )
@@ -3694,43 +3698,43 @@ Module CFML_EisPack
 
 
 
-    ! Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
-    !
-    !! COMQR gets eigenvalues of a complex upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    COMQR finds the eigenvalues of a complex upper Hessenberg matrix by
-    !    the QR method.
-    !
-    !  Modified:
-    !
-    !    10 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real
-    !    and imaginary parts of the complex upper Hessenberg matrix.  Their lower
-    !    triangles below the subdiagonal contain information about the unitary
-    !    transformations used in the reduction by CORTH, if performed.  On output,
-    !    the upper Hessenberg portions of HR and HI have been destroyed.
-    !    Therefore, they must be saved before calling COMQR if subsequent
-    !    calculation of eigenvectors is to be performed.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  If an error exit is made, the eigenvalues should be
-    !    correct for indices IERR+1,...,N.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    J, if the limit of 30*N iterations is exhausted while the J-th
-    !       eigenvalue is being sought.
-    !
+    !!----  Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
+    !!----
+    !!----  COMQR gets eigenvalues of a complex upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMQR finds the eigenvalues of a complex upper Hessenberg matrix by
+    !!----    the QR method.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    10 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real
+    !!----    and imaginary parts of the complex upper Hessenberg matrix.  Their lower
+    !!----    triangles below the subdiagonal contain information about the unitary
+    !!----    transformations used in the reduction by CORTH, if performed.  On output,
+    !!----    the upper Hessenberg portions of HR and HI have been destroyed.
+    !!----    Therefore, they must be saved before calling COMQR if subsequent
+    !!----    calculation of eigenvectors is to be performed.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  If an error exit is made, the eigenvalues should be
+    !!----    correct for indices IERR+1,...,N.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    J, if the limit of 30*N iterations is exhausted while the J-th
+    !!----       eigenvalue is being sought.
+    !!----
     Subroutine comqr ( n, low, igh, hr, hi, wr, wi, ierr )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
@@ -3773,9 +3777,9 @@ Module CFML_EisPack
         end if
 
       end do
-    !
-    !  Store roots isolated by CBAL.
-    !
+      !
+      !  Store roots isolated by CBAL.
+      !
       do i = 1, n
         if ( i < low .or. igh < i ) then
           wr(i) = hr(i,i)
@@ -3787,16 +3791,16 @@ Module CFML_EisPack
       tr = 0.0_dp
       ti = 0.0_dp
       itn = 30 * n
-    !
-    !  Search for next eigenvalue.
-    !
+      !
+      !  Search for next eigenvalue.
+      !
       if ( en < low ) return
 
       its = 0
       enm1 = en - 1
-    !
-    !  Look for single small sub-diagonal element.
-    !
+      !
+      !  Look for single small sub-diagonal element.
+      !
       do
 
         do l = en, low, -1
@@ -3810,9 +3814,9 @@ Module CFML_EisPack
             exit
           end if
         end do
-    !
-    !  A root found.
-    !
+        !
+        !  A root found.
+        !
         if ( l == en ) then
           wr(en) = hr(en,en) + tr
           wi(en) = hi(en,en) + ti
@@ -3871,9 +3875,9 @@ Module CFML_EisPack
         ti = ti + si
         its = its + 1
         itn = itn - 1
-    !
-    !  Reduce to triangle (rows).
-    !
+        !
+        !  Reduce to triangle (rows).
+        !
         do i = l + 1, en
 
           sr = hr(i,i-1)
@@ -3909,9 +3913,9 @@ Module CFML_EisPack
           hr(en,en) = norm
           hi(en,en) = 0.0_dp
         end if
-    !
-    !  Inverse operation (columns).
-    !
+        !
+        !  Inverse operation (columns).
+        !
         do j = l + 1, en
 
           xr = wr(j-1)
@@ -3950,55 +3954,55 @@ Module CFML_EisPack
 
     End Subroutine comqr
 
-    !  Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
-    !
-    !! COMQR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    COMQR2 finds the eigenvalues and eigenvectors
-    !    of a complex upper Hessenberg matrix by the QR
-    !    method.  The eigenvectors of a complex general matrix
-    !    can also be found if CORTH has been used to reduce
-    !    this general matrix to Hessenberg form.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input/output, real(kind=dp) ORTR(N), ORTI(N).  On input, information
-    !    about the unitary transformations used in the reduction by CORTH, if
-    !    performed.  If the eigenvectors of the Hessenberg matrix are desired, set
-    !    ORTR(J) and ORTI(J) to 0.0_dp for these elements.  On output, these arrays
-    !    have been overwritten.
-    !
-    !    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real and
-    !    imaginary parts of the complex upper Hessenberg matrix.  Their lower
-    !    triangles below the subdiagonal contain further information about the
-    !    transformations which were used in the reduction by CORTH, if performed.
-    !    If the eigenvectors of the Hessenberg matrix are desired, these elements
-    !    may be arbitrary.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  If an error exit is made, the eigenvalues should be
-    !    correct for indices IERR+1,...,N.
-    !
-    !    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts of
-    !    the eigenvectors.  The eigenvectors are unnormalized.  If an error exit
-    !    is made, none of the eigenvectors has been found.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    J, if the limit of 30*N iterations is exhausted while the J-th
-    !      eigenvalue is being sought.
-    !
+    !!----  Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
+    !!----
+    !!----  COMQR2 gets eigenvalues/vectors of a complex upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    COMQR2 finds the eigenvalues and eigenvectors
+    !!----    of a complex upper Hessenberg matrix by the QR
+    !!----    method.  The eigenvectors of a complex general matrix
+    !!----    can also be found if CORTH has been used to reduce
+    !!----    this general matrix to Hessenberg form.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) ORTR(N), ORTI(N).  On input, information
+    !!----    about the unitary transformations used in the reduction by CORTH, if
+    !!----    performed.  If the eigenvectors of the Hessenberg matrix are desired, set
+    !!----    ORTR(J) and ORTI(J) to 0.0_dp for these elements.  On output, these arrays
+    !!----    have been overwritten.
+    !!----
+    !!----    Input/output, real(kind=dp) HR(N,N), HI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex upper Hessenberg matrix.  Their lower
+    !!----    triangles below the subdiagonal contain further information about the
+    !!----    transformations which were used in the reduction by CORTH, if performed.
+    !!----    If the eigenvectors of the Hessenberg matrix are desired, these elements
+    !!----    may be arbitrary.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  If an error exit is made, the eigenvalues should be
+    !!----    correct for indices IERR+1,...,N.
+    !!----
+    !!----    Output, real(kind=dp) ZR(N,N), ZI(N,N), the real and imaginary parts of
+    !!----    the eigenvectors.  The eigenvectors are unnormalized.  If an error exit
+    !!----    is made, none of the eigenvectors has been found.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    J, if the limit of 30*N iterations is exhausted while the J-th
+    !!----      eigenvalue is being sought.
+    !!----
     Subroutine comqr2 ( n, low, igh, ortr, orti, hr, hi, wr, wi, zr, zi, ierr )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(igh),   intent(in out) :: ortr, orti
@@ -4011,16 +4015,16 @@ Module CFML_EisPack
       real(kind=dp) :: norm,si,sr,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
       ierr = 0
-    !
-    !  Initialize eigenvector matrix.
-    !
+      !
+      !  Initialize eigenvector matrix.
+      !
       call r8mat_identity ( n, zr )
 
       zi(1:n,1:n) = 0.0_dp
-    !
-    !  Form the matrix of accumulated transformations from the information
-    !  left by CORTH.
-    !
+      !
+      !  Form the matrix of accumulated transformations from the information
+      !  left by CORTH.
+      !
       if ( 0 < igh - low - 1 ) then
 
         do i = igh - 1, low + 1, -1
@@ -4028,9 +4032,9 @@ Module CFML_EisPack
           if ( ortr(i) == 0.0_dp .and. orti(i) == 0.0_dp ) cycle
 
           if ( hr(i,i-1) == 0.0_dp .and. hi(i,i-1) == 0.0_dp ) cycle
-    !
-    !  Norm below is negative of H formed in CORTH.
-    !
+          !
+          !  Norm below is negative of H formed in CORTH.
+          !
           norm = hr(i,i-1) * ortr(i) + hi(i,i-1) * orti(i)
 
           do k = i + 1, igh
@@ -4059,9 +4063,9 @@ Module CFML_EisPack
         end do
 
       end if
-    !
-    !  Create real subdiagonal elements.
-    !
+      !
+      !  Create real subdiagonal elements.
+      !
       if ( 0 <= igh - low - 1 ) then
 
         l = low + 1
@@ -4099,9 +4103,9 @@ Module CFML_EisPack
         end do
 
       end if
-    !
-    !  Store roots isolated by CBAL.
-    !
+      !
+      !  Store roots isolated by CBAL.
+      !
       do i = 1, n
         if ( i < low .or. igh < i ) then
           wr(i) = hr(i,i)
@@ -4113,14 +4117,14 @@ Module CFML_EisPack
       tr = 0.0_dp
       ti = 0.0_dp
       itn = 30 * n
-    !
-    !  Search for next eigenvalue.
-    !
+      !
+      !  Search for next eigenvalue.
+      !
       its = 0
       enm1 = en - 1
-    !
-    !  Look for single small sub-diagonal element.
-    !
+      !
+      !  Look for single small sub-diagonal element.
+      !
       do
 
         do l = en, low + 1, -1
@@ -4131,9 +4135,9 @@ Module CFML_EisPack
             exit
           end if
         end do
-    !
-    !  A root found.
-    !
+        !
+        !  A root found.
+        !
         if ( l == en ) then
           hr(en,en) = hr(en,en) + tr
           wr(en) = hr(en,en)
@@ -4192,9 +4196,9 @@ Module CFML_EisPack
         ti = ti + si
         its = its + 1
         itn = itn - 1
-    !
-    !  Reduce to triangle (rows).
-    !
+        !
+        !  Reduce to triangle (rows).
+        !
         do i = l + 1, en
 
           sr = hr(i,i-1)
@@ -4239,9 +4243,9 @@ Module CFML_EisPack
           end do
 
         end if
-    !
-    !  Inverse operation (columns).
-    !
+        !
+        !  Inverse operation (columns).
+        !
         do j = l + 1, en
 
           xr = wr(j-1)
@@ -4297,10 +4301,10 @@ Module CFML_EisPack
         end if
 
       end do
-    !
-    !  All roots found.
-    !  Backsubstitute to find vectors of upper triangular form.
-    !
+      !
+      !  All roots found.
+      !  Backsubstitute to find vectors of upper triangular form.
+      !
       norm = 0.0_dp
 
       do i = 1, n
@@ -4349,9 +4353,9 @@ Module CFML_EisPack
           end if
 
           call cdiv ( zzr, zzi, yr, yi, hr(i,en), hi(i,en) )
-    !
-    !  Overflow control.
-    !
+          !
+          !  Overflow control.
+          !
           tr = abs ( hr(i,en) ) + abs ( hi(i,en) )
 
           if ( tr /= 0.0_dp ) then
@@ -4373,13 +4377,13 @@ Module CFML_EisPack
         end do
 
       end do
-    !
-    !  End backsubstitution.
-    !
+      !
+      !  End backsubstitution.
+      !
       enm1 = n - 1
-    !
-    !  Vectors of isolated roots.
-    !
+      !
+      !  Vectors of isolated roots.
+      !
       do i = 1, n - 1
 
         if ( i < low .or. igh < i ) then
@@ -4392,9 +4396,9 @@ Module CFML_EisPack
         end if
 
       end do
-    !
-    !  Multiply by transformation matrix to give vectors of original full matrix.
-    !
+      !
+      !  Multiply by transformation matrix to give vectors of original full matrix.
+      !
       do j = n, low + 1, -1
 
         m = min ( j, igh )
@@ -4419,43 +4423,43 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
-    !
-    !! CORTB determines eigenvectors by undoing the CORTH transformation.
-    !
-    !  Discussion:
-    !
-    !    CORTB forms the eigenvectors of a complex general matrix by back
-    !    transforming those of the corresponding upper Hessenberg matrix
-    !    determined by CORTH.
-    !
-    !  Modified:
-    !
-    !    24 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH to the order
-    !    of the matrix.
-    !
-    !    Input, real(kind=dp) AR(N,IGH), AI(N,IGH), information about the
-    !    unitary transformations used in the reduction by CORTH in their strict
-    !    lower triangles.
-    !
-    !    Input/output, real(kind=dp) ORTR(IGH), ORTI(IGH).  On input, further
-    !    information about the transformations used in the reduction by CORTH.  On
-    !    output, ORTR and ORTI have been further altered.
-    !
-    !    Input, integer ::M, the number of columns of ZR and ZI to be
-    !    back transformed.
-    !
-    !    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real and
-    !    imaginary parts of the eigenvectors to be back transformed.  On output,
-    !    the real and imaginary parts of the transformed eigenvectors.
-    !
+    !!----  Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
+    !!----
+    !!----  CORTB determines eigenvectors by undoing the CORTH transformation.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CORTB forms the eigenvectors of a complex general matrix by back
+    !!----    transforming those of the corresponding upper Hessenberg matrix
+    !!----    determined by CORTH.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    24 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH to the order
+    !!----    of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) AR(N,IGH), AI(N,IGH), information about the
+    !!----    unitary transformations used in the reduction by CORTH in their strict
+    !!----    lower triangles.
+    !!----
+    !!----    Input/output, real(kind=dp) ORTR(IGH), ORTI(IGH).  On input, further
+    !!----    information about the transformations used in the reduction by CORTH.  On
+    !!----    output, ORTR and ORTI have been further altered.
+    !!----
+    !!----    Input, integer ::M, the number of columns of ZR and ZI to be
+    !!----    back transformed.
+    !!----
+    !!----    Input/output, real(kind=dp) ZR(N,M), ZI(N,M).  On input, the real and
+    !!----    imaginary parts of the eigenvectors to be back transformed.  On output,
+    !!----    the real and imaginary parts of the transformed eigenvectors.
+    !!----
     Subroutine cortb ( n, low, igh, ar, ai, ortr, orti, m, zr, zi )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in)     :: ar,ai
@@ -4502,36 +4506,36 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
-    !
-    !! CORTH transforms a complex general matrix to upper Hessenberg form.
-    !
-    !  Discussion:
-    !
-    !    CORTH is given a complex general matrix and reduces a submatrix situated
-    !    in rows and columns LOW through IGH to upper Hessenberg form by
-    !    unitary similarity transformations.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
-    !
-    !    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
-    !    imaginary parts of the complex input matrix.  On output, the real and
-    !    imaginary parts of the Hessenberg matrix.  Information about the unitary
-    !    transformations used in the reduction is stored in the remaining
-    !    triangles under the Hessenberg matrix.
-    !
-    !    Output, real(kind=dp) ORTR(IGH), ORTI(IGH), further information about
-    !    the transformations.
-    !
+    !!----  Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
+    !!----
+    !!----  CORTH transforms a complex general matrix to upper Hessenberg form.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CORTH is given a complex general matrix and reduces a submatrix situated
+    !!----    in rows and columns LOW through IGH to upper Hessenberg form by
+    !!----    unitary similarity transformations.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine CBAL.  If CBAL is not used, set LOW = 1 and IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) AR(N,N), AI(N,N).  On input, the real and
+    !!----    imaginary parts of the complex input matrix.  On output, the real and
+    !!----    imaginary parts of the Hessenberg matrix.  Information about the unitary
+    !!----    transformations used in the reduction is stored in the remaining
+    !!----    triangles under the Hessenberg matrix.
+    !!----
+    !!----    Output, real(kind=dp) ORTR(IGH), ORTI(IGH), further information about
+    !!----    the transformations.
+    !!----
     Subroutine corth ( n, low, igh, ar, ai, ortr, orti )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
@@ -4548,9 +4552,9 @@ Module CFML_EisPack
         ortr(m) = 0.0_dp
         orti(m) = 0.0_dp
         scal = 0.0_dp
-    !
-    !  scal column.
-    !
+        !
+        !  scal column.
+        !
         do i = m, igh
           scal = scal + abs ( ar(i,m-1) ) + abs ( ai(i,m-1) )
         end do
@@ -4575,9 +4579,9 @@ Module CFML_EisPack
           ortr(m) = g
           ar(m,m-1) = scal
         end if
-    !
-    !  Form (I-(U*Ut)/h) * A.
-    !
+        !
+        !  Form (I-(U*Ut)/h) * A.
+        !
         do j = m, n
 
           fr = 0.0_dp
@@ -4593,9 +4597,9 @@ Module CFML_EisPack
           ai(m:igh,j) = ai(m:igh,j) - fr * orti(m:igh) - fi * ortr(m:igh)
 
         end do
-    !
-    !  Form (I-(U*Ut)/h) * A * (I-(U*Ut)/h)
-    !
+        !
+        !  Form (I-(U*Ut)/h) * A * (I-(U*Ut)/h)
+        !
         do i = 1, igh
 
           fr = 0.0_dp
@@ -4623,30 +4627,30 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine csroot ( xr, xi, yr, yi )
-    !
-    !! CSROOT computes the complex square root of a complex quantity.
-    !
-    !  Discussion:
-    !
-    !    CSROOT chooses the branch of the square function so that
-    !      0.0 <= YR
-    !    and
-    !      sign ( YI ) == sign ( XI )
-    !
-    !  Modified:
-    !
-    !    18 October 2009
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, real(kind=dp) XR, XI, the real and imaginary parts of the
-    !    quantity whose square root is desired.
-    !
-    !    Output, real(kind=dp) YR, YI, the real and imaginary parts of the
-    !    square root.
-    !
+    !!----  Subroutine csroot ( xr, xi, yr, yi )
+    !!----
+    !!----  CSROOT computes the complex square root of a complex quantity.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    CSROOT chooses the branch of the square function so that
+    !!----      0.0 <= YR
+    !!----    and
+    !!----      sign ( YI ) == sign ( XI )
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    18 October 2009
+    !!----
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, real(kind=dp) XR, XI, the real and imaginary parts of the
+    !!----    quantity whose square root is desired.
+    !!----
+    !!----    Output, real(kind=dp) YR, YI, the real and imaginary parts of the
+    !!----    square root.
+    !!----
     Subroutine csroot ( xr, xi, yr, yi )
       real(kind=dp), intent(in)  :: xr, xi
       real(kind=dp), intent(out) :: yr, yi
@@ -4679,41 +4683,41 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine elmbak ( n, low, igh, a, ind, m, z )
-    !
-    !! ELMBAK determines eigenvectors by undoing the ELMHES transformation.
-    !
-    !  Discussion:
-    !
-    !    ELMBAK forms the eigenvectors of a real general matrix by back
-    !    transforming those of the corresponding upper Hessenberg matrix
-    !    determined by ELMHES.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, integers determined by the balancing
-    !    routine BALANC.  If BALANC has not been used, set LOW = 1 and
-    !    IGH equal to the order of the matrix.
-    !
-    !    Input, real(kind=dp) A(N,IGH), the multipliers which were used in the
-    !    reduction by ELMHES in its lower triangle below the subdiagonal.
-    !
-    !    Input, integer ::IND(IGH), information on the rows and columns
-    !    interchanged in the reduction by ELMHES.
-    !
-    !    Input, integer ::M, the number of columns of Z to be back
-    !    transformed.
-    !
-    !    Input/output, real(kind=dp) Z(N,M).  On input, the real and imaginary
-    !    parts of the eigenvectors to be back transformed.  On output, the real and
-    !    imaginary parts of the transformed eigenvectors.
-    !
+    !!----  Subroutine elmbak ( n, low, igh, a, ind, m, z )
+    !!----
+    !!----  ELMBAK determines eigenvectors by undoing the ELMHES transformation.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    ELMBAK forms the eigenvectors of a real general matrix by back
+    !!----    transforming those of the corresponding upper Hessenberg matrix
+    !!----    determined by ELMHES.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, integers determined by the balancing
+    !!----    routine BALANC.  If BALANC has not been used, set LOW = 1 and
+    !!----    IGH equal to the order of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) A(N,IGH), the multipliers which were used in the
+    !!----    reduction by ELMHES in its lower triangle below the subdiagonal.
+    !!----
+    !!----    Input, integer ::IND(IGH), information on the rows and columns
+    !!----    interchanged in the reduction by ELMHES.
+    !!----
+    !!----    Input, integer ::M, the number of columns of Z to be back
+    !!----    transformed.
+    !!----
+    !!----    Input/output, real(kind=dp) Z(N,M).  On input, the real and imaginary
+    !!----    parts of the eigenvectors to be back transformed.  On output, the real and
+    !!----    imaginary parts of the transformed eigenvectors.
+    !!----
     Subroutine elmbak ( n, low, igh, a, ind, m, z )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,igh), intent(in)     :: a
@@ -4759,46 +4763,46 @@ Module CFML_EisPack
     End Subroutine elmbak
 
 
-    !  Subroutine elmhes ( n, low, igh, a, ind )
-    !
-    !! ELMHES transforms a real general matrix to upper Hessenberg form.
-    !
-    !  Discussion:
-    !
-    !    ELMHES is given a real general matrix and reduces a submatrix
-    !    situated in rows and columns LOW through IGH to upper Hessenberg
-    !    form by stabilized elementary similarity transformations.
-    !
-    !
-    !  Modified:
-    !
-    !    11 March 2018
-    !
-    !
-    !  Reference:
-    !
-    !    Martin, James Wilkinson,
-    !    ELMHES,
-    !    Numerische Mathematik,
-    !    Volume 12, pages 349-368, 1968.
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
-    !
-    !    Input/output, real(kind=dp) A(N,N).  On input, the matrix to be
-    !    reduced.  On output, the Hessenberg matrix.  The multipliers
-    !    which were used in the reduction are stored in the
-    !    remaining triangle under the Hessenberg matrix.
-    !
-    !    Output, integer ::IND(N), contains information on the rows
-    !    and columns interchanged in the reduction.  Only elements LOW through
-    !    IGH are used.
-    !
+    !!----  Subroutine elmhes ( n, low, igh, a, ind )
+    !!----
+    !!----  ELMHES transforms a real general matrix to upper Hessenberg form.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    ELMHES is given a real general matrix and reduces a submatrix
+    !!----    situated in rows and columns LOW through IGH to upper Hessenberg
+    !!----    form by stabilized elementary similarity transformations.
+    !!----
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    11 March 2018
+    !!----
+    !!----
+    !!----  Reference:
+    !!----
+    !!----    Martin, James Wilkinson,
+    !!----    ELMHES,
+    !!----    Numerische Mathematik,
+    !!----    Volume 12, pages 349-368, 1968.
+    !!----
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) A(N,N).  On input, the matrix to be
+    !!----    reduced.  On output, the Hessenberg matrix.  The multipliers
+    !!----    which were used in the reduction are stored in the
+    !!----    remaining triangle under the Hessenberg matrix.
+    !!----
+    !!----    Output, integer ::IND(N), contains information on the rows
+    !!----    and columns interchanged in the reduction.  Only elements LOW through
+    !!----    IGH are used.
+    !!----
     Subroutine elmhes ( n, low, igh, a, ind )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,n),   intent(in out) :: a
@@ -4822,9 +4826,9 @@ Module CFML_EisPack
         end do
 
         ind(m) = i
-    !
-    !  Interchange rows and columns of the matrix.
-    !
+        !
+        !  Interchange rows and columns of the matrix.
+        !
         if ( i /= m ) then
 
           do j = m - 1, n
@@ -4869,44 +4873,44 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine eltran ( n, low, igh, a, ind, z )
-    !
-    !! ELTRAN accumulates similarity transformations used by ELMHES.
-    !
-    !  Discussion:
-    !
-    !    ELTRAN accumulates the stabilized elementary similarity transformations
-    !    used in the reduction of a real general matrix to upper Hessenberg form
-    !    by ELMHES.
-    !
-    !  Modified:
-    !
-    !    04 March 2018
-    !
-    !
-    !  Reference:
-    !
-    !    Peters, James Wilkinson,
-    !    ELMTRANS,
-    !    Numerische Mathematik,
-    !    Volume 16, pages 181-204, 1970.
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, are determined by the balancing
-    !    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
-    !
-    !    Input, real(kind=dp) A(N,IGH), the multipliers which were used in the
-    !    reduction by ELMHES in its lower triangle below the subdiagonal.
-    !
-    !    Input, integer ::IND(IGH), information on the rows and columns
-    !    interchanged in the reduction by ELMHES.
-    !
-    !    Output, real(kind=dp) Z(N,N), the transformation matrix produced in the
-    !    reduction by ELMHES.
-    !
+    !!----  Subroutine eltran ( n, low, igh, a, ind, z )
+    !!----
+    !!----  ELTRAN accumulates similarity transformations used by ELMHES.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    ELTRAN accumulates the stabilized elementary similarity transformations
+    !!----    used in the reduction of a real general matrix to upper Hessenberg form
+    !!----    by ELMHES.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    04 March 2018
+    !!----
+    !!----
+    !!----  Reference:
+    !!----
+    !!----    Peters, James Wilkinson,
+    !!----    ELMTRANS,
+    !!----    Numerische Mathematik,
+    !!----    Volume 16, pages 181-204, 1970.
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, are determined by the balancing
+    !!----    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
+    !!----
+    !!----    Input, real(kind=dp) A(N,IGH), the multipliers which were used in the
+    !!----    reduction by ELMHES in its lower triangle below the subdiagonal.
+    !!----
+    !!----    Input, integer ::IND(IGH), information on the rows and columns
+    !!----    interchanged in the reduction by ELMHES.
+    !!----
+    !!----    Output, real(kind=dp) Z(N,N), the transformation matrix produced in the
+    !!----    reduction by ELMHES.
+    !!----
     Subroutine eltran ( n, low, igh, a, ind, z )
       integer,                         intent(in)     :: n,low, igh
       real(kind=dp), dimension(n,igh), intent(in)     :: a
@@ -4915,9 +4919,9 @@ Module CFML_EisPack
 
 
       integer :: i,kl,mm,mp
-    !
-    !  Initialize Z to the identity matrix.
-    !
+      !
+      !  Initialize Z to the identity matrix.
+      !
       call r8mat_identity ( n, z )
 
       kl = igh - low - 1
@@ -4947,48 +4951,48 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine figi ( n, t, d, e, e2, ierr )
-    !
-    !! FIGI transforms a real nonsymmetric tridiagonal matrix to symmetric form.
-    !
-    !  Discussion:
-    !
-    !    FIGI is given a nonsymmetric tridiagonal matrix such that the products
-    !    of corresponding pairs of off-diagonal elements are all
-    !    non-negative.  It reduces the matrix to a symmetric
-    !    tridiagonal matrix with the same eigenvalues.  If, further,
-    !    a zero product only occurs when both factors are zero,
-    !    the reduced matrix is similar to the original matrix.
-    !
-    !  Modified:
-    !
-    !    08 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, real(kind=dp) T(N,3) contains the input matrix.  Its subdiagonal
-    !    is stored in the last N-1 positions of the first column, its diagonal in
-    !    the N positions of the second column, and its superdiagonal in the
-    !    first N-1 positions of the third column.  T(1,1) and T(N,3) are arbitrary.
-    !
-    !    Output, real(kind=dp) D(N), the diagonal elements of the symmetric
-    !    matrix.
-    !
-    !    Output, real(kind=dp) E(N), contains the subdiagonal elements of
-    !    the symmetric matrix in E(2:N).  E(1) is not set.
-    !
-    !    Output, real(kind=dp) E2(N), the squares of the corresponding elements
-    !    of E.  E2 may coincide with E if the squares are not needed.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    N+I, if T(I,1) * T(I-1,3) is negative,
-    !    -(3*N+I), if T(I,1) * T(I-1,3) is zero with one factor non-zero.  In
-    !      this case, the eigenvectors of the symmetric matrix are not simply
-    !      related to those of T and should not be sought.
-    !
+    !!----  Subroutine figi ( n, t, d, e, e2, ierr )
+    !!----
+    !!----  FIGI transforms a real nonsymmetric tridiagonal matrix to symmetric form.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    FIGI is given a nonsymmetric tridiagonal matrix such that the products
+    !!----    of corresponding pairs of off-diagonal elements are all
+    !!----    non-negative.  It reduces the matrix to a symmetric
+    !!----    tridiagonal matrix with the same eigenvalues.  If, further,
+    !!----    a zero product only occurs when both factors are zero,
+    !!----    the reduced matrix is similar to the original matrix.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    08 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) T(N,3) contains the input matrix.  Its subdiagonal
+    !!----    is stored in the last N-1 positions of the first column, its diagonal in
+    !!----    the N positions of the second column, and its superdiagonal in the
+    !!----    first N-1 positions of the third column.  T(1,1) and T(N,3) are arbitrary.
+    !!----
+    !!----    Output, real(kind=dp) D(N), the diagonal elements of the symmetric
+    !!----    matrix.
+    !!----
+    !!----    Output, real(kind=dp) E(N), contains the subdiagonal elements of
+    !!----    the symmetric matrix in E(2:N).  E(1) is not set.
+    !!----
+    !!----    Output, real(kind=dp) E2(N), the squares of the corresponding elements
+    !!----    of E.  E2 may coincide with E if the squares are not needed.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    N+I, if T(I,1) * T(I-1,3) is negative,
+    !!----    -(3*N+I), if T(I,1) * T(I-1,3) is zero with one factor non-zero.  In
+    !!----      this case, the eigenvectors of the symmetric matrix are not simply
+    !!----      related to those of T and should not be sought.
+    !!----
     Subroutine figi ( n, t, d, e, e2, ierr )
       integer,                      intent(in)  :: n
       real(kind=dp), dimension(n,3),intent(in)  :: t
@@ -5039,46 +5043,46 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine figi2 ( n, t, d, e, z, ierr )
-    !
-    !! FIGI2 transforms a real nonsymmetric tridiagonal matrix to symmetric form.
-    !
-    !  Discussion:
-    !
-    !    FIGI2 is given a nonsymmetric tridiagonal matrix such that the products
-    !    of corresponding pairs of off-diagonal elements are all
-    !    non-negative, and zero only when both factors are zero.
-    !
-    !    It reduces the matrix to a symmetric tridiagonal matrix
-    !    using and accumulating diagonal similarity transformations.
-    !
-    !  Modified:
-    !
-    !    08 February 2018
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, real(kind=dp) T(N,3) contains the input matrix.  Its subdiagonal
-    !    is stored in the last N-1 positions of the first column, its diagonal in
-    !    the N positions of the second column, and its superdiagonal in the
-    !    first N-1 positions of the third column.  T(1,1) and T(N,3) are arbitrary.
-    !
-    !    Output, real(kind=dp) D(N), the diagonal elements of the symmetric
-    !    matrix.
-    !
-    !    Output, real(kind=dp) E(N), contains the subdiagonal elements of the
-    !    symmetric matrix in E(2:N).  E(1) is not set.
-    !
-    !    Output, real(kind=dp) Z(N,N), contains the transformation matrix
-    !    produced in the reduction.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    N+I, if T(I,1) * T(I-1,3) is negative,
-    !    2*N+I, if T(I,1) * T(I-1,3) is zero with one factor non-zero.
-    !
+    !!----  Subroutine figi2 ( n, t, d, e, z, ierr )
+    !!----
+    !!----  FIGI2 transforms a real nonsymmetric tridiagonal matrix to symmetric form.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    FIGI2 is given a nonsymmetric tridiagonal matrix such that the products
+    !!----    of corresponding pairs of off-diagonal elements are all
+    !!----    non-negative, and zero only when both factors are zero.
+    !!----
+    !!----    It reduces the matrix to a symmetric tridiagonal matrix
+    !!----    using and accumulating diagonal similarity transformations.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    08 February 2018
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, real(kind=dp) T(N,3) contains the input matrix.  Its subdiagonal
+    !!----    is stored in the last N-1 positions of the first column, its diagonal in
+    !!----    the N positions of the second column, and its superdiagonal in the
+    !!----    first N-1 positions of the third column.  T(1,1) and T(N,3) are arbitrary.
+    !!----
+    !!----    Output, real(kind=dp) D(N), the diagonal elements of the symmetric
+    !!----    matrix.
+    !!----
+    !!----    Output, real(kind=dp) E(N), contains the subdiagonal elements of the
+    !!----    symmetric matrix in E(2:N).  E(1) is not set.
+    !!----
+    !!----    Output, real(kind=dp) Z(N,N), contains the transformation matrix
+    !!----    produced in the reduction.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    N+I, if T(I,1) * T(I-1,3) is negative,
+    !!----    2*N+I, if T(I,1) * T(I-1,3) is zero with one factor non-zero.
+    !!----
     Subroutine figi2 ( n, t, d, e, z, ierr )
       integer,                      intent(in)  :: n
       real(kind=dp), dimension(n,3),intent(in)  :: t
@@ -5138,52 +5142,52 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
-    !
-    !! HQR computes all eigenvalues of a real upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    HQR finds the eigenvalues of a real
-    !    upper Hessenberg matrix by the QR method.
-    !
-    !  Modified:
-    !
-    !    31 January 2018
-    !
-    !  Reference:
-    !
-    !    Martin, Peters, James Wilkinson,
-    !    HQR,
-    !    Numerische Mathematik,
-    !    Volume 14, pages 219-231, 1970.
-    !
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, two integers determined by
-    !    BALANC.  If BALANC is not used, set LOW=1, IGH=N.
-    !
-    !    Input/output, real(kind=dp) H(N,N), the N by N upper Hessenberg matrix.
-    !    Information about the transformations used in the reduction to
-    !    Hessenberg form by ELMHES or ORTHES, if performed, is stored
-    !    in the remaining triangle under the Hessenberg matrix.
-    !    On output, the information in H has been destroyed.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  The eigenvalues are unordered, except that complex
-    !    conjugate pairs of values appear consecutively, with the eigenvalue
-    !    having positive imaginary part listed first.  If an error exit
-    !    occurred, then the eigenvalues should be correct for indices
-    !    IERR+1 through N.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, no error.
-    !    J, the limit of 30*N iterations was reached while searching for
-    !      the J-th eigenvalue.
-    !
+    !!----  Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
+    !!----
+    !!----  HQR computes all eigenvalues of a real upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    HQR finds the eigenvalues of a real
+    !!----    upper Hessenberg matrix by the QR method.
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    31 January 2018
+    !!----
+    !!----  Reference:
+    !!----
+    !!----    Martin, Peters, James Wilkinson,
+    !!----    HQR,
+    !!----    Numerische Mathematik,
+    !!----    Volume 14, pages 219-231, 1970.
+    !!----
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, two integers determined by
+    !!----    BALANC.  If BALANC is not used, set LOW=1, IGH=N.
+    !!----
+    !!----    Input/output, real(kind=dp) H(N,N), the N by N upper Hessenberg matrix.
+    !!----    Information about the transformations used in the reduction to
+    !!----    Hessenberg form by ELMHES or ORTHES, if performed, is stored
+    !!----    in the remaining triangle under the Hessenberg matrix.
+    !!----    On output, the information in H has been destroyed.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  The eigenvalues are unordered, except that complex
+    !!----    conjugate pairs of values appear consecutively, with the eigenvalue
+    !!----    having positive imaginary part listed first.  If an error exit
+    !!----    occurred, then the eigenvalues should be correct for indices
+    !!----    IERR+1 through N.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, no error.
+    !!----    J, the limit of 30*N iterations was reached while searching for
+    !!----      the J-th eigenvalue.
+    !!----
     Subroutine hqr ( n, low, igh, h, wr, wi, ierr )
       integer,                      intent(in)     :: n, low, igh
       real(kind=dp), dimension(n,n),intent(in out) :: h
@@ -5197,9 +5201,9 @@ Module CFML_EisPack
       ierr = 0
       norm = 0.0_dp
       k = 1
-    !
-    !  Store roots isolated by BALANC and compute matrix norm.
-    !
+      !
+      !  Store roots isolated by BALANC and compute matrix norm.
+      !
       do i = 1, n
 
         do j = k, n
@@ -5217,17 +5221,17 @@ Module CFML_EisPack
       en = igh
       t = 0.0_dp
       itn = 30 * n
-    !
-    !  Search for next eigenvalues.
-    !
+      !
+      !  Search for next eigenvalues.
+      !
       if ( igh < low ) return
 
       its = 0
       na = igh - 1
       enm2 = igh - 2
-    !
-    !  Look for a single small sub-diagonal element.
-    !
+      !
+      !  Look for a single small sub-diagonal element.
+      !
       do
 
         do l = en, low, -1
@@ -5240,13 +5244,13 @@ Module CFML_EisPack
           tst2 = tst1 + abs ( h(l,l-1) )
           if ( tst2 == tst1 ) exit
         end do
-    !
-    !  Form shift.
-    !
+        !
+        !  Form shift.
+        !
         x = h(en,en)
-    !
-    !  One root found.
-    !
+        !
+        !  One root found.
+        !
         if ( l == en ) then
           wr(en) = x + t
           wi(en) = 0.0_dp
@@ -5260,18 +5264,18 @@ Module CFML_EisPack
 
         y = h(na,na)
         w = h(en,na) * h(na,en)
-    !
-    !  Two roots found.
-    !
+        !
+        !  Two roots found.
+        !
         if ( l == na ) then
 
           p = ( y - x ) / 2.0_dp
           q = p * p + w
           zz = sqrt ( abs ( q ) )
           x = x + t
-    !
-    !  Real root, or complex pair.
-    !
+          !
+          !  Real root, or complex pair.
+          !
           if ( 0.0_dp <= q ) then
 
             zz = p + sign ( zz, p )
@@ -5310,9 +5314,9 @@ Module CFML_EisPack
           ierr = en
           return
         end if
-    !
-    !  Form an exceptional shift.
-    !
+        !
+        !  Form an exceptional shift.
+        !
         if ( its == 10 .or. its == 20 ) then
 
           t = t + x
@@ -5330,9 +5334,9 @@ Module CFML_EisPack
 
         its = its + 1
         itn = itn - 1
-    !
-    !  Look for two consecutive small sub-diagonal elements.
-    !
+        !
+        !  Look for two consecutive small sub-diagonal elements.
+        !
         do m = enm2, l, -1
 
           zz = h(m,m)
@@ -5362,9 +5366,9 @@ Module CFML_EisPack
             h(i,i-3) = 0.0_dp
           end if
         end do
-    !
-    !  Double QR step involving rows l to EN and columns M to EN.
-    !
+        !
+        !  Double QR step involving rows l to EN and columns M to EN.
+        !
         do k = m, na
 
           notlas = k /= na
@@ -5406,9 +5410,9 @@ Module CFML_EisPack
           r = r / p
 
           if ( .not. notlas ) then
-    !
-    !  Row modification.
-    !
+            !
+            !  Row modification.
+            !
             do j = k, n
               p = h(k,j) + q * h(k+1,j)
               h(k,j) = h(k,j) - p * x
@@ -5416,9 +5420,9 @@ Module CFML_EisPack
             end do
 
             j = min ( en, k + 3 )
-    !
-    !  Column modification.
-    !
+            !
+            !  Column modification.
+            !
             do i = 1, j
               p = x * h(i,k) + y * h(i,k+1)
               h(i,k) = h(i,k) - p
@@ -5426,9 +5430,9 @@ Module CFML_EisPack
             end do
 
           else
-    !
-    !  Row modification.
-    !
+            !
+            !  Row modification.
+            !
             do j = k, n
               p = h(k,j) + q * h(k+1,j) + r * h(k+2,j)
               h(k,j) = h(k,j) - p * x
@@ -5437,9 +5441,9 @@ Module CFML_EisPack
             end do
 
             j = min ( en, k + 3 )
-    !
-    !  Column modification.
-    !
+            !
+            !  Column modification.
+            !
             do i = 1, j
               p = x * h(i,k) + y * h(i,k+1) + zz * h(i,k+2)
               h(i,k) = h(i,k) - p
@@ -5457,63 +5461,65 @@ Module CFML_EisPack
 
 
 
-    !  Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
-    !
-    !! HQR2 computes eigenvalues and eigenvectors of a real upper Hessenberg matrix.
-    !
-    !  Discussion:
-    !
-    !    HQR2 finds the eigenvalues and eigenvectors of a real upper Hessenberg
-    !    matrix by the qr method.
-    !
-    !    The eigenvectors of a real general matrix can also be found
-    !    if ELMHES and ELTRAN or ORTHES and ORTRAN have
-    !    been used to reduce this general matrix to Hessenberg form
-    !    and to accumulate the similarity transformations.
-    !
-    !    Thanks to David Chichka, 02 May 2019, for pointing out that a previous
-    !    version of this F90 translation of hqr2 gave erroneous results when some
-    !    eigenvalues were complex.  I gave up my ideal of a complete rewrite of
-    !    this function, and did a much lighter conversion of the F77 code
-    !    for a second try.
-    !
-    !  Modified:
-    !
-    !    02 May 2019
-    !
-    !  Arguments:
-    !
-    !    Input, integer ::N, the order of the matrix.
-    !
-    !    Input, integer ::LOW, IGH, determined by the balancing
-    !    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
-    !
-    !    Input/output, real(kind=dp) H(N,N), the N by N upper Hessenberg matrix.
-    !    On output, the information in H has been destroyed.
-    !
-    !    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
-    !    eigenvalues.  The eigenvalues are unordered, except that complex
-    !    conjugate pairs of values appear consecutively, with the eigenvalue
-    !    having positive imaginary part listed first.  If an error exit
-    !    occurred, then the eigenvalues should be correct for indices
-    !    IERR+1 through N.
-    !
-    !    Input/output, real(kind=dp) Z(N,N).  On input, the transformation
-    !    matrix produced by ELTRAN after the reduction by ELMHES, or by ORTRAN after
-    !    the reduction by ORTHES, if performed.  If the eigenvectors of the
-    !    Hessenberg matrix are desired, Z must contain the identity matrix.  On
-    !    output, Z contains the real and imaginary parts of the eigenvectors.
-    !    If the I-th eigenvalue is real, the I-th column of Z contains its
-    !    eigenvector.  If the I-th eigenvalue is complex with positive imaginary
-    !    part, the I-th and (I+1)-th columns of Z contain the real and imaginary
-    !    parts of its eigenvector.  The eigenvectors are unnormalized.  If an
-    !    error exit is made, none of the eigenvectors has been found.
-    !
-    !    Output, integer ::IERR, error flag.
-    !    0, for normal return,
-    !    J, if the limit of 30*N iterations is exhausted while the J-th
-    !      eigenvalue is being sought.
-    !
+    !!----  Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
+    !!----
+    !!----  HQR2 computes eigenvalues and eigenvectors of a real upper Hessenberg matrix.
+    !!----
+    !!----  Discussion:
+    !!----
+    !!----    HQR2 finds the eigenvalues and eigenvectors of a real upper Hessenberg
+    !!----    matrix by the qr method.
+    !!----
+    !!----    The eigenvectors of a real general matrix can also be found
+    !!----    if ELMHES and ELTRAN or ORTHES and ORTRAN have
+    !!----    been used to reduce this general matrix to Hessenberg form
+    !!----    and to accumulate the similarity transformations.
+    !!----
+    !!----   THE STATEMENT BELOW CAME FROM THE ORIGINAL Eispack.f90 code
+    !!----    Thanks to David Chichka, 02 May 2019, for pointing out that a previous
+    !!----    version of this F90 translation of hqr2 gave erroneous results when some
+    !!----    eigenvalues were complex.  I gave up my ideal of a complete rewrite of
+    !!----    this function, and did a much lighter conversion of the F77 code
+    !!----    for a second try.
+    !!----   IN THIS VERSION ALL GOTO's AND NUMERICAL LABELS HAVE BEEN ELIMINATED
+    !!----
+    !!----  Modified:
+    !!----
+    !!----    02 May 2019
+    !!----
+    !!----  Arguments:
+    !!----
+    !!----    Input, integer ::N, the order of the matrix.
+    !!----
+    !!----    Input, integer ::LOW, IGH, determined by the balancing
+    !!----    routine BALANC.  If BALANC has not been used, set LOW = 1, IGH = N.
+    !!----
+    !!----    Input/output, real(kind=dp) H(N,N), the N by N upper Hessenberg matrix.
+    !!----    On output, the information in H has been destroyed.
+    !!----
+    !!----    Output, real(kind=dp) WR(N), WI(N), the real and imaginary parts of the
+    !!----    eigenvalues.  The eigenvalues are unordered, except that complex
+    !!----    conjugate pairs of values appear consecutively, with the eigenvalue
+    !!----    having positive imaginary part listed first.  If an error exit
+    !!----    occurred, then the eigenvalues should be correct for indices
+    !!----    IERR+1 through N.
+    !!----
+    !!----    Input/output, real(kind=dp) Z(N,N).  On input, the transformation
+    !!----    matrix produced by ELTRAN after the reduction by ELMHES, or by ORTRAN after
+    !!----    the reduction by ORTHES, if performed.  If the eigenvectors of the
+    !!----    Hessenberg matrix are desired, Z must contain the identity matrix.  On
+    !!----    output, Z contains the real and imaginary parts of the eigenvectors.
+    !!----    If the I-th eigenvalue is real, the I-th column of Z contains its
+    !!----    eigenvector.  If the I-th eigenvalue is complex with positive imaginary
+    !!----    part, the I-th and (I+1)-th columns of Z contain the real and imaginary
+    !!----    parts of its eigenvector.  The eigenvectors are unnormalized.  If an
+    !!----    error exit is made, none of the eigenvectors has been found.
+    !!----
+    !!----    Output, integer ::IERR, error flag.
+    !!----    0, for normal return,
+    !!----    J, if the limit of 30*N iterations is exhausted while the J-th
+    !!----      eigenvalue is being sought.
+    !!----
 
     Subroutine hqr2 ( n, low, igh, h, wr, wi, z, ierr )
       integer,                      intent(in)     :: n, low, igh
@@ -5525,522 +5531,493 @@ Module CFML_EisPack
       integer :: i,j,k,l,m,en,ii,jj,ll,mm,na,nn
       integer :: itn,its,mp2,enm2
       real(kind=dp) :: p,q,r,s,t,w,x,y,ra,sa,vi,vr,zz,norm,tst1,tst2
-      logical :: notlas
+      logical :: notlas,two_found !This last logical has been introduced to simplify the code (JRC)
 
-          ierr = 0
-          norm = 0.0d0
-          k = 1
-    !
-    !  store roots isolated by balanc and compute matrix norm
-    !
-          do i = 1, n
+       ierr = 0
+       norm = 0.0_dp
+       k = 1
+       two_found=.false.
+       !
+       !  store roots isolated by balanc and compute matrix norm
+       !
+       do i = 1, n
 
-             do j = k, n
-               norm = norm + abs(h(i,j))
-             end do
-
-             k = i
-             if ( i .ge. low .and. i .le. igh ) cycle
-             wr(i) = h(i,i)
-             wi(i) = 0.0d0
+          do j = k, n
+            norm = norm + abs(h(i,j))
           end do
 
-          en = igh
-          t = 0.0d0
-          itn = 30*n
-    !
-    !  search for next eigenvalues
-    !
-       60 continue
+          k = i
+          if ( i >= low .and. i <= igh ) cycle
+          wr(i) = h(i,i)
+          wi(i) = 0.0_dp
+       end do
 
-          if (en .lt. low) go to 340
+       en = igh
+       t = 0.0_dp
+       itn = 30*n
+       !
+       !  search for next eigenvalues
+       !
+       do
+
+          if (en < low) exit
           its = 0
           na = en - 1
           enm2 = na - 1
-    !
-    !  look for single small sub-diagonal element
-    !  for l=en step -1 until low do --
-    !
-       70 continue
+         !
+         !  look for single small sub-diagonal element
+         !  for l=en step -1 until low do --
+         !
+         do
 
-          do ll = low, en
-             l = en + low - ll
-             if (l .eq. low) go to 100
-             s = abs(h(l-1,l-1)) + abs(h(l,l))
-             if (s .eq. 0.0d0) s = norm
-             tst1 = s
-             tst2 = tst1 + abs(h(l,l-1))
-             if (tst2 .eq. tst1) go to 100
-          end do
-    !
-    !  form shift
-    !
-      100 continue
-
-          x = h(en,en)
-          if (l .eq. en) go to 270
-          y = h(na,na)
-          w = h(en,na) * h(na,en)
-          if (l .eq. na) go to 280
-          if (itn .eq. 0) go to 1000
-          if (its .ne. 10 .and. its .ne. 20) go to 130
-    !
-    !  form exceptional shift
-    !
-          t = t + x
-
-          do i = low, en
-            h(i,i) = h(i,i) - x
-          end do
-
-          s = abs(h(en,na)) + abs(h(na,enm2))
-          x = 0.75d0 * s
-          y = x
-          w = -0.4375d0 * s * s
-
-      130 continue
-
-          its = its + 1
-          itn = itn - 1
-    !
-    !  look for two consecutive small sub-diagonal elements.
-    !  for m=en-2 step -1 until l do --
-    !
-          do mm = l, enm2
-             m = enm2 + l - mm
-             zz = h(m,m)
-             r = x - zz
-             s = y - zz
-             p = (r * s - w) / h(m+1,m) + h(m,m+1)
-             q = h(m+1,m+1) - zz - r - s
-             r = h(m+2,m+1)
-             s = abs(p) + abs(q) + abs(r)
-             p = p / s
-             q = q / s
-             r = r / s
-             if (m .eq. l) exit
-             tst1 = abs(p)*(abs(h(m-1,m-1)) + abs(zz) + abs(h(m+1,m+1)))
-             tst2 = tst1 + abs(h(m,m-1))*(abs(q) + abs(r))
-             if (tst2 .eq. tst1) exit
-          end do
-
-          mp2 = m + 2
-
-          do i = mp2, en
-             h(i,i-2) = 0.0d0
-             if (i == mp2) cycle
-             h(i,i-3) = 0.0d0
-          end do
-          !
-          !  double qr step involving rows l to en and columns m to en.
-          !
-          do k = m, na
-
-             notlas = k /= na
-             if (k /= m) then
-               p = h(k,k-1)
-               q = h(k+1,k-1)
-               r = 0.0d0
-               if (notlas) r = h(k+2,k-1)
-               x = abs(p) + abs(q) + abs(r)
-               if (x .eq. 0.0d0) cycle
-               p = p / x
-               q = q / x
-               r = r / x
-             end if
-
-             s = sign(sqrt(p*p+q*q+r*r),p)
-             if (k == m) then
-               if (l /= m) h(k,k-1) = -h(k,k-1)
-             else
-               h(k,k-1) = -s * x
-             end if
-             p = p + s
-             x = p / s
-             y = q / s
-             zz = r / s
-             q = q / p
-             r = r / p
-             if (notlas) then
-              !
-              !  row modification
-              !
-               do j = k, n
-                  p = h(k,j) + q * h(k+1,j) + r * h(k+2,j)
-                  h(k,j) = h(k,j) - p * x
-                  h(k+1,j) = h(k+1,j) - p * y
-                  h(k+2,j) = h(k+2,j) - p * zz
-               end do
-
-               j = min(en,k+3)
-               !
-               !  column modification
-               !
-               do i = 1, j
-                  p = x * h(i,k) + y * h(i,k+1) + zz * h(i,k+2)
-                  h(i,k) = h(i,k) - p
-                  h(i,k+1) = h(i,k+1) - p * q
-                  h(i,k+2) = h(i,k+2) - p * r
-               end do
-               !
-               !  accumulate transformations
-               !
-               do i = low, igh
-                  p = x * z(i,k) + y * z(i,k+1) + zz * z(i,k+2)
-                  z(i,k) = z(i,k) - p
-                  z(i,k+1) = z(i,k+1) - p * q
-                  z(i,k+2) = z(i,k+2) - p * r
-               end do
-
-             else
-               !
-               !  row modification.
-               !
-               do j = k, n
-                  p = h(k,j) + q * h(k+1,j)
-                  h(k,j) = h(k,j) - p * x
-                  h(k+1,j) = h(k+1,j) - p * y
-               end do
-
-               j = min(en,k+3)
-               !
-               !  column modification
-               !
-               do i = 1, j
-                  p = x * h(i,k) + y * h(i,k+1)
-                  h(i,k) = h(i,k) - p
-                  h(i,k+1) = h(i,k+1) - p * q
-               end do
-               !
-               !  accumulate transformations
-               !
-               do i = low, igh
-                  p = x * z(i,k) + y * z(i,k+1)
-                  z(i,k) = z(i,k) - p
-                  z(i,k+1) = z(i,k+1) - p * q
-               end do
+            do ll = low, en
+               l = en + low - ll
+               if (l == low) exit
+               s = abs(h(l-1,l-1)) + abs(h(l,l))
+               if (s == 0.0_dp) s = norm
+               tst1 = s
+               tst2 = tst1 + abs(h(l,l-1))
+               if (tst2 == tst1) exit
+            end do
+            !
+            !  form shift
+            !
+            x = h(en,en)
+            if (l == en) then
+              two_found=.false.
+              exit
             end if
+            y = h(na,na)
+            w = h(en,na) * h(na,en)
+            if (l == na) then
+              two_found=.true.
+              exit
+            end if
+            if (itn == 0)  then
+              !
+              !  set error -- all eigenvalues have not converged after 30*n iterations
+              !
+              ierr = en
+              return
+            end if
+            if (.not. (its /= 10 .and. its /= 20)) then
+              !
+              !  form exceptional shift
+              !
+               t = t + x
 
-          end do
+               do i = low, en
+                 h(i,i) = h(i,i) - x
+               end do
 
-          go to 70
-    !
-    !  one root found
-    !
-      270 continue
+               s = abs(h(en,na)) + abs(h(na,enm2))
+               x = 0.75_dp * s
+               y = x
+               w = -0.4375_dp * s * s
+            end if
+            its = its + 1
+            itn = itn - 1
+            !
+            !  look for two consecutive small sub-diagonal elements.
+            !  for m=en-2 step -1 until l do --
+            !
+            do mm = l, enm2
+               m = enm2 + l - mm
+               zz = h(m,m)
+               r = x - zz
+               s = y - zz
+               p = (r * s - w) / h(m+1,m) + h(m,m+1)
+               q = h(m+1,m+1) - zz - r - s
+               r = h(m+2,m+1)
+               s = abs(p) + abs(q) + abs(r)
+               p = p / s
+               q = q / s
+               r = r / s
+               if (m == l) exit
+               tst1 = abs(p)*(abs(h(m-1,m-1)) + abs(zz) + abs(h(m+1,m+1)))
+               tst2 = tst1 + abs(h(m,m-1))*(abs(q) + abs(r))
+               if (tst2 == tst1) exit
+            end do
 
-          h(en,en) = x + t
-          wr(en) = h(en,en)
-          wi(en) = 0.0d0
-          en = na
-          go to 60
-    !
-    !  two roots found
-    !
-      280 continue
+            mp2 = m + 2
 
-          p = (y - x) / 2.0d0
-          q = p * p + w
-          zz = sqrt(abs(q))
-          h(en,en) = x + t
-          x = h(en,en)
-          h(na,na) = y + t
-          if (q .lt. 0.0d0) go to 320
-    !
-    !  real pair
-    !
-          zz = p + sign(zz,p)
-          wr(na) = x + zz
-          wr(en) = wr(na)
-          if (zz .ne. 0.0d0) wr(en) = x - w / zz
-          wi(na) = 0.0d0
-          wi(en) = 0.0d0
-          x = h(en,na)
-          s = abs(x) + abs(zz)
-          p = x / s
-          q = zz / s
-          r = sqrt(p*p+q*q)
-          p = p / r
-          q = q / r
-          !
-          !  row modification
-          !
-          do j = na, n
-             zz = h(na,j)
-             h(na,j) = q * zz + p * h(en,j)
-             h(en,j) = q * h(en,j) - p * zz
-          end do
-          !
-          !  column modification
-          !
-          do i = 1, en
-             zz = h(i,na)
-             h(i,na) = q * zz + p * h(i,en)
-             h(i,en) = q * h(i,en) - p * zz
-          end do
-          !
-          !  accumulate transformations
-          !
-          do i = low, igh
-             zz = z(i,na)
-             z(i,na) = q * zz + p * z(i,en)
-             z(i,en) = q * z(i,en) - p * zz
-          end do
+            do i = mp2, en
+               h(i,i-2) = 0.0_dp
+               if (i == mp2) cycle
+               h(i,i-3) = 0.0_dp
+            end do
+            !
+            !  double qr step involving rows l to en and columns m to en.
+            !
+            do k = m, na
 
-          go to 330
-    !
-    !  complex pair
-    !
-      320 continue
+               notlas = k /= na
+               if (k /= m) then
+                 p = h(k,k-1)
+                 q = h(k+1,k-1)
+                 r = 0.0_dp
+                 if (notlas) r = h(k+2,k-1)
+                 x = abs(p) + abs(q) + abs(r)
+                 if (x == 0.0_dp) cycle
+                 p = p / x
+                 q = q / x
+                 r = r / x
+               end if
 
-          wr(na) = x + p
-          wr(en) = x + p
-          wi(na) = zz
-          wi(en) = -zz
+               s = sign(sqrt(p*p+q*q+r*r),p)
+               if (k == m) then
+                 if (l /= m) h(k,k-1) = -h(k,k-1)
+               else
+                 h(k,k-1) = -s * x
+               end if
+               p = p + s
+               x = p / s
+               y = q / s
+               zz = r / s
+               q = q / p
+               r = r / p
+               if (notlas) then
+                !
+                !  row modification
+                !
+                 do j = k, n
+                    p = h(k,j) + q * h(k+1,j) + r * h(k+2,j)
+                    h(k,j) = h(k,j) - p * x
+                    h(k+1,j) = h(k+1,j) - p * y
+                    h(k+2,j) = h(k+2,j) - p * zz
+                 end do
 
-      330 continue
+                 j = min(en,k+3)
+                 !
+                 !  column modification
+                 !
+                 do i = 1, j
+                    p = x * h(i,k) + y * h(i,k+1) + zz * h(i,k+2)
+                    h(i,k) = h(i,k) - p
+                    h(i,k+1) = h(i,k+1) - p * q
+                    h(i,k+2) = h(i,k+2) - p * r
+                 end do
+                 !
+                 !  accumulate transformations
+                 !
+                 do i = low, igh
+                    p = x * z(i,k) + y * z(i,k+1) + zz * z(i,k+2)
+                    z(i,k) = z(i,k) - p
+                    z(i,k+1) = z(i,k+1) - p * q
+                    z(i,k+2) = z(i,k+2) - p * r
+                 end do
 
-          en = enm2
-          go to 60
-    !
-    !  all roots found.  backsubstitute to find vectors of upper triangular form
-    !
-      340 continue
+               else
+                 !
+                 !  row modification.
+                 !
+                 do j = k, n
+                    p = h(k,j) + q * h(k+1,j)
+                    h(k,j) = h(k,j) - p * x
+                    h(k+1,j) = h(k+1,j) - p * y
+                 end do
 
-          if (norm .eq. 0.0d0) go to 1001
-    !
-    !  for en=n step -1 until 1 do
-    !
-          do 800 nn = 1, n
+                 j = min(en,k+3)
+                 !
+                 !  column modification
+                 !
+                 do i = 1, j
+                    p = x * h(i,k) + y * h(i,k+1)
+                    h(i,k) = h(i,k) - p
+                    h(i,k+1) = h(i,k+1) - p * q
+                 end do
+                 !
+                 !  accumulate transformations
+                 !
+                 do i = low, igh
+                    p = x * z(i,k) + y * z(i,k+1)
+                    z(i,k) = z(i,k) - p
+                    z(i,k+1) = z(i,k+1) - p * q
+                 end do
+              end if
+
+            end do
+
+         end do
+
+         if(.not. two_found) then
+            !
+            !  one root found
+            !
+            h(en,en) = x + t
+            wr(en) = h(en,en)
+            wi(en) = 0.0_dp
+            en = na
+            cycle
+         else
+            !
+            !  two roots found
+            !
+            p = (y - x) / 2.0_dp
+            q = p * p + w
+            zz = sqrt(abs(q))
+            h(en,en) = x + t
+            x = h(en,en)
+            h(na,na) = y + t
+         end if
+
+         if (q >= 0.0_dp) then
+             !
+             !  real pair
+             !
+             zz = p + sign(zz,p)
+             wr(na) = x + zz
+             wr(en) = wr(na)
+             if (zz /= 0.0_dp) wr(en) = x - w / zz
+             wi(na) = 0.0_dp
+             wi(en) = 0.0_dp
+             x = h(en,na)
+             s = abs(x) + abs(zz)
+             p = x / s
+             q = zz / s
+             r = sqrt(p*p+q*q)
+             p = p / r
+             q = q / r
+             !
+             !  row modification
+             !
+             do j = na, n
+                zz = h(na,j)
+                h(na,j) = q * zz + p * h(en,j)
+                h(en,j) = q * h(en,j) - p * zz
+             end do
+             !
+             !  column modification
+             !
+             do i = 1, en
+                zz = h(i,na)
+                h(i,na) = q * zz + p * h(i,en)
+                h(i,en) = q * h(i,en) - p * zz
+             end do
+             !
+             !  accumulate transformations
+             !
+             do i = low, igh
+                zz = z(i,na)
+                z(i,na) = q * zz + p * z(i,en)
+                z(i,en) = q * z(i,en) - p * zz
+             end do
+         else
+             !
+             !  complex pair
+             !
+             wr(na) = x + p
+             wr(en) = x + p
+             wi(na) = zz
+             wi(en) = -zz
+         end if
+
+         en = enm2
+       end do
+       !
+       !  all roots found.  backsubstitute to find vectors of upper triangular form
+       !
+       if (norm == 0.0_dp) return
+       !
+       !  for en=n step -1 until 1 do
+       !
+          do nn = 1, n  !do 800
 
              en = n + 1 - nn
              p = wr(en)
              q = wi(en)
              na = en - 1
+             if (q > 0.0_dp) cycle
+             if (q < 0.0_dp) then
+                !
+                !  complex vector
+                !
+                m = na
+                !
+                !  last vector component chosen imaginary so eigenvector matrix is triangular
+                !
+                if (abs(h(en,na)) > abs(h(na,en))) then
+                  h(na,na) = q / h(en,na)
+                  h(na,en) = -(h(en,en) - p) / h(en,na)
+                else
+                  call cdiv(0.0_dp,-h(na,en),h(na,na)-p,q,h(na,na),h(na,en))
+                end if
 
-             if (q) 710, 600, 800
-    !
-    !  real vector
-    !
-      600    continue
+                h(en,na) = 0.0_dp
+                h(en,en) = 1.0_dp
+                enm2 = na - 1
+                if (enm2 == 0) cycle
+                !
+                !  for i=en-2 step -1 until 1 do
+                !
+                do ii = 1, enm2
 
-             m = en
-             h(en,en) = 1.0d0
-             if (na .eq. 0) go to 800
-    !
-    !  for i=en-1 step -1 until 1 do
-    !
-             do 700 ii = 1, na
+                   i = na - ii
+                   w = h(i,i) - p
+                   ra = 0.0_dp
+                   sa = 0.0_dp
 
-                i = en - ii
-                w = h(i,i) - p
-                r = 0.0d0
+                   do j = m, en
+                      ra = ra + h(i,j) * h(j,na)
+                      sa = sa + h(i,j) * h(j,en)
+                   end do
 
-                do j = m, en
-                  r = r + h(i,j) * h(j,en)
+                   if (wi(i) < 0.0_dp) then
+                      zz = w
+                      r = ra
+                      s = sa
+                      cycle
+                   end if
+
+                   m = i
+                   if (wi(i) == 0.0_dp) then
+                     call cdiv(-ra,-sa,w,q,h(i,na),h(i,en))
+                   else
+                     !
+                     !  solve complex equations
+                     !
+                     x = h(i,i+1)
+                     y = h(i+1,i)
+                     vr = (wr(i) - p) * (wr(i) - p) + wi(i) * wi(i) - q * q
+                     vi = (wr(i) - p) * 2.0_dp * q
+                     if (.not. (vr /= 0.0_dp .or. vi /= 0.0_dp)) then
+                        tst1 = norm * (abs(w) + abs(q) + abs(x) + abs(y) + abs(zz))
+                        vr = tst1
+                     else
+                        do
+                          vr = 0.01d0 * vr
+                          tst2 = tst1 + vr
+                          if (tst2 > tst1) cycle
+                          exit
+                        end do
+                     end if
+
+                     call cdiv(x*r-zz*ra+q*sa,x*s-zz*sa-q*ra,vr,vi,h(i,na),h(i,en))
+                     if (abs(x) > abs(zz) + abs(q)) then
+                       h(i+1,na) = (-ra - w * h(i,na) + q * h(i,en)) / x
+                       h(i+1,en) = (-sa - w * h(i,en) - q * h(i,na)) / x
+                     else
+                       call cdiv(-r-y*h(i,na),-s-y*h(i,en),zz,q,h(i+1,na),h(i+1,en))
+                     end if
+                   end if
+                   !
+                   !  overflow control
+                   !
+                   t = max(abs(h(i,na)), abs(h(i,en)))
+                   if (t == 0.0_dp) cycle
+                   tst1 = t
+                   tst2 = tst1 + 1.0_dp/tst1
+                   if (tst2 > tst1) cycle
+                   do j = i, en
+                      h(j,na) = h(j,na)/t
+                      h(j,en) = h(j,en)/t
+                   end do
+
                 end do
+                !
+                !  end complex vector
+                !
+             else if (q == 0.0_dp) then
+               !
+               !  real vector
+               !
+               m = en
+               h(en,en) = 1.0_dp
+               if (na == 0) cycle
+               !
+               !  for i=en-1 step -1 until 1 do
+               !
+               do ii = 1, na
 
-                if (wi(i) .ge. 0.0d0) go to 630
-                zz = w
-                s = r
-                go to 700
+                  i = en - ii
+                  w = h(i,i) - p
+                  r = 0.0_dp
 
-      630       continue
+                  do j = m, en
+                    r = r + h(i,j) * h(j,en)
+                  end do
 
-                m = i
-                if (wi(i) .ne. 0.0d0) go to 640
-                t = w
-                if (t .ne. 0.0d0) go to 635
-                   tst1 = norm
-                   t = tst1
+                  if (wi(i) < 0.0_dp) then
+                     zz = w
+                     s = r
+                     cycle
+                  end if
 
-      632          continue
-
-                   t = 0.01d0 * t
-                   tst2 = norm + t
-                   if (tst2 .gt. tst1) go to 632
-
-      635       continue
-
-                h(i,en) = -r / t
-                go to 680
-    !
-    !  solve real equations
-    !
-      640       continue
-
-                x = h(i,i+1)
-                y = h(i+1,i)
-                q = (wr(i) - p) * (wr(i) - p) + wi(i) * wi(i)
-                t = (x * s - zz * r) / q
-                h(i,en) = t
-                if (abs(x) .le. abs(zz)) go to 650
-                h(i+1,en) = (-r - w * t) / x
-                go to 680
-
-      650       continue
-
-                h(i+1,en) = (-s - y * t) / zz
-    !
-    !  overflow control
-    !
-      680       continue
-
-                t = abs(h(i,en))
-                if (t .eq. 0.0d0) go to 700
-                tst1 = t
-                tst2 = tst1 + 1.0d0/tst1
-                if (tst2 .gt. tst1) go to 700
-                do j = i, en
-                   h(j,en) = h(j,en)/t
-                end do
-
-      700    continue
-    !
-    !  end real vector
-    !
-             go to 800
-    !
-    !  complex vector
-    !
-      710    continue
-
-             m = na
-    !
-    !  last vector component chosen imaginary so eigenvector matrix is triangular
-    !
-             if (abs(h(en,na)) .le. abs(h(na,en))) go to 720
-             h(na,na) = q / h(en,na)
-             h(na,en) = -(h(en,en) - p) / h(en,na)
-             go to 730
-
-      720    continue
-
-             call cdiv(0.0d0,-h(na,en),h(na,na)-p,q,h(na,na),h(na,en))
-
-      730    continue
-
-             h(en,na) = 0.0d0
-             h(en,en) = 1.0d0
-             enm2 = na - 1
-             if (enm2 .eq. 0) go to 800
-    !
-    !  for i=en-2 step -1 until 1 do
-    !
-             do 795 ii = 1, enm2
-
-                i = na - ii
-                w = h(i,i) - p
-                ra = 0.0d0
-                sa = 0.0d0
-
-                do j = m, en
-                   ra = ra + h(i,j) * h(j,na)
-                   sa = sa + h(i,j) * h(j,en)
-                end do
-
-                if (wi(i) .ge. 0.0d0) go to 770
-                zz = w
-                r = ra
-                s = sa
-                go to 795
-
-      770       continue
-
-                m = i
-                if (wi(i) .ne. 0.0d0) go to 780
-                call cdiv(-ra,-sa,w,q,h(i,na),h(i,en))
-                go to 790
-    !
-    !  solve complex equations
-    !
-      780       continue
-
-                x = h(i,i+1)
-
-                y = h(i+1,i)
-                vr = (wr(i) - p) * (wr(i) - p) + wi(i) * wi(i) - q * q
-                vi = (wr(i) - p) * 2.0d0 * q
-                if (vr .ne. 0.0d0 .or. vi .ne. 0.0d0) go to 784
-                   tst1 = norm * (abs(w) + abs(q) + abs(x) + abs(y) + abs(zz))
-                   vr = tst1
-
-      783          continue
-
-                   vr = 0.01d0 * vr
-                   tst2 = tst1 + vr
-                   if (tst2 .gt. tst1) go to 783
-
-      784       continue
-
-                call cdiv(x*r-zz*ra+q*sa,x*s-zz*sa-q*ra,vr,vi,h(i,na),h(i,en))
-                if (abs(x) .le. abs(zz) + abs(q)) go to 785
-                h(i+1,na) = (-ra - w * h(i,na) + q * h(i,en)) / x
-                h(i+1,en) = (-sa - w * h(i,en) - q * h(i,na)) / x
-                go to 790
-
-      785       continue
-
-                call cdiv(-r-y*h(i,na),-s-y*h(i,en),zz,q,h(i+1,na),h(i+1,en))
-    !
-    !  overflow control
-    !
-      790       continue
-
-                t = max(abs(h(i,na)), abs(h(i,en)))
-                if (t .eq. 0.0d0) go to 795
-                tst1 = t
-                tst2 = tst1 + 1.0d0/tst1
-                if (tst2 .gt. tst1) go to 795
-                do j = i, en
-                   h(j,na) = h(j,na)/t
-                   h(j,en) = h(j,en)/t
-                end do
-
-      795    continue
-    !
-    !  end complex vector
-    !
-      800 continue
-    !
-    !  end back substitution.
-    !
-    !  vectors of isolated roots
-    !
-          do 840 i = 1, n
-             if (i .ge. low .and. i .le. igh) go to 840
+                  m = i
+                  if (wi(i) == 0.0_dp) then
+                    t = w
+                    if (t == 0.0_dp) then
+                       tst1 = norm
+                       t = tst1
+                       do
+                         t = 0.01d0 * t
+                         tst2 = norm + t
+                         if (tst2 > tst1) cycle
+                         exit
+                       end do
+                    end if
+                    h(i,en) = -r / t
+                  else
+                    !
+                    !  solve real equations
+                    !
+                     x = h(i,i+1)
+                     y = h(i+1,i)
+                     q = (wr(i) - p) * (wr(i) - p) + wi(i) * wi(i)
+                     t = (x * s - zz * r) / q
+                     h(i,en) = t
+                     if (abs(x) > abs(zz)) then
+                     h(i+1,en) = (-r - w * t) / x
+                     else
+                       h(i+1,en) = (-s - y * t) / zz
+                     end if
+                  end if
+                  !
+                  !  overflow control
+                  !
+                  t = abs(h(i,en))
+                  if (t == 0.0_dp) cycle
+                  tst1 = t
+                  tst2 = tst1 + 1.0_dp/tst1
+                  if (tst2 > tst1) cycle
+                  do j = i, en
+                     h(j,en) = h(j,en)/t
+                  end do
+               end do
+               !
+               !  end real vector
+               !
+             end if
+          end do
+          !
+          !  end back substitution.
+          !
+          !  vectors of isolated roots
+          !
+          do i = 1, n
+             if (i >= low .and. i <= igh) cycle
 
              do j = i, n
                z(i,j) = h(i,j)
              end do
 
-      840 continue
-    !
-    !  multiply by transformation matrix to give vectors of original full matrix.
-    !  for j=n step -1 until low do.
-    !
+          end do
+          !
+          !  multiply by transformation matrix to give vectors of original full matrix.
+          !  for j=n step -1 until low do.
+          !
           do jj = low, n
              j = n + low - jj
              m = min(j,igh)
 
              do i = low, igh
-                zz = 0.0d0
+                zz = 0.0_dp
                 do k = low, m
                   zz = zz + z(i,k) * h(k,j)
                 end do
                 z(i,j) = zz
             end do
           end do
-
-          go to 1001
-    !
-    !  set error -- all eigenvalues have not converged after 30*n iterations
-    !
-     1000 continue
-
-          ierr = en
-
-     1001 continue
 
     End Subroutine hqr2
 
@@ -7236,17 +7213,17 @@ Module CFML_EisPack
       ierr = 0
       uk = 0
       s = 1
-    !
-    !  The value of IP is:
-    !
-    !   0, real eigenvalue;
-    !   1, first of conjugate complex pair;
-    !  -1, second of conjugate complex pair.
-    !
+      !
+      !  The value of IP is:
+      !
+      !   0, real eigenvalue;
+      !   1, first of conjugate complex pair;
+      !  -1, second of conjugate complex pair.
+      !
       ip = 0
       n1 = n - 1
 
-      do k = 1, n
+      do_k: do k = 1, n
 
         if ( wi(k) /= 0.0_dp .and. 0 <= ip ) then
           ip = 1
@@ -7262,7 +7239,7 @@ Module CFML_EisPack
           if ( ip == 1 ) then
             ip = -1
           end if
-          cycle
+          cycle do_k
         end if
 
         if ( wi(k) /= 0.0_dp ) then
@@ -7283,9 +7260,9 @@ Module CFML_EisPack
         end if
 
         if ( uk < k ) then
-    !
-    !  Check for possible splitting.
-    !
+          !
+          !  Check for possible splitting.
+          !
           do uk = k, n
 
             if ( uk == n ) then
@@ -7295,9 +7272,9 @@ Module CFML_EisPack
               exit
             end if
           end do
-    !
-    !  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
-    !
+          !
+          !  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
+          !
           norm = 0.0_dp
           mp = 1
 
@@ -7308,18 +7285,18 @@ Module CFML_EisPack
             mp = i
 
           end do
-    !
-    !  EPS3 replaces zero pivot in decomposition and close roots are modified
-    !  by EPS3.
-    !
+          !
+          !  EPS3 replaces zero pivot in decomposition and close roots are modified
+          !  by EPS3.
+          !
           if ( norm == 0.0_dp ) then
             norm = 1.0_dp
           end if
 
           eps3 = abs ( norm ) * epsilon ( eps3 )
-    !
-    !  GROWTO is the criterion for the growth.
-    !
+          !
+          !  GROWTO is the criterion for the growth.
+          !
           ukroot = uk
           ukroot = sqrt ( ukroot )
           growto = 0.1_dp / ukroot
@@ -7328,9 +7305,9 @@ Module CFML_EisPack
 
         rlambd = wr(k)
         ilambd = wi(k)
-    !
-    !  Perturb eigenvalue if it is close to any previous eigenvalue.
-    !
+        !
+        !  Perturb eigenvalue if it is close to any previous eigenvalue.
+        !
         if ( 1 < k ) then
 
           repeat = .true.
@@ -7355,9 +7332,9 @@ Module CFML_EisPack
           wr(k+ip) = rlambd
 
         end if
-    !
-    !  Form upper Hessenberg A - rlambd*I (transposed) and initial real vector.
-    !
+        !
+        !  Form upper Hessenberg A - rlambd*I (transposed) and initial real vector.
+        !
         mp = 1
 
         do i = 1, uk
@@ -7368,11 +7345,11 @@ Module CFML_EisPack
         end do
 
         its = 0
-    !
-    !  Real eigenvalue.
-    !
-    !  Triangular decomposition with interchanges, replacing zero pivots by eps3.
-    !
+        !
+        !  Real eigenvalue.
+        !
+        !  Triangular decomposition with interchanges, replacing zero pivots by eps3.
+        !
         if ( ilambd == 0.0_dp ) then
 
           do i = 2, uk
@@ -7404,9 +7381,9 @@ Module CFML_EisPack
           if ( rm1(uk,uk) == 0.0_dp ) then
             rm1(uk,uk) = eps3
           end if
-    !
-    !  Back substitution for real vector.
-    !
+          !
+          !  Back substitution for real vector.
+          !
           do i = uk, 1, -1
             y = rv1(i)
             do j = i + 1, uk
@@ -7418,13 +7395,13 @@ Module CFML_EisPack
           go to 740
 
         end if
-    !
-    !  Complex eigenvalue.
-    !
-    !  Triangular decomposition with interchanges,
-    !  replacing zero pivots by EPS3.
-    !  Store imaginary parts in upper triangle starting at (1,3)
-    !
+        !
+        !  Complex eigenvalue.
+        !
+        !  Triangular decomposition with interchanges,
+        !  replacing zero pivots by EPS3.
+        !  Store imaginary parts in upper triangle starting at (1,3)
+        !
         ns = n - s
         z(1,s-1) = - ilambd
         z(1,s) = 0.0_dp
@@ -7541,118 +7518,118 @@ Module CFML_EisPack
         if ( rm1(uk,uk) == 0.0_dp .and. t == 0.0_dp ) then
           rm1(uk,uk) = eps3
         end if
-    !
-    !  Back substitution for complex vector.
-    !
+        !
+        !  Back substitution for complex vector.
+        !
     660 continue
 
-        do i = uk, 1, -1
+           do i = uk, 1, -1
 
-          x = rv1(i)
-          y = 0.0_dp
+             x = rv1(i)
+             y = 0.0_dp
 
-          do j = i + 1, uk
+             do j = i + 1, uk
 
-            if ( n1 <= j ) then
-              t = z(i,j-ns)
-            else
-              t = rm1(i,j+2)
-            end if
+               if ( n1 <= j ) then
+                 t = z(i,j-ns)
+               else
+                 t = rm1(i,j+2)
+               end if
 
-            x = x - rm1(j,i) * rv1(j) + t * rv2(j)
-            y = y - rm1(j,i) * rv2(j) - t * rv1(j)
+               x = x - rm1(j,i) * rv1(j) + t * rv2(j)
+               y = y - rm1(j,i) * rv2(j) - t * rv1(j)
 
-          end do
+             end do
 
-          if ( n1 <= i ) then
-            t = z(i,i-ns)
-          else
-            t = rm1(i,i+2)
-          end if
+             if ( n1 <= i ) then
+               t = z(i,i-ns)
+             else
+               t = rm1(i,i+2)
+             end if
 
-          call cdiv ( x, y, rm1(i,i), t, rv1(i), rv2(i) )
+             call cdiv ( x, y, rm1(i,i), t, rv1(i), rv2(i) )
 
-        end do
-    !
-    !  Acceptance test for real or complex eigenvector and normalization.
-    !
-    740 continue
+           end do
+           !
+           !  Acceptance test for real or complex eigenvector and normalization.
+           !
+       740 continue
 
-        its = its + 1
-        norm = 0.0_dp
-        normv = 0.0_dp
+           its = its + 1
+           norm = 0.0_dp
+           normv = 0.0_dp
 
-        do i = 1, uk
+           do i = 1, uk
 
-          if ( ilambd == 0.0_dp ) then
-            x = abs ( rv1(i) )
-          else
-            x = pythag ( rv1(i), rv2(i) )
-          end if
+             if ( ilambd == 0.0_dp ) then
+               x = abs ( rv1(i) )
+             else
+               x = pythag ( rv1(i), rv2(i) )
+             end if
 
-          if ( normv < x )  then
-            normv = x
-            j = i
-          end if
+             if ( normv < x )  then
+               normv = x
+               j = i
+             end if
 
-          norm = norm + x
+             norm = norm + x
 
-        end do
-    !
-    !  Choose a new starting vector.
-    !
-        if ( norm < growto ) then
+           end do
+           !
+           !  Choose a new starting vector.
+           !
+           if ( norm < growto ) then
 
-          if ( uk <= its ) then
-            j = 1
-            ierr = - k
-            do i = j, n
-              z(i,s) = 0.0_dp
-              if ( ilambd /= 0.0_dp ) then
-                z(i,s-1) = 0.0_dp
-              end if
-            end do
+             if ( uk <= its ) then
+               j = 1
+               ierr = - k
+               do i = j, n
+                 z(i,s) = 0.0_dp
+                 if ( ilambd /= 0.0_dp ) then
+                   z(i,s-1) = 0.0_dp
+                 end if
+               end do
 
-            s = s + 1
+               s = s + 1
 
-            if ( ip == -1 ) then
-              ip = 0
-            end if
+               if ( ip == -1 ) then
+                 ip = 0
+               end if
 
-            if ( ip == 1 ) then
-              ip = -1
-            end if
+               if ( ip == 1 ) then
+                 ip = -1
+               end if
 
-            cycle
+               cycle do_k
 
-          end if
+             end if
 
-          x = ukroot
-          y = eps3 / ( x + 1.0_dp )
+             x = ukroot
+             y = eps3 / ( x + 1.0_dp )
 
-          rv1(1) = eps3
-          rv1(2:uk) = y
+             rv1(1) = eps3
+             rv1(2:uk) = y
 
-          j = uk - its + 1
-          rv1(j) = rv1(j) - eps3 * x
+             j = uk - its + 1
+             rv1(j) = rv1(j) - eps3 * x
 
-          if ( ilambd == 0.0_dp ) then
-            do i = uk, 1, -1
-              y = rv1(i)
-              do j = i + 1, uk
-                y = y - rm1(j,i) * rv1(j)
-              end do
-              rv1(i) = y / rm1(i,i)
-            end do
-            go to 740
-          end if
+             if ( ilambd == 0.0_dp ) then
+               do i = uk, 1, -1
+                 y = rv1(i)
+                 do j = i + 1, uk
+                   y = y - rm1(j,i) * rv1(j)
+                 end do
+                 rv1(i) = y / rm1(i,i)
+               end do
+               go to 740
+             end if
 
-          go to 660
+             go to 660
 
-        end if
-    !
-    !  Accept vector.
-    !
+           end if
+        !
+        !  Accept vector.
+        !
         x = rv1(j)
         if ( ilambd == 0.0_dp ) then
           x = 1.0_dp / x
@@ -7686,7 +7663,7 @@ Module CFML_EisPack
           ip = -1
         end if
 
-      end do
+      end do do_k !k
 
       m = s - 1 - abs ( ip )
 
