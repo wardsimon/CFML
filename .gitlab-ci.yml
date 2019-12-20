@@ -18,7 +18,7 @@ make:linux_ifort:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_setup_xenial_ifort .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_build_ifort_${CI_COMMIT_SHORT_SHA} -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_build_xenial_ifort .
-    - docker run -v /home/ci/intel:/opt/intel ci_crysfml_xenial_build_ifort_${CI_COMMIT_SHORT_SHA}
+    - docker run -v /users/ci/intel:/opt/intel ci_crysfml_xenial_build_ifort_${CI_COMMIT_SHORT_SHA}
   tags:
     - sci
     - ubuntu
