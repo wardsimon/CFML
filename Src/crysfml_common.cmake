@@ -43,6 +43,7 @@ endif()
 # The sources files for crysfml_common library.
 set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
+    CFML_EisPack.f90
     CFML_ILL_Instrm_Data_Nexus.f90
     CFML_Atom_Mod.f90
     CFML_Bonds_Table.f90
@@ -89,7 +90,7 @@ set(CRYSFML_COMMON_SOURCES
 set_source_files_properties(${CRYSFML_COMMON_SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
 # Those files need specific optimization flags.
-set_source_files_properties(CFML_BVSpar.f90 CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAG ${OPT_FLAGS1})
+set_source_files_properties(CFML_BVSpar.f90 CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAG ${OPT_FLAGS0})
 set_source_files_properties(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS1})
 
 #################################

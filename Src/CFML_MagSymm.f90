@@ -42,7 +42,7 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,                only: cp, tpi
+!!--++    Use CFML_GlobalDeps,                only: cp, dp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher, matrix_inverse, Veclength
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
@@ -92,6 +92,7 @@
 !!--++       READN_SET_MAGNETIC_STRUCTURE_CFL    [Overloaded]
 !!--++       READN_SET_MAGNETIC_STRUCTURE_MCIF   [Overloaded]
 !!----       SET_MAGNETIC_SPACE_GROUP
+!!----       SET_REFINEMENT_CODES
 !!----       SET_SHUBNIKOV_GROUP
 !!----       SETTING_CHANGE_MAGGROUP
 !!----       WRITE_MAGNETIC_STRUCTURE
@@ -102,7 +103,7 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: cp, tpi,Write_Date_Time
+    Use CFML_GlobalDeps,                only: cp, dp, tpi, Write_Date_Time
     Use CFML_Math_General,              only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
                                               Equal_Vector,Sort
     Use CFML_Math_3D,                   only: Get_Cart_From_Spher,Determ_A, matrix_inverse, Veclength
@@ -124,6 +125,8 @@
     Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell
     Use CFML_Magnetic_Groups
+    Use CFML_EisPack,                   only: rg_ort
+
     !---- Variables ----!
     implicit none
 
@@ -137,7 +140,7 @@
               Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
               Calc_Induced_Sk, Readn_Set_Magnetic_Space_Group,Cleanup_Symmetry_Operators, &
               Set_Magnetic_Space_Group, Get_mOrbit_mom, get_moment_ctr, get_stabilizerm, &
-              Setting_Change_MagGroup
+              Setting_Change_MagGroup, Set_Refinement_Codes
 
     !---- Definitions ----!
 
@@ -317,6 +320,11 @@
     !!---- Update: April - 2005
     !!
     character(len=150), public :: ERR_MagSym_Mess
+
+    character (len=1), dimension(26),parameter, private   :: &
+    cdd=(/'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r', &
+        's','t','u','v','w','x','y','z'/)
+    real(kind=dp), parameter, private :: epps=0.000001_dp
 
     Interface  Readn_Set_Magnetic_Structure
        Module Procedure Readn_Set_Magnetic_Structure_CFL
@@ -3589,7 +3597,7 @@
     !!----   Updated: 16 April 2016
     !!----
     !!
-    Subroutine get_moment_ctr(xnr,moment,Spgr,codini,codes,ord,ss,att,Ipr)
+    Subroutine get_moment_ctr_old(xnr,moment,Spgr,codini,codes,ord,ss,att,Ipr)
        real(kind=cp), dimension(3),            intent(in)     :: xnr
        real(kind=cp), dimension(3),            intent(in out) :: moment
        type(Magnetic_Space_Group_type),        intent(in)     :: Spgr
@@ -3650,9 +3658,6 @@
           end do
           mome=mome/real(order)
        end if
-       do j=1,3
-         if(abs(mome(j)-mom(j)) > epss) mome(j)=0.0
-       end do
        msym=nint(1000.0*mome)
        codd=msym
        cdd=(/'a','b','c'/)
@@ -3873,7 +3878,214 @@
          Write(Ipr,'(a,3f12.4)')        '     Moment_TOT vector    : ',mome
        end if
        return
-    End Subroutine get_moment_ctr
+    End Subroutine get_moment_ctr_old
+
+    Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr)
+       real(kind=cp), dimension(3),            intent(in)     :: xnr
+       real(kind=cp), dimension(:),            intent(in out) :: moment
+       real(kind=cp), dimension(:),            intent(in out) :: codes
+       type(Magnetic_Space_Group_type),        intent(in)     :: Spg
+       Integer,                                intent(in out) :: codini
+       integer,                       optional,intent(in)     :: ord
+       integer, dimension(:),         optional,intent(in)     :: ss
+       real(kind=cp), dimension(:,:), optional,intent(in)     :: att
+       integer,                       optional,intent(in)     :: Ipr
+
+       ! Local variables
+       integer,           dimension(3,3) :: magm   !g, magm= delta * det(g) * g
+       character(len=1),  dimension(3)   :: codd
+       integer                           :: i,j,order,n,ig,is
+       real(kind=cp)                     :: suma
+       integer,           dimension(48)  :: ss_ptr
+       real(kind=cp),     dimension(3,48):: atr
+       real(kind=cp),     dimension(3)   :: cod,multi
+       real(kind=cp),     dimension(3)   :: x
+       real(kind=dp),     dimension(3,3) :: sCtr
+       real(kind=cp),     dimension(3)   :: momentL,TotMom
+
+
+       !Test if all codes are given ... in such a case the user constraints
+       !are prevalent
+
+       suma=0.0_cp
+       !iq=0
+       n=3 !Real moments -> three components
+       do j=1,3
+          suma=suma+abs(codes(j))
+       end do
+
+       if(suma < epps ) return  !No refinement is required
+       if(present(Ipr)) then
+         write(Ipr,"(/,a)")         " => Calculation of symmetry constraints for magnetic moments "
+       end if
+       x=xnr
+       !where(x < 0.0) x=x+1.0
+       !where(x > 1.0) x=x-1.0
+
+       if(present(ord) .and. present(ss) .and. present(att)) then
+         order=ord
+         ss_ptr(1:order) = ss(1:ord)
+         atr(:,1:order)  = att(:,1:ord)
+       else
+         call get_stabilizerm(x,SpG,order,ss_ptr,atr)
+         if(present(ipr)) Write(unit=ipr,fmt="(a,i3)") " => Stabilizer without identity, order:",order
+       end if
+
+       momentL=moment
+       sCtr=0.0_cp
+       if(order > 1) then
+         do ig=1,order
+           magm(:,:) = Spg%MSymOp(ss_ptr(ig))%Rot
+           sCtr=sCtr+magm !Adding constraint matrices for each operator of stabilizer
+           if(present(ipr)) then
+             write(unit=ipr,fmt='(a,i2,a,t20,a,t55,a,t75,9f8.4)') '     Operator ',ig,": ",trim(Spg%SymopSymb(ss_ptr(ig))), &
+              trim(Spg%MSymopSymb(ss_ptr(ig))), sCtr
+           end if
+         end do  !ig operators
+         sCtr=sCtr/order
+         suma=sum(abs(sCtr))
+         !write(*,"(a,f10.4,a,i3)") " suma:",suma, "Mag_Type:", spg%mag_type
+         if(suma < epps .or. spg%magtype == 2) then !This corresponds to a grey point group
+            moment=0.0_cp
+            codes=0.0_cp
+            if(present(Ipr)) then
+              write(Ipr,"(a)")         " Grey point group: the attached moment is zero "
+              write(Ipr,"(a,24f14.6)") " Final codes: ",codes(1:n)
+              write(Ipr,"(a,24f14.6)") " Constrained moment: ",moment
+            end if
+            return
+         end if
+         TotMom=matmul(sCtr,momentL)
+         call Set_Refinement_Codes(n,TotMom,sCtr,is,multi,codd,momentL)
+         cod=0.0
+         do j=1,n
+           if(codd(j) /= "0") then
+             do i=1,is
+               if(codd(j) == cdd(i)) then
+                 cod(j)=codini+i
+                 exit
+               end if
+             end do
+           end if
+         end do
+         moment=momentL
+         codes=0.0
+         do j=1,n
+           if(abs(multi(j)) > epps)  codes(j) = sign(1.0_cp, multi(j))*(abs(cod(j))*10.0_cp + abs(multi(j)) )
+         end do
+         codini=codini+is
+         if(present(Ipr)) then
+           Write(Ipr,"(a,i4)")       " Number of free parameters: ",is
+           write(Ipr,"(a,3f14.6)")   " Multipliers: ",(multi(j), j=1,n)
+           write(Ipr,"(28a)")        " String with free parameters: ( ",(codd(j)//", ",j=1,n-1),codd(n)//" )"
+           write(Ipr,"(a,3i6)")      " Resulting integer codes: ", nint(cod(1:n))
+           write(Ipr,"(a,3f14.6)")   " Final codes: ",codes(1:n)
+           write(Ipr,"(a,3f14.6)")   " Constrained Moment: ",moment
+         end if
+
+       else !No restrictions
+
+         codd(1:n)=cdd(1:n)
+         multi(1:n)=1.0_cp
+         do j=1,n
+           cod(j)=codini+j
+           codes(j) = (abs(cod(j))*10.0_cp + abs(multi(j)))
+         end do
+         codini=codini+n
+         if(present(Ipr)) then
+           write(Ipr,"(a)")         " General position, no constraints in moment "
+           write(Ipr,"(28a)")       " String with free parameters: ( ",(codd(j)//", ",j=1,n-1),codd(n)//" )"
+           write(Ipr,"(a,24i6)")    " Resulting integer codes: ", nint(cod(1:n))
+           write(Ipr,"(a,24f14.6)") " Final codes: ",codes(1:n)
+           write(Ipr,"(a,24f14.6)") " Constrained moment: ",moment
+         end if
+
+       end if
+       return
+    End Subroutine Get_moment_ctr
+
+    Subroutine Set_Refinement_Codes(n,vect_val,Ctr,is,multi,codd,vect_out)
+      integer,                       intent(in)    :: n !dimension of the vector and the matrix
+      real(kind=cp), dimension(:),   intent(in)    :: vect_val
+      real(kind=dp), dimension(:,:), intent(in out):: Ctr
+      integer,                       intent(out)   :: is
+      real(kind=cp), dimension(:),   intent(out)   :: multi
+      character(len=*), dimension(:),intent(out)   :: codd
+      real(kind=cp), dimension(:),   intent(out)   :: vect_out
+      !--- Local variables ---!
+      real(kind=cp), dimension(n)   :: val
+      integer,       dimension(n)   :: pti
+      real(kind=dp), dimension(n,n) :: zv
+      integer                       :: i,j,k,kval,ier,ip
+      real(kind=dp)                 :: zmi
+      real(kind=dp), dimension(n)   :: Wr, Wi
+      logical,       dimension(n)   :: done
+
+      !Diagonalize the matrix and pickup the lambda=1 eigenvalues
+      !The corresponding eigenvector contains the constraints of all moment components
+      !Calling the general diagonalization subroutine from EisPack
+      call rg_ort(n,Ctr,wr,wi,.true.,zv,ier)
+      is=0
+      pti=0
+      kval=0
+      do i=1,n
+        if(abs(wr(i)-1.0_dp) < epps .and. abs(wi(i)) < epps) then
+          is=is+1   !Number of eigenvalues = 1 => number of free parameters
+          pti(is)=i !This points to the eigenvectors with eigenvalue equal to 1.
+          zmi=1.0e6 !normalize the eigenvectors so that the minimum (non-zero value) is 1.
+          j=1
+          do k=1,n
+            if(abs(zv(k,i)) < epps) cycle
+            if(abs(zv(k,i)) < zmi) then
+              zmi=abs(zv(k,i))
+              kval=k  !This is the basis value
+              j=nint(sign(1.0_dp,zv(k,i)))
+            end if
+          end do
+          zv(:,i)=j*zv(:,i)/zmi  !This provides directly the multipliers for a single lambda=1 eigenvalue
+          val(is)=vect_val(kval) !This is the basis value to construct the new Moment
+        end if
+      end do
+      codd="0"
+      vect_out=0.0
+      multi=0.0
+      done=.false.
+      where(abs(vect_val) < epps) done=.true.
+      Select Case(is)
+        case(1)
+          vect_out(:)=val(1)*zv(:,pti(1))
+          where(abs(vect_out) > epps)  codd(:)=cdd(1)
+          multi(:)=zv(:,pti(1))
+        case(2:)
+          ip=0
+          do i=1,n
+            if(.not. done(i)) then
+              if(abs(vect_val(i)) > epps) then
+                ip=ip+1
+                codd(i)=cdd(ip)
+                multi(i)=1.0
+                vect_out(i)=vect_val(i)
+                done(i)=.true.
+                do j=i+1,n
+                  if(.not. done(j)) then
+                    if(abs(vect_val(i)-vect_val(j)) < epps) then
+                      codd(j)=cdd(ip)
+                      multi(j)=1.0
+                      vect_out(j)=vect_val(i)
+                      done(j)=.true.
+                    else if(abs(vect_val(i)+vect_val(j)) < epps) then
+                      codd(j)=cdd(ip)
+                      multi(j)=-1.0
+                      vect_out(j)=-vect_val(i)
+                      done(j)=.true.
+                    end if
+                  end if
+                end do
+              end if
+            end if
+          end do
+      End Select
+    End Subroutine Set_Refinement_Codes
 
     !!---- Subroutine get_stabilizerm(x,Spg,order,ptr,atr)
     !!----    !---- Arguments ----!

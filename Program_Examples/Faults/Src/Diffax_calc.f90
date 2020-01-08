@@ -2136,6 +2136,7 @@
         n_step=nint((l_upper-eps10-l_lower)/dl+1.0)
         do  li=1, n_step
           l=l_lower+(li-1)*dl
+          if(l > l_upper-eps10) exit   !
         !DO  l = l_lower, l_upper-eps10, dl
 ! If we are at the origin, don't integrate, we'll probably overflow.
           IF(i == 0 .AND. ABS(l+dl) <= dl+eps10) THEN
@@ -7801,10 +7802,10 @@
       SUBROUTINE wrtsad(outfile, view, l_upper, hk_lim, ok)
 
 
-!     Utiliza las variables: par.f90, inc.f90' , outfile ,view , l_upper, hk_lim ,ok
-!                            i, j, p1, p2, length ,rowint(sadsize), incr, sigma, x
-!     Utiliza las funciones:length      externa
-!     Utiliza las subrutinas:  SMUDGE
+      !     Utiliza las variables: par.f90, inc.f90' , outfile ,view , l_upper, hk_lim ,ok
+      !                            i, j, p1, p2, length ,rowint(sadsize), incr, sigma, x
+      !     Utiliza las funciones:length      externa
+      !     Utiliza las subrutinas:  SMUDGE
 
 
       CHARACTER (LEN=*), INTENT(IN OUT)        :: outfile
@@ -7851,7 +7852,7 @@
         do 30 i = 0, hk_lim
           p1 = SADSIZE/2 + nint(i*incr) + 1
           p2 = SADSIZE/2 - nint(i*incr) + 1
-! cycle if we have gone out of bounds
+         ! cycle if we have gone out of bounds
           if(p1.gt.SADSIZE .or. p1.lt.0) then
             goto 30
           endif
@@ -7860,14 +7861,14 @@
           endif
 
           x = spec(i*sadblock + j + 1) * scaleint
-! handle saturated pixels
+          ! handle saturated pixels
           if(x.gt.maxsad) x = maxsad
           rowint(p1) = x
           if(has_l_mirror) then
             rowint(p2) = x
           else
             x = spec(i*sadblock + sadblock - j) * scaleint
-! handle saturated pixels
+           ! handle saturated pixels
             if(x.gt.maxsad) x = maxsad
             rowint(p2) = x
           endif
@@ -7877,10 +7878,10 @@
         if(bitdepth.eq.8) then
           write(sa,err=900) (char(nint(rowint(i))), i = 1, SADSIZE)
         else
-! Known bug: Writing 16-bit binary is problematic on Intel processors
-!            write(sa,err=900)
-!     | (char(int(rowint(i)/256)),
-!     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
+          ! Known bug: Writing 16-bit binary is problematic on Intel processors
+          !            write(sa,err=900)
+          !     | (char(int(rowint(i)/256)),
+          !     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
             do  i = 1, SADSIZE
               irow(i)=nint(rowint(i))
               if( irow(i) > 65535) then
@@ -7894,8 +7895,8 @@
             write(sa,err=900) (short_data(i), i = 1, SADSIZE)
         endif
    10 continue
-!
-! Repeat, in reverse for the bottom half if data had a mirror.
+      !
+      ! Repeat, in reverse for the bottom half if data had a mirror.
       if(has_l_mirror) then
         do 40 j = 1, sadblock - 1
           do 50 i = 1, SADSIZE
@@ -7904,7 +7905,7 @@
           do 60 i = 0, hk_lim
             p1 = SADSIZE/2 + nint(i*incr) + 1
             p2 = SADSIZE/2 - nint(i*incr) + 1
-! cycle if we have gone out of bounds
+            ! cycle if we have gone out of bounds
             if(p1.gt.SADSIZE .or. p1.lt.0) then
               goto 60
             endif
@@ -7913,7 +7914,7 @@
             endif
 
             x = spec(i*sadblock + j + 1) * scaleint
-! handle saturated pixels
+            ! handle saturated pixels
             if(x.gt.maxsad) x = maxsad
             rowint(p1) = x
             rowint(p2) = x
@@ -7923,11 +7924,11 @@
           if(bitdepth.eq.8) then
             write(sa,err=900) (char(nint(rowint(i))), i = 1, SADSIZE)
           else
-! Known bug: Writing 16-bit binary is problematic on Intel processors
-!            write(sa,err=900)
-!     | (char(int(rowint(i)/256)),
-!     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
-!            write(sa,err=900) (iidnnt(rowint(i)), i = 1, SADSIZE)
+            ! Known bug: Writing 16-bit binary is problematic on Intel processors
+            !            write(sa,err=900)
+            !     | (char(int(rowint(i)/256)),
+            !     |  char(int(rowint(i)-(int(rowint(i)/256))*256)),i=1,SADSIZE)
+            !            write(sa,err=900) (iidnnt(rowint(i)), i = 1, SADSIZE)
             do  i = 1, SADSIZE
               irow(i)=nint(rowint(i))
               if( irow(i) > 65535) then
@@ -7952,7 +7953,7 @@
 
       if(sa.ne.op) close(unit = sa, err = 990)
 
-! MMJT 19th May 2010
+      ! MMJT 19th May 2010
       write(op,103) SADSIZE, ' x ', SADSIZE, ' pixels: ',   &
                    bitdepth, ' bits deep.'
       write(op,100) ' (Caution: Because of a compiler-dependent issue'
