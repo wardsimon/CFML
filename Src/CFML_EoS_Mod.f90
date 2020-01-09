@@ -51,7 +51,7 @@
 !!----    ...   2017: Split write_eoscal to improve error handling, new thermalP eos (RJA) 
 !!----    ...   2018: New routines: physical_check, get_kp, added pscale,vscale,lscale to data_list_type (RJA)
 !!----    ...   2019: Bug fixes, addition of new thermal-pressure EoS types (RJA)
-!!----    
+!!----    ...   2020: Jan: E%LinearDir to label linear EoS (RJA)
 Module CFML_EoS
    !---- Use Modules ----!
    Use CFML_GlobalDeps,       only: cp, pi
@@ -184,6 +184,7 @@ Module CFML_EoS
       character(len=15)                         :: Vscale_name=" "       ! Description of the Volume scale. Only used for output
       character(len=120), dimension(20)         :: doc=" "               ! Documentation for eos: set by user
       character(len=120)                        :: savedate=" "          ! Documentation on last save
+      character(len=32)                         :: LinearDir=" "         ! Label for linear direction; default blank
       integer                                   :: IModel=0              ! Index for Model
       integer                                   :: IOrder=0              ! Order for the Model
       logical                                   :: Linear=.false.        ! Flag for Linear EoS not volume
@@ -5290,6 +5291,7 @@ Contains
       eospar%comment=' '
       eospar%doc=' '
       eospar%savedate=' '
+      eospar%lineardir=' '
       eospar%pscale_name=' '
       eospar%vscale_name=' '
       call Set_Eos_Names(Eospar)         ! also sets the print factors for the pressure part
@@ -6276,6 +6278,10 @@ Contains
 
          else if(index(text,'TYPE') /= 0)then
             if(index(U_case(text),'LINEAR') /= 0) eos%linear=.true.
+            
+         else if(index(text,'DIRECTION') /= 0)then
+            read(text(c:),'(a)',iostat=ierr)eos%LinearDir
+            if (ierr /=0) Err_EoS_Mess="Error reading the direction info"
 
          else if(index(text,'PREF') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%pref
@@ -6622,6 +6628,7 @@ Contains
          eospar%comment(2) = 'Bulk modulus: '//trim(ptext(2))
          eospar%comment(3) = 'dK/dP: dimensionless'
          eospar%comment(4) = 'd2K/dP2: '//trim(ptext(4))
+         eospar%LinearDir  = ' '
                
          select case(eospar%imodel)
          case (6)                !APL
@@ -7505,6 +7512,12 @@ Contains
 
       if (eos%linear)then
          write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Linear'
+          if(len_trim(eos%LinearDir) == 0)then
+                   write(unit=lun,fmt='(a)') 'Direction = Unknown'
+               else
+                   write(unit=lun,fmt='(a,a)') 'Direction =',trim(adjustl(eos%LinearDir))
+        endif 
+       
       else
          write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Volume'
       end if
@@ -7967,6 +7980,18 @@ Contains
              write(unit=lun,fmt='(a)') '  Comment: '//trim(eospar%doc(i))
           end if
       end do
+      
+      if (eospar%linear) then
+               write(unit=lun,fmt='(a)') '    Class: Linear'
+               if(len_trim(eospar%LinearDir) == 0)then
+                   write(unit=lun,fmt='(a)') 'Direction: Unknown'
+               else
+                   write(unit=lun,fmt='(a,a)') 'Direction: ',trim(adjustl(eospar%LinearDir))
+               endif           
+     else
+               write(unit=lun,fmt='(a)') '    Class: Volume'
+     end if
+
       write(unit=lun,fmt='(a)') ' '
       if (eospar%imodel /= 0) then
          if (len_trim(eospar%Pscale_name) > 0)write(unit=lun,fmt='(a)') '   Pscale: '//trim(eospar%Pscale_name)
@@ -7983,15 +8008,10 @@ Contains
          write(unit=lun,fmt='(a)') '  Compressibility'
          write(unit=lun,fmt='(a)') '-------------------'
          write(unit=lun,fmt='(a)') ' '
-         write(unit=lun,fmt='(a)') '   Model: '//trim(eospar%model)
+         write(unit=lun,fmt='(a)') '    Model: '//trim(eospar%model)
          if (eospar%imodel > 0) then                ! no output if no p eos: all done in write_info_eos_thermal
-            write(unit=lun,fmt='(a,i2)') '   Order: ',eospar%iorder
-            if (eospar%linear) then
-               write(unit=lun,fmt='(a)') '   Class: Linear'
-            else
-               write(unit=lun,fmt='(a)') '   Class: Volume'
-            end if
-
+            write(unit=lun,fmt='(a,i2)') '    Order: ',eospar%iorder
+            
             !> Pressure Parameters
             write(unit=lun,fmt='(a,t27,f8.3)') '   Pressure of reference: ',eospar%pref
             write(unit=lun,fmt='(a)') ' '
