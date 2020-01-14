@@ -192,7 +192,7 @@
     !!--..
     !!---- Type, public :: Magnetic_Form_Type
     !!----    character (len= 4)          :: Symb   ! Symbol of the Chemical species
-    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors
+    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors coefficients (a1,b1,a2,b2,a3,b3,c)
     !!---- End Type Magnetic_Form_Type
     !!----
     !!---- Update: February - 2005

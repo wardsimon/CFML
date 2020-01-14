@@ -140,7 +140,7 @@
     !!----    real(kind=cp)                               :: monitor
     !!----    real(kind=cp)                               :: norm_mon      !Normalisation monitor
     !!----    real(kind=cp)                               :: col_time      !Data collection time
-    !!----    real(kind=cp)                               :: step
+    !!----    real(kind=cp)                               :: step=0.0,zerop=0.0
     !!----    real(kind=cp)                               :: Tsamp         !Sample Temperature
     !!----    real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
     !!----    integer                                     :: npts          !Number of points
@@ -159,7 +159,7 @@
     !!----    real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
     !!----    real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
     !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations Sigma or variance (the square of sigma!, depends on sig_var)
-    !!----    integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
+    !!----    integer,       dimension (:), allocatable   :: istat         ! Information about the point "i" (if i=0 excluded)
     !!----    real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
     !!----    real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
     !!----
@@ -168,6 +168,7 @@
     !!----    Definition for Diffraction Pattern Type
     !!----
     !!---- Update: April - 2011  !Initialisation values have been included except for allocatables
+    !!---- Update: January 2020  (adding zero point)
     !!
     Type, public :: Diffraction_Pattern_Type
        character(len=180)                          :: Title=" "        !Identification of the pattern
@@ -186,7 +187,7 @@
        real(kind=cp)                               :: monitor=0.0
        real(kind=cp)                               :: norm_mon=0.0
        real(kind=cp)                               :: col_time=0.0
-       real(kind=cp)                               :: step=0.0
+       real(kind=cp)                               :: step=0.0, zerop=0.0
        real(kind=cp)                               :: Tsamp=0.0        !Sample Temperature
        real(kind=cp)                               :: Tset=0.0         !Setting Temperature (wished temperature)
        integer                                     :: npts=0           !Number of points
@@ -940,7 +941,7 @@
        end if
 
    !***********************************************MR
-   !according to MR, this loop doesn't permit to read all the background points from the file 
+   !according to MR, this loop doesn't permit to read all the background points from the file
    !    do j=1, bck_points
    !       read(unit=i_bck,fmt="(a)",iostat=ier) line
    !       if (ier /= 0) exit
@@ -955,7 +956,7 @@
    !proposed correction:
        i=0
        j=0
-       do 
+       do
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)=="#") cycle

@@ -105,7 +105,7 @@
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_GlobalDeps,                only: cp,sp,pi,eps
+    Use CFML_GlobalDeps,                only: cp,sp,pi,eps,Write_Date_Time
     Use CFML_Math_General,              only: sind
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
@@ -116,6 +116,7 @@
     Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Molec_Mess,Molecular_Crystal_Type, &
                                               Read_Molecule, Set_Euler_Matrix, Write_Molecule
     Use CFML_Geometry_Calc,             only: Point_List_Type, Get_Euler_from_Fract
+    Use CFML_Diffraction_Patterns,      only: Diffraction_Pattern_type
 
     !---- Variables ----!
     implicit none
@@ -3763,72 +3764,312 @@
     End Subroutine Readn_Set_Xtal_Structure_Split
 
     !!----
-    !!---- Subroutine Write_Cif_Powder_Profile(Filename,Code)
-    !!----    character(len=*), intent(in) :: filename     !  In -> Name of File
-    !!----    integer,     intent(in)      :: code         !  In -> 0 Shelxs-Patterson
-    !!----                                                          1 Shelxs-Direct Methods
-    !!----                                                          2 Shelxl-Refinement
+    !!---- Subroutine Write_Cif_Powder_Profile(Filename,Pat,r_facts)
+    !!----    character(len=*),                    intent(in) :: filename     !  In -> Name of File
+    !!----    type(Diffraction_Pattern_Type),      intent(in) :: Pat
+    !!----    real(kind=cp), dimension(4),optional,intent(in) :: r_facts      !R_patt,R_wpatt,R_exp, Chi2
     !!----
-    !!----    Write a Cif Powder Profile file
+    !!----    Write a Cif Powder Profile file (converted from FullProf)
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: January - 2020
     !!
-    Subroutine Write_Cif_Powder_Profile(filename,code)
+    Subroutine Write_Cif_Powder_Profile(filename,Pat,r_facts)
        !---- Arguments ----!
-       character(len=*), intent(in) :: filename
-       integer,          intent(in) :: code
+       character(len=*),                    intent(in) :: filename
+       type(Diffraction_Pattern_Type),      intent(in) :: Pat
+       real(kind=cp), dimension(4),optional,intent(in) :: r_facts
 
        !---- Local Variables ----!
-       logical :: info
+       logical             :: info
+       character(len=132)  :: line
+       character(len=30)   :: comm,date_time
+       character(len=1)    :: statut
+       integer,save        :: iunit
+       integer             :: i,j,n,iph,mirf,ivk,ix,mult,icz,irc
+       real(kind=cp)       :: an, dspac, fobs2, fcal2, phas, R_patt,R_wpatt,R_exp, Chi2
+       integer,      dimension(3):: hi
+       real(kind=cp),dimension(3):: hr
 
-       integer :: iunit !,nlong
-
-       !---- Inicializacion de variables ----!
+       !---- Inicialization of variables ----!
        info=.false.
-       iunit=0
+       if(present(r_facts)) then
+          R_patt = r_facts(1)
+          R_wpatt= r_facts(2)
+          R_exp  = r_facts(3)
+          Chi2   = r_facts(4)
+       end if
 
-       !---- Esta abierto este Fichero? ----!
+      !---- Is this file opened? ----!
        inquire(file=filename,opened=info)
        if (info) then
           inquire(file=filename,number=iunit)
           close(unit=iunit)
-       end if
-
-       !---- Escritura ----!
-       if (iunit==0) iunit=61
-       open(unit=iunit,file=filename,status="unknown",action="write")
-       rewind(unit=iunit)
-
-       !---- Head ----!
-       write(unit=iunit,fmt="(a)") "data_profile"
-
-       write(unit=iunit,fmt="(a)") " "
-       if (code == 0) then
-          write(unit=iunit,fmt="(a)")     "_pd_block_id      ?"
+          open(iunit,file=filename,status="unknown",action="write",position="append")
        else
-          write(unit=iunit,fmt="(a,i3)")  "_pd_block_id       ",code
+          iunit=61
+          open(iunit,file=filename,status="replace",action="write",position="rewind")
        end if
+
+       !---- Writing ----!
+       !---- Head ----!
+       write(unit=iunit,fmt='(a)')    " "
+       write(unit=iunit,fmt='(a)')    "#==========================="
+       write(unit=iunit,fmt='(a,i3)') "# Powder diffraction pattern "
+       write(unit=iunit,fmt='(a)')    "#==========================="
+       call Write_Date_Time(dtim=date_time)
+       write(unit=iunit,fmt='(a)')    "#  "//trim(date_time)
+       write(unit=iunit,fmt='(a)')    " "
+
+       write(iunit,'(a)') "data_profile"
+       j=index(date_time, "Time:")-1
+       i=index(date_time, "Date:")+5
+       write(unit=iunit,fmt="(a)")"_audit_creation_date "//date_time(i:j)
+       write(unit=iunit,fmt="(a)")'_audit_creation_method  "CrysFML"'
+       write(unit=iunit,fmt='(a)') " "
+       write(unit=iunit,fmt='(a)') "_pd_block_id      ?"
+
+       write(iunit,'(a)')"#==============================================================================             "
+       write(unit=iunit,fmt='(a)')"# 9. INSTRUMENT CHARACTERIZATION                                                            "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_exptl_special_details                                                                      "
+       write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# if regions of the data are excluded, the reason(s) are supplied here:                     "
+       write(unit=iunit,fmt='(a)')"_pd_proc_info_excluded_regions                                                              "
+       write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# The following item is used to identify the equipment used to record                       "
+       write(unit=iunit,fmt='(a)')"# the powder pattern when the diffractogram was measured at a laboratory                    "
+       write(unit=iunit,fmt='(a)')"# other than the authors' home institution, e.g. when neutron or synchrotron                "
+       write(unit=iunit,fmt='(a)')"# radiation is used.                                                                        "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_instr_location                                                                          "
+       write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"_pd_calibration_special_details           # description of the method used                  "
+       write(unit=iunit,fmt='(a)')"                                          # to calibrate the instrument                     "
+       write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_ambient_temperature    ?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_source                 ?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_source_target          ?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_source_type            ?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_measurement_device_type?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_detector               ?                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_detector_type          ?  # make or model of detector                               "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_meas_scan_method           ?  # options are 'step', 'cont',                             "
+       write(unit=iunit,fmt='(a)')"                                  # 'tof', 'fixed' or                                       "
+       write(unit=iunit,fmt='(a)')"                                  # 'disp' (= dispersive)                                   "
+       write(unit=iunit,fmt='(a)')"_pd_meas_special_details                                                                    "
+       write(unit=iunit,fmt='(a)')";  ?                                                                                        "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# The following two items identify the program(s) used (if appropriate).                    "
+       write(unit=iunit,fmt='(a)')"_computing_data_collection        ?                                                         "
+       write(unit=iunit,fmt='(a)')"_computing_data_reduction         ?                                                         "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# Describe any processing performed on the data, prior to refinement.                       "
+       write(unit=iunit,fmt='(a)')"# For example: a manual Lp correction or a precomputed absorption correction                "
+       write(unit=iunit,fmt='(a)')"_pd_proc_info_data_reduction      ?                                                         "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# The following item is used for angular dispersive measurements only.                      "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_diffrn_radiation_monochromator   ?                                                         "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# The following items are used to define the size of the instrument.                        "
+       write(unit=iunit,fmt='(a)')"# Not all distances are appropriate for all instrument types.                               "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_src/mono           ?                                                         "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_mono/spec          ?                                                         "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_src/spec           ?                                                         "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_spec/anal          ?                                                         "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_anal/detc          ?                                                         "
+       write(unit=iunit,fmt='(a)')"_pd_instr_dist_spec/detc          ?                                                         "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# 10. Specimen size and mounting information                                                "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"# The next three fields give the specimen dimensions in mm.  The equatorial                 "
+       write(unit=iunit,fmt='(a)')"# plane contains the incident and diffracted beam.                                          "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_size_axial               ?       # perpendicular to                                "
+       write(unit=iunit,fmt='(a)')"                                          # equatorial plane                                "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_size_equat               ?       # parallel to                                     "
+       write(unit=iunit,fmt='(a)')"                                          # scattering vector                               "
+       write(unit=iunit,fmt='(a)')"                                          # in transmission                                 "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_size_thick               ?       # parallel to                                     "
+       write(unit=iunit,fmt='(a)')"                                          # scattering vector                               "
+       write(unit=iunit,fmt='(a)')"                                          # in reflection                                   "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_mounting                         # This field should be                            "
+       write(unit=iunit,fmt='(a)')"                                          # used to give details of the                     "
+       write(unit=iunit,fmt='(a)')"                                          # container.                                      "
+       write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+       write(unit=iunit,fmt='(a)')";                                                                                           "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_mount_mode               ?       # options are 'reflection'                        "
+       write(unit=iunit,fmt='(a)')"                                          # or 'transmission'                               "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"_pd_spec_shape                    ?       # options are 'cylinder'                          "
+       write(unit=iunit,fmt='(a)')"                                          # 'flat_sheet' or 'irregular'                     "
+       write(unit=iunit,fmt='(a)')"                                                                                            "
+       write(unit=iunit,fmt='(a)')"     "
+       write(unit=iunit,fmt='(a)')"_diffrn_radiation_probe   "//trim(pat%diff_kind)
+       if(Pat%scat_var=="2theta") then
+          write(unit=iunit,fmt='(a,f12.6)') "_diffrn_radiation_wavelength ",Pat%conv(1)
+       end if
+       if(present(r_facts)) then
+          write(unit=iunit,fmt='(a)')"     "
+          write(unit=iunit,fmt='(a)') "#  The following profile R-factors are NOT CORRECTED for background"
+          write(unit=iunit,fmt='(a)') "#  The sum is extended to all non-excluded points."
+          write(unit=iunit,fmt='(a)') "#  These are the current CIF standard"
+          write(unit=iunit,fmt='(a)') " "
+          write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_R_factor          ",R_patt
+          write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_wR_factor         ",R_wpatt
+          write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_wR_expected       ",R_exp
+          write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_chi2              ",chi2
+       end if
+       write(unit=iunit,fmt='(a)')"  "
+       write(unit=iunit,fmt='(a)')"_pd_proc_ls_background_function   "
+       write(unit=iunit,fmt='(a)')";   Background function description  "
+      !write(unit=iunit,fmt='(a)')" Shifted Chebyshev function of 1st kind                                       "
+      !write(unit=iunit,fmt='(a)')"      1:    61.5838     2:    15.7371     3:    40.4163     4:    9.42001     "
+      !write(unit=iunit,fmt='(a)')"      5:    20.9238     6:    6.19575     7:    10.2828     8:    3.66734     "
+      !write(unit=iunit,fmt='(a)')"      9:    2.70015    10:  -0.618124                                         "
+       write(unit=iunit,fmt='(a)')";                                                                              "
+       write(unit=iunit,fmt='(a)')"                                                                               "
+       write(unit=iunit,fmt='(a)')"_exptl_absorpt_process_details                                                 "
+       write(unit=iunit,fmt='(a)')";   Absorption/surface roughness correction description    "
+       write(unit=iunit,fmt='(a)')" No correction is applied ?.                                                   "
+       write(unit=iunit,fmt='(a)')";                                                                              "
+      !write(unit=iunit,fmt='(a)')"_exptl_absorpt_correction_T_min        1.00000   "
+      !write(unit=iunit,fmt='(a)')"_exptl_absorpt_correction_T_max        1.00000   "
+       write(unit=iunit,fmt='(a)')"                                                                               "
+       write(unit=iunit,fmt='(a)')"_pd_proc_ls_profile_function                                                   "
+       write(unit=iunit,fmt='(a)')";   Profile function description                                              "
+      !write(unit=iunit,fmt='(a)')" CW Profile function number 1 with   6 terms                                  "
+      !write(unit=iunit,fmt='(a)')" Profile coefficients for Simpson's rule integration of Gaussian function     "
+      !write(unit=iunit,fmt='(a)')" C.J. Howard (1982). J. Appl. Cryst.,15,615-620.                              "
+      !write(unit=iunit,fmt='(a)')" Cooper & Sayer, J. Appl. Cryst., 8, 615-618 (1975).                          "
+      !write(unit=iunit,fmt='(a)')" Thomas, J. Appl. Cryst., 10, 12-13(1977).                                    "
+      !write(unit=iunit,fmt='(a)')" #1(U)    =  218.631 #2(V)    = -251.292 #3(W)    =  159.521                  "
+      !write(unit=iunit,fmt='(a)')" #4(asym) =   8.7128 #5(F1)   =    0.000 #6(F2)   =    0.000                  "
+      !write(unit=iunit,fmt='(a)')" Peak tails are ignored  where the intensity is below 0.0050 times the peak   "
+      !write(unit=iunit,fmt='(a)')"   Aniso. broadening axis   0.0   0.0   1.0                                   "
+       write(unit=iunit,fmt='(a)')";                                                                              "
+       write(unit=iunit,fmt='(a)')"_pd_proc_ls_peak_cutoff 0.00500                                                "
+     ! write(unit=iunit,fmt='(a)')"_pd_proc_info_datetime                 2002-12-21T19:04:06                    "
+       write(unit=iunit,fmt='(a,a)')'_pd_calc_method  "   Rietveld Refinement" '
+       write(unit=iunit,fmt='(a)')"                                                                               "
+       write(unit=iunit,fmt='(a)')"#---- raw/calc data loop -----   "
+       select case (trim(l_case(Pat%scat_var)))
+          case ("2theta")   ! 2_Theta
+               write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_min " , Pat%xmin
+               write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_max " , Pat%xmax
+               write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_inc " , Pat%step
+           case ("tof")   ! T.O.F.
+             write(unit=iunit,fmt='(a)') "_pd_proc_d_spacing "
+       end select
+
 
        !---- Profile ----!
-       write(unit=iunit,fmt="(a)") " "
+       write(unit=iunit,fmt='(a)') " "
 
-       write(unit=iunit,fmt="(a)") "loop_"
-       write(unit=iunit,fmt="(a)") "_pd_proc_point_id"
-       write(unit=iunit,fmt="(a)") "_pd_proc_2theta_corrected             # one of "
-       write(unit=iunit,fmt="(a)") "_pd_proc_energy_incident              # these "
-       write(unit=iunit,fmt="(a)") "_pd_proc_d_spacing                    # three"
-       write(unit=iunit,fmt="(a)") "_pd_proc_intensity_net"
-       write(unit=iunit,fmt="(a)") "_pd_calc_intensity_net "
-       write(unit=iunit,fmt="(a)") "_pd_proc_ls_weight      "
-       write(unit=iunit,fmt="(a)") "?     ?     ?     ?     ?     ?     ?"
+       write(unit=iunit,fmt='(a)') "loop_"
+       write(unit=iunit,fmt='(a)') "_pd_proc_point_id"
+       select case (trim(l_case(Pat%scat_var)))
+          case ("2theta")   !
+             write(unit=iunit,fmt='(a)') "_pd_proc_2theta_corrected   "
+          case ("tof")   ! T.O.F.
+             write(unit=iunit,fmt='(a)') "_pd_proc_d_spacing "
+          case ("energy")   ! Energy
+             write(unit=iunit,fmt='(a)') "_pd_proc_energy_incident  "
+       end select
+       write(iunit,'(a)') "_pd_proc_intensity_total"
+       write(iunit,'(a)') "_pd_calc_intensity_total"
+       write(iunit,'(a)') "_pd_proc_intensity_bkg_calc"
+       write(iunit,'(a)') " "
+       n=0
+       do_poi: do i=1,Pat%npts
+          if(Pat%istat(i) == 0) cycle
+          an=Pat%x(i)
+          line=" "
+          write(line(1:6),'(i6)') i
+          n=n+1
+          select case (trim(l_case(Pat%scat_var)))
+             case ("2theta")   ! 2_Theta
+                write(line(10:),'(f8.4,5x,a)') an-Pat%zerop,'.    .'
+             case ("tof")   ! T.O.F.
+                write(line(10:),'(f8.4,5x,a)') (an-Pat%zerop)/pat%conv(1),'.    .'  !dtt1
+             case ("energy")   ! Energy
+                write(line(10:),'(a,f15.4,2x,a)') '. ',1000.0*(an-Pat%zerop),'.'
+          end select
+          call setnum_std(Pat%y(i),sqrt(Pat%sigma(i)),comm)
+          write(line(21:),'(a,2f18.4)') trim(comm)//" ", Pat%ycalc(i),Pat%bgr(i)
+          write(iunit,'(a)') line
+       end do do_poi
 
-       write(unit=iunit,fmt="(a)") " "
-       write(unit=iunit,fmt="(a)") "# The following lines are used to test the character set of files sent by     "
-       write(unit=iunit,fmt="(a)") "# network email or other means. They are not part of the CIF data set.        "
-       write(unit=iunit,fmt="(a)") "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
-       write(unit=iunit,fmt="(a)") "# !@#$%^&*()_+{}:"//""""//"~<>?|\-=[];'`,./ "
+       write(iunit,'(a,i7)')  "_pd_proc_number_of_points",n
+       write(iunit,'(a)') " "
 
-       close (unit=iunit)
+      !Writing the reflections of the current pattern
+      !write(iunit,'(a)') "loop_                          "
+      !write(iunit,'(a)') "      _refln_index_h           "
+      !write(iunit,'(a)') "      _refln_index_k           "
+      !write(iunit,'(a)') "      _refln_index_l           "
+      !write(iunit,'(a)') "      _refln_mult              "
+      !write(iunit,'(a)') "      _pd_refln_phase_id       "
+      !write(iunit,'(a)') "      _refln_observed_status   "
+      !write(iunit,'(a)') "      _refln_F_squared_meas    "
+      !write(iunit,'(a)') "      _refln_F_squared_calc    "
+      !write(iunit,'(a)') "      _refln_phase_calc        "
+      !write(iunit,'(a)') "      _refln_d_spacing         "
+      !
+      !icz=sum(Num_refl(:,n_pat))
+      !statut="o"
+      !do_ref: do ix=1,icz
+      !   iph=irefs(ix,n_pat)/256/256/256/8
+      !   if(iph < 0 ) iph = 8 - iph
+      !   mirf=abs(irefs(ix,n_pat))
+      !   irc=MOD(mirf/256/256/256,8)
+      !   if(irc /= 1) cycle
+      !   hi(3)=MOD(mirf,256)-128
+      !   hi(2)=MOD(mirf/256,256)-128
+      !   hi(1)=MOD(mirf/256/256,256)-128
+      !   dspac=refs(ix,4,n_pat)
+      !   an=refs(ix,2,n_pat)
+      !   DO j=1,nexcrg(n_pat)
+      !      IF((an >= alow(j,n_pat) .AND. an <= ahigh(j,n_pat)) &
+      !         .or. an < thmin(n_pat)-glb(1,n_pat) .or.  an > thmax(n_pat)-glb(1,n_pat) ) cycle do_ref
+      !   END DO
+      !   fcal2=ff(ix,n_pat)
+      !   fobs2=fobs(ix,n_pat)
+      !   phas=phasen(ix,n_pat)*57.29577951308
+      !   mult=mlt(ix,n_pat)
+      !   ivk=ihkl(ix,n_pat)
+      !   IF(nvk(iph) /= 0 .AND. ivk /= 0) THEN
+      !     hr(:)=REAL(hi(:))+pvk(iph,ivk,:)
+      !     write(unit=iunit,fmt="(3f7.2,2i3,tr2,a,tr2,2f14.4,f8.2,f10.5)") &
+      !                           hr,mult,iph,statut,fobs2,fcal2,phas,dspac
+      !   else
+      !     write(unit=iunit,fmt="(3i4,2i3,tr2,a,tr2,2f14.4,f8.2,f10.5)") &
+      !                           hi,mult,iph,statut,fobs2,fcal2,phas,dspac
+      !   END IF
+      !
+      !end do do_ref
+
+
+       write(iunit,'(a)') " "
+       write(iunit,'(a)') "# The following lines are used to test the character set of files sent by     "
+       write(iunit,'(a)') "# network email or other means. They are not part of the CIF data set.        "
+       write(iunit,'(a)') "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
+       write(iunit,'(a)') "# !@#$%^&*()_+{}:""~<>?|\-=[];'`,./ "
+
 
        return
     End Subroutine Write_Cif_Powder_Profile

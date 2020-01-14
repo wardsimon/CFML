@@ -1801,7 +1801,7 @@ Contains
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: Level   !  In -> Level of printed information
     !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
-    !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
+    !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Used to Transform thermal parameters
     !!----
     !!----    Write the atoms in the asymmetric unit
     !!----
