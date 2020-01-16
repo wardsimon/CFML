@@ -1738,8 +1738,9 @@
     End Subroutine Mag_Structure_Factors
 
     !!----
-    !!---- Subroutine Calc_Mag_Structure_Factor(h,Cell,Grp,Atm,Stf,mdom,tdom,twin,nofpp)
-    !!----   type(Reflect_Type),             intent(in)  :: h      !Contains hkl,s,mult and imag
+    !!---- Subroutine Calc_Mag_Structure_Factor(n,hm,Cell,Grp,Atm,Stf,mdom,tdom,twin,nofpp)
+    !!----   integer,                        intent(in)  :: n      !Order of reflection in List
+    !!----   type(Reflect_Type),             intent(in)  :: hn     !Contains hkl,s,mult and imag
     !!----   type(Crystal_Cell_type),        intent(in)  :: Cell
     !!----   type(Matom_list_type),          intent(in)  :: Atm
     !!----   type(Magnetic_Space_Group_type),intent (in) :: Grp
@@ -1756,7 +1757,8 @@
     !!----
     !!----  Updated: January 2020
     !!----
-    Subroutine Calc_Mag_Structure_Factor(hm,Cell,Grp,Atm,Stf,magonly,mdom,tdom,twin,nofpp)
+    Subroutine Calc_Mag_Structure_Factor(n,hm,Cell,Grp,Atm,Stf,magonly,mdom,tdom,twin,nofpp)
+      integer,                            intent(in)  :: n
       type(Reflect_Type),                 intent(in)  :: hm
       type(Crystal_Cell_type),            intent(in)  :: Cell
       type(Matom_list_type),              intent(in)  :: Atm
