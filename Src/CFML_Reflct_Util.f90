@@ -334,6 +334,21 @@
     End Type Reflect_Type
 
     !!----
+    !!---- TYPE :: REFLECT_LIST_TYPE
+    !!--..
+    !!---- Type, public :: Reflect_List_Type
+    !!----    integer                                     :: NRef ! Number of Reflections
+    !!----    type(reflect_type),allocatable,dimension(:) :: Ref  ! Reflection List
+    !!---- End Type Reflection_List_Type
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Type, public :: Reflect_List_Type
+       integer                                      :: NRef  ! Number of Reflections
+       type(Reflect_type),allocatable, dimension(:) :: Ref   ! Reflection List
+    End Type Reflect_List_Type
+
+    !!----
     !!---- TYPE :: REFLECTION_TYPE
     !!--..
     !!---- Type, public :: Reflection_Type
@@ -2861,8 +2876,8 @@
        real(kind=cp), dimension(3),                     intent (in) :: h
        Type (Space_Group_Type),                         intent (in) :: SpaceGroup
        Logical,                                         intent (in) :: Friedel
-       integer,                                         intent(out) :: mul
-       real(kind=cp), dimension(3,SpaceGroup%numops*2), intent (out) :: hlist
+       integer,                                         intent (out):: mul
+       real(kind=cp), dimension(3,SpaceGroup%numops*2), intent (out):: hlist
 
        !---- Local Variables ----!
        logical                    :: esta
@@ -2903,7 +2918,7 @@
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!----    Logical,                           intent(in) :: Friedel         !If true, Friedel law applied
     !!----    real(kind=cp),                     intent(in) :: value1,value2   !Range in SinTheta/Lambda
-    !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!----    Integer,                           intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----
     !!----    Calculate unique reflections between two values of
@@ -3044,9 +3059,9 @@
     !!----
     !!---- Subroutine  Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
-    !!----    Type (Magnetic_Space_Group_Type) , intent(in) :: ShubG           !Magnetic Space Group object
+    !!----    Type (Magnetic_Space_Group_Type),  intent(in) :: ShubG           !Magnetic Space Group object
     !!----    real(kind=cp),                     intent(in) :: sintlmax        !Maximum SinTheta/Lambda
-    !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!----    Integer,                           intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----
     !!----    Calculate unique reflections between two values of
@@ -3210,7 +3225,7 @@
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!--++    real(kind=cp),                     intent(in) :: stlmin,stlmax   !Minimum and Maximum SinTheta/Lambda
-    !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!--++    Integer,                           intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!--++    Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
     !!--++    Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
@@ -3288,7 +3303,7 @@
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!--++    real(kind=cp),                     intent(in) :: stlmin,stlmax   !Minimum and Maximum SinTheta/Lambda
-    !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
+    !!--++    Integer,                           intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex          !Generated set of reflections
     !!--++    Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
     !!--++    Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
@@ -3663,7 +3678,7 @@
     !!--++    Logical,                           intent(in) :: Friedel
     !!--++    real(kind=cp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
-    !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
+    !!--++    Integer,                           intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
     !!--++    logical,                optional,  intent(in) :: no_order
     !!--++    logical,                optional,  intent(out):: check_ok

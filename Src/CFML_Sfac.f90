@@ -2391,11 +2391,11 @@
 
     !!----
     !!---- Subroutine Structure_Factors(Atm,Grp,Reflex,Mode,lambda)
-    !!----    type(atom_list_type),               intent(in)     :: Atm
-    !!----    type(space_group_type),             intent(in)     :: Grp
-    !!----    type(reflection_list_type),         intent(in out) :: Reflex
-    !!----    character(len=*), optional,         intent(in)     :: Mode
-    !!----    real(kind=cp), optional,            intent(in)     :: lambda
+    !!----    type(atom_list_type),               intent(in)     :: Atm    !List of atoms
+    !!----    type(space_group_type),             intent(in)     :: Grp    !Space group
+    !!----    type(reflection_list_type),         intent(in out) :: Reflex !It is completed on output
+    !!----    character(len=*), optional,         intent(in)     :: Mode   !"NUC","ELE" for neutrons, electrons else: XRays
+    !!----    real(kind=cp), optional,            intent(in)     :: lambda !Needed for Xrays
     !!----
     !!----    Calculate the Structure Factors from a list of Atoms
     !!----    and a set of reflections. A call to Init_Structure_Factors

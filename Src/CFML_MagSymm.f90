@@ -205,7 +205,9 @@
     !!----    component the crystallographic space group. The first component is
     !!----    the Shubnikov Group symbol and the third component is an integer vector with
     !!----    values -1 or 1 when time inversion is associated (-1) with the corresponding
-    !!----    crystallographic symmetry operator o not (1).
+    !!----    crystallographic symmetry operator o not (1). This is now OBSOLETE thanks to the
+    !!----    availability of Shubnikov tables and the Magnetic_Space_Group_Type defined in
+    !!----    Crystallographic Symmetry module.
     !!-->>
     !!----
     !!---- Update: April - 2005
@@ -1447,15 +1449,46 @@
                end if
              end do
 
-          Case("cfl") !to be implemented
-             write(unit=*,fmt="(a)") " => CFL file not yet implemented!"
+          Case("cfl") !Only standard symbol plus an eventual setting change is allowed
+
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(l_case(line),"shubnikov")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                  err_magsym=.true.
+                  ERR_MagSym_Mess=" Error reading the keyword SHUBNIKOV: the keyword is not found! "
+                  return
+               end if
+               i=index(l_case(line),"setting:")
+               symbol=trim(line(ind+9:i-1))
+               j=index(line,"!")
+               if(j /= 0) then
+                 setting=line(i+8:j-1)
+               else
+                 setting="a,b,c;0,0,0"
+               end if
+               Parent=" "
+               if(present(uvw)) then
+                 if(index(uvw,"mx") /= 0) then
+                    call Set_Magnetic_Space_Group(symbol,setting,MGp,mcif=.true.,trn_to=.true.)
+                 else
+                    call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+                 end if
+               else
+                 call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+               end if
+               return
 
           Case("database")
              line=adjustl(file_line(n_ini))
              ind=index(line,"Magnetic Space")
              if(ind == 0) then
                Err_Magsym=.true.
-               Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               Err_Magsym_Mess=" The Magnetic Space Group symbol is not provided in the PCR/CFL file! "
                return
              else
                j=index(line," ")
@@ -4464,7 +4497,9 @@
     !!----    type(Magnetic_Group_Type), intent (out)   :: SG
     !!----    type(MagSymm_k_Type),      intent (in out):: MGp
     !!----
-    !!----  This subroutined is not completed ... it is still in development
+    !!----  This subroutined is not completed and it is now OBSOLETE because the
+    !!----  availability of magnetic space groups databases
+    !!----
     !!---- Update: April 2008
     !!
     Subroutine Set_Shubnikov_Group(shubk,SG,MGp)
