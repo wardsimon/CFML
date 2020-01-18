@@ -166,10 +166,10 @@
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
-    !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
-    !!----    integer,      dimension(3)              :: lx            ! Numbers in the LSQ list of LSQ parameters for coordinates
+    !!----    real(kind=cp),dimension(3)              :: X,m_xyz       ! Fractional coordinates and magnetic moment
+    !!----    real(kind=cp),dimension(3)              :: X_Std,sm_xyz  ! Standard deviations
+    !!----    real(kind=cp),dimension(3)              :: MX,Mm_xyz     ! Multiplier parameters of coordinates and magnetic moment
+    !!----    integer,      dimension(3)              :: LX,Lm_xyz     ! Numbers in the LSQ list of LSQ parameters for coordinates
     !!----    real(kind=cp)                           :: occ           ! occupation factor
     !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
     !!----    real(kind=cp)                           :: mOcc          !
@@ -195,7 +195,7 @@
     !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!---- End Type Atom_Type
     !!----
-    !!---- Update: May - 2009
+    !!---- Update: January - 2020 (adding moment for use with Shubnikov groups)
     !!
     Type, public :: Atom_Type
        character(len=20)                        :: Lab
@@ -205,10 +205,10 @@
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
-       real(kind=cp),dimension(3)               :: X
-       real(kind=cp),dimension(3)               :: X_Std
-       real(kind=cp),dimension(3)               :: MX
-       integer,      dimension(3)               :: LX
+       real(kind=cp),dimension(3)               :: X,m_xyz
+       real(kind=cp),dimension(3)               :: X_Std,sm_xyz
+       real(kind=cp),dimension(3)               :: MX,Mm_xyz
+       integer,      dimension(3)               :: LX,Lm_xyz
        real(kind=cp)                            :: Occ
        real(kind=cp)                            :: Occ_Std
        real(kind=cp)                            :: MOcc
