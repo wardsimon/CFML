@@ -2795,7 +2795,7 @@
        !---- Local Variable ----!
        logical                        :: sval
        character(len=len(filevar(1))) :: line,linec
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -2805,8 +2805,8 @@
 
        nt=min(size(filevar),nline_end)
        string=" "
-       key =adjustl(keyword)
-       call lcase(key)
+       keyw =adjustl(keyword)
+       call lcase(keyw)
        sval=.false.
        if (present(vet) .and. present(ivet) .and. present(iv)) sval=.true.
        if (sval) then
@@ -2820,7 +2820,7 @@
           if (len_trim(line) == 0 .or. line(1:1)=="!" .or. line(1:1)==cc) cycle
           linec=line
           call lcase(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
           linec=linec(np:)
           call cutst(linec)
@@ -2941,7 +2941,7 @@
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -2952,14 +2952,14 @@
        iv  = 0
        vet1 = 0.0
        vet2 = 0.0
-       key =adjustl(keyword)
-       call lcase(key)
+       keyw =adjustl(keyword)
+       call lcase(keyw)
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)==cc) cycle
           call lcase(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
           line=line(np:)
           call cutst(line)

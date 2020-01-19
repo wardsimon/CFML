@@ -89,7 +89,10 @@
 !!--++       EQUAL_SYMOP               [Overloaded Operator]
 !!--++       EQUIV_SYMOP               [Private]
 !!----       GET_LAUE_NUM
+!!----       GET_MAGMATSYMB
 !!----       GET_MULTIP_POS
+!!--++       GET_MULTIP_POS_CRYS
+!!--++       GET_MULTIP_POS_MAG
 !!----       GET_OCC_SITE
 !!----       GET_POINTGROUP_NUM
 !!--++       IS_AXIS                   [Private]
@@ -141,6 +144,7 @@
 !!----       GET_TRASFM_SYMBOL
 !!----       GET_TRANSL_SYMBOL
 !!----       INIT_ERR_SYMM
+!!----       INIT_MAGNETIC_SPACE_GROUP_TYPE
 !!----       INVERSE_SYMM
 !!----       LATSYM
 !!--++       MAX_CONV_LATTICE_TYPE     [Private]
@@ -156,6 +160,7 @@
 !!----       SETTING_CHANGE
 !!--++       SETTING_CHANGE_CONV       [Overloaded]
 !!--++       SETTING_CHANGE_NONCONV    [Overloaded]
+!!--++       SETTING_CHANGE_MAGGROUP   [Overloaded]
 !!----       SIMILAR_TRANSF_SG
 !!----       SYM_B_RELATIONS
 !!--++       SYM_B_RELATIONS_OP        [Overloaded]
@@ -184,9 +189,10 @@
     Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, epss_val,    &
                                      Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default,iminloc
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
-    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
-                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
-                                     U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Num_String
+    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,       &
+                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,Get_Transf, &
+                                     U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Num_String,&
+                                     Get_Symb_From_Mat
     Use CFML_Symmetry_Tables
 
     implicit none
@@ -200,7 +206,8 @@
 
     !---- List of public functions ----!
     public  :: ApplySO, Axes_Rotation, Get_Laue_Num, Get_Multip_Pos, Get_Occ_Site,     &
-               Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod
+               Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod,     &
+               Get_MagMatSymb
 
     !---- List of public subroutines ----!
     public  :: Decodmatmag, Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,              &
@@ -214,10 +221,11 @@
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
                Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group, &
-               Get_Generators_From_SpGSymbol,Set_Intersection_SPG,Get_Setting_Info
+               Get_Generators_From_SpGSymbol,Set_Intersection_SPG,Get_Setting_Info,                  &
+               Init_Magnetic_Space_Group_Type
 
     !---- List of private Operators ----!
-    private :: Equal_Symop, Product_Symop
+    private :: Equal_Symop, Product_Symop,Get_Multip_Pos_Crys,Get_Multip_Pos_Mag
 
     !---- List of private functions ----!
     private :: Is_Axis, Is_Digit, Is_Hexa, Is_Plane, Is_Xyz, Equiv_Symop
@@ -226,7 +234,7 @@
     private :: Check_Symbol_Hm, Get_Seitz, Get_SymSymbI, Get_SymSymbR, Mod_Trans, Sym_B_Relations_Op  , &
                Sym_B_Relations_St, Symmetry_Symbol_Op, Symmetry_Symbol_Xyz , Symmetry_Symbol_Str,       &
                Max_Conv_Lattice_Type,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST, &
-               Setting_Change_Conv,Setting_Change_NonConv
+               Setting_Change_Conv,Setting_Change_NonConv,Setting_Change_MagGroup
 
 
     !---- Global Variables ----!
@@ -783,6 +791,11 @@
        Module Procedure Get_Crystal_System_R_ST
     End Interface  Get_Crystal_System
 
+    Interface Get_Multip_Pos
+       Module Procedure Get_Multip_Pos_crys
+       Module Procedure Get_Multip_Pos_mag
+    End Interface Get_Multip_Pos
+
     Interface  Get_SymSymb
        Module Procedure Get_SymSymbI
        Module Procedure Get_SymSymbR
@@ -791,6 +804,7 @@
     Interface  Setting_Change
        Module Procedure Setting_Change_Conv
        Module Procedure Setting_Change_NonConv
+       Module Procedure Setting_Change_MagGroup
     End Interface  Setting_Change
 
     Interface  Sym_B_Relations
@@ -998,16 +1012,65 @@
     End Function Get_Laue_Num
 
     !!----
-    !!----  Function Get_Multip_Pos(X,Spg) Result(Mult)
-    !!----    real(kind=cp), dimension(3), intent (in) :: x        !  In -> Position vector
-    !!----    type(Space_Group_type),      intent (in) :: spgr     !  In -> Space Group
-    !!----    integer                                  :: mult     !  Result -> Multiplicity
+    !!----  Function Get_MagMatSymb(line,mcif) result(mxmymz_op)
+    !!----    character(len=*), intent(in) :: line
+    !!----    logical,          intent(in) :: mcif
+    !!----    character(len=len(line))     :: mxmymz_op
     !!----
-    !!----    Obtain the multiplicity of a real space point given the space group.
+    !!----  Function replacing the symbol of a Jones Faithful's symbol
+    !!----  replacing x -> mx,u  y - >my,v z - >mz,w
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: January - 2020   (change of place)
     !!
-    Function Get_Multip_Pos(x,Spg) Result(mult)
+    Function Get_MagMatSymb(line,mcif) result(mxmymz_op)
+      character(len=*), intent(in) :: line
+      logical,          intent(in) :: mcif
+      character(len=len(line))     :: mxmymz_op
+      !--- Local variables ---!
+      integer :: i
+      mxmymz_op=" "
+      if(mcif) then
+         do i=1,len_trim(line)
+           Select Case(line(i:i))
+             case("x")
+                mxmymz_op=trim(mxmymz_op)//"mx"
+             case("y")
+                mxmymz_op=trim(mxmymz_op)//"my"
+             case("z")
+                mxmymz_op=trim(mxmymz_op)//"mz"
+             case default
+                mxmymz_op=trim(mxmymz_op)//line(i:i)
+           End Select
+         end do
+      else
+         do i=1,len_trim(line)
+           Select Case(line(i:i))
+             case("x")
+                mxmymz_op=trim(mxmymz_op)//"u"
+             case("y")
+                mxmymz_op=trim(mxmymz_op)//"v"
+             case("z")
+                mxmymz_op=trim(mxmymz_op)//"w"
+             case default
+                mxmymz_op=trim(mxmymz_op)//line(i:i)
+           End Select
+         end do
+      end if
+    End Function Get_MagMatSymb
+
+    !!--++
+    !!--++  Function Get_Multip_Pos(X,Spg) Result(Mult)
+    !!--++    real(kind=cp), dimension(3), intent (in) :: x        !  In -> Position vector
+    !!--++    type(Space_Group_type),      intent (in) :: spg      !  In -> Space Group
+    !!--++       or
+    !!--++    type(Magnetic_Space_Group_type),intent (in) :: spg      !  In -> Shubnikov group
+    !!--++    integer                                  :: mult     !  Result -> Multiplicity
+    !!--++
+    !!--++    Obtain the multiplicity of a real space point given the Shubnikov/space group.
+    !!--++
+    !!--++ Update: January - 2020
+    !!
+    Function Get_Multip_Pos_crys(x,Spg) Result(mult)
        !---- Arguments ----!
        real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
@@ -1043,8 +1106,45 @@
        call set_epsg(old_eps)
 
        return
-    End Function Get_Multip_Pos
+    End Function Get_Multip_Pos_crys
 
+    Function Get_Multip_Pos_mag(x,Spg) Result(mult)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in) :: x
+       type(Magnetic_Space_Group_type),intent (in) :: spg
+       integer                                     :: mult
+
+       !---- Local variables ----!
+       integer                                :: j, nt
+       real(kind=cp)                          :: old_eps
+       real(kind=cp), dimension(3)            :: xx,v
+       real(kind=cp), dimension(3,Spg%multip) :: u
+
+       !> Init Epss
+       old_eps=epss_val()
+       call set_epsg(1.0e-3)
+
+       mult=1
+       u(:,1)=x(:)
+
+       ext: do j=2,Spg%multip
+          xx=ApplySO(Spg%SymOp(j),x)
+          xx=modulo_lat(xx)
+          do nt=1,mult
+             v=u(:,nt)-xx(:)
+             if (Lattice_trans(v,Spg%spg_lat)) cycle ext
+          end do
+          mult=mult+1
+          u(:,mult)=xx(:)
+       end do ext
+
+       mult=mult*Spg%Num_Lat
+
+       !> Reset value for epss
+       call set_epsg(old_eps)
+
+       return
+    End Function Get_Multip_Pos_mag
     !!----
     !!---- Function Get_Occ_Site(Pto,Spg) Result(Occ)
     !!----    real(kind=cp),dimension(3),intent (in) :: Pto ! Point for Occupancy calculation
@@ -7278,6 +7378,42 @@
        return
     End Subroutine Init_Err_Symm
 
+    !!---- Subroutine Init_Magnetic_Space_Group_Type(MGp)
+    !!----   type(Magnetic_Space_Group_Type),  intent (in out) :: MGp
+    !!----
+    !!----   Initialize the non-allocatle parts of Magnetic_Space_Group_Type MGp
+    !!----   It is called inside Readn_set_Magnetic_Structure
+    !!----
+    !!----   Updated: January-2014
+    !!
+    Subroutine Init_Magnetic_Space_Group_Type(MGp)
+       !---- Arguments ----!
+       type(Magnetic_Space_Group_Type),  intent (in out) :: MGp
+
+       !---- Local variables ----!
+
+       MGp%Sh_number=0
+       MGp%BNS_number=" "
+       MGp%OG_number=" "
+       MGp%BNS_symbol=" "
+       MGp%OG_symbol=" "
+       MGp%MagType=0
+       MGp%Parent_num=0
+       MGp%Parent_spg=" "
+       MGp%standard_setting=.false.
+       MGp%mcif=.true.
+       MGp%m_cell=.false.
+       MGp%m_constr=.false.
+       MGp%trn_to_parent=" "
+       MGp%trn_from_parent=" "
+       MGp%trn_to_standard=" "
+       MGp%trn_from_standard=" "
+       MGp%Multip=0
+       MGp%n_wyck=0
+       MGp%n_kv=0
+       return
+    End Subroutine Init_Magnetic_Space_Group_Type
+
     !!----
     !!---- Subroutine Inverse_Symm(R,T,S,U)
     !!----    integer, dimension(3,3),     intent(in)  :: R     !  In -> Rotational Part
@@ -9064,6 +9200,288 @@
        return
     End Subroutine Setting_Change_Conv
 
+    !!--++
+    !!--++ Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn,trn_to)
+    !!--++   character(len=*),                 intent(in) :: setting ! New origing in the old basis
+    !!--++   type (Magnetic_Space_Group_Type), intent(in) :: MSpG    ! Input space group
+    !!--++   type (Magnetic_Space_Group_Type), intent(out):: MSpGn   ! New space group in the new setting.
+    !!--++   logical, optional,                intent(in) :: trn_to  ! True if the input setting is "to standard"
+    !!--++                                                           ! If not present it is intrepreded as "from standard"
+    !!--++
+    !!--++    Transform the symmetry operators of the magnetic space group to
+    !!--++    a new basis given by the matrix "mat" and vector "orig", extracted
+    !!--++    from the string "setting" that is of the form:  a,b+c,c;1/2,0,0
+    !!--++
+    !!--++ Created: November - 2016 (JRC), Updated January 2020
+    !!
+    Subroutine Setting_Change_MagGroup(setting,MSpg,MSpgn,trn_to)
+       !---- Arguments ----!
+       character(len=*),                 intent(in) :: setting
+       type (Magnetic_Space_Group_Type), intent(in) :: MSpG
+       type (Magnetic_Space_Group_Type),intent(out) :: MSpGn
+       logical, optional,                intent(in) :: trn_to
+       !--- Local variables ---!
+       integer                 :: i, j, k, L, im, m, ngm,n, &
+                                  nalat,nlat
+       real(kind=cp)           :: det
+       !character(len=40)       :: transla
+       character(len=1)        :: LatSymb
+       real(kind=cp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
+                                                                   0.0,1.0,0.0,  &
+                                                                   0.0,0.0,1.0/),(/3,3/))
+       real(kind=cp), dimension (3,192):: newlat = 0.0,alat=0.0 !big enough number of centring tranlations
+       real(kind=cp), dimension (3,3)  :: S, Sinv, rot, rotn, mat, Matinv  !S is the ITC matrix P.
+       integer,       dimension (3,3)  :: identity
+       real(kind=cp), dimension (  3)  :: tr, trn, v, orig, iorig
+       logical                         :: lattl
+       character(len=80)               :: symbtr
+       !character(len=60),dimension(15) :: gen
+       character(len=120)              :: isetting
+       character(len=132)              :: ShOp_symb
+       real(kind=cp), allocatable, dimension(:,:,:) :: sm
+       real(kind=cp), allocatable, dimension(:,:)   :: tm
+       integer,       allocatable, dimension(:)     :: inv_time
+
+       call Init_Err_Symm()
+       identity=nint(e)
+       if(len_trim(setting) == 0) then !Check the error in the calling program
+         Err_Symm=.true.
+         Err_Symm_Mess=" => The string containing the setting change is empty!"
+         return
+       else
+         call Get_Transf(setting,mat,orig)
+         det=determ_a(mat)
+         if( det < 0.0) then
+           Err_Symm_Mess=" => The transformation matrix should have a positive determinant!"
+           Err_Symm=.true.
+           return
+         end if
+         S=transpose(mat)
+         call matrix_inverse(S,Sinv,i)
+         if (i /= 0) then
+            Err_Symm=.true.
+            Err_Symm_Mess= " => Wrong setting! Inversion Matrix Failed in Setting_Change_MagGroup!"
+            return
+         end if
+         !----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)   O'=-inv(Mt)O
+         !----  A=inv(M)A'             X= Mt X'+ O       O= - Mt O'
+         call matrix_inverse(Mat,Matinv,i)
+         iorig=-matmul(Sinv,Orig)
+         !Invers transformation -> to standard
+         call Frac_Trans_2Dig(iorig,symbtr)
+         i=len_trim(symbtr)
+         symbtr=adjustl(symbtr(2:i-1))
+         call Get_Symb_From_Mat(Matinv,isetting,(/"a","b","c"/))
+         isetting=trim(isetting)//";"//trim(symbtr)
+         if(present(trn_to)) then
+            if(trn_to) then
+              rot=S
+              rotn=Sinv
+              S=rotn
+              Sinv=rot
+              v=orig
+              tr=iorig
+              orig=tr
+              iorig=v
+              write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+              write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
+            else
+              write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+              write(unit=MSpGn%trn_from_standard,fmt="(a,f8.4)") adjustl(trim(setting)//" -> det: "),det
+            end if
+         else
+            write(unit=MSpGn%trn_to_standard,fmt="(a,f8.4)") adjustl(trim(isetting)//" -> det: "),1.0/det
+         end if
+       end if
+
+       L=0
+       if (MSpG%Num_Lat > 1) then  !Original lattice is centered
+          do i=2,MSpG%Num_Lat      !Transform the centring vectors to the new lattice
+             v=Modulo_Lat(matmul(Sinv,MSpG%Latt_trans(:,i)))
+             if (sum(v) < eps_symm) cycle
+             L=L+1
+             newlat(:,L)=v
+          end do
+       end if
+       do i=1,3  !Test the basis vectors of the original setting
+         rot(:,i)=Modulo_Lat(Sinv(:,i))
+         if (sum(rot(:,i)) < eps_symm) cycle
+         L=L+1
+         newlat(:,L)=rot(:,i)
+       end do
+
+       if (det > 1 ) then  !The new lattice is centred
+          im=nint(det)-1   !Determine the new lattice translations
+          ngm=L+im
+          doi: do i=0,im
+             v(1) = i
+             do j=0,im
+                v(2) = j
+                do k=0,im
+                   v(3) = k
+                   if (nint(sum(v)) == 0) cycle
+                   tr=Modulo_Lat(matmul(Sinv,v))
+                   if (sum(tr) < eps_symm) cycle
+                   lattl =.true.
+                   do m=1,L
+                      if (sum(abs(tr-newlat(:,m))) < eps_symm) then
+                         lattl =.false.
+                         exit
+                      end if
+                   end do
+                   if (lattl) then ! new lattice translation
+                      L=L+1
+                      newlat(:,L) = tr(:)
+                      if (L == ngm) exit doi
+                   end if
+                end do !k
+             end do !j
+          end do doi !i
+       end if
+       !The new multiplicity is obtained by multiplying the old one by the determinant
+       MSpGn%PG_Symbol=MSpG%PG_Symbol
+       MSpGn%multip=nint(MSpG%multip*det)
+       allocate(sm(3,3,MSpGn%multip),tm(3,MSpGn%multip),inv_time(MSpGn%multip))
+
+       call get_centring_vectors(L,newlat,LatSymb)  !Complete the centring vectors
+       !Now we have L centring translations
+       call LatSym(LatSymb,L,newlat)  !provides the value of the global variable inlat: index of the type of lattice
+       MSpGn%SPG_lat     = LatSymb
+       MSpGn%SPG_latsy   = LatSymb
+       nlat=L+1
+       MSpGn%Num_Lat=nlat
+       allocate(MSpGn%Latt_trans(3,nlat))
+       MSpGn%Latt_trans=0.0
+       MSpGn%Latt_trans(:,2:nlat)= newlat(:,1:L)
+
+       !---- Change of symmetry operator under a change of basis and origin
+       !----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)   O'=-inv(Mt)O
+       !----  A=inv(M)A'             X= Mt X'+ O       O= - Mt O'
+       !----  Symmetry operator C = (R,T)  -> C' = (R',T')
+       !----   R' = inv(Mt) R Mt                 ITC:    R'= inv(P) R P
+       !----   T' = inv(Mt) (T -(E-R)O)                  T'= inv(P) (T-(E-R)O)
+       sm=0.0
+       tm=0.0
+       inv_time=0
+       sm(:,:,1)=MSpG%SymOp(1)%Rot
+       tm(:,1)=MSpG%SymOp(1)%tr
+       inv_time(1)=nint(MSpG%MSymOp(1)%Phas)
+       n=1
+       !Transforming all the previous operators to the new cell,
+       !including the previous lattice centring
+       do_i:do i=2,MSpG%Multip
+          Rot=MSpG%SymOp(i)%rot
+          Rotn=matmul(matmul(Sinv,Rot),S)
+          tr=MSpG%SymOp(i)%tr
+          trn=Modulo_Lat(matmul(Sinv,tr-matmul(e-Rot,orig)))
+          L=nint(MSpG%MSymOp(i)%Phas)
+          do k=n,1,-1
+            if(equal_matrix(Rotn,sm(:,:,k),3) .and. equal_vector(tm(:,k),trn,3) .and. &
+            inv_time(k) == L)  cycle do_i
+          end do
+          n=n+1
+          sm(:,:,n)=Rotn
+          tm(:,n)=trn
+          inv_time(n)=L
+       end do do_i
+
+       !Now complete the total set of operators by adding the new found
+       !lattice translations to the previous set.
+       n=MSpG%Multip
+       do L=MSpG%Num_Lat,nlat-1
+         do_im: do i=1,MSpG%Multip
+           trn=modulo_lat(tm(:,i)+newlat(:,L))
+           Rotn=sm(:,:,i)
+           im=inv_time(i)
+           do k=n,1,-1
+             if(equal_matrix(Rotn,sm(:,:,k),3) .and. equal_vector(tm(:,k),trn,3) .and. &
+             inv_time(k) == im)  cycle do_im
+           end do
+           n=n+1
+           sm(:,:,n)=Rotn
+           tm(:,n)=trn
+           inv_time(n)=im
+         end do do_im
+       end do
+       if( n /= MSpGn%multip) then
+         Err_Symm=.true.
+         Err_Symm_Mess=" => Error! The total multiplicity has not been recovered"
+         return
+       end if
+       !Now we have the full set of operators sm,tm,inv_time
+       !Construct the new magnetic space group
+       allocate(MSpGn%SymOp(MSpGn%multip), MSpGn%SymOpSymb(MSpGn%multip))
+       allocate(MSpGn%MSymOp(MSpGn%multip), MSpGn%MSymOpSymb(MSpGn%multip))
+       MSpGn%NumOps=MSpGn%Multip/MSpGn%Num_Lat
+       nalat=0
+       do i=1,MSpGn%multip
+         MSpGn%SymOp(i)%Rot=nint(sm(:,:,i))
+         MSpGn%SymOp(i)%tr=tm(:,i)
+         im=nint(determ_a(sm(:,:,i)))*inv_time(i)
+         MSpGn%MSymOp(i)%Rot=nint(sm(:,:,i))*im
+         MSpGn%MSymOp(i)%Phas=inv_time(i)
+         if(equal_matrix(MSpGn%SymOp(i)%Rot,identity,3) .and. inv_time(i)==-1) then
+           nalat=nalat+1
+           alat(:,nalat)=MSpGn%SymOp(i)%tr
+         end if
+       end do
+       MSpGn%Num_aLat=nalat
+       allocate(MSpGn%aLatt_trans(3,nalat))
+       MSpGn%aLatt_trans=alat
+
+       MSpGn%Sh_number        = MSpG%Sh_number
+       MSpGn%BNS_number       = MSpG%BNS_number
+       MSpGn%OG_number        = MSpG%OG_number
+       MSpGn%BNS_symbol       = MSpG%BNS_symbol
+       MSpGn%OG_symbol        = MSpG%OG_symbol
+       MSpGn%MagType          = MSpG%MagType
+       MSpGn%mcif             = MSpG%mcif
+       MSpGn%Parent_num       = MSpG%Parent_num
+       MSpGn%Parent_spg       = MSpG%Parent_spg
+       MSpGn%standard_setting = .false.
+       MSpGn%CrystalSys       = MSpG%CrystalSys
+       MSpGn%Centred=0
+       do k=1,MSpGn%multip
+         if(equal_matrix(MSpGn%SymOp(k)%Rot,-identity,3) .and. MSpGn%MSymOp(k)%Phas > 0) then
+           m=k
+           MSpGn%Centred=max(MSpGn%Centred,1)
+           if(sum(abs(MSpGn%SymOp(k)%tr)) < 0.001) then
+             MSpGn%Centred=2
+             exit
+           end if
+         end if
+       end do
+       MSpGn%NumOps=MSpG%NumOps
+       MSpGn%Centre="Non-Centrosymmetric"       ! Alphanumeric information about the center of symmetry
+       if(MSpGn%Centred == 1) then
+         MSpGn%Centre="Centrosymmetric, -1 not @the origin "
+         MSpGn%Centre_coord=0.5*MSpGn%SymOp(m)%tr
+       else if(MSpGn%Centred == 2) then
+         MSpGn%Centre="Centrosymmetric, -1@the origin "
+         !MSpGn%NumOps=MSpGn%NumOps/2 !This was already applied in MSpG%NumOps
+       end if
+
+       if(MSpG%mcif) then
+         do i=1,MSpGn%multip
+            call Get_Shubnikov_Operator_Symbol(MSpGn%Symop(i)%Rot,  &
+                             MSpGn%MSymop(i)%Rot,MSpGn%Symop(i)%tr, &
+                             ShOp_symb,.true.)
+            j=index(ShOp_symb,";")
+            MSpGn%SymopSymb(i)=ShOp_symb(2:j-1)
+            MSpGn%MSymopSymb(i)=ShOp_symb(j+1:len_trim(ShOp_symb)-1)
+         end do
+       else
+         do i=1,MSpGn%multip
+            call Get_Shubnikov_Operator_Symbol(MSpGn%Symop(i)%Rot,  &
+                             MSpGn%MSymop(i)%Rot,MSpGn%Symop(i)%tr, &
+                             ShOp_symb)
+            j=index(ShOp_symb,";")
+            MSpGn%SymopSymb(i)=ShOp_symb(2:j-1)
+            MSpGn%MSymopSymb(i)=ShOp_symb(j+1:len_trim(ShOp_symb)-1)
+         end do
+       end if
+       return
+    End Subroutine Setting_Change_MagGroup
     !!--++
     !!--++ Subroutine Setting_Change_NonConv(Mat,Orig,Spg,Spgn,Matkind)
     !!--++   real(kind=cp), dimension(3,3),intent(in) :: mat      ! Basis transformation matrix

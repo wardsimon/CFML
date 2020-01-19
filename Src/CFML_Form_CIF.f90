@@ -89,14 +89,17 @@
 !!----       READ_SHX_SYMM
 !!----       READ_SHX_TITL
 !!----       READ_UVALS
+!!----       READN_SET_MAGNETIC_SPACE_GROUP
 !!--++       READN_SET_XTAL_CFL             [Private]
 !!--++       READN_SET_XTAL_CFL_MOLEC       [Private]
+!!--++       READN_SET_XTAL_CFL_SHUB        [Private]
 !!--++       READN_SET_XTAL_CIF             [Private]
 !!--++       READN_SET_XTAL_PCR             [Private]
 !!--++       READN_SET_XTAL_SHX             [Private]
 !!----       READN_SET_XTAL_STRUCTURE
 !!--++       READN_SET_XTAL_STRUCTURE_MOLCR [Overloaded]
 !!--++       READN_SET_XTAL_STRUCTURE_SPLIT [Overloaded]
+!!----       SET_MAGNETIC_SPACE_GROUP
 !!----       WRITE_CIF_POWDER_PROFILE
 !!----       WRITE_CIF_TEMPLATE
 !!----       WRITE_SHX_TEMPLATE
@@ -106,18 +109,21 @@
 
     !---- Use modules ----!
     Use CFML_GlobalDeps,                only: cp,sp,pi,eps,Write_Date_Time
-    Use CFML_Math_General,              only: sind
+    Use CFML_Math_General,              only: sind,equal_matrix
+    Use CFML_Math_3D,                   only:determ_a
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
                                               Convert_B_Betas, U_Equiv, Convert_Betas_U
-    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup, Get_Multip_Pos
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Magnetic_Space_Group_Type,Set_SpaceGroup, &
+                                              Init_Magnetic_Space_Group_Type,Get_Multip_Pos,Get_MagMatSymb, &
+                                              Read_Xsym,Read_Msymm, Setting_Change, get_symsymb
     Use CFML_Atom_TypeDef,              only: Atom_Type, Init_Atom_Type,atom_list_type,         &
                                               Allocate_atom_list, Deallocate_atom_list
     Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Molec_Mess,Molecular_Crystal_Type, &
                                               Read_Molecule, Set_Euler_Matrix, Write_Molecule
     Use CFML_Geometry_Calc,             only: Point_List_Type, Get_Euler_from_Fract
     Use CFML_Diffraction_Patterns,      only: Diffraction_Pattern_type
-
+    Use CFML_Magnetic_Groups
     !---- Variables ----!
     implicit none
 
@@ -134,7 +140,7 @@
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
               Get_job_info, File_To_FileList, Get_Phases_File, Read_Cif_Pressure,                &
-              Read_Cif_Temp
+              Read_Cif_Temp,Readn_Set_Magnetic_Space_Group, Set_Magnetic_Space_Group
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure, Write_Atoms_CFL, Write_CFL
@@ -147,7 +153,7 @@
               Readn_Set_Xtal_CFL_Molec, Readn_Set_Xtal_Structure_Split,                               &
               Readn_Set_Xtal_Structure_Molcr, Get_NPhases_CIFFile,Get_NPHases_PCRFile,                &
               Write_CFL_Molcrys, Write_CFL_Atom_List_Type, Write_Atoms_CFL_ATM, Write_Atoms_CFL_MOLX, &
-              Write_Atoms_CFL_MOLX_orig
+              Write_Atoms_CFL_MOLX_orig, Readn_Set_XTal_CFL_Shub
 
     !---- Definitions ----!
 
@@ -270,6 +276,7 @@
     Interface Readn_Set_Xtal_Structure
        Module Procedure Readn_Set_Xtal_Structure_Molcr ! For Molecular Crystal Type
        Module Procedure Readn_Set_Xtal_Structure_Split ! For Cell, Spg, A types
+       Module Procedure Readn_Set_XTal_CFL_Shub        ! Use Shubnikov groups
     End Interface
 
     Interface Write_CFL
@@ -603,6 +610,7 @@
        real(kind=cp), dimension (10)     :: vet1
        real(kind=cp), dimension (10)     :: vet2
        character(len=4)                  :: dire
+       character(len=40)                 :: magmom
        character(len=5)                  :: label
        character(len=132), dimension(1)  :: filevar
        character(len=*), parameter       :: digpm="0123456789+-"
@@ -612,8 +620,16 @@
        call init_atom_type(Atomo)
        q=0
        iv=index(line,"#")
-       if(iv /= 0) atomo%AtmInfo=line(iv+1:)
-
+       if(iv /= 0) then
+        atomo%AtmInfo=line(iv+1:)
+        line=line(1:iv-1)
+       end if
+       iv=index(line,"Moment:") !Attemp to read magnetic moment components
+       magmom=" "
+       if(iv /= 0) then
+         magmom=line(iv+7:)  !magmon should contain magnetic moment
+         line=line(1:iv-1)   !Line after removing "Moment:" and infor
+       end if
        call cutst(line,nlong1,dire)
        if (u_case(dire) /= "ATOM") then
           err_form=.true.
@@ -711,6 +727,23 @@
          End Select
          atomo%charge=real(q)
        end if
+
+       !Now read the components of the magnetic moment
+       if(len_trim(magmom) /= 0) then
+         filevar(1)="mom "//trim(magmom)
+         call Read_Key_ValueSTD(filevar,n,n,"mom",vet1,vet2,iv)
+
+         !---- Moment components  ----!
+         if (iv < 3) then
+            err_form=.true.
+            ERR_Form_Mess= "Error reading magnetic moment components of atom:"//atomo%lab
+            return
+         end if
+
+         atomo%m_xyz(:)=vet1(1:3)
+         atomo%sm_xyz(:)=vet2(1:3)
+       end if
+
        return
     End Subroutine Read_Atom
 
@@ -2083,13 +2116,14 @@
     !!----
     !!---- Update: February - 2011
     !!
-    Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub)
+    Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub,setting)
        !---- Arguments ----!
        character(len=*),  dimension(:), intent(in) :: filevar   ! Variable
        integer,           intent(in)               :: nline_ini
        integer,           intent(in)               :: nline_end
        character(len=*),  intent(out)              :: spg
        character(len=*),  intent(in),  optional    :: sub
+       character(len=*),  intent(out), optional    :: setting
 
        !--Local variables--!
        integer  :: i
@@ -2104,12 +2138,14 @@
        if (len_trim(spg) == 0 ) then
          call Read_Key_StrVal(filevar,i,nline_end, "spaceg",spg)
          if (len_trim(spg) == 0 ) then
-           err_form=.true.
-           ERR_Form_Mess=" Problems reading the Space Group symbol/number"
-           return
+            call Read_Key_StrVal(filevar,i,nline_end, "shub",spg)
+            if (len_trim(spg) == 0 ) then
+              err_form=.true.
+              ERR_Form_Mess=" Problems reading the Space Group symbol/number"
+              return
+            end if
          end if
        end if
-
        return
     End Subroutine Read_File_Spg
 
@@ -2706,6 +2742,419 @@
        return
     End Subroutine Read_Uvals
 
+    !!---- Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw)
+    !!----    character(len=*),dimension(:),  intent (in)  :: file_line
+    !!----    integer,                        intent (in)  :: n_ini,n_end
+    !!----    type(Magnetic_Space_Group_Type),intent (out) :: MGp
+    !!----    character(len=*),               intent (in)  :: mode
+    !!----    character(len=*), optional,     intent (in)  :: uvw
+    !!----
+    !!----  This subroutine reads the lattice centring and anti-centring vectors
+    !!----  as well as the symmetry operators of a magnetic space group in an
+    !!----  arbitrary BNS setting. It construct the relevant magnetic space group
+    !!----  components necessary for magnetic structure factor calculations.
+    !!----  It may be used for reading from a CFL or a PCR file.
+    !!----
+    !!----  Created: March 2016.
+    !!----
+    !!----
+    Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw)
+       character(len=*),dimension(:),  intent (in)  :: file_line
+       integer,                        intent (in)  :: n_ini,n_end
+       type(Magnetic_Space_Group_Type),intent (out) :: MGp
+       character(len=*),               intent (in)  :: mode
+       character(len=*), optional,     intent (in)  :: uvw
+       !
+       ! --- Local variables ---!
+       character(len=8)                 :: typ
+       character(len=40)                :: Symbol
+       integer                          :: i,j,ind,Nsym, Cen, N_Clat, N_Ant,ini, &
+                                           num_sym,m,nop,k,n,L,ier,icount
+       integer, dimension(3,3)          :: isim,msim
+       real(kind=cp)                    :: p_mag
+       real(kind=cp), dimension(3)      :: tr,v
+       character(len=132)               :: line,ShOp_symb,setting,Parent
+       character(len=40),dimension(10)  :: words
+       logical                          :: u_type,m_type,inv_type, ttst,nonmag
+
+       typ=l_case(adjustl(mode))
+
+       call Init_Magnetic_Space_Group_Type(MGp)
+
+       !Check if the database has to be read.
+       nonmag=.false.; ttst=.false.
+       if(typ /= "database") then
+          do i=n_ini,n_end
+           line=l_case(adjustl(file_line(i)))
+           ind=index(line,"transform to standard:")
+           if(ind /= 0) ttst=.true.
+           ind=index(line,"<--nonmagnetic")
+           if(ind /= 0) nonmag=.true.
+           if(nonmag .and. ttst) then
+             typ="database"
+             exit
+           end if
+          end do
+       end if
+
+       Select Case(trim(typ))
+
+          Case("pcr")
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"Magnetic Space")
+             if(ind == 0) then
+               Err_Form=.true.
+               Err_Form_Mess=" The Magnetic Space Group symbol is not provided in the PCR file! "
+               return
+             else
+               j=index(line,"number:")
+               MGp%BNS_symbol=trim(line(1:j-1))
+               MGp%BNS_number=trim(line(j+7:ind-4))
+             end if
+             ini=n_ini+1
+             Nsym=0; Cen=0; N_Clat=0;  N_Ant=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               ind=index(line,"Transform to standard:")
+               if(ind /= 0) then
+                 MGp%trn_to_standard=adjustl(line(ind+22:))
+               end if
+               ind=index(line,"Parent Space Group:")
+               if(ind /= 0) then
+                 j=index(line,"IT_number:")
+                 if( j /= 0) then
+                   MGp%Parent_spg=adjustl(line(ind+19:j-1))
+                   read(unit=line(j+10:),fmt=*,iostat=ier) MGp%Parent_num
+                   if(ier /= 0) MGp%Parent_num=0
+                 else
+                   MGp%Parent_spg=adjustl(line(ind+19:))
+                 end if
+               end if
+               ind=index(line,"Transform from Parent:")
+               if(ind /= 0) then
+                 MGp%trn_from_parent=adjustl(line(ind+22:))
+               end if
+               ind=index(line,"N_Clat")
+               if(ind == 0) cycle
+               read(unit=file_line(i+1),fmt=*) Nsym, Cen, N_Clat, N_Ant
+               ini=i+2
+               exit
+             end do
+             if(Nsym == 0) then
+               Err_Form=.true.
+               Err_Form_Mess=" The number of symmetry operators is not provided in the PCR file! "
+               return
+             end if
+             !Allocate components of the magnetic space group
+             MGp%Num_aLat=0
+             allocate(MGp%Latt_trans(3,N_Clat+1))
+             MGp%Latt_trans=0.0
+             MGp%Num_Lat=N_Clat+1
+             if(N_Ant > 0) then
+               allocate(MGp%aLatt_trans(3,N_Ant))
+               MGp%aLatt_trans=0.0
+               MGp%Num_aLat=N_Ant
+               MGp%MagType=4
+             end if
+             MGp%Numops = Nsym
+             MGp%Centred= max(1,Cen)
+             MGp%Multip = MGp%Numops * MGp%Centred * (MGp%Num_Lat + MGp%Num_aLat)
+             num_sym=MGp%Multip
+             allocate(Mgp%SymopSymb(num_sym))
+             allocate(Mgp%Symop(num_sym))
+             allocate(Mgp%MSymopSymb(num_sym))
+             allocate(Mgp%MSymop(num_sym))
+             if(N_Clat > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" 'Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=1
+               do i=ini,ini+N_Clat-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%Latt_trans(:,m)
+               end do
+               ini=ini+N_Clat
+             end if
+             if(N_Ant > 0) then
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(line,"Anti-Centring vectors")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" 'Anti-Centring vectors' line is not provided in the PCR file! "
+                 return
+               end if
+               m=0
+               do i=ini,ini+N_Ant-1
+                 m=m+1
+                 read(unit=file_line(i),fmt=*) MGp%aLatt_trans(:,m)
+               end do
+               ini=ini+N_Ant
+             end if
+             !Check the type of symmetry operators given
+             do i=ini,N_end
+                line=adjustl(file_line(i))
+                if(line(1:1) == "!") cycle
+                j=index(line,"!")
+                if( j > 1) line=line(1:j-1)  !remove comments
+                call Getword(line, words, icount)
+                ! Icount=2 => SHSYM  x,-y,z+1/2,-1    <= This type
+                ! Icount=3 => SHSYM  x,-y,z+1/2  -1   <= This type or these types => SHSYM x,-y,z+1/2  -u,v,-w  or SHSYM x,-y,z+1/2  -mx,my,-mz
+                ! Icount=4 => SHSYM x,-y,z+1/2  -u,v,-w -1    <= This type or this type =>  SHSYM  x,-y,z+1/2  -mx,my,-mz  -1
+                if( icount < 2 .or. icount > 4) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" Error in Shubnikov operator: "//trim(line)
+                 return
+                end if
+                u_type=(index(line,"u") /= 0) .or. (index(line,"U") /= 0)
+                m_type=(index(line,"mx") /= 0) .or. (index(line,"MX") /= 0)
+                if(.not. (u_type .or. m_type)) inv_type=.true.
+                exit
+             end do
+
+             !Reading reduced set of symmetry operators
+             m=0
+             do i=ini,N_end
+               line=adjustl(file_line(i))
+               if(line(1:1) == "!") cycle
+               j=index(line,"!")
+               if( j > 1) line=line(1:j-1)  !remove comments
+               j=index(line," ")
+               line=adjustl(line(j:))
+               m=m+1
+               if(m > Nsym) exit
+               call Getword(line, words, j)
+               Select Case (icount)
+                 Case(2)
+                    j=index(line,",",back=.true.)
+                    MGp%SymopSymb(m)=line(1:j-1)
+                    read(unit=line(j+1:),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       Err_Form=.true.
+                       Err_Form_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+                    !write(*,"(a,i3)") trim(MGp%SymopSymb(m)),n
+                 Case(3)
+                    MGp%SymopSymb(m)=words(1)
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz or +/-1
+
+                 Case(4)
+                    MGp%SymopSymb(m)=words(1)
+                    MGp%MSymopSymb(m)=words(2)  !u,v,w or mx,my,mz
+                    read(unit=words(3),fmt=*,iostat=ier) n
+                    if(ier /= 0) then
+                       Err_Form=.true.
+                       Err_Form_Mess=" Error reading the time inversion in line: "//trim(file_line(i))
+                       return
+                    else
+                       MGp%MSymOp(m)%phas=real(n)
+                    end if
+
+               End Select
+               call Read_Xsym(MGp%SymopSymb(m),1,isim,tr)
+               MGp%Symop(m)%Rot=isim
+               MGp%Symop(m)%tr=tr
+               if(inv_type) then
+                 j=determ_a(isim)
+                 msim=nint(MGp%MSymOp(m)%phas)*j*isim
+               else if (u_type) then
+                 line=trim(MGp%MSymopSymb(m))//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               else !should be mx,my,mz
+                 line=trim(MGp%MSymopSymb(m))
+                 do j=1,len_trim(line)
+                    if(line(j:j) == "m" .or. line(j:j) == "M") line(j:j)=" "
+                    if(line(j:j) == "x" .or. line(j:j) == "X") line(j:j)="u"
+                    if(line(j:j) == "y" .or. line(j:j) == "Y") line(j:j)="v"
+                    if(line(j:j) == "z" .or. line(j:j) == "Z") line(j:j)="w"
+                 end do
+                 line=pack_string(line)//",0.0"
+                 CALL read_msymm(line,msim,p_mag)
+               end if
+               MGp%MSymop(m)%Rot=msim
+               if(m_type .and. .not. present(uvw)) then
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,.true.,invt=j)
+                 MGp%mcif=.true.
+               else
+                 call Get_Shubnikov_Operator_Symbol(isim,msim,tr,ShOp_symb,invt=j)
+                 MGp%mcif=.false.
+               end if
+               !write(*,"(a,i3)") trim(ShOp_symb),j
+               MGp%MSymOp(m)%phas=j
+               if(m_type .and. .not. present(uvw)) then
+                 call Getword(ShOp_symb, words, j)
+                 MGp%MSymopSymb(m)=words(2)
+               else
+                 j=index(ShOp_symb,";")
+                 k=index(ShOp_symb,")")
+                 MGp%MSymopSymb(m)=ShOp_symb(j+1:k-1)
+               end if
+             end do
+
+          Case("cfl") !Only standard symbol plus an eventual setting change is allowed
+
+               do i=ini,N_end
+                 line=adjustl(file_line(i))
+                 ind=index(l_case(line),"shubnikov")
+                 if(ind == 0) cycle
+                 ini=i+1
+                 exit
+               end do
+               if(ind == 0) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the keyword SHUBNIKOV: the keyword is not found! "
+                  return
+               end if
+               i=index(l_case(line),"setting:")
+               symbol=trim(line(ind+9:i-1))
+               j=index(line,"!")
+               if(j /= 0) then
+                 setting=line(i+8:j-1)
+               else
+                 setting="a,b,c;0,0,0"
+               end if
+               Parent=" "
+               if(present(uvw)) then
+                 if(index(uvw,"mx") /= 0) then
+                    call Set_Magnetic_Space_Group(symbol,setting,MGp,mcif=.true.,trn_to=.true.)
+                 else
+                    call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+                 end if
+               else
+                 call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+               end if
+               return
+
+          Case("database")
+             line=adjustl(file_line(n_ini))
+             ind=index(line,"Magnetic Space")
+             if(ind == 0) then
+               Err_Form=.true.
+               Err_Form_Mess=" The Magnetic Space Group symbol is not provided in the PCR/CFL file! "
+               return
+             else
+               j=index(line," ")
+               symbol=trim(line(1:j-1))
+             end if
+             ini=n_ini+1
+             line=adjustl(file_line(ini))
+                       !     123456789012345678901234567890
+             ind=index(line,"Transform to standard:")
+             if(ind == 0) then
+               Err_Form=.true.
+               Err_Form_Mess=" The transformation to standard is needed even if it is: a,b,c;0,0,0 "
+               return
+             else
+               ind=index(line,"<--")
+               if( ind == 0) then
+                 line=adjustl(line(23:))
+                 ind=index(line," ")
+                 setting=line(23:ind)
+               else
+                 setting=line(23:ind-1)
+               end if
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             Parent=" "      !12345678901234567890
+             ind= index(line,"Parent space group:")
+             j  = index(line,"IT_number:")
+             if(ind /= 0 .and. j /= 0) then
+               Parent= adjustl(line(20:j-1))
+               ind=index(line,"<--")
+               Parent=trim(Parent)//" "//line(j+10:ind-1)
+             end if
+             ini=ini+1
+             line=adjustl(file_line(ini))
+             ind= index(line,"Transform from Parent:")
+             if(ind /= 0) then
+               j=index(line,"<--")
+               Parent=trim(Parent)//"  "//line(23:j-1)
+             end if
+!C_ac  number: "9.41"                           <--Magnetic Space Group (BNS symbol and number)
+!Transform to standard:  c,-b,a;0,0,0           <--Basis transformation from current setting to standard BNS
+!Parent Space Group: Pna2_1  IT_number:   33    <--Non-magnetic Parent Group
+!123456789012345678901234567890
+!Transform from Parent:   a,2b,2c;0,0,0         <--Basis transformation from parent to current setting
+             !write(*,"(a)") trim(symbol)//" "//trim(setting)//" "//trim(parent)
+             ! trn_to=.true. always because magCIF considers thre transformation from the current
+             ! setting to the standard setting
+             if(len_trim(Parent) /= 0) then
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,parent,trn_to=.true.)
+             else
+               call Set_Magnetic_Space_Group(symbol,setting,MGp,trn_to=.true.)
+             end if
+             return       !The clean-up of operators is not needed
+       End Select
+
+       !Expand symmetry operators if Cen=2 (centre of symmetry at the origin)
+       m=MGp%Numops
+       if(Cen == 2) then
+          do i=1,MGp%Numops
+            m=m+1
+            MGp%SymOp(m)%Rot  = -MGp%SymOp(i)%Rot
+            MGp%SymOp(m)%tr   =  modulo_lat(-MGp%SymOp(i)%tr)
+            MGp%MSymOp(m)%phas= MGp%MSymOp(i)%phas
+            MGp%MSymOp(m)%Rot = MGp%MSymOp(i)%Rot
+            call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+            call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+            !Expand the operator "line" to convert it to mx,my,mz like
+            MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+          end do
+       end if
+       nop=m
+       !Expand symmetry operators for lattice centrings
+       do L=1,N_clat
+         tr=MGp%Latt_trans(:,L+1)
+         do j=1,nop
+           m=m+1
+           v=MGp%SymOp(j)%tr(:) + tr
+           MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+           MGp%SymOp(m)%tr   = modulo_lat(v)
+           MGp%MSymOp(m)%Rot = MGp%MSymOp(j)%Rot
+           MGp%MSymOp(m)%phas= MGp%MSymOp(j)%phas
+           call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+           call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+           !Expand the operator "line" to convert it to mx,my,mz like
+           MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+         end do
+       end do
+       !Expand symmetry operators for lattice anti-centrings
+       do L=1,N_Ant
+         tr=MGp%aLatt_trans(:,L)
+         do j=1,nop
+           m=m+1
+           v=MGp%SymOp(j)%tr(:) + tr
+           MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+           MGp%SymOp(m)%tr   = modulo_lat(v)
+           MGp%MSymOp(m)%Rot = -MGp%MSymOp(j)%Rot
+           MGp%MSymOp(m)%phas= -MGp%MSymOp(j)%phas
+           call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+           call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+           !Expand the operator "line" to convert it to mx,my,mz like
+           MGp%MSymopSymb(m)=Get_MagMatSymb(line,MGp%mcif)
+         end do
+       end do
+       ! Symmetry operators treatment done!
+
+    End Subroutine Readn_Set_Magnetic_Space_Group
+
     !!--++
     !!--++ Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
@@ -2969,6 +3418,123 @@
        return
     End Subroutine Readn_Set_XTal_CFL_Molec
 
+    !!--++
+    !!--++ Subroutine Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
+    !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
+    !!--++    integer,                      intent(in)   :: nlines
+    !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
+    !!--++    Type (Magnetic_Space_Group_Type), intent(out)  :: SpG
+    !!--++    Type (atom_list_type),        intent(out)  :: A
+    !!--++    character(len=*),    optional,intent(in)   :: CFrame
+    !!--++    Integer,             optional,intent( in)  :: Nphase
+    !!--++    Type(Job_Info_type), optional,intent(out)  :: Job_Info
+    !!--++
+    !!--++ (Private)
+    !!--++ Read and Set Crystal Information in a CFL File
+    !!--++
+    !!--++ Update: April - 2005
+    !!
+    Subroutine Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
+       !---- Arguments ----!
+       character(len=*),dimension(:),    intent(in)   :: file_dat
+       integer,                          intent(in)   :: nlines
+       Type (Crystal_Cell_Type),         intent(out)  :: Cell
+       Type (Magnetic_Space_Group_Type), intent(out)  :: SpG
+       Type (atom_list_type),            intent(out)  :: A
+       character(len=*),        optional,intent(in)   :: CFrame
+       Integer,                 optional,intent( in)  :: Nphase
+       Type(Job_Info_type),     optional,intent(out)  :: Job_Info
+
+       !---- Local variables ----!
+       character(len=132)               :: line
+       character(len= 50)               :: Spp,setting
+       character(len= 40),dimension(192):: gen
+       integer                          :: i, nauas, ndata, iph, n_ini,n_end,ngen,k,nsym
+       integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
+       integer, dimension(maxph)        :: ip
+
+       real(kind=cp),dimension(3):: vet
+
+       !---- Standard CrysFML file *.CFL ----!
+       nauas=0
+       ndata=0
+       ip=nlines
+       ip(1)=1
+
+       !---- Calculating number of Phases ----!
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (l_case(line(1:6)) == "phase_")  then
+             ndata=ndata+1
+             ip(ndata)=i
+          end if
+       end do
+
+       !---- Reading Phase Information ----!
+       iph=1
+       if (present(nphase)) iph=nphase
+       if (present(Job_Info)) then
+          n_ini=ip(iph)           !Updated values to handle non-conventional order
+          n_end=ip(iph+1)
+          call Get_Job_Info(file_dat,n_ini,n_end,Job_info)
+       end if
+
+       !---- Reading Cell Parameters ----!
+       n_ini=ip(iph)           !Updated values to handle non-conventional order
+       n_end=ip(iph+1)
+       if(present(CFrame)) then
+         call read_File_Cell(file_dat,n_ini,n_end,Cell,CFrame) !Read and construct Cell
+       else
+         call read_File_Cell(file_dat,n_ini,n_end,Cell) !Read and construct Cell
+       end if
+       if (err_form) return
+
+       !---- Reading Space Group Information ----!
+       n_ini=ip(iph)           !Updated values to handle non-conventional order
+       n_end=ip(iph+1)
+       call read_File_Spg (file_dat,n_ini,n_end,Spp)
+       i=index(Spp,"{")
+       k=len_trim(Spp)
+       setting=" "
+       if(i /= 0) then
+         setting=Spp(i+1:k-1)
+         Spp=Spp(1:i-1)
+       end if
+       call Set_Magnetic_Space_Group(Spp,setting,Spg) !Construct the magnetic space group
+
+       !---- Read Atoms Information ----!
+       n_ini=ip(iph)           !Updated values to handle non-conventional order
+       n_end=ip(iph+1)
+
+       !---- Calculating number of Atoms in the Phase ----!
+       do i=n_ini,n_end
+          line=adjustl(file_dat(i))
+          if (l_case(line(1:4)) == "atom")  nauas=nauas+1
+       end do
+
+       if (nauas > 0) then
+          call Allocate_atom_list(nauas,A)  !allocation space for Atom list
+          call read_File_Atom(file_dat,n_ini,n_end,A)
+          if (err_form) return
+
+          do i=1,A%natoms
+             vet=A%atom(i)%x
+             A%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+             if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
+             if (A%atom(i)%thtype == "aniso") then
+                select case (A%atom(i)%Utype)
+                   case ("u_ij")
+                      A%atom(i)%u(1:6) =  Convert_U_Betas(A%atom(i)%u(1:6),Cell)
+                   case ("b_ij")
+                      A%atom(i)%u(1:6) =  Convert_B_Betas(A%atom(i)%u(1:6),Cell)
+                end select
+                A%atom(i)%Utype="beta"
+             end if
+          end do
+       end if
+
+       return
+    End Subroutine Readn_Set_XTal_CFL_Shub
     !!--++
     !!--++ Subroutine Readn_Set_XTal_CIF(file_dat, nlines, Cell, Spg, A, CFrame, NPhase)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
@@ -3762,6 +4328,330 @@
        end select
 
     End Subroutine Readn_Set_Xtal_Structure_Split
+
+    !!----
+    !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
+    !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
+    !!----    character (len=*),                intent(in ):: setting     !  In -> setting in the form -a,c,2b;1/2,0,0 (if empty no transformation is performed)
+    !!----    Type (Magnetic_Space_Group_Type), intent(out):: MGp         ! Out -> Magnetic Space Group object
+    !!----    character (len=*), optional,      intent(in ):: Parent      !  In -> Parent crystallographic group
+    !!----    logical,  optional,               intent(in ):: mcif        !  In -> True if one wants to store the symbols as mx,my,mz
+    !!----    logical,  optional,               intent(in ):: keepd       !  In -> True if one wants to keep the database allocated
+    !!----    logical,  optional,               intent(in ):: trn_to      !  In -> True if the setting is from current TO standard setting
+    !!----
+    !!----    Subroutine constructing the object MGp from the BNS symbol by
+    !!----    reading the database compiled by Harold T. Stokes and Branton J. Campbell
+    !!----
+    !!---- Created: November - 2016 (JRC)
+    !!
+    Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
+      character(len=*),               intent (in)  :: symb,setting
+      type(Magnetic_Space_Group_Type),intent (out) :: MSpg
+      character(len=*),optional,      intent (in)  :: parent
+      logical,         optional,      intent (in)  :: mcif
+      logical,         optional,      intent (in)  :: keepd
+      logical,         optional,      intent (in)  :: trn_to
+      !--- Local variables ---!
+      integer                          :: i,j,m,k,n,L,ier,num,idem !,inv_time
+      real(kind=cp)                    :: det
+      !real(kind=cp), dimension(3)      :: orig
+      real(kind=cp), dimension(3,3)    :: e !,S,Sinv
+      integer, dimension(3,3)          :: identity
+      character(len=256)               :: line,ShOp_symb
+      logical                          :: change_setting,centring
+      type(Magnetic_Space_Group_Type)  :: MGp
+
+      call Init_Err_Form()
+      call Allocate_DataBase()
+      call read_magnetic_data()
+      identity=0
+      do i=1,3
+        identity(i,i)=1
+      end do
+      e=identity
+      !write(*,"(a)") trim(symb)//"  "//trim(setting)
+      !if(present(parent)) write(*,"(a)") trim(Parent)
+      !Check if the number of the magnetic group has been given
+      !instead of the symbol
+      read(unit=symb,fmt=*,iostat=ier) num
+      if(ier /= 0) then
+        num=0 !It is supposed that a symbol has been provided
+        do i=1,magcount
+          !write(*,"(i5,tr5,a)") i, spacegroup_label_bns(i)
+          if(trim(symb) == trim(spacegroup_label_bns(i)) .or. &
+             trim(symb) == trim(spacegroup_label_og(i))) then
+            num=i
+            exit
+          end if
+        end do
+        if(num == 0) then
+           write(unit=Err_Form_Mess,fmt="(a)") " => The BNS symbol: "//trim(symb)//" is illegal! "
+           Err_Form=.true.
+           if(.not. present(keepd)) call deAllocate_DataBase()
+           return
+        end if
+      else
+        if(num < 1 .or. num > magcount) then !magcount=1651
+           write(unit=Err_Form_Mess,fmt="(a,i4,a)") " => The number of the Shubnikov group: ",num," is illegal!"
+           Err_Form=.true.
+           if(.not. present(keepd)) call deAllocate_DataBase()
+           return
+        end if
+      end if
+      if(len_trim(setting) == 0 .or. setting =='a,b,c;0,0,0') then
+        change_setting=.false.
+      else
+        change_setting=.true.
+      end if
+
+      MGp%Sh_number=num
+      MGp%BNS_number=nlabel_bns(num)
+      MGp%OG_number= nlabel_og(num)
+      MGp%BNS_symbol=spacegroup_label_bns(num)
+      MGp%OG_symbol=spacegroup_label_og(num)
+      MGp%MagType=magtype(num)
+      !Setting the magnetic point group symbol from the BNS label
+      m=0
+      Select Case (MGp%MagType)
+         Case(1,2,3)
+           MGp%PG_Symbol=MGp%BNS_symbol(2:) !Remove the type of lattice
+           do i=2,len_trim(MGp%BNS_symbol)
+             m=m+1
+             if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+           .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+           .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+           .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+             if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+           end do
+           MGp%PG_Symbol=pack_string(MGp%PG_Symbol)
+
+         Case(4)
+           MGp%PG_Symbol=MGp%BNS_symbol(4:) !Remove the type of lattice
+           do i=4,len_trim(MGp%BNS_symbol)
+             m=m+1
+             if(MGp%BNS_symbol(i:i) == "a" .or. MGp%BNS_symbol(i:i) == "b"  &
+           .or. MGp%BNS_symbol(i:i) == "c" .or. MGp%BNS_symbol(i:i) == "d"  &
+           .or. MGp%BNS_symbol(i:i) == "e" .or. MGp%BNS_symbol(i:i) == "g"  &
+           .or. MGp%BNS_symbol(i:i) == "n") MGp%PG_Symbol(m:m)="m"
+             if(MGp%BNS_symbol(i:i) == "_") MGp%PG_Symbol(m:m+1)=" "
+           end do
+           MGp%PG_Symbol=pack_string(MGp%PG_Symbol//"1'")
+      End Select
+
+      if(len_trim(setting) == 0 .or. setting =='a,b,c;0,0,0') then
+        MGp%standard_setting=.true.
+      else
+        MGp%standard_setting=.false.
+      end if
+      MGp%mcif=.false.     !true if mx,my,mz notation is used , false is u,v,w notation is used
+      if(present(mcif)) MGp%mcif=mcif
+      MGp%m_cell=.true.    !true if magnetic cell is used for symmetry operators
+      MGp%m_constr=.false. !true if constraints have been provided
+      MGp%trn_from_parent=" "
+      MGp%trn_to_standard="a,b,c;0,0,0"
+      MGp%trn_from_standard="a,b,c;0,0,0"
+      !Info about Parent Crystallographic Space Group
+      if(present(parent)) then
+        !Parent should be of the form  Xnnn  num  trn_from_parent
+        line=adjustl(parent)
+        i=index(line," ")
+        MGp%Parent_spg=parent(1:i-1)
+        line=adjustl(line(i:))
+        i=index(line," ")
+        read(unit=line(1:i),fmt=*,iostat=ier) MGp%Parent_num
+        if(ier /= 0) then
+           MGp%Parent_num=0
+           MGp%trn_from_parent=line(1:i)
+        else
+           line=adjustl(line(i:))
+           i=index(line," ")
+           MGp%trn_from_parent=line(1:i-1)
+        end if
+      else
+        !Try to deduce the parent space group from the BNS/OG numbers
+        line=MGp%BNS_number
+        i=index(line,".")
+        line=line(1:i-1)
+        read(unit=line,fmt=*) MGp%Parent_num
+        if(MGp%MagType < 4) then
+          MGp%Parent_spg=MGp%BNS_symbol
+          if(MGp%MagType == 2) MGp%Parent_spg=MGp%Parent_spg(1:len_trim(MGp%Parent_spg)-2)
+          do i=1,len_trim(MGp%Parent_spg)
+            if(MGp%Parent_spg(i:i) == "'") MGp%Parent_spg(i:i) = " "
+          end do
+          MGp%Parent_spg=Pack_String(MGp%Parent_spg)
+        else
+          line=MGp%OG_number
+          i=index(line,".")
+          line=line(1:i-1)
+          read(unit=line,fmt=*) MGp%Parent_num
+          MGp%Parent_spg=MGp%OG_symbol
+          if(MGp%Parent_spg(3:3) == "2") then
+             MGp%Parent_spg(2:4)=" "
+          else
+             MGp%Parent_spg(2:3)=" "
+          end if
+          do i=1,len_trim(MGp%Parent_spg)
+            if(MGp%Parent_spg(i:i) == "'") MGp%Parent_spg(i:i) = " "
+          end do
+          MGp%Parent_spg=Pack_String(MGp%Parent_spg)
+        end if
+      end if
+      MGp%standard_setting = .true.
+      ! Crystal system
+      Select Case (num)
+        case(1:7)
+          MGp%CrystalSys="Triclinic"
+        case(8:98)
+          MGp%CrystalSys="Monoclinic"
+        case(99:660)
+          MGp%CrystalSys="Orthorhombic"
+        case(661:1230)
+          MGp%CrystalSys="Tetragonal"
+        case(1231:1338)
+          MGp%CrystalSys="Trigonal"
+        case(1339:1502)
+          MGp%CrystalSys="Hexagonal"
+        case(1503:1651)
+          MGp%CrystalSys="Cubic"
+        case default
+          MGp%CrystalSys="Unknown"
+      End Select
+      if(MGp%MagType == 4) then
+        MGp%SPG_lat=spacegroup_label_bns(num)(1:3)
+      else
+        MGp%SPG_lat=spacegroup_label_bns(num)(1:1)
+      end if
+      MGp%SPG_latsy=MGp%SPG_lat !provisional before knowing the crystal system
+
+      MGp%Num_Lat=lattice_bns_vectors_count(num)-2         ! Number of lattice points in a cell
+      if(allocated(MGp%Latt_trans)) deallocate(MGp%Latt_trans)
+      allocate(MGp%Latt_trans(3,MGp%Num_Lat))
+      MGp%Latt_trans=0.0
+      centring=.false.
+      if(MGp%Num_Lat > 1) centring=.true.
+      m=1
+      do j=4,lattice_bns_vectors_count(num)
+         m=m+1
+         MGp%Latt_trans(:,m)= real(lattice_bns_vectors(:,j,num))/real(lattice_bns_vectors_denom(j,num))
+      end do
+
+      j=1
+      MGp%Multip=wyckoff_mult(j,num)
+      if(allocated(MGp%SymopSymb)) deallocate(MGp%SymopSymb)  ! Alphanumeric Symbols for SYMM
+      if(allocated(MGp%SymOp))     deallocate(MGp%SymOp)      ! Crystallographic symmetry operators
+      if(allocated(MGp%MSymopSymb))deallocate(MGp%MSymopSymb) ! Alphanumeric Symbols for MSYMM
+      if(allocated(MGp%MSymOp))    deallocate(MGp%MSymOp)     ! Magnetic symmetry operators
+      allocate(MGp%SymOp(MGp%Multip))
+      allocate(MGp%SymopSymb(MGp%Multip))
+      allocate(MGp%MSymOp(MGp%Multip))
+      allocate(MGp%MSymopSymb(MGp%Multip))
+
+      m=0
+      !write(*,"(3(a,i5))") "Shubnikov number: ",num,"Wyckoff position count: ",wyckoff_pos_count(j,num)," Multiplicity: ",MGp%Multip
+      Do k=1,wyckoff_pos_count(j,num)
+        idem=wyckoff_bns_fract_denom(k,j,num)
+        MGp%SymOp(k)%tr=real(wyckoff_bns_fract(:,k,j,num))/real(idem)
+        MGp%SymOp(k)%Rot = wyckoff_bns_xyz(:,:,k,j,num)
+        MGp%MSymOp(k)%Rot = wyckoff_bns_mag(:,:,k,j,num)
+        !inv_time=ops_bns_timeinv(k,num)  !Errors in the Database ... to be explored
+        !MGp%MSymOp(k)%Phas=inv_time
+        det=determ_a(MGp%SymOp(k)%Rot)
+        if(det > 0.0) then
+           if(equal_matrix(MGp%MSymOp(k)%Rot,MGp%SymOp(k)%Rot,3)) then
+              MGp%MSymOp(k)%Phas=1.0
+           else
+              MGp%MSymOp(k)%Phas=-1.0
+           end if
+        else
+           if(equal_matrix(MGp%MSymOp(k)%Rot,-MGp%SymOp(k)%Rot,3)) then
+              MGp%MSymOp(k)%Phas=1.0
+           else
+              MGp%MSymOp(k)%Phas=-1.0
+           end if
+        end if
+        if(MGp%mcif) then
+           Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k)%Rot,MGp%MSymOp(k)%Rot,MGp%SymOp(k)%tr,ShOp_symb,MGp%mcif)
+        else
+           Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k)%Rot,MGp%MSymOp(k)%Rot,MGp%SymOp(k)%tr,ShOp_symb)
+        end if
+        !write(*,"(a)") trim(ShOp_symb)
+        i=index(ShOp_symb,";")
+        MGp%SymopSymb(k)=ShOp_symb(2:i-1)
+        MGp%MSymopSymb(k)=ShOp_symb(i+1:len_trim(ShOp_symb)-1)
+        if(MGp%MagType == 2) cycle
+        if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. MGp%MSymOp(k)%Phas < 0.0) m=m+1 !counting anti-translations
+      End Do
+
+      if(centring) then
+        n=wyckoff_pos_count(j,num)
+        m=m*MGp%Num_Lat
+        do L=2,MGp%Num_Lat
+         do k=1,wyckoff_pos_count(j,num)
+           MGp%SymOp(k+n)%Rot=MGp%SymOp(k)%Rot
+           MGp%SymOp(k+n)%tr=Modulo_Lat(MGp%SymOp(k)%tr+MGp%Latt_trans(:,L))
+           MGp%MSymOp(k+n)%Rot=MGp%MSymOp(k)%Rot
+           MGp%MSymOp(k+n)%Phas=MGp%MSymOp(k)%Phas
+           MGp%MSymopSymb(k+n)=MGp%MSymopSymb(k)
+           Call Get_Shubnikov_Operator_Symbol(MGp%SymOp(k+n)%Rot,MGp%MSymOp(k+n)%Rot,MGp%SymOp(k+n)%tr,ShOp_symb)
+           i=index(ShOp_symb,";")
+           MGp%SymopSymb(k+n)=ShOp_symb(2:i-1)
+         end do
+         n=n+wyckoff_pos_count(j,num)
+        end do
+      end if
+
+      MGp%Num_aLat=m       ! Number of anti-lattice points in a cell
+      if(allocated(MGp%aLatt_trans)) deallocate(MGp%aLatt_trans)
+      allocate(MGp%aLatt_trans(3,m))     ! Lattice anti-translations
+
+      m=0
+      if(MGp%MagType /= 2) then
+        do k=1,MGp%multip
+          if(equal_matrix(MGp%SymOp(k)%Rot,identity,3) .and. MGp%MSymOp(k)%Phas < 0) then
+            m=m+1
+            MGp%aLatt_trans(:,m) = MGp%SymOp(k)%tr
+          end if
+        end do
+      end if
+      MGp%Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+      MGp%Centre_coord=0.0 ! Fractional coordinates of the inversion centre
+      do k=1,wyckoff_pos_count(j,num) !j=1 multiplicity of the general position
+        if(equal_matrix(MGp%SymOp(k)%Rot,-identity,3) .and. MGp%MSymOp(k)%Phas > 0) then
+          m=k
+          MGp%Centred=max(MGp%Centred,1)
+          if(sum(abs(MGp%SymOp(k)%tr)) < 0.001) then
+            MGp%Centred=2
+            exit
+          end if
+        end if
+      end do
+      MGp%NumOps=wyckoff_pos_count(j,num)
+      MGp%Centre="Non-Centrosymmetric"    ! Alphanumeric information about the center of symmetry
+      if(MGp%Centred == 1) then
+        MGp%Centre="Centrosymmetric, -1 not @the origin "       ! Alphanumeric information about the center of symmetry
+        MGp%Centre_coord=0.5*MGp%SymOp(m)%tr
+      else if(MGp%Centred == 2) then
+        MGp%Centre="Centrosymmetric, -1@the origin "       ! Alphanumeric information about the center of symmetry
+        MGp%NumOps=MGp%NumOps/2
+      end if
+      !write(*,"(a)")    "  "//trim(MGp%Centre)
+      !write(*,"(a,i4)") " Number of minimal S.O. (Numops): ",MGp%NumOps
+      if(change_setting) then
+        if(present(trn_to)) then
+          call Setting_Change(setting,MGp,MSpg,trn_to)
+        else
+          call Setting_Change(setting,MGp,MSpg)
+        end if
+        if(Err_Form) then
+          if(.not. present(keepd)) call deAllocate_DataBase()
+          return
+        end if
+      else
+        MSpg=MGp !everything is allocated in the assignement (Fortran 2003)
+      end if
+      if(.not. present(keepd)) call deAllocate_DataBase()
+    End Subroutine Set_Magnetic_Space_Group
 
     !!----
     !!---- Subroutine Write_Cif_Powder_Profile(Filename,Pat,r_facts)
