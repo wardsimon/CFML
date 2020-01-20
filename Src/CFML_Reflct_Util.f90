@@ -3064,10 +3064,10 @@
     !!----    Integer,                           intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----
-    !!----    Calculate unique reflections between two values of
-    !!----    sin_theta/lambda.  The output is not ordered.
+    !!----    Calculate unique reflections below the maximum
+    !!----    sin_theta/lambda provided.  The output is ordered.
     !!----
-    !!---- Created: March - 2016
+    !!---- Created: March - 2016, Updated: January 2020
     !!
     Subroutine Hkl_Gen_Shub(Crystalcell,ShubG,sintlmax,Num_Ref,Reflex)
        !---- Arguments ----!

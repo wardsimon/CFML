@@ -102,28 +102,34 @@
 !!----       SET_MAGNETIC_SPACE_GROUP
 !!----       WRITE_CIF_POWDER_PROFILE
 !!----       WRITE_CIF_TEMPLATE
+!!----       WRITE_MCIF
 !!----       WRITE_SHX_TEMPLATE
 !!----
 !!
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_GlobalDeps,                only: cp,sp,pi,eps,Write_Date_Time
-    Use CFML_Math_General,              only: sind,equal_matrix
-    Use CFML_Math_3D,                   only:determ_a
+    Use CFML_GlobalDeps,                only: cp,sp,dp,pi,eps,Write_Date_Time
+    Use CFML_Math_General,              only: sind,equal_matrix,Sort
+    Use CFML_Math_3D,                   only: determ_a
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
                                               Convert_B_Betas, U_Equiv, Convert_Betas_U
-    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Magnetic_Space_Group_Type,Set_SpaceGroup, &
-                                              Init_Magnetic_Space_Group_Type,Get_Multip_Pos,Get_MagMatSymb, &
-                                              Read_Xsym,Read_Msymm, Setting_Change, get_symsymb
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Magnetic_Space_Group_Type,Set_SpaceGroup,     &
+                                              Init_Magnetic_Space_Group_Type,Get_Multip_Pos,Get_MagMatSymb,   &
+                                              Read_Xsym,Read_Msymm, Setting_Change, get_symsymb,Sym_Oper_type,&
+                                              Msym_Oper_Type,is_Lattice_vec,Get_Stabilizer,Get_mOrbit
     Use CFML_Atom_TypeDef,              only: Atom_Type, Init_Atom_Type,atom_list_type,         &
                                               Allocate_atom_list, Deallocate_atom_list
     Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Molec_Mess,Molecular_Crystal_Type, &
                                               Read_Molecule, Set_Euler_Matrix, Write_Molecule
     Use CFML_Geometry_Calc,             only: Point_List_Type, Get_Euler_from_Fract
     Use CFML_Diffraction_Patterns,      only: Diffraction_Pattern_type
+    Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
+                                              Magnetic_Form, get_magnetic_form_factor
     Use CFML_Magnetic_Groups
+    Use CFML_EisPack,                   only: rg_ort
+
     !---- Variables ----!
     implicit none
 
@@ -140,7 +146,8 @@
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
               Get_job_info, File_To_FileList, Get_Phases_File, Read_Cif_Pressure,                &
-              Read_Cif_Temp,Readn_Set_Magnetic_Space_Group, Set_Magnetic_Space_Group
+              Read_Cif_Temp,Readn_Set_Magnetic_Space_Group, Set_Magnetic_Space_Group,            &
+              Cleanup_Symmetry_Operators,Write_mCIF
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure, Write_Atoms_CFL, Write_CFL
@@ -158,6 +165,10 @@
     !---- Definitions ----!
 
 
+    character (len=1), dimension(26),parameter, private   :: &
+    cdd=(/'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r', &
+        's','t','u','v','w','x','y','z'/)
+    real(kind=dp), parameter, private :: epps=0.000001_dp
     !!----
     !!---- ERR_FORM
     !!----    logical, public :: err_form
@@ -276,7 +287,7 @@
     Interface Readn_Set_Xtal_Structure
        Module Procedure Readn_Set_Xtal_Structure_Molcr ! For Molecular Crystal Type
        Module Procedure Readn_Set_Xtal_Structure_Split ! For Cell, Spg, A types
-       Module Procedure Readn_Set_XTal_CFL_Shub        ! Use Shubnikov groups
+       Module Procedure Readn_Set_Xtal_Structure_Magn  ! Use Shubnikov groups
     End Interface
 
     Interface Write_CFL
@@ -294,6 +305,356 @@
     !---- Functions ----!
 
     !---- Subroutines ----!
+
+    !!---- Subroutine Cleanup_Symmetry_Operators(MSpG)
+    !!----   Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+    !!----
+    !!----  Subroutine to re-organize symmetry operators extracting lattice translations
+    !!----  and anti-translations and reordering the whole set of operators.
+    !!----  (Still under development). It is supposed that the identity symmetry operator
+    !!----  is provided in the input MSpG object, otherwise ok=.false. and
+    !!----  no re-order is done.
+    !!----
+    !!----  Created: February 2014 (JRC), July 2016 (JRC), January 2020 (moved from CFML_Magsymm.f90)
+    !!----
+    Subroutine Cleanup_Symmetry_Operators(MSpG)
+      Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+      !--- Local variables ---!
+      integer,      dimension(    MSpG%Multip) :: ip,inp
+      real,         dimension(    MSpG%Multip) :: tr
+      logical,      dimension(    MSpG%Multip) :: nul
+      real(kind=cp),dimension(3,192)           :: Lat_tr
+      real(kind=cp),dimension(3,192)           :: aLat_tr
+      integer :: i,j,k,kp,L,m, Ng,num_lat, num_alat,invt,nl,i_centre,centri
+      integer,    dimension(3,3) :: identity, nulo, inver,mat,imat
+      real(kind=cp),dimension(3) :: v
+      character(len=80)          :: ShOp_symb !
+      character(len=4)           :: ired !
+      logical                    :: centrosymm
+      Type(MSym_Oper_Type),dimension(MSpG%Multip) :: MSymOp
+      Type(Sym_Oper_Type), dimension(MSpG%Multip) :: SymOp
+      character(len=80),   dimension(MSpG%Multip) :: SymbSymOp,SymbMSymOp
+      character (len=*),dimension(0:2), parameter  :: Centro = &
+                                         (/"Centric (-1 not at origin)", &
+                                           "Acentric                  ", &
+                                           "Centric (-1 at origin)    "/)
+
+      identity=0; nulo=0
+      do i=1,3
+        identity(i,i)=1
+      end do
+      inver=-identity
+      num_lat=0; num_alat=0
+      centrosymm=.false.
+      nul=.false.
+      MSpG%MagType=1
+      centri=1 !Default value for non-centrosymmetric groups or for those having
+               !the centre of symmetry out of the origin.
+
+      !The code below is to re-order the symmetry operators provided in the input MSpG object
+      !----Start re-ordering
+      do i=1,MSpG%Multip
+        tr(i)=sum(abs(MSpG%SymOp(i)%tr))
+      end do
+      ip=0
+      call sort(tr,MSpG%Multip,ip)
+      do i=1,MSpG%Multip
+        j=ip(i)
+        SymOp(i) = MSpG%SymOp(j)
+        MSymOp(i)= MSpG%MSymOp(j)
+        SymbSymOp(i)=MSpG%SymOpSymb(j)
+        SymbMSymOp(i)=MSpG%MSymOpSymb(j)
+      end do
+      MSpG%SymOp(:)=SymOp(:)
+      MSpG%MSymOp(:)=MSymOp(:)
+      MSpG%SymOpSymb(:) = SymbSymOp(:)
+      MSpG%MSymOpSymb(:)= SymbMSymOp(:)
+
+      !Reorder again the operators in case the identity is not given as the first operator
+      j=0
+      imat=MSpG%SymOp(1)%Rot(:,:)
+      if(.not. ( equal_matrix(imat,identity,3) .and.  sum(abs(MSpG%SymOp(1)%tr))  < 0.0001)) then
+        do i=2,MSpG%Multip
+          imat=MSpG%SymOp(i)%Rot(:,:)
+          if(equal_matrix(imat,identity,3) .and. sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
+            j=i
+            exit
+          end if
+        end do
+        if(j == 0) then
+          Err_Form=.true.
+          Err_Form_Mess="The identity operator is not provided in the mCIF file"
+          return
+        end if
+        MSpG%SymOp(j)=MSpG%SymOp(1)
+        MSpG%MSymOp(j)=MSpG%MSymOp(1)
+        MSpG%SymOpSymb(j)=MSpG%SymOpSymb(1)
+        MSpG%MSymOpSymb(j)=MSpG%MSymOpSymb(1)
+        MSpG%SymOp(1)%Rot=identity
+        MSpG%SymOp(1)%tr=0.0
+        MSpG%MSymOp(1)%Rot=identity
+        MSpG%MSymOp(1)%phas=1.0
+        MSpG%SymOpSymb(1)="x,y,z"
+        MSpG%MSymOpSymb(1)="mx,my,mz"
+      end if
+
+      !Now look for centre of symmetry associated with time inversion and promote
+      !it to the second position
+      j=0
+      do i=2,MSpG%Multip
+        imat=MSpG%SymOp(i)%Rot(:,:)
+        if(equal_matrix(imat,inver,3) .and. sum(abs(MSpG%SymOp(i)%tr))  < 0.0001 .and. MSpG%MSymOp(i)%phas < 0.0) then
+          j=i
+          exit
+        end if
+      end do
+      if(j /= 0) then
+        MSpG%SymOp(j)=MSpG%SymOp(2)
+        MSpG%MSymOp(j)=MSpG%MSymOp(2)
+        MSpG%SymOpSymb(j)=MSpG%SymOpSymb(2)
+        MSpG%MSymOpSymb(j)=MSpG%MSymOpSymb(2)
+        MSpG%SymOp(2)%Rot=inver
+        MSpG%SymOp(2)%tr=0.0
+        MSpG%MSymOp(2)%Rot=inver
+        MSpG%MSymOp(2)%phas=-1.0
+        MSpG%SymOpSymb(2)="-x,-y,-z"
+        MSpG%MSymOpSymb(2)="-mx,-my,-mz"
+      end if
+
+      !----End re-ordering
+
+      Err_Form=.false.
+      ip=0
+
+      !Determine the lattice translations and anti-translations
+      !Eliminate lattice translations and anti-translations
+      do j=2,MSpG%Multip
+        if(nul(j)) cycle
+        invt= nint(MSpG%MSymOp(j)%phas)
+        if(invt < 0) MSpG%MagType=3
+        if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
+           if(invt == 1) then
+              num_lat=num_lat+1
+              Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
+              nul(j)=.true.   !Nullify centring translations
+           else
+              num_alat=num_alat+1
+              aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
+              nul(j)=.true.  !Nullify anti-centring translations
+           end if
+        end if
+      end do  !j=2,MSpG%Multip
+
+      if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
+      allocate(MSpG%Latt_trans(3,num_lat+1))
+      MSpG%Latt_trans=0.0
+      m=1
+      do j=1,num_lat
+        m=m+1
+        MSpG%Latt_trans(:,m) = Lat_tr(:,j)
+      end do
+      MSpG%Num_Lat=num_lat+1
+
+      if(num_alat > 0) then
+        MSpG%MagType=4
+        if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
+        allocate(MSpG%aLatt_trans(3,num_alat))
+        MSpG%aLatt_trans = aLat_tr(:,1:num_alat)
+        MSpG%Num_aLat=num_alat
+      end if
+
+      !Eliminate centre of symmetry {-1|t} and select that having
+      !t=0 if it exist
+      k=0; kp=0
+      do j=2,MSpG%Multip
+          invt= nint(MSpG%MSymOp(j)%phas)
+          imat=MSpG%SymOp(j)%Rot(:,:)
+          if(equal_matrix(imat,inver,3)) then
+            if(invt == 1) then
+              kp=kp+1
+              ip(kp)=j
+            else
+              k=k+1
+              inp(k)=j
+            end if
+          end if
+      end do
+
+      i_centre=0
+      if(kp > 0) then  !Centre of symmetry exist!, select that without translations
+         i_centre=ip(1)
+         do j=1,kp
+           i=ip(j)
+           if(sum(abs(MSpG%SymOp(i)%tr))  < 0.0001) then
+             i_centre=i    !localization of the -x,-y,-z,+1 operator within the list
+             centri=2      !Now this value indicates that the operor -x,-y,-z,+1 exists
+             centrosymm=.true.
+             nul(i)=.true.
+             exit
+           end if
+         end do
+      end if
+
+      !Nullify the operators of inversion centres associated with time inversion
+      !and have a translation corresponding to a centring or anticentring vector
+
+      do i=1,k
+         j=inp(i)
+         v=MSpG%SymOp(j)%tr(:)
+         if(sum(abs(v)) < 0.0001) cycle !Maintain the operaror -x,-y,-z,-1
+         if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+            nul(j)=.true.
+            cycle
+         end if
+
+         if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+            nul(j)=.true.
+            cycle
+         end if
+      end do
+
+      !Nullify the operators that can be deduced from others by applying translations,
+      !anti-translations and centre of symmetry
+
+      ip=0
+      do j=2,MSpG%Multip-1
+         do i=j+1,MSpG%Multip
+           if(nul(i)) cycle
+           mat=MSpG%SymOp(i)%Rot(:,:)-MSpG%SymOp(j)%Rot(:,:)
+           if(equal_matrix(mat,nulo,3) ) then  !Pure lattice translation or antitranslation
+              v=MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+
+              if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                 nul(i)=.true.
+                 cycle
+              end if
+
+              if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                 nul(i)=.true.
+                 cycle
+              end if
+
+           end if
+
+           if(centrosymm) then
+              imat=MSpG%SymOp(i)%Rot(:,:)+MSpG%SymOp(j)%Rot(:,:)
+              k=nint(MSpG%MSymOp(i)%phas)
+              invt=nint(MSpG%MSymOp(j)%phas)
+
+              if(equal_matrix(imat,nulo,3) .and. k == invt) then
+                 v=MSpG%SymOp(i_centre)%tr(:)-MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+                 if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                    nul(i)=.true.
+                    cycle
+                 end if
+              end if
+
+              if(equal_matrix(imat,nulo,3) .and. k /= invt) then
+                 if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                    nul(i)=.true.
+                    cycle
+                 end if
+              end if
+
+           end if
+         end do
+      end do
+      j=0
+
+      ! => This is the reduced set of symmetry operators"
+      do i=1,MSpG%Multip
+        !write(*,"(a,i4,2x,L)") "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas), nul(i)
+        if(nul(i)) cycle
+        j=j+1
+        SymOp(j) = MSpG%SymOp(i)
+        MSymOp(j)= MSpG%MSymOp(i)
+      end do
+
+      m=j*centri*(num_alat+num_lat+1)
+      if( m /= MSpG%Multip) then
+        write(unit=Err_Form_Mess,fmt="(2(a,i4))") " Warning! Multip=",MSpG%Multip, " Calculated Multip: ",m
+        Err_Form=.true.
+        return
+      end if
+      !Promote the reduced set of symmetry operators to the top of the list
+      MSpG%SymOp(1:j)=SymOp(1:j)
+      MSpG%MSymOp(1:j)=MSymOp(1:j)
+      MSpG%Numops=j
+
+      !Re-Construct, in an ordered way, all the symmetry operators in MSpG
+      !starting with the reduced set
+      m=MSpG%Numops
+
+      if(centrosymm) then   !First apply the centre of symmetry
+        MSpG%Centred=2
+        MSpG%centre= centro(MSpG%Centred)
+        do i=1,MSpG%Numops
+          m=m+1
+          MSpG%SymOp(m)%Rot  = -MSpG%SymOp(i)%Rot
+          MSpG%SymOp(m)%tr   =  modulo_lat(-MSpG%SymOp(i)%tr)
+          MSpG%MSymOp(m)= MSpG%MSymOp(i)
+        end do
+      else
+        if(i_centre /= 0) then
+          MSpG%Centred      = 0
+          MSpG%centre       = centro(MSpG%Centred)
+          MSpG%Centre_coord = MSpG%SymOp(i_centre)%tr(:)/2.0
+        else
+          MSpG%Centred=1
+          MSpG%centre= centro(MSpG%Centred)
+        end if
+      end if
+
+      ng=m
+
+      if(MSpG%Num_aLat > 0) then   !Second apply the lattice centring anti-translations
+        do L=1,MSpG%Num_aLat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%aLatt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)%Rot = -MSpG%MSymOp(i)%Rot
+             MSpG%MSymOp(m)%phas= -MSpG%MSymOp(i)%phas
+           end do
+        end do
+      end if
+
+      if(MSpG%Num_Lat > 1) then  !Third apply the lattice centring translations
+        do L=2,MSpG%Num_Lat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)     = MSpG%MSymOp(i)
+           end do
+        end do
+      end if
+
+
+      !Normally here the number of operators should be equal to multiplicity
+      !Test that everything is OK
+      ng=m
+      if(ng /= MSpG%Multip) then
+        write(unit=Err_Form_Mess,fmt="(2(a,i3))") " => Problem! the multiplicity ",MSpG%Multip," has not been recovered, value of ng=",ng
+        Err_Form=.true.
+        return
+      end if
+      !Now re-generate all symbols from the symmetry operators and magnetic matrices
+      ired=" => "
+      do i=1,MSpG%Multip
+         if(i > MSpG%Numops) ired="    "
+         call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
+         j=index(ShOp_symb," ")
+         MSpG%SymOpSymb(i)=ShOp_symb(1:j-1)
+         ShOp_symb=adjustl(ShOp_symb(j:))
+         j=index(ShOp_symb," ")
+         MSpG%MSymOpSymb(i)=ShOp_symb(1:j-1)
+         !write(*,"(a,i6,a,i4)") ired,i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+      end do
+      return
+    End Subroutine Cleanup_Symmetry_Operators
 
     !!----
     !!---- Subroutine File_To_FileList(File_dat,File_list)
@@ -573,6 +934,213 @@
 
        return
     End Subroutine Get_Job_Info
+
+    Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr)
+       real(kind=cp), dimension(3),            intent(in)     :: xnr
+       real(kind=cp), dimension(:),            intent(in out) :: moment
+       real(kind=cp), dimension(:),            intent(in out) :: codes
+       type(Magnetic_Space_Group_type),        intent(in)     :: Spg
+       Integer,                                intent(in out) :: codini
+       integer,                       optional,intent(in)     :: ord
+       integer, dimension(:),         optional,intent(in)     :: ss
+       real(kind=cp), dimension(:,:), optional,intent(in)     :: att
+       integer,                       optional,intent(in)     :: Ipr
+
+       ! Local variables
+       integer,           dimension(3,3) :: magm   !g, magm= delta * det(g) * g
+       character(len=1),  dimension(3)   :: codd
+       integer                           :: i,j,order,n,ig,is
+       real(kind=cp)                     :: suma
+       integer,           dimension(48)  :: ss_ptr
+       real(kind=cp),     dimension(3,48):: atr
+       real(kind=cp),     dimension(3)   :: cod,multi
+       real(kind=cp),     dimension(3)   :: x
+       real(kind=dp),     dimension(3,3) :: sCtr
+       real(kind=cp),     dimension(3)   :: momentL,TotMom
+
+
+       !Test if all codes are given ... in such a case the user constraints
+       !are prevalent
+
+       suma=0.0_cp
+       !iq=0
+       n=3 !Real moments -> three components
+       do j=1,3
+          suma=suma+abs(codes(j))
+       end do
+
+       if(suma < epps ) return  !No refinement is required
+       if(present(Ipr)) then
+         write(Ipr,"(/,a)")         " => Calculation of symmetry constraints for magnetic moments "
+       end if
+       x=xnr
+       !where(x < 0.0) x=x+1.0
+       !where(x > 1.0) x=x-1.0
+
+       if(present(ord) .and. present(ss) .and. present(att)) then
+         order=ord
+         ss_ptr(1:order) = ss(1:ord)
+         atr(:,1:order)  = att(:,1:ord)
+       else
+         call get_stabilizer(x,SpG,order,ss_ptr,atr)
+         if(present(ipr)) Write(unit=ipr,fmt="(a,i3)") " => Stabilizer without identity, order:",order
+       end if
+
+       momentL=moment
+       sCtr=0.0_cp
+       if(order > 1) then
+         do ig=1,order
+           magm(:,:) = Spg%MSymOp(ss_ptr(ig))%Rot
+           sCtr=sCtr+magm !Adding constraint matrices for each operator of stabilizer
+           if(present(ipr)) then
+             write(unit=ipr,fmt='(a,i2,a,t20,a,t55,a,t75,9f8.4)') '     Operator ',ig,": ",trim(Spg%SymopSymb(ss_ptr(ig))), &
+              trim(Spg%MSymopSymb(ss_ptr(ig))), sCtr
+           end if
+         end do  !ig operators
+         sCtr=sCtr/order
+         suma=sum(abs(sCtr))
+         !write(*,"(a,f10.4,a,i3)") " suma:",suma, "Mag_Type:", spg%mag_type
+         if(suma < epps .or. spg%magtype == 2) then !This corresponds to a grey point group
+            moment=0.0_cp
+            codes=0.0_cp
+            if(present(Ipr)) then
+              write(Ipr,"(a)")         " Grey point group: the attached moment is zero "
+              write(Ipr,"(a,24f14.6)") " Final codes: ",codes(1:n)
+              write(Ipr,"(a,24f14.6)") " Constrained moment: ",moment
+            end if
+            return
+         end if
+         TotMom=matmul(sCtr,momentL)
+         call Get_Refinement_Codes(n,TotMom,sCtr,is,multi,codd,momentL)
+         cod=0.0
+         do j=1,n
+           if(codd(j) /= "0") then
+             do i=1,is
+               if(codd(j) == cdd(i)) then
+                 cod(j)=codini+i
+                 exit
+               end if
+             end do
+           end if
+         end do
+         moment=momentL
+         codes=0.0
+         do j=1,n
+           if(abs(multi(j)) > epps)  codes(j) = sign(1.0_cp, multi(j))*(abs(cod(j))*10.0_cp + abs(multi(j)) )
+         end do
+         codini=codini+is
+         if(present(Ipr)) then
+           Write(unit=Ipr,fmt="(a,i4)")       " Number of free parameters: ",is
+           write(unit=Ipr,fmt="(a,3f14.6)")   " Multipliers: ",(multi(j), j=1,n)
+           write(unit=Ipr,fmt="(28a)")        " String with free parameters: ( ",(codd(j)//", ",j=1,n-1),codd(n)//" )"
+           write(unit=Ipr,fmt="(a,3i6)")      " Resulting integer codes: ", nint(cod(1:n))
+           write(unit=Ipr,fmt="(a,3f14.6)")   " Final codes: ",codes(1:n)
+           write(unit=Ipr,fmt="(a,3f14.6)")   " Constrained Moment: ",moment
+         end if
+
+       else !No restrictions
+
+         codd(1:n)=cdd(1:n)
+         multi(1:n)=1.0_cp
+         do j=1,n
+           cod(j)=codini+j
+           codes(j) = (abs(cod(j))*10.0_cp + abs(multi(j)))
+         end do
+         codini=codini+n
+         if(present(Ipr)) then
+           write(unit=Ipr,fmt="(a)")         " General position, no constraints in moment "
+           write(unit=Ipr,fmt="(28a)")       " String with free parameters: ( ",(codd(j)//", ",j=1,n-1),codd(n)//" )"
+           write(unit=Ipr,fmt="(a,24i6)")    " Resulting integer codes: ", nint(cod(1:n))
+           write(unit=Ipr,fmt="(a,24f14.6)") " Final codes: ",codes(1:n)
+           write(unit=Ipr,fmt="(a,24f14.6)") " Constrained moment: ",moment
+         end if
+
+       end if
+       return
+    End Subroutine Get_moment_ctr
+
+    Subroutine Get_Refinement_Codes(n,vect_val,Ctr,is,multi,codd,vect_out)
+      integer,                       intent(in)    :: n !dimension of the vector and the matrix
+      real(kind=cp), dimension(:),   intent(in)    :: vect_val
+      real(kind=dp), dimension(:,:), intent(in out):: Ctr
+      integer,                       intent(out)   :: is
+      real(kind=cp), dimension(:),   intent(out)   :: multi
+      character(len=*), dimension(:),intent(out)   :: codd
+      real(kind=cp), dimension(:),   intent(out)   :: vect_out
+      !--- Local variables ---!
+      real(kind=cp), dimension(n)   :: val
+      integer,       dimension(n)   :: pti
+      real(kind=dp), dimension(n,n) :: zv
+      integer                       :: i,j,k,kval,ier,ip
+      real(kind=dp)                 :: zmi
+      real(kind=dp), dimension(n)   :: Wr, Wi
+      logical,       dimension(n)   :: done
+
+      !Diagonalize the matrix and pickup the lambda=1 eigenvalues
+      !The corresponding eigenvector contains the constraints of all moment components
+      !Calling the general diagonalization subroutine from EisPack
+      call rg_ort(n,Ctr,wr,wi,.true.,zv,ier)
+      is=0
+      pti=0
+      kval=0
+      do i=1,n
+        if(abs(wr(i)-1.0_dp) < epps .and. abs(wi(i)) < epps) then
+          is=is+1   !Number of eigenvalues = 1 => number of free parameters
+          pti(is)=i !This points to the eigenvectors with eigenvalue equal to 1.
+          zmi=1.0e6 !normalize the eigenvectors so that the minimum (non-zero value) is 1.
+          j=1
+          do k=1,n
+            if(abs(zv(k,i)) < epps) cycle
+            if(abs(zv(k,i)) < zmi) then
+              zmi=abs(zv(k,i))
+              kval=k  !This is the basis value
+              j=nint(sign(1.0_dp,zv(k,i)))
+            end if
+          end do
+          zv(:,i)=j*zv(:,i)/zmi  !This provides directly the multipliers for a single lambda=1 eigenvalue
+          val(is)=vect_val(kval) !This is the basis value to construct the new Moment
+        end if
+      end do
+      codd="0"
+      vect_out=0.0
+      multi=0.0
+      done=.false.
+      where(abs(vect_val) < epps) done=.true.
+      Select Case(is)
+        case(1)
+          vect_out(:)=val(1)*zv(:,pti(1))
+          where(abs(vect_out) > epps)  codd(:)=cdd(1)
+          multi(:)=zv(:,pti(1))
+        case(2:)
+          ip=0
+          do i=1,n
+            if(.not. done(i)) then
+              if(abs(vect_val(i)) > epps) then
+                ip=ip+1
+                codd(i)=cdd(ip)
+                multi(i)=1.0
+                vect_out(i)=vect_val(i)
+                done(i)=.true.
+                do j=i+1,n
+                  if(.not. done(j)) then
+                    if(abs(vect_val(i)-vect_val(j)) < epps) then
+                      codd(j)=cdd(ip)
+                      multi(j)=1.0
+                      vect_out(j)=vect_val(i)
+                      done(j)=.true.
+                    else if(abs(vect_val(i)+vect_val(j)) < epps) then
+                      codd(j)=cdd(ip)
+                      multi(j)=-1.0
+                      vect_out(j)=-vect_val(i)
+                      done(j)=.true.
+                    end if
+                  end if
+                end do
+              end if
+            end if
+          end do
+      End Select
+    End Subroutine Get_Refinement_Codes
 
     !!----
     !!---- Subroutine Init_Err_Form()
@@ -3155,6 +3723,1085 @@
 
     End Subroutine Readn_Set_Magnetic_Space_Group
 
+    !!----
+    !!---- Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am)
+    !!----    character(len=*),               intent (in)  :: file_mcif
+    !!----    type(Crystal_Cell_type),        intent (out) :: mCell
+    !!----    type(Magnetic_Space_Group_Type),intent (out) :: MGp
+    !!----    type(Atom_List_Type),           intent (out) :: Am
+    !!----
+    !!----    Subroutine for reading and construct a magnetic structure.
+    !!----    The atom list and the unit cell reading an mCIF file.
+    !!----
+    !!----  Created: January-2014 (JRC)
+    !!----  Updated: August-2014 (JRC), January 2020
+    !!
+    Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am)
+       character(len=*),               intent (in)  :: file_mcif
+       type(Crystal_Cell_type),        intent (out) :: mCell
+       type(Magnetic_Space_Group_Type),intent (out) :: MGp
+       type(Atom_List_Type),           intent (out) :: Am
+
+       !---- Local Variables ----!
+       integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat, ier, j, m, n, k, L,   &
+                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering,det,kfin
+       integer,          dimension(10)     :: lugar
+       integer,          dimension(7)      :: irrep_pos
+       integer,          dimension(5)      :: pos
+       integer,          dimension(3,3)    :: Rot
+       real(kind=cp),    dimension(3)      :: cel,ang,cel_std,ang_std,tr,v
+       real(kind=cp),    dimension(6)      :: values,std
+       real(kind=cp),    dimension(3,3)    :: matr
+       real(kind=cp),    dimension(3,384)  :: orb
+       character(len=132)                  :: lowline,keyword,line, mxmymz_op,linat
+       character(len=132),dimension(384)   :: sym_strings, cent_strings
+       character(len=132),dimension(384)   :: atm_strings
+       character(len=132),dimension(384)   :: mom_strings
+       character(len=132),dimension(30)    :: constr_strings, mag_scatt_string
+       character(len=132),dimension(30)    :: irreps_strings
+       character(len=132),dimension(30)    :: kv_strings
+       character(len=20), dimension(15)    :: lab_items
+       character(len=50)                   :: shubk
+       character(len=2)                    :: chars
+       character(len=10)                   :: label
+       character(len=4)                    :: symbcar
+       logical                             :: ktag,no_symop_mxmymz,no_cent_mxmymz,mom_symmform
+
+       !type(Magnetic_Group_Type)  :: SG
+       type(file_list_type)       :: mcif
+
+       call init_err_Form()
+       call File_To_FileList(file_mcif,mcif)
+       !Remove all possible tabs and non-ASCII characters in the CIF
+       do i=1,mcif%nlines
+         do j=1,len_trim(mcif%line(i))
+           if(mcif%line(i)(j:j) == char(9)) mcif%line(i)(j:j)=" "
+         end do
+       end do
+       num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0; num_rsym=0; num_centering=0
+       cel=0.0; ang=0.0; num_irreps=0; nitems_irreps=0
+       i=0
+       call Init_Magnetic_Space_Group_Type(MGp)
+       ktag=.false.
+       no_symop_mxmymz=.false.
+       no_cent_mxmymz=.false.
+       mom_symmform=.false.
+
+       do
+          i=i+1
+          if(i > mcif%nlines) exit
+          if (index(mcif%line(i)(1:1),"!")/=0 .or. index(mcif%line(i)(1:1),"#")/=0 .or. len_trim(mcif%line(i)) == 0) cycle
+          line=adjustl(mcif%line(i))
+          lowline=l_case(line)
+          j=index(lowline," ")
+          keyword=lowline(1:j-1)
+          !write(*,"(a)") " Keyword: "//trim(keyword)
+
+          Select Case (trim(keyword))
+
+             Case("_magnetic_space_group_standard_setting","_magnetic_space_group.standard_setting")
+                chars=adjustl(line(j+1:))
+                if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_standard_setting -> "//trim(chars)
+
+             Case("_parent_space_group.name_h-m", "_parent_space_group_name_h-m","_parent_space_group.name_h-m_alt")
+                shubk=adjustl(line(j+1:))
+                m=len_trim(shubk)
+                MGp%Parent_spg=shubk(2:m-1)
+                !write(unit=*,fmt="(a)") "  Treating item: _parent_space_group_name_h-m -> "// MGp%Parent_spg
+
+             Case("_parent_space_group.it_number","_parent_space_group_it_number")
+                read(unit=lowline(j:),fmt=*,iostat=ier) m
+                if(ier /= 0) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the number of the parent space group"
+                  return
+                end if
+                MGp%Parent_num=m
+                !write(unit=*,fmt="(a,i4)") "  Treating item: _parent_space_group_it_number -> ", MGp%Parent_num
+
+             Case("_magnetic_space_group_bns_number","_space_group.magn_number_bns","_space_group_magn.number_bns")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%BNS_number=shubk
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_bns -> "//trim(MGp%BNS_number)
+
+             Case("_magnetic_space_group_bns_name","_space_group_magn.name_bns","_space_group.magn_name_bns")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%BNS_symbol=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_bns -> "//trim(MGp%BNS_symbol)
+
+             Case("_magnetic_space_group_og_number","_space_group_magn.number_og","_space_group.magn_number_og")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%OG_number=shubk
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_number_og -> "//trim(MGp%OG_number)
+
+             Case("_magnetic_space_group_point_group","_space_group_magn.point_group","_space_group.magn_point_group")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%PG_symbol=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group_magn.point_group -> "//trim(MGp%PG_symbol)
+
+             Case("_magnetic_space_group_og_name","_space_group_magn.name_og","_space_group.magn_name_og")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%OG_symbol=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _space_group.magn_name_og -> "//trim(MGp%OG_symbol)
+
+             Case("_magnetic_space_group.transform_from_parent_pp_abc","_magnetic_space_group_transform_from_parent_pp_abc", &
+                   "_parent_space_group.child_transform_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%trn_from_parent=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
+
+             Case("_parent_space_group.transform_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%trn_to_parent=pack_string(shubk)
+                !write(unit=*,fmt="(a)") "  Treating item: _magnetic_space_group_transform_from_parent_pp_abc -> "//trim(MGp%trn_from_parent)
+
+             Case("_magnetic_space_group.transform_to_standard_pp_abc","_magnetic_space_group_transform_to_standard_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%trn_to_standard=pack_string(shubk)
+
+             Case("_space_group_magn.transform_bns_pp_abc")
+                shubk=adjustl(line(j+1:))
+                k=len_trim(shubk)
+                if(shubk(1:1) == '"' .or. shubk(1:1) == "'") shubk=adjustl(shubk(2:k-1))
+                MGp%trn_to_standard=pack_string(shubk)
+
+             Case("_magnetic_cell_length_a","_cell_length_a")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'a' -> "//trim(err_string_mess)
+                  return
+                end if
+                cel(1)=values(1)
+                cel_std(1)=std(1)
+                MGp%m_cell=.true.
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_a"
+
+             Case("_magnetic_cell_length_b","_cell_length_b")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'b' -> "//trim(err_string_mess)
+                  return
+                end if
+                cel(2)=values(1)
+                cel_std(2)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_b"
+
+             Case("_magnetic_cell_length_c","_cell_length_c")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'c' -> "//trim(err_string_mess)
+                  return
+                end if
+                cel(3)=values(1)
+                cel_std(3)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_length_c"
+
+             Case("_magnetic_cell_angle_alpha","_cell_angle_alpha")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'alpha' -> "//trim(err_string_mess)
+                  return
+                end if
+                ang(1)=values(1)
+                ang_std(1)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_alpha"
+
+             Case("_magnetic_cell_angle_beta","_cell_angle_beta")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'beta' -> "//trim(err_string_mess)
+                  return
+                end if
+                ang(2)=values(1)
+                ang_std(2)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_beta"
+
+             Case("_magnetic_cell_angle_gamma","_cell_angle_gamma")
+                call getnum_std(lowline(j:),values,std,iv)
+                if(err_string) then
+                  Err_Form=.true.
+                  Err_Form_Mess=" Error reading the magnetic unit cell parameter 'gamma' -> "//trim(err_string_mess)
+                  return
+                end if
+                ang(3)=values(1)
+                ang_std(3)=std(1)
+                !write(unit=*,fmt="(a)") "  Treating item: _cell_angle_gamma"
+
+             Case("loop_")
+                 i=i+1
+                 line=adjustl(mcif%line(i))
+                 lowline=l_case(line)
+                 j=index(lowline," ")
+                 keyword=lowline(1:j-1)
+                 !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
+                 Select Case(trim(keyword))
+
+                   Case("_space_group_magn_transforms.id")
+                      !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
+
+                      do k=1,2
+                        i=i+1
+                        if(index(mcif%line(i),"_space_group_magn_transforms") == 0) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading _space_group_magn_transforms in loop"
+                          return
+                        end if
+                      end do
+                      i=i+1
+                      call getword(mcif%line(i),lab_items,iv)
+                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)
+                      if(lab_items(3)(1:3) == "BNS") then
+                        MGp%trn_to_standard=lab_items(2)
+                      end if
+                      i=i+1
+                      call getword(mcif%line(i),lab_items,iv)
+                      !write(unit=*,fmt="(3a)")  (lab_items(k),k=1,3)
+                      if(lab_items(3)(1:2) == "OG") then
+                        !nothing to do
+                      end if
+
+                   Case("_irrep_id")
+                      irrep_pos=0
+                      irrep_pos(1)=1
+                      j=1
+                      do k=1,6
+                         i=i+1
+                         if(index(mcif%line(i),"_irrep_dimension") /= 0) then
+                            j=j+1
+                            irrep_pos(2)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_small_irrep_dimension") /= 0 .or.  &
+                            index(mcif%line(i),"_irrep_small_dimension") /= 0) then
+                            j=j+1
+                            irrep_pos(3)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_direction_type") /= 0) then
+                            j=j+1
+                            irrep_pos(4)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_action") /= 0) then
+                            j=j+1
+                            irrep_pos(5)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_modes_number") /= 0) then
+                            j=j+1
+                            irrep_pos(6)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_presence") /= 0) then
+                            j=j+1
+                            irrep_pos(7)=j
+                            cycle
+                         end if
+                         exit
+                      end do
+
+                      i=i-1
+                      nitems_irreps=count(irrep_pos > 0)
+
+                      k=0
+                      do
+                        i=i+1
+                        if(i > mcif%nlines) exit
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        irreps_strings(k)=mcif%line(i)
+                      end do
+                      num_irreps=k
+                      !Treat later the list of irreps
+
+                   Case("_magnetic_propagation_vector_seq_id")
+                      do k=1,3
+                        i=i+1
+                        if(index(mcif%line(i),"_magnetic_propagation_vector") == 0) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the propagation vector loop"
+                          return
+                        end if
+                        if(index(mcif%line(i),"_magnetic_propagation_vector_kxkykz") /= 0) then
+                          ktag=.true.  !new format for k-vector klabel '0,1/2,0'
+                          exit
+                        end if
+                      end do
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        kv_strings(k)=mcif%line(i)
+                      end do
+                      num_kvs=k
+                      MGp%n_kv=k
+                      if(allocated(Mgp%kv)) deallocate(Mgp%kv)
+                      allocate(Mgp%kv(3,k))
+                      if(allocated(Mgp%kv_label)) deallocate(Mgp%kv_label)
+                      allocate(Mgp%kv_label(k))
+                      !Treat later the propagation vectors
+
+                   Case("_atom_type_symbol")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_type_symbol"
+                      do k=1,3
+                        i=i+1
+                        if(index(mcif%line(i),"_atom_type_symbol") == 0) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the _atom_type_symbol in loop"
+                          return
+                        end if
+                      end do
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        mag_scatt_string(k)=mcif%line(i)
+                      end do
+                      num_magscat=k
+                      !Treat later the scattering factor
+
+                   Case("_magnetic_atom_site_moment_symmetry_constraints_label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _magnetic_atom_site_moment_symmetry_constraints_label"
+                      i=i+1
+                      if(index(mcif%line(i),"_atom_site_magnetic_moment_symmetry_constraints_mxmymz") == 0) then
+                        Err_Form=.true.
+                        Err_Form_Mess=" Error reading the magnetic_atom_site_moment_symmetry_constraints loop"
+                        return
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        constr_strings(k)=mcif%line(i)
+                      end do
+                      num_constr=k
+                      MGp%m_constr=.true.
+                      !Treat later the constraints
+
+                   Case("_magnetic_space_group_symop_id")
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
+                      do k=1,3
+                        i=i+1
+                        j=index(mcif%line(i),"_magnetic_space_group_symop_operation")
+                        if(j == 0 ) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the _magnetic_space_group_symop_operation loop"
+                          return
+                        end if
+                      end do
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+                      !now allocate the list of symmetry operators
+                      num_sym=k
+                      MGp%Multip=k
+
+                   Case("_space_group_symop_magn_operation.id","_space_group_symop_magn.id") !The second item is added to be compatible with BCS error
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_operation.id"
+
+                      i=i+1
+                      j=index(mcif%line(i),"_space_group_symop_magn_operation.xyz")
+                      if(j == 0 ) then
+                        Err_Form=.true.
+                        Err_Form_Mess=" Error reading the _space_group_symop_magn_operation loop"
+                        return
+                      end if
+
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+                      !now allocate the list of symmetry operators
+                      num_sym=k
+                      MGp%Multip=k
+
+                   Case("_space_group_symop.magn_id")
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
+                      do k=1,2
+                        i=i+1
+                        if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
+                           index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the _space_group_symop_magn_operation loop"
+                          return
+                        end if
+                      end do
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation_mxmymz") == 0) then
+                         i=i-1
+                         no_symop_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+
+                      num_rsym=k
+
+                   Case("_space_group_symop_magn_id")   !here the symmetry operators are separated from the translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_id"
+                      i=i+1
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation") == 0) then
+                        Err_Form=.true.
+                        Err_Form_Mess=" Error reading the _space_group_symop.magn_operation loop"
+                        return
+                      end if
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_operation_mxmymz") == 0) then
+                         no_symop_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+
+                      num_rsym=k
+
+                   Case("_space_group_symop.magn_centering_id")   !here we read the translations and anti-translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
+                      do k=1,2
+                        i=i+1
+                        if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0 .and. &
+                           index(mcif%line(i),"_space_group_symop_magn_centering") == 0 ) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the _space_group_symop_magn_centering loop"
+                          return
+                        end if
+                      end do
+                      if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0 .and. &
+                         index(mcif%line(i),"_space_group_symop_magn_centering_mxmymz") == 0 ) then
+                         i=i-1
+                         no_cent_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        cent_strings(k)=mcif%line(i)
+                      end do
+                      num_centering=k
+
+                   Case("_space_group_symop_magn_centering.id")   !here we read the translations and anti-translations
+                      !write(unit=*,fmt="(a)") "  Treating item: _space_group_symop_magn_centering_id"
+                      i=i+1
+                      if(index(mcif%line(i),"_space_group_symop_magn_centering.xyz") == 0) then
+                        Err_Form=.true.
+                        Err_Form_Mess=" Error reading the _space_group_symop_magn_centering.xyz loop"
+                        return
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        cent_strings(k)=mcif%line(i)
+                      end do
+                      num_centering=k
+
+                   Case("_magnetic_atom_site_label","_atom_site_label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_site_label"
+                      !Count the number of keywords following the _loop
+                      do k=1,10
+                        linat=adjustl(mcif%line(i+k))
+                        if(linat(1:1) /=  "_") then
+                          kfin=k+1
+                          iv=i+k
+                          exit
+                        end if
+                      end do
+                      lugar=0
+                      lugar(1)=1
+                      j=1
+                      do k=1,kfin
+                         i=i+1
+                         if(index(mcif%line(i),"_atom_site_type_symbol") /= 0) then
+                            j=j+1
+                            lugar(2)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_x") /= 0) then
+                            j=j+1
+                            lugar(3)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_y") /= 0) then
+                            j=j+1
+                            lugar(4)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_z") /= 0) then
+                            j=j+1
+                            lugar(5)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_U_iso_or_equiv") /= 0) then
+                            j=j+1
+                            lugar(6)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_B_iso_or_equiv") /= 0) then
+                            j=j+1
+                            lugar(10)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_occupancy") /= 0) then
+                            j=j+1
+                            lugar(7)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_symmetry_multiplicity") /= 0) then
+                            j=j+1
+                            lugar(8)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_Wyckoff_label") /= 0) then
+                            j=j+1
+                            lugar(9)=j
+                            cycle
+                         end if
+                         exit
+                      end do
+
+                      if (any(lugar(3:5) == 0)) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the asymmetric unit of magnetic atoms"
+                          return
+                      end if
+
+                      i=iv-1
+                      nitems=count(lugar > 0)
+
+                      k=0
+                      do
+                        i=i+1
+                        if(i > mcif%nlines) exit
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        atm_strings(k)=adjustl(mcif%line(i))
+                      end do
+                      num_matom=k
+                      !Treat late the list atoms
+
+                   Case("_magnetic_atom_site_moment_label","_atom_site_moment_label","_atom_site_moment.label")
+                      !write(unit=*,fmt="(a)") "  Treating item: _atom_site_moment_label"
+                      do k=1,3
+                        i=i+1
+                        if(index(mcif%line(i),"_atom_site_moment_crystalaxis") == 0 .and. &
+                           index(mcif%line(i),"_atom_site_moment.crystalaxis") == 0) then
+                          Err_Form=.true.
+                          Err_Form_Mess=" Error reading the magnetic_atom_site_moment loop"
+                          return
+                        end if
+                      end do
+                      i=i+1
+                      if(index(mcif%line(i),"_atom_site_moment.symmform") /= 0) then
+                        !write(*,*) " _atom_site_moment.symmform FOUND"
+                        mom_symmform=.true.
+                      else
+                        i=i-1
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(i > mcif%nlines) exit
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        mom_strings(k)=mcif%line(i)
+                      end do
+                      num_mom=k
+                      !Treat later the magnetic moment of the atoms
+                 End Select
+          End Select
+       end do
+
+       if(MGp%m_cell) then
+         call Set_Crystal_Cell(cel,ang,mCell)
+         mCell%cell_std=cel_std
+         mCell%ang_std=ang_std
+       end if
+
+       !Treat symmetry operators
+       !write(unit=*,fmt="(a,2i4)") " num_sym, num_rsym :",num_sym,num_rsym
+       if(num_sym == 0 .and. num_rsym == 0) then
+          Err_Form=.true.
+          Err_Form_Mess=" No symmetry operators have been provided in the MCIF file "//trim(file_mcif)
+          return
+       else
+          if(no_cent_mxmymz) then  !Full number of symmetry operators is not separated from the centering
+
+            if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
+            allocate(Mgp%SymopSymb(num_sym))
+            if(allocated(Mgp%Symop)) deallocate(Mgp%Symop)
+            allocate(Mgp%Symop(num_sym))
+            if(allocated(Mgp%MSymopSymb)) deallocate(Mgp%MSymopSymb)
+            allocate(Mgp%MSymopSymb(num_sym))
+            if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
+            allocate(Mgp%MSymop(num_sym))
+            !write(unit=*,fmt="(a)") "  Decoding symmetry operators 1"
+
+            ! Decode the symmetry operators
+            do i=1,num_sym
+              line=adjustl(sym_strings(i))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%SymopSymb(i)=line(1:j-1)
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%MSymopSymb(i)=line(1:j-1)
+              read(unit=line(j:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" Error reading the time inversion in line: "//trim(sym_strings(i))
+                 return
+              else
+                 MGp%MSymOp(i)%phas=real(n)
+              end if
+              call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
+              line=MGp%MSymopSymb(i)
+              do k=1,len_trim(line)
+                if(line(k:k) == "m") line(k:k)=" "
+              end do
+              line=Pack_String(line)
+              call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
+            end do
+
+          else
+
+            if( num_rsym == 0) num_rsym=num_sym
+            ! First allocate the full number of symmetry operators after decoding if centering lattice
+            ! have been provided and if the group is centred or not
+            if(num_centering == 0) then
+               MGp%Multip=num_rsym
+            else
+               MGp%Multip=num_rsym*num_centering
+            end if
+
+            num_sym=MGp%Multip
+            if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
+            allocate(Mgp%SymopSymb(num_sym))
+            if(allocated(Mgp%Symop)) deallocate(Mgp%Symop)
+            allocate(Mgp%Symop(num_sym))
+            if(allocated(Mgp%MSymopSymb)) deallocate(Mgp%MSymopSymb)
+            allocate(Mgp%MSymopSymb(num_sym))
+            if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
+            allocate(Mgp%MSymop(num_sym))
+            ! Decode the symmetry operators
+            !write(unit=*,fmt="(a)") "  Decoding symmetry operators 2"
+            do i=1,num_rsym
+              line=adjustl(sym_strings(i))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%SymopSymb(i)=line(1:j-1)
+              k=index(MGp%SymopSymb(i),",",back=.true.)
+              read(unit=MGp%SymopSymb(i)(k+1:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" Error reading the time inversion in line: "//trim(sym_strings(i))
+                 return
+              else
+                 MGp%MSymOp(i)%phas=real(n)
+              end if
+              MGp%SymopSymb(i)=MGp%SymopSymb(i)(1:k-1)
+              call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
+
+              !Now construc the magnetic rotation symbols
+              line=adjustl(line(j+1:))
+              if(len_trim(line) /= 0) then
+                j=index(line," ")
+                MGp%MSymopSymb(i)=line(1:j-1)
+                line=MGp%MSymopSymb(i)
+                do k=1,len_trim(line)
+                  if(line(k:k) == "m") line(k:k)=" "
+                end do
+                line=Pack_String(line)
+                call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
+              else
+                det=determ_a(MGp%Symop(i)%Rot)
+                MGp%MSymop(i)%Rot=MGp%Symop(i)%Rot*det*nint(MGp%MSymOp(i)%phas)
+                call Get_Symsymb(MGp%MSymOp(i)%Rot,(/0.0,0.0,0.0/),line)
+                !Expand the operator "line" to convert it to mx,my,mz like
+                mxmymz_op=" "
+                do j=1,len_trim(line)
+                  Select Case(line(j:j))
+                    case("x")
+                       mxmymz_op=trim(mxmymz_op)//"mx"
+                    case("y")
+                       mxmymz_op=trim(mxmymz_op)//"my"
+                    case("z")
+                       mxmymz_op=trim(mxmymz_op)//"mz"
+                    case default
+                       mxmymz_op=trim(mxmymz_op)//line(j:j)
+                  End Select
+                end do
+                MGp%MSymopSymb(i)=trim(mxmymz_op)
+              end if
+
+
+            end do
+            !Decode lattice translations and anti-translations
+
+            !write(unit=*,fmt="(a)") "  Decoding lattice translations and anti-translations"
+            m=num_rsym
+            do L=2,num_centering
+              line=adjustl(cent_strings(L))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              line=line(1:j-1)
+              k=index(line,",",back=.true.)
+              read(unit=line(k+1:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 Err_Form=.true.
+                 Err_Form_Mess=" Error reading the time inversion in line: "//trim(cent_strings(i))
+                 return
+              end if
+              line=line(1:k-1)
+              call Read_Xsym(line,1,Rot,tr)
+
+              do j=1,num_rsym
+                m=m+1
+                v=MGp%SymOp(j)%tr(:) + tr
+                MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+                MGp%SymOp(m)%tr   = modulo_lat(v)
+                MGp%MSymOp(m)%Rot = n*MGp%MSymOp(j)%Rot
+                MGp%MSymOp(m)%phas= n*MGp%MSymOp(j)%phas
+                call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+                call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+                !Expand the operator "line" to convert it to mx,my,mz like
+                mxmymz_op=" "
+                do i=1,len_trim(line)
+                  Select Case(line(i:i))
+                    case("x")
+                       mxmymz_op=trim(mxmymz_op)//"mx"
+                    case("y")
+                       mxmymz_op=trim(mxmymz_op)//"my"
+                    case("z")
+                       mxmymz_op=trim(mxmymz_op)//"mz"
+                    case default
+                       mxmymz_op=trim(mxmymz_op)//line(i:i)
+                  End Select
+                end do
+                MGp%MSymopSymb(m)=trim(mxmymz_op)
+              end do
+            end do
+          end if
+       end if
+       ! Symmetry operators treatment done
+       Call cleanup_symmetry_operators(MGp)
+       if(Err_Form) then
+          return
+          !write(unit=*,fmt="(a)") " => "//trim(Err_Form)
+       end if
+
+       !Treating irreps
+
+       if(num_irreps == 0) then
+
+          MGp%n_irreps=0
+
+       else
+          !write(*,"(a,i3)") " Treating irreps: ",num_irreps
+          MGp%n_irreps=num_irreps
+          if(allocated(MGp%irrep_dim))          deallocate(MGp%irrep_dim)
+          if(allocated(MGp%small_irrep_dim))    deallocate(MGp%small_irrep_dim)
+          if(allocated(MGp%irrep_id))           deallocate(MGp%irrep_id)
+          if(allocated(MGp%irrep_direction))    deallocate(MGp%irrep_direction)
+          if(allocated(MGp%irrep_action))       deallocate(MGp%irrep_action)
+          if(allocated(MGp%irrep_modes_number)) deallocate(MGp%irrep_modes_number)
+          allocate(MGp%irrep_dim(num_irreps),MGp%small_irrep_dim(num_irreps),MGp%irrep_id(num_irreps), &
+                   MGp%irrep_direction(num_irreps),MGp%irrep_action(num_irreps),MGp%irrep_modes_number(num_irreps))
+
+          MGp%irrep_dim=0; MGp%small_irrep_dim=0; MGp%irrep_id=" "; MGp%irrep_direction=" "; MGp%irrep_action=" "
+          MGp%irrep_modes_number=0
+
+          do i=1,MGp%n_irreps
+
+            call getword(irreps_strings(i),lab_items,iv)
+
+            !if(iv /= nitems_irreps) write(*,"(2(a,i2))") " => Warning irreps_nitems=",nitems_irreps," /= items read=",iv
+
+            MGp%irrep_id(i)=lab_items(irrep_pos(1))
+            if(MGp%irrep_id(i) == "?") then
+               MGp%n_irreps=0
+               exit
+            end if
+
+            if (irrep_pos(2) /= 0) then
+               read(unit=lab_items(irrep_pos(2)),fmt=*,iostat=ier) MGp%irrep_dim(i)
+               if(ier /= 0) MGp%irrep_dim(i)=0
+            end if
+
+            if (irrep_pos(3) /= 0) then
+               read(unit=lab_items(irrep_pos(3)),fmt=*,iostat=ier) MGp%small_irrep_dim(i)
+               if(ier /= 0) MGp%small_irrep_dim(i)=0
+            end if
+
+            if (irrep_pos(4) /= 0) then
+               MGp%irrep_direction(i)=lab_items(irrep_pos(4))
+            end if
+
+            if (irrep_pos(5) /= 0) then
+               MGp%irrep_action(i)=lab_items(irrep_pos(5))
+            end if
+
+            if (irrep_pos(6) /= 0) then
+               read(unit=lab_items(irrep_pos(6)),fmt=*,iostat=ier) MGp%irrep_modes_number(i)
+               if(ier /= 0) MGp%irrep_modes_number(i)=0
+            end if
+
+          end do
+       end if
+       ! End treatment of irreps
+
+       ! Treating propagation vectors
+       if(num_kvs == 0) then
+         MGp%n_kv=0
+       else
+         !write(*,"(a,i3)") " Treating propagation vectors: ",num_kvs
+         do i=1,MGp%n_kv
+            line=adjustl(kv_strings(i))
+            j=index(line," ")
+            MGp%kv_label(i)=line(1:j-1)
+            line=adjustl(line(j+1:))
+            n=len_trim(line)
+            if(ktag) then
+              line=adjustl(line(2:n-1))
+              n=n-2
+              Call Get_Separator_Pos(line,",",pos,ncar)
+            else
+              Call Get_Separator_Pos(line," ",pos,ncar)
+            end if
+            keyword=line(1:pos(1)-1)//"a,"//line(pos(1)+1:pos(2)-1)//"b,"//trim(line(pos(2)+1:))//"c"
+            keyword=Pack_String(keyword)
+            call Get_Mat_From_Symb(keyword,Matr, (/"a","b","c"/) )
+            do k=1,3
+               MGp%kv(k,i)=Matr(k,k)
+            end do
+         end do
+       end if
+       ! Propagation vectors treatment done!
+
+       !Treating magnetic atoms
+       if(num_matom == 0) then
+          Am%natoms = 0
+          return
+       else
+          !write(*,"(a,i4)") " Treating magnetic atoms:  ",num_matom
+          Call Allocate_Atom_list(num_matom,Am)
+
+          do i=1,Am%natoms
+
+            call getword(atm_strings(i),lab_items,iv)
+            !if(iv /= nitems) write(*,"(2(a,i2))") " => Warning nitems=",nitems," /= items read=",iv
+            Am%atom(i)%lab=lab_items(lugar(1))
+            if (lugar(2) /= 0) then
+               Am%atom(i)%SfacSymb=lab_items(lugar(2))(1:4)
+               if(index("1234567890+-",lab_items(lugar(2))(2:2)) /= 0 ) then
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(2))(1:1))
+               else
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(2))(1:1))//L_case(lab_items(lugar(2))(2:2))
+               end if
+            else
+               if(index("1234567890+-",lab_items(lugar(1))(2:2)) /= 0 ) then
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(1))(1:1))
+               else
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(1))(1:1))//L_case(lab_items(lugar(1))(2:2))
+               end if
+               Am%atom(i)%SfacSymb=Am%atom(i)%chemSymb
+            end if
+            call getnum_std(lab_items(lugar(3)),values,std,iv)    ! _atom_site_fract_x
+            Am%atom(i)%x(1)=values(1)
+            Am%atom(i)%x_std(1)=std(1)
+            call getnum_std(lab_items(lugar(4)),values,std,iv)    ! _atom_site_fract_y
+            Am%atom(i)%x(2)=values(1)
+            Am%atom(i)%x_std(2)=std(1)
+            call getnum_std(lab_items(lugar(5)),values,std,iv)    ! _atom_site_fract_z
+            Am%atom(i)%x(3)=values(1)
+            Am%atom(i)%x_std(3)=std(1)
+
+            if (lugar(6) /= 0) then  ! _atom_site_U_iso_or_equiv
+               call getnum_std(lab_items(lugar(6)),values,std,iv)
+               Am%atom(i)%ueq=values(1)
+               Am%atom(i)%Biso=values(1)*78.95683521     !If anisotropic they
+               Am%atom(i)%Biso_std=std(1)*78.95683521    !will be put to zero
+            else if (lugar(10) /= 0) then    ! _atom_site_B_iso_or_equiv
+               call getnum_std(lab_items(lugar(10)),values,std,iv)
+               Am%atom(i)%ueq=values(1)/78.95683521
+               Am%atom(i)%Biso=values(1)     !If anisotropic they
+               Am%atom(i)%Biso_std=std(1)    !will be put to zero
+            else
+               Am%atom(i)%ueq=0.0
+               Am%atom(i)%Biso=0.0
+               Am%atom(i)%Biso_std=0.0
+            end if
+            Am%atom(i)%utype="u_ij"
+
+            if (lugar(7) /= 0) then ! _atom_site_occupancy
+               call getnum_std(lab_items(lugar(7)),values,std,iv)
+            else
+               values=1.0
+               std=0.0
+            end if
+            Am%atom(i)%occ=values(1)
+            Am%atom(i)%occ_std=std(1)
+
+            if(lugar(8) /= 0) then
+              read(unit=lab_items(lugar(8)),fmt=*) Mult
+              Am%atom(i)%mult=Mult
+            else
+              Call Get_mOrbit(Am%atom(i)%x,MGp,Mult,orb)
+              Am%atom(i)%mult=Mult
+            end if
+            !Conversion from occupancy to occupation factor
+            Am%atom(i)%occ=Am%atom(i)%occ*real(Mult)/real(MGp%Multip)
+
+            if(lugar(9) /= 0) then
+               Am%atom(i)%wyck=adjustl(trim(lab_items(lugar(9))))
+            end if
+
+          end do
+       end if
+
+       !Treating moments of magnetic atoms
+       if(num_mom /= 0) then
+          !write(*,"(a,i4)") " Treating magnetic moments:  ",num_mom
+          m=4
+          if(mom_symmform) m=5
+          do i=1,num_mom
+            call getword(mom_strings(i),lab_items,iv)
+            !write(*,"(2i6,tr4,5(a,tr3))") k,iv,lab_items(1:iv)
+            if(iv /= m) then
+               Err_Form=.true.
+               write(unit=Err_Form_Mess,fmt="(a,i4)")" Error reading magnetic moment #",i
+               Err_Form_Mess=trim(Err_Form_Mess)//" -> 4-5 items expected in this line: 'Label mx my mz', read: "// &
+                                                      trim(mom_strings(i))
+               return
+            end if
+            label=Lab_items(1)
+            do j=1,Am%natoms
+               if(label == Am%Atom(j)%lab) then
+                 do k=1,3
+                     call getnum_std(lab_items(1+k),values,std,iv)
+                     Am%Atom(j)%M_xyz(k)=values(1)
+                     Am%Atom(j)%sM_xyz(k)=std(1)
+                 end do
+                 Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+               end if
+            end do
+          end do
+       end if
+
+       if(num_constr /= 0) then
+
+         !write(*,"(a,i4)") " Treating constraints:  ",num_constr
+         do i=1,num_constr
+           line=adjustl(constr_strings(i))
+           j=index(line," ")
+           label=line(1:j-1)
+           keyword=adjustl(line(j+1:))
+           Call Get_Separator_Pos(keyword,",",pos,ncar)
+           if(ncar == 0) then !There are no ","
+             j=index(keyword," ")
+             shubk=keyword(1:j-1)//","
+             keyword=adjustl(keyword(j+1:))
+             j=index(keyword," ")
+             shubk=trim(shubk)//keyword(1:j-1)//","
+             keyword=trim(shubk)//trim(adjustl(keyword(j+1:)))
+           end if
+           do j=1,len_trim(keyword)
+             if(keyword(j:j) == "m") keyword(j:j) = " "
+           end do
+           keyword=Pack_String(keyword)
+           !write(*,"(a)") "  constr_string: "//trim(line)
+           !write(*,"(a)") "        keyword: "//trim(keyword)
+           call Get_Mat_From_Symb(keyword,Matr, (/"x","y","z"/) )
+           !write(*,"(9f10.3)") Matr
+           do j=1,Am%natoms
+             if(label == Am%Atom(j)%lab) then
+                Am%Atom(j)%M_xyz=matmul(Matr,Am%Atom(j)%M_xyz)
+                Am%Atom(j)%AtmInfo=constr_strings(i)
+                Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+                exit
+             end if
+           end do
+           !The treatment of the codes will be done in the future
+         end do
+       end if
+
+       if(num_magscat > 0) then !Reading the valence for determining the magnetic form factor
+         do i=1,num_magscat
+           call getword(mag_scatt_string(i),lab_items,iv)
+           do j=1,Am%natoms
+             if(Am%atom(j)%chemSymb == lab_items(1)) then
+               Am%atom(j)%SfacSymb=lab_items(2)
+               if(lab_items(2) /= ".") then !magnetic atoms
+                  Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+               end if
+             end if
+           end do
+         end do
+       end if
+
+       !Get pointers to the magnetic form factors
+       !Stored for each atom in the component ind(1)
+       call Set_Magnetic_Form()
+
+       !---- Find Species in Magnetic_Form ----!
+       do i=1,Am%natoms
+          symbcar=get_magnetic_form_factor(Am%atom(i)%SfacSymb)
+          do j=1,num_mag_form
+             if (symbcar /= Magnetic_Form(j)%Symb) cycle
+             Am%atom(i)%ind(2)=j
+             Am%atom(i)%SfacSymb=symbcar
+             exit
+          end do
+       end do
+
+       return
+    End Subroutine Readn_Set_Magnetic_Structure_MCIF
+
     !!--++
     !!--++ Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
@@ -4329,6 +5976,94 @@
 
     End Subroutine Readn_Set_Xtal_Structure_Split
 
+    Subroutine Readn_Set_Xtal_Structure_Magn(filenam,Cell,SpG,A,Mode,Iphase,Job_Info,file_list,CFrame)
+       !---- Arguments ----!
+       character(len=*),                 intent( in)     :: filenam
+       Type (Crystal_Cell_Type),         intent(out)     :: Cell
+       Type (Magnetic_Space_Group_Type), intent(out)     :: SpG
+       Type (atom_list_type),            intent(out)     :: A
+       Character(len=*),    optional,    intent( in)     :: Mode
+       Integer,             optional,    intent( in)     :: Iphase
+       Type(Job_Info_type), optional,    intent(out)     :: Job_Info
+       Type(file_list_type),optional,    intent(in out)  :: file_list
+       Character(len=*),    optional,    intent( in)     :: CFrame
+       !
+       character(len=132), allocatable, dimension(:) :: file_dat
+       character(len=3)                              :: modec
+       integer                                       :: nlines
+
+       call init_err_form()
+
+       nlines=0
+       if (present(file_list)) nlines=file_list%nlines
+
+       !---- Number of Lines in the input file ----!
+       if(nlines == 0) then
+           call Number_Lines(trim(filenam), nlines)
+           if (nlines==0) then
+              err_form=.true.
+              ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
+              return
+           else
+              if (allocated(file_dat)) deallocate( file_dat)
+              allocate( file_dat(nlines))
+              call reading_Lines(trim(filenam),nlines,file_dat)
+           end if
+           if (present(file_list)) then
+              file_list%nlines=nlines
+              if (allocated(file_list%line)) deallocate(file_list%line)
+              allocate(file_list%line(nlines))
+              file_list%line=file_dat
+           end if
+       else
+           if (allocated(file_dat)) deallocate( file_dat)
+           allocate( file_dat(nlines))
+           file_dat=file_list%line
+       end if
+
+       !---- Define the type of file: CIF, CFL, RES,... ----!
+       modec=" "
+       if (present(mode)) modec=l_case(mode(1:3))
+
+       select case(modec)
+           case("cif")
+
+              call Readn_Set_Magnetic_Structure_MCIF(filenam,Cell,Spg,A)
+
+           case default
+              !---- CFL Format ----!
+              if (present(Job_Info)) then
+                 if (present(iphase)) then
+                    if(present(CFrame)) then
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,SpG,A,CFrame,NPhase=IPhase,Job_Info=Job_Info)
+                    else
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,NPhase=IPhase,Job_Info=Job_Info)
+                    end if
+                 else
+                    if(present(CFrame)) then
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,CFrame,Job_Info=Job_Info)
+                    else
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,Job_Info=Job_Info)
+                    end if
+                 end if
+              else
+                 if (present(iphase)) then
+                    if(present(CFrame)) then
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,CFrame,NPhase=IPhase)
+                    else
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,NPhase=IPhase)
+                    end if
+                 else
+                    if(present(CFrame)) then
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A,CFrame)
+                    else
+                      call Readn_Set_XTal_CFL_Shub(file_dat,nlines,Cell,Spg,A)
+                    end if
+                 end if
+              end if
+
+       end select
+    End Subroutine Readn_Set_Xtal_Structure_Magn
     !!----
     !!---- Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
     !!----    character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
@@ -6590,6 +8325,206 @@
 
        return
     End Subroutine Write_Atoms_CFL_MOLX_orig
+
+    Subroutine Write_MCIF(Ipr,mCell,MSGp,Am,Cell)
+       Integer,                         intent(in)           :: Ipr
+       type(Magnetic_Space_Group_Type), intent(in)           :: MSGp
+       type(Crystal_Cell_Type),         intent(in)           :: mCell
+       type(Atom_List_Type),            intent(in)           :: Am
+       type(Crystal_Cell_Type),optional,intent(in)           :: Cell
+       !
+       Character(len=132)             :: line
+       character(len=80),dimension(6) :: text
+       character(len=2)               :: invc
+       real(kind=cp)                  :: occ,occ_std,uiso,uiso_std
+       integer :: i,j
+
+       write(unit=Ipr,fmt="(a)") "#  --------------------------------------"
+       write(unit=Ipr,fmt="(a)") "#  Magnetic CIF file generated by CrysFML"
+       write(unit=Ipr,fmt="(a)") "#  --------------------------------------"
+       write(unit=Ipr,fmt="(a)") "# https://forge.epn-campus.eu/projects/crysfml/repository"
+       call Write_Date_Time(dtim=line)
+       write(unit=Ipr,fmt="(a)") trim(line)
+       write(unit=Ipr,fmt="(a)") " "
+
+       write(unit=Ipr,fmt="(a)") "data_"
+       write(unit=Ipr,fmt="(a)") "_citation_journal_abbrev ?"
+       write(unit=Ipr,fmt="(a)") "_citation_journal_volume ?"
+       write(unit=Ipr,fmt="(a)") "_citation_page_first     ?"
+       write(unit=Ipr,fmt="(a)") "_citation_page_last      ?"
+       write(unit=Ipr,fmt="(a)") "_citation_article_id     ?"
+       write(unit=Ipr,fmt="(a)") "_citation_year           ?"
+       write(unit=Ipr,fmt="(a)") "_loop "
+       write(unit=Ipr,fmt="(a)") "_citation_author_name"
+       write(unit=Ipr,fmt="(a)") "?"
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)") "_atomic_positions_source_database_code_ICSD  ?"
+       write(unit=Ipr,fmt="(a)") "_atomic_positions_source_other    .  "
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)") "_Neel_temperature  ?"
+       write(unit=Ipr,fmt="(a)") "_magn_diffrn_temperature  ?"
+       write(unit=Ipr,fmt="(a)") "_exptl_crystal_magnetic_properties_details"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") "_active_magnetic_irreps_details"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") " "
+       if(MSGp%standard_setting) then
+          write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'yes'"
+       else
+          write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'no'"
+       end if
+       write(unit=Ipr,fmt="(a)")    '_parent_space_group.name_H-M  "'//trim(MSGp%Parent_spg)//'"'
+       write(unit=Ipr,fmt="(a,i3)") "_parent_space_group.IT_number  ",MSGp%Parent_num
+       write(unit=Ipr,fmt="(a)")    "_magnetic_space_group.transform_from_parent_Pp_abc  '"//trim(MSGp%trn_from_parent)//"'"
+       write(unit=Ipr,fmt="(a)")    "_magnetic_space_group.transform_to_standard_Pp_abc  '"//trim(MSGp%trn_to_standard)//"'"
+       write(unit=Ipr,fmt="(a)")
+       if(len_trim(MSGp%BNS_number) /= 0) &
+       write(unit=Ipr,fmt="(a)") "_space_group.magn_number_BNS  "//trim(MSGp%BNS_number)
+       if(len_trim(MSGp%BNS_symbol) /= 0) &
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_name_BNS  "'//trim(MSGp%BNS_symbol)//'"'
+       if(len_trim(MSGp%OG_number) /= 0) &
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_number_OG '//trim(MSGp%OG_number)
+       if(len_trim(MSGp%OG_symbol) /= 0) &
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_name_OG  "'//trim(MSGp%OG_symbol)//'"'
+       write(unit=Ipr,fmt="(a)")
+
+       if(MSGp%n_irreps /= 0) then
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_irrep_id"
+          write(unit=Ipr,fmt="(a)") "_irrep_dimension"
+          if( any(MSGp%small_irrep_dim > 0) ) write(unit=Ipr,fmt="(a)") "_small_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_irrep_direction_type"
+          write(unit=Ipr,fmt="(a)") "_irrep_action"
+          if( any(MSGp%irrep_modes_number > 0) ) write(unit=Ipr,fmt="(a)") "_irrep_modes_number"
+          do i=1,MSGp%n_irreps
+            if(MSGp%small_irrep_dim(i) > 0) then
+               write(unit=line,fmt=("(2i4)"))  MSGp%irrep_dim(i), MSGp%small_irrep_dim(i)
+            else
+               write(unit=line,fmt=("(i4)"))  MSGp%irrep_dim(i)
+            end if
+            line= trim(MSGp%irrep_id(i))//"  "//trim(line)//"   "// &
+                                      trim(MSGp%irrep_direction(i))//"  "//trim(MSGp%irrep_action(i))
+            if( MSGp%irrep_modes_number(i) > 0) then
+               j=len_trim(line)
+              write(unit=line(j+1:),fmt="(i4)") MSGp%irrep_modes_number(i)
+            end if
+            write(unit=Ipr,fmt="(a)") trim(line)
+          end do
+          write(unit=Ipr,fmt="(a)")
+       else
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_irrep_id"
+          write(unit=Ipr,fmt="(a)") "_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_small_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_irrep_direction_type"
+          write(unit=Ipr,fmt="(a)") "_irrep_action"
+          write(unit=Ipr,fmt="(a)") "_irrep_modes_number"
+          write(unit=Ipr,fmt="(a)") " ?  ?  ?  ?  ?  ?"
+          write(unit=Ipr,fmt="(a)")
+       end if
+
+       if(MSGp%m_cell) then
+          do i=1,3
+            call setnum_std(mCell%Cell(i),mCell%cell_std(i),text(i))
+            call setnum_std(mCell%ang(i),mCell%ang_std(i),text(i+3))
+          end do
+          write(unit=Ipr,fmt="(a)") "_cell_length_a    "//trim(text(1))
+          write(unit=Ipr,fmt="(a)") "_cell_length_b    "//trim(text(2))
+          write(unit=Ipr,fmt="(a)") "_cell_length_c    "//trim(text(3))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_alpha "//trim(text(4))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_beta  "//trim(text(5))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_gamma "//trim(text(6))
+          write(unit=Ipr,fmt="(a)")
+       else
+          if(present(Cell)) then
+             do i=1,3
+               call setnum_std(Cell%Cell(i),Cell%cell_std(i),text(i))
+               call setnum_std(Cell%ang(i),Cell%ang_std(i),text(i+3))
+             end do
+             write(unit=Ipr,fmt="(a)") "_cell_length_a    "//trim(text(1))
+             write(unit=Ipr,fmt="(a)") "_cell_length_b    "//trim(text(2))
+             write(unit=Ipr,fmt="(a)") "_cell_length_c    "//trim(text(3))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_alpha "//trim(text(4))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_beta  "//trim(text(5))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_gamma "//trim(text(6))
+             write(unit=Ipr,fmt="(a)")
+          end if
+       end if
+       if(MSGp%n_kv > 0) then
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_magnetic_propagation_vector_seq_id"
+          write(unit=Ipr,fmt="(a)") "_magnetic_propagation_vector_kxkykz"
+          do i=1,MSGp%n_kv
+            call Frac_Trans_2Dig(MSGp%kv(:,i),line)
+            line=adjustl(line(2:len_trim(line)-1))
+            write(unit=Ipr,fmt="(a)") trim(MSGp%kv_label(i))//"  '"//trim(line)//"'"
+          end do
+       end if
+       if(MSGp%m_constr) then
+          write(unit=Ipr,fmt="(a)")
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_symmetry_constraints_label"
+          write(unit=Ipr,fmt="(a)") "_atom_site_magnetic_moment_symmetry_constraints_mxmymz"
+          do i=1,Am%natoms
+            line=Am%Atom(i)%AtmInfo
+            if(len_trim(line) < 8) cycle
+            write(unit=Ipr,fmt="(a)")trim(line)
+          end do
+       end if
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)")  "loop_"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.id"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.xyz"
+       write(unit=Ipr,fmt="(a)")  "_space_group_magn_symop_operation.mxmymz"
+       do i=1,MSGp%Multip            !New mCIF format
+          write(unit=invc,fmt="(i2)") nint(MSgp%MSymop(i)%Phas)
+          if(invc(1:1) == " ") invc(1:1)="+"
+          write(unit=Ipr,fmt="(i3,a)") i," "//trim(MSgp%SymopSymb(i))//","//invc//" "//trim(MSgp%MSymopSymb(i))
+       end do
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)") "loop_"
+       write(unit=Ipr,fmt="(a)") "_atom_site_label"
+       write(unit=Ipr,fmt="(a)") "_atom_site_type_symbol"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_x"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_y"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_z"
+       write(unit=Ipr,fmt="(a)") "_atom_site_U_iso_or_equiv"
+       write(unit=Ipr,fmt="(a)") "_atom_site_occupancy"
+       write(unit=Ipr,fmt="(a)") "_atom_site_symmetry_multiplicity"
+       write(unit=Ipr,fmt="(a)") "_atom_site_Wyckoff_label"
+       line=" "
+       do i=1,Am%natoms
+          do j=1,3
+            call setnum_std(Am%atom(i)%x(j),Am%atom(i)%x_std(j),text(j))
+          end do
+          occ=real(MSgp%Multip)/real(Am%atom(i)%Mult)*Am%atom(i)%occ
+          occ_std=real(MSgp%Multip)/real(Am%atom(i)%Mult)*Am%atom(i)%occ_std
+          call setnum_std(occ,occ_std,text(5))
+          uiso=Am%atom(i)%biso/78.95683521
+          uiso_std=Am%atom(i)%biso_std/78.95683521
+          call setnum_std(uiso,uiso_std,text(4))
+          write(unit=Ipr,fmt="(a6,a6,3a13,2a11,i4,a)") Am%Atom(i)%lab, Am%atom(i)%SfacSymb,(text(j),j=1,5),&
+                                                       Am%atom(i)%Mult," "//Am%atom(i)%wyck
+       end do
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)") "loop_"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_label"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_x"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_y"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_z"
+       do i=1,Am%natoms
+          !if(sum(abs(Am%Atom(i)%Skr(:,1))) < 0.0001) cycle
+          if(Am%Atom(i)%moment < 0.01) cycle
+          do j=1,3
+            call setnum_std(Am%atom(i)%M_xyz(j),Am%atom(i)%sM_xyz(j),text(j))
+          end do
+          write(unit=Ipr,fmt="(a8,3a12)") Am%Atom(i)%lab,(text(j),j=1,3)
+       end do
+       write(unit=Ipr,fmt="(a)")
+       return
+    End Subroutine Write_MCIF
 
  End Module CFML_IO_Formats
 

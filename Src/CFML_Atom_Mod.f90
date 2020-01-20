@@ -1853,6 +1853,11 @@ Contains
                    "Atom      Chem        x/a       y/b       z/c       Biso      Occ     Moment    Charge   Active   Mult"
              write (unit=iunit,fmt="(T5,a)") &
                    "======================================================================================================"
+          case (2)
+             write (unit=iunit,fmt="(T5,a)") &
+                   "Atom      Chem        x/a       y/b       z/c       Biso     Occ       Mult      Mx       My       Mz    Active"
+             write (unit=iunit,fmt="(T5,a)") &
+                   "==============================================================================================================="
        end select
 
        aniso=.false.
@@ -1870,6 +1875,11 @@ Contains
                      ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
                      ats%atom(i)%biso,ats%atom(i)%occ,ats%atom(i)%moment,ats%atom(i)%charge,&
                      car,ats%atom(i)%mult,trim("  "//ats%atom(i)%AtmInfo)
+             case (2)
+                write(unit=iunit,fmt="(T5,a,T16,a,T21,5f10.4,T69,a,i9,3f10.4,a)") &
+                     ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
+                     ats%atom(i)%biso,ats%atom(i)%occ,&
+                     car,ats%atom(i)%mult,ats%atom(i)%M_xyz,trim("  "//ats%atom(i)%AtmInfo)
           end select
        end do
 

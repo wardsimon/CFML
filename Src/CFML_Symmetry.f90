@@ -98,6 +98,7 @@
 !!--++       IS_AXIS                   [Private]
 !!--++       IS_DIGIT                  [Private]
 !!--++       IS_HEXA                   [Private]
+!!----       IS_LATTICE_VEC
 !!----       IS_NEW_OP
 !!--++       IS_PLANE                  [Private]
 !!--++       IS_XYZ                    [Private]
@@ -133,6 +134,8 @@
 !!----       GET_SO_FROM_HALL
 !!----       GET_SO_FROM_HMS
 !!----       GET_STABILIZER
+!!--++       GET_STABILIZERC
+!!--++       GET_STABILIZERM
 !!----       GET_STRING_RESOLV
 !!----       GET_SUBORBITS
 !!----       GET_SYMEL
@@ -207,7 +210,7 @@
     !---- List of public functions ----!
     public  :: ApplySO, Axes_Rotation, Get_Laue_Num, Get_Multip_Pos, Get_Occ_Site,     &
                Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod,     &
-               Get_MagMatSymb
+               Get_MagMatSymb, is_Lattice_vec
 
     !---- List of public subroutines ----!
     public  :: Decodmatmag, Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,              &
@@ -222,7 +225,7 @@
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
                Check_Generator, Copy_NS_SpG_To_SpG, Allocate_Lattice_Centring,Write_Magnetic_Space_Group, &
                Get_Generators_From_SpGSymbol,Set_Intersection_SPG,Get_Setting_Info,                  &
-               Init_Magnetic_Space_Group_Type
+               Init_Magnetic_Space_Group_Type,Get_mOrbit
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop,Get_Multip_Pos_Crys,Get_Multip_Pos_Mag
@@ -233,9 +236,9 @@
     !---- List of private subroutines ----!
     private :: Check_Symbol_Hm, Get_Seitz, Get_SymSymbI, Get_SymSymbR, Mod_Trans, Sym_B_Relations_Op  , &
                Sym_B_Relations_St, Symmetry_Symbol_Op, Symmetry_Symbol_Xyz , Symmetry_Symbol_Str,       &
-               Max_Conv_Lattice_Type,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST, &
-               Setting_Change_Conv,Setting_Change_NonConv,Setting_Change_MagGroup
-
+               Max_Conv_Lattice_Type,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST,                   &
+               Setting_Change_Conv,Setting_Change_NonConv,Setting_Change_MagGroup,Get_mOrbit_mom,       &
+               Get_mOrbit_pos,Get_Stabilizerc,Get_Stabilizerm
 
     !---- Global Variables ----!
 
@@ -796,10 +799,20 @@
        Module Procedure Get_Multip_Pos_mag
     End Interface Get_Multip_Pos
 
+    Interface Get_mOrbit
+       Module Procedure Get_mOrbit_Pos
+       Module Procedure Get_mOrbit_mom
+    End Interface Get_mOrbit
+
     Interface  Get_SymSymb
        Module Procedure Get_SymSymbI
        Module Procedure Get_SymSymbR
     End Interface  Get_SymSymb
+
+    Interface  Get_Stabilizer
+       Module Procedure Get_Stabilizerc
+       Module Procedure Get_Stabilizerm
+    End Interface  Get_Stabilizer
 
     Interface  Setting_Change
        Module Procedure Setting_Change_Conv
@@ -1304,6 +1317,49 @@
 
        return
     End Function Is_Hexa
+
+    !!---- Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
+    !!----    !---- Argument ----!
+    !!----    real(kind=cp), dimension(3),   intent( in) :: v
+    !!----    real(kind=cp), dimension(:,:), intent( in) :: Ltr
+    !!----    integer,                       intent( in) :: nlat
+    !!----    integer,                       intent(out) :: nl
+    !!----    logical                                    :: Lattice_Transl
+    !!----
+    !!----  Logical function that provides the value .true. if the vector V is a
+    !!----  lattice vector.
+    !!----
+    !!----  Created: February 2014 (JRC)
+    !!----
+    Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
+       !---- Argument ----!
+       real(kind=cp), dimension(3),   intent( in) :: v
+       real(kind=cp), dimension(:,:), intent( in) :: Ltr
+       integer,                       intent( in) :: nlat
+       integer,                       intent(out) :: nl
+       logical                                    :: Lattice_Transl
+
+       !---- Local variables ----!
+       real(kind=cp)   , dimension(3) :: vec
+       integer                        :: i
+
+       Lattice_Transl=.false.
+       nl=0
+
+       if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
+          Lattice_Transl=.true.
+       else                       ! if not look for lattice type
+          do i=1,nlat
+            vec=Ltr(:,i)-v
+            if (Zbelong(vec)) then
+              Lattice_Transl=.true.
+              nl=i
+              exit
+            end if
+          end do
+       end if
+       return
+    End Function is_Lattice_vec
 
     !!----
     !!---- Logical Function Is_New_Op(Op,N,List_Op) Result(Is_New)
@@ -3787,6 +3843,105 @@
 
        return
     End Subroutine Get_Laue_Str
+
+    !!--++
+    !!--++  Subroutine Get_mOrbit_pos(x,Spg,Mult,orb,ptr)
+    !!--++     !---- Arguments ----!
+    !!--++     real(kind=cp), dimension(3),    intent (in) :: x
+    !!--++     type(Magnetic_Space_Group_type),intent (in) :: spg
+    !!--++     integer,                        intent(out) :: mult
+    !!--++     real(kind=cp),dimension(:,:),   intent(out) :: orb
+    !!--++     integer,dimension(:),optional,  intent(out) :: ptr
+    !!--++
+    !!--++     Calculates the orbit and mutiplicity of an atom position x
+    !!--++     in a crystal structure described by a Shubnikov Group
+    !!--++
+    !!--++     Updated: January 2020
+    !!--++
+    Subroutine Get_mOrbit_pos(x,Spg,Mult,orb,ptr)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in) :: x
+       type(Magnetic_Space_Group_type),intent (in) :: spg
+       integer,                        intent(out) :: mult
+       real(kind=cp),dimension(:,:),   intent(out) :: orb
+       integer,dimension(:),optional,  intent(out) :: ptr
+
+       !---- Local variables ----!
+       integer                                :: j, nt
+       real(kind=cp), dimension(3)            :: xx,v
+       character(len=1)                       :: laty
+
+       laty="P"
+       mult=1
+       orb(:,1)=x(:)
+       if(present(ptr)) ptr(mult) = 1
+       ext: do j=2,Spg%Multip
+          xx=ApplySO(Spg%SymOp(j),x)
+          xx=modulo_lat(xx)
+          do nt=1,mult
+             v=orb(:,nt)-xx(:)
+             if (Lattice_trans(v,laty)) cycle ext
+          end do
+          mult=mult+1
+          orb(:,mult)=xx(:)
+          if(present(ptr)) ptr(mult) = j   !Effective symop
+       end do ext
+       return
+    End Subroutine Get_mOrbit_pos
+
+    !!--++
+    !!--++  Subroutine Get_mOrbit_mom(x,mom,Spg,Mult,orb,morb,ptr)
+    !!--++     !---- Arguments ----!
+    !!--++     real(kind=cp), dimension(3),    intent (in) :: x
+    !!--++     type(Magnetic_Space_Group_type),intent (in) :: spg
+    !!--++     integer,                        intent(out) :: mult
+    !!--++     real(kind=cp),dimension(:,:),   intent(out) :: orb
+    !!--++     integer,dimension(:),optional,  intent(out) :: ptr
+    !!--++
+    !!--++     Calculates the orbit and mutiplicity of an atom position x
+    !!--++     in a crystal structure described by a Shubnikov Group
+    !!--++     The values of the moments along the orbit is also calculated
+    !!--++
+    !!--++     Updated: January 2020
+    !!--++
+    Subroutine Get_mOrbit_mom(x,mom,Spg,Mult,orb,morb,ptr)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in) :: x,mom
+       type(Magnetic_Space_Group_type),intent (in) :: spg
+       integer,                        intent(out) :: mult
+       real(kind=cp),dimension(:,:),   intent(out) :: orb,morb
+       integer,dimension(:),optional,  intent(out) :: ptr
+
+       !---- Local variables ----!
+       integer                                :: j, nt
+       real(kind=cp), dimension(3)            :: xx,v,mmom,w
+       character(len=1)                       :: laty
+
+       laty="P"
+       mult=1
+       orb(:,1)=x(:)
+       morb(:,1)=mom(:)
+       if(present(ptr)) ptr(mult) = 1
+       ext: do j=2,Spg%Multip
+          xx=ApplySO(Spg%SymOp(j),x)
+          xx=modulo_lat(xx)
+          mmom=matmul(Spg%MSymOp(j)%Rot,mom)  !*Spg%MSymOp(j)%Phas <= This is already contained in Rot
+          do nt=1,mult
+             v=orb(:,nt)-xx(:)
+             w=morb(:,nt)-mmom(:)
+             if (Lattice_trans(v,laty)) then
+              if(abs(sum(w)) > eps_symm) mmom=0.0
+              cycle ext
+             end if
+          end do
+          mult=mult+1
+          orb(:,mult)=xx(:)
+          morb(:,mult)=mmom(:)
+          if(present(ptr)) ptr(mult) = j   !Effective symop
+       end do ext
+       return
+    End Subroutine Get_mOrbit_mom
+
 
     !!----
     !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim,symm,preserve)
@@ -6606,23 +6761,23 @@
        return
     End Subroutine Get_SO_from_HMS
 
-    !!----
-    !!---- Subroutine Get_Stabilizer(X,Spg,Order,Ptr,Atr)
-    !!----    real(kind=cp), dimension(3),  intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
-    !!----    type(Space_Group_type),       intent (in)  :: Spg   ! Space group
-    !!----    integer,                      intent(out)  :: order ! Number of sym.op. keeping invariant the position x
-    !!----    integer, dimension(:),        intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
-    !!----                                                        ! of the stabilizer (point group) of x
-    !!----    real(kind=cp), dimension(:,:),intent(out)  :: atr   ! Associated additional translation to the symmetry operator
-    !!----
-    !!----    Subroutine to obtain the list of symmetry operator of a space group that leaves
-    !!----    invariant an atomic position. This subroutine provides a pointer to the symmetry
-    !!----    operators of the site point group and the additional translation with respect to
-    !!----    the canonical representant.
-    !!----
-    !!---- Update: June - 2011 (JRC)
+    !!--++
+    !!--++ Subroutine Get_Stabilizerc(X,Spg,Order,Ptr,Atr)
+    !!--++    real(kind=cp), dimension(3),  intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
+    !!--++    type(Space_Group_type),       intent (in)  :: Spg   ! Space group
+    !!--++    integer,                      intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+    !!--++    integer, dimension(:),        intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+    !!--++                                                        ! of the stabilizer (point group) of x
+    !!--++    real(kind=cp), dimension(:,:),intent(out)  :: atr   ! Associated additional translation to the symmetry operator
+    !!--++
+    !!--++    Subroutine to obtain the list of symmetry operator of a space group that leaves
+    !!--++    invariant an atomic position. This subroutine provides a pointer to the symmetry
+    !!--++    operators of the site point group and the additional translation with respect to
+    !!--++    the canonical representant.
+    !!--++
+    !!--++ Update: June - 2011 (JRC)
     !!
-    Subroutine Get_Stabilizer(X,Spg,Order,Ptr,Atr)
+    Subroutine Get_Stabilizerc(X,Spg,Order,Ptr,Atr)
        !---- Arguments ----!
        real(kind=cp), dimension(3),  intent (in)  :: x     ! real space position (fractional coordinates)
        type(Space_Group_type),       intent (in)  :: Spg   ! Space group
@@ -6656,7 +6811,54 @@
        end do
 
        return
-    End Subroutine Get_Stabilizer
+    End Subroutine Get_Stabilizerc
+
+    !!--++ Subroutine get_stabilizerm(x,Spg,order,ptr,atr)
+    !!--++    !---- Arguments ----!
+    !!--++    real(kind=cp), dimension(3),    intent (in)  :: x     ! real space position (fractional coordinates)
+    !!--++    type(Magnetic_Space_Group_type),intent (in)  :: Spg   ! Magnetic Space group
+    !!--++    integer,                        intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+    !!--++    integer, dimension(:),          intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+    !!--++                                                          ! of the stabilizer of x
+    !!--++    real(kind=cp), dimension(:,:),  intent(out)  :: atr   ! Associated additional translation to the symmetry operator
+    !!--++
+    !!--++  Update: January - 2020 (JRC)
+    !!--++
+    !!--++
+    Subroutine get_stabilizerm(x,Spg,order,ptr,atr)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),    intent (in)  :: x     ! real space position (fractional coordinates)
+       type(Magnetic_Space_Group_type),intent (in)  :: Spg   ! Space group
+       integer,                        intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+       integer, dimension(:),          intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+                                                             ! of the stabilizer of x
+       real(kind=cp), dimension(:,:),  intent(out)  :: atr   ! Associated additional translation to the symmetry operator
+       !---- Local variables ----!
+       real(kind=cp), dimension(3)    :: xx, tr
+
+       integer                        :: j,n1,n2,n3
+
+       order    = 1    !Identity belongs always to the stabilizer
+       ptr(:)   = 0
+       atr(:,:) = 0.0
+       ptr(1)   = 1
+
+       do n1=-1,1
+        do n2=-1,1
+          do n3=-1,1
+            tr=real((/n1,n2,n3/))
+             do j=2,Spg%multip
+                xx=ApplySO(Spg%SymOp(j),x)+tr-x
+                if (sum(abs(xx)) > 0.001) cycle
+                order=order+1
+                ptr(order)=j
+                atr(:,order)=tr
+             end do
+          end do
+        end do
+       end do
+       return
+    End Subroutine get_stabilizerm
 
     !!----
     !!---- Subroutine Get_String_Resolv(T,X,Ix,Symb)
