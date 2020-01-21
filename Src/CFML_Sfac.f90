@@ -98,7 +98,7 @@
     !---- Use Modules ----!
     Use CFML_IO_Formats,                  only: file_list_type
     Use CFML_GlobalDeps,                  only: cp,dp,tpi
-    Use CFML_Math_General,                only: atan2d
+    Use CFML_Math_General,                only: atan2d,cosd
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables
     Use CFML_Crystal_Metrics,             only: Crystal_Cell_type
