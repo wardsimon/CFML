@@ -147,7 +147,8 @@
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
               Get_job_info, File_To_FileList, Get_Phases_File, Read_Cif_Pressure,                &
               Read_Cif_Temp,Readn_Set_Magnetic_Space_Group, Set_Magnetic_Space_Group,            &
-              Cleanup_Symmetry_Operators,Write_mCIF, Get_Refinement_Codes, Get_moment_ctr
+              Cleanup_Symmetry_Operators,Write_mCIF, Get_Refinement_Codes, Get_moment_ctr,       &
+              Readn_Set_Magnetic_Structure_MCIF
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure, Write_Atoms_CFL, Write_CFL

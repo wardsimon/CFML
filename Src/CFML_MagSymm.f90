@@ -105,11 +105,11 @@
                                               Lattice_Trans, Get_SO_from_Gener, Get_Centring_Vectors, &
                                               Get_Shubnikov_Operator_Symbol, MSym_Oper_Type, LatSym,&
                                               Magnetic_Space_Group_Type, Get_Stabilizer,            &
-                                              Init_Magnetic_Space_Group_Type
+                                              Init_Magnetic_Space_Group_Type, Get_mOrbit
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
                                               Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
                                               Err_String_Mess,setnum_std, getword, Get_Transf,ucase
-    Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
+    Use CFML_IO_Formats,                only: file_list_type, File_To_FileList, cleanup_symmetry_operators
     Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type, Get_Atom_2nd_Tensor_Ctr
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                               Magnetic_Form, get_magnetic_form_factor
