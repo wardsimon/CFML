@@ -104,7 +104,8 @@
                                               err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO,   &
                                               Lattice_Trans, Get_SO_from_Gener, Get_Centring_Vectors, &
                                               Get_Shubnikov_Operator_Symbol, MSym_Oper_Type, LatSym,&
-                                              Magnetic_Space_Group_Type, Get_Stabilizer
+                                              Magnetic_Space_Group_Type, Get_Stabilizer,            &
+                                              Init_Magnetic_Space_Group_Type
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
                                               Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
                                               Err_String_Mess,setnum_std, getword, Get_Transf,ucase

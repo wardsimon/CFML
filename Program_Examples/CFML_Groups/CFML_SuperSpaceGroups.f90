@@ -7,7 +7,7 @@
                                               set_Intersection_SPG, Write_SpaceGroup, Magnetic_Space_Group_Type
 
     use CFML_Propagation_Vectors, only: K_Star, Set_Gk, Group_k_Type
-    use CFML_Magnetic_Symmetry,   only: Readn_Set_Magnetic_Space_Group
+    use CFML_IO_Formats,          only: Readn_Set_Magnetic_Space_Group
     use CFML_Rational_Arithmetic
     use CFML_Rational_Groups
     use CFML_ssg_datafile
