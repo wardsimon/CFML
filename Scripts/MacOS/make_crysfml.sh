@@ -206,7 +206,7 @@ progressionBar()
 	bar=${bar:0:$n}#
   printf "Compiling [$n/$ntotal]: $bar\r"
 }
-ntotal=43      # Nber of files to be compiled
+ntotal=44      # Nber of files to be compiled
 n=0            # Progression bar intitialisation
 bar=#          # Progression bar item
 #------
@@ -338,8 +338,8 @@ if [ "$WINT" == "Y" ]; then
    LIBNAME="libwcrysfml.a"
 fi
 #echo "DIRLIB: $DIRLIB  LIBNAME: $LIBNAME WINT: $WINT"
-#ar -c -r $LIBNAME *.o
-ar -c -r -v $LIBNAME *.o
+ar -c -r $LIBNAME *.o
+#ar -c -r -v $LIBNAME *.o
 #
 # -------- Move files and clean up --------
 mv *.mod $CRYSFML/$IDIR/$DIRLIB
