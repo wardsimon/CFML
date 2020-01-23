@@ -939,9 +939,9 @@
     Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr)
        real(kind=cp), dimension(3),            intent(in)     :: xnr
        real(kind=cp), dimension(:),            intent(in out) :: moment
-       real(kind=cp), dimension(:),            intent(in out) :: codes
        type(Magnetic_Space_Group_type),        intent(in)     :: Spg
        Integer,                                intent(in out) :: codini
+       real(kind=cp), dimension(:),            intent(in out) :: codes
        integer,                       optional,intent(in)     :: ord
        integer, dimension(:),         optional,intent(in)     :: ss
        real(kind=cp), dimension(:,:), optional,intent(in)     :: att
@@ -1212,11 +1212,22 @@
 
        !---- Atom Type (Chemical symbol & Scattering Factor) ----!
        call cutst(line,nlong1,label)
-       n=index(digpm,label(2:2))
-       if (n /=0) then
-         atomo%chemsymb=U_case(label(1:1))
+
+       if(len_trim(magmom) == 0) then
+          n=index(digpm,label(2:2))
+          if (n /=0) then
+            atomo%chemsymb=U_case(label(1:1))
+          else
+            atomo%chemsymb=U_case(label(1:1))//L_case(label(2:2))
+          end if
        else
-         atomo%chemsymb=U_case(label(1:1))//L_case(label(2:2))
+          n=index(digpm,label(4:4))
+          if(U_case(label(1:1)) /= "M" .and. U_case(label(1:1)) /= "J") then
+             err_form=.true.
+             ERR_Form_Mess=" Error reading the magnetic form factor of ATOM: "//trim(atomo%lab)
+             return
+          end if
+          atomo%chemsymb=U_case(label(2:2))//L_case(label(3:3))
        end if
        atomo%SfacSymb=label(1:4)
 
@@ -1308,9 +1319,9 @@
             ERR_Form_Mess= "Error reading magnetic moment components of atom:"//atomo%lab
             return
          end if
-
          atomo%m_xyz(:)=vet1(1:3)
          atomo%sm_xyz(:)=vet2(1:3)
+         if(atomo%moment < 0.001) atomo%moment=maxval(abs(atomo%m_xyz(:)))
        end if
 
        return

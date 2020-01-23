@@ -187,7 +187,7 @@
     !!----    integer,dimension(6)                    :: lU            !
     !!----    real(kind=cp)                           :: Charge        ! Charge
     !!----    real(kind=cp)                           :: Moment        ! Moment
-    !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
+    !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes (e.g. 1:pointer to the scattering factor, 2:pointer to the magnetic scattering factor
     !!----    integer                                 :: Nvar          !
     !!----    real(kind=cp),dimension(25)             :: VarF          ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
     !!----    real(kind=cp),dimension(25)             :: MVarF         ! Multiplier parameters
@@ -1314,46 +1314,46 @@ Contains
        !---- Arguments ----!
        type (Atom_Type), intent(in out)   :: A
 
-       A%Lab      =" "
-       A%ChemSymb =" "
-       A%SfacSymb =" "
-       A%Wyck     ="."
-       A%Active   =.true.
-       A%Z        =0
-       A%Mult     =0
+       A%Lab      = " "
+       A%ChemSymb = " "
+       A%SfacSymb = " "
+       A%Wyck     = "."
+       A%Active   = .true.
+       A%Z        = 0
+       A%Mult     = 0
 
-       A%X        =0.0
-       A%X_Std    =0.0
-       A%MX       =0.0
-       A%LX       =0
+       A%X        = 0.0
+       A%X_Std    = 0.0
+       A%MX       = 0.0
+       A%LX       = 0
 
-       A%m_xyz    =0.0
-       A%sm_xyz   =0.0
-       A%Mm_xyz   =0.0
-       A%Lm_xyz   =0
-       A%Occ      =0.0
-       A%Occ_Std  =0.0
-       A%MOcc     =0.0
-       A%LOcc     =0
-       A%Biso     =0.0
-       A%Biso_std =0.0
-       A%MBiso    =0.0
-       A%LBiso    =0
-       A%Utype    ="none"
-       A%ThType   ="isotr"
-       A%U        =0.0
-       A%U_std    =0.0
-       A%Ueq      =0.0
-       A%MU       =0.0
-       A%LU       =0
-       A%Charge   =0.0
-       A%Moment   =0.0
-       A%Ind      =0
-       A%NVar     =0
-       A%VarF     =0.0
-       A%LVarF    =0
-       A%mVarF    =0.0
-       A%AtmInfo  ="None"
+       A%m_xyz    = 0.0
+       A%sm_xyz   = 0.0
+       A%Mm_xyz   = 0.0
+       A%Lm_xyz   = 0
+       A%Occ      = 0.0
+       A%Occ_Std  = 0.0
+       A%MOcc     = 0.0
+       A%LOcc     = 0
+       A%Biso     = 0.0
+       A%Biso_std = 0.0
+       A%MBiso    = 0.0
+       A%LBiso    = 0
+       A%Utype    = "none"
+       A%ThType   = "isotr"
+       A%U        = 0.0
+       A%U_std    = 0.0
+       A%Ueq      = 0.0
+       A%MU       = 0.0
+       A%LU       = 0
+       A%Charge   = 0.0
+       A%Moment   = 0.0
+       A%Ind      = 0
+       A%NVar     = 0
+       A%VarF     = 0.0
+       A%LVarF    = 0
+       A%mVarF    = 0.0
+       A%AtmInfo  = "None"
        return
     End Subroutine Init_Atom_Type
 

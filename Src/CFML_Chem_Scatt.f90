@@ -432,6 +432,7 @@
            valence=2
         end if
         write(unit=formf,fmt="(a,i1)") "M"//trim(melem),valence
+
       end if
       formf=u_case(formf)
       return

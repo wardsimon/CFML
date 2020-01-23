@@ -2322,11 +2322,6 @@
        call Hkl_Gen_Shub(Cell,Grp,maxs,Reflex%NRef,rf)
        Stf%Nref=Reflex%NRef
        allocate(Stf%Strf(Stf%Nref),Reflex%Ref(Reflex%NRef))
-       !Reflex%NRef=numr
-       !allocate(Reflex%Ref(numr))
-       !do i=1,numr
-       !   Reflex%Ref(i)=Rf(i)
-       !end do
        if(present(lun)) then
          call Set_Form_Factors(Atm,Scf,ok,mess,lun=lun,mag=.true.)
        else
@@ -2704,7 +2699,7 @@
          jx=0
          n=0
          do i=1,atm%natoms
-            symbcar=u_case(atm%atom(i)%SfacSymb)
+            symbcar=atm%atom(i)%SfacSymb
             if(symbcar(1:1) /= "M" .and. symbcar(1:1) /= "J") cycle
             do j=1,num_mag_form
                if (symbcar /= Magnetic_Form(j)%Symb) cycle

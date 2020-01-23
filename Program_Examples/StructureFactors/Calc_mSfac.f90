@@ -13,7 +13,8 @@ Program Calc_Magnetic_Structure_Factors
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflect_List_Type
-   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
+   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type, &
+                                             get_moment_ctr
    use CFML_Structure_Factors,         only: Magnetic_Structure_Factors, Write_Structure_Factors, & 
                                              Strf_List_Type 
    use CFML_String_Utilities,          only: u_case
@@ -33,10 +34,11 @@ Program Calc_Magnetic_Structure_Factors
    character(len=15)           :: sinthlamb  !String with stlmax (2nd cmdline argument)
    real                        :: stlmax     !Maximum Sin(Theta)/Lambda
    real                        :: Lambda
-   integer                     :: lun=1, ier,i
+   integer                     :: lun=1, ier,i,codini=0
    integer                     :: narg
    Logical                     :: esta, arggiven=.false.,sthlgiven=.false., full=.true.
-
+   real, dimension(3)          :: codes=(/11.0,21.0,31.0/)
+   
    !---- Arguments on the command line ----!
    narg=command_argument_count()
 
@@ -55,11 +57,11 @@ Program Calc_Magnetic_Structure_Factors
 
    write(unit=*,fmt="(/,/,6(a,/))")                                                  &
         "            ------ PROGRAM Magnetic STRUCTURE FACTORS ------"             , &
-        "                 ---- Version 0.0 January 2020----"                       , &
+        "                  ---- Version 0.0 January 2020----"                      , &
         "    *******************************************************************"  , &
         "    * Calculates structure factors reading a *.CFL or an *.mCIF file  *"  , &
         "    *******************************************************************"  , &
-        "                      (JRC- January 2020 )"
+        "                        (JRC- January 2020 )"
    write(unit=*,fmt=*) " "
 
    if (.not. arggiven) then
@@ -75,11 +77,11 @@ Program Calc_Magnetic_Structure_Factors
    open(unit=lun,file=trim(filcod)//".sfa", status="replace",action="write")
    write(unit=lun,fmt="(/,/,6(a,/))")                                                  &
           "            ------ PROGRAM Magnetic STRUCTURE FACTORS ------"             , &
-          "              ---- Version 0.0 January-2020----"                          , &
+          "                 ---- Version 0.0 January-2020----"                       , &
           "    *******************************************************************"  , &
           "    * Calculates structure factors reading a *.CFL or a *.mCIF file   *"  , &
           "    *******************************************************************"  , &
-          "                      (JRC- January-2020 )"
+          "                        (JRC- January-2020 )"
 
    inquire(file=trim(filcod)//".mcif",exist=esta)   
    if (esta) then
@@ -98,6 +100,11 @@ Program Calc_Magnetic_Structure_Factors
    else
       call Write_Crystal_Cell(Cell,lun)
       call Write_Magnetic_Space_Group(SpG,lun,full)
+      !Get information on moment constraints and modify the list of atoms accordingly
+      do i=1,A%natoms
+        if(A%Atom(i)%moment < 0.001) cycle !Skip non-magnetic atoms
+        call Get_moment_ctr(A%Atom(i)%X,A%Atom(i)%M_xyz,Spg,codini,codes,Ipr=lun)
+      end do
       call Write_Atom_List(A,level=2,lun=lun)
       !Look for wavelength in CFL file
       lambda=0.70926 !Mo kalpha (used only for x-rays)
