@@ -1005,7 +1005,7 @@
             moment=0.0_cp
             codes=0.0_cp
             if(present(Ipr)) then
-              write(Ipr,"(a)")         " Grey point group: the attached moment is zero "
+              write(Ipr,"(a)")         " Grey point group or symmetry paramagnetic site: the attached moment is zero "
               write(Ipr,"(a,24f14.6)") " Final codes: ",codes(1:n)
               write(Ipr,"(a,24f14.6)") " Constrained moment: ",moment
             end if
