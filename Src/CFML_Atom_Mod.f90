@@ -127,33 +127,33 @@
 
     !---- Definitions ----!
 
-     !!---- Type, Public :: Atom_Equiv_Type
-     !!----    integer                                        :: mult
-     !!----    character(len=2)                               :: ChemSymb
-     !!----    character(len=10),allocatable, dimension(:)    :: Lab
-     !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
-     !!---- End Type Atom_Equiv_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_Type
-        integer                                        :: mult
-        character(len=2)                               :: ChemSymb
-        character(len=20),allocatable, dimension(:)    :: Lab
-        real(kind=cp),    allocatable, dimension(:,:)  :: x
-     End Type Atom_Equiv_Type
+    !!---- Type, Public :: Atom_Equiv_Type
+    !!----    integer                                        :: mult
+    !!----    character(len=2)                               :: ChemSymb
+    !!----    character(len=10),allocatable, dimension(:)    :: Lab
+    !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
+    !!---- End Type Atom_Equiv_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_Type
+       integer                                        :: mult
+       character(len=2)                               :: ChemSymb
+       character(len=20),allocatable, dimension(:)    :: Lab
+       real(kind=cp),    allocatable, dimension(:,:)  :: x
+    End Type Atom_Equiv_Type
 
-     !!---- Type, Public :: Atom_Equiv_List_Type
-     !!----    integer                                           :: nauas
-     !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     !!---- End Type Atom_Equiv_List_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_List_Type
-        integer                                           :: nauas
-        type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     End Type Atom_Equiv_List_Type
+    !!---- Type, Public :: Atom_Equiv_List_Type
+    !!----    integer                                           :: nauas
+    !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    !!---- End Type Atom_Equiv_List_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_List_Type
+       integer                                           :: nauas
+       type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    End Type Atom_Equiv_List_Type
 
     !!----
     !!---- TYPE :: ATOM_TYPE

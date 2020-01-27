@@ -1,10 +1,10 @@
-============================== 
+==============================
 CrysFML High Level Procedures
 ==============================
 Here is a minimal set of types and procedures to be exposed for Python use of CrysFML. The best way of working
 may be the use of Forpy as an intermediate library. The simplest mechanism is to convert types into "dictionaries" and
-create a Fortran module with wrappers for the selected subroutines. The use of numpy is compulsory. 
-Mathematical procedures, parsing of refinement instructions, as well as optimization techniques have been excluded 
+create a Fortran module with wrappers for the selected subroutines. The use of numpy is compulsory.
+Mathematical procedures, parsing of refinement instructions, as well as optimization techniques have been excluded
 in this first stage.
 
 ======================================
@@ -31,7 +31,7 @@ Globals:
     logical, public :: Err_Symm
     character(len=150), public :: ERR_Symm_Mess
 
-Types: 
+Types:
 ------
     Type, public :: Sym_Oper_Type
        integer,       dimension(3,3) :: Rot
@@ -138,7 +138,7 @@ Functions:
        real(kind=cp)                          :: Occ
 
 Subroutines: (the procedures for constructing magnetic goups are given in other modules)
-------------    
+------------
     Subroutine Set_SpaceGroup(Spacegen,Spacegroup,Gen,Ngen,Mode,Force_Hall) !Construct the space group Spacegroup
        character (len=*),                intent(in )           :: SpaceGen
        Type (Space_Group_Type),          intent(out)           :: SpaceGroup
@@ -156,8 +156,8 @@ Subroutines: (the procedures for constructing magnetic goups are given in other 
        type (Magnetic_Space_Group_Type),intent(in) :: SG
        integer,   optional,             intent(in) :: iunit
        logical,   optional,             intent(in) :: full
-       
-============================================       
+
+============================================
 CFML_Crystal_Metrics: (CFML_Cryst_Types.f90)
 ============================================
 Globals:
@@ -199,7 +199,7 @@ Types:
        real(kind=cp),dimension(12)   :: maxes       ! Modulus of the zone axes (two-fold axes) vectors
        real(kind=cp),dimension(3)    :: a,b,c       ! Cartesian components of direct cell parameters
     End Type Twofold_Axes_Type
-    
+
 Functions:
 ----------
 
@@ -208,7 +208,7 @@ Functions:
        real(kind=cp), dimension(3),   intent(in) :: v        !  In -> Vector
        Type (Crystal_Cell_Type),      intent(in) :: Celda    !  In -> Cell variable
        real(kind=cp) dimension(3)                :: vc       ! Out ->
-       
+
     Function Cart_U_Vector(Code,V,Celda) Result(Vc)  !Convert a vector in crystal space to unitary Cartesian components
         character (len=*),             intent(in) :: code    !  In -> D: Direct, R: Reciprocal
         real(kind=cp), dimension(3),   intent(in) :: v       !  In -> Vector
@@ -219,8 +219,8 @@ Functions:
        real(kind=cp),             intent(in)  :: Biso
        type (Crystal_cell_Type),  intent(in)  :: Cell
        real(kind=cp),dimension(6)             :: Betas
-        
-    
+
+
 Subroutines:
 ------------
     Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
@@ -239,8 +239,8 @@ Subroutines:
     Subroutine Write_Crystal_Cell(Celda,Lun) !Writes the cell characteristics in the file associated to the logical unit lun
        Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
        Integer,optional           intent(in)  :: lun     !  In -> Unit to write
-        
-    Subroutine Calc_Cell_Strain(itype,T0,T1,strain) 
+
+    Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
        integer,      intent(in)                 ::  itype  ! strain type (1: Eulerian finite, 2:Eulerian infinitesimal, 3:Lagrangian finite, 4:Lagrangian infinitesimal)
        real(kind=cp),intent(in), dimension(3,3) ::  T0     ! CR_Orth_Cel for chosen axial system for the starting state
        real(kind=cp),intent(in), dimension(3,3) ::  T1     ! CR_Orth_Cel for chosen axial system for the final state
@@ -250,9 +250,9 @@ Subroutines:
        type(Crystal_Cell_Type), intent (in) :: Cell
        real(kind=cp),           intent (in) :: tol !angular tolerance in degrees
        Type(Twofold_Axes_Type), intent(out) :: twofold
-    
+
     Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told) !Provides the convention cell form Twofold type
-      Type(Twofold_Axes_Type), intent(in)  :: twofold                 
+      Type(Twofold_Axes_Type), intent(in)  :: twofold
       Type(Crystal_Cell_Type), intent(out) :: Cell  !Conventional cell
       integer, dimension(3,3), intent(out) :: tr    !Transformation Matrix between cell encoded within TwoFold and the conventional cell
       character(len=*),        intent(out) :: message
@@ -271,7 +271,7 @@ Globals:
     character(len=150), public :: Err_Atmd_Mess
 
 
-Types: 
+Types:
 ------
      Type, Public :: Atom_Equiv_Type
         integer                                        :: mult
@@ -279,7 +279,7 @@ Types:
         character(len=20),allocatable, dimension(:)    :: Lab
         real(kind=cp),    allocatable, dimension(:,:)  :: x
      End Type Atom_Equiv_Type
-     
+
      Type, Public :: Atom_Equiv_List_Type
         integer                                           :: nauas
         type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
@@ -297,6 +297,10 @@ Types:
        real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
        real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
        integer,      dimension(3)              :: lx            ! Numbers in the LSQ list of LSQ parameters for coordinates
+       real(kind=cp),dimension(3)              :: m_xyz         ! Magnetic moment components
+       real(kind=cp),dimension(3)              :: sm_xyz        ! Standard deviations
+       real(kind=cp),dimension(3)              :: m_xyz         ! Magnetic moment components
+       real(kind=cp),dimension(3)              :: sm_xyz        ! Standard deviations
        real(kind=cp)                           :: occ           ! occupation factor
        real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
        real(kind=cp)                           :: mOcc          !
@@ -314,14 +318,14 @@ Types:
        integer,dimension(6)                    :: lU            !
        real(kind=cp)                           :: Charge        ! Charge
        real(kind=cp)                           :: Moment        ! Moment
-       integer, dimension(5)                   :: Ind           ! Index for different purposes
+       integer, dimension(5)                   :: Ind           ! Index for different purposes (Ind(1:2), pointers to form factors)
        integer                                 :: Nvar          !
        real(kind=cp),dimension(25)             :: VarF          ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
        real(kind=cp),dimension(25)             :: MVarF         ! Multiplier parameters
        integer,      dimension(25)             :: LVarF         ! Numbers
        character(len=40)                       :: AtmInfo       ! Information string
     End Type Atom_Type
-    
+
     Type, public :: Atom_List_Type
        integer                                  :: natoms
        type(Atom_Type),dimension(:),allocatable :: atom
@@ -424,7 +428,7 @@ Subroutines:
     Subroutine Atom_Uequi_List(Cell, Ac)
        type(Crystal_Cell_Type), intent(in)    :: Cell    !  In -> Cell variable
        type(atom_list_type),   intent(in out) :: Ac      !  In -> Atom list, Out -> updated Ac
-                                                             
+
     Subroutine Atoms_Cell_To_List(Ac,A)
        Type(atoms_cell_type),  Intent(In)        :: Ac   !  In -> instance of atoms_cell_type
        type(atom_list_type),   intent(in out)    :: A    !  In -> instance of atom_list_type
@@ -470,10 +474,10 @@ Types:
 ------
     Type, public :: Anomalous_Sc_Type
        character(len= 2)            :: Symb        ! Symbol of the Element
-       real(kind=cp), dimension(5)  :: Fp           
+       real(kind=cp), dimension(5)  :: Fp
        real(kind=cp), dimension(5)  :: Fpp
     End Type Anomalous_Sc_Type
-    
+
     Type, public :: Chem_Info_Type
        character (len= 2)         :: Symb          ! Symbol of the Element
        character (len=12)         :: Name          ! Name of the Element
@@ -488,7 +492,7 @@ Types:
        real(kind=cp)              :: SedInc        ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
        real(kind=cp)              :: Sea           ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
     End Type Chem_Info_Type
- 
+
     Type, public :: Magnetic_Form_Type
        character (len= 4)         :: Symb         ! Symbol of the Chemical species
        real(kind=cp), dimension(7):: SctM         ! Scattering Factors coefficients (a1,b1,a2,b2,a3,b3,c)
@@ -508,6 +512,12 @@ Types:
        real(kind=cp)                     :: Kbeta ! K-Serie for X-ray
     End Type Xray_Wavelength_Type
 
+ Functions:
+ ----------
+    Function get_magnetic_form_factor(element) result(formf) !Construct the symbol of form factor for magnetic atoms
+      character(len=*),intent(in) :: element
+      character(len=6)            :: formf
+
  Subroutines:
  ------------
      Subroutine Get_Atomic_Mass(atm,mass)
@@ -517,7 +527,7 @@ Types:
     Subroutine Get_Atomic_Vol(atm,vol)
        character(len=2), intent (in) :: atm
        real(kind=cp),    intent(out) :: Vol
-       
+
     Subroutine Get_ChemSymb(Label, ChemSymb, Z)
       character(len=*),  intent(in) :: Label    ! Label
       character(len=*),  intent(out):: ChemSymb ! Chemical Symbol
@@ -526,11 +536,11 @@ Types:
     Subroutine Get_Covalent_Radius(nam,rad)
        character(len=*), intent (in) :: nam
        real(kind=cp),    intent(out) :: rad
-       
-    Subroutine Get_Fermi_Length(nam,b) 
+
+    Subroutine Get_Fermi_Length(nam,b)
        character(len=*), intent (in) :: nam
        real(kind=cp),    intent(out) :: b
- 
+
     Subroutine Get_Inc_Xs(nam,u) !Provides incoherent scattering neutron cross-section (barns -> [10**(-24) cm**2] )
        character(len=*), intent (in) :: nam
        real(kind=cp),    intent(out) :: u
@@ -538,26 +548,26 @@ Types:
     Subroutine Get_Abs_Xs(nam,u) !Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
        character(len=*), intent (in) :: nam
        real(kind=cp),    intent(out) :: u
-    
+
     Subroutine Get_Ionic_Radius(nam,valence,rad)
        character(len=*), intent (in) :: nam
        integer,          intent (in) :: valence
        real(kind=cp),    intent(out) :: rad
-       
+
     Subroutine Set_Chem_Info()
-    
+
     Subroutine Set_Delta_Fp_Fpp()
-    
+
     Subroutine Set_Magnetic_Form()
-    
+
     Subroutine Set_Xray_Form()
-    
+
     Subroutine Remove_Chem_Info()
-    
+
     Subroutine Remove_Delta_Fp_Fpp()
-    
+
     Subroutine Remove_Magnetic_Form()
-    
+
     Subroutine Remove_Xray_Form()
 
 =============================================
@@ -571,7 +581,7 @@ Global:
 -------
     logical, public :: ERR_String
     character(len=150), public :: ERR_String_Mess
-    
+
 Types:
 ------
     none
@@ -621,7 +631,7 @@ Subroutines:
        character(len=*),              intent(in)      :: Keyword      !  In -> Word to search
        character(len=*),              intent(out)     :: String       ! Out -> Rest of the input string
        character(len=1), optional,    intent(in)      :: comment      !  In -> Character that define a comment line
-       
+
     Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv,comment)
        character(len=*),dimension(:),          intent(in)      :: Filevar      !  In -> Input vector of String
        integer,                                intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
@@ -657,9 +667,9 @@ Subroutines:
        integer,                        intent(out)    :: Iv           ! Out -> Number of components
 
 
-       
+
 =============================================
-CFML_Diffraction_Patterns: (CFML_Diffpat.f90)       
+CFML_Diffraction_Patterns: (CFML_Diffpat.f90)
 =============================================
 
 Globals:
@@ -668,7 +678,7 @@ Globals:
     character(len=150), public :: ERR_DiffPatt_Mess=" "
 
 Types:
-------    
+------
     Type, public :: Diffraction_Pattern_Type
        character(len=180)                          :: Title         !Identification of the pattern
        character(len=20)                           :: diff_kind     !type of radiation
@@ -682,7 +692,7 @@ Types:
        real(kind=cp)                               :: xmax
        real(kind=cp)                               :: ymin
        real(kind=cp)                               :: ymax
-       real(kind=cp)                               :: scal          
+       real(kind=cp)                               :: scal
        real(kind=cp)                               :: monitor
        real(kind=cp)                               :: norm_mon      !Normalisation monitor
        real(kind=cp)                               :: col_time      !Data collection time
@@ -694,24 +704,24 @@ Types:
        logical                                     :: gy,gycalc,&
                                                       gbgr,gsigma   !logicals for graphics
        logical                                     :: sig_var=.true.!If .true. the content of sigma is in fact the variance
-    
+
        logical                                     :: al_x,al_y,&
                                                       al_ycalc, &   !logicals for allocation
                                                       al_bgr,   &
                                                       al_sigma, &
-                                                      al_istat    
+                                                      al_istat
        real(kind=cp), dimension (5)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
        real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
        real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
        real(kind=cp), dimension (:), allocatable   :: sigma         ! observations Sigma or variance (the square of sigma!, depends on sig_var)
        integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
        real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
-       real(kind=cp), dimension (:), allocatable   :: bgr           ! Background    
+       real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
     End Type Diffraction_Pattern_Type
-       
-==================================== 
+
+====================================
 CFML_IO_Formats: (CFML_Form_CIF.f90)
-==================================== 
+====================================
 
 Globals:
 --------
@@ -743,19 +753,19 @@ Types:
        real(kind=cp)      ,dimension(:), allocatable :: ratio          ! ratio lambda2/lambda1
        real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2      ! d-to-TOF coefficients
     End Type Job_Info_type
-    
 
-    
+
+
 Subroutines:
------------- 
+------------
     Subroutine File_To_FileList(File_dat,File_list)
       character(len=*),     intent( in) :: file_dat  !Input data file
       type(file_list_type), intent(out) :: file_list !File list structure
-  
+
     The subroutine below constructs the objects: Cell,SpG and A, by reading the file filenam
-    It is an overloaded subroutine that may be called using molecular crystals. 
-    In this document we use only the split case (Cell,SpG and A) 
-    
+    It is an overloaded subroutine that may be called using molecular crystals.
+    In this document we use only the split case (Cell,SpG and A)
+
     Subroutine Readn_Set_Xtal_Structure(filenam,Cell,SpG,A,Mode,Iphase,Job_Type,File_List,CFrame)
        character(len=*),              intent( in)     :: filenam  ! In -> Name of the file
        Type (Crystal_Cell_Type),      intent(out)     :: Cell     ! Out -> Cell object
@@ -768,7 +778,7 @@ Subroutines:
        Type(file_list_type),optional, intent(in out)  :: file_list! Complete file to be used by
                                                                   ! the calling program or other procedures
        Character(len=*),    optional, intent( in)     :: CFrame   !Cartesian Frame
- 
+
     Subroutine Write_Cif_Template(filename,type_data,code,cell,SpG,A)
        character(len=*),        intent(in) :: filename   !  In -> Filename
        integer,                 intent(in) :: type_data  !  In -> 0: Single Crystal, 1: Powder Data, 2:Only structural data
@@ -795,7 +805,7 @@ Subroutines:
        type(Crystal_cell_Type), intent(in) :: celda     !  In -> Cell variable
        type(Space_Group_Type),  intent(in) :: Space     !  In -> SpaceGroup variable
        type(atom_list_type),    intent(in) :: atomos    !  In -> Atom List
-    
+
     Subroutine Write_Cif_Powder_Profile(Filename,Pat,r_facts)
        character(len=*),                    intent(in) :: filename     !  In -> Name of File
        type(Diffraction_Pattern_Type),      intent(in) :: Pat
@@ -808,14 +818,14 @@ CFML_PowderProfiles_Finger: (CFML_Profiles_Finger.f90)
 Globals:
 --------
    None
-   
+
 Types:
 ------
    None
-   
+
 Subroutines:
 ------------
-    Subroutine Init_Prof_Val() 
+    Subroutine Init_Prof_Val()
     Subroutine Calc_Pseudo_Voigt(x,y,Twoth0,Eta,Fwhm,asym1,asym2) !Return the calculated ordinates Y(:) corresponding to a normalized Pseudo-Voigt function,
                                                                   !characterized by: Twoth0,Eta,Fwhm,asym1,asym1, for points X(:)
        real(kind=cp), dimension(:), intent(in)   :: x
@@ -825,7 +835,7 @@ Subroutines:
        real(kind=cp),               intent(in)   :: Fwhm
        real(kind=cp),               intent(in)   :: asym1        ! s_l source width/detector distance or D_L+S_L if  use_hps is true
        real(kind=cp),               intent(in)   :: asym2        ! d_l detector width/detector distance or D_L-S_L if  use_hps is true
-   
+
     Subroutine Prof_Val(Eta,Gamma,asym1,asym1,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym, Use_hps )
        real(kind=cp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
        real(kind=cp), intent(in)   :: gamma        ! FWHM
@@ -843,9 +853,9 @@ Subroutines:
        logical,       intent(in)   :: use_hps      ! true if asym1=D_L+S_L and asym2=D_L-S_L
                                                    ! false if asym1=D_L ans asym2=S_L
 
-================================================= 
-CFML_PowderProfiles_CW: (CFML_Profile_Functs.f90) 
-================================================= 
+=================================================
+CFML_PowderProfiles_CW: (CFML_Profile_Functs.f90)
+=================================================
 
 Globals:
 --------
@@ -853,44 +863,44 @@ Globals:
 Types:
 ------
    None
-Functions: Par is an array containing the parameters of the function 
+Functions: Par is an array containing the parameters of the function
 ----------
 
     Pure Function Gaussian(X,Par) Result (Gauss_Val)   ! Par(1)=FWHM
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: gauss_val
-       
+
     Pure Function Lorentzian(X,Par) Result (Lor_Val)   ! Par(1)=FWHM
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: lor_val
-       
+
     Pure Function Hat(X,Par) Result (H_Val)            ! Par(1)=FWHM
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: h_val
 
-    Pure Function Pseudovoigt(X,Par) Result (Pv_Val)   !Par = [FWHM, eta]  
+    Pure Function Pseudovoigt(X,Par) Result (Pv_Val)   !Par = [FWHM, eta]
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: pv_val
-       
+
     Pure Function TCH_pVoigt(X,Par) Result (Pv_Val)    !Par = [FWHM_G, FWHM_L]
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: pv_val
-       
+
     Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)  !Par = [FWHM1,FWHM2,eta1,eta2]
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: pv_val
-       
+
     Pure Function Exponential(X,Par) Result (Ex_Val)   ! Par(1)=alfa, in Ex_Val=alfa*exp(-alfa*x)
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: ex_val
-       
+
     Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val) !Par = [alfa, beta]
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -900,7 +910,7 @@ Functions: Par is an array containing the parameters of the function
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: ik_val
-       
+
 Subroutines:  Calculates the value at the input point X and derivatives w.r.t. parameters
 ------------
 
@@ -909,57 +919,57 @@ Subroutines:  Calculates the value at the input point X and derivatives w.r.t. p
        real(kind=cp),          dimension(:),intent(in) :: par
        real(kind=cp),                       intent(out):: gauss_val
        real(kind=cp), optional,dimension(:),intent(out):: dpar
-       
+
     Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
        real(kind=cp),                        intent(in) :: x
        real(kind=cp),           dimension(:),intent(in) :: par
        real(kind=cp),                        intent(out):: lor_val
        real(kind=cp), optional, dimension(:),intent(out):: dpar
-       
+
     Pure Function Hat(X,Par) Result (H_Val)
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
        real(kind=cp)                          :: h_val
-       
+
     Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
        real(kind=cp),                       intent(out):: pv_val
        real(kind=cp), optional,dimension(:),intent(out):: dpar
-       
+
     Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
        real(kind=cp),                       intent(out):: pv_val
        real(kind=cp), optional,dimension(:),intent(out):: dpar
-       
+
     Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
        real(kind=cp),                       intent(out):: pv_val
        real(kind=cp), optional,dimension(:),intent(out):: dpar
-       
+
     Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
        real(kind=cp),                        intent(in) :: x
        real(kind=cp),           dimension(:),intent(in) :: par
        real(kind=cp),                        intent(out):: ex_val
        real(kind=cp), optional, dimension(:),intent(out):: dpar
-       
+
     Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
        real(kind=cp),                        intent(in)  :: x
        real(kind=cp),           dimension(:),intent(in)  :: par
        real(kind=cp),                        intent(out) :: bb_val
        real(kind=cp), optional, dimension(:),intent(out) :: dpar
-       
+
     Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
        real(kind=cp),                        intent(in)  :: x
        real(kind=cp),           dimension(:),intent(in)  :: par
        real(kind=cp),                        intent(out) :: ik_val
        real(kind=cp), optional, dimension(:),intent(out) :: dpar
 
-=============================================== 
-CFML_PowderProfiles_TOF: (CFML_Profile_TOF.f90) 
-=============================================== 
+===============================================
+CFML_PowderProfiles_TOF: (CFML_Profile_TOF.f90)
+===============================================
 Globals:
 --------
    None
@@ -975,12 +985,12 @@ Types:
        real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
     End Type Deriv_TOF_Type
 
-Functions:  
+Functions:
 ----------
    None
 Subroutines:
 ------------
-    
+
     Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
        real(kind=cp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
        real(kind=cp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
@@ -997,7 +1007,7 @@ Subroutines:
        real(kind=cp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
        real(kind=cp),             intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
-       
+
     Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
        real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
        real(kind=cp),             intent( in) :: d         ! d-spacing of the peak in A
@@ -1010,9 +1020,9 @@ Subroutines:
        real(kind=cp),             intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
 
-=================================================== 
+===================================================
 CFML_Reflections_Utilities: (CFML_Reflect_Util.f90)
-=================================================== 
+===================================================
 Globals:
 --------
     logical, public :: ERR_Refl
@@ -1025,12 +1035,12 @@ Types:
        real(kind=cp)        :: S=0.0   ! Sin(Theta)/lambda=1/2d
        integer              :: imag=0  !=0 nuclear reflection, 1=magnetic, 2=both
     End Type Reflect_Type
-    
+
     Type, public :: Reflect_List_Type
        integer                                         :: NRef  ! Number of Reflections
        type(reflect_type),allocatable, dimension(:) :: Ref ! Reflection List
     End Type Reflect_List_Type
-    
+
     Type, public :: Reflection_Type
        integer,dimension(3) :: H     ! H
        integer              :: Mult  ! mutiplicity
@@ -1045,13 +1055,13 @@ Types:
        real(kind=cp)        :: AA    ! Free
        real(kind=cp)        :: BB    ! Free
     End Type Reflection_Type
-    
+
     Type, public :: Reflection_List_Type
        integer                                         :: NRef  ! Number of Reflections
        type(reflection_type),allocatable, dimension(:) :: Ref ! Reflection List
     End Type Reflection_List_Type
-    
-Functions:  
+
+Functions:
 ----------
     Function Get_MaxNumRef(SinTLMax, VolCell, SinTLMin, Mult) Result(numref)
        real(kind=cp),           intent(in) :: SinTLMax
@@ -1059,7 +1069,7 @@ Functions:
        real(kind=cp), optional, intent(in) :: SinTLMin
        integer,       optional, intent(in) :: Mult
        integer                             :: numref
-       
+
 Subroutines:
 ------------
     !Overloaded Hkl_Equiv_List: Calculates the multiplicity of the reflection and the list of all
@@ -1071,7 +1081,7 @@ Subroutines:
        Logical,                                   intent (in) :: Friedel
        integer,                                   intent(out) :: mul
        integer, dimension(3,SpaceGroup%numops*2), intent(out) :: hlist
-       
+
     Subroutine  Hkl_Gen(Crystalcell,Spacegroup,Friedel,Value1,Value2,Num_Ref,Reflex) !Generates non-ordered reflections of Reflect_type
        Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
        Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
@@ -1079,14 +1089,14 @@ Subroutines:
        real(kind=cp),                     intent(in) :: value1,value2   !Range in SinTheta/Lambda
        Integer,                           intent(out):: Num_Ref         !Number of generated reflections
        Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
-       
+
     Subroutine  Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex) !Generates non-ordered reflections for a Shubnikov group
        Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
        Type (Magnetic_Space_Group_Type) , intent(in) :: ShubG           !Magnetic Space Group object
        real(kind=cp),                     intent(in) :: sintlmax        !Maximum SinTheta/Lambda
        Integer,                           intent(out):: Num_Ref         !Number of generated reflections
        Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
-       
+
     !Overloaded  HKL_UNI (Hkl_Uni_Reflect,Hkl_Uni_Reflection,Hkl_Uni_ReflList)
     Subroutine  Hkl_Uni(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order,check_ok)
        Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
@@ -1102,7 +1112,7 @@ Subroutines:
        !Type (Reflection_List_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
        logical,                optional,  intent(in) :: no_order !Not ordered id no_order=.true. is present
        logical,                optional,  intent(out):: check_ok !Check if the maximum number of reflections has been attained
-    
+
     !Overloaded  HKL_GEN_SXTAL (Hkl_Gen_Sxtal_List, Hkl_Gen_Sxtal_Reflection)
     Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim) !Generates reflections
        Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
@@ -1114,21 +1124,21 @@ Subroutines:
        !Type (Reflection_List_Type),       intent(out):: Reflex          !List of generated hkl,mult, s and structure factors
        Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
        Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
-       
+
     Subroutine Integral_Conditions(Spacegroup,iunit)  !Writes in logical unit "iunit" the presence conditions of reflections for Spacegroup
        type (Space_Group_Type),  intent(in)     :: spacegroup
        integer, optional,        intent(in)     :: iunit
-       
+
     Subroutine Write_RefList_Info(Rfl, Iunit, Mode) !Writes in logical unit "iunit" the list of reflections Rfl
        !---- Arguments ----!
        type (Reflection_List_Type), intent(in) :: Rfl
        integer,optional,            intent(in) :: iunit
        character(len=*), optional,  intent(in) :: Mode
 
-       
-============================================ 
+
+============================================
 CFML_Propagation_Vectors: (CFML_Propagk.f90)
-============================================ 
+============================================
 Globals:
 --------
    None
@@ -1148,14 +1158,14 @@ Types:
        real(kind=cp),dimension(3,48) :: stark          !Star of the wave vector k
     End Type Group_K_Type
 
-Functions:  
+Functions:
 ----------
     Function Hk_Equiv(H,K,Spacegk,Friedel) Result (Info) !Calculates if two real reflections are equivalent
        real(kind=cp), dimension(3), intent (in) :: h,k
        Type (Group_k_Type),         intent (in) :: SpaceGk
        logical, optional,           intent(in)  :: Friedel
        logical                                  :: info
-       
+
     Function K_Equiv(H,K,Latyp) Result (Info)   !Calculates if two k-vectors are equivalent: H-K is a reciprocal lattice vector
        real(kind=cp), dimension(3),intent (in) :: h,k
        character (len=*),          intent (in) :: latyp
@@ -1165,25 +1175,25 @@ Functions:
        real(kind=cp), dimension(3), intent(in) :: vec
        character(len=*),            intent(in) :: Lat
        logical                                 :: equiv
-       
+
 Subroutines:
 ------------
-    
+
     Subroutine K_Star(K,Spacegroup,Gk,ext) !Determines the star of the little group (or the extended little group if ext=.true.)
        real(kind=cp), dimension(3), intent (in) :: k
        Type (Space_Group_Type),     intent (in) :: SpaceGroup
        Type (Group_k_Type),         intent(out) :: Gk
        logical, optional,           intent(in)  :: ext
-       
+
     Subroutine Set_Gk(Gk,SPGk,ext) !converts  Gk, or Gk,-k, to a conventional space group.
        Type (Group_k_Type),     intent(in)  :: Gk
        Type (Space_Group_Type), intent(out) :: SPGk
        logical, optional,       intent(in)  :: ext
-       
+
     Subroutine Write_Group_k(Gk,lun) !Writes the operators of Gk and the star {k}
        Type (Group_k_Type),   intent(in) :: Gk
        Integer, optional,     intent(in) :: lun
-       
+
 ==========================================
 CFML_Magnetic_Symmetry: (CFML_magSymm.f90)
 ==========================================
@@ -1192,7 +1202,7 @@ Globals:
 --------
     logical,            public :: ERR_MagSym
     character(len=150), public :: ERR_MagSym_Mess
-    
+
 Types:
 ------
     Type, Public :: MagSymm_k_Type
@@ -1231,7 +1241,7 @@ Types:
        character(len=40),   dimension(:,:), allocatable :: MSymopSymb ! Alphanumeric Symbols for MSYMM (48,8)
        type(MSym_Oper_Type),dimension(:,:), allocatable :: MSymOp     ! Magnetic symmetry operators (48,8)
     End Type MagSymm_k_Type
-    
+
     Type, public :: Magnetic_Domain_type
        integer                           :: nd=0          !Number of rotational domains (not counting chiral domains)
        logical                           :: Chir=.false.  !True if chirality domains exist
@@ -1247,10 +1257,10 @@ Types:
        character(len=10),dimension (2,24):: Lab           !Label of domain
     End type Magnetic_Domain_type
 
-Functions:  
+Functions:
 ----------
     None
-    
+
 Subroutines:
 ------------
     Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw) !Generates MGp
@@ -1258,10 +1268,10 @@ Subroutines:
        integer,                        intent (in)  :: n_ini,n_end
        type(Magnetic_Space_Group_Type),intent (out) :: MGp
        character(len=*),               intent (in)  :: mode ! "Database","PCR","CFL"
-                                                            !In the last case the directive is like SHUBNIKOV Pnm'a  setting: c,a,b;0,0,0  
+                                                            !In the last case the directive is like SHUBNIKOV Pnm'a  setting: c,a,b;0,0,0
                                                             !for Pbnm')
        character(len=*), optional,     intent (in)  :: uvw  ! if present and uvw="mxmymz" this notation instead of u,v,w is used for operator symbols
-       
+
     Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
        character (len=*),                intent(in) :: symb        !  In -> String with the BNS symbol of the Shubnikov Group
        character (len=*),                intent(in ):: setting     !  In -> setting in the form -a,c,2b;1/2,0,0 (if empty no transformation is performed)
@@ -1270,8 +1280,8 @@ Subroutines:
        logical,  optional,               intent(in ):: mcif        !  In -> True if one wants to store the symbols as mx,my,mz
        logical,  optional,               intent(in ):: keepd       !  In -> True if one wants to keep the database allocated
        logical,  optional,               intent(in ):: trn_to      !  In -> True if the setting is from current TO standard setting
-    
-    !Overloaded  Readn_Set_Magnetic_Structure: (Readn_Set_Magnetic_Structure_CFL,Readn_Set_Magnetic_Structure_MCIF)  
+
+    !Overloaded  Readn_Set_Magnetic_Structure: (Readn_Set_Magnetic_Structure_CFL,Readn_Set_Magnetic_Structure_MCIF)
     Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell) !Magnetic structure using MagSymm_k_Type
        type(file_list_type),                intent (in)     :: file_cfl
        integer,                             intent (in out) :: n_ini, n_end
@@ -1280,13 +1290,13 @@ Subroutines:
        type(Magnetic_Group_Type), optional, intent (out)    :: SGo
        type(Magnetic_Domain_type),optional, intent (out)    :: Mag_dom
        type(Crystal_Cell_type),   optional, intent (in)     :: Cell
-       
+
     Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am) !Reads an mCIF file for constructing a magnetic structure
        character(len=*),               intent (in)  :: file_mcif         !as described by Shubnikov groups
        type(Crystal_Cell_type),        intent (out) :: mCell
        type(Magnetic_Space_Group_Type),intent (out) :: MGp
        type(mAtom_List_Type),          intent (out) :: Am
-       
+
     Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr) !Get constraints in the magnetic moment of the atom in position xnr
        real(kind=cp), dimension(3),            intent(in)     :: xnr     !Position of the atom
        real(kind=cp), dimension(:),            intent(in out) :: moment  !Magnetic moment
@@ -1298,7 +1308,7 @@ Subroutines:
        real(kind=cp), dimension(:,:), optional,intent(in)     :: att
        integer,                       optional,intent(in)     :: Ipr
 
-    Subroutine Write_Magnetic_Structure(Ipr,MGp,Am,Mag_Dom,cell) !Writes a magnetic structure using MagSymm_k_Type to file associated to unit=Ipr 
+    Subroutine Write_Magnetic_Structure(Ipr,MGp,Am,Mag_Dom,cell) !Writes a magnetic structure using MagSymm_k_Type to file associated to unit=Ipr
        !---- Arguments ----!
        Integer,                    intent(in)           :: Ipr
        type(MagSymm_k_Type),       intent(in)           :: MGp
@@ -1306,7 +1316,7 @@ Subroutines:
        type(Magnetic_Domain_Type), intent(in), optional :: Mag_Dom
        type(Crystal_Cell_type),    intent(in), optional :: cell
 
-    Subroutine Write_MCIF(Ipr,mCell,MSGp,Am,Cell) !Writes a magnetic mCIF file associated associated to unit=Ipr 
+    Subroutine Write_MCIF(Ipr,mCell,MSGp,Am,Cell) !Writes a magnetic mCIF file associated associated to unit=Ipr
        Integer,                         intent(in)      :: Ipr
        type(Magnetic_Space_Group_Type), intent(in)      :: MSGp
        type(Crystal_Cell_Type),         intent(in)      :: mCell
@@ -1321,7 +1331,7 @@ Globals:
 --------
     logical, public :: ERR_SFac
     character(len=150), public :: ERR_SFac_Mess
-    
+
 Types:
 ------
     Type, public :: Scattering_Species_Type
@@ -1335,7 +1345,7 @@ Types:
 Functions:
 ----------
     None
-    
+
 Subroutines:
 ------------
    Subroutine Additional_Scattering_Factors(fil,add_Scatt,ok,mess) !Reads additional scattering factors replacing those
@@ -1343,22 +1353,22 @@ Subroutines:
       Type(Scattering_Species_Type), intent(out) :: add_Scatt
       logical,                       intent(out) :: ok
       character(len=*),              intent(out) :: mess
-      
+
     Subroutine Init_Structure_Factors(Reflex,Atm,Grp,Mode,lambda,lun) !Allocates and initializes arrays for Structure Factors calculations.
        type(reflection_list_type),          intent(in) :: Reflex      !A calculation of fixed tables is also performed.
        type(atom_list_type),                intent(in) :: Atm         !List of atoms
        type(space_group_type),              intent(in) :: Grp         !Space group
        character(len=*),          optional, intent(in) :: Mode        !"NUC","ELE" for neutrons, electrons else: XRays
        real(kind=cp),             optional, intent(in) :: lambda      !Needed for Xrays
-       integer,                   optional, intent(in) :: lun         !Logical unit for writing scattering factors           
-       
+       integer,                   optional, intent(in) :: lun         !Logical unit for writing scattering factors
+
     Subroutine Structure_Factors(Atm,Grp,Reflex,Mode,lambda) !Calculates structure factors of the list Reflex
        type(atom_list_type),               intent(in)     :: Atm    !List of atoms
        type(space_group_type),             intent(in)     :: Grp    !Space group
        type(reflection_list_type),         intent(in out) :: Reflex !It is completed on output
        character(len=*), optional,         intent(in)     :: Mode   !"NUC","ELE" for neutrons, electrons else: XRays
        real(kind=cp), optional,            intent(in)     :: lambda !Needed for Xrays
-       
+
     Subroutine Calc_StrFactor(mode,rad,nn,sn,Atm,Grp,sf2,deriv,fc) !Calculate Structure Factor and derivatives for reflection "nn" in the list
        character(len=*),                   intent(in) :: mode  !S-XTAL (S) or Powder (P)
        character(len=*),                   intent(in) :: rad   !Radiation: X-rays, Neutrons
@@ -1369,7 +1379,7 @@ Subroutines:
        real(kind=cp)                       intent(out):: sf2   !Structure factor squared
        real(kind=cp),dimension(:),optional,intent(out):: deriv !Derivatives w.r.t. free parameters
        complex, optional,                  intent(out):: fc    !Structure factor amplitude
-       
+
     Subroutine Write_Structure_Factors(lun,Reflex,Mode) !Writes the list of structure factors
        !---- Argument ----!
        integer,                            intent(in) :: lun
@@ -1384,7 +1394,7 @@ Globals:
 --------
     logical,            public :: ERR_msfac
     character(len=150), public :: ERR_msfac_Mess
-    
+
 Types:
 ------
     Type, Public  :: MagH_Type
@@ -1400,12 +1410,12 @@ Types:
        complex(kind=cp), dimension(3)   :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
        complex(kind=cp), dimension(3)   :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
     End Type  MagH_Type
-    
+
     Type, Public  :: MagH_List_Type
        integer                                   :: Nref
        Type(MagH_Type),allocatable, dimension(:) :: Mh
     End Type MagH_List_Type
-    
+
     Type, Public  :: MagHD_Type
        logical                            :: keqv_minus
        integer                            :: num_k     !number of the propagation vector vk
@@ -1419,7 +1429,7 @@ Types:
        complex(kind=cp),dimension(3,2,24) :: MiVC      !Magnetic interaction vector of each domain in Cartesian Crystal space
        complex(kind=cp),dimension(3)      :: AMiV      !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     End Type  MagHD_Type
-    
+
     Type, Public  :: MagHD_List_Type
        integer                                    :: Nref
        Type(MagHD_Type),allocatable, dimension(:) :: Mh
@@ -1428,7 +1438,7 @@ Types:
 Functions:
 ----------
     None
-    
+
 Subroutines:
 ------------
     Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)
@@ -1439,14 +1449,14 @@ Subroutines:
        logical, optional,                     intent(in)     :: ord
        logical, optional,                     intent(in)     :: powder
        type (Reflection_List_Type), optional, intent(in)     :: hkl
-       
+
     Subroutine Get_mOrbit(x,Spg,Mult,orb,ptr)
        real(kind=cp), dimension(3),    intent (in) :: x
        type(Magnetic_Space_Group_type),intent (in) :: spg
        integer,                        intent(out) :: mult
        real(kind=cp),dimension(:,:),   intent(out) :: orb
        integer,dimension(:),optional,  intent(out) :: ptr
-       
+
     Subroutine Get_mOrbit_mom(x,mom,Spg,Mult,orb,morb,ptr)
        !---- Arguments ----!
        real(kind=cp), dimension(3),    intent (in) :: x,mom
@@ -1460,7 +1470,7 @@ Subroutines:
        type(Matom_list_type),          intent(in) :: Atm
        type(MagSymm_k_Type),           intent(in) :: Grp
        integer,              optional, intent(in) :: lun
-       
+
     Subroutine Mag_Structure_Factors(Cell,Atm,Grp,Reflex)
        type(Crystal_Cell_type),  intent(in)     :: Cell
        type(Matom_list_type),    intent(in)     :: Atm
@@ -1472,7 +1482,7 @@ Subroutines:
        type(MagSymm_k_Type),     intent(in)     :: MGp
        type(Matom_list_type),    intent(in)     :: Atm
        type(MagH_Type),          intent(in out) :: Mh
-       
+
     Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
       type(Crystal_Cell_type),   intent(in)      :: Cell
        type(MagSymm_k_Type),      intent(in)      :: MGp
@@ -1484,7 +1494,7 @@ Subroutines:
        type(Space_Group_Type),   intent(in)     :: SpG
        type(Matom_list_type),    intent(in)     :: Atm
        type(MagH_Type),          intent(in out) :: Mh
-       
+
     Subroutine Write_Mag_Structure_Factors(Lun,Reflex,Grp)
        integer,               intent(in) :: lun
        type(MagH_List_Type),  intent(in) :: Reflex
