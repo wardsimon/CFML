@@ -99,6 +99,7 @@ rem   Submodules CFML_Maths
       ifort /c Debye.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Determinant.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Diagonalize_SH.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Diagonalize_GEN.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Equal_Matrix.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Equal_Vector.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Erfc_Der.f90                          /nologo %OPT1% %OPT2%  /module:..\mod

@@ -191,7 +191,7 @@ Module CFML_Atoms
        Module Subroutine Allocate_Atom_List(N, A)
           !---- Arguments ----!
           integer,             intent(in)       :: n    
-          type(atlist_type),  intent(in out)   :: A    
+          type(atlist_type),   intent(in out)   :: A    
        End Subroutine Allocate_Atom_List
        
        Module Subroutine Read_Bin_Atom_List(filename, A)

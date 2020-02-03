@@ -61,7 +61,11 @@ SubModule (CFML_ExtinCorr) SHX
             hkl_q=(/ hkl(1)*hkl(1),hkl(2)*hkl(2),hkl(3)*hkl(3),hkl(1)*hkl(2), &
                      hkl(1)*hkl(3),hkl(2)*hkl(3) /)
             r=dot_product(extc,hkl_q)
-            c = 1.0_cp + b * r
+            if(r < 0.0_cp) then
+              c = 1.0_cp
+            else
+              c = 1.0_cp + b * r
+            end if
             ys=1.0_cp/SQRT(c)
             if (present(der)) then
                g=-0.5_cp*c**(-1.5_cp)*b !component of derivative
