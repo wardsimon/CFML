@@ -42,7 +42,7 @@
 !!---- DEPENDENCIES
 !!----
 !!--++     Use CFML_Scattering_Chemical_Tables
-!!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
+!!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type,Magnetic_Space_Group_type
 !!--++     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
 !!--++     Use CFML_Atom_TypeDef,                only: atom_list_type
 !!--++     Use CFML_GlobalDeps,                  only: sp, tpi
@@ -62,6 +62,8 @@
 !!--++    HT                              [Private]
 !!----    SCATTERING_SPECIES_TYPE
 !!--++    SF_INITIALIZED                  [Private]
+!!----    STRF_TYPE
+!!----    STRF_LIST_TYPE
 !!--++    TH                              [Private]
 !!----
 !!---- PUBLIC PROCEDURES
@@ -95,12 +97,14 @@
 
     !---- Use Modules ----!
     Use CFML_IO_Formats,                  only: file_list_type
-    Use CFML_GlobalDeps,                  only: cp, tpi
-    Use CFML_Math_General,                only: atan2d
+    Use CFML_GlobalDeps,                  only: cp,dp,tpi
+    Use CFML_Math_General,                only: atan2d,cosd
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables
-    Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
-    Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
+    Use CFML_Crystal_Metrics,             only: Crystal_Cell_type
+    Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type,Magnetic_Space_Group_type
+    Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R, Reflect_Type,Reflect_List_Type,&
+                                                hkl_gen_shub
     Use CFML_Atom_TypeDef,                only: atom_list_type
 
     !---- Variables ----!
@@ -114,7 +118,7 @@
     public :: Init_Structure_Factors,Init_Calc_hkl_StrFactors, Structure_Factors,  &
               Modify_SF, Write_Structure_Factors,Calc_StrFactor, Calc_hkl_StrFactor, &
               Init_Calc_StrFactors, Allocate_Scattering_Species, Additional_Scattering_Factors, &
-              Calc_General_StrFactor, Set_Form_Factors
+              Calc_General_StrFactor, Set_Form_Factors, Calc_Mag_Structure_Factor,Magnetic_Structure_Factors
 
     !---- List of private functions ----!
     private :: Fj
@@ -122,7 +126,9 @@
     !---- List of private subroutines ----!
     private :: Calc_Table_AB, Create_Table_AF0_Xray, Create_Table_AFP_NeutNuc, &
                Create_Table_HR_HT, Set_Fixed_Tables, Calc_Table_TH, Sum_AB,    &
-               Sum_AB_NeutNuc, Create_Table_Fabc_Xray, Create_Table_AF0_Electrons
+               Sum_AB_NeutNuc, Create_Table_Fabc_Xray, Create_Table_AF0_Electrons, &
+               Write_Structure_Factors_Crys,Write_Structure_Factors_Mag
+
 
     !---- Definitions ----!
 
@@ -250,23 +256,67 @@
 
     !!----
     !!---- Type, public :: Scattering_Species_Type
-    !!----    integer                                        :: Num_Species
-    !!----    character(len=6),    dimension(:), allocatable :: Symb
-    !!----    real(kind=cp),       dimension(:), allocatable :: br,bi
-    !!----    real(kind=cp),       dimension(:), allocatable :: delta_fp,delta_fpp
-    !!----    type(Xray_Form_Type),dimension(:), allocatable :: Xcoef
+    !!----    integer                                            :: Num_Species
+    !!----    integer                                            :: Num_magspc !number of magnetic species
+    !!----    character(len=6),        dimension(:), allocatable :: Symb,Symb_mag
+    !!----    real(kind=cp),           dimension(:), allocatable :: br,bi
+    !!----    real(kind=cp),           dimension(:), allocatable :: delta_fp,delta_fpp
+    !!----    type(Xray_Form_Type),    dimension(:), allocatable :: Xcoef
+    !!----    type(Magnetic_Form_Type),dimension(:), allocatable :: Mcoef
     !!---- End Type Scattering_Species_Type
     !!----
     !!---- Type encapsulting scattering factors for neutrons and X-rays. Constructed
     !!---- by calling Set_Form_Factors
     !!----
     Type, public :: Scattering_Species_Type
-       integer                                        :: Num_Species
-       character(len=6),    dimension(:), allocatable :: Symb
-       real(kind=cp),       dimension(:), allocatable :: br,bi
-       real(kind=cp),       dimension(:), allocatable :: delta_fp,delta_fpp
-       type(Xray_Form_Type),dimension(:), allocatable :: Xcoef
+       integer                                            :: Num_Species
+       integer                                            :: Num_magspc
+       character(len=6),        dimension(:), allocatable :: Symb,Symb_mag
+       real(kind=cp),           dimension(:), allocatable :: br,bi
+       real(kind=cp),           dimension(:), allocatable :: delta_fp,delta_fpp
+       type(Xray_Form_Type),    dimension(:), allocatable :: Xcoef
+       type(Magnetic_Form_Type),dimension(:), allocatable :: Mcoef
     End Type Scattering_Species_Type
+
+    !!----
+    !!---- TYPE :: Strf_Type
+    !!--..
+    !!----    Type, Public  :: Strf_Type
+    !!----       real(kind=cp)                    :: sqNuc       !Square of the nuclear structure factor
+    !!----       real(kind=cp)                    :: sqMiV       !Square of the Magnetic Interaction vector
+    !!----       complex(kind=cp)                 :: NsF         !Nuclear structure factor
+    !!----       complex(kind=cp), dimension(3)   :: MsF         !Magnetic structure factor w.r.t. unitary Crystal Frame
+    !!----       complex(kind=cp), dimension(3)   :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
+    !!----       complex(kind=cp), dimension(3)   :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
+    !!----    End Type  Strf_Type
+    !!----
+    !!----
+    !!---- Updated: January -2020
+    !!
+    Type, Public  :: Strf_Type
+       real(kind=cp)                    :: sqNuc=0.0      !Square of the nuclear structure factor
+       real(kind=cp)                    :: sqMiV=0.0      !Square of the Magnetic Interaction vector
+       complex(kind=cp)                 :: NsF  =0.0      !Nuclear structure factor
+       complex(kind=cp), dimension(3)   :: MsF  =0.0      !Magnetic structure factor w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3)   :: MiV  =0.0      !Magnetic interaction vector w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3)   :: MiVC =0.0      !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
+    End Type  Strf_Type
+
+    !!----
+    !!---- TYPE :: Strf_List_Type
+    !!--..
+    !!----    Type, Public  :: Strf_List_Type
+    !!----       integer                                   :: Nref  !Number of reflections
+    !!----       Type(Strf_Type), dimension(:),allocatable :: Strf
+    !!----    End Type  Strf_Type
+    !!----
+    !!----
+    !!---- Updated: January -2020
+    !!
+    Type, Public  :: Strf_List_Type
+       integer                                   :: Nref
+       Type(Strf_Type), dimension(:),allocatable :: Strf
+    End Type  Strf_List_Type
 
     !!--++
     !!--++ HT
@@ -321,6 +371,11 @@
     !!--++ Update: February - 2005
     !!
     real(kind=cp), dimension(:,:), allocatable, private :: TH
+
+    Interface Write_Structure_Factors
+       Module Procedure Write_Structure_Factors_Crys
+       Module Procedure Write_Structure_Factors_Mag
+    End Interface Write_Structure_Factors
 
  Contains
 
@@ -467,7 +522,7 @@
       !--- Local variables ---!
       integer :: i
 
-      Scf%Num_Species=n
+      Scf%Num_Species=n; Scf%Num_magspc=0
       allocate(Scf%br(n),Scf%bi(n),Scf%delta_fp(n),Scf%delta_fpp(n),Scf%symb(n))
       Scf%br=0.0; Scf%bi=0.0; Scf%delta_fp=0.0; Scf%delta_fpp=0.0; Scf%symb= " "
       allocate(Scf%Xcoef(n))
@@ -585,72 +640,232 @@
 
     End Subroutine Calc_General_StrFactor
 
-    !!--++
-    !!--++ Subroutine Calc_Table_AB(Nref,Atm,Grp)
-    !!--++    integer,                intent(in) :: Nref
-    !!--++    type(atom_list_type),   intent(in) :: Atm
-    !!--++    type(space_group_type), intent(in) :: Grp
-    !!--++
-    !!--++    (Private)
-    !!--++    Calculate Table with Aj(h) and Bj(h) values
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Subroutine Calc_Table_AB(Nref,Atm,Grp)
-       !---- Arguments ----!
-       integer,                intent(in) :: Nref
-       type(atom_list_type),   intent(in) :: Atm
-       type(space_group_type), intent(in) :: Grp
+    !!----
+    !!---- Subroutine Calc_Mag_Structure_Factor(mode,hm,Cell,Grp,Atm,Scf,Strf,magonly,mdom,tdom,twin)
+    !!----   character(len=*),                   intent(in) :: mode !S-XTAL (S) or Powder (P)
+    !!----   type(Reflect_Type),                 intent(in) :: hn     !Contains hkl,s,mult and imag within Reflect_List_Type
+    !!----   type(Crystal_Cell_type),            intent(in) :: Cell
+    !!----   type(Matom_list_type),              intent(in) :: Atm
+    !!----   type(Magnetic_Space_Group_type),    intent(in) :: Grp
+    !!----   Type(Scattering_Species_Type),      intent(in) :: Scf !species
+    !!----   type(Strf_Type),                    intent(out):: Strf
+    !!----   Integer,Dimension(3,3),    Optional,Intent(In) :: mdom !Matrix to be applied to all Fourier coefficients
+    !!----   Real(Kind=Cp),Dimension(3),Optional,Intent(In) :: tdom !Translation to be applied to all atom positions together with mdom
+    !!----   Character(Len=*),          Optional,Intent(In) :: twin !Representing a particular orientation domain
+    !!----                                                          !Useful only for single crystals
+    !!---
+    !!----  Calculation of nuclear and magnetic structure factor, when
+    !!----  the symmetry is given by a Magnetic Space Group, for reflection h
+    !!----  Structure factor components are provided in Stf
+    !!----
+    !!----  Updated: January 2020
+    !!----
+    Subroutine Calc_Mag_Structure_Factor(mode,hm,Cell,Grp,Atm,Scf,Strf,magonly,mdom,tdom,twin)
+      character(len=*),                   intent(in)  :: mode !S-XTAL (S) or Powder (P)
+      type(Reflect_Type),                 intent(in)  :: hm
+      type(Crystal_Cell_type),            intent(in)  :: Cell
+      type(atom_list_type),               intent(in)  :: Atm
+      type(Magnetic_Space_Group_type),    intent(in)  :: Grp
+      Type(Scattering_Species_Type),      intent(in)  :: Scf !species
+      type(Strf_Type),                    intent(out) :: Strf
+      logical,                   optional,intent(in)  :: magonly
+      Integer,Dimension(3,3),    optional,intent(In)  :: mdom !Matrix to be applied to all Fourier coefficients
+      Real(Kind=Cp),Dimension(3),optional,intent(In)  :: tdom !Translation to be applied to all atom positions together with mdom
+      Character(Len=*),          optional,intent(In)  :: twin !Representing a particular orientation domain
+                                                             !Useful only for single crystals
+      !-----------------------------------------------
+      !   L o c a l   V a r i a b l e s
+      !-----------------------------------------------
+      integer :: i, j, k, l, ipiof, ni, ii, ir, isingle, jk, m, jj, lm, lpij
+      real(kind=cp), dimension(Atm%natoms)     :: otr, oti, frc, frs
+      real(kind=cp), dimension(3)              :: h, hnn, xi, cosa, side, aa, bb, t, car, ar, br,ed,ec
+      real(kind=cp), dimension(6)              :: betas
+      Real(Kind=Cp), Dimension(3,Grp%Multip)   :: hr
+      Real(Kind=Cp), Dimension(3,3)            :: sm,SMcos,SMsin
+      complex(kind=cp),dimension(3)            :: Mc
+      logical                                  :: mag,nuc,mag_only
+      character(len=1)                         :: tw
+      real(kind=cp) :: ffr, ffi, ffx, cosr, sinr, scosr, z, ssinr, temp,snexi,x1
+      real(kind=cp) :: x, yy, arg, arg2, exparg,ssnn
+      real(kind=dp) :: a1, a3, b1, b3, av,bv
+      real(kind=dp), parameter  :: pn=0.2695420113693928312
+      tw="N"
+      if(present(mdom)) then
+         if(present(twin)) tw=twin(1:1)
+      end if
+      if(tw == "T") then
+        hnn=matmul(hm%h,real(mdom))
+      else
+        hnn=hm%h
+      end if
 
-       !---- Local Variables ----!
-       integer                       :: i,j,k
-       real(kind=cp)                 :: arg,anis
-       real(kind=cp),dimension(3)    :: h
-       real(kind=cp),dimension(6)    :: beta
+      mag_only=.false.
+      a1=0.0; a3=0.0
+      b1=0.0; b3=0.0
+      aa=0.0; bb=0.0  !aa(1:3)
+      cosa=cosd(Cell%Ang)
+      side=Cell%Cell
+      ssnn=hm%s*hm%s
 
-       Ajh=0.0
-       Bjh=0.0
-       if(Grp%Centred == 2) then
-         do j=1,Nref
-            do i=1,Atm%natoms
-               arg=0.0
-               do k=1,grp%NumOps
-                  h=hr(k,j)%h
-                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht(k,j))
-                  anis=1.0
-                  if(Atm%atom(i)%thtype == "aniso") then
-                    beta=Atm%atom(i)%u(1:6)
-                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
-                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
-                    anis=exp(-anis)
-                  end if
-                  Ajh(i,j)=Ajh(i,j)+cos(arg)*anis
-               end do ! symmetry
-            end do ! Atoms
-         end do ! Reflections
-       else
-         do j=1,Nref
-            do i=1,Atm%natoms
-               arg=0.0
-               do k=1,grp%NumOps
-                  h=hr(k,j)%h
-                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht(k,j))
-                  anis=1.0
-                  if(Atm%atom(i)%thtype == "aniso") then
-                    beta=Atm%atom(i)%u(1:6)
-                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
-                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
-                    anis=exp(-anis)
-                  end if
-                  Ajh(i,j)=Ajh(i,j)+cos(arg)*anis
-                  Bjh(i,j)=Bjh(i,j)+sin(arg)*anis
-               end do ! symmetry
-            end do ! Atoms
-         end do ! Reflections
-       end if
+      nuc= hm%imag == 0  .or. hm%imag == 2
 
-       return
-    End Subroutine Calc_Table_AB
+      if(present(magonly)) mag_only=magonly
+      mag= hm%imag /= 0
+      if(mag_only) nuc=.false.
+
+      !---------------------------
+      DO i=1,Atm%natoms           !loop over atoms
+      !---------------------------        ipiof=i+iof
+        xi=Atm%atom(i)%x
+        betas=Atm%atom(i)%U
+        !Modify the first atom position according to the interpretation of domains with translations
+        if(present(tdom)) xi(1:3) = matmul(real(mdom),xi(1:3))+tdom(1:3)
+        temp=EXP(-Atm%atom(i)%Biso*ssnn)   !exp{-Bi (sintheta/Lambda)^2}
+
+        !Nuclear form factor
+        ffi=0.0; ffr=0.0
+        if(nuc) then
+           ni=Atm%atom(i)%ind(1)
+           ffr=Scf%br(ni)
+           ffi=0.0
+        end if
+        ffx=0.0
+
+        IF(mag) Then
+          ni=Atm%atom(i)%ind(2)
+          ffx=Scf%Mcoef(ni)%SctM(7)
+          DO ii=1,5,2
+            ffx=ffx+Scf%Mcoef(ni)%SctM(ii)*EXP(-Scf%Mcoef(ni)%SctM(ii+1)*ssnn)  !Form factor value for Q=H+k
+          END DO
+          snexi=pn*ffx*temp*Atm%atom(i)%occ     ! 0.26954.f(Q).Temp(i).Occ
+        END IF
+        ! Loop over symmetry operators
+        scosr=0.0
+        ssinr=0.0
+        ! Nuclear and Magnetic Structure Factor calculations
+        !   Fm=(Ax,Ay,Az)+i(Bx,By,Bz) --->  aa(I),bb(I), I=1,2,3 for x,y,z
+        SMcos=0.0; SMsin=0.0
+       !+++++++++++++++++++++++++
+        DO  ir=1,Grp%Multip   !Loop over symmetry operators
+       !+++++++++++++++++++++++++
+          sm(:,:)=Grp%Symop(ir)%Rot(:,:)
+             t(:)=Grp%Symop(ir)%tr(:)
+          x=dot_product(t,hnn)
+          h=matmul(hnn,sm)
+          arg=x+dot_product(h,xi(1:3))
+          arg=tpi*arg
+          arg2=    h(1)*h(1)*betas(1)+     h(2)*h(2)*betas(2)+    h(3)*h(3)*betas(3)+        &
+               2.0*h(1)*h(2)*betas(4)+ 2.0*h(1)*h(3)*betas(5)+2.0*h(2)*h(3)*betas(6)
+          exparg=EXP(-arg2)
+          cosr=COS(arg)*exparg      !cos{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+          scosr=scosr+cosr          !FRC= SIG fr(j,s)cos{2pi(hT Rs rj+ts)}*Ta(s)
+          sinr=SIN(arg)*exparg      !sin{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+
+          IF(Grp%centred == 1) then
+           ssinr=ssinr+sinr          !FRS= SIG fr(j,s)sin{2pi(hT Rs rj+ts)}*Ta(s)
+          END IF
+          IF(mag) Then
+            SMcos(:,:)=SMcos(:,:)+cosr*Grp%MSymop(ir)%Rot(:,:)
+            SMsin(:,:)=SMsin(:,:)+sinr*Grp%MSymop(ir)%Rot(:,:)
+          END IF
+        !+++++++++++++++++++++++++
+        END DO     !over symmetry operators !  END LOOP SYMM.OP.
+        !+++++++++++++++++++++++++
+
+        if(nuc) then
+           frc(i)=scosr    !Components of geometrical struture factor of atom i
+           frs(i)=ssinr
+           otr(i)=ffr*Atm%atom(i)%occ*temp     ! (f0+Deltaf')*OCC*Tiso
+           oti(i)=ffi*Atm%atom(i)%occ*temp     !     Deltaf" *OCC*Tiso
+
+           !-----CALCULATE A AND B OF F
+           a1 = a1 + otr(i)*frc(i)    ! components of A  and B
+           b1 = b1 + oti(i)*frc(i)    ! A(h) = a1 - a3
+                                      ! B(h) = b1 + b3
+           IF(Grp%centred == 1) THEN
+             a3 = a3 + oti(i)*frs(i)
+             b3 = b3 + otr(i)*frs(i)
+           END IF
+        end if
+        !Magnetic structure factor components
+        IF(mag) Then
+           ar = matmul(SMcos,Atm%atom(i)%M_xyz(:)/side)*side  !The introduction of Cell%cell
+           br = matmul(SMsin,Atm%atom(i)%M_xyz(:)/side)*side  !of using non conventional settings for
+           aa(:)= aa(:) + snexi*ar(:)
+           bb(:)= bb(:) + snexi*br(:)
+        END IF
+      !---------------------------
+      END DO  !over atoms
+
+      if( nuc ) then
+        !---------------------------
+        !NUCLEAR STRUCTURE FACTOR
+        !=========================
+        av = a1-a3   !real part of the structure factor
+        bv = b1+b3   !imaginary part of the structure factor
+        Strf%NsF=cmplx(av,bv)
+        ! For a powder h and -h cannot be measured independently, both kind
+        ! of reflections contribute simultaneously to a peak, so the intensity
+        ! is proportional to F^2(h)+ F^2(-h), the binary terms of the form:
+        ! Fij(h)= 2.0 [a(i)*a(j) -b(i)*b(j)] = -Fij(-h)
+        ! If the reflection -h is not generated, the calculation must be
+        ! performed using only the diagonal terms.
+        !     FNN = av*av + bv*bv !For a single crystal
+
+        if(mode=="S") then
+          Strf%sqNuc = av*av+bv*bv
+        else
+          Strf%sqNuc = a1*a1 + a3*a3 + b1*b1 + b3*b3
+        end if
+      else
+        Strf%sqNuc = 0.0
+        Strf%NsF=cmplx(0.0,0.0)
+      end if
+
+      if(mag) then
+        !MAGNETIC STRUCTURE FACTOR
+        !=========================
+        !  Calcul of F2= Fm.Fm* - (e.Fm)*(e.Fm)
+        !x=0.0
+        !yy=0.0
+        !DO i=1,3
+        !  DO j=i,3
+        !    k=6-i-j
+        !    x1=1.0
+        !    IF(i /= j) x1=2.0*cosa(k)
+        !    x=x1*aa(i)*aa(j)+x   ! Fm.Fm with unit vectors along a,b,c metric tensor
+        !    x1=2.0
+        !    IF(i == j) x1=1.0
+        !    yy=x1*hnn(i)*hnn(j)*aa(i)*aa(j)/(side(i)*side(j))+yy  !(e.Fm).(e.Fm)
+        !    IF(icent == 1) THEN
+        !      x1=1.0
+        !      IF(i /= j) x1=2.0*cosa(k)
+        !      x=x1*bb(i)*bb(j)+x
+        !      x1=2.0
+        !      IF(i == j) x1=1.0
+        !      yy=x1*hnn(i)*hnn(j)*bb(i)*bb(j)/(side(i)*side(j))+yy
+        !    END IF
+        !  END DO
+        !END DO
+        !Strf%sqMiV=(x-0.25*yy/ssnn)!*nlatti(iph)      ! Halpern & Johnson F2= Fm.Fm* - (e.Fm)*(e.Fm)
+
+        Strf%MsF=cmplx(aa,bb) !MsF in basis {e1,e2,e3}
+        ed = matmul(cell%GR, 0.5*hm%h/hm%s)    ! unitary vector referred to the direct    "
+        ec = matmul(Cell%Cr_Orth_cel,ed)       ! Cartesian
+        Mc = Strf%MsF / Cell%cell              ! Magnetic structure factor in basis {a,b,c}
+        Mc = matmul(Cell%Cr_Orth_cel,Mc)       !                            Cartesian
+        Strf%MiVC = Mc - dot_product(ec,Mc) * ec      !Magnetic interaction vector in Cartesian components
+        Strf%MiV = matmul(Cell%Orth_Cr_cel,Strf%MiVC)* Cell%cell       !Magnetic interaction vector in basis  {e1,e2,e3}
+        Strf%sqMiV= dot_product(Strf%MiVC, Strf%MiVC)
+      else
+        Strf%sqMiV=0.0      ! Halpern & Johnson F2= Fm.Fm* - (e.Fm)*(e.Fm)
+        Strf%MsF=cmplx(0.0,0.0)
+        Strf%MiV=cmplx(0.0,0.0)
+        Strf%MiVC=cmplx(0.0,0.0)
+      end if
+
+      Return
+    End Subroutine Calc_Mag_Structure_Factor
 
     !!----
     !!---- Subroutine Calc_StrFactor(mode,rad,nn,sn,Atm,Grp,sf2,deriv,fc)
@@ -1235,6 +1450,73 @@
 
        return
     End Subroutine Calc_hkl_StrFactor
+
+    !!--++
+    !!--++ Subroutine Calc_Table_AB(Nref,Atm,Grp)
+    !!--++    integer,                intent(in) :: Nref
+    !!--++    type(atom_list_type),   intent(in) :: Atm
+    !!--++    type(space_group_type), intent(in) :: Grp
+    !!--++
+    !!--++    (Private)
+    !!--++    Calculate Table with Aj(h) and Bj(h) values
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Calc_Table_AB(Nref,Atm,Grp)
+       !---- Arguments ----!
+       integer,                intent(in) :: Nref
+       type(atom_list_type),   intent(in) :: Atm
+       type(space_group_type), intent(in) :: Grp
+
+       !---- Local Variables ----!
+       integer                       :: i,j,k
+       real(kind=cp)                 :: arg,anis
+       real(kind=cp),dimension(3)    :: h
+       real(kind=cp),dimension(6)    :: beta
+
+       Ajh=0.0
+       Bjh=0.0
+       if(Grp%Centred == 2) then
+         do j=1,Nref
+            do i=1,Atm%natoms
+               arg=0.0
+               do k=1,grp%NumOps
+                  h=hr(k,j)%h
+                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht(k,j))
+                  anis=1.0
+                  if(Atm%atom(i)%thtype == "aniso") then
+                    beta=Atm%atom(i)%u(1:6)
+                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
+                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
+                    anis=exp(-anis)
+                  end if
+                  Ajh(i,j)=Ajh(i,j)+cos(arg)*anis
+               end do ! symmetry
+            end do ! Atoms
+         end do ! Reflections
+       else
+         do j=1,Nref
+            do i=1,Atm%natoms
+               arg=0.0
+               do k=1,grp%NumOps
+                  h=hr(k,j)%h
+                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht(k,j))
+                  anis=1.0
+                  if(Atm%atom(i)%thtype == "aniso") then
+                    beta=Atm%atom(i)%u(1:6)
+                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
+                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
+                    anis=exp(-anis)
+                  end if
+                  Ajh(i,j)=Ajh(i,j)+cos(arg)*anis
+                  Bjh(i,j)=Bjh(i,j)+sin(arg)*anis
+               end do ! symmetry
+            end do ! Atoms
+         end do ! Reflections
+       end if
+
+       return
+    End Subroutine Calc_Table_AB
 
     !!--++ Subroutine Calc_Table_TH(Reflex,Atm)
     !!--++    type(reflection_List_type),   intent(in) :: Reflex
@@ -2007,6 +2289,57 @@
     End Subroutine Init_Structure_Factors
 
     !!----
+    !!---- Subroutine Magnetic_Structure_Factors(Cell,Atm,Grp,maxs,Reflex,Stf)
+    !!----    type(Crystal_Cell_type),            intent(in)     :: Cell
+    !!----    type(atom_list_type),               intent(in)     :: Atm
+    !!----    type(magnetic_space_group_type),    intent(in)     :: Grp
+    !!----    Real(kind=cp)                       intent(in)     :: maxs (maximum sinTheta/Lambda)
+    !!----    type(reflect_list_type),            intent(out)    :: Reflex
+    !!----    type(Strf_list_type),               intent(out)    :: Stf
+    !!----
+    !!----    Calculation of Structure Factors (nuclear and magnetic) when
+    !!----    the crystal and magnetic structure is described by a Shubnikov
+    !!----    group
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Magnetic_Structure_Factors(Cell,Atm,Grp,maxs,Reflex,Stf,lun)
+       type(Crystal_Cell_type),            intent(in)     :: Cell
+       type(atom_list_type),               intent(in out) :: Atm
+       type(magnetic_space_group_type),    intent(in)     :: Grp
+       Real(kind=cp),                      intent(in)     :: maxs !(maximum sinTheta/Lambda)
+       type(reflect_list_type),            intent(out)    :: Reflex
+       type(Strf_list_type),               intent(out)    :: Stf
+       Integer, optional,                  intent(in)     :: lun
+
+       !---- Local variables ----!
+       character(len=50) :: mess
+       integer           :: i
+       logical           :: ok
+       Type(Scattering_Species_Type) :: Scf
+       type(reflect_type),dimension(:),allocatable :: rf
+
+       call Hkl_Gen_Shub(Cell,Grp,maxs,Reflex%NRef,rf)
+       Stf%Nref=Reflex%NRef
+       allocate(Stf%Strf(Stf%Nref),Reflex%Ref(Reflex%NRef))
+       if(present(lun)) then
+         call Set_Form_Factors(Atm,Scf,ok,mess,lun=lun,mag=.true.)
+       else
+         call Set_Form_Factors(Atm,Scf,ok,mess,mag=.true.)
+       end if
+       if(.not. ok) then
+         write(unit=*,fmt="(a)") " => "//trim(mess)
+         return
+       end if
+       do i=1,Reflex%Nref
+         Reflex%Ref(i)=rf(i)
+         call Calc_Mag_Structure_Factor("P",Reflex%Ref(i),Cell,Grp,Atm,Scf,Stf%Strf(i))
+       end do
+       return
+    End Subroutine Magnetic_Structure_Factors
+
+
+    !!----
     !!---- Subroutine Modify_SF(Reflex,Atm,Grp,List,Nlist,Mode)
     !!----    type(reflection_list_type),         intent(in out) :: Reflex
     !!----    type(atom_list_type),              intent(in)     :: Atm
@@ -2220,14 +2553,15 @@
     !!----
     !!----  Created (JRC): October-2015
     !!----
-    Subroutine Set_Form_Factors(Atm,Scf,ok,mess,lambda,lun,Add_Scatt)
-      type(Atom_List_Type),                             intent(in out):: Atm
-      Type(Scattering_Species_Type),                    intent(out)   :: Scf
-      logical,                                          intent(out)   :: ok
-      character(len=*),                                 intent(out)   :: mess
-      real(kind=cp),                optional,           intent(in)    :: lambda
-      integer,                      optional,           intent(in)    :: lun
-      Type(Scattering_Species_Type),optional,           intent(in)    :: Add_Scatt
+    Subroutine Set_Form_Factors(Atm,Scf,ok,mess,lambda,lun,Add_Scatt,mag)
+      type(Atom_List_Type),                    intent(in out):: Atm
+      Type(Scattering_Species_Type),           intent(out)   :: Scf
+      logical,                                 intent(out)   :: ok
+      character(len=*),                        intent(out)   :: mess
+      real(kind=cp),                optional,  intent(in)    :: lambda
+      integer,                      optional,  intent(in)    :: lun
+      Type(Scattering_Species_Type),optional,  intent(in)    :: Add_Scatt
+      logical,                      optional,  intent(in)    :: mag
 
       !---- Local variables ----!
       character(len=4)                        :: symbcar
@@ -2235,6 +2569,7 @@
       character(len=4), dimension(atm%natoms) :: symb
       character(len=4), dimension(atm%natoms) :: elem
       real(kind=cp),    dimension(atm%natoms) :: bs
+      integer,          dimension(atm%natoms) :: ix,jx
       real(kind=cp)                           :: b,dmin,d
       character(len=*), parameter             :: digpm="0123456789+-"
       logical                                 :: found
@@ -2296,13 +2631,15 @@
        call Set_Xray_Form()
 
        !Look for X-ray scattering coefficients
+       ix=0
        do i=1,Scf%Num_species
           symbcar=l_case(symb(i)) !Scattering factors
           k=index(symbcar,"+")
           j=index(symbcar,"-")
-          if(k == 0 .and. j == 0) then !simple element or magnetic form Factor
-            if(len_trim(symbcar) > 2) then !magnetic form Factor -> use the chemical symbol
+          if(k == 0 .and. j == 0) then     !Simple element or magnetic form Factor
+            if(len_trim(symbcar) > 2) then !Magnetic form Factor -> use the chemical symbol
                symbcar=l_case(Elem(i))
+               ix(i) = i  !Magnetic atom
             end if
           end if
           found=.false.
@@ -2354,6 +2691,44 @@
          end if
        end if
 
+       if(present(mag)) then
+         !---- Load form factor values for Magnetic Scattering ----!
+         call Set_Magnetic_Form()
+         !---- Find Species in Magnetic_Form ----!
+         ix=0
+         jx=0
+         n=0
+         do i=1,atm%natoms
+            symbcar=atm%atom(i)%SfacSymb
+            if(symbcar(1:1) /= "M" .and. symbcar(1:1) /= "J") cycle
+            do j=1,num_mag_form
+               if (symbcar /= Magnetic_Form(j)%Symb) cycle
+               if(any(jx == j) ) exit
+               n=n+1
+               jx(n)=j
+               ix(n)=i
+               exit
+            end do
+         end do
+         Scf%Num_magspc=n
+         allocate(Scf%Mcoef(n),Scf%Symb_mag(n))
+         do k=1,Scf%Num_magspc
+            j = jx(k)
+            i = ix(k)
+            Scf%Mcoef(k)=Magnetic_Form(j)
+            Scf%Symb_mag(k)= atm%atom(i)%SfacSymb
+         end do
+         do i=1,atm%natoms
+           symbcar=u_case(atm%atom(i)%SfacSymb)
+           do j=1,Scf%Num_magspc
+             if(symbcar == Scf%Symb_mag(j)) then
+               atm%atom(i)%ind(2)=j
+               exit
+             end if
+           end do
+         end do
+       end if
+
        !---- Printing Information ----!
        if (present(lun)) then
           if(present(lambda)) then
@@ -2364,38 +2739,138 @@
           write(unit=lun,fmt="(/,a)")  "  INFORMATION FROM TABULATED NEUTRON SCATTERING FACTORS"
           write(unit=lun,fmt="(a,/)")  "  ==================================================="
           write(unit=lun,fmt="(a)")    "  FERMI LENGTHS "
-          write(unit=lun,fmt="(a,i3)") "   Number of chemically different species: ",n
+          write(unit=lun,fmt="(a,i3)") "   Number of chemically different species: ",Scf%Num_Species
           write(unit=lun,fmt="(/,a)")  "   Atom     Fermi Length (Br,Bi)[10^(-12) cm]      Atomic Number"
           do k=1,Scf%Num_species
              write(unit=lun,fmt="(a,2F10.6,tr20,i8)")  "     "//Scf%Symb(k), Scf%br(k), Scf%bi(k), Scf%Xcoef(k)%Z
           end do
-          write(unit=lun,fmt="(/,/)")
-          write(unit=lun,fmt="(/,a)")  "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
-          write(unit=lun,fmt="(a,/)")  "  ==================================================="
-          write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  Dfp  Dfpp "
-          write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
-          write(unit=lun,fmt="(/,a)") &
-               " Atom(ScF)  Atom(ScFX)           a1       b1       a2       b2       a3       b3       a4       b4        c      Dfp     Dfpp"
-          do k=1,Scf%Num_species
-             write(unit=lun,fmt="(a,11F9.5)")    &
-                            "  "//Scf%Symb(k)//"        "//Scf%Xcoef(k)%Symb//"        ", &
-                           (Scf%xcoef(k)%a(L),Scf%xcoef(k)%b(L), L=1,4), Scf%xcoef(k)%c, &
-                           Scf%delta_fp(k), Scf%delta_fpp(k)
-          end do
-          write(unit=lun,fmt="(/,/)")
+          if(.not. present(mag)) then
+             write(unit=lun,fmt="(/,/)")
+             write(unit=lun,fmt="(/,a)")  "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
+             write(unit=lun,fmt="(a,/)")  "  ==================================================="
+             write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  Dfp  Dfpp "
+             write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",Scf%Num_Species
+             write(unit=lun,fmt="(/,a)") &
+                  " Atom(ScF)  Atom(ScFX)           a1       b1       a2       b2       a3       b3       a4       b4        c      Dfp     Dfpp"
+             do k=1,Scf%Num_species
+                write(unit=lun,fmt="(a,11F9.5)")    &
+                               "  "//Scf%Symb(k)//"        "//Scf%Xcoef(k)%Symb//"        ", &
+                              (Scf%xcoef(k)%a(L),Scf%xcoef(k)%b(L), L=1,4), Scf%xcoef(k)%c, &
+                              Scf%delta_fp(k), Scf%delta_fpp(k)
+             end do
+             write(unit=lun,fmt="(/,/)")
+
+          else
+
+            write(unit=lun,fmt="(/,a)")  "  INFORMATION FROM TABULATED MAGNETIC FORM FACTORS"
+            write(unit=lun,fmt="(a,/)")  "  ================================================"
+            write(unit=lun,fmt="(/,a,/)")    "   MAGNETIC FORM FACTOR COEFFICIENTS: {A(i),B(i),I=1,3},C  "
+            write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",Scf%Num_magspc
+            write(unit=lun,fmt="(/,a)") &
+                 "     Atom     a1       b1       a2       b2       a3       b3       c      "
+            do k=1,Scf%Num_magspc
+               write(unit=lun,fmt="(a,7F9.5)")    &
+                             "     "//Scf%Symb_mag(k), (Scf%Mcoef(k)%SctM(L), L=1,7)
+            end do
+            write(unit=lun,fmt="(/,/)")
+
+          end if
        end if
 
     End Subroutine Set_Form_Factors
+    !!--++
+    !!--++ Subroutine Create_Table_mFR_Shub(Reflex,Atm,Lun)
+    !!--++    type(Reflect_List_Type),intent(in) :: Reflex
+    !!--++    type(Matom_list_type),  intent(in) :: Atm
+    !!--++    integer, optional,      intent(in) :: lun
+    !!--++
+    !!--++    (Private)
+    !!--++    Calculate a Table of Magnetic form Factors
+    !!--..     mFR(Natoms,Nref)
+    !!--++
+    !!--++ Update: April - 2005
+    !!
+    !Subroutine Create_Table_mFR_Shub(Reflex,Atm,lun)
+    !   !---- Arguments ----!
+    !   type(Reflect_List_Type), intent(in) :: Reflex
+    !   type(Atom_list_type),    intent(in) :: Atm
+    !   integer, optional,       intent(in) :: lun
+    !
+    !   !---- Local Variables ----!
+    !   character(len=4)               :: symbcar
+    !   integer                        :: i,j, k,n,L
+    !   integer, dimension(atm%natoms) :: ix,jx,ia
+    !
+    !   !---- Init ----!
+    !   err_msfac=.false.
+    !
+    !   !---- Load form factor values for Magnetic Scattering ----!
+    !   call Set_Magnetic_Form()
+    !
+    !   !---- Find Species in Magnetic_Form ----!
+    !   ix=0
+    !   jx=0
+    !   n=0
+    !   do i=1,atm%natoms
+    !      symbcar=u_case(atm%atom(i)%SfacSymb)
+    !      do j=1,num_mag_form
+    !         if (symbcar /= Magnetic_Form(j)%Symb) cycle
+    !         ix(i)=j
+    !         if(any(jx == j) ) exit
+    !         n=n+1
+    !         jx(n)=j
+    !         ia(n)=i
+    !         exit
+    !      end do
+    !   end do
+    !
+    !   if (present(lun)) then
+    !      write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED MAGNETIC FORM FACTORS"
+    !      write(unit=lun,fmt="(a,/)") "  ================================================"
+    !   End if
+    !
+    !   if (any(ix==0)) then
+    !      err_msfac=.true.
+    !      err_msfac_mess="The Species "//symbcar//" was not found"
+    !      return
+    !   else
+    !      !---- Fill mFR Table ----!
+    !      do j=1,reflex%nref
+    !         do i=1,atm%natoms
+    !            mFR(i,j)=mfj(reflex%h(j)%s,Magnetic_Form(ix(i))%SctM)
+    !         end do
+    !      end do
+    !   end if
+    !
+    !   !---- Printing Information ----!
+    !   if (present(lun)) then
+    !      write(unit=lun,fmt="(/,a,/)")    "   MAGNETIC FORM FACTOR COEFFICIENTS: {A(i),B(i),I=1,3},C  "
+    !      write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
+    !      write(unit=lun,fmt="(/,a)") &
+    !           "     Atom     a1       b1       a2       b2       a3       b3       c      "
+    !      do k=1,n
+    !         j = jx(k)
+    !         i = ia(k)
+    !         write(unit=lun,fmt="(a,7F9.5)")    &
+    !                       "     "//atm%atom(i)%SfacSymb, (Magnetic_Form(j)%SctM(L), L=1,7)
+    !      end do
+    !      write(unit=lun,fmt="(/,/)")
+    !   end if
+    !
+    !   call Remove_Magnetic_Form()
+    !
+    !   return
+    !End Subroutine Create_Table_mFR_Shub
 
 
 
     !!----
     !!---- Subroutine Structure_Factors(Atm,Grp,Reflex,Mode,lambda)
-    !!----    type(atom_list_type),               intent(in)     :: Atm
-    !!----    type(space_group_type),             intent(in)     :: Grp
-    !!----    type(reflection_list_type),         intent(in out) :: Reflex
-    !!----    character(len=*), optional,         intent(in)     :: Mode
-    !!----    real(kind=cp), optional,            intent(in)     :: lambda
+    !!----    type(atom_list_type),               intent(in)     :: Atm    !List of atoms
+    !!----    type(space_group_type),             intent(in)     :: Grp    !Space group
+    !!----    type(reflection_list_type),         intent(in out) :: Reflex !It is completed on output
+    !!----    character(len=*), optional,         intent(in)     :: Mode   !"NUC","ELE" for neutrons, electrons else: XRays
+    !!----    real(kind=cp), optional,            intent(in)     :: lambda !Needed for Xrays
     !!----
     !!----    Calculate the Structure Factors from a list of Atoms
     !!----    and a set of reflections. A call to Init_Structure_Factors
@@ -2600,18 +3075,18 @@
        return
     End Subroutine Sum_AB_NeutNuc
 
-    !!----
-    !!---- Subroutine Write_Structure_Factors(lun,Reflex,Mode)
-    !!----    integer,                            intent(in) :: lun
-    !!----    type(reflection_list_type),         intent(in) :: Reflex
-    !!----    Character(len=*), optional,         intent(in) :: Mode
-    !!----
-    !!----    Writes in logical unit=lun the list of structure factors
-    !!----    contained in the array hkl
-    !!----
-    !!---- Update: February - 2005
+    !!--++
+    !!--++ Subroutine Write_Structure_Factors(lun,Reflex,Mode)
+    !!--++    integer,                            intent(in) :: lun
+    !!--++    type(reflection_list_type),         intent(in) :: Reflex
+    !!--++    Character(len=*), optional,         intent(in) :: Mode
+    !!--++
+    !!--++    Writes in logical unit=lun the list of structure factors
+    !!--++    contained in the array hkl
+    !!--++
+    !!--++ Update: February - 2005
     !!
-    Subroutine Write_Structure_Factors(lun,Reflex,Mode)
+    Subroutine Write_Structure_Factors_Crys(lun,Reflex,Mode)
        !---- Argument ----!
        integer,                            intent(in) :: lun
        type(reflection_list_type),         intent(in) :: Reflex
@@ -2644,6 +3119,49 @@
                                  reflex%ref(i)%a, reflex%ref(i)%b, reflex%ref(i)%Fc*reflex%ref(i)%Fc,i
        end do
        return
-    End Subroutine Write_Structure_Factors
+    End Subroutine Write_Structure_Factors_Crys
+
+    !!--++
+    !!--++ Subroutine Write_Structure_Factors_Mag(lun,Reflex,stf,full)
+    !!--++    integer,                   intent(in) :: lun
+    !!--++    type(reflect_list_type),intent(in) :: Reflex
+    !!--++    type(Strf_List_Type),intent(in) :: Reflex
+    !!--++    logical, optional,         intent(in) :: full
+    !!--++
+    !!--++    Writes in logical unit=lun the list of structure factors
+    !!--++    calculated for a structure described using Shubnikov groups.
+    !!--++    If "full" is present, full information contained in stf is output
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Subroutine Write_Structure_Factors_Mag(lun,Reflex,stf,full)
+       !---- Argument ----!
+       integer,                 intent(in) :: lun
+       type(reflect_list_type), intent(in) :: Reflex
+       type(Strf_List_Type),    intent(in) :: stf
+       logical, optional,       intent(in) :: full
+       !---- Local Variables ----!
+       integer :: i
+       Character(len=*),dimension(0:2),parameter :: rtyp=(/"  Nuc  ","  Mag  ","Nuc+Mag"/)
+
+       write(unit=lun,fmt="(/,/,a)") "    LIST OF REFLECTIONS AND STRUCTURE FACTORS(NUCLEAR and MAGNETIC)"
+       write(unit=lun,fmt="(a)")     "    ==============================================================="
+
+       write(unit=lun,fmt="(/,a,/)") "   H   K   L Mult SinTh/Lda d-spacing  ref-type       sqNuc       sqMiV  NumRef"
+       do i=1,reflex%Nref
+           write(unit=lun,fmt="(3i4,i5,2f10.5,tr3,a,2f12.5,i8)") reflex%ref(i)%h, reflex%ref(i)%mult, &
+                               reflex%ref(i)%S,0.5/reflex%ref(i)%S,rtyp(reflex%ref(i)%imag), stf%strf(i)%sqNuc, stf%strf(i)%sqMiV,i
+       end do
+
+       if(present(full)) then
+         write(unit=lun,fmt="(/,a,/)") &
+"   H   K   L    Nuc-Real    Nuc-Imag  (MsFx-Real  MsFx-Imag)  (MsFy-Real  MsFy-Imag)  (MsFz-Real  MsFz-Imag)  (MiVx-Real  MiVx-Imag)  (MiVy-Real  MiVy-Imag)  (MiVz-Real  MiVz-Imag)  NumRef"
+         do i=1,reflex%Nref
+             write(unit=lun,fmt="(3i4,14f12.5,i8)") reflex%ref(i)%h,stf%strf(i)%NsF, stf%strf(i)%MsF, stf%strf(i)%MiV,i
+         end do
+       else
+       end if
+       return
+    End Subroutine Write_Structure_Factors_Mag
 
  End Module CFML_Structure_Factors

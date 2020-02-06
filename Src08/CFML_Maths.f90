@@ -62,7 +62,7 @@
               Negligible, Norm,              &
               Outerprod,                     &
               Poly_Legendre,                 &
-              Rank, Rotation_OX, Rotation_OY, Rotation_OZ, Real_Spher_Harm_Ang,  &
+              mRank, Rotation_OX, Rotation_OY, Rotation_OZ, Real_Spher_Harm_Ang,  &
               Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec, &
               Scalar, Second_Derivative, Smoothing_Vec, Sort, Spline_Interpol, Spline_D2y,  &
               Tensor_Product, Trace,         &
@@ -73,6 +73,7 @@
     !---- List of public subroutines ----!
     public :: Co_Prime_Vector,               &
               Diagonalize_SH,                &
+              Diagonalize_RGen,              &
               LU_Descomposition,             &
               Invert_Matrix_R,               &
               Orient_Eigenvectors,           &
@@ -509,6 +510,15 @@
           logical,       optional,                 intent(in)   :: norder   ! If present no ordering
        End Subroutine Diagonalize_Symm
 
+       Module Subroutine Diagonalize_RGen(n,a,wr,wi,matz,z)
+          !---- Arguments ----!
+          integer,                         intent(in)    :: n
+          real(kind = dp), dimension(n,n), intent(in out):: a
+          real(kind = dp), dimension(n),   intent(out)   :: wi, wr
+          logical,                         intent(in)    :: matz
+          real(kind = dp), dimension(n,n), intent(out)   :: z
+       End Subroutine Diagonalize_RGen
+
        Module Pure Function Co_Prime(V,Imax) result(Cop)
           !---- Arguments ----!
           integer, dimension(:),           intent(in) :: V          ! Input vector of numbers
@@ -876,7 +886,7 @@
           logical,                         intent(out)    :: singular
           integer, dimension(:), optional, intent(out)    :: indx
        End Subroutine LU_Decomp
-       
+
        Module Pure Subroutine LU_Descomposition(a,p)
           !---- Arguments ----!
           real(kind=cp), intent(in out) :: a(:,:)
@@ -982,7 +992,7 @@
           real(kind=cp), dimension(:,:), intent(in) :: g   ! Metrics
           real(kind=cp)                             :: r   ! Norm of the vector
        End Function Norm_R
-       
+
        Module Pure Subroutine Orient_Eigenvectors(eval,evec)
           !---- Arguments ----!
           real(kind=cp), dimension(3),   intent(in out) :: eval
@@ -1018,12 +1028,12 @@
           real(kind=cp)                              :: Det    ! Value
        End Function PseudoDeterm_C
 
-       Module Function Rank(a,tol) Result(r)
+       Module Function mRank(a,tol) Result(r)
           !---- Arguments ----!
           real(kind=cp), dimension(:,:),intent( in)      :: a     ! Input array
           real(kind=cp),                intent( in)      :: tol   ! Tolerance
           integer                                        :: r
-       End Function Rank
+       End Function mRank
 
        Module Subroutine Resolv_Sist_1x2(w,t,ts,x,ix)
           !---- Arguments ----!

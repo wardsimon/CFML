@@ -1059,7 +1059,7 @@ SubModule (CFML_IOForm) IOF_003
       !---- Arguments ----!
       character(len=*),        intent(in) :: filename     ! Filename
       class(Cell_Type),        intent(in) :: Cell         ! Cell parameters
-      class(SpaceG_Type),      intent(in) :: SpG          ! Space group information 
+      class(SpG_Type),         intent(in) :: SpG          ! Space group information 
       Type (AtList_Type),      intent(in) :: At_List      ! Atoms
       integer,                 intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
       character(len=*),        intent(in) :: Code         ! Code or name of the structure
@@ -1308,7 +1308,7 @@ SubModule (CFML_IOForm) IOF_003
       write(unit=iunit,fmt="(a)") "loop_"
       write(unit=iunit,fmt="(a)") "    _symmetry_equiv_pos_as_xyz"
       do i=1,SpG%multip
-         line="'"//trim(SpG%SymopSymb(i))//"'"
+         line="'"//trim(SpG%Sym_Op(i))//"'"
          write(iunit,'(a)') trim(line)
       end do
       write(unit=iunit,fmt="(a)") " "
@@ -1749,7 +1749,7 @@ SubModule (CFML_IOForm) IOF_003
               call setnum_std(ua(j),sua(j),comm)
               line=trim(line)//" "//trim(comm)
             end do
-             WRITE(iunit,"(a)") trim(line)//"  "//A%atom(i)%SfacSymb
+            write(iunit,"(a)") trim(line)//"  "//A%atom(i)%SfacSymb
          end do
       end if
 

@@ -1,6 +1,14 @@
 @echo off
 rem ****
-rem ****---- Compilation for CALC_SFAC Program ----****
+rem ****---- Compilation for Simple_Calc_Mag_Powder Program ----****
+rem ****
+rem **** Author: JRC + JGP
+rem **** Revision: Nov-2008
+rem ****
+rem
+@echo off
+rem ****
+rem ****---- Compilation for Simple_Calc_Mag_Powder Program ----****
 rem ****
 rem **** Author: JRC + JGP
 rem **** Revision: Nov-2008
@@ -20,30 +28,30 @@ rem
       )
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_Calc_SFac: Make CALC_SFAC Compilation
-   echo    Syntax: make_calc_sfac [gfortran/ifort]
+   echo    MAKE_Calc_mag_powder: Make Calc_mag_powder Compilation
+   echo    Syntax: make_calc_mag_powder [gfortran/ifort]
    goto END
 rem
 :CONT
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
-   if x%1 == xifortd     goto IFORTD
+   if x%1 == xifortd    goto IFORTD
    goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c calc_sfac.f90 /O2 /nologo %INC%
-   link /subsystem:console /out:calc_sfac.exe *.obj %CRYSLIB%
+   ifort /c Simple_Calc_Mag_Powder.f90 /O2 /nologo %INC%
+   link /subsystem:console /out:Simple_Calc_Mag_Powder.exe *.obj %CRYSLIB%
    goto END
 :IFORTD
-   ifort /c calc_sfac.f90 /O2 /nologo %INCD%
-   link /subsystem:console /out:calc_sfac.exe *.obj %CRYSLIBD%
+   ifort /c Simple_Calc_Mag_Powder.f90 /O2 /nologo %INCD%
+   link /subsystem:console /out:Simple_Calc_Mag_Powder.exe *.obj %CRYSLIBD%
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c calc_sfac.f90    -I../../GFortran/LibC
-   gfortran *.o -o calc_sfac    -L../../GFortran/LibC   -lcrysfml
+   gfortran -c Simple_Calc_Mag_Powder.f90    -I../../GFortran/LibC
+   gfortran *.o -o Simple_Calc_Mag_Powder    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END

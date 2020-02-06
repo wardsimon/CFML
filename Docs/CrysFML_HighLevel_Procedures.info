@@ -1,0 +1,190 @@
+List of variables, types and procedures to be exposed to Python. Only a minimal relatively high level set 
+has been selected in this document. Mathematical procedures as well as optimization techniques are not exposed. 
+This can be done in a second stage of constructing a Fortran module to be accessible directly to Python via Forpy.
+A more detailed description of the types and procedures is given in the document: CFML_HighLevel_Procedures.txt  
+
+Globals:
+========
+                                integer, parameter :: sp = selected_real_kind(6,30)
+(CFML_GlobalDeps.f90)           integer, parameter :: dp = selected_real_kind(14,150)
+                                integer, parameter :: cp = sp
+
+(CFML_Symmetry.f90)             logical,            public :: Err_Symm
+                                character(len=150), public :: ERR_Symm_Mess
+(CFML_Cryst_Types.f90)          logical,            public :: ERR_Crys
+                                character(len=150), public :: ERR_Crys_Mess
+(CFML_Atom_Mod.f90)             logical,            public :: ERR_Atmd
+                                character(len=150), public :: Err_Atmd_Mess
+(CFML_String_Util.f90)          logical,            public :: ERR_String
+                                character(len=150), public :: ERR_String_Mess
+(CFML_Diffpat.f90)              logical,            public :: ERR_Diffpatt=.false.
+                                character(len=150), public :: ERR_DiffPatt_Mess=" "
+(CFML_Form_CIF.f90)             logical,            public :: ERR_Form
+                                character(len=150), public :: ERR_Form_Mess
+(CFML_Reflect_Util.f90)         logical,            public :: ERR_Refl
+                                character(len=150), public :: ERR_Refl_Mess
+(CFML_magSymm.f90)              logical,            public :: ERR_MagSym
+                                character(len=150), public :: ERR_MagSym_Mess
+(CFML_Sfac.f90)                 logical,            public :: ERR_SFac
+                                character(len=150), public :: ERR_SFac_Mess
+(CFML_Msfac.f90)                logical,            public :: ERR_msfac
+                                character(len=150), public :: ERR_msfac_Mess
+
+
+
+Types (34):
+===========
+(CFML_Symmetry.f90)             Type, public :: Sym_Oper_Type
+                                Type, public :: Space_Group_Type
+                                Type, public :: MSym_Oper_Type
+                                Type, Public :: Magnetic_Space_Group_Type
+(CFML_Cryst_Types.f90)          Type, public :: Crystal_Cell_Type
+                                Type, public :: Twofold_Axes_Type
+(CFML_Atom_Mod.f90)             Type, Public :: Atom_Equiv_Type
+                                Type, Public :: Atom_Equiv_List_Type
+                                Type, public :: Atom_Type
+                                Type, public :: Atom_List_Type
+                                Type, public :: mAtom_Type
+                                Type, public :: mAtom_List_Type
+                                Type, public :: atoms_cell_type
+(CFML_Chem_Scatt.f90)           Type, public :: Anomalous_Sc_Type
+                                Type, public :: Chem_Info_Type
+                                Type, public :: Magnetic_Form_Type
+                                Type, public :: Xray_Form_Type
+                                Type, public :: Xray_Wavelength_Type
+(CFML_Diffpat.f90)              Type, public :: Diffraction_Pattern_Type
+(CFML_Form_CIF.f90)             Type, public :: File_List_Type
+                                Type, public :: Job_Info_type
+(CFML_Profile_TOF.f90)          Type, Public :: Deriv_TOF_Type
+(CFML_Reflect_Util.f90)         Type, public :: Reflect_Type
+                                Type, public :: Reflect_List_Type
+                                Type, public :: Reflection_Type
+                                Type, public :: Reflection_List_Type
+(CFML_Propagk.f90)              Type, Public :: Group_K_Type
+(CFML_magSymm.f90)              Type, Public :: MagSymm_k_Type
+                                Type, public :: Magnetic_Domain_type
+(CFML_Sfac.f90)                 Type, public :: Scattering_Species_Type
+(CFML_Msfac.f90)                Type, Public :: MagH_Type
+                                Type, Public :: MagH_List_Type
+                                Type, Public :: MagHD_Type
+                                Type, Public :: MagHD_List_Type
+
+Functions (19):
+===============
+(CFML_Symmetry.f90)             Function Lattice_Trans(V,Lat) Result(Lattice_Transl)
+                                Function Get_Multip_Pos(x,Spg) Result(mult)
+                                Function Get_Occ_Site(Pto,Spg) Result(Occ)
+(CFML_Cryst_Types.f90)          Function Cart_Vector(Code,V,Celda) Result(Vc)
+                                Function Cart_U_Vector(Code,V,Celda) Result(Vc)
+                                Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+(CFML_Profile_Functs.f90)       Pure Function Gaussian(X,Par) Result (Gauss_Val)
+                                Pure Function Lorentzian(X,Par) Result (Lor_Val)
+                                Pure Function Hat(X,Par) Result (H_Val)
+                                Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
+                                Pure Function TCH_pVoigt(X,Par) Result (Pv_Val)
+                                Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
+                                Pure Function Exponential(X,Par) Result (Ex_Val)
+                                Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
+                                Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
+(CFML_Reflect_Util.f90)         Function Get_MaxNumRef(SinTLMax, VolCell, SinTLMin, Mult) Result(numref)
+(CFML_Propagk.f90)              Function Hk_Equiv(H,K,Spacegk,Friedel) Result (Info)
+                                Function K_Equiv(H,K,Latyp) Result (Info)
+                                Function K_Equiv_Minus_K(Vec,Lat) result(equiv)
+
+Subroutines (94):
+=================
+(CFML_GlobalDeps.f90)     Subroutine Write_Date_Time(lun,dtim)
+(CFML_Symmetry.f90)       Subroutine Set_SpaceGroup(Spacegen,Spacegroup,Gen,Ngen,Mode,Force_Hall) !Construct the space group Spacegroup
+                          Subroutine Write_SpaceGroup(SpaceGroup,Iunit,Full)                      !Write SpaceGroup into unit Iunit
+                          Subroutine Write_Magnetic_Space_Group(SG,Iunit,full)                    !Write magnetic space group SG into unit Iunit
+(CFML_Cryst_Types.f90)    Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
+                          Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)                  ! Calculates a new cell giving the transformation matrix M
+                          Subroutine Write_Crystal_Cell(Celda,Lun)                                !Writes the cell characteristics in the file associated to the logical unit lun
+                          Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
+                          Subroutine Get_TwoFold_Axes(Cell,Tol,Twofold)                           !Provides the type Twofold from Cell within angular tolerance Tol
+                          Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)       !Provides the convention cell form Twofold type
+(CFML_Atom_Mod.f90)       Subroutine Atom_Uequi_List(Cell, Ac)
+                          Subroutine Atoms_Cell_To_List(Ac,A)
+                          Subroutine Multi(Lun,Iprin,Conven,Spg,A,Ac)
+                          Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
+                          Subroutine Write_Atom_List(Ats,Level,Lun,Cell)
+                          Subroutine Get_Atom_2nd_Tensor_Ctr(x,TensVal,Spgr,Codini,Icodes,Multip,Ord,Ss,Ipr)
+(CFML_Chem_Scatt.f90)     Subroutine Get_Atomic_Mass(atm,mass)
+                          Subroutine Get_Atomic_Vol(atm,vol)
+                          Subroutine Get_ChemSymb(Label, ChemSymb, Z)
+                          Subroutine Get_Covalent_Radius(nam,rad)
+                          Subroutine Get_Fermi_Length(nam,b)
+                          Subroutine Get_Inc_Xs(nam,u)                                             !Provides incoherent scattering neutron cross-section (barns -> [10**(-24) cm**2] )
+                          Subroutine Get_Abs_Xs(nam,u)                                             !Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+                          Subroutine Get_Ionic_Radius(nam,valence,rad)
+                          Subroutine Set_Chem_Info()
+                          Subroutine Set_Delta_Fp_Fpp()
+                          Subroutine Set_Magnetic_Form()
+                          Subroutine Set_Xray_Form()
+                          Subroutine Remove_Chem_Info()
+                          Subroutine Remove_Delta_Fp_Fpp()
+                          Subroutine Remove_Magnetic_Form()
+                          Subroutine Remove_Xray_Form()
+(CFML_String_Util.f90)    Subroutine Get_Fraction_1Dig(V,Fracc)
+                          Subroutine Get_Fraction_2Dig(V,Fracc)
+                          Subroutine Get_Mat_From_Symb(Symb,Mat,cod)                               !Generates a matrix from the symbol:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
+                          Subroutine Get_Symb_From_Mat(Mat,Symb,cod)                               !Constructs a symbol of the form:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
+                          Subroutine Get_Transf(string,mat,v,cod)                                  !Generates the transformation matrix and vector from symbol:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c;t1,t2,t3
+                          Subroutine SetNum_Std(Value, Std, Line)                                  !Convert value and Std to a string of the form: value(Std) using a maximum of two digits for Std
+                          Subroutine GetNum_Std(line, value, std, ic)                              !Read real values from a string of the form: 0.123(2) 1.23(1) 3.322(56) ...
+                          Subroutine Read_Key_Str(Filevar,Nline_Ini,Nline_End,Keyword,String)      !Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and "nline_end"
+                          Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv,comment)
+                          Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment,line_key)
+                          Subroutine Read_Key_ValueSTD(Filevar,Nline_Ini,Nline_End,Keyword,Vet1,Vet2,Iv,comment)
+(CFML_Form_CIF.f90)       Subroutine File_To_FileList(File_dat,File_list)
+                          Subroutine Readn_Set_Xtal_Structure(filenam,Cell,SpG,A,Mode,Iphase,Job_Type,File_List,CFrame)
+                          Subroutine Write_Cif_Template(filename,type_data,code,cell,SpG,A)
+                          Subroutine Write_CFL_Atom_List_Type(lun,Cel,SpG,Atm,comment)
+                          Subroutine Write_Shx_Template(Filename,Code,Title,Lambda,Z,Celda,Space,Atomos)
+                          Subroutine Write_Cif_Powder_Profile(Filename,Pat,r_facts)
+(CFML_Profiles_Finger.f90) Subroutine Init_Prof_Val()
+                           Subroutine Calc_Pseudo_Voigt(x,y,Twoth0,Eta,Fwhm,asym1,asym2)              !Return the calculated ordinates Y(:) corresponding to a normalized Pseudo-Voigt function,
+                           Subroutine Prof_Val(Eta,Gamma,asym1,asym1,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym, Use_hps )
+(CFML_Profile_Functs.f90)  Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
+                           Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
+                           Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+                           Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
+                           Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+                           Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
+                           Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
+                           Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
+(CFML_Profile_TOF.f90)    Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
+                          Subroutine Tof_Jorgensen_Vondreele(Dt,Alfa,Beta,Gamma,Eta,Tof_Peak,Deriv)
+                          Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
+(CFML_Reflect_Util.f90)   Subroutine Hkl_Equiv_List(H,Spacegroup,Friedel,Mul,Hlist)
+                          Subroutine Hkl_Gen(Crystalcell,Spacegroup,Friedel,Value1,Value2,Num_Ref,Reflex)    !Generates non-ordered reflections of Reflect_type
+                          Subroutine Hkl_GenShub(Crystalcell,Spacegroup,ShubG,sintlmax,Num_Ref,Reflex)       !Generates non-ordered reflections for a Shubnikov group
+                          Subroutine Hkl_Uni(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order,check_ok)
+                          Subroutine Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim) !Generates reflections
+                          Subroutine Integral_Conditions(Spacegroup,iunit)                                    !Writes in logical unit "iunit" the presence conditions of reflections for Spacegroup
+                          Subroutine Write_RefList_Info(Rfl, Iunit, Mode)                                     !Writes in logical unit "iunit" the list of reflections Rfl
+(CFML_Propagk.f90)        Subroutine K_Star(K,Spacegroup,Gk,ext)                                              !Determines the star of the little group (or the extended little group if ext=.true.)
+                          Subroutine Set_Gk(Gk,SPGk,ext)                                                      !converts  Gk, or Gk,-k, to a conventional space group.
+                          Subroutine Write_Group_k(Gk,lun)                                                    !Writes the operators of Gk and the star {k}
+(CFML_magSymm.f90)        Subroutine Readn_Set_Magnetic_Space_Group(file_line,n_ini,n_end,MGp,mode,uvw) !Generates MGp
+                          Subroutine Set_Magnetic_Space_Group(symb,setting,MSpg,parent,mcif,keepd,trn_to)
+                          Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell) !Magnetic structure using MagSymm_k_Type
+                          Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am)    !Reads an mCIF file for constructing a magnetic structure
+                          Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr)   !Get constraints in the magnetic moment of the atom in position xnr
+                          Subroutine Write_Magnetic_Structure(Ipr,MGp,Am,Mag_Dom,cell)            !Writes a magnetic structure using MagSymm_k_Type to file associated to unit=Ipr
+                          Subroutine Write_MCIF(Ipr,mCell,MSGp,Am,Cell)                           !Writes a magnetic mCIF file associated associated to unit=Ipr
+(CFML_Sfac.f90)           Subroutine Additional_Scattering_Factors(fil,add_Scatt,ok,mess)         !Reads additional scattering factors replacing those
+                          Subroutine Init_Structure_Factors(Reflex,Atm,Grp,Mode,lambda,lun)       !Allocates and initializes arrays for Structure Factors calculations.
+                          Subroutine Structure_Factors(Atm,Grp,Reflex,Mode,lambda)                !Calculates structure factors of the list Reflex
+                          Subroutine Calc_StrFactor(mode,rad,nn,sn,Atm,Grp,sf2,deriv,fc)          !Calculate Structure Factor and derivatives for reflection "nn" in the list
+                          Subroutine Write_Structure_Factors(lun,Reflex,Mode)                     !Writes the list of structure factors
+(CFML_Msfac.f90)          Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)
+                          Subroutine Get_mOrbit(x,Spg,Mult,orb,ptr)
+                          Subroutine Get_mOrbit_mom(x,mom,Spg,Mult,orb,morb,ptr)
+                          Subroutine Init_Mag_Structure_Factors(Reflex,Atm,Grp,lun)
+                          Subroutine Mag_Structure_Factors(Cell,Atm,Grp,Reflex)
+                          Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh)
+                          Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
+                          Subroutine Calc_Magnetic_Strf_Tensor(SpG,Atm,Mh)
+                          Subroutine Write_Mag_Structure_Factors(Lun,Reflex,Grp)
+

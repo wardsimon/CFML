@@ -897,81 +897,84 @@
     !!---- Ported from WinStrain (RJA): February - 2019
     !!
 
-  subroutine Calc_Cell_Strain(itype,T0,T1,strain)
+    Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
+       !---- Arguments ----!
+       integer,      intent(in)                 ::  itype  ! strain type (1: Eulerian finite, 2:Eulerian infinitesimal, 3:Lagrangian finite, 4:Lagrangian infinitesimal)
+       real(kind=cp),intent(in), dimension(3,3) ::  T0     ! CR_Orth_Cel for chosen axial system for the starting state
+       real(kind=cp),intent(in), dimension(3,3) ::  T1     ! CR_Orth_Cel for chosen axial system for the final state
+       real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain
 
-    !---- Arguments ----!
-  integer, intent(in)                 :: itype !strain type
-    real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state
-    real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state
-    real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain
+       !--- Local variables ---!
+       integer                             :: i,j
+       real(kind=cp),dimension(3,3)        :: s0,s1, sinv,w1,w2      ! work arrays
+       logical                             :: singular
 
-    !--- Local variables ---!
-    integer                             :: i,j
-  real(kind=cp),dimension(3,3)        ::  s0,s1, sinv(3,3),w1(3,3),w2(3,3)      ! work arrays
-    logical                             :: singular
+       singular=.false.
+       strain=0.0
+       do i=1,3
+         strain(i,i)=0.1     ! safety
+       enddo
 
-    singular=.false.
-  strain=0.
-  do i=1,3
-    strain(i,i)=0.1     ! safety
-    enddo
+       !> Original literature is written in terms of S matrices: Zotov, Acta Cryst. (1990). A46, 627-628
+       !> These are the transpose of CR_Orth_Cel
+       s0=transpose(t0)
+       s1=transpose(t1)
 
-    !> Original literature is written in terms of S matrices: Zotov, Acta Cryst. (1990). A46, 627-628
-    !> These are the transpose of CR_Orth_Cel
-    s0=transpose(t0)
-    s1=transpose(t1)
+       if(itype == 1) then        ! Eulerian finite
+           call Invert_Matrix (S1, Sinv, Singular)
+           w1=matmul(sinv,s0)
+           w2=transpose(w1)
+           strain=matmul(w1,w2)
+           do i=1,3
+             do j=1,3
+               strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
+             end do
+           end do
+          do i=1,3
+            strain(i,i)=strain(i,i)+1.5
+          end do
 
-  if(itype .eq. 1)then        ! eulerian finite
-        call Invert_Matrix (S1, Sinv, Singular)
-    w1=matmul(sinv,s0)
-    w2=transpose(w1)
-    strain=matmul(w1,w2)
-    do i=1,3
-      do j=1,3
-        strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
-      enddo
-    enddo
-    do i=1,3
-      strain(i,i)=strain(i,i)+1.5
-    enddo
-  elseif(itype .eq. 2)then        ! eulerian infinitesimal
-        call Invert_Matrix (S1, Sinv, Singular)
-    w1=matmul(sinv,s0)      !
-    do i=1,3
-      do j=1,3
-        strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
-      enddo
-    enddo
-    do i=1,3
-      strain(i,i)=strain(i,i)+1.0
-    enddo
-    elseif(itype .eq. 3)then        ! lagrangian finite
-        call Invert_Matrix (S0, Sinv, Singular)
-    w1=matmul(sinv,s1)
-    w2=transpose(w1)      !
-    strain=matmul(w1,w2)
-    do i=1,3
-      do j=1,3
-        strain(i,j)=0.5*strain(i,j)
-      enddo
-    enddo
-    do i=1,3
-      strain(i,i)=strain(i,i)-0.5
-    enddo
-    elseif(itype .eq. 4)then        ! lagrangian infinitesimal
-        call Invert_Matrix (S0, Sinv, Singular)
-    w1=matmul(sinv,s1)      !
-    do i=1,3
-      do j=1,3
-        strain(i,j)=0.5*(w1(i,j)+w1(j,i))
-      enddo
-    enddo
-    do i=1,3
-      strain(i,i)=strain(i,i)-1.0
-    enddo
-  endif
-  return
-    end subroutine Calc_Cell_Strain
+       else if(itype == 2) then        ! Eulerian infinitesimal
+           call Invert_Matrix (S1, Sinv, Singular)
+           w1=matmul(sinv,s0)      !
+           do i=1,3
+             do j=1,3
+               strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
+             end do
+           end do
+           do i=1,3
+             strain(i,i)=strain(i,i)+1.0
+           end do
+
+       else if(itype == 3) then        ! lagrangian finite
+           call Invert_Matrix (S0, Sinv, Singular)
+           w1=matmul(sinv,s1)
+           w2=transpose(w1)      !
+           strain=matmul(w1,w2)
+           do i=1,3
+             do j=1,3
+               strain(i,j)=0.5*strain(i,j)
+             end do
+           end do
+           do i=1,3
+             strain(i,i)=strain(i,i)-0.5
+           end do
+
+       else if(itype == 4) then        ! lagrangian infinitesimal
+           call Invert_Matrix (S0, Sinv, Singular)
+            w1=matmul(sinv,s1)      !
+            do i=1,3
+              do j=1,3
+                strain(i,j)=0.5*(w1(i,j)+w1(j,i))
+              end do
+            end do
+            do i=1,3
+              strain(i,i)=strain(i,i)-1.0
+            end do
+
+       end if
+
+    End Subroutine Calc_Cell_Strain
 
     !!----
     !!---- Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
@@ -3192,7 +3195,7 @@
     End Subroutine Volume_Sigma_from_Cell
 
     !!----
-    !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
+    !!---- Subroutine Write_Bin_Crystal_Cell(Celda,Lun)
     !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
     !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
     !!----

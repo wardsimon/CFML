@@ -68,7 +68,7 @@ Submodule (CFML_Maths) Linear_Dependent
           c(n1,      mb+1:mb+na ) = aimag(a(1:na))
           c(n1+1,           1:mb) =-aimag(a(1:na))
           c(n1+1,    mb+1:mb+na ) =  real(a(1:na))
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1+1,2*mb)) info=.false.
 
        else if( na == nb) then
@@ -82,7 +82,7 @@ Submodule (CFML_Maths) Linear_Dependent
           c(nb+1:nb+na,       n1) = aimag(a(1:na))
           c(1:na,           1+n1) =-aimag(a(1:na))
           c(nb+1:nb+na,     1+n1) =  real(a(1:na))
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1+1,2*nb)) info=.false.
 
        else
@@ -137,7 +137,7 @@ Submodule (CFML_Maths) Linear_Dependent
           if (n1 > mb) return !the vector is linear dependent
           c(1:nb,1:mb)=real(b(1:nb,1:mb))
           c(n1,  1:mb)=real(a(1:na))      !C(nb+1,mb)
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1,mb)) info=.false.
 
        else if( na == nb) then
@@ -145,7 +145,7 @@ Submodule (CFML_Maths) Linear_Dependent
           if(n1 > nb) return !the vector is linear dependent
           c(1:nb,1:mb)=real(b(1:nb,1:mb))
           c(1:nb,  n1)=real(a(1:na))     !C(nb,mb+1)
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1,nb)) info=.false.
 
        else
@@ -200,7 +200,7 @@ Submodule (CFML_Maths) Linear_Dependent
           if(n1 > mb) return !the vector is linear dependent
           c(1:nb,1:mb)=b(1:nb,1:mb)
           c(n1,  1:mb)=a(1:na)      !C(nb+1,mb)
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1,mb)) info=.false.
 
        else if( na == nb) then   !Vector added as an additional column
@@ -208,7 +208,7 @@ Submodule (CFML_Maths) Linear_Dependent
           if(n1 > nb) return !the vector is linear dependent
           c(1:nb,1:mb)=b(1:nb,1:mb)
           c(1:nb,  n1)=a(1:na)     !C(nb,mb+1)
-          r=rank(c,tol)
+          r=mrank(c,tol)
           if (r == min(n1,nb)) info=.false.
        else
           err_cfml%ierr=1

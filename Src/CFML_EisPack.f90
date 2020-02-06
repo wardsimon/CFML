@@ -7203,9 +7203,9 @@ Module CFML_EisPack
       real(kind=dp), dimension(n,mm),intent(out)    :: z
       integer,                       intent(out)    :: ierr
 
-      real(kind=dp) :: eps3,growto,ilambd,norm,normv,rlambd,ukroot,w,x,y,us,uk,t
+      real(kind=dp) :: eps3,growto,ilambd,norm,normv,rlambd,ukroot,w,x,y,t
 
-      integer :: i,ip,its,j,k,l,mp,n1,ns,s
+      integer :: i,ip,its,j,k,l,mp,n1,ns,s,uk
       logical :: repeat
       real(kind=dp),dimension(n,n) :: rm1
       real(kind=dp),dimension(n)   :: rv1,rv2
@@ -10149,7 +10149,8 @@ Module CFML_EisPack
 
       real(kind=dp) :: delta ,ep,errv,f,p,q,qp,r,s,tot
 
-      integer :: i,ii,irreg,j,jdef,k
+      integer :: i,ii,j,jdef,k
+      logical :: irreg
 
       ierr = 0
       jdef = idef

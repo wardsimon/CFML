@@ -88,7 +88,7 @@ Program test230_groups
          end do
       end if
       call CPU_TIME(fin)
-      write(*,"(a,i4,t25,a,t50,a,i4,a,t105,a,f8.3,a)") " Group number: ",i,"Symb: "//trim(Grp%shu_symb),        &
+      write(*,"(a,i4,t25,a,t50,a,i4,a,t125,a,f8.3,a)") " Group number: ",i,"Symb: "//trim(Grp%shu_symb),        &
                                                        "Transf. to standard: "//trim(Grp%mat2std_shu)//" with ",&
                                                        nsg," subgroups","CPU-time: ",fin-par," seconds"
     end do

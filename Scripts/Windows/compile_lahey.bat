@@ -44,6 +44,7 @@ rem
    lf95 -c f2kcli.f90                     %OPT1%
    lf95 -c CFML_GlobalDeps_Windows.f90    %OPT1%
 rem
+   lf95 -c CFML_EisPack.f90               %OPT1%
    lf95 -c CFML_math_gen.f90              %OPT1%
    lf95 -c CFML_LSQ_TypeDef.f90           %OPT1%
    lf95 -c CFML_spher_harm.f90            %OPT1%
@@ -51,10 +52,10 @@ rem
    lf95 -c CFML_ffts.f90                  %OPT1%
    lf95 -c CFML_string_util_LF.f90        %OPT1%
    if [%_REALWIN%]==[Y] (
-     lf5 -c CFML_io_messrw.f90            %OPT1% %OPT3%
+     lf95 -c CFML_io_messrw.f90           %OPT1% %OPT3%
    ) else (
      if [%_WINTER%]==[Y] (
-        lf5 -c CFML_io_messwin.f90        %OPT1% %OPT3%
+        lf95 -c CFML_io_messwin.f90       %OPT1% %OPT3%
      ) else (
         lf95 -c CFML_io_mess.f90          %OPT1%
      )
@@ -93,6 +94,7 @@ rem
 rem
    lf95 -c CFML_geom_calc.f90          %OPT1%
    lf95 -c CFML_molecules.f90          %OPT1%
+   lf95 -c CFML_Magnetic_Groups.f90    %OPT1%
    lf95 -c CFML_form_cif.f90           %OPT1%
 rem
    echo **---- Level 5 ----**
@@ -115,7 +117,6 @@ rem
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem
  
-   lf95 -c CFML_Magnetic_Groups.f90    %OPT1%
    lf95 -c CFML_magsymm.f90            %OPT1%
    lf95 -c CFML_optimization_san.f90   %OPT1%  %OPT3%
    lf95 -c CFML_refcodes.f90           %OPT1%

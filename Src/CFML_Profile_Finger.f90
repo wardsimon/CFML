@@ -1254,7 +1254,7 @@
       real(kind=cp) :: sumwg, sumwrg, sumwrdgda ,sumwdgdb , sumwrdgdb
       real(kind=cp) :: sumwgdrdg, sumwgdrde, sumwgdrd2t
       real(kind=cp) :: sumwx
-      real(kind=cp),parameter :: eps_close=0.00001
+      real(kind=cp),parameter :: eps_close=0.00001, eps_asym2=0.0002
       logical       :: re_calculate
 
       ! First simple calculation of Pseudo-Voigt if asymmetry is not used
@@ -1285,7 +1285,7 @@
 
         twoth0r=twoth0*to_rad
         cstwoth = Cos(twoth0r)
-        If (use_hps .or. asym2 < eps) Then
+        If (use_hps .or. asym2 < eps_asym2) Then
           s_l = 0.5*(asym1 - asym2)  ! 1/2(s_l+d_l - (d_l-s_l))
           d_l = 0.5*(asym1 + asym2)  ! 1/2(s_l+d_l + (d_l-s_l))
         Else
@@ -1295,7 +1295,7 @@
         apb = s_l + d_l
         amb = s_l - d_l
         ! Catch special case of S_L = D_L
-        If (Abs(amb) <= eps) Then
+        If (Abs(amb) <= eps_asym2) Then
           s_eq_d = .TRUE.
         Else
           s_eq_d = .FALSE.

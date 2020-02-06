@@ -7,12 +7,12 @@ Submodule (CFML_Maths) Sbm_Rank
  Contains
 
     !!----
-    !!---- RANK
+    !!---- mRANK
     !!----    Computes the rank (in algebraic sense) of the rectangular matrix A.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Function Rank(a,tol) Result(r)    
+    Module Function mRank(a,tol) Result(r)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:),intent( in)      :: a     ! Input array
        real(kind=cp),                intent( in)      :: tol   ! Tolerance
@@ -26,19 +26,19 @@ Submodule (CFML_Maths) Sbm_Rank
 
        !> Init
        r=0
-       
+
        u=a
        call svdcmp(u,w,v)
        if (err_cfml%ierr /=0) return
-       
+
        r=0
        do i=1,size(a,2)
           if (w(i) > tol) r=r+1
        end do
 
        return
-    End Function Rank
-    
+    End Function mRank
+
     !!----
     !!---- SVDCMP
     !!----
@@ -48,9 +48,9 @@ Submodule (CFML_Maths) Sbm_Rank
     !!----  (not the transpose Vt )is output as v .
     !!----  Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
-    !!--++ 03/04/2019 
+    !!--++ 03/04/2019
     !!
-    Module Subroutine Svdcmp(a,w,v)    
+    Module Subroutine Svdcmp(a,w,v)
        !---- Arguments ----!
        real(kind=cp),dimension(:,:),intent(in out) ::a   ! A(m,n)
        real(kind=cp),dimension(:),  intent(   out) ::w   ! W(n)
@@ -66,7 +66,7 @@ Submodule (CFML_Maths) Sbm_Rank
        !> Init
        W=0.0_cp
        V=0.0_cp
-       
+
        m=size(a,1)
        n=size(a,2)
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
@@ -230,5 +230,5 @@ Submodule (CFML_Maths) Sbm_Rank
 
        return
     End Subroutine Svdcmp
- 
+
 End Submodule Sbm_Rank

@@ -42,6 +42,8 @@ Program Calc_Structure_Factors
 
    if (narg > 0) then
       call get_command_argument(1,filcod)
+      i=index(filcod,".")
+      if( i/= 0) filcod=filcod(1:i-1)
       arggiven=.true.
    end if
 

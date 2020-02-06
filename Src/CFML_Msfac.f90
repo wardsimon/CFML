@@ -125,7 +125,7 @@
     private :: mFj
 
     !---- List of private subroutines ----!
-    private :: Calc_Table_MAB, Create_Table_mFR,  &
+    private :: Calc_Table_MAB, Create_Table_mFR,   &
                Create_Table_HR_HT, Set_Fixed_Tables, Calc_Table_TH, Sum_MAB
 
     !---- Definitions ----!
@@ -181,6 +181,7 @@
        complex(kind=cp), dimension(3)   :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
        complex(kind=cp), dimension(3)   :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
     End Type  MagH_Type
+
 
     !!----
     !!----  TYPE :: MAGH_LIST_TYPE
@@ -1151,6 +1152,7 @@
 
        return
     End Subroutine Create_Table_mFR
+
 
     !!----
     !!---- Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)

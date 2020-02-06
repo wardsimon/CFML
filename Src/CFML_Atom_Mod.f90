@@ -127,33 +127,33 @@
 
     !---- Definitions ----!
 
-     !!---- Type, Public :: Atom_Equiv_Type
-     !!----    integer                                        :: mult
-     !!----    character(len=2)                               :: ChemSymb
-     !!----    character(len=10),allocatable, dimension(:)    :: Lab
-     !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
-     !!---- End Type Atom_Equiv_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_Type
-        integer                                        :: mult
-        character(len=2)                               :: ChemSymb
-        character(len=20),allocatable, dimension(:)    :: Lab
-        real(kind=cp),    allocatable, dimension(:,:)  :: x
-     End Type Atom_Equiv_Type
+    !!---- Type, Public :: Atom_Equiv_Type
+    !!----    integer                                        :: mult
+    !!----    character(len=2)                               :: ChemSymb
+    !!----    character(len=10),allocatable, dimension(:)    :: Lab
+    !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
+    !!---- End Type Atom_Equiv_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_Type
+       integer                                        :: mult
+       character(len=2)                               :: ChemSymb
+       character(len=20),allocatable, dimension(:)    :: Lab
+       real(kind=cp),    allocatable, dimension(:,:)  :: x
+    End Type Atom_Equiv_Type
 
-     !!---- Type, Public :: Atom_Equiv_List_Type
-     !!----    integer                                           :: nauas
-     !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     !!---- End Type Atom_Equiv_List_Type
-     !!----
-     !!----  Updated: January 2014
-     !!
-     Type, Public :: Atom_Equiv_List_Type
-        integer                                           :: nauas
-        type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-     End Type Atom_Equiv_List_Type
+    !!---- Type, Public :: Atom_Equiv_List_Type
+    !!----    integer                                           :: nauas
+    !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    !!---- End Type Atom_Equiv_List_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_List_Type
+       integer                                           :: nauas
+       type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    End Type Atom_Equiv_List_Type
 
     !!----
     !!---- TYPE :: ATOM_TYPE
@@ -166,10 +166,10 @@
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
-    !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
-    !!----    integer,      dimension(3)              :: lx            ! Numbers in the LSQ list of LSQ parameters for coordinates
+    !!----    real(kind=cp),dimension(3)              :: X,m_xyz       ! Fractional coordinates and magnetic moment
+    !!----    real(kind=cp),dimension(3)              :: X_Std,sm_xyz  ! Standard deviations
+    !!----    real(kind=cp),dimension(3)              :: MX,Mm_xyz     ! Multiplier parameters of coordinates and magnetic moment
+    !!----    integer,      dimension(3)              :: LX,Lm_xyz     ! Numbers in the LSQ list of LSQ parameters for coordinates
     !!----    real(kind=cp)                           :: occ           ! occupation factor
     !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
     !!----    real(kind=cp)                           :: mOcc          !
@@ -187,7 +187,7 @@
     !!----    integer,dimension(6)                    :: lU            !
     !!----    real(kind=cp)                           :: Charge        ! Charge
     !!----    real(kind=cp)                           :: Moment        ! Moment
-    !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
+    !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes (e.g. 1:pointer to the scattering factor, 2:pointer to the magnetic scattering factor
     !!----    integer                                 :: Nvar          !
     !!----    real(kind=cp),dimension(25)             :: VarF          ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
     !!----    real(kind=cp),dimension(25)             :: MVarF         ! Multiplier parameters
@@ -195,7 +195,7 @@
     !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!---- End Type Atom_Type
     !!----
-    !!---- Update: May - 2009
+    !!---- Update: January - 2020 (adding moment for use with Shubnikov groups)
     !!
     Type, public :: Atom_Type
        character(len=20)                        :: Lab
@@ -205,10 +205,10 @@
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
-       real(kind=cp),dimension(3)               :: X
-       real(kind=cp),dimension(3)               :: X_Std
-       real(kind=cp),dimension(3)               :: MX
-       integer,      dimension(3)               :: LX
+       real(kind=cp),dimension(3)               :: X,m_xyz
+       real(kind=cp),dimension(3)               :: X_Std,sm_xyz
+       real(kind=cp),dimension(3)               :: MX,Mm_xyz
+       integer,      dimension(3)               :: LX,Lm_xyz
        real(kind=cp)                            :: Occ
        real(kind=cp)                            :: Occ_Std
        real(kind=cp)                            :: MOcc
@@ -1314,40 +1314,46 @@ Contains
        !---- Arguments ----!
        type (Atom_Type), intent(in out)   :: A
 
-       A%Lab      =" "
-       A%ChemSymb =" "
-       A%SfacSymb =" "
-       A%Wyck     ="."
-       A%Active   =.true.
-       A%Z        =0
-       A%Mult     =0
-       A%X        =0.0
-       A%X_Std    =0.0
-       A%MX       =0.0
-       A%LX       =0
-       A%Occ      =0.0
-       A%Occ_Std  =0.0
-       A%MOcc     =0.0
-       A%LOcc     =0
-       A%Biso     =0.0
-       A%Biso_std =0.0
-       A%MBiso    =0.0
-       A%LBiso    =0
-       A%Utype    ="none"
-       A%ThType   ="isotr"
-       A%U        =0.0
-       A%U_std    =0.0
-       A%Ueq      =0.0
-       A%MU       =0.0
-       A%LU       =0
-       A%Charge   =0.0
-       A%Moment   =0.0
-       A%Ind      =0
-       A%NVar     =0
-       A%VarF     =0.0
-       A%LVarF    =0
-       A%mVarF    =0.0
-       A%AtmInfo  ="None"
+       A%Lab      = " "
+       A%ChemSymb = " "
+       A%SfacSymb = " "
+       A%Wyck     = "."
+       A%Active   = .true.
+       A%Z        = 0
+       A%Mult     = 0
+
+       A%X        = 0.0
+       A%X_Std    = 0.0
+       A%MX       = 0.0
+       A%LX       = 0
+
+       A%m_xyz    = 0.0
+       A%sm_xyz   = 0.0
+       A%Mm_xyz   = 0.0
+       A%Lm_xyz   = 0
+       A%Occ      = 0.0
+       A%Occ_Std  = 0.0
+       A%MOcc     = 0.0
+       A%LOcc     = 0
+       A%Biso     = 0.0
+       A%Biso_std = 0.0
+       A%MBiso    = 0.0
+       A%LBiso    = 0
+       A%Utype    = "none"
+       A%ThType   = "isotr"
+       A%U        = 0.0
+       A%U_std    = 0.0
+       A%Ueq      = 0.0
+       A%MU       = 0.0
+       A%LU       = 0
+       A%Charge   = 0.0
+       A%Moment   = 0.0
+       A%Ind      = 0
+       A%NVar     = 0
+       A%VarF     = 0.0
+       A%LVarF    = 0
+       A%mVarF    = 0.0
+       A%AtmInfo  = "None"
        return
     End Subroutine Init_Atom_Type
 
@@ -1801,7 +1807,7 @@ Contains
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: Level   !  In -> Level of printed information
     !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
-    !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
+    !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Used to Transform thermal parameters
     !!----
     !!----    Write the atoms in the asymmetric unit
     !!----
@@ -1847,6 +1853,11 @@ Contains
                    "Atom      Chem        x/a       y/b       z/c       Biso      Occ     Moment    Charge   Active   Mult"
              write (unit=iunit,fmt="(T5,a)") &
                    "======================================================================================================"
+          case (2)
+             write (unit=iunit,fmt="(T5,a)") &
+                   "Atom      Chem        x/a       y/b       z/c       Biso     Occ       Mult      Mx       My       Mz    Active"
+             write (unit=iunit,fmt="(T5,a)") &
+                   "==============================================================================================================="
        end select
 
        aniso=.false.
@@ -1864,6 +1875,11 @@ Contains
                      ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
                      ats%atom(i)%biso,ats%atom(i)%occ,ats%atom(i)%moment,ats%atom(i)%charge,&
                      car,ats%atom(i)%mult,trim("  "//ats%atom(i)%AtmInfo)
+             case (2)
+                write(unit=iunit,fmt="(T5,a,T16,a,T21,5f10.4,T69,a,i9,3f10.4,a)") &
+                     ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
+                     ats%atom(i)%biso,ats%atom(i)%occ,&
+                     car,ats%atom(i)%mult,ats%atom(i)%M_xyz,trim("  "//ats%atom(i)%AtmInfo)
           end select
        end do
 

@@ -72,7 +72,7 @@
 !!----
 !!---- PROCEDURES
 !!----    Functions:
-!!----
+!!----       GET_MAGNETIC_FORM_FACTOR
 !!----    Subroutines:
 !!----       GET_ATOMIC_MASS
 !!----       GET_ATOMIC_VOL
@@ -100,6 +100,9 @@
     implicit none
 
     private
+
+    !---- List of public functions ----!
+    public :: Get_Magnetic_Form_Factor
 
     !---- List of public subroutines ----!
     public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Ionic_radius
@@ -192,7 +195,7 @@
     !!--..
     !!---- Type, public :: Magnetic_Form_Type
     !!----    character (len= 4)          :: Symb   ! Symbol of the Chemical species
-    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors
+    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors coefficients (a1,b1,a2,b2,a3,b3,c)
     !!---- End Type Magnetic_Form_Type
     !!----
     !!---- Update: February - 2005
@@ -378,6 +381,62 @@
                                                 Xray_Wavelength_type("NI",(/1.65805,1.66199/),1.50017)  /)
 
  Contains
+
+    !!---- Function get_magnetic_form_factor(element) result(formf)
+    !!----   character(len=*),intent(in) :: element
+    !!----   character(len=6)            :: formf
+    !!----
+    !!----   Function to get the symbol for the magnetic form factor corresponding to the
+    !!----   input symbol (element + valence state). Useful for transforming magCIF files to PCR.
+    !!----
+    !!----  Created: February 2014 (JRC)
+    !!----
+    Function get_magnetic_form_factor(element) result(formf)
+      character(len=*),intent(in) :: element
+      character(len=6)            :: formf
+      ! Local variables
+      logical :: is_re
+      integer :: i,valence,ier
+      character(len=6)   :: melem,aux
+      integer, parameter :: n_re =12
+      character(len=*), parameter, dimension(n_re) :: re=(/"ce","pr","nd","sm","eu","gd","tb","dy","ho","er","tm","yb"/)
+
+      melem=l_case(element)
+      is_re=.false.
+      do i=1,n_re
+        if(index(melem,re(i)) /= 0) then
+          is_re=.true.
+           exit
+        end if
+      end do
+      if(is_re) then
+        aux=melem(3:)
+        i=index(aux,"+")
+        if(i /= 0) then
+          aux(i:i)=" "
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+        else
+           valence=3
+        end if
+        write(unit=formf,fmt="(a,i1)") "J"//melem(1:2),valence
+      else
+        i=index(melem,"+")
+        if(i /= 0) then
+          melem(i:i)=" "
+          aux=melem(i-1:i-1)
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+          melem(i-1:i-1)=" "
+        else
+           valence=2
+        end if
+        write(unit=formf,fmt="(a,i1)") "M"//trim(melem),valence
+
+      end if
+      formf=u_case(formf)
+      return
+    End Function get_magnetic_form_factor
 
     !---------------------!
     !---- Subroutines ----!
