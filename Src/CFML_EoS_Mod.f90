@@ -7120,7 +7120,7 @@ Contains
             eospar%parname(20:27) = (/'High ','Ptr  ','     ','     ','aL   ','betaL','aH   ','betaH'/)
             eospar%comment(20) = 'Indicator = +1 if high P phase is high sym phase'
             eospar%comment(21) = 'Transition pressure'
-            eospar%comment(22) = 'dTr/dP: slope of transition boundary'
+            eospar%comment(22) = ''
             eospar%comment(23) = ''
             eospar%comment(24) = 'Scaling parameter, low phase x10^3'
             eospar%comment(25) = 'Power law term, low phase'
