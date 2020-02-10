@@ -48,7 +48,7 @@ Module CFML_IOForm
                                               AtList_Type, Allocate_Atom_List
     Use CFML_Metrics,                   only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
                                               get_U_from_Betas
-    Use CFML_gSpaceGroups,              only: SpG_Type
+    Use CFML_gSpaceGroups,              only: SpG_Type, SuperSpaceGroup_Type, kvect_info_type
 
     !---- Variables ----!
     implicit none
@@ -57,7 +57,7 @@ Module CFML_IOForm
 
 
     !---- Public Functions ----!
-    
+
     !---- Public subroutines ----!
 
     !---- Definitions ----!
@@ -76,8 +76,8 @@ Module CFML_IOForm
 
 
     !---- Overloaded Zone ----!
-    
-    
+
+
     !---- Interface zone ----!
     Interface
        Module Subroutine Read_CFL_Atom(lines,n_ini, n_end, At_List)
@@ -87,15 +87,15 @@ Module CFML_IOForm
           integer,                        intent(in)     :: n_end
           Type (AtList_Type),             intent(out)    :: At_List
        End Subroutine Read_CFL_Atom
-       
+
        Module Subroutine Read_CFL_Cell(lines, n_ini, n_end, Cell)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          class(Cell_Type),                intent(out)    :: Cell    
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          class(Cell_Type),                intent(out)    :: Cell
        End Subroutine Read_CFL_Cell
-       
+
        Module Subroutine Read_Cif_Atom(lines,n_ini,n_end, At_List)
           !---- Arguments ----!
           character(len=*), dimension(:),   intent(in)      :: lines
@@ -103,15 +103,15 @@ Module CFML_IOForm
           integer,                          intent(in)      :: n_end
           type (AtList_type),               intent(out)     :: At_List
        End Subroutine Read_Cif_Atom
-       
+
        Module Subroutine Read_Cif_Cell(lines, n_ini, n_end, Cell)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          class(Cell_Type),                intent(out)    :: Cell    
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          class(Cell_Type),                intent(out)    :: Cell
        End Subroutine Read_Cif_Cell
-       
+
        Module Subroutine Read_Cif_ChemName(lines,N_ini,N_End,ChemName)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
@@ -119,23 +119,23 @@ Module CFML_IOForm
           integer,           intent(in)               :: n_end
           character(len=*),  intent(out)              :: ChemName
        End Subroutine Read_Cif_ChemName
-       
+
        Module Subroutine Read_Cif_Z(lines, n_ini, n_end, Z)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          real(kind=cp),                   intent(out)    :: Z       
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          real(kind=cp),                   intent(out)    :: Z
        End Subroutine Read_Cif_Z
-       
+
        Module Subroutine Read_Cif_Wave(lines, n_ini, n_end, Wave)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          real(kind=cp),                   intent(out)    :: Wave    
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          real(kind=cp),                   intent(out)    :: Wave
        End Subroutine Read_Cif_Wave
-       
+
        Module Subroutine Read_Cif_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
           !---- Arguments ----!
           character(len=*), dimension(:),      intent(in)      :: lines
@@ -145,7 +145,7 @@ Module CFML_IOForm
           character(len=*), dimension(:),      intent(out)     :: elem_type
           real(kind=cp), dimension(:),optional,intent(out)     :: n_elem
        End Subroutine Read_Cif_Cont
-       
+
        Module Subroutine Read_Cif_Pressure(lines,N_ini,N_End, P, SigP)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
@@ -154,7 +154,7 @@ Module CFML_IOForm
           real(kind=cp),     intent(out)              :: p
           real(kind=cp),     intent(out)              :: sigp
        End Subroutine Read_Cif_Pressure
-       
+
        Module Subroutine Read_Cif_Title(lines,N_Ini,N_End,Title)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
@@ -162,7 +162,7 @@ Module CFML_IOForm
           integer,           intent(in)               :: n_end
           character(len=*),  intent(out)              :: title
        End Subroutine Read_Cif_Title
-       
+
        Module Subroutine Read_Cif_Temp(lines,N_Ini,N_End,T,SigT)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
@@ -171,7 +171,7 @@ Module CFML_IOForm
           real(kind=cp),     intent(out)              :: T
           real(kind=cp),     intent(out)              :: sigT
        End Subroutine Read_Cif_Temp
-       
+
        Module Subroutine Read_Cif_Hall(lines, N_Ini, N_End, Hall)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in) :: lines
@@ -179,7 +179,7 @@ Module CFML_IOForm
           integer,          intent(in)               :: n_end
           character(len=*), intent(out)              :: Hall
        End Subroutine Read_Cif_Hall
-       
+
        Module Subroutine Read_Cif_HM(lines, N_Ini, N_End, Spgr_Hm)
           !---- Arguments ----!
           character(len=*),  dimension(:), intent(in) :: lines
@@ -187,7 +187,7 @@ Module CFML_IOForm
           integer,           intent(in)               :: n_end
           character(len=*),  intent(out)              :: spgr_hm
        End Subroutine Read_Cif_HM
-       
+
        Module Subroutine Read_Cif_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in)     :: lines
@@ -196,12 +196,12 @@ Module CFML_IOForm
           integer,                        intent(out)    :: n_oper
           character(len=*), dimension(:), intent(out)    :: oper_symm
        End Subroutine Read_Cif_Symm
-       
+
        Module Subroutine Write_Cif_Powder_Profile(filename)
           !---- Arguments ----!
           character(len=*), intent(in) :: filename
        End Subroutine Write_Cif_Powder_Profile
-       
+
        Module Subroutine Read_Shx_Atom(lines, n_ini, n_end, n_fvar, fvar, elem_type, cell, At_List)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in)      :: lines
@@ -213,31 +213,31 @@ Module CFML_IOForm
           class(Cell_G_Type),             intent(in)      :: Cell
           type (AtList_type),             intent(out)     :: At_List
        End Subroutine Read_Shx_Atom
-       
+
        Module Subroutine Read_Shx_Cell(lines, n_ini, n_end, Cell)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          class(Cell_Type),                intent(out)    :: Cell    
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          class(Cell_Type),                intent(out)    :: Cell
        End Subroutine Read_Shx_Cell
-       
+
        Module Subroutine Read_Shx_Wave(lines, n_ini, n_end, Wave)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          real(kind=cp),                   intent(out)    :: Wave    
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          real(kind=cp),                   intent(out)    :: Wave
        End Subroutine Read_Shx_Wave
-       
+
        Module Subroutine Read_Shx_Z(lines, n_ini, n_end, Z)
           !---- Arguments ----!
-          character(len=*), dimension(:),  intent(in)     :: lines   
-          integer,                         intent(in out) :: n_ini   
-          integer,                         intent(in)     :: n_end   
-          real(kind=cp),                   intent(out)    :: Z       
+          character(len=*), dimension(:),  intent(in)     :: lines
+          integer,                         intent(in out) :: n_ini
+          integer,                         intent(in)     :: n_end
+          real(kind=cp),                   intent(out)    :: Z
        End Subroutine Read_Shx_Z
-       
+
        Module Subroutine Read_Shx_Fvar(Lines,n_ini,n_end, n_fvar, fvar)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in)    :: lines
@@ -246,7 +246,7 @@ Module CFML_IOForm
           integer,                        intent(out)   :: n_fvar
           real(kind=cp), dimension(:),    intent(out)   :: fvar
        End Subroutine Read_Shx_Fvar
-       
+
        Module Subroutine Read_Shx_Titl(lines,n_ini,n_end,Title)
           !---- Arguments ----!
           character(len=*),dimension(:), intent(in)     :: lines
@@ -254,7 +254,7 @@ Module CFML_IOForm
           integer,                       intent(in)     :: n_end
           character(len=*),              intent(out)    :: title
        End Subroutine Read_Shx_Titl
-       
+
        Module Subroutine Read_Shx_Latt(lines,n_ini,n_end,latt)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in) :: lines
@@ -262,7 +262,7 @@ Module CFML_IOForm
           integer,           intent(in)              :: n_end
           integer,           intent(out)             :: latt
        End Subroutine Read_Shx_Latt
-       
+
        Module Subroutine Read_Shx_Cont(lines,n_ini,n_end, n_elem_type, elem_type, n_elem)
           !---- Arguments ----!
           character(len=*), dimension(:),           intent(in)      :: lines
@@ -272,7 +272,7 @@ Module CFML_IOForm
           character(len=*), dimension(:),           intent(out)     :: elem_type
           real(kind=cp),    dimension(:), optional, intent(out)     :: n_elem
        End Subroutine Read_Shx_Cont
-       
+
        Module Subroutine Read_Shx_Symm(lines,n_ini,n_end,n_oper,oper_symm)
           !---- Arguments ----!
           character(len=*), dimension(:), intent(in) :: lines
@@ -280,21 +280,21 @@ Module CFML_IOForm
           integer,          intent(in)               :: n_end
           integer,          intent(out)              :: n_oper
           character(len=*), dimension(:),intent(out) :: oper_symm
-       End Subroutine Read_Shx_Symm 
-       
+       End Subroutine Read_Shx_Symm
+
        Module Subroutine Write_Shx_Template(filename,code,title,lambda,z,cell,spg,At_List)
           !---- Arguments ----!
           character(len=*),        intent(in) :: filename
-          integer,                 intent(in) :: code        
+          integer,                 intent(in) :: code
           character(len=*),        intent(in) :: title
           real(kind=cp),           intent(in) :: lambda
           integer,                 intent(in) :: z
           class(cell_Type),        intent(in) :: cell
           class(SpG_Type),         intent(in) :: SpG
           type(atlist_type),       intent(in) :: at_List
-       End Subroutine Write_Shx_Template   
-          
-    End Interface   
+       End Subroutine Write_Shx_Template
+
+    End Interface
 
 
 

@@ -36,8 +36,8 @@
 !!---- MODULE: CFML_Groups
 !!----         Space Groups and their algebra
 !!----
-!!--.. Rational matrix of special type dimension (3+d+1,3+d+1). The matrix of the 
-!!--.. symmetry operator is extended with a column containing the translation in 
+!!--.. Rational matrix of special type dimension (3+d+1,3+d+1). The matrix of the
+!!--.. symmetry operator is extended with a column containing the translation in
 !!--.. the 3+d space plus a zero 3+d+1 row and +1 at position (3+d+1,3+d+1).
 !!--..
 !!--.. In order to limit the operators to the factor group w.r.t. traslations, a
@@ -48,27 +48,27 @@ Module CFML_Magnetic_Database
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Rational
-    
+
     !---- Variables ----!
     implicit none
-    
+
     private
-    
+
     !---- List of public subroutines ----!
-    public :: Read_Magnetic_Data, Read_Magnetic_Binary
-    
+    public :: Read_Magnetic_Data, Read_Magnetic_Binary, Allocate_Magnetic_DBase, DeAllocate_Magnetic_DBase
+
     !---- Parameters ----!
     integer, public, parameter :: MAGCOUNT=1651      ! Magnetic Groups
-    
+
     !---- Variables ----!
     logical :: Magnetic_DBase_allocated=.false.
     logical :: mcif=.false.
-    
+
     !> For the ith nonhexagonal point operator:
     Character(Len=8),  dimension(:), public, allocatable :: point_op_label   ! point_op_label(i): point operator symbol (from Litvin)
     Character(Len=10), dimension(:), public, allocatable :: point_op_xyz
     Integer,       dimension(:,:,:), public, allocatable :: point_op_matrix  ! point_op_matrix(i): point operator matrix
-   
+
     !> For the ith hexagonal point operator:
     Character(Len=8),  dimension(:), public, allocatable :: point_op_hex_label  ! point_op_hex_label(i): point operator symbol (from Litvin)
     Character(Len=10), dimension(:), public, allocatable :: point_op_hex_xyz    ! point_op_hex_xyz(i): point operator in x,y,z notation
@@ -82,7 +82,7 @@ Module CFML_Magnetic_Database
     Integer,           dimension(:,:), public, allocatable :: nlabelparts_og       ! nlabel_parts_og(j,i): jth part of nlabel_og
     Character(Len=14), dimension(  :), public, allocatable :: spacegroup_label_og  ! label_og(i): group symbol
     Integer,           dimension(  :), public, allocatable :: magtype              ! magtype(i): type of magnetic space group (1-4)
-   
+
     !> BNS-OG transformation (if type-4)
     Integer,         dimension(:,:,:), public, allocatable :: bnsog_point_op     ! bnsog_point_op(j,k,i): 3x3 point operator part of transformation
     Integer,         dimension(:,  :), public, allocatable :: bnsog_origin       ! bnsog_origin(j,i): translation part of transformation
@@ -97,30 +97,30 @@ Module CFML_Magnetic_Database
     Integer, dimension(    :), public, allocatable :: lattice_bns_vectors_count  ! number of lattice vectors defining the lattice
     Integer, dimension(:,:,:), public, allocatable :: lattice_bns_vectors        ! (k,j,i): kth component of the jth lattice vector
     Integer, dimension(:,  :), public, allocatable :: lattice_bns_vectors_denom  !(j,i): common denominator
-   
+
     !> For jth operator
     Integer, dimension(  :,:), public, allocatable :: ops_bns_point_op    ! ops_bns_point_op(j,i): point operator part
     Integer, dimension(:,:,:), public, allocatable :: ops_bns_trans       ! ops_bns_trans(k,j,i): kth component of translation part
     Integer, dimension(  :,:), public, allocatable :: ops_bns_trans_denom ! ops_bns_trans_denom(j,i): common denominator
     Integer, dimension(  :,:), public, allocatable :: ops_bns_timeinv     ! ops_bns_timeinv(j,i): 1=no time inversion, -1=time inversion
-   
+
     !> For jth wyckoff site
     Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_bns_fract       ! wyckoff_bns_fract(k,j,i): kth component of fractional part of wyckoff position
     Integer, dimension(    :,:,:), public, allocatable :: wyckoff_bns_fract_denom ! wyckoff_bns_fract_denom(j,i): common denominator
     Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_xyz         ! wyckoff_bns_xyz(m,k,j,i): mth component to coeffcient of kth parameter (x,y,z)
     Integer, dimension(:,:,:,:,:), public, allocatable :: wyckoff_bns_mag  ! wyckoff_bns_mag(m,k,j,i): mth component to coeffcient of kth magnetic parameter (mx,my,mz)
-   
+
     !> For OG setting (for type-4 groups)
     Integer, dimension(    :), public, allocatable :: lattice_og_vectors_count  ! lattice_og_vectors_count(i): number of lattice vectors defining the lattice
     Integer, dimension(:,:,:), public, allocatable :: lattice_og_vectors   ! lattice_og_vectors(k,j,i): kth component of the jth lattice vector
     Integer, dimension(:,  :), public, allocatable :: lattice_og_vectors_denom  ! lattice_og_vectors_denom(j,i): common denominator
-   
+
     !> For jth operator
     Integer, dimension(  :,:), public, allocatable :: ops_og_point_op    ! ops_og_point_op(j,i): point operator part
     Integer, dimension(:,:,:), public, allocatable :: ops_og_trans       ! ops_og_trans(k,j,i): kth component of translation part
     Integer, dimension(  :,:), public, allocatable :: ops_og_trans_denom ! ops_og_trans_denom(j,i): common denominator
     Integer, dimension(  :,:), public, allocatable :: ops_og_timeinv     ! ops_og_timeinv(j,i): 1=no time inversion, -1=time inversion
-   
+
     !> For jth wyckoff site
     Integer, dimension(:,  :,:,:), public, allocatable :: wyckoff_og_fract        ! wyckoff_og_fract(k,j,i): kth component of fractional part of wyckoff position
     Integer, dimension(    :,:,:), public, allocatable :: wyckoff_og_fract_denom  ! wyckoff_og_fract_denom(j,i): common denominator
@@ -134,19 +134,20 @@ Module CFML_Magnetic_Database
        Module Subroutine Allocate_Magnetic_DBase()
           !---- Arguments ----!
        End Subroutine Allocate_Magnetic_DBase
-       
+
        Module Subroutine Deallocate_Magnetic_DBase()
           !---- Arguments ----!
        End Subroutine Deallocate_Magnetic_DBase
-       
+
        Module Subroutine Read_Magnetic_Binary()
           !---- Arguments ----!
-       End Subroutine Read_Magnetic_Binary 
-       
-       Module Subroutine Read_Magnetic_Data()
+       End Subroutine Read_Magnetic_Binary
+
+       Module Subroutine Read_Magnetic_Data(database_path)
           !---- Arguments ----!
-       End Subroutine Read_Magnetic_Data 
-       
-    End Interface   
-    
-End Module CFML_Magnetic_Database    
+          character(len=*), optional, intent(in) :: database_path
+       End Subroutine Read_Magnetic_Data
+
+    End Interface
+
+End Module CFML_Magnetic_Database

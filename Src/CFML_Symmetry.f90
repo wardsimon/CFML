@@ -2068,9 +2068,9 @@
                    end if
                 end do
              end if
-
+          Case Default
+             LatSymb="Z"
        End Select
-       LatSymb="Z"
        return
     End Subroutine Get_Centring_Vectors
 

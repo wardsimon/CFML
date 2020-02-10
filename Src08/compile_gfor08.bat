@@ -215,6 +215,7 @@ rem
    gfortran -c %OPTC% -J.\mod CFML_Symmetry_Tables.f90               %OPT0%
    gfortran -c %OPTC% -J.\mod CFML_BVS_Tables.f90                    %OPT1%
    gfortran -c %OPTC% -J.\mod CFML_Magnetic_Database.f90             %OPT1%
+   gfortran -c %OPTC% -J.\mod CFML_SuperSpace_Database.f90           %OPT1%
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -236,6 +237,9 @@ rem
 rem
       gfortran -c %OPTC% -J..\mod Allocating_MagneticDBase.f90       %OPT0%
       gfortran -c %OPTC% -J..\mod Read_MagneticDBase.f90             %OPT1%
+rem
+      gfortran -c %OPTC% -J..\mod Allocating_SuperSpaceDBase.f90     %OPT0%
+      gfortran -c %OPTC% -J..\mod Read_SSG_DBase.f90                 %OPT1%
 rem
       move /y *.o .. > nul
       cd ..

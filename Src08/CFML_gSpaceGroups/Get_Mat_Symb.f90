@@ -4,7 +4,7 @@
 !!
 SubModule (CFML_gSpaceGroups) SPG_012
    Contains
-   
+
    !!----
    !!---- GET_MAT_FROM_SYMB
    !!----
@@ -16,31 +16,32 @@ SubModule (CFML_gSpaceGroups) SPG_012
    !!----  Some checking on the correctness of the symbol is performed
    !!----
    !!----  If symb represent orientation changes (ba-c for example) the symb argument
-   !!----  have to be written as: b,a,-c;0,0,0. Following IT format, the result is the
-   !!----  transpose matrix.
+   !!----  have to be written as: b,a,-c;0,0,0. The output matrix P in this case
+   !!----  corresponds to the International convention: (a',b',c',..)=(a,b,c,..) P
    !!----
    !!---- 20/04/2019
+   !!---- 05/02/2020 Transposition of the rotational part of Mat to transform it to P
    !!
-   Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt) 
+   Module Subroutine Get_Mat_From_Symb(Symb, Mat, Invt)
       !---- Arguments ----!
       character(len=*),                intent(in)  :: Symb
-      type(rational), dimension(:,:),  intent(out)  :: Mat
+      type(rational), dimension(:,:),  intent(out) :: Mat
       integer, optional,               intent(out) :: invt
-      
+
       !---- local variables ----!
-      integer                               :: i,j,k,Dd, d, np, n,m,inv,num,den,ind,ier
-      integer, dimension(size(Mat,dim=1)-1) :: pos,pn
-      
+      integer                 :: i,j,k,Dd, d, np, n,m,inv,num,den,ind,ier
+      integer, dimension(12)  :: pos,pn
+
       character(len=len(Symb))                                     :: string, pSymb, translation
       character(len=3),dimension(10)                               :: x_typ
       character(len=len(Symb)), dimension(size(Mat,dim=1))         :: split
       character(len=10),        dimension(size(Mat,dim=1))         :: subst
       character(len=40),dimension(size(Mat,dim=1),size(Mat,dim=1)) :: matrix
       character(len=5)                                             :: forma
-      
+
       type(rational) :: det
       logical        :: abc_transf
-      
+
       !> Init
       call clear_error()
 
@@ -50,26 +51,30 @@ SubModule (CFML_gSpaceGroups) SPG_012
       x_typ=xyz
       i=index(Symb,"x2")
       if (i /= 0) x_typ=x1x2x3
-      
+
       i=index(Symb,"b")
       if (i /= 0) then
          x_typ=abc
          abc_transf=.true.
       end if
-      
+
       Mat=0//1
       if (abc_transf) then
          i=index(Symb,";")
-         if (i == 0) return !check for errors
+         if (i == 0) then
+            Err_CFML%Ierr=1
+            Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error in a,b,c,..;0,0,... notation: "//trim(Symb)
+            return
+         end if
          translation=pack_string(Symb(i+1:)//",0")
          pSymb=pack_string(Symb(1:i-1)//",1")
          call Get_Separator_Pos(translation,",",pos,np)
          if (np /= d) then
             Err_CFML%Ierr=1
-            Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error in Jone's faithful notation"
+            Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: Error transformation symbol: "//trim(Symb)
             return
          end if
-        
+
          j=1
          do i=1,d
             split(i)=translation(j:pos(i)-1)
@@ -82,7 +87,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
                read(unit=split(i)(1:k-1),fmt=*) num
                read(unit=split(i)(k+1:),fmt=*) den
             else
-               den=1   
+               den=1
                read(unit=split(i),fmt=*) num
             end if
             Mat(i,Dd)= num//den
@@ -137,7 +142,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
                  " for n_commas and dimension"
             return
          end if
-         
+
       else !Check the presence of all symbols
          do i=1,d
             j=index(pSymb(1:pos(np)),trim(x_typ(i)))
@@ -164,7 +169,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
          split(i)=pSymb(j:pos(i)-1)
          j=pos(i)+1
       end do
-      
+
       !> Analysis of each item
                       !   |     |  |  |  <- pos(i)
       !items of the form  -x1+3/2x2-x3+x4+1/2
@@ -211,7 +216,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
                   exit
                end if
             end do
-          
+
             if (k == 0) then !pure translation
                k=index(subst(j),"/")
                if (k /= 0) then
@@ -222,7 +227,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
                   read(unit=subst(j),fmt=*) num
                end if
                Mat(i,Dd)= num//den
-          
+
             else  !Component m of the row_vector
                !> suppress the symbol
                subst(j)(k:k+len_trim(x_typ(ind))-1)=" "
@@ -233,7 +238,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
                else
                   subst(j)=pack_string(subst(j))
                end if
-            
+
                !> Now read the integer or the rational
                k=index(subst(j),"/")
                if (k /= 0) then
@@ -248,19 +253,24 @@ SubModule (CFML_gSpaceGroups) SPG_012
          end do
       end do
 
-      !> Put the generator in standard form with positive translations
-      call reduced_translation(Mat)
+      if(abc_transf) then
+        !Put the transformation matrix in International Convention
+        Mat(1:d,1:d)=transpose(Mat(1:d,1:d))
+      else
+        !> Put the operator in standard form with positive translations
+        call reduced_translation(Mat)
+      end if
 
       !> Final check that the determinant of the rotational matrix is integer
       !det=rdet(Mat)
       det=Rational_Determ(Mat)
-      
+
       if (det%numerator == 0) then
          Err_CFML%Ierr=1
          Err_CFML%Msg="Get_Mat_From_Symb@SPACEG: "// &
                       "The matrix of the operator is singular! -> det="//Rational_String(det)
          matrix=Rational_String(Mat)
-         
+
          forma="( a8)"
          write(unit=forma(2:2),fmt="(i1)") Dd
          do j=1,Dd
@@ -270,4 +280,4 @@ SubModule (CFML_gSpaceGroups) SPG_012
    End Subroutine Get_Mat_From_Symb
 
 End SubModule SPG_012
-   
+

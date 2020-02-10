@@ -49,6 +49,7 @@ Module CFML_gSpaceGroups
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Magnetic_Database
+    Use CFML_SuperSpace_Database
     Use CFML_GlobalDeps,        only: CP, LI, err_cfml, clear_error, CFML_Debug
     Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
@@ -71,7 +72,7 @@ Module CFML_gSpaceGroups
               Get_Rotation_Order, get_Symb_from_Mat, Get_Symb_from_OP,            &
               Inverse_OP
 
-    public :: Allocate_OP, Allocate_SpaceGroup,                                   &
+    public :: Allocate_OP, Allocate_SpaceGroup, Change_Setting_SpaceG,            &
               Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
               Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups,                   &
               Get_SubGroups_SubGen, Group_Constructor,                            &
@@ -95,23 +96,32 @@ Module CFML_gSpaceGroups
     End Type Group_Type
 
     Type, public, extends(Group_Type) :: SPG_Type
+       logical                                    :: standard_setting=.true.  !true or false
        integer                                    :: numspg = 0           ! Spacegroup number (IT if standard)
        integer                                    :: numshu = 0           ! Shubnikov group number
        integer                                    :: numops = 0           ! Number of total symmetry operators
        integer                                    :: centred= 0           ! 0: Centric(-1 no at origin),  1: Acentric, 2: Centric(-1 at origin)
-       integer                                    :: anticentred=0        ! 0: Centric(-1' no at origin), 1: Acentric, 2: Centric(-1' at origin)
+       integer                                    :: anticentred=0        ! 0: Anti-Centric(-1' no at origin), 1: Anti-Acentric, 2: Anti-Centric(-1' at origin)
        integer                                    :: mag_type = 0
        integer                                    :: num_lat  = 0         ! Number of lattice points in cell
        integer                                    :: num_alat = 0
+       integer                                    :: Parent_num=0         ! Number of the parent Group
        character(len=1)                           :: spg_lat  =" "        ! Lattice type
        character(len=1), dimension(2)             :: shu_lat  =" "        ! Shubnikov lattice type
+       character(len=:),              allocatable :: Parent_spg           ! Symbol of the crystallographic space group
+       character(len=:),              allocatable :: tfrom_parent         ! Transformation of the parent basis to get the actual one
+       character(len=:),              allocatable :: Centre               ! Alphanumeric information about the center of symmetry
        character(len=:),              allocatable :: spg_symb             ! Space group symbol
-       character(len=:),              allocatable :: shu_symb             ! Shubnikov group symbol
+       character(len=:),              allocatable :: BNS_num              ! Numerical Label in the data base of Stokes-Campbell
+       character(len=:),              allocatable :: OG_num               ! Numerical Label in the data base of D. Litvin
+       character(len=:),              allocatable :: BNS_symb             ! Belonov-Neronova-Smirnova Shubnikov group symbol
+       character(len=:),              allocatable :: OG_symb              ! Opechowski-Guccione Shubnikov group symbol
        character(len=:),              allocatable :: Hall                 ! Hall symbol
        character(len=:),              allocatable :: crystalsys           ! Crystal system
        character(len=:),              allocatable :: pg                   ! Point group
        character(len=:),              allocatable :: mag_pg               ! Magnetic PG
        character(len=:),              allocatable :: laue                 ! Laue group
+       character(len=:),              allocatable :: setting              ! Operators transformed by "setting" (e.g. -a+b,a+b,-c;1/2,0,0)
        character(len=:),              allocatable :: mat2std              ! To standard space group
        character(len=:),              allocatable :: mat2std_shu          ! To standard Shubnikov space group
        character(len=:),              allocatable :: generators_list      ! List of generators
@@ -122,16 +132,10 @@ Module CFML_gSpaceGroups
     End Type SPG_Type
 
     Type, public, extends(Spg_Type):: SuperSpaceGroup_Type
-      logical                             :: standard_setting=.true.  !true or false
-      Character(len=60)                   :: SSG_symbol=" "
-      Character(len=60)                   :: SSG_Bravais=" "
-      Character(len=40)                   :: SSG_nlabel=" "
-      Character(len=20)                   :: Parent_spg=" "
-      Character(len=80)                   :: trn_from_parent=" "
-      Character(len=80)                   :: trn_to_standard=" "
-      character(len=80)                   :: Centre="Acentric" ! Alphanumeric information about the center of symmetry
+      Character(len=:),       allocatable :: SSG_symb
+      Character(len=:),       allocatable :: SSG_Bravais
+      Character(len=:),       allocatable :: SSG_nlabel
       integer                             :: nk=0              ! (nk=1,2,3, ...) number of k-vectors
-      integer                             :: Parent_num=0      ! Number of the parent Group
       integer                             :: Bravais_num=0     ! Number of the Bravais class
       real,   allocatable,dimension(:,:)  :: kv                ! k-vectors (3,d)
     End Type SuperSpaceGroup_Type
@@ -209,6 +213,12 @@ Module CFML_gSpaceGroups
        module procedure Get_Crystal_System_Str
        module procedure Get_Crystal_System_from_Laue
     End Interface Get_Crystal_System
+
+    Interface Set_SpaceGroup
+       module procedure Set_SpaceGroup_DBase
+       module procedure Set_SpaceGroup_gen
+       !module procedure Set_SpaceGroup_symb
+    End Interface Set_SpaceGroup
 
     !------------------------!
     !---- Interface Zone ----!
@@ -525,9 +535,9 @@ Module CFML_gSpaceGroups
           character(len=:), allocatable             :: Str
        End Function Get_Symb_from_Mat_Tr
 
-       Module Function Get_Symb_from_Rational_Mat(Mat, Strcode, Invt) Result(Symb)
+       Module Function Get_Symb_from_Rational_Mat(Matt, Strcode, Invt) Result(Symb)
           !---- Arguments ----!
-          type(rational), dimension(:,:), intent(in) :: Mat
+          type(rational), dimension(:,:), intent(in) :: Matt
           character(len=*), optional,     intent(in) :: strcode
           integer,          optional,     intent(in) :: invt
           character(len=:), allocatable              :: symb
@@ -734,13 +744,40 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3,3), intent(inout) :: A
        End Subroutine Set_Right_Handedness
 
-       Module Subroutine Set_SpaceGroup(Str, SpaceG, NGen, Gen)
+       Module Subroutine Change_Setting_SpaceG(setting, SpaceG,xyz_type)
+          !---- Arguments ----!
+          character(len=*),           intent(in )    :: setting
+          class(spg_type),            intent(in out) :: SpaceG
+          character(len=*), optional, intent(in )    :: xyz_type
+       End Subroutine Change_Setting_SpaceG
+
+       Module Subroutine Set_SpaceGroup_DBase(Str,mode,SpaceG,xyz_type,Setting,keepdb,parent,database_path)
+          !---- Arguments ----!
+          character(len=*),           intent(in ) :: Str
+          character(len=*),           intent(in ) :: mode
+          class(spg_type),            intent(out) :: SpaceG
+          character(len=*), optional, intent(in ) :: xyz_type
+          character(len=*), optional, intent(in ) :: Setting
+          logical,          optional, intent(in ) :: keepdb
+          character(len=*), optional, intent(in ) :: parent
+          character(len=*), optional, intent(in ) :: database_path
+       End Subroutine Set_SpaceGroup_DBase
+
+       Module Subroutine Set_SpaceGroup_gen(Str, SpaceG, NGen, Gen)
           !---- Arguments ----!
           character(len=*),                          intent(in ) :: Str
           class(spg_type),                           intent(out) :: SpaceG
           integer,                         optional, intent(in ) :: NGen
           character(len=*),  dimension(:), optional, intent(in ) :: Gen
-       End Subroutine Set_SpaceGroup
+       End Subroutine Set_SpaceGroup_gen
+
+       !Module Subroutine Set_SpaceGroup_symb(Str, SpaceG, NGen, Gen)
+       !   !---- Arguments ----!
+       !   character(len=*),                          intent(in ) :: Str
+       !   class(spg_type),                           intent(out) :: SpaceG
+       !   integer,                         optional, intent(in ) :: NGen
+       !   character(len=*),  dimension(:), optional, intent(in ) :: Gen
+       !End Subroutine Set_SpaceGroup_symb
 
        Module Subroutine Smallest_Integral_Vector(v)
           !---- Arguments ----!
