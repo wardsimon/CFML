@@ -92,6 +92,7 @@ rem
    ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
    ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
+   ifort /c CFML_Magnetic_Groups.f90                  /nologo %OPT1% %OPT2%
 rem
    echo .... EoS, Reflections, Atoms
 rem
@@ -121,7 +122,7 @@ rem
 rem
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
-   ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
+rem   ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_magsymm.f90                         /nologo %OPT1% %OPT2%
    ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
    ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
