@@ -213,6 +213,7 @@ rem
    ifort /c CFML_Symmetry_Tables.f90                 /nologo %OPT0% %OPT2% /module:.\mod 
    ifort /c CFML_BVS_Tables.f90                      /nologo %OPT0% %OPT2% /module:.\mod 
    ifort /c CFML_Magnetic_Database.f90               /nologo %OPT0% %OPT2% /module:.\mod 
+   ifort /c CFML_SuperSpace_Database.f90             /nologo %OPT0% %OPT2% /module:.\mod 
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
@@ -234,6 +235,9 @@ rem
 rem
       ifort /c Allocating_MagneticDBase.f90           /nologo %OPT1% %OPT2%  /module:..\mod 
       ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
+rem
+      ifort /c Allocating_SuperSpaceDBase.f90         /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Read_SSG_DBase.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
 rem
       move /y *.obj .. > nul
       cd .. 
@@ -496,7 +500,7 @@ rem
      copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
      move *.lib ..\%DIRECTORY%\LibC08\. > nul
    )
-   del *.obj  *.lst *.bak > nul
+  del *.obj  *.lst *.bak > nul
 rem
 :FIN
    echo.

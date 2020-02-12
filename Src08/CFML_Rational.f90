@@ -37,7 +37,7 @@
 !!----         It is intented for making algebra with not too big numerators
 !!----         and denominators. The implementation of error control against
 !!----         oveflows is not yet done. To avoid partially this the module
-!!----         uses integer of 8 bytes (integer kind ik=8). Subroutines
+!!----         uses integer of 8 bytes (integer kind li=8). Subroutines
 !!----         for inverting matrices are provided: a special subroutine working
 !!----         strictly with rational numbers 'Matinv_rational' and the subroutine
 !!----         'rational_inv_matrix' that uses LU decomposition through double
@@ -618,7 +618,7 @@ Module CFML_Rational
           type(rational), dimension(:),   intent (in) :: vec
           type(rational), dimension(size(vec))        :: vec_out
        End Function Rational_Matmul_Matvec
-       
+
        Module Pure Function Rational_Maxloc_Matrix(Mat) Result(Pos_Max)
           !---- Arguments ----!
           type(rational),  dimension(:,:), intent(in) :: Mat

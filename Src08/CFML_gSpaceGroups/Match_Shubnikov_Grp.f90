@@ -3,13 +3,13 @@
 !!----
 !!----
 SubModule (CFML_gSpaceGroups) SPG_042
-   Contains 
-    !!---- 
+   Contains
+    !!----
     !!---- MATCH_SHUBNIKOV_GROUP
     !!----
     !!---- Tries to match the space group G against Shubnikov groups. If the
     !!---- matching is successfull, it writes the group number G%numshu, the
-    !!---- group symbol G%shu_symb and the transformation matrix to the
+    !!---- group symbol G%BNS_symb and the transformation matrix to the
     !!---- standard G%mat2std_shu
     !!----
     !!---- 24/04/2019 15:41:40
@@ -38,7 +38,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         type(spg_type),            dimension(:),       allocatable :: G_aux
         integer,                   dimension(:,:),     allocatable :: idx,pointerToOper
         type(rational),            dimension(:,:,:),   allocatable :: C,Cinv,pointOper,Paux
-        
+
         logical :: pout
 
         !>===== DEBUG =====
@@ -66,39 +66,39 @@ SubModule (CFML_gSpaceGroups) SPG_042
               iniG  =    1
               endG  =    7
               if (pout) write(*,'(8x,a)') " => Matching representation against standard triclinic magnetic groups..."
-           
+
            case ("2/m")
               iniG =    8
               endG  =   98
               if (pout) write(*,'(8x,a)') " => Matching representation against standard monoclinic magnetic groups..."
-           
+
            case ("mmm")
               iniG =   99
               endG  =  660
               if (pout) write(*,'(8x,a)') " => Matching representation against standard orthorhombic magnetic groups..."
-           
+
            case ("4/m","4/mmm")
               iniG =  661
               endG  = 1230
               if (pout) write(*,'(8x,a)') " => Matching representation against standard tetragonal magnetic groups..."
-           
+
            case ("-3","-3 R","-3m","-3m R","-3m1","-31m")
               iniG = 1231
               endG  = 1338
               hexagonal = .true.
               if (pout) write(*,'(8x,a)') " => Matching representation against standard trigonal magnetic groups..."
-           
+
            case ("6/m","6/mmm")
               iniG = 1339
               endG  = 1502
               hexagonal = .true.
               if (pout) write(*,'(8x,a)') " => Matching representation against standard hexagonal magnetic groups..."
-           
+
            case ("m3","m-3","m3m","m-3m")
               iniG = 1503
               endG  = 1651
               if (pout) write(*,'(8x,a)') " => Matching representation against standard cubic magnetic groups..."
-           
+
            case default
               Err_CFML%Ierr = 1
               Err_CFML%Msg  = "Match_Shubnikov_Group@SPACEG: Unknown Laue class"
@@ -111,7 +111,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
            allocate(pointOper(3,3,24))
            pointOper  = point_op_hex_matrix
            nPointOper = 24
-        
+
         else
            ! Non hexagonal systems
            allocate(pointOper(3,3,48))
@@ -121,7 +121,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
 
         !> Get matrices needed for test different settings
         call Get_A_Matrix_Shub(G%laue,A,nA)
-        
+
         !> Allocate memory
         allocate(G_aux(nA))
         allocate(doTest(nA))
@@ -146,7 +146,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
 
         !> Put G in the different settings
         allocate(gener(G%multip))
-        
+
         !> Build groups from generators
         call allocate_op(G%d,Op)
         do n = 1 , nA
@@ -185,7 +185,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         do n = 1 , nA
            if (doTest(n)) then
               call Get_Magnetic_Lattice(G_aux(n))
-              
+
               !> Correct symbol for triclinic systems with anti-translations
               if (trim(G_aux(n)%laue) == "-1" .and. G_aux(n)%shu_lat(2) /= " ") G_aux(n)%shu_lat(2) = "S"
            end if
@@ -195,7 +195,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         do n = 1 , nA
            if (doTest(n)) then
               call Get_Generators_L(G_aux(n)%laue,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
-              
+
               !> Map generators to G_aux(n)%Op
               do i = 1 , ngen
                  idx(i,n) = 0
@@ -256,7 +256,10 @@ SubModule (CFML_gSpaceGroups) SPG_042
                                     write(*,'(12x,a)',advance='no') "Original setting --> Standard magnetic setting: "
                                     write(*,'(a)') trim(symb)
                                 end if
-                                G%shu_symb   = spacegroup_label_bns(i)
+                                G%BNS_symb    = spacegroup_label_bns(i)
+                                G%OG_symb     = spacegroup_label_og(i)
+                                G%BNS_num     = nlabel_bns(i)
+                                G%OG_num      = nlabel_og(i)
                                 G%numshu      = i
                                 G%mat2std_shu = trim(symb)
                                 return
@@ -273,5 +276,5 @@ SubModule (CFML_gSpaceGroups) SPG_042
         Err_CFML%Msg  = "Match_Shubnikov_Group@SPACEG: Unable to indentify the magnetic group"
 
     End Subroutine Match_Shubnikov_Group
-    
-End SubModule SPG_042   
+
+End SubModule SPG_042

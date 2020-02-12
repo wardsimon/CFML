@@ -1,6 +1,6 @@
 @echo off
 rem ****
-rem ****---- Compilation for Test230_groups Program ----****
+rem ****---- Compilation for Groups Program ----****
 rem ****
 rem > INIT 
    (set _DEBUG=N)
@@ -31,8 +31,8 @@ rem
          (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
       ) else (
          if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
-         (set OPT0=/Od )
-         (set OPT1=/O2 )
+         (set OPT0=/Od)
+         (set OPT1=/O2)
       )
       (set OPT2=/fpp /Qopt-report:0)
    )
@@ -40,25 +40,33 @@ rem
    if [%_COMP%]==[gfortran] (
       if [%_DEBUG%]==[Y] (
          if [%_VER%]==[m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
-         (set -g OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
-         (set -g OPT1=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+         (set OPT0=-g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+         (set OPT1=-g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
       ) else (
          if [%_VER%]==[m32] (set DIRECTORY=gfortran) else (set DIRECTORY=gfortran64)
          (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
-         (set OPT1=-O2 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
+         (set OPT1=-O3 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
       )
       (set OPT2=)
    )
 rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
-      ifort /c groups_230.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /exe:Grp230 *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
+rem      ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+rem      ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
    )
 rem   
    if [%_COMP%]==[gfortran] (
-      gfortran -c groups_230.f90          %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o Grp230.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c cif.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -o cif.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   
    del *.obj *.mod *.o *.map *.bak > nul

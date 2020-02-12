@@ -8,14 +8,14 @@ SubModule (CFML_gSpaceGroups) Spg_058
    !!---- MATCH_SPACEGROUP_3D
    !!----    Tries to match the space group G against one of the 230
    !!----    standard crystallographic groups. It returns the space
-   !!----    group number G%numspg, the space group symbol G%spg_symb
+   !!----    group number G%numspg, the space group symbol G%BNS_symb
    !!----    and the transformation matrix to the standard G%mat2std
    !!----
-   !!---- 14/05/2019 
+   !!---- 14/05/2019
    !!
    Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
        !---- Arguments ----!
-       type(spg_type),                  intent(inout) :: G        ! space group in the original setting
+       type(spg_type),                  intent(in out) :: G        ! space group in the original setting
        type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
        type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
        type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices_Crys-
@@ -37,7 +37,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
        type(spg_type)                                  :: G_target
        type(spg_type)                                  :: G_std
        type(spg_type),       dimension(n)              :: G_
-       
+
        logical :: pout =.false.
 
        !> Init
@@ -50,8 +50,8 @@ SubModule (CFML_gSpaceGroups) Spg_058
           print*," Match-SpaceGroup Procedure..."
           print*," -> N: ",n
           print*,"Num Lat:", G%Num_lat
-       end if   
-       
+       end if
+
        do s=1, n  ! Loop over C matrices
           G_(s)         = G
           G_(s)%numops  = G%multip / (G%num_lat + G%num_alat + 1)
@@ -62,7 +62,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
           C_(1:3,4,s)   = [ 0//1,0//1,0//1 ]
           C_(4,1:4,s)   = [ 0//1,0//1,0//1,1//1 ]
           Cinv= Rational_Inverse_Matrix(C_(:,:,s))
-          
+
           !> Compute symmetry operations in the new basis
           do j = 1 , G%Multip
              W(1:3,1:3) = G%op(j)%Mat(1:3,1:3)
@@ -73,7 +73,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
              G_(s)%op(j)%Mat(1:3,1:3) = W(1:3,1:3)
              G_(s)%op(j)%Mat(1:3,G%d) = W(1:3,4)
           end do
-           
+
           !> Compute vectors in the new basis
           do j = 1 , G%num_lat
              G_(s)%lat_tr(1:3,j) = matmul(Cinv(1:3,1:3),G%lat_tr(1:3,j))
@@ -85,7 +85,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
              G_(s)%alat_tr(1:3,j) = rational_modulo_lat(G_(s)%alat_tr(1:3,j))
              !call PBC(G_(s)%alat_tr(1:3,j))
           end do
-          
+
           !> Get Lattice Type
           G_(s)%spg_lat=Get_Lattice_Type(MA)
        end do
@@ -94,17 +94,17 @@ SubModule (CFML_gSpaceGroups) Spg_058
           Err_CFML%Ierr = 1
           Err_CFML%Msg ="Match_SpaceGroup_3D@GSPACEGROUPS: Zero standard Space group!"
           return
-       end if  
-       
+       end if
+
        write(unit=str, fmt='(i3)', iostat=ier) G%numspg
        if (ier /= 0) then
           Err_CFML%Ierr = 1
           Err_CFML%Msg ="Match_SpaceGroup_3D@GSPACEGROUPS: Error taken standard spacegroup!"
           return
-       end if   
-       
+       end if
+
        gList=get_IT_Generators(str)  ! IT take our default choice for SpaceGroup
-       call Get_Generators(gList, d, l_gen, n_gen) 
+       call Get_Generators(gList, d, l_gen, n_gen)
        call Group_Constructor(l_gen,G_std)
        call Identify_PointGroup(G_std)
        call Identify_LaueClass(G_std)
@@ -113,9 +113,9 @@ SubModule (CFML_gSpaceGroups) Spg_058
        G_std%spg_lat=str_HM(1:1)
        G_std%spg_symb=str_HM(1:1)//l_case(str_HM(2:))
        G%spg_lat=G_std%spg_lat
-       G%spg_symb=G_std%spg_symb
+       G%BNS_symb=G_std%BNS_symb
        if (Err_CFML%Ierr /= 0) return
-       
+
        do s=1, n
           if (pout) then
              print*,' '
@@ -128,11 +128,11 @@ SubModule (CFML_gSpaceGroups) Spg_058
               G_std%Spg_Lat == G_(s)%Spg_Lat .and. &
              (G_std%Centred == 1 .and. G_(s)%Centred == 1 .or. &
               G_std%Centred /= 1 .and. G_(s)%Centred /= 1)) then
-               
+
              !> Get generators from the standard space group
              call Get_Generators_L(G_std%laue,G_std%op,G_std%Multip,gen_std,ng)
              if (Err_CFML%Ierr /= 0) return
-             
+
              !> Try to get these generators from SGaux(s)
              ng_ = 0
              do i=1, ng
@@ -145,9 +145,9 @@ SubModule (CFML_gSpaceGroups) Spg_058
                 end do
              end do
              if (ng /= ng_) cycle
-             
+
              G_target%num_alat = 0
-             G_target%num_lat  = G_std%Num_Lat 
+             G_target%num_lat  = G_std%Num_Lat
              G_target%Multip   = G_std%Multip
 
 
@@ -164,7 +164,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
              end do
              P_target(1:3,1:3)=Get_P_Matrix(G_target)
              if (Err_CFML%Ierr /= 0) return
-             
+
              !> Try to match the standard by an origin shift
              call Get_Origin_Shift(gen_x(1:ng),gen_std(1:ng),ng,P_target,origShift,shift)
              if (shift) then
@@ -185,5 +185,5 @@ SubModule (CFML_gSpaceGroups) Spg_058
        Err_CFML%Msg ="Match_SpaceGroup_3D@GSPACEGROUPS: Imposible to obtain the Shift!"
 
    End subroutine Match_SpaceGroup_3D
-   
-End SubModule Spg_058   
+
+End SubModule Spg_058

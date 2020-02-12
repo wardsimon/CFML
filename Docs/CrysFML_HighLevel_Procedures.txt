@@ -1484,7 +1484,7 @@ Subroutines:
        type(MagH_Type),          intent(in out) :: Mh
 
     Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
-      type(Crystal_Cell_type),   intent(in)      :: Cell
+       type(Crystal_Cell_type),   intent(in)      :: Cell
        type(MagSymm_k_Type),      intent(in)      :: MGp
        type(Matom_list_type),     intent(in)      :: Atm
        type(Magnetic_Domain_type),intent(in)      :: Mag_Dom

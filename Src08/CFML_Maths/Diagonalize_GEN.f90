@@ -18,11 +18,13 @@
     !!----  Discussion:
     !!----
     !!----    RG_ORT calls EISPACK routines to find the eigenvalues and eigenvectors
-    !!----    of a real general matrix, using orthogonal transformations.
+    !!----    of a real general matrix, using orthogonal transformations. All the
+    !!----    subroutines of EISPACK needed by this Module Subroutine are included in
+    !!----    this submodule but they are keep private.
     !!----
     !!----  Modified:
     !!----
-    !!----    11 February 2018, 29 November 2019 (JRC)
+    !!----    11 February 2018, 29 November 2019 (JRC), 3 February 2020 (JRC)
     !!----
     !!----  Author:
     !!----
