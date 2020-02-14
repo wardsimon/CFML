@@ -2455,7 +2455,7 @@ Contains
 
 
       !> Linear case
-      if (e%linear) v=v**(1.0_cp/3.0_cp)
+      !if (e%linear) v=v**(1.0_cp/3.0_cp) Removed 12 Feb 2020, not needed
 
       return
    End Function Get_Volume_K
