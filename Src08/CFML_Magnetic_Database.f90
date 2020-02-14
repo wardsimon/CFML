@@ -61,8 +61,8 @@ Module CFML_Magnetic_Database
     integer, public, parameter :: MAGCOUNT=1651      ! Magnetic Groups
 
     !---- Variables ----!
-    logical :: Magnetic_DBase_allocated=.false.
-    logical :: mcif=.false.
+    logical, public :: Magnetic_DBase_allocated=.false.
+    logical         :: mcif=.false.
 
     !> For the ith nonhexagonal point operator:
     Character(Len=8),  dimension(:), public, allocatable :: point_op_label   ! point_op_label(i): point operator symbol (from Litvin)

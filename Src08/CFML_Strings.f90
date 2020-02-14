@@ -183,7 +183,7 @@
           !---- Arguments ----!
           character(len=*),                          intent(in)  :: str      ! Input string
           real(kind=cp),dimension(3,3),              intent(out) :: mat      ! Matrix
-          real(kind=cp),dimension(3),                intent(out) :: v        ! Vector
+          real(kind=cp),dimension(3),     optional,  intent(out) :: v        ! Vector
           character(len=1), dimension(4), optional,  intent(in)  :: cod      ! Code
        End Subroutine Get_Transf
 

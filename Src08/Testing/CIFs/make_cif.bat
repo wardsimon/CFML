@@ -52,8 +52,8 @@ rem
 rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
-rem      ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
@@ -63,8 +63,8 @@ rem
    if [%_COMP%]==[gfortran] (
       gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+rem      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+rem      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -c cif.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -o cif.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )

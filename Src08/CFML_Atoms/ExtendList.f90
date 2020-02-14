@@ -4,7 +4,7 @@
 !!
 SubModule (CFML_Atoms) Atm_005
    Contains
-   
+
    !!----
    !!---- EXTEND_LIST
    !!----
@@ -13,11 +13,12 @@ SubModule (CFML_Atoms) Atm_005
    !!----
    !!---- Update: February - 2005
    !!
-   Module Subroutine Extend_List(A, B, Spg, Conven)
+   Module Subroutine Extend_List(A, B, Spg, Type_Atm,Conven)
       !---- Arguments ----!
       type(atlist_type),   intent(in)     :: A         ! Atom list (asymmetric unit)
       type(atlist_type),   intent(in out) :: B         ! Atom list into the unit cell
       type(SpG_Type),      intent(in)     :: SpG       ! SpaceGroup
+      character(len=*),    intent(in)     :: Type_Atm  ! !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
       logical, optional,   intent(in)     :: Conven    ! If present and .true. using the whole conventional unit cell
 
       !---- Local Variables ----!
@@ -26,30 +27,30 @@ SubModule (CFML_Atoms) Atm_005
       real(kind=cp),dimension(3)            :: xo,xx
       real(kind=cp),dimension(3,Spg%multip) :: u
       logical                               :: ccell
-      
+
       type(atlist_type) :: c_atm
-      
+
       !> Init
       call clear_error()
       ccell=.false.
       if (present(conven)) ccell=conven
-      
+
       !> Check arguments
       if (.not. extends_type_of(B,A) .or. (.not. same_type_as(B,A)) ) then
          err_CFML%IErr=1
          err_CFML%Msg="Extend_List@CFML_Atoms: Incompatible arguments!"
          return
-      end if   
-      
+      end if
+
       npeq=SpG%numops
       if (SpG%centred == 2) npeq=npeq*2
       if (ccell) npeq=SpG%multip
-      call allocate_atom_list(npeq*A%natoms,c_atm)
+      call allocate_atom_list(npeq*A%natoms,c_atm,Type_Atm)
       n=0
       do k=1,A%natoms
          l=1       ! Number of symetric atom
-         n=n+1     ! Number of atom in the list     
-         
+         n=n+1     ! Number of atom in the list
+
          xo= modulo_lat(A%atom(k)%x)
          u(:,l)= xo
          c_atm%atom(n)%x=xo
@@ -63,11 +64,11 @@ SubModule (CFML_Atoms) Atm_005
                   cycle loop
                end if
             end do
-                  
+
             l=l+1
             u(:,l)=xx(:)
             n=n+1
-            
+
             select case (l)
                case(:9)
                   write(unit=fmm,fmt="(i1)") l
@@ -90,14 +91,14 @@ SubModule (CFML_Atoms) Atm_005
             c_atm%Atom(n)%Moment  =A%atom(k)%Moment
             c_atm%Atom(n)%SfacSymb=A%atom(k)%SfacSymb
             c_atm%Atom(n)%Ind_ff  =A%atom(k)%Ind_ff
-            
+
             !select type(atm => A%atom(k))
             !   class is (Atm_Std_Type)
             !      c_atm%Atom(n)%u_iso_std=atm%u_iso_std
-            !      !c_atm%Atom(n)%x_std=A%atom(k)%x_std       
+            !      !c_atm%Atom(n)%x_std=A%atom(k)%x_std
             !      !c_atm%Atom(n)%occ_std=A%atom(k)%occ_std
             !end select
-             
+
             !select type(atm => A%atom(k))
             !   type is (MAtm_Std_Type)
             !      c_atm%Atom(n)%wyck   = atm%wyck
@@ -108,25 +109,25 @@ SubModule (CFML_Atoms) Atm_005
             !      !c_atm%Atom(n)%dcs    = A%atom(k)%dcs
             !      !c_atm%Atom(n)%dcs_std= A%atom(k)%dcs_std
             !end select
-            
+
             c_atm%Active(n)   = A%Active(k)
-            
+
          end do loop
       end do
-      
+
       if (n == 0) then
          err_CFML%IErr=1
          err_CFML%Msg="Extend_List@CFML_Atoms: Number of extended atoms was zero!"
-         call allocate_atom_list(0,c_atm)
+         call allocate_atom_list(0,c_atm,Type_Atm)
          return
-      end if   
-      
-      call allocate_atom_list(n,B)
+      end if
+
+      call allocate_atom_list(n,B,Type_Atm)
       B%Active=c_atm%active(1:n)
       B%Atom=c_atm%atom(1:n)
-      
+
       !> DEallocate
-      call allocate_atom_list(0,c_atm)
-      
+      call allocate_atom_list(0,c_atm,Type_Atm)
+
    End Subroutine Extend_List
-End SubModule   
+End SubModule

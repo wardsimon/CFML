@@ -6,14 +6,14 @@
  Submodule (CFML_Strings) Read_Key
    !---- Parameters ----!
    implicit none
-   
+
  Contains
     !!----
     !!---- READ_KEY_STR
-    !!----    Read a string on "filevar" starting with a particular "keyword" 
+    !!----    Read a string on "filevar" starting with a particular "keyword"
     !!----    between lines "nline_ini" and "nline_end"
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Read_Key_Str(filevar,nline_ini,nline_end,keyword,string,comment)
        !---- Arguments ----!
@@ -27,7 +27,7 @@
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line,linec
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -37,20 +37,20 @@
        if (present(comment)) cc=comment
 
        nt=min(size(filevar),nline_end)
-       key=adjustl(keyword)
-       key=l_case(key)
+       keyw=adjustl(keyword)
+       keyw=l_case(keyw)
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1) ==cc) cycle
-          
+
           !> copy
           linec=line
-          
+
           line=l_case(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
-          
+
           linec=linec(np:)
           call cut_string(linec)
           string=linec
@@ -60,16 +60,16 @@
 
        return
     End Subroutine Read_Key_Str
-    
+
     !!----
     !!---- READ_KEY_STRVAL
-    !!----    Read a string on "filevar" starting with a particular "keyword" between 
+    !!----    Read a string on "filevar" starting with a particular "keyword" between
     !!----    lines "nline_ini" and "nline_end".
-    !!----    If the string contains numbers they are read and put into "vet/ivet". 
+    !!----    If the string contains numbers they are read and put into "vet/ivet".
     !!----    The variable "string" contains the input string without the "keyword"
     !!----    "string" contains the input string without the "keyword".
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Read_Key_StrVal(filevar,nline_ini,nline_end,keyword,string,vet,ivet,iv,comment)
        !---- Arguments ----!
@@ -87,7 +87,7 @@
        !---- Local Variable ----!
        logical                        :: sval
        character(len=len(filevar(1))) :: line,linec
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -97,10 +97,10 @@
 
        nt=min(size(filevar),nline_end)
        string=" "
-       key=adjustl(keyword)
-       key=l_case(key)
+       keyw=adjustl(keyword)
+       keyw=l_case(keyw)
        sval=.false.
-       
+
        if (present(vet) .and. present(ivet) .and. present(iv)) sval=.true.
        if (sval) then
           vet=0.0_cp
@@ -112,11 +112,11 @@
           line=adjustl(filevar(i))
           if (len_trim(line) == 0 .or. line(1:1)=="!" .or. line(1:1)==cc) cycle
           linec=line
-       
+
           line=l_case(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
-          
+
           linec=linec(np:)
           call cut_string(linec)
           string=linec
@@ -137,14 +137,14 @@
 
        return
     End Subroutine Read_Key_StrVal
-    
+
     !!----
     !!---- READ_KEY_VALUE
-    !!----    Read a string on "filevar" starting with a particular "keyword" between 
-    !!----    lines "nline_ini" and "nline_end". 
+    !!----    Read a string on "filevar" starting with a particular "keyword" between
+    !!----    lines "nline_ini" and "nline_end".
     !!----    If the string contains numbers they are read and put into "vet/ivet".
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment,line_key)
        !---- Arguments ----!
@@ -161,7 +161,7 @@
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -173,18 +173,18 @@
        iv  = 0
        vet = 0.0_cp
        ivet= 0
-       key=adjustl(keyword)
-       key=l_case(key)
+       keyw=adjustl(keyword)
+       keyw=l_case(keyw)
 
        do i=nline_ini,nt
           np=0
           line=adjustl(filevar(i))
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)==cc) cycle
-          
+
           line=l_case(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
-          
+
           line=line(np:)
           call cut_string(line)
           call get_num(line,vet,ivet,iv)
@@ -199,11 +199,11 @@
 
     !!----
     !!---- READ_KEY_VALUEST
-    !!----    Read parameters and standard deviation on the line of "filevar" starting 
+    !!----    Read parameters and standard deviation on the line of "filevar" starting
     !!----    with a particular "keyword".
     !!----    The search is done between lines "nline_ini" and "nline_end".
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv,comment)
        !---- Arguments ----!
@@ -219,7 +219,7 @@
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
-       character(len=len(keyword))    :: key
+       character(len=len(keyword))    :: keyw
        character(len=1)               :: cc
        integer                        :: i,np,nt
 
@@ -230,15 +230,15 @@
        iv  = 0
        vet1 = 0.0_cp
        vet2 = 0.0_cp
-       key=adjustl(keyword)
-       key=l_case(key)
+       keyw=adjustl(keyword)
+       keyw=l_case(keyw)
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
           if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)==cc) cycle
-          
+
           line=l_case(line)
-          np=index(line,key)
+          np=index(line,keyw)
           if (np == 0) cycle
           line=line(np:)
           call cut_string(line)
@@ -250,5 +250,5 @@
 
        return
     End Subroutine Read_Key_ValueSTD
- 
+
  End Submodule Read_Key

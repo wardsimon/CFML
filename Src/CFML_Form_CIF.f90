@@ -7754,7 +7754,7 @@
        call number_lines(trim(filecode),nl)
        if (nl <=0) then
           err_form=.true.
-          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          err_form_mess='No lines were read for '//trim(filecode)//' !!'
           return
        end if
        allocate(filen(nl))
@@ -7829,7 +7829,7 @@
        call number_lines(trim(filecode),nlines)
        if (nlines <=0) then
           err_form=.true.
-          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          err_form_mess='No lines were read for '//trim(filecode)//' !!'
           return
        end if
        allocate(file_dat(nlines))

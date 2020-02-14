@@ -50,8 +50,8 @@ Module CFML_gSpaceGroups
     Use CFML_Symmetry_Tables
     Use CFML_Magnetic_Database
     Use CFML_SuperSpace_Database
-    Use CFML_GlobalDeps,        only: CP, LI, err_cfml, clear_error, CFML_Debug
-    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ
+    Use CFML_GlobalDeps,        only: CP, LI, EPS, err_cfml, clear_error, CFML_Debug
+    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ, Get_eps_math, Zbelong
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                       get_words, String_Fraction_2Dig
 
@@ -78,7 +78,7 @@ Module CFML_gSpaceGroups
               Get_SubGroups_SubGen, Group_Constructor,                            &
               Identify_Group, Init_SpaceGroup,                                    &
               Set_Conditions_NumOP_EPS, Set_SpaceGroup,                           &
-              Write_SpaceGroup_Info
+              Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec
 
     !---- Types ----!
 
@@ -97,61 +97,53 @@ Module CFML_gSpaceGroups
 
     Type, public, extends(Group_Type) :: SPG_Type
        logical                                    :: standard_setting=.true.  !true or false
-       integer                                    :: numspg = 0           ! Spacegroup number (IT if standard)
-       integer                                    :: numshu = 0           ! Shubnikov group number
-       integer                                    :: numops = 0           ! Number of total symmetry operators
-       integer                                    :: centred= 0           ! 0: Centric(-1 no at origin),  1: Acentric, 2: Centric(-1 at origin)
-       integer                                    :: anticentred=0        ! 0: Anti-Centric(-1' no at origin), 1: Anti-Acentric, 2: Anti-Centric(-1' at origin)
-       integer                                    :: mag_type = 0
-       integer                                    :: num_lat  = 0         ! Number of lattice points in cell
-       integer                                    :: num_alat = 0
-       integer                                    :: Parent_num=0         ! Number of the parent Group
-       character(len=1)                           :: spg_lat  =" "        ! Lattice type
-       character(len=1), dimension(2)             :: shu_lat  =" "        ! Shubnikov lattice type
-       character(len=:),              allocatable :: Parent_spg           ! Symbol of the crystallographic space group
-       character(len=:),              allocatable :: tfrom_parent         ! Transformation of the parent basis to get the actual one
-       character(len=:),              allocatable :: Centre               ! Alphanumeric information about the center of symmetry
-       character(len=:),              allocatable :: spg_symb             ! Space group symbol
-       character(len=:),              allocatable :: BNS_num              ! Numerical Label in the data base of Stokes-Campbell
-       character(len=:),              allocatable :: OG_num               ! Numerical Label in the data base of D. Litvin
-       character(len=:),              allocatable :: BNS_symb             ! Belonov-Neronova-Smirnova Shubnikov group symbol
-       character(len=:),              allocatable :: OG_symb              ! Opechowski-Guccione Shubnikov group symbol
-       character(len=:),              allocatable :: Hall                 ! Hall symbol
-       character(len=:),              allocatable :: crystalsys           ! Crystal system
-       character(len=:),              allocatable :: pg                   ! Point group
-       character(len=:),              allocatable :: mag_pg               ! Magnetic PG
-       character(len=:),              allocatable :: laue                 ! Laue group
-       character(len=:),              allocatable :: setting              ! Operators transformed by "setting" (e.g. -a+b,a+b,-c;1/2,0,0)
-       character(len=:),              allocatable :: mat2std              ! To standard space group
-       character(len=:),              allocatable :: mat2std_shu          ! To standard Shubnikov space group
-       character(len=:),              allocatable :: generators_list      ! List of generators
-       type(rational),dimension(:),   allocatable :: centre_coord         ! Fractional coordinates for inversion
-       type(rational),dimension(:),   allocatable :: anticentre_coord     ! Fractional coordinates for time invesion
-       type(rational),dimension(:,:), allocatable :: Lat_tr               ! Lattice traslations (3,12)
-       type(rational),dimension(:,:), allocatable :: aLat_tr              ! Anti-translations
+       integer                                    :: numspg = 0        ! Spacegroup number (IT if standard)
+       integer                                    :: numshu = 0        ! Shubnikov group number
+       integer                                    :: numops = 0        ! Number of total symmetry operators
+       integer                                    :: centred= 0        ! 0: Centric(-1 no at origin),  1: Acentric, 2: Centric(-1 at origin)
+       integer                                    :: anticentred=0     ! 0: Anti-Centric(-1' no at origin), 1: Anti-Acentric, 2: Anti-Centric(-1' at origin)
+       integer                                    :: mag_type = 0      ! Type of magnetic group: 1 (Colorless) 2 (Paramagnetic) 3 (Black & White:1) 4(Black & White: 2)
+       integer                                    :: num_lat  = 0      ! Number of lattice points in cell
+       integer                                    :: num_alat = 0      ! Number of centring anti-translations
+       integer                                    :: Parent_num=0      ! Number of the parent Group
+       integer                                    :: Bravais_num=0     ! Number of the Bravais class of the superspace (Stokes & Campbell database)
+       character(len=1)                           :: spg_lat  =" "     ! Lattice type
+       character(len=1), dimension(2)             :: shu_lat  =" "     ! Shubnikov lattice type
+       character(len=:),              allocatable :: Parent_spg        ! Symbol of the crystallographic space group
+       character(len=:),              allocatable :: tfrom_parent      ! Transformation of the parent basis to get the actual one
+       character(len=:),              allocatable :: Centre            ! Alphanumeric information about the center of symmetry
+       character(len=:),              allocatable :: spg_symb          ! Space group symbol
+       character(len=:),              allocatable :: BNS_num           ! Numerical Label in the data base of Stokes-Campbell
+       character(len=:),              allocatable :: OG_num            ! Numerical Label in the data base of D. Litvin
+       character(len=:),              allocatable :: BNS_symb          ! Belonov-Neronova-Smirnova Shubnikov group symbol
+       character(len=:),              allocatable :: OG_symb           ! Opechowski-Guccione Shubnikov group symbol
+       character(len=:),              allocatable :: Hall              ! Hall symbol
+       character(len=:),              allocatable :: crystalsys        ! Crystal system
+       character(len=:),              allocatable :: pg                ! Point group
+       character(len=:),              allocatable :: mag_pg            ! Magnetic PG
+       character(len=:),              allocatable :: laue              ! Laue group
+       character(len=:),              allocatable :: setting           ! Operators transformed by "setting" (e.g. -a+b,a+b,-c;1/2,0,0)
+       character(len=:),              allocatable :: mat2std           ! To standard space group
+       character(len=:),              allocatable :: mat2std_shu       ! To standard Shubnikov space group
+       character(len=:),              allocatable :: generators_list   ! List of generators
+       character(len=:),              allocatable :: SSG_symb          ! Symbol of the superspace  (if known)
+       character(len=:),              allocatable :: SSG_Bravais       ! Symbol of the superspace  Bravais class
+       character(len=:),              allocatable :: SSG_nlabel        ! Label of the superspace  Bravais class (Stokes & Campbell database)
+       type(rational),dimension(:),   allocatable :: centre_coord      ! Fractional coordinates for inversion
+       type(rational),dimension(:),   allocatable :: anticentre_coord  ! Fractional coordinates for time invesion
+       type(rational),dimension(:,:), allocatable :: Lat_tr            ! Lattice traslations (3,12)
+       type(rational),dimension(:,:), allocatable :: aLat_tr           ! Anti-translations
     End Type SPG_Type
 
     Type, public, extends(Spg_Type):: SuperSpaceGroup_Type
-      Character(len=:),       allocatable :: SSG_symb
-      Character(len=:),       allocatable :: SSG_Bravais
-      Character(len=:),       allocatable :: SSG_nlabel
-      integer                             :: nk=0              ! (nk=1,2,3, ...) number of k-vectors
-      integer                             :: Bravais_num=0     ! Number of the Bravais class
-      real,   allocatable,dimension(:,:)  :: kv                ! k-vectors (3,d)
+       integer                                    :: nk=0      ! (nk=1,2,3, ...) number of k-vectors
+       integer                                    :: nq=0      ! number of effective set of Q_coeff >= nk
+       real,          allocatable,dimension(:,:)  :: kv        ! k-vectors (3,nk)
+       real(kind=cp), allocatable,dimension(:,:,:):: Om        ! Operator matrices (3+d+1,3+d+1,Multip) in real form to accelerate calculations
+       real(kind=cp), allocatable,dimension(:)    :: sintlim   ! sintheta/lambda limits (nk)
+       integer,       allocatable,dimension(:)    :: nharm     ! number of harmonics along each k-vector
+       integer,       allocatable,dimension(:,:)  :: q_coeff   ! Q_coeff(nk,nq)
     End Type SuperSpaceGroup_Type
-
-    Type,public, extends(SuperSpaceGroup_Type) :: eSSGroup_Type !Extension to use real matrices for speed-up calculations in special cases
-       real(kind=cp), allocatable,dimension(:,:,:) :: Om        !Operator matrices (3+d+1,3+d+1,Multip)
-    End Type eSSGroup_Type
-
-    Type, public :: kvect_info_type
-       integer                                      :: nk=0      ! Number of independent k-vectors
-       real(kind=cp),allocatable,dimension(:,:)     :: kv        ! k-vectors (3,nk)
-       real(kind=cp),allocatable,dimension(:)       :: sintlim   ! sintheta/lambda limits (nk)
-       integer,allocatable,dimension(:)             :: nharm     ! number of harmonics along each k-vector
-       integer                                      :: nq        ! number of effective set of Q_coeff >= nk
-       integer,allocatable,dimension(:,:)           :: q_coeff   ! number of q_coeff(nk,nq)
-    End Type kvect_info_type
 
     !---- Private Variables ----!
     integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity
@@ -213,6 +205,11 @@ Module CFML_gSpaceGroups
        module procedure Get_Crystal_System_Str
        module procedure Get_Crystal_System_from_Laue
     End Interface Get_Crystal_System
+
+    Interface Is_Lattice_Vec
+       module procedure Is_Lattice_Vec_rat
+       module procedure Is_Lattice_Vec_real
+    End Interface Is_Lattice_Vec
 
     Interface Set_SpaceGroup
        module procedure Set_SpaceGroup_DBase
@@ -310,12 +307,12 @@ Module CFML_gSpaceGroups
           integer                      :: d
        End Function Get_Dimension_SymmOp
 
-       Module Subroutine Get_Generators_from_Hall(Hall, Gen, Ngen, Rshift)
+       Module Subroutine Get_Generators_from_Hall(Hall, Gen, Ngen, R_shift)
           !---- Arguments ----!
           character(len=*),                            intent(in)  :: Hall
           character(len=*), dimension(:), allocatable, intent(out) :: Gen
           integer,                                     intent(out) :: Ngen
-          logical, optional,                           intent(in)  :: RShift
+          logical, optional,                           intent(in)  :: R_Shift
        End Subroutine Get_Generators_from_Hall
 
        Module Subroutine Get_Generators_from_Str(StrGen, d, gen, ngen)
@@ -421,6 +418,13 @@ Module CFML_gSpaceGroups
           type(Symm_Oper_Type), dimension(:), intent(in) :: Op
           integer, dimension(:,:),allocatable,intent(out):: Table
        End Subroutine Get_Multip_OP_Table
+
+       Module Function Get_Multip_Pos(x,SpG) Result(mult)
+          !---- Arguments ----!
+          real(kind=cp), dimension(:), intent(in) :: x
+          class(SPG_Type),             intent(in) :: SpG
+          integer                                 :: mult
+       End Function Get_Multip_Pos
 
        Module Function Get_Op_from_Symb(Symb) Result(Op)
           !---- Arguments ----!
@@ -666,13 +670,19 @@ Module CFML_gSpaceGroups
           logical                          :: info
        End Function Is_OP_Lattice_Centring
 
-       Module Function Is_Lattice_Vec(V,Ltr,Nlat) Result(Lattice)
+       Module Function Is_Lattice_Vec_rat(V,Ltr) Result(Lattice)
           !---- Argument ----!
           type(rational), dimension(:),   intent( in) :: v
           type(rational), dimension(:,:), intent( in) :: Ltr
-          integer,                        intent( in) :: nlat
           logical                                     :: Lattice
-       End Function Is_Lattice_Vec
+       End Function Is_Lattice_Vec_rat
+
+       Module Function is_Lattice_vec_real(v,Ltr) Result(Lattice)
+          !---- Arguments ----!
+          real(kind=cp), dimension(:),   intent(in) :: v
+          type(rational),dimension(:,:), intent(in) :: Ltr
+          logical                                   :: Lattice
+       End Function is_Lattice_vec_real
 
        Module Function Is_OP_Minus_1_Prime(Op) Result(Info)
           !---- Arguments ----!

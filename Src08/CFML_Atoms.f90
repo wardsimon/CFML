@@ -42,10 +42,10 @@
 Module CFML_Atoms
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps   
+    Use CFML_GlobalDeps
     Use CFML_Maths,        only: modulo_lat, equal_vector
-    Use CFML_Strings,      only: u_case  
-    Use CFML_gSpaceGroups, only: spg_type, apply_op           
+    Use CFML_Strings,      only: u_case,l_case
+    Use CFML_gSpaceGroups, only: spg_type, apply_op
 
     !---- Variables ----!
     implicit none
@@ -58,9 +58,9 @@ Module CFML_Atoms
 
     !---- Parameters ----!
     real(kind=cp), parameter :: R_ATOM=1.1           ! Average atomic radius
-    
+
     !---- Types ----!
-    
+
     !!----
     !!---- TYPE :: ATM_TYPE
     !!----
@@ -71,7 +71,7 @@ Module CFML_Atoms
        character(len=2)              :: ChemSymb=" "     ! Chemical symbol
        integer                       :: Z       = 0      ! Atomic number
        integer                       :: Mult    = 0      ! Multiplicity
-       integer                       :: Charge  = 0      ! Charge  
+       integer                       :: Charge  = 0      ! Charge
        real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Coordinates
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
        character(len=4)              :: UType   ="beta"  ! Options: U, B, beta
@@ -82,8 +82,8 @@ Module CFML_Atoms
        real(kind=cp), dimension(3)   :: Moment  = 0.0_cp ! Magnetic moment
        character(len=4)              :: SfacSymb=" "     ! SFac symbol
        integer, dimension(3)         :: Ind_ff  = 0      ! Index of form factor (Xray, b, Magff)
-    End Type Atm_Type 
-    
+    End Type Atm_Type
+
     !!----
     !!---- TYPE :: ATM_STD_TYPE
     !!----
@@ -91,16 +91,16 @@ Module CFML_Atoms
     !!----
     Type, Public, Extends(Atm_Type) :: Atm_Std_Type
        real(kind=cp), dimension(3)  :: X_Std      = 0.0_cp     ! standard deviations
-       real(kind=cp)                :: Occ_Std    = 0.0_cp     
-       real(kind=cp)                :: U_iso_Std  = 0.0_cp     
-       real(kind=cp), dimension(6)  :: U_Std      = 0.0_cp   
-       real(kind=cp), dimension(3)  :: Moment_std = 0.0_cp  
-    End Type Atm_Std_Type 
-    
+       real(kind=cp)                :: Occ_Std    = 0.0_cp
+       real(kind=cp)                :: U_iso_Std  = 0.0_cp
+       real(kind=cp), dimension(6)  :: U_Std      = 0.0_cp
+       real(kind=cp), dimension(3)  :: Moment_std = 0.0_cp
+    End Type Atm_Std_Type
+
     !!----
     !!---- TYPE :: MATM_STD_TYPE
     !!----
-    !!----      
+    !!----
     !!----
     Type, Public, Extends(Atm_Std_Type) :: MAtm_Std_Type
        character(len=3)                         :: wyck   = " "
@@ -111,7 +111,7 @@ Module CFML_Atoms
        real(kind=cp),dimension(6,8)             :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
        real(kind=cp),dimension(6,8)             :: Dcs_std= 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
     End Type MAtm_Std_Type
-    
+
     !!----
     !!---- TYPE :: ATM_REF_TYPE
     !!----
@@ -120,14 +120,14 @@ Module CFML_Atoms
     Type, Public, Extends(Atm_Std_Type) :: Atm_Ref_Type
        integer,      dimension(3)               :: LX       =0      ! Code for parameters
        integer                                  :: LOcc     =0
-       integer                                  :: LU_iso   =0 
+       integer                                  :: LU_iso   =0
        integer,      dimension(6)               :: LU       =0
        real(kind=cp),dimension(3)               :: MX       =0.0_cp ! Factor of refinement
        real(kind=cp)                            :: MOcc     =0.0_cp
        real(kind=cp)                            :: MU_iso   =0.0_cp
        real(kind=cp),dimension(6)               :: MU       =0.0_cp
-    End Type Atm_Ref_Type 
-    
+    End Type Atm_Ref_Type
+
     !!----
     !!---- TYPE :: MATM_REF_TYPE
     !!----
@@ -136,15 +136,15 @@ Module CFML_Atoms
     Type, Public, Extends(MAtm_Std_Type) :: MAtm_Ref_Type
        integer,      dimension(3)               :: LX       =0      ! Code for parameters
        integer                                  :: LOcc     =0
-       integer                                  :: LU_iso   =0 
+       integer                                  :: LU_iso   =0
        integer,      dimension(6)               :: LU       =0
        real(kind=cp),dimension(3)               :: MX       =0.0_cp ! Factor of refinement
        real(kind=cp)                            :: MOcc     =0.0_cp
        real(kind=cp)                            :: MU_iso   =0.0_cp
        real(kind=cp),dimension(6)               :: MU       =0.0_cp
-    End Type MAtm_Ref_Type 
-    
-    
+    End Type MAtm_Ref_Type
+
+
     !!----
     !!---- TYPE ::ATM_CELL_TYPE
     !!--..
@@ -169,7 +169,7 @@ Module CFML_Atoms
        real(kind=cp),           dimension(:), allocatable :: ddist          ! List of distinct distances(nat*idp)
        character (len=20),      dimension(:), allocatable :: ddlab          ! Labels of atoms at ddist (nat*idp)
     End Type Atm_Cell_Type
-    
+
     !!----
     !!---- TYPE :: ALIST_TYPE
     !!--..
@@ -178,49 +178,51 @@ Module CFML_Atoms
        integer                                    :: natoms=0   ! Number of atoms in the list
        logical,         dimension(:), allocatable :: Active     ! Flag for active or not
        class(Atm_Type), dimension(:), allocatable :: Atom       ! Atoms
-       
     End type AtList_Type
-    
+
     !---- Interface Zone ----!
     Interface
        Module Subroutine Init_Atom_Type(Atm)
           !---- Arguments ----!
           class(Atm_Type), intent(in out)   :: Atm
        End Subroutine Init_Atom_Type
-       
-       Module Subroutine Allocate_Atom_List(N, A)
+
+       Module Subroutine Allocate_Atom_List(N, A,Type_Atm)
           !---- Arguments ----!
-          integer,             intent(in)       :: n    
-          type(atlist_type),   intent(in out)   :: A    
+          integer,             intent(in)       :: n    ! Atoms in the List
+          type(Atlist_type),   intent(in out)   :: A    ! Objet to be allocated
+          character(len=*),    intent(in)       :: Type_Atm !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
        End Subroutine Allocate_Atom_List
-       
-       Module Subroutine Read_Bin_Atom_List(filename, A)
+
+       Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm)
           !---- Arguments ----!
-          character(len=*),   intent(in)    :: filename
-          type(atlist_type), intent(in out) :: A
-       End Subroutine Read_Bin_Atom_List  
-       
+          character(len=*),   intent(in)     :: filename
+          type(atlist_type),  intent(in out) :: A
+          character(len=*),   intent(in)     :: Type_Atm
+       End Subroutine Read_Bin_Atom_List
+
        Module Subroutine Write_Bin_Atom_List(filename, A)
           !---- Arguments ----!
           character(len=*),   intent(in) :: filename
-          type(atlist_type), intent(in) :: A 
-       End Subroutine Write_Bin_Atom_List   
-       
+          type(atlist_type),  intent(in) :: A
+       End Subroutine Write_Bin_Atom_List
+
        Module Subroutine Write_Info_Atom_List(A, Iunit)
           !---- Arguments ----!
-          type(atlist_type),              intent(in) :: A        
-          integer,              optional, intent(in) :: IUnit    
+          type(atlist_type),              intent(in) :: A
+          integer,              optional, intent(in) :: IUnit
        End Subroutine Write_Info_Atom_List
-       
-       Module Subroutine Extend_List(A, B, Spg, Conven)
+
+       Module Subroutine Extend_List(A, B, Spg, Type_Atm,Conven)
           !---- Arguments ----!
-          type(atlist_type),   intent(in)     :: A         
-          type(atlist_type),   intent(in out) :: B         
-          type(SpG_Type),      intent(in)     :: SpG       
-          logical, optional,   intent(in)     :: Conven    
+          type(atlist_type),   intent(in)     :: A         ! Atom list (asymmetric unit)
+          type(atlist_type),   intent(in out) :: B         ! Atom list into the unit cell
+          type(SpG_Type),      intent(in)     :: SpG       ! SpaceGroup
+          character(len=*),    intent(in)     :: Type_Atm  ! !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
+          logical, optional,   intent(in)     :: Conven    ! If present and .true. using the whole conventional unit cell
        End Subroutine Extend_List
-          
+
     End Interface
-    
-    
+
+
 End Module CFML_Atoms

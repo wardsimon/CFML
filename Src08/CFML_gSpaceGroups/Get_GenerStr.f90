@@ -4,7 +4,7 @@
 !!
 SubModule (CFML_gSpaceGroups) SPG_016
    Contains
-   
+
    !!----
    !!---- Get_Generators_from_Str
    !!----
@@ -16,21 +16,21 @@ SubModule (CFML_gSpaceGroups) SPG_016
       integer,                                     intent(out) :: d
       character(len=*), dimension(:), allocatable, intent(out) :: gen
       integer,                                     intent(out) :: ngen
-       
+
       !--- Local variables ---!
       character(len=:), allocatable :: symbol, ListGen
-      integer, dimension(10) :: Pos
+      integer, dimension(20) :: Pos
       integer                :: i,j,k,np
       logical                :: timerev_provided
 
       !> Init
       ngen=0
-      
+
       !> Determine the dimension from the generatorList (first operator)
       ListGen=trim(StrGen)//"  "
-      
+
       i=index(ListGen,";")
-      if (i == 0) then 
+      if (i == 0) then
          !> there is only one generator and ";" is not given
          Symbol=ListGen
          ngen=1
@@ -84,5 +84,5 @@ SubModule (CFML_gSpaceGroups) SPG_016
       end if
    End Subroutine Get_Generators_from_Str
 
-End SubModule SPG_016   
-   
+End SubModule SPG_016
+

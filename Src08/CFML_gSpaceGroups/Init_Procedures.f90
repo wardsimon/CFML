@@ -68,13 +68,15 @@ SubModule (CFML_gSpaceGroups) Init_Proc
             mGrp%mat2std     = "       "
             mGrp%mat2std_shu = "       "
             mGrp%generators_list = "      "
-
-         type is (SuperSpaceGroup_Type)
+            mGrp%Hall       ="          "
             mGrp%SSG_symb   ="          "
             mGrp%SSG_Bravais="          "
             mGrp%SSG_nlabel ="          "
-            mGrp%nk=0               ! (nk=1,2,3, ...) number of k-vectors
             mGrp%Bravais_num=0      ! Number of the Bravais class
+
+         type is (SuperSpaceGroup_Type)
+            mGrp%nk=0               !  number of k-vectors
+            mGrp%nq=0               !  number of q-coefficients
 
          class default
             Err_CFML%Ierr=1

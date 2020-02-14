@@ -74,9 +74,9 @@ Module CFML_GlobalDeps
    !---- Numeric ----!
    real(kind=DP), parameter :: DEPS=0.00000001_DP                ! Epsilon value use for comparison of real numbers (DOUBLE)
    real(kind=CP), parameter :: EPS=0.00001_CP                    ! Epsilon value use for comparison of real numbers
-   real(kind=CP), parameter :: V_EPSI=epsilon(1.0_CP)             ! Epsilon value for Current precision
-   real(kind=CP), parameter :: V_HUGE=huge(1.0_CP)                ! Huge value for current precision
-   real(kind=CP), parameter :: V_TINY=tiny(1.0_CP)                ! Tiny value for current precision
+   real(kind=CP), parameter :: V_EPSI=epsilon(1.0_CP)            ! Epsilon value for Current precision
+   real(kind=CP), parameter :: V_HUGE=huge(1.0_CP)               ! Huge value for current precision
+   real(kind=CP), parameter :: V_TINY=tiny(1.0_CP)               ! Tiny value for current precision
 
    !---- Special Characters ----!
    character(len=2), parameter   :: NEWLINE = char(13)//char(10) ! Newline character
@@ -92,7 +92,7 @@ Module CFML_GlobalDeps
 
    !---- Error Flags ----!
    logical :: CFML_DEBUG=.false. ! For checking test
-    
+
  Contains
 
    !-------------------!
@@ -153,7 +153,7 @@ Module CFML_GlobalDeps
 
       return
    End Subroutine Clear_Error
-   
+
    !!----
    !!---- SET_CFML_DEBUG
    !!----    Set .true. or .false. for CFML_DEBUG global variable
@@ -165,8 +165,8 @@ Module CFML_GlobalDeps
       logical, intent(in) :: state
 
       CFML_DEBUG=state
-      
+
       return
    End Subroutine Set_CFML_DEBUG
-   
+
 End Module CFML_GlobalDeps

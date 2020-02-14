@@ -6,7 +6,7 @@ SubModule (CFML_Atoms) Atm_004
    !!----
    !!---- READ_BIN_ATOM_LIST
    !!----    Reads the atoms in the asymmetric unit in a binary file.
-   !!---- 
+   !!----
    !!----    The procedure reads in the given order a series of bytes corresponding to the
    !!----    components of the type Ats. The full structure is re-allocated inside the procedure
    !!----    before reading the components.
@@ -16,13 +16,13 @@ SubModule (CFML_Atoms) Atm_004
    !!----    Note: the procedure is general but the user need to know which type of atom will be
    !!----          readen.
    !!----
-   !!---- 12/06/2019 
+   !!---- 12/06/2019
    !!
-   Module Subroutine Read_Bin_Atom_List(filename, A)
+   Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm)
       !---- Arguments ----!
       character(len=*),   intent(in)     :: filename
-      type(atlist_type), intent(in out) :: A
-      
+      type(atlist_type),  intent(in out) :: A
+      character(len=*),   intent(in)     :: Type_Atm
       !---- Local Variables ----!
       integer                            :: i,n,ierr,lun
       type (atm_type)      :: atm
@@ -32,19 +32,19 @@ SubModule (CFML_Atoms) Atm_004
 
       !> Init
       call clear_error()
-      
+
       !> Exits file?
       open(newunit=lun,file=trim(filename), access="stream", status="old", iostat=ierr)
       if (ierr /=0) then
          err_CFML%IErr=1
          err_CFML%Msg="Read_Bin_Atom_List@CFML_ATOMS: Error opening the binary file "//trim(filename)
          return
-      end if   
+      end if
 
       !> First: read number of atoms
-      n=0       
-      call Allocate_Atom_List(N, A)
-      
+      n=0
+      call Allocate_Atom_List(N, A,Type_Atm)
+
       read(unit=lun,iostat=ierr) n
       if (ierr /= 0) then
          err_CFML%IErr=1
@@ -53,12 +53,12 @@ SubModule (CFML_Atoms) Atm_004
          return
       end if
       if (n <= 0) return
-      
+
       !> Allocating
-      call Allocate_Atom_List(N, A)
-      
+      call Allocate_Atom_List(N, A,Type_Atm)
+
       !> Read active
-      read(unit=lun,iostat=ierr)  A%active 
+      read(unit=lun,iostat=ierr)  A%active
       if (ierr /= 0) then
          err_CFML%IErr=1
          err_CFML%Msg="Read_Bin_Atoms_List@CFML_ATOMS: Error reading active atoms!"
@@ -66,7 +66,7 @@ SubModule (CFML_Atoms) Atm_004
          return
       end if
 
-      !> Load information 
+      !> Load information
       select type (aat => A%Atom)
          type is (atm_type)
             do i=1,n
@@ -78,7 +78,7 @@ SubModule (CFML_Atoms) Atm_004
                end if
                aat(i)=atm
             end do
-            
+
          type is (atm_std_type)
             do i=1,n
                read(unit=lun,iostat=ierr) Atms
@@ -89,7 +89,7 @@ SubModule (CFML_Atoms) Atm_004
                end if
                aat(i)=atms
             end do
-            
+
          type is (matm_std_type)
             do i=1,n
                read(unit=lun,iostat=ierr) matm
@@ -100,7 +100,7 @@ SubModule (CFML_Atoms) Atm_004
                end if
                aat(i)=matm
             end do
-            
+
          type is (atm_ref_type)
             do i=1,n
                write(unit=lun,iostat=ierr) atr
@@ -111,18 +111,18 @@ SubModule (CFML_Atoms) Atm_004
                end if
                aat(i)=atr
             end do
-      end select 
-         
+      end select
+
       close(unit=lun)
    End Subroutine Read_Bin_atom_list
-   
+
    !!----
    !!---- WRITE_BIN_ATOM_LIST
    !!----
    !!----    Write the atoms in the asymmetric unit in a binary file.
-   !!----    The file should have been opened with the access="stream" attribute. 
+   !!----    The file should have been opened with the access="stream" attribute.
    !!----
-   !!---- 12/06/2019 
+   !!---- 12/06/2019
    !!
    Module Subroutine Write_Bin_Atom_List(filename, A)
       !---- Arguments ----!
@@ -139,22 +139,22 @@ SubModule (CFML_Atoms) Atm_004
       !> Init
       call clear_error()
       if (A%natoms ==0) return
-      
+
       !> Exits file?
       open(newunit=lun,file=trim(filename), access="stream", status="replace", iostat=ierr)
       if (ierr /=0) then
          err_CFML%IErr=1
          err_CFML%Msg="Write_Bin_Atoms_List@CFML_ATOMS: Error opening the binary file "//trim(filename)
          return
-      end if  
-      
+      end if
+
       !> First: Write number of atoms
       n=a%natoms
-      write(unit=lun) n  
-      
+      write(unit=lun) n
+
       !> Second: Write active list
-      write(unit=lun) a%active  
-      
+      write(unit=lun) a%active
+
       select type (aat => A%Atom)
          type is (atm_type)
             do i=1,n
@@ -166,7 +166,7 @@ SubModule (CFML_Atoms) Atm_004
                   exit
                end if
             end do
-            
+
          type is (atm_std_type)
             do i=1,n
                atms=aat(i)
@@ -177,7 +177,7 @@ SubModule (CFML_Atoms) Atm_004
                   exit
                end if
             end do
-            
+
          type is (matm_std_type)
             do i=1,n
                matm=aat(i)
@@ -188,7 +188,7 @@ SubModule (CFML_Atoms) Atm_004
                   exit
                end if
             end do
-            
+
          type is (atm_ref_type)
             do i=1,n
                atr=aat(i)
@@ -199,10 +199,10 @@ SubModule (CFML_Atoms) Atm_004
                   exit
                end if
             end do
-      end select   
-      
+      end select
+
       !> Close file
       close(unit=lun)
    End Subroutine Write_Bin_atom_list
-   
-End SubModule Atm_004   
+
+End SubModule Atm_004

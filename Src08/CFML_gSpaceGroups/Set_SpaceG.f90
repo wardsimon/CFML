@@ -4,6 +4,35 @@
 SubModule (CFML_gSpaceGroups) Spg_060
    Contains
 
+   Module Function Get_Multip_Pos(x,SpG) Result(mult)
+      !---- Arguments ----!
+      real(kind=cp), dimension(:), intent(in) :: x
+      class(SPG_Type),             intent(in) :: SpG
+      !----Local Variables ---!
+      real(kind=cp), dimension(size(x)+1)         :: xd,xx
+      real(kind=cp), dimension(size(x))           :: v
+      real(kind=cp), dimension(size(x),SpG%Multip):: u
+      integer :: i,d,nt
+
+
+      d=size(x)
+      xd=[x,1.0_cp]
+      mult=1
+      u(:,1)=x
+
+      do_ext: do i=2,Spg%multip
+         xx=matmul(real(Spg%Op(i)%Mat),xd)
+         xx=modulo_lat(xx)
+         do nt=1,mult
+            v(1:d)=u(:,nt)-xx(1:d)
+            if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext
+         end do
+         mult=mult+1
+         u(:,mult)=xx(:)
+      end do do_ext
+
+   End Function Get_Multip_Pos
+
    Module Subroutine Change_Setting_SpaceG(setting, SpaceG,xyz_type)
       !---- Arguments ----!
       character(len=*),           intent(in )    :: setting
@@ -28,6 +57,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
       call Get_Mat_From_Symb(setting, Pmat)
       if(err_CFML%Ierr /= 0) return
       rot=Pmat(1:d,1:d)
+      newLat=0//1
       det=Rational_Determ(rot)
       if(det < 0_LI ) then
          err_CFML%Ierr=1
@@ -45,22 +75,28 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
       L=0
       if (SpaceG%Num_Lat > 0) then  !Original lattice is centered
-         do i=1,SpaceG%Num_Lat      !Transform the centring vectors to the new lattice
+         do_i:do i=1,SpaceG%Num_Lat      !Transform the centring vectors to the new lattice
             v=Rational_Modulo_Lat(matmul(roti,SpaceG%Lat_tr(:,i)))
             !write(*,"(10a)") (trim(rational_string(v(j)))//"  ",j=1,d)
             if (sum(v) == 0_LI) cycle
+            do j=1,L
+               if(Rational_Equal(v,newlat(:,j))) cycle do_i
+            end do
             L=L+1
             newlat(:,L)=v
-         end do
+         end do do_i
       end if
 
-      do i=1,d  !Test also the basis vectors of the original setting
+      do_i2:do i=1,d  !Test also the basis vectors of the original setting
         v=Rational_Modulo_Lat(roti(1:d,i))
         !write(*,"(10a)") (trim(rational_string(v(j)))//"  ",j=1,d)
         if (sum(v) == 0_LI) cycle
+            do j=1,L
+               if(Rational_Equal(v,newlat(:,j))) cycle do_i2
+            end do
         L=L+1
         newlat(:,L)=v
-      end do
+      end do do_i2
 
       if (det > 1_LI ) then        !The new lattice is centred even if originally primitive
          im=nint(det)              !Determine the new lattice translations
@@ -146,8 +182,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
       type(rational), dimension(:,:), intent(in)     :: roti
 
       integer :: i,j,k,ii,jj,kk,ngm,m
-      type(rational), dimension(size(newlat,1)) :: v,tr
-      logical :: is_new
+      type(rational), dimension(size(newlat,1)) :: v
 
       ngm=im+L
       Select Case (d)        !Search lattice centring vectors as a function of dimension of space up to 6
@@ -158,24 +193,18 @@ SubModule (CFML_gSpaceGroups) Spg_060
              v(1) = i
             do j=0,im
                v(2)= j
-               do k=0,im
+               do_k:do k=0,im
                   v(3) = k
                   if(sum(v) == 0_LI) cycle
-                  tr=Rational_Modulo_Lat(matmul(roti,v))
-                  if(sum(tr) == 0_LI) cycle
-                  is_new =.true.
+                  v=Rational_Modulo_Lat(matmul(roti,v))
+                  if(sum(v) == 0_LI) cycle
                   do m=1,L
-                     if (sum(abs(tr-newlat(:,m))) == 0_LI) then
-                        is_new =.false.
-                        exit
-                     end if
+                     if(Rational_Equal(v,newlat(:,m))) cycle do_k
                   end do
-                  if (is_new) then ! new lattice translation
-                     L=L+1
-                     newlat(:,L) = tr(:)
-                     if (L == ngm) exit doi3
-                  end if
-               end do !k
+                  L=L+1
+                  newlat(:,L) = v(:)
+                  if (L == ngm) exit doi3
+               end do do_k!k
             end do !j
           end do doi3
 
@@ -187,24 +216,18 @@ SubModule (CFML_gSpaceGroups) Spg_060
                v(2)= j
                do k=0,im
                   v(3) = k
-                    do kk=0,im
+                    do_kk:do kk=0,im
                        v(4) = kk
                        if(sum(v) == 0_LI) cycle
-                       tr=Rational_Modulo_Lat(matmul(roti,v))
-                       if(sum(tr) == 0_LI) cycle
-                       is_new =.true.
+                       v=Rational_Modulo_Lat(matmul(roti,v))
+                       if(sum(v) == 0_LI) cycle
                        do m=1,L
-                          if (sum(abs(tr-newlat(:,m))) == 0_LI) then
-                             is_new =.false.
-                             exit
-                          end if
+                          if(Rational_Equal(v,newlat(:,m))) cycle do_kk
                        end do
-                       if (is_new) then ! new lattice translation
-                          L=L+1
-                          newlat(:,L) = tr(:)
-                          if (L == ngm) exit doi4
-                       end if
-                   end do !kk
+                       L=L+1
+                       newlat(:,L) = v(:)
+                       if (L == ngm) exit doi4
+                   end do do_kk !kk
                end do !k
             end do !j
           end do doi4
@@ -219,24 +242,18 @@ SubModule (CFML_gSpaceGroups) Spg_060
                   v(3) = k
                    do kk=0,im
                        v(4) = kk
-                       do jj= 0,im
+                       do_jj:do jj= 0,im
                            v(5) = jj
                            if(sum(v) == 0_LI) cycle
-                           tr=Rational_Modulo_Lat(matmul(roti,v))
-                           if(sum(tr) == 0_LI) cycle
-                           is_new =.true.
+                           v=Rational_Modulo_Lat(matmul(roti,v))
+                           if(sum(v) == 0_LI) cycle
                            do m=1,L
-                              if (sum(abs(tr-newlat(:,m))) == 0_LI) then
-                                 is_new =.false.
-                                 exit
-                              end if
+                              if(Rational_Equal(v,newlat(:,m))) cycle do_jj
                            end do
-                           if (is_new) then ! new lattice translation
-                              L=L+1
-                              newlat(:,L) = tr(:)
-                              if (L == ngm) exit doi5
-                           end if
-                       end do !jj
+                           L=L+1
+                           newlat(:,L) = v(:)
+                           if (L == ngm) exit doi5
+                       end do do_jj !jj
                    end do !kk
                end do !k
             end do !j
@@ -254,24 +271,18 @@ SubModule (CFML_gSpaceGroups) Spg_060
                        v(4) = kk
                        do jj= 0,im
                            v(5) = jj
-                            do ii=0,im
-                              v(6) = ii
+                            do_ii: do ii=0,im
+                               v(6) = ii
                                if(sum(v) == 0_LI) cycle
-                               tr=Rational_Modulo_Lat(matmul(roti,v))
-                               if(sum(tr) == 0_LI) cycle
-                               is_new =.true.
+                               v=Rational_Modulo_Lat(matmul(roti,v))
+                               if(sum(v) == 0_LI) cycle
                                do m=1,L
-                                  if (sum(abs(tr-newlat(:,m))) == 0_LI) then
-                                     is_new =.false.
-                                     exit
-                                  end if
+                                  if(Rational_Equal(v,newlat(:,m))) cycle do_ii
                                end do
-                               if (is_new) then ! new lattice translation
-                                  L=L+1
-                                  newlat(:,L) = tr(:)
-                                  if (L == ngm) exit doi6
-                               end if
-                           end do !ii
+                               L=L+1
+                               newlat(:,L) = v(:)
+                               if (L == ngm) exit doi6
+                           end do do_ii !ii
                        end do !jj
                    end do !kk
                end do !k
@@ -304,28 +315,22 @@ SubModule (CFML_gSpaceGroups) Spg_060
           do j=i,L  !start on i to ensure that for a single centring vector the internal loops are executed
             v2=latv(:,j)
             do k1=0,maxval(nint(latinv(:,i)))
-              do k2=0,maxval(nint(latinv(:,j)))
+              do_k2: do k2=0,maxval(nint(latinv(:,j)))
                 v=rational(k1,1)*v1+rational(k2,1)*v2
                 v=rational_modulo_lat(v)
                 if(sum(abs(v)) == 0_LI) cycle
                 if( any(v > 1_LI) ) cycle
-                isnew=.true.
                 do lm=1,L
-                  if (sum(abs(v-latv(:,lm))) == 0_LI) then
-                     isnew=.false.
-                     exit
-                  end if
+                   if(Rational_Equal(v,latv(:,lm))) cycle do_k2
                 end do
-                if(isnew) then
-                   L=L+1
-                   if(L > nlat) then
-                      Err_CFML%Ierr=1
-                      Err_CFML%Msg="The maximum number of lattice centring vectors has been attained!"
-                      return
-                   end if
-                   latv(:,L)=v
+                L=L+1
+                if(L > nlat) then
+                   Err_CFML%Ierr=1
+                   Err_CFML%Msg="The maximum number of lattice centring vectors has been attained!"
+                   return
                 end if
-              end do
+                latv(:,L)=v
+              end do do_k2
             end do
           end do
         end do
@@ -544,6 +549,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
           m=0
           !write(*,"(3(a,i5))") "Shubnikov number: ",num,"Wyckoff position count: ",wyckoff_pos_count(j,num)," Multiplicity: ",SpaceG%Multip
+          SpaceG%anticentred=1
           Do k=1,wyckoff_pos_count(1,num)
             idem=wyckoff_bns_fract_denom(k,1,num)
             SpaceG%Op(k)%Mat=identity
@@ -554,7 +560,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
             mag_mat = wyckoff_bns_mag(:,:,k,1,num)
             !inv_time=ops_bns_timeinv(k,num)  !Errors in the Database ... to be explored
             SpaceG%Op(k)%dt=rational_determ(SpaceG%Op(k)%Mat(1:d,1:d))
-            SpaceG%anticentred=1
+
             if(SpaceG%Op(k)%dt > 0) then
                if(rational_equal(mag_mat,SpaceG%Op(k)%Mat(1:d,1:d))) then
                   SpaceG%Op(k)%time_inv=1
@@ -633,7 +639,6 @@ SubModule (CFML_gSpaceGroups) Spg_060
                 SpaceG%Centre=trim(SpaceG%Centre)//": -1' @the origin"
              end if
           end if
-
           !If the magnetic group is paramagnetic duplicate the number of operators
           if(SpaceG%mag_type == 2) then
             m=SpaceG%multip/2
@@ -643,6 +648,9 @@ SubModule (CFML_gSpaceGroups) Spg_060
               SpaceG%Op(i)%time_inv=-SpaceG%Op(i)%time_inv
             end do
           end if
+
+          call set_Shubnikov_info()
+          SpaceG%Hall=adjustl(shubnikov_info(Litvin2IT(num))%MHall)
 
           if(change_setting) then
               call Change_Setting_SpaceG(setting, SpaceG)
@@ -663,7 +671,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
           read(unit=str,fmt=*,iostat=ier) num
           if(ier /= 0) then
             Err_CFML%Ierr=1
-            Err_CFML%Msg=" => Error! The number of the superspace groupo should be provided as a string!"
+            Err_CFML%Msg=" => Error! Only the number of the superspace groupo should be provided!"
             return
           else
             if(present(database_path)) then
@@ -702,26 +710,20 @@ SubModule (CFML_gSpaceGroups) Spg_060
           SpaceG%setting=" "                          ! setting
           SpaceG%generators_list=" "                  ! generators
           SpaceG%anticentred = 1
-
-          Select Type (Grp => SpaceG)
-            type is (SuperSpaceGroup_Type)
-                Grp%SSG_symb=group_label(num)
-                Grp%SSG_Bravais=class_label(iclass)
-                Grp%SSG_nlabel=group_nlabel(num)
-                i=index(Grp%SSG_symb,"(")
-                Grp%Parent_spg=Grp%SSG_symb(1:i-1)
-                Grp%Bravais_num=igroup_class(num)        ! Number of the Bravais class
-                Grp%nk=nmod                              !(d=1,2,3, ...) number of q-vectors
-                if( Grp%Num_Lat > 0 .and. Grp%SSG_symb(1:1) == "P" ) then
-                  Grp%SPG_Lat="X"
-                else
-                  Grp%SPG_Lat=Grp%SSG_symb(1:1)
-                end if
-                Allocate(Grp%kv(3,nmod))
-                Grp%kv=0.0
-
-          End Select
-
+          SpaceG%spg_symb=group_label(num)
+          i=index(SpaceG%spg_symb,"(")
+          SpaceG%Parent_spg=SpaceG%spg_symb(1:i-1)
+          SpaceG%SSG_symb=group_label(num)
+          SpaceG%SSG_Bravais=class_label(iclass)
+          i=index(SpaceG%SSG_symb,"(")
+          SpaceG%Parent_spg=SpaceG%SSG_symb(1:i-1)
+          SpaceG%Bravais_num=igroup_class(num)        ! Number of the Bravais class
+          SpaceG%SSG_nlabel=group_nlabel(num)
+          if( SpaceG%Num_Lat > 0 .and. SpaceG%SSG_symb(1:1) == "P" ) then
+            SpaceG%SPG_Lat="X"
+          else
+            SpaceG%SPG_Lat=SpaceG%SSG_symb(1:1)
+          end if
 
           xyz_typ="xyz"
           if(present(xyz_type)) xyz_typ=xyz_type
@@ -729,8 +731,23 @@ SubModule (CFML_gSpaceGroups) Spg_060
           SpaceG%Num_aLat= 0                         ! Number of anti-lattice points in a cell (here is always zero because the database if for crystallographic groups)
           SpaceG%Centred = 1                         ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
           SpaceG%numspg  = num                       ! Number of the superspace group
-          SpaceG%NumOps  = igroup_nops(num)          ! Number of reduced set of S.O. (removing lattice centring)
-          SpaceG%Multip  =m     ! General multiplicity
+          SpaceG%NumOps  = igroup_nops(num)          ! Number of reduced set of S.O. (here is only removing lattice centring), divided by two if centrosymmetric
+          SpaceG%Multip  = m                         ! General multiplicity
+
+          Select Type (Grp => SpaceG)
+            type is (SuperSpaceGroup_Type)
+                Grp%nk=nmod                              !(d=1,2,3, ...) number of q-vectors
+                if(Allocated(Grp%kv)) deallocate(Grp%kv)
+                if(Allocated(Grp%sintlim)) deallocate(Grp%sintlim)
+                if(Allocated(Grp%Om)) deallocate(Grp%Om)
+                Allocate(Grp%kv(3,nmod),Grp%sintlim(nmod),Grp%Om(Dd,Dd,Grp%Multip))
+                Grp%kv=0.0; Grp%sintlim=0.0; Grp%Om=0.0
+                Grp%nq=0     ! number of effective sets of Q_coeff >= nk
+                Grp%nharm=0  ! number of harmonics along each k-vector
+                !the components q_coeff(nk,nq) cannot be allocated until experimental data are read
+          End Select
+
+
 
           if(SpaceG%Num_Lat > 0) then
             Allocate(SpaceG%Lat_tr(D,SpaceG%Num_Lat))  !This is not allocated in Allocate_SpaceGroup
@@ -744,7 +761,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
              SpaceG%Symb_Op(i)=Get_Symb_from_Rational_Mat(SpaceG%Op(i)%Mat,StrCode=xyz_typ) !The data base has no magnetic components
           end do
 
-          !Look for a centre of symmetry
+          !Look for a centre, or anticentre, of symmetry
           inv_found=.false.
 
           allocate(Inv(D,D),transla%Mat(Dd,Dd))
@@ -766,6 +783,23 @@ SubModule (CFML_gSpaceGroups) Spg_060
               exit
             end if
           end do
+          if(SpaceG%Centred == 1) then !Look for an anticentre
+            do i=1,SpaceG%NumOps
+              if(Rational_Equal(-Inv,SpaceG%Op(i)%Mat(1:D,1:D)) .and. SpaceG%Op(i)%time_inv == -1) then
+                if(sum(abs(SpaceG%Op(i)%Mat(1:D,Dd))) == 0_LI) then
+                  SpaceG%AntiCentred=2
+                  SpaceG%AntiCentre_coord=0//1
+                  SpaceG%Centre="Anti-centric with -1' at origin"
+                else
+                  SpaceG%AntiCentred=0
+                  SpaceG%AntiCentre_coord=SpaceG%Op(i)%Mat(1:D,Dd)/2_LI
+                  write(unit=SpaceG%Centre,fmt="(a)") "Anti-centric with -1' at : "//Rational_String(SpaceG%AntiCentre_coord)
+                end if
+                exit
+              end if
+            end do
+          end if
+
           !Extend the symmetry operator to the whole set of lattice centring
           !set the symmetry operators symbols
           m=SpaceG%NumOps
@@ -826,7 +860,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
       type(rational), dimension(3,3)   :: P,Mp,Mc,M
       type(rational), dimension(3,3,6) :: A
 
-      logical :: by_Gen=.false.
+      logical :: by_Gen=.false., by_Hall=.false.
 
       !> Init
       n_gen=0
@@ -851,7 +885,25 @@ SubModule (CFML_gSpaceGroups) Spg_060
       end if
 
       !> Spacegroup from Str argument
-      if (n_gen ==0) then
+      if (n_gen == 0) then
+
+         !Check if we are providing a generator list as the first argument
+         if(index(Str,";") > 4 .or. index(Str,",1") /= 0 .or. index(Str,",-1") /= 0 ) then !Call directly to the space group constructor
+           call Group_Constructor(Str,SpaceG)
+           if(SpaceG%D == 4) then
+             call Identify_Group(SpaceG)
+             if(Err_CFML%Ierr == 1) then
+                write(unit=*,fmt="(a)") "  WARNING: "//Err_CFML%Msg
+                call clear_error()
+             end if
+             call set_Shubnikov_info()
+             if(len_trim(SpaceG%BNS_num) /= 0 .and. SpaceG%numshu /= 0 .and. len_trim(SpaceG%BNS_symb) == 0) then
+               call set_Shubnikov_info()
+               SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
+             end if
+           end if
+           return
+         end if
 
          !> Init Spgr_Info
          call Set_Spgr_Info()
@@ -875,10 +927,10 @@ SubModule (CFML_gSpaceGroups) Spg_060
             str_HM=u_case(trim(Str))
             do i=1,NUM_SPGR_INFO
                if (trim(str_HM) /= trim(spgr_info(i)%hm)) cycle
-               n_it=spgr_info(i)%n
-               str_hall=spgr_info(i)%hall
-               n_laue=spgr_info(i)%laue
-               n_pg=  spgr_info(i)%pg
+               n_it    = spgr_info(i)%n
+               str_hall= spgr_info(i)%hall
+               n_laue  = spgr_info(i)%laue
+               n_pg    = spgr_info(i)%pg
 
                !> Get generators list from standard
                write(unit=car, fmt='(i3)') n_it
@@ -907,7 +959,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
                n_pg=  spgr_info(i)%pg
 
                !> Get generators list from standard
-               write(unit=car,fmt=*) n_it
+               write(unit=car,fmt="(i4)") n_it
                call Get_SpaceGroup_Symbols(car, str_HM_std)
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
@@ -928,7 +980,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
                n_pg=  spgr_info(i)%pg
 
                !> Get generators list from standard
-               write(unit=car,fmt=*) n_it
+               write(unit=car,fmt="(i4)") n_it
                call Get_SpaceGroup_Symbols(car, str_HM_std)
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
@@ -941,6 +993,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
          if (len_trim(gList) == 0) then
             call Get_Generators(str_hall,l_gen,n_gen)
             if (Err_CFML%Ierr /= 0) return
+            by_Hall=.true.
          else
             call Get_Generators(gList, d, l_gen, n_gen)
          end if
@@ -954,15 +1007,25 @@ SubModule (CFML_gSpaceGroups) Spg_060
       !> Generate the spacegroup
       call Group_Constructor(l_gen,SpaceG)
       if (Err_CFML%Ierr /= 0) return
+      if(len_trim(str_hall) /= 0) SpaceG%Hall=str_hall
 
-      !> More info
-      if (.not. by_Gen) then
-         SpaceG%Numspg=n_it
-         SpaceG%spg_symb=str_HM(1:1)//l_case(str_HM(2:))
-      end if
 
       !> Identify Group Only for Crystallographic or Shubnikov groups
-      if(SpaceG%D == 4) call Identify_Group(SpaceG)
+      if(SpaceG%D == 4) then
+        call Identify_Group(SpaceG)
+        if(Err_CFML%Ierr == 1) then
+           write(unit=*,fmt="(a)") "  WARNING: "//Err_CFML%Msg
+           call clear_error()
+        end if
+        if(len_trim(SpaceG%BNS_num) /= 0 .and. SpaceG%numshu /= 0 .and. len_trim(SpaceG%BNS_symb) == 0) then
+          SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
+        end if
+        if (.not. by_Gen) then
+           str_HM = Get_HM_Standard(SpaceG%numspg)
+           SpaceG%spg_symb = str_HM(1:1)//l_case(str_HM(2:))
+           !if(n_it > 0 .and. len_trim(SpaceG%spg_symb) == 0) SpaceG%spg_symb=trim(spgr_info(n_it)%hm) !str_HM(1:1)//l_case(str_HM(2:))
+        end if
+      end if
 
    End Subroutine Set_SpaceGroup_gen
 

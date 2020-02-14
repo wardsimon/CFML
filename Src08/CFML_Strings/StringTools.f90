@@ -6,13 +6,13 @@
 Submodule (CFML_Strings) StrTools
    !---- Parameters ----!
    implicit none
-   
+
  Contains
    !!----
    !!---- PACK_STRING
    !!----    Pack a string: the function provides a string without empty spaces
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Pack_String(Str) Result (Strp)
       !---- Argument ----!
@@ -38,7 +38,7 @@ Submodule (CFML_Strings) StrTools
    !!---- STRING_COUNT
    !!----    counting the number of times a substring appears in a string
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function String_Count(str,substr) Result(N)
       !---- Arguments ----!
@@ -66,12 +66,12 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function String_Count
-   
+
    !!----
    !!---- L_CASE
    !!----    Conversion to lower case, text is not modified
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function L_Case(Str) Result (LStr)
       !---- Argument ----!
@@ -91,12 +91,12 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function L_Case
-   
+
    !!----
    !!---- U_CASE
    !!----    Conversion to upper case, text is not modified
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function U_Case(Str) Result (UStr)
       !---- Argument ----!
@@ -115,13 +115,13 @@ Submodule (CFML_Strings) StrTools
       end do
 
       return
-   End Function U_Case 
-   
+   End Function U_Case
+
    !!----
    !!---- STRIP_STRING
    !!----     Strip a string from a particular word
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Strip_String(str, to_strip) Result(sstr)
       !---- Arguments----!
@@ -139,18 +139,18 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function Strip_String
-   
+
    !!----
    !!---- EQUAL_SETS_TEXT
    !!----    Determine if two sets of text lines are equal irrespective of the
-   !!----    order of the lines. 
+   !!----    order of the lines.
    !!----
    !!----    The function is true if the two sets of text
    !!----    have the same lines in whatever order.  Two lines are equal only
    !!----    if they have the same length and all their component characters
    !!----    are equal and in the same order.
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Equal_Sets_Text(str1,n1,str2,n2) result(Equal)
       !---- Arguments ----!
@@ -159,7 +159,7 @@ Submodule (CFML_Strings) StrTools
       integer,                        intent(in) :: n1                ! Number of lines on Text1
       integer,                        intent(in) :: n2                ! Number of lines on str2
       logical                                    :: Equal  !
-       
+
       !---- Local variables ----!
       integer :: i,j
       logical :: info
@@ -184,12 +184,12 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function Equal_Sets_Text
-   
+
    !!----
    !!---- GET_DATETIME
    !!----    Define a string containing the information about Date and Time
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Function Get_DateTime() Result(Str)
       !---- Argument ----!
@@ -206,12 +206,12 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function Get_DateTime
-   
+
    !!----
    !!---- GET_DIRNAME
    !!----     Obtain the Path from a string
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Get_Dirname(Str) Result(Directory)
       !---- Argument ----!
@@ -225,17 +225,17 @@ Submodule (CFML_Strings) StrTools
       if (i > 0) then
          Directory=str(1:I)
       else
-         Directory=" "   
+         Directory=" "
       end If
 
       Return
    End Function Get_Dirname
-   
+
    !!----
    !!---- GET_FILENAME
    !!----    Get Filename from a String containing in general Path+Filename
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Get_Filename(Str) Result(Filename)
       !---- Argument ----!
@@ -254,12 +254,12 @@ Submodule (CFML_Strings) StrTools
 
       Return
    End Function Get_Filename
-   
+
    !!----
    !!---- GET_EXTENSION
    !!----    Obtaining the extension of the Filename
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Function Get_Extension(filename, dotted) Result(extension)
       !---- Arguments ----!
@@ -290,7 +290,7 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Function Get_Extension
-   
+
    !!----
    !!---- GET_SEPARATOR_POS
    !!----    Determines the positions of the separator character "car" in string "Line" and generates
@@ -306,7 +306,7 @@ Submodule (CFML_Strings) StrTools
    !!----    ncar= 3
    !!----    pos= (/ 4, 25, 36, 0, ..../)
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Subroutine Get_Separator_Pos(Str,car,pos,ncar)
       !---- Arguments ----!
@@ -314,34 +314,34 @@ Submodule (CFML_Strings) StrTools
       character(len=1),      intent(in)  :: car   ! Separator character
       integer, dimension(:), intent(out) :: pos   ! Vector with positions of "sep" in "Line"
       integer,               intent(out) :: ncar  ! Number of appearance of "sep" in "Line"
-     
+
       !---- Local variables ----!
       integer :: i,j,k
 
       !> init
       ncar=0
       pos=0
-      
+
       j=0
       do i=1,len_trim(str)
          j=j+1
-         if (str(j:j) == '"') then  !A chains of characters is found, advance up the the next "
+         if (str(j:j) == '"') then  !A chains of characters is found, advance up to the next "
             do k=1,len_trim(str)    !the character "car" is ignored if it is within " "
                j=j+1
                if (str(j:j) /= '"') cycle
                exit
             end do
          end if
-       
+
          if (str(j:j) == car) then
             ncar=ncar+1
             pos(ncar)=j
          end if
       end do
-     
+
       return
    End Subroutine Get_Separator_Pos
-   
+
    !!----
    !!---- GET_WORD
    !!----    Determines the number of words (Ic) in the string "Line" and generates a
@@ -350,7 +350,7 @@ Submodule (CFML_Strings) StrTools
    !!----    and Err_CFML_Mess. The last modification allows to treat strings between
    !!----    quotes as a single word.
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Subroutine Get_Words(Str,dire,ic)
       !---- Argument ----!
@@ -402,7 +402,7 @@ Submodule (CFML_Strings) StrTools
    !!----    Removes the first word of the input String.
    !!----    Provides (optionally) a string with the first word.
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Subroutine Cut_String(Str1,nlong1,Str2,nlong2)
       !---- Argument ----!
@@ -449,29 +449,29 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Subroutine Cut_String
-   
+
    !!----
    !!---- GET_SUBSTRING_POSITIONS
    !!----    Determines the positions of the substring "substr" in "String" and generates
    !!----    the vector Pos containing the positions of the first character of "substr" in "String".
    !!----    The number of times the "substr" appears in "String" is stored in "nsubs".
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Subroutine Get_Substring_Positions(str,substr,pos,nsubs)
       !---- Arguments ----!
-      character(len=*),      intent(in)  :: str         ! In -> Input String                                                         
-      character(len=*),      intent(in)  :: substr      ! In -> Substring                                                            
-      integer, dimension(:), intent(out) :: pos         ! Out -> Vector with positions of the firs character of "substr" in "String" 
-      integer,               intent(out) :: nsubs       ! Out -> Number of appearance of "substr" in "String"                        
-     
+      character(len=*),      intent(in)  :: str         ! In -> Input String
+      character(len=*),      intent(in)  :: substr      ! In -> Substring
+      integer, dimension(:), intent(out) :: pos         ! Out -> Vector with positions of the firs character of "substr" in "String"
+      integer,               intent(out) :: nsubs       ! Out -> Number of appearance of "substr" in "String"
+
       !---- Local Variables ----!
       integer :: i,j,lsubs
 
       !> init
       nsubs=0
       pos=0
-      
+
       lsubs=len_trim(substr)
       j=0
       do i=1,len_trim(str)
@@ -481,10 +481,10 @@ Submodule (CFML_Strings) StrTools
             pos(nsubs)=j
          end if
       end do
-     
+
       return
    End Subroutine Get_Substring_Positions
-   
+
    !!----
    !!---- SUBSTRING_REPLACE
    !!----    Subroutine to replace a substring (substr) by another one (rep_string)
@@ -493,7 +493,7 @@ Submodule (CFML_Strings) StrTools
    !!----    it works as a warning or error condition without interrupting the
    !!----    procedure.
    !!----
-   !!---- 05/04/2019 
+   !!---- 05/04/2019
    !!
    Module Pure Subroutine SubString_Replace(string, substr, repstr, warning)
       !---- Arguments ----!
@@ -508,7 +508,7 @@ Submodule (CFML_Strings) StrTools
       character(len=1024),dimension(:),allocatable :: splitted_string
 
       !> Init
-      warning=" " 
+      warning=" "
 
       lstr=len(substr)
       i=index(repstr,substr)
@@ -555,14 +555,14 @@ Submodule (CFML_Strings) StrTools
 
       return
    End Subroutine SubString_Replace
-   
-   !!---- 
+
+   !!----
     !!---- SORT_STRINGS
     !!----    Sort an array of string
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Recursive Subroutine Sort_Strings(Str)    
+    Module Recursive Subroutine Sort_Strings(Str)
        !---- Argument ----!
        character(len=*), dimension(:), intent(in out) :: Str
 
@@ -577,16 +577,16 @@ Submodule (CFML_Strings) StrTools
 
        return
     End Subroutine Sort_Strings
-    
+
     !!----
     !!---- SORT_PR_PARTITION
     !!----
     !!----    (Private)
     !!----    Utilised by Sort_Strings.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Pure Subroutine Sort_PR_Partition(A, Marker)    
+    Module Pure Subroutine Sort_PR_Partition(A, Marker)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in out) :: A
        integer,                        intent(   out) :: marker
@@ -627,7 +627,7 @@ Submodule (CFML_Strings) StrTools
 
        return
     End Subroutine Sort_PR_Partition
-   
-   
-   
-End Submodule StrTools   
+
+
+
+End Submodule StrTools
