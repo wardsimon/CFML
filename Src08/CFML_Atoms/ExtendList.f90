@@ -45,7 +45,7 @@ SubModule (CFML_Atoms) Atm_005
       npeq=SpG%numops
       if (SpG%centred == 2) npeq=npeq*2
       if (ccell) npeq=SpG%multip
-      call allocate_atom_list(npeq*A%natoms,c_atm,Type_Atm)
+      call allocate_atom_list(npeq*A%natoms,c_atm,Type_Atm,3)
       n=0
       do k=1,A%natoms
          l=1       ! Number of symetric atom
@@ -117,17 +117,17 @@ SubModule (CFML_Atoms) Atm_005
 
       if (n == 0) then
          err_CFML%IErr=1
-         err_CFML%Msg="Extend_List@CFML_Atoms: Number of extended atoms was zero!"
-         call allocate_atom_list(0,c_atm,Type_Atm)
+         err_CFML%Msg="Extend_List@CFML_Atoms: Number of extended atoms is zero!"
+         call allocate_atom_list(0,c_atm,Type_Atm,3)
          return
       end if
 
-      call allocate_atom_list(n,B,Type_Atm)
+      call allocate_atom_list(n,B,Type_Atm,3)
       B%Active=c_atm%active(1:n)
       B%Atom=c_atm%atom(1:n)
 
       !> DEallocate
-      call allocate_atom_list(0,c_atm,Type_Atm)
+      call allocate_atom_list(0,c_atm,Type_Atm,3)
 
    End Subroutine Extend_List
 End SubModule

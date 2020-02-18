@@ -14,15 +14,16 @@ SubModule (CFML_Atoms) Atm_004
    !!----    The number of atoms is the first element read in the file.
    !!----
    !!----    Note: the procedure is general but the user need to know which type of atom will be
-   !!----          readen.
+   !!----          read.
    !!----
    !!---- 12/06/2019
    !!
-   Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm)
+   Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm) !, d)
       !---- Arguments ----!
       character(len=*),   intent(in)     :: filename
       type(atlist_type),  intent(in out) :: A
       character(len=*),   intent(in)     :: Type_Atm
+     ! integer,            intent(in)     :: d !Number of k-vectors
       !---- Local Variables ----!
       integer                            :: i,n,ierr,lun
       type (atm_type)      :: atm
@@ -43,7 +44,7 @@ SubModule (CFML_Atoms) Atm_004
 
       !> First: read number of atoms
       n=0
-      call Allocate_Atom_List(N, A,Type_Atm)
+      call Allocate_Atom_List(N, A,Type_Atm,3)
 
       read(unit=lun,iostat=ierr) n
       if (ierr /= 0) then
@@ -55,7 +56,7 @@ SubModule (CFML_Atoms) Atm_004
       if (n <= 0) return
 
       !> Allocating
-      call Allocate_Atom_List(N, A,Type_Atm)
+      call Allocate_Atom_List(N, A,Type_Atm,3)
 
       !> Read active
       read(unit=lun,iostat=ierr)  A%active
@@ -90,16 +91,16 @@ SubModule (CFML_Atoms) Atm_004
                aat(i)=atms
             end do
 
-         type is (matm_std_type)
-            do i=1,n
-               read(unit=lun,iostat=ierr) matm
-               if (ierr /=0) then
-                  err_CFML%IErr=1
-                  err_CFML%Msg="Write_Bin_Atom_List@CFML_ATOMS: Error writting atoms information!"
-                  exit
-               end if
-               aat(i)=matm
-            end do
+         !type is (matm_std_type)
+         !   do i=1,n
+         !      read(unit=lun,iostat=ierr) matm
+         !      if (ierr /=0) then
+         !         err_CFML%IErr=1
+         !         err_CFML%Msg="Write_Bin_Atom_List@CFML_ATOMS: Error writting atoms information!"
+         !         exit
+         !      end if
+         !      aat(i)=matm
+         !   end do
 
          type is (atm_ref_type)
             do i=1,n
@@ -178,16 +179,16 @@ SubModule (CFML_Atoms) Atm_004
                end if
             end do
 
-         type is (matm_std_type)
-            do i=1,n
-               matm=aat(i)
-               write(unit=lun,iostat=ierr) matm
-               if (ierr /=0) then
-                  err_CFML%IErr=1
-                  err_CFML%Msg="Write_Bin_Atom_List@CFML_ATOMS: Error writting atoms information!"
-                  exit
-               end if
-            end do
+         !type is (matm_std_type)
+         !   do i=1,n
+         !      matm=aat(i)
+         !      write(unit=lun,iostat=ierr) matm
+         !      if (ierr /=0) then
+         !         err_CFML%IErr=1
+         !         err_CFML%Msg="Write_Bin_Atom_List@CFML_ATOMS: Error writting atoms information!"
+         !         exit
+         !      end if
+         !   end do
 
          type is (atm_ref_type)
             do i=1,n

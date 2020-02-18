@@ -11,11 +11,12 @@ SubModule (CFML_Atoms) Atm_001
    !!----
    !!---- 12/06/2019
    !!
-   Module Subroutine Allocate_Atom_List(N, A,Type_Atm)
+   Module Subroutine Allocate_Atom_List(N, A,Type_Atm,d)
       !---- Arguments ----!
       integer,             intent(in)       :: n    ! Atoms in the List
       type(Atlist_type),   intent(in out)   :: A    ! Objet to be allocated
       character(len=*),    intent(in)       :: Type_Atm
+      integer,             intent(in)       :: d    !Number of k-vectors
 
       !---- Local Variables ----!
       integer :: i
@@ -51,9 +52,10 @@ SubModule (CFML_Atoms) Atm_001
 
       allocate (A%active(n))
       A%active=.true.
+      A%mcomp="crystal"
 
       do i=1,n
-         call Init_Atom_Type(A%Atom(i))
+         call Init_Atom_Type(A%Atom(i),d)
       end do
 
       A%natoms=n

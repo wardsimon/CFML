@@ -54,6 +54,7 @@ rem > Compilation
    if [%_COMP%]==[ifort] (
       ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c Write_Atomos.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08

@@ -6,16 +6,16 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
    Module Function Get_Multip_Pos(x,SpG) Result(mult)
       !---- Arguments ----!
-      real(kind=cp), dimension(:), intent(in) :: x
+      real(kind=cp), dimension(:), intent(in) :: x !Vector position in superspace
       class(SPG_Type),             intent(in) :: SpG
       !----Local Variables ---!
       real(kind=cp), dimension(size(x)+1)         :: xd,xx
       real(kind=cp), dimension(size(x))           :: v
       real(kind=cp), dimension(size(x),SpG%Multip):: u
-      integer :: i,d,nt
+      integer :: i,D,nt
 
 
-      d=size(x)
+      D=size(x)
       xd=[x,1.0_cp]
       mult=1
       u(:,1)=x
@@ -24,11 +24,15 @@ SubModule (CFML_gSpaceGroups) Spg_060
          xx=matmul(real(Spg%Op(i)%Mat),xd)
          xx=modulo_lat(xx)
          do nt=1,mult
-            v(1:d)=u(:,nt)-xx(1:d)
-            if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext
+            v(1:d)=u(:,nt)-xx(1:D)
+            if(Spg%Num_lat > 0) then
+              if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext
+            else
+              if (Zbelong(v)) cycle do_ext
+            end if
          end do
          mult=mult+1
-         u(:,mult)=xx(:)
+         u(:,mult)=xx(1:D)
       end do do_ext
 
    End Function Get_Multip_Pos
@@ -762,7 +766,6 @@ SubModule (CFML_gSpaceGroups) Spg_060
           end do
 
           !Look for a centre, or anticentre, of symmetry
-          inv_found=.false.
 
           allocate(Inv(D,D),transla%Mat(Dd,Dd))
           call Rational_Identity_Matrix(transla%Mat)

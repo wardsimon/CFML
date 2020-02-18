@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_IOForm) IOF_CFL
+   implicit none
    Contains
 
     !!--++
@@ -38,8 +39,7 @@ SubModule (CFML_IOForm) IOF_CFL
        integer                          :: i, nauas, ndata, iph, n_ini,n_end,k
        integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph)        :: ip
-
-       real(kind=cp),dimension(3):: vet
+       real(kind=cp),dimension(:),allocatable:: vet
 
        !---- Standard CrysFML file *.CFL ----!
        nauas=0
@@ -93,30 +93,47 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if (nauas > 0) then
-          call Allocate_atom_list(nauas,A,Type_Atm)  !allocation space for Atom list
-          call Read_CFL_Atoms(file_dat,n_ini,n_end,A,Type_Atm)
+          call Read_CFL_Atoms(file_dat,n_ini,n_end,A,Type_Atm,SpG%D-1)
           if (err_CFML%Ierr /= 0) return
-
-          do i=1,A%natoms
-             vet=A%atom(i)%x
-             A%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
-             if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
-          end do
-
-          Select Type (Cell)
-            Type is(Cell_G_Type)
-               do i=1,A%natoms
-                  if (A%atom(i)%thtype == "aniso") then
-                     select case (A%atom(i)%Utype)
-                        case ("u_ij")
-                           A%atom(i)%u(1:6) =  Get_U_from_Betas(A%atom(i)%u(1:6),Cell)
-                        case ("b_ij")
-                           A%atom(i)%u(1:6) =  Get_Betas_from_U(A%atom(i)%u(1:6),Cell)
-                     end select
-                     A%atom(i)%Utype="beta"
-                  end if
-               end do
+          if(allocated(vet)) deallocate(vet)
+          Select Type (SpG)
+            type is (SuperSpaceGroup_Type)
+              allocate(vet(SpG%D-1))
+              do i=1,A%natoms
+                 vet(1:3)=A%atom(i)%x
+                 do k=1,Spg%nk
+                   vet(3+k)=dot_product(vet(1:3),SpG%kv(:,k))
+                 end do
+                 A%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+                 if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
+                 Select Type (at => A%atom(i))
+                   Class is (MAtm_Std_Type)
+                     At%Xs=vet
+                 End Select
+              end do
+            class Default
+              allocate(vet(3))
+              do i=1,A%natoms
+                 vet=A%atom(i)%x
+                 A%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+                 if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
+              end do
           End Select
+
+          !Select Type (Cell)   !This piece of code should be executed before structure factor calculations
+          !  Type is(Cell_G_Type)
+          !     do i=1,A%natoms
+          !        if (A%atom(i)%thtype == "ani") then  !For Structure factor calculations we use betas
+          !           select case (trim(A%atom(i)%Utype))
+          !              case ("U")
+          !                 A%atom(i)%u(1:6) =  Get_Betas_from_U(A%atom(i)%u(1:6),Cell)
+          !              case ("B")
+          !                 A%atom(i)%u(1:6) =  Get_Betas_from_B(A%atom(i)%u(1:6),Cell)
+          !           end select
+          !           A%atom(i)%Utype="beta"
+          !        end if
+          !     end do
+          !End Select
        end if
     End Subroutine Readn_Set_XTal_CFL
    !!----
@@ -130,44 +147,55 @@ SubModule (CFML_IOForm) IOF_CFL
    !!----
    !!---- 25/06/2019
    !!
-   Module Subroutine Read_CFL_Atoms(lines,n_ini, n_end, At_List,Type_Atm)
+   Module Subroutine Read_CFL_Atoms(lines,n_ini, n_end, At_List,Type_Atm,d)
       !---- Arguments ----!
       character(len=*), dimension(:), intent(in)     :: lines
       integer,                        intent(in out) :: n_ini
       integer,                        intent(in)     :: n_end
       Type (AtList_Type),             intent(out)    :: At_List
       character(len=*),               intent(in)     :: Type_Atm
+      integer,                        intent(in)     :: d
 
       !---- Local variables -----!
-      character(len=12), parameter      :: DIGPM="0123456789+-"
-      character(len=:), allocatable     :: line
+      character(len=12),  parameter     :: DIGPM="0123456789+-"
+      character(len=:),   allocatable   :: line,mom_comp
       character(len=180), dimension(1)  :: extline
-      character(len=10)                 :: dire
-      character(len=20)                 :: label
+      character(len=:),   allocatable   :: dire
+      character(len=:),   allocatable   :: label
       character(len=2)                  :: Chemsymb
-      integer                           :: i, n, na, npos, nlong, iv
+      integer                           :: i, j, n, na, npos, nlong, iv,n_oc, n_mc,n_dc,n_uc
       real(kind=cp), dimension (20)     :: vet1, vet2
 
 
       !> Init
       call clear_error()
-      call Allocate_Atom_List(0, At_list, Type_Atm)
+      call Allocate_Atom_List(0, At_list, Type_Atm,d)
 
       !> Calculate number of Atoms
       na=0
+      mom_comp=" "
       do i=n_ini, n_end
          !> Checks
          if (len_trim(lines(i)) <=0) cycle                 ! Empty line
          line=adjustl(lines(i))
          if (line(1:1) =='!' .or. line(1:1) =='#') cycle   ! Comment line
+         if(u_case(line(1:12)) == "ATM_MOM_COMP") then
+           j=index(line,"!")
+           if( j /= 0) then
+              mom_comp=adjustl(line(13:j-1))
+           else
+              mom_comp=adjustl(line(13:))
+           end if
+         end if
          npos=index(u_case(line),'ATOM')
          if (npos > 0) na=na+1
       end do
       if (na == 0) return             ! No atoms in the lines
 
       !> Allocate List
-      call Allocate_Atom_List(na, At_list,Type_Atm)
-
+      call Allocate_Atom_List(na, At_list,Type_Atm,d)
+      if(len_trim(mom_comp) > 2) At_list%mcomp=mom_comp
+      write(*,"(a)") " Moment components: "//At_list%mcomp
       !> Read Information
       na=0
 
@@ -180,10 +208,8 @@ SubModule (CFML_IOForm) IOF_CFL
          !> Truncate line from symbols: # and !
          npos=index(line,'!')                             ! Cut line according to !
          if (npos > 0) line=line(:npos-1)
-         npos=index(line,'#')
-         if (npos > 0) line=line(:npos-1)
 
-         !> Tabs
+         !> Eliminate Tabs
          do
             npos=index(line,TAB)
             if (npos == 0) exit
@@ -191,139 +217,385 @@ SubModule (CFML_IOForm) IOF_CFL
          end do
 
          !> ATOM Directive
-         call cut_string(line,nlong,dire)
-         if (u_case(trim(dire)) /= 'ATOM') cycle
-
-         na=na+1
-
-         !> Label
-         call cut_string(line,nlong,label)
-         At_list%atom(na)%Lab=trim(label)
-
-         !> Charge / Oxidation state
-         !> Anions
-         npos=index(label,'-')
-         if (npos > 0) then
-            iv=index(DIGPM,label(npos+1:npos+1))
-            if (iv == 0 .or. iv > 10) then
-               err_CFML%Ierr=1
-               err_CFML%Msg='Read_CFL_Atoms@CFML_IOFORM: Error reading Charge information: '//trim(line)
-               At_list%Natoms=Max(0,na-1)
-               return
+          dire=adjustl(u_case(line(1:4)))
+          if (trim(dire) /= "ATOM") cycle
+          na=na+1
+          call read_atom(line,At_list%atom(na))
+          At_list%atom(na)%UType="B"
+          At_list%atom(na)%ThType="ISO"
+          !---- Trial to read anisotropic thermal and magnetic moment parameters ----!
+          j=i
+          do
+            j=j+1
+            if( j < size(lines) ) then
+               line=adjustl(lines(j))
+               if(u_case(line(1:4)) == "ATOM") exit
+               npos=index(line," ")
+               select case (u_case(line(1:npos-1)))
+                 case ("MOMENT")
+                    call Read_Moment(line,At_list%atom(na))
+                 case ("U_IJ")
+                    call read_uvals(line,At_list%atom(na),"U_IJ")
+                    At_list%atom(na)%UType= "U"
+                    At_list%atom(na)%ThType= "ANI"
+                 case ("B_IJ")
+                    call read_uvals(line,At_list%atom(na),"B_IJ")
+                    At_list%atom(na)%UType="B"
+                    At_list%atom(na)%ThType="ANI"
+                 case ("BETA")
+                    call read_uvals(line,At_list%atom(na),"BETA")
+                    At_list%atom(na)%UType= "BETA"
+                    At_list%atom(na)%ThType="ANI"
+               end select
+               if(Err_CFML%Ierr /= 0) exit
+            else
+              exit
             end if
-            At_list%atom(na)%charge=-(iv-1)
-         end if
+          end do
 
-         !> Cations
-         npos=index(label,'+')
-         if (npos > 0) then
-            iv=index(DIGPM,label(npos+1:npos+1))
-            if (iv == 0 .or. iv > 10) then
-               err_CFML%Ierr=1
-               err_CFML%Msg='Read_CFL_Atoms@CFML_IOFORM: Error reading Charge information: '//trim(line)
-               At_list%Natoms=Max(0,na-1)
-               return
-            end if
-            At_list%atom(na)%charge=iv-1
-         end if
+          Select Type(at => At_list%atom)
+           class is(MAtm_Std_Type)
+             n_oc=0; n_mc=0; n_dc=0; n_uc=0
+             j=i
+             do
+               j=j+1
+               if( j < size(lines) ) then
+                  line=adjustl(lines(j))
+                  if(u_case(line(1:4)) == "ATOM") exit
+                  npos=index(line," ")
+                  !write(*,"(i3,a)") na, " -> "//At(na)%lab//u_case(line(1:npos-1))//" "//lines(j)(npos:)
+                  select case (u_case(line(1:npos-1)))
+                    case ("O_CS")
+                       n_oc=n_oc+1
+                       call read_modulation_amplitudes(line,At(na),"O_CS",n_oc)
+                    case ("M_CS")
+                       n_mc=n_mc+1
+                       call read_modulation_amplitudes(line,At(na),"M_CS",n_mc)
+                    case ("D_CS")
+                       n_dc=n_dc+1
+                       call read_modulation_amplitudes(line,At(na),"D_CS",n_dc)
+                    case ("U_CS")
+                       n_uc=n_uc+1
+                       call read_modulation_amplitudes(line,At(na),"U_CS",n_uc)
+                  end select
+                  if(Err_CFML%Ierr /= 0) exit
+               else
+                 exit
+               end if
+             end do
+             At(na)%n_oc=n_oc
+             At(na)%n_mc=n_mc
+             At(na)%n_dc=n_dc
+             At(na)%n_uc=n_uc
+          End Select
+      end do
+      At_List%natoms=na
 
+   End Subroutine Read_CFL_Atoms
 
-         !> Chemical symbol / Scattering Factor
-         call cut_string(line,nlong,dire)
-         npos=index(DIGPM,dire(2:2))
-         if (npos > 0) then
-            Chemsymb=u_case(dire(1:1))
-         else
-            Chemsymb=u_case(dire(1:1))//l_case(dire(2:2))
-         end if
-         At_list%atom(na)%ChemSymb=ChemSymb
-         At_list%atom(na)%SFacSymb=dire
+    !!----
+    !!---- Subroutine Read_Atom(Line,Atomo)
+    !!----    character(len=*), intent(in out ) :: line    !  In -> Input String with ATOM directive
+    !!----    Type (Atom_Type), intent(out)     :: Atomo   ! Out -> Parameters on variable Atomo
+    !!----
+    !!----    Subroutine to read the atom parameters from a given "line"
+    !!----    it construct the object Atomo of type Atom.
+    !!----    Control of error is present
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Read_Atom(line,Atom)
+       !---- Arguments ----!
+       character(len=*), intent(in out ) :: line
+       class(Atm_Type),  intent(out)     :: Atom
 
-         !> Parameters
-         extline='atm '//trim(line)
-         n=1
-         call Read_Key_ValueSTD(extline,n,n,"atm",vet1,vet2,iv)
-         if (iv <= 0) then
-            err_CFML%Ierr=1
-            err_CFML%Msg='Read_CFL_Atoms@CFML_IOFORM: Error reading Atom information: '//trim(line)
-            At_list%Natoms=Max(0,na-1)
-            return
-         end if
+       !---- Local variables -----!
+       integer                           :: iv, nlong1,n,ier,q
+       real(kind=cp), dimension (10)     :: vet1
+       real(kind=cp), dimension (10)     :: vet2
+       character(len=4)                  :: dire
+       character(len=40)                 :: magmom
+       character(len=:),   allocatable   :: label
+       character(len=132), dimension(1)  :: filevar
+       character(len=*), parameter       :: digpm="0123456789+-"
 
+       !---- Init ----!
+       call clear_error()
+       q=0
+       label="               "
+       iv=index(line,"#")
+       if(iv /= 0) then
+        atom%AtmInfo=line(iv+1:)
+        line=line(1:iv-1)
+       end if
+       iv=index(line,"Moment:") !Attemp to read magnetic moment components in the same line
+       magmom=" "
+       if(iv /= 0) then
+         magmom=line(iv+7:)  !magmon should contain magnetic moment
+         line=line(1:iv-1)   !Line after removing "Moment:" and information
+       end if
+       call Cut_String(line,nlong1,dire)
+       if (u_case(dire) /= "ATOM") then
+          err_CFML%Ierr=1
+          err_CFML%Msg=" Error reading the ATOM keyword"
+          return
+       end if
+
+       !---- Atom Label ----!
+       call Cut_String(line,nlong1,label)
+       atom%lab=label
+
+       !---- Atom Type (Chemical symbol & Scattering Factor) ----!
+       call Cut_String(line,nlong1,label)
+
+       if((U_case(label(1:1)) == "M" .or. U_case(label(1:1)) == "J" ) & !Magnetic atom
+          .and. index(digpm(1:10),label(4:4)) /= 0) then
+          atom%ChemSymb=U_case(label(2:2))//L_case(label(3:3))
+          atom%Magnetic=.true.
+       else
+          n=index(digpm,label(2:2))
+          if (n /=0) then
+            atom%ChemSymb=U_case(label(1:1))
+          else
+            atom%ChemSymb=U_case(label(1:1))//L_case(label(2:2))
+          end if
+       end if
+       atom%SfacSymb=label(1:4)
+
+       !---- Parameters ----!
+       filevar(1)="atm "//trim(line)
+       n=1
+       call Read_Key_ValueSTD(filevar,n,n,"atm",vet1,vet2,iv)
+       if (iv <= 0) then
+          err_CFML%Ierr=1
+          err_CFML%Msg="Error reading parameters of atom:"//atom%lab
+          return
+       end if
+
+       !---- Coordinates  ----!
+       if (iv < 3) then
+          err_CFML%Ierr=1
+          err_CFML%Msg="Error reading Coordinates of atom:"//atom%lab
+          return
+       end if
+
+       atom%x(:)=vet1(1:3)             !---- Coordinates ----!
+       if (iv > 3) atom%U_iso=vet1(4)  !---- Biso ----!
+       if (iv > 4) atom%occ=vet1(5)    !---- Occ ----!
+       if (iv > 5) atom%mom=vet1(6)    !---- Module of moment ----!
+       if (iv > 6) atom%charge=vet1(7) !---- Charge ----!
+       Select Type (Atom)
+         class is (Atm_Std_Type)
+           atom%x_std(:)=vet2(1:3)
+           if (iv > 3) atom%U_iso_std=vet2(4)
+           if (iv > 4) atom%occ_std=vet2(5)
+       End Select
+
+       !Attempt to get the oxidation state from "Atom%Label"
+       label=atom%lab
+       if(abs(atom%charge) < epsv) then
+         iv=index(label,"+")
+         Select Case(iv)
+           Case(0) !No + sign
+             n=index(label,"-")
+             Select Case(n)
+               Case(2) !Element with a single character symbol F-1
+                  read(unit=label(3:),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) q=0
+               Case(3) !Element in the form: F1- or Br-1
+                  read(unit=label(2:2),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) then
+                        read(unit=label(4:4),fmt="(i1)",iostat=ier)  q
+                        if (ier /= 0) q=0
+                  end if
+               Case(4) !Element in the form: Br1-
+                  read(unit=label(3:3),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) q=0
+             End Select
+             q=-q   !anions
+           Case(2) !Element with a single character symbol C+4
+                  read(unit=label(3:),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) q=0
+           Case(3) !Element in the form: C4+ or Fe+3
+                  read(unit=label(2:2),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) then
+                        read(unit=label(4:4),fmt="(i1)",iostat=ier)  q
+                        if (ier /= 0) q=0
+                  end if
+           Case(4) !Element in the form: Fe3+
+                  read(unit=label(3:3),fmt="(i1)",iostat=ier)  q
+                  if (ier /= 0) q=0
+         End Select
+         atom%charge=real(q)
+       end if
+
+       !Now read the components of the magnetic moment if given in the same line
+       if(len_trim(magmom) /= 0) then
+         filevar(1)="mom "//trim(magmom)
+         call Read_Key_ValueSTD(filevar,n,n,"mom",vet1,vet2,iv)
+
+         !---- Moment components  ----!
          if (iv < 3) then
             err_CFML%Ierr=1
-            err_CFML%Msg='Read_CFL_Atoms@CFML_IOFORM: Error reading Atom coordinates: '//trim(line)
-            At_list%Natoms=Max(0,na-1)
+            err_CFML%Msg="Error reading magnetic moment components of atom:"//atom%lab
             return
          end if
+         atom%moment(:)=vet1(1:3)
+         if(atom%mom < 0.001) atom%mom=maxval(abs(atom%moment(:)))
+         Select Type (Atom)
+           class is (Atm_Std_Type)
+             atom%moment_std(:)=vet2(1:3)
+         End Select
+       end if
 
-         !> Coordinates
-         At_List%atom(na)%x=vet1(1:3)
-         select type (atm => at_list%atom)
-            class is (Atm_Std_Type)
-               atm(na)%x_std=vet2(1:3)
-         end select
+       return
+    End Subroutine Read_Atom
 
-         !> Biso
-         if (iv > 3) then
-            At_List%atom(na)%U_iso=vet1(4)
-            select type (atm => at_list%atom)
-               class is (Atm_Std_Type)
-                  atm(na)%u_iso_std=vet2(4)
-            end select
-         end if
+    !!----
+    !!---- Subroutine Read_Uvals(Line,Atomo,Ulabel)
+    !!----    character(len=*),  intent(in out)  :: line      !  In -> String
+    !!----    Type (Atom_Type),  intent(in out)  :: Atomo     !  In -> Atomo variable
+    !!----                                                      Out ->
+    !!----    character(len=4),  intent(in)      :: ulabel    !  In -> u_ij, b_ij, beta
+    !!----
+    !!----    Subroutine to read the anisotropic thermal parameters from a given Line
+    !!----    it complets the object Atomo of type Atom.
+    !!----    Assumes the string Line has been read from a file and
+    !!----    starts with one of the words (u_ij, b_ij or beta), that is removed before reading
+    !!----    the values of the parameters.
+    !!----
+    !!---- Update: February - 2020
+    !!
+    Subroutine Read_Uvals(Line,Atom,Ulabel)
+       !---- Arguments ----!
+       character(len=*),  intent(in )     :: line
+       class(Atm_Type),   intent(in out)  :: Atom
+       character(len=*),  intent(in)      :: ulabel
+       !---- Local variables -----!
+       character(len=len(line)),dimension(1):: line2
+       real(kind=cp), dimension (6)         :: vet1,vet2
+       integer                              :: iv,n
 
-         !> Occ
-         if (iv > 4) then
-            At_List%atom(na)%Occ=vet1(5)
-            select type (atm => at_list%atom)
-               class is (Atm_Std_Type)
-                  atm(na)%Occ_std=vet2(5)
-            end select
-         end if
+       call clear_error()
 
-         select case (iv)
-            case (8)  ! Only moments
-               At_List%atom(na)%Moment=vet1(6:8)
-               select type (atm => at_list%atom)
-                  class is (Atm_Std_Type)
-                     atm(na)%Moment_std=vet2(6:8)
-               end select
-               At_List%atom(na)%Magnetic=.true.
+       line2(1)=line
+       n=1
+       call Cut_String(line2(1))
+       line2(1)=trim(ulabel)//" "//line2(1)(1:len(line2(1))-5)  !this form of writing is to avoid gfortran warning -Wstring-overflow
+       call Read_Key_ValueSTD(line2,n,n,trim(ulabel),vet1,vet2,iv)
 
-            case (11) ! Only anisotropic parameters
-               At_List%atom(na)%U=vet1(6:11)
-               select type (atm => at_list%atom)
-                  class is (Atm_Std_Type)
-                     atm(na)%U_std=vet2(6:11)
-               end select
+        if (iv /= 6) then
+          ERR_CFML%Ierr=1
+          ERR_CFML%Msg="  Error reading the anisotropic thermal parameters of atom:"//atom%lab
+          return
+       end if
+       atom%U(1:6)=vet1(1:6)
+       Select Type(Atom)
+         class is(Atm_std_Type)
+          atom%U_std(1:6)=vet2(1:6)
+       End Select
 
-            case (14) ! Anisotropic + Moments
-               At_List%atom(na)%U=vet1(6:11)
-               At_List%atom(na)%Moment=vet1(12:14)
-               select type (atm => at_list%atom)
-                  class is (Atm_Std_Type)
-                     atm(na)%U_std=vet2(6:11)
-                     atm(na)%Moment_std=vet2(12:14)
-               end select
+    End Subroutine Read_Uvals
 
-            case default
-               err_CFML%Ierr=1
-               err_CFML%Msg='Read_CFL_Atoms@CFML_IOFORM: Error reading Atom information: '//trim(line)
-               At_list%Natoms=Max(0,na-1)
-               return
-         end select
-         !Now verify if magnetic moments or anisotropic thermal parameters are provided in the next line
-         line=adjustl(lines(i+1))
-         call cut_string(line,nlong,dire)
-         if (u_case(trim(dire)) == 'MOMENT') then !
+    Subroutine Read_Moment(Line,Atom)
+       !---- Arguments ----!
+       character(len=*),  intent(in )     :: line
+       class(Atm_Type),   intent(in out)  :: Atom
 
-         else
+       !---- Local variables -----!
+       character(len=len(line)),dimension(1):: line2
+       real(kind=cp), dimension (6)         :: vet1,vet2
+       integer                              :: iv,n
 
-         if (u_case(lines(i+1)(1:4)) /= 'ATOM')  cycle
-         end if
-      end do
-   End Subroutine Read_CFL_Atoms
+       call clear_error()
+
+       line2(1)=line
+       n=1
+       call Cut_String(line2(1))
+       !line2(1)="Moment "//line2(1)(1:len(line2(1))-5)  !this form of writing is to avoid gfortran warning -Wstring-overflow
+       line2(1)="Moment "//line2(1)  !this form of writing is to avoid gfortran warning -Wstring-overflow
+       write(*,"(a)")
+       call Read_Key_ValueSTD(line2,n,n,"Moment",vet1,vet2,iv)
+
+        if (iv /= 3) then
+          ERR_CFML%Ierr=1
+          ERR_CFML%Msg="  Error reading the Magnetic Moment of atom:"//atom%lab
+          return
+       end if
+       atom%moment(1:3)=vet1(1:3)
+
+       Select Type(at => Atom)
+         type is(Atm_Std_Type)
+           at%moment_std(1:3)=vet2(1:3)
+         class is(MAtm_Std_Type)
+           at%moment_std(1:3)=vet2(1:3)
+       End Select
+
+    End Subroutine Read_Moment
+
+    Subroutine Read_Modulation_Amplitudes(Line,Atom,Ulabel,nt)
+       !---- Arguments ----!
+       character(len=*),    intent(in )     :: line
+       class(MAtm_Std_Type),intent(in out)  :: Atom
+       character(len=*),    intent(in)      :: ulabel
+       integer,             intent(in)      :: nt  !number of the amplitude
+       !---- Local variables -----!
+       character(len=len(line)),dimension(1):: line2
+       real(kind=cp), dimension (12)        :: vet1,vet2
+       integer                              :: iv,n,nq,ier
+
+       call clear_error()
+
+       line2(1)=line
+       n=1
+       call Cut_String(line2(1))
+       read(unit=line2(1),fmt=*,iostat=ier) nq
+       if(ier /= 0) then
+         Err_CFML%Ierr=1
+         Err_CFML%Msg="Error reading the Q_coeff number in modulation amplitude line: "//trim(Ulabel)
+         return
+       end if
+       call Cut_String(line2(1)) !Strip the first word, here "nq"
+       !Reconstruct the line without "nq"
+       line2(1)=trim(Ulabel)//" "//line2(1)(1:len(line2(1))-5)  !this form of writing is to avoid gfortran warning -Wstring-overflow
+       call Read_Key_ValueSTD(line2,n,n,trim(Ulabel),vet1,vet2,iv)
+
+       Select Case(trim(Ulabel))
+         Case("O_CS")
+            if (iv /= 2) then
+              ERR_CFML%Ierr=1
+              ERR_CFML%Msg="  Error reading the Modulation Amplitudes: "//trim(Ulabel)//" of atom:"//atom%lab
+              return
+            end if
+            Atom%poc_q(nt) = nq
+            Atom%Ocs(1:2,nt) = vet1(1:2)
+         Case("M_CS")
+            if (iv /= 6) then
+              ERR_CFML%Ierr=1
+              ERR_CFML%Msg="  Error reading the Modulation Amplitudes: "//trim(Ulabel)//" of atom:"//atom%lab
+              return
+            end if
+            Atom%pmc_q(nt) = nq
+            Atom%Mcs(1:6,nt) = vet1(1:6)
+         Case("D_CS")
+            if (iv /= 6) then
+              ERR_CFML%Ierr=1
+              ERR_CFML%Msg="  Error reading the Modulation Amplitudes: "//trim(Ulabel)//" of atom:"//atom%lab
+              return
+            end if
+            Atom%pdc_q(nt) = nq
+            Atom%Dcs(1:6,nt) = vet1(1:6)
+         Case("U_CS")
+            if (iv /= 12) then
+              ERR_CFML%Ierr=1
+              ERR_CFML%Msg="  Error reading the Modulation Amplitudes: "//trim(Ulabel)//" of atom:"//atom%lab
+              return
+            end if
+            Atom%puc_q(nt) = nq
+            Atom%Ucs(1:12,nt) = vet1(1:12)
+       End Select
+
+    End Subroutine Read_Modulation_Amplitudes
 
    !!----
    !!---- READ_CFL_CELL
@@ -505,7 +777,7 @@ SubModule (CFML_IOForm) IOF_CFL
              line=line(8:)
              call findfmt(0,line,fmtfields,fmtformat)
              read(unit=line,fmt=fmtformat) Job_Info%Patt_typ(n_pat), a1,a2,a3,a4,a5
-             if (ierr_fmt /= 0) return
+             if (Err_CFML%Ierr /= 0) return
              line=u_case(Job_Info%Patt_typ(n_pat))
 
              select case(line(1:9))
@@ -615,12 +887,14 @@ SubModule (CFML_IOForm) IOF_CFL
        character(len=*), optional,      intent(in)     :: xyz_type
 
        !--- Local Variables ---!
-       integer :: i,j,ngen
+       integer :: i,j,k,ngen,nk,nq
        character(len=:),     allocatable :: line,uline,setting,strcode
        character(len=40), dimension(192) :: gen
        logical :: change_setting
-       !Look for the appropriate keywords to construct the space group: Crystallographic, Shubnikov, or superspace
+       integer :: ier
 
+       call clear_error()
+       !Look for the appropriate keywords to construct the space group: Crystallographic, Shubnikov, or superspace
        ngen=0
        setting=" "
        change_setting=.false.
@@ -629,7 +903,8 @@ SubModule (CFML_IOForm) IOF_CFL
        !write(*,"(a,2i5)") " n_ini,n_end:",n_ini,n_end
        do i=n_ini,n_end
          line=trim(adjustl(lines(i)))
-         if(line(1:1) == "!" .or. line(1:1) == "#" .or. len_trim(line) == 0) cycle
+         if(len_trim(line) == 0) cycle
+         if(line(1:1) == "!" .or. line(1:1) == "#") cycle
          j=index(line,"!")
          if(j /= 0) line=line(1:j-1)
          j=index(line,"::")
@@ -647,24 +922,24 @@ SubModule (CFML_IOForm) IOF_CFL
          Select Case(uline)
            Case("HALL","SPGR","SPACEG")
               call Set_SpaceGroup(line,SpG)
-              exit
            Case("SHUB")
               call Set_SpaceGroup(line,"SHUBN",SpG)
-              exit
            Case("SSG","SUPER","SSPG")
               call Set_SpaceGroup(line,"SUPER",SpG,strcode)
-              exit
            Case("GENLIST","GENERATORS","LIST")
               call Set_SpaceGroup(line,SpG)
-              exit
            Case("GEN","SYMM")
               ngen=ngen+1
               gen(ngen)=line
          End Select
        end do
+
        if(ngen > 0) then
+          !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
            call Set_SpaceGroup("  ",SpG,ngen,gen)
        end if
+
+       if(Err_CFML%Ierr == 1) return
        if(change_setting) then
          if(strcode == "xyz")  then
            call Change_Setting_SpaceG(setting, SpG)
@@ -672,6 +947,92 @@ SubModule (CFML_IOForm) IOF_CFL
            call Change_Setting_SpaceG(setting, SpG,strcode)
          end if
        end if
+       if(Err_CFML%Ierr == 1) return
+
+       !Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
+       Select Type (SpG)
+         Class is (SuperSpaceGroup_Type)
+           if(allocated(SpG%kv)) deallocate (SpG%kv)
+           if(allocated(SpG%nharm)) deallocate (SpG%nharm)
+           if(allocated(SpG%sintlim)) deallocate (SpG%sintlim)
+           if(allocated(SpG%Om)) deallocate (SpG%Om)
+           if(allocated(SpG%q_coeff)) deallocate (SpG%q_coeff)
+           allocate(SpG%Om(SpG%D,Spg%D,SpG%Multip))
+           do i=1,SpG%Multip
+              SpG%Om(:,:,i)=real(SpG%Op(i)%Mat(:,:))
+           end do
+           nk=0; nq=0
+           do i=n_ini,n_end
+             line=trim(adjustl(lines(i)))
+             if(len_trim(line) == 0) cycle
+             if(line(1:1) == "!" .or. line(1:1) == "#") cycle
+             j=index(line,"!")
+             if(j /= 0) line=line(1:j-1)
+             j=index(line," ")
+             uline=u_case(line(1:j-1))
+             line=adjustl(line(j+1:))
+             Select Case(uline)
+               Case("NQVECT","NKVECT")
+                  Read(unit=line,fmt=*,iostat=ier) Spg%nk, Spg%nq
+                  if(ier /= 0) then
+                    Err_CFML%Ierr=1
+                    Err_CFML%Msg="Error reading the number of k-vectors and/or number of Q-coefficients"
+                    return
+                  end if
+                  allocate(Spg%kv(3,Spg%nk),Spg%q_coeff(Spg%nk,Spg%nq))
+                  allocate(Spg%nharm(Spg%nk),Spg%sintlim(Spg%nk))
+                  SpG%kv=0.0_cp; SpG%q_coeff=1; Spg%nharm=1; Spg%sintlim=1.0
+               Case("QVECT","KVECT")
+                  if(Spg%nk > 0) then
+                    nk=nk+1
+                    Read(unit=line,fmt=*,iostat=ier) Spg%kv(:,nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the k-vector #",nk
+                      return
+                    end if
+                  end if
+               Case("NHARM")
+                  if(Spg%nk > 0) then
+                    Read(unit=line,fmt=*,iostat=ier) Spg%nharm(1:Spg%nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      Err_CFML%Msg = "Error reading the nk harmonics !"
+                      return
+                    end if
+                  end if
+               Case("SINTL")
+                  if(Spg%nk > 0) then
+                    Read(unit=line,fmt=*,iostat=ier) Spg%sintlim(1:Spg%nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      Err_CFML%Msg = "Error reading the maximum sinTheta/Lambda for harmonics!"
+                      return
+                    end if
+                  end if
+               Case("Q_COEFF")
+                  nq=nq+1
+                  Read(unit=line,fmt=*,iostat=ier) Spg%q_coeff(1:Spg%nk,nq)
+                  if(ier /= 0) then
+                    Err_CFML%Ierr=1
+                    write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the Q-coefficent # ",nq
+                    return
+                  end if
+
+             End Select
+           end do
+           if(Spg%nk /= (Spg%D-4)) then
+              Err_CFML%Ierr=1
+              write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of k-vectors,",Spg%nk, ", does not correspond with the additional dimensions of the group ",Spg%D-4
+              return
+           end if
+           if(Spg%nq /= nq) then
+              Err_CFML%Ierr=1
+              write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of expected Q-coefficients,",Spg%nq, ", does not correspond with number of read Q-coefficients ",nq
+              return
+           end if
+
+       End Select
 
     End Subroutine Read_CFL_SpG
 

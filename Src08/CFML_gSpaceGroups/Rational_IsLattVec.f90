@@ -46,7 +46,7 @@ SubModule (CFML_gSpaceGroups) SPG_003
       integer :: i,nlat
       real(kind=cp), dimension(size(v)) :: vec,vl
       !> Init
-      Lattice_Transl=.false.
+      Lattice=.false.
       nlat=size(Ltr,dim=2)
        if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
           Lattice=.true.

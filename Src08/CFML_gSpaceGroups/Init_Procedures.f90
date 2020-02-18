@@ -38,7 +38,7 @@ SubModule (CFML_gSpaceGroups) Init_Proc
 
       Select Type(mGrp => Grp)
 
-         type is (Spg_Type)
+         class is (Spg_Type)
             mGrp%standard_setting=.false.
             mGrp%numspg      = 0
             mGrp%numshu      = 0
@@ -73,14 +73,12 @@ SubModule (CFML_gSpaceGroups) Init_Proc
             mGrp%SSG_Bravais="          "
             mGrp%SSG_nlabel ="          "
             mGrp%Bravais_num=0      ! Number of the Bravais class
+      End Select
 
-         type is (SuperSpaceGroup_Type)
+      Select Type (mGrp => Grp)   !It seems that this is necessary!!!! stupid Select Type!
+         class is (SuperSpaceGroup_Type)
             mGrp%nk=0               !  number of k-vectors
             mGrp%nq=0               !  number of q-coefficients
-
-         class default
-            Err_CFML%Ierr=1
-            Err_CFML%Msg="The class passed to 'Init_SpaceGroup' is not implemented"
       End Select
 
    End Subroutine Init_SpaceGroup

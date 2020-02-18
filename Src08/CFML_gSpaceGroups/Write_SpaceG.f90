@@ -53,16 +53,16 @@ SubModule (CFML_gSpaceGroups) SPG_006
             if(len_trim(Grp%SSG_symb) /= 0)     write(unit=iout,fmt="(a, a)") "       SuperSpace Group symbol: ",trim(Grp%SSG_symb)
             Select Type (Grp)
               class is(SuperSpaceGroup_Type)
-                                               write(unit=iout,fmt="(/,a,i4)")  "  Number of modulation vectors: ",Grp%nk
-                                               write(unit=iout,fmt="(a)")       "  Q-vectors & harmonics & maximum SinTheta/Lambda max: "
+                                               write(unit=iout,fmt="(/,a,i4)")                   "  Number of modulation vectors: ",Grp%nk
+                                               write(unit=iout,fmt="(a)")                        "  Q-vectors & harmonics & maximum SinTheta/Lambda: "
                                                do i=1,Grp%nk
-                                                  write(unit=iout,fmt="(a,3f10.4,a,i3,f10.4)")   " [ ",Grp%kv(:,i)," ]:",Grp%nharm(i), Grp%sintlim(i)
+                                                  write(unit=iout,fmt="(a,3f10.4,a,i3,f10.4)")   "       [",Grp%kv(:,i)," ]:   ",Grp%nharm(i), Grp%sintlim(i)
                                                end do
-                                               write(unit=forma(4:5),fmt="(i2)") Grp%nq
-                                               write(unit=iout,fmt="(a,i4)")    "     Number of  Q-coefficients: ",Grp%nq
-                                               write(unit=iout,fmt="(a )")      "                Q-coefficients: "
+                                               write(unit=forma(4:5),fmt="(i2)") Grp%nk
+                                               write(unit=iout,fmt="(a,i4)")                     "     Number of  Q-coefficients: ",Grp%nq
+                                               write(unit=iout,fmt="(a )")                       "                Q-coefficients: "
                                                do i=1,Grp%nq  !Q_coeff(nk,nq)
-                                                  write(unit=iout,fmt=forma)   " [ ",Grp%q_coeff(:,i)," ]"
+                                                  write(unit=iout,fmt=forma)                     "                               [ ",Grp%q_coeff(:,i)," ]"
                                                end do
 
             End Select

@@ -42,6 +42,7 @@ SubModule (CFML_gSpaceGroups) SPG_020
          ngen = size(gen)
       end if
 
+      Spg%generators_list="  "
       do i=1,ngen
          Spg%generators_list=trim(Spg%generators_list)//trim(gen(i))//";"
       end do

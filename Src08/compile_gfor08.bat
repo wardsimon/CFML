@@ -26,12 +26,12 @@ rem ----
     shift
     if not [%1]==[] goto LOOP
 rem
-rem ---- Options
-rem
+rem ---- Options  (All warnings i gfortran -Wall)  
+rem                  
    if [%_DEBUG%]==[Y] (
       if [%OPTC%]==[-m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
-      (set OPT0=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
-      (set OPT1=-O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+      (set OPT0=-O0 -std=f2008 -Wunused-variable -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+      (set OPT1=-O0 -std=f2008 -Wunused-variable -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
    ) else (
       if [%OPTC%]==[-m32] (set DIRECTORY=gfortran) else (set DIRECTORY=gfortran64)
       (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
