@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Atoms) Atm_005
+SubModule (CFML_Atoms) Generating_Atoms_inCell
    Contains
 
    !!----
@@ -130,4 +130,4 @@ SubModule (CFML_Atoms) Atm_005
       call allocate_atom_list(0,c_atm,Type_Atm,3)
 
    End Subroutine Extend_List
-End SubModule
+End SubModule Generating_Atoms_inCell

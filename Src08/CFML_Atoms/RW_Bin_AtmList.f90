@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Atoms) Atm_004
+SubModule (CFML_Atoms) ReadnWrite_Atoms_Binary
    Contains
    !!----
    !!---- READ_BIN_ATOM_LIST
@@ -206,4 +206,4 @@ SubModule (CFML_Atoms) Atm_004
       close(unit=lun)
    End Subroutine Write_Bin_atom_list
 
-End SubModule Atm_004
+End SubModule ReadnWrite_Atoms_Binary

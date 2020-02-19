@@ -392,7 +392,7 @@ rem
 rem  
 rem   Submodules CFML_Atoms    
       cd .\CFML_Atoms   
-      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+rem      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
@@ -421,17 +421,17 @@ rem   Submodules CFML_Reflections
       move /y *.obj .. > nul
       cd .. 
 rem
-rem    echo .... I/O Formats procedures
-rem    ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
-rem rem  
-rem rem   Submodules CFML_IOForm    
-rem       cd .\CFML_IOForm
-rem       ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-rem       ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      echo .... I/O Formats procedures
+      ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+rem    
+rem    Submodules CFML_IOForm    
+      cd .\CFML_IOForm
+      ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
 rem       ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-rem       move /y *.obj .. > nul       
-rem       cd ..
-rem       goto END
+rem       ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul       
+      cd ..
+      goto END
 rem 
 rem rem
 rem    echo .... Mathematical(II), Optimization, Tables, Patterns
@@ -500,7 +500,7 @@ rem
      copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
      move *.lib ..\%DIRECTORY%\LibC08\. > nul
    )
-  del *.obj  *.lst *.bak > nul
+  del *.obj  *.lst *.bak *.pdb > nul
 rem
 :FIN
    echo.
