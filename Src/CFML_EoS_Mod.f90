@@ -2186,7 +2186,7 @@ Contains
 
       type(Eos_Type)                    :: EoS  ! Eos copy
       real(kind=cp)                     :: V
-      real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
+      real(kind=cp)                     :: V0,K0,Kp,strain,vfactor !,k
       real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev,a,logterm
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
@@ -5446,7 +5446,7 @@ Contains
       !---- Local variables ----!
       integer             :: n
       character(len=100)   :: car
-      real(kind=cp)       :: tlimit,pinf,p,v,t,pmin,vmin
+      real(kind=cp)       :: tlimit,pinf,p,v,t,vmin !,pmin
       type(eos_type)      :: e,eiso
       logical             :: vpresent
 
@@ -5642,8 +5642,8 @@ Contains
 
       !---- Local variables ----!
       real(kind=cp)       :: p,v,t
-      real(kind=cp),dimension(3)       :: abc
-      real(kind=cp)       :: plim,Vprev,klim,logterm,vv0,k0,kp !kc,bp,step,kprev,Vnew
+      !real(kind=cp),dimension(3)       :: abc
+      real(kind=cp)       :: plim,klim,logterm,vv0,k0,kp !kc,bp,step,kprev,Vnew,Vprev
       type(eos_type)      :: e
 
 
