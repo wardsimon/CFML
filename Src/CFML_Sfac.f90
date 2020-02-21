@@ -684,7 +684,7 @@
       complex(kind=cp),dimension(3)            :: Mc
       logical                                  :: mag,nuc,mag_only
       character(len=1)                         :: tw
-      real(kind=cp) :: ffr, ffi, ffx, cosr, sinr, scosr, z, ssinr, temp,snexi !,x1, yy
+      real(kind=cp) :: ffr, ffi, ffx, cosr, sinr, scosr, ssinr, temp,snexi !,x1, yy, z
       real(kind=cp) :: x, arg, arg2, exparg,ssnn
       real(kind=dp) :: a1, a3, b1, b3, av,bv
       real(kind=dp), parameter  :: pn=0.2695420113693928312

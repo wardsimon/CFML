@@ -6422,7 +6422,7 @@
        !character(len=1)    :: statut
        integer,save        :: iunit
        integer             :: i,j,n !,mirf,mult,iph,ivk,ix,icz,irc
-       real(kind=cp)       :: an, fcal2, R_patt,R_wpatt,R_exp, Chi2 !, phas, dspac, fobs2
+       real(kind=cp)       :: an, R_patt,R_wpatt,R_exp, Chi2 !, phas, dspac, fobs2, fcal2
        !integer,      dimension(3):: hi
        !real(kind=cp),dimension(3):: hr
 
