@@ -1337,7 +1337,7 @@
        allocate(trcoo(3,max_coor))
 
 
-       call get_deriv_Orth_cell(cell,DerM,"A")
+       call get_deriv_Orth_cell(cell,DerM,"A ")
 
        if (present(lun_cons)) then
           num_angc=0
