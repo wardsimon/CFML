@@ -44,7 +44,7 @@ Module CFML_IOForm
     Use CFML_Strings,           only: l_case, u_case, get_num, cut_string, get_words, &
                                       get_numstd, Read_Key_Value, Read_Key_ValueSTD,  &
                                       string_numstd, Number_Lines, Reading_Lines, FindFMT, &
-                                      Init_FindFMT
+                                      Init_FindFMT, String_Array_Type, File_type
     Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                       AtList_Type, Allocate_Atom_List
     Use CFML_Metrics,           only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
@@ -125,28 +125,6 @@ Module CFML_IOForm
        real(kind=cp)      ,dimension(:), allocatable :: ratio
        real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2
     End Type Job_Info_type
-
-    Type, public :: String_Array_Type
-      character(len=:), allocatable :: str
-    End Type String_Array_Type
-
-    !!----
-    !!---- TYPE :: FILE_TYPE
-    !!--..
-    !!---- Type,public :: File_List_Type
-    !!----    integer                                       :: nlines ! Number of lines in the file
-    !!----    character(len=256), allocatable, dimension(:) :: line   ! Content of the lines
-    !!---- End Type file_list_type
-    !!----
-    !!---- Updated: February - 2005, November 2012, February 2020
-    !!
-    Type, public :: File_Type
-       character(len=:),               allocatable        :: Fname      ! Name of file
-       integer                                            :: Iunit =0   ! Logical unit
-       integer                                            :: nlines=0   ! Number of lines
-       Type(String_Array_Type), dimension(:), allocatable :: line       ! Strings containing the lines of the file
-    End Type File_Type
-
 
     !---- Overloaded Zone ----!
 

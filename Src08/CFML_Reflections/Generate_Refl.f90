@@ -1,14 +1,14 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_009
+SubModule (CFML_Reflections) Generation_of_general_Reflections
    Contains
    !!----
    !!---- Gener_Reflections
    !!----    Calculate unique reflections between two values of
    !!----    sin_theta/lambda.  The output is not ordered.
    !!----
-   !!---- 21/06/2019 
+   !!---- 21/06/2019
    !!
    Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only)
       !---- Arguments ----!
@@ -31,7 +31,7 @@ SubModule (CFML_Reflections) RFL_009
       integer,      dimension(:),   allocatable :: hh,kk,nulo
       integer,      dimension(:,:), allocatable :: hkl,hklm
       integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
-      
+
       real(kind=cp),dimension(:),   allocatable :: sv,sm
       logical                                   :: kvect,ordering,magg
 
@@ -64,13 +64,13 @@ SubModule (CFML_Reflections) RFL_009
             max_s=sintlmax
          end if
       end if
-      
+
       allocate(hkl(Dd,maxref), indx(maxref), indtyp(maxref), ind(maxref), sv(maxref))
       allocate(hh(Dd), kk(Dd), nulo(Dd))
       nulo=0
       indtyp=0
       num_ref=0
-      
+
       !> Generation of fundamental reflections
       i0=0
       ext_do: do h=hmin,hmax
@@ -80,13 +80,13 @@ SubModule (CFML_Reflections) RFL_009
                hh(1:3)=[h,k,l]
                sval=H_S(hh,Cell)
                if (sval > sintlmax) cycle
-               
+
                num_ref=num_ref+1
                if (num_ref > maxref) then
                   num_ref=maxref
                   exit ext_do
                end if
-               
+
                if (sval < epsr) i0=num_ref !localization of 0 0 0  reflection
                sv(num_ref)=sval
                hkl(:,num_ref)=hh
@@ -106,27 +106,27 @@ SubModule (CFML_Reflections) RFL_009
                   hh(4:3+nk)=ia*kinfo%q_coeff(1:nk,n)
                   sval=H_S(hh, Cell, nk, kinfo%kv)
                   if (sval > max_s) cycle
-                  
+
                   num_ref=num_ref+1
                   if (num_ref > maxref) then
                      num_ref=maxref
                      exit do_ex
                   end if
-                  
+
                   sv(num_ref)=sval
                   hkl(:,num_ref)=hh
                end do !ia
             end do  !i
          end do do_ex
       end if
-      
+
       !> elimination of the reflection (0000..)
-      do i=i0+1,num_ref  
+      do i=i0+1,num_ref
          sv(i-1)=sv(i)
          hkl(:,i-1)=hkl(:,i)
       end do
       num_ref=num_ref-1
-      
+
       !> Determination of reflection character and extinctions (Lattice + others)
       n=0
       do i=1,num_ref
@@ -157,7 +157,7 @@ SubModule (CFML_Reflections) RFL_009
                end if
             end if
          end if
-         
+
          n=n+1
          hkl(:,n)=hkl(:,i)
          sv(n)=sv(i)
@@ -174,9 +174,9 @@ SubModule (CFML_Reflections) RFL_009
             sm(i)=sv(j)
             ind(i)=indtyp(j)
          end do
-         
+
          !> contains now the type of reflection in the proper order
-         indtyp(1:num_ref)=ind(1:num_ref) 
+         indtyp(1:num_ref)=ind(1:num_ref)
          hkl(:,1:num_ref)=hklm(:,1:num_ref)
          sv(1:num_ref)=sm(1:num_ref)
          if (present(SpG) .and. present(powder)) then
@@ -225,12 +225,13 @@ SubModule (CFML_Reflections) RFL_009
             indtyp(1:indp)=ind(1:indp)
             num_ref=indp
          end if  !SpG and Powder
+
       end if !present "order"
 
       !> Final assignments
       if (allocated(reflex)) deallocate(reflex)
       allocate(reflex(num_ref))
-      
+
       do i=1,num_ref
          allocate(reflex(i)%h(Dd)) !needed in f95
          reflex(i)%h      = hkl(:,i)
@@ -253,5 +254,5 @@ SubModule (CFML_Reflections) RFL_009
         reflex(i)%imag = indtyp(i)
       end do
    End Subroutine Gener_Reflections
-   
-End SubModule RFL_009   
+
+End SubModule Generation_of_general_Reflections

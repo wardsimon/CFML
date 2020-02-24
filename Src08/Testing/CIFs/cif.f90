@@ -11,7 +11,7 @@
     !use CFML_Rational
     use CFML_IOForm
     use CFML_Atoms
-    !use CFML_Strings,only: pack_string
+    use CFML_Strings,only: File_type !pack_string
     implicit none
 
     character(len=256)                  :: fname

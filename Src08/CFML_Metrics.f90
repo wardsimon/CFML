@@ -139,18 +139,14 @@
               Get_B_from_Betas, Get_B_from_U, Get_Betas_from_B, Get_Betas_from_Biso, &
               Get_Betas_from_U, Get_U_from_B, Get_U_from_Betas, &
               Get_Basis_From_UVW, Get_Deriv_Orth_Cell, Get_Transfm_Matrix , &
-              Get_TwoFold_Axes, &
-              Rot_MetricalMatrix, &
+              Get_TwoFold_Axes, Rot_Gibbs_Matrix, &
               SigmaV_From_Cell, Strain_from_Cell, &
-              U_Equiv, &
-              Volume_from_Cell
+              U_Equiv, Volume_from_Cell
 
     !---- Public Subroutine ----!
-    public :: Change_Setting_Cell, &
-              Niggli_Cell, &
+    public :: Change_Setting_Cell, Niggli_Cell, &
               Get_Conventional_Cell, Get_Cryst_Family, Get_Primitive_Cell, &
-              Read_Bin_Crystal_Cell, &
-              Set_Crystal_Cell, &
+              Read_Bin_Crystal_Cell, Set_Crystal_Cell, &
               Write_Crystal_Cell, Write_Bin_Crystal_Cell
 
 
@@ -171,7 +167,7 @@
     !!----
     !!---- CELL_G_TYPE
     !!--..
-    Type, public, extends(Cell_Type) :: Cell_G_Type
+    Type, public, extends(Cell_Type):: Cell_G_Type
        real(kind=cp),dimension(3)   :: rcell      =0.0_cp  ! Reciprocal Cell parameters
        real(kind=cp),dimension(3)   :: rang       =0.0_cp  !
        real(kind=cp)                :: rvol       =0.0_cp
@@ -460,13 +456,13 @@
           real(kind=cp),               intent(out) :: rvol
        End Subroutine Reciprocal_Cell
 
-       Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+       Module Pure Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
           !---- Argument ----!
           real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
-          real(kind=cp),                    intent(in) :: phi   ! Degree of rotation around V
+          real(kind=cp),                    intent(in) :: phi   ! Angle in Degrees of rotation around V
           class(Cell_G_Type), optional,     intent(in) :: cell  ! Cell object
-          real(kind=cp), dimension(3,3)                :: Mat   ! Metrical Matrix rotated
-       End Function Rot_MetricalMatrix
+          real(kind=cp), dimension(3,3)                :: Mat   ! Gibbs Matrix corresponding to the rotation around V of an angle Phi
+       End Function Rot_Gibbs_Matrix
 
        Module Subroutine Set_Crystal_Cell(VCell,VAng,Cell,Cartype,Vscell,Vsang)
           !---- Arguments ----!

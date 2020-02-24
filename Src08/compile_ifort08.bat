@@ -55,10 +55,10 @@ rem
    echo OPT3:%OPT3%
    echo.
 rem
-   echo .... Global Dependencies 
+   echo .... Global Dependencies
    ifort /c CFML_GlobalDeps_Windows_IFOR.f90         /nologo %OPT1% %OPT2% /module:.\mod
 rem
-   echo .... Input / Output Messages 
+   echo .... Input / Output Messages
    if [%_WINTER%]==[Y] (
      ifort /c CFML_Messages_Win.f90                  /nologo %OPT1% %OPT2% %OPT3% /module:.\mod
    ) else (
@@ -74,7 +74,7 @@ rem   Submodules CFML_Mess
         ifort /c Win_Stop_Message.f90                /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
         ifort /c Win_Warning_Message.f90             /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
         ifort /c Win_Write_ScrollMsg.f90             /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
-        
+
       ) else (
         ifort /c Err_Message.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
         ifort /c Info_Message.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
@@ -83,13 +83,15 @@ rem   Submodules CFML_Mess
         ifort /c Write_ScrollMsg.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       )
       move /y *.obj .. > nul
-      cd ..   
+      cd ..
 rem
 rem
    echo .... Mathematics
    ifort /c CFML_Maths.f90                           /nologo %OPT1% %OPT2% /module:.\mod
-   ifort /c CFML_FFT.f90                             /nologo %OPT1% %OPT2% /module:.\mod 
-   ifort /c CFML_Random.f90                          /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_FFT.f90                             /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Random.f90                          /nologo %OPT1% %OPT2% /module:.\mod
+rem  The module below is not needed in ifort, but it is maintained here for compatibility with gfortran
+   ifort /c CFML_Trigonometry.f90                    /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Maths
       cd .\CFML_Maths
@@ -138,27 +140,27 @@ rem   Submodules CFML_Maths
       cd ..
 rem
 rem   Submodules CFML_FFT
-      cd .\CFML_FFT        
+      cd .\CFML_FFT
       ifort /c FFT_Convol.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c FFT_Gen.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..    
+      cd ..
 rem
 rem   Submodules CFML_Random
-      cd .\CFML_Random  
-      ifort /c Random_Beta.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_Binomial.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_Cauchy.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_Gamma.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_InvGauss.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_Normal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_Poisson.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_T.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Random_VonMises.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      cd .\CFML_Random
+      ifort /c Random_Beta.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_Binomial.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_Cauchy.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_Gamma.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_InvGauss.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_Normal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_Poisson.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_T.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Random_VonMises.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..              
+      cd ..
 rem
-   echo .... Strings 
+   echo .... Strings
    ifort /c CFML_Strings.f90                         /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Strings
@@ -170,7 +172,7 @@ rem   Submodules CFML_Strings
       move /y *.obj .. > nul
       cd ..
 rem
-   echo .... Rational arithmetics 
+   echo .... Rational arithmetics
    ifort /c CFML_Rational.f90                        /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Rational
@@ -195,8 +197,8 @@ rem   Submodules CFML_Rational
       move /y *.obj .. > nul
       cd ..
 rem
-   echo .... Metrics  
-   ifort /c CFML_Metrics.f90                         /nologo %OPT1% %OPT2% /module:.\mod 
+   echo .... Metrics
+   ifort /c CFML_Metrics.f90                         /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Metrics
       cd .\CFML_Metrics
@@ -205,160 +207,160 @@ rem   Submodules CFML_Metrics
       ifort /c NiggliCell.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ThConver.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..  
+      cd ..
 rem
-   echo .... Defining Tables 
-   ifort /c CFML_Scattering_Tables.f90               /nologo %OPT1% %OPT2% /module:.\mod 
-   ifort /c CFML_Bonds_Tables.f90                    /nologo %OPT1% %OPT2% /module:.\mod 
-   ifort /c CFML_Symmetry_Tables.f90                 /nologo %OPT0% %OPT2% /module:.\mod 
-   ifort /c CFML_BVS_Tables.f90                      /nologo %OPT0% %OPT2% /module:.\mod 
-   ifort /c CFML_Magnetic_Database.f90               /nologo %OPT0% %OPT2% /module:.\mod 
-   ifort /c CFML_SuperSpace_Database.f90             /nologo %OPT0% %OPT2% /module:.\mod 
+   echo .... Defining Tables
+   ifort /c CFML_Scattering_Tables.f90               /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Bonds_Tables.f90                    /nologo %OPT1% %OPT2% /module:.\mod
+   ifort /c CFML_Symmetry_Tables.f90                 /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_BVS_Tables.f90                      /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_Magnetic_Database.f90               /nologo %OPT0% %OPT2% /module:.\mod
+   ifort /c CFML_SuperSpace_Database.f90             /nologo %OPT0% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Tables
       cd .\CFML_Tables
-      ifort /c Del_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Get_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Set_ScatterT.f90                       /nologo %OPT0% %OPT2%  /module:..\mod 
-rem        
-      ifort /c Del_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod   
-      ifort /c Get_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod   
+      ifort /c Del_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_ScatterT.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Set_ScatterT.f90                       /nologo %OPT0% %OPT2%  /module:..\mod
+rem
+      ifort /c Del_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Set_BondsT.f90                         /nologo %OPT0% %OPT2%  /module:..\mod
 rem
-      ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_SpgSymbols.f90                     /nologo %OPT0% %OPT2%  /module:..\mod 
-      ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
+      ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_SpgSymbols.f90                     /nologo %OPT0% %OPT2%  /module:..\mod
+      ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod
 rem
-      ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Set_BVST.f90                           /nologo %OPT0% %OPT2%  /module:..\mod 
+      ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Set_BVST.f90                           /nologo %OPT0% %OPT2%  /module:..\mod
 rem
-      ifort /c Allocating_MagneticDBase.f90           /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Allocating_MagneticDBase.f90           /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
 rem
-      ifort /c Allocating_SuperSpaceDBase.f90         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Read_SSG_DBase.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Allocating_SuperSpaceDBase.f90         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Read_SSG_DBase.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
 rem
       move /y *.obj .. > nul
-      cd .. 
-rem   
-   echo .... Symmetry / SpaceGroups  
-   ifort /c CFML_gSpaceGroups.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
+      cd ..
+rem
+   echo .... Symmetry / SpaceGroups
+   ifort /c CFML_gSpaceGroups.f90                           /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_gSpaceGroups
       cd .\CFML_gSpaceGroups
-      ifort /c Init_Procedures.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Rational_IsLattVec.f90                 /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Rational_RedTraslation.f90             /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Operator_Equal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Operator_Mult.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Sort_Operator.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Write_SpaceG.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Allocate_Opers.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Allocate_SpaceG.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Reorder_Oper.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Symb_Mat.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Symb_Oper.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Mat_Symb.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Oper_Symb.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Dimension.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Mult_OPTable.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c Init_Procedures.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Rational_IsLattVec.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Rational_RedTraslation.f90             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_Equal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Operator_Mult.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Sort_Operator.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Write_SpaceG.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Allocate_Opers.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Allocate_SpaceG.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Reorder_Oper.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Symb_Mat.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Symb_Oper.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Mat_Symb.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Oper_Symb.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Dimension.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Mult_OPTable.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_GenerStr.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c CheckGener.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Ops_Gener.f90                      /nologo %OPT1% %OPT2%  /module:..\mod  
-      ifort /c Spg_Const_Str.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Spg_Const_VGen.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_OriginShift.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_HM_Standard.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Rotations.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_PseudoStdBase.f90                  /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_X_Matrix.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Generators.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Match_Shubnikov_Grp.f90                /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Identify_Groups.f90                    /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_LauePG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Gener_Hall.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Inverse_OP.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_CrystalSys.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Match_Spg3D.f90                        /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Set_SpaceG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c OnePrimeOp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Get_Stabilizer.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c CheckGener.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Ops_Gener.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Spg_Const_Str.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Spg_Const_VGen.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_OriginShift.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_HM_Standard.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Rotations.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_PseudoStdBase.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_X_Matrix.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Generators.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Match_Shubnikov_Grp.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Identify_Groups.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_LauePG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Gener_Hall.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Inverse_OP.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_CrystalSys.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Match_Spg3D.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Set_SpaceG.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c OnePrimeOp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Stabilizer.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd .. 
- rem   
-    echo .... Profiles  
-    ifort /c CFML_Profiles.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
+      cd ..
+ rem
+    echo .... Profiles
+    ifort /c CFML_Profiles.f90                        /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Profiles
-      cd .\CFML_Profiles   
-      ifort /c Init_ProfVal.f90                       /nologo %OPT0% %OPT2%  /module:..\mod    
-      ifort /c Profile_Hester.f90                     /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_Gaussian.f90                   /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_Lorentzian.f90                 /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_PseudoVoigt.f90                /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c TOF_Carpenter.f90                      /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c TOF_Jorgensen.f90                      /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c TOF_Jorg_Vondreele.f90                 /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_BacktoBack.f90                 /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_Exponential.f90                /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_Hat.f90                        /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_IkedaCarpenter.f90             /nologo %OPT1% %OPT2%  /module:..\mod    
-      ifort /c Profile_TCHpVoigt.f90                  /nologo %OPT1% %OPT2%  /module:..\mod    
+      cd .\CFML_Profiles
+      ifort /c Init_ProfVal.f90                       /nologo %OPT0% %OPT2%  /module:..\mod
+      ifort /c Profile_Hester.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_Gaussian.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_Lorentzian.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_PseudoVoigt.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c TOF_Carpenter.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c TOF_Jorgensen.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c TOF_Jorg_Vondreele.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_BacktoBack.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_Exponential.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_Hat.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_IkedaCarpenter.f90             /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Profile_TCHpVoigt.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd .. 
+      cd ..
 rem
-   echo .... Diffraction Patterns 
+   echo .... Diffraction Patterns
    ifort /c CFML_DiffPatt.f90                         /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_DiffPatt
       cd .\CFML_DiffPatt
-      ifort /c FWHM_Peak.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c NoisyPoints.f90                        /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c BackgPatt.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_CIF.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_FREE.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_XYSIG.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_TimeVar.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_GSAS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_ILL.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_LLB.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_ISIS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_NLS.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_PSI.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_PAN.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatt_Socabim.f90                   /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c Add_Patterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ReadPatterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c WritePatterns.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c FWHM_Peak.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c NoisyPoints.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c BackgPatt.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_CIF.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_FREE.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_XYSIG.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_TimeVar.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_GSAS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_ILL.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_LLB.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_ISIS.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_NLS.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_PSI.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_PAN.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatt_Socabim.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Add_Patterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ReadPatterns.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c WritePatterns.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..                           
+      cd ..
 rem
    echo .... Extintion corrections
-   ifort /c CFML_ExtinCorr.f90                        /nologo %OPT1% %OPT2% /module:.\mod 
-rem      
+   ifort /c CFML_ExtinCorr.f90                        /nologo %OPT1% %OPT2% /module:.\mod
+rem
 rem   Submodules CFML_ExtinCorr
       cd .\CFML_ExtinCorr
-      ifort /c BeckerCoppens.f90                      /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c FlippingRatios.f90                     /nologo %OPT1% %OPT2%  /module:..\mod 
-      ifort /c ShelxCorr.f90                          /nologo %OPT1% %OPT2%  /module:..\mod 
+      ifort /c BeckerCoppens.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c FlippingRatios.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c ShelxCorr.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd .. 
+      cd ..
 rem
    echo .... EoS Calculations
-   ifort /c CFML_EoS.f90                              /nologo %OPT1% %OPT2% /module:.\mod 
+   ifort /c CFML_EoS.f90                              /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_EoS
-      cd .\CFML_EoS   
+      cd .\CFML_EoS
       ifort /c AllocateEos.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c AlphaCalc.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Checks.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
@@ -385,26 +387,26 @@ rem   Submodules CFML_EoS
       ifort /c Strain.f90                             /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Write_EoS.f90                          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd ..   
+      cd ..
 rem
    echo .... Atoms procedures
-   ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod 
-rem  
-rem   Submodules CFML_Atoms    
-      cd .\CFML_Atoms   
+   ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem   Submodules CFML_Atoms
+      cd .\CFML_Atoms
 rem      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd .. 
+      cd ..
 rem
    echo .... Reflections procedures
-   ifort /c CFML_Reflections.f90                      /nologo %OPT1% %OPT2% /module:.\mod 
-rem  
-rem   Submodules CFML_Reflections    
-      cd .\CFML_Reflections      
+   ifort /c CFML_Reflections.f90                      /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem   Submodules CFML_Reflections
+      cd .\CFML_Reflections
       ifort /c H_Absent.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c H_Equal.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c H_Equiv.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
@@ -419,20 +421,20 @@ rem   Submodules CFML_Reflections
       ifort /c H_EquivList.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Write_RefList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
-      cd .. 
+      cd ..
 rem
       echo .... I/O Formats procedures
-      ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod 
-rem    
-rem    Submodules CFML_IOForm    
+      ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem    Submodules CFML_IOForm
       cd .\CFML_IOForm
       ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
 rem       ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
 rem       ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      move /y *.obj .. > nul       
+      move /y *.obj .. > nul
       cd ..
       goto END
-rem 
+rem
 rem rem
 rem    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem rem

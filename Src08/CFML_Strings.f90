@@ -49,17 +49,18 @@
     private
 
     !---- List of public functions ----!
-    public ::  Equal_Sets_Text, &
-               Frac_Trans_1Dig, Frac_Trans_2Dig, &
-               Get_DateTime, Get_Dirname, Get_Extension, Get_Filename, &
-               Get_Mat_From_Symb, Get_Vec_From_String, &
-               L_Case, &
-               NumCol_from_NumFmt, &
-               Pack_String, &
-               Read_Fract, &
-               Set_Symb_From_Mat, String_Count, Strip_String, String_Real, &
-               String_Fraction_1Dig, String_Fraction_2Dig, String_NumStd,  &
-               U_Case
+    public :: Equal_Sets_Text, &
+              Frac_Trans_1Dig, Frac_Trans_2Dig, &
+              Get_DateTime, Get_Dirname, Get_Extension, Get_Filename, &
+              Get_Mat_From_Symb, Get_Vec_From_String, &
+              L_Case, U_Case, &
+              NumCol_from_NumFmt, &
+              Pack_String, &
+              Read_Fract, &
+              Number_Lines, Reading_File, &
+              Set_Symb_From_Mat, String_Count, Strip_String, String_Real, &
+              String_Fraction_1Dig, String_Fraction_2Dig, String_NumStd
+
 
     !---- List of public subroutines ----!
     public :: Cut_string, &
@@ -67,10 +68,31 @@
               Get_Separator_Pos, Get_Substring_Positions, Get_Words, &
               Get_Num, Get_NumStd, Get_Transf, &
               Init_FindFmt, Inc_LineNum, &
-              Number_Lines, &
               Reading_Lines, Read_Key_Str, Read_Key_StrVal, Read_Key_Value, &
               Read_Key_ValueSTD, &
               Sort_Strings, SubString_Replace
+
+
+    Type, public :: String_Array_Type          !Type for handling allocatable arrays of allocatable strings
+      character(len=:), allocatable :: str
+    End Type String_Array_Type
+
+    !!----
+    !!---- TYPE :: FILE_TYPE
+    !!--..
+    !!---- Type,public :: File_Type
+    !!----    character(len=:),   allocatable               :: Fname  ! Original name of the file
+    !!----    integer                                       :: nlines ! Number of lines in the file
+    !!----    character(len=256), allocatable, dimension(:) :: line   ! Content of the lines
+    !!---- End Type file_type
+    !!----
+    !!---- Updated: February - 2005, November 2012, February 2020 (moved from CFML_IO_FORM)
+    !!
+    Type, public :: File_Type
+       character(len=:),               allocatable        :: Fname      ! Name of file
+       integer                                            :: nlines=0   ! Number of lines
+       Type(String_Array_Type), dimension(:), allocatable :: line       ! Strings containing the lines of the file
+    End Type File_Type
 
 
     !--------------------!
@@ -405,6 +427,75 @@
 
 
  Contains
+    !!----
+    !!---- READING_File
+    !!----    Function Reading_File(filename) result (filecont)
+    !!----    character(len=*), intent( in) :: filename    ! Filename
+    !!----    type(File_Type)               :: filecont    ! File_Type variable containing the lines
+    !!----
+    !!----
+    !!----    Read the file and put the information on the File_Type object Filecont.
+    !!----    This function is similar to subroutine Reading_Lines, except that it constructs
+    !!----    the File_Type object Filecont. The file is opened to read the lines and closed before
+    !!----    returning to the calling unit.
+    !!----
+    !!---- 24/02/2020
+    !!
+    Function Reading_File(filename) result (filecont)
+       !---- Arguments ----!
+       character(len=*), intent( in) :: filename    ! Filename
+       type(File_Type)               :: filecont    ! File_Type object containing the lines
+
+       !---- Local Variables ----!
+       logical            :: info,opn
+       integer            :: lun,i,olun,nlines,ier
+       character(len=256) :: buffer
+
+       !> Init
+       info=.false.
+       filecont%fname=trim(filename)
+       filecont%nlines=0
+
+       !> Exist filename ?
+       inquire (file=trim(filename),exist=info)
+       if (.not. info) then
+          err_cfml%ierr=1
+          err_cfml%msg="The file"//trim(filename)//" does not exist "
+          return
+       end if
+
+       !> Is open this file?
+       inquire(file=trim(filename),opened=opn, number=olun)   !Check if the file is already opened
+       if (opn) then
+          rewind(olun)
+          lun=olun
+       else
+          open(newunit=lun,file=filename, status="old",action="read", position="rewind")
+       end if
+
+       !Reading the number of lines
+       nlines=0
+       do
+         read(unit=lun,fmt="(a)",iostat=ier) buffer
+         if(ier /= 0) Exit
+         nlines=nlines+1
+       end do
+       if(nlines == 0) then
+          err_cfml%ierr=1
+          err_cfml%msg="The file"//trim(filename)//" contains no lines ! "
+          return
+       end if
+       rewind(unit=lun)
+       filecont%nlines=nlines
+       allocate(filecont%line(nlines))
+       do i=1,nlines
+          read(unit=lun,fmt="(a)",iostat=ier) buffer
+          filecont%line(i)%str=trim(buffer)
+       end do
+       if (.not. opn) close(unit=lun)
+
+    End Function Reading_File
+
     !!----
     !!---- READING_LINES
     !!----    Read nlines of the file and put the information on Filevar.

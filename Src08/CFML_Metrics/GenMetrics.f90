@@ -1835,7 +1835,7 @@ Submodule (CFML_Metrics) GenMetrics
     End Function Cart_U_Vector
 
     !!----
-    !!---- ROT_METRICALMATRIX(U, PHI, CELDA)
+    !!---- Rot_Gibbs_Matrix(U, PHI, CELDA)
     !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
     !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
     !!----    keeping the reference frame unchanged.
@@ -1847,12 +1847,12 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+    Module Pure Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
        !---- Argument ----!
        real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
-       real(kind=cp),                    intent(in) :: phi   ! Degree of rotation around V
+       real(kind=cp),                    intent(in) :: phi   ! Angle in Degrees of rotation around V
        class(Cell_G_Type), optional,     intent(in) :: cell  ! Cell object
-       real(kind=cp), dimension(3,3)                :: Mat   ! Metrical Matrix rotated
+       real(kind=cp), dimension(3,3)                :: Mat   ! Gibbs Matrix corresponding to the rotation around V of an angle Phi
 
        !---- Local variables ----!
        real(kind=cp)               :: c, s, umc, umod
@@ -1888,7 +1888,7 @@ Submodule (CFML_Metrics) GenMetrics
        Mat(3,3)= c+ umc*vc(3)**2
 
        return
-    End Function Rot_MetricalMatrix
+    End Function Rot_Gibbs_Matrix
 
     !!----
     !!---- STRAIN_FROM_CELL

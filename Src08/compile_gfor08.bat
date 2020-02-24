@@ -26,8 +26,8 @@ rem ----
     shift
     if not [%1]==[] goto LOOP
 rem
-rem ---- Options  (All warnings i gfortran -Wall)  
-rem                  
+rem ---- Options  (All warnings i gfortran -Wall)
+rem
    if [%_DEBUG%]==[Y] (
       if [%OPTC%]==[-m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
       (set OPT0=-O0 -std=f2008 -Wunused-variable -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
@@ -91,6 +91,7 @@ rem
    gfortran -c %OPTC%  -J.\mod CFML_Maths.f90                        %OPT1%
    gfortran -c %OPTC%  -J.\mod CFML_FFT.f90                          %OPT1%
    gfortran -c %OPTC%  -J.\mod CFML_Random.f90                       %OPT1%
+   gfortran -c %OPTC%  -J.\mod CFML_Trigonometry.f90                 %OPT1%
 rem
 rem   Submodules CFML_Maths
       cd .\CFML_Maths
