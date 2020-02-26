@@ -2739,6 +2739,8 @@
               trans=trm
             else
               trans=identity
+              Err_Crys = .true.
+              Err_Crys_Mess = "Unable to find transformation matrix"
             end if
           end if
        end if
