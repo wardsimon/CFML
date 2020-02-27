@@ -1021,6 +1021,7 @@ SubModule (CFML_gSpaceGroups) Spg_060
            call clear_error()
         end if
         if(len_trim(SpaceG%BNS_num) /= 0 .and. SpaceG%numshu /= 0 .and. len_trim(SpaceG%BNS_symb) == 0) then
+          call set_Shubnikov_info()
           SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
         end if
         if (.not. by_Gen) then

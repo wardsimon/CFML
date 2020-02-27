@@ -394,7 +394,6 @@ rem
 rem
 rem   Submodules CFML_Atoms
       cd .\CFML_Atoms
-rem      ifort /c Init_atoms.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
@@ -422,6 +421,9 @@ rem   Submodules CFML_Reflections
       ifort /c Write_RefList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
+rem
+      echo .... Propagation vectors procedures
+      ifort /c CFML_Propagk.f90                          /nologo %OPT1% %OPT2% /module:.\mod
 rem
       echo .... I/O Formats procedures
       ifort /c CFML_IOForm.f90                           /nologo %OPT1% %OPT2% /module:.\mod

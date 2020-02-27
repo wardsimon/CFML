@@ -424,16 +424,19 @@ rem   Submodules CFML_Reflections
       move /y *.o .. > nul
       cd ..
 rem
-rem   echo .... I/O Formats procedures
-rem   gfortran -c %OPTC%  -J.\mod CFML_IOForm.f90                  %OPT1%
+      echo .... Propagation vectors procedures
+      gfortran -c %OPTC%  -J.\mod CFML_Propagk.f90                    %OPT1%
+rem
+      echo .... I/O Formats procedures
+      gfortran -c %OPTC%  -J.\mod CFML_IOForm.f90                    %OPT1%
 rem
 rem   Submodules CFML_IOForm
-rem      cd .\CFML_IOForm
+         cd .\CFML_IOForm
 rem      gfortran -c %OPTC% -J..\mod Format_SHX.f90                     %OPT1%
-rem      gfortran -c %OPTC% -J..\mod Format_CFL.f90                     %OPT1%
+         gfortran -c %OPTC% -J..\mod Format_CFL.f90                     %OPT1%
 rem      gfortran -c %OPTC% -J..\mod Format_CIF.f90                     %OPT1%
-rem      move /y *.o .. > nul
-rem      cd ..
+         move /y *.o .. > nul
+         cd ..
       goto END
 
 :END

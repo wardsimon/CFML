@@ -54,7 +54,7 @@ rem > Compilation
    if [%_COMP%]==[ifort] (
       ifort /c Twin_Mod.f90          /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c DataRed_Mod.f90       /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c read_reflections.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_reflections.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c DataRed.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /exe:DataRed *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
    )

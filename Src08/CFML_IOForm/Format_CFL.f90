@@ -603,7 +603,7 @@ SubModule (CFML_IOForm) IOF_CFL
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CFL_Cell(lines, n_ini, n_end, Cell, CFrame)
+   Module Subroutine Read_CFL_Cell_Lines(lines, n_ini, n_end, Cell, CFrame)
       !---- Arguments ----!
       character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
       integer,                         intent(in out) :: n_ini   ! Index to start
@@ -611,11 +611,8 @@ SubModule (CFML_IOForm) IOF_CFL
       class(Cell_Type),                intent(out)    :: Cell    ! Cell object
       Character(len=*), optional,      intent( in)    :: CFrame
       !---- Local variables -----!
-      integer                              :: nlong, iv
+      integer                              :: iv
       real(kind=cp), dimension (6)         :: vcell, std
-
-      character(len=132)                   :: line
-      character(len=4)                     :: dire
 
       !> Init
       call clear_error()
@@ -631,9 +628,46 @@ SubModule (CFML_IOForm) IOF_CFL
       else
          call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
       end if
-   End Subroutine Read_CFL_Cell
+   End Subroutine Read_CFL_Cell_Lines
 
-    !!----
+    Module Subroutine Read_CFL_Cell_FileTyp(cfl, Cell, CFrame)
+      !---- Arguments ----!
+      Type(File_Type),            intent(in)     :: cfl   ! Containing information
+      class(Cell_Type),           intent(out)    :: Cell    ! Cell object
+      Character(len=*), optional, intent( in)    :: CFrame
+      !---- Local variables -----!
+      integer                              :: i, iv,n_ini,n_end
+      real(kind=cp), dimension (6)         :: vcell, std
+      character(len=132),dimension(1)      :: lines
+
+      !> Init
+      call clear_error()
+
+      n_ini=1; n_end=1
+      lines(1)=" "
+      do i=1,cfl%nlines
+        lines(1)=adjustl(u_case(cfl%line(i)%str))
+        if(lines(1)(1:4) == "CELL") exit
+      end do
+      if(len_trim(lines(1)) == 0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CFL_Cell@CFML_IOForm: Instruction 'CELL' not provided "
+         return
+      end if
+      call Read_Key_ValueSTD(lines,n_ini,n_end,"CELL",vcell,std,iv)
+      if (iv /= 6) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CFL_Cell@CFML_IOForm: Problems reading cell parameters!"
+         return
+      end if
+      if(present(CFrame)) then
+         call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, CarType=CFrame,Vscell=std(1:3), Vsang=std(4:6))
+      else
+         call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
+      end if
+   End Subroutine Read_CFL_Cell_FileTyp
+
+   !!----
     !!---- Subroutine Get_Job_Info(file_dat,i_ini,i_end,Job_info)
     !!----   character(len=*), dimension(:), intent( in) :: file_dat     !Lines of text (content of a file)
     !!----   integer,                        intent( in) :: i_ini,i_end  !Lines to explore
@@ -878,7 +912,7 @@ SubModule (CFML_IOForm) IOF_CFL
        return
     End Subroutine Get_Job_Info
 
-    Module Subroutine Read_CFL_SpG(lines, n_ini, n_end, SpG, xyz_type)
+    Module Subroutine Read_CFL_SpG_lines(lines, n_ini, n_end, SpG, xyz_type)
        !---- Arguments ----!
        character(len=*), dimension(:),  intent(in)     :: lines
        integer,                         intent(in out) :: n_ini
@@ -1034,6 +1068,253 @@ SubModule (CFML_IOForm) IOF_CFL
 
        End Select
 
-    End Subroutine Read_CFL_SpG
+    End Subroutine Read_CFL_SpG_lines
 
+    Module Subroutine Read_CFL_SpG_FileTyp(cfl, SpG, xyz_type)
+       !---- Arguments ----!
+       Type(File_Type),                 intent(in)     :: cfl
+       class(SpG_Type),                 intent(out)    :: SpG
+       character(len=*), optional,      intent(in)     :: xyz_type
+
+       !--- Local Variables ---!
+       integer :: i,j,k,ngen,nk,nq
+       character(len=:),     allocatable :: line,uline,setting,strcode
+       character(len=40), dimension(192) :: gen
+       logical :: change_setting
+       integer :: ier
+
+       call clear_error()
+       !Look for the appropriate keywords to construct the space group: Crystallographic, Shubnikov, or superspace
+       ngen=0
+       setting=" "
+       change_setting=.false.
+       strcode="xyz"
+       if(present(xyz_type)) strcode=xyz_type
+       !write(*,"(a,2i5)") " n_ini,n_end:",n_ini,n_end
+       do i=1,cfl%nlines
+         line=adjustl(cfl%line(i)%str)
+         if(len_trim(line) == 0) cycle
+         if(line(1:1) == "!" .or. line(1:1) == "#") cycle
+         j=index(line,"!")
+         if(j /= 0) line=line(1:j-1)
+         j=index(line,"::")
+         if(j /= 0) then
+           setting=trim(adjustl(line(j+2:)))
+           if(len_trim(setting) /= 0) change_setting=.true.
+           line=line(1:j-1)
+         end if
+        ! write(*,"(a)") "line: "//line
+         j=index(line," ")
+         uline=u_case(line(1:j-1))
+         !write(*,"(a)") "uline: "//uline
+         line=adjustl(line(j+1:))
+         !write(*,"(a/)") "line: "//line
+         Select Case(uline)
+           Case("HALL","SPGR","SPACEG")
+              call Set_SpaceGroup(line,SpG)
+           Case("SHUB")
+              call Set_SpaceGroup(line,"SHUBN",SpG)
+           Case("SSG","SUPER","SSPG")
+              call Set_SpaceGroup(line,"SUPER",SpG,strcode)
+           Case("GENLIST","GENERATORS","LIST")
+              call Set_SpaceGroup(line,SpG)
+           Case("GEN","SYMM")
+              ngen=ngen+1
+              gen(ngen)=line
+         End Select
+       end do
+
+       if(ngen > 0) then
+          !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
+           call Set_SpaceGroup("  ",SpG,ngen,gen)
+       end if
+
+       if(Err_CFML%Ierr == 1) return
+       if(change_setting) then
+         if(strcode == "xyz")  then
+           call Change_Setting_SpaceG(setting, SpG)
+         else
+           call Change_Setting_SpaceG(setting, SpG,strcode)
+         end if
+       end if
+       if(Err_CFML%Ierr == 1) return
+
+       !Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
+       Select Type (SpG)
+         Class is (SuperSpaceGroup_Type)
+           if(allocated(SpG%kv)) deallocate (SpG%kv)
+           if(allocated(SpG%nharm)) deallocate (SpG%nharm)
+           if(allocated(SpG%sintlim)) deallocate (SpG%sintlim)
+           if(allocated(SpG%Om)) deallocate (SpG%Om)
+           if(allocated(SpG%q_coeff)) deallocate (SpG%q_coeff)
+           allocate(SpG%Om(SpG%D,Spg%D,SpG%Multip))
+           do i=1,SpG%Multip
+              SpG%Om(:,:,i)=real(SpG%Op(i)%Mat(:,:))
+           end do
+           nk=0; nq=0
+           do i=1,cfl%nlines
+             line=adjustl(cfl%line(i)%str)
+             if(len_trim(line) == 0) cycle
+             if(line(1:1) == "!" .or. line(1:1) == "#") cycle
+             j=index(line,"!")
+             if(j /= 0) line=line(1:j-1)
+             j=index(line," ")
+             uline=u_case(line(1:j-1))
+             line=adjustl(line(j+1:))
+             Select Case(uline)
+               Case("NQVECT","NKVECT")
+                  Read(unit=line,fmt=*,iostat=ier) Spg%nk, Spg%nq
+                  if(ier /= 0) then
+                    Err_CFML%Ierr=1
+                    Err_CFML%Msg="Error reading the number of k-vectors and/or number of Q-coefficients"
+                    return
+                  end if
+                  allocate(Spg%kv(3,Spg%nk),Spg%q_coeff(Spg%nk,Spg%nq))
+                  allocate(Spg%nharm(Spg%nk),Spg%sintlim(Spg%nk))
+                  SpG%kv=0.0_cp; SpG%q_coeff=1; Spg%nharm=1; Spg%sintlim=1.0
+               Case("QVECT","KVECT")
+                  if(Spg%nk > 0) then
+                    nk=nk+1
+                    Read(unit=line,fmt=*,iostat=ier) Spg%kv(:,nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the k-vector #",nk
+                      return
+                    end if
+                  end if
+               Case("NHARM")
+                  if(Spg%nk > 0) then
+                    Read(unit=line,fmt=*,iostat=ier) Spg%nharm(1:Spg%nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      Err_CFML%Msg = "Error reading the nk harmonics !"
+                      return
+                    end if
+                  end if
+               Case("SINTL")
+                  if(Spg%nk > 0) then
+                    Read(unit=line,fmt=*,iostat=ier) Spg%sintlim(1:Spg%nk)
+                    if(ier /= 0) then
+                      Err_CFML%Ierr=1
+                      Err_CFML%Msg = "Error reading the maximum sinTheta/Lambda for harmonics!"
+                      return
+                    end if
+                  end if
+               Case("Q_COEFF")
+                  nq=nq+1
+                  Read(unit=line,fmt=*,iostat=ier) Spg%q_coeff(1:Spg%nk,nq)
+                  if(ier /= 0) then
+                    Err_CFML%Ierr=1
+                    write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the Q-coefficent # ",nq
+                    return
+                  end if
+
+             End Select
+           end do
+           if(Spg%nk /= (Spg%D-4)) then
+              Err_CFML%Ierr=1
+              write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of k-vectors,",Spg%nk, ", does not correspond with the additional dimensions of the group ",Spg%D-4
+              return
+           end if
+           if(Spg%nq /= nq) then
+              Err_CFML%Ierr=1
+              write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of expected Q-coefficients,",Spg%nq, ", does not correspond with number of read Q-coefficients ",nq
+              return
+           end if
+
+       End Select
+
+    End Subroutine Read_CFL_SpG_FileTyp
+
+    Module Subroutine Read_kinfo(cfl, kinfo)
+       !---- Arguments ----!
+       type(File_Type),                 intent(in)     :: cfl     ! File_type object
+       type(kvect_info_Type),           intent(out)    :: kinfo
+       !
+       integer :: i,j,ier,nk,nq
+       character(len=:),allocatable :: uline,line
+
+       nk=0; nq=0
+       do i=1,cfl%nlines
+         line=adjustl(cfl%line(i)%str)
+         if(len_trim(line) == 0) cycle
+         if(line(1:1) == "!" .or. line(1:1) == "#") cycle
+         j=index(line,"!")
+         if(j /= 0) line=line(1:j-1)
+         j=index(line," ")
+         if( j == 0) then
+           uline=u_case(line)
+         else
+           uline=u_case(line(1:j-1))
+         end if
+         line=adjustl(line(j+1:))
+
+         Select Case(uline)
+
+           Case("NQVECT","NKVECT","NKVEC")
+              Read(unit=line,fmt=*,iostat=ier) kinfo%nk, kinfo%nq
+              if(ier /= 0) then
+                Err_CFML%Ierr=1
+                Err_CFML%Msg="Error reading the number of k-vectors and/or number of Q-coefficients"
+                return
+              end if
+              allocate(kinfo%kv(3,kinfo%nk),kinfo%q_coeff(kinfo%nk,kinfo%nq))
+              allocate(kinfo%nharm(kinfo%nk),kinfo%sintlim(kinfo%nk))
+              kinfo%kv=0.0_cp; kinfo%q_coeff=1; kinfo%nharm=1; kinfo%sintlim=1.0
+
+           Case("QVECT","KVECT","KVEC")
+              if(kinfo%nk > 0) then
+                nk=nk+1
+                Read(unit=line,fmt=*,iostat=ier) kinfo%kv(:,nk)
+                if(ier /= 0) then
+                  Err_CFML%Ierr=1
+                  write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the k-vector #",nk
+                  return
+                end if
+              end if
+
+           Case("NHARM")
+              if(kinfo%nk > 0) then
+                Read(unit=line,fmt=*,iostat=ier) kinfo%nharm(1:kinfo%nk)
+                if(ier /= 0) then
+                  Err_CFML%Ierr=1
+                  Err_CFML%Msg = "Error reading the nk harmonics !"
+                  return
+                end if
+              end if
+
+           Case("SINTL")
+              if(kinfo%nk > 0) then
+                Read(unit=line,fmt=*,iostat=ier) kinfo%sintlim(1:kinfo%nk)
+                if(ier /= 0) then
+                  Err_CFML%Ierr=1
+                  Err_CFML%Msg = "Error reading the maximum sinTheta/Lambda for harmonics!"
+                  return
+                end if
+              end if
+
+           Case("Q_COEFF")
+              nq=nq+1
+              Read(unit=line,fmt=*,iostat=ier) kinfo%q_coeff(1:kinfo%nk,nq)
+              if(ier /= 0) then
+                Err_CFML%Ierr=1
+                write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the Q-coefficent # ",nq
+                return
+              end if
+         End Select
+       end do
+
+       if(kinfo%nk /= nk) then
+          Err_CFML%Ierr=1
+          write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of k-vectors,",kinfo%nk, ", does not correspond with the prescribed number: ",nk
+          return
+       end if
+
+       if(kinfo%nq /= nq) then
+          Err_CFML%Ierr=1
+          write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of expected Q-coefficients,",kinfo%nq, ", does not correspond with number of read Q-coefficients ",nq
+          return
+       end if
+
+     End Subroutine Read_kinfo
 End SubModule IOF_CFL

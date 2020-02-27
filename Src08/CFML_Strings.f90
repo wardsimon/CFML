@@ -565,14 +565,14 @@
        logical            :: info,opn
        integer            :: lun,cond,olun
        character (len=256):: read_line                             ! TR may 2013
-       integer            :: long                                  ! TR may 2013
+       integer            :: lon                                  ! TR may 2013
 
        !> Init
        n=0
 
        info=.false.
        cond=0
-       if (present(cond_string)) long=len_trim(cond_string)    ! TR may 2013
+       if (present(cond_string)) lon=len_trim(cond_string)    ! TR may 2013
 
        !> Exist filename ?
        inquire (file=trim(filename),exist=info)
@@ -597,7 +597,7 @@
           if (cond /= 0) exit
           read_line=adjustl(read_line)
           if (present(cond_string)) then                                         ! TR may 2013
-             if (u_case(read_line(1:long)) == u_case(cond_string(1:long))) exit
+             if (u_case(read_line(1:lon)) == u_case(cond_string(1:lon))) exit
           end if
           n=n+1
        end do

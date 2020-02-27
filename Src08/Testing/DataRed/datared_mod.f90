@@ -1,103 +1,76 @@
   Module DataRed_Mod
     Use CFML_GlobalDeps
     Use CFML_gSpaceGroups
+    Use CFML_IOForm, only : Read_CFL_SpG,Read_CFL_Cell,Read_kinfo
     Use CFML_Metrics
-    Use CFML_Strings, only: File_Type, Reading_File
+    Use CFML_Strings, only: File_Type, Reading_File,u_case
     Use CFML_Reflections
+    Use CFML_Propagation_Vectors
     Use Twin_Mod
     Implicit None
-    !Everything is public
-    integer, parameter :: nref=400000, inp=1, iou=2, ihkl=3, irej=4, iin=10
-    integer, dimension(nref)             :: idomain
-    integer, dimension(nref)             :: itreat, iord, nequv, ini, fin, numor, ivk, icod, warn
-    integer, dimension(nmax)             :: contr
-    integer, dimension(:),   allocatable :: hkl
-    real(kind=cp),    dimension(3,nref)  :: h
-    real(kind=cp),    dimension(nref)    :: intav, sigmav, sigstat,lambda_laue, &
-                                            tbar,twotet,absorpt
-    real(kind=cp),    dimension(3)       :: h1,h2,h3
-    real(kind=cp),    dimension(3)       :: kv
-    real(kind=cp),    dimension(3,48)    :: kvec
-    real(kind=cp),    dimension(4)       :: angles
-    real(kind=cp),    dimension(256)     :: weight  ! A maximum of 256 reflections equivalent to one of them can be treated
-    real(kind=cp),    dimension(3,nmax)  :: hkln
 
-    character(len=512)          :: filein, fileout, filered
-    character(len=256)          :: line, cmdline, title
-    character(len=50)           :: forma
-    character(len=20)           :: line1,wmess
-    character(len=1)            :: ans
-    !integer, dimension(:,:), allocatable :: hkls !indices for superspace case
+    Private
+    Public :: Read_DataRed_File, Header_Output, Write_Conditions
 
     Type, public :: Conditions_Type
-      logical :: Friedel    =.true.
-      logical :: prop       =.false.
-      logical :: file_given =.false.
-      logical :: cell_given =.false.
-      logical :: twinned    =.false.
-      logical :: wave_given =.false.
-      logical :: powder     =.false.
-      logical :: domain     =.false.
-      logical :: transf_ind =.false.
-      logical :: hkl_real   =.false.
-      logical :: eps_given  =.false.
-      logical :: statistics =.false.
-      logical :: scale_given=.false.
-      logical :: absent     =.false.
-      logical :: lauetof    =.false.
+      logical :: Friedel      = .true.
+      logical :: prop         = .false.
+      logical :: filout_given = .false.
+      logical :: filhkl_given = .false.
+      logical :: cell_given   = .false.
+      logical :: SpG_given    = .false.
+      logical :: twinned      = .false.
+      logical :: wave_given   = .false.
+      logical :: powder       = .false.
+      logical :: domain       = .false.
+      logical :: transf_ind   = .false.
+      logical :: hkl_real     = .false.
+      logical :: eps_given    = .false.
+      logical :: statistics   = .false.
+      logical :: absent       = .false.
+      logical :: lauetof      = .false.
+      logical :: scale_given  = .false.
+      character(len=:), allocatable :: title,forma
+      character(len=:), allocatable :: filhkl
       character(len=:), allocatable :: fileout
       integer                       :: hkl_type
       real(kind=cp), dimension(3,3) :: transhkl
       real(kind=cp), dimension(3)   :: cel,ang
       real(kind=cp)                 :: epsg, wavel
       real(kind=cp)                 :: warning=0.25  ! 25% error for warning equivalent reflections
+      real(kind=cp)                 :: scal_fact=1.0
     End Type Conditions_Type
 
-    Type, extends(Refl_Type)    :: ObsRef
-      real(kind=cp),dimension(3):: hr
-      real(kind=cp)             :: intens
-      real(kind=cp)             :: sigma
-      real(kind=cp)             :: twtheta
-      real(kind=cp)             :: omega
-      real(kind=cp)             :: chi
-      real(kind=cp)             :: phi
-    End Type ObsRef
-
-    Type(Refl_Type), dimension(:), allocatable :: Reflex
-    Type(SPG_Type)              :: SpG, twSpG
-    Type(SuperSpaceGroup_Type)  :: SSpG
-    Type(Cell_G_Type)           :: celda
     !Type(Group_k_Type)          :: Gk
 
-    character(len=*),parameter,dimension(0:1) :: warn_mess=["                      ",  &
-                                                             " <- Dubious reflection"]
-    real    :: total, sig, suma, suman, sumaw, sumanw, Rint, Rwint, aver_sig, &
-               wavel,sigg, int_rej, epsg, delt, warning, scal_fact, q2, aver_int
-    integer :: i,j,k, ier, nr=0, iv, ns, rej, ival,  nkv, nn, &
-               lenf, nin, hkl_type, ivp, nk, nequiv, L, drej, Lmin,i_refout, a,b
 
     contains
 
-    Subroutine Read_DataRed_File(cfl,cond,twins)
+    Subroutine Read_DataRed_File(cfl,cond,kinfo,twins,SpG,Cell)
       type(File_Type),       intent(in)  :: cfl
       type(Conditions_Type), intent(out) :: cond
+      type(kvect_info_Type), intent(out) :: kinfo
       type(Twin_Type),       intent(out) :: twins
-
+      class(SPG_Type),       intent(out) :: SpG
+      class(Cell_G_Type),    intent(out) :: Cell
       !--- Local variables ---!
-      integer :: i,j
+      integer :: i,j,k,ier
       character(len=:), allocatable :: keyw
       character(len=:), allocatable :: line
 
-!  TITLE   YMn2O5 Phase comm
-!  INPFIL  ymnm25K.col
-!  OUTFIL  ymnm25K
-!  WAVE    2.34
-!  CELL    7.2570 8.4918 5.6780 90 90 90
-!  SPGR    P -1
-!  EPSIL   0.0001
-!  KVEC    0.5 0 0.25
-!  HKL_T   5
+      ! First read crystallographic information from the input Data
 
+      call Read_CFL_Cell(Cfl,Cell)
+      if(Err_CFML%Ierr /= 0) return
+      cond%cell_given=.true.
+
+      call Read_CFL_SpG(Cfl,SpG)
+      if(Err_CFML%Ierr /= 0) return
+      cond%spg_given=.true.
+
+      call Read_kinfo(Cfl,kinfo)
+      if(Err_CFML%Ierr /= 0) return
+      if(kinfo%nk > 0) cond%prop=.true.
 
       do i=1,cfl%nlines
          line=adjustl(cfl%line(i)%str)
@@ -110,46 +83,37 @@
            keyw=u_case(trim(line(1:j-1)))
          end if
 
-
          Select Case(keyw)
+
+            Case("TITLE")
+              cond%title=adjustl(line(j:))
+
+            Case("INPFIL")
+              cond%filhkl=adjustl(line(j:))
+              cond%filhkl_given=.true.
 
             Case("OUTFIL")
               cond%fileout=adjustl(line(j:))
-              prop=.true.
-
-            Case("KVEC")
-              read(unit=line(6:),fmt=*,iostat=ier) kv
-              if(ier /= 0) then
-                write(unit=*,fmt="(a)") " => Error reading the propagation vector"
-                stop
-              end if
-              prop=.true.
+              cond%filout_given=.true.
 
             Case("TRANS")
               cond%transf_ind=.true.
-              read(unit=line(j:),fmt=*)  ((cond%transhkl(i,j),j=1,3),i=1,3)
+              read(unit=line(j:),fmt=*)  ((cond%transhkl(k,j),j=1,3),k=1,3)
 
             Case("SCALE")
-              scale_given=.true.
-              read(unit=line(j:),fmt=*)  cond%scal_fact
+              read(unit=line(j:),fmt=*,iostat=ier)  cond%scal_fact
+              if(ier /= 0) cond%scal_fact=1.0_cp
+              cond%scale_given=.true.
 
-            Case("STATI")
+            Case("STATISTICS")
               cond%statistics=.true.
 
-            Case("SPGR")
-              line1=adjustl(line(6:))
-
             Case("EPSIL")
-              read(unit=line(j:),fmt=*)  cond%epsg
+               read(unit=line(j:),fmt=*)  cond%epsg
                cond%eps_given=.true.
 
             Case("NFRDL")
                cond%Friedel=.false.
-
-            Case("CELL")
-               read(unit=line(j:),fmt=*)  cel, ang
-               call Set_Crystal_Cell(cel,ang,Celda)
-               cond%cell_given=.true.
 
             Case("WAVE")
                read(unit=line(j:),fmt=*)  cond%wavel
@@ -165,12 +129,12 @@
                cond%powder=.true.
 
             Case("TWIN")
-              call read_twinlaw(iin)
-              twinned=.true.
-              if(iubm) lambda=wavel
+              call read_twinlaw(cfl,Twins)
+              cond%twinned=.true.
+              if(Twins%iubm) lambda=cond%wavel
 
             Case("DOMAIN")
-              domain=.true.
+              cond%domain=.true.
 
          End Select
 
@@ -178,20 +142,39 @@
 
     End Subroutine Read_DataRed_File
 
-    Subroutine Header_Output()
-       write(unit=iou,fmt="(a)") "       ==============================="
-       write(unit=iou,fmt="(a)") "       DATA REDUCTION PROGRAM: DataRed"
-       write(unit=iou,fmt="(a)") "       ==============================="
-       write(unit=iou,fmt="(a)") "          JRC-ILL version:30-2-2020"
-       write(unit=iou,fmt="(a)") "       "
+    Subroutine Header_Output(lun)
+       integer,optional, intent(in) :: lun
+       integer :: iou
+       iou=6
+       if(present(lun)) iou=lun
+       write(unit=iou,fmt="(/,a)") "       ==============================="
+       write(unit=iou,fmt="(a)")   "       DATA REDUCTION PROGRAM: DataRed"
+       write(unit=iou,fmt="(a)")   "       ==============================="
+       write(unit=iou,fmt="(a,/)") "          JRC-ILL version:30-2-2020"
+    End Subroutine Header_Output
 
-       write(unit=iou,fmt="(a,a)")   " Input        Control  file: ", trim(filered)
-       write(unit=iou,fmt="(a,a)")   " Input    Reflections  file: ", trim(filehkl)
-       write(unit=iou,fmt="(a,a)")   " Averaged Reflections  file: ", trim(fileout)//".int"
-       write(unit=iou,fmt="(a,a//)") " Rejected Reflections  file: ", trim(fileout)//".rej"
-       write(unit=iou,fmt="(a,a)")   " General       Output  file: ", trim(fileout)//".out"
+    Subroutine Write_Conditions(cfl,cond,Cell,SpG,kinfo,tw,forma,lun,Gk)
+      Type(File_Type),                           intent(in)     :: cfl
+      Type(Conditions_Type),                     intent(in out) :: cond
+      Type(Cell_G_Type),                         intent(in)     :: Cell
+      class(SpG_Type),                           intent(in)     :: SpG
+      Type(kvect_info_Type),                     intent(in out) :: kinfo
+      Type(Twin_Type),                           intent(in out) :: Tw
+      character(len=*),                          intent(in)     :: forma
+      integer, optional,                         intent(in)     :: lun
+      Type(Group_k_Type),dimension(:), optional, intent(in)     :: Gk
+      integer :: i,iou
+      character(len=10)  :: fm = "(a,  i3,a)"
 
-       Select Case(hkl_type)
+      iou=6
+      if(present(lun)) iou=lun
+       write(unit=iou,fmt="(a,a)")   " Input        Control  file: ", trim(cfl%fname)
+       write(unit=iou,fmt="(a,a)")   " Input    Reflections  file: ", trim(cond%filhkl)
+       write(unit=iou,fmt="(a,a)")   " Averaged Reflections  file: ", trim(cond%fileout)//".int"
+       write(unit=iou,fmt="(a,a//)") " Rejected Reflections  file: ", trim(cond%fileout)//".rej"
+       write(unit=iou,fmt="(a,a)")   " General       Output  file: ", trim(cond%fileout)//".out"
+
+       Select Case(cond%hkl_type)
          Case(0)       !Shelx-like input file (3i4,2f8.2)
             write(unit=iou,fmt="(a/)") " Format of the reflections file =>  ShelX-like format h k l intens sigma (3i4,2f8.2)"
          case(1)
@@ -219,7 +202,7 @@
          case(7)
             write(unit=iou,fmt="(a)")  " Data from SXD in format adequate for FullProf"
             write(unit=iou,fmt="(a,a)")" Format of the reflections file => " , trim(forma)
-            if(prop) then
+            if(cond%prop) then
                 write(unit=iou,fmt="(a/)") " For reading:  h k l ivk Fsqr s(Fsqr) Cod  Lambda Twotheta Absorpt. Tbar "
             else
                 write(unit=iou,fmt="(a/)") " For reading:  h k l Fsqr s(Fsqr) Cod  Lambda Twotheta Absorpt. Tbar "
@@ -241,23 +224,35 @@
        End Select
 
 
-       write(unit=iou,fmt="(a,i6)") " => Number of reflections read: ",nr
+       !write(unit=iou,fmt="(a,i6)") " => Number of reflections read: ",nr
 
-       if(scale_given) then
-         write(unit=iou,fmt="(a,f8.4,a)") " => A scale factor ",scal_fact," has been applied to intensities and sigmas "
-         intens(1:nr)=intens(1:nr)*scal_fact
-         sigma(1:nr)= sigma(1:nr)*scal_fact
+       if(cond%scale_given) then
+         write(unit=iou,fmt="(a,f8.4,a)") " => A scale factor ",cond%scal_fact," has been applied to intensities and sigmas "
+         !intens(1:nr)=intens(1:nr)*scal_fact
+         !sigma(1:nr)= sigma(1:nr)*scal_fact
        end if
 
-       if(hkl_real) then
+       if(cond%hkl_real) then
           write(unit=*,fmt="(a)")   " => hkl indices will be treated as real numbers "
           write(unit=iou,fmt="(a)") " => hkl indices will be treated as real numbers "
        end if
 
-       if(prop) write(unit=iou,fmt="(a,3f8.4)") " => Input propagation vector: ", kv
+       if(cond%prop) then
+         write(unit=iou,fmt="(/,a,i4)")                   "  Number of modulation vectors: ",kinfo%nk
+         write(unit=iou,fmt="(a)")                        "  Q-vectors & harmonics & maximum SinTheta/Lambda: "
+         do i=1,kinfo%nk
+            write(unit=iou,fmt="(a,3f10.4,a,i3,f10.4)")   "       [",kinfo%kv(:,i)," ]:   ",kinfo%nharm(i), kinfo%sintlim(i)
+         end do
+         write(unit=fm(4:5),fmt="(i2)") kinfo%nk
+         write(unit=iou,fmt="(a,i4)")                     "     Number of  Q-coefficients: ",kinfo%nq
+         write(unit=iou,fmt="(a )")                       "                Q-coefficients: "
+         do i=1,kinfo%nq  !Q_coeff(nk,nq)
+            write(unit=iou,fmt=fm)                     "                               [ ",kinfo%q_coeff(:,i)," ]"
+         end do
+       end if
 
-       if(hkl_type /= 10) then
-         if(statistics) then
+       if(cond%hkl_type /= 10) then
+         if(cond%statistics) then
             write(unit=*,fmt="(a)")   &
             " => Statistical errors are considered for sigmas of average intensisites (propagation error formula)"
             write(unit=iou,fmt="(a)") &
@@ -270,18 +265,39 @@
          end if
        end if
 
-       if(transf_ind) then
+       if(cond%transf_ind) then
           write(unit=iou,fmt="(a)") " => Input indices trasformed with matrix: "
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Hnew)     (",transhkl(1,:)," )   (Hold)"
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Knew)  =  (",transhkl(2,:)," )   (Kold)"
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Lnew)     (",transhkl(3,:)," )   (Lold)"
+          write(unit=iou,fmt="(a,3f7.2,a)") "         (Hnew)     (",cond%transhkl(1,:)," )   (Hold)"
+          write(unit=iou,fmt="(a,3f7.2,a)") "         (Knew)  =  (",cond%transhkl(2,:)," )   (Kold)"
+          write(unit=iou,fmt="(a,3f7.2,a)") "         (Lnew)     (",cond%transhkl(3,:)," )   (Lold)"
 
-          if(prop) then
-            kv=matmul(transhkl,kv)
-            write(unit=iou,fmt="(a,3f8.4)") " => Transformed propagation vector: ", kv
+          if(cond%prop) then
+            do i=1,kinfo%nk
+              kinfo%kv(:,i)=matmul(cond%transhkl,kinfo%kv(:,i))
+              write(unit=iou,fmt="(a,i3,a,3f8.4,a)") " => Transformed propagation vector # ", i,"  [",kinfo%kv(:,i),"]"
+            end do
           end if
        end if
 
-    End Subroutine Header_Output
+       if(cond%cell_given) then
+         call Write_Crystal_Cell(Cell, iou)
+       end if
+
+       if(cond%spg_given) then
+         write(unit=iou,fmt="(/,a)")  !Create two spaces
+         call Write_SpaceGroup_Info(SpG,iou)
+       end if
+
+       if(cond%twinned) then
+         call write_twinlaw(iou,tw,cell)
+       end if
+
+       if(present(Gk)) then
+         do i=1,kinfo%nk
+           call Write_Group_k(Gk(i),iou)
+         end do
+       end if
+
+    End Subroutine Write_Conditions
 
   End Module DataRed_Mod

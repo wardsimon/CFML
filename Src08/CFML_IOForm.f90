@@ -53,6 +53,8 @@ Module CFML_IOForm
                                       Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos
     Use CFML_Maths,             only: Get_Eps_Math
 
+    Use CFML_Reflections,       only: Kvect_Info_Type
+
     Use CFML_Rational
     !---- Variables ----!
     implicit none
@@ -63,8 +65,8 @@ Module CFML_IOForm
     !---- Public Functions ----!
 
     !---- Public subroutines ----!
-    public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms,Write_Atom_List
-
+    public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms,Write_Atom_List, &
+              Read_Kinfo
     real(kind=cp), parameter :: EPSV=0.0001_cp     ! Small real value to be used for decisions
     !---- Definitions ----!
 
@@ -127,6 +129,15 @@ Module CFML_IOForm
     End Type Job_Info_type
 
     !---- Overloaded Zone ----!
+    Interface Read_CFL_SpG
+      Module Procedure Read_CFL_SpG_lines
+      Module Procedure Read_CFL_SpG_FileTyp
+    End Interface
+
+    Interface Read_CFL_Cell
+      Module Procedure Read_CFL_Cell_lines
+      Module Procedure Read_CFL_Cell_FileTyp
+    End Interface
 
     Interface Readn_Set_Xtal_Structure
        Module Procedure Readn_Set_Xtal_Structure_Split  ! For Cell, Spg, A types
@@ -159,23 +170,43 @@ Module CFML_IOForm
           integer,                        intent(in)     :: d
        End Subroutine Read_CFL_Atoms
 
-       Module Subroutine Read_CFL_Cell(lines, n_ini, n_end, Cell, CFrame)
+       Module Subroutine Read_CFL_Cell_Lines(lines, n_ini, n_end, Cell, CFrame)
           !---- Arguments ----!
           character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
           integer,                         intent(in out) :: n_ini   ! Index to start
           integer,                         intent(in)     :: n_end   ! Index to Finish
           class(Cell_Type),                intent(out)    :: Cell    ! Cell object
           Character(len=*), optional,      intent( in)    :: CFrame
-       End Subroutine Read_CFL_Cell
+       End Subroutine Read_CFL_Cell_Lines
 
-       Module Subroutine Read_CFL_SpG(lines, n_ini, n_end, SpG, xyz_type)
+       Module Subroutine Read_CFL_Cell_FileTyp(cfl,Cell, CFrame)
+          !---- Arguments ----!
+          type(File_Type),                 intent(in)     :: cfl     ! File_type object
+          class(Cell_Type),                intent(out)    :: Cell    ! Cell object
+          Character(len=*), optional,      intent( in)    :: CFrame
+       End Subroutine Read_CFL_Cell_FileTyp
+
+       Module Subroutine Read_CFL_SpG_Lines(lines, n_ini, n_end, SpG, xyz_type)
           !---- Arguments ----!
           character(len=*), dimension(:),  intent(in)     :: lines
           integer,                         intent(in out) :: n_ini
           integer,                         intent(in)     :: n_end
           class(SpG_Type),                 intent(out)    :: SpG
           character(len=*), optional,      intent(in)     :: xyz_type
-       End Subroutine Read_CFL_SpG
+       End Subroutine Read_CFL_SpG_Lines
+
+       Module Subroutine Read_CFL_SpG_FileTyp(cfl, SpG, xyz_type)
+          !---- Arguments ----!
+          type(File_Type),                 intent(in)     :: cfl     ! File_type object
+          class(SpG_Type),                 intent(out)    :: SpG
+          character(len=*), optional,      intent(in)     :: xyz_type
+       End Subroutine Read_CFL_SpG_FileTyp
+
+       Module Subroutine Read_kinfo(cfl, kinfo)
+          !---- Arguments ----!
+          type(File_Type),                 intent(in)     :: cfl     ! File_type object
+          type(kvect_info_Type),           intent(out)    :: kinfo
+       End Subroutine Read_kinfo
 
        Module Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,Type_Atm,CFrame,NPhase,Job_Info,xyz_type)
           !---- Arguments ----!
