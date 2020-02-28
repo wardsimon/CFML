@@ -3,4 +3,4 @@ FROM ci_crysfml_xenial_ifort
 COPY ./ /app/
 WORKDIR /app
 
-CMD BuildServer/Unix/build.sh ifort
+CMD BuildServer/Unix/build.sh ifort; cp -a build_ifort /artifacts/
