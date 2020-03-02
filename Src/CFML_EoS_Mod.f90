@@ -12,7 +12,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL) (CrysFML)
 !!----          Javier Gonzalez-Platas  (ULL) (CrysFML)
-!!----          Ross John Angel         (Pavia)   (EoS)
+!!----          Ross John Angel         (Padova)  (EoS)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -173,6 +173,7 @@ Module CFML_EoS
    !!
    Type, public :: EoS_Type
       character(len=80)                         :: Title=" "             ! Descriptive title of EoS, set by user
+      character(len=20)                         :: System=" "            ! Crystal system name
       character(len=15)                         :: Model=" "             ! Murnaghan, Birch-Murnaghan, Vinet, Natural-Strain
       character(len=20)                         :: TModel=" "            ! Name for thermal model
       character(len=15)                         :: TranModel=" "         ! Name for phase transition model
@@ -220,11 +221,26 @@ Module CFML_EoS
    !!---- Update: 17/07/2015
    !!
    Type, public :: EoS_List_Type
-      integer                                   :: N=0    ! Number of EoS List
-      character(len=30)                         :: system ! Crystal system name, including setting info (e.g. b-unique for mono)
-      type(EoS_Type), allocatable, dimension(:) :: EoS    ! EoS Parameters
+      integer                                   :: N=0          ! Number of EoS List
+      character(len=30)                         :: system       ! Crystal system name, including setting info (e.g. b-unique for mono)
+      type(EoS_Type), allocatable, dimension(:) :: EoS          ! EoS Parameters
    End Type EoS_List_Type
 
+   !!----
+   !!---- TYPE :: EOS_CELL_TYPE
+   !!--..
+   !!---- New 14/02/2020. Specific list of eos and pointers for full description of a unit cell. RJA
+   !!
+   Type, public :: EoS_Cell_Type
+      integer                                     :: N=0        ! Max index of used EoS  in List - depends on crystal system: 6 for triclinic or mono, 3 for rest
+      character(len=30)                           :: system     ! Crystal system name, including setting info (e.g. b-unique for mono)
+      type(EoS_Type),dimension(0:6)               :: EoS        ! EoS Parameters for V,a,b,c,d100,d010,d001
+      type(Eos_type)                              :: eosc       ! The common factors to all EoS in an EoS      
+      integer,dimension(0:6)                      :: loaded = 0 ! 0 when absent, 1 when eos present, 2 set by symmetry, 3 when possible to calc (set by set_cell_types)
+      character(len=1),dimension(0:6,3)           :: cout = ' ' ! output array for reporting PV, VT and PVT types of EoS
+   End Type EoS_Cell_Type
+   
+   
    !!----
    !!----  TYPE :: EOS_DATA_TYPE
    !!--..
@@ -6242,6 +6258,9 @@ Contains
          else if(index(text,'COMMENT') /= 0)then
             idoc=idoc+1
             if(idoc <= size(eos%doc))eos%doc(idoc)=trim(text(c:))
+            
+         else if(index(text,'SYSTEM') /= 0)then
+             eos%system=trim(adjustl(text(c:)))
 
          else if(index(text,'MODEL') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%imodel
@@ -7487,6 +7506,9 @@ Contains
          end if
       end do
       write(unit=lun,fmt='(a)',iostat=ierr) ' '
+      
+      !> Crystal system
+      write(unit=lun,fmt='(a,a)',iostat=ierr) 'System =',trim(eos%system)
 
       !> eos type
       text=',  ('//trim(eos%model)//')'

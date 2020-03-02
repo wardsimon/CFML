@@ -124,7 +124,7 @@
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,    only: Cp, Eps, Pi
 !!--++    Use CFML_Math_General, only: Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
-!!--++                                 Co_Linear
+!!--++                                 Co_Linear,Determinant
 !!--++    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
@@ -155,6 +155,9 @@
 !!----
 !!----    Subroutines:
 !!----       CALC_CELL_STRAIN
+!!----       CALC_DEFORMED_METRIC    
+!!----       CALC_DEFORMATION_TENSOR
+!!----       CELL_FROM_METRIC
 !!----       CHANGE_SETTING_CELL
 !!----       GET_BASIS_FROM_UVW
 !!----       GET_CONVENTIONAL_CELL
@@ -184,7 +187,7 @@
 
     !---- Use files ----!
     Use CFML_GlobalDeps,   only : Cp, Eps, Pi, TO_RAD
-    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear,Invert_Matrix
+    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear,Invert_Matrix,determinant
     Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
     Use CFML_String_Utilities, only: U_case
 
@@ -203,7 +206,7 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Calc_Cell_Strain,Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
+    public :: Calc_Cell_Strain, Calc_Deformation_Tensor, Calc_deformed_metric, Cell_From_Metric, Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
               Get_Cryst_Family, Get_Cryst_Orthog_Matrix, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
               Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,   &
               Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell,&
@@ -471,6 +474,8 @@
 
        return
     End Function Cart_Vector
+    
+    
 
     !!----
     !!---- Function Cell_Volume_Sigma(Cell) result(sigma)
@@ -975,6 +980,95 @@
        end if
 
     End Subroutine Calc_Cell_Strain
+    !!----
+    !!---- Subroutine Calc_deformed_metric(C0,F,G1)
+    !!----
+    !!---- real(kind=cp),intent(in), dimension(3,3) ::  C0     ! CR_Orth_Cel for a chosen axial system for the starting state
+    !!---- real(kind=cp),intent(in), dimension(3,3) ::  F      ! Deformation tensor from C0 to C1.  
+    !!---- real(kind=cp),intent(out),dimension(3,3) ::  G1     ! Metric tensor of deformed cell
+    !!---- 
+    !!----  Calculates metric tensor of deformed cell from initial cell and deformation tensor
+    !!----  Initial cell and F matrix must be defined with respect to same axial system
+    !!----  26 February 2020, RJA  
+    !!----       
+    Subroutine Calc_deformed_metric(C0,F,G1)
+       !---- Arguments ----!
+       real(kind=cp),intent(in), dimension(3,3) ::  C0     ! CR_Orth_Cel for a chosen axial system for the starting state
+       real(kind=cp),intent(in), dimension(3,3) ::  F      ! Deformation tensor from C0 to C1.  
+       real(kind=cp),intent(out),dimension(3,3) ::  G1     ! Metric tensor of deformed cell
+
+       
+       g1=matmul(F,C0)
+       g1=matmul(transpose(F),g1)
+       g1=matmul(transpose(C0),g1)
+    
+      return
+    End Subroutine Calc_deformed_metric
+    !!----
+    !!---- Subroutine Calc_Deformation_Tensor(C0,C1,F)
+    !!----  
+    !!----  real(kind=cp),intent(in), dimension(3,3) ::  C0     ! CR_Orth_Cel for a chosen axial system for the starting state
+    !!----  real(kind=cp),intent(in), dimension(3,3) ::  C1     ! CR_Orth_Cel in same  axial system for the final state
+    !!----  real(kind=cp),intent(out),dimension(3,3) ::  F      ! Deformation tensor from C0 to C1. 
+    !!----
+    !!----  Calculates deformation tensor from CR_Orth_Cel matrices
+    !!----  26 February 2020, RJA  
+    !!----      
+    Subroutine Calc_Deformation_Tensor(C0,C1,F)
+       !---- Arguments ----!
+       real(kind=cp),intent(in), dimension(3,3) ::  C0     ! CR_Orth_Cel for a chosen axial system for the starting state
+       real(kind=cp),intent(in), dimension(3,3) ::  C1     ! CR_Orth_Cel in same  axial system for the final state
+       real(kind=cp),intent(out),dimension(3,3) ::  F      ! Deformation tensor from C0 to C1. 
+
+       !--- Local variables ---!
+       integer              :: i
+       real(kind=cp), dimension(3,3) ::  C0inv 
+       logical          :: singular
+       
+       !>init
+       F=0._cp
+       do i=1,3
+           F(i,i)=1.0
+       enddo
+       
+      call Invert_Matrix (C0, C0inv, Singular)
+      if(singular)return
+        
+      F=matmul(C1,C0inv)       
+       
+       
+       
+       return
+    End Subroutine Calc_Deformation_Tensor  
+    !!----    
+    !!---- Subroutine Cell_From_Metric(g,cell)
+    !!----
+    !!---- real(kind=cp),dimension(3,3),intent(in)    :: g     ! metric tensor
+    !!---- real(kind=cp),dimension(7),intent(out)     :: cell  !a,b,c, alpha,beta, gamma in degrees,V
+    !!----
+    !!---- Calculates the cell parameters and cell v from metric tensor
+    !!----  26 February 2020, RJA  
+    !!----      
+    Subroutine Cell_From_Metric(g,cell)
+    !---- Arguments ----!
+    real(kind=cp),dimension(3,3),intent(in)    :: g     ! metric tensor
+    real(kind=cp),dimension(7),intent(out)     :: cell  !a,b,c, alpha,beta, gamma in degrees,V
+    
+    !--- Local variables ---!
+    integer :: i
+    
+        do i=1,3
+            Cell(i)=sqrt(g(i,i))
+        end do
+        cell(4)=acosd(G(2,3)/(cell(2)*cell(3)))
+        cell(5)=acosd(G(1,3)/(cell(1)*cell(3)))
+        cell(6)=acosd(G(1,2)/(cell(1)*cell(2)))
+        
+        call Determinant (g, 3, cell(7))
+        cell(7)=sqrt(abs(cell(7)))
+       
+     return
+     end subroutine cell_from_metric  
 
     !!----
     !!---- Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
