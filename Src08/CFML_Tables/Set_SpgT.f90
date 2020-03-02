@@ -2,7 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Symmetry_Tables) Set_Routines
-  
+
    Contains
    !!----
    !!----
@@ -12,9 +12,10 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
    !!----
    !!
    Module Subroutine Set_Shubnikov_Info()
-      
+
+      if(shubnikov_info_loaded) return
       if (.not. allocated(shubnikov_info) ) allocate(shubnikov_info(NUM_SHUBNIKOV) )
-      
+
       Shubnikov_info(   1)= Shub_Spgr_Info_Type("1.1     ","P1             ","1.1.1       ","P1             ",&
                                                 "P1                       ","P 1                      ")
       Shubnikov_info(   2)= Shub_Spgr_Info_Type("1.2     ","P11'           ","1.2.2       ","P11'           ",&
@@ -3317,9 +3318,10 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
                                                 "Ia-3d'                   ","-I 4bd' 2c 3             ")
       Shubnikov_info(1651)= Shub_Spgr_Info_Type("230.149 ","Ia'-3'd'       ","230.5.1651  ","Ia'-3'd'       ",&
                                                 "Ia'-3d'                  ","I 4bd  2c 3 -1'          ")
+      Shubnikov_Info_loaded=.true.
    End Subroutine Set_Shubnikov_Info
-   
-   
+
+
    !!----
    !!---- SET_SPGR_INFO
    !!----    Number of the Space Group
@@ -3346,10 +3348,10 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
    !!----
    !!----    Set Information on Spgr_info array
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_Spgr_Info()
-
+      if(Spgr_Info_loaded) return
       if (.not. allocated(spgr_info) ) allocate(spgr_info(NUM_SPGR_INFO) )
 
       !---- Triclinic ----!
@@ -4014,7 +4016,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
            spgr_info_type(229,"I M 3 M     ","-I 4 2 3        ",14,39, (/ 0, 0, 0, 12, 12,  6/),"     ") , &
            spgr_info_type(230,"I A -3 D    ","-I 4bd 2c 3     ",14,39, (/-3,-3, 0,  3,  3,  6/),"     ") , &
            spgr_info_type(230,"I A 3 D     ","-I 4bd 2c 3     ",14,39, (/-3,-3, 0,  3,  3,  6/),"     ") /)
-
+           Spgr_Info_loaded=.true.
    End Subroutine Set_Spgr_Info
 
    !!----
@@ -4058,10 +4060,10 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
    !!--..   the following operation:  g = gT gI gT(-1), where gT is the transformation
    !!--..   given tabulated below.
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_System_Equiv()
-
+      if(System_Equiv_loaded) return
       if (.not. allocated(system_equiv) ) allocate(system_equiv(230))
 
       system_equiv(1:10) = (/         &
@@ -4570,7 +4572,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
          table_equiv_type("O10_h ","x,y,z            "," x,y,z            ",        &
                      " y+z,x+z,x+y                    "," x,y,z            ") /)
 
-      return
+      System_Equiv_loaded=.true.
    End Subroutine Set_System_Equiv
 
    !!----
@@ -4578,10 +4580,10 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
    !!----
    !!----    Set Information on Wyckoff_info array
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_Wyckoff_Info()
-
+      if(Wyckoff_Info_loaded) return
       if (.not. allocated(wyckoff_info) ) allocate(wyckoff_info(273) )
 
       wyckoff_info(  1)= wyck_info_type("P 1         ", 0,     &
@@ -7317,7 +7319,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
                      "               ", "               "/) )
 
 
-      return
+      wyckoff_info_loaded=.true.
    End Subroutine Set_Wyckoff_Info
-   
-End SubModule Set_Routines 
+
+End SubModule Set_Routines

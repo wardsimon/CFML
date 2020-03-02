@@ -193,7 +193,7 @@
                                                     ! reals to integers
 
     !---- Variables ----!
-    real(kind=cp) :: epss= EPS_RTI
+    real(kind=cp), public :: epss= EPS_RTI
 
     !--------------------!
     !---- Overloaded ----!

@@ -308,7 +308,7 @@ Contains
       !---- Local Variables ----!
       integer                        :: j
       real(kind=cp), dimension(-2:2) :: v  ! array for calc v values
-      real(kind=cp)                  :: alpha, del, tt, delmin, tlimit, tr, alphaest, vlimit
+      real(kind=cp)                  :: alpha, del, tt, delmin, tlimit, tr, alphaest !, vlimit
 
       !> Init
       alpha=0.0_cp
@@ -412,7 +412,7 @@ Contains
 
       !---- Local Variables ----!
       integer       :: j
-      real(kind=cp) :: dKdT, del,vlimit,tlimit,tcal,Ttr
+      real(kind=cp) :: dKdT, del,tlimit,tcal,Ttr !,vlimit
       real(kind=cp),dimension(-2:2):: kpt
 
 
@@ -2202,7 +2202,7 @@ Contains
 
       type(Eos_Type)                    :: EoS  ! Eos copy
       real(kind=cp)                     :: V
-      real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
+      real(kind=cp)                     :: V0,K0,Kp,strain,vfactor !,k
       real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev,a,logterm
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
@@ -5462,7 +5462,7 @@ Contains
       !---- Local variables ----!
       integer             :: n
       character(len=100)   :: car
-      real(kind=cp)       :: tlimit,pinf,p,v,t,pmin,vmin
+      real(kind=cp)       :: tlimit,pinf,p,v,t,vmin !,pmin
       type(eos_type)      :: e,eiso
       logical             :: vpresent
 
@@ -5658,8 +5658,8 @@ Contains
 
       !---- Local variables ----!
       real(kind=cp)       :: p,v,t
-      real(kind=cp),dimension(3)       :: abc
-      real(kind=cp)       :: bp,kc,step,plim,kprev,Vnew,Vprev,klim,logterm,vv0,k0,kp
+      !real(kind=cp),dimension(3)       :: abc
+      real(kind=cp)       :: plim,klim,logterm,vv0,k0,kp !kc,bp,step,kprev,Vnew,Vprev
       type(eos_type)      :: e
 
 
@@ -7623,13 +7623,13 @@ Contains
       character(len=255)      :: text     ! local text variable
       character(len=1)        :: tscale   ! local name of tscale
       logical                 :: loop_p   ! loop indicator .true. for inner loop of calcs over P
-      integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
-      integer                 :: i
+      !integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
+      !integer                 :: i
 
-      real(kind=cp),dimension(6) :: parvals(7)
-      real(kind=cp),dimension(6) :: esd
-      real(kind=cp),dimension(19):: parout,esdout
-      real(kind=cp)              :: v0,fp,fs,agt
+      !real(kind=cp),dimension(6) :: parvals(7)
+      !real(kind=cp),dimension(6) :: esd
+      !real(kind=cp),dimension(19):: parout,esdout
+      !real(kind=cp)              :: v0,agt,fp,fs  
 
       !> init
       nprint=0    ! output counter
@@ -7759,13 +7759,13 @@ Contains
 
 
             call init_err_eos()
-            esd=0.
-            esdout=0.
-            parout=0.
+            esd=0.0_cp
+            esdout=0.0_cp
+            parout=0.0_cp
 
             !> Now do the calculations at P,T
             call EoS_Cal(P,T,eos,Parvals)    ! GET V,K ETC
-            if (sum(eos%vcv) > tiny(0.0)) CALL eos_cal_esd(P,T,eos,esd)
+            if (sum(eos%vcv) > tiny(0.0_cp)) CALL eos_cal_esd(P,T,eos,esd)
 
             !> build ouput value array
             V0=Get_Volume(0.0,T,Eos)

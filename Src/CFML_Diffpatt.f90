@@ -3657,172 +3657,176 @@
             if ( j /= 0 ) then !Title given
               pat%title=adjustl(txt1(j+6:))
             end if
-        end do
-        pat%xax_text="Distance R(Angstroms)"
-        pat%yax_text="G(R)x1000"
-        pat%scat_var="Distance"
+         end do
+         pat%xax_text="Distance R(Angstroms)"
+         pat%yax_text="G(R)x1000"
+         pat%scat_var="Distance"
        else
-         read(unit=i_dat,fmt="(a)") txt1
-         IF(txt1(1:6) /= "XYDATA") THEN
-             pat%title=txt1
-             do
-                read(unit=i_dat,fmt="(a)", iostat=ier) txt1
-                if (ier /= 0) then
-                   Err_diffpatt=.true.
-                   ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
-                   return
-                end if
-                txt1=adjustl(txt1)
-                if(present(header)) header=trim(header)//trim(txt1)//char(0)
-                j= index(txt1,"TITLE")
-                if ( j /= 0 ) then !Title given
-                  pat%title=adjustl(txt1(j+5:))
-                  cycle
-                end if
-                i=index(txt1,"Scattering variable:")
-                if(i /= 0) then
-                   pat%scat_var=adjustl(txt1(i+20:))
+          read(unit=i_dat,fmt="(a)") txt1
+          IF(txt1(1:6) /= "XYDATA") THEN
+              pat%title=txt1
+              do
+                 read(unit=i_dat,fmt="(a)", iostat=ier) txt1
+                 if (ier /= 0) then
+                    Err_diffpatt=.true.
+                    ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
+                    return
+                 end if
+                 txt1=adjustl(txt1)
+                 if(present(header)) header=trim(header)//trim(txt1)//char(0)
+                 j= index(txt1,"TITLE")
+                 if ( j /= 0 ) then !Title given
+                   pat%title=adjustl(txt1(j+5:))
                    cycle
-                end if
-                i=index(txt1,"Legend_X")
-                if(i /= 0) then
-                   pat%xax_text = adjustl(txt1(i+9:))
-                   cycle
-                end if
-                i=index(txt1,"Legend_Y")
-                if(i /= 0) then
-                   pat%yax_text=adjustl(txt1(i+9:))
-                   cycle
-                end if
+                 end if
+                 i=index(txt1,"Scattering variable:")
+                 if(i /= 0) then
+                    pat%scat_var=adjustl(txt1(i+20:))
+                    cycle
+                 end if
+                 i=index(txt1,"Legend_X")
+                 if(i /= 0) then
+                    pat%xax_text = adjustl(txt1(i+9:))
+                    cycle
+                 end if
+                 i=index(txt1,"Legend_Y")
+                 if(i /= 0) then
+                    pat%yax_text=adjustl(txt1(i+9:))
+                    cycle
+                 end if
 
-                if(txt1(1:1) == "!" .or. txt1(1:1) == "#") cycle
-                read(unit=txt1, fmt=*, iostat=ier) yp1,ypn !This is to detect the beginning of numerical values
-                if( ier /= 0) cycle
-                backspace (unit=i_dat)
-                call init_findfmt(line_da)
-                exit
-             end do
-             if(present(header)) then
-                j=len_trim(header)-1
-                i=index(header(1:j),char(0),back=.true.)
-                header=header(1:i)
-             end if
-         else
-             pat%title=txt1
-             i=0
-             do
-                i=i+1
-                if(i == 6) exit
-                read(unit=i_dat,fmt="(a)", iostat=ier) txt1
-                if (ier /= 0) then
-                   Err_diffpatt=.true.
-                   ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
-                   return
-                end if
-                if(txt1(1:1) == "#") i=i-1
-                if(present(header)) header=trim(header)//trim(txt1)//char(0)
+                 if(txt1(1:1) == "!" .or. txt1(1:1) == "#") cycle
+                 read(unit=txt1, fmt=*, iostat=ier) yp1,ypn !This is to detect the beginning of numerical values
+                 if( ier /= 0) cycle
+                 backspace (unit=i_dat)
+                 call init_findfmt(line_da)
+                 exit
+              end do
+              if(present(header)) then
+                 j=len_trim(header)-1
+                 i=index(header(1:j),char(0),back=.true.)
+                 header=header(1:i)
+              end if
+          else
+              pat%title=txt1
+              i=0
+              do
+                 i=i+1
+                 if(i == 6) exit
+                 read(unit=i_dat,fmt="(a)", iostat=ier) txt1
+                 if (ier /= 0) then
+                    Err_diffpatt=.true.
+                    ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
+                    return
+                 end if
+                 if(txt1(1:1) == "#") i=i-1
+                 if(present(header)) header=trim(header)//trim(txt1)//char(0)
 
-                line_da=line_da+1
-                j= index(txt1,"TITLE")
-                if ( j /= 0 ) then !Title given
-                  pat%title=adjustl(txt1(j+5:))
-                end if
+                 line_da=line_da+1
+                 j= index(txt1,"TITLE")
+                 if ( j /= 0 ) then !Title given
+                   pat%title=adjustl(txt1(j+5:))
+                 end if
 
-                j=index(txt1,"Scattering variable:")
-                if(j /= 0) then
-                   pat%scat_var=adjustl(txt1(j+20:))
-                end if
+                 j=index(txt1,"Scattering variable:")
+                 if(j /= 0) then
+                    pat%scat_var=adjustl(txt1(j+20:))
+                 end if
 
-                j=index(txt1,"Legend_X")
-                if(j /= 0) then
-                   pat%xax_text=adjustl(txt1(j+9:))
-                end if
+                 j=index(txt1,"Legend_X")
+                 if(j /= 0) then
+                    pat%xax_text=adjustl(txt1(j+9:))
+                 end if
 
-                j=index(txt1,"Legend_Y")
-                if(j /= 0) then
-                   pat%yax_text=adjustl(txt1(j+9:))
-                end if
+                 j=index(txt1,"Legend_Y")
+                 if(j /= 0) then
+                    pat%yax_text=adjustl(txt1(j+9:))
+                 end if
 
-                if (txt1(1:5) == "INTER") then !Interpolation possible!
-                   backspace (unit=i_dat)
-                   line_da=line_da-2
-                   call init_findfmt(line_da)
-                   fmtfields = "5ffif"
-                   call findfmt(i_dat,aline,fmtfields,fmtformat)
-                   if (ierr_fmt /= 0) then
-                      Err_diffpatt=.true.
-                      ERR_DiffPatt_Mess=" Error reading"
-                      return
-                   end if
+                 if (txt1(1:5) == "INTER") then !Interpolation possible!
+                    backspace (unit=i_dat)
+                    line_da=line_da-2
+                    call init_findfmt(line_da)
+                    fmtfields = "5ffif"
+                    call findfmt(i_dat,aline,fmtfields,fmtformat)
+                    if (ierr_fmt /= 0) then
+                       Err_diffpatt=.true.
+                       ERR_DiffPatt_Mess=" Error reading"
+                       return
+                    end if
 
-                   read(unit=aline,fmt=fmtformat) date1,fac_x,fac_y,interpol,stepin
-                   if (fac_x <= 0.0) fac_x=1.0
-                   if (fac_y <= 0.0) fac_y=1.0
-                end if
+                    read(unit=aline,fmt=fmtformat) date1,fac_x,fac_y,interpol,stepin
+                    if (fac_x <= 0.0) fac_x=1.0
+                    if (fac_y <= 0.0) fac_y=1.0
+                 end if
 
-                if (txt1(1:4) == "TEMP") then
-                   read(unit=txt1(5:80),fmt=*, iostat=ier) pat%tsamp
-                   if(ier == 0) then
-                     pat%tset=pat%tsamp
-                   else
-                     pat%tsamp=0.0
-                     pat%tset=0.0
-                   end if
-                end if
-             end do
-         end if
+                 if (txt1(1:4) == "TEMP") then
+                    read(unit=txt1(5:80),fmt=*, iostat=ier) pat%tsamp
+                    if(ier == 0) then
+                      pat%tset=pat%tsamp
+                    else
+                      pat%tsamp=0.0
+                      pat%tset=0.0
+                    end if
+                 end if
+              end do
+          end if
 
-         if (interpol == 0) then
-            pat%ct_step = .false.
-         else if(interpol == 1) then
-            pat%ct_step = .true.
-         else if(interpol == 2) then
-            pat%ct_step = .true.
-         end if
+          if (interpol == 0) then
+             pat%ct_step = .false.
+          else if(interpol == 1) then
+             pat%ct_step = .true.
+          else if(interpol == 2) then
+             pat%ct_step = .true.
+          end if
+
        end if
 
        call Allocate_Diffraction_Pattern(pat)
 
-       fmtfields = "ffff"  !Now four columns are read in order to incorporate the calcualted pattern
+       fmtfields = "ffff"  !Now four columns are read in order to incorporate the calculated pattern
+       if(trim(pat%scat_var) == "r.l.u.") fmtfields = "fff"
        sumavar=0.0
        cnorm=0.0
        i=0
        do j=1,pat%npts
-          call findfmt(i_dat,aline,fmtfields,fmtformat)
-          if (ierr_fmt == -1) exit
-          if (ierr_fmt /= 0) then
-             Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading X,Y, Sigma Ycalc in profile DATA file"
-             return
-          end if
-          if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
-          i=i+1
-          if(present(gr)) then
-            read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),dum,pat%sigma(i)
-          else
-            read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i),pat%ycalc(i)
-          end if
-          if (ier /=0) then
-             Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
-             return
-          end if
-          IF (i > 10 .and. ABS(pat%x(i)) < eps1 .AND. pat%y(i) < eps1 .AND.  pat%sigma(i) < eps1) exit
-          pat%x(i)=pat%x(i)*fac_x
-          pat%y(i)=pat%y(i)*fac_y
-          pat%ycalc(i)=pat%ycalc(i)*fac_y
-          pat%sigma(i)=pat%sigma(i)*fac_y
-          pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
-          sumavar=sumavar+pat%sigma(i)
-          if(pat%sigma(i) < eps1) pat%sigma(i) =1.0_cp
-          !if(pat%y(i) < eps1) then
-          !   pat%y(i)   = eps1
-          !   pat%sigma(i) =1.0
-          !end if
-          cnorm=cnorm+pat%sigma(i)/MAX(abs(pat%y(i)),0.001_cp)
-          if(i > 1) then
-            pat%step=pat%step+pat%x(i)-pat%x(i-1)
-          end if
+           call findfmt(i_dat,aline,fmtfields,fmtformat)
+           if (ierr_fmt == -1) exit
+           if (ierr_fmt /= 0) then
+              Err_diffpatt=.true.
+              ERR_DiffPatt_Mess=" Error reading X,Y, Sigma Ycalc in profile DATA file"
+              return
+           end if
+           if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
+           i=i+1
+           if(present(gr)) then
+             read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),dum,pat%sigma(i)
+           else if(trim(pat%scat_var) == "r.l.u.")  then
+             read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i)
+           else
+             read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i),pat%ycalc(i)
+           end if
+           if (ier /=0) then
+              Err_diffpatt=.true.
+              ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
+              return
+           end if
+           IF (i > 10 .and. ABS(pat%x(i)) < eps1 .AND. pat%y(i) < eps1 .AND.  pat%sigma(i) < eps1) exit
+           pat%x(i)=pat%x(i)*fac_x
+           pat%y(i)=pat%y(i)*fac_y
+           pat%ycalc(i)=pat%ycalc(i)*fac_y
+           pat%sigma(i)=pat%sigma(i)*fac_y
+           pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
+           sumavar=sumavar+pat%sigma(i)
+           if(pat%sigma(i) < eps1) pat%sigma(i) =1.0_cp
+           !if(pat%y(i) < eps1) then
+           !   pat%y(i)   = eps1
+           !   pat%sigma(i) =1.0
+           !end if
+           cnorm=cnorm+pat%sigma(i)/MAX(abs(pat%y(i)),0.001_cp)
+           if(i > 1) then
+             pat%step=pat%step+pat%x(i)-pat%x(i-1)
+           end if
        end do
 
        ntt=i-1

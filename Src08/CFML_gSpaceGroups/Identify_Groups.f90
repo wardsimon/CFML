@@ -1,7 +1,7 @@
 SubModule (CFML_gSpaceGroups) SPG_045
    Contains
-   
-   !!---- 
+
+   !!----
    !!---- Identify_Cryst_SpG
    !!----
    !!---- For a given crystallographic group G in an arbitrary
@@ -12,7 +12,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!---- C matrices in the paper correspond to Pinv, Minv,
    !!---- Ainv and Cinv in this subroutine.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Identify_SpaceGroup_3D(G)
       !---- Arguments ----!
@@ -40,20 +40,20 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       M = matmul(Mp,Mc)
       if (Err_CFML%Ierr /= 0) return
-      
+
       call Get_A_Matrix_Crys(G%laue,A,n)
       call Match_SpaceGroup_3D(G,P,M,A(:,:,1:n),n)
 
    end subroutine Identify_SpaceGroup_3D
-   
-   !!---- 
+
+   !!----
    !!---- Identify_Group
    !!----
    !!---- Initialize the identification of the group by calling
    !!---- the appropiate subroutine according to the nature  of
    !!---- the group -crystallographic, magnetic, superspace-.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Identify_Group(G)
       !---- Arguments ----!
@@ -61,7 +61,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       !---- Local Variables ----!
       character(len=5) :: car
-      integer          :: n 
+      integer          :: n
       logical          :: pout
 
       !>===== DEBUG =====
@@ -85,18 +85,18 @@ SubModule (CFML_gSpaceGroups) SPG_045
                n=index(car,'.')
                car=car(:n-1)
                read(unit=car,fmt='(i3)') G%numspg
-            end if   
-         end if   
-         call Identify_SpaceGroup_3D(G)
+            end if
+         end if
+         call Identify_SpaceGroup_3D(G) !This is for determining the transformation to standard
 
       else ! Superspace groups
          Err_CFML%Ierr = 1
          Err_CFML%Msg = "Identify_Group@SPACEG: Superspace groups not implemented yet"
          return
       end if
-      
+
    End Subroutine Identify_Group
-     
+
    !!----
    !!---- IDENTIFY_MAGNETIC_SPACE_GROUP
    !!----
@@ -104,7 +104,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
    !!---- using this subroutine, the subroutine Identify_
    !!---- _Crystallographic_Space_Group must be called
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!----
    Module Subroutine Identify_Shubnikov_Group(G)
       !---- Arguments ----!
@@ -127,7 +127,7 @@ SubModule (CFML_gSpaceGroups) SPG_045
 
       call Identify_LaueClass(G)
       if (Err_CFML%Ierr /= 0) return
-      
+
       call Identify_Crystal_System(G)
       if (Err_CFML%Ierr /= 0) return
 
@@ -147,9 +147,9 @@ SubModule (CFML_gSpaceGroups) SPG_045
       call Match_Shubnikov_Group(G,P,M)
       if (Err_CFML%Ierr /= 0) then
          print*, err_CFML%msg
-      end if   
+      end if
 
       return
    End Subroutine Identify_Shubnikov_Group
-    
-End Submodule SPG_045    
+
+End Submodule SPG_045

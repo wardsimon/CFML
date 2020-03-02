@@ -2696,14 +2696,13 @@
     !!----
     !!---- Update: February - 2011
     !!
-    Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub,setting)
+    Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub)
        !---- Arguments ----!
        character(len=*),  dimension(:), intent(in) :: filevar   ! Variable
        integer,           intent(in)               :: nline_ini
        integer,           intent(in)               :: nline_end
        character(len=*),  intent(out)              :: spg
        character(len=*),  intent(in),  optional    :: sub
-       character(len=*),  intent(out), optional    :: setting
 
        !--Local variables--!
        integer  :: i
@@ -5107,8 +5106,8 @@
        !---- Local variables ----!
        character(len=132)               :: line
        character(len= 50)               :: Spp,setting
-       character(len= 40),dimension(192):: gen
-       integer                          :: i, nauas, ndata, iph, n_ini,n_end,ngen,k,nsym
+       !character(len= 40),dimension(192):: gen
+       integer                          :: i, nauas, ndata, iph, n_ini,n_end,k !,ngen
        integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph)        :: ip
 
@@ -6420,12 +6419,12 @@
        logical             :: info
        character(len=132)  :: line
        character(len=30)   :: comm,date_time
-       character(len=1)    :: statut
+       !character(len=1)    :: statut
        integer,save        :: iunit
-       integer             :: i,j,n,iph,mirf,ivk,ix,mult,icz,irc
-       real(kind=cp)       :: an, dspac, fobs2, fcal2, phas, R_patt,R_wpatt,R_exp, Chi2
-       integer,      dimension(3):: hi
-       real(kind=cp),dimension(3):: hr
+       integer             :: i,j,n !,mirf,mult,iph,ivk,ix,icz,irc
+       real(kind=cp)       :: an, R_patt,R_wpatt,R_exp, Chi2 !, phas, dspac, fobs2, fcal2
+       !integer,      dimension(3):: hi
+       !real(kind=cp),dimension(3):: hr
 
        !---- Inicialization of variables ----!
        info=.false.
@@ -7754,7 +7753,7 @@
        call number_lines(trim(filecode),nl)
        if (nl <=0) then
           err_form=.true.
-          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          err_form_mess='No lines were read for '//trim(filecode)//' !!'
           return
        end if
        allocate(filen(nl))
@@ -7829,7 +7828,7 @@
        call number_lines(trim(filecode),nlines)
        if (nlines <=0) then
           err_form=.true.
-          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          err_form_mess='No lines were read for '//trim(filecode)//' !!'
           return
        end if
        allocate(file_dat(nlines))

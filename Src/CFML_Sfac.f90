@@ -676,17 +676,16 @@
       !-----------------------------------------------
       !   L o c a l   V a r i a b l e s
       !-----------------------------------------------
-      integer :: i, j, k, l, ipiof, ni, ii, ir, isingle, jk, m, jj, lm, lpij
+      integer :: i,ni, ii, ir
       real(kind=cp), dimension(Atm%natoms)     :: otr, oti, frc, frs
-      real(kind=cp), dimension(3)              :: h, hnn, xi, cosa, side, aa, bb, t, car, ar, br,ed,ec
+      real(kind=cp), dimension(3)              :: h, hnn, xi, cosa, side, aa, bb, t, ar, br,ed,ec
       real(kind=cp), dimension(6)              :: betas
-      Real(Kind=Cp), Dimension(3,Grp%Multip)   :: hr
       Real(Kind=Cp), Dimension(3,3)            :: sm,SMcos,SMsin
       complex(kind=cp),dimension(3)            :: Mc
       logical                                  :: mag,nuc,mag_only
       character(len=1)                         :: tw
-      real(kind=cp) :: ffr, ffi, ffx, cosr, sinr, scosr, z, ssinr, temp,snexi,x1
-      real(kind=cp) :: x, yy, arg, arg2, exparg,ssnn
+      real(kind=cp) :: ffr, ffi, ffx, cosr, sinr, scosr, ssinr, temp,snexi !,x1, yy, z
+      real(kind=cp) :: x, arg, arg2, exparg,ssnn
       real(kind=dp) :: a1, a3, b1, b3, av,bv
       real(kind=dp), parameter  :: pn=0.2695420113693928312
       tw="N"

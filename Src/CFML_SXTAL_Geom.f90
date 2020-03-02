@@ -223,7 +223,7 @@
 !!
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,        Only: Cp,To_Deg,To_Rad
+    Use CFML_GlobalDeps,        Only: Cp,Dp,To_Deg,To_Rad
     Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand,co_linear,in_limits
     Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
     Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type, Zone_Axis_type, Get_basis_from_uvw, &
@@ -720,10 +720,10 @@
        real(kind=cp),Dimension(6), optional, Intent(out) :: dcel,rcel
 
        !--- Local Variables ---!
-       real(kind=cp), Dimension(3,3) :: g,sg,ubinv,angle
-       real(kind=cp), Dimension(3)   :: acal,angcal,cala,calang
+       real(kind=dp), Dimension(3,3) :: g,sg,ubinv,angle
+       real(kind=dp), Dimension(3)   :: acal,angcal,cala,calang
        integer                       :: i,j,k,jn,kn
-       real(kind=cp)                 :: x
+       real(kind=dp)                 :: x
 
        g=Matmul(Transpose(ub),ub)
        sg=g

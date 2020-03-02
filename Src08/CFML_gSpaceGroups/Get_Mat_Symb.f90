@@ -30,7 +30,7 @@ SubModule (CFML_gSpaceGroups) SPG_012
 
       !---- local variables ----!
       integer                 :: i,j,k,Dd, d, np, n,m,inv,num,den,ind,ier
-      integer, dimension(12)  :: pos,pn
+      integer, dimension(20)  :: pos,pn
 
       character(len=len(Symb))                                     :: string, pSymb, translation
       character(len=3),dimension(10)                               :: x_typ

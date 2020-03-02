@@ -42,10 +42,10 @@
 Module CFML_Atoms
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps   
+    Use CFML_GlobalDeps
     Use CFML_Maths,        only: modulo_lat, equal_vector
-    Use CFML_Strings,      only: u_case  
-    Use CFML_gSpaceGroups, only: spg_type, apply_op           
+    Use CFML_Strings,      only: u_case,l_case
+    Use CFML_gSpaceGroups, only: spg_type, apply_op
 
     !---- Variables ----!
     implicit none
@@ -57,94 +57,130 @@ Module CFML_Atoms
               Write_Bin_atom_List, Write_Info_Atom_List
 
     !---- Parameters ----!
-    real(kind=cp), parameter :: R_ATOM=1.1           ! Average atomic radius
-    
+    real(kind=cp), parameter :: R_ATOM=1.1_cp      ! Average atomic radius
+
     !---- Types ----!
-    
+
     !!----
     !!---- TYPE :: ATM_TYPE
     !!----
-    !!----      Simple Atom type
+    !!----  Simple Atom type containing the minimum set of model parameters
+    !!----  to describe the atom within a periodic crystal structure. The
+    !!----  simplest atom is characterized by its labels (Lab,ChemSymb,SfacSymb, ThType),
+    !!----  position X, isotropic displacement parameter U_iso, occupancy factor Occ,
+    !!----  magnetic moment, anisotropic displacement parameters U, charge, atomic number,
+    !!----  maximum module of magnetic moment and additional information.
     !!----
     Type, Public :: Atm_Type
-       character(len=20)             :: Lab     =" "     ! Label for atom
+       character(len=20)             :: Lab     =" "     ! Label (identifier) of the atom
        character(len=2)              :: ChemSymb=" "     ! Chemical symbol
+       character(len=4)              :: SfacSymb=" "     ! Scattering Factor Symbol
        integer                       :: Z       = 0      ! Atomic number
-       integer                       :: Mult    = 0      ! Multiplicity
-       integer                       :: Charge  = 0      ! Charge  
-       real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Coordinates
+       integer                       :: Mult    = 0      ! Multiplicity of the Wyckoff position
+       integer                       :: Charge  = 0      ! Charge, ionic state
+       real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Fractional Coordinates
+       real(kind=cp)                 :: U_iso   = 0.0_cp ! Biso, Uiso or Ueq (if iso =Biso)
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
        character(len=4)              :: UType   ="beta"  ! Options: U, B, beta
        character(len=3)              :: ThType  ="iso"   ! Options: iso, ani
-       real(kind=cp)                 :: U_iso   = 0.0_cp ! Uiso or Ueq
        real(kind=cp), dimension(6)   :: U       = 0.0_cp ! Anisotropic thermal factors
-       logical                       :: Magnetic=.false.
+       logical                       :: Magnetic=.false. ! Flag indication if the atom is magnetic or not.
+       real(kind=cp)                 :: Mom     = 0.0_cp ! Maximum Module of Magnetic moment
        real(kind=cp), dimension(3)   :: Moment  = 0.0_cp ! Magnetic moment
-       character(len=4)              :: SfacSymb=" "     ! SFac symbol
        integer, dimension(3)         :: Ind_ff  = 0      ! Index of form factor (Xray, b, Magff)
-    End Type Atm_Type 
-    
+       character(len=40)             :: AtmInfo = " "    ! Information string for different purposes
+       character(len=5)              :: wyck    = " "    ! Wyckoff position label if known
+    End Type Atm_Type
+
     !!----
     !!---- TYPE :: ATM_STD_TYPE
     !!----
-    !!----      Simple Atom type + Standard deviation values
+    !!----  Simple Atom type + Standard deviation values
     !!----
     Type, Public, Extends(Atm_Type) :: Atm_Std_Type
        real(kind=cp), dimension(3)  :: X_Std      = 0.0_cp     ! standard deviations
-       real(kind=cp)                :: Occ_Std    = 0.0_cp     
-       real(kind=cp)                :: U_iso_Std  = 0.0_cp     
-       real(kind=cp), dimension(6)  :: U_Std      = 0.0_cp   
-       real(kind=cp), dimension(3)  :: Moment_std = 0.0_cp  
-    End Type Atm_Std_Type 
-    
+       real(kind=cp)                :: Occ_Std    = 0.0_cp
+       real(kind=cp)                :: U_iso_Std  = 0.0_cp
+       real(kind=cp), dimension(6)  :: U_Std      = 0.0_cp
+       real(kind=cp), dimension(3)  :: Moment_std = 0.0_cp
+    End Type Atm_Std_Type
+
     !!----
     !!---- TYPE :: MATM_STD_TYPE
     !!----
-    !!----      
+    !!---- This type Modulated Atom type extends Atm_Std_Type by adding modulation
+    !!---- Cosine(c) and Sine amplitudes(s) to each model parameter characterizing
+    !!---- normal atoms. Up to 8 harmonic numbers (Q_coeffs) are allowed
     !!----
     Type, Public, Extends(Atm_Std_Type) :: MAtm_Std_Type
-       character(len=3)                         :: wyck   = " "
-       integer                                  :: n_mc   = 0       ! up to 8
-       integer                                  :: n_dc   = 0
-       real(kind=cp),dimension(6,8)             :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
-       real(kind=cp),dimension(6,8)             :: Mcs_std= 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
-       real(kind=cp),dimension(6,8)             :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
-       real(kind=cp),dimension(6,8)             :: Dcs_std= 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       integer                          :: n_oc   = 0       ! Number of occupation amplitudes
+       integer                          :: n_mc   = 0       ! Number of moment amplitudes
+       integer                          :: n_dc   = 0       ! Number of static displacement amplitudes
+       integer                          :: n_uc   = 0       ! Number of thermal displacement amplitudes
+       integer,      dimension(8)       :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
+       integer,      dimension(8)       :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
+       integer,      dimension(8)       :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
+       integer,      dimension(8)       :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
+       real(kind=cp),dimension(2,8)     :: Ocs    = 0.0_cp  ! Ocos,Osin up to 8  (Oc, Os)
+       real(kind=cp),dimension(2,8)     :: Ocs_std= 0.0_cp  !
+       real(kind=cp),dimension(6,8)     :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
+       real(kind=cp),dimension(6,8)     :: Mcs_std= 0.0_cp  !
+       real(kind=cp),dimension(6,8)     :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(6,8)     :: Dcs_std= 0.0_cp  !
+       real(kind=cp),dimension(12,8)    :: Ucs    = 0.0_cp  ! Ucos,Usin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(12,8)    :: Ucs_std= 0.0_cp  !
+       real(kind=cp),dimension(:),   allocatable :: Xs      ! Position in superspace
+       real(kind=cp),dimension(:),   allocatable :: Moms    ! Moment in superspace
+       real(kind=cp),dimension(:,:), allocatable :: Us      ! Thermal factos in superspace
     End Type MAtm_Std_Type
-    
+
     !!----
     !!---- TYPE :: ATM_REF_TYPE
     !!----
-    !!----      Refinement Atom type
+    !!----   Refinement Atom type: This type extends Atm_Std_Type with the numbers
+    !!----   of each model paramenter within the list of LSQ free parameters, as well
+    !!----   as the corresponding multipliers for constraints.
     !!----
     Type, Public, Extends(Atm_Std_Type) :: Atm_Ref_Type
-       integer,      dimension(3)               :: LX       =0      ! Code for parameters
-       integer                                  :: LOcc     =0
-       integer                                  :: LU_iso   =0 
-       integer,      dimension(6)               :: LU       =0
-       real(kind=cp),dimension(3)               :: MX       =0.0_cp ! Factor of refinement
-       real(kind=cp)                            :: MOcc     =0.0_cp
-       real(kind=cp)                            :: MU_iso   =0.0_cp
-       real(kind=cp),dimension(6)               :: MU       =0.0_cp
-    End Type Atm_Ref_Type 
-    
+       integer,      dimension(3)               :: L_X       =0      ! Code number of free parameters
+       integer                                  :: L_Occ     =0
+       integer                                  :: L_U_iso   =0
+       integer,      dimension(3)               :: L_moment  =0
+       integer,      dimension(6)               :: L_U       =0
+       real(kind=cp),dimension(3)               :: M_X       =0.0_cp ! Multipliers
+       real(kind=cp)                            :: M_Occ     =0.0_cp
+       real(kind=cp)                            :: M_U_iso   =0.0_cp
+       real(kind=cp),dimension(3)               :: M_moment  =0.0_cp
+       real(kind=cp),dimension(6)               :: M_U       =0.0_cp
+    End Type Atm_Ref_Type
+
     !!----
     !!---- TYPE :: MATM_REF_TYPE
     !!----
-    !!----      Refinement Atom type
+    !!----   Refinement Atom type: This type extends MAtm_Std_Type with the numbers
+    !!----   of each model paramenter within the list of LSQ free parameters, as well
+    !!----   as the corresponding multipliers for constraints.
     !!----
     Type, Public, Extends(MAtm_Std_Type) :: MAtm_Ref_Type
-       integer,      dimension(3)               :: LX       =0      ! Code for parameters
-       integer                                  :: LOcc     =0
-       integer                                  :: LU_iso   =0 
-       integer,      dimension(6)               :: LU       =0
-       real(kind=cp),dimension(3)               :: MX       =0.0_cp ! Factor of refinement
-       real(kind=cp)                            :: MOcc     =0.0_cp
-       real(kind=cp)                            :: MU_iso   =0.0_cp
-       real(kind=cp),dimension(6)               :: MU       =0.0_cp
-    End Type MAtm_Ref_Type 
-    
-    
+       integer,      dimension(3)               :: L_X       =0       ! Code Numbers of parameter
+       integer                                  :: L_Occ     =0
+       integer                                  :: L_U_iso   =0
+       integer,      dimension(6)               :: L_U       =0
+       real(kind=cp),dimension(3)               :: M_X       =0.0_cp  ! Multipliers of refinement
+       real(kind=cp)                            :: M_Occ     =0.0_cp
+       real(kind=cp)                            :: M_U_iso   =0.0_cp
+       real(kind=cp),dimension(6)               :: M_U       =0.0_cp
+       integer,      dimension(2,8)             :: L_Ocs    = 0       ! Code Numbers of parameter
+       integer,      dimension(6,8)             :: L_Mcs    = 0       !
+       integer,      dimension(6,8)             :: L_Dcs    = 0       !
+       integer,      dimension(12,8)            :: L_Ucs    = 0       !
+       real(kind=cp),dimension(2,8)             :: M_Ocs    = 0.0_cp  ! Multipliers
+       real(kind=cp),dimension(6,8)             :: M_Mcs    = 0.0_cp  !
+       real(kind=cp),dimension(6,8)             :: M_Dcs    = 0.0_cp  !
+       real(kind=cp),dimension(12,8)            :: M_Ucs    = 0.0_cp  !
+    End Type MAtm_Ref_Type
+
+
     !!----
     !!---- TYPE ::ATM_CELL_TYPE
     !!--..
@@ -169,58 +205,64 @@ Module CFML_Atoms
        real(kind=cp),           dimension(:), allocatable :: ddist          ! List of distinct distances(nat*idp)
        character (len=20),      dimension(:), allocatable :: ddlab          ! Labels of atoms at ddist (nat*idp)
     End Type Atm_Cell_Type
-    
+
     !!----
     !!---- TYPE :: ALIST_TYPE
     !!--..
     !!
     Type, Public :: AtList_Type
-       integer                                    :: natoms=0   ! Number of atoms in the list
-       logical,         dimension(:), allocatable :: Active     ! Flag for active or not
-       class(Atm_Type), dimension(:), allocatable :: Atom       ! Atoms
-       
+       integer                                    :: natoms=0      ! Number of atoms in the list
+       character(len=9)                           :: mcomp="Crystal" ! For magnetic moments and modulation functions Mcs and Dcs It may be also "Cartesian" or "Spherical"
+       logical,         dimension(:), allocatable :: Active        ! Flag for active or not
+       class(Atm_Type), dimension(:), allocatable :: Atom          ! Atoms
     End type AtList_Type
-    
+
     !---- Interface Zone ----!
     Interface
-       Module Subroutine Init_Atom_Type(Atm)
+
+       Module Subroutine Init_Atom_Type(Atm,d)
           !---- Arguments ----!
           class(Atm_Type), intent(in out)   :: Atm
+          integer,         intent(in)       :: d     ! Number of k-vectors
        End Subroutine Init_Atom_Type
-       
-       Module Subroutine Allocate_Atom_List(N, A)
+
+       Module Subroutine Allocate_Atom_List(N, A,Type_Atm, d)
           !---- Arguments ----!
-          integer,             intent(in)       :: n    
-          type(atlist_type),   intent(in out)   :: A    
+          integer,             intent(in)       :: n    ! Atoms in the List
+          type(Atlist_type),   intent(in out)   :: A    ! Objet to be allocated
+          character(len=*),    intent(in)       :: Type_Atm !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
+          integer,             intent(in)       :: d    ! Number of k-vectors
        End Subroutine Allocate_Atom_List
-       
-       Module Subroutine Read_Bin_Atom_List(filename, A)
+
+       Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm)
           !---- Arguments ----!
-          character(len=*),   intent(in)    :: filename
-          type(atlist_type), intent(in out) :: A
-       End Subroutine Read_Bin_Atom_List  
-       
+          character(len=*),   intent(in)     :: filename
+          type(atlist_type),  intent(in out) :: A
+          character(len=*),   intent(in)     :: Type_Atm
+       End Subroutine Read_Bin_Atom_List
+
        Module Subroutine Write_Bin_Atom_List(filename, A)
           !---- Arguments ----!
           character(len=*),   intent(in) :: filename
-          type(atlist_type), intent(in) :: A 
-       End Subroutine Write_Bin_Atom_List   
-       
+          type(atlist_type),  intent(in) :: A
+       End Subroutine Write_Bin_Atom_List
+
        Module Subroutine Write_Info_Atom_List(A, Iunit)
           !---- Arguments ----!
-          type(atlist_type),              intent(in) :: A        
-          integer,              optional, intent(in) :: IUnit    
+          type(atlist_type),              intent(in) :: A
+          integer,              optional, intent(in) :: IUnit
        End Subroutine Write_Info_Atom_List
-       
-       Module Subroutine Extend_List(A, B, Spg, Conven)
+
+       Module Subroutine Extend_List(A, B, Spg, Type_Atm,Conven)
           !---- Arguments ----!
-          type(atlist_type),   intent(in)     :: A         
-          type(atlist_type),   intent(in out) :: B         
-          type(SpG_Type),      intent(in)     :: SpG       
-          logical, optional,   intent(in)     :: Conven    
+          type(atlist_type),   intent(in)     :: A         ! Atom list (asymmetric unit)
+          type(atlist_type),   intent(in out) :: B         ! Atom list into the unit cell
+          type(SpG_Type),      intent(in)     :: SpG       ! SpaceGroup
+          character(len=*),    intent(in)     :: Type_Atm  ! !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
+          logical, optional,   intent(in)     :: Conven    ! If present and .true. using the whole conventional unit cell
        End Subroutine Extend_List
-          
+
     End Interface
-    
-    
+
+
 End Module CFML_Atoms

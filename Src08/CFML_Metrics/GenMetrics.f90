@@ -4,13 +4,13 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- SIGMAV_FROM_CELL
     !!----    Calculates the standard deviation of the unit cell volume
-    !!----    from the standard deviations of cell parameters. 
+    !!----    from the standard deviations of cell parameters.
     !!----    The input variable is of type Cell_Type.
     !!----
     !!----    It is assumed that there is no correlation (covariance terms) between
     !!----    the standard deviations of the different cell parameters.
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Pure Function SigmaV_From_Cell(Cell) Result(sigma)
        !---- Arguments ----!
@@ -25,7 +25,7 @@ Submodule (CFML_Metrics) GenMetrics
 
        !> Init
        sigma=0.0_cp
-       
+
        cr1=sum(abs(cell%scell))
        cr2=sum(abs(cell%sang))
        if (cr1 < EPS .and. cr2 < EPS ) return
@@ -68,7 +68,7 @@ Submodule (CFML_Metrics) GenMetrics
        !---- Local Variables ----!
        integer       :: i
        real(kind=cp) :: p,s,cs
-       
+
        !> Init
        p=1.0_cp; s=1.0_cp
 
@@ -90,7 +90,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!---- GET_METRICS
     !!----    Constructs the metric tensor
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Pure Function Get_Metrics(cell,ang) Result(G)
        !---- Arguments ----!
@@ -151,7 +151,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!--++
     !!--++      Xc = CrystOrt X (Xc Cartesian components, X crystallographic components)
     !!--++
-    !!--++ 10/04/2019 
+    !!--++ 10/04/2019
     !!
     Module Function Get_Cryst_Orthog_Matrix(Cell, Ang, CarType) Result(Mat)
        !---- Arguments ----!
@@ -163,12 +163,12 @@ Submodule (CFML_Metrics) GenMetrics
        character(len=2) :: car
        real(kind=cp)    :: cosgas, singas
 
-       
+
        !> Init and checks
-       Car=" "     
+       Car=" "
        if (present(CarType)) then
           Car=U_case(adjustl(CarType))
-            
+
           !> Check for valid input
           if (len_trim(Car) == 2) then  !> two symbols input
              if (Car /= 'CA' .and. Car /= 'AB' .and. Car /= 'BC' .and. Car /= 'BA') then
@@ -176,26 +176,26 @@ Submodule (CFML_Metrics) GenMetrics
                 Err_CFML%Msg="GET_CRYST_ORTHOG_MATRIX@METRICS: Invalid CarType. Reset to default! "
                 Car='CA'     !default: c//Z, a*//X
              end if
-             
+
           else !> one symbol input
              select case(Car(1:1))
                 case('C')
                     Car(2:2)='A'
-                    
+
                 case('A')
                    Car(2:2)='B'
-                   
+
                 case('B')
                    Car(2:2)='C'   !> defaults to c* // Z for this case
-                   
+
                 case default
-                   Car='CA'       !> default because invalid first character   
+                   Car='CA'       !> default because invalid first character
                 end select
-          end if            
+          end if
        end if
        if (len_trim(Car) == 0) Car='CA' !> default: c//Z, a*//X
-        
-       !> Setting of matrix 
+
+       !> Setting of matrix
        Select Case(Car)
           case('CA')           ! This is the default c//Z, a*//X
              !  Transponse of the following matrix:
@@ -213,7 +213,7 @@ Submodule (CFML_Metrics) GenMetrics
              Mat(3,1) = cell(1)*cosd(ang(2))
              Mat(3,2) = cell(2)*cosd(ang(1))
              Mat(3,3) = cell(3)
-               
+
           case('AB')  !This is the alternate case in the version prior to  2019
              ! x//a and Y // b*
              !  Transponse of the following matrix:
@@ -231,11 +231,11 @@ Submodule (CFML_Metrics) GenMetrics
              Mat(3,1) = 0.0_cp
              Mat(3,2) = 0.0_cp
              Mat(3,3) = cell(3)*sind(ang(2))*singas
-                 
+
           case('BC')  ! This is Carpenter orientation with b // Y, c* // Z, coded by RJA
              cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
-             sinbes=sqrt(1.0_cp-cosbes**2)               
-             Mat(1,1)=cell(1)*sind(ang(3))   
+             sinbes=sqrt(1.0_cp-cosbes**2)
+             Mat(1,1)=cell(1)*sind(ang(3))
              Mat(2,1)=cell(1)*cosd(ang(3))
              Mat(3,1)=0.0_cp
              Mat(1,2)=0.0_cp
@@ -244,10 +244,10 @@ Submodule (CFML_Metrics) GenMetrics
              Mat(1,3)=-1.0_cp*cell(3)*sind(ang(1))*cosbes
              Mat(2,3)=cell(3)*cosd(ang(1))
              Mat(3,3)=cell(3)*sind(ang(1))*sinbes
-                
+
           case('BA') ! Angel and Brown with Y // b and  X // a*
              cosbes=(cosd(ang(1))*cosd(ang(3)) - cosd(ang(2)))/(sind(ang(1))*sind(ang(3)))
-             sinbes=sqrt(1.0_cp-cosbes**2)                           
+             sinbes=sqrt(1.0_cp-cosbes**2)
              Mat(1,1)=cell(1)*sind(ang(3))*sinbes
              Mat(2,1)=cell(1)*cosd(ang(3))
              Mat(3,1)= -1.0_cp*cell(1)*sind(ang(3))*cosbes
@@ -255,10 +255,10 @@ Submodule (CFML_Metrics) GenMetrics
              Mat(2,2)=cell(2)
              Mat(3,2)=0.0_cp
              Mat(1,3)=0.0_cp
-             Mat(2,3)=cell(3)*cosd(ang(1))                            
+             Mat(2,3)=cell(3)*cosd(ang(1))
              Mat(3,3)=cell(3)*sind(ang(1))
-               
-       End Select 
+
+       End Select
 
        return
     End Function Get_Cryst_Orthog_Matrix
@@ -267,7 +267,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!---- RECIPROCAL_CELL
     !!----    Calculates the reciprocal lattice vectors
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Pure Subroutine Reciprocal_Cell(cell,ang,rcell,rang,rVol)
        !---- Arguments ----!
@@ -301,11 +301,11 @@ Submodule (CFML_Metrics) GenMetrics
 
     !!----
     !!---- SET_CRYSTAL_CELL
-    !!----    Constructs the object "Cell" 
+    !!----    Constructs the object "Cell"
     !!----
     !!----    Valid for CELL_TYPE, CELL_G_TYPE, CELL_LS_TYPE, CELL_GLS_TYPE
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Set_Crystal_Cell(VCell,VAng,Cell,Cartype,Vscell,Vsang)
        !---- Arguments ----!
@@ -327,7 +327,7 @@ Submodule (CFML_Metrics) GenMetrics
        where(cell%ang < EPS) cell%ang =90.0_cp
        cell%sang=0.0_cp
        if (present(Vsang)) cell%sang=Vsang
-       
+
        !> Volume
        cell%vol=Volume_from_Cell(Vcell, Vang)
        cell%svol=0.0_cp
@@ -352,13 +352,13 @@ Submodule (CFML_Metrics) GenMetrics
                 cell%cartType=adjustl(u_case(cartype))
              else
                 cell%CartType="CA"
-             end if     
+             end if
              Cell%Cr_Orth_cel=Get_Cryst_Orthog_matrix(Vcell,Vang,cell%CartType)
              Cell%Orth_Cr_cel=inverse_matrix(Cell%Cr_Orth_cel)
              if (Err_CFML%IErr ==1) then
                 Err_CFML%Msg="SET_CRYSTAL_CELL@METRICS: Probably wrong cell parameters. Please, check it!"
                 return
-             end if  
+             end if
 
              !> Busing-Levy matrix component
              !(it corresponds to the transpose of Orth_Cr_cel when Celda%CartType="CA")
@@ -380,11 +380,11 @@ Submodule (CFML_Metrics) GenMetrics
                 if (Err_CFML%IErr ==1) then
                    Err_CFML%Msg="SET_CRYSTAL_CELL@METRICS: Wrong cell parameters. Please, check it!"
                    return
-                end if 
+                end if
              end if
 
        end select
-       
+
        return
     End Subroutine Set_Crystal_Cell
 
@@ -392,7 +392,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!---- GET_CRYST_FAMILY
     !!----    Obtain the Crystal Family, Symbol and System from cell parameters
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!----
     Module Subroutine Get_Cryst_Family(Cell, Family, Symbol, System)
        !---- Arguments ----!
@@ -556,46 +556,46 @@ Submodule (CFML_Metrics) GenMetrics
        sa=sind(cell%ang(1))
        sb=sind(cell%ang(2))
        sg=sind(cell%ang(3))
-       
+
        !> Init and checks
        car=" "
        if (present(CarType)) then
           Car=U_case(adjustl(CarType))
-          
+
           !> Check for valid input
           if (len_trim(Car) == 2) then  ! two symbols input
              if (Car /= 'CA' .and. Car /= 'AB' .and. Car /= 'BC' .and. Car /= 'BA') then
                 Err_CFML%Ierr=1
                 Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: Invalid CarType! "
                 return
-             end if   
+             end if
              if (Car == 'BC' .or. Car == 'BA') then
-                Err_CFML%Ierr=1 
+                Err_CFML%Ierr=1
                 Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: CarType not supported! "
                 return
              end if
-            
+
           else ! one symbol input
              select case(Car(1:1))
                 case('C')
                    Car(2:2)='A'
-                
+
                 case('A')
                    Car(2:2)='B'
-                
+
                 case('B')
-                   Err_CFML%Ierr=1 
+                   Err_CFML%Ierr=1
                    Err_CFML%Msg="GET_DERIV_ORTH_CELL@METRICS: CarType not supported! "
                    return
 
                 case default
-                   Car='CA'            !> default because invalid first character   
+                   Car='CA'            !> default because invalid first character
              end select
-          end if            
+          end if
        end if
-       
+
        if (len_trim(Car) == 0) Car='CA' !> default: c//Z, a*//X
-       
+
        select case (car)
           case ('AB') ! x//a was original alternate setting
              f=(ca-cb*cg)/sg    !-cosgas*sinbeta
@@ -662,7 +662,7 @@ Submodule (CFML_Metrics) GenMetrics
              de_Orthcell(2,2,6) =  cell%cell(2)*cg
              de_Orthcell(2,3,6) =  cell%cell(3)*fc
              de_Orthcell(3,3,6) =  cell%cell(3)*gc
-             
+
           case ('CA')
              !
              !  By default, the cartesian frame is such as z//c
@@ -670,11 +670,11 @@ Submodule (CFML_Metrics) GenMetrics
              !    a = (a sinbeta singamma*, -a sinbeta cosgamma*, a cosbeta )
              !    b = (         0         ,     b sinalpha      , b cosalpha)
              !    c = (         0         ,         0           , c         )
-             
+
              !         ( a sinbeta singamma*          0             0 )
              !    M =  (-a sinbeta cosgamma*      b sinalpha        0 )
              !         ( a cosbeta                b cosalpha        c )
-             
+
              f=(cg-ca*cb)/sa    !-sinbeta . cosgamma*
              g=SQRT(sb*sb-f*f)  ! sinbeta . singamma*
              fa= cb/sa**2       ! df/dalpha
@@ -683,11 +683,11 @@ Submodule (CFML_Metrics) GenMetrics
              ga=-f*fa/g         ! dg/dalpha
              gb=(sb*cb-f*fb)/g  ! dg/dbeta
              gc=f/g*fc          ! dg/dgamma
-             
+
              !         ( a*g        0         0 )
              !    M =  ( a*f      b*sa        0 )
              !         ( a*cb     b*ca        c )
-             
+
              !
              !           (   g       0      0 )
              !  dM_da =  (   f       0      0 )
@@ -695,19 +695,19 @@ Submodule (CFML_Metrics) GenMetrics
              de_Orthcell(1,1,1) = g
              de_Orthcell(1,2,1) = f
              de_Orthcell(1,3,1) = cb
-             
+
              !           (   0      0      0 )
              !  dM_db =  (   0      sa     0 )
              !           (   0      ca     0 )
              de_Orthcell(1,2,2) = sa
              de_Orthcell(3,2,2) = ca
-             
+
              !
              !            (   0      0      0  )
              !  dM_dc =   (   0      0      0  )
              !            (   0      0      1  )
              de_Orthcell(3,3,3) = 1
-             
+
              !
              !             ( a*ga         0          0 )
              ! dM_dalpha=  ( a*fa       -b*ca        0 )
@@ -717,7 +717,7 @@ Submodule (CFML_Metrics) GenMetrics
              de_Orthcell(2,1,4) = cell%cell(1)*fa
              de_Orthcell(2,2,4) =-cell%cell(2)*ca
              de_Orthcell(3,2,4) = cell%cell(2)*sa
-             
+
              !
              !             (  a*gb        0         0 )
              ! dM_dbeta =  (  a*fb        0         0 )
@@ -726,22 +726,33 @@ Submodule (CFML_Metrics) GenMetrics
              de_Orthcell(1,1,5) = cell%cell(1)*gb
              de_Orthcell(2,1,5) = cell%cell(1)*fb
              de_Orthcell(3,1,5) =-cell%cell(1)*sb
-             
+
              !
              !              (  a*gc     0      0   )
              ! dM_dgamma =  (  a*fc     0      0   )
              !              (   0       0      0   )
              !
              de_Orthcell(1,1,6) = cell%cell(1)*gc
-             de_Orthcell(2,1,6) = cell%cell(1)*fc   
-          
+             de_Orthcell(2,1,6) = cell%cell(1)*fc
+
        end select
 
        return
     End Function Get_Deriv_Orth_Cell
 
+    Module Subroutine Change_Setting_Cell_Symb(Cell,sett,Celln)
+       !---- Arguments ----!
+       class(Cell_G_Type),            intent( in)     :: Cell
+       character(len=*),              intent (in)     :: sett
+       class(Cell_G_Type),            intent(out)     :: Celln
+       !
+       real(kind=cp), dimension(3,3) :: Mat
+       call Get_Transf(sett,Mat)
+       call Change_Setting_Cell(Cell,Mat,Celln)
+
+    End Subroutine Change_Setting_Cell_Symb
     !!----
-    !!---- SUBROUTINE CHANGE_SETTING_CELL
+    !!---- SUBROUTINE CHANGE_SETTING_CELL_MAT
     !!----
     !!---- Calculates a new cell giving the transformation matrix.
     !!---- The input matrix can be given as the S-matrix in International
@@ -750,7 +761,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- Update: February - 2005
     !!
-    Module Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
+    Module Subroutine Change_Setting_Cell_Mat(Cell,Mat,Celln,Matkind)
        !---- Arguments ----!
        class(Cell_G_Type),            intent( in)   :: Cell
        real(kind=cp), dimension (3,3),intent( in)   :: Mat
@@ -790,7 +801,7 @@ Submodule (CFML_Metrics) GenMetrics
        call Set_Crystal_Cell(cellv,angl,Celln)
 
        return
-    End Subroutine Change_Setting_Cell
+    End Subroutine Change_Setting_Cell_Mat
 
     !!----
     !!---- GET_PRIMITIVE_CELL
@@ -799,7 +810,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----    Centred_cell is the Crystal_Cell_Type of the input lattice
     !!----    The subroutine calculates the transformation matric "transfm"
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Get_Primitive_Cell(Lat_Type,C_Cell,P_Cell,Transfm)
        !---- Arguments ----!
@@ -869,7 +880,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----    Get the transformation matrix between two
     !!----    primitive unit cells (the range of indices is fixed to -2 to 2)
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Function Get_Transfm_Matrix(cella,cellb,tol) Result(Trm)
        !---- Arguments ----!
@@ -892,7 +903,7 @@ Submodule (CFML_Metrics) GenMetrics
        Trm=0.0_cp
 
        ok=.false.
-       
+
        dox: do i1=-NLIM,NLIM                     !         |i1  i4  i7|
           do i2=-NLIN,NLIM                       !    Nu = |i2  i5  i8|
              do i3=-NLIM,NLIM                    !         |i3  i6  i9|
@@ -904,7 +915,7 @@ Submodule (CFML_Metrics) GenMetrics
                                do i9=-NLIM,NLIM
                                   j=i1*i5*i9+i4*i8*i3+i2*i6*i7-i3*i5*i7-i8*i6*i1-i2*i4*i9     !determinant (much faster than calling determ_A)
                                   if ( j /= 1) cycle
-                                  
+
                                   Nu=reshape((/i1,i2,i3,i4,i5,i6,i7,i8,i9/),(/3,3/))
                                   Trm=real(Nu)
                                   call Change_Setting_Cell(Cella,Trm,Cellt)
@@ -1081,7 +1092,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----    The conditions for a reciprocal or direct row to be a two-fold
     !!----    axis are discussed by Y. Le Page in J.Appl.Cryst. 15, 255 (1982).
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Function Get_TwoFold_Axes(Cell,Tol) Result(Twofold)
        !---- Arguments ----!
@@ -1117,13 +1128,13 @@ Submodule (CFML_Metrics) GenMetrics
              do iw=imax,-imax,-1
                 v=(/iu,iv,iw/)
                 if (.not. Co_Prime(v,2)) cycle
-                
+
                 do ih=imax,0,-1
                    do ik=imax,-imax,-1
                       do_il:do il=imax,-imax,-1
                          h=(/ih,ik,il/)
                          if (.not. Co_Prime(h,2)) cycle
-                         
+
                          n=abs(ih*iu+ik*iv+il*iw)
                          if ( n == 2 .or. n == 1) then
                             dv=real(iu,kind=cp)*a+real(iv,kind=cp)*b+real(iw,kind=cp)*c
@@ -1187,7 +1198,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----  The tolerance for comparing distances in angstroms told is optional.
     !!----- By default the used tolerance is 0.2 angstroms.
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!----
     Module Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,told)
        !---- Arguments ----!
@@ -1217,7 +1228,7 @@ Submodule (CFML_Metrics) GenMetrics
        ep=cosd(90.0-delt)
        domina=9.0e+30; dominc=domina
        ab=0; mv=0.0; ang=0.0; row=0; inp=0
-       
+
        tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
        Call Set_Crystal_Cell([1.0_cp,1.0_cp,1.0_cp],[90.0_cp,90.0_cp,90.0_cp],Cell)
        message=" "
@@ -1703,7 +1714,7 @@ Submodule (CFML_Metrics) GenMetrics
                   return
                 Case(1)
                    message="Cubic, Primitive cell"
-                   
+
                 Case(2)
                    rw=matmul((/0,1,1/),tr)
                    if (.not. co_prime(rw,3)) then
@@ -1725,7 +1736,7 @@ Submodule (CFML_Metrics) GenMetrics
 
                 Case(3:)
                   message="Cubic, F-centred cell"
-                  
+
              End Select
 
           case default
@@ -1762,7 +1773,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----       BLD: The components are given with respect to basis (a,b,c) but
     !!----            the Cartesian frame is that defined by Busing and Levy
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
        !---- Arguments ----!
@@ -1801,7 +1812,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!---- CART_U_VECTOR
     !!----    Convert a vector in crystal space to unitary cartesian components
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
        !---- Arguments ----!
@@ -1815,7 +1826,7 @@ Submodule (CFML_Metrics) GenMetrics
 
        !> Init
        vc=0.0_cp
-       
+
        vc=cart_vector(Mode,v,cell)
        vmod=sqrt(dot_product(vc,vc))
        if (vmod > epsilon(0.0_cp)) vc=vc/vmod
@@ -1824,7 +1835,7 @@ Submodule (CFML_Metrics) GenMetrics
     End Function Cart_U_Vector
 
     !!----
-    !!---- ROT_METRICALMATRIX(U, PHI, CELDA)
+    !!---- Rot_Gibbs_Matrix(U, PHI, CELDA)
     !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
     !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
     !!----    keeping the reference frame unchanged.
@@ -1834,14 +1845,14 @@ Submodule (CFML_Metrics) GenMetrics
     !!----    If "Celda" is present, "U" is in "Celda" coordinates,
     !!----    if not "U" is in cartesian coordinates.
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
-    Module Pure Function Rot_MetricalMatrix(V,Phi,Cell) Result(Mat)
+    Module Pure Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
        !---- Argument ----!
        real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
-       real(kind=cp),                    intent(in) :: phi   ! Degree of rotation around V
+       real(kind=cp),                    intent(in) :: phi   ! Angle in Degrees of rotation around V
        class(Cell_G_Type), optional,     intent(in) :: cell  ! Cell object
-       real(kind=cp), dimension(3,3)                :: Mat   ! Metrical Matrix rotated
+       real(kind=cp), dimension(3,3)                :: Mat   ! Gibbs Matrix corresponding to the rotation around V of an angle Phi
 
        !---- Local variables ----!
        real(kind=cp)               :: c, s, umc, umod
@@ -1877,24 +1888,24 @@ Submodule (CFML_Metrics) GenMetrics
        Mat(3,3)= c+ umc*vc(3)**2
 
        return
-    End Function Rot_MetricalMatrix
-    
+    End Function Rot_Gibbs_Matrix
+
     !!----
     !!---- STRAIN_FROM_CELL
-    !!----    Calculates the strain from cell described by T0 to cell described by T1 
+    !!----    Calculates the strain from cell described by T0 to cell described by T1
     !!----    Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
     !!----
     !!----    Ported from WinStrain (RJA): February - 2019
     !!----
-    !!---- 19/04/2019 
+    !!---- 19/04/2019
     !!
     Module Function Strain_from_Cell(Itype,T0,T1) Result(strain)
        !---- Arguments ----!
        integer,                       intent(in) :: itype  ! Strain type
-       real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state 
-       real(kind=cp), dimension(3,3), intent(in) :: T1     ! CR_Orth_Cel for chosen axial system for the final state 
+       real(kind=cp), dimension(3,3), intent(in) :: T0     ! CR_Orth_Cel for chosen axial system for the starting state
+       real(kind=cp), dimension(3,3), intent(in) :: T1     ! CR_Orth_Cel for chosen axial system for the final state
        real(kind=cp), dimension(3,3)             :: Strain ! calculated cell strain
-    
+
        !--- Local variables ---!
        integer                       :: i, j
        real(kind=cp), dimension(3,3) :: s0, s1, sinv, w1, w2
@@ -1904,8 +1915,8 @@ Submodule (CFML_Metrics) GenMetrics
        do i=1,3
           strain(i,i)=0.1        ! safety
        end do
-    
-       !> Original literature is written in terms of S matrices: 
+
+       !> Original literature is written in terms of S matrices:
        !> Zotov, Acta Cryst. (1990). A46, 627-628
        !> These are the transpose of CR_Orth_Cel
        s0=transpose(t0)
@@ -1915,9 +1926,9 @@ Submodule (CFML_Metrics) GenMetrics
           case (1) ! Eulerian finite
              Sinv=Inverse_Matrix(S1)
              if (Err_CFML%IErr /=0) return
-              
-             w1=matmul(sinv,s0)        
-             w2=transpose(w1)        
+
+             w1=matmul(sinv,s0)
+             w2=transpose(w1)
              strain=matmul(w1,w2)
              do i=1,3
                 do j=1,3
@@ -1927,12 +1938,12 @@ Submodule (CFML_Metrics) GenMetrics
              do i=1,3
                 strain(i,i)=strain(i,i)+1.5_cp
              end do
-             
+
           case (2) ! Eulerian infinitesimal
              Sinv=Inverse_Matrix(S1)
              if (Err_CFML%IErr /=0) return
 
-             w1=matmul(sinv,s0)        ! 
+             w1=matmul(sinv,s0)        !
              do i=1,3
                 do j=1,3
                    strain(i,j)= -0.5_cp*(w1(i,j)+w1(j,i))
@@ -1941,13 +1952,13 @@ Submodule (CFML_Metrics) GenMetrics
              do i=1,3
                 strain(i,i)=strain(i,i)+1.0_cp
              end do
-             
-          case (3) ! Lagrangian finite 
+
+          case (3) ! Lagrangian finite
              Sinv=Inverse_Matrix(S0)
              if (Err_CFML%IErr /=0) return
 
              w1=matmul(sinv,s1)
-             w2=transpose(w1)        ! 
+             w2=transpose(w1)        !
              strain=matmul(w1,w2)
              do i=1,3
                 do j=1,3
@@ -1957,12 +1968,12 @@ Submodule (CFML_Metrics) GenMetrics
              do i=1,3
                 strain(i,i)=strain(i,i)-0.5_cp
              end do
-             
-          case (4) ! Lagrangian infinitesimal  
+
+          case (4) ! Lagrangian infinitesimal
              Sinv=Inverse_Matrix(S0)
              if (Err_CFML%IErr /=0) return
-             
-             w1=matmul(sinv,s1)         ! 
+
+             w1=matmul(sinv,s1)         !
              do i=1,3
                 do j=1,3
                    strain(i,j)=0.5_cp*(w1(i,j)+w1(j,i))
@@ -1971,9 +1982,9 @@ Submodule (CFML_Metrics) GenMetrics
              do i=1,3
                 strain(i,i)=strain(i,i)-1.0_cp
              end do
-             
-       end select  
-       
+
+       end select
+
        return
     End Function Strain_from_Cell
 

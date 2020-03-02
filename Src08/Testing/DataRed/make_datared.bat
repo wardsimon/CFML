@@ -1,6 +1,6 @@
 @echo off
 rem ****
-rem ****---- Compilation for Groups Program ----****
+rem ****---- Compilation for DataRed Program ----****
 rem ****
 rem > INIT 
    (set _DEBUG=N)
@@ -52,22 +52,16 @@ rem
 rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
-rem      ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Write_Atomos.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
+      ifort /c Twin_Mod.f90          /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_Mod.f90       /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_reflections.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /exe:DataRed *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
    )
 rem   
    if [%_COMP%]==[gfortran] (
-      gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-rem      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-rem      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c cif.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o cif.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -c DataRed.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -o DataRed.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   
    del *.obj *.mod *.o *.map *.bak > nul

@@ -6,7 +6,7 @@
  Submodule (CFML_Strings) StrNum
    !---- Parameters ----!
    implicit none
-   
+
  Contains
     !!----
     !!---- STRING_FRACTION_1DIG
@@ -16,7 +16,7 @@
     !!----    representation of symmetry operators.
     !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function String_Fraction_1Dig(V) Result(Str)
        !---- Argument ----!
@@ -65,12 +65,12 @@
 
        return
     End Function String_Fraction_1Dig
-    
+
     !!----
     !!---- STRING_REAL
     !!----    Return a string of w characters containing the real value VAL
     !!----
-    Module Pure Function String_Real(Val,W) Result(Str) 
+    Module Pure Function String_Real(Val,W) Result(Str)
        !---- Arguments ----!
        real(kind=cp), intent(in)  :: val        ! value to be output
        integer,       intent(in)  :: w          ! Width
@@ -155,7 +155,7 @@
     !!----             Vector -> ( 0.25, -0.4, 0.33333)
     !!----             Str ->    "(1/4,-2/5,1/3)"
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function Frac_Trans_1Dig(Vec) Result(Str)
        !---- Argument ----!
@@ -168,7 +168,7 @@
 
        !> Init
        Str="(        ,        ,        )"
-       
+
        do i=1,3
           Frac(i)=String_Fraction_1Dig(vec(i))
           j=index(Frac(i),"+")
@@ -182,7 +182,7 @@
 
        return
     End Function Frac_Trans_1Dig
-    
+
     !!----
     !!---- STRING_FRACTION_2DIG
     !!----    Get a string with the most simple fraction that uses up to two
@@ -190,7 +190,7 @@
     !!----    character representation of symmetry operators.
     !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function String_Fraction_2Dig(V) Result(Str)
        !---- Argument ----!
@@ -255,7 +255,7 @@
     !!----             Vector -> ( 0.3, -0.4, -5.5)
     !!----             Str ->    "(3/10,-2/5,-11/2)"
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function Frac_Trans_2Dig(Vec) Result(Str)
        !---- Argument ----!
@@ -282,7 +282,7 @@
 
        return
     End Function Frac_Trans_2Dig
-    
+
     !!----
     !!----  GET_MAT_FROM_SYMB
     !!----
@@ -309,21 +309,21 @@
     !!----      0,a+b,0  ->   Mat = |  1   1   0  |
     !!----                           \ 0   0   0 /
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Function Get_Mat_From_Symb(Symb,cod) Result(Mat)
        !---- Arguments ----!
-       character(len=*),                intent(in)  :: Symb   ! String                               
-       character(len=1), dimension(3),  intent(in)  :: cod    ! (/"u","v","w"/) or (/"x","y","z"/)                       
-       real(kind=cp),dimension(3,3)                 :: Mat    ! Output  
-      
+       character(len=*),                intent(in)  :: Symb   ! String
+       character(len=1), dimension(3),  intent(in)  :: cod    ! (/"u","v","w"/) or (/"x","y","z"/)
+       real(kind=cp),dimension(3,3)                 :: Mat    ! Output
+
        !---- local variables ----!
        integer                                :: i,j
        character(len=len(Symb)), dimension(3) :: split
 
        !> Init
        Mat=0.0_cp
-       
+
        i=index(Symb,",")
        j=index(Symb,",",back=.true.)
        split(1)= pack_string(Symb(1:i-1))
@@ -332,16 +332,16 @@
        do i=1,3
           Mat(i,:)=Get_Vec_From_String(trim(split(i)), cod)
        end do
-      
+
        return
     End Function Get_Mat_From_Symb
 
     !!----
     !!----  GET_VEC_FROM_STRING
     !!----     Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
-    !!----     a real vector from symbol of the form:  m1a+m2b+m3c. 
+    !!----     a real vector from symbol of the form:  m1a+m2b+m3c.
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Function Get_Vec_From_String(Str,Cod) Result(Vec)
        !---- Arguments ----!
@@ -357,7 +357,7 @@
        !> Init
        Vec=0.0_cp
        if (len_trim(str) <=0) return
-       
+
        call Get_Separator_Pos(str,"+",pos,np)
        call Get_Separator_Pos(str,"-",neg,ns)
        nterm=np+ns
@@ -544,7 +544,7 @@
 
     !!----
     !!----  SET_SYMB_FROM_MAT
-    !!----     Function to construct a symbol of the form:  
+    !!----     Function to construct a symbol of the form:
     !!----         m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
     !!----     from a real matrix of quasi-rational numbers.
     !!----
@@ -556,14 +556,14 @@
     !!----                    Mat = |  m4   m5   m6  |
     !!----                           \ m7   m8   m9 /
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function Set_Symb_From_Mat(Mat,cod) Result(Symb)
-       !---- Arguments ----! 
+       !---- Arguments ----!
        real(kind=cp),dimension(3,3),    intent(in)  :: Mat    ! Array
        character(len=1), dimension(3),  intent(in)  :: cod    ! Codes (/"u","v","w"/) or (/"x","y","z"/)
        character(len=:), allocatable                :: Symb   ! Symbol
-      
+
        !---- local variables ----!
        integer                         :: i,j,k,fin,nc,aux
        integer,           dimension(2) :: pos
@@ -586,7 +586,7 @@
           else
              msp(1)=split(i)(1:pos(1)-1)//"  +"
           end if
-        
+
           if (v(3) < 0.0) then
              msp(2)=split(i)(pos(1)+1:pos(2)-1)
           else
@@ -633,14 +633,14 @@
           fin=len_trim(split(i))
           if (split(i)(fin:fin) == "+") split(i)(fin:fin)= " "
        end do
-       
+
        Symb=Pack_String(split(1)//","//split(2)//","//split(3))
        i=index(Symb,"+-")
        if (i /= 0) Symb(i:i)=" "
        i=index(Symb,"-+")
        if (i /= 0) Symb(i+1:i+1)=" "
        Symb=Pack_String(Symb)
-      
+
        return
     End Function Set_Symb_From_Mat
 
@@ -661,10 +661,10 @@
     Module Subroutine Get_Transf(str,mat,v,cod)
        !---- Arguments ----!
        character(len=*),                          intent(in)  :: str      ! Input string
-       real(kind=cp),dimension(3,3),              intent(out) :: mat      ! Matrix      
-       real(kind=cp),dimension(3),                intent(out) :: v        ! Vector      
-       character(len=1), dimension(4), optional,  intent(in)  :: cod      ! Code        
-      
+       real(kind=cp),dimension(3,3),              intent(out) :: mat      ! Matrix
+       real(kind=cp),dimension(3),     optional,  intent(out) :: v        ! Vector
+       character(len=1), dimension(4), optional,  intent(in)  :: cod      ! Code
+
        !--- Local variables ---!
        character(len=1), dimension(4) :: cd
        character(len=len(str))        :: transf_key,cmat,ori
@@ -673,12 +673,10 @@
 
        !> init
        mat=0.0_cp
-       v=0.0_cp
-        
        cd=(/"a","b","c",";"/)
        if (present(cod)) cd=cod
        transf_key=str
-      
+
        !> Remove the parenthesis is present
        j=index(transf_key,"(")
        if (j /= 0) transf_key(j:j)= " "
@@ -701,35 +699,38 @@
           if (err_cfml%ierr /=0) then
              err_cfml%msg=" Bad matrix setting...: "//trim(err_cfml%msg)
           end if
-         
+
           !> Origin
-          Call Get_Separator_Pos(ori,",",pos,nc)
-          if (nc /= 2) then
-             err_cfml%ierr=1
-             err_cfml%msg=" Bad origin setting...: "//trim(ori)
-             return
-          else
-             v(1)=Read_Fract(ori(1:pos(1)-1))
-             v(2)=Read_Fract(ori(pos(1)+1:pos(2)-1))
-             v(3)=Read_Fract(ori(pos(2)+1:))
-             if (err_cfml%ierr /=0) then
-                err_cfml%msg=" Bad origing setting...: "//trim(err_cfml%msg)//" :: "//trim(ori)
-                return
-             end if
+          if(present(v)) then
+            v=0.0_cp
+            Call Get_Separator_Pos(ori,",",pos,nc)
+            if (nc /= 2) then
+               err_cfml%ierr=1
+               err_cfml%msg=" Bad origin setting...: "//trim(ori)
+               return
+            else
+               v(1)=Read_Fract(ori(1:pos(1)-1))
+               v(2)=Read_Fract(ori(pos(1)+1:pos(2)-1))
+               v(3)=Read_Fract(ori(pos(2)+1:))
+               if (err_cfml%ierr /=0) then
+                  err_cfml%msg=" Bad origing setting...: "//trim(err_cfml%msg)//" :: "//trim(ori)
+                  return
+               end if
+            end if
           end if
        else
           err_cfml%ierr=1
           err_cfml%msg=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
        end if
-      
+
        return
     End Subroutine Get_Transf
-    
+
     !!----
     !!---- GET_NUM
-    !!----    Converts a string to numbers and write on VET/IVET if real/integer. 
+    !!----    Converts a string to numbers and write on VET/IVET if real/integer.
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Get_Num(Str,vet,ivet,iv)
        !---- Argument ----!
@@ -863,10 +864,10 @@
 
     !!----
     !!---- GET_NUMSTD
-    !!----    Converts a string to a numbers with standard deviation with format: 
+    !!----    Converts a string to a numbers with standard deviation with format:
     !!----        x.fffff(s)
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Subroutine Get_NumStd(Str, value, std, ic)
        !----Arguments ----!
@@ -892,7 +893,7 @@
           err_cfml%msg="Blank line into Get_NumStd procedure"
           return
        end if
-       
+
        i=index(Str,"!")
        if (i /= 0) then
           resto=adjustl(Str(1:i-1))
@@ -977,7 +978,7 @@
     !!---- NUMCOL_FROM_NUMFMT
     !!----    Provides the number of columns spanned by a numeric format field F,I,G,E
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Pure Function NumCol_from_NumFmt(Str) Result(n_col)
        !---- Argument ----!
@@ -1027,13 +1028,13 @@
              Case(0)
                 n_col=0
                 exit
-                
+
              Case(1)
                 string(point:point) = " "
                 read(unit=string,fmt=*,iostat=ier) n2
                 if (ier /= 0) n2=0
                 n1=1
-                
+
             Case default
                if (string(point:point)=="X") then
                   string(point:point) = " "
@@ -1048,7 +1049,7 @@
           End Select
           n_col=n_col+n1*n2
        end do
-       
+
        return
     End Function NumCol_from_NumFmt
 
@@ -1058,7 +1059,7 @@
     !!----  or a fraction. Is able to handle simple symbols:"", "-", "+", means
     !!----  respectively: 1,-1,1
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
     Module Function Read_Fract(str) Result(value)
        !---- Arguments ----!
@@ -1077,7 +1078,7 @@
           if (str == "+") then
              value=1.0_cp
              return
-             
+
           else if(str == "-") then
              value=-1.0_cp
              return
@@ -1093,7 +1094,7 @@
              err_cfml%msg=" The provided symbol is illegal: "//trim(str)
              return
           end if
-          
+
        else !fraction
           read(unit=str(1:k-1),fmt=*,iostat=ierr) num
           if (ierr /= 0) then
@@ -1102,7 +1103,7 @@
              err_cfml%msg=" The provided symbol is illegal: "//str(1:k-1)
              return
           end if
-          
+
           read(unit=str(k+1:),fmt=*,iostat=ierr) den
           if (ierr /= 0) then
              value=0.0_cp
@@ -1116,15 +1117,15 @@
 
        return
     End Function Read_Fract
-    
+
     !!----
     !!---- STRING_NUMSTD
     !!----    String with real value and standard deviation
     !!----    quoted in parenthesis
     !!----
-    !!---- 05/04/2019 
+    !!---- 05/04/2019
     !!
-    Module Pure Function String_NumStd(Value, Std) Result(Str) 
+    Module Pure Function String_NumStd(Value, Std) Result(Str)
        !---- Argument ----!
        real(kind=cp),   intent(in)  :: Value    ! Value
        real(kind=cp),   intent(in)  :: Std      ! Standard deviation
@@ -1146,7 +1147,7 @@
           aux=adjustl(aux)
           if (aux(1:1) /= "-") aux=" "//trim(aux)
           str=trim(aux)
-          
+
           return
        end if
 
@@ -1205,5 +1206,5 @@
 
        return
     End Function String_NumStd
- 
- End Submodule StrNum 
+
+ End Submodule StrNum

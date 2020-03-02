@@ -8299,7 +8299,7 @@ Module CFML_EisPack
       real(kind=dp), intent(in) :: a,b
       real(kind=dp) :: pythag_val
 
-      real(kind=dp) :: p,q,r,s,t,u
+      real(kind=dp) :: p,r,s,t,u
 
       p = max ( abs ( a ), abs ( b ) )
 
