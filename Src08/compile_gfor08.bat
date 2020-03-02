@@ -395,7 +395,6 @@ rem
 rem
 rem   Submodules CFML_Atoms
       cd .\CFML_Atoms
-      gfortran -c %OPTC% -J..\mod Init_atoms.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod Allocating_Atoms.f90               %OPT1%
       gfortran -c %OPTC% -J..\mod RW_Bin_Atmlist.f90                 %OPT1%
       gfortran -c %OPTC% -J..\mod Write_AtmList.f90                  %OPT1%

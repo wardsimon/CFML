@@ -45,7 +45,7 @@
    Module Twin_mod
        Use CFML_GlobalDeps,    only: cp
        Use CFML_Messages,      only: Error_message
-       use CFML_Strings,       only: File_Type
+       use CFML_Strings,       only: File_Type,u_case
        Use CFML_Maths,         only: Zbelong, epss, inverse_matrix
        Use CFML_Trigonometry,  only: rtan, asind, sind, cosd
        Use CFML_Metrics,       only: Cell_G_Type, Rot_Gibbs_Matrix
@@ -83,87 +83,120 @@
 
       contains
          !> @brief
-         !!    Subroutine read_twinlaw(lun,fich_cfl)
-         !!      integer,          intent (in), optional :: lun !logical unit of the file to be read
-         !!      Type (file_type), intent (in), optional :: fich_cfl
+         !!    Subroutine read_twinlaw(fich_cfl,n,Twins)
+         !!      Type (file_type), intent(in)     :: fich_cfl ! File_type containing the twin information
+         !!      integer,          intent(in out) :: n        ! Number of the line to start reading
+         !!      Type (Twin_type), intent(out)    :: Twins    ! Twin object
          !!
          !!    Subroutine to read the necessary items for defining a twin-law.
          !!    The different global variables of the module are loaded
          !!
          !!
-         Subroutine read_twinlaw(fich_cfl,Twins)
-           Type (file_type), intent(in)  :: fich_cfl
-           Type (Twin_type), intent(out) :: Twins
+         Subroutine read_twinlaw(fich_cfl,n,Twins)
+           Type (file_type), intent(in)     :: fich_cfl
+           integer,          intent(in out) :: n
+           Type (Twin_type), intent(out)    :: Twins
 
            !--- Local variables ---!
-           integer                      :: ier,i,n,nmat
-           character(len=:),allocatable :: line
+           integer                      :: ier,i,j,nmat
+           character(len=:),allocatable :: line,kw
+           logical :: twin_rot_given
 
            nmat=0
-           n=0
+
+           line="      "
            do
              n=n+1
              if(n > fich_cfl%nlines) exit
              line=adjustl(fich_cfl%line(n)%str)
+             if(len_trim(line) == 0) cycle
              if(line(1:1) == "!" .or. line(1:1) == "#") cycle
-             if(line(1:8) == "TWIN_nam") then
-                Twins%twin_name = line(9:)
-             else if(line(1:8) == "TWIN_typ") then
-               Read(unit=line(9:),fmt=*,iostat=ier) Twins%itwin
-               if(ier /= 0) then
-                 call Error_message (" => Error reading the TWIN law file, item: TWIN_typ")
-                 return
-               end if
-               if(Twins%itwin == 4) then
-                  nmat=1  ! The domain #1 has always rotation matrix equal to identity
-               end if
-               if(Twins%itwin < 1 .or. Twins%itwin > 4) then
-                 call Error_message (" => Illegal TWIN_typ: It should be 1,2 or 3!")
-                 return
-               end if
-             else if (line(1:8) == "TWIN_trf") then
-               Twins%itransf=.true.
-               Read(unit=line(9:),fmt=*,iostat=ier) (Twins%tr(i,:),i=1,3)
-               if(ier /= 0) then
-                 call Error_message (" => Error reading the TWIN law file, item: TWIN_trf")
-                 return
-               end if
-             else if (line(1:8) == "TWIN_rot") then
-               nmat=nmat+1
-               Read(unit=line(9:),fmt=*,iostat=ier) Twins%ax_twin(:,nmat),Twins%ang_twin(nmat)
-               if(ier /= 0) then
-                 call Error_message (" => Error reading the TWIN law file, item: TWIN_rot")
-                 return
-               end if
-               !Calculation of the rotation matrix
-               Twins%rtwin(:,:,nmat)=Rot_Gibbs_Matrix(Twins%ax_twin(:,nmat),Twins%ang_twin(nmat))
-             else if (line(1:8) == "TWIN_mat") then
-               nmat=nmat+1
-               Read(unit=line(9:),fmt=*,iostat=ier) ( Twins%twin(i,:,nmat),i=1,3)
-               if(ier /= 0) then
-                call Error_message (" => Error reading the TWIN law file, item: TWIN_mat")
-                return
-               end if
-             else if (line(1:8) == "TWIN_ubm") then
-               Twins%iubm=.true.
-               Read(unit=line(9:),fmt=*,iostat=ier) (Twins%ubm(i,:),i=1,3)
-               if(ier /= 0) then
-                call Error_message (" => Error reading the TWIN law file, item: TWIN_ubm")
-                return
-               end if
-             else if (line(1:8) == "TWIN_mac") then
-                Twins%machine= trim(line(9:))
-             else if (line(1:8) == "TWIN_spg") then
+             j=index(line," ")
+             if (j == 0) cycle
+             kw=u_case(line(1:j-1))
+
+             Select Case (kw)
+               case("TWIN_NAM")
+                 Twins%twin_name = line(j:)
+
+               case("TWIN_TYP")
+
+                 Read(unit=line(j:),fmt=*,iostat=ier) Twins%itwin
+                 if(ier /= 0) then
+                   call Error_message (" => Error reading the TWIN law file, item: TWIN_typ")
+                   return
+                 end if
+                 if(Twins%itwin == 4) then
+                    nmat=1  ! The domain #1 has always rotation matrix equal to identity
+                 end if
+                 if(Twins%itwin < 1 .or. Twins%itwin > 4) then
+                   call Error_message (" => Illegal TWIN_type: It should be 1,2,3 or 4!")
+                   return
+                 end if
+
+               case("TWIN_TRF")
+
+                 Twins%itransf=.true.
+                 Read(unit=line(j:),fmt=*,iostat=ier) (Twins%tr(i,:),i=1,3)
+                 if(ier /= 0) then
+                   call Error_message (" => Error reading the TWIN law file, item: TWIN_trf")
+                   return
+                 end if
+
+               case("TWIN_ROT")
+
+                 if(Twins%itwin /= 4) then
+                   call Error_message (" => Giving TWIN_rot, implies that ITwin should be equal to 4!" )
+                   write(unit=*,fmt="(a)") " => The program is changing ITwin to ITwin=4 automatically for continuing smoothly... "
+                   Twins%itwin = 4
+                   nmat=1
+                 end if
+
+                 nmat=nmat+1
+                 Read(unit=line(j:),fmt=*,iostat=ier) Twins%ax_twin(:,nmat),Twins%ang_twin(nmat)
+                 if(ier /= 0) then
+                   call Error_message (" => Error reading the TWIN law file, item: TWIN_rot")
+                   return
+                 end if
+                 !Calculation of the rotation matrix
+                 Twins%rtwin(:,:,nmat)=Rot_Gibbs_Matrix(Twins%ax_twin(:,nmat),Twins%ang_twin(nmat))
+
+               case("TWIN_MAT")
+
+                 nmat=nmat+1
+                 Read(unit=line(j:),fmt=*,iostat=ier) ( Twins%twin(i,:,nmat),i=1,3)
+                 if(ier /= 0) then
+                   call Error_message (" => Error reading the TWIN law file, item: TWIN_mat")
+                   return
+                 end if
+
+               case("TWIN_UBM")
+
+                 Twins%iubm=.true.
+                 Read(unit=line(j:),fmt=*,iostat=ier) (Twins%ubm(i,:),i=1,3)
+                 if(ier /= 0) then
+                   call Error_message (" => Error reading the TWIN law file, item: TWIN_ubm")
+                   return
+                 end if
+
+               case("TWIN_MAC")
+
+                 Twins%machine= trim(line(j:))
+
+               case("TWIN_SPG")
+
                 Twins%iSpG=.true.
-                Twins%twin_Spg=adjustl(trim(line(9:)))
-             else if (line(1:8) == "TWIN_end") then
-               exit
-             end if
+                Twins%twin_Spg=adjustl(trim(line(j:)))
+
+               case("TWIN_END")
+                 exit
+             End Select
            end do
            twins%nmat=nmat
            read_OK=.true.
-           return
+
          End Subroutine read_twinlaw
+
          !> @brief
          !!  Subroutine write_twinlaw(lun,twins,cell)
          !!    integer,                     intent(in)     :: lun   !> logical unit of the file for writing
@@ -298,16 +331,16 @@
                  Do i=1,3
                    h(:)= twins%twin(i,:,l)
                    rmodul= Sqrt(h(1)*h(1)+h(2)*h(2)+h(3)*h(3))
-                   b(i,:)=cell%cell(i)*h(:)/rmodul         !M(L)
+                   b(i,:)=cell%cell(i)*h(:)/rmodul    !M(L)
                  End Do
-                 a=inverse_matrix(b)                          !A=M(L)-1
+                 a=inverse_matrix(b)                  !A=M(L)-1
                  tinv=transpose(a)                    !TINV= (M(L)-1)t
                  If(l == 1) Then
                    a=transpose(b)                     !  A=M(1)t
                    og=matmul(a,cell%gr)               !  M(1)t * GG
                  End If
                  b=matmul(cell%gd,tinv)               !GD *  (M(L)-1)t
-                 twins%twin(:,:,l)=matmul(b,og)             !GD *  (M(L)-1)t  * M(1)t * GG
+                 twins%twin(:,:,l)=matmul(b,og)       !GD *  (M(L)-1)t  * M(1)t * GG
                  twins%twini(:,:,l) =  inverse_matrix(twins%twin(:,:,l))  !B=A-1
                  write(unit=lun,fmt="(a,i3)")                    " => Matrices for domain Number: ", l
                  do j=1,3
@@ -329,22 +362,22 @@
 
          !> @brief
          !!  Subroutine get_domain_contrib(h,twins,hkl,contr,angles,SpG, Cell)
-         !!    real(kind=cp), dimension(3),intent (in)           :: h
-         !!    type(twin_type),            intent (in)           :: twins
-         !!    real, dimension(3,nmax),    intent(out)           :: hkl
-         !!    integer, dimension(nmax),   intent(out)           :: contr
-         !!    real, dimension(4),         intent (in), optional :: angles
-         !!    type(SpG_Type),             intent (in), optional :: SpG
-         !!    type(Cell_G_Type),          intent (in), optional :: cell
+         !!    real(kind=cp), dimension(3),      intent (in)           :: h
+         !!    type(twin_type),                  intent (in)           :: twins
+         !!    real(kind=cp), dimension(3,nmax), intent(out)           :: hkl
+         !!    integer,       dimension(nmax),   intent(out)           :: contr
+         !!    real(kind=cp), dimension(4),      intent (in), optional :: angles
+         !!    type(SpG_Type),                   intent (in), optional :: SpG
+         !!    type(Cell_G_Type),                intent (in), optional :: cell
          !!
          Subroutine get_domain_contrib(h,twins,hkl,contr,angles,SpG, Cell)
-           real(kind=cp), dimension(3),intent (in)           :: h
-           type(twin_type),            intent (in)           :: twins
-           real, dimension(3,nmax), intent(out)           :: hkl
-           integer, dimension(nmax),   intent(out)           :: contr
-           real, dimension(4),         intent (in), optional :: angles
-           type(SpG_Type),             intent (in), optional :: SpG
-           type(Cell_G_Type),          intent (in), optional :: cell
+           real(kind=cp), dimension(3),      intent (in)           :: h
+           type(twin_type),                  intent (in)           :: twins
+           real(kind=cp), dimension(3,nmax), intent(out)           :: hkl
+           integer,       dimension(nmax),   intent(out)           :: contr
+           real(kind=cp), dimension(4),      intent (in), optional :: angles
+           type(SpG_Type),                   intent (in), optional :: SpG
+           type(Cell_G_Type),                intent (in), optional :: cell
 
            integer                     :: i
            real(kind=cp)               :: teta,om,aki,ph

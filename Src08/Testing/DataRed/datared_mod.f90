@@ -41,8 +41,28 @@
       real(kind=cp)                 :: scal_fact=1.0
     End Type Conditions_Type
 
-    !Type(Group_k_Type)          :: Gk
+    Type, public, extends(Refl_Type)    :: ObsRef
+      real(kind=cp),dimension(3):: hr      = 0.0  ! Real indices in reciprocal space
+      real(kind=cp),dimension(3):: ekv     = 0.0  ! Particular equivalent propagation vector to one of those given in kinfo
+      real(kind=cp)             :: intens  = 0.0  ! Observed intensity
+      real(kind=cp)             :: sigma   = 0.0  ! Estimated standard deviation
+      real(kind=cp)             :: twtheta = 0.0  ! Scattering angle
+      real(kind=cp)             :: omega   = 0.0  ! Angle of orienting device
+      real(kind=cp)             :: chi     = 0.0  ! Angle of orienting device
+      real(kind=cp)             :: phi     = 0.0  ! Angle of orienting device
+      real(kind=cp)             :: tbar    = 0.0  ! Weigthed path for absortion
+      real(kind=cp)             :: absorpt = 0.0  ! Transmission factor
+      real(kind=cp)             :: lambda_laue = 0.0 !lambda of reflection in a Laue or TOF experiment
+      integer                   :: idomain = 1    ! Indicator of the domain to which reflection refers
+      integer                   :: icod    = 0    ! Code for treating the reflection
+      integer                   :: pfn     = 0    ! Indicator of problem with the reflection
+      integer                   :: numor   = 0    ! Number order in the data collection
+    End Type ObsRef
 
+    Type, public :: Reflection_List
+      integer                                 :: NRef=0 ! Number of Reflections
+      type(ObsRef), dimension(:), allocatable :: Ref    ! Reflection List
+    End Type Reflection_List
 
     contains
 
@@ -54,7 +74,7 @@
       class(SPG_Type),       intent(out) :: SpG
       class(Cell_G_Type),    intent(out) :: Cell
       !--- Local variables ---!
-      integer :: i,j,k,ier
+      integer :: i,j,k,n,ier
       character(len=:), allocatable :: keyw
       character(len=:), allocatable :: line
 
@@ -129,7 +149,8 @@
                cond%powder=.true.
 
             Case("TWIN")
-              call read_twinlaw(cfl,Twins)
+              n=i
+              call read_twinlaw(cfl,n,Twins)
               cond%twinned=.true.
               if(Twins%iubm) lambda=cond%wavel
 
@@ -171,8 +192,8 @@
        write(unit=iou,fmt="(a,a)")   " Input        Control  file: ", trim(cfl%fname)
        write(unit=iou,fmt="(a,a)")   " Input    Reflections  file: ", trim(cond%filhkl)
        write(unit=iou,fmt="(a,a)")   " Averaged Reflections  file: ", trim(cond%fileout)//".int"
-       write(unit=iou,fmt="(a,a//)") " Rejected Reflections  file: ", trim(cond%fileout)//".rej"
-       write(unit=iou,fmt="(a,a)")   " General       Output  file: ", trim(cond%fileout)//".out"
+       write(unit=iou,fmt="(a,a)")   " Rejected Reflections  file: ", trim(cond%fileout)//".rej"
+       write(unit=iou,fmt="(a,a,/)") " General       Output  file: ", trim(cond%fileout)//".out"
 
        Select Case(cond%hkl_type)
          Case(0)       !Shelx-like input file (3i4,2f8.2)
@@ -221,6 +242,10 @@
             write(unit=iou,fmt="(a)")  " Data from SHELX HKLF5-format (domains have been treated outside DataRed)"
             write(unit=iou,fmt="(a)")  " Format of the reflections file =>  (3i4,2f8.0,i4) "
             write(unit=iou,fmt="(a/)") " For reading the items: h k l Int Sigma domain_code"
+         case(11)
+            write(unit=iou,fmt="(a)")  " Data from JANA-format "
+            write(unit=iou,fmt="(a)")  " Format of the reflections file => "//trim(forma)
+            write(unit=iou,fmt="(a/)") " For reading the items: h k l m ... Int Sigma domain_code"
        End Select
 
 

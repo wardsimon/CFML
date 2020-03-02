@@ -75,7 +75,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       integer                        :: ilat, axis
       integer, dimension(3)          :: ishift, v_trans, a_latt
       integer, dimension(3)          :: ivet
-      real(kind=cp), dimension(3)    :: vet, Co
+      real(kind=cp), dimension(3)    :: vet
       logical                        :: centro,free,shift
 
       type(rational), dimension(4,4) :: sn, snp
@@ -782,13 +782,10 @@ SubModule (CFML_gSpaceGroups) Spg_052
       character(len=2)                   :: c_rot
       character(len=1)                   :: c_axis,c_prime
       character(len=5)                   :: c_tras
-      character(len=15)                  :: cline
-      integer                            :: i,k,iv,n,nt,nc,np
-      integer                            :: is1,is2,is3
+      integer                            :: i,k,n,nt,nc,np
       integer                            :: j1,j2,j3,j4
-      integer, dimension(3)              :: itr, itr2, orig
+      integer, dimension(3)              :: itr, itr2
       integer, dimension(MAX_H_OPER)     :: iord
-      logical                            :: shift, shori
 
       real(kind=cp), dimension(3)        :: rtr
 
@@ -1353,7 +1350,7 @@ SubModule (CFML_gSpaceGroups) Spg_052
       character(len=5)               :: car_prime
       character(len=8), dimension(5) :: car_op
       character(len=40)              :: str_hall
-      integer                        :: prime,n,k,iv
+      integer                        :: prime,n,iv
       integer                        :: n1,n2
 
       logical                        :: pout=.false.

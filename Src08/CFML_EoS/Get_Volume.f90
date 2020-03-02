@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_002
    Contains
-   
+
    !!--++
    !!--++ GET_V0_T
    !!--++
@@ -19,7 +19,7 @@ SubModule (CFML_EoS) EoS_002
       !---- Arguments ----!
       real(kind=cp),  intent(in) :: T        ! Temperature
       type(Eos_Type), intent(in) :: EoSPar   ! Eos Parameter
-      real(kind=cp)              :: V   
+      real(kind=cp)              :: V
 
       !---- Local Variables ----!
       real(kind=cp)                      :: kp,AK
@@ -155,10 +155,10 @@ SubModule (CFML_EoS) EoS_002
          case (6)                                     ! HP thermal pressure
             v0=ev(1)
             pa=p-pthermal(0.0,t,eospar)               ! adjust pressure to isothermal pressure for murn and tait estimates
-            
+
          case(7)                                    ! MGD - do a guess on basis parallel isochors of pa
             v0=ev(1)
-            pa=p - eospar%params(2)*(t-eospar%tref)/100000.         ! have to guess an alpha because that requires V !!!  
+            pa=p - eospar%params(2)*(t-eospar%tref)/100000.         ! have to guess an alpha because that requires V !!!
       end select
 
       !> set K0, for various purposes
@@ -182,7 +182,7 @@ SubModule (CFML_EoS) EoS_002
 
       !> Analytic solution for Murnaghan:  use this for first guess for other EoS except Tait
       vfactor=(1.0_cp + kp*pa/k0)
-  
+
       !if (vfactor < 0.0 .and. kp > 0.0)then
       if (vfactor < 0.0)then
          v=v0        ! safe value for when 1+kp*pa/k0 is negative
@@ -226,7 +226,7 @@ SubModule (CFML_EoS) EoS_002
       if (eospar%linear) vol=vol**(1.0_cp/3.0_cp)
       eos=eospar        ! copy
       eos%itran=0       ! turn off transition
-      
+
       dp1=p-get_pressure(vol,t,eos)
       if (err_CFML%Ierr==1)then
          if (eospar%linear)v=v**(1.0_cp/3.0_cp)           ! to ensure reasonable return value if linear
@@ -277,7 +277,7 @@ SubModule (CFML_EoS) EoS_002
             if (abs(dp2) > abs(dp1)) then
                step=-1.0*step      ! wrong direction: reverse
             else
-        !       step=0.9_cp*dp2/dp1*step         ! correct direction, should get a smaller step size  
+        !       step=0.9_cp*dp2/dp1*step         ! correct direction, should get a smaller step size
         !    end if                              ! the factor of 0.9 is a safety factor to ensure step gets smaller
                 step= -1.0*dp2*step/(dp2-dp1)    ! new version Dec 2018: adjust step size in Newton-Raphson manner
             end if
@@ -285,13 +285,13 @@ SubModule (CFML_EoS) EoS_002
 
          dp1=dp2        ! update delta-p values and go back for next cycle
       end do iter
-      
+
       !> now set return value depending on success or not
       v=vol
 
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
    End Function Get_Volume
-   
+
    !!----
    !!---- GET_VOLUME
    !!----    Find volume from EoS at given P and T
@@ -314,9 +314,9 @@ SubModule (CFML_EoS) EoS_002
       integer                           :: i,ic
       real(kind=cp),dimension(nstep):: x,y,d2y
 
-      
+
       type(Eos_Type)                    :: EoS  ! Eos copy
-      real(kind=cp)                     :: V0,K0,Kp,k,strain,vfactor
+      real(kind=cp)                     :: V0,K0,Kp,strain,vfactor
       real(kind=cp)                     :: Vol, vstep, delp_prev,delp,v_prev
       real(kind=cp),dimension(N_EOSPAR) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
@@ -350,10 +350,10 @@ SubModule (CFML_EoS) EoS_002
          case (6)                                     ! HP thermal pressure
             v0=ev(1)
             pa=p-pthermal(0.0,t,eospar)               ! adjust pressure to isothermal pressure for murn and tait estimates
-            
+
          case(7)                                    ! MGD - do a guess on basis parallel isochors of pa
             v0=ev(1)
-            pa=p - eospar%params(2)*(t-eospar%tref)/100000.         ! have to guess an alpha because that requires V !!!  
+            pa=p - eospar%params(2)*(t-eospar%tref)/100000.         ! have to guess an alpha because that requires V !!!
       end select
 
       !> set K0, for various purposes
@@ -415,37 +415,37 @@ SubModule (CFML_EoS) EoS_002
 
       !> Find iterative solution for the rest of functions: get_pressure includes the thermal pressure term
       !> But if there is a transition, we only want the P/V for the bare high-symm phase without softening
-      
+
       !From here work with Vol, starting from Murnaghan estimate
       vol=v
       if (eospar%linear) vol=vol**(1.0_cp/3.0_cp)
       eos=eospar        ! copy
-      eos%itran=0       ! turn off transition          
-      
+      eos%itran=0       ! turn off transition
+
       !> initial simple hunt
       delp_prev=huge(0._cp)
-      ic = 0 
+      ic = 0
       reverse=.false.
       Vstep=eos%params(1)/100._cp
-      do 
+      do
          ic=ic+1
          if (ic > 1000)then
             err_CFML%Ierr=1
             err_CFML%Msg=' *****No solution found in get_volume after 1000 cycles'
             return
          end if
-        
-         !> ! have to clear the previous errors, otherwise get_pressure will return 0   
+
+         !> ! have to clear the previous errors, otherwise get_pressure will return 0
          call clear_error()
-         delp=p-get_pressure(Vol,T,eos) 
-          
-         if (delp*delp_prev < 0._cp .and. ic > 1)then     ! over-stepped solution: solution between v_prev and v 
+         delp=p-get_pressure(Vol,T,eos)
+
+         if (delp*delp_prev < 0._cp .and. ic > 1)then     ! over-stepped solution: solution between v_prev and v
             vol=vol-delp*Vstep/(delp-delp_prev)                               ! best guess
             exit
          end if
-   
+
          if (abs(delp) > abs(delp_prev))then ! delta-pressure getting bigger
-            if (reverse)then               ! found a minimum between v_prev-vstep and v 
+            if (reverse)then               ! found a minimum between v_prev-vstep and v
                err_CFML%Ierr=1
                err_CFML%Msg=' *****No volume found in get_volume'
                return
@@ -453,16 +453,16 @@ SubModule (CFML_EoS) EoS_002
                reverse=.true.            ! just going the wrong way
                vstep=-1.0_cp*vstep
             end if
-         end if        
+         end if
          v_prev=vol         ! this volume stored
          delp_prev=delp  ! store delp
          Vol=Vol+Vstep
-      end do 
-      
+      end do
+
       !> now calculate PV around the solution: we want increasing P, so this means vstep < 0
       Vstep=-1.0_cp*abs(Vstep)
       Vol=Vol-2.0*Vstep
-      Vstep=4.0*Vstep/nstep 
+      Vstep=4.0*Vstep/nstep
 
       do i=1,nstep
          x(i)=get_pressure(vol,t,eos)
@@ -471,7 +471,7 @@ SubModule (CFML_EoS) EoS_002
       end do
       d2y=Second_Derivative(x, y, nstep)
       vol=spline_interpol(p,x,y,d2y,nstep)
-      
+
       v=vol
       if (eospar%itran > 0) v=vol*(1.0_cp + strain)  ! apply transition strain ('vol' is actually linear if linear eos)
    End Function Get_Volume_New
@@ -479,7 +479,7 @@ SubModule (CFML_EoS) EoS_002
    !!----
    !!---- GET_VOLUME_K
    !!----    Returns the value of Volume for a given K  at T without using pressure
-   !!----    This has limited precision when Kp is small, so do not use except to obatin 
+   !!----    This has limited precision when Kp is small, so do not use except to obatin
    !!----    approximate V (eg for limits to eos)
    !!----
    !!---- 06/03/2019
@@ -497,7 +497,7 @@ SubModule (CFML_EoS) EoS_002
 
       !> Init
       v=0.0_cp
-      
+
       Vprev=e%params(1)             !This is Vo
       Kprev=K_cal(Vprev,T,E)        !This is Ko
 
@@ -505,7 +505,7 @@ SubModule (CFML_EoS) EoS_002
       Vstep=0.001_cp*e%params(1)            !If K is smaller than Ko, must go up in volume
       if (K > Kprev)Vstep=-1.0_cp*Vstep
 
-      do 
+      do
          Vprev=Vprev+Vstep
          kc=K_cal(Vprev,T,E)
          if (K < Kprev) then                   !going to volumes > 1.0
@@ -522,7 +522,7 @@ SubModule (CFML_EoS) EoS_002
             end if
          end if
       end do
-      
+
       !> set-up for Newton-raphson
       ic=0
       Kprev=Kc
@@ -531,7 +531,7 @@ SubModule (CFML_EoS) EoS_002
       do     ! does a newton-raphson search
          ic=ic+1
          if (ic > 10) exit
-         
+
          call clear_error()
          kc=K_cal(V,T,E)
 
@@ -542,7 +542,7 @@ SubModule (CFML_EoS) EoS_002
          else
             delV=Vstep
          end if
-            
+
          Vnew= V + delV
          if (Vnew < 0.0_cp) Vnew=0.99*V          ! stops V going negative
          Kprev=Kc
@@ -550,11 +550,11 @@ SubModule (CFML_EoS) EoS_002
          delVprev=delV
          V=vnew
       end do
-      
+
       !> Linear case
       if (e%linear) v=v**(1.0_cp/3.0_cp)
    End Function Get_Volume_K
-   
+
    !!----
    !!---- GET_VOLUME_K_OLD
    !!----
@@ -576,12 +576,12 @@ SubModule (CFML_EoS) EoS_002
       Kprev=K_cal(Vprev,T,E)        !This is Ko
 
       V=1.01_cp*e%params(1)
-      
+
       do     ! does a newton-raphson search
          call clear_error()
          kc=K_cal(V,T,E)
          if (abs(kc-k) < 0.001)exit
-         
+
          delV= (k-kc)*(V-Vprev)/(kc-Kprev)
          if (abs(delV) > abs(delVprev)) delV=sign(delVprev,delV)       !prevents step getting bigger
          Vnew= V + delV
@@ -591,7 +591,7 @@ SubModule (CFML_EoS) EoS_002
          delVprev=delV
          V=vnew
       end do
-     
+
       !> Linear case
       if (e%linear) v=v**(1.0_cp/3.0_cp)
    End Function Get_Volume_K_old
@@ -646,5 +646,5 @@ SubModule (CFML_EoS) EoS_002
       !> Linear case
       if (eospar%linear) v=v**(1.0_cp/3.0_cp)
    End Function Get_Volume_S
-   
+
 End SubModule EoS_002

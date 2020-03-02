@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Spg_060
+SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
    Contains
 
    Module Function Get_Multip_Pos(x,SpG) Result(mult)
@@ -44,16 +44,15 @@ SubModule (CFML_gSpaceGroups) Spg_060
       character(len=*), optional, intent(in )    :: xyz_type
 
       !---- Local variables ----!
-      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat,Trn
-      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd,R
-      Type(rational), dimension(SpaceG%D-1)            :: v,tr,orig
-      Type(rational), dimension(SpaceG%D-1,300)        :: newLat,vi
+      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat
+      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd
+      Type(rational), dimension(SpaceG%D-1)            :: v
+      Type(rational), dimension(SpaceG%D-1,300)        :: newLat
       Type(rational) :: det
       integer :: i,j,k,l,n,m,Npos,d,Dd,im
       character(len=6) :: Strcode
       type(spg_type)   :: SpG !Auxiliary space group
       logical          :: centring
-      character(len=40),dimension(SpaceG%D,SpaceG%D) :: matrix
 
       Dd=SpaceG%D
       d=Dd-1
@@ -300,11 +299,10 @@ SubModule (CFML_gSpaceGroups) Spg_060
      integer,                        intent(in out) :: nL !number of provisory lattice vectors
      type(rational), dimension(:,:), intent(in out) :: Latv
 
-     logical :: is_new
-     integer :: i,j,k,k1,k2,lm,nlat,Lat_ini
+     integer :: i,j,k1,k2,lm,nlat,Lat_ini
      type(rational), dimension(size(Latv,1),size(Latv,2))  :: latinv
      type(rational), dimension(size(Latv,1))               :: v,v1,v2
-     logical :: isnew
+
      if(nL == 0) return
      L=nl
      nlat=size(Latv,2)
@@ -367,7 +365,6 @@ SubModule (CFML_gSpaceGroups) Spg_060
       logical                         :: change_setting,centring
       type(rational), dimension(4,4)  :: identity
       type(rational), dimension(3,3)  :: mag_mat,ident3
-      type(rational)                  :: sumabs
       type(rational), dimension(:,:) ,allocatable  ::inv
       type(Symm_Oper_Type)            :: transla
 
@@ -672,17 +669,10 @@ SubModule (CFML_gSpaceGroups) Spg_060
         case ("SUPER")  !Read the superspace Database
         !---------------------------------------
           !Get the number of the superspace group
-          read(unit=str,fmt=*,iostat=ier) num
-          if(ier /= 0) then
-            Err_CFML%Ierr=1
-            Err_CFML%Msg=" => Error! Only the number of the superspace groupo should be provided!"
-            return
+          if(present(database_path)) then
+             call Read_single_SSG(str,num,database_path)
           else
-            if(present(database_path)) then
-               call Read_single_SSG(num,database_path)
-            else
-               call Read_single_SSG(num)
-            end if
+             call Read_single_SSG(str,num)
           end if
           iclass=igroup_class(num)
           nmod=iclass_nmod(iclass)
@@ -851,17 +841,12 @@ SubModule (CFML_gSpaceGroups) Spg_060
       character(len=*),  dimension(:), optional, intent(in ) :: Gen
 
       !---- Local Variables ----!
-      integer            :: i,j,n_gen, n_it, d, ier
-      integer            :: n_laue, n_pg, nfin
+      integer            :: i,n_gen, n_it, d, ier
+      integer            :: n_laue, n_pg
       character(len=40), dimension(:), allocatable :: l_gen
       character(len=20)                            :: str_HM, str_HM_std, str_Hall, str_CHM
       character(len=5)                             :: car
       character(len=256)                           :: gList
-      real(kind=cp), dimension(3)                  :: co
-
-      integer                          :: n
-      type(rational), dimension(3,3)   :: P,Mp,Mc,M
-      type(rational), dimension(3,3,6) :: A
 
       logical :: by_Gen=.false., by_Hall=.false.
 
@@ -1033,4 +1018,4 @@ SubModule (CFML_gSpaceGroups) Spg_060
 
    End Subroutine Set_SpaceGroup_gen
 
-End SubModule Spg_060
+End SubModule Setting_General_SpaceGroups

@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_013
    Contains
-   
+
    !!----
    !!---- ALPHA_CAL
    !!----   Calculate the alpha parameter in thermal case
@@ -22,7 +22,7 @@ SubModule (CFML_EoS) EoS_013
       !---- Local Variables ----!
       integer                        :: j
       real(kind=cp), dimension(-2:2) :: v  ! array for calc v values
-      real(kind=cp)                  :: del, tt, delmin, tlimit, tr, alphaest, vlimit
+      real(kind=cp)                  :: del, tt, delmin, tlimit, tr, alphaest !, vlimit
 
       !> Init
       alpha=0.0_cp
@@ -73,7 +73,7 @@ SubModule (CFML_EoS) EoS_013
                if (get_K(p,tlimit,eospar) > 0.0_cp .and. err_CFML%IErr==0)exit
                call clear_error()
                tlimit=tlimit-0.1_cp*(tlimit-t)
-               if (tlimit < t) exit                    ! should never happen because P,T is valid    
+               if (tlimit < t) exit                    ! should never happen because P,T is valid
             end do
             del=0.4*abs(tlimit-t)
       end select
@@ -105,5 +105,5 @@ SubModule (CFML_EoS) EoS_013
       !> get_volume returns 'a' for linear, so alpha is correct as 1/a da/dT for linear
 
    End Function Alpha_Cal
-   
-End SubModule EoS_013   
+
+End SubModule EoS_013

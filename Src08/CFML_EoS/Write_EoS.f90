@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_024
    Contains
-   
+
    !!----
    !!---- WRITE_EOS_DATAFILE
    !!----   General routine to Write Data in a Lun iunit
@@ -60,18 +60,18 @@ SubModule (CFML_EoS) EoS_024
          write(unit=lun,fmt='(a,a)',iostat=ierr)  'LSCALE ',trim(dat%Lscale_name)
          write(unit=lun,fmt='(a)',iostat=ierr)    '#'
       end if
-      
+
       !> Datatype: we assume that all data are the same type: responsibility of calling program
       select case(dat%eosd(1)%xtype)
       case(1)
          write(unit=lun,fmt='(a)',iostat=ierr)  'DATATYPE MODULI ISOTHERMAL'
-         write(unit=lun,fmt='(a)',iostat=ierr)    '#'          
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
       case(2)
          write(unit=lun,fmt='(a)',iostat=ierr)  'DATATYPE MODULI ADIABATIC'
-         write(unit=lun,fmt='(a)',iostat=ierr)    '#'        
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
       end select
-      
-      
+
+
       !> build format line
       text='FORMAT 1'
       do i=ini,iend
@@ -235,7 +235,7 @@ SubModule (CFML_EoS) EoS_024
    !!----   Change: 06/10/2015 to make write_eoscal_header private, and change name from write_eoscal_file
    !!----   Change: 12/12/2017 created eoscal_text so that errors and values are printed when error state
    !!----   Change: 19/12/2018 added error flag to return to calling program, if warning or error on at least one calc
-   !!---- 
+   !!----
    !!---- 17/07/2015
    !!
    Module Subroutine Write_Eoscal(Pmin,Pmax,Pstep,Tmin,Tmax,Tstep,Tscale_In,Eos,Lun,Nprint,eoscal_err)
@@ -255,13 +255,11 @@ SubModule (CFML_EoS) EoS_024
       character(len=255)      :: text     ! local text variable
       character(len=1)        :: tscale   ! local name of tscale
       logical                 :: loop_p   ! loop indicator .true. for inner loop of calcs over P
-      integer,dimension(19)   :: ip=[6,6,9,8,6,5,5,9,7,7,5,9,7,7,6,6,6,6,6] ! format for output
-      integer                 :: i
+      !integer,dimension(19)   :: ip=[6,6,9,8,6,5,5,9,7,7,5,9,7,7,6,6,6,6,6] ! format for output
 
-      real(kind=cp),dimension(6) :: parvals(7)
-      real(kind=cp),dimension(6) :: esd
-      real(kind=cp),dimension(19):: parout,esdout
-      real(kind=cp)              :: v0,fp,fs,agt
+      !real(kind=cp),dimension(6) :: parvals(7)
+      !real(kind=cp),dimension(6) :: esd
+      !real(kind=cp),dimension(19):: parout,esdout
 
       !> init
       nprint=0    ! output counter
@@ -283,15 +281,15 @@ SubModule (CFML_EoS) EoS_024
       pst=pstep
 
       !> set up loop control variables
-      if (abs(pst) > tiny(0.0))then       ! inner loop over P
+      if (abs(pst) > tiny(0.0))then        ! inner loop over P
          loop_p=.true.
-         if (abs(tst) < tiny(0.0))then   ! no outerloop
-            tst=10.*max((tmax-tmin),1.0)       ! set tstep big enough to stop loop
+         if (abs(tst) < tiny(0.0))then     ! no outerloop
+            tst=10.0*max((tmax-tmin),1.0)  ! set tstep big enough to stop loop
          end if
       else
-         loop_p=.false.                  ! inner loop over T
-         if (abs(pst) < tiny(0.0))then   ! no outerloop
-            pst=10.*max((pmax-pmin),1.0)       ! set pstep big enough to stop loop
+         loop_p=.false.                    ! inner loop over T
+         if (abs(pst) < tiny(0.0))then     ! no outerloop
+            pst=10.0*max((pmax-pmin),1.0)  ! set pstep big enough to stop loop
          end if
       end if
 
@@ -322,7 +320,7 @@ SubModule (CFML_EoS) EoS_024
                     write(lun,'(a)')'   *****WARNING:   '//trim(err_CFML%Msg)
                     eoscal_err=.true.
                 endif
-                
+
              endif
             nprint=nprint+1
 
@@ -348,7 +346,7 @@ SubModule (CFML_EoS) EoS_024
          end if
       end do outer
    End Subroutine Write_Eoscal
-   
+
    !!--++
    !!--++ WRITE_EOSCAL_HEADER
    !!--++
@@ -416,7 +414,7 @@ SubModule (CFML_EoS) EoS_024
       !> Write header
       write(lun,'(/a)')trim(head)
    End Subroutine Write_Eoscal_Header
-   
+
    !!----
    !!---- WRITE_INFO_EOS
    !!----    Subroutine that print information on iout unit
@@ -707,7 +705,7 @@ SubModule (CFML_EoS) EoS_024
       end do
 
    End Subroutine Write_Info_Eos_Transition
-   
+
    !!----
    !!---- EOSCAL_TEXT
    !!----   Subroutine to write the calculated parameters of an eos to file at one PT point
@@ -739,7 +737,7 @@ SubModule (CFML_EoS) EoS_024
 
       !> Init
       text="  "
-      
+
       !> Tscale for output: C or K
       if (len_trim(tscale_in) == 0)then
          tscale='K'
@@ -848,5 +846,5 @@ SubModule (CFML_EoS) EoS_024
               trim(string_real(parout(19),ip(19)))
 
    End Function Eoscal_text
-   
-End SubModule EoS_024   
+
+End SubModule EoS_024

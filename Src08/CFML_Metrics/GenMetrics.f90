@@ -50,7 +50,6 @@ Submodule (CFML_Metrics) GenMetrics
 
        sigma=cell%vol*sqrt(vc)
 
-       return
     End Function SigmaV_From_Cell
 
     !!----
@@ -83,7 +82,6 @@ Submodule (CFML_Metrics) GenMetrics
           vol=vol*cell(i)
        end do
 
-       return
     End Function Volume_from_Cell
 
     !!----
@@ -113,7 +111,6 @@ Submodule (CFML_Metrics) GenMetrics
        G(3,1)=G(1,3)
        G(3,2)=G(2,3)
 
-       return
     End Function Get_Metrics
 
     !!--++
@@ -260,7 +257,6 @@ Submodule (CFML_Metrics) GenMetrics
 
        End Select
 
-       return
     End Function Get_Cryst_Orthog_Matrix
 
     !!----
@@ -276,8 +272,7 @@ Submodule (CFML_Metrics) GenMetrics
        real(kind=cp),               intent(out) :: rvol
 
        !---- Local Variables ----!
-       integer        :: i
-       real(kind=cp)  :: vol,s,p,cose
+       real(kind=cp)  :: vol
 
        !> Init
        rcell=0.0_cp; rang=0.0_cp; rvol=0.0_cp     ! Initializing return values
@@ -296,7 +291,6 @@ Submodule (CFML_Metrics) GenMetrics
        rang(3)=(cosd(ang(2))*cosd(ang(1))-cosd(ang(3)))/(sind(ang(2))*sind(ang(1)))
        rang=acosd(rang)
 
-       return
     End Subroutine Reciprocal_Cell
 
     !!----
@@ -313,9 +307,6 @@ Submodule (CFML_Metrics) GenMetrics
        class(Cell_Type),                    intent(out) :: Cell           ! Cell Object
        character (len=*),          optional,intent(in ) :: CarType        ! Orientation in Cartesian
        real(kind=cp), dimension(3),optional,intent(in ) :: Vscell, Vsang  ! Standard deviations
-
-       !---- Local Variables ----!
-       integer :: ifail
 
        !> a,b,c
        cell%cell=vcell
@@ -521,7 +512,6 @@ Submodule (CFML_Metrics) GenMetrics
           Err_CFML%Msg="GET_CRYST_FAMILY@METRICS: Error obtaining the Crystal Family!"
        end if
 
-       return
     End Subroutine Get_Cryst_Family
 
     !!----
@@ -737,7 +727,6 @@ Submodule (CFML_Metrics) GenMetrics
 
        end select
 
-       return
     End Function Get_Deriv_Orth_Cell
 
     Module Subroutine Change_Setting_Cell_Symb(Cell,sett,Celln)
@@ -800,7 +789,6 @@ Submodule (CFML_Metrics) GenMetrics
 
        call Set_Crystal_Cell(cellv,angl,Celln)
 
-       return
     End Subroutine Change_Setting_Cell_Mat
 
     !!----
@@ -872,7 +860,6 @@ Submodule (CFML_Metrics) GenMetrics
        end select
        call Set_Crystal_Cell(celp,celang,p_cell)
 
-       return
     End Subroutine Get_Primitive_Cell
 
     !!----
@@ -938,7 +925,6 @@ Submodule (CFML_Metrics) GenMetrics
           Err_CFML%Msg="GET_TRANSF_MATRIX@METRICS: Error in Transformation Matrix between Cells!"
        end if
 
-       return
     End Function Get_Transfm_Matrix
 
     !!----
@@ -1078,7 +1064,6 @@ Submodule (CFML_Metrics) GenMetrics
           Err_CFML%Msg="GET_BASIS_FROM_UVW@METRICS: Problems in this procedure!"
        end if
 
-       return
     End Function Get_Basis_From_Uvw
 
     !!----
@@ -1177,7 +1162,6 @@ Submodule (CFML_Metrics) GenMetrics
        twofold%ntwo=ntwo
        twofold%tol=tol
 
-       return
     End Function Get_TwoFold_Axes
 
     !!----
@@ -1756,7 +1740,6 @@ Submodule (CFML_Metrics) GenMetrics
       Call Set_Crystal_Cell(mv(1:3),ang(1:3),Cell)
       ok=.true.
 
-      return
     End Subroutine Get_Conventional_Cell
 
     !!----
@@ -1805,7 +1788,6 @@ Submodule (CFML_Metrics) GenMetrics
              vc = matmul(cell%BL_M,vc)!Converts to BL Cartesian frame
        end select
 
-       return
     End Function Cart_Vector
 
     !!----
@@ -1831,7 +1813,6 @@ Submodule (CFML_Metrics) GenMetrics
        vmod=sqrt(dot_product(vc,vc))
        if (vmod > epsilon(0.0_cp)) vc=vc/vmod
 
-       return
     End Function Cart_U_Vector
 
     !!----
@@ -1887,7 +1868,6 @@ Submodule (CFML_Metrics) GenMetrics
        Mat(3,2)= umc*vc(3)*vc(2)+ s*vc(1)
        Mat(3,3)= c+ umc*vc(3)**2
 
-       return
     End Function Rot_Gibbs_Matrix
 
     !!----
@@ -1985,7 +1965,6 @@ Submodule (CFML_Metrics) GenMetrics
 
        end select
 
-       return
     End Function Strain_from_Cell
 
 End Submodule GenMetrics

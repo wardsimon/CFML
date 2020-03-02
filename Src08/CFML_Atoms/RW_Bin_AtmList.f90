@@ -23,12 +23,12 @@ SubModule (CFML_Atoms) ReadnWrite_Atoms_Binary
       character(len=*),   intent(in)     :: filename
       type(atlist_type),  intent(in out) :: A
       character(len=*),   intent(in)     :: Type_Atm
-     ! integer,            intent(in)     :: d !Number of k-vectors
+      !integer,            intent(in)     :: d !Number of k-vectors
       !---- Local Variables ----!
       integer                            :: i,n,ierr,lun
       type (atm_type)      :: atm
       type (atm_std_type)  :: atms
-      type (matm_std_type) :: matm
+      !type (matm_std_type) :: matm
       type (atm_ref_type)  :: atr
 
       !> Init
@@ -134,7 +134,7 @@ SubModule (CFML_Atoms) ReadnWrite_Atoms_Binary
       integer                        :: i,n,lun
       type (atm_type)      :: atm
       type (atm_std_type)  :: atms
-      type (matm_std_type) :: matm
+      !type (matm_std_type) :: matm
       type (atm_ref_type)  :: atr
 
       !> Init

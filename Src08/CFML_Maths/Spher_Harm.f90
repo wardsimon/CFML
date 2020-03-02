@@ -561,9 +561,6 @@ Submodule (CFML_Maths) SpherHarmon
        integer, dimension(2,11), intent(out) :: lj
        integer,                  intent(out) :: ncoef
 
-       !---- Local variables ----!
-       integer :: k
-
        !> Init
        lj=0
        ncoef=0

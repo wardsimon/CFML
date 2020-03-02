@@ -8,7 +8,7 @@ SubModule (CFML_Reflections) RFL_008
    !!----    Provides a reflection equivalent to the input one but
    !!----    within the asymmetric unit
    !!----
-   !!---- 21/06/2019 
+   !!---- 21/06/2019
    !!
    Module Function Get_Asymm_Unit_H(H,SpG) Result(k)
       !---- Arguments ----!
@@ -32,16 +32,16 @@ SubModule (CFML_Reflections) RFL_008
          exit
       end do
    End Function Get_Asymm_Unit_H
-    
+
    !!----
    !!---- ASU_H
    !!----    Obtain an equivalent reflection in asymmetric unit using
    !!----    simple transformation rules for each crystal system.
    !!----    When these rules are not satisfied the output is the
-   !!----    (0,0,0) reflection. 
+   !!----    (0,0,0) reflection.
    !!----
    !!----    For obtaining a reflection within the asymmetric unit
-   !!----    given an input reflection the best is to use the function: 
+   !!----    given an input reflection the best is to use the function:
    !!----    Get_Asymmetric_Unit_H
    !!----
    !!--<<
@@ -49,7 +49,7 @@ SubModule (CFML_Reflections) RFL_008
    !!-->>
    !!----    If and error occurs, the function returns also (0,0,0).
    !!----
-   !!---- 21/06/2019 
+   !!---- 21/06/2019
    !!
    Module Function Asu_H(H, SpG) Result(K)
       !---- Arguments ----!
@@ -58,45 +58,45 @@ SubModule (CFML_Reflections) RFL_008
       integer, dimension(3)               :: k
 
       !---- Local  variables ----!
-      character(len=2)  :: inf
+      !character(len=2)  :: inf
       character(len=4)  :: car
 
       !> Init
       k=0
-      
+
       car=l_case(adjustl(SpG%Crystalsys))
       select case (car)
          case ('tric')
             k=asu_h_triclinic(h)
-            
+
          case ('mono')
             k=asu_h_monoclinic(h,"b")
             !> k=asu_h_monoclinic(h,"c")
             !> k=asu_h_monoclinic(h,"a")
-            
+
          case ('orth')
             k=asu_h_orthorhombic(h)
-            
-         case ('trig') 
-            k=asu_h_trigonal(h,trim(SpG%Laue)) 
-                  
-         case ('tetr') 
-            k=asu_h_tetragonal(h,trim(SpG%Laue))  
-                
-         case ('hexa')  
-            k=asu_h_hexagonal(h,trim(SpG%Laue))  
-                
-         case ('cubi') 
-            k=asu_h_cubic(h,trim(SpG%Laue))        
+
+         case ('trig')
+            k=asu_h_trigonal(h,trim(SpG%Laue))
+
+         case ('tetr')
+            k=asu_h_tetragonal(h,trim(SpG%Laue))
+
+         case ('hexa')
+            k=asu_h_hexagonal(h,trim(SpG%Laue))
+
+         case ('cubi')
+            k=asu_h_cubic(h,trim(SpG%Laue))
       end select
-      
+
    End Function Asu_H
-   
+
    !!--++
    !!--++ ASU_H_CUBIC
    !!--++    Obtain a reflection in asymmetric unit for Cubic
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Cubic(H, Laue) Result(K)
       !---- Argument ----!
@@ -117,8 +117,8 @@ SubModule (CFML_Reflections) RFL_008
 
       select case(mod_laue)
          case("m-3  ")
-            !> Laue: m-3 
-            !> hkl: h>l, k>l, l>=0 ; hkk: k>=0 h>=k 
+            !> Laue: m-3
+            !> hkl: h>l, k>l, l>=0 ; hkk: k>=0 h>=k
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -143,7 +143,7 @@ SubModule (CFML_Reflections) RFL_008
 
          case("m-3m ")
             !> Laue: m-3m
-            !> hkl: h >=0, k >=0, l >=0, h >=k, k >=l 
+            !> hkl: h >=0, k >=0, l >=0, h >=k, k >=l
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -172,7 +172,7 @@ SubModule (CFML_Reflections) RFL_008
    !!--++ ASU_H_HEXAGONAL
    !!--++    Obtain a reflection in asymmetric unit for Hexagonal
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Hexagonal(H, Laue) Result(K)
       !---- Argument ----!
@@ -192,8 +192,8 @@ SubModule (CFML_Reflections) RFL_008
 
       select case(mod_laue)
          case("6/m  ")
-            !> Laue: 6/m 
-            !> hkl: h>0,k>0,l>=0;  0kl k>=0,l>=0 
+            !> Laue: 6/m
+            !> hkl: h>0,k>0,l>=0;  0kl k>=0,l>=0
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -217,8 +217,8 @@ SubModule (CFML_Reflections) RFL_008
             if (hh(1) == 0 .and. hh(2) >= 0 .and. hh(3) >= 0) k=hh
 
          case("6/mmm")
-            !> Laue: 6/mmm 
-            !> hkl: h >=0, k >=0, l >=0, h >=k 
+            !> Laue: 6/mmm
+            !> hkl: h >=0, k >=0, l >=0, h >=k
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -242,12 +242,12 @@ SubModule (CFML_Reflections) RFL_008
       end select
 
    End Function Asu_H_Hexagonal
-   
+
    !!--++
    !!--++ ASU_H_TRIGONAL
    !!--++    Obtain a reflection in asymmetric unit for Trigonal
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Trigonal(H, Laue) Result(K)
       !---- Argument ----!
@@ -267,7 +267,7 @@ SubModule (CFML_Reflections) RFL_008
 
       select case(mod_laue)
          case("-3  ")
-            !>Laue: -3 
+            !>Laue: -3
             !> hkl: h+k>0, l>0 ; hk0:h>0, k>=0
             select case (h(1))
                case (:-1)
@@ -294,8 +294,8 @@ SubModule (CFML_Reflections) RFL_008
             if (hh(1) > 0  .and. hh(2) >= 0  .and. hh(3) == 0) k=hh
 
          case("-3m ")
-            !> Laue: -3m 
-            !> hkl: h>=0, h>=k ; hhl: h>=0,l>=0 
+            !> Laue: -3m
+            !> hkl: h>=0, h>=k ; hhl: h>=0,l>=0
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -320,8 +320,8 @@ SubModule (CFML_Reflections) RFL_008
             if (hh(1) >= 0 .and. hh(2) == hh(1) .and. hh(3) >=0) k=hh
 
          case("-31m")
-            !> Laue: -31m 
-            !>hkl: h>=0,h>=k>0 ; h0l: h>=0,l>=0 
+            !> Laue: -31m
+            !>hkl: h>=0,h>=k>0 ; h0l: h>=0,l>=0
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -346,12 +346,12 @@ SubModule (CFML_Reflections) RFL_008
       end select
 
    End Function Asu_H_Trigonal
-   
+
    !!--++
    !!--++ ASU_H_TETRAGONAL
    !!--++    Obtain a reflection in asymmetric unit for Tetragonal
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Tetragonal(H,Laue) Result(K)
       !---- Argument ----!
@@ -371,8 +371,8 @@ SubModule (CFML_Reflections) RFL_008
 
       select case(mod_laue)
          case("4/m  ")
-            !> Laue: 4/m 
-            !> hkl: h >=0, l >=0, k >=0 if h = 0 
+            !> Laue: 4/m
+            !> hkl: h >=0, l >=0, k >=0 if h = 0
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -396,8 +396,8 @@ SubModule (CFML_Reflections) RFL_008
             if (hh(1)  > 0 .and. hh(2) >  0 .and. hh(3) >=0) k=hh
 
          case("4/mmm")
-            !> Laue: 4/mmm 
-            !> hkl: h >=0, l >=0, h >=k   (k >=0) 
+            !> Laue: 4/mmm
+            !> hkl: h >=0, l >=0, h >=k   (k >=0)
             select case (h(1))
                case (:-1)
                   hh=-h
@@ -421,13 +421,13 @@ SubModule (CFML_Reflections) RFL_008
       end select
 
    End Function Asu_H_Tetragonal
-   
+
    !!--++
    !!--++ Asu_H_Orthorhombic
    !!--++    Obtain a reflection in asymmetric unit for Orthorhombic
    !!--++    hkl: h >=0, k >=0, l >=0
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Orthorhombic(H) Result(K)
       !---- Argument ----!
@@ -438,8 +438,8 @@ SubModule (CFML_Reflections) RFL_008
       integer, dimension(3) :: hh
 
       k=0
-      !>Laue: mmm 
-      !> hkl: h >=0, k >=0, l >=0 
+      !>Laue: mmm
+      !> hkl: h >=0, k >=0, l >=0
       select case (h(1))
          case (:-1)
             hh=-h
@@ -463,7 +463,7 @@ SubModule (CFML_Reflections) RFL_008
       if (hh(1) >= 0 .and. hh(2) >= 0 .and. hh(3) >= 0) k=hh
 
    End Function Asu_H_Orthorhombic
-   
+
    !!--++
    !!--++ Asu_H_Monoclinic
    !!--++    (PRIVATE)
@@ -522,7 +522,7 @@ SubModule (CFML_Reflections) RFL_008
                if (hh(2) >=0 .and. hh(3) >=0) k=hh
             end if
 
-         !> Laue: 2/m     Unique Axis: c 
+         !> Laue: 2/m     Unique Axis: c
          !> hkl: k >=0, l >=0    h0l: h >=0
          case ("c")
             select case (h(3))
@@ -551,7 +551,7 @@ SubModule (CFML_Reflections) RFL_008
                if (hh(2) >=0 .and. hh(3) >=0) k=hh
             end if
 
-         !> Laue: 2/m     Unique Axis: c 
+         !> Laue: 2/m     Unique Axis: c
          !> hkl: h >=0, l >=0    0kl: l >=0
          case ("a")
             select case (h(1))
@@ -582,13 +582,13 @@ SubModule (CFML_Reflections) RFL_008
 
       end select
    End Function Asu_H_Monoclinic
-   
+
    !!--++
    !!--++ ASU_H_TRICLINIC
    !!--++    Obtain a reflection in asymmetric unit for Triclinic
    !!--++    hkl: l >=0    hk0: h >=0    0k0: k >=0
    !!--++
-   !!--++ 21/06/2019 
+   !!--++ 21/06/2019
    !!
    Module Function Asu_H_Triclinic(H) Result(K)
       !---- Argument ----!
@@ -596,7 +596,7 @@ SubModule (CFML_Reflections) RFL_008
       integer, dimension(3)             :: k
 
       k=0
-      !>Laue: -1 
+      !>Laue: -1
       !> hkl: l >=0    hk0: h >=0    0k0: k >=0
       select case (h(3))
          case (:-1)
@@ -618,5 +618,5 @@ SubModule (CFML_Reflections) RFL_008
             k=h
       end select
    End Function Asu_H_Triclinic
-   
-End SubModule RFL_008   
+
+End SubModule RFL_008

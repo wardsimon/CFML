@@ -3,26 +3,26 @@
 !!----
 SubModule (CFML_EoS) EoS_028
    Contains
-   
+
    !!----
    !!---- CHECK_SCALES
    !!----
    !!----
-   !!---- 31/05/2019 
+   !!---- 31/05/2019
    !!
    Module Subroutine Check_Scales(E,dat)
       !---- Arguments ----!
-      type(Eos_Type),                       intent(in)  :: E          ! EoS 
+      type(Eos_Type),                       intent(in)  :: E          ! EoS
       type (eos_data_list_type), optional,  intent(in)  :: dat        ! data structure
-      
+
       !---- Local Variables ----!
       character(len=40)       :: name
-      
+
       !> Init
       call clear_error()
-      
+
       !>Checks of EoS only
-      
+
       !> APL
       if (e%imodel == 6)then
          if (len_trim(E%pscale_name) == 0) then
@@ -33,8 +33,8 @@ SubModule (CFML_EoS) EoS_028
                err_CFML%Msg='APL EoS must have a Pscale (and K0) in GPa'
             end if
          end if
-        
-         if (len_trim(E%vscale_name) == 0 .or. index(U_case(E%Vscale_name),'A') == 0)then 
+
+         if (len_trim(E%vscale_name) == 0 .or. index(U_case(E%Vscale_name),'A') == 0)then
             err_CFML%IErr=2
             if (len_trim(err_CFML%Msg) == 0)then
                if (e%linear)then
@@ -51,7 +51,7 @@ SubModule (CFML_EoS) EoS_028
             end if
          end if
       end if
-      
+
       !> If MGD type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
       if (e%itherm == 7) then
          if (len_trim(E%pscale_name) == 0)then
@@ -66,10 +66,10 @@ SubModule (CFML_EoS) EoS_028
                err_CFML%Msg=trim(err_CFML%Msg)//' and a Vscale in cm3/mol'
             end if
          end if
-         if (len_trim(err_CFML%Msg) /= 0) err_CFML%Msg=trim(err_CFML%Msg)//' set to get correct results. '       
+         if (len_trim(err_CFML%Msg) /= 0) err_CFML%Msg=trim(err_CFML%Msg)//' set to get correct results. '
       end if
       if (.not. present(dat))return
-      
+
       !>For all EoS compare data and eos scales
       if (len_trim(E%pscale_name) /= 0 .and. len_trim(dat%Pscale_name) /=0)then
          if (trim(u_case(adjustl(E%pscale_name))) /= trim(u_case(adjustl(dat%Pscale_name))))then
@@ -78,7 +78,7 @@ SubModule (CFML_EoS) EoS_028
             err_CFML%Msg=trim(err_CFML%Msg)//' Pscales of data and EoS are different.'
          end if
       end if
-   
+
       if (len_trim(E%vscale_name) /= 0 )then
          if (e%linear)then
             name=trim(u_case(adjustl(dat%Lscale_name)))
@@ -92,10 +92,10 @@ SubModule (CFML_EoS) EoS_028
                err_CFML%Msg=trim(err_CFML%Msg)//' Vscales of data and EoS are different'
             end if
          end if
-           
-      end if    
+
+      end if
    End Subroutine Check_Scales
-   
+
    !!--++
    !!--++ PHYSICAL_CHECK
    !!--++    Check if the parameters have physical sense
@@ -188,7 +188,7 @@ SubModule (CFML_EoS) EoS_028
    !!--++ PHYSICAL_CHECK
    !!--++    Check if the parameters have physical sense
    !!--++
-   !!--++ 31/05/2019 
+   !!--++ 31/05/2019
    Module Subroutine Physical_Check(Ein,Pin,Tin,Vin)
       !---- Arguments ----!
       type(Eos_Type),        intent(in) :: Ein  ! EoS object
@@ -199,7 +199,7 @@ SubModule (CFML_EoS) EoS_028
       !---- Local variables ----!
       integer             :: n
       character(len=100)   :: car
-      real(kind=cp)       :: tlimit,pinf,p,v,t,pmin,vmin
+      real(kind=cp)       :: tlimit,pinf,p,v,t,vmin
       type(eos_type)      :: e,eiso
       logical             :: vpresent
 
@@ -207,7 +207,7 @@ SubModule (CFML_EoS) EoS_028
       !>local copies
       E=Ein
       T=e%tref
-      
+
       !> check PVT present
       n=0
       if (present(Tin))then
@@ -265,22 +265,22 @@ SubModule (CFML_EoS) EoS_028
                   err_CFML%IErr=1
                   err_CFML%Msg='Thermal pressure EoS not valid at this V and T: the K is negative (maybe because of q large?)'
                   return
-               end if    
+               end if
             else
                !> No volume input. So calculate the isochor Pressure of Vmin at the input T, and compare to input P
                if (get_k(p,t,e) < tiny(0._cp))then
                   err_CFML%IErr=1
                   err_CFML%Msg='Thermal pressure EoS not valid at this P and T: the K is negative (maybe because of q large?)'
                   return
-               end if  
+               end if
                if (get_volume(p,t,e) > Vmin) then
                   err_CFML%IErr=1
                   err_CFML%Msg='Thermal pressure EoS not valid at this P and T: the V is too big so the compressional part of the EoS at Tref is not valid'
                   return
-               end if 
+               end if
             end if
-         end if  
-         
+         end if
+
       else  !isothermal or no thermal: check thermal part first for T being valid
          !> Check validity of normal-type thermal model: only needs T
          select case(e%itherm)
@@ -382,8 +382,7 @@ SubModule (CFML_EoS) EoS_028
 
       !---- Local variables ----!
       real(kind=cp)       :: p,v,t
-      real(kind=cp),dimension(3)       :: abc
-      real(kind=cp)       :: bp,kc,step,plim,kprev,Vnew,Vprev,klim
+      real(kind=cp)       :: plim,klim
       type(eos_type)      :: e
 
       !> Init
@@ -397,7 +396,7 @@ SubModule (CFML_EoS) EoS_028
 
       !> set no transitions
       e%itran=0
-      
+
       !> This routine is private and only called from physical_check
       !> therefore if pthermaleos then T will always be Tref. But set it to be safe, and suppress all thermal part
       if (e%pthermaleos)then
@@ -431,7 +430,7 @@ SubModule (CFML_EoS) EoS_028
                case(2:6) ! find V that gives K = K(P=0,T)/2, by iteration
                   Klim=get_K0_T(T,E)/2.0_cp
                   V=get_volume_K(Klim,e%tref,e)
-                  plim=get_pressure(V,T,e) 
+                  plim=get_pressure(V,T,e)
                   if (p < plim) then
                      err_CFML%IErr=1
                      return
@@ -440,7 +439,7 @@ SubModule (CFML_EoS) EoS_028
          end if
       end if
    End Subroutine pveos_check
-   
+
    !!----
    !!---- EOSPARAMS_CHECK
    !!----    Check for Params that are invalid for all cases.
@@ -538,5 +537,5 @@ SubModule (CFML_EoS) EoS_028
          end if
       end if
    End Subroutine EoSParams_Check
-   
-End SubModule EoS_028   
+
+End SubModule EoS_028

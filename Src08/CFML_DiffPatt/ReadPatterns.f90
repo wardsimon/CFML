@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_DiffPatt) RPatt
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_MULT
    !!--++
    !!--++    Read patterns from a Filename
    !!--++
-   !!--++ 30/04/2019 
+   !!--++ 30/04/2019
    !!
    Module Subroutine Read_Pattern_Mult(Filename, Patts, NPats, mode)
       !---- Arguments ----!
@@ -16,9 +16,6 @@ SubModule (CFML_DiffPatt) RPatt
       integer,                            intent (in out)  :: NPats           ! In: Number of Patterns to read, Out: Number of Patterns readed
       character(len=*), optional,         intent (in)      :: Mode            ! Mode: ISIS, GSAS, XYSIGMA
 
-      !---- Local variables ----!
-      logical :: esta
-      integer :: i_dat, ier,i
 
       !> Init
       call clear_error()
@@ -44,14 +41,14 @@ SubModule (CFML_DiffPatt) RPatt
                 Err_CFML%IErr=1
                 Err_CFML%Msg="Read_Pattern_Mult@DIFFPATT: Invalid Mode!"
          end select
-         
-      else   
-         
+
+      else
+
       end if
 
       return
    End Subroutine Read_Pattern_Mult
-    
+
    !!--++
    !!--++ READ_PATTERN_ONE
    !!--++
@@ -69,11 +66,11 @@ SubModule (CFML_DiffPatt) RPatt
       character(len=*), optional,  intent (out)     :: header         ! Header
 
       !---- Local Variables ----!
-      character(len=6)                               :: extdat !extension of panalytical file
-      character(len=4)                               :: tofn
-      character(len=12)                              :: typef, modem !extension of panalytical file
-      logical                                        :: esta,gr
-      integer                                        :: i, i_dat,ier
+      character(len=6)           :: extdat !extension of panalytical file
+      character(len=4)           :: tofn
+      character(len=12)          :: typef
+      logical                    :: gr
+      integer                    :: i
 
       !> Init
       call clear_error()
@@ -81,7 +78,7 @@ SubModule (CFML_DiffPatt) RPatt
 
       Typef="DEFAULT"
       TofN=" "
-      
+
       if (present(mode)) then
          Typef=trim(u_case(mode))
          if (Typef(1:7) == "GSASTOF") then
@@ -92,160 +89,160 @@ SubModule (CFML_DiffPatt) RPatt
                tofn="TOF"
             end if
          end if
-      end if     
-      
+      end if
+
       select case (trim(typef))
          case ("CIF")
             call Read_Pattern_CIF(trim(filename),Pat)
             if (err_CFML%IErr /= 0) return
-            
+
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%ct_step = .false.
                   pat%instr  = "  XY  - "//trim(typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%ct_step = .false.
                   pat%instr  =  "  XY  - "//trim(typef)
                   pat%legend_Y ="Intensity (arb. units)"
             end select
-           
-         case ("D1B" , "D20")  
+
+         case ("D1B" , "D20")
             pat%kindrad = "Neutrons_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
-               class is (DiffPat_E_Type) 
+               class is (DiffPat_E_Type)
                   call Read_Pattern_D1B_D20(trim(filename), Pat)
                   if (err_CFML%IErr /= 0) return
-                  
+
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-            
+
                   select type(Pat)
                      type is (DiffPat_G_Type)
                         pat%legend_X ="2Theta(degrees)"
                         pat%legend_Y ="Intensity (arb. units)"
                   end select
-            end select      
-           
+            end select
+
          case ("NLS")
             call Read_Pattern_NLS(trim(filename), Pat)
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "XRay_CW"
             pat%scatvar = "2Theta"
-            
+
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="2Theta(degrees)"
                   pat%legend_Y ="Intensity (arb. units)"
             end select
-           
-         case ("G41") 
+
+         case ("G41")
             pat%kindrad = "Neutrons_CW"
             pat%scatvar = "2Theta"
             select type (Pat)
                class is (DiffPat_E_Type)
                   call Read_Pattern_G41(trim(filename), Pat)
                   if (err_CFML%IErr /= 0) return
-            
+
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   select type(pat)
                      type  is (DiffPat_G_Type)
                         pat%legend_X ="2Theta(degrees)"
                         pat%legend_Y ="Intensity (arb. units)"
-                  end select      
-            end select 
-           
-         case ("D1A","D2B","3T2","G42")  
+                  end select
+            end select
+
+         case ("D1A","D2B","3T2","G42")
             pat%kindrad = "Neutrons_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                class is (DiffPat_E_Type)
                   call Read_Pattern_D1A_D2B(trim(filename), Pat)
                   if (err_CFML%IErr /= 0) return
-            
+
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   select type(pat)
                      type is (DiffPat_G_Type)
                         pat%legend_X ="2Theta(degrees)"
                         pat%legend_Y ="Intensity (arb. units)"
-                  end select      
+                  end select
             end select
-           
-         case ("D1AOLD", "D2BOLD","OLDD1A", "OLDD2B") 
+
+         case ("D1AOLD", "D2BOLD","OLDD1A", "OLDD2B")
             pat%kindrad = "Neutrons_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                class is (DiffPat_E_Type)
                   call Read_Pattern_D1A_D2B_OLD(trim(filename), Pat)
                   if (err_CFML%IErr /= 0) return
-            
+
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   select type(pat)
                      type is (DiffPat_G_Type)
                         pat%legend_X ="2Theta(degrees)"
                         pat%legend_Y ="Intensity (arb. units)"
-                  end select      
+                  end select
             end select
-           
-         case ("DMC","HRPT") 
+
+         case ("DMC","HRPT")
             pat%kindrad = "Neutrons_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                class is (DiffPat_E_Type)
                   call Read_Pattern_DMC(trim(filename), Pat)
                   if (err_CFML%IErr /= 0) return
-            
+
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   select type(pat)
                      type is (DiffPat_G_Type)
                         pat%legend_X ="2Theta(degrees)"
                         pat%legend_Y ="Intensity (arb. units)"
-                  end select      
+                  end select
             end select
-            
-         case ("SOCABIM") 
+
+         case ("SOCABIM")
              call Read_Pattern_SOCABIM(trim(filename), Pat)
             if (err_CFML%IErr /=0) return
-            
+
             pat%kindrad = "XRay_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%ct_step = .true.
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="2Theta(degrees)"
                   pat%legend_Y ="Intensity (arb. units)"
             end select
-           
-         case ("XYSIGMA") 
+
+         case ("XYSIGMA")
             i=index(filename,".",back=.true.)
             if (i > 0) then
                extdat=u_case(filename(i:))
             else
                extdat="---"
-            end if     
+            end if
             select case (trim(extdat))
                case (".GR")
                   if (present(header)) then
@@ -253,155 +250,155 @@ SubModule (CFML_DiffPatt) RPatt
                   else
                      call  Read_Pattern_xysigma(filename, Pat, GR)
                   end if
-                    
-               case ("---") 
+
+               case ("---")
                   if (present(header)) then
                      call  Read_Pattern_xysigma(filename, Pat, Header=Header)
                   else
                      call  Read_Pattern_xysigma(filename, Pat)
-                  end if 
+                  end if
             end select
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "Unknown"
             if (pat%x(pat%npts) > 180) then
                pat%scatvar =  "TOF"
             else
                pat%scatvar =  "2Theta"
-            end if  
+            end if
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_Y ="Intensity (arb. units)"
                   if (index(pat%scatvar,"TOF") > 0) then
                      pat%legend_X ="TOF(micro-seconds)"
                   else
                      pat%legend_X ="2Theta(degrees)"
-                  end if  
-            end select    
-            
-         case ("GSAS") 
+                  end if
+            end select
+
+         case ("GSAS")
             call Read_Pattern_GSAS(trim(filename), Pat)
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "Constant_Wavelength"
             pat%scatvar = "2Theta"
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="2Theta(degrees)"
                   pat%legend_Y ="Intensity (arb. units)"
             end select
-            
-         case ("GSASTOF") 
+
+         case ("GSASTOF")
             call Read_Pattern_GSAS(trim(filename), Pat, TOFN)
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "Neutrons_TOF"
             pat%scatvar = "TOF"
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="TOF(micro-seconds)"
                   pat%legend_Y ="Intensity (arb. units)"
-            end select  
-            
-         case ("PANALYTICAL") 
+            end select
+
+         case ("PANALYTICAL")
             i=index(filename,".",back=.true.)
             extdat=u_case(filename(i:))
             select case (trim(extdat))
                case (".CSV")
                   call Read_Pattern_PANalytical_CSV(trim(filename), Pat)
-                  
+
                case (".UDF")
                   call Read_Pattern_PANalytical_UDF(trim(filename), Pat)
-                  
+
                case (".JCP")
                   call Read_Pattern_PANalytical_JCP(trim(filename), Pat)
-               
-               case(".XRDML") 
+
+               case(".XRDML")
                   call Read_Pattern_PANalytical_XRDML(trim(filename), Pat)
             end select
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "XRays_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="2Theta(degrees)"
                   pat%legend_Y ="Intensity (arb. units)"
-            end select 
-            
-           
-         case ("TIMEVARIABLE") 
+            end select
+
+
+         case ("TIMEVARIABLE")
             call Read_Pattern_TimeVar(trim(filename), Pat)
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "XRays_CW"
             pat%scatvar = "2Theta"
             select type(Pat)
                type is (DiffPat_E_Type)
                   pat%instr=trim(Typef)
-                 
+
                type is (DiffPat_G_Type)
                   pat%instr=trim(Typef)
-                  
+
                   pat%legend_X ="2Theta(degrees)"
                   pat%legend_Y ="Intensity (arb. units)"
-            end select 
-            
-         case default   
+            end select
+
+         case default
             i=index(filename,".",back=.true.)
             extdat=u_case(filename(i:))
             call Read_Pattern_FREE(trim(filename), Pat, extdat)
             if (err_CFML%IErr /= 0) return
-            
+
             pat%kindrad = "unknown"
             if (pat%x(pat%npts) > 180.0 ) then
                pat%scatvar =  "TOF"
             else
                pat%scatvar =  "2Theta"
-            end if  
+            end if
             select type (Pat)
                type is (DiffPat_E_Type)
                   pat%instr   = "Free format"
                   pat%ct_step=.true.
-                  
-               type is (DiffPat_G_Type)  
+
+               type is (DiffPat_G_Type)
                   pat%instr   = "Free format"
                   pat%ct_step=.true.
                   pat%Legend_Y="Intensity (arb. units)"
-                  
+
                   if (index(pat%scatvar,'TOF')> 0) then
                      pat%Legend_X="TOF(micro-seconds)"
                   else
                      pat%Legend_X="2Theta (degrees)"
-                  end if  
-            end select 
-            
+                  end if
+            end select
+
       end select
-      
+
       !> CHECK PLEASE
       if (present(sig)) then
          if (.not. sig) pat%sigma=sqrt(pat%sigma)
       end if
    End Subroutine Read_Pattern_One
-    
+
 End SubModule RPatt

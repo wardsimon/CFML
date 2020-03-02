@@ -159,12 +159,8 @@ SubModule (CFML_IOForm) IOF_CFL
       !---- Local variables -----!
       character(len=12),  parameter     :: DIGPM="0123456789+-"
       character(len=:),   allocatable   :: line,mom_comp
-      character(len=180), dimension(1)  :: extline
       character(len=:),   allocatable   :: dire
-      character(len=:),   allocatable   :: label
-      character(len=2)                  :: Chemsymb
-      integer                           :: i, j, n, na, npos, nlong, iv,n_oc, n_mc,n_dc,n_uc
-      real(kind=cp), dimension (20)     :: vet1, vet2
+      integer                           :: i, j, na, npos, n_oc, n_mc,n_dc,n_uc
 
 
       !> Init
@@ -921,7 +917,7 @@ SubModule (CFML_IOForm) IOF_CFL
        character(len=*), optional,      intent(in)     :: xyz_type
 
        !--- Local Variables ---!
-       integer :: i,j,k,ngen,nk,nq
+       integer :: i,j,ngen,nk,nq
        character(len=:),     allocatable :: line,uline,setting,strcode
        character(len=40), dimension(192) :: gen
        logical :: change_setting
@@ -1077,7 +1073,7 @@ SubModule (CFML_IOForm) IOF_CFL
        character(len=*), optional,      intent(in)     :: xyz_type
 
        !--- Local Variables ---!
-       integer :: i,j,k,ngen,nk,nq
+       integer :: i,j,ngen,nk,nq
        character(len=:),     allocatable :: line,uline,setting,strcode
        character(len=40), dimension(192) :: gen
        logical :: change_setting
@@ -1251,7 +1247,7 @@ SubModule (CFML_IOForm) IOF_CFL
 
          Select Case(uline)
 
-           Case("NQVECT","NKVECT","NKVEC")
+           Case("NQVECT","NKVECT","NKVEC","NQVECT")
               Read(unit=line,fmt=*,iostat=ier) kinfo%nk, kinfo%nq
               if(ier /= 0) then
                 Err_CFML%Ierr=1
@@ -1262,7 +1258,7 @@ SubModule (CFML_IOForm) IOF_CFL
               allocate(kinfo%nharm(kinfo%nk),kinfo%sintlim(kinfo%nk))
               kinfo%kv=0.0_cp; kinfo%q_coeff=1; kinfo%nharm=1; kinfo%sintlim=1.0
 
-           Case("QVECT","KVECT","KVEC")
+           Case("QVECT","KVECT","KVEC","QVEC")
               if(kinfo%nk > 0) then
                 nk=nk+1
                 Read(unit=line,fmt=*,iostat=ier) kinfo%kv(:,nk)

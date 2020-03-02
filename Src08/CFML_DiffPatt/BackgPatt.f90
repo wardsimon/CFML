@@ -11,7 +11,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
     !!----    Np is the extension of Np points at Left and Right. Normally it could be
     !!----    around 10-40 points.
     !!----
-    !!---- 30/04/2019 
+    !!---- 30/04/2019
     !!
     Module Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
        !---- Arguments ----!
@@ -30,7 +30,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
        !> Init
        pat%bgr=0.0_cp
 
-       !> Check 
+       !> Check
        call clear_error()
        if (pat%npts <= 1) then
           err_CFML%Ierr=1
@@ -140,7 +140,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
     !!----         Poly | Inter
     !!----
     !!----
-    !!---- 30/04/2019 
+    !!---- 30/04/2019
     !!
     Module Subroutine Read_Background_File(Bck_File, Bck_Mode, Pat)
        !---- Arguments ----!
@@ -154,7 +154,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
        character(len=3)                              :: car
        integer                                       :: bck_points
        integer                                       :: i,j,i_bck
-       integer                                       :: ier, alloc_error
+       integer                                       :: ier
        real(kind=cp), dimension (:), allocatable     :: bck_v
        real(kind=cp), dimension (:), allocatable     :: bck_p
 
@@ -207,7 +207,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
 
        rewind(unit=i_bck)
        j=0
-       do 
+       do
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
 
@@ -225,7 +225,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
           end if
        end do
        close (unit=i_bck)
-       
+
        bck_points=j
        if (bck_points <=0) then
           Err_CFML%IErr=1
@@ -254,7 +254,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
     !!--++    (PRIVATE)
     !!--++    Define a n-polynomial with constanat vlue at bkpos Background
     !!--++
-    !!--++ 30/04/2019 
+    !!--++ 30/04/2019
     !!
     Module Subroutine Set_Background_Poly(Pat, Bkpos, Bckx, N)
        !---- Arguments ----!
@@ -284,7 +284,7 @@ Submodule (CFML_DiffPatt) Bckg_Patt
     !!--++    (PRIVATE)
     !!--++    Define a Background
     !!--++
-    !!--++ 30/04/2019 
+    !!--++ 30/04/2019
     !!
     Module Subroutine Set_Background_Inter(Pat, Bcky, Bckx, N)
        !---- Arguments ----!

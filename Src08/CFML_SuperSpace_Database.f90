@@ -105,9 +105,10 @@ Module CFML_SuperSpace_Database
           character(len=*), optional, intent(in) :: database_path
        End Subroutine Read_SSG_DBase
 
-       Module Subroutine Read_single_SSG(num,database_path)
+       Module Subroutine Read_single_SSG(str,num,database_path)
           !---- Arguments ----!
-          integer,                    intent(in) :: num
+          character(len=*),           intent(in) :: str
+          integer,                    intent(out):: num
           character(len=*), optional, intent(in) :: database_path
        End Subroutine Read_single_SSG
 

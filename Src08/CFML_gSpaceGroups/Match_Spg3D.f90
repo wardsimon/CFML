@@ -24,7 +24,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
        !---- Local variables ----!
        integer                                         :: s,i,j,ng,ng_,n_gen,d
        character(len=4)                                :: str
-       character(len=12)                               :: sgString,str_HM
+       character(len=12)                               :: str_HM
        character(len=256)                              :: symb, glist
        character(len=40),    dimension(:), allocatable :: l_gen
        logical                                         :: shift
@@ -33,7 +33,6 @@ SubModule (CFML_gSpaceGroups) Spg_058
        type(rational),       dimension(4,4)            :: C,Cinv,W
        type(rational),       dimension(4,4,n)          :: C_
        type(Symm_Oper_Type), dimension(3)              :: gen_std,gen_x
-       type(Symm_Oper_Type), dimension(:), allocatable :: op
        type(spg_type)                                  :: G_target
        type(spg_type)                                  :: G_std
        type(spg_type),       dimension(n)              :: G_

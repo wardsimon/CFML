@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_014
    Contains
-   
+
    !!----
    !!---- DKDT_CAL
    !!----    Calculate the derivative dK/dt (or dM/dt in the linear case) at P and T
@@ -17,35 +17,35 @@ SubModule (CFML_EoS) EoS_014
       type(Eos_Type),           intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp),  optional, intent(in) :: DeltaT  ! Delta T
       real(kind=cp)                        :: dKdT
-           
+
       !---- Local Variables ----!
       integer                       :: j
-      real(kind=cp)                 :: del,vlimit,tlimit,tcal,Ttr
+      real(kind=cp)                 :: del,tlimit,tcal,Ttr
       real(kind=cp),dimension(-2:2) :: kpt
-      
+
       !> Init: set step size for numerical differentiation
       del=30.0_cp                                ! good number for accuracy
       if (present(deltat)) del=deltat
       if (t-2.0_cp*del < 0.0_cp) del=t/2.1          ! prevents going to negative T
-      
+
       !> Code to prevent crossing a phase boundary
-      if (eospar%itran > 0) then      
+      if (eospar%itran > 0) then
          Ttr = Get_Transition_Temperature(P,EosPar)
          if (transition_phase(P,T+2.0_cp*del,eospar) .neqv. transition_phase(P,T,eospar)) del=0.4_cp*abs(Ttr-T)
          if (transition_phase(P,T-2.0_cp*del,eospar) .neqv. transition_phase(P,T,eospar)) del=0.4_cp*abs(Ttr-T)
       end if
-      
+
       !> Code to stop MGD EoS going into illegal large volume above T
-      if (eospar%itherm == 7)then    
+      if (eospar%itherm == 7)then
          tlimit=t+2.0_cp*del
          do                                        ! search for positive K at this P
             if (get_K(p,tlimit,eospar) > 0.0_cp .and. err_CFML%Ierr==0)exit
-            call clear_error() 
+            call clear_error()
             tlimit=tlimit-0.1_cp*(tlimit-t)
-            if (tlimit < t) exit                    ! should never happen because P,T is valid    
+            if (tlimit < t) exit                    ! should never happen because P,T is valid
          end do
          del=0.4_cp*abs(tlimit-t)
-      end if      
+      end if
 
       !> Trap close to zero K
       if (t < 1.0_cp)then
@@ -57,10 +57,10 @@ SubModule (CFML_EoS) EoS_014
          end do
          dKdT=(kpt(-2)+8.0_cp*(kpt(1)-kpt(-1))-kpt(2))/(12.0_cp*del)     ! Derivative to second order approximation
       end if
-      
+
       !> No linear conversion is required because get_K returns values for "linear Kp" = Mp,
       !> so kppc is already dMp/dP = Mpp
 
    End Function dKdT_Cal
-   
-End SubModule EoS_014   
+
+End SubModule EoS_014

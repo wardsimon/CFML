@@ -2,7 +2,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SuperSpace_Database) SSG_DB_002
+SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
    Contains
    !!----
    !!---- READ SUPERSPACE DATA BASE
@@ -16,7 +16,7 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_002
       character(len=*), optional,intent(in)  :: database_path
       !
       integer :: i,j,k,m,n,nmod,iclass
-      integer :: i_db, ier,L
+      integer :: i_db, ier,L !,i_lab
       character(len=512) :: ssg_file,fullprof_suite
       character(len=4)   :: line
 
@@ -62,6 +62,17 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_002
         err_cfml%msg= 'Error opening the database file: '//trim(ssg_file)
         return
       end if
+
+      ! Uncomment for creating the file SSG_Labels.txt
+      !open(newunit=i_lab,file=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//"SSG_Labels.txt",status='replace',action='write',iostat=ier)
+      !if(ier /= 0) then
+      !  err_CFML%IErr=1
+      !  err_cfml%msg= 'Error opening the labels file: '//trim(trim(fullprof_suite)//"Databases"//OPS_SEP//"Labels.txt")
+      !  return
+      !else                 !12345678123456  123456  123456  123456  123456  12345678901      123456
+      !  write(i_lab,"(a)") "       #   Class  Pos-Cl  Pos-Gr  Gr-Num  Parent  Num-Label        SSG-Label"
+      !end if
+
       L=0
       do i=1,2526
         read(unit=i_db,fmt="(a)") line
@@ -127,17 +138,24 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_002
             read(unit=i_db,fmt=*)(((igroup_condition1(i,j,k,m),i=1,nmod+3),j=1,nmod+3),(igroup_condition2(j,k,m),j=1,nmod+4), &
                                     k=1,igroup_nconditions(m))
         end if
+        !write(i_lab,"(6i8,2a)") m,iclass,pos_class(iclass),pos_group(m),igroup_number(m),igroup_spacegroup(m),"   "//group_nlabel(m),"   "//trim(group_label(m))
       end do
       close(unit=i_db)
+      !close(unit=i_lab)
       SSG_DBase_allocated=.true.
    End Subroutine Read_SSG_DBase
 
-   Module Subroutine Read_single_SSG(num,database_path)
-      integer,                    intent(in)  :: num
+   Module Subroutine Read_single_SSG(str,num,database_path)
+      character(len=*),           intent(in)  :: str
+      integer,                    intent(out) :: num
       character(len=*), optional, intent(in)  :: database_path
       !
       integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass
-      character(len=512) :: ssg_file,pos_file,fullprof_suite
+      character(len=512) :: ssg_file,pos_file,fullprof_suite,db_dir,lab_file
+      character(len=13)  ::  nlabel
+      character(len=60)  ::  label
+      character(len=256) ::  line
+      logical :: found
 
       if(present(database_path)) then
          n=len_trim(database_path)
@@ -161,18 +179,42 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_002
          end if
 
          if (fullprof_suite(n:n) /= OPS_SEP) then
-            ssg_file=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//'ssg_datafile.txt'
-            pos_file=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//'class+group_pos.txt'
+            db_dir=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP
          else
-            ssg_file=trim(fullprof_suite)//"Databases"//OPS_SEP//'ssg_datafile.txt'
-            pos_file=trim(fullprof_suite)//"Databases"//OPS_SEP//'class+group_pos.txt'
+            db_dir=trim(fullprof_suite)//"Databases"//OPS_SEP
          end if
+         ssg_file=trim(db_dir)//'ssg_datafile.txt'
+         pos_file=trim(db_dir)//'class+group_pos.txt'
+         lab_file=trim(db_dir)//'SSG_Labels.txt'
       end if
 
       if(.not. ssg_DBase_allocated) then
         call Allocate_SSG_DBase()
       end if
       call clear_error()
+      found=.false.
+      !First determine the number of the space groups (it may be provided in the string "str")
+      read(unit=str,fmt=*,iostat=ier) num
+      if(ier /= 0) then !The provided string does not contain the number
+        open(newunit=i_lab,file=lab_file,status='old',action='read',position='rewind',iostat=ier)
+        read(i_lab,*)
+        do i=1,m_ngs
+          read(i_lab,"(a)") line
+          j=index(line,trim(str))
+          if(j /= 0) then
+            found=.true.
+            !backspace(i_lab)
+            read(line,*) num
+            found=.true.
+            exit
+          end if
+        end do
+        if(.not. found) then
+          err_CFML%IErr=1
+          err_CFML%Msg= 'The space group label: '//trim(str)//" has not been found in the database!"
+          return
+        end if
+      end if
 
       ! open data file
       open(newunit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
@@ -228,6 +270,7 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_002
       read(unit=i_db,fmt=*) igroup_nops(m)
       read(unit=i_db,fmt=*) (((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
       close(unit=i_db)
+
    End Subroutine Read_single_SSG
 
-End SubModule SSG_DB_002
+End SubModule Reading_SuperSpace_Database

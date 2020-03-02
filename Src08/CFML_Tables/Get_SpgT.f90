@@ -13,13 +13,13 @@ SubModule (CFML_Symmetry_Tables) SpgGener
    !!----    H-M or the number of the space group should be given.
    !!----    The calling program is responsible of decoding the string "gener".
    !!----    Generator are given in the Jone's Faithful notation and
-   !!----    the separator is the symbol ";". 
+   !!----    the separator is the symbol ";".
    !!----
    !!----    An example: R-3 c
    !!----    gener = " x+1/3,y+2/3,z+2/3; -y,x-y,z; -y,-x,z+1/2"
    !!----    The variable is the string contained between the quotes.
    !!----
-   !!---- 20/04/2019 
+   !!---- 20/04/2019
    !!
    Module Function Get_IT_Generators(Spg) Result(StrGen)
       !---- Arguments ----!
@@ -27,8 +27,7 @@ SubModule (CFML_Symmetry_Tables) SpgGener
       character(len=:), allocatable :: StrGen
 
       !----  Local variables ----!
-      integer                 :: i, ier, numg
-      character(len=len(spg)) :: symb,sp
+      integer                 :: ier, numg
 
       !> Init
       Strgen=" "
@@ -42,22 +41,22 @@ SubModule (CFML_Symmetry_Tables) SpgGener
             Strgen=it_spg_gen(numg)(12:)
          end if
          return
-      end if   
-      
+      end if
+
       !> Other symbol?
       call Get_SpaceGroup_Symbols(Spg, IT=numg)
       if (numg > 0 .and. numg <= 230) then
             Strgen=it_spg_gen(numg)(12:)
       end if
    End Function Get_IT_Generators
-   
+
    !!--++
    !!--++ SUBROUTINE SET_IT_GEN
    !!--++
    !!--++    Fills the components of the Spg_Gen character variable
    !!--++    Called once by the public subroutine Get_Generators
    !!--++
-   !!--++ 20/04/2019 
+   !!--++ 20/04/2019
    !!
    Module Subroutine Set_IT_Gen()
 
@@ -297,7 +296,6 @@ SubModule (CFML_Symmetry_Tables) SpgGener
       it_spg_gen(229) =  "I m -3 m  : x+1/2,y+1/2,z+1/2; -x,-y,z; -x,y,-z; z,x,y; y,x,-z; -x,-y,-z "
       it_spg_gen(230) =  "I a -3 d  : x+1/2,y+1/2,z+1/2; -x+1/2,-y,z+1/2; -x,y+1/2,-z+1/2; z,x,y; y+3/4,x+1/4,-z+1/4; -x,-y,-z "
 
-      return
    End Subroutine Set_IT_Gen
-   
-End SubModule SpgGener   
+
+End SubModule SpgGener

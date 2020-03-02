@@ -3,21 +3,21 @@
 !!----
 SubModule (CFML_gSpaceGroups) Spg_055
    Contains
-   
+
    !!----
    !!---- GET_LAUE_PG
    !!----    Subroutine to get the information of Laue and Point Group
    !!----    Acta Cryst. A55, (1999) 383-395.
    !!----
-   !!---- 13/05/2019 
+   !!---- 13/05/2019
    !!
    Module Subroutine Get_Laue_PG(Ops, nops, Centro, Laue, Pg)
       !---- Arguments ----!
       type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    ! Reduced operators (Numops)
       integer,                            intent(in) :: NOps   ! Numops
       logical,                            intent(in) :: Centro ! .True. if centred consideration
-      character(len=*),                   intent(out):: Laue   ! Laue string 
-      character(len=*),                   intent(out):: Pg     ! Point group string          
+      character(len=*),                   intent(out):: Laue   ! Laue string
+      character(len=*),                   intent(out):: Pg     ! Point group string
 
       !---- Local variables ----!
       integer :: nrot_1, nrot_1b
@@ -25,7 +25,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
       integer :: nrot_3, nrot_3b
       integer :: nrot_4, nrot_4b
       integer :: nrot_6, nrot_6b
-      integer :: i,n_m,ndet,ind
+      integer :: i,n_m,ndet
 
       !> Init
       Laue=" "
@@ -34,7 +34,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
          err_CFML%Ierr=1
          err_CFML%Msg="Get_Laue_PG@GSPACEGROUPS: The symmetry operators is zero!"
          return
-      end if  
+      end if
 
       nrot_1  = 0
       nrot_2  = 0
@@ -81,7 +81,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
       n_m = nrot_1  + nrot_2  + nrot_3  + nrot_4  + nrot_6  + &
             nrot_1b + nrot_2b + nrot_3b + nrot_4b + nrot_6b
 
-      !> Cubic 
+      !> Cubic
       if ( (nrot_3 + nrot_3b == 8) ) then
          select case (n_m)
             case (12)
@@ -97,12 +97,12 @@ SubModule (CFML_gSpaceGroups) Spg_055
                   if (nrot_4  == 6) pg="432"
                   if (nrot_4b == 6) pg="-43m"
                else
-                  pg="m-3m" 
-               end if  
+                  pg="m-3m"
+               end if
                laue="m-3m"
          end select
          return
-      end if   
+      end if
 
       !> Hexagonal
       if ( (nrot_6 + nrot_6b == 2) ) then
@@ -113,7 +113,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
                   if (nrot_6b == 2) pg="-6"
                else
                   pg="6/m"
-               end if  
+               end if
                laue="6/m"
 
             case (12)
@@ -121,17 +121,17 @@ SubModule (CFML_gSpaceGroups) Spg_055
                   if (nrot_6 == 2) then
                      if (nrot_2  == 7) pg="622"
                      if (nrot_2b == 6) pg="6mm"
-                     
+
                   else if (nrot_6b == 2) then
-                     pg="-6m2" 
-                  end if    
+                     pg="-6m2"
+                  end if
                else
                   pg="6/mmm"
-               end if 
+               end if
                laue="6/mmm"
          end select
          return
-      end if   
+      end if
 
       !> Trigonal
       if ( (nrot_3 + nrot_3b == 2) ) then
@@ -150,11 +150,11 @@ SubModule (CFML_gSpaceGroups) Spg_055
                   if (nrot_2b== 3) pg="3m"
                else
                   pg="-3m"
-               end if  
+               end if
                laue="-3m"
          end select
          return
-      end if   
+      end if
 
       !> Tetragonal
       if ( (nrot_4 + nrot_4b == 2) ) then
@@ -173,7 +173,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
                   if (nrot_4 == 2) then
                      if (nrot_2 == 5)  pg="422"
                      if (nrot_2b == 4) pg="4mmm"
-                  
+
                   else if (nrot_4b == 2) then
                      pg="-4m2"
                   end if
@@ -184,18 +184,18 @@ SubModule (CFML_gSpaceGroups) Spg_055
          end select
          return
       end if
-               
-      !> Orthorhombic 
+
+      !> Orthorhombic
       if ( (nrot_2 + nrot_2b == 3) ) then
          if (.not. centro) then
             if (nrot_2  == 3 ) pg="222"
             if (nrot_2b == 2 ) pg="mm2"
-         else 
+         else
             pg="mmm"
          end if
          laue="mmm"
          return
-      end if   
+      end if
 
       !> Monoclinic
       if ( (nrot_2 + nrot_2b == 1)  ) then
@@ -207,9 +207,9 @@ SubModule (CFML_gSpaceGroups) Spg_055
          end if
          laue="2/m"
          return
-      end if   
+      end if
 
-      !> Triclinic 
+      !> Triclinic
       if (n_m == 1) then
          if (.not. centro) then
             pg="1"
@@ -217,16 +217,16 @@ SubModule (CFML_gSpaceGroups) Spg_055
             pg="-1"
          end if
          laue="-1"
-      end if  
+      end if
    End Subroutine Get_Laue_PG
-   
+
    !!----
    !!---- GET_LAUE_NUM
    !!----
    !!----    Obtain the ordinal number corresponding to the Laue-Class
    !!----    symbol according to Laue_Class array. Zero if error is present
    !!----
-   !!---- 11/05/2019 
+   !!---- 11/05/2019
    !!
    Module Function Get_Laue_Num(Str_Laue) Result(N)
       !---- Arguments ----!
@@ -246,41 +246,41 @@ SubModule (CFML_gSpaceGroups) Spg_055
             exit
          end if
       end do
-      
+
       if (N==15) N=13
       if (N==16) N=14
 
    End Function Get_Laue_Num
-   
+
    !!----
    !!---- GET_LAUE_STR
    !!----    Obtain the string for the Laue-Class. Blank if error
    !!----
-   !!---- 11/05/2019 
+   !!---- 11/05/2019
    !!
    Module Function Get_Laue_Str(N) Result(Str_Laue)
       !---- Arguments ----!
       integer,          intent( in) :: N
       character(len=:), allocatable :: Str_Laue
 
-      Str_Laue="  " 
+      Str_Laue="  "
       if (N < 1 .or. N > 16) return
 
       str_laue=LAUE_CLASS(N)
    End Function Get_Laue_Str
-   
+
    !!----
    !!---- GET_POINTGROUP_NUM
    !!----
    !!----    Obtain the ordinal number corresponding to the Point Group
    !!----    symbol according to Point_Group array. Zero if Error is present
    !!----
-   !!---- 11/05/2019 
+   !!---- 11/05/2019
    !!
    Module Function Get_PointGroup_Num(Str_PG) Result(N)
       !---- Arguments ----!
       character(len=*), intent (in) :: Str_PG   ! String containing the PG information
-      integer                       :: N        ! Return value on the vector POINT_GROUP 
+      integer                       :: N        ! Return value on the vector POINT_GROUP
 
       !---- Local Variables ----!
       integer                       :: i
@@ -307,15 +307,15 @@ SubModule (CFML_gSpaceGroups) Spg_055
          case (42) ! -3m1 -> -3m
             N=23
       end select
-      
+
    End Function Get_PointGroup_Num
-   
+
    !!----
    !!---- GET_POINTGROUP_STR
    !!----
    !!----    Obtain the string for the Point Group. Blank if error
    !!----
-   !!---- 11/05/2019 
+   !!---- 11/05/2019
    !!
    Module Function Get_PointGroup_Str(N) Result(Str_PG)
       !---- Arguments ----!
@@ -327,13 +327,13 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
       Str_PG=POINT_GROUP(N)
    End Function Get_PointGroup_Str
-   
+
    !!----
    !!---- IDENTIFY_CRYSTALLOGRAPHIC_PG
    !!----
    !!----  Determines the crystallographic point group of the group G.
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Subroutine Identify_PointGroup(G)
        !---- Arguments ----!
@@ -350,13 +350,13 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
        !> Init
        call Clear_Error()
-       
+
        nRot(:)  = 0  ! number of selected rotations of order 1,2,...,6
        G%pg     = ""
        numops = G%multip / (G%num_lat+G%num_alat+1)
        if (G%centred /= 1 .or. G%anticentred /= 1) numops = numops / 2
        allocate(repSymOp(numops))
-       
+
        !> Get the rotations of the representative matrices
        nRepSymOp = 0
        do i = 1 , G%Multip
@@ -395,28 +395,28 @@ SubModule (CFML_gSpaceGroups) Spg_055
              select case (abs(t))
                 case (0)
                    nRot(3) = nRot(3) + 1
-                  
+
                 case(1)
                    if (d * t ==  1) then
                       nRot(4) = nRot(4) + 1
                    else
                       nRot(2) = nRot(2) + 1
                    end if
-                  
+
                 case(2)
                    nRot(6) = nRot(6) + 1
-                  
+
                 case(3)
                    nRot(1) = nRot(1) + 1
              end select
           end if
        end do
-       
+
        !> Get the point group
        !allocate(idd(numops,2))
        allocate(idd(nRepSymOp,2))
        idd=0
-       
+
        if (nRot(3) == 8) then ! Cubic
           if (nRepSymOp == 12) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
@@ -424,7 +424,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "m-3"
              end if
-          
+
           else if (nRepSymOp == 24) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
                 call Get_Rotations(repSymOp,nRepSymOp,4,n,idd)
@@ -437,7 +437,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
                 G%PG = "m-3m"
              end if
           end if
-       
+
        else if (nRot(6) == 2) then ! Hexagonal
           if (nRepSymOp == 6) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
@@ -450,7 +450,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "6/m"
              end if
-          
+
           else if (nRepSymOp == 12) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
                 call Get_Rotations(repSymOp,nRepSymOp,6,n,idd)
@@ -461,16 +461,16 @@ SubModule (CFML_gSpaceGroups) Spg_055
                    else
                       G%PG = "622"
                    end if
-                
+
                 else if (idd(1,2) == -1) then
                    G%PG = "-6m2"
                 end if
-               
+
              else
                 G%PG = "6/mmm"
              end if
           end if
-       
+
        else if (nRot(3) == 2) then ! Trigonal
           if (nRepSymOp == 3) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
@@ -478,7 +478,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "-3"
              end if
-           
+
           else if (nRepSymOp == 6) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
                 call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
@@ -491,7 +491,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
                 G%PG = "-3m"
              end if
           end if
-       
+
        else if (nRot(4) == 2) then ! Tetragonal
           if (nRepSymOp == 4) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
@@ -504,7 +504,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "4/m"
              end if
-          
+
           else if (nRepSymOp == 8) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
                 call Get_Rotations(repSymOp,nRepSymOp,4,n,idd)
@@ -515,16 +515,16 @@ SubModule (CFML_gSpaceGroups) Spg_055
                    else
                       G%PG = "422"
                    end if
-                
+
                 else if (n == 2 .and. idd(1,2) == -1) then
                    G%PG = "-4m2"
                 end if
-             
+
              else
                 G%PG = "4/mmm"
              end if
           end if
-       
+
        else if (nRot(2) == 3) then ! Orthorhombic
           if (G%Centred == 1 .and. G%anticentred == 1) then
              call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
@@ -533,11 +533,11 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "222"
              end if
-          
+
           else
               G%PG = "mmm"
           end if
-       
+
        else if (nRot(2) == 1) then ! Monoclinic
           if (G%Centred == 1 .and. G%anticentred == 1) then
              call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
@@ -546,11 +546,11 @@ SubModule (CFML_gSpaceGroups) Spg_055
              else
                 G%PG = "m"
              end if
-           
+
            else
               G%PG = "2/m"
            end if
-       
+
        else
           if (G%Centred == 1 .and. G%anticentred == 1) then ! Triclinic
              G%PG = "1"
@@ -565,13 +565,13 @@ SubModule (CFML_gSpaceGroups) Spg_055
        end if
 
    End Subroutine Identify_PointGroup
-   
-   !!---- 
+
+   !!----
    !!---- Identify_Laue_Class
    !!----
    !!---- Sets the Laue class from the crystallographic point group
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Identify_LaueClass(G)
       !---- Arguments ----!
@@ -580,56 +580,56 @@ SubModule (CFML_gSpaceGroups) Spg_055
       select case (trim(G%pg))
          case ("1","-1")
             G%laue = "-1"
-         
+
          case ("2","m","2/m")
             G%laue = "2/m"
-         
+
          case ("222","mm2","mmm")
             G%laue = "mmm"
-         
+
          case ("4","-4","4/m")
             G%laue = "4/m"
-         
+
          case ("422","4mm","-4m2","4/mmm")
             G%laue = "4/mmm"
-         
+
          case ("3","-3")
             G%laue = "-3"
-         
+
          case ("32","3m","-3m")
             G%laue = "-3m"
-         
+
          case ("6","-6","6/m")
             G%laue = "6/m"
-         
+
          case ("622","6mm","-6m2","6/mmm")
             G%laue = "6/mmm"
-         
+
          case ("23","m-3")
             G%laue = "m-3"
-         
+
          case ("432","-43m","m-3m")
             G%laue = "m-3m"
-         
+
          case default
             Err_CFML%Ierr = 1
             Err_CFML%Msg ="Identify_Laue_Class@SPACEG: Inconsistent crystallographic point group."
       end select
    End Subroutine Identify_LaueClass
-   
+
    !!----
    !!---- IDENTIFY_CRYSTAL_SYSTEM
    !!----
    !!----  Determines the crystal system
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Subroutine Identify_Crystal_System(G)
        !---- Arguments ----!
        type(spg_type), intent(in out) :: G
 
        !---- Local variables ----!
-       integer                                            :: i,j,n,d,t
+       integer                                            :: i,j,d,t
        integer                                            :: numops,nRepSymOp
        logical                                            :: selected
        type(rational)                                     :: det,tr
@@ -638,12 +638,12 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
        !> Init
        call Clear_Error()
-       
+
        nRot(:)  = 0  ! number of selected rotations of order 1,2,...,6
        numops = G%multip / (G%num_lat+G%num_alat+1)
        if (G%centred /= 1 .or. G%anticentred /= 1) numops = numops / 2
        allocate(repSymOp(numops))
-       
+
        !> Get the rotations of the representative matrices
        nRepSymOp = 0
        do i = 1 , G%Multip
@@ -682,46 +682,46 @@ SubModule (CFML_gSpaceGroups) Spg_055
              select case (abs(t))
                 case (0)
                    nRot(3) = nRot(3) + 1
-                  
+
                 case(1)
                    if (d * t ==  1) then
                       nRot(4) = nRot(4) + 1
                    else
                       nRot(2) = nRot(2) + 1
                    end if
-                  
+
                 case(2)
                    nRot(6) = nRot(6) + 1
-                  
+
                 case(3)
                    nRot(1) = nRot(1) + 1
              end select
           end if
        end do
-       
+
        !> Get the point group
        if (nRot(3) == 8) then ! Cubic
           G%CrystalSys=SYS_CRY(7)
-       
+
        else if (nRot(6) == 2) then ! Hexagonal
           G%CrystalSys=SYS_CRY(6)
 
        else if (nRot(3) == 2) then ! Trigonal
           G%CrystalSys=SYS_CRY(5)
-       
+
        else if (nRot(4) == 2) then ! Tetragonal
           G%CrystalSys=SYS_CRY(4)
-       
+
        else if (nRot(2) == 3) then ! Orthorhombic
           G%CrystalSys=SYS_CRY(3)
-       
+
        else if (nRot(2) == 1) then ! Monoclinic
           G%CrystalSys=SYS_CRY(2)
-       
+
        else
           G%CrystalSys=SYS_CRY(1)
        end if
 
    End Subroutine Identify_Crystal_System
-    
-End SubModule Spg_055  
+
+End SubModule Spg_055

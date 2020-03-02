@@ -10,9 +10,6 @@ SubModule (CFML_gSpaceGroups) Init_Proc
       !---- Arguments ----!
       integer, intent(in) :: D    ! Dimension of the Matrix
 
-      !---- Local Variables ----!
-      integer :: i
-
       !> Init
       if (allocated(identity_matrix)) deallocate(identity_matrix)
       allocate(identity_matrix(d,d))

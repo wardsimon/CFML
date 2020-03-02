@@ -123,8 +123,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       !---- Local Variables ----!
       character(len=1) :: car0
       character(len=20):: l_chm
-      character(len=8), dimension(4) :: dire
-      integer                        :: i,ii,j,jj,k,n
+      integer          :: i,j,n
 
       !> Init
       HM='Not defined'
@@ -204,7 +203,7 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       !---- Local Variables ----!
       character(len=:), allocatable :: l_HM, l_Hall, l_chm
       integer                       :: l_it
-      integer                       :: i,ii,j,k,n,ier
+      integer                       :: i,ii,n,ier
       logical                       :: llchm, found
 
       !> Init
