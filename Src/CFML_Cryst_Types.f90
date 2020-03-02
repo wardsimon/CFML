@@ -124,7 +124,7 @@
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,    only: Cp, Eps, Pi
 !!--++    Use CFML_Math_General, only: Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
-!!--++                                 Co_Linear
+!!--++                                 Co_Linear,Determinant
 !!--++    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
@@ -138,6 +138,9 @@
 !!----
 !!---- PROCEDURES
 !!----    Functions:
+!!----       CALC_CELL_STRAIN
+!!----       CALC_DEFORMATION_TENSOR
+!!----       CALC_DEFORMED_METRIC 
 !!----       CART_U_VECTOR
 !!----       CART_VECTOR
 !!----       CELL_VOLUME_SIGMA
@@ -154,7 +157,7 @@
 !!----       Volume_from_cell
 !!----
 !!----    Subroutines:
-!!----       CALC_CELL_STRAIN
+!!----       CELL_FROM_METRIC
 !!----       CHANGE_SETTING_CELL
 !!----       GET_BASIS_FROM_UVW
 !!----       GET_CONVENTIONAL_CELL
@@ -183,9 +186,10 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_GlobalDeps,   only : Cp, Eps, Pi, TO_RAD
-    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear,Invert_Matrix
-    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+    Use CFML_GlobalDeps,       only : Cp, Eps, Pi, TO_RAD
+    Use CFML_Math_General,     only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear, &
+                                      Invert_Matrix, Determinant
+    Use CFML_Math_3D,          only : Matrix_Inverse, determ_A, determ_V, Cross_Product
     Use CFML_String_Utilities, only: U_case
 
     implicit none
@@ -198,13 +202,14 @@
     public :: Cart_u_vector, Cart_vector, Convert_B_Betas, Convert_B_U, &
               Convert_Betas_B, Convert_Betas_U, Convert_U_B,            &
               Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma,  &
-              Get_Betas_From_Biso,Volume_from_cell
+              Get_Betas_From_Biso,Volume_from_cell,                     &
+              Calc_Deformation_Tensor, Calc_Deformed_Metric, Calc_Cell_Strain
 
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Calc_Cell_Strain,Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
-              Get_Cryst_Family, Get_Cryst_Orthog_Matrix, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
+    public :: Cell_From_Metric, Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
+        Get_Cryst_Family, Get_Cryst_Orthog_Matrix, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
               Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,   &
               Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell,&
               Orient_Eigenvectors,Read_Bin_Crystal_Cell,Write_Bin_Crystal_Cell
@@ -470,7 +475,11 @@
        end select
 
        return
+
     End Function Cart_Vector
+    
+
+    
 
     !!----
     !!---- Function Cell_Volume_Sigma(Cell) result(sigma)
@@ -883,98 +892,179 @@
     !---- Subroutines ----!
     !---------------------!
 
-
     !!----
-    !!---- Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
-    !!----      integer, intent(in)                 :: itype !strain type
-    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T0 ! CR_Orth_Cel for chosen axial system for the starting state
-    !!----      real(kind=cp),intent(in), dimension(3,3) ::  T1 ! CR_Orth_Cel for chosen axial system for the final state
-    !!----      real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain tensor
+    !!---- Function Calc_Cell_Strain
     !!----
     !!---- Calculates the strain from cell described by T0 to cell described by T1
     !!---- Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
+    !!---- Ported from WinStrain (RJA)
+    !!----
+    !!---- 28/02/2020 
     !!
-    !!---- Ported from WinStrain (RJA): February - 2019
-    !!
-
-    Subroutine Calc_Cell_Strain(itype,T0,T1,strain)
+    Function Calc_Cell_Strain(Itype,T0,T1) Result(Strain)
        !---- Arguments ----!
-       integer,      intent(in)                 ::  itype  ! strain type (1: Eulerian finite, 2:Eulerian infinitesimal, 3:Lagrangian finite, 4:Lagrangian infinitesimal)
-       real(kind=cp),intent(in), dimension(3,3) ::  T0     ! CR_Orth_Cel for chosen axial system for the starting state
-       real(kind=cp),intent(in), dimension(3,3) ::  T1     ! CR_Orth_Cel for chosen axial system for the final state
-       real(kind=cp),intent(out),dimension(3,3) ::  strain ! calculated cell strain
+       integer,                       intent(in) ::  Itype  ! strain type (1: Eulerian finite, 2:Eulerian infinitesimal, 3:Lagrangian finite, 4:Lagrangian infinitesimal)
+       real(kind=cp), dimension(3,3), intent(in) ::  T0     ! CR_Orth_Cel for chosen axial system for the starting state
+       real(kind=cp), dimension(3,3), intent(in) ::  T1     ! CR_Orth_Cel for chosen axial system for the final state
+       real(kind=cp), dimension(3,3)             ::  Strain ! calculated cell strain
 
        !--- Local variables ---!
        integer                             :: i,j
        real(kind=cp),dimension(3,3)        :: s0,s1, sinv,w1,w2      ! work arrays
        logical                             :: singular
 
+       !> Init
        singular=.false.
-       strain=0.0
+       strain=0.0_cp
+       
        do i=1,3
-         strain(i,i)=0.1     ! safety
-       enddo
+          strain(i,i)=0.1     ! safety
+       end do
 
        !> Original literature is written in terms of S matrices: Zotov, Acta Cryst. (1990). A46, 627-628
        !> These are the transpose of CR_Orth_Cel
        s0=transpose(t0)
        s1=transpose(t1)
 
-       if(itype == 1) then        ! Eulerian finite
-           call Invert_Matrix (S1, Sinv, Singular)
-           w1=matmul(sinv,s0)
-           w2=transpose(w1)
-           strain=matmul(w1,w2)
-           do i=1,3
-             do j=1,3
-               strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
+       select case (itype)
+          case (1) ! Eulerian finite
+             call Invert_Matrix (S1, Sinv, Singular)
+             w1=matmul(sinv,s0)
+             w2=transpose(w1)
+             strain=matmul(w1,w2)
+             do i=1,3
+                do j=1,3
+                   strain(i,j)= 0.5*(strain(i,j)-2.0*w1(i,j)-2.0*w1(j,i))
+                end do
              end do
-           end do
-          do i=1,3
-            strain(i,i)=strain(i,i)+1.5
-          end do
-
-       else if(itype == 2) then        ! Eulerian infinitesimal
-           call Invert_Matrix (S1, Sinv, Singular)
-           w1=matmul(sinv,s0)      !
-           do i=1,3
-             do j=1,3
-               strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
+             do i=1,3
+                strain(i,i)=strain(i,i)+1.5
              end do
-           end do
-           do i=1,3
-             strain(i,i)=strain(i,i)+1.0
-           end do
-
-       else if(itype == 3) then        ! lagrangian finite
-           call Invert_Matrix (S0, Sinv, Singular)
-           w1=matmul(sinv,s1)
-           w2=transpose(w1)      !
-           strain=matmul(w1,w2)
-           do i=1,3
-             do j=1,3
-               strain(i,j)=0.5*strain(i,j)
+          
+          case (2) ! Eulerian infinitesimal  
+             call Invert_Matrix (S1, Sinv, Singular)
+             w1=matmul(sinv,s0)      !
+             do i=1,3
+                do j=1,3
+                   strain(i,j)= -0.5*(w1(i,j)+w1(j,i))
+                end do
              end do
-           end do
-           do i=1,3
-             strain(i,i)=strain(i,i)-0.5
-           end do
+             do i=1,3
+                strain(i,i)=strain(i,i)+1.0
+             end do
+             
+          case (3) ! lagrangian finite 
+             call Invert_Matrix (S0, Sinv, Singular)
+             w1=matmul(sinv,s1)
+             w2=transpose(w1)      !
+             strain=matmul(w1,w2)
+             do i=1,3
+                do j=1,3
+                   strain(i,j)=0.5*strain(i,j)
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)-0.5
+             end do  
+             
+          case (4) ! lagrangian infinitesimal  
+             call Invert_Matrix (S0, Sinv, Singular)
+             w1=matmul(sinv,s1)      !
+             do i=1,3
+                do j=1,3
+                   strain(i,j)=0.5*(w1(i,j)+w1(j,i))
+                end do
+             end do
+             do i=1,3
+                strain(i,i)=strain(i,i)-1.0
+             end do
+       end select
 
-       else if(itype == 4) then        ! lagrangian infinitesimal
-           call Invert_Matrix (S0, Sinv, Singular)
-            w1=matmul(sinv,s1)      !
-            do i=1,3
-              do j=1,3
-                strain(i,j)=0.5*(w1(i,j)+w1(j,i))
-              end do
-            end do
-            do i=1,3
-              strain(i,i)=strain(i,i)-1.0
-            end do
+    End Function Calc_Cell_Strain
+    
+    !!----
+    !!---- Function Calc_Deformed_Metric
+    !!----
+    !!----  Calculates metric tensor of deformed cell from initial cell and deformation tensor
+    !!----  Initial cell and F matrix must be defined with respect to same axial system
+    !!---- 
+    !!----  26/02/2020, RJA  
+    !!       
+    Function Calc_Deformed_Metric(C,F) Result(G)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3,3), intent(in) ::  C  ! CR_Orth_Cel for a chosen axial system for the starting state
+       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.  
+       real(kind=cp), dimension(3,3)             ::  G  ! Metric tensor of deformed cell
 
-       end if
+       G=matmul(F,C)
+       G=matmul(transpose(F),G)
+       G=matmul(transpose(C),G)
+    
+    End Function Calc_Deformed_Metric
 
-    End Subroutine Calc_Cell_Strain
+
+    !!----
+    !!---- Function Calc_Deformation_Tensor(C0,C1)
+    !!----  
+    !!----  Calculates deformation tensor from CR_Orth_Cel matrices
+    !!---- 
+    !!----  26/02/2020, RJA  
+    !!      
+    Function Calc_Deformation_Tensor(C0, C1) Result(F)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3,3), intent(in) ::  C0 ! CR_Orth_Cel for a chosen axial system for the starting state
+       real(kind=cp), dimension(3,3), intent(in) ::  C1 ! CR_Orth_Cel in same  axial system for the final state
+       real(kind=cp), dimension(3,3)             ::  F   ! Deformation tensor from C0 to C1. 
+
+
+       !--- Local variables ---!
+       integer                       :: i
+       real(kind=cp), dimension(3,3) :: C0inv 
+       logical                       :: singular
+       
+       !> init
+       F=0.0_cp
+       
+       do i=1,3
+          F(i,i)=1.0_cp
+       end do
+       
+       call Invert_Matrix (C0, C0inv, Singular)
+       if (singular) return
+        
+       F=matmul(C1, C0inv)       
+       
+    End Function Calc_Deformation_Tensor
+      
+    !!----    
+    !!---- Subroutine Cell_From_Metric
+    !!----
+    !!---- Calculates the cell parameters from metric tensor
+    !!----      
+    !!----  26/02/2020, RJA
+    !!  
+    Subroutine Cell_From_Metric(G, Vcell, Volume)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3,3), intent(in)  :: G      ! metric tensor
+       real(kind=cp), dimension(6),   intent(out) :: Vcell  ! a,b,c, alpha, beta, gamma in degrees
+       real(kind=cp), optional,       intent(out) :: Volume ! Volume
+    
+       !--- Local variables ---!
+       integer :: i
+    
+       do i=1,3
+          Vcell(i)=sqrt(G(i,i))
+       end do
+       Vcell(4)=acosd(G(2,3)/(vcell(2)*vcell(3)))
+       Vcell(5)=acosd(G(1,3)/(vcell(1)*vcell(3)))
+       Vcell(6)=acosd(G(1,2)/(vcell(1)*vcell(2)))
+       
+       if (present(volume)) then 
+          call Determinant (G, 3, volume)
+          volume=sqrt(abs(volume))
+       end if   
+    End Subroutine Cell_From_Metric  
+
 
     !!----
     !!---- Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
@@ -2739,8 +2829,6 @@
               trans=trm
             else
               trans=identity
-              Err_Crys = .true.
-              Err_Crys_Mess = "Unable to find transformation matrix"
             end if
           end if
        end if
