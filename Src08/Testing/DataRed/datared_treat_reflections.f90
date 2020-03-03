@@ -35,9 +35,10 @@
       integer,optional,     intent(in)     :: lun
 
       real(kind=cp) :: total, sig, suma, sumai,suman, sumaw, sumanw, Rint, Rwint, aver_sig, &
-                       sigg, int_rej, q2, aver_int, Sintlmax,delt
+                       sigg, int_rej, q2, aver_int, Sintlmax,delt,Rint_sat,Rwint_sat,Rint_fun,&
+                       Rwint_fun
       integer       :: i,j,k, iou, ier, iv, ns, rej, ival,  nkv, nn, ihkl, irej,&
-                       indp, nequiv, L, drej, Lmin,i_refout, D
+                       indp, nequiv, L, drej, Lmin,i_refout, D, n_mag, n_sat, n_fun
       logical :: absent,twin_acc
       integer :: n,ipos,mult        !123456789012345678901234567890
       character(len=37) :: fm1="(i8, i4,a,2f12.3,i12,f10.4)"
@@ -48,6 +49,9 @@
       integer, dimension(size(R%Ref(1)%h),R%nref)     :: h_rep
       integer, dimension(size(R%Ref(1)%h),SpG%Multip) :: h_list
       real(kind=cp),    dimension(R%nref)             :: intav, sigmav, sigstat, warn
+      real(kind=cp),    dimension(R%nref)             :: intav_mag
+      real(kind=cp),    dimension(R%nref)             :: intav_sat
+      real(kind=cp),    dimension(R%nref)             :: intav_fun
       real(kind=cp),    dimension(256)                :: weight  ! A maximum of 256 reflections equivalent to one of them can be treated
       character(len=*),parameter,dimension(0:1) :: warn_mess=["                      ",  &
                                                                " <- Dubious reflection"]
@@ -88,7 +92,6 @@
             ini(indp)=i  !put pointers for initial and final equivalent reflections
             fin(indp)=i
             n=1
-            !id(:,n,indp)=hh
             intav(indp)=R%Ref(i)%Intens
             sigmav(indp)=R%Ref(i)%sigma
             sigg=R%Ref(i)%sigma
@@ -97,6 +100,19 @@
             sumai=sig*R%Ref(i)%intens
             call H_Equiv_List(hh, SpG, cond%Friedel, Mult,H_List,ipos)
             h_rep(:,indp)=H_List(:,ipos)
+            if(cond%magnetic .and. R%Ref(i)%imag == 1) then
+              n_mag=1
+              intav_mag(indp)=R%Ref(i)%Intens
+            end if
+            if(D > 3) then
+              if(sum(abs(hh(4:))) > 0) then
+                n_sat=1
+                intav_sat(indp)=R%Ref(i)%Intens
+              else
+                n_fun=1
+                intav_fun(indp)=R%Ref(i)%Intens
+              end if
+            end if
             do j=i+1,R%nref  !look for equivalent reflections to the current (i) in the list
                if (itreat(j) /= 0) cycle
                kk=R%Ref(j)%h
@@ -117,6 +133,19 @@
                   weight(n)=1.0/R%Ref(j)%sigma**2
                   sig=sig + weight(n)
                   sumai=sumai+weight(n)*R%Ref(j)%intens
+                  if(cond%magnetic .and. R%Ref(j)%imag == 1) then
+                    n_mag=n_mag+1
+                    intav_mag(indp)=intav_mag(indp)+R%Ref(j)%Intens
+                  end if
+                  if(D > 3) then
+                    if(sum(abs(kk(4:))) > 0) then
+                      n_sat=n_sat+1
+                      intav_sat(indp)=intav_sat(indp)+R%Ref(j)%Intens
+                    else
+                      n_fun=n_fun+1
+                      intav_fun(indp)=intav_fun(indp)+R%Ref(j)%Intens
+                    end if
+                  end if
                   write(unit=iou,fmt=fm1) j,kk,"                  ",R%Ref(j)%intens,R%Ref(j)%sigma,R%Ref(j)%numor,R%Ref(j)%twtheta
                end if
             end do
@@ -124,7 +153,6 @@
             sigstat(indp) = sqrt(sigstat(indp))/real(n)
             intav(indp)=intav(indp)/real(n)
             sigg=sigg/real(n)
-
             suma=0.0
             ns=0
             do j=ini(indp),fin(indp)
@@ -143,6 +171,18 @@
             total=total+sigmav(indp)
             write(unit=iou,fmt=fm2)"   =>   ",h_rep(:,indp),nt(indp),ini(indp),fin(indp),intav(indp),sigmav(indp),trim(warn_mess(warn(indp)))
             write(unit=ihkl,fmt=fm3) h_rep(:,indp),intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,trim(warn_mess(warn(indp)))
+
+            if(cond%magnetic .and. R%Ref(i)%imag == 1) then
+              intav_mag(indp)=intav_mag(indp) / real(n_mag)
+            end if
+            if(D > 3) then
+              if(sum(abs(hh(4:))) > 0) then
+                intav_sat(indp)=intav_sat(indp) / real(n_sat)
+              else
+                intav_fun(indp)=+intav_fun(indp) / real(n_fun)
+              end if
+            end if
+
          end if !itreat
       end do
       !
@@ -205,6 +245,120 @@
          write(unit=iou,fmt="(a,f10.2)")  " => Average intensity of domain rejected ref.: ", int_rej
          write(unit=*,  fmt="(a,f10.2)")  " => Average intensity of domain rejected ref.: ", int_rej
       end if
+
+      !Internal R for pure magnetic reflections
+      if(cond%magnetic) then
+        nequiv=0
+        suma =0.0
+        suman=0.0
+        sumaw =0.0
+        sumanw=0.0
+        do i=1,indp
+          k=ini(i)
+          if(R%Ref(k)%imag /= 1) cycle
+          if(nt(i) < 2 ) cycle
+          sig=0.0
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then
+              sig=sig+1.0/R%Ref(j)%sigma**2
+            end if
+          end do
+          sig=1.0/sig
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then !reflection j equivalent to k
+              nequiv=nequiv+1
+              suma=suma+abs(intav_mag(i)-R%Ref(j)%intens)
+              suman=suman+R%Ref(j)%intens
+              sumaw=sumaw+ sig*((intav_mag(i)-R%Ref(j)%intens)**2)/R%Ref(j)%sigma**2
+              sumanw=sumanw+sig*(R%Ref(j)%intens/R%Ref(j)%sigma)**2
+            end if
+          end do
+        end do
+        Rint = 100.0*suma/max(1.0,suman)
+        Rwint= 100.0*sqrt(sumaw/max(1.0,sumanw))
+        write(unit=*,fmt="(/a,i10)")   " => Number of pure magnetic obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(/a,i10)") " => Number of pure magnetic obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(a,f10.2)")" => R-internal for pure magnetic equivalent reflections (%): ", Rint
+        write(unit=iou,fmt="(a,f10.2)")" => R-weighted for pure magnetic equivalent reflections (%): ", Rwint
+        write(unit=*,fmt="(a,f10.2)")  " => R-internal for pure magnetic equivalent reflections (%): ", Rint
+        write(unit=*,fmt="(a,f10.2)")  " => R-weighted for pure magnetic equivalent reflections (%): ", Rwint
+      end if
+
+      if(D > 3) then
+        !Rint for satellites
+        nequiv=0
+        suma =0.0
+        suman=0.0
+        sumaw =0.0
+        sumanw=0.0
+        do i=1,indp
+          k=ini(i)
+          if(sum(abs(R%Ref(k)%h(4:))) == 0) cycle
+          if(nt(i) < 2 ) cycle
+          sig=0.0
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then
+              sig=sig+1.0/R%Ref(j)%sigma**2
+            end if
+          end do
+          sig=1.0/sig
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then !reflection j equivalent to k
+              nequiv=nequiv+1
+              suma=suma+abs(intav_sat(i)-R%Ref(j)%intens)
+              suman=suman+R%Ref(j)%intens
+              sumaw=sumaw+ sig*((intav_sat(i)-R%Ref(j)%intens)**2)/R%Ref(j)%sigma**2
+              sumanw=sumanw+sig*(R%Ref(j)%intens/R%Ref(j)%sigma)**2
+            end if
+          end do
+        end do
+        Rint = 100.0*suma/max(1.0,suman)
+        Rwint= 100.0*sqrt(sumaw/max(1.0,sumanw))
+        write(unit=*,fmt="(/a,i10)")   " => Number of satellites  obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(/a,i10)") " => Number of satellites  obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(a,f10.2)")" => R-internal for satellites  equivalent reflections (%): ", Rint
+        write(unit=iou,fmt="(a,f10.2)")" => R-weighted for satellites  equivalent reflections (%): ", Rwint
+        write(unit=*,fmt="(a,f10.2)")  " => R-internal for satellites  equivalent reflections (%): ", Rint
+        write(unit=*,fmt="(a,f10.2)")  " => R-weighted for satellites  equivalent reflections (%): ", Rwint
+
+        !Rint for fundamental reflections
+        nequiv=0
+        suma =0.0
+        suman=0.0
+        sumaw =0.0
+        sumanw=0.0
+        do i=1,indp
+          k=ini(i)
+          if(sum(abs(R%Ref(k)%h(4:))) /= 0) cycle
+          if(nt(i) < 2 ) cycle
+          sig=0.0
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then
+              sig=sig+1.0/R%Ref(j)%sigma**2
+            end if
+          end do
+          sig=1.0/sig
+          do j=ini(i),fin(i)
+            if(itreat(j) == k) then !reflection j equivalent to k
+              nequiv=nequiv+1
+              suma=suma+abs(intav_fun(i)-R%Ref(j)%intens)
+              suman=suman+R%Ref(j)%intens
+              sumaw=sumaw+ sig*((intav_fun(i)-R%Ref(j)%intens)**2)/R%Ref(j)%sigma**2
+              sumanw=sumanw+sig*(R%Ref(j)%intens/R%Ref(j)%sigma)**2
+            end if
+          end do
+        end do
+        Rint = 100.0*suma/max(1.0,suman)
+        Rwint= 100.0*sqrt(sumaw/max(1.0,sumanw))
+        write(unit=*,fmt="(/a,i10)")   " => Number of fundamental obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(/a,i10)") " => Number of fundamental obs. with equival.  reflections: ", nequiv
+        write(unit=iou,fmt="(a,f10.2)")" => R-internal for fundamental equivalent reflections (%): ", Rint
+        write(unit=iou,fmt="(a,f10.2)")" => R-weighted for fundamental equivalent reflections (%): ", Rwint
+        write(unit=*,fmt="(a,f10.2)")  " => R-internal for fundamental equivalent reflections (%): ", Rint
+        write(unit=*,fmt="(a,f10.2)")  " => R-weighted for fundamental equivalent reflections (%): ", Rwint
+
+      end if
+
     End Subroutine Treat_Reflections_nonConv
 
     Subroutine Treat_Reflections_Conv(R,cond,cell,SpG,kinfo,Gk,tw,lun)
