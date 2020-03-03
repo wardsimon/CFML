@@ -138,6 +138,7 @@
                 nr=nr-1
                 exit
                end if
+               if(Ob(nr)%idomain == 0) Ob(nr)%idomain =1
                h1(:)=real(Ob(nr)%h(:))
                if(cond%transf_ind) then
                  h2=matmul(cond%transhkl,h1)
