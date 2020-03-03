@@ -1247,7 +1247,7 @@ SubModule (CFML_IOForm) IOF_CFL
 
          Select Case(uline)
 
-           Case("NQVECT","NKVECT","NKVEC","NQVECT")
+           Case("NQVECT","NKVECT","NKVEC","NQVEC")
               Read(unit=line,fmt=*,iostat=ier) kinfo%nk, kinfo%nq
               if(ier /= 0) then
                 Err_CFML%Ierr=1

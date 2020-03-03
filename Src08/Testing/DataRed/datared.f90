@@ -113,7 +113,7 @@
                call Write_SpaceGroup_Info(twSpG,lun)
              end if
              Call Write_Reflections(Ref,cond,kinf,lun)
-             if(cond%prop .and. SpG%mag_type == 1 .and. kinf%nk <= 1 ) then
+             if(cond%prop .and. SpG%mag_type == 1 .and. kinf%nk <= 1 .and. cond%hkl_type /= 11) then
                Call Treat_Reflections(Ref,cond,cell,SpG,kinf,Gk(1),tw,lun)
              else
                if(kinf%nk == 0) then

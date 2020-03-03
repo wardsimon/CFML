@@ -30,6 +30,8 @@
       logical :: absent       = .false.
       logical :: lauetof      = .false.
       logical :: scale_given  = .false.
+      logical :: magnetic     = .false.
+      logical :: mag_only     = .false.
       character(len=:), allocatable :: title,forma
       character(len=:), allocatable :: filhkl
       character(len=:), allocatable :: fileout
@@ -57,6 +59,7 @@
       integer                   :: icod    = 0    ! Code for treating the reflection
       integer                   :: pfn     = 0    ! Indicator of problem with the reflection
       integer                   :: numor   = 0    ! Number order in the data collection
+      integer                   :: pti     = 0    ! Pointer to the list of independent reflections
     End Type ObsRef
 
     Type, public :: Reflection_List
@@ -127,6 +130,12 @@
 
             Case("STATISTICS")
               cond%statistics=.true.
+
+            Case("MAGNETIC")
+              cond%magnetic=.true.
+
+            Case("MAG_ONLY")
+              cond%mag_only=.true.
 
             Case("EPSIL")
                read(unit=line(j:),fmt=*)  cond%epsg

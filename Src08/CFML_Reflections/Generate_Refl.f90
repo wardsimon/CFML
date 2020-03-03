@@ -10,7 +10,7 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
    !!----
    !!---- 21/06/2019
    !!
-   Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only)
+   Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only,Friedel)
       !---- Arguments ----!
       class(Cell_G_Type),                          intent(in)     :: Cell
       real(kind=cp),                               intent(in)     :: Sintlmax
@@ -22,6 +22,7 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
       character(len=*),              optional,     intent(in)     :: Order
       logical,                       optional,     intent(in)     :: Powder
       logical,                       optional,     intent(in)     :: Mag_only
+      logical,                       optional,     intent(in)     :: Friedel
 
       !---- Local variables ----!
       real(kind=cp)         :: epsr=0.00001, delt=0.0001
@@ -33,13 +34,15 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
       integer,      dimension(:),   allocatable :: indx,indtyp,ind,ini,fin,itreat
 
       real(kind=cp),dimension(:),   allocatable :: sv,sm
-      logical                                   :: kvect,ordering,magg
+      logical                                   :: kvect,ordering,magg,Frd
 
       !> Init
       Dd=3
       ordering=.false.
       kvect=.false.
       magg=.false.
+      Frd=.true.
+      if(present(Friedel)) Frd=Friedel
       if (present(mag_only)) magg=mag_only
       if (present(order) .or. present(powder)) ordering=.true.
       if (present(kinfo)) then
@@ -194,8 +197,8 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
                   do j=i+1,num_ref  !look for equivalent reflections to the current (i) in the list
                      if (abs(sm(i)-sm(j)) > delt) exit
                      kk=hklm(:,j)
-                     if (h_equiv(hh,kk,SpG,.true.)) then ! if  hh eqv kk Friedel law assumed
-                        itreat(j) = i                    ! add kk to the list equivalent to i
+                     if (h_equiv(hh,kk,SpG,Frd)) then ! if  hh eqv kk (Friedel law according to Frd)
+                        itreat(j) = i                 ! add kk to the list equivalent to i
                         fin(indp) = j
                      end if
                   end do
@@ -247,7 +250,7 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
          end do do_n
          reflex(i)%s      = sv(i)
          if (present(SpG)) then
-            reflex(i)%mult = h_mult(reflex(i)%h,SpG,.true.)
+            reflex(i)%mult = h_mult(reflex(i)%h,SpG,Frd)
         else
            reflex(i)%mult = 1
         end if

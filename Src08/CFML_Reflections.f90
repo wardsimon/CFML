@@ -185,13 +185,14 @@ Module CFML_Reflections
          logical                                   :: info
       End Function H_Equiv
 
-      Module Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List)
+      Module Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List,ipos)
          !---- Arguments ----!
          integer, dimension(:),    intent (in) :: H
          class(SpG_Type),          intent (in) :: SpG
          Logical,                  intent (in) :: Friedel
          integer,                  intent(out) :: mult
          integer, dimension(:,:),  intent(out) :: h_list
+         integer, optional,        intent(out) :: ipos
       End Subroutine H_Equiv_List
 
       Module Function H_Mult(H, SpG, Friedel) Result(N)
@@ -295,7 +296,7 @@ Module CFML_Reflections
          integer, dimension(3)               :: k
       End Function Get_Asymm_Unit_H
 
-      Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only)
+      Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only,Friedel)
          !---- Arguments ----!
          class(Cell_G_Type),                          intent(in)     :: Cell
          real(kind=cp),                               intent(in)     :: Sintlmax
@@ -307,6 +308,7 @@ Module CFML_Reflections
          character(len=*),              optional,     intent(in)     :: Order
          logical,                       optional,     intent(in)     :: Powder
          logical,                       optional,     intent(in)     :: Mag_only
+         logical,                       optional,     intent(in)     :: Friedel
       End Subroutine Gener_Reflections
 
       Module Subroutine Init_Refl_Conditions()

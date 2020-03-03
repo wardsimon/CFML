@@ -15,6 +15,8 @@
     private
     public :: Treat_Reflections
 
+    real(kind=cp), parameter :: s_eps=0.00001
+
     Interface Treat_Reflections
       module procedure Treat_Reflections_Conv
       module procedure Treat_Reflections_nonConv
@@ -31,6 +33,178 @@
       type(kvect_Info_Type),intent(in)     :: kinfo
       type(Twin_Type),      intent(in)     :: tw
       integer,optional,     intent(in)     :: lun
+
+      real(kind=cp) :: total, sig, suma, sumai,suman, sumaw, sumanw, Rint, Rwint, aver_sig, &
+                       sigg, int_rej, q2, aver_int, Sintlmax,delt
+      integer       :: i,j,k, iou, ier, iv, ns, rej, ival,  nkv, nn, ihkl, irej,&
+                       indp, nequiv, L, drej, Lmin,i_refout, D
+      logical :: absent,twin_acc
+      integer :: n,ipos,mult        !123456789012345678901234567890
+      character(len=37) :: fm1="(i8, i4,a,2f12.3,i12,f10.4)"
+      character(len=34) :: fm2="(a, i4,i4,2i7,2f12.3,a/)"
+      character(len=33) :: fm3="( i4,2F14.4,i5,4f8.2,a)"
+      integer, dimension(R%nref)                      :: itreat,ini,fin,nt
+      integer, dimension(size(R%Ref(1)%h))            :: hh,kk
+      integer, dimension(size(R%Ref(1)%h),R%nref)     :: h_rep
+      integer, dimension(size(R%Ref(1)%h),SpG%Multip) :: h_list
+      real(kind=cp),    dimension(R%nref)             :: intav, sigmav, sigstat, warn
+      real(kind=cp),    dimension(256)                :: weight  ! A maximum of 256 reflections equivalent to one of them can be treated
+      character(len=*),parameter,dimension(0:1) :: warn_mess=["                      ",  &
+                                                               " <- Dubious reflection"]
+
+
+      !class(Refl_Type),dimension(:), allocatable :: Reflex
+      D=size(R%Ref(1)%h)
+      write(unit=fm1(5:5),fmt="(i1)") D
+      write(unit=fm2(4:4),fmt="(i1)") D
+      write(unit=fm3(2:2),fmt="(i1)") D
+      warn=0
+      iou=6
+      if(present(lun)) iou=lun
+      Sintlmax=R%Ref(R%nref)%s+s_eps
+      open(newunit=ihkl,file=trim(cond%fileout)//".int",status="replace",action="write")
+      open(newunit=irej,file=trim(cond%fileout)//".rej",status="replace",action="write")
+
+      !Select Case (mode)
+      !  Case("SUPER")
+      !    call Gener_Reflections(Cell,Sintlmax,cond%magnetic,Num_Ref,Reflex,SpG,kinfo,"order",.true.,cond%mag_only)
+      !  Case("SHUB")
+      !    call Gener_Reflections(Cell,Sintlmax,cond%magnetic,Num_Ref,Reflex,SpG,order="order",powder=.true.,mag_only=cond%mag_only)
+      !End Select
+      !Loop to determine to which independent reflection set belong the experimental reflections
+
+      itreat=0; ini=0; fin=0; rej=0; total=0.0
+      indp=0
+      do i=1,R%nref       !Loop over all reflections
+         hh(:)=R%Ref(i)%h
+         if(H_absent(hh,SpG)) then !"( i4,2F14.4,i5,4f8.2,a)"
+          write(unit=irej,fmt=fm3) R%Ref(i)%h,R%Ref(i)%intens,R%Ref(i)%sigma,1,R%Ref(i)%twtheta,0.0,0.0,0.0,"  <-- Forbidden reflection"
+          rej=rej+1
+          cycle
+         end if
+         if (itreat(i) == 0) then   !If not yet treated do the following
+            indp=indp+1  !update the number of independent reflections
+            itreat(i)=i  !Make this reflection treated
+            ini(indp)=i  !put pointers for initial and final equivalent reflections
+            fin(indp)=i
+            n=1
+            !id(:,n,indp)=hh
+            intav(indp)=R%Ref(i)%Intens
+            sigmav(indp)=R%Ref(i)%sigma
+            sigg=R%Ref(i)%sigma
+            sigstat(indp)=R%Ref(i)%sigma*R%Ref(i)%sigma
+            sig=1.0/R%Ref(i)%sigma**2
+            sumai=sig*R%Ref(i)%intens
+            call H_Equiv_List(hh, SpG, cond%Friedel, Mult,H_List,ipos)
+            h_rep(:,indp)=H_List(:,ipos)
+            do j=i+1,R%nref  !look for equivalent reflections to the current (i) in the list
+               if (itreat(j) /= 0) cycle
+               kk=R%Ref(j)%h
+               if(H_absent(kk,SpG)) then
+                 rej=rej+1
+                 cycle
+               end if
+               if (abs(R%Ref(i)%s-R%Ref(j)%s) > s_eps) exit
+               if (h_equiv(hh,kk,SpG,cond%Friedel)) then ! if  hh eqv kk (Friedel law according to Frd)
+                  itreat(j) = i                 ! add kk to the list equivalent to i
+                  fin(indp) = j
+                  n=n+1
+                  !id(:,n,indp)=kk
+                  nt(indp)=n
+                  intav(indp)=intav(indp)+R%Ref(j)%Intens
+                  sigg=sigg+R%Ref(j)%sigma
+                  sigstat(indp)=sigstat(indp)+R%Ref(j)%sigma*R%Ref(j)%sigma
+                  weight(n)=1.0/R%Ref(j)%sigma**2
+                  sig=sig + weight(n)
+                  sumai=sumai+weight(n)*R%Ref(j)%intens
+                  write(unit=iou,fmt=fm1) j,kk,"                  ",R%Ref(j)%intens,R%Ref(j)%sigma,R%Ref(j)%numor,R%Ref(j)%twtheta
+               end if
+            end do
+            weight(1:n)=weight(1:n)/sig
+            sigstat(indp) = sqrt(sigstat(indp))/real(n)
+            intav(indp)=intav(indp)/real(n)
+            sigg=sigg/real(n)
+
+            suma=0.0
+            ns=0
+            do j=ini(indp),fin(indp)
+              if(itreat(j) == i) then
+                ns=ns+1
+                delt= intav(indp)-R%Ref(j)%intens
+                if(abs(delt)/intav(indp) > cond%warning) warn(indp)=1
+                suma=suma+weight(ns)*delt*delt
+              end if
+            end do
+            sigmav(indp)=sqrt(suma)
+            if(sigmav(indp) < sigg) sigmav(indp) = sigg
+            sumai=sumai/sig
+            ! Use statistical errors instead of experimental variance
+            if(cond%statistics) sigmav(indp)=sigstat(indp)
+            total=total+sigmav(indp)
+            write(unit=iou,fmt=fm2)"   =>   ",h_rep(:,indp),nt(indp),ini(indp),fin(indp),intav(indp),sigmav(indp),trim(warn_mess(warn(indp)))
+            write(unit=ihkl,fmt=fm3) h_rep(:,indp),intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,trim(warn_mess(warn(indp)))
+         end if !itreat
+      end do
+      !
+      ! Second loop over reflections to calculate R-int
+      !
+      nequiv=0
+      suma =0.0
+      suman=0.0
+      sumaw =0.0
+      sumanw=0.0
+      do i=1,indp
+        k=ini(i)
+        if(nt(i) < 2 ) cycle
+        sig=0.0
+        n=0
+        do j=ini(i),fin(i)
+          if(itreat(j) == k) then
+            n=n+1
+            sig=sig+1.0/R%Ref(j)%sigma**2
+          end if
+        end do
+        sig=1.0/sig
+        do j=ini(i),fin(i)
+          if(itreat(j) == k) then
+            nequiv=nequiv+1
+            suma=suma+abs(intav(i)-R%Ref(j)%intens)
+            suman=suman+R%Ref(j)%intens
+            sumaw=sumaw+ sig*((intav(i)-R%Ref(j)%intens)**2)/R%Ref(j)%sigma**2
+            sumanw=sumanw+sig*(R%Ref(j)%intens/R%Ref(j)%sigma)**2
+          end if
+        end do
+      end do
+      Rint = 100.0*suma/max(1.0,suman)
+      Rwint= 100.0*sqrt(sumaw/max(1.0,sumanw))
+      aver_sig= total/real(indp)
+      aver_int=suman/real(indp)
+
+
+      write(unit=iou,fmt="(/,a,i10)")" => Number of reflections read               : ", R%nref
+      write(unit=iou,fmt="(a,i10)")  " => Number of valid independent   reflections: ", indp
+      write(unit=iou,fmt="(a,i10)")  " => Number of obs. with equival.  reflections: ", nequiv
+      write(unit=iou,fmt="(a,i10)")  " => Number of rejected (absences) reflections: ", rej
+      write(unit=iou,fmt="(a,f10.2)")" => R-internal for equivalent reflections (%): ", Rint
+      write(unit=iou,fmt="(a,f10.2)")" => R-weighted for equivalent reflections (%): ", Rwint
+      write(unit=iou,fmt="(a,f10.2)")" => Average Intensity of reflections         : ", aver_int
+      write(unit=iou,fmt="(a,f10.2)")" => Average sigma for equivalent reflections : ", aver_sig
+
+
+      write(unit=*,fmt="(/,a,i10)")" => Number of reflections read               : ", R%nref
+      write(unit=*,fmt="(a,i10)")  " => Number of valid independent   reflections: ", indp
+      write(unit=*,fmt="(a,i10)")  " => Number of obs. with equival.  reflections: ", nequiv
+      write(unit=*,fmt="(a,i10)")  " => Number of rejected (absences) reflections: ", rej
+      write(unit=*,fmt="(a,f10.2)")" => R-internal for equivalent reflections (%): ", Rint
+      write(unit=*,fmt="(a,f10.2)")" => R-weighted for equivalent reflections (%): ", Rwint
+      write(unit=*,fmt="(a,f10.2)")" => Average Intensity of reflections         : ", aver_int
+      write(unit=*,fmt="(a,f10.2)")" => Average sigma for equivalent reflections : ", aver_sig
+      if(cond%twinned) then
+         write(unit=iou,fmt="(a,i10)")    " => Number of domain rejected reflections    : ", drej
+         write(unit=*  ,fmt="(a,i10)")    " => Number of domain rejected reflections    : ", drej
+         write(unit=iou,fmt="(a,f10.2)")  " => Average intensity of domain rejected ref.: ", int_rej
+         write(unit=*,  fmt="(a,f10.2)")  " => Average intensity of domain rejected ref.: ", int_rej
+      end if
     End Subroutine Treat_Reflections_nonConv
 
     Subroutine Treat_Reflections_Conv(R,cond,cell,SpG,kinfo,Gk,tw,lun)
@@ -58,7 +232,7 @@
       character(len=*),parameter,dimension(0:1) :: warn_mess=["                      ",  &
                                                                " <- Dubious reflection"]
       real    :: total, sig, suma, suman, sumaw, sumanw, Rint, Rwint, aver_sig, &
-                 wavel,sigg, int_rej, epsg, delt,  scal_fact, q2, aver_int
+                 wavel,sigg, int_rej, epsg, delt, q2, aver_int
       integer :: i,j,k, iou, ier, iv, ns, rej, ival,  nkv, nn, ihkl, irej,&
                  lenf, nin, ivp, nk, nequiv, L, drej, Lmin,i_refout
       logical :: absent,twin_acc
