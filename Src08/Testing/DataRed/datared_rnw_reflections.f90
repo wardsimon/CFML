@@ -139,10 +139,8 @@
                 exit
                end if
                if(Ob(nr)%idomain == 0) Ob(nr)%idomain =1
-               h1(:)=real(Ob(nr)%h(:))
                if(cond%transf_ind) then
-                 h2=matmul(cond%transhkl,h1)
-                 Ob(nr)%h=nint(h2)
+                 Ob(nr)%h=matmul(cond%transhkl,Ob(nr)%h)
                end if
                Ob(nr)%hr=Ob(nr)%h(1:3)
                do j=1,kinfo%nk
@@ -651,7 +649,7 @@
       integer, optional,      intent(in) :: lun
 
       integer :: iou,i,j,n,mr    !123456789012345678901234567890123456789
-      character(len=39) :: fm ="(i7, i4,a,3f8.4,2f12.3,f14.6,3f8.4,2i8)"
+      character(len=39) :: fm ="(i7, i4,a,3f9.4,2f12.3,f14.6,3f8.4,2i8)"
       character(len=:),allocatable :: line
       real(kind=cp), dimension(3)  :: hr
 
@@ -661,7 +659,11 @@
         case(0)
           line="List of read reflections"
         case default
-          line="List of read reflections with extended integer indices"
+          if(cond%hkl_type == 11) then
+             line="List of read reflections with real reciprocal space indices"
+          else
+             line="List of read reflections with extended integer indices"
+          end if
       End Select
       write(unit=iou,fmt="(/,t5,a)") line
       line=repeat("=",len_trim(line))
@@ -673,13 +675,13 @@
       if(cond%hkl_type == 11) then
         Select Case(kinfo%nk)
           case(0)         !123456789012345678901234567890123456789
-            line=" NumRef   h   k   l      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)"
+            line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
           case(1)
-            line=" NumRef   h   k   l   m      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)"
+            line=" NumRef   h   k   l   m       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
           case(2)
-            line=" NumRef   h   k   l   m   n      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)"
+            line=" NumRef   h   k   l   m   n       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
           case(3)
-            line=" NumRef   h   k   l   m   n   p      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)"
+            line=" NumRef   h   k   l   m   n   p       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
         End Select
         write(unit=iou,fmt="(a)") line
         do i=1,R%nref
@@ -688,13 +690,13 @@
       else
         Select Case(kinfo%nk)
           case(0)         !123456789012345678901234567890123456789
-            line=" NumRef   h   k   l      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
           case(1)
-            line=" NumRef   h   k   l   m      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
           case(2)
-            line=" NumRef   h   k   l   m   n      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m   n       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
           case(3)
-            line=" NumRef   h   k   l   m   n   p      Hr      Kr      Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m   n   p       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
         End Select
         write(unit=iou,fmt="(a)") line
         do i=1,R%nref
@@ -706,7 +708,11 @@
             mr=mr+1
             write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s,hr,R%Ref(i)%pfn,R%Ref(i)%numor
           else
-            write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s,R%Ref(i)%ekv
+            if(kinfo%nk == 0) then
+              write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s
+            else
+              write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s,R%Ref(i)%ekv
+            end if
           end if
         end do
       end if

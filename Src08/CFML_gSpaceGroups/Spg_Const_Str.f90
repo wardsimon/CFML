@@ -2,9 +2,9 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_019
+SubModule (CFML_gSpaceGroups) SPG_ConstructorString
    Contains
-   
+
    !!----
    !!---- SPACEG_CONSTRUCTOR_STR
    !!----
@@ -15,7 +15,7 @@ SubModule (CFML_gSpaceGroups) SPG_019
       character(len=*),           intent(in)     :: ListGen
       class(Spg_Type),            intent(in out) :: Spg
       character(len=*), optional, intent(in)     :: Strcode
-       
+
       !--- Local variables ---!
       character(len=40),    dimension(:),  allocatable :: gen1, gen
       type(Symm_Oper_Type), dimension(:),  allocatable :: Op
@@ -24,42 +24,42 @@ SubModule (CFML_gSpaceGroups) SPG_019
       type(rational),       dimension(:,:),allocatable :: Mat
       integer :: d,i,ngen1,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
 
-      !> Init 
+      !> Init
       call Clear_Error()
       call Init_SpaceGroup(Spg)
       allocate(gen1(maxnum_op))
       call Get_Generators(ListGen, d, gen1, ngen1)
       call Check_Gener(gen1, gen)
       if (Err_CFML%Ierr /= 0) return
-      
+
       ngen=size(gen)
       do i=1,ngen
          Spg%generators_list=trim(Spg%generators_list)//trim(gen(i))//";"
       end do
       Spg%generators_list=Spg%generators_list(1:len_trim(Spg%generators_list)-1)
 
-      allocate(Op(maxnum_op))       
+      allocate(Op(maxnum_op))
       do i=1,maxnum_op
          call Allocate_Op(d,Op(i))
       end do
-      
+
       allocate(Mat(d,d))
-      !> Construct the list of the generators on top of Op. 
+      !> Construct the list of the generators on top of Op.
       !> The identity is always the first operator
       do i=1,ngen
          call Get_Mat_From_Symb(gen(i), Mat, invt)
          if(Err_CFML%Ierr /= 0) return
-         
+
          Op(i+1)%Mat=Mat
          Op(i+1)%time_inv=invt
       end do
       ngen=ngen+1
-      
+
       !> Construct the raw Group
       call Get_OPS_from_Generators(ngen,Op,multip)
       if(Err_CFML%Ierr /= 0) return
 
-      !> Allocate provisionally to Multip the lattice translations 
+      !> Allocate provisionally to Multip the lattice translations
       !> and anti-Translations
       allocate(Lat_tr(d-1,multip), aLat_tr(d-1,multip))
       allocate(centre_coord(d-1),anticentre_coord(d-1))
@@ -84,12 +84,12 @@ SubModule (CFML_gSpaceGroups) SPG_019
          if (allocated(Spg%Lat_tr)) Deallocate(Spg%Lat_tr)
          allocate(Spg%Lat_tr(1:d-1,1:Num_Lat))
       end if
-      
+
       if (num_alat > 0) then
          if (allocated(Spg%aLat_tr)) Deallocate(Spg%aLat_tr)
          allocate(Spg%aLat_tr(1:d-1,1:Num_aLat))
       end if
-      
+
       if (allocated(Spg%centre_coord)) Deallocate(Spg%centre_coord)
       if (allocated(Spg%anticentre_coord)) Deallocate(Spg%anticentre_coord)
       allocate(Spg%centre_coord(1:d-1))
@@ -104,7 +104,7 @@ SubModule (CFML_gSpaceGroups) SPG_019
       Spg%anticentre_coord = anticentre_coord
       if (num_lat  > 0) Spg%Lat_tr = Lat_tr(1:d-1,1:Num_Lat)
       if (num_alat > 0) Spg%aLat_tr=aLat_tr(1:d-1,1:Num_aLat)
-      
+
       if (present(Strcode)) then
          if (trim(Strcode) /= 'xyz') then
             do i=1,Spg%Multip
@@ -114,5 +114,5 @@ SubModule (CFML_gSpaceGroups) SPG_019
       end if
    End Subroutine SpaceG_Constructor_Str
 
-End SubModule SPG_019   
-   
+End SubModule SPG_ConstructorString
+

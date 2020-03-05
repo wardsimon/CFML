@@ -32,11 +32,12 @@
       logical :: scale_given  = .false.
       logical :: magnetic     = .false.
       logical :: mag_only     = .false.
+      logical :: print_all    = .false.
       character(len=:), allocatable :: title,forma
       character(len=:), allocatable :: filhkl
       character(len=:), allocatable :: fileout
       integer                       :: hkl_type
-      real(kind=cp), dimension(3,3) :: transhkl
+      real(kind=cp), dimension(:,:),allocatable :: transhkl !Should be allocated after knowing the number of propagation vectors
       real(kind=cp), dimension(3)   :: cel,ang
       real(kind=cp)                 :: epsg, wavel
       real(kind=cp)                 :: warning=0.25  ! 25% error for warning equivalent reflections
@@ -77,7 +78,7 @@
       class(SPG_Type),       intent(out) :: SpG
       class(Cell_G_Type),    intent(out) :: Cell
       !--- Local variables ---!
-      integer :: i,j,k,n,ier
+      integer :: i,j,k,n,ier,D
       character(len=:), allocatable :: keyw
       character(len=:), allocatable :: line
 
@@ -91,9 +92,13 @@
       if(Err_CFML%Ierr /= 0) return
       cond%spg_given=.true.
 
+      D=3
       call Read_kinfo(Cfl,kinfo)
       if(Err_CFML%Ierr /= 0) return
-      if(kinfo%nk > 0) cond%prop=.true.
+      if(kinfo%nk > 0) then
+        cond%prop=.true.
+        D=D+kinfo%nk
+      end if
 
       do i=1,cfl%nlines
          line=adjustl(cfl%line(i)%str)
@@ -121,7 +126,20 @@
 
             Case("TRANS")
               cond%transf_ind=.true.
-              read(unit=line(j:),fmt=*)  ((cond%transhkl(k,j),j=1,3),k=1,3)
+              allocate(cond%transhkl(D,D))
+
+              read(unit=line(j:),fmt=*,iostat=ier)  ((cond%transhkl(k,j),j=1,D),k=1,D)
+              if(ier /= 0) then
+                write(unit=*,fmt="(a)") "Error reading the indices transforming matrix! No change of indices is performed!"
+                cond%transf_ind=.false.
+                cycle
+              end if
+              !Transform the propagation vector
+              if(cond%prop) then
+                 do k=1,kinfo%nk
+                   kinfo%kv(:,k)=matmul(cond%transhkl(1:3,1:3),kinfo%kv(:,k))
+                 end do
+              end if
 
             Case("SCALE")
               read(unit=line(j:),fmt=*,iostat=ier)  cond%scal_fact
@@ -157,6 +175,9 @@
             Case("POWDER")
                cond%powder=.true.
 
+            Case("PRINT_ALL")
+               cond%print_all=.true.
+
             Case("TWIN")
               n=i
               call read_twinlaw(cfl,n,Twins)
@@ -188,14 +209,15 @@
       Type(Conditions_Type),                     intent(in out) :: cond
       Type(Cell_G_Type),                         intent(in)     :: Cell
       class(SpG_Type),                           intent(in)     :: SpG
-      Type(kvect_info_Type),                     intent(in out) :: kinfo
+      Type(kvect_info_Type),                     intent(in)     :: kinfo
       Type(Twin_Type),                           intent(in out) :: Tw
       character(len=*),                          intent(in)     :: forma
       integer, optional,                         intent(in)     :: lun
       Type(Group_k_Type),dimension(:), optional, intent(in)     :: Gk
-      integer :: i,iou
-      character(len=10)  :: fm = "(a,  i3,a)"
+      integer :: i,iou,D
+      character(len=11)  :: fm = "(a,  i3,a)",fm2="(a, f7.2,a)"
 
+      D=3+kinfo%nk
       iou=6
       if(present(lun)) iou=lun
        write(unit=iou,fmt="(a,a)")   " Input        Control  file: ", trim(cfl%fname)
@@ -271,7 +293,21 @@
           write(unit=iou,fmt="(a)") " => hkl indices will be treated as real numbers "
        end if
 
+       if(cond%transf_ind) then
+          write(unit=fm2(4:4),fmt="(i1)") D
+          write(unit=iou,fmt="(a)")         " => Input indices have been trasformed according to the matrix: "
+          write(unit=iou,fmt=fm2)           "         (Hnew)     (",cond%transhkl(1,:)," )   (Hold)"
+          write(unit=iou,fmt=fm2)           "         (Knew)  =  (",cond%transhkl(2,:)," )   (Kold)"
+          write(unit=iou,fmt=fm2)           "         (Lnew)     (",cond%transhkl(3,:)," )   (Lold)"
+          if(D > 3)write(unit=iou,fmt=fm2)  "         (Mnew)     (",cond%transhkl(4,:)," )   (Mold)"
+          if(D > 4)write(unit=iou,fmt=fm2)  "         (Nnew)     (",cond%transhkl(5,:)," )   (Nold)"
+          if(D > 5)write(unit=iou,fmt=fm2)  "         (Pnew)     (",cond%transhkl(6,:)," )   (Pold)"
+       end if
+
        if(cond%prop) then
+         if(cond%transf_ind) then
+           write(unit=iou,fmt="(/,a)")                   "  The modulation vectors have been transformed according to the above matrix "
+         end if
          write(unit=iou,fmt="(/,a,i4)")                   "  Number of modulation vectors: ",kinfo%nk
          write(unit=iou,fmt="(a)")                        "  Q-vectors & harmonics & maximum SinTheta/Lambda: "
          do i=1,kinfo%nk
@@ -299,19 +335,6 @@
          end if
        end if
 
-       if(cond%transf_ind) then
-          write(unit=iou,fmt="(a)") " => Input indices trasformed with matrix: "
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Hnew)     (",cond%transhkl(1,:)," )   (Hold)"
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Knew)  =  (",cond%transhkl(2,:)," )   (Kold)"
-          write(unit=iou,fmt="(a,3f7.2,a)") "         (Lnew)     (",cond%transhkl(3,:)," )   (Lold)"
-
-          if(cond%prop) then
-            do i=1,kinfo%nk
-              kinfo%kv(:,i)=matmul(cond%transhkl,kinfo%kv(:,i))
-              write(unit=iou,fmt="(a,i3,a,3f8.4,a)") " => Transformed propagation vector # ", i,"  [",kinfo%kv(:,i),"]"
-            end do
-          end if
-       end if
 
        if(cond%cell_given) then
          call Write_Crystal_Cell(Cell, iou)

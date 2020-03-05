@@ -1,13 +1,15 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
+SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
+   implicit none
    Contains
 
    Module Function Get_Multip_Pos(x,SpG) Result(mult)
       !---- Arguments ----!
       real(kind=cp), dimension(:), intent(in) :: x !Vector position in superspace
       class(SPG_Type),             intent(in) :: SpG
+      integer                                 :: mult
       !----Local Variables ---!
       real(kind=cp), dimension(size(x)+1)         :: xd,xx
       real(kind=cp), dimension(size(x))           :: v
@@ -44,15 +46,16 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
       character(len=*), optional, intent(in )    :: xyz_type
 
       !---- Local variables ----!
-      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat
-      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd
-      Type(rational), dimension(SpaceG%D-1)            :: v
-      Type(rational), dimension(SpaceG%D-1,300)        :: newLat
+      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat,Trn
+      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd,R
+      Type(rational), dimension(SpaceG%D-1)            :: v,tr,orig
+      Type(rational), dimension(SpaceG%D-1,300)        :: newLat,vi
       Type(rational) :: det
       integer :: i,j,k,l,n,m,Npos,d,Dd,im
       character(len=6) :: Strcode
       type(spg_type)   :: SpG !Auxiliary space group
       logical          :: centring
+      character(len=40),dimension(SpaceG%D,SpaceG%D) :: matrix
 
       Dd=SpaceG%D
       d=Dd-1
@@ -299,10 +302,11 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
      integer,                        intent(in out) :: nL !number of provisory lattice vectors
      type(rational), dimension(:,:), intent(in out) :: Latv
 
-     integer :: i,j,k1,k2,lm,nlat,Lat_ini
+     logical :: is_new
+     integer :: i,j,k,k1,k2,lm,nlat,Lat_ini,L
      type(rational), dimension(size(Latv,1),size(Latv,2))  :: latinv
      type(rational), dimension(size(Latv,1))               :: v,v1,v2
-
+     logical :: isnew
      if(nL == 0) return
      L=nl
      nlat=size(Latv,2)
@@ -358,13 +362,14 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
       character(len=*), optional, intent(in ) :: database_path
 
       !---- Local Variables ----!
-      integer                         :: i,j,d, Dd, La, idem,ier
+      integer                         :: i,j,k,d, Dd, L,La, idem,ier, num, n,m, iclass, nmod
       character(len=5)                :: data_typ
       character(len=6)                :: xyz_typ
       character(len=256)              :: line
       logical                         :: change_setting,centring
       type(rational), dimension(4,4)  :: identity
       type(rational), dimension(3,3)  :: mag_mat,ident3
+      type(rational)                  :: sumabs
       type(rational), dimension(:,:) ,allocatable  ::inv
       type(Symm_Oper_Type)            :: transla
 
@@ -431,6 +436,7 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
           SpaceG%BNS_symb=spacegroup_label_bns(num)
           SpaceG%OG_symb =spacegroup_label_og(num)
           SpaceG%mag_type=magtype(num)
+          SpaceG%init_label=Str
           ! Crystal system
           Select Case (num)
             case(1:7)
@@ -668,7 +674,6 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
         !---------------------------------------
         case ("SUPER")  !Read the superspace Database
         !---------------------------------------
-          !Get the number of the superspace group
           if(present(database_path)) then
              call Read_single_SSG(str,num,database_path)
           else
@@ -695,10 +700,11 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
 
           SpaceG%Centre="Acentric"                    ! Alphanumeric information about the center of symmetry
           SpaceG%Parent_num=igroup_spacegroup(num)    ! Number of the parent Group
-          SpaceG%Num_Lat=iclass_ncentering(iclass)-1  ! Number of centring points in a cell (notice that in the data base
-                                                      ! what is stored ins the number of lattice points per cell: Num_lat+1)
+          SpaceG%Num_Lat=iclass_ncentering(iclass)-1  ! Number of centring points in a cell (notice that in the data base what is stored is the number of lattice points per cell: Num_lat+1)
+          SpaceG%SPG_Lat="P"                          ! Assume initially that the cell is primitive
           SpaceG%CrystalSys=" "                       ! Crystal System
           SpaceG%Pg=" "                               ! Point group
+          SpaceG%init_label=Str
           SpaceG%Mag_Pg=" "                           ! Magnetic Point group
           SpaceG%Laue=" "                             ! laue class
           SpaceG%setting=" "                          ! setting
@@ -841,16 +847,23 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
       character(len=*),  dimension(:), optional, intent(in ) :: Gen
 
       !---- Local Variables ----!
-      integer            :: i,n_gen, n_it, d, ier
-      integer            :: n_laue, n_pg
+      integer            :: i,j,n_gen, n_it, d, ier
+      integer            :: n_laue, n_pg, nfin
       character(len=40), dimension(:), allocatable :: l_gen
       character(len=20)                            :: str_HM, str_HM_std, str_Hall, str_CHM
       character(len=5)                             :: car
       character(len=256)                           :: gList
+      real(kind=cp), dimension(3)                  :: co
 
-      logical :: by_Gen=.false., by_Hall=.false.
+      integer                          :: n
+      type(rational), dimension(3)     :: ta,tb,tc,ti,tr1,tr2
+      type(rational), dimension(3,3)   :: P,Mp,Mc,M
+      type(rational), dimension(3,3,6) :: A
+
+      logical :: by_Gen=.false., by_Hall=.false., ok1=.false., ok2=.false., ok3=.false.
 
       !> Init
+
       n_gen=0
       gList=" "
       n_it=0
@@ -860,6 +873,12 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
       str_HM_std=" "
       n_laue=0
       n_pg=0
+      tc=[1.0/2.0,1.0/2.0,0.0]
+      tb=[1.0/2.0,0.0,1.0/2.0]
+      ta=[0.0,1.0/2.0,1.0/2.0]
+      ti=[1.0/2.0,1.0/2.0,1.0/2.0]
+      tr2=[1.0/3.0,2.0/3.0,2.0/3.0]
+      tr1=[2.0/3.0,1.0/3.0,1.0/3.0]
       call clear_error()
 
       call Init_SpaceGroup(SpaceG)
@@ -911,7 +930,7 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
          end if
 
          !> Is HM symbol defined in SPGR_INFO?
-         if (n_it ==0) then
+         if (n_it == 0) then
             str_HM=u_case(trim(Str))
             do i=1,NUM_SPGR_INFO
                if (trim(str_HM) /= trim(spgr_info(i)%hm)) cycle
@@ -926,13 +945,12 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
                if (trim(str_HM_std)==trim(str_HM)) then
                   gList=get_IT_Generators(car)
                end if
-
                exit
             end do
          end if
 
          !> Is Hall symbol defined in SPGR_INFO?
-         if (n_it ==0) then
+         if (n_it == 0) then
             Str_Hall=l_case(trim(Str))
             if (str_hall(1:1) == '-') then
                str_hall(2:2)=u_case(str_hall(2:2))
@@ -957,7 +975,7 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
          end if
 
          !> Is compact HM symbol?
-         if (n_it ==0) then
+         if (n_it == 0) then
             Str_CHM=u_case(trim(Str))
             call Get_SpaceGroup_Symbols(str_CHM, str_HM)
             do i=1,NUM_SPGR_INFO
@@ -976,8 +994,6 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
                exit
             end do
          end if
-
-
          if (len_trim(gList) == 0) then
             call Get_Generators(str_hall,l_gen,n_gen)
             if (Err_CFML%Ierr /= 0) return
@@ -985,7 +1001,6 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
          else
             call Get_Generators(gList, d, l_gen, n_gen)
          end if
-
       else
          by_Gen=.true.
          allocate(l_gen(n_gen))
@@ -994,10 +1009,41 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
 
       !> Generate the spacegroup
       call Group_Constructor(l_gen,SpaceG)
+      SpaceG%init_label=Str
       if (Err_CFML%Ierr /= 0) return
       if(len_trim(str_hall) /= 0) SpaceG%Hall=str_hall
 
-
+      Select Case (SpaceG%Num_lat)
+        Case(0)
+           SpaceG%SPG_lat="P"
+        Case(1)
+           if(Rational_Equal(SpaceG%Lat_tr(1:3,1),tc)) SpaceG%SPG_lat="C"
+           if(Rational_Equal(SpaceG%Lat_tr(1:3,1),tb)) SpaceG%SPG_lat="B"
+           if(Rational_Equal(SpaceG%Lat_tr(1:3,1),ta)) SpaceG%SPG_lat="A"
+           if(Rational_Equal(SpaceG%Lat_tr(1:3,1),ti)) SpaceG%SPG_lat="I"
+        Case(2)
+           if(Rational_Equal(SpaceG%Lat_tr(1:3,1),tr1) .and. &
+              Rational_Equal(SpaceG%Lat_tr(1:3,2),tr2)) then
+              SpaceG%SPG_lat="R"
+           else if(Rational_Equal(SpaceG%Lat_tr(1:3,2),tr2) .and. &
+                   Rational_Equal(SpaceG%Lat_tr(1:3,1),tr1)) then
+              SpaceG%SPG_lat="R"
+           end if
+        Case(3)
+           ok1=.false.; ok2=.false.; ok3=.false.
+           do i=1,3
+             if(Rational_Equal(SpaceG%Lat_tr(1:3,i),ta)) ok1=.true.
+           end do
+           do i=1,3
+             if(Rational_Equal(SpaceG%Lat_tr(1:3,i),tb)) ok2=.true.
+           end do
+           do i=1,3
+             if(Rational_Equal(SpaceG%Lat_tr(1:3,i),tc)) ok3=.true.
+           end do
+           if(ok1 .and. ok2 .and. ok3) SpaceG%SPG_lat="F"
+        Case Default
+           SpaceG%SPG_lat="X"
+      End Select
       !> Identify Group Only for Crystallographic or Shubnikov groups
       if(SpaceG%D == 4) then
         call Identify_Group(SpaceG)
@@ -1018,4 +1064,4 @@ SubModule (CFML_gSpaceGroups) Setting_General_SpaceGroups
 
    End Subroutine Set_SpaceGroup_gen
 
-End SubModule Setting_General_SpaceGroups
+End SubModule Set_SpaceGroup_Procedures

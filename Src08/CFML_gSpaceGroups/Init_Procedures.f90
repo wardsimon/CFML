@@ -49,6 +49,7 @@ SubModule (CFML_gSpaceGroups) Init_Proc
             mGrp%spg_lat     = " "
             mGrp%shu_lat(1)  = " "
             mGrp%shu_lat(2)  = " "
+            mGrp%init_label  = "       "
             mGrp%Parent_spg  = "       "
             mGrp%tfrom_parent= "       "
             mGrp%setting     = "       "

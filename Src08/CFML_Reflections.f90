@@ -54,7 +54,7 @@ Module CFML_Reflections
 
    !---- List of public functions ----!
    public :: H_Absent, mH_Absent , H_Equal, H_Latt_Absent , H_Equiv, H_Mult, H_S, &
-             Get_MaxNumRef, Get_Asymm_Unit_H
+             Get_MaxNumRef, Get_Asymm_Unit_H, Get_h_info
 
    !---- List of public subroutines ----!
    public :: H_Equiv_List, Initialize_RefList, Gener_Reflections, Search_Extinctions, &
@@ -310,6 +310,13 @@ Module CFML_Reflections
          logical,                       optional,     intent(in)     :: Mag_only
          logical,                       optional,     intent(in)     :: Friedel
       End Subroutine Gener_Reflections
+
+      Module Function Get_h_info(h,SpG,mag)  Result(info)
+         integer, dimension(:), intent (in) :: h
+         class(SpG_Type),       intent (in) :: SpG
+         logical,               intent (in) :: mag
+         integer, dimension(4)              :: info
+      End Function Get_h_info
 
       Module Subroutine Init_Refl_Conditions()
          !---- Arguments ----!

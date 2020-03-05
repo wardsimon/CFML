@@ -109,6 +109,7 @@ Module CFML_gSpaceGroups
        integer                                    :: Bravais_num=0     ! Number of the Bravais class of the superspace (Stokes & Campbell database)
        character(len=1)                           :: spg_lat  =" "     ! Lattice type
        character(len=1), dimension(2)             :: shu_lat  =" "     ! Shubnikov lattice type
+       character(len=:),              allocatable :: init_label        ! Symbol of the space group provided for generating it
        character(len=:),              allocatable :: Parent_spg        ! Symbol of the crystallographic space group
        character(len=:),              allocatable :: tfrom_parent      ! Transformation of the parent basis to get the actual one
        character(len=:),              allocatable :: Centre            ! Alphanumeric information about the center of symmetry

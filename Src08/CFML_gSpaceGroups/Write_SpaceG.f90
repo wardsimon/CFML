@@ -36,6 +36,7 @@ SubModule (CFML_gSpaceGroups) SPG_006
             write(unit=iout,fmt="(a,i6)")                                     "                       Centred: ",Grp%centred
             write(unit=iout,fmt="(a,i6)")                                     "     Num. Centring translation: ",Grp%num_lat
             write(unit=iout,fmt="(a,i6)")                                     "        Num. Anti-translations: ",Grp%num_alat
+            if(len_trim(Grp%init_label) /= 0)   write(unit=iout,fmt="(a, a)") "        Space Group Init Label: ",trim(Grp%init_label)
             if(len_trim(Grp%Crystalsys) /= 0)   write(unit=iout,fmt="(a, a)") "                Crystal system: ",trim(Grp%Crystalsys)
             if(len_trim(Grp%centre) /= 0)       write(unit=iout,fmt="(a, a)") "            Centre of symmetry: ",trim(Grp%centre)
             if(len_trim(Grp%pg) /=0 )           write(unit=iout,fmt="(a, a)") "  Crystallographic Point group: ",trim(Grp%pg)
@@ -83,6 +84,7 @@ SubModule (CFML_gSpaceGroups) SPG_006
             if(len_trim(Grp%laue) /= 0)        write(unit=iout,fmt="(a, a)")     "                    Laue class: ",trim(Grp%laue)
             if(Grp%numspg /= 0)                write(unit=iout,fmt="(a,i4)")     "            Space Group number: ",Grp%numspg
             if(Grp%numshu /= 0)                write(unit=iout,fmt="(a,i4)")     "        Shubnikov Group number: ",Grp%numshu
+            if(len_trim(Grp%init_label) /= 0)  write(unit=iout,fmt="(a, a)")     "        Space Group Init Label: ",trim(Grp%init_label)
             if(len_trim(Grp%spg_symb) /= 0)    write(unit=iout,fmt="(a, a)")     "            Space Group symbol: ",trim(Grp%spg_symb)
             if(len_trim(Grp%Hall) /= 0)        write(unit=iout,fmt="(a, a)")     "                   Hall symbol: ",trim(Grp%Hall)
             if(len_trim(Grp%bns_symb) /= 0)    write(unit=iout,fmt="(a, a)")     "    Shubnikov Group BNS-symbol: ",trim(Grp%bns_symb)

@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) SPG_020
+SubModule (CFML_gSpaceGroups) SPG_ConstructorGen
    Contains
 
    !!----
@@ -122,4 +122,4 @@ SubModule (CFML_gSpaceGroups) SPG_020
       end if
    End Subroutine SpaceG_Constructor_GenV
 
-End SubModule SPG_020
+End SubModule SPG_ConstructorGen
