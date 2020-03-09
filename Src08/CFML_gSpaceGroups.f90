@@ -51,7 +51,7 @@ Module CFML_gSpaceGroups
     Use CFML_Magnetic_Database
     Use CFML_SuperSpace_Database
     Use CFML_GlobalDeps,        only: CP, LI, EPS, err_cfml, clear_error, CFML_Debug
-    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ, Get_eps_math, Zbelong
+    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ, Get_eps_math, Zbelong,EPSS
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                       get_words, String_Fraction_2Dig
 
@@ -145,6 +145,19 @@ Module CFML_gSpaceGroups
        integer,       allocatable,dimension(:)    :: nharm     ! number of harmonics along each k-vector
        integer,       allocatable,dimension(:,:)  :: q_coeff   ! Q_coeff(nk,nq)
     End Type SuperSpaceGroup_Type
+
+    !!----
+    !!---- TYPE :: KVECT_INFO_TYPE
+    !!--..
+    !!
+    Type, public :: Kvect_Info_Type
+       integer                                      :: nk=0        ! Number of independent k-vectors
+       real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
+       real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
+       integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
+       integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
+       integer,allocatable,dimension(:,:)           :: q_coeff     ! number of q_coeff(nk,nq)
+    End Type kvect_info_type
 
     !---- Private Variables ----!
     integer,          dimension(0:2), parameter :: CENT=[2,1,2]       ! Multiplier for calculating the total multiplicity

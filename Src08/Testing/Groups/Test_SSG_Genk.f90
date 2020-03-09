@@ -56,5 +56,5 @@
         !Translations along extra coordinates allowed for the different order of operators
         !  t =  0  1/2  1/3  -1/3   1/4  -1/4   1/6   -1/6
         !Symb   0   s    t   -t      q    -q     h     -h
-      Subroutine Get_Symbol_SSG_from_Operators
+      End Subroutine Get_Symbol_SSG_from_Operators
     End Program Test_ssg_Genk

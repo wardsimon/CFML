@@ -49,11 +49,9 @@ Module CFML_IOForm
                                       AtList_Type, Allocate_Atom_List
     Use CFML_Metrics,           only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
                                       get_U_from_Betas, get_Betas_from_U, get_Betas_from_B
-    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type,    &
+    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
                                       Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos
     Use CFML_Maths,             only: Get_Eps_Math
-
-    Use CFML_Reflections,       only: Kvect_Info_Type
 
     Use CFML_Rational
     !---- Variables ----!

@@ -41,7 +41,7 @@
 Module CFML_Reflections
    !---- Use Modules ----!
    Use CFML_GlobalDeps,                only: CP, PI, TPI, Err_CFML, Clear_Error
-   Use CFML_gSpaceGroups,              only: Spg_Type
+   Use CFML_gSpaceGroups,              only: Spg_Type,kvect_info_type
    Use CFML_Maths,                     only: Trace, Sort, Equal_vector
    Use CFML_Metrics,                   only: Cell_G_Type
    Use CFML_Strings,                   only: l_case
@@ -111,18 +111,6 @@ Module CFML_Reflections
       class(refl_type), dimension(:), allocatable :: Ref    ! Reflection List
    End Type RefList_Type
 
-   !!----
-   !!---- TYPE :: KVECT_INFO_TYPE
-   !!--..
-   !!
-   Type, public :: Kvect_Info_Type
-      integer                                      :: nk=0        ! Number of independent k-vectors
-      real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
-      real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
-      integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
-      integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
-      integer,allocatable,dimension(:,:)           :: q_coeff     ! number of q_coeff(nk,nq)
-   End Type kvect_info_type
 
 
    !---- Private Variables ----!
