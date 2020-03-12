@@ -294,7 +294,7 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c OnePrimeOp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Get_Stabilizer.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Get_Orb_Stabilizer_Constr.f90          /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
  rem

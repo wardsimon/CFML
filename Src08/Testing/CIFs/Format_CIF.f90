@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_IOForm) IOF_003
+SubModule (CFML_IOForm) IOF_CIFS
    Contains
    
    
@@ -1856,4 +1856,4 @@ SubModule (CFML_IOForm) IOF_003
     
    
    
-End SubModule IOF_003   
+End SubModule IOF_CIFS   

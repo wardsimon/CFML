@@ -58,7 +58,7 @@ rem      ifort /c Write_Atomos.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\Lib
 rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
+      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:150000000 
    )
 rem   
    if [%_COMP%]==[gfortran] (

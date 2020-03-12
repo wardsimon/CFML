@@ -59,6 +59,8 @@ Module CFML_Atoms
     !---- Parameters ----!
     real(kind=cp), parameter :: R_ATOM=1.1_cp      ! Average atomic radius
 
+    integer,public, parameter :: max_mod=8
+
     !---- Types ----!
 
     !!----
@@ -112,23 +114,23 @@ Module CFML_Atoms
     !!---- Cosine(c) and Sine amplitudes(s) to each model parameter characterizing
     !!---- normal atoms. Up to 8 harmonic numbers (Q_coeffs) are allowed
     !!----
-    Type, Public, Extends(Atm_Std_Type) :: MAtm_Std_Type
-       integer                          :: n_oc   = 0       ! Number of occupation amplitudes
-       integer                          :: n_mc   = 0       ! Number of moment amplitudes
-       integer                          :: n_dc   = 0       ! Number of static displacement amplitudes
-       integer                          :: n_uc   = 0       ! Number of thermal displacement amplitudes
-       integer,      dimension(8)       :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
-       integer,      dimension(8)       :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
-       integer,      dimension(8)       :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
-       integer,      dimension(8)       :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
-       real(kind=cp),dimension(2,8)     :: Ocs    = 0.0_cp  ! Ocos,Osin up to 8  (Oc, Os)
-       real(kind=cp),dimension(2,8)     :: Ocs_std= 0.0_cp  !
-       real(kind=cp),dimension(6,8)     :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
-       real(kind=cp),dimension(6,8)     :: Mcs_std= 0.0_cp  !
-       real(kind=cp),dimension(6,8)     :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
-       real(kind=cp),dimension(6,8)     :: Dcs_std= 0.0_cp  !
-       real(kind=cp),dimension(12,8)    :: Ucs    = 0.0_cp  ! Ucos,Usin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
-       real(kind=cp),dimension(12,8)    :: Ucs_std= 0.0_cp  !
+    Type, Public, Extends(Atm_Std_Type)    :: MAtm_Std_Type
+       integer                             :: n_oc   = 0       ! Number of occupation amplitudes
+       integer                             :: n_mc   = 0       ! Number of moment amplitudes
+       integer                             :: n_dc   = 0       ! Number of static displacement amplitudes
+       integer                             :: n_uc   = 0       ! Number of thermal displacement amplitudes
+       integer,      dimension(8)          :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
+       integer,      dimension(8)          :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
+       integer,      dimension(8)          :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
+       integer,      dimension(8)          :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
+       real(kind=cp),dimension(2, max_mod) :: Ocs    = 0.0_cp  ! Ocos,Osin up to 8  (Oc, Os)
+       real(kind=cp),dimension(2, max_mod) :: Ocs_std= 0.0_cp  !
+       real(kind=cp),dimension(6, max_mod) :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
+       real(kind=cp),dimension(6, max_mod) :: Mcs_std= 0.0_cp  !
+       real(kind=cp),dimension(6, max_mod) :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(6, max_mod) :: Dcs_std= 0.0_cp  !
+       real(kind=cp),dimension(12,max_mod) :: Ucs    = 0.0_cp  ! Ucos,Usin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(12,max_mod) :: Ucs_std= 0.0_cp  !
        real(kind=cp),dimension(:),   allocatable :: Xs      ! Position in superspace
        real(kind=cp),dimension(:),   allocatable :: Moms    ! Moment in superspace
        real(kind=cp),dimension(:,:), allocatable :: Us      ! Thermal factos in superspace
@@ -170,14 +172,14 @@ Module CFML_Atoms
        real(kind=cp)                            :: M_Occ     =0.0_cp
        real(kind=cp)                            :: M_U_iso   =0.0_cp
        real(kind=cp),dimension(6)               :: M_U       =0.0_cp
-       integer,      dimension(2,8)             :: L_Ocs    = 0       ! Code Numbers of parameter
-       integer,      dimension(6,8)             :: L_Mcs    = 0       !
-       integer,      dimension(6,8)             :: L_Dcs    = 0       !
-       integer,      dimension(12,8)            :: L_Ucs    = 0       !
-       real(kind=cp),dimension(2,8)             :: M_Ocs    = 0.0_cp  ! Multipliers
-       real(kind=cp),dimension(6,8)             :: M_Mcs    = 0.0_cp  !
-       real(kind=cp),dimension(6,8)             :: M_Dcs    = 0.0_cp  !
-       real(kind=cp),dimension(12,8)            :: M_Ucs    = 0.0_cp  !
+       integer,      dimension(2,max_mod)       :: L_Ocs    = 0       ! Code Numbers of parameter
+       integer,      dimension(6, max_mod)      :: L_Mcs    = 0       !
+       integer,      dimension(6, max_mod)      :: L_Dcs    = 0       !
+       integer,      dimension(12,max_mod)      :: L_Ucs    = 0       !
+       real(kind=cp),dimension(2, max_mod)      :: M_Ocs    = 0.0_cp  ! Multipliers
+       real(kind=cp),dimension(6, max_mod)      :: M_Mcs    = 0.0_cp  !
+       real(kind=cp),dimension(6, max_mod)      :: M_Dcs    = 0.0_cp  !
+       real(kind=cp),dimension(12,max_mod)      :: M_Ucs    = 0.0_cp  !
     End Type MAtm_Ref_Type
 
 
@@ -213,6 +215,7 @@ Module CFML_Atoms
     Type, Public :: AtList_Type
        integer                                    :: natoms=0      ! Number of atoms in the list
        character(len=9)                           :: mcomp="Crystal" ! For magnetic moments and modulation functions Mcs and Dcs It may be also "Cartesian" or "Spherical"
+       logical                                    :: symm_checked=.false.
        logical,         dimension(:), allocatable :: Active        ! Flag for active or not
        class(Atm_Type), dimension(:), allocatable :: Atom          ! Atoms
     End type AtList_Type

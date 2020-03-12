@@ -295,7 +295,7 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod OnePrimeOp.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod Is_Antilattice.f90                 %OPT1%
       gfortran -c %OPTC% -J..\mod ApplySO.f90                        %OPT1%
-      gfortran -c %OPTC% -J..\mod Get_Stabilizer.f90                 %OPT1%
+      gfortran -c %OPTC% -J..\mod Get_Orb_Stabilizer_Constr.f90      %OPT1%
       move /y *.o .. > nul
       cd ..
 rem

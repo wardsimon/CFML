@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_IOForm) IOF_001
+SubModule (CFML_IOForm) IOF_SHX
    Contains
    
    !!----
@@ -695,4 +695,4 @@ SubModule (CFML_IOForm) IOF_001
 
    End Subroutine Write_Shx_Template
    
-End SubModule IOF_001   
+End SubModule IOF_SHX   

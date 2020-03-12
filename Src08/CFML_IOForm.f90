@@ -50,7 +50,8 @@ Module CFML_IOForm
     Use CFML_Metrics,           only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
                                       get_U_from_Betas, get_Betas_from_U, get_Betas_from_B
     Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
-                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos
+                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
+                                      Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr
     Use CFML_Maths,             only: Get_Eps_Math
 
     Use CFML_Rational
@@ -64,7 +65,7 @@ Module CFML_IOForm
 
     !---- Public subroutines ----!
     public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms,Write_Atom_List, &
-              Read_Kinfo
+              Read_Kinfo, Check_Symmetry_Constraints
     real(kind=cp), parameter :: EPSV=0.0001_cp     ! Small real value to be used for decisions
     !---- Definitions ----!
 
@@ -145,9 +146,14 @@ Module CFML_IOForm
     !---- Interface zone ----!
     Interface
 
+       Module Subroutine Check_Symmetry_Constraints(SpG,Atm)
+         class(SpG_Type),   intent(in)     :: SpG
+         type(AtList_Type), intent(in out) :: Atm
+       End Subroutine Check_Symmetry_Constraints
+
        Module Subroutine Write_Atom_List(A, Iunit)
           !---- Arguments ----!
-          type(atlist_type), intent(in) :: A        ! Atom list object
+          type(AtList_Type), intent(in) :: A        ! Atom list object
           integer, optional, intent(in) :: IUnit    ! Logical unit
        End Subroutine Write_Atom_List
 
