@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_006
+SubModule (CFML_gSpaceGroups) Write_SPG_Info
    Contains
 
    !!----
@@ -19,6 +19,10 @@ SubModule (CFML_gSpaceGroups) SPG_006
       integer :: iout,i,j
       Character(len=*), dimension(4),parameter :: gtype=["Colorless    ","Paramagnetic ","Black-White:1","Black-White:2"]
       character(len=10) :: forma="(a,  i3,a)"
+      character(len=40) :: Symb
+      integer,       dimension(3,3)  :: s
+      real(kind=cp), dimension(3)    :: t
+
       !> Init
       iout=6 !To be replaced by Fortran environment value
       if(present(lun)) iout=lun
@@ -129,11 +133,27 @@ SubModule (CFML_gSpaceGroups) SPG_006
          end do
       end if
 
-      write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators:"
-      do i=1,Grp%Multip
-         write(unit=iout,fmt="(i5,a)") i,"  ->  "//trim(Grp%Symb_Op(i))
-      end do
+      if(Grp%d-1 == 3) then !Calculate the symmetry symbol
+         write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators and symmetry symbols"
+         write(unit=iout,fmt="(a)")       "  ========================================================"
+         do i=1,Grp%Multip
+            s=Grp%Op(i)%Mat(1:3,1:3)
+            t=Grp%Op(i)%Mat(1:3,4)
+            Symb=Symmetry_Symbol(s,t)
+            if(Grp%Op(i)%time_inv < 0) then
+              npos=index(Symb," ")
+              Symb=Symb(1:npos-1)//"' "//Symb(npos+1:)
+            end if
+            write(unit=iout,fmt="(a,i4,a,t50,a)") "  SymmOp",i,": "//trim(Grp%Symb_Op(i))," Symbol: "//trim(Symb)
+         end do
+      else
+         write(unit=iout,fmt="(/a)")      "  Complete list of symmetry operators"
+         write(unit=iout,fmt="(a)")       "  ==================================="
+         do i=1,Grp%Multip
+            write(unit=iout,fmt="(a,i4,a)") "  SymmOp",i,": "//trim(Grp%Symb_Op(i))
+         end do
+      end if
    End Subroutine Write_SpaceGroup_Info
 
-End SubModule SPG_006
+End SubModule Write_SPG_Info
 

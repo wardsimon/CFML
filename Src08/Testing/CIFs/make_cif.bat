@@ -62,12 +62,12 @@ rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC0
    )
 rem   
    if [%_COMP%]==[gfortran] (
-      gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+rem      gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+rem      gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
 rem      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
 rem      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -c cif.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o cif.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -o cif_gf.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem   
    del *.obj *.mod *.o *.map *.bak > nul

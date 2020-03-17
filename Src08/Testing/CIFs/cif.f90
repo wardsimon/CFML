@@ -18,8 +18,7 @@
     character(len=256)                  :: fname
     character(len=256)                  :: setting,ctr_code
     character(len=256),dimension(26)    :: tctr_code
-    character(len=:),allocatable        :: forma,cmdline
-    character(len=5)                    :: aux
+    character(len=:),allocatable        :: forma,formb,cmdline
     type(Cell_G_Type)                   :: Cell,Celln
     !type(Spg_Type)                      :: Grp
     type(AtList_Type)                   :: Atm
@@ -53,7 +52,7 @@
     else
       fname=cmdline
       len_cmdline=0
-    nd if
+    end if
     if(len_trim(fname) == 0) call CloseProgram()
     call CPU_TIME(start)
     call Readn_Set_Xtal_Structure(fname,Cell,Grp,Atm,"MAtm_std","CFL")!,file_list=flist) !,Iphase,Job_Info,file_list,CFrame)
@@ -80,9 +79,11 @@
           !First Check symmetry constraints in magnetic moments and Fourier coefficients
           !call Check_Symmetry_Constraints(Grp,Atm)
           write(*,"(//a,i5)") "  Number of atoms:",Atm%natoms
-          call Write_Atom_List(Atm)
+          call Write_Atom_List(Atm,SpG=Grp)
           !Calculate all atoms in the unit cell
           forma="(i5, f10.5,tr8, f10.5,i8)"
+          formb="(a, i3,a,6f10.5,a)"
+          write(unit=formb(4:4),fmt="(i1)") Grp%nk
           write(forma(5:5),"(i1)") Grp%d-1
           write(forma(16:16),"(i1)") Grp%d-1
           write(*,"(//a)") "  Orbits of atoms after applying constraints on moments:"
@@ -92,9 +93,10 @@
           do i=1,Atm%natoms
             !codini=1; codes=1.0
             call Get_moment_ctr(Atm%Atom(i)%x,Atm%Atom(i)%moment,Grp,codini,codes,ctr_code=ctr_code)!,Ipr=6)
-            write(*,"(a,i3,3f10.5,a)") "Moment: ",i,Atm%Atom(i)%moment,"    CtrCode: "//trim(ctr_code)
+            write(*,"(a,3f10.5,a)") " => Moment of atom "//trim(Atm%Atom(i)%Lab)//": ",Atm%Atom(i)%moment,"    CtrCode: "//trim(ctr_code)
             call Get_Orbit(Atm%Atom(i)%x,Atm%Atom(i)%moment,Grp,Mult,orb,morb,ptr)
             write(*,"(a)") " => Orbit of atom: "//trim(Atm%Atom(i)%Lab)
+
             Select Case(Grp%d-1)
               Case(3)
                 write(*,"(a)") "    N      X         Y         Z                 Mx        My       Mz      PointoOP"
@@ -111,19 +113,20 @@
             end do
            Select Type(at => Atm%Atom(i))
              class is (MAtm_Std_Type)
+               write(*,"(a)") " => Modulation amplitudes of atom: "//trim(Atm%Atom(i)%Lab)
                if(allocated(CodeT)) deallocate(CodeT)
                allocate(CodeT(6,at%n_mc))
                CodeT=1.0
                call Get_TFourier_Ctr(At%x,At%Mcs(:,1:at%n_mc),codeT,Grp,codini,"M",ctr_code=tctr_code)
                do j=1,At%n_mc
-                 write(*,"(a,i3,6f10.5,a)") "Mcs: ",i,At%Mcs(:,j),"    CtrCode: "//trim(tctr_code(j))
+                 write(*,formb) "     Mcs: [",Grp%Q_coeff(:,j),"]",At%Mcs(:,j),"    CtrCode: "//trim(tctr_code(j))
                end do
                if(allocated(CodeT)) deallocate(CodeT)
                allocate(CodeT(6,at%n_dc))
                CodeT=1.0
                call Get_TFourier_Ctr(At%x,At%Dcs(:,1:at%n_dc),codeT,Grp,codini,"D",ctr_code=tctr_code)
                do j=1,At%n_dc
-                 write(*,"(a,i3,6f10.5,a)") "Dcs: ",i,At%Dcs(:,j),"    CtrCode: "//trim(tctr_code(j))
+                 write(*,formb) "     Dcs: [",Grp%Q_coeff(:,j),"]",At%Dcs(:,j),"    CtrCode: "//trim(tctr_code(j))
                end do
            end select
           end do

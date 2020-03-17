@@ -57,8 +57,8 @@ rem > Compilation
    )
 rem
    if [%_COMP%]==[gfortran] (
-      gfortran -c Test_SSG_Genk.f90                    %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-      gfortran -o ssg_genk.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+      gfortran -c Test_SSG_Genk.f90                    %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08 -I\.
+      gfortran -o ssg_genk_gf.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem
    del *.obj *.mod *.o *.map *.bak > nul

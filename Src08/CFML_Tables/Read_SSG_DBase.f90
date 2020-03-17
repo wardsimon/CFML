@@ -152,8 +152,6 @@ SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
       !
       integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass
       character(len=512) :: ssg_file,pos_file,fullprof_suite,db_dir,lab_file
-      character(len=13)  :: nlabel
-      character(len=60)  :: label
       character(len=256) :: line
       logical :: found
 
@@ -200,6 +198,7 @@ SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
         read(i_lab,*)
         do i=1,m_ngs
           read(i_lab,"(a)") line
+          !write(*,"(a)") trim(line)//"     <====>   "//trim(str)
           j=index(line,trim(str))
           if(j /= 0) then
             found=.true.

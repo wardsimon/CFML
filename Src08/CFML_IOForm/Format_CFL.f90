@@ -191,7 +191,7 @@ SubModule (CFML_IOForm) IOF_CFL
       !> Allocate List
       call Allocate_Atom_List(na, At_list,Type_Atm,d)
       if(len_trim(mom_comp) > 2) At_list%mcomp=mom_comp
-      write(*,"(a)") " Moment components: "//At_list%mcomp
+      !write(*,"(a)") " Moment components: "//At_list%mcomp
       !> Read Information
       na=0
 
@@ -510,7 +510,6 @@ SubModule (CFML_IOForm) IOF_CFL
        call Cut_String(line2(1))
        !line2(1)="Moment "//line2(1)(1:len(line2(1))-5)  !this form of writing is to avoid gfortran warning -Wstring-overflow
        line2(1)="Moment "//line2(1)  !this form of writing is to avoid gfortran warning -Wstring-overflow
-       write(*,"(a)")
        call Read_Key_ValueSTD(line2,n,n,"Moment",vet1,vet2,iv)
 
         if (iv /= 3) then
@@ -919,9 +918,9 @@ SubModule (CFML_IOForm) IOF_CFL
        !--- Local Variables ---!
        integer :: i,j,ngen,nk,nq
        character(len=:),     allocatable :: line,uline,setting,strcode
-       character(len=40), dimension(192) :: gen
+       character(len=60), dimension(192) :: gen
        logical :: change_setting
-       integer :: ier
+       integer :: ier,l_line
 
        call clear_error()
        !Look for the appropriate keywords to construct the space group: Crystallographic, Shubnikov, or superspace
@@ -943,21 +942,26 @@ SubModule (CFML_IOForm) IOF_CFL
            if(len_trim(setting) /= 0) change_setting=.true.
            line=line(1:j-1)
          end if
-        ! write(*,"(a)") "line: "//line
+         l_line=len_trim(line) !needed for gfortran
+         !write(*,"(a)") "line1: "//line
          j=index(line," ")
          uline=u_case(line(1:j-1))
          !write(*,"(a)") "uline: "//uline
-         line=adjustl(line(j+1:))
-         !write(*,"(a/)") "line: "//line
+         line=adjustl(line(j+1:l_line))  !Bug in gfortran,line is cut somewhere
+         !write(*,"(a/)") "line2: "//line
          Select Case(uline)
            Case("HALL","SPGR","SPACEG")
               call Set_SpaceGroup(line,SpG)
+              exit
            Case("SHUB")
               call Set_SpaceGroup(line,"SHUBN",SpG)
+              exit
            Case("SSG","SUPER","SSPG")
               call Set_SpaceGroup(line,"SUPER",SpG,strcode)
+              exit
            Case("GENLIST","GENERATORS","LIST")
               call Set_SpaceGroup(line,SpG)
+              exit
            Case("GEN","SYMM")
               ngen=ngen+1
               gen(ngen)=line
@@ -965,7 +969,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if(ngen > 0) then
-          !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
+           write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
            call Set_SpaceGroup("  ",SpG,ngen,gen)
        end if
 
@@ -998,9 +1002,10 @@ SubModule (CFML_IOForm) IOF_CFL
              if(line(1:1) == "!" .or. line(1:1) == "#") cycle
              j=index(line,"!")
              if(j /= 0) line=line(1:j-1)
+             l_line=len_trim(line) !needed for gfortran
              j=index(line," ")
              uline=u_case(line(1:j-1))
-             line=adjustl(line(j+1:))
+             line=adjustl(line(j+1:l_line)) ! line=adjustl(line(j+1:)) doesn't work in gfortran
              Select Case(uline)
                Case("NQVECT","NKVECT")
                   Read(unit=line,fmt=*,iostat=ier) Spg%nk, Spg%nq
@@ -1108,12 +1113,16 @@ SubModule (CFML_IOForm) IOF_CFL
          Select Case(uline)
            Case("HALL","SPGR","SPACEG")
               call Set_SpaceGroup(line,SpG)
+              exit
            Case("SHUB")
               call Set_SpaceGroup(line,"SHUBN",SpG)
+              exit
            Case("SSG","SUPER","SSPG")
               call Set_SpaceGroup(line,"SUPER",SpG,strcode)
+              exit
            Case("GENLIST","GENERATORS","LIST")
               call Set_SpaceGroup(line,SpG)
+              exit
            Case("GEN","SYMM")
               ngen=ngen+1
               gen(ngen)=line
@@ -1121,7 +1130,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if(ngen > 0) then
-          !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
+           write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
            call Set_SpaceGroup("  ",SpG,ngen,gen)
        end if
 
@@ -1319,7 +1328,7 @@ SubModule (CFML_IOForm) IOF_CFL
        type(AtList_Type), intent(in out) :: Atm
 
        !--- Local variables ---!
-       integer :: i,j,k,codini
+       integer :: i,codini
        real(kind=cp), dimension(3)   :: codes
        real(kind=cp), dimension(6,8) :: codeT
        codini=1

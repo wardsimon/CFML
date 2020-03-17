@@ -46,16 +46,16 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       character(len=*), optional, intent(in )    :: xyz_type
 
       !---- Local variables ----!
-      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat,Trn
-      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd,R
-      Type(rational), dimension(SpaceG%D-1)            :: v,tr,orig
-      Type(rational), dimension(SpaceG%D-1,300)        :: newLat,vi
+      Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat
+      Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd
+      Type(rational), dimension(SpaceG%D-1)            :: v
+      Type(rational), dimension(SpaceG%D-1,300)        :: newLat
       Type(rational) :: det
       integer :: i,j,k,l,n,m,Npos,d,Dd,im
       character(len=6) :: Strcode
       type(spg_type)   :: SpG !Auxiliary space group
       logical          :: centring
-      character(len=40),dimension(SpaceG%D,SpaceG%D) :: matrix
+      !character(len=40),dimension(SpaceG%D,SpaceG%D) :: matrix
 
       Dd=SpaceG%D
       d=Dd-1
@@ -302,11 +302,10 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
      integer,                        intent(in out) :: nL !number of provisory lattice vectors
      type(rational), dimension(:,:), intent(in out) :: Latv
 
-     logical :: is_new
-     integer :: i,j,k,k1,k2,lm,nlat,Lat_ini,L
+     integer :: i,j,k1,k2,lm,nlat,Lat_ini,L
      type(rational), dimension(size(Latv,1),size(Latv,2))  :: latinv
      type(rational), dimension(size(Latv,1))               :: v,v1,v2
-     logical :: isnew
+
      if(nL == 0) return
      L=nl
      nlat=size(Latv,2)
@@ -369,7 +368,6 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       logical                         :: change_setting,centring
       type(rational), dimension(4,4)  :: identity
       type(rational), dimension(3,3)  :: mag_mat,ident3
-      type(rational)                  :: sumabs
       type(rational), dimension(:,:) ,allocatable  ::inv
       type(Symm_Oper_Type)            :: transla
 
@@ -684,7 +682,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
           D=3+nmod
           Dd=D+1
           m=igroup_nops(num)* max(iclass_ncentering(iclass),1)
-
+          write(*,"(2(a,i4))") " => Multiplicity: ",m,"   3+d = ",D
           call Allocate_SpaceGroup(Dd,m,SpaceG)  !Allocate operators, Centre_coord,etc
 
           SpaceG%standard_setting=.true.
@@ -736,19 +734,21 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
 
           Select Type (Grp => SpaceG)
             type is (SuperSpaceGroup_Type)
+                write(*,"(a,i3)") " => Allocating SuperSpace for : ",nmod
                 Grp%nk=nmod                              !(d=1,2,3, ...) number of q-vectors
                 if(Allocated(Grp%kv)) deallocate(Grp%kv)
                 if(Allocated(Grp%sintlim)) deallocate(Grp%sintlim)
                 if(Allocated(Grp%Om)) deallocate(Grp%Om)
-                Allocate(Grp%kv(3,nmod),Grp%sintlim(nmod),Grp%Om(Dd,Dd,Grp%Multip))
+                Allocate(Grp%kv(3,nmod),Grp%sintlim(nmod))
+                !write(*,"(a,i6,a)") " => Allocating Om for : ",Dd*Dd*Grp%Multip, "  elements"
+                Allocate(Grp%Om(Dd,Dd,m))
                 Grp%kv=0.0; Grp%sintlim=0.0; Grp%Om=0.0
-                Grp%nq=0     ! number of effective sets of Q_coeff >= nk
-                Grp%nharm=0  ! number of harmonics along each k-vector
+                !Grp%nq=0     !  This is not allowed in gfortran, probably because they are not
+                !Grp%nharm=0  !  allocatable components and are not under the pointer Grp => SpaceG
                 !the components q_coeff(nk,nq) cannot be allocated until experimental data are read
           End Select
 
-
-
+          write(*,"(a,i3)") " => Allocating Lattice centring vectors : ",SpaceG%Num_Lat
           if(SpaceG%Num_Lat > 0) then
             Allocate(SpaceG%Lat_tr(D,SpaceG%Num_Lat))  !This is not allocated in Allocate_SpaceGroup
             SpaceG%Lat_tr=0_LI//1_LI
@@ -761,6 +761,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
              SpaceG%Symb_Op(i)=Get_Symb_from_Rational_Mat(SpaceG%Op(i)%Mat,StrCode=xyz_typ) !The data base has no magnetic components
           end do
 
+          write(*,"(a,i4)") " => Loaded operators : ",SpaceG%NumOps
           !Look for a centre, or anticentre, of symmetry
 
           allocate(Inv(D,D),transla%Mat(Dd,Dd))
@@ -799,7 +800,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
             end do
           end if
 
-          !Extend the symmetry operator to the whole set of lattice centring
+          !Extend the symmetry operators to the whole set of lattice centring
           !set the symmetry operators symbols
           m=SpaceG%NumOps
           do i=1,SpaceG%Num_Lat
@@ -813,6 +814,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
              Err_CFML%Ierr=1
              Err_CFML%Msg="Error extending the symmetry operators for a centred cell"
           end if
+          write(*,"(a,i4)") " => Extended operators to : ",SpaceG%Multip
           !Adjust ssg%NumOps to remove the centre of symmetry if Exist
           if(SpaceG%Centred == 2 .or. SpaceG%Centred == 0) SpaceG%NumOps=SpaceG%NumOps/2
 
@@ -823,7 +825,10 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
                 return
               end if
           end if
-          if(.not. present(keepdb)) call Deallocate_SSG_DBase()
+          if(.not. present(keepdb)) then
+             call Deallocate_SSG_DBase()
+             write(*,"(a)") " => Deallocated SSG_DBase"
+          end if
           !Get the symmetry symbols
           do i=1,SpaceG%Multip
             SpaceG%Symb_Op(i)= Get_Symb_from_Rational_Mat(SpaceG%Op(i)%Mat,StrCode=xyz_typ)
@@ -847,18 +852,17 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       character(len=*),  dimension(:), optional, intent(in ) :: Gen
 
       !---- Local Variables ----!
-      integer            :: i,j,n_gen, n_it, d, ier
-      integer            :: n_laue, n_pg, nfin
+      integer            :: i,n_gen, n_it, d, ier
+      integer            :: n_laue, n_pg !, nfin
       character(len=40), dimension(:), allocatable :: l_gen
       character(len=20)                            :: str_HM, str_HM_std, str_Hall, str_CHM
       character(len=5)                             :: car
       character(len=256)                           :: gList
-      real(kind=cp), dimension(3)                  :: co
+      !real(kind=cp), dimension(3)                  :: co
 
-      integer                          :: n
       type(rational), dimension(3)     :: ta,tb,tc,ti,tr1,tr2
-      type(rational), dimension(3,3)   :: P,Mp,Mc,M
-      type(rational), dimension(3,3,6) :: A
+      !type(rational), dimension(3,3)   :: P,Mp,Mc,M
+      !type(rational), dimension(3,3,6) :: A
 
       logical :: by_Gen=.false., by_Hall=.false., ok1=.false., ok2=.false., ok3=.false.
 

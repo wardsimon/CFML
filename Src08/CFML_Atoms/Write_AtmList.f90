@@ -1,23 +1,25 @@
 !!----
 !!----
 !!----
-SubModule (CFML_IOForm)  Write_Atoms
+SubModule (CFML_Atoms)  Write_Atoms
+   implicit none
    Contains
    !!----
-   !!---- WRITE_INFO_ATOMS_LIST
+   !!---- WRITE_ATOM_LIST
    !!----    Write the atoms in the asymmetric unit
    !!----
    !!---- 12/06/2019
    !!
-   Module Subroutine Write_Atom_List(A, Iunit)
+   Module Subroutine Write_Atom_List(A, Iunit, SpG)
       !---- Arguments ----!
-      type(atlist_type), intent(in) :: A        ! Atom list object
-      integer, optional, intent(in) :: IUnit    ! Logical unit
+      type(atlist_type),                   intent(in) :: A        ! Atom list object
+      integer, optional,                   intent(in) :: IUnit    ! Logical unit
+      type(SuperSpaceGroup_type),optional, intent(in) :: SpG
 
       !---- Local Variables ----!
       character(len=1)             :: car
       character(len=:),allocatable :: car2
-      character(len=:),allocatable :: fmt1,fmt2
+      character(len=:),allocatable :: fmt1,fmt2,fmt3,fmt4,fmt5,Aux_st
       character(len=:),allocatable :: line
       integer                      :: n, lun, k, j
 
@@ -145,45 +147,84 @@ SubModule (CFML_IOForm)  Write_Atoms
                end if
             end do
 
-            if(any(atm(:)%n_mc > 0)) then
+            fmt3="(T7,a,t15,a, i3,a,t47,6f10.5)"
+            fmt4="(T7,a,t15,a, i3,a,t47,f10.5,tr20,f10.5)"
+            fmt5="(T7,a,t15,a, i3,a,t45,12f10.5)"
+            Aux_st="Harmonic"
+            if(present(SpG)) then
+              write(unit=fmt3(13:13),fmt="(i1)") SpG%nk
+              write(unit=fmt4(13:13),fmt="(i1)") SpG%nk
+              write(unit=fmt5(13:13),fmt="(i1)") SpG%nk
+              Aux_st=" Q_Coeff"
+            end if
+
+            if(any(atm(:)%n_mc > 0) .or. any(atm(:)%n_dc > 0) ) then
                Select Case (trim(u_case(a%mcomp)))
                  Case ("CRYSTAL")
-                    line="    Atom        Modulation  Harmonic             Cos_x     Cos_y     Cos_z     Sin_x     Sin_y     Sin_z"
+                    line="    Atom        Modulation    "//Aux_st//"           Cos_x     Cos_y     Cos_z     Sin_x     Sin_y     Sin_z"
                  Case ("SPHERICAL")
-                    line="    Atom        Modulation  Harmonic           Cos_Mod   Cos_Phi Cos_Theta   Sin_Mod   Sin_Phi Sin_Theta"
+                    line="    Atom        Modulation    "//Aux_st//"         Cos_Mod   Cos_Phi Cos_Theta   Sin_Mod   Sin_Phi Sin_Theta"
                  Case ("CARTESIAN")
-                    line="    Atom        Modulation  Harmonic            Cos_xC    Cos_yC    Cos_zC    Sin_xC    Sin_yC    Sin_zC"
+                    line="    Atom        Modulation    "//Aux_st//"          Cos_xC    Cos_yC    Cos_zC    Sin_xC    Sin_yC    Sin_zC"
                End Select
                write(unit=lun,fmt="(/,/,T3,a)") line
                line=repeat("=", len_trim(line))
                write(unit=lun,fmt="(T3,a)") line
-               do n=1,A%natoms
-                  do j=1,atm(n)%n_mc
-                    k=atm(n)%pmc_q(j)
-                    write(unit=lun,fmt="(T7,a,t15,a,i3,a,t47,6f10.5)")   trim(Atm(n)%Lab),           "        Moment    [",k,"]", Atm(n)%Mcs(:,j)
-                  end do
-                  do j=1,atm(n)%n_dc
-                    k=atm(n)%pdc_q(j)
-                    write(unit=lun,fmt="(T7,a,t15,a,i3,a,t47,6f10.5)")   trim(Atm(n)%Lab),           "  Displacement    [",k,"]", Atm(n)%Dcs(:,j)
-                  end do
-                  do j=1,atm(n)%n_oc
-                    k=atm(n)%poc_q(j)
-                    write(unit=lun,fmt="(T7,a,t15,a,i3,a,t47,f10.5,tr20,f10.5)")   trim(Atm(n)%Lab), "     Occupancy    [",k,"]", Atm(n)%Ocs(:,j)
-                  end do
-               end do
+               if(present(SpG)) then
+                 do n=1,A%natoms
+                    do j=1,atm(n)%n_mc
+                      k=atm(n)%pmc_q(j)
+                      write(unit=lun,fmt=fmt3)   trim(Atm(n)%Lab),           "        Moment    [",SpG%Q_coeff(:,k),"]", Atm(n)%Mcs(:,j)
+                    end do
+                    do j=1,atm(n)%n_dc
+                      k=atm(n)%pdc_q(j)
+                      write(unit=lun,fmt=fmt3)   trim(Atm(n)%Lab),           "  Displacement    [",SpG%Q_coeff(:,k),"]", Atm(n)%Dcs(:,j)
+                    end do
+                    do j=1,atm(n)%n_oc
+                      k=atm(n)%poc_q(j)
+                      write(unit=lun,fmt=fmt4)   trim(Atm(n)%Lab), "     Occupancy    [",SpG%Q_coeff(:,k),"]", Atm(n)%Ocs(:,j)
+                    end do
+                 end do
+
+               else
+
+                 do n=1,A%natoms
+                    do j=1,atm(n)%n_mc
+                      k=atm(n)%pmc_q(j)
+                      write(unit=lun,fmt=fmt3)   trim(Atm(n)%Lab),           "        Moment    [",k,"]", Atm(n)%Mcs(:,j)
+                    end do
+                    do j=1,atm(n)%n_dc
+                      k=atm(n)%pdc_q(j)
+                      write(unit=lun,fmt=fmt3)   trim(Atm(n)%Lab),           "  Displacement    [",k,"]", Atm(n)%Dcs(:,j)
+                    end do
+                    do j=1,atm(n)%n_oc
+                      k=atm(n)%poc_q(j)
+                      write(unit=lun,fmt=fmt4)   trim(Atm(n)%Lab), "     Occupancy    [",k,"]", Atm(n)%Ocs(:,j)
+                    end do
+                 end do
+               end if
             end if
 
             if(any(atm(:)%n_uc > 0)) then
-               line="    Atom        Modulation       Harmonic   U_11_Cos  U_22_Cos  U_33_Cos  U_12_Cos  U_13_Cos  U_23_Cos  U_11_Sin  U_22_Sin  U_33_Sin  U_12_Sin  U_13_Sin  U_23_Sin"
+               line="    Atom        Modulation       "//Aux_st//"   U_11_Cos  U_22_Cos  U_33_Cos  U_12_Cos  U_13_Cos  U_23_Cos  U_11_Sin  U_22_Sin  U_33_Sin  U_12_Sin  U_13_Sin  U_23_Sin"
                write(unit=lun,fmt="(/,/,T3,a)") line
                line=repeat("=", len_trim(line))
                write(unit=lun,fmt="(T3,a)") line
-               do n=1,A%natoms
-                  do j=1,atm(n)%n_uc
-                    k=atm(n)%puc_q(j)
-                    write(unit=lun,fmt="(T7,a,t15,a,i3,a,t45,12f10.5)")   trim(Atm(n)%Lab), "Thermal Displacement [",k,"]", Atm(n)%Ucs(:,j)
-                  end do
-               end do
+               if(present(SpG)) then
+                 do n=1,A%natoms
+                    do j=1,atm(n)%n_uc
+                      k=atm(n)%puc_q(j)
+                      write(unit=lun,fmt=fmt5)   trim(Atm(n)%Lab), "Thermal Displacement [",SpG%Q_coeff(:,k),"]", Atm(n)%Ucs(:,j)
+                    end do
+                 end do
+               else
+                 do n=1,A%natoms
+                    do j=1,atm(n)%n_uc
+                      k=atm(n)%puc_q(j)
+                      write(unit=lun,fmt=fmt5)   trim(Atm(n)%Lab), "Thermal Displacement [",k,"]", Atm(n)%Ucs(:,j)
+                    end do
+                 end do
+               end if
             end if
 
          type is (Atm_ref_Type)

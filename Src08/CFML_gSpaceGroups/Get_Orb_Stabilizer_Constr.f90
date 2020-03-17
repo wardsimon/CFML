@@ -150,6 +150,7 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
       !are prevalent
 
       suma=0.0_cp
+      if(present(ctr_code)) ctr_code="(0,0,0)"
       n=3 !Real moments -> three components
       do j=1,3
          suma=suma+abs(codes(j))
@@ -249,7 +250,7 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
           do j=1,3
             St_cod(j)=" "
             if(abs(multi(j)) < 0.00001) then
-              St_cod(j) = " 0 "
+              St_cod(j) = "0"
             else
               if(multi(j) == 1.0_cp) then
                  St_cod(j)=codd(j)
@@ -278,7 +279,7 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
      real(kind=cp), dimension(n)   :: val
      integer,       dimension(n)   :: pti
      real(kind=dp), dimension(n,n) :: zv
-     integer                       :: i,j,k,kval,ier,ip
+     integer                       :: i,j,k,kval,ip !,ier
      real(kind=dp)                 :: zmi
      real(kind=dp), dimension(n)   :: Wr, Wi
      logical,       dimension(n)   :: done
@@ -304,7 +305,7 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
              j=nint(sign(1.0_dp,zv(k,i)))
            end if
          end do
-         zv(:,i)=j*zv(:,i)/zmi  !This provides directly the multipliers for a single lambda=1 eigenvalue
+         zv(1:n,i)=j*zv(1:n,i)/zmi  !This provides directly the multipliers for a single lambda=1 eigenvalue
          val(iss)=vect_val(kval) !This is the basis value to construct the new Moment
        end if
      end do
@@ -315,9 +316,9 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
      where(abs(vect_val) < epss) done=.true.
      Select Case(iss)
        case(1)
-         vect_out(:)=val(1)*zv(:,pti(1))
+         vect_out(1:n)=val(1)*zv(1:n,pti(1))
          where(abs(vect_out) > epss)  codd(:)=cdd(1)
-         multi(:)=zv(:,pti(1))
+         multi(1:n)=zv(1:n,pti(1))
        case(2:)
          ip=0
          do i=1,n
@@ -562,7 +563,7 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
       end if
 
       if(present(ctr_code)) then
-
+        St_cod="0"
         n=0
         do ip=1,nq
           do j=1,6

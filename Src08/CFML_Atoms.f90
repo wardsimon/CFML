@@ -45,7 +45,7 @@ Module CFML_Atoms
     Use CFML_GlobalDeps
     Use CFML_Maths,        only: modulo_lat, equal_vector
     Use CFML_Strings,      only: u_case,l_case
-    Use CFML_gSpaceGroups, only: spg_type, apply_op
+    Use CFML_gSpaceGroups, only: spg_type, apply_op, SuperSpaceGroup_Type
 
     !---- Variables ----!
     implicit none
@@ -54,7 +54,7 @@ Module CFML_Atoms
 
     !---- List of public procedures ----!
     public :: Allocate_Atom_List, Extend_List, Init_Atom_Type, Read_Bin_Atom_List, &
-              Write_Bin_atom_List, Write_Info_Atom_List
+              Write_Bin_atom_List, Write_Atom_List
 
     !---- Parameters ----!
     real(kind=cp), parameter :: R_ATOM=1.1_cp      ! Average atomic radius
@@ -112,17 +112,17 @@ Module CFML_Atoms
     !!----
     !!---- This type Modulated Atom type extends Atm_Std_Type by adding modulation
     !!---- Cosine(c) and Sine amplitudes(s) to each model parameter characterizing
-    !!---- normal atoms. Up to 8 harmonic numbers (Q_coeffs) are allowed
+    !!---- normal atoms. Up to max_mod harmonic numbers (Q_coeffs) are allowed
     !!----
     Type, Public, Extends(Atm_Std_Type)    :: MAtm_Std_Type
        integer                             :: n_oc   = 0       ! Number of occupation amplitudes
        integer                             :: n_mc   = 0       ! Number of moment amplitudes
        integer                             :: n_dc   = 0       ! Number of static displacement amplitudes
        integer                             :: n_uc   = 0       ! Number of thermal displacement amplitudes
-       integer,      dimension(8)          :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
-       integer,      dimension(8)          :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
-       integer,      dimension(8)          :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
-       integer,      dimension(8)          :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
+       integer,      dimension(max_mod)    :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
+       integer,      dimension(max_mod)    :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
+       integer,      dimension(max_mod)    :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
+       integer,      dimension(max_mod)    :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
        real(kind=cp),dimension(2, max_mod) :: Ocs    = 0.0_cp  ! Ocos,Osin up to 8  (Oc, Os)
        real(kind=cp),dimension(2, max_mod) :: Ocs_std= 0.0_cp  !
        real(kind=cp),dimension(6, max_mod) :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
@@ -172,7 +172,7 @@ Module CFML_Atoms
        real(kind=cp)                            :: M_Occ     =0.0_cp
        real(kind=cp)                            :: M_U_iso   =0.0_cp
        real(kind=cp),dimension(6)               :: M_U       =0.0_cp
-       integer,      dimension(2,max_mod)       :: L_Ocs    = 0       ! Code Numbers of parameter
+       integer,      dimension(2, max_mod)      :: L_Ocs    = 0       ! Code Numbers of parameter
        integer,      dimension(6, max_mod)      :: L_Mcs    = 0       !
        integer,      dimension(6, max_mod)      :: L_Dcs    = 0       !
        integer,      dimension(12,max_mod)      :: L_Ucs    = 0       !
@@ -200,9 +200,9 @@ Module CFML_Atoms
        real(kind=cp),           dimension(:), allocatable :: moment
        real(kind=cp),         dimension(:,:), allocatable :: var_free       ! Free variables (10,nat)
        integer,                 dimension(:), allocatable :: neighb         ! Number of neighbours (nat)
-       integer,              dimension( :,:), allocatable :: neighb_atom    ! Ptr.->neighbour (# in list)(nat,idp)
-       real(kind=cp),        dimension( :,:), allocatable :: distance       ! Corresponding distances (nat,idp)
-       real(kind=cp),      dimension(:, :,:), allocatable :: trans          ! Lattice translations   (3,nat,idp)
+       integer,               dimension(:,:), allocatable :: neighb_atom    ! Ptr.->neighbour (# in list)(nat,idp)
+       real(kind=cp),         dimension(:,:), allocatable :: distance       ! Corresponding distances (nat,idp)
+       real(kind=cp),       dimension(:,:,:), allocatable :: trans          ! Lattice translations   (3,nat,idp)
        integer                                            :: ndist          ! Number of distinct distances
        real(kind=cp),           dimension(:), allocatable :: ddist          ! List of distinct distances(nat*idp)
        character (len=20),      dimension(:), allocatable :: ddlab          ! Labels of atoms at ddist (nat*idp)
@@ -250,11 +250,12 @@ Module CFML_Atoms
           type(atlist_type),  intent(in) :: A
        End Subroutine Write_Bin_Atom_List
 
-       Module Subroutine Write_Info_Atom_List(A, Iunit)
+       Module Subroutine Write_Atom_List(A, Iunit, SpG)
           !---- Arguments ----!
-          type(atlist_type),              intent(in) :: A
-          integer,              optional, intent(in) :: IUnit
-       End Subroutine Write_Info_Atom_List
+          type(atlist_type),                   intent(in) :: A        ! Atom list object
+          integer, optional,                   intent(in) :: IUnit    ! Logical unit
+          type(SuperSpaceGroup_type),optional, intent(in) :: SpG
+       End Subroutine Write_Atom_List
 
        Module Subroutine Extend_List(A, B, Spg, Type_Atm,Conven)
           !---- Arguments ----!
@@ -266,6 +267,5 @@ Module CFML_Atoms
        End Subroutine Extend_List
 
     End Interface
-
 
 End Module CFML_Atoms

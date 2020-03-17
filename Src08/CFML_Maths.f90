@@ -49,7 +49,7 @@
 
     !---- List of public functions ----!
     public :: Co_Linear, Co_Prime, Cross_Product, Cubic_Harm_Ang, Cubic_Harm_Ucvec, &
-              Debye, Determ, Determ_V,       &
+              Debye, Determ, Determ_V, Determ2D, Determ3D, Determ4D,             &
               Equal_Matrix, Equal_Vector, Erfc_Deriv,                            &
               Factorial_I, Factorial_R, First_Derivative,                        &
               Gcd, Get_EPS_Math, Get_Cart_from_Cylin, Get_Cart_from_Spher,       &
@@ -214,6 +214,24 @@
        Module Procedure Determinant_C
        Module Procedure Determinant_I
        Module Procedure Determinant_R
+    End Interface
+
+    Interface  Determ4D
+       Module Procedure Deter4_C
+       Module Procedure Deter4_R
+       Module Procedure Deter4_I
+    End Interface
+
+    Interface  Determ3D
+       Module Procedure Deter3_C
+       Module Procedure Deter3_R
+       Module Procedure Deter3_I
+    End Interface
+
+    Interface  Determ2D
+       Module Procedure Deter2_C
+       Module Procedure Deter2_R
+       Module Procedure Deter2_I
     End Interface
 
     Interface  Determ_V
@@ -599,13 +617,13 @@
        Module Pure Function Deter4_I(A) Result(Det)
           !---- arguments ----!
           integer, dimension(4,4), intent(in) :: A   !! Matrix
-          integer                             :: Det      !! Determinant
+          integer                             :: Det !! Determinant
        End Function Deter4_I
 
        Module Pure Function Deter4_R(A) Result(Det)
           !---- arguments ----!
           real(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
-          real(kind=cp)                             :: Det      !! Determinant
+          real(kind=cp)                             :: Det !! Determinant
        End Function Deter4_R
 
        Module Function DeterN_C(A,n) result(det)

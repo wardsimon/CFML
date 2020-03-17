@@ -295,6 +295,7 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Is_Antilattice.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ApplySO.f90                            /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_Orb_Stabilizer_Constr.f90          /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Symm_Symbols.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
  rem
@@ -390,14 +391,12 @@ rem   Submodules CFML_EoS
       cd ..
 rem
    echo .... Atoms procedures
-   echo .... Compiling ancestor CFML_Atoms.f90
    ifort /c CFML_Atoms.f90                            /nologo %OPT1% %OPT2% /module:.\mod
 rem
 rem   Submodules CFML_Atoms
       cd .\CFML_Atoms
       ifort /c Allocating_Atoms.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c RW_Bin_Atmlist.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-      echo .... Compiling Write_AtmList.f90
 	  ifort /c Write_AtmList.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c ExtendList.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul

@@ -64,7 +64,7 @@ Module CFML_IOForm
     !---- Public Functions ----!
 
     !---- Public subroutines ----!
-    public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms,Write_Atom_List, &
+    public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms, &
               Read_Kinfo, Check_Symmetry_Constraints
     real(kind=cp), parameter :: EPSV=0.0001_cp     ! Small real value to be used for decisions
     !---- Definitions ----!

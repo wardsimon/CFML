@@ -51,8 +51,8 @@ Module CFML_gSpaceGroups
     Use CFML_Magnetic_Database
     Use CFML_SuperSpace_Database
     Use CFML_GlobalDeps,        only: CP,DP, LI, EPS, err_cfml, clear_error, CFML_Debug,TPI
-    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ, Get_eps_math, Zbelong,EPSS,Diagonalize_RGEN, &
-                                      equal_vector
+    Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ3D, Get_eps_math, Zbelong,EPSS,Diagonalize_RGEN, &
+                                      equal_vector,resolv_sist_3x3,trace
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                       get_words, String_Fraction_2Dig,Set_Symb_From_Mat
 
@@ -65,8 +65,8 @@ Module CFML_gSpaceGroups
     public :: operator (*)
     public :: operator (==)
 
-    !---- List of public subroutines ----!
-    public :: Apply_OP,                                                           &
+    !---- List of public functions and subroutines ----!
+    public :: Apply_OP, Symmetry_Symbol,                                          &
               Get_Crystal_System, Get_Dimension_SymmOP, Get_Hall_from_Generators, &
               Get_HM_Standard, Get_Lattice_Type, Get_Laue_Num, Get_Laue_Str,      &
               Get_OP_from_Symb, Get_PointGroup_Num, Get_PointGroup_Str,           &
@@ -618,6 +618,13 @@ Module CFML_gSpaceGroups
           real(kind=cp),    dimension(3),   intent( in) :: t
           character(len=:), allocatable                 :: symb
        End Function String_from_MAT_TR_R
+
+       Module Function Symmetry_Symbol(S,T) Result(Symbol)
+          !---- Arguments ----!
+          integer,       dimension(3,3),    intent( in) :: s
+          real(kind=cp), dimension(3),      intent( in) :: t
+          character (len=:), allocatable                :: Symbol
+       End Function Symmetry_Symbol
 
        Module Function Get_VecPerp_To_RotAxis(W) Result(vPerp)
           !---- Arguments ----!
