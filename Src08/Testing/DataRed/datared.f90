@@ -18,7 +18,7 @@
 
     integer                      :: narg,len_cmdline,idot,lun,i
     character(len=:),allocatable :: cmdline,filered
-    logical :: esta
+    logical :: esta, debug=.true.
 
     type(Reflection_List)       :: Ref
     type(File_Type)             :: cfl_file
@@ -117,9 +117,9 @@
                Call Treat_Reflections(Ref,cond,cell,SpG,kinf,Gk(1),tw,lun)
              else
                if(kinf%nk == 0) then
-                 Call Treat_Reflections("SHUB",Ref,cond,cell,SpG,kinf,tw,lun)
+                 Call Treat_Reflections("SHUB",Ref,cond,cell,SpG,kinf,tw,lun) !,debug)
                else
-                 Call Treat_Reflections("SUPER",Ref,cond,cell,SpG,kinf,tw,lun)
+                 Call Treat_Reflections("SUPER",Ref,cond,cell,SpG,kinf,tw,lun) !,debug)
                end if
              end if
           end if
@@ -130,7 +130,9 @@
     End if
     write(unit=*,fmt="(a)")     " => Program finished O.K.!, look in output files!"
     write(unit=*,fmt="(a,a)")   "           Output  file: ", trim(cond%fileout)//".out"
-    write(unit=*,fmt="(a,a)")   "           Reflex  file: ", trim(cond%fileout)//".int"
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//".int"
+    if(cond%split_mag) &
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//"_mag.int"
     write(unit=*,fmt="(a,a)")   "           Reject  file: ", trim(cond%fileout)//".rej"
     write(unit=*,fmt="(a)")   " "
 

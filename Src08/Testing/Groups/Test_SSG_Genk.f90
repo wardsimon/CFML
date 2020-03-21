@@ -5,7 +5,9 @@
     use CFML_Propagation_Vectors
     use CFML_Maths,             only : Equal_Matrix
     use CFML_Symmetry_Tables,   only : Get_HM_Compact_HM
-    use CFML_Strings,           only : String_Fraction_2Dig
+    use CFML_Strings,           only : String_Fraction_2Dig,l_case,get_words
+
+    implicit none
 
     contains
 
@@ -90,7 +92,7 @@
          CM=SpG%op(i)%Mat(1:3,1:3)  ! Current Matrix
          TM=SpG%op(1)%Mat(1:3,1:3)  ! Test Matrix (initiallized to the Id)
          cnt=0
-         do j=2,6 !order is never greater than 6
+         do j=1,6 !order is never greater than 6
              cnt=cnt+1
              TM=matmul(TM,CM)
              if(Equal_Matrix(TM,ID,3)) then
@@ -98,87 +100,187 @@
                 if(cnt > maxorder) maxorder=cnt
                 cycle do_ext
              end if
-        end do
+         end do
       end do do_ext
 
     End Subroutine get_Order
 
+    Subroutine Get_Set_of_Generators(SpG,gen,point_op,ngen,List_Symb)
+      class(SpG_Type),                intent (in) :: SpG
+      Character(len=*), dimension(:), intent(out) :: gen
+      integer,          dimension(:), intent(out) :: point_op
+      integer,                        intent(out) :: ngen
+      character(len=*), dimension(:), intent(out) :: List_symb
+      !--- Local variables ---!
+      integer                                   :: i,j,n,m,e_numops
+      integer,          dimension(3,3)          :: s
+      real(kind=cp),    dimension(3)            :: t
+      character(len=6), dimension(8)            :: sgen,msgen
+      character(len=20)                         :: spg_symb
+      character(len=60),dimension(2*SpG%numops) :: op_symb
+
+      e_numops=SpG%Numops
+      if(SpG%centred /= 1) e_numops=2*e_numops
+      op_symb(1)="1"
+      do i=2,e_Numops
+         s=SpG%Op(i)%Mat(1:3,1:3)
+         t=SpG%Op(i)%Mat(1:3,4)
+         op_symb(i) = Symmetry_Symbol(s,t)
+      end do
+
+      Select Case(SpG%CrystalSys)
+
+        Case("Triclinic")
+
+          if(SpG%centred == 1) then
+            ngen=1
+            List_Symb(1)="1"
+            point_op(1)=1
+            gen(1)="x,y,z,1"
+          else
+            ngen=1
+            List_Symb(1)="-1"
+            point_op(1)=2
+            gen(1)="-x,-y,-z,1"
+          end if
+
+        Case("Monoclinic")
+
+          if(SpG%centred == 1) then
+            ngen=1
+            do i=2,e_Numops
+              j=index(op_symb(i)," ")
+              List_Symb(1)=op_symb(i)(1:j-1)
+              Select Case(trim(List_Symb(1)))
+                Case("2") !Determine if it is a screw axis
+                  if(index(Spg%BNS_Symb,"2_1") /= 0) then
+                    List_symb(1) ="21"
+                  else
+                    List_symb(1) ="2"
+                  end if
+              End Select
+              gen(1)=SpG%Symb_Op(i)
+              point_op(1)=i
+              exit
+            end do
+
+          else
+
+              j=index(op_symb(2)," ")
+              List_Symb(1)=op_symb(i)(1:j-1)
+              Select Case(trim(List_Symb(1)))
+                Case("2") !Determine if it is a screw axis
+                  if(index(Spg%BNS_Symb,"2_1") /= 0) then
+                    List_symb(1) ="21"
+                  else
+                    List_symb(1) ="2"
+                  end if
+              End Select
+              gen(1)=SpG%Symb_Op(2)
+              point_op(1)=2
+
+              j=index(op_symb(4)," ")
+              List_Symb(2)=op_symb(4)(1:j-1)
+              gen(2)=SpG%Symb_Op(4)
+              point_op(2)=4
+
+          end if
+
+        Case("Orthorhombic")
+
+           if(SpG%centred == 1) then
+             m=2
+           else
+             m=Spg%Numops+1
+           end if
+           ngen=3
+           n=0
+           do i=m,e_Numops
+             n=n+1
+             j=index(op_symb(i)," ")
+             List_Symb(n)=op_symb(i)(1:j-1)
+             gen(n)=SpG%Symb_Op(i)
+             point_op(n)=i
+             if(n == 3) exit
+           end do
+
+        Case("Trigonal")
+
+           if(SpG%centred == 1) then
+             m=2
+           else
+             m=Spg%Numops+1
+           end if
+           n=0
+           do i=m,e_Numops
+             n=n+1
+             j=index(op_symb(i)," ")
+             List_Symb(n)=op_symb(i)(1:j-1)
+             gen(n)=SpG%Symb_Op(i)
+             point_op(n)=i
+             if(n == 3) exit
+           end do
+
+        Case("Tetragonal")
+        Case("Hexagonal")
+        Case("Cubic")
+      End Select
+    End Subroutine Get_Set_of_Generators
+
     !!----
-    !!---- Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen)
+    !!---- Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen,List_Symb)
     !!----    class(SpG_Type),                intent (in) :: SpG
     !!----    Character(len=*), dimension(:), intent(out) :: gen
     !!----    integer,          dimension(:), intent(out) :: point_op
     !!----    integer,                        intent(out) :: ngen
+    !!----    character(len=*), dimension(:), intent(out) :: List_Symb
     !!----
     !!----    This subroutine provides the generators of the space group that
     !!----    are explicitly written in the Hermann-Mauguin symbol of the space group.
     !!----    The generators of the lattice are ignored. The generators gen(i),are written
     !!----    in the Jones faithful representation. There are ngen generators and the
     !!----    integer vector "point_op" contains the index of the corresponding operator in
-    !!----    the list of the total SpG%Multip operators
+    !!----    the list of the total SpG%Multip operators. This subroutine works only for
+    !!----    one of the NUM_SPGR_INFO  = 612 settings of the 230 space groups.
     !!----
     !!----   Update: February - 2017
     !!----
-    Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen)
+    Subroutine Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen,List_Symb)
       class(SpG_Type),                intent (in) :: SpG
       Character(len=*), dimension(:), intent(out) :: gen
       integer,          dimension(:), intent(out) :: point_op
       integer,                        intent(out) :: ngen
+      character(len=*), dimension(:), intent(out) :: List_symb
       !--- Local variables ---!
-      integer :: i,j,n,m
-      integer,       dimension(3,3)  :: s
-      real(kind=cp), dimension(3)    :: t
-      character(len=20),dimension(5) :: sgen,msgen
-      logical,          dimension(10):: done
-      character(len=6)               :: symbg
-      character(len=20)              :: spg_symb
-      character(len=60)              :: op_symb
-      character(len=2), dimension(11):: screw=(/"21","31","32","41","42","43","61","62","63","64","65"/)
-      character(len=1), dimension(11):: rm_screw=(/"2","3","3","4","4","4","6","6","6","6","6"/)
+      integer                                   :: i,j,n,m,e_numops
+      integer,          dimension(3,3)          :: s
+      real(kind=cp),    dimension(3)            :: t
+      character(len=6), dimension(8)            :: sgen,msgen
+      character(len=20)                         :: spg_symb
+      character(len=60),dimension(2*SpG%numops) :: op_symb
+      logical,          dimension(2*SpG%numops) :: done
+      character(len=2), dimension(11)           :: screw=(/"21","31","32","41","42","43","61","62","63","64","65"/)
+      character(len=1), dimension(11)           :: rm_screw=(/"2","3","3","4","4","4","6","6","6","6","6"/)
 
       point_op=0; done=.false.
       if(len_trim(SpG%SPG_Symb) == 0) then
         spg_symb= Get_HM_Compact_HM(SpG%BNS_symb)
       else
-        spg_symb=adjustl(SpG%SPG_Symb(2:))
+        spg_symb=adjustl(SpG%SPG_Symb)
       end if
-      write(*,"(a)") " => Symbol of the space group: "//trim(spg_symb)
+      spg_symb(2:)=l_case(spg_symb(2:))
+      !write(*,"(a)") " => Symbol of the space group without lattice: "//trim(spg_symb)
+      e_numops=SpG%Numops
+      if(SpG%centred /= 1) e_numops=2*e_numops
       i=index(spg_symb,":")
-      if( i /= 0) spg_symb=spg_symb(1:i-1)
-      j=index(spg_symb," ")
-      n=1
-      sgen(n)=spg_symb(1:j-1)
-      i=index(sgen(n),"/")
-      if(i /= 0) then
-        sgen(n+1)=sgen(n)(i+1:)
-        sgen(n)=sgen(n)(1:i-1)
-        n=n+1
-      end if
-      n=n+1
-      spg_symb=spg_symb(j+1:)
-      if(len_trim(spg_symb) /= 0) then
-        j=index(spg_symb," ")
-        sgen(n)= spg_symb(1:j-1)
-        i=index(sgen(n),"/")
-        if(i /= 0) then
-          sgen(n+1)=sgen(n)(i+1:)
-          sgen(n)=sgen(n)(1:i-1)
-          n=n+1
-        end if
-        spg_symb = spg_symb(j+1:)
-        if(len_trim(spg_symb) /= 0) then
-          n=n+1
-          sgen(n)=spg_symb
-          i=index(sgen(n),"/")
-          if(i /= 0) then
-            sgen(n+1)=sgen(n)(i+1:)
-            sgen(n)=sgen(n)(1:i-1)
-            n=n+1
-          end if
-        end if
-      else
-        n=n-1
-      end if
+      if( i /= 0) spg_symb=spg_symb(1:i-1) !Remove ":"
+      i=index(spg_symb,"/")
+      if( i /= 0) spg_symb(i:i)=" "  !Remove "/"
+      spg_symb=adjustl(spg_symb(2:)) !Remove lattice symbol
+      call get_words(spg_symb,sgen,n)
+
+      List_Symb(1:n)=sgen(1:n)
+
       m=0
       do i=1,n
         if(sgen(i)(1:1) == "1") cycle
@@ -200,23 +302,33 @@
         end do
       end do
 
-      do i=2,SpG%Multip
+      !write(*,"(10a)") " => Final Symbol to be analysed: ",(trim(sgen(j))//" ",j=1,ngen)
+
+
+      op_symb(1)="1"
+      do i=2,e_Numops
          s=SpG%Op(i)%Mat(1:3,1:3)
          t=SpG%Op(i)%Mat(1:3,4)
-         op_symb = Symmetry_Symbol(s,t)
-         j=index(op_symb," ")
-         symbg=op_symb(1:j-1)
-         do j=1,ngen
-           if(index(symbg,trim(sgen(j))) /= 0  .and. .not. done(j)) then
-             point_op(j)=i
-             done(j)=.true.
-             exit
-           end if
-         end do
-         if(all(done(1:ngen))) exit
+         op_symb(i) = Symmetry_Symbol(s,t)
+         !write(*,"(i5,a)") i,"   "//trim(op_symb(i))
       end do
+      done=.false.
+
+      do j=1,ngen
+        do i=2,e_Numops
+          !write(*,"(a)") trim(sgen(j))//"   "//trim(op_symb(i))
+          if(done(i)) cycle
+          if(index(op_symb(i),trim(sgen(j))) /= 0 ) then
+            point_op(j)=i
+            done(i)=.true.
+            exit
+          end if
+        end do
+      end do
+
       do j=1,ngen
         i=point_op(j)
+        !write(*,"(i5,a)") i,"  "//sgen(j)//"   "//trim(SpG%Symb_Op(i))
         gen(j)=SpG%Symb_Op(i)
       end do
 
@@ -242,7 +354,7 @@
 
       implicit none
 
-      integer                         :: nkv,i,maxorder,ngen !,j,k,m,multip
+      integer                         :: nkv,i,j,n,maxorder,ngen !,j,k,m,multip
       character(len=50)               :: str !,forma
       real(kind=cp), dimension(3,12)  :: kv
       type(Group_k_Type),dimension(12):: Gk
@@ -250,7 +362,9 @@
       type(SpG_Type),dimension(12)    :: Grpk
       logical                         :: ext=.true.
       integer,           dimension(:),allocatable :: order,point_op
-      character(len=40), dimension(:),allocatable :: gen
+      character(len=60), dimension(:),allocatable :: gen
+      character(len=4),  dimension(6) :: list_symb_or
+      character(len=4),  dimension(6) :: list_symb_gk
 
       do
         write(*,"(a)",advance="no") " => Enter the number (or the symbol) of a space group: "
@@ -283,13 +397,32 @@
         call Write_SpaceGroup_Info(intSpG)
         call get_Order(intSpG, maxorder, order)
         if(allocated(point_op)) deallocate(point_op)
-        allocate(point_op(intSpG%multip))
+        allocate(point_op(2*intSpG%numops))
         if(allocated(gen)) deallocate(gen)
-        allocate(gen(intSpG%multip))
-        call Get_Generators_From_SpGSymbol(intSpG,gen,point_op,ngen)
+        allocate(gen(2*intSpG%numops))
+        !call Get_Generators_From_SpGSymbol(intSpG,gen,point_op,ngen)
+
+        call Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen,list_symb_or)
+        n=0
+        do i=1,ngen
+           do j=2,2*intSpG%Numops
+             if(trim(gen(i)) == trim(intSpG%Symb_Op(j))) then
+              n=n+1
+              point_op(n)=j
+              list_symb_gk(n)=list_symb_or(i)
+              exit
+             end if
+           end do
+        end do
+        ngen=n
+        do i=1,ngen
+          j=point_op(i)
+          gen(i)=intSpG%Symb_Op(j)
+        end do
+
         write(*,"(//a,i2)")  "  VISIBLE GENERATORS OF SPACE GROUP: ",ngen
         do i=1,ngen
-          write(*,"(i4,a,t70,i3)") i,"  "//gen(i)//"  "//trim(intSpG%Symb_Op(point_op(i))),point_op(i)
+          write(*,"(i4,a,t90,i3)") i,"  "//list_symb_gk(i)//"  "//gen(i)//"  "//trim(intSpG%Symb_Op(point_op(i))),point_op(i)
         end do
         write(*,"(//a,i2)")  "  MAXIMUM ORDER OF INTERSECTION SPACE GROUP: ", maxorder
         do i=1,intSpG%multip

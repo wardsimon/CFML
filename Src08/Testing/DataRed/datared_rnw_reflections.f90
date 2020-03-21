@@ -642,14 +642,16 @@
 
     End Subroutine get_integer_indices
 
-    Subroutine Write_Reflections(R,cond,kinfo,lun)
+    Subroutine Write_Reflections(R,cond,kinfo,lun,gen)
       type(Reflection_List),  intent(in) :: R
       type(Conditions_Type),  intent(in) :: cond
       type(kvect_Info_Type),  intent(in) :: kinfo
       integer, optional,      intent(in) :: lun
+      logical, optional,      intent(in) :: gen
 
       integer :: iou,i,j,n,mr    !123456789012345678901234567890123456789
-      character(len=39) :: fm ="(i7, i4,a,3f9.4,2f12.3,f14.6,3f8.4,2i8)"
+      character(len=41) :: fm ="(i7, i4,a,3f9.4,2f12.3,f14.6,3f8.4,2i8,a)"
+      character(len=41) :: fm0 ="(i7, i4,a,3f9.4,2f12.3,f14.6,a)"
       character(len=:),allocatable :: line
       real(kind=cp), dimension(3)  :: hr
 
@@ -658,9 +660,11 @@
       Select Case(kinfo%nk)
         case(0)
           line="List of read reflections"
+          if(present(gen)) line="List of generated reflections"
         case default
           if(cond%hkl_type == 11) then
              line="List of read reflections with real reciprocal space indices"
+             if(present(gen)) line="List of generated reflections with real reciprocal space indices"
           else
              line="List of read reflections with extended integer indices"
           end if
@@ -671,8 +675,9 @@
 
       n=size(R%Ref(1)%h)
       write(unit=fm(5:5),fmt="(i1)") n
+      write(unit=fm0(5:5),fmt="(i1)") n
       mr=0
-      if(cond%hkl_type == 11) then
+      if(cond%hkl_type == 11 .or. present(gen)) then
         Select Case(kinfo%nk)
           case(0)         !123456789012345678901234567890123456789
             line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
@@ -684,19 +689,25 @@
             line=" NumRef   h   k   l   m   n   p       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
         End Select
         write(unit=iou,fmt="(a)") line
-        do i=1,R%nref
-          write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s
-        end do
+        if(present(gen)) then
+           do i=1,R%nref
+             write(unit=iou,fmt=fm0) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s,"   "//inf(R%Ref(i)%imag)
+           end do
+        else
+           do i=1,R%nref
+             write(unit=iou,fmt=fm) i,R%Ref(i)%h,"  ",R%Ref(i)%hr,R%Ref(i)%intens,R%Ref(i)%sigma,R%Ref(i)%s
+           end do
+        end if
       else
         Select Case(kinfo%nk)
           case(0)         !123456789012345678901234567890123456789
-            line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"
+            line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)       Character"
           case(1)
-            line=" NumRef   h   k   l   m       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv       Character"
           case(2)
-            line=" NumRef   h   k   l   m   n       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m   n       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv       Character"
           case(3)
-            line=" NumRef   h   k   l   m   n   p       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv"
+            line=" NumRef   h   k   l   m   n   p       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)    Equivalent-Kv       Character"
         End Select
         write(unit=iou,fmt="(a)") line
         do i=1,R%nref

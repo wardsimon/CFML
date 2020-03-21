@@ -33,6 +33,7 @@
       logical :: magnetic     = .false.
       logical :: mag_only     = .false.
       logical :: print_all    = .false.
+      logical :: split_mag    = .false.
       character(len=:), allocatable :: title,forma
       character(len=:), allocatable :: filhkl
       character(len=:), allocatable :: fileout
@@ -67,6 +68,9 @@
       integer                                 :: NRef=0 ! Number of Reflections
       type(ObsRef), dimension(:), allocatable :: Ref    ! Reflection List
     End Type Reflection_List
+
+    character(len=*),parameter,dimension(0:1),public :: warn_mess=["                      ", " <- Dubious reflection"]
+    character(len=*),parameter,dimension(0:2),public :: inf=["Nuclear  Reflection", "Magnetic Reflection","Mixed    Reflection"]
 
     contains
 
@@ -149,6 +153,9 @@
             Case("STATISTICS")
               cond%statistics=.true.
 
+            Case("SPLIT_MAG")
+              cond%split_mag=.true.
+
             Case("MAGNETIC")
               cond%magnetic=.true.
 
@@ -223,6 +230,7 @@
        write(unit=iou,fmt="(a,a)")   " Input        Control  file: ", trim(cfl%fname)
        write(unit=iou,fmt="(a,a)")   " Input    Reflections  file: ", trim(cond%filhkl)
        write(unit=iou,fmt="(a,a)")   " Averaged Reflections  file: ", trim(cond%fileout)//".int"
+       if(cond%split_mag) write(unit=iou,fmt="(a,a)")   " Averaged Reflections  file: ", trim(cond%fileout)//"_mag.int"
        write(unit=iou,fmt="(a,a)")   " Rejected Reflections  file: ", trim(cond%fileout)//".rej"
        write(unit=iou,fmt="(a,a,/)") " General       Output  file: ", trim(cond%fileout)//".out"
 

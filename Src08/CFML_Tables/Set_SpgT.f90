@@ -3758,7 +3758,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       spgr_info(373:402)= (/                                           &
            spgr_info_type( 66,"C C C M     ","-C 2 2c         ", 3,10, (/ 0, 0, 0,  6, 12, 12/),"     ") , &
            spgr_info_type( 66,"A M A A     ","-A 2a 2         ", 3,10, (/ 0, 0, 0, 12,  6, 12/),"cab  ") , &
-           spgr_info_type( 66,"B A M B     ","-B 2b 2b        ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"bca  ") , &
+           spgr_info_type( 66,"B A M B     ","-B 2b -2a       ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"bca  ") , &
            spgr_info_type( 67,"C M M A     ","-C 2b 2         ", 3,10, (/ 0, 0, 0, 12,  6, 12/),"     ") , &
            spgr_info_type( 67,"C M M B     ","-C 2b 2b        ", 3,10, (/ 0, 0, 0,  6, 12, 12/),"ba-c ") , &
            spgr_info_type( 67,"A B M M     ","-A 2c 2c        ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"cab  ") , &
@@ -3847,7 +3847,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
            spgr_info_type(115,"P -4 M 2    ","P -4 -2         ", 5,17, (/ 0, 0, 0, 12, 12, 12/),"     ") , &
            spgr_info_type(116,"P -4 C 2    ","P -4 -2c        ", 5,17, (/ 0, 0, 0, 12, 24,  6/),"     ") , &
            spgr_info_type(117,"P -4 B 2    ","P -4 -2ab       ", 5,17, (/ 0, 0, 0, 12, 12, 12/),"     ") , &
-           spgr_info_type(117,"C -4 B 2    ","C -4 2b         ", 5,17, (/ 0, 0, 0, 12, 12, 12/),"     ") , &
+           spgr_info_type(117,"C -4 D 2    ","C -4 2b         ", 5,17, (/ 0, 0, 0, 12, 12, 12/),"     ") , &
            spgr_info_type(118,"P -4 N 2    ","P -4 -2n        ", 5,17, (/ 0, 0, 0, 12, 12,  6/),"     ") , &
            spgr_info_type(119,"I -4 M 2    ","I -4 -2         ", 5,17, (/ 0, 0, 0, 12, 12,  6/),"     ") , &
            spgr_info_type(120,"I -4 C 2    ","I -4 -2c        ", 5,17, (/ 0, 0, 0, 12, 12,  6/),"     ") , &
@@ -3913,7 +3913,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
            spgr_info_type(160,"R 3 M       ","R 3 -2""        ", 9,22, (/ 0, 0, 0, 16, 16,  8/),"H    ") , &
            spgr_info_type(160,"R 3 M:R     ","P 3* -2         ", 7,22, (/ 0, 0, 0, 24, 24, 24/),"R    ") , &
            spgr_info_type(161,"R 3 C       ","R 3 -2""c       ", 9,22, (/ 0, 0, 0, 16, 16,  4/),"H    ") , &
-           spgr_info_type(161,"R 3 C:R     ","P 3* -2n        ", 7,22, (/ 0, 0, 0, 24, 24, 24/),"R    ") , &
+           spgr_info_type(161,"R 3 N:R     ","P 3* -2n        ", 7,22, (/ 0, 0, 0, 24, 24, 24/),"R    ") , &
            spgr_info_type(162,"P -3 1 M    ","-P 3 2          ",10,26, (/ 0, 0, 0, 16, 12, 12/),"     ") , &
            spgr_info_type(163,"P -3 1 C    ","-P 3 2c         ",10,26, (/ 0, 0, 0, 16, 16,  6/),"     ") , &
            spgr_info_type(164,"P -3 M 1    ","-P 3 2""        ", 9,23, (/ 0, 0, 0, 16,  8, 24/),"     ") , &
@@ -3921,7 +3921,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
            spgr_info_type(166,"R -3 M      ","-R 3 2""        ", 9,23, (/ 0, 0, 0, 16, 16,  4/),"H    ") , &
            spgr_info_type(166,"R -3 M:R    ","-P 3* 2         ", 7,23, (/ 0, 0, 0, 24, 24, 12/),"R    ") , &
            spgr_info_type(167,"R -3 C      ","-R 3 2""c       ", 9,23, (/ 0, 0, 0, 16, 16,  2/),"H    ") , &
-           spgr_info_type(167,"R -3 C:R    ","-P 3* 2n        ", 7,23, (/ 6, 6, 6, 30, 30, 18/),"R    ") /)
+           spgr_info_type(167,"R -3 N:R    ","-P 3* 2n        ", 7,23, (/ 6, 6, 6, 30, 30, 18/),"R    ") /)
 
       !---- Hexagonal ----!
       spgr_info(527:553)= (/                                           &

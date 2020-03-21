@@ -145,7 +145,6 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
                      cycle
                   else
                      mp=1   !pure magnetic
-                     indtyp(i)=mp
                   end if
                else
                   cycle
@@ -238,23 +237,25 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
       do i=1,num_ref
          allocate(reflex(i)%h(Dd)) !needed in f95
          reflex(i)%h      = hkl(:,i)
-         kk               = abs(hkl(4:3+nk,i))
-         reflex(i)%pcoeff = 0 !Fundamental reflections point to the Fourier coefficient [00...]
-         do_n: do n=1,kinfo%nq
-            do k=1,nk
-               if (equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
-                  reflex(i)%pcoeff=n
-                  exit do_n
-               end if
-            end do
-         end do do_n
+         if(dd > 3) then
+           kk               = abs(hkl(4:3+nk,i))
+           reflex(i)%pcoeff = 0 !Fundamental reflections point to the Fourier coefficient [00...]
+           do_n: do n=1,kinfo%nq
+              do k=1,nk
+                 if (equal_vector(kk(1:nk),abs(kinfo%q_coeff(1:nk,n))))  then
+                    reflex(i)%pcoeff=n
+                    exit do_n
+                 end if
+              end do
+           end do do_n
+         end if
          reflex(i)%s      = sv(i)
          if (present(SpG)) then
             reflex(i)%mult = h_mult(reflex(i)%h,SpG,Frd)
-        else
+         else
            reflex(i)%mult = 1
-        end if
-        reflex(i)%imag = indtyp(i)
+         end if
+         reflex(i)%imag = indtyp(i)
       end do
    End Subroutine Gener_Reflections
 

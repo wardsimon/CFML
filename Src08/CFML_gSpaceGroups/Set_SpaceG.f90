@@ -682,7 +682,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
           D=3+nmod
           Dd=D+1
           m=igroup_nops(num)* max(iclass_ncentering(iclass),1)
-          write(*,"(2(a,i4))") " => Multiplicity: ",m,"   3+d = ",D
+          !write(*,"(2(a,i4))") " => Multiplicity: ",m,"   3+d = ",D
           call Allocate_SpaceGroup(Dd,m,SpaceG)  !Allocate operators, Centre_coord,etc
 
           SpaceG%standard_setting=.true.
@@ -734,7 +734,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
 
           Select Type (Grp => SpaceG)
             type is (SuperSpaceGroup_Type)
-                write(*,"(a,i3)") " => Allocating SuperSpace for : ",nmod
+                !write(*,"(a,i3)") " => Allocating SuperSpace for : ",nmod
                 Grp%nk=nmod                              !(d=1,2,3, ...) number of q-vectors
                 if(Allocated(Grp%kv)) deallocate(Grp%kv)
                 if(Allocated(Grp%sintlim)) deallocate(Grp%sintlim)
@@ -748,7 +748,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
                 !the components q_coeff(nk,nq) cannot be allocated until experimental data are read
           End Select
 
-          write(*,"(a,i3)") " => Allocating Lattice centring vectors : ",SpaceG%Num_Lat
+          !write(*,"(a,i3)") " => Allocating Lattice centring vectors : ",SpaceG%Num_Lat
           if(SpaceG%Num_Lat > 0) then
             Allocate(SpaceG%Lat_tr(D,SpaceG%Num_Lat))  !This is not allocated in Allocate_SpaceGroup
             SpaceG%Lat_tr=0_LI//1_LI
@@ -761,7 +761,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
              SpaceG%Symb_Op(i)=Get_Symb_from_Rational_Mat(SpaceG%Op(i)%Mat,StrCode=xyz_typ) !The data base has no magnetic components
           end do
 
-          write(*,"(a,i4)") " => Loaded operators : ",SpaceG%NumOps
+          !write(*,"(a,i4)") " => Loaded operators : ",SpaceG%NumOps
           !Look for a centre, or anticentre, of symmetry
 
           allocate(Inv(D,D),transla%Mat(Dd,Dd))
@@ -814,7 +814,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
              Err_CFML%Ierr=1
              Err_CFML%Msg="Error extending the symmetry operators for a centred cell"
           end if
-          write(*,"(a,i4)") " => Extended operators to : ",SpaceG%Multip
+          !write(*,"(a,i4)") " => Extended operators to : ",SpaceG%Multip
           !Adjust ssg%NumOps to remove the centre of symmetry if Exist
           if(SpaceG%Centred == 2 .or. SpaceG%Centred == 0) SpaceG%NumOps=SpaceG%NumOps/2
 
@@ -827,7 +827,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
           end if
           if(.not. present(keepdb)) then
              call Deallocate_SSG_DBase()
-             write(*,"(a)") " => Deallocated SSG_DBase"
+             !write(*,"(a)") " => Deallocated SSG_DBase"
           end if
           !Get the symmetry symbols
           do i=1,SpaceG%Multip
@@ -852,17 +852,13 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       character(len=*),  dimension(:), optional, intent(in ) :: Gen
 
       !---- Local Variables ----!
-      integer            :: i,n_gen, n_it, d, ier
-      integer            :: n_laue, n_pg !, nfin
+      integer                                      :: i,n_gen, n_it, d, ier
+      integer                                      :: n_laue, n_pg !, nfin
       character(len=40), dimension(:), allocatable :: l_gen
       character(len=20)                            :: str_HM, str_HM_std, str_Hall, str_CHM
       character(len=5)                             :: car
       character(len=256)                           :: gList
-      !real(kind=cp), dimension(3)                  :: co
-
-      type(rational), dimension(3)     :: ta,tb,tc,ti,tr1,tr2
-      !type(rational), dimension(3,3)   :: P,Mp,Mc,M
-      !type(rational), dimension(3,3,6) :: A
+      type(rational), dimension(3)                 :: ta,tb,tc,ti,tr1,tr2
 
       logical :: by_Gen=.false., by_Hall=.false., ok1=.false., ok2=.false., ok3=.false.
 
@@ -998,7 +994,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
                exit
             end do
          end if
-         if (len_trim(gList) == 0) then
+         if (len_trim(gList) == 0) then   !This is the case when we provide a non-standard symbol (e.g. P b n m instead of P n m a)
             call Get_Generators(str_hall,l_gen,n_gen)
             if (Err_CFML%Ierr /= 0) return
             by_Hall=.true.
@@ -1059,7 +1055,9 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
           call set_Shubnikov_info()
           SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
         end if
-        if (.not. by_Gen) then
+        if(by_Hall) then
+           SpaceG%spg_symb = str(1:1)//l_case(str(2:))
+        else if (.not. by_Gen) then
            str_HM = Get_HM_Standard(SpaceG%numspg)
            SpaceG%spg_symb = str_HM(1:1)//l_case(str_HM(2:))
            !if(n_it > 0 .and. len_trim(SpaceG%spg_symb) == 0) SpaceG%spg_symb=trim(spgr_info(n_it)%hm) !str_HM(1:1)//l_case(str_HM(2:))

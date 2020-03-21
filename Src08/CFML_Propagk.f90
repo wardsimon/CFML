@@ -431,9 +431,25 @@
 
        !---- Local Variables ----!
        character(len=50),dimension(Gk%G0%multip) :: gen
-       integer                                   :: i, j, ng, ngen
+       integer                                   :: i, j, ng, ngen,e_numops,e0_numops
+
 
        ng=Gk%G0%numops
+
+       e_numops=ng
+       e0_numops=Gk%ngk
+
+       if(Gk%G0%centred /= 1) then
+          e_numops=2*e_numops
+          e0_numops=2*e0_numops
+       end if
+
+       !Check first if the extended little group is equal to the parent group
+       if(e0_numops == e_numops) then
+          SPGk=Gk%G0
+          return
+       end if
+
        if(Gk%G0%centred /= 1) ng=ng+1
        Ngen=0
        do i=2,Gk%ngk
@@ -480,7 +496,7 @@
              gen(ngen)="x+2/3,y+1/3,z+1/3"
        End Select
        Call Set_SpaceGroup(" ",SPGk,Ngen,Gen)
-       return
+
     End Subroutine Set_Gk
 
     !!----

@@ -969,7 +969,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if(ngen > 0) then
-           write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
+           !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
            call Set_SpaceGroup("  ",SpG,ngen,gen)
        end if
 
@@ -1130,7 +1130,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if(ngen > 0) then
-           write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
+           !write(*,"(10a)") (trim(gen(i))//";", i=1,ngen)
            call Set_SpaceGroup("  ",SpG,ngen,gen)
        end if
 

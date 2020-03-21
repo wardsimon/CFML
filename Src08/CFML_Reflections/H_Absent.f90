@@ -129,13 +129,14 @@ SubModule (CFML_Reflections) RFL_Absences_Info
       logical,               intent (in) :: mag
       integer, dimension(4)              :: info
 
-      info=0  !Reflection allowed (lattice, Nuclear, Magnetic, Ref-character)
+      info=0  ! Reflection allowed (lattice, Nuclear, Magnetic, Ref-character)
               ! For the three initial componentes 0:allowed, 1:absent
               ! Ref-character Info(4): 0:pure nuclear, 1:pure magnetic, 2:nuclear+magnetic
 
       if(SpG%Num_Lat > 0) then
         if (H_Latt_Absent(h,SpG%Lat_tr,SpG%Num_Lat)) then
           info(1:3)=1  !lattice absence and, as a consequence, nuclear and magnetic absence
+          info(4)=2
           return
         end if
       end if
